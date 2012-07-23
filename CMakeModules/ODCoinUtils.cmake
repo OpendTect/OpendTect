@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODCoinUtils.cmake,v 1.14 2012-04-12 14:34:26 cvskris Exp $
+#	RCS :		$Id: ODCoinUtils.cmake,v 1.15 2012-07-23 11:37:07 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(COINDIR "" CACHE PATH "COIN Location" )
@@ -49,7 +49,7 @@ MACRO(OD_SETUP_COIN)
 	    ADD_DEFINITIONS( ${OD_EXTRA_COINFLAGS} )
 	ENDIF( OD_EXTRA_COINFLAGS )
 
-	LIST(APPEND OD_MODULE_INCLUDEPATH ${COINDIR}/include )
+	LIST(APPEND OD_MODULE_INCLUDESYSPATH ${COINDIR}/include )
 	SET(OD_COIN_LIBS ${COINLIB} ${SOQTLIB} ${OPENGL_gl_LIBRARY} )
     ENDIF()
 
