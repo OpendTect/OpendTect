@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.17 2012-05-22 10:07:00 cvsnageswara Exp $
+#	RCS :		$Id: ODQtUtils.cmake,v 1.18 2012-07-23 11:29:54 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(QTDIR "" CACHE PATH "QT Location" )
@@ -21,7 +21,7 @@ MACRO(OD_SETUP_QT)
     include(${QT_USE_FILE})
 
     IF(${OD_USEQT} MATCHES "Core" )
-	LIST(APPEND OD_MODULE_INCLUDEPATH
+	LIST(APPEND OD_MODULE_INCLUDESYSPATH
             ${QT_QTNETWORK_INCLUDE_DIR}
             ${QT_QTCORE_INCLUDE_DIR} ${QTDIR}/include )
         SET(OD_QT_LIBS ${QT_QTCORE_LIBRARY_RELEASE}
@@ -29,21 +29,21 @@ MACRO(OD_SETUP_QT)
     ENDIF()
 
     IF(${OD_USEQT} MATCHES "Sql" )
-	LIST(APPEND OD_MODULE_INCLUDEPATH
+	LIST(APPEND OD_MODULE_INCLUDESYSPATH
             ${QT_QTSQL_INCLUDE_DIR}
             ${QTDIR}/include )
         SET(OD_QT_LIBS ${QT_QTSQL_LIBRARY_RELEASE})
     ENDIF()
 
     IF(${OD_USEQT} MATCHES "Gui")
-	LIST(APPEND OD_MODULE_INCLUDEPATH
+	LIST(APPEND OD_MODULE_INCLUDESYSPATH
             ${QT_QTCORE_INCLUDE_DIR}
             ${QT_QTGUI_INCLUDE_DIR} ${QTDIR}/include )
         SET(OD_QT_LIBS ${QT_QTGUI_LIBRARY_RELEASE})
     ENDIF()
 
     IF(${OD_USEQT} MATCHES "OpenGL")
-	LIST(APPEND OD_MODULE_INCLUDEPATH
+	LIST(APPEND OD_MODULE_INCLUDESYSPATH
             ${QT_QTOPENGL_INCLUDE_DIR} ${QTDIR}/include )
         SET(OD_QT_LIBS ${QT_QTOPENGL_LIBRARY_RELEASE})
     ENDIF()

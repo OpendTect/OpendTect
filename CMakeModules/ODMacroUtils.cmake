@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.62 2012-07-12 14:07:52 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.63 2012-07-23 11:29:54 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -46,6 +46,8 @@
 #
 # OD_MODULE_INCLUDEPATH		: The includepath needed to compile the source-
 #				  files of the module.
+# OD_MODULE_INCLUDESYSPATH	: The system includepath needed to compile the
+#				  source- files of the module.
 # OD_MODULE_RUNTIMEPATH		: All directories that are needed at runtime
 # OD_MODULE_INTERNAL_LIBS	: All OD libraries needed for the module
 # OD_MODULE_EXTERNAL_LIBS	: All external libraries needed for the module
@@ -339,7 +341,8 @@ ENDIF( OD_USEPROG )
 
 
 #Set current include_path
-INCLUDE_DIRECTORIES( ${OD_MODULE_INCLUDEPATH} )
+include_directories( ${OD_MODULE_INCLUDEPATH} )
+include_directories( SYSTEM ${OD_MODULE_INCLUDESYSPATH} )
 
 ENDMACRO(OD_INIT_MODULE)
 
