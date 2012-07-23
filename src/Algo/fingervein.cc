@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.8 2012-07-23 15:16:59 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.9 2012-07-23 18:56:54 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
@@ -38,7 +38,7 @@ FingerVein::FingerVein( const Array2D<float>& input, float threshold,
 
 bool FingerVein::compute( bool domerge, TaskRunner* tr )
 {
-    mDeclareAndTryAlloc( Array2DImpl<float>*, score,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, score,
 	    Array2DImpl<float> (input_.info()) );
     if ( !score ) return false;
 
@@ -46,7 +46,7 @@ bool FingerVein::compute( bool domerge, TaskRunner* tr )
 	return false;
 
     const od_int64 datasz = input_.info().getTotalSz();
-    mDeclareAndTryAlloc( Array2DImpl<float>*, tmparr,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, tmparr,
 	    Array2DImpl<float> (input_.info()) );
     if ( !tmparr ) return false;
     tmparr->copyFrom( *score );
@@ -66,9 +66,9 @@ bool FingerVein::compute( bool domerge, TaskRunner* tr )
     }
     const float md_score = rc.median(); //use for added condition, not now*/
 
-    mDeclareAndTryAlloc( Array2DImpl<bool>*, score_binary,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, score_binary,
 	    Array2DImpl<bool> (input_.info()) );
-    mDeclareAndTryAlloc( Array2DImpl<bool>*, input_hard_threshold,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, input_hard_threshold,
 	    Array2DImpl<bool> (input_.info()) );
     if ( !score_binary || !input_hard_threshold ) 
 	return false;
@@ -139,7 +139,7 @@ void FingerVein::removeSmallComponents( Array2D<bool>& data )
 
 void FingerVein::thinning( Array2D<bool>& res )
 {
-    mDeclareAndTryAlloc( Array2DImpl<bool>*, tmp,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, tmp,
 	    Array2DImpl<bool> (res.info()) );
     if ( !tmp ) return;
 
@@ -210,9 +210,9 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
     const int ymaxidx = inputsz1 - 1; 
     const int winsize = 4*sigma;
     const int sidesize = 2*winsize+1;
-    mDeclareAndTryAlloc( Array2DImpl<float>*, xtmp,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, xtmp,
 	    Array2DImpl<float> (sidesize,sidesize) );
-    mDeclareAndTryAlloc( Array2DImpl<float>*, ytmp,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, ytmp,
 	    Array2DImpl<float> (sidesize,sidesize) );
     if ( !xtmp || !ytmp ) 
 	return false;
@@ -226,17 +226,17 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 	}
     }
 
-    mDeclareAndTryAlloc( Array2DImpl<float>*, h,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, h,
 	    Array2DImpl<float> (sidesize,sidesize) );
-    mDeclareAndTryAlloc( Array2DImpl<float>*, hx,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, hx,
 	    Array2DImpl<float> (sidesize,sidesize) );
-    mDeclareAndTryAlloc( Array2DImpl<float>*, hy,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, hy,
 	    Array2DImpl<float> (sidesize,sidesize) );
-    mDeclareAndTryAlloc( Array2DImpl<float>*, hxx,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, hxx,
 	    Array2DImpl<float> (sidesize,sidesize) );
-    mDeclareAndTryAlloc( Array2DImpl<float>*, hxy,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, hxy,
 	    Array2DImpl<float> (sidesize,sidesize) );
-    mDeclareAndTryAlloc( Array2DImpl<float>*, hyy,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, hyy,
 	    Array2DImpl<float> (sidesize,sidesize) );
     if ( !h || !hx || !hy || !hxx || !hxy | !hyy )
 	return false;
@@ -269,17 +269,17 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 	}
     }
 
-    mDeclareAndTryAlloc( Array2DImpl<float>*, ftmp,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, ftmp,
 	    Array2DImpl<float> (inputsz0+sidesize-1,inputsz1+sidesize-1) );
-    mDeclareAndTryAlloc( Array2DImpl<float>*, fx,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, fx,
 	    Array2DImpl<float> (inputsz0,inputsz1) );
-    mDeclareAndTryAlloc( Array2DImpl<float>*, fy,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, fy,
 	    Array2DImpl<float> (inputsz0,inputsz1) );
-    mDeclareAndTryAlloc( Array2DImpl<float>*, fxx,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, fxx,
 	    Array2DImpl<float> (inputsz0,inputsz1) );
-    mDeclareAndTryAlloc( Array2DImpl<float>*, fxy,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, fxy,
 	    Array2DImpl<float> (inputsz0,inputsz1) );
-    mDeclareAndTryAlloc( Array2DImpl<float>*, fyy,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, fyy,
 	    Array2DImpl<float> (inputsz0,inputsz1) );
     if ( !fx || !fy || !fxx || !fxy | !fyy )
 	return false;
@@ -355,7 +355,7 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 	angle_set_sin2 += sinangle * sinangle;
     }
 
-    mDeclareAndTryAlloc( Array3DImpl<float>*, k,
+    mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, k,
 	    Array3DImpl<float> (inputsz0,inputsz1,nrangles) );
     if ( !k )
 	return false;
@@ -379,16 +379,16 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 	}
     }
     
-    mDeclareAndTryAlloc( Array2DImpl<float>*, vt,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, vt,
 	    Array2DImpl<float> (inputsz0,inputsz1) );
     if ( !vt ) return false;
     vt->setAll(0);
 
-    mDeclareAndTryAlloc( Array2DImpl<int>*, xstep,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<int> >, xstep,
 	    Array2DImpl<int> (nrangles,2) );
     if ( !xstep ) return false;
 
-    mDeclareAndTryAlloc( Array2DImpl<int>*, ystep,
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<int> >, ystep,
 	    Array2DImpl<int> (nrangles,2) );
     if ( !ystep ) return false;
 
