@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui3dindirectviewer.cc,v 1.6 2012-05-03 07:37:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui3dindirectviewer.cc,v 1.7 2012-07-23 12:58:00 cvsjaap Exp $";
 
 
 #include "ui3dindirectviewer.h"
@@ -173,8 +173,8 @@ class OsgIndirectViewWidget : public T
 {
     typedef 	QWidget inherited;
 public:
-    		OsgIndirectViewWidget(T* parent)
-		    : QWidget( parent )
+    		OsgIndirectViewWidget(T* parnt)
+		    : QWidget( parnt )
 		    , forwardKeyEvents_( false )
 		{}
 
@@ -299,82 +299,82 @@ void OsgIndirectViewWidget<T>::processDeferredEvents()
 
     while (!deferredEventQueueCopy.isEmpty())
     {
-        QEvent event(deferredEventQueueCopy.dequeue());
-        QWidget::event(&event);
+        QEvent ev(deferredEventQueueCopy.dequeue());
+        QWidget::event(&ev);
     }
 }
 
 
 template <class T> inline
-void OsgIndirectViewWidget<T>::setKeyboardModifiers( QInputEvent* event )
+void OsgIndirectViewWidget<T>::setKeyboardModifiers( QInputEvent* qie )
 {
-    int modkey = event->modifiers() &
+    int modkey = qie->modifiers() &
 	(Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
-    unsigned int mask = 0;
+    unsigned int modkeymask = 0;
     if ( modkey & Qt::ShiftModifier )
-	mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
+	modkeymask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
     if ( modkey & Qt::ControlModifier )
-	mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
+	modkeymask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
     if ( modkey & Qt::AltModifier )
-	mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
-    gw_->getEventQueue()->getCurrentEventState()->setModKeyMask( mask );
+	modkeymask |= osgGA::GUIEventAdapter::MODKEY_ALT;
+    gw_->getEventQueue()->getCurrentEventState()->setModKeyMask( modkeymask );
 }
 
 
 template <class T> inline
-void OsgIndirectViewWidget<T>::resizeEvent( QResizeEvent* event )
+void OsgIndirectViewWidget<T>::resizeEvent( QResizeEvent* qre )
 {
-    const QSize& size = event->size();
-    gw_->resized( this->x(), this->y(), size.width(), size.height() );
-    gw_->getEventQueue()->windowResize( this->x(), this->y(), size.width(), size.height() );
+    const QSize& qsize = qre->size();
+    gw_->resized( this->x(), this->y(), qsize.width(), qsize.height() );
+    gw_->getEventQueue()->windowResize( this->x(), this->y(), qsize.width(), qsize.height() );
     gw_->requestRedraw();
 }
 
 
 template <class T> inline
-void OsgIndirectViewWidget<T>::moveEvent( QMoveEvent* event )
+void OsgIndirectViewWidget<T>::moveEvent( QMoveEvent* qme )
 {
-    const QPoint& pos = event->pos();
-    gw_->resized( pos.x(), pos.y(), this->width(), this->height() );
-    gw_->getEventQueue()->windowResize( pos.x(), pos.y(), this->width(), this->height() );
+    const QPoint& qpos = qme->pos();
+    gw_->resized( qpos.x(), qpos.y(), this->width(), this->height() );
+    gw_->getEventQueue()->windowResize( qpos.x(), qpos.y(), this->width(), this->height() );
 }
 
 
 template <class T> inline
-void OsgIndirectViewWidget<T>::keyPressEvent( QKeyEvent* event )
+void OsgIndirectViewWidget<T>::keyPressEvent( QKeyEvent* qke )
 {
-    setKeyboardModifiers( event );
-    int value = s_QtKeyboardMap.remapKey( event );
+    setKeyboardModifiers( qke );
+    int value = s_QtKeyboardMap.remapKey( qke );
     gw_->getEventQueue()->keyPress( value );
 
     // this passes the event to the regular Qt key event processing,
     // among others, it closes popup windows on ESC and forwards the event
     // to the parent widgets
     if( forwardKeyEvents_ )
-        inherited::keyPressEvent( event );
+        inherited::keyPressEvent( qke );
 }
 
 
 template <class T> inline
-void OsgIndirectViewWidget<T>::keyReleaseEvent( QKeyEvent* event )
+void OsgIndirectViewWidget<T>::keyReleaseEvent( QKeyEvent* qke )
 {
-    setKeyboardModifiers( event );
+    setKeyboardModifiers( qke );
     gw_->getEventQueue()->keyRelease(
-	(osgGA::GUIEventAdapter::KeySymbol) *(event->text().toAscii().data()) );
+	(osgGA::GUIEventAdapter::KeySymbol) *(qke->text().toAscii().data()) );
 
     // this passes the event to the regular Qt key event processing,
     // among others, it closes popup windows on ESC and forwards the event to
     // the parent widgets
     if( forwardKeyEvents_ )
-        inherited::keyReleaseEvent( event );
+        inherited::keyReleaseEvent( qke );
 }
 
 
 template <class T> inline
-void OsgIndirectViewWidget<T>::mousePressEvent( QMouseEvent* event )
+void OsgIndirectViewWidget<T>::mousePressEvent( QMouseEvent* qme )
 {
     int button = 0;
-    switch ( event->button() )
+    switch ( qme->button() )
     {
         case Qt::LeftButton: button = 1; break;
         case Qt::MidButton: button = 2; break;
@@ -382,16 +382,16 @@ void OsgIndirectViewWidget<T>::mousePressEvent( QMouseEvent* event )
         case Qt::NoButton: button = 0; break;
         default: button = 0; break;
     }
-    setKeyboardModifiers( event );
-    gw_->getEventQueue()->mouseButtonPress( event->x(), event->y(), button );
+    setKeyboardModifiers( qme );
+    gw_->getEventQueue()->mouseButtonPress( qme->x(), qme->y(), button );
 }
 
 
 template <class T> inline
-void OsgIndirectViewWidget<T>::mouseReleaseEvent( QMouseEvent* event )
+void OsgIndirectViewWidget<T>::mouseReleaseEvent( QMouseEvent* qme )
 {
     int button = 0;
-    switch ( event->button() )
+    switch ( qme->button() )
     {
         case Qt::LeftButton: button = 1; break;
         case Qt::MidButton: button = 2; break;
@@ -399,16 +399,16 @@ void OsgIndirectViewWidget<T>::mouseReleaseEvent( QMouseEvent* event )
         case Qt::NoButton: button = 0; break;
         default: button = 0; break;
     }
-    setKeyboardModifiers( event );
-    gw_->getEventQueue()->mouseButtonRelease( event->x(), event->y(), button );
+    setKeyboardModifiers( qme );
+    gw_->getEventQueue()->mouseButtonRelease( qme->x(), qme->y(), button );
 }
 
 
 template <class T> inline
-void OsgIndirectViewWidget<T>::mouseDoubleClickEvent( QMouseEvent* event )
+void OsgIndirectViewWidget<T>::mouseDoubleClickEvent( QMouseEvent* qme )
 {
     int button = 0;
-    switch ( event->button() )
+    switch ( qme->button() )
     {
         case Qt::LeftButton: button = 1; break;
         case Qt::MidButton: button = 2; break;
@@ -416,29 +416,28 @@ void OsgIndirectViewWidget<T>::mouseDoubleClickEvent( QMouseEvent* event )
         case Qt::NoButton: button = 0; break;
         default: button = 0; break;
     }
-    setKeyboardModifiers( event );
-    gw_->getEventQueue()->mouseDoubleButtonPress(
-	    event->x(), event->y(), button );
+    setKeyboardModifiers( qme );
+    gw_->getEventQueue()->mouseDoubleButtonPress( qme->x(), qme->y(), button );
 }
 
 
 template <class T> inline
-void OsgIndirectViewWidget<T>::mouseMoveEvent( QMouseEvent* event )
+void OsgIndirectViewWidget<T>::mouseMoveEvent( QMouseEvent* qme )
 {
-    setKeyboardModifiers( event );
-    gw_->getEventQueue()->mouseMotion( event->x(), event->y() );
+    setKeyboardModifiers( qme );
+    gw_->getEventQueue()->mouseMotion( qme->x(), qme->y() );
 }
 
 
 template <class T> inline
-void OsgIndirectViewWidget<T>::wheelEvent( QWheelEvent* event )
+void OsgIndirectViewWidget<T>::wheelEvent( QWheelEvent* qwe )
 {
-    setKeyboardModifiers( event );
-    gw_->getEventQueue()->mouseScroll( event->orientation() == Qt::Vertical
-	    ?  (event->delta()>0
+    setKeyboardModifiers( qwe );
+    gw_->getEventQueue()->mouseScroll( qwe->orientation() == Qt::Vertical
+	    ?  (qwe->delta()>0
 		? osgGA::GUIEventAdapter::SCROLL_UP
 		: osgGA::GUIEventAdapter::SCROLL_DOWN)
-	    : (event->delta()>0
+	    : (qwe->delta()>0
 		? osgGA::GUIEventAdapter::SCROLL_LEFT
 		: osgGA::GUIEventAdapter::SCROLL_RIGHT)
 	    );
