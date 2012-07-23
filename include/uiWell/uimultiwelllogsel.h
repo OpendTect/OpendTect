@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.14 2012-05-11 14:21:14 cvsbruno Exp $
+RCS:           $Id: uimultiwelllogsel.h,v 1.15 2012-07-23 09:32:25 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,7 @@ public:
 				    : withzstep_(false)
 				    , defmeterstep_(1)
 				    , withsampling_(false)
+				    , singlelog_(false)
 				    , withextractintime_(SI().zIsTime())
 				    {}
 
@@ -102,6 +103,7 @@ public:
 	mDefSetupMemb(bool,withsampling) 
 	mDefSetupMemb(bool,withextractintime) 
 	mDefSetupMemb(float,defmeterstep) 
+	mDefSetupMemb(bool,singlelog) 
     };
 
 			uiWellExtractParams(uiParent*,const Setup&);
@@ -112,6 +114,7 @@ public:
 protected:
 
     bool		dostep_;
+    bool		singlelog_;
 
     uiGenInput*		depthstepfld_;
     uiGenInput*		timestepfld_;

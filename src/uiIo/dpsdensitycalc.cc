@@ -4,20 +4,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          Mar 2010
- RCS:           $Id: dpsdensitycalc.cc,v 1.4 2011-09-02 13:04:02 cvskris Exp $
+ RCS:           $Id: dpsdensitycalc.cc,v 1.5 2012-07-23 09:32:25 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "dpsdensitycalc.h"
-#include "uidatapointset.h"
 #include "arrayndimpl.h"
+#include "dpsdensitycalc.h"
+#include "datapointset.h"
+#include "datacoldef.h"
+#include "survinfo.h"
+#include "unitofmeasure.h"
 
-DPSDensityCalcND::DPSDensityCalcND( const uiDataPointSet& uidps,
+DPSDensityCalcND::DPSDensityCalcND( const DataPointSet& dps,
 				    const ObjectSet<AxisParam>& axisdatas,
        				    ArrayND<float>& freqdata )
     : ParallelTask( "Calclulating Density" )
-    , uidps_( uidps )
+    , dps_( dps )
     , freqdata_( freqdata )
     , axisdatas_( axisdatas )
     , nrdims_( axisdatas_.size() )
@@ -28,7 +31,7 @@ DPSDensityCalcND::DPSDensityCalcND( const uiDataPointSet& uidps,
 
 
 od_int64 DPSDensityCalcND::nrIterations() const
-{ return uidps_.pointSet().size(); }
+{ return dps_.size(); }
 
 
 bool DPSDensityCalcND::setFreqValue( const int* indexs )
@@ -42,12 +45,30 @@ bool DPSDensityCalcND::setFreqValue( const int* indexs )
 }
 
 
+float DPSDensityCalcND::getVal( int dcid, int drid ) const
+{
+    if ( dcid >= 0 )
+    {
+	const float val = dps_.value( dcid, drid );
+	const UnitOfMeasure* mu = dps_.colDef( dcid ).unit_;
+	return mu ? mu->userValue(val) : val;
+    }
+    else if ( dcid == -1 )
+    {
+	const float val = dps_.z( drid );
+	return val*SI().zDomain().userFactor();
+    }
+
+    return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
+}
+
+
 bool DPSDensityCalcND::getPositions( TypeSet<int>& indexs, int rid )
 {
     for ( int idx=0; idx<nrdims_; idx++ )
     {
 	AxisParam* axis = axisdatas_[idx];
-	const float val = uidps_.getValue( axis->colid_, rid, true );
+	const float val = getVal( axis->colid_, rid );
 	if ( mIsUdf(val) || !axis->valrange_.includes(val,true) ) return false;
 	indexs += axis->valrange_.getIndex( val );
     }
@@ -61,7 +82,7 @@ bool DPSDensityCalcND::doWork( od_int64 start, od_int64 stop, int )
     for ( od_int64 rid=start; rid<=stop; rid++ )
     {
 	nrdone_++;
-	if ( uidps_.pointSet().isInactive(rid) )
+	if ( dps_.isInactive(rid) )
 	    continue;
 
 	TypeSet<int> indexs;

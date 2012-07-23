@@ -7,22 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiwellattribxplot.h,v 1.15 2012-07-05 13:59:51 cvsbruno Exp $
+ RCS:           $Id: uiwellattribxplot.h,v 1.16 2012-07-23 09:32:25 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uidialog.h"
-class IOObj;
-class uiListBox;
-class uiGenInput;
-class DataPointSet;
+
 class DataPointSetDisplayMgr;
-class BufferStringSet;
-class uiDataPointSet;
-class uiMultiWellLogSel;
-class uiPosFilterSetSel;
+
+class uiWellLogExtractGrp;
 namespace Attrib { class DescSet; }
 
 
@@ -30,36 +25,20 @@ mClass uiWellAttribCrossPlot : public uiDialog
 {
 public:
 					uiWellAttribCrossPlot(uiParent*,
-						const Attrib::DescSet&);
+						const Attrib::DescSet*);
 					~uiWellAttribCrossPlot();
 
-    void				setDescSet(const Attrib::DescSet&);
-
-    const DataPointSet&			getDPS() const;
+    void				setDescSet(const Attrib::DescSet*);
     void				setDisplayMgr(
 	    					DataPointSetDisplayMgr* mgr)
 					{ dpsdispmgr_ = mgr; }
 
 protected:
 
-    const Attrib::DescSet& ads_;
-    ObjectSet<IOObj>	wellobjs_;
+    uiWellLogExtractGrp*		wellextractgrp_;
+    DataPointSetDisplayMgr* 		dpsdispmgr_;
 
-    uiListBox*		attrsfld_;
-    uiGenInput*		radiusfld_;
-    uiGenInput*		logresamplfld_;
-    uiMultiWellLogSel*	welllogselfld_;
-    uiPosFilterSetSel*	posfiltfld_;
-    DataPointSet*	curdps_;
-    DataPointSetDisplayMgr* dpsdispmgr_;
-
-    void		adsChg();
-    bool		extractWellData(const BufferStringSet&,
-	    				const BufferStringSet&,
-					ObjectSet<DataPointSet>&);
-    bool		extractAttribData(DataPointSet&,int);
-
-    bool		acceptOK(CallBacker*);
+    bool				acceptOK(CallBacker*);
 };
 
 

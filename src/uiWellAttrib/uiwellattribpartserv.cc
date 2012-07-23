@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellattribpartserv.cc,v 1.33 2012-05-03 07:30:08 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellattribpartserv.cc,v 1.34 2012-07-23 09:32:25 cvssatyaki Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -92,9 +92,9 @@ void uiWellAttribPartServer::doXPlot()
 
     uiWellAttribCrossPlot*& xplotwin = is2d ? xplotwin2d_ : xplotwin3d_;
     if ( !xplotwin )
-	xplotwin = new uiWellAttribCrossPlot( parent(), *attrset );
+	xplotwin = new uiWellAttribCrossPlot( parent(), attrset );
     else
-	xplotwin->setDescSet( *attrset );
+	xplotwin->setDescSet( attrset );
 
     xplotwin->setDisplayMgr( dpsdispmgr_ );
     xplotwin->show();

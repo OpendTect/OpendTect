@@ -8,13 +8,14 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uicreatedpspdf.cc,v 1.16 2012-06-25 19:01:05 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicreatedpspdf.cc,v 1.17 2012-07-23 09:32:25 cvssatyaki Exp $";
 
 #include "uicreatedpspdf.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uidatapointsetcrossplot.h"
+#include "uieditpdf.h"
 #include "uigeninput.h"
 #include "uiprobdenfunvarsel.h"
 #include "uiioobjsel.h"
@@ -23,27 +24,57 @@ static const char* rcsID mUnusedVar = "$Id: uicreatedpspdf.cc,v 1.16 2012-06-25 
 
 #include "arrayndimpl.h"
 #include "ctxtioobj.h"
+#include "datacoldef.h"
 #include "dpsdensitycalc.h"
 #include "ioobj.h"
 #include "probdenfunctr.h"
 #include "sampledprobdenfunc.h"
+#include "survinfo.h"
+#include "unitofmeasure.h"
 
 
 static int cMaxNrPDFs = 3;
 
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
-				uiDataPointSetCrossPlotter& plotter,
-       				const BufferStringSet& colnames )
+				const uiDataPointSetCrossPlotter* plotter )
     : uiDialog(p,uiDialog::Setup("Create Probability Density Function",
 				 "Specify parameters","111.0.3"))
     , plotter_(plotter)
+    , dps_(plotter_->dps())
     , createfrmfld_(0)
     , nrdisp_(1)
+    , pdf_(0)
 {
-    setCtrlStyle( DoAndStay );
+    createDefaultUI();
+}
 
+
+uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p, const DataPointSet& dps )
+    : uiDialog(p,uiDialog::Setup("Create Probability Density Function",
+				 "Specify parameters","111.0.3"))
+    , plotter_(0)
+    , dps_(dps)
+    , createfrmfld_(0)
+    , nrdisp_(1)
+    , pdf_(0)
+{
+    createDefaultUI();
+}
+
+
+void uiCreateDPSPDF::createDefaultUI()
+{
+    BufferStringSet colnames;
+    colnames.add( "X-Coord" );
+    colnames.add( "Y-Coord" );
+    colnames.add( "Z" );
+    for ( int idx=0; idx<dps_.nrCols(); idx++ )
+	colnames.add( dps_.colName(idx) );
+
+    //setCtrlStyle( DoAndStay );
+    
     uiLabeledComboBox* selcbx = 0;
-    if ( plotter_.selAreaSize() )
+    if ( plotter_ && plotter_->selAreaSize() )
     {
 	BufferStringSet seltype;
         seltype.add( "Whole region" );
@@ -54,9 +85,8 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
     }
 
     TypeSet<int> colids;
-    const DataPointSet& dps = plotter_.dps();
-    uiDataPointSet::DColID dcid=-dps.nrFixedCols()+1;
-    for ( ; dcid<dps.nrCols(); dcid++ )
+    uiDataPointSet::DColID dcid=-dps_.nrFixedCols()+1;
+    for ( ; dcid<dps_.nrCols(); dcid++ )
 	colids += dcid;
 
     rmbuts_.allowNull(); addbuts_.allowNull();
@@ -67,7 +97,8 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
     {
 	uiPrDenFunVarSel* fld = new uiPrDenFunVarSel( this, colinfo );
 	fld->attrSelChanged.notify( mCB(this,uiCreateDPSPDF,setColRange) );
-	fld->setColNr( plotter_.axisData(idx).colid_ + 3 );
+	fld->setColNr( plotter_ ? plotter_->axisData(idx).colid_ + 3
+				: idx+3 );
 	setColRange( fld );
 	if ( idx == 0 )
 	{
@@ -101,15 +132,44 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
     outputfld_->setLabelText( "Output PDF" );
     outputfld_->attach( alignedBelow, probflds_[probflds_.size()-1] );
 
+    createpdfbut_ = new uiPushButton( this,"Create PDF",
+	    			    mCB(this,uiCreateDPSPDF,createPDF), true );
+    createpdfbut_->attach( rightTo, outputfld_ );
+    
+    viewpdfbut_ = new uiPushButton( this,"View PDF..",
+	    			    mCB(this,uiCreateDPSPDF,viewPDFCB), false );
+    viewpdfbut_->attach( rightTo, createpdfbut_ );
+    viewpdfbut_->setSensitive( false );
+
     butPush( addbuts_[1] );
-    if ( plotter_.isY2Shown() )
+    if ( plotter_ && plotter_->isY2Shown() )
 	butPush( addbuts_[2] );
     handleDisp( 0 );
 }
 
 
 uiCreateDPSPDF::~uiCreateDPSPDF()
-{}
+{
+    delete pdf_;
+}
+
+
+float uiCreateDPSPDF::getVal( int dcid, int drid ) const
+{
+    if ( dcid >= 0 )
+    {
+	const float val = dps_.value( dcid, drid );
+	const UnitOfMeasure* mu = dps_.colDef( dcid ).unit_;
+	return mu ? mu->userValue(val) : val;
+    }
+    else if ( dcid == -1 )
+    {
+	const float val = dps_.z( drid );
+	return val*SI().zDomain().userFactor();
+    }
+
+    return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
+}
 
 
 void uiCreateDPSPDF::setColRange( CallBacker* cb )
@@ -120,20 +180,24 @@ void uiCreateDPSPDF::setColRange( CallBacker* cb )
     Interval<float> datarange( mUdf(float),-mUdf(float) );
 
     bool isaxisshown = false;
-    for ( int idx=0; idx<3; idx++ )
+    if ( plotter_ )
     {
-	if ( varselfld->selColID() ==  plotter_.axisData(idx).colid_ )
+	for ( int idx=0; idx<3; idx++ )
 	{
-	    isaxisshown = true;
-	    datarange = plotter_.axisHandler(idx)->range();
+	    if ( varselfld->selColID() ==  plotter_->axisData(idx).colid_ )
+	    {
+		isaxisshown = true;
+		datarange = plotter_->axisHandler(idx)->range();
+	    }
 	}
     }
 
     if ( !isaxisshown )
     {
-	for ( int rid=0; rid<plotter_.dps().size(); rid++ )
+	for ( int rid=0; rid<dps_.size(); rid++ )
 	{
-	    const float val = plotter_.getVal(varselfld->selColID(),rid);
+	    DataPointSet::ColID dcolid = varselfld->selColID();
+	    const float val = getVal(dcolid,rid);
 	    if ( !mIsUdf(val) && val > datarange.stop )
 		datarange.stop = val;
 	    if ( !mIsUdf(val) && val < datarange.start )
@@ -168,7 +232,6 @@ void uiCreateDPSPDF::handleDisp( CallBacker* )
 {
     for ( int idx=0; idx<probflds_.size(); idx++ )
     {
-	const bool dodisp = idx < nrdisp_;
 	probflds_[idx]->display( idx < nrdisp_ );
 	if ( addbuts_[idx] ) addbuts_[idx]->display( idx == nrdisp_-1 );
 	if ( rmbuts_[idx] ) rmbuts_[idx]->display( idx == nrdisp_-1 );
@@ -218,13 +281,25 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 	sprdf->bins_.setSize( nrbins.arr() );
     }
 
-    DPSDensityCalcND denscalc( plotter_.uidps(), axisparams,pdf.getData());
+    DPSDensityCalcND denscalc( dps_, axisparams,pdf.getData());
     uiTaskRunner tr( this );
     tr.execute( denscalc );
 }
 
 
 bool uiCreateDPSPDF::acceptOK( CallBacker* )
+{
+    if ( !pdf_ )
+    {
+	uiMSG().error( "No valid PDF created" );
+	return false;
+    }
+
+    return true;
+}
+
+
+bool uiCreateDPSPDF::createPDF( CallBacker* )
 {
     const IOObj* pdfioobj = outputfld_->ioobj();
     if ( !pdfioobj ) return false;
@@ -238,6 +313,7 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
 	BufferString errmsg;
 	if ( !ProbDenFuncTranslator::write(pdf,*pdfioobj,&errmsg) )
 	    { uiMSG().error(errmsg); return false; }
+	pdf_ = pdf.clone();
     }
     else if ( nrdisp_ == 2 )
     {
@@ -248,6 +324,7 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
 	BufferString errmsg;
 	if ( !ProbDenFuncTranslator::write(pdf,*pdfioobj,&errmsg) )
 	    { uiMSG().error(errmsg); return false; }
+	pdf_ = pdf.clone();
     }
     else
     {
@@ -259,9 +336,19 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
 	BufferString errmsg;
 	if ( !ProbDenFuncTranslator::write(pdf,*pdfioobj,&errmsg) )
 	    { uiMSG().error(errmsg); return false; }
+	pdf_ = pdf.clone();
     }
 
 
     uiMSG().message( "Probability density function successfully created" );
+    pdf_->setName( pdfioobj->name() );
+    viewpdfbut_->setSensitive( true );
     return false;
+}
+
+
+void uiCreateDPSPDF::viewPDFCB( CallBacker* )
+{
+    uiEditProbDenFunc editdlg( this, *pdf_, false );
+    editdlg.go();
 }

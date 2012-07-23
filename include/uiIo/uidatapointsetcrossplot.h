@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.41 2011-07-11 11:50:16 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.42 2012-07-23 09:32:25 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,10 +151,14 @@ public:
 				{ return axisData(ax).autoscalepars_; }
     uiAxisHandler*		axisHandler( int ax )	//!< 0=x 1=y 2=y2
 				{ return axisData(ax).axis_; }
+    const uiAxisHandler*	axisHandler( int ax ) const
+				{ return axisData(ax).axis_; }
     const LinStats2D&		linStats( bool y1=true ) const
 				{ return y1 ? lsy1_ : lsy2_; }
 
     AxisData&			axisData( int ax )
+				{ return ax ? (ax == 2 ? y2_ : y_) : x_; }
+    const AxisData&		axisData( int ax ) const
 				{ return ax ? (ax == 2 ? y2_ : y_) : x_; }
 
     friend class		uiDataPointSetCrossPlotWin;

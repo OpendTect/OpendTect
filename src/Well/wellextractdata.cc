@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.86 2012-07-17 08:16:23 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.87 2012-07-23 09:32:25 cvssatyaki Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -256,6 +256,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj,
     wr.getTrack(); 
     wr.getD2T(); 
     wr.getMarkers();
+    wr.getLogs();
 
     return calcFrom( wd, lognms, todah );
 }

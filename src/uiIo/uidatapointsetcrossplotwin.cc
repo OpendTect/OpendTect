@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.44 2012-07-10 08:05:35 cvskris Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.45 2012-07-23 09:32:25 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplotwin.cc,v 1.44 2012-07-10 08:05:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplotwin.cc,v 1.45 2012-07-23 09:32:25 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -582,7 +582,7 @@ void uiDataPointSetCrossPlotWin::exportPDF( CallBacker* )
     for ( ; dcid<dps.nrCols(); dcid++ )
 	colnames.add( uidps_.userName(dcid) );
 
-    uiCreateDPSPDF dlg( this, plotter_, colnames );
+    uiCreateDPSPDF dlg( this, &plotter_ );
     dlg.go();
 }
 

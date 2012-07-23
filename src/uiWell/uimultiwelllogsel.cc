@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.24 2012-07-02 11:45:02 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.25 2012-07-23 09:32:25 cvssatyaki Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -230,6 +230,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     , sampfld_(0)  
     , zistimefld_(0) 
     , dostep_(s.withzstep_)  
+    , singlelog_(s.singlelog_)  
 {
     delete params_;
     params_ = new Well::ExtractParams();
@@ -374,6 +375,7 @@ void uiMultiWellLogSel::init()
     uiLabeledListBox* llbl = new uiLabeledListBox( this, "Logs", true,
 	singlewid_ ? uiLabeledListBox::LeftTop : uiLabeledListBox::RightTop );
     logsfld_ = llbl->box();
+    logsfld_->setMultiSelect( !singlelog_ );
 
     welllslblfld_ = 0;
     wellsfld_ = 0;
