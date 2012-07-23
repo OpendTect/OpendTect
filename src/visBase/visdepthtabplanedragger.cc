@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visdepthtabplanedragger.cc,v 1.32 2012-07-10 13:03:12 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visdepthtabplanedragger.cc,v 1.33 2012-07-23 15:27:39 cvsjaap Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -57,6 +57,7 @@ public:
     PlaneDraggerCallbackHandler( DepthTabPlaneDragger& dragger )  
 	: dragger_( dragger )						{}
 
+    using			osgManipulator::DraggerCallback::receive;
     virtual bool		receive(const osgManipulator::MotionCommand&);
 
 protected:
@@ -347,8 +348,8 @@ Coord3 DepthTabPlaneDragger::center() const
 {
     if ( osgdragger_ )
     {
-	osg::Vec3 center = osgdragger_->getMatrix().getTrans();
-	return Coord3( center[0], center[1], center[2] );
+	osg::Vec3 dragcenter = osgdragger_->getMatrix().getTrans();
+	return Coord3( dragcenter[0], dragcenter[1], dragcenter[2] );
     }
 
     const SbVec3f res = dragger_->translation.getValue();
