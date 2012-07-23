@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.9 2012-07-23 18:56:54 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.10 2012-07-23 20:56:18 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
@@ -21,7 +21,6 @@ static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.9 2012-07-23 18:56
 #include  <iostream>
 
 #define mSigma		3
-#define mMinFaultLength	15
 #define mThresholdPercent 0.93	
 #define mNrThinning 100	
 
@@ -36,7 +35,8 @@ FingerVein::FingerVein( const Array2D<float>& input, float threshold,
 }
 
 
-bool FingerVein::compute( bool domerge, TaskRunner* tr )
+bool FingerVein::compute( bool domerge, int minfltlength, float overlaprate, 
+	TaskRunner* tr )
 {
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, score,
 	    Array2DImpl<float> (input_.info()) );
@@ -94,7 +94,7 @@ bool FingerVein::compute( bool domerge, TaskRunner* tr )
     if ( domerge )
     {
 	thinning( *input_hard_threshold );
-	removeSmallComponents( *input_hard_threshold );
+	removeSmallComponents( *input_hard_threshold, minfltlength, overlaprate );
     }
 
     const bool* thinedinputarr = input_hard_threshold->getData();
@@ -109,13 +109,14 @@ bool FingerVein::compute( bool domerge, TaskRunner* tr )
     }
 
     thinning( output_ );
-    removeSmallComponents( output_ );
+    removeSmallComponents( output_, minfltlength, overlaprate );
     
     return true;
 }
 
 
-void FingerVein::removeSmallComponents( Array2D<bool>& data )
+void FingerVein::removeSmallComponents( Array2D<bool>& data, int minfltlength, 
+	float overlaprate )
 {
     ConnComponents cc( data );
     cc.compute();
@@ -128,7 +129,7 @@ void FingerVein::removeSmallComponents( Array2D<bool>& data )
 	if ( !comp ) continue;
 
 	const int nrnodes = comp->size();
-	if ( nrnodes<mMinFaultLength || cc.overLapRate(idx)>0.2 )
+	if ( nrnodes<minfltlength || cc.overLapRate(idx)>overlaprate )
 	{
 	    for ( int idy=0; idy<nrnodes; idy++ )
     		outputarr[(*comp)[idy]] = 0;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: fingervein.h,v 1.2 2012-07-20 17:33:07 cvsyuancheng Exp $
+ RCS:           $Id: fingervein.h,v 1.3 2012-07-23 20:56:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,8 @@ public:
 					   Array2D<bool>& output);
 				~FingerVein()	{}
 
-    bool			compute(bool domerge=false,TaskRunner* tr=0); 
+    bool			compute(bool domerge=false,int minfltlength=15,
+	    				float overlaprate=0.1,TaskRunner* tr=0); 
 
 protected:
 
@@ -40,7 +41,8 @@ protected:
     void			thinning(Array2D<bool>& res);
     void			thinStep(const Array2D<bool>& input,
 					 Array2D<bool>& output,bool isfirst);
-    void			removeSmallComponents(Array2D<bool>&);
+    void			removeSmallComponents(Array2D<bool>&,int minfltlength,
+						      float overlaprate);
 
     const Array2D<float>&	input_;
     Array2D<bool>&		output_;
