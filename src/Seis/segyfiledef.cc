@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segyfiledef.cc,v 1.28 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: segyfiledef.cc,v 1.29 2012-07-23 08:11:14 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -225,7 +225,7 @@ bool SEGY::FilePars::usePar( const IOPar& iop )
     const bool foundbs = iop.get( sKeyByteSwap(), byteswap_ );
     const char* fmtstr = iop.find( sKeyNumberFormat() );
     const bool foundnf = fmtstr && *fmtstr;
-    if ( foundnf );
+    if ( foundnf )
 	fmt_ = fmtOf( fmtstr, forread_ );
 
     return foundns || foundbs || foundnf;
