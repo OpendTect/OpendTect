@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.7 2012-07-20 20:35:37 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.8 2012-07-23 15:16:59 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
@@ -128,7 +128,7 @@ void FingerVein::removeSmallComponents( Array2D<bool>& data )
 	if ( !comp ) continue;
 
 	const int nrnodes = comp->size();
-	if ( nrnodes<mMinFaultLength )
+	if ( nrnodes<mMinFaultLength || cc.overLapRate(idx)>0.2 )
 	{
 	    for ( int idy=0; idy<nrnodes; idy++ )
     		outputarr[(*comp)[idy]] = 0;
