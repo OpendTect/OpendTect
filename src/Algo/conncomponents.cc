@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: conncomponents.cc,v 1.1 2012-07-20 20:05:01 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: conncomponents.cc,v 1.2 2012-07-23 15:16:21 cvsyuancheng Exp $";
 
 #include "conncomponents.h"
 
@@ -295,6 +295,27 @@ bool ConnComponents::hasTrifurcation( const TypeSet<int>& component )
 
 float ConnComponents::overLapRate( int componentidx )
 {
-    return 0;
+    const TypeSet<int>* comp = getComponent( componentidx );
+    if ( !comp )
+	return 1;
+
+    const int csz = comp->size();
+    const int ysz = input_.info().getSize(0);
+
+    TypeSet<int> idxs, idys;
+    for ( int idx=0; idx<csz; idx++ )
+    {
+	const int row = (*comp)[idx]/ysz;
+	const int col = (*comp)[idx]%ysz;
+	if ( idxs.indexOf(row)<0 )
+	    idxs += row;
+
+	if ( idys.indexOf(col)<0 )
+	    idys += col;
+    }
+
+    const float xrate = 1 - ((float)idxs.size())/((float)csz);
+    const float yrate = 1 - ((float)idys.size())/((float)csz);
+    return mMIN(xrate,yrate);
 }
 
