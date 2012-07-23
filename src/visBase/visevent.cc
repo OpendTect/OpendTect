@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visevent.cc,v 1.42 2012-06-22 08:59:37 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visevent.cc,v 1.43 2012-07-23 15:20:42 cvsjaap Exp $";
 
 #include "keystrs.h"
 #include "visevent.h"
@@ -139,15 +139,16 @@ void EventInfo::setDetail( const Detail* det )
 
 
 class EventCatchHandler : public osgGA::GUIEventHandler                  
-{     
+{      
 public:
-    EventCatchHandler( EventCatcher& eventcatcher )
-	: eventcatcher_( eventcatcher )
-	, ishandled_( true )
-    {
-	initKeyMap();
-    }
+		EventCatchHandler( EventCatcher& eventcatcher )
+		    : eventcatcher_( eventcatcher )
+		    , ishandled_( true )
+		{
+		    initKeyMap();
+		}
 
+    using	osgGA::GUIEventHandler::handle;
     bool	handle(const osgGA::GUIEventAdapter&,osgGA::GUIActionAdapter&);
 
     void 	setHandled()			{ ishandled_ = true; }
