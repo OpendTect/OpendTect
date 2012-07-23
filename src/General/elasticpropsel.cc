@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: elasticpropsel.cc,v 1.20 2012-07-17 13:32:08 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: elasticpropsel.cc,v 1.21 2012-07-23 07:33:47 cvsbruno Exp $";
 
 
 #include "elasticpropsel.h"
@@ -145,10 +145,28 @@ void ElasticFormulaRepository::addRockPhysicsFormulas()
 	    if ( !rpf ) continue;
 
 	    ElasticFormula fm( elasnm, rpf->def_, tp );
-	    for ( int idvar=0; idvar<rpf->vardefs_.size(); idvar++ )
-		fm.variables().add( rpf->vardefs_[idvar]->name() );
-	    for ( int idconst=0; idconst<rpf->constdefs_.size(); idconst++ )
-		fm.variables().add( rpf->constdefs_[idconst]->name() );
+
+	    MathExpressionParser mep( rpf->def_ );
+	    MathExpression* me = mep.parse();
+	    if ( !me ) continue;
+
+	    int cstidx = 0; int varidx = 0;
+	    for ( int idvar=0; idvar<me->nrVariables(); idvar++)
+	    {
+		if ( me->getType( idvar ) == MathExpression::Constant )
+		{
+		    if ( rpf->constdefs_.validIdx( cstidx ) )
+			fm.variables().add(
+			    toString( rpf->constdefs_[cstidx]->defaultval_ ) );
+		    cstidx++;
+		}
+		else
+		{
+		    if ( rpf->vardefs_.validIdx( varidx ) )
+			fm.variables().add( rpf->vardefs_[varidx]->name() );
+		    varidx++;
+		}
+	    }
 
 	    formulas_ += fm;
 	}
