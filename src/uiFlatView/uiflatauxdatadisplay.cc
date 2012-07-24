@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.7 2012-07-17 12:58:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.8 2012-07-24 08:31:16 cvsbruno Exp $";
 
 #include "uiflatauxdatadisplay.h"
 
@@ -215,6 +215,8 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	}
 
 	nameitem_->setTextColor( linestyle_.color_ );
+	if ( poly_.size() > listpos )
+	    nameitem_->setPos( poly_[listpos] );
     }
     else if ( nameitem_ )
     {
