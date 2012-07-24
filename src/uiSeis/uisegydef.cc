@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegydef.cc,v 1.51 2012-07-10 08:05:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegydef.cc,v 1.52 2012-07-24 07:36:44 cvskris Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -466,7 +466,6 @@ bool fillPar( IOPar& iop ) const
 
 void usePar( const IOPar& iop )
 {
-    const char* res = iop.find( key_ );
     he_.usePar( iop, key_ );
     if ( he_.isUdf() || (isselbox_ && !iop.find(key_)) )
     {
