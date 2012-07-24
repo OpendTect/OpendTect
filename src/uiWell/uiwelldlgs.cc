@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.111 2012-07-19 13:47:45 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.112 2012-07-24 07:09:59 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -702,8 +702,8 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zunitgrp_->attach( alignedBelow, typefld_ );
     uiLabel* zlbl = new uiLabel( this, "Output Z-unit" );
     zlbl->attach( leftOf, zunitgrp_ );
-    uiRadioButton* meterbut = new uiRadioButton( zunitgrp_, "meter" );
-    uiRadioButton* feetbut = new uiRadioButton( zunitgrp_, "feet" );
+    new uiRadioButton( zunitgrp_, "meter" );
+    new uiRadioButton( zunitgrp_, "feet" );
     bool have2dtmodel = true;
     for ( int idwell=0; idwell<wds_.size(); idwell++ )
     {
@@ -712,8 +712,8 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     }
     if ( SI().zIsTime() && have2dtmodel)
     {
-	uiRadioButton* secbut = new uiRadioButton( zunitgrp_, "sec" );
-	uiRadioButton* msecbut = new uiRadioButton( zunitgrp_, "msec" );
+	new uiRadioButton( zunitgrp_, "sec" );
+	new uiRadioButton( zunitgrp_, "msec" );
     }
     zunitgrp_->selectButton( zinft );
 
