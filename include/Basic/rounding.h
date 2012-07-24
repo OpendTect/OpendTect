@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		July 2012
- RCS:		$Id: rounding.h,v 1.1 2012-07-24 18:53:30 cvskris Exp $
+ RCS:		$Id: rounding.h,v 1.2 2012-07-24 19:17:02 cvskris Exp $
 ________________________________________________________________________
 
 Macros and inline functions for rounding floats and doubles.
@@ -22,20 +22,11 @@ mRounded which are found in commondefs.h.
 
 #ifdef __cpp__
 
-#define mRoundedImpl( typ ) \
-inline typ round_##typ( double x ) \
-{ return (typ) ((x)>0 ? (x)+.5 : (x)-.5); } \
- \
-inline typ round##typ( float x ) \
-{ return (typ) ((x)>0 ? (x)+.5f : (x)-.5f); } 
+template <class RT> inline
+RT roundOff( double x ) { return (RT) ((x)>0 ? (x)+.5 : (x)-.5); }
 
-mRoundedImpl( od_int64 )
-mRoundedImpl( od_uint64 )
-mRoundedImpl( od_int32 )
-mRoundedImpl( od_uint32 )
-mRoundedImpl( short )
-mRoundedImpl( unsigned )
-mRoundedImpl( od_uint16 )
+template <class RT> inline
+RT roundOff( float x ) { return (RT) ((x)>0 ? (x)+.5f : (x)-.5f); }
 
 #endif
 
