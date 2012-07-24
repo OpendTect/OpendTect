@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.139 2012-07-10 08:05:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.140 2012-07-24 10:35:25 cvsjaap Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -986,8 +986,6 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 {
     VolumeDisplay* vd = create();
 
-    SoNode* node = vd->getInventorNode();
-
     TypeSet<int> children;
     vd->getChildren( children );
     for ( int idx=0; idx<children.size(); idx++ )
@@ -1003,9 +1001,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
     {
-	const int isosurfid = vd->addIsoSurface();
-	mDynamicCastGet( mVisMCSurf*, isosurface,
-			 visBase::DM().getObject(isosurfid) );
+	vd->addIsoSurface();
 	vd->isosurfsettings_[idx] = isosurfsettings_[idx];
     }
 
