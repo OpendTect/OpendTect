@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: filegen.c,v 1.91 2012-05-04 19:16:51 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: filegen.c,v 1.92 2012-07-24 17:25:31 cvsdgb Exp $";
 
 #include "filegen.h"
 #include "string2_c.h"
@@ -14,6 +14,7 @@ static const char* rcsID mUnusedVar = "$Id: filegen.c,v 1.91 2012-05-04 19:16:51
 
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <sys/stat.h>
 #ifndef __msvc__
 # include <dirent.h>
@@ -22,7 +23,6 @@ static const char* rcsID mUnusedVar = "$Id: filegen.c,v 1.91 2012-05-04 19:16:51
 #ifdef __win__
 # include <windows.h>
 # include <shlwapi.h>
-# include <time.h>
 # include <io.h>
 
 # ifndef __msvc__
@@ -243,7 +243,7 @@ const char* File_getTime( const char* fnm )
 
 #else
 
-    (void)ctime_r( &statbuf.st_mtime, buf );
+    ctime_r( &statbuf.st_mtime, buf );
     return buf;
 
 #endif
