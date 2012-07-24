@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: freqfilterattrib.cc,v 1.65 2012-07-10 08:05:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: freqfilterattrib.cc,v 1.66 2012-07-24 08:51:39 cvsnageswara Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -171,7 +171,6 @@ FreqFilter::FreqFilter( Desc& ds )
     mGetInt( nrpoles_, nrpolesStr() );
     mGetBool( isfftfilter_, isfftfilterStr() );
 
-    int wtype;
     mGetString( windowtype_, windowStr() );
     mGetFloat( variable_, paramvalStr() );
     mGetFloat( highfreqvariable_, highfreqparamvalStr() );
