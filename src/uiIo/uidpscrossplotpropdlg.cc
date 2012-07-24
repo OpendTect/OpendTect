@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.27 2012-07-10 08:05:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.28 2012-07-24 19:55:55 cvskris Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -543,8 +543,8 @@ void cellSzChanged( CallBacker* )
 	cellsz = cellsizefld_->getIntValue();
     }
 
-    wcellszfld_->setValue( mNINT32( plotter_.arrArea().width()/cellsz) );
-    hcellszfld_->setValue( mNINT32( plotter_.arrArea().height()/cellsz) );
+    wcellszfld_->setValue( mNINT32( (float)plotter_.arrArea().width()/cellsz) );
+    hcellszfld_->setValue( mNINT32( (float) plotter_.arrArea().height()/cellsz) );
 }
 
 void wCellNrChanged( CallBacker* )
@@ -554,7 +554,7 @@ void wCellNrChanged( CallBacker* )
 			      (float)(plotter_.arrArea().height()/cellsz);
     hcellszfld_->setValue( wcellszfld_->getIntValue()/aspectratio );
     cellsizefld_->setValue(
-	    mNINT32(plotter_.arrArea().width()/wcellszfld_->getIntValue()) );
+	    mNINT32((float) plotter_.arrArea().width()/wcellszfld_->getIntValue()) );
     
     if ( mIsUdf(cellsz) || cellsz <=0 )
 	cellsizefld_->setValue( cellsize_ );
@@ -568,7 +568,7 @@ void hCellNrChanged( CallBacker* )
 			      (float)(plotter_.arrArea().height()/cellsz);
     wcellszfld_->setValue( hcellszfld_->getIntValue()*aspectratio );
     cellsizefld_->setValue(
-	    mNINT32(plotter_.arrArea().height()/hcellszfld_->getIntValue()) );
+	    mNINT32((float) plotter_.arrArea().height()/hcellszfld_->getIntValue()) );
     
     if ( mIsUdf(cellsz) || cellsz <=0 )
 	cellsizefld_->setValue( cellsize_ );

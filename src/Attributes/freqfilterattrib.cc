@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: freqfilterattrib.cc,v 1.66 2012-07-24 08:51:39 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: freqfilterattrib.cc,v 1.67 2012-07-24 19:59:10 cvskris Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -183,7 +183,8 @@ FreqFilter::FreqFilter( Desc& ds )
 				    false, windowtype_, variable_ );
     }
 	
-    zmargin_ = Interval<int>( -mNINT32(mMINNRSAMPLES/2), mNINT32(mMINNRSAMPLES/2) );
+    zmargin_ = Interval<int>( -mNINT32((float) mMINNRSAMPLES/2),
+	    		       mNINT32((float) mMINNRSAMPLES/2) );
 }
 
 
@@ -234,7 +235,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
     if ( nrsamples < mMINNRSAMPLES )
     {
 	nrsamp = mMINNRSAMPLES;
-	csamp = z0 - mNINT32(nrsamp/2) + mNINT32(nrsamples/2);
+	csamp = z0 - mNINT32((float) nrsamp/2) + mNINT32((float) nrsamples/2);
     }
 
     ArrPtrMan<float> data = new float [nrsamp];
@@ -283,7 +284,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
     
     if ( nrsamples < mMINNRSAMPLES )
     {
-	int offset = mNINT32(nrsamp/2) - mNINT32(nrsamples/2);
+	int offset = mNINT32((float) nrsamp/2) - mNINT32((float) nrsamples/2);
 	for ( int idx=0; idx<nrsamples; idx++ )
 	    setOutputValue( output, 0, idx, z0, outp[offset - 1 + idx] );
     }
@@ -305,7 +306,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
     if ( nrsamples < mMINNRSAMPLES )
     {
 	nrsamp = mMINNRSAMPLES;
-	z0safe = z0 - mNINT32(nrsamp/2) + mNINT32(nrsamples/2);
+	z0safe = z0 - mNINT32((float) nrsamp/2) + mNINT32((float) nrsamples/2);
     }
     
     if ( nrsamp>signal_.info().getSize(0) )
