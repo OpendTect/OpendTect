@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.19 2012-07-10 08:05:25 cvskris Exp $
+ RCS:		$Id: samplingdata.h,v 1.20 2012-07-24 18:41:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,9 +82,9 @@ template <> inline
 bool SamplingData<float>::operator==( const SamplingData<float>& sd ) const
 {
     float val = start - sd.start;
-    if ( !mIsZero(val,1e-6) ) return false;
+    if ( !mIsZero(val,1e-6f) ) return false;
     val = 1 - (step / sd.step);
-    return val < 1e-6 && val > -1e-6;
+    return val < 1e-6f && val > -1e-6f;
 }
 
 template <> inline
