@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoAxes.cc,v 1.10 2012-05-02 15:11:49 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoAxes.cc,v 1.11 2012-07-24 09:42:27 cvsjaap Exp $";
 
 
 #include "SoAxes.h"
@@ -111,13 +111,12 @@ void SoAxes::GLRender( SoGLRenderAction* action )
 
 void SoAxes::drawArrow( int typ, float lnt, float rad )
 {
-    float angl = 0, xdir = 0, ydir = 0, ht = 0, cnht = 0, cylht = 0;
+    float angl = 0, xdir = 0, ydir = 0, ht = 0, cnht = 0;
     float nrm[3];
     int idx = 0;
 
     ht = lnt;
     cnht = ht / 3;
-    cylht = ht * ( 2/3 );
     
     glPushMatrix();
 
@@ -129,7 +128,6 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
     {
 	ht = lnt;
 	cnht = ht / 3;
-	cylht = ht * ( 2/3 );
 
 	glColor3ub( 0, 255, 0 ) ;
 
@@ -210,7 +208,6 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
     {
 	ht = -1 * lnt;
 	cnht = ht / 3;
-	cylht = ht * ( 2/3 );
         	 
 	glColor3ub ( 64, 64, 255 ) ;
 
