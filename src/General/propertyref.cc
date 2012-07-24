@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: propertyref.cc,v 1.7 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: propertyref.cc,v 1.8 2012-07-24 15:14:24 cvsbert Exp $";
 
 #include "propertyref.h"
 #include "property.h"
@@ -238,7 +238,9 @@ void PropertyRef::fillPar( IOPar& iop ) const
 	fms += disp_.unit_;
     iop.set( sKey::Range(), fms );
 
-    if ( disp_.defval_ )
+    if ( !disp_.defval_ )
+	iop.removeWithKey( sKeyDefaultValue );
+    else
     {
 	fms = disp_.defval_->type();
 	fms += disp_.defval_->def();
