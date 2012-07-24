@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.13 2012-07-10 08:05:32 cvskris Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.14 2012-07-24 19:50:25 cvskris Exp $ 
  ________________________________________________________________________
                    
 -*/   
@@ -61,7 +61,7 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
     CubeSampling cs;
     PtrMan<SeisIOObjInfo> si = new SeisIOObjInfo( ioobj );
     si->getRanges( cs );
-    wvlt_.set( mNINT32(wvltsize_/2), cs.zrg.step );
+    wvlt_.set( mNINT32((float) wvltsize_/2), cs.zrg.step );
     wvlt_.reSize( wvltsize_ );
     for ( int samp=0; samp<wvltsize_; samp++ )
 	wvlt_.samples()[samp] = 0;
