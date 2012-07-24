@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimp.cc,v 1.86 2012-07-18 11:10:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimp.cc,v 1.87 2012-07-24 07:41:20 cvskris Exp $";
 
 #include "uiseiscbvsimp.h"
 
@@ -371,7 +371,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     }
 
     uiTaskRunner dlg( this );
-    const bool rv = dlg.execute(*stp) && !ioobjinfo.is2D() &&
+    const bool rv mUnusedVar = dlg.execute(*stp) && !ioobjinfo.is2D() &&
 		    ioobjinfo.provideUserInfo();
 
     rmTmpIOObj();

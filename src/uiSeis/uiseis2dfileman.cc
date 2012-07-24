@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.30 2012-07-13 05:21:12 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.31 2012-07-24 07:41:20 cvskris Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -193,7 +193,6 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
     }
 
     const int sz = trcrg.nrSteps() + 1;
-    const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
     PosInfo::Line2DPos firstpos, lastpos;
     l2dd.getPos( trcrg.start, firstpos );
     l2dd.getPos( trcrg.stop, lastpos );
