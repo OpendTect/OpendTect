@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uicalcpoly2horvol.cc,v 1.15 2012-05-22 14:48:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicalcpoly2horvol.cc,v 1.16 2012-07-24 10:52:36 cvsjaap Exp $";
 
 #include "uicalcpoly2horvol.h"
 #include "poly2horvol.h"
@@ -209,7 +209,6 @@ uiCalcHorPolyVol::~uiCalcHorPolyVol()
 
 void uiCalcHorPolyVol::psSel( CallBacker* cb )
 {
-    bool havenew = ps_;
     if ( ps_ ) delete ps_;
     ps_ = 0;
 
