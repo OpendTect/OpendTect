@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.104 2012-07-20 14:07:02 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.105 2012-07-24 15:04:48 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -90,9 +90,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     dataselgrp->attach( ensureRightOf, topgrp_ );
 
     datalist_ = new uiLabeledComboBox( dataselgrp, "View ", "" );
-    datalist_->setStretch( 0, 0 );
     datalist_->box()->selectionChanged.notify(
 	    				mCB(this,uiStratSynthDisp,dataSetSel) );
+    datalist_->box()->setHSzPol( uiObject::Wide );
 
     addeditbut_ = new uiToolButton( dataselgrp, "edit", 
 	    			"Add/Edit Synthetic DataSet",
