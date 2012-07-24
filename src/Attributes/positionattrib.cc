@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: positionattrib.cc,v 1.39 2012-07-10 08:05:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: positionattrib.cc,v 1.40 2012-07-24 14:22:28 cvsnageswara Exp $";
 
 
 #include "positionattrib.h"
@@ -138,8 +138,8 @@ bool Position::getInputOutput( int input, TypeSet<int>& res ) const
 bool Position::getInputData( const BinID& relpos, int zintv )
 {
     const int nrpos = positions_.size();
-    const int inlsz = stepout_.inl * 2 + 1;
-    const int crlsz = stepout_.crl * 2 + 1;
+    const int inlsz mUnusedVar = stepout_.inl * 2 + 1;
+    const int crlsz mUnusedVar = stepout_.crl * 2 + 1;
     BinID bidstep = inputs_[0]->getStepoutStep();
     //bidstep.inl = abs(bidstep.inl); bidstep.crl = abs(bidstep.crl);
 
@@ -173,7 +173,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
     if ( inputdata_.isEmpty() || !outdata_ ) return false;
     
     const int nrpos = positions_.size();
-    const int cposnr = (int)(nrpos/2);
+    const int cposnr mUnusedVar = (int)(nrpos/2);
 
     const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
 				    mNINT32(gate_.stop/refstep_) );
