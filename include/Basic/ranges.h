@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.71 2012-07-10 08:05:25 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.72 2012-07-24 18:39:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -328,8 +328,8 @@ int Interval<T>::nearestIndex( const X& x, const T& step ) const
     const T atindex = atIndex(nr,step);
     const float reldiff = (float)(x-atindex)/step;
 
-    if ( reldiff>=0.5 ) return nr+1;
-    else if ( reldiff<=-0.5 ) return nr-1;
+    if ( reldiff>=0.5f ) return nr+1;
+    else if ( reldiff<=-0.5f ) return nr-1;
     return nr;
 }
 
@@ -682,12 +682,13 @@ template <> \
 inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
 			float eps ) const \
 { \
-    if ( !mIsEqual(step,b.step,eps) ) return false; \
+    const typ castedeps = (typ) eps; \
+    if ( !mIsEqual(step,b.step, castedeps) ) return false; \
  \
     typ nrsteps = (start - b.start) / step; \
     int nrstepsi = mNINT32( nrsteps ); \
     typ diff = nrsteps - nrstepsi; \
-    return ( (diff) < (eps) && (diff) > (-eps) ); \
+    return ( (diff) < (castedeps) && (diff) > (-castedeps) ); \
 }
 
 mDefFltisCompat(float)
