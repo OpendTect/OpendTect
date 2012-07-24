@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.15 2012-07-24 14:55:11 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.16 2012-07-24 15:17:08 cvsbert Exp $";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"
@@ -229,7 +229,9 @@ bool uiEditPropRef::acceptOK( CallBacker* )
 
     BufferString defvalstr( deffld_->text() );
     char* ptr = defvalstr.buf(); mTrimBlanks(ptr);
-    if ( *ptr )
+    if ( !*ptr )
+	{ delete pr_.disp_.defval_; pr_.disp_.defval_ = 0; }
+    else
     {
 	if ( withform_ && isNumberString(ptr) )
 	    pr_.disp_.defval_ = new ValueProperty( pr_, toFloat(ptr) );
@@ -296,7 +298,7 @@ void uiBuildPROPS::itemSwitch( const char* nm1, const char* nm2 )
 
 uiManPROPS::uiManPROPS( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Layer Properties",
-				"Define possible layer properties","1110.1.0"))
+				"Define possible layer properties","110.1.0"))
 {
     setCtrlStyle( LeaveOnly );
     buildfld_ = new uiBuildPROPS( this, ePROPS(), true );
