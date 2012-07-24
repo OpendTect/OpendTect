@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: od_process_segyio.cc,v 1.11 2012-05-22 14:48:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_segyio.cc,v 1.12 2012-07-24 14:51:41 cvsbert Exp $";
 
 #include "batchprog.h"
 
@@ -27,7 +27,6 @@ bool BatchProgram::go( std::ostream& strm )
     OD::ModDeps().ensureLoaded("Seis");
     
     const FixedString task = pars().find( SEGY::IO::sKeyTask() );
-    const char* parseerror =  "Cannot parse parameters";
     const bool isps = task == SEGY::IO::sKeyIndexPS();
     const bool isvol = task == SEGY::IO::sKeyIndex3DVol();
     bool is2d = !isvol; MultiID mid;
