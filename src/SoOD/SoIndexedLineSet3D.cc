@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: SoIndexedLineSet3D.cc,v 1.25 2012-05-02 15:11:50 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoIndexedLineSet3D.cc,v 1.26 2012-07-24 02:05:23 cvskris Exp $";
 
 #include "SoIndexedLineSet3D.h"
 
@@ -145,7 +145,6 @@ void SoIndexedLineSet3D::GLRender(SoGLRenderAction* action)
 
     if ( !isvalid )
     {
-	const int32_t* cindices = coordIndex.getValues(0);
 	data_.generateCoordinates( this, radius.getValue(),
 		screenSize.getValue(), maxRadius.getValue(),
 		coordIndex.getValues(0), coordIndex.getNum(), state );
@@ -388,7 +387,8 @@ void SoIndexedLineSet3D::rayPick( SoRayPickAction* action )
 
 	    if ( action->intersect( c1, c2, dummy ) )
 	    {
-		SoPickedPoint* pickedpoint = action->addIntersection(dummy);
+		SoPickedPoint* pickedpoint mUnusedVar =
+		    action->addIntersection(dummy);
 		//Todo: Fill out pickedpoint
 	    }
 

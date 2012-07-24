@@ -27,7 +27,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoTextureCoordinateBindingElement.h>
 #include <Inventor/system/gl.h>
 
-static const char* rcsID mUnusedVar = "$Id: SoIndexedTriangleFanSet.cc,v 1.11 2012-05-02 15:11:50 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoIndexedTriangleFanSet.cc,v 1.12 2012-07-24 02:05:23 cvskris Exp $";
 
 SO_NODE_SOURCE(SoIndexedTriangleFanSet);
 
@@ -206,7 +206,6 @@ void SoIndexedTriangleFanSet::GLRender(SoGLRenderAction* action)
     SbVec3f point;
 
     int texidx = 0;
-    int matnr = 0;
     int normnr = 0;
 
     while ( viptr+2<viendptr )
