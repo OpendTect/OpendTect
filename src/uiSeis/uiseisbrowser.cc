@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.67 2012-07-10 08:05:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.68 2012-07-24 09:03:14 cvskris Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -474,7 +474,6 @@ void uiSeisBrowser::infoPush( CallBacker* )
 {
     const SeisTrc& trc = tbl_->currentCol()<0 ? ctrc_ 
 					      : *tbuf_.get(tbl_->currentCol());
-    const bool hadinfo = infovwr_;
     if ( !infovwr_ )
     {
 	infovwr_ = new uiSeisBrowserInfoVwr( this, trc, is2d_, *zdomdef_ );

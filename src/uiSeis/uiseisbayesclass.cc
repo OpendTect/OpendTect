@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisbayesclass.cc,v 1.26 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisbayesclass.cc,v 1.27 2012-07-24 09:03:14 cvskris Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -167,7 +167,7 @@ void handleDisp( CallBacker* )
     for ( int idx=0; idx<flds_.size(); idx++ )
     {
 	const bool dodisp = idx < nrdisp_;
-	flds_[idx]->display( idx < nrdisp_ );
+	flds_[idx]->display( dodisp );
 	if ( addbuts_[idx] ) addbuts_[idx]->display( idx == nrdisp_-1 );
 	if ( rmbuts_[idx] ) rmbuts_[idx]->display( idx == nrdisp_-1 );
     }
@@ -512,7 +512,6 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
 	    				emsg );
     if ( !pdf ) { new uiLabel(this,emsg); return; }
 
-    int nrpdfs = 0;
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
 	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
@@ -579,7 +578,7 @@ bool getFromScreen( bool permissive )
 {
     if ( is2d_ ) return false;
 
-    int nrout = 0; int curiopidx = 0;
+    int nrout = 0;
     for ( int idx=0; idx<flds3d_.size(); idx++ )
     {
 	uiSeisSel* sel = flds3d_[idx];

@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiseispreloadmgr.cc,v 1.33 2012-07-10 08:05:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseispreloadmgr.cc,v 1.34 2012-07-24 09:03:15 cvskris Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -392,7 +392,6 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
     mCheckIOObjExistance( dlg.ioObj() );
 
     Seis::PreLoader spl( dlg.ioObj()->key() );
-    const char* id = spl.id().buf();
     Interval<int> inlrg; assign(inlrg,inlrgfld->getRange());
     uiTaskRunner tr( this ); spl.setRunner( tr );
     if ( !spl.loadPS3D(&inlrg) )
@@ -469,7 +468,6 @@ void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
     mCheckIOObjExistance( dlg.ioObj() );
 
     Seis::PreLoader spl( dlg.ioObj()->key() );
-    const char* id = spl.id().buf();
     uiTaskRunner tr( this ); spl.setRunner( tr );
     if ( !spl.loadPS2D(dlg.lnms_) )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyexamine.cc,v 1.36 2012-05-09 07:51:27 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyexamine.cc,v 1.37 2012-07-24 09:03:14 cvskris Exp $";
 
 #include "uisegyexamine.h"
 #include "uisegytrchdrvalplot.h"
@@ -341,7 +341,6 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
     const int nrvals = hdef.size();
-    const SEGY::TrcHeader& trhead = tr.trcHeader();
     for ( int ival=0; ival<nrvals; ival++ )
     {
 	const SEGY::HdrEntry& he( *hdef[ival] );

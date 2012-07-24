@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseistransf.cc,v 1.52 2012-05-22 14:48:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseistransf.cc,v 1.53 2012-07-24 09:03:15 cvskris Exp $";
 
 #include "uiseistransf.h"
 #include "uiseissubsel.h"
@@ -90,7 +90,6 @@ int uiSeisTransfer::maxBytesPerSample() const
 
 SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
 {
-    const int ntr = selfld->expectedNrTraces();
     SeisIOObjInfo::SpaceInfo si( selfld->expectedNrSamples(),
 	    	selfld->expectedNrTraces(), maxBytesPerSample() );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseispsman.cc,v 1.29 2012-07-10 08:05:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseispsman.cc,v 1.30 2012-07-24 09:03:15 cvskris Exp $";
 
 
 #include "uiseispsman.h"
@@ -94,12 +94,9 @@ void uiSeisPreStackMan::mkFileInfo()
 	}
 	else
 	{
-	    SeisPS3DReader* rdr = SPSIOPF().get3DReader( *curioobj_ );
+	    PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *curioobj_ );
 	    const PosInfo::CubeData& cd = rdr->posData();
 	    txt.add( "Total number of gathers: " ).add( cd.totalSize() );
-	    const bool haveinlstep = cd.haveInlStepInfo();
-	    const bool havecrlstep = cd.haveCrlStepInfo();
-	    const bool havebothsteps = haveinlstep && havecrlstep;
 	    StepInterval<int> rg; cd.getInlRange( rg );
 	    txt.add( "\nInline range: " )
 			.add( rg.start ).add( " - " ).add( rg.stop );
@@ -110,7 +107,6 @@ void uiSeisPreStackMan::mkFileInfo()
 			.add( rg.start ).add( " - " ).add( rg.stop );
 	    if ( cd.haveCrlStepInfo() )
 		{ txt.add( " step " ).add( rg.step ); }
-	    delete rdr;
 	}
 	txt.add("\n");
 	CubeSampling cs;

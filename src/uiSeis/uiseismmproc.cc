@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseismmproc.cc,v 1.145 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseismmproc.cc,v 1.146 2012-07-24 09:03:14 cvskris Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -52,7 +52,6 @@ static const char* rcsID mUnusedVar = "$Id: uiseismmproc.cc,v 1.145 2012-05-22 1
 #include <iostream>
 
 static const char* outlsfilename = "outls.2ds";
-static const char* outlskey = "Output Line Set";
 
 
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
