@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.18 2012-07-03 11:54:46 cvskris Exp $
+ RCS:           $Id: convert.h,v 1.19 2012-07-24 18:47:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,7 +153,7 @@ inline void set( short& _to, const float& f )
 
 template <>
 inline void set( unsigned short& _to, const float& f )
-    { _to = mRounded(unsigned short,f); }
+    { _to = mRounded(od_uint16,f); }
 
 template <>
 inline void set( od_uint32& _to, const float& f )
@@ -177,7 +177,7 @@ inline void set( short& _to, const double& f )
 
 template <>
 inline void set( unsigned short& _to, const double& f )
-    { _to = mRounded(unsigned short,f); }
+    { _to = mRounded(od_uint16,f); }
 
 template <>
 inline void set( od_uint32& _to, const double& f )
@@ -193,11 +193,11 @@ inline void set( bool& _to, const int& i )
 
 template <>
 inline void set( bool& _to, const float& f )
-    { _to = !mIsZero(f,mDefEps); }
+    { _to = !mIsZero(f,mDefEpsF); }
 
 template <>
 inline void set( bool& _to, const double& d )
-    { _to = !mIsZero(d,mDefEps); }
+    { _to = !mIsZero(d,mDefEpsD); }
 
 
 }
