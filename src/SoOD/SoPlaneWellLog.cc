@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoPlaneWellLog.cc,v 1.54 2012-07-17 12:36:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoPlaneWellLog.cc,v 1.55 2012-07-24 09:46:41 cvsjaap Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -583,7 +583,6 @@ SbVec3f SoPlaneWellLog::getProjCoords( const SoMFVec3f& path, const int index,
     }
 
     SbVec3f normal = getNormal( pt1, pt2, projdir );
-    SbVec3f normalshift = getNormal( pt1, pt2, projdir );
     normal.normalize();
     
     float maxvalF = maxval.getValue();
