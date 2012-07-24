@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.13 2012-07-24 14:22:53 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.14 2012-07-24 14:31:40 cvsbert Exp $";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"
@@ -137,8 +137,10 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
     }
     rgfld_->setValue( vintv );
 
-    deffld_ = new uiGenInput( this, "Default value (empty=range mid)" );
+    deffld_ = new uiGenInput( this, "[Default value]" );
     deffld_->attach( alignedBelow, rgfld_ );
+    if ( pr_.disp_.defval_ )
+	deffld_->setText( pr_.disp_.defval_->def() );
     if ( withform_ )
     {
 	uiPushButton* but = new uiPushButton( this, "&Formula",
