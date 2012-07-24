@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: attribengman.cc,v 1.116 2012-05-22 14:48:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribengman.cc,v 1.117 2012-07-24 14:49:56 cvskris Exp $";
 
 #include "attribengman.h"
 
@@ -685,7 +685,6 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 		     const ObjectSet<BinIDValueSet>& bivsets )
     : Executor("Extracting attributes")
 {
-    const int nrinps = inputs.size();
     const DescSet* attrset = aem.procattrset_ ? aem.procattrset_ : aem.inpattrset_;
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
@@ -1062,7 +1061,6 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
     BufferStringSet attrrefs;
     descset.fillInAttribColRefs( attrrefs );
     
-    const int nrdpsfixcols = datapointset.nrFixedCols();
     for ( int idx=0; idx<datapointset.nrCols(); idx++ )
     {
 	DataColDef& dcd = datapointset.colDef( idx );

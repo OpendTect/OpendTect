@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.114 2012-07-10 08:05:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.115 2012-07-24 14:49:56 cvskris Exp $";
 
 #include "attriboutput.h"
 
@@ -191,7 +191,6 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
     if ( !datacubes_->includes(info.binid) )
 	return;
 		
-    const int totalnrcubes = desoutputs_.size();
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
 	if ( desout<datacubes_->nrCubes() )

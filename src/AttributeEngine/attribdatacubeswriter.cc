@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribdatacubeswriter.cc,v 1.11 2012-05-02 15:11:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdatacubeswriter.cc,v 1.12 2012-07-24 14:49:56 cvskris Exp $";
 
 #include "attribdatacubeswriter.h"
 
@@ -95,8 +95,6 @@ int DataCubesWriter::nextStep()
 
     if ( !iterator_.next( currentpos_ ) )
 	return Finished();
-
-    const int trcsz = zrg_.width()+1;
 
     trc_->info().binid = currentpos_;
     trc_->info().coord = SI().transform( currentpos_ );

@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackeventtracker.cc,v 1.3 2012-05-02 15:11:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackeventtracker.cc,v 1.4 2012-07-24 14:52:56 cvskris Exp $";
 
 #include "prestackeventtracker.h"
 
@@ -39,7 +39,6 @@ void EventTracker::setMute( bool inner, MuteDef* mutedef,
 {
     MuteDef*& mymute = inner ? innermute_ : outermute_;
     bool& myownership = inner ? ownsinnermute_ : ownsoutermute_;
-    MultiID& myid = inner ? innermuteid_ : outermuteid_;
 
     if ( mymute && myownership )
 	delete mymute;
