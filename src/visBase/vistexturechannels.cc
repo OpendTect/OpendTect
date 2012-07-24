@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistexturechannels.cc,v 1.49 2012-05-04 07:54:28 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistexturechannels.cc,v 1.50 2012-07-24 02:13:57 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -610,17 +610,17 @@ int TextureChannels::addChannel()
 {
     TypeSet<int> osgids;
 
-    int id = -1;
+    int osgid = -1;
     if ( osgtexture_ )
     {
-	id = osgtexture_->addDataLayer();
-	osgtexture_->setDataLayerUndefLayerID( id, id );
-	osgtexture_->setDataLayerUndefChannel( id, 3 );
+	osgid = osgtexture_->addDataLayer();
+	osgtexture_->setDataLayerUndefLayerID( osgid, osgid );
+	osgtexture_->setDataLayerUndefChannel( osgid, 3 );
 	const osg::Vec4f imageudfcolor( 1.0, 1.0, 1.0, 0.0 );
-	osgtexture_->setDataLayerImageUndefColor( id, imageudfcolor );
+	osgtexture_->setDataLayerImageUndefColor( osgid, imageudfcolor );
     }
 
-    osgids += id;
+    osgids += osgid;
 
     ChannelInfo* newchannel = new ChannelInfo( *this );
 

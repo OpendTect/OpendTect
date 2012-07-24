@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistransform.cc,v 1.32 2012-06-20 13:09:53 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistransform.cc,v 1.33 2012-07-24 02:13:57 cvskris Exp $";
 
 #include "vistransform.h"
 #include "iopar.h"
@@ -75,10 +75,10 @@ void Transformation::setRotation( const Coord3& vec, double angle )
     transform_->matrix.setValue( matrix );
     if ( node_ )
     {
-	osg::Matrix matrix = node_->getMatrix();
-	const osg::Quat rotation( angle, osg::Vec3d(vec.x,vec.y,vec.z ) );
-	matrix.setRotate( rotation );
-	node_->setMatrix( matrix );
+	osg::Matrix osgmatrix = node_->getMatrix();
+	const osg::Quat osgrotation( angle, osg::Vec3d(vec.x,vec.y,vec.z ) );
+	osgmatrix.setRotate( osgrotation );
+	node_->setMatrix( osgmatrix );
     }
 }
 
@@ -98,9 +98,9 @@ void Transformation::setTranslation( const Coord3& vec )
     transform_->matrix.setValue( matrix );
     if ( node_ )
     {
-	osg::Matrix matrix = node_->getMatrix();
-	matrix.setTrans( vec.x, vec.y, vec.z );
-	node_->setMatrix( matrix );
+	osg::Matrix osgmatrix = node_->getMatrix();
+	osgmatrix.setTrans( vec.x, vec.y, vec.z );
+	node_->setMatrix( osgmatrix );
     }
 }
 
@@ -140,9 +140,9 @@ void Transformation::setScale( const Coord3& vec )
     transform_->matrix.setValue( matrix );
     if ( node_ )
     {
-	osg::Matrix matrix = node_->getMatrix();
-	matrix.makeScale( vec.x, vec.y, vec.z );
-	node_->setMatrix( matrix );
+	osg::Matrix osgmatrix = node_->getMatrix();
+	osgmatrix.makeScale( vec.x, vec.y, vec.z );
+	node_->setMatrix( osgmatrix );
     }
 }
 
@@ -161,8 +161,8 @@ Coord3 Transformation::getScale() const
     SbVec3f scale;
     SbRotation scaleorientation;
 
-    const SbMatrix matrix = transform_->matrix.getValue();
-    matrix.getTransform( translation, rotation, scale, scaleorientation );
+    const SbMatrix coinmatrix = transform_->matrix.getValue();
+    coinmatrix.getTransform( translation, rotation, scale, scaleorientation );
     return Coord3( scale[0], scale[1], scale[2] );
 }
 

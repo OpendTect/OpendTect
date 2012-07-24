@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistexturechannel2rgba.cc,v 1.67 2012-07-10 14:28:28 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistexturechannel2rgba.cc,v 1.68 2012-07-24 02:13:57 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -303,15 +303,15 @@ void ColTabTextureChannel2RGBA::updateOsgTexture() const
 {
     if ( channels_ && channels_->getOsgTexture() )
     {
-	TypeSet<int> ids;
+	TypeSet<int> layerids;
 	osgGeo::LayeredTexture& laytex = *channels_->getOsgTexture();
 	for ( int procidx=laytex.nrProcesses()-1; procidx>=0; procidx-- )
 	{
 	    mDynamicCastGet( osgGeo::ColTabLayerProcess*, proc,
 			     laytex.getProcess(procidx) );
 
-	    const int id = proc->getDataLayerID();
-	    if ( laytex.getDataLayerIndex(id)<0 )
+	    const int layerid = proc->getDataLayerID();
+	    if ( laytex.getDataLayerIndex(layerid)<0 )
 	    {
 		const osgGeo::ColorSequence* colseq = proc->getColorSequence();
 		const int colseqidx = osgcolsequences_.indexOf( colseq );
@@ -320,13 +320,13 @@ void ColTabTextureChannel2RGBA::updateOsgTexture() const
 		laytex.removeProcess( proc );
 	    }
 	    else
-		ids.insert( 0, id );
+		layerids.insert( 0, layerid );
 	}
 
 	for ( int channel=0; channel<channels_->nrChannels(); channel++ )
 	{
-	    const int id = (*channels_->getOsgIDs(channel))[0];
-	    int procidx = ids.indexOf(id);
+	    const int layerid = (*channels_->getOsgIDs(channel))[0];
+	    int procidx = layerids.indexOf(layerid);
 	    if ( procidx != channel )
 	    {
 		mDynamicCastGet( osgGeo::ColTabLayerProcess*, proc,
@@ -336,7 +336,7 @@ void ColTabTextureChannel2RGBA::updateOsgTexture() const
 		    procidx = laytex.nrProcesses();
 		    proc = new osgGeo::ColTabLayerProcess( laytex );
 		    laytex.addProcess( proc );
-		    proc->setDataLayerID( id );
+		    proc->setDataLayerID( layerid );
 
 		    TypeSet<unsigned char>* ts = new TypeSet<unsigned char>();
 		    getColors( channel, *ts );
@@ -351,7 +351,7 @@ void ColTabTextureChannel2RGBA::updateOsgTexture() const
 		    proc->setNewUndefColor( newudfcol/255.0 );
 		}
 		else
-		    ids.remove( procidx );
+		    layerids.remove( procidx );
 
 		for ( int idx=procidx; idx>channel; idx-- )
 		{
@@ -360,7 +360,7 @@ void ColTabTextureChannel2RGBA::updateOsgTexture() const
 		    osgcolseqarrays_.swap( idx, idx-1 );
 		}
 
-		ids.insert( channel, id );
+		layerids.insert( channel, layerid );
 	    }
 	}
     }
