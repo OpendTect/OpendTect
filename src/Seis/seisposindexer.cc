@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID mUnusedVar = "$Id: seisposindexer.cc,v 1.19 2012-06-28 13:07:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisposindexer.cc,v 1.20 2012-07-24 14:22:53 cvsbert Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -402,8 +402,6 @@ void Seis::PosIndexer::getCrls( int inl, TypeSet<int>& crls ) const
     int inlidx = is2d_ ? 0 : getIndex( inls_, inl, pres );
     if ( !pres )
 	return;
-
-    const TypeSet<int>* crlsetptr = 0;
 
     if ( strm_ )
     {

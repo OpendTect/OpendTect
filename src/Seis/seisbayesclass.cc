@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisbayesclass.cc,v 1.19 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisbayesclass.cc,v 1.20 2012-07-24 14:22:53 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -171,10 +171,10 @@ SeisTrcReader* SeisBayesClass::getReader( const char* id, bool isdim, int idx )
 	msg_.setEmpty(); const ProbDenFunc& pdf0 = *inppdfs_[0];
 	if ( isdim )
 	    msg_.add( "Cannot find input cube for " )
-		.add( inppdfs_[0]->dimName(idx) );
+		.add( pdf0.dimName(idx) );
 	else
 	    msg_.add( "Cannot find a priori scaling cube for " )
-		.add( inppdfs_[idx]->name() );
+		.add( pdf0.name() );
 	msg_.add( "\nID found is " ).add( id );
 	return 0;
     }

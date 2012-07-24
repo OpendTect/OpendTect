@@ -7,17 +7,20 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.12 2012-05-29 16:40:17 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.13 2012-07-24 14:22:53 cvsbert Exp $";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"
 #include "uigeninput.h"
+#include "uimathexpression.h"
+#include "uirockphysform.h"
 #include "uilistbox.h"
 #include "uiunitsel.h"
 #include "uicolor.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
-#include "propertyref.h"
+#include "uilineedit.h"
+#include "mathproperty.h"
 #include "separstr.h"
 #include "unitofmeasure.h"
 
@@ -25,9 +28,10 @@ static const char* rcsID mUnusedVar = "$Id: uimanprops.cc,v 1.12 2012-05-29 16:4
 class uiBuildPROPS : public uiBuildListFromList
 {
 public:
-			uiBuildPROPS(uiParent*,PropertyRefSet&);
+			uiBuildPROPS(uiParent*,PropertyRefSet&,bool);
 
     PropertyRefSet& 	props_;
+    bool		allowmath_;
 
     virtual const char*	avFromDef(const char*) const;
     virtual void	editReq(bool);
@@ -38,11 +42,12 @@ public:
 };
 
 
-uiBuildPROPS::uiBuildPROPS( uiParent* p, PropertyRefSet& prs )
+uiBuildPROPS::uiBuildPROPS( uiParent* p, PropertyRefSet& prs, bool allowmath )
     : uiBuildListFromList(p,
 	    uiBuildListFromList::Setup(false,"property type","usable property")
 	    .withio(false).withtitles(true), "PropertyRef selection group")
     , props_(prs)
+    , allowmath_(allowmath)
 {
     const BufferStringSet dispnms( PropertyRef::StdTypeNames() );
 
@@ -76,26 +81,32 @@ class uiEditPropRef : public uiDialog
 {
 public:
 
-	    		uiEditPropRef(uiParent*,PropertyRef&,bool);
+	    		uiEditPropRef(uiParent*,PropertyRef&,bool,bool);
     bool		acceptOK(CallBacker*);
 
     PropertyRef&	pr_;
+    const bool		withform_;
 
     uiGenInput*		namefld_;
     uiGenInput*		aliasfld_;
+    uiColorInput*	colfld_;
     uiGenInput*		rgfld_;
     uiUnitSel*		unfld_;
-    uiColorInput*	colfld_;
+    uiGenInput*		deffld_;
+
+    void		setForm(CallBacker*);
 
 };
 
 
-uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
+uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
+       				bool supportform )
     : uiDialog(p,uiDialog::Setup("Property definition",
 		BufferString(isadd?"Add '":"Edit '",
 		    PropertyRef::toString(pr.stdType()),"' property"),
 		"110.1.1"))
     , pr_(pr)
+    , withform_(supportform)
 {
     namefld_ = new uiGenInput( this, "Name", StringInpSpec(pr.name()) );
     SeparString ss;
@@ -125,6 +136,64 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
 	    vintv.stop = un->getUserValueFromSI( vintv.stop );
     }
     rgfld_->setValue( vintv );
+
+    deffld_ = new uiGenInput( this, "Default value (empty=range mid)" );
+    deffld_->attach( alignedBelow, rgfld_ );
+    if ( withform_ )
+    {
+	uiPushButton* but = new uiPushButton( this, "&Formula",
+				mCB(this,uiEditPropRef,setForm), false );
+	but->attach( rightOf, deffld_ );
+    }
+}
+
+
+class uiEditPropRefMathDef : public uiDialog
+{
+public:
+
+uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
+			const UnitOfMeasure* un )
+    : uiDialog(p,Setup(BufferString("Set ",pr.name()," default to formula"),
+		mNoDlgTitle,mTODOHelpID) )
+    , pr_(pr)
+{
+    uiMathExpression::Setup mesu( "Formula" ); mesu.withsetbut( false );
+    formfld_ = new uiMathExpression( this, mesu );
+    BufferString curdef( pr_.disp_.defval_ ? pr_.disp_.defval_->def() : "" );
+    if ( !pr_.disp_.defval_ )
+    {
+	float val = pr_.disp_.range_.center();
+	if ( un )
+	    val = un->getUserValueFromSI( val );
+	curdef = val;
+    }
+    formfld_->setText( curdef );
+    uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
+	    mCB(this,uiEditPropRefMathDef,rockPhysReq), "RockPhysics");
+    formfld_->addButton(tbsu)->attach( centeredAbove, formfld_->textField() );
+}
+
+void rockPhysReq( CallBacker* )
+{
+    uiDialog dlg( this, uiDialog::Setup("Rock Physics",
+		  "Use a rock physics formula", mTODOHelpID) );
+    uiRockPhysForm* formgrp = new uiRockPhysForm( &dlg, pr_.stdType() );
+    if ( dlg.go() )
+	formfld_->setText( formgrp->getText(true) );
+}
+
+    const PropertyRef&	pr_;
+    uiMathExpression*	formfld_;
+
+};
+
+
+void uiEditPropRef::setForm( CallBacker* )
+{
+    uiEditPropRefMathDef dlg( this, pr_, unfld_->getUnit() );
+    if ( dlg.go() )
+	deffld_->setText( dlg.formfld_->text() );
 }
 
 
@@ -156,6 +225,16 @@ bool uiEditPropRef::acceptOK( CallBacker* )
     }
     pr_.disp_.range_ = vintv;
 
+    BufferString defvalstr( deffld_->text() );
+    char* ptr = defvalstr.buf(); mTrimBlanks(ptr);
+    if ( *ptr )
+    {
+	if ( withform_ && isNumberString(ptr) )
+	    pr_.disp_.defval_ = new ValueProperty( pr_, toFloat(ptr) );
+	else
+	    pr_.disp_.defval_ = new MathProperty( pr_, ptr );
+    }
+
     return true;
 }
 
@@ -176,8 +255,13 @@ void uiBuildPROPS::editReq( bool isadd )
     }
     if ( !pr ) return;
 
-    uiEditPropRef dlg( this, *pr, isadd );
-    if ( dlg.go() )
+    uiEditPropRef dlg( this, *pr, isadd, allowmath_ );
+    if ( !dlg.go() )
+    {
+	if ( isadd )
+	    delete pr;
+    }
+    else
     {
 	if ( isadd )
 	    props_ += pr;
@@ -213,7 +297,7 @@ uiManPROPS::uiManPROPS( uiParent* p )
 				"Define possible layer properties","1110.1.0"))
 {
     setCtrlStyle( LeaveOnly );
-    buildfld_ = new uiBuildPROPS( this, ePROPS() );
+    buildfld_ = new uiBuildPROPS( this, ePROPS(), true );
     static const char* strs[] = { "For this survey only",
 				  "As default for all surveys",
 				  "As default for my user ID only", 0 };

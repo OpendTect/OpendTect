@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiscubeprov.cc,v 1.26 2012-05-30 13:17:33 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiscubeprov.cc,v 1.27 2012-07-24 14:22:53 cvsbert Exp $";
 
 #include "seiscubeprov.h"
 
@@ -367,10 +367,10 @@ SeisTrc* SeisMSCProvider::get( const BinID& bid )
 	    BinID( pivotidx_, tbufs_[pivotidx_]->get(pivotidy_)->info().nr ) : \
 	    tbufs_[pivotidx_]->get(pivotidy_)->info().binid; \
     RowCol bidstepout( stepout ); bidstepout *= stepoutstep_; \
-    const int bottomdist = pivotbid.inl - curbid.inl - bidstepout.row; \
-    const int topdist = curbid.inl - pivotbid.inl - bidstepout.row; \
-    const int leftdist = pivotbid.crl - curbid.crl - bidstepout.col; \
-    const int rightdist = curbid.crl - pivotbid.crl - bidstepout.col;
+    const int bottomdist mUnusedVar = pivotbid.inl-curbid.inl-bidstepout.row; \
+    const int topdist mUnusedVar = curbid.inl-pivotbid.inl-bidstepout.row; \
+    const int leftdist mUnusedVar = pivotbid.crl-curbid.crl-bidstepout.col; \
+    const int rightdist mUnusedVar = curbid.crl-pivotbid.crl-bidstepout.col;
    
 
 bool SeisMSCProvider::isReqBoxFilled() const

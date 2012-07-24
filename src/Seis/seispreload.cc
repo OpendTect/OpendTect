@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID mUnusedVar = "$Id: seispreload.cc,v 1.15 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seispreload.cc,v 1.16 2012-07-24 14:22:53 cvsbert Exp $";
 
 #include "seispreload.h"
 #include "seiscbvs.h"
@@ -82,7 +82,7 @@ void Seis::PreLoader::getLineKeys( BufferStringSet& lks ) const
     if ( !is2dln && strcmp(ioobj->translator(), \
 		CBVSSeisTrcTranslator::translKey()) ) \
 	{ errmsg_ = "Cannot pre-load other than CBVS data"; return false; } \
-    TaskRunner& trunnr = getTr()
+    TaskRunner& trunnr mUnusedVar = getTr()
 
 
 bool Seis::PreLoader::loadVol() const

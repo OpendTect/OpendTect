@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: nlacrdesc.cc,v 1.27 2012-05-02 15:11:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: nlacrdesc.cc,v 1.28 2012-07-24 14:22:52 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -159,7 +159,7 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
     Stats::RandGen::init();
     const bool extractrand = ratiotst > -0.001;
     const float tstratio = ratiotst < 0 ? -ratiotst : ratiotst;
-    const int lasttrain = (int)((1-ratiotst)*totnrvec + .5);
+    const int lasttrain = (int)((1-tstratio)*totnrvec + .5);
     for ( int idps=0; idps<dpss.size(); idps++ )
     {
 	const DataPointSet& curdps = *dpss[idps];
@@ -179,7 +179,7 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 		    outdr.data_ += iout == idps ? 1 : 0;
 	    }
 
-	    const bool istest = extractrand ? Stats::RandGen::get() < ratiotst
+	    const bool istest = extractrand ? Stats::RandGen::get() < tstratio
 					     : irow > lasttrain;
 	    outdr.setGroup( istest ? 2 : 1 );
 	    dps.addRow( outdr );

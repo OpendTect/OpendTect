@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisjobexecprov.cc,v 1.49 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisjobexecprov.cc,v 1.50 2012-07-24 14:22:53 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seiscbvs.h"
@@ -218,8 +218,6 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 
     TypeSet<int> inlnrs;
     TypeSet<int>* ptrnrs = 0;
-    IOPar* subselpar =
-		iopar_.subselect( IOPar::compKey(sKey::Output(), sKey::Subsel()) );
 
     mSetInlsPerJob( nrinlperjob );
     InlineSplitJobDescProv jdp( iopar_, 0 );
@@ -293,7 +291,6 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 {
     FilePath basefp( iopar_.find(sKey::TmpStor()) );
 
-    int lastgood = todoinls_.start - todoinls_.step;
     for ( int inl=todoinls_.start; inl<=todoinls_.stop; inl+=todoinls_.step )
     {
 	BufferString fnm( "i." ); fnm += inl;
