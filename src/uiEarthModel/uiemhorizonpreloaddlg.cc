@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiemhorizonpreloaddlg.cc,v 1.10 2012-05-22 14:48:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiemhorizonpreloaddlg.cc,v 1.11 2012-07-24 12:42:54 cvsjaap Exp $";
 
 #include "uiempreloaddlg.h"
 
@@ -56,13 +56,15 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     uiButtonGroup* butgrp = new uiButtonGroup( this, "Manip buttons" );
     butgrp->attach( rightOf, listfld_ );
 
-    uiPushButton* add3dbut = new uiPushButton( butgrp, "Add 3D Horizon",
-		    mCB(this,uiHorizonPreLoadDlg,add3DPushCB), false );
+    uiPushButton* add3dbut mUnusedVar =
+	new uiPushButton( butgrp, "Add 3D Horizon",
+			  mCB(this,uiHorizonPreLoadDlg,add3DPushCB), false );
 
     if ( SI().has2D() )
     {
-	uiPushButton* add2dbut = new uiPushButton( butgrp, "Add 2D Horizon",
-			mCB(this,uiHorizonPreLoadDlg,add2DPushCB), false );
+	uiPushButton* add2dbut mUnusedVar =
+	    new uiPushButton( butgrp, "Add 2D Horizon",
+			      mCB(this,uiHorizonPreLoadDlg,add2DPushCB), false);
     }
 
     unloadbut_ = new uiPushButton( this, "Unload selected",
@@ -194,7 +196,6 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	return;
     }
 
-    EM::HorizonPreLoader& hpl = EM::HPreL();
     PtrMan<IOPar> par = fulliop.subselect( "Hor" );
     TypeSet<MultiID> selmids;
     for ( int idx=0; idx<par->size(); idx++ )
