@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.17 2011-10-24 13:11:52 cvskris Exp $
+ RCS:           $Id: undefval.h,v 1.18 2012-07-24 18:40:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,8 @@ ________________________________________________________________________
 //! Undefined value. IEEE gives NaN but that's not exactly what we want
 #define __mUndefValue             1e30
 //! Check on undefined. Also works when double converted to float and vv
-#define __mIsUndefined(x)         (((x)>9.99999e29)&&((x)<1.00001e30))
+#define __mIsUndefinedD(x)         (((x)>9.99999e29)&&((x)<1.00001e30))
+#define __mIsUndefinedF(x)         (((x)>9.99999e29f)&&((x)<1.00001e30f))
 //! Almost MAXINT so unlikely, but not MAXINT to avoid that
 #define __mUndefIntVal            2109876543
 //! Almost MAXINT64 therefore unlikely.
@@ -134,7 +135,7 @@ class Undef<float>
 public:
     static float	val()			{ return (float)__mUndefValue; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( float f )	{ return __mIsUndefined(f); }
+    static bool		isUdf( float f )	{ return __mIsUndefinedF(f); }
     static void		setUdf( float& f )	{ f = (float)__mUndefValue; }
 };
 
@@ -145,7 +146,7 @@ class Undef<double>
 public:
     static double	val()			{ return __mUndefValue; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( double d )	{ return __mIsUndefined(d); }
+    static bool		isUdf( double d )	{ return __mIsUndefinedD(d); }
     static void		setUdf( double& d )	{ d = __mUndefValue; }
 };
 
@@ -228,7 +229,7 @@ mGlobal bool dbgIsUdf(double);
 
 # define scUndefValue		 "1e30"
 # define mcUndefValue             __mUndefValue
-# define mcIsUndefined(x)         __mIsUndefined(x)
+# define mcIsUndefined(x)         __mIsUndefinedD(x)
 
 
 #endif 
