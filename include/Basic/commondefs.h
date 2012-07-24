@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.40 2012-07-24 18:44:29 cvskris Exp $
+ RCS:		$Id: commondefs.h,v 1.41 2012-07-24 18:54:12 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -15,11 +15,13 @@ ________________________________________________________________________
 -*/
 
 #include "plfdefs.h"
+#include "rounding.h"
+
+#define mRounded(typ,x)		round_##typ( x )
+#define mNINT32(x)		mRounded( od_int32, x )
+#define mNINT64(x)		mRounded( od_int64, x )
 
 #define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
-#define mRounded(typ,x)		( (typ)((x)>0 ? (x)+.5 : (x)-.5) )
-#define mNINT32(x)		mRounded(int,x)
-#define mNINT64(x)		mRounded(od_int64,x)
 #define mMAX(x,y)		( (x)>(y) ? (x) : (y) )
 #define mMIN(x,y)		( (x)<(y) ? (x) : (y) )
 
