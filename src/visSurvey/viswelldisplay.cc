@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.156 2012-07-19 10:57:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.157 2012-07-24 10:49:04 cvsjaap Exp $";
 
 #include "viswelldisplay.h"
 
@@ -620,8 +620,6 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     val.setEmpty(); info.setEmpty();
     mGetWD(return);
 
-    float mousez = pos.z; 
-
     PtrMan<Well::Track> ttrack = 0;
     if ( zistime_ && wd->haveD2TModel() )
     {
@@ -661,7 +659,7 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 				float dah, bool isleft ) const
 {
     mGetWD(return);
-    const Well::DisplayProperties& disp = wd->displayProperties();
+
     const int lognr = isleft ? 1 : 2;
     BufferString lognm( mGetLogPar( lognr , name_ ) );
     if ( !lognm.isEmpty() && !lognm.isEqual("None") && !lognm.isEqual("none") )
