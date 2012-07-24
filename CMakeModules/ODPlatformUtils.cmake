@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.55 2012-07-24 17:24:42 cvsdgb Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.56 2012-07-24 18:58:42 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -52,7 +52,6 @@ IF(UNIX) #Apple an Linux
     ADD_DEFINITIONS("'-DmUnusedVar=__attribute__ ((unused))'")
     set (OD_STATIC_EXTENSION ".a")
     IF( OD_DEBUG )
-        ADD_DEFINITIONS("-D__debug__")
 	ADD_DEFINITIONS(  "-ggdb3" )
     ENDIF()
 
@@ -102,6 +101,6 @@ ENDIF()
 
 ADD_DEFINITIONS( "\"-D__${OD_PLFSUBDIR}__=1\"" )
 
-set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} \"-D__binsubdir__=Debug\"" )
+set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} \"-D__binsubdir__=Debug\" -D__debug__" )
 set ( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE} \"-D__binsubdir__=Release\"" )
-set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} \"-D__binsubdir__=RelWithDebInfo\"" )
+set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} \"-D__binsubdir__=RelWithDebInfo\" -D__debug__")
