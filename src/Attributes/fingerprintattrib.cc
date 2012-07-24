@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: fingerprintattrib.cc,v 1.21 2012-05-02 15:11:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingerprintattrib.cc,v 1.22 2012-07-24 08:46:51 cvsnageswara Exp $";
 
 #include "fingerprintattrib.h"
 
@@ -220,7 +220,6 @@ bool FingerPrint::computeData( const DataHolder& output, const BinID& relpos,
     TypeSet<float> scaledlocal;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const int cursample = idx + z0;
 	TypeSet<float> localvals;
 	for ( int inpidx=0; inpidx<inputdata_.size(); inpidx++ )
 	    localvals += getInputValue( *inputdata_[inpidx], 
