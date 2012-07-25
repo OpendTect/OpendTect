@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicoltabman.cc,v 1.49 2012-05-02 15:12:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicoltabman.cc,v 1.50 2012-07-25 13:57:41 cvsjaap Exp $";
 
 #include "uicoltabman.h"
 
@@ -194,7 +194,7 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 	else
 	    status = sKeyOwn;
 
-	uiListViewItem* itm = new uiListViewItem( coltablistfld_,
+	uiListViewItem* itm mUnusedVar = new uiListViewItem( coltablistfld_,
 		uiListViewItem::Setup().label(seq->name()).label(status) );
     }
 
