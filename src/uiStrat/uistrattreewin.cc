@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.78 2012-07-04 11:14:47 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.79 2012-07-25 06:54:28 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -305,7 +305,6 @@ void uiStratTreeWin::resetCB( CallBacker* )
     Strat::RefTree& bcktree = Strat::eRT(); 
     //for the time beeing, get back the global tree, but we may want to have 
     //a snapshot copy of the actual tree we are working on...
-    bool iseditmode = !strcmp( editmnuitem_->text(), mEditTxt(true) );
     uitree_->setTree( bcktree, true );
     uitree_->expand( true );
     uistratdisp_->setTree();
