@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Mar 2009
- RCS:           $Id: statdirdata.h,v 1.9 2012-07-10 08:05:25 cvskris Exp $
+ RCS:           $Id: statdirdata.h,v 1.10 2012-07-25 07:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,7 @@ inline int DirectionalData::sector( float ang ) const
 {
     ang -= setup_.angle0_;
     const float usrang = Angle::convert(setup_.angletype_,ang,Angle::UsrDeg);
-    float fsect = size() * (ang / 360);
+    const float fsect = size() * (usrang / 360);
     int sect = mNINT32(fsect);
     if ( sect >= size() ) sect = 0;
     return sect;
