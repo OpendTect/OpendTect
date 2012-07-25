@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratlayer.cc,v 1.36 2012-05-02 15:11:52 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratlayer.cc,v 1.37 2012-07-25 13:04:07 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -15,8 +15,6 @@ static const char* rcsID mUnusedVar = "$Id: stratlayer.cc,v 1.36 2012-05-02 15:1
 #include "strmoper.h"
 #include "keystrs.h"
 #include "elasticpropsel.h"
-
-static const char* sKeyLayModFileType = "Layer Model";
 
 
 const PropertyRef& Strat::Layer::thicknessRef()
@@ -122,7 +120,6 @@ const Strat::RefTree& Strat::LayerSequence::refTree() const
 
 int Strat::LayerSequence::indexOf( const Strat::Level& lvl, int startat ) const
 {
-    bool unseen = false;
     const RefTree& rt = refTree();
     Strat::UnitRefIter it( rt, Strat::UnitRefIter::LeavedNodes );
     const Strat::LeavedUnitRef* lvlunit = 0;
@@ -307,7 +304,9 @@ bool Strat::LayerModel::read( std::istream& strm )
 	    newlay->setThickness( val );
 	    for ( int iprop=1; iprop<nrprops; iprop++ )
 		{ strm >> val; newlay->setValue( iprop, val ); }
+	    seq->layers() += newlay;
 	}
+	seqs_ += seq;
     }
     return true;
 }
