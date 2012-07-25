@@ -68,7 +68,7 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     lbl2 += isvert ? "(ms)" : SI().getXYUnitString();
     uiLabeledSpinBox* lblstepfld = new uiLabeledSpinBox( this, lbl2, 0 );
     stepfld_ = lblstepfld->box();
-    stepfld_->setInterval( minstepval, maxrgval, defstep );
+    stepfld_->setInterval( minstepval, maxstepval, defstep );
     stepfld_->setValue( defstep );
     stepfld_->valueChanged.notify(mCB(this,uiVariogramDlg,stepChgCB));
     lblstepfld->attach( alignedBelow, lblmaxrgfld );
