@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicoltabmarker.cc,v 1.14 2012-05-02 15:12:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicoltabmarker.cc,v 1.15 2012-07-25 14:31:13 cvsyuancheng Exp $";
 
 #include "uicoltabmarker.h"
 
@@ -110,7 +110,7 @@ void uiColTabMarkerDlg::markerInserted( CallBacker* )
 	return;
     }
 
-    RowCol rccolor = ( rcvalue.row, 1 );
+    RowCol rccolor( rcvalue.row, 1 );
     const float newpos = ctab_.position(rcvalue.row-1) +
 			 ( ctab_.position(rcvalue.row) - 
 			   ctab_.position(rcvalue.row-1) ) / 2;
