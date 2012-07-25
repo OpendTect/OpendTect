@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaycontrol.cc,v 1.26 2012-07-10 08:05:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaycontrol.cc,v 1.27 2012-07-25 08:23:34 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -131,7 +131,6 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     if ( !seldisp_ ) return;
     if ( selmarker_ )
     {
-	float markerpos = selmarker_->dah();
 	info += " Marker: ";
 	info += selmarker_->name();
 	info += "  ";

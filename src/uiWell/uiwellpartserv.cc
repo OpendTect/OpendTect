@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.76 2012-06-19 09:01:44 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.77 2012-07-25 08:23:34 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -140,8 +140,7 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
 			    mCB(this,uiWellPartServer,applyAll) );
 	uiwellpropdlg_->windowClosed.notify(
 			    mCB(this,uiWellPartServer, wellPropDlgClosed) );
-	isdisppropopened_ = true;
-	bool rv = uiwellpropdlg_->go();    
+	isdisppropopened_ = uiwellpropdlg_->go();    
     }
     return true;
 }
