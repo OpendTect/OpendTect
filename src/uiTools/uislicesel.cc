@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uislicesel.cc,v 1.69 2012-07-10 08:05:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uislicesel.cc,v 1.70 2012-07-25 15:06:44 cvsjaap Exp $";
 
 #include "uislicesel.h"
 
@@ -81,7 +81,6 @@ void uiSliceSel::setApplyCB( const CallBack& acb )
 void uiSliceSel::createInlFld()
 {
     BufferString label( isinl_ ? "Inline nr" : "Inline range" );
-    const char* nm = label;
     inl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			BufferString(isinl_ ? "Inl nr" : "Inl Start") );
     inl1fld_ = new uiSpinBox( this, 0, "Inl Stop" );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.68 2012-06-11 21:29:35 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.69 2012-07-25 14:58:40 cvsjaap Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -525,7 +525,7 @@ void uiFunctionDisplay::drawMarkLine( uiAxisHandler* ah, float val, Color col,
         return; \
     const bool isctrl = ev.ctrlStatus(); \
     const bool isoth = ev.shiftStatus() || ev.altStatus(); \
-    const bool isnorm = !isctrl && !isoth
+    const bool isnorm mUnusedVar = !isctrl && !isoth
 
 
 bool uiFunctionDisplay::setSelPt()

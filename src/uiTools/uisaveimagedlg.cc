@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisaveimagedlg.cc,v 1.21 2012-05-02 15:12:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisaveimagedlg.cc,v 1.22 2012-07-25 15:03:42 cvsjaap Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -70,8 +70,6 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd )
 
     setSaveButtonChecked( true );
     
-    uiParent* fldabove = 0;
-
     IOM().afterSurveyChange.notify( mCB(this,uiSaveImageDlg,surveyChanged) );
 }
 

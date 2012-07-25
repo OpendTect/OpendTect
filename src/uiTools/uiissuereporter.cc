@@ -7,7 +7,7 @@ ________________________________________________________________________
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiissuereporter.cc,v 1.3 2012-07-05 05:26:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiissuereporter.cc,v 1.4 2012-07-25 15:00:45 cvsjaap Exp $";
 
 
 #include "uiissuereporter.h"
@@ -35,8 +35,8 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
     commentfld_ = new uiTextEdit( this );
     commentfld_->attach( alignedBelow, label );
     
-    uiLabel* commentlabel = new uiLabel( this, "Details (voluntary)",
-					commentfld_);
+    uiLabel* commentlabel mUnusedVar = new uiLabel( this, "Details (voluntary)",
+						    commentfld_);
     
     viewreportbut_ = new uiPushButton( this, "View report",
 			mCB(this, uiIssueReporterDlg, viewReportCB), false);

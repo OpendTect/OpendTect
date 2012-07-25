@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitaskrunner.cc,v 1.29 2012-05-02 15:12:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitaskrunner.cc,v 1.30 2012-07-25 15:10:07 cvsjaap Exp $";
 
 #include "uitaskrunner.h"
 
@@ -104,8 +104,6 @@ bool uiTaskRunner::execute( Task& t )
 
 void uiTaskRunner::onFinalise( CallBacker* )
 {
-    const int totalnr = task_->totalNr();
-
     tim_.start( 100, true );
 
     Threads::MutexLocker lock( uitaskrunnerthreadmutex_ );
