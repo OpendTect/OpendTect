@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewpropdlg.cc,v 1.67 2012-07-10 13:27:27 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewpropdlg.cc,v 1.68 2012-07-25 06:52:30 cvsbruno Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -427,7 +427,6 @@ void uiFVWVAPropTab::putToScreen()
 #undef mSetCol
 
     putCommonToScreen();
-    const FlatView::DataDispPars::Common& pars = commonPars();
 }
 
 
