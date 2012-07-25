@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratreftree.cc,v 1.18 2012-05-02 15:11:52 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratreftree.cc,v 1.19 2012-07-25 12:40:03 cvsjaap Exp $";
 
 
 #include "stratreftree.h"
@@ -16,8 +16,6 @@ static const char* rcsID mUnusedVar = "$Id: stratreftree.cc,v 1.18 2012-05-02 15
 static const char* sKeyStratTree = "Stratigraphic Tree";
 static const char* sKeyLith = "Lithology";
 static const char* sKeyContents = "Contents";
-static const char* sKeyLevelID = "Level.ID";
-static const char* sKeyTree = "Tree";
 
 
 Strat::RefTree::RefTree()
