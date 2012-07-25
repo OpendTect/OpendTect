@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidirectionalplot.cc,v 1.40 2012-07-10 08:05:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidirectionalplot.cc,v 1.41 2012-07-25 07:47:19 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -195,7 +195,6 @@ void uiDirectionalPlot::drawGrid()
 
     sectorlines_.removeAll( true );
     const int nrsectors = data_.nrSectors();
-    const float stepang = 360 / ((float)nrsectors);
     for ( int isect=0; isect<nrsectors; isect++ )
     {
 	const float ang = data_.angle( isect, 1 );
@@ -397,7 +396,6 @@ uiCurvedItem* uiDirectionalPlot::drawSectorPart( int isect, Interval<float> rrg,
 {
     const float dang = data_.angle(0,1) - data_.angle(0,-1);
     const float dangrad = dang * Angle::cPI(dang) / 180;
-    const Stats::SectorData& sd = *data_[isect];
     Interval<float> angrg( data_.angle(isect,-1), 0 );
     angrg.stop = angrg.start + dang;
     Interval<float> radangrg( data_.angle(isect,Angle::Rad,-1), 0 );
