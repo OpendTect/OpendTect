@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellstratdisplay.cc,v 1.40 2012-07-04 10:36:06 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellstratdisplay.cc,v 1.41 2012-07-25 08:29:55 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -139,7 +139,7 @@ void WellStratUnitGen::gatherLeavedUnits()
 		    pos = track_.getPos( pos ).z;
 
 		int idunit = 0;
-		for ( idunit; idunit<posset_.size(); idunit ++ )
+		for ( ; idunit<posset_.size(); idunit ++ )
 		{
 		    if ( unit.zrg_.stop < absunitpos[idunit] )
 			break;
