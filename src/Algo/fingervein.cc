@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.10 2012-07-23 20:56:18 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.11 2012-07-25 21:04:06 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
@@ -35,8 +35,8 @@ FingerVein::FingerVein( const Array2D<float>& input, float threshold,
 }
 
 
-bool FingerVein::compute( bool domerge, int minfltlength, float overlaprate, 
-	TaskRunner* tr )
+bool FingerVein::compute( bool domerge, bool dothinning, 
+	int minfltlength, float overlaprate, TaskRunner* tr )
 {
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, score,
 	    Array2DImpl<float> (input_.info()) );
@@ -93,8 +93,9 @@ bool FingerVein::compute( bool domerge, int minfltlength, float overlaprate,
 
     if ( domerge )
     {
-	thinning( *input_hard_threshold );
-	removeSmallComponents( *input_hard_threshold, minfltlength, overlaprate );
+	if ( dothinning )
+    	    thinning( *input_hard_threshold );
+	removeSmallComponents(*input_hard_threshold, minfltlength, overlaprate);
     }
 
     const bool* thinedinputarr = input_hard_threshold->getData();
@@ -108,18 +109,26 @@ bool FingerVein::compute( bool domerge, int minfltlength, float overlaprate,
 	    mergedata[idx] = scorebinarydata[idx];
     }
 
-    thinning( output_ );
-    removeSmallComponents( output_, minfltlength, overlaprate );
+    if ( dothinning )
+    	thinning( output_ );
+    removeSmallComponents( output_, minfltlength, overlaprate, true );
     
     return true;
 }
 
 
 void FingerVein::removeSmallComponents( Array2D<bool>& data, int minfltlength, 
-	float overlaprate )
+	float overlaprate, bool savecomps )
 {
     ConnComponents cc( data );
     cc.compute();
+
+    if ( savecomps )
+    {
+	validconncomps_.erase();
+	nrcomps_.erase();
+	compids_.erase();
+    }
 
     const int nrcomps = cc.nrComponents();
     bool* outputarr = data.getData();
@@ -133,6 +142,14 @@ void FingerVein::removeSmallComponents( Array2D<bool>& data, int minfltlength,
 	{
 	    for ( int idy=0; idy<nrnodes; idy++ )
     		outputarr[(*comp)[idy]] = 0;
+	}
+	else if ( savecomps )
+	{
+	    nrcomps_ += nrnodes;
+	    for ( int idy=0; idy<nrnodes; idy++ )
+    		compids_ += (*comp)[idy];
+
+	    validconncomps_ += TypeSet<int>(*comp);
 	}
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: fingervein.h,v 1.3 2012-07-23 20:56:18 cvsyuancheng Exp $
+ RCS:           $Id: fingervein.h,v 1.4 2012-07-25 21:04:06 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -31,9 +31,13 @@ public:
 					   Array2D<bool>& output);
 				~FingerVein()	{}
 
-    bool			compute(bool domerge=false,int minfltlength=15,
-	    				float overlaprate=0.1,TaskRunner* tr=0); 
-
+    bool			compute(bool domerge=true,bool dothinning=true,
+	    				int minfltlength=15,
+					float overlaprate=0.5,TaskRunner* tr=0);
+    const TypeSet<TypeSet<int> >& validConnComponents() const 
+    				{ return validconncomps_; }
+    const TypeSet<int>& 	nrConnComponents() const { return nrcomps_; }
+    const TypeSet<int>& 	compIndices() const  	 { return compids_; }
 protected:
 
     bool			computeMaxCurvature(Array2D<float>&,int sigma,
@@ -41,14 +45,18 @@ protected:
     void			thinning(Array2D<bool>& res);
     void			thinStep(const Array2D<bool>& input,
 					 Array2D<bool>& output,bool isfirst);
-    void			removeSmallComponents(Array2D<bool>&,int minfltlength,
-						      float overlaprate);
+    void			removeSmallComponents(Array2D<bool>&,
+	    				int minfltlength,float overlaprate,
+					bool savecomps=true);
 
     const Array2D<float>&	input_;
     Array2D<bool>&		output_;
     float			threshold_;
     bool			isabove_;
     bool			istimeslice_;
+    TypeSet<TypeSet<int> >	validconncomps_;
+    TypeSet<int>		nrcomps_;
+    TypeSet<int>		compids_;
 };
 
 
