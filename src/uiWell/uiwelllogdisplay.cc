@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogdisplay.cc,v 1.95 2012-07-10 08:05:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogdisplay.cc,v 1.96 2012-07-25 08:26:15 cvsbruno Exp $";
 
 
 
@@ -136,7 +136,6 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
 
     const float rgstop = ld.xax_.range().stop; 
     const float rgstart = ld.xax_.range().start;
-    const bool isrev = rgstop < rgstart;
 
     int sz = ld.log() ? ld.log()->size() : 0;
     if ( sz < 2 ) return;
