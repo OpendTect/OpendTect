@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.43 2011-01-10 13:29:58 cvsbert Exp $
+ RCS:		$Id: genc.h,v 1.44 2012-07-26 02:16:47 cvskris Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
@@ -29,14 +29,14 @@ extern "C" {
 mGlobal const char* GetProjectVersionName(void);
 		/*!< "dTect Vx.x" */
 
-mGlobal int GetPID();
+mGlobal int GetPID(void);
 		/*!< returns process ID */
 
-mGlobal const char* GetLocalHostName();
+mGlobal const char* GetLocalHostName(void);
 		/*!< returns (as expected) local host name */
 
 #ifdef __win__
-mGlobal const char* GetLocalIP();
+mGlobal const char* GetLocalIP(void);
 		/*!< returns local IP Address */
 #endif
 
@@ -60,7 +60,7 @@ mGlobal void PutIsLittleEndian(unsigned char*);
 mGlobal void SwapBytes(void*,int nbytes);
 		/*!< nbytes=2,4,... e.g. nbytes=4: abcd becomes cdab */
 
-mGlobal int InSysAdmMode();
+mGlobal int InSysAdmMode(void);
 		/*!< returns 0 unless in sysadm mode */
 
 #ifdef __cpp__

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.26 2009-08-26 13:06:27 cvsbert Exp $
+ RCS:		$Id: filegen.h,v 1.27 2012-07-26 02:16:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ mGlobal od_int64 	File_getTimeInSeconds(const char*);
 /*! Functions returning path */
 mGlobal const char* File_linkTarget(const char* linkname);
 		/* returns what a symbolic link points to */
-mGlobal const char* File_getCurrentDir();
+mGlobal const char* File_getCurrentDir(void);
 
 
 #ifdef __cpp__
