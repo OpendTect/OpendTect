@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribdesc.cc,v 1.84 2012-05-02 15:11:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdesc.cc,v 1.85 2012-07-26 03:39:33 cvskris Exp $";
 
 #include "attribdesc.h"
 
@@ -751,13 +751,11 @@ void Desc::getKeysVals( const char* defstr, BufferStringSet& keys,
 {
     const int len = strlen(defstr);
     int spacepos = 0;
-    int equalpos = 0;
     for ( int idx=0; idx<len; idx++ )
     {
 	if ( defstr[idx] != '=')
 	    continue;
 
-	equalpos = idx;
 	spacepos = idx-1;
 	while ( spacepos>=0 && isspace(defstr[spacepos]) ) spacepos--;
 	if ( spacepos < 0 ) continue;
