@@ -7,14 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiarray2dchg.cc,v 1.12 2012-05-02 15:12:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiarray2dchg.cc,v 1.13 2012-07-26 03:40:45 cvskris Exp $";
 
 #include "uiarray2dchg.h"
 #include "uigeninput.h"
 #include "uistepoutsel.h"
-
-static const char* extrapolstrs[] =
-{ "To outer border", "To convex hull", "No", 0 };
 
 uiArr2DFilterPars::uiArr2DFilterPars( uiParent* p,
 				      const Array2DFilterPars* prs )

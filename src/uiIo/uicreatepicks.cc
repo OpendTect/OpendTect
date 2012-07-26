@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uicreatepicks.cc,v 1.28 2012-05-02 15:12:07 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicreatepicks.cc,v 1.29 2012-07-26 03:42:23 cvskris Exp $";
 
 #include "uicreatepicks.h"
 
@@ -41,8 +41,6 @@ static const char* rcsID mUnusedVar = "$Id: uicreatepicks.cc,v 1.28 2012-05-02 1
 #include "datapointset.h"
 
 static int defnrpicks = 500;
-static const char* sGeoms3D[] = { "Volume", "On Horizon",
-    				  "Between Horizons", 0};
 static const char* sGeoms2D[] = { "Z Range", "On Horizon",
     				  "Between Horizons", 0 };
 
