@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.1 2012-07-23 09:30:01 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.2 2012-07-26 10:31:59 cvssatyaki Exp $";
 
 #include "uiwelllogextract.h"
 
@@ -50,40 +50,41 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p, const Attrib::DescSet* d,
 	, ads_( !d ? 0 : new Attrib::DescSet(d->is2D()))
     	, attrsfld_(0)
     	, posfiltfld_(0)
+    	, radiusfld_(0)
     	, curdps_(0)
 {
-    uiLabeledListBox* llba = 0;
-    llba = new uiLabeledListBox( this, "Attributes", true );
-    attrsfld_ = llba->box();
-    llba->display( ads_, true );
-
     welllogselfld_ =
 	new uiMultiWellLogSel( this, uiWellExtractParams::Setup()
-					.withsampling(true).withzstep(true)
+					.withsampling(ads_).withzstep(ads_)
+					.withextractintime(ads_)
 					.singlelog(singlelog));
+
     if ( attrsfld_ )
-	welllogselfld_->attach( ensureBelow, llba );
-
-    const float inldist = SI().inlDistance();
-    const char* distunit =  SI().getXYUnitString();
-    BufferString radiusbuf( "  Radius around wells "); 
-    radiusbuf += distunit;
-    radiusfld_ = new uiGenInput( this, radiusbuf,
-	    			 FloatInpSpec((float)((int)(inldist+.5))) );
-    if ( llba )
-	radiusfld_->attach( alignedBelow, llba );
-    else
-	radiusfld_->attach( alignedBelow, welllogselfld_ );
-    radiusfld_->attach( ensureBelow, welllogselfld_ );
-
-    uiGroup* attgrp = radiusfld_;
-    if ( !ads_ || ( ads_ && !ads_->is2D()) )
     {
-	uiPosFilterSet::Setup fsu( false );
-	fsu.seltxt( "Filter positions" ).incprovs( true );
-	posfiltfld_ = new uiPosFilterSetSel( this, fsu );
-	posfiltfld_->attach( alignedBelow, radiusfld_ );
-	attgrp = posfiltfld_;
+	uiLabeledListBox* llba = 0;
+	llba = new uiLabeledListBox( this, "Attributes", true );
+	attrsfld_ = llba->box();
+	llba->display( ads_, true );
+	welllogselfld_->attach( ensureBelow, llba );
+	const float inldist = SI().inlDistance();
+	const char* distunit =  SI().getXYUnitString();
+	BufferString radiusbuf( "  Radius around wells "); 
+	radiusbuf += distunit;
+	radiusfld_ = new uiGenInput( this, radiusbuf,
+				     FloatInpSpec((float)((int)(inldist+.5))) );
+	if ( llba )
+	    radiusfld_->attach( alignedBelow, llba );
+	else
+	    radiusfld_->attach( alignedBelow, welllogselfld_ );
+	radiusfld_->attach( ensureBelow, welllogselfld_ );
+
+	if ( !ads_->is2D() )
+	{
+	    uiPosFilterSet::Setup fsu( false );
+	    fsu.seltxt( "Filter positions" ).incprovs( true );
+	    posfiltfld_ = new uiPosFilterSetSel( this, fsu );
+	    posfiltfld_->attach( alignedBelow, radiusfld_ );
+	}
     }
 
     setDescSet( d );
@@ -158,7 +159,7 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
 {
     Well::TrackSampler wts( ioobjids, dpss, SI().zIsTime() );
     wts.for2d_ = false; wts.lognms_ = lognms;
-    wts.locradius_ = radiusfld_->getfValue();
+    wts.locradius_ = !radiusfld_ ? 0. : radiusfld_->getfValue();
     wts.mkdahcol_ = true;
     wts.params_ = welllogselfld_->params();
     uiTaskRunner tr( this );

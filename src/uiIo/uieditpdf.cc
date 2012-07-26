@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uieditpdf.cc,v 1.24 2012-05-09 07:51:25 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uieditpdf.cc,v 1.25 2012-07-26 10:31:59 cvssatyaki Exp $";
 
 #include "uieditpdf.h"
 
@@ -57,6 +57,8 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     , nrdims_(pdf.nrDims())
     , curdim2_(0)
 {
+    if ( !ed )
+	setCtrlStyle( uiDialog::LeaveOnly );
     tabstack_ = new uiTabStack( this, "Tabs" );
     mDeclArrNDPDF;
     uiGroup* dimnmgrp = new uiGroup( tabstack_->tabGroup(), "Dimension names" );
