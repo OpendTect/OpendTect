@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.58 2012-07-24 19:35:01 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.59 2012-07-26 02:43:30 cvsdgb Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -62,19 +62,14 @@ IF(UNIX) #Apple an Linux
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wwrite-strings -Wpointer-arith -Winline" )
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat -Wmissing-field-initializers" )
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wreturn-type -Winit-self -Wno-char-subscripts" )
-    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare" )
+    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare -Wcast-align -Wconversion" )
 
 
     set ( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-inline" )
 
-    set ( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-declarations -Wunused -Wimplicit-int -Wimplicit-function-declaration -Wpointer-sign" )
+    set ( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-declarations -Wunused -Wimplicit-int" )
+    set ( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wimplicit-function-declaration -Wpointer-sign -Wstrict-prototypes" )
 
-#Extra:
-# -Wempty-body
-# -Waddress
-# -Wunreachable code
-
-        
 ENDIF(UNIX)
 
 #Create Launchers on Windows
