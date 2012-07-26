@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplaywin.h,v 1.8 2011-10-26 14:20:13 cvsbruno Exp $
+ RCS:           $Id: uistatsdisplaywin.h,v 1.9 2012-07-26 07:39:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,7 @@ public:
 					bool ismodal=true);
     
     uiStatsDisplay*		statsDisplay(int nr=0)	{ return disps_[nr]; }
-    void                        setData(const Stats::ParallelCalc<float>&,
-					int nr=0);
+    void                        setData(const float* medarr,int medsz,int nr=0);
     void			addDataNames(const BufferStringSet&);
     void			setDataName(const char*,int nr=0);
     void			setMarkValue(float,bool forx,int nr=0);

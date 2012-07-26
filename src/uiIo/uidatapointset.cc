@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.99 2012-07-10 08:05:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.100 2012-07-26 07:39:11 cvsbruno Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -369,7 +369,6 @@ void uiDataPointSet::calcIdxs()
     int dcountidx = 0;
     for ( int did=0; did<dpssz; did++ )
     {
-	const int eachcount = 0;
 	const bool inact = dps_.isInactive(did);
 	if ( inact || (dcountidx < mNINT32(calcidx * eachrow_)) )
 	{
@@ -1012,7 +1011,7 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
 	statswin_->windowClosed.notify( mCB(this,uiDataPointSet,statsClose) );
     }
 
-    //statswin_->setData( rc );
+    statswin_->setData( rc.medvals_.arr(), rc.medvals_.size() );
     statswin_->setDataName( txt );
     statswin_->show();
 }

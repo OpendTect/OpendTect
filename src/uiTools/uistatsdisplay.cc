@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistatsdisplay.cc,v 1.36 2012-06-29 10:09:35 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistatsdisplay.cc,v 1.37 2012-07-26 07:39:11 cvsbruno Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -285,10 +285,10 @@ void uiStatsDisplayWin::dataChanged( CallBacker* )
 }
 
 
-void uiStatsDisplayWin::setData( const Stats::ParallelCalc<float>& rc, int idx )
+void uiStatsDisplayWin::setData( const float* medvals, int medsz, int dispidx )
 {
-    if ( disps_.validIdx(idx) )
-	disps_[idx]->setData( rc.medvals_.arr(), rc.medvals_.size() );
+    if ( disps_.validIdx(dispidx) )
+	disps_[dispidx]->setData( medvals, medsz );
 }
 
 
