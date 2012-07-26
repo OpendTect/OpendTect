@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: timedepthconv.cc,v 1.43 2012-05-02 15:11:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: timedepthconv.cc,v 1.44 2012-07-26 03:36:34 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -357,7 +357,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	const float t = sd_.atIndex( idx );
 	res_[idx] = trg_.includes(t,false) &&
 		findValue( samplfunc_, zrg_.start, zrg_.stop, depth, t )
-	? res_[idx] = depth : mUdf(float);
+	    ? depth
+	    : mUdf(float);
     }
 
     return true;
