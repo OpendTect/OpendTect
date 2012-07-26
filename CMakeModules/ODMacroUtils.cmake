@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.63 2012-07-23 11:29:54 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.64 2012-07-26 09:34:57 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -84,7 +84,7 @@ IF(OD_USECOIN)
 ENDIF()
 
 IF( UNIX AND OD_USEZLIB )
-    LIST(APPEND OD_MODULE_INCLUDEPATH ${ZLIB_INCLUDE_DIR} )
+    LIST(APPEND OD_MODULE_INCLUDESYSPATH ${ZLIB_INCLUDE_DIR} )
     LIST(APPEND OD_MODULE_EXTERNAL_LIBS ${ZLIB_LIBRARY} )
 ENDIF()
 
@@ -222,7 +222,6 @@ IF ( OD_MODULE_HAS_LIBRARY )
 	    LIBRARY DESTINATION ${OD_EXEC_INSTALL_PATH}
 	    ARCHIVE DESTINATION lib )
 
-    OD_SIGN_TARGET( ${OD_MODULE_NAME} )
 ENDIF ( OD_MODULE_HAS_LIBRARY )
 
 #Setup common things for batch-programs
@@ -276,7 +275,6 @@ IF( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS )
 		LIBRARY DESTINATION ${OD_EXEC_INSTALL_PATH}
 		ARCHIVE DESTINATION lib )
 
-	OD_SIGN_TARGET( ${TARGET_NAME} )
     ENDFOREACH()
 
 ENDIF()
@@ -312,7 +310,6 @@ IF(OD_MODULE_BATCHPROGS)
 		RUNTIME DESTINATION ${OD_EXEC_INSTALL_PATH} 
 		LIBRARY DESTINATION ${OD_EXEC_INSTALL_PATH}
 		ARCHIVE DESTINATION lib )
-	OD_SIGN_TARGET( ${TARGET_NAME} )
     ENDFOREACH()
 
 ENDIF(OD_MODULE_BATCHPROGS)
@@ -341,8 +338,10 @@ ENDIF( OD_USEPROG )
 
 
 #Set current include_path
-include_directories( ${OD_MODULE_INCLUDEPATH} )
+set ( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
+set ( CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
 include_directories( SYSTEM ${OD_MODULE_INCLUDESYSPATH} )
+include_directories( ${OD_MODULE_INCLUDEPATH} )
 
 ENDMACRO(OD_INIT_MODULE)
 
