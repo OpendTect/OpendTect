@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.90 2012-07-10 08:05:35 cvskris Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.91 2012-07-26 04:03:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.90 2012-07-10 08:05:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.91 2012-07-26 04:03:19 cvskris Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -1705,7 +1705,6 @@ void uiDataPointSetCrossPlotter::drawData(
     if ( !x_.axis_ || !yad.axis_ )
 	return;
 
-    uiAxisHandler& xah = *x_.axis_;
     uiAxisHandler& yah = *yad.axis_;
 
     MarkerStyle2D mstyle( setup_.markerstyle_ );
