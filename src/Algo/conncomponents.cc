@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: conncomponents.cc,v 1.2 2012-07-23 15:16:21 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: conncomponents.cc,v 1.3 2012-07-26 21:45:47 cvsyuancheng Exp $";
 
 #include "conncomponents.h"
 
@@ -300,7 +300,7 @@ float ConnComponents::overLapRate( int componentidx )
 	return 1;
 
     const int csz = comp->size();
-    const int ysz = input_.info().getSize(0);
+    const int ysz = input_.info().getSize(1);
 
     TypeSet<int> idxs, idys;
     for ( int idx=0; idx<csz; idx++ )
