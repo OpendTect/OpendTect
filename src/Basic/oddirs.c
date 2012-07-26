@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.40 2012-07-17 22:31:41 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.41 2012-07-26 02:35:42 cvsdgb Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -68,22 +68,22 @@ static const char* mkFullPath( const char* path, const char* filename )
 
 /* -> hidden survey functions used in survinfo.cc, ioman.cc etc. */
 
-mGlobal int SurveyNameDirty();
-mGlobal int SurveyNameDirty()
+mGlobal int SurveyNameDirty(void);
+mGlobal int SurveyNameDirty(void)
 {
     return surveynamedirty;
 }
 
 
-mGlobal void SetSurveyNameDirty();
-mGlobal void SetSurveyNameDirty()
+mGlobal void SetSurveyNameDirty(void);
+void SetSurveyNameDirty(void)
 {
     surveynamedirty = 1;
 }
 
 
-mGlobal const char* GetSurveyFileName();
-mGlobal const char* GetSurveyFileName()
+mGlobal const char* GetSurveyFileName(void);
+mGlobal const char* GetSurveyFileName(void)
 {
     static FileNameString sfname;
     static int inited = mC_False;
@@ -122,8 +122,8 @@ mGlobal void SetSurveyName( const char* newnm )
 }
 
 
-mGlobal const char* GetSurveyName();
-mGlobal const char* GetSurveyName()
+mGlobal const char* GetSurveyName(void);
+mGlobal const char* GetSurveyName(void)
 {
     FILE* fp; char* ptr;
     static char tmpbuf[mMaxFilePathLength];
@@ -156,9 +156,9 @@ mGlobal const char* GetSurveyName()
 
 	/* 'survey data' scope */
 
-extern const char* GetSettingsDataDir();
+extern const char* GetSettingsDataDir(void);
 
-const char* GetBaseDataDir()
+const char* GetBaseDataDir(void)
 {
     static FileNameString bddir;
     const char* dir = 0;
@@ -186,7 +186,7 @@ const char* GetBaseDataDir()
 }
 
 
-const char* GetDataDir()
+const char* GetDataDir(void)
 {
     static FileNameString filenamebuf;
     const char* survnm;
@@ -346,7 +346,7 @@ const char* GetSoftwareDir( int acceptnone )
 }
 
 
-const char* GetApplSetupDir()
+const char* GetApplSetupDir(void)
 {
     static char* ret = 0;
     static FileNameString filenamebuf;
@@ -434,13 +434,13 @@ const char* GetDocFileDir( const char* filedir )
 }
 
 
-const char* GetPlfSubDir()
+const char* GetPlfSubDir(void)
 {
     return __plfsubdir__;
 }
 
 
-const char* GetBinPlfDir()
+const char* GetBinPlfDir(void)
 {
     static FileNameString dirnm;
     strcpy( dirnm, mkFullPath(GetSoftwareDir(0),"bin") );
@@ -481,7 +481,7 @@ const char* GetExecScript( int remote )
 }
 
 
-const char* GetSoftwareUser()
+const char* GetSoftwareUser(void)
 {
     const char* ptr = 0;
     static const char* ret = 0;
@@ -503,7 +503,7 @@ const char* GetSoftwareUser()
 }
 
 
-const char* GetUserNm()
+const char* GetUserNm(void)
 {
 #ifdef __win__
     static char usernm[256];
