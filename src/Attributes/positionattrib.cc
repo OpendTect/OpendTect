@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: positionattrib.cc,v 1.40 2012-07-24 14:22:28 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: positionattrib.cc,v 1.41 2012-07-27 08:25:57 cvsnageswara Exp $";
 
 
 #include "positionattrib.h"
@@ -138,8 +138,6 @@ bool Position::getInputOutput( int input, TypeSet<int>& res ) const
 bool Position::getInputData( const BinID& relpos, int zintv )
 {
     const int nrpos = positions_.size();
-    const int inlsz mUnusedVar = stepout_.inl * 2 + 1;
-    const int crlsz mUnusedVar = stepout_.crl * 2 + 1;
     BinID bidstep = inputs_[0]->getStepoutStep();
     //bidstep.inl = abs(bidstep.inl); bidstep.crl = abs(bidstep.crl);
 
@@ -172,9 +170,6 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( inputdata_.isEmpty() || !outdata_ ) return false;
     
-    const int nrpos = positions_.size();
-    const int cposnr mUnusedVar = (int)(nrpos/2);
-
     const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
 				    mNINT32(gate_.stop/refstep_) );
 
@@ -184,6 +179,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
     Stats::RunCalc<float> stats( Stats::CalcSetup().require(statstype) );
     const float extrasamp = output.extrazfromsamppos_/refstep_;
 
+    const int nrpos = positions_.size();
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	TypeSet<BinIDValue> bidv;
