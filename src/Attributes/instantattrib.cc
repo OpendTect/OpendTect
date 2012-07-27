@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: instantattrib.cc,v 1.29 2012-07-24 09:12:19 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: instantattrib.cc,v 1.30 2012-07-27 07:47:14 cvsnageswara Exp $";
 
 #include "instantattrib.h"
 
@@ -85,7 +85,6 @@ bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const int outidx mUnusedVar = z0 - output.z0_ + idx;
 	if ( isOutputEnabled(0) )
 	    setOutputValue( output, 0, idx, z0, calcAmplitude(idx,z0) );
 	if ( isOutputEnabled(1) )
