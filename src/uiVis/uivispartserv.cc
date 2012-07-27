@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivispartserv.cc,v 1.482 2012-07-09 16:34:47 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivispartserv.cc,v 1.483 2012-07-27 09:09:31 cvsjaap Exp $";
 
 #include "uivispartserv.h"
 
@@ -740,7 +740,6 @@ int uiVisPartServer::selectedTexture( int id, int attrib ) const
 void uiVisPartServer::getRandomPos( int id, DataPointSet& dtps ) const
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->getRandomPos( dtps, 0 );
 }
@@ -750,7 +749,6 @@ void uiVisPartServer::getRandomPosCache( int id, int attrib,
 					 DataPointSet& dtps ) const
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->getRandomPosCache( attrib, dtps );
 }
