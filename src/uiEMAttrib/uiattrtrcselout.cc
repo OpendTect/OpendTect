@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrtrcselout.cc,v 1.68 2012-07-03 11:41:28 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrtrcselout.cc,v 1.69 2012-07-27 15:37:08 cvsnanne Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -364,9 +364,8 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	IOObj* lineobj = IOM().get( mid );
 	Seis2DLineSet s2d( *lineobj );
 
-	BufferString msg = "The selected horizon does not share the geometry ";
-	" of the selected lineset. ";
-	"Choose other input data or horizon.";
+	BufferString msg = "The selected horizon does not share the geometry"
+	" of the selected lineset. Please choose other input data or horizon.";
 	if ( data.linesets.isEmpty() || *data.linesets[0] != s2d.name() ) 
 	{
 	    uiMSG().error( msg );
