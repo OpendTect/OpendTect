@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratselunits.cc,v 1.11 2012-06-26 07:48:14 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratselunits.cc,v 1.12 2012-07-27 11:05:15 cvsbert Exp $";
 
 #include "uistratselunits.h"
 #include "stratunitrefiter.h"
@@ -68,7 +68,7 @@ uiStratSelUnits::~uiStratSelUnits()
 
 #define mDefFillVars() \
     const bool topisok = Strat::UnitRefIter::isValid(topnode_,setup_.pol_); \
-    const bool topisrt = &topnode_.refTree() == &topnode_; \
+    const bool topisrt mUnusedVar = &topnode_.refTree() == &topnode_; \
     const CallBack curchgcb( mCB(this,uiStratSelUnits,curChg) ); \
     const CallBack selchgcb( mCB(this,uiStratSelUnits,selChg) ); \
     Strat::UnitRefIter it( topnode_, setup_.pol_ )

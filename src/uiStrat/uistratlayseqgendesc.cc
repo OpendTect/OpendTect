@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc,v 1.46 2012-07-10 08:05:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc,v 1.47 2012-07-27 11:05:15 cvsbert Exp $";
 
 #include "uistratlaycontent.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -322,7 +322,6 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 	    // the 'y-2' makes the text more nicely centered in the box
 
     const uiSize txtsz( disp.nm_->getTextSize() );
-    const int xbefore = midpt.x - txtsz.width()/2;
     const int radius = txtsz.height()/7;
     disp.lithcol_->setRadius( radius );
     disp.lithcol_->setPos( midpt.x - txtsz.width()/2 - radius, midpt.y );
@@ -396,11 +395,10 @@ int uiBasicLayerSequenceGenDesc::curUnitIdx()
 {
     for ( int idx=0; idx<disps_.size(); idx++ )
     {
-	DispUnit* disp = disps_[idx];
 	if ( clickpos_.y < disps_[idx]->boty_ )
 	    return idx;
     }
-    return disps_.size() - 1;;
+    return disps_.size() - 1;
 }
 
 

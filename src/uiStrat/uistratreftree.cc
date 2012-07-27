@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratreftree.cc,v 1.74 2012-07-03 12:05:07 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratreftree.cc,v 1.75 2012-07-27 11:05:15 cvsbert Exp $";
 
 #include "uistratreftree.h"
 
@@ -106,10 +106,7 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	    uiListViewItem* item;
 	    mDynamicCastGet(const LeafUnitRef*,lur,&ref);
 	    if ( !lur ) continue;
-	    const int lidx = lur->lithology();
-	    const Strat::LithologySet& liths = tree_->lithologies();
-	    const Strat::Lithology* litho = ( lidx >= 0 && lidx<liths.size() ) ?
-				    &liths.getLith( lur->lithology() ) : 0;
+
 	    uiListViewItem::Setup setup = uiListViewItem::Setup()
 				.label( lur->code() )
 				.label( lur->description() );

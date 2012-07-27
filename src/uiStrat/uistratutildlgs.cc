@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratutildlgs.cc,v 1.56 2012-05-29 16:38:39 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratutildlgs.cc,v 1.57 2012-07-27 11:05:15 cvsbert Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -589,7 +589,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
     ObjectSet<Strat::LeavedUnitRef> units;
     gatherUnits( units );
     if ( !units.size() )
-	{ mErrRet( "No valid unit present in the table ", false ); }
+	{ mErrRet( "No valid unit present in the table ", return false ); }
 
     for ( int idx=0; idx<units.size(); idx++ )
     {

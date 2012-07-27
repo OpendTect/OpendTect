@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.49 2012-07-17 14:58:37 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.50 2012-07-27 11:05:15 cvsbert Exp $";
 
 #include "uistratdisplay.h"
 
@@ -163,9 +163,8 @@ public :
     void selChg( CallBacker* cb )
     {
 	mDynamicCastGet(uiCheckBox*,box,cb)
-	if ( !cb ) return;
+	if ( !box ) return;
 
-	int idsel = colboxflds_.indexOf( box );
 	for ( int idbox=0; idbox<colboxflds_.size(); idbox++ )
 	{
 	    NotifyStopper ns( colboxflds_[idbox]->activated );
@@ -519,14 +518,13 @@ void uiStratDrawer::drawEmptyText()
 {
     delete emptyitm_; emptyitm_ =0;
 
-    int x1 = xax_->getPix( 0 );
-    int x2 = xax_->getPix( 1 );
-    int y1 = yax_->getPix( yax_->range().stop );
-    int y2 = yax_->getPix( yax_->range().start );
+    const int x = xax_->getPix( 0 );
+    const int y1 = yax_->getPix( yax_->range().stop );
+    const int y2 = yax_->getPix( yax_->range().start );
 
     uiTextItem* ti = scene_.addItem( new uiTextItem( "<Click to add>" ) );
     ti->setTextColor( Color::Black() );
-    ti->setPos( x1, y2 - abs((y2-y1)/2) -10 );
+    ti->setPos( x, y2 - abs((y2-y1)/2) -10 );
     ti->setZValue( 2 );
     emptyitm_ = ti;
 }
