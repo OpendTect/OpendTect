@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.91 2012-07-26 04:03:19 cvskris Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.92 2012-07-27 09:46:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.91 2012-07-26 04:03:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.92 2012-07-27 09:46:03 cvsbert Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -47,10 +47,6 @@ static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.91 20
 
 static const int cMaxPtsForMarkers = 20000;
 
-static const char* sKeyNrAreas = "Nr of Selection Areas";
-static const char* sKeyRect = "Rectangle";
-static const char* sKeyPoly = "Polygon";
-static const char* sKeyPos = "Position";
 
 uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 			    uiDataPointSet& uidp,

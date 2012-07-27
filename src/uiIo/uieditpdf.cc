@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uieditpdf.cc,v 1.25 2012-07-26 10:31:59 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uieditpdf.cc,v 1.26 2012-07-27 09:46:03 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -29,9 +29,9 @@ static const char* rcsID mUnusedVar = "$Id: uieditpdf.cc,v 1.25 2012-07-26 10:31
 
 #define mDeclArrNDPDF	mDynamicCastGet(ArrayNDProbDenFunc*,andpdf,&pdf_)
 #define mDeclSzVars mDeclArrNDPDF; \
-    const int nrtbls = nrdims_ > 2 ? andpdf->size(2) : 1; \
-    const int nrcols = nrdims_ < 2 ? 1 : andpdf->size( 0 ); \
-    const int nrrows = andpdf->size( nrdims_ < 2 ? 0 : 1 )
+    const int nrtbls mUnusedVar = nrdims_ > 2 ? andpdf->size(2) : 1; \
+    const int nrcols mUnusedVar = nrdims_ < 2 ? 1 : andpdf->size( 0 ); \
+    const int nrrows mUnusedVar = andpdf->size( nrdims_ < 2 ? 0 : 1 )
 #define mDeclIdxs	int idxs[3]; idxs[2] = curdim2_
 #define mGetRowIdx(irow) \
     const int rowidx = nrdims_ == 1 ? irow : nrrows -irow - 1

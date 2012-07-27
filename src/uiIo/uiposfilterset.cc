@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiposfilterset.cc,v 1.16 2012-05-22 14:48:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiposfilterset.cc,v 1.17 2012-07-27 09:46:03 cvsbert Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"
@@ -79,10 +79,10 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 
     if ( nms.size() == 1 )
     {
-	uiLabel* lbl2 = new uiLabel( this, nms.get(0) );
-	uiLabel* lbl1 = new uiLabel( this, "Filter: ", lbl2 );
+	uiLabel* nmlbl = new uiLabel( this, nms.get(0) );
+	new uiLabel( this, "Filter: ", nmlbl );
 	ynfld_ = new uiGenInput( this, "Use", BoolInpSpec(false) );
-	ynfld_->attach( alignedBelow, lbl2 );
+	ynfld_->attach( alignedBelow, nmlbl );
 	attobj = ynfld_->attachObj();
     }
     else

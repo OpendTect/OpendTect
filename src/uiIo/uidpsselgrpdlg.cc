@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          June 2011
- RCS:           $Id: uidpsselgrpdlg.cc,v 1.5 2012-05-02 15:12:08 cvskris Exp $: 
+ RCS:           $Id: uidpsselgrpdlg.cc,v 1.6 2012-07-27 09:46:03 cvsbert Exp $: 
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,6 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
 {
     setPrefHeight( 500 );
     TypeSet<int> colids;
-    const DataPointSet& dps = plotter_.dps();
 
     uiTable::Setup su( selgrps_.size(), 2 );
     su.rowdesc("Selection Group").selmode(uiTable::Single);
@@ -143,8 +142,6 @@ void uiDPSSelGrpDlg::importSelectionGrps( CallBacker* )
 
 void uiDPSSelGrpDlg::exportSelectionGrps( CallBacker* )
 {
-    const bool showboth =
-	plotter_.isY2Selectable() && plotter_.isY1Selectable();
     uiExpSelectionArea::Setup su( plotter_.axisHandler(0)->name().buf(), 
 				  plotter_.axisHandler(1)->name().buf(),
 				  plotter_.axisHandler(2)

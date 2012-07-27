@@ -36,7 +36,6 @@ static const char* rcsID mUnusedVar = "";
 #include "survinfo.h"
 #include "timefun.h"
 
-static const char* filefilter = "Text (*.txt *.dat)";
 static const char* sKeyFileType = "CrossPlot Selection";
 static const char* sKeyNrSelGrps = "Nr of Selection Groups";
 static const char* sKeySelGrp()		{ return "SelectionGrps"; }
@@ -721,7 +720,7 @@ BufferStringSet uiReadSelGrp::getAvailableAxisNames() const
 }
 
 #define mGetAxisVals \
-    int xaxis = xselfld_->currentItem(); \
+    const int xaxis mUnusedVar = xselfld_->currentItem(); \
     int yaxis=-1; \
     int y2axis=-2; \
     if ( !ychkfld_->isDisplayed() || ychkfld_->isChecked() ) \
@@ -791,35 +790,33 @@ void uiReadSelGrp::fillRectangle( const SelectionArea& selarea,
     }
     else 
     {
-	const bool xis1 = xaxis == 1;
-	const bool yis0 = yaxis == 0;
-       uiWorldRect rect = selarea.worldrect_;
-       uiWorldRect altrect = hasalt ? selarea.altworldrect_
+	uiWorldRect rect = selarea.worldrect_;
+	uiWorldRect altrect = hasalt ? selarea.altworldrect_
 				    : selarea.worldrect_;
-       TypeSet<double> ltptval;
-       ltptval += rect.topLeft().x;
-       ltptval += rect.topLeft().y;
-       ltptval += altrect.topLeft().y;
-       
-       TypeSet<double> rbptval;
-       rbptval += rect.bottomRight().x;
-       rbptval += rect.bottomRight().y;
-       rbptval += altrect.bottomRight().y;
+	TypeSet<double> ltptval;
+	ltptval += rect.topLeft().x;
+	ltptval += rect.topLeft().y;
+	ltptval += altrect.topLeft().y;
 
-       const bool onlyy2 = actselarea.axistype_ == SelectionArea::Y2;
-       const int yaxisnr = (yaxis<0 || onlyy2) ? y2axis : yaxis;
+	TypeSet<double> rbptval;
+	rbptval += rect.bottomRight().x;
+	rbptval += rect.bottomRight().y;
+	rbptval += altrect.bottomRight().y;
 
-       actselarea.worldrect_ =
+	const bool onlyy2 = actselarea.axistype_ == SelectionArea::Y2;
+	const int yaxisnr = (yaxis<0 || onlyy2) ? y2axis : yaxis;
+
+	actselarea.worldrect_ =
 	   uiWorldRect( ltptval[xaxis], ltptval[yaxisnr],
-		        rbptval[xaxis], rbptval[yaxisnr] );
-       actselarea.worldrect_.checkCorners( true, false );
-       if (hasalt && actselarea.axistype_==SelectionArea::Both)
-       {
+			rbptval[xaxis], rbptval[yaxisnr] );
+	actselarea.worldrect_.checkCorners( true, false );
+	if (hasalt && actselarea.axistype_==SelectionArea::Both)
+	{
 	   actselarea.altworldrect_ =
 	       uiWorldRect( ltptval[xaxis], ltptval[y2axis],
 			    rbptval[xaxis], rbptval[y2axis] );
 	   actselarea.altworldrect_.checkCorners( true, false );
-       }
+	}
     }
 }
 
@@ -839,15 +836,13 @@ void uiReadSelGrp::fillPolygon( const SelectionArea& selarea,
     }
     else 
     {
-	const bool xis1 = xaxis == 1;
-	const bool yis0 = yaxis == 0;
-       ODPolygon<double> worldpoly,altworldpoly;
-       TypeSet< Geom::Point2D<double> > pts = selarea.worldpoly_.data();
-       TypeSet< Geom::Point2D<double> > altpts =
+	ODPolygon<double> worldpoly,altworldpoly;
+	TypeSet< Geom::Point2D<double> > pts = selarea.worldpoly_.data();
+	TypeSet< Geom::Point2D<double> > altpts =
 				   hasalt ? selarea.altworldpoly_.data()
 					  : selarea.worldpoly_.data();
-       for ( int idx=0; idx<pts.size(); idx++ )
-       {
+	for ( int idx=0; idx<pts.size(); idx++ )
+	{
 	   TypeSet<double> ptval;
 	   ptval += pts[idx].x; ptval += pts[idx].y;
 	   ptval += altpts[idx].y;
@@ -859,10 +854,10 @@ void uiReadSelGrp::fillPolygon( const SelectionArea& selarea,
 	   if (hasalt && actselarea.axistype_==SelectionArea::Both)
 	       altworldpoly.add( Geom::Point2D<double>(ptval[xaxis],
 				 ptval[y2axis]) );
-       }
+	}
 
-       actselarea.worldpoly_ = worldpoly;
-       actselarea.altworldpoly_ = altworldpoly;
+	actselarea.worldpoly_ = worldpoly;
+	actselarea.altworldpoly_ = altworldpoly;
     }
 }
 

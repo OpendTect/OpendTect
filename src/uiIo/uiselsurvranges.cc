@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiselsurvranges.cc,v 1.32 2012-07-10 08:05:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiselsurvranges.cc,v 1.33 2012-07-27 09:46:03 cvsbert Exp $";
 
 #include "uiselsurvranges.h"
 
@@ -110,7 +110,6 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 
 StepInterval<float> uiSelZRange::getRange() const
 {
-    const float zfac = zddef_.userFactor();
     StepInterval<float> zrg( startfld_->getFValue(), stopfld_->getFValue(), 
 	    		     stepfld_ ? stepfld_->getFValue() : 1 );
     zrg.scale( 1. / zddef_.userFactor() );

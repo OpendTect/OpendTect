@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.143 2012-07-10 08:05:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.144 2012-07-27 09:46:03 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -461,8 +461,8 @@ void uiSurvey::archButPushed( CallBacker* )
 {
     uiDialog dlg( this,
 	uiDialog::Setup("Archive survey",mNoDlgTitle,mTODOHelpID) );
-    uiFileInput* dirfld = new uiFileInput( &dlg, "Destination",
-	uiFileInput::Setup().directories(true) );
+    (void)new uiFileInput( &dlg, "Destination",
+			    uiFileInput::Setup().directories(true) );
     if ( !dlg.go() )
 	return;
 

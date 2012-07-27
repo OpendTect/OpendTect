@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.45 2012-07-23 09:32:25 cvssatyaki Exp $: 
+ RCS:           $Id: uidatapointsetcrossplotwin.cc,v 1.46 2012-07-27 09:46:03 cvsbert Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplotwin.cc,v 1.45 2012-07-23 09:32:25 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplotwin.cc,v 1.46 2012-07-27 09:46:03 cvsbert Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -89,7 +89,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    		mCB(this,uiDataPointSetCrossPlotWin,eachChg) );
     plotter_.plotperc_ = perc;
     
-    uiLabel* eachlabel = new uiLabel( dispgrp, "% points displayed", eachfld_ );
+    new uiLabel( dispgrp, "% points displayed", eachfld_ );
     disptb_.addObject( dispgrp->attachObj() );
     
     densityplottbid_ = disptb_.addButton( "densityplot","Show density plot",

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvinfoed.cc,v 1.135 2012-07-10 08:05:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvinfoed.cc,v 1.136 2012-07-27 09:46:03 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -118,7 +118,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	, impiop_(0)
 	, topgrp_( 0 )
 {
-    static int sipidx = addInfoProvider( new uiCopySurveySIP );
+    static int sipidx mUnusedVar = addInfoProvider( new uiCopySurveySIP );
 
     orgstorepath_ = si_.datadir_.buf();
     isnew_ = orgdirname_.isEmpty();

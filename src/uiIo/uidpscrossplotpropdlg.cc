@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.28 2012-07-24 19:55:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.29 2012-07-27 09:46:03 cvsbert Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -190,8 +190,6 @@ uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
 
 void initFlds( CallBacker* )
 {
-    uiAxisHandler* xaxh = plotter_.axisHandler( 0 );
-    uiAxisHandler* yaxh = plotter_.axisHandler( 1 );
     if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
 
     const LinStats2D& ls = plotter_.linStats();
@@ -352,8 +350,6 @@ void ckeckedCB( CallBacker* )
 
 void initFlds( CallBacker* )
 {
-    uiAxisHandler* xaxh = plotter_.axisHandler( 0 );
-    uiAxisHandler* yaxh = plotter_.axisHandler( 1 );
     if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
 
     y1a0fld_->setValue( plotter_.userdefy1lp_.a0 );

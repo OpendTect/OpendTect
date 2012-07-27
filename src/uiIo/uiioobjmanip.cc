@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiioobjmanip.cc,v 1.48 2012-05-09 07:51:25 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiioobjmanip.cc,v 1.49 2012-07-27 09:46:03 cvsbert Exp $";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
@@ -335,10 +335,17 @@ bool uiIOObjManipGroup::readonlyEntry( IOObj* ioobj, Translator* tr )
     const bool oldreadonly = tr ? tr->implReadOnly(ioobj)
 				: ioobj->implReadOnly();
     bool newreadonly = !oldreadonly;
-    bool res = tr ? tr->implSetReadOnly(ioobj,newreadonly)
-		: ioobj->implSetReadOnly(newreadonly);
+    if ( tr )
+    {
+	tr->implSetReadOnly(ioobj,newreadonly);
+	newreadonly = tr->implReadOnly(ioobj);
+    }
+    else
+    {
+	ioobj->implSetReadOnly(newreadonly);
+	newreadonly = ioobj->implReadOnly();
+    }
 
-    newreadonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
     if ( oldreadonly == newreadonly )
 	uiMSG().warning( "Could not change the read-only status" );
 
