@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.68 2012-07-13 08:08:14 cvsbruno Exp $
+ RCS:           $Id: flatview.h,v 1.69 2012-07-27 11:56:45 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -364,8 +364,9 @@ public:
     virtual void		addAuxData(AuxData* a)			= 0;
     virtual AuxData*		removeAuxData(AuxData* a)		= 0;
     virtual AuxData*		removeAuxData(int idx)			= 0;
-    void			removeAuxDatas(ObjectSet<AuxData>&);
-    void			removeAllAuxData();
+    void			removeAuxDatas(ObjectSet<AuxData>&,
+						 bool deleteaux=false);
+    void			removeAllAuxData(bool deleteaux=false);
 
 protected:
 
