@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimenu.cc,v 1.74 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimenu.cc,v 1.75 2012-07-27 14:38:41 cvsjaap Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -300,11 +300,11 @@ void uiMenuItem::setShortcut( const char* sctxt )
 }
 
 
-CallBack* uiMenuItem::cmdrecorder_ = 0;
+static CallBackSet cmdrecorders_;
 
 int uiMenuItem::beginCmdRecEvent( const char* msg )
 {
-    if ( !cmdrecorder_ )
+    if ( cmdrecorders_.isEmpty() )
 	return -1;
 
     cmdrecrefnr_ = cmdrecrefnr_==INT_MAX ? 1 : cmdrecrefnr_+1;
@@ -312,35 +312,32 @@ int uiMenuItem::beginCmdRecEvent( const char* msg )
     BufferString actstr( "Begin " );
     actstr += cmdrecrefnr_; actstr += " "; actstr += msg;
     CBCapsule<const char*> caps( actstr, this );
-    cmdrecorder_->doCall( &caps );
+    cmdrecorders_.doCall( &caps );
     return cmdrecrefnr_;
 }
 
 
 void uiMenuItem::endCmdRecEvent( int refnr, const char* msg )
 {
-    if ( cmdrecorder_ )
+    if ( !cmdrecorders_.isEmpty() )
     {
 	BufferString actstr( "End " );
 	actstr += refnr; actstr += " "; actstr += msg;
 	CBCapsule<const char*> caps( actstr, this );
-	cmdrecorder_->doCall( &caps );
+	cmdrecorders_.doCall( &caps );
     }
 }
 
 
-void uiMenuItem::unsetCmdRecorder()
+void uiMenuItem::removeCmdRecorder( const CallBack& cb )
 {
-    if ( cmdrecorder_ )
-	delete cmdrecorder_;
-    cmdrecorder_ = 0;
+    cmdrecorders_ -= cb;
 }
 
 
-void uiMenuItem::setCmdRecorder( const CallBack& cb )
+void uiMenuItem::addCmdRecorder( const CallBack& cb )
 {
-    unsetCmdRecorder();
-    cmdrecorder_ = new CallBack( cb );
+    cmdrecorders_ += cb;
 }
 
 
@@ -559,7 +556,7 @@ bool uiMenuBar::isSensitive() const
 
 // -----------------------------------------------------------------------
 
-CallBack* uiPopupMenu::interceptor_ = 0;
+static CallBackSet interceptors_;
 
 uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm,
 			  const char* pmnm )
@@ -620,11 +617,11 @@ int uiPopupMenu::exec()
     QMenu* mnu = body_->popup();
     if ( !mnu ) return -1;
 
-    if ( interceptor_ )
+    if ( !interceptors_.isEmpty() )
     {
 	dointercept_ = false;
 	interceptitem_ = 0;
-	interceptor_->doCall( this );
+	interceptors_.doCall( this );
 
 	if ( dointercept_ )
 	{
@@ -643,22 +640,27 @@ int uiPopupMenu::exec()
     
 void uiPopupMenu::doIntercept( bool yn, uiMenuItem* interceptitm )
 {
-    dointercept_ = yn;
-    interceptitem_ = interceptitm;
+    if ( !dointercept_ && yn )
+    {
+	dointercept_ = yn;
+	interceptitem_ = interceptitm;
+    }
+    else if ( dointercept_ && yn )
+    {
+	pErrMsg( "Can handle multiple passive, \
+		  but only one active popup menu interceptor" );
+    }
 }
 
 
-void uiPopupMenu::unsetInterceptor()
+void uiPopupMenu::removeInterceptor( const CallBack& cb )
 { 
-    if ( interceptor_ )
-	delete interceptor_;
-    interceptor_ = 0;
+    interceptors_ -= cb;
 }
 
 
-void uiPopupMenu::setInterceptor( const CallBack& cb )
+void uiPopupMenu::addInterceptor( const CallBack& cb )
 { 
-    unsetInterceptor();
-    interceptor_ = new CallBack( cb );
+    interceptors_ += cb;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobj.cc,v 1.107 2012-05-18 12:14:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobj.cc,v 1.108 2012-07-27 14:38:41 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -65,7 +65,7 @@ bool uiBaseObject::finalised() const
 { return body() ? body()->finalised() : false; }
 
 
-CallBack* uiBaseObject::cmdrecorder_ = 0;
+static CallBackSet cmdrecorders_;
 
 
 int uiBaseObject::beginCmdRecEvent( const char* msg )
@@ -74,7 +74,8 @@ int uiBaseObject::beginCmdRecEvent( const char* msg )
 
 int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
 {
-    if ( !cmdrecorder_ || (!id && cmdrecstopperstack_.isPresent(this)) )
+    if ( cmdrecorders_.isEmpty() ||
+	 (!id && cmdrecstopperstack_.isPresent(this)) )
 	return -1;
 
     cmdrecrefnr_ = cmdrecrefnr_==INT_MAX ? 1 : cmdrecrefnr_+1;
@@ -86,7 +87,7 @@ int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
     actstr += " Begin "; actstr += cmdrecrefnr_;
     actstr += " "; actstr += msg;
     CBCapsule<const char*> caps( actstr, this );
-    cmdrecorder_->doCall( &caps );
+    cmdrecorders_.doCall( &caps );
     return cmdrecrefnr_;
 }
 
@@ -101,7 +102,8 @@ void uiBaseObject::endCmdRecEvent( int refnr, const char* msg )
 
 void uiBaseObject::endCmdRecEvent( od_uint64 id, int refnr, const char* msg )
 {
-    if ( !cmdrecorder_ || (!id && cmdrecstopperstack_.isPresent(this)) )
+    if ( cmdrecorders_.isEmpty() ||
+	 (!id && cmdrecstopperstack_.isPresent(this)) )
 	return;
 
     BufferString actstr;
@@ -111,22 +113,19 @@ void uiBaseObject::endCmdRecEvent( od_uint64 id, int refnr, const char* msg )
     actstr += " End "; actstr += refnr;
     actstr += " "; actstr += msg;
     CBCapsule<const char*> caps( actstr, this );
-    cmdrecorder_->doCall( &caps );
+    cmdrecorders_.doCall( &caps );
 }
 
 
-void uiBaseObject::unsetCmdRecorder()
+void uiBaseObject::removeCmdRecorder( const CallBack& cb )
 {
-    if ( cmdrecorder_ )
-	delete cmdrecorder_;
-    cmdrecorder_ = 0;
+    cmdrecorders_ -= cb;
 }
 
 
-void uiBaseObject::setCmdRecorder( const CallBack& cb )
+void uiBaseObject::addCmdRecorder( const CallBack& cb )
 {
-    unsetCmdRecorder();
-    cmdrecorder_ = new CallBack( cb );
+    cmdrecorders_ += cb;
 }
 
 

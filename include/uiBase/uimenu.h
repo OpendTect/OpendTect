@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.59 2010-11-16 09:49:10 cvsbert Exp $
+ RCS:           $Id: uimenu.h,v 1.60 2012-07-27 14:38:41 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,13 +151,12 @@ private:
     bool			enabled_;
     const ioPixmap*		pixmap_;
 
-    static CallBack*		cmdrecorder_;
     int				cmdrecrefnr_;
 
 public:
 				//! Not for casual use
-    static void			setCmdRecorder(const CallBack&);
-    static void			unsetCmdRecorder();
+    static void			addCmdRecorder(const CallBack&);
+    static void			removeCmdRecorder(const CallBack&);
     int  /* refnr */		beginCmdRecEvent(const char* msg=0);
     void			endCmdRecEvent(int refnr,const char* msg=0);
 
@@ -248,7 +247,6 @@ private:
     int				findIdForAction(QAction*) const;
     uiPopupItem&		item_;
 
-    static CallBack*		interceptor_;
     uiMenuItem*			interceptitem_;
     bool			dointercept_;
 
@@ -256,8 +254,8 @@ private:
 
 public:
 				//! Not for casual use
-    static void			setInterceptor(const CallBack&);
-    static void			unsetInterceptor();
+    static void			addInterceptor(const CallBack&);
+    static void			removeInterceptor(const CallBack&);
     void			doIntercept(bool yn,uiMenuItem* activateitm=0);
 
 };

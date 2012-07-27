@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibaseobject.h,v 1.8 2012-05-18 12:13:43 cvskris Exp $
+ RCS:           $Id: uibaseobject.h,v 1.9 2012-07-27 14:38:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,8 @@ public:
     inline const uiBody*	body() const		{ return body_; }
     inline uiBody*		body()			{ return body_; }
 
-    static void			setCmdRecorder(const CallBack&);
-    static void			unsetCmdRecorder();
+    static void			addCmdRecorder(const CallBack&);
+    static void			removeCmdRecorder(const CallBack&);
 
     int	 /* refnr */		beginCmdRecEvent(const char* msg=0);
     void			endCmdRecEvent(int refnr,const char* msg=0);
@@ -64,7 +64,6 @@ protected:
     				//!< triggered when finalising finished
 
 private:
-    static CallBack*		cmdrecorder_;
     int				cmdrecrefnr_;
     uiBody*			body_;
 };
