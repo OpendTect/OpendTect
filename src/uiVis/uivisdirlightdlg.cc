@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisdirlightdlg.cc,v 1.34 2012-05-02 15:12:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivisdirlightdlg.cc,v 1.35 2012-07-27 09:43:42 cvsjaap Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -402,7 +402,7 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
         }
 
         float x = dl->direction( 0 );
-        float y = dl->direction( 1 );
+        float y mUnusedVar = dl->direction( 1 );
         float z = dl->direction( 2 );
         float dip = Angle::convert( Angle::Rad, asin( z ), Angle::Deg );
 	dip += 180;  // offset for observed deviation
