@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogcalc.cc,v 1.30 2012-05-29 16:38:39 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogcalc.cc,v 1.31 2012-07-27 09:01:28 cvsjaap Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -399,7 +399,6 @@ bool uiWellLogCalc::getInpData( TypeSet<uiWellLogCalc::InpData>& inpdata )
 
 bool uiWellLogCalc::getRecInfo()
 {
-    float startval = 0;
     const int nrrec = recvaridxs_.size();
     if ( nrrec < 1 ) return true;
 

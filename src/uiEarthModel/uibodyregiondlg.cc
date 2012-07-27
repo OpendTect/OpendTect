@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uibodyregiondlg.cc,v 1.17 2012-05-22 14:48:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibodyregiondlg.cc,v 1.18 2012-07-27 08:57:51 cvsjaap Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -566,7 +566,6 @@ uiBodyRegionDlg::~uiBodyRegionDlg()
 
 void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
 {
-    mDynamicCastGet( uiPushButton*, but, cb );
     const bool isflt = addfltbutton_==cb;
     if ( !isflt && addhorbutton_!=cb )
 	return;
