@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.29 2012-07-10 08:05:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.30 2012-07-27 08:38:10 cvsjaap Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
@@ -211,7 +211,7 @@ void uiStratSimpleLayerModelDisp::modelChanged()
     for ( int iseq=0; iseq<nrseqs; iseq++ ) \
     { \
 	if ( chckdisp && !isDisplayedModel(iseq) ) continue; \
-	float prevval = mUdf(float); \
+	float prevval mUnusedVar = mUdf(float); \
 	const Strat::LayerSequence& seq = lm_.sequence( iseq ); \
 	const int nrlays = seq.size(); \
 	for ( int ilay=0; ilay<nrlays; ilay++ ) \
