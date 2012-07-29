@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: arrayndinfo.cc,v 1.20 2012-06-29 12:17:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: arrayndinfo.cc,v 1.21 2012-07-29 21:36:25 cvskris Exp $";
 
 #include "arraynd.h"
 #include "typeset.h"
@@ -274,6 +274,10 @@ ArrayNDIter::ArrayNDIter( const ArrayNDInfo& sz )
     : sz_ ( sz )
     , position_( new int[sz.getNDim()] )
 {
+    if ( !sz.getTotalSz() )
+    {
+	pErrMsg( "Not a valid array for iteration" );
+    }
     reset();
 }
 
