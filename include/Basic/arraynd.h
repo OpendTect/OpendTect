@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.46 2012-07-04 09:52:45 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.47 2012-07-29 21:09:48 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -300,7 +300,7 @@ const T* ArrayND<T>::get1D( const int* i ) const
     int ndim = info().getNDim();
 
     ArrPtrMan<int> pos = new int[ndim];
-    memcpy(pos,i,sizeof(int)*(ndim-1));
+    memcpy(pos,i, (int) sizeof(int)*(ndim-1));
 
     pos[ndim-1] = 0;
     
