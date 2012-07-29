@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: polyposprovider.cc,v 1.16 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: polyposprovider.cc,v 1.17 2012-07-29 21:35:29 cvskris Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -71,8 +71,8 @@ static void setHS( const ODPolygon<float>& poly, HorSampling& hs )
     hs.start.crl = (int)floor( yrg.start + 0.5 );
     hs.stop.inl = (int)floor( xrg.stop + 0.5 );
     hs.stop.crl = (int)floor( yrg.stop + 0.5 );
-    SI().snap( hs.start, 1 );
-    SI().snap( hs.stop, -1 );
+    SI().snap( hs.start, BinID(1,1) );
+    SI().snap( hs.stop, BinID(-1,-1) );
 }
 
 
