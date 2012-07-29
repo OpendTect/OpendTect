@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.172 2012-07-20 04:50:23 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.173 2012-07-29 21:08:51 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -682,7 +682,7 @@ static void doSnap( int& idx, int start, int step, int dir )
 }
 
 
-void SurveyInfo::snap( BinID& binid, BinID rounding ) const
+void SurveyInfo::snap( BinID& binid, const BinID& rounding ) const
 {
     const CubeSampling& cs = sampling( false );
     const BinID& stp = cs.hrg.step;
@@ -692,7 +692,7 @@ void SurveyInfo::snap( BinID& binid, BinID rounding ) const
 }
 
 
-void SurveyInfo::snapStep( BinID& s, BinID rounding ) const
+void SurveyInfo::snapStep( BinID& s, const BinID& rounding ) const
 {
     const BinID& stp = cs_.hrg.step;
     if ( s.inl < 0 ) s.inl = -s.inl;

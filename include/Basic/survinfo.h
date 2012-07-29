@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.111 2012-07-03 08:51:39 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.112 2012-07-29 21:08:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,9 +175,9 @@ public:
     bool		includes(const BinID&,const float,bool work) const;
 			//!< Returns true when pos is inside survey-range
 
-    void		snap(BinID&,BinID direction=BinID(0,0)) const;
+    void		snap(BinID&,const BinID& dir=BinID(0,0)) const;
 			//!< dir = 0 : auto; -1 round downward, 1 round upward
-    void		snapStep(BinID&,BinID direction=BinID(0,0)) const;
+    void		snapStep(BinID&,const BinID& dir=BinID(0,0))const;
     			//!< see snap() for direction
     void		snapZ(float&,int direction=0) const;
     			//!< see snap() for direction
