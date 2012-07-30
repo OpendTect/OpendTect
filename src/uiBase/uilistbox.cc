@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.127 2012-07-18 07:35:37 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.128 2012-07-30 10:09:15 cvsbruno Exp $";
 
 #include "uilistbox.h"
 
@@ -251,7 +251,8 @@ int uiListBoxBody::maxNrOfSelections() const
     , itemChecked(this) \
     , rightclickmnu_(*new uiPopupMenu(p)) \
     , itemscheckable_(false) \
-    , alignment_(Alignment::Left)
+    , alignment_(Alignment::Left) \
+    , allowduplicates_(true)
 
 
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
@@ -297,7 +298,7 @@ void uiListBox::menuCB( CallBacker* )
     rightclickmnu_.insertItem( new uiMenuItem("Uncheck all items"), 1 );
     const int res = rightclickmnu_.exec();
     if ( res==0 || res==1 )
-	setItemsChecked( res==0 );
+	setAllItemsChecked( res==0 );
 }
 
 
@@ -359,8 +360,35 @@ void uiListBox::selectAll( bool yn )
 }
 
 
+void uiListBox::setAllowDuplicates( bool yn )
+{
+    allowduplicates_ = yn;
+    BufferStringSet allitems; getItems( allitems );
+    while ( !allitems.isEmpty() )
+    {
+	const char* nm = allitems.remove(0)->buf(); 
+	while ( allitems.isPresent( nm ) ) 
+	{
+	    const int itmidx = allitems.indexOf( nm );
+	    allitems.remove( itmidx );
+	    removeItem( itmidx + 1 );
+	}
+    }
+}
+
+
+void uiListBox::getItems( BufferStringSet& nms ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	nms.add( textOfItem( idx ) ); 
+}
+
+
 void uiListBox::addItem( const char* text, bool mark, int id ) 
 {
+    if ( !allowduplicates_ && isPresent( text ) )
+	return;
+
     mBlockCmdRec;
     body_->addItem( text, mark, id );
     setItemCheckable( size()-1, false ); // Qt bug
@@ -409,6 +437,9 @@ void uiListBox::insertItem( const char* text, int index, bool mark, int id )
 	addItem( text, mark );
     else
     {
+	if ( !allowduplicates_ && isPresent( text ) )
+	    return;
+
 	body_->insertItem( index, text, mark, id );
 	setItemCheckable( index<0 ? 0 : index, itemscheckable_ );
 	body_->setItemAlignment( size()-1, alignment_ );
@@ -675,10 +706,13 @@ bool uiListBox::isItemCheckable( int idx ) const
 }
 
 
-void uiListBox::setItemsChecked( bool yn )
+void uiListBox::setAllItemsChecked( bool yn )
 {
     for ( int idx=0; idx<size(); idx++ )
-	setItemChecked( idx, yn );
+    {
+	if ( isItemCheckable( idx ) )
+	    setItemChecked( idx, yn );
+    }
 }
 
 

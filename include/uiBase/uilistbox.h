@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.64 2011-10-17 16:27:51 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.65 2012-07-30 10:09:15 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ public:
 
     void		setEmpty();
     void		removeItem(int);
+    void		setAllowDuplicates(bool yn);
     void		addItem(const char*,bool marked=false,int id=-1);
     void		addItem(const char*,const ioPixmap&,int id=-1);
     void		addItem(const char*,const Color&,int id=-1);
@@ -108,7 +109,7 @@ public:
 
     void		setItemsCheckable(bool);	//!< Sets all items
     void		setItemCheckable(int,bool);
-    void		setItemsChecked(bool);		//!< Sets all items
+    void		setAllItemsChecked(bool);
     void		setItemChecked(int,bool);
     bool		isItemCheckable(int) const;
     bool		isItemChecked(int) const;
@@ -152,6 +153,7 @@ protected:
     OD::ButtonState	buttonstate_;
     Alignment::HPos	alignment_;
     bool		itemscheckable_;
+    bool 		allowduplicates_;
     uiPopupMenu&	rightclickmnu_;
 
     void		menuCB(CallBacker*);
