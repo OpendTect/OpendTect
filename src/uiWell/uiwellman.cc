@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellman.cc,v 1.94 2012-07-12 07:46:34 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellman.cc,v 1.95 2012-07-30 06:56:47 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -550,14 +550,16 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
 	    txt += "Reference Datum Elevation (KB)"; txt += ": ";
-	    txt += zun->userValue(rdelev); txt += zun->symbol(); txt += "\n";
+	    txt += zun ? zun->userValue(rdelev) : rdelev; 
+	    txt += zun->symbol(); txt += "\n";
 	}
 
 	const float surfelev = -info.surfaceelev;
 	if ( !mIsZero(surfelev,1e-4) && !mIsUdf(surfelev) )
 	{
 	    txt += "Difference MSL - SRD"; txt += ": ";
-	    txt += zun->userValue(surfelev); txt += zun->symbol(); txt += "\n";
+	    txt += zun ? zun->userValue(surfelev) : surfelev;
+	    txt += zun->symbol(); txt += "\n";
 	}
     }
 
