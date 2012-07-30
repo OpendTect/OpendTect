@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.128 2012-07-30 10:09:15 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.129 2012-07-30 15:32:32 cvsbruno Exp $";
 
 #include "uilistbox.h"
 
@@ -727,6 +727,18 @@ void uiListBox::setItemChecked( int idx, bool yn )
 bool uiListBox::isItemChecked( int idx ) const
 {
     return validIndex(idx) && body_->item(idx)->checkState()==Qt::Checked;
+}
+
+
+void uiListBox::setItemChecked( const char* nm, bool yn )
+{
+    if ( isPresent( nm ) ) setItemChecked( indexOf( nm ), yn );
+}
+
+
+bool uiListBox::isItemChecked( const char* nm ) const
+{
+    return isPresent( nm ) ? isItemChecked( indexOf( nm ) ) : false;
 }
 
 
