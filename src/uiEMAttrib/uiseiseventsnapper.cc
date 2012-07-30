@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiseventsnapper.cc,v 1.33 2012-05-02 15:12:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiseventsnapper.cc,v 1.34 2012-07-30 20:43:41 cvskris Exp $";
 
 
 #include "uiseiseventsnapper.h"
@@ -135,9 +135,8 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    if ( !newhor3d )
 		return false;
 
-	    EM::SectionID sid0 = hor3d->sectionID( 0 );
 	    BinIDValueSet bivs( 1, false );
-	    hor3d->geometry().fillBinIDValueSet( sid0, bivs );
+	    hor3d->geometry().fillBinIDValueSet( sid, bivs );
 	    
 	    SeisEventSnapper3D snapper( *seisctio_.ioobj, bivs, rg );
 	    snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
@@ -153,7 +152,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    {
 		BinID bid; float z;
 		bivs.get( pos, bid, z );
-		newhor3d->setPos( sid0, bid.toInt64(), Coord3(0,0,z),
+		newhor3d->setPos( sid, bid.toInt64(), Coord3(0,0,z),
 				  false );
 	    }
 
