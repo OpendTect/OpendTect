@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.41 2012-07-26 02:35:42 cvsdgb Exp $";
+static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.42 2012-07-30 06:25:13 cvskris Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -575,6 +575,12 @@ static void getHomeDir( char* val )
 #endif
 }
 
+#define mDoRet( ret ) return #ret
+
+const char* GetBinSubDir()
+{
+    mDoRet( __binsubdir__ );
+}
 
 const char* GetPersonalDir( void )
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.21 2010-10-28 06:01:48 cvsranojay Exp $
+ RCS:		$Id: oddirs.h,v 1.22 2012-07-30 06:25:13 cvskris Exp $
 ________________________________________________________________________
 
 OpendTect directories.
@@ -47,6 +47,9 @@ mGlobal const char* GetSoftwareDir(int acceptnone);
 
  If acceptnone is false, program will terminate if none is found.
 */
+    
+mGlobal const char* GetBinSubDir(void);
+/*!< Directory for the release-type, i.e. Debug, Release, ... */
 
 mGlobal const char* GetApplSetupDir(void);
 /*!< Directory with setup files and scripts overruling current software
