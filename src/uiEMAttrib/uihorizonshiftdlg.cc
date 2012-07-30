@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorizonshiftdlg.cc,v 1.17 2012-05-02 15:12:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorizonshiftdlg.cc,v 1.18 2012-07-30 20:40:05 cvskris Exp $";
 
 #include "uihorizonshiftdlg.h"
 
@@ -205,7 +205,6 @@ float uiHorizonShiftDialog::getShift() const
 
 void uiHorizonShiftDialog::shiftCB( CallBacker* )
 {
-    const float curshift = getShift();
     horShifted.trigger();
 }
 

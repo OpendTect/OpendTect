@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiemattribpartserv.cc,v 1.23 2012-05-02 15:12:03 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiemattribpartserv.cc,v 1.24 2012-07-30 20:40:05 cvskris Exp $";
 
 
 #include "uiemattribpartserv.h"
@@ -165,7 +165,6 @@ void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
 	horshiftdlg_->horizon3D().geometry();
     for ( int idx=0; idx<nrshifts; idx++ )
     {
-	const float shift = intv.atIndex(idx);
 	TypeSet<DataPointSet::DataRow> drset;
 	BufferStringSet nmset;
 	DataPointSet* dps = new DataPointSet( drset, nmset, false, true );
