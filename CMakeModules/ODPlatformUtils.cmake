@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.60 2012-07-26 10:50:08 cvsbert Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.61 2012-07-30 05:33:07 cvsranojay Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -55,6 +55,9 @@ IF(UNIX) #Apple an Linux
 	ADD_DEFINITIONS(  "-ggdb3" )
     ENDIF()
 
+    set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} -D__debug__" )
+    set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -D__debug__")
+
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-non-template-friend" )
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Wno-reorder" )
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused -Wmissing-braces -Wparentheses -Wsequence-point" )
@@ -99,6 +102,6 @@ ENDIF()
 
 ADD_DEFINITIONS( "\"-D__${OD_PLFSUBDIR}__=1\"" )
 
-set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} \"-D__binsubdir__=Debug\" -D__debug__" )
+set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} \"-D__binsubdir__=Debug\" " )
 set ( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE} \"-D__binsubdir__=Release\"" )
-set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} \"-D__binsubdir__=RelWithDebInfo\" -D__debug__")
+set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} \"-D__binsubdir__=RelWithDebInfo\" ")
