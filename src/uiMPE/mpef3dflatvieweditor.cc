@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.14 2011-10-04 05:52:18 cvsumesh Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.15 2012-07-30 20:28:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -449,7 +449,6 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
 	return;
 
     EM::PosID mousepid( emid, 0, RowCol(stickid,knotid).toInt64() );
-    const MouseEvent& mouseevent = meh_->event();
     f3deditor->setLastClicked( mousepid );
     activestickid_ = stickid;
     f3dpainter_->setActiveStick( mousepid );

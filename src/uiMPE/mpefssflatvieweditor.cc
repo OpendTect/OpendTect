@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.22 2012-05-22 14:48:39 cvskris Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.23 2012-07-30 20:28:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,8 +265,6 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 
     const Geom::Point2D<double> pos = editor_->getSelPtPos();
 
-    const CubeSampling& cs = fsspainter_->getCubeSampling();
-    
     const FlatDataPack* dp = editor_->viewer().pack( false );
     if ( !dp )
 	dp = editor_->viewer().pack( true );
@@ -440,8 +438,6 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     if ( editor_ && editor_->sower().accept(meh_->event(), false) )
 	return;
 
-    bool active = editor_->viewer().appearance().annot_.editable_;
-    bool sel = editor_->isSelActive();
     if ( !editor_->viewer().appearance().annot_.editable_
 	 || editor_->isSelActive() )
 	return;
