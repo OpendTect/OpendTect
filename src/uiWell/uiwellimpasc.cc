@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellimpasc.cc,v 1.77 2012-07-12 07:46:34 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellimpasc.cc,v 1.78 2012-07-30 08:31:28 cvsbruno Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID mUnusedVar = "$Id: uiwellimpasc.cc,v 1.77 2012-07-12 07
 #include "strmprov.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "unitofmeasure.h"
 #include "welldata.h"
 #include "wellimpasc.h"
 #include "welltrack.h"
@@ -45,6 +46,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 				 "Import Well Track",sHelpID))
     , fd_(*Well::TrackAscIO::getDesc())
     , wd_(*new Well::Data)
+    , zun_(UnitOfMeasure::surveyDefDepthUnit())
 {
     setCtrlStyle( DoAndStay );
 
@@ -165,6 +167,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     : uiDialog(p,uiDialog::Setup("Import well: Advanced/Optional",
 				 "Advanced and Optional",nHelpID))
     , uwia_(p)
+    , zun_(UnitOfMeasure::surveyDefDepthUnit())
 {
     const Well::Info& info = uwia_->wd_.info();
 
@@ -176,8 +179,8 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 	PositionInpSpec(possu).setName( "X", 0 ).setName( "Y", 1 ) );
 
     float dispval = -info.surfaceelev;
-    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.surfaceelev) ) 
-	dispval *= mToFeetFactor;
+    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.surfaceelev) && zun_ ) 
+	dispval = zun_->userValue( -info.surfaceelev );
     if ( mIsZero(dispval,0.01) ) dispval = 0;
     elevfld = new uiGenInput( this,
 		"Difference between MSL and Seismic Reference Datum (SRD)",
@@ -213,8 +216,8 @@ bool acceptOK( CallBacker* )
     if ( *elevfld->text() )
     {
 	info.surfaceelev = -elevfld->getfValue();
-	if ( zinftbox->isChecked() && !mIsUdf(info.surfaceelev) ) 
-	    info.surfaceelev *= mFromFeetFactor;
+	if ( zinftbox->isChecked() && !mIsUdf(info.surfaceelev) && zun_ ) 
+	    info.surfaceelev = zun_->internalValue( info.surfaceelev );
     }
 
     info.uwid = idfld->text();
@@ -225,6 +228,7 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
+    const UnitOfMeasure* zun_; 
     uiWellImportAsc*	uwia_;
     uiGenInput*		coordfld;
     uiGenInput*		elevfld;
@@ -285,11 +289,12 @@ bool uiWellImportAsc::doWork()
     {
 	float kbelev = kbelevfld_->getfValue();
 	if ( mIsUdf(kbelev) ) kbelev = 0;
-	else if ( SI().depthsInFeetByDefault() ) kbelev *= mFromFeetFactor;
+	else if ( SI().depthsInFeetByDefault() && zun_ ) 
+	    kbelev = zun_->internalValue( kbelev );
 
 	float td = tdfld_->getfValue();
-	if ( !mIsUdf(td) && SI().depthsInFeetByDefault() )
-	    td *= mFromFeetFactor;
+	if ( !mIsUdf(td) && SI().depthsInFeetByDefault() && zun_ )
+	    td = zun_->internalValue( td ) ;
 	if ( mIsUdf(td) || td < 1e-6 )
 	{
 	    float survzstop = SI().zRange(false).stop;

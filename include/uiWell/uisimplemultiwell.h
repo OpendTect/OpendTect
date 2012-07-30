@@ -4,13 +4,14 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Jun 2010
- * ID       : $Id: uisimplemultiwell.h,v 1.4 2012-05-22 21:52:18 cvsnanne Exp $
+ * ID       : $Id: uisimplemultiwell.h,v 1.5 2012-07-30 08:31:28 cvsbruno Exp $
 -*/
 
 #include "uidialog.h"
 #include "bufstringset.h"
 
 class IOObj;
+class UnitOfMeasure;
 class uiGenInput;
 class uiSMWCData;
 class uiTable;
@@ -33,6 +34,7 @@ protected:
     float		vel_;
     Interval<float>	defzrg_;
     BufferStringSet	crwellids_;
+    const UnitOfMeasure* zun_;
 
     bool		acceptOK(CallBacker*);
 

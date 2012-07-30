@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisimplemultiwell.cc,v 1.16 2012-07-12 07:46:34 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisimplemultiwell.cc,v 1.17 2012-07-30 08:31:28 cvsbruno Exp $";
 
 
 #include "uisimplemultiwell.h"
@@ -20,6 +20,7 @@ static const char* rcsID mUnusedVar = "$Id: uisimplemultiwell.cc,v 1.16 2012-07-
 #include "survinfo.h"
 #include "tableascio.h"
 #include "tabledef.h"
+#include "unitofmeasure.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "welltrack.h"
@@ -55,6 +56,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 	    		.savebutton(true).savetext("Display after creation") )
     , velfld_(0)
     , zinft_(SI().depthsInFeetByDefault())
+    , zun_(UnitOfMeasure::surveyDefDepthUnit())
     , overwritepol_(0)
 {
     tbl_ = new uiTable( this, uiTable::Setup(20,7).rowgrow(true)
@@ -278,12 +280,12 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 
     wcd.elev_ = tbl_->getfValue( RowCol(irow,3) );
     if ( mIsUdf(wcd.elev_) ) wcd.elev_ = 0;
-    if ( zinft_ ) wcd.elev_ *= mFromFeetFactor;
+    if ( zinft_ && zun_ ) wcd.elev_ = zun_->internalValue( wcd.elev_ );
 
     wcd.td_ = tbl_->getfValue( RowCol(irow,4) );
     if ( wcd.td_ > 1e-6 && !mIsUdf(wcd.td_) )
     {
-	if ( zinft_ ) wcd.td_ *= mFromFeetFactor;
+	if ( zinft_ && zun_ ) wcd.td_ = zun_->internalValue( wcd.td_ );
     }
     else
     {
@@ -295,7 +297,7 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 
     wcd.srd_ = tbl_->getfValue( RowCol(irow,5) );
     if ( mIsUdf(wcd.srd_) ) wcd.srd_ = 0;
-    if ( zinft_ ) wcd.srd_ *= mFromFeetFactor;
+    if ( zinft_ && zun_ ) wcd.srd_ = zun_->internalValue(  wcd.srd_ );
 
     wcd.uwi_ = tbl_->text( RowCol(irow,6) );
     return true;
@@ -306,10 +308,10 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 {
     crwellids_.erase();
     vel_ = velfld_ ? velfld_->getfValue() : 1000;
+    if ( zinft_ && zun_ )
+	vel_ = zun_->internalValue( vel_ );
     if ( vel_ < 1e-5 || mIsUdf(vel_) )
 	{ uiMSG().error("Please enter a valid velocity"); return false; }
-    if ( zinft_ )
-	vel_ *= mFromFeetFactor;
     vel_ /= 2; // TWT
 
     IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
@@ -357,11 +359,11 @@ void uiSimpleMultiWellCreate::addRow( const uiSMWCData& wcd, int& prevrow )
     tbl_->setText( rc, wcd.nm_ ); rc.col++;
     tbl_->setValue( rc, wcd.coord_.x ); rc.col++;
     tbl_->setValue( rc, wcd.coord_.y ); rc.col++;
-    float v = wcd.elev_; if ( zinft_ ) v *= mToFeetFactor;
+    float v = wcd.elev_; if ( zinft_ && zun_ ) zun_->userValue( v );
     tbl_->setValue( rc, v ); rc.col++;
-    v = wcd.td_; if ( zinft_ ) v *= mToFeetFactor;
+    v = wcd.td_; if ( zinft_ && zun_ ) zun_->userValue( v );
     tbl_->setValue( rc, v ); rc.col++;
-    v = wcd.srd_; if ( zinft_ ) v *= mToFeetFactor;
+    v = wcd.srd_; if ( zinft_ && zun_ ) zun_->userValue( v );
     tbl_->setValue( rc, v ); rc.col++;
     tbl_->setText( rc, wcd.uwi_ );
 }

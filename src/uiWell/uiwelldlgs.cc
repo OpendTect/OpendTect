@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.112 2012-07-24 07:09:59 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.113 2012-07-30 08:31:28 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -38,6 +38,7 @@ static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.112 2012-07-24 07:
 #include "strmprov.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "unitofmeasure.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellimpasc.h"
@@ -543,7 +544,6 @@ bool uiD2TModelDlg::acceptOK( CallBacker* )
 // ==================================================================
 
 static const float defundefval = -999.25;
-static const float feetfac = 0.3048;
 #ifdef __win__
     static const char* lasfileflt = "Las files (*.las *.dat)";
 #else
@@ -608,8 +608,11 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     udffld->setValue( lfi.undefval );
     if ( isft )
     {
-	if ( !mIsUdf(lfi.zrg.start) ) lfi.zrg.start /= feetfac;
-	if ( !mIsUdf(lfi.zrg.stop) ) lfi.zrg.stop /= feetfac;
+	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+	if ( !mIsUdf(lfi.zrg.start) && zun ) 
+	    zun->userValue( lfi.zrg.start );
+	if ( !mIsUdf(lfi.zrg.stop) && zun ) 
+	    zun->userValue( lfi.zrg.stop );
     }
     intvfld->setValue( lfi.zrg );
 }
@@ -625,8 +628,11 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     const bool zinft = !intvunfld->getBoolValue();
     if ( zinft )
     {
-	if ( !mIsUdf(lfi.zrg.start) ) lfi.zrg.start *= feetfac;
-	if ( !mIsUdf(lfi.zrg.stop) ) lfi.zrg.stop *= feetfac;
+	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+	if ( !mIsUdf(lfi.zrg.start) && zun ) 
+	    zun->internalValue( lfi.zrg.start );
+	if ( !mIsUdf(lfi.zrg.stop) && zun ) 
+	    zun->internalValue( lfi.zrg.stop );
     }
 
     const char* lasfnm = lasfld->text();
