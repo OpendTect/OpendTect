@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uioddatatreeitem.cc,v 1.70 2012-07-10 14:08:25 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uioddatatreeitem.cc,v 1.71 2012-07-30 21:22:24 cvskris Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -320,7 +320,6 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==movetobottommnuitem_.id )
     {
-	const int nrattribs = visserv->getNrAttribs( displayID() );
 	for ( int idx=attribNr(); idx; idx-- )
 	    visserv->swapAttribs( displayID(), idx, idx-1 );
 

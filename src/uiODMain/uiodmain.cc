@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmain.cc,v 1.160 2012-07-10 08:05:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmain.cc,v 1.161 2012-07-30 21:22:24 cvskris Exp $";
 
 #include "uiodmain.h"
 
@@ -598,7 +598,6 @@ void uiODMain::memTimerCB( CallBacker* )
 
     float tot, av;
     OD::getSystemMemory( tot, av );
-    const float ratiofree = av / tot;
 
     BufferString txt( "[mem] " );
     const bool ingb = tot > 1070000000;

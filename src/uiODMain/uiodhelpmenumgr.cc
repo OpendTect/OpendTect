@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodhelpmenumgr.cc,v 1.24 2012-05-09 07:51:26 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodhelpmenumgr.cc,v 1.25 2012-07-30 21:22:24 cvskris Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -101,8 +101,7 @@ bool uiODHelpDocInfo::getFrom( std::istream& strm, const char* dirnm )
 void uiODHelpMenuMgr::scanEntries( const char* docdir )
 {
     DirList dl( docdir, DirList::DirsOnly );
-    int mnuidx = 1;
-    for ( int hidx=0, idx=0; idx<dl.size(); idx++ )
+    for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString dirnm = dl.get( idx );
 	if ( dirnm == "Programmer" || dirnm == "Credits" ) continue;
