@@ -203,8 +203,6 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
     }
     ld.zrg_.start = startpos;
     ld.zrg_.stop = stoppos;
-    if ( zdata_.dispzinft_ && !zdata_.zistime_)
-	ld.zrg_.scale( mToFeetFactor );
 }
 
 
