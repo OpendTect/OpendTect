@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiviszstretchdlg.cc,v 1.6 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiviszstretchdlg.cc,v 1.7 2012-07-30 20:57:41 cvskris Exp $";
 
 #include "uiviszstretchdlg.h"
 
@@ -35,7 +35,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
     visBase::DM().getIds( typeid(visSurvey::Scene), sceneids );
     if ( sceneids.size() == 0 )
     {
-	uiLabel* lbl = new uiLabel( this, "No scenes available" );
+	new uiLabel( this, "No scenes available" );
 	return;
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.100 2012-06-27 15:17:08 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.101 2012-07-30 20:57:41 cvskris Exp $";
 
 #include "uivisemobj.h"
 
@@ -416,11 +416,12 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     else
     { mResetMenuItem( &showbothmnuitem_ ); }
 
-    visSurvey::Scene* scene = hordisp ? hordisp->getScene() : 0;
-    const bool hastransform = scene && scene->getZAxisTransform();
-    const bool enabmenu =
-	!strcmp(getObjectType(displayid_),EM::Horizon3D::typeStr())
-	&& !visserv_->isLocked(displayid_) && !hastransform;
+    //Commented out as mAddMenu is commented out below
+    //visSurvey::Scene* scene = hordisp ? hordisp->getScene() : 0;
+    //const bool hastransform = scene && scene->getZAxisTransform();
+    //const bool enabmenu =
+	//!strcmp(getObjectType(displayid_),EM::Horizon3D::typeStr())
+	//&& !visserv_->isLocked(displayid_) && !hastransform;
 
     seedsmenuitem_.removeItems();
 

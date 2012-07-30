@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvtopbotimg.cc,v 1.9 2012-07-13 06:22:52 cvsranojay Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvtopbotimg.cc,v 1.10 2012-07-30 20:57:41 cvskris Exp $";
 
 #include "uisurvtopbotimg.h"
 #include "vistopbotimage.h"
@@ -92,7 +92,6 @@ void onOff( CallBacker* cb  )
 
 void coordChg( CallBacker* cb )
 {
-    const bool istl = cb == tlfld_;
     dlg_->setCoord( istop_, tlfld_->getCoord(), brfld_->getCoord() );
 }
 

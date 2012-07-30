@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.23 2012-06-26 11:16:05 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.24 2012-07-30 20:57:41 cvskris Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -235,7 +235,6 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::PointSetDisplay*,display,dataobj);
     if ( !display )
 	return;
-    mDynamicCastGet(visBase::PointSet*,pointset,dataobj);
 
     bool dispcorrect = false;
     for ( int idx=0; idx<displayinfos_.size(); idx++ )

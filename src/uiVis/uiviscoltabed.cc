@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiviscoltabed.cc,v 1.45 2012-05-02 15:12:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiviscoltabed.cc,v 1.46 2012-07-30 20:57:41 cvskris Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -24,8 +24,6 @@ static const char* rcsID mUnusedVar = "$Id: uiviscoltabed.cc,v 1.45 2012-05-02 1
 #include "uicolortable.h"
 #include "mousecursor.h"
 
-
-static const char* sSetKey = "dTect.Color table.Name";
 
 const char* uiVisColTabEd::sKeyColorSeq()	{ return "ColorSeq Name"; }
 const char* uiVisColTabEd::sKeyScaleFactor()	{ return "Scale Factor"; }
