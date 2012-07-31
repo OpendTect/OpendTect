@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitutodmad.cc,v 1.9 2012-05-22 14:48:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitutodmad.cc,v 1.10 2012-07-31 09:49:42 cvshelene Exp $";
 
 #include "uitutodmad.h"
 
@@ -59,8 +59,6 @@ bool uiTutODMad::acceptOK( CallBacker* )
 	return false;
     }
 
-    const int trcsize = madstream_.getNrSamples();
-    float* arr = new float[trcsize];
     madstream_.writeTraces( false );
 
     Seis::GeomType geom = madstream_.is2D()
