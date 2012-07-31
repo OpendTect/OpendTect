@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimadiosel.cc,v 1.37 2012-05-22 14:48:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimadiosel.cc,v 1.38 2012-07-31 20:06:50 cvskris Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -190,7 +190,7 @@ void uiMadIOSelDlg::typSel( CallBacker* )
     if ( seis2dfld_ ) seis2dfld_->display( choice == idx2d_ );
     if ( seisps2dfld_ ) seisps2dfld_->display( choice == idxps2d_ );
     const bool filesel = choice == idxmad_ || choice == idxsu_;
-    madfld_->display( choice == idxmad_ || choice == idxsu_ );
+    madfld_->display( filesel );
     sconsfld_->display( choice == idxmad_ );
     if ( choice == idxsu_ )
 	madfld_->setFilter( "*.su" );
