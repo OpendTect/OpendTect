@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.52 2012-02-16 20:18:01 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.53 2012-07-31 19:27:31 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -177,7 +177,7 @@ protected:
     int 			mTileSideSize;
     int 			mTileLastIdx;
     int 			mTotalNormalSize;
-    int 			mLowestResIdx;
+    unsigned char 		mLowestResIdx;
     int 			mHorSectNrRes;
 
     int*			spacing_;
