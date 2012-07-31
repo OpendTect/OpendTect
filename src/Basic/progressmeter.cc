@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: progressmeter.cc,v 1.27 2012-07-25 22:19:06 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: progressmeter.cc,v 1.28 2012-07-31 04:26:54 cvskris Exp $";
 
 #include "progressmeter.h"
 #include "timefun.h"
@@ -182,17 +182,17 @@ void TextStreamProgressMeter::annotate( bool withrate )
     {
 	const float nrdone = nrdone_ - lastannotatednrdone_;
 	const float todo = totalnr_ - nrdone_;
-	od_int64 etasec = tdiff * (todo/nrdone) / 1000.;
+	od_int64 etasec = mNINT64(tdiff * (todo/nrdone) / 1000.f);
 	BufferString eta;
 	if ( etasec > 3600 )
 	{
-	    const int hours = etasec/3600.;
+	    const int hours = (int) etasec/3600.f;
 	    eta.add(hours).add("h:");
 	    etasec = etasec%3600;
 	}
 	if ( etasec > 60 )
 	{
-	    const int mins = etasec/60.;
+	    const int mins = (int) etasec/60.f;
 	    eta.add(mins).add("m:");
 	    etasec = etasec%60;
 	}
