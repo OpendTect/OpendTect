@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibatchlaunch.cc,v 1.104 2012-07-09 22:39:30 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibatchlaunch.cc,v 1.105 2012-07-31 08:46:12 cvsbert Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -521,10 +521,13 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 
 bool uiFullBatchDialog::multiLaunch( const char* fnm )
 {
-    BufferString comm( multiprognm_ );	comm += " ";
-    comm += procprognm_;		comm += " \"";
-    comm += fnm; 
-    comm += "\"";
+    BufferString comm;
+#ifndef __msvc__
+    comm.add( GetExecScript(false) ).add( " " );
+#endif
+
+    comm.add( multiprognm_ ).add( " " ).add( procprognm_ )
+	.add( " \"" ).add( fnm ).add( "\"" );
 
 #ifdef __msvc__ 
     if ( !ExecOSCmd( comm, false ) )
