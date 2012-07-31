@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
-RCS:		$Id: transl.h,v 1.42 2012-05-02 07:28:06 cvskris Exp $
+RCS:		$Id: transl.h,v 1.43 2012-07-31 12:53:49 cvsbert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -82,12 +82,16 @@ public:
     				// Called from macros
     bool			add(Translator*);
     static TranslatorGroup&	addGroup(TranslatorGroup*);
+
+    int				defTranslIdx() const	{ return deftridx_; }
+    void			setDefTranslIdx( int i ) { deftridx_ = i; }
     
 protected:
 
     BufferString		clssname_;
     BufferString		usrname_;
     ObjectSet<const Translator>	templs_;
+    int				deftridx_;
     IOPar*			selhist_;
 
     static ObjectSet<TranslatorGroup>& getGroups();
@@ -146,6 +150,7 @@ protected:
     BufferString		typname_;
     BufferString		usrname_;
     TranslatorGroup*		group_;
+
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initseis.cc,v 1.15 2012-05-02 15:11:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: initseis.cc,v 1.16 2012-07-31 12:53:49 cvsbert Exp $";
 
 #include "moddepmgr.h"
 #include "timedepthconv.h"
@@ -41,10 +41,12 @@ mDefModInitFn(Seis)
     SeisPS2DTranslatorGroup::initClass();
     WaveletTranslatorGroup::initClass();
     dgbWaveletTranslator::initClass();
-    
-    SEGYSeisTrcTranslator::initClass();
-    TwoDSeisTrcTranslator::initClass();
+
+    // The order here is important!
+    // The first one is the default unless explicitly changed.
     CBVSSeisTrcTranslator::initClass();
+    TwoDSeisTrcTranslator::initClass();
+    SEGYSeisTrcTranslator::initClass();
     SEGYDirectSeisTrcTranslator::initClass();
     SEGYDirectSeisPS3DTranslator::initClass();
     SEGYDirectSeisPS2DTranslator::initClass();
@@ -53,7 +55,6 @@ mDefModInitFn(Seis)
     CBVSSeisPS2DTranslator::initClass();
     MultiCubeSeisPS3DTranslator::initClass();
 
-    
     LinearT2DTransform::initClass();
     LinearD2TTransform::initClass();
     Time2DepthStretcher::initClass();

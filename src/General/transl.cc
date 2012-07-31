@@ -17,7 +17,7 @@
 
 #include <iostream>
 
-static const char* rcsID mUnusedVar = "$Id: transl.cc,v 1.35 2012-05-02 15:11:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: transl.cc,v 1.36 2012-07-31 12:53:49 cvsbert Exp $";
 
 mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)
@@ -27,7 +27,9 @@ TranslatorGroup::TranslatorGroup( const char* clssnm, const char* usrnm )
     : clssname_(clssnm)
     , usrname_(usrnm)
     , selhist_(0)
-{}
+    , deftridx_(0)
+{
+}
 
 
 int defaultSelector( const char* m, const char* typ )

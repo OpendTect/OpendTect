@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ioman.cc,v 1.115 2012-05-03 05:14:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ioman.cc,v 1.116 2012-07-31 12:53:49 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -576,25 +576,31 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 
     if ( !ioobj )
     {
+	// Make new key and generate name
 	MultiID newkey( mktmp ? ctio.ctxt.getSelKey() : dirptr->newKey() );
 	if ( mktmp )
 	    newkey.add( IOObj::tmpID() );
 	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newkey, false );
 	dirPtr()->mkUniqueName( iostrm );
 	iostrm->setGroup( ctio.ctxt.trgroup->userName() );
-	const Translator* tr = ctio.ctxt.trgroup->templates().size() ?
-	    			ctio.ctxt.trgroup->templates()[0] : 0;
+
+	// Get default translator with dir
+	const Translator* tr = 0;
+	if ( !ctio.ctxt.trgroup->templates().isEmpty() )
+	{
+	    const int trnr = ctio.ctxt.trgroup->defTranslIdx();
+	    tr = ctio.ctxt.trgroup->templates()[trnr];
+	}
 	BufferString trnm( ctio.ctxt.deftransl.isEmpty()
 			 ? (tr ? tr->userName().buf() : "")
 			 : ctio.ctxt.deftransl.buf() );
-	if ( trnm.isEmpty() )
-	    trnm = ctio.ctxt.stdseltype == IOObjContext::Seis ? "CBVS" : "dGB";
+	if ( trnm.isEmpty() ) trnm = "OD"; // shouldn't happen
 	iostrm->setTranslator( trnm );
 	const char* dirnm = getTranslDirNm( tr );
 	if ( dirnm )
 	    iostrm->setDirName( dirnm );
 
-	// Generate the right filename
+	// Now generate the 'right' filename
 	Translator* tmptr = ctio.ctxt.trgroup->make( trnm );
 	BufferString fnm = generateFileName( tmptr, iostrm->name() );
 	int ifnm = 1;
