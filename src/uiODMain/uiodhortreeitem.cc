@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodhortreeitem.cc,v 1.79 2012-05-24 11:39:50 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodhortreeitem.cc,v 1.80 2012-07-31 04:07:06 cvskris Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -18,7 +18,6 @@ static const char* rcsID mUnusedVar = "$Id: uiodhortreeitem.cc,v 1.79 2012-05-24
 #include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
 #include "mpeengine.h"
-#include "selector.h"
 #include "survinfo.h"
 
 #include "uiattribpartserv.h"
@@ -368,7 +367,6 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
-    const Selector<Coord3>* selector = visserv_->getCoordSelector( sceneID() );
 
     if ( !menu || menu->menuID()!=displayID() || hastransform )
     {
@@ -744,7 +742,8 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
     {
 	const int visid = displayID();
 	const bool isoverwrite = applMgr()->EMServer()->fillHoles( emid_, true);
-	mUpdateTexture();
+	if ( isoverwrite )
+	    mUpdateTexture();
     }
     else if ( mnuid==derive3dhormnuitem_.id )
 	applMgr()->EMServer()->deriveHor3DFrom2D( emid_ );

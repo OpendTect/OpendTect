@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.70 2012-07-10 14:59:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.71 2012-07-31 04:07:06 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -56,9 +56,6 @@ uiODVolrenParentTreeItem::~uiODVolrenParentTreeItem()
 
 bool uiODVolrenParentTreeItem::showSubMenu()
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,
-	ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Add"), 0 );
     const int mnuid = mnu.exec();

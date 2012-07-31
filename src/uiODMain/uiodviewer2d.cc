@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.58 2012-06-29 09:02:39 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.59 2012-07-31 04:07:06 cvskris Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -250,7 +250,7 @@ void uiODViewer2D::createTree( uiMainWin* mw )
     for ( int iidx=0; iidx<idxs.size(); iidx++ )
     {
 	const int fidx = idxs[iidx];
-	treetp_->addChild( tifs_->getFactory(iidx)->create(), true );
+	treetp_->addChild( tifs_->getFactory(fidx)->create(), true );
     }
 
     lv->display( true );

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodemsurftreeitem.cc,v 1.101 2012-06-28 07:45:07 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodemsurftreeitem.cc,v 1.102 2012-07-31 04:07:06 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -314,7 +314,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==reloadmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	uiTreeItem* parent__ = parent_;
 
 	const MultiID mid = ems->getStorageID(emid_);
 
@@ -351,8 +350,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	RefMan<EM::HorizonZTransform> transform = new EM::HorizonZTransform;
 	transform->setHorizon( *horizon );
 	ODMainWin()->sceneMgr().tile();
-	const int sceneid = ODMainWin()->sceneMgr().addScene( true, transform,
-							      scenenm.buf() );
+	ODMainWin()->sceneMgr().addScene( true, transform, scenenm.buf() );
     }
 }
 
