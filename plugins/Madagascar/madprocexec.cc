@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: madprocexec.cc,v 1.20 2012-05-22 14:48:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: madprocexec.cc,v 1.21 2012-07-31 06:57:54 cvsbert Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -18,7 +18,6 @@ static const char* rcsID mUnusedVar = "$Id: madprocexec.cc,v 1.20 2012-05-22 14:
 #include "progressmeter.h"
 #include <iostream>
 
-static const char* sKeyInp = "Input";
 const char* ODMad::ProcExec::sKeyFlowStage()	{ return "Flow Stage"; }
 const char* ODMad::ProcExec::sKeyCurProc()	{ return "Current proc"; }
 

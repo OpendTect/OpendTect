@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: madstream.cc,v 1.44 2012-05-22 14:48:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: madstream.cc,v 1.45 2012-07-31 06:57:55 cvsbert Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -41,7 +41,6 @@ static const char* sKeyRSFEndOfHeader = "\014\014\004";
 static const char* sKeyMadagascar = "Madagascar";
 static const char* sKeyInput = "Input";
 static const char* sKeyOutput = "Output";
-static const char* sKeyProc = "Proc";
 static const char* sKeyWrite = "Write";
 static const char* sKeyIn = "in";
 static const char* sKeyStdIn = "\"stdin\"";
@@ -424,7 +423,6 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
     if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
 
     headerpars_ = new IOPar;
-    bool needposfile = true;
     StepInterval<float> zrg;
     int nrbids = 0;
     BufferString posfnm = getPosFileName( false );
