@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodscenemgr.cc,v 1.233 2012-07-10 08:05:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodscenemgr.cc,v 1.234 2012-07-31 03:48:59 cvskris Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -638,9 +638,9 @@ uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
 {
     butgrp_ = new uiButtonGroup( this, "Area type" );
     butgrp_->setExclusive( true );
-    uiRadioButton* but0 = new uiRadioButton( butgrp_, "Scene" );
-    uiRadioButton* but1 = new uiRadioButton( butgrp_, "Window" );
-    uiRadioButton* but2 = new uiRadioButton( butgrp_, "Desktop" );
+    new uiRadioButton( butgrp_, "Scene" );
+    new uiRadioButton( butgrp_, "Window" );
+    new uiRadioButton( butgrp_, "Desktop" );
     butgrp_->selectButton( 0 );
 }
 
