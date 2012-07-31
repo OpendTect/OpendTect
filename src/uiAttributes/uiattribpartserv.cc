@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.196 2012-07-10 08:05:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.197 2012-07-31 08:52:30 cvsbert Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -619,7 +619,6 @@ DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
     const DataCubes* output = createOutput( cs, cache );
     if ( !output || !output->nrCubes() )  return DataPack::cNoID();
 
-    const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const bool isflat = cs.isFlat();
     DataPack* newpack;
     if ( isflat )
@@ -1210,7 +1209,6 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
 	const DescSet* dset = DSHolder().getDescSet(is2d,false);
 	SelInfo attrinf( dset, nlamodel );
 	const bool isnla = as.isNLA();
-	const bool hasid = as.id().isValid();
 	const int start = 0; const int stop = attrinf.nlaoutnms_.size();
 	mInsertItems(nlaoutnms_,nlamnuitem,isnla);
     }
@@ -1252,7 +1250,6 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
        					      bool& dousemulticomp )
 {
-    const bool needext = SI().has2D() && SI().has3D();
     const bool is3d = stored3dmnuitem_.findItem(mnuid) ||
 		      calc3dmnuitem_.findItem(mnuid) ||
 		      nla3dmnuitem_.findItem(mnuid) ||
@@ -1605,9 +1602,7 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
     
     Desc* curdesc = attrsetdlg_->curDesc();
     BufferString curusrref = curdesc->userRef();
-    uiAttrDescEd* ade = attrsetdlg_->curDescEd();
 
-    DescSet* curattrset = attrsetdlg_->getSet();
     const Desc* evad = evaldlg ? evaldlg->getAttribDesc() 
 			       : crossevaldlg->getAttribDesc();
     if ( evad )

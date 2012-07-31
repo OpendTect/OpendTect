@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrdescseted.cc,v 1.128 2012-07-03 09:16:36 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrdescseted.cc,v 1.129 2012-07-31 08:52:30 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -69,7 +69,6 @@ BufferString uiAttribDescSetEd::nmprefgrp_( "" );
 static const char* sKeyNotSaved = "<not saved>";
 
 static bool prevsavestate = true;
-static bool evaldlgpoppedup = false;
 
 using namespace Attrib;
 
@@ -629,7 +628,6 @@ void uiAttribDescSetEd::updateFields( bool set_type )
     
     dummydesc->ref();
     dummydesc->setDescSet( attrset_ );
-    const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
     for ( int idx=0; idx<desceds_.size(); idx++ )
     {
 	uiAttrDescEd* de = desceds_[idx];

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uifreqfilterattrib.cc,v 1.43 2012-07-10 08:05:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifreqfilterattrib.cc,v 1.44 2012-07-31 08:52:30 cvsbert Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -26,16 +26,6 @@ static const char* rcsID mUnusedVar = "$Id: uifreqfilterattrib.cc,v 1.43 2012-07
 #include "uifreqtaper.h"
 
 using namespace Attrib;
-
-
-static const char* typestrs[] =
-{
-    "LowPass",
-    "HighPass",
-    "BandPass",
-    0
-};
-
 
 mInitAttribUI(uiFreqFilterAttrib,FreqFilter,"Frequency Filter",sKeyFilterGrp())
 
@@ -281,7 +271,6 @@ bool uiFreqFilterAttrib::areUIParsOK()
     mDynamicCastGet( uiFreqTaperSel*, taper, winflds[1] );
     if ( taper ) 
     {
-	bool minsuccess = true, maxsuccess = true;
 	Interval<float> freqresvar = taper->freqValues();
 	BufferString endmsg, msg;
 	if ( freqresvar.start < 0 )

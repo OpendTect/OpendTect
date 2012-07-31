@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistoredattrreplacer.cc,v 1.28 2012-07-04 04:15:14 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistoredattrreplacer.cc,v 1.29 2012-07-31 08:52:30 cvsbert Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -86,7 +86,6 @@ void uiStoredAttribReplacer::getUserRefs( const IOPar& iopar )
 	    if ( !descpar->get(key,descidx) ) break;
 	    if ( descidx < 0 ) continue;
 	    DescID descid( descidx, false );
-	    bool issteering = false;
 	    for ( int stridx=0; stridx<storedids_.size(); stridx++ )
 	    {
 		if ( (storedids_[stridx].firstid_ == descid) ||

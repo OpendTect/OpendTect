@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrinpdlg.cc,v 1.33 2012-07-04 03:24:27 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrinpdlg.cc,v 1.34 2012-07-31 08:52:30 cvsbert Exp $";
 
 #include "uiattrinpdlg.h"
 
@@ -23,9 +23,6 @@ static const char* rcsID mUnusedVar = "$Id: uiattrinpdlg.cc,v 1.33 2012-07-04 03
 #include "keystrs.h"
 #include "oddirs.h"
 
-
-static const char* seislbl[] = { "Select Seismics", 0 };
-static const char* steerlbl[] = { "Select Steering cube", 0 };
 
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset, 
 			    bool issteer, bool is2d, const char* prevrefnm )

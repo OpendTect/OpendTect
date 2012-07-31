@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicrossattrevaluatedlg.cc,v 1.13 2012-05-22 14:48:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicrossattrevaluatedlg.cc,v 1.14 2012-07-31 08:52:30 cvsbert Exp $";
 
 #include "uicrossattrevaluatedlg.h"
 
@@ -173,7 +173,6 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
     getSelDescIDs( ancestorids, aids );
   
     Desc& srcad = *attrset_.getDesc( srcid_ );
-    const int initattrsz = attrset_.size(); 
     const int selsz = seldeschildids_.size();
     const int nrsteps = nrstepsfld->box()->getValue();
     for ( int idx=0; idx<nrsteps; idx++ )

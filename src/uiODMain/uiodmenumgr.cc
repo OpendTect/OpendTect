@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.264 2012-07-13 10:52:01 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.265 2012-07-31 08:52:30 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -446,7 +446,6 @@ void uiODMenuMgr::fillProcMenu()
     create2D3DMnu( csoitm, "&Along horizon", mCompAlongHor2DMnuItm,
 	    	   mCompAlongHor3DMnuItm, "alonghor" );
     mInsertItem( csoitm, "&Re-Start ...", mReStartMnuItm );
-    uiPopupMenu* scnitm = new uiPopupMenu( &appl_, "SEG-&Y Scanned Re-sort" );
     csoitm->insertItem( new uiMenuItem("SEG-&Y Scanned Re-sort ...",
 		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uievaluatedlg.cc,v 1.34 2012-05-02 15:11:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uievaluatedlg.cc,v 1.35 2012-07-31 08:52:30 cvsbert Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -94,8 +94,8 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 	incrfld->attach( alignedBelow, initfld );
     setHAlignObj( initfld );
 
-    delete initspec1, incrspec1;
-    delete initspec2, incrspec2;
+    delete initspec1; delete incrspec1;
+    delete initspec2; delete incrspec2;
 }
 
 
