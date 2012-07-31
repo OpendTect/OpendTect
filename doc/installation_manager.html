@@ -2,10 +2,7 @@
 <HTML>
 <HEAD>
 	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
-	<TITLE></TITLE>
-	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.4  (Win32)">
-	<META NAME="CREATED" CONTENT="20120731;16144952">
-	<META NAME="CHANGED" CONTENT="20120731;16153707">
+	<TITLE>The OpendTect Installation Manager</TITLE>
 	<STYLE TYPE="text/css">
 	<!--
 		H2.cjk { font-family: "SimSun" }
@@ -15,40 +12,57 @@
 	-->
 	</STYLE>
 </HEAD>
-<BODY LANG="en-IN" DIR="LTR">
-<H1>10.4. Installation</H1>
+<BODY LANG="en-US" DIR="LTR">
+
+<H1>The OpendTect Installation Manager</H1>
+
+<H2>Introduction</H2>
+<p>OpendTect has a utility to create and manage multiple installations of the OpendTect system. It takes care of initial installation, extensions, and upgrade/update. This 'OpendTect Installation Manager' will upgrade itself when necessary.</p>
+<p>The Installation Manager can be installed in the usual way for your Operating System. After download from <a href="http://opendtect.org">opendtect.org</a> you need to execute the self-extracting installer. This can usually be done by double-clicking on the downloaded executable package.
+
+<BR><BR>
+
+<H2>Starting from within OpendTect</H2>
+<p>Once OpendTect is installed it is possible to start the Installation Manager from within the OpendTect main window. That is, if your system administion allow it. And actual application management can of course only be done if you have the right permissions.
 <P><IMG SRC="pics/fig-UTILITIES_006.png" NAME="graphics1" ALIGN=BOTTOM WIDTH=359 HEIGHT=206 BORDER=0></P>
 <H2 CLASS="western"><A NAME="LINK-UTILITIES.INSTALLATION.MANAGER"></A>
-10.4.1. Installation Manager</H2>
-<P><A NAME="LINK-UTILITIES.INSTALLATION.MANAGER.BASEDIR"></A><A NAME="LINK-UTILITIES.INSTALLATION.MANAGER.PACKAGESEL"></A><A NAME="LINK-UTILITIES.INSTALLATION.DOWNLOADFAILED"></A><A NAME="LINK-UTILITIES.INSTALLATION.MANAGER.PACKAGE"></A>
-<IMG SRC="pics/fig-UTILITIES_004.png" NAME="graphics2" ALIGN=BOTTOM WIDTH=364 HEIGHT=203 BORDER=0><BR><BR>The
-installation manager is a wizard to install/upgrade existing the
-OpendTect (Stable / Development) releases. The release type field is
-used to select the release that is needed to be installed/upgraded.
-The <I>installation base directory</I> refers to the installation
-path.<BR><BR><IMG SRC="pics/fig-UTILITIES_003.png" NAME="graphics3" ALIGN=BOTTOM WIDTH=526 HEIGHT=183 BORDER=0><BR><BR>There
-is a warning messages that will pop-up if there is an existing
-installation or the selected directory contains files other than
-OpendTect's files. If you are sure that the path is right, and the
-intention is to install in the selected directory, the first option
-is selected, &quot;Yes, I know what I am doing.&quot; In other case,
-if you want to install into a sub-directory of the selected path, the
+
+<BR><BR>
+
+Starting Window</H2>
+<p>
+The starting window of the installation manager allows you to setup some basic parameters before the actual package/plugin selection starts.
+</p><p><A NAME="LINK-UTILITIES.INSTALLATION.MANAGER.BASEDIR"></A><A NAME="LINK-UTILITIES.INSTALLATION.MANAGER.PACKAGESEL"></A><A NAME="LINK-UTILITIES.INSTALLATION.DOWNLOADFAILED"></A><A NAME="LINK-UTILITIES.INSTALLATION.MANAGER.PACKAGE"></A>
+<IMG SRC="pics/fig-UTILITIES_004.png" NAME="graphics2" ALIGN=BOTTOM WIDTH=364 HEIGHT=203 BORDER=0>
+</p><p>
+The field for <I>Release Type</I> usually selects between 'Stable' and 'Development' releases.  The <I>installation base directory</I> is the directory where the OpendTect versions will reside. It can contain multiple releases and release types, and will also contain the latest installation manager executables.
+</p><p>
+This directory will be remembered. If you initially select an exisiting non-empty directory, then you get this warning message:
+</p><p>
+<IMG SRC="pics/fig-UTILITIES_003.png" NAME="graphics3" ALIGN=BOTTOM WIDTH=526 HEIGHT=183 BORDER=0>
+</p><p>
+If you want to install into a sub-directory of the selected path, then the
 second option must be selected. It will create a sub-directory
-&quot;OpendTect&quot; at where the installation will be done.<BR><BR><IMG SRC="pics/fig-UTILITIES_002.png" NAME="graphics4" ALIGN=BOTTOM WIDTH=288 HEIGHT=248 BORDER=0><BR>The
-figure above suggests to select the package type of OpendTect. To
-read more about OpendTect packages type, please refer to our web-page
-of licensing types
-(http://www.opendtect.org/index.php/download.html).<BR><BR><!--TODO--><BR><IMG SRC="pics/fig-UTILITIES_005.png" NAME="graphics5" ALIGN=BOTTOM WIDTH=860 HEIGHT=531 BORDER=0><BR><I>Classic
-View</I><BR><BR><IMG SRC="pics/fig.jpg" NAME="graphics6" ALIGN=BOTTOM WIDTH=600 HEIGHT=585 BORDER=0><BR><I>HTML
-View</I><BR><BR>The last window of the wizard is the OpendTect
-Package Manager (see above figure). Multiple items can be selected
-from the list by checking-in or -out. Optionally, the relevant
-package could also be selected from the top list box.<BR><BR>The
-installation manager must automatically recognize the previously
-installed version at the selected path and will prompt it in the
-<I>Installed version</I> field.<BR><BR>To read more about a
+&quot;OpendTect&quot; at where the installation itself will reside.<BR>
+</p><p>After this, if this is a first time, you can select typical package setups.
+</p><p>
+<IMG SRC="pics/fig-UTILITIES_002.png" NAME="graphics4" ALIGN=BOTTOM WIDTH=288 HEIGHT=248 BORDER=0>
+</p><p>
+To read more about OpendTect packages type, please refer to our web-page of <a href="http://www.opendtect.org/index.php/download.html">licensing types</a>.<BR>
+</p>
+<br><br>
+
+<H2>Package Manager</H2>
+<p>After this, you will be in the OpendTect Package Manager. This is the main window in which allows you to manage the OpendTect installation. There are two ways of viewing:<BR><BR><IMG SRC="pics/fig-UTILITIES_005.png" NAME="graphics5" ALIGN=BOTTOM WIDTH=860 HEIGHT=531 BORDER=0><BR><I>Classic
+View</I><BR><BR><IMG SRC="pics/fig-PKGMGR_HTML.png" NAME="graphics6" ALIGN=BOTTOM WIDTH=600 HEIGHT=585 BORDER=0><BR><I>HTML
+View</I>
+</p><p>
+In both views you can select multiple items to be installed. The installation manager will display the previously installed version for this installation and will show it in the <I>Installed version</I> field.
+</p><p>To read more about a
 particular item in the list, select the item by clicking on it and
-read the description on to the right panel.</P>
+read the description on to the right panel.
+</P>
+<br><br>
 <H2 CLASS="western"><A NAME="LINK-UTILITIES.INSTALLATION.AUTOUPDATES"></A>
 10.4.2. Auto-update policy</H2>
 <P>The auto-update policy can be defined and changed by a user. By
