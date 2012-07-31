@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: grubbsfilterattrib.cc,v 1.9 2012-07-10 08:05:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: grubbsfilterattrib.cc,v 1.10 2012-07-31 04:15:50 cvskris Exp $";
 
 #include "grubbsfilterattrib.h"
 
@@ -162,13 +162,6 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 
     const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
 				    mNINT32(gate_.stop/refstep_) );
-
-    const int gatesz = samplegate.width() + 1;
-    const int firstsample = inputdata_[0] ? z0-inputdata_[0]->z0_ : z0;
-
-    float extrazfspos = mUdf(float);
-    if ( needinterp_ )
-	extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
 
     const int nrtraces = inputdata_.size();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: semblanceattrib.cc,v 1.11 2012-07-10 08:05:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: semblanceattrib.cc,v 1.12 2012-07-31 04:15:50 cvskris Exp $";
 
 #include "semblanceattrib.h"
 
@@ -220,12 +220,6 @@ bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
 				    mNINT32(gate_.stop/refstep_) );
 
     const int gatesz = samplegate.width() + 1;
-    const int firstsample = inputdata_[0] ? z0-inputdata_[0]->z0_ : z0;
-
-    float extrazfspos = mUdf(float);
-    if ( needinterp_ )
-	extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
-
     const int nrtraces = inputdata_.size();
 
     mAllocVarLenArr( float, cache, nrtraces*gatesz );
