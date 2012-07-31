@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodattribtreeitem.cc,v 1.47 2012-05-02 15:12:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodattribtreeitem.cc,v 1.48 2012-07-31 07:45:50 cvshelene Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -142,7 +142,7 @@ void uiODAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
     selattrmnuitem_.removeItems();
     createSelMenu( selattrmnuitem_, displayID(), attribNr(), sceneID() );
 
-    if ( selattrmnuitem_.nrItems() || Only2D )
+    if ( selattrmnuitem_.nrItems() || isonly2d )
     {
 	mAddMenuOrTBItem( istb, 0, menu, &selattrmnuitem_,
 		      !visserv->isLocked(displayID()), false );
