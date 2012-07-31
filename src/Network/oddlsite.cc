@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: oddlsite.cc,v 1.23 2012-07-18 08:49:36 cvsranojay Exp $";
+static const char* rcsID mUnusedVar = "$Id: oddlsite.cc,v 1.24 2012-07-31 04:44:48 cvsranojay Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -248,46 +248,28 @@ od_int64 totalNr() const	{ return fnms_.size(); }
 int ODDLSiteMultiFileGetter::nextStep()
 {
     if ( curidx_ < 0 )
-    { 
-	dlsite_.odhttp_->setASynchronous( false );
 	return ErrorOccurred();
-    }
     else if ( curidx_ >= fnms_.size() )
-    {
-	dlsite_.odhttp_->setASynchronous( false );
 	return Finished();
-    }
-    
-    BufferString inpfnm( dlsite_.getFileName(fnms_.get(curidx_)) );
-#ifdef __win__
-    replaceCharacter( inpfnm.buf(), '/', '\\' );
-#endif
-    FilePath inpfp( inpfnm );
-    BufferString outfnm( FilePath(outdir_).add(inpfp.fileName()).fullPath() );
+
+    const BufferString inpfnm( dlsite_.getFileName(fnms_.get(curidx_)) );
+    BufferString outfnm( FilePath(outdir_).add(inpfnm).fullPath() );
     bool isok = true;
     if ( dlsite_.islocal_ )
 	isok = dlsite_.getFile( inpfnm, outfnm );
     else
     {
-	dlsite_.odhttp_->setASynchronous( true );
 	dlsite_.odhttp_->get( inpfnm, outfnm );
-	while ( dlsite_.odhttp_->state() == ODHttp::Reading );
-	curidx_++;
-	/*{
-	    if ( httptask_->getState() <= 0 )
-	    { curidx_++; break; }
-	}*/
-	
 	isok = dlsite_.odhttp_->state() > ODHttp::Connecting;
     }
 
-    /*if ( isok )
+    if ( isok )
 	curidx_++;
     else
     {
 	msg_ = dlsite_.errMsg();
 	curidx_ = -1;
-    }*/
+    }
 
     return MoreToDo();
 }
