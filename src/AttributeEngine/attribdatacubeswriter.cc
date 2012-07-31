@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribdatacubeswriter.cc,v 1.12 2012-07-24 14:49:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdatacubeswriter.cc,v 1.13 2012-07-31 19:26:26 cvskris Exp $";
 
 #include "attribdatacubeswriter.h"
 
@@ -30,7 +30,7 @@ DataCubesWriter::DataCubesWriter( const MultiID& mid,
     , totalnr_( dc.cubeSampling().hrg.totalNr() )
     , cube_( dc )
     , iterator_( dc.cubeSampling().hrg )
-    , currentpos_( 0 )
+    , currentpos_( 0, 0 )
     , mid_( mid )
     , writer_( 0 )
     , trc_( 0 )
