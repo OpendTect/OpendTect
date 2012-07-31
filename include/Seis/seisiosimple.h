@@ -15,7 +15,6 @@ class IOPar;
 class Scaler;
 class SeisTrc;
 class LineKey;
-class CtxtIOObj;
 class StreamData;
 class uiGenInput;
 class uiIOObjSel;
