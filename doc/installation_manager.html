@@ -20,9 +20,6 @@
 <p>OpendTect has a utility to create and manage multiple installations of the OpendTect system. It takes care of initial installation, extensions, and upgrade/update. This 'OpendTect Installation Manager' will upgrade itself when necessary.</p>
 <p>The Installation Manager can be installed in the usual way for your Operating System. After download from <a href="http://opendtect.org">opendtect.org</a> you need to execute the self-extracting installer. This can usually be done by double-clicking on the downloaded executable package.
 
-<BR><BR>
-
-<H2>Starting from within OpendTect</H2>
 <p>Once OpendTect is installed it is possible to start the Installation Manager from within the OpendTect main window. That is, if your system administion allow it. And actual application management can of course only be done if you have the right permissions.
 <P><IMG SRC="pics/fig-UTILITIES_006.png" NAME="graphics1" ALIGN=BOTTOM WIDTH=359 HEIGHT=206 BORDER=0></P>
 <H2 CLASS="western"><A NAME="LINK-UTILITIES.INSTALLATION.MANAGER"></A>
@@ -50,11 +47,17 @@ second option must be selected. It will create a sub-directory
 </p><p>
 To read more about OpendTect packages type, please refer to our web-page of <a href="http://www.opendtect.org/index.php/download.html">licensing types</a>.<BR>
 </p>
+<H3 CLASS="western"><A NAME="LINK-UTILITIES.INSTALLATION.PROXYDLG"></A>
+Proxy Settings</H3>
+<P>If you access the Internet via a proxy, then you will have to specify this. At the top right of the window, click the 'Proxy settings' button. The very first time you run the Installation Manager you will get an error message that no connection can be mde, choose 'give up'. Then you can enter the correct settngs in this dialog:
+</p><p>
+<IMG SRC="pics/fig-UTILITIES_007.png" NAME="graphics8" ALIGN=BOTTOM WIDTH=290 HEIGHT=250 BORDER=0>
+</P>
+
 <br><br>
 
 <H2>Package Manager</H2>
-<p>After this, you will be in the OpendTect Package Manager. This is the main window in which allows you to manage the OpendTect installation. There are two ways of viewing:<BR><BR><IMG SRC="pics/fig-UTILITIES_005.png" NAME="graphics5" ALIGN=BOTTOM WIDTH=860 HEIGHT=531 BORDER=0><BR><I>Classic
-View</I><BR><BR><IMG SRC="pics/fig-PKGMGR_HTML.png" NAME="graphics6" ALIGN=BOTTOM WIDTH=600 HEIGHT=585 BORDER=0><BR><I>HTML
+<p>After this, you will be in the OpendTect Package Manager. This is the main window in which allows you to manage the OpendTect installation. There are two ways of viewing:<BR><BR><IMG SRC="pics/fig-UTILITIES_005.png" NAME="graphics5" ALIGN=BOTTOM WIDTH=860 HEIGHT=531 BORDER=0><BR><I>Classic View</I><BR><BR><IMG SRC="pics/fig-PKGMGR_HTML.png" NAME="graphics6" ALIGN=BOTTOM WIDTH=600 HEIGHT=585 BORDER=0><BR><I>HTML
 View</I>
 </p><p>
 In both views you can select multiple items to be installed. The installation manager will display the previously installed version for this installation and will show it in the <I>Installed version</I> field.
@@ -62,28 +65,14 @@ In both views you can select multiple items to be installed. The installation ma
 particular item in the list, select the item by clicking on it and
 read the description on to the right panel.
 </P>
-<br><br>
-<H2 CLASS="western"><A NAME="LINK-UTILITIES.INSTALLATION.AUTOUPDATES"></A>
-10.4.2. Auto-update policy</H2>
-<P>The auto-update policy can be defined and changed by a user. By
-default the option is set to <I>Inform</I> when the updates are
-available. To change the update policy, to auto update, the third
-option must be selected in the Auto-update policy dialog.<BR><BR><IMG SRC="pics/fig-UTILITIES.png" NAME="graphics7" ALIGN=BOTTOM WIDTH=570 HEIGHT=254 BORDER=0></P>
-<H2 CLASS="western"><A NAME="LINK-UTILITIES.INSTALLATION.PROXYDLG"></A>
-10.4.3. Connection Settings</H2>
-<P>To enter the proxy information, the right proxy server information
-must be added in the <I>Connection Setting</I> before running the
-installation. This is done in the following dialog.<BR><BR><IMG SRC="pics/fig-UTILITIES_007.png" NAME="graphics8" ALIGN=BOTTOM WIDTH=290 HEIGHT=250 BORDER=0></P>
-<H2 CLASS="western"><A NAME="Utilities menu"></A>10.4.4. Utilities
-menu</H2>
+<H3 CLASS="western"><A NAME="Utilities menu"></A>Utilities menu</H3>
 <P>On the top left corner of the package selection window there is a
 &quot;Utilities&quot; menu, which offers some useful functionalities
 for the installation manager.<BR><IMG SRC="pics/utilitiesmenu.png" NAME="graphics9" ALIGN=BOTTOM WIDTH=353 HEIGHT=174 BORDER=0><BR><BR>The
 utilities menu has the following options.<BR><BR>1) Export download
 list<BR>2) Offline installation<BR>3) Rollback<BR>4) Show log
 file.<BR><BR>Each of these options are explained below in details.</P>
-<H3 CLASS="western"><A NAME="Export download list"></A>10.4.4.1.
-Export download list</H3>
+<H5 CLASS="western"><A NAME="Export download list"></A>Export download list</H5>
 <P>This option allows the user to download the list of URLs of the
 individual packages from the download site. This list is stored in a
 text file which can be used later to download these files directly
@@ -92,8 +81,8 @@ can run his/her own unzipping scripts to install the packages
 manually. This facility was only developed for the Linux users.
 Windows users can use this feature, provided they can prepare their
 own installation scripts for the installation,.</P>
-<H3 CLASS="western"><A NAME="Offline installation"></A>10.4.4.2.
-Offline installation</H3>
+<H5 CLASS="western"><A NAME="Offline installation"></A>
+Offline installation</H5>
 <P>The offline installation tool allows you to download selected
 packages to any of your local folders along with necessary
 installation scripts/programs. Once all the packages and
@@ -103,13 +92,13 @@ scripts/program from this folder.<BR><BR>Windows:<BR>On Windows you
 have to run the od_setup.exe from the folder to install
 OpendTect.<BR><BR>Linux<BR>On Linus you have to run unix_install.csh
 script to install OpendTect.</P>
-<H3 CLASS="western"><A NAME="Rollback"></A>10.4.4.3. Rollback</H3>
+<H5 CLASS="western"><A NAME="Rollback"></A>Rollback</H5>
 <P>Rollback tool allows you to restore your previous version of the
 installation. If after updating the software you feel uncomfortable
 with some of the new features and want to go back to your previous
 installation, you have to use this tool. As this tool will change
 your entire installation so you have to use it cautiously.</P>
-<H3 CLASS="western"><A NAME="showlogfile"></A>10.4.4.4. Show log file</H3>
+<H5 CLASS="western"><A NAME="showlogfile"></A>Show log file</H5>
 <P STYLE="margin-bottom: 0cm">The installation manager keeps track of
 all the action it is executing in a log file. This log file can be
 viewed from this tool. This is useful for debugging purposes. If you
