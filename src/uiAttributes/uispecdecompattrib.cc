@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uispecdecompattrib.cc,v 1.38 2012-07-10 08:05:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uispecdecompattrib.cc,v 1.39 2012-07-31 20:59:34 cvskris Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -277,7 +277,6 @@ void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
 
     getPrevSel();
     DescSet* dset = new DescSet( *ads_ ); 
-    DescID inpid = inpfld_->attribID();
     DescID specdecompid = createSpecDecompDesc( dset ); 
 
     LineKey lk;

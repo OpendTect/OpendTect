@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimadbldcmd.cc,v 1.27 2012-05-09 07:51:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimadbldcmd.cc,v 1.28 2012-07-31 20:59:34 cvskris Exp $";
 
 #include "uimadbldcmd.h"
 #include "uitoolbutton.h"
@@ -44,32 +44,6 @@ static BufferString& separateProgName( const char* cmd, bool wantprog )
     }
     *retptr = '\0';
     return ret;
-}
-
-
-static const char* separatePars( const char* cmd )
-{
-    BufferString* ret = new BufferString;
-    char buf[80];
-
-    while ( cmd && *cmd )
-    {
-	cmd = getNextWord( cmd, buf );
-	if ( !*buf ) break;
-
-	int idx = 0;
-	while ( buf[idx++] )
-	{
-	    if ( buf[idx] == '=' )
-	    {
-		*ret += " ";
-		*ret += buf;
-		break;
-	    }
-	}
-    }
-
-    return ret->buf();
 }
 
 

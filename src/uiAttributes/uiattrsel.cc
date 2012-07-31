@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrsel.cc,v 1.80 2012-07-31 08:52:30 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrsel.cc,v 1.81 2012-07-31 20:59:34 cvskris Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -338,16 +338,6 @@ int uiAttrSelDlg::selType() const
 void uiAttrSelDlg::selDone( CallBacker* c )
 {
     if ( !selgrp_ ) return;
-
-    mDynamicCastGet(uiRadioButton*,but,c);
-   
-    bool dosrc, docalc, donla; 
-    if ( but == storfld_ )
-    { dosrc = true; docalc = donla = false; }
-    else if ( but == attrfld_ )
-    { docalc = true; dosrc = donla = false; }
-    else if ( but == nlafld_ )
-    { donla = true; docalc = dosrc = false; }
 
     const int seltyp = selType();
     if ( attroutfld_ ) attroutfld_->display( seltyp == 2 );
