@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfault.cc,v 1.62 2012-05-02 15:11:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfault.cc,v 1.63 2012-07-31 19:34:50 cvskris Exp $";
 
 #include "emfault.h"
 
@@ -42,7 +42,7 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
 
     for ( int sidx=0; sidx<nrSections(); sidx++ )
     {
-	const int sid = sectionID( sidx );
+	const EM::SectionID sid = sectionID( sidx );
 	mDynamicCastGet( const Geometry::FaultStickSet*, srcfss,
 			 sectionGeometry(sid) );
 	if ( !srcfss )
@@ -107,7 +107,7 @@ void FaultGeometry::selectSticks( bool select, const FaultGeometry* doublesref )
 	if ( pid.objectID() == -1 )
 	    break;
 
-	const int sticknr = RowCol( pid.subID() ).row;
+	const int sticknr = pid.getRowCol().row;
 	const EM::SectionID sid = pid.sectionID();
 	mDynamicCastGet( Geometry::FaultStickSet*, fss, sectionGeometry(sid) );
 
@@ -275,7 +275,7 @@ FaultStickUndoEvent::FaultStickUndoEvent( const EM::PosID& posid )
     if ( !fault ) return;
 
     pos_ = fault->getPos( posid_ );
-    const int row = RowCol(posid_.subID()).row;
+    const int row = posid.getRowCol().row;
     normal_ = fault->geometry().getEditPlaneNormal( posid_.sectionID(), row );
 }
 
@@ -299,11 +299,11 @@ bool FaultStickUndoEvent::unDo()
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return false;
 
-    const int row = RowCol(posid_.subID()).row;
+    const int row = posid_.getRowCol().row;
 
     return remove_
 	? fault->geometry().insertStick( posid_.sectionID(), row,
-		RowCol(posid_.subID()).col, pos_, normal_, false )
+		posid_.getRowCol().col, pos_, normal_, false )
 	: fault->geometry().removeStick( posid_.sectionID(), row, false );
 }
 
@@ -314,12 +314,12 @@ bool FaultStickUndoEvent::reDo()
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return false;
 
-    const int row = RowCol(posid_.subID()).row;
+    const int row = posid_.getRowCol().row;
 
     return remove_
 	? fault->geometry().removeStick( posid_.sectionID(), row, false )
 	: fault->geometry().insertStick( posid_.sectionID(), row,
-		RowCol(posid_.subID()).col, pos_, normal_, false );
+		posid_.getRowCol().col, pos_, normal_, false );
 }
 
 
