@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodpicksettreeitem.cc,v 1.79 2012-05-30 13:27:21 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodpicksettreeitem.cc,v 1.80 2012-07-31 03:58:55 cvskris Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -69,11 +69,7 @@ void uiODPickSetParentTreeItem::removeChild( uiTreeItem* child )
     if ( idx<0 ) return;
 
     mDynamicCastGet(uiODPickSetTreeItem*,itm,child)
-    const int setidx = Pick::Mgr().indexOf( itm->getSet() );
     uiTreeItem::removeChild( child );
-//    if ( setidx < 0 ) return;
-
-//    Pick::Mgr().set( Pick::Mgr().id(setidx), 0 );
 }
 
 
