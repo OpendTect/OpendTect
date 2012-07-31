@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewpropdlg.cc,v 1.68 2012-07-25 06:52:30 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewpropdlg.cc,v 1.69 2012-07-31 06:19:42 cvssatyaki Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -142,7 +142,7 @@ void uiFlatViewDataDispPropTab::useMidValSel( CallBacker* )
 void uiFlatViewDataDispPropTab::updateNonclipRange( CallBacker* )
 {
     const int clip = useclipfld_->getIntValue();
-    if ( clip<0 && clip>2 )
+    if ( clip<0 || clip>2 )
 	return;
   
     FlatView::DataDispPars::Common& pars = commonPars();
