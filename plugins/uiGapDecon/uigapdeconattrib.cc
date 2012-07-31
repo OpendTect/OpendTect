@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigapdeconattrib.cc,v 1.53 2012-05-02 15:11:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigapdeconattrib.cc,v 1.54 2012-07-31 04:20:09 cvskris Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -682,7 +682,6 @@ void uiGDPositionDlg::popUpPosDlg()
 		    		     = inputcs.hrg.crlRange().snappedCenter();
 	}
 
-	float zstop = 500./SI().zDomain().userFactor();
 	inputcs.zrg.start = 0;
     }
 
