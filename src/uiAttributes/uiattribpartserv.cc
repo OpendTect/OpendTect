@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.197 2012-07-31 08:52:30 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.198 2012-07-31 20:12:48 cvskris Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1168,6 +1168,8 @@ MenuItem* uiAttribPartServer::stored2DAttribMenuItem( const SelSpec& as,
 	if ( docheck ) docheckparent=true;
 	mAddManagedMenuItem( storedmnuitem, item, true, docheck );
     }
+
+    storedmnuitem->checked = docheckparent;
 
     return storedmnuitem;
 }
