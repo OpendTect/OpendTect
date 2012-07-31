@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uitranslatedlg.cc,v 1.10 2012-05-09 07:51:23 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitranslatedlg.cc,v 1.11 2012-07-31 04:23:22 cvskris Exp $";
 
 
 #include "uitranslatedlg.h"
@@ -85,8 +85,8 @@ void uiTranslateDlg::fillBox()
 {
     BufferString curlang;
     Settings::common().get( "Translator.Language", curlang );
-    const bool res = !curlang.isEmpty()
-		? TrMgr().tr()->setToLanguage( curlang ) : false;
+    if ( !curlang.isEmpty() )
+	TrMgr().tr()->setToLanguage( curlang );
 
     const int nrlangs = TrMgr().tr()->nrSupportedLanguages();
     for ( int idx=0; idx<nrlangs; idx++ )
