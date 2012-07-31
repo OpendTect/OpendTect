@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: SoColTabTextureChannel2RGBA.cc,v 1.20 2012-05-02 15:11:49 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoColTabTextureChannel2RGBA.cc,v 1.21 2012-07-31 06:10:08 cvskris Exp $";
 
 
 #include "SoColTabTextureChannel2RGBA.h"
@@ -169,7 +169,7 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImagei32* channels,
 	    }
 	}
 
-	if ( fullyopaque!=-2 || fullyopaque!=1 || !fullytransparent )
+	if ( (fullyopaque!=-2 && fullyopaque!=1) || !fullytransparent )
 	{
 	    getTransparencyStatus( channels, size, channel, fullyopaque,
 				   fullytransparent );
