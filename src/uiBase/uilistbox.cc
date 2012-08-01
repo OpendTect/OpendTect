@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.129 2012-07-30 15:32:32 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.130 2012-08-01 10:35:09 cvsmahant Exp $";
 
 #include "uilistbox.h"
 
@@ -34,7 +34,7 @@ static const char* startmark = ":"; static const char* endmark = ":";
 #define mGetMarkededBufferString(nm,yn,inpstr) \
     const BufferString nm( yn ? startmark : "", inpstr, yn ? endmark : "" )
 
-const int uiListBox::cDefNrLines()	{ return 7; }
+int uiListBox::cDefNrLines()	{ return 7; }
 
 
 class uiListBoxItem : public QListWidgetItem
