@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2007
- RCS:		$Id: datapack.h,v 1.11 2011-09-20 13:02:20 cvskris Exp $
+ RCS:		$Id: datapack.h,v 1.12 2012-08-01 06:15:59 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ public:
     virtual void	dumpInfo(IOPar&) const;
 
     static const char*	sKeyCategory();
-    static const ID	cNoID()		    { return 0; }
+    static ID		cNoID()		    { return 0; }
 
     virtual bool	isOK() const 		{ return true; }
 
@@ -72,7 +72,7 @@ protected:
     mutable Threads::Mutex	nruserslock_;
 
     static ID		getNewID(); 	//!< ensures a global data pack ID
-    static const float	sKb2MbFac();	//!< 1 / 1024
+    static float	sKb2MbFac();	//!< 1 / 1024
 
     void		setCategory( const char* c )
     			{ *const_cast<BufferString*>(&category_) = c; }
@@ -160,11 +160,11 @@ public:
     Notifier<DataPackMgr> packToBeRemoved;	//!< Passed CallBacker* = Pack
 
 			// Standard mgr IDs take the low integer numbers
-    static const ID	BufID();	//!< Simple data buffer: 1
-    static const ID	PointID();	//!< Sets of 'unconnected' points: 2
-    static const ID	CubeID();	//!< Cube/Block (N1xN2xN3) data: 3
-    static const ID	FlatID();	//!< Flat (N1xN2) data: 4
-    static const ID	SurfID();	//!< Surface (triangulated) data: 5
+    static ID		BufID();	//!< Simple data buffer: 1
+    static ID		PointID();	//!< Sets of 'unconnected' points: 2
+    static ID		CubeID();	//!< Cube/Block (N1xN2xN3) data: 3
+    static ID		FlatID();	//!< Flat (N1xN2) data: 4
+    static ID		SurfID();	//!< Surface (triangulated) data: 5
 
     			// Convenience to get info without any obtain()
     const char*		nameOf(DataPack::ID) const;

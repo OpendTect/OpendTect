@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.18 2012-07-10 14:08:04 cvskris Exp $
+ RCS:           $Id: progressmeter.h,v 1.19 2012-08-01 06:15:59 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,8 +46,8 @@ public:
 			TextStreamProgressMeter(std::ostream&,
 					unsigned short rowlen=cDefaultRowLen());
 			~TextStreamProgressMeter();
-    static const int	cDefaultRowLen() { return 50; }
-    static const int	cNrCharsPerRow() { return 80; }
+    static int		cDefaultRowLen() { return 50; }
+    static int		cNrCharsPerRow() { return 80; }
 
     void		setName(const char*);
     void		setStarted();
