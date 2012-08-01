@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.25 2012-05-15 12:52:07 cvsnageswara Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.26 2012-08-01 10:08:12 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,9 +130,9 @@ public:
     static const char*	sKeyProjectVersionTable();
     static const char*	sKeyBugFileTable();
     static const char*	sKeyProjectTable();
-    static const int 	cOpenDtectProjectID();
-    static const int 	cAccessLevelDeveloper();
-    static const int 	cAccessLevelCaseStudy();
+    static int	 	cOpenDtectProjectID();
+    static int	 	cAccessLevelDeveloper();
+    static int	 	cAccessLevelCaseStudy();
 
 
 protected:

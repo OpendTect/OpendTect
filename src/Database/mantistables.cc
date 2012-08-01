@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.cc,v 1.17 2012-01-18 11:46:00 cvsnageswara Exp $
+ RCS:           $Id: mantistables.cc,v 1.18 2012-08-01 10:07:24 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,22 +119,22 @@ const char* SqlDB::BugTableEntry::sKeySevere()
 { return "Severe"; }
 const char* SqlDB::BugTableEntry::sKeyMinor()
 { return "Minor"; }
-const int SqlDB::BugTableEntry::cStatusNew() { return 10; }
-const int SqlDB::BugTableEntry::cStatusAssigned() { return 50; }
-const int SqlDB::BugTableEntry::cStatusFeedback() { return 20; }
-const int SqlDB::BugTableEntry::cStatusResolved() { return 80; }
-const int SqlDB::BugTableEntry::cStatusClosed() { return 90; }
-const int SqlDB::BugTableEntry::cResolutionOpen() { return 10; }
-const int SqlDB::BugTableEntry::cResolutionFixed() { return 20; }
-const int SqlDB::BugTableEntry::cResolutionWillNotFixed() { return 90; }
-const int SqlDB::BugTableEntry::cSeverityFeature() { return 10; }
-const int SqlDB::BugTableEntry::cSeverityTrivial() { return 20; }
-const int SqlDB::BugTableEntry::cSeverityText() { return 30; }
-const int SqlDB::BugTableEntry::cSeverityTweak() { return 40; }
-const int SqlDB::BugTableEntry::cSeverityMinor() { return 50; }
-const int SqlDB::BugTableEntry::cSeverityMajor() { return 60; }
-const int SqlDB::BugTableEntry::cSeverityCrash() { return 70; }
-const int SqlDB::BugTableEntry::cSeverityBlock() { return 80; }
+int	    SqlDB::BugTableEntry::cStatusNew() { return 10; }
+int 	    SqlDB::BugTableEntry::cStatusAssigned() { return 50; }
+int 	    SqlDB::BugTableEntry::cStatusFeedback() { return 20; }
+int 	    SqlDB::BugTableEntry::cStatusResolved() { return 80; }
+int	    SqlDB::BugTableEntry::cStatusClosed() { return 90; }
+int	    SqlDB::BugTableEntry::cResolutionOpen() { return 10; }
+int	    SqlDB::BugTableEntry::cResolutionFixed() { return 20; }
+int	    SqlDB::BugTableEntry::cResolutionWillNotFixed() { return 90; }
+int	    SqlDB::BugTableEntry::cSeverityFeature() { return 10; }
+int	    SqlDB::BugTableEntry::cSeverityTrivial() { return 20; }
+int	    SqlDB::BugTableEntry::cSeverityText() { return 30; }
+int	    SqlDB::BugTableEntry::cSeverityTweak() { return 40; }
+int	    SqlDB::BugTableEntry::cSeverityMinor() { return 50; }
+int	    SqlDB::BugTableEntry::cSeverityMajor() { return 60; }
+int	    SqlDB::BugTableEntry::cSeverityCrash() { return 70; }
+int	    SqlDB::BugTableEntry::cSeverityBlock() { return 80; }
 
 
 SqlDB::BugTableEntry::BugTableEntry()
