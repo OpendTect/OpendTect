@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimenuhandler.cc,v 1.27 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimenuhandler.cc,v 1.28 2012-08-01 11:11:42 cvsmahant Exp $";
 
 
 #include "uimenuhandler.h"
@@ -16,8 +16,8 @@ static const char* rcsID mUnusedVar = "$Id: uimenuhandler.cc,v 1.27 2012-05-09 0
 #include "uimenu.h"
 #include "uitoolbar.h"
 
-const int uiMenuHandler::fromTree()	{ return 1; }
-const int uiMenuHandler::fromScene()	{ return 0; }
+int uiMenuHandler::fromTree()	{ return 1; }
+int uiMenuHandler::fromScene()	{ return 0; }
 
 
 uiMenuHandler::uiMenuHandler( uiParent* uiparent, int ni )
