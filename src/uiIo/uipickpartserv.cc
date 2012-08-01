@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipickpartserv.cc,v 1.72 2012-05-22 14:48:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipickpartserv.cc,v 1.73 2012-08-01 11:55:56 cvsmahant Exp $";
 
 #include "uipickpartserv.h"
 
@@ -30,13 +30,13 @@ static const char* rcsID mUnusedVar = "$Id: uipickpartserv.cc,v 1.72 2012-05-22 
 #include "statrand.h"
 #include "ptrman.h"
 
-const int uiPickPartServer::evGetHorInfo2D()	{ return 0; }
-const int uiPickPartServer::evGetHorInfo3D()	{ return 1; } 
-const int uiPickPartServer::evGetHorDef3D()	{ return 2; }
-const int uiPickPartServer::evGetHorDef2D()	{ return 3; }
-const int uiPickPartServer::evFillPickSet()	{ return 4; }
-const int uiPickPartServer::evGet2DLineInfo()	{ return 5; }
-const int uiPickPartServer::evGet2DLineDef()	{ return 6; }
+int uiPickPartServer::evGetHorInfo2D()	{ return 0; }
+int uiPickPartServer::evGetHorInfo3D()	{ return 1; } 
+int uiPickPartServer::evGetHorDef3D()	{ return 2; }
+int uiPickPartServer::evGetHorDef2D()	{ return 3; }
+int uiPickPartServer::evFillPickSet()	{ return 4; }
+int uiPickPartServer::evGet2DLineInfo()	{ return 5; }
+int uiPickPartServer::evGet2DLineDef()	{ return 6; }
 
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )

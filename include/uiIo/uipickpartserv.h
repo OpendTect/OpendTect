@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.46 2011-06-17 05:23:36 cvsranojay Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.47 2012-08-01 11:56:25 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,13 +53,13 @@ public:
     void			setPickSet(const Pick::Set&);
     void			fillZValsFrmHor(Pick::Set*,int);
 
-    static const int		evGetHorInfo2D();
-    static const int		evGetHorInfo3D();
-    static const int		evGetHorDef3D();
-    static const int            evGetHorDef2D();
-    static const int            evFillPickSet();
-    static const int		evGet2DLineInfo();
-    static const int		evGet2DLineDef();
+    static int			evGetHorInfo2D();
+    static int			evGetHorInfo3D();
+    static int			evGetHorDef3D();
+    static int		        evGetHorDef2D();
+    static int		        evFillPickSet();
+    static int			evGet2DLineInfo();
+    static int			evGet2DLineDef();
 
 
 				// Interaction stuff
