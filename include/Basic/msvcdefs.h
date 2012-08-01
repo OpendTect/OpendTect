@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.12 2012-04-04 05:14:56 cvsranojay Exp $
+ RCS:		$Id: msvcdefs.h,v 1.13 2012-08-01 11:47:26 cvsranojay Exp $
 ________________________________________________________________________
 
  For use with Microsoft Visual C++ 8.0 and 9.0
@@ -54,30 +54,6 @@ ________________________________________________________________________
 # define mDynamicCastGet(typ,out,in) \
 	 typ mDynamicCast(typ,out,in)
 
-// Pragmas
-//
-// See http://oakroadsystems.com/tech/msvc.html for full discussion.
-// Briefly, we need to compile at level 4 (/W4) because many important
-// warnings, and even some errors, have been assigned the low level of
-// 4. But level 4 also contains many spurious warnings, so we want to
-// compile at /W2 or /W3. The pragmas in this file promote many errors
-// and warnings to level 2 or 3.
-//
-// This file is http://oakroadsystems.com/tech/warnings.html ,
-// and it was last modified on 2000-06-05. This file is
-//
-//       Copyright 1998,2000 by Stan Brown, Oak Road Systems
-//                    http://oakroadsystems.com/
-//
-// License is hereby granted to use this file (or a modified version
-// of it) in any source code without payment of any license fee,
-// provided this paragraph is retained in its entirety.
-//
-// If you find this file useful, I'd appreciate your letting me know
-// at the above e-mail address. If you find any errors, or have
-// improvements to suggest, those will be gratefully received and
-// acknowledged.
-
 #pragma warning( disable : 4355 4003 )
 
 #pragma warning(2:4032)     // function arg has different type from declaration
@@ -85,11 +61,11 @@ ________________________________________________________________________
 #pragma warning(2:4132 4268)// const object not initialized
 #pragma warning(2:4152)     // pointer conversion between function and data
 #pragma warning(2:4239)     // standard doesn't allow this conversion
-#pragma warning(2:4701)     // local variable used without being initialized
+//#pragma warning(2:4701)     // local variable used without being initialized
 #pragma warning(2:4706)     // if (a=b) instead of (if a==b)
 #pragma warning(2:4709)     // comma in array subscript
-#pragma warning(3:4061)     // not all enum values tested in switch statement
-#pragma warning(3:4710)     // inline function was not inlined
+//#pragma warning(3:4061)     // not all enum values tested in switch statement
+//#pragma warning(3:4710)     // inline function was not inlined
 #pragma warning(3:4121)     // space added for structure alignment
 #pragma warning(3:4505)     // unreferenced local function removed
 #pragma warning(3:4019)     // empty statement at global scope
