@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimpepartserv.cc,v 1.137 2012-07-17 14:35:07 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimpepartserv.cc,v 1.138 2012-08-01 12:31:14 cvsmahant Exp $";
 
 #include "uimpepartserv.h"
 
@@ -40,24 +40,24 @@ static const char* rcsID mUnusedVar = "$Id: uimpepartserv.cc,v 1.137 2012-07-17 
 #include "uihorizontracksetup.h"
 #include "uimsg.h"
 
-const int uiMPEPartServer::evGetAttribData()	    { return 0; }
-const int uiMPEPartServer::evStartSeedPick()	    { return 1; }
-const int uiMPEPartServer::evEndSeedPick()	    { return 2; }
-const int uiMPEPartServer::evAddTreeObject()	    { return 3; }
-const int uiMPEPartServer::evShowToolbar()	    { return 4; }
-const int uiMPEPartServer::evInitFromSession()	    { return 5; }
-const int uiMPEPartServer::evRemoveTreeObject()	    { return 6; }
-const int uiMPEPartServer::evSetupLaunched()	    { return 7; }
-const int uiMPEPartServer::evSetupClosed()	    { return 8; }
-const int uiMPEPartServer::evCreate2DSelSpec()	    { return 9; }
-const int uiMPEPartServer::evMPEDispIntro()	    { return 10; }
-const int uiMPEPartServer::evUpdateTrees()	    { return 11; }
-const int uiMPEPartServer::evUpdateSeedConMode()    { return 12; }
-const int uiMPEPartServer::evMPEStoreEMObject()	    { return 13; }
-const int uiMPEPartServer::evHideToolBar()	    { return 14; }
-const int uiMPEPartServer::evSaveUnsavedEMObject()  { return 15; }
-const int uiMPEPartServer::evRemoveUnsavedEMObject(){ return 16; }
-const int uiMPEPartServer::evRetrackInVolume()	    { return 17; }
+int uiMPEPartServer::evGetAttribData()		    { return 0; }
+int uiMPEPartServer::evStartSeedPick()		    { return 1; }
+int uiMPEPartServer::evEndSeedPick()	   	    { return 2; }
+int uiMPEPartServer::evAddTreeObject()	      	    { return 3; }
+int uiMPEPartServer::evShowToolbar()	   	    { return 4; }
+int uiMPEPartServer::evInitFromSession()	    { return 5; }
+int uiMPEPartServer::evRemoveTreeObject()	    { return 6; }
+int uiMPEPartServer::evSetupLaunched()		    { return 7; }
+int uiMPEPartServer::evSetupClosed()	   	    { return 8; }
+int uiMPEPartServer::evCreate2DSelSpec()	    { return 9; }
+int uiMPEPartServer::evMPEDispIntro()		    { return 10; }
+int uiMPEPartServer::evUpdateTrees()	   	    { return 11; }
+int uiMPEPartServer::evUpdateSeedConMode()   	    { return 12; }
+int uiMPEPartServer::evMPEStoreEMObject()	    { return 13; }
+int uiMPEPartServer::evHideToolBar()		    { return 14; }
+int uiMPEPartServer::evSaveUnsavedEMObject() 	    { return 15; }
+int uiMPEPartServer::evRemoveUnsavedEMObject()	    { return 16; }
+int uiMPEPartServer::evRetrackInVolume()	    { return 17; }
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.23 2012-07-30 20:28:35 cvskris Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.24 2012-08-01 12:31:14 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -609,7 +609,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 }
 
 
-const int FaultStickSetFlatViewEditor::getStickId( int markerid ) const
+int FaultStickSetFlatViewEditor::getStickId( int markerid ) const
 {
     if ( !markeridinfo_.size() )
 	return mUdf( int );

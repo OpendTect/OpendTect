@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.15 2012-07-30 20:28:35 cvskris Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.16 2012-08-01 12:31:14 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -594,7 +594,7 @@ void Fault3DFlatViewEditor::fillActStkContainer()
 }
 
 
-const int Fault3DFlatViewEditor::getStickId( int markerid ) const
+int Fault3DFlatViewEditor::getStickId( int markerid ) const
 {
     if ( !markeridinfo_.size() )
 	return mUdf( int );

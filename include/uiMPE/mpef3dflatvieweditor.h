@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.h,v 1.5 2011-10-04 05:52:14 cvsumesh Exp $
+ RCS:		$Id: mpef3dflatvieweditor.h,v 1.6 2012-08-01 12:30:31 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ protected:
 
     void			cleanActStkContainer();
     void			fillActStkContainer();
-    const int			getStickId(int markerid) const;
+    int				getStickId(int markerid) const;
 
     bool			getMousePosInfo(
 	    				const Geom::Point2D<int>& mousepos,

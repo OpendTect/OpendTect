@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.19 2011-05-02 06:10:01 cvsumesh Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.20 2012-08-01 12:30:32 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ public:
     void			setAttribSet(const Attrib::DescSet*);
 
     void                        setMode(const EMSeedPicker::SeedModeOrder);
-    const int                   getMode();
+    int		                getMode();
     void                        setColor(const Color&);
     const Color&                getColor();
     void                        setMarkerStyle(const MarkerStyle3D&);

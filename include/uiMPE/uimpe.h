@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.16 2011-05-02 06:10:01 cvsumesh Exp $
+ RCS:		$Id: uimpe.h,v 1.17 2012-08-01 12:30:32 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,7 @@ public:
     virtual void	setSectionTracker(SectionTracker*)	{}
     virtual void	setAttribSet(const Attrib::DescSet*)	{}
     virtual void	setMode(const EMSeedPicker::SeedModeOrder) {}
-    virtual const int	getMode()				=0;
+    virtual int		getMode()				=0;
     virtual void	setColor(const Color&)			{}
     virtual const Color& getColor()				=0;
     virtual void	setMarkerStyle(const MarkerStyle3D&)	{}

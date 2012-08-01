@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.52 2011-09-19 12:23:22 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.53 2012-08-01 12:30:32 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
     int				activeTrackerID() const;
     				/*!< returns the trackerid of the last event */
 
-    static const int		evGetAttribData();
+    static int			evGetAttribData();
     bool			is2D() const;
     				/*!<If attrib is 2D, check for a selspec. If
 				    selspec is returned, calculate the attrib.
@@ -91,31 +91,31 @@ public:
     void			setAttribData(const Attrib::SelSpec&,
 					      const Attrib::Data2DArray*);
 
-    static const int		evCreate2DSelSpec();
+    static int			evCreate2DSelSpec();
     const MultiID&		get2DLineSet() const;
     const char*			get2DLineName() const;
     const char*			get2DAttribName() const;
     void			set2DSelSpec(const Attrib::SelSpec&);
 
-    static const int		evStartSeedPick();
-    static const int		evEndSeedPick();
+    static int			evStartSeedPick();
+    static int			evEndSeedPick();
 
-    static const int		evAddTreeObject();
+    static int			evAddTreeObject();
     				/*!<Get trackerid via activeTrackerID */
-    static const int		evRemoveTreeObject();
+    static int			evRemoveTreeObject();
     				/*!<Get trackerid via activeTrackerID */
-    static const int		evUpdateTrees();
-    static const int		evUpdateSeedConMode();
-    static const int		evShowToolbar();
-    static const int		evMPEDispIntro();
-    static const int		evMPEStoreEMObject();
-    static const int		evSetupLaunched();
-    static const int		evSetupClosed();
-    static const int		evInitFromSession();
-    static const int		evHideToolBar();
-    static const int		evSaveUnsavedEMObject();
-    static const int		evRemoveUnsavedEMObject();
-    static const int		evRetrackInVolume();
+    static int			evUpdateTrees();
+    static int			evUpdateSeedConMode();
+    static int			evShowToolbar();
+    static int			evMPEDispIntro();
+    static int			evMPEStoreEMObject();
+    static int			evSetupLaunched();
+    static int			evSetupClosed();
+    static int			evInitFromSession();
+    static int			evHideToolBar();
+    static int			evSaveUnsavedEMObject();
+    static int			evRemoveUnsavedEMObject();
+    static int			evRetrackInVolume();
 
     bool			isDataLoadingBlocked() const;
     void			blockDataLoading(bool);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.h,v 1.11 2011-10-03 08:07:19 cvsjaap Exp $
+ RCS:           $Id: mpefssflatvieweditor.h,v 1.12 2012-08-01 12:30:31 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ protected:
 
     void			cleanActStkContainer();
     void			fillActStkContainer();
-    const int			getStickId(int markerid) const; 
+    int				getStickId(int markerid) const; 
     
     bool			getMousePosInfo(
 				    const Geom::Point2D<int>& mousepos,

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorizontracksetup.cc,v 1.44 2012-07-10 08:05:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorizontracksetup.cc,v 1.45 2012-08-01 12:31:14 cvsmahant Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -549,7 +549,7 @@ void uiHorizonSetupGroup::setMode(EMSeedPicker::SeedModeOrder mode)
 }
 
 
-const int uiHorizonSetupGroup::getMode()
+int uiHorizonSetupGroup::getMode()
 {
     return modeselgrp_ ? modeselgrp_->selectedId() : -1;
 }
