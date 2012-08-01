@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.54 2011-09-19 12:23:22 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.55 2012-08-01 10:13:28 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ public:
     void			set2DData(const Attrib::Data2DArray* d2h)
 				{ is2d_ = true; d2dhdata_ = d2h; }
     const Attrib::Data2DArray*	get2DData() const	{ return d2dhdata_; }
-    const int			nrCubes() const
+    int			nrCubes() const
 				{
 				    if ( !dcdata_ && !d2dhdata_ )
 					return 0;
