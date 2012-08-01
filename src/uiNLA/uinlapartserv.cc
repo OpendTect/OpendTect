@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uinlapartserv.cc,v 1.82 2012-07-10 08:05:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uinlapartserv.cc,v 1.83 2012-08-01 12:37:31 cvsmahant Exp $";
 
 #include "uinlapartserv.h"
 
@@ -43,15 +43,15 @@ static const char* rcsID mUnusedVar = "$Id: uinlapartserv.cc,v 1.82 2012-07-10 0
 
 #include <iostream>
 
-const int uiNLAPartServer::evPrepareWrite()	{ return 0; }
-const int uiNLAPartServer::evPrepareRead()	{ return 1; }
-const int uiNLAPartServer::evReadFinished()	{ return 2; }
-const int uiNLAPartServer::evGetInputNames()	{ return 3; }
-const int uiNLAPartServer::evGetStoredInput()	{ return 4; }
-const int uiNLAPartServer::evGetData()		{ return 5; }
-const int uiNLAPartServer::evSaveMisclass()	{ return 6; }
-const int uiNLAPartServer::evCreateAttrSet()	{ return 7; }
-const int uiNLAPartServer::evCr2DRandomSet()	{ return 8; }
+int uiNLAPartServer::evPrepareWrite()		{ return 0; }
+int uiNLAPartServer::evPrepareRead()		{ return 1; }
+int uiNLAPartServer::evReadFinished()		{ return 2; }
+int uiNLAPartServer::evGetInputNames()		{ return 3; }
+int uiNLAPartServer::evGetStoredInput()		{ return 4; }
+int uiNLAPartServer::evGetData()		{ return 5; }
+int uiNLAPartServer::evSaveMisclass()		{ return 6; }
+int uiNLAPartServer::evCreateAttrSet()		{ return 7; }
+int uiNLAPartServer::evCr2DRandomSet()		{ return 8; }
 const char* uiNLAPartServer::sKeyUsrCancel()	{ return "User cancel";  }
 
 #define mDPM DPM(DataPackMgr::PointID())

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.31 2009-12-01 10:02:38 cvssatyaki Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.32 2012-08-01 12:38:12 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,23 +55,23 @@ public:
     bool		willDoExtraction() const;
     const BufferStringSet& modelInputs() const;
 
-    static const int	evPrepareWrite();
+    static int		evPrepareWrite();
     			//!< need to fill modelPars()
-    static const int	evPrepareRead();
+    static int		evPrepareRead();
     			//!< is FYI
-    static const int	evReadFinished();
+    static int		evReadFinished();
     			//!< is FYI
-    static const int	evGetInputNames();
+    static int		evGetInputNames();
     			//!< need to fill inputNames()
-    static const int	evGetStoredInput();
+    static int		evGetStoredInput();
 			//!< need to put stored data into attrset
-    static const int	evGetData();
+    static int		evGetData();
     			//!< need to fill vdsTrain() and vdsTest()
-    static const int	evSaveMisclass();
+    static int		evSaveMisclass();
     			//!< use misclass analysis VDS; user wants it.
-    static const int	evCreateAttrSet();
+    static int		evCreateAttrSet();
     			//!< create attributeset from GDI NN
-    static const int	evCr2DRandomSet();
+    static int		evCr2DRandomSet();
     			//!< create 2D random pick set
     static const char*	sKeyUsrCancel();
     			//!< Returned when operation must stop without error
