@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.13 2012-08-01 11:47:26 cvsranojay Exp $
+ RCS:		$Id: msvcdefs.h,v 1.14 2012-08-01 15:16:54 cvskris Exp $
 ________________________________________________________________________
 
  For use with Microsoft Visual C++ 8.0 and 9.0
@@ -61,12 +61,12 @@ ________________________________________________________________________
 #pragma warning(2:4132 4268)// const object not initialized
 #pragma warning(2:4152)     // pointer conversion between function and data
 #pragma warning(2:4239)     // standard doesn't allow this conversion
-//#pragma warning(2:4701)     // local variable used without being initialized
-#pragma warning(2:4706)     // if (a=b) instead of (if a==b)
+#pragma warning(2:4701)     // local variable used without being initialized
+//#pragma warning(2:4706)     // if (a=b) instead of (if a==b)
 #pragma warning(2:4709)     // comma in array subscript
 //#pragma warning(3:4061)     // not all enum values tested in switch statement
 //#pragma warning(3:4710)     // inline function was not inlined
-#pragma warning(3:4121)     // space added for structure alignment
+//#pragma warning(3:4121)     // space added for structure alignment
 #pragma warning(3:4505)     // unreferenced local function removed
 #pragma warning(3:4019)     // empty statement at global scope
 #pragma warning(3:4057)     // pointers refer to different base types
