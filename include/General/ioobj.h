@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.35 2010-12-16 13:01:46 cvsbert Exp $
+ RCS:		$Id: ioobj.h,v 1.36 2012-08-01 09:37:35 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,7 +100,7 @@ public:
     virtual void	acquireNewKey();
     			//!< This will give the IOObj a new (free) ID
 
-    static const int	tmpID()		{ return  999999; }
+    static int		tmpID()		{ return  999999; }
     inline bool		isTmp() const	{ return key_.leafID() == tmpID(); }
     bool		isReadDefault() const;
 

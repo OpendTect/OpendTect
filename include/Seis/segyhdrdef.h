@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2011
- RCS:		$Id: segyhdrdef.h,v 1.6 2011-09-05 14:23:19 cvsbert Exp $
+ RCS:		$Id: segyhdrdef.h,v 1.7 2012-08-01 09:43:17 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ protected:
     char*		desc_;
     char*		name_;
 
-    inline static const BytePos udfBP()		{ return -32768; }
+    inline static 	BytePos udfBP()		{ return -32768; }
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odhttp.h,v 1.18 2012-06-20 11:19:59 cvsranojay Exp $
+ RCS:           $Id: odhttp.h,v 1.19 2012-08-01 09:41:09 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ public:
     int			nrDone() const          { return nrdone_; }
     int			totalNr() const         { return totalnr_; }
 
-    const bool		isOK() const		{ return !error_; }
+    bool		isOK() const		{ return !error_; }
     void		setMessage(const char*);
     const char*		message() const		{ return message_.buf(); }
 

@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: array2dbitmap.cc,v 1.44 2012-07-10 08:05:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: array2dbitmap.cc,v 1.45 2012-08-01 09:38:38 cvsmahant Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -16,13 +16,13 @@ static const char* rcsID mUnusedVar = "$Id: array2dbitmap.cc,v 1.44 2012-07-10 0
 #include <iostream>
 
 
-const char A2DBitMapGenPars::cNoFill()		{ return -127; }
-const char WVAA2DBitMapGenPars::cZeroLineFill()	{ return -126; }
-const char WVAA2DBitMapGenPars::cWiggFill()	{ return -125; }
-const char WVAA2DBitMapGenPars::cLeftFill()	{ return -124; }
-const char WVAA2DBitMapGenPars::cRightFill()	{ return -123; }
-const char VDA2DBitMapGenPars::cMinFill()	{ return -120; }
-const char VDA2DBitMapGenPars::cMaxFill()	{ return 120; }
+char A2DBitMapGenPars::cNoFill()		{ return -127; }
+char WVAA2DBitMapGenPars::cZeroLineFill()	{ return -126; }
+char WVAA2DBitMapGenPars::cWiggFill()		{ return -125; }
+char WVAA2DBitMapGenPars::cLeftFill()		{ return -124; }
+char WVAA2DBitMapGenPars::cRightFill()		{ return -123; }
+char VDA2DBitMapGenPars::cMinFill()		{ return -120; }
+char VDA2DBitMapGenPars::cMaxFill()		{ return 120; }
 
 #define cNrFillSteps 241
 #define mMaxNrStatPts 5000

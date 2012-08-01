@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2008
- RCS:           $Id: seisposindexer.h,v 1.12 2012-06-28 13:07:25 cvskris Exp $
+ RCS:           $Id: seisposindexer.h,v 1.13 2012-08-01 09:43:17 cvsmahant Exp $
 ________________________________________________________________________
 
 
@@ -78,7 +78,7 @@ public:
     const Interval<int>&	crlRange() const	{ return crlrg_; }
     const Interval<int>&	trcNrRange() const	{ return crlrg_; }
     const Interval<float>&	offsetRange() const	{ return offsrg_; }
-    const od_int64		nrRejected() const	{ return nrrejected_; }
+    od_int64			nrRejected() const	{ return nrrejected_; }
 
     bool			dumpTo(std::ostream& strm) const;
     bool			readFrom(const char* nm, od_int64 offset,

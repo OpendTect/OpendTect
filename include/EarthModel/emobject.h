@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.96 2011-08-24 22:14:19 cvsnanne Exp $
+ RCS:		$Id: emobject.h,v 1.97 2012-08-01 09:42:27 cvsmahant Exp $
 ________________________________________________________________________
 
 
@@ -214,9 +214,9 @@ public:
     virtual bool		isLocked() const	{ return locked_; }
     virtual void		lock(bool yn)		{ locked_=yn;}
 
-    const bool			isInsideSelRemoval() const
+    bool			isInsideSelRemoval() const
 				{ return insideselremoval_; }
-    const bool			isSelRemoving() const	{ return selremoving_; }
+    bool			isSelRemoving() const	{ return selremoving_; }
 
     const char*			errMsg() const;
     void			setErrMsg(const char* m) { errmsg_ = m; }

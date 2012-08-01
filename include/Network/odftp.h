@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odftp.h,v 1.11 2011-04-19 08:24:49 cvsnanne Exp $
+ RCS:           $Id: odftp.h,v 1.12 2012-08-01 09:41:09 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
     od_int64		totalNr() const		{ return totalnr_; }
     const BufferStringSet& files() const	{ return files_; }
 
-    const bool		isOK() const		{ return !error_; }
+    bool		isOK() const		{ return !error_; }
     void		setMessage(const char*);
     const char*		message() const		{ return message_.buf(); }
     int			commandID() const	{ return commandid_; }

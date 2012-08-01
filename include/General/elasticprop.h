@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: elasticprop.h,v 1.6 2012-03-12 08:00:17 cvsbruno Exp $
+ RCS:		$Id: elasticprop.h,v 1.7 2012-08-01 09:37:35 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,13 +110,13 @@ public:
 			    }
 
 
-    static const PropertyRef::StdType elasticToStdType(ElasticFormula::Type); 
+    static PropertyRef::StdType elasticToStdType(ElasticFormula::Type); 
 
     ElasticFormula& formula() 			{ return formula_; }
     const ElasticFormula& formula() const 	{ return formula_; }
 
     ElasticFormula::Type elasticType()  	{ return formula_.type(); }
-    const ElasticFormula::Type elasticType() const { return formula_.type(); }
+    ElasticFormula::Type elasticType() const	{ return formula_.type(); }
 
 protected:
     ElasticFormula      formula_;

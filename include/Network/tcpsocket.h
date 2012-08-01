@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: tcpsocket.h,v 1.10 2011-06-27 06:16:52 cvsranojay Exp $
+ RCS:           $Id: tcpsocket.h,v 1.11 2012-08-01 09:41:09 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ public:
     void			read(int&) const;
     void			read(bool&) const;
     void			readdata(char*& data, int sz) const;
-    const int			getID() const { return id_; }
+    int 			getID() const { return id_; }
 
     const char*			errorMsg() const;
 

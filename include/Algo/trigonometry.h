@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.51 2012-05-22 04:33:08 cvssatyaki Exp $
+ RCS:		$Id: trigonometry.h,v 1.52 2012-08-01 09:33:42 cvsmahant Exp $
 ________________________________________________________________________
 
 
@@ -54,7 +54,7 @@ point and line, point and triangle, point and circle or sphere.
 */
 
 /*Calculate a 3x3 matrix's determinent given by v[0]-v[8] with 9 elements. */
-inline const double determinent33( const double* v )
+inline double determinent33( const double* v )
 {
     return v[0]*(v[4]*v[8]-v[5]*v[7])+v[1]*(v[5]*v[6]-v[3]*v[8])+
 	v[2]*(v[3]*v[7]-v[4]*v[6]);
@@ -63,8 +63,8 @@ inline const double determinent33( const double* v )
 
 /*Calculate a 4x4 matrix's determinent given by rows r0, r1, r2, r3 with the 
   last column 1, 1, 1, 1. */
-inline const double determinent44( const Coord3& r0, const Coord3& r1, 
-				   const Coord3& r2, const Coord3& r3 )
+inline double determinent44( const Coord3& r0, const Coord3& r1, 
+		             const Coord3& r2, const Coord3& r3 )
 {
     const double d0[9] = { r1.y, r1.z, 1, r2.y, r2.z, 1, r3.y, r3.z, 1 };
     const double d1[9] = { r1.x, r1.z, 1, r2.x, r2.z, 1, r3.x, r3.z, 1 };
@@ -75,8 +75,8 @@ inline const double determinent44( const Coord3& r0, const Coord3& r1,
 }
 
 /*!<Each ri represents a row of 4 elements. */
-inline const double determinent44( const double* r0, const double* r1, 
-				   const double* r2, const double* r3 )
+inline double determinent44( const double* r0, const double* r1, 
+			     const double* r2, const double* r3 )
 {
     const double d0[9] = { r1[1], r1[2], r1[3], r2[1], r2[2], r2[3], 
 			   r3[1], r3[2], r3[3] };

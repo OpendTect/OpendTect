@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.20 2009-09-03 09:52:46 cvssatyaki Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.21 2012-08-01 09:37:35 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ mStruct A2DBitMapGenPars
     float	midvalue_;	//!< if mUdf(float), use the median data value
     Interval<float> scale_;	//!< Used when autoscale_ is false
 
-    static const char cNoFill();	//!< -127, = background/transparent
+    static char cNoFill();	//!< -127, = background/transparent
 
 };
 

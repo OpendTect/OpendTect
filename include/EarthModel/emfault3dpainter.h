@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.h,v 1.6 2012-04-02 15:06:15 cvskris Exp $
+ RCS:		$Id: emfault3dpainter.h,v 1.7 2012-08-01 09:42:27 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ public:
     void		enableKnots(bool);
 
     void		setActiveStick(EM::PosID&);
-    const int		getActiveStickId() const      { return activestickid_; }
+    int			getActiveStickId() const      { return activestickid_; }
     void		setMarkerLineStyle(const LineStyle&);
     bool		hasDiffActiveStick(const EM::PosID*) const;
     FlatView::AuxData*	getAuxData(const EM::PosID*) const;
