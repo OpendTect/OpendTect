@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihandledlsitefail.cc,v 1.6 2012-07-18 08:50:46 cvsranojay Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihandledlsitefail.cc,v 1.7 2012-08-01 04:24:18 cvskris Exp $";
 
 #include "uihandledlsitefail.h"
 
@@ -108,3 +108,4 @@ bool uiHandleDLSiteFail::acceptOK( CallBacker* )
 	site_ = dlsitefld_->text();
     return true;
 }
+

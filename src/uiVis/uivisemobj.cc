@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.101 2012-07-30 20:57:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.102 2012-08-01 04:24:18 cvskris Exp $";
 
 #include "uivisemobj.h"
 
@@ -381,7 +381,6 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     visSurvey::EMObjectDisplay* emod = getDisplay();
     const EM::ObjectID emid = emod->getObjectID();
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
-    const EM::SectionID sid = emod->getSectionID(menu->getPath());
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     mDynamicCastGet( visSurvey::Horizon2DDisplay*, hor2ddisp, getDisplay() );
@@ -456,6 +455,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     }
 
 #ifdef __debug__
+    const EM::SectionID sid = emod->getSectionID(menu->getPath());
     MenuItemHolder* toolsmnuitem = menu->findItem( "Tools" );
     if ( !toolsmnuitem ) toolsmnuitem = menu;
     mAddMenuItem( toolsmnuitem, &changesectionnamemnuitem_, 
