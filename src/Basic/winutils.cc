@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: winutils.cc,v 1.31 2012-07-17 07:03:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: winutils.cc,v 1.32 2012-08-01 10:36:50 cvsranojay Exp $";
 
 
 #include "winutils.h"
@@ -185,21 +185,6 @@ const char* GetSpecialFolderLocation(int nFolder)
     Result = szPath;
 
     return Result;
-}
-
-
-
-static int initialise_Co( void )
-{
-    static int initialised = 0;
-    if ( !initialised )
-    {
-	if ( !SUCCEEDED( CoInitialize(NULL) ) )
-	    return 0;
-
-	initialised = 1;
-    }
-    return initialised;
 }
 
 
