@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratlevel.cc,v 1.14 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratlevel.cc,v 1.15 2012-08-01 12:45:32 cvsbruno Exp $";
 
 #include "stratlevel.h"
 #include "bufstringset.h"
@@ -89,7 +89,6 @@ LevelSet& curSet()
 }
 
     ObjectSet<LevelSet>	lss_;
-
 };
 
 } // namespace
@@ -112,7 +111,10 @@ void Strat::setLVLS( LevelSet* ls )
     if ( lvlSetMgr().lss_.isEmpty() )
 	lvlSetMgr().lss_ += ls;
     else
-	delete lvlSetMgr().lss_.replace( 0, ls );
+    {
+	const int currentidx =  lvlSetMgr().lss_.indexOf( &LVLS() );
+	delete lvlSetMgr().lss_.replace( currentidx < 0 ? 0 : currentidx, ls );
+    }
 }
 
 
