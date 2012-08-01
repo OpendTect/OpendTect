@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.38 2012-04-03 13:59:24 cvskris Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.39 2012-08-01 10:23:50 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ public:
     void			setSceneRect(float x,float y,float w,float h);
     uiRect			sceneRect();
 
-    const bool			isMouseEventActive() const	
+    bool			isMouseEventActive() const	
     				{ return ismouseeventactive_; }
     void			setMouseEventActive( bool yn )
     				{ ismouseeventactive_ = yn; }
