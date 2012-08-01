@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.140 2012-07-24 10:35:25 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.141 2012-08-01 10:46:09 cvsmahant Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -494,7 +494,7 @@ mVisMCSurf* VolumeDisplay::getIsoSurface( int idx )
 { return isosurfaces_.validIdx(idx) ? isosurfaces_[idx] : 0; }
 
 
-const int VolumeDisplay::getNrIsoSurfaces()
+int VolumeDisplay::getNrIsoSurfaces()
 { return isosurfaces_.size(); }
 
 

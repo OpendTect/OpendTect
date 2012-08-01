@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.122 2012-07-17 14:43:05 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.123 2012-08-01 10:46:09 cvsmahant Exp $";
 
 #include "vismpe.h"
 
@@ -527,7 +527,7 @@ void MPEDisplay::setPlaneOrientation( int orient )
 }
 
 
-const int MPEDisplay::getPlaneOrientation() const
+int MPEDisplay::getPlaneOrientation() const
 { 
     return dim_;
 }

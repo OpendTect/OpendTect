@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.69 2011-05-09 23:34:55 cvskarthika Exp $
+RCS:        $Id: vismpe.h,v 1.70 2012-08-01 10:46:36 cvsmahant Exp $
 ________________________________________________________________________
 
 
@@ -63,7 +63,7 @@ public:
     float           getDraggerTransparency() const;
     
     void            setPlaneOrientation(int orient);
-    const int       getPlaneOrientation() const;
+    int       getPlaneOrientation() const;
 
     bool            getPlanePosition(CubeSampling&) const;
     void            moveMPEPlane(int nrsteps);    

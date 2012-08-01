@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.80 2012-01-02 14:04:14 cvsbruno Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.81 2012-08-01 10:46:36 cvsmahant Exp $
 ________________________________________________________________________
 
 
@@ -69,7 +69,7 @@ public:
     
     visBase::MarchingCubesSurface* getIsoSurface(int idx);
     void			updateIsoSurface(int,TaskRunner* = 0);
-    const int			getNrIsoSurfaces();
+    int				getNrIsoSurfaces();
     int				getIsoSurfaceIdx(
 	    			    const visBase::MarchingCubesSurface*) const;
     float			defaultIsoValue() const;
