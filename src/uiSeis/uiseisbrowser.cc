@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.68 2012-07-24 09:03:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.69 2012-08-01 14:44:27 cvshelene Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -231,7 +231,7 @@ void uiSeisBrowser::createMenuAndToolBar()
 				     "Switch to Crossline",true );
     mAddButton( "leftarrow",leftArrowPush,"Move left",false );
     mAddButton( "rightarrow",rightArrowPush,"Move right",false );
-    showwgglbutidx_ = mAddButton( "viewflat",dispTracesPush,
+    showwgglbutidx_ = mAddButton( "vd",dispTracesPush,
 	    			  "Display current traces",false );
     tr_->getComponentNames( compnms_ );
     if ( compnms_.size()>1 )

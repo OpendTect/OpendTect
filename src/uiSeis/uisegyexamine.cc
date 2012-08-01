@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyexamine.cc,v 1.37 2012-07-24 09:03:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyexamine.cc,v 1.38 2012-08-01 14:44:26 cvshelene Exp $";
 
 #include "uisegyexamine.h"
 #include "uisegytrchdrvalplot.h"
@@ -79,7 +79,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     uiGroup* logrp = new uiGroup( this, "Low group" );
     uiGroup* tblgrp = new uiGroup( logrp, "Table group" );
     lbl = new uiLabel( tblgrp, "Trace header information" );
-    tb = new uiToolButton( tblgrp, "viewflat", "Display traces",
+    tb = new uiToolButton( tblgrp, "vd", "Display traces",
 			     mCB(this,uiSEGYExamine,dispSeis) );
 
     uiTable::Setup tblsu( SEGY::TrcHeader::hdrDef().size(), setup_.nrtrcs_ );

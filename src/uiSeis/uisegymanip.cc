@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegymanip.cc,v 1.24 2012-05-29 16:38:39 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegymanip.cc,v 1.25 2012-08-01 14:44:27 cvshelene Exp $";
 
 #include "uisegymanip.h"
 #include "uisegytrchdrvalplot.h"
@@ -298,7 +298,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     thtbl_->setStretch( 0, 1 );
     thtbl_->selectionChanged.notify( mCB(this,uiSEGYFileManip,rowClck) );
 
-    plotbut_ = new uiToolButton( grp, "hdrplot",
+    plotbut_ = new uiToolButton( grp, "distmap",
 		    "Plot the values of the selected header entries",
 		    mCB(this,uiSEGYFileManip,plotReq) );
     plotbut_->attach( alignedBelow, thtbl_ );
