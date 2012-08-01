@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.62 2012-08-01 07:02:40 cvsranojay Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.63 2012-08-01 11:48:17 cvsranojay Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -90,6 +90,14 @@ IF(WIN32)
     set (EXTRA_LIBS "ws2_32" "shlwapi")
     ADD_DEFINITIONS(  "\"-DmUnusedVar=\"")
     ADD_DEFINITIONS( /W3 )
+    ADD_DEFINITIONS( /wd4701 )
+    ADD_DEFINITIONS( /wd4800 )
+    ADD_DEFINITIONS( /wd4251 )
+    ADD_DEFINITIONS( /wd4244 )
+    ADD_DEFINITIONS( /wd4996 )
+    ADD_DEFINITIONS( /wd4267 )
+    ADD_DEFINITIONS( /wd4101 )
+    ADD_DEFINITIONS( /wd4305 )
    
     set (OD_STATIC_EXTENSION ".lib")
     set (OD_EXECUTABLE_EXTENSION ".exe" )
