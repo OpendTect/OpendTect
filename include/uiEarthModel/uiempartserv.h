@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.111 2011-10-20 16:44:14 cvshelene Exp $
+ RCS:           $Id: uiempartserv.h,v 1.112 2012-08-01 12:53:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,14 +146,14 @@ public:
 
     void		removeUndo();
 
-    static const int	evDisplayHorizon();
-    static const int	evRemoveTreeObject();
+    static int		evDisplayHorizon();
+    static int		evRemoveTreeObject();
 
 			// Interaction stuff
     const EM::ObjectID&	selEMID() const			{ return selemid_; }
     EM::EMObject*	selEMObject();
 
-    const EM::ObjectID	saveUnsavedEMObject();
+    EM::ObjectID	saveUnsavedEMObject();
     void		removeUnsavedEMObjectFromTree();
     void		removeTreeObject(const EM::ObjectID&);
 
