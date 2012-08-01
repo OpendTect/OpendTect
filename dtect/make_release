@@ -47,7 +47,8 @@ set cmakeargs = "-DCMAKE_BUILD_TYPE=${buildtype} \
 		-DOD_RUN_LMSTRIP=ON \
 		${cmakedoc} \
 		-DQTDIR=${appmanbase}/qt/devel \
-		-DCOINDIR=${appmanbase}/coin/devel"
+		-DCOINDIR=${appmanbase}/coin/devel \
+		-DOSG_DIR=${appmanbase}/osg/devel"
 
 cd $WORK
 if ( -e CMakeCache.txt ) then
