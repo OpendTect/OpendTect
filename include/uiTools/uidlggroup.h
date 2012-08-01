@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uidlggroup.h,v 1.11 2009-08-27 09:58:39 cvsbert Exp $
+ RCS:           $Id: uidlggroup.h,v 1.12 2012-08-01 11:00:04 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ public:
     uiDlgGroup&		getGroup(int idx)	{ return *groups_[idx]; }
     const uiDlgGroup&	getGroup(int idx) const { return *groups_[idx]; }
     void		showGroup(int idx);
-    const int		currentGroupID()	
+    int			currentGroupID()	
     			{ return tabstack_->currentPageId(); }
 
     const char*		helpID() const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.238 2012-07-17 14:21:22 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.239 2012-08-01 10:59:22 cvsmahant Exp $";
 
 #include "uiempartserv.h"
 
@@ -79,8 +79,8 @@ static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.238 2012-07-17 1
 #include <math.h>
 
 
-const int uiEMPartServer::evDisplayHorizon()	    { return 0; }
-const int uiEMPartServer::evRemoveTreeObject()	    { return 1; }
+int uiEMPartServer::evDisplayHorizon()	    { return 0; }
+int uiEMPartServer::evRemoveTreeObject()	    { return 1; }
 
 #define mErrRet(s) { BufferString msg( "Cannot load '" ); msg += s; msg += "'";\
     			uiMSG().error( msg ); return false; }
@@ -384,7 +384,7 @@ void uiEMPartServer::removeUnsavedEMObjectFromTree()
 }
 
 
-const EM::ObjectID uiEMPartServer::saveUnsavedEMObject()
+EM::ObjectID uiEMPartServer::saveUnsavedEMObject()
 {
     for ( int idx=em_.nrLoadedObjects()-1; idx>=0; idx-- )
     {

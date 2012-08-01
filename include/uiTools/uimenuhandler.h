@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.h,v 1.10 2010-11-22 08:57:14 cvsnanne Exp $
+ RCS:           $Id: uimenuhandler.h,v 1.11 2012-08-01 11:00:04 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,8 @@ public:
     void			set2DPickedPos(const Geom::Point2D<double>& pos)
 					{ positionxy_=pos; }
     
-    static const int		fromTree();
-    static const int		fromScene();
+    static int			fromTree();
+    static int			fromScene();
 
 protected:
     bool			executeMenuInternal();
