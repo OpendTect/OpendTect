@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.35 2012-07-19 06:51:37 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.36 2012-08-01 16:49:52 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -86,12 +86,11 @@ void uiAddEditMrkrDlg::putToScreen()
 
 
 
-uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
+
+uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Edit Markers Dialog",
 			    mNoDlgTitle,"dgb:107.0.3").modal(false))
     , curmrk_(0)
-    , curctrl_(0)
-    , curwd_(0)	 
     , hasedited_(false)
     , needsave_(false)
     , ispicking_(true) 
@@ -101,14 +100,14 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
 
     mrklist_ = new uiListBox( this, "Markers", false );
     mrklist_->rightButtonClicked.notify( 
-			    mCB(this,uiWellDispEditMarkerDlg,listRClickCB) );
+			    mCB(this,uiDispEditMarkerDlg,listRClickCB) );
     mrklist_->setStretch( 2, 2 );
 
     uiGroup* toolgrp = new uiGroup( this, "Tools" );
     toolgrp->attach( rightOf, mrklist_ );
-    CallBack butcb( mCB(this,uiWellDispEditMarkerDlg,buttonPushedCB) );
+    CallBack butcb( mCB(this,uiDispEditMarkerDlg,buttonPushedCB) );
     pickbut_ = new uiToolButton( toolgrp, "seedpickmode", 
-	"Pick marker on display", mCB(this,uiWellDispEditMarkerDlg,modeChg) );
+	"Pick marker on display", mCB(this,uiDispEditMarkerDlg,modeChg) );
     pickbut_->setToggleButton( true );
     pickbut_->setOn( true );
 
@@ -123,25 +122,22 @@ uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
     rembut_ = new uiToolButton(toolgrp, "trashcan", "Remove Marker", butcb);
     rembut_->attach( alignedBelow, editbut_ );
 
-    windowClosed.notify( mCB(this,uiWellDispEditMarkerDlg,editDlgClosedCB) );
+    windowClosed.notify( mCB(this,uiDispEditMarkerDlg,editDlgClosedCB) );
 }
 
 
-uiWellDispEditMarkerDlg::~uiWellDispEditMarkerDlg()
+uiDispEditMarkerDlg::~uiDispEditMarkerDlg()
 {
     deepErase( tmplist_ );
     deepErase( orgmarkerssets_ );
 }
 
 
-void uiWellDispEditMarkerDlg::editDlgClosedCB( CallBacker* )
-{
-    for ( int idx=0; idx<ctrls_.size(); idx++ )
-	activateSensors( *ctrls_[idx], *wds_[idx], false );
-}
+void uiDispEditMarkerDlg::editDlgClosedCB( CallBacker* )
+{}
 
 
-void uiWellDispEditMarkerDlg::modeChg( CallBacker* )
+void uiDispEditMarkerDlg::modeChg( CallBacker* )
 {
     if ( ispicking_ != pickbut_->isOn() )
     {
@@ -149,6 +145,178 @@ void uiWellDispEditMarkerDlg::modeChg( CallBacker* )
 	mrklist_->setMultiSelect( false );
 	pickmodechanged.trigger();
     }
+}
+
+
+void uiDispEditMarkerDlg::handleUsrClickCB( CallBacker* )
+{}
+
+
+void uiDispEditMarkerDlg::addMoveMarker()
+{}
+
+void uiDispEditMarkerDlg::removeMarker()
+{}
+
+
+bool uiDispEditMarkerDlg::acceptOK( CallBacker* )
+{
+    needsave_ = hasedited_;
+    return true;
+}
+
+
+bool uiDispEditMarkerDlg::rejectOK( CallBacker* )
+{
+    return true;
+}
+
+
+void uiDispEditMarkerDlg::buttonPushedCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiToolButton*,tb,cb);
+    if ( tb == addbut_ )
+	addNewMrkrList();
+    else if ( tb == editbut_ )
+	editMrkrList();
+    else if ( tb == rembut_ ) 
+	removeMrkrList();
+}
+
+
+void uiDispEditMarkerDlg::addNewMrkrList()
+{
+    Well::Marker* mrk = new Well::Marker( "Name", 0 ); 
+    mrk->setColor( getRandStdDrawColor() );
+    uiAddEditMrkrDlg dlg( this, *mrk, false );
+    if ( dlg.go() )
+    {
+	tmplist_ += mrk;
+	fillMarkerList(0);
+	if ( mrklist_->isPresent( mrk->name() ) )
+	    mrklist_->setCurrentItem( mrk->name() );
+    }
+    else
+	delete mrk;
+}
+
+
+void uiDispEditMarkerDlg::editMrkrList()
+{
+    const int selidx = mrklist_->currentItem();
+    if ( selidx < 0 ) 
+	return;
+
+    BufferString mrknm = mrklist_->getText();
+    ObjectSet<Well::Marker> mrks;
+    getMarkerFromAll( mrks, mrknm );
+    if ( mrks.isEmpty() )
+	mErrRet( "No marker found", return );
+
+    Well::Marker* mrk = new Well::Marker( *mrks[0] ); 
+    uiAddEditMrkrDlg dlg( this, *mrk, true );
+    if ( !dlg.go() )
+	return;
+
+    mrks.erase();
+    getMarkerFromAll( mrks, mrknm );
+    if ( mrks.isEmpty() )
+	{ delete mrk; return; }
+
+    for ( int idx=0; idx<mrks.size(); idx++ )
+    {
+	Well::Marker* edmrk = mrks[idx];
+	edmrk->setName( mrk->name() );
+	edmrk->setColor( mrk->color() );
+	edmrk->setLevelID( mrk->levelID() );
+    }
+
+    mrklist_->setCurrentItem( mrk->name() );
+    hasedited_ = true; 
+
+    delete mrk;
+}
+
+
+void uiDispEditMarkerDlg::getMarkerFromAll( ObjectSet<Well::Marker>& mrks,
+						  const char* mrknm ) 
+{
+}
+
+
+void uiDispEditMarkerDlg::removeMrkrList()
+{
+    BufferString mrknm = mrklist_->getText();
+    for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
+    {
+	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
+	    delete tmplist_.remove( idx );
+	fillMarkerList(0);
+	return;
+    }
+}
+
+
+void uiDispEditMarkerDlg::listRClickCB( CallBacker* )
+{
+    uiPopupMenu mnu( this, "Action" );
+
+    const bool nomrkr = mrklist_->isEmpty();
+
+    mnu.insertItem( new uiMenuItem("Add &New ..."), 0 );
+    if ( !nomrkr )
+    {
+	mnu.insertItem( new uiMenuItem("&Edit ..."), 1 );
+	mnu.insertItem( new uiMenuItem("Remove ..."), 2 );
+    }
+    const int mnuid = mnu.exec();
+    if ( mnuid < 0 ) 
+	return;
+    else if ( mnuid == 0 )
+    {
+	addNewMrkrList();
+    }
+    else if ( mnuid == 1 )
+    {
+	editMrkrList();
+    }
+    else if ( mnuid ==2 )
+    {
+	removeMrkrList();
+    }
+}
+
+
+void uiDispEditMarkerDlg::fillMarkerList( CallBacker* )
+{}
+
+
+Well::Marker* uiDispEditMarkerDlg::getMarkerFromTmpList( const char* mrknm )
+{
+    for ( int idx=0; idx<tmplist_.size(); idx++ )
+    {
+	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
+	    return tmplist_[idx];
+    }
+    return 0;
+}
+
+
+
+
+
+
+uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
+    : uiDispEditMarkerDlg(p)
+    , curctrl_(0)
+    , curwd_(0)	 
+{}
+
+
+void uiWellDispEditMarkerDlg::editDlgClosedCB( CallBacker* )
+{
+    for ( int idx=0; idx<ctrls_.size(); idx++ )
+	activateSensors( *ctrls_[idx], *wds_[idx], false );
 }
 
 
@@ -315,71 +483,12 @@ bool uiWellDispEditMarkerDlg::rejectOK( CallBacker* )
 }
 
 
-void uiWellDispEditMarkerDlg::buttonPushedCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiToolButton*,tb,cb);
-    if ( tb == addbut_ )
-	addNewMrkrList();
-    else if ( tb == editbut_ )
-	editMrkrList();
-    else if ( tb == rembut_ ) 
-	removeMrkrList();
-}
-
-
-void uiWellDispEditMarkerDlg::addNewMrkrList()
-{
-    Well::Marker* mrk = new Well::Marker( "Name", 0 ); 
-    mrk->setColor( getRandStdDrawColor() );
-    uiAddEditMrkrDlg dlg( this, *mrk, false );
-    if ( dlg.go() )
-    {
-	tmplist_ += mrk;
-	fillMarkerList(0);
-	if ( mrklist_->isPresent( mrk->name() ) )
-	    mrklist_->setCurrentItem( mrk->name() );
-    }
-    else
-	delete mrk;
-}
-
-
 void uiWellDispEditMarkerDlg::editMrkrList()
 {
-    const int selidx = mrklist_->currentItem();
-    if ( selidx < 0 ) 
-	return;
+    uiDispEditMarkerDlg::editMrkrList();
 
-    BufferString mrknm = mrklist_->getText();
-    ObjectSet<Well::Marker> mrks;
-    getMarkerFromAll( mrks, mrknm );
-    if ( mrks.isEmpty() )
-	mErrRet( "No marker found", return );
-
-    Well::Marker* mrk = new Well::Marker( *mrks[0] ); 
-    uiAddEditMrkrDlg dlg( this, *mrk, true );
-    if ( !dlg.go() )
-	return;
-
-    mrks.erase();
-    getMarkerFromAll( mrks, mrknm );
-    if ( mrks.isEmpty() )
-	{ delete mrk; return; }
-
-    for ( int idx=0; idx<mrks.size(); idx++ )
-    {
-	Well::Marker* edmrk = mrks[idx];
-	edmrk->setName( mrk->name() );
-	edmrk->setColor( mrk->color() );
-	edmrk->setLevelID( mrk->levelID() );
-    }
     for ( int idx=0; idx<wds_.size(); idx ++ )
 	wds_[idx]->markerschanged.trigger();
-
-    mrklist_->setCurrentItem( mrk->name() );
-    hasedited_ = true; 
-
-    delete mrk;
 }
 
 
@@ -400,14 +509,8 @@ void uiWellDispEditMarkerDlg::getMarkerFromAll( ObjectSet<Well::Marker>& mrks,
 
 void uiWellDispEditMarkerDlg::removeMrkrList()
 {
+    uiDispEditMarkerDlg::removeMrkrList();
     BufferString mrknm = mrklist_->getText();
-    for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
-    {
-	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
-	    delete tmplist_.remove( idx );
-	fillMarkerList(0);
-	return;
-    }
     BufferString msg = "This will remove "; 
 		 msg += mrknm; 
 		 msg += " from all the wells \n ";
@@ -429,36 +532,6 @@ void uiWellDispEditMarkerDlg::removeMrkrList()
 }
 
 
-void uiWellDispEditMarkerDlg::listRClickCB( CallBacker* )
-{
-    uiPopupMenu mnu( this, "Action" );
-
-    const bool nomrkr = mrklist_->isEmpty();
-
-    mnu.insertItem( new uiMenuItem("Add &New ..."), 0 );
-    if ( !nomrkr )
-    {
-	mnu.insertItem( new uiMenuItem("&Edit ..."), 1 );
-	mnu.insertItem( new uiMenuItem("Remove ..."), 2 );
-    }
-    const int mnuid = mnu.exec();
-    if ( mnuid < 0 ) 
-	return;
-    else if ( mnuid == 0 )
-    {
-	addNewMrkrList();
-    }
-    else if ( mnuid == 1 )
-    {
-	editMrkrList();
-    }
-    else if ( mnuid ==2 )
-    {
-	removeMrkrList();
-    }
-}
-
-
 void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 {
     const char* selnm = mrklist_->nrSelected() ? mrklist_->getText() : 0;
@@ -467,11 +540,11 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
     BufferStringSet mrknms; TypeSet<Color> mrkcols; TypeSet<float> dahs;
 
 #define mAddMrkToList(mrk)\
-    if ( mrknms.addIfNew( mrk.name() ) )\
-    {\
-	mrkcols += mrk.color();\
-	dahs += mrk.dah();\
-    }
+if ( mrknms.addIfNew( mrk.name() ) )\
+{\
+    mrkcols += mrk.color();\
+    dahs += mrk.dah();\
+}
 
     for ( int idwd=0; idwd<wds_.size(); idwd++ )
     {
@@ -494,7 +567,7 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 
     for ( int idx=0; idx<mrknms.size(); idx++ )
     {
-	mrklist_->addItem( mrknms.get( idxs[idx] ), mrkcols[idxs[idx]] );
+	    mrklist_->addItem( mrknms.get( idxs[idx] ), mrkcols[idxs[idx]] );
 	colors_ += mrkcols[idxs[idx]]; 
     }
 
@@ -508,17 +581,7 @@ void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
     {
 	const int selidx = mrklist_->indexOf( selnm );
 	if ( selidx < mrklist_->size() && selidx >= 0 )
-	    mrklist_->setCurrentItem( selidx );
+	mrklist_->setCurrentItem( selidx );
     }
 }
 
-
-Well::Marker* uiWellDispEditMarkerDlg::getMarkerFromTmpList( const char* mrknm )
-{
-    for ( int idx=0; idx<tmplist_.size(); idx++ )
-    {
-	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
-	    return tmplist_[idx];
-    }
-    return 0;
-}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.10 2012-04-25 12:58:39 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.11 2012-08-01 16:49:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,32 +49,20 @@ protected :
 
 
 
-mClass uiWellDispEditMarkerDlg : public uiDialog
+mClass uiDispEditMarkerDlg : public uiDialog
 {
 public:
-				uiWellDispEditMarkerDlg(uiParent*);
-				~uiWellDispEditMarkerDlg();
-
-    void 			addWellCtrl(uiWellDisplayControl&,Well::Data&);
+				uiDispEditMarkerDlg(uiParent*);
+				~uiDispEditMarkerDlg();
 
     bool 			isPicking() const 	{ return ispicking_; }
     bool 			needSave() const 	{ return needsave_; }
 
-    Notifier<uiWellDispEditMarkerDlg> pickmodechanged;
+    Notifier<uiDispEditMarkerDlg> pickmodechanged;
 
 protected:
 
-    ObjectSet<uiWellDisplayControl> ctrls_;
-    ObjectSet<Well::Data> 	wds_;
-
-    uiWellDispEditMarkerDlg*	editdlg_;
-
-    uiWellDisplayControl*	curctrl_;
-    Well::Data*			curwd_;
     Well::Marker*		curmrk_;
-
-    float			time_;
-    float			dah_;
 
     uiToolButton*		pickbut_;
     uiToolButton*		rembut_;
@@ -95,7 +83,45 @@ protected:
     bool 			ismarkerhit_;
     bool 			ispressed_;
     
-    void			addNewMrkrList();
+    virtual void		addNewMrkrList();
+    virtual void		editMrkrList();
+    virtual void		removeMrkrList();
+
+    virtual void		addMoveMarker();
+    virtual void		removeMarker();
+
+    virtual void		getMarkerFromAll(ObjectSet<Well::Marker>&,
+	    					const char* nm); 
+    virtual Well::Marker*	getMarkerFromTmpList(const char* nm); 
+
+
+    virtual bool		acceptOK(CallBacker*);
+    void			buttonPushedCB(CallBacker*);
+    virtual void		editDlgClosedCB(CallBacker*);
+    virtual void		fillMarkerList(CallBacker*);
+    virtual void		handleUsrClickCB(CallBacker*);
+    virtual void		modeChg(CallBacker*);
+    virtual void		listRClickCB(CallBacker*);
+    virtual bool		rejectOK(CallBacker*);
+};
+
+
+
+mClass uiWellDispEditMarkerDlg : public uiDispEditMarkerDlg
+{
+public:
+				uiWellDispEditMarkerDlg(uiParent*);
+
+    void 			addWellCtrl(uiWellDisplayControl&,Well::Data&);
+
+protected:
+
+    ObjectSet<uiWellDisplayControl> ctrls_;
+    ObjectSet<Well::Data> 	wds_;
+
+    uiWellDisplayControl*	curctrl_;
+    Well::Data*			curwd_;
+
     void			editMrkrList();
     void			removeMrkrList();
 
@@ -104,23 +130,19 @@ protected:
 
     void			getMarkerFromAll(ObjectSet<Well::Marker>&,
 	    					const char* nm); 
-    Well::Marker*		getMarkerFromTmpList(const char* nm); 
 
     void 			activateSensors(bool yn);
     void 			activateSensors(uiWellDisplayControl&,
 						    Well::Data&,bool);
 
     bool			acceptOK(CallBacker*);
-    void			buttonPushedCB(CallBacker*);
     void			editDlgClosedCB(CallBacker*);
-    void                        editMarkerCB(CallBacker*);
     void			fillMarkerList(CallBacker*);
     void			handleUsrClickCB(CallBacker*);
     void			handleCtrlChangeCB(CallBacker*);
-    void			modeChg(CallBacker*);
-    void			listRClickCB(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			posChgCB(CallBacker*);
 };
+
 
 #endif
