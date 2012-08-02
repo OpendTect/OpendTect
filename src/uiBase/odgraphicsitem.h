@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.16 2012-04-06 12:17:38 cvskris Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.17 2012-08-02 14:59:53 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,28 +108,18 @@ protected:
 };
 
 
-class ODGraphicsTextItem : public QGraphicsTextItem
+class ODViewerTextItem : public QGraphicsTextItem
 {
 public:
-    				ODGraphicsTextItem();
-
-    QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
-    void 			setTextAlignment(Alignment);
-    void			setText(const char*);
-
-protected:
-    QRectF			boundingrect_;
-    QString			text_;
-    QTextOption			alignoption_;
 };
 
 
 class ODGraphicsPolyLineItem : public QAbstractGraphicsShapeItem
 {
 public:
-				ODGraphicsPolyLineItem();
+    ODGraphicsPolyLineItem();
 
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,

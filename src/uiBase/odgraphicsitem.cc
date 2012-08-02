@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odgraphicsitem.cc,v 1.29 2012-07-10 08:05:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: odgraphicsitem.cc,v 1.30 2012-08-02 14:59:53 cvsbruno Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -318,46 +318,25 @@ QPoint ODGraphicsArrowItem::getEndPoint( const QPoint& pt, double angle,
 }
 
 
-ODGraphicsTextItem::ODGraphicsTextItem()
-    : QGraphicsTextItem()
+void ODViewerTextItem::paint( QPainter* painter,
+			      const QStyleOptionGraphicsItem *option,
+			      QWidget *widget )
 {
+    const QTransform worldtrans = painter->worldTransform();
+    const QRect viewport = painter->viewport(); 
+    const QRectF projectedwr = worldtrans.inverted().mapRect( viewport );
+
+    painter->save();
+    painter->resetTransform();
+
+    if ( option )
+	painter->setClipRect( option->exposedRect );
+
+    painter->drawText( projectedwr, toPlainText() );
+
+    painter->restore();
 }
 
-
-void ODGraphicsTextItem::setTextAlignment( Alignment alignment )
-{
-    alignoption_.setAlignment( (Qt::Alignment)alignment.uiValue() );
-}
-
-
-void ODGraphicsTextItem::setText( const char* txt )
-{ text_ = txt; }
-
-
-QRectF ODGraphicsTextItem::boundingRect() const
-{
-    const uiFont& uifnt = FontList().get(
-				FontData::key(FontData::GraphicsSmall ) );
-    QFontMetrics fm( uifnt.qFont() );
-    QRectF rectf( fm.boundingRect( text_ ) );
-    return rectf;
-}
-
-
-void ODGraphicsTextItem::paint( QPainter* painter,
-				 const QStyleOptionGraphicsItem *option,
-				 QWidget *widget )
-{
-    painter->setClipRect( option->exposedRect );
-    painter->drawText( boundingRect(), text_, alignoption_ );
-
-    if (option->state & QStyle::State_Selected)
-    {
-	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-	painter->setBrush(Qt::NoBrush);
-	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
-    }
-}
 
 
 
