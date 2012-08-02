@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.123 2012-07-26 02:35:42 cvsdgb Exp $";
+static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.124 2012-08-02 14:49:14 cvskris Exp $";
 
 #include "genc.h"
 #include "string2_c.h"
@@ -158,7 +158,7 @@ int isProcessAlive( int pid )
 }
 
 
-int ExitProgram( int ret )
+void ExitProgram( int ret )
 {
     if ( od_debug_isOn(DBG_PROGSTART) )
     {
@@ -175,34 +175,12 @@ int ExitProgram( int ret )
 // _Exit does not call registered exit functions and prevents crash
 #ifdef __mac__
     _Exit(0);
-    return 0;
 #endif
 
 #ifdef __msvc__
     exit( EXIT_SUCCESS );
-    return 0;
 #else
-
-#ifdef __win__
-
-
-    // open process
-    HANDLE hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, GetPID() );
-    if ( isBadHandle( hProcess ) )
-	printf( "OpenProcess() failed, err = %lu\n", GetLastError() );
-    else
-    {
-	// kill process
-	if ( ! TerminateProcess( hProcess, (DWORD) -1 ) )
-	    printf( "TerminateProcess() failed, err = %lu\n", GetLastError() );
-
-	// close handle
-	CloseHandle( hProcess );
-    }
-#endif
-
     exit(ret);
-    return ret;
 #endif
 }
 

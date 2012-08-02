@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.44 2012-07-26 02:16:47 cvskris Exp $
+ RCS:		$Id: genc.h,v 1.45 2012-08-02 14:49:14 cvskris Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
@@ -43,7 +43,7 @@ mGlobal const char* GetLocalIP(void);
 mGlobal int isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */
 
-mGlobal int ExitProgram( int ret );
+mGlobal void ExitProgram( int ret );
 		/*!< Win32: kills progam itself and ignores ret.
 		     Unix: uses exit(ret).
 		     Return value is convenience only, so you can use like:
