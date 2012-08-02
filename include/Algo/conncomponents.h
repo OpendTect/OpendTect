@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: conncomponents.h,v 1.1 2012-07-20 20:05:01 cvsyuancheng Exp $
+ RCS:           $Id: conncomponents.h,v 1.2 2012-08-02 14:48:12 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 
 template <class T> class Array2D;
+template <class T> class Array3D;
 template <class T> class TypeSet;
 
 class TaskRunner;
@@ -52,6 +53,28 @@ protected:
     TypeSet<int>		sortedindex_;
 };
 
+
+mClass ConnComponents3D
+{
+public:    
+
+    				ConnComponents3D(const Array3D<bool>&,bool hc);
+				~ConnComponents3D()	{}
+
+    void			compute(TaskRunner* tr=0); 
+
+    int				nrComponents() const; 
+    const TypeSet<int>*		getComponent(int compidx);
+
+protected:
+
+    void			classifyMarks(Array3D<int>& mark);
+    void			setMark(Array3D<int>& r,int source,int newval);
+    const Array3D<bool>&	input_;
+    TypeSet< TypeSet<int> >	components_;
+    TypeSet<int>		sortedindex_;
+    bool			highconn_;
+};
 
 
 #endif

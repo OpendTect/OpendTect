@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: conncomponents.cc,v 1.3 2012-07-26 21:45:47 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: conncomponents.cc,v 1.4 2012-08-02 14:48:12 cvsyuancheng Exp $";
 
 #include "conncomponents.h"
 
@@ -317,5 +317,152 @@ float ConnComponents::overLapRate( int componentidx )
     const float xrate = 1 - ((float)idxs.size())/((float)csz);
     const float yrate = 1 - ((float)idys.size())/((float)csz);
     return mMIN(xrate,yrate);
+}
+
+
+ConnComponents3D::ConnComponents3D( const Array3D<bool>& input, bool hc ) 
+    : input_(input)
+    , highconn_(hc)  
+{}
+
+
+int ConnComponents3D::nrComponents() const
+{ return components_.size(); }
+
+
+const TypeSet<int>* ConnComponents3D::getComponent( int compidx )
+{
+    if ( compidx<0 || compidx>=nrComponents() )
+	return 0;
+
+    return &components_[compidx];
+}
+
+
+void ConnComponents3D::compute( TaskRunner* tr )
+{
+    mDeclareAndTryAlloc( Array3DImpl<int>*, mark, 
+	    Array3DImpl<int>(input_.info()) );
+    if ( !mark ) return;
+    
+    mark->setAll(0);
+    classifyMarks( *mark );
+
+    const int sz = input_.info().getTotalSz();
+    int* markers = mark->getData();
+    components_.erase();
+    TypeSet<int> labels;
+    
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const int curidx = labels.indexOf(markers[idx]);
+	if ( curidx==-1 )
+	{
+	    labels += markers[idx];
+	     
+	    TypeSet<int> ids;
+	    ids += idx;
+	    components_ += ids;
+	}
+	else
+	{
+	    components_[curidx] += idx;
+	}
+    }
+    
+    const int nrcomps = labels.size(); 
+    TypeSet<int> nrnodes;
+    sortedindex_.erase();
+    for ( int idx=0; idx<nrcomps; idx++ )
+    {
+	nrnodes += components_[idx].size();
+	sortedindex_ += idx;
+    }
+
+    sort_coupled( nrnodes.arr(), sortedindex_.arr(), nrcomps );
+}
+
+
+void ConnComponents3D::classifyMarks( Array3D<int>& mark )
+{
+    //TODO 
+    /*
+    const bool is3d = true;
+    unsigned int dx[26], dy[26], dz[26], nb = 0;
+    
+    for ( int i=0; i<=1; i++ )
+    {
+	for ( int j=0; j<=1; j++ )
+	{
+	    const int kb = is3d ? 1 : 0;
+	    for ( int k=0;  k<=kb; k++ )
+	    {
+		const int isnb = i+j+k;
+		if ( isnb && ( highconn_ || isnb==1) ) 
+		{ 
+		    dx[nb] = i; dy[nb] = j; dz[nb] = k; nb++; 
+		}
+	    }
+	}
+    }
+
+
+    // Init label numbers.
+    
+    int *ptr = mark.getData();
+    cimg_foroff(_res,p) *(ptr++) = p;
+
+    const int width = mark.info().getSize(0);
+    const int height = mark.info().getSize(1);
+    const int depth = mark.info().getSize(2);
+    
+    // For each neighbour-direction, label.
+    for ( int n=0; n<nb; n++ ) 
+    {
+	const int dx = dx[n], dy = dy[n], dz = dz[n];
+	if ( dx || dy || dz ) 
+	{
+	    const int x1 = width-dx, y1 = height-dy, z1 = depth-dz, 
+		  wh = width*height;
+	    const int offset = dz*wh + dy*width + dx;
+	    for ( int z=0, nz=dz, pz=0; z<z1;  ++z, ++nz, pz+=wh ) 
+	    {
+		for ( int y=0, ny= dy, py=pz; y<y1; ++y, ++ny, py+=_width ) 
+		{
+		    for ( int x=0, nx=dx, p=py; x<x1;  ++x, ++nx, ++p ) 
+		    {
+			if ( (*this)(x,y,z,0,wh)==(*this)(nx,ny,nz,0,wh)) 
+			{
+			    const unsigned long q = p + offset;
+			    unsigned long x, y;
+			    for (x = p<q?q:p, y = p<q?p:q; 
+				    x!=y && _res[x]!=x; ) 
+			    { x = _res[x]; if (x<y) cimg::swap(x,y); }
+			    if (x!=y) _res[x] = y;
+			    for (unsigned long _p = p; _p!=y; ) 
+			    { const unsigned long h = _res[_p]; 
+				_res[_p] = y; _p = h; 
+			    }
+			    for (unsigned long _q = q; _q!=y; ) 
+			    { 
+				const unsigned long h = _res[_q]; 
+				_res[_q] = y; _q = h; 
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+
+    // Remove equivalences.
+    
+    
+    unsigned long counter = 0;
+    ptr = _res.data();
+    cimg_foroff(_res,p) 
+    { 
+	*ptr = *ptr==p?counter++:_res[*ptr]; ++ptr; 
+    }*/
 }
 
