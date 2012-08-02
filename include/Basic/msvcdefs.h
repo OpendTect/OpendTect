@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.14 2012-08-01 15:16:54 cvskris Exp $
+ RCS:		$Id: msvcdefs.h,v 1.15 2012-08-02 10:06:58 cvsranojay Exp $
 ________________________________________________________________________
 
  For use with Microsoft Visual C++ 8.0 and 9.0
@@ -54,37 +54,37 @@ ________________________________________________________________________
 # define mDynamicCastGet(typ,out,in) \
 	 typ mDynamicCast(typ,out,in)
 
-#pragma warning( disable : 4355 4003 )
-
-#pragma warning(2:4032)     // function arg has different type from declaration
-#pragma warning(2:4092)     // 'sizeof' value too big
-#pragma warning(2:4132 4268)// const object not initialized
-#pragma warning(2:4152)     // pointer conversion between function and data
-#pragma warning(2:4239)     // standard doesn't allow this conversion
-#pragma warning(2:4701)     // local variable used without being initialized
-//#pragma warning(2:4706)     // if (a=b) instead of (if a==b)
-#pragma warning(2:4709)     // comma in array subscript
-//#pragma warning(3:4061)     // not all enum values tested in switch statement
-//#pragma warning(3:4710)     // inline function was not inlined
-//#pragma warning(3:4121)     // space added for structure alignment
-#pragma warning(3:4505)     // unreferenced local function removed
-#pragma warning(3:4019)     // empty statement at global scope
-#pragma warning(3:4057)     // pointers refer to different base types
-#pragma warning(3:4125)     // decimal digit terminates octal escape
-#pragma warning(2:4131)     // old-style function declarator
-#pragma warning(3:4211)     // extern redefined as static
-#pragma warning(3:4213)     // cast on left side of = is non-standard
-#pragma warning(3:4222)     // member function at file scope shouldn't be static
-#pragma warning(3:4234 4235)// keyword not supported or reserved for future
-#pragma warning(3:4504)     // type ambiguous; simplify code
-#pragma warning(3:4507)     // explicit linkage specified after default linkage
-#pragma warning(3:4515)     // namespace uses itself
-#pragma warning(3:4516 4517)// access declarations are deprecated
-#pragma warning(3:4670)     // base class of thrown object is inaccessible
-#pragma warning(3:4671)     // copy ctor of thrown object is inaccessible
-#pragma warning(3:4673)     // thrown object cannot be handled in catch block
-#pragma warning(3:4674)     // dtor of thrown object is inaccessible
-#pragma warning(3:4705)     // statement has no effect (example: a+1;)
+//#pragma warning( disable : 4355 4003 )
+//
+//#pragma warning(2:4032)     // function arg has different type from declaration
+//#pragma warning(2:4092)     // 'sizeof' value too big
+//#pragma warning(2:4132 4268)// const object not initialized
+//#pragma warning(2:4152)     // pointer conversion between function and data
+//#pragma warning(2:4239)     // standard doesn't allow this conversion
+//#pragma warning(2:4701)     // local variable used without being initialized
+////#pragma warning(2:4706)     // if (a=b) instead of (if a==b)
+//#pragma warning(2:4709)     // comma in array subscript
+////#pragma warning(3:4061)     // not all enum values tested in switch statement
+////#pragma warning(3:4710)     // inline function was not inlined
+////#pragma warning(3:4121)     // space added for structure alignment
+//#pragma warning(3:4505)     // unreferenced local function removed
+//#pragma warning(3:4019)     // empty statement at global scope
+//#pragma warning(3:4057)     // pointers refer to different base types
+//#pragma warning(3:4125)     // decimal digit terminates octal escape
+//#pragma warning(2:4131)     // old-style function declarator
+//#pragma warning(3:4211)     // extern redefined as static
+//#pragma warning(3:4213)     // cast on left side of = is non-standard
+//#pragma warning(3:4222)     // member function at file scope shouldn't be static
+//#pragma warning(3:4234 4235)// keyword not supported or reserved for future
+//#pragma warning(3:4504)     // type ambiguous; simplify code
+//#pragma warning(3:4507)     // explicit linkage specified after default linkage
+//#pragma warning(3:4515)     // namespace uses itself
+//#pragma warning(3:4516 4517)// access declarations are deprecated
+//#pragma warning(3:4670)     // base class of thrown object is inaccessible
+//#pragma warning(3:4671)     // copy ctor of thrown object is inaccessible
+//#pragma warning(3:4673)     // thrown object cannot be handled in catch block
+//#pragma warning(3:4674)     // dtor of thrown object is inaccessible
+//#pragma warning(3:4705)     // statement has no effect (example: a+1;)
 
 
 #endif
