@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: delaunay.cc,v 1.54 2012-05-03 04:47:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: delaunay.cc,v 1.55 2012-08-02 14:56:05 cvskris Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -603,10 +603,15 @@ int DAGTriangleTree::getNeighbor( int v0, int v1, int ti ) const
     
     if ( (id0==0 && id1==1) || (id0==1 && id1==0) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[0] );
-    if ( (id0==0 && id1==2) || (id0==2 && id1==0) )
+    else if ( (id0==0 && id1==2) || (id0==2 && id1==0) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[2] );
     else if ( (id0==1 && id1==2) || (id0==2 && id1==1) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[1] );
+    else
+    {
+	pErrMsg("Should never happen");
+	return mUdf(int);
+    }
 
     return res;
 }
