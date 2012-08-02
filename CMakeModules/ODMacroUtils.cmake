@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.64 2012-07-26 09:34:57 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.65 2012-08-02 04:19:05 cvsranojay Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -73,6 +73,11 @@ IF( OD_MODULE_DEPS )
     OD_GET_ALL_DEPS( ${OD_MODULE_NAME} OD_MODULE_INTERNAL_LIBS )
     FOREACH( DEP ${OD_MODULE_INTERNAL_LIBS} )
 	#Add dependencies to include-path
+	IF( WIN32 )
+	    IF ( ${DEP} MATCHES dGBCommon )
+		SET( OD_MODULE_LINK_OPTIONS /NODEFAULTLIB:\"libcmt.lib\" )
+	    ENDIF()
+	ENDIF()
 	LIST(APPEND OD_MODULE_INCLUDEPATH ${OD_${DEP}_INCLUDEPATH} )
 	LIST(APPEND OD_MODULE_RUNTIMEPATH ${OD_${DEP}_RUNTIMEPATH} )
     ENDFOREACH()
