@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.40 2012-05-25 12:38:26 cvsbert Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.41 2012-08-02 09:20:43 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -126,6 +126,8 @@ public:
 
     static const char*	sMsgParseError();
     static const char*	sMsgReadError();
+    static const char*	sKeyUndefLineSet();
+    static const char*	sKeyUndefLine();
 
 protected:
 

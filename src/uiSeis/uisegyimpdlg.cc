@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyimpdlg.cc,v 1.34 2012-05-30 07:31:20 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyimpdlg.cc,v 1.35 2012-08-02 09:20:43 cvssatyaki Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -290,18 +290,21 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 
     if ( is2d )
     {
-	Seis2DLineSet s2dls( outioobj );
-	BufferStringSet lines;
-	s2dls.getLineNamesWithAttrib( lines, attrnm );
-	if ( lines.isPresent(linenm) )
+	SeisIOObjInfo seisinfo( outioobj );
+	SeisIOObjInfo::Opts2D option;
+	option.steerpol_ = 0;
+	BufferStringSet attrnms;
+	seisinfo.getAttribNamesForLine( linenm, attrnms );
+	if ( attrnms.size()==1 )
 	{
-	    BufferString msg( linenm );
-	    msg += " is already present. Do you want to overwrite?";
-	    if ( !uiMSG().askGoOn(msg) )
-		return false;
-	    
-	    S2DPOS().setCurLineSet( outioobj.name() );
-	    PosInfo::POS2DAdmin().removeLine( linenm );
+	    BufferString msg(
+		    "Geometry of Line '", linenm,
+		    "' is already present. Do you want to overwrite?" ); 
+	    if ( uiMSG().askGoOn(msg) )
+	    {
+		S2DPOS().setCurLineSet( outioobj.name() );
+		PosInfo::POS2DAdmin().removeLine( linenm );
+	    }
 	}
     }
 

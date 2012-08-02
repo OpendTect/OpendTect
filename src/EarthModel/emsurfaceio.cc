@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.155 2012-07-04 05:14:20 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.156 2012-08-02 09:20:43 cvssatyaki Exp $";
 
 #include "emsurfaceio.h"
 
@@ -67,6 +67,8 @@ const char* dgbSurfaceReader::sKeyTransformY() 	{ return "Y transform"; }
 const char* dgbSurfaceReader::sMsgParseError()  { return "Cannot parse file"; }
 const char* dgbSurfaceReader::sMsgReadError()
 { return "Unexpected end of file"; }
+const char* dgbSurfaceReader::sKeyUndefLineSet() {return "Undfined line set"; }
+const char* dgbSurfaceReader::sKeyUndefLine()	{ return "Undfined line name"; }
 
 BufferString dgbSurfaceReader::sSectionIDKey( int idx )
 { BufferString res = "Patch "; res += idx; return res;  }
@@ -245,12 +247,15 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    lineidkey.add( Horizon2DGeometry::sKeyID() );
 	    BufferString geomidstr;
 	    if ( !par_->get(lineidkey.buf(),geomidstr) ||
-		 !geomid.fromString(geomidstr) )
+		 !geomid.fromString(geomidstr) || !geomid.isOK() )
 		continue;
 
 	    S2DPOS().setCurLineSet( geomid.lsid_ );
-	    linesets_.add( S2DPOS().getLineSet(geomid.lsid_) );
-	    linenames_.add( S2DPOS().getLineName(geomid.lineid_) );
+	    linesets_.add(
+		    S2DPOS().hasLineSet(geomid.lsid_)
+		    ? S2DPOS().getLineSet(geomid.lsid_) : sKeyUndefLineSet() );
+	    linenames_.add(S2DPOS().hasLine(geomid.lineid_,geomid.lsid_)
+		    ? S2DPOS().getLineName(geomid.lineid_) : sKeyUndefLine() );
 	    
 	    SeparString linetrcrgkey( linekey.buf(), '.' );
 	    linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
@@ -823,7 +828,9 @@ int dgbSurfaceReader::nextStep()
 
     if ( hor2d )
     {
-	if ( !linesets_.validIdx(rowindex_) || !linenames_.validIdx(rowindex_) )
+	if ( (!linesets_.validIdx(rowindex_) || !linenames_.validIdx(rowindex_))
+	  || (linesets_.get(rowindex_)==sKeyUndefLineSet() ||
+	      linenames_.get(rowindex_)==sKeyUndefLine()) )
 	    return ErrorOccurred();
 
 	if ( !hor2d->sectionGeometry(sectionid) )
