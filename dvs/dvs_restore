@@ -1,0 +1,29 @@
+#!/bin/csh -f
+# Revives file from Attic
+# $Id: dvs_restore,v 1.1 2012-08-02 09:13:03 cvsbert Exp $
+
+if ( ! $?DGB_CVS_DIR ) then
+    echo "Please source $WORK/dvs/set_dvs_env.csh"
+    exit 1
+endif
+
+set endofline='$'
+
+foreach fil ( $* )
+
+    set revfrom=`cvs log $fil | grep 'head:' | awk '{print $2}'`
+    set lastnr=`echo $revfrom|sed 's/\./ /g'|awk '{print $NF}'`
+    @ targetnr = $lastnr - 1
+    set revto=`echo ${revfrom}|sed "s/${lastnr}${endofline}/${targetnr}/"`
+
+    echo ""
+    echo "About to issue command:"
+    echo "cvs update -j $revfrom -j $revto file1"
+    echo -n "OK? "; set inp=$<
+    if ( "$inp" == "y" || "$inp" == "Y" ) then
+	cvs update -j $revfrom -j $revto file1
+    else
+	echo "$fil not restored"
+    endif
+
+end

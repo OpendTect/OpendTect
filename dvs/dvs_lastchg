@@ -7,10 +7,10 @@ endif
 
 set fil=$1
 
-set rel=`dvs status $1 | grep 'Working revision:' | awk '{ print $3 }'`
-set majrelnr=`echo $rel | sed 's/\..*$//'`
-set minrelnr=`echo $rel | sed 's/.\.//'`
-@ minrelnr = $minrelnr - 1
-set prevrel=$majrelnr.$minrelnr
+set currev=`cvs log $fil | grep 'head:' | awk '{print $2}'`
+set lastnr=`echo $currev|sed 's/\./ /g'|awk '{print $NF}'`
+@ targetnr = $lastnr - 1
+set endofline='$'
+set prevrev=`echo ${currev}|sed "s/${lastnr}${endofline}/${targetnr}/"`
 
-dvs diff -r$prevrel $fil
+dvs diff -r$prevrev $fil
