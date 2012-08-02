@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.63 2012-08-01 11:48:17 cvsranojay Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.64 2012-08-02 10:07:44 cvsranojay Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -89,16 +89,24 @@ IF(WIN32)
     ADD_DEFINITIONS("/Ob1 /vmg /Zc:wchar_t-")
     set (EXTRA_LIBS "ws2_32" "shlwapi")
     ADD_DEFINITIONS(  "\"-DmUnusedVar=\"")
-    ADD_DEFINITIONS( /W3 )
-    ADD_DEFINITIONS( /wd4701 )
-    ADD_DEFINITIONS( /wd4800 )
-    ADD_DEFINITIONS( /wd4251 )
-    ADD_DEFINITIONS( /wd4244 )
-    ADD_DEFINITIONS( /wd4996 )
-    ADD_DEFINITIONS( /wd4267 )
-    ADD_DEFINITIONS( /wd4101 )
-    ADD_DEFINITIONS( /wd4305 )
-   
+    ADD_DEFINITIONS( /W4 )
+    
+    ADD_DEFINITIONS( /wd4355 ) # (4,4355) The this pointer is valid only within nonstatic member functions.
+    ADD_DEFINITIONS( /wd4003 ) # (1,4003 ) not enough actual parameters for macro 'identifier' //may be enable this one
+    ADD_DEFINITIONS( /wd4100 ) # (4,4100) unreferenced formal parameter
+    ADD_DEFINITIONS( /wd4701 ) # (4,4701) local variable used without being initialized
+    ADD_DEFINITIONS( /wd4800 ) # (3,4800) forcing value to bool 'true' or 'false' (performance warning)
+    ADD_DEFINITIONS( /wd4251 ) # (1,4251) 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'  __declspec(dllexport) 
+    ADD_DEFINITIONS( /wd4244 ) # (3 and 4, 4244) conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
+    ADD_DEFINITIONS( /wd4996 ) # (1,499) function': was declared deprecated
+    ADD_DEFINITIONS( /wd4267 ) # (3,4267) When compiling with /Wp64, or when compiling on a 64-bit operating system, type is 32 bits but size_t is 64 bits when compiling for 64-bit targets. 
+    ADD_DEFINITIONS( /wd4101 ) # (3,4101) The local variable is never used (disable only for Windows)
+    ADD_DEFINITIONS( /wd4305 ) # (1,4305) truncation from dowble to float
+    ADD_DEFINITIONS( /wd4512 ) # (4,4512) class' : assignment operator could not be generated (not important)
+    ADD_DEFINITIONS( /wd4702 ) # (4,4702) unreachble code
+    ADD_DEFINITIONS( /wd4127 ) # (4,4127) conditional expression is constant 
+    ADD_DEFINITIONS( /wd4189 ) # (4,4189) local variable is initialized but not referenced
+
     set (OD_STATIC_EXTENSION ".lib")
     set (OD_EXECUTABLE_EXTENSION ".exe" )
     IF ( OD_64BIT )
