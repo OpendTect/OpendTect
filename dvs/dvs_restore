@@ -1,6 +1,6 @@
 #!/bin/csh -f
 # Revives file from Attic
-# $Id: dvs_restore,v 1.1 2012-08-02 09:13:03 cvsbert Exp $
+# $Id: dvs_restore,v 1.2 2012-08-02 09:15:34 cvsbert Exp $
 
 if ( ! $?DGB_CVS_DIR ) then
     echo "Please source $WORK/dvs/set_dvs_env.csh"
@@ -18,10 +18,10 @@ foreach fil ( $* )
 
     echo ""
     echo "About to issue command:"
-    echo "cvs update -j $revfrom -j $revto file1"
+    echo "cvs update -j $revfrom -j $revto $fil"
     echo -n "OK? "; set inp=$<
     if ( "$inp" == "y" || "$inp" == "Y" ) then
-	cvs update -j $revfrom -j $revto file1
+	cvs update -j $revfrom -j $revto $fil
     else
 	echo "$fil not restored"
     endif
