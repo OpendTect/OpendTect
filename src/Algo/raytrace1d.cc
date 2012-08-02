@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: raytrace1d.cc,v 1.46 2012-07-18 15:00:36 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: raytrace1d.cc,v 1.47 2012-08-02 14:59:01 cvsbruno Exp $";
 
 
 #include "raytrace1d.h"
@@ -338,13 +338,15 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     const int layersize = nrIterations();
 
     TypeSet<float> times, depths;
+    depths += setup().sourcedepth_; 
+    times += 0;
     for ( int idx=0; idx<layersize; idx++ )
     {
 	depths += depths_[idx];
 	times += twt_->get( idx, offsetidx ); 
     }
-    sort_array( times.arr(), layersize );
-    return d2tm.setModel( depths.arr(), times.arr(), layersize ); 
+    sort_array( times.arr(), layersize+1 );
+    return d2tm.setModel( depths.arr(), times.arr(), layersize+1 ); 
 }
 
 
