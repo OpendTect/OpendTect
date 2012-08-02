@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segyhdrdef.cc,v 1.11 2012-08-02 14:52:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: segyhdrdef.cc,v 1.12 2012-08-02 15:42:19 cvsyuancheng Exp $";
 
 
 #include "segythdef.h"
@@ -131,7 +131,7 @@ void SEGY::HdrEntry::putValue( void* buf, int val ) const
 	if ( type_ == UInt )
 	    IbmFormat::putUnsignedShort( (unsigned short)val, ptr );
 	else
-	    IbmFormat::putShort( (short)vafl, ptr );
+	    IbmFormat::putShort( (short)val, ptr );
     }
     else if ( type_ == UInt )
 	IbmFormat::putUnsignedShort( (unsigned short)val, ptr );
