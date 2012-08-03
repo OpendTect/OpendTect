@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.20 2012-06-21 13:46:59 cvsbruno Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.21 2012-08-03 08:36:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
     void                        uisetBackgroundColor(const Color&);
     Color		        uibackgroundColor() const;
     void			setNoBackGround();
-    void			rePaintRect(const uiRect*); 
+    void			rePaint(); 
     void			enableScrollZoom()  { enabscrollzoom_ = true; }
     void			disableScrollZoom() { enabscrollzoom_ = false; }
     bool			scrollZoomEnabled()

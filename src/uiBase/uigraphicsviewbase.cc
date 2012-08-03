@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsviewbase.cc,v 1.40 2012-07-22 05:00:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsviewbase.cc,v 1.41 2012-08-03 08:36:05 cvsbruno Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -290,9 +290,8 @@ MouseEventHandler& uiGraphicsViewBase::getMouseEventHandler()
 KeyboardEventHandler& uiGraphicsViewBase::getKeyboardEventHandler()
 { return body_->keyboardEventHandler(); }
 
-void uiGraphicsViewBase::rePaintRect( const uiRect* rect )
-{ body_->repaint(); }
-
+void uiGraphicsViewBase::rePaint()
+{ body_->viewport()->repaint(); }
 
 void uiGraphicsViewBase::setDragMode( ODDragMode dragmode )
 {
