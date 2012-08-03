@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisioobjinfo.cc,v 1.51 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisioobjinfo.cc,v 1.52 2012-08-03 14:50:45 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -35,6 +35,14 @@ static const char* rcsID mUnusedVar = "$Id: seisioobjinfo.cc,v 1.51 2012-05-22 1
 
 #define mGoToSeisDir() \
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) )
+
+#define mGetLineSet(nm,rv) \
+    if ( !isOK() || !is2D() || isPS() ) return rv; \
+ \
+    PtrMan<Seis2DLineSet> nm \
+	= new Seis2DLineSet( ioobj_->fullUserExpr(true) ); \
+    if ( nm->nrLines() == 0 ) \
+	return rv
 
 
 SeisIOObjInfo::SeisIOObjInfo( const IOObj* ioobj )
@@ -123,7 +131,25 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
 	{ pErrMsg( "No space info for PS" ); return false; }
 
     if ( Seis::is2D(geomtype_) )
-	{ pErrMsg( "TODO: space info for 2D" ); return false; }
+    {
+	mGetLineSet(lset,false);
+	StepInterval<int> trcrg; StepInterval<float> zrg;
+	BufferStringSet seen;
+	spinf.expectednrtrcs = 0;
+	for ( int idx=0; idx<lset->nrLines(); idx++ )
+	{
+	    const char* lnm = lset->lineName( idx );
+	    if ( !seen.isPresent(lnm) )
+	    {
+		seen.add( lnm );
+		lset->getRanges( idx, trcrg, zrg );
+		spinf.expectednrtrcs += trcrg.nrSteps() + 1;
+	    }
+	}
+	spinf.expectednrsamps = zrg.nrSteps() + 1;
+	spinf.maxbytespsamp = 4;
+	return true;
+    }
 
     CubeSampling cs;
     if ( !getRanges(cs) )
@@ -221,6 +247,9 @@ bool SeisIOObjInfo::getRanges( CubeSampling& cs ) const
 bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 {
     mChk(false);
+    if ( is2D() )
+	return 4;
+
     if ( isPS() )
     {
 	pErrMsg("TODO: no BPS for PS");
@@ -279,14 +308,6 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
 }
 
 
-#define mGetLineSet \
-    if ( !isOK() || !is2D() || isPS() ) return; \
- \
-    PtrMan<Seis2DLineSet> lset \
-	= new Seis2DLineSet( ioobj_->fullUserExpr(true) ); \
-    if ( lset->nrLines() == 0 ) \
-	return
-
 #define mGetZDomainGE \
     const GlobExpr zdomge( o2d.zdomky_.isEmpty() ? ZDomain::SI().key() \
 	    					 : o2d.zdomky_.buf() )
@@ -317,7 +338,7 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 	return;
     }
 
-    mGetLineSet;
+    mGetLineSet(lset,);
     mGetZDomainGE;
 
     BufferStringSet rejected;
@@ -351,7 +372,7 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 {
     if ( !nm || !*nm ) return;
 
-    mGetLineSet;
+    mGetLineSet(lset,);
     mGetZDomainGE;
     const BufferString target( nm );
     for ( int idx=0; idx<lset->nrLines(); idx++ )
