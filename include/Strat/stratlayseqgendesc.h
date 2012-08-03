@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratlayseqgendesc.h,v 1.16 2011-08-08 13:59:22 cvsbruno Exp $
+ RCS:		$Id: stratlayseqgendesc.h,v 1.17 2012-08-03 13:00:43 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "stratmod.h"
 #include "objectset.h"
 #include "multiid.h"
 #include "propertyref.h"
@@ -33,7 +34,7 @@ class LayerGenerator;
 
  */
 
-mClass LayerSequenceGenDesc : public ObjectSet<LayerGenerator>
+mClass(Strat) LayerSequenceGenDesc : public ObjectSet<LayerGenerator>
 {
 public:
 			LayerSequenceGenDesc(const RefTree&);
@@ -72,3 +73,4 @@ protected:
 }; // namespace Strat
 
 #endif
+

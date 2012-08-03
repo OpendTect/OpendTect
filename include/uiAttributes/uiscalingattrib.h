@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.h,v 1.15 2011-03-17 11:24:07 cvssatyaki Exp $
+ RCS:           $Id: uiscalingattrib.h,v 1.16 2012-08-03 13:00:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 #include "attribdescid.h"
 
@@ -25,7 +26,7 @@ class uiTable;
 
 /*! \brief Scaling Attribute description editor */
 
-mClass uiScalingAttrib : public uiAttrDescEd
+mClass(uiAttributes) uiScalingAttrib : public uiAttrDescEd
 {
 public:
 
@@ -66,3 +67,4 @@ protected:
 };
 
 #endif
+

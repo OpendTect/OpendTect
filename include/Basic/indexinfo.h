@@ -7,17 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2006
- RCS:		$Id: indexinfo.h,v 1.5 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: indexinfo.h,v 1.6 2012-08-03 13:00:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "samplingdata.h"
 
 
 //! Info on (floating-point) position in an array or StepInterval
 
-mClass IndexInfo
+mClass(Basic) IndexInfo
 {
 public:
 			IndexInfo( int i, bool r=true, bool u=false )
@@ -108,3 +109,4 @@ void IndexInfo::set( const SamplingData<X>& sd, Y y, int nr )
 
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uipicksetman.h,v 1.7 2011-09-16 10:01:23 cvsbert Exp $
+ RCS:           $Id: uipicksetman.h,v 1.8 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uiobjfileman.h"
 
 /*! \brief
@@ -20,7 +21,7 @@ PickSet manager
 
 class uiButton;
 
-mClass uiPickSetMan : public uiObjFileMan
+mClass(uiIo) uiPickSetMan : public uiObjFileMan
 {
 public:
     				uiPickSetMan(uiParent*);
@@ -36,3 +37,4 @@ protected:
 };
 
 #endif
+

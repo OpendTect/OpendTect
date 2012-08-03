@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.30 2012-05-22 14:48:44 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.31 2012-08-03 13:00:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,7 @@ ________________________________________________________________________
   DataPack::ID result = processmanager.getOutput();
 \endcode
 */
+#include "prestackprocessingmod.h"
 #include "bufstringset.h"
 #include "datapack.h"
 #include "factory.h"
@@ -71,7 +72,7 @@ class Gather;
 /*!Processes prestackdata at one cdp location. The algorithm is implemented
    in subclasses, and can be created by the PreStack::PF() factory. */
 
-mClass Processor : public ParallelTask
+mClass(PreStackProcessing) Processor : public ParallelTask
 {
 public:
 				mDefineFactoryInClass( Processor, factory );
@@ -127,7 +128,7 @@ protected:
 /*!Orgainizes a number of PreStack::Processors into a chain which
    can be processed. */
 
-mClass ProcessManager : public CallBacker
+mClass(PreStackProcessing) ProcessManager : public CallBacker
 {
 public:
     				ProcessManager();
@@ -215,3 +216,4 @@ protected:
 
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika S
  Date:          August 2010
- RCS:           $Id: SbImagei32.h,v 1.2 2010-09-03 08:49:33 cvskarthika Exp $
+ RCS:           $Id: SbImagei32.h,v 1.3 2012-08-03 13:00:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "soodmod.h"
 #include <Inventor/SbVec2i32.h>
 #include <Inventor/SbVec3i32.h>
 
@@ -26,7 +27,7 @@ class SbImagei32;
 // This class is a clone of SbImage, which allows images of large size (upto 
 // 2^31 per dimension) to be handled.
 
-mClass SbImagei32
+mClass(SoOD) SbImagei32
 {
 public:
 
@@ -79,4 +80,5 @@ private:
 };
 
 #endif
+
 

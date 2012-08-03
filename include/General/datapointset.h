@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.42 2012-05-08 10:20:27 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.43 2012-08-03 13:00:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "binidvalset.h"
 #include "color.h"
 #include "datapackbase.h"
@@ -41,7 +42,7 @@ namespace Pos { class Filter; class Provider; }
 
 */
 
-mClass DataPointSet : public PointDataPack
+mClass(General) DataPointSet : public PointDataPack
 {
 public:
 
@@ -51,7 +52,7 @@ public:
 
     /*!\brief Real Coord3D-position storable in BinIDValueSet + trc nr */
 
-    mClass Pos
+    mClass(General) Pos
     {
     public:
 			Pos() : offsx_(0), offsy_(0), z_(0), nr_(0)	{}
@@ -95,7 +96,7 @@ public:
     /*!\brief Data point with group. Group 0 means 'inactive',
       	      it can never be selected. */
 
-    mClass DataRow
+    mClass(General) DataRow
     {
     public:
 			DataRow()
@@ -246,3 +247,4 @@ protected:
 };
 
 #endif
+

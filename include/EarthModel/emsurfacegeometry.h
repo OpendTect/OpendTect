@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.28 2011-04-27 06:16:05 cvsraman Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.29 2012-08-03 13:00:20 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "bufstringset.h"
 #include "emposid.h"
 #include "emobject.h"
@@ -37,7 +38,7 @@ class Surface;
 class SurfaceIODataSelection;
 
 
-mClass SurfaceGeometry : public CallBacker
+mClass(EarthModel) SurfaceGeometry : public CallBacker
 {
 public:
     			SurfaceGeometry(Surface&);
@@ -116,7 +117,7 @@ protected:
 };
 
 
-mClass RowColSurfaceGeometry : public SurfaceGeometry
+mClass(EarthModel) RowColSurfaceGeometry : public SurfaceGeometry
 {
 public:
     			RowColSurfaceGeometry(Surface&);
@@ -141,3 +142,4 @@ public:
 }; // namespace EM
 
 #endif
+

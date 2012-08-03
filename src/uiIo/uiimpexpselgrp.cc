@@ -42,7 +42,7 @@ static const char* sKeySelGrp()		{ return "SelectionGrps"; }
 static const char* sKeyIdxFileName() 	{ return "index.txt"; }
 
 
-mClass SGSelGrpManager
+class SGSelGrpManager
 {
 
 public:
@@ -288,7 +288,7 @@ void uiSGSelGrp::delSelGrps( CallBacker* )
 
 
 
-mClass uiRenameDlg : public uiDialog
+class uiRenameDlg : public uiDialog
 {
 public:
 
@@ -479,7 +479,7 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
 }
 
 
-mClass uiSGSelDlg : public uiDialog
+class uiSGSelDlg : public uiDialog
 {
 public:
 

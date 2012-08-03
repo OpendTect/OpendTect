@@ -6,18 +6,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.h,v 1.11 2010-10-27 06:56:31 cvsnageswara Exp $
+ RCS:           $Id: waveletattrib.h,v 1.12 2012-08-03 13:00:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
 #include "commondefs.h"
 
 class ArrayNDWindow;
 class Wavelet;
 template <class T> class Array1DImpl;
 
-mClass WaveletAttrib
+mClass(Seis) WaveletAttrib
 {
 public:
     			WaveletAttrib(const Wavelet&);
@@ -41,3 +42,4 @@ protected:
 };
 
 #endif
+

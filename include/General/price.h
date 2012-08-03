@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2011
- RCS:           $Id: price.h,v 1.5 2012-07-10 08:05:25 cvskris Exp $
+ RCS:           $Id: price.h,v 1.6 2012-08-03 13:00:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "fixedstring.h"
 #include "manobjectset.h"
 
 class BufferStringSet;
 
 /* Class to hande currencies */
-mStruct Currency
+mStruct(General) Currency
 {
 				Currency(const char* abrevation, short devisor)
 				    : devisor_( devisor )
@@ -36,7 +37,7 @@ mStruct Currency
 };
 
 
-mStruct Price
+mStruct(General) Price
 {
                Price( double userprice = 0,
 		       const char* currencystr=Currency::sKeyEUR() )
@@ -63,3 +64,4 @@ mStruct Price
 
 
 #endif
+

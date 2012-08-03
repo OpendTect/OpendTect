@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionselector.h,v 1.9 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: sectionselector.h,v 1.10 2012-08-03 13:00:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mpeenginemod.h"
 #include "task.h"
 #include "bufstring.h"
 #include "emposid.h"
@@ -29,7 +30,7 @@ namespace MPE
 
 class TrackPlane;
 
-mClass SectionSourceSelector : public SequentialTask
+mClass(MPEEngine) SectionSourceSelector : public SequentialTask
 {
 public:
     				SectionSourceSelector(
@@ -57,4 +58,5 @@ protected:
 };
 
 #endif
+
 

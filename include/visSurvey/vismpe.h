@@ -7,12 +7,13 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.70 2012-08-01 10:46:36 cvsmahant Exp $
+RCS:        $Id: vismpe.h,v 1.71 2012-08-03 13:01:28 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
 
@@ -41,7 +42,7 @@ namespace visSurvey
 
 */
 
-mClass MPEDisplay : public visBase::VisualObjectImpl, 
+mClass(visSurvey) MPEDisplay : public visBase::VisualObjectImpl, 
 		    public visSurvey::SurveyObject
 {
 public:
@@ -262,4 +263,5 @@ protected:
 }; // namespace visSurvey
 
 #endif
+
 

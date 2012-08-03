@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.29 2011-12-23 15:28:20 cvsjaap Exp $
+ RCS:           $Id: emseedpicker.h,v 1.30 2012-08-03 13:00:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mpeenginemod.h"
 #include "callback.h"
 #include "emtracker.h"
 #include "position.h"
@@ -29,7 +30,7 @@ handles adding of seeds and retracking of events based on new seeds.
 An instance of the class is usually avaiable from the each EMTracker.
 */
 
-mClass EMSeedPicker: public CallBacker
+mClass(MPEEngine) EMSeedPicker: public CallBacker
 {
 public:
     virtual		~EMSeedPicker() {}
@@ -87,3 +88,4 @@ public:
 };
 
 #endif
+

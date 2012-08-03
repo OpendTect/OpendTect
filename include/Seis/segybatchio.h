@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		18-10-1995
  Contents:	Selectors
- RCS:		$Id: segybatchio.h,v 1.4 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:		$Id: segybatchio.h,v 1.5 2012-08-03 13:00:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
 #include "gendefs.h"
 
 
@@ -27,10 +28,10 @@ namespace SEGY
 
 namespace IO
 {
-    inline mGlobal const char* sKeyTask()	{ return "Task"; }
-    inline mGlobal const char* sKeyIndexPS()	{ return "Index Pre-Stack"; }
-    inline mGlobal const char* sKeyIndex3DVol() { return "Index 3D Volume"; }
-    inline mGlobal const char* sKeyIs2D()	{ return "Is 2D"; }
+    inline mGlobal(Seis) const char* sKeyTask()	{ return "Task"; }
+    inline mGlobal(Seis) const char* sKeyIndexPS()	{ return "Index Pre-Stack"; }
+    inline mGlobal(Seis) const char* sKeyIndex3DVol() { return "Index 3D Volume"; }
+    inline mGlobal(Seis) const char* sKeyIs2D()	{ return "Is 2D"; }
 
 }; //namespace IO
 
@@ -38,3 +39,4 @@ namespace IO
 
 
 #endif
+

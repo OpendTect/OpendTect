@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiraytrace1d.h,v 1.11 2012-07-18 15:00:36 cvsbruno Exp $
+ RCS:		$Id: uiraytrace1d.h,v 1.12 2012-08-03 13:01:14 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uitoolsmod.h"
 #include "raytrace1d.h"
 #include "uigroup.h"
 
@@ -21,11 +22,11 @@ class uiCheckBox;
 class uiLabeledComboBox;
 
 
-mClass uiRayTracer1D : public uiGroup
+mClass(uiTools) uiRayTracer1D : public uiGroup
 {
 public:
 
-    mClass Setup 		
+    mClass(uiTools) Setup 		
     {
 	public:	
 			Setup()
@@ -67,7 +68,7 @@ protected:
 };
 
 
-mClass uiVrmsRayTracer1D : public uiRayTracer1D
+mClass(uiTools) uiVrmsRayTracer1D : public uiRayTracer1D
 {
 public:
 			uiVrmsRayTracer1D(uiParent*,
@@ -80,7 +81,7 @@ public:
 };
 
 
-mClass uiRayTracerSel : public uiGroup
+mClass(uiTools) uiRayTracerSel : public uiGroup
 {
 public:
     			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);
@@ -102,3 +103,4 @@ protected:
 
 
 #endif
+

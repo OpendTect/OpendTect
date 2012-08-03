@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.18 2010-12-01 11:24:38 cvsumesh Exp $
+ RCS:		$Id: coltabsequence.h,v 1.19 2012-08-03 13:00:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "generalmod.h"
 #include "color.h"
 #include "enums.h"
 #include "namedobj.h"
@@ -34,7 +35,7 @@ namespace ColTab
  
  */
 
-mClass Sequence : public NamedObject
+mClass(General) Sequence : public NamedObject
 {
 public:
 
@@ -139,7 +140,7 @@ protected:
  
  */
 
-mClass SeqMgr : public CallBacker
+mClass(General) SeqMgr : public CallBacker
 {
 public:
 
@@ -168,7 +169,7 @@ protected:
 
     ObjectSet<Sequence>	seqs_;
 
-    friend mGlobal SeqMgr&	SM();
+    friend mGlobal(General) SeqMgr&	SM();
 
     void		addFromPar(const IOPar&,bool);
     void		add( Sequence* seq )
@@ -176,10 +177,11 @@ protected:
     void		readColTabs();
 };
 
-mGlobal SeqMgr& SM();
+mGlobal(General) SeqMgr& SM();
 
 
 } // namespace ColTab
 
 
 #endif
+

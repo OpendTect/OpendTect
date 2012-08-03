@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.44 2012-05-02 07:05:23 cvsbert Exp $
+ RCS:           $Id: uigroup.h,v 1.45 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uiobj.h"
 #include "uiparent.h"
 #include "callback.h"
@@ -51,7 +52,7 @@ protected:
 };
 
 
-mClass uiGroup : public uiParent
+mClass(uiBase) uiGroup : public uiParent
 { 	
 friend class		uiGroupObjBody;
 friend class		uiGroupParentBody;
@@ -132,3 +133,4 @@ public:
 
 
 #endif
+

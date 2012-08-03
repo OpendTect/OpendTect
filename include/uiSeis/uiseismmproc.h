@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.39 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.40 2012-08-03 13:01:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uidialog.h"
 
 class IOPar;
@@ -32,7 +33,7 @@ class SeisJobExecProv;
 class uiLabeledListBox;
 
 
-mClass uiSeisMMProc : public uiDialog
+mClass(uiSeis) uiSeisMMProc : public uiDialog
 {
 public:
                         uiSeisMMProc(uiParent*,const IOPar&,
@@ -99,3 +100,4 @@ protected:
 };
 
 #endif
+

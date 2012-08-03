@@ -11,6 +11,8 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiwellattribmod.h"
+#include "uiwellattribmod.h"
 #include "uiflatviewstdcontrol.h"
 
 class uiFlatViewer;
@@ -25,7 +27,7 @@ namespace WellTie
     class uiMrkDispDlg;
     class Server;
 
-mClass uiControlView : public uiFlatViewStdControl
+mClass(uiWellAttrib) uiControlView : public uiFlatViewStdControl
 {
 public:
 			uiControlView(uiParent*,uiToolBar*,
@@ -71,7 +73,7 @@ protected:
 };
 
 /*
-mClass uiTieClippingDlg : public uiDialog
+mClass(uiWellAttrib) uiTieClippingDlg : public uiDialog
 {
 public:
 				uiTieClippingDlg(uiParent*);
@@ -79,7 +81,7 @@ public:
 
 protected :
 
-    mStruct ClipData
+    mStruct(uiWellAttrib) ClipData
     {
 	float			cliprate_;			
 	bool			issynthetic_;			
@@ -101,3 +103,5 @@ protected :
 }; //namespace WellTie
 
 #endif
+
+

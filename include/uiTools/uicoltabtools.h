@@ -1,6 +1,7 @@
 #ifndef uicoltabtools_h
 #define uicoltabtools_h
 
+#include "uitoolsmod.h"
 #include "callback.h"
 #include "uirgbarraycanvas.h"
 
@@ -8,7 +9,7 @@ class uiRGBArray;
 class uiWorld2Ui;
 namespace ColTab { class Sequence; }
 
-mClass uiColorTableCanvas : public uiRGBArrayCanvas
+mClass(uiTools) uiColorTableCanvas : public uiRGBArrayCanvas
 {
 public:
 				uiColorTableCanvas(uiParent*,
@@ -33,3 +34,4 @@ protected:
 };
 
 #endif
+

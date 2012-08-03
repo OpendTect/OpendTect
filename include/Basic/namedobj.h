@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: namedobj.h,v 1.6 2012-06-29 12:06:25 cvskris Exp $
+ RCS:		$Id: namedobj.h,v 1.7 2012-08-03 13:00:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "callback.h"
 #include "bufstring.h"
 
@@ -26,7 +27,7 @@ but allows for names that are fundamentally linked.
 */
 
 
-mClass NamedObject : public CallBacker
+mClass(Basic) NamedObject : public CallBacker
 {
 public:
 			NamedObject(const char* nm=0)
@@ -70,3 +71,4 @@ private:
 
 
 #endif
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_main.cc,v 1.25 2012-05-02 15:12:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_main.cc,v 1.26 2012-08-03 13:01:36 cvskris Exp $";
 
 #include "prog.h"
 #include "genc.h"
@@ -18,7 +18,7 @@ static const char* rcsID mUnusedVar = "$Id: od_main.cc,v 1.25 2012-05-02 15:12:1
 
 
 extern int ODMain(int,char**);
-mBasicExtern int gLogFilesRedirectCode;
+mExtern(Basic) int gLogFilesRedirectCode;
 
 
 inline static bool isPromised( const char* claim )

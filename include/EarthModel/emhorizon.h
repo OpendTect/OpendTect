@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: emhorizon.h,v 1.8 2012-05-22 14:48:43 cvskris Exp $
+ RCS:		$Id: emhorizon.h,v 1.9 2012-08-03 13:00:18 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "keystrs.h"
@@ -23,7 +24,7 @@ namespace EM
 {
 class EMManager;
 
-mClass HorizonGeometry : public RowColSurfaceGeometry
+mClass(EarthModel) HorizonGeometry : public RowColSurfaceGeometry
 {
 protected:
     				HorizonGeometry( Surface& surf )
@@ -31,7 +32,7 @@ protected:
 };
 
 
-mClass Horizon : public Surface
+mClass(EarthModel) Horizon : public Surface
 {
 public:
     virtual HorizonGeometry&		geometry()			= 0;
@@ -71,3 +72,4 @@ protected:
 } // namespace EM
 
 #endif
+

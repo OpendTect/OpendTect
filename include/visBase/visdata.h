@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.64 2012-06-22 08:59:36 cvsjaap Exp $
+ RCS:		$Id: visdata.h,v 1.65 2012-08-03 13:01:23 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "callback.h"
 #include "refcount.h"
 #include "sets.h"
@@ -54,7 +55,7 @@ objects and is thus the only one that is allowed to delete it. The destructors
 on the inherited classes should thus be protected.
 */
 
-mClass DataObject : public CallBacker
+mClass(visBase) DataObject : public CallBacker
 { mRefCountImpl(DataObject);
 public:
 
@@ -234,3 +235,4 @@ mCreateFactoryEntryNoInitClass( clss );
 
 
 #endif
+

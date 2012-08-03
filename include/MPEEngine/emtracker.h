@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.31 2011-05-02 06:14:48 cvsumesh Exp $
+ RCS:           $Id: emtracker.h,v 1.32 2012-08-03 13:00:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mpeenginemod.h"
 #include "factory.h"
 #include "sets.h"
 #include "emposid.h"
@@ -31,7 +32,7 @@ class SectionTracker;
 class TrackPlane;
 class EMSeedPicker;
 
-mClass EMTracker
+mClass(MPEEngine) EMTracker
 {
 mRefCountImplWithDestructor(EMTracker,virtual ~EMTracker(),delete this;);
 public:
@@ -96,4 +97,5 @@ mDefineFactory1Param( EMTracker, EM::EMObject*, TrackerFactory );
 }; // namespace MPE
 
 #endif
+
 

@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "bufstringset.h"
@@ -40,11 +41,11 @@ namespace WellTie
     class Data;
     class DataWriter;
 
-mClass uiSaveDataGroup : public uiGroup
+mClass(uiWellAttrib) uiSaveDataGroup : public uiGroup
 {
 public:
 
-      mClass Setup
+      mClass(uiWellAttrib) Setup
       {
 	  public:
 				Setup()
@@ -87,7 +88,7 @@ protected:
 };
 
 
-mClass uiSaveDataDlg : public uiDialog
+mClass(uiWellAttrib) uiSaveDataDlg : public uiDialog
 {
 public: 
 				uiSaveDataDlg(uiParent*,const Data&,
@@ -113,4 +114,5 @@ protected :
 }; //namespace WellTie
 
 #endif
+
 

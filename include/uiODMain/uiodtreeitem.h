@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.37 2011-12-08 16:29:29 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.38 2012-08-03 13:01:04 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uitreeitemmanager.h"
 #include "menuhandler.h"
 
@@ -22,7 +23,7 @@ class uiPopupMenu;
 class ui3DViewer;
 
 
-mClass uiODTreeItem : public uiTreeItem
+mClass(uiODMain) uiODTreeItem : public uiTreeItem
 {
 public:
     			uiODTreeItem(const char*);
@@ -39,7 +40,7 @@ protected:
 };
 
 
-mClass uiODTreeTop : public uiTreeTopItem
+mClass(uiODMain) uiODTreeTop : public uiTreeTopItem
 {
 public:
 			uiODTreeTop(ui3DViewer*,uiListView*,
@@ -70,7 +71,7 @@ protected:
 
 
 
-mClass uiODTreeItemFactory : public uiTreeItemFactory
+mClass(uiODMain) uiODTreeItemFactory : public uiTreeItemFactory
 {
 public:
 
@@ -89,7 +90,7 @@ public:
     
 
 #define mDefineItem( type, inherited, parentitem, extrapublic ) \
-mClass uiOD##type##TreeItem : public uiOD##inherited \
+mClass(uiODMain) uiOD##type##TreeItem : public uiOD##inherited \
 { \
     typedef uiOD##inherited inheritedClass; \
 public: \
@@ -101,3 +102,4 @@ protected: \
 
 
 #endif
+

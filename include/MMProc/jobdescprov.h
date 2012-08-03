@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Apr 2002
- RCS:		$Id: jobdescprov.h,v 1.10 2012-05-22 14:48:44 cvskris Exp $
+ RCS:		$Id: jobdescprov.h,v 1.11 2012-08-03 13:00:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mmprocmod.h"
 #include "ranges.h"
 #include "bufstringset.h"
 
@@ -24,7 +25,7 @@ class IOPar;
 
  */
 
-mClass JobDescProv
+mClass(MMProc) JobDescProv
 {
 public:
 
@@ -52,7 +53,7 @@ in the IOPar for one of the strings from a BufferStringSet.
 
  */
 
-mClass KeyReplaceJobDescProv : public JobDescProv
+mClass(MMProc) KeyReplaceJobDescProv : public JobDescProv
 {
 public:
     			KeyReplaceJobDescProv(const IOPar&,const char* key,
@@ -84,7 +85,7 @@ The keying is either:
 
  */
 
-mClass InlineSplitJobDescProv : public JobDescProv
+mClass(MMProc) InlineSplitJobDescProv : public JobDescProv
 {
 public:
     			InlineSplitJobDescProv(const IOPar&,
@@ -122,3 +123,4 @@ protected:
 
 
 #endif
+

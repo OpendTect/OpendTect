@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispswrite.h,v 1.6 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seispswrite.h,v 1.7 2012-08-03 13:00:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
 #include "datachar.h"
 class IOPar;
 class SeisTrc;
@@ -32,7 +33,7 @@ class BufferStringSet;
 
 */
 
-mClass SeisPSWriter
+mClass(Seis) SeisPSWriter
 {
 public:
 
@@ -53,3 +54,4 @@ public:
 
 
 #endif
+

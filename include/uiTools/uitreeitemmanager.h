@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.52 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.53 2012-08-03 13:01:16 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uitoolsmod.h"
 #include "sets.h"
 #include "iopar.h"
 #include "callback.h"
@@ -30,7 +31,7 @@ class uiListViewItem;
 class uiListView;
 class uiParent;
 
-mClass uiTreeItem	: public CallBacker
+mClass(uiTools) uiTreeItem	: public CallBacker
 {
 public:
     				uiTreeItem(const char* nm);
@@ -193,7 +194,7 @@ private:
 
 };
 
-mClass uiTreeItemRemover : public SequentialTask
+mClass(uiTools) uiTreeItemRemover : public SequentialTask
 {
 public:
     uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child);
@@ -206,7 +207,7 @@ protected:
 
 
 
-mClass uiTreeTopItem : public uiTreeItem
+mClass(uiTools) uiTreeTopItem : public uiTreeItem
 {
 public:
     			uiTreeTopItem(uiListView*, bool=false );
@@ -239,7 +240,7 @@ protected:
 };
 
 
-mClass uiTreeItemFactory
+mClass(uiTools) uiTreeItemFactory
 {
 public:
     virtual		~uiTreeItemFactory()		{}
@@ -248,7 +249,7 @@ public:
 };
 
 
-mClass uiTreeFactorySet : public CallBacker
+mClass(uiTools) uiTreeFactorySet : public CallBacker
 {
 public:
 					uiTreeFactorySet();
@@ -318,3 +319,4 @@ void inline uiTreeItem::setPropertyPtr( const char* propertykey, void* val )
 }
 
 #endif
+

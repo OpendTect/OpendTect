@@ -7,19 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: odsession.h,v 1.14 2012-02-14 19:41:18 cvsnanne Exp $
+ RCS:		$Id: odsession.h,v 1.15 2012-08-03 13:01:03 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiodmainmod.h"
 #include "sets.h"
 #include "transl.h"
 #include "iopar.h"
 
 /*!\brief dTect session save/restore */
 
-mClass ODSession
+mClass(uiODMain) ODSession
 {
 public:
     			ODSession();
@@ -78,7 +79,7 @@ protected:
 };
 
 
-mClass ODSessionTranslatorGroup : public TranslatorGroup
+mClass(uiODMain) ODSessionTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ODSession)
 public:
 			mDefEmptyTranslatorGroupConstructor(ODSession)
@@ -86,7 +87,7 @@ public:
 };
 
 
-mClass ODSessionTranslator : public Translator
+mClass(uiODMain) ODSessionTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(ODSession)
@@ -109,7 +110,7 @@ public:
 };
     
 
-mClass dgbODSessionTranslator : public ODSessionTranslator
+mClass(uiODMain) dgbODSessionTranslator : public ODSessionTranslator
 {				  isTranslator(dgb,ODSession)
 public:
     			mDefEmptyTranslatorConstructor(dgb,ODSession)
@@ -133,7 +134,7 @@ class uiButton;
 Session manager
 */
 
-mClass uiSessionMan : public uiObjFileMan
+mClass(uiODMain) uiSessionMan : public uiObjFileMan
 {
 public:
     				uiSessionMan(uiParent*);
@@ -147,3 +148,4 @@ protected:
 };
 
 #endif
+

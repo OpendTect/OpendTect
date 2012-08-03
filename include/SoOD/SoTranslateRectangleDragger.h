@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoTranslateRectangleDragger.h,v 1.7 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: SoTranslateRectangleDragger.h,v 1.8 2012-08-03 13:00:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ along the rectangle's normal. If certain properties should be set on the plane
 inserted in the prefixgroup.
 */
 
+#include "soodmod.h"
 #include <Inventor/draggers/SoDragger.h>
 #include <Inventor/fields/SoSFVec3f.h>
 #include <Inventor/fields/SoSFFloat.h>
@@ -29,7 +30,7 @@ inserted in the prefixgroup.
 
 class SbLineProjector;
 
-mClass SoTranslateRectangleDragger : public SoDragger
+mClass(SoOD) SoTranslateRectangleDragger : public SoDragger
 {
     SO_KIT_HEADER( SoTranslateRectangleDragger );
     
@@ -66,3 +67,4 @@ private:
 };
 
 #endif
+

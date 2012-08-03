@@ -24,6 +24,7 @@
  *
 \**************************************************************************/
 
+#include "soodmod.h"
 #include <Inventor/nodekits/SoSubKit.h>
 #include <Inventor/nodekits/SoBaseKit.h>
 #include <Inventor/fields/SoSFEnum.h>
@@ -48,7 +49,7 @@ class SbColor;
 class SbVec2s;
 
 
-mClass LegendKit : public SoBaseKit {
+mClass(SoOD) LegendKit : public SoBaseKit {
   typedef SoBaseKit inherited;
 
   SO_KIT_HEADER(LegendKit);
@@ -183,3 +184,4 @@ private:
 #endif // win
 
 #endif // !SMALLCHANGE_LEGENDKIT_H
+

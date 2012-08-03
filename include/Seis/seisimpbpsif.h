@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpbpsif.h,v 1.10 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seisimpbpsif.h,v 1.11 2012-08-03 13:00:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
 #include "strmdata.h"
 #include "bufstringset.h"
 #include "multiid.h"
@@ -61,7 +62,7 @@ Notes:
 
 */
 
-mClass SeisImpBPSIF : public Executor
+mClass(Seis) SeisImpBPSIF : public Executor
 {
 public:
 
@@ -117,3 +118,4 @@ protected:
 
 
 #endif
+

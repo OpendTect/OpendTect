@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.44 2012-06-28 09:13:14 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.45 2012-08-03 13:01:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "visbasemod.h"
+#include "visbasemod.h"
 #include "color.h"
 #include "fontdata.h"
 #include "ranges.h"
@@ -42,14 +44,14 @@ class Transformation;
 Base class for well display
 */
 
-mClass Well : public VisualObjectImpl
+mClass(visBase) Well : public VisualObjectImpl
 {
 public:
 
     static Well*		create()
     				mCreateDataObj(Well);
 
-    mStruct BasicParams
+    mStruct(visBase) BasicParams
     {
 				BasicParams(){}
 	const char* 		name_;
@@ -58,7 +60,7 @@ public:
     };
     
     //Well
-    mStruct TrackParams : public BasicParams
+    mStruct(visBase) TrackParams : public BasicParams
     {
 				TrackParams()
 				{}
@@ -78,7 +80,7 @@ public:
 
     
     //Markers
-    mStruct MarkerParams : public BasicParams
+    mStruct(visBase) MarkerParams : public BasicParams
     {
 				MarkerParams()
 				{}
@@ -105,7 +107,7 @@ public:
     float			constantLogSizeFactor() const;
 
     //logs
-    mStruct LogParams : public BasicParams
+    mStruct(visBase) LogParams : public BasicParams
     {
 				LogParams()
 				{}
@@ -218,3 +220,5 @@ protected:
 } // namespace visBase
 
 #endif
+
+

@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A. Huck & H. Huck
  Date:		Sep 2011
- RCS:		$Id: uivariogram.h,v 1.5 2012-03-02 13:43:30 cvshelene Exp $
+ RCS:		$Id: uivariogram.h,v 1.6 2012-08-03 13:01:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uidialog.h"
 
 template <class T> class Array2D;
@@ -21,7 +22,7 @@ class uiFunctionDisplay;
 class uiSliderExtra;
 class uiSpinBox;
 
-mClass uiVariogramDlg : public uiDialog
+mClass(uiTools) uiVariogramDlg : public uiDialog
 {
 public:
 
@@ -41,7 +42,7 @@ protected:
 };
 
 
-mClass uiVariogramDisplay: public uiDialog
+mClass(uiTools) uiVariogramDisplay: public uiDialog
 {
 public:
      				uiVariogramDisplay(uiParent*,Array2D<float>*,
@@ -71,3 +72,4 @@ protected:
 };
 
 #endif
+

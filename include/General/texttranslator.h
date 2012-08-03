@@ -7,16 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: texttranslator.h,v 1.3 2012-01-24 21:25:50 cvsnanne Exp $
+ RCS:		$Id: texttranslator.h,v 1.4 2012-08-03 13:00:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "generalmod.h"
 #include "callback.h"
 
 
-mClass TextTranslator : public CallBacker
+mClass(General) TextTranslator : public CallBacker
 {
 public:
 
@@ -48,7 +49,7 @@ protected:
 };
 
 
-mClass TextTranslateMgr
+mClass(General) TextTranslateMgr
 {
 public:
 				TextTranslateMgr()
@@ -66,6 +67,7 @@ protected:
 };
 
 
-mGlobal TextTranslateMgr& TrMgr();
+mGlobal(General) TextTranslateMgr& TrMgr();
 
 #endif
+

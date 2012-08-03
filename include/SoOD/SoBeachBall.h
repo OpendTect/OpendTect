@@ -6,11 +6,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Karthika
  Date:		July 2009
- RCS:		$Id: SoBeachBall.h,v 1.6 2009-09-09 07:51:03 cvskarthika Exp $
+ RCS:		$Id: SoBeachBall.h,v 1.7 2012-08-03 13:00:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "soodmod.h"
 #include <Inventor/SbColor.h>
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoMFInt32.h>
@@ -21,7 +22,7 @@ ________________________________________________________________________
 // This class stores all info about a level of detail of the beachball, except
 // the coordinate info (which is stored by res2coords_).
 // 
-mClass LODInfo
+mClass(SoOD) LODInfo
 {
 public:
     
@@ -40,7 +41,7 @@ public:
 
 // SoBeachBall class for drawing a sphere with 4 stripes colored according to 
 // 2 materials. Varying levels of detail of the beachball are supported.
-mClass SoBeachBall : public SoShape 
+mClass(SoOD) SoBeachBall : public SoShape 
 {
     typedef SoShape inherited;
     SO_NODE_HEADER(SoBeachBall);
@@ -118,3 +119,4 @@ protected:
 };
 
 #endif
+

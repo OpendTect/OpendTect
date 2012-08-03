@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposfilterset.h,v 1.5 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiposfilterset.h,v 1.6 2012-08-03 13:01:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uicompoundparsel.h"
 #include "uiposfiltgroup.h"
 #include "iopar.h"
@@ -20,7 +21,7 @@ class uiListBox;
 
 /*! \brief lets user choose a way to provide positions */
 
-mClass uiPosFilterSet : public uiGroup
+mClass(uiIo) uiPosFilterSet : public uiGroup
 {
 public:
 
@@ -55,7 +56,7 @@ protected:
 };
 
 
-mClass uiPosFilterSetSel : public uiCompoundParSel
+mClass(uiIo) uiPosFilterSetSel : public uiCompoundParSel
 {
 public:
 
@@ -78,3 +79,4 @@ protected:
 
 
 #endif
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2007
- RCS:		$Id: arrayndwrapper.h,v 1.4 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: arrayndwrapper.h,v 1.5 2012-08-03 13:00:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 //TODO: Write more info
 
-mClass ArrayNDWrapper
+mClass(Basic) ArrayNDWrapper
 {
 public:
     void		setDimMap(int srcdim,int targetdim);
@@ -107,3 +107,4 @@ T Array3DWrapper<T>::get( int i0, int i1, int i2 ) const
 }
 
 #endif
+

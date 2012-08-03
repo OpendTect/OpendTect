@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: uiarray2dchg.h,v 1.6 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:		$Id: uiarray2dchg.h,v 1.7 2012-08-03 13:01:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "array2dfilter.h"
 #include "uigroup.h"
 #include "uidialog.h"
@@ -19,7 +20,7 @@ class uiGenInput;
 class uiStepOutSel;
 
 
-mClass uiArr2DFilterPars : public uiGroup
+mClass(uiTools) uiArr2DFilterPars : public uiGroup
 {
 public:
 
@@ -36,7 +37,7 @@ protected:
 };
 
 
-mClass uiArr2DFilterParsDlg : public uiDialog
+mClass(uiTools) uiArr2DFilterParsDlg : public uiDialog
 {
 public:
 
@@ -53,3 +54,4 @@ public:
 
 
 #endif
+

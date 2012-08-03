@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiobjfileman.h,v 1.16 2012-04-24 21:22:57 cvsnanne Exp $
+ RCS:           $Id: uiobjfileman.h,v 1.17 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 
 class IOObj;
@@ -22,7 +23,7 @@ class uiToolButton;
 class uiTextEdit;
 
 
-mClass uiObjFileMan : public uiDialog
+mClass(uiIo) uiObjFileMan : public uiDialog
 {
 public:
 				~uiObjFileMan();
@@ -71,3 +72,4 @@ protected:
 
 
 #endif
+

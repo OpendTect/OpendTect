@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackevents.h,v 1.12 2011-11-07 06:11:09 cvsranojay Exp $
+ RCS:		$Id: prestackevents.h,v 1.13 2012-08-03 13:00:33 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "prestackprocessingmod.h"
+#include "prestackprocessingmod.h"
 #include "bufstringset.h"
 #include "callback.h"
 #include "color.h"
@@ -43,7 +45,7 @@ class VelocityPicks;
 
 /*!A Event is a set of picks on an event on a single prestack gather. */
 
-mClass Event
+mClass(PreStackProcessing) Event
 {
 public:
     			Event(int sz,bool quality);
@@ -74,7 +76,7 @@ public:
 
 
 /*!A EventSet is a set of Events on a single prestack gather. */
-mClass EventSet
+mClass(PreStackProcessing) EventSet
 { mRefCountImplWithDestructor(EventSet,virtual ~EventSet(), {});
 public:
     			EventSet();
@@ -93,10 +95,10 @@ public:
 /*!A EventManager is a set of EventsSet on multiple prestack
    gathers, and are identified under the same MultiID. */
 
-mClass EventManager : public CallBacker
+mClass(PreStackProcessing) EventManager : public CallBacker
 { mRefCountImpl(EventManager);
 public:
-    mStruct DipSource
+    mStruct(PreStackProcessing) DipSource
     {
 			DipSource();
 	enum Type	{ None, Horizon, SteeringVolume };
@@ -232,7 +234,7 @@ protected:
 };
 
 
-mClass SetPickUndo : public BinIDUndoEvent
+mClass(PreStackProcessing) SetPickUndo : public BinIDUndoEvent
 {
 public:
     			SetPickUndo(EventManager&,const BinID&,int horidx,
@@ -259,7 +261,7 @@ protected:
 };
 
 
-mClass SetEventUndo : public UndoEvent
+mClass(PreStackProcessing) SetEventUndo : public UndoEvent
 {
 public:
     			SetEventUndo(EventManager&,const BinID&,int horidx,
@@ -292,3 +294,5 @@ protected:
 }; //namespace
 
 #endif
+
+

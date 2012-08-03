@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.19 2012-06-19 09:01:44 cvsbruno Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.20 2012-08-03 13:01:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellmod.h"
 #include "uidialog.h"
 
 class uiTabStack;
@@ -23,7 +24,7 @@ namespace Well { class Data; class DisplayProperties; class LogSet; };
 
 /*! \brief Dialog for well display properties. */
 
-mClass uiWellDispPropDlg : public uiDialog
+mClass(uiWell) uiWellDispPropDlg : public uiDialog
 {
 public:
 				uiWellDispPropDlg(uiParent*,Well::Data*,
@@ -59,7 +60,7 @@ protected:
 };
 
 
-mClass uiMultiWellDispPropDlg : public uiWellDispPropDlg
+mClass(uiWell) uiMultiWellDispPropDlg : public uiWellDispPropDlg
 {
 public:
 				uiMultiWellDispPropDlg(uiParent*,
@@ -77,3 +78,4 @@ protected:
 
 
 #endif
+

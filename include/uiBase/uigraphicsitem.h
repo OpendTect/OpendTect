@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.36 2012-05-18 12:16:10 cvskris Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.37 2012-08-03 13:00:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "callback.h"
 #include "uigeom.h"
 #include "manobjectset.h"
@@ -25,7 +26,7 @@ class QGraphicsItem;
 class QGraphicsItemGroup;
 
 
-mClass uiGraphicsItem : public CallBacker
+mClass(uiBase) uiGraphicsItem : public CallBacker
 {
 public:
 			~uiGraphicsItem();
@@ -96,7 +97,7 @@ private:
 };
 
 
-mClass uiGraphicsItemSet : public ManagedObjectSet<uiGraphicsItem>
+mClass(uiBase) uiGraphicsItemSet : public ManagedObjectSet<uiGraphicsItem>
 {
 public:
 			uiGraphicsItemSet()
@@ -111,7 +112,7 @@ public:
 
 
 
-mClass uiGraphicsItemGroup : public uiGraphicsItem
+mClass(uiBase) uiGraphicsItemGroup : public uiGraphicsItem
 {
 public:
     			uiGraphicsItemGroup(bool owner=false);
@@ -154,3 +155,4 @@ protected:
 
 
 #endif
+

@@ -4,9 +4,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: seisseqio.h,v 1.13 2011-07-25 13:32:02 cvsnanne Exp $
+ * ID       : $Id: seisseqio.h,v 1.14 2012-08-03 13:00:38 cvskris Exp $
 -*/
 
+#include "seismod.h"
 #include "seistype.h"
 #include "bufstring.h"
 #include "factory.h"
@@ -27,7 +28,7 @@ class Bounds;
 
 /*!\brief Base class for Seismic Sequential IO classes */
 
-mClass SeqIO
+mClass(Seis) SeqIO
 {
 public:
 
@@ -48,7 +49,7 @@ protected:
 
 /*!\brief Base class for Seismic Sequential input classes */
 
-mClass SeqInp : public SeqIO
+mClass(Seis) SeqInp : public SeqIO
 {
 public:
 
@@ -77,7 +78,7 @@ protected:
  */
 
 
-mClass ODSeqInp : public SeqInp
+mClass(Seis) ODSeqInp : public SeqInp
 {
 public:
 
@@ -113,7 +114,7 @@ protected:
 
 /*!\brief Base class for Seismic Sequential output classes */
 
-mClass SeqOut : public SeqIO
+mClass(Seis) SeqOut : public SeqIO
 {
 public:
 
@@ -134,7 +135,7 @@ public:
  
  */
 
-mClass ODSeqOut : public SeqOut
+mClass(Seis) ODSeqOut : public SeqOut
 {
 public:
 
@@ -160,3 +161,4 @@ public:
 
 
 #endif
+

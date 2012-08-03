@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          May 2006
- RCS:           $Id: uicompoundparsel.h,v 1.4 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uicompoundparsel.h,v 1.5 2012-08-03 13:01:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class uiGenInput;
@@ -25,7 +26,7 @@ class uiPushButton;
  
  */
 
-mClass uiCompoundParSel : public uiGroup
+mClass(uiTools) uiCompoundParSel : public uiGroup
 {
 public:
 
@@ -51,3 +52,4 @@ protected:
 
 
 #endif
+

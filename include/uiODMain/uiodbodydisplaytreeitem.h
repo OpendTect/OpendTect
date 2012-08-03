@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.19 2012-04-27 19:55:05 cvsyuancheng Exp $
+ RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.20 2012-08-03 13:01:03 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 
@@ -26,7 +27,7 @@ namespace visSurvey { class MarchingCubesDisplay; class PolygonBodyDisplay;
 mDefineItem( BodyDisplayParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
+mClass(uiODMain) uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -36,7 +37,7 @@ public:
 };
 
 
-mClass uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
+mClass(uiODMain) uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODBodyDisplayTreeItem(int,bool dummy);
@@ -73,7 +74,7 @@ protected:
 };
 
 
-mClass uiODBodyDisplayDataTreeItem : public uiODAttribTreeItem
+mClass(uiODMain) uiODBodyDisplayDataTreeItem : public uiODAttribTreeItem
 {
 public:
     			uiODBodyDisplayDataTreeItem(const char* parenttype);
@@ -89,3 +90,4 @@ protected:
 
 
 #endif
+

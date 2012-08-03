@@ -12,6 +12,8 @@ $
 ________________________________________________________________________
 -*/
 
+#include "wellattribmod.h"
+#include "wellattribmod.h"
 #include "callback.h"
 #include "color.h"
 #include "iopar.h"
@@ -36,7 +38,7 @@ namespace WellTie
     class Setup;
     class PickSetMgr;
 
-mStruct DispParams
+mStruct(WellAttrib) DispParams
 {
 			    DispParams()
 			    : ismarkerdisp_(true)
@@ -63,7 +65,7 @@ mStruct DispParams
 };
 
 
-mStruct Marker
+mStruct(WellAttrib) Marker
 {
 			    Marker(float z)
 				: zpos_(z)
@@ -80,9 +82,9 @@ mStruct Marker
 					{ return m.zpos_ == zpos_; }
 };
 
-mStruct PickData		{ TypeSet<Marker> synthpicks_, seispicks_; };
+mStruct(WellAttrib) PickData		{ TypeSet<Marker> synthpicks_, seispicks_; };
 
-mClass Data
+mClass(WellAttrib) Data
 {
 public :
     				Data(const Setup&,Well::Data& wd);
@@ -114,7 +116,7 @@ public :
     DispParams			dispparams_;
     TaskRunner*			trunner_;
 
-    mStruct CorrelData
+    mStruct(WellAttrib) CorrelData
     {
 				CorrelData() : lag_(200), coeff_(0) {}
 
@@ -130,7 +132,7 @@ protected:
 };
 
 
-mClass WellDataMgr : public CallBacker
+mClass(WellAttrib) WellDataMgr : public CallBacker
 {
 public:
     				WellDataMgr(const MultiID&);
@@ -149,13 +151,13 @@ protected:
 };
 
 
-mClass DataWriter 
+mClass(WellAttrib) DataWriter 
 {	
 public:    
 				DataWriter(Well::Data&,const MultiID&);
 				~DataWriter();
 
-    mStruct LogData
+    mStruct(WellAttrib) LogData
     {
 				LogData( const Well::LogSet& logset )
 				    : logset_(logset)
@@ -193,7 +195,7 @@ protected:
 };
 
 
-mClass HorizonMgr
+mClass(WellAttrib) HorizonMgr
 {
 public:
     				HorizonMgr(TypeSet<Marker>& hor)
@@ -201,7 +203,7 @@ public:
 				   , horizons_(hor)  
 				   {}
 
-    mStruct PosCouple 		
+    mStruct(WellAttrib) PosCouple 		
     { 
 	float 			z1_, z2_; 
 	bool 			operator == ( const PosCouple& pc ) const
@@ -222,7 +224,7 @@ protected:
 };
 
 
-mClass Server : public CallBacker
+mClass(WellAttrib) Server : public CallBacker
 {
 public :
     				Server(const WellTie::Setup&);
@@ -273,3 +275,5 @@ protected :
 
 
 #endif
+
+

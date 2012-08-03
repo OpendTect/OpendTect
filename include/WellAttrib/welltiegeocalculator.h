@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.29 2012-06-13 08:25:59 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.30 2012-08-03 13:00:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "wellattribmod.h"
 #include "commondefs.h"
 
 /* !brief performs the computations needed by TWTS  !*/   
@@ -22,7 +23,7 @@ template <class T> class Array1DImpl;
 namespace WellTie
 {
 
-mClass GeoCalculator
+mClass(WellAttrib) GeoCalculator
 {
 public :
 //Well data operations
@@ -45,3 +46,4 @@ public :
 
 }; //namespace WellTie
 #endif
+

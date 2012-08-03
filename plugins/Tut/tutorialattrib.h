@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: tutorialattrib.h,v 1.6 2011-04-28 11:30:53 cvsbert Exp $
+ RCS:           $Id: tutorialattrib.h,v 1.7 2012-08-03 13:01:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "tutmod.h"
 #include "attribprovider.h"
 
 /*!\brief Tutorial Attribute
@@ -28,7 +29,7 @@ Outputs:
 namespace Attrib
 {
 
-mClass Tutorial : public Provider
+mClass(Tut) Tutorial : public Provider
 {
 public:
     static void		initClass();
@@ -82,3 +83,4 @@ protected:
 }; // namespace Attrib
 
 #endif
+

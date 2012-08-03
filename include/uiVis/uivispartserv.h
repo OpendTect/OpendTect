@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.272 2012-07-09 16:34:47 cvsyuancheng Exp $
+ RCS:           $Id: uivispartserv.h,v 1.273 2012-08-03 13:01:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uivismod.h"
 #include "cubesampling.h"
 #include "datapack.h"
 #include "menuhandler.h"
@@ -53,7 +54,7 @@ namespace ZDomain   { class Info; }
 
 /*! \brief The Visualisation Part Server */
 
-mClass uiVisPartServer : public uiApplPartServer
+mClass(uiVis) uiVisPartServer : public uiApplPartServer
 {
     friend class 	uiMenuHandler;
     friend class        uiVisModeMgr;
@@ -500,3 +501,4 @@ protected:
 };
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uidipfilterattrib.h,v 1.12 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uidipfilterattrib.h,v 1.13 2012-08-03 13:00:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 class uiAttrSel;
@@ -20,7 +21,7 @@ class uiLabeledSpinBox;
 
 /*! \brief DipFilter Attribute description editor */
 
-mClass uiDipFilterAttrib : public uiAttrDescEd
+mClass(uiAttributes) uiDipFilterAttrib : public uiAttrDescEd
 {
 public:
 
@@ -52,3 +53,4 @@ protected:
 
 
 #endif
+

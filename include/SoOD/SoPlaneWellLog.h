@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.30 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.31 2012-08-03 13:00:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "soodmod.h"
 #include <Inventor/nodekits/SoBaseKit.h>
 
 #include <Inventor/fields/SoSFBool.h>
@@ -39,7 +40,7 @@ class SoSwitch;
 
 */
 
-mClass SoPlaneWellLog : public SoBaseKit
+mClass(SoOD) SoPlaneWellLog : public SoBaseKit
 {
     typedef SoBaseKit inherited;
     SO_KIT_HEADER(SoPlaneWellLog);
@@ -170,4 +171,5 @@ protected:
 };
 
 #endif
+
 

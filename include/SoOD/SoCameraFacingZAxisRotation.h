@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoCameraFacingZAxisRotation.h,v 1.5 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: SoCameraFacingZAxisRotation.h,v 1.6 2012-08-03 13:00:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "soodmod.h"
 #include <Inventor/nodes/SoTransformation.h>
 #include <Inventor/SbLinear.h>
 
@@ -24,7 +25,7 @@ ________________________________________________________________________
 
 */
 
-mClass SoCameraFacingZAxisRotation : public SoTransformation
+mClass(SoOD) SoCameraFacingZAxisRotation : public SoTransformation
 {
     typedef SoTransformation inherited;
     SO_NODE_HEADER(SoCameraFacingZAxisRotation);
@@ -49,4 +50,5 @@ protected:
 };
 
 #endif
+
 

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.17 2012-05-30 13:17:33 cvsnanne Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.18 2012-08-03 13:00:36 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 
+#include "seismod.h"
 #include "arraynd.h"
 #include "cubesampling.h"
 #include "rowcol.h"
@@ -53,7 +54,7 @@ traces.
  */
 
 
-mClass SeisMSCProvider
+mClass(Seis) SeisMSCProvider
 {
 public:
 
@@ -136,7 +137,7 @@ protected:
 };
 
 
-mClass SeisFixedCubeProvider
+mClass(Seis) SeisFixedCubeProvider
 {
 public:
     			SeisFixedCubeProvider(const MultiID&);
@@ -163,3 +164,4 @@ protected:
 };
 
 #endif
+

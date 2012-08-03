@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.h,v 1.15 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uistatusbar.h,v 1.16 2012-08-03 13:00:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uibaseobject.h"
 #include "draw.h"
 
@@ -20,7 +21,7 @@ class QStatusBar;
 class uiMainWin;
 
 
-mClass uiStatusBar : public uiBaseObject
+mClass(uiBase) uiStatusBar : public uiBaseObject
 {
 
     friend class	uiMainWinBody;
@@ -56,3 +57,4 @@ private:
 
 
 #endif
+

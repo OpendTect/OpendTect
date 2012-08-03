@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.h,v 1.8 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: vissplittexture2rectangle.h,v 1.9 2012-08-03 13:01:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "visbasemod.h"
 #include "position.h"
 #include "visobject.h"
 
@@ -29,7 +30,7 @@ class Coordinates;
    Object must be notified of MultiTexture2's size, splitting status and 
    used texture units. */
 
-mClass SplitTexture2Rectangle : public VisualObjectImpl
+mClass(visBase) SplitTexture2Rectangle : public VisualObjectImpl
 {
 public:
     static SplitTexture2Rectangle* create()
@@ -75,3 +76,4 @@ protected:
 
 
 #endif
+

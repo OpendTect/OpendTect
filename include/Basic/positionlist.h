@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: positionlist.h,v 1.12 2010-03-30 12:00:30 cvskris Exp $
+ RCS:           $Id: positionlist.h,v 1.13 2012-08-03 13:00:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "refcount.h"
 #include "position.h"
 
@@ -19,7 +20,7 @@ ________________________________________________________________________
 class Coord3;
 /*! Basic interface to an list of Coord3 where each coord has a unique id. */
 
-mClass Coord3List
+mClass(Basic) Coord3List
 { mRefCountImplNoDestructor(Coord3List);
 public:
     virtual int		nextID(int previd) const			= 0;
@@ -37,7 +38,7 @@ public:
 
 /*! Basic interface to an list of Coord where each coord has a unique id. */
 
-mClass Coord2List
+mClass(Basic) Coord2List
 { mRefCountImplNoDestructor(Coord2List);
 public:
     virtual int		nextID(int previd) const			= 0;
@@ -53,7 +54,7 @@ public:
 };
 
 
-mClass Coord2ListImpl : public Coord2List
+mClass(Basic) Coord2ListImpl : public Coord2List
 { 
 public:			
     			Coord2ListImpl();
@@ -72,7 +73,7 @@ protected:
 };
 
 
-mClass Coord3ListImpl : public Coord3List
+mClass(Basic) Coord3ListImpl : public Coord3List
 {
 public:
     			Coord3ListImpl();
@@ -93,3 +94,4 @@ protected:
 
 
 #endif
+

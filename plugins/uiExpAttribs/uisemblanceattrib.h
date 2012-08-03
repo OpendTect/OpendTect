@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          Jan 2008
- RCS:           $Id: uisemblanceattrib.h,v 1.3 2010-08-11 10:01:48 cvshelene Exp $
+ RCS:           $Id: uisemblanceattrib.h,v 1.4 2012-08-03 13:01:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiexpattribsmod.h"
 #include "uiattrdesced.h"
 
 class uiAttrSel;
@@ -22,7 +23,7 @@ class uiSteeringSel;
 
 /*! \brief Semblance Attribute description editor */
 
-mClass uiSemblanceAttrib : public uiAttrDescEd
+mClass(uiExpAttribs) uiSemblanceAttrib : public uiAttrDescEd
 {
 public:
 
@@ -53,3 +54,4 @@ protected:
 
 
 #endif
+

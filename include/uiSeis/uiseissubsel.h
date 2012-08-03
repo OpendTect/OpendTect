@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.32 2011-01-04 13:49:11 cvsbruno Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.33 2012-08-03 13:01:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "bufstringset.h"
 #include "seisselection.h"
 #include "uidialog.h"
@@ -36,7 +37,7 @@ class uiSelSubline;
 class uiSeis2DLineNameSel;
 
 
-mClass uiSeisSubSel : public uiGroup
+mClass(uiSeis) uiSeisSubSel : public uiGroup
 {
 public:
 
@@ -72,7 +73,7 @@ protected:
 };
 
 
-mClass uiSeis3DSubSel : public uiSeisSubSel
+mClass(uiSeis) uiSeis3DSubSel : public uiSeisSubSel
 {
 public:
 
@@ -84,7 +85,7 @@ public:
 };
 
 
-mClass uiSeis2DSubSel : public uiSeisSubSel
+mClass(uiSeis) uiSeis2DSubSel : public uiSeisSubSel
 { 	
 public:
 
@@ -122,3 +123,4 @@ protected:
 };
 
 #endif
+

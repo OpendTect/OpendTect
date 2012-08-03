@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: msgh.h,v 1.12 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: msgh.h,v 1.13 2012-08-03 13:00:13 cvskris Exp $
 ________________________________________________________________________
 
 */
 
+#include "basicmod.h"
 #include "callback.h"
 
 
@@ -23,7 +24,7 @@ for when UsrMsg is called: theCB. If it is not set, messages go to cerr.
 
 */
 
-mClass MsgClass : public CallBacker
+mClass(Basic) MsgClass : public CallBacker
 {
 public:
 
@@ -42,9 +43,10 @@ public:
 };
 
 
-mGlobal  void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
+mGlobal(Basic)  void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
 //!< Will pass the message to the appropriate destination.
 
 
 
 #endif
+

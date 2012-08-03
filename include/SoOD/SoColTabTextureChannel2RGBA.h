@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.11 2010-09-15 06:31:55 cvskarthika Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.12 2012-08-03 13:00:40 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "soodmod.h"
 #include "SoMFImage.h"
 #include <Inventor/fields/SoMFBool.h>
 #include <Inventor/fields/SoMFShort.h>
@@ -33,7 +34,7 @@ colorsequence per channel, and outputs 4 texture channels (RGBA) on the state.
 */
 
 
-mClass SoColTabTextureChannel2RGBA : public SoNode
+mClass(SoOD) SoColTabTextureChannel2RGBA : public SoNode
 { SO_NODE_HEADER(SoColTabTextureChannel2RGBA);
 public:
     static		void initClass();
@@ -80,3 +81,4 @@ protected:
 };
 
 #endif
+

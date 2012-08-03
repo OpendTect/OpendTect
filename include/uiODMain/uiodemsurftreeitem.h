@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodemsurftreeitem.h,v 1.20 2012-06-27 15:23:21 cvsjaap Exp $
+ RCS:		$Id: uiodemsurftreeitem.h,v 1.21 2012-08-03 13:01:03 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 #include "emposid.h"
@@ -22,7 +23,7 @@ class uiVisEMObject;
 class uiODDataTreeItem;
 
 
-mClass uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
+mClass(uiODMain) uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
 {
 public:
 
@@ -70,7 +71,7 @@ protected:
 };
 
 
-mClass uiODEarthModelSurfaceDataTreeItem : public uiODAttribTreeItem
+mClass(uiODMain) uiODEarthModelSurfaceDataTreeItem : public uiODAttribTreeItem
 {
 public:
     			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,
@@ -99,3 +100,4 @@ protected:
 
 
 #endif
+

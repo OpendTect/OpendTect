@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.50 2012-07-10 14:58:27 cvskris Exp $
+ RCS:		$Id: callback.h,v 1.51 2012-08-03 13:00:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "sets.h"
 #include "thread.h"
 #include <string>
@@ -54,7 +55,7 @@ want to be able to send a CallBack, you must provide a 'sender' CallBacker*
 
 */
 
-mClass CallBack
+mClass(Basic) CallBack
 {
 public:
 			CallBack( CallBacker* o=0, CallBackFunction f=0 )
@@ -86,7 +87,7 @@ protected:
 
 /*!\brief TypeSet of CallBacks with a few extras. */
 
-mClass CallBackSet : public TypeSet<CallBack>
+mClass(Basic) CallBackSet : public TypeSet<CallBack>
 {
 public:
 
@@ -104,7 +105,7 @@ public:
 
 /*!\brief interface class for Notifier. See comments there. */
 
-mClass NotifierAccess
+mClass(Basic) NotifierAccess
 {
 
     friend class	NotifyStopper;
@@ -187,7 +188,7 @@ public:
 
 
 //!> To be able to send and/or receive CallBacks, inherit from this class
-mClass CallBacker
+mClass(Basic) CallBacker
 {
 public:
 				CallBacker();
@@ -329,7 +330,7 @@ void xxx:doSomething()
 
 */
 
-mClass NotifyStopper 
+mClass(Basic) NotifyStopper 
 {
 public:
 			NotifyStopper( NotifierAccess& na ) 
@@ -368,3 +369,4 @@ Notifier<clss>& clss::instanceCreated() \
 
 
 #endif
+

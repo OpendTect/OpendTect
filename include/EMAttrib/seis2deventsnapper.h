@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          October 2009
- RCS:           $Id: seis2deventsnapper.h,v 1.3 2010-11-15 09:35:45 cvssatyaki Exp $
+ RCS:           $Id: seis2deventsnapper.h,v 1.4 2012-08-03 13:00:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "emattribmod.h"
 #include "executor.h"
 #include "seiseventsnapper.h"
 #include "seistrc.h"
@@ -24,11 +25,11 @@ class SeisTrcReader;
 class IOObj;
 
 
-mClass Seis2DEventSnapper : public SeisEventSnapper
+mClass(EMAttrib) Seis2DEventSnapper : public SeisEventSnapper
 {
 public:
 
-    mClass Setup
+    mClass(EMAttrib) Setup
     {
     public:
 				Setup(const IOObj* seisobj,const LineKey& l,
@@ -56,11 +57,11 @@ protected:
 };
 
 
-mClass Seis2DLineSetEventSnapper : public ExecutorGroup
+mClass(EMAttrib) Seis2DLineSetEventSnapper : public ExecutorGroup
 {
 public:
 
-    mClass Setup
+    mClass(EMAttrib) Setup
     {
     public:
 				Setup(const BufferString& atrnm,int typ,
@@ -85,3 +86,4 @@ protected:
 };
 
 #endif
+

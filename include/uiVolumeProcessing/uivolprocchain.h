@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivolprocchain.h,v 1.12 2012-05-09 07:51:22 cvsbert Exp $
+ RCS:		$Id: uivolprocchain.h,v 1.13 2012-08-03 13:01:19 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uivolumeprocessingmod.h"
 #include "iopar.h"
 #include "uivolprocstepdlg.h"
 
@@ -31,7 +32,7 @@ class Chain;
 class Step;
 
 
-mClass uiChain : public uiDialog
+mClass(uiVolumeProcessing) uiChain : public uiDialog
 {
 public:
 
@@ -83,3 +84,4 @@ protected:
 }; //namespace
 
 #endif
+

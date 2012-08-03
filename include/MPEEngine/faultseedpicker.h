@@ -8,17 +8,18 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: faultseedpicker.h,v 1.11 2011-10-03 08:07:19 cvsjaap Exp $
+ RCS:           $Id: faultseedpicker.h,v 1.12 2012-08-03 13:00:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mpeenginemod.h"
 #include "emseedpicker.h"
 
 namespace MPE
 {
 
-mClass FaultSeedPicker : public EMSeedPicker
+mClass(MPEEngine) FaultSeedPicker : public EMSeedPicker
 {
 public:
     			FaultSeedPicker(MPE::EMTracker&);
@@ -76,3 +77,4 @@ protected:
 } // namespace MPE
 
 #endif
+

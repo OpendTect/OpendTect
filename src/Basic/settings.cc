@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: settings.cc,v 1.51 2012-08-02 14:56:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: settings.cc,v 1.52 2012-08-03 13:01:35 cvskris Exp $";
 
 #include "settings.h"
 
@@ -203,8 +203,8 @@ bool Settings::write( bool do_merge ) const
 }
 
 
-mExternC const char* GetSettingsDataDir();
-mExternC const char* GetSettingsDataDir()
+mExternC( Basic ) const char* GetSettingsDataDir();
+mExternC( Basic ) const char* GetSettingsDataDir()
 {
     static StaticStringManager stm;
     BufferString& dirnm = stm.getString();

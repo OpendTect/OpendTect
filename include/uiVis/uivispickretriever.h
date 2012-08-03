@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispickretriever.h,v 1.9 2012-05-04 21:53:40 cvsnanne Exp $
+ RCS:           $Id: uivispickretriever.h,v 1.10 2012-08-03 13:01:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uivismod.h"
 #include "pickretriever.h"
 #include "position.h"
 #include "surv2dgeom.h"
@@ -19,7 +20,7 @@ ________________________________________________________________________
 namespace visSurvey { class Scene; }
 class uiVisPartServer;
 
-mClass uiVisPickRetriever : public PickRetriever
+mClass(uiVis) uiVisPickRetriever : public PickRetriever
 {
 public:
     			uiVisPickRetriever(uiVisPartServer*);
@@ -58,3 +59,4 @@ protected:
 };
 
 #endif
+

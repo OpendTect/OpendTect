@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellreader.h,v 1.16 2012-04-02 13:03:38 cvsbruno Exp $
+ RCS:		$Id: wellreader.h,v 1.17 2012-08-03 13:00:46 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "wellmod.h"
 #include "wellio.h"
 #include "sets.h"
 #include "ranges.h"
@@ -25,7 +26,7 @@ namespace Well
 class Data;
 class Log;
 
-mClass Reader : public IO
+mClass(Well) Reader : public IO
 {
 public:
 
@@ -71,3 +72,4 @@ protected:
 }; // namespace Well
 
 #endif
+

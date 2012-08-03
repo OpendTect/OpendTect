@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2011
- RCS:		$Id: uiprice.h,v 1.2 2012-03-13 15:44:04 cvskris Exp $
+ RCS:		$Id: uiprice.h,v 1.3 2012-08-03 13:01:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class uiLineEdit;
 class uiComboBox;
 class Price;
 
-mClass uiPrice : public uiGroup
+mClass(uiTools) uiPrice : public uiGroup
 {
 public:
 		uiPrice( uiParent* p, const char* label,
@@ -36,3 +37,4 @@ protected:
 
 
 #endif
+

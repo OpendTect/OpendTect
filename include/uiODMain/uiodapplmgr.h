@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.125 2012-05-30 15:18:41 cvsbruno Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.126 2012-08-03 13:01:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiodmain.h"
 
 class MouseCursorExchange;
@@ -55,7 +56,7 @@ namespace Pick { class Set; }
  
  */
 
-mClass uiODApplMgr : public CallBacker
+mClass(uiODMain) uiODApplMgr : public CallBacker
 {
 public:
 
@@ -283,3 +284,4 @@ protected:
 
 
 #endif
+

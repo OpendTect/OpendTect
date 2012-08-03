@@ -4,9 +4,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Jan 2008
- * ID       : $Id: madprocexec.h,v 1.6 2010-04-23 11:33:41 cvsraman Exp $
+ * ID       : $Id: madprocexec.h,v 1.7 2012-08-03 13:01:32 cvskris Exp $
 -*/
 
+#include "madagascarmod.h"
 #include "enums.h"
 #include "executor.h"
 
@@ -20,7 +21,7 @@ namespace ODMad
 //class ProcFlow;
 class MadStream;
 
-mClass ProcExec : public ::Executor
+mClass(Madagascar) ProcExec : public ::Executor
 {
 public:
 
@@ -68,3 +69,4 @@ protected:
 } // namespace ODMad
 
 #endif
+

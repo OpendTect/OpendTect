@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uilabel.h,v 1.16 2010-11-03 10:56:37 cvsjaap Exp $
+ RCS:           $Id: uilabel.h,v 1.17 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uiobj.h"
 #include "draw.h"
 
@@ -19,7 +20,7 @@ class uiGroup;
 class uiLabelBody;
 class ioPixmap;
 
-mClass uiLabel : public uiObject
+mClass(uiBase) uiLabel : public uiObject
 {
 public:
 
@@ -56,3 +57,4 @@ private:
 };
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.56 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: uiobjbody.h,v 1.57 2012-08-03 13:00:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uibasemod.h"
 #include "uibody.h"
 #include "uifont.h"
 #include "uiobj.h"
@@ -32,7 +33,7 @@ class QWidget;
 
 #define USE_DISPLAY_TIMER 1
 
-mClass uiObjectBody : public uiBody, public NamedObject
+mClass(uiBase) uiObjectBody : public uiBody, public NamedObject
 {
 friend class 		i_uiLayoutItem; 
 
@@ -250,3 +251,4 @@ public:
 };
 
 #endif
+

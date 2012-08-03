@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Aug 2009
- RCS:           $Id: visbeachball.h,v 1.10 2011-12-16 15:57:20 cvskris Exp $
+ RCS:           $Id: visbeachball.h,v 1.11 2012-08-03 13:01:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 
@@ -36,7 +37,7 @@ class DrawStyle;
 Display a beachball-type object.
 */
 
-mClass BeachBall : public VisualObjectImpl
+mClass(visBase) BeachBall : public VisualObjectImpl
 {
 public:
 
@@ -86,3 +87,4 @@ protected:
 };
 
 #endif
+

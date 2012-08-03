@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.h,v 1.5 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uievaluatedlg.h,v 1.6 2012-08-03 13:00:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uiattributesmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "bufstringset.h"
@@ -38,7 +39,7 @@ class uiSliderExtra;
 class IOPar;
 
 
-mClass AttribParamGroup : public uiGroup
+mClass(uiAttributes) AttribParamGroup : public uiGroup
 {
 public:
 				AttribParamGroup(uiParent*,const uiAttrDescEd&,
@@ -65,7 +66,7 @@ protected:
 };
 
 
-mClass uiEvaluateDlg : public uiDialog
+mClass(uiAttributes) uiEvaluateDlg : public uiDialog
 {
 public:
 				uiEvaluateDlg(uiParent*,uiAttrDescEd&,
@@ -113,3 +114,4 @@ protected:
 
 
 #endif
+

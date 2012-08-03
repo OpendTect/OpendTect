@@ -7,15 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          May 2010
- RCS:           $Id: uiwellt2dconv.h,v 1.2 2010-07-08 06:07:30 cvsnageswara Exp $
+ RCS:           $Id: uiwellt2dconv.h,v 1.3 2012-08-03 13:01:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellmod.h"
 #include "uit2dconvsel.h"
 
 
-mClass uiT2DWellConvSelGroup : public uiT2DConvSelGroup
+mClass(uiWell) uiT2DWellConvSelGroup : public uiT2DConvSelGroup
 {
 public:
 
@@ -35,3 +36,4 @@ protected:
 };
 
 #endif
+

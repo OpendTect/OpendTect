@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          September 2007
- RCS:           $Id: uistratlvlsel.h,v 1.13 2012-02-09 08:41:07 cvsbert Exp $
+ RCS:           $Id: uistratlvlsel.h,v 1.14 2012-08-03 13:01:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class Color;
@@ -21,7 +22,7 @@ namespace Strat { class Level; }
 
 /*!\brief Selector for stratigraphic levels */
 
-mClass uiStratLevelSel : public uiGroup
+mClass(uiTools) uiStratLevelSel : public uiGroup
 {
 public:
 
@@ -54,3 +55,4 @@ protected:
 
 
 #endif
+

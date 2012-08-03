@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Nov 2009
- RCS:		$Id: uifreqtaper.h,v 1.8 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:		$Id: uifreqtaper.h,v 1.9 2012-08-03 13:01:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
+#include "uiseismod.h"
 #include "uidialog.h"
 #include "uifunctiondisplay.h"
 #include "uiwindowfunctionsel.h"
@@ -30,7 +32,7 @@ class ArrayNDWindow;
 class CubeSampling;
 
 
-mStruct FreqTaperSetup
+mStruct(uiSeis) FreqTaperSetup
 {
 		    FreqTaperSetup()
 			: hasmin_(false)
@@ -50,7 +52,7 @@ mStruct FreqTaperSetup
 };
 
 
-mStruct TaperData
+mStruct(uiSeis) TaperData
 {
 		    TaperData()
 			: window_(0)  
@@ -67,11 +69,11 @@ mStruct TaperData
 };
 
 
-mClass uiFuncTaperDisp : public uiFunctionDisplay
+mClass(uiSeis) uiFuncTaperDisp : public uiFunctionDisplay
 {
 public:
 
-    mStruct Setup : public uiFunctionDisplay::Setup
+    mStruct(uiSeis) Setup : public uiFunctionDisplay::Setup
     {
 			Setup()
 			    : is2sided_(false)
@@ -136,7 +138,7 @@ protected:
 
 
 
-mClass uiFreqTaperGrp : public uiGroup
+mClass(uiSeis) uiFreqTaperGrp : public uiGroup
 {
 
 public:
@@ -182,7 +184,7 @@ protected :
 
 
 
-mClass uiFreqTaperDlg : public uiDialog
+mClass(uiSeis) uiFreqTaperDlg : public uiDialog
 {
 public:
 
@@ -210,7 +212,7 @@ protected:
 
 
 
-mClass uiFreqTaperSel : public uiWindowFunctionSel
+mClass(uiSeis) uiFreqTaperSel : public uiWindowFunctionSel
 {
 public:
 			uiFreqTaperSel(uiParent*,const Setup&,
@@ -233,3 +235,5 @@ protected :
 };
 
 #endif
+
+

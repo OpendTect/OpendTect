@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Helene Huck
  Date:		March 2008
- RCS:		$Id: emdatapack.h,v 1.1 2010-04-20 13:48:50 cvshelene Exp $
+ RCS:		$Id: emdatapack.h,v 1.2 2012-08-03 13:00:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "earthmodelmod.h"
 #include "datapackbase.h"
 
 template <class T> class Array2D;
@@ -29,7 +30,7 @@ class Fault;
 
 /*!\brief Mixin to provide general services to Earth Model data packs */
 
-mClass DataPackCommon : 	public ::FlatDataPack
+mClass(EarthModel) DataPackCommon : 	public ::FlatDataPack
 {
 public:
     			DataPackCommon(const EMObject&,Array2D<float>*);
@@ -53,7 +54,7 @@ protected:
 
 /*!\brief Flat Data Pack class for Horizons. */
 
-mClass HorDataPack : public DataPackCommon
+mClass(EarthModel) HorDataPack : public DataPackCommon
 {
 public:
     			HorDataPack(const EM::Horizon&,Array2D<float>*);
@@ -76,7 +77,7 @@ protected:
 
 /*!\brief Flat data pack from attribute extraction on faults*/ 
 
-mClass FaultDataPack : public DataPackCommon
+mClass(EarthModel) FaultDataPack : public DataPackCommon
 {
 public:
 
@@ -100,3 +101,4 @@ protected:
 } // namespace EM
 
 #endif
+

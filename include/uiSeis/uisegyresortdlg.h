@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2011
- RCS:           $Id: uisegyresortdlg.h,v 1.5 2011-04-15 12:02:58 cvsbert Exp $
+ RCS:           $Id: uisegyresortdlg.h,v 1.6 2012-08-03 13:01:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uidialog.h"
 #include "seistype.h"
 class uiIOObjSel;
@@ -23,7 +24,7 @@ class uiComboBox;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mClass uiResortSEGYDlg : public uiDialog
+mClass(uiSeis) uiResortSEGYDlg : public uiDialog
 {
 public :
 
@@ -54,3 +55,4 @@ protected:
 
 
 #endif
+

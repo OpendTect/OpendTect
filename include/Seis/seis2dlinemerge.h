@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2009
- RCS:		$Id: seis2dlinemerge.h,v 1.5 2012-04-17 09:18:13 cvssatyaki Exp $
+ RCS:		$Id: seis2dlinemerge.h,v 1.6 2012-08-03 13:00:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "seismod.h"
 #include "executor.h"
 #include "samplingdata.h"
 class MultiID;
@@ -26,7 +27,7 @@ namespace PosInfo { class Line2DData; }
 
 /*!\brief merges two 2D lines into a new one (same Line Set) */
 
-mClass Seis2DLineMerger : public Executor
+mClass(Seis) Seis2DLineMerger : public Executor
 {
 public:
 
@@ -89,3 +90,4 @@ protected:
 
 
 #endif
+

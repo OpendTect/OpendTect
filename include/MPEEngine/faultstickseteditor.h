@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2008
- RCS:           $Id: faultstickseteditor.h,v 1.12 2011-10-28 11:29:35 cvsjaap Exp $
+ RCS:           $Id: faultstickseteditor.h,v 1.13 2012-08-03 13:00:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mpeenginemod.h"
 #include "emeditor.h"
 
 namespace EM { class FaultStickSet; };
@@ -20,7 +21,7 @@ template <class T> class Selector;
 namespace MPE
 {
 
-mClass FaultStickSetEditor : public ObjectEditor
+mClass(MPEEngine) FaultStickSetEditor : public ObjectEditor
 {
 public:
     				FaultStickSetEditor(EM::FaultStickSet&);
@@ -75,3 +76,4 @@ protected:
 }  // namespace MPE
 
 #endif
+

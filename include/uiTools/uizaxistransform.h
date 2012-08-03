@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uizaxistransform.h,v 1.3 2010-04-30 14:30:06 cvskris Exp $
+ RCS:           $Id: uizaxistransform.h,v 1.4 2012-08-03 13:01:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "factory.h"
 #include "fixedstring.h"
 #include "uidlggroup.h"
@@ -23,7 +24,7 @@ class uiDialog;
 
 /*! Base class for ZAxisTransform ui's*/
 
-mClass uiZAxisTransform : public uiDlgGroup
+mClass(uiTools) uiZAxisTransform : public uiDlgGroup
 {
 public:
     mDefineFactory3ParamInClass(uiZAxisTransform,uiParent*,
@@ -39,7 +40,7 @@ protected:
 
 
 /*!Selects a ZAxisTransform. */
-mClass uiZAxisTransformSel : public uiGroup
+mClass(uiTools) uiZAxisTransformSel : public uiGroup
 {
 public:
     				uiZAxisTransformSel(uiParent*, bool withnone,
@@ -65,3 +66,4 @@ protected:
 
 
 #endif
+

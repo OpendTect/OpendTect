@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.21 2012-05-22 15:21:53 cvsnanne Exp $
+ RCS:           $Id: uicolortable.h,v 1.22 2012-08-03 13:01:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uicombobox.h"
 #include "uigroup.h"
 #include "flatview.h"
@@ -22,7 +23,7 @@ class uiLineEdit;
 
 namespace ColTab { class Sequence; class MapperSetup; }
 
-mClass uiColorTableSel : public uiComboBox
+mClass(uiTools) uiColorTableSel : public uiComboBox
 {
 public:
     			uiColorTableSel(uiParent*,const char* nm);
@@ -36,7 +37,7 @@ protected:
 };
 
 
-mClass uiColorTable : public uiGroup
+mClass(uiTools) uiColorTable : public uiGroup
 {
 public:
 
@@ -105,3 +106,4 @@ protected:
 
 
 #endif
+

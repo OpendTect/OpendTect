@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.79 2012-03-21 18:42:57 cvsyuancheng Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.80 2012-08-03 13:00:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "uiapplserv.h"
 
 #include "attribdescid.h"
@@ -59,7 +60,7 @@ template <class T> class Array3D;
 
 /*! \brief Service provider for application level - Attributes */
 
-mClass uiAttribPartServer : public uiApplPartServer
+mClass(uiAttributes) uiAttribPartServer : public uiApplPartServer
 {
 public:
 			uiAttribPartServer(uiApplService&);
@@ -289,3 +290,4 @@ protected:
 
 
 #endif
+

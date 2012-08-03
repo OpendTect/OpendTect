@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivismenuitemhandler.h,v 1.4 2011-10-07 21:50:44 cvsnanne Exp $
+ RCS:		$Id: uivismenuitemhandler.h,v 1.5 2012-08-03 13:01:19 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uivismod.h"
 #include "menuhandler.h"
 
 class uiVisPartServer;
@@ -28,7 +29,7 @@ Usage example:
 */
 
 
-mClass uiVisMenuItemHandler : public MenuItemHandler
+mClass(uiVis) uiVisMenuItemHandler : public MenuItemHandler
 {
 public:
     		uiVisMenuItemHandler(const char* classnm,uiVisPartServer&,
@@ -48,3 +49,4 @@ protected:
 
 
 #endif
+

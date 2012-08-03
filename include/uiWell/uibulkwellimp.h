@@ -4,9 +4,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Nanne Hemstra
  * DATE     : May 2012
- * ID       : $Id: uibulkwellimp.h,v 1.1 2012-05-22 21:52:18 cvsnanne Exp $
+ * ID       : $Id: uibulkwellimp.h,v 1.2 2012-08-03 13:01:20 cvskris Exp $
 -*/
 
+#include "uiwellmod.h"
 #include "uidialog.h"
 
 class uiFileInput;
@@ -16,7 +17,7 @@ namespace Table { class FormatDesc; }
 namespace Well { class Data; }
 
 
-mClass uiBulkTrackImport : public uiDialog
+mClass(uiWell) uiBulkTrackImport : public uiDialog
 {
 public:
 			uiBulkTrackImport(uiParent*);
@@ -34,7 +35,7 @@ protected:
 };
 
 
-mClass uiBulkLogImport : public uiDialog
+mClass(uiWell) uiBulkLogImport : public uiDialog
 {
 public:
 			uiBulkLogImport(uiParent*);
@@ -48,7 +49,7 @@ protected:
 };
 
 
-mClass uiBulkMarkerImport : public uiDialog
+mClass(uiWell) uiBulkMarkerImport : public uiDialog
 {
 public:
 			uiBulkMarkerImport(uiParent*);
@@ -61,3 +62,4 @@ protected:
 };
 
 #endif
+

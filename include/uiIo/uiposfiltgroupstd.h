@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposfiltgroupstd.h,v 1.4 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiposfiltgroupstd.h,v 1.5 2012-08-03 13:01:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uiposfiltgroup.h"
 class uiSpinBox;
 class uiGenInput;
@@ -19,7 +20,7 @@ class uiGenInput;
 
 /*! \brief UI for Random Position filter */
 
-mClass uiRandPosFiltGroup : public uiPosFiltGroup
+mClass(uiIo) uiRandPosFiltGroup : public uiPosFiltGroup
 {
 public:
 
@@ -42,7 +43,7 @@ protected:
 
 /*! \brief UI for Subsample Position filter */
 
-mClass uiSubsampPosFiltGroup : public uiPosFiltGroup
+mClass(uiIo) uiSubsampPosFiltGroup : public uiPosFiltGroup
 {
 public:
 
@@ -64,3 +65,4 @@ protected:
 
 
 #endif
+

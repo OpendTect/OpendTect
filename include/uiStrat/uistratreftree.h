@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.37 2012-07-04 10:36:06 cvsbruno Exp $
+ RCS:           $Id: uistratreftree.h,v 1.38 2012-08-03 13:01:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uistratmod.h"
 #include "callback.h"
 #include "ranges.h"
 #include "stratunitref.h"
@@ -28,7 +29,7 @@ namespace Strat {
 
 /*!\brief Displays a Strat::RefTree */
 
-mClass uiStratRefTree : public CallBacker 
+mClass(uiStrat) uiStratRefTree : public CallBacker 
 {
 public:
 
@@ -94,3 +95,4 @@ protected:
 
 
 #endif
+

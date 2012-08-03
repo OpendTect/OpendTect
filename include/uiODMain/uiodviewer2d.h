@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.31 2012-05-30 08:03:54 cvsbruno Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.32 2012-08-03 13:01:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "cubesampling.h"
 #include "datapack.h"
 #include "emposid.h"
@@ -31,7 +32,7 @@ namespace Attrib { class SelSpec; }
 /*!\brief Manages the 2D Viewers
 */
 
-mClass uiODViewer2D : public CallBacker
+mClass(uiODMain) uiODViewer2D : public CallBacker
 {
 public:
 				uiODViewer2D(uiODMain&,int visid);
@@ -116,3 +117,4 @@ protected:
 };
 
 #endif
+

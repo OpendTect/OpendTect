@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.15 2012-06-20 13:12:12 cvsjaap Exp $
+ RCS:		$Id: visdatagroup.h,v 1.16 2012-08-03 13:01:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "visbasemod.h"
 #include "sets.h"
 #include "visdata.h"
 
@@ -23,7 +24,7 @@ namespace osg { class Group; }
 namespace visBase
 {
 
-mClass DataObjectGroup : public DataObject
+mClass(visBase) DataObjectGroup : public DataObject
 {
 public:
 
@@ -100,3 +101,4 @@ protected:
 } //namespace
 
 #endif
+

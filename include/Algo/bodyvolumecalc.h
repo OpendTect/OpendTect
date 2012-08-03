@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		April 2012
- RCS:		$Id: bodyvolumecalc.h,v 1.3 2012-04-18 17:30:03 cvsyuancheng Exp $
+ RCS:		$Id: bodyvolumecalc.h,v 1.4 2012-08-03 13:00:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "algomod.h"
 #include "task.h"
 
 class CubeSampling;
@@ -22,7 +23,7 @@ namespace Threads { class Mutex; }
 /*!Volume estimate for implicit body in meter. */ 
 
 
-mClass BodyVolumeCalculator: public ParallelTask
+mClass(Algo) BodyVolumeCalculator: public ParallelTask
 {
 public:
     			BodyVolumeCalculator(const CubeSampling& cs,
@@ -47,3 +48,4 @@ Threads::Mutex		lock_;
 
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.35 2010-11-16 09:49:10 cvsbert Exp $
+ RCS:           $Id: uibutton.h,v 1.36 2012-08-03 13:00:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uiobj.h"
 
 class uiButtonBody;
@@ -27,7 +28,7 @@ class QMenu;
 
 
 //!\brief Button Abstract Base class
-mClass uiButton : public uiObject
+mClass(uiBase) uiButton : public uiObject
 {
 public:
 			uiButton(uiParent*,const char*,const CallBack*,
@@ -54,7 +55,7 @@ public:
   text. In principle, it could also get another appearance.
   */
 
-mClass uiPushButton : public uiButton
+mClass(uiBase) uiPushButton : public uiButton
 {
 public:
 				uiPushButton(uiParent*,const char* nm,
@@ -85,7 +86,7 @@ private:
 };
 
 
-mClass uiRadioButton : public uiButton
+mClass(uiBase) uiRadioButton : public uiButton
 {                        
 public:
 				uiRadioButton(uiParent*,const char*);
@@ -105,7 +106,7 @@ private:
 };
 
 
-mClass uiCheckBox: public uiButton
+mClass(uiBase) uiCheckBox: public uiButton
 {
 public:
 
@@ -129,7 +130,7 @@ private:
 
 
 //! Button Abstract Base class
-mClass uiButtonBody
+mClass(uiBase) uiButtonBody
 {
     friend class        i_ButMessenger;
 
@@ -150,3 +151,4 @@ protected:
 
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.27 2012-07-12 07:07:23 cvsbert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.28 2012-08-03 13:00:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "wellmod.h"
 #include "ranges.h"
 #include "bufstringset.h"
 #include "tableascio.h"
@@ -29,7 +30,7 @@ class D2TModel;
 class MarkerSet;
 
 
-mClass LASImporter
+mClass(Well) LASImporter
 {
 public:
 
@@ -37,7 +38,7 @@ public:
 			LASImporter()	       : wd_(0), useconvs_(false)   {}
 			~LASImporter();
 
-    mClass FileInfo
+    mClass(Well) FileInfo
     {
     public:
 			FileInfo()
@@ -86,7 +87,7 @@ protected:
 };
 
 
-mClass TrackAscIO : public Table::AscIO
+mClass(Well) TrackAscIO : public Table::AscIO
 {
 public:
     				TrackAscIO( const Table::FormatDesc& fd,
@@ -104,7 +105,7 @@ protected:
 };
 
 
-mClass D2TModelAscIO : public Table::AscIO
+mClass(Well) D2TModelAscIO : public Table::AscIO
 {   
     public:
 				D2TModelAscIO( const Table::FormatDesc& fd )
@@ -119,7 +120,7 @@ mClass D2TModelAscIO : public Table::AscIO
 };
 
 
-mClass MarkerSetAscIO : public Table::AscIO
+mClass(Well) MarkerSetAscIO : public Table::AscIO
 {
 public:
     			MarkerSetAscIO( const Table::FormatDesc& fd )
@@ -135,3 +136,4 @@ public:
 }; // namespace Well
 
 #endif
+

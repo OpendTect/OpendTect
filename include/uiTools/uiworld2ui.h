@@ -7,15 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.17 2010-08-25 11:54:50 cvsraman Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.18 2012-08-03 13:01:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+#include "uitoolsmod.h"
 #include "uigeom.h"
 
 class SurveyInfo;
 
-mClass World2UiData
+mClass(uiTools) World2UiData
 {
 public:
 
@@ -46,7 +47,7 @@ public:
      the new wolrd X/Y range.
  */
 
-mClass uiWorld2Ui
+mClass(uiTools) uiWorld2Ui
 {
 public:
 
@@ -125,3 +126,4 @@ private:
 
 
 #endif
+

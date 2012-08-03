@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoShaderTexture2.h,v 1.8 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:           $Id: SoShaderTexture2.h,v 1.9 2012-08-03 13:00:41 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "soodmod.h"
 #include <Inventor/fields/SoSFImage.h>
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoSubNode.h>
@@ -26,7 +27,7 @@ class SoFieldSensor;
 class SoSensor;
 
 
-mClass SoShaderTexture2: public SoNode
+mClass(SoOD) SoShaderTexture2: public SoNode
 { SO_NODE_HEADER(SoShaderTexture2);
 public:
     static		void initClass();
@@ -49,3 +50,4 @@ protected:
 };
 
 #endif
+

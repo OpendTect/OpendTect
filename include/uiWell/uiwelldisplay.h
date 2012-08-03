@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.15 2012-06-04 10:58:40 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.16 2012-08-03 13:01:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellmod.h"
+#include "uiwellmod.h"
 #include "uigroup.h"
 #include "uimainwin.h"
 #include "welldata.h"
@@ -27,11 +29,11 @@ class uiWellStratDisplay;
 
 namespace Well { class Data; }
 
-mClass uiWellDisplay : public uiGroup
+mClass(uiWell) uiWellDisplay : public uiGroup
 {
 public:
 
-    mStruct Setup
+    mStruct(uiWell) Setup
     {
 				Setup()
 				    : nobackground_(false)  
@@ -106,7 +108,7 @@ protected:
 };
 
 
-mClass uiWellDisplayWin : public uiMainWin
+mClass(uiWell) uiWellDisplayWin : public uiMainWin
 {
 public :
 			    	uiWellDisplayWin(uiParent*,Well::Data&);
@@ -121,3 +123,5 @@ protected:
 };
 
 #endif
+
+

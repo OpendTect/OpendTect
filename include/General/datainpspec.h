@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.80 2012-05-22 14:48:43 cvskris Exp $
+ RCS:           $Id: datainpspec.h,v 1.81 2012-08-03 13:00:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "ranges.h"
 #include "string2.h"
 #include "undefval.h"
@@ -22,7 +23,7 @@ ________________________________________________________________________
 class RCol2Coord;
 class IOPar;
 
-mClass DataType
+mClass(General) DataType
 {
 public:
 
@@ -76,7 +77,7 @@ A DataInpSpec is a conceptual specification of intrinsic properties of data.
 With it, user interface parts can be constructed (uiGenInput).
 
 */
-mClass DataInpSpec
+mClass(General) DataInpSpec
 {
 public:
 
@@ -541,7 +542,7 @@ typedef NumInpIntervalSpec<double>	DoubleInpIntervalSpec;
 
 
 /*! \brief Specifications for character string inputs. */
-mClass StringInpSpec : public DataInpSpec
+mClass(General) StringInpSpec : public DataInpSpec
 {
 public:
 			StringInpSpec( const char* s=0 );
@@ -571,7 +572,7 @@ protected:
 
 /*! \brief Specifications for file-name inputs.
 */
-mClass FileNameInpSpec : public StringInpSpec
+mClass(General) FileNameInpSpec : public StringInpSpec
 {
 public:
 				FileNameInpSpec( const char* fname=0 );
@@ -591,7 +592,7 @@ It does not change the underlying true/false texts.
 */
 
 
-mClass BoolInpSpec : public DataInpSpec
+mClass(General) BoolInpSpec : public DataInpSpec
 {
 public:
 			BoolInpSpec(bool yesno,const char* truetxt=sKey::Yes(),
@@ -640,7 +641,7 @@ protected:
 
 /*! \brief Specifications for list of character string inputs.
 */
-mClass StringListInpSpec : public DataInpSpec
+mClass(General) StringListInpSpec : public DataInpSpec
 {
 public:
     			StringListInpSpec(const BufferStringSet&);
@@ -690,7 +691,7 @@ protected:
 
 /*! \brief Specifications for BinID/Coordinate/TrcNrs and offsets */
 
-mClass PositionInpSpec : public DataInpSpec
+mClass(General) PositionInpSpec : public DataInpSpec
 {
 public:
 
@@ -767,3 +768,4 @@ protected:
 };
 
 #endif
+

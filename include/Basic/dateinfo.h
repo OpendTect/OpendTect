@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-3-1996
- RCS:		$Id: dateinfo.h,v 1.14 2011-12-23 15:24:14 cvskris Exp $
+ RCS:		$Id: dateinfo.h,v 1.15 2012-08-03 13:00:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "enums.h"
 #include "undefval.h"
 class BufferString;
@@ -30,7 +31,7 @@ The class has some kewl 'relative' printouts.
 */
 
 
-mClass DateInfo
+mClass(Basic) DateInfo
 {
 public:
     enum DayOfWeek	{ Su=0, Mo, Tu, We, Th, Fr, Sa };
@@ -133,3 +134,4 @@ inline int operator -( const DateInfo& di1, const DateInfo& di2 )
 
 
 #endif
+

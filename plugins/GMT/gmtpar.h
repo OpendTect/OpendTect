@@ -7,17 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtpar.h,v 1.11 2012-07-17 10:32:24 cvsraman Exp $
+ RCS:		$Id: gmtpar.h,v 1.12 2012-08-03 13:01:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "gmtmod.h"
+#include "gmtmod.h"
 #include "iopar.h"
 #include "gmtdef.h"
 
 class StreamData;
 
-mClass GMTPar : public IOPar
+mClass(GMT) GMTPar : public IOPar
 {
 public:
     			GMTPar(const char* nm)
@@ -37,7 +39,7 @@ public:
 
 typedef GMTPar* (*GMTParCreateFunc)(const IOPar&);
 
-mClass GMTParFactory
+mClass(GMT) GMTParFactory
 {
 public:
 
@@ -49,7 +51,7 @@ public:
 
 protected:
 
-    mStruct Entry
+    mStruct(GMT) Entry
     {
 				Entry(	const char* nm,
 					GMTParCreateFunc fn )
@@ -64,10 +66,10 @@ protected:
 
     Entry*		getEntry(const char*) const;
 
-    friend mGlobal GMTParFactory&	GMTPF();
+    friend mGlobal(GMT) GMTParFactory&	GMTPF();
 };
 
-mGlobal GMTParFactory& GMTPF();
+mGlobal(GMT) GMTParFactory& GMTPF();
 
 
 #define mErrStrmRet(s) { strm << s << std::endl; return false; }
@@ -120,3 +122,5 @@ mGlobal GMTParFactory& GMTPF();
     }
 
 #endif
+
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.h,v 1.21 2011-09-07 12:04:25 cvsbert Exp $
+ RCS:           $Id: uiexphorizon.h,v 1.22 2012-08-03 13:00:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "fixedstring.h"
 
@@ -24,7 +25,7 @@ class uiT2DConvSel;
 
 /*! \brief Dialog for horizon export */
 
-mClass uiExportHorizon : public uiDialog
+mClass(uiEarthModel) uiExportHorizon : public uiDialog
 {
 public:
 			uiExportHorizon(uiParent*);
@@ -60,3 +61,4 @@ protected:
 
 
 #endif
+

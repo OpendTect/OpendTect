@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackstacker.h,v 1.8 2010-12-02 16:00:42 cvskris Exp $
+ RCS:		$Id: prestackstacker.h,v 1.9 2012-08-03 13:00:34 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "prestackprocessingmod.h"
 #include "prestackprocessor.h"
 #include "multiid.h"
 
@@ -23,7 +24,7 @@ template <class T> class Interval;
 namespace PreStack
 {
 
-mClass Stack : public Processor
+mClass(PreStackProcessing) Stack : public Processor
 {
 public:
 				mDefaultFactoryInstantiation( Processor, Stack,
@@ -55,3 +56,4 @@ protected:
 }; //namespace
 
 #endif
+

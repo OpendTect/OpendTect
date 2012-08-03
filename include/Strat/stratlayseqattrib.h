@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2011
- RCS:		$Id: stratlayseqattrib.h,v 1.6 2011-10-14 12:07:11 cvsbert Exp $
+ RCS:		$Id: stratlayseqattrib.h,v 1.7 2012-08-03 13:00:43 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "stratmod.h"
 #include "namedobj.h"
 #include "enums.h"
 #include "bufstringset.h"
@@ -32,7 +33,7 @@ class LaySeqAttribSet;
  
  */
 
-mClass LaySeqAttrib : public NamedObject
+mClass(Strat) LaySeqAttrib : public NamedObject
 {
 public:
 
@@ -86,7 +87,7 @@ protected:
  */
 
 
-mClass LaySeqAttribSet : public NamedObject
+mClass(Strat) LaySeqAttribSet : public NamedObject
 		       , public ManagedObjectSet<LaySeqAttrib>
 {
 public:
@@ -115,3 +116,4 @@ protected:
 }; // namespace Strat
 
 #endif
+

@@ -6,12 +6,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki
  Date:          November 2007
- RCS:           $Id: uiseistrcbufviewer.h,v 1.16 2012-05-09 12:08:37 cvsbert Exp $
+ RCS:           $Id: uiseistrcbufviewer.h,v 1.17 2012-08-03 13:01:09 cvskris Exp $
 _______________________________________________________________________
 
 -*/
 
 
+#include "uiseismod.h"
 #include "seistype.h"
 #include "uiflatviewmainwin.h"
 class BufferString;
@@ -25,7 +26,7 @@ class SeisTrcBufDataPack;
 
 */
 
-mClass uiSeisTrcBufViewer : public uiFlatViewMainWin
+mClass(uiSeis) uiSeisTrcBufViewer : public uiFlatViewMainWin
 {
 public:
 
@@ -62,3 +63,4 @@ protected:
 
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.28 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vistexture.h,v 1.29 2012-08-03 13:01:26 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visdata.h"
 #include "scaler.h"
 
@@ -43,7 +44,7 @@ If ThreadWorker is set, it utilizes mt processing.
 
 */
 
-mClass Texture : public DataObject
+mClass(visBase) Texture : public DataObject
 {
 public:
     enum		DataType { Color, Transparency,
@@ -149,3 +150,4 @@ protected:
 };
 
 #endif
+

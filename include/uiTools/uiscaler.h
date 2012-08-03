@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.h,v 1.8 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiscaler.h,v 1.9 2012-08-03 13:01:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uigroup.h"
 class Scaler;
 class uiGenInput;
 class uiCheckBox;
 
 
-mClass uiScaler : public uiGroup
+mClass(uiTools) uiScaler : public uiGroup
 {
 public:
 
@@ -42,3 +43,4 @@ protected:
 
 
 #endif
+

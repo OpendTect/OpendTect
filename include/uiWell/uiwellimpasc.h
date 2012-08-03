@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.h,v 1.17 2012-07-30 08:31:28 cvsbruno Exp $
+ RCS:           $Id: uiwellimpasc.h,v 1.18 2012-08-03 13:01:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellmod.h"
 #include "uidialog.h"
 
 class uiCheckBox;
@@ -29,7 +30,7 @@ namespace Well { class Data; }
 
 /*! \brief Dialog for well import from Ascii */
 
-mClass uiWellImportAsc : public uiDialog
+mClass(uiWell) uiWellImportAsc : public uiDialog
 {
 public:
 			uiWellImportAsc(uiParent*);
@@ -66,3 +67,4 @@ protected:
 
 
 #endif
+

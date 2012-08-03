@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          August 2008
- RCS:           $Id: uimultcomputils.h,v 1.8 2009-07-30 13:30:04 cvshelene Exp $
+ RCS:           $Id: uimultcomputils.h,v 1.9 2012-08-03 13:01:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "bufstringset.h"
 #include "uicompoundparsel.h"
 #include "uidialog.h"
@@ -23,7 +24,7 @@ class uiListBox;
 
 /*!\brief dialog to select (multiple) component(s) of stored data */
 
-mClass uiMultCompDlg : public uiDialog
+mClass(uiSeis) uiMultCompDlg : public uiDialog
 {
 public:
 			uiMultCompDlg(uiParent*,const BufferStringSet&);
@@ -39,7 +40,7 @@ protected:
 
 /*!\brief CompoundParSel to capture and sum up the user-selected components */
 
-mClass uiMultCompSel : public uiCompoundParSel
+mClass(uiSeis) uiMultCompSel : public uiCompoundParSel
 {
     public:
 			uiMultCompSel(uiParent*);
@@ -55,7 +56,7 @@ mClass uiMultCompSel : public uiCompoundParSel
     void                doDlg(CallBacker*);
     void		prepareDlg();
 
-    mClass MCompDlg : public uiDialog
+    mClass(uiSeis) MCompDlg : public uiDialog
     {
 	public:
 	    			MCompDlg(uiParent*,const BufferStringSet&);
@@ -71,3 +72,4 @@ mClass uiMultCompSel : public uiCompoundParSel
 
 
 #endif
+

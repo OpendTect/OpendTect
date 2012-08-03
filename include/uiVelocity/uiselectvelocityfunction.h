@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2006
- RCS:           $Id: uiselectvelocityfunction.h,v 1.4 2011-05-02 18:45:36 cvskris Exp $
+ RCS:           $Id: uiselectvelocityfunction.h,v 1.5 2012-08-03 13:01:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uivelocitymod.h"
 #include "factory.h"
 #include "uidialog.h"
 #include "uigroup.h"
@@ -29,7 +30,7 @@ class FunctionSource;
 
 //!uiGroup to select a velocity function type
 
-mClass uiFunctionSel : public uiGroup
+mClass(uiVelocity) uiFunctionSel : public uiGroup
 {
 public:
 
@@ -63,7 +64,7 @@ protected:
 
 
 //!Base class for velocity function settings
-mClass uiFunctionSettings : public uiGroup
+mClass(uiVelocity) uiFunctionSettings : public uiGroup
 {
 public:
     mDefineFactory2ParamInClass( uiFunctionSettings, uiParent*,
@@ -78,7 +79,7 @@ public:
 
 
 
-mClass uiAddFunction : public uiDialog
+mClass(uiVelocity) uiAddFunction : public uiDialog
 {
 public:
     				uiAddFunction( uiParent* );
@@ -92,7 +93,7 @@ public:
 };
 
 
-mClass uiEditFunction : public uiDialog
+mClass(uiVelocity) uiEditFunction : public uiDialog
 {
 public:
     				uiEditFunction( uiParent*,
@@ -108,3 +109,4 @@ public:
 
 
 #endif
+

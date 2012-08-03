@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon3d.h,v 1.6 2011-06-03 15:08:41 cvsbruno Exp $
+ RCS:		$Id: visvw2dhorizon3d.h,v 1.7 2012-08-03 13:01:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiviewer2dmod.h"
 #include "visvw2ddata.h"
 
 class CubeSampling;
@@ -20,7 +21,7 @@ namespace Attrib { class SelSpec; }
 namespace MPE { class HorizonFlatViewEditor3D; }
 
 
-mClass Vw2DHorizon3D : public Vw2DEMDataObject
+mClass(uiViewer2D) Vw2DHorizon3D : public Vw2DEMDataObject
 {
 public:
    static Vw2DHorizon3D* create(const EM::ObjectID& id,uiFlatViewWin* win,
@@ -62,3 +63,4 @@ protected:
 
 
 #endif
+

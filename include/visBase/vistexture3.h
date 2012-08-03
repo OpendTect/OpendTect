@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture3.h,v 1.8 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vistexture3.h,v 1.9 2012-08-03 13:01:27 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "vistexture.h"
 
 class SoTexture3;
@@ -26,7 +27,7 @@ namespace visBase
 
 */
 
-mClass Texture3 : public Texture
+mClass(visBase) Texture3 : public Texture
 {
 public:
     static Texture3*	create()
@@ -64,3 +65,4 @@ protected:
 };
 
 #endif
+

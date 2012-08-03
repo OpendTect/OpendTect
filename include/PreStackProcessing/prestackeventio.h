@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventio.h,v 1.11 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: prestackeventio.h,v 1.12 2012-08-03 13:00:33 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "prestackprocessingmod.h"
 #include "executor.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
@@ -36,7 +37,7 @@ class EventPatchWriter;
 
 /*! Reader for prestack events. */
 
-mClass EventReader : public Executor
+mClass(PreStackProcessing) EventReader : public Executor
 {
 public:
     			EventReader(IOObj*,EventManager*,bool trigger);
@@ -100,7 +101,7 @@ protected:
 };
 
 
-mClass EventWriter : public Executor
+mClass(PreStackProcessing) EventWriter : public Executor
 {
 public:
     			EventWriter(IOObj*,EventManager&);
@@ -123,7 +124,7 @@ protected:
 };
 
 
-mClass EventDuplicator : public Executor
+mClass(PreStackProcessing) EventDuplicator : public Executor
 {
 public:
     			EventDuplicator(IOObj* from,IOObj* to);
@@ -153,3 +154,4 @@ protected:
 }; //namespace
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          Feb 2011
- RCS:           $Id: uigainanalysisdlg.h,v 1.1 2011-03-01 10:17:55 cvssatyaki Exp $
+ RCS:           $Id: uigainanalysisdlg.h,v 1.2 2012-08-03 13:00:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uiattributesmod.h"
 #include "arraynd.h"
 #include "uidialog.h"
 
@@ -22,7 +23,7 @@ class uiFunctionDisplay;
 class uiGenInput;
 class uiLabeledSpinBox;
 
-mClass uiGainAnalysisDlg : public uiDialog
+mClass(uiAttributes) uiGainAnalysisDlg : public uiDialog
 {
 public:
 				uiGainAnalysisDlg(uiParent*,const SeisTrcBuf&,
@@ -55,3 +56,4 @@ protected:
 
 
 #endif
+

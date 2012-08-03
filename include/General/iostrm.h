@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.29 2010-12-16 13:04:29 cvsbert Exp $
+ RCS:		$Id: iostrm.h,v 1.30 2012-08-03 13:00:23 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
  
+#include "generalmod.h"
 #include "ioobj.h"
 #include "streamconn.h"
 #include "ranges.h"
@@ -21,7 +22,7 @@ class StreamProvider;
 /*\brief An IOStream is a file (default) or command entry in the omf. */
 
 
-mClass IOStream : public IOObj
+mClass(General) IOStream : public IOObj
 {
 public:
 			IOStream(const char* nm=0,const char* id=0,
@@ -114,3 +115,4 @@ protected:
 
 
 #endif
+

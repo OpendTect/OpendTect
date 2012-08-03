@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "wellattribmod.h"
 #include "executor.h"
 #include "position.h"
 
@@ -27,7 +28,7 @@ class SeisTrc;
 namespace WellTie
 {
 
-mClass SeismicExtractor : public Executor
+mClass(WellAttrib) SeismicExtractor : public Executor
 {
 public:
 			SeismicExtractor(const IOObj&);
@@ -68,3 +69,4 @@ protected:
 };//namespace WellTie
 
 #endif
+

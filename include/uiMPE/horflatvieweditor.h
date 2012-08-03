@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2009
- RCS:           $Id: horflatvieweditor.h,v 1.7 2009-11-13 11:04:48 cvsumesh Exp $
+ RCS:           $Id: horflatvieweditor.h,v 1.8 2012-08-03 13:01:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uimpemod.h"
 #include "callback.h"
 #include "cubesampling.h"
 #include "multiid.h"
@@ -31,7 +32,7 @@ namespace MPE
 class EMTracker;
 class EMSeedPicker;
 
-mClass HorizonFlatViewEditor : public CallBacker
+mClass(uiMPE) HorizonFlatViewEditor : public CallBacker
 {
 public:
     				HorizonFlatViewEditor(FlatView::AuxDataEditor*);
@@ -95,4 +96,5 @@ protected:
 } // namespace MPE
 
 #endif
+
 

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Jul 2010
- RCS:           $Id: uibasemap.h,v 1.9 2011-10-04 13:44:59 cvskris Exp $
+ RCS:           $Id: uibasemap.h,v 1.10 2012-08-03 13:01:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uitoolsmod.h"
 #include "basemap.h"
 #include "uigroup.h"
 
@@ -21,7 +22,7 @@ class uiGraphicsItemGroup;
 class uiGraphicsView;
 class uiWorld2Ui;
 
-mClass uiBaseMapObject : public CallBacker
+mClass(uiTools) uiBaseMapObject : public CallBacker
 {
 public:
     				uiBaseMapObject(BaseMapObject*);
@@ -44,7 +45,7 @@ protected:
 };
 
 
-mClass uiBaseMap : public BaseMap, public uiGroup
+mClass(uiTools) uiBaseMap : public BaseMap, public uiGroup
 {
 public:
 				uiBaseMap(uiParent*);
@@ -71,3 +72,4 @@ protected:
 };
 
 #endif
+

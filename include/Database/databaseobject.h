@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Nov 2011
- RCS:		$Id: databaseobject.h,v 1.9 2012-03-21 07:05:57 cvskris Exp $
+ RCS:		$Id: databaseobject.h,v 1.10 2012-08-03 13:00:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "databasemod.h"
 #include "sets.h"
 #include "fixedstring.h"
 #include "sqlquery.h"
@@ -24,7 +25,7 @@ namespace SqlDB
 class DatabaseTable;
 class Access;
 
-mClass DatabaseColumnBase
+mClass(Database) DatabaseColumnBase
 {
 public:
     			DatabaseColumnBase( DatabaseTable& dobj,
@@ -49,7 +50,7 @@ protected:
 
 
 #define mEnumDatabaseColumn( clssnm, enmcls, enm )			\
-mClass clssnm : public ::SqlDB::DatabaseColumnBase			\
+mClass(Database) clssnm : public ::SqlDB::DatabaseColumnBase			\
 {									\
 public:									\
     		clssnm( ::SqlDB::DatabaseTable& dobj,	\
@@ -67,7 +68,7 @@ public:									\
 
 
 template<class T>
-mClass DatabaseColumn : public DatabaseColumnBase
+mClass(Database) DatabaseColumn : public DatabaseColumnBase
 {
 public:
     inline		DatabaseColumn( DatabaseTable& dobj,
@@ -78,7 +79,7 @@ public:
 };
 
 
-mClass IDDatabaseColumn : public DatabaseColumn<int>
+mClass(Database) IDDatabaseColumn : public DatabaseColumn<int>
 {
 public:
     		IDDatabaseColumn(DatabaseTable& dobj)
@@ -92,7 +93,7 @@ public:
 };
 
 
-mClass StringDatabaseColumn : public DatabaseColumn<BufferString>
+mClass(Database) StringDatabaseColumn : public DatabaseColumn<BufferString>
 {
 public:
     		StringDatabaseColumn( DatabaseTable& dobj,
@@ -100,7 +101,7 @@ public:
 };
 
 
-mClass CreatedTimeStampDatabaseColumn : public DatabaseColumnBase
+mClass(Database) CreatedTimeStampDatabaseColumn : public DatabaseColumnBase
 {
 public:
     		CreatedTimeStampDatabaseColumn( DatabaseTable& dobj );
@@ -110,7 +111,7 @@ public:
 };
 
 
-mClass DateDatabaseColumn : public DatabaseColumnBase
+mClass(Database) DateDatabaseColumn : public DatabaseColumnBase
 {
 public:
     		DateDatabaseColumn( DatabaseTable& dobj,
@@ -120,7 +121,7 @@ public:
 };
 
 
-mClass PriceDatabaseColumn : public DatabaseColumnBase
+mClass(Database) PriceDatabaseColumn : public DatabaseColumnBase
 {
 public:
     		PriceDatabaseColumn( DatabaseTable& dobj,
@@ -134,7 +135,7 @@ public:
    a new row is added where entryidcol is set to the id of the row it is
    replacing, and a timestamp will tell which row that is the current. */
 
-mClass DatabaseTable
+mClass(Database) DatabaseTable
 {
 public:
     			DatabaseTable(const char* tablename);
@@ -217,3 +218,4 @@ const char* DatabaseColumn<T>::dataString( const T& val ) const
 
 
 #endif
+

@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltattr.h,v 1.15 2010-10-12 07:09:03 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltattr.h,v 1.16 2012-08-03 13:01:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uidialog.h"
 #include "uislider.h"
 
@@ -26,7 +27,7 @@ class WaveletAttrib;
 
 template <class T> class Array1DImpl;
 
-mClass uiSeisWvltSliderDlg : public uiDialog 
+mClass(uiSeis) uiSeisWvltSliderDlg : public uiDialog 
 {
 public:
 				~uiSeisWvltSliderDlg();
@@ -48,7 +49,7 @@ protected:
 };
 
 
-mClass uiSeisWvltRotDlg : public uiSeisWvltSliderDlg 
+mClass(uiSeis) uiSeisWvltRotDlg : public uiSeisWvltSliderDlg 
 {
 public:
 				uiSeisWvltRotDlg(uiParent*,Wavelet&);
@@ -58,7 +59,7 @@ protected:
 };
 
 
-mClass uiSeisWvltTaperDlg : public uiSeisWvltSliderDlg 
+mClass(uiSeis) uiSeisWvltTaperDlg : public uiSeisWvltSliderDlg 
 {
 public:
 				uiSeisWvltTaperDlg(uiParent*,Wavelet&);
@@ -89,7 +90,7 @@ protected:
 
 
 
-mClass uiWaveletDispProp : public uiGroup
+mClass(uiSeis) uiWaveletDispProp : public uiGroup
 {
 public:
 
@@ -115,7 +116,7 @@ private:
 };
 
 
-mClass uiWaveletDispPropDlg : public uiDialog
+mClass(uiSeis) uiWaveletDispPropDlg : public uiDialog
 {
 public:
 				uiWaveletDispPropDlg(uiParent*,const Wavelet&);
@@ -126,3 +127,4 @@ protected:
 };
 
 #endif
+

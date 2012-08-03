@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunction.h,v 1.11 2011-09-06 13:15:22 cvskris Exp $
+ RCS:		$Id: velocityfunction.h,v 1.12 2012-08-03 13:00:44 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "velocitymod.h"
 #include "enums.h"
 #include "factory.h"
 #include "multiid.h"
@@ -37,7 +38,7 @@ class FunctionSource;
    different for each subclass, but is typically user-picks, wells
    or velocity volumes. */
 
-mClass Function
+mClass(Velocity) Function
 {
 public:
     void			ref() const;
@@ -81,7 +82,7 @@ private:
 /*!A source of Velocity functions of a certain sort. The FunctionSource
    can create Functions at certian BinID locations. */
 
-mClass FunctionSource : public CallBacker
+mClass(Velocity) FunctionSource : public CallBacker
 { mRefCountImplNoDestructor(FunctionSource);
 public:
     mDefineFactory1ParamInClass( FunctionSource, const MultiID&, factory );
@@ -127,3 +128,4 @@ protected:
 
 
 #endif
+

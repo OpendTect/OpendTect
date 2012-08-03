@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.37 2012-03-19 20:43:49 cvsyuancheng Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.38 2012-08-03 13:00:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "uigroup.h"
 #include "uiattribfactory.h"
 #include "changetracker.h"
@@ -31,7 +32,7 @@ using namespace Attrib;
 
 /*! \brief Description of attribute parameters to evaluate */
 
-mClass EvalParam
+mClass(uiAttributes) EvalParam
 {
 public:
     			EvalParam( const char* lbl, const char* par1=0,
@@ -56,7 +57,7 @@ public:
 
 /*! \brief Attribute description editor creater */
 
-mClass uiAttrDescEdCreater
+mClass(uiAttributes) uiAttrDescEdCreater
 {
 public:
     virtual			~uiAttrDescEdCreater()		{}
@@ -74,7 +75,7 @@ public:
 
  */
 
-mClass uiAttrDescEd : public uiGroup
+mClass(uiAttributes) uiAttrDescEd : public uiGroup
 {
 public:
 
@@ -228,3 +229,4 @@ const char* clss::attribName() const \
 	    	      uiAttrDescEd::AnyDim)
 
 #endif
+

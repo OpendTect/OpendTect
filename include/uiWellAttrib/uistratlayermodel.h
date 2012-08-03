@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.29 2012-05-15 13:10:26 cvsbruno Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.30 2012-08-03 13:01:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellattribmod.h"
 #include "uimainwin.h"
 class CtxtIOObj;
 class Wavelet;
@@ -29,7 +30,7 @@ class uiStratLayModEditTools;
 namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
 
 
-mClass uiStratLayerModel : public uiMainWin
+mClass(uiWellAttrib) uiStratLayerModel : public uiMainWin
 {
 public:
 
@@ -107,3 +108,4 @@ public:
 
 
 #endif
+

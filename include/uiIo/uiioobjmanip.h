@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.19 2010-11-16 11:30:12 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.20 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
+#include "uiiomod.h"
 #include "uibuttongroup.h"
 class IOObj;
 class MultiID;
@@ -23,7 +25,7 @@ class IODirEntryList;
 class BufferStringSet;
 
 
-mClass uiManipButGrp : public uiButtonGroup
+mClass(uiIo) uiManipButGrp : public uiButtonGroup
 {
 public:
     			uiManipButGrp(uiParent* p)
@@ -42,7 +44,7 @@ public:
 
 protected:
 
-    mStruct ButData
+    mStruct(uiIo) ButData
     {
 			ButData(uiToolButton*,const char*,const char*);
 	uiToolButton*	but;
@@ -58,7 +60,7 @@ protected:
 class uiIOObjManipGroup;
 
 
-mClass uiIOObjManipGroupSubj : public CallBacker
+mClass(uiIo) uiIOObjManipGroupSubj : public CallBacker
 {
 public:
 				uiIOObjManipGroupSubj( uiObject* o )
@@ -78,7 +80,7 @@ public:
 
 /*! \brief Buttongroup to manipulate an IODirEntryList. */
 
-mClass uiIOObjManipGroup : public uiManipButGrp
+mClass(uiIo) uiIOObjManipGroup : public uiManipButGrp
 {
 public:
 
@@ -115,3 +117,5 @@ protected:
 
 
 #endif
+
+

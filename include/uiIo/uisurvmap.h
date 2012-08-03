@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.24 2011-04-27 10:13:18 cvsbert Exp $
+ RCS:           $Id: uisurvmap.h,v 1.25 2012-08-03 13:01:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uibasemap.h"
 
 class SurveyInfo;
@@ -21,7 +22,7 @@ class uiMarkerItem;
 class uiTextItem;
 class BaseMapObject;
 
-mClass uiSurveyBoxObject : public uiBaseMapObject
+mClass(uiIo) uiSurveyBoxObject : public uiBaseMapObject
 {
 public:
     			uiSurveyBoxObject(BaseMapObject*,bool);
@@ -42,7 +43,7 @@ protected:
 };
 
 
-mClass uiNorthArrowObject : public uiBaseMapObject
+mClass(uiIo) uiNorthArrowObject : public uiBaseMapObject
 {
 public:
     			uiNorthArrowObject(BaseMapObject*,bool);
@@ -63,7 +64,7 @@ protected:
 };
 
 
-mClass uiSurveyMap : public uiBaseMap
+mClass(uiIo) uiSurveyMap : public uiBaseMap
 {
 public:
 			uiSurveyMap(uiParent*,bool withtitle=true);
@@ -82,3 +83,4 @@ protected:
 };
 
 #endif
+

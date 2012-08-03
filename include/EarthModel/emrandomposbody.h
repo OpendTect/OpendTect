@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		January 2009
- RCS:		$Id: emrandomposbody.h,v 1.9 2011-12-15 21:45:41 cvsyuancheng Exp $
+ RCS:		$Id: emrandomposbody.h,v 1.10 2012-08-03 13:00:19 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "embody.h"
 #include "emobject.h"
 
@@ -22,7 +23,7 @@ namespace Pick { class Set; }
 namespace EM
 {
 
-mClass RandomPosBody : public Body, public EMObject
+mClass(EarthModel) RandomPosBody : public Body, public EMObject
 { mDefineEMObjFuncs( RandomPosBody );
 public:
     
@@ -81,3 +82,4 @@ protected:
 
 
 #endif
+

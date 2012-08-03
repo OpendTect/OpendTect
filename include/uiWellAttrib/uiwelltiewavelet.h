@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 
@@ -29,7 +30,7 @@ namespace WellTie
 
 class uiWavelet;
 
-mClass uiWaveletView : public uiGroup
+mClass(uiWellAttrib) uiWaveletView : public uiGroup
 {
 public:
 
@@ -85,4 +86,5 @@ protected:
 
 }; //namespace WellTie
 #endif
+
 

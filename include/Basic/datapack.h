@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2007
- RCS:		$Id: datapack.h,v 1.12 2012-08-01 06:15:59 cvsmahant Exp $
+ RCS:		$Id: datapack.h,v 1.13 2012-08-03 13:00:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "namedobj.h"
 #include "manobjectset.h"
 #include "multiid.h"
@@ -32,7 +33,7 @@ class IOPar;
  */ 
 
 
-mClass DataPack : public NamedObject
+mClass(Basic) DataPack : public NamedObject
 {
 public:
 
@@ -82,7 +83,7 @@ protected:
 
 /*!\brief Simple DataPack based on an unstructured char array buffer. */
 
-mClass BufferDataPack : public DataPack
+mClass(Basic) BufferDataPack : public DataPack
 {
 public:
 
@@ -126,7 +127,7 @@ protected:
 
    */
 
-mClass DataPackMgr : public CallBacker
+mClass(Basic) DataPackMgr : public CallBacker
 {
 public:
 			// You can, but normally should not, construct
@@ -209,9 +210,9 @@ public:
 };
 
 
-mGlobal DataPackMgr& DPM(DataPackMgr::ID);
+mGlobal(Basic) DataPackMgr& DPM(DataPackMgr::ID);
 		//!< will create a new mgr if needed
-mGlobal DataPackMgr& DPM(const DataPack::FullID&);
+mGlobal(Basic) DataPackMgr& DPM(const DataPack::FullID&);
 		//!< will return empty dummy mgr if mgr ID not found
 
 
@@ -237,3 +238,4 @@ type var = 0; \
 mObtainDataPack( var, type, mgrid, newid ); \
 
 #endif
+

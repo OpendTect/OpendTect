@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.28 2012-03-07 09:53:42 cvskris Exp $
+ RCS:           $Id: uispinbox.h,v 1.29 2012-08-03 13:00:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uiobj.h"
 #include "uigroup.h"
 #include "ranges.h"
@@ -20,7 +21,7 @@ class uiSpinBoxBody;
 class uiLabel;
 
 
-mClass uiSpinBox : public uiObject
+mClass(uiBase) uiSpinBox : public uiObject
 {
 friend class		uiSpinBoxBody;
 
@@ -113,7 +114,7 @@ private:
 };
 
 
-mClass uiLabeledSpinBox : public uiGroup
+mClass(uiBase) uiLabeledSpinBox : public uiGroup
 {
 public:
                 	uiLabeledSpinBox(uiParent*,const char* txt,
@@ -130,3 +131,4 @@ protected:
 };
 
 #endif
+

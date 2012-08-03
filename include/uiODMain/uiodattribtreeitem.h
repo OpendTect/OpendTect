@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodattribtreeitem.h,v 1.9 2011-11-04 08:22:04 cvskris Exp $
+ RCS:		$Id: uiodattribtreeitem.h,v 1.10 2012-08-03 13:01:03 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uioddatatreeitem.h"
 
 namespace Attrib { class SelSpec; };
@@ -20,7 +21,7 @@ namespace Attrib { class SelSpec; };
 
 /*! Implementation of uiODDataTreeItem for standard attribute displays. */
 
-mClass uiODAttribTreeItem : public uiODDataTreeItem
+mClass(uiODMain) uiODAttribTreeItem : public uiODDataTreeItem
 {
 public:
     			uiODAttribTreeItem( const char* parenttype );
@@ -46,3 +47,4 @@ protected:
 
 
 #endif
+

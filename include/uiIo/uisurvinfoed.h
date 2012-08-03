@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.36 2010-12-06 21:43:02 cvskris Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.37 2012-08-03 13:01:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 #include "ranges.h"
 class IOPar;
@@ -25,7 +26,7 @@ class uiSurvInfoProvider;
 
 /*\brief The survey info editor */
 
-mClass uiSurveyInfoEditor : public uiDialog
+mClass(uiIo) uiSurveyInfoEditor : public uiDialog
 {
 
 public:
@@ -115,3 +116,4 @@ protected:
 };
 
 #endif
+

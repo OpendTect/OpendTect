@@ -6,16 +6,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.28 2012-05-22 04:26:39 cvssatyaki Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.29 2012-08-03 13:01:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uiobjfileman.h"
 class uiToolButton;
 
 
-mClass uiSeisFileMan : public uiObjFileMan
+mClass(uiSeis) uiSeisFileMan : public uiObjFileMan
 {
 public:
 			uiSeisFileMan(uiParent*,bool);
@@ -48,3 +49,4 @@ protected:
 };
 
 #endif
+

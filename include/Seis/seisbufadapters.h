@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Feb 2007
- RCS:		$Id: seisbufadapters.h,v 1.14 2012-04-05 13:51:47 cvsbert Exp $
+ RCS:		$Id: seisbufadapters.h,v 1.15 2012-08-03 13:00:35 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 
+#include "seismod.h"
 #include "seisbuf.h"
 #include "arraynd.h"
 #include "datapackbase.h"
@@ -21,7 +22,7 @@ ________________________________________________________________________
 
 /*!\brief Array2D based on SeisTrcBuf. */
 
-mClass SeisTrcBufArray2D : public Array2D<float>
+mClass(Seis) SeisTrcBufArray2D : public Array2D<float>
 {
 public:
 
@@ -59,7 +60,7 @@ protected:
 
 /*!\brief FlatDataPack based on SeisTrcBuf. */
 
-mClass SeisTrcBufDataPack : public FlatDataPack
+mClass(Seis) SeisTrcBufDataPack : public FlatDataPack
 {
 public:
 
@@ -104,3 +105,4 @@ protected:
 
 
 #endif
+

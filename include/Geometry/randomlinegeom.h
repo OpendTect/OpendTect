@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.h,v 1.11 2011-09-07 13:51:29 cvsbruno Exp $
+ RCS:		$Id: randomlinegeom.h,v 1.12 2012-08-03 13:00:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "geometrymod.h"
 #include "position.h"
 #include "ranges.h"
 #include "namedobj.h"
@@ -25,7 +26,7 @@ namespace Geometry
 
 class RandomLineSet;
 
-mClass RandomLine : public NamedObject
+mClass(Geometry) RandomLine : public NamedObject
 {
 public:
     			RandomLine(const char* nm=0);
@@ -70,7 +71,7 @@ protected:
 };
 
 
-mClass RandomLineSet
+mClass(Geometry) RandomLineSet
 {
 public:
 
@@ -104,3 +105,4 @@ protected:
 } // namespace
 
 #endif
+

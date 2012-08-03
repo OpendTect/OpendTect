@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamerainfo.h,v 1.6 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: viscamerainfo.h,v 1.7 2012-08-03 13:01:23 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visdata.h"
 
 class SoCameraInfo;
@@ -25,7 +26,7 @@ namespace visBase
 
 */
 
-mClass CameraInfo : public DataObject
+mClass(visBase) CameraInfo : public DataObject
 {
 public:
 
@@ -51,4 +52,5 @@ protected:
 };
 
 #endif
+
 

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.36 2010-12-13 12:33:50 cvsbert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.37 2012-08-03 13:00:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
  
+#include "generalmod.h"
 #include "namedobj.h"
 #include "multiid.h"
 #include "enums.h"
@@ -23,7 +24,7 @@ class TranslatorGroup;
 
 /*!\brief Holds constraints on IOObj selection */
 
-mClass IOObjSelConstraints
+mClass(General) IOObjSelConstraints
 {
 public:
     
@@ -53,7 +54,7 @@ we'll be blobbing stuff in the root of the survey.
 
 */
 
-mClass IOObjContext : public NamedObject
+mClass(General) IOObjContext : public NamedObject
 {
 public:
 
@@ -109,7 +110,7 @@ don't want that, you'll have to just assign.
 
 */
 
-mClass CtxtIOObj : public NamedObject
+mClass(General) CtxtIOObj : public NamedObject
 {
 public:
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )
@@ -144,3 +145,4 @@ public:
 
 
 #endif
+

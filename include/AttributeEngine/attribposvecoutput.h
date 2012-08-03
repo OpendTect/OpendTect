@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: attribposvecoutput.h,v 1.6 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attribposvecoutput.h,v 1.7 2012-08-03 13:00:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "attributeenginemod.h"
 #include "executor.h"
 #include "bufstringset.h"
 
@@ -25,7 +26,7 @@ namespace Attrib
 class EngineMan;
 class DescSet;
 
-mClass PosVecOutputGen : public Executor
+mClass(AttributeEngine) PosVecOutputGen : public Executor
 {
 public:
 
@@ -60,3 +61,4 @@ protected:
 }; // namespace Attrib
 
 #endif
+

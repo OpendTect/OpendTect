@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodwelltreeitem.h,v 1.17 2012-04-09 22:15:06 cvsnanne Exp $
+ RCS:		$Id: uiodwelltreeitem.h,v 1.18 2012-08-03 13:01:05 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 #include "multiid.h"
@@ -22,7 +23,7 @@ class uiCreateAttribLogDlg;
 class uiD2TMLogSelDlg;
 class uiMenuItem;
 
-mClass uiODWellParentTreeItem : public uiODTreeItem
+mClass(uiODMain) uiODWellParentTreeItem : public uiODTreeItem
 {
     typedef uiODTreeItem	inheritedClass;
 public:
@@ -39,7 +40,7 @@ protected:
 };
 
 
-mClass uiODWellTreeItemFactory : public uiODTreeItemFactory
+mClass(uiODMain) uiODWellTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -48,7 +49,7 @@ public:
 };
 
 
-mClass uiODWellTreeItem : public uiODDisplayTreeItem
+mClass(uiODMain) uiODWellTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODWellTreeItem( int );
@@ -85,3 +86,4 @@ protected:
 
 
 #endif
+

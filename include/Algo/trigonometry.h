@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.52 2012-08-01 09:33:42 cvsmahant Exp $
+ RCS:		$Id: trigonometry.h,v 1.53 2012-08-03 13:00:06 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "algomod.h"
 #include "position.h"
 #include <math.h>
 
@@ -271,7 +272,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>&, bool normalize,
  where: i*i = j*j = k*k = -1.
 */
 
-mClass Quaternion
+mClass(Algo) Quaternion
 {
 public:
     			Quaternion(float s,float x,float y,float z);
@@ -299,7 +300,7 @@ public:
 /*!\brief A Line2 is a line on XY-plane, and it is defined in slope-intercept
     form y = slope*x + y-intercept; for making operations easier. */
 
-mClass Line2
+mClass(Algo) Line2
 {
 public:			
     			Line2(double slope=0,double intcpt=0);
@@ -345,7 +346,7 @@ z = z0 + gamma*t
 */
 
 
-mClass Line3
+mClass(Algo) Line3
 {
 public:			
     			Line3();
@@ -393,7 +394,7 @@ Ax + By + Cz + D = 0
 
 
 
-mClass Plane3
+mClass(Algo) Plane3
 {
 public:
 			Plane3();
@@ -451,7 +452,7 @@ public:
    3D space and the coordiante system. */
 
 
-mClass Plane3CoordSystem
+mClass(Algo) Plane3CoordSystem
 {
 public:
     			Plane3CoordSystem(const Coord3& normal,
@@ -489,7 +490,7 @@ protected:
   The angle phi lies in the horizontal plane, theta in the vertical plane.
 */
 
-mClass Sphere
+mClass(Algo) Sphere
 {
 public:
 			Sphere(float r=0,float t=0,float p=0)
@@ -505,10 +506,10 @@ public:
 };
 
 
-mGlobal Sphere cartesian2Spherical(const Coord3&,bool math);
+mGlobal(Algo) Sphere cartesian2Spherical(const Coord3&,bool math);
 	    /*!< math=true: transformation done in math-system
 		 math=false: transformation done in geo-system */
-mGlobal Coord3 spherical2Cartesian(const Sphere&,bool math);
+mGlobal(Algo) Coord3 spherical2Cartesian(const Sphere&,bool math);
 	    /*!< math=true: transformation done in math-system
 		 math=false: transformation done in geo-system */
 
@@ -522,3 +523,4 @@ inline bool Sphere::operator ==( const Sphere& s ) const
 
 
 #endif
+

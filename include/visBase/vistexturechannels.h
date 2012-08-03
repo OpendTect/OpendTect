@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.23 2012-05-03 15:11:20 cvsjaap Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.24 2012-08-03 13:01:27 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visdata.h"
 #include "odmemory.h"
 
@@ -34,7 +35,7 @@ class MappedTextureDataSet;
 class TextureChannel2RGBA;
 class ChannelInfo;
 
-mClass TextureChannels : public DataObject
+mClass(visBase) TextureChannels : public DataObject
 {
 public:
     static TextureChannels*	create()
@@ -111,7 +112,7 @@ protected:
 
 
 
-mClass TextureComposer : public DataObject
+mClass(visBase) TextureComposer : public DataObject
 {
 public:
 
@@ -129,3 +130,4 @@ protected:
 }; // Namespace
 
 #endif
+

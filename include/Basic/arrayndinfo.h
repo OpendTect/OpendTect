@@ -6,19 +6,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.17 2011-04-22 13:28:55 cvsbert Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.18 2012-08-03 13:00:10 cvskris Exp $
 ________________________________________________________________________
 
 
 */
 
+#include "basicmod.h"
 #include "gendefs.h"
 
 /*!  Contains the information about the size of ArrayND, and
 in what order the data is stored (if accessable via a pointer).
 */
 
-mClass ArrayNDInfo
+mClass(Basic) ArrayNDInfo
 {
 public:
 
@@ -58,7 +59,7 @@ inline bool operator !=( const ArrayNDInfo& a1, const ArrayNDInfo& a2 )
 { return !(a1 == a2); }
 
 
-mClass Array1DInfo : public ArrayNDInfo
+mClass(Basic) Array1DInfo : public ArrayNDInfo
 {
 public:
 
@@ -77,7 +78,7 @@ public:
 };
 
 
-mClass Array2DInfo : public ArrayNDInfo
+mClass(Basic) Array2DInfo : public ArrayNDInfo
 {
 public:
 
@@ -95,7 +96,7 @@ public:
 };
 
 
-mClass Array3DInfo : public ArrayNDInfo
+mClass(Basic) Array3DInfo : public ArrayNDInfo
 {
 public:
 
@@ -113,7 +114,7 @@ public:
 };
 
 
-mClass Array1DInfoImpl : public Array1DInfo
+mClass(Basic) Array1DInfoImpl : public Array1DInfo
 {
 public:
     Array1DInfo*	clone() const
@@ -132,7 +133,7 @@ protected:
 };
 
 
-mClass Array2DInfoImpl : public Array2DInfo
+mClass(Basic) Array2DInfoImpl : public Array2DInfo
 {
 public:
 
@@ -154,7 +155,7 @@ protected:
 };
 
 
-mClass Array3DInfoImpl : public Array3DInfo
+mClass(Basic) Array3DInfoImpl : public Array3DInfo
 {
 public:
 
@@ -176,7 +177,7 @@ protected:
 };  
 
 
-mClass ArrayNDInfoImpl : public ArrayNDInfo
+mClass(Basic) ArrayNDInfoImpl : public ArrayNDInfo
 {
 public:
 
@@ -222,3 +223,4 @@ inline int Array3DInfoImpl::getSize( int dim ) const
 
 
 #endif
+

@@ -6,11 +6,12 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          March 2008
- RCS:           $Id: createattriblog.h,v 1.4 2012-03-01 13:01:02 cvsbruno Exp $
+ RCS:           $Id: createattriblog.h,v 1.5 2012-08-03 13:00:46 cvskris Exp $
  _______________________________________________________________________
 
 -*/
 
+#include "wellattribmod.h"
 #include "binidvalset.h"
 
 namespace Attrib { class DescSet; class SelSpec; class EngineMan; }
@@ -18,7 +19,7 @@ namespace Well { class Data; class ExtractParams; }
 class NLAModel;
 class TaskRunner;
 
-mClass AttribLogExtractor
+mClass(WellAttrib) AttribLogExtractor
 {
 public:
 				AttribLogExtractor(const Well::Data& wd)
@@ -44,11 +45,11 @@ protected:
 };
 
 
-mClass AttribLogCreator
+mClass(WellAttrib) AttribLogCreator
 {
 public:
 
-    mClass Setup
+    mClass(WellAttrib) Setup
     {
     public:
 				Setup(const Attrib::DescSet* attr,
@@ -91,3 +92,4 @@ protected:
 
 
 #endif
+

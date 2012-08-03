@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.h,v 1.15 2011-10-21 12:29:33 cvsbruno Exp $
+ RCS:           $Id: uiflatviewpropdlg.h,v 1.16 2012-08-03 13:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiflatviewmod.h"
 #include "uidlggroup.h"
 #include "flatview.h"
 #include "iopar.h"
@@ -21,7 +22,7 @@ class BufferStringSet;
 class uiGenInput;
 
 		     
-mClass uiFlatViewPropDlg : public uiTabStackDlg
+mClass(uiFlatView) uiFlatViewPropDlg : public uiTabStackDlg
 {
 public:
 			uiFlatViewPropDlg(uiParent*,FlatView::Viewer&,
@@ -55,3 +56,4 @@ protected:
 };
 
 #endif
+

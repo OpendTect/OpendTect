@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.18 2012-03-26 16:56:33 cvsnanne Exp $
+ RCS:		$Id: filepath.h,v 1.19 2012-08-03 13:00:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "bufstringset.h"
 
 
@@ -30,7 +31,7 @@ ________________________________________________________________________
  
  */
 
-mClass FilePath
+mClass(Basic) FilePath
 {
 public:
     enum Style		{ Local, Unix, Windows };
@@ -101,3 +102,4 @@ protected:
 
 
 #endif
+

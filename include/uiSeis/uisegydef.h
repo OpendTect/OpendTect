@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.21 2012-07-09 15:16:09 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.22 2012-08-03 13:01:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "seistype.h"
 #include "uigroup.h"
 #include "uisegyread.h"
@@ -27,7 +28,7 @@ namespace SEGY { class TrcHeaderDef; class FileSpec; class FilePars; }
 
 /*!\brief base class for specification of SEG-Y file stuff */
 
-mClass uiSEGYDefGroup : public uiGroup
+mClass(uiSeis) uiSEGYDefGroup : public uiGroup
 {
 public:
     			uiSEGYDefGroup( uiParent* p, const char* grpnm,
@@ -50,10 +51,10 @@ protected:
 
 /*!\brief UI for Specification of SEG-Y in- or output file(s) */
 
-mClass uiSEGYFileSpec : public uiSEGYDefGroup
+mClass(uiSeis) uiSEGYFileSpec : public uiSEGYDefGroup
 {
 public:
-    mClass Setup
+    mClass(uiSeis) Setup
     {
     public:
 			Setup( bool needmulti )
@@ -106,7 +107,7 @@ protected:
 
 /*!\brief UI for Specification of SEG-Y information needed to examine */
 
-mClass uiSEGYFilePars : public uiSEGYDefGroup
+mClass(uiSeis) uiSEGYFilePars : public uiSEGYDefGroup
 {
 public:
     			uiSEGYFilePars(uiParent*,bool forread,IOPar* iop=0);
@@ -141,11 +142,11 @@ protected:
  */
 class uiSEGYFOByteSpec;
 
-mClass uiSEGYFileOpts : public uiSEGYDefGroup
+mClass(uiSeis) uiSEGYFileOpts : public uiSEGYDefGroup
 {
 public:
 
-    mClass Setup
+    mClass(uiSeis) Setup
     {
     public:
 				Setup( Seis::GeomType gt,
@@ -236,3 +237,4 @@ protected:
 
 
 #endif
+

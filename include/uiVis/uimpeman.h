@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.64 2012-06-27 15:23:21 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.65 2012-08-03 13:01:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uivismod.h"
 #include "uiparent.h"
 #include "trackplane.h"
 
@@ -28,7 +29,7 @@ class uiVisPartServer;
 
 /*! \brief Dialog for tracking properties
 */
-mClass uiMPEMan : public CallBacker
+mClass(uiVis) uiMPEMan : public CallBacker
 {
 public:		
     friend class uiPropertiesDialog;
@@ -150,3 +151,4 @@ protected:
 };
 
 #endif
+

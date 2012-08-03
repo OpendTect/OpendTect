@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Jul 2010
- RCS:           $Id: horizonrelation.h,v 1.3 2010-09-03 05:31:13 cvsraman Exp $
+ RCS:           $Id: horizonrelation.h,v 1.4 2012-08-03 13:00:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "earthmodelmod.h"
 #include "multiid.h"
 #include "objectset.h"
 
@@ -27,11 +28,11 @@ template <class T> class TypeSet;
 namespace EM
 {
 
-mClass RelationTree
+mClass(EarthModel) RelationTree
 {
 public:
 
-    mClass Node
+    mClass(EarthModel) Node
     {
     public:
 				Node(const MultiID&);
@@ -84,3 +85,4 @@ protected:
 } // namespace EM
 
 #endif
+

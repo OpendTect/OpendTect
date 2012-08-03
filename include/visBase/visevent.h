@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.29 2012-06-20 13:12:12 cvsjaap Exp $
+ RCS:		$Id: visevent.h,v 1.30 2012-08-03 13:01:24 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "keyenum.h"
 #include "visdata.h"
 #include "position.h"
@@ -38,7 +39,7 @@ class Detail;
 
 enum EventType		{ Any=7, MouseClick=1, Keyboard=2, MouseMovement=4 };
 
-mClass EventInfo
+mClass(visBase) EventInfo
 {
 public:
     				EventInfo();
@@ -85,7 +86,7 @@ public:
 };
 
 
-mClass EventCatcher : public DataObject
+mClass(visBase) EventCatcher : public DataObject
 {
     friend class EventCatchHandler;
 
@@ -138,3 +139,4 @@ protected:
 
 
 #endif
+

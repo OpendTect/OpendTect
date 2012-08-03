@@ -6,12 +6,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Jul 2006
- RCS:           $Id: uiodsysadm.h,v 1.1 2010-01-06 13:11:25 cvsbert Exp $
+ RCS:           $Id: uiodsysadm.h,v 1.2 2012-08-03 13:01:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uisysadmmod.h"
 #include "uidialog.h"
 class uiODSysAdm;
 class uiListBox;
@@ -24,7 +25,7 @@ uiODSysAdm& ODSysAdmMainWin();
 
 /*!\brief OpendTect sysadm application top level object */
 
-mClass uiODSysAdm : public uiDialog
+mClass(uiSysAdm) uiODSysAdm : public uiDialog
 {
 public:
 
@@ -89,3 +90,4 @@ protected:
 
 
 #endif
+

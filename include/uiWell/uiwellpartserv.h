@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.42 2012-05-22 16:41:57 cvsnanne Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.43 2012-08-03 13:01:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellmod.h"
 #include "uiapplserv.h"
 #include "bufstringset.h"
 
@@ -29,7 +30,7 @@ class uiD2TMLogSelDlg;
 
 /*! \brief Part Server for Wells */
 
-mClass uiWellPartServer : public uiApplPartServer
+mClass(uiWell) uiWellPartServer : public uiApplPartServer
 {
 public:
 				uiWellPartServer(uiApplService&);
@@ -118,3 +119,4 @@ protected:
 */
 
 #endif
+

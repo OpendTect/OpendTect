@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uiflatviewmainwin.h"
 #include "bufstringset.h"
@@ -41,7 +42,7 @@ namespace WellTie
     class uiTieView;
     class uiWaveletView;
 
-mClass uiTieWin : public uiFlatViewMainWin
+mClass(uiWellAttrib) uiTieWin : public uiFlatViewMainWin
 {
 public:
 
@@ -122,7 +123,7 @@ protected:
 
 
 
-mClass uiInfoDlg : public uiDialog
+mClass(uiWellAttrib) uiInfoDlg : public uiDialog
 {
 public:		
     		
@@ -167,4 +168,5 @@ protected:
 }; //namespace WellTie
 
 #endif
+
 

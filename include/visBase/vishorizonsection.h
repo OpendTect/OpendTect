@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.53 2012-07-31 19:27:31 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.54 2012-08-03 13:01:24 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "arrayndimpl.h"
 #include "rowcol.h"
 #include "thread.h"
@@ -48,7 +49,7 @@ namespace visBase
   would only turn on wireframe or lines and points depends if you use wireframe
   or not. */
 
-mClass HorizonSection : public VisualObjectImpl
+mClass(visBase) HorizonSection : public VisualObjectImpl
 {
 public:
     static HorizonSection*	create() mCreateDataObj(HorizonSection);
@@ -196,3 +197,4 @@ protected:
 
 
 #endif
+

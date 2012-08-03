@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.49 2012-03-19 14:31:17 cvskris Exp $
+ RCS:		$Id: visobject.h,v 1.50 2012-08-03 13:01:25 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visdata.h"
 #include "thread.h"
 
@@ -32,7 +33,7 @@ class EventCatcher;
 
 /*!\brief Base class for all objects that are visual on the scene. */
 
-mClass VisualObject : public DataObject
+mClass(visBase) VisualObject : public DataObject
 {
 public:
     virtual void		turnOn(bool)				= 0;
@@ -76,7 +77,7 @@ private:
 };
 
 
-mClass VisualObjectImpl : public VisualObject
+mClass(visBase) VisualObjectImpl : public VisualObject
 {
 public:
     void		turnOn(bool);
@@ -175,3 +176,4 @@ mLockerClassImpl( VisualWriteLockLocker, VisualObjectImpl,
 */
 
 #endif
+

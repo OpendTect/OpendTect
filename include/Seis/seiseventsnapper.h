@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: seiseventsnapper.h,v 1.8 2009-11-19 04:04:12 cvssatyaki Exp $
+ RCS:           $Id: seiseventsnapper.h,v 1.9 2012-08-03 13:00:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
 #include "executor.h"
 #include "samplingdata.h"
 #include "valseriesevent.h"
@@ -21,7 +22,7 @@ class IOObj;
 class SeisMSCProvider;
 class SeisTrc;
 
-mClass SeisEventSnapper : public Executor
+mClass(Seis) SeisEventSnapper : public Executor
 {
 public:
 				SeisEventSnapper( const Interval<float>& gate);
@@ -51,7 +52,7 @@ protected:
 };
 
 
-mClass SeisEventSnapper3D : public SeisEventSnapper
+mClass(Seis) SeisEventSnapper3D : public SeisEventSnapper
 {
 public:
 				SeisEventSnapper3D(const IOObj&,BinIDValueSet&,
@@ -66,3 +67,4 @@ protected:
 };
 
 #endif
+

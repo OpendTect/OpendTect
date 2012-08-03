@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.29 2012-05-04 07:54:28 cvsjaap Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.30 2012-08-03 13:01:27 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visdata.h"
 
 class SoColTabTextureChannel2RGBA;
@@ -44,7 +45,7 @@ TextureChannels class and convert them to RGBA textures in OpenGL, optionally
 with shaders. There should always be a non-shading way to fall back on.
 */
 
-mClass TextureChannel2RGBA : public DataObject
+mClass(visBase) TextureChannel2RGBA : public DataObject
 {
 public:
     virtual MappedTextureDataSet* createMappedDataSet() const;
@@ -85,7 +86,7 @@ protected:
 /*!A destination where the texturechannels can put the mapped data. The class
    instanciation is provided by the TextureChannel2RGBA. */
 
-mClass MappedTextureDataSet : public DataObject
+mClass(visBase) MappedTextureDataSet : public DataObject
 {
 public:
     virtual int		nrChannels() const			= 0;
@@ -109,7 +110,7 @@ public:
 channel and blends it into an RGBA image. */
 
 
-mClass ColTabTextureChannel2RGBA : public TextureChannel2RGBA
+mClass(visBase) ColTabTextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
     static ColTabTextureChannel2RGBA*	create()
@@ -189,3 +190,4 @@ protected:
 } //namespace
 
 #endif
+

@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.27 2012-01-11 11:41:32 cvskris Exp $
+ RCS:           $Id: statruncalc.h,v 1.28 2012-08-03 13:00:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "algomod.h"
 #include "convert.h"
 #include "math2.h"
 #include "stattype.h"
@@ -33,7 +34,7 @@ namespace Stats
  */
 
 
-mClass CalcSetup
+mClass(Algo) CalcSetup
 { 
 public:
     			CalcSetup( bool weighted=false )
@@ -95,7 +96,7 @@ are needed, you may need to specialise an isZero function for each new type.
 
 
 template <class T>
-mClass BaseCalc
+mClass(Algo) BaseCalc
 {
 public:
 
@@ -187,7 +188,7 @@ require buffering all data.
 
 
 template <class T>
-mClass RunCalc : public BaseCalc<T>
+mClass(Algo) RunCalc : public BaseCalc<T>
 {
 public:
     			RunCalc( const CalcSetup& s )
@@ -486,7 +487,7 @@ inline T BaseCalc<T>::mostFreq() const
 
 
 template <class T>
-mGlobal T computeMedian( const T* data, int sz, int pol, int* idx_of_med ) 
+mGlobal(Algo) T computeMedian( const T* data, int sz, int pol, int* idx_of_med ) 
 {
     if ( idx_of_med ) *idx_of_med = 0;
     if ( sz < 2 )
@@ -517,7 +518,7 @@ mGlobal T computeMedian( const T* data, int sz, int pol, int* idx_of_med )
 
 
 template <class T>
-mGlobal T computeWeightedMedian( const T* data, const T* wts, int sz, 
+mGlobal(Algo) T computeWeightedMedian( const T* data, const T* wts, int sz, 
 				int* idx_of_med ) 
 {
     if ( idx_of_med ) *idx_of_med = 0;
@@ -825,3 +826,4 @@ inline WindowedCalc<T>&	WindowedCalc<T>::addValue( T val, T wt )
 }; // namespace Stats
 
 #endif
+

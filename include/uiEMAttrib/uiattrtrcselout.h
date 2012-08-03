@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.h,v 1.14 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiattrtrcselout.h,v 1.15 2012-08-03 13:00:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiemattribmod.h"
 #include "uiattremout.h"
 
 class CtxtIOObj;
@@ -33,7 +34,7 @@ interval around a surface
 */
 
 
-mClass uiAttrTrcSelOut : public uiAttrEMOut
+mClass(uiEMAttrib) uiAttrTrcSelOut : public uiAttrEMOut
 {
 public:
     			uiAttrTrcSelOut(uiParent*,const Attrib::DescSet&,
@@ -100,3 +101,4 @@ private:
 };
 
 #endif
+

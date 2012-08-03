@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uidlggroup.h,v 1.12 2012-08-01 11:00:04 cvsmahant Exp $
+ RCS:           $Id: uidlggroup.h,v 1.13 2012-08-03 13:01:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "uitabstack.h"
@@ -22,7 +23,7 @@ Dialog that either can be used standalone (with uiSingleGroupDlg) or
 in a tabstack (uiTabStackDlg) */
 
 
-mClass uiDlgGroup : public uiGroup
+mClass(uiTools) uiDlgGroup : public uiGroup
 {
 public:
     			uiDlgGroup(uiParent* p,const char* nm)
@@ -48,7 +49,7 @@ public:
 
 /*! Dialog with one uiDlgGroup. */
 
-mClass uiSingleGroupDlg : public uiDialog
+mClass(uiTools) uiSingleGroupDlg : public uiDialog
 {
 public:
 		uiSingleGroupDlg( uiParent* p,const uiDialog::Setup& st )
@@ -70,7 +71,7 @@ protected:
 
 
 /*! Dialog with multiple uiDlgGroup in a tabstack. */
-mClass uiTabStackDlg : public uiDialog
+mClass(uiTools) uiTabStackDlg : public uiDialog
 {
 public:
 			uiTabStackDlg(uiParent*,const uiDialog::Setup&);
@@ -107,3 +108,4 @@ protected:
 };
 
 #endif
+

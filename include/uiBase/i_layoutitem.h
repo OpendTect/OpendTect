@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.35 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.36 2012-08-03 13:00:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "i_layout.h"
 #include "uiobjbody.h"
 
@@ -21,7 +22,7 @@ ________________________________________________________________________
 class QLayoutItem;
 
 //! Wrapper around QLayoutItem class. Stores some dGB specific layout info.
-mClass i_LayoutItem : public uiBody, public NamedObject
+mClass(uiBase) i_LayoutItem : public uiBody, public NamedObject
 {   
     friend class		i_LayoutMngr;
     friend class		i_LayoutIterator;
@@ -162,7 +163,7 @@ private:
 
 
 //! Wrapper around QLayoutItems that have been wrapped by a i_QObjWrp wrapper and therefore have a reference to a uiObject.
-mClass i_uiLayoutItem : public i_LayoutItem
+mClass(uiBase) i_uiLayoutItem : public i_LayoutItem
 {
 public:
 			i_uiLayoutItem( i_LayoutMngr& mgr, uiObjectBody& obj )
@@ -192,3 +193,4 @@ protected:
 };
 
 #endif
+

@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.21 2012-07-20 14:07:02 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.22 2012-08-03 13:00:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "wellattribmod.h"
+#include "wellattribmod.h"
 #include "ailayer.h"
 #include "datapack.h"
 #include "datapackbase.h"
@@ -30,7 +32,7 @@ namespace Strat { class LayerModel; class LayerSequence; }
 namespace PreStack { class GatherSetDataPack; }
 
 
-mStruct SynthGenParams
+mStruct(WellAttrib) SynthGenParams
 {
 			SynthGenParams();
 
@@ -46,7 +48,7 @@ mStruct SynthGenParams
 
 
 /*! brief the basic synthetic dataset. contains the data cube*/
-mClass SyntheticData : public NamedObject 
+mClass(WellAttrib) SyntheticData : public NamedObject 
 {
 public:
 					~SyntheticData();
@@ -84,7 +86,7 @@ protected:
 };
 
 
-mClass PostStackSyntheticData : public SyntheticData
+mClass(WellAttrib) PostStackSyntheticData : public SyntheticData
 {
 public:
 				PostStackSyntheticData(const SynthGenParams&,
@@ -102,7 +104,7 @@ public:
 };
 
 
-mClass PreStackSyntheticData : public SyntheticData
+mClass(WellAttrib) PreStackSyntheticData : public SyntheticData
 {
 public:
 				PreStackSyntheticData(const SynthGenParams&,
@@ -126,7 +128,7 @@ public:
 };
 
 
-mClass StratSynth
+mClass(WellAttrib) StratSynth
 {
 public:
     				StratSynth(const Strat::LayerModel&);
@@ -150,7 +152,7 @@ public:
     SynthGenParams&		genParams()  	{ return genparams_; }
 
 
-    mStruct Level : public NamedObject
+    mStruct(WellAttrib) Level : public NamedObject
     {
 				Level(const char* nm,const TypeSet<float>& dpts,
 				    const Color& c)
@@ -188,3 +190,5 @@ protected:
 };
 
 #endif
+
+

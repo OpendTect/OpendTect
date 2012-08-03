@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.24 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.25 2012-08-03 13:01:25 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "vismultitexture.h"
 #include "rowcol.h"
 
@@ -30,7 +31,7 @@ class SoShaderParameterArray1f;
 namespace visBase
 {
 
-mClass MultiTexture2 : public MultiTexture
+mClass(visBase) MultiTexture2 : public MultiTexture
 {
 public:
     static MultiTexture2*	create()
@@ -142,3 +143,4 @@ protected:
 }; // Namespace
 
 #endif
+

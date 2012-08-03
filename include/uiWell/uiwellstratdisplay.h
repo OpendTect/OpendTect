@@ -7,17 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uiwellstratdisplay.h,v 1.19 2012-07-04 10:36:06 cvsbruno Exp $
+ RCS:           $Id: uiwellstratdisplay.h,v 1.20 2012-08-03 13:01:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellmod.h"
 #include "uistratdisplay.h"
 #include "uiwelldahdisplay.h"
 
 /*!\brief creates a display of stratigraphy IF levels are linked to markers.*/
 
-mClass WellStratUnitGen : public CallBacker
+mClass(uiWell) WellStratUnitGen : public CallBacker
 {
 public:
 				WellStratUnitGen(StratDispData&,
@@ -54,7 +55,7 @@ protected:
 };
 
 
-mClass uiWellStratDisplay : public uiWellDahDisplay
+mClass(uiWell) uiWellStratDisplay : public uiWellDahDisplay
 {
 public:
 
@@ -84,4 +85,5 @@ protected:
 
 
 #endif
+
 

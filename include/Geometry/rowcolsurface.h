@@ -7,11 +7,12 @@ ________________________________________________________________________
 Author:        K. Tingdahl
 Date:          April 2006
 Contents:      Ranges
-RCS:           $Id: rowcolsurface.h,v 1.6 2012-02-01 09:18:23 cvskris Exp $
+RCS:           $Id: rowcolsurface.h,v 1.7 2012-08-03 13:00:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "geometrymod.h"
 #include "rowcol.h"
 #include "geomelement.h"
 
@@ -23,7 +24,7 @@ namespace Geometry
 /*!Surface which positions are orgainzied in rows/cols. The number of
    columns in each row may vary. */
 
-mClass RowColSurface : public Element
+mClass(Geometry) RowColSurface : public Element
 {
 public:
     virtual void		getPosIDs(TypeSet<GeomPosID>&,bool=true) const;
@@ -49,3 +50,4 @@ public:
 };
 
 #endif
+

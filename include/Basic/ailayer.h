@@ -7,19 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.13 2012-07-17 13:45:37 cvsbruno Exp $
+ RCS:		$Id: ailayer.h,v 1.14 2012-08-03 13:00:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 /*!\brief Acoustic Impedance layer.  */
 
+#include "basicmod.h"
 #include "commondefs.h"
 #include "math.h"
 #include "sets.h"
 
 
-mClass AILayer
+mClass(Basic) AILayer
 {
 public:
 		AILayer( float thkness, float vel, float den )
@@ -47,7 +48,7 @@ inline float getLayerDepth( const AIModel& mod, int layer )
 }
 
 
-mClass ElasticLayer : public AILayer
+mClass(Basic) ElasticLayer : public AILayer
 {
 public:
 		ElasticLayer( float thkness, float pvel, float svel, float den )
@@ -67,7 +68,7 @@ public:
 typedef TypeSet<ElasticLayer> ElasticModel;
 
 
-mGlobal inline void blockElasticModel( ElasticModel& mdl, float threshold )
+mGlobal(Basic) inline void blockElasticModel( ElasticModel& mdl, float threshold )
 {
     float velthreshold = threshold;
     float denthreshold = threshold;
@@ -85,3 +86,4 @@ mGlobal inline void blockElasticModel( ElasticModel& mdl, float threshold )
 
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: costrans.h,v 1.12 2010-08-11 16:55:33 cvsyuancheng Exp $
+ RCS:           $Id: costrans.h,v 1.13 2012-08-03 13:00:03 cvskris Exp $
 ________________________________________________________________________
 
 
 @$*/
 
+#include "algomod.h"
 #include "transform.h"
 #include "ptrman.h"
 
@@ -41,11 +42,11 @@ standard, where it is used extensively.
 */
 
 
-mClass CosineTransform : public GenericTransformND
+mClass(Algo) CosineTransform : public GenericTransformND
 {
 protected:
 
-    mClass CosineTransform1D : public GenericTransformND::Transform1D
+    mClass(Algo) CosineTransform1D : public GenericTransformND::Transform1D
     {
     public:
 			CosineTransform1D()
@@ -79,3 +80,4 @@ protected:
 };
 
 #endif
+

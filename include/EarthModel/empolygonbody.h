@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		July 2008
- RCS:		$Id: empolygonbody.h,v 1.7 2011-12-15 21:45:41 cvsyuancheng Exp $
+ RCS:		$Id: empolygonbody.h,v 1.8 2012-08-03 13:00:19 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "earthmodelmod.h"
 #include "embody.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
@@ -27,7 +28,7 @@ namespace EM
 {
 class PolygonBody;
 
-mClass PolygonBodyGeometry : public SurfaceGeometry
+mClass(EarthModel) PolygonBodyGeometry : public SurfaceGeometry
 {
 public:
     			PolygonBodyGeometry(PolygonBody&);
@@ -67,7 +68,7 @@ protected:
 };
 
 
-mClass PolygonBody : public Surface, public Body
+mClass(EarthModel) PolygonBody : public Surface, public Body
 { mDefineEMObjFuncs( PolygonBody );
 public:
     PolygonBodyGeometry&	geometry();
@@ -103,3 +104,4 @@ protected:
 
 
 #endif
+

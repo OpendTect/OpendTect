@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.11 2012-08-01 16:49:52 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.12 2012-08-03 13:01:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uiwellmod.h"
 #include "menuhandler.h"
 #include "uidialog.h"
 
@@ -28,7 +29,7 @@ class uiWellDisplayControl;
 namespace Well { class Marker; class MarkerSet; class Data; }
 
 
-mClass uiAddEditMrkrDlg : public uiDialog
+mClass(uiWell) uiAddEditMrkrDlg : public uiDialog
 {
 public :
     				uiAddEditMrkrDlg(uiParent*,Well::Marker&,
@@ -49,7 +50,7 @@ protected :
 
 
 
-mClass uiDispEditMarkerDlg : public uiDialog
+mClass(uiWell) uiDispEditMarkerDlg : public uiDialog
 {
 public:
 				uiDispEditMarkerDlg(uiParent*);
@@ -107,7 +108,7 @@ protected:
 
 
 
-mClass uiWellDispEditMarkerDlg : public uiDispEditMarkerDlg
+mClass(uiWell) uiWellDispEditMarkerDlg : public uiDispEditMarkerDlg
 {
 public:
 				uiWellDispEditMarkerDlg(uiParent*);
@@ -146,3 +147,4 @@ protected:
 
 
 #endif
+

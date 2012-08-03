@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:	A.H. Lammertink
  Date:		09-10-2003
  Contents:	Utilities for win32 support
- RCS:		$Id: winutils.h,v 1.10 2012-07-10 07:11:28 cvsranojay Exp $
+ RCS:		$Id: winutils.h,v 1.11 2012-08-03 13:00:16 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "basicmod.h"
 #include "gendefs.h"
 
 #ifdef __win__
@@ -25,9 +26,9 @@ ________________________________________________________________________
 extern "C" 
 {
 #endif
-    mGlobal const char*	getCleanUnxPath( const char* path );
-    mGlobal const char* getCleanWinPath( const char* path );
-    mGlobal const char* GetSpecialFolderLocation(int csidl);
+    mGlobal(Basic) const char*	getCleanUnxPath( const char* path );
+    mGlobal(Basic) const char* getCleanWinPath( const char* path );
+    mGlobal(Basic) const char* GetSpecialFolderLocation(int csidl);
 #ifdef __cpp__
  } //extern "C"
 #endif
@@ -35,21 +36,21 @@ extern "C"
 #ifdef __win__
 
 #ifdef __cpp__
-mGlobal	bool		winCopy(const char* from,const char* to,
+mGlobal(Basic)	bool		winCopy(const char* from,const char* to,
 				bool isfile, bool ismove=false);
-mGlobal	bool		winRemoveDir( const char* dirnm );
+mGlobal(Basic)	bool		winRemoveDir( const char* dirnm );
 
 
-mGlobal bool		executeWinProg(const char* comm,const char* parm,
+mGlobal(Basic) bool		executeWinProg(const char* comm,const char* parm,
 					const char* runin=0);
-mGlobal	unsigned int	getWinVersion();
-mGlobal	bool		execShellCmd(const char* comm,const char* parm,
+mGlobal(Basic)	unsigned int	getWinVersion();
+mGlobal(Basic)	bool		execShellCmd(const char* comm,const char* parm,
 					const char* runin );
-mGlobal bool		execProc(const char* comm,bool inconsole,bool inbg,
+mGlobal(Basic) bool		execProc(const char* comm,bool inconsole,bool inbg,
 				    const char* runin );
 #endif
 
-mGlobal const char*	getCygDir();
+mGlobal(Basic) const char*	getCygDir();
 
 
 
@@ -365,3 +366,4 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
 #endif /* __win__ */
 
 #endif
+

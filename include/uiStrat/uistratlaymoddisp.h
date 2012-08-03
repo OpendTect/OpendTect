@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.16 2012-04-11 15:01:32 cvsbruno Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.17 2012-08-03 13:01:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uistratmod.h"
 #include "uigroup.h"
 class uiStratLayModEditTools;
 namespace Strat { class LayerModel; }
@@ -23,7 +24,7 @@ namespace Strat { class LayerModel; }
 
   */
 
-mClass uiStratLayerModelDisp : public uiGroup
+mClass(uiStrat) uiStratLayerModelDisp : public uiGroup
 {
 public:
 
@@ -59,3 +60,4 @@ protected:
 
 
 #endif
+

@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.68 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.69 2012-08-03 13:01:29 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "vissurveymod.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "viswell.h"
@@ -50,7 +51,7 @@ class Scene;
 
 */
 
-mClass WellDisplay : public visBase::VisualObjectImpl
+mClass(visSurvey) WellDisplay : public visBase::VisualObjectImpl
 		   , public visSurvey::SurveyObject
 {
 public:
@@ -187,3 +188,4 @@ protected:
 
 
 #endif
+

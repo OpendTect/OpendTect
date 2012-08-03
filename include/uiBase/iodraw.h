@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.h,v 1.12 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: iodraw.h,v 1.13 2012-08-03 13:00:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uigeom.h"
 
 class ioDrawTool;
@@ -21,7 +22,7 @@ class ioDrawTool;
     can give you a drawtool to do your job.
 
 */
-mClass ioDrawArea
+mClass(uiBase) ioDrawArea
 {
 public:
 			ioDrawArea()			{}
@@ -36,3 +37,4 @@ public:
 };
 
 #endif
+

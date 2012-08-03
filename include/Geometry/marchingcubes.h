@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.15 2012-01-25 19:34:56 cvsyuancheng Exp $
+ RCS:           $Id: marchingcubes.h,v 1.16 2012-08-03 13:00:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "geometrymod.h"
 #include "task.h"
 #include "callback.h"
 #include "multidimstorage.h"
@@ -44,7 +45,7 @@ class SeedBasedFloodFiller;
    volume's coordinates.
 */
 
-mClass MarchingCubesModel
+mClass(Geometry) MarchingCubesModel
 {
 public:
 				MarchingCubesModel();
@@ -76,7 +77,7 @@ public:
 };
 
 
-mClass MarchingCubesSurface : public CallBacker
+mClass(Geometry) MarchingCubesSurface : public CallBacker
 { mRefCountImpl(MarchingCubesSurface);
 public:
 
@@ -111,7 +112,7 @@ public:
 };
 
 
-mClass Implicit2MarchingCubes : public ParallelTask
+mClass(Geometry) Implicit2MarchingCubes : public ParallelTask
 {
 public:
     		Implicit2MarchingCubes(int posx, int posy, int posz,
@@ -143,7 +144,7 @@ protected:
    (in doPrepare() ) 2) the array is flood filled from there.
 */
 
-mClass MarchingCubes2Implicit : public ParallelTask
+mClass(Geometry) MarchingCubes2Implicit : public ParallelTask
 {
 public:
 		MarchingCubes2Implicit(const MarchingCubesSurface&,
@@ -192,3 +193,4 @@ protected:
 
 
 #endif
+

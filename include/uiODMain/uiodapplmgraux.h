@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.22 2012-06-26 09:58:22 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.23 2012-08-03 13:01:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiapplserv.h"
 
 class CtxtIOObj;
@@ -29,7 +30,7 @@ namespace Attrib { class SelSpec; }
 
 /*!\brief uiApplService for OD */
 
-mClass uiODApplService : public uiApplService
+mClass(uiODMain) uiODApplService : public uiApplService
 {
 public:
     			uiODApplService( uiParent* p, uiODApplMgr& am )
@@ -45,7 +46,7 @@ public:
 
 /*!\brief Dispatches work for Appl Mgr */
 
-mClass uiODApplMgrDispatcher : public CallBacker
+mClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
 {
     friend class	uiODApplMgr;
 
@@ -90,7 +91,7 @@ mClass uiODApplMgrDispatcher : public CallBacker
 
 /*!\brief Does visualisation-related work for uiODApplMgr */
 
-mClass uiODApplMgrAttrVisHandler : public CallBacker
+mClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
 {
     friend class	uiODApplMgr;
 
@@ -124,3 +125,4 @@ mClass uiODApplMgrAttrVisHandler : public CallBacker
 
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.30 2011-03-10 13:44:40 cvshelene Exp $
+ RCS:           $Id: genericnumer.h,v 1.31 2012-08-03 13:00:03 cvskris Exp $
 ________________________________________________________________________
 
 
 */
 
+#include "algomod.h"
 #include "mathfunc.h"
 #include <math.h>
 
@@ -122,17 +123,17 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
 }
 
 
-mGlobal float similarity(const FloatMathFunction&,const FloatMathFunction&, 
+mGlobal(Algo) float similarity(const FloatMathFunction&,const FloatMathFunction&, 
 		 float x1, float x2, float dist, int sz, bool normalize );
 
 
-mGlobal float semblance( const ObjectSet<float>& signals,const Interval<int>& );
+mGlobal(Algo) float semblance( const ObjectSet<float>& signals,const Interval<int>& );
 
-mGlobal float semblance( const ObjectSet<float>& signals,int signalsize,
+mGlobal(Algo) float semblance( const ObjectSet<float>& signals,int signalsize,
 			 const TypeSet<float>& signalstarts,
 			 const Interval<int>& gate );
 
-mGlobal double LanczosKernel( int size, double x );
+mGlobal(Algo) double LanczosKernel( int size, double x );
 
 /*!> uses parabolic search for the position where a function gets
 a specific value. The target value must be in the interval f(x1) and f(x2).
@@ -140,7 +141,7 @@ There is no use to have a tolerance lower than the square root of the system's
 float-precision. */
 
 
-mGlobal bool findValue(const FloatMathFunction&,float x1,float x2,float& res,
+mGlobal(Algo) bool findValue(const FloatMathFunction&,float x1,float x2,float& res,
 	       float targetval = 0,float tol=1e-5);
 
 
@@ -151,7 +152,7 @@ intervals should be used when searching for a solution. When a solution is
 found in an interval, a high precision search is started in that interval.
 */
 
-mGlobal float findValueInAperture(const FloatMathFunction&,float startx, 
+mGlobal(Algo) float findValueInAperture(const FloatMathFunction&,float startx, 
 	 	const Interval<float>& aperture,float dx,float target=0,
 		float tol=1e-5);
 
@@ -162,7 +163,7 @@ f((x1+x2)/2) should be less than f(x1) and f(x2). If no minima can be found,
 mUdf(float) is returned;
 */
 
-mGlobal float findExtreme(const FloatMathFunction&,bool minima,float x1,float x2,
+mGlobal(Algo) float findExtreme(const FloatMathFunction&,bool minima,float x1,float x2,
 		  float tol = 1e-5);
 
 
@@ -182,7 +183,7 @@ void reSample( const FloatMathFunction& input, const A& samplevals,
 /*!Computes the greatest common divisor from two intigers. Uses the algorithm
    published by Josef Stein. */
 
-mGlobal unsigned int greatestCommonDivisor( unsigned int u, unsigned int v );
+mGlobal(Algo) unsigned int greatestCommonDivisor( unsigned int u, unsigned int v );
 
 
 /*!>
@@ -233,3 +234,4 @@ inline void reverseArray( A* in, int sz, A* out=0 )
 
 
 #endif
+

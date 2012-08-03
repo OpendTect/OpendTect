@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: uiodvw2dfaulttreeitem.h,v 1.5 2011-06-28 13:35:43 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dfaulttreeitem.h,v 1.6 2012-08-03 13:01:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
 
 #include "emposid.h"
@@ -20,7 +21,7 @@ class VW2DFault;
 class uiODViewer2D;
 
 
-mClass uiODVw2DFaultParentTreeItem : public uiODVw2DTreeItem
+mClass(uiODMain) uiODVw2DFaultParentTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVw2DFaultParentTreeItem();
@@ -38,7 +39,7 @@ protected:
 };
 
 
-mClass uiODVw2DFaultTreeItemFactory : public uiODVw2DTreeItemFactory
+mClass(uiODMain) uiODVw2DFaultTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*         name() const		{ return typeid(*this).name(); }
@@ -48,7 +49,7 @@ public:
 };
 
 
-mClass uiODVw2DFaultTreeItem : public uiODVw2DTreeItem
+mClass(uiODMain) uiODVw2DFaultTreeItem : public uiODVw2DTreeItem
 {
 public:
     			uiODVw2DFaultTreeItem(const EM::ObjectID&);
@@ -81,3 +82,4 @@ protected:
 
 
 #endif
+

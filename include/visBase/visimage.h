@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Feb 2007
- RCS:		$Id: visimage.h,v 1.6 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visimage.h,v 1.7 2012-08-03 13:01:24 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visdata.h"
 #include "odimage.h"
 
@@ -28,7 +29,7 @@ namespace visBase
 
 /*!Displays an image that either is read from disk or in memory. */
 
-mClass Image : public DataObject
+mClass(visBase) Image : public DataObject
 {
 public:
     static Image*	create()
@@ -50,7 +51,7 @@ protected:
 };
 
 
-mClass RGBImage : public OD::RGBImage
+mClass(visBase) RGBImage : public OD::RGBImage
 {
 public:
     		RGBImage();
@@ -72,3 +73,4 @@ protected:
 };
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.h,v 1.5 2011-06-28 13:35:43 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.h,v 1.6 2012-08-03 13:01:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
 
 #include "emposid.h"
@@ -20,7 +21,7 @@ class VW2DFaultSS3D;
 class uiODViewer2D;
 
 
-mClass uiODVw2DFaultSSParentTreeItem : public uiODVw2DTreeItem
+mClass(uiODMain) uiODVw2DFaultSSParentTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVw2DFaultSSParentTreeItem();
@@ -38,7 +39,7 @@ protected:
 };
 
 
-mClass uiODVw2DFaultSSTreeItemFactory : public uiODVw2DTreeItemFactory
+mClass(uiODMain) uiODVw2DFaultSSTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*         name() const            { return typeid(*this).name(); }
@@ -48,7 +49,7 @@ public:
 };
 
 
-mClass uiODVw2DFaultSSTreeItem : public uiODVw2DTreeItem
+mClass(uiODMain) uiODVw2DFaultSSTreeItem : public uiODVw2DTreeItem
 {
 public:
     			uiODVw2DFaultSSTreeItem(const EM::ObjectID&);
@@ -80,3 +81,4 @@ protected:
 };
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.28 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attribprocessor.h,v 1.29 2012-08-03 13:00:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "attributeenginemod.h"
 #include "executor.h"
 #include "position.h"
 
@@ -27,7 +28,7 @@ class Desc;
 class Output;
 class Provider;
 
-mClass Processor : public Executor
+mClass(AttributeEngine) Processor : public Executor
 {
 public:
     				Processor(Desc&,const char*,BufferString&);
@@ -91,3 +92,4 @@ protected:
 
 
 #endif
+

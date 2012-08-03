@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.31 2012-04-18 17:31:49 cvsyuancheng Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.32 2012-08-03 13:00:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "uiobjfileman.h"
 
@@ -23,7 +24,7 @@ class uiStratLevelSel;
 class uiTextEdit;
 class uiToolButton;
 
-mClass uiSurfaceMan : public uiObjFileMan
+mClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
 {
 public:
 			uiSurfaceMan(uiParent*,const char* typ);
@@ -61,7 +62,7 @@ protected:
 };
 
 
-mClass uiSurface2DMan : public uiDialog
+mClass(uiEarthModel) uiSurface2DMan : public uiDialog
 {
 public:
     			uiSurface2DMan(uiParent*,const EM::IOObjInfo&);
@@ -75,3 +76,4 @@ protected:
 
 
 #endif
+

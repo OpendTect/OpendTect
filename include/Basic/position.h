@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.63 2012-08-03 06:38:38 cvsaneesh Exp $
+ RCS:		$Id: position.h,v 1.64 2012-08-03 13:00:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "gendefs.h"
 #include "rcol.h"
 #include "geometry.h"
@@ -23,7 +24,7 @@ class RowCol;
 
 /*!\brief a cartesian coordinate in 2D space. */
 
-mClass Coord : public Geom::Point2D<double>
+mClass(Basic) Coord : public Geom::Point2D<double>
 {
 public:
 		Coord( const Geom::Point2D<double>& p )
@@ -64,7 +65,7 @@ bool getDirectionStr( const Coord&, BufferString& );
 
 /*!\brief a cartesian coordinate in 3D space. */
 
-mClass Coord3 : public Coord
+mClass(Basic) Coord3 : public Coord
 {
 public:
 
@@ -131,7 +132,7 @@ inline Coord3 operator*( double f, const Coord3& b )
 
 /*!\brief 2D coordinate and a value. */
 
-mClass CoordValue
+mClass(Basic) CoordValue
 {
 public:
 		CoordValue( double x=0, double y=0, float v=mUdf(float) )
@@ -150,7 +151,7 @@ public:
 
 /*!\brief 3D coordinate and a value. */
 
-mClass Coord3Value
+mClass(Basic) Coord3Value
 {
 public:
     		Coord3Value( double x=0, double y=0, double z=0, 
@@ -171,7 +172,7 @@ public:
 /*!\brief positioning in a seismic survey: inline/crossline. Most functions are
           identical to RowCol */
 
-mClass BinID
+mClass(Basic) BinID
 {
 public:
     inline			BinID(int r,int c);
@@ -251,7 +252,7 @@ public:
 
 /*!\brief BinID and values. If one of the values is Z, make it the first one. */
 
-mClass BinIDValues
+mClass(Basic) BinIDValues
 {
 public:
 			BinIDValues( int inl=0, int crl=0, int n=2 )
@@ -386,3 +387,4 @@ inline Coord3 Coord3::normalize() const
 }
 
 #endif
+

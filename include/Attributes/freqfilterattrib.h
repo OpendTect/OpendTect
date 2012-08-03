@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.17 2012-04-26 14:37:33 cvsbruno Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.18 2012-08-03 13:00:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "attributesmod.h"
 #include "attribprovider.h"
 #include "arrayndutils.h"
 #include "arrayndimpl.h"
@@ -36,7 +37,7 @@ Output:                                 ||
 namespace Attrib
 {
 
-mClass FreqFilter: public Provider
+mClass(Attributes) FreqFilter: public Provider
 {
 public:
     static void		initClass();
@@ -101,3 +102,4 @@ protected:
 }; // namespace Attrib
 
 #endif
+

@@ -8,17 +8,18 @@ ________________________________________________________________________
  Author:	Bert
  Date:		2008
  Contents:	Geographics lat/long <-> Coord transform (an estimate)
- RCS:		$Id: latlong.h,v 1.9 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: latlong.h,v 1.10 2012-08-03 13:00:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "basicmod.h"
 #include "position.h"
 
 
 /*!\brief geographical coordinates, decimal but with conv to deg, min, sec. */
 
-mClass LatLong
+mClass(Basic) LatLong
 {
 public:
     			LatLong( double la=0, double lo=0 )
@@ -47,7 +48,7 @@ public:
 
  */
 
-mClass LatLong2Coord
+mClass(Basic) LatLong2Coord
 {
 public:
 
@@ -78,3 +79,4 @@ protected:
 
 
 #endif
+

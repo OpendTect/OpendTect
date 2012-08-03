@@ -7,20 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: elasticprop.h,v 1.7 2012-08-01 09:37:35 cvsmahant Exp $
+ RCS:		$Id: elasticprop.h,v 1.8 2012-08-03 13:00:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 /*! brief elastic formula def to generate elastic layers !*/
 
+#include "generalmod.h"
 #include "enums.h"
 #include "bufstringset.h"
 #include "repos.h"
 #include "propertyref.h"
 
 
-mClass ElasticFormula : public NamedObject
+mClass(General) ElasticFormula : public NamedObject
 {
 public:
 			enum Type 	{ Den, PVel, SVel };
@@ -69,7 +70,7 @@ protected:
 
 
 
-mClass ElasticFormulaRepository 
+mClass(General) ElasticFormulaRepository 
 {
 public:
     void			addFormula(const ElasticFormula&); 
@@ -91,14 +92,14 @@ protected:
     void 			addRockPhysicsFormulas();
     void 			addPreDefinedFormulas();
 
-    mGlobal friend ElasticFormulaRepository& ElFR();
+    mGlobal(General) friend ElasticFormulaRepository& ElFR();
 };
 
-mGlobal ElasticFormulaRepository& ElFR();
+mGlobal(General) ElasticFormulaRepository& ElFR();
 
 
 
-mClass ElasticPropertyRef : public PropertyRef
+mClass(General) ElasticPropertyRef : public PropertyRef
 {
 public:
 			ElasticPropertyRef(const char* nm,
@@ -124,4 +125,5 @@ protected:
 
 
 #endif
+
 

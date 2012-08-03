@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.25 2012-04-02 15:06:16 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.26 2012-08-03 13:00:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "flatview.h"
 #include "callback.h"
 #include "geometry.h"
@@ -29,7 +30,7 @@ class AuxDataEditor;
 
 #define mCtrlLeftButton ( (OD::ButtonState) (OD::LeftButton+OD::ControlButton) )
 
-mClass Sower : public CallBacker
+mClass(General) Sower : public CallBacker
 {
     friend class	AuxDataEditor;
 
@@ -108,7 +109,7 @@ protected:
    Users of the class have the choice if the editor should do the changes for
    them, or if they want to do changes themself, driven by the callback. */
 
-mClass AuxDataEditor : public CallBacker
+mClass(General) AuxDataEditor : public CallBacker
 {
     friend class	Sower;
 
@@ -247,3 +248,4 @@ protected:
 }; // namespace FlatView
 
 #endif
+

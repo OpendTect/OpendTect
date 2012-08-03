@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: seisselection.h,v 1.9 2010-08-06 10:44:32 cvsbert Exp $
+ RCS:		$Id: seisselection.h,v 1.10 2012-08-03 13:00:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
 #include "seistype.h"
 #include "ranges.h"
 class IOPar;
@@ -25,7 +26,7 @@ namespace Seis
 
 /*!\brief setup for subselection of seismic data */
 
-mClass SelSetup
+mClass(Seis) SelSetup
 {
 public:
 
@@ -78,7 +79,7 @@ public:
   
  */
 
-mClass SelData
+mClass(Seis) SelData
 {
 public:
 
@@ -140,3 +141,4 @@ inline bool isEmpty( const SelData* sd )
 } // namespace
 
 #endif
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.23 2011-02-17 13:34:10 cvsbert Exp $
+ RCS:		$Id: seisstor.h,v 1.24 2012-08-03 13:00:38 cvskris Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -15,6 +15,7 @@ Trace storage objects handle seismic data storage.
 -*/
 
 
+#include "seismod.h"
 #include "seisinfo.h"
 class Conn;
 class IOObj;
@@ -28,7 +29,7 @@ namespace Seis		{ class SelData; }
 
 /*!\brief base class for seis reader and writer. */
 
-mClass SeisStoreAccess
+mClass(Seis) SeisStoreAccess
 {
 public:
 
@@ -106,3 +107,4 @@ protected:
 
 
 #endif
+

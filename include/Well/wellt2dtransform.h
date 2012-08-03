@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          July 2010
- RCS:           $Id: wellt2dtransform.h,v 1.4 2010-11-30 16:48:16 cvskris Exp $
+ RCS:           $Id: wellt2dtransform.h,v 1.5 2012-08-03 13:00:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "wellmod.h"
 #include "zaxistransform.h"
 
 class IOPar;
 
 namespace Well { class Data; }
 
-mClass WellT2DTransform : public ZAxisTransform
+mClass(Well) WellT2DTransform : public ZAxisTransform
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, WellT2DTransform,
@@ -45,3 +46,4 @@ protected:
 };
 
 #endif
+

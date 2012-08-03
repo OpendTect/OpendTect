@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.h,v 1.9 2012-02-29 08:00:41 cvskris Exp $
+ RCS:           $Id: sqlquery.h,v 1.10 2012-08-03 13:00:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "databasemod.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "enums.h"
@@ -31,7 +32,7 @@ namespace SqlDB
 {
 class Access;
 
-mClass Query
+mClass(Database) Query
 {
 public:
 
@@ -88,14 +89,14 @@ protected:
 
 /*! Helper class that creates conditions that can be put after WHERE
     in a query. */
-mClass Condition
+mClass(Database) Condition
 {
 public:
     virtual			~Condition() {}
     virtual BufferString	getStr() const			= 0;
 };
 
-mClass ValueCondition : public Condition
+mClass(Database) ValueCondition : public Condition
 {
 public:
 			enum Operator { Equals, Less, Greater, LessOrEqual,
@@ -116,7 +117,7 @@ protected:
 };
 
 
-mClass MultipleLogicCondition : public Condition
+mClass(Database) MultipleLogicCondition : public Condition
 {
 public:
     			MultipleLogicCondition(bool isand)
@@ -132,7 +133,7 @@ protected:
 };
 
 
-mClass StringCondition : public Condition
+mClass(Database) StringCondition : public Condition
 {
 public:
     			StringCondition( const char* col,
@@ -147,7 +148,7 @@ protected:
 };
 
 
-mClass FullTextCondition : public Condition
+mClass(Database) FullTextCondition : public Condition
 {
 public:
 			FullTextCondition( BufferStringSet& cols,
@@ -166,3 +167,4 @@ protected:
 } // namespace
 
 #endif
+

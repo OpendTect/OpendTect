@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.h,v 1.5 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uipluginman.h,v 1.6 2012-08-03 13:01:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uidialog.h"
 class uiListBox;
 class uiTextEdit;
@@ -20,7 +21,7 @@ class uiCheckBox;
 
 /*!\brief Shows loaded plugins and allows adding */
 
-mClass uiPluginMan : public uiDialog
+mClass(uiTools) uiPluginMan : public uiDialog
 { 	
 public:
 			uiPluginMan(uiParent*);
@@ -40,3 +41,4 @@ protected:
 
 
 #endif
+

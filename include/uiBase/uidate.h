@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2011
- RCS:           $Id: uidate.h,v 1.1 2011-12-22 20:16:47 cvskris Exp $
+ RCS:           $Id: uidate.h,v 1.2 2012-08-03 13:00:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uiobj.h"
 #include "uigroup.h"
 #include "dateinfo.h"
@@ -23,7 +24,7 @@ class uiLabel;
 class uiPushButton;
 
 /* Displays a calendar where the uses can select a date. */
-mClass uiCalendar : public uiObject
+mClass(uiBase) uiCalendar : public uiObject
 {
 public:
                         uiCalendar(uiParent*);
@@ -40,7 +41,7 @@ private:
 
 /*! A field where the user either can enter a date, or select a date
     in a popup-calendar. */
-mClass uiDateSel : public uiGroup
+mClass(uiBase) uiDateSel : public uiGroup
 {
 public:
 			uiDateSel(uiParent*,const char* label,
@@ -62,3 +63,4 @@ protected:
 
 
 #endif
+

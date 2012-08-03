@@ -6,11 +6,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.18 2012-02-17 22:33:09 cvsyuancheng Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.19 2012-08-03 13:01:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uivismod.h"
+#include "uivismod.h"
 #include "uidialog.h"
 #include "uipolardiagram.h"
 
@@ -23,7 +25,7 @@ class uiVisPartServer;
 
 namespace visBase { class DirectionalLight; }
 
-mClass uiDirLightDlg : public uiDialog
+mClass(uiVis) uiDirLightDlg : public uiDialog
 {
 public:
 				uiDirLightDlg(uiParent*, uiVisPartServer*);
@@ -80,7 +82,7 @@ protected:
     uiGenInput*			lighttypefld_;
     uiGenInput*			switchfld_;
 
-    typedef mStruct InitInfo
+    typedef mStruct(uiVis) InitInfo
     {
 		int		sceneid_;
         	
@@ -115,3 +117,5 @@ protected:
 };
 
 #endif
+
+

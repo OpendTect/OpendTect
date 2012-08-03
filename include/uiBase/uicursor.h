@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.h,v 1.16 2010-11-18 17:16:53 cvsjaap Exp $
+ RCS:           $Id: uicursor.h,v 1.17 2012-08-03 13:00:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uigeom.h"
 #include "mousecursor.h"
 #include "thread.h"
@@ -19,7 +20,7 @@ ________________________________________________________________________
 class ioPixmap;
 class QCursor;
 
-mClass uiCursorManager : public MouseCursorManager
+mClass(uiBase) uiCursorManager : public MouseCursorManager
 {
 public:
     static void	initClass();
@@ -45,3 +46,4 @@ protected:
 };
 
 #endif
+

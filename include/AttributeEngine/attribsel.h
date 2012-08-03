@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.31 2012-03-27 20:15:00 cvsnanne Exp $
+ RCS:           $Id: attribsel.h,v 1.32 2012-08-03 13:00:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "attributeenginemod.h"
 #include "ranges.h"
 #include "multiid.h"
 #include "bufstringset.h"
@@ -39,7 +40,7 @@ class DescSet;
   output is to be expected.
 */
 
-mClass SelSpec
+mClass(AttributeEngine) SelSpec
 {
 public:
 			SelSpec( const char* r=0, DescID i=cAttribNotSel(),
@@ -122,7 +123,7 @@ protected:
 
 /*!\brief specifies current attribute choices (ID or output nr of NLA model). */
 
-mClass CurrentSel
+mClass(AttributeEngine) CurrentSel
 {
 public:
 			CurrentSel()
@@ -137,7 +138,7 @@ public:
 
 /*!\brief supplies lists of available attribute input */
 
-mClass SelInfo
+mClass(AttributeEngine) SelInfo
 {
 public:
 
@@ -179,3 +180,4 @@ protected:
 } // namespace Attrib
 
 #endif
+

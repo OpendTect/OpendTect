@@ -7,11 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.h,v 1.5 2012-04-02 15:06:16 cvskris Exp $
+ RCS:		$Id: horflatvieweditor2d.h,v 1.6 2012-08-03 13:01:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uimpemod.h"
+#include "uimpemod.h"
 #include "cubesampling.h"
 #include "emposid.h"
 #include "flatview.h"
@@ -30,7 +32,7 @@ namespace MPE
 class EMTracker;
 class EMSeedPicker;
 
-mClass HorizonFlatViewEditor2D : public CallBacker
+mClass(uiMPE) HorizonFlatViewEditor2D : public CallBacker
 {
 public:
     			HorizonFlatViewEditor2D(FlatView::AuxDataEditor*,
@@ -80,7 +82,7 @@ protected:
     bool		doTheSeed(EMSeedPicker&,const Coord3&,
 	    			  const MouseEvent&) const;
 
-    	mStruct Hor2DMarkerIdInfo
+    	mStruct(uiMPE) Hor2DMarkerIdInfo
 	{
 	    FlatView::AuxData*	marker_;
 	    int			merkerid_;
@@ -113,3 +115,5 @@ protected:
 
 
 #endif
+
+

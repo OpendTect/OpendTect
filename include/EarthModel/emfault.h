@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.44 2011-10-28 11:29:35 cvsjaap Exp $
+ RCS:		$Id: emfault.h,v 1.45 2012-08-03 13:00:17 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "faultsticksurface.h"
@@ -26,7 +27,7 @@ class FaultStickSetGeometry;
 
 /*!\brief FaultGeometry base class */
 
-mClass FaultGeometry : public SurfaceGeometry
+mClass(EarthModel) FaultGeometry : public SurfaceGeometry
 {
 public:
     virtual bool	insertStick(const SectionID&,int sticknr,int firstcol,
@@ -76,7 +77,7 @@ protected:
 
 /*!\brief Fault base class */
 
-mClass Fault : public Surface
+mClass(EarthModel) Fault : public Surface
 {
 public:
     virtual void		removeAll();
@@ -92,7 +93,7 @@ protected:
 };
 
 
-mClass FaultStickUndoEvent : public UndoEvent
+mClass(EarthModel) FaultStickUndoEvent : public UndoEvent
 {
 public:
 			//Interface for insert
@@ -113,7 +114,7 @@ protected:
 };
 
 
-mClass FaultKnotUndoEvent : public UndoEvent
+mClass(EarthModel) FaultKnotUndoEvent : public UndoEvent
 {
 public:
 			//Interface for insert
@@ -138,3 +139,4 @@ protected:
 
 
 #endif
+

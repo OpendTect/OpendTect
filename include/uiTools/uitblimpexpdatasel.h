@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.14 2010-02-09 06:10:42 cvsraman Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.15 2012-08-03 13:01:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "multiid.h"
 #include "iopar.h"
@@ -32,7 +33,7 @@ namespace Table { class FormatDesc; }
  
  */
 
-mClass uiTableImpDataSel : public uiGroup
+mClass(uiTools) uiTableImpDataSel : public uiGroup
 {
 public:
 
@@ -71,3 +72,4 @@ protected:
 
 
 #endif
+

@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2009
- RCS:		$Id: uihorinterpol.h,v 1.8 2012-04-24 19:48:06 cvsnanne Exp $
+ RCS:		$Id: uihorinterpol.h,v 1.9 2012-08-03 13:00:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "factory.h"
 #include "uidialog.h"
 
@@ -23,7 +24,7 @@ class uiArray2DInterpolSel;
 class uiIOObjSel;
 
 
-mClass uiHorizonInterpolDlg : public uiDialog
+mClass(uiEarthModel) uiHorizonInterpolDlg : public uiDialog
 {
 public:
     			uiHorizonInterpolDlg(uiParent*,EM::Horizon*,
@@ -53,3 +54,4 @@ protected:
 
 
 #endif
+

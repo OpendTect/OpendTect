@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          April 2004
- RCS:           $Id: visvolren.h,v 1.6 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:           $Id: visvolren.h,v 1.7 2012-08-03 13:01:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "visbasemod.h"
 #include "visobject.h"
 
 class SoROI;
@@ -21,7 +22,7 @@ class SoVolumeRender;
 namespace visBase
 {
 
-mClass VolrenDisplay : public visBase::VisualObjectImpl
+mClass(visBase) VolrenDisplay : public visBase::VisualObjectImpl
 {
 public:
     static VolrenDisplay*	create()
@@ -35,3 +36,4 @@ protected:
 }; //Namespace
 
 #endif
+

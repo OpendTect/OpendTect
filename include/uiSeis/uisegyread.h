@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.16 2010-02-18 12:10:15 cvsbert Exp $
+ RCS:           $Id: uisegyread.h,v 1.17 2012-08-03 13:01:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uivarwizard.h"
 #include "odusgclient.h"
 #include "seistype.h"
@@ -27,7 +28,7 @@ class uiSEGYReadRev1Question;
 
 /*!\brief 'Server' for SEG-Y Reading */
 
-mClass uiSEGYRead : public uiVarWizard
+mClass(uiSeis) uiSEGYRead : public uiVarWizard
 		  , public Usage::Client
 {
 public:
@@ -108,3 +109,4 @@ protected:
 
 
 #endif
+

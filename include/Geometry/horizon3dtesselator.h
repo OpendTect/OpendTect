@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		August 2009
- RCS:		$Id: horizon3dtesselator.h,v 1.5 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:		$Id: horizon3dtesselator.h,v 1.6 2012-08-03 13:00:27 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "geometrymod.h"
 #include "position.h"
 #include "task.h"
 
@@ -27,7 +28,7 @@ class Coord3List;
    based on my own normals, hence normstartidx is provided in case you want to 
    arrange your global indices based on your spacing or whatever. */
 
-mClass Horizon3DTesselator : public SequentialTask
+mClass(Geometry) Horizon3DTesselator : public SequentialTask
 {
 public:
     			Horizon3DTesselator(const Coord3List*,
@@ -70,3 +71,4 @@ protected:
 
 
 #endif
+

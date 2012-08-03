@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.h,v 1.9 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uigeninputdlg.h,v 1.10 2012-08-03 13:01:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "datainpspec.h"
@@ -19,7 +20,7 @@ class uiGenInput;
 
 /*!\brief specifies how to get input from user - for uiGenInputDlg */
 
-mClass uiGenInputDlgEntry
+mClass(uiTools) uiGenInputDlgEntry
 {
 public:
     			uiGenInputDlgEntry( const char* t,
@@ -36,7 +37,7 @@ public:
 };
 
 
-mClass uiGenInputGrp : public uiGroup
+mClass(uiTools) uiGenInputGrp : public uiGroup
 {
 public:
 			uiGenInputGrp(uiParent*,const char* dlgtitle,
@@ -78,7 +79,7 @@ private:
 
 /*!\brief dialog with only uiGenInputs */
 
-mClass uiGenInputDlg : public uiDialog
+mClass(uiTools) uiGenInputDlg : public uiDialog
 { 	
 public:
 			uiGenInputDlg(uiParent*,const char* dlgtitle,
@@ -106,3 +107,4 @@ protected:
 
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: tracedata.h,v 1.10 2012-07-10 08:05:26 cvskris Exp $
+ RCS:		$Id: tracedata.h,v 1.11 2012-08-03 13:00:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "databuf.h"
 #include "datainterp.h"
 
@@ -28,7 +29,7 @@ constraints etc.).
 */
 
 
-mClass TraceData
+mClass(General) TraceData
 {
 public:
 
@@ -104,3 +105,4 @@ inline int clippedVal( float val, int lim )
 
 
 #endif
+

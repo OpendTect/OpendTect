@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2009
- RCS:		$Id: bendpoints2coords.h,v 1.1 2009-12-07 14:02:21 cvsbert Exp $
+ RCS:		$Id: bendpoints2coords.h,v 1.2 2012-08-03 13:00:02 cvskris Exp $
 ________________________________________________________________________
 
 */
 
+#include "algomod.h"
 #include "position.h"
 #include "typeset.h"
 #include <iosfwd>
@@ -27,7 +28,7 @@ ________________________________________________________________________
 
  */
 
-mClass BendPoints2Coords
+mClass(Algo) BendPoints2Coords
 {
 public:
 
@@ -53,3 +54,4 @@ protected:
 
 
 #endif
+

@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: propertyref.h,v 1.16 2012-04-13 14:48:58 cvsbert Exp $
+ RCS:		$Id: propertyref.h,v 1.17 2012-08-03 13:00:25 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "generalmod.h"
+#include "generalmod.h"
 #include "ranges.h"
 #include "namedobj.h"
 #include "enums.h"
@@ -34,7 +36,7 @@ Aliases are matched with a GlobExpr, so you can add with wildcards and the like.
 
  */
 
-mClass PropertyRef : public NamedObject
+mClass(General) PropertyRef : public NamedObject
 {
 public:
 
@@ -74,7 +76,7 @@ public:
     static const PropertyRef& undef();
 
     // Defaults for display
-    mStruct DispDefs
+    mStruct(General) DispDefs
     {
 			DispDefs()
 			: color_(Color::Black())
@@ -106,7 +108,7 @@ protected:
 };
 
 
-mClass PropertyRefSet : public ObjectSet<PropertyRef>
+mClass(General) PropertyRefSet : public ObjectSet<PropertyRef>
 {
 public:
 
@@ -149,11 +151,11 @@ public:
 
 };
 
-mGlobal const PropertyRefSet& PROPS();
+mGlobal(General) const PropertyRefSet& PROPS();
 inline PropertyRefSet& ePROPS() { return const_cast<PropertyRefSet&>(PROPS()); }
 
 
-mClass PropertyRefSelection : public ObjectSet<const PropertyRef>
+mClass(General) PropertyRefSelection : public ObjectSet<const PropertyRef>
 {
 public:
 
@@ -177,3 +179,5 @@ public:
 
 
 #endif
+
+

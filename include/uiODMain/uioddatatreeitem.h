@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.25 2012-04-24 15:04:43 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.26 2012-08-03 13:01:03 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiodtreeitem.h"
 #include "factory.h"
 
@@ -23,7 +24,7 @@ namespace ColTab { class Sequence; };
 
 /*!Base class for a data treeitem. */
 
-mClass uiODDataTreeItem : public uiTreeItem
+mClass(uiODMain) uiODDataTreeItem : public uiTreeItem
 {
 public:
 				uiODDataTreeItem(const char* parenttype);
@@ -90,3 +91,4 @@ protected:
 };
 
 #endif
+

@@ -6,6 +6,7 @@
  * DATE     : Nov 2003
 -*/
 
+#include "seismod.h"
 #include "samplingdata.h"
 #include "multiid.h"
 #include "position.h"
@@ -26,11 +27,11 @@ class SeisResampler;
 namespace Seis { class SelData; }
 
 
-mClass SeisIOSimple : public Executor
+mClass(Seis) SeisIOSimple : public Executor
 {
 public:
 
-    mClass Data
+    mClass(Seis) Data
     {
     public:
 			Data(const char*,Seis::GeomType);
@@ -124,3 +125,4 @@ protected:
 
 
 #endif
+

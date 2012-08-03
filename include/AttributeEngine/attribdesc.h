@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.56 2012-03-29 21:33:26 cvsyuancheng Exp $
+ RCS:           $Id: attribdesc.h,v 1.57 2012-08-03 13:00:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "attributeenginemod.h"
 #include "refcount.h"
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -31,7 +32,7 @@ class ValParam;
 typedef void(*DescStatusUpdater)(Desc&);
 typedef void(*DescDefaultsUpdater)(Desc&);
 
-mClass DescSetup
+mClass(AttributeEngine) DescSetup
 {
     public:
 				    DescSetup();
@@ -47,7 +48,7 @@ mClass DescSetup
 };
 
 
-mClass InputSpec
+mClass(AttributeEngine) InputSpec
 {
 public:
     				InputSpec( const char* d, bool enabled )
@@ -76,7 +77,7 @@ public:
    Each Desc has DescID that is unique within it's DescSet.
  */
 
-mClass Desc
+mClass(AttributeEngine) Desc
 { mRefCountImpl(Desc);
 public:
 
@@ -317,5 +318,6 @@ protected:
     mGetFloatIntervalFromDesc( desc_, var, varstring )
 
 #endif
+
 
 

@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.16 2012-04-02 15:06:16 cvskris Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.17 2012-08-03 13:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiflatviewmod.h"
 #include "coltab.h"
 #include "coltabsequence.h"
 #include "flatview.h"
@@ -27,7 +28,7 @@ class uiColorTable;
     
 /*!\brief flat viewer properties tabs */
 
-mClass uiFlatViewPropTab : public uiDlgGroup
+mClass(uiFlatView) uiFlatViewPropTab : public uiDlgGroup
 {
 public:
 
@@ -46,7 +47,7 @@ protected:
     
 /*!\brief flat viewer data display properties tabs */
 
-mClass uiFlatViewDataDispPropTab : public uiFlatViewPropTab
+mClass(uiFlatView) uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 {
 public:
     			~uiFlatViewDataDispPropTab();
@@ -91,7 +92,7 @@ protected:
     
 /*!\brief flat viewer WVA display properties tabs */
 		     
-mClass uiFVWVAPropTab : public uiFlatViewDataDispPropTab
+mClass(uiFlatView) uiFVWVAPropTab : public uiFlatViewDataDispPropTab
 {
 public:
     			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
@@ -122,7 +123,7 @@ protected:
 
 /*!\brief flat viewer VD display properties tabs */
 
-mClass uiFVVDPropTab : public uiFlatViewDataDispPropTab
+mClass(uiFlatView) uiFVVDPropTab : public uiFlatViewDataDispPropTab
 {
 public:
     			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
@@ -148,7 +149,7 @@ protected:
 
 /*!\brief flat viewer annotation properties tabs */
 
-mClass uiFVAnnotPropTab : public uiFlatViewPropTab
+mClass(uiFlatView) uiFVAnnotPropTab : public uiFlatViewPropTab
 {
 public:
 
@@ -170,7 +171,7 @@ protected:
     
     FlatView::Annotation& annot_;
 
-    mClass AxesGroup : public uiGroup
+    mClass(uiFlatView) AxesGroup : public uiGroup
     {
     public:
 			AxesGroup(uiParent*,FlatView::Annotation::AxisData&,
@@ -219,3 +220,4 @@ protected:
 
 
 #endif
+

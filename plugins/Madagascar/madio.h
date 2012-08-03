@@ -4,9 +4,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: madio.h,v 1.7 2010-07-13 21:10:30 cvskris Exp $
+ * ID       : $Id: madio.h,v 1.8 2012-08-03 13:01:32 cvskris Exp $
 -*/
 
+#include "madagascarmod.h"
 #include "bufstring.h"
 #include "strmdata.h"
 class IOPar;
@@ -15,12 +16,12 @@ class IOPar;
 namespace ODMad
 {
 
-mExtern const char* sKeyMadagascar();
-mExtern const char* sKeyMadSelKey();
+mExtern(Madagascar) const char* sKeyMadagascar();
+mExtern(Madagascar) const char* sKeyMadSelKey();
 
 /*!\brief Specifies file name and optional mask filename */
 
-mClass FileSpec
+mClass(Madagascar) FileSpec
 {
 public:
 
@@ -56,3 +57,4 @@ protected:
 } // namespace
 
 #endif
+

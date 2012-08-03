@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
-RCS:		$Id: transl.h,v 1.43 2012-07-31 12:53:49 cvsbert Exp $
+RCS:		$Id: transl.h,v 1.44 2012-08-03 13:00:26 cvskris Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -20,6 +20,7 @@ object of that type.
 
 */
 
+#include "generalmod.h"
 #include "refcount.h"
 #include "objectset.h"
 #include "callback.h"
@@ -35,7 +36,7 @@ class Translator;
 #define mObjSelUnrelated	0
 #define mObjSelRelated		1
 #define mObjSelMatch		2
-mGlobal int defaultSelector(const char*,const char*);
+mGlobal(General) int defaultSelector(const char*,const char*);
 
 
 /*!\brief Group of Translators. Has a static factory.
@@ -52,7 +53,7 @@ mGlobal int defaultSelector(const char*,const char*);
 
  */
 
-mClass TranslatorGroup
+mClass(General) TranslatorGroup
 { mRefCountImpl(TranslatorGroup);
 public:
 
@@ -114,7 +115,7 @@ protected:
   define every Translator(Group)-related class.
  */
 
-mClass Translator : public CallBacker
+mClass(General) Translator : public CallBacker
 {
 public:
     				Translator(const char* nm,const char* usr_nm);
@@ -256,18 +257,18 @@ mImplTranslatorInitClass( spec, clss, usrnm )
   //! Use this in your header file to comply with the concept, so you
   //! can make use of OpendTect object selection, retrieval etc.
 #define mDeclEmptyTranslatorBundle(clss,fmt,defext) \
-mClass clss##TranslatorGroup : public TranslatorGroup \
+mClass(General) clss##TranslatorGroup : public TranslatorGroup \
 {		   	isTranslatorGroup(clss) \
     			mDefEmptyTranslatorGroupConstructor(clss) \
     const char*		defExtension() const	{ return defext; } \
 }; \
  \
-mClass clss##Translator : public Translator \
+mClass(General) clss##Translator : public Translator \
 { public: \
     			mDefEmptyTranslatorBaseConstructor(clss) \
 }; \
  \
-mClass fmt##clss##Translator : public clss##Translator \
+mClass(General) fmt##clss##Translator : public clss##Translator \
 {			isTranslator(fmt,clss) \
     			mDefEmptyTranslatorConstructor(fmt,clss) \
 };
@@ -354,3 +355,4 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 
 
 #endif
+

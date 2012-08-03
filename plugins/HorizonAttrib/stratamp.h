@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		March 2008
- RCS:		$Id: stratamp.h,v 1.10 2011-07-08 04:40:01 cvsraman Exp $
+ RCS:		$Id: stratamp.h,v 1.11 2012-08-03 13:01:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "horizonattribmod.h"
 #include "executor.h"
 
 #include "emposid.h"
@@ -22,7 +23,7 @@ class SeisTrcReader;
 namespace EM { class Horizon3D; }
 namespace Attrib { class DescSet; class Processor; }
 
-mClass StratAmpCalc  : public Executor
+mClass(HorizonAttrib) StratAmpCalc  : public Executor
 {
 public:
 
@@ -71,3 +72,4 @@ protected:
     Attrib::Processor*		proc_;
 };
 #endif
+

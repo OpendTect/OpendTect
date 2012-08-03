@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: raytracerrunner.h,v 1.9 2012-05-23 14:47:21 cvsbruno Exp $
+ RCS:           $Id: raytracerrunner.h,v 1.10 2012-08-03 13:00:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "ailayer.h"
 #include "iopar.h"
 #include "task.h"
 #include "ranges.h"
 #include "raytrace1d.h"
 
-mClass RayTracerRunner : public ParallelTask
+mClass(General) RayTracerRunner : public ParallelTask
 {
 public:
     				RayTracerRunner(const TypeSet<ElasticModel>&,
@@ -50,3 +51,4 @@ protected:
 };
 
 #endif
+

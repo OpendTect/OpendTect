@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.19 2012-07-04 10:36:05 cvsbruno Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.20 2012-08-03 13:01:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uistratmod.h"
+#include "uistratmod.h"
 #include "callback.h"
 #include "color.h"
 #include "ranges.h"
@@ -31,13 +33,13 @@ namespace Strat
 class uiStratRefTree;
 class uiListViewItem;
 
-mClass StratDispData
+mClass(uiStrat) StratDispData
 {
 public:
 			StratDispData() {};
 			~StratDispData() { eraseData(); }
 
-    mStruct Unit
+    mStruct(uiStrat) Unit
     {
 			Unit(const char* nm, const char* fullcode=0,
 				    const Color& col = Color::White() )
@@ -63,7 +65,7 @@ public:
     };
 
 
-    mStruct Level
+    mStruct(uiStrat) Level
     {
 			Level(const char* nm,const char* unitcode)
 				: unitcode_(unitcode)
@@ -77,7 +79,7 @@ public:
     };
 
 
-    mStruct Column 
+    mStruct(uiStrat) Column 
     {
 			Column( const char* nm )
 			    : name_(nm)
@@ -148,7 +150,7 @@ protected :
 
 /*!\brief used to gather all units and tied levels from a tree for display*/
 
-mClass uiStratTreeToDisp : public CallBacker
+mClass(uiStrat) uiStratTreeToDisp : public CallBacker
 {
 public:
     			uiStratTreeToDisp(StratDispData&,
@@ -187,7 +189,7 @@ protected:
 
 /*!brief used to write directly in the listView of the uiStratRefTree as if we were handling the uiTree directly*/
 
-mClass uiStratDispToTree : public CallBacker
+mClass(uiStrat) uiStratDispToTree : public CallBacker
 {
 public:
     			uiStratDispToTree(uiStratRefTree&);
@@ -205,3 +207,5 @@ protected:
 };
 
 #endif
+
+

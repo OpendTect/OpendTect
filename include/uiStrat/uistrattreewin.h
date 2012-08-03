@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.44 2012-07-04 10:36:06 cvsbruno Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.45 2012-08-03 13:01:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uistratmod.h"
 #include "uimainwin.h"
 
 class uiMenuItem;
@@ -25,13 +26,13 @@ class uiToolButtonSetup;
 
 namespace Strat { class RepositoryAccess; }
 
-mGlobal const uiStratTreeWin& StratTWin();
-mGlobal uiStratTreeWin& StratTreeWin();
+mGlobal(uiStrat) const uiStratTreeWin& StratTWin();
+mGlobal(uiStrat) uiStratTreeWin& StratTreeWin();
 
 /*!\brief Main window for Stratigraphy display: holds the reference tree
   and the units description view */
 
-mClass uiStratTreeWin : public uiMainWin
+mClass(uiStrat) uiStratTreeWin : public uiMainWin
 {
 public:
 
@@ -105,3 +106,4 @@ public:
 
 
 #endif
+

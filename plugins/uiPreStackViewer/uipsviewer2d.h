@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: uipsviewer2d.h,v 1.7 2012-07-12 15:04:44 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2d.h,v 1.8 2012-08-03 13:01:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiprestackviewermod.h"
 #include "position.h"
 #include "uiobjectitemview.h"
 #include "uigroup.h"
@@ -25,7 +26,7 @@ namespace PreStackView
     class Viewer2DGatherPainter;
     class uiViewer2DAxisPainter;
 
-mClass uiGatherDisplay : public uiGroup
+mClass(uiPreStackViewer) uiGatherDisplay : public uiGroup
 {
 public:
     				uiGatherDisplay(uiParent*);
@@ -68,7 +69,7 @@ protected:
 
 
 
-mClass uiViewer2D : public uiObjectItemView
+mClass(uiPreStackViewer) uiViewer2D : public uiObjectItemView
 {
 public: 
 				uiViewer2D(uiParent*);
@@ -95,3 +96,4 @@ public:
 }; //namespace
 
 #endif
+

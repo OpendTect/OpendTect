@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.21 2012-08-03 08:36:05 cvsbruno Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.22 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uiobj.h"
 
 class Alignment;
@@ -24,7 +25,7 @@ class MouseEventHandler;
 class uiRect;
 
 
-mClass uiGraphicsViewBase : public uiObject
+mClass(uiBase) uiGraphicsViewBase : public uiObject
 {
 friend class uiGraphicsViewBody;
 public:
@@ -116,3 +117,4 @@ protected:
 };
 
 #endif
+

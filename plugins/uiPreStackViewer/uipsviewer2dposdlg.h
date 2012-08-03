@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2011
- RCS:           $Id: uipsviewer2dposdlg.h,v 1.5 2011-05-24 08:11:49 cvsbruno Exp $
+ RCS:           $Id: uipsviewer2dposdlg.h,v 1.6 2012-08-03 13:01:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiprestackviewermod.h"
 #include "uislicesel.h"
 
 class uiCheckBox;
@@ -20,7 +21,7 @@ class uiToolButton;
 namespace PreStackView
 {
 
-mClass uiGatherPosSliceSel : public uiSliceSel
+mClass(uiPreStackViewer) uiGatherPosSliceSel : public uiSliceSel
 {
 public:
 				uiGatherPosSliceSel(uiParent*,uiSliceSel::Type);
@@ -46,7 +47,7 @@ protected:
     void			applyPushed(CallBacker*);
 };
 
-mClass uiViewer2DPosDlg : public uiDialog
+mClass(uiPreStackViewer) uiViewer2DPosDlg : public uiDialog
 {
 public:
 				uiViewer2DPosDlg(uiParent*,bool is2d,
@@ -77,7 +78,7 @@ protected:
 };
 
 
-mClass uiViewer2DSelDataDlg : public uiDialog
+mClass(uiPreStackViewer) uiViewer2DSelDataDlg : public uiDialog
 {
 public: 	
 			    uiViewer2DSelDataDlg(uiParent*,
@@ -98,3 +99,4 @@ protected:
 }; //namespace
 
 #endif
+

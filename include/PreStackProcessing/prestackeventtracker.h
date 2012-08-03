@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		November 2010
- RCS:		$Id: prestackeventtracker.h,v 1.1 2010-11-17 15:15:32 cvskris Exp $
+ RCS:		$Id: prestackeventtracker.h,v 1.2 2012-08-03 13:00:33 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "prestackprocessingmod.h"
 #include "factory.h"
 #include "odmemory.h"
 #include "multiid.h"
@@ -27,7 +28,7 @@ class MuteDef;
 
 /*!Baseclass for algorithms that track pre-stack events on a gather. */
 
-mClass EventTracker
+mClass(PreStackProcessing) EventTracker
 {
 public:
 			mDefineFactoryInClass(EventTracker,factory);
@@ -67,3 +68,4 @@ protected:
 }; //namespace
 
 #endif
+

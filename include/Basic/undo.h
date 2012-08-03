@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: undo.h,v 1.7 2011-02-01 10:03:32 cvsjaap Exp $
+ RCS:		$Id: undo.h,v 1.8 2012-08-03 13:00:16 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "basicmod.h"
 #include "bufstringset.h"
 #include "callback.h"
 
@@ -38,7 +39,7 @@ void MyClass::userPushedAButtonCB( CallBacker* )
 \endcode
 */
 
-mClass Undo : public CallBacker
+mClass(Basic) Undo : public CallBacker
 {
 public:
 	    			Undo();
@@ -97,7 +98,7 @@ protected:
 
 /*! Holds the information how to undo/redo something. */
 
-mClass UndoEvent
+mClass(Basic) UndoEvent
 {
 public:
     				UndoEvent();
@@ -119,10 +120,11 @@ protected:
 };
 
 
-mClass BinIDUndoEvent : public UndoEvent
+mClass(Basic) BinIDUndoEvent : public UndoEvent
 {
 public:
     virtual const BinID&	getBinID() const;
 };
 
 #endif
+

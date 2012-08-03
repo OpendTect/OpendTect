@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.39 2012-05-18 12:17:26 cvskris Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.40 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uigraphicsitem.h"
 #include "uigeom.h"
 #include "draw.h"
@@ -47,7 +48,7 @@ class ODGraphicsDynamicImageItem;
 template <class T> class ODPolygon;
 
 
-mClass uiObjectItem : public uiGraphicsItem
+mClass(uiBase) uiObjectItem : public uiGraphicsItem
 {
 public:
 				uiObjectItem(uiObject* obj);
@@ -74,7 +75,7 @@ protected:
 };
 
 
-mClass uiEllipseItem : public uiGraphicsItem
+mClass(uiBase) uiEllipseItem : public uiGraphicsItem
 {
 public:
 				uiEllipseItem();
@@ -93,7 +94,7 @@ protected:
 };
 
 
-mClass uiCircleItem : public uiEllipseItem
+mClass(uiBase) uiCircleItem : public uiEllipseItem
 {
 public:
 				uiCircleItem();
@@ -104,7 +105,7 @@ public:
 };
 
 
-mClass uiLineItem : public uiGraphicsItem
+mClass(uiBase) uiLineItem : public uiGraphicsItem
 {
 public:
     			uiLineItem();
@@ -141,7 +142,7 @@ protected:
   wants a higher resolution version of the image. If so, that can be set
   by callint setImage with dynamic==true. */
 
-mClass uiDynamicImageItem : public uiGraphicsItem
+mClass(uiBase) uiDynamicImageItem : public uiGraphicsItem
 {
 public:
     				uiDynamicImageItem();
@@ -162,7 +163,7 @@ protected:
 };
 
 
-mClass uiPixmapItem : public uiGraphicsItem
+mClass(uiBase) uiPixmapItem : public uiGraphicsItem
 {
 public:
     				uiPixmapItem();
@@ -181,7 +182,7 @@ protected:
 };
 
 
-mClass uiPolygonItem : public uiGraphicsItem
+mClass(uiBase) uiPolygonItem : public uiGraphicsItem
 {
 public:
     			uiPolygonItem();
@@ -205,7 +206,7 @@ protected:
 };
 
 
-mClass uiPolyLineItem : public uiGraphicsItem
+mClass(uiBase) uiPolyLineItem : public uiGraphicsItem
 {
 public:
     			uiPolyLineItem();
@@ -224,7 +225,7 @@ protected:
 
 
 
-mClass uiRectItem : public uiGraphicsItem
+mClass(uiBase) uiRectItem : public uiGraphicsItem
 {
 public:
     			uiRectItem();
@@ -242,7 +243,7 @@ protected:
 };
 
 
-mClass uiTextItem : public uiGraphicsItem
+mClass(uiBase) uiTextItem : public uiGraphicsItem
 {
 public:
 			uiTextItem();
@@ -279,7 +280,7 @@ protected:
 };
 
 
-mClass uiMarkerItem : public uiGraphicsItem
+mClass(uiBase) uiMarkerItem : public uiGraphicsItem
 {
 public:
     				uiMarkerItem(bool fill=true);
@@ -302,7 +303,7 @@ protected:
 };
 
 
-mClass uiPointItem : public uiGraphicsItem
+mClass(uiBase) uiPointItem : public uiGraphicsItem
 {
 public:
     				uiPointItem();
@@ -318,7 +319,7 @@ protected:
 };
 
 
-mClass uiArrowItem : public uiGraphicsItem
+mClass(uiBase) uiArrowItem : public uiGraphicsItem
 {
 public:
     				uiArrowItem();
@@ -349,14 +350,14 @@ protected:
 };
 
 
-mClass uiCurvedItem : public uiGraphicsItem
+mClass(uiBase) uiCurvedItem : public uiGraphicsItem
 {
 public:
 			uiCurvedItem(const uiPoint& startpt);
 			uiCurvedItem(const Geom::Point2D<float>& startpt);
 			~uiCurvedItem();
 
-    mClass ArcSpec
+    mClass(uiBase) ArcSpec
     {
     public:
 			ArcSpec( const uiPoint& c, float r,
@@ -374,7 +375,7 @@ public:
 	float		yratio_;	//!< < 1 means: X size > Y size
     };
 
-    mClass SplineSpec
+    mClass(uiBase) SplineSpec
     {
     public:
 			SplineSpec( const uiPoint& endp, const uiPoint& cp )
@@ -418,3 +419,4 @@ protected:
 
 
 #endif
+

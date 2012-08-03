@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.h,v 1.12 2012-04-09 13:49:58 cvsnanne Exp $
+ RCS:           $Id: uiattrsurfout.h,v 1.13 2012-08-03 13:00:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiemattribmod.h"
 #include "uiattremout.h"
 
 class IOPar;
@@ -31,7 +32,7 @@ Used for calculating attributes on surfaces
 */
 
 
-mClass uiAttrSurfaceOut : public uiAttrEMOut
+mClass(uiEMAttrib) uiAttrSurfaceOut : public uiAttrEMOut
 {
 public:
     			uiAttrSurfaceOut(uiParent*,const Attrib::DescSet&,
@@ -57,3 +58,4 @@ protected:
 };
 
 #endif
+

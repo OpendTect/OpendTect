@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: uiseisrandto2dline.h,v 1.7 2010-10-29 03:33:16 cvsraman Exp $
+ RCS:		$Id: uiseisrandto2dline.h,v 1.8 2012-08-03 13:01:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 
@@ -22,7 +23,7 @@ class uiSeisSel;
 
 namespace Geometry { class RandomLine; class RandomLineSet; }
 
-mClass uiSeisRandTo2DBase : public uiGroup
+mClass(uiSeis) uiSeisRandTo2DBase : public uiGroup
 {
 public:
     			uiSeisRandTo2DBase(uiParent*,bool rdlsel);
@@ -49,7 +50,7 @@ protected:
 };
 
 
-mClass uiSeisRandTo2DLineDlg : public uiDialog
+mClass(uiSeis) uiSeisRandTo2DLineDlg : public uiDialog
 {
 public:
     			uiSeisRandTo2DLineDlg(uiParent*,
@@ -66,3 +67,4 @@ protected:
 };
 
 #endif
+

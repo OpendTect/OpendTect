@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2007
- RCS:		$Id: emhor2dto3d.h,v 1.12 2011-12-16 15:51:54 cvsnanne Exp $
+ RCS:		$Id: emhor2dto3d.h,v 1.13 2012-08-03 13:00:18 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "executor.h"
 #include "bufstring.h"
 #include "horsampling.h"
@@ -26,7 +27,7 @@ class Horizon2D;
 class Horizon3D;
 class Hor2DTo3DSectionData;
 
-mClass Hor2DTo3D : public Executor
+mClass(EarthModel) Hor2DTo3D : public Executor
 {
 public:
 				Hor2DTo3D(const Horizon2D&,Array2DInterpol*,
@@ -61,3 +62,4 @@ protected:
 } // namespace EM
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: picksettr.h,v 1.13 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: picksettr.h,v 1.14 2012-08-03 13:00:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "geometrymod.h"
 #include "transl.h"
 #include "bufstringset.h"
 class Conn;
@@ -21,7 +22,7 @@ namespace Pick { class Set; }
 template <class T> class ODPolygon;
 
 
-mClass PickSetTranslatorGroup : public TranslatorGroup
+mClass(Geometry) PickSetTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(PickSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(PickSet)
@@ -31,7 +32,7 @@ public:
 };
 
 
-mClass PickSetTranslator : public Translator
+mClass(Geometry) PickSetTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(PickSet)
@@ -59,7 +60,7 @@ public:
 };
 
 
-mClass dgbPickSetTranslator : public PickSetTranslator
+mClass(Geometry) dgbPickSetTranslator : public PickSetTranslator
 {			     isTranslator(dgb,PickSet)
 public:
 
@@ -72,3 +73,4 @@ public:
 
 
 #endif
+

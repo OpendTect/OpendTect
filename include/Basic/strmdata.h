@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-4-1996
  Contents:	Data on any stream
- RCS:		$Id: strmdata.h,v 1.14 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: strmdata.h,v 1.15 2012-08-03 13:00:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "basicmod.h"
 #include "gendefs.h"
 #include <stdio.h>
 #include <iosfwd>
@@ -25,7 +26,7 @@ Need to find out what to do with the pipe in windows.
 
 */
 
-mClass StreamData
+mClass(Basic) StreamData
 {
 public:
 
@@ -64,3 +65,4 @@ private:
 
 
 #endif
+

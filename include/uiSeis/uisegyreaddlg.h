@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisegyreaddlg.h,v 1.8 2010-02-18 12:10:15 cvsbert Exp $
+ RCS:           $Id: uisegyreaddlg.h,v 1.9 2012-08-03 13:01:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uivarwizarddlg.h"
 #include "uisegyread.h"
 class IOObj;
@@ -21,11 +22,11 @@ class uiSEGYFileOpts;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mClass uiSEGYReadDlg : public uiVarWizardDlg
+mClass(uiSeis) uiSEGYReadDlg : public uiVarWizardDlg
 {
 public :
 
-    mClass Setup : public uiDialog::Setup
+    mClass(uiSeis) Setup : public uiDialog::Setup
     {
     public:
 
@@ -71,3 +72,4 @@ protected:
 
 
 #endif
+

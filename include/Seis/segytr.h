@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.44 2012-03-12 12:56:03 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.45 2012-08-03 13:00:35 cvskris Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
 
 -*/
 
+#include "seismod.h"
 #include "segyfiledef.h"
 #include "seistrctr.h"
 #include "tracedata.h"
@@ -25,7 +26,7 @@ namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
 #define mSEGYTraceHeaderBytes	240
 
 
-mClass SEGYSeisTrcTranslator : public SeisTrcTranslator
+mClass(Seis) SEGYSeisTrcTranslator : public SeisTrcTranslator
 {			      isTranslator(SEGY,SeisTrc)
 public:
 
@@ -124,3 +125,4 @@ protected:
 
 
 #endif
+

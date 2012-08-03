@@ -7,12 +7,13 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		June 2012
- RCS:		$Id: seisrandomprovider.h,v 1.1 2012-06-28 13:11:17 cvskris Exp $
+ RCS:		$Id: seisrandomprovider.h,v 1.2 2012-08-03 13:00:37 cvskris Exp $
  ________________________________________________________________________
  
  */
 
 
+#include "seismod.h"
 #include "binidvalset.h"
 #include "callback.h"
 #include "position.h"
@@ -29,7 +30,7 @@ class SeisTrcReader;
    soon as possible. All reading is done int the background.
 */
 
-mClass SeisRandomProvider : public CallBacker
+mClass(Seis) SeisRandomProvider : public CallBacker
 {
 public:
     					SeisRandomProvider(const MultiID& mid);
@@ -60,7 +61,7 @@ protected:
 
 
 
-mClass SeisRandomRepository : public CallBacker
+mClass(Seis) SeisRandomRepository : public CallBacker
 {
 public:
     				SeisRandomRepository( const MultiID& mid );
@@ -89,3 +90,4 @@ protected:
 };
 
 #endif
+

@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "wellattribmod.h"
 #include "namedobj.h"
 #include "welltiegeocalculator.h"
 
@@ -31,7 +32,7 @@ namespace WellTie
 class Data;
 class DataWriter;
 
-mClass D2TModelMgr
+mClass(WellAttrib) D2TModelMgr
 {
 public:
 			D2TModelMgr(Well::Data&,DataWriter&,const Data&);
@@ -73,3 +74,4 @@ protected:
 }; //namespace WellTie
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dhor2dtreeitem.h,v 1.8 2011-06-28 13:35:43 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dhor2dtreeitem.h,v 1.9 2012-08-03 13:01:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
 
 #include "emposid.h"
@@ -19,7 +20,7 @@ ________________________________________________________________________
 class Vw2DHorizon2D;
 
 
-mClass uiODVw2DHor2DParentTreeItem : public uiODVw2DTreeItem
+mClass(uiODMain) uiODVw2DHor2DParentTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVw2DHor2DParentTreeItem();
@@ -37,7 +38,7 @@ protected:
 };
 
 
-mClass uiODVw2DHor2DTreeItemFactory : public uiODVw2DTreeItemFactory
+mClass(uiODMain) uiODVw2DHor2DTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const 	{ return typeid(*this).name(); }
@@ -47,7 +48,7 @@ public:
 };
 
 
-mClass uiODVw2DHor2DTreeItem : public uiODVw2DTreeItem
+mClass(uiODMain) uiODVw2DHor2DTreeItem : public uiODVw2DTreeItem
 {
 public:
     			uiODVw2DHor2DTreeItem(const EM::ObjectID&);
@@ -82,3 +83,4 @@ protected:
 };
 
 #endif
+

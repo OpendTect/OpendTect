@@ -7,17 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsview.h,v 1.7 2009-12-07 09:48:57 cvsjaap Exp $
+ RCS:		$Id: uigraphicsview.h,v 1.8 2012-08-03 13:01:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uigraphicsviewbase.h"
 
 class uiToolButton;
 class uiParent;
 
-mClass uiGraphicsView : public uiGraphicsViewBase
+mClass(uiTools) uiGraphicsView : public uiGraphicsViewBase
 {
 public:
 				uiGraphicsView(uiParent*,const char* nm);
@@ -32,3 +33,4 @@ protected:
 };
 
 #endif
+

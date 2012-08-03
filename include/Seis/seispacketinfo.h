@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 1995 / Nov 2008
- RCS:		$Id: seispacketinfo.h,v 1.3 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seispacketinfo.h,v 1.4 2012-08-03 13:00:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "seismod.h"
 #include "bufstring.h"
 #include "ranges.h"
 class PosAuxInfo;
@@ -21,7 +22,7 @@ namespace PosInfo { class CubeData; }
 /*!\brief Information for a packet of seismics, AKA tape header info */
 
 
-mClass SeisPacketInfo
+mClass(Seis) SeisPacketInfo
 {
 public:
 
@@ -51,3 +52,4 @@ public:
 
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellio.h,v 1.13 2010-08-02 07:19:23 cvsnanne Exp $
+ RCS:		$Id: wellio.h,v 1.14 2012-08-03 13:00:45 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "wellmod.h"
 #include "bufstring.h"
 #include "strmdata.h"
 class IOObj;
@@ -21,7 +22,7 @@ class MultiID;
 namespace Well
 {
 
-mClass IO
+mClass(Well) IO
 {
 public:
 
@@ -70,3 +71,4 @@ public:
 }; // namespace Well
 
 #endif
+

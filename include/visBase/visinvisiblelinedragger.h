@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		October 2007
- RCS:		$Id: visinvisiblelinedragger.h,v 1.4 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visinvisiblelinedragger.h,v 1.5 2012-08-03 13:01:24 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visobject.h"
 
 
@@ -29,7 +30,7 @@ namespace visBase
 
 */
 
-mClass InvisibleLineDragger : public VisualObjectImpl
+mClass(visBase) InvisibleLineDragger : public VisualObjectImpl
 {
 public:
     static InvisibleLineDragger*	create()
@@ -67,3 +68,4 @@ private:
 };
 
 #endif
+

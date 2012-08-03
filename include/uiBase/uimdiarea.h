@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2008
- RCS:           $Id: uimdiarea.h,v 1.6 2010-08-27 02:49:32 cvsnanne Exp $
+ RCS:           $Id: uimdiarea.h,v 1.7 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uigroup.h"
 #include "uiobj.h"
 
@@ -22,7 +23,7 @@ class uiMdiAreaBody;
 class QMdiArea;
 class QMdiSubWindow;
 
-mClass uiMdiAreaWindow : public uiGroup
+mClass(uiBase) uiMdiAreaWindow : public uiGroup
 {
 public:
     			uiMdiAreaWindow(const char* nm=0);
@@ -51,7 +52,7 @@ protected:
 };
 
 
-mClass uiMdiArea : public uiObject
+mClass(uiBase) uiMdiArea : public uiObject
 { 	
 friend class		uiMdiAreaBody;
 friend class		i_MdiAreaMessenger;
@@ -94,3 +95,4 @@ public:
 };
 
 #endif
+

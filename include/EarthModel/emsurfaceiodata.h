@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jun 2003
- RCS:		$Id: emsurfaceiodata.h,v 1.12 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emsurfaceiodata.h,v 1.13 2012-08-03 13:00:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "earthmodelmod.h"
 #include "cubesampling.h"
 #include "bufstringset.h"
 
@@ -23,7 +24,7 @@ class Surface;
 
 /*!\brief Data interesting for Surface I/O */
 
-mClass SurfaceIOData
+mClass(EarthModel) SurfaceIOData
 {
 public:
     			~SurfaceIOData()	{ clear(); }
@@ -47,7 +48,7 @@ public:
 };
 
 
-mClass SurfaceIODataSelection
+mClass(EarthModel) SurfaceIODataSelection
 {
 public:
 
@@ -71,3 +72,4 @@ public:
 }; // namespace EM
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoSplitTexture2.h,v 1.13 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:           $Id: SoSplitTexture2.h,v 1.14 2012-08-03 13:00:41 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "soodmod.h"
 #include <Inventor/lists/SbPList.h>
 #include <Inventor/fields/SoSFImage.h>
 #include <Inventor/fields/SoSFVec2i32.h>
@@ -39,7 +40,7 @@ class SoElement;
 */
 
 
-mClass SoSplitTexture2: public SoNode
+mClass(SoOD) SoSplitTexture2: public SoNode
 { SO_NODE_HEADER(SoSplitTexture2);
 public:
     static		void initClass();
@@ -64,7 +65,7 @@ protected:
    image was put on the state.  If the requested part is outside the source
    texture, it is clamped to edge.*/
 
-mClass SoSplitTexture2Part: public SoNode
+mClass(SoOD) SoSplitTexture2Part: public SoNode
 { SO_NODE_HEADER(SoSplitTexture2Part);
 public:
     static		void initClass();
@@ -103,3 +104,4 @@ protected:
 };
 
 #endif
+

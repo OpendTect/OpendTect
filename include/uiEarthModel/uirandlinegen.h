@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: uirandlinegen.h,v 1.7 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uirandlinegen.h,v 1.8 2012-08-03 13:00:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
@@ -26,7 +27,7 @@ class uiLabel;
 
 /*! \brief Generate random lines from contours of a horizon */
 
-mClass uiGenRanLinesByContour : public uiDialog
+mClass(uiEarthModel) uiGenRanLinesByContour : public uiDialog
 {
 public:
 			uiGenRanLinesByContour(uiParent*);
@@ -64,7 +65,7 @@ protected:
 
 /*! \brief Generate random lines by shifting an existing */
 
-mClass uiGenRanLinesByShift : public uiDialog
+mClass(uiEarthModel) uiGenRanLinesByShift : public uiDialog
 {
 public:
 			uiGenRanLinesByShift(uiParent*);
@@ -91,7 +92,7 @@ protected:
 
 /*! \brief Generate random line from polygon */
 
-mClass uiGenRanLineFromPolygon : public uiDialog
+mClass(uiEarthModel) uiGenRanLineFromPolygon : public uiDialog
 {
 public:
 			uiGenRanLineFromPolygon(uiParent*);
@@ -116,3 +117,4 @@ protected:
 
 
 #endif
+

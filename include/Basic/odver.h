@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: odver.h,v 1.22 2012-05-18 10:11:26 cvskris Exp $
+ RCS:		$Id: odver.h,v 1.23 2012-08-03 13:00:13 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "basicmod.h"
 #include "odversion.h"
 
 #include "gendefs.h"
@@ -21,14 +22,14 @@ ________________________________________________________________________
 extern "C" {
 #endif
 
-    mGlobal const char* GetFullODVersion();
+    mGlobal(Basic) const char* GetFullODVersion();
 
 #ifdef __cpp__
 
 }
 
 class BufferString;
-void mGlobal GetSpecificODVersion(const char* typ,BufferString&);
+void mGlobal(Basic) GetSpecificODVersion(const char* typ,BufferString&);
 /*!< 'typ' can be "doc" or other like vendor name. if null -> platform */
 
 #endif
@@ -105,3 +106,4 @@ void mGlobal GetSpecificODVersion(const char* typ,BufferString&);
 */
 
 #endif
+

@@ -4,9 +4,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : June 2007
- * ID       : $Id: maddefs.h,v 1.8 2012-06-30 14:53:46 cvsraman Exp $
+ * ID       : $Id: maddefs.h,v 1.9 2012-08-03 13:01:32 cvskris Exp $
 -*/
 
+#include "madagascarmod.h"
 #include "bufstringset.h"
 
 class Executor;
@@ -30,7 +31,7 @@ public:
 
 /* Scans $RSFROOT/doc/txt directory for program definitions */
 
-mClass ProgInfo
+mClass(Madagascar) ProgInfo
 {
 public:
     			//!< When PI() is first used, a Pre-Scan is done
@@ -65,13 +66,14 @@ protected:
     void		addEntry(const char*);
 
     friend class	ProgInfoScanner;
-    mGlobal friend	ProgInfo& PI();      
+    mGlobal(Madagascar) friend	ProgInfo& PI();      
 };
 
-mGlobal ProgInfo& PI();
+mGlobal(Madagascar) ProgInfo& PI();
 
 
 
 } // namespace ODMad
 
 #endif
+

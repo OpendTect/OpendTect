@@ -4,9 +4,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Sep 2009
- * ID       : $Id: beachballdata.h,v 1.7 2010-08-04 14:49:36 cvsbert Exp $
+ * ID       : $Id: beachballdata.h,v 1.8 2012-08-03 13:00:21 cvskris Exp $
 -*/
 
+#include "generalmod.h"
 #include "color.h"
 #include "namedobj.h"
 #include "position.h"
@@ -16,7 +17,7 @@ namespace visBeachBall
 
 //!\brief basic properties of the ball
 
-mClass BallProperties: public ::NamedObject
+mClass(General) BallProperties: public ::NamedObject
 {
 public:
 
@@ -66,7 +67,7 @@ protected:
 
 //!\brief dynamic properties of the ball
 
-mClass BallDynamics: public ::NamedObject
+mClass(General) BallDynamics: public ::NamedObject
 {
 public:
 			
@@ -104,3 +105,4 @@ protected:
 
 
 #endif
+

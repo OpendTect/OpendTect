@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: vispseventdisplay.h,v 1.9 2012-02-21 21:12:36 cvsyuancheng Exp $
+ RCS:		$Id: vispseventdisplay.h,v 1.10 2012-08-03 13:01:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiprestackviewermod.h"
 #include "vissurvobj.h"
 
 #include "draw.h"
@@ -31,7 +32,7 @@ namespace visSurvey
 {
 
     
-mClass PSEventDisplay : public visBase::VisualObjectImpl,
+mClass(uiPreStackViewer) PSEventDisplay : public visBase::VisualObjectImpl,
 		       public SurveyObject
 {
 public:
@@ -139,3 +140,4 @@ protected:
 }; //namespace
 
 #endif
+

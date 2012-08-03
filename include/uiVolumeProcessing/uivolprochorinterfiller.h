@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: uivolprochorinterfiller.h,v 1.7 2011-08-24 13:19:43 cvskris Exp $
+ RCS:		$Id: uivolprochorinterfiller.h,v 1.8 2012-08-03 13:01:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uivolumeprocessingmod.h"
 #include "uivolprocstepdlg.h"
 #include "volprochorinterfiller.h"
 
@@ -22,7 +23,7 @@ class CtxtIOObj;
 namespace VolProc
 {
 
-mClass uiHorInterFiller : public uiStepDialog
+mClass(uiVolumeProcessing) uiHorInterFiller : public uiStepDialog
 {
 public:
     mDefaultFactoryInstanciationBase(
@@ -60,3 +61,4 @@ protected:
 }; //namespace
 
 #endif
+

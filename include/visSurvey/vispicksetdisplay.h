@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.66 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.67 2012-08-03 13:01:28 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "vissurveymod.h"
 #include "vislocationdisplay.h"
 
 class BufferString;
@@ -29,7 +30,7 @@ namespace visSurvey
   visualized by a number of shapes.
 */
 
-mClass PickSetDisplay : public LocationDisplay
+mClass(visSurvey) PickSetDisplay : public LocationDisplay
 {
 public:
     static PickSetDisplay*	create()
@@ -76,3 +77,4 @@ protected:
 } // namespace visSurvey
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.21 2009-09-01 21:59:25 cvskris Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.22 2012-08-03 13:00:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mpeenginemod.h"
 #include "task.h"
 #include "cubesampling.h"
 #include "emposid.h"
@@ -26,7 +27,7 @@ namespace MPE
 
 class SectionExtender;
 
-mClass SectionAdjuster : public SequentialTask
+mClass(MPEEngine) SectionAdjuster : public SequentialTask
 {
 public:
 				SectionAdjuster( const EM::SectionID& sid=-1);
@@ -89,3 +90,4 @@ protected:
 }; // namespace MPE
 
 #endif
+

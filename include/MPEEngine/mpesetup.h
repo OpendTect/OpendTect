@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		March 2004
- RCS:		$Id: mpesetup.h,v 1.3 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: mpesetup.h,v 1.4 2012-08-03 13:00:30 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "mpeenginemod.h"
 #include "transl.h"
 
 class IOPar;
@@ -22,7 +23,7 @@ class IOPar;
 
 namespace MPE {
 
-mClass Setup
+mClass(MPEEngine) Setup
 {
 public:
     				Setup();
@@ -43,7 +44,7 @@ protected:
 
 typedef MPE::Setup MPESetup;
 
-mClass MPESetupTranslatorGroup : public TranslatorGroup
+mClass(MPEEngine) MPESetupTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(MPESetup)
 public:
 			mDefEmptyTranslatorGroupConstructor(MPESetup)
@@ -51,7 +52,7 @@ public:
 };
 
 
-mClass MPESetupTranslator : public Translator
+mClass(MPEEngine) MPESetupTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(MPESetup)
@@ -74,7 +75,7 @@ public:
 };
     
 
-mClass dgbMPESetupTranslator : public MPESetupTranslator
+mClass(MPEEngine) dgbMPESetupTranslator : public MPESetupTranslator
 {				  isTranslator(dgb,MPESetup)
 public:
     			mDefEmptyTranslatorConstructor(dgb,MPESetup)
@@ -90,3 +91,4 @@ public:
 };
 
 #endif
+

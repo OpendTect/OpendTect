@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2006
- RCS:           $Id: uiioobj.h,v 1.4 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiioobj.h,v 1.5 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "gendefs.h"
 class IOObj;
 class CtxtIOObj;
@@ -20,7 +21,7 @@ class CtxtIOObj;
 /*! \brief Dialog letting the user select an object.
            It returns an IOObj* after successful go(). */
 
-mClass uiIOObj
+mClass(uiIo) uiIOObj
 {
 public:
 				uiIOObj( IOObj& i, bool silent=false )
@@ -64,3 +65,4 @@ protected:
 
 
 #endif
+

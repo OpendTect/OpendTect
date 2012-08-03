@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.20 2012-03-12 08:01:24 cvsbruno Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.21 2012-08-03 13:01:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uiwellattribmod.h"
 #include "uidialog.h"
 
 namespace Well { class Data; }
@@ -38,7 +39,7 @@ namespace WellTie
     class Setup;
     class uiTieWin;
 
-mClass uiTieWinMGRDlg : public uiDialog
+mClass(uiWellAttrib) uiTieWinMGRDlg : public uiDialog
 {
 
 public:    
@@ -90,3 +91,4 @@ protected:
 
 }; //namespace WellTie
 #endif
+

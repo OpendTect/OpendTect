@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.61 2012-08-01 15:16:15 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.62 2012-08-03 13:00:15 cvskris Exp $
 ________________________________________________________________________
 
 */
 
+#include "basicmod.h"
 #include "commondefs.h"
 #include "plftypes.h"
 
@@ -46,7 +47,7 @@ class Mutex;
     available for long, unsigned long */
 
 template <class T>
-mClass Atomic
+mClass(Basic) Atomic
 {
 public:
     		Atomic(T val=0);
@@ -91,7 +92,7 @@ protected:
 /*Atomic instanciated with a pointer. The class really only handles the
   casting from a void* to a T*. */
 template <class T>
-mClass AtomicPointer
+mClass(Basic) AtomicPointer
 {
 public:
     inline	AtomicPointer(T* newptr = 0);
@@ -129,7 +130,7 @@ it is unlocked. If a thread tries to lock it, it will be postponed until
 the thread that has locked it will unlock it.
 */
 
-mClass Mutex
+mClass(Basic) Mutex
 {
 public:
 			Mutex( bool recursive=false );
@@ -154,7 +155,7 @@ protected:
 };
 
 
-mClass SpinLock
+mClass(Basic) SpinLock
 {
 public:
 			SpinLock();
@@ -204,7 +205,7 @@ When you want to change the condition:
 */
 
 
-mClass ConditionVar : public Mutex
+mClass(Basic) ConditionVar : public Mutex
 {
 public:
 				ConditionVar();
@@ -232,7 +233,7 @@ but it will not allow any readers when writelocked, and no writelock is allowed
 when readlocked. */
 
 
-mClass ReadWriteLock
+mClass(Basic) ReadWriteLock
 {
 public:
     			ReadWriteLock();
@@ -328,7 +329,7 @@ mLockerClassImpl( WriteLockLocker, ReadWriteLock,
 /*!Waits for a number of threads to reach a certain point (i.e. the call to
    Barrier::waitForAll). Once everyone has arrived, everyone is released. */
 
-mClass Barrier
+mClass(Basic) Barrier
 {
 public:
     			Barrier(int nrthreads=-1,bool immediatrelease=true);
@@ -373,7 +374,7 @@ The process that has created the thread must call destroy() or detach().
 
 */
 
-mClass Thread
+mClass(Basic) Thread
 {
 public:
 
@@ -399,13 +400,13 @@ protected:
   * The user settings contain a 'Nr Processors' entry.
 */
 
-mGlobal int getNrProcessors();
-mGlobal const void* currentThread();
+mGlobal(Basic) int getNrProcessors();
+mGlobal(Basic) const void* currentThread();
 
 
 
 /*! Causes the current thread to sleep */
-mGlobal void sleep(double time); /*!< Time in seconds */
+mGlobal(Basic) void sleep(double time); /*!< Time in seconds */
 
 
 #define mThreadDeclareMutexedVar(T,var) \
@@ -754,3 +755,4 @@ mImplAtomicPointerOperator( operator--(int), old-1, old );
 } //namespace
 
 #endif
+

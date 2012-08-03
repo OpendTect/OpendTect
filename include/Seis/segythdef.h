@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segythdef.h,v 1.12 2011-02-17 13:34:38 cvsbert Exp $
+ RCS:		$Id: segythdef.h,v 1.13 2012-08-03 13:00:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "seismod.h"
 #include "segyhdrdef.h"
 #include "bufstring.h"
 class IOPar;
@@ -22,7 +23,7 @@ namespace SEGY
 
 /*!\brief stores HdrEntry info of the needed fields from the trace header.  */
 
-mClass TrcHeaderDef
+mClass(Seis) TrcHeaderDef
 {
 public:
 			TrcHeaderDef();
@@ -72,3 +73,4 @@ public:
 } // namespace
 
 #endif
+

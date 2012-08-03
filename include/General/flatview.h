@@ -6,11 +6,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.70 2012-08-03 09:29:13 cvsbruno Exp $
+ RCS:           $Id: flatview.h,v 1.71 2012-08-03 13:00:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
+#include "generalmod.h"
 #include "bufstring.h"
 #include "coltabmapper.h"
 #include "geometry.h"
@@ -32,12 +34,12 @@ typedef Geom::PosRectangle<double> Rect;
 /*!Class that represenents non-bitmap data to be displayed in a flatviewer,
    such as markers, lines and more */
 
-mClass AuxData
+mClass(General) AuxData
 {
 public:
     //!\brief explains what part of the an auxdata's appearance that may be
     //!	  edited by the user
-    mClass EditPermissions
+    mClass(General) EditPermissions
     {
     public:			EditPermissions();
 	bool		onoff_;
@@ -91,14 +93,14 @@ public:
 
 /*!\brief Annotation data for flat views */
 
-mClass Annotation
+mClass(General) Annotation
 {
 public:
 
 
     //!\brief Things like well tracks, cultural data, 2-D line positions
 
-    mStruct AxisData
+    mStruct(General) AxisData
     {
 				AxisData();
 
@@ -163,12 +165,12 @@ public:
 
   */
 
-mClass DataDispPars
+mClass(General) DataDispPars
 {
 public:
 
     //!\brief Common to VD and WVA
-    mClass Common
+    mClass(General) Common
     {
     public:
 			Common();
@@ -180,7 +182,7 @@ public:
     };
 
     //!\brief Variable Density (=color-bar driven) parameters
-    mClass VD : public Common
+    mClass(General) VD : public Common
     {
     public:
 
@@ -191,7 +193,7 @@ public:
 	bool		lininterp_; // Use bi-linear interpol, not poly
     };
     //!\brief Wiggle/Variable Area parameters
-    mClass WVA : public Common
+    mClass(General) WVA : public Common
     {
     public:
 
@@ -241,7 +243,7 @@ public:
 
 /*!\brief Flat views: Appearance  */
 
-mClass Appearance
+mClass(General) Appearance
 {
 public:
     			Appearance( bool drkbg=true )
@@ -298,7 +300,7 @@ protected:
 
   */
 
-mClass Viewer
+mClass(General) Viewer
 {
 public:
 
@@ -380,8 +382,10 @@ protected:
     void			addAuxInfo(bool,const Point&,IOPar&) const;
 };
 
-    mGlobal const char*	sKeyAllowUserChange();
+    mGlobal(General) const char*	sKeyAllowUserChange();
 
 } // namespace FlatView
 
 #endif
+
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoShapeScale.h,v 1.13 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: SoShapeScale.h,v 1.14 2012-08-03 13:00:41 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "soodmod.h"
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/fields/SoSFVec3f.h>
 #include <Inventor/fields/SoSFFloat.h>
@@ -32,7 +33,7 @@ position in (0, 0, 0).
 	      
 */
 
-mClass SoShapeScale : public SoNode
+mClass(SoOD) SoShapeScale : public SoNode
 {
     SO_NODE_HEADER(SoShapeScale);
 public:
@@ -71,3 +72,4 @@ protected:
 };
 
 #endif
+

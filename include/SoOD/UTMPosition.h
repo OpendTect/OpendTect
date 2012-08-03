@@ -24,6 +24,7 @@
  *
 \**************************************************************************/
 
+#include "soodmod.h"
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/nodes/SoTransformation.h>
 #include <Inventor/fields/SoSFString.h>
@@ -35,7 +36,7 @@ class SbMatrix;
 class SoState;
 
 
-mClass UTMPosition : public SoTransformation {
+mClass(SoOD) UTMPosition : public SoTransformation {
   typedef SoTransformation inherited;
 
   SO_NODE_HEADER(UTMPosition);
@@ -67,3 +68,4 @@ private:
 };
 
 #endif // !SMALLCHANGE_UTMPOSITION_H
+

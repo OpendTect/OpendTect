@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.h,v 1.14 2012-04-26 15:34:44 cvsbruno Exp $
+ RCS:           $Id: uifreqfilterattrib.h,v 1.15 2012-08-03 13:00:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 #include "uiwindowfunctionsel.h"
 
@@ -25,7 +26,7 @@ class uiLabeledSpinBox;
 
 /*! \brief ** Attribute description editor */
 
-mClass uiFreqFilterAttrib : public uiAttrDescEd
+mClass(uiAttributes) uiFreqFilterAttrib : public uiAttrDescEd
 {
 public:
 
@@ -62,3 +63,4 @@ protected:
 };
 
 #endif
+

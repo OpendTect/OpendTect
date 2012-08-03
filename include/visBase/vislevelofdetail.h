@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislevelofdetail.h,v 1.7 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vislevelofdetail.h,v 1.8 2012-08-03 13:01:24 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visdata.h"
 
 class SoLevelOfDetail;
@@ -26,7 +27,7 @@ resolution. Depending on how large parts of the screen the objects will fill,
 one of the versions will be used.
 */
 
-mClass LevelOfDetail : public DataObject
+mClass(visBase) LevelOfDetail : public DataObject
 {
 public:
 
@@ -51,3 +52,4 @@ protected:
 
 
 #endif
+

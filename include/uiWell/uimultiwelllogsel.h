@@ -6,11 +6,12 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.15 2012-07-23 09:32:25 cvssatyaki Exp $
+RCS:           $Id: uimultiwelllogsel.h,v 1.16 2012-08-03 13:01:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellmod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
 #include "wellmarker.h"
@@ -29,10 +30,10 @@ namespace Well { class MarkerSet; }
 
 /*! brief: UI facilities to extract well data with zrg and extraction methods!*/
 
-mClass uiWellZRangeSelector : public uiGroup
+mClass(uiWell) uiWellZRangeSelector : public uiGroup
 {
 public:
-    mClass Setup
+    mClass(uiWell) Setup
     {
 	public:
 				Setup()
@@ -85,10 +86,10 @@ protected:
 };
 
 
-mClass uiWellExtractParams : public uiWellZRangeSelector
+mClass(uiWell) uiWellExtractParams : public uiWellZRangeSelector
 {
 public:
-    mClass Setup : public uiWellZRangeSelector::Setup
+    mClass(uiWell) Setup : public uiWellZRangeSelector::Setup
     {
 	public:
 				Setup()
@@ -129,7 +130,7 @@ protected:
 
 
 
-mClass uiMultiWellLogSel : public uiWellExtractParams
+mClass(uiWell) uiMultiWellLogSel : public uiWellExtractParams
 {
 public:
 			uiMultiWellLogSel(uiParent*,const Setup&);
@@ -158,3 +159,4 @@ protected:
 };
 
 #endif
+

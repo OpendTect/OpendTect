@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2009
- RCS:		$Id: uigraphicscoltab.h,v 1.6 2012-04-03 08:56:32 cvskris Exp $
+ RCS:		$Id: uigraphicscoltab.h,v 1.7 2012-08-03 13:00:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uigraphicsitem.h"
 #include "draw.h"
 #include "coltabsequence.h"
@@ -21,11 +22,11 @@ class uiTextItem;
 namespace ColTab { class MapperSetup; }
 
 
-mClass uiColTabItem : public uiGraphicsItemGroup
+mClass(uiBase) uiColTabItem : public uiGraphicsItemGroup
 {
 public:
 
-    mClass Setup
+    mClass(uiBase) Setup
     {
     public:
 			Setup( bool h ) //!< horizontal?
@@ -75,3 +76,4 @@ protected:
 };
 
 #endif
+

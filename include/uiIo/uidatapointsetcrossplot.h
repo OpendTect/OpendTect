@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.42 2012-07-23 09:32:25 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.43 2012-08-03 13:00:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uiaxishandler.h"
 #include "uidatapointset.h"
 #include "coltabsequence.h"
@@ -43,7 +44,7 @@ template <class T> class Array1D;
 /*!\brief Data Point Set Cross Plotter */
 
 
-mClass uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
+mClass(uiIo) uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
 {
 public:
 
@@ -88,7 +89,7 @@ public:
     void		dataChanged();
 
     //!< Only use if you know what you're doing
-    mClass AxisData : 	public uiAxisData
+    mClass(uiIo) AxisData : 	public uiAxisData
     {
 	public:
 				AxisData(uiDataPointSetCrossPlotter&,
@@ -351,3 +352,4 @@ protected:
 };
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Marc Gerritsen, Jeroen Post
  Date:          23-04-2003
- RCS:           $Id: SoGridSurfaceDragger.h,v 1.7 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:           $Id: SoGridSurfaceDragger.h,v 1.8 2012-08-03 13:00:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "soodmod.h"
 #include <Inventor/draggers/SoDragger.h>
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFVec4f.h>
@@ -22,7 +23,7 @@ ________________________________________________________________________
 class SbLineProjector;
 
 
-mClass SoGridSurfaceDragger : public SoDragger 
+mClass(SoOD) SoGridSurfaceDragger : public SoDragger 
 {
     SO_KIT_HEADER( SoGridSurfaceDragger );
     SO_KIT_CATALOG_ENTRY_HEADER( rotator );
@@ -67,3 +68,4 @@ private:
 
 
 #endif
+

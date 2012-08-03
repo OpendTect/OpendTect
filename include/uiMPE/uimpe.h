@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.17 2012-08-01 12:30:32 cvsmahant Exp $
+ RCS:		$Id: uimpe.h,v 1.18 2012-08-03 13:01:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ the MPE::uiMPEEngine object, which is available through the static function
 MPE::uiMPE(). */
 
 
+#include "uimpemod.h"
 #include "bufstring.h"
 #include "callback.h"
 #include "color.h"
@@ -53,7 +54,7 @@ class SectionTracker;
 \endcode
 */
 
-mClass uiEMEditor : public CallBacker
+mClass(uiMPE) uiEMEditor : public CallBacker
 {
 public:
     			uiEMEditor(uiParent*);
@@ -81,7 +82,7 @@ typedef uiEMEditor*(*uiEMEditorCreationFunc)(uiParent*,MPE::ObjectEditor*);
     and a MPE::ObjectEditor*. Each class that wants to be able to procuce
     instances of itself must register itself with the addFactory startup. */
 
-mClass uiEMEditorFactory
+mClass(uiMPE) uiEMEditorFactory
 {
 public:
     void		addFactory( uiEMEditorCreationFunc f );
@@ -99,7 +100,7 @@ protected:
     MPE::uiSetupGroupFactory. */
 
 
-mClass uiSetupGroup : public uiGroup
+mClass(uiMPE) uiSetupGroup : public uiGroup
 {
 public:
 			uiSetupGroup(uiParent*,const char* helpref);
@@ -138,7 +139,7 @@ typedef uiSetupGroup*(*uiSetupGrpCreationFunc)(uiParent*,const char* typestr,
     be able to procuce instances of itself must register itself with the
     addFactory startup. */
 
-mClass uiSetupGroupFactory
+mClass(uiMPE) uiSetupGroupFactory
 {
 public:
     void		addFactory(uiSetupGrpCreationFunc f, const char* name);
@@ -158,7 +159,7 @@ protected:
     MPE::uiMPE(). */
 
 
-mClass uiMPEEngine 
+mClass(uiMPE) uiMPEEngine 
 {
 public:
     uiEMEditorFactory		editorfact;
@@ -169,9 +170,10 @@ public:
 
 /*! Access function for an instance (and normally the only instance) of
   MPE::uiMPEEngine. */
-mGlobal uiMPEEngine& uiMPE();
+mGlobal(uiMPE) uiMPEEngine& uiMPE();
 
 };
 
 
 #endif
+

@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.28 2009-11-12 05:24:36 cvsnanne Exp $
+ RCS:           $Id: uiseistransf.h,v 1.29 2012-08-03 13:01:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uigroup.h"
 #include "seisioobjinfo.h"
 #include "seisselection.h"
@@ -26,11 +27,11 @@ class uiSeisFmtScale;
 namespace Seis { class SelData; }
 
 
-mClass uiSeisTransfer : public uiGroup
+mClass(uiSeis) uiSeisTransfer : public uiGroup
 {
 public:
 
-    mClass Setup : public Seis::SelSetup
+    mClass(uiSeis) Setup : public Seis::SelSetup
     {
     public:
 			Setup( Seis::GeomType gt )
@@ -82,3 +83,4 @@ protected:
 
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Oct 2008
- RCS:		$Id: visrgbatexturechannel2rgba.h,v 1.8 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visrgbatexturechannel2rgba.h,v 1.9 2012-08-03 13:01:26 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "vistexturechannel2rgba.h"
 
 class SoRGBATextureChannel2RGBA;
@@ -24,7 +25,7 @@ namespace visBase
 Does also handle enable/disable of the channels. */
 
 
-mClass RGBATextureChannel2RGBA : public TextureChannel2RGBA
+mClass(visBase) RGBATextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
     static RGBATextureChannel2RGBA*	create()
@@ -58,3 +59,4 @@ protected:
 
 
 #endif
+

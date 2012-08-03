@@ -6,11 +6,12 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.17 2012-07-10 14:08:30 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.18 2012-08-03 13:00:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "geometrymod.h"
 #include "sets.h"
 #include "thread.h"
 #include "callback.h"
@@ -24,7 +25,7 @@ namespace Geometry
 /*!A geomtetry that is defined by a number of coordinates (defined outside
    the class), by specifying connections between the coordiates. */
 
-mClass IndexedGeometry
+mClass(Geometry) IndexedGeometry
 {
 public:
     enum	Type { Points, Lines, Triangles, TriangleStrip, TriangleFan };
@@ -72,7 +73,7 @@ protected:
    is defined in an ObjectSet of IndexedGeometry. All IndexedGeometry share
    one common coordinate and normal list. */
 
-mClass IndexedShape
+mClass(Geometry) IndexedShape
 {
 public:
     virtual 		~IndexedShape();
@@ -119,7 +120,7 @@ private:
 };
 
 
-mClass ExplicitIndexedShape : public IndexedShape, public CallBacker
+mClass(Geometry) ExplicitIndexedShape : public IndexedShape, public CallBacker
 {
 public:
     			ExplicitIndexedShape()	{}
@@ -140,3 +141,4 @@ public:
 }; //namespace
 
 #endif
+

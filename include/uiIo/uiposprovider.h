@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.21 2012-03-02 22:54:58 cvsnanne Exp $
+ RCS:           $Id: uiposprovider.h,v 1.22 2012-08-03 13:01:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uicompoundparsel.h"
 #include "uiposprovgroup.h"
 #include "iopar.h"
@@ -23,7 +24,7 @@ class CubeSampling;
 
 /*! \brief lets user choose a way to provide positions */
 
-mClass uiPosProvider : public uiGroup
+mClass(uiIo) uiPosProvider : public uiGroup
 {
 public:
 
@@ -69,7 +70,7 @@ protected:
 /*!\brief CompoundParSel to capture a user's Pos::Provider wishes */
 
 
-mClass uiPosProvSel : public uiCompoundParSel
+mClass(uiIo) uiPosProvSel : public uiCompoundParSel
 {
 public:
 
@@ -110,3 +111,4 @@ protected:
 
 
 #endif
+

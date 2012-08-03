@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplaywin.h,v 1.9 2012-07-26 07:39:11 cvsbruno Exp $
+ RCS:           $Id: uistatsdisplaywin.h,v 1.10 2012-08-03 13:01:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uimainwin.h"
 #include "uistatsdisplay.h"
 class BufferStringSet;
@@ -21,7 +22,7 @@ namespace Stats { template <class T> class ParallelCalc; }
 
 /*!\brief Stats display main window. See uistatsdisplay.h for details. */
 
-mClass uiStatsDisplayWin : public uiMainWin
+mClass(uiTools) uiStatsDisplayWin : public uiMainWin
 {
 public:
     				uiStatsDisplayWin(uiParent*,
@@ -45,3 +46,4 @@ protected:
 
 
 #endif
+

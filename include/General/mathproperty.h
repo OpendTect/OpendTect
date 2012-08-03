@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.21 2012-02-01 13:54:09 cvsbert Exp $
+ RCS:		$Id: mathproperty.h,v 1.22 2012-08-03 13:00:24 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "generalmod.h"
 #include "property.h"
 class MathExpression;
 class UnitOfMeasure;
@@ -27,7 +28,7 @@ class UnitOfMeasure;
 
  */
 
-mClass MathProperty : public Property
+mClass(General) MathProperty : public Property
 {
 public:
     			MathProperty(const PropertyRef&,const char* def=0);
@@ -72,3 +73,4 @@ protected:
 
 
 #endif
+

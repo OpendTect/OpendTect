@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: muter.h,v 1.6 2012-07-02 12:27:35 cvsbruno Exp $
+ RCS:		$Id: muter.h,v 1.7 2012-08-03 13:00:04 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "algomod.h"
 #include "samplingdata.h"
 
 template <class T> class ValueSeries;
@@ -25,7 +26,7 @@ template <class T> class ValueSeries;
 
   */
 
-mClass Muter
+mClass(Algo) Muter
 {
 public:
     			Muter( float taperlen, bool tail=false )
@@ -56,3 +57,4 @@ protected:
 };
 
 #endif
+

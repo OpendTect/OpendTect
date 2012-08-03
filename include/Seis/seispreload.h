@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: seispreload.h,v 1.11 2012-05-22 14:48:44 cvskris Exp $
+ RCS:           $Id: seispreload.h,v 1.12 2012-08-03 13:00:37 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "seismod.h"
 #include "bufstringset.h"
 #include "multiid.h"
 #include "ranges.h"
@@ -22,7 +23,7 @@ class IOObj;
 namespace Seis
 {
 
-mClass PreLoader
+mClass(Seis) PreLoader
 {
 public:
 
@@ -73,3 +74,4 @@ protected:
 } // namespace
 
 #endif
+

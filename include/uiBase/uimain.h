@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.24 2011-10-19 07:47:47 cvskris Exp $
+ RCS:           $Id: uimain.h,v 1.25 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uigeom.h"
 #include "color.h"
 
@@ -25,7 +26,7 @@ class KeyboardEventFilter;
 class QtTabletEventFilter;
 
 
-mClass uiMain
+mClass(uiBase) uiMain
 {
 public:
 			uiMain(int& argc,char** argv);
@@ -82,7 +83,8 @@ protected:
 };
 
 
-mGlobal bool isMainThread(const void*);
-mGlobal bool isMainThreadCurrent();
+mGlobal(uiBase) bool isMainThread(const void*);
+mGlobal(uiBase) bool isMainThreadCurrent();
 
 #endif
+

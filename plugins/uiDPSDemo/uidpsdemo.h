@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2009
- RCS:           $Id: uidpsdemo.h,v 1.8 2009-12-01 09:46:49 cvssatyaki Exp $
+ RCS:           $Id: uidpsdemo.h,v 1.9 2012-08-03 13:01:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uidpsdemomod.h"
 #include "uidialog.h"
 class IOObj;
 class uiSeisSel;
@@ -29,7 +30,7 @@ namespace EM { class Horizon3D; }
  
  */
 
-mClass uiDPSDemo : public uiDialog
+mClass(uiDPSDemo) uiDPSDemo : public uiDialog
 { 	
 public:
 
@@ -57,3 +58,4 @@ protected:
 
 
 #endif
+

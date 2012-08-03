@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.36 2012-06-29 12:17:06 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.37 2012-08-03 13:00:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "gendefs.h"
 #include "errh.h"
 #include "odmemory.h"
@@ -178,7 +179,7 @@ protected:
 };
 
 template <class T>
-mClass ValueSeriesGetAll : public ParallelTask
+mClass(Basic) ValueSeriesGetAll : public ParallelTask
 {
 public:
 		ValueSeriesGetAll(const ValueSeries<T>& from,
@@ -580,3 +581,4 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 #undef mChunkSize
 
 #endif
+

@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          July 2010
- RCS:           $Id: uitrcpositiondlg.h,v 1.5 2011-06-13 06:05:55 cvsnageswara Exp $
+ RCS:           $Id: uitrcpositiondlg.h,v 1.6 2012-08-03 13:01:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uidialog.h"
 #include "cubesampling.h"
 #include "linekey.h"
@@ -23,7 +24,7 @@ class uiToolButton;
 class PickRetriever;
 namespace PosInfo { class Line2DData; }
 
-mClass uiTrcPositionDlg: public uiDialog
+mClass(uiSeis) uiTrcPositionDlg: public uiDialog
 {                                                                               
 public:                                                                         
 				uiTrcPositionDlg(uiParent*,const CubeSampling&,
@@ -50,3 +51,4 @@ protected:
 };
 
 #endif
+

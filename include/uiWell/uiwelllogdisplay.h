@@ -13,6 +13,8 @@ ________________________________________________________________________
 -*/
 
 
+#include "uiwellmod.h"
+#include "uiwellmod.h"
 #include "uiwelldahdisplay.h"
 #include "uiaxishandler.h"
 #include "draw.h"
@@ -28,14 +30,14 @@ namespace Well { class Log; class Marker; }
 
 
 /*!\brief creates a display of max 2 well logs. */
-mClass uiWellLogDisplay : public uiWellDahDisplay
+mClass(uiWell) uiWellLogDisplay : public uiWellDahDisplay
 {
 public:
 
 			    uiWellLogDisplay(uiParent*,const Setup&);
 			    ~uiWellLogDisplay();
 
-    mStruct LogData : public uiWellDahDisplay::DahObjData
+    mStruct(uiWell) LogData : public uiWellDahDisplay::DahObjData
     {
 	void				setLog(const Well::Log*);
 	const Well::Log*		log() const;
@@ -78,4 +80,6 @@ protected:
 };
 
 #endif
+
+
 

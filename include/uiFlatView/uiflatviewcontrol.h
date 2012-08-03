@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.39 2012-07-12 15:04:43 cvsbruno Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.40 2012-08-03 13:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiflatviewmod.h"
 #include "uigroup.h"
 #include "iopar.h"
 class uiFlatViewer;
@@ -22,7 +23,7 @@ namespace FlatView { class ZoomMgr; class Viewer; }
 
 /*!\brief Tools to control uiFlatViewer(s). */
 
-mClass uiFlatViewControl : public uiGroup
+mClass(uiFlatView) uiFlatViewControl : public uiGroup
 {
 public:
 
@@ -108,3 +109,4 @@ protected:
 };
 
 #endif
+

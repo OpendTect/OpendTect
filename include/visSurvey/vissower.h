@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		December 2010
- RCS:		$Id: vissower.h,v 1.10 2012-01-06 13:33:04 cvsjaap Exp $
+ RCS:		$Id: vissower.h,v 1.11 2012-08-03 13:01:29 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "vissurveymod.h"
 #include "emposid.h"
 #include "keyenum.h"
 #include "visobject.h"
@@ -30,7 +31,7 @@ namespace visSurvey
 
 #define mCtrlLeftButton ( (OD::ButtonState) (OD::LeftButton+OD::ControlButton) )
 
-mClass Sower : public visBase::VisualObjectImpl
+mClass(visSurvey) Sower : public visBase::VisualObjectImpl
 {
 
 public:
@@ -122,3 +123,4 @@ protected:
 }; // namespace visSurvey
 
 #endif
+

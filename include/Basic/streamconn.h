@@ -7,19 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		21-10-1995
- RCS:		$Id: streamconn.h,v 1.15 2010-12-14 15:53:15 cvsbert Exp $
+ RCS:		$Id: streamconn.h,v 1.16 2012-08-03 13:00:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "basicmod.h"
 #include "conn.h"
 #include "strmdata.h"
 
 
 /*!\brief Connection with an underlying iostream. */
 
-mClass StreamConn : public Conn
+mClass(Basic) StreamConn : public Conn
 {
 public:
 			StreamConn();
@@ -72,3 +73,4 @@ private:
 
 
 #endif
+

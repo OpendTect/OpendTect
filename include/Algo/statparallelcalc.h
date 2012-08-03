@@ -7,11 +7,12 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Kris and Bruno
 Date:          Oct 2011
-RCS:           $Id: statparallelcalc.h,v 1.7 2012-06-29 10:06:20 cvsbruno Exp $
+RCS:           $Id: statparallelcalc.h,v 1.8 2012-08-03 13:00:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "algomod.h"
 #include "math2.h"
 #include "task.h"
 #include "statruncalc.h"
@@ -29,7 +30,7 @@ namespace Stats
 {
 
 template <class T>
-mClass ParallelCalc : public ParallelTask, public BaseCalc<T>
+mClass(Algo) ParallelCalc : public ParallelTask, public BaseCalc<T>
 {
 public:
 				ParallelCalc(const CalcSetup& s,const T* data, 
@@ -312,3 +313,4 @@ inline double ParallelCalc<T>::variance() const
 
 }
 #endif
+

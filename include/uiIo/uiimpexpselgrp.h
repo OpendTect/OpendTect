@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          Dec 2010
- RCS:           $Id: uiimpexpselgrp.h,v 1.3 2011-05-25 09:49:22 cvssatyaki Exp $
+ RCS:           $Id: uiimpexpselgrp.h,v 1.4 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 #include "uidatapointsetcrossplot.h"
 #include "uigroup.h"
@@ -31,7 +32,7 @@ class uiToolButton;
 class uiDataPointSetCrossPlotter;
 
 
-mClass uiSGSel : public uiGroup
+mClass(uiIo) uiSGSel : public uiGroup
 {
 public:
     					uiSGSel(uiParent*,bool forread);
@@ -64,7 +65,7 @@ protected:
 };
 
 
-mClass uiSGSelGrp : public uiGroup
+mClass(uiIo) uiSGSelGrp : public uiGroup
 {
 public:
     				uiSGSelGrp(uiParent*,bool forread);
@@ -108,7 +109,7 @@ protected:
 };
 
 
-mClass SelGrpImporter
+mClass(uiIo) SelGrpImporter
 {
 public:
     				SelGrpImporter(const char*);
@@ -131,7 +132,7 @@ protected:
 };
 
 
-mClass SelGrpExporter
+mClass(uiIo) SelGrpExporter
 {
 public:
     				SelGrpExporter(const char* fnm);
@@ -148,7 +149,7 @@ protected:
 };
 
 
-mClass uiReadSelGrp : public uiDialog
+mClass(uiIo) uiReadSelGrp : public uiDialog
 {
 public:
 			uiReadSelGrp(uiParent*,uiDataPointSetCrossPlotter&);
@@ -188,11 +189,11 @@ protected:
 };
 
 
-mClass uiExpSelectionArea : public uiDialog
+mClass(uiIo) uiExpSelectionArea : public uiDialog
 {
 public:
 
-	mClass Setup
+	mClass(uiIo) Setup
 	{
 	    public:
 		    Setup(const char* x,const char* y, const char* y2)
@@ -220,3 +221,4 @@ protected:
 };
 
 #endif
+

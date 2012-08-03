@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Nov 2009
- RCS:		$Id: dpsdispmgr.h,v 1.9 2012-07-10 08:05:25 cvskris Exp $
+ RCS:		$Id: dpsdispmgr.h,v 1.10 2012-08-03 13:00:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
+#include "generalmod.h"
 #include "callback.h"
 #include "bufstringset.h"
 #include "color.h"
@@ -30,7 +32,7 @@ class DataPointSet;
    DataPointSetDisplayMgr only.
 */
 
-mStruct DataPointSetDisplayProp
+mStruct(General) DataPointSetDisplayProp
 {
 public:
 				DataPointSetDisplayProp( 
@@ -91,7 +93,7 @@ protected:
 };
 
 
-mClass DataPointSetDisplayMgr : public CallBacker
+mClass(General) DataPointSetDisplayMgr : public CallBacker
 {
 public:
 
@@ -135,3 +137,5 @@ protected:
 };
 	    				   
 #endif
+
+

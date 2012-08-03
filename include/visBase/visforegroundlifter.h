@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Feb 2007
- RCS:		$Id: visforegroundlifter.h,v 1.4 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visforegroundlifter.h,v 1.5 2012-08-03 13:01:24 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visdata.h"
 
 class SoForegroundTranslation;
@@ -22,7 +23,7 @@ namespace visBase
 
 /*!Moves the following objects towards the camera. */
 
-mClass ForegroundLifter : public DataObject
+mClass(visBase) ForegroundLifter : public DataObject
 {
 public:
 
@@ -43,4 +44,5 @@ protected:
 };
 
 #endif
+
 

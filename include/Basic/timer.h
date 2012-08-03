@@ -7,17 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/10/2000
- RCS:           $Id: timer.h,v 1.4 2010-05-18 07:08:12 cvsjaap Exp $
+ RCS:           $Id: timer.h,v 1.5 2012-08-03 13:00:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "namedobj.h"
 
 class QTimer;
 class QTimerComm;
 
-mClass Timer : public NamedObject
+mClass(Basic) Timer : public NamedObject
 {
 public :
 			Timer(const char* nm="Timer");
@@ -56,3 +57,4 @@ public:
 
 
 #endif
+

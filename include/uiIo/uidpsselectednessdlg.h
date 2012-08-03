@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          July 2011
- RCS:           $Id: uidpsselectednessdlg.h,v 1.1 2011-07-11 11:40:57 cvssatyaki Exp $: 
+ RCS:           $Id: uidpsselectednessdlg.h,v 1.2 2012-08-03 13:01:00 cvskris Exp $: 
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidpsaddcolumndlg.h"
 #include "bufstringset.h"
 
@@ -23,7 +24,7 @@ class uiTable;
 
 class MathExpression;
 
-mClass uiDPSSelectednessDlg : public uiDPSAddColumnDlg
+mClass(uiIo) uiDPSSelectednessDlg : public uiDPSAddColumnDlg
 {
 public:
     				uiDPSSelectednessDlg(uiParent*,
@@ -47,3 +48,4 @@ protected:
 };
 
 #endif
+

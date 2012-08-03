@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.16 2012-05-21 07:58:07 cvsbruno Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.17 2012-08-03 13:01:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellmod.h"
+#include "uiwellmod.h"
 #include "uigraphicsview.h"
 #include "uigraphicsitem.h"
 #include "uiaxishandler.h"
@@ -44,10 +46,10 @@ else if ( !zdata_.zistime_ && track() )\
     if ( !ld1_->yax_.range().includes( zpos, true ) )\
 	continue;
 
-mClass uiWellDahDisplay : public uiGraphicsView
+mClass(uiWell) uiWellDahDisplay : public uiGraphicsView
 {
 public:	
-    mStruct Setup
+    mStruct(uiWell) Setup
     {
 			    Setup()
 			    : nrmarkerchars_(2)
@@ -78,7 +80,7 @@ public:
 				    uiWellDahDisplay(uiParent*,const Setup&);
 				    ~uiWellDahDisplay();
 
-    mStruct DahObjData
+    mStruct(uiWell) DahObjData
     {
 	virtual			~DahObjData() { delete xaxprcts_; }
 
@@ -114,7 +116,7 @@ public:
 	friend class            uiWellDahDisplay;
     };
 
-    mStruct Data
+    mStruct(uiWell) Data
     {
 				    Data()
 				    : zrg_(mUdf(float),mUdf(float))
@@ -140,7 +142,7 @@ public:
 	const Well::Data*	wd_;
     };
 
-    mStruct PickData
+    mStruct(uiWell) PickData
     {
 				PickData( float dah, Color c=Color::NoColor() )
 				    : dah_(dah), color_(c), val_(mUdf(float)) {}
@@ -178,7 +180,7 @@ protected:
     TypeSet<PickData>           zpicks_;
     uiGraphicsItemSet       	zpickitms_;
 
-    mStruct MarkerDraw
+    mStruct(uiWell) MarkerDraw
     {
 			    MarkerDraw( const Well::Marker& mrk )
 				: mrk_(mrk)
@@ -218,3 +220,5 @@ protected:
 
 
 #endif
+
+

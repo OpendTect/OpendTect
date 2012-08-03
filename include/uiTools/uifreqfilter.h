@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2012
- RCS:           $Id: uifreqfilter.h,v 1.3 2012-04-27 09:44:03 cvsbruno Exp $
+ RCS:           $Id: uifreqfilter.h,v 1.4 2012-08-03 13:01:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "fftfilter.h"
 #include "uigroup.h"
 
 
 class uiGenInput;
 
-mClass uiFreqFilterSelFreq : public uiGroup
+mClass(uiTools) uiFreqFilterSelFreq : public uiGroup
 {
 public:
     			uiFreqFilterSelFreq(uiParent*);
@@ -50,3 +51,4 @@ protected:
 
 
 #endif
+

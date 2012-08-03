@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewbmp2rgb.h,v 1.7 2012-07-10 13:27:26 cvsbruno Exp $
+ RCS:           $Id: flatviewbmp2rgb.h,v 1.8 2012-08-03 13:00:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiflatviewmod.h"
 #include "flatview.h"
 #include "array2dbitmap.h"
 #include "uirgbarray.h"
@@ -23,7 +24,7 @@ namespace FlatView
 /*!\brief Draws bitmaps on RGBArray according to FlatView specs.
 	  Assumes bitmaps are 100% aligned with array, only sizes may differ. */
 
-mClass BitMap2RGB
+mClass(uiFlatView) BitMap2RGB
 {
 public:
 
@@ -53,3 +54,4 @@ protected:
 
 
 #endif
+

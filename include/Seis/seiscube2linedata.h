@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Apr 2010
- RCS:		$Id: seiscube2linedata.h,v 1.2 2010-04-26 08:29:58 cvsbert Exp $
+ RCS:		$Id: seiscube2linedata.h,v 1.3 2012-08-03 13:00:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "seismod.h"
 #include "executor.h"
 #include "bufstringset.h"
 class IOObj;
@@ -24,7 +25,7 @@ class Cube2LineDataLineKeyProvider;
 
 /*!\brief Extracts 3D cube data into 2D line attribute */
 
-mClass SeisCube2LineDataExtracter : public Executor
+mClass(Seis) SeisCube2LineDataExtracter : public Executor
 {
 public:
 		SeisCube2LineDataExtracter(const IOObj& cubein,
@@ -65,3 +66,4 @@ protected:
 
 
 #endif
+

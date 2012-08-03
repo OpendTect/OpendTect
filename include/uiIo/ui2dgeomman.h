@@ -6,15 +6,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          September 2010
- RCS:           $Id: ui2dgeomman.h,v 1.5 2011-04-20 07:02:48 cvssatyaki Exp $
+ RCS:           $Id: ui2dgeomman.h,v 1.6 2012-08-03 13:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 class uiListBox;
 
-mClass ui2DGeomManageDlg : public uiDialog
+mClass(uiIo) ui2DGeomManageDlg : public uiDialog
 {
 public:
 
@@ -36,3 +37,4 @@ protected:
 
 
 #endif
+

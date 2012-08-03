@@ -8,11 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.29 2012-04-13 08:39:02 cvskris Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.30 2012-08-03 13:00:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
+#include "generalmod.h"
 #include "posauxinfo.h"
 #include "rcol2coord.h"
 #include "basiccompinfo.h"
@@ -29,7 +31,7 @@ If the SurvGeom has full rectangularity, cubedata can be ignored.
 
 */
 
-mClass CBVSInfo
+mClass(General) CBVSInfo
 {
 public:
 
@@ -40,7 +42,7 @@ public:
 				{ *this = ci; }
     CBVSInfo&			operator =(const CBVSInfo&);
 
-    mStruct SurvGeom
+    mStruct(General) SurvGeom
     {
 				SurvGeom()
 				: fullyrectandreg(false)	{}
@@ -92,3 +94,5 @@ protected:
 
 
 #endif
+
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          20/01/2006
- RCS:           $Id: uishortcutsmgr.h,v 1.12 2012-01-13 20:17:37 cvsnanne Exp $
+ RCS:           $Id: uishortcutsmgr.h,v 1.13 2012-08-03 13:00:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "iopar.h"
 #include "enums.h"
 #include "keyenum.h"
@@ -20,10 +21,10 @@ class QKeyEvent;
 
 
 class uiShortcutsMgr;
-mGlobal uiShortcutsMgr& SCMgr(); //!< This is where you get your shortcuts
+mGlobal(uiBase) uiShortcutsMgr& SCMgr(); //!< This is where you get your shortcuts
 
 
-mClass uiKeyDesc
+mClass(uiBase) uiKeyDesc
 {
 public:
 			uiKeyDesc(const char* statestr=0,const char* keystr=0);
@@ -58,7 +59,7 @@ protected:
 };
 
 
-mClass uiShortcutsList
+mClass(uiBase) uiShortcutsList
 {
 public:
 
@@ -97,7 +98,7 @@ protected:
 };
 
 
-mClass uiShortcutsMgr : public CallBacker
+mClass(uiBase) uiShortcutsMgr : public CallBacker
 {
 public:
 			uiShortcutsMgr();
@@ -119,7 +120,7 @@ protected:
 };
 
 
-mClass uiExtraIntKeyDesc : public uiKeyDesc
+mClass(uiBase) uiExtraIntKeyDesc : public uiKeyDesc
 {
 public:			
 			uiExtraIntKeyDesc(const char* statestr=0,
@@ -144,3 +145,4 @@ protected:
 };
 
 #endif
+

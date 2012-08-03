@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiscalingattrib.cc,v 1.37 2012-05-02 15:11:58 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiscalingattrib.cc,v 1.38 2012-08-03 13:01:35 cvskris Exp $";
 
 
 #include "uiscalingattrib.h"
@@ -351,7 +351,7 @@ bool uiScalingAttrib::areUIParsOK()
 }
 
 
-mClass uiSelectPositionDlg : public uiDialog
+class uiSelectPositionDlg : public uiDialog
 {
 public:
 uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d,const char* anm )

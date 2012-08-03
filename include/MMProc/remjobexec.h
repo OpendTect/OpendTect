@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          August 2010
- RCS:           $Id: remjobexec.h,v 1.2 2010-09-10 11:59:03 cvsranojay Exp $
+ RCS:           $Id: remjobexec.h,v 1.3 2012-08-03 13:00:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mmprocmod.h"
 #include "callback.h"
 #include "gendefs.h"
 
@@ -19,7 +20,7 @@ class BufferString;
 class IOPar;
 class TcpSocket;
 
-mClass RemoteJobExec : public CallBacker
+mClass(MMProc) RemoteJobExec : public CallBacker
 {
 public:
 			RemoteJobExec(const char*,const int);
@@ -39,3 +40,4 @@ protected:
 };
 
 #endif
+

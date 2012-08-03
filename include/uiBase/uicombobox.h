@@ -7,10 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.40 2011-09-09 13:48:49 cvsnanne Exp $
+ RCS:           $Id: uicombobox.h,v 1.41 2012-08-03 13:00:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+#include "uibasemod.h"
 #include "uigroup.h"
 #include "userinputobj.h"
 
@@ -29,7 +30,7 @@ template <class T> class ObjectSet;
 
   */
 
-mClass uiComboBox : public uiObject, public UserInputObjImpl<int>
+mClass(uiBase) uiComboBox : public uiObject, public UserInputObjImpl<int>
 {
 public:
 
@@ -114,7 +115,7 @@ public:
 
 
 
-mClass uiLabeledComboBox : public uiGroup
+mClass(uiBase) uiLabeledComboBox : public uiGroup
 {
 public:
 		uiLabeledComboBox(uiParent*,const char* lbl,
@@ -136,3 +137,4 @@ protected:
 };
 
 #endif
+

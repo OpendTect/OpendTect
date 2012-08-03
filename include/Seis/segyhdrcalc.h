@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2011
- RCS:		$Id: segyhdrcalc.h,v 1.8 2011-04-24 10:06:45 cvsbert Exp $
+ RCS:		$Id: segyhdrcalc.h,v 1.9 2012-08-03 13:00:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
 #include "namedobj.h"
 #include "segyhdrdef.h"
 #include "typeset.h"
@@ -25,7 +26,7 @@ namespace SEGY
 class BinHeader;
 class TxtHeader;
 
-mClass HdrCalc
+mClass(Seis) HdrCalc
 {
 public:
 
@@ -41,7 +42,7 @@ public:
 };
 
 
-mClass HdrCalcSet : public ObjectSet<HdrCalc>
+mClass(Seis) HdrCalcSet : public ObjectSet<HdrCalc>
 		  , public NamedObject
 {
 public:
@@ -89,3 +90,4 @@ protected:
 } // namespace
 
 #endif
+

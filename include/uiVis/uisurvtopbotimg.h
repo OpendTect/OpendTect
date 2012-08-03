@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uisurvtopbotimg.h,v 1.4 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: uisurvtopbotimg.h,v 1.5 2012-08-03 13:01:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uivismod.h"
 #include "uidialog.h"
 #include "color.h"
 
@@ -21,7 +22,7 @@ namespace visSurvey { class Scene; }
 
 /*! sets the top and/or bottom images. */
 
-mClass uiSurvTopBotImageDlg : public uiDialog
+mClass(uiVis) uiSurvTopBotImageDlg : public uiDialog
 {
 public:
 			uiSurvTopBotImageDlg(uiParent*,visSurvey::Scene*);
@@ -43,3 +44,4 @@ protected:
 };
 
 #endif
+

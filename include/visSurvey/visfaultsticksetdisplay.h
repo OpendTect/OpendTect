@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.20 2012-01-24 14:45:37 cvsyuancheng Exp $
+ RCS:		$Id: visfaultsticksetdisplay.h,v 1.21 2012-08-03 13:01:28 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
 
@@ -38,7 +39,7 @@ class Seis2DDisplay;
 /*!\brief Display class for FaultStickSets
 */
 
-mClass FaultStickSetDisplay : public visBase::VisualObjectImpl,
+mClass(visSurvey) FaultStickSetDisplay : public visBase::VisualObjectImpl,
 			     public SurveyObject
 {
 public:
@@ -169,3 +170,4 @@ protected:
 
 
 #endif
+

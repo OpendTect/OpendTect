@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Sep 2010
- RCS:           $Id: uigmtinfodlg.h,v 1.1 2010-09-15 12:06:09 cvsnageswara Exp $
+ RCS:           $Id: uigmtinfodlg.h,v 1.2 2012-08-03 13:01:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uigmtmod.h"
 #include "uidialog.h"
 
 class uiCheckBox;
 class uiFileInput;
 class uiLabel;
 
-mClass uiGMTInfoDlg : public uiDialog
+mClass(uiGMT) uiGMTInfoDlg : public uiDialog
 {
 public:
 			uiGMTInfoDlg(uiParent*);
@@ -33,3 +34,4 @@ protected:
 };
 
 #endif
+

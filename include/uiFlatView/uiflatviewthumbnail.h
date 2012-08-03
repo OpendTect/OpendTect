@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiflatviewthumbnail.h,v 1.6 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiflatviewthumbnail.h,v 1.7 2012-08-03 13:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiflatviewmod.h"
 #include "uigraphicsview.h"
 class uiFlatViewer;
 class uiRectItem;
@@ -19,7 +20,7 @@ class MouseEventHandler;
 
 /*!\brief Shows a thumbnail with current position of a uiFlatViewer. */
 
-mClass uiFlatViewThumbnail : public uiGraphicsView
+mClass(uiFlatView) uiFlatViewThumbnail : public uiGraphicsView
 {
 public:
     			uiFlatViewThumbnail(uiParent*,uiFlatViewer&);
@@ -53,3 +54,4 @@ protected:
 };
 
 #endif
+

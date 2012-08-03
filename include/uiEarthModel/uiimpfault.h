@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.h,v 1.16 2012-03-27 20:15:24 cvsnanne Exp $
+ RCS:           $Id: uiimpfault.h,v 1.17 2012-08-03 13:00:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
@@ -25,7 +26,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for fault import */
 
-mClass uiImportFault : public uiDialog
+mClass(uiEarthModel) uiImportFault : public uiDialog
 {
 public:
 			~uiImportFault();
@@ -70,7 +71,7 @@ protected:
 };
 
 
-mClass uiImportFault3D : public uiImportFault
+mClass(uiEarthModel) uiImportFault3D : public uiImportFault
 {
 public:
     			uiImportFault3D(uiParent*,const char* type);
@@ -79,3 +80,4 @@ protected:
 };
 
 #endif
+

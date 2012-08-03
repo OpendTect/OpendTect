@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.44 2012-07-17 08:16:23 cvsbruno Exp $
+ RCS:		$Id: wellextractdata.h,v 1.45 2012-08-03 13:00:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "wellmod.h"
 #include "executor.h"
 #include "bufstringset.h"
 #include "position.h"
@@ -41,7 +42,7 @@ class MarkerSet;
 
 /*!\brief parameters (zrg, sampling method) to extract well data */
 
-mClass ZRangeSelector
+mClass(Well) ZRangeSelector
 {
 public :
     			ZRangeSelector() { setEmpty(); }
@@ -109,7 +110,7 @@ protected:
 };
 
 
-mClass ExtractParams : public ZRangeSelector
+mClass(Well) ExtractParams : public ZRangeSelector
 {
 public:
     			ExtractParams() { setEmpty(); }
@@ -133,7 +134,7 @@ public:
 
 /*!\brief Collects info about all wells in store */
 
-mClass InfoCollector : public ::Executor
+mClass(Well) InfoCollector : public ::Executor
 {
 public:
 
@@ -179,7 +180,7 @@ protected:
 /*!\brief Collects positions along selected well tracks. The DataPointSets will
   get new rows with the positions along the track. */
 
-mClass TrackSampler : public ::Executor
+mClass(Well) TrackSampler : public ::Executor
 {
 public:
 
@@ -235,7 +236,7 @@ protected:
 /*!\brief Collects positions along selected well tracks. Will add column
    to the DataPointSet. */
 
-mClass LogDataExtracter : public ::Executor
+mClass(Well) LogDataExtracter : public ::Executor
 {
 public:
 
@@ -279,7 +280,7 @@ protected:
 
 
 
-mClass SimpleTrackSampler : public Executor
+mClass(Well) SimpleTrackSampler : public Executor
 {
 public:
 			SimpleTrackSampler(const Well::Track&,
@@ -318,7 +319,7 @@ protected:
 
 /*! brief Log resampler, extracts all the logs given by log names along a z time or dah axis !*/
 
-mClass LogSampler : public ParallelTask
+mClass(Well) LogSampler : public ParallelTask
 {
 public:
 			LogSampler(const Well::Data& wd,
@@ -377,3 +378,4 @@ protected:
 
 
 #endif
+

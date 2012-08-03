@@ -8,10 +8,11 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Jan 2011
  Contents:	Remainder of string2.h that has to be available for C
- RCS:		$Id: string2_c.h,v 1.1 2011-01-10 13:29:58 cvsbert Exp $
+ RCS:		$Id: string2_c.h,v 1.2 2012-08-03 13:00:15 cvskris Exp $
 ________________________________________________________________________
 -*/
 
+#include "basicmod.h"
 #include "gendefs.h"
 #include <string.h>
 #include <ctype.h>
@@ -26,10 +27,11 @@ ________________________________________________________________________
 #define mTrimBlanks(ptr) \
     { mSkipBlanks(ptr); C_removeTrailingBlanks(ptr); }
 
-mGlobal void C_removeTrailingBlanks(char*);
-mGlobal int C_caseInsensitiveEqual(const char*,const char*,
+mGlobal(Basic) void C_removeTrailingBlanks(char*);
+mGlobal(Basic) int C_caseInsensitiveEqual(const char*,const char*,
 				     int nr_chars_to_match_0_is_all);
-mGlobal void C_replaceCharacter(char*,char from,char to);
+mGlobal(Basic) void C_replaceCharacter(char*,char from,char to);
 
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y. Liu
  Date:          Nov 2011
- RCS:           $Id: uibodyposprovgroup.h,v 1.1 2011-11-25 17:22:28 cvsyuancheng Exp $
+ RCS:           $Id: uibodyposprovgroup.h,v 1.2 2012-08-03 13:00:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "uiposprovgroup.h"
 class MultiID;
 class CtxtIOObj;
@@ -21,7 +22,7 @@ class uiPosSubSel;
 
 
 /*! \brief UI for BodyPosProvider */
-mClass uiBodyPosProvGroup : public uiPosProvGroup
+mClass(uiEarthModel) uiBodyPosProvGroup : public uiPosProvGroup
 {
 public:
 				uiBodyPosProvGroup(uiParent*,
@@ -47,3 +48,4 @@ protected:
 };
 
 #endif
+

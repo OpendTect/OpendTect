@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfuncdraw.h,v 1.2 2011-10-06 15:15:46 cvsbert Exp $
+ RCS:		$Id: probdenfuncdraw.h,v 1.3 2012-08-03 13:00:05 cvskris Exp $
 ________________________________________________________________________
 
 
 */
 
+#include "algomod.h"
 #include "probdenfunc.h"
 
 
 /* Stores one draw of a Probability Density Function. */
 
-mClass ProbDenFuncDraw
+mClass(Algo) ProbDenFuncDraw
 {
 public:
 
@@ -45,3 +46,4 @@ protected:
 
 
 #endif
+

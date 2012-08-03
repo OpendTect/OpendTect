@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne/Bert
  Date:          April 2002/Nov 2009
- RCS:           $Id: uiseis2dfileman.h,v 1.8 2012-06-26 22:32:24 cvsnanne Exp $
+ RCS:           $Id: uiseis2dfileman.h,v 1.9 2012-08-03 13:01:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uidialog.h"
 class IOObj;
 class uiListBox;
@@ -21,7 +22,7 @@ class Seis2DLineSet;
 class uiSeisIOObjInfo;
 
 
-mClass uiSeis2DFileMan : public uiDialog
+mClass(uiSeis) uiSeis2DFileMan : public uiDialog
 {
 public:
 
@@ -68,3 +69,4 @@ protected:
 
 
 #endif
+

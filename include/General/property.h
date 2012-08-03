@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.31 2012-05-08 09:45:50 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.32 2012-08-03 13:00:25 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "generalmod.h"
 #include "propertyref.h"
 #include "factory.h"
 
@@ -28,7 +29,7 @@ class IOPar;
 
  */
 
-mClass Property
+mClass(General) Property
 {
 public:
 
@@ -59,7 +60,7 @@ public:
 
     mDefineFactory1ParamInClass(Property,const PropertyRef&,factory);
 
-    mClass EvalOpts
+    mClass(General) EvalOpts
     {
     public:
 
@@ -98,7 +99,7 @@ protected:
 };
 
 
-mClass PropertySet
+mClass(General) PropertySet
 {
 public:
 
@@ -166,7 +167,7 @@ public: \
 
 /*!\brief Simple, single-value property */
 
-mClass ValueProperty : public Property
+mClass(General) ValueProperty : public Property
 {
 public:
 
@@ -185,7 +186,7 @@ public:
 
 /*!\brief Range of values.  pos_ is usually in [0,1]. */
 
-mClass RangeProperty : public Property
+mClass(General) RangeProperty : public Property
 {
 public:
 
@@ -205,3 +206,4 @@ public:
 
 
 #endif
+

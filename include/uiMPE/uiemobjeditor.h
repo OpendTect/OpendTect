@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uiemobjeditor.h,v 1.3 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uiemobjeditor.h,v 1.4 2012-08-03 13:01:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uimpemod.h"
 #include "menuhandler.h"
 #include "uimpe.h"
 
@@ -23,7 +24,7 @@ namespace MPE
 {
 class HorizonEditor;
 
-mClass uiEMObjectEditor : public uiEMEditor
+mClass(uiMPE) uiEMObjectEditor : public uiEMEditor
 {
 
 public:
@@ -42,3 +43,4 @@ protected:
 
 
 #endif
+

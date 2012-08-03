@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uiprestacklateralstack.h,v 1.1 2009-11-25 22:22:54 cvskris Exp $
+ RCS:		$Id: uiprestacklateralstack.h,v 1.2 2012-08-03 13:01:05 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 class uiGenInput;
 
@@ -22,7 +23,7 @@ namespace PreStack
 class LateralStack;
 class Processor;
 
-mClass uiLateralStack : public uiDialog
+mClass(uiPreStackProcessing) uiLateralStack : public uiDialog
 {
 public:
     static void		initClass();
@@ -41,3 +42,4 @@ protected:
 }; //namespace
 
 #endif
+

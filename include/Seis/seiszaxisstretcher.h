@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		January 2008
- RCS:		$Id: seiszaxisstretcher.h,v 1.12 2012-05-07 12:18:50 cvskris Exp $
+ RCS:		$Id: seiszaxisstretcher.h,v 1.13 2012-08-03 13:00:39 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 
+#include "seismod.h"
 #include "cubesampling.h"
 #include "task.h"
 
@@ -29,7 +30,7 @@ class ZAxisTransform;
    out into another volume. If stretchinverse is true, the stretching will
    be done on the inveres of the values. */
 
-mClass SeisZAxisStretcher : public ParallelTask
+mClass(Seis) SeisZAxisStretcher : public ParallelTask
 {
 public:
     			SeisZAxisStretcher( const IOObj& in,
@@ -93,3 +94,4 @@ protected:
 };
 
 #endif
+

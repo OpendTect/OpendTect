@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		2007
- RCS:		$Id: windowfunction.h,v 1.9 2012-04-02 09:53:23 cvsbert Exp $
+ RCS:		$Id: windowfunction.h,v 1.10 2012-08-03 13:00:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
  
+#include "algomod.h"
 #include "factory.h"
 #include "mathfunc.h"
 
@@ -22,7 +23,7 @@ class IOPar;
    between 0 and 1 in the interval -1 to 1. Outside that interval, the result
    is zero. */
 
-mClass WindowFunction : public FloatMathFunction
+mClass(Algo) WindowFunction : public FloatMathFunction
 {
 public:
     virtual const char*	name() const			= 0;
@@ -50,7 +51,7 @@ public:
 
 
 #define mDeclWFSimpleClass(nm) \
-mClass nm##Window : public WindowFunction \
+mClass(Algo) nm##Window : public WindowFunction \
 { \
 public: \
     mDeclWFStdFns(nm); \
@@ -64,7 +65,7 @@ mDeclWFSimpleClass(Bartlett)
 mDeclWFSimpleClass(FlatTop)
 
 
-mClass CosTaperWindow : public WindowFunction
+mClass(Algo) CosTaperWindow : public WindowFunction
 {
 public:
 
@@ -88,3 +89,4 @@ mDefineFactory(WindowFunction,WINFUNCS);
 
 
 #endif
+

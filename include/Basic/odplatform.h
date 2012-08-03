@@ -7,17 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          May 2010
- RCS:           $Id: odplatform.h,v 1.7 2010-12-07 22:14:16 cvskris Exp $
+ RCS:           $Id: odplatform.h,v 1.8 2012-08-03 13:00:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "enums.h"
 
 namespace OD
 {
 
-mClass Platform
+mClass(Basic) Platform
 {
 public:
 
@@ -75,3 +76,4 @@ protected:
 
 
 #endif
+

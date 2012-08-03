@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.33 2012-07-04 10:36:06 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.34 2012-08-03 13:01:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uistratmod.h"
+#include "uistratmod.h"
 #include "uigraphicsview.h"
 #include "uigraphicsitem.h"
 #include "uiaxishandler.h"
@@ -33,7 +35,7 @@ class MouseEvent;
 
 
 
-mClass uiStratDrawer 
+mClass(uiStrat) uiStratDrawer 
 {
 public:
 				uiStratDrawer(uiGraphicsScene&,
@@ -52,7 +54,7 @@ public:
     const uiAxisHandler* 	xAxis() const	{ return xax_; }
     const uiAxisHandler* 	yAxis() const	{ return yax_; }
 
-    mStruct ColumnItem
+    mStruct(uiStrat) ColumnItem
     {
 				ColumnItem(const char* nm)
 				    : name_(nm)
@@ -98,7 +100,7 @@ protected:
 
 
 
-mClass uiStratDisplay : public uiGraphicsView
+mClass(uiStrat) uiStratDisplay : public uiGraphicsView
 {
 public:
 				uiStratDisplay(uiParent*,uiStratRefTree&);
@@ -153,7 +155,7 @@ protected :
 };
 
 
-mClass uiStratViewControl : public CallBacker
+mClass(uiStrat) uiStratViewControl : public CallBacker
 {
 public:
 
@@ -210,3 +212,5 @@ protected:
 
 
 #endif
+
+

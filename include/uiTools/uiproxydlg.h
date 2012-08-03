@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2012
- RCS:		$Id: uiproxydlg.h,v 1.2 2012-06-20 11:19:59 cvsranojay Exp $
+ RCS:		$Id: uiproxydlg.h,v 1.3 2012-08-03 13:01:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uidialog.h"
 
 class uiCheckBox;
@@ -20,7 +21,7 @@ class uiLabel;
 class uiLabeledSpinBox;
 class uiLineEdit;
 
-mClass uiProxyDlg : public uiDialog
+mClass(uiTools) uiProxyDlg : public uiDialog
 {
 public:
 			uiProxyDlg(uiParent*);
@@ -48,3 +49,4 @@ protected:
 };
 
 #endif
+

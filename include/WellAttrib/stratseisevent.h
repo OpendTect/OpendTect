@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2011
- RCS:           $Id: stratseisevent.h,v 1.2 2011-02-09 12:26:29 cvsbert Exp $
+ RCS:           $Id: stratseisevent.h,v 1.3 2012-08-03 13:00:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "wellattribmod.h"
 #include "valseriesevent.h"
 #include "ranges.h"
 class SeisTrc;
@@ -23,7 +24,7 @@ class Level;
 
 /*!\brief Event tied to a stratigraphic level. */
 
-mClass SeisEvent
+mClass(WellAttrib) SeisEvent
 {
 public:
     			SeisEvent(const Level* l=0,
@@ -42,3 +43,4 @@ public:
 } // namespace
 
 #endif
+

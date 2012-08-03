@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.20 2011-07-23 22:06:06 cvskris Exp $
+ RCS:		$Id: scaler.h,v 1.21 2012-08-03 13:00:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "algomod.h"
 #include "gendefs.h"
 #include "undefval.h"
 
@@ -29,7 +30,7 @@ is defined, aswell as a factory (Scaler::get).
 
 */
 
-mClass Scaler
+mClass(Algo) Scaler
 {
 public:
     static Scaler*	get(const char*);
@@ -50,7 +51,7 @@ public:
 /*!\brief Linear scaling
 */
 
-mClass LinScaler : public Scaler
+mClass(Algo) LinScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,LinScaler)
 public:
@@ -90,7 +91,7 @@ inline bool LinScaler::isEmpty() const
 /*!\brief Logarithmic scaling, base e or ten.
 */
 
-mClass LogScaler : public Scaler
+mClass(Algo) LogScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,LogScaler)
 public:
@@ -115,7 +116,7 @@ public:
 /*!\brief Exponential scaling, base e or ten.
 */
 
-mClass ExpScaler : public Scaler
+mClass(Algo) ExpScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,ExpScaler)
 public:
@@ -150,7 +151,7 @@ reversible squeeze function, with a non-deforming (linear), fast central part.
 
 */
 
-mClass AsymptScaler : public Scaler
+mClass(Algo) AsymptScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,AsymptScaler)
 public:
@@ -188,3 +189,4 @@ protected:
 
 
 #endif
+

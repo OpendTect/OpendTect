@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: conncomponents.h,v 1.2 2012-08-02 14:48:12 cvsyuancheng Exp $
+ RCS:           $Id: conncomponents.h,v 1.3 2012-08-03 13:00:03 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "algomod.h"
 #include "factory.h"
 
 
@@ -26,7 +27,7 @@ class TaskRunner;
 /*Classify connected components of a binarized array 2D, components are sorted 
   in size. User could get the best quadratic fit for the compoment if needed. */
 
-mClass ConnComponents
+mClass(Algo) ConnComponents
 {
 public:    
 
@@ -54,7 +55,7 @@ protected:
 };
 
 
-mClass ConnComponents3D
+mClass(Algo) ConnComponents3D
 {
 public:    
 
@@ -78,3 +79,4 @@ protected:
 
 
 #endif
+

@@ -24,6 +24,7 @@
  *
 \**************************************************************************/
 
+#include "soodmod.h"
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/fields/SoSFVec2f.h>
@@ -39,7 +40,7 @@
 
 class ViewportRegionP;
 
-mClass ViewportRegion : public SoNode {
+mClass(SoOD) ViewportRegion : public SoNode {
   typedef SoNode inherited;
 
   SO_NODE_HEADER(ViewportRegion);
@@ -81,3 +82,4 @@ private:
 #endif // win
 
 #endif // !SMALLCHANGE_VIEWPORTREGION_H
+

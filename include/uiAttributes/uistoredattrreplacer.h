@@ -7,10 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		June 2008
- RCS:		$Id: uistoredattrreplacer.h,v 1.10 2012-07-02 13:26:38 cvshelene Exp $
+ RCS:		$Id: uistoredattrreplacer.h,v 1.11 2012-08-03 13:00:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+#include "uiattributesmod.h"
 #include "attribdescid.h"
 #include "bufstringset.h"
 #include "linekey.h"
@@ -23,7 +24,7 @@ namespace Attrib
     class DescSet;
 };
 
-mClass uiStoredAttribReplacer
+mClass(uiAttributes) uiStoredAttribReplacer
 {
 public:
     				uiStoredAttribReplacer(uiParent*,
@@ -86,4 +87,5 @@ protected:
 };
 
 #endif
+
 

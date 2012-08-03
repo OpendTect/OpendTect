@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Jaap Glas
  Date:          October 2010
- RCS:           $Id: uivirtualkeyboard.h,v 1.3 2010-11-03 10:58:56 cvsjaap Exp $
+ RCS:           $Id: uivirtualkeyboard.h,v 1.4 2012-08-03 13:00:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uimainwin.h"
 
 
@@ -20,7 +21,7 @@ class uiLineEdit;
 class uiGraphicsItemSet;
 
 
-mClass uiVirtualKeyboard : public uiMainWin
+mClass(uiBase) uiVirtualKeyboard : public uiMainWin
 {
 public:
     				uiVirtualKeyboard(uiObject&,int x,int y);
@@ -69,3 +70,4 @@ protected:
 
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: faulttracker.h,v 1.5 2010-11-06 16:21:05 cvsumesh Exp $
+ RCS:           $Id: faulttracker.h,v 1.6 2012-08-03 13:00:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mpeenginemod.h"
 #include "emtracker.h"
 #include "sectionadjuster.h"
 #include "sectionextender.h"
@@ -23,7 +24,7 @@ namespace MPE
 
 class FaultSeedPicker;
 
-mClass FaultTracker : public EMTracker
+mClass(MPEEngine) FaultTracker : public EMTracker
 {
 public:
 			FaultTracker(EM::Fault3D* =0);
@@ -48,4 +49,5 @@ protected:
 } // namespace MPE
 
 #endif
+
 

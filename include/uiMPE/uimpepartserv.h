@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.53 2012-08-01 12:30:32 cvsmahant Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.54 2012-08-03 13:01:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uimpemod.h"
 #include "attribsel.h"
 #include "uiapplserv.h"
 #include "multiid.h"
@@ -30,7 +31,7 @@ namespace Attrib { class DescSet; class DataCubes; class Data2DArray; }
 
 /*! \brief Implementation of Tracking part server interface */
 
-mClass uiMPEPartServer : public uiApplPartServer
+mClass(uiMPE) uiMPEPartServer : public uiApplPartServer
 {
 public:
 				uiMPEPartServer(uiApplService&);
@@ -195,3 +196,4 @@ protected:
 
 
 #endif
+

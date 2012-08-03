@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.20 2012-05-22 14:48:43 cvskris Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.21 2012-08-03 13:00:20 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "posprovider.h"
 
 #include "emposid.h"
@@ -36,7 +37,7 @@ namespace Pos
  
  */
 
-mClass EMSurfaceProvider : public virtual Filter
+mClass(EarthModel) EMSurfaceProvider : public virtual Filter
 {
 public:
 			EMSurfaceProvider();
@@ -118,7 +119,7 @@ protected:
 
 /*!\brief EMSurfaceProvider for 3D positioning */
 
-mClass EMSurfaceProvider3D : public Provider3D
+mClass(EarthModel) EMSurfaceProvider3D : public Provider3D
 			  , public EMSurfaceProvider
 {
 public:
@@ -154,7 +155,7 @@ public:
 
 /*!\brief EMSurfaceProvider for 2D positioning */
 
-mClass EMSurfaceProvider2D : public Provider2D
+mClass(EarthModel) EMSurfaceProvider2D : public Provider2D
 			  , public EMSurfaceProvider
 {
 public:
@@ -191,7 +192,7 @@ public:
 
 /* !\brief EMSurfaceProvider for 3D positions with 2D Horizon */
 
-mClass EMSurface2DProvider3D : public Provider3D
+mClass(EarthModel) EMSurface2DProvider3D : public Provider3D
 			    , public EMSurfaceProvider
 {
 public:
@@ -232,7 +233,7 @@ protected:
 };
 
 
-mClass EMImplicitBodyProvider : public Provider3D
+mClass(EarthModel) EMImplicitBodyProvider : public Provider3D
 {
 public:
 
@@ -296,3 +297,4 @@ protected:
 } // namespace
 
 #endif
+

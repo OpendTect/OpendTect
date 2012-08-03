@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Y.Liu
  Date:          June 2012
- RCS:           $Id: dippca.h,v 1.3 2012-07-17 22:46:57 cvsnanne Exp $
+ RCS:           $Id: dippca.h,v 1.4 2012-08-03 13:00:03 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "algomod.h"
+#include "algomod.h"
 #include "enums.h"
 #include "factory.h"
 #include "odmemory.h"
@@ -32,12 +34,12 @@ class TaskRunner;
  */
 
 
-mClass DipPCA
+mClass(Algo) DipPCA
 {
 public:    
 
     				~DipPCA()			{}
-    mStruct Setup
+    mStruct(Algo) Setup
     {				Setup();
 	Setup&			operator=(const Setup&);
 
@@ -60,7 +62,7 @@ protected:
 
 
 
-mClass Dip2D : public DipPCA
+mClass(Algo) Dip2D : public DipPCA
 {
 public:
     				Dip2D(const Array2D<float>& input,
@@ -93,7 +95,7 @@ protected:
 };
 
 
-mClass Dip3D : public DipPCA
+mClass(Algo) Dip3D : public DipPCA
 {
 public:
     				Dip3D(const Array3D<float>& input,
@@ -124,3 +126,5 @@ protected:
 };
 
 #endif
+
+

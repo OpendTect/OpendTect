@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorattribpi.cc,v 1.32 2012-05-21 21:55:42 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorattribpi.cc,v 1.33 2012-08-03 13:01:34 cvskris Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -179,7 +179,7 @@ void uiHorAttribPIMgr::doIsopachThruMenu( CallBacker* )
 }
 
 
-mClass uiSelContourAttribDlg : public uiDialog
+class uiSelContourAttribDlg : public uiDialog
 {
 public:
 

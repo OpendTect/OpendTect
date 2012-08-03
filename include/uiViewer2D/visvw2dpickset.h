@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.h,v 1.5 2012-04-02 15:06:16 cvskris Exp $
+ RCS:		$Id: visvw2dpickset.h,v 1.6 2012-08-03 13:01:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiviewer2dmod.h"
 #include "multiid.h"
 #include "flatview.h"
 #include "flatauxdataeditor.h"
@@ -24,7 +25,7 @@ class CubeSampling;
 namespace Pick { class Set; }
 
 
-mClass VW2DPickSet : public Vw2DDataObject
+mClass(uiViewer2D) VW2DPickSet : public Vw2DDataObject
 {
 public:
     static VW2DPickSet* create(int id,uiFlatViewWin* win,
@@ -63,3 +64,4 @@ protected:
 };
 
 #endif
+

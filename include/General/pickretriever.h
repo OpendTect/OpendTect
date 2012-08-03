@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: pickretriever.h,v 1.8 2012-05-04 21:53:40 cvsnanne Exp $
+ RCS:           $Id: pickretriever.h,v 1.9 2012-08-03 13:00:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "callback.h"
 #include "refcount.h"
 
@@ -21,7 +22,7 @@ namespace PosInfo { class GeomID; }
    There should normally only be one instance in memory, and that should
    be accessed via PickRetriever::getInstance(). */
 
-mClass PickRetriever : public CallBacker
+mClass(General) PickRetriever : public CallBacker
 { mRefCountImpl(PickRetriever);
 public:
     				PickRetriever();
@@ -56,3 +57,4 @@ protected:
 
 
 #endif
+

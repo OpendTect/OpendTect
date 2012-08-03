@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.19 2010-04-20 22:03:25 cvskris Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.20 2012-08-03 13:00:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "attributeenginemod.h"
 #include "cubesampling.h"
 #include "refcount.h"
 #include "samplingdata.h"
@@ -27,7 +28,7 @@ namespace Attrib
 the same sampling and size.
  */
 
-mClass DataCubes
+mClass(AttributeEngine) DataCubes
 { mRefCountImpl(DataCubes);
 public:
     				DataCubes();
@@ -99,3 +100,4 @@ protected:
 }; //namespace
 
 #endif
+

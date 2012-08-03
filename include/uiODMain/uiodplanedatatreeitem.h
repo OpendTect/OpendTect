@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.17 2012-04-09 22:15:06 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.18 2012-08-03 13:01:04 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
 
 class uiSliceSelDlg;
@@ -20,7 +21,7 @@ class CubeSampling;
 namespace Attrib { class DescID; }
 
 
-mClass uiODPlaneDataTreeItem : public uiODDisplayTreeItem
+mClass(uiODMain) uiODPlaneDataTreeItem : public uiODDisplayTreeItem
 {
 public:
     enum Type		{ Default, Empty, RGBA, FromWell };
@@ -61,7 +62,7 @@ protected:
 mDefineItem( InlineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass uiODInlineTreeItemFactory : public uiODTreeItemFactory
+mClass(uiODMain) uiODInlineTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -71,7 +72,7 @@ public:
 };
 
 
-mClass uiODInlineTreeItem : public uiODPlaneDataTreeItem
+mClass(uiODMain) uiODInlineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
     			uiODInlineTreeItem(int displayid,Type);
@@ -85,7 +86,7 @@ protected:
 mDefineItem( CrosslineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
+mClass(uiODMain) uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -95,7 +96,7 @@ public:
 };
 
 
-mClass uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
+mClass(uiODMain) uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
     			uiODCrosslineTreeItem(int displayid,Type);
@@ -109,7 +110,7 @@ protected:
 mDefineItem( ZsliceParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass uiODZsliceTreeItemFactory : public uiODTreeItemFactory
+mClass(uiODMain) uiODZsliceTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -119,7 +120,7 @@ public:
 };
 
 
-mClass uiODZsliceTreeItem : public uiODPlaneDataTreeItem
+mClass(uiODMain) uiODZsliceTreeItem : public uiODPlaneDataTreeItem
 {
 public:
     			uiODZsliceTreeItem(int displayid,Type);
@@ -131,3 +132,4 @@ protected:
 
 
 #endif
+

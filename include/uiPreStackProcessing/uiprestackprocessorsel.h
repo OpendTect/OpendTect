@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2009
- RCS:		$Id: uiprestackprocessorsel.h,v 1.3 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uiprestackprocessorsel.h,v 1.4 2012-08-03 13:01:06 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiprestackprocessingmod.h"
 #include "uigroup.h"
 
 class uiIOObjSel;
@@ -22,7 +23,7 @@ class MultiID;
 namespace PreStack
 {
 
-mClass uiProcSel : public uiGroup
+mClass(uiPreStackProcessing) uiProcSel : public uiGroup
 {
 public:
     			uiProcSel(uiParent*,const char* label,
@@ -44,3 +45,4 @@ protected:
 }; //namespace
 
 #endif
+

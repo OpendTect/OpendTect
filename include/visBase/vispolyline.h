@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.17 2012-06-28 09:13:14 cvsbruno Exp $
+ RCS:		$Id: vispolyline.h,v 1.18 2012-08-03 13:01:25 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visshape.h"
 #include "position.h"
 
@@ -32,7 +33,7 @@ class DrawStyle;
 
 */
 
-mClass PolyLineBase : public VertexShape
+mClass(visBase) PolyLineBase : public VertexShape
 {
 public:
     int 		size() const;
@@ -49,7 +50,7 @@ protected:
 
 
 
-mClass PolyLine	: public PolyLineBase
+mClass(visBase) PolyLine	: public PolyLineBase
 {
 public:
     static PolyLine*	create()
@@ -64,7 +65,7 @@ protected:
 };
 
 
-mClass PolyLine3D : public PolyLineBase
+mClass(visBase) PolyLine3D : public PolyLineBase
 {
 public:
     static PolyLine3D*	create()
@@ -78,7 +79,7 @@ protected:
 };
 
 
-mClass IndexedPolyLine	: public IndexedShape
+mClass(visBase) IndexedPolyLine	: public IndexedShape
 {
 public:
     static IndexedPolyLine*	create()
@@ -86,7 +87,7 @@ public:
 };
 
 
-mClass IndexedPolyLine3D	: public IndexedShape
+mClass(visBase) IndexedPolyLine3D	: public IndexedShape
 {
 public:
     static IndexedPolyLine3D*	create()
@@ -104,3 +105,4 @@ public:
 
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.h,v 1.12 2012-03-26 18:18:32 cvsnanne Exp $
+ RCS:           $Id: uiimppickset.h,v 1.13 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 class uiCheckBox;
 class uiColorInput;
@@ -25,7 +26,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for pickset selection */
 
-mClass uiImpExpPickSet : public uiDialog
+mClass(uiIo) uiImpExpPickSet : public uiDialog
 {
 public:
 			uiImpExpPickSet(uiPickPartServer*,bool);
@@ -57,3 +58,4 @@ protected:
 
 
 #endif
+

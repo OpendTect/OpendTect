@@ -17,12 +17,13 @@ ________________________________________________________________________
 /*! brief embeds some uiObjects in a graphicsview following a horizontal layout.
     Objects can be dynamically removed and added from the graphicsview !*/
 
+#include "uitoolsmod.h"
 #include "uigraphicsview.h"
 
 class uiParent;
 class uiObjectItem;
 
-mClass uiObjectItemView : public uiGraphicsView
+mClass(uiTools) uiObjectItemView : public uiGraphicsView
 {
 public:
 			    	uiObjectItemView(uiParent*);
@@ -63,3 +64,4 @@ protected:
 };
 
 #endif
+

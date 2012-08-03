@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          May 2009
- RCS:           $Id: uistaticsdesc.h,v 1.2 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uistaticsdesc.h,v 1.3 2012-08-03 13:01:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uiseissel.h"
 #include "veldesc.h"
 
@@ -20,7 +21,7 @@ class uiLabeledComboBox;
 
 /*!Group that allows the user to edit StaticsDesc information. */
 
-mClass uiStaticsDesc : public uiGroup
+mClass(uiSeis) uiStaticsDesc : public uiGroup
 {
 public:
 
@@ -42,3 +43,4 @@ protected:
 
 
 #endif
+

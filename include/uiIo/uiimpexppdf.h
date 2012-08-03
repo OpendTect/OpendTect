@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra / Bert
  Date:          Jan 2010
- RCS:           $Id: uiimpexppdf.h,v 1.2 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:           $Id: uiimpexppdf.h,v 1.3 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 class uiFileInput;
 class uiGenInput;
@@ -22,7 +23,7 @@ class Sampled2DProbDenFunc;
     Imports Probability density functions in RokDoc ASCII format
 */
 
-mClass uiImpRokDocPDF : public uiDialog
+mClass(uiIo) uiImpRokDocPDF : public uiDialog
 {
 public:
 			uiImpRokDocPDF(uiParent*);
@@ -50,7 +51,7 @@ protected:
     Exports Probability density functions in RokDoc ASCII format
 */
 
-mClass uiExpRokDocPDF : public uiDialog
+mClass(uiIo) uiExpRokDocPDF : public uiDialog
 {
 public:
 			uiExpRokDocPDF(uiParent*);
@@ -66,3 +67,4 @@ protected:
 
 
 #endif
+

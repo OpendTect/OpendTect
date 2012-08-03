@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: odusgclient.h,v 1.4 2009-11-19 12:17:59 cvsbert Exp $
+ RCS:           $Id: odusgclient.h,v 1.5 2012-08-03 13:00:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "usagemod.h"
 #include "odusginfo.h"
 
 
@@ -19,7 +20,7 @@ namespace Usage
 {
 class Info;
 
-mClass Client
+mClass(Usage) Client
 {
 public:
 
@@ -48,3 +49,4 @@ protected:
 
 
 #endif
+

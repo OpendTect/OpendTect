@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.23 2009-12-03 03:13:46 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.24 2012-08-03 13:00:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "uiiosurface.h"
 
@@ -28,7 +29,7 @@ namespace EM { class Surface; class SurfaceIODataSelection; class Horizon3D; }
 
 /*! \brief Dialog for horizon export */
 
-mClass uiWriteSurfaceDlg : public uiDialog
+mClass(uiEarthModel) uiWriteSurfaceDlg : public uiDialog
 {
 public:
 			uiWriteSurfaceDlg(uiParent*,const EM::Surface&,
@@ -46,7 +47,7 @@ protected:
 };
 
 
-mClass uiReadSurfaceDlg : public uiDialog
+mClass(uiEarthModel) uiReadSurfaceDlg : public uiDialog
 {
 public:
 			uiReadSurfaceDlg(uiParent*,const char* type);
@@ -60,7 +61,7 @@ protected:
 };
 
 
-mClass uiStoreAuxData : public uiDialog
+mClass(uiEarthModel) uiStoreAuxData : public uiDialog
 {
 public:
     			uiStoreAuxData(uiParent*,const EM::Horizon3D&);
@@ -78,7 +79,7 @@ protected:
 };
 
 
-mClass uiCopySurface : public uiDialog
+mClass(uiEarthModel) uiCopySurface : public uiDialog
 {
 public:
     			uiCopySurface(uiParent*,const IOObj&,
@@ -97,3 +98,4 @@ protected:
 };
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2010 (org 2005 / 2008)
- RCS:		$Id: posinfo2d.h,v 1.3 2012-05-04 15:40:15 cvsnanne Exp $
+ RCS:		$Id: posinfo2d.h,v 1.4 2012-08-03 13:00:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "typeset.h"
 #include "position.h"
 class BinID;
@@ -22,7 +23,7 @@ namespace PosInfo
 
 /*!\brief One position on a 2D line */
 
-mClass Line2DPos
+mClass(Basic) Line2DPos
 {
 public:
 
@@ -40,7 +41,7 @@ public:
 };
 
 
-mClass Line2DPos3D : public Line2DPos
+mClass(Basic) Line2DPos3D : public Line2DPos
 {
 public:
 		Line2DPos3D( int n=0, float z=mUdf(float) )
@@ -52,7 +53,7 @@ public:
 
 /*!\brief Position info for a 2D line */
 
-mClass Line2DData
+mClass(Basic) Line2DData
 {
 public:
 			Line2DData(const char* lnm=0);
@@ -102,3 +103,4 @@ protected:
 } // namespace PosInfo
 
 #endif
+

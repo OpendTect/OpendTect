@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2010
- RCS:           $Id: uidial.h,v 1.4 2010-02-03 16:35:32 cvskarthika Exp $
+ RCS:           $Id: uidial.h,v 1.5 2012-08-03 13:00:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uigroup.h"
 #include "uiobj.h"
 
@@ -21,7 +22,7 @@ template <class T> class StepInterval;
 class uiLabel;
 class uiLineEdit;
 
-mClass uiDial : public uiObject
+mClass(uiBase) uiDial : public uiObject
 {
 public:
 
@@ -70,11 +71,11 @@ private:
 };
 
 /*! Dial with label */
-mClass uiDialExtra : public uiGroup
+mClass(uiBase) uiDialExtra : public uiGroup
 {
 public:
 
-    mClass Setup
+    mClass(uiBase) Setup
     {
 	public:
 	    		Setup(const char* l=0)
@@ -111,3 +112,4 @@ protected:
 };
 
 #endif
+

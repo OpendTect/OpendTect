@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.h,v 1.6 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: uiwellattribsel.h,v 1.7 2012-08-03 13:01:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "binidvalset.h"
 
@@ -24,7 +25,7 @@ namespace Well { class Data; };
 
 /*! \brief Dialog for marker specifications */
 
-mClass uiWellAttribSel : public uiDialog
+mClass(uiWellAttrib) uiWellAttribSel : public uiDialog
 {
 public:
 				uiWellAttribSel(uiParent*,Well::Data&,
@@ -62,3 +63,4 @@ protected:
 
 
 #endif
+

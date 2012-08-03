@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.29 2012-08-03 11:37:30 cvsbruno Exp $
+ RCS:		$Id: stratreftree.h,v 1.30 2012-08-03 13:00:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "stratmod.h"
 #include "stratunitref.h"
 #include "stratlith.h"
 #include "stratcontent.h"
@@ -23,7 +24,7 @@ namespace Strat
 
 /*!\brief Tree of UnitRef's  */
 
-mClass RefTree : public NodeOnlyUnitRef
+mClass(Strat) RefTree : public NodeOnlyUnitRef
 {
 public:
 
@@ -83,15 +84,15 @@ public:
 
 };
 
-mGlobal const RefTree& RT();
+mGlobal(Strat) const RefTree& RT();
 inline RefTree& eRT()	{ return const_cast<RefTree&>( RT() ); }
 
 // Needless to say that if you push, make sure you pop (so afterwards the real
 // default RefTree is restored
-mGlobal void pushRefTree(RefTree*);
-mGlobal void popRefTree();
+mGlobal(Strat) void pushRefTree(RefTree*);
+mGlobal(Strat) void popRefTree();
 
-mGlobal void setRT(RefTree*);
+mGlobal(Strat) void setRT(RefTree*);
 //!< replaces (and deletes) the current RT. No write.
 //!< Used by tree manager, and not by *you*. Very very likely not.
 
@@ -100,3 +101,4 @@ mGlobal void setRT(RefTree*);
 
 
 #endif
+

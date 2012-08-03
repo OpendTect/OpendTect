@@ -7,17 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		18-4-1996
- RCS:		$Id: dirlist.h,v 1.9 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: dirlist.h,v 1.10 2012-08-03 13:00:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "bufstringset.h"
 
 
 /*!\brief provides file and directory names in a certain directory.  */
 
-mClass DirList : public BufferStringSet
+mClass(Basic) DirList : public BufferStringSet
 {
 public:
 
@@ -44,3 +45,4 @@ private:
 
 
 #endif
+

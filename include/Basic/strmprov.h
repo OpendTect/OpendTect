@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.38 2011-12-13 05:14:45 cvsranojay Exp $
+ RCS:		$Id: strmprov.h,v 1.39 2012-08-03 13:00:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "basicmod.h"
 #include "strmdata.h"
 #include "bufstring.h"
 class CallBack;
@@ -37,7 +38,7 @@ Thus:
  A null string or StreamProvider::sStdIO will select std input and output.
 */
 
-mClass StreamProvider
+mClass(Basic) StreamProvider
 {
 public:
 		StreamProvider(const char* nm=0);
@@ -117,12 +118,13 @@ protected:
 };
 
 //! Execute command in OS
-mGlobal bool ExecOSCmd(const char*,bool inconsloe=false,bool inbg=false);
+mGlobal(Basic) bool ExecOSCmd(const char*,bool inconsloe=false,bool inbg=false);
 
 //! Create Execute command
-mGlobal const char* GetExecCommand(const char* prognm,const char* filenm);
+mGlobal(Basic) const char* GetExecCommand(const char* prognm,const char* filenm);
 
 //! Execute command
-mGlobal bool ExecuteScriptCommand(const char* prognm,const char* filenm);
+mGlobal(Basic) bool ExecuteScriptCommand(const char* prognm,const char* filenm);
 
 #endif
+

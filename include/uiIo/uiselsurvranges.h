@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.17 2010-08-06 10:44:32 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.18 2012-08-03 13:01:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uigroup.h"
 #include "cubesampling.h"
 class uiSpinBox;
@@ -20,7 +21,7 @@ namespace ZDomain { class Def; }
 
 /*!\brief Selects sub-Z-range. Default will be SI() work Z Range. */
 
-mClass uiSelZRange : public uiGroup
+mClass(uiIo) uiSelZRange : public uiGroup
 {
 public:
                         uiSelZRange(uiParent*,bool wstep,
@@ -55,7 +56,7 @@ protected:
 
 /*!\brief Selects range of trace numbers */
 
-mClass uiSelNrRange : public uiGroup
+mClass(uiIo) uiSelNrRange : public uiGroup
 {
 public:
     enum Type		{ Inl, Crl, Gen };
@@ -89,7 +90,7 @@ protected:
 
 /*!\brief Selects step(s) in inl/crl or trcnrs */
 
-mClass uiSelSteps : public uiGroup
+mClass(uiIo) uiSelSteps : public uiGroup
 {
 public:
 
@@ -108,7 +109,7 @@ protected:
 
 /*!\brief Selects sub-volume. Default will be SI() work area */
 
-mClass uiSelHRange : public uiGroup
+mClass(uiIo) uiSelHRange : public uiGroup
 {
 public:
                         uiSelHRange(uiParent*,bool wstep);
@@ -127,7 +128,7 @@ public:
 
 /*!\brief Selects sub-volume. Default will be SI() work volume */
 
-mClass uiSelSubvol : public uiGroup
+mClass(uiIo) uiSelSubvol : public uiGroup
 {
 public:
                         uiSelSubvol(uiParent*,bool wstep);
@@ -143,7 +144,7 @@ public:
 
 /*!\brief Selects sub-line. Default will be 1-udf and SI() z range */
 
-mClass uiSelSubline : public uiGroup
+mClass(uiIo) uiSelSubline : public uiGroup
 {
 public:
                         uiSelSubline(uiParent*,bool wstep);
@@ -155,3 +156,4 @@ public:
 
 
 #endif
+

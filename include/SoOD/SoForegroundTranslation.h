@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoForegroundTranslation.h,v 1.9 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: SoForegroundTranslation.h,v 1.10 2012-08-03 13:00:40 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "soodmod.h"
 #include "Inventor/nodes/SoNode.h"
 #include "Inventor/nodes/SoSubNode.h"
 #include "Inventor/fields/SoSFFloat.h"
@@ -27,7 +28,7 @@ it represents.
 
 */
 
-mClass SoForegroundTranslation : public SoNode
+mClass(SoOD) SoForegroundTranslation : public SoNode
 {
     typedef SoNode		inherited;
     SO_NODE_HEADER(SoForegroundTranslation);
@@ -51,4 +52,5 @@ protected:
 };
 
 #endif
+
 

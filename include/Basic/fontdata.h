@@ -7,12 +7,13 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          26/07/2000
 
- RCS:           $Id: fontdata.h,v 1.15 2011-02-04 17:49:38 cvskris Exp $
+ RCS:           $Id: fontdata.h,v 1.16 2012-08-03 13:00:12 cvskris Exp $
 
 ______________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "enums.h"
 #include "bufstring.h"
 
@@ -23,7 +24,7 @@ ______________________________________________________________________
 //#endif
 
 //class mBasic FontData
-mClass FontData
+mClass(Basic) FontData
 {			//!< Data needed to make an actual font
 public:    
 
@@ -95,3 +96,4 @@ protected:
 
 
 #endif
+

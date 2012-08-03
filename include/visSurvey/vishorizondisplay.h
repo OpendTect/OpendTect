@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.69 2011-12-16 15:57:20 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.70 2012-08-03 13:01:28 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "vissurveymod.h"
 #include "visemobjdisplay.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
@@ -32,7 +33,7 @@ namespace visSurvey
 {
 
 
-mClass HorizonDisplay : public EMObjectDisplay
+mClass(visSurvey) HorizonDisplay : public EMObjectDisplay
 {
 public:
     static HorizonDisplay*	create()
@@ -267,5 +268,6 @@ protected:
 };
 
 #endif
+
 
 

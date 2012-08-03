@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2012
- RCS:		$Id: uiwellsel.h,v 1.3 2012-02-24 23:13:20 cvsnanne Exp $
+ RCS:		$Id: uiwellsel.h,v 1.4 2012-08-03 13:01:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellmod.h"
 #include "uicompoundparsel.h"
 #include "uiioobjsel.h"
 #include "multiid.h"
 
 class IOPar;
 
-mClass uiWellSel : public uiIOObjSel
+mClass(uiWell) uiWellSel : public uiIOObjSel
 {
 public:
 			uiWellSel(uiParent*,bool forread,const char* lbltxt=0);
@@ -27,7 +28,7 @@ protected:
 };
 
 
-mClass uiWellParSel : public uiCompoundParSel
+mClass(uiWell) uiWellParSel : public uiCompoundParSel
 {
 public:
 			uiWellParSel(uiParent*);
@@ -50,4 +51,5 @@ protected:
 };
 
 #endif
+
 

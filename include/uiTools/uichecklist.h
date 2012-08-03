@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uichecklist.h,v 1.5 2011-11-17 15:55:56 cvsbert Exp $
+ RCS:           $Id: uichecklist.h,v 1.6 2012-08-03 13:01:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uigroup.h"
 class uiCheckBox;
 class BufferStringSet;
@@ -32,7 +33,7 @@ class BufferStringSet;
  
  */
 
-mClass uiCheckList : public uiGroup
+mClass(uiTools) uiCheckList : public uiGroup
 {
 public:
 
@@ -80,3 +81,4 @@ public:
 
 
 #endif
+

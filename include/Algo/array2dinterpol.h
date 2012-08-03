@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          April 2009
- RCS:           $Id: array2dinterpol.h,v 1.10 2012-02-23 09:47:16 cvssatyaki Exp $
+ RCS:           $Id: array2dinterpol.h,v 1.11 2012-08-03 13:00:02 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "algomod.h"
 #include "task.h"
 #include "enums.h"
 #include "factory.h"
@@ -22,7 +23,7 @@ template <class T> class Array2D;
 namespace Stats { class CalcSetup; }
 
 
-mClass Array2DInterpol : public ParallelTask
+mClass(Algo) Array2DInterpol : public ParallelTask
 {
 public:
     virtual			~Array2DInterpol();
@@ -56,7 +57,7 @@ public:
 
     virtual const char*		infoMsg() const		{ return 0; }
 
-    mClass ArrayAccess 
+    mClass(Algo) ArrayAccess 
     {
     public:
 	virtual			~ArrayAccess()				{}
@@ -125,3 +126,4 @@ protected:
 
 
 #endif
+

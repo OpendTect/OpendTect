@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.h,v 1.8 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uimultisurfaceread.h,v 1.9 2012-08-03 13:00:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "uiiosurface.h"
 #include "uidialog.h"
 
@@ -20,7 +21,7 @@ class uiDialog;
 
 /*! \brief ui for multiple surface read */
 
-mClass uiMultiSurfaceRead : public uiIOSurface
+mClass(uiEarthModel) uiMultiSurfaceRead : public uiIOSurface
 {
 public:
 			uiMultiSurfaceRead(uiParent*,const char* type);
@@ -42,7 +43,7 @@ protected:
 };
 
 
-mClass uiMultiSurfaceReadDlg : public uiDialog
+mClass(uiEarthModel) uiMultiSurfaceReadDlg : public uiDialog
 {
 public:
 			uiMultiSurfaceReadDlg(uiParent*,const char* type);
@@ -58,3 +59,4 @@ protected:
 };
 
 #endif
+

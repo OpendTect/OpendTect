@@ -7,16 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          17/1/2001
- RCS:           $Id: uiprogressbar.h,v 1.9 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiprogressbar.h,v 1.10 2012-08-03 13:00:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uiobj.h"
 
 class uiProgressBarBody;
 
-mClass uiProgressBar : public uiObject
+mClass(uiBase) uiProgressBar : public uiObject
 {
 public:
 
@@ -35,3 +36,4 @@ private:
 };
 
 #endif
+

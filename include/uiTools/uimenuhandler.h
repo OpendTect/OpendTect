@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.h,v 1.11 2012-08-01 11:00:04 cvsmahant Exp $
+ RCS:           $Id: uimenuhandler.h,v 1.12 2012-08-03 13:01:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uiparent.h"
 #include "menuhandler.h"
 #include "position.h"
@@ -24,7 +25,7 @@ Implementation of MenuHandler for the dGB-based userinterface.
 */
 
 
-mClass uiMenuHandler : public MenuHandler
+mClass(uiTools) uiMenuHandler : public MenuHandler
 {
 public:
     				uiMenuHandler( uiParent*, int id );
@@ -86,7 +87,7 @@ protected:
 };
 
 
-mClass uiTreeItemTBHandler : public MenuHandler
+mClass(uiTools) uiTreeItemTBHandler : public MenuHandler
 {
 public:
     				uiTreeItemTBHandler(uiParent*);
@@ -104,3 +105,4 @@ protected:
 };
 
 #endif
+

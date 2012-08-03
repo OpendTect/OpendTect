@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityvolumeconversion.h,v 1.8 2011-03-18 16:28:46 cvsbruno Exp $
+ RCS:		$Id: velocityvolumeconversion.h,v 1.9 2012-08-03 13:00:44 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "velocitymod.h"
 #include "cubesampling.h"
 #include "task.h"
 #include "thread.h"
@@ -30,7 +31,7 @@ namespace Vel
 /*!Reads in a volume with eather Vrms or Vint, and writes out a volume
    with eather Vrms or Vint. */
 
-mClass VolumeConverter : public ParallelTask
+mClass(Velocity) VolumeConverter : public ParallelTask
 {
 public:
 			VolumeConverter( const IOObj& input,
@@ -72,3 +73,4 @@ protected:
 }; //namespace
 
 #endif
+

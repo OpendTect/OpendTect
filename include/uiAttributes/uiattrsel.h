@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.34 2011-04-26 10:51:31 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.h,v 1.35 2012-08-03 13:00:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "uidialog.h"
 #include "uiiosel.h"
 #include "attribdescid.h"
@@ -30,7 +31,7 @@ class uiRadioButton;
 class uiLabeledComboBox;
 
 
-mClass uiAttrSelData
+mClass(uiAttributes) uiAttrSelData
 {
 public:
 
@@ -67,11 +68,11 @@ select any cube, which is then automatically added to the set.
 
 */
 
-mClass uiAttrSelDlg : public uiDialog
+mClass(uiAttributes) uiAttrSelDlg : public uiDialog
 {
 public:
 
-    mClass Setup
+    mClass(uiAttributes) Setup
     {
     public:
 		Setup( const char* txt )
@@ -153,7 +154,7 @@ latter case you must provide the attrib desc and the input number.
 
 */
 
-mClass uiAttrSel : public uiIOSelect
+mClass(uiAttributes) uiAttrSel : public uiIOSelect
 {
 public:
 			uiAttrSel(uiParent*,const Attrib::DescSet&,
@@ -216,7 +217,7 @@ protected:
 
 /*!\brief ui element for getting attribute with both real and imag part. */
 
-mClass uiImagAttrSel : public uiAttrSel
+mClass(uiAttributes) uiImagAttrSel : public uiAttrSel
 {
 public:
 			uiImagAttrSel( uiParent* p, const char* txt,
@@ -230,3 +231,4 @@ public:
 
 
 #endif
+

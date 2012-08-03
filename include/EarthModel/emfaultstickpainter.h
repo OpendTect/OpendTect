@@ -7,11 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.h,v 1.9 2012-04-02 15:06:15 cvskris Exp $
+ RCS:		$Id: emfaultstickpainter.h,v 1.10 2012-08-03 13:00:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "earthmodelmod.h"
+#include "earthmodelmod.h"
 #include "callback.h"
 
 #include "cubesampling.h"
@@ -28,7 +30,7 @@ class MultiID;
 namespace EM
 {
 
-mClass FaultStickPainter : public CallBacker
+mClass(EarthModel) FaultStickPainter : public CallBacker
 {
 public:
     			FaultStickPainter(FlatView::Viewer&,
@@ -49,7 +51,7 @@ public:
     bool		hasDiffActiveStick(const EM::PosID*);
     FlatView::AuxData*	getAuxData(const EM::PosID*);
 
-    	mStruct StkMarkerInfo
+    	mStruct(EarthModel) StkMarkerInfo
 	{
 	    FlatView::AuxData*	marker_;
 	    int			stickid_;
@@ -119,3 +121,5 @@ protected:
 } //namespace EM
 
 #endif
+
+

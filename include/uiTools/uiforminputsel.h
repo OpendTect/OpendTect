@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	H. Huck
  Date:		Mar 2012
- RCS:		$Id: uiforminputsel.h,v 1.2 2012-03-28 13:35:06 cvshelene Exp $
+ RCS:		$Id: uiforminputsel.h,v 1.3 2012-08-03 13:01:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class BufferString;
@@ -20,7 +21,7 @@ class uiGenInput;
 class uiLabeledComboBox;
 class UnitOfMeasure;
 
-mClass uiFormInputSel : public uiGroup
+mClass(uiTools) uiFormInputSel : public uiGroup
 {
 public:
 
@@ -50,3 +51,4 @@ protected:
 
 
 #endif
+

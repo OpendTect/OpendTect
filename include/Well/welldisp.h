@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.40 2012-05-03 09:41:29 cvskris Exp $
+ RCS:		$Id: welldisp.h,v 1.41 2012-08-03 13:00:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "wellmod.h"
+#include "wellmod.h"
 #include "fontdata.h"
 #include "namedobj.h"
 #include "color.h"
@@ -30,7 +32,7 @@ namespace Well
 inline const char* sKey2DDispProp()  { return "2D Display"; }
 inline const char* sKey3DDispProp() { return "3D Display"; }
 
-mClass DisplayProperties
+mClass(Well) DisplayProperties
 {
 public:
 
@@ -51,7 +53,7 @@ public:
 			    return *this;
 			}
 
-    mStruct BasicProps
+    mStruct(Well) BasicProps
     {
 			BasicProps( int sz=1 )
 			    : size_(sz)			
@@ -80,7 +82,7 @@ public:
 
     };
 
-    mStruct Track : public BasicProps
+    mStruct(Well) Track : public BasicProps
     {
 			Track()
 			    : BasicProps(1)
@@ -101,7 +103,7 @@ public:
 	virtual void	doFillPar(IOPar&) const;
     };
 
-    mStruct Markers : public BasicProps
+    mStruct(Well) Markers : public BasicProps
     {
 
 			Markers()
@@ -128,7 +130,7 @@ public:
 	virtual void	doFillPar(IOPar&) const;
     };
 
-    mStruct Log : public BasicProps
+    mStruct(Well) Log : public BasicProps
     {
 			Log()
 			    : cliprate_(0)
@@ -191,7 +193,7 @@ public:
     static DisplayProperties&	defaults();
     static void		commitDefaults();
 
-    mStruct LogCouple 	{ Log left_; Log right_; };
+    mStruct(Well) LogCouple 	{ Log left_; Log right_; };
     ObjectSet<LogCouple> logs_;
 
     virtual const char* subjectName() const 	{ return subjectname_.buf(); }
@@ -202,3 +204,5 @@ protected:
 } // namespace
 
 #endif
+
+

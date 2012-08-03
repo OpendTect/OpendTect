@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.32 2012-08-01 12:38:12 cvsmahant Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.33 2012-08-03 13:01:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uinlamod.h"
 #include "uiapplserv.h"
 #include "multiid.h"
 #include "nlamodel.h"
@@ -31,7 +32,7 @@ will expect that go() to be called again.
 
  */
 
-mClass uiNLAPartServer : public uiApplPartServer
+mClass(uiNLA) uiNLAPartServer : public uiApplPartServer
 {
 public:
 			uiNLAPartServer(uiApplService&);
@@ -144,3 +145,4 @@ protected:
 
 
 #endif
+

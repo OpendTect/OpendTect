@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.20 2011-07-24 13:07:24 cvskris Exp $
+ RCS:           $Id: wavelettrans.h,v 1.21 2012-08-03 13:00:06 cvskris Exp $
 ________________________________________________________________________
 
 @$*/
 
+#include "algomod.h"
 #include "transform.h"
 #include "enums.h"
 #include "arraynd.h"
@@ -27,7 +28,7 @@ The algorithm is based on the one from NumericalRecipies, and additional
 kernel support comes from the Matlab library "WaveLab" (Stanford University).
 */
 
-mClass WaveletTransform
+mClass(Algo) WaveletTransform
 {
 public:
     enum		WaveletType { Haar, Daubechies4, Daubechies6,
@@ -78,7 +79,7 @@ public:
 };
 
 
-mClass DWT : public GenericTransformND
+mClass(Algo) DWT : public GenericTransformND
 {
 public:
 			DWT( WaveletTransform::WaveletType );
@@ -86,7 +87,7 @@ public:
 
 protected:
 
-    mClass FilterWT1D : public GenericTransformND::Transform1D
+    mClass(Algo) FilterWT1D : public GenericTransformND::Transform1D
     {
     public:
 	
@@ -121,7 +122,7 @@ protected:
 };
 
 
-mClass CWT 
+mClass(Algo) CWT 
 {
 public:
 			CWT();
@@ -208,3 +209,4 @@ protected:
 };
 
 #endif
+

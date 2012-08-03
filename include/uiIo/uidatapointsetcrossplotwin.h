@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.25 2011-07-05 09:44:30 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.26 2012-08-03 13:00:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidatapointsetcrossplot.h"
 #include "uiprogressbar.h"
 #include "uimainwin.h"
@@ -25,7 +26,7 @@ class uiToolBar;
 
 /*!\brief Data Point Set Cross Plotter Main window */
 
-mClass uiDataPointSetCrossPlotWin : public uiMainWin
+mClass(uiIo) uiDataPointSetCrossPlotWin : public uiMainWin
 {
 public:
 
@@ -104,3 +105,4 @@ protected:
 
 
 #endif
+

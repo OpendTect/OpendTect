@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.24 2012-05-31 13:17:35 cvsbruno Exp $
+ RCS:		$Id: welldata.h,v 1.25 2012-08-03 13:00:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "wellmod.h"
 #include "sets.h"
 #include "multiid.h"
 #include "position.h"
@@ -33,7 +34,7 @@ class DisplayProperties;
 
 /*!\brief Infomation about a certain well */
 
-mClass Info : public ::NamedObject
+mClass(Well) Info : public ::NamedObject
 {
 public:
 
@@ -69,7 +70,7 @@ public:
 
 */
 
-mClass Data : public CallBacker
+mClass(Well) Data : public CallBacker
 {
 public:
 
@@ -155,3 +156,4 @@ protected:
 
 
 #endif
+

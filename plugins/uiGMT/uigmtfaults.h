@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: uigmtfaults.h,v 1.5 2011-05-12 06:40:39 cvsnageswara Exp $
+ RCS:           $Id: uigmtfaults.h,v 1.6 2012-08-03 13:01:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uigmtmod.h"
 #include "uigmtoverlay.h"
 
 class uiGenInput;
@@ -22,7 +23,7 @@ class uiCheckBox;
 class uiColorInput;
 class IOPar;
 
-mClass uiGMTFaultsGrp : public uiGMTOverlayGrp
+mClass(uiGMT) uiGMTFaultsGrp : public uiGMTOverlayGrp
 {
 public:
     static void         initClass();
@@ -50,3 +51,4 @@ protected:
 };
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		10-10-2007
- RCS:		$Id: visellipsoid.h,v 1.5 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visellipsoid.h,v 1.6 2012-08-03 13:01:24 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visshape.h"
 #include "position.h"
 
@@ -33,7 +34,7 @@ streching a sphere from a scale vector "getWidth()".
 */
 
 
-mClass Ellipsoid : public Shape
+mClass(visBase) Ellipsoid : public Shape
 {
 public:
     static Ellipsoid*	create()
@@ -64,3 +65,4 @@ protected:
 
 
 #endif
+

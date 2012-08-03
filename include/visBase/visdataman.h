@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.26 2012-06-22 08:59:36 cvsjaap Exp $
+ RCS:		$Id: visdataman.h,v 1.27 2012-08-03 13:01:23 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "sets.h"
 #include "factory.h"
 #include "callback.h"
@@ -36,7 +37,7 @@ class Factory;
 
 */
 
-mClass DataManager : public CallBacker
+mClass(visBase) DataManager : public CallBacker
 {
 public:
     			DataManager();
@@ -95,9 +96,10 @@ protected:
     static const char*		sKeySelManPrefix();
 };
 
-mGlobal DataManager& DM();
+mGlobal(visBase) DataManager& DM();
 
 };
 
 
 #endif
+

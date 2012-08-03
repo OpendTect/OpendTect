@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.33 2012-04-24 19:38:16 cvsyuancheng Exp $
+ RCS:		$Id: prestackgather.h,v 1.34 2012-08-03 13:00:33 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "prestackprocessingmod.h"
 #include "arrayndimpl.h"
 #include "multiid.h"
 #include "position.h"
@@ -28,7 +29,7 @@ class SeisTrc;
 namespace PreStack
 {
 
-mClass Gather : public FlatDataPack
+mClass(PreStackProcessing) Gather : public FlatDataPack
 {
 public:
     				Gather();
@@ -131,7 +132,7 @@ public:
 
 /*! brief a datapack containing an objectset of gathers !*/
 
-mClass GatherSetDataPack : public DataPack
+mClass(PreStackProcessing) GatherSetDataPack : public DataPack
 {
 public:
     				GatherSetDataPack(const char* ctgery,
@@ -158,3 +159,4 @@ protected:
 }; //namespace
 
 #endif
+

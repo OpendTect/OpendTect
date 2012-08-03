@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2006 / Dec 2009
- RCS:           $Id: uiseiswvltimpexp.h,v 1.1 2009-12-11 09:42:23 cvsbert Exp $
+ RCS:           $Id: uiseiswvltimpexp.h,v 1.2 2012-08-03 13:01:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uidialog.h"
 #include "multiid.h"
 
@@ -22,7 +23,7 @@ class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 
 
-mClass uiSeisWvltImp : public uiDialog
+mClass(uiSeis) uiSeisWvltImp : public uiDialog
 {
 public:
 			uiSeisWvltImp(uiParent*);
@@ -45,7 +46,7 @@ protected:
 };
 
 
-mClass uiSeisWvltExp : public uiDialog
+mClass(uiSeis) uiSeisWvltExp : public uiDialog
 {
 public:
 			uiSeisWvltExp(uiParent*);
@@ -62,3 +63,4 @@ protected:
 
 
 #endif
+

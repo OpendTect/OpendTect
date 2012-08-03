@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: vispointsetdisplay.h,v 1.16 2012-01-24 14:45:37 cvsyuancheng Exp $
+ RCS:		$Id: vispointsetdisplay.h,v 1.17 2012-08-03 13:01:29 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "vissurveymod.h"
 #include "dpsdispmgr.h"
 #include "visobject.h"
 #include "vissurvobj.h"
@@ -26,7 +27,7 @@ namespace visSurvey
 {
 
 
-mClass PointSetDisplay : public visBase::VisualObjectImpl,
+mClass(visSurvey) PointSetDisplay : public visBase::VisualObjectImpl,
 			 public visSurvey::SurveyObject
 {
 public:
@@ -71,3 +72,4 @@ protected:
 
 
 #endif
+

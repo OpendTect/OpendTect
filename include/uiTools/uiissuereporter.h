@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uiissuereporter.h,v 1.1 2012-06-26 12:50:15 cvskris Exp $
+ RCS:           $Id: uiissuereporter.h,v 1.2 2012-08-03 13:01:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uidialog.h"
 
 #include "issuereporter.h"
@@ -25,7 +26,7 @@ class uiPushButton;
 */
 
 
-mClass uiIssueReporterDlg : public uiDialog
+mClass(uiTools) uiIssueReporterDlg : public uiDialog
 { 	
 public:
     
@@ -51,3 +52,4 @@ protected:
 
 
 #endif
+

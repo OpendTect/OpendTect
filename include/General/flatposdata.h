@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2007
- RCS:           $Id: flatposdata.h,v 1.8 2010-01-21 13:04:35 cvsbruno Exp $
+ RCS:           $Id: flatposdata.h,v 1.9 2012-08-03 13:00:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "ranges.h"
 #include "indexinfo.h"
 
@@ -23,7 +24,7 @@ ________________________________________________________________________
  
  */
 
-mClass FlatPosData
+mClass(General) FlatPosData
 {
 public:
 				FlatPosData()
@@ -82,3 +83,4 @@ protected:
 
 
 #endif
+

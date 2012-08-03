@@ -7,12 +7,14 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          6-10-2009
-RCS:           $Id: fftfilter.h,v 1.10 2012-05-15 10:44:35 cvsbruno Exp $
+RCS:           $Id: fftfilter.h,v 1.11 2012-08-03 13:00:03 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 
+#include "algomod.h"
+#include "algomod.h"
 #include <complex>
 #include "enums.h"
 
@@ -24,7 +26,7 @@ typedef std::complex<float> float_complex;
 
 /*! brief classical FFT filter, use set to set up data step, min and max frequency and type of the filter (minfreq not required for highpass, maxfreq not required for lowpass) !*/ 
 
-mClass FFTFilter
+mClass(Algo) FFTFilter
 {
 
 public:
@@ -57,7 +59,7 @@ public:
 
 protected:
 
-    mStruct Window
+    mStruct(Algo) Window
     {
 			Window(float* win,int sz)
 			    : win_(win)
@@ -85,3 +87,5 @@ protected:
 };
 
 #endif
+
+

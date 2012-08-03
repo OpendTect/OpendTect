@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.60 2012-07-27 14:38:41 cvsjaap Exp $
+ RCS:           $Id: uimenu.h,v 1.61 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uibaseobject.h"
 #include "uiicons.h"
 #include "separstr.h"
@@ -34,14 +35,14 @@ class QMenuBar;
 template<class T> class ObjectSet;
 
 
-mClass MenuItemSeparString : public SeparString
+mClass(uiBase) MenuItemSeparString : public SeparString
 {
 public:
     	MenuItemSeparString(const char* str=0) : SeparString(str,'`')	{}
 };
 
 
-mClass uiMenuItemContainer : public uiBaseObject
+mClass(uiBase) uiMenuItemContainer : public uiBaseObject
 {
 template<class> friend class	uiMenuItemContainerBodyImpl;
 
@@ -86,7 +87,7 @@ protected:
     messenger, so Qt's signals can be relayed.
 */
 
-mClass uiMenuItem : public NamedObject
+mClass(uiBase) uiMenuItem : public NamedObject
 {
 template<class> friend class	uiMenuItemContainerBodyImpl;
 
@@ -163,7 +164,7 @@ public:
 };
 
 
-mClass uiPopupItem : public uiMenuItem
+mClass(uiBase) uiPopupItem : public uiMenuItem
 {
 friend class uiPopupMenu;
 protected:
@@ -187,7 +188,7 @@ protected:
 
 class QPixmap;
 
-mClass uiMenuBar : public uiMenuItemContainer
+mClass(uiBase) uiMenuBar : public uiMenuItemContainer
 {
 
     friend class		uiMainWinBody;
@@ -209,7 +210,7 @@ protected:
 };
 
 
-mClass uiPopupMenu : public uiMenuItemContainer
+mClass(uiBase) uiPopupMenu : public uiMenuItemContainer
 {
 
 public:                        
@@ -261,3 +262,4 @@ public:
 };
 
 #endif
+

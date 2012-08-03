@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratlevel.h,v 1.4 2012-01-26 13:20:17 cvsbert Exp $
+ RCS:		$Id: stratlevel.h,v 1.5 2012-08-03 13:00:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "undefval.h"
 #include "namedobj.h"
 #include "ranges.h"
@@ -39,7 +40,7 @@ class LevelSet;
 
 */
 
-mClass Level : public NamedObject
+mClass(General) Level : public NamedObject
 {
 public:
 
@@ -96,7 +97,7 @@ public:
 */
 
 
-mClass LevelSet : public CallBacker
+mClass(General) LevelSet : public CallBacker
 {
 public:
 
@@ -180,20 +181,21 @@ public:
 
 };
 
-mGlobal const LevelSet& LVLS();
+mGlobal(General) const LevelSet& LVLS();
 inline LevelSet& eLVLS()	{ return const_cast<LevelSet&>(LVLS()); }
 
 // Needless to say that if you push, make sure you pop (so afterwards the real
 // default levels are restored
-mGlobal void pushLevelSet(LevelSet*);
-mGlobal void popLevelSet();
+mGlobal(General) void pushLevelSet(LevelSet*);
+mGlobal(General) void popLevelSet();
 
-mGlobal void setLVLS(LevelSet*);
+mGlobal(General) void setLVLS(LevelSet*);
 
-mGlobal BufferString getStdFileName(const char* inpnm,const char* basenm);
+mGlobal(General) BufferString getStdFileName(const char* inpnm,const char* basenm);
 //!< example: getStdFileName("North Sea","Levels")
 
 
 }; //namespace
 
 #endif
+

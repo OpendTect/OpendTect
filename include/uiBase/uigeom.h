@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.31 2011-02-07 15:37:39 cvsbert Exp $
+ RCS:           $Id: uigeom.h,v 1.32 2012-08-03 13:00:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "geometry.h"
 #include "enums.h"
 
@@ -20,7 +21,7 @@ typedef Geom::Point2D<double> uiWorldPoint;
 typedef Geom::PosRectangle<double> uiWorldRect;
 
 
-mClass uiSize : public Geom::Size2D<int>
+mClass(uiBase) uiSize : public Geom::Size2D<int>
 {
 public:
     			uiSize( const Geom::Size2D<int>& a )
@@ -37,7 +38,7 @@ public:
 };
 
 
-mClass uiRect  : public Geom::PixRectangle<int>
+mClass(uiBase) uiRect  : public Geom::PixRectangle<int>
 {
 public:
 
@@ -73,7 +74,7 @@ public:
 };
 
 
-mClass uiBorder
+mClass(uiBase) uiBorder
 {
 public:
     			uiBorder( int i=0 )	: lt_(i,i), rb_(i,i)	{}
@@ -313,3 +314,4 @@ inline int GetGoldenMinor( int inp )
 
 
 #endif
+

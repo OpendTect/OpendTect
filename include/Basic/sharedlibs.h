@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jun 2006
- RCS:		$Id: sharedlibs.h,v 1.6 2011-08-23 11:42:03 cvsbert Exp $
+ RCS:		$Id: sharedlibs.h,v 1.7 2012-08-03 13:00:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "gendefs.h"
 #ifdef __win__
 #   include "windows.h"
@@ -25,7 +26,7 @@ ________________________________________________________________________
    */
 
 
-mClass SharedLibAccess
+mClass(Basic) SharedLibAccess
 {
 public:
 
@@ -51,3 +52,4 @@ protected:
 
 
 #endif
+

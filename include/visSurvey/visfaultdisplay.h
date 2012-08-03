@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.45 2012-03-22 12:15:25 cvsbruno Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.46 2012-08-03 13:01:28 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 
 #include "emposid.h"
@@ -50,7 +51,7 @@ class HorizonDisplay;
 
 */
 
-mClass FaultDisplay : public MultiTextureSurveyObject
+mClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject
 {
 public:
     static FaultDisplay*	create()
@@ -267,3 +268,4 @@ protected:
 
 
 #endif
+

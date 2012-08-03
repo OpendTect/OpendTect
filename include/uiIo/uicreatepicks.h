@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: uicreatepicks.h,v 1.11 2011-03-11 11:18:46 cvsnanne Exp $
+ RCS:           $Id: uicreatepicks.h,v 1.12 2012-08-03 13:00:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 #include "cubesampling.h"
 #include "bufstringset.h"
@@ -33,7 +34,7 @@ namespace Pick { class Set; }
 
 /*! \brief Dialog for creating (a) pick set(s) */
 
-mClass RandLocGenPars
+mClass(uiIo) RandLocGenPars
 {
 public:
 
@@ -52,7 +53,7 @@ public:
 };
 
 
-mClass uiCreatePicks : public uiDialog 
+mClass(uiIo) uiCreatePicks : public uiDialog 
 {
 public:
 			uiCreatePicks(uiParent*,bool aspolygon=false);
@@ -72,7 +73,7 @@ protected:
 };
 
 
-mClass uiGenPosPicks : public uiCreatePicks
+mClass(uiIo) uiGenPosPicks : public uiCreatePicks
 {
 public:
     			uiGenPosPicks(uiParent*);
@@ -90,7 +91,7 @@ protected:
 };
 
 
-mClass uiGenRandPicks2D : public uiCreatePicks
+mClass(uiIo) uiGenRandPicks2D : public uiCreatePicks
 {
 public:
 
@@ -128,3 +129,4 @@ protected:
 
 
 #endif
+

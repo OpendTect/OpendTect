@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: pca.h,v 1.12 2011-02-14 22:23:30 cvskris Exp $
+ RCS:		$Id: pca.h,v 1.13 2012-08-03 13:00:04 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "algomod.h"
 #include "arrayndimpl.h"
 #include "sets.h"
 #include "trigonometry.h"
@@ -69,7 +70,7 @@ Example of usage:\code
 
 */
 
-mClass PCA
+mClass(Algo) PCA
 {
 public:
     					PCA( int nrvars );
@@ -158,4 +159,5 @@ void PCA::getEigenVector(int idy, IDXABL& vec ) const
 }
 
 #endif
+
 

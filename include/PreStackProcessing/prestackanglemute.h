@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.14 2012-06-11 19:16:27 cvsbruno Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.15 2012-08-03 13:00:33 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "prestackprocessingmod.h"
+#include "prestackprocessingmod.h"
 #include "prestackprocessor.h"
 #include "iopar.h"
 #include "samplingdata.h"
@@ -28,10 +30,10 @@ namespace PreStack
 {
 
 
-mClass AngleMuteBase 
+mClass(PreStackProcessing) AngleMuteBase 
 {
 public:
-    mStruct Params
+    mStruct(PreStackProcessing) Params
     {
 			    Params()
 				: mutecutoff_(30)
@@ -72,7 +74,7 @@ protected:
 
 
 
-mClass AngleMute : public Processor, public AngleMuteBase
+mClass(PreStackProcessing) AngleMute : public Processor, public AngleMuteBase
 {
 public:
     			mDefaultFactoryInstantiation(Processor,
@@ -81,7 +83,7 @@ public:
 			AngleMute();
 			~AngleMute();
 
-    mStruct AngleMutePars : public AngleMuteBase::Params
+    mStruct(PreStackProcessing) AngleMutePars : public AngleMuteBase::Params
     {
 			AngleMutePars()
 			    : tail_(false)
@@ -119,3 +121,5 @@ protected:
 }; //namespace
 
 #endif
+
+

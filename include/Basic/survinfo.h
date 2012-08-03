@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.112 2012-07-29 21:08:51 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.113 2012-08-03 13:00:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
  
+#include "basicmod.h"
 #include "namedobj.h"
 #include "ranges.h"
 #include "rcol2coord.h"
@@ -30,7 +31,7 @@ class LatLong2Coord;
 /*!Scaled down survey geometry for an inl/crl geometry . */
 
 
-mClass InlCrlSystem
+mClass(Basic) InlCrlSystem
 { mRefCountImplNoDestructor( InlCrlSystem );
 public:
     friend		class SurveyInfo;
@@ -94,10 +95,10 @@ at the bottom part of the class too for some more public functions.
 
 */
 
-mClass SurveyInfo : public NamedObject
+mClass(Basic) SurveyInfo : public NamedObject
 {
 
-    mGlobal friend const SurveyInfo&	SI();
+    mGlobal(Basic) friend const SurveyInfo&	SI();
 		
 
 public:
@@ -321,7 +322,8 @@ public:
 };
 
 
-mGlobal const SurveyInfo& SI();
+mGlobal(Basic) const SurveyInfo& SI();
 
 
 #endif
+

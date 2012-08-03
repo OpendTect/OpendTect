@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.16 2011-07-23 22:08:12 cvskris Exp $
+ RCS:		$Id: datachar.h,v 1.17 2012-08-03 13:00:22 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 
+#include "generalmod.h"
 #include "bindatadesc.h"
 #include "enums.h"
 
@@ -35,7 +36,7 @@ DataCharacteristics( const T& ) \
 : BinDataDesc(ii,is,sizeof(T)), fmt_(Ieee), littleendian_(__islittle__) {}
 
 
-mClass DataCharacteristics : public BinDataDesc
+mClass(General) DataCharacteristics : public BinDataDesc
 {
 public:
 
@@ -97,3 +98,4 @@ public:
 #undef mDeclConstr
 
 #endif
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.55 2012-08-01 10:13:28 cvsmahant Exp $
+ RCS:           $Id: mpeengine.h,v 1.56 2012-08-03 13:00:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ a static inistanciation of that can be retrieved by MPE::engine().
 
 */
 
+#include "mpeenginemod.h"
+#include "mpeenginemod.h"
 #include "attribdataholder.h"
 #include "attribdatacubes.h"
 #include "attribsel.h"
@@ -48,14 +50,14 @@ class EMTracker;
 class TrackPlane;
 class ObjectEditor;
 
-mClass AbstDataHolder : public CallBacker
+mClass(MPEEngine) AbstDataHolder : public CallBacker
 {
 mRefCountImplNoDestructor(AbstDataHolder);
 public:
 			AbstDataHolder(){}
 };
 
-mClass DataHolder : public AbstDataHolder
+mClass(MPEEngine) DataHolder : public AbstDataHolder
 {
 public:
 				DataHolder()
@@ -111,9 +113,9 @@ private:
 			}
 };
 
-mClass Engine : public CallBacker
+mClass(MPEEngine) Engine : public CallBacker
 {
-    mGlobal friend Engine&		engine();
+    mGlobal(MPEEngine) friend Engine&		engine();
 
 public:
     				Engine();
@@ -261,7 +263,7 @@ protected:
     ObjectSet<const DataHolder>	attribbackupcache_;
     ObjectSet<CacheSpecs>		attribbackupcachespecs_;
 
-    mStruct FlatCubeInfo
+    mStruct(MPEEngine) FlatCubeInfo
     {
 				FlatCubeInfo()
 				:nrseeds_(1)
@@ -287,10 +289,12 @@ protected:
 };
 
 
-mGlobal Engine&	engine();
+mGlobal(MPEEngine) Engine&	engine();
 
 
 };
 
 #endif
+
+
 

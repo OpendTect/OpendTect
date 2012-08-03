@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.h,v 1.11 2010-01-12 12:11:14 cvsyuancheng Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.h,v 1.12 2012-08-03 13:00:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "multiid.h"
 
 #include "uidialog.h"
@@ -26,7 +27,7 @@ namespace EM { class Horizon2D; class Horizon3D; };
 
 /*! \brief Dialog to expand a 2D horizon to create a 3D horizon */
 
-mClass uiHor3DFrom2DDlg : public uiDialog
+mClass(uiEarthModel) uiHor3DFrom2DDlg : public uiDialog
 {
 public:    
 				uiHor3DFrom2DDlg(uiParent*,
@@ -55,3 +56,4 @@ protected:
 };
 
 #endif
+

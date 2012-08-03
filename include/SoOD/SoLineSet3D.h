@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2011
- RCS:		$Id: SoLineSet3D.h,v 1.1 2011-03-10 22:33:24 cvskris Exp $
+ RCS:		$Id: SoLineSet3D.h,v 1.2 2012-08-03 13:00:40 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "soodmod.h"
 #include <Inventor/nodes/SoNonIndexedShape.h>
 
 #include <Inventor/fields/SoSFFloat.h>
@@ -28,7 +29,7 @@ ________________________________________________________________________
 class SbBox3f;
 class SbVec3f;
 
-mClass SoLineSet3D : public SoNonIndexedShape
+mClass(SoOD) SoLineSet3D : public SoNonIndexedShape
 {
     SO_NODE_HEADER(SoLineSet3D);
 public:
@@ -62,3 +63,4 @@ private:
 
 
 #endif
+

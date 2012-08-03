@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiattribfactory.h,v 1.11 2011-01-06 15:07:37 cvsbert Exp $
+ RCS:           $Id: uiattribfactory.h,v 1.12 2012-08-03 13:00:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "bufstringset.h"
 
 class uiAttrDescEd;
@@ -22,7 +23,7 @@ class uiParent;
 
 typedef uiAttrDescEd* (*uiAttrDescEdCreateFunc)(uiParent*,bool);
 
-mClass uiAttributeFactory
+mClass(uiAttributes) uiAttributeFactory
 {
 public:
     virtual		~uiAttributeFactory();
@@ -78,11 +79,12 @@ protected:
 
     Entry*		getEntry(const char*,bool) const;
 
-    friend mGlobal uiAttributeFactory&	uiAF();
+    friend mGlobal(uiAttributes) uiAttributeFactory&	uiAF();
     void			fillStd();
 };
 
-mGlobal uiAttributeFactory& uiAF();
+mGlobal(uiAttributes) uiAttributeFactory& uiAF();
 
 
 #endif
+

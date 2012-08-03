@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Feb 2002
- RCS:		$Id: uiapplserv.h,v 1.12 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:		$Id: uiapplserv.h,v 1.13 2012-08-03 13:01:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uitoolsmod.h"
 #include "namedobj.h"
 class uiParent;
 class uiApplPartServer;
@@ -20,7 +21,7 @@ class uiApplPartServer;
 
 /*! \brief Services from application level to 'Part servers' */
 
-mClass uiApplService : public NamedObject
+mClass(uiTools) uiApplService : public NamedObject
 {
 public:
 			uiApplService( const char* nm = 0 )
@@ -45,7 +46,7 @@ which of its part servers is calling - proceeds with the right action.
  
 */
 
-mClass uiApplPartServer : public CallBacker
+mClass(uiTools) uiApplPartServer : public CallBacker
 {
 public:
 
@@ -75,3 +76,4 @@ private:
 
 
 #endif
+

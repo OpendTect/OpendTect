@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.55 2012-07-20 14:07:02 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.56 2012-08-03 13:01:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellattribmod.h"
 #include "uigroup.h"
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -43,7 +44,7 @@ class uiToolButtonSetup;
 namespace Strat { class LayerModel; }
 
 
-mClass uiStratSynthDisp : public uiGroup
+mClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
 {
 public:
 
@@ -139,7 +140,7 @@ protected:
 };
 
 
-mClass uiSynthSlicePos : public uiGroup
+mClass(uiWellAttrib) uiSynthSlicePos : public uiGroup
 {
 public:
     			uiSynthSlicePos(uiParent*,const char* lbltxt);
@@ -163,7 +164,7 @@ protected:
 };
 
 
-mClass uiStackGrp : public uiGroup
+mClass(uiWellAttrib) uiStackGrp : public uiGroup
 {
 public:
     			uiStackGrp(uiParent*);
@@ -182,7 +183,7 @@ protected:
 };
 
 
-mClass uiSynthGenDlg : public uiDialog
+mClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
 {
 public:
 				uiSynthGenDlg(uiParent*,SynthGenParams&);
@@ -213,3 +214,4 @@ protected:
 };
 
 #endif
+

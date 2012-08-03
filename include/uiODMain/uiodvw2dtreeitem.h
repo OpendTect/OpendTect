@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dtreeitem.h,v 1.4 2011-06-28 13:35:43 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dtreeitem.h,v 1.5 2012-08-03 13:01:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uitreeitemmanager.h"
 
 class CubeSampling;
@@ -22,7 +23,7 @@ class uiODViewer2D;
 namespace Attrib { class SelSpec; }
 
 
-mClass uiODVw2DTreeItem : public uiTreeItem
+mClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
 {
 public:
     			uiODVw2DTreeItem(const char*);
@@ -49,7 +50,7 @@ protected:
 };
 
 
-mClass uiODVw2DTreeItemFactory : public uiTreeItemFactory
+mClass(uiODMain) uiODVw2DTreeItemFactory : public uiTreeItemFactory
 {
     public:
 	virtual uiTreeItem* createForVis(const uiODViewer2D&,int visid) const
@@ -58,7 +59,7 @@ mClass uiODVw2DTreeItemFactory : public uiTreeItemFactory
 
 
 
-mClass uiODVw2DTreeTop : public uiTreeTopItem
+mClass(uiODMain) uiODVw2DTreeTop : public uiTreeTopItem
 {
 public:
     				uiODVw2DTreeTop(uiListView*,uiODApplMgr*,
@@ -86,3 +87,4 @@ protected:
 
 
 #endif
+

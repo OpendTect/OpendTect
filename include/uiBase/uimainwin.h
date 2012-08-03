@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.86 2012-03-06 23:48:14 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.87 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uiparent.h"
 #include "mousecursor.h"
 
@@ -26,11 +27,11 @@ class uiToolBar;
 class QWidget;
 class BufferStringSet;
 
-mClass uiMainWin : public uiParent
+mClass(uiBase) uiMainWin : public uiParent
 {
 friend class uiMainWinBody;
 public:
-    mClass Setup
+    mClass(uiBase) Setup
     {
     public:
 			Setup( const char* capt )
@@ -201,3 +202,4 @@ public:
 };
 
 #endif
+

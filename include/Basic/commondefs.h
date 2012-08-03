@@ -7,13 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.42 2012-07-24 19:17:02 cvskris Exp $
+ RCS:		$Id: commondefs.h,v 1.43 2012-08-03 13:00:11 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
 
 -*/
 
+#include "basicmod.h"
+#include "basicmod.h"
 #include "plfdefs.h"
 #include "rounding.h"
 
@@ -94,45 +96,11 @@ ________________________________________________________________________
 #define mTODOHelpID	"0.0.0"
 #define mNoHelpID	"-"
 
-#ifdef __msvc__
-# define dll_export	__declspec( dllexport )
-# define dll_import	__declspec( dllimport )
-#else
-# define dll_export
-# define dll_import
-#endif
-
-#define mExportClass( module ) class Export_##module
-#define mExportStruct( module ) struct Export_##module
-#define mExportGlobal( module ) Export_##module
-#define mExportExtern( module ) extern Export_##module
-#define mExportExternC( module ) exptern "C" Export_##module
-
-#define mClass		class dll_export
-#define mStruct		struct dll_export
-#define mGlobal		dll_export 
-#define mExtern		extern dll_export
-#define mExternC	extern "C" dll_export
-
-#if defined(Basic_EXPORTS) || defined(BASIC_EXPORTS)
-# define Export_Basic	dll_export
-#else
-# define Export_Basic	dll_import
-#endif
-
-# define mBasicClass	mExportClass( Basic )
-# define mBasicGlobal	mExportGlobal( Basic )
-# define mBasicExtern	mExportExtern( Basic )
-
-#if defined(General_EXPORTS) || defined(GENERAL_EXPORTS)
-# define mGeneralClass	class dll_export
-# define mGeneralGlobal	dll_export
-# define mGeneralExtern	extern dll_export
-#else
-# define mGeneralClass	class dll_import
-# define mGeneralGlobal	dll_import
-# define mGeneralExtern	extern dll_import
-#endif
+#define mGlobal( module )		Export_##module
+#define mClass( module )		class mGlobal( module )
+#define mStruct( module )		struct mGlobal( module )
+#define mExtern( module )		extern mGlobal( module )
+#define mExternC( module)		extern "C" mGlobal( module )
 
 #define mIfNotFirstTime(act) \
     static bool _already_visited_ = false; \
@@ -141,3 +109,5 @@ ________________________________________________________________________
 
 
 #endif
+
+

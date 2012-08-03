@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "welldahobj.h"
 #include "undo.h"
@@ -30,7 +31,7 @@ namespace WellTie
 {
     class Server;
 
-mClass DahObjUndoEvent : public UndoEvent
+mClass(uiWellAttrib) DahObjUndoEvent : public UndoEvent
 {
 public:
     			DahObjUndoEvent( float dah, float val, 
@@ -49,13 +50,13 @@ protected:
 };
 
 
-mClass uiCheckShotEdit : public uiDialog
+mClass(uiWellAttrib) uiCheckShotEdit : public uiDialog
 {
 public:
 				uiCheckShotEdit(uiParent*,Server&);
 				~uiCheckShotEdit();
 
-    mClass DriftCurve : public Well::DahObj
+    mClass(uiWellAttrib) DriftCurve : public Well::DahObj
     {
     public:
 			DriftCurve() : DahObj("Drift Curve") {}
@@ -126,4 +127,5 @@ protected:
 }; //namespace WellTie
 
 #endif
+
 

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          Nov 2007
- RCS:           $Id: uiattr2dsel.h,v 1.6 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uiattr2dsel.h,v 1.7 2012-08-03 13:00:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "uidialog.h"
 #include "attribsel.h"
 #include "bufstring.h"
@@ -26,7 +27,7 @@ class uiRadioButton;
 class NLAModel;
 
 
-mClass uiAttr2DSelDlg : public uiDialog
+mClass(uiAttributes) uiAttr2DSelDlg : public uiDialog
 {
 public:
 
@@ -69,3 +70,4 @@ protected:
 
 
 #endif
+

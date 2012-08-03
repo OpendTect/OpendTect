@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: velocityfunctionascio.h,v 1.5 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:		$Id: velocityfunctionascio.h,v 1.6 2012-08-03 13:00:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "velocitymod.h"
 #include "tableascio.h"
 #include "task.h"
 
@@ -22,7 +23,7 @@ class TaskRunner;
 namespace Vel
 {
 
-mClass FunctionAscIO : public Table::AscIO, public SequentialTask
+mClass(Velocity) FunctionAscIO : public Table::AscIO, public SequentialTask
 {
 public:
     				FunctionAscIO( const Table::FormatDesc& fd,
@@ -54,3 +55,4 @@ protected:
 
 
 #endif
+

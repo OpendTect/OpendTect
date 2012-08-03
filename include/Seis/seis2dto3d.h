@@ -8,12 +8,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: seis2dto3d.h,v 1.6 2012-06-19 10:19:25 cvsbruno Exp $
+ RCS:           $Id: seis2dto3d.h,v 1.7 2012-08-03 13:00:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "seismod.h"
+#include "seismod.h"
 #include "executor.h"
 #include "cubesampling.h"
 #include "arrayndimpl.h"
@@ -29,7 +31,7 @@ class SeisTrcWriter;
 class SeisTrcBuf;
 
 
-mClass SeisInterpol : public Executor
+mClass(Seis) SeisInterpol : public Executor
 {
 public:
 
@@ -64,7 +66,7 @@ protected:
     int 		szz_;
     float 		max_;
 
-    mStruct TrcPosTrl
+    mStruct(Seis) TrcPosTrl
     {
 		    TrcPosTrl(int x,int y, int trc)
 			: idx_(x)
@@ -95,7 +97,7 @@ protected:
 
 
 
-mClass Seis2DTo3D : public Executor
+mClass(Seis) Seis2DTo3D : public Executor
 {
 public:
 
@@ -154,7 +156,7 @@ protected:
 };
 
 
-mClass SeisScaler
+mClass(Seis) SeisScaler
 {
 public:
 			SeisScaler(const SeisTrcBuf&);
@@ -167,3 +169,5 @@ protected:
 };
 
 #endif
+
+

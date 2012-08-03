@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		November 2006
- RCS:		$Id: uirubberband.h,v 1.5 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:		$Id: uirubberband.h,v 1.6 2012-08-03 13:00:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uigeom.h"
 
 class QMouseEvent;
 class QRubberBand;
 class QWidget;
 
-mClass uiRubberBand
+mClass(uiBase) uiRubberBand
 {
 public:
     			uiRubberBand(QWidget* p)
@@ -45,3 +46,4 @@ protected:
 };
 
 #endif
+

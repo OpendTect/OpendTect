@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/09/2000
- RCS:           $Id: changetracker.h,v 1.10 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: changetracker.h,v 1.11 2012-08-03 13:00:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "gendefs.h"
 #include <string.h>
 
@@ -23,7 +24,7 @@ Giving unique change stamps.
 */
 
 
-mClass ChangeTracker
+mClass(Basic) ChangeTracker
 {
 public:
 			ChangeTracker( bool* c=0 )
@@ -140,3 +141,4 @@ inline bool ChangeTracker::update( char*& val, const char*& newval )
 
 
 #endif
+

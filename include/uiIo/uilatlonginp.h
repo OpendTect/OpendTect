@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          May 2009
- RCS:           $Id: uilatlonginp.h,v 1.2 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uilatlonginp.h,v 1.3 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uigroup.h"
 class LatLong;
 class uiLineEdit;
@@ -18,7 +19,7 @@ class uiRadioButton;
 class uiLatLongDMSInp;
 
 
-mClass uiLatLongInp : public uiGroup
+mClass(uiIo) uiLatLongInp : public uiGroup
 {
 public:
 
@@ -43,3 +44,4 @@ protected:
 
 
 #endif
+

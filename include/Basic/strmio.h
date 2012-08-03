@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: strmio.h,v 1.3 2010-03-09 12:13:44 cvsraman Exp $
+ RCS:		$Id: strmio.h,v 1.4 2012-08-03 13:00:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "commondefs.h"
 #include "plftypes.h"
 #include <iostream>
@@ -20,7 +21,7 @@ class IOPar;
 
 /*!\brief Class for simple ascii/binary stream read/write */
 
-mClass StreamIO
+mClass(Basic) StreamIO
 {
 public:
     				StreamIO( std::ostream& s,bool binary )
@@ -61,3 +62,4 @@ protected:
 };
 
 #endif
+

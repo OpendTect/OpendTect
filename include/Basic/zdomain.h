@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra & K. Tingdahl
  Date:		April 2009 / Aug 2010
- RCS:		$Id: zdomain.h,v 1.12 2012-07-02 15:01:54 cvskris Exp $
+ RCS:		$Id: zdomain.h,v 1.13 2012-08-03 13:00:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "bufstring.h"
 class IOPar;
 
@@ -21,19 +22,19 @@ namespace ZDomain
 
 class Def;
 
-mGlobal const Def&	SI();
-mGlobal const Def&	Depth();
-mGlobal const Def&	Time();
+mGlobal(Basic) const Def&	SI();
+mGlobal(Basic) const Def&	Depth();
+mGlobal(Basic) const Def&	Time();
 
-mGlobal bool		isSI(const IOPar&);
-mGlobal bool		isDepth(const IOPar&);
-mGlobal bool		isTime(const IOPar&);
-mGlobal void		setSI(IOPar&);
-mGlobal void		setDepth(IOPar&);
-mGlobal void		setTime(IOPar&);
+mGlobal(Basic) bool		isSI(const IOPar&);
+mGlobal(Basic) bool		isDepth(const IOPar&);
+mGlobal(Basic) bool		isTime(const IOPar&);
+mGlobal(Basic) void		setSI(IOPar&);
+mGlobal(Basic) void		setDepth(IOPar&);
+mGlobal(Basic) void		setTime(IOPar&);
 
 
-mClass Def
+mClass(Basic) Def
 {
 public:
 
@@ -73,7 +74,7 @@ protected:
 };
 
 
-mClass Info
+mClass(Basic) Info
 {
 public:
     			Info(const Def&);
@@ -99,10 +100,11 @@ public:
 
 };
 
-mGlobal const char*	sKey();
-mGlobal const char*	sKeyTime();
-mGlobal const char*	sKeyDepth();
+mGlobal(Basic) const char*	sKey();
+mGlobal(Basic) const char*	sKeyTime();
+mGlobal(Basic) const char*	sKeyDepth();
 
 } // namespace ZDomain
 
 #endif
+

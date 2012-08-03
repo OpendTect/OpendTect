@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.16 2012-02-23 09:47:16 cvssatyaki Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.17 2012-08-03 13:00:02 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "algomod.h"
 #include "array2dinterpol.h"
 #include "thread.h"
 #include "rowcol.h"
@@ -46,7 +47,7 @@ cornersfirst	if true, algorithm will only interpolate nodes that has the
 		give high quality output at the expense of speed.
 */
 
-mClass InverseDistanceArray2DInterpol : public Array2DInterpol
+mClass(Algo) InverseDistanceArray2DInterpol : public Array2DInterpol
 {
 public:
     				mDefaultFactoryInstantiation( Array2DInterpol, 
@@ -122,7 +123,7 @@ protected:
 };
 
 
-mClass TriangulationArray2DInterpol : public Array2DInterpol
+mClass(Algo) TriangulationArray2DInterpol : public Array2DInterpol
 {
 public:
 		mDefaultFactoryInstantiation( Array2DInterpol, 
@@ -174,7 +175,7 @@ protected:
 
 
 //Extension
-mClass Array2DInterpolExtension : public Array2DInterpol
+mClass(Algo) Array2DInterpolExtension : public Array2DInterpol
 {
 public:
 		mDefaultFactoryInstantiation( Array2DInterpol, 
@@ -204,3 +205,4 @@ protected:
 };
 
 #endif
+

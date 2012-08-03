@@ -7,18 +7,19 @@ ________________________________________________________________________
 Author:        K. Tingdahl
 Date:          2005
 Contents:      Ranges
-RCS:           $Id: cubicbeziercurve.h,v 1.8 2009-07-22 16:01:16 cvsbert Exp $
+RCS:           $Id: cubicbeziercurve.h,v 1.9 2012-08-03 13:00:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "geometrymod.h"
 #include "parametriccurve.h"
 #include "sets.h"
 
 namespace Geometry
 {
 
-mClass CubicBezierCurve : public ParametricCurve
+mClass(Geometry) CubicBezierCurve : public ParametricCurve
 {
 public:
 			CubicBezierCurve( const Coord3&, const Coord3&,
@@ -111,3 +112,4 @@ inline Coord3 cubicDeCasteljauTangent( const Coord3* p, char i0, char di,
 };
 
 #endif
+

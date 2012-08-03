@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2009
- RCS:		$Id: basemapimpl.h,v 1.1 2011-10-04 13:44:59 cvskris Exp $
+ RCS:		$Id: basemapimpl.h,v 1.2 2012-08-03 13:00:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "basemap.h"
 
 #include "draw.h"
@@ -19,7 +20,7 @@ ________________________________________________________________________
 
 /*!Object that draws markers on a basemap */
 
-mClass BaseMapMarkers : public BaseMapObject
+mClass(General) BaseMapMarkers : public BaseMapObject
 {
 public:
 				BaseMapMarkers();
@@ -47,3 +48,4 @@ protected:
 
 
 #endif
+

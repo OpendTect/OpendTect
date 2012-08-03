@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.22 2012-07-30 06:25:13 cvskris Exp $
+ RCS:		$Id: oddirs.h,v 1.23 2012-08-03 13:00:13 cvskris Exp $
 ________________________________________________________________________
 
 OpendTect directories.
@@ -17,6 +17,7 @@ Beware that all functions may return a pointer to *the same* static buffer!
 -*/
 
 #ifndef gendefs_h
+#include "basicmod.h"
 #include "gendefs.h"
 #endif
 
@@ -26,19 +27,19 @@ extern "C" {
 
     /* Functions delivering files/directies in the 'survey data' scope */
 
-mGlobal const char* GetBaseDataDir(void);
+mGlobal(Basic) const char* GetBaseDataDir(void);
 /*!< Base data directory: DTECT_[WIN]DATA or from User Settings. */
 
-mGlobal const char* GetDataDir(void);
+mGlobal(Basic) const char* GetDataDir(void);
 /*!< Survey directory: GetBaseDataDir()/<current survey> */
 
-mGlobal const char* GetProcFileName(const char*);
+mGlobal(Basic) const char* GetProcFileName(const char*);
 /*!< Returns file name in GetDataDir()/Proc. Pass null for directory. */
 
 
     /* Functions delivering files/directies in the 'sytem' scope */
 
-mGlobal const char* GetSoftwareDir(int acceptnone);
+mGlobal(Basic) const char* GetSoftwareDir(int acceptnone);
 /*!< Directory of the installed software = $DTECT_[WIN]APPL 
 
  GetSoftwareDir returns the full path of the root of the release.
@@ -48,10 +49,10 @@ mGlobal const char* GetSoftwareDir(int acceptnone);
  If acceptnone is false, program will terminate if none is found.
 */
     
-mGlobal const char* GetBinSubDir(void);
+mGlobal(Basic) const char* GetBinSubDir(void);
 /*!< Directory for the release-type, i.e. Debug, Release, ... */
 
-mGlobal const char* GetApplSetupDir(void);
+mGlobal(Basic) const char* GetApplSetupDir(void);
 /*!< Directory with setup files and scripts overruling current software
      release's default setup files.
     
@@ -67,7 +68,7 @@ typedef enum
     ODSetupLoc_SWDirOnly
 } ODSetupLocType;
 
-mGlobal const char* GetSetupDataFileDir(ODSetupLocType,int acceptnone);
+mGlobal(Basic) const char* GetSetupDataFileDir(ODSetupLocType,int acceptnone);
 /*!< Returns the name of the "data" subdir of the release or the
      site setup directory.
      If acceptnone is false, program will terminate if none is found.
@@ -75,7 +76,7 @@ mGlobal const char* GetSetupDataFileDir(ODSetupLocType,int acceptnone);
 #define mGetApplSetupDataDir() GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly,0)
 #define mGetSWDirDataDir() GetSetupDataFileDir(ODSetupLoc_SWDirOnly,0)
 
-mGlobal const char* GetSetupDataFileName(ODSetupLocType,const char*,
+mGlobal(Basic) const char* GetSetupDataFileName(ODSetupLocType,const char*,
 					 int acceptnone);
 /*!< Returns the name of a file in the "data" subdir of the release or the
      appl setup directory.
@@ -88,33 +89,33 @@ mGlobal const char* GetSetupDataFileName(ODSetupLocType,const char*,
 #define mGetSetupFileName(x) GetSetupDataFileName(ODSetupLoc_ApplSetupPref,x,0)
 /*!< Usual choice: first look in ApplSetup, if not there, look in release */
 
-mGlobal const char* GetPlfSubDir(void);
+mGlobal(Basic) const char* GetPlfSubDir(void);
 /*!< Platform subdirectory for platforms
 
   Tries PLFSUBDIR, if not set: binsubdir, if not set: HDIR
   Ouput medio 2009 is one of lux32, lux64, sol32, mac, win32 or win64.
 */
 
-mGlobal const char* GetBinPlfDir(void);
+mGlobal(Basic) const char* GetBinPlfDir(void);
 /*!< Platform dependent bin directory
   Returns full path to bin dir: GetSoftwareDir()/bin/GetPlfSubDir
 */
 
-mGlobal const char* GetDocFileDir(const char* filedir);
+mGlobal(Basic) const char* GetDocFileDir(const char* filedir);
 /*!< Location of Documentation */
 #define mGetUserDocDir()	GetDocFileDir("User")
 #define mGetProgrammerDocDir()	GetDocFileDir("Programmer")
 #define mGetSysAdmDocDir()	GetDocFileDir("SysAdm")
 
 
-mGlobal const char* GetExecScript(int remote);
+mGlobal(Basic) const char* GetExecScript(int remote);
 /*!< Location of launch script for external programs
   
   In GetSiteDataDir() or GetSoftwareDir(): bin/od_exec[_rmt][.bat]
 */
 #define		mGetExecScript()	GetExecScript(0)
 
-mGlobal const char* GetSoftwareUser(void);
+mGlobal(Basic) const char* GetSoftwareUser(void);
 /*!< Sub-user of software: $DTECT_USER
 
  When multiple people want to run under a single account, they need to
@@ -122,12 +123,12 @@ mGlobal const char* GetSoftwareUser(void);
  be null!
 */
 
-mGlobal const char* GetUserNm(void);
+mGlobal(Basic) const char* GetUserNm(void);
 /*!< user's name */
 
 
     /* Functions delivering files/directies in the 'user-specific' scope */
-mGlobal const char* GetPersonalDir(void);
+mGlobal(Basic) const char* GetPersonalDir(void);
 /*!< Directory for personal settings: 'Home directory'
 
  This gets the user's home directory. Even on Windows, something will be
@@ -148,18 +149,18 @@ UNIX:
 
 */
 
-mGlobal const char* GetSettingsDir(void);
+mGlobal(Basic) const char* GetSettingsDir(void);
 /*!< Directory with the user settings
 
   Returns GetPersonalDir()/.od, unless DTECT_PERSONAL_DIR is set.
 
 */
 
-mGlobal const char* GetSettingsFileName(const char*);
+mGlobal(Basic) const char* GetSettingsFileName(const char*);
 /*!< Returns GetSettingsDir()/filenm */
 
 
-mGlobal const char* GetScriptsDir(const char*);
+mGlobal(Basic) const char* GetScriptsDir(const char*);
 
 
 #ifdef __cpp__
@@ -167,3 +168,4 @@ mGlobal const char* GetScriptsDir(const char*);
 #endif
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.20 2012-04-09 22:15:06 cvsnanne Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.21 2012-08-03 13:01:03 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiodemsurftreeitem.h"
 
 class uEMHorizonShiftDialog;
@@ -20,7 +21,7 @@ mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
 	     void sort(); virtual bool addChld(uiTreeItem*,bool,bool) );
 
 
-mClass uiODHorizonTreeItemFactory : public uiODTreeItemFactory
+mClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -30,7 +31,7 @@ public:
 };
 
 
-mClass uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
+mClass(uiODMain) uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
 {
 public:
     			uiODHorizonTreeItem( int, bool rgba, bool dummy );
@@ -68,7 +69,7 @@ mDefineItem( Horizon2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
 	     void sort(); virtual bool addChld(uiTreeItem*,bool,bool) );
 
 
-mClass uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
+mClass(uiODMain) uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -78,7 +79,7 @@ public:
 };
 
 
-mClass uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
+mClass(uiODMain) uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
 {
 public:
     			uiODHorizon2DTreeItem( int, bool dummy );
@@ -103,3 +104,4 @@ protected:
 
 
 #endif
+

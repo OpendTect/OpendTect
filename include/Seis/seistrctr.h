@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.61 2011-03-25 15:02:34 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.62 2012-08-03 13:00:38 cvskris Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
 
 -*/
 
+#include "seismod.h"
 #include "transl.h"
 #include "ctxtioobj.h"
 #include "samplingdata.h"
@@ -74,14 +75,14 @@ SeisTrcReader and SeisTrcWriter do support it.
 */
 
 
-mClass SeisTrcTranslatorGroup : public TranslatorGroup
+mClass(Seis) SeisTrcTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisTrc)
 public:
     			mDefEmptyTranslatorGroupConstructor(SeisTrc)
 };
 
 
-mClass SeisTrcTranslator : public Translator
+mClass(Seis) SeisTrcTranslator : public Translator
 {
 public:
 
@@ -92,7 +93,7 @@ public:
 
     */
 
-    mClass ComponentData : public BasicComponentInfo
+    mClass(Seis) ComponentData : public BasicComponentInfo
     {
 	friend class	SeisTrcTranslator;
 
@@ -116,7 +117,7 @@ public:
 
     */
 
-    mClass TargetComponentData : public ComponentData
+    mClass(Seis) TargetComponentData : public ComponentData
     {
 	friend class	SeisTrcTranslator;
 
@@ -302,3 +303,4 @@ public:
 
 
 #endif
+

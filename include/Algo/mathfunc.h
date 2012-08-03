@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.32 2012-07-16 20:50:18 cvskris Exp $
+ RCS:		$Id: mathfunc.h,v 1.33 2012-08-03 13:00:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "algomod.h"
 #include "mathfunc.h"
 #include "position.h"
 #include "ptrman.h"
@@ -147,7 +148,7 @@ public:
 
  */
 
-mClass PointBasedMathFunction : public FloatMathFunction
+mClass(Algo) PointBasedMathFunction : public FloatMathFunction
 {
 public:
 
@@ -235,7 +236,7 @@ protected:
     a x^2 + b x + c
 */
 
-mClass SecondOrderPoly : public FloatMathFunction
+mClass(Algo) SecondOrderPoly : public FloatMathFunction
 {
 public:
     			SecondOrderPoly( float a_=0, float b_=0, float c_=0 )
@@ -305,7 +306,7 @@ public:
     a x^3 + b x^2 + c x + d
 */
 
-mClass ThirdOrderPoly : public FloatMathFunction
+mClass(Algo) ThirdOrderPoly : public FloatMathFunction
 {
 public:
     			ThirdOrderPoly( float a_=0, float b_=0,
@@ -356,3 +357,4 @@ public:
 
 
 #endif
+

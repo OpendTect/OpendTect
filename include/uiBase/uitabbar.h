@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.21 2010-07-02 18:04:39 cvskris Exp $
+ RCS:           $Id: uitabbar.h,v 1.22 2012-08-03 13:00:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uiobj.h"
 
 class uiTabBarBody;
@@ -21,7 +22,7 @@ class uiTab;
 
 
 //! TabBar widget only. Normally you'd want to use the uiTabStack class.
-mClass uiTabBar : public uiObject
+mClass(uiBase) uiTabBar : public uiObject
 {
 friend class		i_tabbarMessenger;
 friend class		uiTabStack;
@@ -58,7 +59,7 @@ protected:
 };
 
 
-mClass uiTab : public NamedObject
+mClass(uiBase) uiTab : public NamedObject
 {
 friend class		uiTabBar;
 public:
@@ -73,3 +74,4 @@ protected:
 };
 
 #endif
+

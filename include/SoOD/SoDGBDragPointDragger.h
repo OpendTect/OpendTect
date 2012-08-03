@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          March 2010
- RCS:           $Id: SoDGBDragPointDragger.h,v 1.11 2010-04-27 06:16:03 cvskarthika Exp $
+ RCS:           $Id: SoDGBDragPointDragger.h,v 1.12 2012-08-03 13:00:40 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "soodmod.h"
 #include "soodbasic.h"
 
 
@@ -34,7 +35,7 @@ class SbPlaneProjector;
 class SoCylinder;
 class SoCube;
 
-mClass SoDGBDragPointDragger : public SoDragger {
+mClass(SoOD) SoDGBDragPointDragger : public SoDragger {
 
     SO_KIT_HEADER(SoDGBDragPointDragger);
     SO_KIT_CATALOG_ENTRY_HEADER(zTranslator);
@@ -81,4 +82,5 @@ private:
 };
 
 #endif
+
 

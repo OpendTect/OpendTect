@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.47 2012-07-29 21:09:48 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.48 2012-08-03 13:00:10 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -19,6 +19,7 @@ to the constructor.
 
 */
 
+#include "basicmod.h"
 #include "valseries.h"
 #include "arrayndinfo.h"
 #include "varlenarray.h"
@@ -155,7 +156,7 @@ public:
    no more positions are avaliable.
 */
 
-mClass ArrayNDIter
+mClass(Basic) ArrayNDIter
 {
 public:
 				ArrayNDIter( const ArrayNDInfo& );
@@ -184,7 +185,7 @@ protected:
     other methods (like getting the storage) as this is slow. */
 
 template <class T>
-mClass ArrayNDValseriesAdapter : public ValueSeries<T>
+mClass(Basic) ArrayNDValseriesAdapter : public ValueSeries<T>
 {
 public:
 			ArrayNDValseriesAdapter( const ArrayND<T>& a )
@@ -362,7 +363,7 @@ void ArrayND<T>::setAll( const T& val )
 
 
 template <class T>
-mClass ArrayNDGetAll : public ParallelTask
+mClass(Basic) ArrayNDGetAll : public ParallelTask
 {
 public:
     		ArrayNDGetAll( T* ptr, const ArrayND<T>& arr )
@@ -482,3 +483,4 @@ void ArrayND<T>::getAll( T* ptr ) const
 
 
 #endif
+

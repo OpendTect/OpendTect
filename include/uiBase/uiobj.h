@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.74 2012-05-18 12:12:42 cvskris Exp $
+ RCS:           $Id: uiobj.h,v 1.75 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uibaseobject.h"
 #include "uigeom.h"
 #include "uilayout.h"
@@ -32,7 +33,7 @@ class uiObjEventFilter;
 
 /*!\ The base class for most UI elements. */
 
-mClass uiObject : public uiBaseObject
+mClass(uiBase) uiObject : public uiBaseObject
 {
     friend class	uiObjectBody;
     friend class	i_LayoutItem;
@@ -274,3 +275,4 @@ the ubiquitous uiDialog.
 
 
 #endif
+

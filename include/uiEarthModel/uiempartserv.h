@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.112 2012-08-01 12:53:05 cvsbert Exp $
+ RCS:           $Id: uiempartserv.h,v 1.113 2012-08-03 13:00:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "emposid.h"
 #include "horsampling.h"
 #include "multiid.h"
@@ -41,7 +42,7 @@ namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; };
 
 /*! \brief Earth Model UI Part Server */
 
-mClass uiEMPartServer : public uiApplPartServer
+mClass(uiEarthModel) uiEMPartServer : public uiApplPartServer
 {
 public:
 			uiEMPartServer(uiApplService&);
@@ -199,3 +200,4 @@ protected:
 */
 
 #endif
+

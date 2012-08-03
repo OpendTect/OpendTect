@@ -6,11 +6,12 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Y.C. Liu
 Date:          July 2008
-RCS:           $Id: polygonsurface.h,v 1.14 2011-04-22 13:28:56 cvsbert Exp $
+RCS:           $Id: polygonsurface.h,v 1.15 2012-08-03 13:00:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "geometrymod.h"
 #include "refcount.h"
 #include "rowcolsurface.h"
 
@@ -22,7 +23,7 @@ namespace Geometry
     For Rcol variable rc, rc.r() represents polygonidx, rc.c() represents the 
     knots on the corresponding polygon. */
  
-mClass PolygonSurface : public RowColSurface
+mClass(Geometry) PolygonSurface : public RowColSurface
 {
 public:
     			PolygonSurface();
@@ -95,3 +96,4 @@ protected:
 };
 
 #endif
+

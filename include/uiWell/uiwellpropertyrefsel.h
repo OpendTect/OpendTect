@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uiwellpropertyrefsel.h,v 1.8 2012-03-26 07:40:26 cvsbruno Exp $
+ RCS:           $Id: uiwellpropertyrefsel.h,v 1.9 2012-08-03 13:01:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellmod.h"
 #include "propertyref.h"
 #include "uigroup.h"
 
@@ -26,7 +27,7 @@ class uiUnitSel;
 namespace Well { class LogSet; }
 
 
-mClass uiPropSelFromList : public uiGroup
+mClass(uiWell) uiPropSelFromList : public uiGroup
 {
 public:
 			uiPropSelFromList(uiParent*,const PropertyRef&,
@@ -66,7 +67,7 @@ protected:
 
 
 
-mClass uiWellPropSel : public uiGroup
+mClass(uiWell) uiWellPropSel : public uiGroup
 {
 public:
 			uiWellPropSel(uiParent*,const PropertyRefSelection&);
@@ -93,7 +94,7 @@ protected:
 
 
 
-mClass uiWellElasticPropSel : public uiWellPropSel
+mClass(uiWell) uiWellElasticPropSel : public uiWellPropSel
 {
 public:
 			uiWellElasticPropSel(uiParent*,bool withswaves=false);
@@ -109,3 +110,4 @@ public:
 
 
 #endif
+

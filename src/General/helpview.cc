@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: helpview.cc,v 1.50 2012-07-05 09:54:48 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: helpview.cc,v 1.51 2012-08-03 13:01:35 cvskris Exp $";
 
 #include "helpview.h"
 
@@ -316,7 +316,7 @@ BufferString HelpViewer::getWebUrlFromLocal( const char* localfnm )
 }
 
 #include "texttranslator.h"
-mGlobal TextTranslateMgr& TrMgr()
+mGlobal( General )  TextTranslateMgr& TrMgr()
 {
     static TextTranslateMgr* trmgr = 0;
     if ( !trmgr ) trmgr = new TextTranslateMgr();

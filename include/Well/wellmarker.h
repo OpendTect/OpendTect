@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.21 2012-08-03 12:42:21 cvsbruno Exp $
+ RCS:		$Id: wellmarker.h,v 1.22 2012-08-03 13:00:45 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "wellmod.h"
 #include "namedobj.h"
 #include "color.h"
 
@@ -27,7 +28,7 @@ class Track;
 
 */
 
-mClass Marker : public ::NamedObject
+mClass(Well) Marker : public ::NamedObject
 {
 public:
 
@@ -60,7 +61,7 @@ protected:
 
 
 
-mClass MarkerSet : public ObjectSet<Marker>
+mClass(Well) MarkerSet : public ObjectSet<Marker>
 {
 public:
     			MarkerSet()		{}
@@ -94,3 +95,4 @@ protected:
 } // namespace Well
 
 #endif
+

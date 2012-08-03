@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.43 2012-07-10 08:05:25 cvskris Exp $
+ RCS:           $Id: arrayndutils.h,v 1.44 2012-08-03 13:00:21 cvskris Exp $
 ________________________________________________________________________
 
 
 @$*/
+#include "generalmod.h"
 #include "arraynd.h"
 #include "enums.h"
 #include "arrayndslice.h"
@@ -160,7 +161,7 @@ The only requirement on the windowfunction is that it should give full taper
 at x=+-1 and no taper when x=0. Feel free to implement more functions!!
 
 */
-mClass ArrayNDWindow
+mClass(General) ArrayNDWindow
 {
 public:
     enum WindowType	{ Box, Hamming, Hanning, Blackman, Bartlett,
@@ -631,3 +632,4 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 
 
 #endif
+

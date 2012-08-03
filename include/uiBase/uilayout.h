@@ -7,10 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          03/03/2000
- RCS:           $Id: uilayout.h,v 1.11 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uilayout.h,v 1.12 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+#include "uibasemod.h"
 #include "commondefs.h"
 
 class i_LayoutItem;
@@ -34,7 +35,7 @@ enum constraintType
 };
 
 
-mClass uiConstraint
+mClass(uiBase) uiConstraint
 {
 friend class i_LayoutItem;
 public:
@@ -54,3 +55,4 @@ protected:
 };
 
 #endif
+

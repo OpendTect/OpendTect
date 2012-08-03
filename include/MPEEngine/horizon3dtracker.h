@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: horizon3dtracker.h,v 1.9 2011-05-02 06:14:48 cvsumesh Exp $
+ RCS:		$Id: horizon3dtracker.h,v 1.10 2012-08-03 13:00:30 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "mpeenginemod.h"
 #include "emtracker.h"
 #include "emposid.h"
 
@@ -26,7 +27,7 @@ class Horizon3DSeedPicker;
 /*!\brief Horizon tracker
 */
 
-mClass Horizon3DTracker : public EMTracker
+mClass(MPEEngine) Horizon3DTracker : public EMTracker
 {
 public:
     				Horizon3DTracker(EM::Horizon3D* =0);
@@ -53,3 +54,4 @@ protected:
 } // namespace MPE
 
 #endif
+

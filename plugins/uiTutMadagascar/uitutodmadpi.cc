@@ -28,7 +28,7 @@ mDefODPluginInfo(uiTutMadagascar)
 // We need an object to receive the CallBacks, we will thus create a manager
 // inheriting from CallBacker.
 
-mClass uiMadTutMgr :  public CallBacker
+class uiMadTutMgr :  public CallBacker
 {
     public:
 

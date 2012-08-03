@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.19 2012-07-04 11:00:15 cvskris Exp $
+ RCS:		$Id: dataclipper.h,v 1.20 2012-08-03 13:00:03 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "algomod.h"
 #include "sets.h"
 #include "ranges.h"
 class IOPar;
@@ -72,7 +73,7 @@ Example
 */
 
 
-mClass DataClipper
+mClass(Algo) DataClipper
 {
 public:
     				DataClipper();
@@ -129,7 +130,7 @@ protected:
 };
 
 
-mClass DataClipSampler
+mClass(Algo) DataClipSampler
 {
 public:
 			DataClipSampler(int bufsz=10000);
@@ -161,3 +162,4 @@ protected:
 
 
 #endif
+

@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Oct 2011
- RCS:           $Id: uiprestacksel.h,v 1.1 2011-10-20 07:12:37 cvsbruno Exp $
+ RCS:           $Id: uiprestacksel.h,v 1.2 2012-08-03 13:01:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "datapack.h"
 #include "multiid.h"
 #include "uidialog.h"
@@ -21,7 +22,7 @@ class uiIOSelect;
 class uiListBox;
 class uiSeisSel;
 
-mClass uiPreStackDataPackSelDlg : public uiDialog
+mClass(uiSeis) uiPreStackDataPackSelDlg : public uiDialog
 {
 public:
     			uiPreStackDataPackSelDlg(uiParent*,
@@ -39,7 +40,7 @@ protected:
 };
 
 
-mClass uiPreStackSel : public uiGroup
+mClass(uiSeis) uiPreStackSel : public uiGroup
 {
 public:
 
@@ -71,3 +72,4 @@ protected:
 
 
 #endif
+

@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.134 2012-07-03 08:41:51 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.135 2012-08-03 13:01:29 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 #include "mousecursor.h"
 #include "ranges.h"
@@ -51,7 +52,7 @@ class Scene;
     setting the requested orientation of the slice.
 */
 
-mClass PlaneDataDisplay :  public visSurvey::MultiTextureSurveyObject
+mClass(visSurvey) PlaneDataDisplay :  public visSurvey::MultiTextureSurveyObject
 {
 public:
 
@@ -234,3 +235,4 @@ protected:
 
 
 #endif
+

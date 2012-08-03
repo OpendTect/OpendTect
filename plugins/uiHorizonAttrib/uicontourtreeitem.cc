@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.37 2012-07-17 14:06:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.38 2012-08-03 13:01:33 cvskris Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -159,7 +159,7 @@ void intvChanged( CallBacker* cb )
 };
 
 
-mClass visContourLabels : public visBase::VisualObjectImpl
+class visContourLabels : public visBase::VisualObjectImpl
 {
 public:
 
@@ -457,7 +457,7 @@ Array2D<float>* uiContourTreeItem::getDataSet( visSurvey::HorizonDisplay* hd )
 }
 
 
-mClass uiContourProgressWin : public uiMainWin
+class uiContourProgressWin : public uiMainWin
 {
 public:
 

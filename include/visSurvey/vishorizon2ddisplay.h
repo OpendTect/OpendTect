@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.25 2012-07-04 05:14:42 cvssatyaki Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.26 2012-08-03 13:01:28 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "vissurveymod.h"
 #include "emposid.h"
 #include "multiid.h"
 #include "visemobjdisplay.h"
@@ -27,7 +28,7 @@ namespace visSurvey
 
 class Seis2DDisplay;
 
-mClass Horizon2DDisplay : public EMObjectDisplay
+mClass(visSurvey) Horizon2DDisplay : public EMObjectDisplay
 {
 public:
     static Horizon2DDisplay*	create()
@@ -96,3 +97,4 @@ protected:
 };
 
 #endif
+

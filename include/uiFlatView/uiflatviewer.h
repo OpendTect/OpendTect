@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.58 2012-07-12 15:04:43 cvsbruno Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.59 2012-08-03 13:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiflatviewmod.h"
 #include "uigroup.h"
 #include "flatview.h"
 #include "threadwork.h"
@@ -32,7 +33,7 @@ class uiGraphicsItemGroup;
 
 /*!\brief Fulfills the FlatView::Viewer specifications using 'ui' classes. */
 
-mClass uiFlatViewer : public uiGroup
+mClass(uiFlatView) uiFlatViewer : public uiGroup
 		    , public FlatView::Viewer
 {
 public:
@@ -126,3 +127,4 @@ protected:
 };
 
 #endif
+

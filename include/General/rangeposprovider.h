@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: rangeposprovider.h,v 1.11 2012-05-22 14:48:43 cvskris Exp $
+ RCS:           $Id: rangeposprovider.h,v 1.12 2012-08-03 13:00:25 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "generalmod.h"
 #include "posprovider.h"
 
 
@@ -21,7 +22,7 @@ namespace Pos
 
 /*!\brief 3D provider based on CubeSampling */
 
-mClass RangeProvider3D : public Provider3D
+mClass(General) RangeProvider3D : public Provider3D
 {
 public:
 
@@ -76,7 +77,7 @@ Can only be used if Line2DData is filled.
 
  */
 
-mClass RangeProvider2D : public Provider2D
+mClass(General) RangeProvider2D : public Provider2D
 {
 public:
 
@@ -131,3 +132,4 @@ public:
 } // namespace
 
 #endif
+

@@ -6,11 +6,12 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          December 2004
-RCS:           $Id: cubicbeziersurface.h,v 1.13 2011-04-22 13:28:56 cvsbert Exp $
+RCS:           $Id: cubicbeziersurface.h,v 1.14 2012-08-03 13:00:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "geometrymod.h"
 #include "parametricsurface.h"
 
 template <class T> class TypeSet;
@@ -19,7 +20,7 @@ class Line3;
 namespace Geometry
 {
 
-mClass CubicBezierSurfacePatch
+mClass(Geometry) CubicBezierSurfacePatch
 {
 public:
 			CubicBezierSurfacePatch(
@@ -50,7 +51,7 @@ public:
 
 
 
-mClass CubicBezierSurface : public ParametricSurface
+mClass(Geometry) CubicBezierSurface : public ParametricSurface
 {
 public:
     			CubicBezierSurface( const RowCol& step=RowCol(1,1));
@@ -112,3 +113,4 @@ protected:
 };
 
 #endif
+

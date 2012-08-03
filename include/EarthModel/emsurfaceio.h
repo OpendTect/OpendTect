@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.41 2012-08-02 09:20:43 cvssatyaki Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.42 2012-08-03 13:00:20 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "bufstringset.h"
 #include "emposid.h"
 #include "executor.h"
@@ -41,7 +42,7 @@ Surface Reader.
 
 */
 
-mClass dgbSurfaceReader : public ExecutorGroup
+mClass(EarthModel) dgbSurfaceReader : public ExecutorGroup
 {
 public:
 			dgbSurfaceReader(const IOObj& ioobj,
@@ -235,7 +236,7 @@ Surface Writer.
 
 */
 
-mClass dgbSurfaceWriter : public ExecutorGroup
+mClass(EarthModel) dgbSurfaceWriter : public ExecutorGroup
 {
 public:
 			dgbSurfaceWriter( const IOObj* ioobj,
@@ -362,4 +363,5 @@ protected:
 };
 
 #endif
+
 

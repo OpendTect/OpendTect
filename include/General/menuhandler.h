@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.21 2012-04-09 22:11:37 cvsnanne Exp $
+ RCS:           $Id: menuhandler.h,v 1.22 2012-08-03 13:00:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "refcount.h"
 #include "position.h"
 #include "callback.h"
@@ -20,7 +21,7 @@ class BufferStringSet;
 class MenuItem;
 class MenuHandler;
 
-mClass MenuItemHolder : public CallBacker
+mClass(General) MenuItemHolder : public CallBacker
 {
 public:
     				MenuItemHolder();
@@ -68,7 +69,7 @@ private:
 
 /*!A generic representation of an item in a menu. */
 
-mClass MenuItem : public MenuItemHolder
+mClass(General) MenuItem : public MenuItemHolder
 {
 public:
     				MenuItem(const char* text=0,int placement=-1);
@@ -97,7 +98,7 @@ public:
 };
 
 
-mClass SeparatorItem : public MenuItem
+mClass(General) SeparatorItem : public MenuItem
 {
 public:
 				SeparatorItem(int plmnt=-1)
@@ -166,7 +167,7 @@ inserted into the menu.
     \endcode
 */
     
-mClass MenuHandler : public MenuItemHolder
+mClass(General) MenuHandler : public MenuItemHolder
 {				mRefCountImpl(MenuHandler);
 public:
     				MenuHandler( int id );
@@ -215,7 +216,7 @@ protected:
      by an inheriting object in the shouldAddMenu(), shouldBeEnabled() and
      shouldBeChecked() functions. */
 
-mClass MenuItemHandler : public CallBacker
+mClass(General) MenuItemHandler : public CallBacker
 {
 public:
 			MenuItemHandler(MenuHandler&,const char* nm,
@@ -291,3 +292,4 @@ mAddMenuItemWithManageFlag( parent, item, true, enab, check )
 	    item, enab, check )
 
 #endif
+

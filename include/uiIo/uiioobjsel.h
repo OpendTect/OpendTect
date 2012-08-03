@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.71 2012-02-17 23:08:40 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.72 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 #include "uiiosel.h"
 #include "ctxtioobj.h"
@@ -30,7 +31,7 @@ class uiListBox;
 /*! \brief Dialog letting the user select an object.
            It returns an IOObj* after successful go(). */
 
-mClass uiIOObjRetDlg : public uiDialog
+mClass(uiIo) uiIOObjRetDlg : public uiDialog
 {
 public:
 
@@ -46,7 +47,7 @@ public:
 /*! \brief Basic group for letting the user select an object. It 
 	   can be used standalone in a dialog, or as a part of dialogs. */
 
-mClass uiIOObjSelGrp : public uiGroup
+mClass(uiIo) uiIOObjSelGrp : public uiGroup
 {
 public:
 				uiIOObjSelGrp(uiParent*,const CtxtIOObj& ctio,
@@ -125,7 +126,7 @@ protected:
 
 /*! \brief Dialog for selection of IOObjs */
 
-mClass uiIOObjSelDlg : public uiIOObjRetDlg
+mClass(uiIo) uiIOObjSelDlg : public uiIOObjRetDlg
 {
 public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
@@ -159,11 +160,11 @@ true. This is the default. Thus, you can simply do, in acceptOK():
 
 */
 
-mClass uiIOObjSel : public uiIOSelect
+mClass(uiIo) uiIOObjSel : public uiIOSelect
 {
 public:
 
-    mClass Setup : public uiIOSelect::Setup
+    mClass(uiIo) Setup : public uiIOSelect::Setup
     {
     public:
 			Setup( const char* seltext=0 )
@@ -254,3 +255,4 @@ default).
 
 
 #endif
+

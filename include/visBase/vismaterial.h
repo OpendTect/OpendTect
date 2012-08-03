@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.20 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: vismaterial.h,v 1.21 2012-08-03 13:01:25 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visdata.h"
 #include "color.h"
 
@@ -26,7 +27,7 @@ namespace visBase
 
 */
 
-mClass Material : public DataObject
+mClass(visBase) Material : public DataObject
 {
 public:
     static Material*	create()
@@ -101,3 +102,4 @@ protected:
 
 
 #endif
+

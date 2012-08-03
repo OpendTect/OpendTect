@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          January 2006
- RCS:           $Id: uihorizonsortdlg.h,v 1.9 2010-08-27 04:58:09 cvsraman Exp $
+ RCS:           $Id: uihorizonsortdlg.h,v 1.10 2012-08-03 13:00:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "cubesampling.h"
 #include "multiid.h"
@@ -22,7 +23,7 @@ namespace EM { class Horizon; }
 class IOPar;
 class uiSurfaceSel;
 
-mClass uiHorizonSortDlg : public uiDialog
+mClass(uiEarthModel) uiHorizonSortDlg : public uiDialog
 {
 public:
 
@@ -59,3 +60,4 @@ protected:
 };
 
 #endif
+

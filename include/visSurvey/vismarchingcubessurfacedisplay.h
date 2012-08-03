@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.33 2012-04-27 19:55:46 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.34 2012-08-03 13:01:28 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "vissurveymod.h"
 #include "attribsel.h"
 #include "emposid.h"
 #include "visobject.h"
@@ -28,7 +29,7 @@ namespace visSurvey
 {
 
 
-mClass MarchingCubesDisplay : public visBase::VisualObjectImpl,
+mClass(visSurvey) MarchingCubesDisplay : public visBase::VisualObjectImpl,
 			      public visSurvey::SurveyObject
 {
 public:
@@ -139,3 +140,4 @@ protected:
 
 
 #endif
+

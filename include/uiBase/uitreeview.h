@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.48 2012-05-23 22:32:20 cvsnanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.49 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uiobj.h"
 #include "bufstringset.h"
 #include "keyenum.h"
@@ -24,7 +25,7 @@ class uiListViewBody;
 class uiListViewItem;
 class ioPixmap;
 
-mClass uiListView : public uiObject
+mClass(uiBase) uiListView : public uiObject
 {
 public:
 			uiListView(uiParent* parnt,
@@ -171,13 +172,13 @@ private:
 
 */
 
-mClass uiListViewItem : public CallBacker
+mClass(uiBase) uiListViewItem : public CallBacker
 {
 public:
 
     enum			Type { Standard, CheckBox };
 
-    mClass Setup
+    mClass(uiBase) Setup
     {
     public:
 				Setup( const char* txt=0, 
@@ -314,3 +315,4 @@ protected:
 };
 
 #endif
+

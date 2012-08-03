@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.h,v 1.10 2011-12-08 16:37:54 cvskris Exp $
+ RCS:           $Id: uiscenepropdlg.h,v 1.11 2012-08-03 13:01:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uivismod.h"
 #include "uidialog.h"
 #include "color.h"
 
@@ -24,7 +25,7 @@ namespace visSurvey { class Scene; }
 
 /*! Dialog for scene properties. */
 
-mClass uiScenePropertyDlg : public uiDialog
+mClass(uiVis) uiScenePropertyDlg : public uiDialog
 {
 public:
 			uiScenePropertyDlg(uiParent*,const 
@@ -65,3 +66,4 @@ protected:
 };
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.54 2011-04-26 13:25:48 cvsbert Exp $
+ RCS:           $Id: attriboutput.h,v 1.55 2012-08-03 13:00:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "attributeenginemod.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
 #include "ranges.h"
@@ -36,7 +37,7 @@ class DataHolder;
 class DataCubes;
 class Data2DHolder;
 
-mClass Output
+mClass(AttributeEngine) Output
 { mRefCountImpl(Output);
 public:
     				Output();
@@ -91,7 +92,7 @@ protected:
     				{ return Output::getLocalZRanges(t,f,ts); }
 
 
-mClass DataCubesOutput : public Output
+mClass(AttributeEngine) DataCubesOutput : public Output
 {
 public:
 				DataCubesOutput(const CubeSampling&);
@@ -126,7 +127,7 @@ protected:
 };
 
 
-mClass SeisTrcStorOutput : public Output
+mClass(AttributeEngine) SeisTrcStorOutput : public Output
 {
 public:
 				SeisTrcStorOutput(const CubeSampling&,
@@ -191,7 +192,7 @@ public:
 };
 
 
-mClass Trc2DVarZStorOutput : public SeisTrcStorOutput
+mClass(AttributeEngine) Trc2DVarZStorOutput : public SeisTrcStorOutput
 {
 public:
 				Trc2DVarZStorOutput(const LineKey&,
@@ -223,7 +224,7 @@ protected:
 };
 
 
-mClass TwoDOutput : public Output
+mClass(AttributeEngine) TwoDOutput : public Output
 {
 public:
 				TwoDOutput(const Interval<int>&, 
@@ -254,7 +255,7 @@ protected:
 };
 
 
-mClass LocationOutput : public Output
+mClass(AttributeEngine) LocationOutput : public Output
 {
 public:
     				LocationOutput(BinIDValueSet&);
@@ -287,7 +288,7 @@ protected:
 };
 
 
-mClass TrcSelectionOutput : public Output
+mClass(AttributeEngine) TrcSelectionOutput : public Output
 {
 public:
     				TrcSelectionOutput(const BinIDValueSet&, 
@@ -315,7 +316,7 @@ protected:
 };
 
 
-mClass TableOutput : public Output
+mClass(AttributeEngine) TableOutput : public Output
 {
 public:
     				TableOutput(DataPointSet&,int);
@@ -358,3 +359,4 @@ protected:
 
 
 #endif
+

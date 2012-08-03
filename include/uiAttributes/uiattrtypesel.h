@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Oct 2006
- RCS:           $Id: uiattrtypesel.h,v 1.5 2010-12-03 15:41:28 cvshelene Exp $
+ RCS:           $Id: uiattrtypesel.h,v 1.6 2012-08-03 13:00:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
 
@@ -23,7 +24,7 @@ class uiComboBox;
 
   */
 
-mClass uiAttrTypeSel : public uiGroup
+mClass(uiAttributes) uiAttrTypeSel : public uiGroup
 {
 public:
 				uiAttrTypeSel(uiParent*,bool sorted=true);
@@ -66,3 +67,4 @@ protected:
 
 
 #endif
+

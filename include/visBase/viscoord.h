@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.30 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: viscoord.h,v 1.31 2012-08-03 13:01:23 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
+#include "visbasemod.h"
 #include "callback.h"
 #include "positionlist.h"
 #include "thread.h"
@@ -37,7 +38,7 @@ getPos.
 set
 */
 
-mClass Coordinates : public DataObject
+mClass(visBase) Coordinates : public DataObject
 {
 public:
 
@@ -108,7 +109,7 @@ protected:
 /*!Adapter between a CoordList and Coordinates. */
 
 
-mClass CoordListAdapter : public Coord3List
+mClass(visBase) CoordListAdapter : public Coord3List
 {
 public:
     		CoordListAdapter(Coordinates&);
@@ -131,3 +132,4 @@ protected:
 };
 
 #endif
+

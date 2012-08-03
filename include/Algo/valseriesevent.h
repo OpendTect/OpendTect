@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.18 2011-02-09 14:03:44 cvshelene Exp $
+ RCS:		$Id: valseriesevent.h,v 1.19 2012-08-03 13:00:06 cvskris Exp $
 ________________________________________________________________________
 
 */
 
+#include "algomod.h"
 #include "enums.h"
 #include "mathfunc.h"
 #include "ptrman.h"
@@ -19,7 +20,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "valseries.h"
 
-mClass VSEvent
+mClass(Algo) VSEvent
 {
 public:
     enum Type	{ None, Extr, Max, Min, ZC, ZCNegPos, ZCPosNeg,
@@ -411,3 +412,4 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 #undef mDecrOccAtZero
 
 #endif
+

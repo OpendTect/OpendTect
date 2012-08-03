@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          June 2008
- RCS:           $Id: uiexport2dhorizon.h,v 1.7 2011-09-07 12:04:49 cvsbert Exp $
+ RCS:           $Id: uiexport2dhorizon.h,v 1.8 2012-08-03 13:00:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "uidialog.h"
 class SurfaceInfo;
 class uiListBox;
@@ -23,7 +24,7 @@ class uiFileInput;
 
 /*! \brief Dialog for 2D horizon export */
 
-mClass uiExport2DHorizon : public uiDialog
+mClass(uiEarthModel) uiExport2DHorizon : public uiDialog
 {
 public:
 			uiExport2DHorizon(uiParent*,
@@ -50,3 +51,4 @@ protected:
 
 
 #endif
+

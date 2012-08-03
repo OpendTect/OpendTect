@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: vistexture3viewer.h,v 1.15 2010-08-19 08:21:10 cvsranojay Exp $
+ RCS:           $Id: vistexture3viewer.h,v 1.16 2012-08-03 13:01:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "visbasemod.h"
 #include "visobject.h"
 #include "sets.h"
 
@@ -29,7 +30,7 @@ namespace visBase
 {
 class Texture3;
 
-mClass Texture3ViewerObject : public VisualObjectImpl
+mClass(visBase) Texture3ViewerObject : public VisualObjectImpl
 {
 public:
     				Texture3ViewerObject( bool sel=true )
@@ -48,7 +49,7 @@ direction can be cut through the texture. The positions of the object in
 in front of it.
 */
 
-mClass Texture3Viewer : public VisualObjectImpl
+mClass(visBase) Texture3Viewer : public VisualObjectImpl
 {
 public:
     static Texture3Viewer*	create()
@@ -79,7 +80,7 @@ protected:
 };
 
 
-mClass Texture3Slice : public Texture3ViewerObject
+mClass(visBase) Texture3Slice : public Texture3ViewerObject
 {
 public:
     static Texture3Slice*	create()
@@ -104,7 +105,7 @@ protected:
 };
 
 
-mClass MovableTextureSlice : public Texture3ViewerObject
+mClass(visBase) MovableTextureSlice : public Texture3ViewerObject
 {
 public:
     static MovableTextureSlice*	create()
@@ -139,3 +140,4 @@ protected:
 };
 	
 #endif
+

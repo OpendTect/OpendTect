@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.28 2012-03-28 08:02:19 cvssatyaki Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.29 2012-08-03 13:00:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mpeenginemod.h"
 #include "emseedpicker.h"
 
 class FaultTrcDataProvider;
@@ -21,7 +22,7 @@ namespace Attrib { class SelSpec; }
 namespace MPE
 {
 
-mClass Horizon3DSeedPicker : public EMSeedPicker
+mClass(MPEEngine) Horizon3DSeedPicker : public EMSeedPicker
 {
 public:
     			Horizon3DSeedPicker(MPE::EMTracker&);
@@ -124,3 +125,4 @@ private:
 };
 
 #endif
+

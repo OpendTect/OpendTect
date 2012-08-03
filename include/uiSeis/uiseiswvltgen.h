@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltgen.h,v 1.11 2011-04-27 10:13:18 cvsbert Exp $
+ RCS:           $Id: uiseiswvltgen.h,v 1.12 2012-08-03 13:01:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uidialog.h"
 #include "multiid.h"
 #include "bufstringset.h"
@@ -25,7 +26,7 @@ class uiIOObjSel;
 class uiFuncSelDraw;
 
 
-mClass uiSeisWvltCreate : public uiDialog
+mClass(uiSeis) uiSeisWvltCreate : public uiDialog
 {
 public:
 			uiSeisWvltCreate(uiParent*,uiDialog::Setup);
@@ -42,7 +43,7 @@ protected:
 };
 
 
-mClass uiSeisWvltGen : public uiSeisWvltCreate
+mClass(uiSeis) uiSeisWvltGen : public uiSeisWvltCreate
 {
 public:
 			uiSeisWvltGen(uiParent*);
@@ -59,11 +60,11 @@ protected:
 };
 
 
-mClass uiSeisWvltMerge : public uiSeisWvltCreate
+mClass(uiSeis) uiSeisWvltMerge : public uiSeisWvltCreate
 {
 public:
 
-    mClass WvltMathFunction : public FloatMathFunction
+    mClass(uiSeis) WvltMathFunction : public FloatMathFunction
     {
     public:
 			WvltMathFunction(const Wavelet*);
@@ -112,3 +113,4 @@ protected:
 
 
 #endif
+

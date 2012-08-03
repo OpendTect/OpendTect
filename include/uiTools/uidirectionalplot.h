@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.17 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.18 2012-08-03 13:01:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
+#include "uitoolsmod.h"
 #include "uigraphicsview.h"
 #include "statdirdata.h"
 #include "draw.h"
@@ -36,11 +38,11 @@ namespace ColTab { class Sequence; }
 
  */
 
-mClass uiDirectionalPlot : public uiGraphicsView
+mClass(uiTools) uiDirectionalPlot : public uiGraphicsView
 {
 public:
 
-    mStruct Setup
+    mStruct(uiTools) Setup
     {
 	enum Type		{ Rose, Scatter, Vals };
 				Setup( Type t=Rose )
@@ -150,3 +152,5 @@ protected:
 
 
 #endif
+
+

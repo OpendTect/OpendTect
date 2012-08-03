@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.124 2012-08-02 14:49:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.125 2012-08-03 13:01:34 cvskris Exp $";
 
 #include "genc.h"
 #include "string2_c.h"
@@ -31,10 +31,10 @@ static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.124 2012-08-02 14:49:14 c
 #endif
 
 static int insysadmmode_ = 0;
-mGlobal int InSysAdmMode(void);
-mGlobal int InSysAdmMode(void) { return insysadmmode_; }
-mGlobal void SetInSysAdmMode(void);
-mGlobal void SetInSysAdmMode(void) { insysadmmode_ = 1; }
+mGlobal( Basic ) int InSysAdmMode(void);
+mGlobal( Basic ) int InSysAdmMode(void) { return insysadmmode_; }
+mGlobal( Basic ) void SetInSysAdmMode(void);
+mGlobal( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
 
 #ifdef __win__
 const char* GetLocalIP(void)
@@ -128,8 +128,8 @@ void NotifyExitProgram( PtrAllVoidFn fn )
 }
 
 
-mGlobal void forkProcess(void);
-mGlobal void forkProcess(void)
+mGlobal( Basic ) void forkProcess(void);
+void forkProcess(void)
 {
 #ifndef __win__
     switch ( fork() )

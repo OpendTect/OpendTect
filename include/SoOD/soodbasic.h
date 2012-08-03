@@ -6,10 +6,12 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2009
- RCS:           $Id: soodbasic.h,v 1.8 2012-07-18 09:56:51 cvskris Exp $
+ RCS:           $Id: soodbasic.h,v 1.9 2012-08-03 13:00:42 cvskris Exp $
  ________________________________________________________________________
 
 -*/
+
+#include "soodmod.h"
 
 #if defined( __win64__ ) || defined ( __win32__ )
 # define __win__ 1
@@ -30,43 +32,22 @@
 #endif
 #endif
 
-
-#if defined(__win__)
-# if defined(SOOD_EXPORTS) || defined(SoOD_EXPORTS)
-#  define Export_SoOD __declspec( dllexport )
-# else
-#  define Export_SoOD __declspec( dllimport )
-# endif
-#else
-# define Export_SoOD
-#endif
-
-#if defined(__win__)
-# if defined(SOOD_EXPORTS) || defined(SoOD_EXPORTS)
-#  define dll_export __declspec( dllexport )
-# endif
-#else
-# ifndef dll_export
-#  define dll_export
-# endif
-#endif
-
-
-
 # define mExportClass( module ) class Export_##module
 
 
-#ifndef mClass
-# define mClass class dll_export
+#ifndef mGlobal
+# define mGlobal( module ) 		Export_##module
 #endif
 
-#ifndef mGlobal
-# define mGlobal dll_export
+#ifndef mClass
+# define mClass( module )		class mGlobal( module )
 #endif
+
 
 #ifndef mExternC
-#define mExternC	extern "C" dll_export
+#define mExternC( module )		extern "C" mGlobal( module )
 #endif
 
 
 #endif
+

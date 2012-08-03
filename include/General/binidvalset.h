@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.30 2012-05-08 13:03:12 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.31 2012-08-03 13:00:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "position.h"
 #include "sets.h"
 #include "ranges.h"
@@ -57,7 +58,7 @@ class HorSampling;
  */
 
 
-mClass BinIDValueSet
+mClass(General) BinIDValueSet
 {
 public:
 
@@ -233,3 +234,4 @@ protected:
 
 
 #endif
+

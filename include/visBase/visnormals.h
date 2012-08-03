@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.18 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visnormals.h,v 1.19 2012-08-03 13:01:25 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "visbasemod.h"
 #include "visdata.h"
 #include "positionlist.h"
 
@@ -30,7 +31,7 @@ namespace visBase
 
 */
 
-mClass Normals : public DataObject
+mClass(visBase) Normals : public DataObject
 {
 public:
     static Normals*	create()
@@ -72,7 +73,7 @@ protected:
     			
 };
 
-mClass NormalListAdapter : public Coord3List
+mClass(visBase) NormalListAdapter : public Coord3List
 {
 public:
     		NormalListAdapter(Normals& n )
@@ -99,4 +100,5 @@ protected:
 };
 
 #endif
+
 

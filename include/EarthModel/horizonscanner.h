@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.17 2009-09-03 11:38:12 cvsumesh Exp $
+ RCS:		$Id: horizonscanner.h,v 1.18 2012-08-03 13:00:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "earthmodelmod.h"
 #include "executor.h"
 #include "bufstringset.h"
 #include "ranges.h"
@@ -22,7 +23,7 @@ namespace EM { class Horizon3DAscIO; }
 namespace Table { class FormatDesc; }
 namespace PosInfo { class Detector; }
 
-mClass HorizonScanner : public Executor
+mClass(EarthModel) HorizonScanner : public Executor
 {
 public:
 
@@ -81,3 +82,4 @@ protected:
 
 
 #endif
+

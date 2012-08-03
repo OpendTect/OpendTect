@@ -7,17 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibaseobject.h,v 1.9 2012-07-27 14:38:40 cvsjaap Exp $
+ RCS:           $Id: uibaseobject.h,v 1.10 2012-08-03 13:00:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "namedobj.h"
 
 class uiBody;
 class QWidget;
 
-mClass uiBaseObject : public NamedObject
+mClass(uiBase) uiBaseObject : public NamedObject
 {
 public:
 				uiBaseObject(const char* nm, uiBody* = 0);
@@ -80,7 +81,7 @@ using this annotation unnecessarily.
 
 #define mBlockCmdRec		CmdRecStopper cmdrecstopper(this);
 
-mClass CmdRecStopper
+mClass(uiBase) CmdRecStopper
 {
 public:
     				CmdRecStopper(const uiBaseObject*);
@@ -89,3 +90,4 @@ public:
 
 
 #endif
+

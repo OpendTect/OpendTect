@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: segydirecttr.h,v 1.13 2011-03-25 15:02:34 cvsbert Exp $
+ RCS:		$Id: segydirecttr.h,v 1.14 2012-08-03 13:00:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
 #include "seispsread.h"
 #include "seispsioprov.h"
 #include "seistrctr.h"
@@ -25,7 +26,7 @@ class SEGYSeisTrcTranslator;
 namespace SEGY
 {
 
-mClass DirectReader
+mClass(Seis) DirectReader
 {
 public:
 
@@ -50,7 +51,7 @@ protected:
 
 /*!\brief reads from 3D PS data store reader based on SEG-Y files */
 
-mClass SEGYDirect3DPSReader : public ::SeisPS3DReader
+mClass(Seis) SEGYDirect3DPSReader : public ::SeisPS3DReader
 			    , public SEGY::DirectReader
 {
 public:
@@ -81,7 +82,7 @@ protected:
 
 /*!\brief reads from 2D PS data store reader based on SEG-Y files */
 
-mClass SEGYDirect2DPSReader : public SeisPS2DReader
+mClass(Seis) SEGYDirect2DPSReader : public SeisPS2DReader
 			    , public SEGY::DirectReader
 {
 public:
@@ -110,7 +111,7 @@ protected:
 
 
 
-mClass SEGYDirectSeisPS3DTranslator : public SeisPS3DTranslator
+mClass(Seis) SEGYDirectSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(SEGYDirect,SeisPS3D)
 public:
     			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS3D)
@@ -122,7 +123,7 @@ public:
 };
 
 
-mClass SEGYDirectSeisPS2DTranslator : public SeisPS2DTranslator
+mClass(Seis) SEGYDirectSeisPS2DTranslator : public SeisPS2DTranslator
 {			       isTranslator(SEGYDirect,SeisPS2D)
 public:
     			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS2D)
@@ -132,7 +133,7 @@ public:
 };
 
 
-mClass SEGYDirectSeisTrcTranslator : public SeisTrcTranslator
+mClass(Seis) SEGYDirectSeisTrcTranslator : public SeisTrcTranslator
 				   , public SEGY::DirectReader
 {			isTranslator(SEGYDirect,SeisTrc)
 public:
@@ -180,3 +181,4 @@ protected:
 
 
 #endif
+

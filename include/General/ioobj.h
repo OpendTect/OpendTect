@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.36 2012-08-01 09:37:35 cvsmahant Exp $
+ RCS:		$Id: ioobj.h,v 1.37 2012-08-03 13:00:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
  
+#include "generalmod.h"
 #include "conn.h"
 #include "multiid.h"
 #include "namedobj.h"
@@ -25,7 +26,7 @@ class Translator;
 
 /*\brief factory entry for IOObjs. Should deliver IOObj of certain type. */
 
-mClass IOObjProducer
+mClass(General) IOObjProducer
 {
 public:
 
@@ -52,7 +53,7 @@ fullUserExpr().
 */
 
 
-mClass IOObj : public NamedObject
+mClass(General) IOObj : public NamedObject
 {
 public:
 
@@ -139,8 +140,9 @@ public:
 
 };
 
-mGlobal bool equalIOObj(const MultiID&,const MultiID&);
-mGlobal bool areEqual(const IOObj*,const IOObj*);
-mGlobal bool fullImplRemove(const IOObj&);
+mGlobal(General) bool equalIOObj(const MultiID&,const MultiID&);
+mGlobal(General) bool areEqual(const IOObj*,const IOObj*);
+mGlobal(General) bool fullImplRemove(const IOObj&);
 
 #endif
+

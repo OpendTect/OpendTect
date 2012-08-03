@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.21 2011-05-02 06:14:48 cvsumesh Exp $
+ RCS:           $Id: sectionextender.h,v 1.22 2012-08-03 13:00:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mpeenginemod.h"
 #include "factory.h"
 #include "task.h"
 #include "emposid.h"
@@ -33,7 +34,7 @@ namespace MPE
 
 class SectionSourceSelector;
 
-mClass SectionExtender : public SequentialTask
+mClass(MPEEngine) SectionExtender : public SequentialTask
 {
 public:
     				SectionExtender(const EM::SectionID& si = -1);
@@ -94,3 +95,4 @@ mDefineFactory2Param( SectionExtender, EM::EMObject*, const EM::SectionID&,
 }; //namespace MPE
 
 #endif
+

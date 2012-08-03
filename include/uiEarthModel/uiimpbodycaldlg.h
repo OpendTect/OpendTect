@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          April 2012
- RCS:           $Id: uiimpbodycaldlg.h,v 1.1 2012-04-18 15:25:21 cvsyuancheng Exp $
+ RCS:           $Id: uiimpbodycaldlg.h,v 1.2 2012-08-03 13:00:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "uidialog.h"
 
 class uiGenInput;
@@ -20,7 +21,7 @@ namespace EM	{ class Body; class ImplicitBody; }
 
 /*! \brief UI for volume calculation of implicit body */
 
-mClass uiImplBodyCalDlg : public uiDialog
+mClass(uiEarthModel) uiImplBodyCalDlg : public uiDialog
 {
 public:
 			uiImplBodyCalDlg(uiParent*,const EM::Body&);
@@ -39,3 +40,4 @@ protected:
 
 
 #endif
+

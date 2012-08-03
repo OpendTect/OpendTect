@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratextlayseqgendesc.h,v 1.1 2012-01-17 15:17:01 cvsbert Exp $
+ RCS:           $Id: uistratextlayseqgendesc.h,v 1.2 2012-08-03 13:01:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uistratmod.h"
 #include "uistratlayseqgendesc.h"
 #include "uigraphicsview.h"
 #include "property.h"
@@ -23,7 +24,7 @@ namespace Strat { class LayerSequenceGenDesc; }
 /*!\brief Base class for external LayerSequenceGenDesc editors, i.e.
   editors that are not also Layer Model displayers. */
 
-mClass uiExtLayerSequenceGenDesc : public uiGraphicsView
+mClass(uiStrat) uiExtLayerSequenceGenDesc : public uiGraphicsView
 				 , public uiLayerSequenceGenDesc
 {
 public:
@@ -69,3 +70,4 @@ public: \
     
 
 #endif
+

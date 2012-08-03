@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uimathexpression.h,v 1.3 2012-02-03 14:16:01 cvsbert Exp $
+ RCS:           $Id: uimathexpression.h,v 1.4 2012-08-03 13:01:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uigroup.h"
 class uiLineEdit;
 class uiComboBox;
@@ -20,11 +21,11 @@ class uiToolButton;
 class uiToolButtonSetup;
 
 
-mClass uiMathExpression : public uiGroup
+mClass(uiTools) uiMathExpression : public uiGroup
 {
 public:
 
-    mClass Setup
+    mClass(uiTools) Setup
     {
     public:
 			Setup( const char* lbl=0 )
@@ -72,3 +73,4 @@ protected:
 
 
 #endif
+

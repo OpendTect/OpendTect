@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.74 2012-04-04 10:14:46 cvsbert Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.75 2012-08-03 13:00:18 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "emhorizon.h"
 #include "binidsurface.h"
 #include "tableascio.h"
@@ -33,7 +34,7 @@ namespace Pos { class Provider3D; }
 namespace EM
 {
 
-mClass Horizon3DGeometry : public HorizonGeometry
+mClass(EarthModel) Horizon3DGeometry : public HorizonGeometry
 {
 public:
 				Horizon3DGeometry(Surface&);
@@ -86,7 +87,7 @@ The grids are defined by knot-points in a matrix and the fillstyle inbetween
 the knots.
 */
 
-mClass Horizon3D : public Horizon
+mClass(EarthModel) Horizon3D : public Horizon
 { mDefineEMObjFuncs( Horizon3D );
 public:
 
@@ -135,7 +136,7 @@ protected:
 };
 
 
-mClass Horizon3DAscIO : public Table::AscIO
+mClass(EarthModel) Horizon3DAscIO : public Table::AscIO
 {
 public:
     				Horizon3DAscIO( const Table::FormatDesc& fd,
@@ -168,3 +169,4 @@ protected:
 } // namespace EM
 
 #endif
+

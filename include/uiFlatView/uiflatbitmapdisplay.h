@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatbitmapdisplay.h,v 1.5 2012-07-13 09:51:28 cvsbruno Exp $
+ RCS:           $Id: uiflatbitmapdisplay.h,v 1.6 2012-08-03 13:00:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiflatviewmod.h"
 #include "datapack.h"
 
 #include "array2dbitmap.h"
@@ -34,7 +35,7 @@ class Viewer;
 
 /*Takes the flat-data from a flatviewer and puts it into a uiGraphicsItem */
 
-mClass uiBitMapDisplay : public CallBacker
+mClass(uiFlatView) uiBitMapDisplay : public CallBacker
 {
 public:
     			uiBitMapDisplay(Viewer&);
@@ -77,3 +78,4 @@ protected:
 
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2010
- RCS:		$Id: stratlayer.h,v 1.17 2012-03-30 12:30:27 cvsbert Exp $
+ RCS:		$Id: stratlayer.h,v 1.18 2012-08-03 13:00:42 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "stratmod.h"
 #include "stratcontent.h"
 #include "compoundkey.h"
 #include "typeset.h"
@@ -33,7 +34,7 @@ class Lithology;
  
  */
 
-mClass Layer
+mClass(Strat) Layer
 {
 public:
 
@@ -80,3 +81,4 @@ protected:
 }; // namespace Strat
 
 #endif
+

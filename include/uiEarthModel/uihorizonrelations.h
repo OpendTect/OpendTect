@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.h,v 1.6 2010-09-06 04:55:47 cvsraman Exp $
+ RCS:		$Id: uihorizonrelations.h,v 1.7 2012-08-03 13:00:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "uidialog.h"
 
 #include "bufstringset.h"
@@ -21,7 +22,7 @@ class uiLabeledListBox;
 class uiPushButton;
 class BufferStringSet;
 
-mClass uiHorizonRelationsDlg : public uiDialog
+mClass(uiEarthModel) uiHorizonRelationsDlg : public uiDialog
 {
 public:
 			uiHorizonRelationsDlg(uiParent*,bool is2d);
@@ -43,3 +44,4 @@ protected:
 };
 
 #endif
+

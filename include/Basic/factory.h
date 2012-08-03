@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.26 2012-05-07 11:17:58 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.27 2012-08-03 13:00:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "bufstringset.h"
 #include "staticstring.h"
 #include "ptrman.h"
 #include "errh.h"
 
 //!Helper class for Factories, Factories are defined later in this file
-mClass FactoryBase
+mClass(Basic) FactoryBase
 {
 public:
     virtual			~FactoryBase();
@@ -97,7 +98,7 @@ mImplFactory( ClassName, FunctionName );
 
 
 template <class T>
-mClass Factory : public FactoryBase
+mClass(Basic) Factory : public FactoryBase
 {
 public:
     typedef			T* (*Creator)();
@@ -154,22 +155,22 @@ public:
 
 Two macros are available to make a static accessfuncion for the factory:
 \code
-mDefineFactory1Param( ClassName, ParamClass, FunctionName );
+mDefineFactory1Param( ClassName, ParamClass(Basic), FunctionName );
 \endcode
 
 that will create a static function that returns an instance to
-Factory1Param<ClassName,ParamClass>. The static function must be implemented
+Factory1Param<ClassName,ParamClass(Basic)>. The static function must be implemented
 in a src-file with the macro
 
 \code
-mImplFactory1Param( ClassName, ParamClass, FunctionName );
+mImplFactory1Param( ClassName, ParamClass(Basic), FunctionName );
 \endcode
 
 */
 
 
 template <class T, class P>
-mClass Factory1Param : public FactoryBase
+mClass(Basic) Factory1Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P);
@@ -191,7 +192,7 @@ protected:
 
 
 template <class T, class P0, class P1>
-mClass Factory2Param : public FactoryBase
+mClass(Basic) Factory2Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P0,P1);
@@ -214,7 +215,7 @@ protected:
 
 
 template <class T, class P0, class P1, class P2>
-mClass Factory3Param : public FactoryBase
+mClass(Basic) Factory3Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P0,P1,P2);
@@ -366,7 +367,7 @@ T* Factory3Param<T,P0,P1,P2>::create( const char* name, P0 p0, P1 p1, P2 p2,
 
 
 #define mDefineFactory( T, funcname ) \
-mGlobal ::Factory<T>& funcname()
+mGlobal(Basic) ::Factory<T>& funcname()
 
 
 #define mDefineFactoryInClass( T, funcname ) \
@@ -384,7 +385,7 @@ virtual const char* factoryKeyword() const { return 0; }
 
 
 #define mDefineFactory1Param( T, P, funcname ) \
-mGlobal ::Factory1Param<T,P>& funcname()
+mGlobal(Basic) ::Factory1Param<T,P>& funcname()
 
 
 #define mDefineFactory1ParamInClass( T, P, funcname ) \
@@ -403,7 +404,7 @@ virtual const char* factoryKeyword() const { return 0; }
 
 
 #define mDefineFactory2Param( T, P0, P1, funcname ) \
-mGlobal ::Factory2Param<T,P0,P1>& funcname()
+mGlobal(Basic) ::Factory2Param<T,P0,P1>& funcname()
 
 
 #define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
@@ -422,7 +423,7 @@ virtual const char* factoryKeyword() const { return 0; }
 
 
 #define mDefineFactory3Param( T, P0, P1, P2, funcname ) \
-mGlobal ::Factory3Param<T,P0,P1,P2>& funcname()
+mGlobal(Basic) ::Factory3Param<T,P0,P1,P2>& funcname()
 
 
 #define mDefineFactory3ParamInClass( T, P0, P1, P2, funcname ) \
@@ -443,3 +444,4 @@ virtual const char* factoryKeyword() const { return 0; }
 #undef mAddCreator
 
 #endif
+

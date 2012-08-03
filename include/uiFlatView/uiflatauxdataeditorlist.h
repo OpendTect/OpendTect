@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          June 2007
- RCS:           $Id: uiflatauxdataeditorlist.h,v 1.8 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiflatauxdataeditorlist.h,v 1.9 2012-08-03 13:00:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiflatviewmod.h"
 #include "uigroup.h"
 #include "uimenuhandler.h"
 
@@ -24,7 +25,7 @@ namespace FlatView { class AuxDataEditor; }
 /*!A list with all auxdata in a FlatView::AuxDataEditor where the user
    can select which one should be active for new points. */
 
-mClass uiFlatViewAuxDataEditorList : public uiGroup
+mClass(uiFlatView) uiFlatViewAuxDataEditorList : public uiGroup
 {
 public:
 			uiFlatViewAuxDataEditorList(uiParent*);
@@ -76,3 +77,4 @@ protected:
 };
 
 #endif
+

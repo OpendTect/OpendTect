@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribfactory.h,v 1.9 2011-01-06 15:10:19 cvsbert Exp $
+ RCS:           $Id: attribfactory.h,v 1.10 2012-08-03 13:00:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "attributeenginemod.h"
 #include "sets.h"
 
 namespace Attrib
@@ -22,7 +23,7 @@ class Provider;
 
 typedef Provider* (*ProviderCreater)(Desc&);
 
-mClass ProviderFactory
+mClass(AttributeEngine) ProviderFactory
 {
 public:
 			ProviderFactory();
@@ -47,9 +48,10 @@ protected:
 
 };
 
-mGlobal extern ProviderFactory& PF();
+mGlobal(AttributeEngine) extern ProviderFactory& PF();
 
 }; //Namespace
 
 #endif
+
 

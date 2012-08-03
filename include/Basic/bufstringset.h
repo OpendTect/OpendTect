@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.25 2012-07-18 10:05:31 cvskris Exp $
+ RCS:		$Id: bufstringset.h,v 1.26 2012-08-03 13:00:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "bufstring.h"
 #include "manobjectset.h"
 class IOPar;
@@ -21,7 +22,7 @@ class GlobExpr;
 
 /*!\brief Set of BufferString objects */
 
-mClass BufferStringSet : public ManagedObjectSet<BufferString>
+mClass(Basic) BufferStringSet : public ManagedObjectSet<BufferString>
 {
 public:
     			BufferStringSet();
@@ -69,3 +70,4 @@ public:
 
 
 #endif
+

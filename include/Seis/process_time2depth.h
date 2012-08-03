@@ -7,15 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2009
- RCS:		$Id: process_time2depth.h,v 1.3 2010-10-07 06:35:33 cvsnanne Exp $
+ RCS:		$Id: process_time2depth.h,v 1.4 2012-08-03 13:00:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "seismod.h"
+
 //!Keys for od_process_time2depth.cc
 
-mClass ProcessTime2Depth
+mClass(Seis) ProcessTime2Depth
 {
 public:
 
@@ -27,3 +29,4 @@ public:
 
 
 #endif
+

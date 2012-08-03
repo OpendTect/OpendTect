@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.63 2012-02-24 14:11:48 cvsbert Exp $
+ RCS:           $Id: uidialog.h,v 1.64 2012-08-03 13:00:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uimainwin.h"
 #include "bufstring.h"
 #include "errh.h"
@@ -33,7 +34,7 @@ If you don't want to use the help system, simply pass null ('0').
 #define mNoDlgTitle	""
 
 
-mClass uiDialog : public uiMainWin
+mClass(uiBase) uiDialog : public uiMainWin
 { 	
     // impl: uimainwin.cc
     friend class	uiDialogBody;
@@ -45,7 +46,7 @@ public:
 	see general.h for background on Setup classes.
      */
 
-    mClass Setup
+    mClass(uiBase) Setup
     {
     public:
 
@@ -159,3 +160,4 @@ protected:
 };
 
 #endif
+

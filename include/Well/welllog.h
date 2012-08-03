@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.27 2012-03-01 12:54:51 cvsbert Exp $
+ RCS:		$Id: welllog.h,v 1.28 2012-08-03 13:00:45 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "wellmod.h"
 #include "welldahobj.h"
 #include "ranges.h"
 #include "iopar.h"
@@ -38,7 +39,7 @@ namespace Well
  
  */
 
-mClass Log : public DahObj
+mClass(Well) Log : public DahObj
 {
 public:
 
@@ -90,3 +91,4 @@ protected:
 }; // namespace Well
 
 #endif
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.105 2012-07-24 15:04:48 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.106 2012-08-03 13:01:36 cvskris Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -676,7 +676,7 @@ if ( datalist_->box()->isPresent(nm) );\
     mErrRet( "Name already exists, please select another name", return );\
 }
 
-mClass uiAddNewSynthDlg : public uiDialog
+class uiAddNewSynthDlg : public uiDialog
 {
 public:
     uiAddNewSynthDlg( uiParent* p, SynthGenParams& sgp )

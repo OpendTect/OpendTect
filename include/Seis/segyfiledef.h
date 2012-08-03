@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.18 2010-10-25 19:24:35 cvskris Exp $
+ RCS:		$Id: segyfiledef.h,v 1.19 2012-08-03 13:00:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
 #include "ranges.h"
 #include "bufstring.h"
 #include "position.h"
@@ -29,7 +30,7 @@ namespace SEGY
 
 /*\brief Base class for SEG-Y parameter classes  */
 
-mClass FileDef
+mClass(Seis) FileDef
 {
 public:
     static const char*	sKeySEGYRev();
@@ -40,7 +41,7 @@ public:
 
 /*\brief Definition of input and output file(s)  */
 
-mClass FileSpec
+mClass(Seis) FileSpec
 {
 public:
     			FileSpec( const char* fnm=0 )
@@ -73,7 +74,7 @@ public:
 
 /*\brief Parameters that control the primary read/write process */
 
-mClass FilePars
+mClass(Seis) FilePars
 {
 public:
     			FilePars( bool forread=true )
@@ -110,7 +111,7 @@ protected:
 
 /*\brief Options that control the actual read process */
 
-mClass FileReadOpts
+mClass(Seis) FileReadOpts
 {
 public:
     			FileReadOpts( Seis::GeomType gt=Seis::Vol )
@@ -174,3 +175,4 @@ protected:
 
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:           $Id: uiprestackattrib.h,v 1.12 2011-10-20 07:12:37 cvsbruno Exp $
+ RCS:           $Id: uiprestackattrib.h,v 1.13 2012-08-03 13:00:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 #include "datapack.h"
 
@@ -25,7 +26,7 @@ namespace PreStack { class uiProcSel; }
 
 /*! \brief PreStack Attribute ui */
 
-mClass uiPreStackAttrib : public uiAttrDescEd
+mClass(uiAttributes) uiPreStackAttrib : public uiAttrDescEd
 {
 public:
 
@@ -64,3 +65,4 @@ protected:
 };
 
 #endif
+

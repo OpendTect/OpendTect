@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: attribdataholderarray.h,v 1.6 2012-06-27 15:34:38 cvsyuancheng Exp $
+ RCS:		$Id: attribdataholderarray.h,v 1.7 2012-08-03 13:00:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "attributeenginemod.h"
 #include "arraynd.h"
 
 
@@ -20,7 +21,7 @@ namespace Attrib
 
 class DataHolder;
 
-mClass DataHolderArray : public Array3D<float>
+mClass(AttributeEngine) DataHolderArray : public Array3D<float>
 {
 public:
 			DataHolderArray(const ObjectSet<DataHolder>&,
@@ -46,3 +47,4 @@ protected:
 }
 
 #endif
+

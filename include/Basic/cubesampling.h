@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.38 2012-03-27 20:51:25 cvsnanne Exp $
+ RCS:           $Id: cubesampling.h,v 1.39 2012-08-03 13:00:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "horsampling.h"
 
 
@@ -30,7 +31,7 @@ ________________________________________________________________________
 
  */
 
-mClass CubeSampling
+mClass(Basic) CubeSampling
 {
 public:
 
@@ -121,3 +122,4 @@ inline int dimension( CubeSampling::Dir slctype, CubeSampling::Dir direction )
 
 
 #endif
+

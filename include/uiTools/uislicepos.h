@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uislicepos.h,v 1.11 2011-11-30 09:27:32 cvskris Exp $
+ RCS:           $Id: uislicepos.h,v 1.12 2012-08-03 13:01:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uiparent.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
@@ -23,7 +24,7 @@ class uiToolButton;
 
 /*! \brief Toolbar for setting slice position _ base class */
 
-mClass uiSlicePos : public CallBacker
+mClass(uiTools) uiSlicePos : public CallBacker
 {
 public:		
 			uiSlicePos(uiParent*);
@@ -71,3 +72,4 @@ protected:
 };
 
 #endif
+

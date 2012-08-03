@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003 / Sep 2010
- RCS:		$Id: stratunitref.h,v 1.44 2012-08-02 15:00:15 cvsbruno Exp $
+ RCS:		$Id: stratunitref.h,v 1.45 2012-08-03 13:00:43 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "stratmod.h"
 #include "compoundkey.h"
 #include "stratlevel.h"
 #include "enums.h"
@@ -36,7 +37,7 @@ class LeafUnitRef;
 
  */
 
-mClass UnitRef : public CallBacker
+mClass(Strat) UnitRef : public CallBacker
 {
 public:
 
@@ -112,7 +113,7 @@ public:
 
 /*!\brief UnitRef for units containing other units only */
 
-mClass NodeUnitRef : public UnitRef
+mClass(Strat) NodeUnitRef : public UnitRef
 {
 public:
 
@@ -174,7 +175,7 @@ public:
 
 /*!\brief UnitRef for units containing non-Leaf units only */
 
-mClass NodeOnlyUnitRef : public NodeUnitRef
+mClass(Strat) NodeOnlyUnitRef : public NodeUnitRef
 {
 public:
 			NodeOnlyUnitRef( NodeUnitRef* up, const char* c,
@@ -190,7 +191,7 @@ public:
 
 /*!\brief UnitRef for units containing Leaf units only */
 
-mClass LeavedUnitRef : public NodeUnitRef
+mClass(Strat) LeavedUnitRef : public NodeUnitRef
 {
 public:
 			LeavedUnitRef( NodeUnitRef* up, const char* c,
@@ -220,7 +221,7 @@ protected:
 
 /*!\brief UnitRef for layers */
 
-mClass LeafUnitRef : public UnitRef
+mClass(Strat) LeafUnitRef : public UnitRef
 {
 public:
 
@@ -262,3 +263,4 @@ inline const NodeUnitRef* UnitRef::topNode() const
 }; // namespace Strat
 
 #endif
+

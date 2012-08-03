@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.47 2012-08-01 11:56:25 cvsmahant Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.48 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uipicksetmgr.h"
 #include "uiapplserv.h"
 #include "ranges.h"
@@ -30,7 +31,7 @@ namespace PosInfo { class Line2DData; }
 
 /*! \brief Service provider for application level - seismics */
 
-mClass uiPickPartServer  : public uiApplPartServer
+mClass(uiIo) uiPickPartServer  : public uiApplPartServer
 			, public uiPickSetMgr
 {
 public:
@@ -106,3 +107,4 @@ protected:
 
 
 #endif
+

@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2009
- RCS:		$Id: uiwaveletextraction.h,v 1.15 2010-10-21 12:35:29 cvsnageswara Exp $
+ RCS:		$Id: uiwaveletextraction.h,v 1.16 2012-08-03 13:01:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uidialog.h"
 
 class uiGenInput;
@@ -26,7 +27,7 @@ class IOPar;
 class MultiID;
 namespace Seis { class SelData; class TableSelData; }
 
-mClass uiWaveletExtraction : public uiDialog
+mClass(uiSeis) uiWaveletExtraction : public uiDialog
 {
 public:
 				uiWaveletExtraction(uiParent*,bool is2d);
@@ -67,3 +68,4 @@ protected:
 };
 
 #endif
+

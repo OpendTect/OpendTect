@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		May 2005
- RCS:		$Id: nladataprep.h,v 1.6 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:		$Id: nladataprep.h,v 1.7 2012-08-03 13:00:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "nlamod.h"
 #include "nladesign.h"
 class BinIDValueSet;
 class PosVecDataSet;
@@ -19,7 +20,7 @@ template <class T> class Interval;
 
 /*\brief Prepare data for usage in NLA training */
 
-mClass NLADataPreparer
+mClass(NLA) NLADataPreparer
 {
 public:
     			NLADataPreparer( BinIDValueSet& bvs, int tc )
@@ -50,3 +51,4 @@ protected:
 
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.40 2011-07-20 13:13:12 cvsbruno Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.41 2012-08-03 13:01:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellmod.h"
 #include "uiselsimple.h"
 #include "multiid.h"
 #include "ranges.h"
@@ -38,7 +39,7 @@ namespace Well { class Data; class Track; class D2TModel; class Log; }
 
 /*! \brief Dialog for D2T Model editing. */
 
-mClass uiWellTrackDlg : public uiDialog
+mClass(uiWell) uiWellTrackDlg : public uiDialog
 {
 public:
 				uiWellTrackDlg(uiParent*,Well::Data&);
@@ -63,7 +64,7 @@ protected:
 };
 
 
-mClass uiD2TModelDlg : public uiDialog
+mClass(uiWell) uiD2TModelDlg : public uiDialog
 {
 public:
 				uiD2TModelDlg(uiParent*,Well::Data&,bool chksh);
@@ -93,7 +94,7 @@ protected:
 Dialog for loading logs from las file
 */
 
-mClass uiLoadLogsDlg : public uiDialog
+mClass(uiWell) uiLoadLogsDlg : public uiDialog
 {
 public:
     				uiLoadLogsDlg(uiParent*,Well::Data&);
@@ -116,7 +117,7 @@ protected:
 
 
 
-mClass uiExportLogs : public uiDialog
+mClass(uiWell) uiExportLogs : public uiDialog
 {
 public:
     				uiExportLogs(uiParent*,
@@ -145,7 +146,7 @@ protected:
 
 class uiColorInput;
 
-mClass uiNewWellDlg : public uiGetObjectName
+mClass(uiWell) uiNewWellDlg : public uiGetObjectName
 {
 public:
     				uiNewWellDlg(uiParent*);
@@ -166,7 +167,7 @@ protected:
 
 
 /* brief some editable uom for the logs */
-mClass uiWellLogUOMDlg : public uiDialog
+mClass(uiWell) uiWellLogUOMDlg : public uiDialog
 {
 public:
 				uiWellLogUOMDlg(uiParent*,Well::Log&);
@@ -181,3 +182,4 @@ protected:
 
 
 #endif
+

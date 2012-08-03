@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2008
- RCS:		$Id: seismerge.h,v 1.6 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seismerge.h,v 1.7 2012-08-03 13:00:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
 #include "executor.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -25,7 +26,7 @@ class SeisTrcWriter;
 
 /*!\brief Merges 2D and 3D post-stack data */
 
-mClass SeisMerger : public Executor
+mClass(Seis) SeisMerger : public Executor
 {
 public:
 
@@ -69,3 +70,4 @@ protected:
 
 
 #endif
+

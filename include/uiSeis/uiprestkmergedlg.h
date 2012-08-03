@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.h,v 1.10 2011-10-07 13:15:04 cvsbert Exp $
+ RCS:           $Id: uiprestkmergedlg.h,v 1.11 2012-08-03 13:01:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 
@@ -27,7 +28,7 @@ class uiToolButton;
 /*! \brief: setup a dialog where the user can select a set of Pre-stack volumes and merge them into one. The priority order decides which volume to use in case of an overlap.
 */
 
-mClass uiPreStackMergeDlg : public uiDialog
+mClass(uiSeis) uiPreStackMergeDlg : public uiDialog
 {
 public:
 
@@ -70,7 +71,7 @@ protected:
 };
 
 
-mClass uiPreStackCopyDlg : public uiDialog
+mClass(uiSeis) uiPreStackCopyDlg : public uiDialog
 {
 public:
 
@@ -93,3 +94,4 @@ protected:
 };
 
 #endif
+

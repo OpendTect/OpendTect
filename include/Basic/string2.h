@@ -8,10 +8,11 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.49 2012-02-28 16:05:07 cvskris Exp $
+ RCS:		$Id: string2.h,v 1.50 2012-08-03 13:00:15 cvskris Exp $
 ________________________________________________________________________
 -*/
 
+#include "basicmod.h"
 #include "plfdefs.h"
 
 
@@ -35,96 +36,96 @@ ________________________________________________________________________
 #include <stdlib.h>
 
 /*!> bluntly puts a '\0' on trailing white space. */
-mGlobal void removeTrailingBlanks(char*);
+mGlobal(Basic) void removeTrailingBlanks(char*);
 
 /*!> stricmp with option to compare part, default is all */
-mGlobal bool caseInsensitiveEqual(const char*,const char*,int match_nrchars=-1);
+mGlobal(Basic) bool caseInsensitiveEqual(const char*,const char*,int match_nrchars=-1);
 /*!> checks whether a string is the start of another string. */
-mGlobal bool matchString(const char* startstring,const char* maybebigger);
+mGlobal(Basic) bool matchString(const char* startstring,const char* maybebigger);
 /*!> is a case insensitive version of matchString */
-mGlobal bool matchStringCI(const char*,const char*);
-mGlobal bool stringEndsWith(const char* endstring,const char* maybebigger);
-mGlobal bool stringEndsWithCI(const char*,const char*);
+mGlobal(Basic) bool matchStringCI(const char*,const char*);
+mGlobal(Basic) bool stringEndsWith(const char* endstring,const char* maybebigger);
+mGlobal(Basic) bool stringEndsWithCI(const char*,const char*);
 
 /*!> counts occurrences of a char in string */
-mGlobal int countCharacter(const char*,char);
+mGlobal(Basic) int countCharacter(const char*,char);
 /*!> replaces all occurrences of a char with another */
-mGlobal void replaceCharacter(char*,char from,char to);
+mGlobal(Basic) void replaceCharacter(char*,char from,char to);
 /*!> replaces all occurrences of a string with another */
-mGlobal void replaceString(char*,const char* from,const char* to);
+mGlobal(Basic) void replaceString(char*,const char* from,const char* to);
 /*!> removes all occurrences of a char */
-mGlobal void removeCharacter(char*,char);
+mGlobal(Basic) void removeCharacter(char*,char);
 /*!> cleans a string from non-alpha numeric by replacing with underscores.
      params: allow whitespace, allow slashes, allow dots */
-mGlobal void cleanupString(char*,bool,bool,bool);
+mGlobal(Basic) void cleanupString(char*,bool,bool,bool);
 /*!> Removes initial and trailing spaces and tabs*/
-mGlobal void removeStartAndEndSpaces(char*);
+mGlobal(Basic) void removeStartAndEndSpaces(char*);
 /*!> tells whether a string holds a parseable number */
-mGlobal bool isNumberString(const char*,bool int_only=false);
+mGlobal(Basic) bool isNumberString(const char*,bool int_only=false);
 /*!> tells whether has printable characters only. */
-mGlobal bool isAlphaNumString(const char*,bool allowspace = false);
+mGlobal(Basic) bool isAlphaNumString(const char*,bool allowspace = false);
 
 /*!> fills a buffer with the next word (delimited by whitespace) in string.
      It returns a ptr just after the word. */
-mGlobal const char* getNextWord(const char*,char*);
+mGlobal(Basic) const char* getNextWord(const char*,char*);
 
 /*!> Fills string with string for an int.
      If you pass 0 for retbuf, then a static buffer is used. */
-mGlobal const char* getStringFromInt(od_int32,char* retbuf);
-mGlobal const char* getStringFromUInt(od_uint32,char* retbuf);
-mGlobal const char* getStringFromInt64(od_int64,char* retbuf);
-mGlobal const char* getStringFromUInt64(od_uint64,char* retbuf);
+mGlobal(Basic) const char* getStringFromInt(od_int32,char* retbuf);
+mGlobal(Basic) const char* getStringFromUInt(od_uint32,char* retbuf);
+mGlobal(Basic) const char* getStringFromInt64(od_int64,char* retbuf);
+mGlobal(Basic) const char* getStringFromUInt64(od_uint64,char* retbuf);
 
 /*!> Normally, pass null for fmt. Then it will do removal of
      trailing zeros and use %lf in more cases than std.
      If you pass 0 for retbuf, then a static buffer is used (not MT safe). */
-mGlobal const char* getStringFromDouble(const char* fmt,double,char* retbuf);
+mGlobal(Basic) const char* getStringFromDouble(const char* fmt,double,char* retbuf);
 /*!> is like getStringFromDouble, with special %f treatment. */
-mGlobal const char* getStringFromFloat(const char* fmt,float,char* retbuf);
+mGlobal(Basic) const char* getStringFromFloat(const char* fmt,float,char* retbuf);
 /*!> removes unwanted zeros and dots from a floating point in string. */
-mGlobal void prettyNumber(char*,bool is_float);
+mGlobal(Basic) void prettyNumber(char*,bool is_float);
 
 /*!> returns ptr to static buffer with "yes" or "No". */
-mGlobal const char* getYesNoString(bool);
+mGlobal(Basic) const char* getYesNoString(bool);
 /*!> returns ptr to static buffer with "m" or "ft" */
-mGlobal const char* getDistUnitString(bool isfeet,bool withparentheses);
+mGlobal(Basic) const char* getDistUnitString(bool isfeet,bool withparentheses);
 
 /*!> returns 1 or 0 by inspecting string */
-mGlobal int yesNoFromString(const char*);
+mGlobal(Basic) int yesNoFromString(const char*);
 /*!> returns "th" or "st" or "nd" or "rd"; like in 1st, 2nd, 3rd etc. */
-mGlobal const char* getRankPostFix(int);
+mGlobal(Basic) const char* getRankPostFix(int);
 /*!> returns a nicely, readable size, in bytes, KB, MB, GB, or TB */
-mGlobal const char* getBytesString(od_uint64);
+mGlobal(Basic) const char* getBytesString(od_uint64);
 /*!> returns a string for display, never larger than specified nr of chars */
-mGlobal const char* getLimitedDisplayString(const char*,int nrchars,
+mGlobal(Basic) const char* getLimitedDisplayString(const char*,int nrchars,
 					    bool trimright);
 
-mGlobal const char* quoteString(const char* str, char qt='"' );
-mGlobal inline const char* backQuoteString(const char* str, char qt='"' )
+mGlobal(Basic) const char* quoteString(const char* str, char qt='"' );
+mGlobal(Basic) inline const char* backQuoteString(const char* str, char qt='"' )
 { return quoteString( str, '`' ); }
 
 /*!> Finds a string in string array, case insensitive */
-mGlobal int getIndexInStringArrCI(const char*,const char* const* arr,
+mGlobal(Basic) int getIndexInStringArrCI(const char*,const char* const* arr,
 				  int startnr=0,int nr_chars_to_match=0,
 				  int notfoundidx=-1);
 
 /*!>Returns a string with an area and its unit, depending on survey and
     area size, unit is ft^2, m^2, km^2 or mile^2. */
-mGlobal const char* getAreaString( float m2, bool parensonunit, char* str=0 );
+mGlobal(Basic) const char* getAreaString( float m2, bool parensonunit, char* str=0 );
 
 // toString functions. 
-mGlobal const char* toString( od_int32 i );
-mGlobal const char* toString( od_uint32 i );
-mGlobal const char* toString( od_int64 i );
-mGlobal const char* toString( od_uint64 i );
-mGlobal const char* toString( float f )	;
-mGlobal const char* toString( double d );
-mGlobal const char* toString( short i );
-mGlobal const char* toString( unsigned short i );
-mGlobal const char* toString( const char* str );
-mGlobal const char* toString( unsigned char c );
-mGlobal const char* toString( signed char c );
-mGlobal const char* toString( bool b );
+mGlobal(Basic) const char* toString( od_int32 i );
+mGlobal(Basic) const char* toString( od_uint32 i );
+mGlobal(Basic) const char* toString( od_int64 i );
+mGlobal(Basic) const char* toString( od_uint64 i );
+mGlobal(Basic) const char* toString( float f )	;
+mGlobal(Basic) const char* toString( double d );
+mGlobal(Basic) const char* toString( short i );
+mGlobal(Basic) const char* toString( unsigned short i );
+mGlobal(Basic) const char* toString( const char* str );
+mGlobal(Basic) const char* toString( unsigned char c );
+mGlobal(Basic) const char* toString( signed char c );
+mGlobal(Basic) const char* toString( bool b );
 
 #define mImplGetFromStrFunc( type, func, udfv ) \
 inline bool getFromString( type& i, const char* s, type undef=udfv ) \
@@ -192,3 +193,4 @@ inline int toInt( const char* s, int defval=0 )
 
 
 #endif
+

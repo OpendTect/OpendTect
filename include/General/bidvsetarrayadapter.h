@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	H.Huck
  Date:		March 2008
- RCS:		$Id: bidvsetarrayadapter.h,v 1.5 2010-12-02 09:32:42 cvsnageswara Exp $
+ RCS:		$Id: bidvsetarrayadapter.h,v 1.6 2012-08-03 13:00:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "arraynd.h"
 #include "arrayndinfo.h"
 #include "binidvalset.h"
@@ -20,7 +21,7 @@ ________________________________________________________________________
 
 //!\brief an adapter between Array2D and a BinIDValueSet
 
-mClass BIDValSetArrAdapter : public Array2D<float>
+mClass(General) BIDValSetArrAdapter : public Array2D<float>
 {
 public:			
     				BIDValSetArrAdapter(const BinIDValueSet&,
@@ -42,3 +43,4 @@ protected:
 
 
 #endif
+

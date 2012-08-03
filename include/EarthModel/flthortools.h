@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.29 2012-05-31 10:42:20 cvssatyaki Exp $
+ RCS:		$Id: flthortools.h,v 1.30 2012-08-03 13:00:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "earthmodelmod.h"
 #include "executor.h"
 #include "multiid.h"
 #include "positionlist.h"
@@ -26,7 +27,7 @@ class BinIDValueSet;
 class HorSampling;
 
 
-mClass FaultTrace : public Coord3List
+mClass(EarthModel) FaultTrace : public Coord3List
 {
 public:
 
@@ -99,7 +100,7 @@ public:
 };
 
 
-mClass FaultTraceExtractor
+mClass(EarthModel) FaultTraceExtractor
 {
 public:
     				FaultTraceExtractor(EM::Fault*,int,bool);
@@ -123,7 +124,7 @@ protected:
 };
 
 
-mClass FaultTraceCalc : public Executor
+mClass(EarthModel) FaultTraceCalc : public Executor
 {
 public:
 			FaultTraceCalc(EM::Fault*,const HorSampling&,
@@ -146,7 +147,7 @@ protected:
 };
 
 
-mClass FaultTrcDataProvider
+mClass(EarthModel) FaultTrcDataProvider
 {
 public:
 			FaultTrcDataProvider()
@@ -191,3 +192,4 @@ public:
 };
 
 #endif
+

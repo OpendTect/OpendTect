@@ -4,9 +4,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Jun 2010
- * ID       : $Id: uisimplemultiwell.h,v 1.5 2012-07-30 08:31:28 cvsbruno Exp $
+ * ID       : $Id: uisimplemultiwell.h,v 1.6 2012-08-03 13:01:20 cvskris Exp $
 -*/
 
+#include "uiwellmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 
@@ -17,7 +18,7 @@ class uiSMWCData;
 class uiTable;
 
 
-mClass uiSimpleMultiWellCreate : public uiDialog
+mClass(uiWell) uiSimpleMultiWellCreate : public uiDialog
 {
 public:
 			uiSimpleMultiWellCreate(uiParent*);
@@ -49,3 +50,4 @@ protected:
 };
 
 #endif
+

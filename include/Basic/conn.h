@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.15 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: conn.h,v 1.16 2012-08-03 13:00:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "basicmod.h"
 #include "enums.h"
 class IOObj;
 
@@ -26,7 +27,7 @@ interface common to these connections.
 
 */
 
-mClass Conn
+mClass(Basic) Conn
 {
 public:
 
@@ -60,7 +61,7 @@ protected:
 
 /*!\brief Connection implemented in terms of another Conn object. */
 
-mClass XConn  : public Conn
+mClass(Basic) XConn  : public Conn
 {
 
     friend class	IOX;
@@ -94,3 +95,4 @@ protected:
 
 
 #endif
+

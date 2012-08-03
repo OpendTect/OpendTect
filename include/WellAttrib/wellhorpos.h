@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jul 2010
- RCS:           $Id: wellhorpos.h,v 1.8 2012-04-25 12:18:10 cvsbruno Exp $
+ RCS:           $Id: wellhorpos.h,v 1.9 2012-08-03 13:00:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "wellattribmod.h"
 #include "emposid.h"
 #include "namedobj.h"
 #include "position.h"
@@ -21,7 +22,7 @@ ________________________________________________________________________
 namespace Well { class Track; class D2TModel; }
 namespace EM { class Horizon2D; class Horizon3D; }
 
-mClass WellHorIntersectFinder
+mClass(WellAttrib) WellHorIntersectFinder
 {
 public:
     				WellHorIntersectFinder(const Well::Track&,
@@ -44,3 +45,4 @@ protected:
 };
 
 #endif
+

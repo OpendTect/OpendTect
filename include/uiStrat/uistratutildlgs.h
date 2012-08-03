@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.31 2012-01-25 16:07:36 cvsbert Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.32 2012-08-03 13:01:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uistratmod.h"
 #include "uidialog.h"
 #include "uitable.h"
 #include "ranges.h"
@@ -30,7 +31,7 @@ namespace Strat { class Lithology; }
 
 /*!\brief Displays a dialog to create/edit a new stratigraphic unit */
 
-mClass uiStratLithoBox : public uiListBox
+mClass(uiStrat) uiStratLithoBox : public uiListBox
 {
 public:
     			uiStratLithoBox(uiParent*);
@@ -41,7 +42,7 @@ protected:
 };
 
 
-mClass uiStratUnitEditDlg : public uiDialog
+mClass(uiStrat) uiStratUnitEditDlg : public uiDialog
 {
 public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
@@ -70,7 +71,7 @@ protected:
 };
 
 
-mClass uiStratLithoDlg : public uiDialog
+mClass(uiStrat) uiStratLithoDlg : public uiDialog
 {
 public:
 
@@ -97,7 +98,7 @@ protected:
 };
 
 
-mClass uiStratContentsDlg : public uiDialog
+mClass(uiStrat) uiStratContentsDlg : public uiDialog
 {
 public:
 
@@ -115,7 +116,7 @@ protected:
 
 /*!\brief Displays a Table to create new units from an existing one */
 
-mClass uiStratUnitDivideDlg : public uiDialog
+mClass(uiStrat) uiStratUnitDivideDlg : public uiDialog
 {
 public:
 				uiStratUnitDivideDlg(uiParent*,
@@ -125,7 +126,7 @@ public:
 
 protected :
 
-    mClass uiDivideTable : public uiTable
+    mClass(uiStrat) uiDivideTable : public uiTable
     {
 	public: 	
 				uiDivideTable(uiParent* p,
@@ -153,7 +154,7 @@ protected :
 
 /*!\brief Displays a dialog to create new lithology */
 
-mClass uiStratLevelDlg : public uiDialog
+mClass(uiStrat) uiStratLevelDlg : public uiDialog
 {
 public:
 
@@ -169,7 +170,7 @@ protected:
 };
 
 
-mClass uiStratLinkLvlUnitDlg : public uiDialog
+mClass(uiStrat) uiStratLinkLvlUnitDlg : public uiDialog
 {
 public:
 
@@ -189,3 +190,4 @@ protected:
 
 
 #endif
+

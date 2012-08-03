@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.71 2011-10-14 12:40:04 cvsnageswara Exp $
+ RCS:           $Id: uitable.h,v 1.72 2012-08-03 13:00:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uiobj.h"
 
 #include "color.h"
@@ -26,7 +27,7 @@ class uiLabel;
 class uiTableBody;
 
 
-mClass uiTable : public uiObject
+mClass(uiBase) uiTable : public uiObject
 {
 friend class		i_tableMessenger;
 friend class		uiTableBody;
@@ -50,7 +51,7 @@ public:
 	Interactive, Fixed, Stretch, ResizeToContents
     };
 
-    mClass Setup
+    mClass(uiBase) Setup
     {
     public:
 
@@ -281,7 +282,7 @@ public:
     void		setSelectionBehavior(SelectionBehavior);
     void		editCell(const RowCol&,bool replace=false);
 
-    mClass SelectionRange
+    mClass(uiBase) SelectionRange
     {
     public:
 			SelectionRange()
@@ -337,3 +338,4 @@ private:
 };
 
 #endif
+

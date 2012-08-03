@@ -6,13 +6,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.34 2011-04-22 16:09:12 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.35 2012-08-03 13:00:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 //! \defgroup Algo Algo
 
+#include "algomod.h"
 #include "enums.h"
 #include "factory.h"
 #include "position.h"
@@ -35,7 +36,7 @@ namespace ZDomain { class Def; class Info; }
     The various transforms can be retrieved from factory ZATF().
 */
 
-mClass ZAxisTransform
+mClass(Algo) ZAxisTransform
 { mRefCountImpl(ZAxisTransform);
 public:
 				mDefineFactoryInClass(ZAxisTransform,factory);
@@ -127,7 +128,7 @@ protected:
     \brief The ZAxisTransformSampler class ...
 */
 
-mClass ZAxisTransformSampler
+mClass(Algo) ZAxisTransformSampler
 {
 public:
     				ZAxisTransformSampler(const ZAxisTransform&,
@@ -155,3 +156,4 @@ protected:
 };
 
 #endif
+

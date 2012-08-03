@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: veldesc.h,v 1.14 2010-11-01 17:30:30 cvskris Exp $
+ RCS:		$Id: veldesc.h,v 1.15 2012-08-03 13:00:16 cvskris Exp $
 ________________________________________________________________________
 
 */
 
+#include "basicmod.h"
 #include "enums.h"
 #include "multiid.h"
 #include "staticsdesc.h"
@@ -20,7 +21,7 @@ ________________________________________________________________________
 /*!Specifies velocity type and statics for a velocity.   */
 
 
-mClass VelocityDesc
+mClass(Basic) VelocityDesc
 {
 public:
     enum Type		{ Unknown, Interval, RMS, Avg, Delta, Epsilon, Eta };
@@ -57,3 +58,4 @@ public:
 
 
 #endif
+

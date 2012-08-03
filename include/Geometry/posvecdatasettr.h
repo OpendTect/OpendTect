@@ -7,19 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		June 2005
- RCS:		$Id: posvecdatasettr.h,v 1.4 2010-07-12 22:52:41 cvskris Exp $
+ RCS:		$Id: posvecdatasettr.h,v 1.5 2012-08-03 13:00:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
  
+#include "geometrymod.h"
 #include "transl.h"
 #include "ctxtioobj.h"
 #include <iosfwd>
 class PosVecDataSet;
 
 
-mClass PosVecDataSetTranslatorGroup : public TranslatorGroup
+mClass(Geometry) PosVecDataSetTranslatorGroup : public TranslatorGroup
 {			     isTranslatorGroup(PosVecDataSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(PosVecDataSet)
@@ -28,7 +29,7 @@ public:
 };
 
 
-mClass PosVecDataSetTranslator : public Translator
+mClass(Geometry) PosVecDataSetTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(PosVecDataSet)
@@ -44,7 +45,7 @@ protected:
 };
 
 
-mClass odPosVecDataSetTranslator : public PosVecDataSetTranslator
+mClass(Geometry) odPosVecDataSetTranslator : public PosVecDataSetTranslator
 {			  isTranslator(od,PosVecDataSet)
 public:
 			mDefEmptyTranslatorConstructor(od,PosVecDataSet)
@@ -56,3 +57,4 @@ public:
 
 
 #endif
+

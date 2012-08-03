@@ -4,16 +4,17 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Dec 2007
- * ID       : $Id: madprocflowtr.h,v 1.3 2009-07-22 16:01:27 cvsbert Exp $
+ * ID       : $Id: madprocflowtr.h,v 1.4 2012-08-03 13:01:32 cvskris Exp $
 -*/
  
+#include "madagascarmod.h"
 #include "transl.h"
 class Conn;
 class BufferString;
 namespace ODMad { class ProcFlow; }
 
 
-mClass ODMadProcFlowTranslatorGroup : public TranslatorGroup
+mClass(Madagascar) ODMadProcFlowTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ODMadProcFlow)
 public:
     			mDefEmptyTranslatorGroupConstructor(ODMadProcFlow)
@@ -22,7 +23,7 @@ public:
 };
 
 
-mClass ODMadProcFlowTranslator : public Translator
+mClass(Madagascar) ODMadProcFlowTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(ODMadProcFlow)
@@ -52,3 +53,4 @@ public:
 
 
 #endif
+

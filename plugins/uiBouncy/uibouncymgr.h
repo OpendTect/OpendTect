@@ -4,9 +4,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Aug 2009
- * ID       : $Id: uibouncymgr.h,v 1.4 2010-12-10 09:32:11 cvskarthika Exp $
+ * ID       : $Id: uibouncymgr.h,v 1.5 2012-08-03 13:01:33 cvskris Exp $
 -*/
 
+#include "uibouncymod.h"
 #include "callback.h"
 
 class uiODMain;
@@ -18,7 +19,7 @@ class uiBouncyMain;
 class uiBouncySettingsDlg;
 class BouncyDisplay;
 
-mClass uiBouncyMgr : public CallBacker
+mClass(uiBouncy) uiBouncyMgr : public CallBacker
 {
 public:
 
@@ -61,3 +62,4 @@ protected:
 }; // namespace
 
 #endif
+

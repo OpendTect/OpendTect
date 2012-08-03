@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uiseisfmtscale.h,v 1.17 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiseisfmtscale.h,v 1.18 2012-08-03 13:01:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uigroup.h"
 #include "seistype.h"
 class IOObj;
@@ -20,7 +21,7 @@ class uiGenInput;
 class uiSeisFmtScaleComp;
 
 
-mClass uiSeisFmtScale : public uiGroup
+mClass(uiSeis) uiSeisFmtScale : public uiGroup
 {
 public:
 
@@ -53,3 +54,4 @@ protected:
 
 
 #endif
+

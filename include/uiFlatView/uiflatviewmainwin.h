@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewmainwin.h,v 1.12 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiflatviewmainwin.h,v 1.13 2012-08-03 13:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiflatviewmod.h"
 #include "uiflatviewwin.h"
 #include "uimainwin.h"
 #include "uigroup.h"
@@ -18,7 +19,7 @@ ________________________________________________________________________
 
 /*!\brief (Non-modal) main window containing one or more uiFlatViewer(s). */
 
-mClass uiFlatViewMainWin : public uiMainWin
+mClass(uiFlatView) uiFlatViewMainWin : public uiMainWin
 			, public uiFlatViewWin
 {
 public:
@@ -57,3 +58,4 @@ public:
 
 
 #endif
+

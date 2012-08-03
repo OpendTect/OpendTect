@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.h,v 1.15 2010-11-08 10:14:19 cvshelene Exp $
+ RCS:           $Id: uimathattrib.h,v 1.16 2012-08-03 13:00:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -23,7 +24,7 @@ class MathExpression;
 
 /*! \brief Math Attribute description editor */
 
-mClass uiMathAttrib : public uiAttrDescEd
+mClass(uiAttributes) uiMathAttrib : public uiAttrDescEd
 {
 public:
 
@@ -63,3 +64,4 @@ protected:
 };
 
 #endif
+

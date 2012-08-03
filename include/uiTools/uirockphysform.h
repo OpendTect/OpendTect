@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uirockphysform.h,v 1.9 2012-03-29 08:50:36 cvshelene Exp $
+ RCS:           $Id: uirockphysform.h,v 1.10 2012-08-03 13:01:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "propertyref.h"
 class uiComboBox;
@@ -22,7 +23,7 @@ class uiTextEdit;
 class uiRockPhysCstFld;
 
 
-mClass uiRockPhysForm : public uiGroup
+mClass(uiTools) uiRockPhysForm : public uiGroup
 {
 public:
 
@@ -60,7 +61,7 @@ protected:
 };
 
 
-mClass uiRockPhysCstFld : public uiGroup
+mClass(uiTools) uiRockPhysCstFld : public uiGroup
 {
 public:
 
@@ -86,3 +87,4 @@ protected:
 
 
 #endif
+

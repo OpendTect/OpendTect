@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.23 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: jobrunner.h,v 1.24 2012-08-03 13:00:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mmprocmod.h"
 #include "executor.h"
 #include "jobinfo.h"
 
@@ -24,7 +25,7 @@ class BufferStringSet;
 class FilePath;
 
 
-mClass HostNFailInfo
+mClass(MMProc) HostNFailInfo
 {
 public:
     			HostNFailInfo( const HostData& hd )
@@ -46,7 +47,7 @@ public:
 
 /*!\brief Runs all jobs defined by JobDescProv. */
 
-mClass JobRunner : public Executor
+mClass(MMProc) JobRunner : public Executor
 {
 public:
 
@@ -159,3 +160,4 @@ protected:
 };
 
 #endif
+

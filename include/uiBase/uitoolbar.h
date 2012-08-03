@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.42 2010-11-16 09:49:10 cvsbert Exp $
+ RCS:           $Id: uitoolbar.h,v 1.43 2012-08-03 13:00:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uiparent.h"
 class ioPixmap;
 class MenuItem;
@@ -25,7 +26,7 @@ class uiToolButtonSetup;
 class i_ToolBarMessenger;
 
 
-mClass uiToolBar : public uiParent
+mClass(uiBase) uiToolBar : public uiParent
 {
 friend class i_ToolBarMessenger;
 public:
@@ -111,3 +112,4 @@ protected:
 };
 
 #endif
+

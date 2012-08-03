@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiwellattribmod.h"
 #include "uigroup.h"
 #include "uiflatviewer.h"
 #include "welltiedata.h"
@@ -37,7 +38,7 @@ namespace WellTie
 {
     class Setup; 
 
-mClass uiTieView : public CallBacker
+mClass(uiWellAttrib) uiTieView : public CallBacker
 {
 public:
 			    	uiTieView(uiParent*,uiFlatViewer*,const Data&);
@@ -99,7 +100,7 @@ protected:
 
 
 
-mClass uiCrossCorrView : uiGroup
+mClass(uiWellAttrib) uiCrossCorrView : uiGroup
 {
 public:
 
@@ -120,4 +121,5 @@ protected:
 
 }; //namespace WellTie
 #endif
+
 

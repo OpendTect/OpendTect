@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2011
- RCS:		$Id: segyhdrdef.h,v 1.7 2012-08-01 09:43:17 cvsmahant Exp $
+ RCS:		$Id: segyhdrdef.h,v 1.8 2012-08-03 13:00:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
 #include "objectset.h"
 class IOPar;
  
@@ -20,7 +21,7 @@ namespace SEGY
 
 /*!\brief describes one tape or trace header field */
 
-mClass HdrEntry
+mClass(Seis) HdrEntry
 {
 public:
 
@@ -69,7 +70,7 @@ protected:
 };
 
 
-mClass HdrDef : public ObjectSet<const HdrEntry>
+mClass(Seis) HdrDef : public ObjectSet<const HdrEntry>
 {
 public:
 
@@ -98,3 +99,4 @@ protected:
 } // namespace
 
 #endif
+

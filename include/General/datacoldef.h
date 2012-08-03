@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: datacoldef.h,v 1.6 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: datacoldef.h,v 1.7 2012-08-03 13:00:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "bufstring.h"
 class UnitOfMeasure;
 
@@ -25,7 +26,7 @@ class UnitOfMeasure;
 
 */
 
-mClass DataColDef
+mClass(General) DataColDef
 {
 public:
 				DataColDef( const char* nm, const char* ref=0,
@@ -53,3 +54,4 @@ public:
 
 
 #endif
+

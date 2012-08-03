@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.58 2012-07-20 21:15:06 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.59 2012-08-03 13:01:29 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 #include "multiid.h"
 #include "surv2dgeom.h"
@@ -39,7 +40,7 @@ namespace visSurvey
 
 */
 
-mClass Seis2DDisplay : public MultiTextureSurveyObject
+mClass(visSurvey) Seis2DDisplay : public MultiTextureSurveyObject
 {
 public:
     static Seis2DDisplay*	create()
@@ -201,3 +202,4 @@ protected:
 
 
 #endif
+

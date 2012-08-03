@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uipossubsel.h,v 1.11 2012-03-02 22:54:58 cvsnanne Exp $
+ RCS:           $Id: uipossubsel.h,v 1.12 2012-08-03 13:01:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uigroup.h"
 namespace Pos { class Provider; }
 class CubeSampling;
@@ -29,7 +30,7 @@ class uiPosProvSel;
  */
 
 
-mClass uiPosSubSel : public uiGroup
+mClass(uiIo) uiPosSubSel : public uiGroup
 {
 public:
 
@@ -84,3 +85,4 @@ protected:
 
 
 #endif
+

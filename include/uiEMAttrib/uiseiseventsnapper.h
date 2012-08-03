@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.h,v 1.9 2009-11-19 04:04:12 cvssatyaki Exp $
+ RCS:           $Id: uiseiseventsnapper.h,v 1.10 2012-08-03 13:00:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiemattribmod.h"
 #include "uidialog.h"
 
 namespace EM { class Horizon; }
@@ -25,7 +26,7 @@ class uiSeisSel;
 
 /*! \brief Part Server for Wells */
 
-mClass uiSeisEventSnapper : public uiDialog
+mClass(uiEMAttrib) uiSeisEventSnapper : public uiDialog
 {
 public:
 			uiSeisEventSnapper(uiParent*,const IOObj*,
@@ -50,3 +51,4 @@ protected:
 };
 
 #endif
+

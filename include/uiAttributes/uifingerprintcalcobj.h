@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          June 2006
- RCS:           $Id: uifingerprintcalcobj.h,v 1.7 2009-09-15 07:58:02 cvsnanne Exp $
+ RCS:           $Id: uifingerprintcalcobj.h,v 1.8 2012-08-03 13:00:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "multiid.h"
 #include "ranges.h"
 #include "statruncalc.h"
@@ -25,7 +26,7 @@ using namespace Attrib;
 
 /*! \brief FingerPrint Attribute parameters calculator */
 
-mClass calcFingParsObject
+mClass(uiAttributes) calcFingParsObject
 {
 public:
     			calcFingParsObject(uiParent*);
@@ -78,3 +79,4 @@ protected:
 };
 
 #endif
+

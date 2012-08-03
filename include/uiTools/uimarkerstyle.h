@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2010
- RCS:           $Id: uimarkerstyle.h,v 1.3 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:           $Id: uimarkerstyle.h,v 1.4 2012-08-03 13:01:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uigroup.h"
 
 #include "draw.h"
@@ -20,7 +21,7 @@ class uiGenInput;
 class uiSliderExtra;
 
 
-mClass uiMarkerStyle3D : public uiGroup
+mClass(uiTools) uiMarkerStyle3D : public uiGroup
 {
 public:
 			uiMarkerStyle3D(uiParent*,bool withcolor,
@@ -47,3 +48,4 @@ protected:
 };
 
 #endif
+

@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "wellattribmod.h"
 #include "color.h"
 #include "valseriesevent.h"
 
@@ -23,7 +24,7 @@ namespace WellTie
     class PickData;
     class Marker;
 
-mClass PickSetMgr : public CallBacker
+mClass(WellAttrib) PickSetMgr : public CallBacker
 {
 public:
     				PickSetMgr( PickData& pd );
@@ -59,4 +60,5 @@ protected :
 }; //namespace WellTie
 
 #endif
+
 

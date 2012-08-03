@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.15 2011-04-27 10:13:18 cvsbert Exp $
+ RCS:           $Id: uicoltabman.h,v 1.16 2012-08-03 13:01:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstring.h"
 
@@ -26,7 +27,7 @@ class uiWorld2Ui;
 
 namespace ColTab { class Sequence; }
 
-mClass uiColorTableMan : public uiDialog
+mClass(uiTools) uiColorTableMan : public uiDialog
 {
 public:
 				uiColorTableMan(uiParent*,ColTab::Sequence&,
@@ -94,3 +95,4 @@ protected:
 };
 
 #endif
+

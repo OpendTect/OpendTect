@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.21 2011-06-06 10:24:54 cvssatyaki Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.22 2012-08-03 13:00:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "seismod.h"
+#include "seismod.h"
 #include "samplingdata.h"
 #include "seistype.h"
 #include "linekey.h"
@@ -26,7 +28,7 @@ namespace ZDomain { class Def; }
 
 /*!\brief Info on IOObj for seismics */
 
-mClass SeisIOObjInfo
+mClass(Seis) SeisIOObjInfo
 {
 public:
 
@@ -50,7 +52,7 @@ public:
     bool		isDepth() const;
     const ZDomain::Def&	zDomainDef() const;
 
-    mStruct SpaceInfo
+    mStruct(Seis) SpaceInfo
     {
 			SpaceInfo(int ns=-1,int ntr=-1,int bps=4);
 	int		expectednrsamps;
@@ -75,7 +77,7 @@ public:
     void		getComponentNames(BufferStringSet&,
 	    				LineKey lk=LineKey()) const;
 
-    mStruct Opts2D
+    mStruct(Seis) Opts2D
     {
 				Opts2D()
 				    : bvs_(0), steerpol_(2)	{}
@@ -133,3 +135,5 @@ protected:
 
 
 #endif
+
+

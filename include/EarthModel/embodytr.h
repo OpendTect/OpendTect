@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embodytr.h,v 1.9 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: embodytr.h,v 1.10 2012-08-03 13:00:17 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "transl.h"
 #include "emsurfaceiodata.h"
 
@@ -23,7 +24,7 @@ namespace EM { class Body; class PolygonBody; }
 
 typedef EM::Body 	EMBody;
 
-mClass EMBodyTranslatorGroup : public TranslatorGroup
+mClass(EarthModel) EMBodyTranslatorGroup : public TranslatorGroup
 {			       isTranslatorGroup(EMBody)
 public:
 		    	mDefEmptyTranslatorGroupConstructor(EMBody)
@@ -32,7 +33,7 @@ public:
 };
 
 
-mClass mcEMBodyTranslator : public Translator
+mClass(EarthModel) mcEMBodyTranslator : public Translator
 {			    isTranslator(mc,EMBody)
 public:
     			mDefEmptyTranslatorBaseConstructor( mcEMBody );
@@ -41,7 +42,7 @@ public:
 };
 
 
-mClass polygonEMBodyTranslator : public Translator
+mClass(EarthModel) polygonEMBodyTranslator : public Translator
 {				 isTranslator(polygon,EMBody)
 public:
 			polygonEMBodyTranslator(const char* unm,const char* nm);
@@ -62,7 +63,7 @@ protected:
 };
 
 
-mClass randposEMBodyTranslator : public Translator
+mClass(EarthModel) randposEMBodyTranslator : public Translator
 {                                isTranslator(randpos,EMBody)
 public:
     			mDefEmptyTranslatorBaseConstructor( randposEMBody );
@@ -72,7 +73,7 @@ public:
 
 
 //For selection of old (3.2) mc bodies.
-mClass dGBEMBodyTranslator : public Translator
+mClass(EarthModel) dGBEMBodyTranslator : public Translator
 {			    isTranslator(dGB,EMBody)
 public:
  			mDefEmptyTranslatorBaseConstructor( dGBEMBody );
@@ -82,3 +83,4 @@ public:
 
 
 #endif
+

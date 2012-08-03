@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.28 2012-03-05 12:16:47 cvskris Exp $
+ RCS:		$Id: viscolortab.h,v 1.29 2012-08-03 13:01:23 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "viscolorseq.h"
 #include "color.h"
 #include "ranges.h"
@@ -34,7 +35,7 @@ namespace visBase
 
 */
 
-mClass VisColorTab : public DataObject
+mClass(visBase) VisColorTab : public DataObject
 {
 public:
     static VisColorTab*		create()
@@ -100,3 +101,4 @@ protected:
 
 
 #endif
+

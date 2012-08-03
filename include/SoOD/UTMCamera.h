@@ -24,6 +24,7 @@
  *
 \**************************************************************************/
 
+#include "soodmod.h"
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/fields/SoSFString.h>
@@ -35,7 +36,7 @@
 class SoState;
 
 
-mClass UTMCamera : public SoPerspectiveCamera {
+mClass(SoOD) UTMCamera : public SoPerspectiveCamera {
   typedef SoPerspectiveCamera inherited;
 
   SO_NODE_HEADER(UTMCamera);
@@ -72,3 +73,4 @@ private:
 };
 
 #endif // !SMALLCHANGE_UTMCAMERA_H
+

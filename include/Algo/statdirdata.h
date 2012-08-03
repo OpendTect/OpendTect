@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Mar 2009
- RCS:           $Id: statdirdata.h,v 1.10 2012-07-25 07:47:00 cvsbert Exp $
+ RCS:           $Id: statdirdata.h,v 1.11 2012-08-03 13:00:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "algomod.h"
 #include "manobjectset.h"
 #include "angles.h"
 #include "ranges.h"
@@ -18,7 +19,7 @@ ________________________________________________________________________
 namespace Stats
 {
 
-mClass SectorPartData
+mClass(Algo) SectorPartData
 {
 public:
 
@@ -47,11 +48,11 @@ typedef TypeSet<SectorPartData> SectorData;
 
  */
 
-mClass DirectionalData : public ManagedObjectSet<SectorData>
+mClass(Algo) DirectionalData : public ManagedObjectSet<SectorData>
 {
 public:
 
-    mClass Setup
+    mClass(Algo) Setup
     {
     public:
     			Setup()
@@ -136,3 +137,4 @@ inline DirectionalData::DirectionalData( int nrsect, int nrparts )
 }; // namespace Stats
 
 #endif
+

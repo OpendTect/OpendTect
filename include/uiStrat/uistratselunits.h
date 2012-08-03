@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          July 2011
- RCS:           $Id: uistratselunits.h,v 1.6 2012-05-23 22:31:52 cvsnanne Exp $
+ RCS:           $Id: uistratselunits.h,v 1.7 2012-08-03 13:01:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uistratmod.h"
 #include "uigroup.h"
 #include "stratunitrefiter.h"
 class uiStratSelUnitsListItem;
@@ -20,13 +21,13 @@ class uiComboBox;
 
 
 
-mClass uiStratSelUnits : public uiGroup
+mClass(uiStrat) uiStratSelUnits : public uiGroup
 {
 public:
 
     enum Type	{ Simple, Single, Multi };
 
-    mClass Setup
+    mClass(uiStrat) Setup
     {
     public:
 
@@ -95,3 +96,4 @@ protected:
 
 
 #endif
+

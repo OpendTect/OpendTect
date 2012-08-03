@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.100 2012-07-26 07:39:11 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.101 2012-08-03 13:01:35 cvskris Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -61,7 +61,7 @@ static const char* sKeyGroups = "Groups";
 
 mDefineInstanceCreatedNotifierAccess(uiDataPointSet)
 
-mClass uiDPSDispPropDlg : public uiDialog
+class uiDPSDispPropDlg : public uiDialog
 {
 public:
 uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,

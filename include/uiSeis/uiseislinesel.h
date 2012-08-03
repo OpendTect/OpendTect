@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.26 2012-05-04 21:54:24 cvsnanne Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.27 2012-08-03 13:01:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uicompoundparsel.h"
 #include "uidialog.h"
 
@@ -32,7 +33,7 @@ class CtxtIOObj;
 class IOObj;
 
 
-mClass uiSeis2DLineSel : public uiCompoundParSel
+mClass(uiSeis) uiSeis2DLineSel : public uiCompoundParSel
 {
 public:
 
@@ -59,7 +60,7 @@ protected:
 };
 
 
-mClass uiSeis2DLineNameSel : public uiGroup
+mClass(uiSeis) uiSeis2DLineNameSel : public uiGroup
 {
 public:
 
@@ -87,7 +88,7 @@ protected:
 };
 
 
-mClass uiSeis2DMultiLineSel : public uiCompoundParSel
+mClass(uiSeis) uiSeis2DMultiLineSel : public uiCompoundParSel
 {
 public:
 
@@ -150,7 +151,7 @@ protected:
 };
 
 
-mClass uiSeis2DMultiLineSelDlg : public uiDialog
+mClass(uiSeis) uiSeis2DMultiLineSelDlg : public uiDialog
 {
 public:
     				uiSeis2DMultiLineSelDlg(uiParent*,CtxtIOObj&,
@@ -194,3 +195,4 @@ protected:
 };
 
 #endif
+

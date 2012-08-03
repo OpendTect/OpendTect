@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoSplitTexture2Element.h,v 1.10 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: SoSplitTexture2Element.h,v 1.11 2012-08-03 13:00:42 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "soodmod.h"
 #include <Inventor/elements/SoReplacedElement.h>
 #include <Inventor/lists/SbList.h>
 #include <Inventor/SbLinear.h>
@@ -22,7 +23,7 @@ ________________________________________________________________________
 
 /*!  Element that holds one image per texture unit.  */
 
-mClass SoSplitTexture2Element : public SoReplacedElement
+mClass(SoOD) SoSplitTexture2Element : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoSplitTexture2Element);
 public:
@@ -47,4 +48,5 @@ private:
 };
 
 #endif
+
 

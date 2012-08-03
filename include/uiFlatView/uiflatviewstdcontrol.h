@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.32 2012-07-12 15:04:43 cvsbruno Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.33 2012-08-03 13:00:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiflatviewmod.h"
 #include "uiflatviewcontrol.h"
 #include "menuhandler.h"
 
@@ -22,7 +23,7 @@ class uiToolBar;
 
 /*!\brief The standard tools to control uiFlatViewer(s). */
 
-mClass uiFlatViewStdControl : public uiFlatViewControl
+mClass(uiFlatView) uiFlatViewStdControl : public uiFlatViewControl
 {
 public:
 
@@ -105,3 +106,4 @@ protected:
 };
 
 #endif
+

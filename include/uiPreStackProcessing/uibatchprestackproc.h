@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2009
- RCS:		$Id: uibatchprestackproc.h,v 1.3 2011-10-25 09:19:26 cvskris Exp $
+ RCS:		$Id: uibatchprestackproc.h,v 1.4 2012-08-03 13:01:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiprestackprocessingmod.h"
 #include "uibatchlaunch.h"
 
 
@@ -25,7 +26,7 @@ class uiProcSel;
 
 /*!Dialog to setup a time->depth conversion for volumes on disk. */
 
-mClass uiBatchProcSetup : public uiFullBatchDialog
+mClass(uiPreStackProcessing) uiBatchProcSetup : public uiFullBatchDialog
 {
 public:
     		uiBatchProcSetup(uiParent*,bool is2d );
@@ -53,3 +54,4 @@ protected:
 
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.131 2012-07-03 08:41:51 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.132 2012-08-03 13:01:29 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "vissurveymod.h"
 #include "color.h"
 #include "cubesampling.h"
 #include "datapack.h"
@@ -52,7 +53,7 @@ namespace visSurvey
 /*!\brief Base class for all 'Display' objects
 */
 
-mClass SurveyObject
+mClass(visSurvey) SurveyObject
 {
 public:
     virtual void		setInlCrlSystem(const InlCrlSystem*);
@@ -348,4 +349,5 @@ protected:
 
 
 #endif
+
 

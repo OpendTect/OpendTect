@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellman.h,v 1.10 2012-05-31 13:17:35 cvsbruno Exp $
+ RCS:		$Id: wellman.h,v 1.11 2012-08-03 13:00:45 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "wellmod.h"
 #include "sets.h"
 #include "bufstring.h"
 
@@ -23,7 +24,7 @@ namespace Well
 
 class Data;
 
-mClass Man
+mClass(Well) Man
 {
 public:
 
@@ -46,7 +47,7 @@ protected:
 
 			Man()				{}
     static Man*		mgr_;
-    mGlobal friend Man&	MGR();
+    mGlobal(Well) friend Man&	MGR();
 
     ObjectSet<Data>	wells_;
     BufferString	msg_;
@@ -54,7 +55,7 @@ protected:
     int			gtByKey(const MultiID&) const;
 };
 
-mGlobal Man& MGR();
+mGlobal(Well) Man& MGR();
 
 }; // namespace Well
 
@@ -62,3 +63,4 @@ mGlobal Man& MGR();
 
 
 #endif
+

@@ -8,11 +8,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddata.h,v 1.4 2011-06-03 15:29:36 cvsbruno Exp $
+ RCS:		$Id: visvw2ddata.h,v 1.5 2012-08-03 13:01:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiviewer2dmod.h"
 #include "callback.h"
 #include "refcount.h"
 
@@ -22,7 +23,7 @@ class IOPar;
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
-mClass Vw2DDataObject : public CallBacker
+mClass(uiViewer2D) Vw2DDataObject : public CallBacker
 { mRefCountImpl(Vw2DDataObject)
 public:
 
@@ -53,7 +54,7 @@ protected:
 };
 
 
-mClass Vw2DEMDataObject : public Vw2DDataObject
+mClass(uiViewer2D) Vw2DEMDataObject : public Vw2DDataObject
 { 
 public:
 
@@ -125,3 +126,4 @@ mCreateVw2DFactoryEntryNoInitClass( clss );
 
 
 #endif
+

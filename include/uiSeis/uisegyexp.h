@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyexp.h,v 1.9 2011-03-14 12:35:39 cvsbert Exp $
+ RCS:           $Id: uisegyexp.h,v 1.10 2012-08-03 13:01:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uiioobjsel.h"
 #include "seistype.h"
 #include "iopar.h"
@@ -23,7 +24,7 @@ class uiSEGYFileSpec;
 class uiSEGYExpTxtHeader;
 
 
-mClass uiSEGYExp : public uiDialog
+mClass(uiSeis) uiSEGYExp : public uiDialog
 		 , public Usage::Client
 {
 public:
@@ -59,3 +60,4 @@ protected:
 
 
 #endif
+

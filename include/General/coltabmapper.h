@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.29 2012-07-04 11:54:27 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.30 2012-08-03 13:00:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "enums.h"
 #include "coltab.h"
 #include "thread.h"
@@ -33,7 +34,7 @@ namespace ColTab
   example, if nsegs_ == 3, only positions returned are 1/6, 3/6 and 5/6.
  
  */
-mClass MapperSetup : public CallBacker
+mClass(General) MapperSetup : public CallBacker
 {
 public:
 			MapperSetup();
@@ -73,7 +74,7 @@ public:
 };
 
 
-mClass Mapper
+mClass(General) Mapper
 {
 public:
 
@@ -116,7 +117,7 @@ protected:
 
 /*!Takes a Mapper, unmapped data and maps it.*/
 template <class T>
-mClass MapperTask : public ParallelTask
+mClass(General) MapperTask : public ParallelTask
 {
 public:    
     			MapperTask(const ColTab::Mapper& map,
@@ -271,3 +272,4 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 } // namespace ColTab
 
 #endif
+

@@ -6,12 +6,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Apr 2003
- RCS:           $Id: uibatchprogs.h,v 1.9 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.h,v 1.10 2012-08-03 13:00:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uiiomod.h"
 #include "uidialog.h"
 class uiGenInput;
 class uiTextEdit;
@@ -22,7 +23,7 @@ class uiLabeledComboBox;
 
 
 
-mClass uiBatchProgLaunch : public uiDialog
+mClass(uiIo) uiBatchProgLaunch : public uiDialog
 {
 public:
 
@@ -47,3 +48,4 @@ protected:
 
 
 #endif
+

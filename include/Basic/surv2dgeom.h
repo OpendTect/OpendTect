@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2010
- RCS:		$Id: surv2dgeom.h,v 1.13 2012-07-20 21:13:00 cvsnanne Exp $
+ RCS:		$Id: surv2dgeom.h,v 1.14 2012-08-03 13:00:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
  
+#include "basicmod.h"
 #include "posinfo2d.h"
 #include "separstr.h"
 #include "thread.h"
@@ -24,7 +25,7 @@ class BufferStringSet;
 namespace PosInfo
 {
 
-mClass GeomID
+mClass(Basic) GeomID
 {
 public:
     		GeomID( int lsid=-1, int lineid=-1 )
@@ -50,7 +51,7 @@ public:
  
  */
 
-mClass Survey2D : public CallBacker
+mClass(Basic) Survey2D : public CallBacker
 {
 public:
 
@@ -124,7 +125,7 @@ private:
     int			getLineSetIdx(int lsid) const;
     int			getLineIdx(int lineid) const;
 
-    mGlobal friend Survey2D&	POS2DAdmin();
+    mGlobal(Basic) friend Survey2D&	POS2DAdmin();
 
     			Survey2D();
 public:
@@ -132,13 +133,14 @@ public:
 
 };
 
-mGlobal Survey2D& POS2DAdmin();
+mGlobal(Basic) Survey2D& POS2DAdmin();
 
 } // namespace PosInfo
 
 
-inline mGlobal const PosInfo::Survey2D& S2DPOS()
+inline mGlobal(Basic) const PosInfo::Survey2D& S2DPOS()
 { return const_cast<PosInfo::Survey2D&>( PosInfo::POS2DAdmin() ); }
 
 
 #endif
+

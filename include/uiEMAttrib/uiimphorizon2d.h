@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          May 2008
- RCS:           $Id: uiimphorizon2d.h,v 1.4 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiimphorizon2d.h,v 1.5 2012-08-03 13:00:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiemattribmod.h"
 #include "uidialog.h"
 
 class BufferStringSet;
@@ -28,7 +29,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for Horizon Import */
 
-mClass uiImportHorizon2D : public uiDialog
+mClass(uiEMAttrib) uiImportHorizon2D : public uiDialog
 {
 public:
 			uiImportHorizon2D(uiParent*);
@@ -66,3 +67,4 @@ protected:
 
 
 #endif
+

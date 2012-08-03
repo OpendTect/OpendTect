@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.26 2012-08-01 10:08:12 cvsmahant Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.27 2012-08-03 13:00:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "databasemod.h"
 #include "sqldatabase.h"
 #include "sqlquery.h"
 
@@ -22,7 +23,7 @@ class BugTextTableEntry;
 class BugHistoryTableEntry;
 
 
-mClass MantisAccess : public MySqlAccess
+mClass(Database) MantisAccess : public MySqlAccess
 {
 public:
 
@@ -32,7 +33,7 @@ public:
 };
 
 
-mClass MantisQuery : public Query
+mClass(Database) MantisQuery : public Query
 {
 public:
 			MantisQuery(MantisAccess&);
@@ -42,7 +43,7 @@ public:
 };
 
 
-mClass MantisDBMgr
+mClass(Database) MantisDBMgr
 {
 public:
 
@@ -185,3 +186,4 @@ protected:
 } // namespace
 
 #endif
+

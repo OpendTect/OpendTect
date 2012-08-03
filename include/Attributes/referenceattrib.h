@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene PAYRAUDEAU
  Date:          July 2005
- RCS:           $Id: referenceattrib.h,v 1.11 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: referenceattrib.h,v 1.12 2012-08-03 13:00:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "attributesmod.h"
 #include "attribprovider.h"
 
 
@@ -45,7 +46,7 @@ Outputs 2D:
 namespace Attrib
 {
 
-mClass Reference: public Provider
+mClass(Attributes) Reference: public Provider
 {
 public:
     static void		initClass();
@@ -73,3 +74,4 @@ protected:
 }; // namespace Attrib
 
 #endif
+

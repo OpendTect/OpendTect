@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.h,v 1.13 2009-11-27 15:34:42 cvsbruno Exp $
+ RCS:           $Id: uiwindowfunctionsel.h,v 1.14 2012-08-03 13:01:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
+#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "multiid.h"
 
@@ -23,11 +25,11 @@ class uiFreqTaperDlg;
 
 /*!Selects a windowfunction and its eventual parameter. */
 
-mClass uiWindowFunctionSel : public uiGroup
+mClass(uiTools) uiWindowFunctionSel : public uiGroup
 {
 public:
 
-    mStruct Setup
+    mStruct(uiTools) Setup
     {
 			Setup() 
 			    : onlytaper_(false)		      	
@@ -78,3 +80,5 @@ protected:
 
 
 #endif
+
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.24 2012-06-29 12:17:06 cvskris Exp $
+ RCS:		$Id: posinfo.h,v 1.25 2012-08-03 13:00:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "manobjectset.h"
 #include "typeset.h"
 #include "cubesampling.h"
@@ -42,7 +43,7 @@ namespace PosInfo
 /*!\brief Position info for a line - in a 3D cube, that would be an inline.
 	  Stored as (crossline-)number segments. */
 
-mClass LineData
+mClass(Basic) LineData
 {
 public:
     typedef StepInterval<int>	Segment;
@@ -66,7 +67,7 @@ public:
 
 /*!\brief Position in a CubeData */
 
-mClass CubeDataPos
+mClass(Basic) CubeDataPos
 {
 public:
     		CubeDataPos( int iln=0, int isn=0, int sidx=-1 )
@@ -88,7 +89,7 @@ public:
   The LineData's are not sorted.
  */
 
-mClass CubeData : public ManagedObjectSet<LineData>
+mClass(Basic) CubeData : public ManagedObjectSet<LineData>
 {
 public:
 
@@ -146,7 +147,7 @@ protected:
   The LineData's are sorted.
  */
 
-mClass SortedCubeData : public CubeData
+mClass(Basic) SortedCubeData : public CubeData
 {
 public:
     			SortedCubeData()				{}
@@ -176,7 +177,7 @@ public:
 
 /*!\brief Fills CubeData object. Requires inline- and crossline-sorting. */
 
-mClass CubeDataFiller
+mClass(Basic) CubeDataFiller
 {
 public:
     			CubeDataFiller(CubeData&);
@@ -199,7 +200,7 @@ protected:
 };
 
 
-mClass CubeDataIterator
+mClass(Basic) CubeDataIterator
 {
 public:
 
@@ -223,3 +224,4 @@ public:
 } // namespace PosInfo
 
 #endif
+

@@ -8,18 +8,19 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Component information
- RCS:		$Id: basiccompinfo.h,v 1.10 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: basiccompinfo.h,v 1.11 2012-08-03 13:00:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "namedobj.h"
 #include "datachar.h"
 
 
 /*!\brief Info on one component */
 
-mClass BasicComponentInfo : public NamedObject
+mClass(General) BasicComponentInfo : public NamedObject
 {
 public:
 			BasicComponentInfo( const char* nm=0 )
@@ -51,3 +52,4 @@ public:
 
 
 #endif
+

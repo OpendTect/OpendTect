@@ -6,16 +6,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          February 2009
- RCS:           $Id: uigraphicssaveimagedlg.h,v 1.5 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uigraphicssaveimagedlg.h,v 1.6 2012-08-03 13:01:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uisaveimagedlg.h"
 
 class uiGraphicsScene;
 
-mClass uiGraphicsSaveImageDlg : public uiSaveImageDlg
+mClass(uiTools) uiGraphicsSaveImageDlg : public uiSaveImageDlg
 {
 public:
 			uiGraphicsSaveImageDlg(uiParent*,uiGraphicsScene*);
@@ -33,3 +34,4 @@ protected:
 };
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.33 2012-05-03 11:56:12 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.34 2012-08-03 13:01:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "draw.h"
 #include "bufstringset.h"
 #include "namedobj.h"
@@ -44,7 +45,7 @@ template <class T> class LineParameters;
  
  */
 
-mClass uiAxisHandler : public NamedObject
+mClass(uiTools) uiAxisHandler : public NamedObject
 {
 public:
 
@@ -172,9 +173,10 @@ protected:
 };
 
 //! draws line not outside box defined by X and Y value ranges
-mGlobal void drawLine(uiLineItem&,const LineParameters<float>&,
+mGlobal(uiTools) void drawLine(uiLineItem&,const LineParameters<float>&,
 			const uiAxisHandler& xah,const uiAxisHandler& yah,
 			const Interval<float>* xvalrg = 0);
 
 
 #endif
+

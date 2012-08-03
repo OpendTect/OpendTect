@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.33 2011-08-03 09:26:41 cvsjaap Exp $
+ RCS:           $Id: uifileinput.h,v 1.34 2012-08-03 13:01:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uigeninput.h"
 #include "uifiledlg.h"
 
@@ -29,11 +30,11 @@ you specify otherwise in the setup.
 
 */
 
-mClass uiFileInput : public uiGenInput
+mClass(uiTools) uiFileInput : public uiGenInput
 { 	
 public:
 
-    mClass Setup
+    mClass(uiTools) Setup
     {
     public:
 			Setup(const char* filenm=0);
@@ -113,3 +114,4 @@ protected:
 
 
 #endif
+

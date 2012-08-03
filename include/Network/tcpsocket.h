@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: tcpsocket.h,v 1.11 2012-08-01 09:41:09 cvsmahant Exp $
+ RCS:           $Id: tcpsocket.h,v 1.12 2012-08-03 13:00:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "networkmod.h"
 #include "callback.h"
 #include "bufstring.h"
 
@@ -21,7 +22,7 @@ class QTcpSocketComm;
 class IOPar;
 
 
-mClass TcpSocket : public CallBacker
+mClass(Network) TcpSocket : public CallBacker
 {
 friend class QTcpSocketComm;
 
@@ -70,3 +71,4 @@ protected:
 };
 
 #endif
+

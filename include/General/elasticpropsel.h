@@ -7,20 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		May 2011
- RCS:		$Id: elasticpropsel.h,v 1.14 2012-07-17 13:32:08 cvsbruno Exp $
+ RCS:		$Id: elasticpropsel.h,v 1.15 2012-08-03 13:00:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 /*! brief user params to compute values for an elastic layer (den,p/s-waves) !*/
 
+#include "generalmod.h"
 #include "elasticprop.h"
 
 class IOObj;
 class MultiID;
 
 
-mClass ElasticPropSelection : public PropertyRefSelection
+mClass(General) ElasticPropSelection : public PropertyRefSelection
 {
 public:
 				ElasticPropSelection();
@@ -50,7 +51,7 @@ protected:
 };
 
 
-mClass ElasticPropGen
+mClass(General) ElasticPropGen
 {
 public:
     			ElasticPropGen(const ElasticPropSelection& eps,
@@ -77,7 +78,7 @@ protected:
 
 
 
-mClass ElasticPropGuess
+mClass(General) ElasticPropGuess
 {
 public:
     			ElasticPropGuess(const PropertyRefSelection&,
@@ -93,4 +94,5 @@ protected:
 
 
 #endif
+
 

@@ -7,11 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.h,v 1.7 2012-08-01 09:42:27 cvsmahant Exp $
+ RCS:		$Id: emfault3dpainter.h,v 1.8 2012-08-03 13:00:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "earthmodelmod.h"
+#include "earthmodelmod.h"
 #include "callback.h"
 #include "cubesampling.h"
 #include "draw.h"
@@ -28,7 +30,7 @@ namespace EM
 
 class Fault3D;
 
-mClass Fault3DPainter : public CallBacker
+mClass(EarthModel) Fault3DPainter : public CallBacker
 {
 public:
     			Fault3DPainter(FlatView::Viewer&,const EM::ObjectID&);
@@ -48,7 +50,7 @@ public:
     bool		hasDiffActiveStick(const EM::PosID*) const;
     FlatView::AuxData*	getAuxData(const EM::PosID*) const;
 
-	mStruct StkMarkerInfo
+	mStruct(EarthModel) StkMarkerInfo
 	{
 	    FlatView::AuxData*	marker_;
 	    int			stickid_;
@@ -65,7 +67,7 @@ public:
 protected:
     bool		addPolyLine();
 
-	mStruct Fault3DMarker
+	mStruct(EarthModel) Fault3DMarker
 	{
 	    				Fault3DMarker(){}
 					~Fault3DMarker()
@@ -121,3 +123,5 @@ protected:
 } //namespace EM
 
 #endif
+
+

@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.88 2012-04-30 21:52:37 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.89 2012-08-03 13:01:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiodapplmgr.h"
 
 #include "datapack.h"
@@ -42,7 +43,7 @@ class ZAxisTransform;
 
  */
 
-mClass uiODSceneMgr : public CallBacker
+mClass(uiODMain) uiODSceneMgr : public CallBacker
 {
 public:
 
@@ -177,7 +178,7 @@ protected:
     inline uiODMenuMgr&		menuMgr()     { return appl_.menuMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
-    mClass Scene
+    mClass(uiODMain) Scene
     {
     public:
 				Scene(uiMdiArea*);
@@ -202,3 +203,4 @@ protected:
 };
 
 #endif
+

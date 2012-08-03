@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          06/12/2005
- RCS:           $Id: uishortcuts.h,v 1.8 2011-08-04 16:36:02 cvshelene Exp $
+ RCS:           $Id: uishortcuts.h,v 1.9 2012-08-03 13:01:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "iopar.h"
 
@@ -23,7 +24,7 @@ class uiLabeledSpinBox;
   shortcuts.
 */
 
-mClass uiShortcutsDlg : public uiDialog
+mClass(uiTools) uiShortcutsDlg : public uiDialog
 {
 public:
 		    	uiShortcutsDlg(uiParent*,const char* selkey);
@@ -40,3 +41,4 @@ protected:
 };
 
 #endif
+

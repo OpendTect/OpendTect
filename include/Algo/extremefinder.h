@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: extremefinder.h,v 1.12 2012-05-23 07:28:09 cvskris Exp $
+ RCS:		$Id: extremefinder.h,v 1.13 2012-08-03 13:00:03 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "algomod.h"
 #include "task.h"
 #include "ranges.h"
 #include "mathfunc.h"
@@ -23,7 +24,7 @@ Implementation of Brent's Method in one dimension.
 
 */
 
-mClass ExtremeFinder1D : public SequentialTask
+mClass(Algo) ExtremeFinder1D : public SequentialTask
 {
 public:
     			ExtremeFinder1D( const FloatMathFunction& func,
@@ -92,7 +93,7 @@ protected:
 };
 
 
-mClass BisectionExtremeFinder1D : public SequentialTask
+mClass(Algo) BisectionExtremeFinder1D : public SequentialTask
 {
 public:
     			BisectionExtremeFinder1D(
@@ -169,7 +170,7 @@ Implementation of Powell's Quadratically Convergent Method
 \note The implementation is not tested (yet) 030512.
 */
 
-mClass ExtremeFinderND : public SequentialTask
+mClass(Algo) ExtremeFinderND : public SequentialTask
 {
 
 public:
@@ -233,3 +234,4 @@ private:
 
 
 #endif
+

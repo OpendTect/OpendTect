@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellwriter.h,v 1.11 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: wellwriter.h,v 1.12 2012-08-03 13:00:46 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "wellmod.h"
 #include "wellio.h"
 #include <iosfwd>
 
@@ -21,7 +22,7 @@ namespace Well
 class Data;
 class Log;
 
-mClass Writer : public IO
+mClass(Well) Writer : public IO
 {
 public:
 
@@ -61,3 +62,4 @@ protected:
 }; // namespace Well
 
 #endif
+

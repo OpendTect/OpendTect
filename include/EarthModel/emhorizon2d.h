@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.31 2012-06-14 08:24:20 cvsnanne Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.32 2012-08-03 13:00:18 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "emhorizon.h"
 #include "bufstringset.h"
 #include "horizon2dline.h"
@@ -30,7 +31,7 @@ namespace EM
 {
 class EMManager;
 
-mClass Horizon2DGeometry : public HorizonGeometry
+mClass(EarthModel) Horizon2DGeometry : public HorizonGeometry
 {
 public:
 				Horizon2DGeometry(Surface&);
@@ -91,7 +92,7 @@ protected:
 position's subid is formed by RowCol( lineid, tracenr ).getInt64(). If
 multiple z-values per trace is needed, multiple sections can be added. */
 
-mClass Horizon2D : public Horizon
+mClass(EarthModel) Horizon2D : public Horizon
 { mDefineEMObjFuncs( Horizon2D );
 public:
 
@@ -138,7 +139,7 @@ protected:
 };
 
 
-mClass Horizon2DAscIO : public Table::AscIO
+mClass(EarthModel) Horizon2DAscIO : public Table::AscIO
 {
 public:
     				Horizon2DAscIO( const Table::FormatDesc& fd,
@@ -169,3 +170,4 @@ protected:
 } // namespace EM
 
 #endif
+

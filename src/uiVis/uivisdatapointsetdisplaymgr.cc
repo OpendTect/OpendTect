@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.24 2012-07-30 20:57:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.25 2012-08-03 13:01:36 cvskris Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -129,7 +129,7 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
 }
 
 
-mClass uiCreateBodyDlg : public uiDialog
+class uiCreateBodyDlg : public uiDialog
 {
 public:
 uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
@@ -174,7 +174,7 @@ Interval<float> getValRange() const
 };
 
 
-mClass uiCreatePicksDlg : public uiCreatePicks
+class uiCreatePicksDlg : public uiCreatePicks
 {
 public:
 

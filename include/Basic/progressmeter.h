@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.19 2012-08-01 06:15:59 cvsmahant Exp $
+ RCS:           $Id: progressmeter.h,v 1.20 2012-08-03 13:00:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "gendefs.h"
 #include "thread.h"
 #include "callback.h"
@@ -20,7 +21,7 @@ ________________________________________________________________________
 class Task;
 
 /*!Is an interface where processes can report their progress. */
-mClass ProgressMeter
+mClass(Basic) ProgressMeter
 {
 public:
     virtual		~ProgressMeter()		{}
@@ -40,7 +41,7 @@ public:
 
 /*!\brief Textual progress indicator for batch programs. */
 
-mClass TextStreamProgressMeter : public ProgressMeter
+mClass(Basic) TextStreamProgressMeter : public ProgressMeter
 {
 public:
 			TextStreamProgressMeter(std::ostream&,
@@ -83,3 +84,4 @@ protected:
 
 
 #endif
+

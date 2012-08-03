@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.67 2012-08-01 10:23:50 cvsmahant Exp $
+ RCS:           $Id: uilistbox.h,v 1.68 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uigroup.h"
 #include "pixmap.h"
 #include "keyenum.h"
@@ -39,7 +40,7 @@ class QListWidgetItem;
 
 */
 
-mClass uiListBox : public uiObject
+mClass(uiBase) uiListBox : public uiObject
 {
 friend class i_listMessenger;
 friend class uiListBoxBody;
@@ -171,7 +172,7 @@ private:
 };
 
 
-mClass uiLabeledListBox : public uiGroup
+mClass(uiBase) uiLabeledListBox : public uiGroup
 {
 public:
 
@@ -203,3 +204,4 @@ protected:
 
 
 #endif
+

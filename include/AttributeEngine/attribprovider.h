@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.91 2012-07-20 21:14:15 cvsnanne Exp $
+ RCS:           $Id: attribprovider.h,v 1.92 2012-08-03 13:00:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "attributeenginemod.h"
 #include "bufstringset.h"
 #include "linekey.h"
 #include "position.h"
@@ -43,7 +44,7 @@ class ProviderTask;
 
 /*!\brief provides the actual output to ... */
 
-mClass Provider
+mClass(AttributeEngine) Provider
 {				mRefCountImpl(Provider);
 
     friend class		ProviderTask;
@@ -371,7 +372,7 @@ protected:
 };
 
 
-mGlobal int getSteeringIndex( const BinID& );
+mGlobal(AttributeEngine) int getSteeringIndex( const BinID& );
 //!< For every position there is a single steering index ...?
 
 
@@ -415,3 +416,4 @@ Attrib::Provider* clss::createInstance( Attrib::Desc& desc ) \
     desc->unRef();
 
 #endif
+

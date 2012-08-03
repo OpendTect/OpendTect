@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.4 2011-06-28 13:35:43 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.5 2012-08-03 13:01:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
 
 #include "emposid.h"
@@ -22,7 +23,7 @@ namespace Pick{ class Set; class SetMgr; }
 
 
 
-mClass uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
+mClass(uiODMain) uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVw2DPickSetParentTreeItem();
@@ -41,7 +42,7 @@ protected:
 };
 
 
-mClass uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
+mClass(uiODMain) uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*         name() const		{ return typeid(*this).name(); }
@@ -51,7 +52,7 @@ public:
 };
 
 
-mClass uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
+mClass(uiODMain) uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
 {
 public:
 			uiODVw2DPickSetTreeItem(int picksetid);
@@ -84,3 +85,4 @@ protected:
 
 
 #endif
+

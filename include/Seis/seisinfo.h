@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.31 2012-03-30 13:16:08 cvsbert Exp $
+ RCS:		$Id: seisinfo.h,v 1.32 2012-08-03 13:00:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "seismod.h"
 #include "seisposkey.h"
 #include "samplingdata.h"
 #include "position.h"
@@ -25,7 +26,7 @@ template <class T> class TypeSet;
 
 /*!\brief Information for a seismic trace, AKA trace header info */
 
-mClass SeisTrcInfo
+mClass(Seis) SeisTrcInfo
 {
 public:
 			SeisTrcInfo()
@@ -106,7 +107,7 @@ namespace Seis
 
    */
 
-mClass InternalUnitsEnsurer
+mClass(Seis) InternalUnitsEnsurer
 {
 public:
     			InternalUnitsEnsurer( SeisTrcInfo& ti,
@@ -140,3 +141,4 @@ public:
 
 
 #endif
+

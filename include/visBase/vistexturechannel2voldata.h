@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Karthika
  Date:		Nov 2009
- RCS:		$Id: vistexturechannel2voldata.h,v 1.9 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: vistexturechannel2voldata.h,v 1.10 2012-08-03 13:01:27 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "vistexturechannel2rgba.h"
 #include "coltabsequence.h"
 
@@ -27,7 +28,7 @@ namespace visBase
  the texture channel(s) into a volume data object. 
 */
 
-mClass TextureChannel2VolData : public TextureChannel2RGBA
+mClass(visBase) TextureChannel2VolData : public TextureChannel2RGBA
 {
 public:
     static TextureChannel2VolData*	create()
@@ -68,3 +69,4 @@ protected:
 
 
 #endif
+

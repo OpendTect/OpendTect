@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiwellattribxplot.h,v 1.16 2012-07-23 09:32:25 cvssatyaki Exp $
+ RCS:           $Id: uiwellattribxplot.h,v 1.17 2012-08-03 13:01:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uiwellattribmod.h"
 #include "uidialog.h"
 
 class DataPointSetDisplayMgr;
@@ -21,7 +22,7 @@ class uiWellLogExtractGrp;
 namespace Attrib { class DescSet; }
 
 
-mClass uiWellAttribCrossPlot : public uiDialog
+mClass(uiWellAttrib) uiWellAttribCrossPlot : public uiDialog
 {
 public:
 					uiWellAttribCrossPlot(uiParent*,
@@ -43,3 +44,4 @@ protected:
 
 
 #endif
+

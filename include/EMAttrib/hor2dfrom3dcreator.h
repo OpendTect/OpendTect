@@ -6,11 +6,12 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          April 2010
-RCS:           $Id: hor2dfrom3dcreator.h,v 1.4 2010-11-15 09:35:45 cvssatyaki Exp $
+RCS:           $Id: hor2dfrom3dcreator.h,v 1.5 2012-08-03 13:00:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "emattribmod.h"
 #include "executor.h"
 #include "posinfo2d.h"
 #include "surv2dgeom.h"
@@ -20,7 +21,7 @@ class BufferString;
 class BufferStringSet;
 class MultiID;
 
-mClass Hor2DFrom3DCreatorGrp : public ExecutorGroup
+mClass(EMAttrib) Hor2DFrom3DCreatorGrp : public ExecutorGroup
 {
 public:
     				Hor2DFrom3DCreatorGrp(const EM::Horizon3D&,
@@ -34,7 +35,7 @@ protected:
 };
 
 
-mClass Hor2DFrom3DCreator : public Executor
+mClass(EMAttrib) Hor2DFrom3DCreator : public Executor
 {
 public:
     				Hor2DFrom3DCreator(const EM::Horizon3D&,
@@ -56,3 +57,4 @@ protected:
 };
 
 #endif
+

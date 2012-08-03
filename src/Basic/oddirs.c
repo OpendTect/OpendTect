@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.42 2012-07-30 06:25:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.43 2012-08-03 13:01:34 cvskris Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -68,22 +68,22 @@ static const char* mkFullPath( const char* path, const char* filename )
 
 /* -> hidden survey functions used in survinfo.cc, ioman.cc etc. */
 
-mGlobal int SurveyNameDirty(void);
-mGlobal int SurveyNameDirty(void)
+mGlobal( Basic ) int SurveyNameDirty(void);
+int SurveyNameDirty(void)
 {
     return surveynamedirty;
 }
 
 
-mGlobal void SetSurveyNameDirty(void);
+mGlobal( Basic ) void SetSurveyNameDirty(void);
 void SetSurveyNameDirty(void)
 {
     surveynamedirty = 1;
 }
 
 
-mGlobal const char* GetSurveyFileName(void);
-mGlobal const char* GetSurveyFileName(void)
+mGlobal( Basic ) const char* GetSurveyFileName(void);
+const char* GetSurveyFileName(void)
 {
     static FileNameString sfname;
     static int inited = mC_False;
@@ -112,8 +112,8 @@ mGlobal const char* GetSurveyFileName(void)
 }
 
 
-mGlobal void SetSurveyName(const char*);
-mGlobal void SetSurveyName( const char* newnm )
+mGlobal( Basic ) void SetSurveyName(const char*);
+void SetSurveyName( const char* newnm )
 {
     mSkipBlanks( newnm );
     strcpy( surveyname, newnm );
@@ -122,8 +122,8 @@ mGlobal void SetSurveyName( const char* newnm )
 }
 
 
-mGlobal const char* GetSurveyName(void);
-mGlobal const char* GetSurveyName(void)
+mGlobal( Basic ) const char* GetSurveyName(void);
+const char* GetSurveyName(void)
 {
     FILE* fp; char* ptr;
     static char tmpbuf[mMaxFilePathLength];

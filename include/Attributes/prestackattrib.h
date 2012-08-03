@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.14 2012-06-29 08:14:18 cvshelene Exp $
+ RCS:           $Id: prestackattrib.h,v 1.15 2012-08-03 13:00:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "attributesmod.h"
 #include "attribprovider.h"
 #include "prestackprop.h"
 #include "multiid.h"
@@ -41,7 +42,7 @@ Output:
     
 //Classname should really be PreStack, but compiler complains and mixes up
 //with PreStack namespace.
-mClass PSAttrib : public Provider
+mClass(Attributes) PSAttrib : public Provider
 {
 public:
 
@@ -98,3 +99,4 @@ protected:
 }; // namespace Attrib
 
 #endif
+

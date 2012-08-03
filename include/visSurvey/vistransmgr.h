@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2005
- RCS:           $Id: vistransmgr.h,v 1.8 2012-01-31 10:20:13 cvskris Exp $
+ RCS:           $Id: vistransmgr.h,v 1.9 2012-08-03 13:01:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "vissurveymod.h"
 #include "commondefs.h"
 #include "vistransform.h"
 
@@ -22,7 +23,7 @@ namespace visSurvey
 
 class Scene;
 
-mClass SceneTransformManager
+mClass(visSurvey) SceneTransformManager
 {
 public:
     			SceneTransformManager()
@@ -49,8 +50,9 @@ protected:
 };
 
 
-mGlobal SceneTransformManager& STM();
+mGlobal(visSurvey) SceneTransformManager& STM();
 
 } // namespace visSurvey
 
 #endif
+

@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Arnaud Huck
  Date:          Mar 2012
- RCS:           $Id: variogramcomputers.h,v 1.1 2012-03-02 13:43:30 cvshelene Exp $
+ RCS:           $Id: variogramcomputers.h,v 1.2 2012-08-03 13:00:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "commondefs.h"
 #include "plftypes.h"
 
@@ -19,7 +20,7 @@ class BufferString;
 class BufferStringSet;
 class DataPointSet;
 
-mClass HorVariogramComputer
+mClass(General) HorVariogramComputer
 {
 public:
 
@@ -49,7 +50,7 @@ protected:
 };
 
 
-mClass VertVariogramComputer
+mClass(General) VertVariogramComputer
 {
 public:
 
@@ -100,3 +101,4 @@ protected:
 };
 
 #endif
+

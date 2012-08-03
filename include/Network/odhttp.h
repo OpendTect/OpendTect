@@ -7,19 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odhttp.h,v 1.19 2012-08-01 09:41:09 cvsmahant Exp $
+ RCS:           $Id: odhttp.h,v 1.20 2012-08-03 13:00:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "networkmod.h"
 #include "callback.h"
 #include "bufstringset.h"
 
 class MyHttp;
 class QHttpConnector;
 
-mClass ODHttp : public CallBacker
+mClass(Network) ODHttp : public CallBacker
 {
 friend class QHttpConnector;
 
@@ -97,3 +98,4 @@ protected:
 };
 
 #endif
+

@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		Feb 2009
- RCS:		$Id: uibodyoperatordlg.h,v 1.5 2012-03-02 19:25:46 cvsyuancheng Exp $
+ RCS:		$Id: uibodyoperatordlg.h,v 1.6 2012-08-03 13:00:55 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uiearthmodelmod.h"
+#include "uiearthmodelmod.h"
 #include "multiid.h"
 #include "uidialog.h"
 #include "uiioobjsel.h"
@@ -27,7 +29,7 @@ class uiToolButton;
 namespace EM { class BodyOperator; }
 
 
-mClass uiBodyOperatorDlg : public uiDialog
+mClass(uiEarthModel) uiBodyOperatorDlg : public uiDialog
 {
 public:
     			uiBodyOperatorDlg(uiParent*);
@@ -50,7 +52,7 @@ protected:
     static char		sKeyMinus()	{ return 2; }
     static char		sKeyUdf()	{ return -1; }
 
-    mStruct bodyOprand
+    mStruct(uiEarthModel) bodyOprand
     {
 			bodyOprand();
 	bool		operator==(const bodyOprand&) const;
@@ -77,3 +79,5 @@ protected:
 
 
 #endif
+
+

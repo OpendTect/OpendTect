@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl & N. Hemstra
  Date:		September 2008
- RCS:		$Id: displaypropertylinks.h,v 1.5 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: displaypropertylinks.h,v 1.6 2012-08-03 13:00:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "factory.h"
 #include "namedobj.h"
 #include "thread.h"
@@ -43,7 +44,7 @@ class DisplayPropertyLink;
 
 
 
-mClass DisplayLinkManager
+mClass(General) DisplayLinkManager
 {
 public:
     				DisplayLinkManager();
@@ -88,7 +89,7 @@ protected:
 
 
 
-mClass DisplayPropertyHolder
+mClass(General) DisplayPropertyHolder
 {
 public:
 			DisplayPropertyHolder(bool reg);
@@ -105,7 +106,7 @@ private:
 };
 
 
-mClass DisplayPropertyLink : public NamedObject
+mClass(General) DisplayPropertyLink : public NamedObject
 {
 public:
     mDefineFactory1ParamInClass(DisplayPropertyLink,
@@ -140,3 +141,4 @@ protected:
 };
 
 #endif
+

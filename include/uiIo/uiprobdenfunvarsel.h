@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uigroup.h"
 
 class BufferStringSet;
@@ -17,7 +18,7 @@ class uiComboBox;
 class uiGenInput;
 template < class T > class StepInterval;
 
-mClass uiPrDenFunVarSel : public uiGroup
+mClass(uiIo) uiPrDenFunVarSel : public uiGroup
 {
 public:
 
@@ -55,3 +56,4 @@ protected:
 };
 
 #endif
+

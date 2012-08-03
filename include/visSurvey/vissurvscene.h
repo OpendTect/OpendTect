@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.79 2011-12-22 12:57:25 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.80 2012-08-03 13:01:29 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "vissurveymod.h"
 #include "visscene.h"
 #include "bufstring.h"
 #include "cubesampling.h"
@@ -72,7 +73,7 @@ inl/crl/t to display coords, so the objects does not need any own transform.
 
 */
 
-mClass Scene : public visBase::Scene
+mClass(visSurvey) Scene : public visBase::Scene
 {
 public:
     static Scene*		create()
@@ -245,3 +246,4 @@ protected:
 
 
 #endif
+

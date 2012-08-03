@@ -6,18 +6,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: uiattribtransdlg.h,v 1.3 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiattribtransdlg.h,v 1.4 2012-08-03 13:01:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uivismod.h"
 #include "uidialog.h"
 
 namespace visSurvey { class SurveyObject; }
 class uiSliderExtra;
 
 
-mClass uiAttribTransDlg : public uiDialog
+mClass(uiVis) uiAttribTransDlg : public uiDialog
 {
 public:
     				uiAttribTransDlg( uiParent*,
@@ -35,3 +36,4 @@ protected:
 
 
 #endif
+

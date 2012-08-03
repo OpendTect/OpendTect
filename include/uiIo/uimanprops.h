@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jun 2011
- RCS:           $Id: uimanprops.h,v 1.3 2011-06-24 13:35:34 cvsbert Exp $
+ RCS:           $Id: uimanprops.h,v 1.4 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 #include "uidialog.h"
 class PropertyRef;
@@ -24,7 +25,7 @@ class uiListBox;
 
 /*!\brief Manages the PROPS(). */
 
-mClass uiManPROPS : public uiDialog
+mClass(uiIo) uiManPROPS : public uiDialog
 {
 public:
 
@@ -54,7 +55,7 @@ protected:
  
  */
 
-mClass uiSelectPropRefs : public uiDialog
+mClass(uiIo) uiSelectPropRefs : public uiDialog
 {
 public:
 
@@ -80,3 +81,4 @@ protected:
 
 
 #endif
+

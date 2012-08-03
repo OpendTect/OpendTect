@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.38 2012-07-09 20:15:08 cvskris Exp $
+ RCS:		$Id: task.h,v 1.39 2012-08-03 13:00:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "namedobj.h"
 #include "objectset.h"
 #include "thread.h"
@@ -26,7 +27,7 @@ class ProgressMeter;
 /* generalization of something (e.g. a computation) that needs to be
    done in multiple steps. */
 
-mClass Task : public NamedObject
+mClass(Basic) Task : public NamedObject
 {
 public:
     virtual		~Task();
@@ -68,7 +69,7 @@ protected:
 
 
 /*! A collection of tasks, that behave as a single task. */
-mClass TaskGroup : public Task
+mClass(Basic) TaskGroup : public Task
 {
 public:
     			~TaskGroup() { deepErase( tasks_ ); }
@@ -103,7 +104,7 @@ protected:
    be done in sequence, i.e. not parallely. */
 
 
-mClass SequentialTask : public Task
+mClass(Basic) SequentialTask : public Task
 {
 public:
 		SequentialTask(const char* nm=0)
@@ -184,7 +185,7 @@ and in use that instead of the for-loop:
 */
 
 
-mClass ParallelTask : public Task
+mClass(Basic) ParallelTask : public Task
 {
 public:
     virtual		~ParallelTask();
@@ -357,7 +358,7 @@ interp.execute();
 /*!Class that can execute a task. Can be used as such, be inherited by
    fancy subclasses with user interface and progressbars etc. */
 
-mClass TaskRunner
+mClass(Basic) TaskRunner
 {
 public:
 
@@ -375,3 +376,4 @@ protected:
 };
 
 #endif
+

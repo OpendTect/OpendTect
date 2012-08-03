@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: multiid.h,v 1.17 2011-05-10 03:25:07 cvsnanne Exp $
+ RCS:		$Id: multiid.h,v 1.18 2012-08-03 13:00:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "compoundkey.h"
 #include "string2.h"
 #include "fixedstring.h"
@@ -19,7 +20,7 @@ ________________________________________________________________________
 
 /*!\brief Compound key consisting of ints */
 
-mClass MultiID : public CompoundKey
+mClass(Basic) MultiID : public CompoundKey
 {
 public:
 			MultiID(const FixedString& s)
@@ -65,3 +66,4 @@ public:
 
 
 #endif
+

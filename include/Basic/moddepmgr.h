@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2011
- RCS:		$Id: moddepmgr.h,v 1.3 2011-08-29 05:50:50 cvsranojay Exp $
+ RCS:		$Id: moddepmgr.h,v 1.4 2012-08-03 13:00:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "bufstringset.h"
 class SharedLibAccess;
 
@@ -22,7 +23,7 @@ class SharedLibAccess;
 namespace OD
 {
 
-mClass ModDep
+mClass(Basic) ModDep
 {
 public:
     			ModDep( const char* m )
@@ -35,7 +36,7 @@ public:
 
 };
 
-mClass ModDepMgr
+mClass(Basic) ModDepMgr
 {
 public:
 				ModDepMgr(const char* fnm=0);
@@ -61,13 +62,14 @@ protected:
 
 };
 
-mGlobal const ModDepMgr& ModDeps();
+mGlobal(Basic) const ModDepMgr& ModDeps();
 
 #define mDefModInitFn(nm) \
-    mExternC void od_##nm##_initStdClasses(); \
+    mExternC(Basic) void od_##nm##_initStdClasses(); \
 extern "C" void od_##nm##_initStdClasses()
 
 
 } // namespace OD
 
 #endif
+

@@ -6,11 +6,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.21 2012-08-01 09:37:35 cvsmahant Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.22 2012-08-03 13:00:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
+#include "generalmod.h"
 #include "ranges.h"
 #include "arraynd.h"
 #include "dataclipper.h"
@@ -22,7 +24,7 @@ typedef Array2D<char>	A2DBitMap;
 
 /*! \brief Array2D Bitmap generation parameters */
 
-mStruct A2DBitMapGenPars
+mStruct(General) A2DBitMapGenPars
 {
 		A2DBitMapGenPars()
 		  : nointerpol_(false)
@@ -49,7 +51,7 @@ mStruct A2DBitMapGenPars
 
 /*! \brief Array2D<float>& + statistics */
 
-mClass A2DBitMapInpData
+mClass(General) A2DBitMapInpData
 {
 public:
 
@@ -105,7 +107,7 @@ need a (usually linear) transformation in both directions for display.
 */
 
 
-mClass A2DBitMapPosSetup
+mClass(General) A2DBitMapPosSetup
 {
 public:
 
@@ -180,7 +182,7 @@ protected:
 
 /*!\brief Generates Array2D bitmap from Array2D<float> */
 
-mClass A2DBitMapGenerator
+mClass(General) A2DBitMapGenerator
 {
 public:
 
@@ -238,3 +240,5 @@ protected:
 
 
 #endif
+
+

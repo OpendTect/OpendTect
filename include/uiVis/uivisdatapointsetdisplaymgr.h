@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Apr 2009
- RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.11 2012-06-26 08:59:34 cvssatyaki Exp $
+ RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.12 2012-08-03 13:01:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uivismod.h"
 #include "dpsdispmgr.h"
 #include "menuhandler.h"
 #include "thread.h"
@@ -24,7 +25,7 @@ namespace visSurvey { class PointSetDisplay; }
 /*Implementation of DataPointSetDisplayMgr that enables display of
   datapointsets in 3d visualization scenes. */
 
-mClass uiVisDataPointSetDisplayMgr : public DataPointSetDisplayMgr
+mClass(uiVis) uiVisDataPointSetDisplayMgr : public DataPointSetDisplayMgr
 {
 public:
     		uiVisDataPointSetDisplayMgr(uiVisPartServer&);
@@ -78,3 +79,4 @@ protected:
 };
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfunc.h,v 1.13 2011-10-06 15:15:46 cvsbert Exp $
+ RCS:		$Id: probdenfunc.h,v 1.14 2012-08-03 13:00:05 cvskris Exp $
 ________________________________________________________________________
 
 
 */
 
+#include "algomod.h"
 #include "namedobj.h"
 #include "ranges.h"
 
@@ -29,7 +30,7 @@ class IOPar;
 
 */
 
-mClass ProbDenFunc : public NamedObject
+mClass(Algo) ProbDenFunc : public NamedObject
 {
 public:
 
@@ -70,7 +71,7 @@ protected:
 };
 
 
-mClass ProbDenFunc1D : public ProbDenFunc
+mClass(Algo) ProbDenFunc1D : public ProbDenFunc
 {
 public:
 
@@ -112,7 +113,7 @@ protected:
 };
 
 
-mClass ProbDenFunc2D : public ProbDenFunc
+mClass(Algo) ProbDenFunc2D : public ProbDenFunc
 {
 public:
 
@@ -155,3 +156,4 @@ protected:
 
 
 #endif
+

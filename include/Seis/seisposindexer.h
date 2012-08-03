@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2008
- RCS:           $Id: seisposindexer.h,v 1.13 2012-08-01 09:43:17 cvsmahant Exp $
+ RCS:           $Id: seisposindexer.h,v 1.14 2012-08-03 13:00:37 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "seismod.h"
 #include "seisposkey.h"
 #include "sets.h"
 #include "thread.h"
@@ -23,7 +24,7 @@ template <class T> class DataInterpreter;
 namespace Seis
 {
 
-mClass PosKeyList
+mClass(Seis) PosKeyList
 {
 public:
     virtual		~PosKeyList()			{}
@@ -39,7 +40,7 @@ public:
 
 */
 
-mClass PosIndexer
+mClass(Seis) PosIndexer
 {
 public:
 
@@ -138,3 +139,4 @@ protected:
 } // namespace
 
 #endif
+

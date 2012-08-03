@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.27 2012-04-16 10:31:23 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.28 2012-08-03 13:00:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "wellattribmod.h"
 #include "namedobj.h"
 
 #include "enums.h"
@@ -26,7 +27,7 @@ class IOPar;
 namespace WellTie
 {
 
-mClass Setup
+mClass(WellAttrib) Setup
 {
 public:
     			enum CorrType { None, Automatic, UserDefined };
@@ -86,7 +87,7 @@ public:
 };
 
 
-mClass IO : public Well::IO
+mClass(WellAttrib) IO : public Well::IO
 {
 public:
     				IO(const char* f,bool isrd)
@@ -96,7 +97,7 @@ public:
 };
 
 
-mClass Writer : public IO
+mClass(WellAttrib) Writer : public IO
 {
 public:
 				Writer(const char* f)
@@ -112,7 +113,7 @@ protected:
     bool                	wrHdr(std::ostream&,const char*) const;
 };
 
-mClass Reader : public IO
+mClass(WellAttrib) Reader : public IO
 {
 public:
 				Reader(const char* f)
@@ -128,3 +129,4 @@ protected:
 
 }; //namespace WellTie
 #endif
+

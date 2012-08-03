@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.31 2012-05-17 06:21:13 cvsbert Exp $
+ RCS:           $Id: uiodmain.h,v 1.32 2012-08-03 13:01:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uimainwin.h"
 #include "multiid.h"
 
@@ -29,13 +30,13 @@ class uiODViewer2DMgr;
 class uiVisColTabEd;
 
 
-mGlobal uiODMain* ODMainWin();
+mGlobal(uiODMain) uiODMain* ODMainWin();
 //!< Top-level access for plugins
 
 
 /*!\brief OpendTect application top level object */
 
-mClass uiODMain : public uiMainWin
+mClass(uiODMain) uiODMain : public uiMainWin
 {
 public:
 
@@ -95,7 +96,7 @@ protected:
 
 private:
 
-    mGlobal friend int		ODMain(int,char**);
+    mGlobal(uiODMain) friend int		ODMain(int,char**);
 
     bool		ensureGoodDataDir();
     bool		ensureGoodSurveySetup();
@@ -219,3 +220,4 @@ public:
 
 
 #endif
+

@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 #include "cubesampling.h"
 #include "linekey.h"
@@ -25,7 +26,7 @@ namespace Attrib { class EngineMan; class DescSet; class DataCubes;
 
 /*! \brief Attribute preview in a 2d viewer */
 
-mClass uiAttribPanel
+mClass(uiAttributes) uiAttribPanel
 {
 public:
     			uiAttribPanel(uiParent*);
@@ -57,3 +58,4 @@ protected:
 };
 
 #endif
+

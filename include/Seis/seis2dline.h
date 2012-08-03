@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.53 2012-07-09 22:40:14 cvsnanne Exp $
+ RCS:		$Id: seis2dline.h,v 1.54 2012-08-03 13:00:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "seismod.h"
 #include "namedobj.h"
 #include "linekey.h"
 #include "objectset.h"
@@ -35,7 +36,7 @@ namespace Seis		{ class SelData; }
 
 /*!\brief Set of 2D lines comparable with 3D seismic cube */
 
-mClass Seis2DLineSet : public NamedObject
+mClass(Seis) Seis2DLineSet : public NamedObject
 {
     friend class SeisTrcWriter;
     friend class OD_2DLineGeometryFrom2DLinesTransf;
@@ -146,3 +147,4 @@ private:
 
 
 #endif
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui2dgeomman.cc,v 1.17 2012-05-09 07:51:25 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui2dgeomman.cc,v 1.18 2012-08-03 13:01:35 cvskris Exp $";
 
 
 #include "ui2dgeomman.h"
@@ -113,7 +113,7 @@ void ui2DGeomManageDlg::removeLineSetGeom( CallBacker* )
 //-----------Manage Line Geometry-----------------
 
 
-mClass uiManageLineGeomDlg : public uiDialog
+class uiManageLineGeomDlg : public uiDialog
 {
     public:
 uiManageLineGeomDlg( uiParent* p, const char* linenm )
@@ -152,7 +152,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
 }
 
 //---------- Import New Geomtery ----------------
-mClass uiGeom2DImpDlg : public uiDialog
+class uiGeom2DImpDlg : public uiDialog
 {
 
 public:

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: faulteditor.h,v 1.13 2011-02-09 16:50:08 cvsjaap Exp $
+ RCS:           $Id: faulteditor.h,v 1.14 2012-08-03 13:00:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mpeenginemod.h"
 #include "emeditor.h"
 
 namespace EM { class Fault3D; };
@@ -22,7 +23,7 @@ template <class T> class Selector;
 namespace MPE
 {
 
-mClass FaultEditor : public ObjectEditor
+mClass(MPEEngine) FaultEditor : public ObjectEditor
 {
 public:
     				FaultEditor(EM::Fault3D&);
@@ -76,3 +77,4 @@ protected:
 }  // namespace MPE
 
 #endif
+

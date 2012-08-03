@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.37 2012-06-13 13:14:07 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.38 2012-08-03 13:00:15 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "basicmod.h"
 #include "task.h"
 #include "objectset.h"
 #include "callback.h"
@@ -33,7 +34,7 @@ or manual.
 */
 
 
-mClass WorkManager : public CallBacker
+mClass(Basic) WorkManager : public CallBacker
 {
 public:
 
@@ -126,7 +127,7 @@ protected:
     below.
 
 \code
-    mClass MyClass : public CallBacker
+    mClass(Basic) MyClass : public CallBacker
     {
         void		normalCallBack(CallBacker*);
 	bool		taskFunction();
@@ -151,7 +152,7 @@ the work is done, or if there is an error.
 */
 
 
-mClass Work
+mClass(Basic) Work
 {
 public:
     inline		Work();
@@ -226,3 +227,4 @@ inline bool Threads::Work::doRun()
 
 
 #endif
+

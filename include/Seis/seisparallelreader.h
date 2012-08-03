@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		July 2010
- RCS:		$Id: seisparallelreader.h,v 1.3 2012-02-08 21:19:44 cvsnanne Exp $
+ RCS:		$Id: seisparallelreader.h,v 1.4 2012-08-03 13:00:37 cvskris Exp $
 ________________________________________________________________________
 
 */
 
+#include "seismod.h"
 #include "cubesampling.h"
 #include "fixedstring.h"
 #include "sets.h"
@@ -31,7 +32,7 @@ namespace Seis
 /*!Reads a 3D Seismic volume in parallel into an Array3D<float> or
    into a BinIDValueSet */
 
-mClass ParallelReader : public ParallelTask
+mClass(Seis) ParallelReader : public ParallelTask
 {
 public:
 			ParallelReader(const IOObj&,
@@ -80,3 +81,4 @@ protected:
 } // namespace Seis
 
 #endif
+

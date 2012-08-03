@@ -6,18 +6,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2010
- RCS:           $Id: uitoolbutton.h,v 1.1 2010-11-16 09:49:10 cvsbert Exp $
+ RCS:           $Id: uitoolbutton.h,v 1.2 2012-08-03 13:00:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uibutton.h"
 #include "uiicons.h"
 class uiToolButtonBody;
 class uiToolButtonSetup;
 
 
-mClass uiToolButton : public uiButton
+mClass(uiBase) uiToolButton : public uiButton
 {
 public:
 
@@ -69,7 +70,7 @@ private:
 
 #define mDefuiTBSUMemb(typ,memb) mDefSetupClssMemb(uiToolButtonSetup,typ,memb)
 
-mClass uiToolButtonSetup
+mClass(uiBase) uiToolButtonSetup
 {
 public:
 		    uiToolButtonSetup( const char* fnm, const char* tt,
@@ -96,3 +97,4 @@ public:
 
 
 #endif
+

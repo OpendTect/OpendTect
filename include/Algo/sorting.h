@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sorting.h,v 1.16 2011-11-03 14:38:59 cvsbruno Exp $
+ RCS:		$Id: sorting.h,v 1.17 2012-08-03 13:00:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "algomod.h"
 #include "gendefs.h"
 #include "general.h"
 #include "ptrman.h"
@@ -74,7 +75,7 @@ mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
 */
 
 template <class T>
-mClass ParallelSorter : public ParallelTask
+mClass(Algo) ParallelSorter : public ParallelTask
 {
 public:
 				ParallelSorter(T* vals, int sz);
@@ -567,3 +568,4 @@ bool ParallelSorter<T>::mergeLists( const T* valptr, T* result,
 
 
 #endif
+

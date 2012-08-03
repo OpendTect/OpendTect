@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.28 2012-01-18 18:36:00 cvsyuancheng Exp $
+ RCS:		$Id: visshape.h,v 1.29 2012-08-03 13:01:26 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visobject.h"
 
 class SoIndexedShape;
@@ -47,7 +48,7 @@ public: \
     void		   set##clssname(clssname*)
 
 
-mClass Shape : public VisualObject
+mClass(visBase) Shape : public VisualObject
 {
 public:
     void			turnOn(bool);
@@ -113,7 +114,7 @@ private:
 };
 
 
-mClass VertexShape : public Shape
+mClass(visBase) VertexShape : public Shape
 {
 public:
 
@@ -166,7 +167,7 @@ private:
 #undef mDeclSetGetItem
 
 
-mClass IndexedShape : public VertexShape
+mClass(visBase) IndexedShape : public VertexShape
 {
 public:
     int		nrCoordIndex() const;
@@ -224,3 +225,4 @@ private:
 }
 
 #endif
+

@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterstd.h,v 1.8 2011-11-14 07:39:14 cvssatyaki Exp $
+ RCS:           $Id: posfilterstd.h,v 1.9 2012-08-03 13:00:05 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "algomod.h"
 #include "posfilter.h"
 
 
@@ -21,7 +22,7 @@ namespace Pos
 
 /*!\brief Passes a percentage of the positions */
 
-mClass RandomFilter : public virtual Filter
+mClass(Algo) RandomFilter : public virtual Filter
 {
 public:
 
@@ -73,7 +74,7 @@ mSimpPosFilterDefFnsBase
 
 /*!\brief Passes a percentage of the positions (3D) */
 
-mClass RandomFilter3D : public Filter3D
+mClass(Algo) RandomFilter3D : public Filter3D
 		     , public RandomFilter
 {
 public:
@@ -85,7 +86,7 @@ public:
 
 /*!\brief Passes a percentage of the positions (2D) */
 
-mClass RandomFilter2D : public Filter2D
+mClass(Algo) RandomFilter2D : public Filter2D
 		     , public RandomFilter
 {
 public:
@@ -96,7 +97,7 @@ public:
 
 /*!\brief Passes each nth position */
 
-mClass SubsampFilter : public virtual Filter
+mClass(Algo) SubsampFilter : public virtual Filter
 {
 public:
 
@@ -127,7 +128,7 @@ protected:
 
 /*!\brief Passes each nth position (3D) */
 
-mClass SubsampFilter3D : public Filter3D
+mClass(Algo) SubsampFilter3D : public Filter3D
 		      , public SubsampFilter
 {
 public:
@@ -139,7 +140,7 @@ public:
 
 /*!\brief Passes each nth position (2D) */
 
-mClass SubsampFilter2D : public Filter2D
+mClass(Algo) SubsampFilter2D : public Filter2D
 		      , public SubsampFilter
 {
 public:
@@ -151,3 +152,4 @@ public:
 } // namespace
 
 #endif
+

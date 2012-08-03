@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Aug 2008
- RCS:           $Id: uicalcpoly2horvol.h,v 1.4 2011-09-06 15:31:42 cvsbert Exp $
+ RCS:           $Id: uicalcpoly2horvol.h,v 1.5 2012-08-03 13:00:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "uidialog.h"
 class uiIOObjSel;
 class uiGenInput;
@@ -22,7 +23,7 @@ namespace EM	{ class Horizon3D; }
 
 /*! \brief UI for calculation of volume at horizons */
 
-mClass uiCalcHorVol : public uiDialog
+mClass(uiEarthModel) uiCalcHorVol : public uiDialog
 {
 protected:
 
@@ -47,7 +48,7 @@ protected:
 
 /*! \brief using polygon to calculate to different horizons */
 
-mClass uiCalcPolyHorVol : public uiCalcHorVol
+mClass(uiEarthModel) uiCalcPolyHorVol : public uiCalcHorVol
 {
 public:
 
@@ -73,7 +74,7 @@ protected:
 
 /*! \brief using horizon to calculate from different levels by polygon */
 
-mClass uiCalcHorPolyVol : public uiCalcHorVol
+mClass(uiEarthModel) uiCalcHorPolyVol : public uiCalcHorVol
 {
 public:
 
@@ -98,3 +99,4 @@ protected:
 
 
 #endif
+

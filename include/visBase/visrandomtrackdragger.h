@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Feb 2006
- RCS:           $Id: visrandomtrackdragger.h,v 1.5 2011-12-16 15:57:20 cvskris Exp $
+ RCS:           $Id: visrandomtrackdragger.h,v 1.6 2012-08-03 13:01:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 #include "ranges.h"
@@ -30,7 +31,7 @@ namespace visBase
 class Transformation;
 
 
-mClass RandomTrackDragger : public VisualObjectImpl
+mClass(visBase) RandomTrackDragger : public VisualObjectImpl
 {
 public:
     static RandomTrackDragger*	create()
@@ -81,3 +82,4 @@ protected:
 } // namespace visBase
 
 #endif
+

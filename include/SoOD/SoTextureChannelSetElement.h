@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoTextureChannelSetElement.h,v 1.8 2010-09-15 06:31:55 cvskarthika Exp $
+ RCS:		$Id: SoTextureChannelSetElement.h,v 1.9 2012-08-03 13:00:42 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "soodmod.h"
 #include <Inventor/elements/SoReplacedElement.h>
 #include <Inventor/SbLinear.h>
 #include <Inventor/lists/SbList.h>
@@ -23,7 +24,7 @@ class SbImagei32;
 
 /*!  Element that holds one image per texture unit.  */
 
-mClass SoTextureChannelSetElement : public SoReplacedElement
+mClass(SoOD) SoTextureChannelSetElement : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoTextureChannelSetElement);
 public:
@@ -54,4 +55,5 @@ private:
 };
 
 #endif
+
 

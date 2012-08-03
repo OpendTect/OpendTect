@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.81 2012-08-01 10:46:36 cvsmahant Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.82 2012-08-03 13:01:29 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "vissurveymod.h"
 #include "visobject.h"
 #include "mousecursor.h"
 #include "vissurvobj.h"
@@ -44,7 +45,7 @@ namespace visSurvey
 
 class Scene;
 
-mClass VolumeDisplay : public visBase::VisualObjectImpl,
+mClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl,
 		      public SurveyObject
 {
 public:
@@ -262,3 +263,4 @@ protected:
 
 
 #endif
+

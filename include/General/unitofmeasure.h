@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.16 2012-03-12 15:38:38 cvsbert Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.17 2012-08-03 13:00:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "propertyref.h"
 #include "scaler.h"
 #include "repos.h"
@@ -19,7 +20,7 @@ ________________________________________________________________________
 
 class UnitOfMeasureRepository;
 
-mGlobal UnitOfMeasureRepository& UoMR();
+mGlobal(General) UnitOfMeasureRepository& UoMR();
 
 
 /*!\brief Unit of Measure
@@ -31,7 +32,7 @@ mGlobal UnitOfMeasureRepository& UoMR();
 
  */
 
-mClass UnitOfMeasure : public NamedObject
+mClass(General) UnitOfMeasure : public NamedObject
 {
 public:
 
@@ -100,7 +101,7 @@ protected:
  */
 
 
-mClass UnitOfMeasureRepository
+mClass(General) UnitOfMeasureRepository
 {
 public:
 
@@ -170,3 +171,4 @@ template <class T> T UnitOfMeasure::userValue( T inp ) const
 
 
 #endif
+

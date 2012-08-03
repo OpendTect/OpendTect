@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uipolardiagram.h,v 1.4 2009-12-15 10:38:48 cvskarthika Exp $
+ RCS:           $Id: uipolardiagram.h,v 1.5 2012-08-03 13:01:14 cvskris Exp $
 ________________________________________________________________________
 
  Displays a polar diagram which can be used to set the azimuth and the dip 
@@ -15,6 +15,7 @@ ________________________________________________________________________
  by linear motion towards or away from the center.
 -*/
 
+#include "uitoolsmod.h"
 #include "uigraphicsview.h"
 
 class uiCircleItem;
@@ -22,7 +23,7 @@ class uiLineItem;
 class uiMarkerItem;
 class uiTextItem;
 
-mClass uiPolarDiagram : public uiGraphicsView
+mClass(uiTools) uiPolarDiagram : public uiGraphicsView
 {
 public:
 
@@ -60,3 +61,4 @@ protected:
 
 
 #endif
+

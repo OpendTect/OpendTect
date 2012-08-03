@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          March 2011
- RCS:           $Id: grubbsfilterattrib.h,v 1.2 2011-03-24 03:00:29 cvsnanne Exp $
+ RCS:           $Id: grubbsfilterattrib.h,v 1.3 2012-08-03 13:01:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "expattribsmod.h"
 #include "attribprovider.h"
 #include "statruncalc.h"
 
@@ -24,7 +25,7 @@ GrubbsFilter grubbsval gate= pos0= pos1= stepout=1,1
 namespace Attrib
 {
 
-mClass GrubbsFilter : public Provider
+mClass(ExpAttribs) GrubbsFilter : public Provider
 {
 public:
     static void			initClass();
@@ -76,3 +77,4 @@ protected:
 
 
 #endif
+

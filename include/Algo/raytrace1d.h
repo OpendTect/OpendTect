@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.37 2012-07-18 15:00:36 cvsbruno Exp $
+ RCS:		$Id: raytrace1d.h,v 1.38 2012-08-03 13:00:05 cvskris Exp $
 ________________________________________________________________________
 
 */
 
+#include "algomod.h"
 #include "ailayer.h"
 #include "fixedstring.h"
 #include "factory.h"
@@ -24,7 +25,7 @@ template <class T> class Array2DImpl;
 class IOPar;
 class TimeDepthModel;
 
-mClass RayTracer1D : public ParallelTask
+mClass(Algo) RayTracer1D : public ParallelTask
 { 
 public:
     mDefineFactoryInClass( RayTracer1D, factory );
@@ -33,7 +34,7 @@ public:
 
 			~RayTracer1D();
 
-    mClass Setup
+    mClass(Algo) Setup
     {
     public:
 			Setup() 
@@ -117,7 +118,7 @@ protected:
 
 
 
-mClass VrmsRayTracer1D : public RayTracer1D
+mClass(Algo) VrmsRayTracer1D : public RayTracer1D
 { 
 public:
 
@@ -138,3 +139,4 @@ protected:
 
 
 #endif
+

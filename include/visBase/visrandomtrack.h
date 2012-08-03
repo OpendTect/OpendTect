@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.31 2011-12-16 15:57:20 cvskris Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.32 2012-08-03 13:01:25 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 #include "ranges.h"
@@ -32,7 +33,7 @@ class VisColorTab;
 
 */
 
-mClass RandomTrack : public VisualObjectImpl
+mClass(visBase) RandomTrack : public VisualObjectImpl
 {
 public:
     static RandomTrack*		create()
@@ -128,4 +129,5 @@ protected:
 };
 
 #endif
+
 

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          March 2011
- RCS:           $Id: uigrubbsfilterattrib.h,v 1.3 2011-03-31 10:26:01 cvssatyaki Exp $
+ RCS:           $Id: uigrubbsfilterattrib.h,v 1.4 2012-08-03 13:01:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiexpattribsmod.h"
 #include "uiattrdesced.h"
 
 class uiAttrSel;
@@ -22,7 +23,7 @@ class uiSteeringSel;
 
 /*! \brief Semblance Attribute description editor */
 
-mClass uiGrubbsFilterAttrib : public uiAttrDescEd
+mClass(uiExpAttribs) uiGrubbsFilterAttrib : public uiAttrDescEd
 {
 public:
 
@@ -49,3 +50,4 @@ protected:
 
 
 #endif
+

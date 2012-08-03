@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2009
- RCS:		$Id: basemap.h,v 1.7 2011-10-04 13:44:59 cvskris Exp $
+ RCS:		$Id: basemap.h,v 1.8 2012-08-03 13:00:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "namedobj.h"
 #include "thread.h"
 
@@ -24,7 +25,7 @@ class LineStyle;
 /*!Object that can be painted in a basemap. */
 
 
-mClass BaseMapObject : public NamedObject
+mClass(General) BaseMapObject : public NamedObject
 {
 public:
 				BaseMapObject(const char* nm);
@@ -69,7 +70,7 @@ protected:
 
 
 /*!Base class for a Basemap. */
-mClass BaseMap
+mClass(General) BaseMap
 {
 public:
     virtual void		addObject(BaseMapObject*) 		= 0;
@@ -81,3 +82,4 @@ public:
 
 
 #endif
+

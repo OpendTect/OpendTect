@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.15 2012-05-25 13:39:53 cvsjaap Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.16 2012-08-03 13:01:24 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "ranges.h"
 #include "visobject.h"
 
@@ -35,7 +36,7 @@ class PlaneDraggerCallbackHandler;
 
 */
 
-mClass DepthTabPlaneDragger : public VisualObjectImpl
+mClass(visBase) DepthTabPlaneDragger : public VisualObjectImpl
 {
     friend class PlaneDraggerCallbackHandler;
 
@@ -151,4 +152,5 @@ private:
 };
 
 #endif
+
 

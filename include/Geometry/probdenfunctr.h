@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: probdenfunctr.h,v 1.7 2010-02-09 16:04:07 cvsbert Exp $
+ RCS:		$Id: probdenfunctr.h,v 1.8 2012-08-03 13:00:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "geometrymod.h"
 #include "transl.h"
 #include <iosfwd>
 
@@ -20,7 +21,7 @@ class ProbDenFunc;
 class BufferString;
 
 
-mClass ProbDenFuncTranslatorGroup : public TranslatorGroup
+mClass(Geometry) ProbDenFuncTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ProbDenFunc)
 public:
     			mDefEmptyTranslatorGroupConstructor(ProbDenFunc)
@@ -30,7 +31,7 @@ public:
 };
 
 
-mClass ProbDenFuncTranslator : public Translator
+mClass(Geometry) ProbDenFuncTranslator : public Translator
 {
 public:
     			ProbDenFuncTranslator(const char* nm,const char* unm);
@@ -49,7 +50,7 @@ public:
 };
 
 
-mClass odProbDenFuncTranslator : public ProbDenFuncTranslator
+mClass(Geometry) odProbDenFuncTranslator : public ProbDenFuncTranslator
 {				 isTranslator(od,ProbDenFunc)
 public:
     			mDefEmptyTranslatorConstructor(od,ProbDenFunc)
@@ -61,3 +62,4 @@ public:
 
 
 #endif
+

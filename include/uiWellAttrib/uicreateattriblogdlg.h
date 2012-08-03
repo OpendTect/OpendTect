@@ -6,12 +6,13 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          March 2008
- RCS:           $Id: uicreateattriblogdlg.h,v 1.10 2012-05-11 14:22:10 cvsbruno Exp $
+ RCS:           $Id: uicreateattriblogdlg.h,v 1.11 2012-08-03 13:01:21 cvskris Exp $
  _______________________________________________________________________
 
 -*/
 
 
+#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "createattriblog.h"
@@ -24,7 +25,7 @@ class uiListBox;
 class uiGenInput;
 class uiWellExtractParams;
 
-mClass uiCreateAttribLogDlg : public uiDialog
+mClass(uiWellAttrib) uiCreateAttribLogDlg : public uiDialog
 {
 public:
     				uiCreateAttribLogDlg(uiParent*,
@@ -53,3 +54,4 @@ protected:
 };
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          25/9/2000
- RCS:           $Id: uifontsel.h,v 1.8 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uifontsel.h,v 1.9 2012-08-03 13:00:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 
@@ -25,7 +26,7 @@ bool	select( uiFont&, uiParent* parnt=0, const char* nm=0 );
 	     \return true if new font selected
 	*/
 
-mClass uiSetFonts : public uiDialog
+mClass(uiBase) uiSetFonts : public uiDialog
 {
 public:
 
@@ -40,7 +41,7 @@ protected:
 };
 
 
-mClass uiSelFonts : public uiDialog
+mClass(uiBase) uiSelFonts : public uiDialog
 {
 public:
 
@@ -60,3 +61,4 @@ protected:
 
 
 #endif
+

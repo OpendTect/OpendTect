@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2011
- RCS:           $Id: uibuildlistfromlist.h,v 1.7 2011-06-16 15:08:10 cvsbert Exp $
+ RCS:           $Id: uibuildlistfromlist.h,v 1.8 2012-08-03 13:01:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
 
@@ -46,11 +47,11 @@ class uiToolButton;
 
   */
 
-mClass uiBuildListFromList : public uiGroup
+mClass(uiTools) uiBuildListFromList : public uiGroup
 {
 public:
 
-    mClass Setup
+    mClass(uiTools) Setup
     {
     public:
 			Setup(bool itemsmovable,const char* avitmtyp,
@@ -121,3 +122,4 @@ protected:
 
 
 #endif
+

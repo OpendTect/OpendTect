@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uieditpdf.h,v 1.9 2011-02-18 13:45:16 cvsbert Exp $
+ RCS:           $Id: uieditpdf.h,v 1.10 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 class ProbDenFunc;
 class uiGenInput;
@@ -23,7 +24,7 @@ class uiFlatViewMainWin;
 
 /*! \brief Edit Probability Density Function */
 
-mClass uiEditProbDenFunc : public uiDialog
+mClass(uiIo) uiEditProbDenFunc : public uiDialog
 {
 public:
 			uiEditProbDenFunc(uiParent*,ProbDenFunc&,bool editable);
@@ -67,3 +68,4 @@ protected:
 
 
 #endif
+

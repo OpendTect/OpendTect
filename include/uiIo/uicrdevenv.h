@@ -6,17 +6,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.h,v 1.6 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uicrdevenv.h,v 1.7 2012-08-03 13:00:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 
 class uiGenInput;
 class uiFileInput;
 
-mClass uiCrDevEnv : public uiDialog
+mClass(uiIo) uiCrDevEnv : public uiDialog
 {
 public:
 
@@ -33,3 +34,4 @@ protected:
 };
 
 #endif
+

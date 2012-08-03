@@ -6,16 +6,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.h,v 1.5 2010-09-07 04:38:43 cvsnanne Exp $
+ RCS:           $Id: uisetdatadir.h,v 1.6 2012-08-03 13:01:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 
 class uiFileInput;
 
-mClass uiSetDataDir : public uiDialog
+mClass(uiIo) uiSetDataDir : public uiDialog
 {
 public:
 			uiSetDataDir(uiParent*);
@@ -32,3 +33,4 @@ protected:
 };
 
 #endif
+

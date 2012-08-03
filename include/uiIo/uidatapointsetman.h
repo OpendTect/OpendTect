@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          August 2011
- RCS:           $Id: uidatapointsetman.h,v 1.1 2011-09-05 10:51:41 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetman.h,v 1.2 2012-08-03 13:00:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uiobjfileman.h"
 
 /*! \brief
 CrossPlot manager
 */
 
-mClass uiDataPointSetMan : public uiObjFileMan
+mClass(uiIo) uiDataPointSetMan : public uiObjFileMan
 {
 public:
     				uiDataPointSetMan(uiParent*);
@@ -33,3 +34,4 @@ protected:
 };
 
 #endif
+

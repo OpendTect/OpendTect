@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: geeditor.h,v 1.5 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: geeditor.h,v 1.6 2012-08-03 13:00:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "geometrymod.h"
 #include "geomelement.h"
 
 namespace Geometry
@@ -21,7 +22,7 @@ namespace Geometry
 class TrackPlane;
 
 
-mClass ElementEditor : public CallBacker
+mClass(Geometry) ElementEditor : public CallBacker
 {
 public:
     			ElementEditor( Geometry::Element& element );
@@ -64,4 +65,5 @@ protected:
 };
 
 #endif
+
 

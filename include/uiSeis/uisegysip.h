@@ -6,16 +6,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2004
- RCS:           $Id: uisegysip.h,v 1.10 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uisegysip.h,v 1.11 2012-08-03 13:01:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiseismod.h"
 #include "uisip.h"
 #include "iopar.h"
 
 
-mClass uiSEGYSurvInfoProvider : public uiSurvInfoProvider
+mClass(uiSeis) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
 {
 public:
 
@@ -40,3 +41,4 @@ public:
 
 
 #endif
+

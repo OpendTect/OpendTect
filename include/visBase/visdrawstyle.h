@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdrawstyle.h,v 1.12 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visdrawstyle.h,v 1.13 2012-08-03 13:01:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "visbasemod.h"
 #include "visdata.h"
 #include "draw.h"
 
@@ -23,7 +24,7 @@ namespace visBase
 */
 
 
-mClass DrawStyle : public DataObject
+mClass(visBase) DrawStyle : public DataObject
 {
 public:
     static DrawStyle*	create()
@@ -70,3 +71,4 @@ private:
 
 
 #endif
+

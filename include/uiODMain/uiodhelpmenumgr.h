@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Aug 2005
- RCS:           $Id: uiodhelpmenumgr.h,v 1.10 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:           $Id: uiodhelpmenumgr.h,v 1.11 2012-08-03 13:01:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "sets.h"
 
 class uiODMenuMgr;
@@ -20,7 +21,7 @@ class uiODHelpDocInfo;
 
 /*!\brief The OpendTect help menu manager */
 
-mClass uiODHelpMenuMgr
+mClass(uiODMain) uiODHelpMenuMgr
 {
 public:
     				uiODHelpMenuMgr(uiODMenuMgr*);
@@ -46,3 +47,4 @@ protected:
 };
 
 #endif
+

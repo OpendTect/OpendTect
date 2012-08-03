@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.30 2012-04-09 13:43:06 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.31 2012-08-03 13:00:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiattributesmod.h"
 #include "uidialog.h"
 #include "multiid.h"
 
@@ -40,7 +41,7 @@ class uiToolButton;
 
 /*! \brief Editor for Attribute sets */
 
-mClass uiAttribDescSetEd : public uiDialog
+mClass(uiAttributes) uiAttribDescSetEd : public uiDialog
 {
 public:
 
@@ -170,3 +171,4 @@ public:
 
 
 #endif
+

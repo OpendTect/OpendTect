@@ -7,18 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2007
- RCS:           $Id: useraction.h,v 1.4 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: useraction.h,v 1.5 2012-08-03 13:00:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "callback.h"
 #include "bufstring.h"
 
 class UserAction : public CallBacker
 {
 public:
-    mClass Setup
+    mClass(General) Setup
     {
     public:
 		    Setup();
@@ -91,3 +92,4 @@ protected:
 };
 
 #endif
+

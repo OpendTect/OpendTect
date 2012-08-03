@@ -11,13 +11,14 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "uidialog.h"
 
 class uiColorTable;
 class uiComboBox;
 class uiDataPointSetCrossPlotter;
 		     
-mClass uiDPSOverlayPropDlg : public uiDialog
+mClass(uiIo) uiDPSOverlayPropDlg : public uiDialog
 {
 public:
 			uiDPSOverlayPropDlg(uiParent*,
@@ -41,3 +42,4 @@ protected:
 };
 
 #endif
+

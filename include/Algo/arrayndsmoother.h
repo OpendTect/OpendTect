@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2010
- RCS:           $Id: arrayndsmoother.h,v 1.2 2010-03-01 15:18:35 cvsbert Exp $
+ RCS:           $Id: arrayndsmoother.h,v 1.3 2012-08-03 13:00:02 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "algomod.h"
 #include "executor.h"
 #include "arraynd.h"
 
@@ -25,7 +26,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-mClass ArrayNDGentleSmoother : public Executor
+mClass(Algo) ArrayNDGentleSmoother : public Executor
 {
 public:
 
@@ -113,3 +114,4 @@ int ArrayNDGentleSmoother<T>::nextStep()
 
 
 #endif
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          July 2005
- RCS:           $Id: attribdescid.h,v 1.10 2010-10-22 09:16:38 cvsnanne Exp $
+ RCS:           $Id: attribdescid.h,v 1.11 2012-08-03 13:00:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,12 +18,13 @@ us to know whether this Desc is to be found in the DescSet dedicated for stored
 Attributes.
 */
 
+#include "attributeenginemod.h"
 #include "commondefs.h"
 
 namespace Attrib
 {
 
-mClass DescID
+mClass(AttributeEngine) DescID
 {
 public:
 			DescID()
@@ -70,3 +71,4 @@ protected:
 } // namespace Attrib
 
 #endif
+

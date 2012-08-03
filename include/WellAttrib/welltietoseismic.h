@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "wellattribmod.h"
 #include "ailayer.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
@@ -26,7 +27,7 @@ namespace WellTie
 {
     class Data;
 
-mClass DataPlayer
+mClass(WellAttrib) DataPlayer
 {
 public:
 			DataPlayer(Data&,const MultiID&,const LineKey* lk=0);
@@ -68,3 +69,4 @@ protected:
 
 };//namespace WellTie
 #endif
+

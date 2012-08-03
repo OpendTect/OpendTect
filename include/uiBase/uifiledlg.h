@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.26 2011-09-08 10:33:02 cvsjaap Exp $
+ RCS:           $Id: uifiledlg.h,v 1.27 2012-08-03 13:00:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "bufstringset.h"
 
 class uiParent;
@@ -20,7 +21,7 @@ class FileMultiString;
 /*!\brief Dialog to get a file or directory name from user
 */
 
-mClass uiFileDialog
+mClass(uiBase) uiFileDialog
 {
 public:
     //! File selection mode
@@ -109,3 +110,4 @@ private:
 };
 
 #endif
+

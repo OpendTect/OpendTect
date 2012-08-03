@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: horizon2dscanner.h,v 1.8 2010-09-27 07:28:09 cvsnageswara Exp $
+ RCS:		$Id: horizon2dscanner.h,v 1.9 2012-08-03 13:00:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiemattribmod.h"
 #include "executor.h"
 #include "bufstringset.h"
 #include "posinfo2d.h"
@@ -24,7 +25,7 @@ namespace PosInfo { class Line2DData; }
 namespace EM { class Horizon2DAscIO; }
 namespace Table { class FormatDesc; }
 
-mClass Horizon2DScanner : public Executor
+mClass(uiEMAttrib) Horizon2DScanner : public Executor
 {
 public:
 
@@ -72,3 +73,4 @@ protected:
 
 
 #endif
+

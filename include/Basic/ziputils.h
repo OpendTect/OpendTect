@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Ranojay Sen
  Date:		December  2011
- RCS:		$Id: ziputils.h,v 1.4 2012-02-07 08:10:30 cvsranojay Exp $
+ RCS:		$Id: ziputils.h,v 1.5 2012-08-03 13:00:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+#include "basicmod.h"
 #include "bufstringset.h"
 
-mClass ZipUtils
+mClass(Basic) ZipUtils
 {
 public:
 				ZipUtils(const char* filelistnm=0);
@@ -34,3 +35,4 @@ protected:
 };
 
 #endif
+

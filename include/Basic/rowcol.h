@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.27 2012-08-03 06:38:38 cvsaneesh Exp $
+ RCS:		$Id: rowcol.h,v 1.28 2012-08-03 13:00:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "rcol.h"
 
 template <class T> class TypeSet;
@@ -20,7 +21,7 @@ class BinID;
 /*!\brief Object with row and col. RowCol has most functions in common with
           BinID, so template-based functions can be based on both classes. */
 
-mClass RowCol
+mClass(Basic) RowCol
 {
 public:
     inline			RowCol(int r,int c);
@@ -88,3 +89,4 @@ public:
 mImplInlineRowColFunctions(RowCol, row, col);
 
 #endif
+

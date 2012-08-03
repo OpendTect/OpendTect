@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Jun 2006
- RCS:           $Id: uipicksetmgr.h,v 1.4 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uipicksetmgr.h,v 1.5 2012-08-03 13:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
 #include "callback.h"
 
 class IOObj;
@@ -22,7 +23,7 @@ namespace Pick { class Set; class SetMgr; };
 
 /*! \brief base class for management of a Pick::SetMgr */
 
-mClass uiPickSetMgr : public CallBacker
+mClass(uiIo) uiPickSetMgr : public CallBacker
 {
 public:
 			uiPickSetMgr(Pick::SetMgr&);
@@ -47,3 +48,4 @@ protected:
 
 
 #endif
+

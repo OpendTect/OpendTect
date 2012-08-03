@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ascstream.cc,v 1.39 2012-05-03 09:42:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: ascstream.cc,v 1.40 2012-08-03 13:01:34 cvskris Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -43,7 +43,7 @@ extern "C" const char* GetProjectVersionName()
 }
 
 
-mExternC void SetProjectVersionName(const char*);
+mExternC( Basic)  void SetProjectVersionName(const char*);
 extern "C" void SetProjectVersionName( const char* s )
 {
     getPVN() = s;

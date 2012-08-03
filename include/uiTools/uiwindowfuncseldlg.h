@@ -7,12 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.30 2011-08-02 09:37:57 cvskris Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.31 2012-08-03 13:01:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uitoolsmod.h"
+#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uifunctiondisplay.h"
 #include "uigroup.h"
@@ -38,11 +40,11 @@ class WindowFunction;
 
 /*!brief Displays a mathfunction. */
 
-mClass uiFunctionDrawer : public uiGraphicsView
+mClass(uiTools) uiFunctionDrawer : public uiGraphicsView
 {
 
 public:
-    mStruct Setup
+    mStruct(uiTools) Setup
     {
 			Setup()
 			    : xaxrg_(-1.2,1.2,0.25)
@@ -60,7 +62,7 @@ public:
 	mDefSetupMemb(Interval<float>,funcrg)	
     };
 
-    mStruct DrawFunction
+    mStruct(uiTools) DrawFunction
     {
 		DrawFunction( const FloatMathFunction* f )
 		    : color_(Color::DgbColor())
@@ -102,7 +104,7 @@ protected:
 };
 
 
-mClass uiFuncSelDraw : public uiGroup
+mClass(uiTools) uiFuncSelDraw : public uiGroup
 {
 public:
 
@@ -136,7 +138,7 @@ protected:
 
 
 /*!brief Displays a windowfunction. */
-mClass uiWindowFuncSelDlg : public uiDialog
+mClass(uiTools) uiWindowFuncSelDlg : public uiDialog
 {
 public:
 
@@ -161,3 +163,5 @@ protected:
 };
 
 #endif
+
+

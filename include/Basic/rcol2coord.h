@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	RowCol <-> Coord transform
- RCS:		$Id: rcol2coord.h,v 1.11 2010-06-17 17:48:09 cvskris Exp $
+ RCS:		$Id: rcol2coord.h,v 1.12 2012-08-03 13:00:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "basicmod.h"
 #include "position.h"
 #include "rowcol.h"
 
@@ -21,7 +22,7 @@ template <class T> class StepInterval;
 
 /*!\brief Encapsulates linear tranform from (i,j) index to (x,y) coordinates. */
 
-mClass RCol2Coord
+mClass(Basic) RCol2Coord
 {
 public:
 
@@ -90,3 +91,4 @@ protected:
 
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.21 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: ascstream.h,v 1.22 2012-08-03 13:00:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "bufstring.h"
 #include "plftypes.h"
 #include <limits.h>
@@ -29,7 +30,7 @@ a colon.
 
 */
 
-mClass ascostream
+mClass(Basic) ascostream
 {
 
 public:
@@ -82,7 +83,7 @@ of 'paragraphs', each separated by a single '!' on a line.
 
 */
 
-mClass ascistream
+mClass(Basic) ascistream
 {
 public:
 			ascistream( std::istream& strm, bool rdhead=true )
@@ -147,3 +148,4 @@ inline bool atEndOfSection( const ascistream& strm )
 
 
 #endif
+

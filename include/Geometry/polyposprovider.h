@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: polyposprovider.h,v 1.12 2012-05-22 14:48:43 cvskris Exp $
+ RCS:           $Id: polyposprovider.h,v 1.13 2012-08-03 13:00:28 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "geometrymod.h"
 #include "posprovider.h"
 class HorSampling;
 template <class T> class ODPolygon;
@@ -22,7 +23,7 @@ namespace Pos
 
 /*!\brief Volume/Area provider based on Polygon */
 
-mClass PolyProvider3D : public Provider3D
+mClass(Geometry) PolyProvider3D : public Provider3D
 {
 public:
 
@@ -84,3 +85,4 @@ public:
 } // namespace
 
 #endif
+

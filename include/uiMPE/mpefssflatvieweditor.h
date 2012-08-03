@@ -7,11 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.h,v 1.12 2012-08-01 12:30:31 cvsmahant Exp $
+ RCS:           $Id: mpefssflatvieweditor.h,v 1.13 2012-08-03 13:01:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uimpemod.h"
+#include "uimpemod.h"
 #include "emfaultsticksetflatvieweditor.h"
 
 #include "emposid.h"
@@ -26,7 +28,7 @@ namespace FlatView { class AuxDataEditor; }
 namespace MPE
 {
 
-mClass FaultStickSetFlatViewEditor : public EM::FaultStickSetFlatViewEditor
+mClass(uiMPE) FaultStickSetFlatViewEditor : public EM::FaultStickSetFlatViewEditor
 {
 public:
     			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*,
@@ -64,7 +66,7 @@ protected:
     void			mousePressCB(CallBacker*);
     void			mouseReleaseCB(CallBacker*);
 
-	mStruct StkMarkerIdInfo
+	mStruct(uiMPE) StkMarkerIdInfo
 	{
 	    int	    merkerid_;
 	    int	    stickid_;
@@ -96,3 +98,5 @@ protected:
 } //namespace MPE
 
 #endif
+
+

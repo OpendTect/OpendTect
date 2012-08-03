@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2009
- RCS:		$Id: uivolprocstepdlg.h,v 1.4 2011-09-19 12:27:48 cvskris Exp $
+ RCS:		$Id: uivolprocstepdlg.h,v 1.5 2012-08-03 13:01:20 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uivolumeprocessingmod.h"
 #include "uidialog.h"
 #include "factory.h"
 
@@ -25,7 +26,7 @@ namespace VolProc
 
 class Step;
 
-mClass uiStepDialog : public uiDialog
+mClass(uiVolumeProcessing) uiStepDialog : public uiDialog
 {
 public:
     mDefineFactory2ParamInClass(uiStepDialog,uiParent*,Step*,factory);
@@ -49,3 +50,4 @@ protected:
 }; //namespace
 
 #endif
+

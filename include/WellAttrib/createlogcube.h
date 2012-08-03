@@ -12,6 +12,8 @@ $
 ________________________________________________________________________
 -*/
 
+#include "wellattribmod.h"
+#include "wellattribmod.h"
 #include "task.h"
 #include "horsampling.h"
 #include "wellextractdata.h"
@@ -21,12 +23,12 @@ class CtxtIOObj;
 
 namespace Well { class Data;  }
 
-mClass LogCubeCreator : public ParallelTask
+mClass(WellAttrib) LogCubeCreator : public ParallelTask
 {
 public:
 				LogCubeCreator(const Well::Data&);
 				~LogCubeCreator();
-    mStruct LogCubeData
+    mStruct(WellAttrib) LogCubeData
     {
 				LogCubeData(const char* log,CtxtIOObj& c)
 				    : seisctio_(c), lognm_(log) {}
@@ -65,3 +67,5 @@ protected:
 };
 
 #endif
+
+

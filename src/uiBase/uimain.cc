@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimain.cc,v 1.76 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimain.cc,v 1.77 2012-08-03 13:01:35 cvskris Exp $";
 
 #include "uimain.h"
 
@@ -82,7 +82,7 @@ extern OSErr    NativePathNameToFSSpec(char *, FSSpec *, unsigned long);
 #endif
 
 
-mClass KeyboardEventFilter : public QObject
+class KeyboardEventFilter : public QObject
 {
 public:
     			KeyboardEventFilter(KeyboardEventHandler& kbeh)
@@ -119,7 +119,7 @@ bool KeyboardEventFilter::eventFilter( QObject* obj, QEvent* ev )
 }
 
 
-mClass QtTabletEventFilter : public QObject
+class QtTabletEventFilter : public QObject
 {
 public:
     			QtTabletEventFilter()

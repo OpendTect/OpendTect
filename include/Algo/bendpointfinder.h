@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Aug 2009
- RCS:		$Id: bendpointfinder.h,v 1.3 2009-08-12 06:14:16 cvsranojay Exp $
+ RCS:		$Id: bendpointfinder.h,v 1.4 2012-08-03 13:00:02 cvskris Exp $
 ________________________________________________________________________
 
 */
 
+#include "algomod.h"
 #include "task.h"
 #include "thread.h"
 #include "ranges.h"
@@ -21,7 +22,7 @@ ________________________________________________________________________
 /*!Base class that does the majority of the work finding bendpoints. Adaptions 
    to different data-types are done in subclasses. */
 
-mClass BendPointFinderBase : public ParallelTask
+mClass(Algo) BendPointFinderBase : public ParallelTask
 {
 public:
 
@@ -53,7 +54,7 @@ protected:
 };
 
 
-mClass BendPointFinder2D : public BendPointFinderBase
+mClass(Algo) BendPointFinder2D : public BendPointFinderBase
 {
 public:
     		BendPointFinder2D(const TypeSet<Coord>&, float eps);
@@ -65,7 +66,7 @@ protected:
 };
 
 
-mClass BendPointFinder3D : public BendPointFinderBase
+mClass(Algo) BendPointFinder3D : public BendPointFinderBase
 {
 public:
     		BendPointFinder3D(const TypeSet<Coord3>&,
@@ -77,3 +78,4 @@ protected:
     const Coord3	scale_;
 };
 #endif
+

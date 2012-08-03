@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.33 2009-08-07 12:53:11 cvsjaap Exp $
+ RCS:           $Id: uimsg.h,v 1.34 2012-08-03 13:00:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "gendefs.h"
 class uiMainWin;
 class uiStatusBar;
@@ -20,10 +21,10 @@ class BufferStringSet;
 class FileMultiString;
 
 
-mClass uiMsg
+mClass(uiBase) uiMsg
 {
     friend class uiMain;
-    mGlobal friend uiMsg& uiMSG();
+    mGlobal(uiBase) friend uiMsg& uiMSG();
 
 public:
 
@@ -89,11 +90,11 @@ private:
     uiMainWin*		uimainwin_;
 };
 
-mGlobal uiMsg& uiMSG();
+mGlobal(uiBase) uiMsg& uiMSG();
 
 
 //!Sets the uiMSG's main window temporary during the scope of the object
-mClass uiMsgMainWinSetter
+mClass(uiBase) uiMsgMainWinSetter
 {
 public:
     			uiMsgMainWinSetter( uiMainWin* np )
@@ -112,3 +113,4 @@ protected:
 
 
 #endif
+

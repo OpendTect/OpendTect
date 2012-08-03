@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.18 2012-07-24 18:40:53 cvskris Exp $
+ RCS:           $Id: undefval.h,v 1.19 2012-08-03 13:00:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "commondefs.h"
 #include "plftypes.h"
 
@@ -211,8 +212,8 @@ T& setUdf( T& u )
 template <class T>
 inline bool dbgIsUdf( T val )
     { return Values::isUdf( val ); }
-mGlobal bool dbgIsUdf(float);
-mGlobal bool dbgIsUdf(double);
+mGlobal(Basic) bool dbgIsUdf(float);
+mGlobal(Basic) bool dbgIsUdf(double);
 
 #ifdef __debug__
 # define mIsUdf(val) dbgIsUdf(val)
@@ -236,3 +237,4 @@ mGlobal bool dbgIsUdf(double);
 
 
 #endif
+

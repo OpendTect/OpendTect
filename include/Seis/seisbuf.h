@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.27 2012-05-10 11:16:54 cvsbert Exp $
+ RCS:		$Id: seisbuf.h,v 1.28 2012-08-03 13:00:35 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 
+#include "seismod.h"
 #include "seisinfo.h"
 #include "executor.h"
 class SeisTrc;
@@ -26,7 +27,7 @@ By default, the traces are not managed, but can be destroyed with deepErase().
 buffer in which the traces are somehow related.
 */
 
-mClass SeisTrcBuf
+mClass(Seis) SeisTrcBuf
 {
 public:
 
@@ -93,7 +94,7 @@ protected:
 };
 
 
-mClass SeisBufReader : public Executor
+mClass(Seis) SeisBufReader : public Executor
 {
 public:
     			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);
@@ -115,3 +116,4 @@ protected:
 
 
 #endif
+

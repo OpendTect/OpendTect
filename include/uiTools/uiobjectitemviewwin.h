@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uiobjectitemviewwin.h,v 1.12 2011-09-29 14:10:17 cvsbruno Exp $
+ RCS:           $Id: uiobjectitemviewwin.h,v 1.13 2012-08-03 13:01:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 /*! brief A uiMainWin that holds embedded uiObjects and controls !*/
 
+#include "uitoolsmod.h"
 #include "uimainwin.h"
 #include "uigroup.h"
 #include "uiobjectitemview.h"
@@ -32,11 +33,11 @@ class uiGraphicsObjectScene;
 class uiAxisHandler;
 class uiBorder;
 
-mClass uiObjectItemViewWin : public uiMainWin
+mClass(uiTools) uiObjectItemViewWin : public uiMainWin
 {
 public:    
 
-    mClass Setup
+    mClass(uiTools) Setup
     {
     public:
 
@@ -113,7 +114,7 @@ protected:
 };
 
 
-mClass uiObjectItemViewInfoBar : public uiObjectItemView
+mClass(uiTools) uiObjectItemViewInfoBar : public uiObjectItemView
 {
 public:    
 
@@ -138,7 +139,7 @@ protected:
 
 
 
-mClass uiObjectItemViewControl : public uiGroup
+mClass(uiTools) uiObjectItemViewControl : public uiGroup
 {
 public :
 			uiObjectItemViewControl(uiObjectItemView&);
@@ -160,7 +161,7 @@ protected:
 };
 
 
-mClass uiObjectItemViewAxisPainter : public CallBacker
+mClass(uiTools) uiObjectItemViewAxisPainter : public CallBacker
 {
 public:
 			uiObjectItemViewAxisPainter(uiObjectItemView&);
@@ -181,3 +182,4 @@ protected:
 
 
 #endif
+

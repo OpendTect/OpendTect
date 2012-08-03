@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2012
- RCS:           $Id: uistratlaymodtools.h,v 1.5 2012-06-08 14:24:41 cvsbruno Exp $
+ RCS:           $Id: uistratlaymodtools.h,v 1.6 2012-08-03 13:01:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uistratmod.h"
 #include "uigroup.h"
 class uiSpinBox;
 class uiGenInput;
@@ -20,7 +21,7 @@ class uiToolButton;
 namespace Strat { class Level; }
 
 
-mClass uiStratGenDescTools : public uiGroup
+mClass(uiStrat) uiStratGenDescTools : public uiGroup
 {
 public:
 
@@ -47,7 +48,7 @@ protected:
 };
 
 
-mClass uiStratLayModEditTools : public uiGroup
+mClass(uiStrat) uiStratLayModEditTools : public uiGroup
 {
 public:
 
@@ -105,3 +106,4 @@ protected:
 
 
 #endif
+

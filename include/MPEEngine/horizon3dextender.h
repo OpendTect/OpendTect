@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dextender.h,v 1.10 2011-05-11 07:17:04 cvsumesh Exp $
+ RCS:           $Id: horizon3dextender.h,v 1.11 2012-08-03 13:00:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mpeenginemod.h"
 #include "sectionextender.h"
 #include "position.h"
 
@@ -21,7 +22,7 @@ namespace EM { class Horizon3D; };
 namespace MPE
 {
 
-mClass BaseHorizon3DExtender : public SectionExtender
+mClass(MPEEngine) BaseHorizon3DExtender : public SectionExtender
 {
 public:
     //static SectionExtender*	create(EM::EMObject*,const EM::SectionID&);
@@ -50,7 +51,7 @@ protected:
 };
 
 
-mClass Horizon3DExtender : public BaseHorizon3DExtender
+mClass(MPEEngine) Horizon3DExtender : public BaseHorizon3DExtender
 {
 public:
     static void			initClass();
@@ -63,4 +64,5 @@ public:
 }; // namespace MPE
 
 #endif
+
 

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.h,v 1.12 2010-01-08 10:20:46 cvsbruno Exp $
+ RCS:           $Id: uiwellrdmlinedlg.h,v 1.13 2012-08-03 13:01:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiwellmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "bufstringset.h"
@@ -30,7 +31,7 @@ class uiPushButton;
 class uiWellPartServer;
 
 
-mClass uiWellSelGrp : public uiGroup
+mClass(uiWell) uiWellSelGrp : public uiGroup
 {
 public:
     			uiWellSelGrp(uiParent*,bool withpos=true);
@@ -80,7 +81,7 @@ protected:
 
 */
 
-mClass uiWell2RandomLineDlg : public uiDialog
+mClass(uiWell) uiWell2RandomLineDlg : public uiDialog
 {
 public:
     			uiWell2RandomLineDlg(uiParent*,uiWellPartServer*);
@@ -111,3 +112,4 @@ protected:
 };
 
 #endif
+

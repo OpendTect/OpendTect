@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.25 2012-04-19 07:10:51 cvsbruno Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.26 2012-08-03 13:00:45 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "wellmod.h"
 #include "welldahobj.h"
 
 namespace Well
@@ -20,7 +21,7 @@ namespace Well
 
 class Track;
 
-mClass D2TModel : public DahObj
+mClass(Well) D2TModel : public DahObj
 {
 public:
 
@@ -68,3 +69,4 @@ protected:
 }; // namespace Well
 
 #endif
+

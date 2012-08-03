@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoScale3Dragger.h,v 1.7 2010-08-04 14:49:36 cvsbert Exp $
+ RCS:		$Id: SoScale3Dragger.h,v 1.8 2012-08-03 13:00:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ Box shaped dragger with draggable markers in the corners and on the middle
 of each face.
 */
 
+#include "soodmod.h"
 #include <Inventor/draggers/SoDragger.h>
 
 #include "soodbasic.h"
@@ -28,7 +29,7 @@ class SoFieldSensor;
 
 class SbLineProjector;
 
-mClass SoScale3Dragger : public SoDragger
+mClass(SoOD) SoScale3Dragger : public SoDragger
 {
     SO_KIT_HEADER( SoScale3Dragger );
 
@@ -118,3 +119,4 @@ private:
 };
 
 #endif
+

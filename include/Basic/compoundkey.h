@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: compoundkey.h,v 1.14 2011-07-23 22:06:52 cvskris Exp $
+ RCS:		$Id: compoundkey.h,v 1.15 2012-08-03 13:00:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #ifndef general_h
+#include "basicmod.h"
 #include "general.h"
 #endif
 #include <stdlib.h>
@@ -29,7 +30,7 @@ ________________________________________________________________________
 */
 
 
-mClass CompoundKey
+mClass(Basic) CompoundKey
 {
 public:
 
@@ -74,7 +75,8 @@ inline CompoundKey& CompoundKey::operator +=( const char* s )
     return *this;
 }
 
-mGlobal std::ostream& operator<<(std::ostream&,const CompoundKey&);
+mGlobal(Basic) std::ostream& operator<<(std::ostream&,const CompoundKey&);
 
 
 #endif
+

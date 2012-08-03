@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: volproclateralsmoother.h,v 1.7 2011-08-26 08:24:52 cvskris Exp $
+ RCS:		$Id: volproclateralsmoother.h,v 1.8 2012-08-03 13:00:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "volumeprocessingmod.h"
 #include "multiid.h"
 #include "samplingdata.h"
 #include "volprocchain.h"
@@ -22,7 +23,7 @@ template <class T> class Smoother3D;
 namespace VolProc
 {
     
-mClass LateralSmoother : public Step
+mClass(VolumeProcessing) LateralSmoother : public Step
 {
 public:
     mDefaultFactoryInstantiation( VolProc::Step,
@@ -70,3 +71,4 @@ protected:
 
 
 #endif
+

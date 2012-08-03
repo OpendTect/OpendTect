@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.28 2011-01-27 04:48:17 cvsnanne Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.29 2012-08-03 13:01:18 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "uivismod.h"
 #include "uidialog.h"
 
 namespace visSurvey { class SurveyObject; }
@@ -22,7 +23,7 @@ class uiGroup;
 class IOPar;
 
 
-mClass uiVisColTabEd : public CallBacker
+mClass(uiVis) uiVisColTabEd : public CallBacker
 {
 public:
     				uiVisColTabEd(uiParent*,bool vert=true);
@@ -76,7 +77,7 @@ protected:
 };
 
 
-mClass uiColorBarDialog :  public uiDialog
+mClass(uiVis) uiColorBarDialog :  public uiDialog
 {
 public:
     				uiColorBarDialog(uiParent*,const char* title);
@@ -92,3 +93,4 @@ protected:
 
 
 #endif
+

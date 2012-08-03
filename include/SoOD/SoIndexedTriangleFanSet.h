@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoIndexedTriangleFanSet.h,v 1.7 2011-04-28 07:00:11 cvsbert Exp $
+ RCS:		$Id: SoIndexedTriangleFanSet.h,v 1.8 2012-08-03 13:00:40 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "soodmod.h"
 #include "Inventor/nodes/SoIndexedShape.h"
 
 #include "soodbasic.h"
@@ -33,7 +34,7 @@ This saves quite much mem compared with stripsets.
 
 */
 
-mClass SoIndexedTriangleFanSet : public SoIndexedShape
+mClass(SoOD) SoIndexedTriangleFanSet : public SoIndexedShape
 {
     SO_NODE_HEADER(SoIndexedTriangleFanSet);
 public:
@@ -63,4 +64,5 @@ private:
 };
 
 #endif
+
 

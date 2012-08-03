@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolygonbodydisplay.h,v 1.14 2012-06-29 14:53:43 cvsjaap Exp $
+ RCS:		$Id: vispolygonbodydisplay.h,v 1.15 2012-08-03 13:01:29 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 
 #include "emposid.h"
@@ -46,7 +47,7 @@ class MPEEditor;
 
 */
 
-mClass PolygonBodyDisplay : public visBase::VisualObjectImpl,
+mClass(visSurvey) PolygonBodyDisplay : public visBase::VisualObjectImpl,
 			    public SurveyObject
 {
 public:
@@ -163,3 +164,4 @@ protected:
 
 
 #endif
+

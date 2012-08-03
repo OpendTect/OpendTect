@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.97 2012-08-01 09:42:27 cvsmahant Exp $
+ RCS:		$Id: emobject.h,v 1.98 2012-08-03 13:00:19 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "bufstring.h"
 #include "callback.h"
 #include "cubesampling.h"
@@ -37,7 +38,7 @@ namespace EM
 {
 class EMManager;
 
-mClass EMObjectCallbackData
+mClass(EarthModel) EMObjectCallbackData
 {
 public:
     		EMObjectCallbackData() 
@@ -63,7 +64,7 @@ The object is created by EMObject::createIterator, and the next() function is
 called until no more positions can be found. */
 
 
-mClass EMObjectIterator
+mClass(EarthModel) EMObjectIterator
 {
 public:
     virtual		~EMObjectIterator() {}
@@ -76,7 +77,7 @@ public:
 };
 
 
-mClass PosAttrib
+mClass(EarthModel) PosAttrib
 {
 public:
     			PosAttrib()
@@ -97,7 +98,7 @@ public:
 
 /*!\brief Earth Model Object */
 
-mClass EMObject : public CallBacker
+mClass(EarthModel) EMObject : public CallBacker
 {
 mRefCountImplWithDestructor(EMObject,virtual ~EMObject(),
 { prepareForDelete(); delete this; } );
@@ -338,3 +339,4 @@ void clss::setNewName() \
 */
 
 #endif
+

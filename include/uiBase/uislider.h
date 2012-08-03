@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.27 2011-04-25 10:22:32 cvsnanne Exp $
+ RCS:           $Id: uislider.h,v 1.28 2012-08-03 13:00:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "uigroup.h"
 #include "uiobj.h"
 
@@ -21,7 +22,7 @@ class uiLabel;
 class uiLineEdit;
 template <class T> class StepInterval;
 
-mClass uiSlider : public uiObject
+mClass(uiBase) uiSlider : public uiObject
 {
 public:
 
@@ -90,11 +91,11 @@ private:
 
 /*! Slider with label */
 
-mClass uiSliderExtra : public uiGroup
+mClass(uiBase) uiSliderExtra : public uiGroup
 {
 public:
 
-    mClass Setup
+    mClass(uiBase) Setup
     {
     public:
 			Setup(const char* l=0)
@@ -137,3 +138,4 @@ protected:
 
 
 #endif
+

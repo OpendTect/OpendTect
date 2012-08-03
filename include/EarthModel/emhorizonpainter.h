@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.h,v 1.11 2012-04-02 15:06:15 cvskris Exp $
+ RCS:		$Id: emhorizonpainter.h,v 1.12 2012-08-03 13:00:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "earthmodelmod.h"
+#include "earthmodelmod.h"
 #include "callback.h"
 
 #include "cubesampling.h"
@@ -25,7 +27,7 @@ ________________________________________________________________________
 namespace EM
 {
     
-mClass EMObjPainterCallbackData
+mClass(EarthModel) EMObjPainterCallbackData
 {
 public:
     		    EMObjPainterCallbackData() 
@@ -37,13 +39,13 @@ public:
 };
     
     
-mClass HorizonPainter : public CallBacker
+mClass(EarthModel) HorizonPainter : public CallBacker
 {
 public:
     			HorizonPainter(FlatView::Viewer&);
 			~HorizonPainter();
 
-	mStruct HorizonInfo
+	mStruct(EarthModel) HorizonInfo
     	{
 	    EM::ObjectID	id_;
 	    BufferString	name_;
@@ -118,3 +120,5 @@ protected:
 }// namespace EM
 
 #endif
+
+

@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.29 2011-06-27 15:22:51 cvsbert Exp $
+ RCS:		$Id: enums.h,v 1.30 2012-08-03 13:00:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "iopar.h"
 
 /*!\brief Some utilities surrounding the often needed enum <-> string table.
@@ -156,7 +157,7 @@ const char* MyClass::Typenames_[] =
 
 /*\brief holds data pertinent for a certain enum */
 
-mClass EnumDef : public NamedObject
+mClass(Basic) EnumDef : public NamedObject
 {
 public:
 		EnumDef( const char* nm, const char* s[], short nrs=0 );
@@ -188,16 +189,16 @@ protected: \
 public:
 
 #define DeclareNameSpaceEnumUtils(enm) \
-    mExtern const EnumDef& enm##Def(); \
-    mExtern const char** enm##Names();\
+    mExtern(Basic) const EnumDef& enm##Def(); \
+    mExtern(Basic) const char** enm##Names();\
     extern const char* enm##Names_[];\
     extern const EnumDef enm##Definition_; \
-    mExtern bool parseEnum(const IOPar&,const char*,enm&); \
-    mExtern bool parseEnum(const char*,enm&); \
-    mExtern bool parseEnum##enm(const char*,enm&); /*legacy */  \
-    mExtern enm parseEnum##enm(const char*); \
-    mExtern const char* toString(enm); \
-    mExtern const char* get##enm##String(enm); /*legacy */ 
+    mExtern(Basic) bool parseEnum(const IOPar&,const char*,enm&); \
+    mExtern(Basic) bool parseEnum(const char*,enm&); \
+    mExtern(Basic) bool parseEnum##enm(const char*,enm&); /*legacy */  \
+    mExtern(Basic) enm parseEnum##enm(const char*); \
+    mExtern(Basic) const char* toString(enm); \
+    mExtern(Basic) const char* get##enm##String(enm); /*legacy */ 
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
 const EnumDef clss::enm##Definition_ \
@@ -287,3 +288,4 @@ const char* nmspc::toString( enm theenum ) \
 const char* nmspc::enm##Names_[] =
 
 #endif
+

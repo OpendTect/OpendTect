@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.37 2011-04-28 07:00:12 cvsbert Exp $
+ RCS:		$Id: visrectangle.h,v 1.38 2012-08-03 13:01:26 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visobject.h"
 #include "ranges.h"
 #include "position.h"
@@ -30,7 +31,7 @@ class SoDragger;
 namespace visBase
 {
 
-mClass RectangleDragger : public DataObject
+mClass(visBase) RectangleDragger : public DataObject
 {
 public:
     static RectangleDragger*	create()
@@ -93,7 +94,7 @@ protected:
     be snapped.
 */
 
-mClass Rectangle : public VisualObjectImpl
+mClass(visBase) Rectangle : public VisualObjectImpl
 {
 public:
     static Rectangle*	create()
@@ -192,3 +193,4 @@ protected:
 };
 	
 #endif
+

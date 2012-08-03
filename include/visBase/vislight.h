@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislight.h,v 1.13 2012-04-18 11:15:56 cvskris Exp $
+ RCS:		$Id: vislight.h,v 1.14 2012-08-03 13:01:25 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visbasemod.h"
 #include "visdata.h"
 
 
@@ -27,7 +28,7 @@ Base class for all lights
 
 */
 
-mClass Light : public DataObject
+mClass(visBase) Light : public DataObject
 {
 public:
 
@@ -60,7 +61,7 @@ A point that illuminates light
 
 */
 
-mClass PointLight : public Light
+mClass(visBase) PointLight : public Light
 {
 public:
     static PointLight*	create() mCreateDataObj( PointLight );
@@ -83,7 +84,7 @@ A light in a certain direction from a position at an infinite distance
 */
 
 
-mClass DirectionalLight : public Light
+mClass(visBase) DirectionalLight : public Light
 {
 public:
     static DirectionalLight*	create() mCreateDataObj( DirectionalLight );
@@ -105,7 +106,7 @@ protected:
 */
 
 
-mClass SpotLight : public Light
+mClass(visBase) SpotLight : public Light
 {
 public:
     static SpotLight*	create() mCreateDataObj( SpotLight );
@@ -135,7 +136,7 @@ protected:
 };
 
 
-mClass LightModel : public DataObject
+mClass(visBase) LightModel : public DataObject
 {
 public:
 
@@ -158,3 +159,4 @@ protected:
 } //visBase
 
 #endif
+

@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          April 2009
- RCS:           $Id: uiarray2dinterpol.h,v 1.12 2011-09-30 17:52:02 cvsyuancheng Exp $
+ RCS:           $Id: uiarray2dinterpol.h,v 1.13 2012-08-03 13:01:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uidlggroup.h"
 #include "factory.h"
 #include "position.h"
@@ -23,7 +24,7 @@ class uiGenInput;
 class uiArray2DInterpol;
 
 
-mClass uiArray2DInterpolSel : public uiDlgGroup
+mClass(uiTools) uiArray2DInterpolSel : public uiDlgGroup
 {
 public:
     mDefineFactory1ParamInClass(uiArray2DInterpol,uiParent*,factory);
@@ -64,7 +65,7 @@ protected:
 };
 
 
-mClass uiArray2DInterpol : public uiDlgGroup
+mClass(uiTools) uiArray2DInterpol : public uiDlgGroup
 {
 public:
     virtual void	setValuesFrom(const Array2DInterpol&)		{}
@@ -82,7 +83,7 @@ protected:
 };
 
 
-mClass uiInverseDistanceArray2DInterpol : public uiArray2DInterpol
+mClass(uiTools) uiInverseDistanceArray2DInterpol : public uiArray2DInterpol
 {
 public:
 
@@ -114,7 +115,7 @@ protected:
 };
 
 
-mClass uiTriangulationArray2DInterpol : public uiArray2DInterpol
+mClass(uiTools) uiTriangulationArray2DInterpol : public uiArray2DInterpol
 {
 public:
 
@@ -136,7 +137,7 @@ protected:
 };
 
 
-mClass uiArray2DInterpolExtension : public uiArray2DInterpol
+mClass(uiTools) uiArray2DInterpolExtension : public uiArray2DInterpol
 {
 public:
 
@@ -154,3 +155,4 @@ protected:
     uiGenInput*                 nrstepsfld_;
 };
 #endif
+

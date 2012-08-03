@@ -4,9 +4,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2007
- * ID       : $Id: googlexmlwriter.h,v 1.9 2010-07-12 22:52:41 cvskris Exp $
+ * ID       : $Id: googlexmlwriter.h,v 1.10 2012-08-03 13:00:23 cvskris Exp $
 -*/
 
+#include "generalmod.h"
 #include "bufstring.h"
 class StreamData;
 class Coord;
@@ -20,7 +21,7 @@ namespace ODGoogle
 {
 class XMLItem;
 
-mClass XMLWriter
+mClass(General) XMLWriter
 {
 public:
 
@@ -73,3 +74,4 @@ protected:
 } // namespace ODGoogle
 
 #endif
+

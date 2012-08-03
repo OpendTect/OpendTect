@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: visvw2dhorizon2d.h,v 1.6 2011-06-03 15:08:41 cvsbruno Exp $
+ RCS:		$Id: visvw2dhorizon2d.h,v 1.7 2012-08-03 13:01:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiviewer2dmod.h"
 #include "visvw2ddata.h"
 
 #include "emposid.h"
@@ -25,7 +26,7 @@ namespace FlatView { class AuxDataEditor; }
 namespace MPE { class HorizonFlatViewEditor2D; }
 
 
-mClass Vw2DHorizon2D : public Vw2DEMDataObject
+mClass(uiViewer2D) Vw2DHorizon2D : public Vw2DEMDataObject
 {
 public:
     static Vw2DHorizon2D* create(const EM::ObjectID& id,uiFlatViewWin* win,
@@ -68,3 +69,4 @@ protected:
 };
 
 #endif
+

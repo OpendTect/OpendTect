@@ -8,13 +8,14 @@ ________________________________________________________________________
  Date:		Aug 2003
  Contents:	Plugins
 
- RCS:		$Id: plugins.h,v 1.29 2012-07-10 15:01:29 cvskris Exp $
+ RCS:		$Id: plugins.h,v 1.30 2012-08-03 13:00:14 cvskris Exp $
 
  For making your own plugins, no need to include this file. Use odplugin.h.
 ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "sharedlibs.h"
 #include "bufstring.h"
 #include "objectset.h"
@@ -87,11 +88,11 @@ See header file odplugin.h.
 
  */
 
-mClass PluginManager
+mClass(Basic) PluginManager
 {
 public:
 
-    mGlobal friend PluginManager& PIM();
+    mGlobal(Basic) friend PluginManager& PIM();
     
     static PluginManager&	getInstance();
 
@@ -166,10 +167,11 @@ private:
 
 };
 
-mGlobal PluginManager& PIM();
+mGlobal(Basic) PluginManager& PIM();
 
 
 #endif /* End of C++ only section */
 
 
 #endif
+

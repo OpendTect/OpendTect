@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratlayseqattrsetbuild.h,v 1.5 2012-04-10 14:29:43 cvsbert Exp $
+ RCS:           $Id: uistratlayseqattrsetbuild.h,v 1.6 2012-08-03 13:01:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uistratmod.h"
 #include "uibuildlistfromlist.h"
 #include "propertyref.h"
 class CtxtIOObj;
@@ -20,7 +21,7 @@ namespace Strat { class RefTree; class LayerModel; class LaySeqAttribSet; }
 
 /*!\brief allows user to define (or read) a set of layer sequence attributes */
 
-mClass uiStratLaySeqAttribSetBuild : public uiBuildListFromList
+mClass(uiStrat) uiStratLaySeqAttribSetBuild : public uiBuildListFromList
 {
 public:
 
@@ -53,3 +54,4 @@ protected:
 
 
 #endif
+

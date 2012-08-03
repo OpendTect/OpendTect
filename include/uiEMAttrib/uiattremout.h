@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          January 2008
- RCS:           $Id: uiattremout.h,v 1.5 2012-02-17 23:06:35 cvsnanne Exp $
+ RCS:           $Id: uiattremout.h,v 1.6 2012-08-03 13:00:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiemattribmod.h"
 #include "uibatchlaunch.h"
 #include "attribdescid.h"
 
@@ -28,7 +29,7 @@ Used for calculating attributes in relation with surfaces
 */
 
 
-mClass uiAttrEMOut : public uiFullBatchDialog
+mClass(uiEMAttrib) uiAttrEMOut : public uiFullBatchDialog
 {
 public:
     			uiAttrEMOut(uiParent*,const Attrib::DescSet&,
@@ -53,3 +54,4 @@ protected:
 };
 
 #endif
+

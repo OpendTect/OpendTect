@@ -24,6 +24,7 @@
  *
 \**************************************************************************/
 
+#include "soodmod.h"
 #include <Inventor/elements/SoElement.h>
 #include <Inventor/elements/SoSubElement.h>
 #include <Inventor/SbLinear.h>
@@ -31,7 +32,7 @@
 #include "soodbasic.h"
 
 
-mClass UTMElement : public SoElement {
+mClass(SoOD) UTMElement : public SoElement {
   typedef SoElement inherited;
 
   SO_ELEMENT_HEADER(UTMElement);
@@ -76,3 +77,4 @@ protected:
 };
 
 #endif // !SMALLCHANGE_UTMELEMENT_H
+

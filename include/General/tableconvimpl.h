@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconvimpl.h,v 1.10 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: tableconvimpl.h,v 1.11 2012-08-03 13:00:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
 #include "tableconv.h"
 #include "bufstringset.h"
 #include "globexpr.h"
@@ -20,7 +21,7 @@ ________________________________________________________________________
 namespace Table
 {
 
-mClass WSImportHandler : public ImportHandler
+mClass(General) WSImportHandler : public ImportHandler
 {
 public:
 
@@ -44,7 +45,7 @@ protected:
 };
 
 
-mClass CSVImportHandler : public ImportHandler
+mClass(General) CSVImportHandler : public ImportHandler
 {
 public:
     			CSVImportHandler( std::istream& s )
@@ -68,7 +69,7 @@ protected:
 };
 
 
-mClass WSExportHandler : public ExportHandler
+mClass(General) WSExportHandler : public ExportHandler
 {
 public:
 
@@ -90,7 +91,7 @@ protected:
 };
 
 
-mClass CSVExportHandler : public ExportHandler
+mClass(General) CSVExportHandler : public ExportHandler
 {
 public:
     			CSVExportHandler( std::ostream& s )
@@ -105,7 +106,7 @@ protected:
 };
 
 
-mClass SQLInsertExportHandler : public ExportHandler
+mClass(General) SQLInsertExportHandler : public ExportHandler
 {
 public:
 
@@ -145,7 +146,7 @@ protected:
 
   */
 
-mClass StartStopManipulator : public Converter::RowManipulator
+mClass(General) StartStopManipulator : public Converter::RowManipulator
 {
 public:
 		StartStopManipulator()
@@ -187,7 +188,7 @@ protected:
 /*!\brief Only passes records where col(s) (don't) match expression(s) */
 
 
-mClass RecordMatcher : public Converter::RowManipulator
+mClass(General) RecordMatcher : public Converter::RowManipulator
 {
 public:
     			RecordMatcher( bool a=true )
@@ -216,7 +217,7 @@ protected:
   */
 
 
-mClass DuplicateKeyRemover : public Converter::RowManipulator
+mClass(General) DuplicateKeyRemover : public Converter::RowManipulator
 {
 public:
     			DuplicateKeyRemover()
@@ -241,3 +242,4 @@ protected:
 }; // namespace Table
 
 #endif
+

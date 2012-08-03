@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Jan 2011
- RCS:           $Id: gpucalc.h,v 1.2 2011-02-07 12:54:26 cvskris Exp $
+ RCS:           $Id: gpucalc.h,v 1.3 2012-08-03 13:01:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "gpucalcmod.h"
 #include "sets.h"
 
 class BufferStringSet;
@@ -24,7 +25,7 @@ class DeviceData;
 class ProgramData;
 class Context;
 
-mClass Device
+mClass(GPUCalc) Device
 {
 public:
     bool		isGPU() const;
@@ -45,7 +46,7 @@ protected:
 };
 
 
-mClass Program
+mClass(GPUCalc) Program
 {
 public:
     			Program(Device&);
@@ -59,13 +60,13 @@ protected:
     ProgramData&	data_;
 };
 
-mClass ProgramObject
+mClass(GPUCalc) ProgramObject
 {
 public:
     			ProgramObject(Program&);
 };
 
-mClass GPUManager
+mClass(GPUCalc) GPUManager
 {
 public:
     			GPUManager();
@@ -80,10 +81,11 @@ protected:
 };
 
 //Access. 
-mGlobal GPUManager& manager();
+mGlobal(GPUCalc) GPUManager& manager();
 
 
 }; // namespace
 
 
 #endif
+

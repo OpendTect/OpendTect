@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: fingervein.h,v 1.4 2012-07-25 21:04:06 cvsyuancheng Exp $
+ RCS:           $Id: fingervein.h,v 1.5 2012-08-03 13:00:03 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "algomod.h"
 #include "factory.h"
 
 template <class T> class Array2D;
@@ -21,7 +22,7 @@ class TaskRunner;
 
 /*Get a flag output for faults */
 
-mClass FingerVein
+mClass(Algo) FingerVein
 {
 public:    
 
@@ -62,3 +63,4 @@ protected:
 
 
 #endif
+

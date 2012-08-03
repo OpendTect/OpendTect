@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.62 2012-05-30 15:18:41 cvsbruno Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.63 2012-08-03 13:01:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uiodapplmgr.h"
 
 class DirList;
@@ -32,7 +33,7 @@ class uiToolBar;
 
 */
 
-mClass uiODMenuMgr : public CallBacker
+mClass(uiODMain) uiODMenuMgr : public CallBacker
 {
 
     friend class	uiODMain;
@@ -169,3 +170,4 @@ protected:
 
 
 #endif
+

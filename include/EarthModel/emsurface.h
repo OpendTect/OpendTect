@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.70 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emsurface.h,v 1.71 2012-08-03 13:00:19 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "emobject.h"
 #include "position.h"
 
@@ -37,7 +38,7 @@ class SurfaceGeometry;
 */
 
 
-mClass Surface : public EMObject
+mClass(EarthModel) Surface : public EMObject
 {
 public:
     int				nrSections() const;
@@ -93,3 +94,4 @@ protected:
 
 
 #endif
+

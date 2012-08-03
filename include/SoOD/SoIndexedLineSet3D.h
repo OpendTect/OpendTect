@@ -1,6 +1,7 @@
 #ifndef SoIndexedLineSet3D_h
 #define SoIndexedLineSet3D_h
 
+#include "soodmod.h"
 #include <Inventor/nodes/SoIndexedShape.h>
 
 #include <Inventor/fields/SoSFFloat.h>
@@ -14,7 +15,7 @@
 class SbBox3f;
 class SbVec3f;
 
-mClass SoIndexedLineSet3D : public SoIndexedShape
+mClass(SoOD) SoIndexedLineSet3D : public SoIndexedShape
 {
     SO_NODE_HEADER(SoIndexedLineSet3D);
 public:
@@ -41,7 +42,7 @@ protected:
 private:
     friend		class SoLineSet3D;
 
-    mClass LineSet3DData
+    mClass(SoOD) LineSet3DData
     {
     public:
 				LineSet3DData();
@@ -87,3 +88,4 @@ private:
 
 
 #endif
+

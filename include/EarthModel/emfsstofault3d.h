@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		March 2009
- RCS:		$Id: emfsstofault3d.h,v 1.6 2011-10-28 11:29:35 cvsjaap Exp $
+ RCS:		$Id: emfsstofault3d.h,v 1.7 2012-08-03 13:00:18 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "earthmodelmod.h"
 #include "emposid.h"
 #include "position.h"
 
@@ -25,11 +26,11 @@ namespace EM
 class FaultStickSet;
 class Fault3D;
 
-mClass FSStoFault3DConverter
+mClass(EarthModel) FSStoFault3DConverter
 {
 public:
 
-    mClass Setup
+    mClass(EarthModel) Setup
     {
     public:
 				Setup();
@@ -54,7 +55,7 @@ public:
 
 protected:
 
-    mClass FaultStick
+    mClass(EarthModel) FaultStick
     {
     public:
 				FaultStick(int sticknr);
@@ -92,3 +93,4 @@ protected:
 } // namespace EM
 
 #endif
+

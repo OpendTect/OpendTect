@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.14 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: delaunay3d.h,v 1.15 2012-08-03 13:00:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "algomod.h"
 #include "position.h"
 #include "sets.h"
 #include "task.h"
@@ -19,7 +20,7 @@ ________________________________________________________________________
 /*<Delaunay triangulation for 3D points. Should make sure all the points are 
    defined. */
 
-mClass DAGTetrahedraTree
+mClass(Algo) DAGTetrahedraTree
 {
 public:
     			DAGTetrahedraTree();
@@ -143,7 +144,7 @@ protected:
 };
 
 
-mClass ParallelDTetrahedralator : public ParallelTask
+mClass(Algo) ParallelDTetrahedralator : public ParallelTask
 {
 public:
 			ParallelDTetrahedralator(DAGTetrahedraTree&);
@@ -164,4 +165,5 @@ protected:
 
 
 #endif
+
 

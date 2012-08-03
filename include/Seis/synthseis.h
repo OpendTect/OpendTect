@@ -7,11 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.32 2012-06-07 08:57:10 cvsbruno Exp $
+ RCS:		$Id: synthseis.h,v 1.33 2012-08-03 13:00:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
+#include "seismod.h"
 #include "ailayer.h"
 #include "factory.h"
 #include "reflectivitymodel.h"
@@ -44,7 +46,7 @@ namespace Seis
 */
 
 
-mClass SynthGenBase 
+mClass(Seis) SynthGenBase 
 {
 public:
 
@@ -87,7 +89,7 @@ protected:
 
 
 
-mClass SynthGenerator : public SynthGenBase
+mClass(Seis) SynthGenerator : public SynthGenBase
 {
 public:
     mDefineFactoryInClass( SynthGenerator, factory );
@@ -136,7 +138,7 @@ public:
 };
 
 
-mClass MultiTraceSynthGenerator : public ParallelTask, public SynthGenBase
+mClass(Seis) MultiTraceSynthGenerator : public ParallelTask, public SynthGenBase
 {
 public:
     				MultiTraceSynthGenerator();
@@ -169,7 +171,7 @@ protected:
 
 
 
-mClass RaySynthGenerator : public ParallelTask, public SynthGenBase 
+mClass(Seis) RaySynthGenerator : public ParallelTask, public SynthGenBase 
 {
 public:
 			RaySynthGenerator();
@@ -182,7 +184,7 @@ public:
 
     const char*         message() const { return "Generating synthetics..."; }
 
-    mStruct RayModel
+    mStruct(Seis) RayModel
     {
 			RayModel(const RayTracer1D& rt1d,int nroffsets);
 			~RayModel();	
@@ -234,4 +236,6 @@ public:
 
 
 #endif
+
+
 

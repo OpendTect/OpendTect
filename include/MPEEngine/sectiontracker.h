@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.15 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: sectiontracker.h,v 1.16 2012-08-03 13:00:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "mpeenginemod.h"
 #include "task.h"
 #include "cubesampling.h"
 #include "emposid.h"
@@ -34,7 +35,7 @@ class SectionExtender;
 class SectionAdjuster;
 
 
-mClass SectionTracker
+mClass(MPEEngine) SectionTracker
 {
 public:
     				SectionTracker( EM::EMObject&,
@@ -114,4 +115,5 @@ protected:
 };
 
 #endif
+
 
