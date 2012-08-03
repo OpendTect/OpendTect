@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratreftree.cc,v 1.19 2012-07-25 12:40:03 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratreftree.cc,v 1.20 2012-08-03 11:37:30 cvsbruno Exp $";
 
 
 #include "stratreftree.h"
@@ -228,13 +228,8 @@ void Strat::RefTree::levelToBeRemoved( CallBacker* cb )
     const int lvlidx = lvlset->notifLvlIdx();
     if ( !lvlset->levels().validIdx( lvlidx ) ) return;
     const Strat::Level& lvl = *lvlset->levels()[lvlidx];
-    Strat::UnitRefIter it( *this, Strat::UnitRefIter::LeavedNodes );
-    while ( it.next() )
-    {
-	Strat::LeavedUnitRef* lur = ( Strat::LeavedUnitRef*)it.unit();
-	if ( lur && lur->levelID() == lvl.id() )
-	    lur->setLevelID( -1 );
-    }
+    Strat::LeavedUnitRef* lur = getByLevel( lvl.id() );
+    if ( lur ) lur->setLevelID( -1 );
 }
 
 
@@ -252,4 +247,17 @@ Strat::RefTree* Strat::RefTree::createStd( const char* nm )
     if ( sd.usable() )
 	ret->read( *sd.istrm );
     return ret;
+}
+
+
+Strat::LeavedUnitRef* Strat::RefTree::getByLevel( int lvlid ) const
+{
+    Strat::UnitRefIter it( *this, Strat::UnitRefIter::LeavedNodes );
+    while ( it.next() )
+    {
+	Strat::LeavedUnitRef* lur = ( Strat::LeavedUnitRef*)it.unit();
+	if ( lur && lur->levelID() == lvlid )
+	    return lur;
+    }
+    return 0;
 }

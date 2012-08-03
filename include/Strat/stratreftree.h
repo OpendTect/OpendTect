@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.28 2012-04-26 13:12:59 cvsbert Exp $
+ RCS:		$Id: stratreftree.h,v 1.29 2012-08-03 11:37:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ public:
     void		reportChange(const UnitRef*,bool isrem=false);
     void		reportAdd(const UnitRef*);
     bool		addLeavedUnit(const char*,const char*);
+    Strat::LeavedUnitRef* getByLevel(int lvlid) const;//first match
 
 };
 
