@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.44 2012-08-03 18:56:45 cvskris Exp $
+ RCS:		$Id: commondefs.h,v 1.45 2012-08-03 19:10:41 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -79,6 +79,9 @@ ________________________________________________________________________
 #ifdef __msvc__
 # include "msvcdefs.h"
 #else
+# define dll_export
+# define dll_import
+
 
 # define mMaxFilePathLength	255
 
