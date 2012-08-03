@@ -4,9 +4,11 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: faultstickset.cc,v 1.17 2012-07-18 07:27:50 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: faultstickset.cc,v 1.18 2012-08-03 21:32:52 cvsyuancheng Exp $";
 
 #include "faultstickset.h"
+
+#include "trigonometry.h"
 #include <math.h>
 
 namespace Geometry
@@ -304,6 +306,16 @@ double FaultStickSet::interStickDist( int sticknr1, int sticknr2,
 				      double zscale ) const
 {
     mGetEndPoints( sticknr1, sticknr2, zscale, a0, a1, b0, b1, mUdf(double) );
+    if ( knotrg1.start==knotrg1.stop )
+    {
+	Line3 stick( b0, b1-b0 );
+	return stick.distanceToPoint( a0 );
+    }
+    else if ( knotrg2.start==knotrg2.stop )
+    {
+	Line3 stick( a0, a1-a0 );
+	return stick.distanceToPoint( b0 );
+    }
 
     const double dista0 = pointToSegmentDist( a0, b0, b1 );
     const double dista1 = pointToSegmentDist( a1, b0, b1 );
