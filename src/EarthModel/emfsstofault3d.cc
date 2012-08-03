@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.14 2012-07-10 08:05:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.15 2012-08-03 21:34:08 cvsyuancheng Exp $";
 
 #include "emfsstofault3d.h"
 
 #include "survinfo.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
+#include "sorting.h"
 
 
 namespace  EM
@@ -316,7 +317,6 @@ void FSStoFault3DConverter::selectSticks( bool selhorpicked )
 void FSStoFault3DConverter::geometricSort( double zscale )
 {
     TypeSet<int> sticknrs;
-
     for ( int idx=0; idx<sticks_.size(); idx++ )
 	sticknrs += sticks_[idx]->sticknr_;
 
@@ -334,6 +334,36 @@ void FSStoFault3DConverter::geometricSort( double zscale )
 	    }
 	}
     }
+
+    for ( int idx=0; idx<sticks_.size(); idx++ )
+    {
+	const int nrcrds = sticks_[idx]->crds_.size();
+	if ( nrcrds<2 ) continue;
+
+	TypeSet<int> tmp;
+	TypeSet<float> zs;
+	for ( int idy=0; idy<nrcrds; idy++ )
+	{
+	    zs += sticks_[idx]->crds_[idy].z;
+	    tmp += idy;
+	}
+	
+	sort_coupled( zs.arr(), tmp.arr(), nrcrds );
+	const bool ascend = zs[0]<zs[nrcrds-1];
+	
+	TypeSet<Coord3> newcrds;
+	if ( ascend )
+	{
+	    for ( int idy=0; idy<nrcrds; idy++ )
+		newcrds += sticks_[idx]->crds_[tmp[idy]];
+	}
+	else
+	{
+	    for ( int idy=nrcrds-1; idy>=0; idy-- )
+		newcrds += sticks_[idx]->crds_[tmp[idy]];
+	}
+	sticks_[idx]->crds_ = newcrds;
+    }
 }
 
 
@@ -346,12 +376,15 @@ void FSStoFault3DConverter::untwistSticks( double zscale )
 	if ( curfssg_ && curfssg_->isTwisted(sticks_[refidx]->sticknr_,
 					     sticks_[idx]->sticknr_, zscale) )
 	    reverse = !reverse;
+	if ( !reverse ) continue;
 
 	const int nrknots = sticks_[idx]->crds_.size();
 	if ( nrknots > 1 )
 	    refidx = idx;
+	else
+	    continue;
 
-	for ( int idy=0; reverse && idy<nrknots/2; idy++ )
+	for ( int idy=0; idy<nrknots/2; idy++ )
 	    sticks_[idx]->crds_.swap( idy, nrknots-1-idy );
     }
 }
@@ -401,7 +434,7 @@ bool FSStoFault3DConverter::writeSection( const SectionID& sid ) const
     {
 	const FaultStick* stick = sticks_[idx];
 	if ( stick->crds_.isEmpty() )
-	    continue;
+  	    continue;
 
 	if ( !fault3d_.geometry().insertStick( sid, sticknr, 0,
 			stick->crds_[0], stick->normal_, setup_.addtohistory_) )
