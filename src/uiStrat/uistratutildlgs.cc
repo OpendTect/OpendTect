@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratutildlgs.cc,v 1.57 2012-07-27 11:05:15 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratutildlgs.cc,v 1.58 2012-08-03 11:36:54 cvsbruno Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -669,8 +669,25 @@ bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
 {
     const int lvlidx = lvllistfld_->getIntValue()-1;
     lvlid_ = lvlidx >=0 ? ids_[lvlidx] : -1;
-    unit_.setLevelID( lvlid_ );
 
+    Strat::RefTree& rt = Strat::eRT();
+    Strat::LeavedUnitRef* lur = rt.getByLevel( lvlid_ );
+
+    if ( lur )
+    {
+	BufferString msg( "This marker is already linked to " );
+	msg += lur->code();
+	BufferString movemsg( "Assign to " ); 
+	movemsg += unit_.code(); movemsg += " only";
+	const int res = 
+	    uiMSG().question(msg,"Assign to both", movemsg ,"Cancel");
+	if ( res == -1 )
+	    return false;
+	if ( res == 0 )
+	    lur->setLevelID( -1 );
+    }
+
+    unit_.setLevelID( lvlid_ );
     Strat::eLVLS().levelChanged.trigger();
     return true;
 }
