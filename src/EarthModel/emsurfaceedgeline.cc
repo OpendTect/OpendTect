@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceedgeline.cc,v 1.48 2012-07-18 07:57:05 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceedgeline.cc,v 1.49 2012-08-03 06:38:38 cvsaneesh Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -304,7 +304,7 @@ bool EdgeLineSegment::usePar( const IOPar& par )
 
     nodes_.erase();
     for ( int idx=0; idx<subids.size(); idx++ )
-	nodes_ += RowCol(subids[idx]);
+	nodes_ += RowCol::fromInt64(subids[idx]);
 
     if ( notifier ) notifier->trigger();
     return true;
@@ -687,7 +687,7 @@ void EdgeLineSegment::posChangeCB(CallBacker* cb)
 
      if ( cbdata.pid0.sectionID()!=section ) return;
      
-     const RowCol rc(cbdata.pid0.subID());
+     const RowCol rc = cbdata.pid0.getRowCol();
      const int nodeidx = indexOf(rc);
      if ( nodeidx==-1 ) return;
 
@@ -742,7 +742,7 @@ int EdgeLine::getSegment( const EM::PosID& pos, int* seq ) const
     if ( pos.objectID()!=horizon_.id() || pos.sectionID()!=section )
 	return -1;
 
-    return getSegment( RowCol(pos.subID()), seq );
+    return getSegment( pos.getRowCol(), seq );
 }
 
 
@@ -807,7 +807,7 @@ bool EdgeLine::isInside( const EM::PosID& pid, bool undefval ) const
     if ( pid.objectID()!=horizon_.id() || pid.sectionID()!=section )
 	return undefval;
 
-    return isInside( RowCol(pid.subID()), undefval );
+    return isInside( pid.getRowCol(), undefval );
 }
 
 

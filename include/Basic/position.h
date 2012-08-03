@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.62 2012-03-29 12:32:07 cvskris Exp $
+ RCS:		$Id: position.h,v 1.63 2012-08-03 06:38:38 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -177,7 +177,6 @@ public:
     inline			BinID(int r,int c);
     				BinID(const RowCol&);
     inline			BinID(const BinID&);
-    inline			BinID(const od_int64&);
     inline			BinID();
 
     inline bool			operator==(const BinID&) const;
@@ -198,8 +197,9 @@ public:
     inline int&			operator[](int idx);
     inline int			operator[](int idx) const;
     inline int			toInt32() const;
-    inline void			fromInt64(od_int64);
-    inline void			fromInt32(int);
+    
+    inline static BinID		fromInt64(od_int64);
+    inline static BinID		fromInt32(int);
     inline int			sqDistTo(const BinID&) const;
 
     void			fill(char*) const;

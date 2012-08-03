@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorinterpol.cc,v 1.26 2012-07-12 19:02:47 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorinterpol.cc,v 1.27 2012-08-03 06:38:40 cvsaneesh Exp $";
 
 #include "uihorinterpol.h"
 
@@ -197,7 +197,7 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	    EM::PosID posid = iterator->next();
 	    if ( posid.objectID() == -1 )
 		break;
-	    BinID bid( posid.subID() );
+	    BinID bid = posid.getRowCol();
 	    if ( hs.includes(bid) )
 	    {
 		Coord3 pos = hor3d->getPos( posid );

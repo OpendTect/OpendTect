@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visemobjdisplay.cc,v 1.142 2012-05-22 14:48:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visemobjdisplay.cc,v 1.143 2012-08-03 06:38:40 cvsaneesh Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -191,7 +191,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     }
     else if ( keycb )
     {
-	const RowCol closestrc( closestnode.subID() );
+	const RowCol closestrc = closestnode.getRowCol();
 	BufferString str = "Section: "; str += closestnode.sectionID();
 	str += " ("; str += closestrc.row;
 	str += ","; str += closestrc.col; str += ",";

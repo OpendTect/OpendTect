@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfaceauxdata.cc,v 1.36 2012-05-02 15:11:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceauxdata.cc,v 1.37 2012-08-03 06:38:38 cvsaneesh Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -140,7 +140,7 @@ float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
     if ( !auxdata_.validIdx(sectionidx) || !auxdata_[sectionidx] )
 	return mUdf(float);
 
-    const BinID geomrc( RowCol(posid.subID()) );
+    const BinID geomrc( posid.getRowCol() );
     const BinIDValueSet::Pos pos = auxdata_[sectionidx]->findFirst( geomrc );
     if ( !pos.valid() )
 	return mUdf(float);
@@ -166,7 +166,7 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
     if ( !auxdata_[sectionidx] )
 	auxdata_.replace( sectionidx, new BinIDValueSet( nrAuxData(), false ) );
 
-    const BinID geomrc( RowCol(posid.subID()) );
+    const BinID geomrc( posid.getRowCol() );
     const BinIDValueSet::Pos pos = auxdata_[sectionidx]->findFirst( geomrc );
     if ( !pos.valid() )
     {

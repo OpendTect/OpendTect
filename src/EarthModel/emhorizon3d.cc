@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizon3d.cc,v 1.139 2012-05-22 14:48:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhorizon3d.cc,v 1.140 2012-08-03 06:38:38 cvsaneesh Exp $";
 
 #include "emhorizon3d.h"
 
@@ -565,7 +565,7 @@ bool Horizon3DGeometry::isChecksEnabled() const
 bool Horizon3DGeometry::isNodeOK( const PosID& pid ) const
 {
     const Geometry::BinIDSurface* surf = sectionGeometry( pid.sectionID() );
-    return surf ? surf->hasSupport( RowCol(pid.subID()) ) : false;
+    return surf ? surf->hasSupport( pid.getRowCol() ) : false;
 }
 
 
@@ -584,7 +584,7 @@ bool Horizon3DGeometry::isAtEdge( const PosID& pid ) const
 PosID Horizon3DGeometry::getNeighbor( const PosID& posid,
 				      const RowCol& dir ) const
 {
-    const RowCol rc( posid.subID() );
+    const RowCol rc = posid.getRowCol();
     const SectionID sid = posid.sectionID();
 
     const StepInterval<int> rowrg = rowRange( sid );
@@ -604,7 +604,7 @@ PosID Horizon3DGeometry::getNeighbor( const PosID& posid,
     const int nraliases = aliases.size();
     for ( int idx=0; idx<nraliases; idx++ )
     {
-	const RowCol ownrc(aliases[idx].subID());
+	const RowCol ownrc = aliases[idx].getRowCol();
 	const RowCol neigborrc = ownrc+diff;
 	if ( surface_.isDefined(aliases[idx].sectionID(),
 	     neigborrc.toInt64()) )
@@ -614,7 +614,7 @@ PosID Horizon3DGeometry::getNeighbor( const PosID& posid,
 	}
     }
 
-    const RowCol ownrc(posid.subID());
+    const RowCol ownrc = posid.getRowCol();
     const RowCol neigborrc = ownrc+diff;
 
     return PosID( surface_.id(), posid.sectionID(), neigborrc.toInt64());
@@ -697,7 +697,7 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
     const PosID firstposid = posid;
     while ( true )
     {
-	Coord3 pos = surf->getKnot( RowCol(posid.subID()), false );
+	Coord3 pos = surf->getKnot( posid.getRowCol(), false );
 	set += Pick::Location( pos );
 
 	nodefound = false;
@@ -708,7 +708,7 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 	{
 	    PosID curposid, leftposid, rightposid;
 	    curposid = leftposid = rightposid = posid;
-	    RowCol rcol( curposid.subID() );
+	    RowCol rcol = curposid.getRowCol();
 	    RowCol currcol = rcol + dirs[idx];
 	    int leftidx = idx ? idx - 1 : 7;
 	    int rightidx = idx < 7 ? idx + 1 : 0;

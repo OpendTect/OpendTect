@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.16 2012-08-01 12:31:14 cvsmahant Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.17 2012-08-03 06:38:40 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -376,7 +376,7 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
     if ( pid.isUdf() || shdmakenewstick )
 	return; 
 
-    const int sticknr = pid.isUdf() ? mUdf(int) : RowCol(pid.subID()).row;
+    const int sticknr = pid.isUdf() ? mUdf(int) : pid.getRowCol().row;
 
     if ( activestickid_ != sticknr )
 	activestickid_ = sticknr;
@@ -508,7 +508,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
     {
 	//Remove knot/stick
 	bool res;
-	const int rmnr = RowCol(mousepid_.subID()).row;
+	const int rmnr = mousepid_.getRowCol().row;
 	if ( emf3d->geometry().nrKnots(mousepid_.sectionID(),rmnr) == 1 )
 	{
 	    res = emf3d->geometry().removeStick( mousepid_.sectionID(), rmnr,
@@ -535,7 +535,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 
 	const int insertsticknr = interactpid.isUdf()
 	    ? mUdf( int )
-	    : RowCol(interactpid.subID()).row;
+	    : interactpid.getRowCol().row;
 
 	if ( emf3d->geometry().insertStick(interactpid.sectionID(),
 		insertsticknr,0,pos,editnormal,true) )

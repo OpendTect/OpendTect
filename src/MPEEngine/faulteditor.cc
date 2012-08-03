@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: faulteditor.cc,v 1.20 2012-05-02 15:11:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: faulteditor.cc,v 1.21 2012-08-03 06:38:39 cvsaneesh Exp $";
 
 #include "faulteditor.h"
 
@@ -66,7 +66,7 @@ void FaultEditor::setLastClicked( const EM::PosID& pid )
     Geometry::Element* ge = emobj.sectionGeometry( pid.sectionID() );
     mDynamicCastGet( Geometry::FaultStickSet*, fss, ge );
     if ( fss )
-	fss->preferStick( RowCol(pid.subID()).row  );
+	fss->preferStick( pid.getRowCol().row  );
 
     if ( sowingpivot_.isDefined() )
     {
@@ -88,7 +88,7 @@ int FaultEditor::getLastClickedStick() const
 
     if ( fss )
     {
-	const int lastclickedsticknr = RowCol( lastclickedpid_.subID() ).row;
+	const int lastclickedsticknr = lastclickedpid_.getRowCol().row;
 	if ( lastclickedsticknr == fss->preferredStickNr() )
 	    return lastclickedsticknr;
     }
@@ -620,7 +620,7 @@ void FaultEditor::cloneMovingNode()
     mDynamicCastGet( EM::Fault3D*, emfault, &emobject );
     EM::Fault3DGeometry& fg = emfault->geometry();
     const EM::SectionID& sid = movingnode.sectionID();
-    const int sticknr = RowCol( movingnode.subID() ).row;
+    const int sticknr = movingnode.getRowCol().row;
     Geometry::FaultStickSurface* fss = fg.sectionGeometry( sid );
 
     const Coord3& normal = fss->getEditPlaneNormal( sticknr );

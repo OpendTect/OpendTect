@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorgeom2attr.cc,v 1.8 2012-05-30 11:36:15 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorgeom2attr.cc,v 1.9 2012-08-03 06:38:40 cvsaneesh Exp $";
 
 #include "uihorgeom2attr.h"
 
@@ -154,7 +154,7 @@ int nextStep()
 	if ( pid.objectID() == -1 )
 	    return Finished();
  
-	const BinID bid( pid.subID() );
+	const BinID bid = pid.getRowCol();
 	DataPointSet::RowID rid = dps_.findFirst( bid );
 	Coord3 crd = hor_.getPos( pid );
 	if ( rid < 0 )

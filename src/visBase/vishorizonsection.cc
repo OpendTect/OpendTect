@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vishorizonsection.cc,v 1.129 2012-07-21 22:51:13 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vishorizonsection.cc,v 1.130 2012-08-03 06:38:40 cvsaneesh Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1145,7 +1145,7 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 		while ( (posid=iter->next())!=-1 )
 		{
 		    float z = geometry_->getPosition( posid ).z;
-		    const BinID bid( posid );
+		    const BinID bid = BinID::fromInt64( posid );
 		    if ( !mIsUdf(z) )
 		    {
 			if ( zaxistransform_ )
@@ -1164,7 +1164,7 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	    while ( gpidptr!=stopptr )
 	    {
 		float z = geometry_->getPosition( *gpidptr ).z;
-		const BinID bid( *gpidptr );
+		const BinID bid = BinID::fromInt64( *gpidptr );
 		if ( !mIsUdf(z) )
 		    z = zaxistransform_->transform( BinIDValue( bid, z ) );
 
@@ -1199,7 +1199,7 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 
     for ( int idx=(*gpids).size()-1; idx>=0; idx-- )
     {
-	const RowCol& absrc( (*gpids)[idx] );
+	const RowCol absrc = RowCol::fromInt64( (*gpids)[idx] );
 	RowCol rc = absrc - origin_; 
 	rc.row /= rrg.step; rc.col /= crg.step;
 

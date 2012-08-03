@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizon2d.cc,v 1.54 2012-05-22 14:48:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhorizon2d.cc,v 1.55 2012-08-03 06:38:38 cvsaneesh Exp $";
 
 #include "emhorizon2d.h"
 
@@ -190,7 +190,7 @@ void Horizon2DGeometry::removeLine( const PosInfo::GeomID& geomid )
 PosID Horizon2DGeometry::getNeighbor( const PosID& pid, bool nextcol,
 				      bool retundef ) const
 {
-    const RowCol rc( pid.subID() );
+    const RowCol rc = pid.getRowCol();
     TypeSet<PosID> aliases;
     getLinkedPos( pid, aliases );
     aliases += pid;
@@ -199,7 +199,7 @@ PosID Horizon2DGeometry::getNeighbor( const PosID& pid, bool nextcol,
     for ( int idx=0; idx<nraliases; idx++ )
     {
 	const SectionID sid = aliases[idx].sectionID();
-	const RowCol ownrc( aliases[idx].subID() );
+	const RowCol ownrc = aliases[idx].getRowCol();
 	const int colstep = colRange( sid, ownrc.row ).step;
 	const RowCol neighborrc( ownrc.row,
 		nextcol ? ownrc.col+colstep : ownrc.col-colstep );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.26 2010-06-18 12:23:27 cvskris Exp $
+ RCS:		$Id: rowcol.h,v 1.27 2012-08-03 06:38:38 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,6 @@ public:
     inline			RowCol(int r,int c);
     inline			RowCol(const RowCol&);
 				RowCol(const BinID&);
-    inline			RowCol(const od_int64&);
     inline			RowCol();
 
     inline bool			operator==(const RowCol&) const;
@@ -49,9 +48,9 @@ public:
     void			fill(char*) const;
     bool			use(const char*);
     inline od_int64		toInt64() const;
-    inline void			fromInt64(od_int64);
+    static inline RowCol	fromInt64(od_int64);
     inline int			toInt32() const;
-    inline void			fromInt32(int);
+    static inline RowCol	fromInt32(int);
     int				sqDistTo(const RowCol&) const;
     bool			isNeighborTo(const RowCol&,const RowCol&,
 					     bool eightconnectivity=true) const;

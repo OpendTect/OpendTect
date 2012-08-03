@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.38 2012-07-04 18:10:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.39 2012-08-03 06:38:38 cvsaneesh Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -523,7 +523,7 @@ void Pos::EMSurface2DProvider3D::mkDPS( const EM::Surface& s,
 	    if ( posid.objectID() < 0 )
 		break;
 
-	    const BinID bid2d( posid.subID() );
+	    const BinID bid2d = posid.getRowCol();
 	    DataPointSet::Pos pos( surf.getPos(posid) );
 	    pos.nr_ = bid2d.crl;
 	    dps.addRow( DataPointSet::DataRow(pos,bid2d.inl) );

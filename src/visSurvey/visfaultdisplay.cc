@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visfaultdisplay.cc,v 1.96 2012-07-17 14:38:38 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visfaultdisplay.cc,v 1.97 2012-08-03 06:38:40 cvsaneesh Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -760,7 +760,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    if ( !eventinfo.pressed )
 	    {
 		bool res;
-		const int rmstick = RowCol(pid.subID()).row;
+		const int rmstick = pid.getRowCol().row;
 
 		EM::Fault3DGeometry& f3dg = emfault_->geometry(); 
 		if ( f3dg.nrKnots(pid.sectionID(),rmstick)==1 )
@@ -800,7 +800,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 
 	const int insertstick = insertpid.isUdf()
 	    ? mUdf(int)
-	    : RowCol(insertpid.subID()).row;
+	    : insertpid.getRowCol().row;
 
 	if ( emfault_->geometry().insertStick( insertpid.sectionID(),
 	       insertstick, 0, pos, editnormal, true ) )
@@ -902,7 +902,7 @@ void FaultDisplay::stickSelectCB( CallBacker* cb )
 		if ( pid.objectID() == -1 )
 		    return;
 
-		const int sticknr = RowCol( pid.subID() ).row;
+		const int sticknr = pid.getRowCol().row;
 		mMatchMarker( pid.sectionID(), sticknr,
 			      marker->centerPos(), emfault_->getPos(pid) );
 	    }
@@ -913,7 +913,7 @@ void FaultDisplay::stickSelectCB( CallBacker* cb )
 
 void FaultDisplay::setActiveStick( const EM::PosID& pid )
 {
-    const int sticknr = pid.isUdf() ? mUdf(int) : RowCol(pid.subID()).row;
+    const int sticknr = pid.isUdf() ? mUdf(int) : pid.getRowCol().row;
     if ( activestick_ != sticknr )
     {
 	activestick_ = sticknr;
@@ -948,7 +948,7 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	updateSingleColor();
 	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
 	{
-	    if ( RowCol(cbdata.pid0.subID()).row==activestick_ )
+	    if ( cbdata.pid0.getRowCol().row==activestick_ )
 		updateActiveStickMarker();
 	}
 	else
@@ -1445,7 +1445,7 @@ void FaultDisplay::polygonFinishedCB( CallBacker* cb )
 	if ( pid.objectID() == -1 )
 	    break;
 
-	const int sticknr = RowCol( pid.subID() ).row;
+	const int sticknr = pid.getRowCol().row;
 	const EM::SectionID sid = pid.sectionID();
 	Geometry::FaultStickSet* fss =
 	    			 emfault_->geometry().sectionGeometry( sid );
@@ -1480,7 +1480,7 @@ void FaultDisplay::updateEditorMarkers()
 	    break;
 
 	const int sid = pid.sectionID();
-	const int sticknr = RowCol( pid.subID() ).row;
+	const int sticknr = pid.getRowCol().row;
 	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
 	viseditor_->turnOnMarker( pid, !fs->isStickHidden(sticknr) );
     }
@@ -1539,7 +1539,7 @@ void FaultDisplay::updateKnotMarkers()
 	    break;
 
 	const int sid = pid.sectionID();
-	const int sticknr = RowCol( pid.subID() ).row;
+	const int sticknr = pid.getRowCol().row;
 	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
 	if ( !fs || fs->isStickHidden(sticknr) )
 	    continue;

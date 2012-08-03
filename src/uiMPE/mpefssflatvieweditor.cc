@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.24 2012-08-01 12:31:14 cvsmahant Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.25 2012-08-03 06:38:40 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -423,7 +423,7 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
     if ( pid.isUdf() )
 	return; 
 
-    const int sticknr = pid.isUdf() ? mUdf(int) : RowCol(pid.subID()).row;
+    const int sticknr = pid.isUdf() ? mUdf(int) : pid.getRowCol().row;
 
     if ( activestickid_ != sticknr )
 	activestickid_ = sticknr;
@@ -556,7 +556,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	 && !mouseevent.shiftStatus() )
     {
 	//Remove knot/stick
-	const int rmnr = RowCol(mousepid_.subID()).row;
+	const int rmnr = mousepid_.getRowCol().row;
 	if ( fssg.nrKnots(mousepid_.sectionID(),rmnr) == 1 )
 	{
 	    fssg.removeStick( mousepid_.sectionID(), rmnr, true );

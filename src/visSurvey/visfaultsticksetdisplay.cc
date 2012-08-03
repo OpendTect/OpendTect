@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visfaultsticksetdisplay.cc,v 1.50 2012-07-03 08:41:52 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visfaultsticksetdisplay.cc,v 1.51 2012-08-03 06:38:40 cvsaneesh Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -538,7 +538,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     if ( !mousepid.isUdf() )
     {
-	const int sticknr = RowCol( mousepid.subID() ).row;
+	const int sticknr = mousepid.getRowCol().row;
 	pos = emfss_->getPos( mousepid );
 	pickedmid = fssg.pickedMultiID( mousepid.sectionID(), sticknr );
 	pickednm = fssg.pickedName( mousepid.sectionID(), sticknr );
@@ -619,7 +619,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    return;
 
 	editpids_.erase();
-	const int rmnr = RowCol(mousepid.subID()).row;
+	const int rmnr = mousepid.getRowCol().row;
 	if ( fssg.nrKnots(mousepid.sectionID(), rmnr) == 1 )
 	    fssg.removeStick( mousepid.sectionID(), rmnr, true );
 	else
@@ -743,7 +743,7 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
 		if ( pid.objectID() == -1 )
 		    return;
 
-		const int sticknr = RowCol( pid.subID() ).row;
+		const int sticknr = pid.getRowCol().row;
 		mMatchMarker( pid.sectionID(), sticknr,
 			      marker->centerPos(), emfss_->getPos(pid) );
 	    }
@@ -754,7 +754,7 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
 
 void FaultStickSetDisplay::setActiveStick( const EM::PosID& pid )
 {
-    const int sticknr = pid.isUdf() ? mUdf(int) : RowCol(pid.subID()).row;
+    const int sticknr = pid.isUdf() ? mUdf(int) : pid.getRowCol().row;
     if ( activesticknr_ != sticknr )
     {
 	activesticknr_ = sticknr;
@@ -775,7 +775,7 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange && emfss_ )
     {
 	const int sid = cbdata.pid0.sectionID();
-	RowCol rc( cbdata.pid0.subID() );
+	RowCol rc = cbdata.pid0.getRowCol();
 
 	const MultiID* mid = emfss_->geometry().pickedMultiID( sid, rc.row );
 	if ( mid && !emfss_->geometry().pickedOnPlane(sid, rc.row) )
@@ -1124,7 +1124,7 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 	if ( pid.objectID() == -1 )
 	    break;
 
-	const int sticknr = RowCol( pid.subID() ).row;
+	const int sticknr = pid.getRowCol().row;
 	const EM::SectionID sid = pid.sectionID();
 	Geometry::FaultStickSet* fss = emfss_->geometry().sectionGeometry(sid);
 
@@ -1195,7 +1195,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 	    break;
 
 	const int sid = pid.sectionID();
-	const int sticknr = RowCol( pid.subID() ).row;
+	const int sticknr = pid.getRowCol().row;
 	Geometry::FaultStickSet* fss = emfss_->geometry().sectionGeometry(sid);
 	if ( !fss || fss->isStickHidden(sticknr) )
 	    continue;

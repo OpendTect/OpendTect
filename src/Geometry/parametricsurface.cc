@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: parametricsurface.cc,v 1.33 2012-05-03 05:14:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: parametricsurface.cc,v 1.34 2012-08-03 06:38:39 cvsaneesh Exp $";
 
 #include "parametricsurface.h"
 
@@ -279,15 +279,15 @@ bool ParametricSurface::isKnotDefined( const RowCol& rc ) const
 
 
 Coord3 ParametricSurface::getPosition( od_int64 pid ) const
-{ return getKnot( RowCol(pid) ); }
+{ return getKnot( RowCol::fromInt64(pid) ); }
 
 
 bool ParametricSurface::setPosition( od_int64 pid, const Coord3& pos )
-{ return setKnot( RowCol(pid), pos ); }
+{ return setKnot( RowCol::fromInt64(pid), pos ); }
 
 
 bool ParametricSurface::isDefined( od_int64 pid ) const
-{ return isKnotDefined( RowCol(pid) ); }
+{ return isKnotDefined( RowCol::fromInt64(pid) ); }
 
 
 bool ParametricSurface::checkSupport(bool yn)

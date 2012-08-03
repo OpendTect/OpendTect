@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: polygonsurfaceedit.cc,v 1.6 2012-05-02 15:11:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: polygonsurfaceedit.cc,v 1.7 2012-08-03 06:38:39 cvsaneesh Exp $";
 
 #include "polygonsurfaceedit.h"
 
@@ -40,7 +40,7 @@ Coord3 PolygonSurfEditor::translation2DNormal( GeomPosID gpid ) const
 {
     const PolygonSurface& plg = 
 			reinterpret_cast<const PolygonSurface&>( element );
-    const int plgnr = RowCol(gpid).row;
+    const int plgnr = RowCol::fromInt64(gpid).row;
     return plg.getPolygonNormal( plgnr );
 }
 
