@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.82 2012-07-27 11:56:45 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.83 2012-08-03 09:29:13 cvsbruno Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -620,3 +620,15 @@ const StepInterval<double> FlatView::Viewer::getDataPackRange(bool forx1) const
     const FlatPosData& pd = dp->posData();
     return pd.range( forx1 );
 }
+
+
+Interval<float> FlatView::Viewer::getDataRange( bool iswva ) const
+{
+    Interval<float> rg( mUdf(float), mUdf(float) );
+    const ColTab::MapperSetup mapper =
+	iswva ? appearance().ddpars_.wva_.mappersetup_
+	      : appearance().ddpars_.vd_.mappersetup_;
+    Interval<float> mapperrange = mapper.range_;
+    return mapperrange;
+}
+

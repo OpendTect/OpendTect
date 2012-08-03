@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.69 2012-07-27 11:56:45 cvsbruno Exp $
+ RCS:           $Id: flatview.h,v 1.70 2012-08-03 09:29:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -353,8 +353,7 @@ public:
     
     const StepInterval<double> getDataPackRange( bool forx1 ) const;
 
-    virtual Interval<float> getDataRange(bool wva) const
-    			{ return Interval<float>(mUdf(float),mUdf(float)); }
+    virtual Interval<float> getDataRange(bool wva) const;
 
     virtual AuxData*		createAuxData(const char* nm) const	= 0;
 
