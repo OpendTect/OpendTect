@@ -6,7 +6,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2009
- RCS:           $Id: soodbasic.h,v 1.9 2012-08-03 13:00:42 cvskris Exp $
+ RCS:           $Id: soodbasic.h,v 1.10 2012-08-03 16:08:49 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -48,6 +48,14 @@
 #define mExternC( module )		extern "C" mGlobal( module )
 #endif
 
+
+#ifdef __msvc__
+# define dll_export	__declspec( dllexport )
+# define dll_import	__declspec( dllimport )
+#else
+# define dll_export
+# define dll_import
+#endif
 
 #endif
 
