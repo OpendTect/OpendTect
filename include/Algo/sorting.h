@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sorting.h,v 1.17 2012-08-03 13:00:05 cvskris Exp $
+ RCS:		$Id: sorting.h,v 1.18 2012-08-03 20:56:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
 */
 
 template <class T>
-mClass(Algo) ParallelSorter : public ParallelTask
+class ParallelSorter : public ParallelTask
 {
 public:
 				ParallelSorter(T* vals, int sz);

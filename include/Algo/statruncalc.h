@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.28 2012-08-03 13:00:06 cvskris Exp $
+ RCS:           $Id: statruncalc.h,v 1.29 2012-08-03 20:56:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,7 @@ are needed, you may need to specialise an isZero function for each new type.
 
 
 template <class T>
-mClass(Algo) BaseCalc
+class BaseCalc
 {
 public:
 
@@ -188,7 +188,7 @@ require buffering all data.
 
 
 template <class T>
-mClass(Algo) RunCalc : public BaseCalc<T>
+class RunCalc : public BaseCalc<T>
 {
 public:
     			RunCalc( const CalcSetup& s )
@@ -486,8 +486,8 @@ inline T BaseCalc<T>::mostFreq() const
 }
 
 
-template <class T>
-mGlobal(Algo) T computeMedian( const T* data, int sz, int pol, int* idx_of_med ) 
+template <class T> inline
+T computeMedian( const T* data, int sz, int pol, int* idx_of_med ) 
 {
     if ( idx_of_med ) *idx_of_med = 0;
     if ( sz < 2 )
@@ -517,8 +517,8 @@ mGlobal(Algo) T computeMedian( const T* data, int sz, int pol, int* idx_of_med )
 }
 
 
-template <class T>
-mGlobal(Algo) T computeWeightedMedian( const T* data, const T* wts, int sz, 
+template <class T> inline
+T computeWeightedMedian( const T* data, const T* wts, int sz, 
 				int* idx_of_med ) 
 {
     if ( idx_of_med ) *idx_of_med = 0;

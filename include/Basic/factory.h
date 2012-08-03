@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.27 2012-08-03 13:00:11 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.28 2012-08-03 20:56:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,7 +98,7 @@ mImplFactory( ClassName, FunctionName );
 
 
 template <class T>
-mClass(Basic) Factory : public FactoryBase
+class Factory : public FactoryBase
 {
 public:
     typedef			T* (*Creator)();
@@ -170,7 +170,7 @@ mImplFactory1Param( ClassName, ParamClass(Basic), FunctionName );
 
 
 template <class T, class P>
-mClass(Basic) Factory1Param : public FactoryBase
+class Factory1Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P);
@@ -192,7 +192,7 @@ protected:
 
 
 template <class T, class P0, class P1>
-mClass(Basic) Factory2Param : public FactoryBase
+class Factory2Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P0,P1);
@@ -215,7 +215,7 @@ protected:
 
 
 template <class T, class P0, class P1, class P2>
-mClass(Basic) Factory3Param : public FactoryBase
+class Factory3Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P0,P1,P2);
