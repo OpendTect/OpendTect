@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.15 2012-08-02 10:06:58 cvsranojay Exp $
+ RCS:		$Id: msvcdefs.h,v 1.16 2012-08-03 15:54:38 cvskris Exp $
 ________________________________________________________________________
 
  For use with Microsoft Visual C++ 8.0 and 9.0
@@ -22,6 +22,14 @@ ________________________________________________________________________
 # define Interval StructuredQueryInterval
 #  include <structuredquery.h>
 # undef Interval
+#endif
+
+#ifdef __msvc__
+# define dll_export	__declspec( dllexport )
+# define dll_import	__declspec( dllimport )
+#else
+# define dll_export
+# define dll_import
 #endif
 
 #ifdef _DEBUG
