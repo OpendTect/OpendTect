@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.30 2012-08-03 13:00:22 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.31 2012-08-03 21:12:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ protected:
 
 /*!Takes a Mapper, unmapped data and maps it.*/
 template <class T>
-mClass(General) MapperTask : public ParallelTask
+class MapperTask : public ParallelTask
 {
 public:    
     			MapperTask(const ColTab::Mapper& map,
