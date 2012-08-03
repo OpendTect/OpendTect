@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.62 2012-08-03 13:00:15 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.63 2012-08-03 15:55:41 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -47,7 +47,7 @@ class Mutex;
     available for long, unsigned long */
 
 template <class T>
-mClass(Basic) Atomic
+class Atomic
 {
 public:
     		Atomic(T val=0);
@@ -92,7 +92,7 @@ protected:
 /*Atomic instanciated with a pointer. The class really only handles the
   casting from a void* to a T*. */
 template <class T>
-mClass(Basic) AtomicPointer
+class AtomicPointer
 {
 public:
     inline	AtomicPointer(T* newptr = 0);
@@ -290,7 +290,7 @@ int function()
 */
 
 #define mLockerClassImpl( clssnm, clss, lockfn, unlockfn, trylockfn ) \
-class clssnm \
+mClass(Basic) clssnm \
 { \
 public: \
 		clssnm( clss& thelock, bool wait=true ) \
