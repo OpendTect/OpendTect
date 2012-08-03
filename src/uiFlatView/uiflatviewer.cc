@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.145 2012-07-13 09:51:28 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.146 2012-08-03 08:37:15 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 
@@ -238,8 +238,7 @@ void uiFlatViewer::setViewToBoundingBox()
 
 
 #define mAddToQueue( work ) \
-    Threads::WorkManager::twm().addWork( work, 0, updatequeueid_, \
-					     false, true )
+    Threads::WorkManager::twm().addWork( work, 0, updatequeueid_, false, true )
 
 void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
 {
@@ -249,13 +248,12 @@ void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
     if ( dct==Annot || dct==All )
 	mAddToQueue( annotwork_ );
 
-    if ( dct!=Annot && dct!=Auxdata ) //i.e. something with the bitmaps or all
+    if ( dct!=Annot && dct!=Auxdata )
     {
 	mAddToQueue( bitmapwork_ );
     }
-    //TODO: Check if we can have a more fine-grained update than just bitmaps
 
-    view_->reDraw( true ); //No clue if deep or not is needed.
+    view_->rePaint();
 }
 
 
