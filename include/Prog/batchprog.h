@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.42 2011-06-27 06:16:52 cvsranojay Exp $
+ RCS:		$Id: batchprog.h,v 1.43 2012-08-03 06:58:28 cvskris Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -132,7 +132,8 @@ mGlobal BatchProgram& BP();
     int main( int argc, char** argv )
     {
 	int ret = Execute_batch(&argc,argv);
-	return ExitProgram( ret );
+	ExitProgram( ret );
+	return ret;
     }
 
 #endif // __prog__
