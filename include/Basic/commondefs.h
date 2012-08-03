@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.43 2012-08-03 13:00:11 cvskris Exp $
+ RCS:		$Id: commondefs.h,v 1.44 2012-08-03 18:56:45 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -101,6 +101,26 @@ ________________________________________________________________________
 #define mStruct( module )		struct mGlobal( module )
 #define mExtern( module )		extern mGlobal( module )
 #define mExternC( module)		extern "C" mGlobal( module )
+
+#define mExportClass( module ) class Export_##module
+#define mExportStruct( module ) struct Export_##module
+#define mExportGlobal( module ) Export_##module
+#define mExportExtern( module ) extern Export_##module
+#define mExportExternC( module ) exptern "C" Export_##module
+
+
+//Special stuff.
+#if defined(Basic_EXPORTS) || defined(BASIC_EXPORTS)
+# define Export_Basic_   dll_export
+#else
+# define Export_Basic_   dll_import
+#endif
+
+//Special stuff.
+# define mBasicClass    mExportClass( Basic_ )
+# define mBasicGlobal   mExportGlobal( Basic_ )
+# define mBasicExtern   mExportExtern( Basic_ )
+
 
 #define mIfNotFirstTime(act) \
     static bool _already_visited_ = false; \
