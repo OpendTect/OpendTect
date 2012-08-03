@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.65 2012-08-02 14:45:12 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.66 2012-08-03 06:36:53 cvsranojay Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -110,7 +110,7 @@ IF(WIN32)
 
     #These two should be enabled when someone will go over the code and clean up.
     ADD_DEFINITIONS( /wd4305 ) # truncation from dowble to float
-    ADD_DEFINITIONS( /wd4244 ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
+    #ADD_DEFINITIONS( /wd4244 ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
 
 
     set (OD_STATIC_EXTENSION ".lib")
