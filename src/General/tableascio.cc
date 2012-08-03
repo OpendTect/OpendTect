@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: tableascio.cc,v 1.43 2012-08-03 13:01:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: tableascio.cc,v 1.44 2012-08-03 19:19:59 cvskris Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -19,7 +19,7 @@ static const char* rcsID mUnusedVar = "$Id: tableascio.cc,v 1.43 2012-08-03 13:0
 #include "staticstring.h"
 #include <iostream>
 
-mExtern( Basic) std::ostream& logMsgStrm();
+extern Export_Basic_ std::ostream& logMsgStrm();
 
 namespace Table
 {

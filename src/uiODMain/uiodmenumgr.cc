@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.266 2012-08-03 13:01:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmenumgr.cc,v 1.267 2012-08-03 19:19:59 cvskris Exp $";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -639,7 +639,7 @@ void uiODMenuMgr::mkViewIconsMnu()
 }
 
 
-mExtern(Basic) const char* logMsgFileName();
+extern Export_Basic_ const char* logMsgFileName();
 
 void uiODMenuMgr::fillUtilMenu()
 {
