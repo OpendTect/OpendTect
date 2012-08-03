@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.17 2012-04-19 07:10:51 cvsbruno Exp $
+ RCS:		$Id: welltrack.h,v 1.18 2012-08-03 10:10:53 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,8 @@ public:
     			//!< Will correct all dahs below point
 
     Coord3		getPos(float d_ah) const;
+    const TypeSet<Coord3>& getAllPos() const { return pos_; }
+
     float		getDahForTVD(float,float prevdah=mUdf(float)) const;
     			//!< Non-unique. previous DAH may be helpful
     			//!< Don;t use is track is in time
