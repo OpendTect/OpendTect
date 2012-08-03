@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.98 2012-07-12 07:07:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.99 2012-08-03 12:42:21 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -530,6 +530,13 @@ Well::Marker* Well::MarkerSet::gtByLvlID(int lvlid) const
 	    return mrk;
     }
     return 0;
+}
+
+
+void Well::MarkerSet::getNames( BufferStringSet& nms ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	nms.add( (*this)[idx]->name() );
 }
 
 
