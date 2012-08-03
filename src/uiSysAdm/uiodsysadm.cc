@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodsysadm.cc,v 1.10 2012-08-03 13:01:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodsysadm.cc,v 1.11 2012-08-03 20:58:24 cvskris Exp $";
 
 #include "uiodsysadm.h"
 #include "uiodsysadmcoltabs.h"
@@ -34,7 +34,7 @@ uiODSysAdm& ODSysAdmMainWin()
 
 extern "C" void SetInSysAdmMode();
 
-int ODSysAdmMain(int,char**); // keep compiler happy
+mGlobal(uiSysAdm) int ODSysAdmMain(int,char**); // keep compiler happy
 int ODSysAdmMain( int argc, char** argv )
 {
     SetInSysAdmMode();
