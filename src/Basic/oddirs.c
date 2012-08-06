@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.43 2012-08-03 13:01:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.44 2012-08-06 05:43:37 cvsranojay Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -248,8 +248,11 @@ static int gtSoftwareDirFromArgv( char* dirnm )
     if ( !*dirnm ) mRetNope()
 
     chptr2 = chptr1 = dirnm;
-    while ( (chptr2 = strstr( chptr1 + 1, "bin" )) )
+    while ( chptr2 )
+    {
+	chptr2 = strstr( chptr1 + 1, "bin" );
 	chptr1 = chptr2;
+    }
 
     if ( !chptr1 ) mRetNope()
 
@@ -507,7 +510,7 @@ const char* GetUserNm(void)
 {
 #ifdef __win__
     static char usernm[256];
-    int len = 256;
+    DWORD len = 256;
     GetUserName( usernm, &len );
     return usernm;
 #else
