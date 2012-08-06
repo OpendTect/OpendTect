@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.71 2012-05-22 14:48:43 cvskris Exp $
+ RCS:		$Id: keystrs.h,v 1.72 2012-08-06 11:13:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,9 @@ namespace sKey
     inline FixedString DefWavelet()	{ return "Default.Wavelet"; }
 };
 
+
+// Makes compat with 4.4 easier
+#define mGetKeyStr(id)	sKey::id()
 
 
 #endif
