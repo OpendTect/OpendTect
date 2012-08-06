@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.45 2012-08-03 19:10:41 cvskris Exp $
+ RCS:		$Id: commondefs.h,v 1.46 2012-08-06 11:13:09 cvsbert Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -129,6 +129,9 @@ ________________________________________________________________________
     static bool _already_visited_ = false; \
     if ( _already_visited_ ) act; \
     _already_visited_ = true
+
+// Helps keep 4.4 compatibility
+#define mDefClass( module )	mClass(module)
 
 
 #endif
