@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizon2d.cc,v 1.55 2012-08-03 06:38:38 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhorizon2d.cc,v 1.56 2012-08-06 19:15:32 cvsyuancheng Exp $";
 
 #include "emhorizon2d.h"
 
@@ -190,7 +190,6 @@ void Horizon2DGeometry::removeLine( const PosInfo::GeomID& geomid )
 PosID Horizon2DGeometry::getNeighbor( const PosID& pid, bool nextcol,
 				      bool retundef ) const
 {
-    const RowCol rc = pid.getRowCol();
     TypeSet<PosID> aliases;
     getLinkedPos( pid, aliases );
     aliases += pid;
