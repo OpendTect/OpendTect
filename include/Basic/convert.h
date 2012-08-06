@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.19 2012-07-24 18:47:06 cvskris Exp $
+ RCS:           $Id: convert.h,v 1.20 2012-08-06 06:28:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,9 +106,9 @@ inline void set( type& _to, const char* const& s ) \
     if ( !s || !*s ) { return; } \
 \
     char* endptr; \
-    type tmpval = function; \
+    type tmpval = (type) function; \
     if ( s != endptr ) \
-	_to = tmpval; \
+	_to = (type) tmpval; \
     else if ( Values::Undef<type>::hasUdf() ) \
 	    Values::setUdf( _to ); \
 } 

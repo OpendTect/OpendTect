@@ -61,13 +61,13 @@ mTYPE Math::PowerOf( mTYPE x, mTYPE y )
 
 mTYPE Math::ACos( mTYPE c )
 {
-    return c >= 1 ? 0 : (c <= -1 ? M_PI : acos( c ));
+    return c >= 1 ? 0 : (c <= -1 ? mTYPE(M_PI) : acos( c ));
 }
 
 
 mTYPE Math::ASin( mTYPE s )
 {
-    return s >= 1 ? M_PI_2 : (s <= -1 ? -M_PI_2 : asin( s ));
+    return s >= 1 ? mTYPE(M_PI_2) : (s <= -1 ? -mTYPE(M_PI_2) : asin( s ));
 }
 
 
