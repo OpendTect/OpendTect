@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: rowcol.cc,v 1.23 2012-08-06 07:18:37 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: rowcol.cc,v 1.24 2012-08-06 10:58:15 cvsranojay Exp $";
 
 #include "rowcol.h"
 #include "bufstring.h"
@@ -41,10 +41,10 @@ float RowCol::clockwiseAngleTo(const RowCol& rc) const
 
 float RowCol::counterClockwiseAngleTo(const RowCol& rc) const
 {
-    static double twopi = M_PI*2;
+    static float twopi = (float) M_PI*2;
     float anglediff = -clockwiseAngleTo(rc);
-    if ( anglediff<0 ) anglediff += (float) twopi;
-    else if ( anglediff>twopi ) anglediff -= (float) twopi;
+    if ( anglediff<0 ) anglediff += twopi;
+    else if ( anglediff>twopi ) anglediff -= twopi;
 
     return anglediff;
 }
