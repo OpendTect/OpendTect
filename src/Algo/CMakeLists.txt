@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Algorithms
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.11 2012-08-03 13:17:37 cvshelene Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.12 2012-08-06 07:26:27 cvshelene Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Basic )
@@ -25,10 +25,8 @@ SET(OD_MODULE_SOURCES timeser.c
 	    dippca.cc
 	    fingervein.cc
 	    fftfilter.cc
-	    fluidreplacementalgo.cc
 	    fourier.cc
 	    fourierinterpol.cc
-	    gassmannalgo.cc
 	    genericnumer.cc
 	    gridder2d.cc
 	    hilberttransform.cc
