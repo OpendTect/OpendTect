@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: latlong.cc,v 1.16 2012-05-02 15:11:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: latlong.cc,v 1.17 2012-08-06 07:18:37 cvssalil Exp $";
 
 #include "latlong.h"
 #include "survinfo.h"
@@ -68,7 +68,7 @@ void LatLong::getDMS( bool lat, int& d, int& m, float& s ) const
     v -= d; v *= 60;
     m = (int)v;
     v -= m; v *= 60;
-    s = v;
+    s = (float)v;
 }
 
 

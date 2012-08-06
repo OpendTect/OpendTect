@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: cubesampling.cc,v 1.52 2012-07-10 08:05:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: cubesampling.cc,v 1.53 2012-08-06 07:18:37 cvssalil Exp $";
 
 #include "cubesampling.h"
 
@@ -554,7 +554,7 @@ bool CubeSampling::operator==( const CubeSampling& cs ) const
    if ( cs.hrg == this->hrg )
    {
        float diff = cs.zrg.start - this->zrg.start;
-       const float eps = SI().zIsTime() ? 1e-6 : 1e-3;
+       const float eps = (float) ( SI().zIsTime() ? 1e-6 : 1e-3 );
        if ( fabs(diff) > eps ) return false;
 
        diff = cs.zrg.stop - this->zrg.stop;

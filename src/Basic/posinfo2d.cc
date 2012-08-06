@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posinfo2d.cc,v 1.8 2012-06-21 19:17:14 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: posinfo2d.cc,v 1.9 2012-08-06 07:18:37 cvssalil Exp $";
 
 #include "posinfo2d.h"
 #include "math2.h"
@@ -302,7 +302,7 @@ Coord PosInfo::Line2DData::getNormal( int trcnr ) const
 	return Coord( 0, 1 );
     else
     {
-	const float length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
+	const double length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
 	return Coord( -v1.y/length, v1.x/length );
     }
 }

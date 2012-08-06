@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posinfo.cc,v 1.36 2012-07-02 08:44:57 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: posinfo.cc,v 1.37 2012-08-06 07:18:37 cvssalil Exp $";
 
 #include "posinfo.h"
 #include "survinfo.h"
@@ -35,9 +35,9 @@ int PosInfo::LineData::nearestSegment( double x ) const
 	const float hstep = (float)seg.step * 0.5f;
 	float dist;
 	if ( (isrev && x > seg.start+hstep) || (!isrev && x < seg.start-hstep) )
-	    dist = x - seg.start;
+	    dist = (float)( x - seg.start );
 	else if ( (isrev && x<seg.stop-hstep) || (!isrev && x>seg.stop+hstep))
-	    dist = x - seg.stop;
+	    dist = (float)( x - seg.stop );
 	else
 	    { ret = iseg; break; }
 
