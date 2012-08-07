@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: oddlsite.cc,v 1.24 2012-07-31 04:44:48 cvsranojay Exp $";
+static const char* rcsID mUnusedVar = "$Id: oddlsite.cc,v 1.25 2012-08-07 11:30:28 cvsranojay Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -113,6 +113,14 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
 	if ( !(tr ? tr->execute( task ) : task.execute() ) )
 	{
 	    errmsg_ = task.message();
+	    if ( odhttp_->isForcedAbort() )
+	    {
+		reConnect();
+		odhttp_->resetForceAbort();
+		errmsg_ = ". Operation aborted by the user";
+		File::remove( outfnm );
+	    }
+	
 	    return false;
 	}
     }
@@ -122,15 +130,6 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
 	odhttp_->get( getFileName(relfnm), outfnm );
     }
     
-    if ( odhttp_->isForcedAbort() )
-    {
-	reConnect();
-	odhttp_->resetForceAbort();
-	errmsg_ = ". Operation aborted by the user";
-	File::remove( outfnm );
-	return false;
-    }
-
     const od_int64 totnr = odhttp_->totalNr();
     if ( totnr <= 0 )
 	return false;
