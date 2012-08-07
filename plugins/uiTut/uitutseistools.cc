@@ -4,7 +4,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uitutseistools.cc,v 1.26 2012-05-02 15:11:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitutseistools.cc,v 1.27 2012-08-07 04:23:04 cvsmahant Exp $";
 #include "cubesampling.h"
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -21,8 +21,11 @@ static const char* rcsID mUnusedVar = "$Id: uitutseistools.cc,v 1.26 2012-05-02 
 #include "ioobj.h"
 #include "survinfo.h"
 
-static const char* actions[] = { "Scale", "Square", "Smooth",
-    				 "Replace sampling", 0 };
+#include "uibutton.h" //Modified
+
+
+static const char* actions[] = { "Scale", "Square","Smooth",
+    				 "Replace sampling","Cube","Do Nothing","Sit Idle", 0 };
 // Exactly the order of the Tut::SeisTools::Action enum
 
 uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
@@ -65,7 +68,8 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
 			       BoolInpSpec(tst_.weakSmoothing(),"Low","High") );
     smoothszfld_->attach( alignedBelow, actionfld_ );
 
-    // Parameters for change sample rate
+
+   // Parameters for change sample rate
 
     newsdfld_ = new uiGenInput( this, BufferString("New sampling ",
 				SI().getZUnitString()), FloatInpSpec(),
@@ -76,9 +80,38 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     outctio_.ctxt.forread = false;
     outfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(geom_) );
     outfld_->attach( alignedBelow, scalegrp_ );
+
+
+
+
+
+
+
+    //Modified
+
+
+    resetbut_ =
+	new uiPushButton( this, "&Reset",
+			  mCB(this,uiTutSeisTools,selectReset), true );//setDef
+    resetbut_->attach( alignedBelow, outfld_ );
+
+
+    //  resetbut1_ = new uiRadioButton( this, "&Reset",
+    //	                  mCB(this,uiTutSeisTools,selectReset), true );
+    //  resetbut1_->attach( alignedBelow, resetbut_ );
     
+
+
+    //Modified
+
+
+
+
+
+
     // Make sure only relevant stuff is displayed on startup
     postFinalise().notify( choicecb );
+  
 }
 
 
@@ -88,6 +121,41 @@ uiTutSeisTools::~uiTutSeisTools()
     delete outctio_.ioobj; delete &outctio_;
     delete &tst_;
 }
+
+
+
+
+
+
+     //Modified
+
+     void uiTutSeisTools::selectReset( CallBacker* )
+     {
+	 inpfld_->clear();
+
+	//subselfld_->display(true);
+	 subselfld_->clear();
+
+	 scalegrp_->display(true);
+	 smoothszfld_->display( false );
+	 newsdfld_->display(false);
+
+	 factorfld_->setValue(1);
+	 shiftfld_->setValue(0);
+	 //smoothszfld_-setValues(false,true);
+	 newsdfld_->setTexts("","");
+	
+
+	 outfld_->clear();
+	 //inpSel(0);
+     }
+
+     //Modified
+
+
+
+
+
 
 
 void uiTutSeisTools::choiceSel( CallBacker* )

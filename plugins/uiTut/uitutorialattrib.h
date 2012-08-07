@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: uitutorialattrib.h,v 1.4 2012-01-11 08:20:25 cvshelene Exp $
+ RCS:           $Id: uitutorialattrib.h,v 1.5 2012-08-07 04:23:04 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,13 @@ class uiGenInput;
 class uiSteeringSel;
 class uiStepOutSel;
 
+//Modified
+
+class uiLabeledSpinBox;
+class uiPushButton;
+
+//Modified
+
 
 class uiTutorialAttrib : public uiAttrDescEd
 {
@@ -31,8 +38,11 @@ protected:
 
     uiAttrSel*		inpfld_;
     uiGenInput*		actionfld_;
+    uiGenInput*         actionfld1_;//Modified
+    uiGenInput*         scalespeedfld_;//Modified
     uiGenInput*		factorfld_;
     uiGenInput*		shiftfld_;
+    uiGenInput*         indexfld_;//Modified
     uiGenInput*		smoothstrengthfld_;
     uiGenInput*         smoothdirfld_;
     uiSteeringSel*      steerfld_;

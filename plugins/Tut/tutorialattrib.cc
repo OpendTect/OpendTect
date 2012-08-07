@@ -1,4 +1,3 @@
-
 /*+
 ________________________________________________________________________
 
@@ -8,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: tutorialattrib.cc,v 1.14 2012-07-10 08:05:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: tutorialattrib.cc,v 1.15 2012-08-07 04:23:04 cvsmahant Exp $";
 
 #include "tutorialattrib.h"
 #include "attribdataholder.h"
@@ -31,18 +30,30 @@ void Tutorial::initClass()
 
     EnumParam* action = new EnumParam( actionStr() );
     action->addEnum( "Scale" );
-    action->addEnum( "Square" );
+    action->addEnum( "Power" );
     action->addEnum( "Smooth" );
+    action->addEnum( "Invert" );//Modified
+    action->addEnum( "Differences" );//Modified
     desc->addParam( action );
     
     FloatParam* factor = new FloatParam( factorStr() );
     factor->setLimits( Interval<float>(0,mUdf(float)) );
-    factor->setDefaultValue( 1 );
+    factor->setDefaultValue( 2 );
     desc->addParam( factor );
 
     FloatParam* shift = new FloatParam( shiftStr() );
     desc->addParam( shift );
-    shift->setDefaultValue( 0 );
+    shift->setDefaultValue( 3 );
+
+
+
+    //Modified
+    FloatParam* index = new FloatParam( indexStr() );
+    desc->addParam( index );
+    index->setDefaultValue( 2 );
+    //
+
+
 
     BoolParam* weaksmooth = new BoolParam( weaksmoothStr() );
     desc->addParam( weaksmooth );
@@ -74,8 +85,13 @@ void Tutorial::updateDesc( Desc& desc )
     BufferString action = desc.getValParam( actionStr() )->getStringValue();
     bool horsmooth = desc.getValParam( horsmoothStr() )->getBoolValue();
 
-    desc.setParamEnabled( factorStr(), action=="Scale" );
+    desc.setParamEnabled( factorStr(), action=="Scale" );  
     desc.setParamEnabled( shiftStr(), action=="Scale" );
+
+
+    desc.setParamEnabled( indexStr(), action=="Power" );//Modified
+
+
     desc.setParamEnabled( horsmoothStr(), action=="Smooth" );
     desc.setParamEnabled( stepoutStr(), action=="Smooth" && horsmooth );
     desc.setParamEnabled( weaksmoothStr(), action=="Smooth" && !horsmooth );
@@ -92,6 +108,9 @@ Tutorial::Tutorial( Desc& desc )
     mGetEnum( action_, actionStr() );
     mGetFloat( factor_, factorStr() );
     mGetFloat( shift_, shiftStr() );
+
+    mGetFloat( index_, indexStr() );//Modified
+
     mGetBool ( horsmooth_, horsmoothStr() );
     mGetBinID( stepout_, stepoutStr() );
     mGetBool ( weaksmooth_, weaksmoothStr() );
@@ -185,9 +204,38 @@ bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
 	{
 	    const float trcval = getInputValue( *inpdata_[0], dataidx_,
 		    				idx, z0 );
-	    outval = action_==0 ? trcval * factor_ + shift_ :
-					trcval * trcval;
+	    
+	    //Modified
+	    float trcval1 = trcval;
+
+	    if (action_==0)
+	    {
+	    outval = trcval * factor_ + shift_;
+	    }
+	    else if (action_==1)
+	    {
+		if (index_==0)
+		{
+		    trcval1 = 1;		
+		}
+		else if (index_==1)
+		{
+		    trcval1=trcval;
+		}
+		else
+		{
+    		    for (int i=1;i<index_;i++)
+    		    { 
+    			trcval1 *= trcval;
+    		    }
+		}
+
+		outval=trcval1;
+	    }	       
+	    //Modified
+
 	}
+
 	else if ( action_==2 && !horsmooth_ )
 	{
 	    float sum = 0;

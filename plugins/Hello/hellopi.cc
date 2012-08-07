@@ -4,13 +4,13 @@
  * DATE     : Sep 2003 / Apr 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: hellopi.cc,v 1.11 2012-05-02 15:11:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: hellopi.cc,v 1.12 2012-08-07 04:23:04 cvsmahant Exp $";
 
 #include "odplugin.h"
 #include <iostream>
 
 mDefODInitPlugin(Hello)
 {
-    std::cout << "Hello world" << std::endl;
+    std::cout << "Hello world! Speed 1 THz" << std::endl;
     return 0; // All OK - no error messages
 }

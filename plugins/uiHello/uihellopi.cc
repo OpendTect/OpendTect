@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uihellopi.cc,v 1.18 2012-05-02 15:11:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihellopi.cc,v 1.19 2012-08-07 04:23:04 cvsmahant Exp $";
 
 #include "odplugin.h"
 #include "uimsg.h"
@@ -72,9 +72,9 @@ uiHelloMsgBringer( uiParent* p )
 			mNoHelpID))
 {
     txtfld = new uiGenInput( this, "Hello message",
-	    			StringInpSpec("Hello world") );
+	    			StringInpSpec("Hello world! Speed 1THz Memory 1GBytes") );
     typfld = new uiGenInput( this, "Message type",
-	    			BoolInpSpec(true,"Info","Warning") );
+	    			BoolInpSpec(true,"Info1","Warning1") );
     typfld->attach( alignedBelow, txtfld );
 }
 

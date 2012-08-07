@@ -4,11 +4,13 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: uitutseistools.h,v 1.10 2010-02-18 10:37:48 cvsbert Exp $
+ * ID       : $Id: uitutseistools.h,v 1.11 2012-08-07 04:23:04 cvsmahant Exp $
 -*/
 
 #include "uidialog.h"
 #include "seistype.h"
+#include "uibutton.h" //Modified
+
 class uiSeisSel;
 class uiSeisSubSel;
 class uiGenInput;
@@ -39,6 +41,19 @@ protected:
     uiGenInput*		shiftfld_;
     uiGenInput*		smoothszfld_;
     uiGenInput*		newsdfld_;
+    
+
+
+    // Modified
+    uiPushButton*	resetbut_; //Modified
+    //    uiRadioButton*	resetbut1_; //Mod..
+
+    void           	selectReset(CallBacker*); //Modified
+    
+    //
+
+
+
 
     bool		acceptOK(CallBacker*);
     void		choiceSel(CallBacker*);
