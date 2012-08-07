@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihandledlsitefail.cc,v 1.7 2012-08-01 04:24:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihandledlsitefail.cc,v 1.8 2012-08-07 11:31:00 cvsranojay Exp $";
 
 #include "uihandledlsitefail.h"
 
@@ -57,7 +57,7 @@ uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
 	dlsites.add( *sites, false );
 
     uiLabeledComboBox* lcb = 0;
-    if ( dlsites.size() > 1 )
+    if ( dlsites.size() >= 1 )
     {
 	lcb = new uiLabeledComboBox( this, dlsites, "Download from" );
 	dlsitefld_ = lcb->box();
