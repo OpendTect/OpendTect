@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiexpfault.cc,v 1.24 2012-05-22 10:16:01 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiexpfault.cc,v 1.25 2012-08-07 05:20:51 cvssalil Exp $";
 
 #include "uiexpfault.h"
 
@@ -156,7 +156,7 @@ bool uiExportFault::writeAscii()
 
     BufferString str;
     const float zfac = !zbox_->isChecked() ? 1
-		     : (SI().zIsTime() ? 1000 : mToFeetFactor);
+		     : (SI().zIsTime() ? 1000 : mToFeetFactorF);
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickidsfld_->isChecked( 0 );
     const bool inclknotidx = stickidsfld_->isChecked( 1 );

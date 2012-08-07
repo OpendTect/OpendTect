@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.87 2012-07-23 09:32:25 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.88 2012-08-07 05:20:51 cvssalil Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -381,7 +381,7 @@ Well::ExtractParams::ExtractParams( const ExtractParams& ep )
 void Well::ExtractParams::setEmpty()
 {
     ZRangeSelector::setEmpty();
-    zstep_ = SI().depthsInFeetByDefault() ? mToFeetFactor : 1;
+    zstep_ = SI().depthsInFeetByDefault() ? mToFeetFactorF : 1;
     extractzintime_ = false;
     samppol_ = Stats::TakeNearest;
 }

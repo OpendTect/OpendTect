@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellmarkerdlg.cc,v 1.50 2012-05-09 07:51:30 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellmarkerdlg.cc,v 1.51 2012-08-07 05:20:52 cvssalil Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -163,13 +163,13 @@ float uiMarkerDlg::zFactor() const
     const bool unitval = !unitfld_->isChecked();
     
     if ( SI().zIsTime() )
-	return unitval ? 1 : mToFeetFactor;
+	return unitval ? 1 : mToFeetFactorF;
 
     return ((SI().zInFeet() && !unitval) ||
 	    (SI().zInMeter() && unitval)) ? 1
 					  : ( SI().zInFeet() && unitval )
-					      ? mFromFeetFactor
-					      : mToFeetFactor;
+					      ? mFromFeetFactorF
+					      : mToFeetFactorF;
 }
 
 

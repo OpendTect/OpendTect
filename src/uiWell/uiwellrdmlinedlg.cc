@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellrdmlinedlg.cc,v 1.41 2012-07-10 08:05:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellrdmlinedlg.cc,v 1.42 2012-08-07 05:20:52 cvssalil Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -419,7 +419,7 @@ void uiWell2RandomLineDlg::extendLine( TypeSet<Coord>& coords )
     float extradist = extendfld_->getfValue();
     if ( extradist < 0.1 || extradist > 1e6 ) return;
     if ( SI().xyInFeet() )
-	extradist *= mFromFeetFactor;
+	extradist *= mFromFeetFactorF;
     if ( nrcoords == 1 )
     {
 	const Coord c( coords[0] );

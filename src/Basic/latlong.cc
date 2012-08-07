@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: latlong.cc,v 1.17 2012-08-06 07:18:37 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: latlong.cc,v 1.18 2012-08-07 05:20:49 cvssalil Exp $";
 
 #include "latlong.h"
 #include "survinfo.h"
@@ -108,7 +108,7 @@ void LatLong2Coord::set( const LatLong& ll, const Coord& c )
 #define mPrepScaleFac() \
     if ( scalefac_ < 0 ) \
 	const_cast<LatLong2Coord*>(this)->scalefac_ \
-		= SI().xyInFeet() ? mFromFeetFactor : 1;
+		= SI().xyInFeet() ? mFromFeetFactorF : 1;
 
 
 LatLong LatLong2Coord::transform( const Coord& c ) const

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogcalc.cc,v 1.31 2012-07-27 09:01:28 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogcalc.cc,v 1.32 2012-08-07 05:20:52 cvssalil Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -207,7 +207,7 @@ void uiWellLogCalc::feetSel( CallBacker* )
     zsampintv_ = srfld_->getfValue();
     if ( !mIsUdf(zsampintv_) )
     {
-	zsampintv_ *= ftbox_->isChecked() ? mToFeetFactor : mFromFeetFactor;
+	zsampintv_ *= ftbox_->isChecked() ? mToFeetFactorF : mFromFeetFactorF;
 	srfld_->setValue( zsampintv_ );
     }
 }
@@ -254,7 +254,7 @@ void uiWellLogCalc::inpSel( CallBacker* )
     if ( mIsUdf(sr) ) return;
 
     if ( ftbox_->isChecked() )
-	sr *= mToFeetFactor;
+	sr *= mToFeetFactorF;
     srfld_->setValue( sr );
 }
 
@@ -279,7 +279,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     if ( mIsUdf(zsampintv_) )
 	mErrRet("Please provide the Z dample rate for the  output log")
     if ( ftbox_->isChecked() )
-    	zsampintv_ *= mFromFeetFactor;
+    	zsampintv_ *= mFromFeetFactorF;
 
 
     //TODO needs to be in Executor

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.33 2012-07-17 13:46:37 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.34 2012-08-07 05:20:49 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -540,7 +540,7 @@ float ODPolygon<T>::sgnArea() const
 	area2 += (pt1.x-pt0.x) * (pt2.y-pt0.y) - (pt2.x-pt0.x) * (pt1.y-pt0.y);
     }
 
-    return 0.5*area2;
+    return 0.5f * area2;
 }
 
 

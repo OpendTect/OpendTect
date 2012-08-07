@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: timedepthconv.cc,v 1.44 2012-07-26 03:36:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: timedepthconv.cc,v 1.45 2012-08-07 05:20:51 cvssalil Exp $";
 
 #include "timedepthconv.h"
 
@@ -106,8 +106,8 @@ Interval<float> Time2DepthStretcher::getDefaultVAvg()
     Interval<float> res( 1350, 4500 );
     if ( SI().depthsInFeetByDefault() )
     {
-	res.start *= mToFeetFactor;
-	res.stop *= mToFeetFactor;
+	res.start *= mToFeetFactorF;
+	res.stop *= mToFeetFactorF;
     }
 
     return res;

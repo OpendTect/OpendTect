@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.25 2012-07-23 09:32:25 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.26 2012-08-07 05:20:51 cvssalil Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -248,7 +248,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     if ( dostep_ )
     {
 	const bool zinft = SI().depthsInFeetByDefault();
-	const float dptstep = zinft ? s.defmeterstep_*mToFeetFactor 
+	const float dptstep = zinft ? s.defmeterstep_*mToFeetFactorF 
 				    : s.defmeterstep_;
 	const float timestep = SI().zStep()*ztimefac_;
 	params().zstep_ = dptstep;

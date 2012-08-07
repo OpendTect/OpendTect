@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.29 2012-08-03 20:56:09 cvskris Exp $
+ RCS:           $Id: statruncalc.h,v 1.30 2012-08-07 05:20:49 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -538,7 +538,7 @@ T computeWeightedMedian( const T* data, const T* wts, int sz,
     }
     delete [] idxs;
 
-    const float hwsum = wsum * 0.5;
+    const float hwsum = wsum * 0.5f;
     wsum = 0;
     int medidx = 0;
     for ( int idx=0; idx<sz; idx++ )

@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.52 2012-07-10 08:05:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.53 2012-08-07 05:20:50 cvssalil Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -767,14 +767,14 @@ if ( !SI().zIsTime() ) \
 	 (!SI().xyInFeet() && SI().zInMeter()) ) \
 	res = dz; \
     else \
-	res = SI().xyInFeet()&&SI().zInMeter() ? dz*mToFeetFactor \
-					       : dz*mFromFeetFactor; \
+	res = SI().xyInFeet()&&SI().zInMeter() ? dz*mToFeetFactorF \
+					       : dz*mFromFeetFactorF; \
 } \
 else \
 { \
     res = dz * SI().zDomain().userFactor(); \
     if ( SI().xyInFeet() ) \
-	res *= mToFeetFactor; \
+	res *= mToFeetFactorF; \
 } 
 
 

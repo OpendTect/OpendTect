@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiimpbodycaldlg.cc,v 1.3 2012-05-02 15:12:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiimpbodycaldlg.cc,v 1.4 2012-08-07 05:20:51 cvssalil Exp $";
 
 #include "uiimpbodycaldlg.h"
 
@@ -71,7 +71,7 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
 	if ( mIsUdf(vel) || vel < 0.1 )
 	    mErrRet("Please provide the velocity")
 	if ( SI().depthsInFeetByDefault() )
-	    vel *= mFromFeetFactor;
+	    vel *= mFromFeetFactorF;
     }
 
     uiTaskRunner tr(this);

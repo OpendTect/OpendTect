@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: tableposprovider.cc,v 1.9 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: tableposprovider.cc,v 1.10 2012-08-07 05:20:50 cvssalil Exp $";
 
 #include "tableposprovider.h"
 #include "keystrs.h"
@@ -111,7 +111,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	    {
 		float zfac = -1;
 		if ( !SI().zIsTime() )
-		    zfac = SI().depthsInFeetByDefault() ? mFromFeetFactor : -1;
+		    zfac = SI().depthsInFeetByDefault() ? mFromFeetFactorF : -1;
 		else if ( bvs.nrVals() > 0 )
 		{
 		    const Interval<float> zrg( bvs.valRange(0) );

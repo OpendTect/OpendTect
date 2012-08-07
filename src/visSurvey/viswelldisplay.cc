@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.157 2012-07-24 10:49:04 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.158 2012-08-07 05:20:52 cvssalil Exp $";
 
 #include "viswelldisplay.h"
 
@@ -38,8 +38,8 @@ static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.157 2012-07-24
 #define         mPickType	3
 
 #define mGetWD(act) Well::Data* wd = getWD(); if ( !wd ) act;
-#define mMeter2Feet(val) val *= mToFeetFactor;
-#define mFeet2Meter(val) val *= mFromFeetFactor;
+#define mMeter2Feet(val) val *= mToFeetFactorF;
+#define mFeet2Meter(val) val *= mFromFeetFactorF;
 #define mGetDispPar(param) wd->displayProperties().param
 
 
@@ -633,7 +633,7 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 
     info += zinfeet_ || SI().depthsInFeetByDefault() ? "(ft): " : "(m): ";
     const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ? 
-							mToFeetFactor : 1;
+							mToFeetFactorF : 1;
     const float dah = track.nearestDah(pos);
     info += toString( mNINT32(dah*zfac) );
 

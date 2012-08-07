@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segytr.cc,v 1.113 2012-07-09 15:09:47 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: segytr.cc,v 1.114 2012-08-07 05:20:50 cvssalil Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -289,7 +289,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     trchead_.fill( ti, fileopts_.coordscale_ );
     if ( othdomain_ )
 	ti.sampling.step *= SI().zIsTime() ? 1000 : 0.001;
-    if ( binhead_.isInFeet() ) ti.offset *= mFromFeetFactor;
+    if ( binhead_.isInFeet() ) ti.offset *= mFromFeetFactorF;
 
     if ( is_prestack && fileopts_.psdef_ == SEGY::FileReadOpts::SrcRcvCoords )
     {
@@ -406,7 +406,7 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
     if ( SI().xyInFeet() )
     {
 	SeisTrcInfo info = trc.info();
-	info.offset *= mToFeetFactor;
+	info.offset *= mToFeetFactorF;
 	trchead_.use( info );
     }
     else

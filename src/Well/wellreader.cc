@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellreader.cc,v 1.53 2012-07-17 08:16:23 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellreader.cc,v 1.54 2012-08-07 05:20:51 cvssalil Exp $";
 
 #include "wellreader.h"
 
@@ -210,7 +210,7 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 	for ( int idx=0; idx<welltrack.size(); idx++ )
 	{
 	    Coord3 pos = welltrack.pos( idx );
-	    pos.z *= mToFeetFactor;
+	    pos.z *= mToFeetFactorF;
 	    welltrack.setPoint( idx, pos, pos.z );
 	}
     }
@@ -288,7 +288,7 @@ bool Well::Reader::getTrack() const
 	for ( int idx=0; idx<welltrack.size(); idx++ )
 	{
 	    Coord3 pos = welltrack.pos( idx );
-	    pos.z *= mToFeetFactor;
+	    pos.z *= mToFeetFactorF;
 	    welltrack.setPoint( idx, pos, pos.z );
 	}
     }
@@ -349,8 +349,8 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 	
 	const bool valinmtr = SI().zInFeet() && (version < 4.195);
 
-	ret.start = valinmtr ? (log->dah(0) * mToFeetFactor) : log->dah(0);
-	ret.stop = valinmtr ? (log->dah(log->size()-1) * mToFeetFactor )
+	ret.start = valinmtr ? (log->dah(0) * mToFeetFactorF) : log->dah(0);
+	ret.stop = valinmtr ? (log->dah(log->size()-1) * mToFeetFactorF )
 	    		    : log->dah( log->size()-1 );
 	break;
     }
@@ -452,7 +452,7 @@ bool Well::Reader::addLog( std::istream& strm ) const
     if ( SI().zInFeet() && version < 4.195 )
     {
 	for ( int idx=0; idx<newlog->size(); idx++ )
-	    newlog->dahArr()[idx] = newlog->dah(idx) * mToFeetFactor;
+	    newlog->dahArr()[idx] = newlog->dah(idx) * mToFeetFactorF;
     }
 
     wd.logs().add( newlog );
@@ -521,7 +521,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 	if ( !iopar.get(key,bs) )
 	    { delete wm; continue; }
 	float val = toFloat( bs.buf() );
-	wm->setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactor)
+	wm->setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactorF)
 						      : val ); 
 	key = IOPar::compKey( basekey, sKey::StratRef() );
 	int lvlid = -1; iopar.get( key, lvlid );

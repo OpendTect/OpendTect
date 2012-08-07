@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiexport2dhorizon.cc,v 1.21 2012-07-17 14:23:56 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiexport2dhorizon.cc,v 1.22 2012-08-07 05:20:51 cvssalil Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -139,7 +139,7 @@ bool uiExport2DHorizon::doExport()
     }
 
     const float zfac = !optsfld_->isChecked(1) ? 1
-		     : (SI().zIsTime() ? 1000 : mToFeetFactor);
+		     : (SI().zIsTime() ? 1000 : mToFeetFactorF);
     const bool wrlnms = optsfld_->isChecked( 0 );
     char buf[180];
     writeHeader( *sd.ostrm );

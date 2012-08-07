@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: coltabsequence.cc,v 1.41 2012-05-22 14:48:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: coltabsequence.cc,v 1.42 2012-08-07 05:20:50 cvssalil Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -357,7 +357,7 @@ void ColTab::Sequence::flipColor()
     }
 
     for ( int idx=0; idx<size(); idx++ )
-	x_[idx] = 1.0-x_[idx];
+	x_[idx] = 1.0f - x_[idx];
 }
 
 

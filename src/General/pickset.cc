@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: pickset.cc,v 1.80 2012-07-10 08:05:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: pickset.cc,v 1.81 2012-08-07 05:20:50 cvssalil Exp $";
 
 #include "pickset.h"
 
@@ -476,7 +476,7 @@ float Pick::Set::getXYArea() const
 
     float area = polygon.area();
     if ( SI().xyInFeet() )
-	area *= (mFromFeetFactor*mFromFeetFactor);
+	area *= (mFromFeetFactorF*mFromFeetFactorF);
 
     return area;
 }

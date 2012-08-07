@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uicalcpoly2horvol.cc,v 1.16 2012-07-24 10:52:36 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicalcpoly2horvol.cc,v 1.17 2012-08-07 05:20:51 cvssalil Exp $";
 
 #include "uicalcpoly2horvol.h"
 #include "poly2horvol.h"
@@ -119,7 +119,7 @@ void uiCalcHorVol::calcReq( CallBacker* )
 	if ( mIsUdf(vel) || vel < 0.1 )
 	    mErrRet("Please provide the velocity")
 	if ( zinft_ )
-	    vel *= mFromFeetFactor;
+	    vel *= mFromFeetFactorF;
     }
 
     Poly2HorVol ph2v( ps, const_cast<EM::Horizon3D*>(hor) );

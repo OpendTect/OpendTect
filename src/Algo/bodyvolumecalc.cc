@@ -9,7 +9,7 @@
 --------------------------------------------------------------------------- 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: bodyvolumecalc.cc,v 1.7 2012-07-17 11:06:00 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: bodyvolumecalc.cc,v 1.8 2012-08-07 05:20:49 cvssalil Exp $";
 
 
 #include "bodyvolumecalc.h"
@@ -27,8 +27,8 @@ BodyVolumeCalculator::BodyVolumeCalculator( const CubeSampling& cs,
     , volsum_(0)  
 {
     const float zfactor = SI().zIsTime() ? velocityinmeter : 
-	(SI().zInFeet() ? mFromFeetFactor : 1);
-    const float xyfactor = SI().xyInFeet() ? mFromFeetFactor : 1;
+	(SI().zInFeet() ? mFromFeetFactorF : 1);
+    const float xyfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
     unitvol_ = cs_.hrg.step.inl * SI().inlDistance() * xyfactor * 
 	       cs_.hrg.step.crl * SI().crlDistance() * xyfactor *
 	       cs_.zrg.step * zfactor;

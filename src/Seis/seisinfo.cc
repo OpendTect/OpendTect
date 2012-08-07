@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisinfo.cc,v 1.68 2012-07-10 08:05:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisinfo.cc,v 1.69 2012-08-07 05:20:50 cvssalil Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -440,7 +440,7 @@ void SeisTrcInfo::handlePossibleFeetConversion( bool conv_back,
       || (!othdomain && !SI().zInFeet()) )	// data needs to stay in meters
 	return;
 
-    const float fac = conv_back ? mToFeetFactor : mFromFeetFactor;
+    const float fac = conv_back ? mToFeetFactorF : mFromFeetFactorF;
 
     sampling.scale( fac );
     if ( !mIsUdf(pick) ) pick *= fac;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellimpsegyvsp.cc,v 1.23 2012-05-22 14:48:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellimpsegyvsp.cc,v 1.24 2012-08-07 05:20:51 cvssalil Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -299,15 +299,15 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
 	if ( !isdpth_ )
 	    { mScaleVal(inpsamp.start,0.001); mScaleVal(inpsamp.step,0.001); }
 	else if ( inpinftfld_->isChecked() )
-	    { mScaleVal(inpsamp.start,mFromFeetFactor);
-		mScaleVal(inpsamp.step,mFromFeetFactor); }
+	    { mScaleVal(inpsamp.start,mFromFeetFactorF);
+		mScaleVal(inpsamp.step,mFromFeetFactorF); }
     }
     if ( outzrgfld_->isChecked() )
     {
 	outzrg = outzrgfld_->getFInterval();
 	if ( outinftfld_->isChecked() )
-	    { mScaleVal(outzrg.start,mFromFeetFactor);
-		mScaleVal(outzrg.stop,mFromFeetFactor); }
+	    { mScaleVal(outzrg.start,mFromFeetFactorF);
+		mScaleVal(outzrg.stop,mFromFeetFactorF); }
     }
 
     SeisTrc trc;

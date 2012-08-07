@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.61 2012-06-29 12:25:13 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.62 2012-08-07 05:20:50 cvssalil Exp $";
 
 #include "mathproperty.h"
 #include "propertyref.h"
@@ -144,7 +144,7 @@ float RangeProperty::gtVal( Property::EvalOpts eo ) const
 	    if ( sanerg.start < 0 ) sanerg.start = 0;
 	    if ( sanerg.stop < 0 ) sanerg.stop = 0;
 	}
-	return 0.5 * (sanerg.start + sanerg.stop);
+	return 0.5f * (sanerg.start + sanerg.stop);
     }
 
     return rg_.start + eo.relpos_ * (rg_.stop - rg_.start);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.173 2012-07-29 21:08:51 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: survinfo.cc,v 1.174 2012-08-07 05:20:49 cvssalil Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -348,7 +348,7 @@ float SurveyInfo::inlDistance() const
 {
     const Coord c00 = transform( BinID(0,0) );
     const Coord c10 = transform( BinID(1,0) );
-    return c00.distTo(c10);
+    return (float) c00.distTo(c10);
 }
 
 
@@ -356,7 +356,7 @@ float SurveyInfo::crlDistance() const
 {
     const Coord c00 = transform( BinID(0,0) );
     const Coord c01 = transform( BinID(0,1) );
-    return c00.distTo(c01);
+    return (float) c00.distTo(c01);
 }
 
 
@@ -368,11 +368,11 @@ float SurveyInfo::computeArea( const Interval<int>& inlrg,
     const Coord c01 = transform( BinID(inlrg.start,crlrg.stop+step.crl) );
     const Coord c10 = transform( BinID(inlrg.stop+step.inl,crlrg.start) );
 
-    const float scale = xyInFeet() ? mFromFeetFactor : 1; 
+    const float scale = xyInFeet() ? mFromFeetFactorF : 1; 
     const double d01 = c00.distTo( c01 ) * scale;
     const double d10 = c00.distTo( c10 ) * scale;
 
-    return d01*d10;
+    return (float)( d01*d10 );
 }
 
 
@@ -596,10 +596,10 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 	return 3048;
     }
     else if ( zunit==Feet && xyunit==Meter )
-	return mFromFeetFactor;
+	return mFromFeetFactorF;
 
     //  zunit==Meter && xyunit==Feet
-    return mToFeetFactor;
+    return mToFeetFactorF;
 }
 
 
@@ -757,12 +757,12 @@ void SurveyInfo::putTr( const RCol2Coord::RCTransform& tr,
 
 bool SurveyInfo::isClockWise() const
 {
-    float xinl = b2c_.getTransform(true).b;
-    float xcrl = b2c_.getTransform(true).c;
-    float yinl = b2c_.getTransform(false).b;
-    float ycrl = b2c_.getTransform(false).c;
+    double xinl = b2c_.getTransform(true).b;
+    double xcrl = b2c_.getTransform(true).c;
+    double yinl = b2c_.getTransform(false).b;
+    double ycrl = b2c_.getTransform(false).c;
 
-    float det = xinl*ycrl - xcrl*yinl;
+    double det = xinl*ycrl - xcrl*yinl;
     return det < 0;
 }
 
@@ -935,7 +935,7 @@ float SurveyInfo::computeAngleXInl() const
     Coord xy2 = transform( BinID(inlRange(false).stop, crlRange(false).start) );
     const double xdiff = xy2.x - xy1.x;
     const double ydiff = xy2.y - xy1.y;
-    return atan2( ydiff, xdiff );
+    return (float) atan2( ydiff, xdiff );
 }
 
 
@@ -987,7 +987,7 @@ float InlCrlSystem::inlDistance() const
 {
     const Coord c00 = transform( BinID(0,0) );
     const Coord c10 = transform( BinID(1,0) );
-    return c00.distTo(c10);
+    return (float) c00.distTo(c10);
 }
 
 
@@ -995,7 +995,7 @@ float InlCrlSystem::crlDistance() const
 {
     const Coord c00 = transform( BinID(0,0) );
     const Coord c01 = transform( BinID(0,1) );
-    return c00.distTo(c01);
+    return (float) c00.distTo(c01);
 }
 
 

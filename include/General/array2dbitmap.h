@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.22 2012-08-03 13:00:20 cvskris Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.23 2012-08-07 05:20:49 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,7 +133,7 @@ public:
     inline float	avgDist( int dim ) const
     			{ return dim ? dim1avgdist_ : dim0avgdist_; }
     inline float	dimEps( int dim ) const
-			{ return 1e-6 * avgDist(dim); }
+			{ return 1e-6f * avgDist(dim); }
 
     void		setBitMapSizes(int,int) const;
     inline int		nrXPix() const		{ return nrxpix_; }

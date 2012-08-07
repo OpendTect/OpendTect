@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: coltabmapper.cc,v 1.38 2012-07-04 11:54:02 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: coltabmapper.cc,v 1.39 2012-08-07 05:20:50 cvssalil Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -276,13 +276,13 @@ float ColTab::Mapper::position( float val ) const
     if ( setup_.nrsegs_ > 0 )
     {
 	ret *= setup_.nrsegs_;
-	ret = (0.5 + ((int)ret)) / setup_.nrsegs_;
+	ret = (0.5f + ((int)ret)) / setup_.nrsegs_;
     }
 
     if ( ret > 1 ) ret = 1;
     else if ( ret < 0 ) ret = 0;
 
-    if ( setup_.flipseq_ ) return 1.0-ret;
+    if ( setup_.flipseq_ ) return 1.0f - ret;
     return ret;
 }
 
@@ -294,7 +294,7 @@ int ColTab::Mapper::snappedPosition( const ColTab::Mapper* mapper,
 
     float ret = mapper ? mapper->position( v ) : v;
     ret *= nrsteps;
-    if ( ret > nrsteps- 0.9 ) ret = nrsteps- 0.9;
+    if ( ret > nrsteps - 0.9f ) ret = nrsteps - 0.9f;
     else if ( ret < 0 ) ret = 0;
     return (int)ret;
 }

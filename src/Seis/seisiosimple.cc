@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisiosimple.cc,v 1.29 2012-07-10 08:05:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisiosimple.cc,v 1.30 2012-08-07 05:20:50 cvssalil Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -418,7 +418,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     trc.info().binid = bid;
     prevbid_ = bid;
     trc.info().coord = coord;
-    trc.info().offset = SI().xyInFeet() ? offs * mFromFeetFactor : offs;
+    trc.info().offset = SI().xyInFeet() ? offs * mFromFeetFactorF : offs;
     trc.info().azimuth = azim;
     trc.info().nr = nr;
     trc.info().refnr = refnr;
@@ -562,7 +562,7 @@ int SeisIOSimple::writeExpTrc()
 	{
 	    float offs = trc_.info().offset;
 	    mPIEPAdj(Offset,offs,false);
-	    if ( SI().xyInFeet() ) offs *= mToFeetFactor;
+	    if ( SI().xyInFeet() ) offs *= mToFeetFactorF;
 	    if ( data_.isasc_ )
 		*sd_.ostrm << '\t' << offs;
 	    else
