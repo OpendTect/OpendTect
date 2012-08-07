@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.15 2012-08-03 21:34:08 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.16 2012-08-07 20:43:04 cvsyuancheng Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -15,10 +15,15 @@ static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.15 2012-08-03 
 #include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "sorting.h"
+#include "trigonometry.h"
 
 
 namespace  EM
 {
+#define mOnInline 0
+#define mOnCrlline 1
+#define mOnZSlice 2
+#define mOnOther 3
 
 
 FSStoFault3DConverter::FaultStick::FaultStick( int sticknr )
@@ -167,6 +172,7 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 	return false;
 
     RowCol rc;
+    TypeSet<Coord3> singles;
     for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
     {
 	const StepInterval<int> colrg = curfssg_->colRange( rc.row );
@@ -174,14 +180,24 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 	    return false;
 
 	FaultStick* stick = new FaultStick( rc.row );
-	sticks_ += stick;
 
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
 	{
 	    const Coord3 pos = curfssg_->getKnot( rc );
 	    if ( !pos.isDefined() )
 		return false;
+
 	    stick->crds_ += pos;
+	}
+
+	const int pcksz = stick->crds_.size();
+	if ( pcksz<2 )
+	{
+	    if ( pcksz==1 )
+		singles += stick->crds_[0];
+
+	    delete stick;
+	    continue;
 	}
 
 	stick->pickedonplane_ = fss_.geometry().pickedOnPlane( sid, rc.row );
@@ -189,7 +205,108 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 	    stick->normal_ = stick->findPlaneNormal();
 	else
 	    stick->normal_ = curfssg_->getEditPlaneNormal( rc.row );
+	sticks_ += stick;
     }
+
+    if ( !singles.size() )
+	return true;
+
+    /*Merge single pick to nearest stick, not sorted yet*/
+    const int sz = sticks_.size();
+    TypeSet<char> pickedplane;
+    TypeSet<int> inlcrl;
+    TypeSet<float> zs;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	Interval<int> inlrg, crlrg;
+	Interval<float> zrg;
+	const int picksz = sticks_[idx]->crds_.size();
+	for ( int idz=0; idz<picksz; idz++ )
+	{
+	    const Coord3& k = sticks_[idx]->crds_[idz];
+	    const BinID bid = SI().transform( k );
+	    if ( !idz )
+	    {
+		inlrg.start = inlrg.stop = bid.inl;
+		crlrg.start = crlrg.stop = bid.crl;
+		zrg.start = zrg.stop = k.z;
+	    }
+	    else
+	    {
+		inlrg.include( bid.inl );
+		crlrg.include( bid.crl );
+		zrg.include( k.z );
+	    }
+	}
+
+	inlcrl += (inlrg.start==inlrg.stop ? inlrg.start : 
+		(crlrg.start==crlrg.stop ? crlrg.start : -1));
+	zs += (mIsEqual(zrg.start,zrg.stop,1e-3) ? zrg.start : 0);
+
+	if ( inlrg.start==inlrg.stop )
+	    pickedplane += mOnInline;
+	else if ( crlrg.start==crlrg.stop )
+	    pickedplane += mOnCrlline;
+	else if ( mIsEqual(zrg.start,zrg.stop,1e-3) )
+	    pickedplane += mOnZSlice;
+	else
+	    pickedplane += mOnOther;
+    }
+
+    for ( int idx=0; idx<singles.size(); idx++ )
+    {
+	const Coord3& pos = singles[idx];
+	const BinID bid = SI().transform( pos );
+
+	int nbidx = -1;
+	float mindist = 0;
+	for ( int idy=0; idy<sz; idy++ )
+	{
+	    if ( pickedplane[idy]==mOnInline )
+	    {
+		if ( inlcrl[idy]==bid.inl )
+		{
+		    nbidx = idy;
+		    break;
+		}
+	    }
+	    else if ( pickedplane[idy]==mOnCrlline )
+	    {
+		if ( inlcrl[idy]==bid.crl )
+		{
+		    nbidx = idy;
+		    break;
+		}   
+	    }
+	    else if ( pickedplane[idy]==mOnZSlice )
+	    {
+		if ( mIsEqual(pos.z,zs[idy],1e-3) )
+		{
+		    nbidx = idy;          
+		    break;
+		}
+	    }
+	    else
+	    {
+    		const int picksz = sticks_[idy]->crds_.size();
+		for ( int idz=0; idz<picksz-1; idz++ )
+		{
+		    const Coord3& k0 = sticks_[idy]->crds_[idz];
+		    const Coord3& k1 = sticks_[idy]->crds_[idz+1];
+		    Line3 segment( k0, k1-k0 );
+		    const float pldist = segment.sqDistanceToPoint( pos );
+		    if ( nbidx==-1 || pldist<mindist )
+		    {
+			nbidx = idy;
+			mindist = pldist;
+		    }
+		}
+	    }
+	}
+
+	sticks_[nbidx]->crds_ += pos;
+    }
+
     return true;
 }
 
@@ -335,6 +452,9 @@ void FSStoFault3DConverter::geometricSort( double zscale )
 	}
     }
 
+    if ( preferHorPicked() )
+	return;
+
     for ( int idx=0; idx<sticks_.size(); idx++ )
     {
 	const int nrcrds = sticks_[idx]->crds_.size();
@@ -369,19 +489,23 @@ void FSStoFault3DConverter::geometricSort( double zscale )
 
 void FSStoFault3DConverter::untwistSticks( double zscale )
 {
-    bool reverse = false;
-    int refidx = 0;
     for ( int idx=1; idx<sticks_.size(); idx++ )
     {
-	if ( curfssg_ && curfssg_->isTwisted(sticks_[refidx]->sticknr_,
-					     sticks_[idx]->sticknr_, zscale) )
-	    reverse = !reverse;
-	if ( !reverse ) continue;
+	if ( !curfssg_ || !curfssg_->isTwisted(sticks_[idx-1]->sticknr_,
+		    sticks_[idx]->sticknr_, zscale) )
+	    continue;
 
+	const int nbnrknots = sticks_[idx-1]->crds_.size();
 	const int nrknots = sticks_[idx]->crds_.size();
-	if ( nrknots > 1 )
-	    refidx = idx;
-	else
+	if ( nbnrknots<2 || nrknots<2 )
+	    continue;
+
+	Coord3 d0 = sticks_[idx-1]->crds_[0]-sticks_[idx-1]->crds_[nbnrknots-1];
+	d0.z *= zscale;
+	Coord3 d1 = sticks_[idx]->crds_[0]-sticks_[idx]->crds_[nrknots-1];
+	d1.z *= zscale;
+	float cosangle = d0.dot(d1)/Math::Sqrt(d0.dot(d0)*d1.dot(d1));
+	if ( fabs(cosangle)<0.707 ) //if skewed more than 45 degree ignore it
 	    continue;
 
 	for ( int idy=0; idy<nrknots/2; idy++ )
