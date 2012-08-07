@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.2 2012-07-26 10:31:59 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.3 2012-08-07 06:04:17 cvsmahant Exp $";
 
 #include "uiwelllogextract.h"
 
@@ -59,7 +59,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p, const Attrib::DescSet* d,
 					.withextractintime(ads_)
 					.singlelog(singlelog));
 
-    if ( attrsfld_ )
+    if ( ads_ )
     {
 	uiLabeledListBox* llba = 0;
 	llba = new uiLabeledListBox( this, "Attributes", true );
