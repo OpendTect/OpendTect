@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfaultstickset.cc,v 1.15 2012-05-02 15:11:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfaultstickset.cc,v 1.16 2012-08-07 16:53:27 cvsyuancheng Exp $";
 
 #include "emfaultstickset.h"
 
@@ -239,8 +239,7 @@ bool FaultStickSetGeometry::insertKnot( const SectionID& sid,
 					bool addtohistory )
 {
     Geometry::FaultStickSet* fss = sectionGeometry( sid );
-    RowCol rc;
-    rc.fromInt64( subid );
+    RowCol rc = RowCol::fromInt64( subid );
     if ( !fss || !fss->insertKnot(rc,pos) )
 	return false;
 
@@ -262,8 +261,7 @@ bool FaultStickSetGeometry::removeKnot( const SectionID& sid,
     Geometry::FaultStickSet* fss = sectionGeometry( sid );
     if ( !fss ) return false;
 
-    RowCol rc;
-    rc.fromInt64( subid );
+    RowCol rc = RowCol::fromInt64( subid );
     const Coord3 pos = fss->getKnot( rc );
 
     if ( !pos.isDefined() || !fss->removeKnot(rc) )
