@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfault3d.cc,v 1.27 2012-07-10 08:05:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfault3d.cc,v 1.28 2012-08-07 20:45:50 cvsyuancheng Exp $";
 
 #include "emfault3d.h"
 
@@ -195,8 +195,7 @@ bool Fault3DGeometry::insertKnot( const SectionID& sid, const SubID& subid,
 				const Coord3& pos, bool addtohistory )
 {
     Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-    RowCol rc;
-    rc.fromInt64( subid );
+    RowCol rc = RowCol::fromInt64( subid );
     if ( !fss || !fss->insertKnot(rc,pos) )
 	return false;
 
@@ -229,8 +228,7 @@ bool Fault3DGeometry::removeKnot( const SectionID& sid, const SubID& subid,
     Geometry::FaultStickSurface* fss = sectionGeometry( sid );
     if ( !fss ) return false;
 
-    RowCol rc;
-    rc.fromInt64( subid );
+    RowCol rc = RowCol::fromInt64( subid );
     const Coord3 pos = fss->getKnot( rc );
 
     if ( !pos.isDefined() || !fss->removeKnot(rc) )
