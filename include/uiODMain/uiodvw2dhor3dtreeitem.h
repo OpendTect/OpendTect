@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: uiodvw2dhor3dtreeitem.h,v 1.9 2012-08-03 13:01:05 cvskris Exp $
+ RCS:		$Id: uiodvw2dhor3dtreeitem.h,v 1.10 2012-08-07 04:00:22 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,8 +76,8 @@ protected:
     void		msRelEvtCompletedInVwrCB(CallBacker*);
     void		displayMiniCtab();
 
-    const int		cPixmapWidth()				{ return 16; }
-    const int		cPixmapHeight()				{ return 10; }
+    int			cPixmapWidth()				{ return 16; }
+    int			cPixmapHeight()				{ return 10; }
     void		emobjChangeCB(CallBacker*);
     
     EM::ObjectID        emid_;

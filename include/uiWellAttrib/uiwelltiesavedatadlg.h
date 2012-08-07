@@ -65,7 +65,7 @@ public:
 
     bool 			getNamesToBeSaved(BufferStringSet&,
 	    					  TypeSet<int>&);
-    const int			indexOf( const char* nm ) const
+    int				indexOf( const char* nm ) const
 				{ return itmnames_.indexOf(nm); }
     const char*			itemName( int idx )
     				{ return itmnames_.get(idx); }

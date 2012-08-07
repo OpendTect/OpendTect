@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.5 2012-08-03 13:01:05 cvskris Exp $
+ RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.6 2012-08-07 04:00:22 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,8 +74,8 @@ protected:
     void		displayMiniCtab();
     void		removePickSetCB(CallBacker*);
 
-    const int 		cPixmapWidth()				{ return 16; }
-    const int		cPixmapHeight()				{ return 10; }
+    int 		cPixmapWidth()				{ return 16; }
+    int			cPixmapHeight()				{ return 10; }
     
     Pick::SetMgr&	picksetmgr_;
     Pick::Set&		pickset_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.43 2012-08-03 13:01:21 cvskris Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.44 2012-08-07 04:00:22 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,9 +83,9 @@ public:
     void			setSceneID( int id )	{ cursceneid_ = id; }
     int				getSceneID() const	{ return cursceneid_; }
 
-    static const int            evPreviewRdmLine();
-    static const int		evCleanPreview();
-    static const int		evDisplayWell();
+    static int		        evPreviewRdmLine();
+    static int			evCleanPreview();
+    static int			evDisplayWell();
     
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.26 2012-08-03 13:01:03 cvskris Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.27 2012-08-07 04:00:21 cvsmahant Exp $
 ________________________________________________________________________
 
 
@@ -34,8 +34,8 @@ public:
     int				displayID() const;
     int				attribNr() const;
 
-    static const int		cPixmapWidth()		{ return 16; }
-    static const int		cPixmapHeight()		{ return 10; }
+    static int			cPixmapWidth()		{ return 16; }
+    static int			cPixmapHeight()		{ return 10; }
 
 				mDefineFactory2ParamInClass(uiODDataTreeItem,
 					const Attrib::SelSpec&,const char*,

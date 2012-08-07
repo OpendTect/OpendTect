@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.77 2012-07-25 08:23:34 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.78 2012-08-07 04:03:34 cvsmahant Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -46,9 +46,9 @@ static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.77 2012-07-25 
 #include "survinfo.h"
 
 
-const int uiWellPartServer::evPreviewRdmLine()	    { return 0; }
-const int uiWellPartServer::evCleanPreview()	    { return 1; }
-const int uiWellPartServer::evDisplayWell()	    { return 2; }
+int uiWellPartServer::evPreviewRdmLine()	    { return 0; }
+int uiWellPartServer::evCleanPreview()		    { return 1; }
+int uiWellPartServer::evDisplayWell()		    { return 2; }
 
 
 uiWellPartServer::uiWellPartServer( uiApplService& a )

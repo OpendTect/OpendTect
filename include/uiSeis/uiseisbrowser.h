@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.24 2012-08-03 13:01:07 cvskris Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.25 2012-08-07 04:00:22 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ public :
     bool 		is2d_;
 
     const BinID&	curBinID() const;
-    const float		curZ() const;
+    float		curZ() const;
     void		setCompNr( int compnr )		{ compnr_ = compnr; }
 
     static void		doBrowse(uiParent*,const IOObj&,bool is2d,

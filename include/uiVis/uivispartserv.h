@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.273 2012-08-03 13:01:19 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.274 2012-08-07 04:00:22 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,16 +210,16 @@ public:
     int			getEventAttrib() const;
     			/*<\returns the attrib that triggered the event */
 
-    static const int	evUpdateTree();
+    static int		evUpdateTree();
     void		triggerTreeUpdate();
 
-    static const int	evSelection();
+    static int		evSelection();
     			/*<! Get the id with getEventObjId() */
 
-    static const int	evDeSelection();
+    static int		evDeSelection();
     			/*<! Get the id with getEventObjId() */
 
-    static const int	evGetNewData();
+    static int		evGetNewData();
     			/*!< Get the id with getEventObjId() */
     			/*!< Get the attrib with getEventAttrib() */
     			/*!< Get selSpec with getSelSpec */
@@ -232,7 +232,7 @@ public:
     void		selectTexture(int id,int attrib,int texture);
     int			selectedTexture(int id,int attrib) const;
 
-    static const int	evMouseMove();
+    static int		evMouseMove();
     Coord3		getMousePos(bool xyt) const;
 			/*!< If !xyt mouse pos will be in inl, crl, t */
     int			zFactor() const			{ return zfactor_; }
@@ -241,16 +241,16 @@ public:
     void		getObjectInfo(int id,BufferString&) const;
 
 
-    static const int	evSelectAttrib();
+    static int		evSelectAttrib();
 
-    static const int	evInteraction();
+    static int		evInteraction();
     			/*<! Get the id with getEventObjId() */
     BufferString	getInteractionMsg(int id) const;
     			/*!< Returns dragger position or
 			     Nr positions in picksets */
 
-    static const int	evViewAll();
-    static const int	evToHomePos();
+    static int		evViewAll();
+    static int		evToHomePos();
 
     				// ColorTable stuff
     void			fillDispPars(int id,int attrib,
@@ -269,7 +269,7 @@ public:
 
     void			displayMapperRangeEditForAttrbs(int id);
 
-    static const int		evColorTableChange();
+    static int			evColorTableChange();
     void			displaySceneColorbar(bool);
     void			manageSceneColorbar(int);
     bool			sceneColorbarDisplayed();
@@ -281,7 +281,7 @@ public:
     void			setZStretch();
     void			setDirectionalLight();
     bool			setWorkingArea();
-    static const int		evViewModeChange();
+    static int			evViewModeChange();
     void			setViewMode(bool yn,bool notify=true);
     void			setSoloMode(bool,TypeSet< TypeSet<int> >,int);
     bool                        isSoloMode() const;
@@ -316,14 +316,14 @@ public:
 	    						    float val);
     float			getHeadOnIntensity() const;
     void			setHeadOnIntensity(float val);
-    static const int		evGetHeadOnIntensity();
-    static const int		evSetHeadOnIntensity();
+    static int			evGetHeadOnIntensity();
+    static int			evSetHeadOnIntensity();
 
     				// Tracking stuff
     void			turnSeedPickingOn(bool yn);
-    static const int		evPickingStatusChange();
+    static int			evPickingStatusChange();
     bool			sendPickingStatusChangeEvent(); 
-    static const int		evDisableSelTracker();
+    static int			evDisableSelTracker();
     bool			sendDisableSelTrackerEvent();
     void			trackInVolume(); 
 
@@ -338,16 +338,16 @@ public:
     void			turnQCPlaneOff();
     void			getPickingMessage(BufferString&) const;
 
-    static const int		evLoadPostponedData();
+    static int			evLoadPostponedData();
     void 			loadPostponedData() const;
 
-    static const int		evPostponedLoadingData();
+    static int			evPostponedLoadingData();
     void			postponedLoadingData() const;
     
-    static const int		evToggleBlockDataLoad();
+    static int			evToggleBlockDataLoad();
     void 			toggleBlockDataLoad() const;
 
-    static const int		evShowSetupDlg();
+    static int			evShowSetupDlg();
     bool			sendShowSetupDlgEvent();
     
     void			showMPEToolbar(bool yn=true);
@@ -357,10 +357,10 @@ public:
     uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
     void			fireLoadAttribDataInMPEServ();
-    static const int            evLoadAttribDataInMPEServ();
+    static int		        evLoadAttribDataInMPEServ();
     void			updateOldActiVolInuiMPEMan();
     void			restoreActiveVolInuiMPEMan();
-    static const int		evFromMPEManStoreEMObject();
+    static int			evFromMPEManStoreEMObject();
     void			fireFromMPEManStoreEMObject();
 
     uiSlicePos3DDisp*		getUiSlicePos() const

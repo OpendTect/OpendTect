@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.h,v 1.6 2012-08-03 13:01:04 cvskris Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.h,v 1.7 2012-08-07 04:00:22 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,8 +72,8 @@ protected:
     void		emobjAbtToDelCB(CallBacker*);
     void		displayMiniCtab();
 
-    const int		cPixmapWidth()				{ return 16; }
-    const int		cPixmapHeight()				{ return 10; }
+    int			cPixmapWidth()				{ return 16; }
+    int			cPixmapHeight()				{ return 10; }
     void		emobjChangeCB(CallBacker*);
 
     EM::ObjectID	emid_;

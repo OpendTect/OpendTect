@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.69 2012-08-01 14:44:27 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.70 2012-08-07 04:03:34 cvsmahant Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -157,7 +157,7 @@ const BinID& uiSeisBrowser::curBinID() const
 }
 
 
-const float uiSeisBrowser::curZ() const
+float uiSeisBrowser::curZ() const
 {
     return sd_.start + tbl_->currentRow() * sd_.step;
 }

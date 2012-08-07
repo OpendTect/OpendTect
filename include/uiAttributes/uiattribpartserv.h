@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.80 2012-08-03 13:00:47 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.81 2012-08-07 04:00:21 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,26 +68,26 @@ public:
 
     const char*		name() const			{ return "Attributes"; }
 
-    static const int	evDirectShowAttr();
+    static int		evDirectShowAttr();
     			//!< User requested direct redisplay of curAttrDesc()
-    static const int	evNewAttrSet();
+    static int		evNewAttrSet();
     			//!< FYI
-    static const int	evAttrSetDlgClosed();
+    static int		evAttrSetDlgClosed();
     			//!< AttributeSet window closes
-    static const int	evEvalAttrInit();
+    static int		evEvalAttrInit();
     			//!< Initialization of evaluation dialog
-    static const int	evEvalCalcAttr();
+    static int		evEvalCalcAttr();
     			//!< User wants to evaluate current attribute
-    static const int	evEvalShowSlice();
+    static int		evEvalShowSlice();
     			//!< Display slice
-    static const int	evEvalStoreSlices();
+    static int		evEvalStoreSlices();
     			//!< Store slices
-    static const int	evEvalRestore();
+    static int		evEvalRestore();
     			//!< Update name in tree after evaluation dlg closed
 			//!< And restore mapper
-    static const int	objNLAModel2D();
+    static int		objNLAModel2D();
     			//!< Request current 2D NLAModel* via getObject()
-    static const int	objNLAModel3D();
+    static int		objNLAModel3D();
     			//!< Request current 3D NLAModel* via getObject()
 
     void		manageAttribSets();

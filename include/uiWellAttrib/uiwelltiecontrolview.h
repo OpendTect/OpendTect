@@ -34,7 +34,7 @@ public:
 					uiFlatViewer*,Server&);
 			~uiControlView(){};
    
-    const bool 		isZoomAtStart() const;
+    bool 		isZoomAtStart() const;
     void 		setEditOn(bool);
     void		setSelView(bool isnewsel = true, bool viewall=false );
 

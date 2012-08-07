@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.198 2012-07-31 20:12:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.199 2012-08-07 04:03:34 cvsmahant Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -77,16 +77,16 @@ static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.198 2012-07-
 
 using namespace Attrib;
 
-const int uiAttribPartServer::evDirectShowAttr()    { return 0; }
-const int uiAttribPartServer::evNewAttrSet()	    { return 1; }
-const int uiAttribPartServer::evAttrSetDlgClosed()  { return 2; }
-const int uiAttribPartServer::evEvalAttrInit()	    { return 3; }
-const int uiAttribPartServer::evEvalCalcAttr()	    { return 4; }
-const int uiAttribPartServer::evEvalShowSlice()	    { return 5; }
-const int uiAttribPartServer::evEvalStoreSlices()   { return 6; }
-const int uiAttribPartServer::evEvalRestore()       { return 7; }
-const int uiAttribPartServer::objNLAModel2D()	    { return 100; }
-const int uiAttribPartServer::objNLAModel3D()	    { return 101; }
+int uiAttribPartServer::evDirectShowAttr()	    { return 0; }
+int uiAttribPartServer::evNewAttrSet()	   	    { return 1; }
+int uiAttribPartServer::evAttrSetDlgClosed() 	    { return 2; }
+int uiAttribPartServer::evEvalAttrInit()	    { return 3; }
+int uiAttribPartServer::evEvalCalcAttr()	    { return 4; }
+int uiAttribPartServer::evEvalShowSlice()	    { return 5; }
+int uiAttribPartServer::evEvalStoreSlices()	    { return 6; }
+int uiAttribPartServer::evEvalRestore()      	    { return 7; }
+int uiAttribPartServer::objNLAModel2D()	   	    { return 100; }
+int uiAttribPartServer::objNLAModel3D()	  	    { return 101; }
 
 const char* uiAttribPartServer::attridstr()	    { return "Attrib ID"; }
 

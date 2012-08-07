@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltiecontrolview.cc,v 1.42 2012-06-21 08:56:45 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiecontrolview.cc,v 1.43 2012-08-07 04:03:34 cvsmahant Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -185,7 +185,7 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
 }
 
 
-const bool uiControlView::isZoomAtStart() const
+bool uiControlView::isZoomAtStart() const
 { return zoommgr_.atStart(); }
 
 

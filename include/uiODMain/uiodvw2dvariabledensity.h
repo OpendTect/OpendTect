@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.h,v 1.7 2012-08-03 13:01:05 cvskris Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.h,v 1.8 2012-08-07 04:00:22 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,8 @@ public:
     bool                	select();
     bool                        showSubMenu();
 
-    static const int		cPixmapWidth()			{ return 16; }
-    static const int		cPixmapHeight()			{ return 10; }
+    static int			cPixmapWidth()			{ return 16; }
+    static int			cPixmapHeight()			{ return 10; }
 
 protected:
 
