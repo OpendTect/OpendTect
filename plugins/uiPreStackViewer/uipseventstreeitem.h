@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          November 2011
- RCS:           $Id: uipseventstreeitem.h,v 1.8 2012-04-16 17:49:52 cvsnanne Exp $
+ RCS:           $Id: uipseventstreeitem.h,v 1.9 2012-08-07 05:32:40 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,8 +71,8 @@ protected:
     void		    updateDisplay();
     void		    displayMiniColTab();
 
-    const int		    cPixmapWidth() const { return 16; }
-    const int		    cPixmapHeight() const { return 10; }
+    int			    cPixmapWidth() const { return 16; }
+    int			    cPixmapHeight() const { return 10; }
 
     PreStack::EventManager& psem_;
     const char*		    eventname_;
