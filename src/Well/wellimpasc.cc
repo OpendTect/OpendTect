@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.90 2012-07-22 04:56:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.91 2012-08-07 09:29:20 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -16,6 +16,8 @@ static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.90 2012-07-22 04:5
 #include "strmprov.h"
 #include "unitofmeasure.h"
 #include "tabledef.h"
+#include "varlenarray.h"
+#include "sorting.h"
 #include <iostream>
 #include <math.h>
 
@@ -582,6 +584,46 @@ void Well::D2TModelAscIO::updateDesc( Table::FormatDesc& fd, bool withunitfld )
 }
 
 
+static bool getTVDD2TModel( Well::D2TModel& d2t,
+		const TypeSet<float>& zvals, const TypeSet<float>& tvals,
+		const Well::Track& trck )
+{
+    const float eps = 1e-4;
+    TypeSet<float> mds, ts;
+    for ( int iz=0; iz<zvals.size(); iz++ )
+    {
+	const float targettvd = zvals[iz];
+	const float curt = tvals[iz];
+
+	// find MD intervals including this TVD. Can be multiple.
+	float prevtvd = trck.pos(0).z;
+	for ( int idah=1; idah<trck.size(); idah++ )
+	{
+	    const float tvd = trck.pos(idah).z;
+	    const float tvddist = tvd - prevtvd;
+	    if ( mIsZero(tvddist,eps) )
+		continue;
+
+	    if ( targettvd > prevtvd-eps && targettvd < tvd+eps )
+	    {
+		const float relpos = (targettvd - prevtvd) / tvddist;
+		mds += relpos*trck.dah(idah) + (1-relpos)*trck.dah(idah-1);
+		ts += curt;
+	    }
+	    prevtvd = tvd;
+	}
+    }
+
+    const int sz = mds.size();
+    mAllocVarLenIdxArr( int, idxs, sz );
+    sort_coupled( mds.arr(), idxs, sz );
+    for ( int idx=0; idx<sz; idx++ )
+	d2t.add( mds[idx], ts[ idxs[idx] ] );
+
+    return true;
+}
+
+
 bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
        				const Well::Data& wll ) const
 {
@@ -590,32 +632,28 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 
     const int dpthopt = formOf( false, 0 );
     const int tmopt = formOf( false, 1 );
-    float prevdah = mUdf(float);
+    const bool istvd = dpthopt > 0;
+    TypeSet<float> zvals, tvals;
     while ( true )
     {
 	int ret = getNextBodyVals( strm );
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	float dah = getfValue( 0 );
-	float time = getfValue( 1 );
-	if ( mIsUdf(dah) || mIsUdf(time) )
+	float zval = getfValue( 0 );
+	float tval = getfValue( 1 );
+	if ( mIsUdf(zval) || mIsUdf(tval) )
 	    continue;
-
-	if ( dpthopt > 0 )
-	{
-	    if ( dpthopt == 2 )
-		dah -= wll.info().surfaceelev;
-	    if ( !convToDah(wll.track(),dah,prevdah) )
-		continue;
-	    prevdah = dah;
-	}
-	
+	if ( dpthopt == 2 )
+	    zval -= wll.info().surfaceelev;
 	if ( tmopt == 1 )
-	    time *= 2;
+	    tval *= 2;
 
-	d2t.add( dah, time );
+	if ( !istvd )
+	    d2t.add( zval, tval );
+	else
+	    { zvals += zval; tvals += tval; }
     }
 
-    return true;
+    return istvd ? getTVDD2TModel( d2t, zvals, tvals, wll.track() ) : true;
 }
