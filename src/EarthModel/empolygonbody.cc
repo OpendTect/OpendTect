@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: empolygonbody.cc,v 1.20 2012-08-03 06:38:38 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: empolygonbody.cc,v 1.21 2012-08-07 16:52:09 cvsyuancheng Exp $";
 
 #include "empolygonbody.h"
 
@@ -450,8 +450,7 @@ bool PolygonBodyGeometry::insertKnot( const SectionID& sid, const SubID& subid,
 				      const Coord3& pos, bool addtohistory )
 {
     Geometry::PolygonSurface* pol = sectionGeometry( sid );
-    RowCol rc;
-    rc.fromInt64( subid );
+    RowCol rc = RowCol::fromInt64( subid );
     if ( !pol || !pol->insertKnot(rc,pos) )
 	return false;
 
@@ -485,8 +484,7 @@ bool PolygonBodyGeometry::removeKnot( const SectionID& sid, const SubID& subid,
     Geometry::PolygonSurface* pol = sectionGeometry( sid );
     if ( !pol ) return false;
 
-    RowCol rc;
-    rc.fromInt64( subid );
+    RowCol rc = RowCol::fromInt64( subid );
     const Coord3 pos = pol->getKnot( rc );
 
     if ( !pos.isDefined() || !pol->removeKnot(rc) )

@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: explfaultsticksurface.cc,v 1.56 2012-07-10 08:05:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: explfaultsticksurface.cc,v 1.57 2012-08-07 16:52:09 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -1612,8 +1612,7 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
     mCBCapsuleUnpack( const TypeSet<GeomPosID>*, pidlist, cb );
     for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
     {
-	RowCol rc;
-	rc.fromInt64( (*pidlist)[idx] );
+	RowCol rc = RowCol::fromInt64( (*pidlist)[idx] );
 	const int stickidx = rc.row;
 
 	if ( rc.col==FaultStickSurface::StickChange )
@@ -1657,8 +1656,7 @@ void ExplFaultStickSurface::surfaceMovement( CallBacker* cb )
     mCBCapsuleUnpack( const TypeSet<GeomPosID>*, pidlist, cb );
     for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
     {
-	RowCol rc;
-	rc.fromInt64( (*pidlist)[idx] );
+	RowCol rc = RowCol::fromInt64( (*pidlist)[idx] );
 	const int stickidx = rc.row;
 
 	emptyPanel( stickidx-1 );

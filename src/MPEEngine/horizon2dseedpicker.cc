@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: horizon2dseedpicker.cc,v 1.33 2012-06-26 14:13:37 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon2dseedpicker.cc,v 1.34 2012-08-07 16:52:08 cvsyuancheng Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -266,8 +266,7 @@ bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 	return true;
 
     mGetHorizon(hor,false);
-    RowCol rc;
-    rc.fromInt64( pid.subID() );
+    RowCol rc = RowCol::fromInt64( pid.subID() );
     if ( rc.row != hor->geometry().lineIndex(geomid_) )
 	return false;
 
@@ -554,10 +553,11 @@ bool Horizon2DSeedPicker::interpolateSeeds()
     RowCol rc;
     for ( int idx=0; idx<nrseeds; idx++ )
     {
-	rc.fromInt64( seedlist_[idx].subID() );
-	if ( rc.row != hor->geometry().lineIndex(geomid_) )
+	RowCol tmprc = RowCol::fromInt64( seedlist_[idx].subID() );
+	if ( tmprc.row != hor->geometry().lineIndex(geomid_) )
 	    return false;
 
+	rc = tmprc;
 	sortval[idx] = rc.col;
 	sortidx[idx] = idx;
     }
@@ -613,7 +613,7 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 #define mAddToBox(pidlist) \
     for ( int idx=0; idx<pidlist.size(); idx++ ) \
     { \
-	rc.fromInt64( pidlist[idx].subID() ); \
+	RowCol rc = RowCol::fromInt64( pidlist[idx].subID() ); \
 	trackbox.hrg.include( BinID(rc) ); \
     }
 
@@ -621,7 +621,6 @@ CubeSampling Horizon2DSeedPicker::getTrackBox() const
 {
     CubeSampling trackbox( true );
     trackbox.hrg.init( false );
-    RowCol rc;
     mAddToBox(seedlist_);
     mAddToBox(trackbounds_);
 
