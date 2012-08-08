@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapackbase.cc,v 1.14 2012-07-10 08:05:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: datapackbase.cc,v 1.15 2012-08-08 04:59:50 cvssalil Exp $";
 
 #include "datapackbase.h"
 #include "arrayndimpl.h"
@@ -27,7 +27,7 @@ public:
     {
 	float anglenorth = fabs( SI().computeAngleXInl() );
 	if ( anglenorth > M_PI_2 )
-	    anglenorth = M_PI - anglenorth;
+	    anglenorth = ( float )( M_PI - anglenorth );
 
 	const int inlsz = mdp_.arr2d_->info().getSize(0);
 	const int crlsz = mdp_.arr2d_->info().getSize(1);
@@ -45,15 +45,16 @@ public:
 		    (int)tmpirg.step),
 		StepInterval<int>((int)tmpcrg.start,(int)tmpcrg.stop,
 		    (int)tmpcrg.step) );
-	Coord spt1 = SI().transform( BinID(hsamp_.start.inl,hsamp_.start.crl) );        Coord spt2 = SI().transform( BinID(hsamp_.start.inl,hsamp_.stop.crl) );
+	Coord spt1 = SI().transform(BinID(hsamp_.start.inl,hsamp_.start.crl) );
+	Coord spt2 = SI().transform( BinID(hsamp_.start.inl,hsamp_.stop.crl) );
 	Coord spt3 = SI().transform( BinID(hsamp_.stop.inl,hsamp_.start.crl) );
 	Coord spt4 = SI().transform( BinID(hsamp_.stop.inl,hsamp_.stop.crl) );
 	startpt_ = Coord( mMIN( mMIN(spt1.x, spt2.x), mMIN(spt3.x, spt4.x) ),
 		mMIN( mMIN(spt1.y, spt2.y), mMIN(spt3.y, spt4.y) ) );
 	stoppt_ = Coord( mMAX( mMAX(spt1.x, spt2.x), mMAX(spt3.x, spt4.x) ),
 		mMAX( mMAX(spt1.y, spt2.y), mMAX(spt3.y, spt4.y) ) );
-	xstep_ = (stoppt_.x - startpt_.x)/length;
-	ystep_ = (stoppt_.y - startpt_.y)/width;
+	xstep_ = ( float ) (stoppt_.x - startpt_.x)/length;
+	ystep_ = ( float ) (stoppt_.y - startpt_.y)/width;
     }
     
     od_int64 nrIterations() const
@@ -91,8 +92,8 @@ public:
 	    if ( hsamp_.includes( approxbid ) )
 	    {
 		Coord approxcoord = SI().transform( approxbid );
-		float diffx = ( coord.x - approxcoord.x ) / xstep_;
-		float diffy = ( coord.y - approxcoord.y ) / ystep_;
+		float diffx = ( float ) (( coord.x - approxcoord.x ) / xstep_);
+		float diffy = ( float ) (( coord.y - approxcoord.y ) / ystep_);
 		toreach00.inl = diffx>=0 ? 0 : -1;
 		toreach00.crl = diffy>=0 ? 0 : -1;
 		int id0v00 = (approxbid.inl - hsamp_.start.inl)/hsamp_.step.inl

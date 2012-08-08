@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posinfodetector.cc,v 1.20 2012-05-03 05:14:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: posinfodetector.cc,v 1.21 2012-08-08 04:59:50 cvssalil Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -366,7 +366,7 @@ void PosInfo::Detector::addPos()
 	}
 	if ( setup_.is2d_ )
 	{
-	    const float dist = curcbo_.coord_.distTo( prevcbo_.coord_ );
+	    const float dist = ( float ) curcbo_.coord_.distTo( prevcbo_.coord_ );
 	    if ( mIsUdf(distrg_.start) )
 		distrg_.start = distrg_.stop = dist;
 	    else

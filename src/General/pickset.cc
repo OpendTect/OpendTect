@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: pickset.cc,v 1.81 2012-08-07 05:20:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: pickset.cc,v 1.82 2012-08-08 04:59:50 cvssalil Exp $";
 
 #include "pickset.h"
 
@@ -161,11 +161,11 @@ bool Pick::Location::fromString( const char* s, bool doxy, bool testdir )
 	if ( !mIsUdf(yread) )
 	{
 	    if ( mIsUdf(zread) ) zread = 0;
-	    dir = Sphere( xread, yread, zread );
+	    dir = Sphere( ( float ) xread,( float )  yread,( float )  zread );
 	}
     }
     else
-	dir = Sphere( xread, yread, zread );
+	dir = Sphere( ( float )  xread,( float )  yread,( float )  zread );
 
     return true;
 }
@@ -467,7 +467,7 @@ float Pick::Set::getXYArea() const
     for ( int idx=size()-1; idx>=0; idx-- )
     {
 	const Coord localpos = (*this)[idx].pos;
-	posxy += Geom::Point2D<float>( localpos.x, localpos.y );
+	posxy += Geom::Point2D<float>(( float )localpos.x,( float )localpos.y);
     }
 
     ODPolygon<float> polygon( posxy );

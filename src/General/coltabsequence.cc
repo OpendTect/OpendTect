@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: coltabsequence.cc,v 1.42 2012-08-07 05:20:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: coltabsequence.cc,v 1.43 2012-08-08 04:59:49 cvssalil Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -718,9 +718,9 @@ float ColTab::Sequence::snapToSegmentCenter( float x ) const
     if ( nrsegments_==1 )
 	return 0.5;
 
-    const float segmentsize = 1.0/(nrsegments_-1);
+    const float segmentsize = 1.0f / (nrsegments_ - 1);
 
-    int segment = (int) (x/segmentsize+0.5 );
+    int segment = (int) ( x/segmentsize + 0.5 );
     if ( segment<0 ) segment = 0;
     if ( segment>=nrsegments_ )
 	segment = nrsegments_-1;

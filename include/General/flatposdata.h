@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2007
- RCS:           $Id: flatposdata.h,v 1.9 2012-08-03 13:00:23 cvskris Exp $
+ RCS:           $Id: flatposdata.h,v 1.10 2012-08-08 04:59:08 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public:
     inline int			nrPts( bool forx1 ) const
 				{ return range(forx1).nrSteps() + 1; }
     float			width( bool forx1 ) const
-				{ return range(forx1).width(); }
+				{ return ( float )( range(forx1).width() ); }
     IndexInfo			indexInfo(bool forx1,double pos) const;
 
     double			position(bool forx1,int) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.83 2012-08-03 09:29:13 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.84 2012-08-08 04:59:50 cvssalil Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -117,7 +117,7 @@ void FlatPosData::getPositions( bool isx1, TypeSet<float>& res ) const
     const int nrtimes = nrPts( isx1 );
     res.setCapacity( nrtimes );
     for ( int idx=0; idx<nrtimes; idx++ )
-	res += position( isx1, idx );
+	res += ( float )position( isx1, idx );
 }
 
 
@@ -133,7 +133,7 @@ float* FlatPosData::getPositions( bool isx1 ) const
     {
 	const StepInterval<double>& xrg = range( isx1 );
 	for ( int idx=0; idx<sz; idx++ )
-	    ret[idx] = xrg.atIndex( idx );
+	    ret[idx] = ( float )xrg.atIndex( idx );
     }
     return ret;
 }

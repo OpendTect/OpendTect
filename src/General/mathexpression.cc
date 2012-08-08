@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: mathexpression.cc,v 1.60 2012-06-25 13:58:26 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: mathexpression.cc,v 1.61 2012-08-08 04:59:50 cvssalil Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -423,7 +423,7 @@ float MathExpressionRandom::getValue() const
 	return mUdf(float);
 
     static int dum mUnusedVar = ensureRandInited();
-    return maxval * Stats::RandGen::get();
+    return ( float )( maxval * Stats::RandGen::get() );
 }
 
 
@@ -435,7 +435,7 @@ float MathExpressionGaussRandom::getValue() const
 	return mUdf(float);
 
     static int dum mUnusedVar = ensureRandInited();
-    return Stats::RandGen::getNormal(0,stdev);
+    return ( float ) Stats::RandGen::getNormal(0,stdev);
 }
 
 
@@ -492,7 +492,7 @@ public: \
 			    for ( int idx=0; idx<inputs_.size(); idx++) \
 				stats += inputs_[idx]->getValue(); \
  \
-			    return stats.getValue(Stats::statnm); \
+			    return ( float ) stats.getValue(Stats::statnm); \
 			} \
  \
     MathExpression*	clone() const \
@@ -1100,7 +1100,7 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
     double tres = strtod( str, &endptr );
 
     if ( endptr != str )
-	return new MathExpressionConstant( tres );
+	return new MathExpressionConstant( ( float )tres );
 
 
 #define mParseFunction( func, clss ) { \

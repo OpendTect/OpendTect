@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.17 2012-08-03 13:00:26 cvskris Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.18 2012-08-08 04:59:08 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,10 +61,10 @@ public:
 
     template <class T>
     T			getSIValue( T inp ) const
-    						{ return scaler_.scale(inp); }
+    						{ return ( T ) scaler_.scale(inp); }
     template <class T>
     T			getUserValueFromSI( T inp ) const
-						{ return scaler_.unScale(inp); }
+						{ return ( T ) scaler_.unScale(inp); }
     template <class T>
     T			internalValue(T inp) const;
     template <class T>

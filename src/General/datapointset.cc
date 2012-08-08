@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.53 2012-08-07 05:20:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.54 2012-08-08 04:59:50 cvssalil Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -49,7 +49,7 @@ DataPointSet::Pos::Pos( const Coord& c, float _z )
 
 DataPointSet::Pos::Pos( const Coord3& c )
     : binid_(SI().transform(c))
-    , z_(c.z)
+    , z_(( float ) c.z)
 {
     setOffs( c );
 }
@@ -58,8 +58,8 @@ DataPointSet::Pos::Pos( const Coord3& c )
 void DataPointSet::Pos::setOffs( const Coord& c )
 {
     const Coord sc( SI().transform(binid_) );
-    offsx_ = c.x - sc.x;
-    offsy_ = c.y - sc.y;
+    offsx_ = ( float ) (c.x - sc.x);
+    offsy_ = ( float ) (c.y - sc.y);
 }
 
 
@@ -72,7 +72,7 @@ void DataPointSet::Pos::set( const Coord& c )
 
 void DataPointSet::Pos::set( const Coord3& c )
 {
-    z_ = c.z;
+    z_ = ( float ) c.z;
     set( ((const Coord&)c) );
 }
 
@@ -192,7 +192,7 @@ DataPointSet::DataPointSet( ::Pos::Provider& prov,
 		    continue;
 	    }
 	    if ( filt->hasZAdjustment() )
-		dr.pos_.z_ = filt->adjustedZ( crd, dr.pos_.z_ );
+		dr.pos_.z_ = filt->adjustedZ( crd, (float) dr.pos_.z_ );
 	}
 	dr.data_.setSize( nrcols, mUdf(float) );
 	addRow( dr );
@@ -792,10 +792,10 @@ DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos,
     {
 	mGetZ( z(rowidx), zinxy );
 	Coord3 poscoord( coord(rowidx), zinxy );
-	const float dist = poscoord.distTo( targetpos );
+	const float dist = (float) poscoord.distTo( targetpos );
 	if ( dist < maxdist  && dist < mindist )
 	{
-	    resrowidx=rowidx;
+	    resrowidx = rowidx;
 	    mindist = dist;
 	}
     }

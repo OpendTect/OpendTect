@@ -4,7 +4,7 @@
  * DATE     : 28-2-1996
  * FUNCTION : Data buffers and collections of buffers (trace data)
 -*/
-static const char* rcsID mUnusedVar = "$Id: databuf.cc,v 1.25 2012-07-18 11:20:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: databuf.cc,v 1.26 2012-08-08 04:59:49 cvssalil Exp $";
 
 
 #include "tracedata.h"
@@ -261,7 +261,7 @@ void TraceData::scale( const Scaler& sclr, int compnr )
 	for ( int isamp=0; isamp<sz; isamp++ )
 	{
 	    float val = getValue( isamp, icomp );
-	    setValue( isamp, sclr.scale(val), icomp );
+	    setValue( isamp, ( float ) sclr.scale(val), icomp );
 	}
     }
 }

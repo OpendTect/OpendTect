@@ -4,7 +4,7 @@
  * DATE     : Mar 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: variogramcomputers.cc,v 1.4 2012-07-10 08:05:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: variogramcomputers.cc,v 1.5 2012-08-08 04:59:50 cvssalil Exp $";
 
 #include "variogramcomputers.h"
 
@@ -307,7 +307,8 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 		continue;
 	    }
 
-	    float reldist = ( depth_out-dpset.z(disorder[previdx].rowid_) )/
+	    float reldist = ( float ) 
+			    ( depth_out-dpset.z(disorder[previdx].rowid_) )/
 			    ( dpset.z(disorder[previdx+1].rowid_)-
 			      dpset.z(disorder[previdx].rowid_) );
 	    double val_out = Interpolate::linearReg1D(
