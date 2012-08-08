@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.92 2012-08-08 05:03:40 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.93 2012-08-08 06:38:39 cvsraman Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -616,7 +616,7 @@ static bool getTVDD2TModel( Well::D2TModel& d2t,
 
     const int sz = mds.size();
     mAllocVarLenIdxArr( int, idxs, sz );
-    sort_coupled( mds.arr(), idxs.ptr(), sz );
+    sort_coupled( mds.arr(), mVarLenArr(idxs), sz );
     for ( int idx=0; idx<sz; idx++ )
 	d2t.add( mds[idx], ts[ idxs[idx] ] );
 
