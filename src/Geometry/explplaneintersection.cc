@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: explplaneintersection.cc,v 1.23 2012-05-02 15:11:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: explplaneintersection.cc,v 1.24 2012-08-08 05:26:29 cvssalil Exp $";
 
 
 #include "explplaneintersection.h"
@@ -291,15 +291,15 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 
 	if ( nrintersections==3 )//Round error case handle
 	{
-	    const float d01 = plane.distanceToPoint(edge01.getPoint(edget01));
-    	    const float d12 = plane.distanceToPoint(edge12.getPoint(edget12));
-    	    const float d20 = plane.distanceToPoint(edge20.getPoint(edget20));
+	    const float d01 = (float) plane.distanceToPoint(edge01.getPoint(edget01));
+    	    const float d12 = (float) plane.distanceToPoint(edge12.getPoint(edget12));
+    	    const float d20 = (float) plane.distanceToPoint(edge20.getPoint(edget20));
 
 	    if ( mIsZero(d01,1e-5) && mIsZero(d12,1e-5) && mIsZero(d20,1e-5) )
 	    {
-		const float d0 = (plane.getProjection(c0)-c0).sqAbs();
-		const float d1 = (plane.getProjection(c1)-c1).sqAbs();
-		const float d2 = (plane.getProjection(c2)-c2).sqAbs();
+		const float d0 = (float) (plane.getProjection(c0)-c0).sqAbs();
+		const float d1 = (float) (plane.getProjection(c1)-c1).sqAbs();
+		const float d2 = (float) (plane.getProjection(c2)-c2).sqAbs();
 		if ( d0>d1 && d0>d2 )
 		    edgeok12 = false;
 		else if ( d1>d0 && d1>d2 )

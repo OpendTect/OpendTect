@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: faulthorintersect.cc,v 1.19 2012-05-02 15:11:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: faulthorintersect.cc,v 1.20 2012-08-08 05:26:29 cvssalil Exp $";
 
 #include "faulthorintersect.h"
 
@@ -105,7 +105,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		BinID bid = SI().transform( v[k] );
 		RowCol rc(surfrrg.snap(bid.inl),surfcrg.snap(bid.crl));
 
-		const float pz = surf_.getKnot(rc, false).z + zshift_;
+		const double pz = surf_.getKnot(rc, false).z + zshift_;
 		rcz[k] = Coord3( rc.row, rc.col, pz );
 		bool defined = !mIsUdf(pz);
 		if ( allabove )
@@ -163,7 +163,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 			pos.z += zshift_;
 			pos -= center;
 			pos.z *= zscale;
-			dist = triangle.distanceToPoint(pos,true);
+			dist = (float) triangle.distanceToPoint(pos,true);
 		    }
 
 		    field.set( ridx, cidx, dist );
@@ -247,7 +247,7 @@ bool getSurfacePos( const Geom::Point2D<float>& vertex, Coord3& res )
 		return true;
 	    }
 	    else
-		dist = 1./dist;
+		dist = 1.f/dist;
 	    
 	    weights += dist;
 	    weightsum += dist;
@@ -281,8 +281,8 @@ void addAndSortToResult( TypeSet<Coord3>& res, TypeSet<Coord3> ni )
     }
     else if ( !lastidx )
     {
-	const float d0 = res[0].sqDistTo( ni[0] );
-	const float d1 = res[0].sqDistTo( ni[nilastidx] );
+	const float d0 = (float) res[0].sqDistTo( ni[0] );
+	const float d1 = (float) res[0].sqDistTo( ni[nilastidx] );
 	const Coord3 pos = res[0];
 	res.erase();
 
@@ -296,10 +296,10 @@ void addAndSortToResult( TypeSet<Coord3>& res, TypeSet<Coord3> ni )
     }
     else
     {
-	const float d00 = res[0].sqDistTo( ni[0] );
-	const float d01 = res[0].sqDistTo( ni[nilastidx] );
-	const float d10 = res[lastidx].sqDistTo( ni[0] );
-	const float d11 = res[lastidx].sqDistTo( ni[nilastidx] );
+	const float d00 = (float) res[0].sqDistTo( ni[0] );
+	const float d01 = (float) res[0].sqDistTo( ni[nilastidx] );
+	const float d10 = (float) res[lastidx].sqDistTo( ni[0] );
+	const float d11 = (float) res[lastidx].sqDistTo( ni[nilastidx] );
 	if ( d10 <= d00 && d10 <= d11 && d10 <= d01 )
 	{
 	    for ( int k=0; k<=nilastidx; k++ )

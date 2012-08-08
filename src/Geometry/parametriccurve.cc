@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: parametriccurve.cc,v 1.19 2012-05-02 15:11:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: parametriccurve.cc,v 1.20 2012-08-08 05:26:29 cvssalil Exp $";
 
 #include "parametriccurve.h"
 
@@ -52,7 +52,7 @@ public:
 		       {}
 
     float		getValue( float p ) const
-			{ return curve.computePosition(p).sqDistTo(pos); }
+			{ return (float) curve.computePosition(p).sqDistTo(pos); }
     float		getValue( const float* p ) const
 			{ return getValue( *p ); }
 
@@ -74,7 +74,7 @@ bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 	float closestsqdist = mUdf(float);
 	for ( int idx=prange.start; idx<=prange.stop; idx+=prange.step )
 	{
-	    const float sqdist = getPosition(idx).sqDistTo(pos);
+	    const float sqdist = (float) getPosition(idx).sqDistTo(pos);
 	    if ( sqdist<closestsqdist )
 	    {
 		closestsqdist = sqdist;
@@ -111,7 +111,7 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
 	{
 	    const Coord3 pos = getPosition(idx);
 	    const float dist =
-		plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_;
+		(float) (plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_);
 	    if ( fabs(dist)<closestdist )
 	    {
 		closestdist = dist;
@@ -124,10 +124,10 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
     for ( int idx=0; idx<20; idx++ )
     {
 	const Coord3 pos = computePosition(p);
-	float fp = plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_;
+	float fp = (float)(plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_);
 
 	const Coord3 dir = computeTangent(p);
-	float dp = plane.A_*dir.x+plane.B_*dir.y+plane.C_*dir.z+plane.D_;
+	float dp = (float)(plane.A_*dir.x+plane.B_*dir.y+plane.C_*dir.z+plane.D_);
 
 	const float diff = dp/fp;
 	p = p - diff;

@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: polyposprovider.cc,v 1.17 2012-07-29 21:35:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: polyposprovider.cc,v 1.18 2012-08-08 05:26:29 cvssalil Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -128,7 +128,7 @@ bool Pos::PolyProvider3D::includes( const BinID& bid, float z ) const
 
     if ( mIsUdf(z) ) return true;
 
-    const float zeps = zrg_.step * 1e-6;
+    const float zeps = zrg_.step * 1e-6f;
     return z > zrg_.start - zeps && z < zrg_.stop + zeps;
 }
 

@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: binidsurface.cc,v 1.31 2012-07-09 20:51:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: binidsurface.cc,v 1.32 2012-08-08 05:26:28 cvssalil Exp $";
 
 #include "binidsurface.h"
 
@@ -391,7 +391,7 @@ Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
 	return res;
     
     //interpolate
-    float diagsum = 0, lateralsum = 0;
+    double diagsum = 0, lateralsum = 0;
     int diagnr = 0, lateralnr = 0;
     for ( int idx=-1; idx<2; idx++ )
     {
@@ -438,7 +438,7 @@ void BinIDSurface::_setKnot( int idx, const Coord3& np )
 	idx = 0;
     }
 
-    depths_->getData()[idx] = np.z;
+    depths_->getData()[idx] = (float) np.z;
 }
 
 

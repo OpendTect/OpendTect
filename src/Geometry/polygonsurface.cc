@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: polygonsurface.cc,v 1.19 2012-05-02 15:11:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: polygonsurface.cc,v 1.20 2012-08-08 05:26:29 cvssalil Exp $";
 
 #include "polygonsurface.h"
 
@@ -243,12 +243,12 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
     {
 	const Coord3 prvpos = knots[knot==0 ? nrknots-1 : knot-1];
 	const Coord3 nextpos = knots[knot==nrknots-1 ? 0 : knot+1];
-	curve.setTangentInfluence( ((prvpos-nextpos).abs())/5.0 );
+	curve.setTangentInfluence( (float) ((prvpos-nextpos).abs())/5.0f );
 
 	for ( int nr=0; nr<beziernrpts_+1; nr++ )
 	{
 	    Coord3 pt = curve.computePosition(
-		    knot+nr*1.0/(float)(beziernrpts_+1) );
+		    knot+nr*1.0f/(float)(beziernrpts_+1) );
 	    
 	    pt.z /= zscale;
 	    pts += pt;

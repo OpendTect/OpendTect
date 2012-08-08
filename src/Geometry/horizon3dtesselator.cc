@@ -4,7 +4,7 @@
  * DATE     : August 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon3dtesselator.cc,v 1.3 2012-05-02 15:11:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon3dtesselator.cc,v 1.4 2012-08-08 05:26:29 cvssalil Exp $";
 
 #include "horizon3dtesselator.h"
 
@@ -174,10 +174,10 @@ int Horizon3DTesselator::nextStep()
 	    }
 	    else
 	    {
-		const float diff0 = coords_->get(ci11).z-
-				    coords_->get(ci22).z;
-		const float diff1 = coords_->get(ci12).z-
-				    coords_->get(ci21).z;
+		const float diff0 = (float) (coords_->get(ci11).z-
+				    coords_->get(ci22).z);
+		const float diff1 = (float) (coords_->get(ci12).z-
+				    coords_->get(ci21).z);
 
 		const bool do11to22 = fabs(diff0) < fabs(diff1);
 		if ( do11to22 )
@@ -237,7 +237,7 @@ void Horizon3DTesselator::computeNormal( int ni, int row, int col )
 	if ( pos.isDefined() )
 	{
 	    posarray += idx*SI().inlDistance();
-	    zarray += pos.z;
+	    zarray += (float) pos.z;
 	}
     }
 	   
@@ -262,7 +262,7 @@ void Horizon3DTesselator::computeNormal( int ni, int row, int col )
 	if ( pos.isDefined() )
 	{
 	    posarray += idx*SI().crlDistance();
-	    zarray += pos.z;
+	    zarray += (float) pos.z;
 	}
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: picksettr.cc,v 1.30 2012-06-20 17:34:55 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: picksettr.cc,v 1.31 2012-08-08 05:26:29 cvssalil Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -188,7 +188,7 @@ void PickSetTranslator::createBinIDValueSets(
 	for ( int ipck=0; ipck<crds.size(); ipck++ )
 	{
 	    const Coord3& crd( crds[idx] );
-	    bs->add( SI().transform(crd), crd.z );
+	    bs->add( SI().transform(crd), (float) crd.z );
 	}
     }
 }
@@ -269,7 +269,7 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
     {
 	const Pick::Location& pl = ps[idx];
 	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos );
-	ret->add( Geom::Point2D<float>(fbid.x,fbid.y) );
+	ret->add( Geom::Point2D<float>((float) fbid.x,(float) fbid.y) );
     }
 
     return ret;

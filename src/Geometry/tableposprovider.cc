@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: tableposprovider.cc,v 1.10 2012-08-07 05:20:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: tableposprovider.cc,v 1.11 2012-08-08 05:26:29 cvssalil Exp $";
 
 #include "tableposprovider.h"
 #include "keystrs.h"
@@ -90,7 +90,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 		for ( int idx=0; idx<ps.size(); idx++ )
 		{
 		    const Pick::Location& pl = ps[idx];
-		    bvs.add( SI().transform(pl.pos), pl.pos.z );
+		    bvs.add( SI().transform(pl.pos), (float) pl.pos.z );
 		}
 	    }
 	}

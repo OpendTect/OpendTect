@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: cubicbeziersurface.cc,v 1.34 2012-05-02 15:11:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: cubicbeziersurface.cc,v 1.35 2012-08-08 05:26:28 cvssalil Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -125,19 +125,19 @@ bool CubicBezierSurfacePatch::intersectWithLine( const Line3& line,
     for ( int idx=0; idx<20; idx++ )
     {
 	const Coord3 currentpos = computePos(u,v);
-	const float sqdist = (currentpos-linepoint).cross(linedir).sqAbs();
+	const float sqdist = (float) (currentpos-linepoint).cross(linedir).sqAbs();
 	if ( sqdist<eps ) return true;
 
-	const Coord3 upos = computePos(u+1e-3,v);
-	const float udist = (upos-linepoint).cross(linedir).sqAbs()-sqdist;
+	const Coord3 upos = computePos(u+1e-3f,v);
+	const float udist = (float) (upos-linepoint).cross(linedir).sqAbs()-sqdist;
 
-	const Coord3 vpos = computePos(u,v+1e-3);
-	const float vdist = (vpos-linepoint).cross(linedir).sqAbs()-sqdist;
+	const Coord3 vpos = computePos(u,v+1e-3f);
+	const float vdist = (float) (vpos-linepoint).cross(linedir).sqAbs()-sqdist;
 
  	if ( fabs(udist)>fabs(vdist) )	
-	    u = u-(sqdist/udist*1e-3);
+	    u = u-(sqdist/udist*1e-3f);
 	else
-	    v = v-(sqdist/vdist*1e-3);
+	    v = v-(sqdist/vdist*1e-3f);
 
 	if ( u<0 || u>1 ) return false;
 	if ( v<0 || v>1 ) return false;
@@ -246,8 +246,8 @@ Coord3 CubicBezierSurface::computePosition( const Coord& params ) const
     const CubicBezierSurfacePatch* patch = getPatch(RowCol(prevrow,prevcol));
 
     if ( !patch ) return Coord3::udf();
-    return patch->computePos((params.x-prevrow)/rowrange.step,
-	    		     (params.y-prevcol)/colrange.step);
+    return patch->computePos( (float) ((params.x - prevrow)/rowrange.step),
+	    		     (float) ((params.y - prevcol)/colrange.step));
 }
 
 
@@ -304,8 +304,8 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 		intersectionline.gamma_ *= zfactor;
 	    }
 
-	    float u = res.x;
-	    float v = res.y;
+	    float u = (float) res.x;
+	    float v = (float) res.y;
 	    if ( !patch->intersectWithLine( intersectionline, u, v, 1 ) )
 		continue;
 

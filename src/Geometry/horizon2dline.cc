@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: horizon2dline.cc,v 1.25 2012-05-03 05:14:17 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon2dline.cc,v 1.26 2012-08-08 05:26:29 cvssalil Exp $";
 
 #include "horizon2dline.h"
 
@@ -260,7 +260,7 @@ Interval<float> Horizon2DLine::zRange( const PosInfo::GeomID& geomid ) const
     for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
     {
 	const int rowidx = getRowIndex( geomid );
-	const float z = getKnot( RowCol(rowidx,col) ).z;
+	const float z = (float) getKnot( RowCol(rowidx,col) ).z;
 	if ( !mIsUdf(z) )
 	    zrange.include( z, false );
     }
