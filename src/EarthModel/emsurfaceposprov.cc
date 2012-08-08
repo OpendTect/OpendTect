@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.40 2012-08-08 05:47:55 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.41 2012-08-08 09:01:28 cvsaneesh Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -316,7 +316,7 @@ int Pos::EMSurfaceProvider::nrSurfaces() const
 
 BinID Pos::EMSurfaceProvider3D::curBinID() const
 {
-    BinID bid; bid.fromInt64( curpos_.subID() );
+    BinID bid = BinID::fromInt64( curpos_.subID() );
     return bid;
 }
 
@@ -368,8 +368,7 @@ void Pos::EMSurfaceProvider3D::initClass()
 // ***** Pos::EMSurfaceProvider2D ****
 const char* Pos::EMSurfaceProvider2D::curLine() const
 {
-    BinID bid;
-    bid.fromInt64( curpos_.subID() );
+    BinID bid = BinID::fromInt64( curpos_.subID() );
     if ( surf1_ )
     {
 	mDynamicCastGet(EM::Horizon2D*,hor2d,surf1_);
@@ -387,8 +386,7 @@ const char* Pos::EMSurfaceProvider2D::curLine() const
 
 int Pos::EMSurfaceProvider2D::curNr() const
 {
-    BinID bid;
-    bid.fromInt64( curpos_.subID() );
+    BinID bid = BinID::fromInt64( curpos_.subID() );
     return bid.crl;
 }
 

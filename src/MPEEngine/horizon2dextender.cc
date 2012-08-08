@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon2dextender.cc,v 1.14 2012-05-02 15:11:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon2dextender.cc,v 1.15 2012-08-08 09:01:28 cvsaneesh Exp $";
 
 #include "horizon2dextender.h"
 
@@ -76,8 +76,7 @@ int Horizon2DExtender::nextStep()
 
 void Horizon2DExtender::addNeighbor( bool upwards, const EM::SubID& srcsubid )
 {
-    BinID srcbid;
-    srcbid.fromInt64( srcsubid );
+    BinID srcbid = BinID::fromInt64( srcsubid );
     const StepInterval<int> colrange =
 	surface_.geometry().colRange( sid_, geomid_ );
     EM::SubID neighborsubid;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter3d.cc,v 1.9 2012-04-02 15:06:17 cvskris Exp $
+ RCS:		$Id: emhorizonpainter3d.cc,v 1.10 2012-08-08 09:01:28 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -250,8 +250,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		if ( emobject->hasBurstAlert() )
 		    return;
 		
-		BinID bid;
-		bid.fromInt64( cbdata.pid0.subID() );
+		BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
 		if ( cs_.hrg.includes(bid) || (path_&&path_->isPresent(bid)) )
 		{
 		    changePolyLinePosition( cbdata.pid0 );
@@ -319,8 +318,7 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 
     if ( id_ != pid.objectID() ) return;
 
-    BinID binid;
-    binid.fromInt64( pid.subID() );
+    BinID binid = BinID::fromInt64( pid.subID() );
 
     for ( int idx=0; idx<hor3d->nrSections(); idx++ )
     {

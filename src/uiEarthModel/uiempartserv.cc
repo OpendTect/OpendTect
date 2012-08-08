@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.239 2012-08-01 10:59:22 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.240 2012-08-08 09:01:29 cvsaneesh Exp $";
 
 #include "uiempartserv.h"
 
@@ -841,7 +841,6 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 
 	auxvals[1] = sid;
 
-	BinID bid;
 	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
 	while ( true )
 	{
@@ -851,7 +850,7 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 
 	    auxvals[0] = hor3d->getPos( pid ).z;
 	    auxvals[2] = hor3d->auxdata.getAuxDataVal( auxdatanr, pid );
-	    bid.fromInt64( pid.subID() );
+	    BinID bid = BinID::fromInt64( pid.subID() );
 	    data.bivSet().add( bid, auxvals );
 	}
     }
@@ -893,7 +892,6 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 
 	auxvals[0] = 0;
 	auxvals[1] = sid;
-	BinID bid;
 	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
 	while ( true )
 	{
@@ -907,7 +905,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 		const int auxidx = hor3d->auxdata.auxDataIndex( nms.get(idx) );
 		auxvals[idx+2] = hor3d->auxdata.getAuxDataVal( auxidx, pid );
 	    }
-	    bid.fromInt64( pid.subID() );
+	    BinID bid = BinID::fromInt64( pid.subID() );
 	    data.bivSet().add( bid, mVarLenArr(auxvals) );
 	}
     }

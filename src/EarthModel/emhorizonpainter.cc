@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.25 2012-05-03 05:14:16 cvskris Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.26 2012-08-08 09:01:28 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -361,8 +361,7 @@ void HorizonPainter::changePolyLinePosition( const EM::ObjectID& oid,
 	return;
     ObjectSet<SectionMarkerLine>* sectionmarkerlines = hormarkerlines_[horpos];
 
-    BinID binid;
-    binid.fromInt64( pid.subID() );
+    BinID binid = BinID::fromInt64( pid.subID() );
 
     for ( int ids=0; ids<hor->nrSections(); ids++ )
     {
@@ -580,8 +579,7 @@ void HorizonPainter::horChangeCB( CallBacker* cb )
 	    if (  emobject->hasBurstAlert() )
 		return;
 
-	    BinID bid;
-	    bid.fromInt64( cbdata.pid0.subID() );
+	    BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
 	    if ( cs_.hrg.includes(bid) )
 	    {
 		if ( !emobject->isInsideSelRemoval() )

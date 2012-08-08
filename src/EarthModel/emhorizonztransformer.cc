@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizonztransformer.cc,v 1.7 2012-08-08 05:47:54 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhorizonztransformer.cc,v 1.8 2012-08-08 09:01:28 cvsaneesh Exp $";
 
 #include "emhorizonztransformer.h"
 
@@ -61,7 +61,7 @@ int HorizonZTransformer::nextStep()
     if ( !isforward_ && !mIsUdf(z) )
 	z -= refz_;
 
-    BinID bid; bid.fromInt64( posid.subID() );
+    BinID bid = BinID::fromInt64( posid.subID() );
     float newz = zat_.transform( BinIDValue(bid,z) );
     if ( isforward_ && !mIsUdf(newz) )
 	newz += refz_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizon3d.cc,v 1.141 2012-08-08 05:47:54 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhorizon3d.cc,v 1.142 2012-08-08 09:01:28 cvsaneesh Exp $";
 
 #include "emhorizon3d.h"
 
@@ -747,7 +747,6 @@ void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
     PtrMan<EMObjectIterator> it = createIterator( sid );
     if ( !it ) return;
 
-    BinID bid;
     while ( true )
     {
 	const PosID pid = it->next();
@@ -757,7 +756,7 @@ void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
 	const Coord3 crd = surface_.getPos( pid );
 	if ( crd.isDefined() )
 	{
-	    bid.fromInt64( pid.subID() );
+	    BinID bid = BinID::fromInt64( pid.subID() );
 	    const bool isinside = prov ? prov->includes( bid ) : true;
 	    if ( isinside )
 		bivs.add( bid, (float) crd.z );

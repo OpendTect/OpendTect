@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon3dseedpicker.cc,v 1.52 2012-07-18 09:09:16 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon3dseedpicker.cc,v 1.53 2012-08-08 09:01:28 cvsaneesh Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -90,8 +90,7 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 	return false;
     
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
-    BinID lastsowseedbid;
-    lastsowseedbid.fromInt64( lastsowseedpid_.subID() );
+    BinID lastsowseedbid = BinID::fromInt64( lastsowseedpid_.subID() );
     
     if ( fltdataprov_ && hrg.includes(lastsowseedbid) )
     {

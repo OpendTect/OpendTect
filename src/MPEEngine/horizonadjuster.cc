@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizonadjuster.cc,v 1.70 2012-07-18 09:16:15 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizonadjuster.cc,v 1.71 2012-08-08 09:01:28 cvsaneesh Exp $";
 
 #include "horizonadjuster.h"
 
@@ -157,14 +157,12 @@ int HorizonAdjuster::nextStep()
 
     for ( int idx=0; idx<pids_.size(); idx++ )
     {
-	BinID targetbid;
-	targetbid.fromInt64( pids_[idx] );
+	BinID targetbid = BinID::fromInt64( pids_[idx] );
 	float targetz;
 	bool res;
 	if ( pidsrc_.size() > idx )
 	{
-	    BinID refbid;
-	    refbid.fromInt64( pidsrc_[idx] );
+	    BinID refbid = BinID::fromInt64( pidsrc_[idx] );
 	    res = track( refbid, targetbid, targetz );
 	}
 	else

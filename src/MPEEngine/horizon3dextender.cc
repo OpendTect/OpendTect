@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon3dextender.cc,v 1.25 2012-08-07 16:52:08 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon3dextender.cc,v 1.26 2012-08-08 09:01:28 cvsaneesh Exp $";
 
 #include "horizon3dextender.h"
 
@@ -87,10 +87,10 @@ int BaseHorizon3DExtender::nextStep()
     const bool alldirs = direction.binid.inl==0 && direction.binid.crl==0;
     
     TypeSet<BinID> sourcenodes;
-    BinID dummy;
+    
     for ( int idx=0; idx<startpos_.size(); idx++ )
     {
-	dummy.fromInt64( startpos_[idx] );
+	BinID dummy = BinID::fromInt64( startpos_[idx] );
 	sourcenodes += dummy;
     }
 
@@ -142,8 +142,7 @@ int BaseHorizon3DExtender::nextStep()
 		if ( neighbor.sectionID()!=sid_ )
 		    continue;
 
-		BinID neighbbid; 
-		neighbbid.fromInt64( neighbor.subID() );
+		BinID neighbbid = BinID::fromInt64( neighbor.subID() );
 		if ( !getExtBoundary().hrg.includes(neighbbid) )
 		    continue;
 

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocitypicks.cc,v 1.27 2012-07-22 04:43:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocitypicks.cc,v 1.28 2012-08-08 09:01:29 cvsaneesh Exp $";
 
 #include "velocitypicks.h"
 
@@ -551,8 +551,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
     }
     else
     {
-	BinID bid;
-	bid.fromInt64( cbdata.pid0.subID() );
+	BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
 	RowCol arrpos;
 	BinID curbid;
 	if ( picks_.findFirst( bid, arrpos ) )
