@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.17 2012-08-08 05:47:54 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.18 2012-08-08 18:41:56 cvsyuancheng Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -159,6 +159,13 @@ bool FSStoFault3DConverter::convert()
 }
 
 
+#define mAddStickPoese() \
+    for ( int k=0; k<=lastidx; k++ ) \
+	sticks_[idy]->crds_ += stickposes[k]; \
+    found = true; \
+    break; \
+
+
 bool FSStoFault3DConverter::readSection( const SectionID& sid )
 {
     if ( fss_.sectionIndex(sid) < 0 )
@@ -171,140 +178,184 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
     if ( rowrg.isUdf() )
 	return false;
 
-    RowCol rc;
+    const float inld = SI().inlDistance() * SI().inlStep();
+    const float crld = SI().crlDistance() * SI().crlStep();
+    const float zd = SI().zStep() * SI().zScale();
+    const float epsilon = Math::Sqrt(inld*inld+crld*crld+zd*zd)/2;
+    const float zepsilon = SI().zStep()/2;
+
     TypeSet<Coord3> singles;
-    for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
-    {
-	const StepInterval<int> colrg = curfssg_->colRange( rc.row );
-	if ( colrg.isUdf() )
-	    return false;
-
-	FaultStick* stick = new FaultStick( rc.row );
-
-	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
-	{
-	    const Coord3 pos = curfssg_->getKnot( rc );
-	    if ( !pos.isDefined() )
-		return false;
-
-	    stick->crds_ += pos;
-	}
-
-	const int pcksz = stick->crds_.size();
-	if ( pcksz<2 )
-	{
-	    if ( pcksz==1 )
-		singles += stick->crds_[0];
-
-	    delete stick;
-	    continue;
-	}
-
-	stick->pickedonplane_ = fss_.geometry().pickedOnPlane( sid, rc.row );
-	if ( stick->pickedonplane_ )
-	    stick->normal_ = stick->findPlaneNormal();
-	else
-	    stick->normal_ = curfssg_->getEditPlaneNormal( rc.row );
-	sticks_ += stick;
-    }
-
-    if ( !singles.size() )
-	return true;
-
-    /*Merge single pick to nearest stick, not sorted yet*/
-    const int sz = sticks_.size();
     TypeSet<char> pickedplane;
     TypeSet<int> inlcrl;
     TypeSet<float> zs;
-    for ( int idx=0; idx<sz; idx++ )
+    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
     {
-	Interval<int> inlrg, crlrg;
-	Interval<float> zrg;
-	const int picksz = sticks_[idx]->crds_.size();
-	for ( int idz=0; idz<picksz; idz++ )
+	const StepInterval<int> colrg = curfssg_->colRange( row );
+	if ( colrg.isUdf() )
+	    return false;
+	
+	TypeSet<Coord3> stickposes;
+	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
-	    const Coord3& k = sticks_[idx]->crds_[idz];
-	    const BinID bid = SI().transform( k );
-	    if ( !idz )
+	    const Coord3 pos = curfssg_->getKnot( RowCol(row,col) );
+	    if ( pos.isDefined() )
+		stickposes += pos;
+	}
+
+	const int lastidx = stickposes.size()-1;
+	if ( lastidx<1 )
+	{
+	    if ( !lastidx )
+		singles += stickposes[0];
+	    continue;
+	}
+	
+	Interval<int> inlrg, crlrg;
+	Interval<double> zrg;
+	for ( int idy=0; idy<=lastidx; idy++ )
+	{
+	    const BinID bid = SI().transform( stickposes[idy] );
+	    if ( !idy )
 	    {
 		inlrg.start = inlrg.stop = bid.inl;
 		crlrg.start = crlrg.stop = bid.crl;
-		zrg.start = zrg.stop = (float) k.z;
+		zrg.start = zrg.stop = stickposes[idy].z;
 	    }
 	    else
 	    {
 		inlrg.include( bid.inl );
 		crlrg.include( bid.crl );
-		zrg.include( (float) k.z );
+		zrg.include( stickposes[idy].z );
 	    }
 	}
 
-	inlcrl += (inlrg.start==inlrg.stop ? inlrg.start : 
-		(crlrg.start==crlrg.stop ? crlrg.start : -1));
-	zs += (mIsEqual(zrg.start,zrg.stop,1e-3) ? zrg.start : 0);
-
-	if ( inlrg.start==inlrg.stop )
-	    pickedplane += mOnInline;
-	else if ( crlrg.start==crlrg.stop )
-	    pickedplane += mOnCrlline;
-	else if ( mIsEqual(zrg.start,zrg.stop,1e-3) )
-	    pickedplane += mOnZSlice;
-	else
-	    pickedplane += mOnOther;
-    }
-
-    for ( int idx=0; idx<singles.size(); idx++ )
-    {
-	const Coord3& pos = singles[idx];
-	const BinID bid = SI().transform( pos );
-
-	int nbidx = -1;
-	float mindist = 0;
-	for ( int idy=0; idy<sz; idy++ )
+	/*Before making a new stick, check to see if current end points are on
+	  any existing stick or not, if so, merge them. */
+	bool found = false;
+	if ( inlrg.start==inlrg.stop ) 
 	{
-	    if ( pickedplane[idy]==mOnInline )
+	    for ( int idy=0; idy<sticks_.size(); idy++ )
 	    {
-		if ( inlcrl[idy]==bid.inl )
+		if ( pickedplane[idy]==mOnInline && inlcrl[idy]==inlrg.start )
 		{
-		    nbidx = idy;
-		    break;
+		    mAddStickPoese();
 		}
 	    }
-	    else if ( pickedplane[idy]==mOnCrlline )
+	}
+	else if ( crlrg.start==crlrg.stop )
+	{
+	    for ( int idy=0; idy<sticks_.size(); idy++ )
 	    {
-		if ( inlcrl[idy]==bid.crl )
+		if ( pickedplane[idy]==mOnCrlline && inlcrl[idy]==crlrg.start )
 		{
-		    nbidx = idy;
-		    break;
-		}   
-	    }
-	    else if ( pickedplane[idy]==mOnZSlice )
-	    {
-		if ( mIsEqual(pos.z,zs[idy],1e-3) )
-		{
-		    nbidx = idy;          
-		    break;
+		    mAddStickPoese();
 		}
 	    }
-	    else
+	}
+	else if ( mIsEqual(zrg.start,zrg.stop,zepsilon) )
+	{
+	    for ( int idy=0; idy<sticks_.size(); idy++ )
 	    {
+		if ( pickedplane[idy]==mOnZSlice && 
+		     mIsEqual(zs[idy],zrg.stop,zepsilon) )
+		{
+		    mAddStickPoese();
+		}
+	    }
+	}
+	else
+	{
+	    for ( int idy=0; idy<sticks_.size(); idy++ )
+	    {
+		if ( found ) 
+		    break;
+
     		const int picksz = sticks_[idy]->crds_.size();
 		for ( int idz=0; idz<picksz-1; idz++ )
 		{
-		    const Coord3& k0 = sticks_[idy]->crds_[idz];
-		    const Coord3& k1 = sticks_[idy]->crds_[idz+1];
+		    Coord3 k0 = sticks_[idy]->crds_[idz]; 
+		    k0.z *= SI().zScale();
+		    Coord3 k1 = sticks_[idy]->crds_[idz+1];
+		    k1.z *= SI().zScale();
 		    Line3 segment( k0, k1-k0 );
-		    const float pldist = (float) segment.sqDistanceToPoint( pos );
-		    if ( nbidx==-1 || pldist<mindist )
+		    Coord3 tmp = stickposes[0]; tmp.z *= SI().zScale();
+		    float dist = segment.distanceToPoint(tmp);
+		    if ( dist>epsilon )
 		    {
-			nbidx = idy;
-			mindist = pldist;
+			tmp = stickposes[lastidx]; tmp.z *= SI().zScale();
+			dist = segment.sqDistanceToPoint( tmp );
+		    }
+
+		    if ( dist<epsilon )
+		    {
+			mAddStickPoese();
 		    }
 		}
 	    }
 	}
 
-	sticks_[nbidx]->crds_ += pos;
+	if ( found )
+	    continue;
+
+	FaultStick* stick = new FaultStick( row );
+	stick->crds_ = stickposes;
+	stick->pickedonplane_ = fss_.geometry().pickedOnPlane( sid, row );
+	if ( stick->pickedonplane_ )
+	    stick->normal_ = stick->findPlaneNormal();
+	else
+	    stick->normal_ = curfssg_->getEditPlaneNormal( row );
+	
+	sticks_ += stick;
+	pickedplane += (inlrg.start==inlrg.stop ? mOnInline : 
+		(crlrg.start==crlrg.stop ? mOnCrlline : 
+		(mIsEqual(zrg.start,zrg.stop,zepsilon) ? mOnZSlice:mOnOther)));
+	inlcrl += (inlrg.start==inlrg.stop ? inlrg.start : 
+		(crlrg.start==crlrg.stop ? crlrg.start : -1));
+	zs += (mIsEqual(zrg.start,zrg.stop,zepsilon) ? zrg.start : 0);
+    }
+
+    /*Merge single pick to nearest stick, not sorted yet*/
+    const int sz = sticks_.size();
+    for ( int idx=0; idx<singles.size(); idx++ )
+    {
+	const Coord3& pos = singles[idx];
+	const BinID bid = SI().transform( pos );
+
+	int nearidx = -1;
+	for ( int idy=0; idy<sz; idy++ )
+	{
+	    if ( (pickedplane[idy]==mOnInline && inlcrl[idy]==bid.inl) ||
+	         (pickedplane[idy]==mOnCrlline && inlcrl[idy]==bid.crl) ||
+	         (pickedplane[idy]==mOnZSlice && 
+		  mIsEqual(pos.z,zs[idy],zepsilon)) )
+	    {
+		nearidx = idy;
+		sticks_[idy]->crds_ += pos;
+		break;
+	    }
+	}
+
+	if ( nearidx>-1 )
+	    continue;
+
+	float mindist = 0;
+	for ( int idy=0; idy<sz; idy++ )
+	{
+	    const int picksz = sticks_[idy]->crds_.size();
+	    for ( int idz=0; idz<picksz-1; idz++ )
+	    {
+		const Coord3& k0 = sticks_[idy]->crds_[idz];
+		const Coord3& k1 = sticks_[idy]->crds_[idz+1];
+		Line3 segment( k0, k1-k0 );
+		const float pldist = segment.sqDistanceToPoint( pos );
+		if ( nearidx==-1 || pldist<mindist )
+		{
+		    nearidx = idy;
+		    mindist = pldist;
+		}
+	    }
+	}
+	sticks_[nearidx]->crds_ += pos;
     }
 
     return true;
