@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.72 2012-07-24 18:39:22 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.73 2012-08-08 04:22:05 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,7 +193,7 @@ template <class T> template <class X> inline
 void IntervalND<T>::setRange( const X& val )
 {
     for ( int dim=0; dim<ndim; dim++ )
-	ranges[dim].start = ranges[dim].stop = val[dim];
+	ranges[dim].start = ranges[dim].stop = (T) val[dim];
 
     isset = true;
 }
@@ -222,7 +222,7 @@ void IntervalND<T>::include( const X& val )
 #endif
 
     for ( int dim=0; dim<ndim; dim++ )
-	ranges[dim].include(val[dim]);
+	ranges[dim].include((T) val[dim]);
 
     isset = true;
 }

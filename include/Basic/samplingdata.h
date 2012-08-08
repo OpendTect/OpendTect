@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.20 2012-07-24 18:41:30 cvskris Exp $
+ RCS:		$Id: samplingdata.h,v 1.21 2012-08-08 04:22:05 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,7 @@ StepInterval<T> SamplingData<T>::interval( IT nrsamp ) const
 template <class T>
 template <class FT> inline
 float SamplingData<T>::getfIndex( FT val ) const
-{ return (val-start) / ((float)step); }
+{ return (float) ((val-start) / step); }
 
 
 template <class T>

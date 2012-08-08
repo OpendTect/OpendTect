@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.37 2012-08-03 13:00:16 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.38 2012-08-08 04:22:05 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -484,7 +484,7 @@ RT MultiArrayValueSeries<RT,AT>::value( od_int64 idx ) const
 	return RT();
 
     idx -= arridx*chunksize_;
-    return ptrs_[arridx][idx];
+    return  ptrs_[arridx][idx];
 }
 
 
