@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uitutpi.cc,v 1.25 2012-08-07 04:23:04 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitutpi.cc,v 1.26 2012-08-08 04:49:47 cvsmahant Exp $";
 
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
@@ -74,10 +74,6 @@ uiTutMgr::uiTutMgr( uiODMain* a )
 					mCB(this,uiTutMgr,do2DSeis)) );
 	mnu->insertItem( new uiMenuItem("&Seismic 3D (Direct) ...",
 					mCB(this,uiTutMgr,do3DSeis)) );
-        mnu->insertItem( new uiMenuItem("Seismic 2D (inDirect) ...",
-					mCB(this,uiTutMgr,do2DSeis)) );
-        mnu->insertItem( new uiMenuItem("Seismic 3D (inDirect) ...",
-					mCB(this,uiTutMgr,do3DSeis)) );
     }	
     else
 	mnu->insertItem( new uiMenuItem("&Seismic (Direct) ...",
@@ -85,10 +81,6 @@ uiTutMgr::uiTutMgr( uiODMain* a )
 
     mnu->insertItem( new uiMenuItem("&Horizon ...",
 				    mCB(this,uiTutMgr,doHor)) );
-    
-    mnu->insertItem( new uiMenuItem("&Dummy Item ...",
-				    mCB(this,uiTutMgr,doSeis)) );
-    
 
     appl_->menuMgr().toolsMnu()->insertItem( mnu );
 }
