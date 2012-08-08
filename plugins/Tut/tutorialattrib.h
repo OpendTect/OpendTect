@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: tutorialattrib.h,v 1.8 2012-08-07 04:23:04 cvsmahant Exp $
+ RCS:           $Id: tutorialattrib.h,v 1.9 2012-08-08 05:15:32 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,14 +34,10 @@ mClass(Tut) Tutorial : public Provider
 public:
     static void		initClass();
 			Tutorial(Desc&);
-    static const char*	attribName()		{ return "Tutorial a.k.a Dummy Attribute"; }
+    static const char*	attribName()		{ return "Tutorial"; }
     static const char*	actionStr()		{ return "action"; }
     static const char*	shiftStr()		{ return "shift"; }
     static const char*	factorStr()		{ return "factor"; }
-
-    static const char*  indexStr()		{ return "index"; } //Modified
-    static const char*	diffstr()		{ return "differences"; }//Modified
-
     static const char*	weaksmoothStr()		{ return "smoothstrength"; }
     static const char*  horsmoothStr()          { return "smoothdir"; }
     static const char*  steeringStr()   	{ return "steering"; }
@@ -66,9 +62,6 @@ protected:
     int			action_;
     float		factor_;
     float		shift_;
-
-    float		index_;//Modified
-
     bool		weaksmooth_;
     bool                horsmooth_;
     Interval<int>	sampgate_;
@@ -90,4 +83,5 @@ protected:
 }; // namespace Attrib
 
 #endif
+
 
