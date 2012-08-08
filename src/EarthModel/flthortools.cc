@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flthortools.cc,v 1.57 2012-07-10 08:05:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: flthortools.cc,v 1.58 2012-08-08 05:47:55 cvssalil Exp $";
 
 #include "flthortools.h"
 
@@ -141,7 +141,7 @@ bool FaultTrace::getHorTerminalPos( const EM::Horizon& hor,
     for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
     {
 	pos1bid = BinID( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
-	pos1z = hor.getPos( sid, pos1bid.toInt64() ).z;
+	pos1z = (float) hor.getPos( sid, pos1bid.toInt64() ).z;
 	if ( mIsUdf(pos1z) )
 	    continue;
 
@@ -356,7 +356,7 @@ float FaultTrace::getZValFor( const BinID& bid ) const
 {
     const StepInterval<float>& zrg = SI().zRange( false );
     Coord intersectn = getIntersection( bid, zrg.start, bid, zrg.stop );
-    return intersectn.y;
+    return (float) intersectn.y;
 }
 
 
@@ -488,7 +488,7 @@ bool FaultTrace::getIntersection( const BinID& bid1, float z1,
 
     bid.inl = isinl_ ? nr_ : trcnr;
     bid.crl = isinl_ ? trcnr : nr_;
-    z = intersection.y;
+    z = (float) intersection.y;
     return !intv || intv->includes( trcnr, true );
 }
 
@@ -536,7 +536,7 @@ void FaultTrace::computeRange()
 	trcrange_.set( (int) floattrcrg.start, (int) ceil(floattrcrg.stop) );
 	
 	for ( int idx=0; idx<coords_.size(); idx++ )
-	    zrange_.include( coords_[idx].z, false );
+	    zrange_.include( (float) coords_[idx].z, false );
     }
     else
     {
@@ -544,7 +544,7 @@ void FaultTrace::computeRange()
 	{
 	    const BinID bid = SI().transform( coords_[idx] );
 	    trcrange_.include( isinl_ ? bid.crl : bid.inl, false );
-	    zrange_.include( coords_[idx].z, false );
+	    zrange_.include( (float) coords_[idx].z, false );
 	}
     }
 
@@ -556,7 +556,7 @@ bool FaultTrace::isOK() const
 {
     if ( coords_.isEmpty() ) return false;
 
-    float prevz = coords_[0].z;
+    double prevz = coords_[0].z;
     for ( int idx=1; idx<coords_.size(); idx++ )
     {
 	if ( coords_[idx].z < prevz )
@@ -668,7 +668,7 @@ static float getFloatTrcNr( const PosInfo::Line2DData& linegeom,
     if ( index > 0 )
     {
 	const PosInfo::Line2DPos& prevpos = posns[index-1];
-	const float distfromnode = prevpos.coord_.distTo( crd );
+	const float distfromnode = (float) prevpos.coord_.distTo( crd );
 	if ( distfromnode < closestdistfromnode )
 	{
 	    closestdistfromnode = distfromnode;
@@ -679,7 +679,7 @@ static float getFloatTrcNr( const PosInfo::Line2DData& linegeom,
     if ( posns.validIdx(index+1) )
     {
 	const PosInfo::Line2DPos& nextpos = posns[index+1];
-	const float distfromnode = nextpos.coord_.distTo( crd );
+	const float distfromnode = (float) nextpos.coord_.distTo( crd );
 	if ( distfromnode < closestdistfromnode )
 	{
 	    closestdistfromnode = distfromnode;
@@ -697,8 +697,8 @@ static float getFloatTrcNr( const PosInfo::Line2DData& linegeom,
     if ( posonline.distTo(crd) > 100 )
 	return mUdf(float);
 
-    const float frac = linepos1.distTo(posonline) / linepos1.distTo(linepos2);
-    return (float)pos.nr_ + frac * ( posns[index2].nr_ - pos.nr_ );
+    const float frac = (float) (linepos1.distTo(posonline) / linepos1.distTo(linepos2));
+    return (float)(pos.nr_ + frac * ( posns[index2].nr_ - pos.nr_ ));
 }
 
 

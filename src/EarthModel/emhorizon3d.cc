@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizon3d.cc,v 1.140 2012-08-03 06:38:38 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhorizon3d.cc,v 1.141 2012-08-08 05:47:54 cvssalil Exp $";
 
 #include "emhorizon3d.h"
 
@@ -315,7 +315,7 @@ bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
 { return setPos( sectionID(0), bid.toInt64(), Coord3(0,0,z), addtohist ); }
 
 float Horizon3D::getZ( const BinID& bid ) const
-{ return getPos( sectionID(0), bid.toInt64() ).z; }
+{ return (float) getPos( sectionID(0), bid.toInt64() ).z; }
 
 
 float Horizon3D::getZValue( const Coord& c, bool allow_udf, int nr ) const
@@ -356,7 +356,7 @@ Array2D<float>* Horizon3D::createArray2D(
 		    Coord3 pos = geom->getKnot( RowCol(row,col), false );
 		    pos.z = zaxistransform->transform( pos );
 
-		    arr->set( rowrg.getIndex(row), colrg.getIndex(col), pos.z );
+		    arr->set( rowrg.getIndex(row), colrg.getIndex(col), (float) pos.z );
 		}
 	    }
 	}
@@ -659,7 +659,7 @@ void Horizon3DGeometry::getDataPointSet( const SectionID& sid,
     {
 	const RowCol bid = sectionGeometry( sid )->getKnotRowCol( idx );
 	Coord3 coord = sectionGeometry( sid )->getKnot( bid, false );
-	bidvalset.add( bid, coord.z + shift );
+	bidvalset.add( bid, (float) coord.z + shift );
     }
     dps.dataChanged();
 }
@@ -760,7 +760,7 @@ void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
 	    bid.fromInt64( pid.subID() );
 	    const bool isinside = prov ? prov->includes( bid ) : true;
 	    if ( isinside )
-		bivs.add( bid, crd.z );
+		bivs.add( bid, (float) crd.z );
 	}
     }
 }

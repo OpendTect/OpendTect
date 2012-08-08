@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizonutils.cc,v 1.27 2012-05-02 15:11:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhorizonutils.cc,v 1.28 2012-08-08 05:47:54 cvssalil Exp $";
 
 #include "emhorizonutils.h"
 
@@ -40,7 +40,7 @@ float HorizonUtils::getZ( const RowCol& rc, const Surface* surface )
     for ( int idx=surface->nrSections()-1; idx>=0; idx-- )
     {
 	const EM::SectionID sid = surface->sectionID( idx );
-	const float valz = surface->getPos( sid, subid ).z; 
+	const float valz = (float) surface->getPos( sid, subid ).z; 
 	bottomz = ( !mIsUdf(valz) && valz>bottomz ) ? valz : bottomz;
     }
 
@@ -149,7 +149,7 @@ void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
 
 	const Coord3 crd = surface->getPos( pid );
 	const BinID bid = SI().transform(crd);
-	res->add( bid, crd.z );
+	res->add( bid, (float) crd.z );
 	++pm;
     }
 

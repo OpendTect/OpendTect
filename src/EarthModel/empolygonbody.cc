@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: empolygonbody.cc,v 1.21 2012-08-07 16:52:09 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: empolygonbody.cc,v 1.22 2012-08-08 05:47:55 cvssalil Exp $";
 
 #include "empolygonbody.h"
 
@@ -202,9 +202,9 @@ bool PolygonBody::getBodyRange( CubeSampling& cs )
      {
 	 cs.hrg.include( SI().transform(pts[idx]) );
 	 if ( idx )
-	     cs.zrg.include( pts[idx].z );
+	     cs.zrg.include( (float) pts[idx].z );
 	 else
-	     cs.zrg.start = cs.zrg.stop = pts[idx].z;
+	     cs.zrg.start = cs.zrg.stop = (float) pts[idx].z;
      }
 
      return pts.size();

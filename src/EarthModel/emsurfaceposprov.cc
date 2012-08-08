@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.39 2012-08-03 06:38:38 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.40 2012-08-08 05:47:55 cvssalil Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -103,12 +103,12 @@ static void getSurfRanges( const EM::Surface& surf, HorSampling& hs,
 	    {
 		veryfirst = false;
 		hs.start = hs.stop = bid;
-		zrg.start = zrg.stop = coord.z;
+		zrg.start = zrg.stop = (float) coord.z;
 	    }
 	    else
 	    {
-		if ( coord.z < zrg.start ) zrg.start = coord.z;
-		if ( coord.z > zrg.stop ) zrg.stop = coord.z;
+		if ( coord.z < zrg.start ) zrg.start = (float) coord.z;
+		if ( coord.z > zrg.stop ) zrg.stop = (float) coord.z;
 		hs.include( bid );
 	    }
 	    estnrpos++;
@@ -168,11 +168,11 @@ bool Pos::EMSurfaceProvider::toNextPos()
     if ( curpos_.objectID() == -1 )
 	return false;
 
-    curzrg_.start = curzrg_.stop = surf1_->getPos( curpos_ ).z;
+    curzrg_.start = curzrg_.stop = (float) surf1_->getPos( curpos_ ).z;
     if ( surf2_ )
     {
 	const float stop =
-	    surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z;
+	    (float) surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z;
 	if ( !mIsUdf(stop) )
 	    curzrg_.stop = stop;
     }
@@ -225,7 +225,7 @@ float Pos::EMSurfaceProvider::adjustedZ( const Coord& c, float z ) const
     if ( !hasZAdjustment() ) return z;
 
     const BinID bid = SI().transform( c );
-    return surf1_->getPos( surf1_->sectionID(0), bid.toInt64() ).z;
+    return (float) surf1_->getPos( surf1_->sectionID(0), bid.toInt64() ).z;
 }
 
 
@@ -300,8 +300,8 @@ void Pos::EMSurfaceProvider::getZRange( Interval<float>& zrg ) const
 int Pos::EMSurfaceProvider::estNrZPerPos() const
 {
     if ( !surf2_ ) return 1;
-    Interval<float> avgzrg( (zrg1_.start + zrg2_.start)*.5,
-			    (zrg1_.stop + zrg2_.stop)*.5 );
+    Interval<float> avgzrg( (zrg1_.start + zrg2_.start)*.5f,
+			    (zrg1_.stop + zrg2_.stop)*.5f );
     return (int)((avgzrg.stop-avgzrg.start) / zstep_ + .5);
 }
 
@@ -339,13 +339,13 @@ bool Pos::EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
 	if ( !crd2.isDefined() )
 	    return false;
 
-	zrg.start = crd1.z; zrg.stop = crd2.z;
+	zrg.start = (float) crd1.z; zrg.stop = (float) crd2.z;
 	zrg.sort();
     }
     else
     {
-	zrg.start = crd1.z - SI().zStep()/2;
-	zrg.stop = crd1.z + SI().zStep()/2;
+	zrg.start = (float) crd1.z - SI().zStep()/2;
+	zrg.stop = (float) crd1.z + SI().zStep()/2;
     }
 
     zrg += extraz_;
@@ -451,13 +451,13 @@ bool Pos::EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
 	if ( !crd2.isDefined() )
 	    return false;
 
-	zrg.start = crd1.z; zrg.stop = crd2.z;
+	zrg.start = (float) crd1.z; zrg.stop = (float) crd2.z;
 	zrg.sort();
     }
     else
     {
-	zrg.start = crd1.z - SI().zStep()/2;
-	zrg.stop = crd1.z + SI().zStep()/2;
+	zrg.start = (float) crd1.z - SI().zStep()/2;
+	zrg.stop = (float) crd1.z + SI().zStep()/2;
     }
 
     zrg += extraz_;
@@ -570,7 +570,7 @@ bool Pos::EMSurface2DProvider3D::includes( const BinID& bid, float z ) const
     if ( rid2 >= 0 )
 	zrg.include( dpssurf2_.z(rid2), false );
     zrg += extraz_;
-    zrg.widen( SI().zStep() * .5, false );
+    zrg.widen( SI().zStep() * .5f, false );
     return zrg.includes( z, false );
 }
 

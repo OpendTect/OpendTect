@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizonztransform.cc,v 1.19 2012-05-02 15:11:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhorizonztransform.cc,v 1.20 2012-08-08 05:47:54 cvssalil Exp $";
 
 #include "emhorizonztransform.h"
 
@@ -226,7 +226,7 @@ void HorizonZTransform::calculateHorizonRange()
     EM::PosID pid = iterator->next();
     while ( pid.objectID()!=-1  )
     {
-	const float depth = horizon_->getPos( pid ).z;
+	const float depth = (float) horizon_->getPos( pid ).z;
 	if ( !mIsUdf( depth ) )
 	{
 	    if ( isset ) depthrange_.include( depth, false );
@@ -254,10 +254,10 @@ bool HorizonZTransform::getTopBottom( const BinID& bid, float& top,
 	{
 	    const Geometry::BinIDSurface* geom =
 		hor3d->geometry().sectionGeometry(sid);
-	    depth = geom->computePosition( Coord(bid.inl,bid.crl) ).z;
+	    depth = (float) geom->computePosition( Coord(bid.inl,bid.crl) ).z;
 	}
 	else if ( hor2d )
-	    depth = horizon_->getPos( sid, bid.toInt64() ).z;
+	    depth = (float) horizon_->getPos( sid, bid.toInt64() ).z;
 
 	if ( !mIsUdf(depth) )
 	    depths += depth;

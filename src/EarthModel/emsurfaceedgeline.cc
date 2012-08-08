@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceedgeline.cc,v 1.49 2012-08-03 06:38:38 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceedgeline.cc,v 1.50 2012-08-08 05:47:55 cvssalil Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -919,8 +919,8 @@ bool EdgeLine::isHole() const
     float anglediff = 0;
     for ( int idx=1; idx<rcs.size()-1; idx++ )
     {
-	anglediff += (rcs[idx-1]-rcs[idx]).getDirection().clockwiseAngleTo(
-		     (rcs[idx+1]-rcs[idx]).getDirection()) - M_PI;
+	anglediff = (float) (anglediff + (rcs[idx-1]-rcs[idx]).getDirection().clockwiseAngleTo(
+		     (rcs[idx+1]-rcs[idx]).getDirection()) - M_PI);
     }
 
     return anglediff<0;

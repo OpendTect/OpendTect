@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizonmerger.cc,v 1.9 2012-05-24 11:39:50 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizonmerger.cc,v 1.10 2012-08-08 05:47:55 cvssalil Exp $";
 
 #include "horizonmerger.h"
 
@@ -99,7 +99,7 @@ bool Horizon3DMerger::doWork( od_int64 start, od_int64 stop, int threadid )
 	    continue;
 
 	if ( mode_ == Average )
-	    depths_->getData()[idx] = rc.average();
+	    depths_->getData()[idx] = (float) rc.average();
 	else if ( mode_ == Top )
 	    depths_->getData()[idx] = rc.min();
 	else if ( mode_ == Base )

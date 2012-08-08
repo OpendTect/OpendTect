@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhor2dto3d.cc,v 1.22 2012-07-10 08:05:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhor2dto3d.cc,v 1.23 2012-08-08 05:47:54 cvssalil Exp $";
 
 #include "emhor2dto3d.h"
 
@@ -184,7 +184,7 @@ void Hor2DTo3D::fillSections()
 	    const Coord3 coord = hor2d_.getPos( posid );
 	    const BinID bid = SI().transform( coord );
 
-	    sd.add( bid, coord.z );
+	    sd.add( bid, (float) coord.z );
 	}
     }
 }

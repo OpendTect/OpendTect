@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizonztransformer.cc,v 1.6 2012-05-02 15:11:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhorizonztransformer.cc,v 1.7 2012-08-08 05:47:54 cvssalil Exp $";
 
 #include "emhorizonztransformer.h"
 
@@ -57,7 +57,7 @@ int HorizonZTransformer::nextStep()
     if ( posid.isUdf() )
 	return Executor::Finished();
 
-    float z = tarhor_.getPos( posid ).z;
+    float z = (float) tarhor_.getPos( posid ).z;
     if ( !isforward_ && !mIsUdf(z) )
 	z -= refz_;
 

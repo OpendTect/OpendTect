@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: horizonsorter.cc,v 1.19 2012-05-02 15:11:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizonsorter.cc,v 1.20 2012-08-08 05:47:56 cvssalil Exp $";
 
 #include "horizonsorter.h"
 
@@ -240,10 +240,10 @@ int HorizonSorter::nextStep()
 		if ( !hor2d ) continue;
 
 		depths[idx] =
-		    hor2d->getPos( sid, geomids_[binid_.inl], binid_.crl ).z;
+		    (float) hor2d->getPos( sid, geomids_[binid_.inl], binid_.crl ).z;
 	    }
 	    else
-		depths[idx] = horizons_[idx]->getPos( sid, subid ).z;
+		depths[idx] = (float) horizons_[idx]->getPos( sid, subid ).z;
 	}
 
 	for ( int idx=0; idx<nrhors; idx++ )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.15 2012-04-02 15:06:16 cvskris Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.16 2012-08-08 05:47:54 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -465,7 +465,7 @@ bool FaultStickPainter::getNearestDistance( const Coord3& pos, float& dist )
 
     for ( int idx=coords_.size()-1; idx>=0; idx-- )
     {
-	const float caldist = pos.Coord::sqDistTo( coords_[idx] );
+	const float caldist = (float) pos.Coord::sqDistTo( coords_[idx] );
 	if ( caldist < dist )
 	{
 	    dist = caldist;
@@ -509,7 +509,7 @@ Coord FaultStickPainter::getNormalToTrace( int trcnr ) const
 	return Coord( 0, 1 );
     else
     {
-	float length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
+	double length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
 	return Coord( -v1.y/length, v1.x/length );
     }
 }

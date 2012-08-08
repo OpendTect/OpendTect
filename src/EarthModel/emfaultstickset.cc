@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfaultstickset.cc,v 1.16 2012-08-07 16:53:27 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfaultstickset.cc,v 1.17 2012-08-08 05:47:54 cvssalil Exp $";
 
 #include "emfaultstickset.h"
 
@@ -55,7 +55,7 @@ void FaultStickSet::apply( const Pos::Filter& pf )
 	    for ( rc.col=colrg.stop; rc.col>=colrg.start; rc.col-=colrg.step )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
-		if ( !pf.includes( (Coord) pos, pos.z) )
+		if ( !pf.includes( (Coord) pos, (float) pos.z) )
 		    fssg->removeKnot( rc );
 	    }
 	}

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.156 2012-08-02 09:20:43 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.157 2012-08-08 05:47:55 cvssalil Exp $";
 
 #include "emsurfaceio.h"
 
@@ -1230,7 +1230,7 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm, int firstcol,
 	{
 	    cube_->set( readrowrange_->nearestIndex(rc.row),
 			readcolrange_->nearestIndex(rc.col),
-			cubezidx, pos.z );
+			cubezidx, (float) pos.z );
 	}
 
 	didread = true;
@@ -1918,7 +1918,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	    continue;
 
 	if ( !mIsUdf(pos.z) )
-	    zrange_.include( pos.z, false );
+	    zrange_.include( (float) pos.z, false );
 
 	if ( colcoords.isEmpty() )
 	    firstcol = col;

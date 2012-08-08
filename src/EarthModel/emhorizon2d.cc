@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizon2d.cc,v 1.56 2012-08-06 19:15:32 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhorizon2d.cc,v 1.57 2012-08-08 05:47:54 cvssalil Exp $";
 
 #include "emhorizon2d.h"
 
@@ -142,7 +142,7 @@ bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid,
 	if ( !new0.coord_.isDefined() || !new1.coord_.isDefined() )
 	    continue;
 
-	const float maxdist = 0.1 * cur0.distTo(cur1) / trg.width();
+	const float maxdist = (float) (0.1 * cur0.distTo(cur1) / trg.width());
 	if ( cur0.distTo(new0.coord_)>maxdist ||
 	     cur1.distTo(new1.coord_)>maxdist )
 	    continue;
@@ -409,7 +409,7 @@ float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 
 	    const double sqdist = c.sqDistTo( knot );
 	    if ( mIsZero(sqdist,1e-3) )
-		return knot.z;
+		return (float) knot.z;
 
 	    closestpoints.addValue( -sqdist, knot.z );
 	}
@@ -419,14 +419,14 @@ float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 	return allow_udf ? mUdf(float) : 0;
 
     if ( closestpoints.size()==1 )
-	return closestpoints.getAssociatedValue( 0 );
+	return (float) closestpoints.getAssociatedValue( 0 );
 
     const double z0 = closestpoints.getAssociatedValue( 0 );
     const double dist0 = Math::Sqrt( -closestpoints.getValue( 0 ) );
     const double z1 = closestpoints.getAssociatedValue( 1 );
     const double dist1 = Math::Sqrt( -closestpoints.getValue( 1 ) );
 
-    return (dist1*z0+dist0*z1)/(dist0+dist1);
+    return (float) ((dist1*z0+dist0*z1)/(dist0+dist1));
 }
 
 
@@ -603,7 +603,7 @@ Array1D<float>* Horizon2D::createArray1D( SectionID sid,
 	if ( trans )
 	    pos.z = trans->transform( pos );
 
-	arr->set( colrg.getIndex(col), pos.z );
+	arr->set( colrg.getIndex(col), (float) pos.z );
     }
 
     return arr;

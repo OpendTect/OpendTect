@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: embodyoperator.cc,v 1.24 2012-05-02 15:11:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: embodyoperator.cc,v 1.25 2012-08-08 05:47:54 cvssalil Exp $";
 
 #include "embodyoperator.h"
 
@@ -134,7 +134,7 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    }
 	    else
 	    {
-		res = useval ? 0.01 : mOutsideVal;
+		res = useval ? 0.01f : mOutsideVal;
 	    }
 	}
 	else
@@ -182,7 +182,7 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    }
 	    else
 	    {
-		res = useval ? 0.01 : mOutsideVal;
+		res = useval ? 0.01f : mOutsideVal;
 	    }
 	}
 	else
@@ -303,9 +303,9 @@ od_int64 Expl2ImplBodyExtracter::nrIterations() const
 
 #define mSetSegment() \
 if ( !nrintersections ) \
-    segment.start = segment.stop = pos.z; \
+    segment.start = segment.stop = (float) pos.z; \
 else \
-    segment.include( pos.z ); \
+    segment.include( (float) pos.z ); \
 nrintersections++
 
 
@@ -332,7 +332,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	    for ( int pidx=0; pidx<3; pidx++ )
 		v[pidx] = crds[tri_[3*pl+pidx]];
 
-	    const float fv = planes_[pl].A_*pos.x + planes_[pl].B_*pos.y +
+	    const double fv = planes_[pl].A_*pos.x + planes_[pl].B_*pos.y +
 		planes_[pl].D_;
 	    if ( mIsZero(planes_[pl].C_,1e-3) ) 
 	    {
@@ -805,13 +805,13 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	{
 	    inlrg.start = inlrg.stop = bid.inl;
 	    crlrg.start = crlrg.stop = bid.crl;
-	    zrg.start = zrg.stop = bodypts[idx].z;
+	    zrg.start = zrg.stop = (float) bodypts[idx].z;
 	}
 	else
 	{
 	    inlrg.include( bid.inl );
 	    crlrg.include( bid.crl );
-	    zrg.include( bodypts[idx].z );
+	    zrg.include( (float) bodypts[idx].z );
 	}
     }
     

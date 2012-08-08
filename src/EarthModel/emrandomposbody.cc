@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emrandomposbody.cc,v 1.18 2012-05-02 15:11:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emrandomposbody.cc,v 1.19 2012-08-08 05:47:55 cvssalil Exp $";
 
 #include "emrandomposbody.h"
 
@@ -391,9 +391,9 @@ bool RandomPosBody::getBodyRange( CubeSampling& cs )
 	cs.hrg.include( SI().transform(locations_[idx]) );
 
 	if ( idx )
-    	    cs.zrg.include( locations_[idx].z );
+    	    cs.zrg.include( (float) locations_[idx].z );
 	else
-	    cs.zrg.start = cs.zrg.stop = locations_[idx].z;
+	    cs.zrg.start = cs.zrg.stop = (float) locations_[idx].z;
     }
     
     return locations_.size();

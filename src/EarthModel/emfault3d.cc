@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfault3d.cc,v 1.28 2012-08-07 20:45:50 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfault3d.cc,v 1.29 2012-08-08 05:47:54 cvssalil Exp $";
 
 #include "emfault3d.h"
 
@@ -70,7 +70,7 @@ void Fault3D::apply( const Pos::Filter& pf )
 	    for ( rc.col=colrg.stop; rc.col>=colrg.start; rc.col-=colrg.step )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
-		if ( !pf.includes( (Coord) pos, pos.z) )
+		if ( !pf.includes( (Coord) pos, (float) pos.z) )
 		    fssg->removeKnot( rc );
 	    }
 	}
@@ -378,7 +378,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 
     bool oninl = false; bool oncrl = false; bool ontms = false;
 
-    float firstz; 
+    double firstz; 
     BinID firstbid;
 
     ObjectSet<FaultStick> sticks;

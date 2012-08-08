@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurface.cc,v 1.98 2012-05-02 15:11:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurface.cc,v 1.99 2012-08-08 05:47:55 cvssalil Exp $";
 
 #include "emsurface.h"
 
@@ -264,7 +264,7 @@ void Surface::apply( const Pos::Filter& pf )
 	    break;
 
 	const Coord3 pos = getPos( pid ); 
-	if ( !pf.includes( (Coord) pos, pos.z) )
+	if ( !pf.includes( (Coord) pos, (float) pos.z) )
 	   unSetPos( pid, false );
     }
 }

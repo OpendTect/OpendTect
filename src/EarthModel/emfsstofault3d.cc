@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.16 2012-08-07 20:43:04 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.17 2012-08-08 05:47:54 cvssalil Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -229,13 +229,13 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 	    {
 		inlrg.start = inlrg.stop = bid.inl;
 		crlrg.start = crlrg.stop = bid.crl;
-		zrg.start = zrg.stop = k.z;
+		zrg.start = zrg.stop = (float) k.z;
 	    }
 	    else
 	    {
 		inlrg.include( bid.inl );
 		crlrg.include( bid.crl );
-		zrg.include( k.z );
+		zrg.include( (float) k.z );
 	    }
 	}
 
@@ -294,7 +294,7 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 		    const Coord3& k0 = sticks_[idy]->crds_[idz];
 		    const Coord3& k1 = sticks_[idy]->crds_[idz+1];
 		    Line3 segment( k0, k1-k0 );
-		    const float pldist = segment.sqDistanceToPoint( pos );
+		    const float pldist = (float) segment.sqDistanceToPoint( pos );
 		    if ( nbidx==-1 || pldist<mindist )
 		    {
 			nbidx = idy;
@@ -464,7 +464,7 @@ void FSStoFault3DConverter::geometricSort( double zscale )
 	TypeSet<float> zs;
 	for ( int idy=0; idy<nrcrds; idy++ )
 	{
-	    zs += sticks_[idx]->crds_[idy].z;
+	    zs += (float) sticks_[idx]->crds_[idy].z;
 	    tmp += idy;
 	}
 	
@@ -504,7 +504,7 @@ void FSStoFault3DConverter::untwistSticks( double zscale )
 	d0.z *= zscale;
 	Coord3 d1 = sticks_[idx]->crds_[0]-sticks_[idx]->crds_[nrknots-1];
 	d1.z *= zscale;
-	float cosangle = d0.dot(d1)/Math::Sqrt(d0.dot(d0)*d1.dot(d1));
+	double cosangle = d0.dot(d1)/Math::Sqrt(d0.dot(d0)*d1.dot(d1));
 	if ( fabs(cosangle)<0.707 ) //if skewed more than 45 degree ignore it
 	    continue;
 

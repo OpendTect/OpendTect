@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: poly2horvol.cc,v 1.6 2012-05-03 05:14:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: poly2horvol.cc,v 1.7 2012-08-08 05:47:56 cvssalil Exp $";
 
 #include "poly2horvol.h"
 
@@ -68,7 +68,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
     for ( int idx=0; idx<ps_->size(); idx++ )
     {
 	const Pick::Location& pl( (*ps_)[idx] );
-	pts += pl.pos; zvals += pl.pos.z;
+	pts += pl.pos; zvals += (float) pl.pos.z;
 	const BinID bid( SI().transform(pl.pos) );
 	poly.add( mPolyLoc(bid) );
 	if ( idx )
@@ -98,10 +98,10 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	for ( int isect=0; isect<nrsect; isect++ )
 	{
 	    const EM::SectionID sid = hor_->sectionID( isect );
-	    float horz = hor_->getPos( sid, subid ).z;
+	    float horz = (float) hor_->getPos( sid, subid ).z;
 	    if ( mIsUdf(horz) && bid.inl!=hs.stop.inl && bid.crl!=hs.stop.crl )
  	    { //The very last edges should exclude.
-		horz = hor_->geometry().sectionGeometry(sid)->computePosition(
+		horz = (float) hor_->geometry().sectionGeometry(sid)->computePosition(
        			Coord(bid.inl,bid.crl) ).z;
  	    }
 		    
@@ -128,7 +128,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 
     const float cellarea = SI().inlDistance() * hs.step.inl
 			 * SI().crlDistance() * hs.step.crl;
-    const float v = SI().zIsTime() ? vel * .5 : 1; // TWT
+    const float v = SI().zIsTime() ? vel * .5f : 1; // TWT
     return cellarea * v * totth;
 }
 
