@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisstor.cc,v 1.52 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisstor.cc,v 1.53 2012-08-08 09:53:54 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seiscbvs.h"
@@ -181,7 +181,7 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 
     if ( !seldata )
 	seldata = Seis::SelData::get( iopar );
-    if ( seldata->isAll() )
+    if ( seldata->isAll() && seldata->lineKey().isEmpty() )
 	{ delete seldata; seldata = 0; }
 
     if ( strl() )
