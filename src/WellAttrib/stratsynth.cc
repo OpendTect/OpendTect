@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.43 2012-07-20 14:07:02 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.44 2012-08-09 09:34:07 cvshelene Exp $";
 
 
 #include "stratsynth.h"
@@ -443,6 +443,7 @@ PostStackSyntheticData::PostStackSyntheticData( const SynthGenParams& sgp,
 {
     DataPackMgr::ID pmid = DataPackMgr::FlatID();
     DPM( pmid ).add( &dp );
+    datapackid_ = DataPack::FullID( pmid, dp.id());
 }
 
 
@@ -457,6 +458,7 @@ PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
 {
     DataPackMgr::ID pmid = DataPackMgr::CubeID();
     DPM( pmid ).add( &dp );
+    datapackid_ = DataPack::FullID( pmid, dp.id());
 }
 
 
