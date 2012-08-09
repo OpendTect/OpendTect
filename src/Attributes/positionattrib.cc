@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: positionattrib.cc,v 1.41 2012-07-27 08:25:57 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: positionattrib.cc,v 1.42 2012-08-09 04:38:06 cvssalil Exp $";
 
 
 #include "positionattrib.h"
@@ -92,7 +92,7 @@ Position::Position( Desc& desc )
 
     mGetBinID( stepout_, stepoutStr() );
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1./zFactor() );
+    gate_.scale( 1.f/zFactor() );
 
     mGetEnum( oper_, operStr() );
     mGetBool( dosteer_, steeringStr() );

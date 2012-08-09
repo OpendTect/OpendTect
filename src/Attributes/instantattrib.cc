@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: instantattrib.cc,v 1.30 2012-07-27 07:47:14 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: instantattrib.cc,v 1.31 2012-08-09 04:38:06 cvssalil Exp $";
 
 #include "instantattrib.h"
 
@@ -193,7 +193,7 @@ float Instantaneous::calcBandWidth( int cursample, int z0 ) const
     const float denv_dt = calcAmplitude1Der( cursample, z0 );
     const float env = calcAmplitude( cursample, z0 );
     mCheckRetUdf( denv_dt, env );
-    return fabs(denv_dt / (2*M_PI* ( mIsZero(env,1e-6) ? 1e-6 : env ) ));
+    return (float)fabs(denv_dt / (2*M_PI* ( mIsZero(env,1e-6) ? 1e-6 : env )));
 }
 
 
@@ -202,7 +202,7 @@ float Instantaneous::calcQFactor( int cursample, int z0 ) const
     const float ifq = calcFrequency( cursample, z0 );
     const float bandwth = calcBandWidth( cursample, z0 );
     mCheckRetUdf( ifq, bandwth );
-    return (-0.5 * ifq / ( mIsZero(bandwth,1e-6) ? 1e-6 : bandwth ) );
+    return (-0.5f * ifq / ( mIsZero(bandwth,1e-6) ? 1e-6f : bandwth ) );
 }
 
 
@@ -210,7 +210,7 @@ float Instantaneous::calcRotPhase( int cursample, int z0, float angle ) const
 {
     const float real = mGetRVal( cursample );
     const float imag = mGetIVal( cursample );
-    return real*cos( angle*M_PI/180 ) - imag*sin( angle*M_PI/180 );
+    return (float) (real*cos( angle*M_PI/180 ) - imag*sin( angle*M_PI/180 ));
 }
 
 
@@ -252,7 +252,7 @@ float Instantaneous::calcEnvWPhase( int cursample, int z0 ) const
 	sumiaiph += ia*iph/rmsia;
     }
 
-    return sumiaiph / ( mIsZero(sumia,1e-6) ? 1e-6 : sumia );
+    return sumiaiph / ( mIsZero(sumia,1e-6) ? 1e-6f : sumia );
 }
 
 
@@ -272,7 +272,7 @@ float Instantaneous::calcEnvWFreq( int cursample, int z0 ) const
 	sumiaifq += ia*ifq/rmsia;
     }
 
-    return sumiaifq / ( mIsZero(sumia,1e-6) ? 1e-6 : sumia );
+    return sumiaifq / ( mIsZero(sumia,1e-6) ? 1e-6f : sumia );
 }
 
 

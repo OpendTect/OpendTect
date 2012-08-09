@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volstatsattrib.cc,v 1.66 2012-07-10 08:05:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: volstatsattrib.cc,v 1.67 2012-08-09 04:38:06 cvssalil Exp $";
 
 #include "volstatsattrib.h"
 
@@ -111,7 +111,7 @@ VolStatsBase::VolStatsBase( Desc& ds )
     mGetInt( minnrtrcs_, nrtrcsStr() );
     mGetEnum( shape_, shapeStr() );
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1./zFactor() );
+    gate_.scale( 1.f/zFactor() );
     gate_.sort();
 
     BinID pos;
@@ -449,7 +449,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( outputinterest_[outidx] == 0 )
 		continue;
 
-	    const float outval = wcalc.getValue(
+	    const float outval = (float) wcalc.getValue(
 		    			(Stats::Type)outputtypes[outidx] );
 	    setOutputValue( output, outidx, isamp, z0, outval );
 	}
@@ -528,7 +528,7 @@ void VolStats::getIdealStackPos(
     }
 
     if ( optstackdir_ == mDirNorm && !mIsZero(coeffa,1e-6) )
-	coeffa = -1./coeffa;
+	coeffa = -1.f/coeffa;
 
     Geom::Point2D<float> pointa;
     Geom::Point2D<float> pointb;

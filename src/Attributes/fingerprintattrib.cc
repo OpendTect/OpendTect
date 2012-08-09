@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: fingerprintattrib.cc,v 1.22 2012-07-24 08:46:51 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingerprintattrib.cc,v 1.23 2012-08-09 04:38:06 cvssalil Exp $";
 
 #include "fingerprintattrib.h"
 
@@ -34,7 +34,7 @@ static void scaleVector( const TypeSet<float>& rawvalues,
     for ( int idx=0; idx<rawvalues.size(); idx++ )
     {
 	float diff = ranges[idx].stop - ranges[idx].start;
-	float denom = mIsZero( diff , 0.001 ) ? 0.001 : diff;
+	float denom = mIsZero( diff , 0.001 ) ? 0.001f : diff;
 	scaledvalues += ( rawvalues[idx] - ranges[idx].start ) / denom;
     }
 }

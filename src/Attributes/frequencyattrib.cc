@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: frequencyattrib.cc,v 1.37 2012-07-10 08:05:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: frequencyattrib.cc,v 1.38 2012-08-09 04:38:06 cvssalil Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -106,7 +106,7 @@ Frequency::Frequency( Desc& ds )
     if ( !isOK() ) return;
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1./zFactor() );
+    gate_.scale( 1.f/zFactor() );
 
     mGetBool( normalize_, normalizeStr() );
     mGetString( windowtype_, windowStr() );

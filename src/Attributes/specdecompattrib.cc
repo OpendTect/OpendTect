@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: specdecompattrib.cc,v 1.42 2012-07-10 08:05:29 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: specdecompattrib.cc,v 1.43 2012-08-09 04:38:06 cvssalil Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -99,7 +99,7 @@ void SpecDecomp::updateDesc( Desc& desc )
     //HERE see what to do when SI().zStep() != refstep_ !!!
     float dfreq;
     mGetFloatFromDesc( desc, dfreq, deltafreqStr() );
-    const float nyqfreq = 0.5 / SI().zStep();
+    const float nyqfreq = 0.5f / SI().zStep();
     const int nrattribs = (int)( nyqfreq / dfreq );
     desc.setNrOutputs( Seis::UnknowData, nrattribs );
 }
@@ -203,7 +203,7 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 				   mNINT32(gate_.stop/refstep_));
 	    const_cast<SpecDecomp*>(this)->sz_ = samplegate_.width()+1;
 
-	    const float fnyq = 0.5 / refstep_;
+	    const float fnyq = 0.5f / refstep_;
 	    const int minsz = mNINT32( 2*fnyq/deltafreq_ );
 	    const_cast<SpecDecomp*>(this)->fftsz_ = sz_ > minsz ? sz_ : minsz;
 	    const_cast<SpecDecomp*>(this)->
@@ -372,7 +372,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     cwt.setWavelet( cwtwavelet_ );
     cwt.setDeltaT( refstep_ );
 
-    const float nyqfreq = 0.5 / SI().zStep();
+    const float nyqfreq = 0.5f / SI().zStep();
     const int nrattribs = (int)( nyqfreq / deltafreq_ );
     const float freqstop = deltafreq_*nrattribs;
     TypeSet<int> freqidxs;
@@ -426,7 +426,7 @@ const Interval<int>* SpecDecomp::desZSampMargin( int inp, int ) const
 void SpecDecomp::getCompNames( BufferStringSet& nms ) const
 {
     nms.erase();
-    const float fnyq = 0.5 / refstep_;
+    const float fnyq = 0.5f / refstep_;
     const char* basestr = "frequency = ";
     BufferString suffixstr = zIsTime() ? " Hz" : " cycles/mm";
     for ( float freq=deltafreq_; freq<fnyq; freq+=deltafreq_ )

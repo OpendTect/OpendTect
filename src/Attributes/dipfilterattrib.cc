@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dipfilterattrib.cc,v 1.37 2012-05-02 15:11:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: dipfilterattrib.cc,v 1.38 2012-08-09 04:38:06 cvssalil Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -315,7 +315,7 @@ float DipFilter::taper( float pos ) const
     if ( pos < 0 ) return 0;
     else if ( pos > 1 ) return 1;
 
-    return (1-cos(pos*M_PI))/2;
+    return (float)( ( 1 - cos(pos * M_PI) ) / 2 );
 }
 
 
