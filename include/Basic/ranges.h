@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.73 2012-08-08 04:22:05 cvssalil Exp $
+ RCS:		$Id: ranges.h,v 1.74 2012-08-09 03:48:45 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -493,7 +493,7 @@ int Interval<T>::getIndex( const X& t, const T& step ) const
 
 template <class T> template <class X> inline
 float Interval<T>::getfIndex( const X& t, const T& step ) const
-{ return (( (float)t  - start ) / step); }
+{ return (float)(( t  - start ) / step); }
 
 
 template <class T> template <class X> inline

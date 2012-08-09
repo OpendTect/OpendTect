@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratseqgen.cc,v 1.40 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratseqgen.cc,v 1.41 2012-08-09 03:48:45 cvssalil Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -58,7 +58,7 @@ int Strat::LayerModelGenerator::nextStep()
     if ( seqnr_ == -1 )
 	return ErrorOccurred();
 
-    const float modpos = nrseqs_ < 2 ? 0.5 : ((float)seqnr_)/(nrseqs_-1);
+    const float modpos = nrseqs_ < 2 ? 0.5f : ((float)seqnr_)/(nrseqs_-1);
     if ( !desc_.generate(lm_.addSequence(),modpos) )
     {
 	msg_ = desc_.errMsg();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.92 2012-08-03 13:00:08 cvskris Exp $
+ RCS:           $Id: attribprovider.h,v 1.93 2012-08-09 03:48:45 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -334,8 +334,8 @@ protected:
     float			inldist() const; 
     float			crldist() const;
     float			maxSecureDip() const
-				{ return zIsTime() ? mMAXDIPSECURE
-						   : mMAXDIPSECUREDEPTH; }
+				{ return (float) (zIsTime() ? mMAXDIPSECURE
+						   : mMAXDIPSECUREDEPTH); }
     void			stdPrepSteering(const BinID&);
 
     ObjectSet<Provider>		inputs_;

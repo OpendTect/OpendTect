@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2010
- RCS:		$Id: stratlayer.h,v 1.18 2012-08-03 13:00:42 cvskris Exp $
+ RCS:		$Id: stratlayer.h,v 1.19 2012-08-09 03:48:45 cvssalil Exp $
 ________________________________________________________________________
 
 
@@ -59,7 +59,7 @@ public:
     void		setContent( const Content& c )	{ content_ = &c; }
 
     inline float	zBot() const	{ return zTop() + thickness(); }
-    inline float	depth() const	{ return zTop() + 0.5*thickness(); }
+    inline float	depth() const	{ return zTop() + 0.5f * thickness(); }
 
     ID			id() const;	//!< unitRef().fullCode()
     Color		dispColor(bool lith_else_upnode) const;
