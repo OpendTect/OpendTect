@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc,v 1.47 2012-07-27 11:05:15 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc,v 1.48 2012-08-09 14:12:55 cvsbert Exp $";
 
 #include "uistratlaycontent.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -42,6 +42,7 @@ uiStratLayerContent::uiStratLayerContent( uiParent* p,
 					  const Strat::RefTree* srt )
     : uiGroup(p,"Layer content")
     , rt_(srt ? *srt : Strat::RT())
+    , contentSelected(this)
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Content" );
     fld_ = lcb->box();
@@ -50,6 +51,7 @@ uiStratLayerContent::uiStratLayerContent( uiParent* p,
     for ( int idx=0; idx<rt.contents().size(); idx++ )
 	fld_->addItem( rt.contents()[idx]->name() );
     setHAlignObj( lcb );
+    fld_->selectionChanged.notify( mCB(this,uiStratLayerContent,contSel) );
 }
 
 
@@ -62,11 +64,38 @@ void uiStratLayerContent::set( const Strat::Content& c )
 }
 
 
+void uiStratLayerContent::contSel( CallBacker* )
+{
+    contentSelected.trigger();
+}
+
+
+void uiStratLayerContent::setSelectedIndex( int selidx )
+{
+    return fld_->setCurrentItem( selidx );
+}
+
+
+int uiStratLayerContent::selectedIndex() const
+{
+    return fld_->currentItem();
+}
+
+
+int uiStratLayerContent::addOption( const char* nm )
+{
+    fld_->addItem( nm );
+    return fld_->size() - 1;
+}
+
+
 const Strat::Content& uiStratLayerContent::get() const
 {
     const int selidx = fld_->currentItem();
-    return selidx < 1 ? Strat::Content::unspecified()
-		      : *rt_.contents()[selidx-1];
+    if ( selidx < 1 || selidx >= rt_.contents().size() )
+	return Strat::Content::unspecified();
+
+    return *rt_.contents()[selidx-1];
 }
 
 

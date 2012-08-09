@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2012
- RCS:           $Id: uistratlaycontent.h,v 1.2 2012-08-03 13:01:10 cvskris Exp $
+ RCS:           $Id: uistratlaycontent.h,v 1.3 2012-08-09 14:12:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,10 +30,19 @@ public:
     void		set(const Strat::Content&);
     const Strat::Content& get() const;
 
+    int			selectedIndex() const;
+    void		setSelectedIndex(int);
+    int			addOption(const char*);
+
+    Notifier<uiStratLayerContent> contentSelected;
+
 protected:
 
     uiComboBox*		fld_;
     const Strat::RefTree& rt_;
+
+    void		contSel(CallBacker*);
+
 };
 
 
