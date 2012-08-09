@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segyhdr.cc,v 1.100 2012-07-10 08:05:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: segyhdr.cc,v 1.101 2012-08-09 03:35:32 cvssalil Exp $";
 
 
 #include "segyhdr.h"
@@ -359,7 +359,7 @@ const SEGY::HdrDef& SEGY::BinHeader::hdrDef()
 
 float SEGY::BinHeader::sampleRate( bool isdepth ) const
 {
-    float sr = entryVal( EntryDt() ) * 0.001;
+    float sr = entryVal( EntryDt() ) * 0.001f;
     if ( !isdepth )
 	sr *= 0.001;
     return sr;
@@ -568,7 +568,7 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
     short scalnr = (short)entryVal( EntrySPscale() );
     if ( scalnr )
     {
-	ti.refnr *= (scalnr > 0 ? scalnr : -1./scalnr);
+	ti.refnr *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
 	ti.nr = mNINT32(ti.refnr);
     }
     mPIEPAdj(Coord,ti.coord,true);
@@ -594,7 +594,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( !isrev1_ )
 	getRev1Flds( ti );
 
-    const float zfac = 1. / SI().zDomain().userFactor();
+    const float zfac = 1.0f / SI().zDomain().userFactor();
     short delrt = entryVal( EntryDelRt() );
     if ( delrt == 0 )
     {
@@ -607,7 +607,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	    delrt = 0;
     }
     ti.sampling.start = delrt * zfac;
-    ti.sampling.step = entryVal(EntryDt()) * zfac * 0.001;
+    ti.sampling.step = entryVal(EntryDt()) * zfac * 0.001f;
     mPIEPAdj(Z,ti.sampling.start,true);
     mPIEPAdj(Z,ti.sampling.step,true);
 
@@ -620,12 +620,12 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	float ftemp = (float)hdef_.memb##_.getValue(buf_,needswap_); \
 	ti.memb = ftemp * fac; \
     }
-    mGetFloatVal(pick,0.001);
+    mGetFloatVal(pick,0.001f);
     mPIEPAdj(Z,ti.pick,true);
     float nrfac = 1;
     short scalnr = (short)entryVal( EntrySPscale() );
     if ( scalnr == -10 || scalnr == -100 || scalnr == -1000 )
-	nrfac = 1. / ((float)(-scalnr));
+	nrfac = 1.f / ((float)(-scalnr));
     mGetFloatVal(refnr,nrfac);
 
     ti.coord.x = ti.coord.y = 0;

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segytr.cc,v 1.114 2012-08-07 05:20:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: segytr.cc,v 1.115 2012-08-09 03:35:32 cvssalil Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -247,7 +247,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 {
     SeisTrcInfo info; trchead_.fill( info, fileopts_.coordscale_ );
     if ( othdomain_ )
-	info.sampling.step *= SI().zIsTime() ? 1000 : 0.001;
+	info.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
 
     insd.start = info.sampling.start;
     insd.step = pinfo.zrg.step;
@@ -288,7 +288,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 {
     trchead_.fill( ti, fileopts_.coordscale_ );
     if ( othdomain_ )
-	ti.sampling.step *= SI().zIsTime() ? 1000 : 0.001;
+	ti.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
     if ( binhead_.isInFeet() ) ti.offset *= mFromFeetFactorF;
 
     if ( is_prestack && fileopts_.psdef_ == SEGY::FileReadOpts::SrcRcvCoords )
@@ -417,7 +417,7 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
     SamplingData<float> sdtoput( useinpsd_ ? trc.info().sampling : outsd );
     const int nstoput = useinpsd_ ? trc.size() : outnrsamples;
     if ( othdomain_ )
-	sdtoput.step *= SI().zIsTime() ? 0.001 : 1000;
+	sdtoput.step *= SI().zIsTime() ? 0.001f : 1000;
 
     trchead_.putSampling( sdtoput, nstoput );
 }
@@ -839,7 +839,7 @@ bool SEGYSeisTrcTranslator::readData( SeisTrc& trc )
     {
 	const int tsz = trc.size();
 	for ( int idx=0; idx<tsz; idx++ )
-	    trc.set(idx,curtrcscale_->scale(trc.get(idx,curcomp)),curcomp);
+	    trc.set(idx,(float) curtrcscale_->scale(trc.get(idx,curcomp)),curcomp);
     }
 
     return true;
@@ -851,7 +851,7 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
     const int curcomp = selComp();
 
     static bool allowudfs = GetEnvVarYN( "OD_SEIS_SEGY_ALLOW_UDF" );
-    static float udfreplaceval = GetEnvVarDVal( "OD_SEIS_SEGY_UDF_REPLACE", 0 );
+    static float udfreplaceval = (float) GetEnvVarDVal( "OD_SEIS_SEGY_UDF_REPLACE", 0 );
     for ( int idx=0; idx<outnrsamples; idx++ )
     {
 	float val = trc.getValue( outsd.atIndex(idx), curcomp );

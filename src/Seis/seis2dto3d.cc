@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.13 2012-07-17 07:56:16 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.14 2012-08-09 03:35:32 cvssalil Exp $";
 
 #include "seis2dto3d.h"
 
@@ -431,7 +431,7 @@ int SeisInterpol::nextStep()
     mDoTransform( fft_, true, trcarr_ );
     const float df = Fourier::CC::getDf( SI().zStep(), szz_ );
     const float mindist = mMIN(SI().inlDistance(),SI().crlDistance() );
-    const float fmax = maxvel_ / ( 2*mindist*sin( M_PI/6 ) );
+    const float fmax = (float) (maxvel_ / ( 2*mindist*sin( M_PI/6 ) ));
     const int poscutfreq = (int)(fmax/df);
 
 #define mDoLoopWork( docomputemax )\
@@ -599,7 +599,7 @@ void SeisScaler::scaleTrace( SeisTrc& trc )
     LinScaler sc( trcminval, avgminval_, trcmaxval, avgmaxval_ );
     for ( int idz=0; idz<trc.size(); idz++ )
     {
-	float val = trc.get( idz, 0 );
+	float val = (float) trc.get( idz, 0 );
 	val = sc.scale( val );
 	trc.set( idz, val, 0 );
     }

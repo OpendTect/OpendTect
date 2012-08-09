@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisbuf.cc,v 1.59 2012-07-10 08:05:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisbuf.cc,v 1.60 2012-08-09 03:35:32 cvssalil Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -103,10 +103,10 @@ bool SeisTrcBuf::isSorted( bool ascending, SeisTrcInfo::Fld fld ) const
     const int sz = size();
     if ( sz < 2 ) return true;
 
-    float prevval = first()->info().getValue(fld);
+    float prevval = (float) first()->info().getValue(fld);
     for ( int idx=1; idx<sz; idx++ )
     {
-	float val = get(idx)->info().getValue(fld);
+	float val = (float) get(idx)->info().getValue(fld);
 	float diff = val - prevval;
 	if ( !mIsZero(diff,mDefEps) )
 	{
@@ -152,12 +152,12 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, SeisTrcInfo::Fld fld,
     SeisTrc* prevtrc = first();
     if ( !prevtrc ) return;
 
-    float prevval = prevtrc->info().getValue( fld );
+    float prevval = (float) prevtrc->info().getValue( fld );
     int nrwithprevval = 1;
     for ( int idx=1; idx<=size(); idx++ )
     {
 	SeisTrc* trc = idx==size() ? 0 : get(idx);
-	float val = trc ? trc->info().getValue( fld ) : 0;
+	float val = (float) (trc ? trc->info().getValue( fld ) : 0);
 
 	if ( trc && mIsEqual(prevval,val,mDefEps) )
 	{
@@ -271,7 +271,7 @@ int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
     int n2  = dist.inl ? stop.inl  : stop.crl;
     int pos = dist.inl ? bid.inl   : bid.crl;
  
-    float fidx = ((sz-1.) * (pos - n1)) / (n2-n1);
+    float fidx = ((sz-1.f) * (pos - n1)) / (n2-n1);
     int idx = mNINT32(fidx);
     if ( idx < 0 ) idx = 0;
     if ( idx >= sz ) idx = sz-1;

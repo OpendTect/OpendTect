@@ -4,7 +4,7 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seis2dlineio.cc,v 1.15 2012-05-02 15:11:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seis2dlineio.cc,v 1.16 2012-08-09 03:35:32 cvssalil Exp $";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
@@ -472,7 +472,7 @@ void Seis2DLineMerger::doMerge( const TypeSet<int>& idxs, bool snap )
 	    nrsnapped++;
 	    if ( stckdupl_ )
 		SeisTrcPropChg( *prvtrc )
-		    .stack( *curtrc, false, 1. / ((float)nrsnapped) );
+		    .stack( *curtrc, false, 1.f / ((float)nrsnapped) );
 
 	    delete outbuf_.remove( itrc );
 	    itrc--;
