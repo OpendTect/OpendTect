@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.31 2012-08-03 13:00:03 cvskris Exp $
+ RCS:           $Id: genericnumer.h,v 1.32 2012-08-09 06:49:31 cvsaneesh Exp $
 ________________________________________________________________________
 
 
@@ -99,8 +99,8 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	val1 = normalize ? (a[curposa]-meana)/stddeva : a[curposa];
-	val2 = normalize ? (b[curposb]-meanb)/stddevb : b[curposb];
+	val1 = normalize ? (float) ( (a[curposa]-meana)/stddeva ) : a[curposa];
+	val2 = normalize ? (float) ( (b[curposb]-meanb)/stddevb ) : b[curposb];
 	if ( mIsUdf(val1) || mIsUdf(val2) )
 	    return mUdf(float);
 
@@ -118,7 +118,8 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
     if ( mIsZero(sq1,mDefEps) || mIsZero(sq2,mDefEps) )
 	return 0;
 
-    const float rt = Math::Sqrt(sqdist) / (Math::Sqrt(sq1) + Math::Sqrt(sq2));
+    const float rt = 
+	    (float) ( Math::Sqrt(sqdist) / (Math::Sqrt(sq1) + Math::Sqrt(sq2)) );
     return 1 - rt;
 }
 

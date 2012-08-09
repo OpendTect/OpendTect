@@ -97,7 +97,7 @@ bool FourierInterpol1D::doWork( od_int64 start ,od_int64 stop, int thread )
 
 	for ( int idx=0; idx<sz_; idx++ )
 	{
-	    const float angle = 2*M_PI *anglesampling*idx;
+	    const float angle = (float) ( 2*M_PI *anglesampling*idx );
 	    const float_complex cexp = float_complex( cos(angle), sin(angle) );
 	    const float_complex cplxref = cexp*cplxval;
 	    float_complex outpval = interpvals.get( idx );
@@ -186,11 +186,11 @@ bool FourierInterpol2D::doWork( od_int64 start ,od_int64 stop, int thread )
 
 	for ( int idx=0; idx<szx_; idx++ )
 	{
-	    const float anglex = 2*M_PI *xanglesampling*idx;
+	    const float anglex = (float) ( 2*M_PI *xanglesampling*idx );
 
 	    for ( int idy=0; idy<szy_; idy++ )
 	    {
-		const float angley = 2*M_PI *yanglesampling*idy;
+		const float angley = (float) ( 2*M_PI *yanglesampling*idy );
 		const float angle = anglex + angley;
 		const float_complex cexp = float_complex( cos(angle), 
 							    sin(angle) );
@@ -291,15 +291,15 @@ bool FourierInterpol3D::doWork( od_int64 start ,od_int64 stop, int thread )
 
 	for ( int idx=0; idx<szx_; idx++ )
 	{
-	    const float anglex = 2*M_PI *xanglesampling*idx;
+	    const float anglex = (float) ( 2*M_PI *xanglesampling*idx );
 
 	    for ( int idy=0; idy<szy_; idy++ )
 	    {
-		const float angley = 2*M_PI *yanglesampling*idy;
+		const float angley = (float) ( 2*M_PI *yanglesampling*idy );
 
 		for ( int idz=0; idz<szz_; idz++ )
 		{
-		    const float anglez = 2*M_PI *zanglesampling*idz;
+		    const float anglez = (float) ( 2*M_PI *zanglesampling*idz );
 
 		    const float angle = anglex+angley+anglez;
 

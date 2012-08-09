@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dataclipper.cc,v 1.39 2012-07-10 13:05:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: dataclipper.cc,v 1.40 2012-08-09 06:49:31 cvsaneesh Exp $";
 
 
 #include "dataclipper.h"
@@ -410,7 +410,7 @@ Interval<float> DataClipSampler::getRange( float clip ) const
     const int nv = nrVals();
     if ( nv == 0 ) return Interval<float>(0,0);
 
-    const float fidx = nv * .5 * clip;
+    const float fidx = nv * .5f * clip;
     int idx0 = mNINT32(fidx);
     int idx1 = nv - idx0 - 1;
     if ( idx0 > idx1 ) Swap( idx0, idx1 );
@@ -421,7 +421,7 @@ Interval<float> DataClipSampler::getRange( float clip ) const
 
 const char* DataClipSampler::getClipRgStr( float pct ) const
 {
-    Interval<float> rg( getRange(pct * 0.01) );
+    Interval<float> rg( getRange(pct * 0.01f) );
     static BufferString ret;
     ret = rg.start; ret += " - "; ret += rg.stop;
 

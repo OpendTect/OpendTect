@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: costrans.cc,v 1.11 2012-05-02 15:11:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: costrans.cc,v 1.12 2012-08-09 06:49:31 cvsaneesh Exp $";
 
 
 #include "costrans.h"
@@ -23,8 +23,8 @@ bool CosineTransform::CosineTransform1D::init()
 	initcosarray();
     }
 
-    two_over_size_ = 2.0/(double)sz_ ;
-    root2_over_rootsize_ = Math::Sqrt(2.0/(double)sz_ );
+    two_over_size_ = 2.0f/sz_ ;
+    root2_over_rootsize_ = (float) Math::Sqrt( 2.0/sz_ );
 
     return true;
 }
@@ -46,7 +46,7 @@ void CosineTransform::CosineTransform1D::initcosarray()
     {
 	int base= 1 << (group-1);
 	int nitems = base;
-	float factor = 1.0*(1<<(power_-group));
+	float factor = 1.0f*(1<<(power_-group));
 
 	for ( int item=1; item<=nitems; item++ )
 	{
@@ -55,7 +55,7 @@ void CosineTransform::CosineTransform1D::initcosarray()
     }
 
     for ( int i=1; i<sz_ ; i++ )
-	cosarray_[i] = 1.0/(2.0*cos(cosarray_[i]*M_PI/(2.0*sz_ )));
+	cosarray_[i] = (float) ( 1.0/(2.0*cos(cosarray_[i]*M_PI/(2.0*sz_ ))) );
 }
 
 bool CosineTransform::CosineTransform1D::run( bool )

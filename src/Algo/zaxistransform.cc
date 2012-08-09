@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: zaxistransform.cc,v 1.28 2012-05-22 14:48:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: zaxistransform.cc,v 1.29 2012-08-09 06:49:33 cvsaneesh Exp $";
 
 #include "zaxistransform.h"
 
@@ -75,7 +75,7 @@ bool ZAxisTransform::loadDataIfMissing(int,TaskRunner*)
 
 
 float ZAxisTransform::transform( const Coord3& pos ) const
-{ return transform( BinIDValue( SI().transform(pos), pos.z ) ); }
+{ return transform( BinIDValue( (float) ( SI().transform(pos), pos.z ) ) ); }
 
 
 float ZAxisTransform::transform( const BinIDValue& pos ) const
@@ -87,7 +87,7 @@ float ZAxisTransform::transform( const BinIDValue& pos ) const
 
 
 float ZAxisTransform::transformBack( const Coord3& pos ) const
-{ return transformBack( BinIDValue( SI().transform(pos), pos.z ) ); }
+{ return transformBack( BinIDValue( (float) (SI().transform(pos), pos.z) ) ); }
 
 
 float ZAxisTransform::transformBack( const BinIDValue& pos ) const
@@ -216,7 +216,7 @@ float ZAxisTransformSampler::operator[](int idx) const
 	    return cache_[cacheidx];
     }
 
-    const BinIDValue bidval( BinIDValue(bid_,sd_.atIndex(idx)) );
+    const BinIDValue bidval( BinIDValue(bid_,(float) sd_.atIndex(idx)) );
     return back_ ? ( is2d_ ? transform_.transformBack2D(curlinenm_,bid_.crl,
 						      bidval.value)
 			   : transform_.transformBack(bidval) )

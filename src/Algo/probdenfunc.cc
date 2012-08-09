@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: probdenfunc.cc,v 1.32 2012-07-10 08:05:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: probdenfunc.cc,v 1.33 2012-08-09 06:49:32 cvsaneesh Exp $";
 
 
 #include "sampledprobdenfunc.h"
@@ -211,7 +211,7 @@ float ArrayNDProbDenFunc::getNormFac() const
     for ( od_int64 idx=0; idx<totalsz; idx++ )
 	sumval += values[idx];
 
-    return 1. / sumval;
+    return 1.f / sumval;
 }
 
 
@@ -248,7 +248,7 @@ void ArrayNDProbDenFunc::fillCumBins() const
 od_uint64 ArrayNDProbDenFunc::getRandBin() const
 {
     if ( !cumbins_ ) fillCumBins();
-    return getBinPos( Stats::RandGen::get() );
+    return getBinPos( (float) ( Stats::RandGen::get() ) );
 }
 
 
@@ -270,18 +270,19 @@ float ArrayNDProbDenFunc::findAveragePos( const float* arr, int sz,
 					  float grandtotal )
 {
     float sum = 0, prevsum = 0;
-    const float halfway = grandtotal * .5;
+	const float halfway = grandtotal * .5f;
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	sum += arr[idx];
 	if ( sum >= halfway )
 	{
 	    const float frac = (sum-halfway) / (sum-prevsum);
-	    return idx - frac + 0.5;
+	    return idx - frac + 0.5f;
 	}
 	prevsum = sum;
     }
-    return sz-0.5; // not normal
+    return sz-0.5f; // not normal
 }
 
 

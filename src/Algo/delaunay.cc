@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: delaunay.cc,v 1.55 2012-08-02 14:56:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: delaunay.cc,v 1.56 2012-08-09 06:49:31 cvsaneesh Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -1218,9 +1218,9 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 
     //Inverse distance weighting.
     vertices += preidx;
-    weights += (f/(e+f))*(d/(c+d));
+    weights += (float)((f/(e+f))*(d/(c+d)));
     vertices += aftidx;
-    weights += (f/(e+f))*(c/(c+d));
+    weights += (float)((f/(e+f))*(c/(c+d)));
 
     for ( int idx=0; idx<2; idx++ )
     {
@@ -1234,11 +1234,11 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 	{ conns = &corner2_; ws = &cornerweights2_; }
 	
 	const double useddist = idx ? x : y;
-	const float factor = (e/(e+f))*(useddist/(x+y));
+	const float factor = (float)((e/(e+f))*(useddist/(x+y)));
 	for ( int idz=0; idz<conns->size(); idz++ )
 	{
 	    vertices += (*conns)[idz];
-	    weights += (*ws)[idz] * factor;
+	    weights += (float)((*ws)[idz] * factor);
 	}
     }
     

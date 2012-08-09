@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterstd.h,v 1.9 2012-08-03 13:00:05 cvskris Exp $
+ RCS:           $Id: posfilterstd.h,v 1.10 2012-08-09 06:49:31 cvsaneesh Exp $
 ________________________________________________________________________
 
 
@@ -111,7 +111,7 @@ public:
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
     virtual void	getSummary(BufferString&) const;
-    virtual float	estRatio(const Provider&) const	{ return 1./each_; }
+    virtual float	estRatio(const Provider&) const	{ return 1.f/each_; }
 
     int			each_;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: hilberttransform.cc,v 1.9 2012-05-02 15:11:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: hilberttransform.cc,v 1.10 2012-08-09 06:49:32 cvsaneesh Exp $";
 
 
 #include "hilberttransform.h"
@@ -80,8 +80,9 @@ float* HilbertTransform::makeHilbWindow( int hlen )
     h[hlen] = 0;
     for ( int i=1; i<=hlen; i++ )
     {
-	const float taper = 0.54 + 0.46 * cos( M_PI*(float)i / (float)(hlen) );
-	h[hlen+i] = taper * ( -(float)(i%2)*2.0 / (M_PI*(float)(i)) );
+	const float taper = (float) ( 0.54 + 0.46 * cos( M_PI*(float)i /
+														 (float)(hlen)) );
+	h[hlen+i] = taper * (float) ( ( -(float)(i%2)*2.0 / (M_PI*(float)(i))) );
 	h[hlen-i] = -h[hlen+i];
     }
     return h;

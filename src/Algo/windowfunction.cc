@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: windowfunction.cc,v 1.8 2012-05-22 14:48:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: windowfunction.cc,v 1.9 2012-08-09 06:49:33 cvsaneesh Exp $";
 
 #include "windowfunction.h"
 
@@ -65,25 +65,26 @@ mImplClass(Bartlett)
     return 1 - x;
 }
 mImplClass(Hanning)
-    return .5 * (1 + cos( M_PI * x ));
+    return (float) ( .5 * (1 + cos( M_PI * x )) );
 }
 mImplClass(Hamming)
-    return 0.54 + 0.46 * cos( M_PI * x );
+    return (float) ( 0.54 + 0.46 * cos( M_PI * x ) );
 }
 mImplClass(Blackman)
-    return 0.42 + 0.5 * cos( M_PI * x )+ 0.08 * cos( 2 * M_PI * x );
+    return (float) ( 0.42 + 0.5 * cos( M_PI * x ) + 
+				  0.08 * cos( 2 * M_PI * x ) );
 }
 mImplClass(FlatTop)
-    const float pi_x = M_PI * x;
-    return (1	+ 1.93	* cos(     pi_x )
-		+ 1.29	* cos( 2 * pi_x )
-		+ 0.388	* cos( 3 * pi_x )
-		+ 0.032	* cos( 4 * pi_x )) / 4.64;
+    const float pi_x = (float) ( M_PI * x );
+    return (1	+ 1.93f	 * cos(     pi_x )
+		+ 1.29f	 * cos( 2 * pi_x )
+		+ 0.388f * cos( 3 * pi_x )
+		+ 0.032f * cos( 4 * pi_x )) / 4.64f;
 }
 mImplClass(CosTaper)
     if ( x < threshold_ ) return 1;
     x -= threshold_; x *= factor_;
-    return (1 + cos( M_PI * x )) * .5;
+    return (float) ( (1 + cos( M_PI * x )) * .5 );
 }
 
 
@@ -92,7 +93,7 @@ bool CosTaperWindow::setVariable( float threshold )
     if ( threshold<0 || threshold>1 ) return false;
 
     threshold_ = threshold;
-    factor_ = 1.0 / (1-threshold);
+    factor_ = 1.0f / (1-threshold);
 
     return true;
 }

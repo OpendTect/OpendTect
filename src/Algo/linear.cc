@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: linear.cc,v 1.21 2012-05-02 15:11:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: linear.cc,v 1.22 2012-08-09 06:49:32 cvsaneesh Exp $";
 
 
 #include "linear.h"
@@ -30,8 +30,8 @@ static void calcLS( LinStats2D& ls, const char* xvals, const char* yvals,
     if ( nrpts < 2 )
 	return;
 
-    float avgx = sumx / nrpts;
-    float avgy = sumy / nrpts;
+    float avgx = (float) ( sumx / nrpts ); 
+    float avgy = (float) ( sumy / nrpts );
     double sumxy = 0, sumx2 = 0, sumy2 = 0;
     for ( int idx=0; idx<nrpts; idx++ )
     {
@@ -60,9 +60,9 @@ static void calcLS( LinStats2D& ls, const char* xvals, const char* yvals,
 	return;
     }
 
-    ls.lp.ax = sumxy / sumx2;
-    ls.lp.a0 = (sumy - sumx*ls.lp.ax) / nrpts;
-    ls.corrcoeff = sumxy / (Math::Sqrt( sumx2 ) * Math::Sqrt( sumy2 ));
+    ls.lp.ax = (float) ( sumxy / sumx2 );
+    ls.lp.a0 = (float) ( (sumy - sumx*ls.lp.ax) / nrpts );
+    ls.corrcoeff = (float) (sumxy / (Math::Sqrt(sumx2) * Math::Sqrt(sumy2)));
 
     double sumd2 = 0;
     for ( int idx=0; idx<nrpts; idx++ )
@@ -75,8 +75,9 @@ static void calcLS( LinStats2D& ls, const char* xvals, const char* yvals,
 	ls.sd.ax = ls.sd.a0 = 0;
     else
     {
-	ls.sd.ax = Math::Sqrt( sumd2 / ((nrpts-2) * sumx2) );
-	ls.sd.a0 = Math::Sqrt( (sumx2 * sumd2) / (nrpts * (nrpts-2) * sumx2) );
+	ls.sd.ax = (float) ( Math::Sqrt( sumd2 / ((nrpts-2) * sumx2) ) );
+	ls.sd.a0 = (float) ( Math::Sqrt( (sumx2 * sumd2) / 
+									 (nrpts * (nrpts-2) * sumx2) ) );
     }
 }
 

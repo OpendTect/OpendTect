@@ -4,7 +4,7 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fourier.cc,v 1.12 2012-05-02 15:11:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: fourier.cc,v 1.13 2012-08-09 06:49:32 cvsaneesh Exp $";
 
 #include "fourier.h"
 #include "odmemory.h"
@@ -53,11 +53,11 @@ void CC::setNormalization( bool yn )
 
 
 float CC::getNyqvist( float samplespacing )
-{ return 0.5 / samplespacing; }
+{ return 0.5f / samplespacing; }
 
 
 float CC::getDf( float samplespacing, int nrsamples )
-{ return 1. / (samplespacing * nrsamples); }
+{ return 1.f / (samplespacing * nrsamples); }
 
 
 bool CC::isFast( int sz ) const 
@@ -283,7 +283,7 @@ bool FFTCC1D::run( float_complex* data )
     
     for ( int fidx=0; fidx<nrfactors; fidx++ )
     {
- 	exp_ = smppi / extsz_; 
+ 	exp_ = (float)( smppi / extsz_ ); 
  	sin2_ = 2 * sin(exp_) * sin(exp_);
  	exp_ = sin(2*exp_);
 	
@@ -417,7 +417,7 @@ bool FFTCC1D::doFactor2() const
 
     do 
     {
-	float c1 = 1.0 - sin2_;
+	float c1 = 1.0f - sin2_;
 	float s1 = exp_;
 	int idx;
 	do 
@@ -446,7 +446,7 @@ bool FFTCC1D::doFactor2() const
 	    
 	    const float val = c1 - ( sin2_ * c1 + exp_ * s1 );
 	    s1 = exp_ * c1 - sin2_ * s1 + s1;
-	    c1 = 2.0 - ( val * val + s1 * s1 );
+	    c1 = 2.0f - ( val * val + s1 * s1 );
 	    s1 *= c1;
 	    c1 *= val;
 	    cidx += sample_;
@@ -463,7 +463,7 @@ bool FFTCC1D::doFactor2() const
 void FFTCC1D::doFactor3() const
 {
     int cidx = 2;
-    const float s60 = forward_ ? -mSin60 : mSin60;   
+    const float s60 = forward_ ? (float) -mSin60 : (float) mSin60;   
     const int lastsmp = sample_ * (size_-1) * 2;
     const int extsz2 = extsz_ * 2;
 
@@ -480,8 +480,8 @@ void FFTCC1D::doFactor3() const
 	    float bi = idata_[idx0] + idata_[idx1];
 	    rdata_[cidx] = ar + br;
 	    idata_[cidx] = ai + bi;
-	    ar -= 0.5 * br;
-	    ai -= 0.5 * bi;
+	    ar -= 0.5f * br;
+	    ai -= 0.5f * bi;
 	    br = (rdata_[idx0] - rdata_[idx1]) * s60;
 	    bi = (idata_[idx0] - idata_[idx1]) * s60;
 	    rdata_[idx0] = ar - bi;
@@ -573,11 +573,11 @@ bool FFTCC1D::doFactor4() const
  	    
  	    c1 = c0 - (sin2_ * c0 + exp_ * s0);
  	    s0 = exp_ * c0 - sin2_ * s0 + s0;
- 	    c0 = 2.0 - (c1 * c1 + s0 * s0);
+ 	    c0 = 2.0f - (c1 * c1 + s0 * s0);
  	    s0 *= c0;
  	    c0 *= c1;
  	    c1 = c0 * c0 - s0 * s0;
- 	    s1 = 2.0 * c0 * s0;
+ 	    s1 = 2.0f * c0 * s0;
  	    c2 = c1 * c0 - s1 * s0;
  	    s2 = c1 * s0 + s1 * c0;
  	    cidx += smpdiffsz;
@@ -597,9 +597,9 @@ void FFTCC1D::doFactor5() const
 {
     const int lastsmp = sample_ * (size_-1) * 2;
     const int extsz2 = extsz_ * 2;
-    const float s72 = forward_ ? -mSin72 : mSin72;
-    const float c2 = mCos72 * mCos72 - s72 * s72;
-    const float s2 = 2.0 * mCos72 * s72;
+    const float s72 = forward_ ? (float) -mSin72 : (float) mSin72;
+    const float c2 = (float)( mCos72 * mCos72 - s72 * s72 );
+    const float s2 = (float)( 2.0 * mCos72 * s72 );
     
     int cidx = 2;
     
@@ -625,8 +625,8 @@ void FFTCC1D::doFactor5() const
  	    rdata_[cidx] = ar0 + ar2 +ar4; 
  	    idata_[cidx] = ai0 + ai2 +ai4; 
  	    
-	    float ar5 = ar0 * mCos72 + ar2 * c2 + ar4;	
-	    float ai5 = ai0 * mCos72 + ai2 * c2 + ai4;	
+	    float ar5 = (float) ( ar0 * mCos72 + ar2 * c2 + ar4 );	
+	    float ai5 = (float) ( ai0 * mCos72 + ai2 * c2 + ai4 );	
  	    float ar6 = ar1 * s72 + ar3 * s2;
  	    float ai6 = ai1 * s72 + ai3 * s2;
  	    
@@ -635,8 +635,8 @@ void FFTCC1D::doFactor5() const
  	    rdata_[idx3] = ar5 + ai6;
  	    idata_[idx3] = ai5 - ar6;
  	    
-	    ar5 = ar0 * c2 + ar2 * mCos72 + ar4;	
-	    ai5 = ai0 * c2 + ai2 * mCos72 + ai4;	
+	    ar5 = (float) (ar0 * c2 + ar2 * mCos72 + ar4 );	
+	    ai5 = (float) (ai0 * c2 + ai2 * mCos72 + ai4 );	
  	    ar6 = ar1 * s2 - ar3 * s72;
  	    ai6 = ai1 * s2 - ai3 * s72;
  	    
@@ -657,7 +657,7 @@ void FFTCC1D::doOtherFactor( int factor, int psz )
     if ( factor != curf_ ) 
     {
  	curf_ = factor;
- 	float s1 = 2*M_PI / (double) factor;
+ 	float s1 = (float) ( 2*M_PI / (double) factor );
  	const float c1 = cos(s1);
  	s1 = forward_ ? -sin(s1) : sin(s1);
  	if ( curf_ > size_ )
@@ -760,7 +760,7 @@ void FFTCC1D::doRotation( int psz ) const
     const int sizediff = extsz_ - totalsmp_;
     const int sampleminuspsz = sample_ - psz;
     const int smp2minusextsz = smp2 - extsz_;
-    const float startc1 = 1.0 - sin2_;
+    const float startc1 = 1.0f - sin2_;
     
     do 
     {
@@ -788,7 +788,7 @@ void FFTCC1D::doRotation( int psz ) const
  
 	    c1 = c0 - (sin2_ * c0 + exp_ * s0);
  	    s0 += exp_ * c0 - sin2_ * s0;
- 	    c0 = 2.0 - (c1 * c1 + s0 * s0);
+ 	    c0 = 2.0f - (c1 * c1 + s0 * s0);
  	    s0 *= c0;
  	    c1 *= c0;
  	    cidx += sampleminuspsz;
@@ -892,7 +892,7 @@ bool FFTCC1D::setupPermutation()
 { \
     if (  !forward_ & normalize_ ) \
     { \
-	const float scaling = 1.0 / size_; \
+	const float scaling = 1.0f / size_; \
 	for ( int idy = 0; idy < size_; idy++ ) \
 	    data_[idy] *= scaling; \
     } \
@@ -4118,14 +4118,14 @@ void CC::pfarc( int isign, int n, const float* rz, float_complex* cz )
     /* copy input to output while scaling */
     z = (float*)cz;
     for (i=0; i<n; i++)
-	z[i] = 0.5*rz[i];
+	z[i] = 0.5f*rz[i];
 
     /* do complex to complex transform */
     pfacc(isign,n/2,cz);
 
     /* fix dc and nyquist */
-    z[n] = 2.0*(z[0]-z[1]);
-    z[0] = 2.0*(z[0]+z[1]);
+    z[n] = 2.0f*(z[0]-z[1]);
+    z[0] = 2.0f*(z[0]+z[1]);
     z[n+1] = 0.0;
     z[1] = 0.0;
 
@@ -4145,8 +4145,8 @@ void CC::pfarc( int isign, int n, const float* rz, float_complex* cz )
 	sumi = z[ii]+z[ji];
 	difr = z[ir]-z[jr];
 	difi = z[ii]-z[ji];
-	tempr = wi*difr+wr*sumi;
-	tempi = wi*sumi-wr*difr;
+	tempr = (float) ( wi*difr+wr*sumi );
+	tempi = (float) ( wi*sumi-wr*difr );
 	z[ir] = sumr+tempr;
 	z[ii] = difi+tempi;
 	z[jr] = sumr-tempr;
@@ -4186,8 +4186,8 @@ void CC::pfacr(int isign, int n, const float_complex* cz, float* rz )
 	sumi = z[ii]+z[ji];
 	difr = z[ir]-z[jr];
 	difi = z[ii]-z[ji];
-	tempr = wi*difr-wr*sumi;
-	tempi = wi*sumi+wr*difr;
+	tempr = (float) ( wi*difr-wr*sumi );
+	tempi = (float) ( wi*sumi+wr*difr );
 	z[ir] = sumr+tempr;
 	z[ii] = difi+tempi;
 	z[jr] = sumr-tempr;

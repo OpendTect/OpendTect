@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: isocontourtracer.cc,v 1.7 2012-05-02 15:11:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: isocontourtracer.cc,v 1.8 2012-08-09 06:49:32 cvsaneesh Exp $";
 
 #include "isocontourtracer.h"
 
@@ -63,8 +63,8 @@ void IsoContourTracer::setNrLargestOnly( int nr )
 #define mMakeVertex( vertex, idx, idy, hor, frac ) \
 \
     const Geom::Point2D<float> vertex( \
-			(1.0-frac)*mFieldX(idx) + frac*mFieldX(idx+hor), \
-			(1.0-frac)*mFieldY(idy) + frac*mFieldY(idy+1-hor) );
+			(1.0f-frac)*mFieldX(idx) + frac*mFieldX(idx+hor), \
+			(1.0f-frac)*mFieldY(idy) + frac*mFieldY(idy+1-hor) );
 
 
 bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
@@ -145,9 +145,9 @@ static bool nextCrossing( Array3DImpl<float>& crossings, int& idx, int& idy,
 
     if ( !mIsUdf(lfrac) && !mIsUdf(rfrac) )			/* Tie-break */
     {
-	const float ldist =   up    ? lfrac : 1.0-lfrac;
-	const float rdist =   up    ? rfrac : 1.0-rfrac;
-	const float  dist = up==hor ?  frac : 1.0-frac;
+	const float ldist =   up    ? lfrac : 1.0f-lfrac;
+	const float rdist =   up    ? rfrac : 1.0f-rfrac;
+	const float  dist = up==hor ?  frac : 1.0f-frac;
 
 	if ( ldist*ldist+dist*dist > rdist*rdist+(1.0-dist)*(1.0-dist) )
 	    lfrac = mUdf(float);

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: muter.cc,v 1.8 2012-06-22 12:26:50 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: muter.cc,v 1.9 2012-08-09 06:49:32 cvsaneesh Exp $";
 
 #include "muter.h"
 
@@ -38,7 +38,8 @@ void Muter::topMute( ValueSeries<float>& arr, int sz, float pos ) const
     for ( int idx=startidx; idx<=endidx; idx++ )
     {
 	float relpos = (idx-pos) / taperlen_;
-	arr.setValue( idx, arr[idx] * 0.5 * ( 1 - cos(M_PI * relpos) ) );
+	arr.setValue( idx, 
+		    (float) ( arr[idx] * 0.5 * ( 1 - cos(M_PI * relpos) ) ) );
     }
 }
 
@@ -57,7 +58,8 @@ void Muter::tailMute( ValueSeries<float>& arr, int sz, float pos ) const
     for ( int idx=startidx; idx<=endidx; idx++ )
     {
 	float relpos = 1-((idx-pos) / taperlen_);
-	arr.setValue( idx, arr[idx] * 0.5 * ( 1 - cos(M_PI * relpos) ) );
+	arr.setValue( idx, 
+		    (float) ( arr[idx] * 0.5 * ( 1 - cos(M_PI * relpos) ) ) );
     }
 
     for ( int idx=endidx+1; idx<sz; idx++ )
@@ -132,7 +134,8 @@ void Muter::itvMute(ValueSeries<float>& arr, int sz, Interval<float> itv ) const
     for ( int idx=startidx; idx<=endidx; idx++ )
     {
 	float relpos = (idx-pos1) / taperlen_;
-	arr.setValue( idx, arr[idx] * 0.5 * ( 1 - cos(M_PI * relpos) ) );
+	arr.setValue( idx, 
+		    (float) ( arr[idx] * 0.5 * ( 1 - cos(M_PI * relpos) ) ) );
     }
 }
 

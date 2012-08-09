@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wavelettrans.cc,v 1.24 2012-05-03 04:47:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wavelettrans.cc,v 1.25 2012-08-09 06:49:33 cvsaneesh Exp $";
 
 #include <iostream>
 
@@ -423,7 +423,7 @@ void CWT::CWTWavelets::createMorletWavelet( int nrsamples, float scale,
     {
 	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
 	float omega0 = idx<=nrsamples/2 ? 5 : -5;
-	float omega = 2 * M_PI * omidx / scale;
+	float omega = (float) ( 2 * M_PI * omidx / scale );
         float val = (omega-omega0) * (omega-omega0) / 2;
 	wavelet += exp( -val );
     }
@@ -436,7 +436,7 @@ void CWT::CWTWavelets::createMexhatWavelet( int nrsamples, float scale,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
-	float omega = 2 * M_PI * omidx / scale;
+	float omega = (float) ( 2 * M_PI * omidx / scale );
         float omega2 = omega*omega;
 	wavelet += omega2 * exp( -omega2/2 );
     }
@@ -449,7 +449,7 @@ void CWT::CWTWavelets::createGaussWavelet( int nrsamples, float scale,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
-	float omega = 2 * M_PI * omidx / scale;
+	float omega = (float) ( 2 * M_PI * omidx / scale );
         float omega2 = omega*omega;
 	wavelet += exp( -omega2/2 );
     }
@@ -628,16 +628,16 @@ float CWT::getScale( int nrsamples, float dt, float freq ) const
     if ( !nrsamples || mIsZero(dt, mDefEps) )
 	return mUdf(float);
 
-    const float df = 1. / ( dt * nrsamples );
+    const float df = 1.f / ( dt * nrsamples );
     const float freqidx = freq / df;
 
     float omega0 = 5;
     if ( wt_ == Gaussian )
-	omega0 = sqrt(2.);
+	omega0 = sqrt(2.f);
     else if ( wt_ == Morlet )
 	omega0 = 5;
     else if ( wt_ == MexicanHat )
-	omega0 = sqrt(2.);
+	omega0 = sqrt(2.f);
 
-    return freqidx * (2*M_PI) / omega0;
+    return (float) ( freqidx * (2*M_PI) / omega0 );
 }

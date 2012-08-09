@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: trigonometry.cc,v 1.64 2012-07-10 08:05:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: trigonometry.cc,v 1.65 2012-08-09 06:49:33 cvsaneesh Exp $";
 
 #include "trigonometry.h"
 
@@ -113,7 +113,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
 }
 
 
-Quaternion::Quaternion( float s, float x, float y, float z )
+Quaternion::Quaternion( double s, double x, double y, double z )
     : vec_( x, y, z )
     , s_( s )
 { }
@@ -821,20 +821,20 @@ Coord3 Plane3CoordSystem::transform( const Coord& coord ) const
 	
 Sphere cartesian2Spherical( const Coord3& crd, bool math )
 {
-    float theta, phi;
-    float rad = crd.abs();
+    double theta, phi;
+    double rad = crd.abs();
     if ( math )
     {
-	theta = rad ? Math::ACos( crd.z / rad ) : 0;
+	theta = rad ? Math::ACos( (crd.z / rad) ) : 0;
 	phi = atan2( crd.y, crd.x );
     }
     else
     {
-	theta = rad ? Math::ASin( crd.z / rad ) : 0;
+	theta = rad ? Math::ASin( (crd.z / rad) ) : 0;
 	phi = atan2( crd.x, crd.y );
     }
 
-    return Sphere(rad,theta,phi);
+    return Sphere( (float)rad, (float)theta, (float)phi );
 }
 
 

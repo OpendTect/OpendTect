@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.12 2012-07-26 21:46:54 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.13 2012-08-09 06:49:32 cvsaneesh Exp $";
 
 #include "fingervein.h"
 
@@ -261,7 +261,7 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 
     const float sigma2 = sigma*sigma;
     const float sigma4 = sigma2*sigma2;
-    const float coef = 1.0/(2*M_PI*sigma2);
+    const float coef = (float)( 1.0/(2*M_PI*sigma2) );
     for ( int idx=0; idx<sidesize; idx++ )
     {
 	for ( int idy=0; idy<sidesize; idy++ )
@@ -363,7 +363,7 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 	angle_set_sin2;
     for ( int idx=0; idx<nrangles; idx++ )
     {
-	const float angle = M_PI*idx/nrangles;
+	const float angle = (float)( M_PI*idx/nrangles );
 	const float cosangle = cos(angle);
 	const float sinangle = sin(angle);
 	angle_set += angle;
@@ -391,7 +391,7 @@ bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma,
 		    fxy->get(idx,idy)*2*angle_set_cos[idz]*angle_set_sin[idz] +
     		    fyy->get(idx,idy)*angle_set_sin2[idz];
 
-		float demomenator = Math::PowerOf( 1.0+dir1*dir1, 1.5 );
+		float demomenator = Math::PowerOf( 1.0f+dir1*dir1, 1.5f );
 		k->set( idx, idy, idz, dir2/demomenator ); 
 	    }
 	}

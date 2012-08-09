@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID mUnusedVar = "$Id: houghtransform.cc,v 1.22 2012-07-10 08:05:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: houghtransform.cc,v 1.23 2012-08-09 06:49:32 cvsaneesh Exp $";
 
 
 #include "houghtransform.h"
@@ -196,7 +196,7 @@ Plane3 PlaneFrom3DSpaceHoughTransform::getPlane( int planenr ) const
     int pos[2];
     paramspace_->info().getArrayPos( planenr, pos );
     Coord3 normal = (*normals_)[pos[0]];
-    const float dist = pos[1] * deltadist_;
+    const float dist = (float) ( pos[1] * deltadist_ );
 
     return Plane3( normal, Coord3(normal.x*dist,normal.y*dist,normal.z*dist),
 	    	   false );
@@ -271,7 +271,7 @@ LineFrom2DSpaceHoughTransform::~LineFrom2DSpaceHoughTransform()
 
 
 void LineFrom2DSpaceHoughTransform::setLineAngleRange( Interval<float> rg )
-{ anglerg_ = Interval<float>( mMAX(rg.start,0), mMIN(rg.stop,M_PI) ); }
+{ anglerg_ = Interval<float>( mMAX(rg.start,0), mMIN(rg.stop,(float) M_PI) ); }
 
 
 void LineFrom2DSpaceHoughTransform::setThreshold( float val, bool above )
@@ -287,7 +287,7 @@ bool LineFrom2DSpaceHoughTransform::compute()
 
     const int rsz = input_.info().getSize(0);
     const int csz = input_.info().getSize(1);
-    const float maxrho = sqrt((double)(rsz*rsz+csz*csz));
+    const float maxrho = (float) sqrt((double)(rsz*rsz+csz*csz));
     
     TypeSet<float> sintable, costable;
     const float factor = 2*M_PI/(float)(mThetaSize);
@@ -410,11 +410,12 @@ bool LineFrom2DSpaceHoughTransform::compute()
     for ( int idx=localmaxsz-1; idx>=0 && nrdone<toplistnr_; idx-- )
     {
        int tidx = tis[topids[idx]];
-       const float theta = ((float)tidx/(float)(mThetaSize)-0.5)*2*M_PI;
+       const float theta = (float) (((float)tidx/(float)(mThetaSize)-0.5)
+							*2*M_PI);
        if ( angledefined && !anglerg_.includes(fabs(theta),false) )
 	   continue;
 
-       float radius = ((float)ris[topids[idx]]/(float)(mRhoSize)-0.5)*maxrho;
+       float radius = ((float)ris[topids[idx]]/(float)(mRhoSize)-0.5f)*maxrho;
        if ( setLineFlag(radius,theta) )
 	   nrdone++;
     }

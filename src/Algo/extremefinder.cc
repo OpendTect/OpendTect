@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: extremefinder.cc,v 1.20 2012-05-23 07:28:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: extremefinder.cc,v 1.21 2012-08-09 06:49:31 cvsaneesh Exp $";
 
 #include "extremefinder.h"
 #include "mathfunc.h"
@@ -162,9 +162,9 @@ int BisectionExtremeFinder1D::nextStep()
 #define TINY 1.0e-25
 #define SHIFT(a, b, c, d ) (a)=(b); (b)=(c); (c)=(d);
 #define SIGN(a,b) ((b) > 0.0 ? fabs(a) : -fabs(a))
-#define CGOLD 0.3819660
-#define GOLD 1.618034
-#define GLIMIT 100.0
+#define CGOLD 0.3819660f
+#define GOLD 1.618034f
+#define GLIMIT 100.0f
 
 
 ExtremeFinder1D::ExtremeFinder1D( const FloatMathFunction& func, bool max,
@@ -229,8 +229,8 @@ void ExtremeFinder1D::reStart( const Interval<float>& sinterval,
     {
 	const float r =(bx_-ax_)*(fb-fc);
 	const float s =(bx_-cx_)*(fb-fa);
-	float q = (bx_)-((bx_-cx_)*s-(bx_-ax_)*r)/
-				    (2.0*SIGN(mMAX(fabs(s-r),TINY),s-r));
+	float q = (float) ( (bx_)-((bx_-cx_)*s-(bx_-ax_)*r)/
+				    (2.0*SIGN(mMAX(fabs(s-r),TINY),s-r)) );
 	const float ulim = bx_+GLIMIT*(cx_-bx_);
 	float fq;
 	if ( (bx_-q)*(q-cx_) > 0.0 )
@@ -308,8 +308,8 @@ int ExtremeFinder1D::nextStep()
 {
     while ( true )
     {
-	const float xm = 0.5*(a_+b_);
-	const float tol1 = tol_*fabs(x_)*mDefEps;   
+	const float xm = 0.5f*(a_+b_);
+	const float tol1 = (float)( tol_*fabs(x_)*mDefEps );   
 	const float tol2 = 2*tol1;
 	if ( fabs(x_-xm)<= (tol2-0.5*(b_-a_)))
 	    return 0;
@@ -460,7 +460,7 @@ int ExtremeFinderND::nextStep()
     ArrPtrMan<float> ptt = new float [n_];
     for ( int idx=0; idx<n_; idx++ )
     {
-	ptt[idx] = 2.0*p_[idx]-pt_[idx];
+	ptt[idx] = 2.0f*p_[idx]-pt_[idx];
 	xit[idx] = p_[idx]-pt_[idx];
 	pt_[idx] = p_[idx];
     }
@@ -469,7 +469,7 @@ int ExtremeFinderND::nextStep()
     if ( fptt<fp )
     {
 	const float t =
-	    2.0*(fp-2.0*fret_+fptt)*Math::Sqrt(fp-fret_-del)-
+	    2.0f*(fp-2.0f*fret_+fptt)*Math::Sqrt(fp-fret_-del)-
 		del*Math::Sqrt(fp-fptt);
 	if ( t<0 )
 	{

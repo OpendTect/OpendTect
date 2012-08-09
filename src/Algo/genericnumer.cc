@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID mUnusedVar = "$Id: genericnumer.cc,v 1.27 2012-05-23 07:27:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: genericnumer.cc,v 1.28 2012-08-09 06:49:32 cvsaneesh Exp $";
 
 #include "genericnumer.h"
 #include "undefval.h"
@@ -43,8 +43,8 @@ bool findValue( const FloatMathFunction& func, float x1, float x2, float& res,
 	    x3 = x1; f3 = f1;
 	}
 
-	const float tol1 = 2.0 * EPS * fabs(x2)+0.5*tol;
-	const float xm = 0.5 * (x3-x2);
+	const float tol1 = (float) ( 2.0 * EPS * fabs(x2)+0.5*tol );
+	const float xm = 0.5f * (x3-x2);
 
 	if ( fabs(xm)<=tol1 || f2==0.0 ) 
 	{
@@ -58,20 +58,20 @@ bool findValue( const FloatMathFunction& func, float x1, float x2, float& res,
 	    float p, q;
 	    if ( x1==x3 )
 	    {
-		p = 2.0*xm*s;
-		q = 1.0-s;
+		p = 2.0f*xm*s;
+		q = 1.0f-s;
 	    }
 	    else
 	    {
 		q = f1/f3;
 		const float r = f2/f3;
-		p = s*(2.0*xm*q*(q-r)-(x2-x1)*(r-1.0));
-		q = (q-1.0)*(r-1.0)*(s-1.0);
+		p = s*(2.0f*xm*q*(q-r)-(x2-x1)*(r-1.0f));
+		q = (q-1.0f)*(r-1.0f)*(s-1.0f);
 	    }
 
 	    if  ( p>0.0 ) q = -q;
 	    p = fabs(p);
-	    const float min1 = 3.0 * xm * q - fabs( tol1 * q );
+	    const float min1 = 3.0f * xm * q - fabs( tol1 * q );
 	    const float min2 = fabs( e*q );
 	    if ( 2.0 * p< ( min1<min2 ? min1 : min2 ) )
 	    {
@@ -261,8 +261,8 @@ float findExtreme( const FloatMathFunction& func, bool minimum, float x1,
     fw=fv=fx= minimum ? func.getValue(x) : -func.getValue(x);
     for (iter=1;iter<=ITMAX;iter++) 
     {
-	xm=0.5*(a+b);
-	tol2=2.0*(tol1=tol*fabs(x)+ZEPS);
+	xm=0.5f*(a+b);
+	tol2= 2.0f*(tol1=(float) ( tol*fabs(x)+ZEPS ) );
 	if (fabs(x-xm) <= (tol2-0.5*(b-a))) 
 	{
 	    return x;
@@ -273,13 +273,13 @@ float findExtreme( const FloatMathFunction& func, bool minimum, float x1,
 	    r=(x-w)*(fx-fv);
 	    q=(x-v)*(fx-fw);
 	    p=(x-v)*q-(x-w)*r;
-	    q=2.0*(q-r);
+	    q=2.0f*(q-r);
 	    if (q > 0.0) p = -p;
 	    q=fabs(q);
 	    etemp=e;
 	    e=d;
 	    if (fabs(p) >= fabs(0.5*q*etemp) || p <= q*(a-x) || p >= q*(b-x))
-		d=CGOLD*(e=(x >= xm ? a-x : b-x));
+		d= (float) ( CGOLD*(e=(x >= xm ? a-x : b-x)) );
 	    else 
 	    {
 		d=p/q;
@@ -290,7 +290,7 @@ float findExtreme( const FloatMathFunction& func, bool minimum, float x1,
 	} 
 	else 
 	{
-	    d=CGOLD*(e=(x >= xm ? a-x : b-x));
+	    d= (float) ( CGOLD*(e=(x >= xm ? a-x : b-x)) );
 	}
 
 	u=(fabs(d) >= tol1 ? x+d : x+SIGN(tol1,d));

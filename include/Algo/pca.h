@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: pca.h,v 1.13 2012-08-03 13:00:04 cvskris Exp $
+ RCS:		$Id: pca.h,v 1.14 2012-08-09 06:49:31 cvsaneesh Exp $
 ________________________________________________________________________
 
 
@@ -143,7 +143,7 @@ void PCA::addSample( const IDXABL& sample )
     TypeSet<float>& ownsample = *new TypeSet<float>;
     for ( int idx=0; idx<nrvars_; idx++ )
     {
-	const float val = sample[idx];
+	const float val = (float) sample[idx];
 	ownsample += val;
 	samplesums_[idx] += val;
     }

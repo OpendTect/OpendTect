@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: array2dinterpol.cc,v 1.40 2012-07-10 08:05:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: array2dinterpol.cc,v 1.41 2012-08-09 06:49:31 cvsaneesh Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -491,8 +491,8 @@ void Array2DInterpol::setFrom( int target, const int* sources,
     {
 	mDoLoop( const float val = ptr[sources[idx]] );
 	ptr[target] = isclassification_
-	    ? calc.mostFreq()
-	    : calc.average();
+	    ? (float) calc.mostFreq() 
+	    : (float) calc.average();
     }
     else
     {
@@ -501,14 +501,14 @@ void Array2DInterpol::setFrom( int target, const int* sources,
 	{
 	    mDoLoop( const float val = storage->value(sources[idx]) );
 	    storage->setValue(target,
-		    isclassification_ ? calc.mostFreq() : calc.average() );
+	    isclassification_ ? (float) calc.mostFreq() : (float) calc.average());
 	}
 	else
 	{
 	    mDoLoop( const int src = sources[idx];
 		     const float val = arr_->get(src/nrcols_,src%nrcols_ ) );
 	    arr_->set( target/nrcols_, target%nrcols_,
-		    isclassification_ ? calc.mostFreq() : calc.average() );
+            isclassification_ ? (float) calc.mostFreq() : (float) calc.average());
 	}
     }
 }
@@ -755,7 +755,7 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 		if ( dist2>radius2 )
 		    continue;
 
-		const float weight = 1.0/Math::Sqrt( dist2 );
+		const float weight = 1.0f/Math::Sqrt( dist2 );
 
 		neighbors_ += RowCol(relrow,relcol);
 		neighborweights_ += weight;
@@ -830,7 +830,7 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 		const float rowdist2 = rowdist*rowdist;
 		const float coldist = (targetcol-sourcecol)*colstep_;
 		const int coldist2 = mNINT32(coldist*coldist);
-		const float weight = 1./Math::Sqrt( coldist2+rowdist2 );
+		const float weight = 1.f/Math::Sqrt( coldist2+rowdist2 );
 
 		weights[idy] = weight;
 	    }
@@ -1609,7 +1609,7 @@ bool A2DIntExtenExecutor::interpExtension( int irow, int icol, float& val )
     float sumval = 0, sumwt = 0;
     for ( int idx=0; idx<nrdefs; idx++ )
     {
-	float wt = 1. / wts[idx];
+	float wt = 1.f / wts[idx];
 	sumval += defs[idx] * wt;
 	sumwt += wt;
     }

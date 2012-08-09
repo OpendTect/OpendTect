@@ -5,7 +5,7 @@
  * DATE     : June 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dippca.cc,v 1.6 2012-07-17 11:42:46 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: dippca.cc,v 1.7 2012-08-09 06:49:31 cvsaneesh Exp $";
 
 #include "dippca.h"
 
@@ -130,10 +130,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	const float edenominator = sqrt(eigenvec0[0]*eigenvec0[0]+
 		eigenvec0[1]*eigenvec0[1]);
-	const float absdip = atan(edenominator/eigenvec0[2])*mRad2Angle; 
+	const float absdip = (float)(atan(edenominator/eigenvec0[2])*mRad2Angle); 
 	const float inldip = eigenvec0[0]*fd_.xdist_/(fd_.zdist_*eigenvec0[2]);
 	const float crldip = eigenvec0[1]*fd_.ydist_/(fd_.zdist_*eigenvec0[2]);
-	const float azimuth = atan(eigenvec0[1]/eigenvec0[0])*mRad2Angle;
+	const float azimuth = (float)(atan(eigenvec0[1]/eigenvec0[0])*mRad2Angle);
 
 	fd_.absdip_->set( x, y, z, absdip );
 	fd_.inldip_->set( x, y, z, inldip );
@@ -386,7 +386,7 @@ bool Dip2D::fillGap()
 	    {
                 /*find the line function passing current point using curent 
 		  angle, ax + by + c = 0 */
-		float arc = mAngle2Rad*angleset[jangle];
+		float arc = (float)( mAngle2Rad*angleset[jangle] );
 		float slope =  tan(arc);
 		float a_term = -slope;
 		float b_term = 1;
@@ -445,7 +445,7 @@ bool Dip2D::fillGap()
 	    
 	    for ( int jangle=0; jangle<nangle; jangle++ )
 	    {
-		float arc = angleset[jangle]*mAngle2Rad;
+		float arc = (float)( angleset[jangle]*mAngle2Rad );
 		float v0X = cos(arc);
 		float v0Y = sin(arc);
 		int npoint = accumulator->get(jt,jtrace,jangle);
@@ -456,7 +456,7 @@ bool Dip2D::fillGap()
 		{
 		    int pos[4] = { jt, jtrace, jangle, jpoint };
 		    float angle_temp = fault_dip_collection->getND(pos);
-		    arc = angle_temp*mAngle2Rad;
+		    arc = (float)( angle_temp*mAngle2Rad );
 		    float v1X = cos(arc);
 		    float v1Y = sin(arc);
 		    angle_zone_energy->set(jt,jtrace,jangle,
@@ -475,7 +475,7 @@ bool Dip2D::fillGap()
       energy_threshold:         threshold based on angle diffrence
       energy_threshold_percent: the point percent which have the value of 
       energy_threshold */
-    const float energy_threshold = cos(30*mAngle2Rad);
+    const float energy_threshold = (float) cos(30*mAngle2Rad);
     const float energy_threshold_percent = 0.7;
     
     for ( int jtrace=0; jtrace<ysz_; jtrace++ )

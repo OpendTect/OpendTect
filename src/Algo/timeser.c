@@ -9,7 +9,7 @@
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: timeser.c,v 1.6 2012-05-02 15:11:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: timeser.c,v 1.7 2012-08-09 06:49:33 cvsaneesh Exp $";
 
 
 #include "timeser.h"
@@ -24,7 +24,7 @@ void BFhighpass( int npoles, float f3db,
     int jpair, j;
     float r, scale, theta, a, b1, b2, pj, pjm1, pjm2, qjm1, qjm2;
 
-    r = 2 * tan( M_PI * fabs(f3db) );
+    r = (float) ( 2.0 * tan( M_PI * fabs(f3db)) );
     if ( ! (npoles%2) )
 	for ( j=0; j<n; j++ ) arrout[j] = arrin[j];
     else
@@ -44,11 +44,11 @@ void BFhighpass( int npoles, float f3db,
 
     for ( jpair=0; jpair<npoles/2; jpair++ )
     {
-	theta = M_PI * (2*jpair+1) / (2*npoles);
-	scale = 4 + 4*r*sin(theta) + r*r;
+	theta = (float) ( M_PI * (2*jpair+1) / (2*npoles) );
+	scale = (float) ( 4 + 4*r*sin(theta) + r*r );
 	a = 4 / scale;
 	b1 = (2*r*r - 8) / scale;
-	b2 = (4 - 4*r*sin(theta) + r*r) / scale;
+	b2 = (float) ( (4 - 4*r*sin(theta) + r*r) / scale );
 	pjm1 = pj = qjm2 = qjm1 = 0;
 	for (j=0; j<n; j++)
 	{
@@ -69,7 +69,7 @@ void BFlowpass( int npoles, float f3db,
     int jpair,j;
     float r,scale,theta,a,b1,b2,pj,pjm1,pjm2,qjm1,qjm2;
 
-    r = 2.0*tan(M_PI*fabs(f3db));
+    r = (float) ( 2.0*tan(M_PI*fabs(f3db)) );
     if ( !(npoles%2) )
 	for ( j=0; j<n; j++ ) arrout[j] = arrin[j];
     else
@@ -89,18 +89,18 @@ void BFlowpass( int npoles, float f3db,
 
     for ( jpair=0; jpair<npoles/2; jpair++ )
     {
-	theta = M_PI * (2*jpair+1) / (2*npoles);
-	scale = 4 + 4 * r * sin(theta) + r*r;
+	theta = (float) ( M_PI * (2*jpair+1) / (2*npoles) );
+	scale = (float) ( 4 + 4 * r * sin(theta) + r*r );
 	a = r * r / scale;
 	b1 = (2*r*r - 8) / scale;
-	b2 = (4 - 4*r*sin(theta) + r*r)/scale;
+	b2 = (float) ( (4 - 4*r*sin(theta) + r*r)/scale );
 	pjm1 = pj = qjm2 = qjm1 = 0;
 	for (j=0; j<n; j++)
 	{
 	    pjm2 = pjm1;
 	    pjm1 = pj;
 	    pj = arrout[j];
-	    arrout[j] = a * (pj+2.0*pjm1+pjm2) - b1*qjm1 - b2*qjm2;
+	    arrout[j] = a * (pj+2.0f*pjm1+pjm2) - b1*qjm1 - b2*qjm2;
 	    qjm2 = qjm1;
 	    qjm1 = arrout[j];
 	}
@@ -114,7 +114,7 @@ void AntiAlias( float frac, int sz, const float* arrin, float* arrout )
     float* wts;
 
     if ( frac < 0 ) frac = -frac;
-    width = 2 * (1. / frac + .5);
+    width = 2 * (1.f / frac + .5f);
     if ( width < 2 || frac >= 1 )
     {
 	memcpy( arrout, arrin, sz * sizeof(float) );
@@ -126,7 +126,8 @@ void AntiAlias( float frac, int sz, const float* arrin, float* arrout )
 
     wts = mMALLOC(width,float);
     for ( iwt=0; iwt<width; iwt++ )
-	wts[iwt] = 0.5 * frac * (1 + cos( M_PI * iwt / hwidth - M_PI ));
+	wts[iwt] = (float) ( 0.5 * frac * 
+				(1 + cos( M_PI * iwt / hwidth - M_PI )) );
 
     for ( ival=0; ival<sz; ival++ )
     {
@@ -195,8 +196,10 @@ void Hilbert( int n, float* x, float* y )
 	h[hlen] = 0;
 	for ( i=1; i<=hlen; i++ )
 	{
-	    taper = 0.54 + 0.46 * cos( M_PI*(float)i / (float)(hlen) );
-	    h[hlen+i] = taper * ( -(float)(i%2)*2.0 / (M_PI*(float)(i)) );
+	    taper = (float) ( 0.54 + 0.46 * 
+				    cos( M_PI*(float)i / (float)(hlen) ) );
+	    h[hlen+i] = (float) ( taper * 
+				( -(float)(i%2)*2.0 / (M_PI*(float)(i))) );
 	    h[hlen-i] = -h[hlen+i];
 	}
 	madeh = 1;

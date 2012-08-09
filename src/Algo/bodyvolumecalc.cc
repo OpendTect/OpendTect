@@ -9,7 +9,7 @@
 --------------------------------------------------------------------------- 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: bodyvolumecalc.cc,v 1.8 2012-08-07 05:20:49 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: bodyvolumecalc.cc,v 1.9 2012-08-09 06:49:31 cvsaneesh Exp $";
 
 
 #include "bodyvolumecalc.h"
@@ -141,7 +141,7 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 				    !inside[2]) )
 			    ishlf = true;
 		    }
-		    nrunits += (ishlf ? 0.5 : 1.0/3.0);
+		    nrunits += (ishlf ? 0.5f : 1.0f/3.0f);
 		}
 		else if ( (nrdftop==2 && nrdfbas==4) || 
 			  (nrdftop==4 && nrdfbas==2) )
@@ -158,7 +158,7 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 				j = k+shift;
 			}
 		    }
-		    nrunits += (abs(i-j)==2 ? 2.0/3.0 : 0.5);
+		    nrunits += (abs(i-j)==2 ? 2.0f/3.0f : 0.5f);
 		}
 		else if ( nrdftop==3 && nrdfbas==3 )  
 		{

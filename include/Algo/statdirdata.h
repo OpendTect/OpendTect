@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Mar 2009
- RCS:           $Id: statdirdata.h,v 1.11 2012-08-03 13:00:06 cvskris Exp $
+ RCS:           $Id: statdirdata.h,v 1.12 2012-08-09 06:49:31 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,7 @@ inline float DirectionalData::angle( int isect, int bound ) const
     float fullc; Angle::getFullCircle( setup_.angletype_, fullc );
     const float angstep = fullc / size();
     const float centerang = setup_.angle0_ + angstep * isect;
-    return centerang + bound * angstep * .5;
+    return centerang + bound * angstep * .5f;
 }
 
 

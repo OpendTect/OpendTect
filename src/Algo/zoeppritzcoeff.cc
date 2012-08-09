@@ -57,11 +57,11 @@ void ZoeppritzCoeff::setInterface( float p, const ElasticLayer& el1,
 	      el2.den_ * 2 * l2s2 * p2;	
     float_complex d = 2 * (el2.den_ * l2s2 - el1.den_ * l1s2);
 
-    float_complex pzi1 = sqrt( float_complex( 1./l1p2 - p2, 0) );
-    float_complex pzi2 = sqrt( float_complex( 1./l2p2 - p2, 0) );
+    float_complex pzi1 = sqrt( float_complex( 1.f/l1p2 - p2, 0) );
+    float_complex pzi2 = sqrt( float_complex( 1.f/l2p2 - p2, 0) );
 
-    float_complex pzj1 = sqrt( float_complex( 1./l1s2 - p2, 0) );
-    float_complex pzj2 = sqrt( float_complex( 1./l2s2 - p2, 0) );
+    float_complex pzj1 = sqrt( float_complex( 1.f/l1s2 - p2, 0) );
+    float_complex pzj2 = sqrt( float_complex( 1.f/l2s2 - p2, 0) );
 
     float_complex ee = b * pzi1 + c * pzi2;
     float_complex ff = b * pzj1 + c * pzj2;
@@ -218,8 +218,8 @@ float_complex getFastCoeff( float par, const ElasticLayer& el1,
     const float angle = asin( sinangle );
     const float cos2i = cos( angle) * cos( angle );
 
-    const float A = 0.5 * ( ( 1 - 4*Vs*Vs*par*par )*Dp/P );
-    const float B = 0.5 / cos2i*DVp/Vp;
+    const float A = 0.5f * ( ( 1 - 4*Vs*Vs*par*par )*Dp/P );
+    const float B = 0.5f / cos2i*DVp/Vp;
     const float C = -4*Vs*Vs*par*par*DVs/Vs;
 
     return float_complex( A + B + C , 0 );

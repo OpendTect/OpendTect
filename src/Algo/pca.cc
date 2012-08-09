@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: pca.cc,v 1.18 2012-05-02 15:11:19 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: pca.cc,v 1.19 2012-08-09 06:49:32 cvsaneesh Exp $";
 
 
 #include "pca.h"
@@ -133,8 +133,8 @@ bool PCA::tqli( float d[], float e[], int n, ObjectSet<float>& z )
 		    return false;
 		}
 
-		float g = (d[idx+1]-d[idx])/(2.0*e[idx]);
-		float r = Math::Sqrt((g*g)+1.0);
+		float g = (d[idx+1]-d[idx])/(2.0f*e[idx]);
+		float r = Math::Sqrt((g*g)+1.0f);
 		g = d[idy]-d[idx]+e[idx]/(g+SIGN(r,g));
 
 		float c = 1;
@@ -147,19 +147,19 @@ bool PCA::tqli( float d[], float e[], int n, ObjectSet<float>& z )
 		    if ( fabs(f)>=fabs(g) )
 		    {
 			c= g/f;
-			r = Math::Sqrt((c*c)+1.0);
+			r = Math::Sqrt((c*c)+1.0f);
 			e[idz+1] = f*r;
-			c *= (s=1.0/r);
+			c *= (s=1.0f/r);
 		    }
 		    else
 		    {
 			s = f/g;
-			r = Math::Sqrt((s*s)+1.0);
+			r = Math::Sqrt((s*s)+1.0f);
 			e[idz+1] = g*r;
-			s *= (c=1.0/r);
+			s *= (c=1.0f/r);
 		    }
 		    g = d[idz+1]-p;
-		    r = (d[idz]-g)*s+2.0*c*b;
+		    r = (d[idz]-g)*s+2.0f*c*b;
 		    p = s*r;
 		    d[idz+1] = g+p;
 		    g = c*r-b;

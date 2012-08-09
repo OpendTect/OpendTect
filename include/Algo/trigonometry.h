@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.53 2012-08-03 13:00:06 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.54 2012-08-09 06:49:31 cvsaneesh Exp $
 ________________________________________________________________________
 
 
@@ -32,8 +32,8 @@ inline void interpolateOnTriangle2D( const Coord pt,
     const Coord d0 = b-a;
     const Coord d1 = pt-a;
     const Coord d2 = b-c;
-    const float para_pt = (d0.x*d2.y-d0.y*d2.x)/(d1.x*d2.y-d1.y*d2.x);
-    const float para_bc = (d1.x*d0.y-d1.y*d0.x)/(d1.x*d2.y-d1.y*d2.x);
+    const float para_pt = (float)((d0.x*d2.y-d0.y*d2.x)/(d1.x*d2.y-d1.y*d2.x));
+    const float para_bc = (float)((d1.x*d0.y-d1.y*d0.x)/(d1.x*d2.y-d1.y*d2.x));
 
     if ( mIsZero(para_pt, 1e-5) )
     {
@@ -275,7 +275,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>&, bool normalize,
 mClass(Algo) Quaternion
 {
 public:
-    			Quaternion(float s,float x,float y,float z);
+    			Quaternion(double s,double x,double y,double z);
 			Quaternion(const Vector3& axis,float angle);
 
     void		setRotation(const Vector3& axis,float angle);
@@ -292,7 +292,7 @@ public:
 
     Quaternion		inverse() const;
 
-    float		s_;
+    double		s_;
     Vector3		vec_;
 };
 
@@ -497,7 +497,8 @@ public:
 			    : radius(r),theta(t),phi(p) {}
 
 			Sphere(const Coord3& crd)
-			    : radius(crd.x),theta(crd.y),phi(crd.z) {}
+			    : radius((float) crd.x),theta((float) crd.y),
+											phi((float) crd.z) {}
     bool		operator ==( const Sphere& s ) const;
 
     float		radius;
