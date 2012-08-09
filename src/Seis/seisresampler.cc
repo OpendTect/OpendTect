@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisresampler.cc,v 1.15 2012-05-10 08:14:35 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisresampler.cc,v 1.16 2012-08-09 03:35:33 cvssalil Exp $";
 
 #include "seisresampler.h"
 #include "cubesampling.h"
@@ -25,7 +25,7 @@ SeisResampler::SeisResampler( const CubeSampling& c, bool is2d,
     if ( valrg )
     {
 	valrg->sort();
-	replval = (valrg->start + valrg->stop) * .5;
+	replval = (valrg->start + valrg->stop) * .5f;
     }
 }
 

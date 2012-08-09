@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volproclateralsmoother.cc,v 1.18 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: volproclateralsmoother.cc,v 1.19 2012-08-09 03:43:21 cvssalil Exp $";
 
 #include "volproclateralsmoother.h"
 
@@ -246,7 +246,7 @@ bool processKernel( int start, int stop, int thread )
 		if ( mIsUdf(fixedval_) )
 		{
 		    if ( nrvals )
-			val = sum/nrvals;
+			val = (float) sum/nrvals;
 		}
 		else
 		{

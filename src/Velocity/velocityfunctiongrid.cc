@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocityfunctiongrid.cc,v 1.30 2012-07-22 04:42:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunctiongrid.cc,v 1.31 2012-08-09 03:41:41 cvssalil Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -221,7 +221,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 		continue;
 	    }
 
-	    const float gridvalue = doinverse ? 1.0/value : value;
+	    const float gridvalue = doinverse ? 1.0f/value : value;
 
 	    gridvalues_[usedpoints[idy]] = gridvalue;
 	    gridvaluesum += gridvalue;
@@ -242,7 +242,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 		continue;
 	    }
 
-	    const float averageval = gridvaluesum/nrgridvalues;
+	    const float averageval = (float) (gridvaluesum/nrgridvalues);
 	    for ( int idy=undefpos.size()-1; idy>=0; idy-- )
 		gridvalues_[undefpos[idy]] = averageval;
 	}
@@ -250,7 +250,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	gridder_->setValues( gridvalues_, false );
 	const float val = gridder_->getValue();
 	if ( doinverse )
-	    res[idx] = mIsZero(val, 1e-7 ) ? mUdf(float) : 1.0/val;
+	    res[idx] = mIsZero(val, 1e-7 ) ? mUdf(float) : 1.0f/val;
 	else
 	    res[idx] = val;
     }
@@ -390,17 +390,17 @@ bool GriddedSource::initGridder()
     const Interval<int> crlrg = SI().crlRange( true );
     Interval<float> xrg, yrg;
     Coord c = SI().transform( BinID(inlrg.start,crlrg.start) );
-    xrg.start = xrg.stop = c.x;
-    yrg.start = yrg.stop = c.y;
+    xrg.start = xrg.stop = (float) c.x;
+    yrg.start = yrg.stop = (float) c.y;
 
     c = SI().transform( BinID(inlrg.start,crlrg.stop) );
-    xrg.include( c.x ); yrg.include( c.y );
+    xrg.include( (float) c.x ); yrg.include( (float) c.y );
 
     c = SI().transform( BinID(inlrg.stop,crlrg.start) );
-    xrg.include( c.x ); yrg.include( c.y );
+    xrg.include( (float) c.x ); yrg.include( (float) c.y );
 
     c = SI().transform( BinID(inlrg.stop,crlrg.stop) );
-    xrg.include( c.x ); yrg.include( c.y );
+    xrg.include( (float) c.x ); yrg.include( (float) c.y );
 
     gridder_->setGridArea( xrg, yrg );
 

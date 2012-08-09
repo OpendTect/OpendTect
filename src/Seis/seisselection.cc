@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisselection.cc,v 1.33 2012-07-10 08:05:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisselection.cc,v 1.34 2012-08-09 03:35:33 cvssalil Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -784,7 +784,7 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 	const Interval<float> polyinlrg = polys_[idx]->getRange( true );
 	const Interval<float> polycrlrg = polys_[idx]->getRange( false );
 	const float rectarea = polyinlrg.width() * polycrlrg.width();
-    	const float coverfrac = rectarea ? polys_[idx]->area()/rectarea : 1.0;
+    const float coverfrac = rectarea ? polys_[idx]->area()/rectarea : 1.0f;
 	
 	Interval<int> inlrg( mNINT32(polyinlrg.start), mNINT32(polyinlrg.stop) );
 	inlrg.widen( stepoutreach_.inl );

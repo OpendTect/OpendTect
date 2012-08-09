@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wavelet.cc,v 1.45 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wavelet.cc,v 1.46 2012-08-09 03:35:33 cvssalil Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -59,15 +59,15 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
     float pos = iw * dpos;
     for ( int idx=0; idx<lw; idx++ )
     {
-	float x = M_PI * fpeak * pos;
-	float x2 = x * x;
+	double x = M_PI * fpeak * pos;
+	double x2 = x * x;
 	if ( idx == -iw )
 	    samps[idx] = scale;
 	else if ( isricker )
-	    samps[idx] = scale * exp(-x2) * (1-2*x2);
+	    samps[idx] = (float) (scale * exp(-x2) * (1-2*x2));
 	else
 	{
-	    samps[idx] = scale * exp(-x2) * sin(x)/x;
+	    samps[idx] = (float) (scale * exp(-x2) * sin(x)/x);
 	    if ( samps[idx] < 0 ) samps[idx] = 0;
 	}
 	pos += dpos;
@@ -179,7 +179,7 @@ void Wavelet::transform( float constant, float factor )
 
 void Wavelet::normalize()
 {
-    transform( 0, 1./mMAX( fabs(getExtrValue(true)),
+    transform( 0, 1.f/mMAX( fabs(getExtrValue(true)),
 		  fabs(getExtrValue(false))) );
 }
 

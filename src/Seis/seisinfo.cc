@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisinfo.cc,v 1.70 2012-08-09 03:35:32 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisinfo.cc,v 1.71 2012-08-09 03:36:31 cvssalil Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -200,7 +200,7 @@ float SeisTrcInfo::defaultSampleInterval( bool forcetime )
 
     defsr /= SI().zInFeet() ? 5000 : 2000; // div by velocity
     int ival = (int)(defsr * 1000 + .5);
-    return ival * 0.001;
+    return ival * 0.001f;
 }
 
 

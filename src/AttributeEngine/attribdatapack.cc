@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: attribdatapack.cc,v 1.52 2012-06-22 12:17:40 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdatapack.cc,v 1.53 2012-08-09 03:40:07 cvssalil Exp $";
 
 #include "attribdatapack.h"
 
@@ -430,7 +430,7 @@ void Flat2DDHDataPack::getPosDataTable( TypeSet<int>& trcnrs,
     {
 	trcnrs[idx] = dataholderarr_->trcinfoset_[idx]->nr;
 	if ( posdata_.width(true)/posdata_.range(true).step > idx )
-	    dist[idx] = posdata_.position( true, idx );
+	    dist[idx] = (float) posdata_.position( true, idx );
 	else
 	    trcnrs[idx] = -1;
     }
@@ -486,8 +486,8 @@ void Flat2DDHDataPack::setPosData()
 	for ( int idx=1; idx<nrpos; idx++ )
 	{
 	    Coord crd = dataholderarr_->trcinfoset_[idx]->coord;
-	    pos[idx] = pos[idx-1] +
-		dataholderarr_->trcinfoset_[idx-1]->coord.distTo( crd );
+	    pos[idx] = (float) (pos[idx-1] +
+				   dataholderarr_->trcinfoset_[idx-1]->coord.distTo( crd ));
 	    prevcrd = crd;
 	}
 
@@ -619,7 +619,7 @@ void FlatRdmTrcsDataPack::setPosData( TypeSet<BinID>* path )
 	Coord crd = seisbuf_->get(trcidx)->info().coord;
 	if ( x0arridx > 0 )
 	{
-	    float distnnm1 = prevcrd.distTo(crd);
+	    float distnnm1 = (float) prevcrd.distTo(crd);
 	    pos[x0arridx] = pos[x0arridx-1] + fabs( distnnm1 );
 	}
 	prevcrd = crd;

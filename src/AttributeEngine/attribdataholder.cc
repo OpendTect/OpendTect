@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribdataholder.cc,v 1.29 2012-07-10 08:05:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdataholder.cc,v 1.30 2012-08-09 03:40:06 cvssalil Exp $";
 
 #include "attribdataholder.h"
 
@@ -156,7 +156,8 @@ float DataHolder::getExtraZFromSampPos( float exactz, float refzstep )
     const int extrazem3 =
 	(int)(leftem3*1e-3)%(int)(refzstep*SI().zDomain().userFactor());
     if ( extrazem7 <= extrazem7noprec || extrazem3 != 0 ) //below precision
-	return extrazem3*1e-3 + extrazem7 * (SI().zIsTime() ? 1e-7 : 1e-4);
+	return (float) (extrazem3 * 1e-3 + extrazem7 * 
+											(SI().zIsTime() ? 1e-7 : 1e-4));
 
     return 0;
 }

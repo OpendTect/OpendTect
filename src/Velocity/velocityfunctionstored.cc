@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: velocityfunctionstored.cc,v 1.17 2012-07-18 11:10:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityfunctionstored.cc,v 1.18 2012-08-09 03:41:41 cvssalil Exp $";
 
 #include "velocityfunctionstored.h"
 
@@ -186,7 +186,7 @@ bool StoredFunctionSource::load( const MultiID& velid )
 	const ::Pick::Location& pspick = pickset[idx];
 	const BinID bid = SI().transform( pspick.pos );
 
-	vals[0] = pspick.pos.z;
+	vals[0] = (float) pspick.pos.z;
 	vals[1] = pspick.dir.radius;
 
 	veldata_.add( bid, vals );

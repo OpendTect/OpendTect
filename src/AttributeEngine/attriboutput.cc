@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.115 2012-07-24 14:49:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.116 2012-08-09 03:40:07 cvssalil Exp $";
 
 #include "attriboutput.h"
 
@@ -516,7 +516,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	    for ( int idx=0; idx<sz; idx++ )
 	    {
 		float val = trc_->get( idx, icomp );
-		val = scaler_->scale( val );
+		val = (float) scaler_->scale( val );
 		trc_->set( idx, val, icomp );
 	    }
 	}
@@ -1095,7 +1095,7 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
 	    for ( int idx=0; idx<trcsz; idx++ )
 	    {
 		float val = trc_->get( idx, icomp );
-		val = scaler_->scale( val );
+		val = (float) scaler_->scale( val );
 		trc_->set( idx, val, icomp );
 	    }
 	}
@@ -1305,14 +1305,14 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 		    ( mIsUdf(distpicktrc_[idx]) || distn<distpicktrc_[idx]) )
 		{
 		    rid = idx;
-		    const_cast<TableOutput*>(this)->distpicktrc_[idx] = distn;
+		    const_cast<TableOutput*>(this)->distpicktrc_[idx] = (float) distn;
 		    break;
 		}
 		else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 &&
 		    ( mIsUdf(distpicktrc_[idx+1]) || distn<distpicktrc_[idx+1]))
 		{
 		    rid = idx+1;
-		    const_cast<TableOutput*>(this)->distpicktrc_[idx+1]=distnp1;
+		    const_cast<TableOutput*>(this)->distpicktrc_[idx+1] = (float) distnp1;
 		    break;
 		}
 	    }
@@ -1321,7 +1321,7 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     else
     {
 	const double dist = coord.distTo(datapointset_.coord(rid));
-	const_cast<TableOutput*>(this)->distpicktrc_[rid]=dist;
+	const_cast<TableOutput*>(this)->distpicktrc_[rid] = (float) dist;
     }
 
     if ( rid< 0 ) return sampleinterval;

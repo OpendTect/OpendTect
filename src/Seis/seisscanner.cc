@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisscanner.cc,v 1.49 2012-07-10 08:05:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisscanner.cc,v 1.50 2012-08-09 03:35:33 cvssalil Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -177,7 +177,7 @@ const char* SeisScanner::getClipRgStr( float pct ) const
 {
     const float* vals = clipsampler_.vals();
     const int nrvals = clipsampler_.nrVals();
-    const float ratio = nrvals * .005 * pct;
+    const float ratio = nrvals * .005f * pct;
     int idx0 = mNINT32(ratio);
     int idx1 = nrvals - idx0 - 1;
     if ( idx0 > idx1 ) Swap( idx0, idx1 );

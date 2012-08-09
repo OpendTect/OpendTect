@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.14 2012-07-24 19:50:25 cvskris Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.15 2012-08-09 03:35:33 cvssalil Exp $ 
  ________________________________________________________________________
                    
 -*/   
@@ -357,12 +357,12 @@ bool WaveletExtractor::rotateWavelet()
     WaveletAttrib wvltattr( wvlt_ );
     wvltattr.getHilbert( rotatewvlt );
 
-    float angle = (float)phase_ * M_PI/180;
+    double angle = phase_ * M_PI/180;
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
 	const float realval = wvlt_.samples()[idx];
 	const float imagval = -rotatewvlt.arr()[idx];
-	wvlt_.samples()[idx] = realval*cos( angle ) - imagval*sin( angle );
+	wvlt_.samples()[idx] = (float) (realval*cos(angle) - imagval*sin(angle));
     }
 
     return true;

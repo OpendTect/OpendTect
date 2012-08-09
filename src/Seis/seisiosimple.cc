@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisiosimple.cc,v 1.30 2012-08-07 05:20:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: seisiosimple.cc,v 1.31 2012-08-09 03:35:32 cvssalil Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -439,7 +439,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 		return Executor::Finished();
 	}
 
-	if ( data_.scaler_ ) val = data_.scaler_->scale( val );
+	if ( data_.scaler_ ) val = (float) data_.scaler_->scale( val );
 	trc.set( idx, val, 0 );
     }
 
@@ -582,7 +582,7 @@ int SeisIOSimple::writeExpTrc()
     for ( int idx=0; idx<data_.nrsamples_; idx++ )
     {
 	val = trc_.get( idx, 0 );
-	if ( data_.scaler_ ) val = data_.scaler_->scale( val );
+	if ( data_.scaler_ ) val = (float) data_.scaler_->scale( val );
 	if ( data_.isasc_ )
 	    *sd_.ostrm << '\t' << val;
 	else

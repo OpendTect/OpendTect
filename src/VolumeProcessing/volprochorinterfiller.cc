@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprochorinterfiller.cc,v 1.16 2012-05-02 15:11:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprochorinterfiller.cc,v 1.17 2012-08-09 03:43:21 cvssalil Exp $";
 
 #include "volprochorinterfiller.h"
 
@@ -236,7 +236,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 	else
 	{
 	    const int cursample = output_->z0_+idx;
-	    value = cursampling.atIndex( cursample );
+	    value = (float) cursampling.atIndex( cursample );
 	}
 
         outputarray.set( outputinlidx, outputcrlidx, idx, value );

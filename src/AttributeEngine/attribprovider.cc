@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.146 2012-07-20 21:14:15 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.147 2012-08-09 03:40:07 cvssalil Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1694,7 +1694,7 @@ float Provider::zFactor() const
 
 
 float Provider::dipFactor() const
-{ return zIsTime() ? 1e6: 1e3; }
+{ return zIsTime() ? 1e6f: 1e3f; }
 
 
 

@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiszaxisstretcher.cc,v 1.25 2012-07-18 11:10:11 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiszaxisstretcher.cc,v 1.26 2012-08-09 03:35:33 cvssalil Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -196,7 +196,7 @@ void SeisZAxisStretcher::setLineKey( const char* lk )
 bool SeisZAxisStretcher::doWork( od_int64, od_int64, int ) 
 {
     StepInterval<float> trcrg = outcs_.zrg;
-    SamplingData<double> sd( trcrg );
+    SamplingData<float> sd( trcrg );
     ArrPtrMan<float> outputptr = new float[trcrg.nrSteps()+1];
 
     SeisTrc intrc;
@@ -244,7 +244,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    mAllocVarLenArr(float, twt, insz);
 	    mAllocVarLenArr(float, depths, insz);
 	    
-	    SamplingData<double> inputsd( intrc.info().sampling );
+	    SamplingData<float> inputsd( intrc.info().sampling );
 	    SeisTrcValueSeries inputvs( intrc, 0 );
 	    
 	    

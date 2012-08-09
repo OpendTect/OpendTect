@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocitypicks.cc,v 1.28 2012-08-08 09:01:29 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocitypicks.cc,v 1.29 2012-08-09 03:41:41 cvssalil Exp $";
 
 #include "velocitypicks.h"
 
@@ -299,7 +299,7 @@ RowCol Picks::set( const BinID& pickbid, const Pick& velpick,
 	RefMan<EM::Horizon3D> hor = getHorizon( velpick.emobjid_ );
 	if ( hor )
 	{
-	    pick.depth_ = hor->getPos( hor->sectionID(0),
+	    pick.depth_ = (float) hor->getPos( hor->sectionID(0),
 		    		       pickbid.toInt64() ).z;
 	}
 	else if ( mIsUdf( pick.depth_ ) )
@@ -574,7 +574,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
 	BinID bid;
 	picks_.getPos( rcs[idx], bid );
 	const float depth =
-	    hor->getPos( hor->sectionID(0), bid.toInt64() ).z;
+	    (float) hor->getPos( hor->sectionID(0), bid.toInt64() ).z;
 
 	if ( mIsUdf(depth) )
 	    continue;
@@ -739,14 +739,14 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 	const Coord coord = SI().transform(bid);
 
 	float* vals = res.getVals( pos );
-	vals[0] = horizon->getPos( horizon->sectionID(0), bid.toInt64() ).z;
+	vals[0] = (float)horizon->getPos( horizon->sectionID(0), bid.toInt64() ).z;
 
 	float weightsum = 0;
 	float weightvalsum = 0;
 	for ( int idx=vels.size()-1; idx>=0; idx-- )
 	{
 	    const Coord pickcoord = SI().transform( bids[idx] );
-	    const float sqdist = pickcoord.sqDistTo( coord );
+	    const float sqdist = (float) pickcoord.sqDistTo( coord );
 	    if ( usesearchradius && sqdist>searchradius2 )
 		continue;
 
@@ -757,7 +757,7 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 		break;
 	    }
 
-	    const float weight = 1.0/sqdist;
+	    const float weight = 1.0f/sqdist;
 
 	    weightvalsum += weight * vels[idx];
 	    weightsum += weight;
@@ -800,8 +800,8 @@ bool Picks::load( const IOObj* ioobj )
 	const ::Pick::Location& pspick = pickset[idx];
 	const BinID bid = SI().transform( pspick.pos );
 	Pick pick = version==1
-	    ? Pick( pspick.pos.z, pspick.dir.radius, refoffset_, -1 )
-	    : Pick( pspick.pos.z, pspick.dir.radius,pspick.dir.theta-1);
+	    ? Pick( (float) pspick.pos.z, pspick.dir.radius, refoffset_, -1 )
+	    : Pick( (float) pspick.pos.z, pspick.dir.radius,pspick.dir.theta - 1);
 
 	if ( pspick.text )
 	{

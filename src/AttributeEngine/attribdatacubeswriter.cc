@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribdatacubeswriter.cc,v 1.13 2012-07-31 19:26:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdatacubeswriter.cc,v 1.14 2012-08-09 03:40:06 cvssalil Exp $";
 
 #include "attribdatacubeswriter.h"
 
@@ -84,8 +84,8 @@ int DataCubesWriter::nextStep()
 	const int trcsz = zrg_.width()+1;
 	trc_ = new SeisTrc( trcsz );
 
-	trc_->info().sampling.start = zrg_.start * cube_.zstep_;
-	trc_->info().sampling.step = cube_.zstep_;
+	trc_->info().sampling.start = (float) (zrg_.start * cube_.zstep_);
+	trc_->info().sampling.step = (float) cube_.zstep_;
 	trc_->info().nr = 0;
 
 	for ( int idx=1; idx<cubeindices_.size(); idx++ )
