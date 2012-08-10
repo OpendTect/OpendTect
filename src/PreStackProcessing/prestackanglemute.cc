@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackanglemute.cc,v 1.23 2012-07-02 14:11:38 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackanglemute.cc,v 1.24 2012-08-10 04:11:24 cvssalil Exp $";
 
 #include "prestackanglemute.h"
 
@@ -148,7 +148,7 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 					bool belowcutoff ) const 
 {
     float mutelayer = mUdf(float);
-    const float cutoffsin = sin( params_->mutecutoff_ * M_PI / 180 );
+    const float cutoffsin = (float) sin( params_->mutecutoff_ * M_PI / 180 );
     if ( tail )
     {
 	float prevsin = mUdf(float);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2009
- RCS:		$Id: uicreate2dgrid.cc,v 1.14 2012-07-13 05:21:12 cvssatyaki Exp $
+ RCS:		$Id: uicreate2dgrid.cc,v 1.15 2012-08-10 04:11:26 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -352,7 +352,7 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
 
     const Coord maxcoord = SI().maxCoord(false);
     const Coord mincoord = SI().minCoord(false);
-    const float maxdim = mMAX( maxcoord.x-mincoord.x, maxcoord.y-mincoord.y );
+    const float maxdim = (float) mMAX( maxcoord.x-mincoord.x, maxcoord.y-mincoord.y );
     AxisLayout<float> axl( Interval<float>(0,maxdim) );
     pardistfld_->setValue( mNINT32(axl.sd_.step/2) );
     perdistfld_->setValue( mNINT32(axl.sd_.step/2) );

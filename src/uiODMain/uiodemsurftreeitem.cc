@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodemsurftreeitem.cc,v 1.102 2012-07-31 04:07:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodemsurftreeitem.cc,v 1.103 2012-08-10 04:11:27 cvssalil Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -272,7 +272,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 
 	MultiID storedmid;
 	ems->storeObject( emid_, true, storedmid,
-		visserv_->getTranslation(displayID()).z);
+		(float) visserv_->getTranslation(displayID()).z);
 	applMgr()->visServer()->setObjectName( displayid_,
 		(const char*) ems->getName(emid_) );
 
@@ -498,7 +498,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->getRandomPosCache( visid, attribnr, vals );
 	if ( vals.size() )
 	{
-	    const float shift = visserv->getTranslation( visid ).z;
+	    const float shift = (float) visserv->getTranslation( visid ).z;
 	    const int validx = visserv->selectedTexture( visid, attribnr ) + 2;
 	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, vals,
 		    name_, validx, shift );

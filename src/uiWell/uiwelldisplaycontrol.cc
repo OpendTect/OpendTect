@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaycontrol.cc,v 1.28 2012-08-07 05:20:51 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaycontrol.cc,v 1.29 2012-08-10 04:11:27 cvssalil Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -108,7 +108,7 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 	    time_ = ypos_;
 	    const Well::D2TModel* d2t = zdata.d2T();
 	    if ( d2t && d2t->size() >= 1 )
-		depth_ = d2t->getDah( ypos_*0.001 );
+		depth_ = d2t->getDah( ypos_*0.001f );
 	}
 	else
 	{

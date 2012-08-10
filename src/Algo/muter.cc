@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: muter.cc,v 1.9 2012-08-09 06:49:32 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: muter.cc,v 1.10 2012-08-10 04:11:23 cvssalil Exp $";
 
 #include "muter.h"
 
@@ -69,7 +69,7 @@ void Muter::tailMute( ValueSeries<float>& arr, int sz, float pos ) const
 
 void Muter::muteIntervalsPos( const TypeSet< Interval<float> >& itvs,
 				TypeSet< Interval<float> >& muteitvs,
-				const SamplingData<float>& sd ) 
+				const SamplingData<double>& sd ) 
 {
     for ( int idx=0; idx<itvs.size(); idx++ )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: horizon2dseedpicker.cc,v 1.34 2012-08-07 16:52:08 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon2dseedpicker.cc,v 1.35 2012-08-10 04:11:24 cvssalil Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -175,8 +175,8 @@ bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 	if ( !coord.isDefined() )
 	    continue;
 
-	double sqdist = coord.sqDistTo( seedcrd );
-	if ( sqdist<maxdist )
+	float sqdist = (float) coord.sqDistTo( seedcrd );
+	if ( sqdist < maxdist )
 	{
 	    closestcol = col;
 	    maxdist = sqdist;

@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.88 2012-08-07 05:20:51 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.89 2012-08-10 04:11:25 cvssalil Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -117,11 +117,11 @@ int Well::InfoCollector::nextStep()
 	    wr.getTrack();
 	    const Well::Track& trk = wd.track();
 	    if ( mIsUdf(trackstvdrg_.start) )
-		trackstvdrg_.set( trk.pos(0).z, trk.pos(trk.size()-1).z );
+		trackstvdrg_.set( (float) trk.pos(0).z, (float) trk.pos(trk.size()-1).z );
 	    else 
 	    {
 		Interval<float> tvdrg;
-		tvdrg.set( trk.pos(0).z, trk.pos(trk.size()-1).z );
+		tvdrg.set( (float) trk.pos(0).z, (float) trk.pos(trk.size()-1).z );
 		if ( !mIsUdf( tvdrg.start ) )
 		    trackstvdrg_.include( tvdrg );
 	    }
@@ -241,7 +241,7 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<float>& zrg,bool zistime,
 	pos = track.pos( 0 );\
     else if ( dah > rg.stop )\
 	pos = track.pos( track.size() -1 );\
-    tvd = pos.z;\
+    tvd = (float) pos.z;\
 }
 Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj, 
 			    const BufferStringSet& lognms, bool todah ) const 
@@ -559,7 +559,7 @@ bool Well::TrackSampler::getPos( const Well::Data& wd, float dah,
 	if ( mIsUdf(pos.z) )
 	    return false;
     }
-    biv.value = pos.z;
+    biv.value = (float) pos.z;
     return true;
 }
 
@@ -709,7 +709,7 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
     // Should be OK for all wells without horizontal sections
 
     int trackidx = 0;
-    float z1 = track.pos(trackidx).z;
+    float z1 = (float) track.pos(trackidx).z;
 
     int dpsrowidx = 0; float dpsz = 0;
     for ( ; dpsrowidx<dps.size(); dpsrowidx++ )
@@ -734,18 +734,18 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
     for ( ; dpsrowidx<dps.size(); dpsrowidx++ )
     {
 	dpsz = dps.z(dpsrowidx);
-	float z2 = track.pos( trackidx ).z;
+	float z2 = (float) track.pos( trackidx ).z;
 	while ( dpsz > z2 )
 	{
 	    trackidx++;
 	    if ( trackidx >= track.size() )
 		return;
-	    z2 = track.pos( trackidx ).z;
+	    z2 = (float) track.pos( trackidx ).z;
 	}
 	if ( trackidx == 0 ) // Huh?
 	    continue;
 
-	z1 = track.pos( trackidx - 1 ).z;
+	z1 = (float) track.pos( trackidx - 1 ).z;
 	if ( z1 > dpsz )
 	{
 	    // This is not uncommon. A new binid with higher posns.
@@ -1019,7 +1019,7 @@ bool Well::LogSampler::doPrepare( int thread )
 
     if ( mIsUdf( zstep_ ) )
     {
-	zstep_ = SI().zStep()*0.5;
+	zstep_ = SI().zStep()*0.5f;
 	if ( SI().zIsTime() )
 	    zstep_ = 2000 * zstep_;
     }

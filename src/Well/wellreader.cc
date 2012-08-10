@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellreader.cc,v 1.54 2012-08-07 05:20:51 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellreader.cc,v 1.55 2012-08-10 04:11:25 cvssalil Exp $";
 
 #include "wellreader.h"
 
@@ -211,7 +211,7 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 	{
 	    Coord3 pos = welltrack.pos( idx );
 	    pos.z *= mToFeetFactorF;
-	    welltrack.setPoint( idx, pos, pos.z );
+	    welltrack.setPoint( idx, pos, (float) pos.z );
 	}
     }
 
@@ -234,8 +234,8 @@ bool Well::Reader::getOldTimeWell( std::istream& strm ) const
 	if ( !strm || c3.distTo(c0) < 1 ) break;
 
 	if ( !wd.track().isEmpty() )
-	    dah += c3.distTo( prevc );
-	wd.track().addPoint( c3, c3.z, dah );
+	    dah += (float) c3.distTo( prevc );
+	wd.track().addPoint( c3, (float) c3.z, dah );
 	prevc = c3;
     }
     if ( wd.track().size() < 1 )
@@ -248,7 +248,7 @@ bool Well::Reader::getOldTimeWell( std::istream& strm ) const
     D2TModel* d2t = new D2TModel( Well::D2TModel::sKeyTimeWell() );
     wd.setD2TModel( d2t );
     for ( int idx=0; idx<wd.track().size(); idx++ )
-	d2t->add( wd.track().dah(idx), wd.track().pos(idx).z );
+	d2t->add( wd.track().dah(idx),(float) wd.track().pos(idx).z );
 
     return true;
 }
@@ -261,7 +261,7 @@ bool Well::Reader::getTrack( std::istream& strm ) const
     {
 	strm >> c.x >> c.y >> c.z >> dah;
 	if ( !strm || c.distTo(c0) < 1 ) break;
-	wd.track().addPoint( c, c.z, dah );
+	wd.track().addPoint( c, (float) c.z, dah );
     }
     if ( wd.track().isEmpty() )
 	return false;
@@ -289,7 +289,7 @@ bool Well::Reader::getTrack() const
 	{
 	    Coord3 pos = welltrack.pos( idx );
 	    pos.z *= mToFeetFactorF;
-	    welltrack.setPoint( idx, pos, pos.z );
+	    welltrack.setPoint( idx, pos, (float) pos.z );
 	}
     }
 

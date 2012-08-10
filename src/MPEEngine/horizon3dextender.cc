@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon3dextender.cc,v 1.26 2012-08-08 09:01:28 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon3dextender.cc,v 1.27 2012-08-10 04:11:24 cvssalil Exp $";
 
 #include "horizon3dextender.h"
 
@@ -196,7 +196,7 @@ int BaseHorizon3DExtender::nextStep()
 float BaseHorizon3DExtender::getDepth( const BinID& srcbid,
 					 const BinID& destbid ) const
 {
-    return surface.getPos( sid_, srcbid.toInt64() ).z;
+    return (float) surface.getPos( sid_, srcbid.toInt64() ).z;
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uibodyregiondlg.cc,v 1.18 2012-07-27 08:57:51 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibodyregiondlg.cc,v 1.19 2012-08-10 04:11:26 cvssalil Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -108,7 +108,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		const float hz = hors_[idy]->getZ(bid);
 		if ( mIsUdf(hz) ) continue;
 	    
-		const float dist = hsides_[idy]==mBelow ? curz-hz : hz-curz;
+		const float dist = (float)( hsides_[idy]==mBelow ? curz-hz : hz-curz );
 		if ( dist<0 )
 		{
 		    curzinrange = false;
@@ -328,9 +328,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    if ( minz>=maxz )
 		continue;
 	    
-	    double val = curz<minz ? minz-curz : 
-		(curz>maxz ? curz-maxz : -mMIN(curz-minz,maxz-curz) );
-	    res_.set( inlidx, crlidx, idz, val );
+	    double val = curz < minz ? minz - curz : 
+		( curz > maxz ? curz - maxz : -mMIN ( curz - minz,maxz - curz ) );
+	    res_.set( inlidx, crlidx, idz, (float) val );
 	}
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiseventsnapper.cc,v 1.34 2012-07-30 20:43:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiseventsnapper.cc,v 1.35 2012-08-10 04:11:26 cvssalil Exp $";
 
 
 #include "uiseiseventsnapper.h"
@@ -120,7 +120,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
     usedhor->setBurstAlert( true );
     
     Interval<float> rg = gatefld_->getFInterval();
-    rg.scale( 1. / SI().zDomain().userFactor() );
+    rg.scale( 1.f / SI().zDomain().userFactor() );
 
     for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
     {

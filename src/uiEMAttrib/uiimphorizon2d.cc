@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiimphorizon2d.cc,v 1.36 2012-06-21 17:07:36 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiimphorizon2d.cc,v 1.37 2012-08-10 04:11:26 cvssalil Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -175,8 +175,8 @@ void interpolateAndSetVals( int hidx, const PosInfo::GeomID& geomid,
 	    continue;
 
 	const Coord newvec = pos.coord_ - prevpos.coord_;
-	const float sq = vec.sqAbs();
-	const float prod = vec.dot(newvec);
+	const float sq = (float) vec.sqAbs();
+	const float prod = (float) vec.dot(newvec);
 	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
 	const float val = prevval + factor * ( curval - prevval );
 	hors_[hidx]->setPos( hors_[hidx]->sectionID(0), geomid,trcnr,val,false);

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.93 2012-08-08 06:38:39 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.94 2012-08-10 04:11:25 cvssalil Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -431,7 +431,7 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	    if ( !SI().isReasonable(wd.info().surfacecoord) )
 		wd.info().surfacecoord = c;
 	    if ( mIsUdf(wd.info().surfaceelev) )
-		wd.info().surfaceelev = -c.z;
+		wd.info().surfaceelev = (float) -c.z;
 
 	    surfcoord.x = wd.info().surfacecoord.x;
 	    surfcoord.y = wd.info().surfacecoord.y;
@@ -441,7 +441,7 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	}
 
 	if ( mIsUdf(newdah) )
-	    dah += c.distTo( prevc );
+	    dah += (float) c.distTo( prevc );
 	else
 	{
 	    if ( mIsUdf(c.z) )
@@ -458,7 +458,7 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	if ( c.distTo(c000) < 1 )
 	    break;
 
-	wd.track().addPoint( c, c.z, dah );
+	wd.track().addPoint( c, (float) c.z, dah );
 	prevc = c;
     }
 
@@ -596,10 +596,10 @@ static bool getTVDD2TModel( Well::D2TModel& d2t,
 	const float curt = tvals[iz];
 
 	// find MD intervals including this TVD. Can be multiple.
-	float prevtvd = trck.pos(0).z;
+	float prevtvd = (float) trck.pos(0).z;
 	for ( int idah=1; idah<trck.size(); idah++ )
 	{
-	    const float tvd = trck.pos(idah).z;
+	    const float tvd = (float) trck.pos(idah).z;
 	    const float tvddist = tvd - prevtvd;
 	    if ( mIsZero(tvddist,eps) )
 		continue;

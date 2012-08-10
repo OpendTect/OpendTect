@@ -86,7 +86,7 @@ uiGainAnalysisDlg::~uiGainAnalysisDlg()
 
 void uiGainAnalysisDlg::convertZTo( bool milisec )
 {
-    const float factor = milisec ? 1000.00 : 1.0/1000.00;
+    const float factor = milisec ? 1000.00f : 1.0f/1000.00f;
     if ( zvals_.size() && SI().zIsTime() )
     {
 	for ( int idx=0; idx<zvals_.size(); idx++ )
@@ -148,7 +148,7 @@ void uiGainAnalysisDlg::setData( bool sety )
 	    }
 	}
 
-	avgrmsvals += !avgval ? 0.0 : avgval/(float)nrdefsamples;
+	avgrmsvals += !avgval ? 0.0f : avgval/(float)nrdefsamples;
     }
 
     StepInterval<float> scalerg = rangefld_->getFInterval();

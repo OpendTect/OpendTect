@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackgather.cc,v 1.50 2012-05-22 14:48:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackgather.cc,v 1.51 2012-08-10 04:11:24 cvssalil Exp $";
 
 #include "prestackgather.h"
 
@@ -268,7 +268,7 @@ void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 {
     par.set( "X", coord_.x );
     par.set( "Y", coord_.y );
-    float z = posData().position( false, idim1 );
+    float z = (float) posData().position( false, idim1 );
     if ( zit_ ) z *= 1000;
     par.set( "Z", z );
     par.set( sKey::Offset(), getOffset(idim0) );
@@ -291,7 +291,7 @@ const char* Gather::getSeis2DName() const
 
 
 float Gather::getOffset( int idx ) const
-{ return posData().position( true, idx ); }
+{ return (float) posData().position( true, idx ); }
 
 
 float Gather::getAzimuth( int idx ) const
@@ -302,7 +302,7 @@ float Gather::getAzimuth( int idx ) const
 
 OffsetAzimuth Gather::getOffsetAzimuth( int idx ) const
 {
-    return OffsetAzimuth( posData().position( true, idx ), 
+    return OffsetAzimuth( (float) posData().position( true, idx ), 
 	    		  azimuths_[idx] );
 }
 
@@ -401,7 +401,9 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
 	trc->info().binid = gathers_[idx]->getBinID();	
 	trc->info().coord = SI().transform( gathers_[idx]->getBinID() );
 	trc->info().nr = idx+1;
-	trc->info().sampling = gathers_[idx]->posData().range( false);
+	const StepInterval<double>& sd = gathers_[idx]->posData().range( false);
+	trc->info().sampling = StepInterval<double>
+						   ( (float) sd.start,(float) sd.stop,(float) sd.step );
 	const Array2D<float>& data = gathers_[idx]->data();
 	for ( int idz=0; idz<gathersz; idz++ )
 	    trc->set( idz, data.get( offsetidx, idz ), 0 );

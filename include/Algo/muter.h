@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: muter.h,v 1.7 2012-08-03 13:00:04 cvskris Exp $
+ RCS:		$Id: muter.h,v 1.8 2012-08-10 04:11:23 cvssalil Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ public:
 			    : taperlen_(taperlen)
 			    , tail_(tail)		{}
 
-    inline static float	mutePos( float z, const SamplingData<float>& sd )
+    inline static float	mutePos( float z, const SamplingData<double>& sd )
 			{ return sd.getfIndex(z); }
 
     void		mute(ValueSeries<float>&,int sz,float mutepos) const;
@@ -41,7 +41,7 @@ public:
 
     static void 	muteIntervalsPos(const TypeSet< Interval<float> >&,
 					TypeSet< Interval<float> >&,
-					const SamplingData<float>&);
+					const SamplingData<double>&);
     void		muteIntervals(ValueSeries<float>&,int sz,
 				      const TypeSet< Interval<float> >&) const;
 

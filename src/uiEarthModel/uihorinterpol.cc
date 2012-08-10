@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorinterpol.cc,v 1.27 2012-08-03 06:38:40 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorinterpol.cc,v 1.28 2012-08-10 04:11:27 cvssalil Exp $";
 
 #include "uihorinterpol.h"
 
@@ -201,7 +201,7 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	    if ( hs.includes(bid) )
 	    {
 		Coord3 pos = hor3d->getPos( posid );
-		arr->set( hs.inlIdx(bid.inl), hs.crlIdx(bid.crl), pos.z );
+		arr->set( hs.inlIdx(bid.inl), hs.crlIdx(bid.crl), (float) pos.z );
 	    }
 	}
 

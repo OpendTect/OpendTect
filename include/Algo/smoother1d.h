@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		May 2007
- RCS:		$Id: smoother1d.h,v 1.11 2012-04-02 09:53:41 cvsbert Exp $
+ RCS:		$Id: smoother1d.h,v 1.12 2012-08-10 04:11:23 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -239,7 +239,7 @@ bool Smoother1D<T>::doWork(od_int64 start,od_int64 stop,int)
 	    weightsum += window[winidx];
 	}
 
-	output_[outidx] = weightsum ? sum/weightsum : mUdf(float);
+	output_[outidx] = (T) (weightsum ? sum/weightsum : mUdf(float));
     }
 
     return true;

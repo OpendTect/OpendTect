@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon3dseedpicker.cc,v 1.53 2012-08-08 09:01:28 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon3dseedpicker.cc,v 1.54 2012-08-10 04:11:24 cvssalil Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -96,8 +96,8 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
     {
 	Coord3 lastseedcrd = emobj->getPos( lastsowseedpid_ );
 	if ( sowermode_ &&
-	     fltdataprov_->isCrossingFault(seedbid,seedcrd.z,lastsowseedbid,
-		    			   lastseedcrd.z) )
+	     fltdataprov_->isCrossingFault(seedbid,(float)seedcrd.z,lastsowseedbid,
+		    			   (float) (lastseedcrd.z) ))
 	{
 	    lastseedkey_ = seedkey;
 	    return false;
@@ -616,10 +616,10 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 	    BinID seed1bid = SI().transform( seed1 );
 	    BinID seed2bid = SI().transform( seed2 );
 	    if ( seed1bid!=seed2bid && (
-		 fltdataprov_->isOnFault(seed1bid,seed1.z,1.0) ||
-		 fltdataprov_->isOnFault(seed2bid,seed2.z,1.0) ||
-		 fltdataprov_->isCrossingFault(seed1bid,seed1.z,
-					       seed2bid,seed2.z) ) )
+		 fltdataprov_->isOnFault(seed1bid,(float) seed1.z,1.0f) ||
+		 fltdataprov_->isOnFault(seed2bid,(float) seed2.z,1.0f) ||
+		 fltdataprov_->isCrossingFault(seed1bid,(float) seed1.z,
+					       seed2bid,(float) seed2.z) ) )
 		continue;
 	}
 	for ( int idx=step; idx<diff; idx+=step ) 

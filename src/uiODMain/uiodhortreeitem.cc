@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodhortreeitem.cc,v 1.80 2012-07-31 04:07:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodhortreeitem.cc,v 1.81 2012-08-10 04:11:27 cvssalil Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -519,7 +519,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	for ( int idx=0; idx<nrattrib; idx++ )
 	    isenabled += visserv_->isAttribEnabled( visid, idx ); 
 
-	float curshift = visserv_->getTranslation( visid ).z;
+	float curshift = (float) visserv_->getTranslation( visid ).z;
 	if ( mIsUdf( curshift ) ) curshift = 0;
 
 	emattrserv->setDescSet( attrserv->curDescSet(false) );

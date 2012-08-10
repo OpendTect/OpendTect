@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisetpickdirs.cc,v 1.29 2012-05-02 15:11:58 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisetpickdirs.cc,v 1.30 2012-08-10 04:11:26 cvssalil Exp $";
 
 
 #include "uisetpickdirs.h"
@@ -182,8 +182,8 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	}
 	else
 	{
-	    phi = dps.value( 0, rid ) * M_PI / 180;
-	    theta = dps.value( 1, rid ) * M_PI / 180;
+	    phi = (float) (dps.value( 0, rid ) * M_PI / 180);
+	    theta = (float) (dps.value( 1, rid ) * M_PI / 180);
 	    if ( !mIsUdf(phi) && !mIsUdf(theta) )
 	    {
 		wrapPhi( phi );
@@ -335,10 +335,10 @@ float uiSetPickDirs::calcPhi( float inldip, float crldip )
     const float azi = atan2( inldip, crldip );
 
     const RCol2Coord& b2c = SI().binID2Coord();
-    const float xcrl = b2c.getTransform(true).c;
-    float ycrl = b2c.getTransform(false).c;
+    const double xcrl = b2c.getTransform(true).c;
+    double ycrl = b2c.getTransform(false).c;
 
-    const float angN = atan2( xcrl, ycrl );
+    const float angN = (float) atan2( xcrl, ycrl );
 
     float phi;
     if ( SI().isClockWise() )
@@ -355,7 +355,7 @@ float uiSetPickDirs::calcTheta( float inldip, float crldip )
 {
     const float poldip = Math::Sqrt( inldip*inldip + crldip*crldip );
     
-    float theta = atan( poldip * velocity_ * 1e-6 );
+    float theta = (float) atan( poldip * velocity_ * 1e-6 );
     return theta;
 }
 
@@ -363,7 +363,7 @@ float uiSetPickDirs::calcTheta( float inldip, float crldip )
 void uiSetPickDirs::wrapPhi( float& phi )
 {
     int nrcycles = (int)( phi / (2*M_PI) );
-    phi -= (nrcycles * 2*M_PI);
+    phi -= (float) (nrcycles * 2*M_PI);
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: prestackmutedef.cc,v 1.14 2012-07-02 14:11:38 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackmutedef.cc,v 1.15 2012-08-10 04:11:24 cvssalil Exp $";
 
 #include "prestackmutedef.h"
 
@@ -114,10 +114,10 @@ float MuteDef::value( float offs, const BinID& pos ) const
 	const float val = fns_[iloc]->getValue( offs );
 	const double sqdist = crd.sqDistTo( centercrd );
 	if ( sqdist < 1 ) return val;
-	calc.addValue( val, normalweight / sqdist );
+	calc.addValue( val, (float) (normalweight / sqdist) );
     }
 
-    return calc.average();
+    return (float) calc.average();
 }
 
 
@@ -150,9 +150,9 @@ void MuteDef::computeIntervals( float offs, const BinID& pos,
 	    const Coord crd( SI().transform(pos_[iloc]) );
 	    const double sqdist = crd.sqDistTo( centercrd );
 	    const float offset = fns_[iloc]->getValue( zval );
-	    calc.addValue( offset, normalweight / sqdist );
+	    calc.addValue( offset, (float) (normalweight / sqdist) );
 	}
-	weightedfn.add( zval, calc.average() );
+	weightedfn.add( zval, (float) calc.average() );
     }
 
     TypeSet<float> mutezvals;

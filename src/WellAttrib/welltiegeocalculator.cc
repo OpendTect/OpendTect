@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiegeocalculator.cc,v 1.69 2012-06-13 08:25:59 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltiegeocalculator.cc,v 1.70 2012-08-10 04:11:25 cvssalil Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -113,7 +113,7 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 }
 
 
-#define mMicroSFactor 10e5
+#define mMicroSFactor 10e5f
 void GeoCalculator::son2Vel( Well::Log& log, bool straight ) const
 {
     UnitFactors uf; double velfac = uf.getVelFactor( log, straight );
@@ -123,7 +123,7 @@ void GeoCalculator::son2Vel( Well::Log& log, bool straight ) const
     for ( int idx=0; idx<log.size(); idx++ )
     {
 	float& val = log.valArr()[idx];
-	val = val ? velfac/val : val;
+	val = val ? (float)velfac/val : val;
 	val *= straight ? 1 : mMicroSFactor;
     }
     log.setUnitMeasLabel( straight ? UnitFactors::getStdVelLabel() 
@@ -172,7 +172,7 @@ void GeoCalculator::vel2TWT(Well::Log& log, bool straight, float startdah) const
 	{
 	    float v = vals[idx];
 	    if ( !v ) continue; 
-	    newval = 2*( dpts[idx] - dpts[idx-1] )/(v*velfac);
+	    newval = (float) ( 2*( dpts[idx] - dpts[idx-1] )/(v*velfac) );
 	    newval += prevval;
 	    prevval = newval;
 	}

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: faultstickseteditor.cc,v 1.15 2012-08-03 06:38:39 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: faultstickseteditor.cc,v 1.16 2012-08-10 04:11:24 cvssalil Exp $";
 
 #include "faultstickseteditor.h"
 
@@ -174,7 +174,7 @@ float FaultStickSetEditor::distToStick( int sticknr,const EM::SectionID& sid,
 	 fabs( posnormal->dot(plane.normal()) ) < 0.5 )
 	return mUdf(float);
 
-    const float onestepdist =
+    const double onestepdist =
 		mWorldScale( SI().oneStepTranslation(plane.normal()) ).abs();
 
     bool insameplane = false;
@@ -207,7 +207,7 @@ float FaultStickSetEditor::distToStick( int sticknr,const EM::SectionID& sid,
 
     avgpos /= count;
 
-    return mCustomScale(avgpos).Coord::distTo( mCustomScale(mousepos) );
+    return (float) (mCustomScale(avgpos).Coord::distTo( mCustomScale(mousepos) ));
 }
 
 
@@ -374,7 +374,7 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 
 	float sqdist = 0;
 	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pos )
-	    sqdist = mCustomScale(pos).sqDistTo( mCustomScale(mousepos) );
+	    sqdist = (float)(mCustomScale(pos).sqDistTo( mCustomScale(mousepos) ));
 
 	if ( nearestknotidx==-1 || sqdist<minsqdist )
 	{

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorgeom2attr.cc,v 1.9 2012-08-03 06:38:40 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorgeom2attr.cc,v 1.10 2012-08-10 04:11:27 cvssalil Exp $";
 
 #include "uihorgeom2attr.h"
 
@@ -88,7 +88,7 @@ bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
 	    if ( !hor_.geometry().isNodeOK(pid) )
 		continue;
 
-	    const float zval = hor_.getPos(pid).z * zfac;
+	    const float zval = (float) ( hor_.getPos(pid).z * zfac );
 	    hor_.auxdata.setAuxDataVal( auxidx, pid, zval );
 	}
 	delete iter;
@@ -202,7 +202,7 @@ int nextStep()
 
 bool uiHorAttr2Geom::acceptOK( CallBacker* cb )
 {
-    mGetZFac( 0.001 );
+    mGetZFac( 0.001f );
     const bool isdelta = isdeltafld_->getBoolValue();
 
     uiHorAttr2GeomExec exec( hor_, dps_, colid_, zfac, isdelta );

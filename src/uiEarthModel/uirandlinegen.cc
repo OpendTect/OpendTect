@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uirandlinegen.cc,v 1.28 2012-07-10 08:05:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uirandlinegen.cc,v 1.29 2012-08-10 04:11:27 cvssalil Exp $";
 
 #include "uirandlinegen.h"
 
@@ -166,7 +166,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     StepInterval<float> contzrg = contzrgfld_->getFStepInterval();
     const bool isrel = isrelfld_->isChecked();
     Interval<float> linezrg = (isrel?relzrgfld_:abszrgfld_)->getFStepInterval();
-    const float zfac = 1. / SI().zDomain().userFactor();
+    const float zfac = 1.f / SI().zDomain().userFactor();
     contzrg.scale( zfac ); linezrg.scale( zfac );
 
     EM::RandomLineSetByContourGenerator::Setup cgsu( isrel );
@@ -211,7 +211,7 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
     const Coord c1( SI().transform(bid1) );
     const Coord c2( SI().transform(bid2) );
     distfld_ = new uiGenInput( this, "Distance from input",
-				    FloatInpSpec(4*c1.distTo(c2)) );
+				    FloatInpSpec((float)( 4*c1.distTo(c2)) ));
     distfld_->attach( alignedBelow, infld_ );
 
     const char* strs[] = { "Left", "Right", "Both", 0 };

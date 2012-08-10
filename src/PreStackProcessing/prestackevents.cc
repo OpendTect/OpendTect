@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackevents.cc,v 1.20 2012-07-22 04:51:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackevents.cc,v 1.21 2012-08-10 04:11:24 cvssalil Exp $";
 
 #include "prestackevents.h"
 
@@ -700,9 +700,9 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	if ( previnl==nextinl )
 	    return false;
 
-	const float inldiff =
-	    emhorizons_[horidx]->getPos(sid,nextinl.toInt64() ).z -
-	    emhorizons_[horidx]->getPos(sid,previnl.toInt64() ).z;
+	const float inldiff = (float) 
+	    (emhorizons_[horidx]->getPos(sid,nextinl.toInt64() ).z -
+	     emhorizons_[horidx]->getPos(sid,previnl.toInt64() ).z);
 
 	BinID prevcrl( bidv.binid.inl, bidv.binid.crl-horstep.inl );
 	BinID nextcrl( bidv.binid.inl, bidv.binid.crl+horstep.inl );
@@ -714,9 +714,9 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	if ( prevcrl==nextcrl )
 	    return false;
 
-	const float crldiff =
-	    emhorizons_[horidx]->getPos(sid,nextcrl.toInt64() ).z -
-	    emhorizons_[horidx]->getPos(sid,prevcrl.toInt64() ).z;
+	const float crldiff = (float) 
+	    (emhorizons_[horidx]->getPos(sid,nextcrl.toInt64() ).z -
+	     emhorizons_[horidx]->getPos(sid,prevcrl.toInt64() ).z);
 
 	inldip = inldiff/((nextinl.inl-previnl.inl)*SI().inlDistance() );
 	crldip = crldiff/((nextcrl.crl-prevcrl.crl)*SI().crlDistance() );
@@ -759,8 +759,8 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 
 	if ( SI().zIsTime() )
 	{
-	    inldip = tmpinldip/1e6;
-	    crldip = tmpcrldip/1e6;
+	    inldip = tmpinldip/1e6f;
+	    crldip = tmpcrldip/1e6f;
 	}
 	else
 	{

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uispecdecompattrib.cc,v 1.39 2012-07-31 20:59:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uispecdecompattrib.cc,v 1.40 2012-08-10 04:11:26 cvssalil Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -104,7 +104,7 @@ void uiSpecDecompAttrib::inputSel( CallBacker* )
     int temp = 2;
     while ( temp  < ns ) temp *= 2;
     nrsamples_ = temp;
-    nyqfreq_ = 0.5 / ds_;
+    nyqfreq_ = 0.5f / ds_;
 
     const float freqscale = zIsTime() ? 1 : 1000;
     const float scalednyqfreq = nyqfreq_ * freqscale;

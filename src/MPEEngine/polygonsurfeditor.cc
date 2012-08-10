@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: polygonsurfeditor.cc,v 1.18 2012-07-18 09:13:20 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: polygonsurfeditor.cc,v 1.19 2012-08-10 04:11:24 cvssalil Exp $";
 
 #include "polygonsurfeditor.h"
 
@@ -255,7 +255,7 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
 
 	    const Plane3 plane( surface->getPolygonNormal(curpolygon),
 		    		avgpos, false );
-	    const float disttoplane =
+	    const float disttoplane = (float) 
 		plane.distanceToPoint( mCompareCoord(mousepos), true );
 
 	    if ( selsectionidx==-1 || fabs(disttoplane)<fabs(mindist) )
@@ -389,7 +389,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	float sqdist = 0;
 	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pt )
 	{
-	    sqdist = mCompareCoord(pt).sqDistTo( mCompareCoord(mousepos) );
+	    sqdist = (float) mCompareCoord(pt).sqDistTo( mCompareCoord(mousepos) );
 	    if ( mIsZero(sqdist, 1e-4) ) //mousepos is duplicated.
 		return;
 	}

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.99 2012-08-03 12:42:21 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.100 2012-08-10 04:11:25 cvssalil Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -560,7 +560,7 @@ void Well::Track::addPoint( const Coord& c, float z, float dahval )
     {
 	const int previdx = dah_.size() - 1;
 	dahval = previdx < 0 && previdx < pos_.size()-1 ? 0
-	    : dah_[previdx] + pos_[previdx].distTo( pos_[previdx+1] );
+	    : (float) (dah_[previdx] + pos_[previdx].distTo( pos_[previdx+1] ));
     }
     dah_ += dahval;
 }
@@ -570,22 +570,22 @@ void Well::Track::insertAfterIdx( int aftidx, const Coord3& c )
 {
     const int oldsz = pos_.size();
     if ( aftidx > oldsz-2 )
-	{ addPoint( c, c.z ); return; }
+	{ addPoint( c, (float) c.z ); return; }
 
-    float extradah, owndah = 0;
+    double extradah, owndah = 0;
     if ( aftidx == -1 )
 	extradah = c.distTo( pos_[0] );
     else
     {
-	float dist0 = c.distTo( pos_[aftidx] );
-	float dist1 = c.distTo( pos_[aftidx+1] );
+	double dist0 = c.distTo( pos_[aftidx] );
+	double dist1 = c.distTo( pos_[aftidx+1] );
 	owndah = dah_[aftidx] + dist0;
 	extradah = dist0 + dist1 - pos_[aftidx].distTo( pos_[aftidx+1] );
     }
 
     pos_.insert( aftidx+1, c );
-    dah_.insert( aftidx+1, owndah );
-    addToDahFrom( aftidx+2, extradah );
+    dah_.insert( aftidx+1, (float) owndah );
+    addToDahFrom( aftidx+2, (float) extradah );
 }
 
 
@@ -609,7 +609,7 @@ int Well::Track::insertPoint( const Coord& c, float z )
 	    pos_.erase(); dah_.erase();
 	    pos_ += cnew; pos_ += oth;
 	    dah_ += 0;
-	    dah_ += oth.distTo( cnew );
+	    dah_ += (float) oth.distTo( cnew );
 	    return 0;
 	}
     }
@@ -619,21 +619,21 @@ int Well::Track::insertPoint( const Coord& c, float z )
     // This boils down to min(sum of sq distances / product of distances)
 
     float minval = 1e30; int minidx = -1;
-    float mindist = pos_[0].distTo(cnew); int mindistidx = 0;
+    float mindist = (float) pos_[0].distTo(cnew); int mindistidx = 0;
     for ( int idx=1; idx<oldsz; idx++ )
     {
 	const Coord3& c0 = pos_[idx-1];
 	const Coord3& c1 = pos_[idx];
-	const float d = c0.distTo( c1 );
-	const float d0 = c0.distTo( cnew );
-	const float d1 = c1.distTo( cnew );
+	const double d = c0.distTo( c1 );
+	const double d0 = c0.distTo( cnew );
+	const double d1 = c1.distTo( cnew );
 	if ( mIsZero(d0,1e-4) || mIsZero(d1,1e-4) )
 	    return -1; // point already present
-	float val = ( d0 * d0 + d1 * d1 - ( d * d ) ) / (2 * d0 * d1);
+	float val = (float) (( d0 * d0 + d1 * d1 - ( d * d ) ) / (2 * d0 * d1));
 	if ( val < minval )
 	    { minidx = idx-1; minval = val; }
 	if ( d1 < mindist )
-	    { mindist = d1; mindistidx = idx; }
+	    { mindist = (float) d1; mindistidx = idx; }
 	if ( idx == oldsz-1 && minval > 0 )
 	{
 	    if ( mindistidx == oldsz-1)
@@ -643,8 +643,8 @@ int Well::Track::insertPoint( const Coord& c, float z )
 	    }
 	    else if ( mindistidx > 0 && mindistidx < oldsz-1 )
 	    {
-		float prevdist = pos_[mindistidx-1].distTo(cnew);
-		float nextdist = pos_[mindistidx+1].distTo(cnew);
+		float prevdist = (float) pos_[mindistidx-1].distTo(cnew);
+		float nextdist = (float) pos_[mindistidx+1].distTo(cnew);
 		minidx = prevdist > nextdist ? mindistidx : mindistidx -1;
 	    }
 	    else
@@ -657,9 +657,9 @@ int Well::Track::insertPoint( const Coord& c, float z )
 	// The point may be before the first
 	const Coord3& c0 = pos_[0];
 	const Coord3& c1 = pos_[1];
-	const float d01sq = c0.sqDistTo( c1 );
-	const float d0nsq = c0.sqDistTo( cnew );
-	const float d1nsq = c1.sqDistTo( cnew );
+	const double d01sq = c0.sqDistTo( c1 );
+	const double d0nsq = c0.sqDistTo( cnew );
+	const double d1nsq = c1.sqDistTo( cnew );
 	if ( d01sq + d0nsq < d1nsq )
 	    minidx = -1;
     }
@@ -668,9 +668,9 @@ int Well::Track::insertPoint( const Coord& c, float z )
 	// Hmmm. The point may be beyond the last
 	const Coord3& c0 = pos_[oldsz-2];
 	const Coord3& c1 = pos_[oldsz-1];
-	const float d01sq = c0.sqDistTo( c1 );
-	const float d0nsq = c0.sqDistTo( cnew );
-	const float d1nsq = c1.sqDistTo( cnew );
+	const double d01sq = c0.sqDistTo( c1 );
+	const double d0nsq = c0.sqDistTo( cnew );
+	const double d1nsq = c1.sqDistTo( cnew );
 	if ( d01sq + d1nsq < d0nsq )
 	    minidx = oldsz-1;
     }
@@ -720,13 +720,13 @@ void Well::Track::setPoint( int idx, const Coord& c, float z )
 
     Coord3 oldpt( pos_[idx] );
     Coord3 newpt( c.x, c.y, z );
-    float olddist0 = idx > 0 ? oldpt.distTo(pos_[idx-1]) : 0;
-    float newdist0 = idx > 0 ? newpt.distTo(pos_[idx-1]) : 0;
+    float olddist0 = idx > 0 ? (float) oldpt.distTo(pos_[idx-1]) : 0;
+    float newdist0 = idx > 0 ? (float) newpt.distTo(pos_[idx-1]) : 0;
     float olddist1 = 0, newdist1 = 0;
     if ( idx < nrpts-1 )
     {
-	olddist1 = oldpt.distTo(pos_[idx+1]);
-	newdist1 = newpt.distTo(pos_[idx+1]);
+	olddist1 = (float) oldpt.distTo(pos_[idx+1]);
+	newdist1 = (float) newpt.distTo(pos_[idx+1]);
     }
 
     pos_[idx] = newpt;
@@ -740,7 +740,7 @@ void Well::Track::removePoint( int idx )
     if ( idx < pos_.size()-1 && idx < dah_.size()-1 )
     {
 	float olddist = idx ? dah_[idx+1] - dah_[idx-1] : dah_[1];
-	float newdist = idx ? pos_[idx+1].distTo( pos_[idx-1] ) : 0;
+	float newdist = idx ? (float) pos_[idx+1].distTo( pos_[idx-1] ) : 0;
 	float extradah = olddist - newdist;
 	removeFromDahFrom( idx+1, extradah );
     }
@@ -768,7 +768,7 @@ Coord3 Well::Track::coordAfterIdx( float dh, int idx1 ) const
     const float d2 = dah_[idx2] - dh;
     const Coord3& c1 = pos_[idx1];
     const Coord3& c2 = pos_[idx2];
-    const float f = 1. / (d1 + d2);
+    const float f = 1.f / (d1 + d2);
     return Coord3( f * (d1 * c2.x + d2 * c1.x), f * (d1 * c2.y + d2 * c1.y),
 		   f * (d1 * c2.z + d2 * c1.z) );
 }
@@ -794,7 +794,7 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
     (zrg.start-eps < z  && zrg.stop+eps  > z) \
  || (zrg.stop-eps  < z  && zrg.start+eps > z)
 
-    Interval<float> zrg( pos_[0].z, 0 );
+    Interval<double> zrg( pos_[0].z, 0 );
     int idxafter = -1;
     for ( int idx=1; idx<pos_.size(); idx++ )
     {
@@ -810,7 +810,7 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
 	return mUdf(float);
 
     const int idx1 = idxafter - 1; const int idx2 = idxafter;
-    const float z1 = pos_[idx1].z; const float z2 = pos_[idx2].z;
+    const float z1 = (float) pos_[idx1].z; const float z2 = (float) pos_[idx2].z;
     const float dah1 = dah_[idx1]; const float dah2 = dah_[idx2];
     const float zdiff = z2 - z1;
     return mIsZero(zdiff,eps) ? dah2 : ((z-z1) * dah2 + (z2-z) * dah1) / zdiff;
@@ -826,11 +826,11 @@ float Well::Track::nearestDah( const Coord3& posin ) const
     const float zfac = zistime_ ? 2000 : 1;
     Coord3 reqpos( posin ); reqpos.z *= zfac;
     Coord3 curpos( getPos( dah_[0] ) ); curpos.z *= zfac;
-    float sqneardist = curpos.sqDistTo( reqpos );
-    float sqsecdist = sqneardist;
+    double sqneardist = curpos.sqDistTo( reqpos );
+    double sqsecdist = sqneardist;
     int nearidx = 0; int secondidx = 0;
     curpos = getPos( dah_[1] ); curpos.z *= zfac;
-    float sqdist = curpos.sqDistTo( reqpos );
+    double sqdist = curpos.sqDistTo( reqpos );
     if ( sqdist < sqneardist )
 	{ nearidx = 1; sqneardist = sqdist; }
     else
@@ -854,8 +854,8 @@ float Well::Track::nearestDah( const Coord3& posin ) const
 	    break;
     }
 
-    const float neardist = Math::Sqrt( sqneardist );
-    const float secdist = Math::Sqrt( sqsecdist );
+    const float neardist = (float) Math::Sqrt( sqneardist );
+    const float secdist = (float) Math::Sqrt( sqsecdist );
     return (neardist*dah_[secondidx] + secdist * dah_[nearidx])
          / (neardist + secdist);
 }
@@ -866,10 +866,10 @@ bool Well::Track::alwaysDownward() const
     if ( pos_.size() < 2 )
 	return pos_.size();
 
-    float prevz = pos_[0].z;
+    float prevz = (float) pos_[0].z;
     for ( int idx=1; idx<pos_.size(); idx++ )
     {
-	float curz = pos_[idx].z;
+	float curz = (float) pos_[idx].z;
 	if ( curz <= prevz )
 	    return false;
 	prevz = curz;

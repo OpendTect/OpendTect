@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.445 2012-07-21 22:41:00 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodapplmgr.cc,v 1.446 2012-08-10 04:11:27 cvssalil Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -474,8 +474,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    mDynamicCastGet(const FlatDataPack*, fdp, dp);
 		    if ( fdp )
 		    {
-			const float newstep0 = fdp->posData().range(true).step;
-			const float newstep1 = fdp->posData().range(false).step;
+			const float newstep0 = (float) fdp->posData().range(true).step;
+			const float newstep1 = (float) fdp->posData().range(false).step;
 			if ( !(mIsEqual(step0,newstep0,(newstep0+step0)*5E-4)
 			    && mIsEqual(step1,newstep1,(newstep1+step1)*5E-4)) )
 			{
@@ -713,7 +713,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	createAndSetMapDataPack( visid, attrib, *data, dataidx );
 	if ( hd )
 	{
-	    TypeSet<float> shifts( 1, visserv_->getTranslation(visid).z );
+	    TypeSet<float> shifts( 1, (float) visserv_->getTranslation(visid).z );
 	    hd->setAttribShift( attrib, shifts );
 	}
     }
@@ -1576,7 +1576,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 
 	const MultiID mid = visserv_->getMultiID( visid );
 	const EM::ObjectID emid = emserv_->getObjectID( mid );
-	const float shift = visserv_->getTranslation(visid).z;
+	const float shift = (float) visserv_->getTranslation(visid).z;
 	const TypeSet<Attrib::SelSpec>& specs = attrserv_->getTargetSelSpecs();
 	const int nrvals = data.bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )

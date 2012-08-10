@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiexphorizon.cc,v 1.81 2012-05-22 14:48:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiexphorizon.cc,v 1.82 2012-08-10 04:11:26 cvssalil Exp $";
 
 #include "uiexphorizon.h"
 
@@ -136,8 +136,8 @@ static void writeGF( std::ostream& strm, const BinID& bid, float z,
 {
     static char buf[mDataGFLineLen+2];
     const float crl = bid.crl;
-    const float gfval = mIsUdf(val) ? mGFUndefValue : val;
-    const float depth = mIsUdf(z) ? mGFUndefValue : z;
+    const float gfval = (float) mIsUdf(val) ? mGFUndefValue : val;
+    const float depth = (float) mIsUdf(z) ? mGFUndefValue : z;
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
 	     crd.x, crd.y, segid, 14, depth, crl, crl, bid.crl, gfval, bid.inl,
 	     "" );
@@ -283,12 +283,12 @@ bool uiExportHorizon::writeAscii()
  		{
  		    first = false;
  		    bbox.hrg.start = bbox.hrg.stop = bid;
- 		    bbox.zrg.start = bbox.zrg.stop = crd.z;
+ 		    bbox.zrg.start = bbox.zrg.stop = (float) crd.z;
  		}
  		else
  		{
  		    bbox.hrg.include( bid );
- 		    bbox.zrg.include( crd.z );
+ 		    bbox.zrg.include( (float) crd.z );
  		}
  	    }
  
@@ -370,7 +370,7 @@ bool uiExportHorizon::writeAscii()
 		const BinID bid = SI().transform( crd );
 		const float auxvalue = nrattribs > 0
 		    ? hor->auxdata.getAuxDataVal(0,posid) : mUdf(float);
-		writeGF( *sdo.ostrm, bid, crd.z, auxvalue, crd, sidx );
+		writeGF( *sdo.ostrm, bid, (float) crd.z, auxvalue, crd, sidx );
 		continue;
 	    }
 

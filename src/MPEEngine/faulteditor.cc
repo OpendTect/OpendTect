@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: faulteditor.cc,v 1.21 2012-08-03 06:38:39 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: faulteditor.cc,v 1.22 2012-08-10 04:11:23 cvssalil Exp $";
 
 #include "faulteditor.h"
 
@@ -143,7 +143,7 @@ float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
     const Plane3 plane( posnormal ? *posnormal : sticknormal,
 			mWorldScale(mousepos), false );
 
-    const float onestepdist =
+    const double onestepdist =
 		mWorldScale( SI().oneStepTranslation( plane.normal()) ).abs();
 
     bool insameplane = false;
@@ -173,7 +173,7 @@ float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
 
     avgpos /= count;
  
-    return mCustomScale(avgpos).Coord::distTo( mCustomScale(mousepos) );
+    return (float)(mCustomScale(avgpos).Coord::distTo(mCustomScale(mousepos)));
 }
 
 
@@ -223,12 +223,12 @@ float FaultEditor::panelIntersectDist(
 
     const Plane3 plane( posnormal, mWorldScale(mousepos), false );
 
-    float d0 = plane.distanceToPoint( mWorldScale(avgpos0), true );
-    float d1 = plane.distanceToPoint( mWorldScale(avgpos1), true );
+    float d0 = (float) plane.distanceToPoint( mWorldScale(avgpos0), true );
+    float d1 = (float) plane.distanceToPoint( mWorldScale(avgpos1), true );
     if ( mIsUdf(d0) || mIsUdf(d1) )
 	return mUdf(float);
 
-    const float onestepdist =
+    const double onestepdist =
 		mWorldScale( SI().oneStepTranslation( plane.normal()) ).abs();
 	
     if ( fabs(d0) < 0.5*onestepdist )
@@ -255,7 +255,7 @@ float FaultEditor::panelIntersectDist(
     else if ( d0*d1 > 0.0 )
 	return mUdf(float);
 
-    return mCustomScale(pos).Coord::distTo( mCustomScale(mousepos) );
+    return (float) (mCustomScale(pos).Coord::distTo( mCustomScale(mousepos) ));
 }
 
 
@@ -531,7 +531,7 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 
 	float sqdist = 0;
 	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pos )
-	    sqdist = mCustomScale(pos).sqDistTo( mCustomScale(mousepos) );
+	    sqdist = (float)mCustomScale(pos).sqDistTo( mCustomScale(mousepos) );
 
 	if ( nearestknotidx==-1 || sqdist<minsqdist )
 	{

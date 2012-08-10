@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.11 2011-09-19 12:24:56 cvskris Exp $
+ RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.12 2012-08-10 04:11:27 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -245,8 +245,8 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 		    			    DataPack::cNoID() );
 	    else
 	    {
-		const Interval<float> zrg( dprdm->posData().range(false).start,
-					   dprdm->posData().range(false).stop );
+		const Interval<float> zrg( (float) dprdm->posData().range(false).start,
+					   (float) dprdm->posData().range(false).stop );
 		TypeSet<BinID> bids;
 		if ( dprdm->pathBIDs() )
 		    bids = *dprdm->pathBIDs();

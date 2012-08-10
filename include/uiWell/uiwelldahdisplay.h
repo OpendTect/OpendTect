@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.17 2012-08-03 13:01:20 cvskris Exp $
+ RCS:           $Id: uiwelldahdisplay.h,v 1.18 2012-08-10 04:11:23 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ class UnitOfMeasure;
 if ( zdata_.zistime_ && zdata_.d2T() )\
     zpos = d2T()->getTime( zpos )*SI().zDomain().userFactor();\
 else if ( !zdata_.zistime_ && track() )\
-    zpos = track() ? zdata_.track()->getPos( zpos ).z : 0;
+    zpos = track() ? (float) zdata_.track()->getPos( zpos ).z : 0;
 
 #define mDefZPosInLoop(val) \
     float zpos = val;\

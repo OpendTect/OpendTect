@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellposprovider.cc,v 1.7 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellposprovider.cc,v 1.8 2012-08-10 04:11:25 cvssalil Exp $";
 
 #include "wellposprovider.h"
 
@@ -151,7 +151,7 @@ bool WellProvider3D::includes( const BinID& bid, float z ) const
 
     if ( mIsUdf(z) ) return true;
 
-    const float zeps = zrg_.step * 1e-6;
+    const float zeps = zrg_.step * 1e-6f;
     return z > zrg_.start - zeps && z < zrg_.stop + zeps;
 }
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackprop.cc,v 1.10 2012-05-30 10:03:30 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackprop.cc,v 1.11 2012-08-10 04:11:25 cvssalil Exp $";
 
 #include "prestackprop.h"
 
@@ -227,7 +227,7 @@ float PropCalc::getVal( const PropCalc::Setup& su,
     if ( su.calctype_ == Stats )
     {
 	rc.addValues( vals.size(), vals.arr() );
-	return rc.getValue( su.stattype_ );
+	return (float) rc.getValue( su.stattype_ );
     }
 
     rc.addValues( offs.size(), offs.arr() );

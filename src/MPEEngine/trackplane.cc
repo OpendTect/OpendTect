@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: trackplane.cc,v 1.14 2012-05-22 14:48:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: trackplane.cc,v 1.15 2012-08-10 04:11:24 cvssalil Exp $";
    
 
 #include "trackplane.h"
@@ -76,9 +76,9 @@ float TrackPlane::distance( const Coord3& pos,
 	    ? t2d->getValue(cubesampling.zrg.start)
 	    : cubesampling.zrg.start;
 	double testz = t2d
-	    ? t2d->getValue(pos.z)
+	    ? t2d->getValue((float) pos.z)
 	    : pos.z;
-	return fabs(ownz-testz);
+	return (float) fabs(ownz-testz);
     }
 
     const Coord3 start = Coord3(SI().transform(cubesampling.hrg.start),pos.z);
@@ -86,7 +86,7 @@ float TrackPlane::distance( const Coord3& pos,
     const Coord3 dir = start-stop;
 
     const Line3 line(start,dir);
-    return line.distanceToPoint( pos );
+    return (float) line.distanceToPoint( pos );
 }
 
 

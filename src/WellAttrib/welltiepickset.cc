@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiepickset.cc,v 1.40 2012-07-02 19:56:55 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltiepickset.cc,v 1.41 2012-08-10 04:11:25 cvssalil Exp $";
 
 #include "arrayndimpl.h"
 #include "sorting.h"
@@ -75,7 +75,7 @@ void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
 
 
 
-#define mTimeGate 0.02
+#define mTimeGate 0.02f
 float PickSetMgr::findEvent( const SeisTrc& trc, float zpos ) const
 {
     zpos *= 0.001;
