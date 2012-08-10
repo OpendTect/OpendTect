@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.68 2012-07-04 10:36:06 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.69 2012-08-10 11:41:12 cvshelene Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.68 2012-07-
 #include "strattransl.h"
 #include "stratlaymodgen.h"
 #include "stratreftree.h"
+#include "stratsynth.h"
 #include "wavelet.h"
 
 #include "uielasticpropsel.h"
@@ -601,3 +602,8 @@ bool uiStratLayerModel::closeOK()
 }
 
 
+void uiStratLayerModel::displayFRResult( uiStratLayerModelDisp* slmoddisp,
+					 SyntheticData* synthdata )
+{
+    //TODO
+}
