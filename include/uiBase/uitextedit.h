@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.30 2012-08-03 13:00:54 cvskris Exp $
+ RCS:           $Id: uitextedit.h,v 1.31 2012-08-10 07:26:25 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,9 @@ public:
     void		home();
     void		reload();
     void		scrollToBottom();
+    void		showToolTip(const char*);
+    void		recordScrollPos();
+    void		restoreScrollPos();
 
     bool		canGoForward()		{ return cangoforw_; }
     bool		canGoBackward()		{ return cangobackw_; }

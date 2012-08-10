@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.56 2012-05-16 06:29:52 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.57 2012-08-10 07:26:25 cvsraman Exp $";
 
 
 #include "uitextedit.h"
@@ -18,14 +18,17 @@ static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.56 2012-05-16 06:2
 #include "i_qtextedit.h"
 
 #include "ascstream.h"
+#include "rowcol.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "timer.h"
 #include "varlenarray.h"
 
 #include <iostream>
+#include <QScrollBar>
 #include <QTextDocument> 
 #include <QTextEdit> 
+#include <QToolTip> 
 
 
 #define mMaxLineLength 32768
@@ -266,8 +269,13 @@ public:
 					  bool plaintxt );
 
     virtual		~uiTextBrowserBody()	{ delete &messenger_; }
+
+    void		recordScrollPos();
+    void		restoreScrollPos();
 protected:
+
     i_BrowserMessenger& messenger_;
+    RowCol		scrollpos_;
 };
 
 
@@ -275,11 +283,28 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& hndl, uiParent* p,
 				      const char* nm, bool plaintxt )
     : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( hndl, p, nm )
     , messenger_( *new i_BrowserMessenger(this, &hndl))
+    , scrollpos_(mUdf(int),mUdf(int))
 {
     setStretch( 2, 2 );
 }
 
 
+void uiTextBrowserBody::recordScrollPos()
+{
+    scrollpos_.row = horizontalScrollBar() ? horizontalScrollBar()->value()
+					   : mUdf(int);
+    scrollpos_.col = verticalScrollBar() ? verticalScrollBar()->value()
+					   : mUdf(int);
+}
+
+
+void uiTextBrowserBody::restoreScrollPos()
+{
+    if ( horizontalScrollBar() && !mIsUdf(scrollpos_.row) )
+	horizontalScrollBar()->setValue( scrollpos_.row );
+    if ( verticalScrollBar() && !mIsUdf(scrollpos_.col) )
+	verticalScrollBar()->setValue( scrollpos_.col );
+}
 
 
 //-------------------------------------------------------
@@ -321,6 +346,12 @@ uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
 
 
 QTextEdit& uiTextBrowser::qte()	{ return *body_; }
+
+
+void uiTextBrowser::showToolTip( const char* txt )
+{
+    QToolTip::showText( QCursor::pos(), QString(txt) );
+}
 
 
 void uiTextBrowser::readTailCB( CallBacker* )
@@ -429,6 +460,12 @@ void uiTextBrowser::home()
 
 void uiTextBrowser::scrollToBottom()
 { body_->moveCursor( QTextCursor::End ); }
+
+void uiTextBrowser::recordScrollPos()
+{ body_->recordScrollPos(); }
+
+void uiTextBrowser::restoreScrollPos()
+{ body_->restoreScrollPos(); }
 
 
 void uiTextBrowser::reload()
