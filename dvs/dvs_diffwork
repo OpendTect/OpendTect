@@ -1,0 +1,27 @@
+#!/bin/csh -f
+
+if ( ! -e "$1" ) then
+	echo "$0 checks out a file and uses meld with the one from od or dgb"
+	exit 1
+endif
+
+set fnm="$1"
+set dirnm=`pwd`
+
+set modnm=$dirnm:t
+set srcincpth=$dirnm:h
+set srcinc=$srcincpth:t
+set reldirpth=$srcincpth:h
+set reldir=$reldirpth:t
+set wrkdir=`echo $reldir|sed 's/[45].*$//'`
+set goback="../../.."
+if ( $wrkdir != "dgb" && $wrkdir != "od" ) then
+	set srcinc=plugins/$wrkdir/$srcinc
+	set reldirpth=$reldirpth:h:h
+	set reldir=$reldirpth:t
+	set wrkdir=`echo $reldir|sed 's/[45].*$//'`
+	set goback="../../../../.."
+endif
+
+echo "diff $fnm $goback/$wrkdir/$srcinc/$modnm/$fnm"
+diff $fnm $goback/$wrkdir/$srcinc/$modnm/$fnm
