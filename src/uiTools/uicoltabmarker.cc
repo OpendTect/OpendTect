@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicoltabmarker.cc,v 1.16 2012-07-25 14:54:48 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicoltabmarker.cc,v 1.17 2012-08-10 03:50:07 cvsaneesh Exp $";
 
 #include "uicoltabmarker.h"
 
@@ -257,7 +257,7 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
     for ( int idx=0; idx<ctab_.size(); idx++ )
     {
 	const float val = ctab_.position( idx );
-	const float ref = wpt.x;
+	const float ref = (float) ( wpt.x );
 	const float diffinpix = fabs(val-ref) / fabs(fac);
 	if ( diffinpix < mindiff )
 	{
@@ -351,7 +351,7 @@ void uiColTabMarkerCanvas::mouse2Clk( CallBacker* cb )
 
     const MouseEvent& ev = meh_.event();
     uiWorldPoint wpt = w2ui_->transform( ev.pos() );
-    addMarker( wpt.x, true );
+    addMarker( (float) (wpt.x), true );
     selidx_ = -1;
     meh_.setHandled( true );
 }
@@ -377,7 +377,7 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
 
     const MouseEvent& ev = meh_.event();
     uiWorldPoint wpt = w2ui_->transform( ev.pos() );
-    float changepos = wpt.x;
+    float changepos = (float) ( wpt.x );
 
     const int sz = ctab_.size();
     if ( selidx_<0 || selidx_>=sz ) return;
@@ -387,9 +387,9 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
 
     float position = mUdf(float); 
     if ( (selidx_ > 0 && ctab_.position(selidx_-1)>=changepos) )
-	position = ctab_.position(selidx_-1) + 1.01*mEps;
+	position = (float) ( ctab_.position(selidx_-1) + 1.01*mEps );
     else if ( (selidx_ < sz-1 && ctab_.position(selidx_+1)<=changepos) )
-	position = ctab_.position( selidx_+1 ) - 1.01*mEps;
+	position = (float) ( ctab_.position( selidx_+1 ) - 1.01*mEps );
     else
 	position = changepos;
 

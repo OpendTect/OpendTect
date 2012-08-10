@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiswvltgen.cc,v 1.24 2012-07-10 08:05:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiswvltgen.cc,v 1.25 2012-08-10 03:50:06 cvsaneesh Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -74,7 +74,7 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
 				BoolInpSpec(true,"Ricker","Sinc") );
 
     const float sisr = SI().zStep();
-    float deffrq = 0.1 / sisr; int ideffr = mNINT32(deffrq);
+    float deffrq = 0.1f / sisr; int ideffr = mNINT32(deffrq);
     if ( ideffr > 0 && mIsZero(deffrq-ideffr,1e-4) )
 	deffrq = ideffr; // avoid awkward 99.999 display
     BufferString txt( "Central " );
@@ -388,7 +388,7 @@ uiSeisWvltMerge::WvltMathFunction::WvltMathFunction( const Wavelet* wvlt )
 
 float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
 {
-    float x = ( t*0.1 - samppos_.start );
+    float x = ( t*0.1f - samppos_.start );
     x /= samppos_.step;
     const int x1 = int(x);
     if ( x1 > size_-1 || x1<0 )

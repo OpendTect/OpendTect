@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.92 2012-07-27 09:46:03 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.93 2012-08-10 03:50:05 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.92 2012-07-27 09:46:03 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.93 2012-08-10 03:50:05 cvsaneesh Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -784,10 +784,10 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
 	    if ( selarea.isrectangle_ )
 	    {
 		const uiWorldRect& worldselarea = selarea.worldrect_;
-		uiRect selrect( xah.getPix(worldselarea.left()),
-				yah.getPix(worldselarea.top()),
-				xah.getPix(worldselarea.right()),
-				yah.getPix(worldselarea.bottom()) );
+		uiRect selrect( xah.getPix((float) worldselarea.left()),
+				yah.getPix((float) worldselarea.top()),
+				xah.getPix((float) worldselarea.right()),
+				yah.getPix((float) worldselarea.bottom()) );
 		selarea.rect_ = selrect;
 		uiRectItem* selrectitem = 0;
 		
@@ -821,8 +821,8 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
 		const ODPolygon<double>& worldpoly = selarea.worldpoly_;
 		TypeSet<uiWorldPoint> polypts = worldpoly.data();
 		for (  int nrpts=0; nrpts<polypts.size(); nrpts++ )
-		    poly.add( uiPoint(xah.getPix(polypts[nrpts].x),
-				      yah.getPix(polypts[nrpts].y)) );
+		    poly.add( uiPoint(xah.getPix((float) polypts[nrpts].x),
+				      yah.getPix((float) polypts[nrpts].y)) );
 		selarea.poly_= poly;
 		
 		if ( !selpolyitems_ || selpolyitems_->size() <= nrpoly )

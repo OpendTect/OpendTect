@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.18 2012-05-29 16:38:39 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.19 2012-08-10 03:50:06 cvsaneesh Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -231,7 +231,7 @@ float SeisImpCBVSFromOtherSurvey::getInlXlnDist( const RCol2Coord& b2c,
     BinID nextbid = BinID( inldir ? step : 0, inldir ? 0 : step );
     const Coord c00 = b2c.transform( orgbid );
     const Coord c10 = b2c.transform( nextbid );
-    return c00.distTo(c10);
+    return (float) c00.distTo(c10);
 }
 
 
@@ -280,7 +280,7 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 	for ( int idx=0; idx<trcsset_.size(); idx++ )
 	{
 	    const Coord trccoord = trcsset_[idx]->info().coord;
-	    float dist = trccoord.sqDistTo( curcoord );
+	    float dist = (float) trccoord.sqDistTo( curcoord );
 	    if ( dist < mindist || mIsUdf( mindist ) )
 	    {
 		mindist = dist; outtrcidx = idx;
@@ -418,10 +418,10 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
     const Coord startcrd = trcs[0]->info().coord;
     const Coord nextcrlcrd = trcs[1]->info().coord;
     const Coord nextinlcrd = trcs[sz_]->info().coord;
-    const float xcrldist = (nextcrlcrd.x-startcrd.x)/padfac_;
-    const float ycrldist = (nextcrlcrd.y-startcrd.y)/padfac_;
-    const float xinldist = (nextinlcrd.x-startcrd.x)/padfac_;
-    const float yinldist = (nextinlcrd.y-startcrd.y)/padfac_;
+    const float xcrldist = (float) ( (nextcrlcrd.x-startcrd.x)/padfac_ );
+    const float ycrldist = (float) ( (nextcrlcrd.y-startcrd.y)/padfac_ );
+    const float xinldist = (float) ( (nextinlcrd.x-startcrd.x)/padfac_ );
+    const float yinldist = (float) ( (nextinlcrd.y-startcrd.y)/padfac_ );
 
     deepErase( trcs );
     for ( int idx=0; idx<newszx; idx ++ )

@@ -7,7 +7,7 @@ _______________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifreqtaper.cc,v 1.14 2012-07-10 08:05:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifreqtaper.cc,v 1.15 2012-08-10 03:50:06 cvsaneesh Exp $";
 
 #include "uifreqtaper.h"
 #include "uiamplspectrum.h"
@@ -195,8 +195,8 @@ static const char* winname = "CosTaper";
 #define mGetData() isminactive_ ? td1_ : td2_;
 #define mGetDrawerData() isminactive_ ? drawer_->leftTaperData()\
 				      : drawer_->rightTaperData();
-#define mMaxRg Interval<float>( td2_.refrg_.start+0.05, datasz_ )
-#define mMinRg Interval<float>( 0.05, td1_.refrg_.stop )
+#define mMaxRg Interval<float>( td2_.refrg_.start+0.05f, datasz_ )
+#define mMinRg Interval<float>( 0.05f, td1_.refrg_.stop )
 #define mCheckLimitRanges()\
     td1_.rg_.limitTo( mMinRg ); 	td2_.rg_.limitTo( mMaxRg );\
     td1_.rg_.stop = td1_.refrg_.stop;   td2_.rg_.start = td2_.refrg_.start;
@@ -382,7 +382,7 @@ void uiFreqTaperGrp::setFreqFromSlope( float slope )
 {
     mStopFreqNotifiers()
     const float slopeindecade = (float)(slope/mDec2Oct);
-    const float slopeinhertz = pow( 10, 1./slopeindecade );
+    const float slopeinhertz = pow( 10, 1.f/slopeindecade );
     TaperData& td = mGetData();
 
     if ( isminactive_ )
@@ -397,8 +397,8 @@ void uiFreqTaperGrp::setFreqFromSlope( float slope )
 void uiFreqTaperGrp::setSlopeFromFreq()
 {
     TaperData& d = mGetData();
-    float slope = fabs( 1./Math::Log10( d.rg_.stop / d.rg_.start ) );
-    d.slope_ = slope*mDec2Oct;
+    float slope = fabs( 1.f/Math::Log10( d.rg_.stop / d.rg_.start ) );
+    d.slope_ = (float) ( slope*mDec2Oct );
 }
 
 
@@ -467,13 +467,13 @@ void uiFuncTaperDisp::adaptFreqRangesToDataSize( bool isleft, bool isright )
     LinScaler scaler( 0, 0, orgdatasz_, datasz_ );
     if ( isleft )
     {
-	leftd_.rg_.stop = scaler.scale( leftd_.rg_.stop );
+	leftd_.rg_.stop = (float) ( scaler.scale( leftd_.rg_.stop ) );
 	leftd_.refrg_.stop = leftd_.rg_.stop; 
     }
 
     if ( isright )
     {
-	rightd_.rg_.start = scaler.scale( rightd_.rg_.start );
+	rightd_.rg_.start = (float) ( scaler.scale( rightd_.rg_.start ) );
 	rightd_.refrg_.start = rightd_.rg_.start;
     }
 }

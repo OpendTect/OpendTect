@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.108 2012-07-19 06:59:53 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.109 2012-08-10 03:50:08 cvsaneesh Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -244,7 +244,7 @@ void uiTieView::setLogsRanges( Interval<float> rg )
 void uiTieView::zoomChg( CallBacker* )
 {
     const uiWorldRect& curwr = vwr_->curView();
-    Interval<float> zrg( curwr.top(), curwr.bottom() );
+    Interval<float> zrg( (float) curwr.top(), (float) curwr.bottom() );
     setLogsRanges( zrg );
 }
 
@@ -252,7 +252,8 @@ void uiTieView::zoomChg( CallBacker* )
 void uiTieView::drawMarker( FlatView::AuxData* auxdata,
 				bool left, float zpos )
 {
-    Interval<float> xrg(vwr_->boundingBox().left(),vwr_->boundingBox().right());
+    Interval<float> xrg( (float) vwr_->boundingBox().left(),
+				    (float) vwr_->boundingBox().right() );
     auxdata->poly_ += FlatView::Point( left ? xrg.width()/2 : xrg.stop, zpos );
     auxdata->poly_ += FlatView::Point( left ? xrg.start : xrg.width()/2, zpos );
 }	
@@ -436,7 +437,7 @@ void uiCrossCorrView::set( const Data::CorrelData& cd )
     for ( int idx=0; idx<cd.vals_.size(); idx++ )
 	vals_ += cd.vals_[idx];
     lag_ = cd.lag_;
-    coeff_ = cd.coeff_;
+    coeff_ = (float) cd.coeff_;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.50 2012-07-27 11:05:15 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.51 2012-08-10 03:50:06 cvsaneesh Exp $";
 
 #include "uistratdisplay.h"
 
@@ -649,7 +649,7 @@ void uiStratViewControl::zoomCB( CallBacker* but )
 				   allarea.bottomRight().y );
 	    LinScaler scaler( allrg.start, range_.start, 
 			      allrg.stop, range_.stop );
-	    const float rgpos = scaler.scale( pos.y );
+	    const float rgpos = (float) scaler.scale( pos.y );
 	    range_.set( rgpos -margin, rgpos + margin );
 	}
 	else
@@ -721,7 +721,7 @@ void uiStratViewControl::handDragging( CallBacker* )
     startdragpos_ = newpos;
     Interval<float> rg( range_ );
     const float width = rg.width();
-    const float shift = mHandDragFac < 0.0005 ? 0.0005 : mHandDragFac;
+    const float shift = mHandDragFac < 0.0005f ? 0.0005f : mHandDragFac;
     const float center = rg.start + width/2 - fac*shift;
     rg.set( center - width/2, center + width/2 );
     if ( rg.start < boundingrange_.start )
@@ -766,7 +766,8 @@ void uiStratViewControl::rubBandCB( CallBacker* )
     allrg.sort();
 
     LinScaler scaler( allrg.start, range_.start, allrg.stop, range_.stop );
-    range_.set( scaler.scale( selrg.start ), scaler.scale( selrg.stop ) );
+    range_.set( (float) scaler.scale( selrg.start ), 
+				    (float) scaler.scale( selrg.stop ) );
     range_.limitTo( boundingrange_ );
     rangeChanged.trigger();
 }

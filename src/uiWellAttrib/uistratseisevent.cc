@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratseisevent.cc,v 1.7 2012-06-29 13:29:34 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratseisevent.cc,v 1.8 2012-08-10 03:50:07 cvsaneesh Exp $";
 
 #include "uistratseisevent.h"
 #include "uistratlvlsel.h"
@@ -94,7 +94,7 @@ bool uiStratSeisEvent::getFromScreen()
     ev_.evtype_ = !evfld_->isChecked() ? VSEvent::None
 		: (VSEvent::Type)(evfld_->getIntValue()+1);
     if ( ev_.evtype_ != VSEvent::None )
-	ev_.offs_ = snapoffsfld_->getfValue() *.001;
+	ev_.offs_ = snapoffsfld_->getfValue() *.001f;
 
     if ( extrwinfld_ )
     {

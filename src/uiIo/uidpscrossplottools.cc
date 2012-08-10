@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpscrossplottools.cc,v 1.10 2012-05-22 14:48:38 cvskris Exp $
+ RCS:           $Id: uidpscrossplottools.cc,v 1.11 2012-08-10 03:50:05 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplottools.cc,v 1.10 2012-05-22 14:48:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplottools.cc,v 1.11 2012-08-10 03:50:05 cvsaneesh Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -132,7 +132,7 @@ float SelectionArea::selectedness( uiPoint pt ) const
     if ( distobrder > maxdistest_ )
 	return mUdf(float);
 
-    return distobrder/maxdistest_;
+    return (float) ( distobrder/maxdistest_ );
 }
 
 

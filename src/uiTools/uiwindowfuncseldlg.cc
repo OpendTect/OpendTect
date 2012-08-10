@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwindowfuncseldlg.cc,v 1.46 2012-07-17 12:54:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwindowfuncseldlg.cc,v 1.47 2012-08-10 03:50:07 cvsaneesh Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -151,7 +151,7 @@ void uiFunctionDrawer::createLine( DrawFunction* func )
     {
 	float x = xrg.atIndex( idx );
 	const float y = func->mathfunc_->getValue( x );
-	x = scaler.scale( x );
+	x = (float) ( scaler.scale( x ) );
 	pointlist += uiPoint( transform_->transform( uiWorldPoint(x,y) ) );
     }
 }
@@ -310,10 +310,10 @@ void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
 	{
 	    isvartappresent = true;
 	    float prevvariable = variable_;
-	    variable_ = mIsUdf(variable_) ? 0.05 : varinpfld_->getfValue(0)/100;
+	    variable_ = mIsUdf(variable_) ? 0.05f : varinpfld_->getfValue(0)/100;
 	    if ( variable_ > 1 || mIsUdf(variable_) )
 		variable_ = prevvariable; 
-	    wf->setVariable( 1.0 - variable_ );
+	    wf->setVariable( 1.0f - variable_ );
 	    varinpfld_->setValue( variable_ *100 );
 	}
     }

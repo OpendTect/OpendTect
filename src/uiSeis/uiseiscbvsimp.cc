@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimp.cc,v 1.87 2012-07-24 07:41:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimp.cc,v 1.88 2012-08-10 03:50:06 cvsaneesh Exp $";
 
 #include "uiseiscbvsimp.h"
 
@@ -548,7 +548,7 @@ int nextStep()
     if ( doscale_ )
     {
 	SeisTrcPropChg stpc( trc );
-	stpc.scale( scaler_.factor, scaler_.constant );
+	stpc.scale( (float) scaler_.factor, (float) scaler_.constant );
     }
 
     if ( !wrr_->put(trc) )

@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2010
- RCS:		$Id: mpef3dflatvieweditor.cc,v 1.17 2012-08-03 06:38:40 cvsaneesh Exp $
+ RCS:		$Id: mpef3dflatvieweditor.cc,v 1.18 2012-08-10 03:50:05 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -312,14 +312,14 @@ Coord3 Fault3DFlatViewEditor::getScaleVector() const
     if ( !du || !dv )
 	return scalevec;
 
-    const float dz = p2.z - p1.z;
+    const float dz = (float) ( p2.z - p1.z );
 
     if ( mIsZero(dz,mDefEps) )	// z-slice
     {
 	const Coord eu = (p1-p0) / du;
 	const Coord ev = (p2-p0) / dv;
 
-	const float det = fabs( eu.x*ev.y - eu.y*ev.x );
+	const float det = (float) ( fabs( eu.x*ev.y - eu.y*ev.x ) );
 
 	const Coord ex(  ev.y/det, -eu.y/det );
 	const Coord ey( -ev.x/det,  eu.x/det );
@@ -328,7 +328,7 @@ Coord3 Fault3DFlatViewEditor::getScaleVector() const
     }
     else
     {
-	float ds = Coord(p1).distTo(p2);
+	float ds = (float) Coord(p1).distTo(p2);
 	// Assumption: straight in case of 2D line
 
 	scalevec.z = fabs( (ds*dv) / (dz*du) );

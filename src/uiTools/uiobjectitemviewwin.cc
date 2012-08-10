@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.28 2012-07-25 06:51:42 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.29 2012-08-10 03:50:07 cvsaneesh Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -185,7 +185,7 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
 void uiObjectItemViewWin::scaleVal( float& val, bool hor, bool yn )
 {
     scaler_.set( 1, 1, mSldUnits, mMaxObjectSize );
-    val = yn ? scaler_.scale( val ) : scaler_.unScale( val );
+    val = (float) ( yn ? scaler_.scale( val ) : scaler_.unScale( val ) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipickpartserv.cc,v 1.73 2012-08-01 11:55:56 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipickpartserv.cc,v 1.74 2012-08-10 03:50:05 cvsaneesh Exp $";
 
 #include "uipickpartserv.h"
 
@@ -210,7 +210,8 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
     {
 	const int posidx = Stats::RandGen::getIndex( nrpos );
 	Interval<float> zrg = rp.needhor_ ? hor2dzrgs_[posidx] : rp.zrg_;
-	float val = zrg.start + Stats::RandGen::get() * zrg.width(false);
+	float val = (float) ( zrg.start + 
+				  Stats::RandGen::get() * zrg.width(false) ); 
 	ps += Pick::Location( coords2d_[posidx], val );
     }
 

@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uisynthtorealscale.cc,v 1.18 2012-05-29 16:38:40 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisynthtorealscale.cc,v 1.19 2012-08-10 03:50:07 cvsaneesh Exp $";
 
 #include "uisynthtorealscale.h"
 
@@ -395,10 +395,10 @@ bool uiSynthToRealScale::getBinIDs( BinIDValueSet& bvs,
 	{
 	    const Geom::Point2D<float> point( bid.inl, bid.crl );
 	    if ( ds.polygon_->isInside( point, true, 0 ) )
-		bvs.add( bid, crd.z );
+		bvs.add( bid, (float) crd.z );
 	}
 	else
-	    bvs.add( bid, crd.z );
+	    bvs.add( bid, (float) crd.z );
     }
 
     bvs.randomSubselect( synth_.size() );
@@ -444,7 +444,7 @@ void uiSynthToRealScale::updRealStats()
 	for ( int trcidx=0; trcidx<=windowsz; trcidx++ )
 	{
 	    const BinID bid = trc.info().binid;
-	    const float refz = ds.horizon_->getPos( sid, bid.toInt64() ).z;
+	    const float refz = (float) ds.horizon_->getPos( sid, bid.toInt64() ).z;
 	    const float val = trc.getValue( refz+window.atIndex(trcidx), 0 );
 	    sumsq += val * val;
 	    nrterms++;

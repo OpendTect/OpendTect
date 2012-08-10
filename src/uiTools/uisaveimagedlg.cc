@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisaveimagedlg.cc,v 1.22 2012-07-25 15:03:42 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisaveimagedlg.cc,v 1.23 2012-08-10 03:50:07 cvsaneesh Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -121,16 +121,16 @@ void uiSaveImageDlg::sInch2Pixels( const Geom::Size2D<float>& from,
 void uiSaveImageDlg::sCm2Inch( const Geom::Size2D<float>& from,
 			       Geom::Size2D<float>& to )
 {
-    to.setWidth( from.width() / 2.54 );
-    to.setHeight( from.height() / 2.54 );
+    to.setWidth( from.width() / 2.54f );
+    to.setHeight( from.height() / 2.54f );
 }
 
 
 void uiSaveImageDlg::sInch2Cm( const Geom::Size2D<float>& from,
 			       Geom::Size2D<float>& to )
 {
-    to.setWidth( from.width() * 2.54 );
-    to.setHeight( from.height() * 2.54 );
+    to.setWidth( from.width() * 2.54f );
+    to.setHeight( from.height() * 2.54f );
 }
 
 

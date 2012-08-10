@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipolardiagram.cc,v 1.9 2012-05-02 15:12:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipolardiagram.cc,v 1.10 2012-08-10 03:50:07 cvsaneesh Exp $";
 
 #include "uipolardiagram.h"
 #include "uigraphicsscene.h"
@@ -207,7 +207,7 @@ void uiPolarDiagram::mouseEventCB( CallBacker* )
     if ( r > radius_ ) return;
     float azimuthrad = acos( relpos.x/r );
     if ( relpos.y > 0 )
-	azimuthrad = 2*M_PI - azimuthrad;
+	azimuthrad = (float) ( 2*M_PI - azimuthrad );
     azimuth_ = Angle::convert( Angle::Rad, azimuthrad, Angle::UsrDeg );
    
     // Outermost circle - dip = 0, center - dip = 90 degrees

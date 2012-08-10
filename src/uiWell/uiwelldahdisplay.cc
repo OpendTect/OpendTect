@@ -198,8 +198,8 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
     }
     else if ( !zdata_.zistime_ && track() )
     {
-	startpos = track()->getPos( startpos ).z;
-	stoppos = track()->getPos( stoppos ).z;
+	startpos = (float) track()->getPos( startpos ).z;
+	stoppos = (float) track()->getPos( stoppos ).z;
     }
     ld.zrg_.start = startpos;
     ld.zrg_.stop = stoppos;

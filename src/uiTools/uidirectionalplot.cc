@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidirectionalplot.cc,v 1.41 2012-07-25 07:47:19 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidirectionalplot.cc,v 1.42 2012-08-10 03:50:07 cvsaneesh Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -172,7 +172,7 @@ void uiDirectionalPlot::drawGrid()
 	outercircleitm_->setRadius( radius_ );
 	for ( int idx=0; idx<4; idx++ )
 	{
-	    const float rad = (.2 + .2*idx)*radius_ ;
+	    const float rad = (.2f + .2f*idx)*radius_ ;
 	    uiCircleItem& ci = *equicircles_[idx];
 	    ci.setPos( center_ ); ci.setRadius( mNINT32(rad) );
 	}
@@ -184,7 +184,7 @@ void uiDirectionalPlot::drawGrid()
 	outercircleitm_->setZValue( 1 );
 	for ( int idx=0; idx<4; idx++ )
 	{
-	    const float rad = (.2 + .2*idx)*radius_ ;
+	    const float rad = (.2f + .2f*idx)*radius_ ;
 	    uiCircleItem* ci = scene().addItem( new uiCircleItem(center_,
 								 mNINT32(rad)) );
 	    ci->setZValue( 1 );
@@ -209,9 +209,9 @@ void uiDirectionalPlot::drawGrid()
 
 void uiDirectionalPlot::drawScale()
 {
-    static const float sqrt2 = sqrt( 2.0 );
-    const uiPoint startpt( usrUIPos(radius_*1.1,135) );
-    const uiPoint endpt( usrUIPos(radius_*(sqrt2-0.1),135) );
+    static const float sqrt2 = (float) ( sqrt( 2.0 ) );
+    const uiPoint startpt( usrUIPos(radius_*1.1f,135) );
+    const uiPoint endpt( usrUIPos(radius_*(sqrt2-0.1f),135) );
     if ( !scalelineitm_ )
     {
 	scalelineitm_ = scene().addItem( new uiLineItem(startpt,endpt,true) );
@@ -444,16 +444,16 @@ void uiDirectionalPlot::drawSectorParts( bool isvals )
 		if ( reversepos )
 		{
 		    if ( ipart < sd.size()-1 )
-			rrg.start = (spd.pos_ + sd[ipart+1].pos_) * .5;
+			rrg.start = (spd.pos_ + sd[ipart+1].pos_) * .5f;
 		    if ( ipart > 0 )
-			rrg.stop = (spd.pos_ + sd[ipart-1].pos_) * .5;
+			rrg.stop = (spd.pos_ + sd[ipart-1].pos_) * .5f;
 		}
 		else
 		{
 		    if ( ipart )
-			rrg.start = (spd.pos_ + sd[ipart-1].pos_) * .5;
+			rrg.start = (spd.pos_ + sd[ipart-1].pos_) * .5f;
 		    if ( ipart < sd.size()-1 )
-			rrg.stop = (spd.pos_ + sd[ipart+1].pos_) * .5;
+			rrg.stop = (spd.pos_ + sd[ipart+1].pos_) * .5f;
 		}
 	    }
 

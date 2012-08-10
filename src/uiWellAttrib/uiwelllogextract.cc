@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.3 2012-08-07 06:04:17 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.4 2012-08-10 03:50:08 cvsaneesh Exp $";
 
 #include "uiwelllogextract.h"
 
@@ -159,7 +159,7 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
 {
     Well::TrackSampler wts( ioobjids, dpss, SI().zIsTime() );
     wts.for2d_ = false; wts.lognms_ = lognms;
-    wts.locradius_ = !radiusfld_ ? 0. : radiusfld_->getfValue();
+    wts.locradius_ = !radiusfld_ ? 0.f : radiusfld_->getfValue();
     wts.mkdahcol_ = true;
     wts.params_ = welllogselfld_->params();
     uiTaskRunner tr( this );

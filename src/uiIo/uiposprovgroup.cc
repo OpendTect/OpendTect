@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiposprovgroup.cc,v 1.38 2012-07-10 08:05:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiposprovgroup.cc,v 1.39 2012-08-10 03:50:05 cvsaneesh Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -115,7 +115,7 @@ static void getExtrDefCubeSampling( CubeSampling& cs )
 
     const int nrextr = cs.hrg.totalNr() * nrsamps;
     int blocks = nrextr / 50000;
-    float fstepfac = Math::Sqrt( (double)blocks );
+    float fstepfac = (float) ( Math::Sqrt( (double)blocks ) );
     int stepfac = mNINT32(fstepfac);
     cs.hrg.step.inl *= stepfac;
     cs.hrg.step.crl *= stepfac;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visbeachball.cc,v 1.16 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visbeachball.cc,v 1.17 2012-08-10 03:50:08 cvsaneesh Exp $";
 
 #include "visbeachball.h"
 #include "vistransform.h"
@@ -147,7 +147,8 @@ void BeachBall::setCenterPosition( const Coord3& c )
 	xyTranslation_->utmposition.setValue( pos.x, pos.y, 0 );
 	pos.x = 0; pos.y = 0;
     }
-    translation_->translation.setValue( pos.x, pos.y, pos.z );
+    translation_->translation.setValue( (float) pos.x, 
+				    (float) pos.y, (float) pos.z );
 }
 
 
@@ -189,9 +190,9 @@ float BeachBall::getRadius() const
 void BeachBall::setColor1( Color col )
 {
     float r, g, b;
-    r = col.r()/255.0;
-    g = col.g()/255.0;
-    b = col.b()/255.0;
+    r = col.r()/255.0f;
+    g = col.g()/255.0f;
+    b = col.b()/255.0f;
     material_->diffuseColor.set1Value( 0, r, g, b );
 }
 
@@ -207,9 +208,9 @@ Color BeachBall::getColor1() const
 void BeachBall::setColor2( Color col )
 {
     float r, g, b;
-    r = col.r()/255.0;
-    g = col.g()/255.0;
-    b = col.b()/255.0;
+    r = col.r()/255.0f;
+    g = col.g()/255.0f;
+    b = col.b()/255.0f;
     material_->diffuseColor.set1Value( 1, r, g, b );
 }
 

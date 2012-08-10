@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.29 2012-08-03 13:00:53 cvskris Exp $
+ RCS:           $Id: uispinbox.h,v 1.30 2012-08-10 03:50:04 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,9 +57,9 @@ public:
     StepInterval<float> getFInterval() const;
 
     void		setInterval( double v0,double v1,double vs=1)
-			{ setInterval(StepInterval<float>(v0,v1,vs)); }
+			{ setInterval(StepInterval<double>(v0,v1,vs)); }
     void		setInterval( const StepInterval<double>& si )
-			{ setInterval(StepInterval<float>(si.start,si.stop,
+			{ setInterval(StepInterval<double>(si.start,si.stop,
 				    			  si.step)); }
 
     void		setMinValue(int);

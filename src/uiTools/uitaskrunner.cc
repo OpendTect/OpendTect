@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitaskrunner.cc,v 1.30 2012-07-25 15:10:07 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitaskrunner.cc,v 1.31 2012-08-10 03:50:07 cvsaneesh Exp $";
 
 #include "uitaskrunner.h"
 
@@ -164,7 +164,7 @@ void uiTaskRunner::updateFields()
 	if ( nrdonechg )
 	    progbar_->setProgress( nrdone );
 
-	const float fpercentage = 100. * ((float)nrdone) / totalnr;
+	const float fpercentage = 100.f * ((float)nrdone) / totalnr;
 	int percentage = (int)fpercentage;
 	if ( percentage > 100 ) percentage = 100;
 	if ( percentage!=prevpercentage_ )

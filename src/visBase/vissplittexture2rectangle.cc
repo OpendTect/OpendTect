@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vissplittexture2rectangle.cc,v 1.16 2012-05-02 15:12:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vissplittexture2rectangle.cc,v 1.17 2012-08-10 03:50:10 cvsaneesh Exp $";
 
 #include "vissplittexture2rectangle.h"
 
@@ -206,8 +206,8 @@ void SplitTexture2Rectangle::updateFaceSets( )
 		    sp->size.setValue( 1, texturerowsz, texturecolsz );
 		}
 
-		const float rowstartmargin = 0.5/texturerowsz;
-		const float colstartmargin = 0.5/texturecolsz;
+		const float rowstartmargin = 0.5f/texturerowsz;
+		const float colstartmargin = 0.5f/texturecolsz;
 		const float rowendmargin = 
 		    (float)rowsz/texturerowsz-rowstartmargin;
 		const float colendmargin = 

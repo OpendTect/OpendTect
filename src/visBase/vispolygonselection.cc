@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vispolygonselection.cc,v 1.18 2012-05-02 15:12:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispolygonselection.cc,v 1.19 2012-08-10 03:50:09 cvsaneesh Exp $";
 
 #include "vispolygonselection.h"
 
@@ -167,7 +167,8 @@ bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
 	checkcoord3d = transformation_->transform( checkcoord3d );
 
     const SbVec2f coord2d = selector_->projectPointToScreen(
-	    SbVec3f(checkcoord3d.x,checkcoord3d.y,checkcoord3d.z ) );
+		     SbVec3f((float) checkcoord3d.x,
+		    (float) checkcoord3d.y,(float) checkcoord3d.z ) );
 
     const Coord checkcoord2d( coord2d[0], coord2d[1] );
     if ( !checkcoord2d.isDefined() )
@@ -226,7 +227,8 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
     for ( int idx=0; idx<8; idx++ )
     {
 	const SbVec2f pt = selector_->projectPointToScreen(
-	    SbVec3f(coords[idx].x,coords[idx].y,coords[idx].z ) );
+		      SbVec3f((float) coords[idx].x,
+		      (float) coords[idx].y,(float) coords[idx].z ) );
 
 	const Coord vertex( pt[0], pt[1] );
 	if ( vertex.isDefined() )
@@ -269,7 +271,7 @@ bool PolygonSelection::rayPickThrough( const Coord3& worldpos,
     const Coord3 pos = !transformation_ ? worldpos :
 		       transformation_->transform( worldpos );
 
-    const SbVec3f displaypos( pos.x, pos.y, pos.z );
+    const SbVec3f displaypos( (float) pos.x, (float) pos.y, (float) pos.z );
     const SoPath* path = selector_->rayPickThrough( displaypos, depthidx );
     if ( !path )
 	return false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.30 2012-07-27 08:38:10 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.31 2012-08-10 03:50:06 cvsaneesh Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
@@ -190,10 +190,10 @@ void uiStratSimpleLayerModelDisp::updZoomBox()
     if ( zoomwr_.width() < 0.001 || !zoomboxitm_ || !xax_ )
 	{ if ( zoomboxitm_ ) zoomboxitm_->setVisible( false ); return; }
 
-    const int xpix = xax_->getPix( zoomwr_.left() );
-    const int ypix = yax_->getPix( zoomwr_.top() );
-    const int wdth = xax_->getPix( zoomwr_.right() ) - xpix;
-    const int hght = yax_->getPix( zoomwr_.bottom() ) - ypix;
+    const int xpix = xax_->getPix( (float) zoomwr_.left() );
+    const int ypix = yax_->getPix( (float) zoomwr_.top() );
+    const int wdth = xax_->getPix( (float) zoomwr_.right() ) - xpix;
+    const int hght = yax_->getPix( (float) zoomwr_.bottom() ) - ypix;
     zoomboxitm_->setRect( xpix, ypix, wdth, hght );
     zoomboxitm_->setVisible( haveAnyZoom() && !showzoomed_ );
 }
@@ -263,7 +263,7 @@ void uiStratSimpleLayerModelDisp::getBounds()
 int uiStratSimpleLayerModelDisp::getXPix( int iseq, float relx ) const
 {
     static const float margin = 0.05;
-    relx = (1-margin) * relx + margin * .5; // get relx between 0.025 and 0.975
+    relx = (1-margin) * relx + margin * .5f; // get relx between 0.025 and 0.975
     relx *= dispeach_;
     return xax_->getPix( iseq + 1 + relx );
 }
@@ -304,8 +304,10 @@ void uiStratSimpleLayerModelDisp::doDraw()
     }
     else
     {
-	xax_->setBounds( Interval<float>(zoomwr_.left(),zoomwr_.right()) );
-	yax_->setBounds( Interval<float>(zoomwr_.top(),zoomwr_.bottom()) );
+	xax_->setBounds( Interval<float>((float) zoomwr_.left(),
+						(float) zoomwr_.right()) );
+	yax_->setBounds( Interval<float>((float) zoomwr_.top(),
+						(float) zoomwr_.bottom()) );
     }
     yax_->plotAxis(); xax_->plotAxis();
     const float vwdth = vrg_.width();
@@ -317,9 +319,9 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    if ( z0 > zoomwr_.top() || z1 < zoomwr_.bottom() )
 		continue;
 	    if ( z1 > zoomwr_.top() )
-		const_cast<float&>(z1) = zoomwr_.top();
+		const_cast<float&>(z1) = (float) zoomwr_.top();
 	    if ( z0 < zoomwr_.bottom() )
-		const_cast<float&>(z0) = zoomwr_.bottom();
+		const_cast<float&>(z0) = (float) zoomwr_.bottom();
 	}
 
 	const int ypix0 = yax_->getPix( z0 );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.68 2012-07-22 05:06:04 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiaxishandler.cc,v 1.69 2012-08-10 03:50:07 cvsaneesh Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -74,7 +74,7 @@ void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
     if ( fsteps < 0 )
 	rg_.step = -rg_.step;
     if ( mIsZero(fsteps,1e-6) )
-	{ rg_.start -= rg_.step * 1.5; rg_.stop += rg_.step * 1.5; }
+	{ rg_.start -= rg_.step * 1.5f; rg_.stop += rg_.step * 1.5f; }
     fsteps = (rg_.stop - rg_.start) / rg_.step;
     if ( fsteps > 50 )
     	rg_.step /= (fsteps / 50);

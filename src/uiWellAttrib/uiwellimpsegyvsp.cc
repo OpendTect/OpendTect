@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellimpsegyvsp.cc,v 1.24 2012-08-07 05:20:51 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellimpsegyvsp.cc,v 1.25 2012-08-10 03:50:08 cvsaneesh Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -263,7 +263,7 @@ void uiWellImportSEGYVSP::isTimeChg( CallBacker* )
     isdpth_ = !istimefld_ || !istimefld_->getBoolValue();
 
     if ( oldisdpth != isdpth_ )
-	setInpSamp( inpsampfld_, dispinpsamp_, isdpth_ ? 0.001 : 1000 );
+	setInpSamp( inpsampfld_, dispinpsamp_, isdpth_ ? 0.001f : 1000 );
     inpistvdfld_->display( isdpth_ );
     inpinftfld_->display( isdpth_ );
     outSampChk( 0 );

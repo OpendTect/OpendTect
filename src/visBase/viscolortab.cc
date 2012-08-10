@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viscolortab.cc,v 1.57 2012-05-02 15:12:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: viscolortab.cc,v 1.58 2012-08-10 03:50:08 cvsaneesh Exp $";
 
 #include "viscolortab.h"
 
@@ -259,8 +259,8 @@ int VisColorTab::usePar( const IOPar& par )
     {
 	LinScaler scale;
 	scale.fromString( scalestr );
-	const float start = -scale.constant / scale.factor;
-	const float stop = start + 1. / scale.factor;
+	const float start = (float) ( -scale.constant / scale.factor );
+	const float stop = (float) ( start + 1. / scale.factor );
 	Interval<float> rg( start, stop );
 	ctmapper_->setRange( rg );
     }

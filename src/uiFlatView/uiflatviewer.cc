@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.146 2012-08-03 08:37:15 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.147 2012-08-10 03:50:04 cvsaneesh Exp $";
 
 #include "uiflatviewer.h"
 
@@ -139,7 +139,7 @@ void uiFlatViewer::updateTransforms()
     const double ypos = viewrect.top()-yscale*wr_.top();
 
     worldgroup_->setPos( uiWorldPoint( xpos, ypos ) );
-    worldgroup_->setScale( xscale, yscale );
+    worldgroup_->setScale( (float) xscale, (float) yscale );
 }
 
 

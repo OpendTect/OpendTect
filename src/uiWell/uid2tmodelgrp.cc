@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uid2tmodelgrp.cc,v 1.27 2012-07-12 07:07:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uid2tmodelgrp.cc,v 1.28 2012-08-10 03:50:08 cvsaneesh Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -94,7 +94,7 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	if ( wd.track().isEmpty() )
 	    return "Cannot generate D2Time model without track";
 	
-	const float twtvel = velfld_->getfValue() * .5;
+	const float twtvel = velfld_->getfValue() * .5f;
 	const float dah0 = wd.track().dah( 0 );
 	const float dah1 = wd.track().dah( wd.track().size()-1 );
 	const float srd = -wd.info().surfaceelev;

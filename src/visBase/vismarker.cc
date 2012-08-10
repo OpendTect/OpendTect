@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vismarker.cc,v 1.38 2012-05-03 06:26:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismarker.cc,v 1.39 2012-08-10 03:50:09 cvsaneesh Exp $";
 
 #include "vismarker.h"
 
@@ -86,7 +86,8 @@ void Marker::setCenterPos( const Coord3& pos_ )
 	pos.x = 0; pos.y = 0;
     }
 
-    translation->translation.setValue( pos.x, pos.y, pos.z );
+    translation->translation.setValue( (float) pos.x, 
+				    (float) pos.y, (float) pos.z );
 }
 
 
@@ -132,8 +133,8 @@ MarkerStyle3D::Type Marker::getType() const
 static float getSurveyRotation()
 {
     const RCol2Coord& b2c = SI().binID2Coord();
-    const float xcrd = b2c.getTransform(true).c;
-    const float ycrd = b2c.getTransform(false).c;
+    const float xcrd = (float) b2c.getTransform(true).c;
+    const float ycrd = (float) b2c.getTransform(false).c;
     const float angle = atan2( ycrd, xcrd );
     return angle;
 }
@@ -255,7 +256,8 @@ void Marker::setRotation( const Coord3& vec, float angle )
 	insertChild( childIndex( shape ), rotation );
     }
 
-    rotation->rotation.setValue( SbVec3f(vec[0],vec[1],vec[2]), angle );
+    rotation->rotation.setValue( SbVec3f((float) vec[0],
+				    (float) vec[1],(float) vec[2]), angle );
 }
 
 
@@ -268,7 +270,8 @@ void Marker::setArrowDir( const ::Sphere& dir )
     newcrd /= dir.radius;
 
     SbVec3f orgvec(1,0,0);
-    SbRotation newrot( orgvec, SbVec3f(newcrd.x,newcrd.y,-newcrd.z) );
+    SbRotation newrot( orgvec, SbVec3f((float) newcrd.x,
+				    (float) newcrd.y,(float) -newcrd.z) );
     if ( !rotation )
     {
 	rotation = new SoRotation;

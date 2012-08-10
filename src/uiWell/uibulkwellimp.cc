@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibulkwellimp.cc,v 1.2 2012-05-22 22:03:40 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibulkwellimp.cc,v 1.3 2012-08-10 03:50:08 cvsaneesh Exp $";
 
 
 #include "uibulkwellimp.h"
@@ -153,7 +153,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
 	}
 
 	if ( crd.isDefined() )
-	    wd->track().addPoint( crd.coord(), crd.z, md );
+	    wd->track().addPoint( crd.coord(), (float) crd.z, md );
     }
 
     // TODO: Check if name exists, ask user to overwrite or give new name

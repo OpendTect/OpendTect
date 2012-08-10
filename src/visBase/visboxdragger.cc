@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visboxdragger.cc,v 1.24 2012-07-21 22:46:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visboxdragger.cc,v 1.25 2012-08-10 03:50:08 cvsaneesh Exp $";
 
 #include "visboxdragger.h"
 #include "ranges.h"
@@ -154,7 +154,8 @@ void BoxDragger::setOwnShapeHints()
 
 void BoxDragger::setCenter( const Coord3& pos )
 {
-    boxdragger_->translation.setValue( pos.x, pos.y, pos.z );
+    boxdragger_->translation.setValue( (float) pos.x, 
+				    (float) pos.y, (float) pos.z );
     prevcenter_ = pos;
 }
 
@@ -168,7 +169,8 @@ Coord3 BoxDragger::center() const
 
 void BoxDragger::setWidth( const Coord3& pos )
 {
-    boxdragger_->scaleFactor.setValue( pos.x/2, pos.y/2, pos.z/2 );
+    boxdragger_->scaleFactor.setValue( (float) pos.x/2, 
+			    (float) pos.y/2, (float) pos.z/2 );
     prevwidth_ = pos;
 }
 

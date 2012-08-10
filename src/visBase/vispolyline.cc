@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vispolyline.cc,v 1.25 2012-06-28 09:13:14 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispolyline.cc,v 1.26 2012-08-10 03:50:09 cvsaneesh Exp $";
 
 #include "vispolyline.h"
 #include "viscoord.h"
@@ -113,7 +113,7 @@ PolyLine3D::PolyLine3D()
 
 void PolyLine3D::setLineStyle( const LineStyle& lst )
 {
-    lineset_->radius = lst.width_*0.5;
+    lineset_->radius = lst.width_*0.5f;
 	//divided by 2 just like evry other radius in visBase
     getMaterial()->setColor( lst.color_ );
 }

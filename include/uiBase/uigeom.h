@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.32 2012-08-03 13:00:51 cvskris Exp $
+ RCS:           $Id: uigeom.h,v 1.33 2012-08-10 03:50:04 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -297,19 +297,19 @@ inline uiRect uiBorder::getRect( const uiRect& rect, int extr ) const
 		   rect.bottom()-rb_.height()-2*extr );
 }
 
-#define mGoldenRatio 1.618034
+#define mGoldenRatio 1.618034f
 
 inline int GetGoldenMajor( int inp )
 {
     const float val = inp * mGoldenRatio;
-    return inp > 0 ? (int)(val+.5) : (int)(val - .5);
+    return inp > 0 ? (int)(val+.5f) : (int)(val - .5f);
 }
 
-static const float cGoldenRatio = 1.618034;
+static const float cGoldenRatio = 1.618034f;
 inline int GetGoldenMinor( int inp )
 {
     const float val = inp / mGoldenRatio;
-    return inp > 0 ? (int)(val+.5) : (int)(val - .5);
+    return inp > 0 ? (int)(val+.5f) : (int)(val - .5f);
 }
 
 

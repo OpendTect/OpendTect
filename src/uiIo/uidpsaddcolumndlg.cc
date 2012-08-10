@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          July 2011
- RCS:           $Id: uidpsaddcolumndlg.cc,v 1.4 2012-05-02 15:12:08 cvskris Exp $: 
+ RCS:           $Id: uidpsaddcolumndlg.cc,v 1.5 2012-08-10 03:50:05 cvsaneesh Exp $: 
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
 	vartable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
 					.minrowhgt(1.5) .maxrowhgt(2)
 					.mincolwdt(3*uiObject::baseFldSize())
-					.maxcolwdt(3.5*uiObject::baseFldSize())
+					.maxcolwdt(3.5f*uiObject::baseFldSize())
 					.defrowlbl("") .fillcol(true)
 					.fillrow(true) .defrowstartidx(0),
 					"Variable X attribute table" );

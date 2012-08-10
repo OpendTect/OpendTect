@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpsrefineseldlg.cc,v 1.4 2012-05-02 15:12:08 cvskris Exp $: 
+ RCS:           $Id: uidpsrefineseldlg.cc,v 1.5 2012-08-10 03:50:05 cvsaneesh Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpsrefineseldlg.cc,v 1.4 2012-05-02 15:12:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpsrefineseldlg.cc,v 1.5 2012-08-10 03:50:05 cvsaneesh Exp $";
 
 
 #include "uidpsrefineseldlg.h"
@@ -50,7 +50,7 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
     vartable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
 					.minrowhgt(1.5) .maxrowhgt(2)
 					.mincolwdt(3*uiObject::baseFldSize())
-					.maxcolwdt(3.5*uiObject::baseFldSize())
+					.maxcolwdt(3.5f*uiObject::baseFldSize())
 					.defrowlbl("") .fillcol(true)
 					.fillrow(true) .defrowstartidx(0),
 					"Variable X attribute table" );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.8 2012-07-24 08:31:16 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.9 2012-08-10 03:50:04 cvsaneesh Exp $";
 
 #include "uiflatauxdatadisplay.h"
 
@@ -246,8 +246,8 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
 	ypos = curview.top()-yscale*x2rg_->start;
     }
 
-    display_->setPos( xpos, ypos );
-    display_->setScale( xscale, yscale );
+    display_->setPos( (float) xpos, (float) ypos );
+    display_->setScale( (float) xscale, (float) yscale );
 }
 
 

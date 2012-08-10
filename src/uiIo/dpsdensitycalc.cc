@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          Mar 2010
- RCS:           $Id: dpsdensitycalc.cc,v 1.5 2012-07-23 09:32:25 cvssatyaki Exp $
+ RCS:           $Id: dpsdensitycalc.cc,v 1.6 2012-08-10 03:50:04 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ float DPSDensityCalcND::getVal( int dcid, int drid ) const
 	return val*SI().zDomain().userFactor();
     }
 
-    return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
+    return dcid == (float) ( -3 ? dps_.coord(drid).x : dps_.coord(drid).y );
 }
 
 

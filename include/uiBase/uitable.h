@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.72 2012-08-03 13:00:54 cvskris Exp $
+ RCS:           $Id: uitable.h,v 1.73 2012-08-10 03:50:04 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
 			, maxrowhgt_( 3 ) //!< units of font height
 			, mincolwdt_(uiObject::baseFldSize())
 					  //!< units of font
-			, maxcolwdt_(2.3*uiObject::baseFldSize())
+			, maxcolwdt_(2.3f*uiObject::baseFldSize())
 					  //!< units of font
 			, selmode_( NoSelection )
 			, snglclkedit_( true )

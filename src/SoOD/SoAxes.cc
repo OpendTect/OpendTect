@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoAxes.cc,v 1.11 2012-07-24 09:42:27 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoAxes.cc,v 1.12 2012-08-10 03:50:04 cvsaneesh Exp $";
 
 
 #include "SoAxes.h"
@@ -74,7 +74,7 @@ void SoAxes::GLRender( SoGLRenderAction* action )
     drawArrow( 2, length, rad );
     drawArrow( 3, length, rad );
 
-    drawSphere( rad*0.75, 0, 0, 0 );
+    drawSphere( rad*0.75f, 0, 0, 0 );
  
     GLint unpack;
     glGetIntegerv( GL_UNPACK_ALIGNMENT, &unpack );
@@ -89,8 +89,8 @@ void SoAxes::GLRender( SoGLRenderAction* action )
 	glColor3f( 1.0, 1.0, 1.0 );
 	glBegin( GL_TRIANGLES ) ;
 	glVertex2f( 0, 0 );
-	glVertex2f( length - 0.4, 0 );
-	glVertex2f( 0, length - 0.4 );
+	glVertex2f( length - 0.4f, 0 );
+	glVertex2f( 0, length - 0.4f );
 	glEnd();
     }
 
@@ -135,7 +135,7 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
 
 	for ( idx=0; idx<=100; idx++ )
 	{
-	    angl = idx * 2 * M_PI / 100;
+	    angl = (float) ( idx * 2 * M_PI / 100 );
             xdir = rad * sin( angl );
 	    ydir = rad * cos( angl );
 
@@ -154,11 +154,11 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
 
 	for ( idx=0; idx<=100; idx++ )
 	{
-	    angl = idx * 2 * M_PI / 100;
+	    angl = (float) ( idx * 2 * M_PI / 100 );
 	    glNormal3f( 0, -1, 0 ); 
 
-	    xdir = 0.5 * rad * sin( angl );
-	    ydir = 0.5 * rad * cos( angl );
+	    xdir = 0.5f * rad * sin( angl );
+	    ydir = 0.5f * rad * cos( angl );
 	    glVertex3f( xdir , ht-cnht, ydir );
 	
 	    xdir = rad * sin( angl );
@@ -172,9 +172,9 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
 
 	for ( idx=0; idx<=100; idx++ )
 	{
-	    angl = idx * 2 * M_PI / 100;
-	    xdir = 0.5 * rad * sin( angl );
-	    ydir = 0.5 * rad * cos( angl );
+	    angl = (float) ( idx * 2 * M_PI / 100 );
+	    xdir = 0.5f * rad * sin( angl );
+	    ydir = 0.5f * rad * cos( angl );
             	
 	    nrm[0] = sin( angl );
 	    nrm[2] = cos( angl );
@@ -191,9 +191,9 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
 
 	for ( idx=0; idx<=100; idx++ )
 	{
-	    angl = idx * 2 * M_PI / 100;
-	    xdir = 0.5 * rad * sin( angl );
-	    ydir = 0.5 * rad * cos( angl );
+	    angl = (float) ( idx * 2 * M_PI / 100 );
+	    xdir = 0.5f * rad * sin( angl );
+	    ydir = 0.5f * rad * cos( angl );
             
 	    glNormal3f( 0, -1, 0 ); 
 	    glVertex3f( 0, 0, 0 );
@@ -215,7 +215,7 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
 
 	for ( idx=0; idx<=100; idx++ )
 	{
-	    angl = idx * 2 * M_PI / 100;
+	    angl = (float) ( idx * 2 * M_PI / 100 );
 	    xdir = rad * sin( angl );
 	    ydir = rad * cos( angl );
                 
@@ -234,11 +234,11 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
 
 	for ( idx=0; idx<=100; idx++ )
 	{
-	    angl = idx * 2 * M_PI / 100;
+	    angl = (float) ( idx * 2 * M_PI / 100 );
 	    glNormal3f( 0, 0, 1 ); 
 	    
-	    xdir = 0.5 * rad * sin( angl );
-	    ydir = 0.5 * rad * cos( angl );
+	    xdir = 0.5f * rad * sin( angl );
+	    ydir = 0.5f * rad * cos( angl );
             glVertex3f( xdir, ydir, ht-cnht );
 	    
 	    xdir = rad * sin( angl );
@@ -252,12 +252,12 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
 
 	for ( idx=0; idx<=100; idx++ )
 	{
-	    angl = idx * 2 * M_PI / 100;
-	    xdir = 0.5 * rad * sin( angl );
-	    ydir = 0.5 * rad * cos( angl );
+	    angl = (float) ( idx * 2 * M_PI / 100 );
+	    xdir = 0.5f * rad * sin( angl );
+	    ydir = 0.5f * rad * cos( angl );
             	
-	    nrm[0] = xdir / ( 0.5*rad );
-	    nrm[1] = ydir / ( 0.5*rad ) ;
+	    nrm[0] = xdir / ( 0.5f*rad );
+	    nrm[1] = ydir / ( 0.5f*rad ) ;
 	    nrm[2] = 0;
                 
 	    glNormal3fv( nrm );
@@ -271,9 +271,9 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
 
 	for ( idx=0; idx<=100; idx++ )
 	{
-	    angl = idx * 2 * M_PI / 100;
-	    xdir = 0.5 * rad * sin( angl );
-	    ydir = 0.5 * rad * cos( angl );
+	    angl = (float) ( idx * 2 * M_PI / 100 );
+	    xdir = 0.5f * rad * sin( angl );
+	    ydir = 0.5f * rad * cos( angl );
             
 	    glNormal3f( 0, 0, 1 ); 
 	    glVertex3f( 0, 0, 0);
@@ -292,7 +292,7 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
 
 	for ( idx=0; idx<=100; idx++ )
 	{
-	    angl = idx * 2 * M_PI / 100;
+	    angl = (float) ( idx * 2 * M_PI / 100 );
 	    xdir = rad * sin( angl );
 	    ydir = rad * cos( angl );
 
@@ -311,12 +311,12 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
 
 	for ( idx=0; idx<=100; idx++ )
 	{
-	    angl = idx * 2 * M_PI / 100;
+	    angl = (float) ( idx * 2 * M_PI / 100 );
     	    
 	    glNormal3f( -1, 0, 0 );
     	
-	    xdir = 0.5 * rad * sin( angl );
-	    ydir = 0.5 * rad * cos( angl );
+	    xdir = 0.5f * rad * sin( angl );
+	    ydir = 0.5f * rad * cos( angl );
 	    glVertex3f( ht-cnht, xdir, ydir );
     	
 	    xdir = rad * sin( angl );
@@ -331,13 +331,13 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
 
 	for ( idx=0; idx<=100; idx++ )
 	{
-	    angl = idx * 2 * M_PI / 100;
-	    xdir = 0.5 * rad * sin( angl );
-	    ydir = 0.5 * rad * cos( angl );
+	    angl = (float) ( idx * 2 * M_PI / 100 );
+	    xdir = 0.5f * rad * sin( angl );
+	    ydir = 0.5f * rad * cos( angl );
 
 	    nrm[0] = 0;
-	    nrm[1] = xdir / ( rad * 0.5 );
-	    nrm[2] = ydir / ( rad * 0.5 );
+	    nrm[1] = xdir / ( rad * 0.5f );
+	    nrm[2] = ydir / ( rad * 0.5f );
                 
 	    glNormal3fv( nrm );
 	    glVertex3f( ht-cnht, xdir, ydir );
@@ -351,9 +351,9 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
 
 	for ( idx=0; idx<=100; idx++ )
 	{
-	    angl = idx * 2 * M_PI / 100;
-	    xdir = 0.5 * rad * sin( angl );
-	    ydir = 0.5 * rad * cos( angl );
+	    angl = (float) ( idx * 2 * M_PI / 100 );
+	    xdir = 0.5f * rad * sin( angl );
+	    ydir = 0.5f * rad * cos( angl );
                 
 	    glNormal3f( -1, 0, 0 );
 	    glVertex3f( 0, 0, 0 );
@@ -380,7 +380,7 @@ void SoAxes::drawSphere( float rad, float u, float v, float w )
 
     for ( int j=0; j<=100; j++ )
     {
-	angly = j *  M_PI / 100;
+	angly = (float) ( j *  M_PI / 100 );
 	rs = rad * sin( angly );
 	hs = rad * cos( angly );
 
@@ -388,7 +388,7 @@ void SoAxes::drawSphere( float rad, float u, float v, float w )
 
 	for( int i=0; i<=100; i++ )
 	{ 
-	    anglx = i * 2 * M_PI / 100;
+	    anglx = (float) ( i * 2 * M_PI / 100 );
 	    if( j!=0 )
 	    {
 		glNormal3f( sin(anglx)*rf/rad, hf/rad, cos(anglx)*rf/rad );

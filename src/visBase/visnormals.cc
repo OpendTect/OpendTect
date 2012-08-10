@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visnormals.cc,v 1.23 2012-05-02 15:12:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visnormals.cc,v 1.24 2012-08-10 03:50:09 cvsaneesh Exp $";
 
 #include "visnormals.h"
 
@@ -60,7 +60,8 @@ void Normals::setNormal( int idx, const Vector3& n )
 		SbVec3f(mUdf(float),mUdf(float),mUdf(float) ) );
     }
 
-    normals_->vector.set1Value( idx, SbVec3f( normal.x, normal.y, normal.z ));
+    normals_->vector.set1Value( idx, SbVec3f( (float) normal.x, 
+				    (float) normal.y, (float) normal.z ));
 }
 
 
@@ -107,7 +108,8 @@ int Normals::addNormal( const Vector3& n )
 
     Threads::MutexLocker lock( mutex_ );
     const int res = getFreeIdx();
-    normals_->vector.set1Value( res, SbVec3f( normal.x, normal.y, normal.z ));
+    normals_->vector.set1Value( res, SbVec3f( (float) normal.x, 
+				    (float) normal.y, (float) normal.z ));
 
     return res;
 }
@@ -129,17 +131,17 @@ void Normals::addNormalValue( int idx, const Vector3& n )
 	    set = true;
 	else
 	{
-	    newnormal[0] += normal.x;
-	    newnormal[1] += normal.y;
-	    newnormal[2] += normal.z;
+	    newnormal[0] += (float) normal.x;
+	    newnormal[1] += (float) normal.y;
+	    newnormal[2] += (float) normal.z;
 	}
     }
 
     if ( set )
     {
-	newnormal[0] = normal.x;
-	newnormal[1] = normal.y;
-	newnormal[2] = normal.z;
+	newnormal[0] = (float) normal.x;
+	newnormal[1] = (float) normal.y;
+	newnormal[2] = (float) normal.z;
     }
 
     normals_->vector.set1Value( idx, newnormal );
@@ -247,7 +249,8 @@ void Normals::setDisplayTransformation( const mVisTrans* nt )
 	transformNormal( transformation_, res, false );
 	transformNormal( nt, res, true );
 
-	normals_->vector.set1Value( idx, SbVec3f(res.x,res.y,res.z) );
+	normals_->vector.set1Value( idx, SbVec3f((float) res.x,
+					    (float) res.y,(float) res.z) );
     }
 
     normals_->vector.enableNotify( oldstatus );

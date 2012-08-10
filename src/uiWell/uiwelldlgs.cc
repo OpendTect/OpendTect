@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.114 2012-08-07 05:20:51 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.115 2012-08-10 03:50:08 cvsaneesh Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -243,11 +243,12 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 	    dahval = toFloat(sval) * fac; 
 	else if ( idx > 0 )
 	{
-	    dahval = track_.dah(idx-1) + track_.pos(idx-1).distTo( newc );
+	    dahval = (float) ( track_.dah(idx-1) + 
+					track_.pos(idx-1).distTo( newc ) );
 	    needfill = true;
 	}
 
-	track_.addPoint( newc, newc.z, dahval );
+	track_.addPoint( newc, (float) newc.z, dahval );
     }
 
     if ( track_.nrPoints() > 1 )
@@ -517,7 +518,7 @@ void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 
 	sval = tbl_->text( RowCol(idx,1) );
 	if ( !sval || !*sval ) continue;
-	float tm = toFloat(sval) * 0.001;
+	float tm = toFloat(sval) * 0.001f;
 	d2t.add( dah, tm );
     }
 }
@@ -891,7 +892,7 @@ void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 		*sdo.ostrm << str;
 	    }
 
-	    float z = pos.z;
+	    float z = (float) pos.z;
 	    if ( infeet ) z *= mToFeetFactorF;
 	    else if ( insec ) z = wd.d2TModel()->getTime( md );
 	    else if ( inmsec ) z = wd.d2TModel()->getTime( md ) * 1000;

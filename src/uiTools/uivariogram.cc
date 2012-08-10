@@ -199,14 +199,14 @@ void uiVariogramDisplay::draw()
 
     labelChangedCB(0);
     disp_->setup().xrg_.stop = maxrg_;
-    disp_->setup().yrg_.stop = maxdataval*1.1;
+    disp_->setup().yrg_.stop = maxdataval*1.1f;
 
     rangefld_->sldr()->setMaxValue( maxrg_ );
     rangefld_->sldr()->setStep( maxrg_/(100*(size-1)) );
     rangefld_->sldr()->setValue( maxrg_/4 );
 
     sillfld_->sldr()->setMinValue( 0 );
-    sillfld_->sldr()->setMaxValue( maxdataval*1.1 );
+    sillfld_->sldr()->setMaxValue( maxdataval*1.1f );
     sillfld_->sldr()->setStep( maxdataval/1000 );
     sillfld_->sldr()->setValue( maxdatavalcomp1 );
 

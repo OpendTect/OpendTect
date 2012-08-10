@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwaveletextraction.cc,v 1.31 2012-07-10 08:05:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwaveletextraction.cc,v 1.32 2012-08-10 03:50:06 cvsaneesh Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -359,7 +359,7 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
     const float val =
 	  1-(2*taperlength/( (wvltsize_-1)*datastep_*
 		      ((float)SI().zDomain().userFactor())) );
-    const float paramval = val == 1 ? 1.0 - 1e-6 : val;
+    const float paramval = (float) ( val == 1 ? 1.0 - 1e-6 : val );
     extractor->setTaperParamVal( paramval );
     extractor->setPhase( phase );
 

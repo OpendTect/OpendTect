@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visellipsoid.cc,v 1.7 2012-05-02 15:12:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visellipsoid.cc,v 1.8 2012-08-10 03:50:09 cvsaneesh Exp $";
 
 #include "visellipsoid.h"
 
@@ -65,9 +65,9 @@ void Ellipsoid::setCenterPos( const Coord3& pos )
     const Coord3 npos = transformation_? transformation_->transform(pos) : pos;
     const Coord3 curscale = getWidth()/2;
     SbMatrix matrix;
-    matrix.setTransform( SbVec3f(npos.x,npos.y,npos.z),
-	                  SbRotation(SbVec3f(npos.x,npos.y,npos.z),0),
-			  SbVec3f(curscale.x, curscale.y,curscale.z) );
+    matrix.setTransform( SbVec3f((float) npos.x,(float) npos.y,(float) npos.z),
+	  SbRotation(SbVec3f((float) npos.x,(float) npos.y,(float) npos.z),0),
+	  SbVec3f((float) curscale.x, (float) curscale.y,(float) curscale.z) );
 
     position_->matrix.setValue( matrix );
 }
@@ -99,7 +99,7 @@ void Ellipsoid::setWidth( const Coord3& n )
     SbRotation so;
     matrix.getTransform( tran, r, scale, so );
 
-    scale[0] = n.x/2; scale[1] = n.y/2; scale[2] = n.z/2;
+    scale[0] =(float) n.x/2; scale[1] =(float) n.y/2; scale[2] =(float) n.z/2;
     matrix.setTransform( tran, r, scale, so );
     position_->matrix.setValue( matrix );
 }

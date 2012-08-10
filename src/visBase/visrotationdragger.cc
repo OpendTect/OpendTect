@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visrotationdragger.cc,v 1.8 2012-05-02 15:12:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visrotationdragger.cc,v 1.9 2012-08-10 03:50:09 cvsaneesh Exp $";
 
 #include "visrotationdragger.h"
 
@@ -73,9 +73,11 @@ void RotationDragger::set( const Quaternion& q )
 {
     NotifyStopper stopper( changed );
     if ( cyldragger_ )
-	cyldragger_->rotation.setValue( q.vec_.x, q.vec_.y, q.vec_.z, q.s_ );
+	cyldragger_->rotation.setValue( (float) q.vec_.x, (float) q.vec_.y, 
+					    (float) q.vec_.z, (float) q.s_ );
     else if ( spheredragger_ )
-	spheredragger_->rotation.setValue( q.vec_.x, q.vec_.y, q.vec_.z, q.s_ );
+	spheredragger_->rotation.setValue( (float) q.vec_.x, (float) q.vec_.y, 
+					     (float) q.vec_.z, (float) q.s_ );
 }
 
 

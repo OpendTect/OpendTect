@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: drawaxis2d.cc,v 1.41 2012-07-13 09:56:02 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: drawaxis2d.cc,v 1.42 2012-08-10 03:50:06 cvsaneesh Exp $";
 
 #include "drawaxis2d.h"
 
@@ -180,7 +180,7 @@ void uiGraphicsSceneAxis::update()
     }
     
     BufferString txt;
-    const float fnrsteps = rg_.width(false)/axis.step;
+    const float fnrsteps = (float) ( rg_.width(false)/axis.step );
     const int nrsteps = mNINT32( fnrsteps )+1;
     for ( int idx=0; idx<nrsteps; idx++ )
     {
@@ -190,7 +190,7 @@ void uiGraphicsSceneAxis::update()
 	
 	txt = worldpos * txtfactor_;
 	const double worldrelpos = rg_.getfIndex( worldpos, rg_.width() );
-	float axispos = axisrg.start + worldrelpos*axisrg.width();
+	float axispos = (float) ( axisrg.start + worldrelpos*axisrg.width() );
 	
 	mGetItem( uiLineItem, line, tickline );
 	

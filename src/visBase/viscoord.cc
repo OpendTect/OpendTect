@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viscoord.cc,v 1.46 2012-05-02 15:12:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: viscoord.cc,v 1.47 2012-08-10 03:50:08 cvsaneesh Exp $";
 
 #include "viscoord.h"
 
@@ -180,7 +180,8 @@ int Coordinates::addPos( const Coord3& pos )
 	}
     }
     
-    coords_->point.set1Value( res, SbVec3f(postoset.x,postoset.y,postoset.z) );
+    coords_->point.set1Value( res, SbVec3f((float) postoset.x,
+				(float) postoset.y,(float) postoset.z) );
 
     return res;
 }
@@ -273,7 +274,8 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos )
 	}
     }
     
-    coords_->point.set1Value( idx, SbVec3f(postoset.x,postoset.y,postoset.z) );
+    coords_->point.set1Value( idx, SbVec3f((float) postoset.x,
+				(float) postoset.y,(float) postoset.z) );
 
     const int unusedidx = unusedcoords_.indexOf(idx);
     if ( unusedidx!=-1 )

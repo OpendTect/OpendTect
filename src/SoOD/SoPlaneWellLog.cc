@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoPlaneWellLog.cc,v 1.55 2012-07-24 09:46:41 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoPlaneWellLog.cc,v 1.56 2012-08-10 03:50:04 cvsaneesh Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -403,7 +403,7 @@ void SoPlaneWellLog::buildSeismicLog(int lnr, const SbVec3f& projdir, int res)
     float minvalF = minval.getValue();
     float maxvalF = maxval.getValue();
     float meanvalF = 0;
-    float shiftprct = (minvalF - maxvalF) * ( shift.getValue() / 100.0 );
+    float shiftprct = (minvalF - maxvalF) * ( shift.getValue() / 100.0f );
     float meanlogval = ( maxvalF - minvalF ) / 2;
 
     const int pathsz = path.getNum();

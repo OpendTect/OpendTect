@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vissplittextureseis2d.cc,v 1.20 2012-07-18 08:25:48 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vissplittextureseis2d.cc,v 1.21 2012-08-10 03:50:10 cvsaneesh Exp $";
 
 #include "vissplittextureseis2d.h"
 
@@ -282,13 +282,13 @@ void SplitTextureSeis2D::updateDisplay( )
 	 
 	    if ( tc )
 	    {
-		const float tcstart = 0.5/textureversz;
-		const float tcstop = (versz-0.5)/textureversz;
+		const float tcstart = 0.5f/textureversz;
+		const float tcstop = (versz-0.5f)/textureversz;
 		int tcidx = 0;
 		for ( int idx=0; idx<bpsz; idx++ )
 		{
 		    const float dist = (*horblockrg)[idx]-(*horblockrg)[0];
-		    const float tcrd = (0.5+dist*horscale_)/texturehorsz;
+		    const float tcrd = (0.5f+dist*horscale_)/texturehorsz;
 	
 		    tc->point.set1Value( tcidx, SbVec2f(tcstart,tcrd) );
 		    tcidx++;

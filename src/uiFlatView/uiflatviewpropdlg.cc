@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewpropdlg.cc,v 1.69 2012-07-31 06:19:42 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewpropdlg.cc,v 1.70 2012-08-10 03:50:04 cvsaneesh Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -317,8 +317,8 @@ bool uiFlatViewDataDispPropTab::acceptOK()
     }
     else if ( clip==1 )
     {
-	Interval<float> cliprate( symclipratiofld_->getfValue()*0.01,
-				  symclipratiofld_->getfValue()*0.01 );
+	Interval<float> cliprate( symclipratiofld_->getfValue()*0.01f,
+				  symclipratiofld_->getfValue()*0.01f );
 	pars.mappersetup_.cliprate_ = cliprate;
 	pars.mappersetup_.symmidval_ = usemidvalfld_->getBoolValue() ?
 				symmidvalfld_->getfValue() : mUdf(float);

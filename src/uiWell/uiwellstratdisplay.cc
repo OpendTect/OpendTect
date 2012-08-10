@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellstratdisplay.cc,v 1.41 2012-07-25 08:29:55 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellstratdisplay.cc,v 1.42 2012-08-10 03:50:08 cvsaneesh Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -136,7 +136,7 @@ void WellStratUnitGen::gatherLeavedUnits()
 		if ( SI().zIsTime() && d2tmodel_ ) 
 		    pos = d2tmodel_->getTime(pos)*SI().zDomain().userFactor(); 
 		else
-		    pos = track_.getPos( pos ).z;
+		    pos = (float) track_.getPos( pos ).z;
 
 		int idunit = 0;
 		for ( ; idunit<posset_.size(); idunit ++ )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.101 2012-08-03 13:01:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointset.cc,v 1.102 2012-08-10 03:50:05 cvsaneesh Exp $";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -1033,7 +1033,7 @@ float uiDataPointSet::getVal( DColID dcid, DRowID drid, bool foruser ) const
 	return val * zfac_;
     }
 
-    return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
+    return dcid == (float) ( -3 ? dps_.coord(drid).x : dps_.coord(drid).y );
 }
 
 
@@ -1519,9 +1519,9 @@ void uiDataPointSet::removeHiddenRows()
 	if ( sortcol_ == 2 )
 	    val = dps_.z( drowid );
 	else if ( sortcol_ == 1 )
-	    val = poscoord.y;
+	    val = (float) poscoord.y;
 	else if ( sortcol_ == 0 )
-	    val = poscoord.x;
+	    val = (float) poscoord.x;
 	else
 	    val = dps_.value( dColID(sortcol_), drowid );
 	

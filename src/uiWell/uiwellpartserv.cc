@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.78 2012-08-07 04:03:34 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpartserv.cc,v 1.79 2012-08-10 03:50:08 cvsaneesh Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -332,16 +332,16 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     Well::D2TModel* d2t = SI().zIsTime() ? new Well::D2TModel : 0;
     const float vel = d2t ? 3000 : 1;
     const Coord3& c0( coords[0] );
-    const float minz = c0.z * vel;
+    const float minz = (float) c0.z * vel;
     well->track().addPoint( c0, minz, minz );
     well->info().surfacecoord = Coord( c0.x, c0.y );
-    if ( d2t ) d2t->add( minz, c0.z );
+    if ( d2t ) d2t->add( minz, (float) c0.z );
 
     for ( int idx=1; idx<coords.size(); idx++ )
     {
 	const Coord3& c( coords[idx] );
-	well->track().addPoint( c, c.z*vel );
-	if ( d2t ) d2t->add( well->track().dah(idx), c.z );
+	well->track().addPoint( c, (float) c.z*vel );
+	if ( d2t ) d2t->add( well->track().dah(idx), (float) c.z );
     }
 
     well->setD2TModel( d2t );

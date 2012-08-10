@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoBeachBall.cc,v 1.13 2012-07-16 20:57:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoBeachBall.cc,v 1.14 2012-08-10 03:50:04 cvsaneesh Exp $";
 
 #include "SoBeachBall.h"
 #include "SoCameraInfoElement.h"
@@ -212,11 +212,11 @@ void SoBeachBall::tessellate( int ilevel, int endindex,
         const int v2 = prevlvledges[iedge+1];
 
         x = ( res2coords_[v1][0] 
-            + res2coords_[v2][0] ) / 2.0;
+            + res2coords_[v2][0] ) / 2.0f;
         y = ( res2coords_[v1][1] 
-            + res2coords_[v2][1] ) / 2.0;        
+            + res2coords_[v2][1] ) / 2.0f;        
         z = ( res2coords_[v1][2]
-            + res2coords_[v2][2] ) / 2.0;
+            + res2coords_[v2][2] ) / 2.0f;
 
         // project (x, y, z) onto the surface of the sphere
         SbVec3f res( x, y, z );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimpepartserv.cc,v 1.138 2012-08-01 12:31:14 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimpepartserv.cc,v 1.139 2012-08-10 03:50:06 cvsaneesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -171,7 +171,7 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 	CubeSampling poscs(false);
 	const BinID bid = SI().transform(pickedpos);
 	poscs.hrg.start = poscs.hrg.stop = bid;
-	poscs.zrg.start = poscs.zrg.stop = pickedpos.z;
+	poscs.zrg.start = poscs.zrg.stop = (float) pickedpos.z;
 	expandActiveVolume( poscs );
     }
 
@@ -480,13 +480,14 @@ void uiMPEPartServer::adjustSeedBox()
 	if ( trackerseedbox_.isEmpty() )
 	{
 	    trackerseedbox_.hrg.start = trackerseedbox_.hrg.stop = bid;
-	    trackerseedbox_.zrg.start = trackerseedbox_.zrg.stop = pos.z;
+	    trackerseedbox_.zrg.start = trackerseedbox_.zrg.stop = 
+							    (float) pos.z;
 
 	}
 	else
 	{
 	    trackerseedbox_.hrg.include(bid);
-	    trackerseedbox_.zrg.include(pos.z);
+	    trackerseedbox_.zrg.include((float) pos.z);
 	}
     }
 } 

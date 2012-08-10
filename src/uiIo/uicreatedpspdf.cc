@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uicreatedpspdf.cc,v 1.18 2012-07-26 10:31:59 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicreatedpspdf.cc,v 1.19 2012-08-10 03:50:04 cvsaneesh Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -163,7 +163,7 @@ float uiCreateDPSPDF::getVal( int dcid, int drid ) const
 	return val*SI().zDomain().userFactor();
     }
 
-    return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
+    return dcid == (float) ( -3 ? dps_.coord(drid).x : dps_.coord(drid).y );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoPolygonSelect.cc,v 1.13 2012-05-02 15:11:50 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: SoPolygonSelect.cc,v 1.14 2012-08-10 03:50:04 cvsaneesh Exp $";
 
 
 #include "SoPolygonSelect.h"
@@ -136,7 +136,7 @@ void SoPolygonSelect::GLRender( SoGLRenderAction* action )
     const SbVec3f normal = plane.getNormal();
     glNormal3fv( normal.getValue() );
 
-    const float zpos = vv_.nearDist + 0.001*vv_.nearToFar;
+    const float zpos = vv_.nearDist + 0.001f*vv_.nearToFar;
 
     for ( int idx=0; idx<polygon_.getLength(); idx++ )
     {
@@ -303,7 +303,7 @@ void SoPolygonSelect::rub( const SbVec2f& pt )
 {
     const float delta = 0.002;
 
-    float rubradius = 0.3 * (tabletpressure_ - 0.2);
+    float rubradius = 0.3f * (tabletpressure_ - 0.2f);
 
     if ( rubradius < 0.005 )
 	rubradius = 0.005;
@@ -320,7 +320,7 @@ void SoPolygonSelect::rub( const SbVec2f& pt )
     polybuf_.append( pt );
     prevpos_ = pt;
 
-    transform( polybuf_, 1./rubradius, cosphi, -sinphi );
+    transform( polybuf_, 1.f/rubradius, cosphi, -sinphi );
 
     SbVec2f c1 = polybuf_[sz];
     SbVec2f c2 = polybuf_[sz+1];

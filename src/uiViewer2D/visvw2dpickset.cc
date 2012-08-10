@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.15 2012-07-10 13:27:28 cvsbruno Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.16 2012-08-10 03:50:07 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,12 +170,12 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	if ( dp3d->dataDir() == CubeSampling::Inl )
 	{
 	    bid = BinID( cs.hrg.start.inl, (int)pt.x );
-	    z = pt.y;
+	    z = (float) pt.y;
 	}
 	else if ( dp3d->dataDir() == CubeSampling::Crl )
 	{
 	    bid = BinID( (int)pt.x, cs.hrg.start.crl );
-	    z = pt.y;
+	    z = (float) pt.y;
 	}
 	else
 	{
@@ -219,11 +219,11 @@ void VW2DPickSet::drawAll()
     if ( isownremove_ ) return;
 
     const uiWorldRect& curvw = viewer_.curView();
-    const float zdiff = curvw.height();
+    const float zdiff = (float) curvw.height();
     const float nrzpixels = viewer_.getViewRect().vNrPics();
     const float zfac = nrzpixels / zdiff;
-    const float xdiff = curvw.width() *
-	( oninl ? SI().crlDistance() : SI().inlDistance() );
+    const float xdiff = (float) ( curvw.width() *
+	( oninl ? SI().crlDistance() : SI().inlDistance() ) );
     const float nrxpixels = viewer_.getViewRect().hNrPics();
     const float xfac = nrxpixels / xdiff;
 
@@ -246,7 +246,7 @@ void VW2DPickSet::drawAll()
 	const float dip = oninl ? dipstr.getFValue( 1 ) : dipstr.getFValue( 0 );
 	const float depth = (dip/1000000) * zfac;
 	markerstyle.rotation_ =
-	    mIsUdf(dip) ? 0 : ( atan2(2*depth,xfac) * (180/M_PI) );
+	    (float) ( mIsUdf(dip) ? 0 : ( atan2(2*depth,xfac) * (180/M_PI) ) );
 	picks_->markerstyles_ += markerstyle;
     }
     

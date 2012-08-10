@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiaxisdata.cc,v 1.10 2012-05-02 15:12:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiaxisdata.cc,v 1.11 2012-08-10 03:50:06 cvsaneesh Exp $";
 
 #include "uiaxisdata.h"
 #include "dataclipper.h"
@@ -105,8 +105,8 @@ uiAxisData::AutoScalePars::AutoScalePars()
     if ( defclipratio_ == -1 )
     {
 	const char* res = Settings::common().find( "AxisData.Clip Ratio" );
-	const float val = res && *res ? toFloat( res )
-			    : GetEnvVarDVal( "OD_DEFAULT_AXIS_CLIPRATIO", 0 );
+	const float val = (float) ( res && *res ? toFloat( res )
+			    : GetEnvVarDVal( "OD_DEFAULT_AXIS_CLIPRATIO", 0 ) );
 	defclipratio_ = val < 0 || val >= 1 ? 0 : val;
     }
     clipratio_ = defclipratio_;

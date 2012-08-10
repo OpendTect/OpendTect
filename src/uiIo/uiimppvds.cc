@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiimppvds.cc,v 1.10 2012-07-10 08:05:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiimppvds.cc,v 1.11 2012-08-10 03:50:05 cvsaneesh Exp $";
 
 #include "uiimppvds.h"
 
@@ -159,7 +159,7 @@ bool getLine()
     if ( fd_.bodyinfos_[1]->selection_.isInFile() )
 	z_ = getfValue( 2 );
     else
-	z_ = zgen_.start + Stats::RandGen::get() * zgen_.step;
+	z_ = (float) ( zgen_.start + Stats::RandGen::get() * zgen_.step );
     if ( is2d_ && fd_.bodyinfos_[2]->selection_.isInFile() )
 	trcnr_ = getIntValue( 3 );
     else

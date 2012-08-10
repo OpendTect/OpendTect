@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiswvltattr.cc,v 1.31 2012-07-10 08:05:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiswvltattr.cc,v 1.32 2012-08-10 03:50:06 cvsaneesh Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -83,8 +83,8 @@ void uiSeisWvltRotDlg::act( CallBacker* )
     wvltattr_->getHilbert( hilsamps );
 
     for ( int idx=0; idx<wvltsz; idx++ )
-	wvltsamps[idx] = orgwvltsamps[idx]*cos( dphase*M_PI/180 ) 
-		       - hilsamps.get(idx)*sin( dphase*M_PI/180 );
+	wvltsamps[idx] = (float) ( orgwvltsamps[idx]*cos( dphase*M_PI/180 ) 
+		       - hilsamps.get(idx)*sin( dphase*M_PI/180 ) );
     acting.trigger();
 }
 
@@ -147,7 +147,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
 		    wvlt_->samplePositions().stop );
     timedrawer_->setFunction( *wvltvals_, timerange_ );
     
-    float maxfreq = 0.5/zstep;
+    float maxfreq = 0.5f/zstep;
     if ( SI().zIsTime() ) maxfreq = mNINT32( maxfreq );
     freqrange_.set( 0, maxfreq );
     
@@ -263,7 +263,7 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 	    , wvltsz_(wvlt.size())
 {
     timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop );
-    float maxfreq = 0.5/wvlt.sampleRate();
+    float maxfreq = 0.5f/wvlt.sampleRate();
     if ( SI().zIsTime() ) maxfreq = mNINT32( maxfreq );
     freqrange_.set( 0, maxfreq );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viscube.cc,v 1.24 2012-05-02 15:12:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: viscube.cc,v 1.25 2012-08-10 03:50:09 cvsaneesh Exp $";
 
 #include "viscube.h"
 #include "vistransform.h"
@@ -61,7 +61,8 @@ void Cube::setDisplayTransformation( const mVisTrans* nt )
 void Cube::setCenterPos( const Coord3& pos_ )
 {
     const Coord3 pos = transformation ? transformation->transform(pos_) : pos_;
-    position->translation.setValue( pos.x, pos.y, pos.z );
+    position->translation.setValue( (float) pos.x, 
+				    (float) pos.y, (float) pos.z );
 }
 
 
@@ -84,9 +85,9 @@ void Cube::setWidth( const Coord3& n )
 			      Coord3(1,1,1);
 
     SoCube* cube = reinterpret_cast<SoCube*>( shape_ );
-    cube->width.setValue(n.x*transscale.x);
-    cube->height.setValue(n.y*transscale.y);
-    cube->depth.setValue(n.z*transscale.z);
+    cube->width.setValue( (float) ( n.x*transscale.x ) );
+    cube->height.setValue( (float) ( n.y*transscale.y) );
+    cube->depth.setValue( (float) ( n.z*transscale.z) );
 }
 
 

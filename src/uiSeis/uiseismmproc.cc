@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseismmproc.cc,v 1.146 2012-07-24 09:03:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseismmproc.cc,v 1.147 2012-08-10 03:50:06 cvsaneesh Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -464,7 +464,7 @@ void uiSeisMMProc::updateAliveDisp()
 	progbar->setTotalSteps( totsteps );
 	progbar->setProgress( nrdone );
 
-	const float fpct = 100. * ((float)nrdone) / totsteps;
+	const float fpct = 100.f * ((float)nrdone) / totsteps;
 	int pct = (int)fpct; if ( pct > 100 ) pct = 100;
 	BufferString newcap( "[" ); newcap += pct; newcap += "%] ";
 	newcap += caption;

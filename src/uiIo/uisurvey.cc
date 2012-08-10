@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.144 2012-07-27 09:46:03 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.145 2012-08-10 03:50:05 cvsaneesh Exp $";
 
 #include "uisurvey.h"
 
@@ -582,7 +582,7 @@ void uiSurvey::mkInfo()
 	int nr, rest;    
 	bininfo += "inl: "; mkString(inldist);
 	bininfo += "  crl: "; mkString(crldist);
-	float area = si.computeArea(false) * 1e-6; //in km2
+	float area = (float) ( si.computeArea(false) * 1e-6 ); //in km2
 	if ( si.xyInFeet() )
 	    area /= 2.590; // square miles
 

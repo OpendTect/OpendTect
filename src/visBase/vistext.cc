@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistext.cc,v 1.27 2012-07-10 08:05:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistext.cc,v 1.28 2012-08-10 03:50:10 cvsaneesh Exp $";
 
 #include "vistext.h"
 
@@ -65,7 +65,7 @@ void Text::setPosition( const Coord3& lpos )
 {
     const Coord3 pos = transformation_
 	? transformation_->transform( lpos ) : lpos;
-    textpos_->translation.setValue( pos.x, pos.y, pos.z );
+    textpos_->translation.setValue( (float) pos.x, (float) pos.y, (float) pos.z );
 }
 
 

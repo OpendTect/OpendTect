@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vislight.cc,v 1.17 2012-05-22 14:48:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vislight.cc,v 1.18 2012-08-10 03:50:09 cvsaneesh Exp $";
 
 #include "vislight.h"
 #include "iopar.h"
@@ -92,7 +92,7 @@ int Light::usePar( const IOPar& par )
     if ( !par.get( intensitystr(), intens ))
 	return -1;
 
-    setIntensity( intens );
+    setIntensity( (float) intens );
     return 1;
 }
 
@@ -133,7 +133,7 @@ int PointLight::usePar( const IOPar& par )
     if ( !par.get( positionstr(), x, y, z ))
 	return -1;
 
-    setPosition( x, y, z );
+    setPosition( (float) x, (float) y, (float) z );
     return 1;
 }
 
@@ -175,7 +175,7 @@ int DirectionalLight::usePar( const IOPar& par )
     if ( !par.get( directionstr(), x, y, z ))
 	return -1;
 
-    setDirection( x, y, z );
+    setDirection( (float) x, (float) y, (float) z );
     return 1;
 }
 
@@ -258,22 +258,22 @@ int SpotLight::usePar( const IOPar& par )
     if ( !par.get( directionstr(), x, y, z ))
 	return -1;
 
-    setDirection( x, y, z );
+    setDirection( (float) x, (float) y, (float) z );
 
     if ( !par.get( positionstr(), x, y, z ))
 	return -1;
 
-    setPosition( x, y, z );
+    setPosition( (float) x, (float) y, (float) z );
 
     if ( !par.get( coneanglestr(), x ))
 	return -1;
 
-    setConeAngle( x );
+    setConeAngle( (float) x );
 
     if ( !par.get( dropoffratestr(), x ))
 	return -1;
 
-    setDropOffRate( x );
+    setDropOffRate( (float) x );
 
     return 1;
 }

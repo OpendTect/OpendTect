@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvinfoed.cc,v 1.136 2012-07-27 09:46:03 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurvinfoed.cc,v 1.137 2012-08-10 03:50:05 cvsaneesh Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -720,11 +720,11 @@ bool uiSurveyInfoEditor::setRanges()
     cs.zrg = zfld_->getFStepInterval();
     if ( mIsUdf(cs.zrg.start) || mIsUdf(cs.zrg.stop) || mIsUdf(cs.zrg.step) )
 	mErrRet("Please enter the Z Range")
-    const float zfac = 1. / si_.zDomain().userFactor();
+    const float zfac = 1.f / si_.zDomain().userFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
 	{ cs.zrg.start *= zfac; cs.zrg.stop *= zfac; cs.zrg.step *= zfac; }
     if ( mIsZero(cs.zrg.step,1e-8) )
-	cs.zrg.step = si_.zIsTime() ? 0.004 : 1;
+	cs.zrg.step = si_.zIsTime() ? 0.004f : 1;
     cs.normalise();
     if ( !hs.totalNr() )
 	mErrRet("Please specify inline/crossline ranges")
