@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: conncomponents.h,v 1.3 2012-08-03 13:00:03 cvskris Exp $
+ RCS:           $Id: conncomponents.h,v 1.4 2012-08-13 21:44:01 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -32,12 +32,13 @@ mClass(Algo) ConnComponents
 public:    
 
     				ConnComponents(const Array2D<bool>&);
-				~ConnComponents()	{}
+				~ConnComponents();
 
     void			compute(TaskRunner* tr=0); 
 
     int				nrComponents() const; 
     const TypeSet<int>*		getComponent(int compidx);
+    const Array2D<int>*		getLabel() const	{ return label_; }
 
     bool			hasTrifurcation(const TypeSet<int>& component);
     float			overLapRate(int componentidx);
@@ -50,6 +51,7 @@ protected:
     void			classifyMarks(Array2D<int>& mark);
     void			setMark(Array2D<int>& r,int source,int newval);
     const Array2D<bool>&	input_;
+    Array2D<int>*		label_;
     TypeSet< TypeSet<int> >	components_;
     TypeSet<int>		sortedindex_;
 };

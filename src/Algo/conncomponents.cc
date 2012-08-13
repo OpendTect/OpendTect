@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: conncomponents.cc,v 1.4 2012-08-02 14:48:12 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: conncomponents.cc,v 1.5 2012-08-13 21:44:01 cvsyuancheng Exp $";
 
 #include "conncomponents.h"
 
@@ -19,22 +19,22 @@ static const char* rcsID mUnusedVar = "$Id: conncomponents.cc,v 1.4 2012-08-02 1
 
 ConnComponents::ConnComponents( const Array2D<bool>& input ) 
     : input_(input)
-{}
+{
+    label_ = new Array2DImpl<int>( input.info() );
+}
+
+
+ConnComponents::~ConnComponents()
+{ delete label_; }
 
 
 void ConnComponents::compute( TaskRunner* tr )
 {
-    const int r = input_.info().getSize(0);
-    const int c = input_.info().getSize(1);
-
-    mDeclareAndTryAlloc( Array2DImpl<int>*, mark, Array2DImpl<int>(r,c) );
-    if ( !mark ) return;
-    
-    mark->setAll(0);
-    classifyMarks( *mark );
+    label_->setAll(0);
+    classifyMarks( *label_ );
 
     const int sz = input_.info().getTotalSz();
-    int* markers = mark->getData();
+    int* markers = label_->getData();
     components_.erase();
     TypeSet<int> labels;
     
