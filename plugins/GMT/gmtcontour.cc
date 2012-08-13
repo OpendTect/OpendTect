@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmtcontour.cc,v 1.24 2012-05-22 14:48:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmtcontour.cc,v 1.25 2012-08-13 03:56:44 cvssalil Exp $";
 
 #include "gmtcontour.h"
 
@@ -175,7 +175,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	if ( !pos.isDefined() )
 	    continue;
 
-	const float val = isz ? pos.z * fac
+	const float val = isz ? (float) pos.z * fac
 	    		      : hor->auxdata.getAuxDataVal( dataidx, posid );
 	if ( mIsUdf(val) ) continue;
 

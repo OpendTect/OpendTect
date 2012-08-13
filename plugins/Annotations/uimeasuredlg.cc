@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimeasuredlg.cc,v 1.26 2012-05-02 15:11:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimeasuredlg.cc,v 1.27 2012-08-13 03:56:43 cvssalil Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -191,7 +191,7 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 	const Coord prevxy = points[idx-1].coord();
 	const BinID bid = SI().transform( xy );
 	const BinID prevbid = SI().transform( prevxy );
-	float zdist = fabs( points[idx-1].z - points[idx].z );
+	double zdist = fabs( points[idx-1].z - points[idx].z );
 
 	totinldist += abs( bid.inl - prevbid.inl );
 	totcrldist += abs( bid.crl - prevbid.crl );

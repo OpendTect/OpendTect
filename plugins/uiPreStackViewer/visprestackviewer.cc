@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID mUnusedVar = "$Id: visprestackviewer.cc,v 1.77 2012-07-10 13:27:26 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: visprestackviewer.cc,v 1.78 2012-08-13 03:56:45 cvssalil Exp $";
 
 #include "visprestackviewer.h"
 
@@ -504,7 +504,7 @@ void Viewer3D::dataChangedCB( CallBacker* )
 	return;
 	
     const Coord direction = posside_ ? basedirection_ : -basedirection_;
-    const float offsetscale = Coord( basedirection_.x*SI().inlDistance(),
+    const float offsetscale = (float) Coord( basedirection_.x*SI().inlDistance(),
 	    			     basedirection_.y*SI().crlDistance()).abs();
 
     const FlatDataPack* fdp = flatviewer_->pack( false );
@@ -546,9 +546,9 @@ void Viewer3D::dataChangedCB( CallBacker* )
 	planedragger_->setDim( isinline ? 1 : 0 );
 
 	const float xwidth = 
-	    isinline ? fabs(stoppos.x-startpos.x) : SI().inlDistance();
+	    isinline ? (float) fabs(stoppos.x-startpos.x) : SI().inlDistance();
 	const float ywidth = 
-	    isinline ?  SI().crlDistance() : fabs(stoppos.y-startpos.y);
+	    isinline ?  SI().crlDistance() : (float) fabs(stoppos.y-startpos.y);
     
     	planedragger_->setSize( Coord3(xwidth,ywidth,zrg_.width(true)) );
 	
@@ -847,7 +847,7 @@ void Viewer3D::draggerMotion( CallBacker* )
 	      newinl!=bid_.inl )
 	showplane = true;
     
-    draggermaterial_->setTransparency( showplane ? 0.5 : 1 );
+    draggermaterial_->setTransparency( showplane ? 0.5f : 1 );
     
     draggerpos_ = BinID(newinl, newcrl);
     draggermoving.trigger();
@@ -893,15 +893,15 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
 
     const FlatPosData& posdata = fdp->posData();
 
-    float offset = mUdf(float);
+    double offset = mUdf(double);
     const StepInterval<double>& rg = posdata.range( true );
 
     if ( seis2d_ )
     {
 	info += "   Tracenr: ";
 	info += trcnr_;
-	const float displaywidth = seis2dstoppos_.distTo(seis2dpos_);
-	float curdist = SI().binID2Coord().transformBackNoSnap( pos ).distTo( seis2dpos_ );
+	const double displaywidth = seis2dstoppos_.distTo(seis2dpos_);
+	double curdist = SI().binID2Coord().transformBackNoSnap( pos ).distTo( seis2dpos_ );
 	offset = rg.start + posdata.width(true)*curdist/displaywidth;
 	pos = Coord3( seis2dpos_, pos.z );
     }
@@ -923,13 +923,13 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
     }
 
     int offsetsample;
-    float traceoffset;
+    double traceoffset;
     if ( posdata.isIrregular() )
     {
 	float mindist;
 	for ( int idx=0; idx<posdata.nrPts(true); idx++ )
 	{
-	    const float dist = fabs( posdata.position(true,idx)-offset );
+	    const float dist = (float) fabs( posdata.position(true,idx)-offset );
 	    if ( !idx || dist<mindist )
 	    {
 		offsetsample = idx;

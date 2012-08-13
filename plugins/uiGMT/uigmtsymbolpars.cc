@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtsymbolpars.cc,v 1.15 2012-05-22 14:48:46 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtsymbolpars.cc,v 1.16 2012-08-13 03:56:45 cvssalil Exp $";
 
 #include "uigmtsymbolpars.h"
 
@@ -38,7 +38,7 @@ uiGMTSymbolPars::uiGMTSymbolPars( uiParent* p, bool usewellsymbols )
     setHAlignObj( lcb );
 
     sizefld_ = new uiGenInput( this, "Size (cm)",
-	    		       FloatInpSpec( usewellsymbols_ ? 0.5 : 0.2 ) );
+	    		       FloatInpSpec( usewellsymbols_ ? 0.5f : 0.2f ) );
     sizefld_->setElemSzPol( uiObject::Small );
     sizefld_->attach( rightTo, lcb );
 

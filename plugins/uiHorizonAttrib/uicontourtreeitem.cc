@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.38 2012-08-03 13:01:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.39 2012-08-13 03:56:45 cvssalil Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -106,7 +106,7 @@ StepInterval<float> getContourInterval() const
 {
     StepInterval<float> res = intvfld_->getFStepInterval();
     if ( iszval_ )
-	res.scale( 1.0/SI().zDomain().userFactor() );
+	res.scale( 1.0f/SI().zDomain().userFactor() );
     
     return res;
 }
@@ -518,7 +518,7 @@ void uiContourTreeItem::createContours()
     const float fac = SI().zDomain().userFactor();
 
     const Coord3 trans = applMgr()->visServer()->getTranslation( displayID() );
-    zshift_ = trans.z;
+    zshift_ = (float) trans.z;
 
     const char* fmt = SI().zIsTime() ? "%g" : "%f";
     int cii = 0;
@@ -671,7 +671,7 @@ void uiContourTreeItem::updateZShift()
 	return;
 
     const Coord3 trans = applMgr()->visServer()->getTranslation( displayID() );
-    const float deltaz = trans.z - zshift_;
+    const float deltaz = (float) (trans.z - zshift_);
     if ( !deltaz )
 	return;
 
@@ -698,5 +698,5 @@ void uiContourTreeItem::updateZShift()
 	labels_[idx]->setText( getStringFromFloat(fmt, labelval, buf) );
     }
 
-    zshift_ = trans.z;
+    zshift_ = (float) trans.z;
 }

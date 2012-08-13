@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtcontour.cc,v 1.29 2012-07-10 08:05:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtcontour.cc,v 1.30 2012-08-13 03:56:45 cvssalil Exp $";
 
 #include "uigmtcontour.h"
 
@@ -299,7 +299,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     while ( iter.next(bid) )
     {
 	const EM::PosID posid( hor_->id(), sid, bid.toInt64() );
-	const float val = isz ? hor_->getPos( posid ).z
+	const float val = isz ? (float) hor_->getPos( posid ).z
 	    		      : hor_->auxdata.getAuxDataVal( dataidx, posid );
 	if ( !mIsUdf(val) )
 	    rg.include( val, false );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtbasemap.cc,v 1.18 2012-07-10 08:05:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigmtbasemap.cc,v 1.19 2012-08-13 03:56:45 cvssalil Exp $";
 
 #include "uigmtbasemap.h"
 
@@ -165,8 +165,8 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
     {
 	const Coord survmin = SI().minCoord( false );
 	const Coord survmax = SI().maxCoord( false );
-	xrg.start = survmin.x; xrg.stop = survmax.x;
-	yrg.start = survmin.y; yrg.stop = survmax.y;
+	xrg.start = (float) survmin.x; xrg.stop = (float) survmax.x;
+	yrg.start = (float) survmin.y; yrg.stop = (float) survmax.y;
 	xintv.setFrom( xrg ); yintv.setFrom( yrg );
 	xrgfld_->setValue( xintv );
 	yrgfld_->setValue( yintv );
@@ -187,7 +187,7 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
 	return;
     }
 
-    aspectratio_ = xrg.width() / yrg.width();
+    aspectratio_ = (float) (xrg.width() / yrg.width());
     if ( aspectratio_ < 0.01 || aspectratio_ > 100 )
     {
 	uiMSG().error( "Unreasonable aspect ratio",

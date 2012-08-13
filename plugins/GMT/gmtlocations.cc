@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmtlocations.cc,v 1.21 2012-05-22 14:48:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmtlocations.cc,v 1.22 2012-08-13 03:56:44 cvssalil Exp $";
 
 #include "gmtlocations.h"
 
@@ -461,10 +461,10 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
     float dx = 0, dy = 0;
     switch ( al )
     {
-	case ODGMT::Above:	alstr = "BC"; dy = 0.6 * sz; break;
-	case ODGMT::Below:	alstr = "TC"; dy = -0.6 * sz; break;
-	case ODGMT::Left:	alstr = "RM"; dx = -0.6 * sz; break;
-	case ODGMT::Right:	alstr = "LM"; dx = 0.6 * sz; break;
+	case ODGMT::Above:	alstr = "BC"; dy = 0.6f * sz; break;
+	case ODGMT::Below:	alstr = "TC"; dy = -0.6f * sz; break;
+	case ODGMT::Left:	alstr = "RM"; dx = -0.6f * sz; break;
+	case ODGMT::Right:	alstr = "LM"; dx = 0.6f * sz; break;
     }
 
     int fontsz = 10;

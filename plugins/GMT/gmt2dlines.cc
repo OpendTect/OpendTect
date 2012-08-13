@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmt2dlines.cc,v 1.23 2012-05-22 14:48:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: gmt2dlines.cc,v 1.24 2012-08-13 03:56:44 cvssalil Exp $";
 
 #include "gmt2dlines.h"
 
@@ -146,7 +146,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	const int nrtrcs = posns.size();
 	Coord pos = posns[0].coord_;
 	Coord cvec = posns[1].coord_ - posns[0].coord_;
-	float angle = atan2( cvec.y, cvec.x );
+	float angle = (float) atan2( cvec.y, cvec.x );
 	float dy = sin( angle );
 	float dx = cos( angle );
 	angle *= 180 / M_PI;
@@ -171,7 +171,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	{
 	    pos = posns[nrtrcs-1].coord_;
 	    cvec = posns[nrtrcs-2].coord_ - pos;
-	    angle = atan2( cvec.y, cvec.x );
+	    angle = (float) atan2( cvec.y, cvec.x );
 	    dy = sin( angle );
 	    dx = cos( angle );
 	    angle *= 180 / M_PI;
@@ -196,7 +196,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 		if ( tdx > 4 && tdx < posns.size()-5 )
 		{
 		    cvec = posns[tdx+5].coord_ - posns[tdx-5].coord_;
-		    angle = atan2( cvec.y, cvec.x );
+		    angle = (float) atan2( cvec.y, cvec.x );
 		    angle *= 180 / M_PI;
 		    perpangle = angle > 0 ? angle - 90 : angle + 90;
 		}
@@ -320,7 +320,7 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
 
 	Coord posc = SI().transform( rdl->nodePosition(0) );
 	Coord cvec = SI().transform( rdl->nodePosition(1) ) - posc;
-	float angle = atan2( cvec.y, cvec.x );
+	float angle = (float) atan2( cvec.y, cvec.x );
 	const float dy = cos( angle );
 	const float dx = sin( angle );
 	angle *= 180 / M_PI;

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.74 2012-08-09 03:48:45 cvssalil Exp $
+ RCS:		$Id: ranges.h,v 1.75 2012-08-13 03:56:43 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -326,7 +326,7 @@ int Interval<T>::nearestIndex( const X& x, const T& step ) const
 {
     int nr = getIndex(x,step);
     const T atindex = atIndex(nr,step);
-    const float reldiff = (float)(x-atindex)/step;
+    const float reldiff = (float)((x-atindex)/step);
 
     if ( reldiff>=0.5f ) return nr+1;
     else if ( reldiff<=-0.5f ) return nr-1;

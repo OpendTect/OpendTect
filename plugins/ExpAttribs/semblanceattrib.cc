@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: semblanceattrib.cc,v 1.12 2012-07-31 04:15:50 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: semblanceattrib.cc,v 1.13 2012-08-13 03:56:44 cvssalil Exp $";
 
 #include "semblanceattrib.h"
 
@@ -104,7 +104,7 @@ Semblance::Semblance( Desc& desc )
     inputdata_.allowNull(true);
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1./zFactor() );
+    gate_.scale( 1.f/zFactor() );
 
     mGetBool( dosteer_, steeringStr() );
     mGetEnum( extension_, extensionStr() );

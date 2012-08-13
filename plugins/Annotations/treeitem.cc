@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.61 2012-07-10 08:05:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.62 2012-08-13 03:56:43 cvssalil Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -865,12 +865,12 @@ bool ArrowSubItem::init()
 	{
 	    if ( orientation[0] == '2' )
 	    {
-		(*set_)[idx].dir.phi = -M_PI_2-(*set_)[idx].dir.phi;
+		(*set_)[idx].dir.phi = (float) (-M_PI_2-(*set_)[idx].dir.phi);
 		(*set_)[idx].dir.theta = M_PI_2;
 	    }
 	    else
 	    {
-		(*set_)[idx].dir.phi = M_PI_2-(*set_)[idx].dir.phi;
+		(*set_)[idx].dir.phi = (float) (M_PI_2-(*set_)[idx].dir.phi);
 		(*set_)[idx].dir.theta -= M_PI_2;
 	    }
 	}

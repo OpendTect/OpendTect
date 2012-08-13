@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiimpgprpi.cc,v 1.15 2012-05-02 15:11:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiimpgprpi.cc,v 1.16 2012-08-13 03:56:45 cvssalil Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -117,7 +117,7 @@ void inpSel( CallBacker* )
     FilePath fp( fnm ); fp.setExtension( "", true );
     lnmfld_->setText( fp.fileName() );
 
-    const float tdist = fh.spm ? 1. / ((float)fh.spm) : SI().inlDistance();
+    const float tdist = fh.spm ? 1.f / ((float)fh.spm) : SI().inlDistance();
     stepposfld_->setValue( tdist, 0 );
 
 }

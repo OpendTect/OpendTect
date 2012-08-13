@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: grubbsfilterattrib.cc,v 1.10 2012-07-31 04:15:50 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: grubbsfilterattrib.cc,v 1.11 2012-08-13 03:56:44 cvssalil Exp $";
 
 #include "grubbsfilterattrib.h"
 
@@ -76,7 +76,7 @@ GrubbsFilter::GrubbsFilter( Desc& desc )
     mGetFloat( cogrubbsval_, grubbsvalStr() );
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1./zFactor() );
+    gate_.scale( 1.f/zFactor() );
 
     mGetBinID( stepout_, stepoutStr() )
     getTrcPos();
@@ -215,17 +215,17 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 	{
 	    switch ( type_ ) 
 	    { 
-		case GrubbsFilter::Average:	newval = rc.average(); break;
+		case GrubbsFilter::Average:	newval = (float) rc.average(); break;
 		case GrubbsFilter::Median:	newval = rc.median(); break;
 		case GrubbsFilter::Threshold: 
-		    newval = (cogrubbsval_ * rc.stdDev())+rc.average(); 
+		    newval = (float) ((cogrubbsval_ * rc.stdDev())+rc.average()); 
 		    newval = positive ? newval * 1 : newval * -1;
 		    break;
 		case GrubbsFilter::Interpolate:
 		    for ( int arridx=0; arridx<vals.info().getSize(0); arridx++)
 		    {
 			float arrval = vals.get( arridx );
-			grubbsval = fabs((arrval - rc.average())/rc.stdDev());
+			grubbsval = (float) fabs((arrval - rc.average())/rc.stdDev());
 			if ( grubbsval > cogrubbsval_ )
 			    vals.set( arridx, mUdf(float) );
 		    }

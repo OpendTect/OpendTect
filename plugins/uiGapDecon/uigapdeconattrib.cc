@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigapdeconattrib.cc,v 1.54 2012-07-31 04:20:09 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigapdeconattrib.cc,v 1.55 2012-08-13 03:56:45 cvssalil Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -550,7 +550,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     CubeSampling cs;
     inpfld_->getRanges(cs);
     Interval<float> gate = gatefld_->getFInterval();
-    gate.scale(1./SI().zDomain().userFactor());
+    gate.scale(1.f/SI().zDomain().userFactor());
     if ( cs.zrg.start < gate.start )
 	cs.zrg.start = gate.start;
     if ( cs.zrg.stop > gate.stop )

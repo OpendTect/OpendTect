@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratamp.cc,v 1.18 2012-05-22 14:48:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratamp.cc,v 1.19 2012-08-13 03:56:44 cvssalil Exp $";
 
 #include "stratamp.h"
 
@@ -191,9 +191,9 @@ int StratAmpCalc::nextStep()
 
     const BinID bid = trc->info().binid;
     const EM::SubID subid = bid.toInt64();
-    float z1 = tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
+    float z1 = (float) tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
     float z2 = !bothorizon_ ? z1
-		     : bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
+		     : (float) bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
     z1 += tophorshift_;
     z2 += bothorshift_;
     Interval<int> sampintv( trc->info().nearestSample(z1),
@@ -220,15 +220,15 @@ int StratAmpCalc::nextStep()
     {
 	case Stats::Min: outval = runcalc.min(); break;
 	case Stats::Max: outval = runcalc.max(); break;
-	case Stats::Average: outval = runcalc.average(); break;
-	case Stats::RMS: outval = runcalc.rms(); break;  
+	case Stats::Average: outval = (float) runcalc.average(); break;
+	case Stats::RMS: outval = (float) runcalc.rms(); break;  
 	case Stats::Sum: outval = runcalc.sum(); break;  
 	default: break;
     }
 
     const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
     posid_.setSubID( subid );
-    addtohor->auxdata.setAuxDataVal( dataidx_, posid_, outval );
+    addtohor->auxdata.setAuxDataVal( dataidx_, posid_, (float) outval );
     if ( outfold_ )
     {
 	posidfold_.setSubID( subid );
