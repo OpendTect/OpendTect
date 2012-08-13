@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: zaxistransform.cc,v 1.29 2012-08-09 06:49:33 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: zaxistransform.cc,v 1.30 2012-08-13 07:26:40 cvsranojay Exp $";
 
 #include "zaxistransform.h"
 
@@ -75,7 +75,7 @@ bool ZAxisTransform::loadDataIfMissing(int,TaskRunner*)
 
 
 float ZAxisTransform::transform( const Coord3& pos ) const
-{ return transform( BinIDValue( (float) ( SI().transform(pos), pos.z ) ) ); }
+{ return transform( BinIDValue(SI().transform(pos),(float) pos.z) ); }
 
 
 float ZAxisTransform::transform( const BinIDValue& pos ) const
@@ -87,7 +87,7 @@ float ZAxisTransform::transform( const BinIDValue& pos ) const
 
 
 float ZAxisTransform::transformBack( const Coord3& pos ) const
-{ return transformBack( BinIDValue( (float) (SI().transform(pos), pos.z) ) ); }
+{ return transformBack( BinIDValue(SI().transform(pos),(float) pos.z) ); }
 
 
 float ZAxisTransform::transformBack( const BinIDValue& pos ) const
@@ -230,7 +230,8 @@ void ZAxisTransformSampler::computeCache( const Interval<int>& range )
 {
     const int sz = range.width()+1;
     cache_.setSize( sz );
-    const SamplingData<float> cachesd( sd_.atIndex(range.start), sd_.step );
+    const SamplingData<float> cachesd( (float)sd_.atIndex(range.start),
+					(float)sd_.step );
     if ( back_ )
     {
 	if ( is2d_ )
