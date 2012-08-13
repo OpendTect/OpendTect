@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		May 2007
- RCS:		$Id: smoother1d.h,v 1.12 2012-08-10 04:11:23 cvssalil Exp $
+ RCS:		$Id: smoother1d.h,v 1.13 2012-08-13 09:36:56 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,10 +132,10 @@ bool Smoother1D<T>::setWindow( const char* nm, float param, int length )
     window_.setSize( length );
     const double step = 2.0/(length-1);
     for ( int idx=0; idx<length; idx++ )
-	window_[idx] = wf->getValue( step*idx-1 );
+	window_[idx] = wf->getValue( (float) (step*idx-1) );
 
     windowname_ = nm;
-    windowparam_ = wf->hasVariable() ? param : 1e30;
+    windowparam_ = (float) ( wf->hasVariable() ? param : 1e30 );
 
     return true;
 }

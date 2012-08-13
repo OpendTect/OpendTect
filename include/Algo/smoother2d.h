@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother2d.h,v 1.8 2012-08-13 04:04:37 cvsaneesh Exp $
+ RCS:		$Id: smoother2d.h,v 1.9 2012-08-13 09:36:56 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,7 +212,7 @@ bool Smoother2D<T>::execute()
 	    {
 		const float pos1 = idx1>hsz1 ? idx1-sz1 : idx1;
 		pos[1] = pos1/hwinsz1;
-		const float weight = (float) wf->getValue( pos.abs() );
+		const float weight = wf->getValue( (float) pos.abs() );
 		window_->set( idx0, idx1, weight );
 		weightsum += weight;
 	    }

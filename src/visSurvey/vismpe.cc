@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.124 2012-08-13 04:04:40 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.125 2012-08-13 09:36:58 cvsaneesh Exp $";
 
 #include "vismpe.h"
 
@@ -1252,8 +1252,8 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 	    float& start = planebox.zrg.start;
 	    float& stop =  planebox.zrg.stop;
 	    const double step = SI().zStep();
-	    start = stop = (float) engineplane.zrg.start + 
-						( inc ? step : -step );
+	    start = stop = (float) ( engineplane.zrg.start + 
+						( inc ? step : -step ) );
 	    newplane.setMotion( 0, 0, (float) ( inc ? step : -step ) );
 	}
 

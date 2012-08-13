@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vispicksetdisplay.cc,v 1.110 2012-05-22 14:48:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispicksetdisplay.cc,v 1.111 2012-08-13 09:36:58 cvsaneesh Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -304,8 +304,8 @@ int PickSetDisplay::usePar( const IOPar& par )
 	    Coord3 pos( toDouble(fms[0]), toDouble(fms[1]), toDouble(fms[2]) );
 	    Sphere dir;
 	    if ( fms.size() > 3 )
-		dir = Sphere( toDouble(fms[3]), toDouble(fms[4]),
-				toDouble(fms[5]) );
+		dir = Sphere( (float) toDouble(fms[3]),
+			(float) toDouble(fms[4]), (float) toDouble(fms[5]) );
 
 	    *newps += Pick::Location( pos, dir );
 	}

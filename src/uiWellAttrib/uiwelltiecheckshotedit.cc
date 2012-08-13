@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltiecheckshotedit.cc,v 1.21 2012-07-19 07:00:31 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiecheckshotedit.cc,v 1.22 2012-08-13 09:36:57 cvsaneesh Exp $";
 
 #include "uiwelltiecheckshotedit.h"
 
@@ -375,7 +375,7 @@ void uiCheckShotEdit::applyCB( CallBacker* )
     for ( int idx=0; idx<d2t_->size(); idx++ )
     {
 	float val = d2t_->value( idx );
-	float dah = wd_.track().getPos( d2t_->dah( idx ) ).z;
+	float dah = (float) wd_.track().getPos( d2t_->dah( idx ) ).z;
 	pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
     }
     if ( pts.isEmpty() ) return;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.92 2012-07-22 04:54:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.93 2012-08-13 09:36:56 cvsaneesh Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -481,7 +481,7 @@ bool BatchProgram::go( std::ostream& strm )
 
 	Interval<float> extraz;
 	geompar->get( "ExtraZInterval", extraz.start, extraz.stop );
-	extraz.scale(1./SI().zDomain().userFactor());
+	extraz.scale(1.f/SI().zDomain().userFactor());
 
 	int nrinterpsamp = 0;
 	geompar->get( "Interpolation Stepout", nrinterpsamp );
@@ -498,7 +498,7 @@ bool BatchProgram::go( std::ostream& strm )
 	if ( geompar->get("Z Boundaries",zbounds.start,zbounds.stop) )
 	{
 	    zboundsset = true;
-	    zbounds.scale( 1./SI().zDomain().userFactor() );
+	    zbounds.scale( 1.f/SI().zDomain().userFactor() );
 	}
 
 	const bool is2d = attribset.is2D();

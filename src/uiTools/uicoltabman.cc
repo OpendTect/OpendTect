@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicoltabman.cc,v 1.50 2012-07-25 13:57:41 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicoltabman.cc,v 1.51 2012-08-13 09:36:57 cvsaneesh Exp $";
 
 #include "uicoltabman.h"
 
@@ -483,7 +483,7 @@ void uiColorTableMan::rightClick( CallBacker* )
     }
 
     if ( selidx_<0 ) return;
-    Color col = ctab_.color( wpt.x );
+    Color col = ctab_.color( (float) wpt.x );
     if ( selectColor(col,this,"Color selection",false) )
     {
 	ctab_.changeColor( selidx_-1, col.r(), col.g(), col.b() );

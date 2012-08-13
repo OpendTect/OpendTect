@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visrandomtrackdisplay.cc,v 1.135 2012-08-13 04:04:40 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: visrandomtrackdisplay.cc,v 1.136 2012-08-13 09:36:58 cvsaneesh Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -781,7 +781,7 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
     const BinID bid1( mNINT32(pos1.x), mNINT32(pos1.y));
 
     const Coord dir = SI().transform(bid0)-SI().transform(bid1);
-    const float dist = dir.abs();
+    const float dist = (float) dir.abs();
 
     if ( dist<=mMIN(SI().inlDistance(),SI().crlDistance()) )
 	return Coord3::udf();

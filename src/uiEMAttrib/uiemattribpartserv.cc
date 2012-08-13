@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiemattribpartserv.cc,v 1.24 2012-07-30 20:40:05 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiemattribpartserv.cc,v 1.25 2012-08-13 09:36:57 cvsaneesh Exp $";
 
 
 #include "uiemattribpartserv.h"
@@ -186,8 +186,8 @@ void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
 	{
 	    const BinID bid =
 		    hor3dgeom.sectionGeometry(sid)->getKnotRowCol(idx);
-	    const float realz = 
-		hor3dgeom.sectionGeometry(sid)->getKnot( bid, false ).z;
+	    const float realz = (float) (
+		hor3dgeom.sectionGeometry(sid)->getKnot( bid, false ).z );
 	    if ( mIsUdf(realz) )
 		continue;
 

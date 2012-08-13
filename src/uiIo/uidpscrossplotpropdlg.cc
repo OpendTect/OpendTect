@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.29 2012-07-27 09:46:03 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.30 2012-08-13 09:36:57 cvsaneesh Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -122,7 +122,7 @@ bool acceptOK()
 	    axh->setRange( axflds.rgfld_->getFStepInterval() );
 	else
 	{
-	    float cr = axflds.percclipfld_->getfValue() * 0.01;
+	    float cr = axflds.percclipfld_->getfValue() * 0.01f;
 	    if ( cr < 0 || cr > 1 )
 	    {
 		uiMSG().error("Clipping percentage must be between 0 and 100");

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visgeomindexedshape.cc,v 1.38 2012-07-21 22:47:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visgeomindexedshape.cc,v 1.39 2012-08-13 09:36:57 cvsaneesh Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -480,7 +480,8 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,TaskRunner*) const
 	    break;
 
 	const Coord3 pos = coords_->getPos( coordid );
-	DataPointSet::Pos dpsetpos( BinID(mNINT32(pos.x),mNINT32(pos.y)), pos.z );
+	DataPointSet::Pos dpsetpos( BinID(mNINT32(pos.x),mNINT32(pos.y)), 
+							    (float) pos.z );
 	DataPointSet::DataRow datarow( dpsetpos, 1 );
 	datarow.data_.setSize( set.nrCols(), mUdf(float) );
 	datarow.data_[col-set.nrFixedCols()] =  coordid;

@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltiecontrolview.cc,v 1.43 2012-08-07 04:03:34 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiecontrolview.cc,v 1.44 2012-08-13 09:36:57 cvsaneesh Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -95,7 +95,7 @@ bool uiControlView::handleUserClick()
 	bool synth = ( wp.x < (bbox.right()-bbox.left())/2 );
 	const SeisTrc& trc = synth ? server_.data().synthtrc_ 
 				   : server_.data().seistrc_; 
-	server_.pickMgr().addPick( wp.y, synth, &trc );
+	server_.pickMgr().addPick( (float) wp.y, synth, &trc );
 	redrawAnnotNeeded.trigger();
 	return true;
     }

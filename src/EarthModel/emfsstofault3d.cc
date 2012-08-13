@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.19 2012-08-13 04:04:37 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.20 2012-08-13 09:36:56 cvsaneesh Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -279,11 +279,11 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 		    k1.z *= SI().zScale();
 		    Line3 segment( k0, k1-k0 );
 		    Coord3 tmp = stickposes[0]; tmp.z *= SI().zScale();
-		    float dist = segment.distanceToPoint(tmp);
+		    float dist = (float) segment.distanceToPoint(tmp);
 		    if ( dist>epsilon )
 		    {
 			tmp = stickposes[lastidx]; tmp.z *= SI().zScale();
-			dist = segment.sqDistanceToPoint( tmp );
+			dist = (float) segment.sqDistanceToPoint( tmp );
 		    }
 
 		    if ( dist<epsilon )
@@ -347,7 +347,7 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 		const Coord3& k0 = sticks_[idy]->crds_[idz];
 		const Coord3& k1 = sticks_[idy]->crds_[idz+1];
 		Line3 segment( k0, k1-k0 );
-		const float pldist = segment.sqDistanceToPoint( pos );
+		const float pldist = (float) segment.sqDistanceToPoint( pos );
 		if ( nearidx==-1 || pldist<mindist )
 		{
 		    nearidx = idy;

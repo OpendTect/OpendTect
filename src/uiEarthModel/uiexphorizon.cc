@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiexphorizon.cc,v 1.82 2012-08-10 04:11:26 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiexphorizon.cc,v 1.83 2012-08-13 09:36:57 cvsaneesh Exp $";
 
 #include "uiexphorizon.h"
 
@@ -136,8 +136,8 @@ static void writeGF( std::ostream& strm, const BinID& bid, float z,
 {
     static char buf[mDataGFLineLen+2];
     const float crl = bid.crl;
-    const float gfval = (float) mIsUdf(val) ? mGFUndefValue : val;
-    const float depth = (float) mIsUdf(z) ? mGFUndefValue : z;
+    const float gfval = (float) ( mIsUdf(val) ? mGFUndefValue : val );
+    const float depth = (float) ( mIsUdf(z) ? mGFUndefValue : z );
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
 	     crd.x, crd.y, segid, 14, depth, crl, crl, bid.crl, gfval, bid.inl,
 	     "" );

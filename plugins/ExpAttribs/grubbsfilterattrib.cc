@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: grubbsfilterattrib.cc,v 1.11 2012-08-13 03:56:44 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: grubbsfilterattrib.cc,v 1.12 2012-08-13 09:36:56 cvsaneesh Exp $";
 
 #include "grubbsfilterattrib.h"
 
@@ -205,7 +205,7 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 
 	const DataHolder* data = inputdata_[nrtraces/2];
 	const float traceval = getInputValue(*data,dataidx_,(int)idx,z0);
-	float grubbsval = (traceval - rc.average())/rc.stdDev();
+	float grubbsval = (float) ( (traceval - rc.average())/rc.stdDev() );
 	const bool positive = grubbsval > 0;
 	grubbsval = fabs( grubbsval );
 	float newval = traceval;
