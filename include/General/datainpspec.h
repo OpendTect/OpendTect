@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.82 2012-08-08 04:59:08 cvssalil Exp $
+ RCS:           $Id: datainpspec.h,v 1.83 2012-08-13 04:04:37 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -382,7 +382,10 @@ public:
 
     virtual int		getIntValue(int idx=0) const { return (int)value(idx); }
     virtual double	getdValue(int idx=0) const    { return value(idx); }
-    virtual float	getfValue(int idx=0) const   { return value(idx); }
+    virtual float	getfValue(int idx=0) const   
+			{ 
+			    return (float) value(idx); 
+			}
 
     T			defaultValue( int idx=0 ) const
 			{
@@ -395,7 +398,7 @@ public:
     virtual double	getDefaultValue(int idx=0) const
     			{ return defaultValue(idx); }
     virtual float	getDefaultfValue(int idx=0) const
-    			{ return defaultValue(idx); }
+    			{ return (float) defaultValue(idx); }
     
     virtual const char*	text( int idx=0 ) const
 			{

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.25 2012-08-03 13:01:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.26 2012-08-13 04:04:38 cvsaneesh Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -76,7 +76,8 @@ uiSetSizeDlg( uiParent * p, visSurvey::PointSetDisplay* disp )
     setCtrlStyle( uiDialog::LeaveOnly );
     const float fsz = (float)pointsetdisp_->getPointSize();
     slider_ = new uiSliderExtra( this, uiSliderExtra::Setup("Size"), "Size" );
-    slider_->sldr()->setInterval( StepInterval<float>(fsz-10.0,fsz+10.0,1.0) );
+    slider_->sldr()->setInterval( StepInterval<float>(fsz-10.0f,
+							   fsz+10.0f, 1.0f) );
     slider_->sldr()->setMinValue( 1 );
     slider_->sldr()->setMaxValue( 15 );
     slider_->sldr()->setValue( fsz );

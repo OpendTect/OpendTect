@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: trigonometry.cc,v 1.65 2012-08-09 06:49:33 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: trigonometry.cc,v 1.66 2012-08-13 04:04:37 cvsaneesh Exp $";
 
 #include "trigonometry.h"
 
@@ -142,7 +142,7 @@ void Quaternion::setRotation( const Vector3& axis, float angle )
 void Quaternion::getRotation( Vector3& axis, float& angle ) const
 {
     if ( s_>=1 || s_<=-1 ) angle = 0;
-    else angle = Math::ACos( s_ ) * 2;
+    else angle = (float) Math::ACos( s_ ) * 2;
 
     //This should really be axis=vec_/sin(angle/2)
     //but can be simplified to this since length of axis is irrelevant

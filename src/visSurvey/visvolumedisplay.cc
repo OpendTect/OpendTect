@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.141 2012-08-01 10:46:09 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.142 2012-08-13 04:04:40 cvsaneesh Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -74,8 +74,8 @@ static CubeSampling getInitCubeSampling( const CubeSampling& csin )
     cs.hrg.start.crl = (5*csin.hrg.start.crl+3*csin.hrg.stop.crl)/8;
     cs.hrg.stop.inl = (3*csin.hrg.start.inl+5*csin.hrg.stop.inl)/8;
     cs.hrg.stop.crl = (3*csin.hrg.start.crl+5*csin.hrg.stop.crl)/8;
-    cs.zrg.start = ( 5*csin.zrg.start + 3*csin.zrg.stop ) / 8.;
-    cs.zrg.stop = ( 3*csin.zrg.start + 5*csin.zrg.stop ) / 8.;
+    cs.zrg.start = ( 5*csin.zrg.start + 3*csin.zrg.stop ) / 8.f;
+    cs.zrg.stop = ( 3*csin.zrg.start + 5*csin.zrg.stop ) / 8.f;
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
     float z0 = csin.zrg.snap( cs.zrg.start ); cs.zrg.start = z0;
@@ -462,7 +462,7 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 float VolumeDisplay::getValue( const Coord3& pos_ ) const
 {
     if ( !cache_ ) return mUdf(float);
-    const BinIDValue bidv( SI().transform(pos_), pos_.z );
+    const BinIDValue bidv( SI().transform(pos_), (float) pos_.z );
     float val;
     if ( !cache_->getValue(0,bidv,&val,false) )
 	return mUdf(float);
@@ -593,7 +593,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 	const BinID bid = SI().transform( pos );
 	const int i = cs.inlIdx( bid.inl );
 	const int j = cs.crlIdx( bid.crl );
-	const int k = cs.zIdx( pos.z );
+	const int k = cs.zIdx( (float) pos.z );
 	ff.addSeed( i, j, k );
     }
 
@@ -708,22 +708,22 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     if ( !slice ) return 0;
     const int dim = slice->getDim();
     float slicepos = slice->getPosition();
-    slicepos *= -voltrans_->getScale()[dim];
+    slicepos *= (float) -voltrans_->getScale()[dim];
 
     float pos;    
     if ( dim == 2 )
     {
-	slicepos += voltrans_->getTranslation()[0];
+	slicepos += (float) voltrans_->getTranslation()[0];
 	pos = SI().inlRange(true).snap(slicepos);
     }
     else if ( dim == 1 )
     {
-	slicepos += voltrans_->getTranslation()[1];
+	slicepos += (float) voltrans_->getTranslation()[1];
 	pos = SI().crlRange(true).snap(slicepos);
     }
     else
     {
-	slicepos += voltrans_->getTranslation()[2];
+	slicepos += (float) voltrans_->getTranslation()[2];
 	pos = slicepos;
     }
 
@@ -748,8 +748,8 @@ void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice,
     else
 	pos = (float)cs.zrg.start;
 
-    pos -= voltrans_->getTranslation()[2-dim];
-    pos /= -voltrans_->getScale()[dim];
+    pos -= (float) voltrans_->getTranslation()[2-dim];
+    pos /= (float) -voltrans_->getScale()[dim];
 
     float slicenr =  nrslices ? (pos-rg.start)*nrslices/rg.width() : 0;
     float draggerpos = slicenr /(nrslices-1) *rg.width() + rg.start;
@@ -925,8 +925,8 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zrg.start = center_.z - width_.z / 2.;
-	res.zrg.stop = center_.z + width_.z / 2.;
+	res.zrg.start = (float) ( center_.z - width_.z / 2. );
+	res.zrg.stop = (float) ( center_.z + width_.z / 2. );
     }
     else
     {
@@ -940,8 +940,8 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 			       mNINT32(transl.y-scale.y/2) );
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zrg.start = transl.z+scale.z/2.;
-	res.zrg.stop = transl.z-scale.z/2.;
+	res.zrg.start = (float) ( transl.z+scale.z/2. );
+	res.zrg.stop = (float) ( transl.z-scale.z/2. );
     }
 
     const bool alreadytf = alreadyTransformed( attrib );

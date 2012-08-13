@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigridlinesdlg.cc,v 1.19 2012-07-10 08:05:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigridlinesdlg.cc,v 1.20 2012-08-13 04:04:38 cvsaneesh Exp $";
 
 #include "uigridlinesdlg.h"
 
@@ -180,7 +180,7 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
     if ( zfld_ )
     {
 	cs.zrg.setFrom( zspacingfld_->getFStepInterval() );
-	cs.zrg.scale( 1./SI().zDomain().userFactor() );
+	cs.zrg.scale( 1.f/SI().zDomain().userFactor() );
     }
 
     if ( (inlfld_ && inlfld_->isChecked() && cs.hrg.step.inl==0) ||

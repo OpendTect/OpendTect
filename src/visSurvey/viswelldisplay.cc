@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.158 2012-08-07 05:20:52 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.159 2012-08-13 04:04:40 cvsaneesh Exp $";
 
 #include "viswelldisplay.h"
 
@@ -792,7 +792,7 @@ void WellDisplay::addPick( Coord3 pos )
 	TypeSet<Coord3> wcoords;
 	const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
 	insertidx = pseudotrack_->insertPoint( Coord(pos.x, pos.y),
-					       pos.z * zfactor  );
+					       (float) (pos.z * zfactor)  );
 	for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
 	{
 	    wcoords += pseudotrack_->pos(idx);

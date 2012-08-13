@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.14 2012-08-09 03:35:32 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.15 2012-08-13 04:04:38 cvsaneesh Exp $";
 
 #include "seis2dto3d.h"
 
@@ -600,7 +600,7 @@ void SeisScaler::scaleTrace( SeisTrc& trc )
     for ( int idz=0; idz<trc.size(); idz++ )
     {
 	float val = (float) trc.get( idz, 0 );
-	val = sc.scale( val );
+	val = (float) sc.scale( val );
 	trc.set( idz, val, 0 );
     }
 }

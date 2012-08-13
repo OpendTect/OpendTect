@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistopbotimage.cc,v 1.8 2012-05-22 14:48:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistopbotimage.cc,v 1.9 2012-08-13 04:04:39 cvsaneesh Exp $";
 
 
 #include "vistopbotimage.h"
@@ -139,7 +139,7 @@ int TopBotImage::usePar( const IOPar& iopar )
     iopar.get( sKeyBottomRightCoord(), brpos );
     iopar.get( sKeyFileNameStr(), filenm_  );
    
-    setPos( ltpos, brpos, ltpos.z );  
+    setPos( ltpos, brpos, (float) ltpos.z );  
     setImageFilename( filenm_ );
     return 1;
 }

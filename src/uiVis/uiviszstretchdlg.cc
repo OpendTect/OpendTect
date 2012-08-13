@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiviszstretchdlg.cc,v 1.7 2012-07-30 20:57:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiviszstretchdlg.cc,v 1.8 2012-08-13 04:04:38 cvsaneesh Exp $";
 
 #include "uiviszstretchdlg.h"
 
@@ -105,7 +105,7 @@ void uiZStretchDlg::sceneSel( CallBacker* )
 void uiZStretchDlg::updateSliderValues()
 {
     initslval = getCurrentZStretch();
-    sliderfld->sldr()->setMinValue( 0.04*initslval );
+    sliderfld->sldr()->setMinValue( 0.04f*initslval );
     sliderfld->sldr()->setMaxValue( 25*initslval );
     sliderfld->sldr()->setValue( initslval );
 }

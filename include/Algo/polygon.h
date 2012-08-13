@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.34 2012-08-07 05:20:49 cvssalil Exp $
+ RCS:		$Id: polygon.h,v 1.35 2012-08-13 04:04:37 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -537,7 +537,8 @@ float ODPolygon<T>::sgnArea() const
     {
 	const Geom::Point2D<T>& pt1 = poly_[idx];
 	const Geom::Point2D<T>& pt2 = nextVertex( idx );
-	area2 += (pt1.x-pt0.x) * (pt2.y-pt0.y) - (pt2.x-pt0.x) * (pt1.y-pt0.y);
+	area2 += (float) ( (pt1.x-pt0.x) * (pt2.y-pt0.y) - 
+					(pt2.x-pt0.x) * (pt1.y-pt0.y) );
     }
 
     return 0.5f * area2;

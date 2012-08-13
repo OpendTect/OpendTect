@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiegeocalculator.cc,v 1.70 2012-08-10 04:11:25 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: welltiegeocalculator.cc,v 1.71 2012-08-13 04:04:38 cvsaneesh Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -227,7 +227,7 @@ void GeoCalculator::removeSpikes( float* inp, int sz, int gate, int fac ) const
     tf->run(true); \
 }
 
-#define mNoise 0.05
+#define mNoise 0.05f
 void GeoCalculator::deconvolve( const float* inp, const float* filter,
 			        float* deconvals, int inpsz ) const
 {
@@ -269,7 +269,8 @@ void GeoCalculator::deconvolve( const float* inp, const float* filter,
 
 	double rfilterval = filterval.real();
 	double ifilterval = filterval.imag();
-	float_complex conjfilterval = float_complex( rfilterval ,-ifilterval ); 
+	float_complex conjfilterval = float_complex( (float) rfilterval ,
+							(float) -ifilterval ); 
 
 	float_complex num = inputval * conjfilterval;
 	float_complex denom = filterval * conjfilterval + cnoiseshift;

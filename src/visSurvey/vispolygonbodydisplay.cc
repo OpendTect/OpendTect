@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vispolygonbodydisplay.cc,v 1.24 2012-08-03 06:38:40 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: vispolygonbodydisplay.cc,v 1.25 2012-08-13 04:04:40 cvsaneesh Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -195,14 +195,14 @@ void PolygonBodyDisplay::getLineWidthBounds( int& min, int& max )
 void PolygonBodyDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 {
     const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
-    const float linewidth = islinesolid ? 0.5*lineStyle()->width_ : -1.0;
+    const float linewidth = islinesolid ? 0.5f*lineStyle()->width_ : -1.0f;
     const float inllen = SI().inlDistance() * SI().inlRange(true).width();
     const float crllen = SI().crlDistance() * SI().crlRange(true).width();
-    const float maxlinethickness = 0.02 * mMAX( inllen, crllen );
+    const float maxlinethickness = 0.02f * mMAX( inllen, crllen );
     if ( shape )
 	shape->set3DLineRadius( linewidth, true, maxlinethickness );
 
-    nearestpolygonmarker_->setRadius( mMAX(linewidth+0.5, 1.0),
+    nearestpolygonmarker_->setRadius( mMAX(linewidth+0.5f, 1.0f),
 				      true, maxlinethickness );
 }
 
@@ -936,7 +936,8 @@ void PolygonBodyDisplay::setNewIntersectingPolygon( const Coord3& normal,
     {
 	TypeSet<Coord3> knots;
 	if ( geo.sectionGeometry(sid) )
-	    geo.sectionGeometry(sid)->getCubicBezierCurve(plg, knots, scale.z);
+	    geo.sectionGeometry(sid)->getCubicBezierCurve(
+						plg, knots, (float) scale.z );
 	
 	const int nrknots = knots.size();
 	if ( !nrknots )

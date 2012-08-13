@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismarchingcubessurfacedisplay.cc,v 1.48 2012-07-10 08:05:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismarchingcubessurfacedisplay.cc,v 1.49 2012-08-13 04:04:39 cvsaneesh Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -409,7 +409,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 	const float depth = posvals[0];
 	if ( !mIsUdf(depth) )
 	{
-	    zdist += fabs(depth-xyzpos.z);
+	    zdist += (float) fabs(depth-xyzpos.z);
 	    vals += posvals[validx];
 	}
 

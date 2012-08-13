@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vishorizondisplay.cc,v 1.165 2012-07-03 08:41:52 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vishorizondisplay.cc,v 1.166 2012-08-13 04:04:39 cvsaneesh Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -78,7 +78,7 @@ HorizonDisplay::HorizonDisplay()
     , enabletextureinterp_( true )    
 {
     setLockable();
-    maxintersectionlinethickness_ = 0.02 *
+    maxintersectionlinethickness_ = 0.02f *
 	mMAX( SI().inlDistance() * SI().inlRange(true).width(),
 	      SI().crlDistance() * SI().crlRange(true).width() );
 
@@ -263,7 +263,7 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 	const Coord3 displaypos = ztrans->transform(
 		transformation_ ? transformation_->transform(coord) : coord );
 
-	const float dist = displaypos.distTo( pickedpos );
+	const float dist = (float) displaypos.distTo( pickedpos );
 	if ( !idx || dist<mindist )
 	{
 	    closestnode = closestnodes[idx];
@@ -1209,7 +1209,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 	{
 	    const float zfactor = scene_ ? scene_->getZScale(): inlcrlsystem_->zScale();
 	    const Coord3& pos = positions[idx] + getTranslation()/zfactor;
-	    const float dist = fabs(xytpos.z-pos.z);
+	    const float dist = (float) fabs(xytpos.z-pos.z);
 	    if ( dist < mindist ) mindist = dist;
 	}
 
@@ -1320,8 +1320,8 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 		  attribshifts[version] * inlcrlsystem_->zDomain().userFactor();
 	    }
 	    
-	    const float zshift =
-		getTranslation().z*inlcrlsystem_->zDomain().userFactor();
+	    const float zshift = 
+	      (float) getTranslation().z*inlcrlsystem_->zDomain().userFactor();
 
 	    const bool hasshift = !mIsZero(attribshift,0.1) ||
 				  !mIsZero(zshift,0.1);
@@ -1517,8 +1517,8 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 		Coord3 pos = (1-frac) * Coord3(startcrd,0) +
 		    		frac  * Coord3(stopcrd, 0);
 	    
-		const float ifrac = (trclist[cidx].x - inl0) / inlrg.step;
-		const float cfrac = (trclist[cidx].y - crl0) / crlrg.step;
+		const float ifrac = (float) (trclist[cidx].x - inl0) / inlrg.step;
+		const float cfrac = (float) (trclist[cidx].y - crl0) / crlrg.step;
 		pos.z = (1-ifrac)*( (1-cfrac)*p00.z + cfrac*p01.z ) +
 			   ifrac *( (1-cfrac)*p10.z + cfrac*p11.z );
 
@@ -1798,8 +1798,8 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	    else
 	    {
-		drawHorizonOnZSlice( cs, getTranslation().z, horizon, sid,  
-				        zaxistransform_, line, cii );
+		drawHorizonOnZSlice( cs, (float) getTranslation().z, horizon, 
+					    sid, zaxistransform_, line, cii );
 	    }
 	}
 

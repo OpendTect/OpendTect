@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisisosurface.cc,v 1.29 2012-05-02 15:12:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivisisosurface.cc,v 1.30 2012-08-13 04:04:38 cvsaneesh Exp $";
 
 #include "uivisisosurface.h"
 
@@ -133,7 +133,7 @@ bool uiVisIsoSurfaceThresholdDlg::rejectOK()
 bool uiVisIsoSurfaceThresholdDlg::revertChanges()
 {
     const float curvalue = vd_->isoValue( isosurfacedisplay_ );
-    const float prec = (curvalue+initialvalue_) * 5e-4;
+    const float prec = (float) ( (curvalue+initialvalue_) * 5e-4 );
     if ( !mIsEqual(curvalue,initialvalue_,prec) )
 	updateIsoDisplay(initialvalue_);
 

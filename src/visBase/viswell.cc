@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viswell.cc,v 1.76 2012-07-10 08:05:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: viswell.cc,v 1.77 2012-08-13 04:04:39 cvsaneesh Exp $";
 
 #include "viswell.h"
 
@@ -154,7 +154,7 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 
     CubeSampling cs( false );
     for ( int idx=0; idx<pts.size(); idx++ )
-	cs.include( SI().transform(pts[idx]), pts[idx].z );
+	cs.include( SI().transform(pts[idx]), (float) pts[idx].z );
 
     if ( zaxistransform_ && zaxistransform_->needsVolumeOfInterest() )
     {
@@ -399,8 +399,9 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals,
 	    continue;   
 	
 	for ( int lidx=0; lidx<log_.size(); lidx++ )
-	    log_[lidx]->setLogValue( validx, SbVec3f(pos.x,pos.y,pos.z), 
-		    		     val, lp.lognr_ );
+	    log_[lidx]->setLogValue( validx, 
+			    SbVec3f((float) pos.x,(float) pos.y,(float) pos.z), 
+			    val, lp.lognr_ );
 	validx++;
     }
     showLog( showlogs_, lp.lognr_ );
@@ -437,8 +438,8 @@ void Well::setFilledLogData( const TypeSet<Coord3Value>& crdvals,
 
     Interval<float> selrg = lp.fillrange_;
     selrg.sort();
-    float rgstop = scaler.scale( selrg.stop );
-    float rgstart = scaler.scale( selrg.start );
+    float rgstop = (float) scaler.scale( selrg.stop );
+    float rgstart = (float) scaler.scale( selrg.start );
     if ( lp.islogarithmic_ )
     {
 	mSclogval( rgstop ); 
@@ -472,7 +473,7 @@ float Well::getValue( const TypeSet<Coord3Value>& crdvals, int idx,
 		      bool sclog, const LinScaler& scaler ) const
 {
     const Coord3Value& cv = crdvals[idx];
-    float val = scaler.scale( cv.value );
+    float val = (float) scaler.scale( cv.value );
     if ( val < 0 || mIsUdf(val) ) val = 0;
     if ( val > 100 ) val = 100;
     if ( sclog ) mSclogval(val);

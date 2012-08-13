@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.147 2012-07-10 08:05:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.148 2012-08-13 04:04:40 cvsaneesh Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -607,7 +607,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
     float zdif = 0;
     if ( !zrg.includes(xytpos.z,false) )
     {
-	zdif = mMIN( fabs(xytpos.z-zrg.start), fabs(xytpos.z-zrg.stop) );
+	zdif = (float) mMIN(fabs(xytpos.z-zrg.start), fabs(xytpos.z-zrg.stop));
 	const float zscale = scene_
 	    ? scene_->getZScale() * scene_->getZStretch()
 	    : SI().zScale();
@@ -841,9 +841,9 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    posb = posa;
 	}
 
-	const float dist2a = posa.sqDistTo( pos );
-	const float dist2b = posb.sqDistTo( pos );
-	const float dist2c = posa.sqDistTo( posb );
+	const float dist2a = (float) posa.sqDistTo( pos );
+	const float dist2b = (float) posb.sqDistTo( pos );
+	const float dist2c = (float) posa.sqDistTo( posb );
 
 	if ( dist2b >= dist2a+dist2c )
 	{
@@ -883,7 +883,7 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    frac = sqrt( dist2a - height2 ) / distc;
 	}
     }
-    return mindist2!=MAXFLOAT ? sqrt(mindist2) : -1.0;
+    return mindist2!=MAXFLOAT ? sqrt(mindist2) : -1.0f;
 }
 
 
@@ -916,7 +916,7 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start],
 	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop]);
     const int nidx = geometry_.nearestIdx( pos, trcnrrg );
-    mindist = geometry_.positions()[nidx].coord_.distTo( pos );
+    mindist = (float) geometry_.positions()[nidx].coord_.distTo( pos );
     trcidx = nidx;
     return trcidx >= 0;
 }

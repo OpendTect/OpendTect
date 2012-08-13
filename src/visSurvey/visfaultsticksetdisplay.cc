@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visfaultsticksetdisplay.cc,v 1.51 2012-08-03 06:38:40 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: visfaultsticksetdisplay.cc,v 1.52 2012-08-13 04:04:39 cvsaneesh Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -679,7 +679,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 static bool isSameMarkerPos( const Coord3& pos1, const Coord3& pos2 )
 {
     const Coord3 diff = pos2 - pos1;
-    float xymargin = 0.01 * SI().inlDistance();
+    float xymargin = 0.01f * SI().inlDistance();
     if ( diff.x*diff.x + diff.y*diff.y > xymargin*xymargin )
 	return false;
 
@@ -810,7 +810,7 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 		    if ( nm )
 			pos.z += atof(nm) / scene_->zDomainInfo().userFactor();
 
-		    zdragoffset = pos.z - dragpos.z;
+		    zdragoffset = (float) ( pos.z - dragpos.z );
 		}
 	    }
 

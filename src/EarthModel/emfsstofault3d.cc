@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.18 2012-08-08 18:41:56 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfsstofault3d.cc,v 1.19 2012-08-13 04:04:37 cvsaneesh Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -311,7 +311,7 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 		(mIsEqual(zrg.start,zrg.stop,zepsilon) ? mOnZSlice:mOnOther)));
 	inlcrl += (inlrg.start==inlrg.stop ? inlrg.start : 
 		(crlrg.start==crlrg.stop ? crlrg.start : -1));
-	zs += (mIsEqual(zrg.start,zrg.stop,zepsilon) ? zrg.start : 0);
+	zs += (mIsEqual(zrg.start,zrg.stop,zepsilon) ? (float) zrg.start : 0);
     }
 
     /*Merge single pick to nearest stick, not sorted yet*/

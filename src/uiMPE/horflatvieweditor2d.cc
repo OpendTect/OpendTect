@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: horflatvieweditor2d.cc,v 1.14 2012-06-14 08:31:15 cvsnanne Exp $
+ RCS:		$Id: horflatvieweditor2d.cc,v 1.15 2012-08-13 04:04:38 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -634,7 +634,8 @@ void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
 	bid.inl = hor2d->geometry().lineIndex( linenm_ );
 
 	int posidx = horpainter_->getDistances().indexOf(
-		getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x );
+				    getAuxData(selectedids[ids])->
+				    poly_[(float) selectedidxs[ids]].x );
 	bid.crl = horpainter_->getTrcNos()[posidx];
 
 	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );

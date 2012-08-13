@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother3d.h,v 1.5 2012-04-02 09:53:41 cvsbert Exp $
+ RCS:		$Id: smoother3d.h,v 1.6 2012-08-13 04:04:37 cvsaneesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,7 +132,8 @@ bool Smoother3D<T>::setWindow( const char* nm, float param,
 	    {
 		pos[2] = hsz2 ? ((double)(idx2-hsz2))/hsz2 : 0;
 
-		window_.set( idx0, idx1, idx2, wf->getValue( pos.abs() ) );
+		window_.set( idx0, idx1, idx2, 
+				    wf->getValue( (float) pos.abs() ) );
 	    }
 	}
     }
@@ -140,7 +141,7 @@ bool Smoother3D<T>::setWindow( const char* nm, float param,
     convolver_.setY( window_, hsz0, hsz1, hsz2 );
 
     windowname_ = nm;
-    windowparam_ = wf->hasVariable() ? param : 1e30;
+    windowparam_ = (float) wf->hasVariable() ? param : 1e30;
 
     return true;
 }

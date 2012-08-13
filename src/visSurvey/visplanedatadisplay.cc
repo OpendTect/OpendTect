@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.273 2012-07-10 13:03:12 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: visplanedatadisplay.cc,v 1.274 2012-08-13 04:04:40 cvsaneesh Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -392,8 +392,8 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
         : inlcrlsystem_->zScale();
     zdiff = cs.zrg.includes(xytpos.z,false)
 	? 0
-	: mMIN(fabs(xytpos.z-cs.zrg.start),fabs(xytpos.z-cs.zrg.stop)) *
-	  zfactor  * scene_->getZStretch();
+	: (float)(mMIN(fabs(xytpos.z-cs.zrg.start), fabs(xytpos.z-cs.zrg.stop))  
+	               * zfactor  * scene_->getZStretch() );
 
     const float inldist = inlcrlsystem_->inlDistance();
     const float crldist = inlcrlsystem_->crlDistance();
@@ -488,7 +488,7 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
     draggerdrawstyle_->setDrawStyle( showplane
 	    ? visBase::DrawStyle::Filled
 	    : visBase::DrawStyle::Lines );
-    draggermaterial_->setTransparency( showplane ? 0.5 : 0 );
+    draggermaterial_->setTransparency( showplane ? 0.5f : 0 );
 
     if ( doOsg() )
     {
@@ -844,9 +844,9 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
     }
 
     res.hrg.start = res.hrg.stop = BinID(mNINT32(c0.x),mNINT32(c0.y) );
-    res.zrg.start = res.zrg.stop = c0.z;
+    res.zrg.start = res.zrg.stop = (float) c0.z;
     res.hrg.include( BinID(mNINT32(c1.x),mNINT32(c1.y)) );
-    res.zrg.include( c1.z );
+    res.zrg.include( (float) c1.z );
     res.hrg.step = BinID( inlcrlsystem_->inlStep(), inlcrlsystem_->crlStep() );
     res.zrg.step = inlcrlsystem_->zRange().step;
 
@@ -942,10 +942,10 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
     const bool alreadytransformed = alreadyTransformed( attrib );
     if ( minx0step_<0 || minx1step_<0 )
     {
-	minx0step_ = f3ddp->posData().range(true).step;
+	minx0step_ = (float) f3ddp->posData().range(true).step;
 
 	if ( alreadytransformed || getOrientation()==Zslice )
-	    minx1step_ = f3ddp->posData().range(false).step;
+	    minx1step_ = (float) f3ddp->posData().range(false).step;
 	else if ( scene_ )
 	    minx1step_ = scene_->getCubeSampling().zrg.step;
     }
@@ -1048,8 +1048,8 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 
 		rg0.step = newsz0!=1 ? rg0.width()/(newsz0-1) : rg0.width();
 		rg1.step = newsz1!=1 ? rg1.width()/(newsz1-1) : rg1.width(); 
-		if ( rg0.step < minx0step_ ) minx0step_ = rg0.step;
-		if ( rg1.step < minx1step_ ) minx1step_ = rg1.step;
+		if ( rg0.step < minx0step_ ) minx0step_ = (float) rg0.step;
+		if ( rg1.step < minx1step_ ) minx1step_ = (float) rg1.step;
 
 		fdp->posData().setRange( true, rg0 );
 		fdp->posData().setRange( false, rg1 );
@@ -1291,7 +1291,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 	 (!volumecache_[attrib] && !rposcache_[attrib]) )
 	return false;
 
-    const BinIDValue bidv( inlcrlsystem_->transform(pos), pos.z );
+    const BinIDValue bidv( inlcrlsystem_->transform(pos), (float) pos.z );
     if ( attrib<volumecache_.size() && volumecache_[attrib] )
     {
 	const int ver = channels_->currentVersion(attrib);

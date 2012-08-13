@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimpeman.cc,v 1.222 2012-07-18 09:50:26 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimpeman.cc,v 1.223 2012-08-13 04:04:38 cvsaneesh Exp $";
 
 #include "uimpeman.h"
 
@@ -755,7 +755,7 @@ void uiMPEMan::showCubeCB( CallBacker* )
 			const Coord3 pos = emobj->getPos( (*seeds)[idx] );
 			const BinID bid = SI().transform(pos);
 			cube.hrg.include(bid);
-			cube.zrg.include(pos.z);
+			cube.zrg.include((float) pos.z);
 		    }
 		}
 	    }

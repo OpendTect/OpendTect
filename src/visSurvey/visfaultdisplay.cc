@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visfaultdisplay.cc,v 1.97 2012-08-03 06:38:40 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: visfaultdisplay.cc,v 1.98 2012-08-13 04:04:39 cvsaneesh Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -839,7 +839,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 static bool isSameMarkerPos( const Coord3& pos1, const Coord3& pos2 )
 {
     const Coord3 diff = pos2 - pos1;
-    float xymargin = 0.01 * SI().inlDistance();
+    float xymargin = 0.01f * SI().inlDistance();
     if ( diff.x*diff.x + diff.y*diff.y > xymargin*xymargin )
 	return false;
 
@@ -1269,7 +1269,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	shape->display( false, false );
 	line->setSurface( shape );
 	shape->setSurface( fss );
-	const float zshift = activehordisps[idx]->getTranslation().z;
+	const float zshift = (float) activehordisps[idx]->getTranslation().z;
 	Geometry::FaultBinIDSurfaceIntersector it( zshift, *surf,
 		*explicitpanels_, *shape->coordList() );
 	it.setShape( *shape );
@@ -1727,17 +1727,17 @@ void FaultDisplay::getLineWidthBounds( int& min, int& max )
 void FaultDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 {
     const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
-    const float linewidth = islinesolid ? 0.5*lineStyle()->width_ : -1.0;
+    const float linewidth = islinesolid ? 0.5f*lineStyle()->width_ : -1.0f;
     const float inllen =
 	inlcrlsystem_->inlDistance() * inlcrlsystem_->inlRange().width();
     const float crllen =
 	inlcrlsystem_->crlDistance() * inlcrlsystem_->crlRange().width();
-    const float maxlinethickness = 0.02 * mMAX( inllen, crllen );
+    const float maxlinethickness = 0.02f * mMAX( inllen, crllen );
     if ( shape )
 	shape->set3DLineRadius( linewidth, true, maxlinethickness );
 
-    activestickmarker_->setRadius( mMAX(linewidth+0.5, 1.0),
-				   true, maxlinethickness+0.5 );
+    activestickmarker_->setRadius( mMAX(linewidth+0.5f, 1.0f),
+				   true, maxlinethickness+0.5f );
 }
 
 

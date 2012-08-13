@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vissurvscene.cc,v 1.161 2012-07-03 08:41:52 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vissurvscene.cc,v 1.162 2012-08-13 04:04:40 cvsaneesh Exp $";
 
 #include "vissurvscene.h"
 
@@ -664,7 +664,7 @@ void Scene::setMarkerPos( const Coord3& coord, int sceneid )
 	{
 	    BinID bid( datatransform_->lineIndex(linenm), trcnr );
 	    displaypos.z = datatransform_->transform(
-		    BinIDValue(bid,coord.z) );
+		    BinIDValue(bid,(float) coord.z) );
 	}
 	else
 	    displaypos.z = datatransform_->transform( coord );

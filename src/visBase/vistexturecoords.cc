@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistexturecoords.cc,v 1.18 2012-05-02 15:12:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistexturecoords.cc,v 1.19 2012-08-13 04:04:39 cvsaneesh Exp $";
 
 #include "vistexturecoords.h"
 
@@ -50,7 +50,8 @@ void TextureCoords::setCoord( int idx, const Coord3& pos )
     for ( int idy=coords_->point.getNum(); idy<idx; idy++ )
 	unusedcoords_ += idy;
 
-    coords_->point.set1Value( idx, SbVec3f( pos.x, pos.y, pos.z ));
+    coords_->point.set1Value( idx, SbVec3f( (float) pos.x, 
+					     (float) pos.y, (float) pos.z ));
 }
 
 
@@ -61,7 +62,7 @@ void TextureCoords::setCoord( int idx, const Coord& pos )
     for ( int idy=coords_->point.getNum(); idy<idx; idy++ )
 	unusedcoords_ += idy;
 
-    coords_->point.set1Value( idx, SbVec3f( pos.x, pos.y, 0 ));
+    coords_->point.set1Value( idx, SbVec3f( (float) pos.x, (float) pos.y, 0 ));
 }
 
 
@@ -69,7 +70,8 @@ int TextureCoords::addCoord( const Coord3& pos )
 {
     Threads::MutexLocker lock( mutex_ );
     const int res = getFreeIdx();
-    coords_->point.set1Value( res, SbVec3f( pos.x, pos.y, pos.z ));
+    coords_->point.set1Value( res, SbVec3f( (float) pos.x, 
+					      (float) pos.y, (float) pos.z ));
 
     return res;
 }
@@ -79,7 +81,7 @@ int TextureCoords::addCoord( const Coord& pos )
 {
     Threads::MutexLocker lock( mutex_ );
     const int res = getFreeIdx();
-    coords_->point.set1Value( res, SbVec3f( pos.x, pos.y, 0 ));
+    coords_->point.set1Value( res, SbVec3f( (float) pos.x, (float) pos.y, 0 ));
 
     return res;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vishorizon2ddisplay.cc,v 1.50 2012-07-17 14:40:33 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vishorizon2ddisplay.cc,v 1.51 2012-08-13 04:04:39 cvsaneesh Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -216,7 +216,7 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
     , zaxt_( zaxt )
 {
     eps_ = mMIN(SI().inlDistance(),SI().crlDistance());
-    eps_ = mMIN(eps_,SI().zRange(true).step*scale_.z )/4;
+    eps_ = (float) mMIN(eps_,SI().zRange(true).step*scale_.z )/4;
 
     rowrg_ = surf_->rowRange();
     nriter_ = rowrg_.isRev() ? 0 : rowrg_.nrSteps()+1;
@@ -274,7 +274,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	    if ( zaxt_ )
 	    {
-		const BinIDValue bidval( rc.row, rc.col, pos.z );
+		const BinIDValue bidval( rc.row, rc.col, (float) pos.z );
 		pos.z = zaxt_->transform( bidval );
 	    }
 
@@ -284,7 +284,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	    if ( !pos.isDefined() || 
 		(lineranges_ &&
-		!Horizon2DDisplay::withinRanges(rc,pos.z,*lineranges_)) )
+		!Horizon2DDisplay::withinRanges(rc,(float)pos.z,*lineranges_)))
 	    {
 		if ( positions.size() )
 		    sendPositions( positions );
@@ -433,7 +433,7 @@ void Horizon2DDisplay::updateLinesOnSections(
 		if ( !hp0.isDefined() || !hp1.isDefined() )
 		    continue;
 
-		const float maxdist = 0.1 * sp0.distTo(sp1) / trcrg.width();
+		const float maxdist = 0.1f * sp0.distTo(sp1) / trcrg.width();
 		if ( hp0.distTo(sp0)>maxdist || hp1.distTo(sp1)>maxdist )
 		    continue;
 	    }

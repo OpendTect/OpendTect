@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegytrchdrvalplot.cc,v 1.9 2012-07-10 08:05:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegytrchdrvalplot.cc,v 1.10 2012-08-13 04:04:38 cvsaneesh Exp $";
 
 #include "uisegytrchdrvalplot.h"
 #include "uifunctiondisplay.h"
@@ -105,7 +105,7 @@ void uiSEGYTrcHdrValPlot::getBendPoints( const float* inp, int sz )
     if ( lastbpidx < 1 ) return;
 
     // We'll limit the number displayed to 5000: otherwise may hang
-    float incr = lastbpidx * 0.0002; if ( incr < 1 ) incr = 1;
+    float incr = lastbpidx * 0.0002f; if ( incr < 1 ) incr = 1;
     int previdx = 0;
     for ( float pos=0; ; pos+=incr )
     {

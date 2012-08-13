@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uid2tmodelgrp.cc,v 1.28 2012-08-10 03:50:08 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uid2tmodelgrp.cc,v 1.29 2012-08-13 04:04:39 cvsaneesh Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -60,6 +60,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     setHAlignObj( filefld_ );
     postFinalise().notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 }
+
 
 
 void uiD2TModelGroup::fileFldChecked( CallBacker* )

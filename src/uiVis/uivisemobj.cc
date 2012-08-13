@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.102 2012-08-01 04:24:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.103 2012-08-13 04:04:38 cvsaneesh Exp $";
 
 #include "uivisemobj.h"
 
@@ -368,7 +368,7 @@ void uiVisEMObject::checkTrackingStatus()
 float uiVisEMObject::getShift() const
 {
     mDynamicCastGet( const visSurvey::HorizonDisplay*, hordisp, getDisplay() );
-    return hordisp ? hordisp->getTranslation().z : 0;
+    return hordisp ? (float) hordisp->getTranslation().z : 0;
 }
 
 

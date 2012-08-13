@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribtransdlg.cc,v 1.11 2012-05-02 15:12:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribtransdlg.cc,v 1.12 2012-08-13 04:04:38 cvsaneesh Exp $";
 
 #include "uiattribtransdlg.h"
 
@@ -26,7 +26,7 @@ uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
     slider_->sldr()->setMinValue( 0 );
     slider_->sldr()->setMaxValue( 100 );
     slider_->sldr()->setStep( 1 );
-    slider_->sldr()->setValue( 100*initaltrans_/255. ); 
+    slider_->sldr()->setValue( 100*initaltrans_/255.f ); 
 
     slider_->sldr()->valueChanged.notify( mCB(this,uiAttribTransDlg,changeCB) );
 }
