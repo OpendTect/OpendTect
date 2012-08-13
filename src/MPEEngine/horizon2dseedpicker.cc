@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: horizon2dseedpicker.cc,v 1.35 2012-08-10 04:11:24 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: horizon2dseedpicker.cc,v 1.36 2012-08-13 09:22:01 cvssatyaki Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -102,9 +102,6 @@ bool Horizon2DSeedPicker::startSeedPick()
     mGetHorizon(hor,false);
     didchecksupport_ = hor->enableGeometryChecks( false );
 
-    if ( sowermode_ )
-	return true;
-
     PtrMan<IOObj> ioobj = IOM().get( lineset_ );
     if ( !ioobj )
 	return false;
@@ -115,6 +112,9 @@ bool Horizon2DSeedPicker::startSeedPick()
 
     EM::Horizon2DGeometry& geom = hor->geometry();
     geomid_ = geomid;
+
+    if ( sowermode_ )
+	return true;
 
     for ( int idx=0; idx<geom.nrLines(); idx++ )
     {
