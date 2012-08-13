@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.157 2012-08-08 05:47:55 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: emsurfaceio.cc,v 1.158 2012-08-13 07:45:13 cvssatyaki Exp $";
 
 #include "emsurfaceio.h"
 
@@ -246,10 +246,10 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    SeparString lineidkey( linekey.buf(), '.' );
 	    lineidkey.add( Horizon2DGeometry::sKeyID() );
 	    BufferString geomidstr;
-	    if ( !par_->get(lineidkey.buf(),geomidstr) ||
-		 !geomid.fromString(geomidstr) || !geomid.isOK() )
+	    if ( !par_->get(lineidkey.buf(),geomidstr) )
 		continue;
 
+	    geomid.fromString( geomidstr );
 	    S2DPOS().setCurLineSet( geomid.lsid_ );
 	    linesets_.add(
 		    S2DPOS().hasLineSet(geomid.lsid_)
@@ -831,7 +831,13 @@ int dgbSurfaceReader::nextStep()
 	if ( (!linesets_.validIdx(rowindex_) || !linenames_.validIdx(rowindex_))
 	  || (linesets_.get(rowindex_)==sKeyUndefLineSet() ||
 	      linenames_.get(rowindex_)==sKeyUndefLine()) )
-	    return ErrorOccurred();
+	{
+	    const int res = skipRow( strm );
+	    if ( res==ErrorOccurred() )
+		return res;
+	    else if ( res==Finished() ) 
+		return MoreToDo();
+	}
 
 	if ( !hor2d->sectionGeometry(sectionid) )
 	    createSection( sectionid );
