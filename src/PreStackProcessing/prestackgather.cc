@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackgather.cc,v 1.51 2012-08-10 04:11:24 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackgather.cc,v 1.52 2012-08-14 03:31:38 cvssalil Exp $";
 
 #include "prestackgather.h"
 
@@ -401,12 +401,12 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
 	trc->info().binid = gathers_[idx]->getBinID();	
 	trc->info().coord = SI().transform( gathers_[idx]->getBinID() );
 	trc->info().nr = idx+1;
-	const StepInterval<double>& sd = gathers_[idx]->posData().range( false);
-	trc->info().sampling = StepInterval<double>
-						   ( (float) sd.start,(float) sd.stop,(float) sd.step );
+	const SamplingData<double>& sd = gathers_[idx]->posData().range( false);
+	trc->info().sampling.set((float) sd.start, (float) sd.step );
 	const Array2D<float>& data = gathers_[idx]->data();
 	for ( int idz=0; idz<gathersz; idz++ )
 	    trc->set( idz, data.get( offsetidx, idz ), 0 );
+
 	inp.add( trc );
     }
 }
