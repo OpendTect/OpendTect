@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: fingervein.h,v 1.6 2012-08-13 21:45:04 cvsyuancheng Exp $
+ RCS:           $Id: fingervein.h,v 1.7 2012-08-20 18:55:39 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ template <class T> class Array3D;
 
 class TaskRunner;
 
-/*Get a flag output for faults */
+/*Get a flag output for faults based on 2D input attribute data.*/
 
 mClass(Algo) FingerVein
 {
@@ -64,6 +64,7 @@ protected:
 };
 
 
+/*Calculate azimuth and dip for 3D data.*/
 mClass(Algo) FaultAngle
 {
 public:    
@@ -72,6 +73,7 @@ public:
 				~FaultAngle();
 
     void			setThreshold(float threshold,bool isabove);
+    void			setMinFaultLength(int minleng);
     bool			compute(TaskRunner* tr=0);
 
     const Array3D<float>*	getAzimuth() const { return azimuth_stable_; }
@@ -84,18 +86,22 @@ public:
     				{ return conf_high_; }
 protected:
 
-    void			vein_t0_slice(const Array3D<float>& input,
+    friend class		veinSliceCalculator;
+    friend class		azimuthPcaCalculator;
+
+    bool			compute2D(TaskRunner* tr=0);
+    bool			vein_t0_slice(const Array3D<float>& input,
 	    				int sigma,float percent,
-					Array3D<bool>& output);
+					Array3D<bool>& output,TaskRunner* tr);
     void			vein_vertical_slice(const Array3D<float>& input, 					int sigma,float percent, 
 					Array3D<bool>& vein_bina_0,
 					Array3D<bool>& vein_bina_45, 
 	    				Array3D<bool>& vein_bina_90,
 					Array3D<bool>& vein_bina_135);
-    void			azimuth_pca_vein(const Array3D<bool>& conf_low,
+    bool			azimuth_pca_vein(const Array3D<bool>& conf_low,
 					const Array3D<bool>& conf_medi,
 					int elem_leng,float null_val,
-					Array3D<float>& output);
+					Array3D<float>& output,TaskRunner* tr);
     void			azimuth_stabilise(const Array3D<bool>& conf_low,
 	    				const Array3D<float>& azimuth_pca, 
 					int elem_leng,float null_val,
@@ -133,7 +139,8 @@ protected:
 					int elem_leng,float null_val,
 					Array2D<float>& azimuth_sect);
     bool			vein_usage(const Array2D<float>& img, 
-		    			int sigma,float perc,  
+		    			int fault_min_length,
+					int sigma,float perc,  
 					bool is_t_slic,Array2D<bool>& vein_bina,
 					TaskRunner* tr);
     bool			vein_max_curvature(const Array2D<float>& img, 
@@ -148,6 +155,7 @@ protected:
     const Array3D<float>&	input_;
     float			threshold_;
     bool			isfltabove_;
+    int				minfaultlength_;
     Array3D<float>*		azimuth_stable_;
     Array3D<float>*		dip_stable_; 
     Array3D<bool>*		conf_low_; 

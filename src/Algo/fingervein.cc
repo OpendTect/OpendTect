@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.14 2012-08-13 21:45:04 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.15 2012-08-20 18:55:39 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
@@ -21,7 +21,130 @@ static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.14 2012-08-13 21:4
 #include "stattype.h"
 #include  <iostream>
 
-#define mNrThinning 100	
+#define mNrThinning 20	
+
+class veinSliceCalculator : public ParallelTask
+{
+public:
+veinSliceCalculator( const Array3D<float>& input, FaultAngle& fa,
+	int minfltlength, int sigma, float percent, Array3D<bool>& output )
+    : input_(input)
+    , fa_(fa)  
+    , minfaultlength_(minfltlength)  
+    , sigma_(sigma)
+    , percent_(percent)
+    , output_(output)
+{}
+
+protected:
+
+const char* message() const	{ return "Vein calculation on slices."; }
+od_int64 nrIterations() const	{ return input_.info().getSize(2); }
+bool doWork( od_int64 start, od_int64 stop, int threadid )
+{
+    const int isz = input_.info().getSize(0);
+    const int csz = input_.info().getSize(1);
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, attr,
+	                Array2DImpl<float> (isz,csz) );
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, vein_bina,
+	                Array2DImpl<bool> (isz,csz) );
+    const bool is_t_slic = true;
+
+    for ( int idz=start; idz<=stop && shouldContinue(); idz++, addToNrDone(1) )
+    {
+	for ( int idx=0; idx<isz; idx++ )
+	{
+	    for ( int idy=0; idy<csz; idy++ )
+		attr->set( idx, idy, input_.get(idx,idy,idz) );
+	}
+
+	fa_.vein_usage( *attr, minfaultlength_, sigma_, percent_, is_t_slic,
+		*vein_bina,0 );
+	
+	for ( int idx=0; idx<isz; idx++ )
+	{
+	    for ( int idy=0; idy<csz; idy++ )
+		output_.set( idx, idy, idz, vein_bina->get(idx,idy) );
+	}	
+    }
+
+    return true;
+}
+
+FaultAngle&		fa_;
+const Array3D<float>&	input_;
+Array3D<bool>&		output_;
+int 			sigma_; 
+float			percent_;
+int			minfaultlength_;
+};
+
+class azimuthPcaCalculator : public ParallelTask
+{
+public:
+azimuthPcaCalculator( FaultAngle& fa, const Array3D<bool>& conf_base,
+	const Array3D<bool>& conf_upgr, int elem_leng, float null_val,
+	Array3D<float>& azimuth_pca )
+    : fa_(fa)  
+    , conf_base_(conf_base)
+    , conf_upgr_(conf_upgr)  
+    , elem_leng_(elem_leng)
+    , null_val_(null_val)
+    , azimuth_pca_(azimuth_pca)
+{ 
+    azimuth_pca.setAll( null_val ); 
+}
+
+protected:
+
+const char* message() const	{ return "Azimuth PCA calculation on slices."; }
+od_int64 nrIterations() const	{ return conf_base_.info().getSize(2); }
+
+bool doWork( od_int64 start, od_int64 stop, int threadid )
+{
+    const int isz = conf_base_.info().getSize(0);
+    const int csz = conf_base_.info().getSize(1);
+    
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, base_bina_sect,
+	    Array2DImpl<bool> (isz,csz) );
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, upgr_bina_sect,
+	    Array2DImpl<bool> (isz,csz) );
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_sect,
+	    Array2DImpl<float> (isz,csz) );
+
+    for ( int idz=start; idz<=stop && shouldContinue(); idz++,addToNrDone(1) )
+    {
+	for ( int idx=0; idx<isz; idx++ )
+	{
+	    for ( int idy=0; idy<csz; idy++ )
+	    {
+		base_bina_sect->set( idx, idy, conf_base_.get(idx,idy,idz) );
+		upgr_bina_sect->set( idx, idy, conf_upgr_.get(idx,idy,idz) );
+	    }
+	}
+
+	fa_.get_component_angle( *base_bina_sect, *upgr_bina_sect, 
+		elem_leng_, null_val_, *azimuth_sect );
+	
+	for ( int idx=0; idx<isz; idx++ )
+	{
+	    for ( int idy=0; idy<csz; idy++ )
+	    {
+		azimuth_pca_.set( idx, idy, idz, azimuth_sect->get(idx,idy) );
+	    }
+	}
+    }
+    return true;
+}
+
+FaultAngle&		fa_;
+const Array3D<bool>&	conf_base_;
+const Array3D<bool>&	conf_upgr_;
+int			elem_leng_;
+float			null_val_;
+Array3D<float>&		azimuth_pca_;
+};
+
 
 FingerVein::FingerVein( const Array2D<float>& input, float threshold, 
 	bool isabove, bool istimeslice, Array2D<bool>& output )
@@ -808,6 +931,7 @@ FaultAngle::FaultAngle( const Array3D<float>& input )
     : input_(input)
     , threshold_(0)
     , isfltabove_(false)  
+    , minfaultlength_(15)  
 {
     azimuth_stable_ = new Array3DImpl<float>( input.info() );
     dip_stable_ = new Array3DImpl<float>( input.info() );
@@ -837,11 +961,103 @@ void FaultAngle::setThreshold( float threshold, bool isabove )
 }
 
 
+void FaultAngle::setMinFaultLength( int minlenght )
+{ minfaultlength_ = minlenght; }
+
+
+bool FaultAngle::compute2D( TaskRunner* tr )
+{
+    const int isz = input_.info().getSize(0);
+    const int csz = input_.info().getSize(1);
+    const int zsz = input_.info().getSize(2);
+    const bool isinl = isz==1;
+    const bool is_t_slic = zsz==1;
+    const int xsz = isinl ? csz : isz;
+    const int ysz = is_t_slic ? csz : zsz;
+
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, attr_sect,
+	                Array2DImpl<float> (xsz,ysz) );
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, vein_bina,
+	                Array2DImpl<bool> (xsz,ysz) );
+    for ( int idx=0; idx<xsz; idx++ )
+    {
+	for ( int idy=0; idy<ysz; idy++ )
+	{
+	    float val = isinl ? input_.get(0,idx,idy) : (is_t_slic ? 
+		    input_.get(idx,idy,0) : input_.get(idx,0,idy) );
+	    attr_sect->set( idx, idy, val );
+	}
+    }
+    vein_usage( *attr_sect, minfaultlength_, mSigma, mPercent, 
+	    is_t_slic, *vein_bina, tr );
+    
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_pca,
+	    Array2DImpl<float> (xsz,ysz) );
+    azimuth_pca->setAll( mNull_val );
+    get_component_angle( *vein_bina, *vein_bina, mElem_leng, mNull_val, 
+	    *azimuth_pca );
+	
+    const int elem_leng_new = (mElem_leng)*4;
+    const float uppr_perc = 0.85;
+    const float lowr_perc = 0.15;
+    const float angl_tole = 10;
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_pca_stab,
+	    Array2DImpl<float> (xsz,ysz) );
+    angle_section_stabilise( *vein_bina, *azimuth_pca, elem_leng_new, 
+	    uppr_perc, lowr_perc, angl_tole, mNull_val, *azimuth_pca_stab );
+    if ( isinl )
+    {
+	for ( int i=0; i<xsz; i++ )
+	{
+	    for ( int j=0; j<ysz; j++ )
+	    {
+		azimuth_stable_->set( 0, i, j, azimuth_pca_stab->get(i,j) );
+		conf_low_->set( 0, i, j, vein_bina->get(i,j) );
+		conf_med_->set( 0, i, j, vein_bina->get(i,j) );
+		conf_high_->set( 0, i, j, vein_bina->get(i,j) );
+	    }
+	}
+    }
+    else if ( is_t_slic ) 
+    {
+	for ( int i=0; i<xsz; i++ )
+	{
+	    for ( int j=0; j<ysz; j++ )
+	    {
+		azimuth_stable_->set( i, j, 0, azimuth_pca_stab->get(i,j) );
+		conf_low_->set( i, j, 0, vein_bina->get(i,j) );
+		conf_med_->set( i, j, 0, vein_bina->get(i,j) );
+		conf_high_->set( i, j, 0, vein_bina->get(i,j) );
+	    }
+	}
+    }
+    else 
+    {
+	for ( int i=0; i<xsz; i++ )
+	{
+	    for ( int j=0; j<ysz; j++ )
+	    {
+		azimuth_stable_->set( i, 0, j, azimuth_pca_stab->get(i,j) );
+		conf_low_->set( i, 0, j, vein_bina->get(i,j) );
+		conf_med_->set( i, 0, j, vein_bina->get(i,j) );
+		conf_high_->set( i ,0, j, vein_bina->get(i,j) );
+	    }
+	}
+    }
+
+    return true;
+}
+
+
 bool FaultAngle::compute( TaskRunner* tr )
 {
+    if ( input_.info().getSize(0)==1 || input_.info().getSize(1)==1 || 
+	 input_.info().getSize(2)==1 )
+	return compute2D( tr );
+
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<bool> >, vein_bina_t0,
 	    Array3DImpl<bool> (input_.info()) );
-    vein_t0_slice( input_, mSigma, mPercent, *vein_bina_t0 );
+    vein_t0_slice( input_, mSigma, mPercent, *vein_bina_t0, tr );
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<bool> >, vein_bina_0,
 	    Array3DImpl<bool> (input_.info()) );
@@ -855,12 +1071,12 @@ bool FaultAngle::compute( TaskRunner* tr )
 	   *vein_bina_0, *vein_bina_45, *vein_bina_90, *vein_bina_135 );
 
     get_fault_confidence( *vein_bina_t0, *vein_bina_0, *vein_bina_45, 
-	    *vein_bina_90, *vein_bina_135, *conf_low_, *conf_med_, *conf_high_ );
+	    *vein_bina_90, *vein_bina_135, *conf_low_, *conf_med_, *conf_high_);
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, azimuth_pca,
 	    Array3DImpl<float> (input_.info()) );
     azimuth_pca_vein( *conf_low_, *conf_med_, mElem_leng, mNull_val, 
-	    *azimuth_pca );
+	    *azimuth_pca, tr );
     azimuth_stabilise( *conf_low_, *azimuth_pca, mElem_leng, mNull_val, 
 	    *azimuth_stable_ );
 
@@ -1636,47 +1852,13 @@ void FaultAngle::dip_pca_vein( const Array3D<bool>& conf_base,
 }
 
 
-void FaultAngle::azimuth_pca_vein( const Array3D<bool>& conf_base,
+bool FaultAngle::azimuth_pca_vein( const Array3D<bool>& conf_base,
 	const Array3D<bool>& conf_upgr, int elem_leng, float null_val,
-	Array3D<float>& azimuth_pca )
+	Array3D<float>& azimuth_pca, TaskRunner* tr )
 {
-    azimuth_pca.setAll( null_val );
-    const int isz = input_.info().getSize(0);
-    const int csz = input_.info().getSize(1);
-    const int zsz = input_.info().getSize(2);
-    
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, base_bina_sect,
-	    Array2DImpl<bool> (isz,csz) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, upgr_bina_sect,
-	    Array2DImpl<bool> (isz,csz) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_sect,
-	    Array2DImpl<float> (isz,csz) );
-
-    for ( int idz=0; idz<zsz; idz++ )
-    {
-	base_bina_sect->setAll(0);
-    	upgr_bina_sect->setAll(0);
-  	
-	for ( int idx=0; idx<isz; idx++ )
-	{
-	    for ( int idy=0; idy<csz; idy++ )
-	    {
-		base_bina_sect->set( idx, idy, conf_base.get(idx,idy,idz) );
-		upgr_bina_sect->set( idx, idy, conf_upgr.get(idx,idy,idz) );
-	    }
-	}
-
-	get_component_angle( *base_bina_sect, *upgr_bina_sect, 
-		elem_leng, null_val, *azimuth_sect );
-	
-	for ( int idx=0; idx<isz; idx++ )
-	{
-	    for ( int idy=0; idy<csz; idy++ )
-	    {
-		azimuth_pca.set( idx, idy, idz, azimuth_sect->get(idx,idy) );
-	    }
-	}
-    }
+    azimuthPcaCalculator apc( *this, conf_base, conf_upgr, elem_leng, null_val, 
+	    azimuth_pca );
+    return tr ? tr->execute( apc ) : apc.execute();
 }
 
 
@@ -1731,8 +1913,8 @@ void FaultAngle::get_component_angle( const Array2D<bool>& base_bina_sect,
 	    if ( point_set_x.size()<2 )
 		continue;
 
-	    float dip = angle_pca( point_set_x, point_set_y, null_val );
-	    azimuth_sect.set( current_width_index, current_hight_index, dip );
+	    float angle = angle_pca( point_set_x, point_set_y, null_val );
+	    azimuth_sect.set( current_width_index, current_hight_index, angle );
 	}
     }
 }
@@ -1747,7 +1929,7 @@ void FaultAngle::angle_section_stabilise( const Array2D<bool>& conf_sect,
     const int totalsz = angl_sect.info().getTotalSz();
     float* angstabvals = angl_stab.getData();
     for ( int idx=0; idx<totalsz; idx++ )
-	angstabvals[idx] = anglvals[idx];
+	angstabvals[idx] = anglvals[idx]; return;
 
     ConnComponents cc( conf_sect );
     cc.compute();
@@ -1901,10 +2083,12 @@ float FaultAngle::angle_pca( const TypeSet<int>& point_set_x,
 	eigenval += pca.getEigenValue(idy);
 
     float azimuth_dip = null_value;
-    float eig_ratio = eigenval[1]/(eigenval[1]+eigenval[0]);
+    float eig_ratio = eigenval[0]/(eigenval[1]+eigenval[0]);
     if ( eig_ratio>0.5 )
     {
+	TypeSet<float> eigenvec0(2,0);
 	TypeSet<float> eigenvec(2,0);
+	pca.getEigenVector( 0, eigenvec0 );
 	pca.getEigenVector( 1, eigenvec );
 	if ( mIsZero(eigenvec[0],1e-8) )
 	    return 90;
@@ -2020,7 +2204,8 @@ void FaultAngle::vein_vertical_slice( const Array3D<float>& input,
 	    
 	//FingerVein fv( *attr_sect0, 0, false, is_t_slic, *vein_bina_sect0 );
 	//fv.compute( false, false, 1, 1, sigma, percent, 0 );
-	vein_usage(*attr_sect0, sigma, percent, is_t_slic, *vein_bina_sect0, 0);
+	vein_usage( *attr_sect0, minfaultlength_, sigma, percent, is_t_slic, 
+		*vein_bina_sect0, 0 );
 	
 	for ( int idx=0; idx<isz; idx++ )
 	{
@@ -2044,7 +2229,7 @@ void FaultAngle::vein_vertical_slice( const Array3D<float>& input,
 	    
 	//FingerVein fv( *attr_sect90, 0, false, is_t_slic, *vein_bina_sect90 );
 	//fv.compute( false, false, 1, 1, sigma, percent, 0 );
-	vein_usage( *attr_sect90, sigma, percent, is_t_slic, 
+	vein_usage( *attr_sect90, minfaultlength_, sigma, percent, is_t_slic, 
 		*vein_bina_sect90, 0 );
 	
 	for ( int idy=0; idy<csz; idy++ )
@@ -2117,7 +2302,8 @@ void FaultAngle::vein_vertical_slice( const Array3D<float>& input,
      
 	//FingerVein fv( *attr_sect, 0, false, is_t_slic, *vein_bina_sect );
     	//fv.compute( false, false, 1, 1, sigma, percent, 0 );    
-	vein_usage( *attr_sect, sigma, percent, is_t_slic, *vein_bina_sect, 0 );
+	vein_usage( *attr_sect, minfaultlength_, sigma, percent, is_t_slic, 
+		*vein_bina_sect, 0 );
     	for ( int idx=0; idx<nwidth_sect; idx++ )
     	{
 	    int iwidth = width_index_map[idx];
@@ -2190,7 +2376,8 @@ void FaultAngle::vein_vertical_slice( const Array3D<float>& input,
      
 	//FingerVein fv( *attr_sect, 0, false, is_t_slic, *vein_bina_sect );
     	//fv.compute( false, false, 1, 1, sigma, percent, 0 );    
-	vein_usage( *attr_sect, sigma, percent, is_t_slic, *vein_bina_sect, 0 );
+	vein_usage( *attr_sect, minfaultlength_, sigma, percent, is_t_slic, 
+		*vein_bina_sect, 0 );
     	for ( int idx=0; idx<nwidth_sect; idx++ )
     	{
 	    int iwidth = width_index_map[idx];
@@ -2203,43 +2390,19 @@ void FaultAngle::vein_vertical_slice( const Array3D<float>& input,
 }
 
 
-void FaultAngle::vein_t0_slice( const Array3D<float>& input, int sigma,
-	float percent, Array3D<bool>& output )
+
+
+bool FaultAngle::vein_t0_slice( const Array3D<float>& input, int sigma,
+	float percent, Array3D<bool>& output, TaskRunner* tr )
 {
-    const int isz = input.info().getSize(0);
-    const int csz = input.info().getSize(1);
-    const int zsz = input.info().getSize(2);
-
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, attr_sect,
-	                Array2DImpl<float> (isz,csz) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, vein_bina_sect,
-	                Array2DImpl<bool> (isz,csz) );
-    const bool is_t_slic = true;
-
-    for ( int idz=0; idz<zsz; idz++ )
-    {
-	for ( int idx=0; idx<isz; idx++ )
-	{
-	    for ( int idy=0; idy<csz; idy++ )
-		attr_sect->set( idx, idy, input.get(idx,idy,idz) );
-	}
-
-	//FingerVein fv( *attr_sect, 0, false, true, *vein_bina_sect );
-	//fv.compute( false, false, 1, 1, sigma, percent, 0 );
-	vein_usage( *attr_sect, sigma, percent, is_t_slic, *vein_bina_sect, 0 );
-	
-	for ( int idx=0; idx<isz; idx++ )
-	{
-	    for ( int idy=0; idy<csz; idy++ )
-		output.set( idx, idy, idz, vein_bina_sect->get(idx,idy) );
-	}	
-    }
+    veinSliceCalculator vsc(input,*this,minfaultlength_,sigma,percent,output);
+    return tr ? tr->execute(vsc) : vsc.execute();
 }
 
 
-bool FaultAngle::vein_usage( const Array2D<float>& img, int sigma, 
-		float perc, bool is_t_slic, Array2D<bool>& vein_bina, 
-		TaskRunner* tr )
+bool FaultAngle::vein_usage( const Array2D<float>& img, int fault_min_length,
+			     int sigma, float perc, bool is_t_slic, 
+			     Array2D<bool>& vein_bina, TaskRunner* tr )
 {
     const int img_w = img.info().getSize(0);	
     const int img_h = img.info().getSize(1);	
@@ -2294,12 +2457,12 @@ bool FaultAngle::vein_usage( const Array2D<float>& img, int sigma,
     {
 	for ( int idy=0; idy<img_h; idy++ )
 	{
-	    if ( img_bina_thin->get(idx,idy) && img_comp->get(idx,idy) )
-		img_comp_thin->set(idx,idy,img_comp->get(idx,idy));    
+	    const int marker = img_comp->get(idx,idy);
+	    if ( marker>0 && img_bina_thin->get(idx,idy) )
+		img_comp_thin->set( idx, idy, marker );    
 	}	
     }
 
-    const int fault_min_length = 15;
     ConnComponents cc_thin( *img_comp_thin );
     cc_thin.compute();
     const int nrcomp_thin = cc_thin.nrComponents();
@@ -2314,8 +2477,8 @@ bool FaultAngle::vein_usage( const Array2D<float>& img, int sigma,
 
 	for ( int idy=0; idy<compsz; idy++ )
 	{
-	    imgcompdata[idy] = 0;	
-	    imgcompdata_thin[idy] = 0;	
+	    imgcompdata[(*comp)[idy]] = 0;	
+	    imgcompdata_thin[(*comp)[idy]] = 0;	
 	}
     }
     
@@ -2325,18 +2488,15 @@ bool FaultAngle::vein_usage( const Array2D<float>& img, int sigma,
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, vein_bina_merge,
 	    Array2DImpl<bool> (img.info()) );
     vein_bina_merge->copyFrom( vein_bina );
-    for ( int x=0; x<img_w; x++ )
+    bool* mergedata = vein_bina_merge->getData();
+    for ( int idx=0; idx<datasz; idx++ )
     {
-	for ( int y=0; y<img_h; y++ )
-	{
-	    if ( img_bina->get(x,y)==0 || vein_bina.get(x,y)==1 )
-		continue;
-    	  
-    	    if ( vein_bina.get(x,y)==0 && img_bina->get(x,y)==1 )
-		vein_bina_merge->set( x, y, 1 );
-	}
+	if ( imgdata[idx]==0 || vbdata[idx]==1 )
+	    continue;
+
+	mergedata[idx] = 1;
     }
-    
+
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, vein_bina_thin,
 	    Array2DImpl<bool> (img.info()) );
     thinning( *vein_bina_merge, *vein_bina_thin );
@@ -2362,7 +2522,6 @@ bool FaultAngle::vein_usage( const Array2D<float>& img, int sigma,
     cc2.compute();
     const int nrcomp_vthin = cc2.nrComponents();
     int* vcompdata = vein_comp->getData();
-    bool* vcompdata_thin = vein_comp_thin->getData();
     for ( int idx=0; idx<nrcomp_vthin; idx++ )
     {
 	const TypeSet<int>* comp = cc2.getComponent(idx);
@@ -2371,10 +2530,7 @@ bool FaultAngle::vein_usage( const Array2D<float>& img, int sigma,
 	    continue;
 
 	for ( int idy=0; idy<compsz; idy++ )
-	{
-	    vcompdata[idy] = 0;	
-	    vcompdata_thin[idy] = 0;	
-	}
+	    vcompdata[(*comp)[idy]] = 0;	
     }
 
     for ( int idx=0; idx<datasz; idx++ )
@@ -2690,6 +2846,9 @@ bool FaultAngle::vein_max_curvature( const Array2D<float>& input,
 	const int x_step_right = ystep->get(ai,1);
 	if ( ai==0 )
 	{
+	    if ( !is_t_slice )
+		continue;
+
 	    for ( int idx=0; idx<inputsz0; idx++ )
 	    {
 		for ( int idy=0; idy<inputsz1; idy++ )
@@ -3016,13 +3175,11 @@ bool FaultAngle::vein_max_curvature( const Array2D<float>& input,
 			 mMAX(vt->get(idx-1,idy+1),vt->get(idx-2,idy+2)));
 	    if ( maxval<temp ) maxval = temp;
 
-	    if ( !is_t_slice )
-	    { 
-	       temp = mMIN( mMAX(vt->get(idx+1,idy),vt->get(idx+2,idy)),
-			    mMAX(vt->get(idx-1,idy),vt->get(idx-2,idy)));
-	       if ( maxval<temp ) maxval = temp;
-	    }
-	    res.set( idx, idy, maxval );
+	   temp = mMIN( mMAX(vt->get(idx+1,idy),vt->get(idx+2,idy)),
+			mMAX(vt->get(idx-1,idy),vt->get(idx-2,idy)));
+	   if ( maxval<temp ) maxval = temp;
+
+	   res.set( idx, idy, maxval );
     	}
     }
 
