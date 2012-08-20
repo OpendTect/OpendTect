@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.90 2012-07-20 21:17:26 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.91 2012-08-20 17:45:40 cvsnanne Exp $";
 
 #include "uiattrvolout.h"
 
@@ -397,14 +397,9 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 		iop.set( "Input Line Set", lk.lineName() );
 		linename = lk.lineName();
 	    }
-
-	    PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid) );
-	    if ( ioobj )
-	    {
-		Seis2DLineSet lset( *ioobj );
-		lset.invalidateCache();
-	    }
 	}
+
+	Seis2DLineSet::invalidateCache();
     }
 
     if ( usecs )
