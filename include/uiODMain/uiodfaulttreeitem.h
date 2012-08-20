@@ -7,16 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodfaulttreeitem.h,v 1.24 2012-08-03 13:01:03 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.h,v 1.25 2012-08-20 21:23:47 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "uiodmainmod.h"
+#include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 
 #include "emposid.h"
+
+class DataPointSet;
+class uiVisEMObject;
 
 
 namespace visSurvey { class FaultDisplay; class FaultStickSetDisplay; }
@@ -43,6 +47,7 @@ public:
     			~uiODFaultTreeItem();
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
+    uiVisEMObject*	visEMObject() const	{ return uivisemobj_; }
 
 protected:
     bool		askContinueAndSaveIfNeeded(bool withcancel);
@@ -50,6 +55,8 @@ protected:
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		colorChCB(CallBacker*);
+
+    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
 
     			/*Workaround to know which Fault is active is 3D*/
     void		selChgCB(CallBacker*);
@@ -60,6 +67,8 @@ protected:
 			{return typeid(uiODFaultParentTreeItem).name();}
 
     EM::ObjectID		emid_;
+    uiVisEMObject*		uivisemobj_;
+
     MenuItem			savemnuitem_;
     MenuItem			saveasmnuitem_;
     MenuItem			displayplanemnuitem_;
@@ -114,6 +123,31 @@ protected:
     MenuItem				savemnuitem_;
     MenuItem				saveasmnuitem_;
     visSurvey::FaultStickSetDisplay*	faultsticksetdisplay_;
+};
+
+
+mClass(uiODMain) uiODFaultSurfaceDataTreeItem : public uiODAttribTreeItem
+{
+public:
+    			uiODFaultSurfaceDataTreeItem(EM::ObjectID,
+				uiVisEMObject*,const char* parenttype);
+			
+    void		setDataPointSet(const DataPointSet&);
+
+protected:
+
+    void		createMenu(MenuHandler*,bool istb);
+    void		handleMenuCB(CallBacker*);
+    BufferString	createDisplayName() const;
+
+    MenuItem		depthattribmnuitem_;
+    MenuItem            savesurfacedatamnuitem_;
+    MenuItem            loadsurfacedatamnuitem_;
+    MenuItem            algomnuitem_;
+    
+    bool                changed_;
+    EM::ObjectID        emid_;
+    uiVisEMObject*      uivisemobj_;
 };
 
 
