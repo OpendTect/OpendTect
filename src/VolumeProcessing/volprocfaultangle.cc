@@ -1,17 +1,17 @@
 /*+
  *(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- *Author:	Y.C. Liu
- *Date:		April 2007
+ *Author:	Yuancheng Liu
+ *Date:		Aug 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocfaultangle.cc,v 1.1 2012-08-20 21:04:23 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprocfaultangle.cc,v 1.2 2012-08-20 21:14:07 cvsyuancheng Exp $";
 
 #include "volprocfaultangle.h"
 
 #include "arraynd.h"
 #include "fingervein.h"
+#include "iopar.h"
 #include "mousecursor.h"
-#include "survinfo.h"
 
 namespace VolProc
 {
