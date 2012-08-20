@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.24 2012-08-03 13:00:57 cvskris Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.25 2012-08-20 21:21:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,14 +17,22 @@ ________________________________________________________________________
 #include "uiiosurface.h"
 
 class CtxtIOObj;
+class Executor;
 class IOObj;
 class MultiID;
 class uiGenInput;
 class uiIOObjSel;
+class uiPushButton;
 class uiSurfaceRead;
 class uiSurfaceWrite;
 
-namespace EM { class Surface; class SurfaceIODataSelection; class Horizon3D; }
+namespace EM 
+{ 
+    class Fault3D;
+    class Horizon3D; 
+    class Surface; 
+    class SurfaceIODataSelection; 
+}
 
 
 /*! \brief Dialog for horizon export */
@@ -96,6 +104,31 @@ protected:
     CtxtIOObj*		mkCtxtIOObj(const IOObj&);
     bool		acceptOK(CallBacker*);
 };
+
+/*Brief dialog for saving fault aux-data. */
+mClass(uiEarthModel) uiStoreFaultData : public uiDialog
+{
+public:
+    			uiStoreFaultData(uiParent*,const EM::Fault3D&);
+    			~uiStoreFaultData();
+
+    Executor*		dataSaver(); 			
+    bool		doOverWrite() const	{ return dooverwrite_; }
+    const char*		surfaceDataName() const;
+    int			surfaceDataIdx() const;
+
+protected:
+
+    void		selButPushedCB(CallBacker*);
+
+    uiPushButton*	selbut_;
+    uiGenInput*		attrnmfld_;
+    const EM::Fault3D&	surface_;
+
+    bool		dooverwrite_;
+    bool		acceptOK(CallBacker*);
+};
+
 
 #endif
 
