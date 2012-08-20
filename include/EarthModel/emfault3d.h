@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault3d.h,v 1.13 2012-08-03 13:00:17 cvskris Exp $
+ RCS:		$Id: emfault3d.h,v 1.14 2012-08-20 21:19:53 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,7 @@ namespace Pos { class Filter; }
 namespace EM
 {
 class EMManager;
+class FaultAuxData;
 
 mClass(EarthModel) Fault3DGeometry : public FaultGeometry
 {
@@ -75,6 +76,8 @@ public:
     Fault3DGeometry&		geometry();
     const Fault3DGeometry&	geometry() const;
     void			apply(const Pos::Filter&);
+
+    FaultAuxData&		auxdata;
 
 protected:
 

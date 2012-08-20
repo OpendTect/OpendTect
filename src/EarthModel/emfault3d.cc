@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfault3d.cc,v 1.29 2012-08-08 05:47:54 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: emfault3d.cc,v 1.30 2012-08-20 21:19:53 cvsyuancheng Exp $";
 
 #include "emfault3d.h"
 
+#include "emfaultauxdata.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
@@ -29,13 +30,14 @@ mImplementEMObjFuncs( Fault3D, EMFault3DTranslatorGroup::keyword() )
 Fault3D::Fault3D( EMManager& em )
     : Fault(em)
     , geometry_( *this )
+    , auxdata( *new FaultAuxData(*this) )  
 {
     geometry_.addSection( "", false );
 }
 
 
 Fault3D::~Fault3D()
-{}
+{ delete &auxdata; }
 
 
 Fault3DGeometry& Fault3D::geometry()
