@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initvolumeprocessing.cc,v 1.14 2012-05-02 15:11:53 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: initvolumeprocessing.cc,v 1.15 2012-08-20 21:04:23 cvsyuancheng Exp $";
 
 
 #include "moddepmgr.h"
+#include "volprocfaultangle.h"
 #include "velocitygridder.h"
 #include "volprochorinterfiller.h"
 #include "volprocattrib.h"
@@ -28,6 +29,7 @@ mDefModInitFn(VolumeProcessing)
     VolProcessingTranslatorGroup::initClass();
     dgbVolProcessingTranslator::initClass();
 
+    VolProc::FaultAngle::initClass();
     VolProc::HorInterFiller::initClass();
     VolProc::LateralSmoother::initClass();
     VolProc::Smoother::initClass();
