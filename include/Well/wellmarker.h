@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.22 2012-08-03 13:00:45 cvskris Exp $
+ RCS:		$Id: wellmarker.h,v 1.23 2012-08-20 09:12:34 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,9 @@ public:
 
     // setName() and setColor() only used as fallback, if not attached to level
     void		setColor( Color col )	{ color_ = col; }
+    bool                operator > (const Marker& dm) const 
+    			{ return dah_ >= dm.dah_; }
+
 
 protected:
 
