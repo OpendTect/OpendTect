@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.46 2012-08-03 13:01:28 cvskris Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.47 2012-08-20 15:08:00 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,7 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int) const
 				{ return SurveyObject::RandomPos; }
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
+    void			getRandomPosCache(int,DataPointSet&) const;
     void			setRandomPosData(int,const DataPointSet*,
 	    					 TaskRunner*); 
 
@@ -152,6 +153,8 @@ public:
 				    const ObjectSet<const SurveyObject>& objs,
 				    int whichobj)
 				{ otherObjectsMoved( objs, whichobj ); }
+
+    EM::Fault3D*		emFault()	{ return emfault_; }
 
 protected:
 

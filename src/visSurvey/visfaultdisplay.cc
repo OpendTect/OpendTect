@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visfaultdisplay.cc,v 1.98 2012-08-13 04:04:39 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: visfaultdisplay.cc,v 1.99 2012-08-20 15:08:00 cvsyuancheng Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -1047,6 +1047,22 @@ void FaultDisplay::getRandomPos( DataPointSet& dpset, TaskRunner* tr ) const
 	explicitpanels_->getTexturePositions( dpset, tr );
 	paneldisplay_->touch( true );
     }
+}
+
+
+void FaultDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
+{
+    if ( attrib<0 || attrib>=nrAttribs() )
+	return;
+
+    DataPack::ID dpid = getDataPackID( attrib );
+    DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
+    const DataPack* datapack = dpman.obtain( dpid );
+    mDynamicCastGet( const DataPointSet*, dps, datapack );
+    if ( dps )
+	data  = *dps;
+
+    dpman.release( dpid );
 }
 
 
