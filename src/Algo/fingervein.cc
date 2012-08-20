@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.15 2012-08-20 18:55:39 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.16 2012-08-20 21:32:10 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
@@ -1929,7 +1929,7 @@ void FaultAngle::angle_section_stabilise( const Array2D<bool>& conf_sect,
     const int totalsz = angl_sect.info().getTotalSz();
     float* angstabvals = angl_stab.getData();
     for ( int idx=0; idx<totalsz; idx++ )
-	angstabvals[idx] = anglvals[idx]; return;
+	angstabvals[idx] = anglvals[idx]; 
 
     ConnComponents cc( conf_sect );
     cc.compute();
