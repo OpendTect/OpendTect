@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: inituivolumeprocessing.cc,v 1.13 2012-05-02 15:12:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: inituivolumeprocessing.cc,v 1.14 2012-08-20 21:05:52 cvsyuancheng Exp $";
 
 
 #include "moddepmgr.h"
+#include "uivolprocfaultangle.h"
 #include "uivelocitygridder.h"
 #include "uivolprochorinterfiller.h"
 #include "uivolproclateralsmoother.h"
@@ -23,6 +24,7 @@ mDefModInitFn(uiVolumeProcessing)
 {
     mIfNotFirstTime( return );
 
+    VolProc::uiFaultAngle::initClass();
     VolProc::uiHorInterFiller::initClass();
     VolProc::uiBodyFiller::initClass();
     VolProc::uiLateralSmoother::initClass();
