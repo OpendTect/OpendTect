@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.241 2012-08-10 04:11:26 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.242 2012-08-20 21:22:18 cvsyuancheng Exp $";
 
 #include "uiempartserv.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID mUnusedVar = "$Id: uiempartserv.cc,v 1.241 2012-08-10 0
 #include "datacoldef.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
+#include "emfaultauxdata.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emioobjinfo.h"
@@ -746,29 +747,53 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id,
 {
     EM::EMObject* object = em_.getObject( id ); 
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
-    if ( !hor3d ) return false;
-
-    int dataidx = -1;
-    bool overwrite = false;
-    if ( storeas )
+    mDynamicCastGet( EM::Fault3D*, flt3d, object );
+    if ( !hor3d && !flt3d )
+	return false;
+    
+    uiTaskRunner exdlg( parent() );
+    if ( hor3d )
     {
-	uiStoreAuxData dlg( parent(), *hor3d );
+	int dataidx = -1;
+	bool overwrite = false;
+	if ( storeas )
+	{
+	    if ( hor3d )
+	    {
+		uiStoreAuxData dlg( parent(), *hor3d );
+		if ( !dlg.go() ) return false;
+
+		dataidx = 0;
+		overwrite = dlg.doOverWrite();
+		auxdatanm = dlg.auxdataName();
+	    }
+	}
+
+	PtrMan<Executor> saver = hor3d->auxdata.auxDataSaver(dataidx,overwrite);
+	if ( !saver )
+	{
+	    uiMSG().error( "Cannot save attribute" );
+	    return false;
+	}
+
+	return exdlg.execute( *saver );
+    }
+    else if ( flt3d )
+    {
+	uiStoreFaultData dlg( parent(), *flt3d );
 	if ( !dlg.go() ) return false;
 
-	dataidx = 0;
-	overwrite = dlg.doOverWrite();
-	auxdatanm = dlg.auxdataName();
+	PtrMan<Executor> saver = dlg.dataSaver();
+	if ( !saver )
+	{
+	    uiMSG().error( "Cannot save attribute" );
+    	    return false;
+	}
+
+	return exdlg.execute( *saver );
     }
 
-    PtrMan<Executor> saver = hor3d->auxdata.auxDataSaver( dataidx, overwrite );
-    if ( !saver )
-    {
-	uiMSG().error( "Cannot save attribute" );
-	return false;
-    }
-
-    uiTaskRunner exdlg( parent() );
-    return exdlg.execute( *saver );
+    return true;
 }
 
 
