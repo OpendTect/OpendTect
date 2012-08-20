@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.36 2012-08-01 16:49:52 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.37 2012-08-20 15:28:10 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -148,15 +148,58 @@ void uiDispEditMarkerDlg::modeChg( CallBacker* )
 }
 
 
+void uiDispEditMarkerDlg::addMarkerSet( Well::MarkerSet& mrks ) 
+{
+    Well::MarkerSet* orgmrks = new Well::MarkerSet();
+    for ( int idx=0; idx<mrks.size(); idx++ )
+    {
+	(*orgmrks) += new Well::Marker( *mrks[idx] );
+    }
+    orgmarkerssets_ += orgmrks;
+    fillMarkerList( 0 );
+}
+
+
 void uiDispEditMarkerDlg::handleUsrClickCB( CallBacker* )
 {}
 
 
-void uiDispEditMarkerDlg::addMoveMarker()
-{}
+void uiDispEditMarkerDlg::addMoveMarker( int iset, float dah, const char* nm )
+{
+    const bool ispresent = markerssets_[iset]->isPresent( nm );
 
-void uiDispEditMarkerDlg::removeMarker()
-{}
+    Well::Marker* mrk = 0;
+    Well::MarkerSet& markers = *markerssets_[iset];
+    if ( ispresent )
+    {
+	mrk = markers.getByName( nm  );
+	mrk->setDah( dah );
+    }
+    else
+    {
+	ObjectSet<Well::Marker> mrks;
+	getMarkerFromAll( mrks, nm );
+	if ( mrks.isEmpty() )
+	    mErrRet( "No marker found", return );
+
+	mrk = new Well::Marker( *mrks[0] ); 
+	mrk->setDah( dah );
+	markers.insertNew( mrk );
+    }
+
+    for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
+    {
+	if ( !strcmp( nm, tmplist_[idx]->name() ) )
+	    delete tmplist_.remove( idx );
+    }
+}
+
+void uiDispEditMarkerDlg::removeMarker( int idset, const char* nm )
+{
+    Well::MarkerSet& mrkset = *markerssets_[idset];
+    if ( mrkset.isPresent( nm ) ) 
+	delete mrkset.remove( mrkset.indexOf( nm ),true );
+}
 
 
 bool uiDispEditMarkerDlg::acceptOK( CallBacker* )
@@ -168,6 +211,23 @@ bool uiDispEditMarkerDlg::acceptOK( CallBacker* )
 
 bool uiDispEditMarkerDlg::rejectOK( CallBacker* )
 {
+    needsave_ = false;
+    if ( hasedited_ )
+    {
+	BufferString msg = "Some markers have been edited. \n";
+	msg += "Do you want to continue with marker editing ? ";
+	if ( !uiMSG().askContinue( msg ) )
+	{
+	    for ( int idx=0; idx<markerssets_.size(); idx++ )
+	    {
+		deepErase( *markerssets_[idx] );
+		markerssets_[idx]->copy( *orgmarkerssets_[idx] );
+	    }
+	    return true;
+	}
+	else
+	    return false;
+    }
     return true;
 }
 
@@ -180,7 +240,7 @@ void uiDispEditMarkerDlg::buttonPushedCB( CallBacker* cb )
     else if ( tb == editbut_ )
 	editMrkrList();
     else if ( tb == rembut_ ) 
-	removeMrkrList();
+	removeMrkrFromList();
 }
 
 
@@ -241,10 +301,19 @@ void uiDispEditMarkerDlg::editMrkrList()
 void uiDispEditMarkerDlg::getMarkerFromAll( ObjectSet<Well::Marker>& mrks,
 						  const char* mrknm ) 
 {
+    for ( int idwd=0; idwd<markerssets_.size(); idwd++ )
+    {
+	Well::MarkerSet& mrkset = *markerssets_[idwd];;
+	Well::Marker* mrk = mrkset.getByName( mrknm );
+	if ( mrk )
+	    mrks += mrk;
+    }
+    Well::Marker* tmpmrk = getMarkerFromTmpList( mrknm );
+    if ( tmpmrk ) mrks += tmpmrk;
 }
 
 
-void uiDispEditMarkerDlg::removeMrkrList()
+bool uiDispEditMarkerDlg::removeMrkrFromList()
 {
     BufferString mrknm = mrklist_->getText();
     for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
@@ -252,8 +321,27 @@ void uiDispEditMarkerDlg::removeMrkrList()
 	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
 	    delete tmplist_.remove( idx );
 	fillMarkerList(0);
-	return;
+	return true;
     }
+    BufferString msg = "This will remove "; 
+		 msg += mrknm; 
+		 msg += " from all the wells \n ";
+		 msg += "Do you want to continue ? ";
+
+    if ( uiMSG().askContinue( msg ) )
+    {
+	for ( int idx=0; idx<markerssets_.size(); idx++ )
+	{
+	    Well::MarkerSet& mrkset = *markerssets_[idx];
+	    if ( mrkset.isPresent( mrknm ) )
+	    {
+		delete mrkset.remove( mrkset.indexOf( mrknm ),true );
+	    }
+	}
+	hasedited_ = true; 
+	return true;
+    }
+    return false;
 }
 
 
@@ -282,257 +370,12 @@ void uiDispEditMarkerDlg::listRClickCB( CallBacker* )
     }
     else if ( mnuid ==2 )
     {
-	removeMrkrList();
+	removeMrkrFromList();
     }
 }
 
 
 void uiDispEditMarkerDlg::fillMarkerList( CallBacker* )
-{}
-
-
-Well::Marker* uiDispEditMarkerDlg::getMarkerFromTmpList( const char* mrknm )
-{
-    for ( int idx=0; idx<tmplist_.size(); idx++ )
-    {
-	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
-	    return tmplist_[idx];
-    }
-    return 0;
-}
-
-
-
-
-
-
-uiWellDispEditMarkerDlg::uiWellDispEditMarkerDlg( uiParent* p )
-    : uiDispEditMarkerDlg(p)
-    , curctrl_(0)
-    , curwd_(0)	 
-{}
-
-
-void uiWellDispEditMarkerDlg::editDlgClosedCB( CallBacker* )
-{
-    for ( int idx=0; idx<ctrls_.size(); idx++ )
-	activateSensors( *ctrls_[idx], *wds_[idx], false );
-}
-
-
-void uiWellDispEditMarkerDlg::addWellCtrl( uiWellDisplayControl& ctrl, 
-					      Well::Data& wd  )
-{
-    ctrls_ += &ctrl;
-    wds_ += &wd;
-    Well::MarkerSet* orgmrks = new Well::MarkerSet();
-    for ( int idx=0; idx<wd.markers().size(); idx++ )
-    {
-	(*orgmrks) += new Well::Marker( *wd.markers()[idx] );
-    }
-    orgmarkerssets_ += orgmrks;
-    activateSensors( ctrl, wd, true );
-    fillMarkerList( 0 );
-}
-
-
-void uiWellDispEditMarkerDlg::activateSensors(uiWellDisplayControl& ctr, 
-						Well::Data& wd, bool yn)
-{
-    CallBack cbclk = mCB( this, uiWellDispEditMarkerDlg, handleUsrClickCB );
-    CallBack cbpos = mCB( this, uiWellDispEditMarkerDlg, posChgCB );
-    CallBack cbchg = mCB( this, uiWellDispEditMarkerDlg, handleCtrlChangeCB );
-    CallBack cbbox = mCB( this, uiWellDispEditMarkerDlg, fillMarkerList );
-#define mNotify(action)\
-    ctr.posChanged.action( cbchg );\
-    ctr.posChanged.action( cbpos );\
-    ctr.mousePressed.action( cbclk );\
-    wd.markerschanged.action( cbbox );
-
-    if ( yn ) 
-	{ mNotify( notify ) }
-    else
-	{ mNotify( remove ) }
-}
-
-
-void uiWellDispEditMarkerDlg::handleCtrlChangeCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller(BufferString,mesg,caller,cb);
-    mDynamicCastGet(uiWellDisplayControl*,ctrl,caller)
-    curctrl_ = 0; curmrk_ = 0; curwd_ = 0;
-    if ( !ctrl || !ctrl->mouseEventHandler() 
-	    	|| !ctrl->mouseEventHandler()->hasEvent() ) return;
-    curctrl_ = ctrl;
-    int widx = ctrls_.indexOf( ctrl );
-    curwd_ = ( widx >=0 && widx<wds_.size() ) ? wds_[widx] : 0;
-    if ( curctrl_ && curwd_ )
-    {
-	ObjectSet<Well::Marker>& mrkset = curwd_->markers();
-	int curmrkidx = mrkset.indexOf( curctrl_->selMarker() );
-	if ( curmrkidx >=0 )
-	    curmrk_ = mrkset[curmrkidx];
-    }
-}
-
-
-void uiWellDispEditMarkerDlg::posChgCB( CallBacker* cb )
-{
-    MouseEventHandler* mevh = curctrl_->mouseEventHandler();
-    if ( !mevh || !mevh->hasEvent()  ) return;
-}
-
-
-void uiWellDispEditMarkerDlg::handleUsrClickCB( CallBacker* )
-{
-    if ( !curctrl_ || !curwd_ ) return;
-    MouseEventHandler* mevh = curctrl_->mouseEventHandler();
-    if ( !mevh || !mevh->hasEvent() || mevh->isHandled() ) return;
-
-    bool isremove = curctrl_->isCtrlPressed();
-    if ( !isremove )
-	addMoveMarker();
-    else if ( curmrk_ )
-	removeMarker();
-
-    mevh->setHandled( true);
-    hasedited_ = true; 
-    curwd_->markerschanged.trigger();
-}
-
-
-void uiWellDispEditMarkerDlg::addMoveMarker()
-{
-    if ( !curctrl_ || !curwd_ ) return;
-
-    const float dah = curctrl_->depth();
-    const char* mrknm = mrklist_->getText();
-    const bool ispresentinwd = curwd_->markers().isPresent( mrknm );
-
-    Well::Marker* mrk = 0;
-    if ( ispresentinwd )
-    {
-	mrk = curwd_->markers().getByName( mrknm  );
-	mrk->setDah( dah );
-    }
-    else
-    {
-	ObjectSet<Well::Marker> mrks;
-	getMarkerFromAll( mrks, mrknm );
-	if ( mrks.isEmpty() )
-	    mErrRet( "No marker found", return );
-
-	mrk = new Well::Marker( *mrks[0] ); 
-	mrk->setDah( dah );
-	curwd_->markers().insertNew( mrk );
-	curwd_->displayProperties(true).markers_.selmarkernms_.add( mrknm );
-    }
-
-    for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
-    {
-	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
-	    delete tmplist_.remove( idx );
-    }
-}
-
-
-void uiWellDispEditMarkerDlg::removeMarker()
-{
-    if ( !curwd_ ) return;
-    ObjectSet<Well::Marker>& mrkobjset = curwd_->markers();
-    delete mrkobjset.remove( mrkobjset.indexOf(curmrk_),true );
-}
-
-
-bool uiWellDispEditMarkerDlg::acceptOK( CallBacker* )
-{
-    if ( hasedited_ )
-    {
-	for ( int idx=0; idx<wds_.size(); idx++ )
-	{
-	    wds_[idx]->markerschanged.trigger();
-	}
-    }
-
-    needsave_ = hasedited_;
-    return true;
-}
-
-
-bool uiWellDispEditMarkerDlg::rejectOK( CallBacker* )
-{
-    needsave_ = false;
-    if ( hasedited_ )
-    {
-	BufferString msg = "Some markers have been edited. \n";
-	msg += "Do you want to continue with marker editing ? ";
-	if ( !uiMSG().askContinue( msg ) )
-	{
-	    for ( int idx=0; idx<wds_.size(); idx++ )
-	    {
-		deepErase( wds_[idx]->markers() );
-		wds_[idx]->markers().copy( *orgmarkerssets_[idx] );
-		wds_[idx]->markerschanged.trigger();
-	    }
-	    return true;
-	}
-	else
-	    return false;
-    }
-    return true;
-}
-
-
-void uiWellDispEditMarkerDlg::editMrkrList()
-{
-    uiDispEditMarkerDlg::editMrkrList();
-
-    for ( int idx=0; idx<wds_.size(); idx ++ )
-	wds_[idx]->markerschanged.trigger();
-}
-
-
-void uiWellDispEditMarkerDlg::getMarkerFromAll( ObjectSet<Well::Marker>& mrks,
-						  const char* mrknm ) 
-{
-    for ( int idwd=0; idwd<wds_.size(); idwd++ )
-    {
-	Well::MarkerSet& mrkset = wds_[idwd]->markers();
-	Well::Marker* mrk = mrkset.getByName( mrknm );
-	if ( mrk )
-	    mrks += mrk;
-    }
-    Well::Marker* tmpmrk = getMarkerFromTmpList( mrknm );
-    if ( tmpmrk ) mrks += tmpmrk;
-}
-
-
-void uiWellDispEditMarkerDlg::removeMrkrList()
-{
-    uiDispEditMarkerDlg::removeMrkrList();
-    BufferString mrknm = mrklist_->getText();
-    BufferString msg = "This will remove "; 
-		 msg += mrknm; 
-		 msg += " from all the wells \n ";
-		 msg += "Do you want to continue ? ";
-
-    if ( uiMSG().askContinue( msg ) )
-    {
-	for ( int idx=0; idx<wds_.size(); idx++ )
-	{
-	    Well::MarkerSet& mrkset = wds_[idx]->markers();
-	    if ( mrkset.isPresent( mrknm ) )
-	    {
-		delete mrkset.remove( mrkset.indexOf( mrknm ),true );
-		wds_[idx]->markerschanged.trigger();
-	    }
-	}
-	hasedited_ = true; 
-    }
-}
-
-
-void uiWellDispEditMarkerDlg::fillMarkerList( CallBacker* )
 {
     const char* selnm = mrklist_->nrSelected() ? mrklist_->getText() : 0;
 
@@ -546,12 +389,12 @@ if ( mrknms.addIfNew( mrk.name() ) )\
     dahs += mrk.dah();\
 }
 
-    for ( int idwd=0; idwd<wds_.size(); idwd++ )
+    for ( int idwd=0; idwd<markerssets_.size(); idwd++ )
     {
-	const Well::Data& wd = *wds_[idwd];
-	for ( int idmrk=0; idmrk<wd.markers().size(); idmrk++ )
+	const Well::MarkerSet& mrkset = *markerssets_[idwd];
+	for ( int idmrk=0; idmrk<mrkset.size(); idmrk++ )
 	{
-	    const Well::Marker& mrk = *wd.markers()[idmrk];
+	    const Well::Marker& mrk = *mrkset[idmrk];
 	    mAddMrkToList( mrk )
 	}
     }
@@ -584,4 +427,171 @@ if ( mrknms.addIfNew( mrk.name() ) )\
 	mrklist_->setCurrentItem( selidx );
     }
 }
+
+
+Well::Marker* uiDispEditMarkerDlg::getMarkerFromTmpList( const char* mrknm )
+{
+    for ( int idx=0; idx<tmplist_.size(); idx++ )
+    {
+	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
+	    return tmplist_[idx];
+    }
+    return 0;
+}
+
+
+
+
+
+
+uiWellDispCtrlEditMarkerDlg::uiWellDispCtrlEditMarkerDlg( uiParent* p )
+    : uiDispEditMarkerDlg(p)
+    , curctrl_(0)
+    , curwd_(0)	 
+{}
+
+
+void uiWellDispCtrlEditMarkerDlg::editDlgClosedCB( CallBacker* )
+{
+    for ( int idx=0; idx<ctrls_.size(); idx++ )
+	activateSensors( *ctrls_[idx], *wds_[idx], false );
+}
+
+
+void uiWellDispCtrlEditMarkerDlg::addWellCtrl( uiWellDisplayControl& ctrl, 
+					      Well::Data& wd  )
+{
+    ctrls_ += &ctrl;
+    wds_ += &wd;
+    addMarkerSet( wd.markers() );
+    activateSensors( ctrl, wd, true );
+}
+
+
+void uiWellDispCtrlEditMarkerDlg::activateSensors(uiWellDisplayControl& ctr, 
+						Well::Data& wd, bool yn)
+{
+    CallBack cbclk = mCB( this, uiWellDispCtrlEditMarkerDlg, handleUsrClickCB );
+    CallBack cbpos = mCB( this, uiWellDispCtrlEditMarkerDlg, posChgCB );
+    CallBack cbchg = mCB( this, uiWellDispCtrlEditMarkerDlg, handleCtrlChangeCB );
+    CallBack cbbox = mCB( this, uiWellDispCtrlEditMarkerDlg, fillMarkerList );
+#define mNotify(action)\
+    ctr.posChanged.action( cbchg );\
+    ctr.posChanged.action( cbpos );\
+    ctr.mousePressed.action( cbclk );\
+    wd.markerschanged.action( cbbox );
+
+    if ( yn ) 
+	{ mNotify( notify ) }
+    else
+	{ mNotify( remove ) }
+}
+
+
+void uiWellDispCtrlEditMarkerDlg::triggerWDsMarkerChanged()
+{
+    for ( int idx=0; idx<wds_.size(); idx++ )
+    {
+	wds_[idx]->markerschanged.trigger();
+    }
+}
+
+
+
+void uiWellDispCtrlEditMarkerDlg::handleCtrlChangeCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller(BufferString,mesg,caller,cb);
+    mDynamicCastGet(uiWellDisplayControl*,ctrl,caller)
+    curctrl_ = 0; curmrk_ = 0; curwd_ = 0;
+    if ( !ctrl || !ctrl->mouseEventHandler() 
+	    	|| !ctrl->mouseEventHandler()->hasEvent() ) return;
+    curctrl_ = ctrl;
+    int widx = ctrls_.indexOf( ctrl );
+    curwd_ = ( widx >=0 && widx<wds_.size() ) ? wds_[widx] : 0;
+    if ( curctrl_ && curwd_ )
+    {
+	ObjectSet<Well::Marker>& mrkset = curwd_->markers();
+	int curmrkidx = mrkset.indexOf( curctrl_->selMarker() );
+	if ( curmrkidx >=0 )
+	    curmrk_ = mrkset[curmrkidx];
+    }
+}
+
+
+void uiWellDispCtrlEditMarkerDlg::posChgCB( CallBacker* cb )
+{
+    MouseEventHandler* mevh = curctrl_->mouseEventHandler();
+    if ( !mevh || !mevh->hasEvent()  ) return;
+}
+
+
+void uiWellDispCtrlEditMarkerDlg::handleUsrClickCB( CallBacker* )
+{
+    const int idset = wds_.indexOf( curwd_ );
+    if ( !curctrl_ || !curwd_ || idset < 0 ) return;
+    MouseEventHandler* mevh = curctrl_->mouseEventHandler();
+    if ( !mevh || !mevh->hasEvent() || mevh->isHandled() ) return;
+
+    bool isremove = curctrl_->isCtrlPressed();
+    const float dah = curctrl_->depth();
+    const char* mrknm = mrklist_->getText();
+
+    if ( !isremove )
+    {
+	addMoveMarker( idset, dah, mrknm );
+	curwd_->displayProperties(true).markers_.selmarkernms_.add( mrknm );
+    }
+    else if ( curmrk_ )
+    {
+	removeMarker( idset, curmrk_->name() );
+    }
+
+    mevh->setHandled( true);
+    hasedited_ = true; 
+    curwd_->markerschanged.trigger();
+}
+
+
+bool uiWellDispCtrlEditMarkerDlg::acceptOK( CallBacker* )
+{
+    if ( hasedited_ )
+    {
+	triggerWDsMarkerChanged();
+    }
+
+    needsave_ = hasedited_;
+    return true;
+}
+
+
+bool uiWellDispCtrlEditMarkerDlg::rejectOK( CallBacker* cb )
+{
+    needsave_ = false;
+    if ( hasedited_ && uiDispEditMarkerDlg::acceptOK( cb ) )
+    {
+	triggerWDsMarkerChanged();
+    }
+
+    return true;
+}
+
+
+void uiWellDispCtrlEditMarkerDlg::editMrkrList()
+{
+    uiDispEditMarkerDlg::editMrkrList();
+
+    triggerWDsMarkerChanged();
+}
+
+
+bool uiWellDispCtrlEditMarkerDlg::removeMrkrFromList()
+{
+    if ( uiDispEditMarkerDlg::removeMrkrFromList() )
+    {
+	triggerWDsMarkerChanged();
+	return true;
+    }
+    return false;
+}
+
 

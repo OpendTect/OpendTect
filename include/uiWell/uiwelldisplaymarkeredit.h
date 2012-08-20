@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.12 2012-08-03 13:01:20 cvskris Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.13 2012-08-20 15:28:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ public:
 
     bool 			isPicking() const 	{ return ispicking_; }
     bool 			needSave() const 	{ return needsave_; }
+    void			addMarkerSet(Well::MarkerSet&);
 
     Notifier<uiDispEditMarkerDlg> pickmodechanged;
 
@@ -74,6 +75,7 @@ protected:
     bool			ispicking_;
 
     ObjectSet<Well::MarkerSet>	orgmarkerssets_;
+    ObjectSet<Well::MarkerSet>	markerssets_;
     uiGenInput*			modefld_;
 
     uiListBox*			mrklist_;
@@ -86,10 +88,10 @@ protected:
     
     virtual void		addNewMrkrList();
     virtual void		editMrkrList();
-    virtual void		removeMrkrList();
+    virtual bool		removeMrkrFromList();
 
-    virtual void		addMoveMarker();
-    virtual void		removeMarker();
+    void			addMoveMarker(int,float,const char*);
+    void			removeMarker(int,const char*);
 
     virtual void		getMarkerFromAll(ObjectSet<Well::Marker>&,
 	    					const char* nm); 
@@ -108,10 +110,10 @@ protected:
 
 
 
-mClass(uiWell) uiWellDispEditMarkerDlg : public uiDispEditMarkerDlg
+mClass(uiWell) uiWellDispCtrlEditMarkerDlg : public uiDispEditMarkerDlg
 {
 public:
-				uiWellDispEditMarkerDlg(uiParent*);
+				uiWellDispCtrlEditMarkerDlg(uiParent*);
 
     void 			addWellCtrl(uiWellDisplayControl&,Well::Data&);
 
@@ -124,21 +126,15 @@ protected:
     Well::Data*			curwd_;
 
     void			editMrkrList();
-    void			removeMrkrList();
-
-    void			addMoveMarker();
-    void			removeMarker();
-
-    void			getMarkerFromAll(ObjectSet<Well::Marker>&,
-	    					const char* nm); 
+    bool			removeMrkrFromList();
 
     void 			activateSensors(bool yn);
     void 			activateSensors(uiWellDisplayControl&,
 						    Well::Data&,bool);
 
+    void			triggerWDsMarkerChanged();
     bool			acceptOK(CallBacker*);
     void			editDlgClosedCB(CallBacker*);
-    void			fillMarkerList(CallBacker*);
     void			handleUsrClickCB(CallBacker*);
     void			handleCtrlChangeCB(CallBacker*);
     bool			rejectOK(CallBacker*);
