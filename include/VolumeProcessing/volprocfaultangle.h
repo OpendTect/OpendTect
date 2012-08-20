@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		Aug 2012
- RCS:		$Id: volprocfaultangle.h,v 1.1 2012-08-20 21:04:23 cvsyuancheng Exp $
+ RCS:		$Id: volprocfaultangle.h,v 1.2 2012-08-20 21:13:34 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,10 +20,7 @@ class BinID;
 
 namespace VolProc
 {
-/*! Fills a volume with values. The top and bottom of the volume are either
-    the survey top/bottom or horizons. The values are fixed at the top
-    boundary (either horizon or survey top) and change either with a fixed
-    gradient or to a fixed value at the bottom boundary. */
+/*! Calculate Azimuth or Dip for a volume. */
 
     
 mClass(VolumeProcessing) FaultAngle : public Step
