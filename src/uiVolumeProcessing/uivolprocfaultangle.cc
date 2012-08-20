@@ -4,18 +4,11 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uivolprocfaultangle.cc,v 1.1 2012-08-20 21:05:52 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivolprocfaultangle.cc,v 1.2 2012-08-20 21:14:35 cvsyuancheng Exp $";
 
 #include "uivolprocfaultangle.h"
-#include "uimsg.h"
-#include "volprochorinterfiller.h"
 
-#include "ctxtioobj.h"
-#include "emsurfacetr.h"
-#include "mousecursor.h"
-#include "survinfo.h"
 #include "uigeninput.h"
-#include "uiioobjsel.h"
 #include "uivolprocchain.h"
 #include "volprocchain.h"
 #include "uispinbox.h"

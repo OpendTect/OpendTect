@@ -5,9 +5,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Y.C. Liu
- Date:		April 2007
- RCS:		$Id: uivolprocfaultangle.h,v 1.1 2012-08-20 21:05:52 cvsyuancheng Exp $
+ Author:	Yuancheng Liu
+ Date:		Aug 2012
+ RCS:		$Id: uivolprocfaultangle.h,v 1.2 2012-08-20 21:14:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
