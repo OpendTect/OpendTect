@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizon2d.cc,v 1.57 2012-08-08 05:47:54 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhorizon2d.cc,v 1.58 2012-08-20 06:12:15 cvssatyaki Exp $";
 
 #include "emhorizon2d.h"
 
@@ -96,19 +96,19 @@ PosInfo::GeomID Horizon2DGeometry::lineGeomID( int idx ) const
 
 
 bool Horizon2DGeometry::includeLine( const PosInfo::GeomID& geomid, int step )
-{ return addLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step), true ); }
+{ return doAddLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step), true ); }
 
 
 bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid, int step )
-{ return addLine(geomid, StepInterval<int>(mUdf(int),mUdf(int),step), false); }
+{ return doAddLine(geomid, StepInterval<int>(mUdf(int),mUdf(int),step), false); }
 
 
 bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid,
 				 const StepInterval<int>& trg )
-{ return addLine( geomid, trg, false ); }
+{ return doAddLine( geomid, trg, false ); }
 
 
-bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid,
+bool Horizon2DGeometry::doAddLine( const PosInfo::GeomID& geomid,
 				 const StepInterval<int>& inptrg,
 				 bool mergewithdouble )
 {

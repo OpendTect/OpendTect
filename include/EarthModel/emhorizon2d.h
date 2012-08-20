@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.32 2012-08-03 13:00:18 cvskris Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.33 2012-08-20 06:12:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -77,7 +77,7 @@ public:
 protected:
     Geometry::Horizon2DLine*	createSectionGeometry() const;
 
-    bool 			addLine(const PosInfo::GeomID&,
+    bool 			doAddLine(const PosInfo::GeomID&,
 					const StepInterval<int>& trcrg,
 					bool mergewithdouble);
 
