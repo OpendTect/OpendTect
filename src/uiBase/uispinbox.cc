@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uispinbox.cc,v 1.52 2012-07-10 08:05:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uispinbox.cc,v 1.53 2012-08-21 15:54:52 cvsnanne Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -204,7 +204,7 @@ void uiSpinBox::setInterval( const StepInterval<int>& intv )
 {
     setMinValue( intv.start );
     setMaxValue( intv.stop );
-    setStep( intv.step ? intv.step : 1 );
+    setStep( intv.step );
 }
 
 
@@ -212,7 +212,15 @@ void uiSpinBox::setInterval( const StepInterval<float>& intv )
 {
     setMinValue( intv.start );
     setMaxValue( intv.stop );
-    setStep( intv.step ? intv.step : 1 );
+    setStep( intv.step );
+}
+
+
+void uiSpinBox::setInterval( const StepInterval<double>& intv )
+{
+    setMinValue( (float)intv.start );
+    setMaxValue( (float)intv.stop );
+    setStep( (float)intv.step );
 }
 
 
@@ -313,14 +321,14 @@ void uiSpinBox::stepBy( int nrsteps )
     body_->stepBy( nrsteps );
 }
 
-void uiSpinBox::setStep( int step_, bool snapcur )		
-{ setStep( (double)step_, snapcur ); }
+void uiSpinBox::setStep( int stp, bool snapcur )		
+{ setStep( (float)stp, snapcur ); }
 
-void uiSpinBox::setStep( float step_, bool snapcur )
+void uiSpinBox::setStep( float stp, bool snapcur )
 {
     mBlockCmdRec;
-    if ( !step_ ) step_ = 1;
-    body_->setSingleStep( step_ );
+    if ( mIsZero(stp,mDefEps) ) stp = 1;
+    body_->setSingleStep( stp );
     dosnap_ = snapcur;
     snapToStep(0);
 }

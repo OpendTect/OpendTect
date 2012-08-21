@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.30 2012-08-10 03:50:04 cvsaneesh Exp $
+ RCS:           $Id: uispinbox.h,v 1.31 2012-08-21 15:54:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,23 +44,21 @@ public:
     float		getFValue() const;
     const char*		text() const;
 
-    void		setInterval( int start, int stop, int mystep=1 )
-			{ setInterval( StepInterval<int>(start,stop,mystep) ); }
+    void		setInterval( int start, int stop, int s=1 )
+			{ setInterval( StepInterval<int>(start,stop,s) ); }
     void		setInterval( const Interval<int>& i, int s=1 )
 			{ setInterval( StepInterval<int>(i.start,i.stop,s) ); }
     void		setInterval(const StepInterval<int>&);
     StepInterval<int>	getInterval() const;
 
-    void		setInterval(float start,float stop,float thestep=1)
-			{ setInterval(StepInterval<float>(start,stop,thestep)); }
+    void		setInterval( float start, float stop, float s=1 )
+			{ setInterval(StepInterval<float>(start,stop,s)); }
     void		setInterval(const StepInterval<float>&);
     StepInterval<float> getFInterval() const;
 
-    void		setInterval( double v0,double v1,double vs=1)
-			{ setInterval(StepInterval<double>(v0,v1,vs)); }
-    void		setInterval( const StepInterval<double>& si )
-			{ setInterval(StepInterval<double>(si.start,si.stop,
-				    			  si.step)); }
+    void		setInterval( double start, double stop, double s=1 )
+			{ setInterval(StepInterval<double>(start,stop,s)); }
+    void		setInterval(const StepInterval<double>&);
 
     void		setMinValue(int);
     void		setMinValue(float);
