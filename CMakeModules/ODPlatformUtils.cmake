@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.67 2012-08-07 04:23:04 cvsmahant Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.68 2012-08-21 20:51:16 cvsnanne Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -41,17 +41,20 @@ IF(UNIX) #Apple an Linux
 	set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
 
 	IF ( OD_64BIT )
-	    set  ( OD_PLFSUBDIR "lux64" )
+	    set ( OD_PLFSUBDIR "lux64" )
 	ELSE()
-	    set  ( OD_PLFSUBDIR "lux32" )
+	    set ( OD_PLFSUBDIR "lux32" )
 	    ADD_DEFINITIONS("-march=pentium4")
 	ENDIF()
 
     ENDIF()
 
+    EXECUTE_PROCESS( COMMAND ${CMAKE_C_COMPILER} -dumpversion
+		     OUTPUT_VARIABLE GCC_VERSION )
+
     ADD_DEFINITIONS("'-DmUnusedVar=__attribute__ ((unused))'")
     set (OD_STATIC_EXTENSION ".a")
-    IF( OD_DEBUG )
+    IF ( OD_DEBUG )
 	ADD_DEFINITIONS(  "-ggdb3" )
     ENDIF()
 
@@ -64,7 +67,11 @@ IF(UNIX) #Apple an Linux
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wswitch -Wunused-function -Wunused-label" )
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wwrite-strings -Wpointer-arith -Winline" )
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat -Wmissing-field-initializers" )
-    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wreturn-type -Winit-self -Wno-char-subscripts -Wignored-qualifiers" )
+    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wreturn-type -Winit-self -Wno-char-subscripts" )
+    IF ( GCC_VERSION VERSION_GREATER 4.2 )
+	set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wignored-qualifiers" )
+    ENDIF()
+
     #use below and you'll be flooded with warnings:
     #set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare -Wcast-align -Wconversion" )
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare -Wcast-align" )
