@@ -5,7 +5,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.17 2012-08-21 06:09:25 cvsranojay Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.18 2012-08-21 14:04:27 cvsnanne Exp $";
 
 #include "fingervein.h"
 
@@ -1082,7 +1082,7 @@ bool FaultAngle::compute( TaskRunner* tr )
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, dip_pca,
 	    Array3DImpl<float> (input_.info()) );
-    const int wind_size = ceil(4*mSigma);
+    const int wind_size = (int)ceil(4*mSigma);
     dip_pca_vein( *conf_low_, *conf_med_, *azimuth_stable_, wind_size,
 	    mElem_leng, mNull_val, *dip_pca );
     dip_stablise( *conf_low_, *azimuth_stable_, *dip_pca, wind_size,
@@ -1970,9 +1970,9 @@ void FaultAngle::angle_section_stabilise( const Array2D<bool>& conf_sect,
 
 	TypeSet<float> angl_vect_sort = angl_vect;
 	sort_coupled( angl_vect_sort.arr(), sort_indx.arr(), a_index );
-	int uppr_indx = ceil( (a_index-1)*uppr_perc );
+	int uppr_indx = (int)ceil( (a_index-1)*uppr_perc );
 	uppr_indx = mMIN( a_index-1, uppr_indx );
-  	int lowr_indx = ceil( (a_index-1)*lowr_perc );
+  	int lowr_indx = (int)ceil( (a_index-1)*lowr_perc );
 	lowr_indx = mMAX( 0, lowr_indx );
 
 	float angl_aver = 0;
@@ -2186,7 +2186,7 @@ void FaultAngle::vein_vertical_slice( const Array3D<float>& input,
     const int isz = input.info().getSize(0);
     const int csz = input.info().getSize(1);
     const int zsz = input.info().getSize(2);
-    const int wind_size = ceil(4*sigma);
+    const int wind_size = (int)ceil(4*sigma);
     const bool is_t_slic = false;
     
     /*vein calculation along width direction(horizontal-), angle zone 1*/
