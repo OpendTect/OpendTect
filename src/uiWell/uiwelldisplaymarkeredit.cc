@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.37 2012-08-20 15:28:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.38 2012-08-21 12:31:08 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -151,17 +151,11 @@ void uiDispEditMarkerDlg::modeChg( CallBacker* )
 void uiDispEditMarkerDlg::addMarkerSet( Well::MarkerSet& mrks ) 
 {
     Well::MarkerSet* orgmrks = new Well::MarkerSet();
-    for ( int idx=0; idx<mrks.size(); idx++ )
-    {
-	(*orgmrks) += new Well::Marker( *mrks[idx] );
-    }
+    deepCopy( *orgmrks, mrks );
     orgmarkerssets_ += orgmrks;
+    markerssets_ += &mrks;
     fillMarkerList( 0 );
 }
-
-
-void uiDispEditMarkerDlg::handleUsrClickCB( CallBacker* )
-{}
 
 
 void uiDispEditMarkerDlg::addMoveMarker( int iset, float dah, const char* nm )
@@ -194,6 +188,7 @@ void uiDispEditMarkerDlg::addMoveMarker( int iset, float dah, const char* nm )
     }
 }
 
+
 void uiDispEditMarkerDlg::removeMarker( int idset, const char* nm )
 {
     Well::MarkerSet& mrkset = *markerssets_[idset];
@@ -221,7 +216,7 @@ bool uiDispEditMarkerDlg::rejectOK( CallBacker* )
 	    for ( int idx=0; idx<markerssets_.size(); idx++ )
 	    {
 		deepErase( *markerssets_[idx] );
-		markerssets_[idx]->copy( *orgmarkerssets_[idx] );
+		deepCopy( *markerssets_[idx], *orgmarkerssets_[idx] );
 	    }
 	    return true;
 	}
