@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vissurvscene.cc,v 1.162 2012-08-13 04:04:40 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: vissurvscene.cc,v 1.163 2012-08-21 16:58:33 cvsnanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -700,7 +700,7 @@ void Scene::updateBaseMapCursor( const Coord& coord )
     {
 	basemapcursor_ = new BaseMapMarkers;
 	basemapcursor_->setMarkerStyle(
-		MarkerStyle2D(MarkerStyle2D::Target) );
+		MarkerStyle2D(MarkerStyle2D::Target,5) );
     }
 
     if ( basemapcursor_ && basemapcursor_->lock_.tryLock() )
