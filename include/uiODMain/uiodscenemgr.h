@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.89 2012-08-03 13:01:04 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.90 2012-08-21 10:40:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ mClass(uiODMain) uiODSceneMgr : public CallBacker
 public:
 
     void			cleanUp(bool startnew=true);
+    int				nrScenes()	{ return scenes_.size(); }
     int				addScene(bool maximized,ZAxisTransform* =0,
 	    				 const char* nm=0);
     				//!<Returns scene id
