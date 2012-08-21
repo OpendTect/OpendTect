@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrtrcselout.cc,v 1.69 2012-07-27 15:37:08 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattrtrcselout.cc,v 1.70 2012-08-21 19:56:38 cvsnanne Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -431,10 +431,12 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
 	if ( !is2d || ( seis2dsubsel && seis2dsubsel->isSingLine() ) )
 	{
-	    key = IOPar::compKey(sKey::Geometry(),SeisTrcStorOutput::inlrangekey());
+	    key = IOPar::compKey( sKey::Geometry(),
+				  SeisTrcStorOutput::inlrangekey() );
 	    iopar.set( key, horsamp.start.inl, horsamp.stop.inl );
 
-	    key = IOPar::compKey(sKey::Geometry(),SeisTrcStorOutput::crlrangekey());
+	    key = IOPar::compKey( sKey::Geometry(),
+				  SeisTrcStorOutput::crlrangekey() );
 	    iopar.set( key, horsamp.start.crl, horsamp.stop.crl );
 	}
     }
@@ -483,6 +485,9 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	key = IOPar::compKey( sKey::Geometry(), "Z Boundaries" );
 	iopar.set( key, cubezbounds );
     }
+
+    if ( is2d )
+        Seis2DLineSet::invalidateCache();
     
     return true;
 }
@@ -525,7 +530,7 @@ BufferString uiAttrTrcSelOut::createAddWidthLabel()
 }
 
 
-void uiAttrTrcSelOut::attribSel( CallBacker* cb )
+void uiAttrTrcSelOut::attribSel( CallBacker* )
 {
     setParFileNmDef( attrfld_->getInput() );
     if ( ads_.is2D() )
