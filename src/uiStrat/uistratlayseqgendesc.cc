@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc,v 1.48 2012-08-09 14:12:55 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc,v 1.49 2012-08-21 10:43:35 cvsbert Exp $";
 
 #include "uistratlaycontent.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -92,7 +92,7 @@ int uiStratLayerContent::addOption( const char* nm )
 const Strat::Content& uiStratLayerContent::get() const
 {
     const int selidx = fld_->currentItem();
-    if ( selidx < 1 || selidx >= rt_.contents().size() )
+    if ( selidx < 1 || selidx > rt_.contents().size() )
 	return Strat::Content::unspecified();
 
     return *rt_.contents()[selidx-1];
