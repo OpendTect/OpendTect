@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.37 2012-08-03 13:00:51 cvskris Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.38 2012-08-21 06:56:49 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,9 +22,8 @@ class LineStyle;
 class MouseCursor;
 class uiGraphicsScene;
 
-class QGraphicsItem;
-class QGraphicsItemGroup;
-
+mFDQtclass(QGraphicsItem)
+mFDQtclass(QGraphicsItemGroup)
 
 mClass(uiBase) uiGraphicsItem : public CallBacker
 {
@@ -75,11 +74,11 @@ protected:
 
     			uiGraphicsItem(QGraphicsItem*);
 
-    QGraphicsItem*	qgraphicsitem_;
+    mQtclass(QGraphicsItem*) qgraphicsitem_;
 
-    virtual QGraphicsItem* mkQtObj()			{ return 0; }
+    virtual mQtclass(QGraphicsItem*) mkQtObj()                  { return 0; }
     bool		selected_; // Remove when things in Qt works
-    uiGraphicsScene*	scene_;
+    mQtclass(uiGraphicsScene*)	scene_;
 
 private:
 
@@ -136,15 +135,16 @@ public:
     virtual bool	isVisible() const;
     virtual void	setVisible(bool);
     virtual uiRect	boundingRect() const;
-    QGraphicsItemGroup*	qGraphicsItemGroup()	{ return qgraphicsitemgrp_; }
+    mQtclass(QGraphicsItemGroup*)	qGraphicsItemGroup()
+    					{ return qgraphicsitemgrp_; }
 
 protected:
 
-    QGraphicsItem*	mkQtObj();
+    mQtclass(QGraphicsItem*)	mkQtObj();
 
     bool		owner_;
     bool		isvisible_;
-    QGraphicsItemGroup*	qgraphicsitemgrp_;
+    mQtclass(QGraphicsItemGroup*)	qgraphicsitemgrp_;
     ObjectSet<uiGraphicsItem>	items_;
     ObjectSet<uiGraphicsItem>	items2bdel_;
 
