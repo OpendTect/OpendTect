@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.47 2012-08-07 05:20:49 cvssalil Exp $
+ RCS:		$Id: commondefs.h,v 1.48 2012-08-21 06:39:07 cvsnageswara Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -111,6 +111,9 @@ ________________________________________________________________________
 #define mExportExtern( module ) extern Export_##module
 #define mExportExternC( module ) exptern "C" Export_##module
 
+//for Qt
+#define mFDQtclass(cls) class cls;
+#define mQtclass(cls) cls
 
 //Special stuff.
 #if defined(Basic_EXPORTS) || defined(BASIC_EXPORTS)
