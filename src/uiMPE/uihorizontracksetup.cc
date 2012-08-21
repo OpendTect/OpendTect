@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorizontracksetup.cc,v 1.45 2012-08-01 12:31:14 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorizontracksetup.cc,v 1.46 2012-08-21 21:20:54 cvsnanne Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -295,11 +295,11 @@ void uiHorizonSetupGroup::selUseSimilarity( CallBacker* )
 void uiHorizonSetupGroup::selAmpThresholdType( CallBacker* )
 {
     const bool absthreshold = thresholdtypefld_->getBoolValue();
-    ampthresholdfld_->setTitleText( absthreshold ? "       Amplitude value"
-						: "Allowed difference (%)" );
+    ampthresholdfld_->setTitleText( absthreshold ? "Amplitude value"
+						 : "Allowed difference (%)" );
     if ( absthreshold )
     {
-	if (  horadj_->getAmplitudeThresholds().size() <=0 )
+	if ( is2d_ || horadj_->getAmplitudeThresholds().isEmpty() )
 	    ampthresholdfld_->setValue( horadj_->amplitudeThreshold() );
 	else
 	{
@@ -312,7 +312,7 @@ void uiHorizonSetupGroup::selAmpThresholdType( CallBacker* )
     }
     else
     {
-	if ( horadj_->getAllowedVariances().size() <= 0 )
+	if ( is2d_ || horadj_->getAllowedVariances().isEmpty() )
 	    ampthresholdfld_->setValue( horadj_->allowedVariance()*100 );
 	else
 	{
@@ -449,12 +449,6 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
     mDynamicCastGet(HorizonAdjuster*,horadj,sectiontracker_->adjuster())
     horadj_ = horadj;
     if ( !horadj_ ) return;
-
-    if ( is2d_ )
-    {
-	TypeSet<float> allowedvars; allowedvars += 0.75;
-	horadj_->setAllowedVariances( allowedvars );
-    }
 
     initStuff();
 }
