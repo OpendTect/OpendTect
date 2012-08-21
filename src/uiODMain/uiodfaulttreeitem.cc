@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodfaulttreeitem.cc,v 1.61 2012-08-20 21:23:47 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodfaulttreeitem.cc,v 1.62 2012-08-21 19:43:16 cvsyuancheng Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -217,8 +217,6 @@ uiODFaultTreeItem::~uiODFaultTreeItem()
 		mCB(this,uiODFaultTreeItem,deSelChgCB) );
 	faultdisplay_->unRef();
     }
-
-    delete uivisemobj_;
 }
 
 
