@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.23 2012-08-20 09:12:34 cvsbruno Exp $
+ RCS:		$Id: wellmarker.h,v 1.24 2012-08-21 09:28:52 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -79,7 +79,7 @@ public:
 
     bool		isPresent(const char* n) const 	{ return getByName(n); }
     int			indexOf(const char*) const;		  
-    void		insertNew(Well::Marker*); //becomes mine
+    bool		insertNew(Well::Marker*); //becomes mine
 
     int			indexOf( const Marker* m ) const
 			{ return ObjectSet<Marker>::indexOf(m); }	

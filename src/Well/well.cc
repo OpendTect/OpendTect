@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.100 2012-08-10 04:11:25 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.101 2012-08-21 09:28:52 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -504,10 +504,10 @@ int Well::MarkerSet::indexOf( const char* mname ) const
 }
 
 
-void Well::MarkerSet::insertNew( Well::Marker* newmrk ) 
+bool Well::MarkerSet::insertNew( Well::Marker* newmrk ) 
 {
     if ( newmrk && isPresent( newmrk->name().buf() ) )
-	return;
+	return false;
     int idlist = 0;
     for ( int idmrk=0; idmrk<size(); idmrk++ )
     {
@@ -517,6 +517,7 @@ void Well::MarkerSet::insertNew( Well::Marker* newmrk )
 	idlist++;
     }
     insertAt( newmrk, idlist );
+    return true;
 }
 
 
