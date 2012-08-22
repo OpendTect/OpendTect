@@ -4,7 +4,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.20 2012-08-22 15:44:11 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.21 2012-08-22 16:36:41 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
@@ -342,6 +342,10 @@ void FaultOrientation::setThreshold( float threshold, bool isabove )
 
 void FaultOrientation::setMinFaultLength( int minlenght )
 { minfaultlength_ = minlenght; }
+
+
+const Array3D<bool>* FaultOrientation::getFaultConfidence( ConfidenceLevel cl )
+{ return cl==Low ? conf_low_ : (cl==High ? conf_high_ : conf_med_ ); }
 
 
 bool FaultOrientation::compute2D( const Array3D<float>& input, TaskRunner* tr )

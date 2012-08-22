@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: fingervein.h,v 1.9 2012-08-22 15:44:11 cvsyuancheng Exp $
+ RCS:           $Id: fingervein.h,v 1.10 2012-08-22 16:36:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -83,12 +83,9 @@ public:
 
     const Array3D<float>*	getAzimuth() const { return azimuth_stable_; }
     const Array3D<float>*	getDip() const	   { return dip_stable_; }
-    const Array3D<bool>*	getFaultConfidenceLow() const	
-    				{ return conf_low_; }
-    const Array3D<bool>*	getFaultConfidenceMed() const	
-    				{ return conf_med_; }
-    const Array3D<bool>*	getFaultConfidenceHigh() const	
-    				{ return conf_high_; }
+
+    enum ConfidenceLevel	{ Low=0, Median=1, High=2 };
+    const Array3D<bool>*	getFaultConfidence(ConfidenceLevel);
     
     static bool			compute2DVeinBinary(const Array2D<float>& img, 
 		    			float threshold, bool isabove,
@@ -101,16 +98,11 @@ public:
 					TaskRunner* tr);
     static void			thinning(const Array2D<bool>& input,
 		   			 Array2D<bool>& res);
-    static void			thinStep(const Array2D<bool>& input,
-					 Array2D<bool>& output,bool isfirst);
     static void			computeComponentAngle(
 	    				const Array2D<bool>& base_bina_sect,
 					const Array2D<bool>& upgr_bina_sect,
 					int elem_leng,float null_val,
 					Array2D<float>& azimuth_sect);
-    static float		getAnglePCA(const TypeSet<int>& point_set_x,
-					  const TypeSet<int>& point_set_y,
-					  float null_value);
 protected:
 
     friend class		veinSliceCalculator;
@@ -159,6 +151,11 @@ protected:
 					int elem_leng,float uppr_perc,
 					float lowr_perc,float angl_tole,
 					float null_value,Array2D<float>& res);
+    static void			thinStep(const Array2D<bool>& input,
+					 Array2D<bool>& output,bool isfirst);
+    static float		getAnglePCA(const TypeSet<int>& point_set_x,
+					  const TypeSet<int>& point_set_y,
+					  float null_value);
 
     float			threshold_;
     bool			isfltabove_;
