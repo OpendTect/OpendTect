@@ -1,11 +1,10 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * fault dip calculation based the pca analysis to the fault attributes
  * AUTHOR   : Bo Zhang/Yuancheng Liu
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.19 2012-08-21 16:59:10 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.20 2012-08-22 15:44:11 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
@@ -23,13 +22,14 @@ static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.19 2012-08-21 16:5
 
 #define mNrThinning 20	
 
-class veinSliceCalculator : public ParallelTask
+class VeinSliceCalculator : public ParallelTask
 {
 public:
-veinSliceCalculator( const Array3D<float>& input, FaultAngle& fa,
+VeinSliceCalculator( const Array3D<float>& input, float threshold, bool above,
 	int minfltlength, int sigma, float percent, Array3D<bool>& output )
     : input_(input)
-    , fa_(fa)  
+    , threshold_(threshold)
+    , isabove_(above)
     , minfaultlength_(minfltlength)  
     , sigma_(sigma)
     , percent_(percent)
@@ -58,8 +58,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		attr->set( idx, idy, input_.get(idx,idy,idz) );
 	}
 
-	fa_.vein_usage( *attr, minfaultlength_, sigma_, percent_, is_t_slic,
-		*vein_bina,0 );
+	FaultOrientation::compute2DVeinBinary( *attr, threshold_, isabove_,
+		minfaultlength_, sigma_, percent_, is_t_slic, *vein_bina, 0 );
 	
 	for ( int idx=0; idx<isz; idx++ )
 	{
@@ -71,22 +71,22 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     return true;
 }
 
-FaultAngle&		fa_;
 const Array3D<float>&	input_;
 Array3D<bool>&		output_;
+float			threshold_;
+bool			isabove_;
 int 			sigma_; 
 float			percent_;
 int			minfaultlength_;
 };
 
-class azimuthPcaCalculator : public ParallelTask
+class AzimuthPcaCalculator : public ParallelTask
 {
 public:
-azimuthPcaCalculator( FaultAngle& fa, const Array3D<bool>& conf_base,
+AzimuthPcaCalculator( const Array3D<bool>& conf_base,
 	const Array3D<bool>& conf_upgr, int elem_leng, float null_val,
 	Array3D<float>& azimuth_pca )
-    : fa_(fa)  
-    , conf_base_(conf_base)
+    : conf_base_(conf_base)
     , conf_upgr_(conf_upgr)  
     , elem_leng_(elem_leng)
     , null_val_(null_val)
@@ -123,8 +123,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 	}
 
-	fa_.get_component_angle( *base_bina_sect, *upgr_bina_sect, 
-		elem_leng_, null_val_, *azimuth_sect );
+	FaultOrientation::computeComponentAngle( *base_bina_sect, 
+		*upgr_bina_sect, elem_leng_, null_val_, *azimuth_sect );
 	
 	for ( int idx=0; idx<isz; idx++ )
 	{
@@ -137,7 +137,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     return true;
 }
 
-FaultAngle&		fa_;
 const Array3D<bool>&	conf_base_;
 const Array3D<bool>&	conf_upgr_;
 int			elem_leng_;
@@ -165,7 +164,8 @@ bool FingerVein::compute( bool domerge, bool dothinning,
 	    Array2DImpl<float> (input_.info()) );
     if ( !score ) return false;
 
-    if ( !computeMaxCurvature(*score,sigma,tr) )
+    if ( !FaultOrientation::computeMaxCurvature( input_, sigma, istimeslice_,
+		*score, tr ) )
 	return false;
 
     const od_int64 datasz = input_.info().getTotalSz();
@@ -283,693 +283,72 @@ void FingerVein::thinning( Array2D<bool>& res )
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, tmp,
 	    Array2DImpl<bool> (res.info()) );
     if ( !tmp ) return;
-
-    for ( int idx=0; idx<mNrThinning; idx++ )
-    {
-	thinStep( res, *tmp, true );
-	thinStep( *tmp, res, false );
-    }
+    tmp->copyFrom( res );
+    FaultOrientation::thinning( *tmp, res );
 }
 
 
-void FingerVein::thinStep( const Array2D<bool>& input, Array2D<bool>& output,
-       bool firststep )
-{
-    const int lastidx = input.info().getSize(0)-1;
-    const int lastidy = input.info().getSize(1)-1;
-    for ( int idx=0; idx<=lastidx; idx++ )
-    {
-	for ( int idy=0; idy<=lastidy; idy++ )
-	{
-	    bool ison = input.get(idx,idy);
-	    output.set( idx, idy, ison );
-	    if ( !ison )
-		continue;
-
-	    bool bw00 = !idx || !idy ? false : input.get(idx-1,idy-1);
-	    bool bw01 = !idx ? false : input.get(idx-1,idy);
-	    bool bw02 = !idx || idy==lastidy ? false : input.get(idx-1,idy+1);
-	    bool bw10 = !idy ? false : input.get(idx,idy-1);
-	    bool bw11 = input.get(idx,idy);
-	    bool bw12 = idy==lastidy ? false : input.get(idx,idy+1);
-	    bool bw20 = idx==lastidx || !idy ? false : input.get(idx+1,idy-1);
-	    bool bw21 = idx==lastidx ? false : input.get(idx+1,idy);
-	    bool bw22 = 
-		idx==lastidx || idy==lastidy ? false : input.get(idx+1,idy+1);
-
-	    const bool b1 = !bw12 && (bw02 || bw01);
-	    const bool b2 = !bw01 && (bw00 || bw10);
-	    const bool b3 = !bw10 && (bw20 || bw21);
-	    const bool b4 = !bw21 && (bw22 || bw12);
-	    const char b = (char)b1 + (char)b2 + (char)b3 + (char)b4;
-	    if ( b!=1 ) 
-		continue;
-
-	    double N1 = double( bw12 | bw02 ) + double( bw01 | bw00 ) + 
-			double( bw10 | bw20 ) + double( bw21 | bw22 );
-	    double N2 = double( bw02 | bw01 ) + double( bw00 | bw10 ) + 
-			double( bw20 | bw21 ) + double( bw22 | bw12 );
-	    double NCondition2 = mMIN(N1,N2);
-	    if ( NCondition2<2 || NCondition2>3 )
-		continue;
-	    
-	    int NCondition3 = firststep ? ((bw12 | bw01 | (!bw22)) & bw12)
-					: ((bw20 | bw21 | (!bw11)) & bw10);
-	    if ( !NCondition3 )
-		output.set( idx, idy, 0 );
-	}
-    }
-}
+#define mNull_val -5
 
 
-bool FingerVein::computeMaxCurvature( Array2D<float>& res, int sigma, 
-	TaskRunner* tr )
-{
-    const int inputsz0 = input_.info().getSize(0);
-    const int xmaxidx = inputsz0 - 1; 
-    const int inputsz1 = input_.info().getSize(1);
-    const int ymaxidx = inputsz1 - 1; 
-    const int winsize = 4*sigma;
-    const int sidesize = 2*winsize+1;
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, xtmp,
-	    Array2DImpl<float> (sidesize,sidesize) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, ytmp,
-	    Array2DImpl<float> (sidesize,sidesize) );
-    if ( !xtmp || !ytmp ) 
-	return false;
-
-    for ( int idx=0; idx<sidesize; idx++ )
-    {
-	for ( int idy=0; idy<sidesize; idy++ )
-	{
-	    xtmp->set( idx, idy, idy-winsize );
-	    ytmp->set( idx, idy, idx-winsize );
-	}
-    }
-
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, h,
-	    Array2DImpl<float> (sidesize,sidesize) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, hx,
-	    Array2DImpl<float> (sidesize,sidesize) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, hy,
-	    Array2DImpl<float> (sidesize,sidesize) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, hxx,
-	    Array2DImpl<float> (sidesize,sidesize) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, hxy,
-	    Array2DImpl<float> (sidesize,sidesize) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, hyy,
-	    Array2DImpl<float> (sidesize,sidesize) );
-    if ( !h || !hx || !hy || !hxx || !hxy | !hyy )
-	return false;
-
-    const float sigma2 = sigma*sigma;
-    const float sigma4 = sigma2*sigma2;
-    const float coef = 1.0/(2*M_PI*sigma2);
-    for ( int idx=0; idx<sidesize; idx++ )
-    {
-	for ( int idy=0; idy<sidesize; idy++ )
-	{
-	    float x = xtmp->get(idx,idy);
-	    float x2 = x*x;
-	    float y = ytmp->get(idx,idy);
-	    float val = coef*exp(-(x2+y*y)/(2*sigma2));
-
-	    h->set( idx, idy, val );
-	    hx->set( idx, idy, val*(-1*x/sigma2) );
-	    hxx->set( idx, idy, val*(x*x-sigma2)/sigma4 );
-	    hxy->set( idx, idy, val*x*y/sigma4 );
-	}
-    }
-
-    for ( int idx=0; idx<sidesize; idx++ )
-    {
-	for ( int idy=0; idy<sidesize; idy++ )
-	{
-	    hy->set( idx, idy, hx->get(idy,idx) );
-	    hyy->set( idx, idy, hxx->get(idy,idx) );
-	}
-    }
-
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, ftmp,
-	    Array2DImpl<float> (inputsz0+sidesize-1,inputsz1+sidesize-1) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, fx,
-	    Array2DImpl<float> (inputsz0,inputsz1) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, fy,
-	    Array2DImpl<float> (inputsz0,inputsz1) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, fxx,
-	    Array2DImpl<float> (inputsz0,inputsz1) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, fxy,
-	    Array2DImpl<float> (inputsz0,inputsz1) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, fyy,
-	    Array2DImpl<float> (inputsz0,inputsz1) );
-    if ( !fx || !fy || !fxx || !fxy | !fyy )
-	return false;
-    
-    Convolver2D<float> conv2;
-    conv2.setX( input_, true );
-    conv2.setNormalize( false );
-    conv2.setCorrelate( false );
-    conv2.setZ( *ftmp );
-
-    conv2.setY( *hx, false );
-    bool isdone = tr ? tr->execute(conv2) : conv2.execute();
-    if ( !isdone )
-	return false;
-    for (int i=0; i<inputsz0; i++ )
-    {
-	for (int j=0; j<inputsz1; j++ )
-	    fx->set(i,j,ftmp->get(i+winsize,j+winsize) );
-    }
-
-    conv2.setY( *hy, false );
-    isdone = tr ? tr->execute(conv2) : conv2.execute();
-    if ( !isdone )
-	return false;
-    for (int i=0; i<inputsz0; i++ )
-    {
-	for (int j=0; j<inputsz1; j++ )
-	    fy->set(i,j,ftmp->get(i+winsize,j+winsize) );
-    }
-
-    conv2.setY( *hxx, false );
-    isdone = tr ? tr->execute(conv2) : conv2.execute();
-    if ( !isdone )
-	return false;
-    for (int i=0; i<inputsz0; i++ )
-    {
-	for (int j=0; j<inputsz1; j++ )
-	    fxx->set(i,j,ftmp->get(i+winsize,j+winsize) );
-    }
-
-    conv2.setY( *hxy, false );
-    isdone = tr ? tr->execute(conv2) : conv2.execute();
-    if ( !isdone )
-	return false;
-    for (int i=0; i<inputsz0; i++ )
-    {
-	for (int j=0; j<inputsz1; j++ )
-	    fxy->set(i,j,ftmp->get(i+winsize,j+winsize) );
-    }
-
-    conv2.setY( *hyy, false );
-    isdone = tr ? tr->execute(conv2) : conv2.execute();
-    if ( !isdone )
-	return false;
-    for (int i=0; i<inputsz0; i++ )
-    {
-	for (int j=0; j<inputsz1; j++ )
-	    fyy->set(i,j,ftmp->get(i+winsize,j+winsize) );
-    }
-
-    const int nrangles = 8;
-    TypeSet<float> angle_set, angle_set_cos, angle_set_cos2, angle_set_sin,
-	angle_set_sin2;
-    for ( int idx=0; idx<nrangles; idx++ )
-    {
-	const float angle = M_PI*idx/nrangles;
-	const float cosangle = cos(angle);
-	const float sinangle = sin(angle);
-	angle_set += angle;
-	angle_set_cos += cosangle;
-	angle_set_cos2 += cosangle * cosangle;
-	angle_set_sin += sinangle;
-	angle_set_sin2 += sinangle * sinangle;
-    }
-
-    mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, k,
-	    Array3DImpl<float> (inputsz0,inputsz1,nrangles) );
-    if ( !k )
-	return false;
-
-    for ( int idz=0; idz<nrangles; idz++ )
-    {
-	for ( int idx=0; idx<inputsz0; idx++ )
-	{
-	    for ( int idy=0; idy<inputsz1; idy++ )
-	    {
-		float dir1 = fx->get(idx,idy)*angle_set_cos[idz]+
-		    fy->get(idx,idy)*angle_set_sin[idz];
-
-		float dir2 = fxx->get(idx,idy)*angle_set_cos2[idz] +
-		    fxy->get(idx,idy)*2*angle_set_cos[idz]*angle_set_sin[idz] +
-    		    fyy->get(idx,idy)*angle_set_sin2[idz];
-
-		float demomenator = Math::PowerOf( 1.0+dir1*dir1, 1.5 );
-		k->set( idx, idy, idz, dir2/demomenator ); 
-	    }
-	}
-    }
-    
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, vt,
-	    Array2DImpl<float> (inputsz0,inputsz1) );
-    if ( !vt ) return false;
-    vt->setAll(0);
-
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<int> >, xstep,
-	    Array2DImpl<int> (nrangles,2) );
-    if ( !xstep ) return false;
-
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<int> >, ystep,
-	    Array2DImpl<int> (nrangles,2) );
-    if ( !ystep ) return false;
-
-    xstep->set(0,0,-2);
-    xstep->set(0,1,2);
-    xstep->set(1,0,-2);
-    xstep->set(1,1,2);
-    xstep->set(2,0,-2);
-    xstep->set(2,1,2);
-    xstep->set(3,0,-1);
-    xstep->set(3,1,1);
-    xstep->set(4,0,0);
-    xstep->set(4,1,0);
-    xstep->set(5,0,-1);
-    xstep->set(5,1,1);
-    xstep->set(6,0,-2);
-    xstep->set(6,1,2);
-    xstep->set(7,0,-2);
-    xstep->set(7,1,2);
-
-    ystep->set(0,0,0);
-    ystep->set(0,1,0);
-    ystep->set(1,0,-1);
-    ystep->set(1,1,1);
-    ystep->set(2,0,-2);
-    ystep->set(2,1,2);
-    ystep->set(3,0,-2);
-    ystep->set(3,1,2);
-    ystep->set(4,0,-2);
-    ystep->set(4,1,2);
-    ystep->set(5,0,2);
-    ystep->set(5,1,-2);
-    ystep->set(6,0,2);
-    ystep->set(6,1,-2);
-    ystep->set(7,0,1);
-    ystep->set(7,1,-1);
-
-    TypeSet<float> wr_step;
-    wr_step += sqrt(float(2*2+0*0));
-    wr_step += sqrt(float(2*2+1*1));
-    wr_step += sqrt(float(2*2+2*2));
-    wr_step += sqrt(float(1*1+2*2));
-    wr_step += sqrt(float(0*0+2*2));
-    wr_step += sqrt(float(1*1+2*2));
-    wr_step += sqrt(float(2*2+2*2));
-    wr_step += sqrt(float(2*2+1*1));
-
-    for ( int ai=0; ai<nrangles; ai++ )
-    {
-	const int y_step_left = xstep->get(ai,0);
-	const int x_step_left = ystep->get(ai,0);
-	const int y_step_right = xstep->get(ai,1);
-	const int x_step_right = ystep->get(ai,1);
-	if ( ai==0 )
-	{
-	    for ( int idx=0; idx<inputsz0; idx++ )
-	    {
-		for ( int idy=0; idy<inputsz1; idy++ )
-		{
-		    if ( k->get(idx,idy,ai)<=0 )
-			continue;
-
-		    int ystart=idy, ystop=idy; 
-		    float wr = wr_step[ai];
-			
-		    /*detect the start position*/
-		    int y_temp_start = mMAX(idy+y_step_left,0);
-		    for ( int yi=y_temp_start; yi>=0; yi += y_step_left )
-		    {
-			const float curk = k->get(idx,yi,ai);
-			if ( !yi || curk<=0 )
-			{
-			    ystart = curk<=0 ? yi-y_step_left : 0;
-			    break;
-			}
-			wr += wr_step[ai];
-		    }
-		    
-		    /*detect the stop position*/
-		    y_temp_start = mMIN(idy+y_step_right,ymaxidx);
-		    for ( int yi=y_temp_start; yi<inputsz1; yi += y_step_right )
-		    {
-			const float curk = k->get(idx,yi,ai);
-			if ( yi==ymaxidx || curk<=0 )
-			{
-			    ystop = curk<=0 ? yi-y_step_right : ymaxidx;
-			    break;
-			}
-			wr += wr_step[ai];
-		    }
-
-		    if ( ystart<0 ) ystart = 0;
-		    if ( ystop<0 ) ystop = 0;
-
-		    int ymax = ystart;
-		    float kmax = k->get(idx,ymax,ai);
-		    int loopsz = (ystop-ystart)/y_step_right+1;
-		    if ( loopsz<0 ) loopsz = -loopsz;
-		    for ( int i=0; i<loopsz; i++ )
-		    {
-			int yi = ystart+i*y_step_right;  
-			const float curk = k->get(idx,yi,ai);
-			if ( curk>kmax )
-			{
-			    kmax = curk;
-			    ymax = yi;
-			}
-		    }
-			
-		    float score = k->get(idx,ymax,ai)*wr;
-		    vt->set(idx,ymax,vt->get(idx,ymax)+score);
-		}
-	    }
-	}
-	else if ( ai<4 )
-	{
-	    for ( int idx=0; idx<inputsz0; idx++ )
-	    {
-		for ( int idy=0; idy<inputsz1; idy++ )
-		{
-		    if ( k->get(idx,idy,ai)<=0 )
-			continue;
-
-		    int xstart=idx, ystart=idy, ystop=idy; 
-		    float wr = wr_step[ai];
-
-		    /*detect the start position*/
-		    int xi = mMAX(idx+x_step_left,0);
-		    int y_temp_start = mMAX(idy+y_step_left,0);
-		    for ( int yi=y_temp_start; yi>=0; yi += y_step_left )
-		    {
-			float curk = k->get(xi,yi,ai);
-			if ( !xi || !yi || curk<=0 )
-			{
-			    if ( curk<=0 )
-			    {
-				xstart = xi-x_step_left;
-				ystart = yi-y_step_left;
-				if ( ystart>ymaxidx )
-				    ystart = ymaxidx;
-			    }
-			    else if ( !xi )
-			    {
-				xstart = 0;
-				ystart = yi;
-			    }
-			    else
-			    {
-				xstart = xi;
-				ystart = 0;
-			    }
-			    break;
-			}
-			xi += x_step_left;
-			if ( xi<0 || xi>xmaxidx )
-			    break;
-			wr += wr_step[ai];
-		    }
-		    
-		    /*detect the stop position*/
-		    xi = mMIN(idx+x_step_right,xmaxidx);
-		    int y_temp_stop = mMIN(idy+y_step_right,ymaxidx);
-		    for ( int yi=y_temp_stop; yi<inputsz1; yi += y_step_right )
-		    {
-    			float curk = k->get(xi,yi,ai);
-			if ( xi==xmaxidx || yi==ymaxidx || curk<=0 )
-			{
-			    ystop = curk<=0 ? yi-y_step_right 
-					    : (yi==ymaxidx ? ymaxidx : yi);
-			    break;
-			}
-			xi += x_step_right;
-			if ( xi<0 ||xi>xmaxidx )
-			    break;
-
-			wr += wr_step[ai];
-		    }
-
-		    int xmax=xstart,ymax=ystart;
-		    float kmax = k->get(xmax,ymax,ai);
-		    xi = xstart;
-		    int loopsz = (ystop-ystart)/y_step_right+1;
-		    if ( loopsz<0 ) loopsz = -loopsz;
-		    for ( int i=0; i<loopsz; i++ )
-		    {
-			int yi = ystart+i*y_step_right;  
-    			float curk = k->get(xi,yi,ai);
-			if ( curk>kmax )
-			{
-			    kmax = curk;
-			    xmax = xi;
-			    ymax = yi;
-			}
-
-			xi += x_step_right;
-			if ( xi>xmaxidx )
-			    break;
-		    }
-			
-		    float score = k->get(xmax,ymax,ai)*wr;
-		    vt->set(xmax,ymax,vt->get(xmax,ymax)+score);
-		}
-	    }
-	}
-	else if ( ai==4 )
-	{
-	    for ( int idx=0; idx<inputsz0; idx++ )
-	    {
-		for ( int idy=0; idy<inputsz1; idy++ )
-		{
-		    if ( k->get(idx,idy,ai)<=0 )
-			continue;
-
-		    int xstart=idx, xstop=idx; 
-		    float wr = wr_step[ai];
-
-		    /*detect the start position*/
-		    int x_start_temp = mMAX(idx+x_step_left,0);
-		    for ( int xi=x_start_temp; xi>=0; xi += x_step_left )
-		    {
-			const float curk = k->get(xi,idy,ai);
-			if ( !xi || curk<=0 )
-			{
-			    xstart = curk<=0 ? xi-x_step_left : 0;
-			    break;
-			}
-
-			wr += wr_step[ai];
-		    }
-		    
-		    /*detect the stop position*/
-		    int x_end_temp = mMIN(idx+x_step_right,xmaxidx);
-		    for ( int xi=x_end_temp; xi<=xmaxidx; xi += x_step_right )
-		    {
-    			const float curk = k->get(xi,idy,ai);
-			if ( xi==xmaxidx || curk<=0 )
-			{
-			    xstop = curk<=0 ? xi-x_step_right : xmaxidx;
-			    break;
-			}
-
-			wr += wr_step[ai];
-		    }
-
-		    int xmax = xstart;
-		    float kmax = k->get(xmax,idy,ai);
-		    int loopsz = (xstop-xstart)/x_step_right+1;
-		    if ( loopsz<0 ) loopsz = -loopsz;
-		    for ( int i=0; i<loopsz; i++ )
-		    {
-			int xi = xstart+i*x_step_right;  
-			const float curk = k->get(xi,idy,ai);
-			if ( curk>kmax )
-			{
-			    kmax = curk;
-			    xmax = xi;
-			}
-		    }
-			
-		    float score = k->get(xmax,idy,ai)*wr;
-		    vt->set(xmax,idy,vt->get(xmax,idy)+score);
-		}
-	    }
-	}
-	else
-	{
-	    for ( int idx=0; idx<inputsz0; idx++ )
-	    {
-		for ( int idy=0; idy<inputsz1; idy++ )
-		{
-		    if ( k->get(idx,idy,ai)<=0 )
-			continue;
-
-		    int xstart=idx, xstop=idx, ystart=idy; 
-		    float wr = wr_step[ai];
-
-		    /*detect the start position*/
-		    int yi = mMAX(idy+y_step_left,0);
-		    int x_temp_start = mMIN(idx+x_step_left,xmaxidx);
-		    for ( int xi=x_temp_start; xi<=xmaxidx; xi += x_step_left )
-		    {
-    			float curk = k->get(xi,yi,ai);
-			if ( !yi || xi==xmaxidx || curk<=0 )
-			{
-			    if ( curk<=0 )
-			    {
-				xstart = xi-x_step_left;
-				ystart = yi-y_step_left;
-			    }
-			    else if ( !yi )
-			    {
-				ystart = 0;
-				xstart = xi;
-			    }
-			    else
-			    {
-				ystart = yi;
-				xstart = xmaxidx;
-			    }
-			    break;
-			}
-
-			yi += y_step_left;
-			if ( yi<0 )
-			    break;
-
-			wr += wr_step[ai];
-		    }
-		    
-		    /*detect the stop position*/
-		    yi = mMIN(idy+y_step_right,ymaxidx);
-		    int x_temp_stop = mMAX(idx+x_step_right,0);
-		    for ( int xi=x_temp_stop; xi>=0; xi += x_step_right )
-		    {
-    			float curk = k->get(xi,yi,ai);
-			if ( yi==ymaxidx || !xi || curk<=0 )
-			{
-			    xstop = curk<0 ? xi-x_step_right : (!xi ? 0 : xi);
-			    break;
-			}
-
-			yi += y_step_right;
-			if ( yi>ymaxidx )
-			    break;
-
-			wr += wr_step[ai];
-		    }
-
-		    int xmax=xstart,ymax=ystart;
-		    float kmax = k->get(xmax,ymax,ai);
-		    yi = ystart;
-		    int loopsz = (xstop-xstart)/x_step_right+1;
-		    if ( loopsz<0 ) loopsz = -loopsz;
-		    for ( int i=0; i<loopsz; i++ )
-		    {
-			int xi = xstart+i*x_step_right;  
-    			float curk = k->get(xi,yi,ai);
-			if ( curk>kmax )
-			{
-			    kmax = curk;
-			    xmax = xi;
-			    ymax = yi;
-			}
-
-			yi += y_step_right;
-			if ( yi>ymaxidx )
-			    break;
-		    }
-			
-		    float score = k->get(xmax,ymax,ai)*wr;
-		    vt->set(xmax,ymax,vt->get(xmax,ymax)+score);
-		}
-	    }
-	}
-    }
-
-    for ( int idx=0; idx<=xmaxidx; idx++ )
-    {
-	const bool xedge = idx<2 || idx>=xmaxidx-1;
-	for ( int idy=0; idy<=ymaxidx; idy++ )
-    	{
-	    if ( xedge || idy<2 || idy>=ymaxidx-1 )
-	    {
-		res.set( idx, idy, 0 );
-		continue;
-	    }
-
-	    float maxval = mMIN( mMAX(vt->get(idx,idy+1),vt->get(idx,idy+2)),
-				 mMAX(vt->get(idx,idy-1),vt->get(idx,idy-2)));
-
-	    float temp = mMIN( mMAX(vt->get(idx-1,idy-1),vt->get(idx-2,idy-2)),
-			       mMAX(vt->get(idx+1,idy+1),vt->get(idx+2,idy+2)));
-	    if ( maxval<temp ) maxval = temp;
-	    
-	    temp = mMIN( mMAX(vt->get(idx+1,idy-1),vt->get(idx+2,idy-2)),
-			 mMAX(vt->get(idx-1,idy+1),vt->get(idx-2,idy+2)));
-	    if ( maxval<temp ) maxval = temp;
-
-	    if ( !istimeslice_ )
-	    { 
-	       temp = mMIN( mMAX(vt->get(idx+1,idy),vt->get(idx+2,idy)),
-			    mMAX(vt->get(idx-1,idy),vt->get(idx-2,idy)));
-	       if ( maxval<temp ) maxval = temp;
-	    }
-	    res.set( idx, idy, maxval );
-    	}
-    }
-
-    return true;
-}
-
-#define mPercent 0.94
-#define mNull_val -9
-#define mElem_leng 10
-#define mSigma 3
-
-
-FaultAngle::FaultAngle( const Array3D<float>& input )
-    : input_(input)
-    , threshold_(0)
+FaultOrientation::FaultOrientation()
+    : threshold_(0)
     , isfltabove_(false)  
-    , minfaultlength_(15)  
+    , minfaultlength_(10)
+    , sigma_(3)
+    , percent_(0.94)
+    , azimuth_stable_(0)
+    , dip_stable_(0)
+    , conf_low_(0)
+    , conf_med_(0)
+    , conf_high_(0) 
+{} 
+
+
+FaultOrientation::~FaultOrientation()
 {
-    azimuth_stable_ = new Array3DImpl<float>( input.info() );
-    dip_stable_ = new Array3DImpl<float>( input.info() );
-    conf_low_ = new Array3DImpl<bool>( input.info() );
-    conf_med_ = new Array3DImpl<bool>( input.info() );
-    conf_high_ = new Array3DImpl<bool>( input.info() );
-    conf_low_->setAll( false );
-    conf_med_->setAll( false );
-    conf_high_->setAll( false );
+    cleanAll();
 }
 
 
-FaultAngle::~FaultAngle()
+void FaultOrientation::cleanAll()
 {
-    delete azimuth_stable_;
-    delete dip_stable_;	
-    delete conf_low_;
-    delete conf_med_;
-    delete conf_high_;
+    delete azimuth_stable_; azimuth_stable_ = 0;
+    delete dip_stable_;	dip_stable_ = 0;
+    delete conf_low_; conf_low_ = 0;
+    delete conf_med_; conf_med_ = 0;
+    delete conf_high_; conf_high_ = 0;
 }
 
 
-void FaultAngle::setThreshold( float threshold, bool isabove )
+void FaultOrientation::setParameters( int sigma, float vein_percentage )
+{
+    if ( sigma>0 )
+	sigma_ = sigma;
+
+    if ( vein_percentage<0 || vein_percentage>1 )
+	return;
+
+    percent_ = vein_percentage;
+}
+
+
+void FaultOrientation::setThreshold( float threshold, bool isabove )
 {
     threshold_ = threshold;
     isfltabove_ = isabove;
 }
 
 
-void FaultAngle::setMinFaultLength( int minlenght )
+void FaultOrientation::setMinFaultLength( int minlenght )
 { minfaultlength_ = minlenght; }
 
 
-bool FaultAngle::compute2D( TaskRunner* tr )
+bool FaultOrientation::compute2D( const Array3D<float>& input, TaskRunner* tr )
 {
-    const int isz = input_.info().getSize(0);
-    const int csz = input_.info().getSize(1);
-    const int zsz = input_.info().getSize(2);
+    const int isz = input.info().getSize(0);
+    const int csz = input.info().getSize(1);
+    const int zsz = input.info().getSize(2);
     const bool isinl = isz==1;
     const bool is_t_slic = zsz==1;
     const int xsz = isinl ? csz : isz;
@@ -983,27 +362,27 @@ bool FaultAngle::compute2D( TaskRunner* tr )
     {
 	for ( int idy=0; idy<ysz; idy++ )
 	{
-	    float val = isinl ? input_.get(0,idx,idy) : (is_t_slic ? 
-		    input_.get(idx,idy,0) : input_.get(idx,0,idy) );
+	    float val = isinl ? input.get(0,idx,idy) : (is_t_slic ? 
+		    input.get(idx,idy,0) : input.get(idx,0,idy) );
 	    attr_sect->set( idx, idy, val );
 	}
     }
-    vein_usage( *attr_sect, minfaultlength_, mSigma, mPercent, 
-	    is_t_slic, *vein_bina, tr );
+    compute2DVeinBinary( *attr_sect, threshold_, isfltabove_, minfaultlength_, 
+	    sigma_, percent_, is_t_slic, *vein_bina, tr );
     
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_pca,
 	    Array2DImpl<float> (xsz,ysz) );
     azimuth_pca->setAll( mNull_val );
-    get_component_angle( *vein_bina, *vein_bina, mElem_leng, mNull_val, 
+    computeComponentAngle( *vein_bina, *vein_bina, minfaultlength_, mNull_val, 
 	    *azimuth_pca );
 	
-    const int elem_leng_new = (mElem_leng)*4;
+    const int elem_leng_new = minfaultlength_*4;
     const float uppr_perc = 0.85;
     const float lowr_perc = 0.15;
     const float angl_tole = 10;
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_pca_stab,
 	    Array2DImpl<float> (xsz,ysz) );
-    angle_section_stabilise( *vein_bina, *azimuth_pca, elem_leng_new, 
+    stabilizeAngleSection( *vein_bina, *azimuth_pca, elem_leng_new, 
 	    uppr_perc, lowr_perc, angl_tole, mNull_val, *azimuth_pca_stab );
     if ( isinl )
     {
@@ -1049,50 +428,60 @@ bool FaultAngle::compute2D( TaskRunner* tr )
 }
 
 
-bool FaultAngle::compute( TaskRunner* tr )
+bool FaultOrientation::compute( const Array3D<float>& input, TaskRunner* tr )
 {
-    if ( input_.info().getSize(0)==1 || input_.info().getSize(1)==1 || 
-	 input_.info().getSize(2)==1 )
-	return compute2D( tr );
+    cleanAll();
+    azimuth_stable_ = new Array3DImpl<float>( input.info() );
+    dip_stable_ = new Array3DImpl<float>( input.info() );
+    conf_low_ = new Array3DImpl<bool>( input.info() );
+    conf_med_ = new Array3DImpl<bool>( input.info() );
+    conf_high_ = new Array3DImpl<bool>( input.info() );
+    conf_low_->setAll( false );
+    conf_med_->setAll( false );
+    conf_high_->setAll( false );
+
+    if ( input.info().getSize(0)==1 || input.info().getSize(1)==1 || 
+	 input.info().getSize(2)==1 )
+	return compute2D( input, tr );
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<bool> >, vein_bina_t0,
-	    Array3DImpl<bool> (input_.info()) );
-    vein_t0_slice( input_, mSigma, mPercent, *vein_bina_t0, tr );
+	    Array3DImpl<bool> (input.info()) );
+    computeVeinSlices( input, *vein_bina_t0, tr );
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<bool> >, vein_bina_0,
-	    Array3DImpl<bool> (input_.info()) );
+	    Array3DImpl<bool> (input.info()) );
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<bool> >, vein_bina_45,
-	    Array3DImpl<bool> (input_.info()) );
+	    Array3DImpl<bool> (input.info()) );
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<bool> >, vein_bina_90,
-	    Array3DImpl<bool> (input_.info()) );
+	    Array3DImpl<bool> (input.info()) );
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<bool> >, vein_bina_135,
-	    Array3DImpl<bool> (input_.info()) );
-    vein_vertical_slice( input_, mSigma, mPercent,  
-	   *vein_bina_0, *vein_bina_45, *vein_bina_90, *vein_bina_135 );
+	    Array3DImpl<bool> (input.info()) );
+    computeVerticalVeinSlice( input, *vein_bina_0, *vein_bina_45, 
+	    *vein_bina_90, *vein_bina_135 );
 
-    get_fault_confidence( *vein_bina_t0, *vein_bina_0, *vein_bina_45, 
+    getFaultConfidence( *vein_bina_t0, *vein_bina_0, *vein_bina_45, 
 	    *vein_bina_90, *vein_bina_135, *conf_low_, *conf_med_, *conf_high_);
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, azimuth_pca,
-	    Array3DImpl<float> (input_.info()) );
-    azimuth_pca_vein( *conf_low_, *conf_med_, mElem_leng, mNull_val, 
+	    Array3DImpl<float> (input.info()) );
+    computeAzimuthPCA( *conf_low_, *conf_med_, minfaultlength_, mNull_val, 
 	    *azimuth_pca, tr );
-    azimuth_stabilise( *conf_low_, *azimuth_pca, mElem_leng, mNull_val, 
+    stabilizeAzimuth( *conf_low_, *azimuth_pca, minfaultlength_, mNull_val, 
 	    *azimuth_stable_ );
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, dip_pca,
-	    Array3DImpl<float> (input_.info()) );
-    const int wind_size = (int)ceil(4.*mSigma);
-    dip_pca_vein( *conf_low_, *conf_med_, *azimuth_stable_, wind_size,
-	    mElem_leng, mNull_val, *dip_pca );
-    dip_stablise( *conf_low_, *azimuth_stable_, *dip_pca, wind_size,
-	    mElem_leng, mNull_val, *dip_stable_ );
+	    Array3DImpl<float> (input.info()) );
+    const int wind_size = 4*sigma_;
+    computeDipPCA( *conf_low_, *conf_med_, *azimuth_stable_, wind_size,
+	    minfaultlength_, mNull_val, *dip_pca );
+    stablizeDip( *conf_low_, *azimuth_stable_, *dip_pca, wind_size,
+	    minfaultlength_, mNull_val, *dip_stable_ );
 
     return true;
 }
 
 
-void FaultAngle::dip_stablise( const Array3D<bool>& conf_bina,
+void FaultOrientation::stablizeDip( const Array3D<bool>& conf_bina,
 	const Array3D<float>& azimuth_pca, const Array3D<float>& dip_pca,
 	int wind_size, int elem_leng, float null_val, 
 	Array3D<float>& dip_pca_stab )
@@ -1140,7 +529,7 @@ void FaultAngle::dip_stablise( const Array3D<bool>& conf_bina,
 	    }
 	}
 
-	angle_section_stabilise( *base_bina_sect, *dip_sect, elem_leng_new,
+	stabilizeAngleSection( *base_bina_sect, *dip_sect, elem_leng_new,
 	    uppr_perc, lower_perc, angle_tole, null_val, *dip_sect_stab );
 	
         /*map the dip value from dip_sect to pre4_dip_pca*/
@@ -1176,7 +565,7 @@ void FaultAngle::dip_stablise( const Array3D<bool>& conf_bina,
 	    }
 	}
 	
-	angle_section_stabilise( *base_bina_sect, *dip_sect, elem_leng_new,
+	stabilizeAngleSection( *base_bina_sect, *dip_sect, elem_leng_new,
 	    uppr_perc, lower_perc, angle_tole, null_val, *dip_sect_stab );
         /*map the dip value from dip_sect to pre4_dip_pca*/
 	for ( int khight=0; khight<nhight; khight++ )
@@ -1260,7 +649,7 @@ void FaultAngle::dip_stablise( const Array3D<bool>& conf_bina,
         /*get the component index and component length*/
 	mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, dip_sect_stab,
 		Array2DImpl<float> (nwidth_sect,nt) );
-	angle_section_stabilise( *base_bina_sect, *dip_sect, elem_leng_new,
+	stabilizeAngleSection( *base_bina_sect, *dip_sect, elem_leng_new,
 	    uppr_perc, lower_perc, angle_tole, null_val, *dip_sect_stab );
         /*map the dip value from dip_sect to pre4_dip_pca*/
 	for ( int kwidth=0; kwidth<nwidth_sect; kwidth++ )
@@ -1345,7 +734,7 @@ void FaultAngle::dip_stablise( const Array3D<bool>& conf_bina,
         /*stablise the dip*/
 	mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, dip_sect_stab,
 		Array2DImpl<float> (nwidth_sect,nt) );
-	angle_section_stabilise( *base_bina_sect, *dip_sect, elem_leng_new,
+	stabilizeAngleSection( *base_bina_sect, *dip_sect, elem_leng_new,
 	    uppr_perc, lower_perc, angle_tole, null_val, *dip_sect_stab );
         /*map the dip value from dip_sect to pre4_dip_pca*/
 	for ( int kwidth=0; kwidth<nwidth_sect; kwidth++ )
@@ -1486,7 +875,7 @@ void FaultAngle::dip_stablise( const Array3D<bool>& conf_bina,
     }
 }
 
-void FaultAngle::dip_pca_vein( const Array3D<bool>& conf_base,
+void FaultOrientation::computeDipPCA( const Array3D<bool>& conf_base,
 	const Array3D<bool>& conf_upgr, const Array3D<float>&  azimuth_pca,
 	int wind_size, int elem_leng, float null_val, Array3D<float>& dip_pca )
 {
@@ -1527,7 +916,7 @@ void FaultAngle::dip_pca_vein( const Array3D<bool>& conf_base,
         /*get the component index and component length*/
     	mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, dip_sect,
 	    Array2DImpl<float> (nwidth,nt) );
-	get_component_angle( *base_bina_sect, *upgr_bina_sect, 
+	computeComponentAngle( *base_bina_sect, *upgr_bina_sect, 
 		elem_leng, null_val, *dip_sect );
         /*map the dip value from dip_sect to pre4_dip_pca*/
 	for ( int kwidth=0; kwidth<nwidth; kwidth++ )
@@ -1557,7 +946,7 @@ void FaultAngle::dip_pca_vein( const Array3D<bool>& conf_base,
         /*get the component index and component length*/
     	mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, dip_sect,
 	    Array2DImpl<float> (nhight,nt) );
-	get_component_angle( *base_bina_sect, *upgr_bina_sect, 
+	computeComponentAngle( *base_bina_sect, *upgr_bina_sect, 
 		elem_leng, null_val, *dip_sect );
         /*map the dip value from dip_sect to pre4_dip_pca*/
 	for ( int khight=0; khight<nhight; khight++ )
@@ -1636,7 +1025,7 @@ void FaultAngle::dip_pca_vein( const Array3D<bool>& conf_base,
         /*get the component index and component length*/
 	mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, dip_sect,
 		Array2DImpl<float> (nwidth_sect,nt) );
-	get_component_angle( *base_bina_sect, *upgr_bina_sect, 
+	computeComponentAngle( *base_bina_sect, *upgr_bina_sect, 
 		elem_leng, null_val, *dip_sect );
         /*map the dip value from dip_sect to pre4_dip_pca*/
 	for ( int jwidth=0; jwidth<nwidth_sect; jwidth++ )
@@ -1716,7 +1105,7 @@ void FaultAngle::dip_pca_vein( const Array3D<bool>& conf_base,
         /*get the component index and component length*/
 	mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, dip_sect,
 		Array2DImpl<float> (nwidth_sect,nt) );
-	get_component_angle( *base_bina_sect, *upgr_bina_sect, 
+	computeComponentAngle( *base_bina_sect, *upgr_bina_sect, 
 		elem_leng, null_val, *dip_sect );
         /*map the dip value from dip_sect to pre4_dip_pca*/
 	for ( int jwidth=0; jwidth<nwidth_sect; jwidth++ )
@@ -1852,24 +1241,24 @@ void FaultAngle::dip_pca_vein( const Array3D<bool>& conf_base,
 }
 
 
-bool FaultAngle::azimuth_pca_vein( const Array3D<bool>& conf_base,
+bool FaultOrientation::computeAzimuthPCA( const Array3D<bool>& conf_base,
 	const Array3D<bool>& conf_upgr, int elem_leng, float null_val,
 	Array3D<float>& azimuth_pca, TaskRunner* tr )
 {
-    azimuthPcaCalculator apc( *this, conf_base, conf_upgr, elem_leng, null_val, 
+    AzimuthPcaCalculator apc( conf_base, conf_upgr, elem_leng, null_val,
 	    azimuth_pca );
     return tr ? tr->execute( apc ) : apc.execute();
 }
 
 
-void FaultAngle::get_component_angle( const Array2D<bool>& base_bina_sect,
+void FaultOrientation::computeComponentAngle( const Array2D<bool>& base_bina,
 	const Array2D<bool>& upgr_bina_sect, int elem_leng, float null_val,
 	Array2D<float>& azimuth_sect )
 {
     azimuth_sect.setAll( null_val );    
-    const int csz = base_bina_sect.info().getSize(1);
+    const int csz = base_bina.info().getSize(1);
 
-    ConnComponents cc( base_bina_sect );
+    ConnComponents cc( base_bina );
     cc.compute();
     const int ncomponent = cc.nrComponents();
     
@@ -1913,14 +1302,14 @@ void FaultAngle::get_component_angle( const Array2D<bool>& base_bina_sect,
 	    if ( point_set_x.size()<2 )
 		continue;
 
-	    float angle = angle_pca( point_set_x, point_set_y, null_val );
+	    float angle = getAnglePCA( point_set_x, point_set_y, null_val );
 	    azimuth_sect.set( current_width_index, current_hight_index, angle );
 	}
     }
 }
 
 
-void FaultAngle::angle_section_stabilise( const Array2D<bool>& conf_sect,
+void FaultOrientation::stabilizeAngleSection( const Array2D<bool>& conf_sect,
 	const Array2D<float>& angl_sect, int elem_leng_new, float uppr_perc,
 	float lowr_perc, float angl_tole, float null_value, 
 	Array2D<float>& angl_stab )
@@ -2009,7 +1398,7 @@ void FaultAngle::angle_section_stabilise( const Array2D<bool>& conf_sect,
 	    if ( point_set_x.size()<2 )
 		continue;
 
-	    float angle = angle_pca( point_set_x, point_set_y, null_value );
+	    float angle = getAnglePCA( point_set_x, point_set_y, null_value );
 	    angl_stab.set( odd_set_x[jp], odd_set_y[jp], angle );
 	}
 	
@@ -2034,7 +1423,7 @@ void FaultAngle::angle_section_stabilise( const Array2D<bool>& conf_sect,
 		    continue;
 
 		float angl_plus = 
-		    angle_pca( point_set_x, point_set_y, null_value );	
+		    getAnglePCA( point_set_x, point_set_y, null_value );	
 		if ( fabs(angl_plus-angl_aver) <= angl_tole )
 		    angl_stab.set( set_x[jp], set_y[jp], angl_plus );
 	    }
@@ -2043,7 +1432,7 @@ void FaultAngle::angle_section_stabilise( const Array2D<bool>& conf_sect,
 }
 
 
-float FaultAngle::angle_pca( const TypeSet<int>& point_set_x,
+float FaultOrientation::getAnglePCA( const TypeSet<int>& point_set_x,
 	const TypeSet<int>& point_set_y, float null_value )
 {
     const int npoints = point_set_x.size();
@@ -2102,12 +1491,12 @@ float FaultAngle::angle_pca( const TypeSet<int>& point_set_x,
 }    
 
 
-void FaultAngle::azimuth_stabilise( const Array3D<bool>& conf_bina,
+void FaultOrientation::stabilizeAzimuth( const Array3D<bool>& conf_bina,
 	const Array3D<float>& azimuth_orig, int elem_leng, float null_val,
 	Array3D<float>& azim_stab )
 {
-    const int isz = input_.info().getSize(0);
-    const int csz = input_.info().getSize(1);
+    const int isz = azimuth_orig.info().getSize(0);
+    const int csz = azimuth_orig.info().getSize(1);
     const int elem_leng_new = elem_leng*4;
     const float uppr_perc = 0.85;
     const float lowr_perc = 0.15;
@@ -2121,7 +1510,7 @@ void FaultAngle::azimuth_stabilise( const Array3D<bool>& conf_bina,
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azim_sect_stab,
 	    Array2DImpl<float> (isz,csz) );
 
-    const int zsz = input_.info().getSize(2);
+    const int zsz = azimuth_orig.info().getSize(2);
     for ( int idz=0; idz<zsz; idz++ )
     {
 	for ( int idx=0; idx<isz; idx++ )
@@ -2133,7 +1522,7 @@ void FaultAngle::azimuth_stabilise( const Array3D<bool>& conf_bina,
 	    }
 	}
 
-	angle_section_stabilise( *base_bina_sect, *angl_orig_sect, 
+	stabilizeAngleSection( *base_bina_sect, *angl_orig_sect, 
 		elem_leng_new, uppr_perc, lowr_perc, angl_tole, null_val, 
 		*azim_sect_stab );
 
@@ -2148,15 +1537,15 @@ void FaultAngle::azimuth_stabilise( const Array3D<bool>& conf_bina,
 }
 
 
-void FaultAngle::get_fault_confidence( const Array3D<bool>& vein_bina_t0,
+void FaultOrientation::getFaultConfidence( const Array3D<bool>& vein_bina_t0,
 	const Array3D<bool>& vein_bina_0, const Array3D<bool>& vein_bina_45, 
 	const Array3D<bool>& vein_bina_90, const Array3D<bool>& vein_bina_135, 
 	Array3D<bool>& conf_low, Array3D<bool>& conf_med, 
 	Array3D<bool>& conf_high )
 {
-    const int isz = input_.info().getSize(0);
-    const int csz = input_.info().getSize(1);
-    const int zsz = input_.info().getSize(2);
+    const int isz = vein_bina_t0.info().getSize(0);
+    const int csz = vein_bina_t0.info().getSize(1);
+    const int zsz = vein_bina_t0.info().getSize(2);
 
     for ( int idx=0; idx<isz; idx++ )
     {
@@ -2178,15 +1567,14 @@ void FaultAngle::get_fault_confidence( const Array3D<bool>& vein_bina_t0,
 }
 
 
-void FaultAngle::vein_vertical_slice( const Array3D<float>& input, 
-	int sigma, float percent,
+void FaultOrientation::computeVerticalVeinSlice( const Array3D<float>& input, 
 	Array3D<bool>& vein_bina_0, Array3D<bool>& vein_bina_45, 
 	Array3D<bool>& vein_bina_90, Array3D<bool>& vein_bina_135 )
 {
     const int isz = input.info().getSize(0);
     const int csz = input.info().getSize(1);
     const int zsz = input.info().getSize(2);
-    const int wind_size = (int)ceil(4.*sigma);
+    const int wind_size = 4*sigma_;
     const bool is_t_slic = false;
     
     /*vein calculation along width direction(horizontal-), angle zone 1*/
@@ -2202,9 +1590,8 @@ void FaultAngle::vein_vertical_slice( const Array3D<float>& input,
 		attr_sect0->set( idx, idz, input.get(idx,idy,idz) );
 	}
 	    
-	//FingerVein fv( *attr_sect0, 0, false, is_t_slic, *vein_bina_sect0 );
-	//fv.compute( false, false, 1, 1, sigma, percent, 0 );
-	vein_usage( *attr_sect0, minfaultlength_, sigma, percent, is_t_slic, 
+	compute2DVeinBinary( *attr_sect0, threshold_, isfltabove_, 
+		minfaultlength_, sigma_, percent_, is_t_slic, 
 		*vein_bina_sect0, 0 );
 	
 	for ( int idx=0; idx<isz; idx++ )
@@ -2227,9 +1614,8 @@ void FaultAngle::vein_vertical_slice( const Array3D<float>& input,
 		attr_sect90->set( idy, idz, input.get(idx,idy,idz) );
 	}
 	    
-	//FingerVein fv( *attr_sect90, 0, false, is_t_slic, *vein_bina_sect90 );
-	//fv.compute( false, false, 1, 1, sigma, percent, 0 );
-	vein_usage( *attr_sect90, minfaultlength_, sigma, percent, is_t_slic, 
+	compute2DVeinBinary( *attr_sect90, threshold_, isfltabove_,
+		minfaultlength_, sigma_, percent_, is_t_slic, 
 		*vein_bina_sect90, 0 );
 	
 	for ( int idy=0; idy<csz; idy++ )
@@ -2300,9 +1686,8 @@ void FaultAngle::vein_vertical_slice( const Array3D<float>& input,
 	    khight = khight-1;
 	}
      
-	//FingerVein fv( *attr_sect, 0, false, is_t_slic, *vein_bina_sect );
-    	//fv.compute( false, false, 1, 1, sigma, percent, 0 );    
-	vein_usage( *attr_sect, minfaultlength_, sigma, percent, is_t_slic, 
+	compute2DVeinBinary( *attr_sect, threshold_, isfltabove_,
+		minfaultlength_, sigma_, percent_, is_t_slic, 
 		*vein_bina_sect, 0 );
     	for ( int idx=0; idx<nwidth_sect; idx++ )
     	{
@@ -2374,9 +1759,8 @@ void FaultAngle::vein_vertical_slice( const Array3D<float>& input,
 	    khight = khight+1;
 	}
      
-	//FingerVein fv( *attr_sect, 0, false, is_t_slic, *vein_bina_sect );
-    	//fv.compute( false, false, 1, 1, sigma, percent, 0 );    
-	vein_usage( *attr_sect, minfaultlength_, sigma, percent, is_t_slic, 
+	compute2DVeinBinary( *attr_sect, threshold_, isfltabove_, 
+		minfaultlength_, sigma_, percent_, is_t_slic, 
 		*vein_bina_sect, 0 );
     	for ( int idx=0; idx<nwidth_sect; idx++ )
     	{
@@ -2390,19 +1774,18 @@ void FaultAngle::vein_vertical_slice( const Array3D<float>& input,
 }
 
 
-
-
-bool FaultAngle::vein_t0_slice( const Array3D<float>& input, int sigma,
-	float percent, Array3D<bool>& output, TaskRunner* tr )
+bool FaultOrientation::computeVeinSlices( const Array3D<float>& input, 
+	Array3D<bool>& output, TaskRunner* tr )
 {
-    veinSliceCalculator vsc(input,*this,minfaultlength_,sigma,percent,output);
+    VeinSliceCalculator vsc( input, threshold_, isfltabove_, minfaultlength_,
+	    sigma_, percent_, output );
     return tr ? tr->execute(vsc) : vsc.execute();
 }
 
 
-bool FaultAngle::vein_usage( const Array2D<float>& img, int fault_min_length,
-			     int sigma, float perc, bool is_t_slic, 
-			     Array2D<bool>& vein_bina, TaskRunner* tr )
+bool FaultOrientation::compute2DVeinBinary( const Array2D<float>& img, 
+	float threshold, bool isabove, int fault_min_length, int sigma, 
+	float perc, bool is_t_slic, Array2D<bool>& vein_bina, TaskRunner* tr )
 {
     const int img_w = img.info().getSize(0);	
     const int img_h = img.info().getSize(1);	
@@ -2410,7 +1793,7 @@ bool FaultAngle::vein_usage( const Array2D<float>& img, int fault_min_length,
 	    Array2DImpl<float> (img.info()) );
     if ( !vein_score ) return false;
 
-    vein_max_curvature( img, sigma, is_t_slic, *vein_score, tr );
+    computeMaxCurvature( img, sigma, is_t_slic, *vein_score, tr );
     const float* vein_score_vector = vein_score->getData();
 
     const od_int64 datasz = img.info().getTotalSz();
@@ -2438,8 +1821,8 @@ bool FaultAngle::vein_usage( const Array2D<float>& img, int fault_min_length,
     bool* imgdata = img_bina->getData();
     for ( int idx=0; idx<datasz; idx++ )
 	imgdata[idx] = (mIsUdf(inputarr[idx])) ? false : 
-	    ( (isfltabove_ && inputarr[idx]>=threshold_) ||
-	      (!isfltabove_ && inputarr[idx]<=threshold_) );   
+	    ( (isabove && inputarr[idx]>=threshold) ||
+	      (!isabove && inputarr[idx]<=threshold) );   
 
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, img_bina_thin,
 	    Array2DImpl<bool> (img.info()) );
@@ -2539,7 +1922,7 @@ bool FaultAngle::vein_usage( const Array2D<float>& img, int fault_min_length,
 }
 
 
-void FaultAngle::thinning( const Array2D<bool>& orig, Array2D<bool>& res )
+void FaultOrientation::thinning( const Array2D<bool>& orig, Array2D<bool>& res )
 {
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, tmp,
 	    Array2DImpl<bool> (res.info()) );
@@ -2553,8 +1936,8 @@ void FaultAngle::thinning( const Array2D<bool>& orig, Array2D<bool>& res )
 }
 
 
-void FaultAngle::thinStep( const Array2D<bool>& input, Array2D<bool>& output,
-       bool firststep )
+void FaultOrientation::thinStep( const Array2D<bool>& input, 
+	Array2D<bool>& output, bool firststep )
 {
     const int lastidx = input.info().getSize(0)-1;
     const int lastidy = input.info().getSize(1)-1;
@@ -2603,7 +1986,7 @@ void FaultAngle::thinStep( const Array2D<bool>& input, Array2D<bool>& output,
 }
 
 
-bool FaultAngle::vein_max_curvature( const Array2D<float>& input,
+bool FaultOrientation::computeMaxCurvature( const Array2D<float>& input,
 	       int sigma, bool is_t_slice, Array2D<float>& res, TaskRunner* tr )
 {
     const int inputsz0 = input.info().getSize(0);
@@ -3158,30 +2541,124 @@ bool FaultAngle::vein_max_curvature( const Array2D<float>& input,
 	const bool xedge = idx<2 || idx>=xmaxidx-1;
 	for ( int idy=0; idy<=ymaxidx; idy++ )
     	{
-	    if ( xedge || idy<2 || idy>=ymaxidx-1 )
+	    const bool yedge = idy<2 || idy>=ymaxidx-1;
+	    float maxval, temp;
+
+	    if ( !xedge && !yedge )
 	    {
-		res.set( idx, idy, 0 );
-		continue;
+		maxval = mMIN( mMAX(vt->get(idx,idy+1),vt->get(idx,idy+2)),
+			       mMAX(vt->get(idx,idy-1),vt->get(idx,idy-2)));
+
+		temp = mMIN( mMAX(vt->get(idx-1,idy-1),vt->get(idx-2,idy-2)),
+			     mMAX(vt->get(idx+1,idy+1),vt->get(idx+2,idy+2)));
+		if ( maxval<temp ) maxval = temp;
+		
+		temp = mMIN( mMAX(vt->get(idx+1,idy-1),vt->get(idx+2,idy-2)),
+			     mMAX(vt->get(idx-1,idy+1),vt->get(idx-2,idy+2)));
+		if ( maxval<temp ) maxval = temp;
+
+	       temp = mMIN( mMAX(vt->get(idx+1,idy),vt->get(idx+2,idy)),
+			    mMAX(vt->get(idx-1,idy),vt->get(idx-2,idy)));
+	       if ( maxval<temp ) maxval = temp;
 	    }
+	    else
+	    {
+		maxval = temp = vt->get( idx, idy );
 
-	    float maxval = mMIN( mMAX(vt->get(idx,idy+1),vt->get(idx,idy+2)),
-				 mMAX(vt->get(idx,idy-1),vt->get(idx,idy-2)));
+		if ( idy<2 )
+		{
+		    if ( idy<ymaxidx-1 )
+			maxval = mMAX( vt->get(idx,idy+1), vt->get(idx,idy+2) );
+		}
+		else
+		{
+		    if ( idy<ymaxidx-1 )
+		    {
+			maxval = mMIN( mMAX(vt->get(idx,idy+1),
+				    	    vt->get(idx,idy+2)),
+				       mMAX(vt->get(idx,idy-1),
+					    vt->get(idx,idy-2)));
+		    }
+		    else
+		    {
+			maxval = mMAX(vt->get(idx,idy-1),vt->get(idx,idy-2));
+		    }
+		}
 
-	    float temp = mMIN( mMAX(vt->get(idx-1,idy-1),vt->get(idx-2,idy-2)),
-			       mMAX(vt->get(idx+1,idy+1),vt->get(idx+2,idy+2)));
-	    if ( maxval<temp ) maxval = temp;
-	    
-	    temp = mMIN( mMAX(vt->get(idx+1,idy-1),vt->get(idx+2,idy-2)),
-			 mMAX(vt->get(idx-1,idy+1),vt->get(idx-2,idy+2)));
-	    if ( maxval<temp ) maxval = temp;
+		if ( idx<2 || idy<2 )
+		{
+		    if ( idx<xmaxidx-1 && idy<ymaxidx-1 )
+    			temp = mMAX(vt->get(idx+1,idy+1),vt->get(idx+2,idy+2));
+		}
+		else 
+		{
+		    temp = mMAX( vt->get(idx-1,idy-1), vt->get(idx-2,idy-2) );
+		}
 
-	   temp = mMIN( mMAX(vt->get(idx+1,idy),vt->get(idx+2,idy)),
-			mMAX(vt->get(idx-1,idy),vt->get(idx-2,idy)));
-	   if ( maxval<temp ) maxval = temp;
+		if ( maxval<temp ) maxval = temp;
+
+		if ( idx<2 )
+		{
+		    if ( idy>1 )
+    			temp = mMAX(vt->get(idx+1,idy-1),vt->get(idx+2,idy-2));
+		}
+		else if ( idx>=xmaxidx-1 )
+		{
+		    if ( idy<ymaxidx-1 )
+    			temp = mMAX(vt->get(idx-1,idy+1),vt->get(idx-2,idy+2));
+		}
+		else
+		{
+		    if ( idy<2 )
+		    {
+			if ( idy<ymaxidx-1 )
+    			    temp = mMAX( vt->get(idx-1,idy+1),
+				    	 vt->get(idx-2,idy+2) );
+		    }
+		    else 
+		    {
+			if ( idy>=ymaxidx-1 )
+	    		    temp = mMAX( vt->get(idx+1,idy-1),
+				         vt->get(idx+2,idy-2) );
+			else
+			{
+			    temp = mMIN( mMAX(vt->get(idx+1,idy-1),
+					      vt->get(idx+2,idy-2)),
+				         mMAX(vt->get(idx-1,idy+1),
+					      vt->get(idx-2,idy+2)));
+			}
+		    }
+		}
+		
+		if ( maxval<temp ) maxval = temp;
+
+		if ( idx<2 )
+		{
+		    if ( idx<xmaxidx-1 )
+    			temp = mMAX(vt->get(idx+1,idy),vt->get(idx+2,idy));
+		}
+		else
+		{
+		    if ( idx>=xmaxidx-1 )
+		    {
+			temp = mMAX(vt->get(idx-1,idy),vt->get(idx-2,idy));
+		    }
+		    else
+		    {
+			temp = mMIN( mMAX(vt->get(idx+1,idy),
+				    	  vt->get(idx+2,idy)),
+    				     mMAX(vt->get(idx-1,idy),
+       					 vt->get(idx-2,idy)));
+		    }
+		}
+
+	       if ( maxval<temp ) maxval = temp;
+	    }
 
 	   res.set( idx, idy, maxval );
     	}
     }
+
 
     return true;
 }
