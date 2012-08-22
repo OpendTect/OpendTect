@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocityvolumeconversion.cc,v 1.15 2012-06-29 11:55:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocityvolumeconversion.cc,v 1.16 2012-08-22 12:37:14 cvshelene Exp $";
 
 #include "velocityvolumeconversion.h"
 
@@ -41,6 +41,7 @@ VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
     , output_( output.clone() )
     , reader_( 0 )
     , writer_( 0 )
+    , sequentialwriter_(0)
 {
     reader_ = new SeisTrcReader( input_ );
     if ( !reader_->prepareWork() )
@@ -75,9 +76,10 @@ VolumeConverter::~VolumeConverter()
 {
     delete input_;
     delete output_;
-    delete writer_;
-    delete sequentialwriter_;
-    delete reader_;
+
+    if ( writer_ ) delete writer_;
+    if ( sequentialwriter_ ) delete sequentialwriter_;
+    if ( reader_ ) delete reader_;
 }
 
 bool VolumeConverter::doFinish( bool res )
