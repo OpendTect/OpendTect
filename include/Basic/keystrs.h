@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.72 2012-08-06 11:13:24 cvsbert Exp $
+ RCS:		$Id: keystrs.h,v 1.73 2012-08-22 04:09:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ namespace sKey
     inline FixedString Log()		{ return "Log"; }
     inline FixedString LogFile()	{ return "Log file"; }
     inline FixedString Name()		{ return "Name"; }
+    inline FixedString NewLine()	{ return "\n"; }
     inline FixedString No()		{ return "No"; }
     inline FixedString None()		{ return "None"; }
     inline FixedString Offset()		{ return "Offset"; }
