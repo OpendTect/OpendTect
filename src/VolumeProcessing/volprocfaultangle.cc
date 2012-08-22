@@ -4,7 +4,7 @@
  *Date:		Aug 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocfaultangle.cc,v 1.2 2012-08-20 21:14:07 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprocfaultangle.cc,v 1.3 2012-08-22 15:44:37 cvsyuancheng Exp $";
 
 #include "volprocfaultangle.h"
 
@@ -46,12 +46,14 @@ bool FaultAngle::computeBinID( const BinID& bid, int )
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	
 	const Array3D<float>& inputarr = input_->getCube( 0 );
-	::FaultAngle fa( inputarr );
-	fa.setThreshold( fltthreshold_, isfltabove_ );
-	fa.setMinFaultLength( minlength_ );
-	fa.compute();
+	FaultOrientation fo;
+	fo.setThreshold( fltthreshold_, isfltabove_ );
+	fo.setMinFaultLength( minlength_ );
+	fo.compute( inputarr, 0 );
 
-	const Array3D<float>* data = isazimuth_ ? fa.getAzimuth() : fa.getDip();
+	const Array3D<float>* data = isazimuth_ ? fo.getAzimuth() : fo.getDip();
+	if ( !data )
+	    return false;
 
 	float* result = output_->getCube(0).getData();
 	const float* angle = data->getData();
