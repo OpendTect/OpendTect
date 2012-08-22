@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.38 2012-08-21 12:31:08 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.39 2012-08-22 06:56:50 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -466,10 +466,11 @@ void uiWellDispCtrlEditMarkerDlg::addWellCtrl( uiWellDisplayControl& ctrl,
 void uiWellDispCtrlEditMarkerDlg::activateSensors(uiWellDisplayControl& ctr, 
 						Well::Data& wd, bool yn)
 {
-    CallBack cbclk = mCB( this, uiWellDispCtrlEditMarkerDlg, handleUsrClickCB );
-    CallBack cbpos = mCB( this, uiWellDispCtrlEditMarkerDlg, posChgCB );
-    CallBack cbchg = mCB( this, uiWellDispCtrlEditMarkerDlg, handleCtrlChangeCB );
-    CallBack cbbox = mCB( this, uiWellDispCtrlEditMarkerDlg, fillMarkerList );
+    CallBack cbclk = mCB(this, uiWellDispCtrlEditMarkerDlg, handleUsrClickCB );
+    CallBack cbpos = mCB(this, uiWellDispCtrlEditMarkerDlg, posChgCB );
+    CallBack cbchg = mCB(this, uiWellDispCtrlEditMarkerDlg, handleCtrlChangeCB);
+    CallBack cbbox = mCB(this, uiWellDispCtrlEditMarkerDlg, fillMarkerList );
+
 #define mNotify(action)\
     ctr.posChanged.action( cbchg );\
     ctr.posChanged.action( cbpos );\
