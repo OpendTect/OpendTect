@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2011
- RCS:		$Id: stratlaygen.h,v 1.7 2012-08-22 07:52:33 cvsbert Exp $
+ RCS:		$Id: stratlaygen.h,v 1.8 2012-08-22 11:03:24 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -61,7 +61,8 @@ protected:
 
     virtual bool	genMaterial(LayerSequence&,Property::EvalOpts) const
 							= 0;
-    virtual bool	postProcess(LayerSequence&) const	{ return true; }
+    virtual bool	postProcess(LayerSequence&,float pos) const
+    							{ return true; }
 
     const LayerSequenceGenDesc* gendesc_; //!< set before generation
     friend class	LayerSequenceGenDesc;

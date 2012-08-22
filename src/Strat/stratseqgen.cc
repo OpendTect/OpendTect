@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratseqgen.cc,v 1.42 2012-08-22 07:52:33 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratseqgen.cc,v 1.43 2012-08-22 11:03:24 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -222,7 +222,7 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
     for ( int idx=0; idx<size(); idx++ )
     {
 	const LayerGenerator& lgen = *((*this)[idx]);
-	if ( !lgen.postProcess(ls) )
+	if ( !lgen.postProcess(ls,modpos) )
 	{
 	    errmsg_ = lgen.errMsg();
 	    if ( errmsg_.isEmpty() )
