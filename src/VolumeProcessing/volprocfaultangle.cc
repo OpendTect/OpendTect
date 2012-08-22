@@ -4,7 +4,7 @@
  *Date:		Aug 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocfaultangle.cc,v 1.3 2012-08-22 15:44:37 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprocfaultangle.cc,v 1.4 2012-08-22 18:09:09 cvsyuancheng Exp $";
 
 #include "volprocfaultangle.h"
 
@@ -49,7 +49,7 @@ bool FaultAngle::computeBinID( const BinID& bid, int )
 	FaultOrientation fo;
 	fo.setThreshold( fltthreshold_, isfltabove_ );
 	fo.setMinFaultLength( minlength_ );
-	fo.compute( inputarr, 0 );
+	fo.compute( inputarr, isazimuth_, !isazimuth_, 0 );
 
 	const Array3D<float>* data = isazimuth_ ? fo.getAzimuth() : fo.getDip();
 	if ( !data )
