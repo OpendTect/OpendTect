@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratseqgen.cc,v 1.41 2012-08-09 03:48:45 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratseqgen.cc,v 1.42 2012-08-22 07:52:33 cvsbert Exp $";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -192,7 +192,8 @@ bool Strat::LayerSequenceGenDesc::prepareGenerate() const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	const LayerGenerator& lgen = *((*this)[idx]);
+	LayerGenerator& lgen = *const_cast<LayerGenerator*>(((*this)[idx]));
+	lgen.gendesc_ = this;
 	if ( !lgen.reset() )
 	    { errmsg_ = lgen.errMsg(); return false; }
     }
@@ -213,8 +214,19 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 	{
 	    errmsg_ = lgen.errMsg();
 	    if ( errmsg_.isEmpty() )
-		errmsg_.add( "Error generating " )
-		       .add( lgen.name() );
+		errmsg_.add( "Error generating " ).add( lgen.name() );
+	    return false;
+	}
+    }
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const LayerGenerator& lgen = *((*this)[idx]);
+	if ( !lgen.postProcess(ls) )
+	{
+	    errmsg_ = lgen.errMsg();
+	    if ( errmsg_.isEmpty() )
+		errmsg_.add( "Error post-processing " ).add( lgen.name() );
 	    return false;
 	}
     }
