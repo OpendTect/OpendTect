@@ -4,7 +4,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.21 2012-08-22 16:36:41 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.22 2012-08-22 18:08:17 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
@@ -348,95 +348,14 @@ const Array3D<bool>* FaultOrientation::getFaultConfidence( ConfidenceLevel cl )
 { return cl==Low ? conf_low_ : (cl==High ? conf_high_ : conf_med_ ); }
 
 
-bool FaultOrientation::compute2D( const Array3D<float>& input, TaskRunner* tr )
-{
-    const int isz = input.info().getSize(0);
-    const int csz = input.info().getSize(1);
-    const int zsz = input.info().getSize(2);
-    const bool isinl = isz==1;
-    const bool is_t_slic = zsz==1;
-    const int xsz = isinl ? csz : isz;
-    const int ysz = is_t_slic ? csz : zsz;
-
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, attr_sect,
-	                Array2DImpl<float> (xsz,ysz) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, vein_bina,
-	                Array2DImpl<bool> (xsz,ysz) );
-    for ( int idx=0; idx<xsz; idx++ )
-    {
-	for ( int idy=0; idy<ysz; idy++ )
-	{
-	    float val = isinl ? input.get(0,idx,idy) : (is_t_slic ? 
-		    input.get(idx,idy,0) : input.get(idx,0,idy) );
-	    attr_sect->set( idx, idy, val );
-	}
-    }
-    compute2DVeinBinary( *attr_sect, threshold_, isfltabove_, minfaultlength_, 
-	    sigma_, percent_, is_t_slic, *vein_bina, tr );
-    
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_pca,
-	    Array2DImpl<float> (xsz,ysz) );
-    azimuth_pca->setAll( mNull_val );
-    computeComponentAngle( *vein_bina, *vein_bina, minfaultlength_, mNull_val, 
-	    *azimuth_pca );
-	
-    const int elem_leng_new = minfaultlength_*4;
-    const float uppr_perc = 0.85;
-    const float lowr_perc = 0.15;
-    const float angl_tole = 10;
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_pca_stab,
-	    Array2DImpl<float> (xsz,ysz) );
-    stabilizeAngleSection( *vein_bina, *azimuth_pca, elem_leng_new, 
-	    uppr_perc, lowr_perc, angl_tole, mNull_val, *azimuth_pca_stab );
-    if ( isinl )
-    {
-	for ( int i=0; i<xsz; i++ )
-	{
-	    for ( int j=0; j<ysz; j++ )
-	    {
-		azimuth_stable_->set( 0, i, j, azimuth_pca_stab->get(i,j) );
-		conf_low_->set( 0, i, j, vein_bina->get(i,j) );
-		conf_med_->set( 0, i, j, vein_bina->get(i,j) );
-		conf_high_->set( 0, i, j, vein_bina->get(i,j) );
-	    }
-	}
-    }
-    else if ( is_t_slic ) 
-    {
-	for ( int i=0; i<xsz; i++ )
-	{
-	    for ( int j=0; j<ysz; j++ )
-	    {
-		azimuth_stable_->set( i, j, 0, azimuth_pca_stab->get(i,j) );
-		conf_low_->set( i, j, 0, vein_bina->get(i,j) );
-		conf_med_->set( i, j, 0, vein_bina->get(i,j) );
-		conf_high_->set( i, j, 0, vein_bina->get(i,j) );
-	    }
-	}
-    }
-    else 
-    {
-	for ( int i=0; i<xsz; i++ )
-	{
-	    for ( int j=0; j<ysz; j++ )
-	    {
-		azimuth_stable_->set( i, 0, j, azimuth_pca_stab->get(i,j) );
-		conf_low_->set( i, 0, j, vein_bina->get(i,j) );
-		conf_med_->set( i, 0, j, vein_bina->get(i,j) );
-		conf_high_->set( i ,0, j, vein_bina->get(i,j) );
-	    }
-	}
-    }
-
-    return true;
-}
-
-
-bool FaultOrientation::compute( const Array3D<float>& input, TaskRunner* tr )
+bool FaultOrientation::compute( const Array3D<float>& input, bool forazimuth,
+	bool fordip, TaskRunner* tr )
 {
     cleanAll();
-    azimuth_stable_ = new Array3DImpl<float>( input.info() );
-    dip_stable_ = new Array3DImpl<float>( input.info() );
+    if ( forazimuth )
+    	azimuth_stable_ = new Array3DImpl<float>( input.info() );
+    if ( fordip )
+    	dip_stable_ = new Array3DImpl<float>( input.info() );
     conf_low_ = new Array3DImpl<bool>( input.info() );
     conf_med_ = new Array3DImpl<bool>( input.info() );
     conf_high_ = new Array3DImpl<bool>( input.info() );
@@ -465,6 +384,9 @@ bool FaultOrientation::compute( const Array3D<float>& input, TaskRunner* tr )
 
     getFaultConfidence( *vein_bina_t0, *vein_bina_0, *vein_bina_45, 
 	    *vein_bina_90, *vein_bina_135, *conf_low_, *conf_med_, *conf_high_);
+    
+    if ( !forazimuth )
+	return true;
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, azimuth_pca,
 	    Array3DImpl<float> (input.info()) );
@@ -473,13 +395,108 @@ bool FaultOrientation::compute( const Array3D<float>& input, TaskRunner* tr )
     stabilizeAzimuth( *conf_low_, *azimuth_pca, minfaultlength_, mNull_val, 
 	    *azimuth_stable_ );
 
-    mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, dip_pca,
-	    Array3DImpl<float> (input.info()) );
-    const int wind_size = 4*sigma_;
-    computeDipPCA( *conf_low_, *conf_med_, *azimuth_stable_, wind_size,
-	    minfaultlength_, mNull_val, *dip_pca );
-    stablizeDip( *conf_low_, *azimuth_stable_, *dip_pca, wind_size,
-	    minfaultlength_, mNull_val, *dip_stable_ );
+    if ( fordip )
+    {
+	mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, dip_pca,
+		Array3DImpl<float> (input.info()) );
+	const int wind_size = 4*sigma_;
+	computeDipPCA( *conf_low_, *conf_med_, *azimuth_stable_, wind_size,
+		minfaultlength_, mNull_val, *dip_pca );
+	stablizeDip( *conf_low_, *azimuth_stable_, *dip_pca, wind_size,
+		minfaultlength_, mNull_val, *dip_stable_ );
+    }
+
+    return true;
+}
+
+
+bool FaultOrientation::compute2D( const Array3D<float>& input, TaskRunner* tr )
+{
+    const int isz = input.info().getSize(0);
+    const int csz = input.info().getSize(1);
+    const int zsz = input.info().getSize(2);
+    const bool isinl = isz==1;
+    const bool is_t_slic = zsz==1;
+    const int xsz = isinl ? csz : isz;
+    const int ysz = is_t_slic ? csz : zsz;
+
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, attr_sect,
+	                Array2DImpl<float> (xsz,ysz) );
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, vein_bina,
+	                Array2DImpl<bool> (xsz,ysz) );
+    for ( int idx=0; idx<xsz; idx++ )
+    {
+	for ( int idy=0; idy<ysz; idy++ )
+	{
+	    float val = isinl ? input.get(0,idx,idy) : (is_t_slic ? 
+		    input.get(idx,idy,0) : input.get(idx,0,idy) );
+	    attr_sect->set( idx, idy, val );
+	}
+    }
+    compute2DVeinBinary( *attr_sect, threshold_, isfltabove_, minfaultlength_, 
+	    sigma_, percent_, is_t_slic, *vein_bina, tr );
+    
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_pca_stab,
+	    Array2DImpl<float> (xsz,ysz) );
+    const bool doazimuth = azimuth_stable_;
+    if ( doazimuth )
+    {
+	mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_pca,
+		Array2DImpl<float> (xsz,ysz) );
+	azimuth_pca->setAll( mNull_val );
+	computeComponentAngle( *vein_bina, *vein_bina, minfaultlength_, 
+		mNull_val, *azimuth_pca );
+
+    	const int elem_leng_new = minfaultlength_*4;
+    	const float uppr_perc = 0.85;
+    	const float lowr_perc = 0.15;
+    	const float angl_tole = 10;
+    	stabilizeAngleSection( *vein_bina, *azimuth_pca, elem_leng_new, 
+		uppr_perc, lowr_perc, angl_tole, mNull_val, *azimuth_pca_stab);
+    }
+
+    if ( isinl )
+    {
+	for ( int i=0; i<xsz; i++ )
+	{
+	    for ( int j=0; j<ysz; j++ )
+	    {
+		if ( doazimuth )
+    		    azimuth_stable_->set( 0, i, j, azimuth_pca_stab->get(i,j) );
+		conf_low_->set( 0, i, j, vein_bina->get(i,j) );
+		conf_med_->set( 0, i, j, vein_bina->get(i,j) );
+		conf_high_->set( 0, i, j, vein_bina->get(i,j) );
+	    }
+	}
+    }
+    else if ( is_t_slic ) 
+    {
+	for ( int i=0; i<xsz; i++ )
+	{
+	    for ( int j=0; j<ysz; j++ )
+	    {
+		if ( doazimuth )
+    		    azimuth_stable_->set( i, j, 0, azimuth_pca_stab->get(i,j) );
+		conf_low_->set( i, j, 0, vein_bina->get(i,j) );
+		conf_med_->set( i, j, 0, vein_bina->get(i,j) );
+		conf_high_->set( i, j, 0, vein_bina->get(i,j) );
+	    }
+	}
+    }
+    else 
+    {
+	for ( int i=0; i<xsz; i++ )
+	{
+	    for ( int j=0; j<ysz; j++ )
+	    {
+		if ( doazimuth )
+    		    azimuth_stable_->set( i, 0, j, azimuth_pca_stab->get(i,j) );
+		conf_low_->set( i, 0, j, vein_bina->get(i,j) );
+		conf_med_->set( i, 0, j, vein_bina->get(i,j) );
+		conf_high_->set( i ,0, j, vein_bina->get(i,j) );
+	    }
+	}
+    }
 
     return true;
 }

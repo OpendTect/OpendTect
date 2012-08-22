@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: fingervein.h,v 1.10 2012-08-22 16:36:41 cvsyuancheng Exp $
+ RCS:           $Id: fingervein.h,v 1.11 2012-08-22 18:08:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -79,7 +79,9 @@ public:
     void			setParameters(int sigma,float vein_percentage);
     				/*!<sigma is Gaussian kernel sigma, percentage 
 				  is between 0 and 1.*/
-    bool			compute(const Array3D<float>&,TaskRunner* tr=0);
+    bool			compute(const Array3D<float>& input,
+	    				bool forazimuth=true,bool fordip=true,
+					TaskRunner* tr=0);
 
     const Array3D<float>*	getAzimuth() const { return azimuth_stable_; }
     const Array3D<float>*	getDip() const	   { return dip_stable_; }
