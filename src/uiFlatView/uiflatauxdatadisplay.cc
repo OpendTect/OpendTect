@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.9 2012-08-10 03:50:04 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.10 2012-08-22 13:54:51 cvsbruno Exp $";
 
 #include "uiflatauxdatadisplay.h"
 
@@ -204,7 +204,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 
 	if ( !nameitem_ )
 	{
-	    nameitem_ = new uiTextItem( name_, namealignment_ );
+	    nameitem_ = new uiODViewerTextItem( name_, namealignment_ );
 	    display_->add( nameitem_ );
 	    //dispids_ += nameitem_->id();
 	}

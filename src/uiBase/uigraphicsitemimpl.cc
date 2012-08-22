@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsitemimpl.cc,v 1.62 2012-07-10 08:05:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsitemimpl.cc,v 1.63 2012-08-22 13:54:50 cvsbruno Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -663,6 +663,18 @@ void uiTextItem::setBackgroundColor( const Color& col )
 
 Color uiTextItem::getBackgroundColor() const
 { return Color(); }
+
+
+
+uiODViewerTextItem::uiODViewerTextItem( const char* txt, const Alignment& al )
+    : uiTextItem(txt,al)
+{}
+
+QGraphicsItem* uiODViewerTextItem::mkQtObj()
+{
+    qtextitem_ = new ODViewerTextItem();
+    return qtextitem_;
+}
 
 
 // uiMarkerItem
