@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.49 2012-07-12 15:04:44 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.50 2012-08-22 12:50:33 cvsbruno Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -92,7 +92,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	uiToolButton* mDefBut(trlbut,"google",translateCB,"Translate");
     }
 
-    //zoomChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
+    zoomChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
 
     menu_.ref();
     menu_.createnotifier.notify(mCB(this,uiFlatViewStdControl,createMenuCB));
