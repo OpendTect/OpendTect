@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpropertyrefsel.cc,v 1.14 2012-05-02 15:12:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpropertyrefsel.cc,v 1.15 2012-08-23 07:22:13 cvsbert Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -148,7 +148,7 @@ void uiWellPropSel::initFlds()
     for ( int idx=0; idx<proprefsel_.size(); idx ++ )
     {
 	const PropertyRef& pr = *proprefsel_[idx];
-	if ( pr == PropertyRef::thickness() )
+	if ( pr.isThickness() )
 	    continue;
 
 	const PropertyRef* altpr = 0;

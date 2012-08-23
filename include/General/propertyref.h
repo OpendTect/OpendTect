@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: propertyref.h,v 1.17 2012-08-03 13:00:25 cvskris Exp $
+ RCS:		$Id: propertyref.h,v 1.18 2012-08-23 07:22:13 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,6 @@ public:
 			};
 			DeclareEnumUtils(StdType)
     static StdType	surveyZType();
-    inline static bool	isHCAffected( StdType t )	{ return t >= Den; }
 
 			PropertyRef( const char* nm, StdType t=Other )
 			: NamedObject(nm)
@@ -68,8 +67,6 @@ public:
 			{ return hasType(pr.stdType()); }
     inline void		setStdType( StdType t ) 	{ stdtype_ = t; }
 
-    inline bool		isHCAffected() const
-					{ return isHCAffected(stdtype_); }
     inline BufferStringSet& aliases()			{ return aliases_; }
     inline const BufferStringSet& aliases() const	{ return aliases_; }
 
@@ -96,6 +93,7 @@ public:
 
     static const PropertyRef& thickness();
     		//!< use this always. It has automatic defaults from SI()
+    inline bool		isThickness() const	{ return this == &thickness(); }
 
 protected:
 
@@ -105,6 +103,7 @@ protected:
     friend class	PropertyRefSet;
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
+
 };
 
 
