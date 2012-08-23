@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: drawaxis2d.cc,v 1.42 2012-08-10 03:50:06 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: drawaxis2d.cc,v 1.43 2012-08-23 21:46:42 cvsnanne Exp $";
 
 #include "drawaxis2d.h"
 
@@ -335,6 +335,12 @@ void uiGraphicsSceneAxisMgr::setGridLineStyle( const LineStyle& gls )
 {
     xaxis_->setGridLineStyle( gls );
     yaxis_->setGridLineStyle( gls );
+}
+
+
+void uiGraphicsSceneAxisMgr::annotInside( bool yn )
+{
+    // TODO: Implement!
 }
 
 
