@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.148 2012-08-13 04:04:40 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.149 2012-08-23 21:45:56 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -382,6 +382,7 @@ void Seis2DDisplay::setData( int attrib,
 		usedarr = tmparr;
 		const int startidx = trcdisplayinfo_.rg.start;
 		float* sampleptr = tmparr->getData();
+		const bool canuseptr = sampleptr;
 		for ( int crlidx=0; crlidx<trcdisplayinfo_.size; crlidx++ )
 		{
 		    const int trcnr =
@@ -398,7 +399,10 @@ void Seis2DDisplay::setData( int attrib,
 		    {
 			if ( trcidx==-1 )
 			{
-			    *sampleptr = mUdf(float);
+			    if ( canuseptr )
+				*sampleptr = mUdf(float);
+			    else
+				tmparr->set( crlidx, zidx, mUdf(float) );
 			    continue;
 			}
 
@@ -411,7 +415,10 @@ void Seis2DDisplay::setData( int attrib,
 			else
 			    IdxAble::interpolateReg( trcstor, nrsamples, sample,
 						     val, false );
-			*sampleptr = val;
+			if ( canuseptr )
+			    *sampleptr = val;
+			else
+			    tmparr->set( crlidx, zidx, val );
 		    }
 		}
 	    }
