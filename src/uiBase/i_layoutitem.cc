@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: i_layoutitem.cc,v 1.19 2012-05-02 15:11:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: i_layoutitem.cc,v 1.20 2012-08-23 10:11:40 cvsnageswara Exp $";
 
 #include "i_layoutitem.h"
 #include "i_layout.h"
@@ -30,7 +30,7 @@ static bool lyoutdbg = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
 
 //------------------------------------------------------------------------------
 
-i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm ) 
+i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, mQtclass(QLayoutItem&) itm ) 
     : mngr_( m ), qlayoutitm( &itm ) 
     , preferred_pos_inited( false ), minimum_pos_inited( false )
     , prefSzDone( false ), hsameas( false ), vsameas( false )
@@ -93,7 +93,7 @@ void i_LayoutItem::commitGeometrySet( bool store2prefpos )
     }
 #endif
 
-    qlayoutitm->setGeometry ( QRect ( mPos.left(), mPos.top(), 
+    qlayoutitm->setGeometry ( mQtclass(QRect) ( mPos.left(), mPos.top(), 
                                         mPos.hNrPics(), mPos.vNrPics() )); 
 }
 
