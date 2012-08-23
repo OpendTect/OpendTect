@@ -4,7 +4,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.22 2012-08-22 18:08:17 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.23 2012-08-23 20:41:25 cvsyuancheng Exp $";
 
 #include "fingervein.h"
 
@@ -352,44 +352,46 @@ bool FaultOrientation::compute( const Array3D<float>& input, bool forazimuth,
 	bool fordip, TaskRunner* tr )
 {
     cleanAll();
+    const int isz = input.info().getSize(0);
+    const int csz = input.info().getSize(1);
+    const int zsz = input.info().getSize(2);
     if ( forazimuth )
-    	azimuth_stable_ = new Array3DImpl<float>( input.info() );
+    	azimuth_stable_ = new Array3DImpl<float>( isz, csz, zsz );
     if ( fordip )
-    	dip_stable_ = new Array3DImpl<float>( input.info() );
-    conf_low_ = new Array3DImpl<bool>( input.info() );
-    conf_med_ = new Array3DImpl<bool>( input.info() );
-    conf_high_ = new Array3DImpl<bool>( input.info() );
+    	dip_stable_ = new Array3DImpl<float>( isz, csz, zsz );
+    conf_low_ = new Array3DImpl<bool>( isz, csz, zsz );
+    conf_med_ = new Array3DImpl<bool>( isz, csz, zsz );
+    conf_high_ = new Array3DImpl<bool>( isz, csz, zsz );
     conf_low_->setAll( false );
     conf_med_->setAll( false );
     conf_high_->setAll( false );
 
-    if ( input.info().getSize(0)==1 || input.info().getSize(1)==1 || 
-	 input.info().getSize(2)==1 )
+    if ( isz==1 || csz==1 || zsz==1 )
 	return compute2D( input, tr );
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<bool> >, vein_bina_t0,
-	    Array3DImpl<bool> (input.info()) );
+	    Array3DImpl<bool> (isz, csz, zsz) );
     computeVeinSlices( input, *vein_bina_t0, tr );
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<bool> >, vein_bina_0,
-	    Array3DImpl<bool> (input.info()) );
+	    Array3DImpl<bool> (isz, csz, zsz) );
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<bool> >, vein_bina_45,
-	    Array3DImpl<bool> (input.info()) );
+	    Array3DImpl<bool> (isz, csz, zsz) );
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<bool> >, vein_bina_90,
-	    Array3DImpl<bool> (input.info()) );
+	    Array3DImpl<bool> (isz, csz, zsz) );
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<bool> >, vein_bina_135,
-	    Array3DImpl<bool> (input.info()) );
+	    Array3DImpl<bool> (isz, csz, zsz) );
     computeVerticalVeinSlice( input, *vein_bina_0, *vein_bina_45, 
 	    *vein_bina_90, *vein_bina_135 );
 
-    getFaultConfidence( *vein_bina_t0, *vein_bina_0, *vein_bina_45, 
+    setFaultConfidence( *vein_bina_t0, *vein_bina_0, *vein_bina_45, 
 	    *vein_bina_90, *vein_bina_135, *conf_low_, *conf_med_, *conf_high_);
     
     if ( !forazimuth )
 	return true;
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, azimuth_pca,
-	    Array3DImpl<float> (input.info()) );
+	    Array3DImpl<float> (isz, csz, zsz) );
     computeAzimuthPCA( *conf_low_, *conf_med_, minfaultlength_, mNull_val, 
 	    *azimuth_pca, tr );
     stabilizeAzimuth( *conf_low_, *azimuth_pca, minfaultlength_, mNull_val, 
@@ -398,7 +400,7 @@ bool FaultOrientation::compute( const Array3D<float>& input, bool forazimuth,
     if ( fordip )
     {
 	mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, dip_pca,
-		Array3DImpl<float> (input.info()) );
+		Array3DImpl<float> (isz, csz, zsz) );
 	const int wind_size = 4*sigma_;
 	computeDipPCA( *conf_low_, *conf_med_, *azimuth_stable_, wind_size,
 		minfaultlength_, mNull_val, *dip_pca );
@@ -1558,7 +1560,7 @@ void FaultOrientation::stabilizeAzimuth( const Array3D<bool>& conf_bina,
 }
 
 
-void FaultOrientation::getFaultConfidence( const Array3D<bool>& vein_bina_t0,
+void FaultOrientation::setFaultConfidence( const Array3D<bool>& vein_bina_t0,
 	const Array3D<bool>& vein_bina_0, const Array3D<bool>& vein_bina_45, 
 	const Array3D<bool>& vein_bina_90, const Array3D<bool>& vein_bina_135, 
 	Array3D<bool>& conf_low, Array3D<bool>& conf_med, 
@@ -1804,74 +1806,71 @@ bool FaultOrientation::computeVeinSlices( const Array3D<float>& input,
 }
 
 
-bool FaultOrientation::compute2DVeinBinary( const Array2D<float>& img, 
+bool FaultOrientation::compute2DVeinBinary( const Array2D<float>& input, 
 	float threshold, bool isabove, int fault_min_length, int sigma, 
 	float perc, bool is_t_slic, Array2D<bool>& vein_bina, TaskRunner* tr )
 {
-    const int img_w = img.info().getSize(0);	
-    const int img_h = img.info().getSize(1);	
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, vein_score,
-	    Array2DImpl<float> (img.info()) );
+	    Array2DImpl<float> (input.info()) );
     if ( !vein_score ) return false;
 
-    computeMaxCurvature( img, sigma, is_t_slic, *vein_score, tr );
+    computeMaxCurvature( input, sigma, is_t_slic, *vein_score, tr );
     const float* vein_score_vector = vein_score->getData();
 
-    const od_int64 datasz = img.info().getTotalSz();
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, tmparr,
-	    Array2DImpl<float> (img.info()) );
+	    Array2DImpl<float> (input.info()) );
     if ( !tmparr ) return false;
     tmparr->copyFrom( *vein_score );
     float* vein_score_vector_sort = tmparr->getData();
+    const od_int64 datasz = input.info().getTotalSz();
     sort_array(vein_score_vector_sort,datasz);
 
     const od_int64 thresholdidx = (od_int64)(perc*datasz);
-    const float vein_score_threshold = 
-	    vein_score_vector_sort[0]<vein_score_vector_sort[datasz-1] ? 
-	    vein_score_vector_sort[thresholdidx] : 
-	    vein_score_vector_sort[datasz-1-thresholdidx] ;
+    const float vein_score_threshold = vein_score_vector_sort[thresholdidx];
     
-    const float* inputarr = img.getData();
+    const float* inputarr = input.getData();
     bool* vbdata = vein_bina.getData();
     for ( int idx=0; idx<datasz; idx++ )
 	vbdata[idx] = vein_score_vector[idx] > vein_score_threshold;    
     
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, img_bina,
-	    Array2DImpl<bool> (img.info()) );
-    if ( !img_bina ) return false;
-    bool* imgdata = img_bina->getData();
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, input_bina,
+	    Array2DImpl<bool> (input.info()) );
+    if ( !input_bina ) return false;
+    bool* inputdata = input_bina->getData();
     for ( int idx=0; idx<datasz; idx++ )
-	imgdata[idx] = (mIsUdf(inputarr[idx])) ? false : 
+	inputdata[idx] = (mIsUdf(inputarr[idx])) ? false : 
 	    ( (isabove && inputarr[idx]>=threshold) ||
 	      (!isabove && inputarr[idx]<=threshold) );   
 
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, img_bina_thin,
-	    Array2DImpl<bool> (img.info()) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, img_comp_thin,
-	    Array2DImpl<bool> (img.info()) );
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<int> >, img_comp,
-	    Array2DImpl<int> (img.info()) );
-    thinning( *img_bina, *img_bina_thin );
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, input_bina_thin,
+	    Array2DImpl<bool> (input.info()) );
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, input_comp_thin,
+	    Array2DImpl<bool> (input.info()) );
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<int> >, input_comp,
+	    Array2DImpl<int> (input.info()) );
+    thinning( *input_bina, *input_bina_thin );
     
-    img_comp_thin->setAll( 0 );
-    ConnComponents cc( *img_bina );
+    input_comp_thin->setAll( 0 );
+    ConnComponents cc( *input_bina );
     cc.compute();
-    img_comp->copyFrom( *cc.getLabel() );
-    for ( int idx=0; idx<img_w; idx++ )
+    input_comp->copyFrom( *cc.getLabel() );
+    const int isz = input.info().getSize(0);	
+    const int csz = input.info().getSize(1);	
+    for ( int idx=0; idx<isz; idx++ )
     {
-	for ( int idy=0; idy<img_h; idy++ )
+	for ( int idy=0; idy<csz; idy++ )
 	{
-	    const int marker = img_comp->get(idx,idy);
-	    if ( marker>0 && img_bina_thin->get(idx,idy) )
-		img_comp_thin->set( idx, idy, marker );    
+	    const int marker = input_comp->get(idx,idy);
+	    if ( marker>0 && input_bina_thin->get(idx,idy) )
+		input_comp_thin->set( idx, idy, marker );    
 	}	
     }
 
-    ConnComponents cc_thin( *img_comp_thin );
+    ConnComponents cc_thin( *input_comp_thin );
     cc_thin.compute();
     const int nrcomp_thin = cc_thin.nrComponents();
-    int* imgcompdata = img_comp->getData();
-    bool* imgcompdata_thin = img_comp_thin->getData();
+    int* inputcompdata = input_comp->getData();
+    bool* inputcompdata_thin = input_comp_thin->getData();
     for ( int idx=0; idx<nrcomp_thin; idx++ )
     {
 	const TypeSet<int>* comp = cc_thin.getComponent(idx);
@@ -1881,41 +1880,41 @@ bool FaultOrientation::compute2DVeinBinary( const Array2D<float>& img,
 
 	for ( int idy=0; idy<compsz; idy++ )
 	{
-	    imgcompdata[(*comp)[idy]] = 0;	
-	    imgcompdata_thin[(*comp)[idy]] = 0;	
+	    inputcompdata[(*comp)[idy]] = 0;	
+	    inputcompdata_thin[(*comp)[idy]] = 0;	
 	}
     }
     
     for ( int idx=0; idx<datasz; idx++ )
-	imgdata[idx] = imgcompdata[idx] ? 1 : 0;
+	inputdata[idx] = inputcompdata[idx] ? 1 : 0;
 
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, vein_bina_merge,
-	    Array2DImpl<bool> (img.info()) );
+	    Array2DImpl<bool> (input.info()) );
     vein_bina_merge->copyFrom( vein_bina );
     bool* mergedata = vein_bina_merge->getData();
     for ( int idx=0; idx<datasz; idx++ )
     {
-	if ( imgdata[idx]==0 || vbdata[idx]==1 )
+	if ( inputdata[idx]==0 || vbdata[idx]==1 )
 	    continue;
 
 	mergedata[idx] = 1;
     }
 
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, vein_bina_thin,
-	    Array2DImpl<bool> (img.info()) );
+	    Array2DImpl<bool> (input.info()) );
     thinning( *vein_bina_merge, *vein_bina_thin );
     
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<int> >, vein_comp,
-	    Array2DImpl<int> (img.info()) );
+	    Array2DImpl<int> (input.info()) );
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, vein_comp_thin,
-	    Array2DImpl<bool> (img.info()) );
+	    Array2DImpl<bool> (input.info()) );
     ConnComponents cc1( *vein_bina_merge );
     cc1.compute();
     vein_comp->copyFrom( *cc1.getLabel() );
     vein_comp_thin->setAll( 0 );
-    for ( int x=0; x<img_w; x++ )
+    for ( int x=0; x<isz; x++ )
     {
-	for ( int y=0; y<img_h; y++ )
+	for ( int y=0; y<csz; y++ )
 	{
     	    if ( vein_bina_thin->get(x,y) && vein_comp->get(x,y) )
 		vein_comp_thin->set( x, y, vein_comp->get(x,y) );

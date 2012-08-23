@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: fingervein.h,v 1.11 2012-08-22 18:08:17 cvsyuancheng Exp $
+ RCS:           $Id: fingervein.h,v 1.12 2012-08-23 20:41:25 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -129,7 +129,7 @@ protected:
 	    				const Array3D<float>& azimuth_pca, 
 					int elem_leng,float null_val,
 			    		Array3D<float>& output);
-    void			getFaultConfidence(const Array3D<bool>& vbina,
+    void			setFaultConfidence(const Array3D<bool>& vbina,
 	    				const Array3D<bool>& vein_bina_0,
 	    				const Array3D<bool>& vein_bina_45,
     					const Array3D<bool>& vein_bina_90,
