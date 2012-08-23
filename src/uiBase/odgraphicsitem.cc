@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odgraphicsitem.cc,v 1.30 2012-08-02 14:59:53 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: odgraphicsitem.cc,v 1.31 2012-08-23 08:44:30 cvsbruno Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -323,8 +323,7 @@ void ODViewerTextItem::paint( QPainter* painter,
 			      QWidget *widget )
 {
     const QTransform worldtrans = painter->worldTransform();
-    const QRect viewport = painter->viewport(); 
-    const QRectF projectedwr = worldtrans.inverted().mapRect( viewport );
+    const QPointF projectedpos = worldtrans.inverted().map( pos() );
 
     painter->save();
     painter->resetTransform();
@@ -332,7 +331,7 @@ void ODViewerTextItem::paint( QPainter* painter,
     if ( option )
 	painter->setClipRect( option->exposedRect );
 
-    painter->drawText( projectedwr, toPlainText() );
+    painter->drawText( projectedpos, toPlainText() );
 
     painter->restore();
 }
