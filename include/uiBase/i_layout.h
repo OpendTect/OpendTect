@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.42 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: i_layout.h,v 1.43 2012-08-23 09:47:52 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,32 +67,33 @@ widget already present).
 
 
 */
-class i_LayoutMngr : public QLayout, public NamedObject
+class i_LayoutMngr : public mQtclass(QLayout), public NamedObject
 {
     friend class	i_LayoutItem;
     friend class	uiGroupParentBody;
 
 public:
-			i_LayoutMngr(QWidget* prnt,
+			i_LayoutMngr(mQtclass(QWidget*) prnt,
 				     const char* name,uiObjectBody& mngbdy);
 
     virtual		~i_LayoutMngr();
  
-    virtual void 	addItem(QLayoutItem*);
+    virtual void 	addItem(mQtclass(QLayoutItem*));
     void	 	addItem(i_LayoutItem*);
 
-    virtual QSize 	sizeHint() const;
-    virtual QSize 	minimumSize() const;
+    virtual mQtclass(QSize) 	sizeHint() const;
+    virtual mQtclass(QSize) 	minimumSize() const;
 
-    virtual QLayoutItem* itemAt(int idx) const;
-    virtual QLayoutItem* takeAt(int idx);
+    virtual mQtclass(QLayoutItem*) itemAt(int idx) const;
+    virtual mQtclass(QLayoutItem*) takeAt(int idx);
     virtual int		 count() const;
 
     virtual void       	invalidate();
     virtual void       	updatedAlignment(LayoutMode);
     virtual void       	initChildLayout(LayoutMode);
 
-    bool 		attach(constraintType,QWidget&,QWidget*,int,
+    bool 		attach(constraintType,mQtclass(QWidget&),
+	    		       mQtclass(QWidget*),int,
 			       bool reciprocal=true);
 
     const uiRect&	curpos(LayoutMode) const;
@@ -118,19 +119,19 @@ public:
 
 private:
 
-    void 		setGeometry( const QRect& );
+    void 		setGeometry( const mQtclass(QRect&) );
  
-    inline void 	doLayout( LayoutMode m, const QRect& r ) const 
+    inline void 	doLayout( LayoutMode m, const mQtclass(QRect&) r ) const 
                         { const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }
-    void 		doLayout( LayoutMode m, const QRect& );
+    void 		doLayout( LayoutMode m, const mQtclass(QRect&) );
 
     void	 	itemDel( CallBacker* );
 
     void 		moveChildrenTo( int , int, LayoutMode );
     void 		fillResizeList( ObjectSet<resizeItem>&, bool ); 
     bool		tryToGrowItem( resizeItem&, const int, const int, 
-				       int, int, const QRect&, int);
-    void		resizeTo( const QRect& );
+				       int, int, const mQtclass(QRect&), int);
+    void		resizeTo( const mQtclass(QRect&) );
     void		childrenCommitGeometrySet(bool);
 
     uiRect 		childrenRect(LayoutMode);
@@ -138,7 +139,7 @@ private:
     ObjectSet<i_LayoutItem> childrenlist;
 
     uiRect		layoutpos[ nLayoutMode ];
-    QRect		prefGeometry;
+    mQtclass(QRect)	prefGeometry;
 
     bool		minimumDone;
     bool		preferredDone;
