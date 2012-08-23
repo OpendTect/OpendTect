@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocbodyfiller.cc,v 1.16 2012-08-09 03:43:21 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprocbodyfiller.cc,v 1.17 2012-08-23 16:31:36 cvsyuancheng Exp $";
 
 #include "volprocbodyfiller.h"
 
@@ -28,10 +28,12 @@ namespace VolProc
 
 void BodyFiller::initClass()
 {
-    SeparString keys( BodyFiller::sFactoryKeyword(), VolProc::Step::factory().cSeparator() );
+    SeparString keys( BodyFiller::sFactoryKeyword(), 
+	    VolProc::Step::factory().cSeparator() );
     keys += BodyFiller::sKeyOldType();
 
-    VolProc::Step::factory().addCreator( createInstance, keys, BodyFiller::sFactoryDisplayName() );
+    VolProc::Step::factory().addCreator( createInstance, keys, 
+	    BodyFiller::sFactoryDisplayName() );
 }    
 
 
@@ -187,7 +189,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     		    if ( mIsUdf(bodyval) )
     			val = mUdf(float);
     		    else
-    			val = bodyval>implicitbody_->threshold_
+    			val = bodyval<implicitbody_->threshold_
     			    ? insideval_ : outsideval_;
     		}
 	    }
