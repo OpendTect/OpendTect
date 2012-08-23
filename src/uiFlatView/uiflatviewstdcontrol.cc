@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.50 2012-08-22 12:50:33 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewstdcontrol.cc,v 1.51 2012-08-23 15:03:43 cvsbruno Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -399,3 +399,8 @@ void uiFlatViewStdControl::keyPressCB( CallBacker* )
     if ( ev.key_ == OD::Escape )
 	stateCB( 0 );
 }
+
+
+NotifierAccess* uiFlatViewStdControl::editPushed()
+{ return editbut_ ? &editbut_->activated : 0; }
+
