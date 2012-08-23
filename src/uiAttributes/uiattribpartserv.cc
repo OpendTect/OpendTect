@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.199 2012-08-07 04:03:34 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.200 2012-08-23 21:47:45 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -834,25 +834,6 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
 	    component = targetdesc->selectedOutput();
     }
 
-    //quick hack for steering: 2 components but only comp 1 is used to store dip
-    //to be standard with vizualisation: duplicate data in comp 0
-    //fix for 1262, TODO: think of what we want on the long term
-    if ( isstored && component ==1 && data2d->dataset_[0]->nrSeries()==2
-	    && !data2d->dataset_[0]->series(0) )
-	for ( int idx=0; idx<data2d->size(); idx++ )
-	    if ( data2d->dataset_[idx] && data2d->dataset_[idx]->series(1) )
-	    {
-		const int arrsize = data2d->dataset_[idx]->nrsamples_;
-		mDeclareAndTryAlloc( float*, ptr, float[arrsize] );
-		if ( !ptr ) break;
-
-		memcpy( ptr, data2d->dataset_[idx]->series(1)->arr(),
-			sizeof(float)*arrsize );
-		ValueSeries<float>* res =
-		    new ArrayValueSeries<float,float>( ptr, true, arrsize );
-		data2d->dataset_[idx]->replace( 0, res );
-	    }
-    
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     mDeclareAndTryAlloc( Flat2DDHDataPack*, newpack, 
 	Attrib::Flat2DDHDataPack( adid, *data2d, false, component ) );
