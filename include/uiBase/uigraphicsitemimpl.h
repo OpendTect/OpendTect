@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.41 2012-08-22 13:54:50 cvsbruno Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.42 2012-08-23 08:44:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -246,7 +246,7 @@ protected:
 mClass(uiBase) uiTextItem : public uiGraphicsItem
 {
 public:
-			uiTextItem();
+			uiTextItem(bool useodvwrtxtitem=false);
     			uiTextItem(const char*,const Alignment& al=Alignment());
     			uiTextItem(const uiPoint&,const char*,
 				   const Alignment& al=Alignment());
@@ -268,8 +268,10 @@ public:
     QGraphicsTextItem*  qTextItem()	{ return qtextitem_; }
 
 protected:
+			uiTextItem(QGraphicsItem*);
 
-    virtual QGraphicsItem* mkQtObj();
+    QGraphicsItem* 	mkQtObj();
+    QGraphicsItem* 	mkODObj();
     QGraphicsTextItem*	qtextitem_;
 
     Alignment		al_;
@@ -277,16 +279,6 @@ protected:
 
     void		updatePos();
     virtual void	stPos(float,float);
-};
-
-
-mClass(uiBase) uiODViewerTextItem : public uiTextItem
-{
-public:
-    			uiODViewerTextItem(const char*,
-					   const Alignment& al=Alignment());
-protected:
-    QGraphicsItem* 	mkQtObj();
 };
 
 

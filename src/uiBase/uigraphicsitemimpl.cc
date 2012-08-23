@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsitemimpl.cc,v 1.63 2012-08-22 13:54:50 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsitemimpl.cc,v 1.64 2012-08-23 08:44:51 cvsbruno Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -525,8 +525,8 @@ void uiRectItem::setRect( int x, int y, int width, int height )
 
 
 // uiTextItem
-uiTextItem::uiTextItem()
-    : uiGraphicsItem(mkQtObj())
+uiTextItem::uiTextItem( bool useodvwrtxtitem )
+    : uiGraphicsItem(useodvwrtxtitem ? mkODObj() : mkQtObj())
     , pos_(0,0)
     , al_(Alignment::Left,Alignment::Top)
 {
@@ -561,6 +561,13 @@ uiTextItem::~uiTextItem()
 QGraphicsItem* uiTextItem::mkQtObj()
 {
     qtextitem_ = new QGraphicsTextItem();
+    return qtextitem_;
+}
+
+
+QGraphicsItem* uiTextItem::mkODObj()
+{
+    qtextitem_ = new ODViewerTextItem();
     return qtextitem_;
 }
 
@@ -664,17 +671,6 @@ void uiTextItem::setBackgroundColor( const Color& col )
 Color uiTextItem::getBackgroundColor() const
 { return Color(); }
 
-
-
-uiODViewerTextItem::uiODViewerTextItem( const char* txt, const Alignment& al )
-    : uiTextItem(txt,al)
-{}
-
-QGraphicsItem* uiODViewerTextItem::mkQtObj()
-{
-    qtextitem_ = new ODViewerTextItem();
-    return qtextitem_;
-}
 
 
 // uiMarkerItem

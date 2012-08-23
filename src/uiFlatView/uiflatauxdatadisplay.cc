@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.10 2012-08-22 13:54:51 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatauxdatadisplay.cc,v 1.11 2012-08-23 08:44:51 cvsbruno Exp $";
 
 #include "uiflatauxdatadisplay.h"
 
@@ -204,15 +204,12 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 
 	if ( !nameitem_ )
 	{
-	    nameitem_ = new uiODViewerTextItem( name_, namealignment_ );
+	    nameitem_ = new uiTextItem( true ); 
 	    display_->add( nameitem_ );
 	    //dispids_ += nameitem_->id();
 	}
-	else
-	{
-	    nameitem_->setText( name_ );
-	    nameitem_->setAlignment( namealignment_ );
-	}
+	nameitem_->setText( name_ );
+	nameitem_->setAlignment( namealignment_ );
 
 	nameitem_->setTextColor( linestyle_.color_ );
 	if ( poly_.size() > listpos )
