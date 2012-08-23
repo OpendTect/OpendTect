@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiobjfileman.h,v 1.17 2012-08-03 13:01:00 cvskris Exp $
+ RCS:           $Id: uiobjfileman.h,v 1.18 2012-08-23 21:47:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ protected:
     IOObjContext&		ctxt_;
     bool			curimplexists_;
 
-    void			saveNotes();
+    void			saveNotes(CallBacker*);
     void			readNotes();
     void			setInfo(const char* txt);
     void			setPrefWidth(int width); //!< width in char

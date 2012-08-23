@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjfileman.cc,v 1.45 2012-07-10 08:05:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjfileman.cc,v 1.46 2012-08-23 21:47:18 cvsnanne Exp $";
 
 
 #include "uiobjfileman.h"
@@ -75,9 +75,12 @@ void uiObjFileMan::createDefaultUI( bool needreloc )
 
     uiGroup* notesgrp = new uiGroup( this, "Notes Group" );
     notesfld_ = new uiTextEdit( notesgrp, "User info" );
-    notesfld_->setPrefHeightInChar( 3 );
+    notesfld_->setPrefHeightInChar( 5 );
     notesfld_->setStretch( 2, 2 );
     notesfld_->setToolTip( "Notes" );
+    uiToolButton* savebut = new uiToolButton( notesgrp, "save", "Save Notes",
+	    mCB(this,uiObjFileMan,saveNotes) );
+    savebut->attach( rightTo, notesfld_ );
 
     setPrefWidth( cPrefWidth );
 
@@ -110,7 +113,7 @@ static BufferString getFileName( const IOObj& ioobj )
 }
 
 
-void uiObjFileMan::saveNotes()
+void uiObjFileMan::saveNotes( CallBacker* )
 {
     BufferString txt = notesfld_->text();
     if ( !curioobj_ || txt.isEmpty() )
@@ -156,7 +159,7 @@ void uiObjFileMan::readNotes()
 
 void uiObjFileMan::selChg( CallBacker* cb )
 {
-    saveNotes();
+    saveNotes(0);
     delete curioobj_;
     curioobj_ = selgrp_->nrSel() > 0 ? IOM().get(selgrp_->selected(0)) : 0;
     curimplexists_ = curioobj_ && curioobj_->implExists(true);
