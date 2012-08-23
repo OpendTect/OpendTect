@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.34 2012-08-03 13:00:50 cvskris Exp $
+ RCS:           $Id: iodrawtool.h,v 1.35 2012-08-23 11:19:10 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,9 +19,9 @@ ________________________________________________________________________
 
 class uiFont;
 class ioPixmap;
-class QPainter;
-class QPaintDevice;
-class QPen;
+mFDQtclass(QPainter)
+mFDQtclass(QPaintDevice)
+mFDQtclass(QPen)
 
 
 /*!\brief Tool to draw on ioDrawAreas.
@@ -109,9 +109,9 @@ public:
 protected:
 
     friend class ioDrawAreaImpl;
-			ioDrawTool(QPaintDevice*);
+			ioDrawTool(mQtclass(QPaintDevice*));
 
-    QPainter*		qpainter_;
+    mQtclass(QPainter*)	qpainter_;
     bool		qpaintermine_;
     bool		qpainterprepared_;
 
@@ -119,16 +119,16 @@ protected:
 
 public:
 
-    void		setActivePainter(QPainter*);
+    void		setActivePainter(mQtclass(QPainter*));
     void		dismissPainter();
-    QPainter*		qPainter()		{ return qpainter_; }
-    QPen&		qPen()			{ return qpen_; }
-    QPaintDevice&	qPaintDevice()		{ return qpaintdev_; }
+    mQtclass(QPainter*)	qPainter()		{ return qpainter_; }
+    mQtclass(QPen&)	qPen()			{ return qpen_; }
+    mQtclass(QPaintDevice&)	qPaintDevice()	{ return qpaintdev_; }
 
 private:
 
-    QPen&		qpen_;
-    QPaintDevice&	qpaintdev_;
+    mQtclass(QPen&)	qpen_;
+    mQtclass(QPaintDevice&)	qpaintdev_;
 
     const uiFont*	font_;
     Color		areabgcolor_;
