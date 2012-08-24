@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segytr.cc,v 1.115 2012-08-09 03:35:32 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: segytr.cc,v 1.116 2012-08-24 11:50:02 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -162,7 +162,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	}
 	for ( int idx=0; idx<nrstzs; idx++ )
 	{
-	    if ( !sConn().doIO(txthead_->txt_,SegyTxtHeaderLength) )
+	    char tmpbuf[SegyTxtHeaderLength];
+	    if ( !sConn().doIO(tmpbuf,SegyTxtHeaderLength) )
 		mErrRet( "No traces found in the SEG-Y file" )
 	}
     }
