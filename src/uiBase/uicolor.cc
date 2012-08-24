@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicolor.cc,v 1.45 2012-07-10 08:05:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicolor.cc,v 1.46 2012-08-24 07:47:41 cvsnageswara Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -60,20 +60,23 @@ static void endCmdRecEvent( int refnr, bool ok, const Color& col,
 
 bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 {
-    QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
+    mQtclass(QWidget*) qparent = parnt ? parnt->pbody()->qwidget() : 0;
     if ( !nm || !*nm ) nm = "Select color";
 
     const char* wintitle = uiMainWin::uniqueWinTitle( nm );
     const int refnr = beginCmdRecEvent( wintitle );
 
-    QColorDialog qdlg( QColor(col.r(),col.g(),col.b(),col.t()), qparent );
+    mQtclass(QColorDialog) qdlg( mQtclass(QColor)(col.r(),col.g(),
+					  	  col.b(),col.t()),
+	    			 qparent );
     qdlg.setWindowTitle( QString(wintitle) );
     if ( withtransp )
     {
-	qdlg.setOption( QColorDialog::ShowAlphaChannel );
-	QList<QLabel*> lbllst = qdlg.findChildren<QLabel*>("");
+	qdlg.setOption( mQtclass(QColorDialog)::ShowAlphaChannel );
+	mQtclass(QList)<mQtclass(QLabel*)> lbllst =
+	    			       qdlg.findChildren<mQtclass(QLabel*)>("");
 	bool found = false;
-	foreach(QLabel* qlbl,lbllst)
+	foreach(mQtclass(QLabel*) qlbl,lbllst)
 	{
 	    if ( qlbl->text() == "A&lpha channel:" )
 		{ qlbl->setText( "&Transparency:" ); found = true; break; }
@@ -83,11 +86,11 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 			    "selectColor" );
     }
 
-    const bool ok = qdlg.exec() == QDialog::Accepted;
+    const bool ok = qdlg.exec() == mQtclass(QDialog)::Accepted;
 
     if ( ok )
     {
-	QColor newcol = qdlg.selectedColor();
+	mQtclass(QColor) newcol = qdlg.selectedColor();
 	col.set( newcol.red(), newcol.green(), newcol.blue(),
 		 withtransp ? newcol.alpha() : col.t() );
     }
@@ -99,10 +102,11 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 
 void setExternalColor( const Color& col )
 {
-     QWidget* amw = qApp->activeModalWidget();
-     QColorDialog* qcd = dynamic_cast<QColorDialog*>( amw );
+     mQtclass(QWidget*) amw = qApp->activeModalWidget();
+     mQtclass(QColorDialog*) qcd = dynamic_cast<mQtclass(QColorDialog*)>( amw );
      if ( qcd )
-	 qcd->setCurrentColor( QColor(col.r(),col.g(),col.b(),col.t()) );
+	 qcd->setCurrentColor( mQtclass(QColor)(col.r(),col.g(),col.b(),
+		     				col.t()) );
 }
 
 
