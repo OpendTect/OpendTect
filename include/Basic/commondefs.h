@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.48 2012-08-21 06:39:07 cvsnageswara Exp $
+ RCS:		$Id: commondefs.h,v 1.49 2012-08-24 13:08:08 cvsbert Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -70,6 +70,7 @@ ________________________________________________________________________
 
 
 #define mFromFeetFactorF	0.3048f
+#define mFromFeetFactorD	0.3048
 #define mToFeetFactorF		3.2808399f
 #define mToFeetFactorD		3.28083989501312336
 #define mToSqMileFactor		0.3861 			//km^2 to mile^2
