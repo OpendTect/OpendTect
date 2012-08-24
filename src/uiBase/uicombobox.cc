@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicombobox.cc,v 1.65 2012-05-02 15:11:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicombobox.cc,v 1.66 2012-08-24 07:58:07 cvsnageswara Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -23,21 +23,21 @@ static const char* rcsID mUnusedVar = "$Id: uicombobox.cc,v 1.65 2012-05-02 15:1
 #include <QSize>
 
 
-class uiComboBoxBody : public uiObjBodyImpl<uiComboBox,QComboBox>
+class uiComboBoxBody : public uiObjBodyImpl<uiComboBox,mQtclass(QComboBox)>
 {
 
 public:
 
 			uiComboBoxBody( uiComboBox& hndle, uiParent* p,
 					const char* nm )
-			    : uiObjBodyImpl<uiComboBox,QComboBox>(hndle,p,nm)
-			    , messenger_( *new i_comboMessenger( this, &hndle))
-			{
+		     : uiObjBodyImpl<uiComboBox,mQtclass(QComboBox)>(hndle,p,nm)
+		     , messenger_( *new i_comboMessenger( this, &hndle))
+		     {
 			    setEditable( false );
 			    setAutoCompletion( false );
 			    setStretch( 1, 0 );
 			    setHSzPol( uiObject::Medium) ;
-			}
+		      }
 
     virtual		~uiComboBoxBody()
 			    { delete &messenger_; }
@@ -46,7 +46,7 @@ public:
 
 protected:
 
-    virtual void	contextMenuEvent(QContextMenuEvent*);
+    virtual void	contextMenuEvent(mQtclass(QContextMenuEvent*));
 
 private:
 
@@ -55,7 +55,7 @@ private:
 };
 
 
-void uiComboBoxBody::contextMenuEvent( QContextMenuEvent* ev )
+void uiComboBoxBody::contextMenuEvent( mQtclass(QContextMenuEvent*) ev )
 { handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() ); }
 
 
@@ -125,7 +125,7 @@ void uiComboBox::setPixmap( const ioPixmap& pixmap, int index )
     const char* txt = textOfItem( index );
     if ( index >= 0 && index < body_->count() )
     {
-	body_->setItemText( index, QString(txt) );
+	body_->setItemText( index, mQtclass(QString)(txt) );
 	body_->setItemIcon( index, *pixmap.qpixmap() );
     }
 }
@@ -134,7 +134,7 @@ void uiComboBox::setPixmap( const ioPixmap& pixmap, int index )
 void uiComboBox::setEmpty()
 {
     mBlockCmdRec;
-    body_->QComboBox::clear();
+    body_->mQtclass(QComboBox)::clear();
     itemids_.erase();
 }
 
@@ -212,7 +212,7 @@ void uiComboBox::setCurrentItem( int idx )
 void uiComboBox::setItemText( int idx, const char* txt )
 {
     if ( idx >= 0 && idx < body_->count() )
-	body_->setItemText( idx, QString(txt) );
+	body_->setItemText( idx, mQtclass(QString)(txt) );
 }
 
 
@@ -249,9 +249,9 @@ void uiComboBox::addItem( const wchar_t* txt, int id )
     char* buf = new char [wsz];
     int rsz = wcstombs(buf,txt,wsz);
     buf[wsz-1] = '\0';
-    QString itmtxt = QString::fromUtf8( buf );
+    mQtclass(QString) itmtxt = mQtclass(QString)::fromUtf8( buf );
 #else
-    QString itmtxt = QString::fromWCharArray( txt );
+    mQtclass(QString) itmtxt = mQtclass(QString)::fromWCharArray( txt );
 #endif
     body_->addItem( itmtxt );
     itemids_ += id;
@@ -265,7 +265,7 @@ void uiComboBox::addItem( const char* txt )
 void uiComboBox::addItem( const char* txt, int id ) 
 {
     mBlockCmdRec;
-    body_->addItem( QString(txt) );
+    body_->addItem( mQtclass(QString)(txt) );
     itemids_ += id;
 }
 
@@ -284,7 +284,7 @@ void uiComboBox::addSeparator()
 void uiComboBox::insertItem( const char* txt, int index, int id )
 {
     mBlockCmdRec;
-    body_->insertItem( index, QString(txt) );
+    body_->insertItem( index, mQtclass(QString)(txt) );
     itemids_.insert( index, id );
 }
 
@@ -293,7 +293,7 @@ void uiComboBox::insertItem( const ioPixmap& pm, const char* txt,
 			     int index, int id )
 {
     mBlockCmdRec;
-    body_->insertItem( index, *pm.qpixmap(), QString(txt) );
+    body_->insertItem( index, *pm.qpixmap(), mQtclass(QString)(txt) );
     itemids_.insert( index, id );
 }
 
