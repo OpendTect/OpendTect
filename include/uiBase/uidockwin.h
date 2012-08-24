@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.22 2012-08-03 13:00:51 cvskris Exp $
+ RCS:           $Id: uidockwin.h,v 1.23 2012-08-24 07:15:40 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiDockWinBody;
 class uiGroup;
 class uiObject;
 class uiMainWin;
-class QDockWidget;
+mFDQtclass(QDockWidget)
 
 mClass(uiBase) uiDockWin : public uiParent
 {
@@ -45,7 +45,7 @@ public:
 
     void		setMinimumWidth(int);
 
-    QDockWidget*	qwidget();
+    mQtclass(QDockWidget*)	qwidget();
 
 protected:
 
