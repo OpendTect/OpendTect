@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.17 2009-10-07 13:26:32 cvsjaap Exp $
+ RCS:           $Id: i_qbutton.h,v 1.18 2012-08-24 06:01:54 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class i_ButMessenger : public QObject
     friend class	uiButton;
 public:
 
-i_ButMessenger( QAbstractButton* sndr, uiButtonBody* receiver )
+i_ButMessenger( mQtclass(QAbstractButton*) sndr, uiButtonBody* receiver )
     : receiver_(receiver)
     , sender_(sndr)
 {
@@ -39,8 +39,8 @@ i_ButMessenger( QAbstractButton* sndr, uiButtonBody* receiver )
 
 private:
 
-    uiButtonBody*	receiver_;
-    QAbstractButton*	sender_;
+    uiButtonBody*		receiver_;
+    mQtclass(QAbstractButton*)	sender_;
 
 public slots:
 void toggled(bool)	{ receiver_->notifyHandler( uiButtonBody::toggled ); }
