@@ -6,7 +6,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2009
- RCS:           $Id: soodbasic.h,v 1.12 2012-08-03 21:56:26 cvskris Exp $
+ RCS:           $Id: soodbasic.h,v 1.13 2012-08-24 15:37:58 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -23,10 +23,13 @@
 #  define dll_import
 # endif
 #endif
-#if defined(SoOD_EXPORTS) || defined(SOOD_EXPORTS)
-# define Export_SoOD	dll_export
-#else
-# define Export_SoOD	dll_import
+
+#ifndef Export_SoOD
+# if defined(SoOD_EXPORTS) || defined(SOOD_EXPORTS)
+#  define Export_SoOD	dll_export
+# else
+#  define Export_SoOD	dll_import
+# endif
 #endif
 
 #if defined( __win64__ ) || defined ( __win32__ )
