@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.26 2012-08-03 13:00:50 cvskris Exp $
+ RCS:           $Id: pixmap.h,v 1.27 2012-08-24 06:18:39 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "iodrawimpl.h"
 
-class QBitmap;
-class QPaintDevice;
-class QPixmap;
+mFDQtclass(QBitmap)
+mFDQtclass(QPaintDevice)
+mFDQtclass(QPixmap)
 
 class BufferStringSet;
 class Color;
@@ -40,7 +40,7 @@ public:
 			ioPixmap(const uiRGBArray&);
 			ioPixmap(const char* xpm[]);
 			ioPixmap(int w,int h);
-			ioPixmap(const QPixmap&);
+			ioPixmap(const mQtclass(QPixmap&));
 			ioPixmap(const ioPixmap&);
 			ioPixmap(const char* filename,const char* fmt=0);
 			ioPixmap(const ColTab::Sequence&,int w,int h,bool hor);
@@ -48,8 +48,8 @@ public:
 
     void		convertFromRGBArray(const uiRGBArray&);
 
-    QPixmap* 		qpixmap()		{ return qpixmap_; }
-    const QPixmap*  	qpixmap() const		{ return qpixmap_; }
+    mQtclass(QPixmap*)	qpixmap()		{ return qpixmap_; }
+    const mQtclass(QPixmap*)	qpixmap() const		{ return qpixmap_; }
 
     void		fill(const Color&);
 
@@ -65,10 +65,10 @@ public:
 
 protected:
     
-    QPixmap*		qpixmap_; 
+    mQtclass(QPixmap*)		qpixmap_; 
     BufferString	srcname_;
 
-    virtual QPaintDevice* qPaintDevice();         
+    virtual mQtclass(QPaintDevice*) qPaintDevice();         
 
 };
 
@@ -89,8 +89,8 @@ mClass(uiBase) ioBitmap : public ioPixmap
 {
 public:
 			ioBitmap(const char* filename,const char* fmt=0); 
-    QBitmap* 		Bitmap();
-    const QBitmap*  	Bitmap() const;
+    mQtclass(QBitmap*)	Bitmap();
+    const mQtclass(QBitmap*)  	Bitmap() const;
 
 };
 
