@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segytr.cc,v 1.116 2012-08-24 11:50:02 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: segytr.cc,v 1.117 2012-08-24 13:07:05 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -44,6 +44,8 @@ static const int cSEGYWarnZeroSampIntv = 3;
 static const int cSEGYWarnDataReadIncomplete = 4;
 static const int cSEGYWarnNonrectCoord = 5;
 static const int cSEGYWarnSuspiciousCoord = 6;
+static const int cSEGYFoundStanzas = 7;
+static const int cSEGYWarnNonFixedLength = 8;
 static const int cMaxNrSamples = 1000000;
 static int maxnrconsecutivebadtrcs = -1;
 static const char* sKeyMaxConsBadTrcs = "SEGY.Max Bad Trace Block";
@@ -153,19 +155,32 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     trchead_.isrev1_ = binhead_.isRev1();
     if ( trchead_.isrev1_ )
     {
-	const int nrstentry = SEGY::BinHeader::EntryRevCode() + 2;
-	int nrstzs = binhead_.entryVal( nrstentry );
-	if ( nrstzs > 100 ) // protect against wild values
+	const int revcodeentry = SEGY::BinHeader::EntryRevCode();
+	int nrstzs = binhead_.entryVal( revcodeentry + 2 );
+	if ( nrstzs > 100 || nrstzs < 0 ) // protect against wild values
 	{
-	    binhead_.setEntryVal( nrstentry, 0 );
+	    binhead_.setEntryVal( revcodeentry+2, 0 );
 	    nrstzs = 0;
 	}
-	for ( int idx=0; idx<nrstzs; idx++ )
+	if ( nrstzs )
 	{
-	    char tmpbuf[SegyTxtHeaderLength];
-	    if ( !sConn().doIO(tmpbuf,SegyTxtHeaderLength) )
-		mErrRet( "No traces found in the SEG-Y file" )
+	    // Never seen any file with stanzas, so we'll mistrust it
+	    static bool indeed_wants = GetEnvVarYN("OD_SEIS_SEGY_REV1_STANZAS");
+	    if ( !indeed_wants )
+		addWarn( cSEGYFoundStanzas, toString(nrstzs) );
+	    else
+	    {
+		for ( int idx=0; idx<nrstzs; idx++ )
+		{
+		    char tmpbuf[SegyTxtHeaderLength];
+		    if ( !sConn().doIO(tmpbuf,SegyTxtHeaderLength) )
+			mErrRet( "No traces found in the SEG-Y file" )
+		}
+	    }
 	}
+	const int fixedtrcflag = binhead_.entryVal( revcodeentry + 1 );
+	if ( fixedtrcflag == 0 )
+	    addWarn( cSEGYWarnNonFixedLength, "" );
     }
 
     if ( filepars_.fmt_ == 0 )
@@ -238,6 +253,20 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 	    "- please check the coordinate scaling.\nOverrule if necessary."
 	    "\nCoordinate found: ";
 	msg.add( detail ).add( " at " ).add( getTrcPosStr() );
+    }
+    else if ( nr == cSEGYFoundStanzas )
+    {
+	msg = "SEG-Y REV.1 header indicates the presence of\n";
+	msg.add( detail ).add( " Extended Textual File Header" );
+	if ( toInt(detail) > 1 ) msg.add( "s" );
+	msg.add( ".\nThis is rarely correct. Please set the variable:"
+		  "\nOD_SEIS_SEGY_REV1_STANZAS"
+		  "\nif the file indeed contains these." );
+    }
+    else if ( nr == cSEGYWarnNonFixedLength )
+    {
+	msg = "SEG-Y REV.1 header indicates variable length traces."
+	      "\nOpendTect will assume fixed trace length anyway.";
     }
 
     SeisTrcTranslator::addWarn( nr, msg );
