@@ -7,15 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.h,v 1.14 2012-08-03 13:00:51 cvskris Exp $
+ RCS:           $Id: uifont.h,v 1.15 2012-08-24 07:21:40 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 #include "uibasemod.h"
 #include "fontdata.h"
 
-class QFont;
-class QFontMetrics;
+mFDQtclass(QFont)
+mFDQtclass(QFontMetrics)
 class Settings;
 class uiParent;
 class BufferStringSet;
@@ -43,9 +43,9 @@ public:
     FontData		fontData() const ;
     void		setFontData(const FontData&); 
                         //!< Updates internal QFont and QFontMetrics.
-    static void		setFontData(QFont&,const FontData&);
+    static void		setFontData(mQtclass(QFont&),const FontData&);
 
-    inline const QFont&	qFont() const { return *qfont_; } 
+    inline const mQtclass(QFont&)	qFont() const { return *qfont_; } 
 
     int			height() const;
     int			leading() const; 
@@ -60,12 +60,12 @@ public:
 protected: 
 
     // don't change order of these attributes!
-    QFont*		qfont_; 
-    QFontMetrics&	qfontmetrics_; 
+    mQtclass(QFont*)		qfont_; 
+    mQtclass(QFontMetrics&)	qfontmetrics_; 
 
-    BufferString	key_;
+    BufferString		key_;
 
-    void		updateMetrics();
+    void			updateMetrics();
 
 };
 
@@ -88,7 +88,7 @@ public:
     ObjectSet<uiFont>&	fonts()			{ return fonts_; }
 
     uiFont&		get(const char* ky=0);
-    uiFont&		getFromQfnt(QFont*);
+    uiFont&		getFromQfnt(mQtclass(QFont*));
 
     uiFont&		add(const char* ky,const FontData&);
     uiFont&		add(const char* ky,
@@ -105,7 +105,7 @@ protected:
     ObjectSet<uiFont>	fonts_;
     void		initialise();
     uiFont&		gtFont(const char*,const FontData* =0,
-			       const QFont* =0 );
+			       const mQtclass(QFont*) =0 );
 private:
 
     bool		inited_;
