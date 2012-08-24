@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.149 2012-08-23 21:45:56 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.150 2012-08-24 22:20:56 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -431,8 +431,10 @@ void Seis2DDisplay::setData( int attrib,
 	{
 	    CubeSampling cs;
 	    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
-	    cs.hrg.start.crl = trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start];
-	    cs.hrg.stop.crl = trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop];
+	    cs.hrg.start.crl =
+		trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start];
+	    cs.hrg.stop.crl =
+		trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop];
 	    cs.hrg.step.crl = 1;
 	    assign( cs.zrg, trcdisplayinfo_.zrg );
 	    // use survey step here?
@@ -493,7 +495,8 @@ void Seis2DDisplay::setData( int attrib,
 		sz1 = usedarr->info().getSize(1);
 	}
 
-	ValueSeries<float>* stor = !resolution_ && !tmparr ? usedarr->getStorage() : 0;
+	ValueSeries<float>* stor =
+	    !resolution_ && !tmparr ? usedarr->getStorage() : 0;
 	bool ownsstor = false;
 
 	//We are only interested in the global, permanent storage
@@ -540,7 +543,10 @@ void Seis2DDisplay::setData( int attrib,
 		Array2DReSampler<float,float> 
 			resampler( sourcearr2d, *stor, sz0, sz1, true );
 		resampler.setInterpolate( true );
-		resampler.execute();
+		if ( tr )
+		    tr->execute( resampler );
+		else
+		    resampler.execute();
 	    }
 	}
 
@@ -580,9 +586,7 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     s2dd->setGeometry( geometry_ );
     s2dd->setZRange( trcdisplayinfo_.zrg );
     s2dd->setTraceNrRange( getTraceNrRange() );
-
     s2dd->setResolution( getResolution(), tr );
-
     s2dd->setLineInfo( linesetid_, getLineName() );
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
