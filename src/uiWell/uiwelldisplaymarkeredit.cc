@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.39 2012-08-22 06:56:50 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.40 2012-08-24 09:42:35 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -103,23 +103,23 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
 			    mCB(this,uiDispEditMarkerDlg,listRClickCB) );
     mrklist_->setStretch( 2, 2 );
 
-    uiGroup* toolgrp = new uiGroup( this, "Tools" );
-    toolgrp->attach( rightOf, mrklist_ );
+    toolgrp_ = new uiGroup( this, "Tools" );
+    toolgrp_->attach( rightOf, mrklist_ );
     CallBack butcb( mCB(this,uiDispEditMarkerDlg,buttonPushedCB) );
-    pickbut_ = new uiToolButton( toolgrp, "seedpickmode", 
+    pickbut_ = new uiToolButton( toolgrp_, "seedpickmode", 
 	"Pick marker on display", mCB(this,uiDispEditMarkerDlg,modeChg) );
     pickbut_->setToggleButton( true );
     pickbut_->setOn( true );
 
-    uiSeparator* modesep = new uiSeparator( toolgrp, "Mode Sep" );
+    uiSeparator* modesep = new uiSeparator( toolgrp_, "Mode Sep" );
     modesep->attach( stretchedBelow, pickbut_ );
 
-    addbut_ = new uiToolButton( toolgrp, "plus", "Add Marker", butcb );
+    addbut_ = new uiToolButton( toolgrp_, "plus", "Add Marker", butcb );
     addbut_->attach( ensureBelow, modesep );
     addbut_->attach( alignedBelow, pickbut_ ); 
-    editbut_ = new uiToolButton( toolgrp, "edit", "Edit Marker", butcb );
+    editbut_ = new uiToolButton( toolgrp_, "edit", "Edit Marker", butcb );
     editbut_->attach( alignedBelow, addbut_ );
-    rembut_ = new uiToolButton(toolgrp, "trashcan", "Remove Marker", butcb);
+    rembut_ = new uiToolButton(toolgrp_, "trashcan", "Remove Marker", butcb);
     rembut_->attach( alignedBelow, editbut_ );
 
     windowClosed.notify( mCB(this,uiDispEditMarkerDlg,editDlgClosedCB) );

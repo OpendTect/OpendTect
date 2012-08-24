@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.14 2012-08-21 12:31:07 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.15 2012-08-24 09:42:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ protected:
 
     Well::Marker*		curmrk_;
 
+    uiGroup*			toolgrp_;
     uiToolButton*		pickbut_;
     uiToolButton*		rembut_;
     uiToolButton*		editbut_;
