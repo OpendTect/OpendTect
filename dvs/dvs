@@ -2,7 +2,13 @@
 #
 # AL 15/9/99
 #
-# Wrapper around cvs.
+# Wrapper around cvs/svn.
+
+
+if ( ! -d CVS ) then
+    svn $*
+    exit $status
+endif
 
 if ( "$1" == ed ) then
     shift
