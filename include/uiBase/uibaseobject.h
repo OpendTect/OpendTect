@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibaseobject.h,v 1.10 2012-08-03 13:00:50 cvskris Exp $
+ RCS:           $Id: uibaseobject.h,v 1.11 2012-08-24 06:29:12 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 
 class uiBody;
-class QWidget;
+mFDQtclass(QWidget)
 
 mClass(uiBase) uiBaseObject : public NamedObject
 {
@@ -52,8 +52,8 @@ public:
 				{ return finaliseDone; }
     
     
-    virtual QWidget*		getWidget() { return 0; }
-    const QWidget*		getWidget() const;
+    virtual mQtclass(QWidget*)	getWidget() { return 0; }
+    const mQtclass(QWidget*)	getWidget() const;
 
 protected:
 
