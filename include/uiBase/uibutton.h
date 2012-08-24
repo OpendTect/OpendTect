@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.36 2012-08-03 13:00:50 cvskris Exp $
+ RCS:           $Id: uibutton.h,v 1.37 2012-08-24 06:45:25 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,12 +19,12 @@ class uiButtonBody;
 class uiCheckBoxBody;
 class uiPushButtonBody;
 class uiRadioButtonBody;
-class QAbstractButton;
+mFDQtclass(QAbstractButton)
 
 class uiPopupMenu;
 class ioPixmap;
-class QEvent;
-class QMenu;
+mFDQtclass(QEvent)
+mFDQtclass(QMenu)
 
 
 //!\brief Button Abstract Base class
@@ -46,7 +46,7 @@ protected:
 
 public:
     			//! Not for casual use
-    QAbstractButton*	qButton();
+    mQtclass(QAbstractButton*)	qButton();
 };
 
 
