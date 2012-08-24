@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.26 2012-06-11 21:29:35 cvsyuancheng Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.27 2012-08-24 19:37:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,7 +247,9 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
 #define clickrg 5
     if ( mouseposval < (cliprg_.start+cliprg_.stop)/2 )
     {
-	if ( (mousepix > startpix_+clickrg) || (mousepix < startpix_-clickrg) )
+	const bool faraway = (mousepix > startpix_+clickrg) ||
+			     (mousepix < startpix_-clickrg);
+	if ( pressedonly && faraway )
 	    return false;
 
 	cliprg_.start = mouseposval;
@@ -257,7 +259,9 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
     }
     else
     {
-	if ( (mousepix > stoppix_+clickrg) || (mousepix < stoppix_-clickrg) )
+	const bool faraway = (mousepix > stoppix_+clickrg) ||
+			     (mousepix < stoppix_-clickrg);
+	if ( pressedonly && faraway )
 	    return false;
 
 	cliprg_.stop = mouseposval;
