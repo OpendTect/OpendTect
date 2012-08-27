@@ -7,7 +7,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          26/07/2000
 
- RCS:           $Id: fontdata.h,v 1.16 2012-08-03 13:00:12 cvskris Exp $
+ RCS:           $Id: fontdata.h,v 1.17 2012-08-27 13:06:28 cvskris Exp $
 
 ______________________________________________________________________
 
@@ -17,13 +17,6 @@ ______________________________________________________________________
 #include "enums.h"
 #include "bufstring.h"
 
-//#ifdef BASIC_EXPORTS
-//# define mBasic __declspec(dllexport)
-//#else
-//# define mBasic __declspec(dllimport)
-//#endif
-
-//class mBasic FontData
 mClass(Basic) FontData
 {			//!< Data needed to make an actual font
 public:    
