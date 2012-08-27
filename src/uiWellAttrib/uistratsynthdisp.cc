@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.106 2012-08-03 13:01:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.107 2012-08-27 14:37:34 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -32,6 +32,7 @@ static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.106 2012-08-
 #include "flatviewzoommgr.h"
 #include "ioman.h"
 #include "ptrman.h"
+#include "propertyref.h"
 #include "prestackgather.h"
 #include "survinfo.h"
 #include "seisbufadapters.h"
@@ -430,8 +431,9 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
     const bool dostack = stackbox_->isChecked();
     const Interval<float>* stackrg = dostack ? &stackfld_->getRange() : 0;
     const float offset = offsetposfld_->getValue();
+    PropertyRefSelection prs; propertyRefs( prs );
     const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, stackrg ) 
-				   : &postsd->postStackPack().trcBuf();
+				   : &postsd->postStackPack( prs[0] )->trcBuf();
 
     if ( !tbuf ) return;
 
@@ -600,13 +602,14 @@ void uiStratSynthDisp::modelPosChged( CallBacker* )
 }
 
 
-const SeisTrcBuf& uiStratSynthDisp::postStackTraces() const
+const SeisTrcBuf& uiStratSynthDisp::postStackTraces(const PropertyRef* pr) const
 {
     static SeisTrcBuf emptytb( true );
-    if ( !currentsynthetic_ ) return emptytb;
+    if ( !currentsynthetic_ || currentsynthetic_->isPS() ) return emptytb;
 
-    const DataPack& dp = currentsynthetic_->getPack();
-    mDynamicCastGet(const SeisTrcBufDataPack*,stbp,&dp);
+    const PostStackSyntheticData& psd = 
+		(PostStackSyntheticData&)(*currentsynthetic_);
+    const SeisTrcBufDataPack* stbp = psd.postStackPack( pr ); 
     if ( !stbp ) return emptytb;
 
     if ( d2tmodels_ && !d2tmodels_->isEmpty() )
@@ -615,6 +618,15 @@ const SeisTrcBuf& uiStratSynthDisp::postStackTraces() const
 	stratsynth_.snapLevelTimes( tbuf, *d2tmodels_ );
     }
     return stbp->trcBuf();
+}
+
+
+void uiStratSynthDisp::propertyRefs( PropertyRefSelection& prs )
+{
+    if ( !currentsynthetic_ || currentsynthetic_->isPS() )
+	return;
+
+    prs = ((PostStackSyntheticData*)(currentsynthetic_))->propertyRefs();
 }
 
 

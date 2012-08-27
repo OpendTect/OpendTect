@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.56 2012-08-03 13:01:22 cvskris Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.57 2012-08-27 14:37:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,8 @@ public:
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
     void		genSyntheticsFor(const Strat::LayerModel&,SeisTrcBuf&);
-    const SeisTrcBuf&	postStackTraces() const;
+    const SeisTrcBuf&	postStackTraces(const PropertyRef* pr=0) const;
+    void		propertyRefs(PropertyRefSelection&);	
 
     const ObjectSet<const TimeDepthModel>* d2TModels() const;
 

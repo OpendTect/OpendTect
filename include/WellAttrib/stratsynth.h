@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.22 2012-08-03 13:00:46 cvskris Exp $
+ RCS:		$Id: stratsynth.h,v 1.23 2012-08-27 14:37:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,8 @@ ________________________________________________________________________
 
 class TaskRunner;
 class TimeDepthModel;
+class PropertyRef;
+class PropertyRefSelection;
 class SeisTrcBufDataPack;
 class SeisTrc;
 class SeisTrcBuf;
@@ -47,11 +49,11 @@ mStruct(WellAttrib) SynthGenParams
 
 
 
-/*! brief the basic synthetic dataset. contains the data cube*/
+/*! brief the basic synthetic dataset. contains the data cubes*/
 mClass(WellAttrib) SyntheticData : public NamedObject 
 {
 public:
-					~SyntheticData();
+    					~SyntheticData();
 
     void				setName(const char*);
 
@@ -60,12 +62,12 @@ public:
     float				getTime(float dpt,int seqnr) const;
     float				getDepth(float time,int seqnr) const;
 
-    const DataPack&			getPack() const { return datapack_; }
-    DataPack&				getPack() 	{ return datapack_; }
+    const DataPack&			getPack() const {return *datapacks_[0];}
+    DataPack&				getPack() 	{return *datapacks_[0];}
 
     ObjectSet<const TimeDepthModel> 	d2tmodels_;
 
-    DataPack::FullID			datapackid_;
+    TypeSet<DataPack::FullID>		datapackids_;
 
     int					id_;
     virtual bool			isPS() const 		= 0;
@@ -80,9 +82,10 @@ protected:
 
     BufferString 			wvltnm_;
     IOPar				raypars_;
-    void				removePack();
 
-    DataPack&				datapack_;
+    void				removePacks();
+
+    ObjectSet<DataPack>			datapacks_;
 };
 
 
@@ -91,16 +94,27 @@ mClass(WellAttrib) PostStackSyntheticData : public SyntheticData
 public:
 				PostStackSyntheticData(const SynthGenParams&,
 							SeisTrcBufDataPack&);
+				~PostStackSyntheticData();
 
     bool				isPS() const 	  { return false; }
     bool				hasOffset() const { return false; }
 
-    const SeisTrc*			getTrace(int seqnr) const;
+    const SeisTrc*		getTrace(int seqnr) const;
 
-    SeisTrcBufDataPack& 		postStackPack() 
-	{ return (SeisTrcBufDataPack&)datapack_; }
-    const SeisTrcBufDataPack& 		postStackPack() const
-	{ return (SeisTrcBufDataPack&)datapack_; }
+    SeisTrcBufDataPack* 	postStackPack(const PropertyRef* pr=0)
+				{ return psPack(pr); }
+    const SeisTrcBufDataPack* 	postStackPack(const PropertyRef* pr=0) const
+				{ return psPack(pr); }
+
+    PropertyRefSelection&       propertyRefs()          { return props_; }
+    const PropertyRefSelection& propertyRefs() const    { return props_; }
+
+    void			addPropertyPack(SeisTrcBufDataPack&,
+	    					const PropertyRef&);
+
+protected:
+    SeisTrcBufDataPack* 	psPack(const PropertyRef* pr=0) const;
+    PropertyRefSelection	props_;
 };
 
 
@@ -119,12 +133,11 @@ public:
     const SeisTrc*			getTrace(int seqnr,int* offset) const;
     SeisTrcBuf*				getTrcBuf(float startoffset,
 					    const Interval<float>* offrg) const;
-
-
+protected:
     PreStack::GatherSetDataPack&	preStackPack()
-	{ return (PreStack::GatherSetDataPack&)datapack_; }
+	{ return (PreStack::GatherSetDataPack&)(*datapacks_[0]); }
     const PreStack::GatherSetDataPack&	preStackPack() const
-	{ return (PreStack::GatherSetDataPack&)datapack_; }
+	{ return (PreStack::GatherSetDataPack&)(*datapacks_[0]); }
 };
 
 
@@ -187,6 +200,9 @@ protected:
 					    TaskRunner* tr=0);
     bool			fillElasticModel(const Strat::LayerModel&,
 					    ElasticModel&,int seqidx);
+
+    void			generateOtherQuantities(PostStackSyntheticData&,
+	    				const Strat::LayerModel&) const;
 };
 
 #endif
