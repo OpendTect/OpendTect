@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: qftpconn.h,v 1.6 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: qftpconn.h,v 1.7 2012-08-27 22:12:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "odftp.h"
 #include <QFtp>
 
+
+QT_BEGIN_NAMESPACE
 
 class QFtpConnector : public QObject
 {
@@ -155,5 +157,7 @@ private:
     QFtp*	sender_;
     ODFtp*	receiver_;
 };
+
+QT_END_NAMESPACE
 
 #endif

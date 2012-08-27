@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: qhttpconn.h,v 1.6 2012-01-27 15:04:00 cvsnanne Exp $
+ RCS:           $Id: qhttpconn.h,v 1.7 2012-08-27 22:12:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "odhttp.h"
 #include <QHttp>
 
+QT_BEGIN_NAMESPACE
 
 class QHttpConnector : public QObject
 {
@@ -107,5 +108,7 @@ private:
     QHttp*	sender_;
     ODHttp*	receiver_;
 };
+
+QT_END_NAMESPACE
 
 #endif
