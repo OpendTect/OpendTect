@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.107 2012-08-27 14:37:34 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.108 2012-08-27 14:38:57 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -433,7 +433,7 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
     const float offset = offsetposfld_->getValue();
     PropertyRefSelection prs; propertyRefs( prs );
     const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, stackrg ) 
-				   : &postsd->postStackPack( prs[0] )->trcBuf();
+				   : &postsd->postStackPack()->trcBuf();
 
     if ( !tbuf ) return;
 
