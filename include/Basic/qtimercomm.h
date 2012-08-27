@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: qtimercomm.h,v 1.4 2012-02-24 10:16:20 cvskris Exp $
+ RCS:           $Id: qtimercomm.h,v 1.5 2012-08-27 22:09:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ ________________________________________________________________________
 
   Internal object, to hide Qt's signal/slot mechanism.
 */
+
+QT_BEGIN_NAMESPACE
 
 class QTimerComm : public QObject 
 {
@@ -66,5 +68,7 @@ private:
     unsigned int 	magic_;
 
 };
+
+QT_END_NAMESPACE
 
 #endif
