@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
-RCS:		$Id: transl.h,v 1.44 2012-08-03 13:00:26 cvskris Exp $
+RCS:		$Id: transl.h,v 1.45 2012-08-27 13:41:11 cvskris Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -256,19 +256,19 @@ mImplTranslatorInitClass( spec, clss, usrnm )
   //! Convenient when the entire Translator concept is not interesting 4 u.
   //! Use this in your header file to comply with the concept, so you
   //! can make use of OpendTect object selection, retrieval etc.
-#define mDeclEmptyTranslatorBundle(clss,fmt,defext) \
-mClass(General) clss##TranslatorGroup : public TranslatorGroup \
+#define mDeclEmptyTranslatorBundle(mod,clss,fmt,defext) \
+mClass(mod) clss##TranslatorGroup : public TranslatorGroup \
 {		   	isTranslatorGroup(clss) \
     			mDefEmptyTranslatorGroupConstructor(clss) \
     const char*		defExtension() const	{ return defext; } \
 }; \
  \
-mClass(General) clss##Translator : public Translator \
+mClass(mod) clss##Translator : public Translator \
 { public: \
     			mDefEmptyTranslatorBaseConstructor(clss) \
 }; \
  \
-mClass(General) fmt##clss##Translator : public clss##Translator \
+mClass(mod) fmt##clss##Translator : public clss##Translator \
 {			isTranslator(fmt,clss) \
     			mDefEmptyTranslatorConstructor(fmt,clss) \
 };

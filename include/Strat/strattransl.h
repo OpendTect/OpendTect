@@ -6,15 +6,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2011
- RCS:		$Id: strattransl.h,v 1.1 2011-01-13 14:51:49 cvsbert Exp $
+ RCS:		$Id: strattransl.h,v 1.2 2012-08-27 13:41:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "transl.h"
 
-mDeclEmptyTranslatorBundle(StratLayerSequenceGenDesc,od,"sgd")
-mDeclEmptyTranslatorBundle(StratLayerSequenceAttribSet,od,"lsa")
+mDeclEmptyTranslatorBundle(Strat,StratLayerSequenceGenDesc,od,"sgd")
+mDeclEmptyTranslatorBundle(Strat,StratLayerSequenceAttribSet,od,"lsa")
 
 
 #endif
