@@ -36,7 +36,7 @@ class SbMatrix;
 class SoState;
 
 
-mClass(SoOD) UTMPosition : public SoTransformation {
+mSoODClass UTMPosition : public SoTransformation {
   typedef SoTransformation inherited;
 
   SO_NODE_HEADER(UTMPosition);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoOneSideRender.h,v 1.2 2012-08-03 13:00:41 cvskris Exp $
+ RCS:		$Id: SoOneSideRender.h,v 1.3 2012-08-27 13:16:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ A class that renders its sub-nodes if light comes from one side. */
 
 
 
-mClass( SoOD ) SoOneSideRender : public SoNode
+mSoODClass SoOneSideRender : public SoNode
 {
     SO_NODE_HEADER(SoOneSideRender);
 public:

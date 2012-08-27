@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Sep 2008
- RCS:           $Id: SoTextureComposer.h,v 1.11 2012-08-03 13:00:42 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.h,v 1.12 2012-08-27 13:16:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ class SbImage;
    to OpenGL */
 
 
-mClass(SoOD) SoTextureComposer: public SoNode
+mSoODClass SoTextureComposer: public SoNode
 { SO_NODE_HEADER(SoTextureComposer);
 public:
     static		void initClass();
@@ -79,7 +79,7 @@ protected:
 };
 
 
-mClass(SoOD) SoTextureComposerInfo : public SoNode
+mSoODClass SoTextureComposerInfo : public SoNode
 { SO_NODE_HEADER(SoTextureComposerInfo );
 public:
     static		void initClass();

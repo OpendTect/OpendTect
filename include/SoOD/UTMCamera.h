@@ -36,7 +36,7 @@
 class SoState;
 
 
-mClass(SoOD) UTMCamera : public SoPerspectiveCamera {
+mSoODClass UTMCamera : public SoPerspectiveCamera {
   typedef SoPerspectiveCamera inherited;
 
   SO_NODE_HEADER(UTMCamera);

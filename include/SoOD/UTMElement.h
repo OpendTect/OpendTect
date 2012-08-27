@@ -32,7 +32,7 @@
 #include "soodbasic.h"
 
 
-mClass(SoOD) UTMElement : public SoElement {
+mSoODClass UTMElement : public SoElement {
   typedef SoElement inherited;
 
   SO_ELEMENT_HEADER(UTMElement);

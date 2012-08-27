@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Karthika
  Date:		July 2009
- RCS:		$Id: SoBeachBall.h,v 1.7 2012-08-03 13:00:39 cvskris Exp $
+ RCS:		$Id: SoBeachBall.h,v 1.8 2012-08-27 13:16:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 // This class stores all info about a level of detail of the beachball, except
 // the coordinate info (which is stored by res2coords_).
 // 
-mClass(SoOD) LODInfo
+mSoODClass LODInfo
 {
 public:
     
@@ -41,7 +41,7 @@ public:
 
 // SoBeachBall class for drawing a sphere with 4 stripes colored according to 
 // 2 materials. Varying levels of detail of the beachball are supported.
-mClass(SoOD) SoBeachBall : public SoShape 
+mSoODClass SoBeachBall : public SoShape 
 {
     typedef SoShape inherited;
     SO_NODE_HEADER(SoBeachBall);

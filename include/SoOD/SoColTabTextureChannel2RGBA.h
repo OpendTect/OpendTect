@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.12 2012-08-03 13:00:40 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.13 2012-08-27 13:16:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ colorsequence per channel, and outputs 4 texture channels (RGBA) on the state.
 */
 
 
-mClass(SoOD) SoColTabTextureChannel2RGBA : public SoNode
+mSoODClass SoColTabTextureChannel2RGBA : public SoNode
 { SO_NODE_HEADER(SoColTabTextureChannel2RGBA);
 public:
     static		void initClass();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.49 2012-08-24 13:08:08 cvsbert Exp $
+ RCS:		$Id: commondefs.h,v 1.50 2012-08-27 13:16:46 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -100,34 +100,16 @@ ________________________________________________________________________
 #define mTODOHelpID	"0.0.0"
 #define mNoHelpID	"-"
 
-#define mGlobal( module )		Export_##module
+#define mGlobal( module )		dll_export
+//#define mGlobal( module )		Export_##module
 #define mClass( module )		class mGlobal( module )
 #define mStruct( module )		struct mGlobal( module )
 #define mExtern( module )		extern mGlobal( module )
 #define mExternC( module)		extern "C" mGlobal( module )
 
-#define mExportClass( module ) class Export_##module
-#define mExportStruct( module ) struct Export_##module
-#define mExportGlobal( module ) Export_##module
-#define mExportExtern( module ) extern Export_##module
-#define mExportExternC( module ) exptern "C" Export_##module
-
 //for Qt
 #define mFDQtclass(cls) class cls;
 #define mQtclass(cls) cls
-
-//Special stuff.
-#if defined(Basic_EXPORTS) || defined(BASIC_EXPORTS)
-# define Export_Basic_   dll_export
-#else
-# define Export_Basic_   dll_import
-#endif
-
-//Special stuff.
-# define mBasicClass    mExportClass( Basic_ )
-# define mBasicGlobal   mExportGlobal( Basic_ )
-# define mBasicExtern   mExportExtern( Basic_ )
-
 
 #define mIfNotFirstTime(act) \
     static bool _already_visited_ = false; \

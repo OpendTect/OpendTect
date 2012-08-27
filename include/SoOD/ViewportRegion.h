@@ -40,7 +40,7 @@
 
 class ViewportRegionP;
 
-mClass(SoOD) ViewportRegion : public SoNode {
+mSoODClass ViewportRegion : public SoNode {
   typedef SoNode inherited;
 
   SO_NODE_HEADER(ViewportRegion);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.12 2012-08-03 13:00:40 cvskris Exp $
+ RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.13 2012-08-27 13:16:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ A TabPlaneDragger where the moving on moves the dragger in z direction
 to how small the dragger is allowed to be.
 */
 
-mClass(SoOD) SoDepthTabPlaneDragger : public SoDragger
+mSoODClass SoDepthTabPlaneDragger : public SoDragger
 {
     typedef SoDragger inherited;
     SO_KIT_HEADER(SoDepthTabPlaneDragger);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodmain.cc,v 1.161 2012-07-30 21:22:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodmain.cc,v 1.162 2012-08-27 13:16:50 cvskris Exp $";
 
 #include "uiodmain.h"
 
@@ -101,9 +101,9 @@ int ODMain( int argc, char** argv )
 
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
     ioPixmap pm( mGetSetupFileName("splash") );
-    uiSplashScreen splash( pm );
-    splash.show();
-    splash.showMessage( "Loading plugins ..." );
+  //  uiSplashScreen splash( pm );
+  //  splash.show();
+  //  splash.showMessage( "Loading plugins ..." );
     manODMainWin( odmain );
 
     bool dodlg = true;
@@ -121,9 +121,9 @@ int ODMain( int argc, char** argv )
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
 
-    splash.showMessage( "Initializing Scene ..." );
+ //   splash.showMessage( "Initializing Scene ..." );
     odmain->initScene();
-    splash.finish( odmain );
+   // splash.finish( odmain );
 
     odmain->go();
     delete odmain;

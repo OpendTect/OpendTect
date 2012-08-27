@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		2009
- RCS:		$Id: SoAxes.h,v 1.4 2012-08-03 13:00:39 cvskris Exp $
+ RCS:		$Id: SoAxes.h,v 1.5 2012-08-27 13:16:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "soodbasic.h"
 
 // SoAxes class for drawing coloured annotated axes
-mClass(SoOD) SoAxes : public SoShape
+mSoODClass SoAxes : public SoShape
 {
     typedef SoShape inherited;
     SO_NODE_HEADER(SoAxes);

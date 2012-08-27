@@ -49,7 +49,7 @@ class SbColor;
 class SbVec2s;
 
 
-mClass(SoOD) LegendKit : public SoBaseKit {
+mSoODClass LegendKit : public SoBaseKit {
   typedef SoBaseKit inherited;
 
   SO_KIT_HEADER(LegendKit);

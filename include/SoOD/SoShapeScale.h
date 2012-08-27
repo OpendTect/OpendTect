@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoShapeScale.h,v 1.14 2012-08-03 13:00:41 cvskris Exp $
+ RCS:		$Id: SoShapeScale.h,v 1.15 2012-08-27 13:16:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ position in (0, 0, 0).
 	      
 */
 
-mClass(SoOD) SoShapeScale : public SoNode
+mSoODClass SoShapeScale : public SoNode
 {
     SO_NODE_HEADER(SoShapeScale);
 public:

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoSplitTexture2Element.h,v 1.11 2012-08-03 13:00:42 cvskris Exp $
+ RCS:		$Id: SoSplitTexture2Element.h,v 1.12 2012-08-27 13:16:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 /*!  Element that holds one image per texture unit.  */
 
-mClass(SoOD) SoSplitTexture2Element : public SoReplacedElement
+mSoODClass SoSplitTexture2Element : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoSplitTexture2Element);
 public:

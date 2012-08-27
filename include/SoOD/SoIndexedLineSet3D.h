@@ -15,7 +15,7 @@
 class SbBox3f;
 class SbVec3f;
 
-mClass(SoOD) SoIndexedLineSet3D : public SoIndexedShape
+mSoODClass SoIndexedLineSet3D : public SoIndexedShape
 {
     SO_NODE_HEADER(SoIndexedLineSet3D);
 public:
@@ -42,7 +42,7 @@ protected:
 private:
     friend		class SoLineSet3D;
 
-    mClass(SoOD) LineSet3DData
+    mSoODClass LineSet3DData
     {
     public:
 				LineSet3DData();

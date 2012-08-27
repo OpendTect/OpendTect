@@ -4,7 +4,7 @@
  * DATE     : Sep 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: errh.cc,v 1.8 2012-08-03 19:19:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: errh.cc,v 1.9 2012-08-27 13:16:49 cvskris Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -15,8 +15,8 @@ static const char* rcsID mUnusedVar = "$Id: errh.cc,v 1.8 2012-08-03 19:19:59 cv
 #include <iostream>
 #include <fstream>
 
-Export_Basic_ const char* logMsgFileName();
-Export_Basic_ std::ostream& logMsgStrm();
+Export_Basic const char* logMsgFileName();
+Export_Basic std::ostream& logMsgStrm();
 bool ErrMsgClass::printProgrammerErrs =
 # ifdef __debug__
     true;
@@ -24,11 +24,11 @@ bool ErrMsgClass::printProgrammerErrs =
     false;
 # endif
 static BufferString logmsgfnm;
-mBasicGlobal int gLogFilesRedirectCode = -1;
+Export_Basic int gLogFilesRedirectCode = -1;
 // Not set. 0 = stderr, 1 = log file
 
 
-mBasicGlobal const char* logMsgFileName()
+Export_Basic const char* logMsgFileName()
 {
     return logmsgfnm.buf();
 }
@@ -45,7 +45,7 @@ mBasicGlobal const char* logMsgFileName()
 #endif
 	
   
-mBasicGlobal std::ostream& logMsgStrm()
+Export_Basic std::ostream& logMsgStrm()
 {
     if ( gLogFilesRedirectCode < 1 )
 	return std::cerr;

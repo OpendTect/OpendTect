@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoTextureChannelSet.h,v 1.8 2012-08-03 13:00:42 cvskris Exp $
+ RCS:           $Id: SoTextureChannelSet.h,v 1.9 2012-08-27 13:16:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ class SoSensor;
 */
 
 
-mClass(SoOD) SoTextureChannelSet : public SoNode
+mSoODClass SoTextureChannelSet : public SoNode
 { SO_NODE_HEADER(SoTextureChannelSet);
 public:
     static		void initClass();

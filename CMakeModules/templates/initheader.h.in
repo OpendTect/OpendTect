@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: initheader.h.in,v 1.6 2012-08-03 21:10:01 cvskris Exp $
+ RCS:		$Id: initheader.h.in,v 1.7 2012-08-27 13:16:46 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ ________________________________________________________________________
 #if defined(@OD_MODULE_NAME@_EXPORTS) || defined(@OD_MODULE_NAME_UPPER@_EXPORTS)
 # define Export_@OD_MODULE_NAME@	dll_export
 #else
-# define Export_@OD_MODULE_NAME@	dll_export
+# define Export_@OD_MODULE_NAME@	dll_import
 #endif
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          October 2008
- RCS:           $Id: SoLockableSeparator.h,v 1.8 2012-08-03 13:00:40 cvskris Exp $
+ RCS:           $Id: SoLockableSeparator.h,v 1.9 2012-08-27 13:16:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ func( action* a )				\
 
 /*!A separator with a lock, that is readlocked during all traversals. */
 
-mClass(SoOD) SoLockableSeparator : public SoSeparator
+mSoODClass SoLockableSeparator : public SoSeparator
 {
     SO_NODE_HEADER(SoLockableSeparor);
 

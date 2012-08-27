@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          November 2003
- RCS:           $Id: SoArrow.h,v 1.4 2012-08-03 13:00:39 cvskris Exp $
+ RCS:           $Id: SoArrow.h,v 1.5 2012-08-27 13:16:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 */
 
 
-mClass(SoOD) SoArrow : public SoShape
+mSoODClass SoArrow : public SoShape
 {
     typedef SoShape inherited;
     SO_NODE_HEADER(SoArrow);

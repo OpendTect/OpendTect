@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurfaceBrickWire.h,v 1.7 2012-08-03 13:00:41 cvskris Exp $
+ RCS:		$Id: SoMeshSurfaceBrickWire.h,v 1.8 2012-08-27 13:16:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ are organized in a grid where index=row*((sideSize+1)*spacing)+1)+col*spacing;
 */
 
 
-mClass(SoOD) SoMeshSurfaceBrickWire : public SoIndexedLineSet
+mSoODClass SoMeshSurfaceBrickWire : public SoIndexedLineSet
 {
     typedef SoIndexedLineSet	inherited;
     SO_NODE_HEADER(SoMeshSurfaceBrickWire);

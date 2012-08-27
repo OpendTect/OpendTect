@@ -38,7 +38,7 @@
 #include "soodbasic.h"
 
 
-mClass(SoOD) SoText2Set : public SoShape
+mSoODClass SoText2Set : public SoShape
 {
   typedef SoShape inherited;
 

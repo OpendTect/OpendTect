@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoRandomTrackLineDragger.h,v 1.13 2012-08-03 13:00:41 cvskris Exp $
+ RCS:		$Id: SoRandomTrackLineDragger.h,v 1.14 2012-08-27 13:16:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ typedef void SoRandomTrackLineDraggerCB(void * data,
 
 */
 
-mClass(SoOD) SoRandomTrackLineDragger : public SoBaseKit
+mSoODClass SoRandomTrackLineDragger : public SoBaseKit
 {
     SO_KIT_HEADER(SoRandomTrackLineDragger);
     SO_KIT_CATALOG_ENTRY_HEADER(subDraggerSep);

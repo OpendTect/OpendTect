@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoTextureChannelSetElement.h,v 1.9 2012-08-03 13:00:42 cvskris Exp $
+ RCS:		$Id: SoTextureChannelSetElement.h,v 1.10 2012-08-27 13:16:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ class SbImagei32;
 
 /*!  Element that holds one image per texture unit.  */
 
-mClass(SoOD) SoTextureChannelSetElement : public SoReplacedElement
+mSoODClass SoTextureChannelSetElement : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoTextureChannelSetElement);
 public:

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		September 2008
- RCS:		$Id: SoTextureComposerElement.h,v 1.10 2012-08-03 13:00:42 cvskris Exp $
+ RCS:		$Id: SoTextureComposerElement.h,v 1.11 2012-08-27 13:16:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ class SbImage;
 /* Element that holds one the active texture units for for SoTextureComposer
    and their transparency status. */
 
-mClass(SoOD) SoTextureComposerElement : public SoReplacedElement
+mSoODClass SoTextureComposerElement : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoTextureComposerElement);
 public:
