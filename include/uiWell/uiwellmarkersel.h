@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bert
 Date:          Aug 2012
-RCS:           $Id: uiwellmarkersel.h,v 1.1 2012-08-27 11:45:36 cvsbert Exp $
+RCS:           $Id: uiwellmarkersel.h,v 1.2 2012-08-27 15:12:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,10 +28,11 @@ public:
     {
     public:
 			Setup(bool one,const char* sel_txt=0);
+				// Pass an empty string ("") to get no label
 
-	mDefSetupMemb(bool,single);	//!< false = two levels (a zone)
-	mDefSetupMemb(bool,allowsame);	//!< only useful when single == false
-	mDefSetupMemb(bool,adddatabounds); //!< add 'virtual' start/stop levels
+	mDefSetupMemb(bool,single);	//!< false => two levels (a zone)
+	mDefSetupMemb(bool,allowsame);	//!< [true]
+	mDefSetupMemb(bool,withudf);	//!< [true] udf or 'open' zones allowed
 	mDefSetupMemb(BufferString,seltxt);
     };
 
@@ -45,9 +46,10 @@ public:
 
     const char*		getText(bool top=true) const;
     int			getType(bool top=true) const;
-				//!< -1=before-first, 0=marker, 1=after-last
-    				//!< only useful if setup.adddatabounds
+				//!< -1=udf/before-first, 0=marker, 1=after-last
+    				//!< only useful if setup.withudf
 
+    static const char*	sKeyUdfLvl()		{ return "-"; }
     static const char*	sKeyDataStart()		{ return "<Start of data>"; }
     static const char*	sKeyDataStop()		{ return "<End of data>"; }
 

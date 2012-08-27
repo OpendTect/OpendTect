@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellmarkersel.cc,v 1.1 2012-08-27 11:45:36 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellmarkersel.cc,v 1.2 2012-08-27 15:12:42 cvsbert Exp $";
 
 
 #include "uiwellmarkersel.h"
@@ -16,13 +16,18 @@ static const char* rcsID mUnusedVar = "$Id: uiwellmarkersel.cc,v 1.1 2012-08-27 
 #include "wellmarker.h"
 
 uiWellMarkerSel::Setup::Setup( bool issingle, const char* txt )
-    : seltxt_("Marker")
+    : seltxt_(txt)
     , single_(issingle)
-    , allowsame_(false)
-    , adddatabounds_(false)
+    , allowsame_(true)
+    , withudf_(true)
 {
-    if ( !single_ )
-	seltxt_ = adddatabounds_ ? "Selected zone" : "Top/bottom";
+    if ( !txt ) // txt may be an empty string!
+    {
+	if ( single_ )
+	    seltxt_ = "Marker";
+	else
+	    seltxt_ = withudf_ ? "Selected zone" : "Top/bottom";
+    }
 }
 
 
@@ -50,7 +55,11 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 	else
 	    botfld_->attach( rightOf, topfld_ );
 	botfld_->selectionChanged.notify( mrkselcb );
+	botfld_->setHSzPol( uiObject::Medium );
+	topfld_->setHSzPol( uiObject::Medium );
     }
+
+    setHAlignObj( topfld_ );
 }
 
 
@@ -66,13 +75,16 @@ void uiWellMarkerSel::setMarkers( const Well::MarkerSet& wms )
 void uiWellMarkerSel::setMarkers( const BufferStringSet& inpnms )
 {
     BufferStringSet nms;
-    if ( setup_.adddatabounds_ ) nms.add( sKeyDataStart() );
+    if ( setup_.withudf_ )
+	nms.add( setup_.single_ ? sKeyUdfLvl() : sKeyDataStart() );
     nms.add( inpnms, true );
-    if ( setup_.adddatabounds_ ) nms.add( sKeyDataStop() );
+    if ( !setup_.single_ && setup_.withudf_ )
+	nms.add( sKeyDataStop() );
     setMarkers( *topfld_, nms );
     if ( botfld_ )
     {
 	setMarkers( *botfld_, nms );
+	botfld_->setCurrentItem( botfld_->size() - 1 );
 	mrkSel( botfld_ );
     }
 }
@@ -84,7 +96,9 @@ void uiWellMarkerSel::setMarkers( uiComboBox& cb, const BufferStringSet& nms )
     NotifyStopper ns( cb.selectionChanged );
     cb.setEmpty();
     cb.addItems( nms );
-    if ( !cur.isEmpty() )
+    if ( cur.isEmpty() )
+	cb.setCurrentItem( 0 );
+    else
 	cb.setCurrentItem( cur );
 }
 
@@ -113,17 +127,18 @@ const char* uiWellMarkerSel::getText( bool top ) const
 
 int uiWellMarkerSel::getType( bool top ) const
 {
-    BufferString txt( getText(top) );
-    if ( *txt.buf() != '<' ) return 0;
-    if ( txt == sKeyDataStart() ) return -1;
-    if ( txt == sKeyDataStop() ) return 1;
+    const BufferString txt( getText(top) );
+    if ( txt == sKeyUdfLvl() || txt == sKeyDataStart() )
+	return -1;
+    if ( txt == sKeyDataStop() )
+	return 1;
     return 0;
 }
 
 
 void uiWellMarkerSel::mrkSel( CallBacker* callingcb )
 {
-    if ( !botfld_ || topfld_->size() < 2 )
+    if ( setup_.single_ || topfld_->size() < 2 )
 	return;
 
     const bool istop = callingcb == topfld_;
@@ -135,8 +150,7 @@ void uiWellMarkerSel::mrkSel( CallBacker* callingcb )
     int othselidx = othcb.currentItem();
     const int sz = cb.size();
 
-    if ( (istop && selidx > othselidx)
-      || (!istop && selidx < othselidx) )
+    if ( (istop && selidx > othselidx) || (!istop && selidx < othselidx) )
     {
 	othcb.setCurrentItem( selidx );
 	othselidx = selidx;
