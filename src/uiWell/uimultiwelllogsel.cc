@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.26 2012-08-07 05:20:51 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.27 2012-08-27 11:06:40 cvssatyaki Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -231,6 +231,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     , zistimefld_(0) 
     , dostep_(s.withzstep_)  
     , singlelog_(s.singlelog_)  
+    , prefpropnm_(s.prefpropnm_)  
 {
     delete params_;
     params_ = new Well::ExtractParams();
@@ -443,6 +444,9 @@ void uiMultiWellLogSel::update()
 
     for ( int idx=0; idx<lognms.size(); idx++ )
 	logsfld_->addItem( lognms.get(idx) );
+    const int prefnmidx = lognms.nearestMatch( prefpropnm_.buf() );
+    if ( lognms.validIdx(prefnmidx) )
+	logsfld_->setCurrentItem( prefnmidx );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.4 2012-08-10 03:50:08 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.5 2012-08-27 11:06:40 cvssatyaki Exp $";
 
 #include "uiwelllogextract.h"
 
@@ -44,20 +44,22 @@ static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.4 2012-08-10
 
 using namespace Attrib;
 
-uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p, const Attrib::DescSet* d,
-					  bool singlelog )
+uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
+	const uiWellLogExtractGrp::Setup& setup, const Attrib::DescSet* d )
 	: uiGroup(p)
 	, ads_( !d ? 0 : new Attrib::DescSet(d->is2D()))
     	, attrsfld_(0)
     	, posfiltfld_(0)
     	, radiusfld_(0)
     	, curdps_(0)
+    	, setup_(setup)
 {
     welllogselfld_ =
 	new uiMultiWellLogSel( this, uiWellExtractParams::Setup()
 					.withsampling(ads_).withzstep(ads_)
 					.withextractintime(ads_)
-					.singlelog(singlelog));
+					.singlelog(setup.singlelog_)
+					.prefpropnm(setup.prefpropnm_));
 
     if ( ads_ )
     {
@@ -216,6 +218,8 @@ bool uiWellLogExtractGrp::extractAttribData( DataPointSet& dps, int c1 )
 void uiWellLogExtractGrp::getWellNames( BufferStringSet& wellnms )
 { welllogselfld_->getSelWellNames( wellnms ); }
 
+void uiWellLogExtractGrp::getSelLogNames( BufferStringSet& lognms )
+{ welllogselfld_->getSelLogNames( lognms ); }
 
 #undef mErrRet
 #define mErrRet(s) { deepErase(dcds); if ( s ) uiMSG().error(s); return false; }

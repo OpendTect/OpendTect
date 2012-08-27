@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          July 2012
- RCS:           $Id: uiwelllogextract.h,v 1.2 2012-08-03 13:01:22 cvskris Exp $
+ RCS:           $Id: uiwelllogextract.h,v 1.3 2012-08-27 11:06:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,22 +30,34 @@ namespace Attrib { class DescSet; }
 mClass(uiWellAttrib) uiWellLogExtractGrp : public uiGroup
 {
 public:
-					uiWellLogExtractGrp(uiParent*,
-						const Attrib::DescSet* ads=0,
-						bool singlelog=false);
-					~uiWellLogExtractGrp();
 
-    void				setDescSet(const Attrib::DescSet*);
-    void				getWellNames(BufferStringSet&);
+    struct Setup
+    {
+			Setup(bool singlog =false ,const char* prop =0)
+			    : singlelog_(singlog)
+			    , prefpropnm_(prop)	{}
+	mDefSetupMemb(bool,singlelog);
+	mDefSetupMemb(BufferString,prefpropnm);
+    };
+				uiWellLogExtractGrp(uiParent*,
+					const uiWellLogExtractGrp::Setup&,
+					const Attrib::DescSet* ads=0);
+						
+				~uiWellLogExtractGrp();
 
-    bool				extractDPS();
-    const DataPointSet*			getDPS() const;
+    void			setDescSet(const Attrib::DescSet*);
+    void			getWellNames(BufferStringSet&);
+    void			getSelLogNames(BufferStringSet&);
+
+    bool			extractDPS();
+    const DataPointSet*		getDPS() const;
 
 protected:
 
     const Attrib::DescSet* ads_;
     ObjectSet<IOObj>	wellobjs_;
 
+    Setup		setup_;
     uiListBox*		attrsfld_;
     uiGenInput*		radiusfld_;
     uiGenInput*		logresamplfld_;
