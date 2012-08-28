@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicursor.cc,v 1.19 2012-05-02 15:11:59 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicursor.cc,v 1.20 2012-08-28 04:49:12 cvsnageswara Exp $";
 
 #include "uicursor.h"
 #include "pixmap.h"
@@ -32,19 +32,21 @@ uiCursorManager::~uiCursorManager()
 
 
 uiPoint uiCursorManager::cursorPos()
-{ return uiPoint( QCursor::pos().x(), QCursor::pos().y() ); }
+{ return uiPoint( mQtclass(QCursor)::pos().x(), mQtclass(QCursor)::pos().y() ); }
 
 
-void uiCursorManager::fillQCursor( const MouseCursor& mc, QCursor& qcursor )
+void uiCursorManager::fillQCursor( const MouseCursor& mc,
+				   mQtclass(QCursor&) qcursor )
 {
     if ( mc.shape_==MouseCursor::Bitmap )
     {
 	ioPixmap pixmap( mc.filename_ );
-	qcursor = QCursor( *pixmap.qpixmap(), mc.hotx_, mc.hoty_ );
+	qcursor = mQtclass(QCursor)( *pixmap.qpixmap(), mc.hotx_, mc.hoty_ );
     }
     else
     {
-	const Qt::CursorShape qshape = (Qt::CursorShape)(int) mc.shape_;
+	const mQtclass(Qt)::CursorShape qshape =
+	    			     (mQtclass(Qt)::CursorShape)(int) mc.shape_;
 	qcursor.setShape( qshape );
     }
 }
@@ -78,32 +80,32 @@ MouseCursor::Shape uiCursorManager::overrideCursorShape()
 { return overrideshape_; }
 
 
-static void setOverrideQCursor( const QCursor& qcursor, bool replace )
+static void setOverrideQCursor( const mQtclass(QCursor&) qcursor, bool replace )
 {
     overrideshape_ = (MouseCursor::Shape) qcursor.shape();
 
-    QCursor topcursor;
-    const bool stackwasempty = !QApplication::overrideCursor();
+    mQtclass(QCursor) topcursor;
+    const bool stackwasempty = !mQtclass(QApplication)::overrideCursor();
     if ( !stackwasempty )
-	topcursor = *QApplication::overrideCursor();
+	topcursor = *mQtclass(QApplication)::overrideCursor();
 
     if ( prioritycursoractive_ && !stackwasempty )
-	QApplication::restoreOverrideCursor();
+	mQtclass(QApplication)::restoreOverrideCursor();
 
     if ( replace )
-	QApplication::changeOverrideCursor( qcursor );
+	mQtclass(QApplication)::changeOverrideCursor( qcursor );
     else
-	QApplication::setOverrideCursor( qcursor );
+	mQtclass(QApplication)::setOverrideCursor( qcursor );
 
     if ( prioritycursoractive_ && !stackwasempty )
-	QApplication::setOverrideCursor( topcursor );
+	mQtclass(QApplication)::setOverrideCursor( topcursor );
 }
 
 
 void uiCursorManager::setOverrideShape( MouseCursor::Shape sh, bool replace )
 {
-    Qt::CursorShape qshape = (Qt::CursorShape)(int) sh;
-    QCursor qcursor;
+    mQtclass(Qt)::CursorShape qshape = (mQtclass(Qt)::CursorShape)(int) sh;
+    mQtclass(QCursor) qcursor;
     qcursor.setShape( qshape );
     setOverrideQCursor( qcursor, replace );
 }
@@ -113,14 +115,14 @@ void uiCursorManager::setOverrideFile( const char* fn, int hotx, int hoty,
 				       bool replace )
 {
     ioPixmap pixmap( fn );
-    QCursor qcursor( *pixmap.qpixmap(), hotx, hoty );
+    mQtclass(QCursor) qcursor( *pixmap.qpixmap(), hotx, hoty );
     setOverrideQCursor( qcursor, replace );
 }
 
 
 void uiCursorManager::setOverrideCursor( const MouseCursor& mc, bool replace )
 {
-    QCursor qcursor;
+    mQtclass(QCursor) qcursor;
     fillQCursor( mc, qcursor );
     setOverrideQCursor( qcursor, replace );
 }
@@ -129,20 +131,22 @@ void uiCursorManager::setOverrideCursor( const MouseCursor& mc, bool replace )
 #define mStoreOverrideShape() \
 { \
     overrideshape_ = MouseCursor::NotSet; \
-    if ( QApplication::overrideCursor() ) \
+    if ( mQtclass(QApplication)::overrideCursor() ) \
     { \
-	const QCursor overridecursor = *QApplication::overrideCursor(); \
+	const mQtclass(QCursor) overridecursor = \
+					*QApplication::overrideCursor(); \
 	overrideshape_ = (MouseCursor::Shape) overridecursor.shape(); \
     } \
 }
 
 void uiCursorManager::restoreInternal()
 {
-    if ( !QApplication::overrideCursor() )
+    if ( !mQtclass(QApplication)::overrideCursor() )
 	return;
 
-    const QCursor topcursor = *QApplication::overrideCursor();
-    QApplication::restoreOverrideCursor();
+    const mQtclass(QCursor) topcursor =
+				     *mQtclass(QApplication)::overrideCursor();
+    mQtclass(QApplication)::restoreOverrideCursor();
 
     if ( !prioritycursoractive_ )
     {
@@ -150,7 +154,7 @@ void uiCursorManager::restoreInternal()
 	return;
     }
 
-    QApplication::restoreOverrideCursor();
+    mQtclass(QApplication)::restoreOverrideCursor();
     mStoreOverrideShape();
-    QApplication::setOverrideCursor( topcursor );
+    mQtclass(QApplication)::setOverrideCursor( topcursor );
 }
