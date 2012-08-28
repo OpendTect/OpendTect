@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.14 2012-08-03 13:00:10 cvskris Exp $
+ RCS:		$Id: ailayer.h,v 1.15 2012-08-28 12:13:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "sets.h"
 
 
-mClass(Basic) AILayer
+class AILayer
 {
 public:
 		AILayer( float thkness, float vel, float den )
@@ -48,7 +48,7 @@ inline float getLayerDepth( const AIModel& mod, int layer )
 }
 
 
-mClass(Basic) ElasticLayer : public AILayer
+class ElasticLayer : public AILayer
 {
 public:
 		ElasticLayer( float thkness, float pvel, float svel, float den )
@@ -68,7 +68,7 @@ public:
 typedef TypeSet<ElasticLayer> ElasticModel;
 
 
-mGlobal(Basic) inline void blockElasticModel( ElasticModel& mdl, float threshold )
+inline void blockElasticModel( ElasticModel& mdl, float threshold )
 {
     float velthreshold = threshold;
     float denthreshold = threshold;
