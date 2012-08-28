@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.68 2012-08-03 13:00:52 cvskris Exp $
+ RCS:           $Id: uilistbox.h,v 1.69 2012-08-28 05:22:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiLabel;
 class uiListBoxBody;
 class uiPopupMenu;
 
-class QListWidgetItem;
+mFDQtclass(QListWidgetItem)
 
 
 /*!\brief List Box.
@@ -160,7 +160,7 @@ protected:
     uiPopupMenu&	rightclickmnu_;
 
     void		menuCB(CallBacker*);
-    void		handleCheckChange(QListWidgetItem*);
+    void		handleCheckChange(mQtclass(QListWidgetItem*));
 
 private:
 
