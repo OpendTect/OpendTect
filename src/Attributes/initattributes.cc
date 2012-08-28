@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initattributes.cc,v 1.11 2012-05-02 15:11:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: initattributes.cc,v 1.12 2012-08-28 13:24:21 cvsbert Exp $";
 
 #include "moddepmgr.h"
 #include "convolveattrib.h"
@@ -26,6 +26,7 @@ static const char* rcsID mUnusedVar = "$Id: initattributes.cc,v 1.11 2012-05-02 
 #include "prestackattrib.h"
 #include "positionattrib.h"
 #include "referenceattrib.h"
+#include "samplevalueattrib.h"
 #include "scalingattrib.h"
 #include "shiftattrib.h"
 #include "similarityattrib.h"
@@ -52,6 +53,7 @@ mDefModInitFn(Attributes)
     Attrib::PSAttrib::initClass();
     Attrib::Position::initClass();
     Attrib::Reference::initClass();
+    Attrib::SampleValue::initClass();
     Attrib::Scaling::initClass();
     Attrib::Shift::initClass();
     Attrib::Similarity::initClass();

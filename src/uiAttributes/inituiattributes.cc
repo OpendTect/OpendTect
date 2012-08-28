@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: inituiattributes.cc,v 1.10 2012-05-02 15:11:56 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: inituiattributes.cc,v 1.11 2012-08-28 13:24:21 cvsbert Exp $";
 
 
 #include "moddepmgr.h"
@@ -25,6 +25,7 @@ static const char* rcsID mUnusedVar = "$Id: inituiattributes.cc,v 1.10 2012-05-0
 #include "uiprestackattrib.h"
 #include "uipositionattrib.h"
 #include "uireferenceattrib.h"
+#include "uisamplevalueattrib.h"
 #include "uiscalingattrib.h"
 #include "uishiftattrib.h"
 #include "uisimilarityattrib.h"
@@ -50,6 +51,7 @@ mDefModInitFn(uiAttributes)
     uiPreStackAttrib::initClass();
     uiPositionAttrib::initClass();
     uiReferenceAttrib::initClass();
+    uiSampleValueAttrib::initClass();
     uiScalingAttrib::initClass();
     uiShiftAttrib::initClass();
     uiSimilarityAttrib::initClass();
