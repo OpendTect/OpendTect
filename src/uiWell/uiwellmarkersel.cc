@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellmarkersel.cc,v 1.3 2012-08-28 09:34:09 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellmarkersel.cc,v 1.4 2012-08-28 13:19:13 cvsbert Exp $";
 
 
 #include "uiwellmarkersel.h"
@@ -30,6 +30,7 @@ uiWellMarkerSel::Setup::Setup( bool issingle, const char* txt )
     , single_(issingle)
     , allowsame_(true)
     , withudf_(true)
+    , unordered_(false)
 {
     if ( !txt ) // txt may be an empty string!
     {
@@ -181,7 +182,7 @@ void uiWellMarkerSel::fillPar( IOPar& iop ) const
 
 void uiWellMarkerSel::mrkSel( CallBacker* callingcb )
 {
-    if ( setup_.single_ || topfld_->size() < 2 )
+    if ( setup_.single_ || topfld_->size() < 2 || setup_.unordered_ )
 	return;
 
     const bool istop = callingcb == topfld_;

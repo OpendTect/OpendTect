@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bert
 Date:          Aug 2012
-RCS:           $Id: uiwellmarkersel.h,v 1.3 2012-08-28 09:34:09 cvsbert Exp $
+RCS:           $Id: uiwellmarkersel.h,v 1.4 2012-08-28 13:19:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ public:
 	mDefSetupMemb(bool,single);	//!< false => two levels (a zone)
 	mDefSetupMemb(bool,allowsame);	//!< [true]
 	mDefSetupMemb(bool,withudf);	//!< [true] udf or 'open' zones allowed
+	mDefSetupMemb(bool,unordered);	//!< [false] true if your markers are
+					//!< not ordered top to bottom
 	mDefSetupMemb(BufferString,seltxt);
     };
 
