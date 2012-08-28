@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uisamplevalueattrib.cc,v 1.1 2012-08-28 13:24:21 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisamplevalueattrib.cc,v 1.2 2012-08-28 14:05:23 cvshelene Exp $";
 
 
 #include "uisamplevalueattrib.h"
@@ -23,7 +23,7 @@ using namespace Attrib;
 mInitAttribUI(uiSampleValueAttrib,SampleValue,"Sample value",sKeyBasicGrp())
 
 uiSampleValueAttrib::uiSampleValueAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.13")
+	: uiAttrDescEd(p,is2d,mTODOHelpID)
 {
     inpfld_ = createInpFld( is2d );
     setHAlignObj( inpfld_ );

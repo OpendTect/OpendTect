@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: samplevalueattrib.cc,v 1.1 2012-08-28 13:24:21 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: samplevalueattrib.cc,v 1.2 2012-08-28 14:05:23 cvshelene Exp $";
 
 #include "samplevalueattrib.h"
 #include "attribdataholder.h"
@@ -23,6 +23,9 @@ void SampleValue::initClass()
 {
     mAttrStartInitClass
     desc->addInput( InputSpec("Input Data",true) );
+    desc->addOutputDataType( Seis::UnknowData );
+
+    desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 
@@ -30,24 +33,24 @@ void SampleValue::initClass()
 SampleValue::SampleValue( Desc& desc )
     : Provider(desc)
 {
-    desc_.setLocality( Attrib::Desc::SingleTrace );
+    if ( !isOK() ) return;
 }
 
 
 bool SampleValue::getInputData( const BinID& relpos, int zintv )
 {
     inputdata_ = inputs_[0]->getData( relpos, zintv );
-    if ( !inputdata_ )
-	return false;
-
     dataidx_ = getDataIndex( 0 );
-    return true;
+    return inputdata_;
 }
 
 
 bool SampleValue::computeData( const DataHolder& output, const BinID& relpos,
 			 int z0, int nrsamples, int threadid ) const
 {
+    if ( !inputdata_ || inputdata_->isEmpty() )               
+	return false;
+
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 
