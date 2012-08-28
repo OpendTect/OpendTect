@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.50 2012-08-27 13:16:46 cvskris Exp $
+ RCS:		$Id: commondefs.h,v 1.51 2012-08-28 08:57:07 cvsnageswara Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -110,6 +110,8 @@ ________________________________________________________________________
 //for Qt
 #define mFDQtclass(cls) class cls;
 #define mQtclass(cls) cls
+#define mStartODQtNamespace
+#define mStopODQtNamespace
 
 #define mIfNotFirstTime(act) \
     static bool _already_visited_ = false; \
