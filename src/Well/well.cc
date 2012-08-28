@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.101 2012-08-21 09:28:52 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.102 2012-08-28 13:19:52 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -149,6 +149,8 @@ Well::Data::~Data()
     delete &disp3d_;
     delete d2tmodel_;
     delete csmodel_;
+    deepErase( markers_ );
+    delete &markers_;
 
     Strat::eLVLS().levelToBeRemoved.remove( 
 	    			mCB(this, Well::Data, levelToBeRemoved ) );
@@ -473,15 +475,12 @@ Color Well::Marker::color() const
 
 ObjectSet<Well::Marker>& Well::MarkerSet::operator += ( Well::Marker* mrk )
 {
-    if ( mrk && isPresent( mrk->name().buf() ) )
+    if ( mrk )
     {
-	BufferString msg( "Marker " );
-	msg += mrk->name().buf();
-	msg += " is already present";
-	pErrMsg( msg );
+	if ( !isPresent( mrk->name().buf() ) )
+	    ObjectSet<Well::Marker>::operator += ( mrk );
     }
-    else
-	ObjectSet<Well::Marker>::operator += ( mrk );
+
     return *this;
 }
 
