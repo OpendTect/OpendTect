@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bert
 Date:          Aug 2012
-RCS:           $Id: uiwellmarkersel.h,v 1.2 2012-08-27 15:12:42 cvsbert Exp $
+RCS:           $Id: uiwellmarkersel.h,v 1.3 2012-08-28 09:34:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "bufstringset.h"
 class uiComboBox;
+class IOPar;
 namespace Well { class Marker; class MarkerSet; } 
 
 
@@ -49,13 +50,15 @@ public:
 				//!< -1=udf/before-first, 0=marker, 1=after-last
     				//!< only useful if setup.withudf
 
-    static const char*	sKeyUdfLvl()		{ return "-"; }
-    static const char*	sKeyDataStart()		{ return "<Start of data>"; }
-    static const char*	sKeyDataStop()		{ return "<End of data>"; }
+    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+
+    static const char*	sKeyUdfLvl();
+    static const char*	sKeyDataStart();
+    static const char*	sKeyDataEnd();
 
 protected:
 
-    BufferStringSet	nms_;
     const Setup		setup_;
     uiComboBox*		topfld_;
     uiComboBox*		botfld_;

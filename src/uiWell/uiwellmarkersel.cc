@@ -7,13 +7,23 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellmarkersel.cc,v 1.2 2012-08-27 15:12:42 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellmarkersel.cc,v 1.3 2012-08-28 09:34:09 cvsbert Exp $";
 
 
 #include "uiwellmarkersel.h"
 
 #include "uicombobox.h"
 #include "wellmarker.h"
+#include "wellextractdata.h"
+
+const char* uiWellMarkerSel::sKeyUdfLvl()
+		{ return "-"; }
+const char* uiWellMarkerSel::sKeyDataStart()
+		{ return Well::ExtractParams::sKeyDataStart(); }
+const char* uiWellMarkerSel::sKeyDataEnd()
+		{ return Well::ExtractParams::sKeyDataEnd(); }
+
+
 
 uiWellMarkerSel::Setup::Setup( bool issingle, const char* txt )
     : seltxt_(txt)
@@ -79,7 +89,7 @@ void uiWellMarkerSel::setMarkers( const BufferStringSet& inpnms )
 	nms.add( setup_.single_ ? sKeyUdfLvl() : sKeyDataStart() );
     nms.add( inpnms, true );
     if ( !setup_.single_ && setup_.withudf_ )
-	nms.add( sKeyDataStop() );
+	nms.add( sKeyDataEnd() );
     setMarkers( *topfld_, nms );
     if ( botfld_ )
     {
@@ -119,7 +129,7 @@ void uiWellMarkerSel::setInput( const char* nm, bool top )
 
 const char* uiWellMarkerSel::getText( bool top ) const
 {
-    if ( !top && !botfld_ ) return sKeyDataStop();
+    if ( !top && !botfld_ ) return sKeyDataEnd();
     uiComboBox& cb = top ? *topfld_ : *botfld_;
     return cb.text();
 }
@@ -130,9 +140,42 @@ int uiWellMarkerSel::getType( bool top ) const
     const BufferString txt( getText(top) );
     if ( txt == sKeyUdfLvl() || txt == sKeyDataStart() )
 	return -1;
-    if ( txt == sKeyDataStop() )
+    if ( txt == sKeyDataEnd() )
 	return 1;
     return 0;
+}
+
+
+void uiWellMarkerSel::usePar( const IOPar& iop )
+{
+    if ( !botfld_ )
+    {
+	const char* res = iop.find( "Marker" );
+	if ( res && *res )
+	    setInput( res, true );
+    }
+    else
+    {
+	const char* res = iop.find( Well::ExtractParams::sKeyTopMrk() );
+	if ( res && *res )
+	    setInput( res, true );
+	res = iop.find( Well::ExtractParams::sKeyBotMrk() );
+	if ( res && *res )
+	    setInput( res, false );
+    }
+}
+
+
+void uiWellMarkerSel::fillPar( IOPar& iop ) const
+{
+    if ( !botfld_ )
+	iop.set( "Marker", getText(true) );
+    else
+    {
+	iop.set( Well::ExtractParams::sKeyTopMrk(), getText(true) );
+	if ( botfld_ )
+	    iop.set( Well::ExtractParams::sKeyBotMrk(), getText(false) );
+    }
 }
 
 
