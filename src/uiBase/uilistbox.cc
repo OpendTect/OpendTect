@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.130 2012-08-01 10:35:09 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.131 2012-08-28 05:50:10 cvsnageswara Exp $";
 
 #include "uilistbox.h"
 
@@ -23,11 +23,11 @@ static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.130 2012-08-01 10:3
 #include <QKeyEvent>
 #include <QMouseEvent>
 
-#define mNoSelection QAbstractItemView::NoSelection
-#define mSingle QAbstractItemView::SingleSelection
-#define mMulti QAbstractItemView::MultiSelection
-#define mExtended QAbstractItemView::ExtendedSelection
-#define mContiguous QAbstractItemView::ContiguousSelection
+#define mNoSelection mQtclass(QAbstractItemView)::NoSelection
+#define mSingle mQtclass(QAbstractItemView)::SingleSelection
+#define mMulti mQtclass(QAbstractItemView)::MultiSelection
+#define mExtended mQtclass(QAbstractItemView)::ExtendedSelection
+#define mContiguous mQtclass(QAbstractItemView)::ContiguousSelection
 
 static const int cIconSz = 16;
 static const char* startmark = ":"; static const char* endmark = ":";
@@ -37,11 +37,11 @@ static const char* startmark = ":"; static const char* endmark = ":";
 int uiListBox::cDefNrLines()	{ return 7; }
 
 
-class uiListBoxItem : public QListWidgetItem
+class uiListBoxItem : public mQtclass(QListWidgetItem)
 {
 public:
-uiListBoxItem( const QString& txt )
-    : QListWidgetItem(txt)
+uiListBoxItem( const mQtclass(QString&) txt )
+    : mQtclass(QListWidgetItem)(txt)
     , ischeckable_(false)
     , ischecked_(false)
     , id_(-1)
@@ -53,7 +53,7 @@ uiListBoxItem( const QString& txt )
 };
 
 
-class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListWidget>
+class uiListBoxBody : public uiObjBodyImpl<uiListBox,mQtclass(QListWidget)>
 {
 
 public:
@@ -102,8 +102,8 @@ public:
     int 		prefnrlines_;
 
 protected:
-    void		mouseReleaseEvent(QMouseEvent*);
-    void		keyPressEvent(QKeyEvent*);
+    void		mouseReleaseEvent(mQtclass(QMouseEvent*));
+    void		keyPressEvent(mQtclass(QKeyEvent*));
 
 private:
 
@@ -116,15 +116,15 @@ private:
 uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt, 
 			const char* nm, bool ismultiselect,
 			int preferrednrlines, int preferredfieldwidth )
-    : uiObjBodyImpl<uiListBox,QListWidget>( hndle, parnt, nm )
+    : uiObjBodyImpl<uiListBox,mQtclass(QListWidget)>( hndle, parnt, nm )
     , messenger_(*new i_listMessenger(this,&hndle))
     , fieldwidth_(preferredfieldwidth)
     , prefnrlines_(preferrednrlines)
 {
     setObjectName( nm );
-    setDragDropMode( QAbstractItemView::NoDragDrop );
+    setDragDropMode( mQtclass(QAbstractItemView)::NoDragDrop );
     setAcceptDrops( false ); setDragEnabled( false );
-    setSelectionBehavior( QAbstractItemView::SelectItems );
+    setSelectionBehavior( mQtclass(QAbstractItemView)::SelectItems );
     if ( ismultiselect ) setSelectionMode( mExtended );
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
@@ -134,7 +134,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
 }
 
 
-static void createQString( QString& qs, const char* str, bool mark )
+static void createQString( mQtclass(QString&) qs, const char* str, bool mark )
 {
     if ( !str ) str = "";
     mGetMarkededBufferString( bs, mark, str );
@@ -144,29 +144,29 @@ static void createQString( QString& qs, const char* str, bool mark )
 
 void uiListBoxBody::addItem( const char* txt, bool mark, int id )
 {
-    QString qs;
+    mQtclass(QString) qs;
     createQString( qs, txt, mark );
     uiListBoxItem* itm = new uiListBoxItem( qs );
     itm->id_ = id;
     items_ += itm;
-    QListWidget::addItem( itm );
+    mQtclass(QListWidget)::addItem( itm );
 }
 
 
 void uiListBoxBody::insertItem( int idx, const char* txt, bool mark, int id )
 {
-    QString qs;
+    mQtclass(QString) qs;
     createQString( qs, txt, mark );
     uiListBoxItem* itm = new uiListBoxItem( qs );
     itm->id_ = id;
     items_.insertAt( itm, idx );
-    QListWidget::insertItem( idx, itm );
+    mQtclass(QListWidget)::insertItem( idx, itm );
 }
 
 
 void uiListBoxBody::removeAll()
 {
-    QListWidget::clear();
+    mQtclass(QListWidget)::clear();
     items_.erase();
 }
 
@@ -194,7 +194,7 @@ void uiListBoxBody::setItemAlignment( int idx, Alignment::HPos hpos )
 {
     Alignment al( hpos, Alignment::VCenter );
     if ( item(idx) )
-	item(idx)->setTextAlignment( (Qt::Alignment)al.uiValue() );
+	item(idx)->setTextAlignment( (mQtclass(Qt)::Alignment)al.uiValue() );
 }
 
 
@@ -206,28 +206,28 @@ uiSize uiListBoxBody::minimumsize() const
 }
 
 
-void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
+void uiListBoxBody::mouseReleaseEvent( mQtclass(QMouseEvent*) ev )
 {
     if ( !ev ) return;
 
-    if ( ev->button() == Qt::RightButton )
+    if ( ev->button() == mQtclass(Qt)::RightButton )
 	handle_.buttonstate_ = OD::RightButton;
-    else if ( ev->button() == Qt::LeftButton )
+    else if ( ev->button() == mQtclass(Qt)::LeftButton )
 	handle_.buttonstate_ = OD::LeftButton;
     else
 	handle_.buttonstate_ = OD::NoButton;
 
-    QListWidget::mouseReleaseEvent( ev );
+    mQtclass(QListWidget)::mouseReleaseEvent( ev );
     handle_.buttonstate_ = OD::NoButton;
 }
 
 
-void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
+void uiListBoxBody::keyPressEvent( mQtclass(QKeyEvent*) qkeyev )
 {
-    if ( qkeyev && qkeyev->key() == Qt::Key_Delete )
+    if ( qkeyev && qkeyev->key() == mQtclass(Qt)::Key_Delete )
 	handle_.deleteButtonPressed.trigger();
 
-    QListWidget::keyPressEvent( qkeyev );
+    mQtclass(QListWidget)::keyPressEvent( qkeyev );
 }
 
 
@@ -278,7 +278,7 @@ uiListBoxBody& uiListBox::mkbody( uiParent* p, const char* nm, bool ms,
 				  int nl, int pfw )
 {
     body_ = new uiListBoxBody(*this,p,nm,ms,nl,pfw);
-    body_->setIconSize( QSize(cIconSz,cIconSz) );
+    body_->setIconSize( mQtclass(QSize)(cIconSz,cIconSz) );
     return *body_;
 }
 
@@ -306,7 +306,7 @@ void uiListBox::setNrLines( int prefnrlines )
 { body_->setNrLines( prefnrlines ); }
 
 void uiListBox::setSelectionMode( SelectionMode mode )
-{ body_->setSelectionMode( (QAbstractItemView::SelectionMode)mode ); }
+{ body_->setSelectionMode( (mQtclass(QAbstractItemView)::SelectionMode)mode ); }
 
 void uiListBox::setNotSelectable()
 { setSelectionMode( No ); }
@@ -328,7 +328,7 @@ bool uiListBox::isSelected ( int idx ) const
 {
     if ( !validIndex(idx) ) return false;
 
-    QListWidgetItem* itm = body_->item( idx );
+    mQtclass(QListWidgetItem*) itm = body_->item( idx );
     return itm ? itm->isSelected() : false;
 }
 
@@ -473,7 +473,7 @@ void uiListBox::setPixmap( int index, const Color& col )
     if ( index<0 || index>=size() || !body_->item(index) )
 	return;
 
-    QSize sz = body_->iconSize();
+    mQtclass(QSize) sz = body_->iconSize();
     ioPixmap pm( sz.width(), sz.height() ); pm.fill( col );
     setPixmap( index, pm );
 }
@@ -492,15 +492,15 @@ ioPixmap uiListBox::pixmap( int index ) const
 {
     if ( index<0 || index>=size() || !body_->item(index) )
 	return ioPixmap();
-    QIcon qicon = body_->item(index)->icon();
+    mQtclass(QIcon) qicon = body_->item(index)->icon();
     return ioPixmap( qicon.pixmap(body_->iconSize()) );
 }
 
 
 void uiListBox::setColor( int index, const Color& col )
 {
-    QColor qcol( col.r(), col.g(), col.b() );
-    QListWidgetItem* itm = body_->item( index );
+    mQtclass(QColor) qcol( col.r(), col.g(), col.b() );
+    mQtclass(QListWidgetItem*) itm = body_->item( index );
     if ( itm ) itm->setBackground( qcol );
 //    body_->setFocus();
 }
@@ -508,10 +508,10 @@ void uiListBox::setColor( int index, const Color& col )
 
 Color uiListBox::getColor( int index ) const
 {
-    QListWidgetItem* itm = body_->item( index );
+    mQtclass(QListWidgetItem*) itm = body_->item( index );
     if ( !itm ) return Color(255,255,255);
 
-    const QColor qcol = itm->background().color();
+    const mQtclass(QColor) qcol = itm->background().color();
     return Color( qcol.red(), qcol.green(), qcol.blue() );
 }
 
@@ -689,12 +689,12 @@ void uiListBox::setItemCheckable( int idx, bool yn )
 {
     if ( !validIndex(idx) ) return;
 
-    Qt::ItemFlags flags = body_->item(idx)->flags();
-    const bool ischeckable = flags.testFlag( Qt::ItemIsUserCheckable );
+    mQtclass(Qt)::ItemFlags flags = body_->item(idx)->flags();
+    const bool ischeckable = flags.testFlag( mQtclass(Qt)::ItemIsUserCheckable);
     if ( ischeckable == yn )
 	return;
 
-    body_->item(idx)->setFlags( flags^Qt::ItemIsUserCheckable );
+    body_->item(idx)->setFlags( flags^mQtclass(Qt)::ItemIsUserCheckable );
     setItemChecked( idx, false );
 }
 
@@ -702,7 +702,7 @@ void uiListBox::setItemCheckable( int idx, bool yn )
 bool uiListBox::isItemCheckable( int idx ) const
 {
     return validIndex(idx) &&
-	body_->item(idx)->flags().testFlag( Qt::ItemIsUserCheckable );
+	body_->item(idx)->flags().testFlag( mQtclass(Qt)::ItemIsUserCheckable );
 }
 
 
@@ -720,13 +720,15 @@ void uiListBox::setItemChecked( int idx, bool yn )
 {
     mBlockCmdRec;
     if ( isItemCheckable(idx) )
-	body_->item(idx)->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
+	body_->item(idx)->setCheckState( yn ? mQtclass(Qt)::Checked :
+					      mQtclass(Qt)::Unchecked );
 }
 
 
 bool uiListBox::isItemChecked( int idx ) const
 {
-    return validIndex(idx) && body_->item(idx)->checkState()==Qt::Checked;
+    return validIndex(idx) && body_->item(idx)->checkState()==
+							mQtclass(Qt)::Checked;
 }
 
 
@@ -757,7 +759,7 @@ void uiListBox::setItemText( int idx, const char* txt )
     if ( !validIndex(idx) ) return;
 
     mGetMarkededBufferString( itmtxt, isMarked(idx), txt );
-    body_->item(idx)->setText( QString(itmtxt.buf()) );
+    body_->item(idx)->setText( mQtclass(QString)(itmtxt.buf()) );
 }
 
 
@@ -765,12 +767,12 @@ void uiListBox::setItemSelectable( int idx, bool yn )
 {
     if ( !validIndex(idx) ) return;
 
-    Qt::ItemFlags flags = body_->item(idx)->flags();
-    const bool isselectable = flags.testFlag( Qt::ItemIsSelectable );
+    mQtclass(Qt)::ItemFlags flags = body_->item(idx)->flags();
+    const bool isselectable = flags.testFlag( mQtclass(Qt)::ItemIsSelectable );
     if ( isselectable == yn )
 	return;
 
-    body_->item(idx)->setFlags( flags^Qt::ItemIsSelectable );
+    body_->item(idx)->setFlags( flags^mQtclass(Qt)::ItemIsSelectable );
     setItemChecked( idx, false );
 }
 
@@ -778,7 +780,7 @@ void uiListBox::setItemSelectable( int idx, bool yn )
 bool uiListBox::isItemSelectable( int idx ) const
 {
     return validIndex(idx) &&
-	body_->item(idx)->flags().testFlag( Qt::ItemIsSelectable );
+	body_->item(idx)->flags().testFlag( mQtclass(Qt)::ItemIsSelectable );
 }
 
 
@@ -885,7 +887,7 @@ void uiListBox::setAlignment( Alignment::HPos al )
 }
 
 
-void uiListBox::handleCheckChange( QListWidgetItem* itm )
+void uiListBox::handleCheckChange( mQtclass(QListWidgetItem*) itm )
 {
     mDynamicCastGet(uiListBoxItem*,lbitm,itm)
     if ( !lbitm ) return;
