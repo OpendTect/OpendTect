@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsviewbase.cc,v 1.41 2012-08-03 08:36:05 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsviewbase.cc,v 1.42 2012-08-28 05:05:20 cvsnageswara Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -27,12 +27,12 @@ static const int cDefaultHeight = 1;
 
 
 class uiGraphicsViewBody :
-    public uiObjBodyImpl<uiGraphicsViewBase,QGraphicsView>
+    public uiObjBodyImpl<uiGraphicsViewBase,mQtclass(QGraphicsView)>
 {
 public:
 
 uiGraphicsViewBody( uiGraphicsViewBase& hndle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiGraphicsViewBase,QGraphicsView>(hndle,p,nm)
+    : uiObjBodyImpl<uiGraphicsViewBase,mQtclass(QGraphicsView)>(hndle,p,nm)
     , mousehandler_(*new MouseEventHandler)
     , keyboardhandler_(*new KeyboardEventHandler)
     , startpos_(-1,-1)
@@ -41,7 +41,7 @@ uiGraphicsViewBody( uiGraphicsViewBase& hndle, uiParent* p, const char* nm )
     setStretch( 2, 2 );
     setPrefWidth( cDefaultWidth );
     setPrefHeight( cDefaultHeight );
-    setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
+    setTransformationAnchor( mQtclass(QGraphicsView)::AnchorUnderMouse );
 }
 
 ~uiGraphicsViewBody()
@@ -66,48 +66,48 @@ protected:
     KeyboardEventHandler&	keyboardhandler_;
     uiGraphicsViewBase&		handle_;
 
-    void			wheelEvent(QWheelEvent*);
-    void			resizeEvent(QResizeEvent*);
-    void			paintEvent(QPaintEvent*);
-    void			mouseMoveEvent(QMouseEvent*);
-    void			mouseReleaseEvent(QMouseEvent*);
-    void			mousePressEvent(QMouseEvent*);
-    void			mouseDoubleClickEvent(QMouseEvent*);
-    void			keyPressEvent(QKeyEvent*);
+    void			wheelEvent(mQtclass(QWheelEvent*));
+    void			resizeEvent(mQtclass(QResizeEvent*));
+    void			paintEvent(mQtclass(QPaintEvent*));
+    void			mouseMoveEvent(mQtclass(QMouseEvent*));
+    void			mouseReleaseEvent(mQtclass(QMouseEvent*));
+    void			mousePressEvent(mQtclass(QMouseEvent*));
+    void			mouseDoubleClickEvent(mQtclass(QMouseEvent*));
+    void			keyPressEvent(mQtclass(QKeyEvent*));
     void			scrollContentsBy (int,int);
 };
 
 
-void uiGraphicsViewBody::mouseMoveEvent( QMouseEvent* ev )
+void uiGraphicsViewBody::mouseMoveEvent( mQtclass(QMouseEvent*) ev )
 {
     MouseEvent me( buttonstate_, ev->x(), ev->y() );
     mousehandler_.triggerMovement( me );
-    QGraphicsView::mouseMoveEvent( ev );
+    mQtclass(QGraphicsView)::mouseMoveEvent( ev );
 }
 
 
-void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
+void uiGraphicsViewBody::mousePressEvent( mQtclass(QMouseEvent*) ev )
 {
     if ( !ev ) return;
 
-    if ( ev->modifiers() == Qt::ControlModifier )
+    if ( ev->modifiers() == mQtclass(Qt)::ControlModifier )
 	handle_.setCtrlPressed( true );
 
-    if ( ev->button() == Qt::RightButton )
+    if ( ev->button() == mQtclass(Qt)::RightButton )
     {
-	QGraphicsView::DragMode dragmode = dragMode(); 
-	setDragMode( QGraphicsView::NoDrag );
+	mQtclass(QGraphicsView)::DragMode dragmode = dragMode(); 
+	setDragMode( mQtclass(QGraphicsView)::NoDrag );
 
 	buttonstate_ = OD::RightButton;
 	MouseEvent me( buttonstate_, ev->x(), ev->y() );
 	const int refnr = handle_.beginCmdRecEvent( "rightButtonPressed" );
 	mousehandler_.triggerButtonPressed( me );
-	QGraphicsView::mousePressEvent( ev );
+	mQtclass(QGraphicsView)::mousePressEvent( ev );
 	handle_.endCmdRecEvent( refnr, "rightButtonPressed" );
 	setDragMode( dragmode );
 	return;
     }
-    else if ( ev->button() == Qt::LeftButton )
+    else if ( ev->button() == mQtclass(Qt)::LeftButton )
     {
 	uiPoint viewpt = handle_.getScenePos( ev->x(), ev->y() );
 	startpos_ = uiPoint( viewpt.x, viewpt.y );
@@ -118,26 +118,26 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
     else
 	buttonstate_ = OD::NoButton;
 
-    QGraphicsView::mousePressEvent( ev );
+    mQtclass(QGraphicsView)::mousePressEvent( ev );
 }
 
 
-void uiGraphicsViewBody::mouseDoubleClickEvent( QMouseEvent* ev )
+void uiGraphicsViewBody::mouseDoubleClickEvent( mQtclass(QMouseEvent*) ev )
 {
     if ( !ev | handle_.isRubberBandingOn() ) return;
-    if ( ev->button() == Qt::LeftButton )
+    if ( ev->button() == mQtclass(Qt)::LeftButton )
     {
 	MouseEvent me( OD::LeftButton, ev->x(), ev->y() );
 	mousehandler_.triggerDoubleClick( me );
     }
-    QGraphicsView::mouseDoubleClickEvent( ev );
+    mQtclass(QGraphicsView)::mouseDoubleClickEvent( ev );
 }
 
 
-void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* ev )
+void uiGraphicsViewBody::mouseReleaseEvent( mQtclass(QMouseEvent*) ev )
 {
     if ( !ev ) return;
-    if ( ev->button() == Qt::LeftButton )
+    if ( ev->button() == mQtclass(Qt)::LeftButton )
     {
 	buttonstate_ = OD::LeftButton;
 	MouseEvent me( buttonstate_, ev->x(), ev->y() );
@@ -154,11 +154,11 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* ev )
     handle_.setCtrlPressed( false );
 
     buttonstate_ = OD::NoButton;
-    QGraphicsView::mouseReleaseEvent( ev );
+    mQtclass(QGraphicsView)::mouseReleaseEvent( ev );
 }
 
 
-void uiGraphicsViewBody::keyPressEvent( QKeyEvent* ev )
+void uiGraphicsViewBody::keyPressEvent( mQtclass(QKeyEvent*) ev )
 {
     if ( !ev ) return;
 
@@ -166,18 +166,18 @@ void uiGraphicsViewBody::keyPressEvent( QKeyEvent* ev )
     KeyboardEvent ke;
     ke.key_ = (OD::KeyboardKey)ev->key();
     keyboardhandler_.triggerKeyPressed( ke );
-    QGraphicsView::keyPressEvent( ev );
+    mQtclass(QGraphicsView)::keyPressEvent( ev );
 }
 
 
-void uiGraphicsViewBody::paintEvent( QPaintEvent* ev )
+void uiGraphicsViewBody::paintEvent( mQtclass(QPaintEvent*) ev )
 {
     handle_.preDraw.trigger();
-    QGraphicsView::paintEvent( ev );
+    mQtclass(QGraphicsView)::paintEvent( ev );
 }
 
 
-void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
+void uiGraphicsViewBody::resizeEvent( mQtclass(QResizeEvent*) ev )
 {
     if ( !ev ) return;
 
@@ -185,7 +185,7 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
     {
 	const int sceneborder = handle_.getSceneBorder();
 #if defined(__win__) && !defined(__msvc__)
-	QSize newsz = ev->size();
+	mQtclass(QSize) newsz = ev->size();
 	handle_.scene_->setSceneRect( sceneborder, sceneborder,
 				      newsz.width()-2*sceneborder,
 				      newsz.height()-2*sceneborder );
@@ -202,14 +202,14 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 }
 
 
-void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
+void uiGraphicsViewBody::wheelEvent( mQtclass(QWheelEvent*) ev )
 {
     if ( ev && handle_.scrollZoomEnabled() )
     {
 	const int numsteps = ( ev->delta() / 8 ) / 15;
 
-	QMatrix mat = matrix();
-	const QPointF& mousepos = ev->pos();
+	mQtclass(QMatrix) mat = matrix();
+	const mQtclass(QPointF&) mousepos = ev->pos();
 	mat.translate( (width()/2) - mousepos.x(),
 		       (height()/2) - mousepos.y() );
 
@@ -234,13 +234,13 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 			       ev->delta() );
     mousehandler_.triggerWheel( me );
     if ( handle_.scrollZoomEnabled() )
-	QGraphicsView::wheelEvent( ev );
+	mQtclass(QGraphicsView)::wheelEvent( ev );
 }
 
 
 void uiGraphicsViewBody::scrollContentsBy( int dx, int dy )
 {
-    QGraphicsView::scrollContentsBy(dx,dy);
+    mQtclass(QGraphicsView)::scrollContentsBy(dx,dy);
     handle_.scrollBarUsed.trigger();
 }
 
@@ -295,7 +295,7 @@ void uiGraphicsViewBase::rePaint()
 
 void uiGraphicsViewBase::setDragMode( ODDragMode dragmode )
 {
-    body_->setDragMode( (QGraphicsView::DragMode)int(dragmode) );
+    body_->setDragMode( (mQtclass(QGraphicsView)::DragMode)int(dragmode) );
     scene().setMouseEventActive( dragmode==uiGraphicsViewBase::NoDrag );
 }
 
@@ -361,9 +361,11 @@ void uiGraphicsViewBase::centreOn( uiPoint centre )
 void uiGraphicsViewBase::setScrollBarPolicy( bool hor, ScrollBarPolicy sbp )
 {
     if ( hor )
-	body_->setHorizontalScrollBarPolicy( (Qt::ScrollBarPolicy)int(sbp) );
+	body_->setHorizontalScrollBarPolicy(
+				      (mQtclass(Qt)::ScrollBarPolicy)int(sbp) );
     else
-	body_->setVerticalScrollBarPolicy( (Qt::ScrollBarPolicy)int(sbp) );
+	body_->setVerticalScrollBarPolicy(
+				      (mQtclass(Qt)::ScrollBarPolicy)int(sbp) );
 }
 
 
@@ -373,7 +375,7 @@ void uiGraphicsViewBase::setViewArea( double x, double y, double w, double h )
 
 uiRect uiGraphicsViewBase::getViewArea() const
 {
-    QRectF qselrect( body_->mapToScene(0,0),
+    mQtclass(QRectF) qselrect( body_->mapToScene(0,0),
 	    	     body_->mapToScene(width(),height()) );
     return uiRect( (int)qselrect.left(), (int)qselrect.top(),
 	    	   (int)qselrect.right(), (int)qselrect.bottom() );
@@ -398,7 +400,7 @@ uiGraphicsScene& uiGraphicsViewBase::scene()
 
 uiRect uiGraphicsViewBase::getSceneRect() const
 {
-    QRectF scenerect = body_->sceneRect();
+    mQtclass(QRectF) scenerect = body_->sceneRect();
     return uiRect( (int)scenerect.left(), (int)scenerect.top(),
 	    	   (int)scenerect.right(), (int)scenerect.bottom() );
 }
@@ -410,16 +412,17 @@ void uiGraphicsViewBase::setSceneRect( const uiRect& rect )
 
 uiPoint uiGraphicsViewBase::getCursorPos() const
 {
-    QPoint globalpos( body_->cursor().pos().x(), body_->cursor().pos().y() );
-    QPoint viewpos( (int)body_->mapFromGlobal(globalpos).x(),
-		    (int)body_->mapFromGlobal(globalpos).y() );
+    mQtclass(QPoint) globalpos( body_->cursor().pos().x(),
+	    			body_->cursor().pos().y() );
+    mQtclass(QPoint) viewpos( (int)body_->mapFromGlobal(globalpos).x(),
+		    	      (int)body_->mapFromGlobal(globalpos).y() );
     return getScenePos( (float)viewpos.x(), (float)viewpos.y() );
 }
 
 
 uiPoint uiGraphicsViewBase::getScenePos( float x, float y ) const
 {
-    QPoint viewpos( (int)x, (int)y );
+    mQtclass(QPoint) viewpos( (int)x, (int)y );
     return uiPoint( (int)body_->mapToScene(viewpos).x(),
 	    	    (int)body_->mapToScene(viewpos).y() );
 }
@@ -434,14 +437,14 @@ void uiGraphicsViewBase::show()
 
 void uiGraphicsViewBase::setBackgroundColor( const Color& color )
 {
-    QBrush brush( QColor(color.r(),color.g(),color.b()) );
+    mQtclass(QBrush) brush( mQtclass(QColor)(color.r(),color.g(),color.b()) );
     body_->setBackgroundBrush( brush );
 }
 
 
 Color uiGraphicsViewBase::backgroundColor() const
 {
-    QColor color( body_->backgroundBrush().color() );
+    mQtclass(QColor) color( body_->backgroundBrush().color() );
     return Color( color.red(), color.green(), color.blue() );
 }
 
@@ -460,7 +463,7 @@ Color uiGraphicsViewBase::uibackgroundColor() const
 
 void uiGraphicsViewBase::setNoBackGround()
 {
-    body_->setAttribute( Qt::WA_NoSystemBackground );
+    body_->setAttribute( mQtclass(Qt)::WA_NoSystemBackground );
     uisetBackgroundColor( Color( 255, 255, 255, 255 )  );
     scene_->setBackGroundColor( Color( 255, 255, 255, 255 )  );
 }
@@ -468,22 +471,22 @@ void uiGraphicsViewBase::setNoBackGround()
 
 void uiGraphicsViewBase::setSceneAlignment( const Alignment& al )
 {
-    Qt::Alignment qal; 
+    mQtclass(Qt)::Alignment qal;
     if ( al.vPos() == Alignment::Top ) 
-	qal = Qt::AlignTop;
+	qal = mQtclass(Qt)::AlignTop;
     else if ( al.vPos() == Alignment::Bottom )
-	qal = Qt::AlignBottom;
+	qal = mQtclass(Qt)::AlignBottom;
     else
-	qal = Qt::AlignVCenter;
+	qal = mQtclass(Qt)::AlignVCenter;
 
     if ( al.hPos() == Alignment::Left )
-	qal = qal | Qt::AlignLeft;
+	qal = qal | mQtclass(Qt)::AlignLeft;
     else if ( al.hPos() == Alignment::Right )
-	qal = qal | Qt::AlignRight;
+	qal = qal | mQtclass(Qt)::AlignRight;
     else
-	qal = qal | Qt::AlignHCenter;
+	qal = qal | mQtclass(Qt)::AlignHCenter;
 
-    body_->setAlignment( qal ); 
+    body_->setAlignment( qal );
 }
 
 
@@ -501,7 +504,7 @@ int uiGraphicsViewBase::getSceneBorder() const
 
 uiSize uiGraphicsViewBase::scrollBarSize( bool hor ) const
 {
-    const QScrollBar* sb = hor ? body_->horizontalScrollBar() 
+    const mQtclass(QScrollBar*) sb = hor ? body_->horizontalScrollBar() 
 			       : body_->verticalScrollBar();
     return sb ? uiSize( (int)sb->sizeHint().width(), 
 	    		(int)sb->sizeHint().height()) 
