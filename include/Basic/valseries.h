@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.38 2012-08-08 04:22:05 cvssalil Exp $
+ RCS:           $Id: valseries.h,v 1.39 2012-08-28 15:12:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,7 +179,7 @@ protected:
 };
 
 template <class T>
-mClass(Basic) ValueSeriesGetAll : public ParallelTask
+class ValueSeriesGetAll : public ParallelTask
 {
 public:
 		ValueSeriesGetAll(const ValueSeries<T>& from,
