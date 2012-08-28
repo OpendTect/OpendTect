@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicreateattriblogdlg.cc,v 1.36 2012-05-11 14:22:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicreateattriblogdlg.cc,v 1.37 2012-08-28 13:21:40 cvsbert Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -101,13 +101,15 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 
 void uiCreateAttribLogDlg::init( CallBacker* )
 {
+    Well::MarkerSet mrkrs;
     for ( int idx=0; idx<wellnames_.size(); idx++ )
     {
 	int wdidx = getWellIndex( wellnames_.get(idx) );
 	Well::Data* wdtmp = Well::MGR().wells()[wdidx];
 	if ( wdtmp )
-	    zrangeselfld_->addMarkers( wdtmp->markers() );
+	    mrkrs.append( wdtmp->markers() );
     }
+    sort( mrkrs ); zrangeselfld_->setMarkers( mrkrs );
 }
 
 

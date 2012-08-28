@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.17 2012-08-27 11:06:39 cvssatyaki Exp $
+RCS:           $Id: uimultiwelllogsel.h,v 1.18 2012-08-28 13:21:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,8 @@ public:
 
     virtual void	clear();
 
-    void		addMarkers(const Well::MarkerSet&);
-    void		addMarkers(const BufferStringSet&);
+    void		setMarkers(const BufferStringSet&);
+    void		setMarkers(const Well::MarkerSet&);
 
     void		setTopMarker(const char* mrk,float shift)
 			{ params_->setTopMarker(mrk,shift); putToScreen(); }
@@ -67,11 +67,10 @@ public:
 
 protected:
 
-    BufferStringSet	markernms_;
     uiGenInput*		abovefld_;
     uiGenInput*		belowfld_;
 
-    ObjectSet<uiGenInput> zselectionflds_;
+    ObjectSet<uiGroup>	zselectionflds_;
     ObjectSet<uiLabel> 	zlabelflds_;
     uiGenInput*         zchoicefld_;
 
