@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.89 2012-08-10 04:11:25 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.90 2012-08-28 13:20:08 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -57,7 +57,7 @@ const char* LogDataExtracter::sKeyLogNm()   { return
     					      Well::TrackSampler::sKeyLogNm(); }
 
 DefineEnumNames(ZRangeSelector,ZSelection,0,"Type of selection")
-{ "Markers", "Depth range", "Times range", 0 };
+{ "Markers", "Depth range", "Time range", 0 };
 
 }
 
