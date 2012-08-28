@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.45 2012-08-03 13:00:52 cvskris Exp $
+ RCS:           $Id: uigroup.h,v 1.46 2012-08-28 05:13:40 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiGroup;
 class uiGroupObjBody;
 class uiGroupParentBody;
 
-class QWidget;
+mFDQtclass(QWidget)
 
 
 class uiGroupObj : public uiObject
@@ -96,7 +96,7 @@ public:
     virtual uiMainWin*	mainwin()
 			    { return mainObject() ? mainObject()->mainwin() :0;}
 
-    static uiGroup*	gtDynamicCastToGrp( QWidget* );
+    static uiGroup*	gtDynamicCastToGrp( mQtclass(QWidget*) );
 
     void		setChildrenSensitive(bool);
 

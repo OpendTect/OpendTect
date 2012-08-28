@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.40 2012-08-03 13:00:52 cvskris Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.41 2012-08-28 05:10:19 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,10 +22,10 @@ ________________________________________________________________________
 #include "namedobj.h"
 
 
-class QGraphicsScene;
-class QGraphicsLinearLayout;
-class QGraphicsWidget;
-class ODGraphicsScene;
+mFDQtclass(QGraphicsScene)
+mFDQtclass(QGraphicsLinearLayout)
+mFDQtclass(QGraphicsWidget)
+mFDQtclass(ODGraphicsScene)
 
 class ArrowStyle;
 class Alignment;
@@ -89,8 +89,8 @@ public:
     				{ return ismouseeventactive_; }
     void			setMouseEventActive( bool yn )
     				{ ismouseeventactive_ = yn; }
-    QGraphicsScene*		qGraphicsScene()
-    				{ return (QGraphicsScene*)odgraphicsscene_; }
+    mQtclass(QGraphicsScene*)	qGraphicsScene()
+    			{return (mQtclass(QGraphicsScene*))odgraphicsscene_;}
     void			copyToClipBoard();
 
 
@@ -138,8 +138,8 @@ protected:
 
     void 			resizeLayoutToContent();
 
-    QGraphicsLinearLayout*      layout_;
-    QGraphicsWidget*		layoutitem_;
+    mQtclass(QGraphicsLinearLayout*)	layout_;
+    mQtclass(QGraphicsWidget*)		layoutitem_;
 };
 
 
