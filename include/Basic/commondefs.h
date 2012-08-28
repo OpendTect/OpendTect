@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.51 2012-08-28 08:57:07 cvsnageswara Exp $
+ RCS:		$Id: commondefs.h,v 1.52 2012-08-28 12:18:31 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -100,12 +100,21 @@ ________________________________________________________________________
 #define mTODOHelpID	"0.0.0"
 #define mNoHelpID	"-"
 
-#define mGlobal( module )		dll_export
-//#define mGlobal( module )		Export_##module
-#define mClass( module )		class mGlobal( module )
-#define mStruct( module )		struct mGlobal( module )
-#define mExtern( module )		extern mGlobal( module )
-#define mExternC( module)		extern "C" mGlobal( module )
+#define mExp( module )		dll_export
+//#define mExp( module )		Export_##module
+
+#define mExpClass( module )		class mExp( module )
+#define mExpStruct( module )		struct mExp( module )
+
+#define mGlobal( module )		mExp( module )
+#define mClass( module )		mExpClass( module )
+#define mStruct( module )		mExpStruct( module )
+#define mExtern( module )		extern mExp( module )
+#define mExternC( module)		extern "C" mExp( module )
+
+#define mExportTemplateInst( mod, clss, inst ) \
+template <class T> class clss; \
+template mExp(mod) class clss<inst>
 
 //for Qt
 #define mFDQtclass(cls) class cls;
