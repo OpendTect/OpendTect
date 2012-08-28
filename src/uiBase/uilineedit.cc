@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uilineedit.cc,v 1.43 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uilineedit.cc,v 1.44 2012-08-28 05:35:05 cvsnageswara Exp $";
 
 #include "uilineedit.h"
 #include "i_qlineedit.h"
@@ -24,7 +24,7 @@ static const char* rcsID mUnusedVar = "$Id: uilineedit.cc,v 1.43 2012-05-02 15:1
 #include <QIntValidator>
 #include <QDoubleValidator>
 
-class uiLineEditBody : public uiObjBodyImpl<uiLineEdit,QLineEdit>
+class uiLineEditBody : public uiObjBodyImpl<uiLineEdit,mQtclass(QLineEdit)>
 {
 public:
 
@@ -37,7 +37,7 @@ public:
 
 protected:
 
-    virtual void	contextMenuEvent(QContextMenuEvent*);
+    virtual void	contextMenuEvent(mQtclass(QContextMenuEvent*));
 
 private:
 
@@ -48,7 +48,7 @@ private:
 
 uiLineEditBody::uiLineEditBody( uiLineEdit& hndle,uiParent* parnt, 
 				const char* nm )
-    : uiObjBodyImpl<uiLineEdit,QLineEdit>(hndle,parnt,nm)
+    : uiObjBodyImpl<uiLineEdit,mQtclass(QLineEdit)>(hndle,parnt,nm)
     , messenger_ ( *new i_lineEditMessenger(this,&hndle) )
 { 
     setStretch( 1, 0 ); 
@@ -56,7 +56,7 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& hndle,uiParent* parnt,
 }
 
 
-void uiLineEditBody::contextMenuEvent( QContextMenuEvent* ev )
+void uiLineEditBody::contextMenuEvent( mQtclass(QContextMenuEvent*) ev )
 { handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() ); }
 
 
@@ -104,7 +104,7 @@ const char* uiLineEdit::getvalue_() const
 void uiLineEdit::setvalue_( const char* t )
 {
     mBlockCmdRec;
-    body_->setText( mIsUdf(t) ? QString() : QString(t) );
+    body_->setText( mIsUdf(t) ? mQtclass(QString)() : mQtclass(QString)(t) );
     body_->setCursorPosition( 0 );
     setEdited( false );
 }
@@ -112,22 +112,24 @@ void uiLineEdit::setvalue_( const char* t )
 
 void uiLineEdit::setPasswordMode()
 {
-    body_->setEchoMode( QLineEdit::Password );
+    body_->setEchoMode( mQtclass(QLineEdit)::Password );
 }
 
 
 void uiLineEdit::setValidator( const uiIntValidator& val )
 {
-    body_->setValidator( new QIntValidator(val.bottom_,val.top_,body_) );
+    body_->setValidator( new mQtclass(QIntValidator)(val.bottom_,
+						     val.top_,body_) );
 }
 
 
 void uiLineEdit::setValidator( const uiFloatValidator& val )
 {
-    QDoubleValidator* qdval =
-	new QDoubleValidator( val.bottom_, val.top_, val.nrdecimals_, body_ );
+    mQtclass(QDoubleValidator*) qdval =
+	new mQtclass(QDoubleValidator)( val.bottom_, val.top_,
+					val.nrdecimals_, body_ );
     if ( !val.scnotation_ )
-	qdval->setNotation( QDoubleValidator::StandardNotation );
+	qdval->setNotation( mQtclass(QDoubleValidator)::StandardNotation );
     body_->setValidator( qdval );
 }
 
@@ -146,12 +148,13 @@ bool uiLineEdit::isEdited() const
 
 void uiLineEdit::setCompleter( const BufferStringSet& bs, bool cs )
 {
-    QStringList qsl;
+    mQtclass(QStringList) qsl;
     for ( int idx=0; idx<bs.size(); idx++ )
-	qsl << QString( bs.get(idx) );
+	qsl << mQtclass(QString)( bs.get(idx) );
 
-    QCompleter* qc = new QCompleter( qsl, 0 );
-    qc->setCaseSensitivity( cs ? Qt::CaseSensitive : Qt::CaseInsensitive );
+    mQtclass(QCompleter*) qc = new mQtclass(QCompleter)( qsl, 0 );
+    qc->setCaseSensitivity( cs ? mQtclass(Qt)::CaseSensitive
+	    		       : mQtclass(Qt)::CaseInsensitive );
     body_->setCompleter( qc );
 }
 
