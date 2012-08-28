@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2007
- RCS:           $Id: i_qmdiarea.h,v 1.3 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: i_qmdiarea.h,v 1.4 2012-08-28 09:26:43 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
     Internal object, to hide Qt's signal/slot mechanism.
 */
 
+mStartODQtNamespace
 
 class i_MdiAreaMessenger : public QObject 
 {
@@ -51,5 +52,7 @@ void subWindowActivated( QMdiSubWindow* )
 { receiver_->windowActivated.trigger( *receiver_ ); }
 
 };
+
+mStopODQtNamespace
 
 #endif

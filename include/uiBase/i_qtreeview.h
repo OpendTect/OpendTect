@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.16 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.17 2012-08-28 09:26:43 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,9 @@ ________________________________________________________________________
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
+
+mStartODQtNamespace
+
 class i_listVwMessenger : public QObject 
 {
     Q_OBJECT
@@ -177,5 +180,7 @@ void itemEntered( QTreeWidgetItem* item, int col )
 
 
 };
+
+mStopODQtNamespace
 
 #endif
