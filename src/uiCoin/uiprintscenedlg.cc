@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiprintscenedlg.cc,v 1.57 2012-07-19 09:58:08 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiprintscenedlg.cc,v 1.58 2012-08-29 07:30:38 cvskris Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -33,7 +33,6 @@ static const char* rcsID mUnusedVar = "$Id: uiprintscenedlg.cc,v 1.57 2012-07-19
 #include <Inventor/SoOutput.h>
 
 static bool prevsavestate = true;
-BufferString uiSaveImageDlg::dirname_ = "";
 static StepInterval<float> pixelsize_range(1,9999,1);
 
 #define mAttachToAbove( fld ) \
