@@ -6,13 +6,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uiwellpropertyrefsel.h,v 1.9 2012-08-03 13:01:21 cvskris Exp $
+ RCS:           $Id: uiwellpropertyrefsel.h,v 1.10 2012-08-29 17:12:45 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiwellmod.h"
+#include "multiid.h"
 #include "propertyref.h"
+#include "welllogset.h"
 #include "uigroup.h"
 
 class ElasticPropSelection;
@@ -22,6 +24,7 @@ class UnitOfMeasure;
 class uiLabel;
 class uiComboBox;
 class uiCheckBox;
+class uiPushButton;
 class uiUnitSel;
 
 namespace Well { class LogSet; }
@@ -65,13 +68,13 @@ protected:
 };
 
 
-
-
 mClass(uiWell) uiWellPropSel : public uiGroup
 {
 public:
-			uiWellPropSel(uiParent*,const PropertyRefSelection&);
+			uiWellPropSel(uiParent*,const PropertyRefSelection&,
+					bool withcreatelogs=false);
 
+    void		setWellID(const MultiID& wid) { wellid_ = wid; }
     void		setLogs(const Well::LogSet&);
 
 			//return true if succeded (std type found)
@@ -80,15 +83,23 @@ public:
     bool		getLog(const PropertyRef::StdType,BufferString&,
 	    			bool&,BufferString& uom) const;
 
-    virtual bool	isOK() const;  
+    virtual bool	isOK() const; 
+
+   Notifier<uiWellPropSel>	logscreated; 
 
 protected:
     void				initFlds();
+    MultiID				wellid_;
+    BufferStringSet			lognms_;
+    const Well::LogSet*			logs_;
 
     const PropertyRefSelection&  	proprefsel_;
     ObjectSet<uiPropSelFromList> 	propflds_;
+    ObjectSet<uiPushButton> 		createbuts_;
 
     static const char*			sKeyPlsSel() { return "Please select"; }
+    void				createLogPushed(CallBacker*);
+
 };
 
 

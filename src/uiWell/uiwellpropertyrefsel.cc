@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpropertyrefsel.cc,v 1.15 2012-08-23 07:22:13 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpropertyrefsel.cc,v 1.16 2012-08-29 17:12:45 cvsbruno Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -16,6 +16,7 @@ static const char* rcsID mUnusedVar = "$Id: uiwellpropertyrefsel.cc,v 1.15 2012-
 #include "uilabel.h"
 #include "uiunitsel.h"
 #include "uimsg.h"
+#include "uiwelllogcalc.h"
 
 #include "elasticprop.h"
 #include "elasticpropsel.h"
@@ -134,12 +135,29 @@ const PropertyRef& uiPropSelFromList::propRef() const
 
 
 
-uiWellPropSel::uiWellPropSel( uiParent* p, 
-				const PropertyRefSelection& prs )
+uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs, 
+				bool withcreatelogs )
     : uiGroup(p," property selection from well logs")
-    , proprefsel_(prs)  
+    , proprefsel_(prs) 
+    , logscreated(this) 
 {
     initFlds();
+
+    for ( int idx=0; idx<propflds_.size(); idx ++ )
+    {
+	uiPushButton* createbut = new uiPushButton( this, "&Create", false );
+	createbut->activated.notify( mCB(this,uiWellPropSel,createLogPushed) );
+	if ( idx )
+	{
+	    createbut->attach( ensureBelow, propflds_[idx-1] );
+	    createbut->attach( ensureBelow, createbuts_[idx-1] );
+	}
+	for ( int idotherpr=0; idotherpr<propflds_.size(); idotherpr ++ )
+	{
+	    createbut->attach( ensureRightOf, propflds_[idotherpr] );
+	}
+	createbuts_ += createbut;
+    }
 }
 
 
@@ -173,13 +191,15 @@ void uiWellPropSel::initFlds()
 
 void uiWellPropSel::setLogs( const Well::LogSet& logs  )
 {
-    BufferStringSet lognms; 
+    logs_ = &logs;
+    lognms_.erase();
+
     for ( int idx=0; idx<logs.size(); idx++ )
-	lognms.add( logs.getLog(idx).name() );
+	lognms_.add( logs.getLog(idx).name() );
 
     BufferStringSet allnms;
     allnms.add( sKeyPlsSel() );
-    allnms.add( lognms, true );
+    allnms.add( lognms_, true );
 
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
@@ -193,7 +213,7 @@ void uiWellPropSel::setLogs( const Well::LogSet& logs  )
 	    const UnitOfMeasure* um = UnitOfMeasure::getGuessed( uomlbl );
 	    if ( um && propref.stdType() == um->propType() )
 	    {
-		propflds_[idx]->set( lognms[idlog]->buf(), false, um );
+		propflds_[idx]->set( lognms_[idlog]->buf(), false, um );
 		found = true; break;
 	    }
 	}
@@ -205,7 +225,7 @@ void uiWellPropSel::setLogs( const Well::LogSet& logs  )
 		const UnitOfMeasure* um = UnitOfMeasure::getGuessed( uomlbl );
 		if ( um && altpropref->stdType() == um->propType())
 		{
-		    propflds_[idx]->set( lognms[idlog]->buf(), true, um );
+		    propflds_[idx]->set( lognms_[idlog]->buf(), true, um );
 		    break;
 		}
 	    }
@@ -261,6 +281,23 @@ bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs,
     }
     return false;
 }
+
+
+
+void uiWellPropSel::createLogPushed( CallBacker* cb )
+{
+    if ( !logs_ ) 
+	return;
+
+    mDynamicCastGet(uiPushButton*,but,cb);
+    const int idxofbut = createbuts_.indexOf( but );
+    if ( !propflds_.validIdx( idxofbut ) )
+	return;
+
+    TypeSet<MultiID> idset; idset += wellid_;
+    uiWellLogCalc dlg( this, *logs_, lognms_, idset );
+    if ( !dlg.go() ) return;
+} 
 
 
 
