@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.108 2012-08-27 14:38:57 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.109 2012-08-29 10:30:57 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -638,7 +638,7 @@ void uiStratSynthDisp::syntheticDataParChged( CallBacker* )
 {
     if ( !currentsynthetic_ ) return;
 
-    stratsynth_.genParams().wvltnm_ = wvltfld_->getWavelet();
+    stratsynth_.setWavelet( wvltfld_->getWavelet() );
     stratsynth_.replaceSynthetic( currentsynthetic_->id_ );
 
     doModelChange();
