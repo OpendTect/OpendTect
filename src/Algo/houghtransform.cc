@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID mUnusedVar = "$Id: houghtransform.cc,v 1.23 2012-08-09 06:49:32 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: houghtransform.cc,v 1.24 2012-08-29 15:58:00 cvsnanne Exp $";
 
 
 #include "houghtransform.h"
@@ -149,11 +149,11 @@ void PlaneFrom3DSpaceHoughTransform::setData( const Array3D<float>* data )
     unsigned int* paramptr = paramspace_->getData();
     memset( paramptr, 0, sizeof(unsigned int)*getParamSpaceSize());
 
-    const float maxx = datainfo_->getSize( 0 );
-    const float maxy = datainfo_->getSize( 1 );
-    const float maxz = datainfo_->getSize( 2 );
+    const double maxx = datainfo_->getSize( 0 );
+    const double maxy = datainfo_->getSize( 1 );
+    const double maxz = datainfo_->getSize( 2 );
 
-    const float maxdist = Math::Sqrt( maxx*maxx + maxy*maxy + maxz*maxz ); 
+    const double maxdist = Math::Sqrt( maxx*maxx + maxy*maxy + maxz*maxz ); 
     deltadist_ = maxdist / (getNrDistVals()-1);
 }
 

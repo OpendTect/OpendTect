@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhor2dto3d.cc,v 1.23 2012-08-08 05:47:54 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: emhor2dto3d.cc,v 1.24 2012-08-29 15:58:00 cvsnanne Exp $";
 
 #include "emhor2dto3d.h"
 
@@ -23,9 +23,9 @@ static const char* rcsID mUnusedVar = "$Id: emhor2dto3d.cc,v 1.23 2012-08-08 05:
 namespace EM
 {
 
-struct Hor2DTo3DSectionData
+class Hor2DTo3DSectionData
 {
-
+public:
 Hor2DTo3DSectionData( EM::SectionID sid,
 		      const BinID& minbid, const BinID& maxbid,
 		      const BinID& step )
@@ -108,7 +108,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 	curinterp_->setRowStep( inldist );
 	curinterp_->setColStep( crldist );
 
-	curinterp_->setMaxHoleSize(mUdf(int));
+	curinterp_->setMaxHoleSize( mUdf(float) );
 	const bool issingleline = hor2d_.geometry().nrLines()<2;
   	curinterp_->setFillType( issingleline ? Array2DInterpol::Full 
 					      : Array2DInterpol::ConvexHull );
@@ -261,4 +261,4 @@ int Hor2DTo3D::nextStep()
     return Executor::MoreToDo();
 }
 
-}
+} // namespace OD

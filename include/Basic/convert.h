@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.20 2012-08-06 06:28:29 cvsranojay Exp $
+ RCS:           $Id: convert.h,v 1.21 2012-08-29 15:58:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace Conv{
 //! template based type converstion
 template <class T, class F>
 inline void set( T& _to, const F& fr )
-    { _to = fr; }
+    { _to = (T)fr; }
 
 template <class T, class F>
 inline T to( const F& fr )

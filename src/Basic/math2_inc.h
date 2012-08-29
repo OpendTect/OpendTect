@@ -17,7 +17,7 @@ mTYPE Math::IntPowerOf( mTYPE x, int y )
 	return mUdf(mTYPE);
 
     if ( x == 0 )
-	return y ? 0 : 1;
+	return y ? (mTYPE)0 : (mTYPE)1;
 
     if ( x > 1.5 || x < -1.5 )
     {
