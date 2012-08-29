@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.50 2012-08-03 13:01:25 cvskris Exp $
+ RCS:		$Id: visobject.h,v 1.51 2012-08-29 07:11:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -140,9 +140,9 @@ private:
     osg::Switch*	osgroot_;
 };
 
-mLockerClassImpl( VisualReadLockLocker, VisualObjectImpl,
+mLockerClassImpl( visBase, VisualReadLockLocker, VisualObjectImpl,
 		  readLock(), readUnLock(), tryReadLock() )
-mLockerClassImpl( VisualWriteLockLocker, VisualObjectImpl,
+mLockerClassImpl( visBase, VisualWriteLockLocker, VisualObjectImpl,
 		  writeLock(), writeUnLock(), tryWriteLock() )
 };
 

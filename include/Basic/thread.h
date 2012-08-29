@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.63 2012-08-03 15:55:41 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.64 2012-08-29 07:11:05 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -289,8 +289,8 @@ int function()
 }
 */
 
-#define mLockerClassImpl( clssnm, clss, lockfn, unlockfn, trylockfn ) \
-mClass(Basic) clssnm \
+#define mLockerClassImpl( mod, clssnm, clss, lockfn, unlockfn, trylockfn ) \
+mClass(mod) clssnm \
 { \
 public: \
 		clssnm( clss& thelock, bool wait=true ) \
@@ -318,11 +318,11 @@ protected: \
     bool	islocked_; \
 };
 
-mLockerClassImpl( MutexLocker, Mutex, lock(), unLock(), tryLock() )
-mLockerClassImpl( SpinLockLocker, SpinLock, lock(), unLock(), tryLock() )
-mLockerClassImpl( ReadLockLocker, ReadWriteLock,
+mLockerClassImpl( Basic, MutexLocker, Mutex, lock(), unLock(), tryLock() )
+mLockerClassImpl( Basic, SpinLockLocker, SpinLock, lock(), unLock(), tryLock() )
+mLockerClassImpl( Basic, ReadLockLocker, ReadWriteLock,
 		  readLock(), readUnLock(), tryReadLock() )
-mLockerClassImpl( WriteLockLocker, ReadWriteLock,
+mLockerClassImpl( Basic, WriteLockLocker, ReadWriteLock,
 		  writeLock(), writeUnLock(), tryWriteLock() )
 
 
