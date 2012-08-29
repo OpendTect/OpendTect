@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uivolprocfaultangle.cc,v 1.2 2012-08-20 21:14:35 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: uivolprocfaultangle.cc,v 1.3 2012-08-29 17:18:18 cvsyuancheng Exp $";
 
 #include "uivolprocfaultangle.h"
 
@@ -23,11 +23,12 @@ uiFaultAngle::uiFaultAngle( uiParent* p, VolProc::FaultAngle* fa )
 {
     setHelpID( mTODOHelpID );
 
-    isazimuthfld_ = new uiGenInput( this, "Output",
-	                BoolInpSpec(fa->isAzimuth(), "Azimuth" , "Dip") );
+    const char* outopt[] = { "Fault flag", "Fault azimuth", "Fault dip", 0 };
+    outputoptfld_ = new uiGenInput( this, "Output", StringListInpSpec(outopt) );
+    outputoptfld_->setValue( (int)fa->getutputOption() );
 
     minlengthfld_ = new uiLabeledSpinBox( this, "Minimum fault length" );
-    minlengthfld_->attach( alignedBelow, isazimuthfld_ );
+    minlengthfld_->attach( alignedBelow, outputoptfld_ );
     minlengthfld_->box()->setInterval( StepInterval<int>(1,1000,1) );
     minlengthfld_->box()->setValue( fa->minFaultLength() );
 
@@ -88,7 +89,8 @@ bool uiFaultAngle::acceptOK( CallBacker* cb )
     if ( !uiStepDialog::acceptOK( cb ) )
 	return false;
 
-    fltaz_->useAzimuth( isazimuthfld_->getBoolValue() );
+    fltaz_->setOutputOption( 
+	    (FaultAngle::OutputOption)outputoptfld_->getIntValue() );
     fltaz_->setMinFaultLength( minlengthfld_->box()->getValue() );
     fltaz_->doThinning( dothinningfld_->getBoolValue() );
     fltaz_->doMerge( domergefld_->getBoolValue() );

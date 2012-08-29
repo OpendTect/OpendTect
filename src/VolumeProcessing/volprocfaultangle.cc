@@ -4,7 +4,7 @@
  *Date:		Aug 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocfaultangle.cc,v 1.4 2012-08-22 18:09:09 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprocfaultangle.cc,v 1.5 2012-08-29 17:18:18 cvsyuancheng Exp $";
 
 #include "volprocfaultangle.h"
 
@@ -18,7 +18,7 @@ namespace VolProc
 
 FaultAngle::FaultAngle()
     : isdone_(false)
-    , isazimuth_(true) 
+    , outopt_(Azimuth)  
     , minlength_(15)
     , dothinning_(true)
     , domerge_(true)
@@ -49,17 +49,31 @@ bool FaultAngle::computeBinID( const BinID& bid, int )
 	FaultOrientation fo;
 	fo.setThreshold( fltthreshold_, isfltabove_ );
 	fo.setMinFaultLength( minlength_ );
-	fo.compute( inputarr, isazimuth_, !isazimuth_, 0 );
+	fo.compute( inputarr, outopt_!=FaultFlag, outopt_==Dip, 0 );
 
-	const Array3D<float>* data = isazimuth_ ? fo.getAzimuth() : fo.getDip();
-	if ( !data )
-	    return false;
-
-	float* result = output_->getCube(0).getData();
-	const float* angle = data->getData();
 	const int sz = output_->getCube(0).info().getTotalSz();
-	for ( int idx=0; idx<sz; idx++ )
-	    result[idx] = angle[idx];
+	float* result = output_->getCube(0).getData();
+	
+	if ( outopt_!=FaultFlag )
+	{
+	    const Array3D<float>* data = 
+		outopt_==Azimuth ? fo.getAzimuth() : fo.getDip();
+    	    if ( !data ) return false;
+
+	    const float* angle = data->getData();
+	    for ( int idx=0; idx<sz; idx++ )
+    		result[idx] = angle[idx];
+	}
+	else
+	{
+    	    const Array3D<bool>* data = 
+    		fo.getFaultConfidence(FaultOrientation::Median);
+    	    if ( !data ) return false;
+    
+	    const bool* bina  = data->getData();
+    	    for ( int idx=0; idx<sz; idx++ )
+    		result[idx] = bina[idx] ? 1 : 0;
+	}
     }
 
     return true;
@@ -69,11 +83,11 @@ bool FaultAngle::computeBinID( const BinID& bid, int )
 void FaultAngle::fillPar( IOPar& pars ) const
 {
     Step::fillPar( pars );
-    pars.setYN( sKeyisAzimuth(), isazimuth_ );
     pars.setYN( sKeyThinning(), dothinning_ );
     pars.setYN( sKeyMerge(), domerge_ );
     pars.setYN( sKeyIsAbove(), isfltabove_ );
 
+    pars.set( sKeyOutputOpt(), outopt_ );
     pars.set( sKeyFltLength(), minlength_ );
     pars.set( sKeyOverlapRate(), overlaprate_ );
     pars.set( sKeyThreshold(), fltthreshold_ );
@@ -85,10 +99,13 @@ bool FaultAngle::usePar( const IOPar& pars )
     if ( !Step::usePar( pars ) )
 	return false;
 
-    pars.getYN( sKeyisAzimuth(), isazimuth_ );
     pars.getYN( sKeyThinning(), dothinning_ );
     pars.getYN( sKeyMerge(), domerge_ );
     pars.getYN( sKeyIsAbove(), isfltabove_ );
+
+    int outputopt;
+    pars.get( sKeyOutputOpt(), outputopt );
+    outopt_ = (FaultAngle::OutputOption)outputopt;
 
     pars.get( sKeyFltLength(), minlength_ );
     pars.get( sKeyOverlapRate(), overlaprate_ );

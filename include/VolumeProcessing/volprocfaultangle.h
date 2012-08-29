@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		Aug 2012
- RCS:		$Id: volprocfaultangle.h,v 1.2 2012-08-20 21:13:34 cvsyuancheng Exp $
+ RCS:		$Id: volprocfaultangle.h,v 1.3 2012-08-29 17:18:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,9 @@ public:
     				~FaultAngle();
 				FaultAngle();
 
-    void			useAzimuth(bool yn)	{ isazimuth_ = yn; }
-    bool			isAzimuth() const	{ return isazimuth_; }
+    enum OutputOption		{ FaultFlag=0, Azimuth=1, Dip=2 };
+    void			setOutputOption(OutputOption oo) { outopt_=oo;}
+    OutputOption		getutputOption() const	{ return outopt_; }    
 
     void			setMinFaultLength(int nr) { minlength_ = nr; }
     int				minFaultLength() const	  { return minlength_; }
@@ -63,8 +64,8 @@ protected:
     bool                        prepareComp(int)		{ return true; }
     bool			computeBinID(const BinID&, int);
     
+    OutputOption		outopt_;
     bool			isdone_;
-    bool			isazimuth_;
     int				minlength_;
     bool			dothinning_;
     bool			domerge_;
@@ -72,7 +73,7 @@ protected:
     float			fltthreshold_;
     bool			isfltabove_;
 
-    static const char*		sKeyisAzimuth()	{ return "Is azimuth"; }
+    static const char*		sKeyOutputOpt()	{ return "Output option"; }
     static const char*		sKeyFltLength()	{ return "Fault min length"; }
     static const char*		sKeyThinning()	{ return "Do thinning"; }
     static const char*		sKeyMerge()	{ return "Do mgerge"; }
