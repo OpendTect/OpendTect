@@ -5,16 +5,20 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.39 2012-07-09 05:56:44 cvsraman Exp $
+ RCS:		$Id: file.cc,v 1.40 2012-08-29 07:14:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "file.h"
-#include "bufstring.h"
+#include "filepath.h"
+#include "bufstringset.h"
+#include "dirlist.h"
 #include "staticstring.h"
 #include "winutils.h"
 #include "errh.h"
+#include "executor.h"
+#include "ptrman.h"
 #include "strmprov.h"
 #include "strmoper.h"
 
@@ -33,6 +37,103 @@ const char* not_implemented_str = "Not implemented";
 
 namespace File
 {
+
+class RecursiveCopier : public Executor
+{
+public:
+    			RecursiveCopier(const char* from,const char* to)
+			    : Executor("Copying Directory")
+			    , src_(from),dest_(to),fileidx_(0)
+			    , msg_("Copying files")
+			{ makeFileList(src_); }
+
+    od_int64		nrDone() const		{ return fileidx_; }
+    od_int64		totalNr() const		{ return filelist_.size(); }
+    const char*		message() const		{ return msg_; }
+    const char*		nrDoneText() const	{ return "Files copied"; }
+
+protected:
+
+    int			nextStep();
+    void		makeFileList(const char*);
+
+    int			fileidx_;
+    BufferStringSet	filelist_;
+    BufferString	src_;
+    BufferString	dest_;
+    BufferString	msg_;
+
+};
+
+
+
+void RecursiveCopier::makeFileList( const char* dir )
+{
+    DirList files( dir, DirList::FilesOnly );
+    QDir srcdir( src_.buf() );
+    for ( int idx=0; idx<files.size(); idx++ )
+    {
+	BufferString curfile( files.fullPath(idx) );
+	BufferString relpath( srcdir.relativeFilePath(curfile.buf())
+						.toAscii().constData() );
+	filelist_.add( relpath );
+    }
+
+    DirList dirs( dir, DirList::DirsOnly );
+    for ( int idx=0; idx<dirs.size(); idx++ )
+    {
+	BufferString curdir( dirs.fullPath(idx) );
+	BufferString relpath( srcdir.relativeFilePath(curdir.buf())
+						.toAscii().constData() );
+	filelist_.add( relpath );
+	makeFileList( curdir );
+    }
+}
+
+
+#define mErrRet(s1,s2) { msg_ = s1; msg_ += s2; return ErrorOccurred(); }
+int RecursiveCopier::nextStep()
+{
+    if ( fileidx_ >= filelist_.size() )
+	return Finished();
+
+    if ( !fileidx_ )
+    {
+	if ( File::exists(dest_) && !File::remove(dest_) )
+	    mErrRet("Cannot overwrite ",dest_)
+		
+	if ( !File::createDir(dest_) )
+	    mErrRet("Cannot create directory ",dest_)
+    }
+
+    FilePath srcfile( src_, filelist_.get(fileidx_) );
+    FilePath destfile( dest_, filelist_.get(fileidx_) );
+    if ( isDirectory(srcfile.fullPath()) )
+    {
+	if ( !File::createDir(destfile.fullPath()) )
+	    mErrRet("Cannot create directory ",destfile.fullPath())
+
+	fileidx_++;
+	return MoreToDo();
+    }
+
+    if ( File::isLink(srcfile.fullPath()) )
+    {
+	BufferString linkval = linkValue( srcfile.fullPath() );
+	if ( !createLink(linkval,destfile.fullPath()) )
+	    mErrRet("Cannot create symbolic link ",destfile.fullPath())
+    }
+    else if ( !File::copy(srcfile.fullPath(),destfile.fullPath()) )
+	    mErrRet("Cannot create file ", destfile.fullPath())
+
+    fileidx_++;
+    return MoreToDo();
+}
+
+
+Executor* getRecursiveCopier( const char* from, const char* to )
+{ return new RecursiveCopier( from, to ); }
+
 
 od_int64 getFileSize( const char* fnm )
 {
@@ -217,6 +318,12 @@ bool createDir( const char* fnm )
 bool rename( const char* oldname, const char* newname )
 {
 #ifndef OD_NO_QT
+    if ( isDirectory(oldname) )
+    {
+	QDir olddir( oldname );
+	return olddir.rename( oldname, newname );
+    }
+
     return QFile::rename( oldname, newname );
 #else
     pFreeFnErrMsg(not_implemented_str,"rename");
@@ -266,11 +373,7 @@ bool copy( const char* from, const char* to )
 #ifndef OD_NO_QT
 
     if ( isDirectory(from) || isDirectory(to)  )
-#ifdef __win__
-    	return winCopy( from, to, isFile(from) );
-#else
 	return copyDir( from, to );
-#endif
 
     if ( exists(to) && !isDirectory(to) )
 	File::remove( to );
@@ -284,19 +387,15 @@ bool copy( const char* from, const char* to )
 }
 
 
-bool move( const char* from, const char* to )
-{
-#ifdef __win__
-    return winCopy( from, to, isFile(from), true );
-#endif
-    return true;
-}
-
-
 bool copyDir( const char* from, const char* to )
 {
     if ( !from || !exists(from) || !to || !*to || exists(to) )
 	return false;
+
+#ifndef OD_NO_QT
+    PtrMan<Executor> copier = getRecursiveCopier( from, to );
+    const bool res = copier->execute();
+#else
 
     BufferString cmd;
 #ifdef __win__
@@ -307,8 +406,9 @@ bool copyDir( const char* from, const char* to )
     cmd.add(" '").add(from).add("' '").add(to).add("'");
 #endif
 
-    bool res = system( cmd ) != -1;
+    bool res = !system( cmd );
     if ( res ) res = exists( to );
+#endif
     return res;
 }
 
@@ -457,6 +557,18 @@ od_int64 getTimeInSeconds( const char* fnm )
 	return 0;
 
     return st_buf.st_mtime;
+#endif
+}
+
+
+const char* linkValue( const char* linknm )
+{
+#ifdef __win__
+    return linkTarget( linknm );
+#else
+    static StaticStringManager stm;
+    BufferString& linkstr = stm.getString();
+    return readlink( linknm, linkstr.buf(), 256 ) < 0 ? linknm : linkstr.buf();
 #endif
 }
 
