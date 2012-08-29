@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: i_qtabbar.h,v 1.12 2012-08-28 09:26:43 cvsnageswara Exp $
+ RCS:           $Id: i_qtabbar.h,v 1.13 2012-08-29 16:21:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
     Internal object, to hide Qt's signal/slot mechanism.
 */
 
-mStartODQtNamespace
+QT_BEGIN_NAMESPACE
 
 class i_tabbarMessenger : public QObject 
 {
@@ -54,6 +54,6 @@ private slots:
 
 };
 
-mStopODQtNamespace
+QT_END_NAMESPACE
 
 #endif

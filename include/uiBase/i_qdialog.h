@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qdialog.h,v 1.7 2012-08-28 09:26:42 cvsnageswara Exp $
+ RCS:           $Id: i_qdialog.h,v 1.8 2012-08-29 16:21:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include <QObject>
 #include <QDialog> 
 
-mStartODQtNamespace
+QT_BEGIN_NAMESPACE
 
 class QDialogMessenger : public QObject 
 {
@@ -56,6 +56,6 @@ private:
     uiDialog*		uidialog_;
 };
 
-mStopODQtNamespace
+QT_END_NAMESPACE
 
 #endif

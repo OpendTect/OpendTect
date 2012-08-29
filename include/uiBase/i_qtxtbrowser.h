@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/03/2002
- RCS:           $Id: i_qtxtbrowser.h,v 1.9 2012-04-25 19:14:10 cvskris Exp $
+ RCS:           $Id: i_qtxtbrowser.h,v 1.10 2012-08-29 16:21:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include <QTextBrowser> 
 #include <QWidget>
 
+
+QT_BEGIN_NAMESPACE
 
 class QString;
 
@@ -80,5 +82,7 @@ private slots:
 			    receiver_->linkClicked.trigger(*receiver_);
 			}
 };
+
+QT_END_NAMESPACE
 
 #endif

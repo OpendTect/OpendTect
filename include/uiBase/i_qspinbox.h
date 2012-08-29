@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: i_qspinbox.h,v 1.11 2012-08-28 09:26:43 cvsnageswara Exp $
+ RCS:           $Id: i_qspinbox.h,v 1.12 2012-08-29 16:21:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,14 +15,14 @@ ________________________________________________________________________
 #include "uispinbox.h"
 #include <QDoubleSpinBox>
 
-class QString;
-
 //! Helper class for uiSpinBox to relay Qt's messages.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
 
-mStartODQtNamespace
+QT_BEGIN_NAMESPACE
+
+class QString;
 
 class i_SpinBoxMessenger : public QObject 
 {
@@ -56,6 +56,6 @@ private slots:
 			{ receiver_->notifyHandler( false ); }
 };
 
-mStopODQtNamespace
+QT_END_NAMESPACE
 
 #endif

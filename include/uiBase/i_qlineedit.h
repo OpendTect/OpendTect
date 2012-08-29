@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qlineedit.h,v 1.10 2012-08-28 09:26:42 cvsnageswara Exp $
+ RCS:           $Id: i_qlineedit.h,v 1.11 2012-08-29 16:21:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #include <QLineEdit> 
 
-mStartODQtNamespace
+QT_BEGIN_NAMESPACE
 
 class QString;
 
@@ -73,6 +73,6 @@ private slots:
     			{ receiver_->selectionChanged.trigger(*receiver_); }
 };
 
-mStopODQtNamespace
+QT_END_NAMESPACE
 
 #endif

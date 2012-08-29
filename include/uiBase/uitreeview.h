@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.49 2012-08-03 13:00:52 cvskris Exp $
+ RCS:           $Id: uitreeview.h,v 1.50 2012-08-29 16:21:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,7 +152,9 @@ protected:
     int			column_;
     OD::ButtonState     buttonstate_;
 
-    void 		cursorSelectionChanged( CallBacker* );
+    void 		cursorSelectionChanged(CallBacker*);
+    void 		itemChangedCB(CallBacker*);
+    void		updateCheckStatus(uiListViewItem*);
 
     uiListViewBody*		lvbody()	{ return body_; }
     const uiListViewBody*	lvbody() const	{ return body_; }
@@ -220,7 +222,8 @@ public:
     bool		isCheckable() const;
     void		setChecked(bool,bool trigger=false);
     			//!< does nothing if not checkable
-    bool		isChecked() const;  //!< returns false if not checkable
+    bool		isChecked(bool qtstatus=true) const;
+			//!< returns false if not checkable
 
     void		setToolTip(int column,const char*);
     void		translate(int column);
@@ -309,6 +312,7 @@ protected:
     bool			ischeckable_;
     bool			isenabled_;
     void			updateFlags();
+    bool			checked_;
 
     void			trlReady(CallBacker*);
     int				translateid_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2010
- RCS:           $Id: i_qdial.h,v 1.4 2012-08-28 09:26:42 cvsnageswara Exp $
+ RCS:           $Id: i_qdial.h,v 1.5 2012-08-29 16:21:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
     Internal object, to hide Qt's signal/slot mechanism.
 */
 
-mStartODQtNamespace
+QT_BEGIN_NAMESPACE
 
 class i_DialMessenger : public QObject 
 {
@@ -61,6 +61,6 @@ void valueChanged(int)	{ mTrigger(valueChanged); }
 
 };
 
-mStopODQtNamespace
+QT_END_NAMESPACE
 
 #endif

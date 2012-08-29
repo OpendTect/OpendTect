@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: i_qthumbwhl.h,v 1.10 2011-04-21 13:09:13 cvsbert Exp $
+ RCS:           $Id: i_qthumbwhl.h,v 1.11 2012-08-29 16:21:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 
 #include <qobject.h>
 #include <Inventor/Qt/widgets/SoQtThumbWheel.h>
+
+QT_BEGIN_NAMESPACE
 
 class QString;
 
@@ -67,5 +69,7 @@ private slots:
 			{ mTrigger( wheelReleased ); }
 
 };
+
+QT_END_NAMESPACE
 
 #endif
