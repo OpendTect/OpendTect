@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitreeview.cc,v 1.79 2012-08-29 17:30:18 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitreeview.cc,v 1.80 2012-08-29 18:59:34 cvsnanne Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -218,9 +218,6 @@ bool uiListViewBody::moveItem( mQtclass(QKeyEvent*) ev )
 }
 
 
-HiddenParam<uiListViewItem,char> waschecked( false );
-
-
 uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     : uiObject( p, nm, mkbody(p,nm,nl) )
     , selectionChanged(this)
@@ -243,6 +240,7 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     , column_(0)
     , parent_(p)
 {
+    itemChanged.notify( mCB(this,uiListView,itemChangedCB) );
     mouseButtonClicked.notify( mCB(this,uiListView,cursorSelectionChanged) );
     setRootDecorated( dec );
 }
@@ -255,17 +253,26 @@ uiListView::~uiListView()
 }
 
 
+void uiListView::itemChangedCB( CallBacker* )
+{
+    updateCheckStatus( lastitemnotified_ );
+}
+
+
 void uiListView::cursorSelectionChanged( CallBacker* )
 {
     uiListViewItem* itm = selectedItem();
     if ( !itm ) return;
 
-    const bool needstrigger = waschecked.getParam(itm) != itm->isChecked();
-    if ( needstrigger )
-    {
-	selectedItem()->stateChanged.trigger();
-	waschecked.setParam( itm, itm->isChecked() );
-    }
+    updateCheckStatus( itm );
+}
+
+
+void uiListView::updateCheckStatus( uiListViewItem* itm )
+{
+    const bool needstrigger = itm->isChecked(false) != itm->isChecked(true);
+    if ( needstrigger && itm->isCheckable() )
+        itm->setChecked( itm->isChecked(true), true );
 }
 
    
@@ -625,11 +632,11 @@ void uiListViewItem::init( const Setup& setup )
     ischeckable_ = setup.type_ == uiListViewItem::CheckBox;
     updateFlags();
 
-    waschecked.setParam( this, false );
+    checked_ = false;
     if ( ischeckable_ )
     {
 	setChecked( setup.setcheck_ );
-	waschecked.setParam( this, setup.setcheck_ );
+	checked_ = setup.setcheck_;
     }
 
     if ( setup.labels_.size() )
@@ -893,13 +900,16 @@ void uiListViewItem::setChecked( bool yn, bool trigger )
     if ( trigger ) ns.restore();
     qItem()->setCheckState( 0, yn ? mQtclass(Qt)::Checked
 	    			  : mQtclass(Qt)::Unchecked );
-    waschecked.setParam( this, yn );
+    checked_ = yn;
     stateChanged.trigger();
 }
 
 
 bool uiListViewItem::isChecked( bool qtstatus ) const
-{ return qtreeitem_->checkState(0) == mQtclass(Qt)::Checked; }
+{
+    return qtstatus ? qtreeitem_->checkState(0) == mQtclass(Qt)::Checked
+		    : checked_;
+}
 
 
 void uiListViewItem::setToolTip( int column, const char*  txt )
