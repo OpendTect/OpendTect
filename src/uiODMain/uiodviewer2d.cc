@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.59 2012-07-31 04:07:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.60 2012-08-29 07:18:17 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -86,7 +86,7 @@ uiODViewer2D::~uiODViewer2D()
 
 void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 {
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( packid, false );
+    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( packid, true );
     mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,dp)
     mDynamicCastGet(Attrib::Flat2DDataPack*,dp2d,dp)
     mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2ddh,dp)
@@ -116,6 +116,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	FlatView::DataDispPars& ddp = 
 	    		viewwin()->viewer(ivwr).appearance().ddpars_;
 	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
+	DPM(DataPackMgr::FlatID()).obtain( packid, false );
 	viewwin()->viewer(ivwr).setPack( wva, packid, false, isnew );
     }
 
