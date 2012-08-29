@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.45 2012-08-27 14:37:34 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.46 2012-08-29 10:30:32 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -83,7 +83,10 @@ StratSynth::~StratSynth()
 
 void StratSynth::setWavelet( const Wavelet* wvlt )
 {
-    delete wvlt_;
+    if ( !wvlt ) 
+	return;
+
+    delete wvlt_; 
     wvlt_ = wvlt;
     genparams_.wvltnm_ = wvlt->name();
 } 
