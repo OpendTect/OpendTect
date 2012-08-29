@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogcalc.cc,v 1.32 2012-08-07 05:20:52 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogcalc.cc,v 1.33 2012-08-29 17:12:03 cvsbruno Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -494,4 +494,16 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 
     wlout.removeTopBottomUdfs();
     return true;
+}
+
+
+void uiWellLogCalc::setOutputLogName( const char* nm )
+{
+    nmfld_->setText( nm );
+}
+
+
+const char* uiWellLogCalc::getOutputLogName() const
+{
+    return nmfld_->text();
 }

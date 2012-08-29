@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2009
- RCS:		$Id: uiwelllogcalc.h,v 1.13 2012-08-03 13:01:20 cvskris Exp $
+ RCS:		$Id: uiwelllogcalc.h,v 1.14 2012-08-29 17:12:03 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,9 @@ public:
 				~uiWellLogCalc();
 
     bool			haveNewLogs() const	{ return havenew_; }
+
+    void			setOutputLogName(const char* nm);
+    const char*			getOutputLogName() const;
 
 protected:
 
