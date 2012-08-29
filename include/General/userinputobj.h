@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.20 2012-08-03 13:00:26 cvskris Exp $
+ RCS:           $Id: userinputobj.h,v 1.21 2012-08-29 05:59:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class BufferString;
 class BufferStringSet;
 template <class T> class ObjectSet;
 
-mClass(General) UserInputObj
+class UserInputObj
 {
 public:
 
