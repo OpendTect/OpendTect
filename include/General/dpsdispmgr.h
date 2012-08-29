@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Nov 2009
- RCS:		$Id: dpsdispmgr.h,v 1.10 2012-08-03 13:00:22 cvskris Exp $
+ RCS:		$Id: dpsdispmgr.h,v 1.11 2012-08-29 07:56:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,9 +32,8 @@ class DataPointSet;
    DataPointSetDisplayMgr only.
 */
 
-mStruct(General) DataPointSetDisplayProp
+struct DataPointSetDisplayProp
 {
-public:
 				DataPointSetDisplayProp( 
 					const ColTab::Sequence& cs,
 				        const ColTab::MapperSetup& cm,int id)
@@ -47,13 +46,13 @@ public:
 				    : selgrpnms_(nms), selgrpcols_(cols)
 				    , showsel_(true), dpscolid_(-1)	{}
 
-DataPointSetDisplayProp* clone() const
-{
-    if ( showsel_ )
-	return new DataPointSetDisplayProp( selgrpnms_, selgrpcols_ );
-    else
-	return new DataPointSetDisplayProp(coltab_,coltabmappersu_,dpscolid_);
-}
+    DataPointSetDisplayProp* clone() const
+    {
+        if ( showsel_ )
+	    return new DataPointSetDisplayProp( selgrpnms_, selgrpcols_ );
+        else
+	    return new DataPointSetDisplayProp(coltab_,coltabmappersu_,dpscolid_);
+    }
 
    int				dpsColID() const	{ return dpscolid_; }
    bool				showSelected() const	{ return showsel_; }
@@ -93,7 +92,7 @@ protected:
 };
 
 
-mClass(General) DataPointSetDisplayMgr : public CallBacker
+class DataPointSetDisplayMgr : public CallBacker
 {
 public:
 

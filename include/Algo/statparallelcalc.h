@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Kris and Bruno
 Date:          Oct 2011
-RCS:           $Id: statparallelcalc.h,v 1.8 2012-08-03 13:00:06 cvskris Exp $
+RCS:           $Id: statparallelcalc.h,v 1.9 2012-08-29 07:56:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ namespace Stats
 {
 
 template <class T>
-mClass(Algo) ParallelCalc : public ParallelTask, public BaseCalc<T>
+class ParallelCalc : public ParallelTask, public BaseCalc<T>
 {
 public:
 				ParallelCalc(const CalcSetup& s,const T* data, 

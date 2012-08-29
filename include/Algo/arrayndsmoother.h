@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2010
- RCS:           $Id: arrayndsmoother.h,v 1.3 2012-08-03 13:00:02 cvskris Exp $
+ RCS:           $Id: arrayndsmoother.h,v 1.4 2012-08-29 07:56:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-mClass(Algo) ArrayNDGentleSmoother : public Executor
+class ArrayNDGentleSmoother : public Executor
 {
 public:
 

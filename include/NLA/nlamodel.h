@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlamodel.h,v 1.10 2012-08-03 13:00:31 cvskris Exp $
+ RCS:		$Id: nlamodel.h,v 1.11 2012-08-29 07:56:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class BufferString;
 /*\brief Minimum Interface for NLA models */
 
 
-mClass(NLA) NLAModel
+class NLAModel
 {
 public:
 

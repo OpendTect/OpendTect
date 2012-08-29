@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		18-10-1995
  Contents:	Selectors
- RCS:		$Id: segybatchio.h,v 1.5 2012-08-03 13:00:34 cvskris Exp $
+ RCS:		$Id: segybatchio.h,v 1.6 2012-08-29 07:56:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,10 +28,10 @@ namespace SEGY
 
 namespace IO
 {
-    inline mGlobal(Seis) const char* sKeyTask()	{ return "Task"; }
-    inline mGlobal(Seis) const char* sKeyIndexPS()	{ return "Index Pre-Stack"; }
-    inline mGlobal(Seis) const char* sKeyIndex3DVol() { return "Index 3D Volume"; }
-    inline mGlobal(Seis) const char* sKeyIs2D()	{ return "Is 2D"; }
+    inline const char* sKeyTask()	{ return "Task"; }
+    inline const char* sKeyIndexPS()	{ return "Index Pre-Stack"; }
+    inline const char* sKeyIndex3DVol() { return "Index 3D Volume"; }
+    inline const char* sKeyIs2D()	{ return "Is 2D"; }
 
 }; //namespace IO
 

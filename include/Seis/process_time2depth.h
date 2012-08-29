@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2009
- RCS:		$Id: process_time2depth.h,v 1.4 2012-08-03 13:00:34 cvskris Exp $
+ RCS:		$Id: process_time2depth.h,v 1.5 2012-08-29 07:56:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,8 @@ ________________________________________________________________________
 
 //!Keys for od_process_time2depth.cc
 
-mClass(Seis) ProcessTime2Depth
+struct ProcessTime2Depth
 {
-public:
-
     static const char*	sKeyInputVolume()	{ return "Input volume"; }
     static const char*	sKeyOutputVolume()	{ return "Output volume"; }
     static const char*	sKeyVelocityModel()	{ return "Velocity model"; }

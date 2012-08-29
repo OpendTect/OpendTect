@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 2002
- RCS:		$Id: surfaceinfo.h,v 1.7 2012-08-03 13:00:25 cvskris Exp $
+ RCS:		$Id: surfaceinfo.h,v 1.8 2012-08-29 07:56:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,9 +18,8 @@ ________________________________________________________________________
 
 /*!\brief Surface info name/attribname with an ID (usually the EM-ID). */
 
-mClass(General) SurfaceInfo
+struct SurfaceInfo
 {
-public:
 		   	 SurfaceInfo( const char* nm, MultiID mi, int vi=-1, 
 				      const char* attr=0)
 		    	: multiid(mi), visid(vi), name(nm), attrnm(attr) {}

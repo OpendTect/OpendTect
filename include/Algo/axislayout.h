@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2005 / Dec 2009
- RCS:		$Id: axislayout.h,v 1.5 2012-08-10 03:50:03 cvsaneesh Exp $
+ RCS:		$Id: axislayout.h,v 1.6 2012-08-29 07:56:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 /*!\brief helps making nice axes for graphs */
 
 template <class T>
-mClass(Algo) AxisLayout
+class AxisLayout
 {
 public:
 			// Have layout calculated
