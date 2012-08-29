@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.40 2012-08-29 07:14:22 cvsraman Exp $
+ RCS:		$Id: file.cc,v 1.41 2012-08-29 10:00:53 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -288,16 +288,8 @@ bool isWritable( const char* fnm )
 bool isFileInUse( const char* fnm )
 {
 #ifdef __win__
-    HANDLE handle = CreateFileA( fnm, 
-				 GENERIC_READ | GENERIC_WRITE,
-				 0,
-				 0,
-				 OPEN_EXISTING,
-				 0,
-				 0 );
-    const bool ret = handle == INVALID_HANDLE_VALUE;
-    CloseHandle( handle );
-    return ret;
+    QFile qfile( fnm );
+    return qfile.isOpen();
 #else
     return false;
 #endif
