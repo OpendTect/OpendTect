@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.109 2012-08-29 10:30:57 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.110 2012-08-29 14:21:41 cvshelene Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -735,6 +735,10 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
 }
 
 
+SyntheticData* uiStratSynthDisp::getCurrentSyntheticData() const
+{
+    return currentsynthetic_; 
+}
 
 
 uiSynthSlicePos::uiSynthSlicePos( uiParent* p, const char* lbltxt )
