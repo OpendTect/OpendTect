@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: horizonattrib.h,v 1.10 2009-07-22 16:01:27 cvsbert Exp $
+ RCS:           $Id: horizonattrib.h,v 1.11 2012-08-29 08:18:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "horizonattribmod.h"
 #include "attribprovider.h"
 #include "bufstring.h"
 #include "multiid.h"

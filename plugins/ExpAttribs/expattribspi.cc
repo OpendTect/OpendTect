@@ -7,9 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: expattribspi.cc,v 1.8 2012-05-02 15:11:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: expattribspi.cc,v 1.9 2012-08-29 08:18:05 cvskris Exp $";
 
 #include "odplugin.h"
+
+#include "expattribsmod.h"
 
 #include "semblanceattrib.h"
 #include "grubbsfilterattrib.h"

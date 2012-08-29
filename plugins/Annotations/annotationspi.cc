@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: annotationspi.cc,v 1.17 2012-07-31 04:23:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: annotationspi.cc,v 1.18 2012-08-29 08:18:05 cvskris Exp $";
 
 #include "measuretoolman.h"
 #include "odplugin.h"
@@ -19,6 +19,8 @@ static const char* rcsID mUnusedVar = "$Id: annotationspi.cc,v 1.17 2012-07-31 0
 #include "visarrow.h"
 #include "viscallout.h"
 #include "visscalebar.h"
+
+#include "annotationsmod.h"
 
 
 mDefODPluginInfo(Annotations)

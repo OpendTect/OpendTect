@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorattribpi.cc,v 1.33 2012-08-03 13:01:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uihorattribpi.cc,v 1.34 2012-08-29 08:18:06 cvskris Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -35,6 +35,7 @@ static const char* rcsID mUnusedVar = "$Id: uihorattribpi.cc,v 1.33 2012-08-03 1
 #include "ioobj.h"
 #include "odplugin.h"
 #include "survinfo.h"
+
 
 static const char* sKeyContours = "Contours";
 

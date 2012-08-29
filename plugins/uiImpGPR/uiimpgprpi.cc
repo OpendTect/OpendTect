@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiimpgprpi.cc,v 1.16 2012-08-13 03:56:45 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiimpgprpi.cc,v 1.17 2012-08-29 08:18:06 cvskris Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -22,6 +22,8 @@ static const char* rcsID mUnusedVar = "$Id: uiimpgprpi.cc,v 1.16 2012-08-13 03:5
 #include "strmprov.h"
 #include "filepath.h"
 #include "odplugin.h"
+
+#include "uiimpgprmod.h"
 
 
 static const char* menunm = "&GPR: DZT ...";
