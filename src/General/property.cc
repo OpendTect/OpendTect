@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.62 2012-08-07 05:20:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.63 2012-08-29 11:06:28 cvsbert Exp $";
 
 #include "mathproperty.h"
 #include "propertyref.h"
@@ -311,6 +311,7 @@ const Property* MathProperty::findInput( const PropertySet& ps, const char* nm,
 	return &depthprop;
 
     BufferString reqnm( nm ); ensureGoodVariableName( reqnm.buf() );
+    const Property* ret = 0;
     for ( int idx=0; idx<ps.size(); idx++ )
     {
 	const Property& depp = ps.get( idx );
@@ -318,19 +319,41 @@ const Property* MathProperty::findInput( const PropertySet& ps, const char* nm,
 	if ( mainname )
 	{
 	    if ( isMathMatch(reqnm,depp.name()) )
-		return &depp;
+		ret = &depp;
 	}
 	else
 	{
 	    for ( int ial=0; ial<depp.ref().aliases().size(); ial++ )
 	    {
 		if ( isMathMatch(reqnm,depp.ref().aliases().get(ial).buf()) )
-		    return &depp;
+		    { ret = &depp; break; }
 	    }
 	}
+	if ( ret ) break;
     }
+    if ( !ret )
+	return ret;
 
-    return 0;
+    mDynamicCastGet(const MathProperty*,mp,ret)
+    return mp && mp->isDepOn(*this) ? 0 : ret;
+}
+
+
+bool MathProperty::isDepOn( const Property& p ) const
+{
+    if ( &p == this ) return true;
+    
+    for ( int idep=0; idep<inps_.size(); idep++ )
+    {
+	const Property* inp = inps_[idep];
+	if ( inp == &p )
+	    return true;
+
+	mDynamicCastGet(const MathProperty*,mpinp,inp)
+	if ( mpinp && mpinp->isDepOn(p) )
+	    return true;
+    }
+    return false;
 }
 
 
@@ -354,7 +377,7 @@ bool MathProperty::init( const PropertySet& ps ) const
 	inps_.replace( idep, findInput( ps, nm, false ) );
 	if ( !inps_[idep] )
 	{
-	    errmsg_ = "Missing input for '";
+	    errmsg_ = "Missing input or dependency loop for '";
 	    errmsg_.add(name()).add("': '").add(nm).add("'");
 	    return false;
 	}
