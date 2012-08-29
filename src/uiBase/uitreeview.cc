@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitreeview.cc,v 1.78 2012-08-28 06:29:53 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitreeview.cc,v 1.79 2012-08-29 17:30:18 cvsyuancheng Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -898,7 +898,7 @@ void uiListViewItem::setChecked( bool yn, bool trigger )
 }
 
 
-bool uiListViewItem::isChecked() const
+bool uiListViewItem::isChecked( bool qtstatus ) const
 { return qtreeitem_->checkState(0) == mQtclass(Qt)::Checked; }
 
 
