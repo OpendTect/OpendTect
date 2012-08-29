@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.57 2012-08-10 07:26:25 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.58 2012-08-29 11:14:20 cvsraman Exp $";
 
 
 #include "uitextedit.h"
@@ -68,6 +68,8 @@ void uiTextEditBase::allowTextSelection( bool yn )
     qte().setTextInteractionFlags( flags );
 }
 
+void uiTextEditBase::hideFrame()
+{ qte().setFrameShape( QFrame::NoFrame ); }
 
 void uiTextEditBase::readFromFile( const char* src, int wraplen )
 {
