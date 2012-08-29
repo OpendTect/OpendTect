@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Nanne Hemstra
  Date:		January 2010
  Contents:	File utitlities
- RCS:		$Id: file.h,v 1.17 2012-08-03 13:00:12 cvskris Exp $
+ RCS:		$Id: file.h,v 1.18 2012-08-29 07:14:46 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "timefun.h"
 class BufferString;
+class Executor;
 
 
 /*!\brief Interface for several file and directory related services */
@@ -34,6 +35,7 @@ namespace File
     mGlobal(Basic) bool	createLink(const char* from,const char* to);
     mGlobal(Basic) bool	isLink(const char*);
     mGlobal(Basic) const char*	linkTarget(const char* linkname);
+    mGlobal(Basic) const char*	linkValue(const char* linkname);
 
     mGlobal(Basic) bool	isHidden(const char*);
     mGlobal(Basic) bool	isWritable(const char*);
@@ -46,7 +48,8 @@ namespace File
     mGlobal(Basic) bool	createDir(const char*); 
     mGlobal(Basic) bool	rename(const char* oldname,const char* newname);
     mGlobal(Basic) bool	copy(const char* from,const char* to);
-    mGlobal(Basic) bool	move(const char* from,const char* to);
+    mGlobal(Basic) Executor*	getRecursiveCopier(const char* from,
+	    					   const char* to);
     mGlobal(Basic) bool	remove(const char*);
     mGlobal(Basic) bool	saveCopy(const char* from,const char* to);
     mGlobal(Basic) bool	copyDir(const char* from,const char* to);
@@ -58,7 +61,7 @@ namespace File
     mGlobal(Basic) int		getKbSize(const char*);
     			//!<Returns 0 on error
 
-    mGlobal(Basic) const char* timeCreated(const char* filenm,
+    mGlobal(Basic) const char*	timeCreated(const char* filenm,
 	    			    const char* fmt=Time::defDateTimeFmt());
     mGlobal(Basic) const char*	timeLastModified(const char* filenm,
 	    			    const char* fmt=Time::defDateTimeFmt());
@@ -67,7 +70,7 @@ namespace File
     mGlobal(Basic) const char*	getCurrentPath();
     mGlobal(Basic) const char*	getHomePath();
     mGlobal(Basic) const char*	getTempPath();
-    mGlobal(Basic) const char* getRootPath(const char* path);
+    mGlobal(Basic) const char*	getRootPath(const char* path);
 
 } // namespace File
 
