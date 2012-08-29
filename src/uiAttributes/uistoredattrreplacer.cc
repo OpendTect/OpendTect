@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistoredattrreplacer.cc,v 1.29 2012-07-31 08:52:30 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistoredattrreplacer.cc,v 1.30 2012-08-29 21:51:51 cvsnanne Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -261,8 +261,7 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
 
 void uiStoredAttribReplacer::go()
 {
-    const int nrinputs = noofseis_ + noofsteer_;
-    const bool singleseissteer = nrinputs <= 1;
+    const bool singleseissteer = noofseis_==1 && noofsteer_==1;
     singleseissteer ? handleSingleInput() : handleMultiInput();
     if ( attrset_ ) attrset_->removeUnused( true, false );
 }
@@ -319,8 +318,8 @@ void uiStoredAttribReplacer::handleSingleInput()
 	    StoredEntry storeentry = storedids_[steeridx];
 	    const int ouputidx = attrset_->getDesc(
 		DescID( storeentry.firstid_.asInt(), false ))->selectedOutput();
-	    Desc* adsteerinl = new Desc( "Inline Desc" );
-	    Desc* adsteercrl = new Desc( "Cross Line Desc" );
+	    Desc* adsteerinl = 0;
+	    Desc* adsteercrl = 0;
 	    if ( ouputidx == 0 )
 	    {
 		adsteerinl = attrset_->getDesc(
@@ -335,15 +334,19 @@ void uiStoredAttribReplacer::handleSingleInput()
 		adsteercrl = attrset_->getDesc(
 			DescID(storeentry.firstid_.asInt(),false));
 	    }
-	    adsteerinl->changeStoredID( dlg.getSteerKey() );
-	    BufferString bfstr = dlg.getSteerRef();
-	    bfstr += "_inline_dip";
-	    adsteerinl->setUserRef( bfstr.buf() );
 
-	    adsteercrl->changeStoredID( dlg.getSteerKey() );
-	    bfstr = dlg.getSteerRef();
-	    bfstr += "_crline_dip";
-	    adsteercrl->setUserRef( bfstr.buf() );
+	    if ( adsteerinl && adsteercrl )
+	    {
+		adsteerinl->changeStoredID( dlg.getSteerKey() );
+		BufferString bfstr = dlg.getSteerRef();
+		bfstr += "_inline_dip";
+		adsteerinl->setUserRef( bfstr.buf() );
+
+		adsteercrl->changeStoredID( dlg.getSteerKey() );
+		bfstr = dlg.getSteerRef();
+		bfstr += "_crline_dip";
+		adsteercrl->setUserRef( bfstr.buf() );
+	    }
 	}
 	else
 	    setSteerPar( storedids_[steeridx], dlg.getSteerKey(),
@@ -425,8 +428,8 @@ void uiStoredAttribReplacer::handleMultiInput()
 		const int ouputidx = attrset_->getDesc(
 			DescID(storeentry.firstid_.asInt(),false))->
 			    selectedOutput();
-		Desc* adsteerinl = new Desc( "Inline Desc" );
-		Desc* adsteercrl = new Desc( "Cross Line Desc" );
+		Desc* adsteerinl = 0;
+		Desc* adsteercrl = 0;
 		if ( ouputidx == 0 )
 		{
 		    adsteerinl = attrset_->getDesc(
@@ -442,15 +445,18 @@ void uiStoredAttribReplacer::handleMultiInput()
 			    DescID(storeentry.firstid_.asInt(),false));
 		}
 
-		adsteerinl->changeStoredID( dlg.getSteerKey() );
-		BufferString bfstr = dlg.getSteerRef();
-		bfstr += "_inline_dip";
-		adsteerinl->setUserRef( bfstr.buf() );
+		if ( adsteerinl && adsteercrl )
+		{
+		    adsteerinl->changeStoredID( dlg.getSteerKey() );
+		    BufferString bfstr = dlg.getSteerRef();
+		    bfstr += "_inline_dip";
+		    adsteerinl->setUserRef( bfstr.buf() );
 
-		adsteercrl->changeStoredID( dlg.getSteerKey() );
-		bfstr = dlg.getSteerRef();
-		bfstr += "_crline_dip";
-		adsteercrl->setUserRef( bfstr.buf() );
+		    adsteercrl->changeStoredID( dlg.getSteerKey() );
+		    bfstr = dlg.getSteerRef();
+		    bfstr += "_crline_dip";
+		    adsteercrl->setUserRef( bfstr.buf() );
+		}
 	    }
 	    else
 		setSteerPar( storeentry, dlg.getSteerKey(), dlg.getSteerRef() );
