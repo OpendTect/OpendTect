@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.32 2012-08-03 13:00:29 cvskris Exp $
+ RCS:           $Id: emtracker.h,v 1.33 2012-08-29 06:25:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ private:
 };
 
 
-mDefineFactory1Param( EMTracker, EM::EMObject*, TrackerFactory );
+mDefineFactory1Param( MPEEngine, EMTracker, EM::EMObject*, TrackerFactory );
 
 
 }; // namespace MPE

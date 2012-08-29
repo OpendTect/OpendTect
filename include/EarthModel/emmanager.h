@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.55 2012-08-03 13:00:18 cvskris Exp $
+ RCS:		$Id: emmanager.h,v 1.56 2012-08-29 06:25:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -120,7 +120,7 @@ public:
 };
 
 
-mDefineFactory1Param( EMObject, EMManager&, EMOF );
+mDefineFactory1Param( EarthModel, EMObject, EMManager&, EMOF );
 
 mGlobal(EarthModel) EMManager& EMM();
 

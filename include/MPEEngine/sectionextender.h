@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.22 2012-08-03 13:00:31 cvskris Exp $
+ RCS:           $Id: sectionextender.h,v 1.23 2012-08-29 06:25:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,8 +89,8 @@ protected:
 };
 
 
-mDefineFactory2Param( SectionExtender, EM::EMObject*, const EM::SectionID&,
-		      ExtenderFactory );
+mDefineFactory2Param( MPEEngine, SectionExtender, EM::EMObject*,
+		      const EM::SectionID&, ExtenderFactory );
 
 }; //namespace MPE
 

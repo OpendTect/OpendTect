@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uiprestackprocessor.h,v 1.10 2012-08-03 13:01:06 cvskris Exp $
+ RCS:		$Id: uiprestackprocessor.h,v 1.11 2012-08-29 06:25:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -86,7 +86,8 @@ protected:
 };
 
 
-mDefineFactory2Param( uiDialog, uiParent*, Processor*, uiPSPD );
+mDefineFactory2Param( uiPreStackProcessing, uiDialog, uiParent*, Processor*,
+		      uiPSPD );
 
 
 }; //namespace

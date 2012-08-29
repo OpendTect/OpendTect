@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.28 2012-08-03 20:56:09 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.29 2012-08-29 06:25:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ public:
 
 Two macros are available to make a static accessfuncion for the factory:
 \code
-mDefineFactory( ClassName, FunctionName );
+mDefineFactory( Module, ClassName, FunctionName );
 \endcode
 
 that will create a static function that returns an instance to
@@ -155,15 +155,15 @@ public:
 
 Two macros are available to make a static accessfuncion for the factory:
 \code
-mDefineFactory1Param( ClassName, ParamClass(Basic), FunctionName );
+mDefineFactory1Param( Module, ClassName, ParamClass, FunctionName );
 \endcode
 
 that will create a static function that returns an instance to
-Factory1Param<ClassName,ParamClass(Basic)>. The static function must be implemented
+Factory1Param<ClassName,ParamClass>. The static function must be implemented
 in a src-file with the macro
 
 \code
-mImplFactory1Param( ClassName, ParamClass(Basic), FunctionName );
+mImplFactory1Param( ClassName, ParamClass, FunctionName );
 \endcode
 
 */
@@ -366,8 +366,8 @@ T* Factory3Param<T,P0,P1,P2>::create( const char* name, P0 p0, P1 p1, P2 p2,
 }
 
 
-#define mDefineFactory( T, funcname ) \
-mGlobal(Basic) ::Factory<T>& funcname()
+#define mDefineFactory( mod, T, funcname ) \
+mGlobal(mod) ::Factory<T>& funcname()
 
 
 #define mDefineFactoryInClass( T, funcname ) \
@@ -384,8 +384,8 @@ virtual const char* factoryKeyword() const { return 0; }
 } 
 
 
-#define mDefineFactory1Param( T, P, funcname ) \
-mGlobal(Basic) ::Factory1Param<T,P>& funcname()
+#define mDefineFactory1Param( mod, T, P, funcname ) \
+mGlobal(mod) ::Factory1Param<T,P>& funcname()
 
 
 #define mDefineFactory1ParamInClass( T, P, funcname ) \
@@ -403,8 +403,8 @@ virtual const char* factoryKeyword() const { return 0; }
 } 
 
 
-#define mDefineFactory2Param( T, P0, P1, funcname ) \
-mGlobal(Basic) ::Factory2Param<T,P0,P1>& funcname()
+#define mDefineFactory2Param( mod, T, P0, P1, funcname ) \
+mGlobal(mod) ::Factory2Param<T,P0,P1>& funcname()
 
 
 #define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
@@ -422,8 +422,8 @@ virtual const char* factoryKeyword() const { return 0; }
 } 
 
 
-#define mDefineFactory3Param( T, P0, P1, P2, funcname ) \
-mGlobal(Basic) ::Factory3Param<T,P0,P1,P2>& funcname()
+#define mDefineFactory3Param( mod, T, P0, P1, P2, funcname ) \
+mGlobal(mod) ::Factory3Param<T,P0,P1,P2>& funcname()
 
 
 #define mDefineFactory3ParamInClass( T, P0, P1, P2, funcname ) \

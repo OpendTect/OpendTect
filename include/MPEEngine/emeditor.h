@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.22 2012-08-03 13:00:29 cvskris Exp $
+ RCS:           $Id: emeditor.h,v 1.23 2012-08-29 06:25:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,7 +165,7 @@ private:
 };
 
 
-mDefineFactory1Param( ObjectEditor, EM::EMObject&, EditorFactory );
+mDefineFactory1Param( MPEEngine, ObjectEditor, EM::EMObject&, EditorFactory );
 
 
 };

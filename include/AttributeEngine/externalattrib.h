@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: externalattrib.h,v 1.14 2012-08-03 13:00:08 cvskris Exp $
+ RCS:		$Id: externalattrib.h,v 1.15 2012-08-29 06:25:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ public:
 };
 
 
-mDefineFactory1Param( ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
+mDefineFactory1Param( AttributeEngine, ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
 
 
 } // namespace Attrib
