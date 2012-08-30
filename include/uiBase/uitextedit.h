@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.32 2012-08-29 11:14:05 cvsraman Exp $
+ RCS:           $Id: uitextedit.h,v 1.33 2012-08-30 06:05:56 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class uiTextEditBody;
 class uiTextBrowserBody;
-class QTextEdit;
+mFDQtclass(QTextEdit)
 class Timer;
 
 mClass(uiBase) uiTextEditBase : public uiObject
@@ -44,8 +44,8 @@ public:
 protected:
 			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
 
-    virtual QTextEdit&	qte()			    = 0;
-    const QTextEdit&	qte() const 
+    virtual mQtclass(QTextEdit&)	qte()			    = 0;
+    const mQtclass(QTextEdit&)		qte() const 
 			{ return const_cast<uiTextEditBase*>(this)->qte(); }
 
     int			defaultwidth_;
@@ -69,7 +69,7 @@ public:
 
 protected:
 
-    virtual QTextEdit&	qte();
+    virtual mQtclass(QTextEdit&)	qte();
 
 private:
 
@@ -128,7 +128,7 @@ protected:
 
     virtual int		maxLines() const		{ return maxlines_; }
 
-    virtual QTextEdit&	qte();
+    virtual mQtclass(QTextEdit&)	qte();
 
     void		readTailCB(CallBacker*);
     Timer*		timer_;

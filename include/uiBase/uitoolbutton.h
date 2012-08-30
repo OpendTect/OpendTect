@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2010
- RCS:           $Id: uitoolbutton.h,v 1.2 2012-08-03 13:00:54 cvskris Exp $
+ RCS:           $Id: uitoolbutton.h,v 1.3 2012-08-30 06:05:56 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ private:
     int				id_; // Used by toolbar
 
     uiPopupMenu*		uimenu_;
-    QMenu*			qmenu_;
+    mQtclass(QMenu*)		qmenu_;
 
 };
 

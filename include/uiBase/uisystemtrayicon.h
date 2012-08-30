@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: uisystemtrayicon.h,v 1.2 2012-08-03 13:00:53 cvskris Exp $
+ RCS:		$Id: uisystemtrayicon.h,v 1.3 2012-08-30 06:05:56 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "callback.h"
 
+mFDQtclass(QSystemTrayIcon)
+mFDQtclass(QSystemTrayIconMessenger)
 class ioPixmap;
-class QSystemTrayIcon;
-class QSystemTrayIconMessenger;
 
 mClass(uiBase) uiSystemTrayIcon : public CallBacker
 {
@@ -39,10 +39,10 @@ public:
 
 protected:
 
-    QSystemTrayIcon*	qsystemtrayicon_;
-    QSystemTrayIconMessenger* messenger_;
+    mQtclass(QSystemTrayIcon*)		qsystemtrayicon_;
+    mQtclass(QSystemTrayIconMessenger*) messenger_;
 
-    int			action_;
+    int					action_;
 };
 
 #endif

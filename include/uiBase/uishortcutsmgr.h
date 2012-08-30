@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          20/01/2006
- RCS:           $Id: uishortcutsmgr.h,v 1.13 2012-08-03 13:00:53 cvskris Exp $
+ RCS:           $Id: uishortcutsmgr.h,v 1.14 2012-08-30 06:05:55 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "keyenum.h"
 #include "bufstringset.h"
-class QKeyEvent;
+mFDQtclass(QKeyEvent)
 
 
 class uiShortcutsMgr;
@@ -47,7 +47,7 @@ public:
     const char*		stateStr() const;
     const char*		keyStr() const;
 
-    			uiKeyDesc(QKeyEvent*);
+    			uiKeyDesc(mQtclass(QKeyEvent*));
 
 protected:
 

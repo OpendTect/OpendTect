@@ -7,20 +7,22 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.43 2012-08-03 13:00:54 cvskris Exp $
+ RCS:           $Id: uitoolbar.h,v 1.44 2012-08-30 06:05:56 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uibasemod.h"
 #include "uiparent.h"
+
+mFDQtclass(QAction)
+mFDQtclass(QToolBar)
+
 class ioPixmap;
 class MenuItem;
 class uiObject;
 class uiPopupMenu;
 class uiToolBarBody;
-class QAction;
-class QToolBar;
 class uiToolButton;
 class uiToolButtonSetup;
 class i_ToolBarMessenger;
@@ -90,7 +92,7 @@ public:
 
     static ToolBarArea	pluginArea()		{ return uiToolBar::Right; }
     ToolBarArea		prefArea() const	{ return tbarea_; }
-    QToolBar*		qwidget()		{ return qtoolbar_; }
+    mQtclass(QToolBar*)	qwidget()		{ return qtoolbar_; }
 
     const ObjectSet<uiObject>& 		objectList() const;
     static ObjectSet<uiToolBar>&	toolBars();
@@ -99,15 +101,15 @@ public:
 
 protected:
 
-    QToolBar*		qtoolbar_;
+    mQtclass(QToolBar*)		qtoolbar_;
     i_ToolBarMessenger*	msgr_;
     uiToolBarBody*	body_;
-    uiToolBarBody&	mkbody(const char*,QToolBar&);
+    uiToolBarBody&	mkbody(const char*,mQtclass(QToolBar&));
 
     uiParent*		parent_;
     ToolBarArea		tbarea_;
 
-    int			getButtonID(QAction*);
+    int			getButtonID(mQtclass(QAction*));
 
 };
 
