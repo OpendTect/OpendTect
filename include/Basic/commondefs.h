@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.53 2012-08-30 05:05:41 cvsnageswara Exp $
+ RCS:		$Id: commondefs.h,v 1.54 2012-08-30 12:03:23 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -61,6 +61,10 @@ ________________________________________________________________________
 
 #ifndef MAXDOUBLE
 # define MAXDOUBLE	1.7976931348623157e+308
+#endif
+
+#ifndef MAXSIZE
+# define MAXSIZE	((size_t)-1)
 #endif
 
 #ifdef __win__
