@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.54 2012-08-30 12:03:23 cvskris Exp $
+ RCS:		$Id: commondefs.h,v 1.55 2012-08-30 12:45:02 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
 
 -*/
 
-#include "basicmod.h"
 #include "basicmod.h"
 #include "plfdefs.h"
 #include "rounding.h"
