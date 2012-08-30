@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odmemory.cc,v 1.13 2012-07-10 08:05:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: odmemory.cc,v 1.14 2012-08-30 11:13:20 cvskris Exp $";
 
 #include "odsysmem.h"
 #include "odmemory.h"
@@ -100,7 +100,7 @@ void OD::getSystemMemory( float& total, float& free )
     MEMORYSTATUSEX status;
     status.dwLength = sizeof(status);
     GlobalMemoryStatusEx(&status);
-    total = status.ullTotalPhys;
-    free = status.ullAvailPhys;
+    total = (float) status.ullTotalPhys;
+    free = (float) status.ullAvailPhys;
 #endif
 }
