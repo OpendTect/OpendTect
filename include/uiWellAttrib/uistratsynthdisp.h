@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.58 2012-08-29 14:21:41 cvshelene Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.59 2012-08-30 13:42:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ public:
 
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
 	    			     Color);
+    void		setSelectedTrace(int);
     void		setDispEach(int);
     void		setZDataRange(const Interval<double>&,bool indpt);
 
@@ -90,6 +91,7 @@ protected:
     int			longestaimdl_;
     StratSynth&		stratsynth_;
     const Strat::LayerModel& lm_;
+    int			selectedtrace_;
     int			dispeach_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;

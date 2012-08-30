@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.110 2012-08-29 14:21:41 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.111 2012-08-30 13:42:54 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -55,6 +55,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , d2tmodels_(0)	    
     , stratsynth_(*new StratSynth(lm))
     , dispeach_(1)	
+    , selectedtrace_(-1)	
     , wvltChanged(this)
     , zoomChanged(this)
     , modSelChanged(this)		       
@@ -218,6 +219,13 @@ void uiStratSynthDisp::updateSyntheticList()
 void uiStratSynthDisp::setDispEach( int de )
 {
     dispeach_ = de;
+}
+
+
+void uiStratSynthDisp::setSelectedTrace( int st )
+{
+    selectedtrace_ = st;
+    //TODO display a marker at the selected trace (range 0 to N-1)
 }
 
 
