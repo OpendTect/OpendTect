@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.147 2012-08-10 03:50:04 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewer.cc,v 1.148 2012-08-30 14:28:07 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 
@@ -378,5 +378,45 @@ void uiFlatViewer::setSelDataRanges( Interval<double> xrg,Interval<double> yrg)
     xseldatarange_ = xrg;
     yseldatarange_ = yrg;
     viewChanged.trigger();
+}
+
+
+
+//TODO 4.4 legacy remove when not used 
+uiFlatViewer::uiFlatViewer( uiParent* p, bool yn )
+    : uiGroup(p,"Flat viewer")
+    , view_( new uiGraphicsView( this, "Flatview" ) )
+    , axesdrawer_(*new FlatView::AxesDrawer(*this,*view_))
+    , dim0extfac_(0.5)
+    , extraborders_(0,0,5,0)
+    , worldgroup_( new uiGraphicsItemGroup( true ) )
+    , bitmapdisp_( new FlatView::uiBitMapDisplay( *this ) )
+    , annotwork_( mCB(this,uiFlatViewer,updateAnnotCB) )
+    , auxdatawork_( mCB(this,uiFlatViewer,updateAuxDataCB) )
+    , bitmapwork_( mCB(this,uiFlatViewer,updateBitmapCB) )
+    , control_(0)
+    , xseldatarange_(mUdf(float),mUdf(float))		 
+    , yseldatarange_(mUdf(float),mUdf(float))
+    , useseldataranges_(false)	 
+    , viewChanged(this)
+    , dataChanged(this)
+{
+    updatequeueid_ =
+	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual );
+
+    view_->preDraw.notify( mCB(this,uiFlatViewer,updateCB ) );
+    view_->disableScrollZoom();
+    view_->scene().setMouseEventActive( true );
+    view_->scene().addItem( worldgroup_ );
+    view_->setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAlwaysOff );
+    view_->setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
+    view_->reSize.notify( mCB(this,uiFlatViewer,reSizeCB) );
+    setStretch( 2, 2 ); view_->setStretch( 2, 2 );
+
+    reportedchanges_ += All;
+    bitmapdisp_->getDisplay()->setZValue( mBitMapZ );
+    bitmapdisp_->setXExtraFactor( dim0extfac_ );
+    worldgroup_->add( bitmapdisp_->getDisplay() );
+    axesdrawer_.setZvalue( mAxisZStart );
 }
 
