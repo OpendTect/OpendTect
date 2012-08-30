@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribdataholder.cc,v 1.30 2012-08-09 03:40:06 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribdataholder.cc,v 1.31 2012-08-30 09:48:32 cvskris Exp $";
 
 #include "attribdataholder.h"
 
@@ -276,7 +276,7 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
 	const int zpos = dataset_[idx]->z0_ - mNINT32(cs.zrg.start/cs.zrg.step);
 	if ( arrptr )
 	{
-	    const int offset = array.info().getOffset( 0, trcidx, zpos );
+	    const od_int64 offset = array.info().getOffset( 0, trcidx, zpos );
 	    memcpy( arrptr+offset, srcptr,
 		    dataset_[idx]->nrsamples_*sizeof(float) );
 	}

@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: arrayndinfo.cc,v 1.21 2012-07-29 21:36:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: arrayndinfo.cc,v 1.22 2012-08-30 09:48:32 cvskris Exp $";
 
 #include "arraynd.h"
 #include "typeset.h"
@@ -67,14 +67,14 @@ bool ArrayNDInfo::getArrayPos( od_uint64 mempos, int* pos ) const
 	product *= size;
     }
 
-    pos[0] = mempos/dimdevisor[0];
+    pos[0] =(int) mempos/dimdevisor[0];
     if ( pos[0]>=getSize(0) )
 	return false;
 
     mempos = mempos%dimdevisor[0];
     for ( int idx=1; idx<ndim; idx++ )
     {
-	pos[idx] = mempos/dimdevisor[idx];
+	pos[idx] = (int) mempos/dimdevisor[idx];
 	mempos = mempos%dimdevisor[idx];
     }
 

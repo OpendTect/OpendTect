@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: array2dinterpol.cc,v 1.41 2012-08-09 06:49:31 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: array2dinterpol.cc,v 1.42 2012-08-30 09:48:31 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -816,7 +816,7 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	if ( idx<0 )
 	    break;
 
-	int targetrow = idx/nrcols_, targetcol = idx%nrcols_;
+	int targetrow = (int) idx/nrcols_, targetcol = (int) idx%nrcols_;
 
 	if ( definedidxs_.size() ) //No search radius, do all pts
 	{
