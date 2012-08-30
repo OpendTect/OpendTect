@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipropvalfld.cc,v 1.1 2012-08-30 13:11:22 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipropvalfld.cc,v 1.2 2012-08-30 14:49:56 cvsbert Exp $";
 
 #include "uipropvalfld.h"
 #include "uigeninput.h"
@@ -86,4 +86,10 @@ void uiPropertyValFld::setUnitName( const char* nm )
 void uiPropertyValFld::setReadOnly( bool yn )
 {
     valfld_->setReadOnly( yn );
+}
+
+
+const char* uiPropertyValFld::propName() const
+{
+    return valfld_->titleText();
 }

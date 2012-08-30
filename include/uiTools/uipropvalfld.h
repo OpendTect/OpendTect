@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Aug 2012
- RCS:           $Id: uipropvalfld.h,v 1.1 2012-08-30 13:11:22 cvsbert Exp $
+ RCS:           $Id: uipropvalfld.h,v 1.2 2012-08-30 14:49:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ public:
     void		setUnitName(const char*);
 
     void		setReadOnly(bool); //!< will allow user to select unit!
+    const char*		propName() const;
 
 protected:
 
