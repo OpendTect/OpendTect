@@ -7,13 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.31 2012-08-10 03:50:06 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.32 2012-08-30 13:38:35 cvsbert Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
+#include "uistrateditlayer.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
+#include "uigeninput.h"
+#include "uimenu.h"
 #include "uiaxishandler.h"
 #include "stratlevel.h"
 #include "stratlayermodel.h"
@@ -33,6 +36,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , sequenceSelected(this)
     , genNewModelNeeded(this)
     , rangeChanged(this)   
+    , modelEdited(this)   
 {
 }
 
@@ -72,14 +76,15 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , lvlitms_(*new uiGraphicsItemSet)
     , contitms_(*new uiGraphicsItemSet)
     , selseqitm_(0)
-    , selseqidx_(-1)
     , selectedlevel_(-1)
     , selectedcontent_(0)
 {
     gv_ = new uiGraphicsView( this, "LayerModel display" );
     gv_->setPrefWidth( 500 ); gv_->setPrefHeight( 250 );
     gv_->getMouseEventHandler().buttonReleased.notify(
-			    mCB(this,uiStratSimpleLayerModelDisp,usrClicked) );
+			mCB(this,uiStratSimpleLayerModelDisp,usrClicked) );
+    gv_->getMouseEventHandler().doubleClick.notify(
+			mCB(this,uiStratSimpleLayerModelDisp,doubleClicked) );
 
     const uiBorder border( 10 );
     uiAxisHandler::Setup xahsu( uiRect::Top );
@@ -127,25 +132,126 @@ uiGraphicsScene& uiStratSimpleLayerModelDisp::scene()
 }
 
 
-void uiStratSimpleLayerModelDisp::usrClicked( CallBacker* cb )
+int uiStratSimpleLayerModelDisp::getClickedModelNr() const
 {
     MouseEventHandler& mevh = gv_->getMouseEventHandler();
     if ( lm_.isEmpty() || !mevh.hasEvent() || mevh.isHandled() )
-	return;
-
+	return -1;
     const MouseEvent& mev = mevh.event();
-    if ( !OD::rightMouseButton( mev.buttonState() ) )
-	return;
-
-    float fselidx = xax_->getVal( mev.pos().x );
-    int selidx = mNINT32( fselidx ) - 1;
+    const float xsel = xax_->getVal( mev.pos().x );
+    int selidx = mNINT32( xsel ) - 1;
     if ( selidx < 0 || selidx >= lm_.size() )
-	return;
+	selidx = -1;
+    return selidx;
+}
+
+
+void uiStratSimpleLayerModelDisp::usrClicked( CallBacker* )
+{
+    const int selidx = getClickedModelNr();
+    if ( selidx < 0 ) return;
+
+    MouseEventHandler& mevh = gv_->getMouseEventHandler();
+    if ( OD::rightMouseButton( mevh.event().buttonState() ) )
+    {
+	const float zsel = yax_->getVal( mevh.event().pos().y );
+	handleRightClick(selidx,zsel);
+    }
+    else
+    {
+	selectSequence( selidx );
+	sequenceSelected.trigger();
+    }
 
     mevh.setHandled( true );
+}
 
-    selectSequence( selidx );
-    sequenceSelected.trigger();
+
+void uiStratSimpleLayerModelDisp::handleRightClick( int selidx, float zsel )
+{
+    Strat::LayerSequence& ls = const_cast<Strat::LayerModel&>(lm_)
+						.sequence( selidx );
+    ObjectSet<Strat::Layer>& lays = ls.layers();
+    const int layidx = ls.layerIdxAtZ( zsel );
+    if ( lays.isEmpty() || layidx < 0 )
+	return;
+
+    uiPopupMenu mnu( parent(), "Action" );
+    mnu.insertItem( new uiMenuItem("&Properties ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&Remove ..."), 1 );
+    const int mnuid = mnu.exec();
+    if ( mnuid < 0 || mnuid > 1 )
+	return;
+    Strat::Layer& lay = *ls.layers()[layidx];
+    if ( mnuid == 0 )
+    {
+	uiStratEditLayer dlg( this, lay, ls, true );
+	if ( dlg.go() )
+	    forceRedispAll( true );
+    }
+    else
+    {
+
+	uiDialog dlg( this, uiDialog::Setup( "Remove a layer",
+		    BufferString("Remove '",lay.name(),"'"),mTODOHelpID) );
+	uiGenInput* gi = new uiGenInput( &dlg, "Remove", BoolInpSpec(true,
+		    "Only this layer","All layers with this ID") );
+	if ( dlg.go() )
+	    removeLayers( ls, layidx, !gi->getBoolValue() );
+    }
+}
+
+
+void uiStratSimpleLayerModelDisp::removeLayers( Strat::LayerSequence& seq,
+					int layidx, bool doall )
+{
+    if ( !doall )
+    {
+	delete seq.layers().remove( layidx );
+	seq.prepareUse();
+    }
+    else
+    {
+	const Strat::LeafUnitRef& lur = seq.layers()[layidx]->unitRef();
+	for ( int ils=0; ils<lm_.size(); ils++ )
+	{
+	    Strat::LayerSequence& ls = const_cast<Strat::LayerModel&>(lm_)
+							.sequence( ils );
+	    bool needprep = false;
+	    for ( int ilay=0; ilay<ls.layers().size(); ilay++ )
+	    {
+		const Strat::Layer& lay = *ls.layers()[ilay];
+		if ( &lay.unitRef() == &lur )
+		{
+		    delete ls.layers().remove( ilay );
+		    ilay--; needprep = true;
+		}
+	    }
+	    if ( needprep )
+		ls.prepareUse();
+	}
+    }
+
+    forceRedispAll( true );
+}
+
+
+void uiStratSimpleLayerModelDisp::doubleClicked( CallBacker* )
+{
+    const int selidx = getClickedModelNr();
+    if ( selidx < 0 ) return;
+
+    //TODO show single model
+
+    gv_->getMouseEventHandler().setHandled( true );
+}
+
+
+void uiStratSimpleLayerModelDisp::forceRedispAll( bool modeledited )
+{
+    reDrawCB( 0 );
+    if ( modeledited )
+	modelEdited.trigger();
 }
 
 
@@ -181,7 +287,7 @@ void uiStratSimpleLayerModelDisp::setZoomBox( const uiWorldRect& wr )
     zoomwr_.setBottom( wr.top() );
     updZoomBox();
     if ( showzoomed_ )
-	reDrawCB( 0 );
+	forceRedispAll();
 }
 
 
@@ -202,7 +308,7 @@ void uiStratSimpleLayerModelDisp::updZoomBox()
 void uiStratSimpleLayerModelDisp::modelChanged()
 {
     zoomwr_ = uiWorldRect(mUdf(double),0,0,0);
-    reDrawCB( 0 );
+    forceRedispAll();
 }
 
 
@@ -336,8 +442,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    const Color laycol = lay.dispColor( uselithcols_ );
 	    const bool isannotcont = selectedcontent_
 				  && lay.content() == *selectedcontent_;
-	    const Color pencol = isannotcont ? laycol.complementaryColor()
-					     : laycol;
+	    const Color pencol = isannotcont ? Color::Black() : laycol;
 	    it->setPenColor( pencol );
 	    if ( pencol != laycol )
 		it->setPenStyle( LineStyle(LineStyle::Solid,2,pencol) );

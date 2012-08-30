@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.17 2012-08-03 13:01:10 cvskris Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.18 2012-08-30 13:38:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
     virtual void		setZoomBox(const uiWorldRect&)	= 0;
 
     const TypeSet<float>&	levelDepths() const	{ return lvldpths_; }
+    int				selectedSequence() const { return selseqidx_; }
     void			selectSequence(int seqidx);
 
     virtual uiBaseObject*	getViewer() { return 0; }
@@ -43,6 +44,7 @@ public:
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
     Notifier<uiStratLayerModelDisp> rangeChanged;
+    Notifier<uiStratLayerModelDisp> modelEdited;
 
 protected:
 
