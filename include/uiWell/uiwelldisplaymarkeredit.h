@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.15 2012-08-24 09:42:35 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.16 2012-08-30 14:53:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,7 @@ protected:
     bool 			ismarkerhit_;
     bool 			ispressed_;
     
+    void			allowMarkersManagement(bool yn);
     virtual void		addNewMrkrList();
     virtual void		editMrkrList();
     virtual bool		removeMrkrFromList();
@@ -101,7 +102,7 @@ protected:
 
     virtual bool		acceptOK(CallBacker*);
     void			buttonPushedCB(CallBacker*);
-    virtual void		editDlgClosedCB(CallBacker*);
+    virtual void		editDlgClosedCB(CallBacker*) =0;
     virtual void		fillMarkerList(CallBacker*);
     virtual void		handleUsrClickCB(CallBacker*) =0;
     virtual void		modeChg(CallBacker*);

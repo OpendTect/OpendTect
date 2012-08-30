@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.40 2012-08-24 09:42:35 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.41 2012-08-30 14:53:59 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -133,8 +133,12 @@ uiDispEditMarkerDlg::~uiDispEditMarkerDlg()
 }
 
 
-void uiDispEditMarkerDlg::editDlgClosedCB( CallBacker* )
-{}
+void uiDispEditMarkerDlg::allowMarkersManagement( bool yn )
+{
+    addbut_->display( yn );
+    editbut_->display( yn );
+    rembut_->display( yn );
+}
 
 
 void uiDispEditMarkerDlg::modeChg( CallBacker* )
