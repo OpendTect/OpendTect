@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimdiarea.cc,v 1.12 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimdiarea.cc,v 1.13 2012-08-30 07:52:51 cvsnageswara Exp $";
 
 #include "uimdiarea.h"
 #include "i_qmdiarea.h"
@@ -23,7 +23,7 @@ static const char* rcsID mUnusedVar = "$Id: uimdiarea.cc,v 1.12 2012-05-02 15:12
 
 static bool sNoCloseMessage = false;
 
-class uiMdiAreaBody : public uiObjBodyImpl<uiMdiArea,QMdiArea>
+class uiMdiAreaBody : public uiObjBodyImpl<uiMdiArea,mQtclass(QMdiArea)>
 { 	
 public:
     			uiMdiAreaBody(uiMdiArea&,uiParent*,const char*);
@@ -32,12 +32,12 @@ public:
 protected:
     i_MdiAreaMessenger& messenger_;
 
-    void		resizeEvent(QResizeEvent*);
+    void		resizeEvent(mQtclass(QResizeEvent*));
 };
 
 
 uiMdiAreaBody::uiMdiAreaBody( uiMdiArea& hndle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiMdiArea,QMdiArea>(hndle,p,nm)
+    : uiObjBodyImpl<uiMdiArea,mQtclass(QMdiArea)>(hndle,p,nm)
     , messenger_(*new i_MdiAreaMessenger(this,&hndle))
 {}
 
@@ -45,7 +45,7 @@ uiMdiAreaBody::~uiMdiAreaBody()
 { delete &messenger_; }
 
 
-void uiMdiAreaBody::resizeEvent( QResizeEvent* ev )
+void uiMdiAreaBody::resizeEvent( mQtclass(QResizeEvent*) ev )
 {
     // TODO: Resize subwindows
     QMdiArea::resizeEvent( ev );
@@ -78,12 +78,12 @@ void uiMdiArea::cascade()	{ body_->cascadeSubWindows(); }
 void uiMdiArea::tileVertical()
 {
     tile();
-    QList<QMdiSubWindow*> windows = body_->subWindowList();
+    mQtclass(QList)<mQtclass(QMdiSubWindow*)> windows = body_->subWindowList();
 
     int nrvisiblewindows = 0;
     for ( int idx=0; idx<windows.count(); idx++ )
     {
-	QMdiSubWindow* widget = windows.at( idx );
+	mQtclass(QMdiSubWindow*) widget = windows.at( idx );
 	if ( widget && !widget->isHidden() )
 	    nrvisiblewindows++;
     }
@@ -96,7 +96,7 @@ void uiMdiArea::tileVertical()
     int y = 0;
     for ( int idx=0; idx<windows.count(); idx++ )
     {
-	QMdiSubWindow* widget = windows.at( idx );
+	mQtclass(QMdiSubWindow*) widget = windows.at( idx );
 	if ( widget->isHidden() ) continue;
 
 	widget->showNormal();
@@ -112,12 +112,12 @@ void uiMdiArea::tileVertical()
 void uiMdiArea::tileHorizontal()
 {
     tile();
-    QList<QMdiSubWindow*> windows = body_->subWindowList();
+    mQtclass(QList)<mQtclass(QMdiSubWindow*)> windows = body_->subWindowList();
 
     int nrvisiblewindows = 0;
     for ( int idx=0; idx<windows.count(); idx++ )
     {
-	QMdiSubWindow* widget = windows.at( idx );
+	mQtclass(QMdiSubWindow*) widget = windows.at( idx );
 	if ( widget && !widget->isHidden() )
 	    nrvisiblewindows++;
     }
@@ -130,7 +130,7 @@ void uiMdiArea::tileHorizontal()
     int x = 0;
     for ( int idx=0; idx<windows.count(); idx++ )
     {
-	QMdiSubWindow* widget = windows.at( idx );
+	mQtclass(QMdiSubWindow*) widget = windows.at( idx );
 	if ( widget->isHidden() ) continue;
 
 	widget->showNormal();
@@ -225,7 +225,7 @@ void uiMdiArea::setActiveWin( const char* nm )
 const char* uiMdiArea::getActiveWin() const
 {
     static BufferString nm;
-    QWidget* widget = body_->activeSubWindow();
+    mQtclass(QWidget*) widget = body_->activeSubWindow();
     nm = widget ? mQStringToConstChar(widget->windowTitle()) : "";
     return nm.buf();
 }
@@ -241,28 +241,28 @@ void uiMdiArea::getWindowNames( BufferStringSet& nms ) const
 bool uiMdiArea::paralyse( bool yn )
 {
     const bool oldstate = !sensitive();
-    if ( !yn ) QApplication::processEvents();
+    if ( !yn ) mQtclass(QApplication)::processEvents();
     setSensitive( !yn );
     return oldstate;
 }
 
 
-class ODMdiSubWindow : public QMdiSubWindow
+class ODMdiSubWindow : public mQtclass(QMdiSubWindow)
 {
 public:
-ODMdiSubWindow( QWidget* par=0, Qt::WindowFlags flgs=0 )
-    : QMdiSubWindow( par, flgs )
+ODMdiSubWindow( mQtclass(QWidget*) par=0, mQtclass(Qt)::WindowFlags flgs=0 )
+    : mQtclass(QMdiSubWindow)( par, flgs )
 {}
 
 protected:
-void closeEvent( QCloseEvent* ev )
+void closeEvent( mQtclass(QCloseEvent*) ev )
 {
     const BufferString msg( "Do you want to close ",\
 			    mQStringToConstChar(windowTitle()), "?" );
     if ( sNoCloseMessage || uiMSG().askGoOn(msg) )
     {
 	ev->accept();
-	QMdiSubWindow::closeEvent( ev );
+	mQtclass(QMdiSubWindow)::closeEvent( ev );
     }
     else
 	ev->ignore();
@@ -299,14 +299,14 @@ const char* uiMdiAreaWindow::getTitle() const
 void uiMdiAreaWindow::setIcon( const char* img[] )
 {
     if ( !img ) return;
-    qmdisubwindow_->setWindowIcon( QIcon(img) );
+    qmdisubwindow_->setWindowIcon( mQtclass(QIcon)(img) );
 }
 
 
 NotifierAccess& uiMdiAreaWindow::closed()
 { return mainObject()->closed; }
 
-QMdiSubWindow* uiMdiAreaWindow::qWidget()
+mQtclass(QMdiSubWindow*) uiMdiAreaWindow::qWidget()
 { return qmdisubwindow_; }
 
 void uiMdiAreaWindow::show()		{ qmdisubwindow_->showNormal(); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseparator.cc,v 1.13 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseparator.cc,v 1.14 2012-08-30 07:52:52 cvsnageswara Exp $";
 
 
 #include "uiseparator.h"
@@ -16,16 +16,17 @@ static const char* rcsID mUnusedVar = "$Id: uiseparator.cc,v 1.13 2012-05-02 15:
 #include <QFrame>
 
 
-class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,QFrame>
+class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,mQtclass(QFrame)>
 {
 public:
 
 uiSeparatorBody( uiSeparator& hndl, uiParent* p, const char* nm,
 		 bool hor, bool raised )
-    : uiObjBodyImpl<uiSeparator,QFrame>(hndl,p,nm)
+    : uiObjBodyImpl<uiSeparator,mQtclass(QFrame)>(hndl,p,nm)
 {
-    setFrameStyle( (hor ? QFrame::HLine : QFrame::VLine)
-		 | (raised ? QFrame::Raised : QFrame::Sunken) );
+    setFrameStyle( (hor ? mQtclass(QFrame)::HLine : mQtclass(QFrame)::VLine)
+		 | (raised ? mQtclass(QFrame)::Raised
+		     	   : mQtclass(QFrame)::Sunken) );
     setLineWidth( 1 ); setMidLineWidth( 0 );
 }
 
@@ -47,5 +48,6 @@ uiSeparatorBody& uiSeparator::mkbody( uiParent* p, const char* txt,
 
 void uiSeparator::setRaised( bool yn )
 { 
-    body_->setFrameShadow( yn ? QFrame::Raised : QFrame::Sunken );
+    body_->setFrameShadow( yn ? mQtclass(QFrame)::Raised
+	    		      : mQtclass(QFrame)::Sunken );
 }

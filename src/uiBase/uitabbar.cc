@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitabbar.cc,v 1.29 2012-05-02 15:12:02 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitabbar.cc,v 1.30 2012-08-30 07:52:53 cvsnageswara Exp $";
 
 #include "uitabbar.h"
 #include "uiobjbody.h"
@@ -21,12 +21,13 @@ uiTab::uiTab( uiGroup& grp )
 {}
 
 
-class uiTabBarBody : public uiObjBodyImpl<uiTabBar,QTabBar>
+class uiTabBarBody : public uiObjBodyImpl<uiTabBar,mQtclass(QTabBar)>
 {
 public:
 			uiTabBarBody( uiTabBar& hndl, uiParent* p,
 				      const char* nm )
-			    : uiObjBodyImpl<uiTabBar,QTabBar>(hndl,p,nm)
+			    : uiObjBodyImpl<uiTabBar,mQtclass(QTabBar)>(hndl,p,
+				    					nm)
 			    , messenger_(*new i_tabbarMessenger(this,&hndl))
 			    {
 				setHSzPol( uiObject::MedVar );
@@ -71,7 +72,7 @@ int uiTabBar::addTab( uiTab* tab )
     if ( !tab ) return -1;
     tabs_ += tab;
     tab->group().display( tabs_.size()==1 );
-    return body_->insertTab( tabs_.size(), QString(tab->name()) ); 
+    return body_->insertTab( tabs_.size(), mQtclass(QString)(tab->name()) ); 
 }
 
 

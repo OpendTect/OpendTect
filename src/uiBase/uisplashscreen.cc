@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisplashscreen.cc,v 1.8 2012-05-02 15:12:02 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisplashscreen.cc,v 1.9 2012-08-30 07:52:52 cvsnageswara Exp $";
 
 
 #include "uisplashscreen.h"
@@ -21,9 +21,9 @@ static const char* rcsID mUnusedVar = "$Id: uisplashscreen.cc,v 1.8 2012-05-02 1
 
 uiSplashScreen::uiSplashScreen( const ioPixmap& pm )
 {
-    QDesktopWidget* qdw = QApplication::desktop();
-    QWidget* parent = qdw->screen( qdw->primaryScreen() );
-    qsplashscreen_ = new QSplashScreen( parent, *pm.qpixmap() );
+    mQtclass(QDesktopWidget*) qdw = mQtclass(QApplication)::desktop();
+    mQtclass(QWidget*) parent = qdw->screen( qdw->primaryScreen() );
+    qsplashscreen_ = new mQtclass(QSplashScreen)( parent, *pm.qpixmap() );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectstack.cc,v 1.7 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjectstack.cc,v 1.8 2012-08-30 07:52:52 cvsnageswara Exp $";
 
 
 #include "uiobjectstack.h"
@@ -18,12 +18,13 @@ static const char* rcsID mUnusedVar = "$Id: uiobjectstack.cc,v 1.7 2012-05-02 15
 #include <QStackedWidget>
 
 
-class uiObjStackBody : public uiObjBodyImpl<uiObjectStack,QStackedWidget>
+class uiObjStackBody : public uiObjBodyImpl<uiObjectStack,
+    					    mQtclass(QStackedWidget)>
 {
 public:
 uiObjStackBody( uiObjectStack& hndle, uiParent* parnt,
 		const char* txt )
-    : uiObjBodyImpl<uiObjectStack,QStackedWidget>(hndle,parnt,txt) {}
+    : uiObjBodyImpl<uiObjectStack,mQtclass(QStackedWidget)>(hndle,parnt,txt) {}
 };
 
 

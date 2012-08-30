@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitoolbar.cc,v 1.65 2012-05-09 07:51:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitoolbar.cc,v 1.66 2012-08-30 07:52:53 cvsnageswara Exp $";
 
 #include "uitoolbar.h"
 
@@ -37,13 +37,13 @@ class uiToolBarBody : public uiParentBody
 {
 public:
 
-			uiToolBarBody(uiToolBar&,QToolBar&);
+			uiToolBarBody(uiToolBar&,mQtclass(QToolBar&));
 			~uiToolBarBody();
 
     int 		addButton(const uiToolButtonSetup&);
     int 		addButton(const char*,const char*,const CallBack&,bool);
     int			addButton(const MenuItem&);
-    int			getButtonID(QAction*); // QAction from MenuItem
+    int			getButtonID(mQtclass(QAction*)); //QAction from MenuItem
 
     void		addObject(uiObject*);
     void		clear();
@@ -67,9 +67,9 @@ public:
 
 protected:
 
-    virtual const QWidget*      managewidg_() const	{ return qbar_; }
-    virtual const QWidget*	qwidget_() const	{ return qbar_; }
-    QToolBar*			qbar_;
+    virtual const mQtclass(QWidget*)    managewidg_() const { return qbar_; }
+    virtual const mQtclass(QWidget*)	qwidget_() const    { return qbar_; }
+    mQtclass(QToolBar*)			qbar_;
     uiToolBar&			tbar_;
     int				iconsz_;
 
@@ -90,13 +90,13 @@ private:
     TypeSet<int>		butindex_;
 
     // MenuItems
-    ObjectSet<QAction>		qactions_;
+    ObjectSet<mQtclass(QAction)>	qactions_;
     TypeSet<int>		mnuids_;
 
 };
 
 
-uiToolBarBody::uiToolBarBody( uiToolBar& handle, QToolBar& bar )
+uiToolBarBody::uiToolBarBody( uiToolBar& handle, mQtclass(QToolBar&) bar )
     : uiParentBody("ToolBar")
     , qbar_(&bar)
     , tbar_(handle)
@@ -140,7 +140,7 @@ int uiToolBarBody::addButton( const MenuItem& itm )
 }
 
 
-int uiToolBarBody::getButtonID( QAction* qaction )
+int uiToolBarBody::getButtonID( mQtclass(QAction*) qaction )
 {
     const int idx = qactions_.indexOf( qaction );
     return mnuids_.validIdx(idx) ? mnuids_[idx] : -1;
@@ -149,7 +149,7 @@ int uiToolBarBody::getButtonID( QAction* qaction )
 
 void uiToolBarBody::addObject( uiObject* obj )
 {
-    QWidget* qw = obj && obj->body() ? obj->body()->qwidget() : 0;
+    mQtclass(QWidget*) qw = obj && obj->body() ? obj->body()->qwidget() : 0;
     if ( qw )
     {
 	qbar_->addWidget( qw );
@@ -247,7 +247,7 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
     , tbarea_(tba)
     , buttonClicked(this)
 {
-    qtoolbar_ = new QToolBar( QString(nm) );
+    qtoolbar_ = new mQtclass(QToolBar)( mQtclass(QString)(nm) );
     qtoolbar_->setObjectName( nm );
     setBody( &mkbody(nm,*qtoolbar_) );
     msgr_ = new i_ToolBarMessenger( qtoolbar_, this );
@@ -276,7 +276,7 @@ uiToolBar::~uiToolBar()
 }
 
 
-uiToolBarBody& uiToolBar::mkbody( const char* nm, QToolBar& qtb )
+uiToolBarBody& uiToolBar::mkbody( const char* nm, mQtclass(QToolBar&) qtb )
 { 
     body_ = new uiToolBarBody( *this, qtb );
     return *body_; 
@@ -306,7 +306,7 @@ void uiToolBar::addObject( uiObject* obj )
 
 void uiToolBar::setLabel( const char* lbl )
 {
-    qtoolbar_->setWindowTitle( QString(lbl) );
+    qtoolbar_->setWindowTitle( mQtclass(QString)(lbl) );
     setName( lbl );
 }
 
@@ -372,7 +372,7 @@ void uiToolBar::clear()
 const ObjectSet<uiObject>& uiToolBar::objectList() const
 { return body_->objectList(); }
 
-int uiToolBar::getButtonID( QAction* qaction )
+int uiToolBar::getButtonID( mQtclass(QAction*) qaction )
 { return body_->getButtonID( qaction ); }
 
 uiMainWin* uiToolBar::mainwin()

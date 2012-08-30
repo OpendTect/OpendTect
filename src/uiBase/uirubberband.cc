@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uirubberband.cc,v 1.7 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uirubberband.cc,v 1.8 2012-08-30 07:52:52 cvsnageswara Exp $";
 
 #include "uirubberband.h"
 
@@ -22,34 +22,37 @@ uiRubberBand::~uiRubberBand()
 }
 
 
-void uiRubberBand::start( QMouseEvent* event )
+void uiRubberBand::start( mQtclass(QMouseEvent*) event )
 {
     origin_ = uiPoint( event->x(), event->y() );
     if ( !qrubberband_ )
-	qrubberband_ = new QRubberBand( QRubberBand::Rectangle, parent_ );
+	qrubberband_ = new mQtclass(QRubberBand)(
+				   mQtclass(QRubberBand)::Rectangle, parent_ );
 
-    qrubberband_->setGeometry( QRect(event->pos(),QSize()) );
+    qrubberband_->setGeometry( mQtclass(QRect)(event->pos(),
+					       mQtclass(QSize)()) );
     qrubberband_->show();
 }
 
 
-void uiRubberBand::handleEv( QMouseEvent* event, bool setgeom )
+void uiRubberBand::handleEv( mQtclass(QMouseEvent*) event, bool setgeom )
 {
-    const QPoint qorigin( origin_.x, origin_.y );
-    const QRect geom = QRect( qorigin, event->pos() ).normalized();
+    const mQtclass(QPoint) qorigin( origin_.x, origin_.y );
+    const mQtclass(QRect) geom = mQtclass(QRect)( qorigin,
+	    					  event->pos() ).normalized();
     area_ = uiRect( geom.left(), geom.top(), geom.right(), geom.bottom() );
     if ( setgeom )
 	qrubberband_->setGeometry( geom );
 }
 
 
-void uiRubberBand::extend( QMouseEvent* event )
+void uiRubberBand::extend( mQtclass(QMouseEvent*) event )
 {
     handleEv( event, true );
 }
 
 
-void uiRubberBand::stop( QMouseEvent* event )
+void uiRubberBand::stop( mQtclass(QMouseEvent*) event )
 {
     handleEv( event, false );
     qrubberband_->hide();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.58 2012-08-29 11:14:20 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.59 2012-08-30 07:52:53 cvsnageswara Exp $";
 
 
 #include "uitextedit.h"
@@ -58,9 +58,11 @@ bool uiTextEditBase::isModified() const
 
 void uiTextEditBase::allowTextSelection( bool yn )
 {
-    const Qt::TextInteractionFlags selflag = Qt::TextSelectableByMouse;
-    const Qt::TextInteractionFlags mask = ~selflag;
-    Qt::TextInteractionFlags flags = qte().textInteractionFlags() & mask;
+    const mQtclass(Qt)::TextInteractionFlags selflag =
+					mQtclass(Qt)::TextSelectableByMouse;
+    const mQtclass(Qt)::TextInteractionFlags mask = ~selflag;
+    mQtclass(Qt)::TextInteractionFlags flags =
+					qte().textInteractionFlags() & mask;
     
     if ( yn )
         flags |= selflag;
@@ -69,7 +71,7 @@ void uiTextEditBase::allowTextSelection( bool yn )
 }
 
 void uiTextEditBase::hideFrame()
-{ qte().setFrameShape( QFrame::NoFrame ); }
+{ qte().setFrameShape( mQtclass(QFrame)::NoFrame ); }
 
 void uiTextEditBase::readFromFile( const char* src, int wraplen )
 {
@@ -196,7 +198,7 @@ int uiTextEditBase::nrLines() const
 }
 
 
-class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,QTextEdit>
+class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,mQtclass(QTextEdit)>
 {
 public:
 
@@ -213,7 +215,7 @@ protected:
 
 uiTextEditBody::uiTextEditBody( uiTextEdit& hndl, uiParent* p, 
 				const char* nm, bool ro )
-    : uiObjBodyImpl<uiTextEdit,QTextEdit>( hndl, p, nm )
+    : uiObjBodyImpl<uiTextEdit,mQtclass(QTextEdit)>( hndl, p, nm )
     , messenger_(*new i_TextEditMessenger(this,&hndl))
 {
     setReadOnly( ro );
@@ -223,9 +225,9 @@ uiTextEditBody::uiTextEditBody( uiTextEdit& hndl, uiParent* p,
 
 void uiTextEditBody::append( const char* txt)
 { 
-    QTextEdit::append( txt );
+    mQtclass(QTextEdit)::append( txt );
     repaint();
-    moveCursor( QTextCursor::End );
+    moveCursor( mQtclass(QTextCursor)::End );
 }
 
 //-------------------------------------------------------
@@ -256,14 +258,15 @@ void uiTextEdit::setText( const char* txt, bool trigger_notif )
 
 void uiTextEdit::append( const char* txt )	{ body_->append(txt); }
 
-QTextEdit& uiTextEdit::qte()			{ return *body_; }
+mQtclass(QTextEdit&) uiTextEdit::qte()			{ return *body_; }
 
 
 
 //-------------------------------------------------------
 
 
-class uiTextBrowserBody : public uiObjBodyImpl<uiTextBrowser,QTextBrowser>
+class uiTextBrowserBody : public uiObjBodyImpl<uiTextBrowser,
+    					       mQtclass(QTextBrowser)>
 {
 public:
 
@@ -283,7 +286,7 @@ protected:
 
 uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& hndl, uiParent* p, 
 				      const char* nm, bool plaintxt )
-    : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( hndl, p, nm )
+    : uiObjBodyImpl<uiTextBrowser,mQtclass(QTextBrowser)>( hndl, p, nm )
     , messenger_( *new i_BrowserMessenger(this, &hndl))
     , scrollpos_(mUdf(int),mUdf(int))
 {
@@ -347,12 +350,13 @@ uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
 }
 
 
-QTextEdit& uiTextBrowser::qte()	{ return *body_; }
+mQtclass(QTextEdit&) uiTextBrowser::qte()	{ return *body_; }
 
 
 void uiTextBrowser::showToolTip( const char* txt )
 {
-    QToolTip::showText( QCursor::pos(), QString(txt) );
+    mQtclass(QToolTip)::showText( mQtclass(QCursor)::pos(),
+	    			  mQtclass(QString)(txt) );
 }
 
 
@@ -404,7 +408,7 @@ void uiTextBrowser::setHtmlText( const char* txt )
 
 void uiTextBrowser::getHtmlText( BufferString& res ) const
 {
-    const QString str = body_->toHtml();
+    const mQtclass(QString) str = body_->toHtml();
     res = str.toAscii().data();
 }
 
@@ -444,7 +448,7 @@ void uiTextBrowser::setSource( const char* src )
 	    readFromFile( src );
     }
     else
-        body_->setSource( QUrl(src) );
+        body_->setSource( mQtclass(QUrl)(src) );
 }
 
 
@@ -461,7 +465,7 @@ void uiTextBrowser::home()
 { body_->home(); }
 
 void uiTextBrowser::scrollToBottom()
-{ body_->moveCursor( QTextCursor::End ); }
+{ body_->moveCursor( mQtclass(QTextCursor)::End ); }
 
 void uiTextBrowser::recordScrollPos()
 { body_->recordScrollPos(); }

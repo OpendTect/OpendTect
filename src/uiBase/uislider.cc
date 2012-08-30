@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uislider.cc,v 1.54 2012-07-10 08:05:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uislider.cc,v 1.55 2012-08-30 07:52:52 cvsnageswara Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -29,7 +29,7 @@ static const char* rcsID mUnusedVar = "$Id: uislider.cc,v 1.54 2012-07-10 08:05:
 
 
 
-class uiSliderBody : public uiObjBodyImpl<uiSlider,QSlider>
+class uiSliderBody : public uiObjBodyImpl<uiSlider,mQtclass(QSlider)>
 {
 public:
 
@@ -47,11 +47,11 @@ private:
 
 
 uiSliderBody::uiSliderBody( uiSlider& hndl, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiSlider,QSlider>(hndl,p,nm)
+    : uiObjBodyImpl<uiSlider,mQtclass(QSlider)>(hndl,p,nm)
     , messenger_( *new i_SliderMessenger(this,&hndl) )
 {
     setHSzPol( uiObject::Medium );
-    setFocusPolicy( Qt::WheelFocus );
+    setFocusPolicy( mQtclass(Qt)::WheelFocus );
 }
 
 
@@ -66,7 +66,8 @@ uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool logsc,
     , sliderPressed(this)
     , sliderReleased(this)
 {
-    body_->setOrientation( vert ? Qt::Vertical : Qt::Horizontal );
+    body_->setOrientation( vert ? mQtclass(Qt)::Vertical
+	    			: mQtclass(Qt)::Horizontal );
     body_->setStretch( vert ? 0 : 1, vert ? 1 : 0 );
     
     if ( dec < 0 ) dec = 0;
@@ -168,7 +169,7 @@ float uiSlider::getValue() const
 
 void uiSlider::setTickMarks( TickPosition ticks )
 {
-    body_->setTickPosition( QSlider::TickPosition( (int)ticks ) );
+    body_->setTickPosition( mQtclass(QSlider)::TickPosition( (int)ticks ) );
 }
 
 
@@ -181,7 +182,7 @@ uiSlider::TickPosition uiSlider::tickMarks() const
 void uiSlider::setOrientation( Orientation orient )
 {
     body_->setOrientation( orient == Vertical ?  
-	  Qt::Vertical : Qt::Horizontal );
+	  mQtclass(Qt)::Vertical : mQtclass(Qt)::Horizontal );
 }
 
 

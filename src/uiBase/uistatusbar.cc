@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistatusbar.cc,v 1.23 2012-05-07 17:24:08 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistatusbar.cc,v 1.24 2012-08-30 07:52:52 cvsnageswara Exp $";
 
 #include "uistatusbar.h"
 #include "uimainwin.h"
@@ -20,14 +20,14 @@ static const char* rcsID mUnusedVar = "$Id: uistatusbar.cc,v 1.23 2012-05-07 17:
 #include <qlabel.h> 
 #include <qtooltip.h>
 
-class uiStatusBarBody : public uiBodyImpl<uiStatusBar,QStatusBar>
+class uiStatusBarBody : public uiBodyImpl<uiStatusBar,mQtclass(QStatusBar)>
 {
 friend class		uiStatusBar;
 public:
                         uiStatusBarBody( uiStatusBar& hndl, 
 					 uiMainWin* parnt, const char* nm,  
-					 QStatusBar& sb) 
-			    : uiBodyImpl<uiStatusBar,QStatusBar>
+					 mQtclass(QStatusBar&) sb) 
+			    : uiBodyImpl<uiStatusBar,mQtclass(QStatusBar)>
 				( hndl, parnt, sb )
 			{}
 
@@ -51,7 +51,7 @@ public:
 
     void		setBGColor( int idx, const Color& col )
 			{ 
-			    QWidget* widget = 0;
+			    mQtclass(QWidget*) widget = 0;
 			    if ( msgs.size()>0 && msgs[0] )
 			    {
 				if ( idx>0 && idx<msgs.size() && msgs[idx] )
@@ -61,15 +61,16 @@ public:
 			    else 
 				widget = qthing();
 
-			    const QColor qcol(col.r(),col.g(),col.b());
-			    QPalette palette;
+			    const mQtclass(QColor) qcol(col.r(),col.g(),
+				    			col.b());
+			    mQtclass(QPalette) palette;
 			    palette.setColor( widget->backgroundRole(), qcol );
 			    widget->setPalette(palette);
 			}
 
     Color		getBGColor( int idx )
 			{
-			    const QWidget* widget = 0;
+			    const mQtclass(QWidget*) widget = 0;
 			    if ( msgs.size()>0 && msgs[0] )
 			    {
 				if ( idx>0 && idx<msgs.size() && msgs[idx] )
@@ -79,25 +80,28 @@ public:
 			    else 
 				widget = qthing();
 
-			    const QBrush& qbr = widget->palette().brush(
-				    widget->backgroundRole() );
-			    const QColor& qc = qbr.color();
+			    const mQtclass(QBrush&) qbr =
+				widget->palette().brush(
+						     widget->backgroundRole() );
+			    const mQtclass(QColor&) qc = qbr.color();
 			    return Color( qc.red(), qc.green(), qc.blue() );
 			}
 
     int			addMsgFld( const char* lbltxt, int stretch )
 			{
-			    QLabel* msg_ = new QLabel( lbltxt );
+			    mQtclass(QLabel*) msg_ =
+						new mQtclass(QLabel)( lbltxt );
 			    int idx = msgs.size();
 			    msgs += msg_;
 
 			    if ( lbltxt )
 			    {
-				QLabel* txtlbl = new QLabel( lbltxt );
+				mQtclass(QLabel*) txtlbl =
+				    		new mQtclass(QLabel)( lbltxt );
 				msg_->setBuddy( txtlbl );
 
 				qthing()->addWidget( txtlbl );
-				txtlbl->setFrameStyle(QFrame::NoFrame);
+				txtlbl->setFrameStyle(mQtclass(QFrame)::NoFrame);
 			    }
 
 			    qthing()->addWidget( msg_, stretch );
@@ -113,14 +117,16 @@ public:
 
 protected:
 
-    virtual const QWidget*	managewidg_() const	{ return qwidget(); }
+    virtual const mQtclass(QWidget*)	managewidg_() const
+    							{ return qwidget(); }
 
-    ObjectSet<QLabel>		msgs;
+    ObjectSet<mQtclass(QLabel)>		msgs;
 
 };
 
 
-uiStatusBar::uiStatusBar( uiMainWin* parnt, const char* nm, QStatusBar& sb )
+uiStatusBar::uiStatusBar( uiMainWin* parnt, const char* nm,
+			  mQtclass(QStatusBar&) sb )
     : uiBaseObject(nm,&mkbody(parnt,nm,sb))
 {
 }
@@ -133,7 +139,7 @@ uiStatusBar::~uiStatusBar()
 
 
 uiStatusBarBody& uiStatusBar::mkbody( uiMainWin* parnt, const char* nm, 
-				      QStatusBar& sb)	
+				      mQtclass(QStatusBar&) sb)	
 {
     body_= new uiStatusBarBody( *this, parnt, nm, sb );
 
@@ -203,7 +209,7 @@ void uiStatusBar::setTxtAlign( int idx, Alignment::HPos hal )
     if ( ! body_->msgs.validIdx(idx) ) return;
 
     Alignment al( hal );
-    body_->msgs[idx]->setAlignment( (Qt::Alignment)al.hPos() );
+    body_->msgs[idx]->setAlignment( (mQtclass(Qt)::Alignment)al.hPos() );
 }
 
 
@@ -211,7 +217,8 @@ void uiStatusBar::setLabelTxt( int idx, const char* lbltxt )
 {
     if ( idx<0 || idx >= body_->msgs.size() ) return;
 
-    QLabel* lbl = dynamic_cast<QLabel*>(body_->msgs[idx]->buddy());
+    mQtclass(QLabel*) lbl =
+		     dynamic_cast<mQtclass(QLabel*)>(body_->msgs[idx]->buddy());
 
     if ( lbl ) lbl->setText( lbltxt );
 }

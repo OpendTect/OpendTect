@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiprogressbar.cc,v 1.22 2012-05-02 15:12:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiprogressbar.cc,v 1.23 2012-08-30 07:52:52 cvsnageswara Exp $";
 
 
 #include "uiprogressbar.h"
@@ -16,13 +16,15 @@ static const char* rcsID mUnusedVar = "$Id: uiprogressbar.cc,v 1.22 2012-05-02 1
 #include	<QProgressBar>
 
 
-class uiProgressBarBody : public uiObjBodyImpl<uiProgressBar,QProgressBar>
+class uiProgressBarBody : public uiObjBodyImpl<uiProgressBar,
+    					       mQtclass(QProgressBar)>
 {
 public:
 
                         uiProgressBarBody( uiProgressBar& hndle, 
 					   uiParent* parnt, const char* nm )
-			    : uiObjBodyImpl<uiProgressBar,QProgressBar>
+			    : uiObjBodyImpl<uiProgressBar,
+			    		    mQtclass(QProgressBar)>
 				(hndle,parnt,nm)
 			    { 
 				setStretch( 1, 0 );
