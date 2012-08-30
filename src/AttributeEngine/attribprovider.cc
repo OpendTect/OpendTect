@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.147 2012-08-09 03:40:07 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.148 2012-08-30 09:54:23 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1689,7 +1689,7 @@ void Provider::stdPrepSteering( const BinID& so )
 
 float Provider::zFactor() const
 {
-    return ( zIsTime() ?  ZDomain::Time() : ZDomain::Depth() ).userFactor();
+    return (float) ( zIsTime() ?  ZDomain::Time() : ZDomain::Depth() ).userFactor();
 }
 
 
