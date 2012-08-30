@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Feb 2002
- RCS:		$Id: uiapplserv.h,v 1.14 2012-08-29 07:56:39 cvskris Exp $
+ RCS:		$Id: uiapplserv.h,v 1.15 2012-08-30 11:39:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,10 @@ class uiApplPartServer;
 
 /*! \brief Services from application level to 'Part servers' */
 
-class uiApplService : public NamedObject
+mClass(uiTools) uiApplService : public NamedObject
 {
 public:
-			uiApplService( const char* nm = 0 )
-			: NamedObject(nm)				{}
+			uiApplService( const char* nm = 0 );
 			//!< The name is the application name
 
     virtual uiParent*	parent() const					= 0;
@@ -46,27 +45,22 @@ which of its part servers is calling - proceeds with the right action.
  
 */
 
-class uiApplPartServer : public CallBacker
+mClass(uiTools) uiApplPartServer : public CallBacker
 {
 public:
 
-    			uiApplPartServer( uiApplService& a )
-			: uias_(a)		{}
+    			uiApplPartServer( uiApplService& a );
     virtual const char*	name() const		= 0;
 
-    uiApplService&	appserv()		{ return uias_; }
-    const uiApplService& appserv() const	{ return uias_; }
+    uiApplService&	appserv();
+    const uiApplService& appserv() const;
 
 protected:
 
-    uiParent*		parent() const		{ return uias_.parent(); }
+    uiParent*		parent() const;
 
-    bool		sendEvent( int evid ) const
-    			{ return const_cast<uiApplService&>(appserv())
-				    .eventOccurred(this,evid); }
-    void*		getObject( int objid ) const
-			{ return const_cast<uiApplService&>(appserv())
-				    .getObject(this,objid); }
+    bool		sendEvent( int evid ) const;
+    void*		getObject( int objid ) const;
 
 private:
 

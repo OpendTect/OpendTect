@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General uiToolkits
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.13 2012-06-26 12:50:14 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.14 2012-08-30 11:39:33 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiBase Network )
@@ -11,6 +11,7 @@ SET(OD_MODULE_SOURCES
 		annotbuffill.cc	
 		drawaxis2d.cc	
 		uiamplspectrum.cc
+		uiapplserv.cc
 		uiarray2dchg.cc	
 		uiarray1dinterpol.cc
 		uiarray2dinterpol.cc
