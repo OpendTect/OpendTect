@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.73 2012-08-10 03:50:04 cvsaneesh Exp $
+ RCS:           $Id: uitable.h,v 1.74 2012-08-30 12:46:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,8 +67,8 @@ public:
 			, colgrow_(false) //!< can extra cols be added by user?
 			, fillrow_(false) //!< adjust cell height to avail space
 			, fillcol_(false) //!< adjust cell width to avail space
-			, minrowhgt_( 1 ) //!< units of font height
-			, maxrowhgt_( 3 ) //!< units of font height
+			, minrowhgt_( 1.f ) //!< units of font height
+			, maxrowhgt_( 3.f ) //!< units of font height
 			, mincolwdt_(uiObject::baseFldSize())
 					  //!< units of font
 			, maxcolwdt_(2.3f*uiObject::baseFldSize())
