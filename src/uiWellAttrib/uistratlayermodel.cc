@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.70 2012-08-29 14:21:41 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.71 2012-08-30 13:45:24 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -261,6 +261,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     moddisp_->genNewModelNeeded.notify( mCB(this,uiStratLayerModel,genModels) );
     moddisp_->rangeChanged.notify( 
 			    mCB(this,uiStratLayerModel,modDispRangeChanged));
+    moddisp_->sequenceSelected.notify( mCB(this,uiStratLayerModel,seqSel) );
+    moddisp_->modelEdited.notify( mCB(this,uiStratLayerModel,modEd) );
 
     setWinTitle();
     StratTreeWin().changeLayerModelNumber( true );
@@ -527,6 +529,18 @@ MultiID uiStratLayerModel::genDescID() const
     if ( descctio_.ioobj )
 	ret = descctio_.ioobj->key();
     return ret;
+}
+
+
+void uiStratLayerModel::seqSel( CallBacker* )
+{
+    synthdisp_->setSelectedTrace( moddisp_->selectedSequence() );
+}
+
+
+void uiStratLayerModel::modEd( CallBacker* )
+{
+    synthdisp_->modelChanged();
 }
 
 
