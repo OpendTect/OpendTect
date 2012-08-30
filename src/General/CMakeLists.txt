@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.9 2012-07-16 06:17:17 cvsdgb Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.10 2012-08-30 10:57:16 cvskris Exp $
 #_______________________________________________________________________________
 
 SET ( OD_MODULE_DEPS Algo )
@@ -62,6 +62,7 @@ SET ( OD_MODULE_SOURCES arrayndutils.cc
 	    tableconv.cc
 	    transl.cc
 	    unitofmeasure.cc
+	    usrinputobj.cc
 	    variogramcomputers.cc
 	    zaxistransformdatapack.cc )
 
