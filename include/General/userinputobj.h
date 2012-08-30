@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.22 2012-08-30 10:57:54 cvskris Exp $
+ RCS:           $Id: userinputobj.h,v 1.23 2012-08-30 14:38:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,9 +135,6 @@ protected:
     virtual T		getvalue_() const		= 0;
 
 };
-
-template class mExp(General) UserInputObjImpl<int>;
-class mExp(General) UserInputObj;
 
 
 #endif
