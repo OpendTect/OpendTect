@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posfilter.cc,v 1.18 2012-05-22 14:48:28 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: posfilter.cc,v 1.19 2012-08-30 14:19:20 cvskris Exp $";
 
 #include "cubesampling.h"
 #include "executor.h"
@@ -341,7 +341,7 @@ float Pos::Provider::estRatio( const Pos::Provider& prov ) const
 	mDynamicCastGet(const Pos::Provider3D*,prov3d,&prov);
 	if ( !prov3d ) return mUdf(float);
 	CubeSampling provcs( true ); prov3d->getCubeSampling( provcs );
-	float provnr = provcs.hrg.totalNr(); provnr *= provcs.zrg.nrSteps() + 1;
+	float provnr = (float) provcs.hrg.totalNr(); provnr *= provcs.zrg.nrSteps() + 1;
 	return ( provnr / estNrPos() ) / estNrZPerPos();
     }
 }
