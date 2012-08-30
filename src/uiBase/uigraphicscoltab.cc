@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicscoltab.cc,v 1.13 2012-07-22 04:59:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicscoltab.cc,v 1.14 2012-08-30 12:46:24 cvskris Exp $";
 
 
 #include "uigraphicscoltab.h"
@@ -88,12 +88,12 @@ void uiColTabItem::setPixmapPos()
 	{
 	    mSetAl( minvalitm_, Alignment::Left,
 		    Alignment::opposite(setup_.startal_.vPos()) );
-	    minvalitm_->setPos( rect.left(), starty );
+	    minvalitm_->setPos( (float) rect.left(), (float) starty );
 	}
 	else
 	{
 	    mSetAl( minvalitm_, Alignment::Right, setup_.startal_.vPos() );
-	    minvalitm_->setPos( drect.left(), starty );
+	    minvalitm_->setPos( (float) drect.left(), (float) starty );
 	}
 	const int stopy =
 	    setup_.stopal_.vPos() == Alignment::VCenter ? center.y
@@ -103,12 +103,12 @@ void uiColTabItem::setPixmapPos()
 	{
 	    mSetAl( maxvalitm_, Alignment::Right,
 		    Alignment::opposite(setup_.stopal_.vPos()) );
-	    maxvalitm_->setPos( rect.right(), stopy );
+	    maxvalitm_->setPos( (float) rect.right(), (float) stopy );
 	}
 	else
 	{
 	    mSetAl( maxvalitm_, Alignment::Left, setup_.stopal_.vPos() );
-	    maxvalitm_->setPos( drect.right(), stopy );
+	    maxvalitm_->setPos( (float) drect.right(), (float) stopy );
 	}
     }
     else
@@ -123,23 +123,23 @@ void uiColTabItem::setPixmapPos()
 	if ( setup_.startalong_ )
 	{
 	    mSetAl( minvalitm_, oppal, Alignment::Bottom );
-	    minvalitm_->setPos( startx, rect.bottom() );
+	    minvalitm_->setPos( (float) startx, (float) rect.bottom() );
 	}
 	else
 	{
 	    mSetAl( minvalitm_, oppal, Alignment::Top );
-	    minvalitm_->setPos( startx, drect.bottom() );
+	    minvalitm_->setPos( (float) startx, (float) drect.bottom() );
 	}
 
 	if ( setup_.stopalong_ )
 	{
 	    mSetAl( maxvalitm_, oppal, Alignment::Top );
-	    minvalitm_->setPos( startx, rect.bottom() );
+	    minvalitm_->setPos( (float) startx, (float) rect.bottom() );
 	}
 	else
 	{
 	    mSetAl( maxvalitm_, oppal, Alignment::Bottom );
-	    minvalitm_->setPos( startx, drect.bottom() );
+	    minvalitm_->setPos( (float) startx, (float) drect.bottom() );
 	}
     }
 }
