@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.42 2012-08-23 08:44:51 cvsbruno Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.43 2012-08-30 12:38:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -364,12 +364,12 @@ public:
     public:
 			ArcSpec( const uiPoint& c, float r,
 				 const Interval<float>& angs )
-			    : center_(c.x,c.y), radius_(r)
-			    , angles_(angs), yratio_(1)		{}
+			    : center_((float)c.x,(float)c.y), radius_(r)
+			    , angles_(angs), yratio_(1.0f)		{}
 			ArcSpec( const Geom::Point2D<float>& c, float r,
 				 const Interval<float>& angs )
 			    : center_(c), radius_(r)
-			    , angles_(angs), yratio_(1)		{}
+			    , angles_(angs), yratio_(1.0f)		{}
 
 	Geom::Point2D<float> center_;
 	float		radius_;	//!< X radius. Yrad = radius_ * yratio_
@@ -381,15 +381,17 @@ public:
     {
     public:
 			SplineSpec( const uiPoint& endp, const uiPoint& cp )
-			    : end_(endp.x,endp.y), cp1_(cp.x,cp.y)
+			    : end_((float)endp.x,(float)endp.y)
+			    , cp1_((float)cp.x,(float)cp.y)
 			    , cubic_(false)				{}
 			SplineSpec( const Geom::Point2D<float>& endp,
 				    const Geom::Point2D<float>& cp )
 			    : end_(endp), cp1_(cp), cubic_(false)	{}
 			SplineSpec( const uiPoint& endp, const uiPoint& p1,
 				    const uiPoint& p2 )
-			    : end_(endp.x,endp.y), cp1_(p1.x,p1.y)
-			    , cp2_(p2.x,p2.y), cubic_(true)		{}
+			    : end_((float)endp.x,(float)endp.y)
+			    , cp1_((float)p1.x,(float)p1.y)
+			    , cp2_((float)p2.x,(float)p2.y), cubic_(true)		{}
 			SplineSpec( const Geom::Point2D<float>& endp,
 				    const Geom::Point2D<float>& p1,
 				    const Geom::Point2D<float>& p2 )
