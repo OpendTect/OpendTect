@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.31 2012-08-03 21:12:51 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.32 2012-08-30 11:16:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ public:
     bool		isFlipped() const { return setup_.flipseq_; }
     const ValueSeries<float>* data() const
 			{ return vs_; }
-    int			dataSize() const
+    od_int64		dataSize() const
 			{ return vssz_; }
 
     void		setFlipped(bool yn) { setup_.flipseq_ = yn; }
