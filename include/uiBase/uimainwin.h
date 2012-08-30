@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.87 2012-08-03 13:00:52 cvskris Exp $
+ RCS:           $Id: uimainwin.h,v 1.88 2012-08-30 05:49:33 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiparent.h"
 #include "mousecursor.h"
 
+mFDQtclass(QWidget)
 class uiDockWin;
 class uiGroup;
 class uiMainWinBody;
@@ -24,7 +25,6 @@ class uiObject;
 class uiPopupMenu;
 class uiStatusBar;
 class uiToolBar;
-class QWidget;
 class BufferStringSet;
 
 mClass(uiBase) uiMainWin : public uiParent
@@ -129,7 +129,7 @@ public:
     static void		showCredits(const char* winid=0);
 
 			//! get uiMainWin for mwimpl if it is a uiMainWinBody
-    static uiMainWin*	gtUiWinIfIsBdy(QWidget* mwimpl);
+    static uiMainWin*	gtUiWinIfIsBdy(mQtclass(QWidget*) mwimpl);
 
     enum PopupArea	{ TopLeft, TopRight, BottomLeft, BottomRight,
 			  Middle, Auto };
@@ -143,7 +143,7 @@ public:
     bool		touch(); //!< resets pop-up timer if !poppedUp yet
     bool		finalised() const;
     virtual uiMainWin*	mainwin()			{ return this; }
-    QWidget*		qWidget() const;
+    mQtclass(QWidget*)		qWidget() const;
     uiParent*		parent()			{ return parent_; }
     const uiParent*	parent() const			{ return parent_; }
 
@@ -158,7 +158,8 @@ public:
     static void		getModalSignatures(BufferStringSet&);
     static void		getTopLevelWindows(ObjectSet<uiMainWin>&,
 					   bool visibleonly=true);
-    static const char*	uniqueWinTitle(const char* txt,QWidget* forwindow=0);
+    static const char*	uniqueWinTitle(const char* txt,
+	    			       mQtclass(QWidget*) forwindow=0);
 
     void		translate();
 

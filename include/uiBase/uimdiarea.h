@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2008
- RCS:           $Id: uimdiarea.h,v 1.7 2012-08-03 13:00:52 cvskris Exp $
+ RCS:           $Id: uimdiarea.h,v 1.8 2012-08-30 05:49:33 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,8 +20,8 @@ class BufferStringSet;
 class IOPar;
 class uiMdiAreaBody;
 
-class QMdiArea;
-class QMdiSubWindow;
+mFDQtclass(QMdiArea)
+mFDQtclass(QMdiSubWindow)
 
 mClass(uiBase) uiMdiAreaWindow : public uiGroup
 {
@@ -42,12 +42,12 @@ public:
     bool		isMaximized() const;
 
     NotifierAccess&	closed();
-    QMdiSubWindow*	qWidget();
+    mQtclass(QMdiSubWindow*)	qWidget();
 
     Notifier<uiMdiAreaWindow> changed;
 
 protected:
-    QMdiSubWindow*	qmdisubwindow_;
+    mQtclass(QMdiSubWindow*)	qmdisubwindow_;
 
 };
 

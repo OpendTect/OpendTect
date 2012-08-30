@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.50 2012-08-29 16:21:07 cvsnanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.51 2012-08-30 05:49:33 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,8 @@ ________________________________________________________________________
 #include "draw.h"
 
 
-class QTreeWidget;
-class QTreeWidgetItem;
+mFDQtclass(QTreeWidget)
+mFDQtclass(QTreeWidgetItem)
 class uiListViewBody;
 class uiListViewItem;
 class ioPixmap;
@@ -124,7 +124,7 @@ public:
     int			columnNotified()	{ return column_; }
     void		unNotify()		{ lastitemnotified_ = 0; }
 
-    void		setNotifiedItem(QTreeWidgetItem*);
+    void		setNotifiedItem(mQtclass(QTreeWidgetItem*));
     void		setNotifiedColumn(int col)	{ column_ = col; }
 
     Notifier<uiListView> selectionChanged;
@@ -211,8 +211,8 @@ public:
 			uiListViewItem(uiListView* parent,const Setup&);
 			~uiListViewItem();
 
-    QTreeWidgetItem*	qItem()			{ return qtreeitem_; }
-    const QTreeWidgetItem* qItem() const	{ return qtreeitem_; }
+    mQtclass(QTreeWidgetItem*)	qItem()			{ return qtreeitem_; }
+    const mQtclass(QTreeWidgetItem*) qItem() const	{ return qtreeitem_; }
 
     int			nrChildren() const;
 
@@ -292,15 +292,15 @@ public:
     			//!< passes CBCapsule<const char*>* cb
     			//!< If you handle it, set cb->data = 0;
 
-    static QTreeWidgetItem*	 qitemFor(uiListViewItem*);
-    static const QTreeWidgetItem*  qitemFor(const uiListViewItem*);
+    static mQtclass(QTreeWidgetItem*)	 qitemFor(uiListViewItem*);
+    static const mQtclass(QTreeWidgetItem*)  qitemFor(const uiListViewItem*);
 
-    static uiListViewItem* 	 itemFor(QTreeWidgetItem*);
-    static const uiListViewItem* itemFor(const QTreeWidgetItem*);
+    static uiListViewItem* 	 itemFor(mQtclass(QTreeWidgetItem*));
+    static const uiListViewItem* itemFor(const mQtclass(QTreeWidgetItem*));
 
 protected:
 
-    QTreeWidgetItem*		qtreeitem_;
+    mQtclass(QTreeWidgetItem*)		qtreeitem_;
     mutable BufferString	rettxt;
 
     void			init(const Setup&);

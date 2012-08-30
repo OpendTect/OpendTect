@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.61 2012-08-03 13:00:52 cvskris Exp $
+ RCS:           $Id: uimenu.h,v 1.62 2012-08-30 05:49:34 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,9 +28,9 @@ class ioPixmap;
 class i_MenuMessenger;
 template<class> class uiMenuItemContainerBodyImpl;
 
-class QAction;
-class QMenu;
-class QMenuBar;
+mFDQtclass(QAction)
+mFDQtclass(QMenu)
+mFDQtclass(QMenuBar)
 
 template<class T> class ObjectSet;
 
@@ -98,7 +98,7 @@ public:
 				~uiMenuItem();
     int				id() const		{ return id_; }
 
-    const QAction*		qAction() const		{ return qaction_; }
+    const mQtclass(QAction*)	qAction() const		{ return qaction_; }
 
 				//! sets a new text 2b displayed
     void			setText(const char*);
@@ -133,11 +133,12 @@ protected:
     void 			setId( int newid )	{ id_ = newid; }
     void			setMenu( uiMenuItemContainerBody* mb )
 				{ menu_ = mb; }
-    void			setAction( QAction* act ) { qaction_ = act; }
+    void			setAction( mQtclass(QAction*) act )
+    							{ qaction_ = act; }
 
     i_MenuMessenger*		messenger()		{ return &messenger_; }
     uiMenuItemContainerBody*	menu_;
-    QAction*			qaction_;
+    mQtclass(QAction*)		qaction_;
 
     void			trlReady(CallBacker*);
     int				translateid_;
@@ -186,7 +187,7 @@ protected:
 };
 
 
-class QPixmap;
+mFDQtclass(QPixmap)
 
 mClass(uiBase) uiMenuBar : public uiMenuItemContainer
 {
@@ -196,14 +197,15 @@ mClass(uiBase) uiMenuBar : public uiMenuItemContainer
 
 public:
 
-    void			setIcon(const QPixmap&);
+    void			setIcon(const mQtclass(QPixmap&));
     void			setSensitive(bool yn);
     				/*!< Works on complete menubar */
     bool			isSensitive() const;
 
 protected:
 				uiMenuBar(uiParent*,const char* nm);
-				uiMenuBar(uiParent*,const char* nm,QMenuBar&);
+				uiMenuBar(uiParent*,const char* nm,
+					  mQtclass(QMenuBar&));
 
     void 			reDraw(bool deep=true);
 
@@ -245,7 +247,7 @@ public:
 
 private:
 
-    int				findIdForAction(QAction*) const;
+    int				findIdForAction(mQtclass(QAction*)) const;
     uiPopupItem&		item_;
 
     uiMenuItem*			interceptitem_;

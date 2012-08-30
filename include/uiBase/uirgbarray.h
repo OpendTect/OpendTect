@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B. Bril & H. Huck
  Date:          08/09/06
- RCS:           $Id: uirgbarray.h,v 1.10 2012-08-03 13:00:53 cvskris Exp $
+ RCS:           $Id: uirgbarray.h,v 1.11 2012-08-30 05:49:34 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "odimage.h"
 
-class QImage;
+mFDQtclass(QImage)
 
 
 mClass(uiBase) uiRGBArray : public OD::RGBImage
@@ -32,12 +32,12 @@ public:
     bool		set(int,int,const Color&);
     void		clear(const Color&);
 
-    const QImage&	qImage() const		{ return *qimg_; } ;
-    QImage&		qImage()		{ return *qimg_; } ;
+    const mQtclass(QImage&)	qImage() const	{ return *qimg_; } ;
+    mQtclass(QImage&)		qImage()	{ return *qimg_; } ;
 
 protected:
 
-    QImage*		qimg_;
+    mQtclass(QImage*)	qimg_;
     bool		withalpha_;
 
 };

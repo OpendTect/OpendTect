@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.57 2012-08-03 13:00:53 cvskris Exp $
+ RCS:           $Id: uiobjbody.h,v 1.58 2012-08-30 05:49:34 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,9 +27,9 @@ class i_LayoutMngr;
 class ioPixmap;
 class Timer;
 
-class QCloseEvent;
-class QFontMetrics;
-class QWidget;
+mFDQtclass(QCloseEvent)
+mFDQtclass(QFontMetrics)
+mFDQtclass(QWidget)
 
 #define USE_DISPLAY_TIMER 1
 
@@ -133,7 +133,7 @@ protected:
     int			hStretch;
     int			vStretch;
 
-    virtual const QWidget* managewidg_() const	{ return qwidget_(); }
+    virtual const mQtclass(QWidget*) managewidg_() const { return qwidget_(); }
 
     virtual i_LayoutItem* mkLayoutItem_(i_LayoutMngr& mngr);
 
@@ -173,7 +173,7 @@ private:
     int			fnt_hgt;
     int			fnt_wdt;
     int			fnt_maxwdt;
-    QFontMetrics*	fm;
+    mQtclass(QFontMetrics*)	fm;
 
     uiObject::SzPolicy	hszpol;
     uiObject::SzPolicy	vszpol;

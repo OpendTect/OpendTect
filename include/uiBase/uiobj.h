@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.75 2012-08-03 13:00:52 cvskris Exp $
+ RCS:           $Id: uiobj.h,v 1.76 2012-08-30 05:49:34 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 #include <stdlib.h>
 
+mFDQtclass(QWidget)
 class MouseCursor;
 class uiFont;
 class uiObjectBody;
@@ -27,7 +28,6 @@ class uiParent;
 class uiMainWin;
 class i_LayoutItem;
 class ioPixmap;
-class QWidget;
 class uiObjEventFilter;
 
 
@@ -139,10 +139,10 @@ public:
     
     uiMainWin*		mainwin();
     
-    QWidget*		getWidget() { return qwidget(); }
-    QWidget*		qwidget();
-    const QWidget*	qwidget() const
-			{ return const_cast<uiObject*>(this)->qwidget(); }
+    mQtclass(QWidget*)	getWidget() { return qwidget(); }
+    mQtclass(QWidget*)	qwidget();
+    const mQtclass(QWidget*)	qwidget() const
+			      { return const_cast<uiObject*>(this)->qwidget(); }
 
     virtual bool	handleLongTabletPress();
 
@@ -195,9 +195,9 @@ private:
 	mTemplTypeDef(fromclass,templ_arg,toclass)
 
 
-#define mUsrEvGuiThread			QEvent::Type( QEvent::User + 0 )
-#define mUsrEvPopUpReady		QEvent::Type( QEvent::User + 1 )
-#define mUsrEvLongTabletPress		QEvent::Type( QEvent::User + 2 )
+#define mUsrEvGuiThread	   mQtclass(QEvent)::Type( mQtclass(QEvent)::User + 0 )
+#define mUsrEvPopUpReady   mQtclass(QEvent)::Type( mQtclass(QEvent)::User + 1 )
+#define mUsrEvLongTabletPress  mQtclass(QEvent)::Type(mQtclass(QEvent)::User+2)
 
 
 /*! \mainpage Basic User Interface (uiBase)

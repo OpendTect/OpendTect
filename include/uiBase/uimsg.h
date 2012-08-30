@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.34 2012-08-03 13:00:52 cvskris Exp $
+ RCS:           $Id: uimsg.h,v 1.35 2012-08-30 05:49:34 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 class uiMainWin;
 class uiStatusBar;
-class QWidget;
+mFDQtclass(QWidget)
 class BufferStringSet;
 class FileMultiString;
 
@@ -77,7 +77,7 @@ protected:
 
 			uiMsg();
 
-    QWidget*		popParnt();
+    mQtclass(QWidget*)	popParnt();
 
     static uiMsg*	theinst_;
 
