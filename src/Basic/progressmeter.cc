@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: progressmeter.cc,v 1.29 2012-08-01 04:24:18 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: progressmeter.cc,v 1.30 2012-08-30 11:47:25 cvskris Exp $";
 
 #include "progressmeter.h"
 #include "timefun.h"
@@ -93,7 +93,7 @@ void TextStreamProgressMeter::addProgress( int nr )
     for ( int idx=0; idx<nr; idx++ )
     {
 	nrdone_ ++;
-	unsigned long relprogress = nrdone_ - lastannotatednrdone_;
+	od_uint64 relprogress = nrdone_ - lastannotatednrdone_;
 	if ( !(relprogress % nrdoneperchar_) )
 	{
 	    strm_ << (relprogress%(10*nrdoneperchar_)
@@ -122,7 +122,7 @@ void TextStreamProgressMeter::setNrDone( od_int64 nrdone )
     if ( nrdone<=nrdone_ )
     	return;
 
-    addProgress( nrdone-nrdone_ );
+    addProgress( (int)(nrdone-nrdone_) );
 }
 
 
@@ -171,7 +171,7 @@ void TextStreamProgressMeter::annotate( bool withrate )
 	    nrdone = (percentage-lastpercentage)*100;
 	}
  	else
- 	    nrdone = nrdone_ - lastannotatednrdone_;
+ 	    nrdone = (float) nrdone_ - lastannotatednrdone_;
 
 	od_int64 permsec = (od_int64)(1.e6 * nrdone / tdiff + .5);
 	strm_ << " (" << permsec * .001;
@@ -180,19 +180,19 @@ void TextStreamProgressMeter::annotate( bool withrate )
     }
     if ( withrate && tdiff>0 && totalnr_>0 )
     {
-	const float nrdone = nrdone_ - lastannotatednrdone_;
-	const float todo = totalnr_ - nrdone_;
+	const float nrdone = (float) nrdone_ - lastannotatednrdone_;
+	const float todo = (float) totalnr_ - nrdone_;
 	od_int64 etasec = mNINT64(tdiff * (todo/nrdone) / 1000.f);
 	BufferString eta;
 	if ( etasec > 3600 )
 	{
-	    const int hours = etasec/3600;
+	    const int hours = (int) etasec/3600;
 	    eta.add(hours).add("h:");
 	    etasec = etasec%3600;
 	}
 	if ( etasec > 60 )
 	{
-	    const int mins = etasec/60;
+	    const int mins = (int) etasec/60;
 	    eta.add(mins).add("m:");
 	    etasec = etasec%60;
 	}
