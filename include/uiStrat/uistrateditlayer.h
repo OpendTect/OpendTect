@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          August 2012
- RCS:           $Id: uistrateditlayer.h,v 1.1 2012-08-30 13:11:22 cvsbert Exp $
+ RCS:           $Id: uistrateditlayer.h,v 1.2 2012-08-30 14:54:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
 protected:
 
     bool			editable_;
+    Strat::Layer&		lay_;
     uiGenInput*			lithfld_;
     uiGenInput*			topfld_;
     ObjectSet<uiPropertyValFld>	valflds_;

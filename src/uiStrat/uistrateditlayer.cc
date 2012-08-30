@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrateditlayer.cc,v 1.1 2012-08-30 13:11:22 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistrateditlayer.cc,v 1.2 2012-08-30 14:54:23 cvsbert Exp $";
 
 #include "uistrateditlayer.h"
 #include "stratlayersequence.h"
@@ -27,14 +27,15 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     : uiDialog(p,Setup("Layer properties",
 		    BufferString("Layer: '",lay.name(),"'"),mTODOHelpID))
     , editable_(editable)
+    , lay_(lay)
 {
     if ( !editable )
 	setCtrlStyle( LeaveOnly );
 
-    lithfld_ = new uiGenInput( this, "Lithology", lay.lithology().name() );
+    lithfld_ = new uiGenInput( this, "Lithology", lay_.lithology().name() );
     lithfld_->setReadOnly();
     const bool depthinft = SI().depthsInFeet();
-    float dpth = lay.zTop(); if ( depthinft ) dpth *= mToFeetFactorF;
+    float dpth = lay_.zTop(); if ( depthinft ) dpth *= mToFeetFactorF;
     topfld_ = new uiGenInput( this, "Top depth", FloatInpSpec(dpth) );
     topfld_->attach( alignedBelow, lithfld_ );
     topfld_->setReadOnly();
@@ -42,12 +43,12 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     uiSeparator* sep = new uiSeparator( this );
     sep->attach( stretchedBelow, topfld_ );
 
-    for ( int ival=0; ival<lay.nrValues(); ival++ )
+    for ( int ival=0; ival<lay_.nrValues(); ival++ )
     {
 	if ( ival >= ls.propertyRefs().size() )
 	    break;
 
-	const float val = lay.value( ival );
+	const float val = lay_.value( ival );
 	const PropertyRef& pr = *ls.propertyRefs()[ival];
 
 	uiPropertyValFld* valfld = new uiPropertyValFld( this, pr, val );
@@ -65,21 +66,39 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 }
 
 
-bool uiStratEditLayer::acceptOK( CallBacker* )
-{
-    if ( !editable_ )
-	return true;
-
-    //TODO support editing
-    uiMSG().warning( "Editing not yet supported."
-	    "\nAny changed value will be reset." );
-    return true;
-}
-
-
 void uiStratEditLayer::getUnits( ObjectSet<const UnitOfMeasure>& uns ) const
 {
     uns.allowNull(true);
     for ( int idx=0; idx<valflds_.size(); idx++ )
 	uns += valflds_[idx]->getUnit();
+}
+
+
+bool uiStratEditLayer::acceptOK( CallBacker* )
+{
+    if ( !editable_ )
+	return true;
+
+    for ( int ival=0; ival<lay_.nrValues(); ival++ )
+    {
+	if ( ival >= valflds_.size() )
+	    break;
+	const float val = valflds_[ival]->getValue();
+	BufferString msg;
+	if ( mIsUdf(val) )
+	    msg.add( "Please enter a value for " )
+		.add( valflds_[ival]->propName() );
+	else if ( ival == 0 && val <= 0 )
+	    msg = "Please set the thickness to a positive number";
+	if ( !msg.isEmpty() )
+	    { uiMSG().error( msg ); return false; }
+    }
+
+    for ( int ival=0; ival<lay_.nrValues(); ival++ )
+    {
+	if ( ival < valflds_.size() )
+	    lay_.setValue( ival, valflds_[ival]->getValue() );
+    }
+
+    return true;
 }
