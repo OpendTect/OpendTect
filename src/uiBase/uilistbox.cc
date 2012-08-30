@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.131 2012-08-28 05:50:10 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.132 2012-08-30 15:10:27 cvsbruno Exp $";
 
 #include "uilistbox.h"
 
@@ -910,6 +910,15 @@ bool uiListBox::handleLongTabletPress()
     rightButtonClicked.trigger();
     endCmdRecEvent( refnr, msg );
     return true;
+}
+
+
+void uiListBox::disableRightClick( bool yn )
+{
+    if ( yn )
+	rightButtonClicked.remove(  mCB(this,uiListBox,menuCB) );
+    else
+	rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
 }
 
 
