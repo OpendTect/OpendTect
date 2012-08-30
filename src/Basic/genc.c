@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.125 2012-08-03 13:01:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.126 2012-08-30 09:49:44 cvskris Exp $";
 
 #include "genc.h"
 #include "string2_c.h"
@@ -94,6 +94,7 @@ void PutIsLittleEndian( unsigned char* ptr )
 }
 
 #ifdef __msvc__
+#include <process.h>
 #define getpid	_getpid
 #endif
 

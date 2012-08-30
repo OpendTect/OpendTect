@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: filegen.c,v 1.92 2012-07-24 17:25:31 cvsdgb Exp $";
+static const char* rcsID mUnusedVar = "$Id: filegen.c,v 1.93 2012-08-30 09:49:44 cvskris Exp $";
 
 #include "filegen.h"
 #include "string2_c.h"
@@ -21,6 +21,7 @@ static const char* rcsID mUnusedVar = "$Id: filegen.c,v 1.92 2012-07-24 17:25:31
 #endif
 
 #ifdef __win__
+# include <direct.h>
 # include <windows.h>
 # include <shlwapi.h>
 # include <io.h>
