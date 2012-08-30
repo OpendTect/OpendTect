@@ -22,17 +22,17 @@ mTYPE Math::IntPowerOf( mTYPE x, int y )
     if ( x > 1.5 || x < -1.5 )
     {
 	if ( y > 150 ) return mUdf(mTYPE);
-	if ( y < -150 ) return 0;
+	if ( y < -150 ) return (mTYPE) 0;
 	if ( x > 1.99 || x < -1.99 )
 	{
 	    if ( y > 100 ) return mUdf(mTYPE);
-	    if ( y < -100 ) return 0;
+	    if ( y < -100 ) return (mTYPE) 0;
 	}
     }
     else if ( x < 0.5 && x > -0.5 )
     {
-	if ( y > 100 ) return 0;
-	if ( y < -100 ) return 1;
+	if ( y > 100 ) return (mTYPE) 0;
+	if ( y < -100 ) return (mTYPE) 1;
     }
 
     mTYPE ret = 1;
@@ -49,7 +49,7 @@ mTYPE Math::IntPowerOf( mTYPE x, int y )
 
 mTYPE Math::PowerOf( mTYPE x, mTYPE y )
 {
-    if ( x == 0 ) return y ? 0 : 1;
+    if ( x == 0 ) return (mTYPE) y ? 0 : 1;
  
     const bool isneg = x < 0 ? 1 : 0;
     if ( isneg ) x = -x;
@@ -61,34 +61,34 @@ mTYPE Math::PowerOf( mTYPE x, mTYPE y )
 
 mTYPE Math::ACos( mTYPE c )
 {
-    return c >= 1 ? 0 : (c <= -1 ? mTYPE(M_PI) : acos( c ));
+    return (mTYPE) c >= 1 ? 0 : (c <= -1 ? mTYPE(M_PI) : acos( c ));
 }
 
 
 mTYPE Math::ASin( mTYPE s )
 {
-    return s >= 1 ? mTYPE(M_PI_2) : (s <= -1 ? -mTYPE(M_PI_2) : asin( s ));
+    return (mTYPE) s >= 1 ? mTYPE(M_PI_2) : (s <= -1 ? -mTYPE(M_PI_2) : asin( s ));
 }
 
 
 mTYPE Math::Log( mTYPE s )
 {
-    return s <= 0 ? mUdf(mTYPE) : log( s );
+    return (mTYPE) s <= 0 ? mUdf(mTYPE) : log( s );
 }
 
 
 mTYPE Math::Log10( mTYPE s )
 {
-    return s <= 0 ? mUdf(mTYPE) : log10( s );
+    return (mTYPE) s <= 0 ? mUdf(mTYPE) : log10( s );
 }
 
 
 mTYPE Math::Sqrt( mTYPE s )
 {
-    return s <= 0 ? 0 : sqrt( s );
+    return (mTYPE) s <= 0 ? 0 : sqrt( s );
 }
 
 mTYPE Math::toDB( mTYPE s )
 {
-    return s <= 0 ? mUdf(mTYPE) : 20*log10( s );
+    return (mTYPE) s <= 0 ? mUdf(mTYPE) : 20*log10( s );
 }
