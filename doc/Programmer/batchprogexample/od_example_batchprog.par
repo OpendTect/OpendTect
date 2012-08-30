@@ -1,0 +1,16 @@
+dTect V4.5
+Parameters
+Thu Aug 30 08:46:26 2012
+!
+Example Batch Program (this title is never used)
+-- Comments start with the double dash
+
+-- We could have omitted this, the nriter would stay what it was (10000)
+Nr iterations: 15000
+
+-- By specifying this, log output will go to a display window
+-- If not specified, you'll get 'stdout'. You can also specify a file name.
+Log file: window
+
+-- That's it! The ending '!' is not required but tradition
+!
