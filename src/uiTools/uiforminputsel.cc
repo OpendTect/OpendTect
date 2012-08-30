@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiforminputsel.cc,v 1.4 2012-05-02 15:12:21 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiforminputsel.cc,v 1.5 2012-08-30 13:45:01 cvshelene Exp $";
 
 
 #include "uiforminputsel.h"
@@ -124,7 +124,7 @@ void uiFormInputSel::selChg( CallBacker* )
 {
     const int selidx = inpfld_->box()->currentItem();
     const bool iscst = selidx == posinpnms_.size();
-    unfld_->display( !iscst );
-    cstvalfld_->display( iscst );
+    if ( unfld_ ) unfld_->display( !iscst );
+    if ( cstvalfld_ ) cstvalfld_->display( iscst );
 }
 
