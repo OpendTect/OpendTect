@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.77 2012-05-02 15:23:37 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.78 2012-08-30 14:05:40 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -281,7 +281,7 @@ void Array1DImpl<T>::copyFrom( const Array1D<T>& templ )
 {
     mArrNDImplHandleNormalCopy(in_)
 
-    const int totsz = in_.getTotalSz();
+    const int totsz = (int) in_.getTotalSz();
 
     for ( int idx=0; idx<totsz; idx++ )
 	set( idx, templ.get(idx) );

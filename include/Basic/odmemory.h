@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2009
- RCS:		$Id: odmemory.h,v 1.8 2012-04-12 14:04:09 cvsbert Exp $
+ RCS:		$Id: odmemory.h,v 1.9 2012-08-30 14:06:35 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -176,7 +176,7 @@ bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
 template <> inline
 bool MemSetter<char>::setPtr( od_int64 start, od_int64 size )
 {
-    memset( ptr_+start, (int)val_, size );
+    memset( ptr_+start, (int)val_, (size_t) size );
     return true;
 }
 
@@ -184,7 +184,7 @@ bool MemSetter<char>::setPtr( od_int64 start, od_int64 size )
 template <> inline
 bool MemSetter<unsigned char>::setPtr( od_int64 start, od_int64 size )
 {
-    memset( ptr_+start, (int)val_, size );
+    memset( ptr_+start, (int)val_, (size_t) size );
     return true;
 }
 
@@ -192,7 +192,7 @@ bool MemSetter<unsigned char>::setPtr( od_int64 start, od_int64 size )
 template <> inline
 bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
 {
-    memset( ptr_+start, (int)val_, size );
+    memset( ptr_+start, (int)val_, (size_t) size );
     return true;
 }
 
@@ -212,7 +212,7 @@ bool MemSetter<Type>::setPtr( od_int64 start, od_int64 size ) \
 { \
     if ( val_==0 ) \
     { \
-	memset( ptr_+start, 0, size*sizeof(Type) ); \
+	memset( ptr_+start, 0, (size_t) (size*sizeof(Type)) ); \
 	return true; \
     } \
  \
@@ -295,7 +295,7 @@ bool MemCopier<T>::doWork( od_int64 start, od_int64 stop, int )
 template <class T> inline
 bool MemCopier<T>::setPtr( od_int64 start, od_int64 size )
 {
-    memcpy( outptr_ + start, inptr_ + start, size * sizeof(T) );
+    memcpy( outptr_ + start, inptr_ + start, (size_t) (size * sizeof(T)) );
     return true;
 }
 

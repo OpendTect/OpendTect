@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.39 2012-08-28 15:12:06 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.40 2012-08-30 14:10:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,10 +203,12 @@ bool		doWork( od_int64 start, od_int64 stop, int )
 		{
 		    od_int64 nrleft = stop-start+1;
 		    const T* fromarr = from_.arr();
-		    T* toarr = toptr_ ? toptr_ : to_->arr();
+		    T* toarr = toptr_ ? toptr_ : to_->arr(); 
 		    if ( toarr && fromarr )
-			memcpy( (void*) (toarr+start), fromarr+start, 
-				nrleft*from_.bytesPerItem() );
+		    {
+			memcpy( toarr+start, fromarr+start,
+			        (size_t) (nrleft*from_.bytesPerItem()) );
+		    }
 		    else if ( toarr )
 		    {
 			toarr += start;
@@ -412,10 +414,10 @@ bool ArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     else
 	ptr_ = 0;
 
-    const int copysize = mMIN(sz,cursize_);
+    const od_int64 copysize = mMIN(sz,cursize_);
     cursize_ = ptr_ ? sz : -1;
     if ( ptr_ && copysize>0 )
-        memcpy( ptr_, oldptr, copysize*sizeof(AT) );
+	memcpy( ptr_, oldptr, (size_t) (copysize*sizeof(AT)) );
     
     delete [] oldptr;
     return ptr_;

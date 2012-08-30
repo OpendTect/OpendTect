@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.49 2012-08-03 20:56:09 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.50 2012-08-30 14:01:20 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -69,7 +69,7 @@ public:
     virtual bool			setInfo( const ArrayNDInfo& )
 					{ return false; }
 
-    void				setAll(const T&);
+    inline void				setAll(const T&);
     virtual void		getAll(T* ptr) const;
     					/*!<Fills ptr with values from array.
 					    ptr is assumed to be allocated
@@ -107,9 +107,9 @@ public:
     T	                	getND(const int* pos) const {return get(pos[0]);}
 
 				// implement ValueSeries interface
-    T				value(od_int64 i) const	{ return get(i); }
+    T				value(od_int64 i) const	{ return get( (int) i); }
     bool			writable() const	{ return true; }
-    void			setValue(od_int64 i,T t){ set(i,t); }
+    void			setValue(od_int64 i,T t){ set( (int) i,t); }
 
     virtual const Array1DInfo&	info() const = 0;
 
