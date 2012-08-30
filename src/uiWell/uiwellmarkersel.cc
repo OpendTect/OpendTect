@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellmarkersel.cc,v 1.4 2012-08-28 13:19:13 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellmarkersel.cc,v 1.5 2012-08-30 08:32:08 cvsbruno Exp $";
 
 
 #include "uiwellmarkersel.h"
@@ -46,6 +46,7 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 	: uiGroup(p,"Well Marker selection")
     	, setup_(su)
     	, botfld_(0)
+	, mrkSelDone(this)
 {
     CallBack mrkselcb( mCB(this,uiWellMarkerSel,mrkSel) );
     uiLabeledComboBox* lcb = 0;
@@ -217,4 +218,5 @@ void uiWellMarkerSel::mrkSel( CallBacker* callingcb )
 		othcb.setCurrentItem( selidx-1 );
 	}
     }
+    mrkSelDone.trigger();
 }

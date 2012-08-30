@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.29 2012-08-28 14:03:07 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.30 2012-08-30 08:32:08 cvsbruno Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -69,6 +69,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 	{
 	    newmarksel = new uiWellMarkerSel( this,
 				uiWellMarkerSel::Setup(false) );
+	    newmarksel->mrkSelDone.notify( cb );
 	    zselectionflds_ += newmarksel;
 	}
 	else

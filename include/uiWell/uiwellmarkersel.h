@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bert
 Date:          Aug 2012
-RCS:           $Id: uiwellmarkersel.h,v 1.4 2012-08-28 13:19:13 cvsbert Exp $
+RCS:           $Id: uiwellmarkersel.h,v 1.5 2012-08-30 08:32:08 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ public:
     static const char*	sKeyDataStart();
     static const char*	sKeyDataEnd();
 
+    Notifier<uiWellMarkerSel> mrkSelDone;
 protected:
 
     const Setup		setup_;
