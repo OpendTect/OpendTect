@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelltiemgrdlg.cc,v 1.67 2012-08-29 17:12:45 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltiemgrdlg.cc,v 1.68 2012-08-30 13:04:21 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -186,7 +186,6 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
     wr.get();
 
     logsfld_->setLogs( wd_->logs() );
-    logsfld_->setWellID( wd_->multiID() );
 
     wtsetup_.wellid_ = wllctio_.ioobj->key();
     used2tmbox_->display( wr.getD2T() && !mIsUnvalidD2TM((*wd_)) );
