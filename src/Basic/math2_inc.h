@@ -49,8 +49,8 @@ mTYPE Math::IntPowerOf( mTYPE x, int y )
 
 mTYPE Math::PowerOf( mTYPE x, mTYPE y )
 {
-    if ( x == 0 ) return (mTYPE) y ? 0 : 1;
- 
+    if ( x == 0 ) return (mTYPE) (y ? 0 : 1);
+
     const bool isneg = x < 0 ? 1 : 0;
     if ( isneg ) x = -x;
  
