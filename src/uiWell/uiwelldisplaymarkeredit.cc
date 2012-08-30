@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.41 2012-08-30 14:53:59 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelldisplaymarkeredit.cc,v 1.42 2012-08-30 15:11:29 cvsbruno Exp $";
 
 
 #include "uiwelldisplaymarkeredit.h"
@@ -121,8 +121,6 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     editbut_->attach( alignedBelow, addbut_ );
     rembut_ = new uiToolButton(toolgrp_, "trashcan", "Remove Marker", butcb);
     rembut_->attach( alignedBelow, editbut_ );
-
-    windowClosed.notify( mCB(this,uiDispEditMarkerDlg,editDlgClosedCB) );
 }
 
 
@@ -135,6 +133,9 @@ uiDispEditMarkerDlg::~uiDispEditMarkerDlg()
 
 void uiDispEditMarkerDlg::allowMarkersManagement( bool yn )
 {
+    if ( yn )
+	mrklist_->disableRightClick( !yn );
+
     addbut_->display( yn );
     editbut_->display( yn );
     rembut_->display( yn );
@@ -447,7 +448,9 @@ uiWellDispCtrlEditMarkerDlg::uiWellDispCtrlEditMarkerDlg( uiParent* p )
     : uiDispEditMarkerDlg(p)
     , curctrl_(0)
     , curwd_(0)	 
-{}
+{
+    windowClosed.notify( mCB(this,uiWellDispCtrlEditMarkerDlg,editDlgClosedCB));
+}
 
 
 void uiWellDispCtrlEditMarkerDlg::editDlgClosedCB( CallBacker* )
