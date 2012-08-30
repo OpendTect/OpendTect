@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.69 2012-08-27 05:01:40 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.70 2012-08-30 11:49:02 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -109,7 +109,7 @@ IF(WIN32)
     #ADD_DEFINITIONS( /wd4701 ) # local variable used without being initialized
     ADD_DEFINITIONS( /wd4800 ) # forcing value to bool 'true' or 'false' (performance warning)
     ADD_DEFINITIONS( /wd4251 ) # 'identifier' : dll-interface
-    ADD_DEFINITIONS( /wd4275 ) # 'identifier' : dll-interface
+    #ADD_DEFINITIONS( /wd4275 ) # 'identifier' : dll-interface
     ADD_DEFINITIONS( /wd4996 ) # function': was declared deprecated
     ADD_DEFINITIONS( /wd4101 ) # The local variable is never used (disable only for Windows)
     ADD_DEFINITIONS( /wd4512 ) # class' : assignment operator could not be generated (not important)
