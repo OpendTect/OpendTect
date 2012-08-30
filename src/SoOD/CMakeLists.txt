@@ -2,12 +2,16 @@
 #
 #	Makefile : 	Coin Extensions
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.8 2012-04-19 05:47:00 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.9 2012-08-30 13:41:34 cvskris Exp $
 #_______________________________________________________________________________
 
 SET( OD_USECOIN 1 )
 OD_SETUP_COIN() #Gets name of SIMVoleon (needed below)
 SET( OD_USECOIN )
+
+if ( WIN32 )
+     ADD_DEFINITIONS( /wd4244 ) # conversions
+endif()
 
 SET(OD_USEQT OpenGL )
 SET(OD_MODULE_SOURCES
