@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimain.cc,v 1.77 2012-08-03 13:01:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimain.cc,v 1.78 2012-08-30 09:45:52 cvsnageswara Exp $";
 
 #include "uimain.h"
 
@@ -82,24 +82,26 @@ extern OSErr    NativePathNameToFSSpec(char *, FSSpec *, unsigned long);
 #endif
 
 
-class KeyboardEventFilter : public QObject
+class KeyboardEventFilter : public mQtclass(QObject)
 {
 public:
     			KeyboardEventFilter(KeyboardEventHandler& kbeh)
 			    : kbehandler_(kbeh)				{}
 protected:
-    bool		eventFilter(QObject*,QEvent*);
+    bool		eventFilter(mQtclass(QObject*),mQtclass(QEvent*));
 
     KeyboardEventHandler& kbehandler_;
 };
 
 
-bool KeyboardEventFilter::eventFilter( QObject* obj, QEvent* ev )
+bool KeyboardEventFilter::eventFilter( mQtclass(QObject*) obj,
+				       mQtclass(QEvent*) ev )
 {
-    if ( ev->type()!=QEvent::KeyPress && ev->type()!=QEvent::KeyRelease )
+    if ( ev->type()!=mQtclass(QEvent)::KeyPress &&
+	 ev->type()!=mQtclass(QEvent)::KeyRelease )
 	return false;
 
-    const QKeyEvent* qke = dynamic_cast<QKeyEvent*>( ev );
+    const mQtclass(QKeyEvent*) qke = dynamic_cast<mQtclass(QKeyEvent*)>( ev );
     if ( !qke ) return false;
 
     KeyboardEvent kbe;
@@ -107,7 +109,7 @@ bool KeyboardEventFilter::eventFilter( QObject* obj, QEvent* ev )
     kbe.modifier_ = OD::ButtonState( (int) qke->modifiers() );
     kbe.isrepeat_ = qke->isAutoRepeat();
 
-    if ( ev->type() == QEvent::KeyPress )
+    if ( ev->type() == mQtclass(QEvent)::KeyPress )
 	kbehandler_.triggerKeyPressed( kbe );
     else 
 	kbehandler_.triggerKeyReleased( kbe );
@@ -115,35 +117,37 @@ bool KeyboardEventFilter::eventFilter( QObject* obj, QEvent* ev )
     if ( kbehandler_.isHandled() )
 	return true;
 
-    return QObject::eventFilter( obj, ev );
+    return mQtclass(QObject)::eventFilter( obj, ev );
 }
 
 
-class QtTabletEventFilter : public QObject
+class mQtclass(QtTabletEventFilter) : public mQtclass(QObject)
 {
 public:
-    			QtTabletEventFilter()
+    			mQtclass(QtTabletEventFilter)()
 			    : mousepressed_( false )
 			    , checklongleft_( false )
 			    , lostreleasefixevent_( 0 )
 			{}
 protected:
-    bool		eventFilter(QObject*,QEvent*);
+    bool		eventFilter(mQtclass(QObject*),mQtclass(QEvent*));
 
     bool		mousepressed_;
     bool		checklongleft_;
 
-    QMouseEvent*	lostreleasefixevent_;
-    bool		islostreleasefixed_;
-    Qt::MouseButton	mousebutton_;
+    mQtclass(QMouseEvent*)	lostreleasefixevent_;
+    bool			islostreleasefixed_;
+    mQtclass(Qt)::MouseButton	mousebutton_;
 
-    Geom::Point2D<int>	lastdragpos_;
+    Geom::Point2D<int>		lastdragpos_;
 };
 
 
-bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
+bool mQtclass(QtTabletEventFilter)::eventFilter( mQtclass(QObject*) obj,
+						 mQtclass(QEvent*) ev )
 {
-    const QTabletEvent* qte = dynamic_cast<QTabletEvent*>( ev );
+    const mQtclass(QTabletEvent*) qte =
+				dynamic_cast<mQtclass(QTabletEvent*)>( ev );
     if ( qte )
     {
 	TabletInfo& ti = TabletInfo::latestState();
@@ -167,7 +171,8 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 	return false;		// Qt will resent it as a QMouseEvent
     }
 
-    const QMouseEvent* qme = dynamic_cast<QMouseEvent*>( ev );
+    const mQtclass(QMouseEvent*) qme =
+				dynamic_cast<mQtclass(QMouseEvent*)>( ev );
     const TabletInfo* ti = TabletInfo::currentState();
 
     if ( !qme )
@@ -175,17 +180,18 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 
     // Hack to repair missing mouse release events from tablet pen on Linux
     if ( mousepressed_ && !lostreleasefixevent_ && ti && !ti->pressure_ &&
-	 qme->type()!=QEvent::MouseButtonRelease )
+	 qme->type()!=mQtclass(QEvent)::MouseButtonRelease )
     {
-	lostreleasefixevent_ = new QMouseEvent( QEvent::MouseButtonRelease,
-						qme->pos(), qme->globalPos(),
-						mousebutton_,
-						qme->buttons() & ~mousebutton_,
-					       	qme->modifiers() );
-	QApplication::postEvent( obj, lostreleasefixevent_ );
+	lostreleasefixevent_ = new mQtclass(QMouseEvent)( 
+					mQtclass(QEvent)::MouseButtonRelease,
+					qme->pos(), qme->globalPos(),
+					mousebutton_,
+					qme->buttons() & ~mousebutton_,
+					qme->modifiers() );
+	mQtclass(QApplication)::postEvent( obj, lostreleasefixevent_ );
     }
 
-    if ( qme->type()==QEvent::MouseButtonPress )
+    if ( qme->type()==mQtclass(QEvent)::MouseButtonPress )
     {
 	lostreleasefixevent_ = 0;
 	islostreleasefixed_ = false;
@@ -199,7 +205,7 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 
 	islostreleasefixed_ = true;
     }
-    else if ( qme->type()==QEvent::MouseButtonRelease )
+    else if ( qme->type()==mQtclass(QEvent)::MouseButtonRelease )
     {
 	if ( islostreleasefixed_ )
 	    return true;
@@ -207,10 +213,10 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
     // End of hack
 
     // Hack to solve mouse/tablet dragging refresh problem
-    if ( qme->type() == QEvent::MouseButtonPress )
+    if ( qme->type() == mQtclass(QEvent)::MouseButtonPress )
 	lastdragpos_ = Geom::Point2D<int>::udf();
 
-    if ( qme->type()==QEvent::MouseMove && mousepressed_ )
+    if ( qme->type()==mQtclass(QEvent)::MouseMove && mousepressed_ )
     {
 	const Geom::Point2D<int> curpos( qme->globalX(), qme->globalY() );
 	if ( !lastdragpos_.isDefined() )
@@ -223,35 +229,38 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
     }
     // End of hack
 
-    if ( qme->type() == QEvent::MouseButtonPress )
+    if ( qme->type() == mQtclass(QEvent)::MouseButtonPress )
     {
 	mousepressed_ = true;
-	if ( qme->button() == Qt::LeftButton )
+	if ( qme->button() == mQtclass(Qt)::LeftButton )
 	    checklongleft_ = true;
     }
 
-    if ( qme->type() == QEvent::MouseButtonRelease )
+    if ( qme->type() == mQtclass(QEvent)::MouseButtonRelease )
     {
 	mousepressed_ = false;
 	checklongleft_ = false;
     }
     
-    if ( ti && qme->type()==QEvent::MouseMove && mousepressed_ )
+    if ( ti && qme->type()==mQtclass(QEvent)::MouseMove && mousepressed_ )
     {
 	if ( checklongleft_ &&
 	     ti->postPressTime()>500 && ti->maxPostPressDist()<5 )
 	{
 	    checklongleft_ = false;
-	    QEvent* qev = new QEvent( mUsrEvLongTabletPress );
-	    QApplication::postEvent( QApplication::focusWidget(), qev );
+	    mQtclass(QEvent*) qev =
+				new mQtclass(QEvent)( mUsrEvLongTabletPress );
+	    mQtclass(QApplication)::postEvent(
+		    		   mQtclass(QApplication)::focusWidget(), qev );
 	}
 
-	QWidget* tlw = QApplication::topLevelAt( qme->globalPos() );
-	if ( dynamic_cast<QMenu*>(tlw) )
+	mQtclass(QWidget*) tlw =
+	    		mQtclass(QApplication)::topLevelAt( qme->globalPos() );
+	if ( dynamic_cast<mQtclass(QMenu*)>(tlw) )
 	    return true;
 
-	QWidget* fw = QApplication::focusWidget();
-	if ( dynamic_cast<QTreeWidget*>(fw) )
+	mQtclass(QWidget*) fw = mQtclass(QApplication)::focusWidget();
+	if ( dynamic_cast<mQtclass(QTreeWidget*)>(fw) )
 	    return true;
     }
 
@@ -259,32 +268,34 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 }
 
 
-void myMessageOutput( QtMsgType type, const char *msg );
+void myMessageOutput( mQtclass(QtMsgType) type, const char *msg );
 
 
 const uiFont* uiMain::font_ = 0;
-QApplication* uiMain::app_ = 0;
+mQtclass(QApplication*) uiMain::app_ = 0;
 uiMain*	uiMain::themain_ = 0;
 
 KeyboardEventHandler* uiMain::keyhandler_ = 0;
 KeyboardEventFilter* uiMain::keyfilter_ = 0;
-QtTabletEventFilter* uiMain::tabletfilter_ = 0;
+mQtclass(QtTabletEventFilter*) uiMain::tabletfilter_ = 0;
 
 
 static void initQApplication()
 {
-    QApplication::setDesktopSettingsAware( true );
+    mQtclass(QApplication)::setDesktopSettingsAware( true );
 
-    QCoreApplication::setOrganizationName( "dGB");
-    QCoreApplication::setOrganizationDomain( "opendtect.org" );
-    QCoreApplication::setApplicationName( "OpendTect" );
+    mQtclass(QCoreApplication)::setOrganizationName( "dGB");
+    mQtclass(QCoreApplication)::setOrganizationDomain( "opendtect.org" );
+    mQtclass(QCoreApplication)::setApplicationName( "OpendTect" );
 #ifdef __mac__
 
-    QCoreApplication::setAttribute( Qt::AA_MacDontSwapCtrlAndMeta, true );
+    mQtclass(QCoreApplication)::setAttribute(
+	    			mQtclass(Qt)::AA_MacDontSwapCtrlAndMeta, true );
 #endif
     
 #ifndef __win__
-    QCoreApplication::addLibraryPath( GetBinPlfDir() ); // Qt plugin libraries
+    mQtclass(QCoreApplication)::addLibraryPath( GetBinPlfDir() ); 
+    							// Qt plugin libraries
 #endif
 }
 
@@ -311,20 +322,20 @@ uiMain::uiMain( int& argc, char **argv )
 
     initQApplication();
     init( 0, argc, argv );
-    app_->setWindowIcon( QIcon(XpmIconData) );
+    app_->setWindowIcon( mQtclass(QIcon)(XpmIconData) );
 }
 
 
-uiMain::uiMain( QApplication* qapp )
+uiMain::uiMain( mQtclass(QApplication*) qapp )
     : mainobj_( 0 )
 { 
     initQApplication();
     app_ = qapp;
-    app_->setWindowIcon( QIcon(XpmIconData) );
+    app_->setWindowIcon( mQtclass(QIcon)(XpmIconData) );
 }
 
 
-static QStyle* getStyleFromSettings()
+static mQtclass(QStyle*) getStyleFromSettings()
 {
     const char* lookpref = Settings::common().find( "dTect.LookStyle" );
     if ( !lookpref || !*lookpref )
@@ -337,7 +348,7 @@ static QStyle* getStyleFromSettings()
 #endif
 #ifndef QT_NO_STYLE_MOTIF
 	if ( !strcmp(lookpref,"Motif") )
-	    return new QMotifStyle;
+	    return new mQtclass(QMotifStyle);
 #endif
 #ifndef QT_NO_STYLE_WINDOWS
 	if ( !strcmp(lookpref,"Windows") )
@@ -345,11 +356,11 @@ static QStyle* getStyleFromSettings()
 #endif
 #ifndef QT_NO_STYLE_PLASTIQUE
 	if ( !strcmp(lookpref,"Plastique") )
-	    return new QPlastiqueStyle;
+	    return new mQtclass(QPlastiqueStyle);
 #endif
 #ifndef QT_NO_STYLE_CLEANLOOKS
 	if ( !strcmp(lookpref,"Cleanlooks") )
-	    return new QCleanlooksStyle;
+	    return new mQtclass(QCleanlooksStyle);
 #endif
     }
 
@@ -357,7 +368,7 @@ static QStyle* getStyleFromSettings()
 }
 
 
-void uiMain::init( QApplication* qap, int& argc, char **argv )
+void uiMain::init( mQtclass(QApplication*) qap, int& argc, char **argv )
 {
     if ( app_ ) 
     {
@@ -370,16 +381,16 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "Constructing QApplication ..." );
 
-    if ( qap ) 
+    if ( qap )
 	app_ = qap;
     else
-	app_ = new QApplication( argc, argv );
+	app_ = new mQtclass(QApplication)( argc, argv );
 
     KeyboardEventHandler& kbeh = keyboardEventHandler();
     keyfilter_ = new KeyboardEventFilter( kbeh );
     app_->installEventFilter( keyfilter_ );
 
-    tabletfilter_ = new QtTabletEventFilter();
+    tabletfilter_ = new mQtclass(QtTabletEventFilter)();
     app_->installEventFilter( tabletfilter_ );
 
     if ( DBG::isOn(DBG_UI) && !qap )
@@ -387,22 +398,24 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     qInstallMsgHandler( myMessageOutput );
 
-    QStyle* styl = getStyleFromSettings();
+    mQtclass(QStyle*) styl = getStyleFromSettings();
 #ifdef __win__
     if ( !styl )
-	styl = QSysInfo::WindowsVersion == QSysInfo::WV_VISTA
-	    	? new QWindowsVistaStyle : new QWindowsXPStyle;
+	styl = mQtclass(QSysInfo)::WindowsVersion ==
+	    					mQtclass(QSysInfo)::WV_VISTA
+	    	? new mQtclass(QWindowsVistaStyle)
+		: new mQtclass(QWindowsXPStyle);
 #else
 # ifdef __mac__
     if ( !styl )
-	styl = new QMacStyle;
+	styl = new mQtclass(QMacStyle);
 # else
     if ( !styl )
-	styl = new QCleanlooksStyle;
+	styl = new mQtclass(QCleanlooksStyle);
 # endif
 #endif
 
-    QApplication::setStyle( styl );
+    mQtclass(QApplication)::setStyle( styl );
     font_ = 0;
     setFont( *font() , true );
 }
@@ -432,7 +445,7 @@ void* uiMain::thread()
 
 void uiMain::getCmdLineArgs( BufferStringSet& args ) const
 {
-    QStringList qargs = app_->arguments();
+    mQtclass(QStringList) qargs = app_->arguments();
     for ( int idx=0; idx<qargs.count(); idx++ )
 	args.add( qargs.at(idx).toAscii() );
 }
@@ -491,7 +504,8 @@ const uiFont* uiMain::font()
 
 Color uiMain::windowColor() const
 {
-    const QColor& qcol = QApplication::palette().color( QPalette::Window );
+    const mQtclass(QColor&) qcol =
+	 mQtclass(QApplication)::palette().color( mQtclass(QPalette)::Window );
     return Color( qcol.red(), qcol.green(), qcol.blue() );
 }
 
@@ -511,7 +525,7 @@ uiMain& uiMain::theMain()
     if ( !qApp ) 
     { 
 	pFreeFnErrMsg("FATAL: no uiMain and no qApp.","uiMain::theMain()");
-	QApplication::exit( -1 );
+	mQtclass(QApplication)::exit( -1 );
     }
 
     themain_ = new uiMain( qApp );
@@ -534,22 +548,22 @@ void uiMain::flushX()
 
 //! waits [msec] milliseconds for new events to occur and processes them.
 void uiMain::processEvents( int msec )
-{ if ( app_ ) app_->processEvents( QEventLoop::AllEvents, msec ); }
+{ if ( app_ ) app_->processEvents( mQtclass(QEventLoop)::AllEvents, msec ); }
 
 
-void myMessageOutput( QtMsgType type, const char *msg )
+void myMessageOutput( mQtclass(QtMsgType) type, const char *msg )
 {
     switch ( type ) {
-	case QtDebugMsg:
+	case mQtclass(QtDebugMsg):
 	    ErrMsg( msg, true );
 	    break;
-	case QtWarningMsg:
+	case mQtclass(QtWarningMsg):
 	    ErrMsg( msg, true );
 	    break;
-	case QtFatalMsg:
+	case mQtclass(QtFatalMsg):
 	    ErrMsg( msg );
 	    break;
-	case QtCriticalMsg:
+	case mQtclass(QtCriticalMsg):
 	    ErrMsg( msg );
 	    break;
 	default:
