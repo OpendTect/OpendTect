@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiunitsel.cc,v 1.8 2012-05-02 15:12:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiunitsel.cc,v 1.9 2012-08-30 13:18:26 cvsbert Exp $";
 
 #include "uiunitsel.h"
 
@@ -41,15 +41,19 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
 }
 
 
+void uiUnitSel::setUnit( const UnitOfMeasure* un )
+{
+    if ( !un )
+	un = UoMR().getInternalFor( proptype_ );
+    if ( un )
+	setUnit( un->name() );
+}
+
+
 void uiUnitSel::setUnit( const char* unitnm )
 {
     if ( !unitnm || !*unitnm )
-    {
-	const UnitOfMeasure* un = UoMR().getInternalFor( proptype_ );
-	if ( un )
-	    setUnit( un->name() );
-	return;
-    }
+	{ const UnitOfMeasure* un = 0; setUnit( un ); return; }
 
     if ( inpfld_->isPresent(unitnm) )
 	inpfld_->setCurrentItem( unitnm );
@@ -72,6 +76,16 @@ const UnitOfMeasure* uiUnitSel::getUnit() const
     int selidx = inpfld_->currentItem();
     if ( withempty_ ) selidx -= 1;
     return units_.validIdx( selidx ) ? units_[selidx] : 0;
+}
+
+
+const char* uiUnitSel::getUnitName() const
+{
+    int selidx = inpfld_->currentItem();
+    if ( selidx < 0 || (withempty_ && selidx == 0) )
+	return 0;
+
+    return inpfld_->text();
 }
 
 

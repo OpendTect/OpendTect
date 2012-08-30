@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Feb 2010
- RCS:           $Id: uiunitsel.h,v 1.6 2012-08-03 13:01:16 cvskris Exp $
+ RCS:           $Id: uiunitsel.h,v 1.7 2012-08-30 13:18:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,10 @@ public:
 					  bool dispsymbols=false,
 					  bool withempty=false);
 
+    void			setUnit(const UnitOfMeasure* uom=0);
     void			setUnit(const char*);
     const UnitOfMeasure*	getUnit() const;
+    const char*			getUnitName() const;
 
     void			setPropType(PropertyRef::StdType);
 
