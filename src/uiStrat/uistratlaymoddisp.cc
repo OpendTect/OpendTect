@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.32 2012-08-30 13:38:35 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.33 2012-08-30 14:55:43 cvsbert Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
@@ -241,8 +241,10 @@ void uiStratSimpleLayerModelDisp::doubleClicked( CallBacker* )
     const int selidx = getClickedModelNr();
     if ( selidx < 0 ) return;
 
-    //TODO show single model
-
+    // Should we do something else than edit?
+    MouseEventHandler& mevh = gv_->getMouseEventHandler();
+    const float zsel = yax_->getVal( mevh.event().pos().y );
+    handleRightClick(selidx,zsel);
     gv_->getMouseEventHandler().setHandled( true );
 }
 
