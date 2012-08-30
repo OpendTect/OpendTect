@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.25 2012-08-03 13:00:52 cvskris Exp $
+ RCS:           $Id: uimain.h,v 1.26 2012-08-30 09:58:22 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,14 +16,15 @@ ________________________________________________________________________
 #include "uigeom.h"
 #include "color.h"
 
+mFDQtclass(QApplication)
+mFDQtclass(QWidget)
+mFDQtclass(QtTabletEventFilter)
+
 class uiMainWin;
-class QApplication;
 class uiFont;
-class QWidget;
 class BufferStringSet;
 class KeyboardEventHandler;
 class KeyboardEventFilter;
-class QtTabletEventFilter;
 
 
 mClass(uiBase) uiMain
@@ -31,8 +32,8 @@ mClass(uiBase) uiMain
 public:
 			uiMain(int& argc,char** argv);
 private:
-			uiMain(QApplication*);
-    void 		init(QApplication*,int& argc,char **argv);
+			uiMain(mQtclass(QApplication*));
+    void 		init(mQtclass(QApplication*),int& argc,char **argv);
 
 public:
 
@@ -71,15 +72,15 @@ protected:
     static uiMain*	themain_;
     uiMainWin*		mainobj_;
 
-    static QApplication*  app_;
+    static mQtclass(QApplication*)  app_;
     static const uiFont*  font_;
 
     static KeyboardEventHandler* keyhandler_;
     static KeyboardEventFilter*  keyfilter_;
-    static QtTabletEventFilter*  tabletfilter_;
+    static mQtclass(QtTabletEventFilter*)  tabletfilter_;
 
 			//! necessary for uicMain coin inialisation
-    virtual void	init( QWidget* mainwidget )             {}
+    virtual void	init( mQtclass(QWidget*) mainwidget )             {}
 };
 
 
