@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2012
- RCS:           $Id: odinst.h,v 1.8 2012-08-03 13:00:13 cvskris Exp $
+ RCS:           $Id: odinst.h,v 1.9 2012-08-30 09:42:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,10 +32,10 @@ namespace ODInst
 
 
     enum AutoInstType		{ UseManager, InformOnly, FullAuto, NoAuto  };
-				DeclareNameSpaceEnumUtils(AutoInstType)
+				DeclareNameSpaceEnumUtils(Basic,AutoInstType)
     enum RelType		{ Stable, Development, PreStable,
 				  PreDevelopment, Ancient, Other };
-				DeclareNameSpaceEnumUtils(RelType)
+				DeclareNameSpaceEnumUtils(Basic,RelType)
     /*!
 	Policy: Externally, policy can be fixed using OD_INSTALLER_POLICY
 	Without OD_INSTALLER_POLICY, read/write user settings

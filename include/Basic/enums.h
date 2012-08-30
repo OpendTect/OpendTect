@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.30 2012-08-03 13:00:11 cvskris Exp $
+ RCS:		$Id: enums.h,v 1.31 2012-08-30 09:42:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -188,17 +188,17 @@ protected: \
     static const EnumDef enm##Definition_; \
 public:
 
-#define DeclareNameSpaceEnumUtils(enm) \
-    mExtern(Basic) const EnumDef& enm##Def(); \
-    mExtern(Basic) const char** enm##Names();\
+#define DeclareNameSpaceEnumUtils(mod,enm) \
+    mExtern(mod) const EnumDef& enm##Def(); \
+    mExtern(mod) const char** enm##Names();\
     extern const char* enm##Names_[];\
     extern const EnumDef enm##Definition_; \
-    mExtern(Basic) bool parseEnum(const IOPar&,const char*,enm&); \
-    mExtern(Basic) bool parseEnum(const char*,enm&); \
-    mExtern(Basic) bool parseEnum##enm(const char*,enm&); /*legacy */  \
-    mExtern(Basic) enm parseEnum##enm(const char*); \
-    mExtern(Basic) const char* toString(enm); \
-    mExtern(Basic) const char* get##enm##String(enm); /*legacy */ 
+    mExtern(mod) bool parseEnum(const IOPar&,const char*,enm&); \
+    mExtern(mod) bool parseEnum(const char*,enm&); \
+    mExtern(mod) bool parseEnum##enm(const char*,enm&); /*legacy */  \
+    mExtern(mod) enm parseEnum##enm(const char*); \
+    mExtern(mod) const char* toString(enm); \
+    mExtern(mod) const char* get##enm##String(enm); /*legacy */ 
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
 const EnumDef clss::enm##Definition_ \

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.19 2012-08-03 13:01:31 cvskris Exp $
+ RCS:		$Id: gmtdef.h,v 1.20 2012-08-30 09:42:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,11 +20,11 @@ namespace ODGMT
 {
     enum Shape		{ Star, Circle, Diamond, Square, Triangle, Cross,
    			  Polygon, Line };
-    			DeclareNameSpaceEnumUtils(Shape)
+    			DeclareNameSpaceEnumUtils(GMT,Shape)
     enum Resolution	{ Full, High, Intermediate, Low, Crude };
-			DeclareNameSpaceEnumUtils(Resolution)
+			DeclareNameSpaceEnumUtils(GMT,Resolution)
     enum Alignment	{ Above, Below, Left, Right };
-			DeclareNameSpaceEnumUtils(Alignment);
+			DeclareNameSpaceEnumUtils(GMT,Alignment);
     enum ExecStatus	{ Success, FatalError, Failure };
 
     mGlobal(GMT) inline const char**	sShapeKeys()

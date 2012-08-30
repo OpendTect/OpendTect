@@ -6,12 +6,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2006
- RCS:           $Id: stattype.h,v 1.7 2011-01-28 11:07:25 cvsbert Exp $
+ RCS:           $Id: stattype.h,v 1.8 2012-08-30 09:42:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "enums.h"
+#include "algomod.h"
 
 namespace Stats
 {
@@ -26,7 +27,7 @@ enum Type
 	Sum, SqSum,
 	MostFreq
 };
-DeclareNameSpaceEnumUtils(Type)
+DeclareNameSpaceEnumUtils(Algo,Type)
 
     /* When resampling a denser sampling */
 enum UpscaleType
@@ -34,7 +35,7 @@ enum UpscaleType
 	TakeNearest,
 	UseAvg, UseMed, UseRMS, UseMostFreq
 };
-DeclareNameSpaceEnumUtils(UpscaleType)
+DeclareNameSpaceEnumUtils(Algo,UpscaleType)
 
 inline Type typeFor( UpscaleType ut )
 {
