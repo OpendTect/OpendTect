@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2010
- RCS:		$Id: stratlayersequence.h,v 1.13 2012-08-03 13:00:42 cvskris Exp $
+ RCS:		$Id: stratlayersequence.h,v 1.14 2012-08-30 13:31:07 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,8 @@ public:
     int			size() const		{ return layers_.size(); }
     ObjectSet<Layer>&	layers()		{ return layers_; }
     const ObjectSet<Layer>& layers() const	{ return layers_; }
+    int			layerIdxAtZ(float,bool ret_size_if_after=false) const;
+    			//!< return -1 if outside, unless below and par==true
 
     float		startDepth() const	{ return z0_; }
     void		setStartDepth( float z ) { z0_ = z; }

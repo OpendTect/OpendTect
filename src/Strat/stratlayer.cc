@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratlayer.cc,v 1.37 2012-07-25 13:04:07 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratlayer.cc,v 1.38 2012-08-30 13:31:07 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -115,6 +115,25 @@ Strat::LayerSequence& Strat::LayerSequence::operator =(
 const Strat::RefTree& Strat::LayerSequence::refTree() const
 {
     return isEmpty() ? RT() : layers_[0]->refTree();
+}
+
+
+int Strat::LayerSequence::layerIdxAtZ( float zreq, bool retszifafter ) const
+{
+    const ObjectSet<Layer>& lays = layers();
+    const int nrlays = lays.size();
+    if ( nrlays == 0 || zreq < lays[0]->zTop() )
+	return -1;
+    else if ( zreq > lays[nrlays-1]->zBot() )
+	return retszifafter ? nrlays : -1;
+
+    for ( int ilay=0; ilay<nrlays; ilay++ )
+    {
+	const Layer& lay( *lays[ilay] );
+	if ( zreq < lay.zBot() )
+	    return ilay;
+    }
+    return nrlays-1;
 }
 
 
