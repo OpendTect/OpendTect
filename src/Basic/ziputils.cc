@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.21 2012-08-31 10:12:20 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.22 2012-08-31 11:21:45 cvsraman Exp $";
 
 #include "ziputils.h"
 
@@ -172,6 +172,8 @@ od_int64 Zipper::totalNr() const
 const char* Zipper::nrDoneText() const
 { return ( "Files" ); }
 
+const char* Zipper::message() const
+{ return ziphd_.errorMsg(); }
 
 bool ZipUtils::unZipArchive( BufferString& srcfnm, TaskRunner* tr )
 {
