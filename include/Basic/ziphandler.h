@@ -7,27 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Salil Agarwal
  Date:		30 August 2012
- RCS:		$Id: ziphandler.h,v 1.1 2012-08-31 05:32:54 cvssalil Exp $
+ RCS:		$Id: ziphandler.h,v 1.2 2012-08-31 06:01:46 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "basicmod.h"
 #include "bufstringset.h"
-#include "file.h"
-#include "filepath.h"
-#include "dirlist.h"
-#include "executor.h"
-#include "task.h"
-#include "iostream"
-#include "fstream"
-#include "strmprov.h"
-#include "sys/utime.h"
-#include "QFileInfo"
-#include "QDateTime"
-#include "QDate"
-#include "QTime"
-#include "zlib.h"
 
 #define mLocalFileHeaderSig(T) \
     T[0] = 80; \
