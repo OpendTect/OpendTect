@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.30 2012-08-30 08:32:08 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiwelllogsel.cc,v 1.31 2012-08-31 06:25:57 cvssatyaki Exp $";
 
 #include "uimultiwelllogsel.h"
 
@@ -437,6 +437,8 @@ void uiMultiWellLogSel::update()
 	if ( wellsfld_ )
 	    wellsfld_->addItem( ioobj->name() );
     }
+
+    wellsfld_->selectAll( true );
     sort( mrkrs ); setMarkers( mrkrs );
 
     for ( int idx=0; idx<lognms.size(); idx++ )

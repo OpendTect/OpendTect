@@ -44,10 +44,32 @@ uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p,const DataColInfo& colinfos )
 }
 
 
+int uiPrDenFunVarSel::nrCols() const
+{ return attrsel_->size(); }
+
+
 void uiPrDenFunVarSel::setColNr( int nr )
 {
     attrsel_->setCurrentItem( nr );
     attrChanged( 0 );
+}
+
+
+const char* uiPrDenFunVarSel::colName( int idx ) const
+{ return attrsel_->textOfItem( idx ); }
+
+
+void uiPrDenFunVarSel::setPrefCol( const char* nm )
+{
+    BufferStringSet attrnms;
+    for ( int idx=0; idx<attrsel_->size(); idx++ )
+	attrnms.add( attrsel_->textOfItem(idx) );
+    const int prefidx = attrnms.nearestMatch( nm );
+    if ( attrnms.validIdx(prefidx) )
+    {
+	attrsel_->setCurrentItem( prefidx );
+	attrChanged( 0 );
+    }
 }
 
 

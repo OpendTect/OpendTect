@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          July 2012
- RCS:           $Id: uiwelllogextract.h,v 1.3 2012-08-27 11:06:39 cvssatyaki Exp $
+ RCS:           $Id: uiwelllogextract.h,v 1.4 2012-08-31 06:25:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ public:
 
     bool			extractDPS();
     const DataPointSet*		getDPS() const;
+    void			releaseDPS();
+    const Setup&		su() const		{ return setup_; }
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.5 2012-08-27 11:06:40 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.6 2012-08-31 06:25:57 cvssatyaki Exp $";
 
 #include "uiwelllogextract.h"
 
@@ -97,7 +97,14 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 uiWellLogExtractGrp::~uiWellLogExtractGrp()
 {
     delete const_cast<Attrib::DescSet*>(ads_);
+    releaseDPS();
+}
+
+
+void uiWellLogExtractGrp::releaseDPS()
+{
     mDPM.release( curdps_ );
+    curdps_ = 0;
 }
 
 
@@ -264,7 +271,7 @@ bool uiWellLogExtractGrp::extractDPS()
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     if ( curdps_ )
-	mDPM.release( curdps_ );
+	releaseDPS();
     curdps_ =
 	new DataPointSet( TypeSet<DataPointSet::DataRow>(), dcds, false, false);
     mDPM.addAndObtain( curdps_ );

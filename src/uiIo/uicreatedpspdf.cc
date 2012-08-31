@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uicreatedpspdf.cc,v 1.19 2012-08-10 03:50:04 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicreatedpspdf.cc,v 1.20 2012-08-31 06:25:57 cvssatyaki Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -279,6 +279,17 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
     DPSDensityCalcND denscalc( dps_, axisparams,pdf.getData());
     uiTaskRunner tr( this );
     tr.execute( denscalc );
+}
+
+
+void uiCreateDPSPDF::setPrefDefNames( const BufferStringSet& prefdefnms )
+{
+    for ( int idx=0; idx<probflds_.size(); idx++ )
+    {
+	if ( !prefdefnms.validIdx(idx) )
+	    continue;
+	probflds_[idx]->setPrefCol( prefdefnms.get(idx).buf() );
+    }
 }
 
 

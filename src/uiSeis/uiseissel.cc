@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseissel.cc,v 1.112 2012-07-04 10:06:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseissel.cc,v 1.113 2012-08-31 06:25:57 cvssatyaki Exp $";
 
 #include "uiseissel.h"
 
@@ -73,8 +73,11 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
     }
 
     if ( ctxt.deftransl.isEmpty() )
+    {
 	ctxt.deftransl = su.geom_ == Seis::Line ? "2D"
 				: CBVSSeisTrcTranslator::translKey();
+	ctxt.toselect.allowtransls_ = ctxt.deftransl;
+    }
     else if ( !ctxt.forread )
 	ctxt.toselect.allowtransls_ = ctxt.deftransl;
     else if ( !ctxt.toselect.allowtransls_.isEmpty() )
