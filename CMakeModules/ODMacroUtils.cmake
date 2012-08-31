@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.66 2012-08-03 13:00:02 cvskris Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.67 2012-08-31 11:33:02 cvssalil Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -88,7 +88,7 @@ IF(OD_USECOIN)
     OD_SETUP_COIN()
 ENDIF()
 
-IF( UNIX AND OD_USEZLIB )
+IF( (UNIX OR WIN32)  AND OD_USEZLIB )
     LIST(APPEND OD_MODULE_INCLUDESYSPATH ${ZLIB_INCLUDE_DIR} )
     LIST(APPEND OD_MODULE_EXTERNAL_LIBS ${ZLIB_LIBRARY} )
 ENDIF()

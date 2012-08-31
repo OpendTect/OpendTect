@@ -2,9 +2,9 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODZlibUtils.cmake,v 1.1 2012-02-01 11:50:49 cvskris Exp $
+#	RCS :		$Id: ODZlibUtils.cmake,v 1.2 2012-08-31 11:33:02 cvssalil Exp $
 #_______________________________________________________________________________
 
-IF(UNIX)
+IF(UNIX OR WIN32)
     FIND_PACKAGE( Zlib REQUIRED )
 ENDIF()
