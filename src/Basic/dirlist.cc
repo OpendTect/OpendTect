@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: dirlist.cc,v 1.24 2012-05-02 15:11:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: dirlist.cc,v 1.25 2012-08-31 10:22:22 cvsraman Exp $";
 
 #include "dirlist.h"
 
@@ -38,11 +38,11 @@ void DirList::update()
 
     QDir::Filters filters;
     if ( type_ == FilesOnly )
-	filters = QDir::Files;
+	filters = QDir::Files | QDir::Hidden;
     else if ( type_ == DirsOnly )
-	filters = QDir::Dirs | QDir::NoDotAndDotDot;
+	filters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden;
     else
-	filters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files;
+	filters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files | QDir::Hidden;
 
     QStringList qlist = qdir.entryList( filters );
     
