@@ -7,36 +7,39 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Salil Agarwal
  Date:		27 August 2012
- RCS:		$Id: ziparchiveinfo.h,v 1.1 2012-08-31 05:32:54 cvssalil Exp $
+ RCS:		$Id: ziparchiveinfo.h,v 1.2 2012-08-31 10:12:20 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "filepath.h"
-#include "strmprov.h"
-#include "ziputils.h"
-#include "zlib.h"
-#include "ziphandler.h"
+#include "objectset.h"
+#include "basicmod.h"
 
-mClass(Basic) FileInfo
-{
-public:
-				FileInfo( BufferString& fnm, 
-					   unsigned int compsize, 
-					   unsigned int uncompsize,
-					   unsigned int offset )
-				    :fnm_(fnm)
-				    , compsize_(compsize) 
-				    , uncompsize_(uncompsize)
-				    , localheaderoffset_(offset)	{}
-    BufferString		fnm_;
-    unsigned int		compsize_, uncompsize_, localheaderoffset_;
-};
+class BufferStringSet;
+class ZipHandler;
 
 mClass(Basic) ZipArchiveInfo
 {
 public:
+
+    class FileInfo
+    {
+    public:
+				FileInfo( BufferString& fnm, 
+					       unsigned int compsize, 
+					       unsigned int uncompsize,
+					       unsigned int offset )
+					:fnm_(fnm)
+					, compsize_(compsize) 
+					, uncompsize_(uncompsize)
+					, localheaderoffset_(offset)	{}
+	BufferString		fnm_;
+	unsigned int		compsize_, uncompsize_, localheaderoffset_;
+    };
+
 				ZipArchiveInfo( BufferString& fnm );
+				~ZipArchiveInfo();
+
     void			getAllFnms( BufferStringSet& );
     unsigned int		getFCompSize( BufferString& fnm );
     unsigned int		getFCompSize( int );
@@ -46,9 +49,10 @@ public:
     unsigned int		getLocalHeaderOffset( int );
 
 protected:
+
     void			readZipArchive( BufferString& fnm );
     ObjectSet<FileInfo>		files_;
-    ZipHandler			ziphd_;
+    ZipHandler&			ziphd_;
 };
 
 

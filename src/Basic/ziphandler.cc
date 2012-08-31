@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.2 2012-08-31 06:02:31 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.3 2012-08-31 10:12:20 cvsraman Exp $";
 
 #include "ziphandler.h"
 
@@ -18,17 +18,22 @@ static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.2 2012-08-31 06:02
 #include "dirlist.h"
 #include "executor.h"
 #include "task.h"
-#include "iostream"
-#include "fstream"
 #include "strmprov.h"
-#include "utime.h"
+
 #include "QFileInfo"
 #include "QDateTime"
 #include "QDate"
 #include "QTime"
 #include "zlib.h"
 
+#include <iostream>
 #include "math.h"
+
+#ifdef __win__
+#include "sys/utime.h"
+#else
+#include "utime.h"
+#endif
 
 bool ZipHandler::dirManage( const char* src, std::ostream& dest )
 {
@@ -37,37 +42,34 @@ bool ZipHandler::dirManage( const char* src, std::ostream& dest )
     DirList flist( src, DirList::FilesOnly, 0 );
 
     for( int idx = 0; idx < flist.size(); idx++)
-    {
 	allfiles_.add( flist.fullPath(idx) );
-    }
+
     for( int idx = 0; idx < dlist.size(); idx++ )
     {
 	allfiles_.add( dlist.fullPath(idx) );
 	dirManage( dlist.fullPath(idx), dest );
     }
+
     return 1;
 }
 
 bool ZipHandler::openStrmToRead( const char* src, std::ostream& dest )
 {
-   srcfile_ = src;
-   if ( File::isDirectory( src ) == true )
-   {
-       setLocalFileHeaderForDir( dest );
-   }
-   else
-   {
-       StreamData isd = StreamProvider( src ).makeIStream( true );
-       isd.istrm;
-       if ( !isd.usable() ) 
-       {
-	    errormsg_ = "Input stream not working";
-	    return false;
-       }
-       const bool ret = doZCompress( *isd.istrm, dest );
-       isd.close();
-       return ret;
-   }
+    srcfile_ = src;
+    if ( File::isDirectory( src ) == true )
+	return setLocalFileHeaderForDir( dest );
+    
+    StreamData isd = StreamProvider( src ).makeIStream( true );
+    if ( !isd.usable() ) 
+    {
+	errormsg_ = "Cannot read file ";
+	errormsg_ += src;
+	return false;
+    }
+
+    const bool ret = doZCompress( *isd.istrm, dest );
+    isd.close();
+    return ret;
 }
 
 bool ZipHandler::doZCompress( std::istream& source, std::ostream& dest )
@@ -79,8 +81,11 @@ bool ZipHandler::doZCompress( std::istream& source, std::ostream& dest )
     unsigned towrite;
     z_stream strm;
     unsigned char* in = new unsigned char[srcfilesize_ + 1];	    
-    int level = 6;
-    int stategy = Z_DEFAULT_STRATEGY;
+    const int level = 6;
+    const int method = Z_DEFLATED;
+    const int windowbits = -15;
+    const int memlevel = 9;
+    const int stategy = Z_DEFAULT_STRATEGY;
     destfilesize_ = 0;
     crc_ = 0;
     crc_ = crc32( crc_, 0, 0 );
@@ -88,14 +93,15 @@ bool ZipHandler::doZCompress( std::istream& source, std::ostream& dest )
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
-    ret = deflateInit2( &strm, level, 8, -15, 8, 0 );
+    ret = deflateInit2( &strm, level, method, windowbits, memlevel, stategy );
     unsigned int upperbound = deflateBound( &strm, srcfilesize_ );
     unsigned char* out = new unsigned char[upperbound];
     if ( ret != Z_OK ) 
-	{
-	    errormsg_ = "Error:Deflate() not initialised properly";
-	    return false;	
-	}
+    {
+	errormsg_ = "Error:Deflate() not initialised properly";
+	return false;
+    }
+
     do
     {
 	source.read( (char*)in , srcfilesize_ + 1 );
@@ -124,7 +130,8 @@ bool ZipHandler::doZCompress( std::istream& source, std::ostream& dest )
 	    }
 	} while ( strm.avail_out == 0 );
     } while( flush != Z_FINISH );
-    (void) deflateEnd ( &strm );
+
+    deflateEnd( &strm );
     dest.seekp(ptrlocation + 14);
     dest.write( (const char*) &crc_, sizeof(unsigned long) );
     dest.write( (const char*) &destfilesize_, sizeof(unsigned int) );
@@ -149,6 +156,7 @@ bool ZipHandler::setLocalFileHeader( std::ostream& dest )
 	srcfnm_.add( fnm.dir( idx ) );
 	srcfnm_ += "/";
     }
+
     srcfnm_.add( fnm.fileName() );
     srcfnmsize_ = ( unsigned short ) srcfnm_.size();
     mLocalFileHeaderSig ( headerbuff );
@@ -184,11 +192,13 @@ bool ZipHandler::setLocalFileHeaderForDir( std::ostream& dest )
 	srcfnm_.add( fnm.dir( idx ) );
 	srcfnm_ += "/";
     }
+
     srcfnmsize_ = ( unsigned short ) srcfnm_.size();
     mLocalFileHeaderSig ( headerbuff );
     headerbuff[4] = 10;
     for ( int idx = 5; idx < 26; idx++ )
 	headerbuff[idx] = 0;
+
     datetime = timeInDosFormat( srcfile_ );
     mInsertToCharBuff( headerbuff, datetime, 10, 2 );
     datetime = dateInDosFormat( srcfile_ );
@@ -203,7 +213,6 @@ bool ZipHandler::setLocalFileHeaderForDir( std::ostream& dest )
 
 bool ZipHandler::setCntrlDirHeader( std::ostream& dest )
 {
-    int ptrlocation = dest.tellp();
     char headerbuff[1024];
     StreamData isdest = StreamProvider( destfile_.buf() ).makeIStream( true );
     std::istream& readdest = *isdest.istrm;
@@ -244,6 +253,7 @@ bool ZipHandler::setCntrlDirHeader( std::ostream& dest )
 	dest.write( ( char* )headerbuff, (46 + fnmsize)  );
 	/*pnt = readdest.tellg();*/
     } 
+
     mCntrlDirDigitalSig( headerbuff, 0 );
     headerbuff[4] = 0;
     headerbuff[5] = 0;
@@ -313,6 +323,7 @@ int ZipHandler::readFileHeader( std::istream& src )
 	errormsg_ = "Error: Reading operation failed";
 	return false;
     }
+
     headerbuff[30] = 0;
     mFileHeaderSigCheck( headerbuff, 0 );
     if ( !sigcheck )
@@ -320,18 +331,21 @@ int ZipHandler::readFileHeader( std::istream& src )
 	errormsg_ = "Local File Header Signature not match";
 	return 0;
     }
+
     if ( getBitValue( *(headerbuff + 6), 1 ) )
     {
 	errormsg_ = "Encrypted file::Not supported";
 	//TODO
 	return 0;
     }
+
     version_ = *( (unsigned short*)( headerbuff + 4 ) );
     if ( version_ > 20 )
     {
 	errormsg_ = "Version needed to extract not supported";
 	return 0;
     }
+
     compmethod_ = *( (unsigned short*)( headerbuff + 8 ) );
     lastmodtime_ = *( (unsigned short*)( headerbuff + 10 ) );
     lastmoddate_ = *( (unsigned short*)( headerbuff + 12 ) );
@@ -346,6 +360,7 @@ int ZipHandler::readFileHeader( std::istream& src )
 	errormsg_ = "Error: Reading operation failed";
 	return 0;
     }
+
     headerbuff[srcfnmsize_] = 0;
     if ( headerbuff[srcfnmsize_ - 1] == '/' )
     {
@@ -387,6 +402,7 @@ bool ZipHandler::doZUnCompress( std::istream& source, std::ostream& dest )
 	    errormsg_ = "Error:Inflate() not initialised properly";
 	    return false;
         }
+
         do
         {
             source.read( (char *)in, srcfilesize_ );
@@ -422,8 +438,9 @@ bool ZipHandler::doZUnCompress( std::istream& source, std::ostream& dest )
 	    errormsg_ = "Error:Loss of data possible. CRC not matched";
 	    return false;
 	}
+
         /* clean up and return */
-        (void)inflateEnd( &strm );
+        inflateEnd( &strm );
 
 	delete [] in;
 	delete [] out;
@@ -434,8 +451,10 @@ bool ZipHandler::getBitValue(const unsigned char byte, int bitposition)
 {
     unsigned char modfbyte;
     modfbyte = byte >> ( bitposition - 1 );
-    if ( modfbyte % 2 == 0) return false;
-    else return true;
+    if ( modfbyte % 2 == 0)
+	return false;
+
+    return true;
 }
 
 void ZipHandler::setBitValue(unsigned char& byte,
@@ -471,10 +490,13 @@ short ZipHandler::timeInDosFormat( const char* fnm )
     bte[1] = 0;
     for ( idx = 6; idx < 9; idx++ )
 	setBitValue( bte[0], idx, getBitValue( min, idx - 5 ) );
+
     for ( idx = 1; idx < 4; idx++ )
 	setBitValue( bte[1], idx, getBitValue( min, idx + 3 ) );
+
     for ( idx = 4; idx < 9; idx++ )
 	setBitValue( bte[1], idx, getBitValue( hr, idx-3 ) );
+
     dosformat = *( ( unsigned short* ) ( bte ) );
     return dosformat;
 }
@@ -483,7 +505,6 @@ short ZipHandler::dateInDosFormat( const char* fnm )
 {
     unsigned short dosformat;
     unsigned char bte[2];
-    int idx;
     QFileInfo qfi( fnm );
     QDate fdate = qfi.lastModified().date();
     unsigned char day = ( char ) fdate.day();
@@ -493,12 +514,16 @@ short ZipHandler::dateInDosFormat( const char* fnm )
     dosyear = ( unsigned char ) (year - 1980);
     bte[0] =  day;
     bte[1] = 0;
-    for ( int idx = 6; idx < 9; idx++ )
+    int idx;
+    for ( idx = 6; idx < 9; idx++ )
 	setBitValue( bte[0], idx, getBitValue( month, idx - 5 ) );
-    for ( int idx = 1; idx < 2; idx++ )
+
+    for ( idx = 1; idx < 2; idx++ )
 	setBitValue( bte[1], idx, getBitValue( month, idx + 3 ) );
-    for ( int idx = 2; idx < 9; idx++ )
+    
+    for ( idx = 2; idx < 9; idx++ )
 	setBitValue( bte[1], idx, getBitValue( dosyear, idx - 1 ) );
+
     dosformat = *( ( unsigned short* ) ( bte ) );
     return dosformat;
 }
@@ -513,39 +538,43 @@ bool ZipHandler::setTimeDateModified( unsigned short& time,
     bytetime[1] = *( ( (char*) ( &time ) ) + 1 );
     bytedate[0] = *( (char*) ( &date ) );
     bytedate[1] = *( ( (char*) ( &date ) ) + 1 );
-
-
     for ( idx = 1; idx < 6; idx++ )
 	setBitValue( byte, idx, getBitValue( bytetime[0], idx ) );
+
     byte = byte * 2;
     sec = byte;
     byte = 0;
     for ( idx = 1; idx < 4; idx++ )
 	setBitValue( byte, idx, getBitValue( bytetime[0], idx + 5 ) );
+
     for ( idx = 4; idx < 7; idx++ )
 	setBitValue( byte, idx, getBitValue( bytetime[1], idx - 3 ) );
+
     min = byte;
     byte = 0;
     for ( idx = 1; idx < 6; idx++ )
 	setBitValue( byte, idx, getBitValue( bytetime[1], idx + 3 ) );
+
     hour = byte;
     byte = 0;
 
-
     for ( idx = 1; idx < 6; idx++ )
 	setBitValue( byte, idx, getBitValue( bytedate[0], idx ) );
+
     day = byte;
     byte = 0;
     for ( idx = 1; idx < 4; idx++ )
 	setBitValue( byte, idx, getBitValue( bytedate[0], idx + 5 ) );
+
     for ( idx = 4; idx < 5; idx++ )
 	setBitValue( byte, idx, getBitValue( bytedate[1], idx - 3 ) );
+
     month = byte;
     byte = 0;
     for ( idx = 1; idx < 8; idx++ )
 	setBitValue( byte, idx, getBitValue( bytedate[1], idx + 1 ) );
-    year = byte + 1980;
 
+    year = byte + 1980;
 
     QTime qt( hour, min, sec );
     QDate qd( year, month, day );
@@ -556,12 +585,12 @@ bool ZipHandler::setTimeDateModified( unsigned short& time,
 	ut.modtime = timeinsec;
 	ut.actime = timeinsec;
 	if ( _utime( destfile_.buf(), &ut) == -1 )
-	    return 0;
+	    return false;
 #else
 	struct utimbuf ut;
 	ut.modtime = timeinsec;
 	if ( utime( destfile_.buf(), &ut) == -1 )
-	    return 0;
+	    return false;
 #endif
-    return 1;
+    return true;
 }

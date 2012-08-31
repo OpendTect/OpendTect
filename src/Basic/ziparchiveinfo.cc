@@ -7,10 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ziparchiveinfo.cc,v 1.3 2012-08-31 06:02:31 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziparchiveinfo.cc,v 1.4 2012-08-31 10:12:20 cvsraman Exp $";
 
 #include "ziparchiveinfo.h"
 
+#include "bufstringset.h"
+#include "ziphandler.h"
+#include "strmprov.h"
+
+#include <iostream>
+
+/*
 #include "file.h"
 #include "filepath.h"
 #include "dirlist.h"
@@ -18,19 +25,21 @@ static const char* rcsID mUnusedVar = "$Id: ziparchiveinfo.cc,v 1.3 2012-08-31 0
 #include "task.h"
 #include "iostream"
 #include "fstream"
-#include "strmprov.h"
 #include "utime.h"
-#include "QFileInfo"
-#include "QDateTime"
-#include "QDate"
-#include "QTime"
-#include "zlib.h"
-
+*/
 
 ZipArchiveInfo::ZipArchiveInfo( BufferString& fnm )
+    : ziphd_(*new ZipHandler)
 {
     readZipArchive( fnm );
 }
+
+
+ZipArchiveInfo::~ZipArchiveInfo()
+{
+    delete &ziphd_;
+}
+
 
 void ZipArchiveInfo::readZipArchive( BufferString& fnm )
 {
@@ -38,8 +47,9 @@ void ZipArchiveInfo::readZipArchive( BufferString& fnm )
     bool sigcheck;
     unsigned int ptrlocation;
     StreamData isd = StreamProvider( fnm ).makeIStream();
-    isd.istrm;
-    if ( isd.usable() ) std::cout<<"input stream working \n";
+    if ( !isd.usable() )
+	return;
+
     std::istream& src = *isd.istrm;
     ziphd_.readEndOfCntrlDirHeader( src );
     src.seekg( ziphd_.offsetofcntrldir_, std::ios::beg );
@@ -49,7 +59,7 @@ void ZipArchiveInfo::readZipArchive( BufferString& fnm )
 	src.read( headerbuff.buf(), 46);
 	mCntrlFileHeaderSigCheck( headerbuff, 0 );
 	if ( !sigcheck )
-	    std::cout<<"Error::Signature not matched"<<"\n";
+	    return;
 	src.seekg( ptrlocation + 46 );
 	src.read( headerfnm.buf(), *( (short*) (headerbuff.buf() + 28) ) );
 	FileInfo* fi = new FileInfo( headerfnm, 
