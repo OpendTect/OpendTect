@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiforminputsel.cc,v 1.5 2012-08-30 13:45:01 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiforminputsel.cc,v 1.6 2012-08-31 13:17:29 cvshelene Exp $";
 
 
 #include "uiforminputsel.h"
@@ -128,3 +128,14 @@ void uiFormInputSel::selChg( CallBacker* )
     if ( cstvalfld_ ) cstvalfld_->display( iscst );
 }
 
+
+BufferString uiFormInputSel::getVarName() const
+{
+    return varnm_;
+}
+
+
+void uiFormInputSel::setCurSelIdx( int idx )
+{
+    inpfld_->box()->setCurrentItem( idx );
+}
