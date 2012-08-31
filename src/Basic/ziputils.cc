@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.18 2012-08-31 05:28:14 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.19 2012-08-31 05:39:11 cvssalil Exp $";
 
 #include "ziputils.h"
 
@@ -321,7 +321,7 @@ const char* UnZipping::message() const
     return ziphd_.errorMsg();
 }
 
-const char* ZipUtils::errorMsg()
+const char* ZipUtils::errMsg()
 {
     return ziphdler_.errorMsg();
 }
