@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.27 2012-08-24 19:37:37 cvsnanne Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.28 2012-08-31 21:42:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,7 +221,7 @@ void uiMapperRangeEditor::histogramResized( CallBacker* cb )
 { drawAgain(); }
 
 
-bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
+bool uiMapperRangeEditor::changeLinePos( bool firstclick )
 {
     MouseEventHandler& meh = histogramdisp_->getMouseEventHandler();
     if ( meh.isHandled() )
@@ -234,14 +234,15 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
 	return false;
 
     const int diff = stoppix_ - startpix_;
-    if ( !pressedonly && fabs(float(diff)) <= 1 )
+    if ( !firstclick && fabs(float(diff)) <= 1 )
 	return false;
 
     const int mousepix = ev.pos().x;
     const float mouseposval = xax_->getVal( ev.pos().x );
 
-    if ( !(datarg_.includes(mouseposval,true) || 
-	   histogramdisp_->setup().xrg_.includes(mouseposval,true)) )
+    const bool insiderg = datarg_.includes(mouseposval,true) &&
+        histogramdisp_->setup().xrg_.includes(mouseposval,true);
+    if ( !firstclick && !insiderg )
 	return false;
 
 #define clickrg 5
@@ -249,7 +250,7 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
     {
 	const bool faraway = (mousepix > startpix_+clickrg) ||
 			     (mousepix < startpix_-clickrg);
-	if ( pressedonly && faraway )
+	if ( firstclick && faraway )
 	    return false;
 
 	cliprg_.start = mouseposval;
@@ -261,7 +262,7 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
     {
 	const bool faraway = (mousepix > stoppix_+clickrg) ||
 			     (mousepix < stoppix_-clickrg);
-	if ( pressedonly && faraway )
+	if ( firstclick && faraway )
 	    return false;
 
 	cliprg_.stop = mouseposval;
