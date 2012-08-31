@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.111 2012-08-30 13:42:54 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.112 2012-08-31 08:46:24 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -56,6 +56,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , stratsynth_(*new StratSynth(lm))
     , dispeach_(1)	
     , selectedtrace_(-1)	
+    , selectedtraceaux_(0)
+    , levelaux_(0)
     , wvltChanged(this)
     , zoomChanged(this)
     , modSelChanged(this)		       
@@ -136,6 +138,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     cleanSynthetics();
 
     vwr_ = new uiFlatViewer( this );
+    vwr_->setExtraBorders( uiRect( 0, 0 , 0, 0 ) );
     vwr_->setInitialSize( uiSize(600,250) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
@@ -219,13 +222,41 @@ void uiStratSynthDisp::updateSyntheticList()
 void uiStratSynthDisp::setDispEach( int de )
 {
     dispeach_ = de;
+    displayPostStackDirSynthetic( currentsynthetic_ );
 }
 
 
 void uiStratSynthDisp::setSelectedTrace( int st )
 {
     selectedtrace_ = st;
-    //TODO display a marker at the selected trace (range 0 to N-1)
+
+    delete vwr_->removeAuxData( selectedtraceaux_ );
+    selectedtraceaux_ = 0;
+
+    const StepInterval<double> xrg = vwr_->getDataPackRange(true);
+    const StepInterval<double> zrg = vwr_->getDataPackRange(false);
+
+    const float offset = xrg.start;
+    if ( !xrg.includes( selectedtrace_ + offset, true ) )
+	return;
+
+    selectedtraceaux_ = vwr_->createAuxData( "Selected trace" );
+    selectedtraceaux_->zvalue_ = 2;
+    vwr_->addAuxData( selectedtraceaux_ );
+
+    const double ptx = selectedtrace_ + offset; 
+    const double ptz1 = zrg.start;
+    const double ptz2 = zrg.stop;
+
+    Geom::Point2D<double> pt1 = Geom::Point2D<double>( ptx, ptz1 );
+    Geom::Point2D<double> pt2 = Geom::Point2D<double>( ptx, ptz2 );
+
+    selectedtraceaux_->poly_ += pt1;
+    selectedtraceaux_->poly_ += pt2;
+    selectedtraceaux_->linestyle_ = 
+	LineStyle( LineStyle::Dot, 2, Color::DgbColor() );
+
+    vwr_->handleChange( FlatView::Viewer::Annot, true );
 }
 
 
@@ -278,8 +309,7 @@ const char* uiStratSynthDisp::levelName()  const
 
 void uiStratSynthDisp::drawLevel()
 {
-    while ( vwr_->nrAuxData() )
-	delete vwr_->removeAuxData( 0 );
+    delete vwr_->removeAuxData( levelaux_ );
 
     const StratSynth::Level* lvl = stratsynth_.getLevel();
     if ( d2tmodels_ && !d2tmodels_->isEmpty() && lvl )
@@ -301,7 +331,10 @@ void uiStratSynthDisp::drawLevel()
 	if ( auxd->isEmpty() )
 	    delete auxd;
 	else
+	{
 	    vwr_->addAuxData( auxd );
+	    levelaux_ = auxd;
+	}
     }
 
     vwr_->handleChange( FlatView::Viewer::Annot, true );

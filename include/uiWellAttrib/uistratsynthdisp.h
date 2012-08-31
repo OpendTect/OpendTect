@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.59 2012-08-30 13:42:54 cvsbert Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.60 2012-08-31 08:46:24 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ class uiSynthSlicePos;
 class uiToolButton;
 class uiToolButtonSetup;
 namespace Strat { class LayerModel; }
+namespace FlatView { class AuxData; }
 
 
 mClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
@@ -98,6 +99,8 @@ protected:
     SyntheticData* 	currentsynthetic_;
 
     uiMultiFlatViewControl* control_;
+    FlatView::AuxData*	selectedtraceaux_;
+    FlatView::AuxData*	levelaux_;
 
     uiGroup*		topgrp_;
     uiGroup*		datagrp_;
