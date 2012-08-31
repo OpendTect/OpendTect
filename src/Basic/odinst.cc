@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.21 2012-07-11 11:55:59 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.22 2012-08-31 10:21:54 cvsraman Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -113,7 +113,7 @@ bool ODInst::canInstall()
     if ( !File::isDirectory(installerdir.fullPath()) ) \
 	return errretval; \
     installerdir.add( __iswin__ ? "od_instmgr" : "run_installer" ); \
-    BufferString cmd( __iswin__ ? "" : "@", installerdir.fullPath() ); \
+    BufferString cmd( installerdir.fullPath() ); \
     cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" ); \
    
 
@@ -156,9 +156,9 @@ bool ODInst::updatesAvailable()
 #ifndef __win__
 
     chdir( installerdir.pathOnly() );
-    const bool ret = !StreamProvider( cmd ).executeCommand( false );
+    const int ret = system( cmd );
     chdir( GetSoftwareDir(0) );
-    return ret;
+    return ret == 1;
 #else
     ExecOSCmd( cmd, false, true );
     FilePath tmp( File::getTempPath(), "od_updt" );
