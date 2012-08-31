@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.33 2012-08-30 06:05:56 cvsnageswara Exp $
+ RCS:           $Id: uitextedit.h,v 1.34 2012-08-31 10:51:43 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
     void        allowTextSelection(bool);
 
     void		hideFrame();
+    void		hideScrollBar(bool vertical);
 
 protected:
 			uiTextEditBase(uiParent*,const char*,uiObjectBody&);

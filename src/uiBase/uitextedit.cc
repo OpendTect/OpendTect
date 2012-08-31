@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.59 2012-08-30 07:52:53 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.60 2012-08-31 10:51:42 cvsraman Exp $";
 
 
 #include "uitextedit.h"
@@ -72,6 +72,15 @@ void uiTextEditBase::allowTextSelection( bool yn )
 
 void uiTextEditBase::hideFrame()
 { qte().setFrameShape( mQtclass(QFrame)::NoFrame ); }
+
+void uiTextEditBase::hideScrollBar( bool vertical )
+{
+    if ( vertical )
+	qte().setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+    else
+	qte().setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+}
+
 
 void uiTextEditBase::readFromFile( const char* src, int wraplen )
 {
