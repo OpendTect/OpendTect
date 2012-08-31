@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODInitheader.cmake,v 1.5 2012-08-28 12:12:53 cvskris Exp $
+#	RCS :		$Id: ODInitheader.cmake,v 1.6 2012-08-31 07:55:24 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_CREATE_INIT_HEADER
@@ -33,6 +33,11 @@ MACRO( OD_CREATE_INIT_HEADER )
 	if ( EXISTS ${INCLUDEDIR}/${EXPORTHEADER} )
 	    set ( MODFILEHEADER "#include \"${EXPORTHEADER}\"" )
 	endif()
+
+	foreach ( DEP ${OD_MODULE_DEPS} )
+	    string ( TOLOWER ${DEP} DEPLOWER )
+	    set ( MODFILEHEADER "${MODFILEHEADER}${OD_NEWLINE}#include \"${DEPLOWER}mod.h\"" )
+	endforeach()
 
 	CONFIGURE_FILE( ${OpendTect_DIR}/CMakeModules/templates/initheader.h.in 
 			${INITHEADER} )

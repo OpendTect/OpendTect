@@ -2,65 +2,66 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.70 2012-08-30 11:49:02 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.71 2012-08-31 07:55:24 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
 set ( OD_64BIT 1 )
-IF ( CMAKE_SIZEOF_VOID_P EQUAL 4 )
+if ( CMAKE_SIZEOF_VOID_P EQUAL 4 )
     set ( OD_64BIT )
-ENDIF()
+endif()
 
 #Discover Debug
-IF( ${CMAKE_BUILD_TYPE} MATCHES Release)
+if( ${CMAKE_BUILD_TYPE} MATCHES Release)
     set ( OD_DEBUG )
-ELSE()
+else()
     set ( OD_DEBUG 1 )
-ENDIF()
+endif()
 
-IF(UNIX) #Apple an Linux
-    IF(APPLE)
+if(UNIX) #Apple an Linux
+    if(APPLE)
 	set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
 	set ( OD_PLATFORM_LINK_OPTIONS "-arch x86_64" )
-        ADD_DEFINITIONS("-arch x86_64")
+        add_definitions("-arch x86_64")
         FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices )
         FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
         set (EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
 	set (OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
-	IF(!OD_DEBUG)
+	if(!OD_DEBUG)
 	    set  ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
-	ENDIF()
+	endif()
 
 	set ( OD_PLFSUBDIR mac )
 
 	#NEEDED AS LONG AS WE HAVE COIN
 	set (CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
-    ELSE() #Linux
+    else() #Linux
 
 	#Not on most platforms, but for the few that does, it's better
 	set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
 
-	IF ( OD_64BIT )
+	if ( OD_64BIT )
 	    set ( OD_PLFSUBDIR "lux64" )
-	ELSE()
+	else()
 	    set ( OD_PLFSUBDIR "lux32" )
-	    ADD_DEFINITIONS("-march=pentium4")
-	ENDIF()
+	    add_definitions("-march=pentium4")
+	endif()
 
-	IF ( GCC_VERSION VERSION_GREATER 4.2 )
+	execute_process( COMMAND ${CMAKE_C_COMPILER} -dumpversion
+			 OUTPUT_VARIABLE GCC_VERSION )
+
+	if ( GCC_VERSION VERSION_GREATER 4.2 )
 	    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wignored-qualifiers" )
-	ENDIF()
+	endif()
 
-    ENDIF()
+    endif()
 
-    EXECUTE_PROCESS( COMMAND ${CMAKE_C_COMPILER} -dumpversion
-		     OUTPUT_VARIABLE GCC_VERSION )
 
-    ADD_DEFINITIONS("'-DmUnusedVar=__attribute__ ((unused))'")
+    add_definitions("'-DmUnusedVar=__attribute__ ((unused))'")
     set (OD_STATIC_EXTENSION ".a")
-    IF ( OD_DEBUG )
-	ADD_DEFINITIONS(  "-ggdb3" )
-    ENDIF()
+    if ( OD_DEBUG )
+	add_definitions(  "-ggdb3" )
+    endif()
 
     set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} -D__debug__" )
     set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -D__debug__")
@@ -83,56 +84,60 @@ IF(UNIX) #Apple an Linux
     set ( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-declarations -Wunused -Wimplicit-int" )
     set ( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wimplicit-function-declaration -Wpointer-sign -Wstrict-prototypes" )
 
-ENDIF(UNIX)
+    #Set newline character
+    set ( OD_NEWLINE "\n" )
 
-#Create Launchers on Windows
-IF( DEFINED WIN32 )
+endif(UNIX)
+
+if(WIN32)
+    #Create Launchers on Windows
     set ( OD_CREATE_LAUNCHERS 1 )
-ENDIF()
 
-IF(WIN32)
     set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
     set  ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
     set (OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL" )
-    ADD_DEFINITIONS("/Ob1 /vmg /Zc:wchar_t-")
+    add_definitions("/Ob1 /vmg /Zc:wchar_t-")
     set (EXTRA_LIBS "ws2_32" "shlwapi")
-    ADD_DEFINITIONS(  "\"-DmUnusedVar=\"")
-    ADD_DEFINITIONS( /W4 )
+    add_definitions(  "\"-DmUnusedVar=\"")
+    add_definitions( /W4 )
     
-    ADD_DEFINITIONS( /wd4389 ) # unsigned/signed mismatch
-    ADD_DEFINITIONS( /wd4018 ) # unsigned/signed compare
-    ADD_DEFINITIONS( /wd4505 ) # unreferenced local function removed
-    ADD_DEFINITIONS( /wd4121 ) # Alignmnent of variables
-    ADD_DEFINITIONS( /wd4250 ) # Diamond inheritance problems
-    ADD_DEFINITIONS( /wd4355 ) # The this pointer is valid only within nonstatic member functions.
-    ADD_DEFINITIONS( /wd4100 ) # unreferenced formal parameter
-    #ADD_DEFINITIONS( /wd4701 ) # local variable used without being initialized
-    ADD_DEFINITIONS( /wd4800 ) # forcing value to bool 'true' or 'false' (performance warning)
-    ADD_DEFINITIONS( /wd4251 ) # 'identifier' : dll-interface
-    #ADD_DEFINITIONS( /wd4275 ) # 'identifier' : dll-interface
-    ADD_DEFINITIONS( /wd4996 ) # function': was declared deprecated
-    ADD_DEFINITIONS( /wd4101 ) # The local variable is never used (disable only for Windows)
-    ADD_DEFINITIONS( /wd4512 ) # class' : assignment operator could not be generated (not important)
-    ADD_DEFINITIONS( /wd4127 ) # conditional expression is constant, e.g. while ( true )
-    ADD_DEFINITIONS( /wd4189 ) # local variable is initialized but not referenced
+    add_definitions( /wd4389 ) # unsigned/signed mismatch
+    add_definitions( /wd4018 ) # unsigned/signed compare
+    add_definitions( /wd4505 ) # unreferenced local function removed
+    add_definitions( /wd4121 ) # Alignmnent of variables
+    add_definitions( /wd4250 ) # Diamond inheritance problems
+    add_definitions( /wd4355 ) # The this pointer is valid only within nonstatic member functions.
+    add_definitions( /wd4100 ) # unreferenced formal parameter
+    #add_definitions( /wd4701 ) # local variable used without being initialized
+    add_definitions( /wd4800 ) # forcing value to bool 'true' or 'false' (performance warning)
+    add_definitions( /wd4251 ) # 'identifier' : dll-interface
+    #add_definitions( /wd4275 ) # 'identifier' : dll-interface
+    add_definitions( /wd4996 ) # function': was declared deprecated
+    add_definitions( /wd4101 ) # The local variable is never used (disable only for Windows)
+    add_definitions( /wd4512 ) # class' : assignment operator could not be generated (not important)
+    add_definitions( /wd4127 ) # conditional expression is constant, e.g. while ( true )
+    add_definitions( /wd4189 ) # local variable is initialized but not referenced
 
     #These two should be enabled when someone will go over the code and clean up.
-    ADD_DEFINITIONS( /wd4305 ) # truncation from dowble to float
-    #ADD_DEFINITIONS( /wd4244 ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
+    add_definitions( /wd4305 ) # truncation from dowble to float
+    #add_definitions( /wd4244 ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
 
 
     set (OD_STATIC_EXTENSION ".lib")
     set (OD_EXECUTABLE_EXTENSION ".exe" )
-    IF ( OD_64BIT )
+    if ( OD_64BIT )
         set  ( OD_PLFSUBDIR "win64" )
-    ELSE()
+    else()
         set  ( OD_PLFSUBDIR "win32" )
-    ENDIF()
+    endif()
 
     set  ( OD_GUI_SYSTEM "WIN32" )
-ENDIF()
 
-ADD_DEFINITIONS( "\"-D__${OD_PLFSUBDIR}__=1\"" )
+    #Set newline character
+    set ( OD_NEWLINE "\n\r" )
+endif()
+
+add_definitions( "\"-D__${OD_PLFSUBDIR}__=1\"" )
 
 set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} \"-D__binsubdir__=Debug\" " )
 set ( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE} \"-D__binsubdir__=Release\"" )
