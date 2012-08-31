@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.12 2012-08-31 05:28:14 cvssalil Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.13 2012-08-31 06:04:13 cvsraman Exp $
 #_______________________________________________________________________________
 
 SET(OD_USEQT Core)
@@ -77,5 +77,4 @@ SET(OD_MODULE_SOURCES genc.c filegen.c oddirs.c
 	    ziputils.cc
 	    ziparchiveinfo.cc 
 	    ziphandler.cc )
-SET(OD_MODULE_PROGS od_testzlib )
 OD_INIT_MODULE()
