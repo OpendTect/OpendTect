@@ -8,9 +8,27 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.1 2012-08-31 05:32:07 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.2 2012-08-31 06:02:31 cvsraman Exp $";
 
 #include "ziphandler.h"
+
+#include "bufstring.h"
+#include "file.h"
+#include "filepath.h"
+#include "dirlist.h"
+#include "executor.h"
+#include "task.h"
+#include "iostream"
+#include "fstream"
+#include "strmprov.h"
+#include "utime.h"
+#include "QFileInfo"
+#include "QDateTime"
+#include "QDate"
+#include "QTime"
+#include "zlib.h"
+
+#include "math.h"
 
 bool ZipHandler::dirManage( const char* src, std::ostream& dest )
 {
@@ -123,7 +141,7 @@ bool ZipHandler::setLocalFileHeader( std::ostream& dest )
     char headerbuff[1024];
     char* buf = 0;
     srcfilesize_ = ( unsigned int ) File::getFileSize( srcfile_ );
-    FilePath fnm = srcfile_ ;
+    FilePath fnm( srcfile_ );
     int p = fnm.nrLevels();
     srcfnm_ = "";
     for ( int idx = ( nrlevel_ - 1 ); idx <= (p - 2); idx++ )
@@ -158,7 +176,7 @@ bool ZipHandler::setLocalFileHeaderForDir( std::ostream& dest )
     short datetime;
     char* buf = 0;
     char headerbuff[1024];
-    FilePath fnm = srcfile_ ;
+    FilePath fnm( srcfile_ );
     int p = fnm.nrLevels();
     srcfnm_ = "";
     for ( int idx = ( nrlevel_ - 1 ); idx <= (p - 1); idx++ )
@@ -533,21 +551,17 @@ bool ZipHandler::setTimeDateModified( unsigned short& time,
     QDate qd( year, month, day );
     QDateTime qdt( qd, qt );
     timeinsec = qdt.toTime_t();
-    if ( __iswin__ )
-    {
+#ifdef __win__
 	struct _utimbuf ut;
 	ut.modtime = timeinsec;
 	ut.actime = timeinsec;
 	if ( _utime( destfile_.buf(), &ut) == -1 )
 	    return 0;
-    }
-    else
-    {
+#else
 	struct utimbuf ut;
 	ut.modtime = timeinsec;
 	if ( utime( destfile_.buf(), &ut) == -1 )
 	    return 0;
-    }
-
+#endif
     return 1;
 }

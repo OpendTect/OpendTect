@@ -7,9 +7,25 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.19 2012-08-31 05:39:11 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.20 2012-08-31 06:02:31 cvsraman Exp $";
 
 #include "ziputils.h"
+
+#include "bufstring.h"
+#include "file.h"
+#include "filepath.h"
+#include "dirlist.h"
+#include "executor.h"
+#include "task.h"
+#include "iostream"
+#include "fstream"
+#include "strmprov.h"
+#include "utime.h"
+#include "QFileInfo"
+#include "QDateTime"
+#include "QDate"
+#include "QTime"
+#include "zlib.h"
 
 
 #define mDirCheck( dir ) \
@@ -100,7 +116,7 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 
 bool ZipUtils::zCompress ( BufferString& src, TaskRunner* tr )
 {
-    FilePath fp = src;
+    FilePath fp( src );
     ziphdler_.nrlevel_ = fp.nrLevels();
     ziphdler_.destfile_ = src;
     ziphdler_.destfile_.add( ".zip" );

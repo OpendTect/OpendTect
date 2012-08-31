@@ -7,9 +7,24 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ziparchiveinfo.cc,v 1.2 2012-08-31 05:39:11 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziparchiveinfo.cc,v 1.3 2012-08-31 06:02:31 cvsraman Exp $";
 
 #include "ziparchiveinfo.h"
+
+#include "file.h"
+#include "filepath.h"
+#include "dirlist.h"
+#include "executor.h"
+#include "task.h"
+#include "iostream"
+#include "fstream"
+#include "strmprov.h"
+#include "utime.h"
+#include "QFileInfo"
+#include "QDateTime"
+#include "QDate"
+#include "QTime"
+#include "zlib.h"
 
 
 ZipArchiveInfo::ZipArchiveInfo( BufferString& fnm )
