@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpropertyrefsel.cc,v 1.17 2012-08-30 12:56:16 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellpropertyrefsel.cc,v 1.18 2012-09-02 10:26:11 cvsbruno Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -137,8 +137,7 @@ const PropertyRef& uiPropSelFromList::propRef() const
 
 
 
-uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs, 
-				bool withcreatelogs )
+uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
     : uiGroup(p," property selection from well logs")
     , proprefsel_(prs) 
 {

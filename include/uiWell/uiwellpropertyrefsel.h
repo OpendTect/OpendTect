@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uiwellpropertyrefsel.h,v 1.11 2012-08-30 12:56:16 cvsbruno Exp $
+ RCS:           $Id: uiwellpropertyrefsel.h,v 1.12 2012-09-02 10:26:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,8 +71,7 @@ protected:
 mClass(uiWell) uiWellPropSel : public uiGroup
 {
 public:
-			uiWellPropSel(uiParent*,const PropertyRefSelection&,
-					bool withcreatelogs=false);
+			uiWellPropSel(uiParent*,const PropertyRefSelection&);
 
     void		setLogs(const Well::LogSet&);
 
