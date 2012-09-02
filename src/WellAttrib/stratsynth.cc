@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.47 2012-09-02 10:27:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.48 2012-09-02 14:11:04 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -365,6 +365,8 @@ void StratSynth::generateOtherQuantities( PostStackSyntheticData& sd,
 	    new PropertyRefSyntheticData( genparams_, *dp, *props[iprop] );
 	prsd->id_ = ++lastsyntheticid_;
 	prsd->setName( nm );
+
+	deepCopy( prsd->d2tmodels_, sd.d2tmodels_ );
 	synthetics_ += prsd;
     }
 }
