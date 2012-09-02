@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.46 2012-08-29 10:30:32 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.47 2012-09-02 10:27:10 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -26,6 +26,7 @@ static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.46 2012-08-29 10:3
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "synthseis.h"
+#include "timeser.h"
 #include "wavelet.h"
 
 
@@ -131,7 +132,12 @@ SyntheticData* StratSynth::replaceSynthetic( int id )
 SyntheticData* StratSynth::addDefaultSynthetic()
 {
     genparams_.name_ = genparams_.genName();
-    return addSynthetic();
+    SyntheticData* sd = addSynthetic();
+
+    mDynamicCastGet(PostStackSyntheticData*,psd,sd);
+    if ( psd )  generateOtherQuantities( *psd, lm_ );
+
+    return sd;
 }
 
 
@@ -294,24 +300,21 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	deepErase( tmpd2ts );
     }
 
-    if ( sd && !genparams_.isps_ )
-	generateOtherQuantities( (PostStackSyntheticData&)(*sd), lm );
-
     return sd;
 }
 
 
 void StratSynth::generateOtherQuantities( PostStackSyntheticData& sd, 
-					  const Strat::LayerModel& lm ) const
+					  const Strat::LayerModel& lm ) 
 {
     const PropertyRefSelection& props = lm.propertyRefs();
 
     for ( int iprop=1; iprop<props.size(); iprop++ )
     {
-	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( *sd.postStackPack() );
+	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( 
+					(SeisTrcBufDataPack&)sd.getPack() );
 
-	BufferString nm( sd.name() ); 
-	nm += " ["; nm += props[iprop]->name(); nm += "]";
+	BufferString nm( "[" ); nm += props[iprop]->name(); nm += "]";
 
 	const StepInterval<double>& zrg = dp->posData().range( false );
 
@@ -326,7 +329,7 @@ void StratSynth::generateOtherQuantities( PostStackSyntheticData& sd,
 	    int layidx = 0;
 	    float laydpt = seq.startDepth();
 	    float val = mUdf(float);
-	    SeisTrc* trc = iseq < bufsz ? trcbuf->get( iseq ) : 0;
+	    TypeSet<float> vals; 
 	    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
 	    {
 		const float time = zrg.atIndex( idz );
@@ -345,13 +348,24 @@ void StratSynth::generateOtherQuantities( PostStackSyntheticData& sd,
 		if ( lay && iprop < lay->nrValues() )
 		    val = lay->value( iprop );
 
-		if ( trc )
-		    trc->set( idz, val, 0 );
+		vals += val;
 	    }
+	    SeisTrc* trc = iseq < bufsz ? trcbuf->get( iseq ) : 0;
+	    if ( !trc ) continue;
+	    Array1DImpl<float> outvals( vals.size() );
+	    AntiAlias( 1/(float)5, vals.size(), vals.arr(), outvals.arr() );
+	    for ( int idz=0; idz<vals.size(); idz++ )
+		trc->set( idz, outvals.get(idz), 0 );
 	}
+
+
 	dp->setBuffer( trcbuf, Seis::Line, SeisTrcInfo::TrcNr );	
 	dp->setName( nm );
-	sd.addPropertyPack( *dp, *props[iprop] );
+	PropertyRefSyntheticData* prsd = 
+	    new PropertyRefSyntheticData( genparams_, *dp, *props[iprop] );
+	prsd->id_ = ++lastsyntheticid_;
+	prsd->setName( nm );
+	synthetics_ += prsd;
     }
 }
 
@@ -453,9 +467,9 @@ void StratSynth::setLevel( const Level* lvl )
 
 SyntheticData::SyntheticData( const SynthGenParams& sgp, DataPack& dp )
     : NamedObject(sgp.name_)
+    , datapack_(dp)
     , id_(-1) 
 {
-    datapacks_ += &dp;    
     useGenParams( sgp );
 }
 
@@ -463,30 +477,24 @@ SyntheticData::SyntheticData( const SynthGenParams& sgp, DataPack& dp )
 SyntheticData::~SyntheticData()
 {
     deepErase( d2tmodels_ );
-    removePacks(); 
+    removePack(); 
 }
 
 
 void SyntheticData::setName( const char* nm )
 {
     NamedObject::setName( nm );
-    datapacks_[0]->setName( nm );
+    datapack_.setName( nm );
 }
 
 
-void SyntheticData::removePacks()
+void SyntheticData::removePack()
 {
-    while ( !datapackids_.isEmpty() )
-    {
-	const DataPack::FullID dpid = datapackids_[0];
-	DataPackMgr::ID packmgrid = DataPackMgr::getID( dpid );
-	const DataPack* dp = DPM(packmgrid).obtain( DataPack::getID(dpid) );
-	if ( dp )
-	    DPM(packmgrid).release( dp->id() );
-	
-	datapackids_.remove(0);
-	datapacks_.remove(0);
-    }
+    const DataPack::FullID dpid = datapackid_;
+    DataPackMgr::ID packmgrid = DataPackMgr::getID( dpid );
+    const DataPack* dp = DPM(packmgrid).obtain( DataPack::getID(dpid) );
+    if ( dp )
+	DPM(packmgrid).release( dp->id() );
 }
 
 
@@ -511,7 +519,7 @@ PostStackSyntheticData::PostStackSyntheticData( const SynthGenParams& sgp,
 {
     DataPackMgr::ID pmid = DataPackMgr::FlatID();
     DPM( pmid ).add( &dp );
-    datapackids_ += DataPack::FullID( pmid, dp.id());
+    datapackid_ = DataPack::FullID( pmid, dp.id());
 }
 
 
@@ -520,32 +528,8 @@ PostStackSyntheticData::~PostStackSyntheticData()
 }
 
 
-void PostStackSyntheticData::addPropertyPack( SeisTrcBufDataPack& dp, 
-					const PropertyRef& ref)
-{
-    DataPackMgr::ID pmid = DataPackMgr::FlatID();
-    DPM( pmid ).add( &dp );
-    datapacks_ += &dp; 
-    props_ += &ref;
-    datapackids_ += DataPack::FullID( pmid, dp.id());
-}
-
-
-SeisTrcBufDataPack* PostStackSyntheticData::psPack( const PropertyRef* pr) const
-{
-    if ( !pr ) 
-	return const_cast<SeisTrcBufDataPack*>( 
-	    			(SeisTrcBufDataPack*)datapacks_[0] );
-
-    const int idxofpr = props_.indexOf( pr ) + 1;
-    return datapacks_.validIdx( idxofpr ) ? 
-	const_cast<SeisTrcBufDataPack*>( 
-	(SeisTrcBufDataPack*)datapacks_[idxofpr] ) : 0;
-}
-
-
 const SeisTrc* PostStackSyntheticData::getTrace( int seqnr ) const
-{ return postStackPack()->trcBuf().get( seqnr ); }
+{ return postStackPack().trcBuf().get( seqnr ); }
 
 
 
@@ -555,7 +539,7 @@ PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
 {
     DataPackMgr::ID pmid = DataPackMgr::CubeID();
     DPM( pmid ).add( &dp );
-    datapackids_ += DataPack::FullID( pmid, dp.id());
+    datapackid_ = DataPack::FullID( pmid, dp.id());
 }
 
 
@@ -588,6 +572,15 @@ SeisTrcBuf* PreStackSyntheticData::getTrcBuf( float offset,
     preStackPack().fill( *tbuf, offrg );
     return tbuf;
 }
+
+
+PropertyRefSyntheticData::PropertyRefSyntheticData( const SynthGenParams& sgp,
+						    SeisTrcBufDataPack& dp,
+						    const PropertyRef& pr )
+    : PostStackSyntheticData( sgp, dp ) 
+    , prop_(pr)
+{}
+
 
 
 void SyntheticData::fillGenParams( SynthGenParams& sgp ) const

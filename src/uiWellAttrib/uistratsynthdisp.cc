@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.112 2012-08-31 08:46:24 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.113 2012-09-02 10:27:10 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -461,8 +461,7 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
 
     vwr_->clearAllPacks(); 
     vwr_->control()->zoomMgr().toStart();
-    while ( vwr_->nrAuxData() )
-	delete vwr_->removeAuxData( 0 );
+    vwr_->removeAllAuxData( true );
 
     if ( !sd ) return;
 
@@ -472,9 +471,8 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
     const bool dostack = stackbox_->isChecked();
     const Interval<float>* stackrg = dostack ? &stackfld_->getRange() : 0;
     const float offset = offsetposfld_->getValue();
-    PropertyRefSelection prs; propertyRefs( prs );
     const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, stackrg ) 
-				   : &postsd->postStackPack()->trcBuf();
+				   : &postsd->postStackPack().trcBuf();
 
     if ( !tbuf ) return;
 
@@ -524,10 +522,7 @@ void uiStratSynthDisp::displayPreStackDirSynthetic( const SyntheticData* sd )
     PreStack::Gather* gdp = new PreStack::Gather(*gsetdp->getGathers()[midx-1]);
     DPM(DataPackMgr::FlatID()).add( gdp );
 
-    vwr.appearance() = vwr_->appearance();
-
-    while ( vwr.nrAuxData() )
-	delete vwr.removeAuxData( 0 );
+    vwr.removeAllAuxData( true );
 
     vwr.setPack( false, gdp->id(), false ); 
     vwr.setPack( true, gdp->id(), false ); 
@@ -648,9 +643,8 @@ const SeisTrcBuf& uiStratSynthDisp::postStackTraces(const PropertyRef* pr) const
     static SeisTrcBuf emptytb( true );
     if ( !currentsynthetic_ || currentsynthetic_->isPS() ) return emptytb;
 
-    const PostStackSyntheticData& psd = 
-		(PostStackSyntheticData&)(*currentsynthetic_);
-    const SeisTrcBufDataPack* stbp = psd.postStackPack( pr ); 
+    const DataPack& dp = currentsynthetic_->getPack();
+    mDynamicCastGet(const SeisTrcBufDataPack*,stbp,&dp);
     if ( !stbp ) return emptytb;
 
     if ( d2tmodels_ && !d2tmodels_->isEmpty() )
@@ -664,10 +658,7 @@ const SeisTrcBuf& uiStratSynthDisp::postStackTraces(const PropertyRef* pr) const
 
 void uiStratSynthDisp::propertyRefs( PropertyRefSelection& prs )
 {
-    if ( !currentsynthetic_ || currentsynthetic_->isPS() )
-	return;
-
-    prs = ((PostStackSyntheticData*)(currentsynthetic_))->propertyRefs();
+    prs = layerModel().propertyRefs();
 }
 
 

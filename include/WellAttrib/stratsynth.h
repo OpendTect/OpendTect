@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.23 2012-08-27 14:37:34 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.24 2012-09-02 10:27:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,12 +62,12 @@ public:
     float				getTime(float dpt,int seqnr) const;
     float				getDepth(float time,int seqnr) const;
 
-    const DataPack&			getPack() const {return *datapacks_[0];}
-    DataPack&				getPack() 	{return *datapacks_[0];}
+    const DataPack&			getPack() const {return datapack_;}
+    DataPack&				getPack() 	{return datapack_;}
 
     ObjectSet<const TimeDepthModel> 	d2tmodels_;
 
-    TypeSet<DataPack::FullID>		datapackids_;
+    DataPack::FullID			datapackid_;
 
     int					id_;
     virtual bool			isPS() const 		= 0;
@@ -83,9 +83,9 @@ protected:
     BufferString 			wvltnm_;
     IOPar				raypars_;
 
-    void				removePacks();
+    void				removePack();
 
-    ObjectSet<DataPack>			datapacks_;
+    DataPack&				datapack_;
 };
 
 
@@ -101,20 +101,10 @@ public:
 
     const SeisTrc*		getTrace(int seqnr) const;
 
-    SeisTrcBufDataPack* 	postStackPack(const PropertyRef* pr=0)
-				{ return psPack(pr); }
-    const SeisTrcBufDataPack* 	postStackPack(const PropertyRef* pr=0) const
-				{ return psPack(pr); }
-
-    PropertyRefSelection&       propertyRefs()          { return props_; }
-    const PropertyRefSelection& propertyRefs() const    { return props_; }
-
-    void			addPropertyPack(SeisTrcBufDataPack&,
-	    					const PropertyRef&);
-
-protected:
-    SeisTrcBufDataPack* 	psPack(const PropertyRef* pr=0) const;
-    PropertyRefSelection	props_;
+    SeisTrcBufDataPack& 	postStackPack() 
+				{ return (SeisTrcBufDataPack&)datapack_; }
+    const SeisTrcBufDataPack& 	postStackPack() const
+				{ return (SeisTrcBufDataPack&)datapack_; }
 };
 
 
@@ -133,11 +123,23 @@ public:
     const SeisTrc*			getTrace(int seqnr,int* offset) const;
     SeisTrcBuf*				getTrcBuf(float startoffset,
 					    const Interval<float>* offrg) const;
-protected:
+
     PreStack::GatherSetDataPack&	preStackPack()
-	{ return (PreStack::GatherSetDataPack&)(*datapacks_[0]); }
+	{ return (PreStack::GatherSetDataPack&)(datapack_); }
     const PreStack::GatherSetDataPack&	preStackPack() const
-	{ return (PreStack::GatherSetDataPack&)(*datapacks_[0]); }
+	{ return (PreStack::GatherSetDataPack&)(datapack_); }
+};
+
+
+mClass(WellAttrib) PropertyRefSyntheticData : public PostStackSyntheticData
+{
+public:
+				PropertyRefSyntheticData(const SynthGenParams&,
+							SeisTrcBufDataPack&,
+							const PropertyRef&);
+
+protected:
+    const PropertyRef& 		prop_;
 };
 
 
@@ -183,12 +185,12 @@ public:
     void			setTaskRunner(TaskRunner* tr) { tr_ = tr; }
     const char* 		errMsg() const;
 
-
 protected:
 
     const Strat::LayerModel& 	lm_;
     const Level*     		level_;
     SynthGenParams		genparams_;
+    PropertyRefSelection	props_;
     ObjectSet<SyntheticData> 	synthetics_;
     int				lastsyntheticid_;
     const Wavelet*		wvlt_;
@@ -196,13 +198,14 @@ protected:
     BufferString		errmsg_;
     TaskRunner*			tr_;
 
-    SyntheticData* 		generateSD(const Strat::LayerModel&,
-					    TaskRunner* tr=0);
     bool			fillElasticModel(const Strat::LayerModel&,
-					    ElasticModel&,int seqidx);
+					ElasticModel&,int seqidx);
+    void			generateOtherQuantities( 
+	    				PostStackSyntheticData& sd,
+	    				const Strat::LayerModel&);
+    SyntheticData* 		generateSD(const Strat::LayerModel&,
+					TaskRunner* tr=0);
 
-    void			generateOtherQuantities(PostStackSyntheticData&,
-	    				const Strat::LayerModel&) const;
 };
 
 #endif

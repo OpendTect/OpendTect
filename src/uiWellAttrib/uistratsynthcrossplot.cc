@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.46 2012-08-27 14:37:34 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.47 2012-09-02 10:27:10 cvsbruno Exp $";
 
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
@@ -60,9 +60,9 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     {
 	const SyntheticData& sd = *synths[idx];
 	if ( sd.isPS() )
-	    psfids.append( sd.datapackids_ );
+	    psfids += sd.datapackid_;
 	else
-	    fids.append( sd.datapackids_ );
+	    fids += sd.datapackid_;
     }
     if ( fids.isEmpty() && psfids.isEmpty() )
 	{ errmsg_ = "Missing or invalid 'datapacks'."
