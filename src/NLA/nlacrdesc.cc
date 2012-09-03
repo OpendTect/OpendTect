@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: nlacrdesc.cc,v 1.29 2012-08-29 10:04:26 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: nlacrdesc.cc,v 1.30 2012-09-03 10:29:24 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -157,15 +157,24 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 
     // Get the data into train and test set
     Stats::RandGen::init();
+
+    // All the following to support non-random test set extraction
     const bool extractrand = ratiotst > -0.001;
     const float tstratio = ratiotst < 0 ? -ratiotst : ratiotst;
+    int lasttrain = 0;
+    if ( !extractrand )
+    {
+	int totnrvecs = 0;
+	for ( int idps=0; idps<dpss.size(); idps++ )
+	    totnrvecs += dpss[idps]->size();
+	lasttrain = (int)((1-tstratio)*totnrvecs + .5);
+    }
 
+    int itotal = 0;
     for ( int idps=0; idps<dpss.size(); idps++ )
     {
 	const DataPointSet& curdps = *dpss[idps];
-	const int curdpssz = curdps.size();
-	const int lasttrain = (int)((1-tstratio)*curdpssz + .5);
-	for ( DataPointSet::RowID irow=0; irow<curdpssz; irow++ )
+	for ( DataPointSet::RowID irow=0; irow<curdps.size(); irow++ )
 	{
 	    DataPointSet::DataRow inpdr( curdps.dataRow(irow) );
 	    DataPointSet::DataRow outdr( inpdr );
@@ -182,9 +191,10 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	    }
 
 	    const bool istest = extractrand ? Stats::RandGen::get() < tstratio
-					     : irow > lasttrain;
+					     : itotal > lasttrain;
 	    outdr.setGroup( istest ? 2 : 1 );
 	    dps.addRow( outdr );
+	    itotal++;
 	}
     }
 
