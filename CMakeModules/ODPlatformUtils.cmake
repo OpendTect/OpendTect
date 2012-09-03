@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.72 2012-09-03 10:00:15 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.73 2012-09-03 10:36:54 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -17,6 +17,12 @@ if( ${CMAKE_BUILD_TYPE} MATCHES Release)
 else()
     set ( OD_DEBUG 1 )
 endif()
+
+set ( SET_SYMBOLS -D__hassymbols__ )
+set ( SET_DEBUG -D__debug__ )
+
+set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
+set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
 
 if(UNIX) #Apple an Linux
     if(APPLE)
@@ -85,6 +91,9 @@ if(UNIX) #Apple an Linux
     #Set newline character
     set ( OD_NEWLINE "\n" )
 
+    set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG}" )
+    set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG}" )
+
 endif(UNIX)
 
 if(WIN32)
@@ -137,10 +146,3 @@ endif()
 
 add_definitions( "\"-D__${OD_PLFSUBDIR}__=1\"" )
 
-set ( SET_SYMBOLS -D__hassymbols__ )
-set ( SET_DEBUG -D__debug__ )
-
-set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG}" )
-set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
-set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG}" )
-set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
