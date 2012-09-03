@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrateditlayer.cc,v 1.2 2012-08-30 14:54:23 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistrateditlayer.cc,v 1.3 2012-09-03 11:03:41 cvsbert Exp $";
 
 #include "uistrateditlayer.h"
 #include "stratlayersequence.h"
@@ -57,7 +57,7 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 	else
 	{
 	    if ( depthinft )
-		valfld->setUnit( UnitOfMeasure::surveyDefZUnit() );
+		valfld->setUnit( UnitOfMeasure::surveyDefDepthUnit() );
 	    valfld->attach( alignedBelow, topfld_ );
 	    valfld->attach( ensureBelow, sep );
 	}
