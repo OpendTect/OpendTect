@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.90 2012-08-28 13:20:08 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.91 2012-09-03 14:45:11 cvsbruno Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -35,6 +35,8 @@ static const char* rcsID mUnusedVar = "$Id: wellextractdata.cc,v 1.90 2012-08-28
 
 #include <iostream>
 #include <math.h>
+
+#define mLocalEps 1e-1;
 
 namespace Well
 {
@@ -520,6 +522,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
     BinIDValue biv; 
     BinIDValue prevbiv; mSetUdf(prevbiv.binid.inl);
 
+    dahrg.start -= mLocalEps;	dahrg.stop  += mLocalEps;
     while ( true )
     {
 	zpos += zincr;
@@ -1045,9 +1048,7 @@ bool Well::LogSampler::doPrepare( int thread )
     else
 	dah -= zstep_;
 
-#define mLocalEps 1e-1;
-    dahrg.start -= mLocalEps;
-    dahrg.stop  += mLocalEps;
+    dahrg.start -= mLocalEps;	dahrg.stop  += mLocalEps;
     while ( true )
     {
 	if ( extrintime_ )
