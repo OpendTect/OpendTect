@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uifreqfilter.cc,v 1.6 2012-05-14 10:01:21 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifreqfilter.cc,v 1.7 2012-09-03 12:11:15 cvsbruno Exp $";
 
 
 #include "uifreqfilter.h"
@@ -36,8 +36,9 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
 
     setHAlignObj( freqfld_ );
 
-    setMinFreq( 15 );
-    setMaxFreq( 50 );
+    set( 15, 50, FFTFilter::LowPass );
+
+    postFinalise().notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
 }
 
 
@@ -74,4 +75,11 @@ void uiFreqFilterSelFreq::getFromScreen( CallBacker* )
 }
 
 
+void uiFreqFilterSelFreq::set( float minf, float maxf, FFTFilter::Type tp )
+{
+    freqrg_.start = minf;
+    freqrg_.stop = maxf;
+    filtertype_ = tp;
+    putToScreen();
+}
 
