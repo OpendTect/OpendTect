@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.25 2012-07-12 14:11:05 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.26 2012-09-03 12:17:48 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
@@ -339,6 +339,7 @@ bool uiWellLogToolWin::rejectOK( CallBacker* )
 void uiWellLogToolWin::applyPushedCB( CallBacker* )
 {
     const int act = actionfld_->currentItem();
+    bool succeed = false;
     for ( int idldata=0; idldata<logdatas_.size(); idldata++ )
     {
 	LogData& ld = *logdatas_[idldata]; deepErase( ld.outplogs_ );
@@ -348,7 +349,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    Well::Log* outplog = new Well::Log( inplog );
 	    const int sz = inplog.size();
 	    const int gate = gatefld_->getValue(); 
-	    if ( sz< 2 || sz < 2*gate ) continue;
+	    if ( sz< 2 || ( act != 1 && sz < 2*gate ) ) continue;
+
 	    ld.outplogs_ += outplog;
 	    const float* inp = inplog.valArr();
 	    float* outp = outplog->valArr();
@@ -445,8 +447,9 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    outplog->addValue( ls.getDah(idz), outplogarr[idz] );
 	    }
 	}
+	succeed = true;
     }
-    okbut_->setSensitive( true );
+    okbut_->setSensitive( succeed );
     displayLogs();
 }
 
