@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.18 2012-08-03 13:00:27 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.19 2012-09-03 14:33:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,17 @@ class TaskRunner;
 
 namespace Geometry
 {
+    
+    
+class IndexedPrimitive
+{
+public:
+    virtual void	push( int )		= 0;
+    virtual int		pop()			= 0;
+    virtual int		size() const		= 0;
+    virtual int		get(int) const 		= 0;
+    virtual int		set(int) const		= 0;
+};
 
 /*!A geomtetry that is defined by a number of coordinates (defined outside
    the class), by specifying connections between the coordiates. */

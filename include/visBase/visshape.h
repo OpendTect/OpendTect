@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.29 2012-08-03 13:01:26 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.30 2012-09-03 14:33:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "visbasemod.h"
 #include "visobject.h"
+#include "indexedshape.h"
 
 class SoIndexedShape;
 class SoMaterialBinding;
@@ -24,6 +25,8 @@ class SoShape;
 class SoShapeHints;
 class SoSwitch;
 class SoVertexShape;
+
+namespace osg { class Geometry; }
 
 namespace visBase
 {
@@ -162,14 +165,23 @@ protected:
 private:
     SoNormalBinding*	normalbinding_;
     SoShapeHints*	shapehints_;
+    
+    osg::Geometry*	osggeom_;
 };
 
 #undef mDeclSetGetItem
-
-
+    
+    
 mClass(visBase) IndexedShape : public VertexShape
 {
 public:
+    static Geometry::IndexedPrimitive*	createPrimitive();
+    
+    void	addPrimitive(Geometry::IndexedPrimitive*);
+    void	removePrimitive(const Geometry::IndexedPrimitive*);
+    
+    int		nrPrimitives() const;
+    
     int		nrCoordIndex() const;
     void	setCoordIndex(int pos,int idx);
     void	setCoordIndices(const int* idxs, int sz);
@@ -217,7 +229,10 @@ public:
 protected:
     		IndexedShape( SoIndexedShape* );
 
+    
+    ObjectSet<Geometry::IndexedPrimitive>	primitives_;
 private:
+
 
     SoIndexedShape*	indexedshape_;
 };

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.35 2012-05-02 15:12:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.36 2012-09-03 14:33:23 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -31,6 +31,8 @@ static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.35 2012-05-02 15:12:
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoShapeHints.h"
 #include "Inventor/nodes/SoSwitch.h"
+
+#include <osg/PrimitiveSet>
 
 
 namespace visBase
@@ -481,5 +483,32 @@ int IndexedShape::getClosestCoordIndex( const EventInfo& ei ) const
 
     return facedetail->getClosestIdx( getCoordinates(), ei.localpickedpos );
 }
-
+    
+    
+class osgPrimitive : public Geometry::IndexedPrimitive
+{
+public:
+    osgPrimitive() : element_( new osg::DrawElementsUInt) {}
+    
+    virtual void	push( int ) {}
+    virtual int		pop() { return 0; }
+    virtual int		size() const { return 0; }
+    virtual int		get(int) const { return 0; }
+    virtual int		set(int) const { return 0; }
+    
+    osg::ref_ptr<osg::DrawElementsUInt>	element_;
+};
+    
+    
+Geometry::IndexedPrimitive* visBase::IndexedShape::createPrimitive()
+{
+    return new osgPrimitive;
+}
+    
+    
+void visBase::IndexedShape::addPrimitive( Geometry::IndexedPrimitive* p )
+{
+    primitives_ += p;
+}
+    
 } // namespace visBase
