@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.48 2012-09-02 14:11:04 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.49 2012-09-04 11:02:43 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -166,6 +166,20 @@ SyntheticData* StratSynth::getSynthetic( int id )
 SyntheticData* StratSynth::getSyntheticByIdx( int idx ) 
 {
     return synthetics_.validIdx( idx ) ?  synthetics_[idx] : 0;
+}
+
+
+
+SyntheticData* StratSynth::getSynthetic( const  PropertyRef& pr )
+{
+    for ( int idx=0; idx<synthetics_.size(); idx++ )
+    {
+	mDynamicCastGet(PropertyRefSyntheticData*,pssd,synthetics_[idx]);
+	if ( !pssd ) continue;
+	if ( pr == pssd->propRef() )
+	    return pssd;
+    }
+    return 0;
 }
 
 

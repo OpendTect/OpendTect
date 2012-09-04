@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.113 2012-09-02 10:27:10 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.114 2012-09-04 11:02:43 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -640,17 +640,19 @@ void uiStratSynthDisp::modelPosChged( CallBacker* )
 
 const SeisTrcBuf& uiStratSynthDisp::postStackTraces(const PropertyRef* pr) const
 {
-    static SeisTrcBuf emptytb( true );
-    if ( !currentsynthetic_ || currentsynthetic_->isPS() ) return emptytb;
+    SyntheticData* sd = pr ? stratsynth_.getSynthetic(*pr) :currentsynthetic_;
 
-    const DataPack& dp = currentsynthetic_->getPack();
+    static SeisTrcBuf emptytb( true );
+    if ( !sd || sd->isPS() ) return emptytb;
+
+    const DataPack& dp = sd->getPack();
     mDynamicCastGet(const SeisTrcBufDataPack*,stbp,&dp);
     if ( !stbp ) return emptytb;
 
-    if ( d2tmodels_ && !d2tmodels_->isEmpty() )
+    if ( !sd->d2tmodels_.isEmpty() )
     {
 	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( stbp->trcBuf() );
-	stratsynth_.snapLevelTimes( tbuf, *d2tmodels_ );
+	stratsynth_.snapLevelTimes( tbuf, sd->d2tmodels_ );
     }
     return stbp->trcBuf();
 }

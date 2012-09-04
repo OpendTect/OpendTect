@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.24 2012-09-02 10:27:10 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.25 2012-09-04 11:02:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,6 +138,8 @@ public:
 							SeisTrcBufDataPack&,
 							const PropertyRef&);
 
+    const PropertyRef&		propRef() const { return prop_; }
+
 protected:
     const PropertyRef& 		prop_;
 };
@@ -156,6 +158,7 @@ public:
     SyntheticData*		addDefaultSynthetic(); 
     SyntheticData* 		getSynthetic(const char* nm);
     SyntheticData* 		getSynthetic(int id);
+    SyntheticData* 		getSynthetic(const PropertyRef&);
     SyntheticData* 		getSyntheticByIdx(int idx);
     void			clearSynthetics();
 
