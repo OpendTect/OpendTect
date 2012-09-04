@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.114 2012-09-04 11:02:43 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.115 2012-09-04 13:28:34 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -658,10 +658,8 @@ const SeisTrcBuf& uiStratSynthDisp::postStackTraces(const PropertyRef* pr) const
 }
 
 
-void uiStratSynthDisp::propertyRefs( PropertyRefSelection& prs )
-{
-    prs = layerModel().propertyRefs();
-}
+const PropertyRefSelection& uiStratSynthDisp::modelPropertyRefs() const
+{ return layerModel().propertyRefs(); }
 
 
 const ObjectSet<const TimeDepthModel>* uiStratSynthDisp::d2TModels() const
