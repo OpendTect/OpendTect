@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.109 2012-08-10 03:50:08 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltieview.cc,v 1.110 2012-09-04 08:41:32 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 #include "uiwelltiecontrolview.h"
@@ -63,6 +63,7 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
 
 uiTieView::~uiTieView()
 {
+    delete wellcontrol_;
     vwr_->clearAllPacks();
     delete &trcbuf_;
 }

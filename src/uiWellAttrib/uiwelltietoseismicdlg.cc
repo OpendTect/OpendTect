@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.113 2012-07-17 15:11:57 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.114 2012-09-04 08:41:32 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -452,6 +452,7 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 bool uiTieWin::rejectOK( CallBacker* )
 {
     server_.d2TModelMgr().cancel();
+    drawer_->enableCtrlNotifiers( false );
     close();
     if ( Well::MGR().isLoaded( server_.wellID() ) )
 	Well::MGR().reload( server_.wellID() ); 
@@ -464,9 +465,10 @@ bool uiTieWin::acceptOK( CallBacker* )
     BufferString msg("This will overwrite your depth/time model, do you want to continue?");
     if ( uiMSG().askOverwrite(msg) )
     {
+	drawer_->enableCtrlNotifiers( false );
+	close();
 	if ( !server_.d2TModelMgr().commitToWD() )
 	    mErrRet("Cannot write new depth/time model")
-	close();
 	if ( Well::MGR().isLoaded( server_.wellID() ) )
 	    Well::MGR().reload( server_.wellID() ); 
     }
