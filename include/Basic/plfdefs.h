@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.32 2012-07-19 07:09:15 cvskris Exp $
+ RCS:		$Id: plfdefs.h,v 1.33 2012-09-04 08:18:13 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -27,11 +27,6 @@ OS type:
 	__unix__	Unix
 	__lux__		Linux
 	__win__		Windows
-
-Machine:
-
-	__pc__		PC
-			(Mac is just __mac__ below)
 
 Platform:
 
@@ -55,8 +50,8 @@ Language:
 
 Byte order:
 
-	__little__	little-endian - PC's, not Mac
-
+	__little__	little-endian
+ 
 Always defined:
 
 	__islittle__	'true' if little endian machine, false otherwise
@@ -113,25 +108,11 @@ Always defined:
 /*____________________________________________________________________________*/
 /* Machine type	*/
 
-#undef __pc__
+
 #undef __little__
-
-#ifdef __lux__
-# define __pc__ 1
-#endif
-#ifdef __win__
-# define __pc__ 1
-#endif
-#ifdef __mac__
-# define __mac__ 1
-#endif
-
-#ifdef __pc__
+// All platforms are little endian
 # define __little__ 1
 # define __islittle__ true
-#else
-#  define __islittle__ false
-#endif
 
 #ifdef __win32__
 # define __plfsubdir__	"win32"
