@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.19 2012-09-03 14:33:23 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.20 2012-09-04 09:32:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "thread.h"
 #include "callback.h"
+#include "ptrman.h"
 
 class Coord3List;
 class TaskRunner;
@@ -30,7 +31,22 @@ public:
     virtual int		pop()			= 0;
     virtual int		size() const		= 0;
     virtual int		get(int) const 		= 0;
-    virtual int		set(int) const		= 0;
+    virtual int		set(int,int) 		= 0;
+};
+    
+    
+class IndexedPrimitiveCreator
+{
+public:
+    virtual 			~IndexedPrimitiveCreator() {}
+    
+    static IndexedPrimitive*	create();
+    static void			setCreator(IndexedPrimitiveCreator*);
+    
+protected:
+    virtual IndexedPrimitive*	doCreate()	= 0;
+
+    static PtrMan<IndexedPrimitiveCreator>	creator_;
 };
 
 /*!A geomtetry that is defined by a number of coordinates (defined outside

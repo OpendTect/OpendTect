@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: initvisbase.cc,v 1.26 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: initvisbase.cc,v 1.27 2012-09-04 09:32:08 cvskris Exp $";
 
 
 
@@ -76,6 +76,7 @@ static const char* rcsID mUnusedVar = "$Id: initvisbase.cc,v 1.26 2012-05-02 15:
 #include "visvolren.h"
 #include "visvolrenscalarfield.h"
 #include "viswell.h"
+#include "indexedshape.h"
 
 
 mDefModInitFn(visBase)
@@ -159,4 +160,7 @@ mDefModInitFn(visBase)
     visBase::VolumeRenderScalarField::initClass();
     visBase::Well::initClass();
     visBase::TopBotImage::initClass();
+    
+    Geometry::IndexedPrimitiveCreator::setCreator(
+					new visBase::IndexedPrimitiveCreator );
 }

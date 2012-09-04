@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.36 2012-09-03 14:33:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.37 2012-09-04 09:32:08 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -485,30 +485,84 @@ int IndexedShape::getClosestCoordIndex( const EventInfo& ei ) const
 }
     
     
-class osgPrimitive : public Geometry::IndexedPrimitive
+    
+void visBase::IndexedShape::addPrimitive( Geometry::IndexedPrimitive* p )
+{
+    primitives_ += p;
+    updateFromPrimitives();
+}
+    
+    
+    
+class OSGPrimitive : public Geometry::IndexedPrimitive
 {
 public:
-    osgPrimitive() : element_( new osg::DrawElementsUInt) {}
+    OSGPrimitive() : element_( new osg::DrawElementsUInt) {}
     
-    virtual void	push( int ) {}
+    virtual void		push( int ) {}
     virtual int		pop() { return 0; }
     virtual int		size() const { return 0; }
     virtual int		get(int) const { return 0; }
-    virtual int		set(int) const { return 0; }
+    virtual int		set(int,int) { return 0; }
     
     osg::ref_ptr<osg::DrawElementsUInt>	element_;
 };
     
     
-Geometry::IndexedPrimitive* visBase::IndexedShape::createPrimitive()
+
+class CoinPrimitive : public Geometry::IndexedPrimitive
 {
-    return new osgPrimitive;
+public:
+    virtual void	push( int index) { indices_ += index; }
+    virtual int		pop()
+    			{
+			    const int idx = size()-1;
+			    if ( idx<0 ) return mUdf(int);
+			    const int res = indices_[idx];
+			    indices_.remove(idx);
+			    return res;
+			}
+    
+    virtual int		size() const { return indices_.size(); }
+    virtual int		get(int pos) const { return indices_[pos]; }
+    virtual int		set(int pos,int index)
+			{ return indices_[pos] = index; }
+    
+    TypeSet<int>	indices_;
+};
+    
+
+Geometry::IndexedPrimitive* IndexedPrimitiveCreator::doCreate()
+{
+    return visBase::DataObject::doOsg()
+        ? (Geometry::IndexedPrimitive*) new OSGPrimitive
+	: (Geometry::IndexedPrimitive*) new CoinPrimitive;
 }
     
     
-void visBase::IndexedShape::addPrimitive( Geometry::IndexedPrimitive* p )
+void visBase::IndexedShape::updateFromPrimitives()
 {
-    primitives_ += p;
+    if ( doOsg() )
+    {
+	
+    }
+    else
+    {
+	TypeSet<int> idxs;
+	for ( int idx=0; idx<primitives_.size(); idx++ )
+	{
+	    mDynamicCastGet(CoinPrimitive*, primitive, primitives_[idx])
+	    if ( primitive->size() )
+	    {
+		idxs.append( primitive->indices_ );
+		idxs += -1;
+	    }
+	}
+	
+	indexedshape_->coordIndex.setValues( 0, idxs.size(), idxs.arr() );
+    }
 }
+    
+
     
 } // namespace visBase
