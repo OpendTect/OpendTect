@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.6 2012-08-31 06:25:57 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.7 2012-09-04 08:41:16 cvsbruno Exp $";
 
 #include "uiwelllogextract.h"
 
@@ -56,8 +56,8 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 {
     welllogselfld_ =
 	new uiMultiWellLogSel( this, uiWellExtractParams::Setup()
-					.withsampling(ads_).withzstep(ads_)
-					.withextractintime(ads_)
+					.withsampling(true).withzstep(true)
+					.withextractintime(SI().zIsTime())
 					.singlelog(setup.singlelog_)
 					.prefpropnm(setup.prefpropnm_));
 
