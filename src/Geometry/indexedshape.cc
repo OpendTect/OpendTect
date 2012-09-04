@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.14 2012-05-02 15:11:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.15 2012-09-04 09:32:39 cvskris Exp $";
 
 #include "indexedshape.h"
 
@@ -13,6 +13,21 @@ static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.14 2012-05-02 15
 namespace Geometry
 {
 
+    
+PtrMan<IndexedPrimitiveCreator> IndexedPrimitiveCreator::creator_ = 0;
+
+    
+IndexedPrimitive* IndexedPrimitiveCreator::create()
+{
+    return creator_ ? creator_->doCreate() : 0;
+}
+    
+    
+void IndexedPrimitiveCreator::setCreator(Geometry::IndexedPrimitiveCreator* c)
+{
+    creator_ = c;
+}
+    
 
 IndexedGeometry::IndexedGeometry( Type type, NormalBinding nb,
 				  Coord3List* coords, Coord3List* normals,
