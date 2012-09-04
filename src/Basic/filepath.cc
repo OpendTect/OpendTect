@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: filepath.cc,v 1.40 2012-08-30 09:48:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: filepath.cc,v 1.41 2012-09-04 12:20:05 cvsnageswara Exp $";
 
 #include "filepath.h"
 
@@ -349,7 +349,7 @@ BufferString FilePath::getTempName( const char* ext )
     BufferString fname( "od", GetPID() );
     static int counter = 0;
     time_t time_stamp = time( (time_t*)0 ) + counter++;
-    fname += time_stamp;
+    fname += (od_int64)time_stamp;
 
     if ( ext && *ext )
     {
