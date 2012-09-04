@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellmarkersel.cc,v 1.5 2012-08-30 08:32:08 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwellmarkersel.cc,v 1.6 2012-09-04 10:12:04 cvsbert Exp $";
 
 
 #include "uiwellmarkersel.h"
@@ -31,6 +31,7 @@ uiWellMarkerSel::Setup::Setup( bool issingle, const char* txt )
     , allowsame_(true)
     , withudf_(true)
     , unordered_(false)
+    , middef_(false)
 {
     if ( !txt ) // txt may be an empty string!
     {
@@ -92,11 +93,21 @@ void uiWellMarkerSel::setMarkers( const BufferStringSet& inpnms )
     nms.add( inpnms, true );
     if ( !setup_.single_ && setup_.withudf_ )
 	nms.add( sKeyDataEnd() );
+    if ( nms.isEmpty() )
+	{ topfld_->setEmpty(); if ( botfld_ ) botfld_->setEmpty(); return; }
+
+    const int mid = nms.size() / 2;
     setMarkers( *topfld_, nms );
+    if ( setup_.middef_ )
+	topfld_->setCurrentItem( mid );
+
     if ( botfld_ )
     {
 	setMarkers( *botfld_, nms );
-	botfld_->setCurrentItem( botfld_->size() - 1 );
+	int defitm = setup_.middef_ ? mid+1 : botfld_->size() - 1;
+	if ( defitm >= botfld_->size() )
+	    defitm = botfld_->size() - 1;
+	botfld_->setCurrentItem( defitm );
 	mrkSel( botfld_ );
     }
 }

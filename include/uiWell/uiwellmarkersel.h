@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bert
 Date:          Aug 2012
-RCS:           $Id: uiwellmarkersel.h,v 1.5 2012-08-30 08:32:08 cvsbruno Exp $
+RCS:           $Id: uiwellmarkersel.h,v 1.6 2012-09-04 10:12:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
 	mDefSetupMemb(bool,withudf);	//!< [true] udf or 'open' zones allowed
 	mDefSetupMemb(bool,unordered);	//!< [false] true if your markers are
 					//!< not ordered top to bottom
+	mDefSetupMemb(bool,middef);	//!< [false] set center markers(s) def
 	mDefSetupMemb(BufferString,seltxt);
     };
 
