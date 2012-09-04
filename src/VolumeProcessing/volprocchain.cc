@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocchain.cc,v 1.24 2012-07-10 08:05:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprocchain.cc,v 1.25 2012-09-04 15:10:21 cvsyuancheng Exp $";
 
 #include "volprocchain.h"
 
@@ -27,7 +27,7 @@ public:
 protected:
     bool	doWork(od_int64 start, od_int64 stop, int threadid )
 		{
-		    const HorSampling hrg( step_.hrg_ );
+		    const HorSampling hrg( step_.output_->cubeSampling().hrg );
 		    BinID curbid = hrg.start;
 
 		    const int nrinls = start/hrg.nrCrl();
