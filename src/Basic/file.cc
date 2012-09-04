@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.41 2012-08-29 10:00:53 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.42 2012-09-04 04:50:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -310,12 +310,6 @@ bool createDir( const char* fnm )
 bool rename( const char* oldname, const char* newname )
 {
 #ifndef OD_NO_QT
-    if ( isDirectory(oldname) )
-    {
-	QDir olddir( oldname );
-	return olddir.rename( oldname, newname );
-    }
-
     return QFile::rename( oldname, newname );
 #else
     pFreeFnErrMsg(not_implemented_str,"rename");
@@ -560,7 +554,12 @@ const char* linkValue( const char* linknm )
 #else
     static StaticStringManager stm;
     BufferString& linkstr = stm.getString();
-    return readlink( linknm, linkstr.buf(), 256 ) < 0 ? linknm : linkstr.buf();
+    const int len = readlink( linknm, linkstr.buf(), 256 );
+    if ( len < 0 )
+	return linknm;
+
+    linkstr[len] = '\0';
+    return linkstr.buf();
 #endif
 }
 
