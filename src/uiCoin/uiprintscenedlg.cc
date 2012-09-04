@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiprintscenedlg.cc,v 1.58 2012-08-29 07:30:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiprintscenedlg.cc,v 1.59 2012-09-04 15:52:01 cvsranojay Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -203,7 +203,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
     const ui3DViewer* vwr = viewers_[vwridx];
     FilePath filepath( fileinputfld_->fileName() );
-    dirname_ = filepath.pathOnly();
+    setDirName( filepath.pathOnly() );
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 

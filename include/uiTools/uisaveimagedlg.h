@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          February 2009
- RCS:           $Id: uisaveimagedlg.h,v 1.8 2012-08-03 13:01:15 cvskris Exp $
+ RCS:           $Id: uisaveimagedlg.h,v 1.9 2012-09-04 15:52:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
     bool                usePar(const IOPar&);
 
 protected:
+    void		setDirName(const char*);
 
     uiLabeledSpinBox*	pixheightfld_;
     uiLabeledSpinBox*	pixwidthfld_;
