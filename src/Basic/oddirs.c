@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.45 2012-09-03 10:36:54 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.46 2012-09-04 09:47:59 cvsnageswara Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -585,7 +585,7 @@ const char* GetBinSubDir()
 # ifdef __hassymbols__
     return "RelWithDebInfo";
 # else
-    return "Release"
+    return "Release";
 # endif
 #else
     return "Debug";
