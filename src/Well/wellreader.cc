@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellreader.cc,v 1.55 2012-08-10 04:11:25 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellreader.cc,v 1.56 2012-09-04 10:08:39 cvsbert Exp $";
 
 #include "wellreader.h"
 
@@ -275,11 +275,20 @@ bool Well::Reader::getTrack( std::istream& strm ) const
 bool Well::Reader::getTrack() const
 {
     StreamData sd = mkSD( sExtTrack() );
-    if ( !sd.usable() ) return false;
+    bool isold = false;
+    if ( !sd.usable() )
+    {
+	sd = mkSD( ".well" );
+	if ( !sd.usable() )
+	    return false;
+	isold = true;
+    }
 
     ascistream astrm( *sd.istrm );
     const double version = (double)astrm.majorVersion() +
 			   ((double)astrm.minorVersion()/(double)10);
+    if ( isold )
+	{ IOPar dum; dum.getFrom( astrm ); }
 
     const bool isok = getTrack( *sd.istrm );
     if ( SI().zInFeet() && version < 4.195 )
