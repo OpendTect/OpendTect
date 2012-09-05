@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.4 2012-09-05 03:14:32 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.5 2012-09-05 03:26:09 cvssalil Exp $";
 
 #include "ziphandler.h"
 
@@ -498,7 +498,7 @@ bool ZipHandler::unZipFile( BufferString& srcfnm, BufferString& fnm )
 
 bool ZipHandler::readEndOfCntrlDirHeader(std::istream& src)
 {
-    char headerbuff[20];
+    char headerbuff[mEndOfDirHeaderSize];
     int ptrlocation;
     char sig[5];
     mEndOfCntrlDirHeaderSig( sig );
@@ -525,7 +525,6 @@ bool ZipHandler::readEndOfCntrlDirHeader(std::istream& src)
 	src.read( (char*) headerbuff, 4 );
     }
     src.read( (char*) headerbuff + 4, 18 );
-    headerbuff[mEndOfDirHeaderSize] = 0;
     src.seekg(0);   
     totalfiles_ = *( ( short* ) ( headerbuff + mLTotalEntry ) );
     sizeofcentraldir_  = *( ( int* ) ( headerbuff + mLSizeCentralDir ) );
