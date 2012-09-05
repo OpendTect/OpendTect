@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.32 2012-09-05 13:38:41 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.33 2012-09-05 14:53:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,11 +56,7 @@ mClass(visBase) Shape : public VisualObject
 public:
     void			turnOn(bool);
     bool			isOn() const;
-    void			removeSwitch();
-    				/*!<Will turn the object permanently on.
-				    \note Must be done before giving away the
-				    SoNode with getInventorNode() to take
-				    effect. */
+   
 
     void			setRenderCache(int mode);
 				    //!<\param mode=0 off, 1=on, 2=auto (deflt)
@@ -88,6 +84,8 @@ public:
     SoNode*			getShape() { return shape_; }
 
     void			turnOnForegroundLifter(bool);
+    
+    void			removeSwitch();
 
 protected:
 
@@ -105,8 +103,6 @@ protected:
 
     virtual SoNode*		gtInvntrNode();
     osg::Node*			gtOsgNode();
-
-private:
 
     static const char*		sKeyOnOff();
     static const char*		sKeyTexture();
@@ -127,7 +123,12 @@ public:
     mDeclSetGetItem( VertexShape, Coordinates, coords_ );
     mDeclSetGetItem( VertexShape, Normals, normals_ );
     mDeclSetGetItem( VertexShape, TextureCoords, texturecoords_ );
-
+    
+    void		removeSwitch();
+			/*!<Will turn the object permanently on.
+			 \note Must be done before giving away the
+			 SoNode with getInventorNode() to take
+			 effect. */
 
     void		setDisplayTransformation( const mVisTrans* );
     			/*!<\note The transformation is forwarded to the
@@ -160,6 +161,8 @@ public:
 protected:
     			VertexShape( SoVertexShape* );
     			~VertexShape();
+    
+    osg::Node*		gtOsgNode();
 
     Normals*		normals_;
     Coordinates*	coords_;

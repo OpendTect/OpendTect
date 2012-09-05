@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viscoord.cc,v 1.48 2012-09-05 11:56:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: viscoord.cc,v 1.49 2012-09-05 14:53:44 cvskris Exp $";
 
 #include "viscoord.h"
 
@@ -34,7 +34,7 @@ Coordinates::Coordinates()
     , osgcoords_( doOsg() ? new osg::Vec3Array : 0 )
 {
     if ( osgcoords_ )
-	mGetOsgVecArr(osgcoords_)->ref();
+	mGetOsgVec3Arr(osgcoords_)->ref();
     else
     {
 	root_->ref();
@@ -49,7 +49,7 @@ Coordinates::Coordinates()
 Coordinates::~Coordinates()
 {
     if ( osgcoords_ )
-	mGetOsgVecArr(osgcoords_)->unref();
+	mGetOsgVec3Arr(osgcoords_)->unref();
     
     if ( root_ ) root_->unref();
     if ( transformation_ ) transformation_->unRef();
@@ -63,7 +63,7 @@ void Coordinates::copyFrom( const Coordinates& nc )
 
     if ( doOsg() )
     {
-	*mGetOsgVecArr(osgcoords_) = *mGetOsgVecArr(nc.osgcoords_);
+	*mGetOsgVec3Arr(osgcoords_) = *mGetOsgVec3Arr(nc.osgcoords_);
     }
     else
     {
@@ -149,7 +149,7 @@ Coord Coordinates::getLocalTranslation() const
 
 
 #define mArrSize \
-    (doOsg() ? mGetOsgVecArr(osgcoords_)->size() : coords_->point.getNum())
+    (doOsg() ? mGetOsgVec3Arr(osgcoords_)->size() : coords_->point.getNum())
 
 int Coordinates::size(bool includedeleted) const
 {
@@ -205,7 +205,7 @@ int Coordinates::addPos( const Coord3& pos )
     }
 
     if ( doOsg() )
-	mGetOsgVecArr(osgcoords_)->push_back(
+	mGetOsgVec3Arr(osgcoords_)->push_back(
 		osg::Vec3f( (float) postoset.x,
 			    (float) postoset.y,
 			    (float) postoset.z));
@@ -242,7 +242,7 @@ Coord3 Coordinates::getPos( int idx, bool scenespace ) const
 {
     const float* scenepos;
     if ( doOsg() )
-        scenepos = (*mGetOsgVecArr(osgcoords_))[idx].ptr();
+        scenepos = (*mGetOsgVec3Arr(osgcoords_))[idx].ptr();
     else
 	scenepos = coords_->point[idx].getValue();
     
@@ -273,7 +273,7 @@ bool Coordinates::isDefined( int idx ) const
 
     const float* coord;
     if ( doOsg() )
-	coord = (*mGetOsgVecArr(osgcoords_))[idx].ptr();
+	coord = (*mGetOsgVec3Arr(osgcoords_))[idx].ptr();
     else
 	coord = coords_->point[idx].getValue();
     
@@ -323,10 +323,10 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos )
     
     if ( doOsg() )
     {
-	if ( idx>=mGetOsgVecArr(osgcoords_)->size() )
-	    mGetOsgVecArr(osgcoords_)->resize( idx+1 );
+	if ( idx>=mGetOsgVec3Arr(osgcoords_)->size() )
+	    mGetOsgVec3Arr(osgcoords_)->resize( idx+1 );
 	
-	(*mGetOsgVecArr(osgcoords_))[idx] =
+	(*mGetOsgVec3Arr(osgcoords_))[idx] =
 	    osg::Vec3f((float) postoset.x,(float) postoset.y,(float)postoset.z);
 	    
     }
@@ -353,7 +353,7 @@ void Coordinates::removePos( int idx, bool keepidxafter )
     if ( idx==nrcoords-1 )
     {
 	if ( doOsg() )
-	    mGetOsgVecArr(osgcoords_)->resize( idx );
+	    mGetOsgVec3Arr(osgcoords_)->resize( idx );
 	else
 	    coords_->point.deleteValues( idx );
 	unusedcoords_ -= idx;
@@ -364,8 +364,8 @@ void Coordinates::removePos( int idx, bool keepidxafter )
     {
 	if ( doOsg() )
 	{
-	    mGetOsgVecArr(osgcoords_)->erase(
-				 mGetOsgVecArr(osgcoords_)->begin() + idx );
+	    mGetOsgVec3Arr(osgcoords_)->erase(
+				 mGetOsgVec3Arr(osgcoords_)->begin() + idx );
 	}
 	else
 	    coords_->point.deleteValues( idx, 1 );
@@ -386,7 +386,7 @@ void Coordinates::removeAfter( int idx )
 	return;
 
     if ( doOsg() )
-	mGetOsgVecArr(osgcoords_)->resize( idx+1 );
+	mGetOsgVec3Arr(osgcoords_)->resize( idx+1 );
     else
 	coords_->point.deleteValues( idx+1 );
     for ( int idy=0; idy<unusedcoords_.size(); idy++ )

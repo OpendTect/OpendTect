@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visnormals.cc,v 1.24 2012-08-10 03:50:09 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: visnormals.cc,v 1.25 2012-09-05 14:53:44 cvskris Exp $";
 
 #include "visnormals.h"
 
@@ -18,32 +18,49 @@ static const char* rcsID mUnusedVar = "$Id: visnormals.cc,v 1.24 2012-08-10 03:5
 
 #include <Inventor/nodes/SoNormal.h>
 
+#include <osg/Array>
+
 mCreateFactoryEntry( visBase::Normals );
 
 namespace visBase
 {
 
 Normals::Normals()
-    : normals_( new SoNormal )
+    : normals_( doOsg() ? 0 : new SoNormal )
     , mutex_( *new Threads::Mutex )
     , transformation_( 0 )
+    , osgnormals_( doOsg() ? new osg::Vec3Array : 0 )
 {
-    normals_->ref();
-    for ( int idx=normals_->vector.getNum()-1; idx>=0; idx-- )
+    if ( !osgnormals_ )
     {
-	unusednormals_ += 0;
-	normals_->vector.set1Value( 0,
-		SbVec3f(mUdf(float),mUdf(float),mUdf(float) ) );
+	normals_->ref();
+	for ( int idx=normals_->vector.getNum()-1; idx>=0; idx-- )
+	{
+	    unusednormals_ += 0;
+	    normals_->vector.set1Value( 0,
+		    SbVec3f(mUdf(float),mUdf(float),mUdf(float) ) );
+	}
+	
+	return;
     }
+    
+    mGetOsgVec3Arr(osgnormals_)->ref();
 }
 
 
 Normals::~Normals()
 {
-    normals_->unref();
     delete &mutex_;
-
     if ( transformation_ ) transformation_->unRef();
+    
+    if ( normals_ )
+    {
+	normals_->unref();
+	return;
+    }
+    
+    
+    mGetOsgVec3Arr(osgnormals_)->unref();
 }
 
 

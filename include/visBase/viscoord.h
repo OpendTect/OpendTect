@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.33 2012-09-05 09:35:09 cvskris Exp $
+ RCS:		$Id: viscoord.h,v 1.34 2012-09-05 14:53:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,8 +26,12 @@ class Executor;
 
 namespace Geometry { class PosIdHolder; }
 
-#define mOsgVecArrPtr	void*
-#define mGetOsgVecArr(ptr) ((osg::Vec3Array*) ptr )
+namespace osg { class Array; }
+
+#define mGetOsgVec3Arr(ptr) ((osg::Vec3Array*) ptr )
+
+#define mGetOsgVec2Arr(ptr) ((osg::Vec2Array*) ptr )
+
 
 namespace visBase
 {
@@ -85,8 +89,8 @@ public:
     bool		autoUpdate();
     void		update();
 
-    mOsgVecArrPtr	osgArray() { return osgcoords_; }
-    const mOsgVecArrPtr	osgArray() const { return osgcoords_; }
+    osg::Array*		osgArray() { return osgcoords_; }
+    const osg::Array*	osgArray() const { return osgcoords_; }
 
 protected:
 
@@ -110,7 +114,7 @@ protected:
     mutable Threads::Mutex	mutex_;
     const mVisTrans*		transformation_;
     
-    mOsgVecArrPtr		osgcoords_;
+    osg::Array*			osgcoords_;
 
     virtual SoNode*		gtInvntrNode();
 

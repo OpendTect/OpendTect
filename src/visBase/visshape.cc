@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.38 2012-09-05 13:38:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.39 2012-09-05 14:53:44 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -34,6 +34,8 @@ static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.38 2012-09-05 13:38:
 
 #include <osg/PrimitiveSet>
 #include <osg/Switch>
+#include <osg/Geometry>
+#include <osg/Geode>
 
 
 namespace visBase
@@ -94,8 +96,23 @@ void Shape::turnOnForegroundLifter( bool yn )
 
 void Shape::turnOn(bool n)
 {
-    if ( onoff_ ) onoff_->whichChild = n ? 0 : SO_SWITCH_NONE;
-    else if ( !n )
+    if ( !doOsg() )
+    {
+	if ( onoff_ ) onoff_->whichChild = n ? 0 : SO_SWITCH_NONE;
+	else if ( !n )
+	{
+	    pErrMsg( "Turning off object without switch");
+	}
+	
+	return;
+    }
+	
+    if ( osgswitch_ )
+    {
+	if ( n ) osgswitch_->setAllChildrenOn();
+	else osgswitch_->setAllChildrenOff();
+    }
+    else
     {
 	pErrMsg( "Turning off object without switch");
     }
@@ -104,15 +121,22 @@ void Shape::turnOn(bool n)
 
 bool Shape::isOn() const
 {
+    if ( doOsg() )
+	return !osgswitch_ ||
+	   (osgswitch_->getNumChildren() && osgswitch_->getValue(0) );
+    
     return !onoff_ || !onoff_->whichChild.getValue();
 }
-
-
+    
+    
 void Shape::removeSwitch()
 {
-    root_->ref();
-    onoff_->unref();
-    onoff_ = 0;
+    if ( root_ )
+    {
+	root_->ref();
+	onoff_->unref();
+	onoff_ = 0;
+    }
 }
 
 
@@ -139,13 +163,15 @@ int Shape::getRenderCache() const
 }
 
 
-#define mDefSetGetItem(ownclass, clssname, variable) \
+#define mDefSetGetItem(ownclass, clssname, variable, osgremove, osgset ) \
 void ownclass::set##clssname( clssname* newitem ) \
 { \
     if ( variable ) \
     { \
 	if ( variable->getInventorNode() ) \
 	    removeNode( variable->getInventorNode() ); \
+	else \
+	{ osgremove; } \
 	variable->unRef(); \
 	variable = 0; \
     } \
@@ -156,6 +182,8 @@ void ownclass::set##clssname( clssname* newitem ) \
 	variable->ref(); \
 	if ( variable->getInventorNode() ) \
 	    insertNode( variable->getInventorNode() ); \
+	else \
+	{ osgset; } \
     } \
 } \
  \
@@ -166,9 +194,9 @@ clssname* ownclass::gt##clssname() const \
 }
 
 
-mDefSetGetItem( Shape, Texture2, texture2_ );
-mDefSetGetItem( Shape, Texture3, texture3_ );
-mDefSetGetItem( Shape, Material, material_ );
+mDefSetGetItem( Shape, Texture2, texture2_, , );
+mDefSetGetItem( Shape, Texture3, texture3_, , );
+mDefSetGetItem( Shape, Material, material_, , );
 
 
 void Shape::setMaterialBinding( int nv )
@@ -312,17 +340,48 @@ VertexShape::VertexShape( SoVertexShape* shape )
     , texturecoords_( 0 )
     , normalbinding_( 0 )
     , shapehints_( 0 )
+    , geode_( doOsg() ? new osg::Geode : 0 )
+    , osggeom_( doOsg() ? new osg::Geometry : 0 )
 {
+    if ( geode_ )
+    {
+	geode_->ref();
+	geode_->addDrawable( osggeom_ );
+	osgswitch_->addChild( geode_ );
+    }
+    
     setCoordinates( Coordinates::create() );
 }
 
 
 VertexShape::~VertexShape()
 {
+    if ( geode_ ) geode_->unref();
     if ( normals_ ) normals_->unRef();
     if ( coords_ ) coords_->unRef();
     if ( texturecoords_ ) texturecoords_->unRef();
 }
+    
+    
+void VertexShape::removeSwitch()
+{
+    if ( osgswitch_ )
+    {
+	osgswitch_->unref();
+	osgswitch_ = 0;
+    }
+    else
+    {
+	Shape::removeSwitch();
+    }
+}
+    
+    
+osg::Node* VertexShape::gtOsgNode()
+{
+    return osgswitch_ ? (osg::Node*) osgswitch_ : (osg::Node*) geode_;
+}
+    
 
 
 void VertexShape::setDisplayTransformation( const mVisTrans* tr )
@@ -333,9 +392,18 @@ const mVisTrans* VertexShape::getDisplayTransformation() const
 { return  coords_->getDisplayTransformation(); }
 
 
-mDefSetGetItem( VertexShape, Coordinates, coords_ );
-mDefSetGetItem( VertexShape, Normals, normals_ );
-mDefSetGetItem( VertexShape, TextureCoords, texturecoords_ );
+mDefSetGetItem( VertexShape, Coordinates, coords_,
+	       	osggeom_->setVertexArray(0),
+	       osggeom_->setVertexArray( mGetOsgVec3Arr( coords_->osgArray())));
+    
+mDefSetGetItem( VertexShape, Normals, normals_,
+	       osggeom_->setNormalArray( 0 ),
+	       osggeom_->setNormalArray(mGetOsgVec3Arr(normals_->osgArray())));
+    
+mDefSetGetItem( VertexShape, TextureCoords, texturecoords_,
+	       osggeom_->setTexCoordArray( 0, 0 ),
+	       osggeom_->setTexCoordArray( 0,
+		    mGetOsgVec2Arr(texturecoords_->osgArray())));
 
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistexturecoords.cc,v 1.19 2012-08-13 04:04:39 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistexturecoords.cc,v 1.20 2012-09-05 14:53:44 cvskris Exp $";
 
 #include "vistexturecoords.h"
 
@@ -17,6 +17,8 @@ static const char* rcsID mUnusedVar = "$Id: vistexturecoords.cc,v 1.19 2012-08-1
 
 #include <Inventor/nodes/SoTextureCoordinate3.h>
 
+#include <osg/Array>
+
 mCreateFactoryEntry( visBase::TextureCoords );
 
 namespace visBase
@@ -25,17 +27,31 @@ namespace visBase
 TextureCoords::TextureCoords()
     : coords_( new SoTextureCoordinate3 )
     , mutex_( *new Threads::Mutex )
+    , osgcoords_( doOsg() ? new osg::Vec2Array : 0 )
 {
-    coords_->ref();
-    unusedcoords_ += 0;
-    //!<To compensate for that the first coord is set by default by coin
+    if ( coords_ )
+    {
+	coords_->ref();
+	unusedcoords_ += 0;
+	//!<To compensate for that the first coord is set by default by coin
+	return;
+    }
+    
+    mGetOsgVec2Arr(osgcoords_)->ref();
 }
 
 
 TextureCoords::~TextureCoords()
 {
-    coords_->unref();
     delete &mutex_;
+    
+    if ( coords_ )
+    {
+	coords_->unref();
+	return;
+    }
+    
+    mGetOsgVec2Arr(osgcoords_)->unref();
 }
 
 
