@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Ranojay Sen
  Date:		December  2011
- RCS:		$Id: ziputils.h,v 1.9 2012-09-05 03:14:31 cvssalil Exp $
+ RCS:		$Id: ziputils.h,v 1.10 2012-09-05 07:09:14 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,21 +20,25 @@ class ZipHandler;
 mClass(Basic) ZipUtils
 {
 public:
+    enum			complevel_ {NoComp = 0, SuperFast = 1, 
+					   Fast = 3, Normal = 6,Maximum = 9};
+
 				ZipUtils(const char* filelistnm=0);
 				~ZipUtils();
-
+   
     bool			Zip(const char* src,const char* dest);
     bool			UnZip(const char* scr, const char* dest);
     const char*			errorMsg() const{ return errmsg_.buf();}
     void			makeFileList(const char* zipfile);
     const BufferStringSet&	getFileList() const	{ return filelist_; }
-
     bool			unZipArchive(BufferString&,BufferString&,
 							    TaskRunner* tr=0); 
     bool			unZipFile(BufferString&,BufferString&);
-    bool			makeZip(BufferString&, TaskRunner* tr=0);
+    bool			makeZip(BufferString&,TaskRunner* tr=0,
+							complevel_ cl=Normal);
     bool			appendFile(BufferString&,BufferString&,
-							    TaskRunner* tr=0);
+							TaskRunner* tr=0,
+							complevel_ cl=Normal);
 
 protected:
 

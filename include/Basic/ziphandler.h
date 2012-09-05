@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Salil Agarwal
  Date:		30 August 2012
- RCS:		$Id: ziphandler.h,v 1.3 2012-09-05 03:14:31 cvssalil Exp $
+ RCS:		$Id: ziphandler.h,v 1.4 2012-09-05 07:09:14 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,11 +105,14 @@ public:
     void			closeDestStream() { osd_.close(); }
     void			closeSrcStream() { isd_.close(); }
     StreamData			makeOStreamForAppend(BufferString&);
+    void			setCompLevel(int);
     
 protected:
-
+    enum			complevel_ {NoComp = 0, SuperFast = 1, 
+					   Fast = 3, Normal = 6,Maximum = 9};
     BufferStringSet		allfiles_;
     unsigned short		compmethod_;
+    int				complevel_;
     BufferString		destbasepath_;
     BufferString	    	destfile_ ;
     BufferString		errormsg_;
