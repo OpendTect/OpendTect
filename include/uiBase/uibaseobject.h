@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibaseobject.h,v 1.11 2012-08-24 06:29:12 cvsnageswara Exp $
+ RCS:           $Id: uibaseobject.h,v 1.12 2012-09-05 07:28:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,11 @@ mClass(uiBase) CmdRecStopper
 public:
     				CmdRecStopper(const uiBaseObject*);
 				~CmdRecStopper();
+
+    static void			clearStopperList(const CallBacker* cmdrec);
+    				//!< will clear after all cmdrecs have called
+
+    static bool			isInStopperList(const uiBaseObject* obj);
 };
 
 

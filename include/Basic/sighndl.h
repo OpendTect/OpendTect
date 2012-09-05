@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: sighndl.h,v 1.13 2012-08-03 13:00:14 cvskris Exp $
+ RCS:           $Id: sighndl.h,v 1.14 2012-09-05 07:28:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
     static void			stopProcess(int,bool friendly=true);
     static void			stopRemote( const char*,int, bool friendly=true,
 					    const char* rshcomm=0 );
+    static void			initFatalSignalHandling();
 
 protected:
 

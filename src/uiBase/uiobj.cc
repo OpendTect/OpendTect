@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobj.cc,v 1.109 2012-08-30 07:52:51 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobj.cc,v 1.110 2012-09-05 07:28:26 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -24,15 +24,36 @@ static const char* rcsID mUnusedVar = "$Id: uiobj.cc,v 1.109 2012-08-30 07:52:51
 #include <QEvent>
 
 
+static CallBackSet cmdrecorders_;
+
 static ObjectSet<const uiBaseObject> cmdrecstopperstack_;
+static ObjectSet<const uiBaseObject> cmdrecstopperlist_;
+static ObjectSet<const CallBacker> cmdrecstrikeoutlist_;
 
 CmdRecStopper::CmdRecStopper( const uiBaseObject* obj )
-{ cmdrecstopperstack_.push( obj ); }
+{
+    cmdrecstopperstack_.push( obj );
+
+    if ( !cmdrecorders_.isEmpty() && !cmdrecstopperlist_.isPresent(obj) )
+	cmdrecstopperlist_ += obj;
+}
 
 CmdRecStopper::~CmdRecStopper()
 { cmdrecstopperstack_.pop(); }
 
+void CmdRecStopper::clearStopperList( const CallBacker* cmdrec )
+{
+    cmdrecstrikeoutlist_ -= cmdrec;
+    if ( cmdrecstrikeoutlist_.isEmpty() )
+    {
+	cmdrecstopperlist_.erase();
+	for ( int idx=0; idx<cmdrecorders_.size(); idx++ )
+	    cmdrecstrikeoutlist_ += cmdrecorders_[idx].cbObj();
+    }
+}
 
+bool CmdRecStopper::isInStopperList( const uiBaseObject* obj )
+{ return cmdrecstopperlist_.isPresent(obj); }
 
 
 DefineEnumNames(uiRect,Side,1,"Side") { "Left", "Top", "Right", "Bottom", 0 };
@@ -63,9 +84,6 @@ void uiBaseObject::clear()
 
 bool uiBaseObject::finalised() const
 { return body() ? body()->finalised() : false; }
-
-
-static CallBackSet cmdrecorders_;
 
 
 int uiBaseObject::beginCmdRecEvent( const char* msg )
@@ -120,12 +138,14 @@ void uiBaseObject::endCmdRecEvent( od_uint64 id, int refnr, const char* msg )
 void uiBaseObject::removeCmdRecorder( const CallBack& cb )
 {
     cmdrecorders_ -= cb;
+    CmdRecStopper::clearStopperList( cb.cbObj() );
 }
 
 
 void uiBaseObject::addCmdRecorder( const CallBack& cb )
 {
     cmdrecorders_ += cb;
+    cmdrecstrikeoutlist_ += cb.cbObj();
 }
 
 

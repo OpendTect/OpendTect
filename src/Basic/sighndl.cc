@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.35 2012-05-04 19:16:51 cvsnanne Exp $
+ RCS:           $Id: sighndl.cc,v 1.36 2012-09-05 07:28:26 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: sighndl.cc,v 1.35 2012-05-04 19:16:51 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: sighndl.cc,v 1.36 2012-09-05 07:28:26 cvsjaap Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -77,37 +77,13 @@ CallBackSet& SignalHandling::getCBL( SignalHandling::EvType et )
 }
 
 
-SignalHandling::SignalHandling()
-{
 #define mCatchSignal(nr) (void)signal( nr, &SignalHandling::handle )
 
+SignalHandling::SignalHandling()
+{
     if ( !GetEnvVarYN("DTECT_NO_OS_EVENT_HANDLING") )
     {
-	if ( GetEnvVarYN( "DTECT_HANDLE_FATAL") )
-	{
-	// Fatal stuff
-	mCatchSignal( SIGINT );	/* Interrupt */
-	mCatchSignal( SIGILL );	/* Illegal instruction */
-	mCatchSignal( SIGFPE );	/* Floating point */
-	mCatchSignal( SIGSEGV );/* Segmentation fault */
-	mCatchSignal( SIGTERM );/* Software termination */
-	mCatchSignal( SIGABRT );/* Used by ABORT (IOT) */
-
-#ifdef __win__
-	mCatchSignal( SIGBREAK );/* Control-break */
-#else
-	mCatchSignal( SIGQUIT );/* Quit */
-	mCatchSignal( SIGTRAP );/* Trace trap */
-	mCatchSignal( SIGIOT );	/* IOT instruction */
-	mCatchSignal( SIGBUS );	/* Bus error */
-	mCatchSignal( SIGXCPU );/* Cpu time limit exceeded */
-	mCatchSignal( SIGXFSZ );/* File size limit exceeded */
-# ifdef sun5
-	mCatchSignal( SIGEMT );	/* Emulator trap */
-	mCatchSignal( SIGSYS );	/* Bad arg system call */
-# endif
-#endif
-	}
+    initFatalSignalHandling();
 
 #ifndef __win__
     // Stuff to ignore
@@ -136,6 +112,38 @@ SignalHandling::SignalHandling()
 
     }
 }
+
+
+void SignalHandling::initFatalSignalHandling()
+{
+    if ( GetEnvVarYN( "DTECT_HANDLE_FATAL") )
+    {
+	// Fatal stuff
+	mCatchSignal( SIGINT );	/* Interrupt */
+	mCatchSignal( SIGILL );	/* Illegal instruction */
+	mCatchSignal( SIGFPE );	/* Floating point */
+	mCatchSignal( SIGSEGV );/* Segmentation fault */
+	mCatchSignal( SIGTERM );/* Software termination */
+	mCatchSignal( SIGABRT );/* Used by ABORT (IOT) */
+
+#ifdef __win__
+	mCatchSignal( SIGBREAK );/* Control-break */
+#else
+	mCatchSignal( SIGQUIT );/* Quit */
+	mCatchSignal( SIGTRAP );/* Trace trap */
+	mCatchSignal( SIGIOT );	/* IOT instruction */
+	mCatchSignal( SIGBUS );	/* Bus error */
+	mCatchSignal( SIGXCPU );/* Cpu time limit exceeded */
+	mCatchSignal( SIGXFSZ );/* File size limit exceeded */
+# ifdef sun5
+	mCatchSignal( SIGEMT );	/* Emulator trap */
+	mCatchSignal( SIGSYS );	/* Bad arg system call */
+# endif
+#endif
+    }
+}
+
+
 
 void SignalHandling::handle( int signalnr )
 {
