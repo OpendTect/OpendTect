@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistopbotimage.cc,v 1.9 2012-08-13 04:04:39 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistopbotimage.cc,v 1.10 2012-09-05 13:38:41 cvskris Exp $";
 
 
 #include "vistopbotimage.h"
@@ -34,8 +34,8 @@ namespace visBase
 TopBotImage::TopBotImage()
     : VisualObjectImpl(true)
     , trans_(0)
-    , imgshape_(visBase::FaceSet::create())
-    , image_(visBase::Image::create())
+    , imgshape_( visBase::FaceSet::create() )
+    , image_( visBase::Image::create() )
 {
     image_->ref();
     image_->replaceMaterial(false);
@@ -44,7 +44,10 @@ TopBotImage::TopBotImage()
     imgshape_->ref();
     imgshape_->setVertexOrdering(
 		visBase::VertexShape::cCounterClockWiseVertexOrdering() );
-    addChild( imgshape_->getInventorNode() );
+    if ( doOsg() )
+	addChild( imgshape_->osgNode() );
+    else
+	addChild( imgshape_->getInventorNode() );
    
     visBase::TextureCoords* texturecoords = visBase::TextureCoords::create();
     imgshape_->setTextureCoords( texturecoords );

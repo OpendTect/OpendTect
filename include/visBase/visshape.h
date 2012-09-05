@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.31 2012-09-04 09:32:08 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.32 2012-09-05 13:38:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ class SoShapeHints;
 class SoSwitch;
 class SoVertexShape;
 
-namespace osg { class Geometry; }
+namespace osg { class Geometry; class Geode; class Switch; }
 
 namespace visBase
 {
@@ -100,8 +100,11 @@ protected:
     Texture2*			texture2_;
     Texture3*			texture3_;
     Material*			material_;
+    
+    osg::Switch*		osgswitch_;
 
     virtual SoNode*		gtInvntrNode();
+    osg::Node*			gtOsgNode();
 
 private:
 
@@ -166,6 +169,7 @@ private:
     SoNormalBinding*	normalbinding_;
     SoShapeHints*	shapehints_;
     
+    osg::Geode*		geode_;
     osg::Geometry*	osggeom_;
 };
 
@@ -175,10 +179,11 @@ private:
 mClass(visBase) IndexedShape : public VertexShape
 {
 public:
-    void	addPrimitive(Geometry::IndexedPrimitive*);
-    void	removePrimitive(const Geometry::IndexedPrimitive*);
     
-    int		nrPrimitives() const;
+    void	addPrimitiveSet(Geometry::IndexedPrimitiveSet*);
+    void	removePrimitiveSet(const Geometry::IndexedPrimitiveSet*);
+    
+    int		nrPrimitiveSets() const;
     
     int		nrCoordIndex() const;
     void	setCoordIndex(int pos,int idx);
@@ -226,11 +231,13 @@ public:
 
 protected:
     		IndexedShape( SoIndexedShape* );
+		IndexedShape( Geometry::IndexedPrimitiveSet::PrimitiveType );
     
     void	updateFromPrimitives();
 
     
-    ObjectSet<Geometry::IndexedPrimitive>	primitives_;
+    ObjectSet<Geometry::IndexedPrimitiveSet>		primitivesets_;
+    Geometry::IndexedPrimitiveSet::PrimitiveType	primitivetype_;
 private:
 
 
@@ -238,9 +245,9 @@ private:
 };
     
     
-class IndexedPrimitiveCreator : public Geometry::IndexedPrimitiveCreator
+class IndexedPrimitiveSetCreator : public Geometry::IndexedPrimitiveSetCreator
 {
-    Geometry::IndexedPrimitive* doCreate();
+    Geometry::IndexedPrimitiveSet* doCreate();
 };
     
 

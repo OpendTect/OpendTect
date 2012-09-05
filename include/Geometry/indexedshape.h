@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.20 2012-09-04 09:32:08 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.21 2012-09-05 13:38:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,9 @@ ________________________________________________________________________
 #include "thread.h"
 #include "callback.h"
 #include "ptrman.h"
+#include "refcount.h"
+#include "geometry.h"
+#include "enums.h"
 
 class Coord3List;
 class TaskRunner;
@@ -23,10 +26,17 @@ class TaskRunner;
 namespace Geometry
 {
     
+
     
-class IndexedPrimitive
-{
+mClass(Geometry) IndexedPrimitiveSet
+{ mRefCountImplNoDestructor(IndexedPrimitiveSet);
 public:
+    static IndexedPrimitiveSet*	create();
+    
+    enum 		PrimitiveType
+    			{ Points, Lines, Triangles, TriangleStrip, TriangleFan};
+			DeclareEnumUtils(PrimitiveType);
+    
     virtual void	push( int )		= 0;
     virtual int		pop()			= 0;
     virtual int		size() const		= 0;
@@ -35,18 +45,18 @@ public:
 };
     
     
-class IndexedPrimitiveCreator
+mClass(Geometry) IndexedPrimitiveSetCreator
 {
 public:
-    virtual 			~IndexedPrimitiveCreator() {}
+    virtual 			~IndexedPrimitiveSetCreator() {}
     
-    static IndexedPrimitive*	create();
-    static void			setCreator(IndexedPrimitiveCreator*);
+    static IndexedPrimitiveSet*	create();
+    static void			setCreator(IndexedPrimitiveSetCreator*);
     
 protected:
-    virtual IndexedPrimitive*	doCreate()	= 0;
+    virtual IndexedPrimitiveSet*	doCreate()	= 0;
 
-    static PtrMan<IndexedPrimitiveCreator>	creator_;
+    static PtrMan<IndexedPrimitiveSetCreator>	creator_;
 };
 
 /*!A geomtetry that is defined by a number of coordinates (defined outside
@@ -76,23 +86,25 @@ public:
     void	hide(bool yn)				{ ishidden_ = yn; }
 
 
-    mutable Threads::Mutex	lock_;
+    mutable Threads::Mutex		lock_;
 
-    Type			type_;
-    NormalBinding		normalbinding_;
+    Type				type_;
+    NormalBinding			normalbinding_;
+    
+    ObjectSet<IndexedPrimitiveSet>	primitivesets_;
 
-    TypeSet<int>		coordindices_;
-    TypeSet<int>		texturecoordindices_;
-    TypeSet<int>		normalindices_;
+    TypeSet<int>			coordindices_;
+    TypeSet<int>			texturecoordindices_;
+    TypeSet<int>			normalindices_;
 
-    mutable bool		ischanged_;
-
+    mutable bool			ischanged_;
+	
 protected:
-    bool			ishidden_;
+    bool				ishidden_;
 
-    Coord3List*			coordlist_;
-    Coord3List*			texturecoordlist_;
-    Coord3List*			normallist_;
+    Coord3List*				coordlist_;
+    Coord3List*				texturecoordlist_;
+    Coord3List*				normallist_;
 };
 
 

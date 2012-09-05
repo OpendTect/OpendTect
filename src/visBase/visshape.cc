@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.37 2012-09-04 09:32:08 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.38 2012-09-05 13:38:41 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -33,6 +33,7 @@ static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.37 2012-09-04 09:32:
 #include "Inventor/nodes/SoSwitch.h"
 
 #include <osg/PrimitiveSet>
+#include <osg/Switch>
 
 
 namespace visBase
@@ -44,26 +45,34 @@ const char* Shape::sKeyMaterial() 		{ return  "Material";	}
 
 Shape::Shape( SoNode* shape )
     : shape_( shape )
-    , onoff_( new SoSwitch )
+    , onoff_( doOsg() ? 0 : new SoSwitch )
     , texture2_( 0 )
     , texture3_( 0 )
     , material_( 0 )
-    , root_( new SoSeparator )
+    , root_( doOsg() ? 0 : new SoSeparator )
     , materialbinding_( 0 )
-    , lifter_( ForegroundLifter::create() )			   
-    , lifterswitch_( new SoSwitch )
+    , lifter_( doOsg() ? 0 : ForegroundLifter::create() )
+    , lifterswitch_( doOsg() ? 0 : new SoSwitch )
+    , osgswitch_( doOsg() ? new osg::Switch : 0 )
 {
-    onoff_->ref();
-    onoff_->addChild( root_ );
-    onoff_->whichChild = 0;
-    insertNode( shape_ );
+    if ( doOsg() )
+    {
+	osgswitch_->ref();
+    }
+    else
+    {
+	onoff_->ref();
+	onoff_->addChild( root_ );
+	onoff_->whichChild = 0;
+	insertNode( shape_ );
 
-    lifterswitch_->ref();
-    lifterswitch_->whichChild = SO_SWITCH_NONE;
-    lifter_->ref();
-    lifter_->setLift(0.8);
-    lifterswitch_->addChild( lifter_->getInventorNode() );
-    insertNode( lifterswitch_ );
+	lifterswitch_->ref();
+	lifterswitch_->whichChild = SO_SWITCH_NONE;
+	lifter_->ref();
+	lifter_->setLift(0.8);
+	lifterswitch_->addChild( lifter_->getInventorNode() );
+	insertNode( lifterswitch_ );
+    }
 }
 
 
@@ -73,8 +82,9 @@ Shape::~Shape()
     if ( texture3_ ) texture3_->unRef();
     if ( material_ ) material_->unRef();
 
-    getInventorNode()->unref();
-    lifter_->unRef();
+    if ( getInventorNode() ) getInventorNode()->unref();
+    if ( lifter_ ) lifter_->unRef();
+    if ( osgswitch_ ) osgswitch_->unref();
 }
 
 
@@ -134,7 +144,8 @@ void ownclass::set##clssname( clssname* newitem ) \
 { \
     if ( variable ) \
     { \
-	removeNode( variable->getInventorNode() ); \
+	if ( variable->getInventorNode() ) \
+	    removeNode( variable->getInventorNode() ); \
 	variable->unRef(); \
 	variable = 0; \
     } \
@@ -143,7 +154,8 @@ void ownclass::set##clssname( clssname* newitem ) \
     { \
 	variable = newitem; \
 	variable->ref(); \
-	insertNode( variable->getInventorNode() ); \
+	if ( variable->getInventorNode() ) \
+	    insertNode( variable->getInventorNode() ); \
     } \
 } \
  \
@@ -266,11 +278,16 @@ int Shape::usePar( const IOPar& par )
 	
 SoNode* Shape::gtInvntrNode()
 { return onoff_ ? (SoNode*) onoff_ : (SoNode*) root_; }
+    
+    
+osg::Node* Shape::gtOsgNode()
+{ return osgswitch_; }
 
 
 void Shape::insertNode( SoNode*  node )
 {
-    root_->insertChild( node, 0 );
+    if ( root_ )
+	root_->insertChild( node, 0 );
 }
 
 
@@ -354,6 +371,8 @@ bool VertexShape::getNormalPerFaceBinding() const
 
 
 #define mCheckCreateShapeHints() \
+    if ( doOsg() ) \
+	return; \
     if ( !shapehints_ ) \
     { \
 	shapehints_ = new SoShapeHints; \
@@ -424,6 +443,20 @@ IndexedShape::IndexedShape( SoIndexedShape* shape )
     : VertexShape( shape )
     , indexedshape_( shape )
 {}
+    
+    
+SoIndexedShape* createSoClass( Geometry::IndexedPrimitiveSet::PrimitiveType tp )
+{
+    return 0;
+}
+    
+    
+IndexedShape::IndexedShape( Geometry::IndexedPrimitiveSet::PrimitiveType tp )
+    : VertexShape( doOsg() ? 0 : createSoClass( tp ) )
+    , primitivetype_( tp )
+{
+    indexedshape_ = (SoIndexedShape*) shape_;
+}
 
 
 void IndexedShape::replaceShape( SoNode* node )
@@ -486,18 +519,18 @@ int IndexedShape::getClosestCoordIndex( const EventInfo& ei ) const
     
     
     
-void visBase::IndexedShape::addPrimitive( Geometry::IndexedPrimitive* p )
+void visBase::IndexedShape::addPrimitiveSet( Geometry::IndexedPrimitiveSet* p )
 {
-    primitives_ += p;
+    primitivesets_ += p;
     updateFromPrimitives();
 }
     
     
     
-class OSGPrimitive : public Geometry::IndexedPrimitive
+class OSGPrimitiveSet : public Geometry::IndexedPrimitiveSet
 {
 public:
-    OSGPrimitive() : element_( new osg::DrawElementsUInt) {}
+    OSGPrimitiveSet() : element_( new osg::DrawElementsUInt) {}
     
     virtual void		push( int ) {}
     virtual int		pop() { return 0; }
@@ -510,7 +543,7 @@ public:
     
     
 
-class CoinPrimitive : public Geometry::IndexedPrimitive
+class CoinPrimitiveSet : public Geometry::IndexedPrimitiveSet
 {
 public:
     virtual void	push( int index) { indices_ += index; }
@@ -532,11 +565,11 @@ public:
 };
     
 
-Geometry::IndexedPrimitive* IndexedPrimitiveCreator::doCreate()
+Geometry::IndexedPrimitiveSet* IndexedPrimitiveSetCreator::doCreate()
 {
     return visBase::DataObject::doOsg()
-        ? (Geometry::IndexedPrimitive*) new OSGPrimitive
-	: (Geometry::IndexedPrimitive*) new CoinPrimitive;
+        ? (Geometry::IndexedPrimitiveSet*) new OSGPrimitiveSet
+	: (Geometry::IndexedPrimitiveSet*) new CoinPrimitiveSet;
 }
     
     
@@ -549,9 +582,9 @@ void visBase::IndexedShape::updateFromPrimitives()
     else
     {
 	TypeSet<int> idxs;
-	for ( int idx=0; idx<primitives_.size(); idx++ )
+	for ( int idx=0; idx<primitivesets_.size(); idx++ )
 	{
-	    mDynamicCastGet(CoinPrimitive*, primitive, primitives_[idx])
+	    mDynamicCastGet(CoinPrimitiveSet*, primitive, primitivesets_[idx])
 	    if ( primitive->size() )
 	    {
 		idxs.append( primitive->indices_ );

@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.15 2012-09-04 09:32:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.16 2012-09-05 13:38:41 cvskris Exp $";
 
 #include "indexedshape.h"
 
@@ -14,16 +14,28 @@ namespace Geometry
 {
 
     
-PtrMan<IndexedPrimitiveCreator> IndexedPrimitiveCreator::creator_ = 0;
+PtrMan<IndexedPrimitiveSetCreator> IndexedPrimitiveSetCreator::creator_ = 0;
+    
+    
+DefineEnumNames(IndexedPrimitiveSet, PrimitiveType, 1, "PrimitiveType" )
+{ "Points", "Lines", "Triangles", "Strips", "Fans", 0 };
 
     
-IndexedPrimitive* IndexedPrimitiveCreator::create()
+IndexedPrimitiveSet* IndexedPrimitiveSetCreator::create()
 {
     return creator_ ? creator_->doCreate() : 0;
 }
     
     
-void IndexedPrimitiveCreator::setCreator(Geometry::IndexedPrimitiveCreator* c)
+IndexedPrimitiveSet* IndexedPrimitiveSet::create()
+{
+    return IndexedPrimitiveSetCreator::create();
+}
+
+    
+    
+void IndexedPrimitiveSetCreator::setCreator(
+				Geometry::IndexedPrimitiveSetCreator* c )
 {
     creator_ = c;
 }
@@ -108,6 +120,24 @@ void IndexedGeometry::removeAll( bool deep )
 	    texturecoordlist_->remove( texturecoordindices_[idx] );
 	}
     }
+    
+    if ( primitivesets_.size() && deep )
+    {
+	for ( int idx=0; idx<primitivesets_.size(); idx++ )
+	{
+	    RefMan<const IndexedPrimitiveSet> primitive = primitivesets_[idx];
+	    for ( int idy=primitive->size()-1; idy>=0; idy-- )
+	    {
+		const int index = primitive->get(idy);
+		if ( coordlist_ )
+		    coordlist_->remove( index );
+		if ( normallist_ )
+		    normallist_->remove( index );
+		if ( texturecoordlist_ )
+		    texturecoordlist_->remove( index );
+	    }
+	}
+    }
 
     if ( coordindices_.size() || normalindices_.size() ||
 	 texturecoordindices_.size() )
@@ -116,6 +146,8 @@ void IndexedGeometry::removeAll( bool deep )
     coordindices_.erase();
     normalindices_.erase();
     texturecoordindices_.erase();
+    
+    deepUnRef( primitivesets_ );
 }
 
 
