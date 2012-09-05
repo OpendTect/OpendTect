@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ziparchiveinfo.cc,v 1.5 2012-09-05 03:14:31 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziparchiveinfo.cc,v 1.6 2012-09-05 06:19:53 cvssalil Exp $";
 
 #include "ziparchiveinfo.h"
 
@@ -115,7 +115,6 @@ unsigned int ZipArchiveInfo::getLocalHeaderOffset( BufferString& fnm )
     fnm.buf()[fnm.size()] = '\0';
     for( int i = 0; i < ziphd_.getTotalFiles(); i++ )
     {
-	/*std::cout<<files_[i]->localheaderoffset_<<"\n";*/
 	files_[i]->fnm_.buf()[files_[i]->fnm_.size()] = '\0';
 	if ( strstr( files_[i]->fnm_.buf(), fnm.buf() ) )
 	    return files_[i]->localheaderoffset_;

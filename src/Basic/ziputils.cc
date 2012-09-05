@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.23 2012-09-05 03:14:32 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.24 2012-09-05 06:19:53 cvssalil Exp $";
 
 #include "ziputils.h"
 
@@ -110,9 +110,10 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     return res;
 }
 
-bool ZipUtils::makeZip( BufferString& src, TaskRunner* tr )
+bool ZipUtils::makeZip( BufferString& src, TaskRunner* tr, complevel_ cl )
 {
     bool res;
+    ziphdler_.setCompLevel( cl );
     res = ziphdler_.makeZipInIt( src );
     if ( !res )
 	return false;
@@ -123,9 +124,11 @@ bool ZipUtils::makeZip( BufferString& src, TaskRunner* tr )
 }
 
 bool ZipUtils::appendFile( BufferString& srcfnm, BufferString& fnm,
-						    TaskRunner* tr )
+							TaskRunner* tr,
+							complevel_ cl )
 {
     bool res;
+    ziphdler_.setCompLevel( cl );
     res = ziphdler_.appendFileInIt( srcfnm, fnm );
     if ( !res )
 	return false;

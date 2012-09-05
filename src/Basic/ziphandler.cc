@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.5 2012-09-05 03:26:09 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.6 2012-09-05 06:19:53 cvssalil Exp $";
 
 #include "ziphandler.h"
 
@@ -69,7 +69,7 @@ static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.5 2012-09-05 03:26
 #define mLTotalEntry 10
 #define mLSizeCentralDir 12
 #define mLOffsetCentralDir 16
-#define mLFileComntLength 20
+#define mLZipFileComntLength 20
 #define mSizeTwoBits 2
 #define mSizeFourBits 4
 
@@ -160,6 +160,11 @@ int ZipHandler::openStrmToRead( const char* src )
     return 1;
 }
 
+void ZipHandler::setCompLevel( int cl )
+{
+    complevel_ = cl;
+}
+
 bool ZipHandler::doZCompress()
 {
     unsigned int ptrlocation = osd_.ostrm->tellp();
@@ -169,7 +174,7 @@ bool ZipHandler::doZCompress()
     unsigned towrite;
     z_stream strm;
     unsigned char* in = new unsigned char[srcfilesize_ + 1];	    
-    const int level = 6;
+    const int level = complevel_;
     const int method = Z_DEFLATED;
     const int windowbits = -15;
     const int memlevel = 9;
@@ -247,7 +252,7 @@ bool ZipHandler::setLocalFileHeader()
     unsigned short nullvalue = 0;
     unsigned short version = mVerNeedToExtract;
     unsigned short compmethod = mCompMethod;
-    char headerbuff[1024];
+    unsigned char headerbuff[1024];
     char* buf = 0;
     srcfilesize_ = ( unsigned int ) File::getFileSize( srcfile_ );
     FilePath fnm( srcfile_ );
@@ -265,6 +270,18 @@ bool ZipHandler::setLocalFileHeader()
     mInsertToCharBuff( headerbuff, version, mLVerNeedToExtract, mSizeTwoBits );
     mInsertToCharBuff( headerbuff, nullvalue, mLGenPurBitFlag, mSizeTwoBits );
     mInsertToCharBuff( headerbuff, compmethod, mLCompMethod, mSizeTwoBits );
+    if ( complevel_ == Maximum )
+	setBitValue( headerbuff[mLGenPurBitFlag], 2, 1 );
+    else if ( complevel_ == Fast )
+	setBitValue( headerbuff[mLGenPurBitFlag], 3, 1 );
+    else if ( complevel_ == SuperFast )
+    {
+	setBitValue( headerbuff[mLGenPurBitFlag], 2, 1 );
+	setBitValue( headerbuff[mLGenPurBitFlag], 3, 1 );
+    }
+    else if ( complevel_ == NoComp )
+	mInsertToCharBuff( headerbuff, nullvalue, mLCompMethod, mSizeTwoBits );
+
     datetime = timeInDosFormat( srcfile_ );
     mInsertToCharBuff( headerbuff, datetime, mLLastModFTime, mSizeTwoBits );
     datetime = dateInDosFormat( srcfile_ );
@@ -294,7 +311,7 @@ bool ZipHandler::setLocalFileHeaderForDir()
     short datetime;
     unsigned short nullvalue = 0;
     char* buf = 0;
-    char headerbuff[1024];
+    unsigned char headerbuff[1024];
     FilePath fnm( srcfile_ );
     int p = fnm.nrLevels();
     srcfnm_ = "";
@@ -349,6 +366,7 @@ bool ZipHandler::setCntrlDirHeader()
     }
 
     std::istream& readdest = *isdest.istrm;
+
     mCntrlDirHeaderSig( headerbuff );
     mInsertToCharBuff( headerbuff, nullvalue, mLVerMadeBy, mSizeTwoBits );
     mInsertToCharBuff( headerbuff, nullvalue, mLFileComntLength, 
@@ -421,7 +439,7 @@ bool ZipHandler::setEndOfCntrlDirHeader( int ptrlctn )
 							mSizeFourBits );
     mInsertToCharBuff( headerbuff, ptrlctn, mLOffsetCentralDir, 
 							mSizeFourBits );
-    mInsertToCharBuff( headerbuff, nullvalue, mLFileComntLength, 
+    mInsertToCharBuff( headerbuff, nullvalue, mLZipFileComntLength, 
 							    mSizeTwoBits );
     dest.write( (char*) headerbuff, mEndOfDirHeaderSize );
     if ( dest.fail() )
@@ -529,7 +547,7 @@ bool ZipHandler::readEndOfCntrlDirHeader(std::istream& src)
     totalfiles_ = *( ( short* ) ( headerbuff + mLTotalEntry ) );
     sizeofcentraldir_  = *( ( int* ) ( headerbuff + mLSizeCentralDir ) );
     offsetofcentraldir_ = *( ( int* ) ( headerbuff + mLOffsetCentralDir ) );
-    commentlen_ = *( ( short* ) ( headerbuff + mLFileComntLength ) );
+    commentlen_ = *( ( short* ) ( headerbuff + mLZipFileComntLength ) );
     return true;
 }
 
