@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.60 2012-08-31 10:51:42 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitextedit.cc,v 1.61 2012-09-05 07:25:52 cvsjaap Exp $";
 
 
 #include "uitextedit.h"
@@ -449,6 +449,7 @@ void uiTextBrowser::setSource( const char* src )
 
 	if ( logviewmode_ )
 	{
+	    qte().setText( "" );
 	    lastlinestartpos_ = -1;
 	    readTailCB( 0 );
 	    timer_->start( 500, false ); 
