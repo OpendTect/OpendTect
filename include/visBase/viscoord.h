@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.31 2012-08-03 13:01:23 cvskris Exp $
+ RCS:		$Id: viscoord.h,v 1.32 2012-09-05 09:15:08 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "thread.h"
 #include "visdata.h"
 
+
+
 class SoCoordinate3;
 class SoGroup;
 class UTMPosition;
@@ -25,10 +27,15 @@ class Executor;
 
 namespace Geometry { class PosIdHolder; }
 
+#define mOsgVecArrPtr	void*
+#define mGetOsgVecArr(ptr) ((osg::Vec3Array*) ptr )
 
 namespace visBase
 {
 class Transformation;
+class Normals;
+    
+class CoordinatesOsgImpl;
 
 /*!\brief
 A set of coordinates. The coordinates will be transformed by the
@@ -79,6 +86,9 @@ public:
     bool		autoUpdate();
     void		update();
 
+    mOsgVecArrPtr	osgArray() { return osgcoords_; }
+    const mOsgVecArrPtr	osgArray() const { return osgcoords_; }
+
 protected:
 
     void		getPositions(TypeSet<Coord3>&) const;
@@ -100,11 +110,38 @@ protected:
     TypeSet<int>		unusedcoords_;
     mutable Threads::Mutex	mutex_;
     const mVisTrans*		transformation_;
+    
+    mOsgVecArrPtr		osgcoords_;
 
     virtual SoNode*		gtInvntrNode();
 
 };
 
+    
+mClass(visBase) CoinFloatVertexAttribList : public FloatVertexAttribList
+{
+public:
+    			CoinFloatVertexAttribList(Coordinates&,Normals*);
+    
+    virtual int		size() const;
+    virtual bool	setSize(int,bool cpdata);
+    
+    virtual void	setCoord(int,const float*);
+    virtual void	getCoord(int,float*) const;
+    
+    virtual void	setNormal(int,const float*);
+    virtual void	getNormal(int,float*) const;
+    
+    virtual void	setTCoord(int,const float*);
+    virtual void	getTCoord(int,float*) const;
+
+protected:
+			~CoinFloatVertexAttribList();
+    
+    Normals*		normals_;
+    Coordinates&	coords_;
+};
+    
 
 /*!Adapter between a CoordList and Coordinates. */
 
