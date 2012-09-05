@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: positionlist.h,v 1.13 2012-08-03 13:00:14 cvskris Exp $
+ RCS:           $Id: positionlist.h,v 1.14 2012-09-05 08:14:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,26 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "refcount.h"
 #include "position.h"
+
+mClass(Basic) FloatVertexAttribList
+{ mRefCountImpl(FloatVertexAttribList)
+public:
+    
+    
+    virtual int		size() const				= 0;
+    virtual bool	setSize(int,bool cpdata)		= 0;
+    
+    virtual void	setCoord(int,const float*)		= 0;
+    virtual void	getCoord(int,float*) const		= 0;
+    
+    virtual void	setNormal(int,const float*)		= 0;
+    virtual void	getNormal(int,float*) const		= 0;
+    
+    virtual void	setTCoord(int,const float*)		= 0;
+    virtual void	getTCoord(int,float*) const		= 0;
+    
+protected:
+};
 
 
 class Coord3;
