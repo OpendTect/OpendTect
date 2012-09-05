@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.32 2012-09-05 09:15:08 cvskris Exp $
+ RCS:		$Id: viscoord.h,v 1.33 2012-09-05 09:35:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "positionlist.h"
 #include "thread.h"
 #include "visdata.h"
-
 
 
 class SoCoordinate3;
