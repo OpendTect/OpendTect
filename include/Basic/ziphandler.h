@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Salil Agarwal
  Date:		30 August 2012
- RCS:		$Id: ziphandler.h,v 1.2 2012-08-31 06:01:46 cvsraman Exp $
+ RCS:		$Id: ziphandler.h,v 1.3 2012-09-05 03:14:31 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "basicmod.h"
 #include "bufstringset.h"
+#include "strmprov.h"
 
 #define mLocalFileHeaderSig(T) \
     T[0] = 80; \
@@ -47,6 +48,7 @@ ________________________________________________________________________
     } \
 
 #define mCntrlFileHeaderSigCheck( buff, ptr ) \
+    sigcheck = false; \
     if( buff[ptr] == 80 && buff[ptr + 1] == 75 && \
 	    buff[ptr + 2] == 1 && buff[ptr + 3] == 2 ) \
 	    sigcheck = true; 
@@ -60,32 +62,52 @@ ________________________________________________________________________
 	sigcheck = false; \
 
 #define mHeaderSize 30
+#define mCentralHeaderSize 46
+#define mDigSigSize 6
+#define mEndOfDirHeaderSize 22
 
 mClass(Basic) ZipHandler
 {
 public:
-				ZipHandler()				    {}
-    bool			doZCompress(std::istream&, std::ostream& );
-    bool			doZUnCompress( std::istream&, std::ostream& );
-    bool			dirManage( const char*, std::ostream& );
-    const char*			errorMsg();
-    bool			openStrmToRead( const char* src, 
-							std::ostream& dest ); 
-    bool			readEndOfCntrlDirHeader( std::istream&  );
-    int				readFileHeader( std::istream& );
-    bool			setLocalFileHeader( std::ostream& );
-    bool			setLocalFileHeaderForDir( std::ostream& dest );
-    bool			setCntrlDirHeader( std::ostream& );
-    bool			setEndOfCntrlDirHeader(std::ostream&, int );
-    bool			getBitValue( const unsigned char byte,
-							int bitposition );
-    void			setBitValue( unsigned char& byte, 
-						int bitposition, bool value );
+				ZipHandler()				{}
 
-    short			dateInDosFormat( const char* );
-    short			timeInDosFormat( const char* );
-    bool			setTimeDateModified( unsigned short&,
-						     unsigned short& );
+    bool			unZipArchiveInIt(BufferString&,BufferString&);
+    bool			unZipFile(BufferString&,BufferString&);
+    bool			doZUnCompress();
+    const char*			errorMsg();
+    bool			readEndOfCntrlDirHeader(std::istream&);
+    bool			readFileHeader();
+
+    bool			makeZipInIt(BufferString&);
+    bool			dirManage(const char*);
+    bool			doZCompress();
+    int				openStrmToRead(const char* src); 
+    bool			setLocalFileHeader();
+    bool			setLocalFileHeaderForDir();
+    bool			setCntrlDirHeader();
+    bool			setEndOfCntrlDirHeader(int);
+    bool			appendFileInIt(BufferString&,BufferString&);
+
+    bool			getBitValue(const unsigned char byte,
+							int bitposition);
+    void			setBitValue(unsigned char& byte, 
+						int bitposition, bool value);
+
+    short			dateInDosFormat(const char*);
+    short			timeInDosFormat(const char*);
+    bool			setTimeDateModified();
+    BufferStringSet&		getAllFiles() { return allfiles_; }
+    std::ostream&		getDestStream() { return *osd_.ostrm; }
+    unsigned int		getOffsetOfCentralDir() 
+				{ return offsetofcentraldir_; }
+    std::istream&		getSrcStream() { return *isd_.istrm; }
+    unsigned int		getTotalFiles() { return totalfiles_; }
+    void			closeDestStream() { osd_.close(); }
+    void			closeSrcStream() { isd_.close(); }
+    StreamData			makeOStreamForAppend(BufferString&);
+    
+protected:
+
     BufferStringSet		allfiles_;
     unsigned short		compmethod_;
     BufferString		destbasepath_;
@@ -94,7 +116,7 @@ public:
     BufferString		srcfile_ ;
     unsigned int		srcfilesize_, destfilesize_ ;
     int				nrlevel_;
-    unsigned int		totalfiles_;
+    unsigned int		totalfiles_, initialfiles_;
     unsigned short		version_;
     unsigned short		lastmodtime_;
     unsigned short		lastmoddate_;
@@ -102,7 +124,11 @@ public:
     BufferString		srcfnm_;
     unsigned short		srcfnmsize_, xtrafldlth_ ;
     unsigned long		crc_;
-    unsigned int		sizeofcntrldir_, offsetofcntrldir_;
+    unsigned int		sizeofcentraldir_, offsetofcentraldir_;
+    unsigned short		commentlen_;
+    StreamData			osd_;
+    StreamData			isd_;
+
 
 };
 

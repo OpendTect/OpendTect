@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.22 2012-08-31 11:21:45 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.23 2012-09-05 03:14:32 cvssalil Exp $";
 
 #include "ziputils.h"
 
@@ -112,54 +112,71 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 
 bool ZipUtils::makeZip( BufferString& src, TaskRunner* tr )
 {
-    FilePath fp( src );
-    ziphdler_.nrlevel_ = fp.nrLevels();
-    ziphdler_.destfile_ = src;
-    ziphdler_.destfile_.add( ".zip" );
-    StreamData osd = StreamProvider( ziphdler_.destfile_.buf() )
-				    .makeOStream( true );
-    std::ostream& dest = *osd.ostrm;
-    if ( !osd.usable() ) 
-   {
-	ziphdler_.errormsg_ = "Output stream not working";
+    bool res;
+    res = ziphdler_.makeZipInIt( src );
+    if ( !res )
 	return false;
-   }
-    if ( File::isDirectory( src.buf() ) == true )
-    {
-	ziphdler_.allfiles_.add( src );
-	ziphdler_.dirManage( src.buf(), dest );
-	ziphdler_.totalfiles_ = ziphdler_.allfiles_.size();
-    }
-    else if ( File::isFile( src.buf() ) == true )
-    {
-	ziphdler_.totalfiles_ = 1;
-	ziphdler_.allfiles_.add( src );
-    }
-    else
-    {
-	ziphdler_.errormsg_ = src;
-	ziphdler_.errormsg_.add( " does not exist\0" );
-	return false;
-    }
 
-    Zipper exec(ziphdler_.allfiles_, dest, ziphdler_, tr );
-    const bool res = tr ? tr->execute( exec ) : exec.execute();
-    osd.close();
+    Zipper exec( ziphdler_, tr );
+    res = tr ? tr->execute( exec ) : exec.execute();
+    return res;
+}
+
+bool ZipUtils::appendFile( BufferString& srcfnm, BufferString& fnm,
+						    TaskRunner* tr )
+{
+    bool res;
+    res = ziphdler_.appendFileInIt( srcfnm, fnm );
+    if ( !res )
+	return false;
+
+    Zipper exec( ziphdler_, tr );
+    res = tr ? tr->execute( exec ) : exec.execute();
     return res;
 }
 
 int Zipper::nextStep()
 {
-    if ( !ziphd_.openStrmToRead(flist_.get(nrdone_),dest_) )
+    int ret;
+    ret = ziphd_.openStrmToRead(ziphd_.getAllFiles().get(nrdone_));
+    if ( ret == 0 )
+    {
+	ziphd_.closeDestStream();
 	return ErrorOccurred();
+    }
+
+    if ( ret == 1 )
+    {
+	ret = ziphd_.doZCompress();
+	ziphd_.closeSrcStream();
+	if ( !ret )
+	{
+	    ziphd_.closeDestStream();
+	    return ErrorOccurred();
+	}
+
+    }
 
     nrdone_++;
     if ( nrdone_ < totalNr() )
 	return MoreToDo();
 	
-    int ptrlctn = dest_.tellp();
-    ziphd_.setCntrlDirHeader( dest_ );
-    ziphd_.setEndOfCntrlDirHeader ( dest_, ptrlctn );
+    int ptrlctn = ziphd_.getDestStream().tellp();
+    ret = ziphd_.setCntrlDirHeader();
+    if ( !ret )
+    {
+	ziphd_.closeDestStream();
+	return ErrorOccurred();
+    }
+
+    ret = ziphd_.setEndOfCntrlDirHeader ( ptrlctn );
+    if ( !ret )
+    {
+	ziphd_.closeDestStream();
+	return ErrorOccurred();
+    }
+
+    ziphd_.closeDestStream();
     return Finished();
 }
 
@@ -167,7 +184,7 @@ od_int64 Zipper::nrDone() const
 { return nrdone_; }
 
 od_int64 Zipper::totalNr() const
-{ return flist_.size(); }
+{ return ziphd_.getAllFiles().size(); }
 
 const char* Zipper::nrDoneText() const
 { return ( "Files" ); }
@@ -175,127 +192,27 @@ const char* Zipper::nrDoneText() const
 const char* Zipper::message() const
 { return ziphd_.errorMsg(); }
 
-bool ZipUtils::unZipArchive( BufferString& srcfnm, TaskRunner* tr )
+bool ZipUtils::unZipArchive( BufferString& srcfnm,BufferString& basepath,
+							    TaskRunner* tr )
 {
-    FilePath fp;
-    if ( !File::exists( srcfnm.buf() ) )
-    {
-	ziphdler_.errormsg_ = srcfnm; 
-	ziphdler_.errormsg_ += " does not exist"; 
-	return false; 
-    }
-
-    ziphdler_.srcfile_ = srcfnm;
-    fp = srcfnm;
-    ziphdler_.destbasepath_ = fp.pathOnly();
-    ziphdler_.destbasepath_ += fp.dirSep( fp.Local );
-    StreamData isd = StreamProvider( srcfnm ).makeIStream();
-    std::istream& src = *isd.istrm;
-    if ( !isd.usable() ) 
-    {
-	ziphdler_.errormsg_ = "Input stream not working";
+    bool ret = ziphdler_.unZipArchiveInIt( srcfnm, basepath );
+    if( !ret )
 	return false;
-    }
-
-    ziphdler_.readEndOfCntrlDirHeader( src );
-    UnZipper exec( src, ziphdler_, tr );
-    const bool res = tr ? tr->execute( exec ) : exec.execute();
-    isd.close();
-    return res;
+    UnZipper exec( ziphdler_, tr );
+    ret = tr ? tr->execute( exec ) : exec.execute();
+    return ret;
 }
 
 bool ZipUtils::unZipFile( BufferString& srcfnm, BufferString& fnm )
 {
-    FilePath fp;
-    int ret;
-    if ( !File::exists( srcfnm.buf() ) )
-    {
-	ziphdler_.errormsg_ = fnm; 
-	ziphdler_.errormsg_ += " does not exist"; 
-	return false; 
-    }
-
-    ZipArchiveInfo zai( srcfnm );
-    unsigned int offset = zai.getLocalHeaderOffset( fnm );
-    StreamData isd = StreamProvider( srcfnm ).makeIStream();
-    std::istream& src = *isd.istrm;
-    if ( !isd.usable() ) 
-    {
-	ziphdler_.errormsg_ = "Input stream not working";
-	return false;
-    }
-
-    src.seekg( offset );
-    ziphdler_.srcfile_ = srcfnm;
-    fp = fnm;
-    ziphdler_.destbasepath_ = fp.pathOnly();
-    ziphdler_.destbasepath_ += fp.dirSep( fp.Local );
-    ziphdler_.readFileHeader( src );
-    StreamData osd = StreamProvider( ziphdler_.destfile_ ).makeIStream();
-    std::ostream& dest = *osd.ostrm;
-    if ( !osd.usable() ) 
-    {
-	ziphdler_.errormsg_ = "Output stream not working";
-	return false;
-    }
-
-    if ( ziphdler_.compmethod_ == 8 )
-	    ret = ziphdler_.doZUnCompress( src, dest );
-    else if ( ziphdler_.compmethod_ == 0 )
-    {
-	unsigned char* in = new unsigned char[ziphdler_.srcfilesize_];
-	src.read( (char*) in, ziphdler_.srcfilesize_ );
-	dest.write ( (char*) in, ziphdler_.destfilesize_ );
-	delete [] in;
-	ziphdler_.setTimeDateModified( ziphdler_.lastmodtime_, 
-					ziphdler_.lastmoddate_ );
-    }
-    else
-    {
-	ziphdler_.errormsg_ = "Compression method::not supported";
-	return false;
-    }
-
-    osd.close();
-    ziphdler_.setTimeDateModified( ziphdler_.lastmodtime_, 
-					    ziphdler_.lastmoddate_ );
-    isd.close();
-    return true;
+    bool ret = ziphdler_.unZipFile( srcfnm, fnm );
+    return ret;
 }
 
 
 int UnZipper::nextStep()
 {
-    int ret = ziphd_.readFileHeader( src_ );
-    if ( ret == 1 )
-    {
-	StreamData osd = StreamProvider( ziphd_.destfile_ ).makeOStream();
-	std::ostream& dest = *osd.ostrm;
-	if ( !osd.usable() ) 
-	{
-	    ziphd_.errormsg_ = "Input stream not working";
-	    return ErrorOccurred();
-	}
-	if ( ziphd_.compmethod_ == 8 )
-	    ret = ziphd_.doZUnCompress( src_, dest );
-	else if ( ziphd_.compmethod_ == 0 )
-	{
-	    unsigned char* in = new unsigned char[ziphd_.srcfilesize_];
-	    src_.read( (char*) in, ziphd_.srcfilesize_ );
-	    dest.write ( (char*) in, ziphd_.destfilesize_ );
-	    delete [] in;
-	    ziphd_.setTimeDateModified( ziphd_.lastmodtime_, 
-					ziphd_.lastmoddate_ );
-	}
-	else
-	{
-	    ziphd_.errormsg_ = "Compression method::not supported";
-	    return ErrorOccurred();
-	}
-	osd.close();
-	ziphd_.setTimeDateModified( ziphd_.lastmodtime_, ziphd_.lastmoddate_ );
-    }
-    
+    bool ret = ziphd_.readFileHeader(); 
     if ( ret == 0)
 	return ErrorOccurred();
 
@@ -307,7 +224,7 @@ od_int64 UnZipper::nrDone() const
 { return nrdone_; }
 
 od_int64 UnZipper::totalNr() const
-{ return ziphd_.totalfiles_; }
+{ return ziphd_.getTotalFiles(); }
 
 const char* UnZipper::nrDoneText() const
 { return ( "Files" ); }

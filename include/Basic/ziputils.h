@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Ranojay Sen
  Date:		December  2011
- RCS:		$Id: ziputils.h,v 1.8 2012-08-31 10:12:20 cvsraman Exp $
+ RCS:		$Id: ziputils.h,v 1.9 2012-09-05 03:14:31 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,9 +29,12 @@ public:
     void			makeFileList(const char* zipfile);
     const BufferStringSet&	getFileList() const	{ return filelist_; }
 
-    bool			unZipArchive(BufferString&,TaskRunner* tr=0); 
+    bool			unZipArchive(BufferString&,BufferString&,
+							    TaskRunner* tr=0); 
     bool			unZipFile(BufferString&,BufferString&);
-    bool			makeZip( BufferString&, TaskRunner* tr=0);
+    bool			makeZip(BufferString&, TaskRunner* tr=0);
+    bool			appendFile(BufferString&,BufferString&,
+							    TaskRunner* tr=0);
 
 protected:
 
@@ -50,13 +53,8 @@ protected:
 mClass(Basic) Zipper : public Executor
 {
 public:
-				 Zipper( BufferStringSet& list, 
-					 std::ostream& dest,
-					 ZipHandler& zh,
-					 TaskRunner* tr )
+				 Zipper(ZipHandler& zh,TaskRunner* tr)
 				     : Executor( "Compressing Files" )
-				     , flist_(list)
-				     , dest_(dest)
 				     , ziphd_(zh)
 				     , nrdone_(0)	{}
 
@@ -68,8 +66,6 @@ public:
 protected:
 
     int				 nextStep();
-    std::ostream&		 dest_;
-    BufferStringSet		 flist_;
     ZipHandler&			 ziphd_;
     int				 nrdone_;
 };
@@ -78,10 +74,8 @@ protected:
 mClass(Basic) UnZipper : public Executor
 {
 public:
-				 UnZipper( std::istream& src,
-					   ZipHandler& zh, TaskRunner* tr )
-				     : Executor( "Uncompressing Files" )
-				     , src_(src)
+				 UnZipper(ZipHandler& zh, TaskRunner* tr)
+				     : Executor("Uncompressing Files")
 				     , ziphd_(zh)
 				     , nrdone_(0)	{}
 
@@ -93,7 +87,6 @@ public:
 protected:
 
     int				 nextStep();
-    std::istream&		 src_;
     ZipHandler&			 ziphd_;
     int				 nrdone_;
 };
