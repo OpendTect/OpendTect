@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.6 2012-09-05 06:19:53 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.7 2012-09-05 07:12:11 cvssatyaki Exp $";
 
 #include "ziphandler.h"
 
@@ -340,14 +340,12 @@ bool ZipHandler::setLocalFileHeaderForDir()
 	return false;
     }
 
-    int ptr = osd_.ostrm->tellp();
     osd_.ostrm->write( srcfnm_.buf(), srcfnmsize_ );
     if ( osd_.ostrm->fail() )
     {
 	errormsg_ = "Error:Writing to disk failed";
 	return false;
     }
-    ptr = osd_.ostrm->tellp();
 
     return true;
 }
@@ -616,7 +614,7 @@ bool ZipHandler::readFileHeader()
     destfile_ = destbasepath_;
     destfile_ += headerbuff;
     isd_.istrm->seekg( ptrlocation + srcfnmsize_ + xtrafldlth_ + mHeaderSize );
-    FilePath fp = destfile_;
+    FilePath fp = destfile_.buf();
     if ( !File::exists( fp.pathOnly().buf() ) )
 	File::createDir( fp.pathOnly().buf() );
     osd_ = StreamProvider( destfile_ ).makeOStream();
