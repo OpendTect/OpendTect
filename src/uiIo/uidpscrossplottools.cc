@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpscrossplottools.cc,v 1.11 2012-08-10 03:50:05 cvsaneesh Exp $
+ RCS:           $Id: uidpscrossplottools.cc,v 1.12 2012-09-05 06:43:51 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplottools.cc,v 1.11 2012-08-10 03:50:05 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplottools.cc,v 1.12 2012-09-05 06:43:51 cvsmahant Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -31,8 +31,8 @@ uiDataPointSetCrossPlotter::Setup::Setup()
     , minborder_(10,20,20,5)
     , showcc_(true)
     , showregrline_(false)
-    , showy1userdefline_(false)
-    , showy2userdefline_(false)
+    , showy1userdefpolyline_(false)
+    , showy2userdefpolyline_(false)
 {
 }
 

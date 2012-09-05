@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.93 2012-08-10 03:50:05 cvsaneesh Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.94 2012-09-05 06:43:51 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.93 2012-08-10 03:50:05 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.94 2012-09-05 06:43:51 cvsmahant Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -81,6 +81,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , mathobj_(0)
     , userdefy1lp_(*new LinePars)
     , userdefy2lp_(*new LinePars)
+    , userdefy1str_(*new BufferString)
+    , userdefy2str_(*new BufferString)
     , yptitems_(0)
     , y2ptitems_(0)
     , selectionpolygonitem_(0)
@@ -88,6 +90,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , regrlineitm_(0)
     , y1userdeflineitm_(0)
     , y2userdeflineitm_(0)
+    , y1userdefpolylineitm_(0)
+    , y2userdefpolylineitm_(0)
     , selyitems_(0)
     , sely2items_(0)
     , selrectitems_(0)
@@ -106,6 +110,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , isdensityplot_(false)
     , multclron_(false)
     , drawuserdefline_(false)
+    , drawy1userdefpolyline_(false)
+    , drawy2userdefpolyline_(false)
     , drawy2_(false)
     , timer_(*new Timer())
     , trmsg_("Calculating Density" )
@@ -398,35 +404,89 @@ void uiDataPointSetCrossPlotter::removeSelections( bool remfrmselgrp )
 }
 
 
-void uiDataPointSetCrossPlotter::setUserDefLine( const uiPoint& startpos,
-						 const uiPoint& stoppos)
+void uiDataPointSetCrossPlotter::setUserDefDrawType( bool dodrw, bool isy2,
+							bool drwln )
 {
-    if ( drawy2_ )
+    bool& drawuserdefpolyline = isy2 ? drawy2userdefpolyline_
+				     : drawy1userdefpolyline_;
+    drawuserdefpolyline = dodrw;
+    drawuserdefline_ = drwln;
+    selectable_ = !dodrw;
+    drawy2_ = isy2;
+}
+
+
+void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
+{
+    TypeSet<uiPoint> pixpts;
+
+    if ( !isy1 )
     {
-	if ( !y2userdeflineitm_ )
+	if ( !y2userdefpolylineitm_ )
+
 	{
-	    y2userdeflineitm_ = new uiLineItem();
-	    scene().addItem( y2userdeflineitm_ );
+	    y2userdefpolylineitm_ = new uiPolyLineItem();
+	    scene().addItem( y2userdefpolylineitm_ );
 	}
     }
     else
     {
-	if ( !y1userdeflineitm_ )
+	if ( !y1userdefpolylineitm_ )
 	{
-	    y1userdeflineitm_ = new uiLineItem();
-	    scene().addItem( y1userdeflineitm_ );
+	    y1userdefpolylineitm_ = new uiPolyLineItem();
+	    scene().addItem( y1userdefpolylineitm_ );
 	}
     }
 
-    uiLineItem* curlineitem = drawy2_ ? y2userdeflineitm_ : y1userdeflineitm_;
-    curlineitem->setLine( startpos, stoppos );
-    LineStyle ls = !drawy2_ ? y_.defaxsu_.style_: y2_.defaxsu_.style_;
+    uiPolyLineItem* curpolylineitem =
+	!isy1 ? y2userdefpolylineitm_ : y1userdefpolylineitm_;
+    const bool dodrw = isy1 ? drawy1userdefpolyline_ : drawy2userdefpolyline_;
+    if ( !dodrw )
+    {
+	curpolylineitem->setVisible( dodrw );
+	return;
+    }
+
+    const TypeSet<uiWorldPoint>& pts = !isy1 ? y2userdefpts_ : y1userdefpts_;
+    AxisData& vert = !isy1 ? y2_ : y_;
+
+    const int size = pts.size();
+    if ( !size ) return;
+
+    for ( int pixvar = 0; pixvar < size; pixvar++ )
+    {
+	uiWorldPoint pt = pts[pixvar];
+
+	if ( mIsUdf(pt.x) || mIsUdf(pt.y) )
+	    continue;
+	if ( mIsUdf(x_.axis_->getPix(pt.x)) ||
+	       	mIsUdf(vert.axis_->getPix(pt.y)) )
+	    continue;
+
+	pixpts += uiPoint( x_.axis_->getPix(pt.x), vert.axis_->getPix(pt.y) );
+    }
+    
+    curpolylineitem->setPolyLine( pixpts );
+    LineStyle ls = vert.defaxsu_.style_;
     ls.width_ = 3;
-    curlineitem->setPenStyle( ls );
-    curlineitem->setZValue( 4 );
-    curlineitem->setVisible( drawuserdefline_ );
+    curpolylineitem->setPenStyle( ls );
+    curpolylineitem->setZValue( 4 );
+    curpolylineitem->setVisible( true );
 }
 
+
+void uiDataPointSetCrossPlotter::setUserDefPolyLine(
+	const TypeSet<uiWorldPoint>& pts, bool isy2 )
+{
+    if ( !isy2 )
+    {
+	y1userdefpts_ = pts;
+    }
+    else
+    {
+	y2userdefpts_ = pts;
+    }
+}
 
 void uiDataPointSetCrossPlotter::setSelectable( bool y1, bool y2 )
 {
@@ -516,6 +576,7 @@ void uiDataPointSetCrossPlotter::mouseMove( CallBacker* )
 	uiPoint stoppos = getCursorPos();
 	const uiAxisHandler& xah = *x_.axis_;
 	const uiAxisHandler& yah = drawy2_ ? *y2_.axis_ : *y_.axis_;
+
 	LinePars& linepar = drawy2_ ? userdefy2lp_ : userdefy1lp_;
 	const float base =
 	    xah.getVal(stoppos.x) - xah.getVal(startpos_.x);
@@ -523,9 +584,21 @@ void uiDataPointSetCrossPlotter::mouseMove( CallBacker* )
 	    yah.getVal(stoppos.y) - yah.getVal(startpos_.y);
 	linepar.ax = perpendicular/base;
 	linepar.a0 = yah.getVal(startpos_.y) -
-	    	     ( linepar.ax * xah.getVal(startpos_.x) );
-	
-	setUserDefLine( startpos_, stoppos );
+	    	     ( linepar.ax * xah.getVal(startpos_.x) );	
+
+	BufferString& linestr = drawy2_ ? userdefy2str_ : userdefy1str_;
+
+	linestr.setEmpty();
+	linestr += linepar.a0;
+	if ( linepar.ax > 0 ) linestr += "+";
+	linestr += linepar.ax;
+	linestr += "*x";
+
+	TypeSet<uiWorldPoint> linepts;
+	linepts+=uiWorldPoint(xah.getVal(startpos_.x),yah.getVal(startpos_.y));
+	linepts+=uiWorldPoint(xah.getVal(stoppos.x),yah.getVal(stoppos.y));	
+	setUserDefPolyLine( linepts,drawy2_ );
+	drawUserDefPolyLine( !drawy2_ );	
 	lineDrawn.trigger();
 	return;
     }
@@ -784,10 +857,10 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
 	    if ( selarea.isrectangle_ )
 	    {
 		const uiWorldRect& worldselarea = selarea.worldrect_;
-		uiRect selrect( xah.getPix((float) worldselarea.left()),
-				yah.getPix((float) worldselarea.top()),
-				xah.getPix((float) worldselarea.right()),
-				yah.getPix((float) worldselarea.bottom()) );
+		uiRect selrect( xah.getPix(worldselarea.left()),
+				yah.getPix(worldselarea.top()),
+				xah.getPix(worldselarea.right()),
+				yah.getPix(worldselarea.bottom()) );
 		selarea.rect_ = selrect;
 		uiRectItem* selrectitem = 0;
 		
@@ -821,8 +894,8 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
 		const ODPolygon<double>& worldpoly = selarea.worldpoly_;
 		TypeSet<uiWorldPoint> polypts = worldpoly.data();
 		for (  int nrpts=0; nrpts<polypts.size(); nrpts++ )
-		    poly.add( uiPoint(xah.getPix((float) polypts[nrpts].x),
-				      yah.getPix((float) polypts[nrpts].y)) );
+		    poly.add( uiPoint(xah.getPix(polypts[nrpts].x),
+				      yah.getPix(polypts[nrpts].y)) );
 		selarea.poly_= poly;
 		
 		if ( !selpolyitems_ || selpolyitems_->size() <= nrpoly )
@@ -1726,52 +1799,10 @@ void uiDataPointSetCrossPlotter::drawData(
     else if ( regrlineitm_ )
 	regrlineitm_->setLine( 0, 0, 0, 0 );
 
-    drawYUserDefLine( usedxpixrg_, setup_.showy1userdefline_, true );
-    drawYUserDefLine( usedxpixrg_, setup_.showy2userdefline_, false );
+    drawUserDefPolyLine( true );
+    drawUserDefPolyLine( false );
 }
 
-
-void uiDataPointSetCrossPlotter::drawYUserDefLine( const Interval<int>& xpixrg,
-						    bool dodrw, bool isy1 )
-{
-    uiLineItem*& curlineitem = isy1 ? y1userdeflineitm_ : y2userdeflineitm_;
-    if ( !dodrw )
-    {
-	if ( curlineitem )
-	{
-	    scene().removeItem( curlineitem );
-	    curlineitem = 0;
-	}
-	return;
-    }
-
-    if ( !x_.axis_ || isy1 ? !y_.axis_ : !y2_.axis_ ) return;
-    const uiAxisHandler& xah = *x_.axis_;
-    const uiAxisHandler& yah = isy1 ? *y_.axis_ : *y2_.axis_;
-    Interval<float> xvalrg( xah.getVal(xpixrg.start), xah.getVal(xpixrg.stop) );
-    if ( !curlineitem )
-    {
-	if ( isy1 )
-	{
-	    y1userdeflineitm_ = new uiLineItem();
-	    scene().addItem( y1userdeflineitm_ );
-	    curlineitem = y1userdeflineitm_;
-	}
-	else
-	{
-	    y2userdeflineitm_ = new uiLineItem();
-	    scene().addItem( y2userdeflineitm_ );
-	    curlineitem = y2userdeflineitm_;
-	}
-    }
-    
-    curlineitem->setZValue( 4 );
-    drawLine( *curlineitem, isy1 ? userdefy1lp_ : userdefy2lp_, xah, yah,
-	      &xvalrg );
-    LineStyle ls = isy1 ? y_.defaxsu_.style_: y2_.defaxsu_.style_;
-    ls.width_ = 3;
-    curlineitem->setPenStyle( ls );
-}
 
 
 void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler& yah,

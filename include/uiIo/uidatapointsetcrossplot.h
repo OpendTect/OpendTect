@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.43 2012-08-03 13:00:59 cvskris Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.44 2012-09-05 06:43:51 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ class Timer;
 class uiDataPointSet;
 class uiPolygonItem;
 class uiLineItem;
+class uiPolyLineItem;
 class uiRectItem;
 class uiGraphicsItemGroup;
 class uiGraphicsItem;
@@ -60,8 +61,8 @@ public:
 	mDefSetupMemb(LineStyle,y2style)
 	mDefSetupMemb(bool,showcc)		// corr coefficient
 	mDefSetupMemb(bool,showregrline)
-	mDefSetupMemb(bool,showy1userdefline)
-	mDefSetupMemb(bool,showy2userdefline)
+	mDefSetupMemb(bool,showy1userdefpolyline)
+	mDefSetupMemb(bool,showy2userdefpolyline)
     };
 
     			uiDataPointSetCrossPlotter(uiParent*,uiDataPointSet&,
@@ -167,7 +168,10 @@ public:
     
     LinePars&			userdefy1lp_;
     LinePars&			userdefy2lp_;
-    
+
+    BufferString&		userdefy1str_;
+    BufferString&		userdefy2str_;
+
     void			setMathObj(MathExpression*);
     void			setMathObjStr(const BufferString& str )
 				{ mathobjstr_ = str; }
@@ -185,9 +189,6 @@ public:
     uiDataPointSet&		uidps()			{ return uidps_; }
     
     const TypeSet<RowCol>&	getSelectedCells()	{ return selrowcols_; }
-
-    void			drawYUserDefLine(const Interval<int>&,bool draw,
-	    					 bool isy1);
 
     int				nrYSels() const		{ return selyitems_; }
     int				nrY2Sels() const	{ return sely2items_; }
@@ -248,10 +249,11 @@ public:
     void			setOverlayY1AttSeq(const ColTab::Sequence&);
     void			setOverlayY2AttSeq(const ColTab::Sequence&);
 
-    void			setUserDefDrawType( bool dodrw, bool isy2 )
-				{ drawuserdefline_ = dodrw; drawy2_ = isy2;
-			       	  selectable_ = !dodrw; }
-    void			setUserDefLine(const uiPoint&,const uiPoint&);
+    void			setUserDefDrawType(bool dodrw,bool isy2,
+	    						bool drwln = false);
+    void			drawUserDefPolyLine(bool);
+    void			setUserDefPolyLine(const TypeSet<uiWorldPoint>&,
+	    						bool);
 
     void			updateOverlayMapper(bool isy1);
     Color			getOverlayColor(uiDataPointSet::DRowID,bool);
@@ -286,6 +288,8 @@ protected:
     uiLineItem*			regrlineitm_;
     uiLineItem*			y1userdeflineitm_;
     uiLineItem*			y2userdeflineitm_;
+    uiPolyLineItem*		y1userdefpolylineitm_;
+    uiPolyLineItem*		y2userdefpolylineitm_;
     uiColTabItem*		y1overlayctitem_;
     uiColTabItem*		y2overlayctitem_;
 
@@ -306,7 +310,9 @@ protected:
     bool			rectangleselection_;
     bool                        isdensityplot_;
     bool                        drawuserdefline_;
-    bool                        drawy2_;
+    bool			drawy1userdefpolyline_;
+    bool                        drawy2userdefpolyline_;
+    bool			drawy2_;
     float			plotperc_;
     int				curgrp_;
     int				selyitems_;
@@ -320,6 +326,8 @@ protected:
     TypeSet<RowCol>		selrowcols_;
     TypeSet<Color>		y1grpcols_;
     TypeSet<Color>		y2grpcols_;
+    TypeSet<uiWorldPoint>	y1userdefpts_;
+    TypeSet<uiWorldPoint>	y2userdefpts_;
     Array1D<char>*		yrowidxs_;
     Array1D<char>*		y2rowidxs_;
     TypeSet<uiDataPointSet::DColID> modcolidxs_;

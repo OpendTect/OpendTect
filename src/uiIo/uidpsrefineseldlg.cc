@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpsrefineseldlg.cc,v 1.5 2012-08-10 03:50:05 cvsaneesh Exp $: 
+ RCS:           $Id: uidpsrefineseldlg.cc,v 1.6 2012-09-05 06:43:51 cvsmahant Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpsrefineseldlg.cc,v 1.5 2012-08-10 03:50:05 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpsrefineseldlg.cc,v 1.6 2012-09-05 06:43:51 cvsmahant Exp $";
 
 
 #include "uidpsrefineseldlg.h"
@@ -50,7 +50,7 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
     vartable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
 					.minrowhgt(1.5) .maxrowhgt(2)
 					.mincolwdt(3*uiObject::baseFldSize())
-					.maxcolwdt(3.5f*uiObject::baseFldSize())
+					.maxcolwdt(3.5*uiObject::baseFldSize())
 					.defrowlbl("") .fillcol(true)
 					.fillrow(true) .defrowstartidx(0),
 					"Variable X attribute table" );
@@ -116,7 +116,7 @@ void uiDPSRefineSelDlg::updateDisplay()
     {
 	uiComboBox* varsel = new uiComboBox( 0, colnms_, "Variable");
 	if ( !dcolids_.isEmpty() && dcolids_.validIdx(idx) )
-	    varsel->setCurrentItem( cColIds(dcolids_[idx]) );
+	   varsel->setCurrentItem( cColIds(dcolids_[idx]) );
 	vartable_->setRowLabel( idx, mathobj_->uniqueVarName(idx) );
 	vartable_->setCellObject( RowCol(idx,0), varsel );
     }
