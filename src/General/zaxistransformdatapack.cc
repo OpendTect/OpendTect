@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: zaxistransformdatapack.cc,v 1.14 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: zaxistransformdatapack.cc,v 1.15 2012-09-06 19:43:05 cvsnanne Exp $";
 
 #include "zaxistransformdatapack.h"
 
@@ -49,6 +49,8 @@ ZAxisTransformDataPack::~ZAxisTransformDataPack()
     transform_.removeVolumeOfInterest( voiid_ );
     transform_.unRef();
     delete outputcs_;
+    delete array2dsl_;
+    delete array3d_;
 }
 
 
