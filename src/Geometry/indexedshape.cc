@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.16 2012-09-05 13:38:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.17 2012-09-06 10:00:40 cvskris Exp $";
 
 #include "indexedshape.h"
 
@@ -14,28 +14,34 @@ namespace Geometry
 {
 
     
-PtrMan<IndexedPrimitiveSetCreator> IndexedPrimitiveSetCreator::creator_ = 0;
+PtrMan<PrimitiveSetCreator> PrimitiveSetCreator::creator_ = 0;
     
     
-DefineEnumNames(IndexedPrimitiveSet, PrimitiveType, 1, "PrimitiveType" )
+DefineEnumNames(PrimitiveSet, PrimitiveType, 1, "PrimitiveType" )
 { "Points", "Lines", "Triangles", "Strips", "Fans", 0 };
 
     
-IndexedPrimitiveSet* IndexedPrimitiveSetCreator::create()
+PrimitiveSet* PrimitiveSetCreator::create( bool indexed, bool large )
 {
-    return creator_ ? creator_->doCreate() : 0;
+    return creator_ ? creator_->doCreate( indexed, large ) : 0;
 }
     
     
-IndexedPrimitiveSet* IndexedPrimitiveSet::create()
+IndexedPrimitiveSet* IndexedPrimitiveSet::create( bool large )
 {
-    return IndexedPrimitiveSetCreator::create();
+    return (IndexedPrimitiveSet*) PrimitiveSetCreator::create( true, large );
+}
+    
+    
+RangePrimitiveSet* RangePrimitiveSet::create()
+{
+    return (RangePrimitiveSet*) PrimitiveSetCreator::create( true, false );
 }
 
     
     
-void IndexedPrimitiveSetCreator::setCreator(
-				Geometry::IndexedPrimitiveSetCreator* c )
+void PrimitiveSetCreator::setCreator(
+				Geometry::PrimitiveSetCreator* c )
 {
     creator_ = c;
 }

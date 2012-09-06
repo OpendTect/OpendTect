@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.33 2012-09-05 14:53:44 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.34 2012-09-06 10:00:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -234,13 +234,13 @@ public:
 
 protected:
     		IndexedShape( SoIndexedShape* );
-		IndexedShape( Geometry::IndexedPrimitiveSet::PrimitiveType );
+		IndexedShape( Geometry::PrimitiveSet::PrimitiveType );
     
     void	updateFromPrimitives();
 
     
-    ObjectSet<Geometry::IndexedPrimitiveSet>		primitivesets_;
-    Geometry::IndexedPrimitiveSet::PrimitiveType	primitivetype_;
+    ObjectSet<Geometry::PrimitiveSet>		primitivesets_;
+    Geometry::PrimitiveSet::PrimitiveType	primitivetype_;
 private:
 
 
@@ -248,9 +248,9 @@ private:
 };
     
     
-class IndexedPrimitiveSetCreator : public Geometry::IndexedPrimitiveSetCreator
+class PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
 {
-    Geometry::IndexedPrimitiveSet* doCreate();
+    Geometry::PrimitiveSet* doCreate( bool, bool );
 };
     
 

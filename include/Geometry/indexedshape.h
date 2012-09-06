@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.21 2012-09-05 13:38:41 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.22 2012-09-06 10:00:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,37 +26,56 @@ class TaskRunner;
 namespace Geometry
 {
     
+mClass(Geometry) PrimitiveSet
+{ mRefCountImplNoDestructor(PrimitiveSet);
+public:
+    enum 	PrimitiveType{Points,Lines,Triangles,TriangleStrip,TriangleFan};
+		DeclareEnumUtils(PrimitiveType);
+    
+
+    virtual int	size() const					= 0;
+    virtual int	get(int) const 					= 0;
+};
 
     
-mClass(Geometry) IndexedPrimitiveSet
-{ mRefCountImplNoDestructor(IndexedPrimitiveSet);
+mClass(Geometry) IndexedPrimitiveSet : public PrimitiveSet
+{
 public:
-    static IndexedPrimitiveSet*	create();
+    static IndexedPrimitiveSet*	create(bool large);
+				/*!<Set large if you will have larger indices
+				    than 65535 */
     
-    enum 		PrimitiveType
-    			{ Points, Lines, Triangles, TriangleStrip, TriangleFan};
-			DeclareEnumUtils(PrimitiveType);
+    virtual void		append( int )			= 0;
+    virtual int			pop()				= 0;
+    virtual int			set(int,int) 			= 0;
+    virtual void		set(const int*,int num)		= 0;
+    virtual void		append(const int*,int num)	= 0;
+};
+   
     
-    virtual void	push( int )		= 0;
-    virtual int		pop()			= 0;
-    virtual int		size() const		= 0;
-    virtual int		get(int) const 		= 0;
-    virtual int		set(int,int) 		= 0;
+mClass(Geometry) RangePrimitiveSet : public PrimitiveSet
+{
+public:
+    static RangePrimitiveSet*	create();
+    virtual void		setRange(const Interval<int>&)	= 0;
+    virtual Interval<int>	getRange() const		= 0;
 };
     
     
-mClass(Geometry) IndexedPrimitiveSetCreator
+mClass(Geometry) PrimitiveSetCreator
 {
 public:
-    virtual 			~IndexedPrimitiveSetCreator() {}
+    virtual 			~PrimitiveSetCreator() {}
     
-    static IndexedPrimitiveSet*	create();
-    static void			setCreator(IndexedPrimitiveSetCreator*);
+    static PrimitiveSet*	create(bool indexed,bool large = false);
+				/*!<Set large if you will have larger indices
+				 than 65535 */
+    static void			setCreator(PrimitiveSetCreator*);
     
 protected:
-    virtual IndexedPrimitiveSet*	doCreate()	= 0;
+    virtual PrimitiveSet*	doCreate(bool indexed,bool large)	= 0;
 
-    static PtrMan<IndexedPrimitiveSetCreator>	creator_;
+    static PtrMan<PrimitiveSetCreator>	creator_;
 };
 
 /*!A geomtetry that is defined by a number of coordinates (defined outside

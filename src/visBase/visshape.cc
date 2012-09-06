@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.39 2012-09-05 14:53:44 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.40 2012-09-06 10:00:40 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -25,12 +25,14 @@ static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.39 2012-09-05 14:53:
 #include "vistexture3.h"
 #include "vistexturecoords.h"
 
-#include "Inventor/nodes/SoIndexedShape.h"
+#include "Inventor/nodes/SoIndexedTriangleStripSet.h"
 #include "Inventor/nodes/SoMaterialBinding.h"
 #include "Inventor/nodes/SoNormalBinding.h"
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoShapeHints.h"
 #include "Inventor/nodes/SoSwitch.h"
+
+#include "SoIndexedTriangleFanSet.h"
 
 #include <osg/PrimitiveSet>
 #include <osg/Switch>
@@ -513,8 +515,18 @@ IndexedShape::IndexedShape( SoIndexedShape* shape )
 {}
     
     
-SoIndexedShape* createSoClass( Geometry::IndexedPrimitiveSet::PrimitiveType tp )
+SoIndexedShape* createSoClass( Geometry::PrimitiveSet::PrimitiveType tp )
 {
+    switch ( tp ) {
+	case Geometry::PrimitiveSet::TriangleStrip:
+	    return new SoIndexedTriangleStripSet;
+	case Geometry::PrimitiveSet::TriangleFan:
+	    return new SoIndexedTriangleStripSet;
+	    
+	default:
+	    break;
+    }
+    
     return 0;
 }
     
@@ -594,27 +606,67 @@ void visBase::IndexedShape::addPrimitiveSet( Geometry::IndexedPrimitiveSet* p )
 }
     
     
-    
-class OSGPrimitiveSet : public Geometry::IndexedPrimitiveSet
+template <class T>
+class OSGIndexedPrimitiveSet : public Geometry::IndexedPrimitiveSet
 {
 public:
-    OSGPrimitiveSet() : element_( new osg::DrawElementsUInt) {}
+			OSGIndexedPrimitiveSet()
+    			    : element_( new T ) {}
     
-    virtual void		push( int ) {}
+    virtual void	append( int ) {}
     virtual int		pop() { return 0; }
     virtual int		size() const { return 0; }
     virtual int		get(int) const { return 0; }
     virtual int		set(int,int) { return 0; }
+    void		set(const int* ptr, int num)
+    {
+	element_->clear();
+	for ( int idx=0; idx<num; idx++, ptr++ )
+	    element_->push_back( *ptr );
+    }
+    void		append(const int* ptr, int num)
+    {
+	for ( int idx=0; idx<num; idx++, ptr++ )
+	    element_->push_back( *ptr );
+    }
+
     
-    osg::ref_ptr<osg::DrawElementsUInt>	element_;
+    osg::ref_ptr<T>	element_;
 };
     
     
-
-class CoinPrimitiveSet : public Geometry::IndexedPrimitiveSet
+class OSGRangePrimitiveSet : public Geometry::RangePrimitiveSet
 {
 public:
-    virtual void	push( int index) { indices_ += index; }
+    OSGRangePrimitiveSet()
+	: element_( new osg::DrawArrays )
+    {}
+    
+    int			size() const 	   { return element_->getCount();}
+    int			get(int idx) const { return element_->getFirst()+idx;}
+
+    void		setRange( const Interval<int>& rg )
+    {
+	element_->setFirst( rg.start );
+	element_->setCount( rg.width()+1 );
+    }
+    
+    Interval<int>	getRange() const
+    {
+	const int first = element_->getFirst();
+	return Interval<int>( first, first+element_->getCount()-1 );
+    }
+    
+    osg::ref_ptr<osg::DrawArrays>	element_;
+};
+    
+    
+    
+
+class CoinIndexedPrimitiveSet : public Geometry::IndexedPrimitiveSet
+{
+public:
+    virtual void	append( int index ) { indices_ += index; }
     virtual int		pop()
     			{
 			    const int idx = size()-1;
@@ -628,16 +680,48 @@ public:
     virtual int		get(int pos) const { return indices_[pos]; }
     virtual int		set(int pos,int index)
 			{ return indices_[pos] = index; }
+    virtual void	set( const int* ptr,int num)
+    {
+	indices_ = TypeSet<int>( ptr, num );
+    }
+    
+    virtual void	append( const int* ptr, int num )
+    { indices_.append( ptr, num ); }
     
     TypeSet<int>	indices_;
 };
     
-
-Geometry::IndexedPrimitiveSet* IndexedPrimitiveSetCreator::doCreate()
+    
+class CoinRangePrimitiveSet : public Geometry::RangePrimitiveSet
 {
+public:
+		   	CoinRangePrimitiveSet() : rg_(mUdf(int), mUdf(int) ) {}
+    
+    int			size() const 			{ return rg_.width()+1;}
+    int			get(int idx) const 		{ return rg_.start+idx;}
+    void		setRange(const Interval<int>& rg) { rg_ = rg; }
+    Interval<int>	getRange() const 		{ return rg_; }
+    
+    Interval<int>	rg_;
+};
+    
+
+Geometry::PrimitiveSet*
+    PrimitiveSetCreator::doCreate( bool indexed, bool large )
+{
+    if ( indexed )
+	return visBase::DataObject::doOsg()
+	    ? (large
+	       ? (Geometry::IndexedPrimitiveSet*)
+		new OSGIndexedPrimitiveSet<osg::DrawElementsUInt>
+	       : (Geometry::IndexedPrimitiveSet*)
+		new OSGIndexedPrimitiveSet<osg::DrawElementsUShort> )
+	    : (Geometry::IndexedPrimitiveSet*) new CoinIndexedPrimitiveSet;
+    
     return visBase::DataObject::doOsg()
-        ? (Geometry::IndexedPrimitiveSet*) new OSGPrimitiveSet
-	: (Geometry::IndexedPrimitiveSet*) new CoinPrimitiveSet;
+	? (Geometry::IndexedPrimitiveSet*) new OSGRangePrimitiveSet
+	: (Geometry::IndexedPrimitiveSet*) new CoinRangePrimitiveSet;
+
 }
     
     
@@ -652,12 +736,23 @@ void visBase::IndexedShape::updateFromPrimitives()
 	TypeSet<int> idxs;
 	for ( int idx=0; idx<primitivesets_.size(); idx++ )
 	{
-	    mDynamicCastGet(CoinPrimitiveSet*, primitive, primitivesets_[idx])
-	    if ( primitive->size() )
+	    mDynamicCastGet(CoinIndexedPrimitiveSet*, indexed,
+			    primitivesets_[idx])
+	    if ( indexed )
 	    {
-		idxs.append( primitive->indices_ );
-		idxs += -1;
+		if ( indexed->size() )
+		{
+		    idxs.append( indexed->indices_ );
+		    
+		}
 	    }
+	    else
+	    {
+		for ( int idy=0; idy<primitivesets_[idx]->size(); idy++ )
+		    idxs += primitivesets_[idx]->get( idy );
+	    }
+	    
+	    idxs += -1;
 	}
 	
 	indexedshape_->coordIndex.setValues( 0, idxs.size(), idxs.arr() );
