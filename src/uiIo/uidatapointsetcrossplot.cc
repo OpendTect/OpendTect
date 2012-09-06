@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.94 2012-09-05 06:43:51 cvsmahant Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.95 2012-09-06 10:26:53 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.94 2012-09-05 06:43:51 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.95 2012-09-06 10:26:53 cvsmahant Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -416,6 +416,18 @@ void uiDataPointSetCrossPlotter::setUserDefDrawType( bool dodrw, bool isy2,
 }
 
 
+void uiDataPointSetCrossPlotter::setUserDefPolyLine(
+	TypeSet<uiWorldPoint>& pts, bool isy2 )
+{
+    sortPts( pts );
+
+    if ( !isy2 )
+	y1userdefpts_ = pts;
+    else
+	y2userdefpts_ = pts;
+}
+
+
 void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
 {
     TypeSet<uiPoint> pixpts;
@@ -467,7 +479,7 @@ void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
     }
     
     curpolylineitem->setPolyLine( pixpts );
-    LineStyle ls = vert.defaxsu_.style_;
+    LineStyle ls = vert.axis_->setup().style_;
     ls.width_ = 3;
     curpolylineitem->setPenStyle( ls );
     curpolylineitem->setZValue( 4 );
@@ -475,18 +487,35 @@ void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
 }
 
 
-void uiDataPointSetCrossPlotter::setUserDefPolyLine(
-	const TypeSet<uiWorldPoint>& pts, bool isy2 )
+void uiDataPointSetCrossPlotter::sortPts( TypeSet<uiWorldPoint>& pts )
 {
-    if ( !isy2 )
+    bool sorted = false;
+    const int size = pts.size();
+    for ( int idx = 1; idx < (int)(size/2) && !sorted; idx++ )
     {
-	y1userdefpts_ = pts;
-    }
-    else
-    {
-	y2userdefpts_ = pts;
+	int lastidx;
+	bool chgdonce = false;
+	int sortsize = (idx == 1) ? size : lastidx+1;
+	for ( int var = 1; var < sortsize; var++ )
+	{
+	    if ( mIsUdf(pts[var].x) || mIsUdf(pts[var].y) )
+		continue;
+	    
+	    if ( pts[var].x < pts[var-1].x )
+	    {
+		uiWorldPoint temp;
+		temp = pts[var];
+		pts[var] = pts[var-1];
+		pts[var-1] = temp;		
+		if ( !chgdonce )
+		    chgdonce = true;
+		sorted = ( var == sortsize-1 && !chgdonce );
+		lastidx = var;
+	    }
+	}
     }
 }
+
 
 void uiDataPointSetCrossPlotter::setSelectable( bool y1, bool y2 )
 {
