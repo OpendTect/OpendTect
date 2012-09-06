@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2007
- RCS:		$Id: arrayndwrapper.h,v 1.6 2012-08-03 20:56:09 cvskris Exp $
+ RCS:		$Id: arrayndwrapper.h,v 1.7 2012-09-06 19:42:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ class Array3DWrapper : public Array3D<T>, public ArrayNDWrapper
 {
 public:
     			Array3DWrapper(ArrayND<T>&);
+			~Array3DWrapper();
 
     void		init();
     bool		isOK() const;
@@ -68,6 +69,10 @@ Array3DWrapper<T>::Array3DWrapper( ArrayND<T>& arr )
     , info_(*new Array3DInfoImpl(1,1,1))
 {
 }
+
+template <class T>
+Array3DWrapper<T>::~Array3DWrapper()
+{ delete &info_; }
 
 
 template <class T>
