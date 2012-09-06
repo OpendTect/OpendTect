@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.31 2012-09-05 06:43:51 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.32 2012-09-06 10:27:11 cvsmahant Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -247,8 +247,8 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     , shwy2userdefpolyline_(0)
     , mathobj_(0)
     , mathobj1_(0)
-    , exp1chged_(false)
-    , exp2chged_(false)
+    , exp1chgd_(false)
+    , exp2chgd_(false)
     , selaxisfld_(0)
     , dragmode_(0)
 {
@@ -324,12 +324,12 @@ void checkMathExpr( CallBacker* cb )
     const bool isy1 = (yinp && yinp==inpfld_);
     const BufferString& mathexpr = isy1 ? mathexprstring_ : mathexprstring1_;
     const BufferString& inptxt = isy1 ? inpfld_->text() : inpfld1_->text();
-    bool& expchged = isy1 ? exp1chged_ : exp2chged_;
+    bool& expchgd = isy1 ? exp1chgd_ : exp2chgd_;
 
     if ( mathexpr != inptxt )
-	expchged = true;
+	expchgd = true;
     else
-	expchged = false;
+	expchgd = false;
 }
 
 
@@ -438,17 +438,17 @@ void setPolyLines( CallBacker* cb )
 void drawPolyLines()
 {
     uiDataPointSetCrossPlotter::AxisData& yax = plotter_.axisData(1);
-    const bool& yrgchged = ( yrgchged_ = !( yax.axis_->range() == yaxrg_ ) );
+    const bool& yrgchgd = ( yrgchgd_ = !( yax.axis_->range() == yaxrg_ ) );
     const bool shwy1 = ( shwy1userdefpolyline_->isChecked() &&
 	    !mathexprstring_.isEmpty() && !(mathobj_->nrVariables()>1) );
 
-    if ( shwy1 && ( exp1chged_ || yrgchged ) )
+    if ( shwy1 && ( exp1chgd_ || yrgchgd ) )
     {
-	yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = !yrgchged;
+    	yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = !yrgchgd;
 	computePts( false );
-	exp1chged_ = false;
+	exp1chgd_ = false;
     }
-    else if ( !exp1chged_ )
+    else if ( !exp1chgd_ )
     {
 	yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = false;
     }
@@ -457,17 +457,17 @@ void drawPolyLines()
     if ( hasy2_ )
     {
 	uiDataPointSetCrossPlotter::AxisData& y2ax = plotter_.axisData(2);
-	const bool& y2rgchged = ( y2rgchged_= !(y2ax.axis_->range()==y2axrg_) );
+	const bool& y2rgchgd = ( y2rgchgd_= !(y2ax.axis_->range()==y2axrg_) );
 	const bool shwy2 = ( shwy2userdefpolyline_->isChecked() &&
 		!mathexprstring1_.isEmpty() && !(mathobj1_->nrVariables()>1) );
 
-    	if ( shwy2 && ( exp2chged_ || y2rgchged ) )
+    	if ( shwy2 && ( exp2chgd_ || y2rgchgd ) )
     	{
-	    y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = !y2rgchged;
+	    y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = !y2rgchgd;
 	    computePts( true );
-	    exp2chged_ = false;
+	    exp2chgd_ = false;
 	}
-	else if ( !exp2chged_ )
+	else if ( !exp2chgd_ )
 	{   
 	    y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = false;
 	}
@@ -480,8 +480,8 @@ void computePts( bool isy2 )
 {
     TypeSet<uiWorldPoint> pts;
     TypeSet<uiWorldPoint> validpts;    
-    int idx = isy2 ? 2 : 1;
-    uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(idx);
+    int idy = isy2 ? 2 : 1;
+    uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(idy);
 
     const BinIDValueSet& bvs = dps_.bivSet();
     BinIDValueSet::Pos pos;
@@ -495,7 +495,7 @@ void computePts( bool isy2 )
 	DataPointSet::RowID rid = dps_.getRowID( pos );
 
 	const float xval = dps_.value( plotter_.axisData(0).colid_, rid );
-	const float yval = dps_.value( plotter_.axisData(idx).colid_, rid );
+	const float yval = dps_.value( plotter_.axisData(idy).colid_, rid );
 		
 	if ( mIsUdf(xval) || mIsUdf(yval) )
 	    continue;
@@ -537,9 +537,9 @@ void computePts( bool isy2 )
 	msg_ += " falls outside range. ";
 	msg_ += "Do you want to rescale?";
 
-	const bool& vertrgchged = isy2 ? y2rgchged_ : yrgchged_;
+	const bool& vertrgchgd = isy2 ? y2rgchgd_ : yrgchgd_;
 
-	if ( !vertrgchged && uiMSG().askGoOn(msg_) )
+	if ( !vertrgchgd && uiMSG().askGoOn(msg_) )
 	{
 	    curvyvalrg.include( vert.axis_->range(), false );
 	    curvyvalrg.step = (curvyvalrg.stop - curvyvalrg.start)/4.0f;
@@ -608,10 +608,10 @@ bool acceptOK()
     const DataPointSet&                 dps_;
 
     bool		 		hasy2_;
-    bool				exp1chged_;
-    bool				exp2chged_;
-    bool				yrgchged_;
-    bool				y2rgchged_;
+    bool				exp1chgd_;
+    bool				exp2chgd_;
+    bool				yrgchgd_;
+    bool				y2rgchgd_;
     int  				dragmode_;
     uiGenInput*                         inpfld_;
     uiGenInput*                         inpfld1_;
