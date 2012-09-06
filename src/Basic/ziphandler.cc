@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.7 2012-09-05 07:12:11 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.8 2012-09-06 03:32:26 cvssalil Exp $";
 
 #include "ziphandler.h"
 
@@ -25,7 +25,6 @@ static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.7 2012-09-05 07:12
 #include "QDate"
 #include "QTime"
 #include "zlib.h"
-#include "math.h"
 
 #ifdef __win__
     #include "sys/utime.h"
@@ -35,13 +34,7 @@ static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.7 2012-09-05 07:12
 
 #include <iostream>
 #include <fstream>
-#include "math.h"
-
-#ifdef __win__
-#include "sys/utime.h"
-#else
-#include "utime.h"
-#endif
+#include <math.h>
 
 #define mVerNeedToExtract 20
 #define mVerNeedToExtractForDir 10
@@ -226,7 +219,7 @@ bool ZipHandler::doZCompress()
     } while( flush != Z_FINISH );
 
     deflateEnd( &strm );
-    osd_.ostrm->seekp( ptrlocation + 14 );
+    osd_.ostrm->seekp( ptrlocation + mLCRC32 );
     osd_.ostrm->write( (const char*) &crc_, sizeof(unsigned long) );
     if ( osd_.ostrm->fail() )
     {
@@ -382,8 +375,8 @@ bool ZipHandler::setCntrlDirHeader()
 	offset = readdest.tellg();
 	readdest.read( ( char* )localheader, mHeaderSize);
 	localheader[mHeaderSize] = 0;
-	compsize = *(unsigned int*)( localheader + 18 );
-	fnmsize = *(unsigned short*)( localheader + 26 );
+	compsize = *(unsigned int*)( localheader + mLCompSize );
+	fnmsize = *(unsigned short*)( localheader + mLFnmLength );
 	readdest.read( ( char* )(localheader + mHeaderSize), fnmsize );
 	localheader[mHeaderSize + fnmsize] = 0;
 	for( int id = 4; id < mHeaderSize; id++ )
@@ -620,7 +613,7 @@ bool ZipHandler::readFileHeader()
     osd_ = StreamProvider( destfile_ ).makeOStream();
     if ( !osd_.usable() ) 
     {
-	errormsg_ = "Input stream not working";
+	errormsg_ = "Permission denied";
 	return false;
     }
 
@@ -829,7 +822,7 @@ short ZipHandler::timeInDosFormat( const char* fnm )
 	setBitValue( bte[1], idx, getBitValue( min, idx + 3 ) );
 
     for ( idx = 4; idx < 9; idx++ )
-	setBitValue( bte[1], idx, getBitValue( hr, idx-3 ) );
+	setBitValue( bte[1], idx, getBitValue( hr, idx - 3 ) );
 
     dosformat = *( ( unsigned short* ) ( bte ) );
     return dosformat;
