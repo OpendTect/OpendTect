@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistristripset.cc,v 1.17 2012-05-02 15:12:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistristripset.cc,v 1.18 2012-09-06 10:04:24 cvskris Exp $";
 
 #include "vistristripset.h"
 
@@ -19,7 +19,7 @@ namespace visBase
 {
 
 TriangleStripSet::TriangleStripSet()
-    : IndexedShape( new SoIndexedTriangleStripSet )
+    : IndexedShape( Geometry::PrimitiveSet::TriangleStrip )
 {}
 
 }; // namespace visBase
