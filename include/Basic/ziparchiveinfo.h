@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Salil Agarwal
  Date:		27 August 2012
- RCS:		$Id: ziparchiveinfo.h,v 1.2 2012-08-31 10:12:20 cvsraman Exp $
+ RCS:		$Id: ziparchiveinfo.h,v 1.3 2012-09-06 03:34:22 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public:
 
 protected:
 
-    void			readZipArchive( BufferString& fnm );
+    bool			readZipArchive( BufferString& fnm );
     ObjectSet<FileInfo>		files_;
     ZipHandler&			ziphd_;
 };
