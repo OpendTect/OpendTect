@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatauxdataeditor.cc,v 1.51 2012-05-02 15:11:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatauxdataeditor.cc,v 1.52 2012-09-06 10:09:36 cvsjaap Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -950,7 +950,7 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 	bendpoints_.reverse();
 
     if ( intersowing )
-	bendpoints_[0] = bendpoints_[bendpoints_.size()-1];
+	bendpoints_.insert( 1,  bendpoints_[bendpoints_.size()-1] );
 
     mode_ = FirstSowing;
     int count = 0;
@@ -964,7 +964,8 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 
 	bendpoints_.remove( 0 );
 
-	if ( !intersowing || count++ )
+	count++;
+	if ( !intersowing || count>2 )
 	    mode_ = SequentSowing;
     }
 

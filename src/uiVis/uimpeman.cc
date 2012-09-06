@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimpeman.cc,v 1.223 2012-08-13 04:04:38 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimpeman.cc,v 1.224 2012-09-06 10:09:36 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -362,8 +362,8 @@ void uiMPEMan::seedClick( CallBacker* )
     const bool trackerisshown = displays.size() && 
 			        displays[0]->isDraggerShown();
 
-    const bool ctrlshiftclicked = clickcatcher->info().isCtrlClicked() &&
-				  clickcatcher->info().isShiftClicked();
+    bool ctrlshiftclicked = clickcatcher->info().isCtrlClicked() &&
+			    clickcatcher->info().isShiftClicked();
 
     if ( pid.objectID()==-1 && !ctrlshiftclicked &&
 	 clickcatcher->activateSower(emobj->preferredColor(),
@@ -458,6 +458,9 @@ void uiMPEMan::seedClick( CallBacker* )
     }
 
     seedpicker->setSowerMode( clickcatcher->sequentSowing() );
+    if ( mIsUdf(cureventnr_) && clickcatcher->moreToSow() )
+	ctrlshiftclicked = true;  // 1st seed sown is "tracking buffer" only
+
     beginSeedClickEvent( emobj );
 
     if ( pid.objectID()!=-1 )
