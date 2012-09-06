@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.74 2012-08-30 12:46:48 cvskris Exp $
+ RCS:           $Id: uitable.h,v 1.75 2012-09-06 11:53:36 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -188,6 +188,8 @@ public:
 
     bool		isTopHeaderHidden() const;
     bool		isLeftHeaderHidden() const;
+    void		setTopHeaderHidden(bool);
+    void		setLeftHeaderHidden(bool);
 
     void		insertRows(int row,int count);
     inline void		insertRows( const RowCol& rc, int count )

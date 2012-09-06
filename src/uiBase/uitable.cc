@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitable.cc,v 1.110 2012-08-30 07:52:53 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitable.cc,v 1.111 2012-09-06 11:52:57 cvsraman Exp $";
 
 
 #include "uitable.h"
@@ -691,6 +691,13 @@ bool uiTable::isTopHeaderHidden() const
 
 bool uiTable::isLeftHeaderHidden() const
 { return !body_->verticalHeader()->isVisible(); }
+
+void uiTable::setTopHeaderHidden( bool yn )
+{ body_->horizontalHeader()->setVisible( !yn ); }
+
+void uiTable::setLeftHeaderHidden( bool yn )
+{ body_->verticalHeader()->setVisible( !yn ); }
+
 
 
 void uiTable::resizeHeaderToContents( bool hor )
