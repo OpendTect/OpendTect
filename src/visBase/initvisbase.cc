@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: initvisbase.cc,v 1.28 2012-09-05 13:38:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: initvisbase.cc,v 1.29 2012-09-06 10:06:53 cvskris Exp $";
 
 
 
@@ -161,6 +161,6 @@ mDefModInitFn(visBase)
     visBase::Well::initClass();
     visBase::TopBotImage::initClass();
     
-    Geometry::IndexedPrimitiveSetCreator::setCreator(
-				    new visBase::IndexedPrimitiveSetCreator );
+    Geometry::PrimitiveSetCreator::setCreator(
+				    new visBase::PrimitiveSetCreator );
 }
