@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.45 2012-09-06 10:29:08 cvsmahant Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.46 2012-09-06 10:31:38 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -251,7 +251,7 @@ public:
 
     void			setUserDefDrawType(bool dodrw,bool isy2,
 	    						bool drwln = false);
-    void                        setUserDefPolyLine(TypeSet<uiWorldPoint>&,bool);
+    void			setUserDefPolyLine(TypeSet<uiWorldPoint>&,bool);
     void			drawUserDefPolyLine(bool);
     void 			sortPts(TypeSet<uiWorldPoint>&);
 
