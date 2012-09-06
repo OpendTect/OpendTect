@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.41 2012-07-10 08:05:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.42 2012-09-06 19:08:16 cvsnanne Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -25,6 +25,7 @@ static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.41 2012-07-10 
 #include <QPen>
 #include <QTransform>
 
+mUseQtnamespace
 
 uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
     : qgraphicsitem_(itm)

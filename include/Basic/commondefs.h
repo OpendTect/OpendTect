@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.55 2012-08-30 12:45:02 cvskris Exp $
+ RCS:		$Id: commondefs.h,v 1.56 2012-09-06 19:08:16 cvsnanne Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -120,8 +120,15 @@ template <class T> class clss; \
 template mExp(mod) class clss<inst>
 
 //for Qt
-#define mFDQtclass(cls) class cls;
-#define mQtclass(cls) cls
+#ifndef QT_NAMESPACE
+# define mFDQtclass(cls) class cls;
+# define mQtclass(cls) cls
+# define mUseQtnamespace
+#else
+# define mFDQtclass(cls) namepace QT_NAMESPACE { class cls; }
+# define mQtclass(cls) ::QT_NAMESPACE::cls
+# define mUseQtnamespace using namespace ::QT_NAMESPACE;
+#endif
 
 #define mIfNotFirstTime(act) \
     static bool _already_visited_ = false; \
