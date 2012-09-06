@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.8 2012-09-06 03:32:26 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.9 2012-09-06 08:53:56 cvssalil Exp $";
 
 #include "ziphandler.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.8 2012-09-06 03:32
 #include "filepath.h"
 #include "dirlist.h"
 #include "executor.h"
+#include "separstr.h"
 #include "task.h"
 #include "ziparchiveinfo.h"
 
@@ -480,7 +481,12 @@ bool ZipHandler::unZipFile( BufferString& srcfnm, BufferString& fnm )
     }
 
     ZipArchiveInfo zai( srcfnm );
-    unsigned int offset = zai.getLocalHeaderOffset( fnm );
+    od_int64 offset = zai.getLocalHeaderOffset( fnm );
+    if ( offset == -1 )
+    {
+	errormsg_ = zai.errorMsg();
+	return false;
+    }
     isd_ = StreamProvider( srcfnm ).makeIStream();
     if ( !isd_.usable() ) 
     {
@@ -607,9 +613,22 @@ bool ZipHandler::readFileHeader()
     destfile_ = destbasepath_;
     destfile_ += headerbuff;
     isd_.istrm->seekg( ptrlocation + srcfnmsize_ + xtrafldlth_ + mHeaderSize );
+    SeparString str( destfile_.buf(), '/' );
+    BufferString pathonly = 0;
     FilePath fp = destfile_.buf();
-    if ( !File::exists( fp.pathOnly().buf() ) )
-	File::createDir( fp.pathOnly().buf() );
+    if ( str.size() == 1 )
+	pathonly = fp.pathOnly();    
+    else
+    {
+	for ( int i = 0; i < str.size() - 1; i++ )
+	{
+	    pathonly += str[i];
+	    pathonly += fp.dirSep( fp.Local ); 
+	}
+    }
+
+    if ( !File::exists( pathonly.buf() ) )
+	File::createDir( pathonly.buf() );
     osd_ = StreamProvider( destfile_ ).makeOStream();
     if ( !osd_.usable() ) 
     {
