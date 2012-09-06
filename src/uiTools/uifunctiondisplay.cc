@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.69 2012-07-25 14:58:40 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.70 2012-09-06 17:39:36 cvsnanne Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -525,7 +525,7 @@ void uiFunctionDisplay::drawMarkLine( uiAxisHandler* ah, float val, Color col,
         return; \
     const bool isctrl = ev.ctrlStatus(); \
     const bool isoth = ev.shiftStatus() || ev.altStatus(); \
-    const bool isnorm mUnusedVar = !isctrl && !isoth
+    const bool isnorm mUnusedVar = !isctrl && !isoth;
 
 
 bool uiFunctionDisplay::setSelPt()
@@ -558,7 +558,9 @@ bool uiFunctionDisplay::setSelPt()
 
 void uiFunctionDisplay::mousePress( CallBacker* )
 {
-    if ( mousedown_ ) return; mousedown_ = true;
+    if ( mousedown_ ) return;
+
+    mousedown_ = true;
     mGetMousePos();
     if ( isoth || !setSelPt() ) return;
 
@@ -569,7 +571,9 @@ void uiFunctionDisplay::mousePress( CallBacker* )
 
 void uiFunctionDisplay::mouseRelease( CallBacker* )
 {
-    if ( !mousedown_ ) return; mousedown_ = false;
+    if ( !mousedown_ ) return;
+
+    mousedown_ = false;
     mGetMousePos();
     if ( !isctrl || selpt_ <= 0 || selpt_ >= xvals_.size()-1
 	 || xvals_.size() < 3 ) return;
@@ -586,16 +590,17 @@ void uiFunctionDisplay::mouseRelease( CallBacker* )
 void uiFunctionDisplay::mouseMove( CallBacker* )
 {
     if ( !mousedown_ ) return;
+
     mGetMousePos();
-    if ( !isnorm || selpt_ < 0 ) return;
+    if ( !isnorm || selpt_<0 ) return;
 
     float xval = xax_->getVal( ev.pos().x );
     float yval = yax_->getVal( ev.pos().y );
 
-    if ( selpt_ > 0 && xvals_[selpt_-1] >= xval )
-	return;
-    if ( selpt_ < xvals_.size() - 1 && xvals_[selpt_+1] <= xval )
-	return;
+    if ( selpt_>0 && xvals_[selpt_-1]>=xval )
+        xval = xvals_[selpt_-1];
+    else if ( selpt_<xvals_.size()-1 && xvals_[selpt_+1]<=xval )
+        xval = xvals_[selpt_+1];
 
     if ( xval > xax_->range().stop )
 	xval = xax_->range().stop;
