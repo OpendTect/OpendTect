@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.73 2012-09-03 10:36:54 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.74 2012-09-06 09:55:55 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -26,6 +26,11 @@ set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYM
 
 if(UNIX) #Apple an Linux
     if(APPLE)
+	if ( ${CMAKE_GENERATOR} STREQUAL "Xcode" )
+	    set ( OD_EXTRA_OSGFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
+	    set ( OD_EXTRA_COINFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
+	endif()
+
 	set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
 	set ( OD_PLATFORM_LINK_OPTIONS "-arch x86_64" )
         add_definitions("-arch x86_64")
@@ -102,7 +107,7 @@ if(WIN32)
 
     set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
     set  ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
-    set (OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL" )
+    set (OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL /wd4244" )
     add_definitions("/Ob1 /vmg /Zc:wchar_t-")
     set (EXTRA_LIBS "ws2_32" "shlwapi")
     add_definitions(  "\"-DmUnusedVar=\"")
