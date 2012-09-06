@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Salil Agarwal
  Date:		27 August 2012
- RCS:		$Id: ziparchiveinfo.h,v 1.3 2012-09-06 03:34:22 cvssalil Exp $
+ RCS:		$Id: ziparchiveinfo.h,v 1.4 2012-09-06 08:51:14 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,19 +40,24 @@ public:
 				ZipArchiveInfo( BufferString& fnm );
 				~ZipArchiveInfo();
 
-    void			getAllFnms( BufferStringSet& );
-    unsigned int		getFCompSize( BufferString& fnm );
-    unsigned int		getFCompSize( int );
-    unsigned int		getFUnCompSize( BufferString& fnm );
-    unsigned int		getFUnCompSize( int );
-    unsigned int		getLocalHeaderOffset( BufferString& fnm );
-    unsigned int		getLocalHeaderOffset( int );
+    bool			getAllFnms( BufferStringSet& );
+    od_int64			getFCompSize( BufferString& fnm );
+    od_int64			getFCompSize( int );
+    od_int64			getFUnCompSize( BufferString& fnm );
+    od_int64			getFUnCompSize( int );
+    od_int64			getLocalHeaderOffset( BufferString& fnm );
+    od_int64			getLocalHeaderOffset( int );
+    const char*			errorMsg();
+    bool			isOK(){ return isok_; }
 
 protected:
 
     bool			readZipArchive( BufferString& fnm );
     ObjectSet<FileInfo>		files_;
     ZipHandler&			ziphd_;
+    BufferString		errormsg_;
+    bool			isok_;
+
 };
 
 
