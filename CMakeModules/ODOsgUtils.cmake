@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODOsgUtils.cmake,v 1.13 2012-07-23 11:37:07 cvskris Exp $
+#	RCS :		$Id: ODOsgUtils.cmake,v 1.14 2012-09-06 09:09:57 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -34,6 +34,11 @@ MACRO(OD_SETUP_OSG)
 	list(APPEND OD_MODULE_INCLUDESYSPATH
 		${OSGGEO_INCLUDE_DIR}
 		${OSG_INCLUDE_DIR} )
+
+	if ( OD_EXTRA_OSGFLAGS )
+	    add_definitions( ${OD_EXTRA_OSGFLAGS} )
+	endif ( OD_EXTRA_OSGFLAGS )
+
 	set(OSGMODULES
 		OSG
 		OSGDB
