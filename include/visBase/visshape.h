@@ -7,9 +7,8 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.34 2012-09-06 10:00:40 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.35 2012-09-06 10:24:22 cvskris Exp $
 ________________________________________________________________________
-
 
 -*/
 
@@ -57,7 +56,6 @@ public:
     void			turnOn(bool);
     bool			isOn() const;
    
-
     void			setRenderCache(int mode);
 				    //!<\param mode=0 off, 1=on, 2=auto (deflt)
     int				getRenderCache() const;
