@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.95 2012-09-06 10:26:53 cvsmahant Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.96 2012-09-06 12:01:00 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.95 2012-09-06 10:26:53 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.96 2012-09-06 12:01:00 cvsmahant Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -474,10 +474,12 @@ void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
 	if ( mIsUdf(x_.axis_->getPix(pt.x)) ||
 	       	mIsUdf(vert.axis_->getPix(pt.y)) )
 	    continue;
+	if (!vert.axis_->pixRange().includes(vert.axis_->getPix(pt.y),false) )
+	    continue;
 
 	pixpts += uiPoint( x_.axis_->getPix(pt.x), vert.axis_->getPix(pt.y) );
     }
-    
+  	
     curpolylineitem->setPolyLine( pixpts );
     LineStyle ls = vert.axis_->setup().style_;
     ls.width_ = 3;
