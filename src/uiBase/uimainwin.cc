@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.247 2012-08-28 07:23:07 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.248 2012-09-06 15:54:50 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1809,6 +1809,14 @@ void uiDialog::showMinMaxButtons()
 {
     mQtclass(Qt)::WindowFlags flags = body_->windowFlags();
     flags |= mQtclass(Qt)::WindowMinMaxButtonsHint;
+    body_->setWindowFlags( flags );
+}
+
+
+void uiDialog::showAlwaysOnTop()
+{
+    mQtclass(Qt)::WindowFlags flags = body_->windowFlags(); 
+    flags |= mQtclass(Qt)::WindowStaysOnTopHint;
     body_->setWindowFlags( flags );
 }
 
