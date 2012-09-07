@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Salil Agarwal
  Date:		30 August 2012
- RCS:		$Id: ziphandler.h,v 1.5 2012-09-06 08:54:52 cvssalil Exp $
+ RCS:		$Id: ziphandler.h,v 1.6 2012-09-07 04:19:53 cvssalil Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,12 @@ mClass(Basic) ZipHandler
 public:
 				ZipHandler()
 				:totalfiles_(0)
-				,initialfiles_(0)		    {}
+				,initialfiles_(0)
+				,srcfilesize_(0)
+				,destfilesize_(0)
+				,srcfnmsize_(0)
+				,offsetofcentraldir_(0)
+				,sizeofcentraldir_(0)			{}
 
     bool			unZipArchiveInIt(BufferString&,BufferString&);
     bool			unZipFile(BufferString&,BufferString&);
