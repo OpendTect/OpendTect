@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.102 2012-08-28 13:19:52 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.103 2012-09-07 10:19:54 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -475,11 +475,8 @@ Color Well::Marker::color() const
 
 ObjectSet<Well::Marker>& Well::MarkerSet::operator += ( Well::Marker* mrk )
 {
-    if ( mrk )
-    {
-	if ( !isPresent( mrk->name().buf() ) )
-	    ObjectSet<Well::Marker>::operator += ( mrk );
-    }
+    if ( mrk && !isPresent( mrk->name().buf() ) )
+	ObjectSet<Well::Marker>::operator += ( mrk );
 
     return *this;
 }
