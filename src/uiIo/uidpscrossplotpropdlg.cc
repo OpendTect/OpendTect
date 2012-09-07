@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.35 2012-09-07 07:26:09 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.36 2012-09-07 10:59:36 cvsmahant Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -502,13 +502,11 @@ void computePts( bool isy2 )
     }
 
     Interval<float> xrge = bvs.valRange( dps_.bivSetIdx( horz.colid_ ) );
-    const float stxval = xrge.start;
-    const float step = ( xrge.stop - xrge.start )/1000.0f;
-    const float spxval = xrge.stop;
+    const float step = fabs( ( xrge.stop - xrge.start )/999.0f );
 
-    for ( float sft = 0; sft <= spxval; sft += step )
+    for ( int idx = 0; idx < 1000; idx++ )
     {
-	float curvxval = stxval + sft;
+	float curvxval = xrge.start + ((float)idx)*step;
 
 	if ( isy2 )
 	    mathobj1_->setVariableValue( 0, curvxval );
@@ -595,7 +593,8 @@ bool acceptOK()
 	if ( plotter_.userdefy2str_.isEmpty() )
 	    shwy2userdefpolyline_->setChecked( false );
 
-	plotter_.setup().showy2userdefpolyline_ = shwy2userdefpolyline_->isChecked();
+	plotter_.setup().showy2userdefpolyline_
+	    = shwy2userdefpolyline_->isChecked();
     }
     plotter_.setup().showy1userdefpolyline_=shwy1userdefpolyline_->isChecked();
 
