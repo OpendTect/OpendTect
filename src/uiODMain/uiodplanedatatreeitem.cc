@@ -7,13 +7,12 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodplanedatatreeitem.cc,v 1.70 2012-07-31 04:07:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodplanedatatreeitem.cc,v 1.71 2012-09-07 22:08:04 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
 #include "uiattribpartserv.h"
 #include "uigridlinesdlg.h"
-#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"

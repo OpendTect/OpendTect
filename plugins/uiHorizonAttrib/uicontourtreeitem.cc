@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.39 2012-08-13 03:56:45 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.40 2012-09-07 22:08:03 cvsnanne Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -28,7 +28,6 @@ static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.39 2012-08-
 #include "uiempartserv.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "uilistview.h"
 #include "uimsg.h"
 #include "uiprogressbar.h"
 #include "uiodapplmgr.h"
@@ -36,6 +35,7 @@ static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.39 2012-08-
 #include "uiodscenemgr.h"
 #include "uisellinest.h"
 #include "uistatusbar.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
 
 #include "viscoord.h"
@@ -252,7 +252,7 @@ bool uiContourTreeItem::init()
     if ( !uiODDataTreeItem::init() )
 	return false;
 
-    uilistviewitem_->setChecked( true );
+    uitreeviewitem_->setChecked( true );
     parent_->checkStatusChange()->notify(mCB(this,uiContourTreeItem,checkCB));
     return true;
 }
@@ -269,7 +269,7 @@ uiODDataTreeItem* uiContourTreeItem::create( const Attrib::SelSpec& as,
 
 void uiContourTreeItem::checkCB(CallBacker*)
 {
-    bool newstatus = uilistviewitem_->isChecked();
+    bool newstatus = uitreeviewitem_->isChecked();
     if ( newstatus && parent_ )
 	newstatus = parent_->isChecked();
 

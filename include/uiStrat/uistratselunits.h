@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          July 2011
- RCS:           $Id: uistratselunits.h,v 1.7 2012-08-03 13:01:11 cvskris Exp $
+ RCS:           $Id: uistratselunits.h,v 1.8 2012-09-07 22:08:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "stratunitrefiter.h"
 class uiStratSelUnitsListItem;
-class uiListView;
+class uiTreeView;
 class uiComboBox;
 
 
@@ -69,7 +69,7 @@ public:
 protected:
 
     uiComboBox*			combo_;
-    uiListView*			tree_;
+    uiTreeView*			tree_;
     ObjectSet<uiStratSelUnitsListItem>	lvitms_;
     
     const Strat::NodeUnitRef&	topnode_;

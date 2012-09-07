@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: uiodvolrentreeitem.h,v 1.15 2012-08-03 13:01:04 cvskris Exp $
+ RCS:           $Id: uiodvolrentreeitem.h,v 1.16 2012-09-07 22:08:02 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -57,7 +57,7 @@ protected:
     uiODDataTreeItem*	createAttribItem( const Attrib::SelSpec* ) const;
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
-    bool		anyButtonClick( uiListViewItem* item );
+    bool		anyButtonClick(uiTreeViewItem*);
 
     bool		isExpandable() const		{ return true; }
     const char*		parentType() const;
@@ -96,7 +96,7 @@ protected:
     void		posChangeCB(CallBacker*);
     void		selChgCB(CallBacker*);
 
-    bool		anyButtonClick( uiListViewItem* item );
+    bool		anyButtonClick(uiTreeViewItem*);
     bool		init();
     const char*		parentType() const;
 

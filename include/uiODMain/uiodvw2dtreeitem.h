@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dtreeitem.h,v 1.5 2012-08-03 13:01:05 cvskris Exp $
+ RCS:		$Id: uiodvw2dtreeitem.h,v 1.6 2012-09-07 22:08:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uitreeitemmanager.h"
 
 class CubeSampling;
-class uiListView;
+class uiTreeView;
 class uiODApplMgr;
 class uiODViewer2D;
 
@@ -62,7 +62,7 @@ mClass(uiODMain) uiODVw2DTreeItemFactory : public uiTreeItemFactory
 mClass(uiODMain) uiODVw2DTreeTop : public uiTreeTopItem
 {
 public:
-    				uiODVw2DTreeTop(uiListView*,uiODApplMgr*,
+				uiODVw2DTreeTop(uiTreeView*,uiODApplMgr*,
 					uiODViewer2D*,uiTreeFactorySet*);
 				~uiODVw2DTreeTop();
     

@@ -7,34 +7,36 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratselunits.cc,v 1.12 2012-07-27 11:05:15 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratselunits.cc,v 1.13 2012-09-07 22:08:06 cvsnanne Exp $";
 
 #include "uistratselunits.h"
-#include "stratunitrefiter.h"
+
 #include "stratreftree.h"
-#include "uilistview.h"
-#include "uilistbox.h"
+#include "stratunitrefiter.h"
+
 #include "uicombobox.h"
+#include "uilistbox.h"
+#include "uitreeview.h"
 
 static const char* sUsrNameRT = "**";
 
 
-class uiStratSelUnitsListItem : public uiListViewItem
+class uiStratSelUnitsListItem : public uiTreeViewItem
 {
 public:
 
-uiStratSelUnitsListItem( uiListView* p, const Strat::UnitRef* ur, bool wchk )
-    : uiListViewItem(p,getSetup(ur,wchk))
+uiStratSelUnitsListItem( uiTreeView* p, const Strat::UnitRef* ur, bool wchk )
+    : uiTreeViewItem(p,getSetup(ur,wchk))
     , unit_(ur)					{}
 
-uiStratSelUnitsListItem( uiListViewItem* p, const Strat::UnitRef* ur, bool wchk)
-    : uiListViewItem(p,getSetup(ur,wchk))
+uiStratSelUnitsListItem( uiTreeViewItem* p, const Strat::UnitRef* ur, bool wchk)
+    : uiTreeViewItem(p,getSetup(ur,wchk))
     , unit_(ur)					{}
 
-static uiListViewItem::Setup getSetup( const Strat::UnitRef* ur, bool wchk )
+static uiTreeViewItem::Setup getSetup( const Strat::UnitRef* ur, bool wchk )
 {
     const char* nm = ur == &ur->refTree() ? sUsrNameRT : ur->code().buf();
-    return uiListViewItem::Setup( nm, wchk ? CheckBox : Standard, false );
+    return uiTreeViewItem::Setup( nm, wchk ? CheckBox : Standard, false );
 }
 
     const Strat::UnitRef*	unit_;
@@ -109,7 +111,7 @@ void uiStratSelUnits::mkTreeFld()
 	    nrleaves++;
     }
 
-    tree_ = new uiListView( this, setup_.fldtxt_,
+    tree_ = new uiTreeView( this, setup_.fldtxt_,
 	      nrleaves<setup_.maxnrlines_ ? 0 : setup_.maxnrlines_, true );
     tree_->setColumnText( 0, setup_.fldtxt_ );
 
@@ -228,7 +230,7 @@ void uiStratSelUnits::getSelected( ObjectSet<const Strat::UnitRef>& urs ) const
     }
     else
     {
-	const uiListViewItem* curitm = tree_->currentItem();
+        const uiTreeViewItem* curitm = tree_->currentItem();
 	for ( int idx=0; idx<lvitms_.size(); idx++ )
 	{
 	    const uiStratSelUnitsListItem* itm = lvitms_[idx];
@@ -317,7 +319,7 @@ void uiStratSelUnits::curChg( CallBacker* )
     }
     else
     {
-	uiListViewItem* li = tree_->currentItem();
+        uiTreeViewItem* li = tree_->currentItem();
 	mDynamicCastGet(uiStratSelUnitsListItem*,sslvi,li)
 	if ( !sslvi ) { pErrMsg("Huh"); return; }
 	curunit_ = sslvi->unit_;

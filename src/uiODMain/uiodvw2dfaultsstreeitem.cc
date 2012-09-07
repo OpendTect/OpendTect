@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.17 2012-02-16 05:05:37 cvssatyaki Exp $
+ RCS:		$Id: uiodvw2dfaultsstreeitem.cc,v 1.18 2012-09-07 22:08:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,11 +13,11 @@ ________________________________________________________________________
 
 #include "uiempartserv.h"
 #include "uiflatviewstdcontrol.h"
-#include "uilistview.h"
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uitreeview.h"
 #include "pixmap.h"
 
 #include "emfaultstickset.h"
@@ -160,8 +160,8 @@ bool uiODVw2DFaultSSTreeItem::init()
     emobj->change.notify( mCB(this,uiODVw2DFaultSSTreeItem,emobjChangeCB) );
     displayMiniCtab();
     name_ = applMgr()->EMServer()->getName( emid_ );
-    uilistviewitem_->setCheckable(true);
-    uilistviewitem_->setChecked( true );
+    uitreeviewitem_->setCheckable(true);
+    uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultSSTreeItem,checkCB) );
 
     fssview_->draw();
@@ -187,7 +187,7 @@ void uiODVw2DFaultSSTreeItem::displayMiniCtab()
     PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
     pixmap->fill( emobj->preferredColor() );
 
-    uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
 
@@ -214,7 +214,7 @@ void uiODVw2DFaultSSTreeItem::emobjChangeCB( CallBacker* cb )
 
 bool uiODVw2DFaultSSTreeItem::select()
 {
-    uilistviewitem_->setSelected( true );
+    uitreeviewitem_->setSelected( true );
 
     viewer2D()->dataMgr()->setSelected( fssview_ );
     fssview_->selected();

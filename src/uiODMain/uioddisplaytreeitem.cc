@@ -7,14 +7,13 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uioddisplaytreeitem.cc,v 1.59 2012-06-28 14:30:22 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uioddisplaytreeitem.cc,v 1.60 2012-09-07 22:08:04 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
 
 #include "attribsel.h"
 #include "pixmap.h"
-#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -22,6 +21,7 @@ static const char* rcsID mUnusedVar = "$Id: uioddisplaytreeitem.cc,v 1.59 2012-0
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodvolproctreeitem.h"
+#include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "vismultiattribsurvobj.h"
@@ -192,7 +192,7 @@ void uiODDisplayTreeItem::updateLockPixmap( bool islocked )
     else
 	pixmap = new ioPixmap();
 
-    uilistviewitem_->setPixmap( 0, *pixmap );
+    uitreeviewitem_->setPixmap( 0, *pixmap );
 
     lockmnuitem_.text = getLockMenuText(); 
     lockmnuitem_.iconfnm = islocked ? "unlock" : "lock_small";
@@ -225,7 +225,7 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 	    pixmap->fill( so->getColor() );
 	}
 
-	if ( pixmap ) uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(),
+	if ( pixmap ) uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(),
 						 *pixmap );
     }
 
@@ -246,9 +246,9 @@ void uiODDisplayTreeItem::checkCB( CallBacker* )
 }
 
 
-int uiODDisplayTreeItem::uiListViewItemType() const
+int uiODDisplayTreeItem::uiTreeViewItemType() const
 {
-    return uiListViewItem::CheckBox;
+    return uiTreeViewItem::CheckBox;
 }
 
 

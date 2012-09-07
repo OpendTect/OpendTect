@@ -1,5 +1,5 @@
-#ifndef i_qlistview_h
-#define i_qlistview_h
+#ifndef i_qtreeview_h
+#define i_qtreeview_h
 
 /*+
 ________________________________________________________________________
@@ -7,32 +7,32 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.18 2012-08-29 16:21:06 cvsnanne Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.19 2012-09-07 22:08:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uilistview.h"
+#include "uitreeview.h"
 
 #include <QObject>
 #include <QTreeWidget>
 
 
-//!brief Helper class for uilistview to relay Qt's 'activated' messages to uiMenuItem.
+//!brief Helper class for uiTreeView to relay Qt's 'activated' messages to uiMenuItem.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
 
 QT_BEGIN_NAMESPACE
 
-class i_listVwMessenger : public QObject 
+class i_treeVwMessenger : public QObject
 {
     Q_OBJECT
-    friend class	uiListViewBody;
+    friend class	uiTreeViewBody;
 
 protected:
 
-i_listVwMessenger( QTreeWidget& sndr, uiListView& receiver )
+i_treeVwMessenger( QTreeWidget& sndr, uiTreeView& receiver )
     : sender_(sndr)
     , receiver_(receiver)
 { 
@@ -77,7 +77,7 @@ void setNotifiedItem( QTreeWidgetItem* item )
 void setNotifiedColumn( int col )
 { receiver_.setNotifiedColumn( col ); }
 
-uiListView&	receiver_;
+uiTreeView&	receiver_;
 QTreeWidget& 	sender_;
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		Feb 2009
- RCS:		$Id: uibodyoperatordlg.h,v 1.6 2012-08-03 13:00:55 cvskris Exp $
+ RCS:		$Id: uibodyoperatordlg.h,v 1.7 2012-09-07 22:08:01 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -21,8 +21,8 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiLabeledComboBox;
-class uiListView;
-class uiListViewItem;
+class uiTreeView;
+class uiTreeViewItem;
 class uiPushButton;
 class uiToolButton;
 
@@ -44,8 +44,8 @@ protected:
     void		oprSel(CallBacker*);
     void		typeSel(CallBacker*);
     void		turnOffAll();
-    void		deleteAllChildInfo(uiListViewItem*);
-    void		setOprator(uiListViewItem* lv,EM::BodyOperator& opt);
+    void		deleteAllChildInfo(uiTreeViewItem*);
+    void		setOprator(uiTreeViewItem* lv,EM::BodyOperator& opt);
 
     static char		sKeyUnion()	{ return 0; }
     static char		sKeyIntSect()	{ return 1; }
@@ -70,9 +70,9 @@ protected:
     uiGenInput*			bodyselfld_;
     uiPushButton*		bodyselbut_;
 
-    uiListView*			tree_;
+    uiTreeView*			tree_;
     TypeSet<bodyOprand>		listinfo_;
-    ObjectSet<uiListViewItem>	listsaved_;
+    ObjectSet<uiTreeViewItem>	listsaved_;
 
     uiIOObjSel*			outputfld_;
 };

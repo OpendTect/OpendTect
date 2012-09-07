@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.90 2012-08-21 10:40:57 cvssatyaki Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.91 2012-09-07 22:08:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class Timer;
 class uiDockWin;
 class uiFlatViewWin;
 class uiLabel;
-class uiListView;
+class uiTreeView;
 class uiMdiArea;
 class uiMdiAreaWindow;
 class uiODTreeTop;
@@ -115,7 +115,7 @@ public:
     int				getActiveSceneID() const;
     Notifier<uiODSceneMgr>	activeSceneChanged;
 
-    uiODTreeTop*		getTreeItemMgr(const uiListView*) const;
+    uiODTreeTop*		getTreeItemMgr(const uiTreeView*) const;
 
     void			displayIn2DViewer(int visid,int attribid,
 	    					  bool wva);
@@ -140,7 +140,7 @@ public:
     void			findItems(const char*,ObjectSet<uiTreeItem>&);
 
     uiTreeFactorySet*		treeItemFactorySet()	{ return tifs_; }
-    uiListView*			getTree(int sceneid);
+    uiTreeView*			getTree(int sceneid);
 
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
@@ -186,7 +186,7 @@ protected:
 				~Scene();
        
 	uiDockWin*		dw_;
-	uiListView*		lv_;
+	uiTreeView*		lv_;
 	uiMdiAreaWindow* 	mdiwin_;
 	ui3DViewer*		sovwr_;
 	uiODTreeTop*		itemmanager_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.38 2012-08-03 13:01:04 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.39 2012-09-07 22:08:02 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uitreeitemmanager.h"
 #include "menuhandler.h"
 
-class uiListView;
+class uiTreeView;
 class uiODApplMgr;
 class uiPopupMenu;
 class ui3DViewer;
@@ -27,7 +27,7 @@ mClass(uiODMain) uiODTreeItem : public uiTreeItem
 {
 public:
     			uiODTreeItem(const char*);
-    bool		anyButtonClick(uiListViewItem*);
+    bool		anyButtonClick(uiTreeViewItem*);
 
     int			sceneID() const;
 protected:
@@ -43,7 +43,7 @@ protected:
 mClass(uiODMain) uiODTreeTop : public uiTreeTopItem
 {
 public:
-			uiODTreeTop(ui3DViewer*,uiListView*,
+			uiODTreeTop(ui3DViewer*,uiTreeView*,
 				    uiODApplMgr*,uiTreeFactorySet*);
 			~uiODTreeTop();
 
@@ -82,9 +82,9 @@ public:
 
 
 #define mShowMenu		bool showSubMenu();
-#define mMenuOnAnyButton	bool anyButtonClick(uiListViewItem* lv) \
+#define mMenuOnAnyButton	bool anyButtonClick(uiTreeViewItem* lv) \
 { \
-    if ( lv==uilistviewitem_ ) { select(); showSubMenu(); return true; } \
+    if ( lv==uitreeviewitem_ ) { select(); showSubMenu(); return true; } \
     return inheritedClass::anyButtonClick( lv ); \
 }
     

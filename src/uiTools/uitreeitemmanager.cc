@@ -8,23 +8,23 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uitreeitemmanager.cc,v 1.65 2012-05-02 15:12:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uitreeitemmanager.cc,v 1.66 2012-09-07 22:08:06 cvsnanne Exp $";
 
 
 #include "uitreeitemmanager.h"
 
 #include "errh.h"
-#include "uilistview.h"
+#include "uitreeview.h"
 
 
 #define mEnabSelChg(yn) \
-   if ( uilistviewitem_ && uilistviewitem_->listView() ) \
-	uilistviewitem_->listView()->selectionChanged.enable( yn );
+   if ( uitreeviewitem_ && uitreeviewitem_->treeView() ) \
+        uitreeviewitem_->treeView()->selectionChanged.enable( yn );
 
 uiTreeItem::uiTreeItem( const char* name__ )
     : parent_( 0 )
     , name_( name__ )
-    , uilistviewitem_( 0 )
+    , uitreeviewitem_( 0 )
 {
 }
 
@@ -34,7 +34,7 @@ uiTreeItem::~uiTreeItem()
     while ( children_.size() )
 	removeChild( children_[0] );
 
-    delete uilistviewitem_;
+    delete uitreeviewitem_;
 }
 
 
@@ -42,9 +42,9 @@ const char* uiTreeItem::name() const
 { return name_.buf(); }
 
 
-bool uiTreeItem::rightClick( uiListViewItem* item )
+bool uiTreeItem::rightClick( uiTreeViewItem* item )
 {
-    if ( item==uilistviewitem_ )
+    if ( item==uitreeviewitem_ )
     {
 	select();
 	showSubMenu();
@@ -61,9 +61,9 @@ bool uiTreeItem::rightClick( uiListViewItem* item )
 }
 
 
-bool uiTreeItem::anyButtonClick( uiListViewItem* item )
+bool uiTreeItem::anyButtonClick( uiTreeViewItem* item )
 {
-    if ( item==uilistviewitem_ )
+    if ( item==uitreeviewitem_ )
 	return select();
 
     for ( int idx=0; idx<children_.size(); idx++ )
@@ -78,8 +78,8 @@ bool uiTreeItem::anyButtonClick( uiListViewItem* item )
 
 void uiTreeItem::updateSelection( int selid, bool downward )
 {
-    if ( uilistviewitem_ ) 
-	uilistviewitem_->setSelected( shouldSelect(selid) );
+    if ( uitreeviewitem_ )
+        uitreeviewitem_->setSelected( shouldSelect(selid) );
 
     if ( downward )
     {
@@ -103,7 +103,7 @@ bool uiTreeItem::select()
 { return selectWithKey(selectionKey()); }
 
 bool uiTreeItem::isSelected() const
-{ return uilistviewitem_ ? uilistviewitem_->isSelected() : false; }
+{ return uitreeviewitem_ ? uitreeviewitem_->isSelected() : false; }
 
 
 void uiTreeItem::prepareForShutdown()
@@ -122,21 +122,21 @@ bool uiTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 
 
 void uiTreeItem::setChecked( bool yn, bool trigger )
-{ if ( uilistviewitem_ ) uilistviewitem_->setChecked( yn, trigger ); }
+{ if ( uitreeviewitem_ ) uitreeviewitem_->setChecked( yn, trigger ); }
 
 
 bool uiTreeItem::isChecked() const
-{ return uilistviewitem_ ? uilistviewitem_->isChecked() : false; } 
+{ return uitreeviewitem_ ? uitreeviewitem_->isChecked() : false; }
 
 
 NotifierAccess* uiTreeItem::checkStatusChange() 
-{ return uilistviewitem_ ? &uilistviewitem_->stateChanged : 0; }
+{ return uitreeviewitem_ ? &uitreeviewitem_->stateChanged : 0; }
 
 void uiTreeItem::expand()
-{ if ( uilistviewitem_ ) uilistviewitem_->setOpen(true); }
+{ if ( uitreeviewitem_ ) uitreeviewitem_->setOpen(true); }
 
 void uiTreeItem::collapse()
-{ if ( uilistviewitem_ ) uilistviewitem_->setOpen(false); }
+{ if ( uitreeviewitem_ ) uitreeviewitem_->setOpen(false); }
 
 
 void uiTreeItem::updateColumnText( int col )
@@ -144,10 +144,10 @@ void uiTreeItem::updateColumnText( int col )
     for ( int idx=0; idx<children_.size(); idx++ )
 	children_[idx]->updateColumnText(col);
 
-    if ( !uilistviewitem_ ) return;
+    if ( !uitreeviewitem_ ) return;
 
     if ( !col )
-	uilistviewitem_->setText( name_, col );
+        uitreeviewitem_->setText( name_, col );
 }
 
 
@@ -225,7 +225,7 @@ void uiTreeItem::moveItemToTop()
     mEnabSelChg( false )
     if ( parent_ && parent_->getItem() && getItem() )
     {
-	uiListViewItem* item = getItem();
+        uiTreeViewItem* item = getItem();
 	const bool issel = item->isSelected();
 	const bool isopen = item->isOpen();
 	parent_->getItem()->takeItem( item );
@@ -237,9 +237,9 @@ void uiTreeItem::moveItemToTop()
 }
 
 
-int uiTreeItem::uiListViewItemType() const
+int uiTreeItem::uiTreeViewItemType() const
 {
-    return uiListViewItem::Standard;
+    return uiTreeViewItem::Standard;
 }
 
 
@@ -249,26 +249,26 @@ uiParent* uiTreeItem::getUiParent() const
 }
 
 
-void uiTreeItem::setListViewItem( uiListViewItem* item )
+void uiTreeItem::setTreeViewItem( uiTreeViewItem* item )
 {
-    uilistviewitem_ = item;
-    if ( uilistviewitem_ )
-	uilistviewitem_->setSelectable( isSelectable() );
+    uitreeviewitem_ = item;
+    if ( uitreeviewitem_ )
+        uitreeviewitem_->setSelectable( isSelectable() );
 }
 
 
 int uiTreeItem::siblingIndex() const
 {
-    if ( !uilistviewitem_ ) return -1;
-    return uilistviewitem_->siblingIndex();
+    if ( !uitreeviewitem_ ) return -1;
+    return uitreeviewitem_->siblingIndex();
 }
 
 
 uiTreeItem* uiTreeItem::siblingAbove()
 {
-    if ( !parent_ || !uilistviewitem_ ) return 0;
+    if ( !parent_ || !uitreeviewitem_ ) return 0;
 
-    uiListViewItem* itemabove = uilistviewitem_->itemAbove();
+    uiTreeViewItem* itemabove = uitreeviewitem_->itemAbove();
     if ( !itemabove ) return 0;
 
     for ( int idx=0; idx<parent_->children_.size(); idx++ )
@@ -283,9 +283,9 @@ uiTreeItem* uiTreeItem::siblingAbove()
 
 uiTreeItem* uiTreeItem::siblingBelow()
 {
-    if ( !parent_ || !uilistviewitem_ ) return 0;
+    if ( !parent_ || !uitreeviewitem_ ) return 0;
 
-    uiListViewItem* itembelow = uilistviewitem_->itemBelow();
+    uiTreeViewItem* itembelow = uitreeviewitem_->itemBelow();
     if ( !itembelow ) return 0;
 
     for ( int idx=0; idx<parent_->children_.size(); idx++ )
@@ -300,8 +300,8 @@ uiTreeItem* uiTreeItem::siblingBelow()
 
 uiTreeItem* uiTreeItem::lastChild()
 {
-    if ( !uilistviewitem_ ) return 0;
-    uiListViewItem* lastchild = uilistviewitem_->lastChild();
+    if ( !uitreeviewitem_ ) return 0;
+    uiTreeViewItem* lastchild = uitreeviewitem_->lastChild();
 
     for ( int idx=0; idx<children_.size(); idx++ )
     {
@@ -339,18 +339,18 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 	mEnabSelChg( false )
 	children_ += newitem;
 	newitem->parent_ = this;
-	uiListViewItem::Setup setup( newitem->name(),
-		    (uiListViewItem::Type)newitem->uiListViewItemType() );
-	mDynamicCastGet(uiListViewItem*,lvi,parent)
-	mDynamicCastGet(uiListView*,lv,parent)
-	uiListViewItem* item = 0;
+	uiTreeViewItem::Setup setup( newitem->name(),
+		    (uiTreeViewItem::Type)newitem->uiTreeViewItemType() );
+	mDynamicCastGet(uiTreeViewItem*,lvi,parent)
+	mDynamicCastGet(uiTreeView*,lv,parent)
+	uiTreeViewItem* item = 0;
 	if ( lvi )
-	    item = new uiListViewItem( lvi, setup );
+	    item = new uiTreeViewItem( lvi, setup );
 	else if ( lv )
-	    item = new uiListViewItem( lv, setup );
+	    item = new uiTreeViewItem( lv, setup );
 	if ( !item ) return false;
 
-	newitem->setListViewItem( item );
+	newitem->setTreeViewItem( item );
 	if ( !newitem->init() )
 	{
 	    removeChild( newitem );
@@ -362,8 +362,8 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 	if ( !below ) newitem->moveItemToTop();
 	item->setOpen( itmisopen );
 
-	if ( uilistviewitem_ && !uilistviewitem_->isOpen() )
-	    uilistviewitem_->setOpen( true );
+	if ( uitreeviewitem_ && !uitreeviewitem_->isOpen() )
+	    uitreeviewitem_->setOpen( true );
 	newitem->updateColumnText(0); newitem->updateColumnText(1);
 	mEnabSelChg( true );
 	return true;
@@ -389,7 +389,7 @@ bool uiTreeItem::addChild( uiTreeItem* newitem, bool below )
 
 
 bool uiTreeItem::addChld( uiTreeItem* newitem, bool below, bool downwards )
-{ return addChildImpl( uilistviewitem_, newitem, below, downwards ); }
+{ return addChildImpl( uitreeviewitem_, newitem, below, downwards ); }
 
 
 void uiTreeItem::removeChild( uiTreeItem* treeitem )
@@ -404,8 +404,8 @@ void uiTreeItem::removeChild( uiTreeItem* treeitem )
 	return;
     }
 
-    if ( uilistviewitem_ )
-	uilistviewitem_->removeItem( treeitem->getItem() );
+    if ( uitreeviewitem_ )
+        uitreeviewitem_->removeItem( treeitem->getItem() );
     uiTreeItem* child = children_[idx];
     children_.remove( idx );
     delete child;
@@ -413,7 +413,7 @@ void uiTreeItem::removeChild( uiTreeItem* treeitem )
 }
 
 
-uiTreeTopItem::uiTreeTopItem( uiListView* listview, bool disab )
+uiTreeTopItem::uiTreeTopItem( uiTreeView* listview, bool disab )
     : uiTreeItem( listview->name() )
     , disabselcngresp_(disab)
     , listview_( listview )

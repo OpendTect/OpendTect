@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.12 2012-08-10 04:11:27 cvssalil Exp $
+ RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.13 2012-09-07 22:08:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,12 +14,12 @@ ________________________________________________________________________
 #include "uiattribpartserv.h"
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
-#include "uilistview.h"
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uitaskrunner.h"
+#include "uitreeview.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
@@ -78,8 +78,8 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
     vwr.dataChanged.notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,dataChangedCB) );
 
-    uilistviewitem_->setChecked( fdpw );
-    uilistviewitem_->setCheckable( fdpv && dpid_!=DataPack::cNoID() );
+    uitreeviewitem_->setChecked( fdpw );
+    uitreeviewitem_->setCheckable( fdpv && dpid_!=DataPack::cNoID() );
 
     checkStatusChange()->notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,checkCB) );
@@ -93,7 +93,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
 
 bool uiODVW2DWiggleVarAreaTreeItem::select()
 {
-    if ( !uilistviewitem_->isSelected() )
+    if ( !uitreeviewitem_->isSelected() )
 	return false;
 
     viewer2D()->dataMgr()->setSelected( dummyview_ );
@@ -127,8 +127,8 @@ void uiODVW2DWiggleVarAreaTreeItem::dataChangedCB( CallBacker* )
 
     const DataPack* fdpv = vwr.pack( false );
     
-    uilistviewitem_->setChecked( fdpw );
-    uilistviewitem_->setCheckable( fdpv &&
+    uitreeviewitem_->setChecked( fdpw );
+    uitreeviewitem_->setCheckable( fdpv &&
 	    			   (dpid_!=DataPack::cNoID() || fdpw) );
 
     if ( fdpw )

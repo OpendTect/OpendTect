@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.79 2012-07-25 06:54:28 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.80 2012-09-07 22:08:06 cvsnanne Exp $";
 
 #include "uistrattreewin.h"
 
@@ -20,7 +20,6 @@ static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.79 2012-07-25 
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uigroup.h"
-#include "uilistview.h"
 #include "uimain.h"
 #include "uimenu.h"
 #include "uiselsimple.h"
@@ -35,6 +34,7 @@ static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.79 2012-07-25 
 #include "uistratdisplay.h"
 #include "uiselsimple.h"
 #include "uitoolbar.h"
+#include "uitreeview.h"
 
 #define	mExpandTxt(domenu)	domenu ? "&Expand all" : "Expand all"
 #define	mCollapseTxt(domenu)	domenu ? "&Collapse all" : "Collapse all"
@@ -226,9 +226,9 @@ void uiStratTreeWin::createGroups()
     uitree_ = new uiStratRefTree( leftgrp );
     CallBack selcb = mCB( this,uiStratTreeWin,unitSelCB );
     CallBack renmcb = mCB(this,uiStratTreeWin,unitRenamedCB);
-    uitree_->listView()->selectionChanged.notify( selcb );
-    uitree_->listView()->itemRenamed.notify( renmcb );
-    uitree_->listView()->display( false );
+    uitree_->treeView()->selectionChanged.notify( selcb );
+    uitree_->treeView()->itemRenamed.notify( renmcb );
+    uitree_->treeView()->display( false );
 
     if ( !uitree_->haveTimes() )
 	uitree_->setEntranceDefaultTimes();
@@ -365,7 +365,7 @@ void uiStratTreeWin::switchViewCB( CallBacker* )
     uistratdisp_->display( !istreedisp_ );
     if ( uistratdisp_->control() )
 	uistratdisp_->control()->setSensitive( !istreedisp_ );
-    uitree_->listView()->display( istreedisp_ );
+    uitree_->treeView()->display( istreedisp_ );
     switchviewbut_->setPixmap( istreedisp_ ? "stratframeworkgraph"
 					   : "strat_tree" );
 }

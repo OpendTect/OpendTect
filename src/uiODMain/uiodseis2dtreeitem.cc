@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.119 2012-07-10 08:05:36 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.120 2012-09-07 22:08:04 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.119 2012-0
 #include "mousecursor.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
-#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -26,6 +25,7 @@ static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.119 2012-0
 #include "uiodscenemgr.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
 #include "uitaskrunner.h"
 #include "visseis2ddisplay.h"
@@ -158,8 +158,8 @@ uiOD2DLineSetTreeItem::~uiOD2DLineSetTreeItem()
 }
 
 
-int uiOD2DLineSetTreeItem::uiListViewItemType() const
-{ return uiListViewItem::CheckBox; }
+int uiOD2DLineSetTreeItem::uiTreeViewItemType() const
+{ return uiTreeViewItem::CheckBox; }
 
 
 void uiOD2DLineSetTreeItem::checkCB( CallBacker* )

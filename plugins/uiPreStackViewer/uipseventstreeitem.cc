@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uipseventstreeitem.cc,v 1.15 2012-05-02 15:11:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipseventstreeitem.cc,v 1.16 2012-09-07 22:08:03 cvsnanne Exp $";
 
 #include "uipseventstreeitem.h"
 
@@ -22,13 +22,13 @@ static const char* rcsID mUnusedVar = "$Id: uipseventstreeitem.cc,v 1.15 2012-05
 #include "ptrman.h"
 #include "survinfo.h"
 #include "uiioobjsel.h"
-#include "uilistview.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmain.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uitaskrunner.h"
+#include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "vispseventdisplay.h"
@@ -242,7 +242,7 @@ void PSEventsTreeItem::updateDisplay()
 }
 
 
-bool PSEventsTreeItem::anyButtonClick( uiListViewItem* lvm )
+bool PSEventsTreeItem::anyButtonClick( uiTreeViewItem* lvm )
 {
     applMgr()->updateColorTable( displayid_, 0 );
     displayMiniColTab();
@@ -272,7 +272,7 @@ void PSEventsTreeItem::displayMiniColTab()
     if ( !seq )
 	return;
     ioPixmap pixmap( *seq, cPixmapWidth(), cPixmapHeight(), true );
-    uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), pixmap );
+    uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), pixmap );
 }
 
 

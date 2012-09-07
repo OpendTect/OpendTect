@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dtreeitem.cc,v 1.5 2011-06-28 13:35:43 cvsbruno Exp $
+ RCS:		$Id: uiodvw2dtreeitem.cc,v 1.6 2012-09-07 22:08:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ const char* uiODVw2DTreeTop::viewer2dptr() 		{ return "Viewer2D"; }
 const char* uiODVw2DTreeTop::applmgrstr()		{ return "Applmgr"; }
 
 
-uiODVw2DTreeTop::uiODVw2DTreeTop( uiListView* lv, uiODApplMgr* am,
+uiODVw2DTreeTop::uiODVw2DTreeTop( uiTreeView* lv, uiODApplMgr* am,
 				  uiODViewer2D* vw2d, uiTreeFactorySet* tfs )
     : uiTreeTopItem( lv, true )
     , tfs_( tfs )

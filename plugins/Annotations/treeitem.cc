@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.62 2012-08-13 03:56:43 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.63 2012-09-07 22:08:03 cvsnanne Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -19,12 +19,12 @@ static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.62 2012-08-13 03:56:
 #include "uifiledlg.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
-#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uislider.h"
 #include "uitextedit.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
 #include "vissurvscene.h"
 
@@ -59,10 +59,10 @@ ParentTreeItem::~ParentTreeItem()
 {}
 
 
-bool ParentTreeItem::rightClick( uiListViewItem* itm )
+bool ParentTreeItem::rightClick( uiTreeViewItem* itm )
 {
-    if ( itm == uilistviewitem_ && !uilistviewitem_->isOpen() )
-	uilistviewitem_->setOpen( true );
+    if ( itm == uitreeviewitem_ && !uitreeviewitem_->isOpen() )
+        uitreeviewitem_->setOpen( true );
 
     return uiTreeItem::rightClick( itm );
 }

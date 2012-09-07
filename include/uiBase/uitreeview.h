@@ -1,5 +1,5 @@
-#ifndef uilistview_h
-#define uilistview_h
+#ifndef uitreeview_h
+#define uitreeview_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.51 2012-08-30 05:49:33 cvsnageswara Exp $
+ RCS:           $Id: uitreeview.h,v 1.52 2012-09-07 22:08:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,22 +21,22 @@ ________________________________________________________________________
 
 mFDQtclass(QTreeWidget)
 mFDQtclass(QTreeWidgetItem)
-class uiListViewBody;
-class uiListViewItem;
+class uiTreeViewBody;
+class uiTreeViewItem;
 class ioPixmap;
 
-mClass(uiBase) uiListView : public uiObject
+mClass(uiBase) uiTreeView : public uiObject
 {
 public:
-			uiListView(uiParent* parnt,
-				   const char* nm="uiListView",
+			uiTreeView(uiParent* parnt,
+				   const char* nm="uiTreeView",
 				   int preferredNrLines=0,
 				   bool rootdecorated=true);
 
-    virtual		~uiListView();
+    virtual		~uiTreeView();
 
-			// 0: use nr itms in list
-    uiListViewBody& 	mkbody(uiParent*,const char*,int);
+                        // 0: use nr itms in tree
+    uiTreeViewBody& 	mkbody(uiParent*,const char*,int);
     void		setNrLines(int);
 
     enum		ScrollMode { Auto, AlwaysOff, AlwaysOn };
@@ -49,8 +49,8 @@ public:
     void		setRootDecorated(bool yn);
 
     // take & insert are meant to MOVE an item to another point in the tree 
-    void		takeItem(uiListViewItem*);
-    void		insertItem(int,uiListViewItem*);
+    void		takeItem(uiTreeViewItem*);
+    void		insertItem(int,uiTreeViewItem*);
 
     void		addColumns(const BufferStringSet&);
     int			nrColumns() const;
@@ -70,7 +70,7 @@ public:
     void		setColumnAlignment(int,Alignment::HPos);
     Alignment::HPos	columnAlignment(int) const;
 
-    void		ensureItemVisible(const uiListViewItem*);
+    void		ensureItemVisible(const uiTreeViewItem*);
 
     enum		SelectionMode
     			{ NoSelection=0, Single, Multi, Extended, Contiguous };
@@ -82,17 +82,17 @@ public:
     SelectionBehavior	selectionBehavior() const;
 
     void		clearSelection();
-    void		setSelected(uiListViewItem*,bool);
-    bool		isSelected(const uiListViewItem*) const;
-    uiListViewItem*	selectedItem() const;
+    void		setSelected(uiTreeViewItem*,bool);
+    bool		isSelected(const uiTreeViewItem*) const;
+    uiTreeViewItem*	selectedItem() const;
 
-    void		setCurrentItem(uiListViewItem*,int column=0);
+    void		setCurrentItem(uiTreeViewItem*,int column=0);
 
-    uiListViewItem*	currentItem() const;
+    uiTreeViewItem*	currentItem() const;
     int			currentColumn() const;
-    uiListViewItem*	getItem(int) const; 
-    uiListViewItem*	firstItem() const;
-    uiListViewItem*	lastItem() const;
+    uiTreeViewItem*	getItem(int) const;
+    uiTreeViewItem*	firstItem() const;
+    uiTreeViewItem*	lastItem() const;
 
     int			nrItems() const;
 
@@ -102,8 +102,8 @@ public:
     void		setShowToolTips(bool);
     bool		showToolTips() const;
 
-    int			indexOfItem(uiListViewItem*) const;
-    uiListViewItem*	findItem(const char*,int,bool) const;
+    int			indexOfItem(uiTreeViewItem*) const;
+    uiTreeViewItem*	findItem(const char*,int,bool) const;
     uiParent*		parent()		{ return parent_; }
 
     void		clear();
@@ -120,52 +120,52 @@ public:
     void		triggerUpdate();
 
 			//! item last notified. See notifiers below
-    uiListViewItem*	itemNotified()		{ return lastitemnotified_; }
+    uiTreeViewItem*	itemNotified()		{ return lastitemnotified_; }
     int			columnNotified()	{ return column_; }
     void		unNotify()		{ lastitemnotified_ = 0; }
 
     void		setNotifiedItem(mQtclass(QTreeWidgetItem*));
     void		setNotifiedColumn(int col)	{ column_ = col; }
 
-    Notifier<uiListView> selectionChanged;
-    Notifier<uiListView> currentChanged;
-    Notifier<uiListView> itemChanged;
-    Notifier<uiListView> returnPressed;
-    Notifier<uiListView> rightButtonClicked;
-    Notifier<uiListView> rightButtonPressed;
-    Notifier<uiListView> leftButtonClicked;
-    Notifier<uiListView> leftButtonPressed;
-    Notifier<uiListView> mouseButtonPressed;
-    Notifier<uiListView> mouseButtonClicked;
-    Notifier<uiListView> contextMenuRequested;
-    Notifier<uiListView> doubleClicked;
-    Notifier<uiListView> itemRenamed;
-    Notifier<uiListView> expanded;
-    Notifier<uiListView> collapsed;
-    Notifier<uiListView> unusedKey;
+    Notifier<uiTreeView> selectionChanged;
+    Notifier<uiTreeView> currentChanged;
+    Notifier<uiTreeView> itemChanged;
+    Notifier<uiTreeView> returnPressed;
+    Notifier<uiTreeView> rightButtonClicked;
+    Notifier<uiTreeView> rightButtonPressed;
+    Notifier<uiTreeView> leftButtonClicked;
+    Notifier<uiTreeView> leftButtonPressed;
+    Notifier<uiTreeView> mouseButtonPressed;
+    Notifier<uiTreeView> mouseButtonClicked;
+    Notifier<uiTreeView> contextMenuRequested;
+    Notifier<uiTreeView> doubleClicked;
+    Notifier<uiTreeView> itemRenamed;
+    Notifier<uiTreeView> expanded;
+    Notifier<uiTreeView> collapsed;
+    Notifier<uiTreeView> unusedKey;
 
 protected:
 
     mutable BufferString rettxt;
-    uiListViewItem*	lastitemnotified_;
+    uiTreeViewItem*	lastitemnotified_;
     uiParent*		parent_;
     int			column_;
     OD::ButtonState     buttonstate_;
 
     void 		cursorSelectionChanged(CallBacker*);
     void 		itemChangedCB(CallBacker*);
-    void		updateCheckStatus(uiListViewItem*);
+    void		updateCheckStatus(uiTreeViewItem*);
 
-    uiListViewBody*		lvbody()	{ return body_; }
-    const uiListViewBody*	lvbody() const	{ return body_; }
+    uiTreeViewBody*		lvbody()	{ return body_; }
+    const uiTreeViewBody*	lvbody() const	{ return body_; }
 
 private:
 
-    friend class		i_listVwMessenger;
-    friend class		uiListViewBody;
-    friend class		uiListViewItem;
+    friend class		i_treeVwMessenger;
+    friend class		uiTreeViewBody;
+    friend class		uiTreeViewItem;
 
-    uiListViewBody*	body_;
+    uiTreeViewBody*	body_;
 
 };
 
@@ -174,7 +174,7 @@ private:
 
 */
 
-mClass(uiBase) uiListViewItem : public CallBacker
+mClass(uiBase) uiTreeViewItem : public CallBacker
 {
 public:
 
@@ -184,8 +184,8 @@ public:
     {
     public:
 				Setup( const char* txt=0, 
-				       uiListViewItem::Type tp=
-						uiListViewItem::Standard,
+				       uiTreeViewItem::Type tp=
+						uiTreeViewItem::Standard,
 				       bool setchecked=true )
 				: type_(tp)
 				, after_(0)
@@ -193,8 +193,8 @@ public:
 				, setcheck_(setchecked)
 				{ label( txt ); }
 
-	mDefSetupMemb(uiListViewItem::Type,type)
-	mDefSetupMemb(uiListViewItem*,after)
+	mDefSetupMemb(uiTreeViewItem::Type,type)
+	mDefSetupMemb(uiTreeViewItem*,after)
 	mDefSetupMemb(const ioPixmap*,pixmap)
 	mDefSetupMemb(bool,setcheck)
 	BufferStringSet		labels_;
@@ -207,9 +207,9 @@ public:
 				}
     };
 
-			uiListViewItem(uiListViewItem* parent,const Setup&); 
-			uiListViewItem(uiListView* parent,const Setup&);
-			~uiListViewItem();
+			uiTreeViewItem(uiTreeViewItem* parent,const Setup&);
+			uiTreeViewItem(uiTreeView* parent,const Setup&);
+			~uiTreeViewItem();
 
     mQtclass(QTreeWidgetItem*)	qItem()			{ return qtreeitem_; }
     const mQtclass(QTreeWidgetItem*) qItem() const	{ return qtreeitem_; }
@@ -228,10 +228,10 @@ public:
     void		setToolTip(int column,const char*);
     void		translate(int column);
 
-    void		insertItem(int,uiListViewItem*);
-    void		takeItem(uiListViewItem*);
-    void		removeItem(uiListViewItem*);
-    void		moveItem(uiListViewItem* after);
+    void		insertItem(int,uiTreeViewItem*);
+    void		takeItem(uiTreeViewItem*);
+    void		removeItem(uiTreeViewItem*);
+    void		moveItem(uiTreeViewItem* after);
     int			siblingIndex() const;
     			/*!<\returns this items index of it's siblings. */
 
@@ -248,7 +248,7 @@ public:
     void		setPixmap(int column,const ioPixmap&);
 
     virtual const char* key(int,bool) const		{ return 0; }
-    virtual int		compare( uiListViewItem*,int column,bool) const
+    virtual int		compare( uiTreeViewItem*,int column,bool) const
 							{ return mUdf(int); }
 
     void		setOpen(bool yn=true);
@@ -257,17 +257,17 @@ public:
     void		setSelected(bool yn);
     bool		isSelected() const;
 
-    uiListViewItem*	getChild(int) const;
-    uiListViewItem*	firstChild() const;
-    uiListViewItem*	lastChild() const;
-    uiListViewItem*	nextSibling() const;
-    uiListViewItem*	prevSibling() const;
-    uiListViewItem*	parent() const;
+    uiTreeViewItem*	getChild(int) const;
+    uiTreeViewItem*	firstChild() const;
+    uiTreeViewItem*	lastChild() const;
+    uiTreeViewItem*	nextSibling() const;
+    uiTreeViewItem*	prevSibling() const;
+    uiTreeViewItem*	parent() const;
 
-    uiListViewItem*	itemAbove();
-    uiListViewItem*	itemBelow();
+    uiTreeViewItem*	itemAbove();
+    uiTreeViewItem*	itemBelow();
 
-    uiListView*		listView() const;
+    uiTreeView*		treeView() const;
 
     void		setSelectable(bool yn);
     bool		isSelectable() const;
@@ -287,16 +287,16 @@ public:
     bool		isEnabled() const;
 
 
-    Notifier<uiListViewItem> stateChanged; //!< only works for CheckBox type
-    Notifier<uiListViewItem> keyPressed;
+    Notifier<uiTreeViewItem> stateChanged; //!< only works for CheckBox type
+    Notifier<uiTreeViewItem> keyPressed;
     			//!< passes CBCapsule<const char*>* cb
     			//!< If you handle it, set cb->data = 0;
 
-    static mQtclass(QTreeWidgetItem*)	 qitemFor(uiListViewItem*);
-    static const mQtclass(QTreeWidgetItem*)  qitemFor(const uiListViewItem*);
+    static mQtclass(QTreeWidgetItem*)	 qitemFor(uiTreeViewItem*);
+    static const mQtclass(QTreeWidgetItem*)  qitemFor(const uiTreeViewItem*);
 
-    static uiListViewItem* 	 itemFor(mQtclass(QTreeWidgetItem*));
-    static const uiListViewItem* itemFor(const mQtclass(QTreeWidgetItem*));
+    static uiTreeViewItem* 	 itemFor(mQtclass(QTreeWidgetItem*));
+    static const uiTreeViewItem* itemFor(const mQtclass(QTreeWidgetItem*));
 
 protected:
 

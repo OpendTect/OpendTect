@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodattribtreeitem.cc,v 1.48 2012-07-31 07:45:50 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodattribtreeitem.cc,v 1.49 2012-09-07 22:08:04 cvsnanne Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -23,11 +23,11 @@ static const char* rcsID mUnusedVar = "$Id: uiodattribtreeitem.cc,v 1.48 2012-07
 #include "zdomain.h"
 
 #include "uiattribpartserv.h"
-#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "vissurvobj.h"
@@ -54,9 +54,9 @@ uiODAttribTreeItem::~uiODAttribTreeItem()
 {}
 
 
-bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
+bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
 {
-    if ( item!=uilistviewitem_ )
+    if ( item!=uitreeviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
 
     if ( !select() ) return false;

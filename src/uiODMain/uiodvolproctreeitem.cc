@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiodvolproctreeitem.cc,v 1.12 2012-05-09 07:51:27 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodvolproctreeitem.cc,v 1.13 2012-09-07 22:08:05 cvsnanne Exp $";
 
 #include "uiodvolproctreeitem.h"
 
@@ -47,9 +47,9 @@ uiDataTreeItem::~uiDataTreeItem()
 {}
 
 
-bool uiDataTreeItem::anyButtonClick( uiListViewItem* item )
+bool uiDataTreeItem::anyButtonClick( uiTreeViewItem* item )
 {
-    if ( item!=uilistviewitem_ )
+    if ( item!=uitreeviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
     
     if ( !select() ) return false;

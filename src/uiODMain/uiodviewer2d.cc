@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.60 2012-08-29 07:18:17 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.61 2012-09-07 22:08:05 cvsnanne Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -19,12 +19,12 @@ static const char* rcsID mUnusedVar = "$Id: uiodviewer2d.cc,v 1.60 2012-08-29 07
 #include "uiflatviewslicepos.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewpropdlg.h"
-#include "uilistview.h"
 #include "uimenu.h"
 #include "uiodmain.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodvw2dtreeitem.h"
 #include "uitoolbar.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
 #include "pixmap.h"
 
@@ -221,7 +221,7 @@ void uiODViewer2D::createTree( uiMainWin* mw )
 
     uiDockWin* treedoc = new uiDockWin( mw, "Tree items" );
     treedoc->setMinimumWidth( 200 );
-    uiListView* lv = new uiListView( treedoc, "Tree items" );
+    uiTreeView* lv = new uiTreeView( treedoc, "Tree items" );
     treedoc->setObject( lv );
     BufferStringSet labels;
     labels.add( "Elements" );

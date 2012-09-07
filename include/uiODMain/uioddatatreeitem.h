@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.27 2012-08-07 04:00:21 cvsmahant Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.28 2012-09-07 22:08:01 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,7 @@ public:
 
 protected:
 
-    int				uiListViewItemType() const;
+    int				uiTreeViewItemType() const;
     virtual bool		init();
 
     virtual void		checkCB(CallBacker*);

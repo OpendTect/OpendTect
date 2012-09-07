@@ -7,13 +7,12 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uioddatatreeitem.cc,v 1.71 2012-07-30 21:22:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uioddatatreeitem.cc,v 1.72 2012-09-07 22:08:04 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
 #include "uiamplspectrum.h"
 #include "uifkspectrum.h"
-#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
@@ -22,6 +21,7 @@ static const char* rcsID mUnusedVar = "$Id: uioddatatreeitem.cc,v 1.71 2012-07-3
 #include "uiodviewer2dmgr.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
 
 #include "attribsel.h"
@@ -97,13 +97,13 @@ uiODDataTreeItem* uiODDataTreeItem::create( const Attrib::SelSpec& as,
 */
 
 
-int uiODDataTreeItem::uiListViewItemType() const
+int uiODDataTreeItem::uiTreeViewItemType() const
 {
     uiVisPartServer* visserv = applMgr()->visServer();
     if ( visserv->canHaveMultipleAttribs( displayID() ) )
-	return uiListViewItem::CheckBox;
+	return uiTreeViewItem::CheckBox;
     else
-	return uiTreeItem::uiListViewItemType();
+	return uiTreeItem::uiTreeViewItemType();
 }
 
 
@@ -121,7 +121,7 @@ bool uiODDataTreeItem::init()
     if ( visserv->canHaveMultipleAttribs(displayID()) )
     {
 	getItem()->stateChanged.notify( mCB(this,uiODDataTreeItem,checkCB) );
-	uilistviewitem_->setChecked( visserv->isAttribEnabled(displayID(),
+	uitreeviewitem_->setChecked( visserv->isAttribEnabled(displayID(),
 		    		     attribNr() ) );
     }
 
@@ -446,5 +446,5 @@ void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( *seq, cPixmapWidth(),
 					    cPixmapHeight(), true );
-    uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *pixmap );
+    uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *pixmap );
 }

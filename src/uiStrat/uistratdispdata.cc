@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratdispdata.cc,v 1.30 2012-07-04 10:36:06 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratdispdata.cc,v 1.31 2012-09-07 22:08:05 cvsnanne Exp $";
 
 #include "uistratdispdata.h"
 #include "uistratreftree.h"
-#include "uilistview.h"
+#include "uitreeview.h"
 
 #include "keystrs.h"
 #include "iopar.h"
@@ -193,8 +193,8 @@ uiStratDispToTree::uiStratDispToTree( uiStratRefTree& uitree )
     : uitree_(uitree)
 {}
 
-#define mGetLItem(t) uiListViewItem* lit = uitree_.getLVItFromFullCode( txt);\
-if ( lit ) { uitree_.listView()->setCurrentItem(lit); } else return;
+#define mGetLItem(t) uiTreeViewItem* lit = uitree_.getLVItFromFullCode( txt);\
+if ( lit ) { uitree_.treeView()->setCurrentItem(lit); } else return;
 
 void uiStratDispToTree::handleUnitMenu( const char* txt )
 {

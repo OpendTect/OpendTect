@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdispdata.h,v 1.20 2012-08-03 13:01:10 cvskris Exp $
+ RCS:           $Id: uistratdispdata.h,v 1.21 2012-09-07 22:08:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ namespace Strat
 }
 
 class uiStratRefTree;
-class uiListViewItem;
+class uiTreeViewItem;
 
 mClass(uiStrat) StratDispData
 {
@@ -187,7 +187,7 @@ protected:
 };
 
 
-/*!brief used to write directly in the listView of the uiStratRefTree as if we were handling the uiTree directly*/
+/*!brief used to write directly in the treeView of the uiStratRefTree as if we were handling the uiTree directly*/
 
 mClass(uiStrat) uiStratDispToTree : public CallBacker
 {
@@ -195,7 +195,7 @@ public:
     			uiStratDispToTree(uiStratRefTree&);
 	                ~uiStratDispToTree(){};
 
-    uiListViewItem*	getItemFromTree(const char*);
+    uiTreeViewItem*	getItemFromTree(const char*);
 
     void		handleUnitMenu(const char*);
     void		setUnitLvl(const char*);

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.16 2012-08-03 13:01:12 cvskris Exp $
+ RCS:           $Id: uicoltabman.h,v 1.17 2012-09-07 22:08:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiColorTableCanvas;
 class uiColTabMarkerCanvas;
 class uiFunctionDisplay;
 class uiGenInput;
-class uiListView;
+class uiTreeView;
 class uiPushButton;
 class uiSpinBox;
 class uiWorld2Ui;
@@ -46,7 +46,7 @@ protected:
     uiFunctionDisplay*		cttranscanvas_;
     uiColorTableCanvas*		ctabcanvas_;
     uiColTabMarkerCanvas*	markercanvas_;
-    uiListView*			coltablistfld_;
+    uiTreeView*			coltablistfld_;
     uiPushButton*       	removebut_;
     uiPushButton*       	importbut_;
     uiColorInput*       	undefcolfld_;

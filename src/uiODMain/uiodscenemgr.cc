@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodscenemgr.cc,v 1.235 2012-08-10 04:11:27 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodscenemgr.cc,v 1.236 2012-09-07 22:08:04 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -25,7 +25,6 @@ static const char* rcsID mUnusedVar = "$Id: uiodscenemgr.cc,v 1.235 2012-08-10 0
 #include "uiflatviewmainwin.h"
 #include "uigeninputdlg.h"
 #include "uilabel.h"
-#include "uilistview.h"
 #include "uimdiarea.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
@@ -38,6 +37,7 @@ static const char* rcsID mUnusedVar = "$Id: uiodscenemgr.cc,v 1.235 2012-08-10 0
 #include "uithumbwheel.h"
 #include "uitoolbar.h"
 #include "uitreeitemmanager.h"
+#include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uiwindowgrabber.h"
 
@@ -795,7 +795,7 @@ ui3DViewer* uiODSceneMgr::getSoViewer( int sceneid )
 }
 
 
-uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiListView* lv ) const
+uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
@@ -836,9 +836,9 @@ int uiODSceneMgr::getActiveSceneID() const
 
 void uiODSceneMgr::mdiAreaChanged( CallBacker* )
 {
-    const bool wasparalysed = mdiarea_->paralyse( true );
+//    const bool wasparalysed = mdiarea_->paralyse( true );
     menuMgr().updateSceneMenu();
-    mdiarea_->paralyse( wasparalysed );
+//    mdiarea_->paralyse( wasparalysed );
     activeSceneChanged.trigger();
 }
 
@@ -855,7 +855,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     BufferString capt( "Tree scene " ); capt += vwridx;
     scn.dw_ = new uiDockWin( &appl_, capt );
     scn.dw_->setMinimumWidth( 200 );
-    scn.lv_ = new uiListView( scn.dw_, capt );
+    scn.lv_ = new uiTreeView( scn.dw_, capt );
     scn.dw_->setObject( scn.lv_ );
     BufferStringSet labels;
     labels.add( "Elements" );
@@ -929,7 +929,7 @@ void uiODSceneMgr::rebuildTrees()
 }
 
 
-uiListView* uiODSceneMgr::getTree( int sceneid )
+uiTreeView* uiODSceneMgr::getTree( int sceneid )
 {
     Scene* scene = getScene( sceneid );
     return scene ? scene->lv_ : 0;

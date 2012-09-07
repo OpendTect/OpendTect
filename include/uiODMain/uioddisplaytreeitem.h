@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.21 2012-08-03 13:01:03 cvskris Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.22 2012-09-07 22:08:02 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,7 @@ protected:
 
     bool		shouldSelect(int selkey) const;
     int			selectionKey() const;
-    int			uiListViewItemType() const;
+    int			uiTreeViewItemType() const;
     virtual void	checkCB(CallBacker*);
     virtual bool	init();
 

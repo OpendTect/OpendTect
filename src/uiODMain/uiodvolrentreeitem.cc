@@ -4,18 +4,14 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.71 2012-07-31 04:07:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.72 2012-09-07 22:08:05 cvsnanne Exp $";
 
 
 #include "uiodvolrentreeitem.h"
 
 #include "uiamplspectrum.h"
 #include "uiattribpartserv.h"
-#include "mousecursor.h"
-#include "settings.h"
-#include "oddirs.h"
 #include "uifiledlg.h"
-#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -27,18 +23,23 @@ static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.71 2012-07
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
 #include "uiobjdisposer.h"
-#include "vismarchingcubessurface.h"
-#include "vismarchingcubessurfacedisplay.h"
+#include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivisisosurface.h"
-#include "uivisslicepos3d.h"
 #include "uivispartserv.h"
+#include "uivisslicepos3d.h"
+#include "vismarchingcubessurface.h"
+#include "vismarchingcubessurfacedisplay.h"
 #include "visvolorthoslice.h"
 #include "visvolren.h"
 #include "visvolumedisplay.h"
+
 #include "filepath.h"
 #include "ioobj.h"
 #include "keystrs.h"
+#include "mousecursor.h"
+#include "oddirs.h"
+#include "settings.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
@@ -118,7 +119,7 @@ uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
 
 uiODVolrenTreeItem::~uiODVolrenTreeItem()
 {
-    uilistviewitem_->stateChanged.remove(
+    uitreeviewitem_->stateChanged.remove(
 				mCB(this,uiODVolrenTreeItem,checkCB) );
     while( children_.size() )
 	removeChild(children_[0]);
@@ -339,9 +340,9 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-bool uiODVolrenTreeItem::anyButtonClick( uiListViewItem* item )
+bool uiODVolrenTreeItem::anyButtonClick( uiTreeViewItem* item )
 {
-    if ( item!=uilistviewitem_ )
+    if ( item!=uitreeviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
 
     if ( !select() ) return false;
@@ -436,9 +437,9 @@ bool uiODVolrenSubTreeItem::init()
 }
 
 
-bool uiODVolrenSubTreeItem::anyButtonClick( uiListViewItem* item )
+bool uiODVolrenSubTreeItem::anyButtonClick( uiTreeViewItem* item )
 {
-    if ( item!=uilistviewitem_ )
+    if ( item!=uitreeviewitem_ )
 	return uiODTreeItem::anyButtonClick( item );
 
     if ( !select() ) return false;
@@ -475,7 +476,7 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
 	    dispval *= scene->zDomainUserFactor();
 	}
 
-	uilistviewitem_->setText( toString(mNINT32(dispval)), col );
+        uitreeviewitem_->setText( toString(mNINT32(dispval)), col );
     }
 
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
@@ -487,7 +488,7 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
         if ( mIsUdf(isoval) )
 	    coltext = "";
 	else coltext = isoval;
-	uilistviewitem_->setText( coltext.buf(), col );
+	uitreeviewitem_->setText( coltext.buf(), col );
     }
 }
 

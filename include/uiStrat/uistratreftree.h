@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.38 2012-08-03 13:01:10 cvskris Exp $
+ RCS:           $Id: uistratreftree.h,v 1.39 2012-09-07 22:08:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,8 @@ ________________________________________________________________________
 
 class ioPixmap;
 class uiParent;
-class uiListView;
-class uiListViewItem;
+class uiTreeView;
+class uiTreeViewItem;
 namespace Strat {
     class RefTree;
     class NodeUnitRef;
@@ -40,12 +40,12 @@ public:
     
     const Strat::RefTree* tree() const 		{ return tree_; }
 
-    uiListView*		listView()		{ return lv_; }
-    const uiListView*	listView() const	{ return lv_; }
-    uiListViewItem* 	getLVItFromFullCode(const char*) const;
+    uiTreeView*		treeView()		{ return lv_; }
+    const uiTreeView*	treeView() const	{ return lv_; }
+    uiTreeViewItem* 	getLVItFromFullCode(const char*) const;
     void                expand(bool) const;
     void                makeTreeEditable(bool) const;
-    void		handleMenu(uiListViewItem*);
+    void		handleMenu(uiTreeViewItem*);
     void		updateUnitsPixmaps();
     void		updateLithoCol();
     void		moveUnit(bool);
@@ -58,25 +58,25 @@ protected:
 
     Strat::RefTree* 	tree_;
 
-    uiListView*		lv_;
+    uiTreeView*		lv_;
 
     void		rClickCB(CallBacker*);
     void		mousePressedCB(CallBacker*);
 
-    void		insertSubUnit(uiListViewItem*);
-    void		subdivideUnit(uiListViewItem*);
-    void		updateUnitProperties(uiListViewItem*);
-    void		removeUnit(uiListViewItem*);
-    void		assignLevelBoundary(uiListViewItem*);
-    bool		isLeaved(uiListViewItem*) const;
+    void		insertSubUnit(uiTreeViewItem*);
+    void		subdivideUnit(uiTreeViewItem*);
+    void		updateUnitProperties(uiTreeViewItem*);
+    void		removeUnit(uiTreeViewItem*);
+    void		assignLevelBoundary(uiTreeViewItem*);
+    bool		isLeaved(uiTreeViewItem*) const;
 
     void		setUnitLvl(const char*);
 
-    BufferString	getFullCodeFromLVIt(const uiListViewItem*) const;
-    void		insertUnitInLVIT(uiListViewItem*,int,
+    BufferString	getFullCodeFromLVIt(const uiTreeViewItem*) const;
+    void		insertUnitInLVIT(uiTreeViewItem*,int,
 				    const Strat::UnitRef&) const; 
 
-    void		addNode(uiListViewItem*,const Strat::NodeUnitRef&,bool);
+    void		addNode(uiTreeViewItem*,const Strat::NodeUnitRef&,bool);
     ioPixmap*		createUnitPixmap(const Color& col) const;
     			//becomes yours!
     Strat::NodeUnitRef* replaceUnit(Strat::NodeUnitRef&,bool byleaved);
