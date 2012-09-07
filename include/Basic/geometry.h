@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.44 2012-07-10 08:05:25 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.45 2012-09-07 17:20:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ public:
     template <class TT>
     Point2D<T>&			setFrom(const Point2D<TT>&);
 
+    template <class TT>
+    inline void			setXY(TT xx,TT yy);
     inline void			setXY(T xx,T yy);
     inline Point2D<T>&		zero();
     inline Point2D<T>		operator-();
@@ -256,16 +258,18 @@ Point2D<T>::Point2D ( T xx , T yy )
 template <class T> template <class TT> inline
 Point2D<T>& Point2D<T>::setFrom( const Point2D<TT>& a )
 { x=a.x; y=a.y; return *this;}
-    				
+
 template <class T> inline
 void Point2D<T>::setXY( T xx, T yy )
 { x = xx ; y = yy; }  
 
+template <class T> template <class TT> inline
+void Point2D<T>::setXY( TT xx, TT yy )
+{ x = (T)xx; y = (T)yy; }
 
 template <class T> inline
 Point2D<T>& Point2D<T>::zero()
 { x = y = 0; return *this; }
-
 
 template <class T> inline
 Point2D<T> Point2D<T>::operator -()
