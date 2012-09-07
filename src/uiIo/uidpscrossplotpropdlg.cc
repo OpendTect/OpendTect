@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.33 2012-09-07 06:32:00 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.34 2012-09-07 07:16:36 cvsmahant Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -480,9 +480,8 @@ void computePts( bool isy2 )
 {
     TypeSet<uiWorldPoint> pts;
     TypeSet<uiWorldPoint> validpts; 
-    int idy = isy2 ? 2 : 1;
     uiDataPointSetCrossPlotter::AxisData& horz = plotter_.axisData(0);
-    uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(idy);
+    uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(isy2 ? 2:1);
 
     const BinIDValueSet& bvs = dps_.bivSet();
     BinIDValueSet::Pos pos;
@@ -505,10 +504,11 @@ void computePts( bool isy2 )
     Interval<float> xrge = bvs.valRange( dps_.bivSetIdx( horz.colid_ ) );
     const float stxval = xrge.start;
     const float step = ( xrge.stop - xrge.start )/1000.0f;
+    const float spxval = xrge.stop;
 
-    for ( float idx = 0; idx < 1000; idx++ )
+    for ( float sft = 0; sft <= spxval; sft += step )
     {
-	float curvxval = stxval + ( idx*step );
+	float curvxval = stxval + sft;
 
 	if ( isy2 )
 	    mathobj1_->setVariableValue( 0, curvxval );
