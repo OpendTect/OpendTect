@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.25 2012-09-04 11:02:43 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.26 2012-09-07 13:24:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -208,6 +208,10 @@ protected:
 	    				const Strat::LayerModel&);
     SyntheticData* 		generateSD(const Strat::LayerModel&,
 					TaskRunner* tr=0);
+
+    virtual bool		getVPVSDenValsFromUnitPars(float&,float&,
+	    						   float&) const
+				{ return false; }
 
 };
 

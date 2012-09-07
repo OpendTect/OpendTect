@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.49 2012-09-04 11:02:43 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.50 2012-09-07 13:24:13 cvshelene Exp $";
 
 
 #include "stratsynth.h"
@@ -406,8 +406,10 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
     for ( int idx=0; idx<seq.size(); idx++ )
     {
 	lay = seq.layers()[idx];
-	float dval, pval, sval; 
-	elpgen.getVals( dval, pval, sval, lay->values(), props.size() );
+	float dval, pval, sval;
+       	if ( !getVPVSDenValsFromUnitPars( pval, sval, dval ) )
+	    elpgen.getVals( dval, pval, sval, lay->values(), props.size() );
+
 	ElasticLayer ail ( lay->thickness(), pval, sval, dval );
 	BufferString msg( "Can not derive synthetic layer property " );
 	bool isudf = mIsUdf( dval ) || mIsUdf( pval );
