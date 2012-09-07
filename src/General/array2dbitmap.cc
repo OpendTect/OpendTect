@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: array2dbitmap.cc,v 1.46 2012-08-07 05:20:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: array2dbitmap.cc,v 1.47 2012-09-07 17:23:28 cvsnanne Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -73,7 +73,7 @@ A2DBitMapPosSetup::A2DBitMapPosSetup( const Array2DInfo& i, float* p )
 	, dim0pos_(0)
 {
     setDim0Positions( p );
-    setDim1Positions( 0, szdim1_-1 );
+    setDim1Positions( 0.f, (float)szdim1_-1 );
 }
 
 
@@ -93,7 +93,7 @@ void A2DBitMapPosSetup::setDim0Positions( float* p )
     {
 	dim0pos_ = new float [szdim0_];
 	for ( int idx=0; idx<szdim0_; idx++ )
-	    dim0pos_[idx] = idx;
+	    dim0pos_[idx] = (float)idx;
     }
 
 

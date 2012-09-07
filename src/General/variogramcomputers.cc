@@ -4,7 +4,7 @@
  * DATE     : Mar 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: variogramcomputers.cc,v 1.5 2012-08-08 04:59:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: variogramcomputers.cc,v 1.6 2012-09-07 17:23:28 cvsnanne Exp $";
 
 #include "variogramcomputers.h"
 
@@ -211,7 +211,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
     Stats::RunCalc<double> statstot( rcsetuptot );
     int nrwells = 0;
     int nrcontribwells = 0;
-    float zstep = SI().zIsTime() ? 1000 : 1;
+    float zstep = SI().zIsTime() ? 1000.f : 1.f;
 
     variogramvals_->set( 0, 0, 0 );
     axes_->set( 0, 0, 0);

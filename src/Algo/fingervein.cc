@@ -4,7 +4,7 @@
  * DATE     : July 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.23 2012-08-23 20:41:25 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: fingervein.cc,v 1.24 2012-09-07 17:23:28 cvsnanne Exp $";
 
 #include "fingervein.h"
 
@@ -781,7 +781,7 @@ void FaultOrientation::stablizeDip( const Array3D<bool>& conf_bina,
     for ( int idx=0; idx<4; idx++ )
     {
 	arc_set += idx*M_PI/4;
-	angle_set += idx*45;
+	angle_set += idx*45.f;
     }
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, azimuth_pca_arc,
@@ -1146,7 +1146,7 @@ void FaultOrientation::computeDipPCA( const Array3D<bool>& conf_base,
     for ( int idx=0; idx<4; idx++ )
     {
 	arc_set += idx*M_PI/4;
-	angle_set += idx*45;
+	angle_set += idx*45.f;
     }
 
     mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, azimuth_pca_arc,
@@ -1313,9 +1313,9 @@ void FaultOrientation::computeComponentAngle( const Array2D<bool>& base_bina,
 	    {
 		const int x1 = set_x[kp];
 		const int y1 = set_y[kp];
-		const float d1 = x0-x1;
-		const float d2 = y0-y1;
-		const float dist = Math::Sqrt(d1*d1+d2*d2);
+		const int d1 = x0-x1;
+		const int d2 = y0-y1;
+		const float dist = Math::Sqrt( float(d1*d1+d2*d2) );
 		if ( dist<elem_leng )
 		{
 		    point_set_x += x1;
@@ -1408,9 +1408,9 @@ void FaultOrientation::stabilizeAngleSection( const Array2D<bool>& conf_sect,
 	    TypeSet<int> point_set_x, point_set_y;
 	    for ( int kp=0; kp<npoint; kp++ )
 	    {
-		float term1 = odd_set_x[jp]-set_x[kp];
-		float term2 = odd_set_y[jp]-set_y[kp];
-		float dist = Math::Sqrt( term1*term1+term2*term2 );
+		const int term1 = odd_set_x[jp]-set_x[kp];
+		const int term2 = odd_set_y[jp]-set_y[kp];
+		const float dist = Math::Sqrt( float(term1*term1+term2*term2) );
 		if ( dist<=elem_leng_new )
 		{
     		    point_set_x += set_x[kp];
@@ -1421,7 +1421,7 @@ void FaultOrientation::stabilizeAngleSection( const Array2D<bool>& conf_sect,
 	    if ( point_set_x.size()<2 )
 		continue;
 
-	    float angle = getAnglePCA( point_set_x, point_set_y, null_value );
+	    const float angle = getAnglePCA( point_set_x, point_set_y, null_value );
 	    angl_stab.set( odd_set_x[jp], odd_set_y[jp], angle );
 	}
 	
@@ -1433,9 +1433,9 @@ void FaultOrientation::stabilizeAngleSection( const Array2D<bool>& conf_sect,
 	    TypeSet<int> point_set_x, point_set_y;
     	    for ( int kp=0; kp<npoint; kp++ )
 	    {
-		float term1 = set_x[jp]-set_x[kp];
-		float term2 = set_y[jp]-set_y[kp];
-    		float dist = Math::Sqrt( term1*term1+term2*term2 );
+		const int term1 = set_x[jp]-set_x[kp];
+		const int term2 = set_y[jp]-set_y[kp];
+    		const float dist = Math::Sqrt( float(term1*term1+term2*term2) );
     		if ( dist<=elem_leng_new )
 		{
     		    point_set_x += set_x[kp];
@@ -1445,7 +1445,7 @@ void FaultOrientation::stabilizeAngleSection( const Array2D<bool>& conf_sect,
 	        if ( point_set_x.size()<2 )
 		    continue;
 
-		float angl_plus = 
+		const float angl_plus = 
 		    getAnglePCA( point_set_x, point_set_y, null_value );	
 		if ( fabs(angl_plus-angl_aver) <= angl_tole )
 		    angl_stab.set( set_x[jp], set_y[jp], angl_plus );
@@ -2016,9 +2016,9 @@ bool FaultOrientation::computeMaxCurvature( const Array2D<float>& input,
     const int winsize = 4*sigma;
     const int sidesize = 2*winsize+1;
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, xtmp,
-	    Array2DImpl<float> (sidesize,sidesize) );
+	    Array2DImpl<float>(sidesize,sidesize) );
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, ytmp,
-	    Array2DImpl<float> (sidesize,sidesize) );
+	    Array2DImpl<float>(sidesize,sidesize) );
     if ( !xtmp || !ytmp ) 
 	return false;
 

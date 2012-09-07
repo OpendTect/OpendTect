@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.54 2012-08-08 04:59:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.55 2012-09-07 17:23:28 cvsnanne Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -96,7 +96,7 @@ void DataPointSet::DataRow::getBVSValues( TypeSet<float>& vals,
 	vals += grp_;
     }
     if ( is2d )
-	vals += pos_.nr_;
+	vals += (float)pos_.nr_;
     for ( int idx=0; idx<data_.size(); idx++ )
 	vals += data_[idx];
 }

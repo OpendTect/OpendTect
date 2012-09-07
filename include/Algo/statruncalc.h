@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.31 2012-08-13 09:36:56 cvsaneesh Exp $
+ RCS:           $Id: statruncalc.h,v 1.32 2012-09-07 17:23:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -482,7 +482,7 @@ inline T BaseCalc<T>::mostFreq() const
 	    { maxwt = clsswt_[idx]; ret = clss_[idx]; }
     }
 
-    return ret;
+    return (T)ret;
 }
 
 
