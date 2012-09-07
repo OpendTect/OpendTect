@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.96 2012-09-06 12:01:00 cvsmahant Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.97 2012-09-07 06:32:00 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.96 2012-09-06 12:01:00 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.97 2012-09-07 06:32:00 cvsmahant Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -419,8 +419,6 @@ void uiDataPointSetCrossPlotter::setUserDefDrawType( bool dodrw, bool isy2,
 void uiDataPointSetCrossPlotter::setUserDefPolyLine(
 	TypeSet<uiWorldPoint>& pts, bool isy2 )
 {
-    sortPts( pts );
-
     if ( !isy2 )
 	y1userdefpts_ = pts;
     else
@@ -486,36 +484,6 @@ void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
     curpolylineitem->setPenStyle( ls );
     curpolylineitem->setZValue( 4 );
     curpolylineitem->setVisible( true );
-}
-
-
-void uiDataPointSetCrossPlotter::sortPts( TypeSet<uiWorldPoint>& pts )
-{
-    bool sorted = false;
-    const int size = pts.size();
-    for ( int idx = 1; idx < (int)(size/2) && !sorted; idx++ )
-    {
-	int lastidx;
-	bool chgdonce = false;
-	int sortsize = (idx == 1) ? size : lastidx+1;
-	for ( int var = 1; var < sortsize; var++ )
-	{
-	    if ( mIsUdf(pts[var].x) || mIsUdf(pts[var].y) )
-		continue;
-	    
-	    if ( pts[var].x < pts[var-1].x )
-	    {
-		uiWorldPoint temp;
-		temp = pts[var];
-		pts[var] = pts[var-1];
-		pts[var-1] = temp;		
-		if ( !chgdonce )
-		    chgdonce = true;
-		sorted = ( var == sortsize-1 && !chgdonce );
-		lastidx = var;
-	    }
-	}
-    }
 }
 
 

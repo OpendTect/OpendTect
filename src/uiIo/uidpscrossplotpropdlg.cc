@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.32 2012-09-06 10:27:11 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.33 2012-09-07 06:32:00 cvsmahant Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -479,8 +479,9 @@ void drawPolyLines()
 void computePts( bool isy2 )
 {
     TypeSet<uiWorldPoint> pts;
-    TypeSet<uiWorldPoint> validpts;    
+    TypeSet<uiWorldPoint> validpts; 
     int idy = isy2 ? 2 : 1;
+    uiDataPointSetCrossPlotter::AxisData& horz = plotter_.axisData(0);
     uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(idy);
 
     const BinIDValueSet& bvs = dps_.bivSet();
@@ -494,25 +495,36 @@ void computePts( bool isy2 )
 	bvs.get( pos, curbid, vals );
 	DataPointSet::RowID rid = dps_.getRowID( pos );
 
-	const float xval = dps_.value( plotter_.axisData(0).colid_, rid );
-	const float yval = dps_.value( plotter_.axisData(idy).colid_, rid );
+	const float xval = dps_.value( horz.colid_, rid );
+	const float yval = dps_.value( vert.colid_, rid );
 		
 	if ( mIsUdf(xval) || mIsUdf(yval) )
 	    continue;
-	
+    }
+
+    Interval<float> xrge = bvs.valRange( dps_.bivSetIdx( horz.colid_ ) );
+    const float stxval = xrge.start;
+    const float step = ( xrge.stop - xrge.start )/1000.0f;
+
+    for ( float idx = 0; idx < 1000; idx++ )
+    {
+	float curvxval = stxval + ( idx*step );
+
 	if ( isy2 )
-    	    mathobj1_->setVariableValue( 0, xval );
+	    mathobj1_->setVariableValue( 0, curvxval );
 	else
-	    mathobj_->setVariableValue( 0, xval );
+	    mathobj_->setVariableValue( 0, curvxval );
 	
-	float curvyval = isy2? mathobj1_->getValue():mathobj_->getValue();
-	if ( mIsUdf(curvyval) )
+	float curvyval = isy2 ? mathobj1_->getValue() : mathobj_->getValue();
+
+	if ( mIsUdf(curvxval) || mIsUdf(curvyval) )
 	    continue;
+
 	if ( vert.axis_->range().includes(curvyval,false) )
-	    validpts += uiWorldPoint( xval, curvyval );
+	    validpts += uiWorldPoint( curvxval, curvyval );
 	
 	curvyvalrg.include( curvyval, false );
-	pts += uiWorldPoint( xval, curvyval );
+	pts += uiWorldPoint( curvxval, curvyval );
     }
     
     if ( pts.size()==0 )
@@ -534,7 +546,7 @@ void computePts( bool isy2 )
 	    msg_ += 2;
 	else
 	    msg_ += 1;
-	msg_ += " falls outside range. ";
+	msg_ += " falls outside the default range. ";
 	msg_ += "Do you want to rescale?";
 
 	const bool& vertrgchgd = isy2 ? y2rgchgd_ : yrgchgd_;
