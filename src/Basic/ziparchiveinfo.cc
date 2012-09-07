@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ziparchiveinfo.cc,v 1.8 2012-09-06 08:51:14 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziparchiveinfo.cc,v 1.9 2012-09-07 04:21:57 cvssalil Exp $";
 
 #include "ziparchiveinfo.h"
 
@@ -37,6 +37,7 @@ ZipArchiveInfo::ZipArchiveInfo( BufferString& fnm )
 
 ZipArchiveInfo::~ZipArchiveInfo()
 {
+    deepErase( files_ );
     delete &ziphd_;
 }
 
@@ -70,6 +71,7 @@ bool ZipArchiveInfo::readZipArchive( BufferString& fnm )
 	mCntrlFileHeaderSigCheck( headerbuff, 0 );
 	if ( !sigcheck )
 	{
+	    isd.close();
 	    errormsg_ = fnm;
 	    errormsg_ += ": File is corrupt";
 	    return false;

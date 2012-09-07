@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.9 2012-09-06 08:53:56 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.10 2012-09-07 04:21:57 cvssalil Exp $";
 
 #include "ziphandler.h"
 
@@ -185,6 +185,8 @@ bool ZipHandler::doZCompress()
     unsigned char* out = new unsigned char[upperbound];
     if ( ret != Z_OK ) 
     {
+	delete [] in;
+	delete [] out;
 	errormsg_ = "Error:Compression State not initialised properly";
 	return false;
     }
@@ -203,6 +205,8 @@ bool ZipHandler::doZCompress()
 	    ret = deflate( &strm, flush );   
 	    if ( ret == Z_STREAM_ERROR )
 	    {
+		delete [] in;
+		delete [] out;
 		errormsg_ = "Error: Corrupt Data ";
 		return false;
 	    }
@@ -211,6 +215,8 @@ bool ZipHandler::doZCompress()
 	    if ( towrite > 0 ) osd_.ostrm->write( (const char*)out , towrite );
 	    if ( osd_.ostrm->fail() )
 	    {
+		delete [] in;
+		delete [] out;
 		(void) deflateEnd ( &strm );
 		errormsg_ = "Error:Writing to disk failed";
 		return false;
@@ -224,12 +230,16 @@ bool ZipHandler::doZCompress()
     osd_.ostrm->write( (const char*) &crc_, sizeof(unsigned long) );
     if ( osd_.ostrm->fail() )
     {
+	delete [] in;
+	delete [] out;
 	errormsg_ = "Error:Writing to disk failed";
 	return false;
     }
     osd_.ostrm->write( (const char*) &destfilesize_, sizeof(unsigned int) );
     if ( osd_.ostrm->fail() )
     {
+	delete [] in;
+	delete [] out;
 	errormsg_ = "Error:Writing to disk failed";
 	return false;
     }
@@ -648,6 +658,7 @@ bool ZipHandler::readFileHeader()
 	osd_.ostrm->write ( (char*) in, destfilesize_ );
 	if ( osd_.ostrm->fail() )
 	{
+	    delete [] in;
 	    errormsg_ = "Error:Writing to disk failed";
 	    return false;
 	}
@@ -689,6 +700,8 @@ bool ZipHandler::doZUnCompress()
         ret = inflateInit2( &strm, windowbits );
         if ( ret!=Z_OK )
         {
+	    delete [] in;
+	    delete [] out;
 	    errormsg_ = "Error:Initial state not initialised properly";
 	    return false;
         }
@@ -712,6 +725,8 @@ bool ZipHandler::doZUnCompress()
                 case Z_DATA_ERROR:
                 case Z_MEM_ERROR:
                     (void)inflateEnd( &strm );
+		    delete [] in;
+		    delete [] out;
 		    errormsg_ = "Error in unzipping files.";
                     return false;
                 }
@@ -720,6 +735,8 @@ bool ZipHandler::doZUnCompress()
 		osd_.ostrm->write( (char*)out, have );
 		if ( osd_.ostrm->fail() )
 		{
+		    delete [] in;
+		    delete [] out;
 		    errormsg_ = "Error:Writing to disk failed";
 		    return false;
 		}
@@ -730,6 +747,8 @@ bool ZipHandler::doZUnCompress()
         
 	if ( !(crc == crc_) )
 	{
+	    delete [] in;
+	    delete [] out;
 	    errormsg_ = "Error:Loss of data possible. CRC not matched";
 	    return false;
 	}
@@ -920,7 +939,6 @@ bool ZipHandler::setTimeDateModified()
 	setBitValue( byte, idx, getBitValue( bytedate[1], idx + 1 ) );
 
     year = byte + 1980;
-
     QTime qt( hour, min, sec );
     QDate qd( year, month, day );
     QDateTime qdt( qd, qt );
