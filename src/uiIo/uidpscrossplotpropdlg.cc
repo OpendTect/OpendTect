@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.34 2012-09-07 07:16:36 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.35 2012-09-07 07:26:09 cvsmahant Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -298,7 +298,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     if ( hasy2_ )
     {
 	selaxisfld_ =
-	    new uiGenInput( this, "", BoolInpSpec(true,"Draw Y1","Draw Y2") );
+	    new uiGenInput( this, "", BoolInpSpec( true,"Draw Y1","Draw Y2" ) );
 	selaxisfld_->attach( rightTo, drawlinefld_ );
 	selaxisfld_->valuechanged.notify(
 		mCB(this,uiDPSUserDefTab,drawAxisChanged) );
@@ -530,10 +530,7 @@ void computePts( bool isy2 )
     if ( pts.size()==0 )
     {
 	msg_ = "Sorry! Y";
-	if ( isy2 )
-	    msg_ += 2;
-	else
-	    msg_ += 1;
+	msg_ += isy2 ? 2 : 1;
         msg_ = " cannot be plotted.";
 	uiMSG().error( msg() );
 	return;
@@ -542,10 +539,7 @@ void computePts( bool isy2 )
     if ( !vert.axis_->range().includes(curvyvalrg) )
     {
 	msg_ = "Curve for Y";
-	if ( isy2 )
-	    msg_ += 2;
-	else
-	    msg_ += 1;
+	msg_ += isy2 ? 2 : 1;
 	msg_ += " falls outside the default range. ";
 	msg_ += "Do you want to rescale?";
 
