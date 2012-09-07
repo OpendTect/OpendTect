@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.84 2012-08-08 04:59:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.85 2012-09-07 17:23:50 cvsnanne Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -411,10 +411,12 @@ void FlatView::Appearance::setDarkBG( bool yn )
 }
 
 
-struct FlatView_CB_Rcvr : public CallBacker
+class FlatView_CB_Rcvr : public CallBacker
 {
+public:
 FlatView_CB_Rcvr( FlatView::Viewer& vwr ) : vwr_(vwr)	{}
 void theCB( CallBacker* dp ) { vwr_.removePack( ((DataPack*)dp)->id() ); }
+
 FlatView::Viewer& vwr_;
 };
 
