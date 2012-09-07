@@ -7,7 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicolor.cc,v 1.46 2012-08-24 07:47:41 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicolor.cc,v 1.47 2012-09-07 05:58:24 cvssatyaki Exp $";
+
+#include "pixmap.h"
+#include "coltabsequence.h"
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -17,7 +20,6 @@ static const char* rcsID mUnusedVar = "$Id: uicolor.cc,v 1.46 2012-08-24 07:47:4
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimainwin.h"
-#include "pixmap.h"
 #include "uiparentbody.h"
 
 #include <QColorDialog>
@@ -154,6 +156,16 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	descfld_ = new uiComboBox( this, Color::descriptions(),
 				    "Color description" );
 	descfld_->setHSzPol( uiObject::Medium );
+	TypeSet<Color> colors = Color::descriptionCenters();
+	for ( int idx=0; idx<colors.size(); idx++ )
+	{
+	    ColTab::Sequence ctseq;
+	    Color col = colors[idx];
+	    ctseq.setColor( 0, col.r(), col.g(), col.b() );
+	    ctseq.setColor( 1, col.r(), col.g(), col.b() );
+	    descfld_->setPixmap( ioPixmap(ctseq,15,10,true), idx );
+	}
+
 	if ( lsb )
 	    descfld_->attach( rightOf, lsb );
 	else
