@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.10 2012-09-07 04:21:57 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.11 2012-09-07 06:38:45 cvsraman Exp $";
 
 #include "ziphandler.h"
 
@@ -67,7 +67,7 @@ static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.10 2012-09-07 04:2
 #define mSizeTwoBits 2
 #define mSizeFourBits 4
 
-bool ZipHandler::makeZipInIt( BufferString& srcfnm )
+bool ZipHandler::initMakeZip( BufferString& srcfnm )
 {
     if ( File::isFile( srcfnm.buf() ) == true )
     {
@@ -77,7 +77,7 @@ bool ZipHandler::makeZipInIt( BufferString& srcfnm )
     else if ( File::isDirectory( srcfnm.buf() ) == true )
     {
 	allfiles_.add( srcfnm );
-	dirManage( srcfnm.buf() );
+	manageDir( srcfnm.buf() );
 	totalfiles_ = allfiles_.size();
     }
     else
@@ -104,7 +104,7 @@ bool ZipHandler::makeZipInIt( BufferString& srcfnm )
     return true;
 }
 
-bool ZipHandler::dirManage( const char* src )
+bool ZipHandler::manageDir( const char* src )
 {
    
     DirList dlist( src, DirList::DirsOnly, 0 );
@@ -116,7 +116,7 @@ bool ZipHandler::dirManage( const char* src )
     for( int idx = 0; idx < dlist.size(); idx++ )
     {
 	allfiles_.add( dlist.fullPath(idx) );
-	dirManage( dlist.fullPath(idx) );
+	manageDir( dlist.fullPath(idx) );
     }
 
     return true;
@@ -154,9 +154,9 @@ int ZipHandler::openStrmToRead( const char* src )
     return 1;
 }
 
-void ZipHandler::setCompLevel( int cl )
+void ZipHandler::setCompLevel( CompLevel cl )
 {
-    complevel_ = cl;
+    complevel_ = (int) cl;
 }
 
 bool ZipHandler::doZCompress()
@@ -168,7 +168,6 @@ bool ZipHandler::doZCompress()
     unsigned towrite;
     z_stream strm;
     unsigned char* in = new unsigned char[srcfilesize_ + 1];	    
-    const int level = complevel_;
     const int method = Z_DEFLATED;
     const int windowbits = -15;
     const int memlevel = 9;
@@ -180,7 +179,8 @@ bool ZipHandler::doZCompress()
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
-    ret = deflateInit2( &strm, level, method, windowbits, memlevel, stategy );
+    ret = deflateInit2( &strm, complevel_, method, windowbits, memlevel,
+	    		stategy );
     unsigned int upperbound = deflateBound( &strm, srcfilesize_ );
     unsigned char* out = new unsigned char[upperbound];
     if ( ret != Z_OK ) 
@@ -759,7 +759,7 @@ bool ZipHandler::doZUnCompress()
         return ret == Z_STREAM_END ? true : false;
 }
 
-bool ZipHandler::appendFileInIt( BufferString& srcfnm, BufferString& fnm )
+bool ZipHandler::initAppend( BufferString& srcfnm, BufferString& fnm )
 {
     FilePath fp( fnm );
     nrlevel_ = fp.nrLevels();
@@ -791,7 +791,7 @@ bool ZipHandler::appendFileInIt( BufferString& srcfnm, BufferString& fnm )
     else if ( File::isDirectory( fnm.buf() ) == true )
     {
 	allfiles_.add( fnm );
-	dirManage( fnm.buf() );
+	manageDir( fnm.buf() );
 	totalfiles_ = allfiles_.size();
     }
     else

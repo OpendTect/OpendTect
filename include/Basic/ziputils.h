@@ -7,22 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Ranojay Sen
  Date:		December  2011
- RCS:		$Id: ziputils.h,v 1.10 2012-09-05 07:09:14 cvssalil Exp $
+ RCS:		$Id: ziputils.h,v 1.11 2012-09-07 06:41:23 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 #include "basicmod.h"
 #include "bufstringset.h"
 #include "executor.h"
-
-class ZipHandler;
+#include "ziphandler.h"
 
 mClass(Basic) ZipUtils
 {
 public:
-    enum			complevel_ {NoComp = 0, SuperFast = 1, 
-					   Fast = 3, Normal = 6,Maximum = 9};
-
 				ZipUtils(const char* filelistnm=0);
 				~ZipUtils();
    
@@ -31,14 +27,15 @@ public:
     const char*			errorMsg() const{ return errmsg_.buf();}
     void			makeFileList(const char* zipfile);
     const BufferStringSet&	getFileList() const	{ return filelist_; }
+
     bool			unZipArchive(BufferString&,BufferString&,
-							    TaskRunner* tr=0); 
+					     TaskRunner* tr=0); 
     bool			unZipFile(BufferString&,BufferString&);
     bool			makeZip(BufferString&,TaskRunner* tr=0,
-							complevel_ cl=Normal);
-    bool			appendFile(BufferString&,BufferString&,
-							TaskRunner* tr=0,
-							complevel_ cl=Normal);
+	    			   ZipHandler::CompLevel cl=ZipHandler::Normal);
+    bool			appendToArchive(BufferString&,BufferString&,
+					   TaskRunner* tr=0,
+				    ZipHandler::CompLevel c=ZipHandler::Normal);
 
 protected:
 
@@ -50,14 +47,13 @@ protected:
     bool			needfilelist_ ;
 
     ZipHandler&			ziphdler_;
-    
 };
 
 
 mClass(Basic) Zipper : public Executor
 {
 public:
-				 Zipper(ZipHandler& zh,TaskRunner* tr)
+				 Zipper(ZipHandler& zh)
 				     : Executor( "Compressing Files" )
 				     , ziphd_(zh)
 				     , nrdone_(0)	{}
@@ -78,7 +74,7 @@ protected:
 mClass(Basic) UnZipper : public Executor
 {
 public:
-				 UnZipper(ZipHandler& zh, TaskRunner* tr)
+				 UnZipper(ZipHandler& zh)
 				     : Executor("Uncompressing Files")
 				     , ziphd_(zh)
 				     , nrdone_(0)	{}

@@ -7,14 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ziparchiveinfo.cc,v 1.9 2012-09-07 04:21:57 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziparchiveinfo.cc,v 1.10 2012-09-07 06:38:45 cvsraman Exp $";
 
 #include "ziparchiveinfo.h"
 
 #include "bufstringset.h"
 #include "file.h"
-#include "ziphandler.h"
 #include "strmprov.h"
+#include "ziphandler.h"
 
 #include <iostream>
 
@@ -50,14 +50,14 @@ bool ZipArchiveInfo::readZipArchive( BufferString& fnm )
     if ( !File::exists( fnm.buf() ) )
     {
 	errormsg_ = fnm;
-	errormsg_ += " :File does not exist";
+	errormsg_ += ": File does not exist";
 	return false;
     }
     StreamData isd = StreamProvider( fnm ).makeIStream();
     if ( !isd.usable() )
     {
 	errormsg_ = fnm;
-	errormsg_ += ": Permission to access file denied";
+	errormsg_ += ": Access denied";
 	return false;
     }
 
@@ -73,21 +73,23 @@ bool ZipArchiveInfo::readZipArchive( BufferString& fnm )
 	{
 	    isd.close();
 	    errormsg_ = fnm;
-	    errormsg_ += ": File is corrupt";
+	    errormsg_ += ": File is not a valid zip archive";
 	    return false;
 	}
 
 	src.seekg( ptrlocation + mCentralHeaderSize );
-	src.read( headerfnm.buf(), *( (short*) (headerbuff.buf() + mLFnmLength) ) );
+	src.read( headerfnm.buf(),
+		  *( (short*) (headerbuff.buf() + mLFnmLength) ) );
 	FileInfo* fi = new FileInfo( headerfnm, 
-				*( (unsigned int*) (headerbuff.buf() + mLCompSize) ),
-				*( (unsigned int*) (headerbuff.buf() + mLUnCompSize) ),
-				*( (unsigned int*) (headerbuff.buf() + mLRelOffset) ) );
+			*( (unsigned int*) (headerbuff.buf() + mLCompSize) ),
+			*( (unsigned int*) (headerbuff.buf() + mLUnCompSize) ),
+			*( (unsigned int*) (headerbuff.buf() + mLRelOffset) ) );
 	files_ += fi;
-	ptrlocation = ptrlocation + *( (short*) (headerbuff.buf() + mLFnmLength) )
-				  + *( (short*) (headerbuff.buf() + mLExtraFldLength) )
-				  + *( (short*) (headerbuff.buf() + mLFileComntLength) )
-				  + mCentralHeaderSize;
+	ptrlocation = ptrlocation
+	    		+ *( (short*) (headerbuff.buf() + mLFnmLength) )
+			+ *( (short*) (headerbuff.buf() + mLExtraFldLength) )
+			+ *( (short*) (headerbuff.buf() + mLFileComntLength) )
+			+ mCentralHeaderSize;
 	src.seekg( ptrlocation );
     }
     
@@ -95,19 +97,23 @@ bool ZipArchiveInfo::readZipArchive( BufferString& fnm )
     return true;
 }
 
+
 bool ZipArchiveInfo::getAllFnms( BufferStringSet& fnms )
 {
     if ( !isok_ )
 	return false;
+
     for( int i = 0; i < ziphd_.getTotalFiles(); i++ )
 	fnms.add( files_[i]->fnm_ );
     return true;
 }
 
-od_int64 ZipArchiveInfo::getFCompSize( BufferString& fnm )
+
+od_int64 ZipArchiveInfo::getFileCompSize( BufferString& fnm )
 {
     if ( !isok_ )
 	return -1;
+
     for( int i = 0; i < ziphd_.getTotalFiles(); i++ )
 	if ( fnm.matches( files_[i]->fnm_ ) )
 	    return files_[i]->compsize_;
@@ -117,10 +123,12 @@ od_int64 ZipArchiveInfo::getFCompSize( BufferString& fnm )
     return -1;
 }
 
-od_int64 ZipArchiveInfo::getFCompSize( int idx )
+
+od_int64 ZipArchiveInfo::getFileCompSize( int idx )
 {
     if ( !isok_ )
 	return -1;
+
     if ( idx >= ziphd_.getTotalFiles() )
     {
 	errormsg_ = "Index is out of range";
@@ -129,10 +137,11 @@ od_int64 ZipArchiveInfo::getFCompSize( int idx )
 
     return files_[idx]->compsize_;
 }
-od_int64 ZipArchiveInfo::getFUnCompSize( BufferString& fnm )
+od_int64 ZipArchiveInfo::getFileUnCompSize( BufferString& fnm )
 {
     if ( !isok_ )
 	return -1;
+
     for( int i = 0; i < ziphd_.getTotalFiles(); i++ )
 	if ( fnm.matches( files_[i]->fnm_ ) )
 	    return files_[i]->uncompsize_;
@@ -142,10 +151,11 @@ od_int64 ZipArchiveInfo::getFUnCompSize( BufferString& fnm )
     return -1;
 }
 
-od_int64 ZipArchiveInfo::getFUnCompSize( int idx )
+od_int64 ZipArchiveInfo::getFileUnCompSize( int idx )
 {
     if ( !isok_ )
 	return -1;
+
     if ( idx >= ziphd_.getTotalFiles() )
     {
 	errormsg_ = "Index is out of range";
@@ -154,6 +164,7 @@ od_int64 ZipArchiveInfo::getFUnCompSize( int idx )
 
     return files_[idx]->uncompsize_;
 }
+
 
 od_int64 ZipArchiveInfo::getLocalHeaderOffset( BufferString& fnm )
 {
@@ -172,6 +183,7 @@ od_int64 ZipArchiveInfo::getLocalHeaderOffset( BufferString& fnm )
     return -1;
 }
 
+
 od_int64 ZipArchiveInfo::getLocalHeaderOffset( int idx )
 {
     if ( !isok_ )
@@ -184,6 +196,7 @@ od_int64 ZipArchiveInfo::getLocalHeaderOffset( int idx )
 
     return files_[idx]->localheaderoffset_;
 }
+
 
 const char* ZipArchiveInfo::errorMsg()
 { return errormsg_.buf(); }

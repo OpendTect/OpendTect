@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Salil Agarwal
  Date:		30 August 2012
- RCS:		$Id: ziphandler.h,v 1.6 2012-09-07 04:19:53 cvssalil Exp $
+ RCS:		$Id: ziphandler.h,v 1.7 2012-09-07 06:41:23 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,9 @@ ________________________________________________________________________
 mClass(Basic) ZipHandler
 {
 public:
+    enum CompLevel		{ NoComp=0, SuperFast=1, Fast=3, Normal=6,
+				  Maximum=9 };
+
 				ZipHandler()
 				:totalfiles_(0)
 				,initialfiles_(0)
@@ -85,15 +88,16 @@ public:
     bool			readEndOfCntrlDirHeader(std::istream&);
     bool			readFileHeader();
 
-    bool			makeZipInIt(BufferString&);
-    bool			dirManage(const char*);
+    bool			initMakeZip(BufferString&);
+    bool			initAppend(BufferString&,BufferString&);
+
+    bool			manageDir(const char*);
     bool			doZCompress();
     int				openStrmToRead(const char* src); 
     bool			setLocalFileHeader();
     bool			setLocalFileHeaderForDir();
     bool			setCntrlDirHeader();
     bool			setEndOfCntrlDirHeader(int);
-    bool			appendFileInIt(BufferString&,BufferString&);
 
     bool			getBitValue(const unsigned char byte,
 							int bitposition);
@@ -103,6 +107,7 @@ public:
     short			dateInDosFormat(const char*);
     short			timeInDosFormat(const char*);
     bool			setTimeDateModified();
+
     BufferStringSet&		getAllFiles() { return allfiles_; }
     std::ostream&		getDestStream() { return *osd_.ostrm; }
     unsigned int		getOffsetOfCentralDir() 
@@ -112,11 +117,9 @@ public:
     void			closeDestStream() { osd_.close(); }
     void			closeSrcStream() { isd_.close(); }
     StreamData			makeOStreamForAppend(BufferString&);
-    void			setCompLevel(int);
+    void			setCompLevel(CompLevel);
     
 protected:
-    enum			complevel_ {NoComp = 0, SuperFast = 1, 
-					   Fast = 3, Normal = 6,Maximum = 9};
     BufferStringSet		allfiles_;
     unsigned short		compmethod_;
     int				complevel_;

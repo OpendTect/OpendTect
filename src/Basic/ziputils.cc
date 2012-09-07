@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.24 2012-09-05 06:19:53 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.25 2012-09-07 06:38:45 cvsraman Exp $";
 
 #include "ziputils.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID mUnusedVar = "$Id: ziputils.cc,v 1.24 2012-09-05 06:19:
 #include "filepath.h"
 #include "strmprov.h"
 #include "ziparchiveinfo.h"
-#include "ziphandler.h"
 
 #include <iostream>
 
@@ -110,33 +109,31 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     return res;
 }
 
-bool ZipUtils::makeZip( BufferString& src, TaskRunner* tr, complevel_ cl )
+bool ZipUtils::makeZip( BufferString& src, TaskRunner* tr,
+			ZipHandler::CompLevel cl )
+{
+    ziphdler_.setCompLevel( cl );
+    if( !ziphdler_.initMakeZip(src) )
+	return false;
+
+    Zipper exec( ziphdler_ );
+    return tr ? tr->execute( exec ) : exec.execute();
+}
+
+bool ZipUtils::appendToArchive( BufferString& srcfnm, BufferString& fnm,
+				TaskRunner* tr, ZipHandler::CompLevel cl )
 {
     bool res;
     ziphdler_.setCompLevel( cl );
-    res = ziphdler_.makeZipInIt( src );
+    res = ziphdler_.initAppend( srcfnm, fnm );
     if ( !res )
 	return false;
 
-    Zipper exec( ziphdler_, tr );
+    Zipper exec( ziphdler_ );
     res = tr ? tr->execute( exec ) : exec.execute();
     return res;
 }
 
-bool ZipUtils::appendFile( BufferString& srcfnm, BufferString& fnm,
-							TaskRunner* tr,
-							complevel_ cl )
-{
-    bool res;
-    ziphdler_.setCompLevel( cl );
-    res = ziphdler_.appendFileInIt( srcfnm, fnm );
-    if ( !res )
-	return false;
-
-    Zipper exec( ziphdler_, tr );
-    res = tr ? tr->execute( exec ) : exec.execute();
-    return res;
-}
 
 int Zipper::nextStep()
 {
@@ -201,7 +198,7 @@ bool ZipUtils::unZipArchive( BufferString& srcfnm,BufferString& basepath,
     bool ret = ziphdler_.unZipArchiveInIt( srcfnm, basepath );
     if( !ret )
 	return false;
-    UnZipper exec( ziphdler_, tr );
+    UnZipper exec( ziphdler_ );
     ret = tr ? tr->execute( exec ) : exec.execute();
     return ret;
 }
