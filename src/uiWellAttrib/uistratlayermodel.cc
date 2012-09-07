@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.71 2012-08-30 13:45:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.72 2012-09-07 10:20:13 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -298,6 +298,18 @@ const char* uiStratLayerModel::levelName() const
 const SeisTrcBuf& uiStratLayerModel::postStackTraces() const
 {
     return synthdisp_->postStackTraces();
+}
+
+
+const SeisTrcBuf& uiStratLayerModel::modelTraces( const PropertyRef& pr ) const
+{
+    return synthdisp_->postStackTraces( &pr );
+}
+
+
+const PropertyRefSelection& uiStratLayerModel::modelProperties() const
+{
+    return synthdisp_->modelPropertyRefs();
 }
 
 
