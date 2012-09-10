@@ -9,6 +9,5 @@ Kristofer: Well, I can't even come up with a good one!?
 
 Kristofer: Let's stop telling jokes.
 
-Kristofer:
 
-$Id: dummy.txt,v 1.7 2012-09-10 14:46:58 cvskris Exp $
+$Id: dummy.txt,v 1.8 2012-09-10 14:47:54 cvskris Exp $
