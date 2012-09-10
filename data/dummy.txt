@@ -9,6 +9,6 @@ Kristofer: Well, I can't even come up with a good one!?
 
 Kristofer: Let's stop telling jokes.
 
-Soon done for today. I'm tracing this one down ... Not yet.
+Soon done for today. I'm tracing this one down ... Not yet. ... Still Waiting.
 
-$Id: dummy.txt,v 1.13 2012-09-10 15:02:25 cvskris Exp $
+$Id: dummy.txt,v 1.14 2012-09-10 15:04:33 cvskris Exp $
