@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODMacroUtils.cmake,v 1.67 2012-08-31 11:33:02 cvssalil Exp $
+#	RCS :		$Id: ODMacroUtils.cmake,v 1.68 2012-09-10 09:59:51 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Marcro that setups a number of variables for compiling
@@ -417,78 +417,4 @@ MACRO ( OD_ADD_PLUGIN_BATCHPROGS )
     FOREACH( SRC ${ARGV} )
 	LIST( APPEND OD_MODULE_BATCHPROGS src/${OD_PLUGINSUBDIR}/${SRC} )
     ENDFOREACH()
-ENDMACRO()
-
-
-# In a list of libraries, such as
-# "debug"
-# <debuglib>
-# "optimized"
-# <optimizedlib>
-# this macro will get the one that will be used in the current config
-#
-# USAGE: OD_GET_USED_LIBRARY( LIST OUTPUTVAR )
-#
-MACRO( OD_GET_USED_LIBRARY )
-    SET ( LIBLIST ${ARGV} )
-    LIST ( LENGTH LIBLIST SIZE )
-    IF ( ${SIZE} LESS 2 )
-	MESSAGE( FATAL_ERROR "Invalid size" )
-    ENDIF()
-    MATH ( EXPR OUTPUTNR "${SIZE} -1" )
-    LIST ( GET LIBLIST ${OUTPUTNR} OUTPUT )
-    LIST ( REMOVE_AT LIBLIST ${OUTPUTNR} )
-
-    IF ( OD_DEBUG )
-	LIST ( FIND LIBLIST "debug" INDEX )
-	IF ( NOT ${INDEX} EQUAL -1 )
-	    MATH( EXPR INDEX "${INDEX} + 1" )
-	    LIST ( GET LIBLIST ${INDEX} ${OUTPUT} )
-	ENDIF()
-    ENDIF()
-
-    IF ( NOT EXISTS ${${OUTPUT}} )
-	LIST ( FIND LIBLIST "optimized" INDEX )
-	IF ( NOT ${INDEX} EQUAL -1 )
-	    MATH( EXPR INDEX "${INDEX} + 1" )
-	    LIST ( GET LIBLIST ${INDEX} ${OUTPUT} )
-	ENDIF()
-    ENDIF()
-
-    IF ( NOT EXISTS ${${OUTPUT}} )
-	LIST ( GET LIBLIST 0 ${OUTPUT} )
-    ENDIF()
-
-ENDMACRO()
-
-
-# Adds an external library, copies it into output directory. Returns
-# copied filename.
-# Input library can be a list, such as:
-# "debug"
-# <debuglib>
-# "optimized"
-# <optimizedlib>
-#
-# USAGE: OD_IMPORT_LIBRARY( LIBRARYLIST PATH_TO_USED_LIB )
-#
-
-MACRO ( OD_IMPORT_LIBRARY )
-    SET ( LIBLIST ${ARGV} )
-    LIST ( LENGTH LIBLIST SIZE )
-    MATH ( EXPR OUTPUTNR "${SIZE} -1" )
-    LIST ( GET LIBLIST ${OUTPUTNR} OUTTARGET )
-    LIST ( REMOVE_AT LIBLIST ${OUTPUTNR} )
-
-    OD_GET_USED_LIBRARY( ${LIBLIST} _USEDLIB )
-
-    IF ( NOT EXISTS ${_USEDLIB} )
-	MESSAGE( FATAL_ERROR "${_USEDLIB} not found" )
-    ENDIF()
-
-    GET_FILENAME_COMPONENT( LIBNAME ${_USEDLIB} NAME )
-    SET ( OUTFILE "${OD_EXEC_OUTPUT_PATH}/${LIBNAME}" )
-    SET ( ${OUTTARGET} "${OUTFILE}" )
-
-    EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink ${_USEDLIB} ${OUTFILE} )
 ENDMACRO()
