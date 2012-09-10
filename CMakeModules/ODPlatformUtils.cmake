@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.74 2012-09-06 09:55:55 cvskris Exp $
+#	RCS :		$Id: ODPlatformUtils.cmake,v 1.75 2012-09-10 10:05:15 cvskris Exp $
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -38,14 +38,12 @@ if(UNIX) #Apple an Linux
         FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
         set (EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
 	set (OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
-	if(!OD_DEBUG)
-	    set  ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
-	endif()
+	set ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
 
 	set ( OD_PLFSUBDIR mac )
 
 	#NEEDED AS LONG AS WE HAVE COIN
-	set (CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
+	set ( CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
     else() #Linux
 
 	#Not on most platforms, but for the few that does, it's better
@@ -70,10 +68,6 @@ if(UNIX) #Apple an Linux
 
     add_definitions("'-DmUnusedVar=__attribute__ ((unused))'")
     set (OD_STATIC_EXTENSION ".a")
-    if ( OD_DEBUG )
-	add_definitions(  "-ggdb3" )
-    endif()
-
 
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-non-template-friend" )
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Wno-reorder" )
@@ -96,8 +90,8 @@ if(UNIX) #Apple an Linux
     #Set newline character
     set ( OD_NEWLINE "\n" )
 
-    set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG}" )
-    set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG}" )
+    set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
+    set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
 
 endif(UNIX)
 
