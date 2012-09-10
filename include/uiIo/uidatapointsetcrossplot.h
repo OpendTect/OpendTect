@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.47 2012-09-07 06:29:07 cvsmahant Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.48 2012-09-10 10:39:59 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,6 +171,9 @@ public:
 
     BufferString&		userdefy1str_;
     BufferString&		userdefy2str_;
+
+    BufferString&		y1rmserr_;
+    BufferString&		y2rmserr_;
 
     void			setMathObj(MathExpression*);
     void			setMathObjStr(const BufferString& str )
