@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.36 2012-09-07 10:59:36 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.37 2012-09-10 10:52:25 cvsmahant Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -242,7 +242,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     , dps_(p->plotter().dps())
     , hasy2_(plotter_.axisHandler(2))
     , yaxrg_((plotter_.axisData(1)).axis_->range())
-    , y2axrg_((plotter_.axisData(2)).axis_->range())
+    , y2axrg_((plotter_.axisData(hasy2_? 2:1)).axis_->range())
     , shwy1userdefpolyline_(0)
     , shwy2userdefpolyline_(0)
     , mathobj_(0)
@@ -252,10 +252,14 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     , selaxisfld_(0)
     , dragmode_(0)
 {
-    inpfld_ = new uiGenInput( this, "Enter Equation: Y1 =" );
-    inpfld_->setElemSzPol( uiObject::WideMax );
+    inpfld_ = new uiGenInput( this, "Equation Y1=" );
+    inpfld_->setElemSzPol( uiObject::Wide );
     inpfld_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExp) );
     inpfld_->valuechanging.notify( mCB(this,uiDPSUserDefTab,checkMathExpr) );
+
+    rmsfld_ = new uiGenInput( this, "rms error" );
+    rmsfld_->setElemSzPol( uiObject::Small );
+    rmsfld_->attach( rightOf, inpfld_);
 
     if ( !mathexprstring_.isEmpty() )
     {
@@ -269,11 +273,15 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     
     if ( hasy2_ )
     {
-	inpfld1_ = new uiGenInput( this, "Enter Equation: Y2 =" );
-	inpfld1_->setElemSzPol( uiObject::WideMax );
+	inpfld1_ = new uiGenInput( this, "Equation Y2=" );
+	inpfld1_->setElemSzPol( uiObject::Wide );
 	inpfld1_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExp) );
 	inpfld1_->valuechanging.notify( mCB(this,uiDPSUserDefTab,checkMathExpr) );
 	inpfld1_->attach( alignedBelow, shwy1userdefpolyline_ );        
+
+	rmsfld1_ = new uiGenInput( this, "rms error" );
+	rmsfld1_->setElemSzPol( uiObject::Small );
+	rmsfld1_->attach( rightOf, inpfld1_);
 	
 	
 	if ( !mathexprstring1_.isEmpty() )
@@ -327,9 +335,16 @@ void checkMathExpr( CallBacker* cb )
     bool& expchgd = isy1 ? exp1chgd_ : exp2chgd_;
 
     if ( mathexpr != inptxt )
+    {
 	expchgd = true;
+	isy1 ? rmsfld_->setText(0) : rmsfld1_->setText(0);
+    }
     else
+    {
 	expchgd = false;
+	isy1 ? rmsfld_->setText(plotter_.y1rmserr_)
+	    : rmsfld1_->setText(plotter_.y2rmserr_);
+    }
 }
 
 
@@ -398,10 +413,12 @@ void initFlds( CallBacker* )
     if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
     
     inpfld_->setText( plotter_.userdefy1str_ );
+    rmsfld_->setText( plotter_.y1rmserr_);
     
     if ( hasy2_ )
     {
 	inpfld1_->setText( plotter_.userdefy2str_ );
+	rmsfld1_->setText( plotter_.y2rmserr_);
 	shwy2userdefpolyline_->setChecked( plotter_.setup().showy2userdefpolyline_ );
     }
     shwy1userdefpolyline_->setChecked( plotter_.setup().showy1userdefpolyline_ );
@@ -485,8 +502,8 @@ void computePts( bool isy2 )
 
     const BinIDValueSet& bvs = dps_.bivSet();
     BinIDValueSet::Pos pos;
-    StepInterval<float> curvyvalrg( mUdf(float), -mUdf(float),
-	    vert.axis_->range().step );
+    float rmserr = 0;
+    int count = 0;
     while ( bvs.next(pos,false) )
     {
 	BinID curbid;
@@ -499,8 +516,34 @@ void computePts( bool isy2 )
 		
 	if ( mIsUdf(xval) || mIsUdf(yval) )
 	    continue;
+
+	if ( isy2 )
+	    mathobj1_->setVariableValue( 0, xval );
+	else
+	    mathobj_->setVariableValue( 0, xval );
+
+	float expyval = isy2 ? mathobj1_->getValue() : mathobj_->getValue();
+
+	if ( mIsUdf(expyval) ) continue;
+
+	rmserr += ( expyval - yval )*( expyval - yval );	
+	count += 1;
     }
 
+    if ( count != 0 )
+    {
+	rmserr = sqrt(rmserr/(float)count);
+    	isy2 ? rmsfld1_->setValue( rmserr ) : rmsfld_->setValue( rmserr );
+    	( isy2 ? plotter_.y2rmserr_ : plotter_.y1rmserr_ ) = rmserr;
+    }
+    else
+    {
+	isy2 ? rmsfld1_->setText(0) : rmsfld_->setText(0);     	
+	isy2 ? plotter_.y2rmserr_.setEmpty() : plotter_.y1rmserr_.setEmpty();
+    }
+
+    StepInterval<float> curvyvalrg( mUdf(float), -mUdf(float),
+	    vert.axis_->range().step );
     Interval<float> xrge = bvs.valRange( dps_.bivSetIdx( horz.colid_ ) );
     const float step = fabs( ( xrge.stop - xrge.start )/999.0f );
 
@@ -529,7 +572,7 @@ void computePts( bool isy2 )
     {
 	msg_ = "Sorry! Y";
 	msg_ += isy2 ? 2 : 1;
-        msg_ = " cannot be plotted.";
+        msg_ += " cannot be plotted.";
 	uiMSG().error( msg() );
 	return;
     }
@@ -548,7 +591,7 @@ void computePts( bool isy2 )
 	    curvyvalrg.include( vert.axis_->range(), false );
 	    curvyvalrg.step = (curvyvalrg.stop - curvyvalrg.start)/4.0f;
 	    vert.autoscalepars_.doautoscale_ = vert.needautoscale_ = false;
-	    vert.axis_->setRange( curvyvalrg );
+	    vert.axis_->setBounds( curvyvalrg );
 	    plotter_.setUserDefPolyLine( pts,isy2 );
 	}
 	else
@@ -620,6 +663,8 @@ bool acceptOK()
     int  				dragmode_;
     uiGenInput*                         inpfld_;
     uiGenInput*                         inpfld1_;
+    uiGenInput*				rmsfld_;
+    uiGenInput*				rmsfld1_;
     uiGenInput*				selaxisfld_;
     uiCheckBox*				shwy1userdefpolyline_;
     uiCheckBox*				shwy2userdefpolyline_;

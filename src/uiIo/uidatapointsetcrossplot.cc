@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.97 2012-09-07 06:32:00 cvsmahant Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.98 2012-09-10 10:52:25 cvsmahant Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.97 2012-09-07 06:32:00 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidatapointsetcrossplot.cc,v 1.98 2012-09-10 10:52:25 cvsmahant Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -83,6 +83,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , userdefy2lp_(*new LinePars)
     , userdefy1str_(*new BufferString)
     , userdefy2str_(*new BufferString)
+    , y1rmserr_(*new BufferString)
+    , y2rmserr_(*new BufferString)
     , yptitems_(0)
     , y2ptitems_(0)
     , selectionpolygonitem_(0)
@@ -116,6 +118,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , timer_(*new Timer())
     , trmsg_("Calculating Density" )
 {
+    setup_.showy1userdefpolyline(false).showy2userdefpolyline(false);
+
     enableImageSave();
     enableScrollZoom();
     x_.defaxsu_.style_ = setup_.xstyle_;
@@ -154,6 +158,7 @@ uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 {
     delete &lsy1_;
     delete &lsy2_;
+    timer_.tick.remove( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
     if ( yptitems_ ) scene().removeItem( yptitems_ );
     if ( y2ptitems_ ) scene().removeItem( y2ptitems_ );
     if ( selrectitems_ ) scene().removeItem( selrectitems_ );
