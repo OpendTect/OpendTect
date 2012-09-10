@@ -7,4 +7,6 @@ Kristofer: No, I don't. I only have good ones.
 
 Kristofer: Well, I can't even come up with a good one!?
 
-$Id: dummy.txt,v 1.5 2012-09-10 12:37:16 cvskris Exp $
+Kristofer: Let's stop telling jokes.
+
+$Id: dummy.txt,v 1.6 2012-09-10 14:34:45 cvskris Exp $
