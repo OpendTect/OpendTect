@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocitycalc.cc,v 1.66 2012-08-09 06:49:33 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: velocitycalc.cc,v 1.67 2012-09-10 07:13:00 cvsbruno Exp $";
 
 #include "velocitycalc.h"
 
@@ -30,10 +30,10 @@ TimeDepthModel::TimeDepthModel()
 
 
 TimeDepthModel::TimeDepthModel( const TimeDepthModel& td )
-    : times_(new float(*td.times_))
-    , depths_(new float(*td.depths_))	 
-    , sz_(td.sz_)
-{}
+{
+    setModel( td.depths_, td.times_, td.sz_ ); 
+}
+
 
 
 TimeDepthModel::~TimeDepthModel()
