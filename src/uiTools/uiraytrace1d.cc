@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiraytrace1d.cc,v 1.21 2012-07-18 15:00:36 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiraytrace1d.cc,v 1.22 2012-09-10 13:25:35 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
@@ -260,6 +260,14 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 	par.set( RayTracer1D::sKeyVelBlockVal(), blockfld_->getfValue() ); 
     }
 }
+
+
+void uiRayTracer1D::setOffsetRange( StepInterval<float> rg )
+{
+    offsetfld_->setValue( rg );
+    offsetstepfld_->setValue( rg.step );
+}
+
 
 
 void uiRayTracer1D::displayOffsetFlds( bool yn )

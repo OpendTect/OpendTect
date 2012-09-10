@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiraytrace1d.h,v 1.12 2012-08-03 13:01:14 cvskris Exp $
+ RCS:		$Id: uiraytrace1d.h,v 1.13 2012-09-10 13:25:34 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -50,6 +50,7 @@ public:
     virtual void  	fillPar(IOPar&) const;
 
     void		displayOffsetFlds(bool yn); 
+    void		setOffsetRange(StepInterval<float>);
 
 protected:
 			uiRayTracer1D(uiParent*,const Setup&);
