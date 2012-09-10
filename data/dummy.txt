@@ -5,4 +5,6 @@ Does anyone know a bad joke?
 
 Kristofer: No, I don't. I only have good ones.
 
-$Id: dummy.txt,v 1.4 2012-09-10 12:03:47 cvskris Exp $
+Kristofer: Well, I can't even come up with a good one!?
+
+$Id: dummy.txt,v 1.5 2012-09-10 12:37:16 cvskris Exp $
