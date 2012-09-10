@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.26 2012-09-07 13:24:13 cvshelene Exp $
+ RCS:		$Id: stratsynth.h,v 1.27 2012-09-10 13:26:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,7 +122,7 @@ public:
     					{ return getTrace(seqnr,0); }
     const SeisTrc*			getTrace(int seqnr,int* offset) const;
     SeisTrcBuf*				getTrcBuf(float startoffset,
-					    const Interval<float>* offrg) const;
+					    const Interval<float>* off=0) const;
 
     PreStack::GatherSetDataPack&	preStackPack()
 	{ return (PreStack::GatherSetDataPack&)(datapack_); }
