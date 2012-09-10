@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.19 2012-08-10 03:50:06 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.20 2012-09-10 05:04:46 cvsnageswara Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -262,7 +262,11 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
     {
 	outtrc = readTrc( oldbid ); 
 	if ( !outtrc )
+	{
 	    outtrc = new SeisTrc( data_.cs_.zrg.nrSteps() );
+	    outtrc->zero();
+	}
+
 	outtrc->info().sampling = olddata_.cs_.zrg;
     }
     else
