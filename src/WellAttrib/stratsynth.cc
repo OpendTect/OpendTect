@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.50 2012-09-07 13:24:13 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.51 2012-09-10 13:29:36 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -295,6 +295,13 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	while ( tbufs.size() )
 	{
 	    SeisTrcBuf* tbuf = tbufs.remove( 0 );
+	    SeisTrcPropChg stpc( *tbuf->get( 0 ) );
+	    while ( tbuf->size() > 1 )
+	    {
+		SeisTrc* trc = tbuf->remove( tbuf->size()-1 );
+		stpc.stack( *trc );
+		delete trc;
+	    }
 	    dptrcbuf->add( *tbuf );
 	}
 	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( *dptrcbuf, Seis::Line,
