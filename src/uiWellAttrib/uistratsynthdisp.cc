@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.115 2012-09-04 13:28:34 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.116 2012-09-10 13:28:52 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -119,16 +119,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     prestackgrp_ = new uiGroup( datagrp_, "Pre-Stack View Group" );
     prestackgrp_->attach( rightOf, levelsnapselfld_, 20 );
 
-    stackbox_ = new uiCheckBox( prestackgrp_, "Stack" );
-    stackbox_->activated.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
-
-    stackfld_ = new uiStackGrp( prestackgrp_ );
-    stackfld_->attach( rightOf, stackbox_ );
-    stackfld_->rangeChg.notify( mCB(this,uiStratSynthDisp,offsetChged ) );
-
     offsetposfld_ = new uiSynthSlicePos( prestackgrp_, "Offset" );
     offsetposfld_->positionChg.notify( mCB(this,uiStratSynthDisp,offsetChged) );
-    offsetposfld_->attach( rightOf, stackbox_ );
 
     prestackbut_ = new uiToolButton( prestackgrp_, "nonmocorr64", 
 				"View Offset Direction", 
@@ -468,10 +460,8 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
 
-    const bool dostack = stackbox_->isChecked();
-    const Interval<float>* stackrg = dostack ? &stackfld_->getRange() : 0;
     const float offset = offsetposfld_->getValue();
-    const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, stackrg ) 
+    const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, 0 ) 
 				   : &postsd->postStackPack().trcBuf();
 
     if ( !tbuf ) return;
@@ -594,7 +584,6 @@ void uiStratSynthDisp::doModelChange()
 	StepInterval<float> limits( pssd->offsetRange() );
 	limits.step = 100;
 	offsetposfld_->setLimitSampling( limits );
-	stackfld_->setLimitRange( limits );
     }
     prestackgrp_->setSensitive( pssd && pssd->hasOffset() );
 
@@ -612,22 +601,20 @@ void uiStratSynthDisp::doModelChange()
 void uiStratSynthDisp::addEditSynth( CallBacker* )
 {
     if ( !synthgendlg_ )
+    {
 	synthgendlg_ = new uiSynthGenDlg( this, stratsynth_.genParams() );
+	synthgendlg_->button( uiDialog::OK )->activated.notify(
+			    mCB(this,uiStratSynthDisp,syntheticDataParChged) );
+	synthgendlg_->genNewReq.notify(
+			    mCB(this,uiStratSynthDisp,genNewSynthetic) );
+    }
 
     synthgendlg_->go();
-    synthgendlg_->button( uiDialog::OK )->activated.notify(
-			mCB(this,uiStratSynthDisp,syntheticDataParChged) );
-    synthgendlg_->genNewReq.notify(
-			mCB(this,uiStratSynthDisp,genNewSynthetic) );
 }
 
 
 void uiStratSynthDisp::offsetChged( CallBacker* )
 {
-    const bool dostack = stackbox_->isChecked();
-    offsetposfld_->display( !dostack );
-    stackfld_->display( dostack );
-
     displayPostStackDirSynthetic( currentsynthetic_ );
 }
 
@@ -834,38 +821,6 @@ int uiSynthSlicePos::getValue() const
 }
 
 
-uiStackGrp::uiStackGrp( uiParent* p )
-    : uiGroup( p, "Stack group" )
-    , rangeChg(this)  
-{
-    BufferString olb = "offset range";
-    offsetfld_ = new uiGenInput( this, olb , IntInpIntervalSpec() );
-    offsetfld_->valuechanged.notify( mCB(this,uiStackGrp,valChgCB) );
-}
-
-
-void uiStackGrp::valChgCB( CallBacker* )
-{
-    offsetrg_.start = offsetfld_->getIInterval().start;
-    offsetrg_.stop = offsetfld_->getIInterval().stop;
-    offsetrg_.limitTo( limitrg_ );
-    rangeChg.trigger();
-}
-
-
-const Interval<float>& uiStackGrp::getRange() const
-{
-   return offsetrg_; 
-}
-
-
-void uiStackGrp::setLimitRange( Interval<float> rg )
-{ 
-    offsetfld_->setValue( rg );
-    limitrg_ = rg; 
-    offsetrg_ = rg;
-}
-
 
 
 uiSynthGenDlg::uiSynthGenDlg( uiParent* p, SynthGenParams& gp) 
@@ -878,9 +833,14 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, SynthGenParams& gp)
 
     setOkText( "Apply" );
 
+    CallBack cb( mCB(this,uiSynthGenDlg,typeChg) );
     typefld_ = new uiGenInput( this, "Type",
 			BoolInpSpec(true,"Post-Stack","Pre-Stack") );
-    typefld_->valuechanged.notify( mCB(this,uiSynthGenDlg,typeChg) );
+    typefld_->valuechanged.notify( cb );
+
+    stackfld_ = new uiCheckBox( this, "Stack from Pre-Stack" );
+    stackfld_->activated.notify( cb );
+    stackfld_->attach( rightOf, typefld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Name separator" );
     sep->attach( stretchedBelow, typefld_ );
@@ -914,8 +874,11 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, SynthGenParams& gp)
 void uiSynthGenDlg::typeChg( CallBacker* )
 {
     const bool isps = !typefld_->getBoolValue();
+    stackfld_->display( !isps );
     nmobox_->display( isps );
-    rtsel_->current()->displayOffsetFlds( isps );
+    const bool needranges = isps || stackfld_->isChecked();
+    rtsel_->current()->displayOffsetFlds( needranges );
+    rtsel_->current()->setOffsetRange( uiRayTracer1D::Setup().offsetrg_ );
 }
 
 
@@ -932,9 +895,12 @@ void uiSynthGenDlg::getFromScreen()
     sd_.raypars_.setEmpty();
     rtsel_->fillPar( sd_.raypars_ );
     const bool isps = !typefld_->getBoolValue();
-    if ( !isps )
+    const bool dostack = stackfld_->isChecked();
+    if ( !isps && !dostack )
 	RayTracer1D::setIOParsToZeroOffset( sd_.raypars_ );
-    sd_.raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), nmobox_->isChecked() );
+
+    sd_.raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), 
+				    nmobox_->isChecked() || isps );
     sd_.isps_ = isps; 
     sd_.name_ = namefld_->text();
 }

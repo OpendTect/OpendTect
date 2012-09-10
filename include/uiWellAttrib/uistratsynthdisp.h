@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.61 2012-09-04 13:28:34 cvsbruno Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.62 2012-09-10 13:28:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,11 +113,9 @@ protected:
     uiToolButton*	addeditbut_;
     uiLabeledComboBox*	datalist_;
     uiLabeledComboBox*	levelsnapselfld_;
-    uiCheckBox*		stackbox_;
     uiSynthGenDlg*	synthgendlg_;
     uiSynthSlicePos*	offsetposfld_;
     uiSynthSlicePos*	modelposfld_;
-    uiStackGrp*		stackfld_;
     uiFlatViewMainWin*	prestackwin_;
 
     void		setCurrentSynthetic();
@@ -205,7 +203,7 @@ protected:
     uiGenInput*			typefld_;
     uiGenInput*  		namefld_;
     uiCheckBox*			nmobox_;
-    uiCheckBox*			stackbox_;
+    uiCheckBox*			stackfld_;
     uiRayTracerSel*		rtsel_;
     uiPushButton*		gennewbut_;
     uiPushButton*		applybut_;
