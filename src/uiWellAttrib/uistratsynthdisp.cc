@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.116 2012-09-10 13:28:52 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.117 2012-09-10 13:38:20 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -601,15 +601,13 @@ void uiStratSynthDisp::doModelChange()
 void uiStratSynthDisp::addEditSynth( CallBacker* )
 {
     if ( !synthgendlg_ )
-    {
 	synthgendlg_ = new uiSynthGenDlg( this, stratsynth_.genParams() );
-	synthgendlg_->button( uiDialog::OK )->activated.notify(
-			    mCB(this,uiStratSynthDisp,syntheticDataParChged) );
-	synthgendlg_->genNewReq.notify(
-			    mCB(this,uiStratSynthDisp,genNewSynthetic) );
-    }
 
     synthgendlg_->go();
+    synthgendlg_->button( uiDialog::OK )->activated.notify(
+			mCB(this,uiStratSynthDisp,syntheticDataParChged) );
+    synthgendlg_->genNewReq.notify(
+			mCB(this,uiStratSynthDisp,genNewSynthetic) );
 }
 
 
