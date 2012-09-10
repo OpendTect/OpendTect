@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.40 2012-09-06 10:00:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.41 2012-09-10 12:56:26 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -621,11 +621,13 @@ public:
     void		set(const int* ptr, int num)
     {
 	element_->clear();
+	element_->reserve( num );
 	for ( int idx=0; idx<num; idx++, ptr++ )
 	    element_->push_back( *ptr );
     }
     void		append(const int* ptr, int num)
     {
+	element_->reserve( size()+num );
 	for ( int idx=0; idx<num; idx++, ptr++ )
 	    element_->push_back( *ptr );
     }
@@ -633,7 +635,7 @@ public:
     
     osg::ref_ptr<T>	element_;
 };
-    
+
     
 class OSGRangePrimitiveSet : public Geometry::RangePrimitiveSet
 {
