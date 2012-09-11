@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.23 2012-09-11 07:30:12 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.24 2012-09-11 08:11:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,15 +34,15 @@ public:
     
     
 
-    virtual int		size() const					= 0;
-    virtual int		get(int) const 					= 0;
+    virtual int			size() const				= 0;
+    virtual int			get(int) const 				= 0;
     
-    PrimitiveType	getPrimitiveType() const;
-    void		setPrimitiveType(PrimitiveType tp);
+    virtual PrimitiveType	getPrimitiveType() const;
+    virtual void		setPrimitiveType(PrimitiveType tp);
     
 protected:
-			PrimitiveSet();
-    PrimitiveType	primitivetype_;
+				PrimitiveSet();
+    PrimitiveType		primitivetype_;
 };
 
     
