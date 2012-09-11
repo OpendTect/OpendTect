@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: prestackprop.h,v 1.4 2012-08-03 13:00:34 cvskris Exp $
+ RCS:		$Id: prestackprop.h,v 1.5 2012-09-11 14:17:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
 
     enum CalcType	{ Stats, LLSQ };
     			DeclareEnumUtils(CalcType)
-    enum AxisType	{ Norm, Log, Exp, Sqr, Sqrt, Abs };
+    enum AxisType	{ Norm, Log, Exp, Sqr, Sqrt, Abs, Sinsq };
     			DeclareEnumUtils(AxisType)
     enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff, CorrCoeff };
     			DeclareEnumUtils(LSQType)

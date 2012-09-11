@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackprop.cc,v 1.11 2012-08-10 04:11:25 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackprop.cc,v 1.12 2012-09-11 14:17:23 cvsbert Exp $";
 
 #include "prestackprop.h"
 
@@ -32,6 +32,7 @@ DefineEnumNames(PropCalc,AxisType,2,"Axis transformation")
 	"Quadratic",
 	"Square root",
 	"Absolute value",
+	"Sine-square",
 	0
 };
 
@@ -202,6 +203,8 @@ static void transformAxis( TypeSet<float>& vals, PropCalc::AxisType at )
 	case PropCalc::Exp:	vals[idx] = Math::Exp( val );	break;
 	case PropCalc::Sqrt:	vals[idx] = Math::Sqrt( val );	break;
 	case PropCalc::Abs:	vals[idx] = fabs( val );	break;
+	case PropCalc::Sinsq:	vals[idx] = sin( val );
+				vals[idx] *= vals[idx];		break;
 	default:						break;
 	}
     }
