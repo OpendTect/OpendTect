@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymodtools.cc,v 1.11 2012-06-21 15:06:58 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymodtools.cc,v 1.12 2012-09-11 11:02:11 cvsbert Exp $";
 
 #include "uistratlaymodtools.h"
 #include "uitoolbutton.h"
@@ -69,10 +69,11 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     : uiGroup(p,"Lay Mod Edit Tools")
     , selPropChg(this)
     , selLevelChg(this)
+    , selContentChg(this)
     , dispEachChg(this)
     , dispZoomedChg(this)
     , dispLithChg(this)
-    , selContentChg(this)
+    , flattenChg(this)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
     propfld_ = new uiComboBox( leftgrp, "Display property" );
@@ -102,11 +103,17 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 	    			mCB(this,uiStratLayModEditTools,selContentCB) );
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
+    flattenedtb_ = new uiToolButton( rightgrp, "flattenseis",
+			"Show flattened when on",
+			mCB(this,uiStratLayModEditTools,showFlatCB) );
+    flattenedtb_->setToggleButton( true );
+    flattenedtb_->setOn( false );
     lithtb_ = new uiToolButton( rightgrp, "lithologies",
 			"Show lithology colors when on",
 			mCB(this,uiStratLayModEditTools,dispLithCB) );
     lithtb_->setToggleButton( true );
     lithtb_->setOn( true );
+    lithtb_->attach( leftOf, flattenedtb_ );
     zoomtb_ = new uiToolButton( rightgrp, "toggzooming",
 			"Do not zoom into models when on",
 			mCB(this,uiStratLayModEditTools,dispZoomedCB) );
@@ -206,6 +213,12 @@ bool uiStratLayModEditTools::dispLith() const
 }
 
 
+bool uiStratLayModEditTools::showFlattened() const
+{
+    return flattenedtb_->isOn();
+}
+
+
 void uiStratLayModEditTools::setSelProp( const char* sel )
 {
     propfld_->setText( sel );
@@ -239,4 +252,10 @@ void uiStratLayModEditTools::setDispZoomed( bool yn )
 void uiStratLayModEditTools::setDispLith( bool yn )
 {
     lithtb_->setOn( yn );
+}
+
+
+void uiStratLayModEditTools::setShowFlattened( bool yn )
+{
+    flattenedtb_->setOn( yn );
 }

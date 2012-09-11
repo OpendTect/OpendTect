@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.72 2012-09-07 10:20:13 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.73 2012-09-11 11:02:11 cvsbert Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -249,6 +249,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 
     modtools_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
     modtools_->selLevelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
+    modtools_->flattenChg.notify( mCB(this,uiStratLayerModel,levelChg) );
     gentools_->openReq.notify( mCB(this,uiStratLayerModel,openGenDescCB) );
     gentools_->saveReq.notify( mCB(this,uiStratLayerModel,saveGenDescCB) );
     gentools_->propEdReq.notify( mCB(this,uiStratLayerModel,manPropsCB) );
@@ -349,7 +350,8 @@ void uiStratLayerModel::dispEachChg( CallBacker* )
 void uiStratLayerModel::levelChg( CallBacker* cb )
 {
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-	    			modtools_->selLevelColor() );
+		    modtools_->selLevelColor(), modtools_->showFlattened() );
+    moddisp_->setFlattened( modtools_->showFlattened() );
     if ( cb )
 	levelChanged.trigger();
 }

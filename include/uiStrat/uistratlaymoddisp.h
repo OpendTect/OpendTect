@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.18 2012-08-30 13:38:34 cvsbert Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.19 2012-09-11 11:02:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,18 +28,20 @@ mClass(uiStrat) uiStratLayerModelDisp : public uiGroup
 {
 public:
 
-				uiStratLayerModelDisp(uiStratLayModEditTools&,
-						    const Strat::LayerModel&);
-				~uiStratLayerModelDisp();
+			uiStratLayerModelDisp(uiStratLayModEditTools&,
+					    const Strat::LayerModel&);
+			~uiStratLayerModelDisp();
 
-    virtual void		modelChanged()			= 0;
-    virtual void		setZoomBox(const uiWorldRect&)	= 0;
+    virtual void	modelChanged()			= 0;
+    virtual void	setZoomBox(const uiWorldRect&)	= 0;
 
-    const TypeSet<float>&	levelDepths() const	{ return lvldpths_; }
-    int				selectedSequence() const { return selseqidx_; }
-    void			selectSequence(int seqidx);
+    const TypeSet<float>& levelDepths() const		{ return lvldpths_; }
+    int			selectedSequence() const	{ return selseqidx_; }
+    void		selectSequence(int seqidx);
 
-    virtual uiBaseObject*	getViewer() { return 0; }
+    virtual uiBaseObject* getViewer() { return 0; }
+    bool		isFlattened() const		{ return flattened_; }
+    void		setFlattened(bool yn);
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
@@ -52,8 +54,9 @@ protected:
     uiStratLayModEditTools& tools_;
     uiWorldRect		zoomwr_;
     int			selseqidx_;
-    TypeSet<float>	lvldpths_;
+    bool		flattened_;
     Interval<float>	zrg_;
+    TypeSet<float>	lvldpths_;
 
     bool		haveAnyZoom() const;
     virtual void	drawSelectedSequence()		= 0;

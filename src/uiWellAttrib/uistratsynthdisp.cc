@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.117 2012-09-10 13:38:20 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.118 2012-09-11 11:02:11 cvsbert Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -253,8 +253,11 @@ void uiStratSynthDisp::setSelectedTrace( int st )
 
 
 void uiStratSynthDisp::setDispMrkrs( const char* lnm,
-				     const TypeSet<float>& zvals, Color col )
+				     const TypeSet<float>& zvals, Color col,
+       				     bool dispflattened )
 {
+    dispflattened_ = dispflattened;
+    //TODO use this dispflattened_ flag
     StratSynth::Level* lvl = new StratSynth::Level( lnm, zvals, col );
     stratsynth_.setLevel( lvl );
     levelSnapChanged(0);

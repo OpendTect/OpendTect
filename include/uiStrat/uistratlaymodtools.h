@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2012
- RCS:           $Id: uistratlaymodtools.h,v 1.6 2012-08-03 13:01:10 cvskris Exp $
+ RCS:           $Id: uistratlaymodtools.h,v 1.7 2012-09-11 11:02:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ public:
     int		dispEach() const;
     bool	dispZoomed() const;
     bool	dispLith() const;
+    bool	showFlattened() const;
 
     void	setSelProp(const char*);
     void	setSelLevel(const char*);
@@ -71,6 +72,7 @@ public:
     void	setDispEach(int);
     void	setDispZoomed(bool);
     void	setDispLith(bool);
+    void	setShowFlattened(bool);
 
     Notifier<uiStratLayModEditTools>	selPropChg;
     Notifier<uiStratLayModEditTools>	selLevelChg;
@@ -78,6 +80,7 @@ public:
     Notifier<uiStratLayModEditTools>	dispEachChg;
     Notifier<uiStratLayModEditTools>	dispZoomedChg;
     Notifier<uiStratLayModEditTools>	dispLithChg;
+    Notifier<uiStratLayModEditTools>	flattenChg;
 
     int		selPropIdx() const;		//!< May return -1
     int		selLevelIdx() const;		//!< May return -1
@@ -94,6 +97,7 @@ protected:
     uiSpinBox*	eachfld_;
     uiToolButton* zoomtb_;
     uiToolButton* lithtb_;
+    uiToolButton* flattenedtb_;
 
     void	selPropCB( CallBacker* )	{ selPropChg.trigger(); }
     void	selLevelCB( CallBacker* )	{ selLevelChg.trigger(); }
@@ -101,6 +105,7 @@ protected:
     void	dispEachCB( CallBacker* )	{ dispEachChg.trigger(); }
     void	dispZoomedCB( CallBacker* )	{ dispZoomedChg.trigger(); }
     void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }
+    void	showFlatCB( CallBacker* )	{ flattenChg.trigger(); }
 
 };
 

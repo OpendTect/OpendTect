@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.33 2012-08-30 14:55:43 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.34 2012-09-11 11:02:11 cvsbert Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
@@ -32,6 +32,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , lm_(lm)
     , zoomwr_(mUdf(double),0,0,0)
     , selseqidx_(-1)
+    , flattened_(false)
     , zrg_(0,1)
     , sequenceSelected(this)
     , genNewModelNeeded(this)
@@ -50,6 +51,16 @@ void uiStratLayerModelDisp::selectSequence( int selidx )
 {
     selseqidx_ = selidx;
     drawSelectedSequence();
+}
+
+
+void uiStratLayerModelDisp::setFlattened( bool yn )
+{
+    if ( flattened_ != yn )
+    {
+	flattened_ = yn;
+	modelChanged();
+    }
 }
 
 
@@ -152,26 +163,34 @@ void uiStratSimpleLayerModelDisp::usrClicked( CallBacker* )
     if ( selidx < 0 ) return;
 
     MouseEventHandler& mevh = gv_->getMouseEventHandler();
-    if ( OD::rightMouseButton( mevh.event().buttonState() ) )
-    {
-	const float zsel = yax_->getVal( mevh.event().pos().y );
-	handleRightClick(selidx,zsel);
-    }
+    if ( OD::rightMouseButton(mevh.event().buttonState() ) )
+	handleRightClick(selidx);
     else
     {
 	selectSequence( selidx );
 	sequenceSelected.trigger();
+	mevh.setHandled( true );
     }
 
-    mevh.setHandled( true );
 }
 
 
-void uiStratSimpleLayerModelDisp::handleRightClick( int selidx, float zsel )
+void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 {
     Strat::LayerSequence& ls = const_cast<Strat::LayerModel&>(lm_)
 						.sequence( selidx );
     ObjectSet<Strat::Layer>& lays = ls.layers();
+    MouseEventHandler& mevh = gv_->getMouseEventHandler();
+    float zsel = yax_->getVal( mevh.event().pos().y );
+    mevh.setHandled( true );
+    if ( flattened_ )
+    {
+	const float lvlz = lvldpths_[selidx];
+	if ( mIsUdf(lvlz) )
+	    return;
+	zsel += lvlz;
+    }
+
     const int layidx = ls.layerIdxAtZ( zsel );
     if ( lays.isEmpty() || layidx < 0 )
 	return;
@@ -242,10 +261,7 @@ void uiStratSimpleLayerModelDisp::doubleClicked( CallBacker* )
     if ( selidx < 0 ) return;
 
     // Should we do something else than edit?
-    MouseEventHandler& mevh = gv_->getMouseEventHandler();
-    const float zsel = yax_->getVal( mevh.event().pos().y );
-    handleRightClick(selidx,zsel);
-    gv_->getMouseEventHandler().setHandled( true );
+    handleRightClick(selidx);
 }
 
 
@@ -298,10 +314,10 @@ void uiStratSimpleLayerModelDisp::updZoomBox()
     if ( zoomwr_.width() < 0.001 || !zoomboxitm_ || !xax_ )
 	{ if ( zoomboxitm_ ) zoomboxitm_->setVisible( false ); return; }
 
-    const int xpix = xax_->getPix( (float) zoomwr_.left() );
-    const int ypix = yax_->getPix( (float) zoomwr_.top() );
-    const int wdth = xax_->getPix( (float) zoomwr_.right() ) - xpix;
-    const int hght = yax_->getPix( (float) zoomwr_.bottom() ) - ypix;
+    const int xpix = xax_->getPix( (float)zoomwr_.left() );
+    const int ypix = yax_->getPix( (float)zoomwr_.top() );
+    const int wdth = xax_->getPix( (float)zoomwr_.right() ) - xpix;
+    const int hght = yax_->getPix( (float)zoomwr_.bottom() ) - ypix;
     zoomboxitm_->setRect( xpix, ypix, wdth, hght );
     zoomboxitm_->setVisible( haveAnyZoom() && !showzoomed_ );
 }
@@ -319,25 +335,35 @@ void uiStratSimpleLayerModelDisp::modelChanged()
     for ( int iseq=0; iseq<nrseqs; iseq++ ) \
     { \
 	if ( chckdisp && !isDisplayedModel(iseq) ) continue; \
-	float prevval mUnusedVar = mUdf(float); \
+	const float lvldpth = lvldpths_[iseq]; \
+	if ( flattened_ && mIsUdf(lvldpth) ) continue; \
 	const Strat::LayerSequence& seq = lm_.sequence( iseq ); \
 	const int nrlays = seq.size(); \
 	for ( int ilay=0; ilay<nrlays; ilay++ ) \
 	{ \
 	    const Strat::Layer& lay = *seq.layers()[ilay]; \
-	    const float z0 = lay.zTop(); \
-	    const float z1 = lay.zBot(); \
+	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth; \
+	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth; \
 	    const float val = dispprop_ < lay.nrValues() \
 	    		? lay.value( dispprop_ ) : mUdf(float);
 
 #define mEndLayLoop() \
-	    prevval = val; \
 	} \
     }
 
 
 void uiStratSimpleLayerModelDisp::getBounds()
 {
+    lvldpths_.erase();
+    const Strat::Level* lvl = tools_.selStratLevel();
+    for ( int iseq=0; iseq<lm_.size(); iseq++ )
+    {
+	const Strat::LayerSequence& seq = lm_.sequence( iseq );
+	const int idxof = lvl ? seq.indexOf( *lvl ) : -1;
+	const float zlvl = idxof<0 ? mUdf(float) : seq.layers()[idxof]->zTop();
+	lvldpths_ += zlvl;
+    }
+
     Interval<float> zrg(mUdf(float),mUdf(float)), vrg(mUdf(float),mUdf(float));
     mStartLayLoop( false )
 #	define mChckBnds(var,op,bnd) \
@@ -348,15 +374,8 @@ void uiStratSimpleLayerModelDisp::getBounds()
 	mChckBnds(vrg.start,>,val);
 	mChckBnds(vrg.stop,<,val);
     mEndLayLoop()
-
-    if ( mIsUdf(zrg.start) )
-	zrg_ = Interval<float>(0,1);
-    else
-	zrg_ = zrg;
-    if ( mIsUdf(vrg.start) )
-	vrg_ = Interval<float>(0,1);
-    else
-	vrg_ = vrg;
+    zrg_ = mIsUdf(zrg.start) ? Interval<float>(0,1) : zrg;
+    vrg_ = mIsUdf(vrg.start) ? Interval<float>(0,1) : vrg;
 
     if ( mIsUdf(zoomwr_.left()) )
     {
@@ -402,6 +421,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     showzoomed_ = tools_.dispZoomed();
     uselithcols_ = tools_.dispLith();
     selectedcontent_ = lm_.refTree().contents().getByName(tools_.selContent());
+
     getBounds();
 
     xax_->updateDevSize(); yax_->updateDevSize();
@@ -412,10 +432,10 @@ void uiStratSimpleLayerModelDisp::doDraw()
     }
     else
     {
-	xax_->setBounds( Interval<float>((float) zoomwr_.left(),
-						(float) zoomwr_.right()) );
-	yax_->setBounds( Interval<float>((float) zoomwr_.top(),
-						(float) zoomwr_.bottom()) );
+	xax_->setBounds( Interval<float>((float)zoomwr_.left(),
+						(float)zoomwr_.right()) );
+	yax_->setBounds( Interval<float>((float)zoomwr_.top(),
+						(float)zoomwr_.bottom()) );
     }
     yax_->plotAxis(); xax_->plotAxis();
     const float vwdth = vrg_.width();
@@ -427,9 +447,9 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    if ( z0 > zoomwr_.top() || z1 < zoomwr_.bottom() )
 		continue;
 	    if ( z1 > zoomwr_.top() )
-		const_cast<float&>(z1) = (float) zoomwr_.top();
+		const_cast<float&>(z1) = (float)zoomwr_.top();
 	    if ( z0 < zoomwr_.bottom() )
-		const_cast<float&>(z0) = (float) zoomwr_.bottom();
+		const_cast<float&>(z0) = (float)zoomwr_.bottom();
 	}
 
 	const int ypix0 = yax_->getPix( z0 );
@@ -463,24 +483,17 @@ void uiStratSimpleLayerModelDisp::doDraw()
 
 void uiStratSimpleLayerModelDisp::drawLevels()
 {
-    lvldpths_.erase();
-    const Strat::Level* lvl = tools_.selStratLevel();
-    if ( !lvl ) return;
+    if ( lm_.isEmpty() )
+	return;
+
     lvlcol_ = tools_.selLevelColor();
-    const int nrseqs = lm_.size();
-    if ( nrseqs < 1 ) return;
-
-    for ( int iseq=0; iseq<nrseqs; iseq++ )
+    for ( int iseq=0; iseq<lvldpths_.size(); iseq++ )
     {
-	const Strat::LayerSequence& seq = lm_.sequence( iseq );
-	const int idxof = seq.indexOf( *lvl );
-	if ( idxof < 0 )
-	    { lvldpths_ += mUdf(float); continue; }
+	const float zlvl = lvldpths_[iseq];
+	if ( mIsUdf(zlvl) )
+	    continue;
 
-	const Strat::Layer& lay = *seq.layers()[idxof];
-	const float zlvl = lay.zTop();
-	lvldpths_ += zlvl;
-	const int ypix = yax_->getPix( zlvl );
+	const int ypix = yax_->getPix( flattened_ ? 0 : zlvl );
 	const int xpix1 = getXPix( iseq, 0 );
 	const int xpix2 = getXPix( iseq, 1 );
 	uiLineItem* it = scene().addItem(
