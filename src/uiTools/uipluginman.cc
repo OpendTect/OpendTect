@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipluginman.cc,v 1.35 2012-05-02 15:12:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipluginman.cc,v 1.36 2012-09-11 10:57:24 cvsbert Exp $";
 
 #include "uipluginman.h"
 #include "uipluginsel.h"
@@ -65,10 +65,10 @@ void uiPluginMan::fillList()
 	const PluginManager::Data& data = *lst[idx];
 	if ( !data.info_ || !data.isloaded_ )
 	    notloaded.add( data.name_ );
-	else if ( data.autotype_ == PI_AUTO_INIT_LATE )
-	    late.add( data.info_->dispname );
-	else
+	else if ( data.autotype_ == PI_AUTO_INIT_EARLY )
 	    early.add( data.info_->dispname );
+	else
+	    late.add( data.info_->dispname );
 
     }
     early.sort(); late.sort(); notloaded.sort();
