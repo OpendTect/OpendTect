@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.248 2012-09-06 15:54:50 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.249 2012-09-11 14:36:29 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -426,7 +426,7 @@ void uiMainWinBody::closeEvent( mQtclass(QCloseEvent*) ce )
     else
 	ce->ignore();
 
-     handle_.endCmdRecEvent( refnr );
+     handle_.endCmdRecEvent( refnr, "Close" );
 }
 
 
@@ -1450,7 +1450,7 @@ void uiDialogBody::closeEvent( mQtclass(QCloseEvent*) ce )
     else
 	ce->accept();
 
-    handle_.endCmdRecEvent( refnr );
+    handle_.endCmdRecEvent( refnr, "Close" );
 }
 
 
