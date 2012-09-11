@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.37 2012-09-10 10:52:25 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.38 2012-09-11 05:13:22 cvsmahant Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -511,8 +511,8 @@ void computePts( bool isy2 )
 	bvs.get( pos, curbid, vals );
 	DataPointSet::RowID rid = dps_.getRowID( pos );
 
-	const float xval = dps_.value( horz.colid_, rid );
-	const float yval = dps_.value( vert.colid_, rid );
+	const float xval = plotter_.getVal( horz.colid_, rid );
+	const float yval = plotter_.getVal( vert.colid_, rid );
 		
 	if ( mIsUdf(xval) || mIsUdf(yval) )
 	    continue;
@@ -544,7 +544,7 @@ void computePts( bool isy2 )
 
     StepInterval<float> curvyvalrg( mUdf(float), -mUdf(float),
 	    vert.axis_->range().step );
-    Interval<float> xrge = bvs.valRange( dps_.bivSetIdx( horz.colid_ ) );
+    Interval<float> xrge = horz.rg_;
     const float step = fabs( ( xrge.stop - xrge.start )/999.0f );
 
     for ( int idx = 0; idx < 1000; idx++ )
@@ -579,10 +579,10 @@ void computePts( bool isy2 )
     
     if ( !vert.axis_->range().includes(curvyvalrg) )
     {
-	msg_ = "Curve for Y";
+	msg_ = "Y";
 	msg_ += isy2 ? 2 : 1;
-	msg_ += " falls outside the default range. ";
-	msg_ += "Do you want to rescale?";
+	msg_ += " goes beyond the default range. ";
+	msg_ += "Do you want to rescale to see the complete curve?";
 
 	const bool& vertrgchgd = isy2 ? y2rgchgd_ : yrgchgd_;
 
@@ -628,13 +628,21 @@ bool acceptOK()
     drawlinefld_->setChecked( false );
 
     if ( plotter_.userdefy1str_.isEmpty() )
+    {
+	rmsfld_->setText(0);
 	shwy1userdefpolyline_->setChecked( false );
+	plotter_.y1rmserr_.setEmpty();
+    }
 
     if ( hasy2_ )
     {
 	plotter_.userdefy2str_ = inpfld1_->text();
 	if ( plotter_.userdefy2str_.isEmpty() )
+	{
+	    rmsfld1_->setText(0);
 	    shwy2userdefpolyline_->setChecked( false );
+	    plotter_.y2rmserr_.setEmpty();
+	}
 
 	plotter_.setup().showy2userdefpolyline_
 	    = shwy2userdefpolyline_->isChecked();
