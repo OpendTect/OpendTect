@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.17 2012-09-06 10:00:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.18 2012-09-11 07:30:12 cvskris Exp $";
 
 #include "indexedshape.h"
 
@@ -19,7 +19,25 @@ PtrMan<PrimitiveSetCreator> PrimitiveSetCreator::creator_ = 0;
     
 DefineEnumNames(PrimitiveSet, PrimitiveType, 1, "PrimitiveType" )
 { "Points", "Lines", "Triangles", "Strips", "Fans", 0 };
+    
+    
+    
+PrimitiveSet::PrimitiveSet()
+    : primitivetype_( Triangles )
+{}
+    
+PrimitiveSet::PrimitiveType PrimitiveSet::getPrimitiveType() const
+{
+    return primitivetype_;
+}
 
+
+void PrimitiveSet::setPrimitiveType(Geometry::PrimitiveSet::PrimitiveType tp)
+{
+    primitivetype_ = tp;
+}
+
+    
     
 PrimitiveSet* PrimitiveSetCreator::create( bool indexed, bool large )
 {

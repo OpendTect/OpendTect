@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.22 2012-09-06 10:00:40 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.23 2012-09-11 07:30:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,9 +32,17 @@ public:
     enum 	PrimitiveType{Points,Lines,Triangles,TriangleStrip,TriangleFan};
 		DeclareEnumUtils(PrimitiveType);
     
+    
 
-    virtual int	size() const					= 0;
-    virtual int	get(int) const 					= 0;
+    virtual int		size() const					= 0;
+    virtual int		get(int) const 					= 0;
+    
+    PrimitiveType	getPrimitiveType() const;
+    void		setPrimitiveType(PrimitiveType tp);
+    
+protected:
+			PrimitiveSet();
+    PrimitiveType	primitivetype_;
 };
 
     
