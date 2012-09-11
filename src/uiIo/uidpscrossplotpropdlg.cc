@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.38 2012-09-11 05:13:22 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.39 2012-09-11 05:24:56 cvsmahant Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -629,7 +629,6 @@ bool acceptOK()
 
     if ( plotter_.userdefy1str_.isEmpty() )
     {
-	rmsfld_->setText(0);
 	shwy1userdefpolyline_->setChecked( false );
 	plotter_.y1rmserr_.setEmpty();
     }
@@ -639,7 +638,6 @@ bool acceptOK()
 	plotter_.userdefy2str_ = inpfld1_->text();
 	if ( plotter_.userdefy2str_.isEmpty() )
 	{
-	    rmsfld1_->setText(0);
 	    shwy2userdefpolyline_->setChecked( false );
 	    plotter_.y2rmserr_.setEmpty();
 	}
