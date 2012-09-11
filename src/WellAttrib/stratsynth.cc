@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.51 2012-09-10 13:29:36 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.52 2012-09-11 09:52:34 cvshelene Exp $";
 
 
 #include "stratsynth.h"
@@ -414,7 +414,7 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
     {
 	lay = seq.layers()[idx];
 	float dval, pval, sval;
-       	if ( !getVPVSDenValsFromUnitPars( pval, sval, dval ) )
+       	if ( !getVPVSDenValsFromUnitPars( pval, sval, dval, idx ) )
 	    elpgen.getVals( dval, pval, sval, lay->values(), props.size() );
 
 	ElasticLayer ail ( lay->thickness(), pval, sval, dval );

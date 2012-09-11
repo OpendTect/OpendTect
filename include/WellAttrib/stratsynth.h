@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.27 2012-09-10 13:26:19 cvsbruno Exp $
+ RCS:		$Id: stratsynth.h,v 1.28 2012-09-11 09:52:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,7 +210,7 @@ protected:
 					TaskRunner* tr=0);
 
     virtual bool		getVPVSDenValsFromUnitPars(float&,float&,
-	    						   float&) const
+	    						   float&,int) const
 				{ return false; }
 
 };
