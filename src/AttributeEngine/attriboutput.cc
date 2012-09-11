@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.116 2012-08-09 03:40:07 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.117 2012-09-11 08:39:53 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -610,6 +610,12 @@ void SeisTrcStorOutput::deleteTrc()
 }
 
 
+bool SeisTrcStorOutput::finishWrite()
+{
+    return writer_->close();
+}
+
+
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 			const LineKey& lk )
     : errmsg_(0)
@@ -1159,6 +1165,12 @@ bool Trc2DVarZStorOutput::wantsOutput( const Coord& coord ) const
     //TODO : for some reason horizon coords in 2D are now rounded, check why
     Coord roundedcoord( (int)coord.x, (int)coord.y ); 
     return poszvalues_->findFirst( roundedcoord ) > -1;
+}
+
+
+bool Trc2DVarZStorOutput::finishWrite()
+{
+    return writer_->close();
 }
 
 

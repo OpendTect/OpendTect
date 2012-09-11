@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: od_process_attrib.cc,v 1.45 2012-07-22 04:54:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_attrib.cc,v 1.46 2012-09-11 08:39:53 cvshelene Exp $";
 
 #include "batchprog.h"
 
@@ -269,7 +269,14 @@ bool BatchProgram::go( std::ostream& strm )
 	}
     }
 
-    mStrmWithProcID( "Processing done; Closing down" );
+    bool closeok = true;
+    if ( nriter )
+	closeok = proc->outputs_[0]->finishWrite();
+
+    if ( !closeok )
+    { mStrmWithProcID( "Could not close output data." ); }
+    else
+    { mStrmWithProcID( "Processing done; Closing down" ); }
 
     // It is VERY important workers are destroyed BEFORE the last sendState!!!
     mDestroyWorkers

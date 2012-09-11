@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.55 2012-08-03 13:00:08 cvskris Exp $
+ RCS:           $Id: attriboutput.h,v 1.56 2012-09-11 08:39:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ public:
     const Seis::SelData&	getSelData()		{ return *seldata_; }
     const LineKey&		curLineKey() const;
     virtual void		adjustInlCrlStep(const CubeSampling&)	{};
+    virtual bool		finishWrite()		{ return false; }
 
     static const char*		outputstr();
     static const char*          cubekey();
@@ -147,6 +148,7 @@ public:
 				{ doSetGeometry(cs); }
 
     bool			doUsePar(const IOPar&);
+    virtual bool		finishWrite();
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     void			writeTrc();
@@ -208,6 +210,7 @@ public:
     				mImplDefAttribOutputFns(BinID)
     void			setTrcsBounds(Interval<float>);
 
+    virtual bool		finishWrite();
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     void			setMaxDistBetwTrcs( float maxdist )

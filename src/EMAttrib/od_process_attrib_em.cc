@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.93 2012-08-13 09:36:56 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.94 2012-09-11 08:39:53 cvshelene Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -256,6 +256,9 @@ static bool process( std::ostream& strm, Processor* proc, bool useoutwfunc,
 
 	nriter++;
     }
+
+    if ( nriter && useoutwfunc )
+	proc->outputs_[0]->finishWrite();
 
     delete writer;
     progressmeter.setFinished();
