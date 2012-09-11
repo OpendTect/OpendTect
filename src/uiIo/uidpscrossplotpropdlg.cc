@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.39 2012-09-11 05:24:56 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.40 2012-09-11 06:12:27 cvsmahant Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -579,7 +579,7 @@ void computePts( bool isy2 )
     
     if ( !vert.axis_->range().includes(curvyvalrg) )
     {
-	msg_ = "Y";
+	msg_ = "Curve for Y";
 	msg_ += isy2 ? 2 : 1;
 	msg_ += " goes beyond the default range. ";
 	msg_ += "Do you want to rescale to see the complete curve?";
