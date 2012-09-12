@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: rangeposprovider.cc,v 1.23 2012-07-20 06:36:13 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: rangeposprovider.cc,v 1.24 2012-09-12 10:59:03 cvsraman Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -173,7 +173,7 @@ Pos::RangeProvider2D& Pos::RangeProvider2D::operator =(
     if ( &p == this )
     {
 	zrg_ = p.zrg_;
-	curidx_ = p.curidx_;
+	curtrcidx_ = p.curtrcidx_;
 	curlineidx_ =  p.curlineidx_;
 	curz_ = p.curz_;
 	for ( int idx=0; idx<p.nrLines(); idx++ )
@@ -199,7 +199,7 @@ void Pos::RangeProvider2D::reset()
 	trcrg = l2d.trcNrRange();
     }
 
-    curidx_ =  !geomids_.size() ? -1 : trcrg.start - trcrg.step;
+    curtrcidx_ =  geomids_.size() ? 0 : -1;
     curlineidx_ = 0;
     curz_ = zrg_.stop;
 }
@@ -220,38 +220,22 @@ bool Pos::RangeProvider2D::toNextPos()
 	S2DPOS().getGeometry( geomids_[curlineidx_], l2d );
 	StepInterval<int> linetrcrg = l2d.trcNrRange();
 	trcrg.limitTo( linetrcrg );
-	curidx_ += trcrg.step;
+	curtrcidx_++;
 	
-	if ( curidx_ >= l2d.positions().size() )
-	{
-	    curlineidx_++;
-	    if ( !geomids_.validIdx(curlineidx_) )
-		return false;
-	    S2DPOS().getGeometry( geomids_[curlineidx_], l2d );
-	    linetrcrg = l2d.trcNrRange();
-	    trcrg = trcrgs_.validIdx(curlineidx_) ? trcrgs_[curlineidx_]
-						  : trcrgs_[0];
-	    trcrg.limitTo( linetrcrg );
-	    curidx_ =  linetrcrg.start - linetrcrg.step;
-	    continue;
-	}
+	if ( curtrcidx_ <= trcrg.nrSteps() )
+	    break;
 
-	const int curnr = curNr();
-	if ( curnr < trcrg.start || curnr > trcrg.stop )
-	    continue;
-	break;
-    }
-
-    curz_ = zrg_.start;
-    const bool hasgeom = geomids_.validIdx( curlineidx_ );
-    if ( hasgeom )
-    {
-	if ( curz_ < l2d.zRange().start )
-	    curz_ = l2d.zRange().start;
-	if ( curz_ > l2d.zRange().stop )
+	curlineidx_++;
+	if ( !geomids_.validIdx(curlineidx_) )
 	    return false;
-    }
 
+	curtrcidx_ = 0;
+	continue;
+    }
+    
+    StepInterval<float> zrg = zrg_;
+    zrg.limitTo( l2d.zRange() );
+    curz_ = zrg.start;
     return true;
 }
 
@@ -282,10 +266,19 @@ bool Pos::RangeProvider2D::toNextZ()
 int Pos::RangeProvider2D::curNr() const
 {
     const bool hasgeom = geomids_.validIdx( curlineidx_ );
-    PosInfo::Line2DData l2d;
     if ( hasgeom )
+    {
+	StepInterval<int> trcrg =
+	    trcrgs_.validIdx(curlineidx_) ? trcrgs_[curlineidx_]
+	    				  : trcrgs_[0];
+	PosInfo::Line2DData l2d;
 	S2DPOS().getGeometry( geomids_[curlineidx_], l2d );
-    return hasgeom ? l2d.positions()[curidx_].nr_ : curidx_;
+	StepInterval<int> linetrcrg = l2d.trcNrRange();
+	trcrg.limitTo( linetrcrg );
+	return trcrg.atIndex( curtrcidx_ );
+    }
+
+    return curtrcidx_;
 }
 
 
@@ -294,8 +287,14 @@ Coord Pos::RangeProvider2D::curCoord() const
     const bool hasgeom = geomids_.validIdx( curlineidx_ );
     PosInfo::Line2DData l2d;
     if ( hasgeom )
+    {
 	S2DPOS().getGeometry( geomids_[curlineidx_], l2d );
-    return hasgeom ? l2d.positions()[curidx_].coord_ :Coord(0,0);
+	PosInfo::Line2DPos l2dpos;
+	if ( l2d.getPos(curNr(),l2dpos) )
+	    return l2dpos.coord_;
+    }
+
+    return Coord(0,0);
 }
 
 

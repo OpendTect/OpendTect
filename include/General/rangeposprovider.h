@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: rangeposprovider.h,v 1.12 2012-08-03 13:00:25 cvskris Exp $
+ RCS:           $Id: rangeposprovider.h,v 1.13 2012-09-12 10:59:03 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -117,7 +117,7 @@ protected:
 
     TypeSet< StepInterval<int> > trcrgs_;
     StepInterval<float>	zrg_;
-    int			curidx_;
+    int			curtrcidx_;
     int			curlineidx_;
     float		curz_;
 
