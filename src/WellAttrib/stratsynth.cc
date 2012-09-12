@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.52 2012-09-11 09:52:34 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.53 2012-09-12 09:45:49 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -488,6 +488,40 @@ void StratSynth::setLevel( const Level* lvl )
 { delete level_; level_ = lvl; }
 
 
+
+void StratSynth::flattenTraces( SeisTrcBuf& tbuf ) const
+{
+    if ( tbuf.isEmpty() )
+	return;
+
+    float tmax = tbuf.get(0)->info().sampling.start;
+    float tmin = tbuf.get(0)->info().sampling.atIndex( tbuf.get(0)->size() );
+    for ( int idx=tbuf.size()-1; idx>=1; idx-- )
+    {
+	tmin = mMIN(tmin,tbuf.get(idx)->info().pick);
+	tmax = mMAX(tmax,tbuf.get(idx)->info().pick);
+    }
+
+    for ( int idx=tbuf.size()-1; idx>=0; idx-- )
+    {
+	const SeisTrc* trc = tbuf.get( idx );
+	const float start = trc->info().sampling.start - tmax;
+	const float stop  = trc->info().sampling.atIndex( trc->size()-1 ) -tmax;
+	SeisTrc* newtrc = trc->getRelTrc( ZGate(start,stop) );
+	if ( newtrc )
+	    delete tbuf.replace( idx, newtrc );
+    }
+}	
+
+
+void StratSynth::decimateTraces( SeisTrcBuf& tbuf, int fac ) const
+{
+    for ( int idx=tbuf.size()-1; idx>=0; idx-- )
+    {
+	if ( idx%fac )
+	    delete tbuf.remove( idx ); 
+    }
+}
 
 
 SyntheticData::SyntheticData( const SynthGenParams& sgp, DataPack& dp )

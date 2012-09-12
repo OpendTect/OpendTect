@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.118 2012-09-11 11:02:11 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.119 2012-09-12 09:45:49 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -256,11 +256,15 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 				     const TypeSet<float>& zvals, Color col,
        				     bool dispflattened )
 {
-    dispflattened_ = dispflattened;
-    //TODO use this dispflattened_ flag
+    const bool modelchange = dispflattened_ != dispflattened;
     StratSynth::Level* lvl = new StratSynth::Level( lnm, zvals, col );
     stratsynth_.setLevel( lvl );
     levelSnapChanged(0);
+
+    if ( modelchange )
+	doModelChange();
+
+    dispflattened_ = dispflattened;
 }
 
 
@@ -316,8 +320,8 @@ void uiStratSynthDisp::drawLevel()
 	auxd->linestyle_.type_ = LineStyle::None;
 	for ( int imdl=0; imdl<tbuf.size(); imdl ++ )
 	{
-	    const float tval = imdl < tbuf.size() ? tbuf.get(imdl)->info().pick 
-						  : mUdf(float);
+	    const float tval = dispflattened_ ? 0 : imdl < tbuf.size() ? 
+		tbuf.get(imdl)->info().pick : mUdf(float);
 
 	    auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
 						  cMarkerSize, lvl->col_ );
@@ -470,11 +474,13 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
     if ( !tbuf ) return;
 
     SeisTrcBuf* disptbuf = new SeisTrcBuf( true );
-    for ( int idx=0; idx<tbuf->size(); idx++ )
+    tbuf->copyInto( *disptbuf );
+
+    stratsynth_.decimateTraces( *disptbuf, dispeach_ );
+    if ( dispflattened_ )
     {
-	if ( idx%dispeach_ )
-	    continue;
-	disptbuf->add( new SeisTrc( *tbuf->get( idx ) ) );
+	stratsynth_.snapLevelTimes( *disptbuf, sd->d2tmodels_ );
+	stratsynth_.flattenTraces( *disptbuf );
     }
 
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line, 

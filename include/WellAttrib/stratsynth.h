@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.28 2012-09-11 09:52:34 cvshelene Exp $
+ RCS:		$Id: stratsynth.h,v 1.29 2012-09-12 09:45:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -182,8 +182,12 @@ public:
     };
     void			setLevel(const Level* lvl);
     const Level*		getLevel() const 	{ return level_; }
+
     void			snapLevelTimes(SeisTrcBuf&,
 				    const ObjectSet<const TimeDepthModel>&);
+
+    void			flattenTraces(SeisTrcBuf&) const;
+    void			decimateTraces(SeisTrcBuf&,int fac) const;
 
     void			setTaskRunner(TaskRunner* tr) { tr_ = tr; }
     const char* 		errMsg() const;
