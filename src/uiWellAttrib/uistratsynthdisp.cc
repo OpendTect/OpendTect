@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.120 2012-09-12 10:36:13 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.121 2012-09-12 10:40:44 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -262,10 +262,9 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
     stratsynth_.setLevel( lvl );
     levelSnapChanged(0);
 
+    dispflattened_ = dispflattened;
     if ( modelchange )
 	doModelChange();
-
-    dispflattened_ = dispflattened;
 }
 
 
