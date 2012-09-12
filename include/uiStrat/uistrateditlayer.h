@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          August 2012
- RCS:           $Id: uistrateditlayer.h,v 1.2 2012-08-30 14:54:23 cvsbert Exp $
+ RCS:           $Id: uistrateditlayer.h,v 1.3 2012-09-12 12:29:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class BufferStringSet;
 class UnitOfMeasure;
 class uiGenInput;
+class uiStratLayerContent;
 class uiPropertyValFld;
 namespace Strat { class Layer; class LayerSequence; }
 
@@ -38,6 +39,7 @@ protected:
     uiGenInput*			lithfld_;
     uiGenInput*			topfld_;
     ObjectSet<uiPropertyValFld>	valflds_;
+    uiStratLayerContent*	contfld_;
 
     bool			acceptOK(CallBacker*);
 

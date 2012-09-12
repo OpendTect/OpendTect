@@ -7,16 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrateditlayer.cc,v 1.3 2012-09-03 11:03:41 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistrateditlayer.cc,v 1.4 2012-09-12 12:29:59 cvsbert Exp $";
 
 #include "uistrateditlayer.h"
 #include "stratlayersequence.h"
 #include "stratlayer.h"
 #include "stratlith.h"
+#include "stratunitref.h"
 #include "propertyref.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "uipropvalfld.h"
+#include "uistratlaycontent.h"
 #include "uigeninput.h"
 #include "uiseparator.h"
 #include "uimsg.h"
@@ -43,6 +45,7 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     uiSeparator* sep = new uiSeparator( this );
     sep->attach( stretchedBelow, topfld_ );
 
+    uiGroup* algrp = topfld_;
     for ( int ival=0; ival<lay_.nrValues(); ival++ )
     {
 	if ( ival >= ls.propertyRefs().size() )
@@ -52,17 +55,20 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 	const PropertyRef& pr = *ls.propertyRefs()[ival];
 
 	uiPropertyValFld* valfld = new uiPropertyValFld( this, pr, val );
-	if ( ival )
-	    valfld->attach( alignedBelow, valflds_[ival-1] );
-	else
+	if ( ival == 0 )
 	{
 	    if ( depthinft )
 		valfld->setUnit( UnitOfMeasure::surveyDefDepthUnit() );
-	    valfld->attach( alignedBelow, topfld_ );
 	    valfld->attach( ensureBelow, sep );
 	}
+	valfld->attach( alignedBelow, algrp );
+	algrp = valfld;
 	valflds_ += valfld;
     }
+
+    contfld_ = new uiStratLayerContent( this, &lay.unitRef().refTree() ); 
+    contfld_->set( lay.content() );
+    contfld_->attach( alignedBelow, algrp );
 }
 
 
@@ -99,6 +105,7 @@ bool uiStratEditLayer::acceptOK( CallBacker* )
 	if ( ival < valflds_.size() )
 	    lay_.setValue( ival, valflds_[ival]->getValue() );
     }
+    lay_.setContent( contfld_->get() );
 
     return true;
 }
