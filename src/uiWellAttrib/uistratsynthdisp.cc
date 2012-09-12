@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.119 2012-09-12 09:45:49 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.120 2012-09-12 10:36:13 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -55,6 +55,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , d2tmodels_(0)	    
     , stratsynth_(*new StratSynth(lm))
     , dispeach_(1)	
+    , dispflattened_(false)
     , selectedtrace_(-1)	
     , selectedtraceaux_(0)
     , levelaux_(0)
