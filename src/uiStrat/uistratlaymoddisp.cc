@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.34 2012-09-11 11:02:11 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.35 2012-09-13 12:02:56 cvsbert Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
@@ -464,12 +464,19 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    const Color laycol = lay.dispColor( uselithcols_ );
 	    const bool isannotcont = selectedcontent_
 				  && lay.content() == *selectedcontent_;
-	    const Color pencol = isannotcont ? Color::Black() : laycol;
+	    const Color pencol = isannotcont ? lay.content().color_ : laycol;
 	    it->setPenColor( pencol );
 	    if ( pencol != laycol )
 		it->setPenStyle( LineStyle(LineStyle::Solid,2,pencol) );
 	    if ( fillmdls_ )
 		it->setFillColor( laycol );
+	    int pattyp = 0, patopt = 0;
+	    if ( isannotcont )
+	    {
+		pattyp = lay.content().pattype_;
+		patopt = lay.content().patopt_;
+	    }
+	    //TODO set pattern
 	    logblckitms_ += it;
 	}
 
