@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.35 2012-09-13 12:02:56 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.36 2012-09-13 14:35:11 cvsbert Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
@@ -459,8 +459,10 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    const float relx = (val-vrg_.start) / vwdth;
 	    const int xpix0 = getXPix( iseq, 0 );
 	    const int xpix1 = getXPix( iseq, relx );
+
 	    uiRectItem* it = scene().addRect( xpix0, ypix0,
 		    			xpix1-xpix0+1, ypix1-ypix0+1 );
+
 	    const Color laycol = lay.dispColor( uselithcols_ );
 	    const bool isannotcont = selectedcontent_
 				  && lay.content() == *selectedcontent_;
@@ -468,15 +470,20 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    it->setPenColor( pencol );
 	    if ( pencol != laycol )
 		it->setPenStyle( LineStyle(LineStyle::Solid,2,pencol) );
+
 	    if ( fillmdls_ )
-		it->setFillColor( laycol );
-	    int pattyp = 0, patopt = 0;
-	    if ( isannotcont )
 	    {
-		pattyp = lay.content().pattype_;
-		patopt = lay.content().patopt_;
+		it->setFillColor( laycol );
+		int pattyp = 0, patopt = 0;
+		if ( isannotcont )
+		{
+		    pattyp = lay.content().pattype_;
+		    patopt = lay.content().patopt_;
+		}
+		//TODO uncomment when setFillPattern fixed
+		// it->setFillPattern( pattyp, patopt );
 	    }
-	    //TODO set pattern
+
 	    logblckitms_ += it;
 	}
 
