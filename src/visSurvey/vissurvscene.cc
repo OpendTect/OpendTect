@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vissurvscene.cc,v 1.163 2012-08-21 16:58:33 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: vissurvscene.cc,v 1.164 2012-09-13 14:32:21 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -137,10 +137,12 @@ void Scene::init()
     scenecoltab_->doSaveInSessions( false );
 
     topimg_ = visBase::TopBotImage::create();
+    topimg_->setName( "TopImage");
     addUTMObject( topimg_ );
     topimg_->turnOn( false );
 
     botimg_ = visBase::TopBotImage::create();
+    botimg_->setName( "BottomImage");
     addUTMObject( botimg_ );
     botimg_->turnOn( false );
 
