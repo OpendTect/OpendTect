@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: tableascio.cc,v 1.45 2012-08-27 13:16:49 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: tableascio.cc,v 1.46 2012-09-13 19:00:23 cvsnanne Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -260,8 +260,8 @@ void TargetInfo::usePar( const IOPar& iopar )
 }
 
 
-Table::TargetInfo* Table::TargetInfo::mkPos( bool ishor, bool isreq, bool wu,
-       					     int zopt )
+Table::TargetInfo*
+	TargetInfo::mkPos( bool ishor, bool isreq, bool wu, int zopt )
 {
     Table::TargetInfo* ti;
     const Table::ReqSpec reqspec( isreq ? Table::Required : Table::Optional );

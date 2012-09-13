@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uioddatatreeitem.cc,v 1.72 2012-09-07 22:08:04 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uioddatatreeitem.cc,v 1.73 2012-09-13 19:00:23 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -59,10 +59,10 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     view2dvditem_.iconfnm = "vd";
     amplspectrumitem_.iconfnm = "amplspectrum";
 
-     movetotopmnuitem_.iconfnm = "totop";
-     moveupmnuitem_.iconfnm = "uparrow";
-     movedownmnuitem_.iconfnm = "downarrow";
-     movetobottommnuitem_.iconfnm = "tobottom";
+    movetotopmnuitem_.iconfnm = "totop";
+    moveupmnuitem_.iconfnm = "uparrow";
+    movedownmnuitem_.iconfnm = "downarrow";
+    movetobottommnuitem_.iconfnm = "tobottom";
 }
 
 

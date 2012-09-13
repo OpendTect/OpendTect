@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewcontrol.cc,v 1.63 2012-07-12 15:04:44 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewcontrol.cc,v 1.64 2012-09-13 19:00:23 cvsnanne Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -81,7 +81,7 @@ void uiFlatViewControl::removeViewer( uiFlatViewer& vwr )
 	cnvs.rubberBandUsed.remove( mCB(this,uiFlatViewControl,rubBandCB));
 
     MouseEventHandler& mevh = cnvs.scene().getMouseEventHandler();
-    mevh.movement.notify( mCB( this, uiFlatViewControl, mouseMoveCB ) );
+    mevh.movement.remove( mCB(this,uiFlatViewControl,mouseMoveCB) );
 }
 
 
@@ -340,7 +340,7 @@ void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
 {
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	if ( !mouseEventHandler( idx ).hasEvent() )
+	if ( !mouseEventHandler(idx).hasEvent() )
 	    continue;
 
 	const MouseEvent& ev = mouseEventHandler(idx).event();
