@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id: manobjectset.h,v 1.3 2010-10-28 11:07:22 cvsbert Exp $
+ RCS:		$Id: manobjectset.h,v 1.4 2012-09-13 09:54:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ public:
     inline virtual void		remove(int,int);
     inline virtual T*		remove( int idx, bool kporder=true )
 				{ return ObjectSet<T>::remove(idx,kporder); }
+
+    inline void			setEmpty()		{ erase(); }
 
 protected:
 
