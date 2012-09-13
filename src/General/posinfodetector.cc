@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posinfodetector.cc,v 1.21 2012-08-08 04:59:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: posinfodetector.cc,v 1.22 2012-09-13 18:54:42 cvsnanne Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -97,16 +97,14 @@ bool PosInfo::Detector::finish()
 
 
 bool PosInfo::Detector::crlSorted() const
-{
-    return setup_.is2d_ ? false : !sorting_.inlSorted();
-}
-
+{ return setup_.is2d_ ? false : !sorting_.inlSorted(); }
 
 bool PosInfo::Detector::inlSorted() const
-{
-    return setup_.is2d_ ? true : sorting_.inlSorted();
-}
+{ return setup_.is2d_ ? true : sorting_.inlSorted(); }
 
+
+void PosInfo::Detector::getHorSampling( HorSampling& hs ) const
+{ hs.start = start_; hs.stop = stop_; hs.step = step_; }
 
 void PosInfo::Detector::getCubeData( PosInfo::CubeData& cd ) const
 {
