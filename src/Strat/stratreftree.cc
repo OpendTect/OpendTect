@@ -4,7 +4,7 @@
  * DATE     : Sept 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratreftree.cc,v 1.20 2012-08-03 11:37:30 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratreftree.cc,v 1.21 2012-09-13 11:27:53 cvsbert Exp $";
 
 
 #include "stratreftree.h"
@@ -16,6 +16,7 @@ static const char* rcsID mUnusedVar = "$Id: stratreftree.cc,v 1.20 2012-08-03 11
 static const char* sKeyStratTree = "Stratigraphic Tree";
 static const char* sKeyLith = "Lithology";
 static const char* sKeyContents = "Contents";
+static const char* sKeyAppearance = "Appearance";
 
 
 Strat::RefTree::RefTree()
@@ -136,14 +137,8 @@ bool Strat::RefTree::read( std::istream& strm )
 
     while ( !atEndOfSection( astrm.next() ) )
     {
-	if ( astrm.hasKeyword(sKeyContents) )
-	{
-	    FileMultiString fms( astrm.value() );
-	    const int nrcont = fms.size();
-	    for ( int idx=0; idx<nrcont; idx++ )
-		contents_ += new Content( fms[idx] );
-	}
-	else if ( astrm.hasKeyword(sKeyLith) )
+	BufferString keyw( astrm.keyWord() );
+	if ( keyw == sKeyLith )
 	{
 	    const BufferString nm( astrm.value() );
 	    Lithology* lith = new Lithology(astrm.value());
@@ -151,6 +146,28 @@ bool Strat::RefTree::read( std::istream& strm )
 		delete lith;
 	    else
 		liths_.add( lith );
+	}
+	else if ( matchString(sKeyContents,keyw.buf()) )
+	{
+	    if ( keyw == sKeyContents )
+	    {
+		FileMultiString fms( astrm.value() );
+		const int nrcont = fms.size();
+		for ( int idx=0; idx<nrcont; idx++ )
+		    contents_ += new Content( fms[idx] );
+	    }
+	    else if ( countCharacter(keyw.buf(),'.') > 1 )
+	    {
+		char* contnm = strchr( keyw.buf(), '.' ) + 1;
+		char* contkeyw = strchr( contnm, '.' );
+		*contkeyw = '\0'; contkeyw++;
+		Content* c = contents_.getByName( contnm );
+		if ( c )
+		{
+		    if ( BufferString(contkeyw) == sKeyAppearance )
+			c->getApearanceFrom( astrm.value() );
+		}
+	    }
 	}
     }
 
@@ -194,6 +211,13 @@ bool Strat::RefTree::write( std::ostream& strm ) const
 	fms += contents_[idx]->name();
     if ( !fms.isEmpty() )
 	astrm.put( sKeyContents, fms );
+    for ( int idx=0; idx<contents_.size(); idx++ )
+    {
+	BufferString valstr; contents_[idx]->putAppearanceTo(valstr);
+	BufferString keystr( sKeyContents, ".", contents_[idx]->name() );
+	keystr.add( "." ).add( sKeyAppearance );
+	astrm.put( keystr, valstr );
+    }
 
     astrm.newParagraph();
     astrm.put( "Units" );

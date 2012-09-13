@@ -4,12 +4,35 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratlith.cc,v 1.10 2012-05-02 15:11:52 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratlith.cc,v 1.11 2012-09-13 11:27:53 cvsbert Exp $";
 
 #include "stratlith.h"
 #include "stratcontent.h"
 #include "separstr.h"
 #include "bufstringset.h"
+
+
+bool Strat::Content::getApearanceFrom( const char* str )
+{
+    FileMultiString fms( str );
+    if ( fms.size() < 3 )
+	return false;
+
+    pattype_ = toInt( fms[0] );
+    patopt_ = toInt( fms[1] );
+    color_.setStdStr( fms[2] );
+    return true;
+}
+
+
+void Strat::Content::putAppearanceTo( BufferString& str ) const
+{
+    FileMultiString fms;
+    fms += pattype_;
+    fms += patopt_;
+    fms += color_.getStdStr();
+    str = fms;
+}
 
 
 const Strat::Content& Strat::Content::unspecified()
