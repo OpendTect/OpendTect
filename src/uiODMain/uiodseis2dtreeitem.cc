@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.120 2012-09-07 22:08:04 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.121 2012-09-13 18:39:53 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -697,8 +697,8 @@ void uiOD2DLineSetSubItem::createMenu( MenuHandler* menu, bool istb )
 		    visserv_->getObject(displayid_))
     if ( !menu || menu->menuID() != displayID() || !s2d || istb ) return;
 
-    mAddMenuItem( menu, &linenmitm_, true, s2d->lineNameShown() );
-    mAddMenuItem( &displaymnuitem_, &positionitm_, true, false );
+    mAddMenuOrTBItem( istb, 0, menu, &linenmitm_, true, s2d->lineNameShown() );
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionitm_, true, false );
 }
 
 

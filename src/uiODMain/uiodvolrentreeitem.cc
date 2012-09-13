@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.72 2012-09-07 22:08:05 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodvolrentreeitem.cc,v 1.73 2012-09-13 18:39:54 cvsnanne Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -114,7 +114,12 @@ uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
     , selattrmnuitem_( uiODAttribTreeItem::sKeySelAttribMenuTxt(), 10000 )
     , colsettingsmnuitem_( uiODAttribTreeItem::sKeyColSettingsMenuTxt() )
     , savevolumemnuitem_( "Save volume file" )
-{ displayid_ = displayid; }
+{
+    statisticsmnuitem_.iconfnm = "histogram";
+    amplspectrummnuitem_.iconfnm = "amplspectrum";
+    positionmnuitem_.iconfnm = "orientation64";
+    displayid_ = displayid;
+}
 
 
 uiODVolrenTreeItem::~uiODVolrenTreeItem()
@@ -176,38 +181,46 @@ uiODDataTreeItem* uiODVolrenTreeItem::createAttribItem(
 void uiODVolrenTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() || istb ) return;
+    if ( !menu || menu->menuID()!=displayID() ) return;
 
     const bool islocked = visserv_->isLocked( displayID() );
-    selattrmnuitem_.removeItems();
-    uiODAttribTreeItem::createSelMenu( selattrmnuitem_, displayID(),
-	    				0, sceneID() );
-    if ( selattrmnuitem_.nrItems() )
-	mAddMenuItem( menu, &selattrmnuitem_, !islocked, false );
+    if ( !istb )
+    {
+	selattrmnuitem_.removeItems();
+	uiODAttribTreeItem::createSelMenu( selattrmnuitem_, displayID(),
+	    				    0, sceneID() );
+	if ( selattrmnuitem_.nrItems() )
+	    mAddMenuItem( menu, &selattrmnuitem_, !islocked, false );
+    }
 
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec* as = visserv_->getSelSpec( displayID(), 0 );
     if ( attrserv->getIOObj(*as) )
-	mAddMenuItem( menu, &colsettingsmnuitem_, true, false );
+	mAddMenuOrTBItem( istb, 0, menu, &colsettingsmnuitem_, true, false );
 
-    mAddMenuItem( menu, &displaymnuitem_, true, false );
-    mAddMenuItem( &displaymnuitem_, &addmnuitem_, true, false );
-    mAddMenuItem( &addmnuitem_, &addlinlslicemnuitem_, true, false );
-    mAddMenuItem( &addmnuitem_, &addlcrlslicemnuitem_, true, false );
-    mAddMenuItem( &addmnuitem_, &addltimeslicemnuitem_, true, false );
-    mAddMenuItem( &addmnuitem_, &addvolumemnuitem_, !hasVolume(), false );
-    mAddMenuItem( &addmnuitem_, &addisosurfacemnuitem_, true, false );
-    mAddMenuItem( &displaymnuitem_, &amplspectrummnuitem_, true, false );
-    mAddMenuItem( &displaymnuitem_, &statisticsmnuitem_, true, false );
-    mAddMenuItem( &displaymnuitem_, &positionmnuitem_, !islocked, false );
+    if ( !istb )
+    {
+	mAddMenuItem( menu, &displaymnuitem_, true, false );
+	mAddMenuItem( &displaymnuitem_, &addmnuitem_, true, false );
+	mAddMenuItem( &addmnuitem_, &addlinlslicemnuitem_, true, false );
+	mAddMenuItem( &addmnuitem_, &addlcrlslicemnuitem_, true, false );
+	mAddMenuItem( &addmnuitem_, &addltimeslicemnuitem_, true, false );
+	mAddMenuItem( &addmnuitem_, &addvolumemnuitem_, !hasVolume(), false );
+	mAddMenuItem( &addmnuitem_, &addisosurfacemnuitem_, true, false );
+    }
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrummnuitem_,
+		      true, false );
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &statisticsmnuitem_,
+		      true, false );
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionmnuitem_,
+		      !islocked, false );
 
     bool yn = false;
     Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), yn ); 
     if ( yn )
-	mAddMenuItem( menu, &savevolumemnuitem_, true, false )
+	mAddMenuOrTBItem( istb, 0, menu, &savevolumemnuitem_, true, false )
     else
 	mResetMenuItem( &savevolumemnuitem_ );
-
 }
 
 
