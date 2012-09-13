@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.39 2012-08-23 05:44:06 cvsnageswara Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.40 2012-09-13 12:43:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,11 @@ public:
     virtual void	setPenStyle(const LineStyle&,bool colwithalpha=false);
     virtual void	setPenColor(const Color&,bool withalpha=false);
     virtual void	setFillColor(const Color&,bool withalpha=false);
+
+    virtual void	setFillPattern(int type=0,int opt=0);
+    static void		getFillPatternTypes(BufferStringSet&);
+    			//!< use index for setFillPattern and getFillPatternOpts
+    static void		getFillPatternOpts(int type,BufferStringSet&);
 
     void		setCursor(const MouseCursor&);
 

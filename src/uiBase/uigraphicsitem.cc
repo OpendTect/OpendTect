@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.42 2012-09-06 19:08:16 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.43 2012-09-13 12:43:01 cvsbert Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -15,6 +15,7 @@ static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.42 2012-09-06 
 
 #include "uicursor.h"
 #include "uimain.h"
+#include "bufstringset.h"
 
 #include "draw.h"
 
@@ -25,7 +26,47 @@ static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.42 2012-09-06 
 #include <QPen>
 #include <QTransform>
 
+static const int cNoFillType = 0;
+static const int cDotsFillType = 1;
+static const int cLinesFillType = 2;
+
 mUseQtnamespace
+
+
+void uiGraphicsItem::getFillPatternTypes( BufferStringSet& res )
+{
+    res.add( "No Fill" );
+    res.add( "Dots" );
+    res.add( "Lines" );
+}
+
+
+void uiGraphicsItem::getFillPatternOpts( int fp, BufferStringSet& res )
+{
+    res.setEmpty();
+    if ( fp == cDotsFillType )
+    {
+	res.add( "Uniform color" );
+	res.add( "Extremely dense" );
+	res.add( "Very dense" );
+	res.add( "Somewhat dense" );
+	res.add( "Half dense" );
+	res.add( "Somewhat sparse" );
+	res.add( "Very sparse" );
+	res.add( "Extremely sparse" );
+    }
+    else if ( fp == cLinesFillType )
+    {
+	res.add( "Horizontal lines" );
+	res.add( "Vertical lines" );
+	res.add( "Crossing horizontal and vertical lines" );
+	res.add( "Backward diagonal lines" );
+	res.add( "Forward diagonal lines" );
+	res.add( "Crossing diagonal lines" );
+    }
+    // else none
+}
+
 
 uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
     : qgraphicsitem_(itm)
@@ -35,7 +76,8 @@ uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
     , translation_( 0, 0 )
     , scale_( 1, 1 )
     , angle_( 0 )
-{}
+{
+}
 
 
 uiGraphicsItem::~uiGraphicsItem()
@@ -224,9 +266,40 @@ void uiGraphicsItem::setFillColor( const Color& col, bool withalpha )
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
-    QColor color = QColor(QRgb(col.rgb()));
+    QColor color = QColor( QRgb(col.rgb()) );
     if ( withalpha ) color.setAlpha( 255 - col.t() );
-    QBrush qbrush( color );
+
+    /* TODO: why doesn't this work?
+	mQtclass(QBrush) qbrush = agsitm->brush();
+	qbrush.setColor( color );
+    */
+
+    // instead: hack
+    mQtclass(QBrush) qbrush( color );
+
+    agsitm->setBrush( qbrush );
+}
+
+
+void uiGraphicsItem::setFillPattern( int typ, int opt )
+{
+    mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
+    if ( !agsitm ) return;
+
+    mQtclass(QBrush) qbrush = agsitm->brush();
+    mQtclass(Qt::BrushStyle) qbs = Qt::NoBrush;
+    if ( typ == cDotsFillType )
+    {
+	if ( opt < 0 || opt > 7 ) opt = 0;
+	qbs = (Qt::BrushStyle)(((int)Qt::SolidPattern)+opt);
+    }
+    else if ( typ == cLinesFillType )
+    {
+	if ( opt < 0 || opt > 8 ) opt = 0;
+	qbs = (Qt::BrushStyle)(((int)Qt::HorPattern)+opt);
+    }
+
+    qbrush.setStyle( qbs );
     agsitm->setBrush( qbrush );
 }
 
