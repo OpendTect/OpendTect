@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodplanedatatreeitem.cc,v 1.71 2012-09-07 22:08:04 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodplanedatatreeitem.cc,v 1.72 2012-09-13 18:42:25 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -50,7 +50,6 @@ static uiODPlaneDataTreeItem::Type getType( int mnuid )
 	case 0: return uiODPlaneDataTreeItem::Empty; break;
 	case 1: return uiODPlaneDataTreeItem::Default; break;
 	case 2: return uiODPlaneDataTreeItem::RGBA; break;
-	case 3: return uiODPlaneDataTreeItem::FromWell; break;
 	default: return uiODPlaneDataTreeItem::Empty;
     }
 }
@@ -62,11 +61,26 @@ static uiODPlaneDataTreeItem::Type getType( int mnuid )
     mnu.insertItem( new uiMenuItem("Add &default data"), 1 ); \
     mnu.insertItem( new uiMenuItem("Add &color blended"), 2 ); \
     if ( fromwell ) \
-	mnu.insertItem( new uiMenuItem("Add at Well location..."), 3 ); \
+	mnu.insertItem( new uiMenuItem("Add at Well location ..."), 3 ); \
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
-    if ( mnuid==0 || mnuid==1 || mnuid==2 || mnuid==3 ) \
+    if ( mnuid==0 || mnuid==1 || mnuid==2 ) \
         addChild( new treeitm(-1,getType(mnuid)), false ); \
+    else if ( mnuid==3 ) \
+    { \
+    	ObjectSet<MultiID> wellids; \
+	if ( !applMgr()->wellServer()->selectWells(wellids) ) \
+	    return true; \
+	for ( int idx=0; idx<wellids.size(); idx++ ) \
+	{ \
+	    Well::Data* wd = Well::MGR().get( *wellids[idx] ); \
+	    if ( !wd ) continue; \
+	    treeitm* itm = new treeitm( -1, getType(0) ); \
+	    addChild( itm, false ); \
+	    itm->setAtWellLocation( *wd ); \
+	    itm->displayDefaultData(); \
+	} \
+    } \
     handleStandardItems( mnuid ); \
     return true
 
@@ -130,28 +144,6 @@ bool uiODPlaneDataTreeItem::init()
 		pdd->setResolution( idx, 0 );
 	}
 
-	if ( type_ == FromWell )
-	{
-	    ObjectSet<MultiID> wellids;
-	    if ( applMgr()->wellServer()->selectWells(wellids) )
-	    {
-		Well::Data* wd = Well::MGR().get( *wellids[0] );
-		if ( wd )
-		{
-		    const Coord surfacecoord = wd->info().surfacecoord;
-		    const BinID bid = SI().transform( surfacecoord );
-		    CubeSampling cs = pdd->getCubeSampling();
-		    if ( orient_ == Inline )
-			cs.hrg.setInlRange( Interval<int>(bid.inl,bid.inl) );
-		    else
-			cs.hrg.setCrlRange( Interval<int>(bid.crl,bid.crl) );
-
-		    pdd->setCubeSampling( cs );
-		    displayDefaultData();
-		}
-	    }
-	}
-
 	if ( type_ == Default )
 	    displayDefaultData();
     }
@@ -169,6 +161,25 @@ bool uiODPlaneDataTreeItem::init()
 	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     return uiODDisplayTreeItem::init();
+}
+
+
+void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
+{
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv_->getObject(displayid_));
+    if ( !pdd ) return;
+
+    const Coord surfacecoord = wd.info().surfacecoord;
+    const BinID bid = SI().transform( surfacecoord );
+    CubeSampling cs = pdd->getCubeSampling();
+    if ( orient_ == Inline )
+	cs.hrg.setInlRange( Interval<int>(bid.inl,bid.inl) );
+    else
+	cs.hrg.setCrlRange( Interval<int>(bid.crl,bid.crl) );
+
+    pdd->setCubeSampling( cs );
+    select();
 }
 
 
@@ -228,7 +239,10 @@ bool uiODPlaneDataTreeItem::displayDefaultData()
     Attrib::SelSpec as( 0, descid, false, "" );
     as.setRefFromID( *ads );
     visserv_->setSelSpec( displayid_, 0, as );
-    return visserv_->calculateAttrib( displayid_, 0, false );
+    const bool res = visserv_->calculateAttrib( displayid_, 0, false );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+    return res;
 }
 
 
