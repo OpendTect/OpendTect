@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.35 2012-08-23 11:19:10 cvsnageswara Exp $
+ RCS:           $Id: iodrawtool.h,v 1.36 2012-09-13 11:27:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class uiFont;
 class ioPixmap;
+class BufferStringSet;
 mFDQtclass(QPainter)
 mFDQtclass(QPaintDevice)
 mFDQtclass(QPen)
@@ -48,11 +49,11 @@ public:
     void		setLineStyle(const LineStyle&);
     void		setPenColor(const Color&);
     void		setFillColor(const Color&);
+    void		setFillPattern(int type=0,int opt=0);
     void		setPenWidth(unsigned int);
     void		setFont(const uiFont&);
     LineStyle		lineStyle() const;
     const uiFont*	font()			{ return font_; }
-
     void		drawText(int x,int y,const char*,const Alignment&);
     void		drawText(const uiPoint& p,const char*,const Alignment&);
     			/*! Alignment = Start, Middle or Stop (see draw.h)
@@ -103,6 +104,9 @@ public:
 
     int 		getDevHeight() const;
     int 		getDevWidth() const;
+
+    static void		getFillPatternTypes(BufferStringSet&);
+    static void		getFillPatternOpts(int,BufferStringSet&);
 
     virtual		~ioDrawTool(); 
 

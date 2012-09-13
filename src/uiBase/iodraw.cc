@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: iodraw.cc,v 1.58 2012-08-23 11:09:26 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: iodraw.cc,v 1.59 2012-09-13 11:27:32 cvsbert Exp $";
 
 #include "iodrawtool.h"
 #include "iodrawimpl.h"
@@ -15,6 +15,7 @@ static const char* rcsID mUnusedVar = "$Id: iodraw.cc,v 1.58 2012-08-23 11:09:26
 #include "color.h"
 #include "draw.h"
 #include "errh.h"
+#include "bufstringset.h"
 #include "pixmap.h"
 #include "uifont.h"
 
@@ -24,6 +25,45 @@ static const char* rcsID mUnusedVar = "$Id: iodraw.cc,v 1.58 2012-08-23 11:09:26
 #include <QPolygon>
 
 #include <math.h>
+
+static const int cNoFillType = 0;
+static const int cDotsFillType = 1;
+static const int cLinesFillType = 2;
+
+
+void ioDrawTool::getFillPatternTypes( BufferStringSet& res )
+{
+    res.add( "No Fill" );
+    res.add( "Dots" );
+    res.add( "Lines" );
+}
+
+
+void ioDrawTool::getFillPatternOpts( int fp, BufferStringSet& res )
+{
+    res.setEmpty();
+    if ( fp == cDotsFillType )
+    {
+	res.add( "Uniform color" );
+	res.add( "Extremely dense" );
+	res.add( "Very dense" );
+	res.add( "Somewhat dense" );
+	res.add( "Half dense" );
+	res.add( "Somewhat sparse" );
+	res.add( "Very sparse" );
+	res.add( "Extremely sparse" );
+    }
+    else if ( fp == cLinesFillType )
+    {
+	res.add( "Horizontal lines" );
+	res.add( "Vertical lines" );
+	res.add( "Crossing horizontal and vertical lines" );
+	res.add( "Backward diagonal lines" );
+	res.add( "Forward diagonal lines" );
+	res.add( "Crossing diagonal lines" );
+    }
+    // else none
+}
 
 
 ioDrawTool::ioDrawTool( mQtclass(QPaintDevice*) pd )
@@ -498,7 +538,32 @@ void ioDrawTool::setPenColor( const Color& colr )
 void ioDrawTool::setFillColor( const Color& colr )
 { 
     preparePainter();
-    qpainter_->setBrush(mQtclass(QColor)( mQtclass(QRgb)(colr.rgb()) ) );
+    mQtclass(QBrush) qbrush = qpainter_->brush();
+    const mQtclass(QRgb) qrgb( colr.rgb() );
+    qbrush.setColor( qrgb );
+    qpainter_->setBrush( qbrush );
+}
+
+
+void ioDrawTool::setFillPattern( int typ, int opt )
+{
+    preparePainter();
+    mQtclass(QBrush) qbrush = qpainter_->brush();
+
+    Qt::BrushStyle qbs = Qt::NoBrush;
+    if ( typ == cDotsFillType )
+    {
+	if ( opt < 0 || opt > 7 ) opt = 0;
+	qbs = (Qt::BrushStyle)(((int)Qt::SolidPattern)+opt);
+    }
+    else if ( typ == cLinesFillType )
+    {
+	if ( opt < 0 || opt > 8 ) opt = 0;
+	qbs = (Qt::BrushStyle)(((int)Qt::HorPattern)+opt);
+    }
+
+    qbrush.setStyle( qbs );
+    qpainter_->setBrush( qbrush );
 }
 
 
