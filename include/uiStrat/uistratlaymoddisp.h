@@ -7,15 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.20 2012-09-13 09:32:19 cvshelene Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.21 2012-09-13 14:37:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uistratmod.h"
 #include "uigroup.h"
+class PropertyRef;
 class uiStratLayModEditTools;
-namespace Strat { class LayerModel; }
+namespace Strat { class LayerModel; class Layer; }
 
 
 /*!\brief Strat: Layer Model Displayer
@@ -45,6 +46,9 @@ public:
     bool		isFluidReplOn() const		{ return fluidreplon_; }
     void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
     void		setFRPars( const IOPar& pars )	{ frpars_ = pars; }
+
+    float		getLayerPropValue(const Strat::Layer&,
+	    				  const PropertyRef*,int) const;
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;

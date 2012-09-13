@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.36 2012-09-13 14:35:11 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.37 2012-09-13 14:37:37 cvshelene Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
@@ -33,6 +33,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , zoomwr_(mUdf(double),0,0,0)
     , selseqidx_(-1)
     , flattened_(false)
+    , fluidreplon_(false)
     , zrg_(0,1)
     , sequenceSelected(this)
     , genNewModelNeeded(this)
@@ -69,6 +70,41 @@ bool uiStratLayerModelDisp::haveAnyZoom() const
     const int nrseqs = lm_.size();
     uiWorldRect wr( 1, zrg_.start, nrseqs + 1, zrg_.stop );
     return zoomwr_.isInside( wr, 1e-5 );
+}
+
+
+float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
+						const PropertyRef* pr,
+       						int propidx ) const
+{
+    if ( propidx < lay.nrValues() )
+    {
+	if ( isFluidReplOn() )
+	{
+	    const int nrunits = frpars_.size() / 2;
+	    BufferString namestr;
+	    if ( pr->isKnownAs("PVel") || pr->isKnownAs("SVel")
+		    		       || pr->isKnownAs("Den") )
+	    {
+		float vp, vs, den;
+		for ( int idx=0; idx<nrunits; idx++ )
+		{
+		    frpars_.get( IOPar::compKey(toString(idx),sKey::Name()),
+			    	 namestr );
+		    if ( !strcmp( namestr.buf(), lay.name() ) )
+		    {
+			frpars_.get(IOPar::compKey(toString(idx),sKey::Value()),
+				    vp, vs, den );
+			return pr->isKnownAs("PVel")
+				    ? vp : pr->isKnownAs("SVel") ? vs : den;
+		    }
+		}
+	    }
+	}
+	return lay.value( propidx );
+    }
+
+    return mUdf(float);
 }
 
 
@@ -344,8 +380,8 @@ void uiStratSimpleLayerModelDisp::modelChanged()
 	    const Strat::Layer& lay = *seq.layers()[ilay]; \
 	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth; \
 	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth; \
-	    const float val = dispprop_ < lay.nrValues() \
-	    		? lay.value( dispprop_ ) : mUdf(float);
+	    const float val = \
+	       getLayerPropValue(lay,seq.propertyRefs()[dispprop_],dispprop_); \
 
 #define mEndLayLoop() \
 	} \
