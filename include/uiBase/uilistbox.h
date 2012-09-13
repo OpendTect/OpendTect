@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.70 2012-08-30 15:10:27 cvsbruno Exp $
+ RCS:           $Id: uilistbox.h,v 1.71 2012-09-13 18:55:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,7 @@ public:
 
     void		setEmpty();
     void		removeItem(int);
+    void		removeItem(const char*);
     void		setAllowDuplicates(bool yn);
     void		addItem(const char*,bool marked=false,int id=-1);
     void		addItem(const char*,const ioPixmap&,int id=-1);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.132 2012-08-30 15:10:27 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uilistbox.cc,v 1.133 2012-09-13 18:55:39 cvsnanne Exp $";
 
 #include "uilistbox.h"
 
@@ -72,6 +72,9 @@ public:
     void		removeAll();
     void		removeItem( int idx )
 			{
+			    if ( !items_.validIdx(idx) )
+				return;
+
 			    items_.remove( idx );
 			    delete takeItem(idx);
 			}
@@ -559,6 +562,10 @@ void uiListBox::sortItems( bool asc )
     if ( !cur.isEmpty() )
 	setCurrentItem( cur );
 }
+
+
+void uiListBox::removeItem( const char* txt )
+{ removeItem( indexOf(txt) ); }
 
 
 void uiListBox::removeItem( int idx )
