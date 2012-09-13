@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.19 2012-09-11 11:02:11 cvsbert Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.20 2012-09-13 09:32:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,9 @@ public:
     virtual uiBaseObject* getViewer() { return 0; }
     bool		isFlattened() const		{ return flattened_; }
     void		setFlattened(bool yn);
+    bool		isFluidReplOn() const		{ return fluidreplon_; }
+    void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
+    void		setFRPars( const IOPar& pars )	{ frpars_ = pars; }
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
@@ -55,8 +58,10 @@ protected:
     uiWorldRect		zoomwr_;
     int			selseqidx_;
     bool		flattened_;
+    bool		fluidreplon_;
     Interval<float>	zrg_;
     TypeSet<float>	lvldpths_;
+    IOPar		frpars_;
 
     bool		haveAnyZoom() const;
     virtual void	drawSelectedSequence()		= 0;
