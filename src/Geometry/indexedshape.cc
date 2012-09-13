@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.18 2012-09-11 07:30:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.19 2012-09-13 14:30:46 cvskris Exp $";
 
 #include "indexedshape.h"
 
@@ -17,8 +17,8 @@ namespace Geometry
 PtrMan<PrimitiveSetCreator> PrimitiveSetCreator::creator_ = 0;
     
     
-DefineEnumNames(PrimitiveSet, PrimitiveType, 1, "PrimitiveType" )
-{ "Points", "Lines", "Triangles", "Strips", "Fans", 0 };
+DefineEnumNames(PrimitiveSet, PrimitiveType, 5, "PrimitiveType" )
+{ "Points", "Lines", "Triangles", "LineStrips", "TriangleStrips", "Fans", 0 };
     
     
     

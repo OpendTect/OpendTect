@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.42 2012-09-13 12:47:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.43 2012-09-13 14:30:46 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -627,6 +627,8 @@ public:
 		return GL_LINES;
 	    case Geometry::PrimitiveSet::Points:
 		return GL_POINTS;
+	    case Geometry::PrimitiveSet::LineStrips:
+		return GL_LINE_STRIP;
 	    default:
 		break;
 	}
@@ -667,7 +669,8 @@ public:
     			    : element_( new T ) {}
     
 			mImplOsgFuncs
-    
+    virtual void	setEmpty()
+    			{ element_->erase(element_->begin(), element_->end() ); }
     virtual void	append( int ) {}
     virtual int		pop() { return 0; }
     virtual int		size() const { return 0; }
@@ -726,6 +729,7 @@ public:
 class CoinIndexedPrimitiveSet : public Geometry::IndexedPrimitiveSet
 {
 public:
+    virtual void	setEmpty() { indices_.erase(); }
     virtual void	append( int index ) { indices_ += index; }
     virtual int		pop()
     			{

@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.24 2012-09-11 08:11:38 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.25 2012-09-13 14:30:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,8 @@ namespace Geometry
 mClass(Geometry) PrimitiveSet
 { mRefCountImplNoDestructor(PrimitiveSet);
 public:
-    enum 	PrimitiveType{Points,Lines,Triangles,TriangleStrip,TriangleFan};
+    enum 	PrimitiveType{Points,Lines,Triangles,
+			      LineStrips,TriangleStrip,TriangleFan};
 		DeclareEnumUtils(PrimitiveType);
     
     
@@ -53,6 +54,7 @@ public:
 				/*!<Set large if you will have larger indices
 				    than 65535 */
     
+    virtual void		setEmpty()			= 0;
     virtual void		append( int )			= 0;
     virtual int			pop()				= 0;
     virtual int			set(int,int) 			= 0;
