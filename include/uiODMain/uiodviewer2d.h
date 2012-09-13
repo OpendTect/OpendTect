@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.32 2012-08-03 13:01:04 cvskris Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.33 2012-09-13 18:57:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,13 +23,15 @@ class uiMainWin;
 class uiODMain;
 class uiODVw2DTreeTop;
 class uiSlicePos2DView;
-class uiTreeFactorySet;
 class uiToolBar;
+class uiTreeFactorySet;
+class MouseCursorExchange;
 class Vw2DDataManager;
 
 namespace Attrib { class SelSpec; }
+namespace FlatView { class AuxData; }
 
-/*!\brief Manages the 2D Viewers
+/*!\brief A 2D Viewer
 */
 
 mClass(uiODMain) uiODViewer2D : public CallBacker
@@ -40,6 +42,7 @@ public:
 
     virtual void		setUpView(DataPack::ID,bool wva);
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
+    void			setMouseCursorExchange(MouseCursorExchange*);
 
     uiFlatViewWin* 		viewwin() 		{ return  viewwin_; }
     const uiFlatViewWin* 	viewwin() const		{ return  viewwin_; }
@@ -93,12 +96,14 @@ protected:
     uiTreeFactorySet*		tifs_;
     uiODVw2DTreeTop*		treetp_;
     uiFlatViewWin*		viewwin_;
+    MouseCursorExchange*	mousecursorexchange_;
+    FlatView::AuxData*		marker_;
 
     MultiID			linesetid_;
     CubeSampling		cs_;
 
     int				polyseltbid_;
-    bool			isPolySelect_;
+    bool			ispolyselect_;
 
     virtual void		createViewWin(bool isvert);
     virtual void		createTree(uiMainWin*);
@@ -114,6 +119,8 @@ protected:
     void			selectionMode(CallBacker*);
     void			handleToolClick(CallBacker*);
     void			removeSelected(CallBacker*);
+    void			mouseCursorCB(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
 };
 
 #endif

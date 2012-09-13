@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.cc,v 1.12 2012-07-10 13:27:27 cvsbruno Exp $
+ RCS:		$Id: uiodviewer2dmgr.cc,v 1.13 2012-09-13 18:57:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,7 @@ uiODViewer2D& uiODViewer2DMgr::addViewer2D( int visid )
     if ( s2d )
 	vwr->setLineSetID(  s2d->lineSetID() );
 
+    vwr->setMouseCursorExchange( &appl_.applMgr().mouseCursorExchange() );
     viewers2d_ += vwr;
     return *vwr;
 }
