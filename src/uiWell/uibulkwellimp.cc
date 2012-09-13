@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibulkwellimp.cc,v 1.3 2012-08-10 03:50:08 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibulkwellimp.cc,v 1.4 2012-09-13 19:03:48 cvsnanne Exp $";
 
 
 #include "uibulkwellimp.h"
@@ -60,8 +60,6 @@ static Table::FormatDesc* getDesc()
 
 bool getData( BufferString& wellnm, Coord3& crd, float md, BufferString& uwi )
 {
-    if ( !getHdrVals(strm_) ) return false;
-
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
