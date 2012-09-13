@@ -8,12 +8,12 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistopbotimage.cc,v 1.10 2012-09-05 13:38:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vistopbotimage.cc,v 1.11 2012-09-13 14:31:57 cvskris Exp $";
 
 
 #include "vistopbotimage.h"
 #include "viscoord.h"
-#include "visfaceset.h"
+#include "vistristripset.h"
 #include "visimage.h"
 #include "vistransform.h"
 #include "vismaterial.h"
@@ -34,7 +34,7 @@ namespace visBase
 TopBotImage::TopBotImage()
     : VisualObjectImpl(true)
     , trans_(0)
-    , imgshape_( visBase::FaceSet::create() )
+    , imgshape_( visBase::TriangleStripSet::create() )
     , image_( visBase::Image::create() )
 {
     image_->ref();
@@ -42,6 +42,7 @@ TopBotImage::TopBotImage()
     addChild( image_->getInventorNode() );
 
     imgshape_->ref();
+    imgshape_->removeSwitch();
     imgshape_->setVertexOrdering(
 		visBase::VertexShape::cCounterClockWiseVertexOrdering() );
     if ( doOsg() )
@@ -55,6 +56,13 @@ TopBotImage::TopBotImage()
     texturecoords->setCoord( 1, Coord3(0,0,0) );
     texturecoords->setCoord( 2, Coord3(1,0,0) );
     texturecoords->setCoord( 3, Coord3(1,1,0) );
+    
+    RefMan<Geometry::IndexedPrimitiveSet> triangles =
+	Geometry::IndexedPrimitiveSet::create( false );
+    const int indices[] = { 3, 2, 0, 1 };
+    triangles->set( indices, 4 );
+    
+    imgshape_->addPrimitiveSet( triangles );
 }
 
 
@@ -84,12 +92,7 @@ void TopBotImage::updateCoords()
     facecoords->setPos( 1, trans_ ? trans_->transform(pos1_) : pos1_ ); 
     facecoords->setPos( 2, trans_ ? trans_->transform(pos2_) : pos2_ );
     facecoords->setPos( 3, trans_ ? trans_->transform(pos3_) : pos3_ );
-  
-    imgshape_->setCoordIndex( 0, 3 );
-    imgshape_->setCoordIndex( 1, 2 );
-    imgshape_->setCoordIndex( 2, 1 );
-    imgshape_->setCoordIndex( 3, 0 );
-    imgshape_->setCoordIndex( 4,-1 );
+    imgshape_->dirtyCoordinates();
 }
 
 

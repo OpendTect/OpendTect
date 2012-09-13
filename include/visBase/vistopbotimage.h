@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Ranojay Sen
  Date:		June 2009
- RCS:		$Id: vistopbotimage.h,v 1.5 2012-08-03 13:01:27 cvskris Exp $
+ RCS:		$Id: vistopbotimage.h,v 1.6 2012-09-13 14:31:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 namespace visBase
 {
 
-class FaceSet;
+class TriangleStripSet;
 class Image;
 
 mClass(visBase) TopBotImage : public VisualObjectImpl
@@ -48,7 +48,7 @@ protected:
 
     void			updateCoords();
 
-    FaceSet*			imgshape_;
+    TriangleStripSet*		imgshape_;
     Image*			image_;
     const mVisTrans*		trans_;
     Coord3			pos0_;
