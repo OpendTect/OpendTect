@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.43 2012-08-30 12:38:14 cvskris Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.44 2012-09-13 18:36:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,8 +122,9 @@ public:
     void		setPenColor(const Color&,bool withalpha=false);
     void		setLine(const uiPoint& start,const uiPoint& end,
 	    			bool abspos=true);
+    void		setLine(int x1,int y1,int x2,int y2,bool abspos=true);
     void		setLine(float x1,float y1,float x2,float y2,
-				bool =true);
+				bool abspos=true);
     void		setLine(const Geom::Point2D<float>&,
 				const Geom::Point2D<float>&,bool abspos=true);
     void		setStartPos(const uiPoint&,bool abspos);

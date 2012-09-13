@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobj.cc,v 1.110 2012-09-05 07:28:26 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobj.cc,v 1.111 2012-09-13 18:36:29 cvsnanne Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -465,6 +465,9 @@ void uiObject::setPrefWidth( int w )
     { mBody()->setPrefWidth(w); }
 
 
+void uiObject::setPrefWidthInChar( int w )
+    { mBody()->setPrefWidthInChar( (float)w ); }
+
 void uiObject::setPrefWidthInChar( float w )
      { mBody()->setPrefWidthInChar(w); }
 
@@ -486,14 +489,14 @@ int uiObject::prefVNrPics() const
 void uiObject::setPrefHeight( int h )
     { mBody()->setPrefHeight(h); }
 
+void uiObject::setPrefHeightInChar( int h )
+    { mBody()->setPrefHeightInChar( (float)h ); }
 
 void uiObject::setPrefHeightInChar( float h )
      {mBody()->setPrefHeightInChar(h);}
 
-
 void uiObject::setStretch( int hor, int ver )
      {mBody()->setStretch(hor,ver); }
-
 
 void uiObject::attach ( constraintType tp, int margin )
     { mBody()->attach(tp, (uiObject*)0, margin); }

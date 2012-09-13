@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID mUnusedVar = "$Id: uifingerprintattrib.cc,v 1.79 2012-06-20 18:14:17 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifingerprintattrib.cc,v 1.80 2012-09-13 18:36:28 cvsnanne Exp $";
 
 -*/
 
@@ -153,8 +153,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 					.rowgrow(true)
 					.minrowhgt(1.5)
 					.maxrowhgt(1.8)
-					.mincolwdt(3*uiObject::baseFldSize())
-					.maxcolwdt(4*uiObject::baseFldSize())
+					.mincolwdt(3.f*uiObject::baseFldSize())
+					.maxcolwdt(4.f*uiObject::baseFldSize())
 					.defrowlbl("")
 					.fillcol(true)
 					.fillrow(true) 

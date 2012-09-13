@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uinotsaveddlg.cc,v 1.7 2012-05-02 15:12:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uinotsaveddlg.cc,v 1.8 2012-09-13 18:36:29 cvsnanne Exp $";
 
 #include "uinotsaveddlg.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID mUnusedVar = "$Id: uinotsaveddlg.cc,v 1.7 2012-05-02 15
 #include "threadwork.h"
 
 
-struct NotSavedPrompterData
+class NotSavedPrompterData
 {
 public:
     NotSavedPrompterData(const char* str,const CallBack& cb,bool issaveas,

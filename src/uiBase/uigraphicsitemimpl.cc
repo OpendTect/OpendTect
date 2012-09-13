@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsitemimpl.cc,v 1.64 2012-08-23 08:44:51 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsitemimpl.cc,v 1.65 2012-09-13 18:36:28 cvsnanne Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -217,16 +217,14 @@ QGraphicsItem* uiLineItem::mkQtObj()
 
 
 void uiLineItem::setLine( const uiPoint& start, const uiPoint& end, bool abs )
-{
-    setLine( start.x, start.y, end.x, end.y, abs );
-}
-
+{ setLine( start.x, start.y, end.x, end.y, abs ); }
 
 void uiLineItem::setLine( const Geom::Point2D<float>& start,
 			  const Geom::Point2D<float>& end, bool abs )
-{
-    setLine( start.x, start.y, end.x, end.y, abs );
-}
+{ setLine( start.x, start.y, end.x, end.y, abs ); }
+
+void uiLineItem::setLine( int x1, int y1, int x2, int y2, bool abs )
+{ setLine( (float)x1, (float)y1, (float)x2, (float)y2, abs ); }
 
 
 void uiLineItem::setLine( float x1, float y1, float x2, float y2, bool abs )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.29 2012-08-10 03:50:07 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiobjectitemviewwin.cc,v 1.30 2012-09-13 18:36:29 cvsnanne Exp $";
 
 #include "uiobjectitemviewwin.h"
 
@@ -191,7 +191,7 @@ void uiObjectItemViewWin::scaleVal( float& val, bool hor, bool yn )
 
 void uiObjectItemViewWin::reSizeItems()
 {
-    const float nritems = mainviewer_->nrItems();
+    const int nritems = mainviewer_->nrItems();
     if ( !nritems ) return;
 
     scaleVal( hslval_, true, true ); 
@@ -323,15 +323,15 @@ void uiObjectItemViewWin::rubBandCB( CallBacker* )
     const uiRect* selrect = mainviewer_->getSelectedArea();
     if ( !selrect || selrect->width() < mMinSelWidth ) return;
 
-    const float selwidth = selrect->width();
-    const float selheight = selrect->height();
+    const int selwidth = selrect->width();
+    const int selheight = selrect->height();
 
     const uiRect viewrect = mainviewer_->getViewArea();
-    const float viewwidth = viewrect.width(); 
-    const float viewheight = viewrect.height(); 
+    const int viewwidth = viewrect.width(); 
+    const int viewheight = viewrect.height(); 
 
-    const float xfac = viewwidth/selwidth;
-    const float yfac = viewheight/selheight;
+    const float xfac = float(viewwidth)/selwidth;
+    const float yfac = float(viewheight)/selheight;
 
     zoomratiofld_->setChecked(false);
 

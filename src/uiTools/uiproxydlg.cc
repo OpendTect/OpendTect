@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiproxydlg.cc,v 1.5 2012-07-24 14:53:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiproxydlg.cc,v 1.6 2012-09-13 18:36:29 cvsnanne Exp $";
 
 
 #include "uiproxydlg.h"
@@ -47,7 +47,7 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
     pwdfld_ = new uiLineEdit( this, "Password" );
     pwdfld_->setToolTip( "Password is case sensitive" );
     pwdfld_->attach( alignedBelow, usernamefld_ );
-    pwdfld_->setPrefWidthInChar( 23.0 );
+    pwdfld_->setPrefWidthInChar( 23 );
     pwdfld_->setPasswordMode();
     pwdlabel_ = new uiLabel( this, "Password" );
     pwdlabel_->attach( leftOf, pwdfld_ );

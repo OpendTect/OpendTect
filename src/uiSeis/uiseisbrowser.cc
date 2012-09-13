@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.71 2012-08-13 09:36:57 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.72 2012-09-13 18:36:29 cvsnanne Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -374,7 +374,7 @@ void uiSeisBrowser::fillUdf( SeisTrc& trc )
 }
 
 
-static const char* getZValStr( float z, const float zfac )
+static const char* getZValStr( float z, int zfac )
 {
     static BufferString txt;
     float dispz = zfac * z * 10;
@@ -388,7 +388,7 @@ static const char* getZValStr( float z, const float zfac )
 void uiSeisBrowser::fillTable()
 {
     const CBVSInfo& info = tr_->readMgr()->info();
-    const float zfac = zdomdef_->userFactor();
+    const int zfac = zdomdef_->userFactor();
     const char* zunstr = zdomdef_->unitStr(false);
     for ( int idx=0; idx<info.nrsamples_; idx++ )
     {
@@ -904,7 +904,7 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 	    { amplrg.stop = v; peakzs.stop = trc.info().samplePos(isamp); }
     }
 
-    const float zfac = zdomdef_.userFactor();
+    const int zfac = zdomdef_.userFactor();
     minamplfld_->setValue( amplrg.start );
     minamplatfld_->setText( getZValStr(peakzs.start,zfac) );
     maxamplfld_->setValue( amplrg.stop );

@@ -38,8 +38,9 @@ namespace WellTie
     class Setup;
     class PickSetMgr;
 
-mStruct(WellAttrib) DispParams
+mClass(WellAttrib) DispParams
 {
+public:
 			    DispParams()
 			    : ismarkerdisp_(true)
 			    , isvwrmarkerdisp_(true)
@@ -65,8 +66,9 @@ mStruct(WellAttrib) DispParams
 };
 
 
-mStruct(WellAttrib) Marker
+mClass(WellAttrib) Marker
 {
+public:
 			    Marker(float z)
 				: zpos_(z)
 				, size_(2)  

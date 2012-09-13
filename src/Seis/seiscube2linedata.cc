@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiscube2linedata.cc,v 1.9 2012-07-09 15:09:00 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiscube2linedata.cc,v 1.10 2012-09-13 18:36:28 cvsnanne Exp $";
 
 #include "seiscube2linedata.h"
 #include "seisread.h"
@@ -18,8 +18,9 @@ static const char* rcsID mUnusedVar = "$Id: seiscube2linedata.cc,v 1.9 2012-07-0
 #include "ioobj.h"
 
 
-struct Cube2LineDataLineKeyProvider : public LineKeyProvider
+class Cube2LineDataLineKeyProvider : public LineKeyProvider
 {
+public:
 Cube2LineDataLineKeyProvider( SeisCube2LineDataExtracter& lde ) : lde_(lde) {}
 
 LineKey lineKey() const

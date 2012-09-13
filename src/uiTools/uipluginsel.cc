@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipluginsel.cc,v 1.20 2012-08-10 03:50:07 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: uipluginsel.cc,v 1.21 2012-09-13 18:36:29 cvsnanne Exp $";
 
 #include "uipluginsel.h"
 #include "uibutton.h"
@@ -83,7 +83,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
 	cb->setChecked( dontloadlist.indexOf( dispnm )==-1 );
 	cbs_ += cb;
 	if ( colnr != nrcols - 1 )
-	    cb->setPrefWidthInChar( maxlen+5 );
+	    cb->setPrefWidthInChar( maxlen+5.f );
 	if ( idx == 0 ) continue;
 
 	if ( rownr == 0 )

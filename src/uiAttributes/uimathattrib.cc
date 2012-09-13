@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimathattrib.cc,v 1.45 2012-08-10 04:11:26 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimathattrib.cc,v 1.46 2012-09-13 18:36:28 cvsnanne Exp $";
 
 
 #include "uimathattrib.h"
@@ -46,7 +46,7 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 
     xtable_ = new uiTable( this,uiTable::Setup().minrowhgt(1.5)
 					.maxrowhgt(2)
-					.mincolwdt(3*uiObject::baseFldSize())
+					.mincolwdt(3.f*uiObject::baseFldSize())
 					.maxcolwdt(3.5f*uiObject::baseFldSize())
 					.defrowlbl("")
 					.fillcol(true)
@@ -63,7 +63,7 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 
     ctable_ = new uiTable( this,uiTable::Setup().minrowhgt(1)
 					.maxrowhgt(1.2)
-					.mincolwdt(uiObject::baseFldSize())
+					.mincolwdt(1.f*uiObject::baseFldSize())
 					.maxcolwdt(1.5f*uiObject::baseFldSize())
 					.defrowlbl("")
 					.fillcol(true)

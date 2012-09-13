@@ -4,7 +4,7 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackanglemute.cc,v 1.24 2012-08-10 04:11:24 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: prestackanglemute.cc,v 1.25 2012-09-13 18:36:28 cvsnanne Exp $";
 
 #include "prestackanglemute.h"
 
@@ -169,7 +169,7 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 			(cutoffsin-prevsin)/(sini-prevsin);
 		}
 		else
-		    mutelayer = il;
+		    mutelayer = (float)il;
 		break;
 	    }
 
@@ -197,7 +197,7 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 			(cutoffsin-prevsin)/(sini-prevsin);
 		}
 		else
-		    mutelayer = il;
+		    mutelayer = (float)il;
 		break;
 	    }
 

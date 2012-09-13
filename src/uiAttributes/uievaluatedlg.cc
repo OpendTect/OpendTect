@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uievaluatedlg.cc,v 1.35 2012-07-31 08:52:30 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uievaluatedlg.cc,v 1.36 2012-09-13 18:36:28 cvsnanne Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -111,7 +111,7 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
     if ( gatepar )
     {
 	initspec = new FloatInpIntervalSpec( gatepar->getValue() );
-	const float zfac = SI().zIsTime() ? 1000 : 1;
+	const float zfac = SI().zIsTime() ? 1000.f : 1.f;
 	const float step = SI().zStep() * zfac;
 	incrspec = new FloatInpIntervalSpec( Interval<float>(-step,step) );
     }

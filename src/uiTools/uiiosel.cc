@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiiosel.cc,v 1.72 2012-05-25 13:18:21 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiiosel.cc,v 1.73 2012-09-13 18:36:29 cvsnanne Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -395,7 +395,7 @@ void uiIOSelect::setLabelText( const char* s )
 {
     if ( lbl_ )
     {
-	lbl_->setPrefWidthInChar( strlen(s)+1 );
+	lbl_->setPrefWidthInChar( int(strlen(s)+1) );
 	return lbl_->setText( s );
     }
     else if ( optbox_ )

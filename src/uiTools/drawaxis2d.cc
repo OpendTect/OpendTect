@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: drawaxis2d.cc,v 1.43 2012-08-23 21:46:42 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: drawaxis2d.cc,v 1.44 2012-09-13 18:36:29 cvsnanne Exp $";
 
 #include "drawaxis2d.h"
 
@@ -153,9 +153,8 @@ void uiGraphicsSceneAxis::update()
     {
 	mGetItem( uiLineItem, line, line );
 		
-	Geom::Point2D<float> start( axisrg.start, baseline );
-	Geom::Point2D<float> stop( axisrg.stop, baseline );
-	
+	uiPoint start( axisrg.start, baseline );
+	uiPoint stop( axisrg.stop, baseline );
 	if ( !isx_ )
 	{
 	    start.swapXY();
@@ -164,7 +163,6 @@ void uiGraphicsSceneAxis::update()
 	
 	line->setLine( start, stop, false );
 	line->setPenStyle( ls_ );
-	
     }
     
     Alignment al;

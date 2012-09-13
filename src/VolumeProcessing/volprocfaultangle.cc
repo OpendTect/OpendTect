@@ -4,7 +4,7 @@
  *Date:		Aug 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocfaultangle.cc,v 1.5 2012-08-29 17:18:18 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id: volprocfaultangle.cc,v 1.6 2012-09-13 18:36:28 cvsnanne Exp $";
 
 #include "volprocfaultangle.h"
 
@@ -72,7 +72,7 @@ bool FaultAngle::computeBinID( const BinID& bid, int )
     
 	    const bool* bina  = data->getData();
     	    for ( int idx=0; idx<sz; idx++ )
-    		result[idx] = bina[idx] ? 1 : 0;
+    		result[idx] = bina[idx] ? 1.f : 0.f;
 	}
     }
 
