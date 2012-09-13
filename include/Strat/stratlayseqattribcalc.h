@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2011
- RCS:		$Id: stratlayseqattribcalc.h,v 1.6 2012-08-03 13:00:43 cvskris Exp $
+ RCS:		$Id: stratlayseqattribcalc.h,v 1.7 2012-09-13 13:59:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,8 @@ public:
     od_int64		totalNr() const		{ return calcs_.size(); }
     int			nextStep();
 
+    static const char*	sKeyModelIdx()		{ return "Model Index"; }
+
 protected:
 
     const LayerModel&		lm_;
@@ -81,6 +83,7 @@ protected:
     od_int64			seqidx_;
     TypeSet<int>		dpscidxs_;
     int				dpsdepthcidx_;
+    int				dpsmodnrcidx_;
     DataPointSet&		dps_;
     BufferString		msg_;
     float			calczwdth_;

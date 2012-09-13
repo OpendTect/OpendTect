@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratseqattrib.cc,v 1.14 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratseqattrib.cc,v 1.15 2012-09-13 13:59:09 cvsbert Exp $";
 
 #include "stratlayseqattrib.h"
 #include "stratlayseqattribcalc.h"
@@ -328,6 +328,7 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
     , seqidx_(0)
     , msg_("Extracting layer attributes")
     , calczwdth_(SI().zRange(false).step / 2)
+    , dpsmodnrcidx_(-1)
 {
     if ( SI().zIsTime() )
 	calczwdth_ *= 2000;
@@ -347,6 +348,8 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
 	calcs_ += calc;
 	dpscidxs_ += dpsidx;
     }
+
+    dpsmodnrcidx_ = dps_.indexOf( sKeyModelIdx() );
 }
 
 
@@ -385,6 +388,10 @@ int Strat::LayModAttribCalc::nextStep()
 	    const float val = calcs_[idx]->getValue( seq, zrg );
 	    dpsvals[ dpscidxs_[idx] ] = val;
 	}
+
+	if ( dpsmodnrcidx_ >= 0 )
+	    dpsvals[ dpsmodnrcidx_ ] = seqidx_ + 1;
+
 	dpsrid++;
     }
 
