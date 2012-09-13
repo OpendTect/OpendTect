@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.63 2012-08-29 11:06:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.64 2012-09-13 13:20:45 cvsbert Exp $";
 
 #include "mathproperty.h"
 #include "propertyref.h"
@@ -18,6 +18,8 @@ static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.63 2012-08-29 11:06:
 
 static const PropertyRef depthpropref( "Depth", PropertyRef::Dist );
 static const ValueProperty depthprop( depthpropref, 0 );
+static const PropertyRef xpospropref( "XPos", PropertyRef::Volum );
+static const ValueProperty xposprop( xpospropref, 0 );
 
 
 const char* Property::name() const
@@ -309,6 +311,8 @@ const Property* MathProperty::findInput( const PropertySet& ps, const char* nm,
     if ( !nm || !*nm || caseInsensitiveEqual(nm,"depth")
 	    	     || caseInsensitiveEqual(nm,"z") )
 	return &depthprop;
+    else if ( caseInsensitiveEqual(nm,"xpos") )
+	return &xposprop;
 
     BufferString reqnm( nm ); ensureGoodVariableName( reqnm.buf() );
     const Property* ret = 0;
@@ -472,7 +476,13 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
     {
 	const Property* p = inps_[idx];
 	if ( !p ) return mUdf(float);
-	const float v = p == &depthprop ? eo.curz_ : p->value(eo);
+	float v = eo.curz_;
+	if ( p == &xposprop )
+	    v = eo.relpos_;
+	else if ( p != &depthprop )
+	    v = p->value( eo );
+	else if ( SI().depthsInFeetByDefault() )
+	    v *= mToFeetFactorF;
 	expr_->setVariableValue( getMathVarIdx(*expr_,idx,true), v );
     }
 
