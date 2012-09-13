@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewslicepos.cc,v 1.11 2012-05-02 15:12:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiflatviewslicepos.cc,v 1.12 2012-09-13 19:00:48 cvsnanne Exp $";
 
 #include "uiflatviewslicepos.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID mUnusedVar = "$Id: uiflatviewslicepos.cc,v 1.11 2012-05
 uiSlicePos2DView::uiSlicePos2DView( uiParent* p )
     : uiSlicePos( p )
 {
+    zfactor_ = SI().zDomain().userFactor();
 }
 
 
