@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodrandlinetreeitem.h,v 1.18 2012-08-03 13:01:04 cvskris Exp $
+ RCS:		$Id: uiodrandlinetreeitem.h,v 1.19 2012-09-13 18:41:09 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ class IOObj;
 class uiRandomLinePolyLineDlg;
 
 mDefineItem( RandomLineParent, TreeItem, TreeTop, mShowMenu \
-    bool load(const IOObj&); \
+    bool load(const IOObj&,int); \
     const IOObj* selRandomLine(); \
     void genRandLine(int); \
     void genRandLineFromWell();\
@@ -48,7 +48,8 @@ public:
 mClass(uiODMain) uiODRandomLineTreeItem : public uiODDisplayTreeItem
 {
 public:
-    			uiODRandomLineTreeItem( int );
+    enum Type		{ Default, Empty, RGBA };
+    			uiODRandomLineTreeItem(int displayid,Type tp=Empty);
     bool		init();
 
 protected:
@@ -68,8 +69,8 @@ protected:
     MenuItem		saveasmnuitem_;
     MenuItem		saveas2dmnuitem_;
     MenuItem		create2dgridmnuitem_;
+    Type		type_;
 };
 
 
 #endif
-

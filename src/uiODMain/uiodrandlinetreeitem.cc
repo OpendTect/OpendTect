@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodrandlinetreeitem.cc,v 1.54 2012-08-10 04:11:27 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiodrandlinetreeitem.cc,v 1.55 2012-09-13 18:41:09 cvsnanne Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -42,6 +42,7 @@ static const char* rcsID mUnusedVar = "$Id: uiodrandlinetreeitem.cc,v 1.54 2012-
 #include "uiwellrdmlinedlg.h"
 #include "uiseispartserv.h"
 #include "visrandomtrackdisplay.h"
+#include "visrgbatexturechannel2rgba.h"
 
 
 class uiRandomLinePolyLineDlg : public uiDialog
@@ -119,8 +120,15 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Add Empty"), 0 );
-    mnu.insertItem( new uiMenuItem("&Add Stored ..."), 7 );
+    mnu.insertItem( new uiMenuItem("Add &Empty"), 0 );
+    mnu.insertItem( new uiMenuItem("Add &Stored ..."), 7 );
+
+    uiPopupMenu* rgbmnu =
+	new uiPopupMenu( getUiParent(), "Add &Color blended" );
+    rgbmnu->insertItem( new uiMenuItem("&Empty"), 8 );
+    rgbmnu->insertItem( new uiMenuItem("&Stored ..."), 9 );
+    mnu.insertItem( rgbmnu );
+
     uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "&New" );
     newmnu->insertItem( new uiMenuItem("&Interactive  ..."), 6 );
     newmnu->insertItem( new uiMenuItem("Along &Contours ..."), 2 );
@@ -132,8 +140,11 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
 
-    if ( mnuid == 0 )
+    if ( mnuid==0 )
 	addChild( new uiODRandomLineTreeItem(-1), false );
+    else if ( mnuid==8 )
+	addChild( new uiODRandomLineTreeItem(-1,uiODRandomLineTreeItem::RGBA),
+		  false );
     if ( mnuid>=1 && mnuid<4 )
 	genRandLine( mnuid-1 );
     else if ( mnuid == 4 )
@@ -142,11 +153,15 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 	genRandLineFromTable();
     else if ( mnuid == 6 )
 	genRandomLineFromPickPolygon();
-    else if ( mnuid == 7 )
+    else if ( mnuid==7 || mnuid==9 )
     {
 	const IOObj* ioobj = selRandomLine();
 	if ( ioobj )
-	    load( *ioobj );
+	{
+	    uiODRandomLineTreeItem::Type tp = mnuid==7
+		? uiODRandomLineTreeItem::Empty : uiODRandomLineTreeItem::RGBA;
+	    load( *ioobj, (int)tp );
+	}
     }
 
     handleStandardItems( mnuid );
@@ -163,7 +178,7 @@ const IOObj* uiODRandomLineParentTreeItem::selRandomLine()
 }
 
 
-bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj )
+bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int tp )
 {
     Geometry::RandomLineSet lset;
     BufferString errmsg;
@@ -198,7 +213,8 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj )
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     for ( int idx=0; idx<selitms.size(); idx++ )
     {
-	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
+	uiODRandomLineTreeItem* itm =
+	    new uiODRandomLineTreeItem( -1, (uiODRandomLineTreeItem::Type)tp );
 	addChild( itm, false );
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
@@ -215,6 +231,7 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj )
 	rtd->setName( rlnm );
 	rtd->lockGeometry( lockgeom );
     }
+
     updateColumnText( uiODSceneMgr::cNameColumn() );
     return true;
 }
@@ -226,7 +243,7 @@ void uiODRandomLineParentTreeItem::genRandLine( int opt )
     if ( multiid && applMgr()->EMServer()->dispLineOnCreation() )
     {
 	PtrMan<IOObj> ioobj = IOM().get( multiid );
-	load( *ioobj );
+	load( *ioobj, (int)uiODRandomLineTreeItem::Empty );
     }
 }
 
@@ -307,7 +324,7 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
     if ( multiid && applMgr()->wellServer()->dispLineOnCreation() )
     {
 	PtrMan<IOObj> ioobj = IOM().get( multiid );
-	load( *ioobj );
+	load( *ioobj, (int)uiODRandomLineTreeItem::Empty );
     }
 
     applMgr()->wellServer()->randLineDlgClosed.remove(
@@ -315,8 +332,9 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 }
 
 
-uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
-    : editnodesmnuitem_("&Edit nodes ...")
+uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
+    : type_(tp)
+    , editnodesmnuitem_("&Edit nodes ...")
     , insertnodemnuitem_("&Insert node")
     , saveasmnuitem_("&Save As ...")
     , saveas2dmnuitem_("Save As &2D ...")
@@ -334,6 +352,14 @@ bool uiODRandomLineTreeItem::init()
     if ( displayid_==-1 )
     {
 	rtd = visSurvey::RandomTrackDisplay::create();
+	if ( type_ == RGBA )
+	{
+	    rtd->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
+	    rtd->addAttrib();
+	    rtd->addAttrib();
+	    rtd->addAttrib();
+	}
+
 	displayid_ = rtd->id();
 	visserv_->addObject( rtd, sceneID(), true );
     }
