@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.101 2012-07-10 08:05:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.102 2012-09-13 19:03:10 cvsnanne Exp $";
 
 
 #include "uisurfaceman.h"
@@ -32,6 +32,7 @@ static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.101 2012-07-10 0
 
 #include "uibodyoperatordlg.h"
 #include "uibodyregiondlg.h"
+#include "uicolor.h"
 #include "uiimpbodycaldlg.h"
 #include "uigeninputdlg.h"
 #include "uihorizonmergedlg.h"
@@ -467,6 +468,7 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     tbl_->setColumnResizeMode( uiTable::ResizeToContents );
     tbl_->setColumnStretchable( 2, true );
     tbl_->setPrefWidth( 400 );
+    tbl_->doubleClicked.notify( mCB(this,uiSurfaceStratDlg,doCol) );
 
     uiToolButton* sb = new uiToolButton( this, "man_strat",
 	    				"Edit Stratigraphy to define Markers",
@@ -479,6 +481,7 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
 	par.setEmpty();
 	EM::EMM().readPars( *ids[idx], par );
 	tbl_->setText( RowCol(idx,0), EM::EMM().objectName(*ids[idx]) );
+
 	Color col( Color::White() );
 	par.get( sKey::Color(), col );
 	tbl_->setColor( RowCol(idx,1), col );
@@ -496,8 +499,28 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
 protected:
 
 void doStrat( CallBacker* )
+{ StratTWin().popUp(); }
+
+void doCol( CallBacker* )
 {
-    StratTWin().popUp();
+    const RowCol& cell = tbl_->notifiedCell();
+    if ( cell.col != 1 )
+	return;
+
+    mDynamicCastGet(uiStratLevelSel*,levelsel,
+	tbl_->getCellGroup(RowCol(cell.row,2)))
+    const bool havelvl = levelsel && levelsel->getID() >= 0;
+    if ( havelvl )
+    {
+	uiMSG().error( "Cannot change color of regional marker" );
+	return;
+    }
+
+    Color newcol = tbl_->getColor( cell );
+    if ( selectColor(newcol,this,"Horizon color") )
+	tbl_->setColor( cell, newcol );
+
+    tbl_->setSelected( cell, false );
 }
 
 void lvlChg( CallBacker* cb )
