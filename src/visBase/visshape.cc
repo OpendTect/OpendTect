@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.41 2012-09-10 12:56:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visshape.cc,v 1.42 2012-09-13 12:47:42 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -379,6 +379,16 @@ void VertexShape::removeSwitch()
 }
     
     
+void VertexShape::dirtyCoordinates()
+{
+    if ( osggeom_ )
+    {
+	osggeom_->dirtyDisplayList();
+	osggeom_->dirtyBound();
+    }
+}
+
+    
 osg::Node* VertexShape::gtOsgNode()
 {
     return osgswitch_ ? (osg::Node*) osgswitch_ : (osg::Node*) geode_;
@@ -597,21 +607,66 @@ int IndexedShape::getClosestCoordIndex( const EventInfo& ei ) const
     return facedetail->getClosestIdx( getCoordinates(), ei.localpickedpos );
 }
     
+
+class OSGPrimitiveSet
+{
+public:
+    virtual osg::PrimitiveSet*	getPrimitiveSet()	= 0;
     
+    static GLenum	getGLEnum(Geometry::PrimitiveSet::PrimitiveType tp)
+    {
+	switch ( tp )
+	{
+	    case Geometry::PrimitiveSet::Triangles:
+		return GL_TRIANGLES;
+	    case Geometry::PrimitiveSet::TriangleFan:
+		return GL_TRIANGLE_FAN;
+	    case Geometry::PrimitiveSet::TriangleStrip:
+		return GL_TRIANGLE_STRIP;
+	    case Geometry::PrimitiveSet::Lines:
+		return GL_LINES;
+	    case Geometry::PrimitiveSet::Points:
+		return GL_POINTS;
+	    default:
+		break;
+	}
+	
+	return GL_POINTS;
+    }
+};
     
 void visBase::IndexedShape::addPrimitiveSet( Geometry::IndexedPrimitiveSet* p )
 {
+    p->setPrimitiveType( primitivetype_ );
+    if ( doOsg() )
+    {
+	mDynamicCastGet(OSGPrimitiveSet*, osgps, p );
+	osggeom_->addPrimitiveSet( osgps->getPrimitiveSet() );
+    }
+    
     primitivesets_ += p;
     updateFromPrimitives();
 }
     
+
+#define mImplOsgFuncs \
+osg::PrimitiveSet* getPrimitiveSet() { return element_.get(); } \
+void setPrimitiveType( Geometry::PrimitiveSet::PrimitiveType tp ) \
+{ \
+    Geometry::PrimitiveSet::setPrimitiveType( tp ); \
+    element_->setMode( getGLEnum( getPrimitiveType() )); \
+}
+
     
 template <class T>
-class OSGIndexedPrimitiveSet : public Geometry::IndexedPrimitiveSet
+class OSGIndexedPrimitiveSet : public Geometry::IndexedPrimitiveSet,
+			       public OSGPrimitiveSet
 {
 public:
 			OSGIndexedPrimitiveSet()
     			    : element_( new T ) {}
+    
+			mImplOsgFuncs
     
     virtual void	append( int ) {}
     virtual int		pop() { return 0; }
@@ -637,12 +692,15 @@ public:
 };
 
     
-class OSGRangePrimitiveSet : public Geometry::RangePrimitiveSet
+class OSGRangePrimitiveSet : public Geometry::RangePrimitiveSet,
+			     public OSGPrimitiveSet
 {
 public:
-    OSGRangePrimitiveSet()
-	: element_( new osg::DrawArrays )
-    {}
+			OSGRangePrimitiveSet()
+			    : element_( new osg::DrawArrays )
+			{}
+    
+			mImplOsgFuncs
     
     int			size() const 	   { return element_->getCount();}
     int			get(int idx) const { return element_->getFirst()+idx;}

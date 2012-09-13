@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.35 2012-09-06 10:24:22 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.36 2012-09-13 12:47:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,6 +155,9 @@ public:
     int			getShapeType() const;
     static int		cUnknownShapeType()			{ return 0; }
     static int		cSolidShapeType()			{ return 1; }
+    
+    
+    void		dirtyCoordinates();
 
 protected:
     			VertexShape( SoVertexShape* );
@@ -166,12 +169,12 @@ protected:
     Coordinates*	coords_;
     TextureCoords*	texturecoords_;
 
+    osg::Geode*		geode_;
+    osg::Geometry*	osggeom_;
+
 private:
     SoNormalBinding*	normalbinding_;
     SoShapeHints*	shapehints_;
-    
-    osg::Geode*		geode_;
-    osg::Geometry*	osggeom_;
 };
 
 #undef mDeclSetGetItem
