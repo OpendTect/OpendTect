@@ -7,11 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibuildlistfromlist.cc,v 1.9 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibuildlistfromlist.cc,v 1.10 2012-09-14 10:39:18 cvsbert Exp $";
 
 #include "uibuildlistfromlist.h"
+#include "uieditobjectlist.h"
 #include "uilistbox.h"
 #include "uitoolbutton.h"
+#include "uibuttongroup.h"
 #include "uilabel.h"
 #include "uimsg.h"
 
@@ -26,6 +28,80 @@ static void chckYPlural( BufferString& str )
 	*ptr = '\0';
 	str += "ies";
     }
+}
+
+uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
+				    bool movable, bool compact )
+    : uiGroup(p,"Object list build group")
+    , selectionChange(this)
+{
+    if ( !itmtyp ) itmtyp = "object";
+    BufferString listnm( "Defined ", itmtyp, "s" );
+    chckYPlural( listnm );
+    listfld_ = new uiListBox( this, listnm );
+    listfld_->doubleClicked.notify( mCB(this,uiEditObjectList,edCB) );
+    listfld_->deleteButtonPressed.notify( mCB(this,uiEditObjectList,rmCB) );
+    listfld_->selectionChanged.notify( mCB(this,uiEditObjectList,selChgCB) );
+
+    uiButtonGroup* bgrp = new uiButtonGroup( this );
+    if ( compact )
+    {
+#define mDefBut(txt,pm,cb,imm) \
+	new uiToolButton( bgrp, pm, txt, mCB(this,uiEditObjectList,cb) )
+	//-- Copy the following code exactly to the 'else' branch
+	//  (if you want to be purist, put it in a separate file and include it)
+	mDefBut( BufferString("&Add ",itmtyp), "addnew", addCB, false );
+	mDefBut( "&Edit properties", "edit", edCB, false );
+	mDefBut( BufferString("&Remove ",itmtyp), "trashcan", rmCB, true );
+	if ( movable )
+	{
+	    mDefBut( "Move &Up ", "uparrow", upCB, true );
+	    mDefBut( "Move &Down ", "downarrow", downCB, true );
+	}
+	//--
+    }
+    else
+    {
+	int butsz = strlen(itmtyp) + 8;
+	if ( butsz < 20 ) butsz = 20;
+#undef mDefBut
+#define mDefBut(txt,pm,cb,imm) \
+	(new uiPushButton( bgrp, txt, ioPixmap(pm), \
+			    mCB(this,uiEditObjectList,cb), imm )) \
+		->setPrefWidthInChar( butsz )
+
+	//-- Make sure this code is exactly a copy of above
+	mDefBut( BufferString("&Add ",itmtyp), "addnew", addCB, false );
+	mDefBut( "&Edit properties", "edit", edCB, false );
+	mDefBut( BufferString("&Remove ",itmtyp), "trashcan", rmCB, true );
+	if ( movable )
+	{
+	    mDefBut( "Move &Up ", "uparrow", upCB, true );
+	    mDefBut( "Move &Down ", "downarrow", downCB, true );
+	}
+	//--
+
+    }
+}
+
+
+int uiEditObjectList::currentItem() const
+{
+    return listfld_->currentItem();
+}
+
+
+void uiEditObjectList::setItems( const BufferStringSet& itms, int newcur )
+{
+    NotifyStopper ns( listfld_->selectionChanged );
+    const int newsz = itms.size();
+    if ( newcur < 0 ) newcur = currentItem();
+    if ( newcur < 0 ) newcur = 0;
+    if ( newcur > newsz ) newcur = newsz-1;
+    listfld_->setEmpty();
+    if ( newcur < 0 ) return;
+    listfld_->addItems( itms );
+    listfld_->setCurrentItem( newcur );
 }
 
 
