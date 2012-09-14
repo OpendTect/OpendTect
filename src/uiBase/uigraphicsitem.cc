@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.43 2012-09-13 12:43:01 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.44 2012-09-14 14:09:26 cvsnanne Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -269,14 +269,10 @@ void uiGraphicsItem::setFillColor( const Color& col, bool withalpha )
     QColor color = QColor( QRgb(col.rgb()) );
     if ( withalpha ) color.setAlpha( 255 - col.t() );
 
-    /* TODO: why doesn't this work?
-	mQtclass(QBrush) qbrush = agsitm->brush();
-	qbrush.setColor( color );
-    */
-
-    // instead: hack
-    mQtclass(QBrush) qbrush( color );
-
+    QBrush qbrush = agsitm->brush();
+    if ( qbrush.style() == Qt::NoBrush )
+	qbrush.setStyle( Qt::SolidPattern );
+    qbrush.setColor( color );
     agsitm->setBrush( qbrush );
 }
 
@@ -286,8 +282,8 @@ void uiGraphicsItem::setFillPattern( int typ, int opt )
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
-    mQtclass(QBrush) qbrush = agsitm->brush();
-    mQtclass(Qt::BrushStyle) qbs = Qt::NoBrush;
+    QBrush qbrush = agsitm->brush();
+    Qt::BrushStyle qbs = Qt::NoBrush;
     if ( typ == cDotsFillType )
     {
 	if ( opt < 0 || opt > 7 ) opt = 0;
