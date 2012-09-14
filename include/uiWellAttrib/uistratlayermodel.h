@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.34 2012-09-07 10:20:13 cvsbert Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.35 2012-09-14 14:05:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,8 +68,7 @@ public:
     static void			doLayerModel(const char* modnm);
 
     uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
-    void			displayFRResult( uiStratLayerModelDisp*,
-	   					 SyntheticData* );
+    void			displayFRResult( SyntheticData* );
 
     //Utility
     SyntheticData*		getCurrentSyntheticData() const;

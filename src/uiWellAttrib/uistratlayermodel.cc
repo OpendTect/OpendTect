@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.73 2012-09-11 11:02:11 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.74 2012-09-14 14:05:11 cvshelene Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -630,10 +630,11 @@ bool uiStratLayerModel::closeOK()
 }
 
 
-void uiStratLayerModel::displayFRResult( uiStratLayerModelDisp* slmoddisp,
-					 SyntheticData* synthdata )
+void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
 {
-    //TODO
+    synthdisp_->displaySynthetic( synthdata ? synthdata
+	    				: synthdisp_->getCurrentSyntheticData() );
+    moddisp_->modelChanged();
 }
 
 
