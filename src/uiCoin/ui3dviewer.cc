@@ -7,12 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.19 2012-07-23 14:13:38 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui3dviewer.cc,v 1.20 2012-09-14 21:33:36 cvskris Exp $";
 
 #include "ui3dviewer.h"
 
+#include "uicursor.h"
 #include "ui3dviewerbody.h"
 #include "ui3dindirectviewer.h"
+#include "uirgbarray.h"
 
 #include <osgQt/GraphicsWindowQt>
 #include <osgViewer/View>
@@ -87,7 +89,8 @@ class uiDirectViewBody : public ui3DViewerBody
 public:
 				uiDirectViewBody(ui3DViewer&,uiParent*);
 
-    const QWidget* 		qwidget_() const;
+    const mQtclass(QWidget)* 	qwidget_() const;
+    
 
     virtual uiSize		minimumSize() const 
     				{ return uiSize(200,200); }
@@ -145,7 +148,7 @@ const osg::Camera* ui3DViewerBody::getOsgCamera() const
 
 void ui3DViewerBody::reSizeEvent(CallBacker*)
 {
-    const QWidget* widget = qwidget_();
+    const mQtclass(QWidget)* widget = qwidget();
     if ( !widget )
 	return;
 
@@ -203,7 +206,7 @@ uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
 }
 
 
-const QWidget* uiDirectViewBody::qwidget_() const
+const mQtclass(QWidget)* uiDirectViewBody::qwidget_() const
 { return graphicswin_->getGLWidget(); }
 
 
@@ -230,9 +233,30 @@ bool ui3DViewerBody::isViewing() const
 }
 
 
+#define ROTATE_WIDTH 16
+#define ROTATE_HEIGHT 16
+#define ROTATE_BYTES ((ROTATE_WIDTH + 7) / 8) * ROTATE_HEIGHT
+#define ROTATE_HOT_X 6
+#define ROTATE_HOT_Y 8
+
+static unsigned char rotate_bitmap[ROTATE_BYTES] = {
+    0xf0, 0xef, 0x18, 0xb8, 0x0c, 0x90, 0xe4, 0x83,
+    0x34, 0x86, 0x1c, 0x83, 0x00, 0x81, 0x00, 0xff,
+    0xff, 0x00, 0x81, 0x00, 0xc1, 0x38, 0x61, 0x2c,
+    0xc1, 0x27, 0x09, 0x30, 0x1d, 0x18, 0xf7, 0x0f
+};
+
+static unsigned char rotate_mask_bitmap[ROTATE_BYTES] = {
+    0xf0,0xef,0xf8,0xff,0xfc,0xff,0xfc,0xff,0x3c,0xfe,0x1c,0xff,0x00,0xff,0x00,
+    0xff,0xff,0x00,0xff,0x00,0xff,0x38,0x7f,0x3c,0xff,0x3f,0xff,0x3f,0xff,0x1f,
+    0xf7,0x0f
+};
+
+
+
 void ui3DViewerBody::setViewing( bool yn )
 {
-    /*
+        /*
     SoQtExaminerViewer::setViewing( yn );
     handle_.viewmodechanged.trigger(handle_);
     updateActModeCursor();
@@ -244,6 +268,31 @@ void ui3DViewerBody::uisetViewing( bool yn )
 {
     if ( scene_ )
 	scene_->enableTraversal( visBase::EventTraversal, !yn );
+    
+    MouseCursor cursor;
+    if ( yn )
+    {
+	cursor.shape_ = MouseCursor::Bitmap;
+	
+	uiRGBArray* cursorimage = new uiRGBArray( true );
+	cursorimage->setSize( ROTATE_WIDTH, ROTATE_HEIGHT );
+	cursorimage->putFromBitmap( rotate_bitmap, rotate_mask_bitmap );
+	
+	cursor.image_ = cursorimage;
+	cursor.hotx_ = ROTATE_HOT_X;
+	cursor.hoty_ = ROTATE_HOT_Y;
+	
+    }
+    else
+    {
+	cursor.shape_ = MouseCursor::Arrow;
+    }
+    
+    mQtclass(QCursor) qcursor;
+    uiCursorManager::fillQCursor( cursor, qcursor );
+    qwidget()->setCursor( qcursor );
+
+
 //    SoQtExaminerViewer::setViewing( yn );
 }
 
@@ -272,7 +321,7 @@ void ui3DViewerBody::setSceneID( int sceneid )
 
 	mDynamicCastGet(osg::Camera*, osgcamera, camera_->osgNode() );
 	osgcamera->setGraphicsContext( getGraphicsContext() );
-	osgcamera->setClearColor( osg::Vec4(0.2, 0.2, 0.6, 1.0) );
+	osgcamera->setClearColor( osg::Vec4(0, 0, 0, 1.0) );
 	if ( viewport_ ) viewport_->unref();
 	viewport_ = new osg::Viewport(0, 0, 600, 400 );
 	viewport_->ref();
