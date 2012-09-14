@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: mousecursor.h,v 1.9 2012-08-03 13:00:24 cvskris Exp $
+ RCS:           $Id: mousecursor.h,v 1.10 2012-09-14 21:27:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,13 +16,15 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "ptrman.h"
 
+namespace OD { class RGBImage; }
+
 /*!Definition of a mouse cursor, can be either a predefined shape (from the
    enum, or a file. */
 
 mClass(General) MouseCursor
 {
 public:
-    virtual		~MouseCursor()					{}
+    virtual		~MouseCursor();
 		    /*! This enum type defines the various cursors that can be
 		        used.
 
@@ -57,13 +59,19 @@ public:
 			  Last = ClosedHand, Bitmap = 24, NotSet
 			};
 
-    			MouseCursor() : shape_(NotSet)			{}
-			MouseCursor( Shape s ) : shape_(s)		{}
+    			MouseCursor();
+			MouseCursor( Shape s );
+
     bool		operator==(const MouseCursor&) const;
     bool		operator!=(const MouseCursor&) const;
 
     Shape		shape_;
+
     BufferString	filename_;
+			//!<Only used if shape_==Bitmap
+    OD::RGBImage*	image_;
+			//!<Only used if shape_==Bitmap && filename_ is empty
+    
     int			hotx_;
     int			hoty_;
 };

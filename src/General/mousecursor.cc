@@ -4,9 +4,30 @@
  * DATE     : Mar 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: mousecursor.cc,v 1.7 2012-05-02 15:11:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: mousecursor.cc,v 1.8 2012-09-14 21:27:59 cvskris Exp $";
 
 #include "mousecursor.h"
+
+
+#include "odimage.h"
+
+MouseCursor::MouseCursor()
+    : shape_(NotSet)
+    , image_(0)
+    , hotx_( 0 )
+    , hoty_( 0 )
+{}
+
+
+MouseCursor::MouseCursor( Shape s )
+    : shape_(s)
+    , image_( 0 )
+    , hotx_( 0 )
+    , hoty_( 0 )
+{}
+
+MouseCursor::~MouseCursor()
+{ delete image_; }
 
 
 bool MouseCursor::operator==( const MouseCursor& mc ) const
