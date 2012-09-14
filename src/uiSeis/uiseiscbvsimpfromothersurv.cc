@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.21 2012-09-10 07:42:45 cvsranojay Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseiscbvsimpfromothersurv.cc,v 1.22 2012-09-14 16:47:47 cvsnanne Exp $";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
@@ -422,10 +422,11 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
     const Coord startcrd = trcs[0]->info().coord;
     const Coord nextcrlcrd = trcs[1]->info().coord;
     const Coord nextinlcrd = trcs[sz_]->info().coord;
-    const float xcrldist = (float) ( (nextcrlcrd.x-startcrd.x)/padfac_ );
-    const float ycrldist = (float) ( (nextcrlcrd.y-startcrd.y)/padfac_ );
-    const float xinldist = (float) ( (nextinlcrd.x-startcrd.x)/padfac_ );
-    const float yinldist = (float) ( (nextinlcrd.y-startcrd.y)/padfac_ );
+    const double xcrldist = (nextcrlcrd.x-startcrd.x)/padfac_;
+    const double ycrldist = (nextcrlcrd.y-startcrd.y)/padfac_;
+    const double xinldist = (nextinlcrd.x-startcrd.x)/padfac_;
+    const double yinldist = (nextinlcrd.y-startcrd.y)/padfac_;
+    const float amplfac = float(padfac_*padfac_);
 
     deepErase( trcs );
     for ( int idx=0; idx<newszx; idx ++ )
@@ -439,7 +440,6 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	    trcs += trc;
 	    for ( int idz=0; idz<szz_; idz++ )
 	    {
-		float amplfac = padfac_*padfac_;
 		if ( idz < trc->size() ) 
 		    trc->set( idz, padarr.get(idx,idy,idz).real()*amplfac, 0 );
 	    }
