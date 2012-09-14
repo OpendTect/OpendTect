@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibuildlistfromlist.cc,v 1.10 2012-09-14 10:39:18 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibuildlistfromlist.cc,v 1.11 2012-09-14 11:15:19 cvsbert Exp $";
 
 #include "uibuildlistfromlist.h"
 #include "uieditobjectlist.h"
@@ -43,11 +43,11 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
     listfld_->deleteButtonPressed.notify( mCB(this,uiEditObjectList,rmCB) );
     listfld_->selectionChanged.notify( mCB(this,uiEditObjectList,selChgCB) );
 
-    uiButtonGroup* bgrp = new uiButtonGroup( this );
+    bgrp_ = new uiButtonGroup( this );
     if ( compact )
     {
 #define mDefBut(txt,pm,cb,imm) \
-	new uiToolButton( bgrp, pm, txt, mCB(this,uiEditObjectList,cb) )
+	new uiToolButton( bgrp_, pm, txt, mCB(this,uiEditObjectList,cb) )
 	//-- Copy the following code exactly to the 'else' branch
 	//  (if you want to be purist, put it in a separate file and include it)
 	mDefBut( BufferString("&Add ",itmtyp), "addnew", addCB, false );
@@ -66,7 +66,7 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 	if ( butsz < 20 ) butsz = 20;
 #undef mDefBut
 #define mDefBut(txt,pm,cb,imm) \
-	(new uiPushButton( bgrp, txt, ioPixmap(pm), \
+	(new uiPushButton( bgrp_, txt, ioPixmap(pm), \
 			    mCB(this,uiEditObjectList,cb), imm )) \
 		->setPrefWidthInChar( butsz )
 
@@ -82,6 +82,7 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 	//--
 
     }
+    bgrp_->attach( rightOf, listfld_ );
 }
 
 
@@ -97,7 +98,7 @@ void uiEditObjectList::setItems( const BufferStringSet& itms, int newcur )
     const int newsz = itms.size();
     if ( newcur < 0 ) newcur = currentItem();
     if ( newcur < 0 ) newcur = 0;
-    if ( newcur > newsz ) newcur = newsz-1;
+    if ( newcur >= newsz ) newcur = newsz-1;
     listfld_->setEmpty();
     if ( newcur < 0 ) return;
     listfld_->addItems( itms );
