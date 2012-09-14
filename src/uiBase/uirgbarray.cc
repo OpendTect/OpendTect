@@ -7,9 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uirgbarray.cc,v 1.17 2012-08-30 07:52:52 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: uirgbarray.cc,v 1.18 2012-09-14 21:32:53 cvskris Exp $";
 
 #include "uirgbarray.h"
+
+#include "errh.h"
 
 #include <QImage>
 #include <QColor>
@@ -23,14 +25,17 @@ uiRGBArray::uiRGBArray( bool walpha )
 }
 
 
-uiRGBArray::uiRGBArray( const uiRGBArray& rgbarr )
+uiRGBArray::uiRGBArray( const OD::RGBImage& image )
 {
-    qimg_ = new mQtclass(QImage)( rgbarr.qImage() );
+    mDynamicCastGet( const uiRGBArray*, input, &image );
+    if ( !input )
+	pErrMsg( "Not supported. Go ahead and implement");
+    
+    qimg_ = new mQtclass(QImage)( input->qImage() );
     qimg_->detach();
 }
 
-
-uiRGBArray::~uiRGBArray() 
+uiRGBArray::~uiRGBArray()
 { 
     delete qimg_;
 }

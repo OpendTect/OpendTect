@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B. Bril & H. Huck
  Date:          08/09/06
- RCS:           $Id: uirgbarray.h,v 1.11 2012-08-30 05:49:34 cvsnageswara Exp $
+ RCS:           $Id: uirgbarray.h,v 1.12 2012-09-14 21:32:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ mClass(uiBase) uiRGBArray : public OD::RGBImage
 {
 public:
                         uiRGBArray(bool withalpha);
-			uiRGBArray(const uiRGBArray&);
+			uiRGBArray(const OD::RGBImage&);
     virtual		~uiRGBArray();
 
     char		nrComponents() const { return withalpha_ ? 4 : 3; }
