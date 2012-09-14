@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicursor.cc,v 1.20 2012-08-28 04:49:12 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicursor.cc,v 1.21 2012-09-14 21:31:42 cvskris Exp $";
 
 #include "uicursor.h"
 #include "pixmap.h"
+#include "uirgbarray.h"
 
 #include <QCursor>
 #include <QApplication>
@@ -40,8 +41,16 @@ void uiCursorManager::fillQCursor( const MouseCursor& mc,
 {
     if ( mc.shape_==MouseCursor::Bitmap )
     {
-	ioPixmap pixmap( mc.filename_ );
-	qcursor = mQtclass(QCursor)( *pixmap.qpixmap(), mc.hotx_, mc.hoty_ );
+	if ( !mc.filename_.isEmpty() )
+	{
+	    ioPixmap pixmap( mc.filename_ );
+	    qcursor = mQtclass(QCursor)( *pixmap.qpixmap(), mc.hotx_, mc.hoty_ );
+	}
+	else
+	{
+	    ioPixmap pixmap( uiRGBArray(*mc.image_)) ;
+	    qcursor = mQtclass(QCursor)( *pixmap.qpixmap(), mc.hotx_, mc.hoty_ );
+	}
     }
     else
     {
