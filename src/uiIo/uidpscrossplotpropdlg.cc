@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.42 2012-09-14 08:26:48 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.43 2012-09-14 10:24:51 cvsmahant Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -595,16 +595,10 @@ void computePts( bool isy2 )
 	    plotter_.setUserDefPolyLine( pts,isy2 );
 	}
 	else
-	{
 	    plotter_.setUserDefPolyLine( validpts,isy2 );
-	    vert.autoscalepars_.doautoscale_ = true;
-	}
     }
     else
-    {
 	plotter_.setUserDefPolyLine( pts,isy2 );
-	vert.autoscalepars_.doautoscale_ = true;
-    }   
 
     ( isy2 ? y2axrg_ : yaxrg_ ) = vert.axis_->range();
 }
