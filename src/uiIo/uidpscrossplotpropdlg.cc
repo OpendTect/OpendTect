@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.41 2012-09-14 06:54:48 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.42 2012-09-14 08:26:48 cvsmahant Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -129,7 +129,7 @@ bool acceptOK()
 	uiAxisData::AutoScalePars& asp = plotter_.autoScalePars( idx );
 	const bool doas = axflds.doclipfld_->getBoolValue();
 	if ( !doas )
-	    axh->setRange( axflds.rgfld_->getFStepInterval() );
+	    axh->setBounds( axflds.rgfld_->getFStepInterval() );
 	else
 	{
 	    float cr = axflds.percclipfld_->getfValue() * 0.01f;
@@ -576,15 +576,15 @@ void computePts( bool isy2 )
 	uiMSG().error( msg() );
 	return;
     }
-    
+
+    const bool& vertrgchgd = isy2 ? y2rgchgd_ : yrgchgd_;
+
     if ( !vert.axis_->range().includes(curvyvalrg) )
     {
 	msg_ = "Curve for Y";
 	msg_ += isy2 ? 2 : 1;
 	msg_ += " goes beyond the default range. ";
 	msg_ += "Do you want to rescale to see the complete curve?";
-
-	const bool& vertrgchgd = isy2 ? y2rgchgd_ : yrgchgd_;
 
 	if ( !vertrgchgd && uiMSG().askGoOn(msg_) )
 	{
@@ -595,11 +595,15 @@ void computePts( bool isy2 )
 	    plotter_.setUserDefPolyLine( pts,isy2 );
 	}
 	else
+	{
 	    plotter_.setUserDefPolyLine( validpts,isy2 );
+	    vert.autoscalepars_.doautoscale_ = true;
+	}
     }
     else
     {
 	plotter_.setUserDefPolyLine( pts,isy2 );
+	vert.autoscalepars_.doautoscale_ = true;
     }   
 
     ( isy2 ? y2axrg_ : yaxrg_ ) = vert.axis_->range();
