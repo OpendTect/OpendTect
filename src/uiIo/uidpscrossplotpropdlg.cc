@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.40 2012-09-11 06:12:27 cvsmahant Exp $";
+static const char* rcsID mUnusedVar = "$Id: uidpscrossplotpropdlg.cc,v 1.41 2012-09-14 06:54:48 cvsmahant Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -467,7 +467,7 @@ void drawPolyLines()
     }
     else if ( !exp1chgd_ )
     {
-	yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = false;
+	yax.needautoscale_ = false;
     }
     plotter_.setUserDefDrawType( shwy1,false );
 
@@ -486,7 +486,7 @@ void drawPolyLines()
 	}
 	else if ( !exp2chgd_ )
 	{   
-	    y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = false;
+	    y2ax.needautoscale_ = false;
 	}
 	plotter_.setUserDefDrawType( shwy2,true );
     }
@@ -653,7 +653,7 @@ bool acceptOK()
     
     if ( hasy2_ && shwy2userdefpolyline_->isChecked() )
 	parseExp( shwy2userdefpolyline_ );
-    
+
     drawPolyLines();
     return true;
 }
