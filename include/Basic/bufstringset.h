@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.26 2012-08-03 13:00:10 cvskris Exp $
+ RCS:		$Id: bufstringset.h,v 1.27 2012-09-16 12:12:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ public:
     void		sort(bool caseinsens=true,bool asc=true);
     int*		getSortIndexes(bool caseinsns=true,bool asc=true) const;
     			//!< returns new int [size()] for you to 'delete []'
+    			//!< does NOT sort!! you should do useIndexes afterwards
     void		useIndexes(const int*);
 
     virtual void	fillPar(IOPar&) const;
