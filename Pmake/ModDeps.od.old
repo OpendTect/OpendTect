@@ -1,0 +1,53 @@
+# $Id: ModDeps.od.old,v 1.1 2012/03/23 09:30:43 cvskris Exp $
+# Dependencies:
+#	S. == Source directories
+#	D. == Dependency
+
+Basic:			S.Basic
+Algo:			S.Algo D.Basic
+Database		S.Database D.Basic
+General:		S.General D.Algo
+Geometry:		S.Geometry D.General
+Strat:			S.Strat D.General
+Network:		S.Network D.General
+MMProc:			S.MMProc D.Network
+Usage:			S.Usage D.Network
+Well:			S.Well D.Strat
+MVA:			S.MVA D.General
+Batch:			S.Batch D.Network
+NLA:			S.NLA D.Geometry
+EarthModel:		S.EarthModel D.Geometry
+Seis:			S.Seis D.Geometry D.MMProc
+AttributeEngine:	S.AttributeEngine D.Seis D.NLA
+Velocity:		S.Velocity D.EarthModel D.AttributeEngine
+PreStackProcessing:	S.PreStackProcessing D.Velocity
+Attributes:    	 	S.Attributes D.PreStackProcessing 
+VolumeProcessing:	S.VolumeProcessing D.Velocity D.EarthModel D.PreStackProcessing
+WellAttrib:		S.WellAttrib D.Well D.Attributes
+EMAttrib:    		S.EMAttrib D.EarthModel D.Attributes
+MPEEngine:		S.MPEEngine D.EMAttrib
+AllNonUi:		S.AllNonUi D.MPEEngine D.WellAttrib D.VolumeProcessing
+SoOD:			S.SoOD
+visBase:		S.visBase D.Geometry D.SoOD
+visSurvey:		S.visSurvey D.visBase D.Well D.MPEEngine
+uiBase:			S.uiBase D.Network
+uiTools:		S.uiTools D.uiBase D.Usage
+uiFlatView:		S.uiFlatView D.uiTools
+uiIo:			S.uiIo D.uiFlatView D.Geometry D.MMProc
+uiSysAdm		S.uiSysAdm D.uiIo
+uiStrat:		S.uiStrat D.uiIo D.Strat
+uiCoin:			S.uiCoin D.uiTools D.visSurvey
+uiWell			S.uiWell D.uiIo D.Well D.uiStrat D.uiFlatView
+uiNLA:			S.uiNLA D.uiIo D.Seis D.Well D.NLA
+uiSeis:			S.uiSeis D.uiIo D.uiFlatView D.Seis D.EarthModel D.Velocity
+uiVelocity:		S.uiVelocity D.uiTools D.uiSeis D.Velocity
+uiPreStackProcessing:	S.uiPreStackProcessing D.uiSeis D.PreStackProcessing
+uiVolumeProcessing:	S.uiVolumeProcessing D.uiVelocity D.VolumeProcessing
+uiAttributes:		S.uiAttributes D.uiVolumeProcessing D.uiPreStackProcessing D.Attributes
+uiMPE:         		S.uiMPE D.MPEEngine D.uiAttributes
+uiWellAttrib   		S.uiWellAttrib D.uiAttributes D.uiWell D.WellAttrib
+uiVis:			S.uiVis D.uiMPE D.uiCoin D.visSurvey D.uiWell
+uiViewer2D:		S.uiViewer2D D.EarthModel D.AttributeEngine D.uiFlatView D.uiMPE
+uiEarthModel:		S.uiEarthModel D.uiIo D.EarthModel D.uiStrat
+uiEMAttrib:    		S.uiEMAttrib D.uiEarthModel D.uiAttributes D.EMAttrib
+uiODMain:      		S.uiODMain D.uiVelocity D.uiVis D.uiNLA D.uiWellAttrib D.uiEMAttrib D.uiMPE D.uiPreStackProcessing D.uiVolumeProcessing D.uiViewer2D

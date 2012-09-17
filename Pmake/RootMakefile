@@ -1,0 +1,19 @@
+#_______________________Pmake__________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile : 	Root Makefile. Link to $WORK or include it there.
+# 	March 1996	A.H. Bril
+#	RCS :		$Id: RootMakefile,v 1.4 2010/09/28 07:21:07 cvsbert Exp $
+#_______________________________________________________________________________
+
+ifndef MODS
+    MODS := .mods.od
+endif
+ALLMODS := $(shell cat src/$(MODS))
+
+PREMAKETARGET := chk_moddeps
+
+include make.Appli
+
+chk_moddeps :
+	@-cd Pmake; $(GNUMAKE) -j1 ; cd ..
