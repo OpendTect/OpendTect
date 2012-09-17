@@ -7,12 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vismaterial.cc,v 1.23 2012-05-02 15:12:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismaterial.cc,v 1.24 2012-09-17 16:33:43 cvskris Exp $";
 
 #include "vismaterial.h"
+#include "visosg.h"
 #include "iopar.h"
 
 #include <Inventor/nodes/SoMaterial.h>
+
+#include <osg/Material>
+#include <osg/Array>
 
 mCreateFactoryEntry( visBase::Material );
 
@@ -28,7 +32,9 @@ const char* Material::sKeyShininess()		{ return "Shininess"; }
 const char* Material::sKeyTransparency()	{ return "Transparency"; }
 
 Material::Material()
-    : material_( new SoMaterial )
+    : coinmaterial_( new SoMaterial )
+    , material_( new osg::Material )
+    , colorarray_( 0 )
     , ambience_( 0.8 )
     , specularintensity_( 0 )
     , emmissiveintensity_( 0 )
@@ -36,13 +42,19 @@ Material::Material()
     , change( this )
 {
     material_->ref();
+    coinmaterial_->ref();
     setMinNrOfMaterials(0);
     updateMaterial(0);
 }
 
 
 Material::~Material()
-{ material_->unref(); }
+{
+    material_->unref();
+    if ( colorarray_ ) colorarray_->unref();
+    coinmaterial_->unref();
+}
+    
 
 #define mSetProp( prop ) prop = mat.prop
 void Material::setFrom( const Material& mat )
@@ -133,24 +145,24 @@ void Material::updateMaterial(int idx)
 {
     if ( !idx )
     {
-	material_->ambientColor.set1Value( 0, color_[0].r() * ambience_/255,
+	coinmaterial_->ambientColor.set1Value( 0, color_[0].r() * ambience_/255,
 					     color_[0].g() * ambience_/255,
 					     color_[0].b() * ambience_/255 );
-	material_->specularColor.set1Value( 0,
+	coinmaterial_->specularColor.set1Value( 0,
 		    color_[0].r() * specularintensity_/255,
 		    color_[0].g() * specularintensity_/255,
 		    color_[0].b() * specularintensity_/255 );
 
-	material_->emissiveColor.set1Value( idx,
+	coinmaterial_->emissiveColor.set1Value( idx,
 		    color_[0].r() * emmissiveintensity_/255,
 		    color_[0].g() * emmissiveintensity_/255,
 		    color_[0].b() * emmissiveintensity_/255);
 
-	material_->shininess.set1Value(0, shininess_ );
+	coinmaterial_->shininess.set1Value(0, shininess_ );
     }
 
-    material_->transparency.set1Value( idx, transparency_[idx] );
-    material_->diffuseColor.set1Value( idx,
+    coinmaterial_->transparency.set1Value( idx, transparency_[idx] );
+    coinmaterial_->diffuseColor.set1Value( idx,
 		color_[idx].r() * diffuseintencity_[idx]/255,
 		color_[idx].g() * diffuseintencity_[idx]/255,
 		color_[idx].b() * diffuseintencity_[idx]/255 );
@@ -174,7 +186,7 @@ void Material::setMinNrOfMaterials(int minnr)
 }
 
 
-SoNode* Material::gtInvntrNode() { return material_; }
+SoNode* Material::gtInvntrNode() { return coinmaterial_; }
 
 
 int Material::usePar( const IOPar& iopar )
@@ -222,6 +234,28 @@ void Material::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     iopar.set( sKeyEmmissiveIntensity(), getEmmIntensity() );
     iopar.set( sKeyShininess(), getShininess() );
     iopar.set( sKeyTransparency(), getTransparency() );
+}
+    
+    
+const osg::Material* Material::getMaterial() const
+{ return material_; }
+    
+    
+const osg::Array* Material::getColorArray() const
+{
+    return colorarray_;
+}
+    
+
+void Material::createArray()
+{
+    if ( colorarray_ )
+	return;
+    
+    colorarray_ = new osg::Vec4Array;
+    colorarray_->ref();
+    mGetOsgVec4Arr(colorarray_)->
+        push_back( material_->getDiffuse( osg::Material::FRONT ) );
 }
 
 }; // namespace visBase
