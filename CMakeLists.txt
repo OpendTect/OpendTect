@@ -42,7 +42,7 @@ SET(OD_MODULES
 	NLA AttributeEngine Velocity
 	VolumeProcessing PreStackProcessing Attributes
 	EMAttrib MPEEngine Well WellAttrib
-	uiBase uiTools uiFlatView uiIo uiSysAdm
+	uiBase uiTools uiCmdDriver uiFlatView uiIo uiSysAdm
 	uiNLA uiSeis uiStrat uiEarthModel uiWell
 	uiVelocity uiVolumeProcessing uiPreStackProcessing
 	uiAttributes uiEMAttrib uiMPE uiViewer2D uiWellAttrib
