@@ -1,6 +1,7 @@
 #!/bin/csh -f
 
 set shallow=no
+set askdeep=no
 set doupd=yes
 set dodoc=no
 set nrcpus=1
@@ -15,6 +16,8 @@ endif
 parse_args:
 if ( "$1" == "--shallow" ) then
     set shallow=yes
+else if ( "$1" == "--askdeep" ) then
+    set askdeep=yes
 else if ( "$1" == "--noupd" ) then
     set doupd=no
 else if ( "$1" == "--doc" ) then
@@ -57,16 +60,6 @@ cdw
 set oddir=$WORK:t
 set dgbdir=`echo $oddir | sed 's/od/dgb/'`
 
-if ( $shallow == no ) then
-    cdw
-    echo "Cleaning $oddir ..."
-    make clean
-    cd ../$dgbdir;
-    echo "Cleaning $dgbdir ..."
-    make clean
-    cdw
-endif
-
 if ( $doupd == yes ) then
     cd ..
     echo "dvs update $oddir"
@@ -75,6 +68,26 @@ if ( $doupd == yes ) then
     echo "dvs update $dgbdir"
     sleep 2;
     cd ../$dgbdir; dvs update
+    cdw
+endif
+
+if ( $askdeep == yes ) then
+	echo ""; echo -n "->> Clean-up before proceed? "
+	set tmpansw=$<
+	if ( "$tmpansw" == "y" || "$tmpansw" == "Y" ) then
+	    set shallow=no
+	else
+	    set shallow=yes
+	endif
+endif
+
+if ( $shallow == no ) then
+    cdw
+    echo "Cleaning $oddir ..."
+    make clean
+    cd ../$dgbdir;
+    echo "Cleaning $dgbdir ..."
+    make clean
     cdw
 endif
 
