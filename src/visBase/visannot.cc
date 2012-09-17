@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visannot.cc,v 1.44 2012-05-02 15:12:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: visannot.cc,v 1.45 2012-09-17 16:34:32 cvskris Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -61,23 +61,25 @@ Annotation::Annotation()
 
     if ( doOsg() )
     {
-	 float pos[8][3] =
-	 {
+	float pos[8][3] =
+	{
 	     { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 1 }, { 0, 1, 0 },
 	     { 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 1 }, { 1, 1, 0 }
-	 };
+	};
 
-	 const osg::Vec3* ptr = (osg::Vec3*) pos;
-	 osg::ref_ptr<osg::Vec3Array> coords = new osg::Vec3Array( 8, ptr );
-	 osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
+	const osg::Vec3* ptr = (osg::Vec3*) pos;
+	osg::ref_ptr<osg::Vec3Array> coords = new osg::Vec3Array( 8, ptr );
+	osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
 
-	 geometry->setVertexArray( coords );
+	geometry->setVertexArray( coords );
 
-	 GLubyte indices[] = { 0, 1, 1, 2, 2, 3, 3, 0,
+	GLubyte indices[] = { 0, 1, 1, 2, 2, 3, 3, 0,
 	     		       4, 5, 5, 6, 6, 7, 7, 4,
 			       0, 4, 1, 5, 2, 6, 3, 7 };
-	 geometry->addPrimitiveSet(
+	geometry->addPrimitiveSet(
 		new osg::DrawElementsUByte( GL_LINES, 24, indices  ) );
+	
+	geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
 	geode_->addDrawable( geometry );
 	addChild( geode_ );
