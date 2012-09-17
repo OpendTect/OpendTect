@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F0F6D50F-C40A-4D65-AEAD-7D9C06800F41}</ProjectGuid>
+    <RootNamespace>Seis</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(WORK)\include\Basic;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Geometry;$(WORK)\include\Seis;$(WORK)\include\MMProc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;SEIS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(WORK)\include\Basic;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Geometry;$(WORK)\include\Seis;$(WORK)\include\MMProc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;SEIS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(WORK)\include\Basic;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Geometry;$(WORK)\include\Seis;$(WORK)\include\MMProc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;SEIS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(WORK)\include\Basic;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Geometry;$(WORK)\include\Seis;$(WORK)\include\MMProc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;SEIS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\Seis\initseis.cc" />
+    <ClCompile Include="..\..\src\Seis\offsetazimuth.cc" />
+    <ClCompile Include="..\..\src\Seis\segydirect.cc" />
+    <ClCompile Include="..\..\src\Seis\segydirecttr.cc" />
+    <ClCompile Include="..\..\src\Seis\segyfiledata.cc" />
+    <ClCompile Include="..\..\src\Seis\segyfiledef.cc" />
+    <ClCompile Include="..\..\src\Seis\segyhdr.cc" />
+    <ClCompile Include="..\..\src\Seis\segyhdrcalc.cc" />
+    <ClCompile Include="..\..\src\Seis\segyhdrdef.cc" />
+    <ClCompile Include="..\..\src\Seis\segyresorter.cc" />
+    <ClCompile Include="..\..\src\Seis\segyscanner.cc" />
+    <ClCompile Include="..\..\src\Seis\segytr.cc" />
+    <ClCompile Include="..\..\src\Seis\seis2dline.cc" />
+    <ClCompile Include="..\..\src\Seis\seis2dlineio.cc" />
+    <ClCompile Include="..\..\src\Seis\seis2dto3d.cc" />
+    <ClCompile Include="..\..\src\Seis\seiscubeprov.cc" />
+    <ClCompile Include="..\..\src\Seis\seisbayesclass.cc" />
+    <ClCompile Include="..\..\src\Seis\seisbuf.cc" />
+    <ClCompile Include="..\..\src\Seis\seiscbvs.cc" />
+    <ClCompile Include="..\..\src\Seis\seiscbvs2d.cc" />
+    <ClCompile Include="..\..\src\Seis\seiscbvsps.cc" />
+    <ClCompile Include="..\..\src\Seis\seiscube2linedata.cc" />
+    <ClCompile Include="..\..\src\Seis\seiseventsnapper.cc" />
+    <ClCompile Include="..\..\src\Seis\seisgeometryfrom2dlines.cc" />
+    <ClCompile Include="..\..\src\Seis\seisimpbpsif.cc" />
+    <ClCompile Include="..\..\src\Seis\seisimporter.cc" />
+    <ClCompile Include="..\..\src\Seis\seisimpps.cc" />
+    <ClCompile Include="..\..\src\Seis\seisinfo.cc" />
+    <ClCompile Include="..\..\src\Seis\seisioobjinfo.cc" />
+    <ClCompile Include="..\..\src\Seis\seisiosimple.cc" />
+    <ClCompile Include="..\..\src\Seis\seisjobexecprov.cc" />
+    <ClCompile Include="..\..\src\Seis\seismdlscore.cc" />
+    <ClCompile Include="..\..\src\Seis\seismerge.cc" />
+    <ClCompile Include="..\..\src\Seis\seismulticubeps.cc" />
+    <ClCompile Include="..\..\src\Seis\seisparallelreader.cc" />
+    <ClCompile Include="..\..\src\Seis\seisposindexer.cc" />
+    <ClCompile Include="..\..\src\Seis\seispreload.cc" />
+    <ClCompile Include="..\..\src\Seis\seispsioprov.cc" />
+    <ClCompile Include="..\..\src\Seis\seispsmerge.cc" />
+    <ClCompile Include="..\..\src\Seis\seisrandlineto2d.cc" />
+    <ClCompile Include="..\..\src\Seis\seisread.cc" />
+    <ClCompile Include="..\..\src\Seis\seisresampler.cc" />
+    <ClCompile Include="..\..\src\Seis\seisscanner.cc" />
+    <ClCompile Include="..\..\src\Seis\seisselection.cc" />
+    <ClCompile Include="..\..\src\Seis\seissingtrcproc.cc" />
+    <ClCompile Include="..\..\src\Seis\seisstor.cc" />
+    <ClCompile Include="..\..\src\Seis\seistrc.cc" />
+    <ClCompile Include="..\..\src\Seis\seistrcprop.cc" />
+    <ClCompile Include="..\..\src\Seis\seistrctr.cc" />
+    <ClCompile Include="..\..\src\Seis\seiswrite.cc" />
+    <ClCompile Include="..\..\src\Seis\seiszaxisstretcher.cc" />
+    <ClCompile Include="..\..\src\Seis\synthseis.cc" />
+    <ClCompile Include="..\..\src\Seis\timedepthconv.cc" />
+    <ClCompile Include="..\..\src\Seis\wavelet.cc" />
+    <ClCompile Include="..\..\src\Seis\waveletattrib.cc" />
+    <ClCompile Include="..\..\src\Seis\waveletextractor.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Algo.vcxproj">
+      <Project>{40fb5261-0abd-4c46-ac13-65fcfcfe81b5}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Basic.vcxproj">
+      <Project>{e5a7927a-15b5-436d-8c9e-f54c3e753b5d}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="General.vcxproj">
+      <Project>{c8a1028a-0c76-42ab-a7e4-03f15e24d238}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Geometry.vcxproj">
+      <Project>{5d0d38eb-31a5-41b1-8dc6-7a2e2ad0205b}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="MMProc.vcxproj">
+      <Project>{8b8c726e-727b-42dc-928b-baf05d7bb759}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

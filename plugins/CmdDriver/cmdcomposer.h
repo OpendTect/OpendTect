@@ -1,0 +1,203 @@
+#ifndef cmdcomposer_h
+#define cmdcomposer_h
+
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:        Jaap Glas
+ Date:          March 2009
+ RCS:           $Id: cmdcomposer.h,v 1.14 2009/10/01 07:10:38 cvsjaap Exp $
+________________________________________________________________________
+
+-*/
+
+#include "callback.h"
+#include "bufstringset.h"
+
+class uiMainWin;
+
+
+namespace CmdDrive
+{
+
+class CmdRecorder;
+class CmdRecEvent;
+
+
+mClass CmdComposer : public CallBacker
+{
+
+public:
+			CmdComposer(CmdRecorder&);
+			~CmdComposer();
+
+    static CmdComposer* factory(const CallBacker* caller,const char* extrakey,
+	    			CmdRecorder&);
+
+    virtual const char*	name()				= 0;
+
+    virtual bool	greedy() const;
+    virtual bool	accept(const CmdRecEvent&); 		
+    bool		done() const 			{ return done_; }
+
+    bool		traceSrcWin(CmdRecEvent&) const;
+
+    void		objClosed(CallBacker*)		{ objclosed_ = true; }
+    void		testCB(CallBacker*); 
+
+protected:
+
+    virtual void	init()				{};
+
+    void		addToEventList(const CmdRecEvent&);
+    void		shrinkEventList(int firstnr=1, int lastnr=-1);
+    int			eventNameIdx(const BufferStringSet& eventnames,
+				     const CmdRecEvent&) const;
+
+    void		insertWindowCaseExec(const CmdRecEvent&,
+					     bool casedep = false) const;
+
+    void		notDone()			{ done_ = false; }
+    void		refuseAndQuitDone()		{ done_ = true; }
+
+    CmdRecorder&	rec_;
+
+    bool		ignoreflag_;
+    bool		quitflag_;
+
+    TypeSet<int>	refnrstack_;
+    bool		stackwasempty_;
+    bool		objclosed_;
+
+    ObjectSet<CmdRecEvent> eventlist_;
+
+    BufferStringSet	bursteventnames_;
+    BufferStringSet	voideventnames_;
+
+private:
+    bool		done_;
+
+};
+
+
+#define mStartDeclComposerClassNoAccept(cmdkey,parentclass) \
+\
+mClass cmdkey##CmdComposer : public parentclass \
+{ \
+public: \
+			cmdkey##CmdComposer(CmdRecorder& cmdrec) \
+			    : parentclass(cmdrec) \
+    			{ init(); } \
+\
+    static const char*	keyWord()			{ return #cmdkey; } \
+    virtual const char* name()				{ return keyWord(); } \
+
+#define mStartDeclComposerClass(cmdkey,parentclass) \
+\
+    mStartDeclComposerClassNoAccept(cmdkey,parentclass) \
+    virtual bool	accept(const CmdRecEvent&);
+
+#define mStartDeclComposerClassWithInit(cmdkey,parentclass) \
+    mStartDeclComposerClass(cmdkey,parentclass) \
+    virtual void	init();
+
+#define mEndDeclComposerClass \
+};
+
+
+//====== CmdComposer macros ==================================================
+
+
+#define mRefuseAndQuit() \
+{ \
+    quitflag_ = true; \
+    if ( stackwasempty_ ) \
+	refuseAndQuitDone(); \
+\
+    return false; \
+}
+
+
+#define mNotifyTest( objclass, uiobject, notifiername ) \
+{ \
+    mDynamicCastGet( objclass*, uiclassobj, uiobject ); \
+    if ( uiclassobj ) \
+	uiclassobj->notifiername.notify( mCB(this,CmdComposer,testCB) ); \
+}
+
+
+#define mGetInputString( inpptr, txt, haschanged ) \
+\
+    BufferString inpstr; \
+    char* inpptr = inpstr.buf(); \
+    if ( haschanged ) \
+    { \
+	inpstr = " "; inpstr += txt; \
+	mSkipBlanks( inpptr ); \
+	char* endptr; \
+	strtod( inpptr, &endptr ); \
+	const char* nextword = endptr; \
+	mSkipBlanks( nextword ); \
+	if ( inpptr!=endptr && !*nextword ) \
+	{ \
+	    *endptr = '\0'; \
+	    inpstr += " "; \
+	} \
+	else \
+	{ \
+	    mDressUserInputString( inpstr, sInputStr ); \
+	    inpstr += "\" "; \
+	    inpptr = inpstr.buf(); \
+	    *inpptr = '"'; \
+	} \
+    }
+
+#define mWriteInputCmd( haschanged, txt, enter ) \
+{ \
+    mGetInputString( inpptr, txt, haschanged ); \
+    if ( haschanged || enter ) \
+    { \
+	insertWindowCaseExec( *eventlist_[0] ); \
+	mRecOutStrm << "Input \"" << eventlist_[0]->keystr_ << "\" " \
+		    << inpptr << (enter ? "Enter" : "Hold") << std::endl; \
+    } \
+} 
+
+
+#define mGetItemName( uiobj,sizefunc,textfunc,curitemidx,curitemname,casedep ) \
+\
+    BufferString curitemname = uiobj->textfunc( curitemidx ); \
+    mDressNameString( curitemname, sItemName ); \
+    bool casedep = false; \
+    { \
+	int nrmatches = 0; \
+	int selnr = 0; \
+\
+	for ( int itmidx=0; itmidx<uiobj->sizefunc(); itmidx++ ) \
+	{ \
+	    const char* itmtxt = uiobj->textfunc( itmidx ); \
+	    if ( SearchKey(curitemname,false).isMatching(itmtxt) ) \
+	    { \
+		if ( SearchKey(curitemname,true).isMatching(itmtxt) ) \
+		{ \
+		    nrmatches++; \
+		    if ( itmidx == curitemidx ) \
+			selnr = nrmatches; \
+		} \
+		else \
+		    casedep = true; \
+	    } \
+	} \
+\
+	if ( selnr && nrmatches>1 ) \
+	{ \
+	    curitemname += "#"; curitemname += selnr; \
+	} \
+    }
+
+
+}; // namespace CmdDrive
+
+
+#endif

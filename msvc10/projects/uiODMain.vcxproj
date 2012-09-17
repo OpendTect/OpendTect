@@ -1,0 +1,363 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{21B28139-748A-44F2-A37C-CF774F1B922D}</ProjectGuid>
+    <RootNamespace>uiODMain</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(WORK)\include\Basic;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Geometry;$(WORK)\include\EarthModel;$(WORK)\include\NLA;$(WORK)\include\Seis;$(WORK)\include\Strat;$(WORK)\include\AttributeEngine;$(WORK)\include\PreStackProcessing;$(WORK)\include\Velocity;$(WORK)\include\VolumeProcessing;$(WORK)\include\Attributes;$(WORK)\include\MPEEngine;$(WORK)\include\Well;$(WORK)\include\Usage;$(WORK)\include\uiBase;$(WORK)\include\uiTools;$(WORK)\include\uiFlatView;$(WORK)\include\uiIo;$(WORK)\include\uiStrat;$(WORK)\include\uiEarthModel;$(WORK)\include\uiNLA;$(WORK)\include\uiSeis;$(WORK)\include\uiVelocity;$(WORK)\include\uiAttributes;$(WORK)\include\uiPreStackProcessing;$(WORK)\include\uiVolumeProcessing;$(WORK)\include\uiEMAttrib;$(WORK)\include\uiMPE;$(WORK)\include\uiWell;$(WORK)\include\WellAttrib;$(WORK)\include\uiWellAttrib;$(WORK)\include\uiViewer2D;$(WORK)\include\SoOD;$(WORK)\include\visBase;$(WORK)\include\visSurvey;$(WORK)\include\uiCoin;$(WORK)\include\uiVis;$(WORK)\include\Network;$(WORK)\include\uiODMain;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;UIODMAIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(WORK)\include\Basic;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Geometry;$(WORK)\include\EarthModel;$(WORK)\include\NLA;$(WORK)\include\Seis;$(WORK)\include\Strat;$(WORK)\include\AttributeEngine;$(WORK)\include\PreStackProcessing;$(WORK)\include\Velocity;$(WORK)\include\VolumeProcessing;$(WORK)\include\Attributes;$(WORK)\include\MPEEngine;$(WORK)\include\Well;$(WORK)\include\Usage;$(WORK)\include\uiBase;$(WORK)\include\uiTools;$(WORK)\include\uiFlatView;$(WORK)\include\uiIo;$(WORK)\include\uiStrat;$(WORK)\include\uiEarthModel;$(WORK)\include\uiNLA;$(WORK)\include\uiSeis;$(WORK)\include\uiVelocity;$(WORK)\include\uiAttributes;$(WORK)\include\uiPreStackProcessing;$(WORK)\include\uiVolumeProcessing;$(WORK)\include\uiEMAttrib;$(WORK)\include\uiMPE;$(WORK)\include\uiWell;$(WORK)\include\WellAttrib;$(WORK)\include\uiWellAttrib;$(WORK)\include\uiViewer2D;$(WORK)\include\SoOD;$(WORK)\include\visBase;$(WORK)\include\visSurvey;$(WORK)\include\uiCoin;$(WORK)\include\uiVis;$(WORK)\include\Network;$(WORK)\include\uiODMain;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;UIODMAIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(WORK)\include\Basic;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Geometry;$(WORK)\include\EarthModel;$(WORK)\include\NLA;$(WORK)\include\Seis;$(WORK)\include\Strat;$(WORK)\include\AttributeEngine;$(WORK)\include\PreStackProcessing;$(WORK)\include\Velocity;$(WORK)\include\VolumeProcessing;$(WORK)\include\Attributes;$(WORK)\include\MPEEngine;$(WORK)\include\Well;$(WORK)\include\Usage;$(WORK)\include\uiBase;$(WORK)\include\uiTools;$(WORK)\include\uiFlatView;$(WORK)\include\uiIo;$(WORK)\include\uiStrat;$(WORK)\include\uiEarthModel;$(WORK)\include\uiNLA;$(WORK)\include\uiSeis;$(WORK)\include\uiVelocity;$(WORK)\include\uiAttributes;$(WORK)\include\uiPreStackProcessing;$(WORK)\include\uiVolumeProcessing;$(WORK)\include\uiEMAttrib;$(WORK)\include\uiMPE;$(WORK)\include\uiWell;$(WORK)\include\WellAttrib;$(WORK)\include\uiWellAttrib;$(WORK)\include\uiViewer2D;$(WORK)\include\SoOD;$(WORK)\include\visBase;$(WORK)\include\visSurvey;$(WORK)\include\uiCoin;$(WORK)\include\uiVis;$(WORK)\include\Network;$(WORK)\include\uiODMain;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;UIODMAIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(WORK)\include\Basic;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Geometry;$(WORK)\include\EarthModel;$(WORK)\include\NLA;$(WORK)\include\Seis;$(WORK)\include\Strat;$(WORK)\include\AttributeEngine;$(WORK)\include\PreStackProcessing;$(WORK)\include\Velocity;$(WORK)\include\VolumeProcessing;$(WORK)\include\Attributes;$(WORK)\include\MPEEngine;$(WORK)\include\Well;$(WORK)\include\Usage;$(WORK)\include\uiBase;$(WORK)\include\uiTools;$(WORK)\include\uiFlatView;$(WORK)\include\uiIo;$(WORK)\include\uiStrat;$(WORK)\include\uiEarthModel;$(WORK)\include\uiNLA;$(WORK)\include\uiSeis;$(WORK)\include\uiVelocity;$(WORK)\include\uiAttributes;$(WORK)\include\uiPreStackProcessing;$(WORK)\include\uiVolumeProcessing;$(WORK)\include\uiEMAttrib;$(WORK)\include\uiMPE;$(WORK)\include\uiWell;$(WORK)\include\WellAttrib;$(WORK)\include\uiWellAttrib;$(WORK)\include\uiViewer2D;$(WORK)\include\SoOD;$(WORK)\include\visBase;$(WORK)\include\visSurvey;$(WORK)\include\uiCoin;$(WORK)\include\uiVis;$(WORK)\include\Network;$(WORK)\include\uiODMain;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;UIODMAIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\uiODMain\odsession.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodapplmgr.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodapplmgrattrvis.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodapplmgraux.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodattribtreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodbodydisplaytreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uioddatatreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uioddisplaytreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodeditattribcolordlg.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodemsurftreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodfaulttoolman.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodfaulttreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodhelpmenumgr.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodhortreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodmain.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodmenumgr.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodpicksettreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodplanedatatreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodrandlinetreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodscenemgr.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodseis2dtreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodtreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodviewer2d.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodviewer2dmgr.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodvolproctreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodvolrentreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodvw2dfaultss2dtreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodvw2dfaultsstreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodvw2dfaulttreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodvw2dhor2dtreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodvw2dhor3dtreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodvw2dpicksettreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodvw2dtreeitem.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodvw2dvariabledensity.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodvw2dwigglevararea.cc" />
+    <ClCompile Include="..\..\src\uiODMain\uiodwelltreeitem.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Algo.vcxproj">
+      <Project>{40fb5261-0abd-4c46-ac13-65fcfcfe81b5}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="AttributeEngine.vcxproj">
+      <Project>{c3704282-be49-4903-9e65-dddb6e607812}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Attributes.vcxproj">
+      <Project>{48539f5e-4895-4d10-b0a3-41f72a5955d7}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Basic.vcxproj">
+      <Project>{e5a7927a-15b5-436d-8c9e-f54c3e753b5d}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="EarthModel.vcxproj">
+      <Project>{2ac8922b-d34d-4797-b601-ad12e1e7bdae}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="General.vcxproj">
+      <Project>{c8a1028a-0c76-42ab-a7e4-03f15e24d238}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Geometry.vcxproj">
+      <Project>{5d0d38eb-31a5-41b1-8dc6-7a2e2ad0205b}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="MPEEngine.vcxproj">
+      <Project>{e692ea64-73d9-4047-9019-91f57c0f9552}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Network.vcxproj">
+      <Project>{5484218b-d161-44a8-b8d0-dc4dd5495bd1}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="NLA.vcxproj">
+      <Project>{31b85e03-6375-4747-9325-ca545a631bc5}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="PreStackProcessing.vcxproj">
+      <Project>{fc881959-6ba9-4e99-a071-8b7d7e86d8a8}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Seis.vcxproj">
+      <Project>{f0f6d50f-c40a-4d65-aead-7d9c06800f41}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="SoOD.vcxproj">
+      <Project>{4a1434db-02cc-46c6-ac6a-c653dad2ec2b}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Strat.vcxproj">
+      <Project>{0f178832-f4c2-4b31-ae7e-27bd73a3aef9}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiAttributes.vcxproj">
+      <Project>{2232ece0-071e-4d06-9f99-7fd12b65f568}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiBase.vcxproj">
+      <Project>{6d757a6c-f11f-4f1f-9084-c06e85528622}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiCoin.vcxproj">
+      <Project>{637acd1c-9654-4b99-aeea-9be910fcdf76}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiEarthModel.vcxproj">
+      <Project>{ba266186-ccef-43cf-9f7b-103310497a01}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiEMAttrib.vcxproj">
+      <Project>{e5b9b4b2-ff28-4a93-bc05-1bd283e5593b}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiFlatView.vcxproj">
+      <Project>{be44abf9-440d-4f6d-bdb1-fec2239e21d8}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiIo.vcxproj">
+      <Project>{b1e49a12-d16e-4f1a-a2e5-efe554ed8900}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiMPE.vcxproj">
+      <Project>{940bc819-a105-48e3-94f7-67717b52ab58}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiNLA.vcxproj">
+      <Project>{e6994c3e-5e47-4c27-a2de-73305da421ae}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiPreStackProcessing.vcxproj">
+      <Project>{3fc87ce2-43ef-4b00-ae11-d9651eaf3e96}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiSeis.vcxproj">
+      <Project>{064f6748-ba33-4fde-87c3-c444d91eacda}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiStrat.vcxproj">
+      <Project>{5eef86c3-0680-4cff-afdb-013cea8693bd}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiTools.vcxproj">
+      <Project>{a8519387-5876-4604-9a69-5d685277c3f9}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiVelocity.vcxproj">
+      <Project>{47f22265-a696-4356-9820-0d481b97240d}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiViewer2D.vcxproj">
+      <Project>{f9eb158d-9eb6-452c-a18b-8a12677a09c8}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiVis.vcxproj">
+      <Project>{d04f8fda-3125-4704-86e9-9b731d25d94e}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiVolumeProcessing.vcxproj">
+      <Project>{4376fdf6-cd9c-4c06-91d6-b8ce9d6b4bf9}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiWell.vcxproj">
+      <Project>{51ed8759-0a80-42dd-83b8-440688d9046a}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiWellAttrib.vcxproj">
+      <Project>{d785dfae-ea48-4a1b-8ad3-8de3e4fb664c}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Usage.vcxproj">
+      <Project>{f6e4c1f2-0a7c-400e-acf2-6567bfd6aaa3}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Velocity.vcxproj">
+      <Project>{167826ad-9ad9-4dd5-a450-1d06e65d11bf}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="visBase.vcxproj">
+      <Project>{e25b83b6-66cd-4768-8aa8-87f9b1946c71}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="visSurvey.vcxproj">
+      <Project>{0a1ae74b-afde-4da6-acdf-fa298c64b27d}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="VolumeProcessing.vcxproj">
+      <Project>{4338ec51-486d-4577-8061-9b509950c883}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Well.vcxproj">
+      <Project>{4b3304cc-1320-455e-a16c-5a048375d8a0}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

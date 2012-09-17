@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B1E49A12-D16E-4F1A-A2E5-EFE554ED8900}</ProjectGuid>
+    <RootNamespace>uiIo</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(WORK)\include\Basic;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Geometry;$(WORK)\include\Network;$(WORK)\include\MMProc;$(WORK)\include\uiBase;$(WORK)\include\uiTools;$(WORK)\include\uiIo;$(WORK)\include\uiFlatView;$(WORK)\include\Prog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;UIIO_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(WORK)\include\Basic;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Geometry;$(WORK)\include\Network;$(WORK)\include\MMProc;$(WORK)\include\uiBase;$(WORK)\include\uiTools;$(WORK)\include\uiIo;$(WORK)\include\uiFlatView;$(WORK)\include\Prog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;UIIO_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(WORK)\include\Basic;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Geometry;$(WORK)\include\Network;$(WORK)\include\MMProc;$(WORK)\include\uiBase;$(WORK)\include\uiTools;$(WORK)\include\uiIo;$(WORK)\include\uiFlatView;$(WORK)\include\Prog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;UIIO_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(WORK)\include\Basic;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Geometry;$(WORK)\include\Network;$(WORK)\include\MMProc;$(WORK)\include\uiBase;$(WORK)\include\uiTools;$(WORK)\include\uiIo;$(WORK)\include\uiFlatView;$(WORK)\include\Prog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;UIIO_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\uiIo\dpsdensitycalc.cc" />
+    <ClCompile Include="..\..\src\uiIo\inituiio.cc" />
+    <ClCompile Include="..\..\src\uiIo\ui2dgeomman.cc" />
+    <ClCompile Include="..\..\src\uiIo\ui2dsip.cc" />
+    <ClCompile Include="..\..\src\uiIo\uibatchlaunch.cc" />
+    <ClCompile Include="..\..\src\uiIo\uibatchprogs.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiclusterjobprov.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiconvpos.cc" />
+    <ClCompile Include="..\..\src\uiIo\uicrdevenv.cc" />
+    <ClCompile Include="..\..\src\uiIo\uicreatedpspdf.cc" />
+    <ClCompile Include="..\..\src\uiIo\uicreatepicks.cc" />
+    <ClCompile Include="..\..\src\uiIo\uidatapointset.cc" />
+    <ClCompile Include="..\..\src\uiIo\uidatapointsetcrossplot.cc" />
+    <ClCompile Include="..\..\src\uiIo\uidatapointsetcrossplotwin.cc" />
+    <ClCompile Include="..\..\src\uiIo\uidatapointsetman.cc" />
+    <ClCompile Include="..\..\src\uiIo\uidatapointsetmerger.cc" />
+    <ClCompile Include="..\..\src\uiIo\uidpsaddcolumndlg.cc" />
+    <ClCompile Include="..\..\src\uiIo\uidpscrossplotpropdlg.cc" />
+    <ClCompile Include="..\..\src\uiIo\uidpscrossplottools.cc" />
+    <ClCompile Include="..\..\src\uiIo\uidpsoverlayattrdlg.cc" />
+    <ClCompile Include="..\..\src\uiIo\uidpsrefineseldlg.cc" />
+    <ClCompile Include="..\..\src\uiIo\uidpsselectednessdlg.cc" />
+    <ClCompile Include="..\..\src\uiIo\uidpsselgrpdlg.cc" />
+    <ClCompile Include="..\..\src\uiIo\uieditpdf.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiimpexppdf.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiimpexpselgrp.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiimppickset.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiimppvds.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiioobj.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiioobjmanip.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiioobjsel.cc" />
+    <ClCompile Include="..\..\src\uiIo\uilatlong.cc" />
+    <ClCompile Include="..\..\src\uiIo\uimanprops.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiobjfileman.cc" />
+    <ClCompile Include="..\..\src\uiIo\uipickpartserv.cc" />
+    <ClCompile Include="..\..\src\uiIo\uipicksetman.cc" />
+    <ClCompile Include="..\..\src\uiIo\uipicksetmgr.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiposfilterset.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiposfiltgroup.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiposprovgroup.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiposprovider.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiprobdenfuncman.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiprobdenfunvarsel.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiselobjothersurv.cc" />
+    <ClCompile Include="..\..\src\uiIo\uiselsurvranges.cc" />
+    <ClCompile Include="..\..\src\uiIo\uisetdatadir.cc" />
+    <ClCompile Include="..\..\src\uiIo\uisrchprocfiles.cc" />
+    <ClCompile Include="..\..\src\uiIo\uisurvey.cc" />
+    <ClCompile Include="..\..\src\uiIo\uisurveyselect.cc" />
+    <ClCompile Include="..\..\src\uiIo\uisurvinfoed.cc" />
+    <ClCompile Include="..\..\src\uiIo\uisurvmap.cc" />
+    <ClCompile Include="..\..\src\uiIo\uit2dconvsel.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Algo.vcxproj">
+      <Project>{40fb5261-0abd-4c46-ac13-65fcfcfe81b5}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Basic.vcxproj">
+      <Project>{e5a7927a-15b5-436d-8c9e-f54c3e753b5d}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="General.vcxproj">
+      <Project>{c8a1028a-0c76-42ab-a7e4-03f15e24d238}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Geometry.vcxproj">
+      <Project>{5d0d38eb-31a5-41b1-8dc6-7a2e2ad0205b}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="MMProc.vcxproj">
+      <Project>{8b8c726e-727b-42dc-928b-baf05d7bb759}</Project>
+    </ProjectReference>
+    <ProjectReference Include="Network.vcxproj">
+      <Project>{5484218b-d161-44a8-b8d0-dc4dd5495bd1}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiBase.vcxproj">
+      <Project>{6d757a6c-f11f-4f1f-9084-c06e85528622}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiFlatView.vcxproj">
+      <Project>{be44abf9-440d-4f6d-bdb1-fec2239e21d8}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="uiTools.vcxproj">
+      <Project>{a8519387-5876-4604-9a69-5d685277c3f9}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

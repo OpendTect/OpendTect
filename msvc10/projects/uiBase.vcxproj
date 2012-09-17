@@ -1,0 +1,606 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6D757A6C-F11F-4F1F-9084-C06E85528622}</ProjectGuid>
+    <RootNamespace>uiBase</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\intermediate\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(OD_QTDIR)\include;$(OD_QTDIR)\include\QtGui;$(OD_QTDIR)\include\QtCore;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Basic;$(WORK)\include\Network;$(WORK)\include\uiBase;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;UIBASE_EXPORTS;QT3_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>QtGui4.lib;QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OD_QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(OD_QTDIR)\include;$(OD_QTDIR)\include\QtGui;$(OD_QTDIR)\include\QtCore;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Basic;$(WORK)\include\Network;$(WORK)\include\uiBase;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;UIBASE_EXPORTS;QT3_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>QtGui4.lib;QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OD_QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(OD_QTDIR)\include;$(OD_QTDIR)\include\QtGui;$(OD_QTDIR)\include\QtCore;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Basic;$(WORK)\include\Network;$(WORK)\include\uiBase;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;UIBASE_EXPORTS;QT3_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>
+ %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>QtGui4.lib;QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OD_QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/vmg %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(OD_QTDIR)\include;$(OD_QTDIR)\include\QtGui;$(OD_QTDIR)\include\QtCore;$(WORK)\include\Algo;$(WORK)\include\General;$(WORK)\include\Basic;$(WORK)\include\Network;$(WORK)\include\uiBase;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;UIBASE_EXPORTS;QT3_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>
+ %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>QtGui4.lib;QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OD_QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\uiBase\i_layout.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_layoutitem.cc" />
+    <ClCompile Include="..\..\src\uiBase\inituibase.cc" />
+    <ClCompile Include="..\..\src\uiBase\iodraw.cc" />
+    <ClCompile Include="..\..\src\uiBase\odgraphicsitem.cc" />
+    <ClCompile Include="..\..\src\uiBase\pixmap.cc" />
+    <ClCompile Include="..\..\src\uiBase\uiaction.cc" />
+    <ClCompile Include="..\..\src\uiBase\uibutton.cc" />
+    <ClCompile Include="..\..\src\uiBase\uibuttongroup.cc" />
+    <ClCompile Include="..\..\src\uiBase\uicanvas.cc" />
+    <ClCompile Include="..\..\src\uiBase\uicolor.cc" />
+    <ClCompile Include="..\..\src\uiBase\uicombobox.cc" />
+    <ClCompile Include="..\..\src\uiBase\uicursor.cc" />
+    <ClCompile Include="..\..\src\uiBase\uidesktopservices.cc" />
+    <ClCompile Include="..\..\src\uiBase\uidial.cc" />
+    <ClCompile Include="..\..\src\uiBase\uidockwin.cc" />
+    <ClCompile Include="..\..\src\uiBase\uidrawable.cc" />
+    <ClCompile Include="..\..\src\uiBase\uifiledlg.cc" />
+    <ClCompile Include="..\..\src\uiBase\uifont.cc" />
+    <ClCompile Include="..\..\src\uiBase\uigraphicscoltab.cc" />
+    <ClCompile Include="..\..\src\uiBase\uigraphicsitem.cc" />
+    <ClCompile Include="..\..\src\uiBase\uigraphicsitemimpl.cc" />
+    <ClCompile Include="..\..\src\uiBase\uigraphicsscene.cc" />
+    <ClCompile Include="..\..\src\uiBase\uigraphicsviewbase.cc" />
+    <ClCompile Include="..\..\src\uiBase\uigroup.cc" />
+    <ClCompile Include="..\..\src\uiBase\uilabel.cc" />
+    <ClCompile Include="..\..\src\uiBase\uilayout.cc" />
+    <ClCompile Include="..\..\src\uiBase\uilineedit.cc" />
+    <ClCompile Include="..\..\src\uiBase\uilistbox.cc" />
+    <ClCompile Include="..\..\src\uiBase\uilistview.cc" />
+    <ClCompile Include="..\..\src\uiBase\uimain.cc" />
+    <ClCompile Include="..\..\src\uiBase\uimainwin.cc" />
+    <ClCompile Include="..\..\src\uiBase\uimdiarea.cc" />
+    <ClCompile Include="..\..\src\uiBase\uimenu.cc" />
+    <ClCompile Include="..\..\src\uiBase\uimsg.cc" />
+    <ClCompile Include="..\..\src\uiBase\uiobj.cc" />
+    <ClCompile Include="..\..\src\uiBase\uiobjbody.cc" />
+    <ClCompile Include="..\..\src\uiBase\uiobjectstack.cc" />
+    <ClCompile Include="..\..\src\uiBase\uiprogressbar.cc" />
+    <ClCompile Include="..\..\src\uiBase\uirgbarray.cc" />
+    <ClCompile Include="..\..\src\uiBase\uirubberband.cc" />
+    <ClCompile Include="..\..\src\uiBase\uiseparator.cc" />
+    <ClCompile Include="..\..\src\uiBase\uishortcutsmgr.cc" />
+    <ClCompile Include="..\..\src\uiBase\uislider.cc" />
+    <ClCompile Include="..\..\src\uiBase\uispinbox.cc" />
+    <ClCompile Include="..\..\src\uiBase\uisplashscreen.cc" />
+    <ClCompile Include="..\..\src\uiBase\uisplitter.cc" />
+    <ClCompile Include="..\..\src\uiBase\uistatusbar.cc" />
+    <ClCompile Include="..\..\src\uiBase\uisystemtrayicon.cc" />
+    <ClCompile Include="..\..\src\uiBase\uitabbar.cc" />
+    <ClCompile Include="..\..\src\uiBase\uitable.cc" />
+    <ClCompile Include="..\..\src\uiBase\uitabstack.cc" />
+    <ClCompile Include="..\..\src\uiBase\uitextedit.cc" />
+    <ClCompile Include="..\..\src\uiBase\uitoolbar.cc" />
+    <ClCompile Include="..\..\src\uiBase\uivirtualkeyboard.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qaction.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qbutton.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qcombobox.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qdial.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qlineedit.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qlistbox.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qlistview.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qmdiarea.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qmenu.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qslider.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qspinbox.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qsystemtrayicon.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qtabbar.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qtable.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qtextedit.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qtoolbar.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qtoolbut.moc.cc" />
+    <ClCompile Include="..\..\src\uiBase\i_qtxtbrowser.moc.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\include\uiBase\i_qaction.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qaction.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qaction.h -o $(WORK)\src\uiBase\i_qaction.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qaction.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qaction.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qaction.h -o $(WORK)\src\uiBase\i_qaction.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qaction.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qaction.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qaction.h -o $(WORK)\src\uiBase\i_qaction.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qaction.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qaction.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qaction.h -o $(WORK)\src\uiBase\i_qaction.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qaction.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qbutton.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qbutton.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qbutton.h -o $(WORK)\src\uiBase\i_qbutton.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qbutton.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qbutton.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qbutton.h -o $(WORK)\src\uiBase\i_qbutton.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qbutton.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qbutton.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qbutton.h -o $(WORK)\src\uiBase\i_qbutton.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qbutton.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qbutton.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qbutton.h -o $(WORK)\src\uiBase\i_qbutton.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qbutton.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qcombobox.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">moc-ing i_qcombobox.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qcombobox.h -o $(WORK)\src\uiBase\i_qcombobox.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qcombobox.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">moc-ing i_qcombobox.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qcombobox.h -o $(WORK)\src\uiBase\i_qcombobox.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qcombobox.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">moc-ing i_qcombobox.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qcombobox.h -o $(WORK)\src\uiBase\i_qcombobox.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qcombobox.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">moc-ing i_qcombobox.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qcombobox.h -o $(WORK)\src\uiBase\i_qcombobox.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qcombobox.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qdial.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qdial.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)\bin\moc $(WORK)\include\uiBase\i_qdial.h -o $(WORK)\src\uiBase\i_qdial.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qdial.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qdial.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)\bin\moc $(WORK)\include\uiBase\i_qdial.h -o $(WORK)\src\uiBase\i_qdial.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qdial.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qdial.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)\bin\moc $(WORK)\include\uiBase\i_qdial.h -o $(WORK)\src\uiBase\i_qdial.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qdial.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qdial.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)\bin\moc $(WORK)\include\uiBase\i_qdial.h -o $(WORK)\src\uiBase\i_qdial.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qdial.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qlineedit.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qlineedit.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qlineedit.h -o $(WORK)\src\uiBase\i_qlineedit.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qlineedit.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qlineedit.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qlineedit.h -o $(WORK)\src\uiBase\i_qlineedit.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qlineedit.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qlineedit.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qlineedit.h -o $(WORK)\src\uiBase\i_qlineedit.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qlineedit.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qlineedit.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qlineedit.h -o $(WORK)\src\uiBase\i_qlineedit.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qlineedit.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qlistbox.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qlistbox.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qlistbox.h -o $(WORK)\src\uiBase\i_qlistbox.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qlistbox.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qlistbox.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qlistbox.h -o $(WORK)\src\uiBase\i_qlistbox.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qlistbox.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qlistbox.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qlistbox.h -o $(WORK)\src\uiBase\i_qlistbox.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qlistbox.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qlistbox.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qlistbox.h -o $(WORK)\src\uiBase\i_qlistbox.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qlistbox.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qlistview.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qlistview.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qlistview.h -o $(WORK)\src\uiBase\i_qlistview.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qlistview.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qlistview.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qlistview.h -o $(WORK)\src\uiBase\i_qlistview.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qlistview.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qlistview.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qlistview.h -o $(WORK)\src\uiBase\i_qlistview.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qlistview.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qlistview.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qlistview.h -o $(WORK)\src\uiBase\i_qlistview.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qlistview.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qmdiarea.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qmdiarea.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qmdiarea.h -o $(WORK)\src\uiBase\i_qmdiarea.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qmdiarea.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qmdiarea.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qmdiarea.h -o $(WORK)\src\uiBase\i_qmdiarea.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qmdiarea.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qmdiarea.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qmdiarea.h -o $(WORK)\src\uiBase\i_qmdiarea.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qmdiarea.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qmdiarea.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qmdiarea.h -o $(WORK)\src\uiBase\i_qmdiarea.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qmdiarea.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qmenu.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qmenu.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qmenu.h -o $(WORK)\src\uiBase\i_qmenu.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qmenu.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qmenu.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qmenu.h -o $(WORK)\src\uiBase\i_qmenu.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qmenu.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qmenu.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qmenu.h -o $(WORK)\src\uiBase\i_qmenu.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qmenu.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qmenu.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qmenu.h -o $(WORK)\src\uiBase\i_qmenu.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qmenu.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qslider.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qslider.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qslider.h -o $(WORK)\src\uiBase\i_qslider.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qslider.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qslider.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qslider.h -o $(WORK)\src\uiBase\i_qslider.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qslider.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qslider.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qslider.h -o $(WORK)\src\uiBase\i_qslider.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qslider.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qslider.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qslider.h -o $(WORK)\src\uiBase\i_qslider.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qslider.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qspinbox.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qspinbox.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qspinbox.h -o $(WORK)\src\uiBase\i_qspinbox.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qspinbox.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qspinbox.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qspinbox.h -o $(WORK)\src\uiBase\i_qspinbox.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qspinbox.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qspinbox.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qspinbox.h -o $(WORK)\src\uiBase\i_qspinbox.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qspinbox.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qspinbox.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qspinbox.h -o $(WORK)\src\uiBase\i_qspinbox.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qspinbox.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qsystemtrayicon.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qsystemtrayicon.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)\bin\moc $(WORK)\include\uiBase\i_qsystemtrayicon.h -o $(WORK)\src\uiBase\i_qsystemtrayicon.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qsystemtrayicon.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qsystemtrayicon.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)\bin\moc $(WORK)\include\uiBase\i_qsystemtrayicon.h -o $(WORK)\src\uiBase\i_qsystemtrayicon.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qsystemtrayicon.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qsystemtrayicon.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)\bin\moc $(WORK)\include\uiBase\i_qsystemtrayicon.h -o $(WORK)\src\uiBase\i_qsystemtrayicon.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qsystemtrayicon.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qsystemtrayicon.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)\bin\moc $(WORK)\include\uiBase\i_qsystemtrayicon.h -o $(WORK)\src\uiBase\i_qsystemtrayicon.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qsystemtrayicon.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qtabbar.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qtabbar.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtabbar.h -o $(WORK)\src\uiBase\i_qtabbar.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qtabbar.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qtabbar.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtabbar.h -o $(WORK)\src\uiBase\i_qtabbar.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qtabbar.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qtabbar.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtabbar.h -o $(WORK)\src\uiBase\i_qtabbar.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qtabbar.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qtabbar.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtabbar.h -o $(WORK)\src\uiBase\i_qtabbar.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qtabbar.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qtable.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qtable.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtable.h -o $(WORK)\src\uiBase\i_qtable.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qtable.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qtable.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtable.h -o $(WORK)\src\uiBase\i_qtable.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qtable.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qtable.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtable.h -o $(WORK)\src\uiBase\i_qtable.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qtable.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qtable.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtable.h -o $(WORK)\src\uiBase\i_qtable.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qtable.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qtextedit.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qtextedit.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtextedit.h -o $(WORK)\src\uiBase\i_qtextedit.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qtextedit.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qtextedit.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtextedit.h -o $(WORK)\src\uiBase\i_qtextedit.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qtextedit.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qtextedit.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtextedit.h -o $(WORK)\src\uiBase\i_qtextedit.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qtextedit.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qtextedit.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtextedit.h -o $(WORK)\src\uiBase\i_qtextedit.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qtextedit.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qtoolbar.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qtoolbar.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)\bin\moc $(WORK)\include\uiBase\i_qtoolbar.h -o $(WORK)\src\uiBase\i_qtoolbar.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qtoolbar.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qtoolbar.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)\bin\moc $(WORK)\include\uiBase\i_qtoolbar.h -o $(WORK)\src\uiBase\i_qtoolbar.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qtoolbar.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qtoolbar.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)\bin\moc $(WORK)\include\uiBase\i_qtoolbar.h -o $(WORK)\src\uiBase\i_qtoolbar.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qtoolbar.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qtoolbar.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)\bin\moc $(WORK)\include\uiBase\i_qtoolbar.h -o $(WORK)\src\uiBase\i_qtoolbar.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qtoolbar.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qtoolbut.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qtoolbut.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtoolbut.h -o $(WORK)\src\uiBase\i_qtoolbut.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qtoolbut.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qtoolbut.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtoolbut.h -o $(WORK)\src\uiBase\i_qtoolbut.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qtoolbut.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qtoolbut.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtoolbut.h -o $(WORK)\src\uiBase\i_qtoolbut.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qtoolbut.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qtoolbut.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtoolbut.h -o $(WORK)\src\uiBase\i_qtoolbut.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qtoolbut.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\uiBase\i_qtxtbrowser.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc-ing i_qtxtbrowser.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtxtbrowser.h -o $(WORK)\src\uiBase\i_qtxtbrowser.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WORK)\src\uiBase\i_qtxtbrowser.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc-ing i_qtxtbrowser.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtxtbrowser.h -o $(WORK)\src\uiBase\i_qtxtbrowser.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(WORK)\src\uiBase\i_qtxtbrowser.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc-ing i_qtxtbrowser.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtxtbrowser.h -o $(WORK)\src\uiBase\i_qtxtbrowser.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WORK)\src\uiBase\i_qtxtbrowser.moc.cc;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc-ing i_qtxtbrowser.h</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OD_QTDIR)/bin/moc $(WORK)\include\uiBase\i_qtxtbrowser.h -o $(WORK)\src\uiBase\i_qtxtbrowser.moc.cc
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(WORK)\src\uiBase\i_qtxtbrowser.moc.cc;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Algo.vcxproj">
+      <Project>{40fb5261-0abd-4c46-ac13-65fcfcfe81b5}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Basic.vcxproj">
+      <Project>{e5a7927a-15b5-436d-8c9e-f54c3e753b5d}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="General.vcxproj">
+      <Project>{c8a1028a-0c76-42ab-a7e4-03f15e24d238}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Network.vcxproj">
+      <Project>{5484218b-d161-44a8-b8d0-dc4dd5495bd1}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
