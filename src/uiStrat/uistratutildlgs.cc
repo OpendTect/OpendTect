@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratutildlgs.cc,v 1.58 2012-08-03 11:36:54 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratutildlgs.cc,v 1.59 2012-09-17 14:48:03 cvsbert Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -20,11 +20,13 @@ static const char* rcsID mUnusedVar = "$Id: uistratutildlgs.cc,v 1.58 2012-08-03
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uicolor.h"
+#include "uifillpattern.h"
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uispinbox.h"
 #include "uilistbox.h"
+#include "uieditobjectlist.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 
@@ -75,7 +77,8 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	lbl->attach( leftOf, unitlithfld_ );
 
 	const CallBack cb( mCB(this,uiStratUnitEditDlg,selLithCB) );
-	uiPushButton* sellithbut = new uiPushButton( this, "&Edit", cb, false );
+	uiPushButton* sellithbut = new uiPushButton( this, "&Edit",
+				ioPixmap("edit"), cb, false );
 	sellithbut->attach( rightTo, unitlithfld_ );
 
 	lithids_.erase();
@@ -250,6 +253,8 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     , prevlith_(0)
     , nmfld_(0)
 {
+    setCtrlStyle( LeaveOnly );
+
     selfld_ = new uiStratLithoBox( this );
     const CallBack selchgcb( mCB(this,uiStratLithoDlg,selChg) );
     selfld_->selectionChanged.notify( selchgcb );
@@ -265,8 +270,10 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     colfld_ = new uiColorInput( toprightgrp, csu );
     colfld_->attach( alignedBelow, nmfld_ );
 
+    const int butsz = 20;
     uiPushButton* newlithbut = new uiPushButton( rightgrp, "&Add as new",
-	    		mCB(this,uiStratLithoDlg,newLith), true );
+	    ioPixmap("addnew"), mCB(this,uiStratLithoDlg,newLith), true );
+    newlithbut->setPrefWidthInChar( butsz );
     newlithbut->attach( alignedBelow, toprightgrp );
 
     uiSeparator* sep = new uiSeparator( this, "Sep", false );
@@ -275,11 +282,13 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     rightgrp->attach( rightTo, sep );
 
     uiButton* renamebut = new uiPushButton( rightgrp, "Re&name selected",
-			    mCB(this,uiStratLithoDlg,renameCB), true );
+	    ioPixmap("renameobj"), mCB(this,uiStratLithoDlg,renameCB), true );
+    renamebut->setPrefWidthInChar( butsz );
     renamebut->attach( alignedBelow, newlithbut );
 
     uiButton* rmbut = new uiPushButton( rightgrp, "&Remove Last",
-				    mCB(this,uiStratLithoDlg,rmLast), true );
+	    ioPixmap("trashcan"), mCB(this,uiStratLithoDlg,rmLast), true );
+    rmbut->setPrefWidthInChar( butsz );
     rmbut->attach( alignedBelow, renamebut );
 
     postFinalise().notify( selchgcb );
@@ -388,44 +397,123 @@ void uiStratLithoDlg::setSelectedLith( const char* lithnm )
 }
 
 
-bool uiStratLithoDlg::acceptOK( CallBacker* )
+class uiStratSingleContentDlg : public uiDialog
 {
-    selChg( 0 );
+public:
+
+uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd )
+    : uiDialog(p,uiDialog::Setup(isadd?"Add content":"Edit Content",
+		isadd?"Add content":"Edit content properties","110.0.5"))
+    , cont_(c)
+{
+    nmfld_ = new uiGenInput( this, "Name", StringInpSpec(c.name()) );
+
+    fillfld_ = new uiFillPattern( this );
+    fillfld_->set( cont_.pattern_ );
+    new uiLabel( this, "Pattern", fillfld_ );
+    fillfld_->attach( alignedBelow, nmfld_ );
+
+    uiColorInput::Setup su( cont_.color_ );
+    su.lbltxt( "Outline color" );
+    colfld_ = new uiColorInput( this, uiColorInput::Setup(cont_.color_) );
+    colfld_->attach( alignedBelow, fillfld_ );
+}
+
+bool acceptOK( CallBacker* )
+{
+    BufferString nm( nmfld_->text() );
+    cleanupString( nm.buf(), true, true, true );
+    if ( nm.isEmpty() )
+    {
+	uiMSG().error( "Please enter a valid name" );
+	return false;
+    }
+    cont_.setName( nm );
+    cont_.pattern_ = fillfld_->get();
+    cont_.color_ = colfld_->color();
     return true;
 }
+
+    Strat::Content&	cont_;
+    uiGenInput*		nmfld_;
+    uiFillPattern*	fillfld_;
+    uiColorInput*	colfld_;
+
+};
+
+
+class uiStratContentsEd : public uiEditObjectList
+{
+public:
+
+uiStratContentsEd( uiParent* p )
+    : uiEditObjectList(p,"content",true)
+{
+    fillList( 0 );
+}
+
+void fillList( int newcur )
+{
+    const Strat::ContentSet& conts = Strat::RT().contents();
+    BufferStringSet nms;
+    for ( int idx=0; idx<conts.size(); idx++ )
+	nms.add( conts[idx]->name() );
+    setItems( nms, newcur );
+}
+
+void editReq( bool isadd )
+{
+    Strat::ContentSet& conts = Strat::eRT().contents();
+    Strat::Content* newcont = isadd ? new Strat::Content( "" ) : 0;
+    Strat::Content* cont = newcont;
+    int selidx = currentItem();
+    if ( cont )
+	selidx++;
+    else
+    {
+	if ( selidx < 0 ) return;
+	cont = conts[selidx];
+    }
+    uiStratSingleContentDlg dlg( this, *cont, isadd );
+    if ( !dlg.go() )
+	delete newcont;
+    else
+    {
+	if ( newcont ) conts += newcont;
+	fillList( selidx );
+    }
+}
+
+void removeReq()
+{
+    Strat::ContentSet& conts = Strat::eRT().contents();
+    const int selidx = currentItem();
+    if ( selidx < 0 ) return;
+    delete conts.remove( selidx );
+    fillList( selidx );
+}
+
+void itemSwitch( bool up )
+{
+    Strat::ContentSet& conts = Strat::eRT().contents();
+    const int selidx = currentItem();
+    const int newselidx = up ? selidx-1 : selidx+1;
+    if ( selidx < 0 || newselidx < 0 || newselidx > conts.size() - 1 )
+	return;
+    conts.swap( selidx, newselidx );
+    fillList( newselidx );
+}
+
+
+};
 
 
 uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Manage Contents",
 		"Define special layer contents","110.0.5"))
 {
-    const Strat::ContentSet& conts = Strat::RT().contents();
-    int nrrows = conts.size();
-    if ( nrrows < 6 ) nrrows = 6;
-    uiTable::Setup tsu( nrrows, 1 );
-    tsu.rowdesc( "Content" ).coldesc( "Name" ).enablecopytext( true )
-	.rowgrow( true ).removerowallowed( false ).fillcol( true );
-    tbl_ = new uiTable( this, tsu, "Names" );
-    tbl_->setColumnLabel( 0, "Content name" );
-
-    for ( int idx=0; idx<conts.size(); idx++ )
-	tbl_->setText( RowCol(idx,0), conts[idx]->name() );
-}
-
-
-bool uiStratContentsDlg::acceptOK( CallBacker* )
-{
-    Strat::ContentSet& conts = Strat::eRT().contents();
-    deepErase( conts );
-    const int nrrows = tbl_->nrRows();
-    for ( int idx=0; idx<nrrows; idx++ )
-    {
-	BufferString nm( tbl_->text(RowCol(idx,0)) );
-	cleanupString( nm.buf(), false, false, false );
-	if ( !nm.isEmpty() )
-	    conts += new Strat::Content( nm );
-    }
-    return true;
+    setCtrlStyle( LeaveOnly );
+    (void)new uiStratContentsEd( this );
 }
 
 
