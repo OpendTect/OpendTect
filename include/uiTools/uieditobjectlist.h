@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2012
- RCS:           $Id: uieditobjectlist.h,v 1.1 2012-09-14 10:38:57 cvsbert Exp $
+ RCS:           $Id: uieditobjectlist.h,v 1.2 2012-09-17 10:01:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 class BufferStringSet;
 class uiListBox;
+class uiButton;
 class uiButtonGroup;
 
 
@@ -38,6 +39,11 @@ protected:
 
     uiListBox*		listfld_;
     uiButtonGroup*	bgrp_;
+    uiButton*		addbut_;
+    uiButton*		edbut_;
+    uiButton*		rmbut_;
+    uiButton*		upbut_;
+    uiButton*		downbut_;
 
     virtual void	editReq(bool isadd)	= 0;
     virtual void	removeReq()		= 0;
@@ -45,13 +51,15 @@ protected:
 
     int			currentItem() const;
     void		setItems(const BufferStringSet&,int newcur=-1);
+    void		manButSt();
 
-    void		addCB(CallBacker*)	{ editReq(true); }
-    void		edCB(CallBacker*)	{ editReq(false); }
-    void		rmCB(CallBacker*)	{ removeReq(); }
-    void		upCB(CallBacker*)	{ itemSwitch(true); }
-    void		downCB(CallBacker*)	{ itemSwitch(false); }
-    void		selChgCB(CallBacker*)	{ selectionChange.trigger(); }
+    void	addCB(CallBacker*)	{ editReq(true);	manButSt(); }
+    void	edCB(CallBacker*)	{ editReq(false);	manButSt(); }
+    void	rmCB(CallBacker*)	{ removeReq();		manButSt(); }
+    void	upCB(CallBacker*)	{ itemSwitch(true);	manButSt(); }
+    void	downCB(CallBacker*)	{ itemSwitch(false);	manButSt(); }
+    void	selChgCB(CallBacker*)	{ selectionChange.trigger();
+								manButSt(); }
 
 };
 

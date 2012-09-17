@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibuildlistfromlist.cc,v 1.11 2012-09-14 11:15:19 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uibuildlistfromlist.cc,v 1.12 2012-09-17 10:01:33 cvsbert Exp $";
 
 #include "uibuildlistfromlist.h"
 #include "uieditobjectlist.h"
@@ -46,17 +46,18 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
     bgrp_ = new uiButtonGroup( this );
     if ( compact )
     {
-#define mDefBut(txt,pm,cb,imm) \
-	new uiToolButton( bgrp_, pm, txt, mCB(this,uiEditObjectList,cb) )
+#define mDefBut(butnm,txt,pm,cb,imm) \
+	butnm##but_ = new uiToolButton( bgrp_, pm, txt, \
+		mCB(this,uiEditObjectList,cb) )
 	//-- Copy the following code exactly to the 'else' branch
 	//  (if you want to be purist, put it in a separate file and include it)
-	mDefBut( BufferString("&Add ",itmtyp), "addnew", addCB, false );
-	mDefBut( "&Edit properties", "edit", edCB, false );
-	mDefBut( BufferString("&Remove ",itmtyp), "trashcan", rmCB, true );
+	mDefBut( add, BufferString("&Add ",itmtyp), "addnew", addCB, false );
+	mDefBut( ed, "&Edit properties", "edit", edCB, false );
+	mDefBut( rm, BufferString("&Remove ",itmtyp), "trashcan", rmCB, true );
 	if ( movable )
 	{
-	    mDefBut( "Move &Up ", "uparrow", upCB, true );
-	    mDefBut( "Move &Down ", "downarrow", downCB, true );
+	    mDefBut( up, "Move &Up ", "uparrow", upCB, true );
+	    mDefBut( down, "Move &Down ", "downarrow", downCB, true );
 	}
 	//--
     }
@@ -64,20 +65,21 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
     {
 	int butsz = strlen(itmtyp) + 8;
 	if ( butsz < 20 ) butsz = 20;
+
 #undef mDefBut
-#define mDefBut(txt,pm,cb,imm) \
-	(new uiPushButton( bgrp_, txt, ioPixmap(pm), \
-			    mCB(this,uiEditObjectList,cb), imm )) \
-		->setPrefWidthInChar( butsz )
+#define mDefBut(butnm,txt,pm,cb,imm) \
+	butnm##but_ = new uiPushButton( bgrp_, txt, ioPixmap(pm), \
+			    mCB(this,uiEditObjectList,cb), imm ); \
+	butnm##but_->setPrefWidthInChar( butsz )
 
 	//-- Make sure this code is exactly a copy of above
-	mDefBut( BufferString("&Add ",itmtyp), "addnew", addCB, false );
-	mDefBut( "&Edit properties", "edit", edCB, false );
-	mDefBut( BufferString("&Remove ",itmtyp), "trashcan", rmCB, true );
+	mDefBut( add, BufferString("&Add ",itmtyp), "addnew", addCB, false );
+	mDefBut( ed, "&Edit properties", "edit", edCB, false );
+	mDefBut( rm, BufferString("&Remove ",itmtyp), "trashcan", rmCB, true );
 	if ( movable )
 	{
-	    mDefBut( "Move &Up ", "uparrow", upCB, true );
-	    mDefBut( "Move &Down ", "downarrow", downCB, true );
+	    mDefBut( up, "Move &Up ", "uparrow", upCB, true );
+	    mDefBut( down, "Move &Down ", "downarrow", downCB, true );
 	}
 	//--
 
@@ -94,15 +96,27 @@ int uiEditObjectList::currentItem() const
 
 void uiEditObjectList::setItems( const BufferStringSet& itms, int newcur )
 {
-    NotifyStopper ns( listfld_->selectionChanged );
     const int newsz = itms.size();
     if ( newcur < 0 ) newcur = currentItem();
     if ( newcur < 0 ) newcur = 0;
     if ( newcur >= newsz ) newcur = newsz-1;
+    NotifyStopper ns( listfld_->selectionChanged );
     listfld_->setEmpty();
     if ( newcur < 0 ) return;
+
     listfld_->addItems( itms );
     listfld_->setCurrentItem( newcur );
+    manButSt();
+}
+
+
+void uiEditObjectList::manButSt()
+{
+    const int curidx = currentItem();
+    edbut_->setSensitive( curidx >= 0 );
+    rmbut_->setSensitive( curidx >= 0 );
+    upbut_->setSensitive( curidx > 0 );
+    downbut_->setSensitive( curidx < listfld_->size() - 1 );
 }
 
 
