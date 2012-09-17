@@ -1,0 +1,55 @@
+ifndef __make.Parser__
+__make.Parser__ := 1
+
+#_______________________Pmake___________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile :	Makefile for (f)lex and yacc/bison
+#	July 1992	Bert Bril
+#	$Id: make.Parser,v 1.3 2003/11/07 12:21:50 bert Exp $
+#______________________________________________________________________________
+#
+# Rules, variables for lex/yacc or flex/bison.
+# Set SRC.l and SRC.y and the appropriate files will be added to
+# SRC.c, FILES and INTERMEDFILES.
+#
+
+
+ifndef NOGNUPARSER
+    LEX  := flex
+    YACC := bison
+endif
+
+.SUFFIXES : .l .y
+
+lex.%.c : %.l %.tab.h
+	@echo "$(LEX)-ing $< ... " $(TEE)
+ifeq ($(LEX),flex)
+	@-$(LEX) -CF -P$* $< $(OUT)
+else
+	@-$(LEX) $< $(OUT)
+	@$(MV) lex.yy.c lex.$*.c
+endif
+
+%.tab.h %.tab.c : %.y
+	@echo "$(YACC)-ing $< ... " $(TEE)
+ifeq ($(YACC),bison)
+	@-$(YACC.y) -p$* -d $< $(OUT)
+else
+	@-$(YACC.y) -d $< $(OUT)
+	@$(MV) gram.tab.c $*.tab.c
+endif
+
+SRC.l.c       := $(patsubst %.l,lex.%.c,$(SRC.l))
+SRC.y.c       := $(patsubst %.y,%.tab.c,$(SRC.y))
+SRC.y.h       := $(SRC.y.c:.c=.h)
+
+SRC.c	      += $(SRC.y.c) $(SRC.l.c)
+FILES         := $(sort $(FILES) $(SRC.c))
+SRCFILES      := $(sort $(SRCFILES) $(SRC.l) $(SRC.y))
+INTERMEDFILES += $(SRC.l.c) $(SRC.y.c) $(SRC.y.h)
+
+OWNINC += -I.
+
+# -- multiple inclusion protection --
+endif

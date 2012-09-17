@@ -1,0 +1,80 @@
+ifndef __make.Doc__
+__make.Doc__ := 1
+
+#_______________________Pmake___________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile :	Defines Doxygen-related Pmake rules/variables/targets
+#	April 2000	Arend Lammertink
+#	$Id: make.Doc,v 1.10 2010/02/08 12:03:49 cvsnanne Exp $
+#_______________________________________________________________________________
+# Doxygen document generation in DOCDIR
+
+DOCRELPATH := doc/Programmer/Generated
+DOCBASEDIR := $(WORK)/doc/Programmer/Generated
+DOCDIR := $(DOCBASEDIR)/$(MODULENAME)
+
+DOCDIRS := $(subst include,$(DOCRELPATH),$(subst -I,,$(C++INC)))
+DOCDIRS := $(filter-out $(DOCDIR),$(DOCDIRS))
+DOCDIRS := $(shell $(PMAKE)/bin/getdocdirs $(DOCDIRS))
+
+INCDIRS := $(subst -I,,$(C++INC))
+
+HTMLDEPS := $(foreach dir,$(DOCDIRS),$(dir).tag=$(dir))
+HTMLDEPS += $(EXTRAHTMLDEPS)
+
+DOCINPUTDIRS := $(subst $(DOCRELPATH),include,$(DOCDIR))
+ifeq ($(shell $(PMAKE)/bin/file_exists $(DOCINPUTDIRS)),no)
+    DOCINPUTDIRS := $(subst ProcSeis,Seis,$(DOCINPUTDIRS))
+    DOCINPUTDIRS := $(subst Batch,Prog,$(DOCINPUTDIRS))
+    ifeq ($(shell $(PMAKE)/bin/file_exists $(DOCINPUTDIRS)),no)
+        DOCINPUTDIRS :=
+    endif
+endif
+
+ifeq ($(PLUGIN),yes)
+    SRCDIR := plugins
+else
+    SRCDIR := src
+endif
+DOCINPUTDIRS += $(subst $(DOCRELPATH),$(SRCDIR),$(DOCDIR))
+
+DOCTMPPARS := /tmp/$(MODULENAME).inp
+ifndef DOCINLSRC
+    DOCINLSRC := YES
+endif
+
+
+doc :
+	@echo "Creating documentation in $(DOCDIR) ..." $(TEE)
+	@-$(RM) -r $(DOCDIR)
+	@-sed	-e "s|__module__|$(MODULENAME)|g" \
+		-e "s|__basedir__|$(DOCBASEDIR)|g" \
+		-e "s|__inpath__|$(DOCINPUTDIRS)|g" \
+		-e "s|__incdirs__|$(INCDIRS)|g" \
+		-e "s|__tagfils__|$(HTMLDEPS)|g" \
+		-e "s|__inlsrc__|$(DOCINLSRC)|g" \
+	 $(PMAKE)/doxy.pars.in > $(DOCTMPPARS)
+	@-doxygen $(DOCTMPPARS) $(OUT)
+	@-$(RM) $(DOCTMPPARS) $(OUT)
+
+ALLHTMLDEPS := $(wildcard $(WORK)/$(DOCRELPATH)/*.tag)
+ALLHTMLDEPS := $(ALLHTMLDEPS:.tag=)
+ALLHTMLDEPS := $(foreach dir,$(ALLHTMLDEPS),$(dir).tag=$(dir))
+ALLHTMLDEPS += $(EXTRAHTMLDEPS)
+
+fulldoc :
+	@echo "Creating documentation in $(DOCDIR) ..." $(TEE)
+	@-$(RM) -r $(DOCDIR)
+	@-sed	-e "s|__module__|$(MODULENAME)|g" \
+		-e "s|__work__|$(WORK)|g" \
+		-e "s|__inpath__|$(DOCINPUTDIRS)|g" \
+		-e "s|__tagfils__|$(ALLHTMLDEPS)|g" \
+		-e "s|__inlsrc__|$(DOCINLSRC)|g" \
+	 $(PMAKE)/doxy.pars.in > $(DOCTMPPARS)
+	@-doxygen $(DOCTMPPARS) $(OUT)
+	@-$(RM) $(DOCTMPPARS) $(OUT)
+
+
+# -- multiple inclusion protection --
+endif

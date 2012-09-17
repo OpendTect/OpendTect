@@ -1,0 +1,380 @@
+ifndef __make.Defaults__
+__make.Defaults__ := 1
+
+#_______________________Pmake___________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile:	Include determining default variables and rules
+#	May 1992	Bert Bril
+#	$Id: make.Defaults,v 1.59 2011/12/02 20:36:14 cvsjaap Exp $
+#_______________________________________________________________________________
+#
+# make.Defaults is the make include that establishes all default variables and
+# rules to be later used by make.Targets.
+
+# for programming
+Pspace := $(Pempty) $(Pempty)
+
+# Root of a Pmake directory tree must be `WORK'.
+ifndef WORK
+    ErrNoWork:
+	@echo "Error: You must define \$WORK (knurft-0.0)"
+endif
+
+# Plugin subdirectories
+ifdef PLUGINDEP
+    PLUGIN := yes
+    OWNINC += $(foreach inc,$(PLUGINDEP),-I$(WORK)/plugins/$(inc))
+    ifeq ($(HDIR),win)
+	EXTRALDLIBS += $(foreach lib,$(PLUGINDEP),-l$(lib))
+    endif
+    ifeq ($(HDIR),mac)
+	EXTRALDLIBS += $(foreach lib,$(PLUGINDEP),-l$(lib))
+    endif
+endif
+# Plugin include from other plugin's include dir
+ifdef PLUGININCDEP
+    PLUGIN := yes
+    OWNINC += $(foreach inc,$(PLUGININCDEP),-I$(WORK)/plugins/$(subst .,/include/,$(inc)))
+endif
+
+
+# Module and library name are often closely coupled. In Pmake, you specify
+# only part of the library file name: only that part that is variable. The
+# `LIBNAME' variable is used for this. If you specify `LIBNAME := foo', the full
+# library name will be `libfoo.a' (or .lib on win). This library will be put in
+# `$(WORK)/lib/$(PLFSUBDIR)/' . The module name is meant for the rest of the
+# naming related to the module's name. If you define one of `MODULENAME' and
+# `LIBNAME', but not the other, Pmake will set the other. If you set neither,
+# Pmake will use the name of the directory.
+ifndef MODULENAME
+    ifndef LIBNAME
+        MODULENAME := $(notdir $(shell pwd))
+    else
+        MODULENAME := $(LIBNAME)
+    endif
+endif
+ifndef LIBNAME
+    LIBNAME := $(MODULENAME)
+endif
+
+# add PROG sources to source files
+PROGSRCS	:= $(PROG.c) $(PROG.cc)
+ifdef PROG.cc
+    SRC.cc	:= $(SRC.cc) $(PROG.cc)
+endif
+ifdef PROG.c
+    SRC.c	:= $(SRC.c) $(PROG.c)
+endif
+
+# USE variables. Detecting what sort of files are specified by the user.
+ifdef SRC.cc
+    USEC++	:= yes
+endif
+ifdef SRC.y
+    USEPARSER	:= yes
+endif
+ifdef SRC.l
+    USEPARSER	:= yes
+endif
+ifdef SRC.idl
+    USEORB	:= yes
+endif
+ifdef EXTRAINC.ORB
+    USEORB	:= yes
+endif
+ifdef ORBPROJ
+    USEORB	:= yes
+endif
+ifdef SRC.moc
+    USEQTBASELIBS := yes
+endif
+ifdef USEQT
+    USEQTUILIBS := yes
+endif
+
+
+# DEBUG. Making sure only 'no', 'yes' and 'optyes'
+ifndef DEBUG
+    DEBUG := no
+endif
+ifneq ($(DEBUG),no)
+  ifneq ($(DEBUG),optyes)
+    DEBUG := yes
+  endif
+endif
+
+# Get Some site-specific things like HOST info
+include make.Site
+
+HDIRDIR := $(PLFSUBDIR)/G
+ifeq ($(DEBUG),no)
+    HDIRDIR := $(PLFSUBDIR)/O
+endif
+ifeq ($(DEBUG),optyes)
+    HDIRDIR := $(PLFSUBDIR)/OG
+endif
+
+MAKE	:= $(MAKE) -I$(WORK)/Pmake -I$(PMAKE)
+
+BINDIR	:= $(WORK)/bin/$(HDIRDIR)
+LIBDIR  := $(WORK)/lib/$(HDIRDIR)
+
+# Get important variables and rules
+include make.Base
+
+ifdef REFERS_QTLIBS
+    ifdef NEEDLIBSFORSHLIBLINK
+	USEQTUILIBS := yes
+    endif
+endif
+
+ifndef USEX
+  USEX := no
+endif
+ifdef USEQTUILIBS
+  USEX := yes
+endif
+ifdef USECOIN
+  USEX := yes
+endif
+
+ifeq ($(USEX),no)
+    XLIB := 
+    XINC := 
+else
+    LDLINKDIRS += $(XLDLINKDIRS)
+endif
+
+ifdef USEQTUILIBS
+    USEQTBASELIBS := yes
+endif
+ifdef PROG.cc
+    USEQTBASELIBS := yes
+endif
+ifdef USEQTBASELIBS
+    include make.Qt
+endif
+ifdef USECOIN
+    include make.Coin
+endif
+
+ifdef USEOSG
+    include make.osg
+endif
+
+# Libraries are put in a platform-dependent subdirectory from the `lib'
+# directory. Shared libraries are different, these are really parts of
+# executables. The library names are derived using `LIBNAME':
+
+ifndef LIBWORK
+    LIBWORK := $(LIBDIR)/$(call GetLibName,$(LIBNAME))
+endif
+
+ifndef SHLIBWORK
+    SHLIBWORK := $(LIBDIR)/$(call GetShLibName,$(LIBNAME))
+endif
+
+ifndef NOSHAREDLIB
+
+    SHLDFLAGS += $(EXTRASHLDFLAGS)
+
+    ifeq ($(HDIR),win)
+	ifneq ($(USEMSVC),yes)
+	    SHLDFLAGS += -Wl,--out-implib=$(LIBDIR)/lib$(LIBNAME).dll.a \
+			-Wl,--export-all-symbols \
+			-Wl,--enable-auto-import \
+			-Wl,--whole-archive ${ALLSHLIBDEPS} \
+			-Wl,--no-whole-archive  ${WLIBS}
+	endif
+    endif
+    ifeq ($(HDIR),mac)
+	SHLDFLAGS += -Wl,-executable_path,$(BINDIR)
+        SHLDFLAGS += -install_name \
+            "`echo "@executable_path/../Frameworks/$(call GetShLibName,$(LIBNAME))" \
+            |  sed 's!//*!/!g'`"
+    endif
+
+    ALLSHLIBDEPS := $(LIBWORK)
+    ifdef EXTRALIBSFORSHLIB
+     ifndef EXTRASHLIBS
+      EXTRASHLIBS := $(EXTRALIBSFORSHLIB)
+     endif
+    endif
+    ifdef EXTRASHLIBS
+      ALLSHLIBDEPS += $(foreach lib,$(EXTRASHLIBS),$(LIBDIR)/$(call GetLibName,$(lib)))
+    endif
+endif
+
+# `LIBWORK' is used to put the objects in.
+# `LDLIBS' is the variable holding the complete library path for program
+# linking.
+# Beware that some linkers are not smart. That means that the order of the
+# libraries can be important. As such, there is no standard way to specify a
+# complete library path in terms of module names. What Pmake can do is
+# provide:
+# - a default `LDLIBS' with `LIBWORK', X libs, etc.
+# - extra libraries after the standard `LDLIBS' but before the
+# system libs (for X etc.) can be specified with `EXTRALDLIBS'
+
+ifeq ($(USEC++),yes)
+    LINKER  = $(LINK.cc)
+endif
+
+LDLINKDIRS += -L$(LIBDIR) -L$(BINDIR)/so
+ifeq ($(HDIR),win)
+    ifdef MINGWHOME
+        LDLINKDIRS += -L$(MINGWHOME)/mingw32/lib \
+		      -L$(MINGWHOME)/w32api/lib \
+		      -L$(MINGWHOME)/lib \
+		      -L/c/WINNT/system32
+    else
+        LDLINKDIRS += -L/c/WINNT/system32
+    endif
+endif
+ifeq ($(PLFSUBDIR),lux64)
+    LDLINKDIRS += -L/usr/lib64
+endif
+ifeq ($(PLFSUBDIR),lux32)
+    LDLINKDIRS += -L/lib/tls
+endif
+LDLINKDIRS += $(OWNLDLINKDIRS)
+LDLIBS  := $(LIBWORK)
+
+
+# SRCFILES - as opposed to INTERMEDFILES
+
+SRCFILES := $(SRC.cc) $(SRC.c) $(SRC.h)
+
+
+# ALLLIBS makes a list of Lxxx variables into LINKLIBS
+
+ifdef ALLLIBS
+    LINKLIBS := $(foreach lib,$(ALLLIBS),$(L$(lib)))
+    LINKLIBS := $(shell $(PMAKE)/bin/get_libs --testexist $(HDIRDIR) $(LINKLIBS))
+    LDLIBS   := $(subst $(LIBWORK),$(LINKLIBS),$(LDLIBS))
+endif
+
+# Include file search paths are determined from `WORK'.  You can
+# overrule the generation process by defineing `MYINC', which will literally
+# be inserted into the compile statement. The standard include directories
+# are relative to `WORK':
+
+INCDIR := $(WORK)/include
+
+ifneq ($(MODULENAME),$(LIBNAME))
+    PIINCSRCH += $(LIBNAME)
+    NOSHAREDLIB := yes
+endif
+ifeq ($(findstring ui,$(LIBNAME)),ui)
+    PIINCSRCH += $(patsubst ui%,%,$(LIBNAME))
+endif
+
+# Construction of 'INC' variables
+
+ifdef MYINC
+    INC := $(MYINC)
+else
+    ifdef EXTRAINC
+	INCSUBS := $(shell $(PMAKE)/bin/find_incdirs $(words $(PIINCSRCH)) $(PIINCSRCH) $(EXTRAINC))
+        INCSUB += $(foreach subd, $(addprefix -I,$(INCSUBS)),$(subd))
+    endif
+    ifneq ($(USEX),yes)
+        XINC :=
+    endif
+    INC += $(INCSUB) $(XINC) $(OWNINC)
+    ifdef MODS.sub
+	INC += $(foreach subd,$(MODS.sub),$(addprefix -Iinclude/,$(subd)))
+    endif
+endif
+
+C++INC += $(INC)
+
+
+ifdef USEPARSER
+    include make.Parser
+endif
+ifdef USEORB
+    include make.ORB
+endif
+
+# vpath is a directive used by GNU make to look for targets. By default only
+# the current directory is searched, but we need all INC's to be there.
+
+ifdef USEC++
+    VPATHSTD := $(subst -I,,$(C++INC))
+else
+    VPATHSTD := $(subst -I,,$(INC))
+endif
+VPATHSTD := $(subst $(Pspace),:,$(VPATHSTD))
+VPATHSTD := $(subst ::,:,$(VPATHSTD))
+ifeq ($(VPATHBASE),$(empty))
+    VPATHBASE := $(VPATHSTD)
+else
+    VPATHBASE += :$(VPATHSTD)
+endif
+
+vpath %.h $(VPATHBASE)
+
+
+# Extending LDLIBS
+
+LDLIBS += $(EXTRALDLIBS)
+LDLIBS += $(XLIB)
+ifeq ($(USEC++),yes)
+    ifeq ($(C++TYPE),GNU)
+	LDLIBS += -lstdc++
+    endif
+endif
+
+ifeq ($(HDIR),sun5)
+    LDLIBS  += -lnsl -lsocket -lw -ldl
+endif
+ifeq ($(HDIR),mac)
+    LDLIBS  += -lgcc
+endif
+ifeq ($(HDIR),win)
+  LDLIBS += -lmsvcrt -lshlwapi -lwsock32 -lole32 -luuid
+  ifndef NOSHAREDLIB
+	C++OPTS += -D$(MODULENAME)_EXPORT
+	COPTS +=  -D$(MODULENAME)_EXPORT
+  endif
+else
+    LDLIBS += -lm -ldl
+endif
+
+# All srcs in lib
+LIBSRCS	:= $(filter-out $(PROGSRCS),$(SRC.c) $(SRC.cc))
+
+# Some rules that cannot go in make.Base
+%.rmlib :
+	@echo "Removing $*.o from $(LIBWORK) ..."
+	@-ar dv $(LIBWORK) $*.o
+	@$(RANLIB) $(LIBWORK)
+%.rmlib2 :
+	@echo "Removing $*.o from $(LIBWORK) again ..."
+	@ar dv $(LIBWORK) $*.o
+	@$(RANLIB) $(LIBWORK)
+
+define gen-libobj
+    @echo "Compiling $< ... " $(TEE)
+    @$(P_COMPILE.cc) $< $(OUT)
+    @echo "Putting $*.o in $(LIBWORK) ... " $(TEE)
+    @$(AR) $(ARFLAGS) $(LIBWORK) $*.o $(OUT)
+    @-$(RM) $*.o
+    @$(RANLIB) $(LIBWORK)
+endef
+
+%.libobj : %.cc
+	$(gen-libobj)
+%.libobj : %.cxx
+	$(gen-libobj)
+
+# Add directly made programs ('make foo') to the clean up list
+CLEAN += $(basename $(wildcard *.c))
+CLEAN += $(basename $(wildcard *.cc))
+CLEAN += $(basename $(wildcard *.cxx))
+
+
+# -- multiple inclusion protection --
+endif

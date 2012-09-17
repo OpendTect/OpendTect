@@ -1,0 +1,50 @@
+ifndef __make.Coin_
+__make.Coin_ := 1
+
+#_______________________Pmake___________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile:	Include determining default variables and rules
+#	May 1992	Bert Bril
+#	$Id: make.Coin,v 1.8 2010/09/08 07:59:45 cvskarthika Exp $
+#_______________________________________________________________________________
+#
+
+ifndef OD_COINDIR
+    OD_COINDIR := $(COINDIR_DEFAULT)
+endif
+
+OWNINC += -I$(OD_COINDIR)/include
+COINLIBS := -lSoQt -lCoin
+COINLDLINKDIRS := -L$(OD_COINDIR)/lib
+
+ifeq ($(HDIR),win)
+    C++OPTS	+= -DCOIN_DLL -DSOQT_DLL -DSIMVOLEON_DLL
+    COPTS	+= -DCOIN_DLL -DSOQT_DLL -DSIMVOLEON_DLL
+    COINLIBS += -lopengl32
+endif
+
+ifeq ($(HDIR),mac)
+    OWNLDFLAGS += -framework OpenGL
+endif
+
+ifdef USE_SIM_VOL
+    COINLIBS += -lSimVoleon
+endif
+
+ifneq ($(HDIR),win)
+    COINLIBS += -lQtOpenGL
+endif
+
+ifeq ($(HDIR),lux)
+    ifdef COINDEBUG
+       COINLIBS += -lXi
+    endif
+endif
+
+EXTRALDLIBS += $(COINLIBS)
+LDLINKDIRS += $(COINLDLINKDIRS)
+
+
+# -- multiple inclusion protection --
+endif

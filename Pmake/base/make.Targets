@@ -1,0 +1,240 @@
+ifndef __make.Targets__
+__make.Targets__ := 1
+
+#_______________________________________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile:	Pmake include defining targets
+#	July 1992	Bert Bril
+#	$Id: make.Targets,v 1.32 2010/11/24 17:06:03 cvskris Exp $
+#_______________________________________________________________________________
+#
+
+ifdef PROG.c
+    HAVEPROGS.link := yes
+endif
+ifdef PROG.cc
+    HAVEPROGS.link := yes
+endif
+
+ifdef HAVEPROGS.link
+    PROGS.srcs := $(PROG.c) $(PROG.cc)
+    PROGS.link := $(PROG.c:.c=) $(PROG.cc:.cc=)
+    PROGS.link := $(PROGS.link:.cxx=)
+    OSRC.c   := $(filter-out $(PROG.c),$(SRC.c))
+    OSRC.cc  := $(filter-out $(PROG.cc),$(SRC.cc))
+    SRC.c.o  := $(OSRC.c:.c=.o)
+    SRC.cc.o := $(OSRC.cc:.cc=.o)
+    SRC.cc.o := $(SRC.cc.o:.cxx=.o)
+    PROGS.link := $(addprefix $(BINDIR)/,$(PROGS.link))
+else
+    SRC.c.o  := $(SRC.c:.c=.o)
+    SRC.cc.o := $(SRC.cc:.cc=.o)
+    SRC.cc.o := $(SRC.cc.o:.cxx=.o)
+endif
+
+# List of modules lib(a.o) lib(b.o) ...
+ALLOBJS	:= $(SRC.c.o) $(SRC.cc.o)
+op := (
+cp := )
+ALLLIBOBJS := $(addprefix $(LIBWORK),$(addsuffix $(cp),$(addprefix $(op),$(ALLOBJS))))
+
+# The default target is what is done when no target is specified.
+# It is determined from whether there are programs to link. If not, the
+# library-objects will be default target. This scheme can be overruled by the
+# user by specifying a `DEFAULTTARGETS' variable.
+
+ifdef MODS.sub
+    ifndef NOSUBMODS
+        DEP.sub := sub
+    endif
+endif
+
+ifndef DEFAULTTARGETS
+    DEFAULTTARGETS := .INIT .FILES $(DEP.sub) $(PREMAKETARGETS) $(LIBWORK)
+    ifndef NOSHAREDLIB
+        DEFAULTTARGETS += $(SHLIBWORK)
+    endif
+    ifdef HAVEPROGS.link
+        DEFAULTTARGETS += $(PROGS.link)
+    endif
+    DEFAULTTARGETS += $(POSTMAKETARGETS) .DONE
+endif
+
+all : $(DEFAULTTARGETS)
+
+# ---- Executables ----
+
+# - 'link': This target will link all exectuables.
+ifdef HAVEPROGS.link
+
+    .LINK: link
+    link: $(DEP.sub) .RMPROG $(PROGS.link)
+
+    .RMPROG :
+	@-$(RM) $(PROGS.link)
+
+endif
+
+# - 'lib': This target will build the libraries only.
+alib: .INIT .FILES $(DEP.sub) $(LIBWORK) .DONE
+ifndef NOSHAREDLIB
+  lib: .INIT .FILES $(DEP.sub) $(SHLIBWORK) .DONE
+else
+  lib: $(DEP.sub) alib
+endif
+
+$(LIBWORK) : $(ALLLIBOBJS)
+ifneq ($(strip $(ALLLIBOBJS)),$(empty))
+ifneq ($(RANLIB),/bin/true)
+	@echo "Ranlib on $(notdir $@) ... " $(TEE)
+	@-$(RANLIB) $@
+endif
+endif
+
+ifdef MODS.sub
+    sub : $(addsuffix .sub,$(MODS.sub))
+    %.sub :
+	@-(cd src/$*; $(MAKE) $(MAKECMDGOALS))
+    shlib : $(SRCFILES) $(INTERMEDFILES) $(SHLIBWORK)
+endif
+
+
+ifndef NOSHAREDLIB
+
+    MKSHOBJLIBCMDSTART := $(PMAKE)/bin/mkshobjlib $(MKSHOBJLIBFLAGS) \
+ 			  $(ALLSHLIBDEPS) --output $(SHLIBWORK)
+    ifdef NEEDLIBSFORSHLIBLINK
+        SHLIBLIBS := $(filter-out -l$(MODULENAME), $(LINKLIBS)) \
+		     $(filter-out -l$(MODULENAME), $(LDLIBS))
+        ifeq ($(HDIR),mac)
+             SHLIBLIBS += $(QTLIBS)
+        endif
+    endif
+    ifneq ($(HDIR),mac)
+	SHLDFLAGS += $(filter-out $(C++INC),$(C++FLAGS))
+    else
+	ifeq ($(PLFARCH),PowerPC)
+	    SHLDFLAGS += -arch ppc
+	else
+	    ifeq ($(PLFARCH),i386)
+		SHLDFLAGS += -arch i386
+	    else
+		SHLDFLAGS += -arch x86_64
+	    endif
+	endif
+    endif
+
+    $(SHLIBWORK) : $(ALLSHLIBDEPS)
+	@-echo "Creating $@ ..." $(TEE)
+	@-$(MKSHOBJLIBCMDSTART) $(P_LINK.cc) $(SHLDFLAGS) \
+		$(LDLINKDIRS) $(SHLIBLIBS) $(EXTRASHLDLIBS) $(OUT)
+endif
+
+
+# ---- Other targets ----
+
+.INIT :
+	@-$(RM) $(LIST)
+	@echo "  Making $(CURDIR) / $(PLFSUBDIR) ($(DATE)) DEBUG=$(DEBUG)." $(TEE)
+ifdef PREINITCMD
+	$(PREINITCMD)
+endif
+
+.DONE :
+ifdef PREDONECMD
+	$(PREDONECMD)
+endif
+	@echo "  Done !" $(TEE)
+
+
+# - 'dep': This target will create include file dependencies in a file '.deps'.
+# This feature of Pmake is realized through a perl script.
+# The script will run `gcc -E' which returns all dependencies. The output
+# will be edited and formatted into a dependency list at the end of your
+# Makefile. There are two noteworthy aspects:
+# - To run this target, you need perl
+# - You will probably want to create or edit the `NoDepend' file in $PMAKE
+# The NoDepend file contains all directories of which the dependencies must
+# not be included in the Makefile. It is nothing more than a
+# one-directory-per-line list. Include files from directories in this list
+# are removed from the dependencies. `/usr/include', `/usr/include/sys' and
+# `/usr/include/X11' are already by default in this list, NoDepend
+# directories are added. If a directory in NoDepend does not exist, it will
+# be ignored.
+
+LIBDEPS	:= $(addprefix =,$(LIBSRCS))
+PROGDEPS:= $(addprefix +,$(PROGSRCS))
+dep : .FILES $(DEP.sub) $(SRC.c) $(SRC.cc)
+	@echo "Generating dependencies for make file ..." $(TEE)
+ifdef USEC++
+	@$(GENDEPSCMD) $(GENDEPSFLAGS) $(C++INC) $(LIBDEPS) $(PROGDEPS) $(OUT)
+else
+	@$(GENDEPSCMD) $(GENDEPSFLAGS) $(INC) $(LIBDEPS) $(PROGDEPS) $(OUT)
+endif
+
+include make.Doc
+
+
+# - 'clean': cleans up directory. will remove contents of `CLEAN' variable.
+
+.CLEAN: $(DEP.sub)
+	@echo "  Cleaning up $(CURDIR) ..." $(TEE)
+	@$(RM) $(CLEAN)
+clean   : .CLEAN
+
+#@+ realclean
+# - 'realclean': is `clean' and removal of all `INTERMEDFILES'
+# (see make.Defaults).
+
+.REALCLEAN	: $(DEP.sub)
+	@echo "  Really cleaning up $(CURDIR) ..." $(TEE)
+	@$(RM) $(CLEAN) $(INTERMEDFILES)
+realclean   : .REALCLEAN
+
+# - 'files': creates all files that are needed for compilation.
+
+FILES := $(SRCFILES) $(INTERMEDFILES)
+
+.FILES : $(DEP.sub) files
+files: $(FILES)
+
+# Below a rule to make sure executables are re-made when their libs change
+ifdef HAVEPROGS.link
+ifdef ALLLIBS
+
+    DEPLIBS := $(shell $(PMAKE)/bin/get_libs --expand $(HDIRDIR) $(LINKLIBS))
+    $(PROGS.link) : $(DEPLIBS)
+
+endif
+endif
+
+# Incude the output of 'make dep' if present
+ifeq ($(shell $(PMAKE)/bin/file_exists .deps),yes)
+    include .deps
+endif
+
+
+# If you want to query the contents of a make variable, use '.q' target as in
+# the following example:
+# make .q v=LDLIBS
+# This will show the contents of the LDLIBS variable.
+
+.q:
+	@echo "$($(v))"
+
+# - 'special':
+# Last but not least a very important target for every programmer. It is
+# the "I'm busy" or "Look, it's working!" target. A small contribution to
+# the ever ongoing battle programmer - manager.
+
+special: .INIT $(DEP.sub) $(SRC.c:.c=.special) $(SRC.cc:.cc=.special) .DONE
+%.special : %.c
+	@echo "Compiling $< ... "
+	@sleep 6
+%.special : %.cc
+	@echo "Compiling $< ... "
+	@sleep 6
+
+# -- multiple inclusion protection --
+endif

@@ -1,0 +1,487 @@
+ifndef __make.Base__
+__make.Base__ := 1
+
+#_______________________Pmake___________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile :	Makefile determining defaults independent of Pmake
+#	July 1992	Bert Bril
+#	$Id: make.Base,v 1.56 2012/03/05 09:26:11 cvsdgb Exp $
+#______________________________________________________________________________
+#
+# Basic variables and rules. Will be included by make.defaults.
+
+include make.Site
+
+# Definitions
+# The first things needed are some variable definitions:\line
+# `TMPFILEBASE' is a name for temporary files in Pmake. \line
+# `LIST' is the name of the log file. It defaults to `ls$(HDIR)'. If you want
+# to overrule this name, define LIST before including %M%. \line
+# `OUT' is the variable used to actually put output in the log file. It
+# depends on `LIST'. If you set `OUTSTDOUT := yes' before including make.Base,
+# pmake will not make a log file. \line
+# `TEE' is like `OUT' but simultanously puts output on stdout/stderr
+
+TMPFILEBASE := _tmp_pmake_
+
+ifndef LIST
+   LIST	:= ls$(HDIR)
+endif
+
+CWD	:= $(strip $(shell pwd))
+CURDIR	:= $(notdir $(CWD))
+DATE	:= $(wordlist 2,4,$(shell date))
+CLEAN	:= *.o a.out core lssun5 lslux lswin lsmac \
+           *.ppc *.lint *.ppi $(TMPFILEBASE).* *.obj
+
+ifndef LIST
+   LIST	:= ls$(HDIR)
+   ifdef LIST_TMP
+      LIST := /tmp/$(CURDIR).ls$(HDIR)
+   endif
+endif
+
+ifeq ($(OUTSTDOUT),yes)
+    OUT := $(Pempty)
+    TEE	:= $(Pempty)
+else
+    OUT	:= 1>>$(LIST) 2>&1
+    TEE	:= | tee -a $(LIST)
+endif
+
+# Commands.
+# A number of standard unix commands are defined: `MV', `CP', `RM'
+# speak fairly for themselves. `GENDEPS' is
+# the Pmake header file dependency generator.
+
+GENDEPSCMD	:= $(PMAKE)/bin/gendeps
+MV		:= mv -f
+CP		:= cp -p
+LN		:= ln -s
+
+# Compilers
+# C and C++ compiling and linking are supported by Pmake. On different
+# platforms, different systems, brands etc. may be used. The usage of gcc
+# is strongly advised. If you want to use gcc, just put `USEGCC := yes' in
+# your Makefile. Otherwise, set `USEGCC := no'.
+# There are many variables to influence what's going on here: see for yourself.
+
+ifndef GPPCOMMAND
+    GPPCOMMAND := gcc
+endif
+ifndef GCCOMMAND
+    GCCOMMAND := gcc
+endif
+ifndef JAVAC
+    JAVAC := gcj
+endif
+
+ifeq ($(USEGCC),yes)
+    ifeq ($(LOCALC),yes)
+        CC := cc
+    else
+        CC := $(GCCOMMAND)
+    endif
+    ifeq ($(LOCALC++),yes)
+        C++ := CC
+    else
+        C++ := $(GPPCOMMAND)
+    endif
+else
+    ifeq ($(USEPATHCC),yes)
+        CC := pathcc
+        C++ := pathCC
+    else
+        CC  := cc
+        C++ := CC
+    endif
+    JAVAC := javac
+endif
+
+ifdef OWNGCCDIR
+    CC := $(OWNGCCDIR)/bin/gcc
+    C++ := $(OWNGCCDIR)/bin/$(GPPCOMMAND)
+endif
+
+RANLIB := ranlib
+ifeq ($(HDIR),sun5)
+    RANLIB := /bin/true
+endif
+
+C++TYPE := GNU
+ifeq ($(HDIR),win)
+    ifeq ($(USEMSVC),yes)
+	CC  := $(PMAKE)/bin/win_compile_c
+	C++ := $(PMAKE)/bin/win_compile_cpp
+	C++TYPE := MSVC
+    else
+	CC  := gcc
+	C++ := $(GPPCOMMAND)
+    endif
+endif
+
+# Flags
+# for compiling and linking are automatically added by Pmake. The resulting
+# flags are available in the variables `CFLAGS', `C++FLAGS' and
+# `LDFLAGS'. As an example the C flags:
+# `CFLAGS = $(CDBGFLG) $(INC) $(LOCALFLAGS) $(COPTS) $(OWNCFLAGS)'
+# The flags are defined similarly for `C++' (e.g. `COPTS' vs `C++OPTS').
+# `CDBGFLG' will typically contain -g or -O. If you set `DEBUG := yes'
+# Pmake will use -g.
+# `INC' holds the include paths, and is explained in make.Defaults.
+# `LOCALFLAGS' holds flags that are very specific for the platform.
+# `COPTS' holds flags that are related to language features (e.g. prototyping
+# vs non-prototyping)
+# `OWNCFLAGS' can be used to add user flags. For example: `OWNCFLAGS := -DTEST'.
+
+CDBGFLG  := -g
+ifeq ($(USEGCC),yes)
+    CDBGFLG  := -ggdb3
+endif
+
+LOCALFLAGS := -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DSYSV
+ifeq ($(PLFARCH),PowerPC)
+    LOCALFLAGS += -Dmacppc
+endif
+
+ifeq ($(HDIR),win)
+    ifneq ($(USEMSVC),yes)
+	LOCALFLAGS += -mno-cygwin -mms-bitfields -march=i386
+    endif
+endif
+
+ifeq ($(HDIR),mac)
+    OWNLDFLAGS += -framework CoreFoundation -framework ApplicationServices
+    LOCALFLAGS += -fno-common -headerpad_max_install_names -bind_at_load
+    ifeq ($(PLFARCH),PowerPC)
+	LOCALFLAGS += -arch ppc
+    else
+	ifeq ($(PLFARCH),i386)
+	    LOCALFLAGS += -arch i386
+	else
+	    LOCALFLAGS += -arch x86_64
+	endif
+    endif
+endif
+
+ifneq ($(DEBUG),no)
+    LOCALFLAGS += -D__debug__
+else
+    CDBGFLG :=
+endif
+ifneq ($(DEBUG),yes)
+    ifndef OPTFLG
+	# Don't use higher optim since we have had compiler-bugs (gcc 3.2)
+	# that are a nightmare to db
+        OPTFLG := -O2	
+    endif
+endif
+
+ifndef NOSHAREDLIB
+    C++OPTS += -D__shared__
+    COPTS += -D__shared__
+    ifeq ($(HDIR),sun5)
+        COPTS += -fPIC
+        C++OPTS += -fPIC
+    endif
+    ifeq ($(HDIR),lux)
+	ifeq ($(PLFSUBDIR),lux64)
+	    COPTS += -fPIC
+	    C++OPTS += -fPIC
+        endif
+    endif
+    ifeq ($(HDIR),win)
+        NEEDLIBSFORSHLIBLINK := yes
+    endif
+    ifeq ($(HDIR),mac)
+        NEEDLIBSFORSHLIBLINK := yes
+    endif
+    ifdef EXTRALIBSFORSHLIB
+        NEEDLIBSFORSHLIBLINK := yes
+    endif
+endif
+
+ifneq ($(HDIR),mac)                                                       
+    COPTS += -Wmissing-declarations                                       
+endif
+
+ifeq ($(C++TYPE),GNU)
+
+  ifeq ($(GNU_PERMISSIVE),yes)
+    C++OPTS += -fpermissive -w
+  else
+    C++OPTS += -fsigned-char
+    ifdef GNU_CONVERSION_ERRS
+      C++OPTS += -Wconversion
+    endif
+    ifndef NOVERBOSEGNU
+
+      C++OPTS += -Wparentheses -Wreturn-type -Wpointer-arith \
+		 -Wwrite-strings -Wno-non-template-friend -Winline \
+		 -Wformat -Wshadow -Woverloaded-virtual
+
+      ifeq ($(DEBUG),yes)
+        C++OPTS += -Werror
+      endif
+
+    endif
+
+  endif
+endif
+
+ifdef COPTSFILTER
+  COPTS := $(filter-out $(COPTSFILTER),$(COPTS))
+endif
+ifdef C++OPTSFILTER
+  C++OPTS := $(filter-out $(C++OPTSFILTER),$(C++OPTS))
+endif
+
+LOCALFLAGS += -D$(HDIR) -D$(PLFSUBDIR)
+
+CFLAGS  = $(CDBGFLG) $(OPTFLG) $(LOCALFLAGS) $(COPTS) $(OWNCFLAGS) $(INC)
+C++FLAGS= $(CDBGFLG) $(OPTFLG) $(LOCALFLAGS) $(C++OPTS) $(OWNC++FLAGS) $(C++INC)
+LDFLAGS = $(OWNLDFLAGS)
+
+NEEDSTRIP := no
+ifndef DONTSTRIP
+ ifeq ($(DEBUG),no)
+  ifneq ($(HDIR),sgi)
+   ifneq ($(HDIR),mac)
+    LDFLAGS   += -s
+    NEEDSTRIP := yes
+   endif
+  endif
+  ifeq ($(HDIR),win)
+   NEEDSTRIP := no
+  endif
+ endif
+endif
+
+ifndef NOSHAREDLIB
+    ifeq ($(HDIR),mac)
+        SHLDFLAGS = -dynamiclib
+    else
+        SHLDFLAGS = -shared
+    endif
+endif
+
+# Linking
+# is done by the C or C++ linker. A special case is that a C
+# main program may need C++ linking. If any of the libraries to be linked
+# contains objects from C++ code, this must be done. In that case, you may
+# need to specify `USEC++ := yes' in your Makefile before including.
+
+P_COMPILE.c  = $(CC) -c $(CFLAGS)
+P_COMPILE.cc = $(C++) -c $(C++FLAGS)
+P_COMPILE.java = $(JAVAC) -C $(JAVAFLAGS)
+P_LINK.cc    = $(C++) $(LDFLAGS)
+
+ifdef USEC++
+    P_LINK = $(P_LINK.cc)
+else
+    P_LINK.c = $(CC) $(LDFLAGS)
+
+    ifeq ($(USEMSVC),yes)
+        P_LINK   = $(PMAKE)/bin/win_link $(LDFLAGS)
+    else
+        P_LINK = $(P_LINK.c)
+    endif
+endif
+
+
+# Library names
+
+ifeq ($(HDIR),win)
+    SHLIBEXT := dll
+    LIBEXT := lib
+else
+    LIBEXT := a
+    ifeq ($(HDIR),mac)
+        SHLIBEXT := dylib
+    else
+        SHLIBEXT := so
+    endif
+endif
+
+ifeq ($(HDIR),win)
+    GetLibName = $(1).$(LIBEXT)
+    GetShLibName = $(1).$(SHLIBEXT)
+else
+    GetLibName = lib$(1).$(LIBEXT)
+    GetShLibName = lib$(1).$(SHLIBEXT)
+endif
+
+
+.SUFFIXES :
+# Rules
+# are the core of Pmake. On the basis of a specific part of the file name -
+# most often the suffix - Pmake makes decisions on what to do with it. For
+# example, a file with suffix .c can produce a file with .o by compiling
+# with the C compiler. Here is a list of suffixes used by Pmake:
+
+.SUFFIXES : .$(LIBEXT) .$(SHLIBEXT) .o .c .cc .cxx .l .y .lint .ppc .ppi
+
+# A few of these need an explanation:
+# `.cc' and `.cxx' are the only C++ source file extensions supported by Pmake.
+# Please rename your .cpp .C etc. files.
+# `.l' and `.y' are lex and yacc (flex and bison) files. See make.Parser.
+# `.lint' is the output of a lint run on a `.c' file.
+# `.ppc' is the output of the preprocessor on a `.c' or `.cc/cxx' file.
+# `.ppi' is a file with all dependencies on included files.
+
+# Overrule this if you don't trust your /tmp (too small)
+ifndef TMPPREFIX
+    ifneq ($(HDIR),win)
+	TMPPREFIX := /tmp/
+    endif
+endif
+
+# C
+(%.o) : %.c
+	@echo "Compiling $< ... " $(TEE)
+	@-$(P_COMPILE.c) -o $(TMPPREFIX)$*.o $< $(OUT)
+	@-$(AR) $(ARFLAGS) $@ $(TMPPREFIX)$*.o $(OUT)
+	@-$(RM) $(TMPPREFIX)$*.o
+
+%.o : %.c
+	@echo "Compiling $< ... " $(TEE)
+	@-$(P_COMPILE.c) $<  $(OUT)
+
+# C++
+define gen-c++-lib-obj
+    @echo "Compiling $< ... " $(TEE)
+    @-$(P_COMPILE.cc) $< -o $(TMPPREFIX)$*.o $(OUT)
+    @-$(AR) $(ARFLAGS) $@ $(TMPPREFIX)$*.o $(OUT)
+    @-$(RM) $(TMPPREFIX)$*.o
+endef
+
+(%.o) : %.cc %.h
+	$(gen-c++-lib-obj)
+(%.o) : %.cc
+	$(gen-c++-lib-obj)
+(%.o) : %.cxx %.h
+	$(gen-c++-lib-obj)
+(%.o) : %.cxx
+	$(gen-c++-lib-obj)
+
+define gen-c++-obj
+    @echo "Compiling $< ... " $(TEE)
+    @-$(P_COMPILE.cc) $<  $(OUT)
+endef
+define gen-java-bytecode
+    @echo "Generating bytecode for $< ... " $(TEE)
+    @-$(P_COMPILE.java) $< $(OUT)
+endef
+
+%.o : %.cc %.h
+	$(gen-c++-obj)
+%.o : %.cc
+	$(gen-c++-obj)
+%.o : %.cxx %.h
+	$(gen-c++-obj)
+%.o : %.cxx
+	$(gen-c++-obj)
+%.class : %.java
+	$(gen-java-bytecode)
+
+
+# Make executable from single file
+
+ifeq ($(NEEDSTRIP),yes)
+  define gen-c-prog
+    @echo "Making $@ ... " $(TEE)
+    @-$(P_LINK) $(CFLAGS) -D__prog__ -o $@ $< $(LDLINKDIRS) $(LDLIBS) $(OUT)
+    @-strip $@
+  endef
+else
+  define gen-c-prog
+    @echo "Making $@ ... " $(TEE)
+    @-$(P_LINK) $(CFLAGS) -D__prog__ -o $@ $< $(LDLINKDIRS) $(LDLIBS) $(OUT)
+  endef
+endif
+
+% : %.c
+	$(gen-c-prog)
+$(BINDIR)/% : %.c
+	$(gen-c-prog)
+
+ifeq ($(NEEDSTRIP),yes)
+  define gen-c++-prog
+    @echo "Making $@ ... " $(TEE)
+    @-$(P_LINK.cc) $(C++FLAGS) -D__prog__ -o $@ $< $(LDLINKDIRS) $(LDLIBS) $(OUT)
+    @-strip $@
+  endef
+else
+  define gen-c++-prog
+    @echo "Making $@ ... " $(TEE)
+    @-$(P_LINK.cc) $(C++FLAGS) -D__prog__ -o $@ $< $(LDLINKDIRS) $(LDLIBS) $(OUT)
+  endef
+endif
+
+% : %.cc
+	$(gen-c++-prog)
+$(BINDIR)/% : %.cc
+	$(gen-c++-prog)
+% : %.cxx
+	$(gen-c++-prog)
+$(BINDIR)/% : %.cxx
+	$(gen-c++-prog)
+
+ifndef NOSHAREDLIB
+
+$(WORK)/bin/$(PLFSUBDIR)/so/%.so : %.cc
+	@echo "Compiling $< ... " $(TEE)
+	@-$(P_COMPILE.cc) $< -o $(TMPPREFIX)$*.o $(OUT)
+	@echo "Making $@ ... " $(TEE)
+	@-$(P_LINK) $(C++FLAGS) -o $@ $(TMPPREFIX)$*.o $(LDLINKDIRS) $(LDLIBS) $(OUT)
+	@-$(RM) $(TMPPREFIX)$*.o
+
+$(WORK)/bin/$(PLFSUBDIR)/G/%.dll : %.cc
+	@echo "Compiling $< ... " $(TEE)
+	@-$(P_COMPILE.cc) $< -o $(TMPPREFIX)$*.o $(OUT)
+	@echo "Making $@ ... " $(TEE)
+	@-$(P_LINK) $(C++FLAGS) -o $@ $(TMPPREFIX)$*.o $(LDLINKDIRS) $(LDLIBS) $(OUT)
+	@-$(RM) $(TMPPREFIX)$*.o
+
+endif
+
+# Lint output
+%.lint : %.c
+	@echo "Linting $< ... " $(TEE)
+	@-$(LINT) $(filter-out $(CDBGFLG),$(CFLAGS)) $(LINTFLAGS) $< > $@
+
+# Output from preprocessor
+%.ppc : %.c
+	@echo "Preprocessing $< ... " $(TEE)
+	@-$(CC) -E $(CFLAGS) $< | sed -f $(PMAKE)/clean.ppc.c.sed > $@
+
+define gen-c++-pcc
+    @echo "Preprocessing $< ... " $(TEE)
+    @-$(C++) $(C++FLAGS) -E $< | sed -f $(PMAKE)/clean.ppc.c.sed > $@
+endef
+
+%.ppc : %.cc
+	$(gen-c++-pcc)
+
+%.ppc : %.cxx
+	$(gen-c++-pcc)
+
+# Output from preprocessor: dependency list.
+define gen-deps
+    @echo "Generating dependencies for $< ... " $(TEE)
+    @-$(CC) -M $(CFLAGS) $< > $@
+endef
+
+%.ppi : %.c
+	$(gen-deps)
+
+%.ppi : %.cc
+	$(gen-deps)
+
+%.ppi : %.cxx
+	$(gen-deps)
+
+
+# -- multiple inclusion protection --
+endif
