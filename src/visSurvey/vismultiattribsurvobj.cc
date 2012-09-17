@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismultiattribsurvobj.cc,v 1.70 2012-07-10 14:20:10 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id: vismultiattribsurvobj.cc,v 1.71 2012-09-17 16:35:13 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -157,6 +157,12 @@ MultiTextureSurveyObject::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 		enabletextureinterp_ );
 
     return res;
+}
+    
+    
+visBase::TextureChannel2RGBA* MultiTextureSurveyObject::getChannels2RGBA()
+{
+    return channels_ ? channels_->getChannels2RGBA() : 0;
 }
 
 
