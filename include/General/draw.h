@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.33 2012-08-03 13:00:22 cvskris Exp $
+ RCS:           $Id: draw.h,v 1.34 2012-09-17 08:42:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,23 @@ public:
     void		fromString(const char*);
 
 };
+
+
+mClass(General) FillPattern
+{
+public:
+
+    			FillPattern( int typ=0, int opt=0 )
+			    : type_(typ), opt_(opt)		{}
+
+    static void	getTypeNames(BufferStringSet&);
+    static void	getOptNames(int,BufferStringSet&);
+
+    int		type_;
+    int		opt_;
+
+};
+
 
 
 mClass(General) ArrowHeadStyle

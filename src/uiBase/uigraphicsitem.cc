@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.44 2012-09-14 14:09:26 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.45 2012-09-17 08:42:50 cvsbert Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -26,46 +26,8 @@ static const char* rcsID mUnusedVar = "$Id: uigraphicsitem.cc,v 1.44 2012-09-14 
 #include <QPen>
 #include <QTransform>
 
-static const int cNoFillType = 0;
-static const int cDotsFillType = 1;
-static const int cLinesFillType = 2;
 
 mUseQtnamespace
-
-
-void uiGraphicsItem::getFillPatternTypes( BufferStringSet& res )
-{
-    res.add( "No Fill" );
-    res.add( "Dots" );
-    res.add( "Lines" );
-}
-
-
-void uiGraphicsItem::getFillPatternOpts( int fp, BufferStringSet& res )
-{
-    res.setEmpty();
-    if ( fp == cDotsFillType )
-    {
-	res.add( "Uniform color" );
-	res.add( "Extremely dense" );
-	res.add( "Very dense" );
-	res.add( "Somewhat dense" );
-	res.add( "Half dense" );
-	res.add( "Somewhat sparse" );
-	res.add( "Very sparse" );
-	res.add( "Extremely sparse" );
-    }
-    else if ( fp == cLinesFillType )
-    {
-	res.add( "Horizontal lines" );
-	res.add( "Vertical lines" );
-	res.add( "Crossing horizontal and vertical lines" );
-	res.add( "Backward diagonal lines" );
-	res.add( "Forward diagonal lines" );
-	res.add( "Crossing diagonal lines" );
-    }
-    // else none
-}
 
 
 uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
@@ -277,22 +239,28 @@ void uiGraphicsItem::setFillColor( const Color& col, bool withalpha )
 }
 
 
-void uiGraphicsItem::setFillPattern( int typ, int opt )
+void uiGraphicsItem::setFillPattern( const FillPattern& inpfp )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
-    QBrush qbrush = agsitm->brush();
-    Qt::BrushStyle qbs = Qt::NoBrush;
-    if ( typ == cDotsFillType )
+    mQtclass(QBrush) qbrush = agsitm->brush();
+    mQtclass(Qt::BrushStyle) qbs = Qt::NoBrush;
+    FillPattern fp = inpfp;
+
+    // Beware, this is a duplication of what is in draw.cc
+    // Did this to get full freedom to solve extensions and changes in .cc only
+    static const int cDotsFillPatternType = 1;
+    static const int cLinesFillPatternType = 2;
+    if ( fp.type_ == cDotsFillPatternType )
     {
-	if ( opt < 0 || opt > 7 ) opt = 0;
-	qbs = (Qt::BrushStyle)(((int)Qt::SolidPattern)+opt);
+	if ( fp.opt_ < 0 || fp.opt_ > 7 ) fp.opt_ = 0;
+	qbs = (Qt::BrushStyle)(((int)Qt::SolidPattern)+fp.opt_);
     }
-    else if ( typ == cLinesFillType )
+    else if ( fp.type_ == cLinesFillPatternType )
     {
-	if ( opt < 0 || opt > 8 ) opt = 0;
-	qbs = (Qt::BrushStyle)(((int)Qt::HorPattern)+opt);
+	if ( fp.opt_ < 0 || fp.opt_ > 8 ) fp.opt_ = 0;
+	qbs = (Qt::BrushStyle)(((int)Qt::HorPattern)+fp.opt_);
     }
 
     qbrush.setStyle( qbs );

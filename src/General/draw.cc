@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: draw.cc,v 1.85 2012-05-02 15:11:33 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: draw.cc,v 1.86 2012-09-17 08:42:49 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -13,8 +13,14 @@ The main chunk is color table related.
 
 #include "draw.h"
 #include "separstr.h"
+#include "bufstringset.h"
 #include "iopar.h"
 
+// Beware if you add or change: there is a 'mirror' in
+// uiGraphicsItem::setFillPattern. Not an enum to keep full flexibility.
+static const int cNoFillPatternType = 0;
+static const int cDotsFillPatternType = 1;
+static const int cLinesFillPatternType = 2;
 
 DefineEnumNames(Alignment,HPos,1,"Alignment")
 { "Left", "Right", "Center", 0 };
@@ -158,6 +164,42 @@ bool LineStyle::operator !=( const LineStyle& ls ) const
 
 bool LineStyle::isVisible() const
 { return type_!=None && width_>0 && color_.isVisible();}
+
+
+void FillPattern::getTypeNames( BufferStringSet& res )
+{
+    res.add( "No Fill" );
+    res.add( "Dots" );
+    res.add( "Lines" );
+}
+
+
+void FillPattern::getOptNames( int typ, BufferStringSet& res )
+{
+    res.setEmpty();
+    if ( typ == cDotsFillPatternType )
+    {
+	res.add( "Uniform color" );
+	res.add( "Extremely dense" );
+	res.add( "Very dense" );
+	res.add( "Somewhat dense" );
+	res.add( "Half dense" );
+	res.add( "Somewhat sparse" );
+	res.add( "Very sparse" );
+	res.add( "Extremely sparse" );
+    }
+    else if ( typ == cLinesFillPatternType )
+    {
+	res.add( "Horizontal lines" );
+	res.add( "Vertical lines" );
+	res.add( "Crossing horizontal and vertical lines" );
+	res.add( "Backward diagonal lines" );
+	res.add( "Forward diagonal lines" );
+	res.add( "Crossing diagonal lines" );
+    }
+    // else none
+}
+
 
 
 ArrowHeadStyle::ArrowHeadStyle( int sz, Type t, HandedNess h )
