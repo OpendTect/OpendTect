@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2012
- RCS:		$Id: stratcontent.h,v 1.5 2012-09-13 11:27:53 cvsbert Exp $
+ RCS:		$Id: stratcontent.h,v 1.6 2012-09-17 14:42:27 cvsbert Exp $
 ________________________________________________________________________
 
  Impl is in stratlith.cc.
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "stratmod.h"
 #include "namedobj.h"
 #include "objectset.h"
-#include "color.h"
+#include "draw.h"
 
 
 namespace Strat
@@ -30,15 +30,11 @@ mClass(Strat) Content : public NamedObject
 public:
 
 			Content( const char* nm )
-			    : NamedObject(nm)
-			    , pattype_(0), patopt_(0)	{}
+			    : NamedObject(nm)				{}
 			Content( const Content& c )
-			    : NamedObject(c)
-			    , pattype_(c.pattype_)
-			    , patopt_(c.patopt_)	{}
+			    : NamedObject(c), pattern_(c.pattern_)	{}
     Content&		operator =( const Content& c )
-			{ setName( c.name() ); pattype_ = c.pattype_;
-			    patopt_ = c.patopt_; return *this; }
+			{ setName(c.name()); pattern_=c.pattern_; return *this;}
     bool		operator ==( const Content& c ) const
     			{ return name() == c.name(); }
 
@@ -47,9 +43,8 @@ public:
 
     static const Content& unspecified();
 
-    int			pattype_;
-    int			patopt_;
     Color		color_;
+    FillPattern		pattern_;
 
     bool		getApearanceFrom(const char*);
     void		putAppearanceTo(BufferString&) const;
