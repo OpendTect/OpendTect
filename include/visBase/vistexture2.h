@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture2.h,v 1.16 2012-08-03 13:01:27 cvskris Exp $
+ RCS:		$Id: vistexture2.h,v 1.15 2011/04/28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "vistexture.h"
 
 class SoTexture2;
@@ -30,7 +29,7 @@ class VisColorTab;
 Used for creating a 2D texture
 */
 
-mClass(visBase) Texture2 : public Texture
+mClass Texture2 : public Texture
 {
 public:
 
@@ -81,7 +80,7 @@ To let the children share the same properties by default, use the
 share## functions.
 */
 
-mClass(visBase) Texture2Set : public DataObject
+mClass Texture2Set : public DataObject
 {
 public:
     static Texture2Set*	create()
@@ -124,4 +123,3 @@ protected:
 }
 
 #endif
-

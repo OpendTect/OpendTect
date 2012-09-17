@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seismerge.cc,v 1.13 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID = "$Id: seismerge.cc,v 1.10 2010/11/12 15:02:57 cvsbert Exp $";
 
 #include "seismerge.h"
 #include "seisread.h"
@@ -85,7 +85,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
     if ( iop.isEmpty() )
 	{ errmsg_ = "Nothing to merge"; return; }
 
-    FilePath fp( iop.find(sKey::TmpStor()) );
+    FilePath fp( iop.find(sKey::TmpStor) );
     DirList dlist( fp.fullPath(), DirList::FilesOnly );
     for ( int idx=0; idx<dlist.size(); idx++ )
     {
@@ -100,7 +100,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
 	rdrs_ += newrdr;
     }
 
-    PtrMan<IOPar> outiop = iop.subselect( sKey::Output() );
+    PtrMan<IOPar> outiop = iop.subselect( sKey::Output );
     if ( !outiop )
 	return;
 

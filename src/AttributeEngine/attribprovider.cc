@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.148 2012-08-30 09:54:23 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.141 2012/08/21 05:41:15 cvssatyaki Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -16,20 +16,17 @@ static const char* rcsID mUnusedVar = "$Id: attribprovider.cc,v 1.148 2012-08-30
 #include "attribfactory.h"
 #include "attriblinebuffer.h"
 #include "attribparam.h"
-
-#include "binidvalset.h"
-#include "convmemvalseries.h"
+#include "hiddenparam.h"
+#include "task.h"
 #include "cubesampling.h"
 #include "errh.h"
-#include "ioman.h"
-#include "ioobj.h"
-#include "ptrman.h"
 #include "seiscubeprov.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
 #include "survinfo.h"
-#include "task.h"
 #include "valseriesinterpol.h"
+#include "convmemvalseries.h"
+#include "binidvalset.h"
 
 
 namespace Attrib
@@ -84,6 +81,8 @@ protected:
     int				nrsamples_;
 };
 
+
+HiddenParam<Provider,MyMainHackingClass*>    mymainhackingclassmanager( 0 );
 
 Provider* Provider::create( Desc& desc, BufferString& errstr )
 {
@@ -229,9 +228,7 @@ Provider::Provider( Desc& nd )
     for ( int idx=0; idx<desc_.nrInputs(); idx++ )
 	inputs_ += 0;
 
-
-    if ( !desc_.descSet() )
-	errmsg_ = "No attribute set specified";
+    mymainhackingclassmanager.setParam( this, 0 );
 }
 
 
@@ -250,6 +247,11 @@ Provider::~Provider()
     delete linebuffer_;
     delete possiblevolume_;
     delete desiredvolume_;
+
+    if ( mymainhackingclassmanager.getParam(this) )
+	delete mymainhackingclassmanager.getParam( this );
+
+    mymainhackingclassmanager.removeParam(this);
 }
 
 
@@ -400,9 +402,6 @@ mGetMargin( type, var, req##var, req##funcPost )
 
 bool Provider::getPossibleVolume( int output, CubeSampling& res )
 {
-    if ( !getDesc().descSet() )
-	return false;
-
     CubeSampling tmpres = res;
     if ( inputs_.size()==0 )
     {
@@ -734,24 +733,11 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 	bool needmscp2 = true;
 	SeisMSCProvider* seismscprov1 = input1->getMSCProvider( needmscp1 );
 	SeisMSCProvider* seismscprov2 = input2->getMSCProvider( needmscp2 );
-	int compres = -1;
-	
-	if ( seismscprov1 && seismscprov2 )
-	    compres = seismscprov1->comparePos( *seismscprov2 );
-	else if ( !needmscp1 || !needmscp2 )
-	{
-	    const BinID inp1pos = input1->getCurrentPosition();
-	    const BinID inp2pos = input2->getCurrentPosition();
-	    if ( inp1pos == inp2pos )
-		compres = 0;
-	    else if ( !desc_.is2D() )
-	    {
-		if ( inp1pos.inl != inp2pos.inl )
-		    compres = inp1pos.inl > inp2pos.inl ? 1 : -1;
-		else
-		    compres = inp1pos.crl > inp2pos.crl ? 1 : -1;
-	    }
-	}
+	int compres = seismscprov1 && seismscprov2
+	    		? seismscprov1->comparePos( *seismscprov2 )
+			: (!needmscp1 || !needmscp2) &&
+			  input1->getCurrentPosition() ==
+			  input2->getCurrentPosition() ? 0 : -1;
 
 	if ( compres == 0 )
 	    break;
@@ -1188,7 +1174,7 @@ void Provider::setInput( int inp, Provider* np )
     if ( inputs_[inp]->desc_.isSteering() )
     {
 	inputs_[inp]->updateInputReqs(-1);
-	inputs_[inp]->updateStorageReqs( true );
+	inputs_[inp]->updateStorageReqs(-1);
     }
 }
 
@@ -1394,23 +1380,6 @@ void Provider::adjust2DLineStoredVolume()
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )
 	    inputs_[idx]->adjust2DLineStoredVolume();
-}
-
-
-PosInfo::GeomID Provider::getGeomID() const
-{
-    PosInfo::GeomID geomid;
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
-        if ( !inputs_[idx] )
-            continue;
-
-        geomid = inputs_[idx]->getGeomID();
-        if ( geomid.lsid_ >= 0 )
-            return geomid;
-    }
-
-    return geomid;
 }
 
 
@@ -1688,15 +1657,39 @@ void Provider::stdPrepSteering( const BinID& so )
 
 
 float Provider::zFactor() const
-{
-    return (float) ( zIsTime() ?  ZDomain::Time() : ZDomain::Depth() ).userFactor();
-}
+{ return SI().zFactor(zIsTime()); }
 
 
 float Provider::dipFactor() const
-{ return zIsTime() ? 1e6f: 1e3f; }
+{ return zIsTime() ? 1e6: 1e3; }
 
 
+PosInfo::GeomID Provider::getGeomID() const
+{
+    PosInfo::GeomID geomid;
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+    {
+	if ( !inputs_[idx] )
+	continue;
 
+	geomid = inputs_[idx]->getGeomID();
+	if ( geomid.lsid_ >= 0 )
+	    return geomid;
+    }
+
+    return geomid;
+}
+
+
+MyMainHackingClass* Provider::getMyMainHackingClass() const
+{
+    return mymainhackingclassmanager.getParam( this );
+}
+
+
+void Provider::setMyMainHackingClass( MyMainHackingClass* mmhc )
+{
+    mymainhackingclassmanager.setParam( this, mmhc );
+}
 
 }; // namespace Attrib

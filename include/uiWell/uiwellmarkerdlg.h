@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: uiwellmarkerdlg.h,v 1.18 2012-08-03 13:01:21 cvskris Exp $
+ RCS:		$Id: uiwellmarkerdlg.h,v 1.17 2011/05/02 10:02:05 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uidialog.h"
 #include "wellmarker.h"
 
@@ -24,7 +23,7 @@ namespace Well { class Marker; class Track; class MarkerSet; }
 
 /*! \brief Dialog for marker specifications */
 
-mClass(uiWell) uiMarkerDlg : public uiDialog
+mClass uiMarkerDlg : public uiDialog
 {
 public:
 				uiMarkerDlg(uiParent*,const Well::Track&);
@@ -65,4 +64,3 @@ protected:
 };
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: convolveattrib.cc,v 1.28 2012-08-30 09:48:32 cvskris Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.25 2011/01/06 15:25:01 cvsbert Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -214,10 +214,10 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size, bool is2d )
 	    {
 		for ( int tidx=sg_.start; tidx<=sg_.stop; tidx++ )
 		{
-		    const float nv =
+		    float nv =
 			( shapetype==mShapeSphere && 
 			  limit2<inl*inl+crl*crl+tidx*tidx )
-			? 0. : value;
+			? 0 : value;
 		    kernel_[pos++] = nv;
 		    sum_ += nv;
 		}

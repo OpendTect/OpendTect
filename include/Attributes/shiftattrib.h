@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.21 2012-08-28 13:23:55 cvsbert Exp $
+ RCS:           $Id: shiftattrib.h,v 1.19 2011/04/28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 #include "position.h"
 
@@ -35,7 +34,7 @@ Output
 namespace Attrib
 {
 
-mClass(Attributes) Shift : public Provider
+mClass Shift : public Provider
 {
 public:
     static void			initClass();
@@ -48,6 +47,8 @@ public:
     void			initSteering()	{ stdPrepSteering(stepout_); }
 
     void			prepPriorToBoundsCalc();
+
+    void			set(const BinID&,float,bool dosteer);
 
     virtual bool		isSingleTrace() const
 				{ return !stepout_.inl && !stepout_.crl; }
@@ -90,4 +91,3 @@ protected:
 
 
 #endif
-

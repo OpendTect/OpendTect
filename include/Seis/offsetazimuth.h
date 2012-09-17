@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: offsetazimuth.h,v 1.6 2012-08-03 13:00:34 cvskris Exp $
+ RCS:		$Id: offsetazimuth.h,v 1.5 2009/07/22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "position.h"
 
 /*!Stores offset and azimuth as an int, wich makes it easy to compare them
@@ -23,7 +22,7 @@ The offset has a precision of 0.1 meter and have the range of -419430 and
 circle).
 */
 
-mClass(Seis) OffsetAzimuth
+mClass OffsetAzimuth
 {
 public:
 			OffsetAzimuth() : offsetazi_( 0 ) 		{}
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.18 2012-08-03 13:00:21 cvskris Exp $
+ RCS:		$Id: cbvsio.h,v 1.17 2011/03/25 15:02:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "position.h"
 #include "posinfo.h"
 #include "bufstringset.h"
@@ -26,7 +25,7 @@ supported.
 
 */
 
-mClass(General) CBVSIO
+mClass CBVSIO
 {
 public:
 
@@ -69,7 +68,7 @@ protected:
 
 */
 
-mClass(General) CBVSIOMgr
+mClass CBVSIOMgr
 {
 public:
 
@@ -119,4 +118,3 @@ protected:
 
 
 #endif
-

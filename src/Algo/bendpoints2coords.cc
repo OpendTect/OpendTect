@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Dec 2009
 -*/
-static const char* rcsID mUnusedVar = "$Id: bendpoints2coords.cc,v 1.4 2012-05-02 15:11:18 cvskris Exp $";
+static const char* rcsID = "$Id: bendpoints2coords.cc,v 1.2 2009/12/07 15:31:51 cvsbert Exp $";
 
 #include "bendpoints2coords.h"
 #include "sorting.h"

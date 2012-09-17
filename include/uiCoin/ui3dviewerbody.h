@@ -7,13 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2011
- RCS:           $Id: ui3dviewerbody.h,v 1.1 2011-12-21 12:03:35 cvskris Exp $
+ RCS:           $Id: ui3dviewerbody.h,v 1.2 2012/03/26 08:05:18 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobjbody.h"
-#include "uiosgviewer.h"
+//#include "uiosgviewer.h"
 #include "refcount.h"
 
 namespace visBase { class Camera; class Scene; }
@@ -84,7 +84,7 @@ protected:
     void				setCameraPos(const osg::Vec3f&,
 						     const osg::Vec3f&, bool);
 
-    uiOsgViewHandle			view_;
+   // uiOsgViewHandle			view_;
     ui3DViewer&				handle_;
     IOPar&				printpar_;
 

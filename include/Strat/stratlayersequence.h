@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2010
- RCS:		$Id: stratlayersequence.h,v 1.14 2012-08-30 13:31:07 cvsbert Exp $
+ RCS:		$Id: stratlayersequence.h,v 1.13 2012/08/30 13:31:06 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "stratmod.h"
 #include "ailayer.h"
 #include "stratlayer.h"
 #include "propertyref.h"
@@ -33,7 +32,7 @@ class RefTree;
 
  */
 
-mClass(Strat) LayerSequence
+mClass LayerSequence
 {
 public:
 
@@ -81,4 +80,3 @@ protected:
 }; // namespace Strat
 
 #endif
-

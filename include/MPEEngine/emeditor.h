@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.23 2012-08-29 06:25:40 cvskris Exp $
+ RCS:           $Id: emeditor.h,v 1.21 2011/02/09 16:50:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "callback.h"
 #include "emposid.h"
 #include "factory.h"
@@ -44,7 +43,7 @@ namespace MPE
    which are listed by getAlongMovingStyleNames().
 */
 
-mClass(MPEEngine) ObjectEditor : public CallBacker
+mClass ObjectEditor : public CallBacker
 { mRefCountImpl( ObjectEditor );
 public:
     			ObjectEditor( EM::EMObject& );
@@ -165,11 +164,10 @@ private:
 };
 
 
-mDefineFactory1Param( MPEEngine, ObjectEditor, EM::EMObject&, EditorFactory );
+mDefineFactory1Param( ObjectEditor, EM::EMObject&, EditorFactory );
 
 
 };
 
 #endif
-
 

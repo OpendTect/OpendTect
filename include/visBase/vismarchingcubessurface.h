@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.17 2012-08-03 13:01:25 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.16 2011/01/07 21:21:36 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "samplingdata.h"
 
@@ -29,7 +28,7 @@ class GeomIndexedShape;
 
 /*!Class to display ::MarchingCubesSurface or body sections. */
 
-mClass(visBase) MarchingCubesSurface : public VisualObjectImpl
+mClass MarchingCubesSurface : public VisualObjectImpl
 {
 public:
     static MarchingCubesSurface*	create()
@@ -86,4 +85,3 @@ protected:
 };
 	
 #endif
-

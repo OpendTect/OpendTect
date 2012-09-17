@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2004
- RCS:		$Id: uisettings.h,v 1.21 2012-08-03 13:01:15 cvskris Exp $
+ RCS:		$Id: uisettings.h,v 1.20 2012/06/21 14:38:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 
 class IOPar;
@@ -24,7 +23,7 @@ class uiLabeledComboBox;
 struct LooknFeelSettings;
 
 
-mClass(uiTools) uiSettings : public uiDialog
+mClass uiSettings : public uiDialog
 {
 public:
 			uiSettings(uiParent*,const char* titl,
@@ -56,7 +55,7 @@ protected:
 };
 
 
-mClass(uiTools) uiLooknFeelSettings : public uiDialog
+mClass uiLooknFeelSettings : public uiDialog
 {
 public:
 			uiLooknFeelSettings(uiParent*,const char* titl);
@@ -87,4 +86,3 @@ protected:
 };
 
 #endif
-

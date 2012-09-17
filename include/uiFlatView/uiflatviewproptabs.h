@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.17 2012-08-03 13:00:58 cvskris Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.15 2011/10/21 12:29:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "coltab.h"
 #include "coltabsequence.h"
 #include "flatview.h"
@@ -28,7 +27,7 @@ class uiColorTable;
     
 /*!\brief flat viewer properties tabs */
 
-mClass(uiFlatView) uiFlatViewPropTab : public uiDlgGroup
+mClass uiFlatViewPropTab : public uiDlgGroup
 {
 public:
 
@@ -47,7 +46,7 @@ protected:
     
 /*!\brief flat viewer data display properties tabs */
 
-mClass(uiFlatView) uiFlatViewDataDispPropTab : public uiFlatViewPropTab
+mClass uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 {
 public:
     			~uiFlatViewDataDispPropTab();
@@ -92,7 +91,7 @@ protected:
     
 /*!\brief flat viewer WVA display properties tabs */
 		     
-mClass(uiFlatView) uiFVWVAPropTab : public uiFlatViewDataDispPropTab
+mClass uiFVWVAPropTab : public uiFlatViewDataDispPropTab
 {
 public:
     			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
@@ -123,7 +122,7 @@ protected:
 
 /*!\brief flat viewer VD display properties tabs */
 
-mClass(uiFlatView) uiFVVDPropTab : public uiFlatViewDataDispPropTab
+mClass uiFVVDPropTab : public uiFlatViewDataDispPropTab
 {
 public:
     			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
@@ -149,7 +148,7 @@ protected:
 
 /*!\brief flat viewer annotation properties tabs */
 
-mClass(uiFlatView) uiFVAnnotPropTab : public uiFlatViewPropTab
+mClass uiFVAnnotPropTab : public uiFlatViewPropTab
 {
 public:
 
@@ -171,7 +170,7 @@ protected:
     
     FlatView::Annotation& annot_;
 
-    mClass(uiFlatView) AxesGroup : public uiGroup
+    mClass AxesGroup : public uiGroup
     {
     public:
 			AxesGroup(uiParent*,FlatView::Annotation::AxisData&,
@@ -207,17 +206,16 @@ protected:
     uiGenInput*		x1rgfld_;
     uiGenInput*		x2rgfld_;
 
-    ObjectSet<FlatView::AuxData::EditPermissions>	permissions_;
-    BoolTypeSet						enabled_;
-    TypeSet<LineStyle>					linestyles_;
-    TypeSet<int>					indices_;
-    TypeSet<Color>					fillcolors_;
-    TypeSet<MarkerStyle2D>				markerstyles_;
-    TypeSet<Interval<double> >				x1rgs_;
-    TypeSet<Interval<double> >				x2rgs_;
-    int							currentaux_;
+    ObjectSet<FlatView::Annotation::AuxData::EditPermissions>	permissions_;
+    BoolTypeSet							enabled_;
+    TypeSet<LineStyle>						linestyles_;
+    TypeSet<int>						indices_;
+    TypeSet<Color>						fillcolors_;
+    TypeSet<MarkerStyle2D>					markerstyles_;
+    TypeSet<Interval<double> >					x1rgs_;
+    TypeSet<Interval<double> >					x2rgs_;
+    int								currentaux_;
 };
 
 
 #endif
-

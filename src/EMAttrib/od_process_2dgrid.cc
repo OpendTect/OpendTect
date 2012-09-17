@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_process_2dgrid.cc,v 1.5 2012-05-02 15:11:28 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_2dgrid.cc,v 1.3 2011/08/23 14:51:33 cvsbert Exp $";
 
 #include "batchprog.h"
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother3d.h,v 1.7 2012-08-13 09:36:56 cvsaneesh Exp $
+ RCS:		$Id: smoother3d.h,v 1.4 2009/07/22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,7 @@ template <class T> inline
 bool Smoother3D<T>::setWindow( const char* nm, float param,
 			       int sz0, int sz1, int sz2 )
 {
-    PtrMan<WindowFunction> wf = WINFUNCS().create( nm );
+    PtrMan<WindowFunction> wf = WinFuncs().create( nm );
     if ( !wf )
 	return false;
 
@@ -132,8 +132,7 @@ bool Smoother3D<T>::setWindow( const char* nm, float param,
 	    {
 		pos[2] = hsz2 ? ((double)(idx2-hsz2))/hsz2 : 0;
 
-		window_.set( idx0, idx1, idx2, 
-				    wf->getValue( (float) pos.abs() ) );
+		window_.set( idx0, idx1, idx2, wf->getValue( pos.abs() ) );
 	    }
 	}
     }
@@ -141,7 +140,7 @@ bool Smoother3D<T>::setWindow( const char* nm, float param,
     convolver_.setY( window_, hsz0, hsz1, hsz2 );
 
     windowname_ = nm;
-    windowparam_ = (float) ( wf->hasVariable() ? param : 1e30 );
+    windowparam_ = wf->hasVariable() ? param : 1e30;
 
     return true;
 }

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: mmprogspec.h,v 1.4 2012-08-03 13:00:29 cvskris Exp $
+ RCS:		$Id: mmprogspec.h,v 1.3 2009/07/22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mmprocmod.h"
 #include "datainpspec.h"
 #include "namedobj.h"
 class IOPar;
@@ -22,7 +21,7 @@ namespace MMProc
 
 /*!\brief Distributed computing specification */
 
-mClass(MMProc) ProgSpec : public NamedObject
+mClass ProgSpec : public NamedObject
 {
 public:
 
@@ -63,11 +62,10 @@ protected:
 
 };
 
-mGlobal(MMProc) ObjectSet<ProgSpec>& PRSPS();
+mGlobal ObjectSet<ProgSpec>& PRSPS();
 
 
 }; // namespace MMProc
 
 
 #endif
-

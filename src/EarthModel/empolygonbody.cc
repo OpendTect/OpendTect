@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: empolygonbody.cc,v 1.22 2012-08-08 05:47:55 cvssalil Exp $";
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.16 2011/12/15 21:45:41 cvsyuancheng Exp $";
 
 #include "empolygonbody.h"
 
@@ -37,7 +37,7 @@ PolygonBodyUndoEvent( const EM::PosID& posid )
     if ( !polygon ) return;
 
     pos_ = polygon->getPos( posid_ );
-    const int row = posid_.getRowCol().row;
+    const int row = RowCol(posid_.subID()).row;
     normal_ = polygon->geometry().getPolygonNormal( posid_.sectionID(), row );
 }
 
@@ -62,11 +62,11 @@ bool unDo()
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
-    const int row = posid_.getRowCol().row;
+    const int row = RowCol(posid_.subID()).row;
 
     return remove_
 	? polygon->geometry().insertPolygon( posid_.sectionID(), row,
-		posid_.getRowCol().col, pos_, normal_, false )
+		RowCol(posid_.subID()).col, pos_, normal_, false )
 	: polygon->geometry().removePolygon( posid_.sectionID(), row, false );
 }
 
@@ -77,12 +77,12 @@ bool reDo()
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
-    const int row = posid_.getRowCol().row;
+    const int row = RowCol(posid_.subID()).row;
 
     return remove_
 	? polygon->geometry().removePolygon( posid_.sectionID(), row, false )
 	: polygon->geometry().insertPolygon( posid_.sectionID(), row,
-		posid_.getRowCol().col, pos_, normal_, false );
+		RowCol(posid_.subID()).col, pos_, normal_, false );
 }
 
 protected:
@@ -182,7 +182,7 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr,
 
      TypeSet<Coord3> pts;
      for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
-	 surf->getCubicBezierCurve( plg, pts, SI().zDomain().userFactor() );
+	 surf->getCubicBezierCurve( plg, pts, SI().zFactor() );
    
      BodyOperator bodyopt;
      return bodyopt.createImplicitBody( pts, tr ); 
@@ -202,9 +202,9 @@ bool PolygonBody::getBodyRange( CubeSampling& cs )
      {
 	 cs.hrg.include( SI().transform(pts[idx]) );
 	 if ( idx )
-	     cs.zrg.include( (float) pts[idx].z );
+	     cs.zrg.include( pts[idx].z );
 	 else
-	     cs.zrg.start = cs.zrg.stop = (float) pts[idx].z;
+	     cs.zrg.start = cs.zrg.stop = pts[idx].z;
      }
 
      return pts.size();
@@ -450,7 +450,8 @@ bool PolygonBodyGeometry::insertKnot( const SectionID& sid, const SubID& subid,
 				      const Coord3& pos, bool addtohistory )
 {
     Geometry::PolygonSurface* pol = sectionGeometry( sid );
-    RowCol rc = RowCol::fromInt64( subid );
+    RowCol rc;
+    rc.fromInt64( subid );
     if ( !pol || !pol->insertKnot(rc,pos) )
 	return false;
 
@@ -484,7 +485,8 @@ bool PolygonBodyGeometry::removeKnot( const SectionID& sid, const SubID& subid,
     Geometry::PolygonSurface* pol = sectionGeometry( sid );
     if ( !pol ) return false;
 
-    RowCol rc = RowCol::fromInt64( subid );
+    RowCol rc;
+    rc.fromInt64( subid );
     const Coord3 pos = pol->getKnot( rc );
 
     if ( !pos.isDefined() || !pol->removeKnot(rc) )

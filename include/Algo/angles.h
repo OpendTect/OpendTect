@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Mar 2009
  Contents:	Angle functions
- RCS:		$Id: angles.h,v 1.5 2012-07-25 04:34:40 cvskris Exp $
+ RCS:		$Id: angles.h,v 1.4 2009/07/22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
  Converting degrees, radians and user degrees to one another.
@@ -136,18 +136,12 @@ inline T convert( Type inptyp, T val, Type outtyp )
 
     switch ( inptyp )
     {
-        case Rad:
-            val = outtyp == Deg ? rad2deg(val) : rad2usrdeg(val);
-            break;
-        case Deg:
-            val = outtyp == Rad ? deg2rad(val) : deg2usrdeg(val);
-            break;
-        case UsrDeg:
-            val = outtyp == Deg ? usrdeg2deg(val) : usrdeg2rad(val);
-            break;
+    case Rad: return outtyp == Deg ? rad2deg(val) : rad2usrdeg(val);
+    case Deg: return outtyp == Rad ? deg2rad(val) : deg2usrdeg(val);
+    case UsrDeg: return outtyp == Deg ? usrdeg2deg(val) : usrdeg2rad(val);
     }
 
-    return val;
+    return val; // not reached, keep compiler happy
 }
 
 

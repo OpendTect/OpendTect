@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.33 2012-08-03 13:01:03 cvskris Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.31 2009/12/01 10:02:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uinlamod.h"
 #include "uiapplserv.h"
 #include "multiid.h"
 #include "nlamodel.h"
@@ -32,7 +31,7 @@ will expect that go() to be called again.
 
  */
 
-mClass(uiNLA) uiNLAPartServer : public uiApplPartServer
+mClass uiNLAPartServer : public uiApplPartServer
 {
 public:
 			uiNLAPartServer(uiApplService&);
@@ -56,23 +55,23 @@ public:
     bool		willDoExtraction() const;
     const BufferStringSet& modelInputs() const;
 
-    static int		evPrepareWrite();
+    static const int	evPrepareWrite();
     			//!< need to fill modelPars()
-    static int		evPrepareRead();
+    static const int	evPrepareRead();
     			//!< is FYI
-    static int		evReadFinished();
+    static const int	evReadFinished();
     			//!< is FYI
-    static int		evGetInputNames();
+    static const int	evGetInputNames();
     			//!< need to fill inputNames()
-    static int		evGetStoredInput();
+    static const int	evGetStoredInput();
 			//!< need to put stored data into attrset
-    static int		evGetData();
+    static const int	evGetData();
     			//!< need to fill vdsTrain() and vdsTest()
-    static int		evSaveMisclass();
+    static const int	evSaveMisclass();
     			//!< use misclass analysis VDS; user wants it.
-    static int		evCreateAttrSet();
+    static const int	evCreateAttrSet();
     			//!< create attributeset from GDI NN
-    static int		evCr2DRandomSet();
+    static const int	evCr2DRandomSet();
     			//!< create 2D random pick set
     static const char*	sKeyUsrCancel();
     			//!< Returned when operation must stop without error
@@ -145,4 +144,3 @@ protected:
 
 
 #endif
-

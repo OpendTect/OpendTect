@@ -7,21 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: elasticprop.h,v 1.8 2012-08-03 13:00:22 cvskris Exp $
+ RCS:		$Id: elasticprop.h,v 1.6 2012/03/14 15:12:03 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 /*! brief elastic formula def to generate elastic layers !*/
 
-#include "generalmod.h"
 #include "enums.h"
 #include "bufstringset.h"
 #include "repos.h"
 #include "propertyref.h"
 
 
-mClass(General) ElasticFormula : public NamedObject
+mClass ElasticFormula : public NamedObject
 {
 public:
 			enum Type 	{ Den, PVel, SVel };
@@ -52,9 +51,10 @@ public:
 
     BufferStringSet&	variables() 			{ return variables_; }
     const BufferStringSet& variables() const 		{ return variables_; }
+    const char*		parseVariable(int idx,float&) const;
+
     BufferStringSet&	units() 			{ return units_; }
     const BufferStringSet& units() const 		{ return units_; }
-    const char*		parseVariable(int idx,float&) const;
 
     void 		fillPar(IOPar&) const;
     void 		usePar(const IOPar&);
@@ -64,13 +64,12 @@ protected:
     BufferString 	expression_; 
     BufferStringSet	variables_;
     BufferStringSet	units_;
-    
     Type		type_;
 };
 
 
 
-mClass(General) ElasticFormulaRepository 
+mClass ElasticFormulaRepository 
 {
 public:
     void			addFormula(const ElasticFormula&); 
@@ -92,14 +91,14 @@ protected:
     void 			addRockPhysicsFormulas();
     void 			addPreDefinedFormulas();
 
-    mGlobal(General) friend ElasticFormulaRepository& ElFR();
+    mGlobal friend ElasticFormulaRepository& ElFR();
 };
 
-mGlobal(General) ElasticFormulaRepository& ElFR();
+mGlobal ElasticFormulaRepository& ElFR();
 
 
 
-mClass(General) ElasticPropertyRef : public PropertyRef
+mClass ElasticPropertyRef : public PropertyRef
 {
 public:
 			ElasticPropertyRef(const char* nm,
@@ -111,13 +110,13 @@ public:
 			    }
 
 
-    static PropertyRef::StdType elasticToStdType(ElasticFormula::Type); 
+    static const PropertyRef::StdType elasticToStdType(ElasticFormula::Type); 
 
     ElasticFormula& formula() 			{ return formula_; }
     const ElasticFormula& formula() const 	{ return formula_; }
 
     ElasticFormula::Type elasticType()  	{ return formula_.type(); }
-    ElasticFormula::Type elasticType() const	{ return formula_.type(); }
+    const ElasticFormula::Type elasticType() const { return formula_.type(); }
 
 protected:
     ElasticFormula      formula_;
@@ -125,5 +124,4 @@ protected:
 
 
 #endif
-
 

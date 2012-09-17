@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2009
- RCS:		$Id: posimpexppars.h,v 1.7 2012-08-03 13:00:24 cvskris Exp $
+ RCS:		$Id: posimpexppars.h,v 1.5 2009/08/27 03:05:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "position.h"
 #include "callback.h"
 class IOPar;
@@ -31,7 +30,7 @@ class IOPar;
 #define mPIEPAdj(what,v,inw) PosImpExpPars::SVY().adjust##what(v,inw)
 
 
-mClass(General) PosImpExpPars : public CallBacker
+mClass PosImpExpPars : public CallBacker
 {
 public:
 
@@ -102,10 +101,10 @@ public:
     void		survChg( CallBacker* )	{ getFromSI(); }
 
     static const char*	sKeyBase()		{ return "ImpExp"; }
-    static const char*	sKeyOffset();		// sKey::Offset()
-    static const char*	sKeyScale();		// sKey::Scale()
+    static const char*	sKeyOffset();		// sKey::Offset
+    static const char*	sKeyScale();		// sKey::Scale
     static const char*	sKeyBinID()		{ return "BinID"; }
-    static const char*	sKeyTrcNr();		//!< sKey::TraceNr()
+    static const char*	sKeyTrcNr();		//!< sKey::TraceNr
     static const char*	sKeyCoord()		{ return "Coord"; }
     static const char*	sKeyZ()			{ return "Z"; }
 
@@ -115,4 +114,3 @@ public:
 
 
 #endif
-

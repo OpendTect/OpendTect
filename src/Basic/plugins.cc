@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: plugins.cc,v 1.79 2012-07-10 15:01:29 cvskris Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.80 2012/06/25 11:22:47 cvskris Exp $";
 
 
 #include "plugins.h"
@@ -160,7 +160,6 @@ void SharedLibAccess::getLibName( const char* modnm, char* out )
 }
 
 
-
 static const char* errargv[] = { "<not set>", 0 };
 
 PluginManager::PluginManager()
@@ -189,7 +188,7 @@ static BufferString getProgNm( const char* argv0 )
 }
 
 
-static const char* getFnName( const char* libnm, const char* fnbeg,
+static const char* getFnNm( const char* libnm, const char* fnbeg,
 			      const char* fnend )
 {
     static StaticStringManager stm;
@@ -225,11 +224,12 @@ void PluginManager::getDefDirs()
     if ( !fromenv )
 	fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
-#ifdef __win__
-#ifdef __debug__
+#ifdef __win__ 
+# ifdef __debug__
     fp.add( "debug" );
+# endif
 #endif
-#endif
+
     applibdir_ = fp.fullPath();
 
     fromenv = false;
@@ -328,17 +328,19 @@ const char* PluginManager::userName( const char* nm ) const
     const Data* data = findData( nm );
     const PluginInfo* piinf = data ? data->info_ : 0;
     if ( !piinf )
-	return moduleName( nm );
+    {
+	FilePath fp( nm );
+	return getFnNm( fp.fileName(), "", "" );
+    }
 
     return piinf->dispname;
 }
 
 
-const char* PluginManager::moduleName( const char* nm )
+const char* PluginManager::moduleName( const char* libnm )
 {
-    return getFnName( nm, "", "" );
+    return getFnNm( libnm, "", "" );
 }
-
 
 static PluginInfo* mkEmptyInfo()
 {
@@ -352,7 +354,7 @@ static PluginInfo* mkEmptyInfo()
 
 
 #define mGetFn(typ,sla,nm1,nm2,libnm) \
-	typ fn = sla ? (typ)sla->getFunction( getFnName(libnm,nm1,nm2) ) : 0
+	typ fn = sla ? (typ)sla->getFunction( getFnNm(libnm,nm1,nm2) ) : 0
 
 
 static PluginInfo* getPluginInfo( SharedLibAccess* sla, const char* libnm )
@@ -426,13 +428,13 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 	StreamData sd = StreamProvider( dl.fullPath(idx) ).makeIStream(false);
 	if ( !sd.usable() ) { sd.close(); continue; }
 
-	char buf[128];
+	char name[128];
 	while ( *sd.istrm )
 	{
-	    sd.istrm->getline( buf, 128 );
-	    if ( buf[0] == '\0' ) continue;
+	    sd.istrm->getline( name, 128 );
+	    if ( name[0] == '\0' ) continue;
 
-	    char libnm[256]; SharedLibAccess::getLibName( buf, libnm );
+	    char libnm[256]; SharedLibAccess::getLibName( name, libnm );
 	    Data* data = findData( libnm );
 	    if ( !data )
 	    {

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizonrelation.cc,v 1.10 2012-05-22 14:48:31 cvskris Exp $";
+static const char* rcsID = "$Id: horizonrelation.cc,v 1.7 2011/12/14 13:16:41 cvsbert Exp $";
 
 #include "horizonrelation.h"
 #include "ctxtioobj.h"
@@ -51,7 +51,7 @@ void RelationTree::Node::fillPar( IOPar& par ) const
     for ( int idx=0; idx<children_.size(); idx++ )
 	childids.addIfNew( children_[idx]->id_.buf() );
 
-    par.set( sKey::ID(), id_ );
+    par.set( sKey::ID, id_ );
     par.set( sKeyChildIDs(), childids );
     PtrMan<IOObj> ioobj = IOM().get( id_ );
     if ( !ioobj )
@@ -253,7 +253,7 @@ bool RelationTree::read()
     {
 	MultiID id;
 	PtrMan<IOPar> nodepar = subpar->subselect( idx );
-	if ( !nodepar || !nodepar->get(sKey::ID(),id) )
+	if ( !nodepar || !nodepar->get(sKey::ID,id) )
 	    break;
 
 	RelationTree::Node* node = new RelationTree::Node( id );

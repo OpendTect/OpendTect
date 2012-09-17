@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewershapetab.cc,v 1.11 2012-08-13 03:56:45 cvssalil Exp $";
+static const char* rcsID = "$Id: uipsviewershapetab.cc,v 1.8 2011/04/28 11:30:53 cvsbert Exp $";
 
 #include "uipsviewershapetab.h"
 
@@ -20,10 +20,10 @@ static const char* rcsID mUnusedVar = "$Id: uipsviewershapetab.cc,v 1.11 2012-08
 #include "uislider.h"
 #include "visprestackviewer.h"
 
-#define mSliderMinFactor 0.1f
-#define mSliderMaxFactor 1.9f
+#define mSliderMinFactor 0.1
+#define mSliderMaxFactor 1.9
 #define mSliderDecimal   2
-#define mSliderStep      0.01f
+#define mSliderStep      0.01
 
 
 namespace PreStackView

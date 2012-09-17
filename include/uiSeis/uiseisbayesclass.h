@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uiseisbayesclass.h,v 1.7 2012-08-03 13:01:07 cvskris Exp $
+ RCS:           $Id: uiseisbayesclass.h,v 1.6 2010/03/15 16:12:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "odusgclient.h"
 #include "uivarwizard.h"
 class uiSeisBayesPDFInp;
@@ -23,7 +22,7 @@ class uiSeisBayesOut;
 
 /*!\brief 'Server' for Seismic Bayesian Inversion. */
 
-mClass(uiSeis) uiSeisBayesClass : public uiVarWizard
+mClass uiSeisBayesClass : public uiVarWizard
 			, public Usage::Client
 {
 public:
@@ -59,4 +58,3 @@ protected:
 
 
 #endif
-

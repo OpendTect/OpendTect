@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.25 2012-08-07 04:00:22 cvsmahant Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.23 2011/12/26 14:12:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "multiid.h"
@@ -32,11 +31,11 @@ class uiSeisBrowserInfoVwr;
 namespace ZDomain { class Def; }
 
 
-mClass(uiSeis) uiSeisBrowser : public uiDialog
+mClass uiSeisBrowser : public uiDialog
 {
 public :
 
-    mClass(uiSeis) Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
     			Setup(const MultiID&,Seis::GeomType);
@@ -67,7 +66,7 @@ public :
     bool 		is2d_;
 
     const BinID&	curBinID() const;
-    float		curZ() const;
+    const float		curZ() const;
     void		setCompNr( int compnr )		{ compnr_ = compnr; }
 
     static void		doBrowse(uiParent*,const IOObj&,bool is2d,
@@ -134,4 +133,3 @@ private:
 
 
 #endif
-

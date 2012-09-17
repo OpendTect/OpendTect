@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackmute.cc,v 1.23 2012-07-02 14:11:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.20 2011/10/25 07:08:36 cvsranojay Exp $";
 
 #include "prestackmute.h"
 
@@ -159,23 +159,22 @@ bool Mute::doWork( od_int64 start, od_int64 stop, int )
 	Gather* output = outputs_[outidx];
 	const Gather* input = inputs_[outidx];
 
+
 	const int nrsamples = input->size(Gather::zDim()==0);
 	const float offs = input->getOffset(ioffs);
-	TypeSet< Interval<float> > muteitvs;
-	def_.computeIntervals( offs, input->getBinID(), muteitvs );
-	if ( muteitvs.isEmpty() )
+	const float mutez = def_.value( offs, input->getBinID() );
+	if ( mIsUdf(mutez) )
 	    continue;
 
-	TypeSet< Interval<float> > muteitvspos;
-	Muter::muteIntervalsPos( muteitvs, muteitvspos, 
-				 input->posData().range(false) );
+	const float mutepos =
+	    Muter::mutePos( mutez, input->posData().range(false) );
 
 	Array1DSlice<float> slice( output->data() );
 	slice.setPos( 0, ioffs );
 	if ( !slice.init() )
 	    continue;
 
-	muter_->muteIntervals( slice, nrsamples, muteitvspos );
+	muter_->mute( slice, nrsamples, mutepos );
     }
 
     return true;

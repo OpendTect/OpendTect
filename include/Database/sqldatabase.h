@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqldatabase.h,v 1.5 2012-08-03 13:00:16 cvskris Exp $
+ RCS:           $Id: sqldatabase.h,v 1.4 2010/09/15 04:41:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "databasemod.h"
 #include "bufstring.h"
 class IOPar;
 
@@ -29,7 +28,7 @@ class BufferStringSet;
 namespace SqlDB
 {
 
-mClass(Database) ConnectionData
+mClass ConnectionData
 {
 public:
 
@@ -57,7 +56,7 @@ public:
 };
 
 
-mClass(Database) Access
+mClass Access
 {
 public:
 
@@ -89,7 +88,7 @@ public:
 };
 
 
-mClass(Database) MySqlAccess : public Access
+mClass MySqlAccess : public Access
 {
 public:
     			MySqlAccess( const char* dbtype )
@@ -99,4 +98,3 @@ public:
 } // namespace
 
 #endif
-

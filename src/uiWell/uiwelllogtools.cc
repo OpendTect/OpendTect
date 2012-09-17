@@ -8,18 +8,15 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.26 2012-09-03 12:17:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogtools.cc,v 1.19 2012/07/12 14:11:08 cvsbruno Exp $";
 
 #include "uiwelllogtools.h"
 
 #include "color.h"
 #include "dataclipper.h"
-#include "fftfilter.h"
-#include "fourier.h"
 #include "statgrubbs.h"
 #include "smoother1d.h"
 #include "welldata.h"
-#include "welld2tmodel.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellmarker.h"
@@ -30,7 +27,6 @@ static const char* rcsID mUnusedVar = "$Id: uiwelllogtools.cc,v 1.26 2012-09-03 
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
-#include "uifreqfilter.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -45,9 +41,15 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p )
 	: uiDialog( p, Setup( "Well log tools", "Select logs", "107.3.1" ) )
 {
     setCtrlStyle( DoAndStay );
-    uiWellExtractParams::Setup su;
-    su.withzintime_ = su.withextractintime_ = false;
-    welllogselfld_ = new uiMultiWellLogSel( this, su );
+    welllogselfld_ = new uiMultiWellLogSel(this,uiWellExtractParams::Setup()
+						.withextractintime(false)
+						.withzintime(false));
+}
+
+
+void uiWellLogToolWinMgr::initWin( CallBacker* )
+{
+     welllogselfld_->update();
 }
 
 
@@ -65,17 +67,16 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	const char* nm = Well::IO::getMainFileName( wid );
 	if ( !nm || !*nm ) continue;
 
-	Well::Data wd; Well::Reader wr( nm, wd );  wr.get();
+	Well::Data wd; Well::Reader wr( nm, wd ); wr.get();	
 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
 	Well::LogSet* wls = new Well::LogSet( wd.logs() );
-	uiWellLogToolWin::LogData* ldata = 
-	    new uiWellLogToolWin::LogData( *wls, wd.d2TModel());
+	uiWellLogToolWin::LogData* ldata = new uiWellLogToolWin::LogData(*wls);
 	const Well::ExtractParams& params = welllogselfld_->params();
 	ldata->dahrg_ = params.calcFrom( wd, lognms, false );
 	ldata->wellname_ = wellnms[idx]->buf();
+	ldata->wellid_ = wid; 
 	if ( !ldata->setSelectedLogs( lognms ) ) 
 	    { delete ldata; continue; }
-	ldata->wellid_ = wid; 
 
 	logdatas += ldata;
     }
@@ -111,11 +112,9 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 
 
 
-uiWellLogToolWin::LogData::LogData( const Well::LogSet& ls, 
-				    const Well::D2TModel* d2t )
+uiWellLogToolWin::LogData::LogData( const Well::LogSet& ls )
     : logs_(*new Well::LogSet)
 {
-    d2t_ = d2t ? new Well::D2TModel(*d2t) : 0;
     for ( int idx=0; idx<ls.size(); idx++ )
 	logs_.add( new Well::Log( ls.getLog( idx ) ) );
 }
@@ -125,7 +124,6 @@ uiWellLogToolWin::LogData::~LogData()
 {
     deepErase( outplogs_ );
     delete &logs_;
-    delete d2t_;
 }
 
 
@@ -149,8 +147,7 @@ int uiWellLogToolWin::LogData::setSelectedLogs( BufferStringSet& lognms )
 	    if ( !dahrg_.includes( wl->dah( dahidx ), true ) )
 		wl->remove( dahidx );
 	}
-	inplogs_ += wl; 
-	nrsel++; 
+	if ( wl ) { inplogs_ += wl; nrsel++; }
     }
     return nrsel;
 }
@@ -191,7 +188,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     uiGroup* actiongrp = new uiGroup( this, "Action" );
     actiongrp->attach( hCentered );
     actiongrp->attach( ensureBelow, displaygrp );
-    const char* acts[] = { "Remove Spikes", "FFT Filter", "Smooth", "Clip", 0 };
+    const char* acts[] = { "Smooth", "Remove Spikes", "Clip", 0 };
     uiLabeledComboBox* llc = new uiLabeledComboBox( actiongrp, acts, "Action" );
     actionfld_ = llc->box();
     actionfld_->selectionChanged.notify(mCB(this,uiWellLogToolWin,actionSelCB));
@@ -199,9 +196,6 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     CallBack cb( mCB( this, uiWellLogToolWin, applyPushedCB ) );
     applybut_ = new uiPushButton( actiongrp, "Apply", cb, true );
     applybut_->attach( rightOf, llc );
-
-    freqfld_ = new uiFreqFilterSelFreq( actiongrp );
-    freqfld_->attach( alignedBelow, llc );
 
     uiLabeledSpinBox* spbgt = new uiLabeledSpinBox( actiongrp, "Window size" );
     spbgt->attach( alignedBelow, llc );
@@ -274,17 +268,15 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
 {
     const int act = actionfld_->currentItem();
 
-    thresholdfld_->display( act == 0 );
-    replacespikevalfld_->display( act == 0 );
-    replacespikefld_->display( act == 0 );
-    freqfld_->display( act == 1 );
-    gatefld_->display( act != 1 );
-    gatelbl_->display( act != 1 );
-    gatelbl_->setText( act > 2 ? "Clip rate (%)" : "Window size (samples)" );
-    StepInterval<int> sp = act > 2 ? StepInterval<int>(0,100,10) 
+    thresholdfld_->display( act == 1 );
+    replacespikevalfld_->display( act == 1 );
+    replacespikefld_->display( act == 1 );
+
+    gatelbl_->setText( act >1 ? "Clip rate (%)" : "Window size (samples)" );
+    StepInterval<int> sp = act > 1 ? StepInterval<int>(0,100,10) 
 				   : StepInterval<int>(1,1500,5);
     gatefld_->setInterval( sp );
-    gatefld_->setValue( act > 2 ? 1 : 300 );
+    gatefld_->setValue( act > 1 ? 1 : 300 );
 
     handleSpikeSelCB(0);
 }
@@ -293,7 +285,7 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
 void uiWellLogToolWin::handleSpikeSelCB( CallBacker* )
 {
     const int act = replacespikefld_->box()->currentItem();
-    replacespikevalfld_->display( act == 3 );
+    replacespikevalfld_->display( act == 2 );
 }
 
 
@@ -339,7 +331,6 @@ bool uiWellLogToolWin::rejectOK( CallBacker* )
 void uiWellLogToolWin::applyPushedCB( CallBacker* )
 {
     const int act = actionfld_->currentItem();
-    bool succeed = false;
     for ( int idldata=0; idldata<logdatas_.size(); idldata++ )
     {
 	LogData& ld = *logdatas_[idldata]; deepErase( ld.outplogs_ );
@@ -349,12 +340,11 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    Well::Log* outplog = new Well::Log( inplog );
 	    const int sz = inplog.size();
 	    const int gate = gatefld_->getValue(); 
-	    if ( sz< 2 || ( act != 1 && sz < 2*gate ) ) continue;
-
+	    if ( sz< 2 || sz < 2*gate ) continue;
 	    ld.outplogs_ += outplog;
 	    const float* inp = inplog.valArr();
 	    float* outp = outplog->valArr();
-	    if ( act == 2 )
+	    if ( act == 0 )
 	    {
 		Smoother1D<float> sm;
 		sm.setInput( inp, sz );
@@ -363,7 +353,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
 		sm.execute();
 	    }
-	    else if ( act == 0 )
+	    else if ( act == 1 )
 	    { 
 		Stats::Grubbs sgb;
 		const float cutoff_grups = thresholdfld_->box()->getValue();
@@ -403,7 +393,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    }
 		}
 	    }
-	    else if ( act == 3 )
+	    else if ( act == 2 )
 	    {
 		Interval<float> rg;
 		float rate = gate/(float)100;
@@ -416,40 +406,9 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    if ( outp[idx] > rg.stop )  outp[idx] = rg.stop;
 		}
 	    }
-	    else if ( act == 1)
-	    {
-		const float step = SI().zStep(); //TODO take user step ...
-		const Interval<float> dahrg = outplog->dahRange();
-		ObjectSet<const Well::Log> reslogs;
-		reslogs += outplog;
-		Stats::UpscaleType ut = Stats::TakeNearest;
-		Well::LogSampler ls( ld.d2t_, dahrg, false, 
-					step, SI().zIsTime(), 
-					ut, reslogs );
-		ls.execute();
-		const int size = ls.nrZSamples();
-		const float df = Fourier::CC::getDf( step, size );
-
-		const Interval<float>& freqrg = freqfld_->freqRange();
-		FFTFilter filter; 
-		filter.set( df, freqrg.start, freqrg.stop, 
-			    freqfld_->filterType(), false );
-		mAllocVarLenArr( float, outplogarr, size );
-		mAllocVarLenArr( float, inplogarr, size );
-
-		for ( int idz=0; idz<size; idz++ )
-		    inplogarr[idz] = ls.getLogVal( idlog, idz );
-
-		filter.apply( inplogarr, outplogarr, size );
-
-		outplog->erase();
-		for ( int idz=0; idz<size; idz++ )
-		    outplog->addValue( ls.getDah(idz), outplogarr[idz] );
-	    }
 	}
-	succeed = true;
     }
-    okbut_->setSensitive( succeed );
+    okbut_->setSensitive( true );
     displayLogs();
 }
 
@@ -459,7 +418,7 @@ void uiWellLogToolWin::displayLogs()
     int nrdisp = 0;
     for ( int idx=0; idx<logdatas_.size(); idx++ )
     {
-	ObjectSet<const Well::Log>& inplogs = logdatas_[idx]->inplogs_;
+	ObjectSet<Well::Log>& inplogs = logdatas_[idx]->inplogs_;
 	ObjectSet<Well::Log>& outplogs = logdatas_[idx]->outplogs_;
 	for ( int idlog=0; idlog<inplogs.size(); idlog++ )
 	{

@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          February 2009
- RCS:           $Id: uisaveimagedlg.h,v 1.9 2012-09-04 15:52:01 cvsranojay Exp $
+ RCS:           $Id: uisaveimagedlg.h,v 1.7 2011/05/04 08:03:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "geometry.h"
@@ -26,7 +25,7 @@ class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
 
-mClass(uiTools) uiSaveImageDlg : public uiDialog
+mClass uiSaveImageDlg : public uiDialog
 {
 public:
 			uiSaveImageDlg(uiParent*,bool withclipbrd = true);
@@ -46,7 +45,6 @@ public:
     bool                usePar(const IOPar&);
 
 protected:
-    void		setDirName(const char*);
 
     uiLabeledSpinBox*	pixheightfld_;
     uiLabeledSpinBox*	pixwidthfld_;
@@ -106,4 +104,3 @@ protected:
 };
 
 #endif
-

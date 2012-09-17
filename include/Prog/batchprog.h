@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.44 2012-08-03 13:00:34 cvskris Exp $
+ RCS:		$Id: batchprog.h,v 1.42 2011/06/27 06:16:52 cvsranojay Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -15,7 +15,6 @@ ________________________________________________________________________
  
 */
 
-#include "batchmod.h"
 #include "prog.h"
 #include "namedobj.h"
 #include "bufstringset.h"
@@ -48,9 +47,9 @@ class StreamData;
 */
 
 
-mClass(Batch) BatchProgram : public NamedObject
+mClass BatchProgram : public NamedObject
 {
-    mGlobal(Batch) friend	BatchProgram& BP();
+    mGlobal friend	BatchProgram& BP();
 public:
 
     const IOPar&	pars() const		{ return *iopar; }
@@ -123,7 +122,7 @@ private:
 
 
 int Execute_batch(int*,char**);
-mGlobal(Batch) BatchProgram& BP();
+mGlobal BatchProgram& BP();
 
 
 #ifdef __prog__
@@ -133,11 +132,9 @@ mGlobal(Batch) BatchProgram& BP();
     int main( int argc, char** argv )
     {
 	int ret = Execute_batch(&argc,argv);
-	ExitProgram( ret );
-	return ret;
+	return ExitProgram( ret );
     }
 
 #endif // __prog__
 
 #endif
-

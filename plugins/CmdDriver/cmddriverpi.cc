@@ -7,13 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: cmddriverpi.cc,v 1.38 2012-09-17 12:49:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.34 2011/04/21 13:09:13 cvsbert Exp $";
 
-#include "uimenu.h"
 #include "uimain.h"
-#include "uiodmain.h"
 #include "uiodmenumgr.h"
-#include "uicmddrivermgr.h"
+#include "cmddrivermgr.h"
 #include "odplugin.h"
 
 
@@ -33,13 +31,5 @@ mDefODInitPlugin(CmdDriver)
     static CmdDrive::uiCmdDriverMgr* mgr = 0;
     if ( mgr ) return 0;
     mgr = new CmdDrive::uiCmdDriverMgr( *ODMainWin() );
-
-    static uiMenuItem* cmdmnuitm = 0;
-    if ( cmdmnuitm ) return 0;
-    cmdmnuitm = new uiMenuItem( "Command &Driver ..." );
-
-    ODMainWin()->menuMgr().toolsMnu()->insertItem( cmdmnuitm );
-    cmdmnuitm->activated.notify( mCB(mgr,CmdDrive::uiCmdDriverMgr,showDlgCB) );
-
     return 0;
 }

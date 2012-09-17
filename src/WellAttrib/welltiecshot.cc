@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiecshot.cc,v 1.25 2012-05-02 15:11:55 cvskris Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.22 2011/11/28 16:03:41 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -32,7 +32,7 @@ void CheckShotCorr::calibrate( const Well::D2TModel& cs, Well::D2TModel& d2t )
     for ( int idx=0; idx<cs.size(); idx++ )
     {
 	if ( !dahrg.includes( cs.dah( idx ), true ) )
-	    d2t.insertAtDah( cs.dah(idx), cs.value( idx ) );
+	    d2t.insertAtDah( cs.dah(idx), cs.value( idx ), false );
     }
 
     TypeSet<int> ctrlsamples;

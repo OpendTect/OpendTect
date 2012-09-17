@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Nov 2005
- RCS:		$Id: classify.h,v 1.5 2012-08-03 13:00:21 cvskris Exp $
+ RCS:		$Id: classify.h,v 1.4 2009/07/22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "typeset.h"
 
 
@@ -21,7 +20,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-mClass(General) WeightedClassCounter
+mClass WeightedClassCounter
 {
 public:
     		WeightedClassCounter( bool canbeneg=true )
@@ -91,4 +90,3 @@ inline int WeightedClassCounter<T>::result() const
 
 
 #endif
-

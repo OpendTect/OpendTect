@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: explpolygonsurface.h,v 1.9 2012-08-03 13:00:27 cvskris Exp $
+ RCS:           $Id: explpolygonsurface.h,v 1.8 2011/02/14 22:23:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "indexedshape.h"
 #include "position.h"
 
@@ -26,7 +25,7 @@ class PolygonSurface;
 /*!A triangulated representation of a polygonsurface */
 
 
-mClass(Geometry) ExplPolygonSurface: public Geometry::IndexedShape, public CallBacker
+mClass ExplPolygonSurface: public Geometry::IndexedShape, public CallBacker
 {
 public:
 			ExplPolygonSurface(const PolygonSurface*,
@@ -84,4 +83,3 @@ protected:
 };
 
 #endif
-

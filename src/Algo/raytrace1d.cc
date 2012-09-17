@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: raytrace1d.cc,v 1.47 2012-08-02 14:59:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: raytrace1d.cc,v 1.41 2012/05/04 07:16:46 cvsbruno Exp $";
 
 
 #include "raytrace1d.h"
@@ -55,7 +55,7 @@ RayTracer1D::~RayTracer1D()
 RayTracer1D* RayTracer1D::createInstance( const IOPar& par, BufferString& errm )
 {
     BufferString type;
-    par.get( sKey::Type(), type );
+    par.get( sKey::Type, type );
 
     RayTracer1D* raytracer = factory().create( type );
     if ( !raytracer )
@@ -86,16 +86,9 @@ bool RayTracer1D::usePar( const IOPar& par )
 
 void RayTracer1D::fillPar( IOPar& par ) const 
 {
-    par.set( sKey::Type(), factoryKeyword() );
+    par.set( sKey::Type, factoryKeyword() );
     par.set( sKeyOffset(), offsets_ );
     setup().fillPar( par );
-}
-
-
-void RayTracer1D::setIOParsToZeroOffset( IOPar& par )
-{
-    TypeSet<float> emptyset; emptyset += 0;
-    par.set( RayTracer1D::sKeyOffset(), emptyset );
 }
 
 
@@ -231,6 +224,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
     const ElasticLayer& ellayer = model_[layer];
     const float downvel = setup().pdown_ ? ellayer.vel_ : ellayer.svel_;
+    const float upvel = setup().pup_ ? ellayer.vel_ : ellayer.svel_;
 
     const float sini = downvel * rayparam;
     sini_->set( layer, offsetidx, sini );
@@ -279,6 +273,11 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 
     return true;
 }
+
+
+
+
+
 
 
 float RayTracer1D::getSinAngle( int layer, int offset ) const
@@ -335,18 +334,17 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     if ( !twt_ || offsetidx<0 || offsetidx>=twt_->info().getSize(1) )
 	return false;
 
+    const int nrtimes = twt_->info().getSize(0);
     const int layersize = nrIterations();
 
     TypeSet<float> times, depths;
-    depths += setup().sourcedepth_; 
-    times += 0;
     for ( int idx=0; idx<layersize; idx++ )
     {
 	depths += depths_[idx];
 	times += twt_->get( idx, offsetidx ); 
     }
-    sort_array( times.arr(), layersize+1 );
-    return d2tm.setModel( depths.arr(), times.arr(), layersize+1 ); 
+    sort_array( times.arr(), layersize );
+    return d2tm.setModel( depths.arr(), times.arr(), layersize ); 
 }
 
 
@@ -358,6 +356,7 @@ bool VrmsRayTracer1D::doPrepare( int nrthreads )
 	return false;
 
     const int layersize = nrIterations();
+    const bool iszerooff = offsets_.size() == 1 && mIsZero(offsets_[0],1e-3);
 
     TypeSet<float> dnmotimes, dvrmssum, unmotimes, uvrmssum; 
     for ( int idx=firstlayer_; idx<layersize; idx++ )

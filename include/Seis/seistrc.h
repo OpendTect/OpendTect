@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.45 2012-08-03 13:00:38 cvskris Exp $
+ RCS:		$Id: seistrc.h,v 1.44 2012/05/10 06:35:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seisinfo.h"
 #include "tracedata.h"
 #include "datachar.h"
@@ -30,7 +29,7 @@ interpreted by DataInterpreters.
 
 */
 
-mClass(Seis) SeisTrc
+mClass SeisTrc
 {
 public:
 
@@ -130,7 +129,7 @@ One of the components of a SeisTrc can be selected to form a ValueSeries.
 
 */
 
-mClass(Seis) SeisTrcValueSeries : public ValueSeries<float>
+mClass SeisTrcValueSeries : public ValueSeries<float>
 {
 public:
 
@@ -160,7 +159,7 @@ One of the components of a SeisTrc can be selected to form a ValueSeries.
 */
 
 
-mClass(Seis) SeisTrcFunction : public FloatMathFunction
+mClass SeisTrcFunction : public FloatMathFunction
 {
 public:
 
@@ -205,4 +204,3 @@ seissingtrcproc.h .
 */
 
 #endif
-

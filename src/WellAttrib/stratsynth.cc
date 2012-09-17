@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: stratsynth.cc,v 1.54 2012-09-13 09:32:19 cvshelene Exp $";
+static const char* rcsID  = "$Id: stratsynth.cc,v 1.42 2012/09/14 16:58:03 cvsbruno Exp $";
 
 
 #include "stratsynth.h"
@@ -36,11 +36,10 @@ SynthGenParams::SynthGenParams()
 {
     const BufferStringSet& facnms = RayTracer1D::factory().getNames( false );
     if ( !facnms.isEmpty() )
-	raypars_.set( sKey::Type(), facnms.get( facnms.size()-1 ) );
+	raypars_.set( sKey::Type, facnms.get( facnms.size()-1 ) );
 
-    RayTracer1D::setIOParsToZeroOffset( raypars_ );
-    raypars_.setYN( RayTracer1D::sKeyVelBlock(), true );
-    raypars_.set( RayTracer1D::sKeyVelBlockVal(), 20 );
+    TypeSet<float> emptyset; emptyset += 0;
+    raypars_.set( RayTracer1D::sKeyOffset(), emptyset );
 }
 
 
@@ -68,10 +67,9 @@ const char* SynthGenParams::genName() const
 
 StratSynth::StratSynth( const Strat::LayerModel& lm )
     : lm_(lm)
-    , level_(0)  
-    , tr_(0)
     , wvlt_(0)
     , lastsyntheticid_(0)
+    , level_(0)
 {}
 
 
@@ -84,10 +82,9 @@ StratSynth::~StratSynth()
 
 void StratSynth::setWavelet( const Wavelet* wvlt )
 {
-    if ( !wvlt ) 
+    if ( !wvlt )
 	return;
 
-    delete wvlt_; 
     wvlt_ = wvlt;
     genparams_.wvltnm_ = wvlt->name();
 } 
@@ -169,7 +166,6 @@ SyntheticData* StratSynth::getSyntheticByIdx( int idx )
 }
 
 
-
 SyntheticData* StratSynth::getSynthetic( const  PropertyRef& pr )
 {
     for ( int idx=0; idx<synthetics_.size(); idx++ )
@@ -246,7 +242,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	mErrRet( "Model has only one layer, please add an other layer.", 
 		return false; );
 
-    if ( (tr && !tr->execute( synthgen ) ) || !synthgen.execute() )
+    if ( !synthgen.doWork() )
     {
 	const char* errmsg = synthgen.errMsg();
 	mErrRet( errmsg ? errmsg : "", return 0 ) ;
@@ -280,7 +276,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	{
 	    SeisTrcBuf* tbuf = tbufs.remove( 0 );
 	    PreStack::Gather* gather = new PreStack::Gather();
-	    if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
+	    if ( !gather->setFromTrcBuf( *tbuf, 0, false ) )
 		{ delete gather; continue; }
 
 	    gatherset += gather;
@@ -332,10 +328,9 @@ void StratSynth::generateOtherQuantities( PostStackSyntheticData& sd,
 
     for ( int iprop=1; iprop<props.size(); iprop++ )
     {
-	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( 
-					(SeisTrcBufDataPack&)sd.getPack() );
+	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( sd.postStackPack() );
 
-	BufferString nm( "[" ); nm += props[iprop]->name(); nm += "]";
+	BufferString nm; nm += "["; nm += props[iprop]->name(); nm += "]";
 
 	const StepInterval<double>& zrg = dp->posData().range( false );
 
@@ -350,7 +345,7 @@ void StratSynth::generateOtherQuantities( PostStackSyntheticData& sd,
 	    int layidx = 0;
 	    float laydpt = seq.startDepth();
 	    float val = mUdf(float);
-	    TypeSet<float> vals; 
+	    TypeSet<float> vals;
 	    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
 	    {
 		const float time = zrg.atIndex( idz );
@@ -378,15 +373,12 @@ void StratSynth::generateOtherQuantities( PostStackSyntheticData& sd,
 	    for ( int idz=0; idz<vals.size(); idz++ )
 		trc->set( idz, outvals.get(idz), 0 );
 	}
-
-
 	dp->setBuffer( trcbuf, Seis::Line, SeisTrcInfo::TrcNr );	
 	dp->setName( nm );
 	PropertyRefSyntheticData* prsd = 
-	    new PropertyRefSyntheticData( genparams_, *dp, *props[iprop] );
+		new PropertyRefSyntheticData( genparams_, *dp, *props[iprop] );
 	prsd->id_ = ++lastsyntheticid_;
 	prsd->setName( nm );
-
 	deepCopy( prsd->d2tmodels_, sd.d2tmodels_ );
 	synthetics_ += prsd;
     }
@@ -399,6 +391,8 @@ const char* StratSynth::errMsg() const
 }
 
 
+#define mLayerBlockSize 1000
+
 bool StratSynth::fillElasticModel( const Strat::LayerModel& lm, 
 				ElasticModel& aimodel, int seqidx )
 {
@@ -409,13 +403,20 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 	return false; 
 
     ElasticPropGen elpgen( eps, props );
+    const ElasticPropertyRef& denref = eps.getPropertyRef(ElasticFormula::Den); 
+    const ElasticPropertyRef& pvref = eps.getPropertyRef(ElasticFormula::PVel); 
+    const ElasticPropertyRef& svref = eps.getPropertyRef(ElasticFormula::SVel); 
     const Strat::Layer* lay = 0;
     for ( int idx=0; idx<seq.size(); idx++ )
     {
 	lay = seq.layers()[idx];
 	float dval, pval, sval;
-       	if ( !getVPVSDenValsFromUnitPars( pval, sval, dval, lay->name() ) )
-	    elpgen.getVals( dval, pval, sval, lay->values(), props.size() );
+	if ( !getVPVSDenValsFromUnitPars( pval, sval, dval, lay->name() ) )
+	{
+	    dval  = elpgen.getVal(denref,lay->values(),props.size());
+	    pval = elpgen.getVal(pvref,lay->values(),props.size());
+	    sval = elpgen.getVal(svref,lay->values(),props.size());
+	}
 
 	ElasticLayer ail ( lay->thickness(), pval, sval, dval );
 	BufferString msg( "Can not derive synthetic layer property " );
@@ -435,11 +436,9 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 	aimodel += ail;
     }
 
-    bool dovelblock = false; float blockthreshold;
-    genparams_.raypars_.getYN( RayTracer1D::sKeyVelBlock(), dovelblock );
-    genparams_.raypars_.get( RayTracer1D::sKeyVelBlockVal(), blockthreshold );
-    if ( dovelblock )
-	blockElasticModel( aimodel, blockthreshold );
+    //4.4 only
+    if ( aimodel.size() > mLayerBlockSize )
+	blockElasticModel( aimodel );
 
     return true;
 }
@@ -488,7 +487,6 @@ void StratSynth::setLevel( const Level* lvl )
 { delete level_; level_ = lvl; }
 
 
-
 void StratSynth::flattenTraces( SeisTrcBuf& tbuf ) const
 {
     if ( tbuf.isEmpty() )
@@ -509,7 +507,7 @@ void StratSynth::flattenTraces( SeisTrcBuf& tbuf ) const
 	const float stop  = trc->info().sampling.atIndex( trc->size()-1 ) -tmax;
 	SeisTrc* newtrc = trc->getRelTrc( ZGate(start,stop) );
 	if ( newtrc )
-	    delete tbuf.replace( idx, newtrc );
+	delete tbuf.replace( idx, newtrc );
     }
 }	
 
@@ -524,10 +522,11 @@ void StratSynth::decimateTraces( SeisTrcBuf& tbuf, int fac ) const
 }
 
 
+
 SyntheticData::SyntheticData( const SynthGenParams& sgp, DataPack& dp )
     : NamedObject(sgp.name_)
-    , datapack_(dp)
     , id_(-1) 
+    , datapack_(dp)
 {
     useGenParams( sgp );
 }

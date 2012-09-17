@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: iodirentry.h,v 1.16 2012-08-03 13:00:23 cvskris Exp $
+ RCS:           $Id: iodirentry.h,v 1.15 2011/04/22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "generalmod.h"
 #include "multiid.h"
 #include "namedobj.h"
 #include "objectset.h"
@@ -23,7 +22,7 @@ class TranslatorGroup;
 
 /*!\brief needed for manipulation. Used by user interface IOObj management. */
 
-mClass(General) IODirEntry : public NamedObject
+mClass IODirEntry : public NamedObject
 {
 public:
 			IODirEntry(IOObj*);
@@ -34,7 +33,7 @@ public:
 
 /*!\brief list of dir entries. */
 
-mClass(General) IODirEntryList : public ObjectSet<IODirEntry>
+mClass IODirEntryList : public ObjectSet<IODirEntry>
 {
 public:
 			IODirEntryList(IODir*,const IOObjContext&);
@@ -71,4 +70,3 @@ protected:
 
 
 #endif
-

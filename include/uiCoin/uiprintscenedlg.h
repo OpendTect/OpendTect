@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.21 2012-08-03 13:00:54 cvskris Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.20 2011/12/08 16:29:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uicoinmod.h"
 #include "uisaveimagedlg.h"
 
 class IOPar;
@@ -19,7 +18,7 @@ class uiGenInput;
 class uiLabeledComboBox;
 class ui3DViewer;
 
-mClass(uiCoin) uiPrintSceneDlg : public uiSaveImageDlg
+mClass uiPrintSceneDlg : public uiSaveImageDlg
 {
 public:
 			uiPrintSceneDlg(uiParent*,const ObjectSet<ui3DViewer>&);
@@ -44,4 +43,3 @@ protected:
 };
 
 #endif
-

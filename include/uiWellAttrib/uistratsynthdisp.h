@@ -7,18 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.64 2012-09-14 14:05:11 cvshelene Exp $
+ RCS:		$Id: uistratsynthdisp.h,v 1.58 2012/09/14 16:58:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uigroup.h"
 #include "uimainwin.h"
 #include "uidialog.h"
 #include "uiflatviewslicepos.h"
 #include "stratsynth.h"
 #include "valseriesevent.h"
+#include "flatview.h"
 
 class FlatDataPack;
 class TimeDepthModel;
@@ -35,17 +35,17 @@ class uiFlatViewMainWin;
 class uiMultiFlatViewControl;
 class uiOffsetSlicePos;
 class uiPushButton;
-class uiSynthGenDlg;
+class uiRayTrcParamsDlg;
 class uiSeisWaveletSel;
+class uiSynthGenDlg;
 class uiStackGrp;
 class uiSynthSlicePos;
 class uiToolButton;
 class uiToolButtonSetup;
 namespace Strat { class LayerModel; }
-namespace FlatView { class AuxData; }
 
 
-mClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
+mClass uiStratSynthDisp : public uiGroup
 {
 public:
 
@@ -59,20 +59,16 @@ public:
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
     void		genSyntheticsFor(const Strat::LayerModel&,SeisTrcBuf&);
-    SyntheticData*	getCurrentSyntheticData() const;
-    const SeisTrcBuf&	postStackTraces(const PropertyRef* pr=0) const;
-    const PropertyRefSelection&	modelPropertyRefs() const;
-
+    const SeisTrcBuf&	postStackTraces() const { return postStackTraces(0); }
     const ObjectSet<const TimeDepthModel>* d2TModels() const;
 
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
 	    			     Color,bool);
-    void		setSelectedTrace(int);
     void		setDispEach(int);
-    void		setZDataRange(const Interval<double>&,bool indpt);
+    void		setZDataRange(const Interval<double>& zrg,bool indpth);
+
 
     const uiWorldRect&	curView(bool indepth) const;
-
     uiFlatViewer*	viewer()		{ return vwr_; }
 
     Notifier<uiStratSynthDisp>	wvltChanged;
@@ -93,7 +89,6 @@ protected:
     int			longestaimdl_;
     StratSynth&		stratsynth_;
     const Strat::LayerModel& lm_;
-    int			selectedtrace_;
     int			dispeach_;
     bool		dispflattened_;
 
@@ -101,52 +96,71 @@ protected:
     SyntheticData* 	currentsynthetic_;
 
     uiMultiFlatViewControl* control_;
-    FlatView::AuxData*	selectedtraceaux_;
-    FlatView::AuxData*	levelaux_;
 
     uiGroup*		topgrp_;
     uiGroup*		datagrp_;
-    uiGroup*		prestackgrp_;
     uiSeisWaveletSel*	wvltfld_;
     uiFlatViewer*	vwr_;
     uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
     uiToolButton*	prestackbut_;
-    uiToolButton*	addeditbut_;
+    uiPushButton*	addasnewbut_;
     uiLabeledComboBox*	datalist_;
     uiLabeledComboBox*	levelsnapselfld_;
-    uiSynthGenDlg*	synthgendlg_;
+    uiRayTrcParamsDlg*	raytrcpardlg_;
     uiSynthSlicePos*	offsetposfld_;
     uiSynthSlicePos*	modelposfld_;
+    uiStackGrp*		stackfld_;
     uiFlatViewMainWin*	prestackwin_;
 
-    void		setCurrentSynthetic();
     void		cleanSynthetics();
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
-    void		updateSyntheticList();
 
     void		drawLevel();
-    void		displayPreStackDirSynthetic(const SyntheticData*);
-    void		displayPostStackDirSynthetic(const SyntheticData*);
+    void		displayPreStackSynthetic(const SyntheticData*) {};
+    void		displayPostStackSynthetic(const SyntheticData*) {};
 
-    void		addEditSynth(CallBacker*);
+    void		addSynth2List(CallBacker*){};
     void		dataSetSel(CallBacker*);
     void		levelSnapChanged(CallBacker*);
     void		layerPropsPush(CallBacker*);
     void		offsetChged(CallBacker*);
-    void		syntheticDataParChged(CallBacker*);
+    void		rayTrcParPush(CallBacker*);
+    void		rayTrcParChged(CallBacker*);
     void		modelPosChged(CallBacker*);
     void		scalePush(CallBacker*);
-    void 		genNewSynthetic(CallBacker*);
     void		viewPreStackPush(CallBacker*);
     void		wvltChg(CallBacker*);
     void		zoomChg(CallBacker*);
 
+    uiSynthGenDlg*	synthgendlg_;
+    uiGroup*		prestackgrp_;
+    uiToolButton*       addeditbut_;
+    void		setCurrentSynthetic();
+    void		updateSyntheticList();
+    void		displayPreStackDirSynthetic(const SyntheticData*);
+    void		displayPostStackDirSynthetic(const SyntheticData*);
+
+    void		addEditSynth(CallBacker*);
+    void		syntheticDataParChged(CallBacker*);
+    void 		genNewSynthetic(CallBacker*);
+
+    int                 selectedtrace_;
+    FlatView::Annotation::AuxData*  selectedtraceaux_;
+    FlatView::Annotation::AuxData*  levelaux_;
+
+public:
+
+    const SeisTrcBuf&	postStackTraces(const PropertyRef*) const;
+    const PropertyRefSelection& modelPropertyRefs() const;
+    void 		setSelectedTrace(int);
+    SyntheticData*	getCurrentSyntheticData() const;
+
 };
 
 
-mClass(uiWellAttrib) uiSynthSlicePos : public uiGroup
+mClass uiSynthSlicePos : public uiGroup
 {
 public:
     			uiSynthSlicePos(uiParent*,const char* lbltxt);
@@ -170,26 +184,22 @@ protected:
 };
 
 
-mClass(uiWellAttrib) uiStackGrp : public uiGroup
+mClass uiRayTrcParamsDlg : public uiDialog
 {
 public:
-    			uiStackGrp(uiParent*);
-
-    Notifier<uiStackGrp> rangeChg;
-
-    void		setLimitRange(Interval<float>);
-    const Interval<float>& getRange() const;
-
+				uiRayTrcParamsDlg(uiParent* p,IOPar& rp) 
+				: uiDialog(p,Setup("",mNoDlgTitle,mNoHelpID))
+				, raypars_(rp) {}
 protected:
-    uiGenInput*		offsetfld_;
-    Interval<float>	limitrg_;
-    Interval<float>	offsetrg_;
+    uiCheckBox*			nmobox_;
+    uiRayTracerSel*		rtsel_;
+    IOPar&			raypars_;
 
-    void		valChgCB( CallBacker* );
+    bool			acceptOK( CallBacker* ) { return true; };
 };
 
 
-mClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
+mClass uiSynthGenDlg : public uiDialog
 {
 public:
 				uiSynthGenDlg(uiParent*,SynthGenParams&);
@@ -204,7 +214,7 @@ protected:
     uiGenInput*			typefld_;
     uiGenInput*  		namefld_;
     uiCheckBox*			nmobox_;
-    uiCheckBox*			stackfld_;
+    uiCheckBox*			stackbox_;
     uiRayTracerSel*		rtsel_;
     uiPushButton*		gennewbut_;
     uiPushButton*		applybut_;
@@ -212,12 +222,11 @@ protected:
     uiPushButton*		savebut_;
     SynthGenParams&		sd_;
 
-
     void			typeChg(CallBacker*);
     bool			genNewCB(CallBacker*);
     bool			acceptOK(CallBacker*);
-
 };
 
-#endif
 
+
+#endif

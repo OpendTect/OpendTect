@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.28 2012-08-03 13:00:47 cvskris Exp $
+ RCS:           $Id: welltiesetup.h,v 1.23 2012/04/04 10:21:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "wellattribmod.h"
 #include "namedobj.h"
 
 #include "enums.h"
@@ -27,7 +26,7 @@ class IOPar;
 namespace WellTie
 {
 
-mClass(WellAttrib) Setup
+mClass Setup
 {
 public:
     			enum CorrType { None, Automatic, UserDefined };
@@ -58,7 +57,9 @@ public:
 				    , is2d_(setup.is2d_)
 				    , useexistingd2tm_(setup.useexistingd2tm_)
 				    , corrtype_(setup.corrtype_) 
-				    , replacevel_(setup.replacevel_)
+				    , replacevel_(setup.replacevel_) 
+				    , veluom_(setup.veluom_)
+				    , denuom_(setup.denuom_)
 				    {}	
 		
     MultiID			wellid_;
@@ -68,6 +69,8 @@ public:
     BufferString        	seisnm_;
     BufferString        	vellognm_;
     BufferString          	denlognm_;
+    BufferString        	veluom_;
+    BufferString          	denuom_;
     bool                	issonic_;
     bool                	is2d_;
     bool 			useexistingd2tm_;
@@ -87,7 +90,7 @@ public:
 };
 
 
-mClass(WellAttrib) IO : public Well::IO
+mClass IO : public Well::IO
 {
 public:
     				IO(const char* f,bool isrd)
@@ -97,7 +100,7 @@ public:
 };
 
 
-mClass(WellAttrib) Writer : public IO
+mClass Writer : public IO
 {
 public:
 				Writer(const char* f)
@@ -113,7 +116,7 @@ protected:
     bool                	wrHdr(std::ostream&,const char*) const;
 };
 
-mClass(WellAttrib) Reader : public IO
+mClass Reader : public IO
 {
 public:
 				Reader(const char* f)
@@ -129,4 +132,3 @@ protected:
 
 }; //namespace WellTie
 #endif
-

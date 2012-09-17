@@ -4,13 +4,14 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: od_process_segyio.cc,v 1.12 2012-07-24 14:51:41 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_segyio.cc,v 1.8 2012/05/07 11:33:46 cvskris Exp $";
 
 #include "batchprog.h"
 
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
+#include "moddepmgr.h"
 #include "multiid.h"
 #include "oddirs.h"
 #include "segybatchio.h"
@@ -18,26 +19,26 @@ static const char* rcsID mUnusedVar = "$Id: od_process_segyio.cc,v 1.12 2012-07-
 #include "segyscanner.h"
 #include "segyfiledef.h"
 #include "keystrs.h"
-#include "moddepmgr.h"
 
 #include "prog.h"
 
 bool BatchProgram::go( std::ostream& strm )
 { 
     OD::ModDeps().ensureLoaded("Seis");
-    
+
     const FixedString task = pars().find( SEGY::IO::sKeyTask() );
+    const char* parseerror =  "Cannot parse parameters";
     const bool isps = task == SEGY::IO::sKeyIndexPS();
     const bool isvol = task == SEGY::IO::sKeyIndex3DVol();
     bool is2d = !isvol; MultiID mid;
     pars().getYN( SEGY::IO::sKeyIs2D(), is2d );
-    pars().get( sKey::Output(), mid );
+    pars().get( sKey::Output, mid );
 
     if ( isps || isvol )
     {
 	if ( mid.isEmpty() )
 	{
-	    strm << "Parameter file lacks the '" << sKey::Output() << " key."
+	    strm << "Parameter file lacks the '" << sKey::Output << " key."
 		 << std::endl;
 	    return false;
 	}
@@ -67,7 +68,7 @@ bool BatchProgram::go( std::ostream& strm )
 		    replaceCharacter( relpath.buf(), '\\', '/' );  
 		    filespec.fname_ = relpath;
 		}
-		pars().set( sKey::FileName(), filespec.fname_ );
+		pars().set( sKey::FileName, filespec.fname_ );
 	    }
 	}
 

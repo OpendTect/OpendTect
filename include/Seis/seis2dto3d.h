@@ -8,14 +8,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: seis2dto3d.h,v 1.7 2012-08-03 13:00:35 cvskris Exp $
+ RCS:           $Id: seis2dto3d.h,v 1.6 2012/06/19 12:27:29 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "seismod.h"
-#include "seismod.h"
 #include "executor.h"
 #include "cubesampling.h"
 #include "arrayndimpl.h"
@@ -31,7 +29,7 @@ class SeisTrcWriter;
 class SeisTrcBuf;
 
 
-mClass(Seis) SeisInterpol : public Executor
+mClass SeisInterpol : public Executor
 {
 public:
 
@@ -66,7 +64,7 @@ protected:
     int 		szz_;
     float 		max_;
 
-    mStruct(Seis) TrcPosTrl
+    mStruct TrcPosTrl
     {
 		    TrcPosTrl(int x,int y, int trc)
 			: idx_(x)
@@ -97,7 +95,7 @@ protected:
 
 
 
-mClass(Seis) Seis2DTo3D : public Executor
+mClass Seis2DTo3D : public Executor
 {
 public:
 
@@ -108,7 +106,6 @@ public:
     void		setOutput(IOObj& cube,const CubeSampling& outcs);
 
     void		setParams(int inl,int crl,float maxvel,bool reuse);
-    void		setIsNearestTrace( bool yn );
 
     const char*		errMsg() const 		{ return errmsg_.isEmpty() ? 0
 						       : errmsg_.buf();  }
@@ -148,15 +145,17 @@ protected:
     bool		read_;	
     int			nrdone_;
     mutable int		totnr_;
-    bool		nearesttrace_;
 
     void		clear();
     bool		writeTmpTrcs();
     bool		read();
+
+public:
+    void		setIsNearestTrace( bool yn );
 };
 
 
-mClass(Seis) SeisScaler
+mClass SeisScaler
 {
 public:
 			SeisScaler(const SeisTrcBuf&);
@@ -169,5 +168,3 @@ protected:
 };
 
 #endif
-
-

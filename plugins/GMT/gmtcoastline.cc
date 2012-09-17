@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmtcoastline.cc,v 1.13 2012-05-22 14:48:44 cvskris Exp $";
+static const char* rcsID = "$Id: gmtcoastline.cc,v 1.9 2010/12/07 22:59:52 cvskris Exp $";
 
 #include "gmtcoastline.h"
 
@@ -42,7 +42,7 @@ GMTPar* GMTCoastline::createInstance( const IOPar& iop )
 const char* GMTCoastline::userRef() const
 {
     BufferString* str = new BufferString( "Coastline: " );
-    const char* res = find( ODGMT::sKeyResolution() );
+    const char* res = find( ODGMT::sKeyResolution );
     *str += res; *str += " resolution";
     return str->buf();
 }
@@ -50,10 +50,10 @@ const char* GMTCoastline::userRef() const
 
 bool GMTCoastline::fillLegendPar( IOPar& par ) const
 {
-    par.set( sKey::Name(), "Coastline" );
-    const char* str = find( ODGMT::sKeyLineStyle() );
-    par.set( ODGMT::sKeyLineStyle(), str );
-    par.set( ODGMT::sKeyShape(), "Line" );
+    par.set( sKey::Name, "Coastline" );
+    const char* str = find( ODGMT::sKeyLineStyle );
+    par.set( ODGMT::sKeyLineStyle, str );
+    par.set( ODGMT::sKeyShape, "Line" );
     return true;
 }
 
@@ -62,9 +62,9 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
 {
     bool drawcontour, dryfill, wetfill;
     Interval<float> mapdim;
-    get( ODGMT::sKeyMapDim(), mapdim );
-    getYN( ODGMT::sKeyDryFill(), dryfill );
-    getYN( ODGMT::sKeyWetFill(), wetfill );
+    get( ODGMT::sKeyMapDim, mapdim );
+    getYN( ODGMT::sKeyDryFill, dryfill );
+    getYN( ODGMT::sKeyWetFill, wetfill );
 
     strm << "Drawing coastline ...  ";
     FilePath fp( fnm );
@@ -84,9 +84,9 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
     *( rangestr.buf() + rangestr.size() - 1 ) = '\0';
     BufferString comm = "pscoast "; comm += rangestr;
     comm += " -JM"; comm += mapdim.start; comm += "c -D";
-    const int res = ODGMT::parseEnumResolution( find(ODGMT::sKeyResolution()) );
+    const int res = ODGMT::parseEnumResolution( find(ODGMT::sKeyResolution) );
     comm += sResKeys[res];
-    LineStyle ls; ls.fromString( find(ODGMT::sKeyLineStyle()) );
+    LineStyle ls; ls.fromString( find(ODGMT::sKeyLineStyle) );
     drawcontour = ls.type_ != LineStyle::None;
     if ( drawcontour )
     {
@@ -96,7 +96,7 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
     if ( wetfill )
     {
 	Color wetcol;
-	get( ODGMT::sKeyWetFillColor(), wetcol );
+	get( ODGMT::sKeyWetFillColor, wetcol );
 	BufferString wetcolstr;
 	mGetColorString( wetcol, wetcolstr );
 	comm += " -S"; comm += wetcolstr;
@@ -104,7 +104,7 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
     if ( dryfill )
     {	
 	Color drycol;
-	get( ODGMT::sKeyDryFillColor(), drycol );
+	get( ODGMT::sKeyDryFillColor, drycol );
 	BufferString drycolstr;
 	mGetColorString( drycol, drycolstr );
 	comm += " -G"; comm += drycolstr;
@@ -122,9 +122,9 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm, std::ostream& strm )
 {
     Interval<float> xrg, yrg;
     int zone;
-    get( ODGMT::sKeyXRange(), xrg );
-    get( ODGMT::sKeyYRange(), yrg );
-    get( ODGMT::sKeyUTMZone(), zone );
+    get( ODGMT::sKeyXRange, xrg );
+    get( ODGMT::sKeyYRange, yrg );
+    get( ODGMT::sKeyUTMZone, zone );
     int relzone = zone - 30;
     if ( relzone < 1 )
 	relzone += 60;

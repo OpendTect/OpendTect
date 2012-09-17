@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.20 2012-08-03 13:00:22 cvskris Exp $
+ RCS:		$Id: datapackbase.h,v 1.19 2010/11/11 05:50:01 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "datapack.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -26,7 +25,7 @@ class TaskRunner;
 
 /*!\brief DataPack for point data. */
     
-mClass(General) PointDataPack : public DataPack
+mClass PointDataPack : public DataPack
 {
 public:
 
@@ -54,7 +53,7 @@ protected:
 
   */
     
-mClass(General) FlatDataPack : public DataPack
+mClass FlatDataPack : public DataPack
 {
 public:
     				FlatDataPack(const char* categry,
@@ -110,7 +109,7 @@ private:
 
 /*!\brief DataPack for 2D data to be plotted on a Map. */
 
-mClass(General) MapDataPack : public FlatDataPack
+mClass MapDataPack : public FlatDataPack
 {
 public:
     				MapDataPack(const char* categry,const char* nm,
@@ -154,7 +153,7 @@ protected:
 /*!\brief DataPack for volume data, where the dims correspond to 
           inl/crl/z . */
     
-mClass(General) VolumeDataPack : public DataPack
+mClass VolumeDataPack : public DataPack
 {
 public:
 
@@ -185,7 +184,7 @@ protected:
           inl/crl/z .
 */
     
-mClass(General) CubeDataPack : public VolumeDataPack
+mClass CubeDataPack : public VolumeDataPack
 {
 public:
     				CubeDataPack(const char* categry,
@@ -217,4 +216,3 @@ private:
 
 
 #endif
-

@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.17 2012-08-03 13:00:58 cvskris Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.15 2011/06/29 11:15:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "sets.h"
 #include <iostream>
 class uiParent;
@@ -28,7 +27,7 @@ class IOPar;
 
 */
 
-mClass(uiFlatView) uiFlatViewWin
+mClass uiFlatViewWin
 {
 public:
 
@@ -55,7 +54,7 @@ protected:
     ObjectSet<uiFlatViewer>	vwrs_;
 
     void			makeInfoMsg(BufferString&,IOPar&) const;
-    void			createViewers(int);
+    void			createViewers(int,bool withhanddrag = false);
     void			cleanUp();
 
     virtual void		handleNewViewer(uiFlatViewer*)	{}
@@ -63,4 +62,3 @@ protected:
 
 
 #endif
-

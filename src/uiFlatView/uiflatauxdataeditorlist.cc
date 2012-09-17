@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatauxdataeditorlist.cc,v 1.17 2012-05-02 15:12:06 cvskris Exp $";
+static const char* rcsID = "$Id: uiflatauxdataeditorlist.cc,v 1.14 2010/11/10 15:26:43 cvsbert Exp $";
 
 #include "uiflatauxdataeditorlist.h"
 
@@ -80,12 +80,12 @@ void uiFlatViewAuxDataEditorList::updateList( CallBacker* )
 	FlatView::AuxDataEditor& editor = *editors_[idx];
 	const TypeSet<int>& ids = editor.getIds();
 
-        const ObjectSet<FlatView::AuxData>& auxdata =
+        const ObjectSet<FlatView::Annotation::AuxData>& auxdata =
 	    editor.getAuxData();
 
 	for ( int idy=0; idy<ids.size(); idy++ )
 	{
-	    const FlatView::AuxData* ad = auxdata[idy];
+	    const FlatView::Annotation::AuxData* ad = auxdata[idy];
 	    if ( !ad->markerstyles_.size() ||
 		 !ad->markerstyles_[0].color_.isVisible() ||
 		 !ad->enabled_ || ad->name_.isEmpty() )

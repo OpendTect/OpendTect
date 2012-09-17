@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uigridlinesdlg.h,v 1.6 2012-08-03 13:01:18 cvskris Exp $
+ RCS:           $Id: uigridlinesdlg.h,v 1.5 2009/07/22 16:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidialog.h"
 #include "ranges.h"
 
@@ -21,7 +20,7 @@ class uiSelLineStyle;
 
 namespace visSurvey { class PlaneDataDisplay; }
 
-mClass(uiVis) uiGridLinesDlg : public uiDialog
+mClass uiGridLinesDlg : public uiDialog
 {
 public:
 			uiGridLinesDlg(uiParent*,visSurvey::PlaneDataDisplay*);
@@ -44,4 +43,3 @@ protected:
 };
 
 #endif
-

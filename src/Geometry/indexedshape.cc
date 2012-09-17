@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.19 2012-09-13 14:30:46 cvskris Exp $";
+static const char* rcsID = "$Id: indexedshape.cc,v 1.12 2011/12/13 22:07:47 cvsyuancheng Exp $";
 
 #include "indexedshape.h"
 
@@ -13,57 +13,6 @@ static const char* rcsID mUnusedVar = "$Id: indexedshape.cc,v 1.19 2012-09-13 14
 namespace Geometry
 {
 
-    
-PtrMan<PrimitiveSetCreator> PrimitiveSetCreator::creator_ = 0;
-    
-    
-DefineEnumNames(PrimitiveSet, PrimitiveType, 5, "PrimitiveType" )
-{ "Points", "Lines", "Triangles", "LineStrips", "TriangleStrips", "Fans", 0 };
-    
-    
-    
-PrimitiveSet::PrimitiveSet()
-    : primitivetype_( Triangles )
-{}
-    
-PrimitiveSet::PrimitiveType PrimitiveSet::getPrimitiveType() const
-{
-    return primitivetype_;
-}
-
-
-void PrimitiveSet::setPrimitiveType(Geometry::PrimitiveSet::PrimitiveType tp)
-{
-    primitivetype_ = tp;
-}
-
-    
-    
-PrimitiveSet* PrimitiveSetCreator::create( bool indexed, bool large )
-{
-    return creator_ ? creator_->doCreate( indexed, large ) : 0;
-}
-    
-    
-IndexedPrimitiveSet* IndexedPrimitiveSet::create( bool large )
-{
-    return (IndexedPrimitiveSet*) PrimitiveSetCreator::create( true, large );
-}
-    
-    
-RangePrimitiveSet* RangePrimitiveSet::create()
-{
-    return (RangePrimitiveSet*) PrimitiveSetCreator::create( true, false );
-}
-
-    
-    
-void PrimitiveSetCreator::setCreator(
-				Geometry::PrimitiveSetCreator* c )
-{
-    creator_ = c;
-}
-    
 
 IndexedGeometry::IndexedGeometry( Type type, NormalBinding nb,
 				  Coord3List* coords, Coord3List* normals,
@@ -144,24 +93,6 @@ void IndexedGeometry::removeAll( bool deep )
 	    texturecoordlist_->remove( texturecoordindices_[idx] );
 	}
     }
-    
-    if ( primitivesets_.size() && deep )
-    {
-	for ( int idx=0; idx<primitivesets_.size(); idx++ )
-	{
-	    RefMan<const IndexedPrimitiveSet> primitive = primitivesets_[idx];
-	    for ( int idy=primitive->size()-1; idy>=0; idy-- )
-	    {
-		const int index = primitive->get(idy);
-		if ( coordlist_ )
-		    coordlist_->remove( index );
-		if ( normallist_ )
-		    normallist_->remove( index );
-		if ( texturecoordlist_ )
-		    texturecoordlist_->remove( index );
-	    }
-	}
-    }
 
     if ( coordindices_.size() || normalindices_.size() ||
 	 texturecoordindices_.size() )
@@ -170,8 +101,6 @@ void IndexedGeometry::removeAll( bool deep )
     coordindices_.erase();
     normalindices_.erase();
     texturecoordindices_.erase();
-    
-    deepUnRef( primitivesets_ );
 }
 
 

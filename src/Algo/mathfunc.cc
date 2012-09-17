@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: mathfunc.cc,v 1.11 2012-05-14 11:46:01 cvskris Exp $";
+static const char* rcsID = "$Id: mathfunc.cc,v 1.9 2012/05/14 11:45:17 cvskris Exp $";
 
 
 #include "mathfunc.h"
@@ -75,11 +75,11 @@ void PointBasedMathFunction::remove( int idx )
 
 float PointBasedMathFunction::outsideVal( float x ) const
 {
-    if ( extrapol_==None ) return mUdf(float);
+    if ( extrapol_==cNone() ) return mUdf(float);
     
     const int sz = x_.size();
     
-    if ( extrapol_==EndVal || sz<2 )
+    if ( extrapol_==cEdgeVal() || sz<2 )
     {
     	return x-x_[0] < x_[sz-1]-x ? y_[0] : y_[sz-1];
     }

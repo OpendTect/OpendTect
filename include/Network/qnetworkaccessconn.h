@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2012
- RCS:		$Id: qnetworkaccessconn.h,v 1.3 2012-08-27 22:12:59 cvsnanne Exp $
+ RCS:		$Id: qnetworkaccessconn.h,v 1.2 2012/01/09 23:40:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "odnetworkaccess.h"
 #include <QNetworkAccessManager>
 
-QT_BEGIN_NAMESPACE
 
 class QNAMConnector : public QObject
 {
@@ -110,7 +109,5 @@ private:
     ODNetworkReply*	receiver_;
 
 };
-
-QT_END_NAMESPACE
 
 #endif

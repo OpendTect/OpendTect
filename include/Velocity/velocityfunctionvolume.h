@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctionvolume.h,v 1.10 2012-08-03 13:00:44 cvskris Exp $
+ RCS:		$Id: velocityfunctionvolume.h,v 1.9 2011/09/20 14:16:48 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "velocitymod.h"
 #include "samplingdata.h"
 #include "thread.h"
 #include "velocityfunction.h"
@@ -32,7 +31,7 @@ class VolumeFunctionSource;
 
 /*!VelocityFunction that gets its information from a Velocity Volume. */
 
-mClass(Velocity) VolumeFunction : public Function
+mClass VolumeFunction : public Function
 {
 public:
 			VolumeFunction(VolumeFunctionSource&);
@@ -59,7 +58,7 @@ protected:
 };
 
 
-mClass(Velocity) VolumeFunctionSource : public FunctionSource
+mClass VolumeFunctionSource : public FunctionSource
 {
 public:
     mDefaultFactoryInstanciationBase( "Velocity volume", sFactoryKeyword() );
@@ -95,4 +94,3 @@ protected:
 }; //namespace
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhorizon2d.cc,v 1.58 2012-08-20 06:12:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.50 2012/04/04 10:22:15 cvsbert Exp $";
 
 #include "emhorizon2d.h"
 
@@ -19,7 +19,6 @@ static const char* rcsID mUnusedVar = "$Id: emhorizon2d.cc,v 1.58 2012-08-20 06:
 #include "horizon2dline.h"
 #include "ioman.h"
 #include "selector.h"
-#include "toplist.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
@@ -96,19 +95,19 @@ PosInfo::GeomID Horizon2DGeometry::lineGeomID( int idx ) const
 
 
 bool Horizon2DGeometry::includeLine( const PosInfo::GeomID& geomid, int step )
-{ return doAddLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step), true ); }
+{ return addLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step), true ); }
 
 
 bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid, int step )
-{ return doAddLine(geomid, StepInterval<int>(mUdf(int),mUdf(int),step), false); }
+{ return addLine(geomid, StepInterval<int>(mUdf(int),mUdf(int),step), false); }
 
 
 bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid,
 				 const StepInterval<int>& trg )
-{ return doAddLine( geomid, trg, false ); }
+{ return addLine( geomid, trg, false ); }
 
 
-bool Horizon2DGeometry::doAddLine( const PosInfo::GeomID& geomid,
+bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid,
 				 const StepInterval<int>& inptrg,
 				 bool mergewithdouble )
 {
@@ -142,7 +141,7 @@ bool Horizon2DGeometry::doAddLine( const PosInfo::GeomID& geomid,
 	if ( !new0.coord_.isDefined() || !new1.coord_.isDefined() )
 	    continue;
 
-	const float maxdist = (float) (0.1 * cur0.distTo(cur1) / trg.width());
+	const float maxdist = 0.1 * cur0.distTo(cur1) / trg.width();
 	if ( cur0.distTo(new0.coord_)>maxdist ||
 	     cur1.distTo(new1.coord_)>maxdist )
 	    continue;
@@ -190,6 +189,7 @@ void Horizon2DGeometry::removeLine( const PosInfo::GeomID& geomid )
 PosID Horizon2DGeometry::getNeighbor( const PosID& pid, bool nextcol,
 				      bool retundef ) const
 {
+    const RowCol rc( pid.subID() );
     TypeSet<PosID> aliases;
     getLinkedPos( pid, aliases );
     aliases += pid;
@@ -198,7 +198,7 @@ PosID Horizon2DGeometry::getNeighbor( const PosID& pid, bool nextcol,
     for ( int idx=0; idx<nraliases; idx++ )
     {
 	const SectionID sid = aliases[idx].sectionID();
-	const RowCol ownrc = aliases[idx].getRowCol();
+	const RowCol ownrc( aliases[idx].subID() );
 	const int colstep = colRange( sid, ownrc.row ).step;
 	const RowCol neighborrc( ownrc.row,
 		nextcol ? ownrc.col+colstep : ownrc.col-colstep );
@@ -382,51 +382,8 @@ Horizon2D::~Horizon2D()
 
 float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 {
-    const int sectionidx = nr;
-
-    const EM::SectionID sectionid = sectionID( sectionidx );
-    const Geometry::Horizon2DLine* line =
-	geometry().sectionGeometry( sectionid );
-
-    if ( !line )
-	return allow_udf ? mUdf(float) : 0;
-
-    TopList<double,double> closestpoints( 2 );
-
-    const StepInterval<int> rowrg = line->rowRange();
-    const int nrrows = rowrg.nrSteps()+1;
-    for ( int rowidx=0; rowidx<nrrows; rowidx++ )
-    {
-	StepInterval<int> colrg = line->colRange( rowidx );
-	RowCol rowcol( rowrg.atIndex( rowidx ), 0 );
-
-	for ( rowcol.col=colrg.start; rowcol.col<=colrg.stop;
-	      rowcol.col+= colrg.step )
-	{
-	    const Coord3 knot = line->getKnot( rowcol );
-	    if ( !knot.isDefined() )
-		continue;
-
-	    const double sqdist = c.sqDistTo( knot );
-	    if ( mIsZero(sqdist,1e-3) )
-		return (float) knot.z;
-
-	    closestpoints.addValue( -sqdist, knot.z );
-	}
-    }
-
-    if ( closestpoints.isEmpty() )
-	return allow_udf ? mUdf(float) : 0;
-
-    if ( closestpoints.size()==1 )
-	return (float) closestpoints.getAssociatedValue( 0 );
-
-    const double z0 = closestpoints.getAssociatedValue( 0 );
-    const double dist0 = Math::Sqrt( -closestpoints.getValue( 0 ) );
-    const double z1 = closestpoints.getAssociatedValue( 1 );
-    const double dist1 = Math::Sqrt( -closestpoints.getValue( 1 ) );
-
-    return (float) ((dist1*z0+dist0*z1)/(dist0+dist1));
+    //TODO implement
+    return 0;
 }
 
 
@@ -603,7 +560,7 @@ Array1D<float>* Horizon2D::createArray1D( SectionID sid,
 	if ( trans )
 	    pos.z = trans->transform( pos );
 
-	arr->set( colrg.getIndex(col), (float) pos.z );
+	arr->set( colrg.getIndex(col), pos.z );
     }
 
     return arr;
@@ -618,7 +575,7 @@ Table::FormatDesc* Horizon2DAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-	    		StringInpSpec(sKey::FloatUdf()), Table::Required );
+	    		StringInpSpec(sKey::FloatUdf), Table::Required );
     BufferStringSet hornms;
     createDescBody( fd, hornms );
     return fd;

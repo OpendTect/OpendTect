@@ -1,16 +1,8 @@
 #!/bin/csh -f
 
-set bluntcopy=0
-if ( "$1" == "--copy" ) then
-	set bluntcopy=1
-	shift
-endif
-
-if ( $bluntcopy == 0 ) then
-    if ( ! -e "$1" ) then
-	    echo "$0 checks out a file and uses meld with the one from od or dgb"
-	    exit 1
-    endif
+if ( ! -e "$1" ) then
+	echo "$0 checks out a file and uses meld with the one from od or dgb"
+	exit 1
 endif
 
 set fnm="$1"
@@ -33,10 +25,5 @@ if ( $wrkdir != "dgb" && $wrkdir != "od" ) then
 	set goback="../../../../.."
 endif
 
-if ( $bluntcopy == 0 ) then
-	echo "meld $fnm $goback/$wrkdir/$srcinc/$modnm/$fnm"
-	meld $fnm $goback/$wrkdir/$srcinc/$modnm/$fnm
-else
-	echo "cp $goback/$wrkdir/$srcinc/$modnm/$fnm ."
-	cp $goback/$wrkdir/$srcinc/$modnm/$fnm .
-endif
+echo "meld $fnm $goback/$wrkdir/$srcinc/$modnm/$fnm"
+meld $fnm $goback/$wrkdir/$srcinc/$modnm/$fnm

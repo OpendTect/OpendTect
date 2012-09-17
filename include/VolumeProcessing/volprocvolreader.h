@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: volprocvolreader.h,v 1.7 2012-08-03 13:00:45 cvskris Exp $
+ RCS:		$Id: volprocvolreader.h,v 1.6 2011/08/26 08:24:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "volumeprocessingmod.h"
 #include "multiid.h"
 #include "samplingdata.h"
 #include "volprocchain.h"
@@ -27,7 +26,7 @@ namespace VolProc
 /*! Reads in a volume. Will replace previous values if data is present
     in the read volume. */
     
-mClass(VolumeProcessing) VolumeReader : public Step
+mClass VolumeReader : public Step
 {
 public:
     			mDefaultFactoryInstantiation( Step, VolumeReader,
@@ -60,4 +59,3 @@ protected:
 
 
 #endif
-

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		October 2011
- RCS:		$Id: uibodyregiondlg.h,v 1.4 2012-08-03 13:00:55 cvskris Exp $
+ RCS:		$Id: uibodyregiondlg.h,v 1.3 2012/03/02 19:25:46 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "uiioobjsel.h"
 
@@ -25,7 +24,7 @@ class uiPosSubSel;
 class uiPushButton;
 
 
-mClass(uiEarthModel) uiBodyRegionDlg : public uiDialog
+mClass uiBodyRegionDlg : public uiDialog
 {
 public: 
     				uiBodyRegionDlg(uiParent*);
@@ -54,4 +53,3 @@ protected:
 
 
 #endif
-

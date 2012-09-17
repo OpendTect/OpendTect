@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2010
- RCS:		$Id: stratlayer.h,v 1.19 2012-08-09 03:48:45 cvssalil Exp $
+ RCS:		$Id: stratlayer.h,v 1.17 2012/03/30 12:30:25 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "stratmod.h"
 #include "stratcontent.h"
 #include "compoundkey.h"
 #include "typeset.h"
@@ -34,7 +33,7 @@ class Lithology;
  
  */
 
-mClass(Strat) Layer
+mClass Layer
 {
 public:
 
@@ -59,7 +58,7 @@ public:
     void		setContent( const Content& c )	{ content_ = &c; }
 
     inline float	zBot() const	{ return zTop() + thickness(); }
-    inline float	depth() const	{ return zTop() + 0.5f * thickness(); }
+    inline float	depth() const	{ return zTop() + 0.5*thickness(); }
 
     ID			id() const;	//!< unitRef().fullCode()
     Color		dispColor(bool lith_else_upnode) const;
@@ -81,4 +80,3 @@ protected:
 }; // namespace Strat
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : Nov 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id";
+static const char* rcsID = "$Id";
 
 #include "googlexmlwriter.h"
 #include "survinfo.h"

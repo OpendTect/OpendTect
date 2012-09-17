@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseissubsel.cc,v 1.76 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.73 2011/04/26 13:20:58 cvsbert Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
@@ -270,10 +270,10 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 	if ( !multiln_ )
 	    { uiMSG().error("Please enter a line name"); return false; }
 
-	iopar.removeWithKey( sKey::LineKey() );
+	iopar.removeWithKey( sKey::LineKey );
     }
     else
-	iopar.set( sKey::LineKey(), lnm );
+	iopar.set( sKey::LineKey, lnm );
 
     return true;
 }

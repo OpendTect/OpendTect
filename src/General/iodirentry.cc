@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: iodirentry.cc,v 1.28 2012-05-03 05:14:17 cvskris Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.25 2010/12/13 12:34:11 cvsbert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -141,6 +141,7 @@ void IODirEntryList::setSelected( const MultiID& iniokey )
 void IODirEntryList::removeWithTranslator( const char* trnm )
 {
     BufferString nm = trnm;
+    int curidx = 0;
     for ( int idx=0; idx<size(); idx++ )
     {
 	IODirEntry* entry = (*this)[idx];

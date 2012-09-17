@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.15 2012-08-03 13:00:18 cvskris Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.14 2010/12/08 11:52:33 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "sets.h"
 #include "ranges.h"
 
@@ -35,7 +34,7 @@ od_process_attrib_em for computing data on, along or between 2 horizons.
 
 class Surface;
 
-mClass(EarthModel) HorizonUtils
+mClass HorizonUtils
 {
 public:
 			HorizonUtils(){};
@@ -77,4 +76,3 @@ protected:
 };//namespace
 
 #endif
-

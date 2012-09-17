@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		April 2006
- RCS:		$Id: horizonmodifier.h,v 1.8 2012-08-03 13:00:20 cvskris Exp $
+ RCS:		$Id: horizonmodifier.h,v 1.7 2010/11/15 09:35:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emposid.h"
 #include "multiid.h"
 #include "ranges.h"
@@ -23,7 +22,7 @@ class BinID;
 class BufferStringSet;
 class HorSamplingIterator;
 
-mClass(EarthModel) HorizonModifier
+mClass HorizonModifier
 {
 public:
 
@@ -62,4 +61,3 @@ protected:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: qtcpsocketcomm.h,v 1.4 2012-08-27 22:12:59 cvsnanne Exp $
+ RCS:           $Id: qtcpsocketcomm.h,v 1.3 2009/10/27 03:22:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,6 @@ ________________________________________________________________________
 
   Internal object, to hide Qt's signal/slot mechanism.
 */
-
-QT_BEGIN_NAMESPACE
 
 class QTcpSocketComm : public QObject 
 {
@@ -69,7 +67,5 @@ private:
     TcpSocket*		tcpsocket_;
 
 };
-
-QT_END_NAMESPACE
 
 #endif

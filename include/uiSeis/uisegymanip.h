@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegymanip.h,v 1.12 2012-08-03 13:01:07 cvskris Exp $
+ RCS:           $Id: uisegymanip.h,v 1.11 2011/03/16 12:10:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "strmdata.h"
 #include "segyhdr.h"
@@ -29,7 +28,7 @@ namespace SEGY { class TxtHeader; class BinHeader; class HdrCalcSet; }
 
 /*!\brief UI for SEG-Y file manipulation */
 
-mClass(uiSeis) uiSEGYFileManip : public uiDialog
+mClass uiSEGYFileManip : public uiDialog
 {
 public:
 
@@ -95,4 +94,3 @@ protected:
 
 
 #endif
-

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.15 2012-08-09 03:35:33 cvssalil Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.13 2012/07/10 13:06:03 cvskris Exp $ 
  ________________________________________________________________________
                    
 -*/   
@@ -61,7 +61,7 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
     CubeSampling cs;
     PtrMan<SeisIOObjInfo> si = new SeisIOObjInfo( ioobj );
     si->getRanges( cs );
-    wvlt_.set( mNINT32((float) wvltsize_/2), cs.zrg.step );
+    wvlt_.set( mNINT32(wvltsize_/2), cs.zrg.step );
     wvlt_.reSize( wvltsize_ );
     for ( int samp=0; samp<wvltsize_; samp++ )
 	wvlt_.samples()[samp] = 0;
@@ -357,12 +357,12 @@ bool WaveletExtractor::rotateWavelet()
     WaveletAttrib wvltattr( wvlt_ );
     wvltattr.getHilbert( rotatewvlt );
 
-    double angle = phase_ * M_PI/180;
+    float angle = (float)phase_ * M_PI/180;
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
 	const float realval = wvlt_.samples()[idx];
 	const float imagval = -rotatewvlt.arr()[idx];
-	wvlt_.samples()[idx] = (float) (realval*cos(angle) - imagval*sin(angle));
+	wvlt_.samples()[idx] = realval*cos( angle ) - imagval*sin( angle );
     }
 
     return true;

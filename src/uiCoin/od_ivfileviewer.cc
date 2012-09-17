@@ -3,7 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : May 2000
 -*/
-static const char* _rcsID mUnusedVar = "$Id: od_ivfileviewer.cc,v 1.4 2012-05-03 09:42:48 cvskris Exp $";
+static const char* _rcsID = "$Id: od_ivfileviewer.cc,v 1.3 2009/07/22 16:01:39 cvsbert Exp $";
 
 #define USESOODCLASSES
 

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.34 2012-08-03 13:00:10 cvskris Exp $
+ RCS:           $Id: similarityattrib.h,v 1.33 2011/07/07 14:17:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 #include "valseries.h"
 #include "valseriesinterpol.h"
@@ -60,7 +59,7 @@ and if dip-browser chosen:
 namespace Attrib
 {
 
-mClass(Attributes) Similarity : public Provider
+mClass Similarity : public Provider
 {
 public:
     static void			initClass();
@@ -129,7 +128,7 @@ protected:
     ObjectSet<const DataHolder>	inputdata_;
     const DataHolder*		steeringdata_;
 
-    mClass(Attributes) SimiFunc : public FloatMathFunction
+    mClass SimiFunc : public FloatMathFunction
     {
     public:
 				SimiFunc(const ValueSeries<float>& func, int sz)
@@ -162,4 +161,3 @@ protected:
 
 
 #endif
-

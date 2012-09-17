@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoOD.h,v 1.15 2012-08-27 13:16:48 cvskris Exp $
+ RCS:		$Id: SoOD.h,v 1.13 2011/09/23 13:15:54 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "soodmod.h"
 #include "soodbasic.h"
 
 /*!\brief A function that initiases the OpendTect Inventor classes. */
@@ -22,29 +21,29 @@ class SoOD
 {
 public:
 
-mSoODGlobal static bool	getAllParams();
+mGlobal static bool	getAllParams();
 			/*!<Calls all of the below to make sure their
 			    static variables are set. */
 
-mSoODGlobal static int	supportsFragShading();
+mGlobal static int	supportsFragShading();
     			/*!<\retval -1 not supported
 			    \retval  0 don't know
 			    \retval  1 supported
 			*/
-mSoODGlobal static int	supportsVertexShading();
+mGlobal static int	supportsVertexShading();
     			/*!<\retval -1 not supported
 			    \retval  0 don't know
 			    \retval  1 supported
 			*/
 
-mSoODGlobal static int	maxNrTextureUnits();
+mGlobal static int	maxNrTextureUnits();
 			/*!<If not known, function will return 1.  */
 
-mSoODGlobal static int	maxTexture2DSize();
+mGlobal static int	maxTexture2DSize();
 			/*!<If not known, function will return 1024.
 			    which is a safe default.*/
 
-mSoODGlobal static void	getLineWidthBounds( int& min, int& max );
+mGlobal static void	getLineWidthBounds( int& min, int& max );
 			/*!<Get the bounds of the line width, which are 
 			 * OpenGL-dependent. */
 
@@ -57,4 +56,3 @@ objects.
 */
 
 #endif
-

@@ -7,13 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.41 2012-08-03 13:00:45 cvskris Exp $
+ RCS:		$Id: welldisp.h,v 1.39 2012/04/16 10:15:56 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
-#include "wellmod.h"
 #include "fontdata.h"
 #include "namedobj.h"
 #include "color.h"
@@ -29,14 +27,14 @@ namespace Well
 
 /*!\brief Display properties of a well */
 
-inline const char* sKey2DDispProp()  { return "2D Display"; }
-inline const char* sKey3DDispProp() { return "3D Display"; }
+static const char* sKey2DDispProp = "2D Display";
+static const char* sKey3DDispProp = "3D Display";
 
-mClass(Well) DisplayProperties
+mClass DisplayProperties
 {
 public:
 
-			DisplayProperties(const char* subj = sKey3DDispProp());
+			DisplayProperties(const char* subj = sKey3DDispProp);
 			DisplayProperties(const Well::DisplayProperties& dp)
 			{ *this = dp;}			   
 
@@ -53,7 +51,7 @@ public:
 			    return *this;
 			}
 
-    mStruct(Well) BasicProps
+    mStruct BasicProps
     {
 			BasicProps( int sz=1 )
 			    : size_(sz)			
@@ -82,7 +80,7 @@ public:
 
     };
 
-    mStruct(Well) Track : public BasicProps
+    mStruct Track : public BasicProps
     {
 			Track()
 			    : BasicProps(1)
@@ -103,7 +101,7 @@ public:
 	virtual void	doFillPar(IOPar&) const;
     };
 
-    mStruct(Well) Markers : public BasicProps
+    mStruct Markers : public BasicProps
     {
 
 			Markers()
@@ -130,7 +128,7 @@ public:
 	virtual void	doFillPar(IOPar&) const;
     };
 
-    mStruct(Well) Log : public BasicProps
+    mStruct Log : public BasicProps
     {
 			Log()
 			    : cliprate_(0)
@@ -193,7 +191,7 @@ public:
     static DisplayProperties&	defaults();
     static void		commitDefaults();
 
-    mStruct(Well) LogCouple 	{ Log left_; Log right_; };
+    mStruct LogCouple 	{ Log left_; Log right_; };
     ObjectSet<LogCouple> logs_;
 
     virtual const char* subjectName() const 	{ return subjectname_.buf(); }
@@ -204,5 +202,3 @@ protected:
 } // namespace
 
 #endif
-
-

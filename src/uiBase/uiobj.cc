@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobj.cc,v 1.111 2012-09-13 18:36:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.105 2012/09/17 16:37:45 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -86,6 +86,9 @@ bool uiBaseObject::finalised() const
 { return body() ? body()->finalised() : false; }
 
 
+CallBack* uiBaseObject::cmdrecorder_ = 0;
+
+
 int uiBaseObject::beginCmdRecEvent( const char* msg )
 { return beginCmdRecEvent( (od_uint64) 0, msg ); }
 
@@ -110,10 +113,6 @@ int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
 }
 
 
-const mQtclass(QWidget*) uiBaseObject::getWidget() const
-{ return const_cast<uiBaseObject*>(this)->getWidget(); }
-
-
 void uiBaseObject::endCmdRecEvent( int refnr, const char* msg )
 { endCmdRecEvent( (od_uint64) 0, refnr, msg ); }
 
@@ -132,6 +131,21 @@ void uiBaseObject::endCmdRecEvent( od_uint64 id, int refnr, const char* msg )
     actstr += " "; actstr += msg;
     CBCapsule<const char*> caps( actstr, this );
     cmdrecorders_.doCall( &caps );
+}
+
+
+void uiBaseObject::unsetCmdRecorder()
+{
+    if ( cmdrecorder_ )
+	delete cmdrecorder_;
+    cmdrecorder_ = 0;
+}
+
+
+void uiBaseObject::setCmdRecorder( const CallBack& cb )
+{
+    unsetCmdRecorder();
+    cmdrecorder_ = new CallBack( cb );
 }
 
 
@@ -232,20 +246,19 @@ void uiParentBody::clearChildren()
 }
 
 
-class uiObjEventFilter : public mQtclass(QObject)
+class uiObjEventFilter : public QObject
 {
 public:
 			uiObjEventFilter( uiObject& uiobj )
 			    : uiobject_( uiobj )
 			{}
 protected:
-    bool		eventFilter(mQtclass(QObject*),mQtclass(QEvent*));
+    bool		eventFilter(QObject*,QEvent*);
     uiObject&		uiobject_;
 };
 
 
-bool uiObjEventFilter::eventFilter( mQtclass(QObject*) obj,
-				    mQtclass(QEvent*) ev )
+bool uiObjEventFilter::eventFilter( QObject* obj, QEvent* ev )
 {
     if ( ev && ev->type() == mUsrEvLongTabletPress )
     {
@@ -265,8 +278,8 @@ static ObjectSet<uiObject> uiobjectlist_;
 
 static BufferString getCleanName( const char* nm )
 {
-    mQtclass(QString) qstr( nm );
-    qstr.remove( mQtclass(QChar)('&') );
+    QString qstr( nm );
+    qstr.remove( QChar('&') );
     return BufferString( qstr.toAscii().data() );
 }
 
@@ -381,8 +394,8 @@ void uiObject::trlReady( CallBacker* cb )
 	return;
 
     const wchar_t* translation = TrMgr().tr()->get();
-    mQtclass(QString) txt = mQtclass(QString)::fromWCharArray( translation );
-    mQtclass(QString) tt( name().buf() ); tt += "\n\n"; tt += txt;
+    QString txt = QString::fromWCharArray( translation );
+    QString tt( name().buf() ); tt += "\n\n"; tt += txt;
     qwidget()->setToolTip( tt );
 
     translateid_ = -1;
@@ -405,13 +418,13 @@ bool uiObject::hasFocus() const
 void uiObject::disabFocus()
 {
     if ( qwidget() )
-	qwidget()->setFocusPolicy( mQtclass(Qt)::NoFocus );
+	qwidget()->setFocusPolicy( Qt::NoFocus );
 }
 
 
 void uiObject::setCursor( const MouseCursor& cursor )
 {
-    mQtclass(QCursor) qcursor;
+    QCursor qcursor;
     uiCursorManager::fillQCursor( cursor, qcursor );
     body()->qwidget()->setCursor( qcursor );
 }
@@ -420,8 +433,7 @@ void uiObject::setCursor( const MouseCursor& cursor )
 bool uiObject::isCursorInside() const
 {
     const uiPoint cursorpos = uiCursorManager::cursorPos();
-    const mQtclass(QPoint) objpos = mConstBody()->qwidget()->mapToGlobal(
-	    						mQtclass(QPoint)(0,0) );
+    const QPoint objpos = mConstBody()->qwidget()->mapToGlobal( QPoint(0,0) );
 
     return cursorpos.x>=objpos.x() && cursorpos.x<objpos.x()+width() &&
 	   cursorpos.y>=objpos.y() && cursorpos.y<objpos.y()+height();
@@ -465,9 +477,6 @@ void uiObject::setPrefWidth( int w )
     { mBody()->setPrefWidth(w); }
 
 
-void uiObject::setPrefWidthInChar( int w )
-    { mBody()->setPrefWidthInChar( (float)w ); }
-
 void uiObject::setPrefWidthInChar( float w )
      { mBody()->setPrefWidthInChar(w); }
 
@@ -489,14 +498,14 @@ int uiObject::prefVNrPics() const
 void uiObject::setPrefHeight( int h )
     { mBody()->setPrefHeight(h); }
 
-void uiObject::setPrefHeightInChar( int h )
-    { mBody()->setPrefHeightInChar( (float)h ); }
 
 void uiObject::setPrefHeightInChar( float h )
      {mBody()->setPrefHeightInChar(h);}
 
+
 void uiObject::setStretch( int hor, int ver )
      {mBody()->setStretch(hor,ver); }
+
 
 void uiObject::attach ( constraintType tp, int margin )
     { mBody()->attach(tp, (uiObject*)0, margin); }
@@ -536,8 +545,7 @@ void uiObject::attach ( constraintType tp, uiParent* other, int margin,
 */
 void uiObject::setTabOrder( uiObject* first, uiObject* second )
 {
-    mQtclass(QWidget)::setTabOrder( first->body()->qwidget(),
-	    			    second->body()->qwidget() );
+    QWidget::setTabOrder( first->body()->qwidget(), second->body()->qwidget() );
 }
 
 
@@ -583,7 +591,7 @@ uiMainWin* uiObject::mainwin()
 }
 
 
-mQtclass(QWidget*) uiObject::qwidget()
+QWidget* uiObject::qwidget()
 { return body() ? body()->qwidget() : 0 ; }
 
 

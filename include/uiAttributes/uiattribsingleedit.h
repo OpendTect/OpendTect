@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uiattribsingleedit.h,v 1.3 2012-08-03 13:00:48 cvskris Exp $
+ RCS:           $Id: uiattribsingleedit.h,v 1.2 2011/01/11 12:45:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uidialog.h"
 #include "datapack.h"
 
@@ -23,7 +22,7 @@ class uiGenInput;
 
 /*! \brief Dialog for creating volume output */
 
-mClass(uiAttributes) uiSingleAttribEd : public uiDialog
+mClass uiSingleAttribEd : public uiDialog
 {
 public:
 
@@ -50,4 +49,3 @@ protected:
 };
 
 #endif
-

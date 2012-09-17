@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#!/bin/csh
 
 dvs_ed_if_necessary $*
 vi $*

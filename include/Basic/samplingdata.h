@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.21 2012-08-08 04:22:05 cvssalil Exp $
+ RCS:		$Id: samplingdata.h,v 1.19 2012/07/10 13:05:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,9 +82,9 @@ template <> inline
 bool SamplingData<float>::operator==( const SamplingData<float>& sd ) const
 {
     float val = start - sd.start;
-    if ( !mIsZero(val,1e-6f) ) return false;
+    if ( !mIsZero(val,1e-6) ) return false;
     val = 1 - (step / sd.step);
-    return val < 1e-6f && val > -1e-6f;
+    return val < 1e-6 && val > -1e-6;
 }
 
 template <> inline
@@ -113,7 +113,7 @@ StepInterval<T> SamplingData<T>::interval( IT nrsamp ) const
 template <class T>
 template <class FT> inline
 float SamplingData<T>::getfIndex( FT val ) const
-{ return (float) ((val-start) / step); }
+{ return (val-start) / ((float)step); }
 
 
 template <class T>

@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.31 2012-08-30 09:42:31 cvskris Exp $
+ RCS:		$Id: enums.h,v 1.29 2011/06/27 15:22:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "iopar.h"
 
 /*!\brief Some utilities surrounding the often needed enum <-> string table.
@@ -157,7 +156,7 @@ const char* MyClass::Typenames_[] =
 
 /*\brief holds data pertinent for a certain enum */
 
-mClass(Basic) EnumDef : public NamedObject
+mClass EnumDef : public NamedObject
 {
 public:
 		EnumDef( const char* nm, const char* s[], short nrs=0 );
@@ -188,17 +187,17 @@ protected: \
     static const EnumDef enm##Definition_; \
 public:
 
-#define DeclareNameSpaceEnumUtils(mod,enm) \
-    mExtern(mod) const EnumDef& enm##Def(); \
-    mExtern(mod) const char** enm##Names();\
+#define DeclareNameSpaceEnumUtils(enm) \
+    mExtern const EnumDef& enm##Def(); \
+    mExtern const char** enm##Names();\
     extern const char* enm##Names_[];\
     extern const EnumDef enm##Definition_; \
-    mExtern(mod) bool parseEnum(const IOPar&,const char*,enm&); \
-    mExtern(mod) bool parseEnum(const char*,enm&); \
-    mExtern(mod) bool parseEnum##enm(const char*,enm&); /*legacy */  \
-    mExtern(mod) enm parseEnum##enm(const char*); \
-    mExtern(mod) const char* toString(enm); \
-    mExtern(mod) const char* get##enm##String(enm); /*legacy */ 
+    mExtern bool parseEnum(const IOPar&,const char*,enm&); \
+    mExtern bool parseEnum(const char*,enm&); \
+    mExtern bool parseEnum##enm(const char*,enm&); /*legacy */  \
+    mExtern enm parseEnum##enm(const char*); \
+    mExtern const char* toString(enm); \
+    mExtern const char* get##enm##String(enm); /*legacy */ 
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
 const EnumDef clss::enm##Definition_ \
@@ -288,4 +287,3 @@ const char* nmspc::toString( enm theenum ) \
 const char* nmspc::enm##Names_[] =
 
 #endif
-

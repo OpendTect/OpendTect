@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimpe.cc,v 1.10 2012-05-02 15:12:11 cvskris Exp $";
+static const char* rcsID = "$Id: uimpe.cc,v 1.8 2011/05/02 06:10:06 cvsumesh Exp $";
 
 #include "uimpe.h"
 

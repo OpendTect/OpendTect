@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.19 2012-08-03 13:00:50 cvskris Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.18 2012/01/11 08:20:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiseissel.h"
 #include "uiattrsel.h"
 #include "attribdescid.h"
@@ -22,7 +21,7 @@ class uiLabel;
 namespace Attrib { class Desc; class DescSet; class SelSpec; };
 
 
-mClass(uiAttributes) uiSteerCubeSel : public uiSeisSel
+mClass uiSteerCubeSel : public uiSeisSel
 {
 public:
 
@@ -57,7 +56,7 @@ protected:
 
 /*!\brief Attribute Steering ui element: data + selection of type. */
 
-mClass(uiAttributes) uiSteeringSel : public uiGroup
+mClass uiSteeringSel : public uiGroup
 {
 public:
 				uiSteeringSel(uiParent*,
@@ -101,4 +100,3 @@ protected:
 };
 
 #endif
-

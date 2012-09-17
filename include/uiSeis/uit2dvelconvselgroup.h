@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          July 2010
- RCS:           $Id: uit2dvelconvselgroup.h,v 1.2 2012-08-03 13:01:09 cvskris Exp $
+ RCS:           $Id: uit2dvelconvselgroup.h,v 1.1 2010/07/08 05:54:22 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uit2dconvsel.h"
 
 #include "multiid.h"
@@ -19,7 +18,7 @@ ________________________________________________________________________
 class uiVelSel;
 class IOPar;
 
-mClass(uiSeis) uiT2DVelConvSelGroup : public uiT2DConvSelGroup
+mClass uiT2DVelConvSelGroup : public uiT2DConvSelGroup
 {
 public:
     				uiT2DVelConvSelGroup(uiParent*);
@@ -37,4 +36,3 @@ protected:
 
 
 #endif
-

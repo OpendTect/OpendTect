@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.19 2012-08-03 13:00:27 cvskris Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.18 2011/02/14 22:23:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "indexedshape.h"
 #include "multidimstorage.h"
 #include "thread.h"
@@ -25,7 +24,7 @@ class TaskRunner;
 /*!A triangulated representation of an MarchingCubesSurface. */
 
 
-mClass(Geometry) ExplicitMarchingCubesSurface : public Geometry::IndexedShape,
+mClass ExplicitMarchingCubesSurface : public Geometry::IndexedShape,
     				     public CallBacker
 {
 public:
@@ -107,7 +106,7 @@ wanted.
    2 = the coordinate on the z-axis.
 */
 
-mClass(Geometry) MarchingCubeTriangleTable
+mClass MarchingCubeTriangleTable
 {
 public:
     ObjectSet<char>		indices_;
@@ -120,7 +119,7 @@ public:
 /*!Lookup table with one MarchingCubeTriangleTable per position constellation.*/
 
 
-mClass(Geometry) MarchingCubeLookupTable
+mClass MarchingCubeLookupTable
 {
 public:
     				MarchingCubeLookupTable();
@@ -131,4 +130,3 @@ public:
 };
 
 #endif
-

@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          Jan 2010
- RCS:		$Id: emhorizonztransformer.h,v 1.4 2012-08-03 13:00:18 cvskris Exp $
+ RCS:		$Id: emhorizonztransformer.h,v 1.3 2010/04/23 08:24:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "executor.h"
 #include "position.h"
 
@@ -22,7 +21,7 @@ namespace EM
 class EMObjectIterator;
 class Horizon;
 
-mClass(EarthModel) HorizonZTransformer : public Executor
+mClass HorizonZTransformer : public Executor
 {
 public:
 			HorizonZTransformer(const ZAxisTransform&,
@@ -54,4 +53,3 @@ protected:
 } // namespace EM
 
 #endif
-

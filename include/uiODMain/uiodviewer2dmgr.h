@@ -7,12 +7,11 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodviewer2dmgr.h,v 1.6 2012-08-03 13:01:04 cvskris Exp $
+ RCS:		$Id: uiodviewer2dmgr.h,v 1.5 2012/07/09 06:32:40 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "callback.h"
 
 #include "uiodapplmgr.h"
@@ -21,7 +20,7 @@ class uiODViewer2D;
 class uiTreeFactorySet;
 
 
-mClass(uiODMain) uiODViewer2DMgr : public CallBacker
+mClass uiODViewer2DMgr : public CallBacker
 {
 public:
     uiODViewer2D*		find2DViewer(int visid);
@@ -46,6 +45,7 @@ protected:
 				~uiODViewer2DMgr();
 
     uiODViewer2D&		addViewer2D(int visid);
+
     ObjectSet<uiODViewer2D>     viewers2d_;
 
     uiTreeFactorySet*		tifs2d_;
@@ -56,14 +56,13 @@ protected:
     inline uiODApplMgr&         applMgr()     { return appl_.applMgr(); }
     inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
 
-    void			viewer2DWinClosedCB(CallBacker*);
-
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
 
     friend class                uiODMain;
+
+    void 			viewer2DWinClosedCB(CallBacker*);
 };
 
 
 #endif
-

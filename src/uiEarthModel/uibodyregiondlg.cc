@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uibodyregiondlg.cc,v 1.19 2012-08-10 04:11:26 cvssalil Exp $";
+static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.14 2012/03/02 19:25:46 cvsyuancheng Exp $";
 
 #include "uibodyregiondlg.h"
 
@@ -108,7 +108,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		const float hz = hors_[idy]->getZ(bid);
 		if ( mIsUdf(hz) ) continue;
 	    
-		const float dist = (float)( hsides_[idy]==mBelow ? curz-hz : hz-curz );
+		const float dist = hsides_[idy]==mBelow ? curz-hz : hz-curz;
 		if ( dist<0 )
 		{
 		    curzinrange = false;
@@ -328,9 +328,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    if ( minz>=maxz )
 		continue;
 	    
-	    double val = curz < minz ? minz - curz : 
-		( curz > maxz ? curz - maxz : -mMIN ( curz - minz,maxz - curz ) );
-	    res_.set( inlidx, crlidx, idz, (float) val );
+	    double val = curz<minz ? minz-curz : 
+		(curz>maxz ? curz-maxz : -mMIN(curz-minz,maxz-curz) );
+	    res_.set( inlidx, crlidx, idz, val );
 	}
     }
 
@@ -566,6 +566,7 @@ uiBodyRegionDlg::~uiBodyRegionDlg()
 
 void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
 {
+    mDynamicCastGet( uiPushButton*, but, cb );
     const bool isflt = addfltbutton_==cb;
     if ( !isflt && addhorbutton_!=cb )
 	return;
@@ -733,9 +734,9 @@ bool uiBodyRegionDlg::createImplicitBody()
 
     MultiID key = emcs->multiID(); 
     PtrMan<IOObj> ioobj = IOM().get( key ); 
-    if ( !ioobj->pars().find( sKey::Type() ) ) 
+    if ( !ioobj->pars().find( sKey::Type ) ) 
     { 
-	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() ); 
+	ioobj->pars().set( sKey::Type, emcs->getTypeStr() ); 
 	if ( !IOM().commitChanges( *ioobj ) ) 
 	    mRetErr( "Writing body to disk failed, no permision?" ) 
     } 

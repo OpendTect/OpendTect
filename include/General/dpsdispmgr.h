@@ -7,13 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Nov 2009
- RCS:		$Id: dpsdispmgr.h,v 1.11 2012-08-29 07:56:38 cvskris Exp $
+ RCS:		$Id: dpsdispmgr.h,v 1.9 2012/07/10 13:05:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "generalmod.h"
 #include "callback.h"
 #include "bufstringset.h"
 #include "color.h"
@@ -32,8 +30,9 @@ class DataPointSet;
    DataPointSetDisplayMgr only.
 */
 
-struct DataPointSetDisplayProp
+mStruct DataPointSetDisplayProp
 {
+public:
 				DataPointSetDisplayProp( 
 					const ColTab::Sequence& cs,
 				        const ColTab::MapperSetup& cm,int id)
@@ -46,13 +45,13 @@ struct DataPointSetDisplayProp
 				    : selgrpnms_(nms), selgrpcols_(cols)
 				    , showsel_(true), dpscolid_(-1)	{}
 
-    DataPointSetDisplayProp* clone() const
-    {
-        if ( showsel_ )
-	    return new DataPointSetDisplayProp( selgrpnms_, selgrpcols_ );
-        else
-	    return new DataPointSetDisplayProp(coltab_,coltabmappersu_,dpscolid_);
-    }
+DataPointSetDisplayProp* clone() const
+{
+    if ( showsel_ )
+	return new DataPointSetDisplayProp( selgrpnms_, selgrpcols_ );
+    else
+	return new DataPointSetDisplayProp(coltab_,coltabmappersu_,dpscolid_);
+}
 
    int				dpsColID() const	{ return dpscolid_; }
    bool				showSelected() const	{ return showsel_; }
@@ -92,7 +91,7 @@ protected:
 };
 
 
-class DataPointSetDisplayMgr : public CallBacker
+mClass DataPointSetDisplayMgr : public CallBacker
 {
 public:
 
@@ -133,8 +132,7 @@ protected:
 				    : dispprop_( 0 )	{}
     TypeSet<int>		availableviewers_;
     DataPointSetDisplayProp*	dispprop_;
+
 };
 	    				   
 #endif
-
-

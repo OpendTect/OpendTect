@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: muter.h,v 1.8 2012-08-10 04:11:23 cvssalil Exp $
+ RCS:		$Id: muter.h,v 1.4 2009/07/22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "algomod.h"
 #include "samplingdata.h"
 
 template <class T> class ValueSeries;
@@ -26,24 +25,17 @@ template <class T> class ValueSeries;
 
   */
 
-mClass(Algo) Muter
+mClass Muter
 {
 public:
     			Muter( float taperlen, bool tail=false )
 			    : taperlen_(taperlen)
 			    , tail_(tail)		{}
 
-    inline static float	mutePos( float z, const SamplingData<double>& sd )
-			{ return sd.getfIndex(z); }
+    inline static float	mutePos( float z, const SamplingData<float>& sd )
+			{ return (z - sd.start) / sd.step; }
 
     void		mute(ValueSeries<float>&,int sz,float mutepos) const;
-
-
-    static void 	muteIntervalsPos(const TypeSet< Interval<float> >&,
-					TypeSet< Interval<float> >&,
-					const SamplingData<double>&);
-    void		muteIntervals(ValueSeries<float>&,int sz,
-				      const TypeSet< Interval<float> >&) const;
 
 protected:
 
@@ -52,9 +44,7 @@ protected:
 
     void		topMute(ValueSeries<float>&,int,float) const;
     void		tailMute(ValueSeries<float>&,int,float) const;
-    void		itvMute(ValueSeries<float>&,int,Interval<float>) const;
 
 };
 
 #endif
-

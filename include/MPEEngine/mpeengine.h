@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.56 2012-08-03 13:00:30 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.54 2011/09/19 12:23:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,6 @@ a static inistanciation of that can be retrieved by MPE::engine().
 
 */
 
-#include "mpeenginemod.h"
-#include "mpeenginemod.h"
 #include "attribdataholder.h"
 #include "attribdatacubes.h"
 #include "attribsel.h"
@@ -50,14 +48,14 @@ class EMTracker;
 class TrackPlane;
 class ObjectEditor;
 
-mClass(MPEEngine) AbstDataHolder : public CallBacker
+mClass AbstDataHolder : public CallBacker
 {
 mRefCountImplNoDestructor(AbstDataHolder);
 public:
 			AbstDataHolder(){}
 };
 
-mClass(MPEEngine) DataHolder : public AbstDataHolder
+mClass DataHolder : public AbstDataHolder
 {
 public:
 				DataHolder()
@@ -78,7 +76,7 @@ public:
     void			set2DData(const Attrib::Data2DArray* d2h)
 				{ is2d_ = true; d2dhdata_ = d2h; }
     const Attrib::Data2DArray*	get2DData() const	{ return d2dhdata_; }
-    int			nrCubes() const
+    const int			nrCubes() const
 				{
 				    if ( !dcdata_ && !d2dhdata_ )
 					return 0;
@@ -113,9 +111,9 @@ private:
 			}
 };
 
-mClass(MPEEngine) Engine : public CallBacker
+mClass Engine : public CallBacker
 {
-    mGlobal(MPEEngine) friend Engine&		engine();
+    mGlobal friend Engine&		engine();
 
 public:
     				Engine();
@@ -263,7 +261,7 @@ protected:
     ObjectSet<const DataHolder>	attribbackupcache_;
     ObjectSet<CacheSpecs>		attribbackupcachespecs_;
 
-    mStruct(MPEEngine) FlatCubeInfo
+    mStruct FlatCubeInfo
     {
 				FlatCubeInfo()
 				:nrseeds_(1)
@@ -289,12 +287,10 @@ protected:
 };
 
 
-mGlobal(MPEEngine) Engine&	engine();
+mGlobal Engine&	engine();
 
 
 };
 
 #endif
-
-
 

@@ -4,7 +4,7 @@
   - Author:     Bert
   - Date:       Jan 2004
   - Contents:   Getting started developping your own plugins.
-  - RCS:        $Id: unix.html,v 1.22 2012-04-26 10:05:35 cvsbert Exp $
+  - RCS:        $Id: unix.html,v 1.24 2012/06/05 19:35:13 cvsbert Exp $
  -->
 
 <body background="backg.png"><title>Getting started with OpendTect development [OpendTect Programmer's manual V4.1]</title>
@@ -58,7 +58,7 @@ to your ODWork directory. A good place for your ODWork directory may be your hom
 The only environment variable besides the one you may want to use for your own CMake settings is $WORK. Set it to the root of your development tree (which itself contains the plugin subdirectories).
 </p><p>
 As you will need to consult the OpendTect header files all the time, it may be handy to set links to the include directory in the installation, as in:
-<pre><code>ln -s /apps/OpendTect/4.3.1/include .</code></pre>
+<pre><code>ln -s /apps/OpendTect/4.4.1/include .</code></pre>
 Another thing may be handy. If you have your own Qt or COIN installation, then try linking the Qt and COIN installations immediately in $WORK. CMake will automatically configure from this. Example:
 <pre><code>ln -s /apps/qt/inst_453 $WORK/qt
 ln -s /apps/coin/inst_rel $WORK/coin

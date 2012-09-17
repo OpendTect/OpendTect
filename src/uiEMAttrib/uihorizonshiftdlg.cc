@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorizonshiftdlg.cc,v 1.18 2012-07-30 20:40:05 cvskris Exp $";
+static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.14 2011/04/07 08:51:07 cvshelene Exp $";
 
 #include "uihorizonshiftdlg.h"
 
@@ -47,7 +47,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     , calcAttribPushed(this)
     , horShifted(this)
 {
-    const float curshift = initialshift*SI().zDomain().userFactor();
+    const float curshift = initialshift*SI().zFactor();
     shiftrg_ = StepInterval<float> (curshift-100,curshift+100,10);
 
     BufferString lbl( "Shift Range ", SI().getZUnitString() );
@@ -110,9 +110,9 @@ int uiHorizonShiftDialog::nrSteps() const
 StepInterval<float> uiHorizonShiftDialog::shiftRg() const
 {
     StepInterval<float> res = shiftrg_;
-    res.start /= SI().zDomain().userFactor();
-    res.stop /= SI().zDomain().userFactor();
-    res.step /= SI().zDomain().userFactor();
+    res.start /= SI().zFactor();
+    res.stop /= SI().zFactor();
+    res.step /= SI().zFactor();
 
     return res;
 }
@@ -199,19 +199,20 @@ float uiHorizonShiftDialog::getShift() const
     if ( mIsUdf(curshift) )
 	curshift = slider_->sldr()->getValue();
     
-    return curshift / SI().zDomain().userFactor();
+    return curshift / SI().zFactor();
 }
 
 
 void uiHorizonShiftDialog::shiftCB( CallBacker* )
 {
+    const float curshift = getShift();
     horShifted.trigger();
 }
 
 
 int uiHorizonShiftDialog::curShiftIdx() const
 {
-    const float curshift = getShift() * SI().zDomain().userFactor();
+    const float curshift = getShift() * SI().zFactor();
     const int curshiftidx = shiftrg_.getIndex( curshift );
     if ( curshiftidx<0 || curshiftidx>=nrSteps() )
 	return mUdf(int);

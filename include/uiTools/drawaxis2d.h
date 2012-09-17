@@ -7,23 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.18 2012-08-03 13:01:11 cvskris Exp $
+ RCS:           $Id: drawaxis2d.h,v 1.16 2011/08/22 11:56:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "draw.h"
 #include "ranges.h"
 #include "samplingdata.h"
 #include "uigeom.h"
-#include "uifont.h"
 
 class uiGraphicsScene;
 class uiGraphicsView;
 class uiGraphicsItemGroup;
 class uiRectItem;
-class uiTextItem;
 class uiLineItem;
 template <class T> class StepInterval;
 
@@ -50,86 +47,41 @@ template <class T> class StepInterval;
 
  */
 
-
-mClass(uiTools) uiGraphicsSceneAxis
+mClass DrawAxis2D
 {
 public:
-    			~uiGraphicsSceneAxis();	
-    			uiGraphicsSceneAxis(uiGraphicsScene&);
-    
-    void		setPosition(bool isx,bool istoporleft,bool isinside);
-    void		setWorldCoords(const Interval<double>&);
-    void                setViewRect(const uiRect&);
-    
-    void		setZValue(int nv);
-    
-    void		turnOn(bool);
-    
-    void		drawAxisLine(bool yn) { drawaxisline_=yn; update(); }
-    void		drawMask(bool yn);
-    void		setTextFactor(int n) { txtfactor_ = n; update(); }
-    void		setLineStyle(const LineStyle& lst) {ls_=lst; update(); }
-    void		setGridLineStyle(const LineStyle& gls)
-			{ gridls_ = gls; update(); }
-    void		setFontData(const FontData&);
-    
-protected:
-    
-    void			update();
-    
-    bool			inside_;
-    bool			isx_;
-    bool			istop_;
-    bool			drawaxisline_;
-    bool			drawgridlines_;
-    
-    uiGraphicsScene&		scene_;
-    uiGraphicsItemGroup*	itmgrp_;
-    uiRectItem*			mask_;
+			DrawAxis2D(uiGraphicsView&);
+			~DrawAxis2D();
 
-    uiRect                      viewrect_;
+    void		setDrawRectangle(const uiRect*);
+    			/*!<Specifies a rectangle on the canvas where the
+			    axis should be drawn. If set to zero, drawer will
+			    draw in the full draw area. */
+    void		setup(const uiWorldRect&,float xfactor=1,
+	    		      float yfactor=1);
+    void		setup(const StepInterval<float>& xrg,
+	    		      const StepInterval<float>& yrg);
 
-    ObjectSet<uiLineItem>	lines_;
-    ObjectSet<uiTextItem>	texts_;
-    
-    Interval<double>		rg_;
-    
-    LineStyle			ls_;
-    LineStyle			gridls_;
-    SamplingData<double>	sampling_;
-    int				txtfactor_;
-    FontData			fontdata_;
-};
+    void		annotInside( bool yn )	{ inside_ = yn; }
+    void		drawAxisLine( bool yn )	{ drawaxisline_ = yn; }
 
+    void		drawAxes(bool xdir,bool ydir,
+	    			 bool topside,bool leftside);
+    void		drawXAxis(bool topside);
+    void		drawYAxis(bool leftside);
+    void		drawGridLines(bool xdir,bool ydir);
 
-mClass(uiTools) uiGraphicsSceneAxisMgr
-{
-public:
-			uiGraphicsSceneAxisMgr(uiGraphicsView&);
-    virtual		~uiGraphicsSceneAxisMgr();
-
-    void		setViewRect(const uiRect&);
-    void		setWorldCoords(const uiWorldRect&);
-    void		setWorldCoords(const StepInterval<float>& xrg,
-				       const StepInterval<float>& yrg);
-
-    void		enableXAxis(bool yn);
-    void		enableYAxis(bool yn);
-    
-    void		annotInside( bool yn );
-    void		drawAxisLine( bool yn );
-    void		setXFactor(int);
-    void		setYFactor(int);
     void		setXLineStyle(const LineStyle&);
     void		setYLineStyle(const LineStyle&);
     void		setGridLineStyle(const LineStyle&);
 
-    void		setZvalue(int z);
+    void		setZvalue( int z )	{ zValue_ = z; }
+
 protected:
-    
-    
-    // virtual double	getAnnotTextAndPos( bool isx, double proposedpos,
-	//				    BufferString* text = 0) const;
+
+    uiRect		getDrawArea() const;
+    virtual double	getAnnotTextAndPos( bool isx, double proposedpos,
+					    BufferString* text = 0) const;
     			/*!<When drawing the axis, the object proposes
 			    an annotation at proposedpos. proposedpos may
 			    however not be a good location (e.g. it may not
@@ -141,19 +93,38 @@ protected:
 			    \param text	where	the text to display
 			    \returns 		the actual display pos is
 			 */
-    
-    uiGraphicsSceneAxis*	xaxis_;
-    uiGraphicsSceneAxis*	yaxis_;
-    
 
-    uiGraphicsView&		view_;
-    uiRectItem*			topmask_;
-    uiRectItem*			bottommask_;
-    uiRectItem*			leftmask_;
-    uiRectItem*			rightmask_;
+    uiGraphicsScene&	drawscene_;
+    uiGraphicsView&	drawview_;
+    uiGraphicsItemGroup* xaxlineitmgrp_;
+    uiGraphicsItemGroup* yaxlineitmgrp_;
+    uiGraphicsItemGroup* xaxgriditmgrp_;
+    uiGraphicsItemGroup* yaxgriditmgrp_;
+    uiGraphicsItemGroup* xaxtxtitmgrp_;
+    uiGraphicsItemGroup* yaxtxtitmgrp_;
+    uiRectItem*		xaxrectitem_;
+    uiLineItem*		yaxlineitem_;
+
+    Interval<double>	xrg_;
+    Interval<double>	yrg_;
+
+    LineStyle		xls_;
+    LineStyle		yls_;
+    LineStyle		gridls_;
+
+    SamplingData<double> xaxis_;
+    SamplingData<double> yaxis_;
+
+    float		xfactor_;
+    float		yfactor_;
+
+    uiRect		uirect_;
+    bool		useuirect_;
+
+    bool		inside_;
+    bool		drawaxisline_;
+    int			zValue_;
 };
 
 
-
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisjobexecprov.cc,v 1.50 2012-07-24 14:22:53 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.45 2011/12/14 13:16:41 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seiscbvs.h"
@@ -41,7 +41,7 @@ static const char* sKeyProcIs2D = "Processing is 2D";
 #define mOutKey(s) IOPar::compKey("Output.0",s)
 
 static const BufferString outsubselkey(
-				IOPar::compKey(sKey::Output(),sKey::Subsel()) );
+				IOPar::compKey(sKey::Output,sKey::Subsel) );
 #define mOutSubKey(s) IOPar::compKey(outsubselkey.buf(),s)
 
 
@@ -108,7 +108,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	Seis2DLineSet* inpls = new Seis2DLineSet( ioobj->fullUserExpr(true) );
 	for ( int idx=0; idx<inpls->nrLines(); idx++ )
 	    nms.addIfNew( inpls->lineName(idx) );
-	FixedString attrnm = iopar_.find( sKey::Target() );
+	FixedString attrnm = iopar_.find( sKey::Target );
 
 	if ( isrestart )
 	{
@@ -165,7 +165,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
     }
     delete ioobj;
 
-    BufferString parkey( mOutKey(sKey::LineKey()) );
+    BufferString parkey( mOutKey(sKey::LineKey) );
     KeyReplaceJobDescProv* ret
 	= new KeyReplaceJobDescProv( iopar_, parkey, nms );
     ret->objtyp_ = "Line";
@@ -196,7 +196,7 @@ void SeisJobExecProv::preparePreSet( IOPar& iop, const char* reallskey ) const
 
 bool SeisJobExecProv::isRestart() const
 {
-    const char* res = iopar_.find( sKey::TmpStor() );
+    const char* res = iopar_.find( sKey::TmpStor );
     if ( !res )
 	return iopar_.find( sKeyProcIs2D );
 
@@ -208,16 +208,18 @@ bool SeisJobExecProv::isRestart() const
 
 JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 {
-    const char* tmpstordir = iopar_.find( sKey::TmpStor() );
+    const char* tmpstordir = iopar_.find( sKey::TmpStor );
     if ( !tmpstordir )
     {
-	iopar_.set( sKey::TmpStor(), getDefTempStorDir() );
-	tmpstordir = iopar_.find( sKey::TmpStor() );
+	iopar_.set( sKey::TmpStor, getDefTempStorDir() );
+	tmpstordir = iopar_.find( sKey::TmpStor );
     }
     const bool havetempdir = File::isDirectory(tmpstordir);
 
     TypeSet<int> inlnrs;
     TypeSet<int>* ptrnrs = 0;
+    IOPar* subselpar =
+		iopar_.subselect( IOPar::compKey(sKey::Output, sKey::Subsel) );
 
     mSetInlsPerJob( nrinlperjob );
     InlineSplitJobDescProv jdp( iopar_, 0 );
@@ -241,7 +243,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 
     IOPar jpiopar( iopar_ );
     jpiopar.set( seisoutkey_, tmpstorid_ );
-    jpiopar.set( mOutSubKey(sKey::Type()), sKey::Range() );
+    jpiopar.set( mOutSubKey(sKey::Type), sKey::Range );
 
     return ptrnrs ? new InlineSplitJobDescProv( jpiopar, *ptrnrs, 0 )
 		  : new InlineSplitJobDescProv( jpiopar, 0 );
@@ -289,8 +291,9 @@ BufferString SeisJobExecProv::getDefTempStorDir( const char* pth )
 
 void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 {
-    FilePath basefp( iopar_.find(sKey::TmpStor()) );
+    FilePath basefp( iopar_.find(sKey::TmpStor) );
 
+    int lastgood = todoinls_.start - todoinls_.step;
     for ( int inl=todoinls_.start; inl<=todoinls_.stop; inl+=todoinls_.step )
     {
 	BufferString fnm( "i." ); fnm += inl;
@@ -303,7 +306,7 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 	    CBVSReader rdr( sd.istrm, false ); // stream closed by reader
 	    isok = !rdr.errMsg();
 	    if ( isok )
-		isok = rdr.info().geom_.start.crl || rdr.info().geom_.start.crl;
+		isok = rdr.info().geom.start.crl || rdr.info().geom.start.crl;
 	}
 	if ( !isok )
 	    inlnrs += inl;
@@ -313,7 +316,7 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 
 MultiID SeisJobExecProv::tempStorID() const
 {
-    FilePath fp( iopar_.find(sKey::TmpStor()) );
+    FilePath fp( iopar_.find(sKey::TmpStor) );
 
     // Is there already an entry?
     IOM().to( ctio_.ctxt.getSelKey() );

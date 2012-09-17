@@ -7,20 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: lmkemfaulttransl.h,v 1.6 2012-08-03 13:00:20 cvskris Exp $
+ RCS:		$Id: lmkemfaulttransl.h,v 1.5 2011/04/26 10:18:12 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emsurfacetr.h"
 #include "rowcol.h"
 #include "executor.h"
 
 namespace EM { class Fault3D; };
 
-mClass(EarthModel) lmkEMFault3DTranslator : public EMSurfaceTranslator
+mClass lmkEMFault3DTranslator : public EMSurfaceTranslator
 {			isTranslator(lmk,EMFault3D)
 public:
     			lmkEMFault3DTranslator(const char* nm,
@@ -52,7 +51,7 @@ public:
 };
 
 
-mClass(EarthModel) lmkEMFault3DReader : public Executor
+mClass lmkEMFault3DReader : public Executor
 {
 public:
 			lmkEMFault3DReader(EM::Fault3D&,Conn*,
@@ -124,4 +123,3 @@ protected:
 #define mLMK_CONTROL_PT		4
 
 #endif
-

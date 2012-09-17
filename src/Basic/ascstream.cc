@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ascstream.cc,v 1.40 2012-08-03 13:01:34 cvskris Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.36 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -43,7 +43,7 @@ extern "C" const char* GetProjectVersionName()
 }
 
 
-mExternC( Basic)  void SetProjectVersionName(const char*);
+mExternC void SetProjectVersionName(const char*);
 extern "C" void SetProjectVersionName( const char* s )
 {
     getPVN() = s;
@@ -259,6 +259,8 @@ ascistream& ascistream::next()
     if ( linebuf[0] == mAscStrmParagraphMarker[0] )
 	{ keybuf = mAscStrmParagraphMarker; return *this; }
 
+    bool found_separ = linebuf[0] == mAscStrmKeyValSep;
+    bool found_unescaped_separ = found_separ;
     const int sz = lineread.size();
     char* separptr = 0;
     for ( int ich=1; ich<sz; ich++ )

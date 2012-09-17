@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh / Karthika
  * DATE     : May 2007
- * ID       : $Id: tuthortools.h,v 1.1 2012-03-29 07:23:42 cvskris Exp $
+ * ID       : $Id: tuthortools.h,v 1.1 2012/03/26 14:33:17 cvsdgb Exp $
 -*/
 
 #include "executor.h"

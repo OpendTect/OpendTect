@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.70 2012-09-06 17:39:36 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.65 2012/09/14 19:39:31 cvsnanne Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -254,9 +254,6 @@ void uiFunctionDisplay::getRanges(
 	    if ( yvals[idx] > yrg.stop ) yrg.stop = yvals[idx];
 	}
     }
-
-    if ( !setup_.fixdrawrg_ ) 
-	return;
 
     if ( !mIsUdf(setupxrg.start) ) xrg.start = setupxrg.start;
     if ( !mIsUdf(setupyrg.start) ) yrg.start = setupyrg.start;
@@ -525,7 +522,7 @@ void uiFunctionDisplay::drawMarkLine( uiAxisHandler* ah, float val, Color col,
         return; \
     const bool isctrl = ev.ctrlStatus(); \
     const bool isoth = ev.shiftStatus() || ev.altStatus(); \
-    const bool isnorm mUnusedVar = !isctrl && !isoth;
+    const bool isnorm = !isctrl && !isoth
 
 
 bool uiFunctionDisplay::setSelPt()

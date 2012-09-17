@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: uivelocityfunctionimp.h,v 1.7 2012-08-03 13:01:17 cvskris Exp $
+ RCS:		$Id: uivelocityfunctionimp.h,v 1.6 2010/11/19 17:00:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uivelocitymod.h"
 #include "uidialog.h"
 
 class uiFileInput;
@@ -26,7 +25,7 @@ namespace Table { class FormatDesc; }
 namespace Vel
 {
 
-mClass(uiVelocity) uiImportVelFunc : public uiDialog
+mClass uiImportVelFunc : public uiDialog
 {
 public:
     			uiImportVelFunc(uiParent*);
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

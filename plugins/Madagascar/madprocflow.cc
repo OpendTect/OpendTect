@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: madprocflow.cc,v 1.10 2012-05-22 14:48:45 cvskris Exp $";
+static const char* rcsID = "$Id: madprocflow.cc,v 1.7 2010/11/09 16:01:18 cvsbert Exp $";
 
 #include "madprocflow.h"
 #include "madprocflowtr.h"
@@ -40,8 +40,8 @@ ODMad::ProcFlow::~ProcFlow()
 
 ODMad::ProcFlow::IOType ODMad::ProcFlow::ioType( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::Type() );
-    if ( !res || !*res || *res == *sKey::None() )
+    const char* res = iop.find( sKey::Type );
+    if ( !res || !*res || *res == *sKey::None )
 	return ODMad::ProcFlow::None;
 
     if ( *res == *ODMad::sKeyMadagascar() || *res == 'm' )
@@ -58,13 +58,13 @@ ODMad::ProcFlow::IOType ODMad::ProcFlow::ioType( const IOPar& iop )
 void ODMad::ProcFlow::setIOType( IOPar& iop, ODMad::ProcFlow::IOType iot )
 {
     if ( iot < ODMad::ProcFlow::Madagascar )
-	iop.set( sKey::Type(), Seis::nameOf((Seis::GeomType)iot) );
+	iop.set( sKey::Type, Seis::nameOf((Seis::GeomType)iot) );
     else if ( iot == ODMad::ProcFlow::Madagascar )
-	iop.set( sKey::Type(), ODMad::sKeyMadagascar() );
+	iop.set( sKey::Type, ODMad::sKeyMadagascar() );
     else if ( iot == ODMad::ProcFlow::SU )
-	iop.set( sKey::Type(), "SU" );
+	iop.set( sKey::Type, "SU" );
     else
-	iop.set( sKey::Type(), sKey::None() );
+	iop.set( sKey::Type, sKey::None );
 }
 
 #define mRetFalse(s) { errmsg = s; return false; }

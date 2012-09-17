@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiexport2dhorizon.cc,v 1.22 2012-08-07 05:20:51 cvssalil Exp $";
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.16 2012/01/06 15:20:43 cvsnanne Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID mUnusedVar = "$Id: uiexport2dhorizon.cc,v 1.22 2012-08-
 #include "emmanager.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
-#include "emioobjinfo.h"
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
@@ -64,7 +63,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     headerfld_->attach( alignedBelow, llbox );
 
     udffld_ = new uiGenInput( this, "Write undefined parts? Undef value",
-	    		     StringInpSpec(sKey::FloatUdf()) );
+	    		     StringInpSpec(sKey::FloatUdf) );
     udffld_->setChecked( true );
     udffld_->setWithCheck( true );
     udffld_->attach( alignedBelow, headerfld_ );
@@ -139,7 +138,7 @@ bool uiExport2DHorizon::doExport()
     }
 
     const float zfac = !optsfld_->isChecked(1) ? 1
-		     : (SI().zIsTime() ? 1000 : mToFeetFactorF);
+		     : (SI().zIsTime() ? 1000 : mToFeetFactor);
     const bool wrlnms = optsfld_->isChecked( 0 );
     char buf[180];
     writeHeader( *sd.ostrm );
@@ -269,12 +268,13 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
 	return;
 
     MultiID horid = hinfos_[horidx]->multiid;
+    EM::EMManager& em = EM::EMM();
 
     PtrMan<IOObj> ioobj = IOM().get( horid );
     if ( !ioobj ) return;
 
-    EM::SurfaceIOData emdata; EM::IOObjInfo oi( *ioobj );
-    BufferString errmsg = oi.getSurfaceData( emdata );
+    EM::SurfaceIOData emdata;
+    BufferString errmsg = em.getSurfaceData( ioobj->key(), emdata );
     if ( !errmsg.isEmpty() ) return;
 
     linenmfld_->addItems( emdata.linenames );

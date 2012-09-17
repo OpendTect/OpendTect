@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipluginsel.cc,v 1.21 2012-09-13 18:36:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipluginsel.cc,v 1.17 2009/07/22 16:01:42 cvsbert Exp $";
 
 #include "uipluginsel.h"
 #include "uibutton.h"
@@ -55,7 +55,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
     ArrPtrMan<int> sortindices = piusrnms.getSortIndexes();
 
     const int maxlen = piusrnms.maxLength();
-    const float rowspercol = maxlen / 10.f;
+    const float rowspercol = maxlen / 10.;
     const int nrplugins = piusrnms.size();
     int nrcols = (int)(Math::Sqrt( rowspercol * nrplugins ) + .5);
     if ( nrcols < 1 ) nrcols = 1;
@@ -83,7 +83,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
 	cb->setChecked( dontloadlist.indexOf( dispnm )==-1 );
 	cbs_ += cb;
 	if ( colnr != nrcols - 1 )
-	    cb->setPrefWidthInChar( maxlen+5.f );
+	    cb->setPrefWidthInChar( maxlen+5 );
 	if ( idx == 0 ) continue;
 
 	if ( rownr == 0 )

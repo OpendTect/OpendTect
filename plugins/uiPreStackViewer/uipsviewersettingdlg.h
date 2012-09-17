@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          August 2007
- RCS:           $Id: uipsviewersettingdlg.h,v 1.8 2011-09-19 05:18:43 cvsranojay Exp $
+ RCS:           $Id: uipsviewersettingdlg.h,v 1.8 2011/09/19 05:18:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/

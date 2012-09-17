@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posinfo2d.cc,v 1.9 2012-08-06 07:18:37 cvssalil Exp $";
+static const char* rcsID = "$Id: posinfo2d.cc,v 1.5 2012/06/21 19:25:07 cvsnanne Exp $";
 
 #include "posinfo2d.h"
 #include "math2.h"
@@ -157,7 +157,7 @@ void PosInfo::Line2DData::dump( std::ostream& strm, bool pretty ) const
     else
     {
 	strm << lnm_ << '\n';
-	const float fac = SI().zDomain().userFactor();
+	const float fac = SI().zFactor();
 	strm << "Z range " << SI().getZUnitString() << ":\t" << fac*zrg_.start
 	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
 	strm << "\n\nTrace number\tX-coord\tY-coord" << std::endl;
@@ -302,7 +302,7 @@ Coord PosInfo::Line2DData::getNormal( int trcnr ) const
 	return Coord( 0, 1 );
     else
     {
-	const double length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
+	const float length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
 	return Coord( -v1.y/length, v1.x/length );
     }
 }

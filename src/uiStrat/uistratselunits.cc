@@ -7,36 +7,34 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratselunits.cc,v 1.13 2012-09-07 22:08:06 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratselunits.cc,v 1.9 2012/06/26 07:48:19 cvsbert Exp $";
 
 #include "uistratselunits.h"
-
-#include "stratreftree.h"
 #include "stratunitrefiter.h"
-
-#include "uicombobox.h"
+#include "stratreftree.h"
+#include "uilistview.h"
 #include "uilistbox.h"
-#include "uitreeview.h"
+#include "uicombobox.h"
 
 static const char* sUsrNameRT = "**";
 
 
-class uiStratSelUnitsListItem : public uiTreeViewItem
+class uiStratSelUnitsListItem : public uiListViewItem
 {
 public:
 
-uiStratSelUnitsListItem( uiTreeView* p, const Strat::UnitRef* ur, bool wchk )
-    : uiTreeViewItem(p,getSetup(ur,wchk))
+uiStratSelUnitsListItem( uiListView* p, const Strat::UnitRef* ur, bool wchk )
+    : uiListViewItem(p,getSetup(ur,wchk))
     , unit_(ur)					{}
 
-uiStratSelUnitsListItem( uiTreeViewItem* p, const Strat::UnitRef* ur, bool wchk)
-    : uiTreeViewItem(p,getSetup(ur,wchk))
+uiStratSelUnitsListItem( uiListViewItem* p, const Strat::UnitRef* ur, bool wchk)
+    : uiListViewItem(p,getSetup(ur,wchk))
     , unit_(ur)					{}
 
-static uiTreeViewItem::Setup getSetup( const Strat::UnitRef* ur, bool wchk )
+static uiListViewItem::Setup getSetup( const Strat::UnitRef* ur, bool wchk )
 {
     const char* nm = ur == &ur->refTree() ? sUsrNameRT : ur->code().buf();
-    return uiTreeViewItem::Setup( nm, wchk ? CheckBox : Standard, false );
+    return uiListViewItem::Setup( nm, wchk ? CheckBox : Standard, false );
 }
 
     const Strat::UnitRef*	unit_;
@@ -70,7 +68,7 @@ uiStratSelUnits::~uiStratSelUnits()
 
 #define mDefFillVars() \
     const bool topisok = Strat::UnitRefIter::isValid(topnode_,setup_.pol_); \
-    const bool topisrt mUnusedVar = &topnode_.refTree() == &topnode_; \
+    const bool topisrt = &topnode_.refTree() == &topnode_; \
     const CallBack curchgcb( mCB(this,uiStratSelUnits,curChg) ); \
     const CallBack selchgcb( mCB(this,uiStratSelUnits,selChg) ); \
     Strat::UnitRefIter it( topnode_, setup_.pol_ )
@@ -111,7 +109,7 @@ void uiStratSelUnits::mkTreeFld()
 	    nrleaves++;
     }
 
-    tree_ = new uiTreeView( this, setup_.fldtxt_,
+    tree_ = new uiListView( this, setup_.fldtxt_,
 	      nrleaves<setup_.maxnrlines_ ? 0 : setup_.maxnrlines_, true );
     tree_->setColumnText( 0, setup_.fldtxt_ );
 
@@ -230,7 +228,7 @@ void uiStratSelUnits::getSelected( ObjectSet<const Strat::UnitRef>& urs ) const
     }
     else
     {
-        const uiTreeViewItem* curitm = tree_->currentItem();
+	const uiListViewItem* curitm = tree_->currentItem();
 	for ( int idx=0; idx<lvitms_.size(); idx++ )
 	{
 	    const uiStratSelUnitsListItem* itm = lvitms_[idx];
@@ -319,7 +317,7 @@ void uiStratSelUnits::curChg( CallBacker* )
     }
     else
     {
-        uiTreeViewItem* li = tree_->currentItem();
+	uiListViewItem* li = tree_->currentItem();
 	mDynamicCastGet(uiStratSelUnitsListItem*,sslvi,li)
 	if ( !sslvi ) { pErrMsg("Huh"); return; }
 	curunit_ = sslvi->unit_;

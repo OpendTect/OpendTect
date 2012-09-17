@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifont.cc,v 1.33 2012-05-11 12:11:03 cvskris Exp $";
+static const char* rcsID = "$Id: uifont.cc,v 1.31 2012/05/10 05:54:57 cvsranojay Exp $";
 
 #include "uifontsel.h"
 #include "uifont.h"
@@ -85,17 +85,11 @@ FontData uiFont::fontData() const
 
 void uiFont::setFontData( const FontData& fData )
 {
-    setFontData( *qfont_, fData );
+    qfont_->setFamily( fData.family() );
+    qfont_->setPointSize( fData.pointSize() );
+    qfont_->setWeight( fData.weight() );
+    qfont_->setItalic( fData.isItalic() );
     updateMetrics();
-}
-
-
-void uiFont::setFontData( QFont& qfont, const FontData& fData )
-{
-    qfont.setFamily( fData.family() );
-    qfont.setPointSize( fData.pointSize() );
-    qfont.setWeight( fData.weight() );
-    qfont.setItalic( fData.isItalic() );
 }
 
 
@@ -399,7 +393,7 @@ void uiFontList::addOldGuess( const Settings& settings,
 			      const char* ky, int idx )
 {
     const char* fontface = settings["Font face"];
-    bool boldfont = true; settings.getYN( "Bold font", boldfont );
+    bool boldfont = false; settings.getYN( "Bold font", boldfont );
 
     int fontsz = FontData::defaultPointSize() * 10;
     if ( !strcmp(ky,FontData::defaultKeys()[0]) )

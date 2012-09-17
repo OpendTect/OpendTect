@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: cbvswriter.cc,v 1.60 2012-07-20 06:26:16 cvsnageswara Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.56 2011/03/25 15:02:34 cvsbert Exp $";
 
 #include "cbvswriter.h"
 #include "cubesampling.h"
@@ -33,11 +33,11 @@ CBVSWriter::CBVSWriter( std::ostream* s, const CBVSInfo& i,
 	, file_lastinl_(false)
 	, prevbinid_(mUdf(int),mUdf(int))
 	, trcswritten_(0)
-	, nrtrcsperposn_(i.nrtrcsperposn_)
+	, nrtrcsperposn_(i.nrtrcsperposn)
 	, nrtrcsperposn_status_(2)
 	, checknrtrcsperposn_(0)
-	, auxinfosel_(i.auxinfosel_)
-	, survgeom_(i.geom_)
+	, auxinfosel_(i.auxinfosel)
+	, survgeom_(i.geom)
 	, auxnrbytes_(0)
 	, input_rectnreg_(false)
     	, forcedlinestep_(0,0)
@@ -58,7 +58,7 @@ CBVSWriter::CBVSWriter( std::ostream* s, const CBVSWriter& cw,
 	, nrtrcsperposn_(cw.nrtrcsperposn_)
 	, nrtrcsperposn_status_(cw.nrtrcsperposn_status_)
 	, auxinfosel_(cw.auxinfosel_)
-	, survgeom_(ci.geom_)
+	, survgeom_(ci.geom)
 	, auxnrbytes_(0)
     	, forcedlinestep_(cw.forcedlinestep_)
 {
@@ -116,15 +116,15 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
     if ( !strm_.write((const char*)ucbuf,headstartbytes) )
 	mErrRet("Cannot start writing to file")
 
-    int sz = info.stdtext_.size();
+    int sz = info.stdtext.size();
     strm_.write( (const char*)&sz, integersize );
-    strm_.write( (const char*)info.stdtext_, sz );
+    strm_.write( (const char*)info.stdtext, sz );
 
     writeComps( info );
     geomsp_ = strm_.tellp();
     writeGeom();
-    strm_.write( (const char*)&info.seqnr_, integersize );
-    BufferString bs( info.usertext_ );
+    strm_.write( (const char*)&info.seqnr, integersize );
+    BufferString bs( info.usertext );
 
     std::streampos fo = strm_.tellp();
     int len = bs.size();
@@ -167,7 +167,7 @@ void CBVSWriter::putAuxInfoSel( unsigned char* ptr ) const
 
 void CBVSWriter::writeComps( const CBVSInfo& info )
 {
-    nrcomps_ = info.compinfo_.size();
+    nrcomps_ = info.compinfo.size();
     strm_.write( (const char*)&nrcomps_, integersize );
 
     cnrbytes_ = new int [nrcomps_];
@@ -178,22 +178,22 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
-	const BasicComponentInfo& cinf = *info.compinfo_[icomp];
+	const BasicComponentInfo& cinf = *info.compinfo[icomp];
 	int sz = cinf.name().size();
 	strm_.write( (const char*)&sz, integersize );
 	strm_.write( (const char*)cinf.name(), sz );
 	strm_.write( (const char*)&cinf.datatype, integersize );
        	cinf.datachar.dump( dcdump[0], dcdump[1] );
 	strm_.write( (const char*)dcdump, 4 );
-	strm_.write( (const char*)&info.sd_.start, sizeof(float) );
-	strm_.write( (const char*)&info.sd_.step, sizeof(float) );
-	strm_.write( (const char*)&info.nrsamples_, integersize );
+	strm_.write( (const char*)&info.sd.start, sizeof(float) );
+	strm_.write( (const char*)&info.sd.step, sizeof(float) );
+	strm_.write( (const char*)&info.nrsamples, integersize );
 	float a = 0, b = 1; // LinScaler( a, b ) - future use?
 	strm_.write( (const char*)&a, sizeof(float) );
 	strm_.write( (const char*)&b, sizeof(float) );
 
 	nrbytespersample_[icomp] = cinf.datachar.nrBytes();
-	cnrbytes_[icomp] = info.nrsamples_ * nrbytespersample_[icomp];
+	cnrbytes_[icomp] = info.nrsamples * nrbytespersample_[icomp];
     }
 }
 
@@ -291,7 +291,7 @@ int CBVSWriter::put( void** cdat, int offs )
 {
 #ifdef __debug__
     // gdb says: "Couldn't find method ostream::tellp"
-    std::streampos curfo mUnusedVar = strm_.tellp();
+    std::streampos curfo = strm_.tellp();
 #endif
 
     getBinID();

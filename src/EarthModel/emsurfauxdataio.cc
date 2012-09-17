@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfauxdataio.cc,v 1.50 2012-05-03 05:14:16 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.47 2012/02/17 23:05:37 cvsnanne Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -407,7 +407,11 @@ int dgbSurfDataReader::nextStep()
 }
 
 
-#define mReadData(interpreter) \
+static int sizeofint = sizeof(int);
+static int sizeofint64 = sizeof(od_int64);
+static int sizeoffloat = sizeof(float);
+
+#define mReadData(interpreter,size) \
     if ( interpreter ) \
     { \
 	char buf[sizeof(res)]; \
@@ -420,13 +424,13 @@ int dgbSurfDataReader::nextStep()
     return (*stream_);
 
 bool dgbSurfDataReader::readInt( int& res )
-{ mReadData(intinterpreter_) }
+{ mReadData(intinterpreter_,sizeofint) }
 
 bool dgbSurfDataReader::readInt64( od_int64& res )
-{ mReadData(int64interpreter_) }
+{ mReadData(int64interpreter_,sizeofint64) }
 
 bool dgbSurfDataReader::readFloat( float& res )
-{ mReadData(floatinterpreter_) }
+{ mReadData(floatinterpreter_,sizeoffloat) }
 
 
 od_int64 dgbSurfDataReader::nrDone() const 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uieditpdf.cc,v 1.27 2012-08-01 14:44:26 cvshelene Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.22 2012/08/01 14:44:23 cvshelene Exp $";
 
 #include "uieditpdf.h"
 
@@ -29,9 +29,9 @@ static const char* rcsID mUnusedVar = "$Id: uieditpdf.cc,v 1.27 2012-08-01 14:44
 
 #define mDeclArrNDPDF	mDynamicCastGet(ArrayNDProbDenFunc*,andpdf,&pdf_)
 #define mDeclSzVars mDeclArrNDPDF; \
-    const int nrtbls mUnusedVar = nrdims_ > 2 ? andpdf->size(2) : 1; \
-    const int nrcols mUnusedVar = nrdims_ < 2 ? 1 : andpdf->size( 0 ); \
-    const int nrrows mUnusedVar = andpdf->size( nrdims_ < 2 ? 0 : 1 )
+    const int nrtbls = nrdims_ > 2 ? andpdf->size(2) : 1; \
+    const int nrcols = nrdims_ < 2 ? 1 : andpdf->size( 0 ); \
+    const int nrrows = andpdf->size( nrdims_ < 2 ? 0 : 1 )
 #define mDeclIdxs	int idxs[3]; idxs[2] = curdim2_
 #define mGetRowIdx(irow) \
     const int rowidx = nrdims_ == 1 ? irow : nrrows -irow - 1
@@ -57,8 +57,6 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     , nrdims_(pdf.nrDims())
     , curdim2_(0)
 {
-    if ( !ed )
-	setCtrlStyle( uiDialog::LeaveOnly );
     tabstack_ = new uiTabStack( this, "Tabs" );
     mDeclArrNDPDF;
     uiGroup* dimnmgrp = new uiGroup( tabstack_->tabGroup(), "Dimension names" );
@@ -119,10 +117,10 @@ void uiEditProbDenFunc::mkTable( uiGroup* grp )
     }
 
     uiButtonGroup* bgrp = new uiButtonGroup( grp );
-    new uiToolButton( bgrp, nrdims_ == 1 ? "distmap" : "viewprdf",
+    new uiToolButton( bgrp, nrdims_ == 1 ? "distmap.png" : "viewprdf.png",
 	    "View function", mCB(this,uiEditProbDenFunc,viewPDF) );
     if ( editable_ )
-	new uiToolButton( bgrp, "smoothcurve", "Smooth values",
+	new uiToolButton( bgrp, "smoothcurve.png", "Smooth values",
 				mCB(this,uiEditProbDenFunc,smoothReq) );
     if ( nrdims_ > 2 )
     {

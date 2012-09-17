@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.20 2012-08-03 13:01:26 cvskris Exp $
+ RCS:		$Id: visselman.h,v 1.19 2012/01/12 17:32:16 cvsjaap Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "visbasemod.h"
 #include "callback.h"
 #include "sets.h"
 
@@ -41,7 +40,7 @@ will associate him with when they want to add their CB to detect his selection.
 Secondly it has to give the DataObject that actually is selected.
 */
 
-mClass(visBase) SelectionManager : public CallBacker
+mClass SelectionManager : public CallBacker
 {
 public:
 				SelectionManager();
@@ -79,4 +78,3 @@ protected:
 };
 
 #endif
-

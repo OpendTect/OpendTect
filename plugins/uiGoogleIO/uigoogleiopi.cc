@@ -4,10 +4,8 @@
  * DATE     : Jul 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uigoogleiopi.cc,v 1.25 2012-08-29 08:18:06 cvskris Exp $";
+static const char* rcsID = "$Id: uigoogleiopi.cc,v 1.21 2011/10/07 21:50:44 cvsnanne Exp $";
 
-
-#include "uigoogleiomod.h"
 #include "uigoogleexpsurv.h"
 #include "uigoogleexpwells.h"
 #include "uigoogleexp2dlines.h"
@@ -78,9 +76,9 @@ uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
 	    		*a.applMgr().visServer(),"Export to G&oogle KML ...",
     			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
 {
-    psmnuitmhandler_.setIcon( "google" );
-    rlmnuitmhandler_.setIcon( "google" );
-    uiSurvey::add( uiSurvey::Util( "google",
+    psmnuitmhandler_.setIcon( "google.png" );
+    rlmnuitmhandler_.setIcon( "google.png" );
+    uiSurvey::add( uiSurvey::Util( "google.png",
 				   "Export to Google Earth/Maps",
 				   mCB(this,uiGoogleIOMgr,exportSurv) ) );
     uiWellMan::instanceCreated().notify(
@@ -107,7 +105,7 @@ void uiGoogleIOMgr::mkExportWellsIcon( CallBacker* cb )
     mDynamicCastGet(uiWellMan*,wm,cb)
     if ( !wm ) return;
 
-    uiToolButton* tb = new uiToolButton( wm->listGroup(), "google",
+    uiToolButton* tb = new uiToolButton( wm->listGroup(), "google.png",
 	    			"Export to Google KML",
 				mCB(this,uiGoogleIOMgr,exportWells) );
     wm->addTool( tb );
@@ -131,7 +129,7 @@ void uiGoogleIOMgr::mkExportLinesIcon( CallBacker* cb )
     cur2dfm_ = fm;
     if ( !cur2dfm_ ) return;
 
-    fm->getButGroup(false)->addButton( "google",
+    fm->getButGroup(false)->addButton( "google.png",
 	    			       "Export selected lines to Google KML",
 	    			       mCB(this,uiGoogleIOMgr,exportLines) );
 }

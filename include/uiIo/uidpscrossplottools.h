@@ -7,20 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          June 2011
- RCS:           $Id: uidpscrossplottools.h,v 1.3 2012-08-03 13:00:59 cvskris Exp $
+ RCS:           $Id: uidpscrossplottools.h,v 1.2 2011/07/11 11:50:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
-#include "uiiomod.h"
 #include "uigeom.h"
 #include "polygon.h"
 
 /*!\brief Data Point Set Cross Plotter */
 
 
-mStruct(uiIo) SelectionArea
+mStruct SelectionArea
 {
     enum SelAxisType	{ Y1, Y2, Both };
 
@@ -65,7 +63,7 @@ protected:
 };
 
 
-mClass(uiIo) SelectionGrp : public NamedObject
+mClass SelectionGrp : public NamedObject
 {
 public:
 				SelectionGrp(const char* nm, const Color& col)
@@ -98,5 +96,3 @@ protected:
 };
 
 #endif
-
-

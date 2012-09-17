@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viscolortab.cc,v 1.58 2012-08-10 03:50:08 cvsaneesh Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.54 2011/09/16 11:02:54 cvskris Exp $";
 
 #include "viscolortab.h"
 
@@ -89,11 +89,11 @@ float VisColorTab::symMidval() const
 { return ctmapper_->setup_.symmidval_; }
 
 
-const Interval<float>& VisColorTab::clipRate() const
+Interval<float> VisColorTab::clipRate() const
 { return ctmapper_->setup_.cliprate_; }
 
 
-void VisColorTab::setClipRate( const Interval<float>& ncr )
+void VisColorTab::setClipRate( Interval<float> ncr )
 {
     if ( mIsEqual(ncr.start,ctmapper_->setup_.cliprate_.start,mDefEps) ||
       	 mIsEqual(ncr.stop,ctmapper_->setup_.cliprate_.stop,mDefEps) )
@@ -163,7 +163,7 @@ void VisColorTab::scaleTo( const Interval<float>& rg )
 }
 
 
-const Interval<float>& VisColorTab::getInterval() const
+Interval<float> VisColorTab::getInterval() const
 { return ctmapper_->range(); }
 
 
@@ -259,8 +259,8 @@ int VisColorTab::usePar( const IOPar& par )
     {
 	LinScaler scale;
 	scale.fromString( scalestr );
-	const float start = (float) ( -scale.constant / scale.factor );
-	const float stop = (float) ( start + 1. / scale.factor );
+	const float start = -scale.constant / scale.factor;
+	const float stop = start + 1. / scale.factor;
 	Interval<float> rg( start, stop );
 	ctmapper_->setRange( rg );
     }

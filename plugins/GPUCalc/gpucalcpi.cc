@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: gpucalcpi.cc,v 1.7 2012-05-02 15:11:09 cvskris Exp $";
+static const char* rcsID = "$Id: gpucalcpi.cc,v 1.5 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "gpucalc.h"
 

@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.46 2012-08-03 13:00:24 cvskris Exp $
+ RCS:		$Id: pickset.h,v 1.45 2011/04/28 16:42:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "color.h"
 #include "multiid.h"
 #include "namedobj.h"
@@ -29,7 +28,7 @@ namespace Pick
 
 /*!\brief Pick location in space */
 
-mClass(General) Location
+mClass Location
 {
 public:
 			Location( double x=0, double y=0, double z=0 )
@@ -87,7 +86,7 @@ public:
 
 /*!\brief Set of picks with something in common */
 
-mClass(General) Set : public NamedObject
+mClass Set : public NamedObject
 	  , public TypeSet<Location>
 {
 public:
@@ -136,7 +135,7 @@ public:
  
  */
 
-mClass(General) SetMgr : public NamedObject
+mClass SetMgr : public NamedObject
 {
 public:
 
@@ -221,7 +220,7 @@ inline SetMgr& Mgr()
 }; // namespace Pick
 
 
-mClass(General) PickSetAscIO : public Table::AscIO
+mClass PickSetAscIO : public Table::AscIO
 {
 public:
     				PickSetAscIO( const Table::FormatDesc& fd )
@@ -238,4 +237,3 @@ public:
 };
 
 #endif
-

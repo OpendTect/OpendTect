@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivelocityfunctionstored.h,v 1.6 2012-08-03 13:01:17 cvskris Exp $
+ RCS:		$Id: uivelocityfunctionstored.h,v 1.5 2010/11/10 19:53:12 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uivelocitymod.h"
 #include "uiselectvelocityfunction.h"
 #include "velocityfunctionstored.h"
 
@@ -24,7 +23,7 @@ namespace Vel
 {
 class StoredFunctionSource;
 
-mClass(uiVelocity) uiStoredFunction : public uiFunctionSettings
+mClass uiStoredFunction : public uiFunctionSettings
 {
 public:
     mDefaultFactoryInstanciationBase(
@@ -49,4 +48,3 @@ protected:
 }; //namespace
 
 #endif
-

@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.27 2009-06-24 04:40:19 cvsnanne Exp $
+# $Id: od_cr_dev_env,v 1.35 2012/04/18 05:29:02 cvsraman Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -15,7 +15,6 @@ endif
 
 set inpdir="$1"
 set outdir="$2"
-set soext=so
 
 set cpcmd="cp -rp"
 
@@ -26,13 +25,12 @@ endif
 if ( "$HDIR" == "lux" ) then
     set cpcmd="cp -a"
 endif
-
+if ( ! -e "$inpdir/relinfo/ver.devel_lux64.txt" && ! -e "$inpdir/relinfo/ver.devel_lux32.txt" && ! -e "$inpdir/relinfo/ver.devel_mac.txt") then
+     echo "$0: warning: $inpdir does not have the development package installed"
+endif
 if ( ! -d "$inpdir" ) then
     echo "$0 : $inpdir does not exist"
     exit 1
-endif
-if ( ! -e "$inpdir/.rel.devel" ) then
-    echo "$0 : warning : $inpdir does not have the development package installed"
 endif
 
 if ( ! -w "$outdir"  ) then
@@ -40,70 +38,15 @@ if ( ! -w "$outdir"  ) then
     exit 1
 endif
 
-
 # ----------------------------------------------------------------------------
 # Setup work directory
 # ----------------------------------------------------------------------------
 
 cd "$outdir"
 
-foreach item ( plugins src include Pmake spec )
-    $cpcmd "$inpdir/$item" .
-end
+$cpcmd "${inpdir}/doc/Programmer/pluginexample/CMakeLists.txt" .
+$cpcmd "${inpdir}/doc/Programmer/pluginexample/plugins" .
+chmod +w -R *
 
-ln -s Pmake/RootMakefile Makefile
-if ( -d plugins ) then
-    cd plugins
-    if ( -e Makefile.lnk ) then
-	\rm Makefile.lnk
-    endif
-    if ( ! -e Makefile ) then
-        ln -s Makefile.od Makefile
-    endif
-endif
-
-cd "$outdir"
-
-if ( ! $?binsubdir ) then
-    if ( $?PLFSUBDIR ) then
-	set binsubdir="$PLFSUBDIR"
-    else
-	set binsubdir="$HDIR"
-    endif
-endif
-
-mkdir bin
-cd bin
-mkdir "$binsubdir"
-cd "$binsubdir"
-ln -s . G
-ln -s . O
-mkdir so
-cd so
-
-${cpcmd} "${inpdir}/bin/${binsubdir}/so"/*.${soext}* .
-
-cd "$outdir"
-mkdir lib
-cd lib
-mkdir "$binsubdir"
-cd "$binsubdir"
-ln -s . G
-ln -s . O
-ln -s ../../bin/"$binsubdir"/so/{libQt*.so.4,libfftw3f.so.3,libCoin.so.*,libSoQt.so.*} .
-ln -s libfftw3f.so.3 libfftw3f.so
-ln -s libCoin.so.* libCoin.so
-ln -s libSoQt.so.* libSoQt.so
-
-
-cd "$outdir"
-
-foreach fil ( init.bash init.csh )
-    sed -e "s%__WORK__%$outdir%" \
-        -e "s%__hdir__%$binsubdir%" \
-        -e "s%__DTECTAPPL__DIR__%$DTECT_APPL%" \
-        "$inpdir/.$fil" > $fil
-end
-
-if ( -e "$inpdir/.rel.devel" ) cp "$inpdir/.rel.devel" .
-
+echo "OpendTect_DIR:PATH=${inpdir}" >> CMakeCache.txt
+echo "CMAKE_BUILD_TYPE:STRING=Debug" >> CMakeCache.txt

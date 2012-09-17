@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: horizonmerger.h,v 1.3 2012-08-03 13:00:20 cvskris Exp $
+ RCS:		$Id: horizonmerger.h,v 1.2 2011/05/20 11:47:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "task.h"
 #include "emposid.h"
 #include "enums.h"
@@ -25,7 +24,7 @@ namespace EM
 
 class Horizon3D;
 
-mClass(EarthModel) HorizonMerger : public ParallelTask
+mClass HorizonMerger : public ParallelTask
 {
 public:
     enum Mode		{ Average, Top, Base };
@@ -41,7 +40,7 @@ protected:
 };
 
 
-mClass(EarthModel) Horizon3DMerger : public HorizonMerger
+mClass Horizon3DMerger : public HorizonMerger
 {
 public:
 			Horizon3DMerger(const TypeSet<ObjectID>&);
@@ -67,5 +66,4 @@ private:
 } // namespace EM
 
 #endif
-
 

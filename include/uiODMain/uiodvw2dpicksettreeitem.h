@@ -7,12 +7,11 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.6 2012-08-07 04:00:22 cvsmahant Exp $
+ RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.4 2011/06/28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
 
 #include "emposid.h"
@@ -23,7 +22,7 @@ namespace Pick{ class Set; class SetMgr; }
 
 
 
-mClass(uiODMain) uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
+mClass uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVw2DPickSetParentTreeItem();
@@ -42,7 +41,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
+mClass uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*         name() const		{ return typeid(*this).name(); }
@@ -52,7 +51,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
+mClass uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
 {
 public:
 			uiODVw2DPickSetTreeItem(int picksetid);
@@ -74,8 +73,8 @@ protected:
     void		displayMiniCtab();
     void		removePickSetCB(CallBacker*);
 
-    int 		cPixmapWidth()				{ return 16; }
-    int			cPixmapHeight()				{ return 10; }
+    const int 		cPixmapWidth()				{ return 16; }
+    const int		cPixmapHeight()				{ return 10; }
     
     Pick::SetMgr&	picksetmgr_;
     Pick::Set&		pickset_;
@@ -85,4 +84,3 @@ protected:
 
 
 #endif
-

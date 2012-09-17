@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2012
- RCS:           $Id: wellposprovider.h,v 1.5 2012-08-03 13:00:46 cvskris Exp $
+ RCS:           $Id: wellposprovider.h,v 1.3 2012/02/08 23:14:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "wellmod.h"
 #include "multiid.h"
 #include "posprovider.h"
 
@@ -26,7 +25,7 @@ namespace Pos
 
 /*!\brief Volume/Area provider based on Wells */
 
-mClass(Well) WellProvider3D : public Provider3D
+mClass WellProvider3D : public Provider3D
 {
 public:
 			WellProvider3D();
@@ -34,7 +33,7 @@ public:
 			~WellProvider3D();
 
     WellProvider3D&	operator=(const WellProvider3D&);
-    const char*		type() const;	//!< sKey::Well()
+    const char*		type() const;	//!< sKey::Well
     const char*		factoryKeyword() const { return type(); }
     Provider*		clone() const	{ return new WellProvider3D(*this); }
 
@@ -95,4 +94,3 @@ public:
 } // namespace Pos
 
 #endif
-

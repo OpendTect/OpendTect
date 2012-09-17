@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: delaunay3d.cc,v 1.28 2012-05-03 04:47:00 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.24 2012/02/24 10:14:17 cvskris Exp $";
 
 #include "delaunay3d.h"
 
@@ -202,8 +202,8 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 
 	if ( narrow[2] )
 	{
-	    center_.z = SI().zRange(true).center()*SI().zDomain().userFactor();
-	    zlength = SI().zRange(true).width()*SI().zDomain().userFactor();
+	    center_.z = SI().zRange(true).center()*SI().zFactor();
+	    zlength = SI().zRange(true).width()*SI().zFactor();
 	}
     }
 
@@ -1235,6 +1235,10 @@ void DAGTetrahedraTree::legalizeTetrahedras( TypeSet<int>& v0s,
 	}
 	else if ( pq_intersect_abc==cIsOnEdge() )
 	{ 
+	    const int checknbs[] = { tetrahedras_[checkti].neighbors_[0],
+				     tetrahedras_[checkti].neighbors_[1],
+				     tetrahedras_[checkti].neighbors_[2],
+				     tetrahedras_[checkti].neighbors_[3] };
 	    int s0 = cNoVertex(), s1 = cNoVertex(), s2 = cNoVertex();
 	    int nbti = cNoTetrahedra();
 	    if ( onedge==cEdge01() )

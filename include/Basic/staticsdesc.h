@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		May 2009
- RCS:		$Id: staticsdesc.h,v 1.4 2012-08-03 13:00:15 cvskris Exp $
+ RCS:		$Id: staticsdesc.h,v 1.3 2009/07/22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
-#include "basicmod.h"
 #include "multiid.h"
 
 class IOPar;
@@ -20,7 +19,7 @@ class IOPar;
 /*!Specifies Statics as a horizon and either a horizon attribute or 
    a constant velocity. Velocity is always in m/s. */
 
-mClass(Basic) StaticsDesc
+mClass StaticsDesc
 {
 public:
 			StaticsDesc();
@@ -44,4 +43,3 @@ public:
 
 
 #endif
-

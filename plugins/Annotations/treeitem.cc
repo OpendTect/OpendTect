@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.63 2012-09-07 22:08:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.52 2012/07/10 13:05:57 cvskris Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -17,21 +17,20 @@ static const char* rcsID mUnusedVar = "$Id: treeitem.cc,v 1.63 2012-09-07 22:08:
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uifiledlg.h"
-#include "uigeninput.h"
-#include "uigeninputdlg.h"
+#include "uilistview.h"
+#include "uislider.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
-#include "uislider.h"
 #include "uitextedit.h"
-#include "uitreeview.h"
 #include "uivispartserv.h"
+#include "uigeninput.h"
+#include "uigeninputdlg.h"
 #include "vissurvscene.h"
 
-#include "visannotimage.h"
 #include "visarrow.h"
 #include "viscallout.h"
-#include "visscalebar.h"
+#include "visannotimage.h"
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -59,10 +58,10 @@ ParentTreeItem::~ParentTreeItem()
 {}
 
 
-bool ParentTreeItem::rightClick( uiTreeViewItem* itm )
+bool ParentTreeItem::rightClick( uiListViewItem* itm )
 {
-    if ( itm == uitreeviewitem_ && !uitreeviewitem_->isOpen() )
-        uitreeviewitem_->setOpen( true );
+    if ( itm == uilistviewitem_ && !uilistviewitem_->isOpen() )
+	uilistviewitem_->setOpen( true );
 
     return uiTreeItem::rightClick( itm );
 }
@@ -84,7 +83,6 @@ bool ParentTreeItem::init()
     
     addChild( new ArrowParentItem(), true );
     addChild( new ImageParentItem(), true );
-    addChild( new ScaleBarParentItem(), true );
     addChild( new TextParentItem(), true );
     getItem()->setOpen( false );
     return true;
@@ -281,7 +279,7 @@ bool AnnotTreeItem::readPicks( Pick::Set& ps )
 {
     CtxtIOObj* ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
-    ctio->ctxt.toselect.require_.set( sKey::Type(), managerName(), oldSelKey() );
+    ctio->ctxt.toselect.require_.set( sKey::Type, managerName(), oldSelKey() );
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
 	mDelCtioRet;
@@ -315,15 +313,11 @@ SubItem::SubItem( Pick::Set& set, int displayid )
 {
     name_ = set_->name();
     displayid_ = displayid;
-
-    storemnuitem_.iconfnm = "save";
-    storeasmnuitem_.iconfnm = "saveas";
 }
 
 
 SubItem::~SubItem()
-{
-}
+{}
 
 
 void SubItem::prepareForShutdown()
@@ -338,8 +332,6 @@ void SubItem::prepareForShutdown()
 	if ( uiMSG().askSave(msg,false) )
 	    store();
     }
-
-    removeStuff();
 }
 
 
@@ -357,21 +349,21 @@ bool SubItem::init()
 }
 
 
-void SubItem::createMenu( MenuHandler* menu, bool istb )
+void SubItem::createMenuCB( CallBacker* cb )
 {
-    if ( !menu || menu->menuID()!=displayID() )
+    mDynamicCastGet(MenuHandler*,menu,cb);
+    if ( menu->menuID() != displayID() )
 	return;
 
     const bool islocked = visserv_->isLocked( displayid_ );
-    uiODDisplayTreeItem::createMenu( menu, istb );
+    uiODDisplayTreeItem::createMenuCB(cb);
     if ( hasScale() )
-	mAddMenuOrTBItem(istb,0,menu,&scalemnuitem_,!islocked,false);
+	mAddMenuItem(menu,&scalemnuitem_,!islocked,false);
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
-    mAddMenuOrTBItem(istb,menu,menu,&storemnuitem_,
-		     mgr.isChanged(setidx),false);
-    mAddMenuOrTBItem(istb,0,menu,&storeasmnuitem_,true,false);
+    mAddMenuItem(menu,&storemnuitem_,mgr.isChanged(setidx),false);
+    mAddMenuItem(menu,&storeasmnuitem_,true,false);
 }
 
 
@@ -428,7 +420,7 @@ void SubItem::store() const
 	return;
     }
 
-    ioobj->pars().set( sKey::Type(), managerName() );
+    ioobj->pars().set( sKey::Type, managerName() );
     IOM().commitChanges( *ioobj );
 
     fillStoragePar( set_->pars_ );
@@ -456,7 +448,7 @@ char SubItem::createIOEntry( const char* nm, bool overwrite, MultiID& mid,
 
     CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
     ctio.ctxt.forread = false;
-    ctio.ctxt.toselect.require_.set( sKey::Type(), mannm );
+    ctio.ctxt.toselect.require_.set( sKey::Type, mannm );
     ctio.setName( nm );
     ctio.fillObj();
     if ( !ctio.ioobj )
@@ -491,7 +483,7 @@ void SubItem::storeAs( bool trywitoutdlg ) const
     {
 	CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
 	ctio.ctxt.forread = false;
-	ctio.ctxt.toselect.require_.set( sKey::Type(), managerName() );
+	ctio.ctxt.toselect.require_.set( sKey::Type, managerName() );
 	ctio.setName( nm );
 	uiIOObjSelDlg dlg( getUiParent(), ctio );
 	if ( !dlg.go() )
@@ -554,7 +546,7 @@ void SubItem::removeStuff()
 {
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
-    if ( setidx >= 0 )
+    if ( setidx>= 0 )
 	mgr.set( mgr.id(setidx), 0 );
     mgr.removeCBs( this );
 }
@@ -613,14 +605,14 @@ bool TextSubItem::init()
 }
 
 
-void TextSubItem::createMenu( MenuHandler* menu, bool istb )
+void TextSubItem::createMenuCB( CallBacker* cb )
 {
-    SubItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() || istb )
+    SubItem::createMenuCB( cb );
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    if ( menu->menuID() != displayID() )
 	return;
 
-    mDynamicCastGet(uiMenuHandler*,uimenu,menu)
-    mAddMenuItem( menu, &changetextmnuitem_, uimenu && uimenu->getPath(), false );
+    mAddMenuItem( menu, &changetextmnuitem_, menu->getPath(), false );
     mAddMenuItem( menu, &changecolormnuitem_, true, false );
 }
 
@@ -812,7 +804,6 @@ void TextSubItem::fillStoragePar( IOPar& par ) const
 }
 
 
-// ArrowSubItem
 const char* ArrowSubItem::parentType() const
 { return typeid(ArrowParentItem).name(); }
 
@@ -825,8 +816,6 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
     defscale_ = set_->disp_.pixsize_;
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     mgr.reportDispChange( this, *set_ );
-
-    propmnuitem_.iconfnm = "disppars";
 }
 
 
@@ -865,12 +854,12 @@ bool ArrowSubItem::init()
 	{
 	    if ( orientation[0] == '2' )
 	    {
-		(*set_)[idx].dir.phi = (float) (-M_PI_2-(*set_)[idx].dir.phi);
+		(*set_)[idx].dir.phi = -M_PI_2-(*set_)[idx].dir.phi;
 		(*set_)[idx].dir.theta = M_PI_2;
 	    }
 	    else
 	    {
-		(*set_)[idx].dir.phi = (float) (M_PI_2-(*set_)[idx].dir.phi);
+		(*set_)[idx].dir.phi = M_PI_2-(*set_)[idx].dir.phi;
 		(*set_)[idx].dir.theta -= M_PI_2;
 	    }
 	}
@@ -892,13 +881,14 @@ void ArrowSubItem::fillStoragePar( IOPar& par ) const
 }
 
 
-void ArrowSubItem::createMenu( MenuHandler* menu, bool istb )
+void ArrowSubItem::createMenuCB( CallBacker* cb )
 {
-    SubItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() )
+    SubItem::createMenuCB( cb );
+    mDynamicCastGet(MenuHandler*,menu,cb);
+    if ( menu->menuID() != displayID() )
 	return;
 
-    mAddMenuOrTBItem(istb,menu,menu,&propmnuitem_,true,false );
+    mAddMenuItem(menu,&propmnuitem_,true,false );
 }
 
 
@@ -988,14 +978,14 @@ bool ImageSubItem::init()
 			mCB(this,ImageSubItem,retrieveFileName) );
 
     BufferString filename;
-    set_->pars_.get( sKey::FileName(), filename );
+    set_->pars_.get( sKey::FileName, filename );
     if ( filename.isEmpty() )
     {
 	Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	const int setidx = mgr.indexOf( *set_ );
 	PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
 	if ( ioobj )
-	    ioobj->pars().get(sKey::FileName(), filename );
+	    ioobj->pars().get(sKey::FileName, filename );
     }
 
     if ( !filename.isEmpty() )
@@ -1014,17 +1004,18 @@ void ImageSubItem::fillStoragePar( IOPar& par ) const
 {
     SubItem::fillStoragePar( par );
     mDynamicCastGet(ImageDisplay*,id,visserv_->getObject(displayid_))
-    par.set( sKey::FileName(), id->getFileName() );
+    par.set( sKey::FileName, id->getFileName() );
 }
 
 
-void ImageSubItem::createMenu( MenuHandler* menu, bool istb )
+void ImageSubItem::createMenuCB( CallBacker* cb )
 {
-    if ( !menu || menu->menuID()!=displayID() )
+    mDynamicCastGet(MenuHandler*,menu,cb);
+    if ( menu->menuID() != displayID() )
 	return;
 
-    SubItem::createMenu( menu, istb );
-    mAddMenuOrTBItem(istb,0,menu,&filemnuitem_,true,false);
+    SubItem::createMenuCB( cb );
+    mAddMenuItem(menu,&filemnuitem_,true,false);
 }
 
 
@@ -1077,4 +1068,4 @@ void ImageSubItem::selectFileName() const
 }
 
 
-} // namespace Annotations
+}; // namespace Annotations

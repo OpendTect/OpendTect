@@ -4,7 +4,7 @@
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: import_vel.cc,v 1.3 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: import_vel.cc,v 1.3 2010/10/14 09:58:06 cvsbert Exp $";
 
 #include "prog.h"
 #include "batchprog.h"

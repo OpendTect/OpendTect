@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	Access to STL vector class with extensions
- RCS:		$Id: vectoraccess.h,v 1.30 2012-01-16 14:08:53 cvskris Exp $
+ RCS:		$Id: vectoraccess.h,v 1.30 2012/01/16 14:08:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/

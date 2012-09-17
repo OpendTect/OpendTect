@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.20 2012-08-29 16:21:06 cvsnanne Exp $
+ RCS:           $Id: i_qbutton.h,v 1.17 2009/10/07 13:26:32 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,8 +20,6 @@ ________________________________________________________________________
 /*! Help class, because templates can not use signals/slots
     Relays QT button signals to the notifyHandler of a uiButton object.
 */
-
-QT_BEGIN_NAMESPACE
 
 class i_ButMessenger : public QObject 
 { 
@@ -41,7 +39,7 @@ i_ButMessenger( QAbstractButton* sndr, uiButtonBody* receiver )
 
 private:
 
-    uiButtonBody*		receiver_;
+    uiButtonBody*	receiver_;
     QAbstractButton*	sender_;
 
 public slots:
@@ -52,6 +50,6 @@ void released()		{ receiver_->notifyHandler( uiButtonBody::released); }
 
 };
 
-QT_END_NAMESPACE
+
 
 #endif

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.75 2012-08-13 03:56:43 cvssalil Exp $
+ RCS:		$Id: ranges.h,v 1.70 2012/07/10 13:05:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,6 @@ class Interval
 {
 public:
     inline		Interval();
-    inline virtual	~Interval()		{}
     inline		Interval(const T& start,const T& stop);
     inline Interval<T>&	operator=(const Interval<T>&);
     virtual bool inline	isUdf() const;
@@ -193,7 +192,7 @@ template <class T> template <class X> inline
 void IntervalND<T>::setRange( const X& val )
 {
     for ( int dim=0; dim<ndim; dim++ )
-	ranges[dim].start = ranges[dim].stop = (T) val[dim];
+	ranges[dim].start = ranges[dim].stop = val[dim];
 
     isset = true;
 }
@@ -222,7 +221,7 @@ void IntervalND<T>::include( const X& val )
 #endif
 
     for ( int dim=0; dim<ndim; dim++ )
-	ranges[dim].include((T) val[dim]);
+	ranges[dim].include(val[dim]);
 
     isset = true;
 }
@@ -326,10 +325,10 @@ int Interval<T>::nearestIndex( const X& x, const T& step ) const
 {
     int nr = getIndex(x,step);
     const T atindex = atIndex(nr,step);
-    const float reldiff = (float)((x-atindex)/step);
+    const float reldiff = (float)(x-atindex)/step;
 
-    if ( reldiff>=0.5f ) return nr+1;
-    else if ( reldiff<=-0.5f ) return nr-1;
+    if ( reldiff>=0.5 ) return nr+1;
+    else if ( reldiff<=-0.5 ) return nr-1;
     return nr;
 }
 
@@ -493,7 +492,7 @@ int Interval<T>::getIndex( const X& t, const T& step ) const
 
 template <class T> template <class X> inline
 float Interval<T>::getfIndex( const X& t, const T& step ) const
-{ return (float)(( t  - start ) / step); }
+{ return (( (float)t  - start ) / step); }
 
 
 template <class T> template <class X> inline
@@ -682,13 +681,12 @@ template <> \
 inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
 			float eps ) const \
 { \
-    const typ castedeps = (typ) eps; \
-    if ( !mIsEqual(step,b.step, castedeps) ) return false; \
+    if ( !mIsEqual(step,b.step,eps) ) return false; \
  \
     typ nrsteps = (start - b.start) / step; \
     int nrstepsi = mNINT32( nrsteps ); \
     typ diff = nrsteps - nrstepsi; \
-    return ( (diff) < (castedeps) && (diff) > (-castedeps) ); \
+    return ( (diff) < (eps) && (diff) > (-eps) ); \
 }
 
 mDefFltisCompat(float)

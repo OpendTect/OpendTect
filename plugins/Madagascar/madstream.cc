@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: madstream.cc,v 1.45 2012-07-31 06:57:55 cvsbert Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.41 2011/12/15 08:46:49 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -41,6 +41,7 @@ static const char* sKeyRSFEndOfHeader = "\014\014\004";
 static const char* sKeyMadagascar = "Madagascar";
 static const char* sKeyInput = "Input";
 static const char* sKeyOutput = "Output";
+static const char* sKeyProc = "Proc";
 static const char* sKeyWrite = "Write";
 static const char* sKeyIn = "in";
 static const char* sKeyStdIn = "\"stdin\"";
@@ -142,13 +143,13 @@ static bool getScriptForScons( BufferString& str )
 
 void MadStream::initRead( IOPar* par )
 {
-    BufferString inptyp( par->find(sKey::Type()) );
+    BufferString inptyp( par->find(sKey::Type) );
     if ( inptyp == "None" || inptyp == "SU" )
 	return;
 
     if ( inptyp == "Madagascar" )
     {
-	const char* filenm = par->find( sKey::FileName() ).str();
+	const char* filenm = par->find( sKey::FileName ).str();
 
 	BufferString inpstr( filenm );
 	bool scons = false;
@@ -190,14 +191,14 @@ void MadStream::initRead( IOPar* par )
     is2d_ = gt == Seis::Line || gt == Seis::LinePS;
     isps_ = gt == Seis::VolPS || gt == Seis::LinePS;
     MultiID inpid;
-    if ( !par->get(sKey::ID(),inpid) ) mErrRet( "Input ID missing" );
+    if ( !par->get(sKey::ID,inpid) ) mErrRet( "Input ID missing" );
 
     PtrMan<IOObj> ioobj = IOM().get( inpid );
     if ( !ioobj ) mErrRet( "Cannot find input data" );
 
-    PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
+    PtrMan<IOPar> subpar = par->subselect( sKey::Subsel );
     Seis::SelData* seldata = Seis::SelData::get( *subpar );
-    const char* attrnm = par->find( sKey::Attribute() ).str();
+    const char* attrnm = par->find( sKey::Attribute ).str();
     if ( attrnm && *attrnm && seldata )
 	seldata->lineKey().setAttrName( attrnm );
 
@@ -225,19 +226,19 @@ void MadStream::initRead( IOPar* par )
 
 void MadStream::initWrite( IOPar* par )
 {
-    BufferString outptyp( par->find(sKey::Type()) );
+    BufferString outptyp( par->find(sKey::Type) );
     Seis::GeomType gt = Seis::geomTypeOf( outptyp );
 
     is2d_ = gt == Seis::Line || gt == Seis::LinePS;
     isps_ = gt == Seis::VolPS || gt == Seis::LinePS;
     istrm_ = &std::cin;
     MultiID outpid;
-    if ( !par->get(sKey::ID(),outpid) ) mErrRet( "Output data ID missing" );
+    if ( !par->get(sKey::ID,outpid) ) mErrRet( "Output data ID missing" );
 
     PtrMan<IOObj> ioobj = IOM().get( outpid );
     if ( !ioobj ) mErrRet( "Cannot find output object" );
 
-    PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
+    PtrMan<IOPar> subpar = par->subselect( sKey::Subsel );
     Seis::SelData* seldata = subpar ? Seis::SelData::get(*subpar) : 0;
     if ( !isps_ )
     {
@@ -255,7 +256,7 @@ void MadStream::initWrite( IOPar* par )
     
     if ( is2d_ && !isps_ )
     {
-	const char* attrnm = par->find( sKey::Attribute() ).str();
+	const char* attrnm = par->find( sKey::Attribute ).str();
 	if ( attrnm && *attrnm && seldata )
 	    seldata->lineKey().setAttrName( attrnm );
 
@@ -279,12 +280,12 @@ BufferString MadStream::getPosFileName( bool forread ) const
 
     BufferString typ = 
 	pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
-		    		    sKey::Type()) ).str();
+		    		    sKey::Type) ).str();
     if ( typ == sKeyMadagascar )
     {
 	BufferString outfnm =
 	    pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
-		    			sKey::FileName()) ).str();
+		    			sKey::FileName) ).str();
 	FilePath fp( outfnm );
 	fp.setExtension( "pos" );
 	if ( !forread || File::exists(fp.fullPath()) )
@@ -423,6 +424,7 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
     if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
 
     headerpars_ = new IOPar;
+    bool needposfile = true;
     StepInterval<float> zrg;
     int nrbids = 0;
     BufferString posfnm = getPosFileName( false );

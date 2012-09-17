@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.h,v 1.13 2012-08-03 13:00:09 cvskris Exp $
+ RCS:           $Id: instantattrib.h,v 1.12 2011/08/29 12:57:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,13 +19,12 @@ ________________________________________________________________________
 
 */
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 
 namespace Attrib
 {
 
-mClass(Attributes) Instantaneous : public Provider
+mClass Instantaneous : public Provider
 {
 public:
     static void			initClass();
@@ -77,4 +76,3 @@ private:
 }; // namespace Attrib
 
 #endif
-

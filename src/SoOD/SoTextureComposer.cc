@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: SoTextureComposer.cc,v 1.29 2012-08-24 22:20:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.26 2010/10/26 21:05:38 cvskarthika Exp $";
 
 #include "SoTextureComposer.h"
 #include "SoTextureComposerElement.h"
@@ -241,9 +241,6 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
     {
 	SoDebugError::postWarning( "SoTextureComposer::GLRenderUnit", 
 		"Texture unit is too large to be rendered!" );
-	if ( origsz[0] > SHRT_MAX ) origsz[0] = SHRT_MAX;
-	if ( origsz[1] > SHRT_MAX ) origsz[1] = SHRT_MAX;
-	if ( origsz[2] > SHRT_MAX ) origsz[2] = SHRT_MAX;
     }
 
     const SbVec3s sz( origsz[0], origsz[1], origsz[2] );

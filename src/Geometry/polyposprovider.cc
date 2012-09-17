@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: polyposprovider.cc,v 1.18 2012-08-08 05:26:29 cvssalil Exp $";
+static const char* rcsID = "$Id: polyposprovider.cc,v 1.13 2010/02/01 09:39:35 cvsjaap Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -56,7 +56,7 @@ Pos::PolyProvider3D& Pos::PolyProvider3D::operator =( const PolyProvider3D& pp )
 
 const char* Pos::PolyProvider3D::type() const
 {
-    return sKey::Polygon();
+    return sKey::Polygon;
 }
 
 
@@ -71,8 +71,8 @@ static void setHS( const ODPolygon<float>& poly, HorSampling& hs )
     hs.start.crl = (int)floor( yrg.start + 0.5 );
     hs.stop.inl = (int)floor( xrg.stop + 0.5 );
     hs.stop.crl = (int)floor( yrg.stop + 0.5 );
-    SI().snap( hs.start, BinID(1,1) );
-    SI().snap( hs.stop, BinID(-1,-1) );
+    SI().snap( hs.start, 1 );
+    SI().snap( hs.stop, -1 );
 }
 
 
@@ -128,12 +128,12 @@ bool Pos::PolyProvider3D::includes( const BinID& bid, float z ) const
 
     if ( mIsUdf(z) ) return true;
 
-    const float zeps = zrg_.step * 1e-6f;
+    const float zeps = zrg_.step * 1e-6;
     return z > zrg_.start - zeps && z < zrg_.stop + zeps;
 }
 
 
-#define mGetPolyKey(k) IOPar::compKey(sKey::Polygon(),k)
+#define mGetPolyKey(k) IOPar::compKey(sKey::Polygon,k)
 
 ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
 {
@@ -163,9 +163,9 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
 
 void Pos::PolyProvider3D::usePar( const IOPar& iop )
 {
-    iop.get( mGetPolyKey(sKey::ZRange()), zrg_ );
-    iop.get( mGetPolyKey(sKey::StepInl()), hs_.step.inl );
-    iop.get( mGetPolyKey(sKey::StepCrl()), hs_.step.crl );
+    iop.get( mGetPolyKey(sKey::ZRange), zrg_ );
+    iop.get( mGetPolyKey(sKey::StepInl), hs_.step.inl );
+    iop.get( mGetPolyKey(sKey::StepCrl), hs_.step.crl );
     ODPolygon<float>* poly = polyFromPar( iop );
     if ( poly )
     {
@@ -177,9 +177,9 @@ void Pos::PolyProvider3D::usePar( const IOPar& iop )
 
 void Pos::PolyProvider3D::fillPar( IOPar& iop ) const
 {
-    iop.set( mGetPolyKey(sKey::ZRange()), zrg_ );
-    iop.set( mGetPolyKey(sKey::StepInl()), hs_.step.inl );
-    iop.set( mGetPolyKey(sKey::StepCrl()), hs_.step.crl );
+    iop.set( mGetPolyKey(sKey::ZRange), zrg_ );
+    iop.set( mGetPolyKey(sKey::StepInl), hs_.step.inl );
+    iop.set( mGetPolyKey(sKey::StepCrl), hs_.step.crl );
     ::fillPar( iop, poly_, mGetPolyKey(((int)0)) );
 }
 
@@ -221,5 +221,5 @@ od_int64 Pos::PolyProvider3D::estNrPos() const
 
 void Pos::PolyProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, sKey::Polygon() );
+    Pos::Provider3D::factory().addCreator( create, sKey::Polygon );
 }

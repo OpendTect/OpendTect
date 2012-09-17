@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.159 2012-08-13 04:04:40 cvsaneesh Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.154 2012/07/19 11:26:40 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -38,8 +38,8 @@ static const char* rcsID mUnusedVar = "$Id: viswelldisplay.cc,v 1.159 2012-08-13
 #define         mPickType	3
 
 #define mGetWD(act) Well::Data* wd = getWD(); if ( !wd ) act;
-#define mMeter2Feet(val) val *= mToFeetFactorF;
-#define mFeet2Meter(val) val *= mFromFeetFactorF;
+#define mMeter2Feet(val) val *= mToFeetFactor;
+#define mFeet2Meter(val) val *= mFromFeetFactor;
 #define mGetDispPar(param) wd->displayProperties().param
 
 
@@ -304,12 +304,15 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
     wellid_ = multiid; wd_ = 0;
     mGetWD(return false);
 
-    for ( int idx=0; idx<wd->markers().size(); idx++ )
+    if ( wd->displayProperties().markers_.selmarkernms_.isEmpty() ) 
     {
-	if ( !wd->markers()[idx] ) continue;
+	for ( int idx=0; idx<wd->markers().size(); idx++ )
+	{
+	    if ( !wd->markers()[idx] ) continue;
 
-	const char* mrkrnm = wd->markers()[idx]->name();
-	wd->displayProperties().markers_.selmarkernms_.add( mrkrnm );
+	    const char* mrkrnm = wd->markers()[idx]->name();
+	    wd->displayProperties().markers_.selmarkernms_.add( mrkrnm );
+	}
     }
 
     const Well::D2TModel* d2t = wd->d2TModel();
@@ -620,21 +623,17 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     val.setEmpty(); info.setEmpty();
     mGetWD(return);
 
-    PtrMan<Well::Track> ttrack = 0;
-    if ( zistime_ && wd->haveD2TModel() )
-    {
-	mTryAlloc( ttrack, Well::Track( wd->track() ) );
-	ttrack->toTime( *wd->d2TModel() );
-    }
-    const Well::Track& track = zistime_ ? *ttrack : wd->track();
+    float mousez = pos.z; 
 
     info = "Well: "; info += wd->name();
     info += ", MD "; 
 
+    const float dah = zistime_ ? wd->d2TModel()->getDah( mousez ) 
+			       : wd->track().getDahForTVD( mousez );
+
     info += zinfeet_ || SI().depthsInFeetByDefault() ? "(ft): " : "(m): ";
     const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ? 
-							mToFeetFactorF : 1;
-    const float dah = track.nearestDah(pos);
+							mToFeetFactor : 1;
     info += toString( mNINT32(dah*zfac) );
 
     setLogInfo( info, val, dah, true );
@@ -659,7 +658,7 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 				float dah, bool isleft ) const
 {
     mGetWD(return);
-
+    const Well::DisplayProperties& disp = wd->displayProperties();
     const int lognr = isleft ? 1 : 2;
     BufferString lognm( mGetLogPar( lognr , name_ ) );
     if ( !lognm.isEmpty() && !lognm.isEqual("None") && !lognm.isEqual("none") )
@@ -792,7 +791,7 @@ void WellDisplay::addPick( Coord3 pos )
 	TypeSet<Coord3> wcoords;
 	const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
 	insertidx = pseudotrack_->insertPoint( Coord(pos.x, pos.y),
-					       (float) (pos.z * zfactor)  );
+					       pos.z * zfactor  );
 	for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
 	{
 	    wcoords += pseudotrack_->pos(idx);

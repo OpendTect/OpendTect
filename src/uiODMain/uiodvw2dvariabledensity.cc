@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.17 2012-09-07 22:08:05 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dvariabledensity.cc,v 1.14 2011/09/19 12:24:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,11 +17,11 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewcoltabed.h"
+#include "uilistview.h"
 #include "uimenuhandler.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uitaskrunner.h"
-#include "uitreeview.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
@@ -88,8 +88,8 @@ bool uiODVW2DVariableDensityTreeItem::init()
     vwr.dataChanged.notify(
 	    mCB(this,uiODVW2DVariableDensityTreeItem,dataChangedCB) );
 
-    uitreeviewitem_->setChecked( fdpv );
-    uitreeviewitem_->setCheckable( fdpw && dpid_!=DataPack::cNoID() );
+    uilistviewitem_->setChecked( fdpv );
+    uilistviewitem_->setCheckable( fdpw && dpid_!=DataPack::cNoID() );
 
     checkStatusChange()->notify(
 	    mCB(this,uiODVW2DVariableDensityTreeItem,checkCB) );
@@ -112,7 +112,7 @@ bool uiODVW2DVariableDensityTreeItem::init()
 
 bool uiODVW2DVariableDensityTreeItem::select()
 {
-    if ( !uitreeviewitem_->isSelected() )
+    if ( !uilistviewitem_->isSelected() )
 	return false;
 
     viewer2D()->dataMgr()->setSelected( dummyview_ );
@@ -146,8 +146,8 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
     const DataPack* fdpw = vwr.pack( true );
     const DataPack* fdpv = vwr.pack( false );
     
-    uitreeviewitem_->setChecked( fdpv );
-    uitreeviewitem_->setCheckable( fdpw &&
+    uilistviewitem_->setChecked( fdpv );
+    uilistviewitem_->setCheckable( fdpw &&
 	    			   (dpid_!=DataPack::cNoID() || fdpw) );
 
     if ( fdpv )
@@ -177,7 +177,7 @@ void uiODVW2DVariableDensityTreeItem::displayMiniCtab(
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( *seq, cPixmapWidth(),
 	    				    cPixmapHeight(), true );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+    uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
 
@@ -292,8 +292,8 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	    }
 	    else
 	    {
-		const Interval<float> zrg( (float) dprdm->posData().range(false).start, 
-					   (float) dprdm->posData().range(false).stop );
+		const Interval<float> zrg( dprdm->posData().range(false).start, 
+					   dprdm->posData().range(false).stop );
 		TypeSet<BinID> bids;
 		if ( dprdm->pathBIDs() )
 		    bids = *dprdm->pathBIDs();
@@ -365,9 +365,9 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	FilePath fp( ioobj->fullUserExpr(true) );
 	fp.setExtension( "par" );
 	IOPar iop;
-	if ( iop.read( fp.fullPath(), sKey::Pars()) && !iop.isEmpty() )
+	if ( iop.read( fp.fullPath(), sKey::Pars) && !iop.isEmpty() )
 	{
-	    const char* ctname = iop.find( sKey::Name() );
+	    const char* ctname = iop.find( sKey::Name );
 	    vwr.appearance().ddpars_.vd_.ctab_ = ctname;
 	    seq = ColTab::Sequence( ctname );
 	    displayMiniCtab( &seq );

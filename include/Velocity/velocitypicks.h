@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.17 2012-08-03 13:00:44 cvskris Exp $
+ RCS:		$Id: velocitypicks.h,v 1.16 2011/09/29 06:40:05 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "velocitymod.h"
 #include "multidimstorage.h"
 #include "callback.h"
 #include "color.h"
@@ -38,7 +37,7 @@ namespace Vel
 
 class PicksMgr;
 
-mClass(Velocity) Pick
+mClass Pick
 {
 public:
     			Pick(float depth=mUdf(float),
@@ -55,7 +54,7 @@ public:
 
 /*!Holds picks that the user has done, typically in a semblance plot. */
 
-mClass(Velocity) Picks : public CallBacker
+mClass Picks : public CallBacker
 { mRefCountImpl(Picks);
 public:
     			Picks();
@@ -202,7 +201,7 @@ protected:
 };
 
 
-mClass(Velocity) PicksMgr : public CallBacker
+mClass PicksMgr : public CallBacker
 {
 public:
     				PicksMgr();
@@ -222,9 +221,8 @@ protected:
 };
 
 
-mGlobal(Velocity) PicksMgr& VPM();
+mGlobal PicksMgr& VPM();
 
 }; //namespace
 
 #endif
-

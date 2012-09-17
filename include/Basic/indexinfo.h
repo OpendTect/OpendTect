@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2006
- RCS:		$Id: indexinfo.h,v 1.7 2012-08-07 05:20:49 cvssalil Exp $
+ RCS:		$Id: indexinfo.h,v 1.5 2009/07/22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "samplingdata.h"
 
 
 //! Info on (floating-point) position in an array or StepInterval
 
-mClass(Basic) IndexInfo
+mClass IndexInfo
 {
 public:
 			IndexInfo( int i, bool r=true, bool u=false )
@@ -70,7 +69,7 @@ IndexInfo::IndexInfo( const T* arr, int sz, T val )
 	    return;
 	if ( (!isrev && val < arr[nearest_]) || (isrev && val > arr[nearest_]) )
 	{
-	    T halfway = (arr[nearest_] + arr[nearest_-1]) * .5f;
+	    T halfway = (arr[nearest_] + arr[nearest_-1]) * .5;
 	    roundedtolow_ = isrev ? val > halfway : val < halfway;
 	    if ( (!isrev && roundedtolow_) || (isrev && !roundedtolow_) )
 		nearest_ -= 1;
@@ -109,4 +108,3 @@ void IndexInfo::set( const SamplingData<X>& sd, Y y, int nr )
 
 
 #endif
-

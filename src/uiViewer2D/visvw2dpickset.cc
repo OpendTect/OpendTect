@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: visvw2dpickset.cc,v 1.16 2012-08-10 03:50:07 cvsaneesh Exp $
+ RCS:		$Id: visvw2dpickset.cc,v 1.11 2011/09/02 13:12:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 			  const ObjectSet<uiFlatViewAuxDataEditor>& editors )
     : Vw2DDataObject()
     , pickset_(0) 					  
-    , picks_( 0 )
+    , picks_(new FlatView::Annotation::AuxData( "Picks" ))
     , editor_(const_cast<uiFlatViewAuxDataEditor*>(editors[0]))
     , viewer_(editor_->getFlatViewer())
     , deselected_(this)
@@ -45,8 +45,7 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
     if ( picksetidx >= 0 && Pick::Mgr().size() > picksetidx )
 	pickset_ = &Pick::Mgr().get( picksetidx );
 
-    picks_ = viewer_.createAuxData( "Picks" );
-    viewer_.addAuxData( picks_ );
+    viewer_.appearance().annot_.auxdata_ += picks_;
     viewer_.appearance().annot_.editable_ = false; 
     viewer_.dataChanged.notify( mCB(this,VW2DPickSet,dataChangedCB) );
     viewer_.viewChanged.notify( mCB(this,VW2DPickSet,dataChangedCB) );
@@ -64,7 +63,7 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 
 VW2DPickSet::~VW2DPickSet()
 {
-    viewer_.removeAuxData( picks_ );
+    viewer_.appearance().annot_.auxdata_ -= picks_;
     editor_->removeAuxData( auxid_ );
     delete picks_;
 
@@ -170,12 +169,12 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	if ( dp3d->dataDir() == CubeSampling::Inl )
 	{
 	    bid = BinID( cs.hrg.start.inl, (int)pt.x );
-	    z = (float) pt.y;
+	    z = pt.y;
 	}
 	else if ( dp3d->dataDir() == CubeSampling::Crl )
 	{
 	    bid = BinID( (int)pt.x, cs.hrg.start.crl );
-	    z = (float) pt.y;
+	    z = pt.y;
 	}
 	else
 	{
@@ -219,12 +218,12 @@ void VW2DPickSet::drawAll()
     if ( isownremove_ ) return;
 
     const uiWorldRect& curvw = viewer_.curView();
-    const float zdiff = (float) curvw.height();
-    const float nrzpixels = viewer_.getViewRect().vNrPics();
+    const float zdiff = curvw.height();
+    const float nrzpixels = viewer_.rgbCanvas().arrArea().vNrPics();
     const float zfac = nrzpixels / zdiff;
-    const float xdiff = (float) ( curvw.width() *
-	( oninl ? SI().crlDistance() : SI().inlDistance() ) );
-    const float nrxpixels = viewer_.getViewRect().hNrPics();
+    const float xdiff = curvw.width() *
+	( oninl ? SI().crlDistance() : SI().inlDistance() );
+    const float nrxpixels = viewer_.rgbCanvas().arrArea().hNrPics();
     const float xfac = nrxpixels / xdiff;
 
     picks_->poly_.erase();
@@ -246,7 +245,7 @@ void VW2DPickSet::drawAll()
 	const float dip = oninl ? dipstr.getFValue( 1 ) : dipstr.getFValue( 0 );
 	const float depth = (dip/1000000) * zfac;
 	markerstyle.rotation_ =
-	    (float) ( mIsUdf(dip) ? 0 : ( atan2(2*depth,xfac) * (180/M_PI) ) );
+	    mIsUdf(dip) ? 0 : ( atan2(2*depth,xfac) * (180/M_PI) );
 	picks_->markerstyles_ += markerstyle;
     }
     

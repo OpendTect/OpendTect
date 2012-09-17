@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiviszstretchdlg.cc,v 1.8 2012-08-13 04:04:38 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uiviszstretchdlg.cc,v 1.3 2011/11/23 11:35:56 cvsbert Exp $";
 
 #include "uiviszstretchdlg.h"
 
@@ -35,7 +35,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
     visBase::DM().getIds( typeid(visSurvey::Scene), sceneids );
     if ( sceneids.size() == 0 )
     {
-	new uiLabel( this, "No scenes available" );
+	uiLabel* lbl = new uiLabel( this, "No scenes available" );
 	return;
     }
 
@@ -77,13 +77,13 @@ void uiZStretchDlg::doFinalise( CallBacker* )
     uiGroup* grp = new uiGroup( this, "icons" );
     if ( vwallcb.willCall() )
     {
-	ioPixmap vwallpm( "view_all" );
+	ioPixmap vwallpm( "view_all.png" );
 	vwallbut = new uiPushButton( grp, "&Fit to scene", vwallpm, true );
 	vwallbut->activated.notify( mCB(this,uiZStretchDlg,butPush) );
     }
     if ( homecb.willCall() )
     {
-	ioPixmap homepm( "home" );
+	ioPixmap homepm( "home.png" );
 	uiButton* homebut = new uiPushButton( grp, "To &Home", homepm, true );
 	homebut->activated.notify( mCB(this,uiZStretchDlg,butPush) );
 	if ( vwallbut )
@@ -105,7 +105,7 @@ void uiZStretchDlg::sceneSel( CallBacker* )
 void uiZStretchDlg::updateSliderValues()
 {
     initslval = getCurrentZStretch();
-    sliderfld->sldr()->setMinValue( 0.04f*initslval );
+    sliderfld->sldr()->setMinValue( 0.04*initslval );
     sliderfld->sldr()->setMaxValue( 25*initslval );
     sliderfld->sldr()->setValue( initslval );
 }

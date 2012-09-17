@@ -7,15 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseissingtrcdisp.cc,v 1.10 2012-07-13 09:05:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseissingtrcdisp.cc,v 1.4 2012/05/07 12:34:24 cvsbruno Exp $";
 
 
 #include "uiseissingtrcdisp.h"
 #include "arrayndimpl.h"
 #include "flatposdata.h"
+#include "wavelet.h"
 #include "seistrc.h"
 #include "survinfo.h"
-#include "wavelet.h"
 
 
 uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
@@ -44,8 +44,7 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
 void uiSeisSingleTraceDisplay::cleanUp()
 {
     removeRefs();
-    removePack( curid_ );
-    curid_ = DataPack::cNoID();
+    removePack( curid_ ); curid_ = DataPack::cNoID();
 }
 
 
@@ -69,11 +68,10 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 	dp->posData().setRange( false, posns );
     }
 
-    setPack( true, curid_, false, false );
+    setPack( true, curid_, false );
     addRefZ( 0 );
 
     handleChange( All );
-    setViewToBoundingBox();
 }
 
 
@@ -100,7 +98,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 	dp->posData().setRange( false, posns );
     }
 
-    setPack( true, curid_, false, false );
+    setPack( true, curid_, false );
 
     if ( trc )
     {
@@ -112,13 +110,13 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
     }
 
     handleChange( All );
-    setViewToBoundingBox();
 }
 
 
 void uiSeisSingleTraceDisplay::removeRefs()
 {
-    removeAllAuxData();
+    deepErase( appearance().annot_.auxdata_ );
+    handleChange( Annot );
 }
 
 
@@ -128,14 +126,16 @@ void uiSeisSingleTraceDisplay::addRefZ( float zref )
     if ( SI().zIsTime() ) 
 	zref *= zfac;
 
-    const int curnraux = nrAuxData();
-    FlatView::AuxData* ad = createAuxData(
+    FlatView::Annotation& ann = appearance().annot_;
+    const int curnraux = ann.auxdata_.size();
+
+    FlatView::Annotation::AuxData* ad = new FlatView::Annotation::AuxData( 
 	    			BufferString("Ref Z ",curnraux) );
     ad->poly_ += FlatView::Point( 0, zref );
     ad->markerstyles_ += MarkerStyle2D( MarkerStyle2D::HLine, 20,
 				Color::stdDrawColor(curnraux) );
     ad->zvalue_ = 100;
-    addAuxData( ad );
+    ann.auxdata_ += ad;
 
     handleChange( Annot );
 }

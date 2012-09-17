@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiaction.cc,v 1.10 2012-08-24 06:32:24 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiaction.cc,v 1.7 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "uiaction.h"
 #include "i_qaction.h"
@@ -17,7 +17,7 @@ static const char* rcsID mUnusedVar = "$Id: uiaction.cc,v 1.10 2012-08-24 06:32:
 
 #define mInit toggled(this), triggered(this), msgr_(0)
 
-uiAction::uiAction( mQtclass(QAction*) qact )
+uiAction::uiAction( QAction* qact )
     : mInit
     , qaction_(qact)
 {
@@ -69,12 +69,12 @@ uiAction::~uiAction()
 
 void uiAction::init( const char* txt )
 {
-    qaction_ = new mQtclass(QAction)( mQtclass(QString)(txt), 0 );
+    qaction_ = new QAction( QString(txt), 0 );
 }
 
 
 void uiAction::setText( const char* txt )
-{ qaction_->setText( mQtclass(QString)(txt) ); }
+{ qaction_->setText( QString(txt) ); }
 
 const char* uiAction::text() const
 {
@@ -89,7 +89,7 @@ void uiAction::setIconText( const char* txt )
 
 const char* uiAction::iconText() const
 {
-    mQtclass(QString) qstr = qaction_->iconText();
+    QString qstr = qaction_->iconText();
     return qstr.toAscii().data();
 }
 

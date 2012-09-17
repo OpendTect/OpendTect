@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 
 
-static const char* rcsID mUnusedVar = "$Id: uiseis2dto3d.cc,v 1.9 2012-06-19 10:19:25 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiseis2dto3d.cc,v 1.7 2012/06/19 12:27:29 cvsbruno Exp $";
 
 #include "ctxtioobj.h"
 #include "cubesampling.h"
@@ -25,6 +25,8 @@ static const char* rcsID mUnusedVar = "$Id: uiseis2dto3d.cc,v 1.9 2012-06-19 10:
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uitaskrunner.h"
+
+static uiGenInput* interpoltypefld_;
 
 uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
 	: uiDialog( p, Setup( "create 3D cube from to 2D LineSet",

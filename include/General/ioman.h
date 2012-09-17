@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.46 2012-08-03 13:00:23 cvskris Exp $
+ RCS:		$Id: ioman.h,v 1.45 2010/12/15 15:39:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
 
-#include "generalmod.h"
 #include "namedobj.h"
 #include "multiid.h"
 
@@ -32,7 +31,7 @@ more instances is probably not a good idea.
 
 */
 
-mClass(General) IOMan : public NamedObject
+mClass IOMan : public NamedObject
 {
 public:
 
@@ -69,7 +68,7 @@ public:
 
     const char*		surveyName() const;
 
-    mClass(General) CustomDirData
+    mClass CustomDirData
     {
     public:
 			CustomDirData( const char* selkey, const char* dirnm,
@@ -124,7 +123,7 @@ private:
 
     friend class	IOObj;
     friend class	IODir;
-    friend mGlobal(General)	IOMan&	IOM();
+    friend mGlobal	IOMan&	IOM();
 
 public:
 
@@ -152,7 +151,7 @@ public:
 
 };
 
-mGlobal(General) IOMan&	IOM();
+mGlobal IOMan&	IOM();
 
 
 /*!\mainpage
@@ -212,4 +211,3 @@ mGlobal(General) IOMan&	IOM();
 
 
 #endif
-

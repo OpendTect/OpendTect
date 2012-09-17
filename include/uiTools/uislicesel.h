@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.23 2012-08-03 13:01:15 cvskris Exp $
+ RCS:           $Id: uislicesel.h,v 1.22 2011/06/16 12:27:57 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "cubesampling.h"
@@ -28,7 +27,7 @@ class uiSliceScroll;
 namespace Threads { class Mutex; };
 
 
-mClass(uiTools) uiSliceSel : public uiGroup
+mClass uiSliceSel : public uiGroup
 {
 public:
     enum Type			{ Inl, Crl, Tsl, Vol, TwoD };
@@ -84,7 +83,7 @@ protected:
 };
 
 
-mClass(uiTools) uiSliceSelDlg : public uiDialog
+mClass uiSliceSelDlg : public uiDialog
 {
 public:
     				uiSliceSelDlg(uiParent*,
@@ -109,4 +108,3 @@ protected:
 };
 
 #endif
-

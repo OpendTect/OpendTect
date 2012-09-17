@@ -7,13 +7,11 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.h,v 1.13 2012-08-03 13:01:02 cvskris Exp $
+ RCS:           $Id: mpefssflatvieweditor.h,v 1.11 2011/10/03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uimpemod.h"
-#include "uimpemod.h"
 #include "emfaultsticksetflatvieweditor.h"
 
 #include "emposid.h"
@@ -28,7 +26,7 @@ namespace FlatView { class AuxDataEditor; }
 namespace MPE
 {
 
-mClass(uiMPE) FaultStickSetFlatViewEditor : public EM::FaultStickSetFlatViewEditor
+mClass FaultStickSetFlatViewEditor : public EM::FaultStickSetFlatViewEditor
 {
 public:
     			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*,
@@ -66,7 +64,7 @@ protected:
     void			mousePressCB(CallBacker*);
     void			mouseReleaseCB(CallBacker*);
 
-	mStruct(uiMPE) StkMarkerIdInfo
+	mStruct StkMarkerIdInfo
 	{
 	    int	    merkerid_;
 	    int	    stickid_;
@@ -74,7 +72,7 @@ protected:
 
     void			cleanActStkContainer();
     void			fillActStkContainer();
-    int				getStickId(int markerid) const; 
+    const int			getStickId(int markerid) const; 
     
     bool			getMousePosInfo(
 				    const Geom::Point2D<int>& mousepos,
@@ -98,5 +96,3 @@ protected:
 } //namespace MPE
 
 #endif
-
-

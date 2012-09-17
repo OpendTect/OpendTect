@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: tableposprovider.h,v 1.10 2012-08-03 13:00:28 cvskris Exp $
+ RCS:           $Id: tableposprovider.h,v 1.8 2011/04/22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "geometrymod.h"
 #include "posprovider.h"
 #include "binidvalset.h"
 #include "bufstring.h"
@@ -24,7 +23,7 @@ namespace Pos
 
 /*!\brief Provider based on BinIDValueSet table */
 
-mClass(Geometry) TableProvider3D : public Provider3D
+mClass TableProvider3D : public Provider3D
 {
 public:
 
@@ -35,7 +34,7 @@ public:
 			TableProvider3D( const TableProvider3D& tp )
 			: bvs_(1,true)	{ *this = tp; }
     TableProvider3D&	operator =(const TableProvider3D&);
-    const char*		type() const;	//!< sKey::Table()
+    const char*		type() const;	//!< sKey::Table
     const char*		factoryKeyword() const { return type(); }
     TableProvider3D*	clone() const	{ return new TableProvider3D(*this); }
 
@@ -80,4 +79,3 @@ public:
 } // namespace
 
 #endif
-

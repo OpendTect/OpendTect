@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.30 2012-08-03 13:01:27 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.28 2012/05/04 07:54:38 cvsjaap Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 class SoColTabTextureChannel2RGBA;
@@ -31,7 +30,6 @@ class SoRGBATextureChannel2RGBA;
 class SoTextureComposerInfo;
 
 namespace ColTab { class Sequence; }
-namespace osgGeo { class ColorSequence; }
 
 namespace visBase
 { 
@@ -45,15 +43,13 @@ TextureChannels class and convert them to RGBA textures in OpenGL, optionally
 with shaders. There should always be a non-shading way to fall back on.
 */
 
-mClass(visBase) TextureChannel2RGBA : public DataObject
+mClass TextureChannel2RGBA : public DataObject
 {
 public:
     virtual MappedTextureDataSet* createMappedDataSet() const;
 
     virtual void		setChannels(TextureChannels*);
     virtual void		notifyChannelChange()			{}
-    virtual void		notifyChannelInsert(int ch)		{}
-    virtual void		notifyChannelRemove(int ch)		{}
     virtual void		enableInterpolation(bool);
     virtual bool		interpolationEnabled() const;
     virtual bool		createRGBA(SbImagei32&) const		= 0;
@@ -80,13 +76,17 @@ protected:
     TextureChannels*	channels_;
     bool		shadingallowed_;
     bool		enableinterpolation_;
+
+public:
+    virtual void		notifyChannelInsert(int ch)	{}
+    virtual void		notifyChannelRemove(int ch)	{}
 };
 
 
 /*!A destination where the texturechannels can put the mapped data. The class
    instanciation is provided by the TextureChannel2RGBA. */
 
-mClass(visBase) MappedTextureDataSet : public DataObject
+mClass MappedTextureDataSet : public DataObject
 {
 public:
     virtual int		nrChannels() const			= 0;
@@ -110,7 +110,7 @@ public:
 channel and blends it into an RGBA image. */
 
 
-mClass(visBase) ColTabTextureChannel2RGBA : public TextureChannel2RGBA
+mClass ColTabTextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
     static ColTabTextureChannel2RGBA*	create()
@@ -138,12 +138,8 @@ public:
     bool			canUseShading() const;
 protected:
     void			notifyChannelChange()	{ update(); }
-    void			notifyChannelInsert(int ch);
-    void			notifyChannelRemove(int ch);
-
     void			adjustNrChannels() const;
     void			setChannels(TextureChannels*);
-    void			updateOsgTexture() const;
 
     					~ColTabTextureChannel2RGBA();
 
@@ -154,9 +150,6 @@ protected:
     mutable ObjectSet<ColTab::Sequence>	coltabs_;
     mutable BoolTypeSet			enabled_;
     mutable TypeSet<unsigned char>	opacity_;
-
-    mutable ObjectSet<osgGeo::ColorSequence>	osgcolsequences_;
-    mutable ObjectSet<TypeSet<unsigned char> >	osgcolseqarrays_;
 
     SoSwitch*				shaderswitch_;
 
@@ -185,9 +178,10 @@ protected:
 
     virtual SoNode*			gtInvntrNode();
 
+    void				notifyChannelInsert(int ch);
+    void				notifyChannelRemove(int ch);
 };
 
 } //namespace
 
 #endif
-

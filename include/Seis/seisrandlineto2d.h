@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: seisrandlineto2d.h,v 1.10 2012-08-03 13:00:37 cvskris Exp $
+ RCS:		$Id: seisrandlineto2d.h,v 1.9 2011/04/24 10:06:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "executor.h"
 #include "binidvalset.h"
 #include "randomlinegeom.h"
@@ -27,7 +26,7 @@ class SeisTrcBuf;
 namespace Seis { class TableSelData; }
 namespace Geometry { class RandomLine; }
 
-mClass(Seis) SeisRandLineTo2D : public Executor
+mClass SeisRandLineTo2D : public Executor
 {
 public:
     			SeisRandLineTo2D(const IOObj&,const IOObj&,
@@ -63,7 +62,7 @@ private:
 };
 
 
-mClass(Seis) SeisRandLineTo2DGrid
+mClass SeisRandLineTo2DGrid
 {
 public:
     			SeisRandLineTo2DGrid(const IOPar&,std::ostream&);
@@ -100,4 +99,3 @@ protected:
 
 
 #endif
-

@@ -7,11 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfault3d.cc,v 1.30 2012-08-20 21:19:53 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.24 2012/07/10 13:06:01 cvskris Exp $";
 
 #include "emfault3d.h"
 
-#include "emfaultauxdata.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
@@ -30,14 +29,13 @@ mImplementEMObjFuncs( Fault3D, EMFault3DTranslatorGroup::keyword() )
 Fault3D::Fault3D( EMManager& em )
     : Fault(em)
     , geometry_( *this )
-    , auxdata( *new FaultAuxData(*this) )  
 {
     geometry_.addSection( "", false );
 }
 
 
 Fault3D::~Fault3D()
-{ delete &auxdata; }
+{}
 
 
 Fault3DGeometry& Fault3D::geometry()
@@ -72,7 +70,7 @@ void Fault3D::apply( const Pos::Filter& pf )
 	    for ( rc.col=colrg.stop; rc.col>=colrg.start; rc.col-=colrg.step )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
-		if ( !pf.includes( (Coord) pos, (float) pos.z) )
+		if ( !pf.includes( (Coord) pos, pos.z) )
 		    fssg->removeKnot( rc );
 	    }
 	}
@@ -197,7 +195,8 @@ bool Fault3DGeometry::insertKnot( const SectionID& sid, const SubID& subid,
 				const Coord3& pos, bool addtohistory )
 {
     Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-    RowCol rc = RowCol::fromInt64( subid );
+    RowCol rc;
+    rc.fromInt64( subid );
     if ( !fss || !fss->insertKnot(rc,pos) )
 	return false;
 
@@ -230,7 +229,8 @@ bool Fault3DGeometry::removeKnot( const SectionID& sid, const SubID& subid,
     Geometry::FaultStickSurface* fss = sectionGeometry( sid );
     if ( !fss ) return false;
 
-    RowCol rc = RowCol::fromInt64( subid );
+    RowCol rc;
+    rc.fromInt64( subid );
     const Coord3 pos = fss->getKnot( rc );
 
     if ( !pos.isDefined() || !fss->removeKnot(rc) )
@@ -380,7 +380,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 
     bool oninl = false; bool oncrl = false; bool ontms = false;
 
-    double firstz; 
+    float firstz; 
     BinID firstbid;
 
     ObjectSet<FaultStick> sticks;
@@ -467,7 +467,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	if ( is2d )
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,fss,&flt)
-	    fss->geometry().insertStick( sid, sticknr, 0,
+	    bool res = fss->geometry().insertStick( sid, sticknr, 0,
 					stick->crds_[0], stick->getNormal(true),
 					linesetmid, stick->lnm_, false );
 	}

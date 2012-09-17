@@ -4,12 +4,11 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiraytrace1d.cc,v 1.22 2012-09-10 13:25:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiraytrace1d.cc,v 1.17 2012/09/10 14:15:13 cvsbruno Exp $";
 
 #include "uiraytrace1d.h"
 
 #include "survinfo.h"
-#include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiseparator.h"
@@ -31,7 +30,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	raytracerselfld_ = new uiLabeledComboBox( this, "Select RayTracer" );
 	raytracerselfld_->box()->selectionChanged.notify( 
 				mCB( this, uiRayTracerSel, selRayTraceCB) );
-
+	raytracerselfld_->attach( hCentered );
     }
 
     for ( int idx=0; idx<facnms.size(); idx++ )
@@ -62,16 +61,17 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 
 void uiRayTracerSel::selRayTraceCB( CallBacker* )
 {
+    int selidx = raytracerselfld_ ? raytracerselfld_->box()->currentItem() : 0;
     for ( int idx=0; idx<grps_.size(); idx++ )
-	grps_[idx]->display( grps_[idx] == current() );
+	grps_[idx]->display( idx == selidx );
 }
 
 
 void uiRayTracerSel::usePar( const IOPar& par )
 {
-    BufferString type; par.get( sKey::Type(), type );
+    BufferString type; par.get( sKey::Type, type );
     int igrp = 0;
-    for ( ; igrp<grps_.size(); igrp++ )
+    for ( igrp; igrp<grps_.size(); igrp++ )
     {
 	if ( grps_[igrp]->name() == type )
 	{
@@ -86,9 +86,12 @@ void uiRayTracerSel::usePar( const IOPar& par )
 
 void uiRayTracerSel::fillPar( IOPar& par ) const
 {
-    if ( !current() ) return;
-    current()->fillPar( par );
-    par.set( sKey::Type(), current()->name() );
+    int selidx = raytracerselfld_ ? raytracerselfld_->box()->currentItem() : 0;
+    if ( grps_.validIdx( selidx ) )
+    {
+	grps_[selidx]->fillPar( par );
+	par.set( sKey::Type, grps_[selidx]->name() );
+    }
 }
 
 
@@ -106,28 +109,28 @@ uiRayTracer1D* uiRayTracerSel::current()
 }
 
 
+
 uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     : uiGroup( p )
-    , doreflectivity_(s.doreflectivity_)
     , srcdepthfld_( 0 )
     , downwavefld_( 0 )
     , upwavefld_( 0 )
+    , doreflectivity_(s.doreflectivity_)			 
     , offsetfld_( 0 ) 
     , offsetstepfld_( 0 )
     , lastfld_( 0 )
-    , blockfld_(0)
 {
     if ( !s.dosourcereceiverdepth_ && !s.convertedwaves_ )
     {
 	pErrMsg("Nothing to do"); return;
     }
 
-    BufferString zlbl( SI().depthsInFeetByDefault() ? " (ft" : " (m" );
+    BufferString zlbl( SI().depthsInFeetByDefault() ? " (ft) " : " (m) " );
     BufferString xylbl( SI().getXYUnitString(true) );
 
     if ( s.dosourcereceiverdepth_ )
     {
-	BufferString lb = "Source/Receiver depths"; lb += zlbl; lb += " ) ";
+	BufferString lb = "Source/Receiver depths"; lb += zlbl;
 	srcdepthfld_ =new uiGenInput(this,lb.buf(),FloatInpIntervalSpec(false));
 	lastfld_ = srcdepthfld_; 
     }
@@ -166,15 +169,6 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 	offsetstepfld_->setValue( s.offsetrg_.step );
 	lastfld_ = offsetfld_; 
     }
-    BufferString blocklbl = "Block (bend points) ";
-    blocklbl += "Threshold"; blocklbl += zlbl; blocklbl += "/s ) ";
-    blockfld_ = new uiGenInput( this, blocklbl );
-    blockfld_->setWithCheck( true );
-    blockfld_->setChecked( true );
-    blockfld_->attach( alignedBelow, lastfld_ );
-    blockfld_->setElemSzPol( uiObject::Small );
-    blockfld_->setValue( 5 );
-    lastfld_ = blockfld_; 
 
     setHAlignObj( lastfld_ );
 }
@@ -210,16 +204,6 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 	}
     }
 
-    if ( blockfld_ )
-    {
-	bool isblock = false;
-	par.getYN(  RayTracer1D::sKeyVelBlock(), isblock );
-	blockfld_->setChecked( isblock );
-	float blockval;
-	par.get( RayTracer1D::sKeyVelBlockVal(), blockval );
-	blockfld_->setValue( blockval ); 
-    }
-
     return true;
 }
 
@@ -253,19 +237,6 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 
     par.set( RayTracer1D::sKeyOffset(), offsets );
     par.setYN( RayTracer1D::sKeyReflectivity(), doreflectivity_);
-
-    if ( blockfld_ )
-    {
-	par.setYN( RayTracer1D::sKeyVelBlock(), blockfld_->isChecked() );
-	par.set( RayTracer1D::sKeyVelBlockVal(), blockfld_->getfValue() ); 
-    }
-}
-
-
-void uiRayTracer1D::setOffsetRange( StepInterval<float> rg )
-{
-    offsetfld_->setValue( rg );
-    offsetstepfld_->setValue( rg.step );
 }
 
 
@@ -274,6 +245,13 @@ void uiRayTracer1D::displayOffsetFlds( bool yn )
 {
     offsetfld_->display( yn );
     offsetstepfld_->display( yn );
+}
+
+
+void uiRayTracer1D::setOffsetRange( StepInterval<float> rg )
+{
+    offsetfld_->setValue( rg );
+    offsetstepfld_->setValue( rg.step );
 }
 
 

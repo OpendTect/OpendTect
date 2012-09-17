@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vissplittexturerandomline.cc,v 1.15 2012-08-10 03:50:10 cvsaneesh Exp $";
+static const char* rcsID = "$Id: vissplittexturerandomline.cc,v 1.12 2011/12/16 15:57:21 cvskris Exp $";
 
 #include "vissplittexturerandomline.h"
 
@@ -229,14 +229,14 @@ void SplitTextureRandomLine::updateDisplay( )
 
 	    if ( tc )
 	    {
-    		const float tcstart = 0.5f/texturezsz;
-    		const float tcstop = (versz-0.5f)/texturezsz;
+    		const float tcstart = 0.5/texturezsz;
+    		const float tcstop = (versz-0.5)/texturezsz;
 		int textureidx=0;
 		for ( int idx=0; idx<knots.size(); idx++ )
     		{
 		    const int posid = path_.indexOf(knots[idx]);
 		    const float tcrd = ((posid-startpathidx) * pathpixelscale_
-			    		+ 0.5f)/texturepathsz;
+			    		+ 0.5)/texturepathsz;
 		    tc->point.set1Value( textureidx, SbVec2f(tcstart,tcrd) );
 		    textureidx++;
 

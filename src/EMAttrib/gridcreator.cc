@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: gridcreator.cc,v 1.7 2012-05-22 14:48:30 cvskris Exp $";
+static const char* rcsID = "$Id: gridcreator.cc,v 1.4 2010/12/03 12:10:44 cvssatyaki Exp $";
 
 
 #include "gridcreator.h"
@@ -166,21 +166,21 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 					const CubeSampling& bbox )
 {
     BufferString attribname;
-    par.get( sKey::Attribute(), attribname );
+    par.get( sKey::Attribute, attribname );
 
     TypeSet<int> inlines;
     BufferString mode;
     par.get( Seis2DGridCreator::sKeyInlSelType(), mode );
-    if ( mode == sKey::Range() )
+    if ( mode == sKey::Range )
     {
 	StepInterval<int> range;
-	par.get( sKey::InlRange(), range );
+	par.get( sKey::InlRange, range );
 	for ( int idx=0; idx<=range.nrSteps(); idx++ )
 	    inlines += range.atIndex( idx );
     }
     else
     {
-	SeparString str( par.find(sKey::InlRange()).str() );
+	SeparString str( par.find(sKey::InlRange).str() );
 	for ( int idx=0; idx<str.size(); idx++ )
 	    inlines += str.getIValue(idx);
     }
@@ -196,16 +196,16 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 
     TypeSet<int> crosslines;
     par.get( Seis2DGridCreator::sKeyCrlSelType(), mode );
-    if ( mode == sKey::Range() )
+    if ( mode == sKey::Range )
     {
 	StepInterval<int> range;
-	par.get( sKey::CrlRange(), range );
+	par.get( sKey::CrlRange, range );
 	for ( int idx=0; idx<=range.nrSteps(); idx++ )
 	    crosslines += range.atIndex( idx );
     }
     else
     {
-	SeparString str( par.find(sKey::CrlRange()).str() );
+	SeparString str( par.find(sKey::CrlRange).str() );
 	for ( int idx=0; idx<str.size(); idx++ )
 	    crosslines += str.getIValue(idx);
     }
@@ -248,7 +248,7 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	return false;
 
     BufferString attribname;
-    par.get( sKey::Attribute(), attribname );
+    par.get( sKey::Attribute, attribname );
 
     FixedString parstr = par.find( sKeyInlPrefix() );
     for ( int idx=0; idx<grid.size(true); idx++ )

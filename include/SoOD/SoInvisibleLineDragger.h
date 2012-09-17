@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		October 2007
- RCS:		$Id: SoInvisibleLineDragger.h,v 1.7 2012-08-27 13:16:47 cvskris Exp $
+ RCS:		$Id: SoInvisibleLineDragger.h,v 1.5 2009/07/22 16:01:19 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/draggers/SoDragger.h>
 
 #include "soodbasic.h"
@@ -49,7 +48,7 @@ read in SoInvisibleLineDragger::translation following a Motion or Start
 callback.
 */
 
-mSoODClass SoInvisibleLineDragger : public SoDragger
+mClass SoInvisibleLineDragger : public SoDragger
 {
     typedef SoDragger inherited;
     SO_KIT_HEADER(SoInvisibleLineDragger);
@@ -84,4 +83,3 @@ private:
 };
 
 #endif
-

@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          July 2011
- RCS:           $Id: uidpsaddcolumndlg.cc,v 1.5 2012-08-10 03:50:05 cvsaneesh Exp $: 
+ RCS:           $Id: uidpsaddcolumndlg.cc,v 1.2 2011/09/08 05:02:11 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "";
+static const char* rcsID = "";
 
 
 #include "uidpsaddcolumndlg.h"
@@ -52,7 +52,7 @@ uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
 	vartable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
 					.minrowhgt(1.5) .maxrowhgt(2)
 					.mincolwdt(3*uiObject::baseFldSize())
-					.maxcolwdt(3.5f*uiObject::baseFldSize())
+					.maxcolwdt(3.5*uiObject::baseFldSize())
 					.defrowlbl("") .fillcol(true)
 					.fillrow(true) .defrowstartidx(0),
 					"Variable X attribute table" );

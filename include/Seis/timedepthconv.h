@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.23 2012-08-03 13:00:39 cvskris Exp $
+ RCS:		$Id: timedepthconv.h,v 1.22 2010/11/30 16:48:16 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 
-#include "seismod.h"
 #include "zaxistransform.h"
 
 #include "cubesampling.h"
@@ -32,7 +31,7 @@ template <class T> class Array3D;
 template <class T> class ValueSeries;
 
 
-mClass(Seis) VelocityStretcher : public ZAxisTransform
+mClass VelocityStretcher : public ZAxisTransform
 {
 public:
     virtual bool		setVelData(const MultiID&)		= 0;
@@ -52,7 +51,7 @@ protected:
 /*!ZAxisstretcher that converts from time to depth (or back) using a
    velocity model on disk. */
 
-mClass(Seis) Time2DepthStretcher : public VelocityStretcher
+mClass Time2DepthStretcher : public VelocityStretcher
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Time2DepthStretcher,
@@ -112,7 +111,7 @@ protected:
    an Time2Depth converter to do the job. */
 
 
-mClass(Seis) Depth2TimeStretcher : public VelocityStretcher
+mClass Depth2TimeStretcher : public VelocityStretcher
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Depth2TimeStretcher,
@@ -149,7 +148,7 @@ protected:
 
 /*! Scans a velocity model for minimum top/bottom average velocity. */
 
-mClass(Seis) VelocityModelScanner : public SequentialTask
+mClass VelocityModelScanner : public SequentialTask
 {
 public:
     			VelocityModelScanner(const IOObj&,
@@ -187,7 +186,7 @@ protected:
 };
 
 
-mClass(Seis) LinearT2DTransform : public ZAxisTransform
+mClass LinearT2DTransform : public ZAxisTransform
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
@@ -212,7 +211,7 @@ protected:
 };
 
 
-mClass(Seis) LinearD2TTransform : public ZAxisTransform
+mClass LinearD2TTransform : public ZAxisTransform
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
@@ -237,4 +236,3 @@ protected:
 };
 
 #endif
-

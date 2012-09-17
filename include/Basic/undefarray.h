@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          13/01/2005
- RCS:           $Id: undefarray.h,v 1.6 2012-08-03 13:00:16 cvskris Exp $
+ RCS:           $Id: undefarray.h,v 1.5 2010/01/22 18:51:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "commondefs.h"
 #include "plftypes.h"
 #include "ptrman.h"
@@ -34,7 +33,7 @@ inline bool filterUndef(const ValueSeries<T>& input,ValueSeries<T>& output,int);
 /*!Class that handles undefvalues in arrays that are in a format described
    by a BinDataDesc */
 
-mClass(Basic) UndefArrayHandler
+mClass UndefArrayHandler
 {
 public:
 		UndefArrayHandler(const BinDataDesc& desc);
@@ -183,4 +182,3 @@ bool filterUndef(const T* input, T* output, int sz )
 }
 
 #endif
-

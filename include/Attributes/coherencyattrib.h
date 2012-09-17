@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: coherencyattrib.h,v 1.16 2012-08-03 13:00:08 cvskris Exp $
+ RCS:           $Id: coherencyattrib.h,v 1.15 2009/07/22 16:01:13 cvsbert Exp $
 ________________________________________________________________________
 
 Coherency type= gate= [maxdip=250] [ddip=10]
@@ -23,7 +23,6 @@ Output:	3D			2D
 2       Crossline dip
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 #include "valseries.h"
 #include "valseriesinterpol.h"
@@ -34,7 +33,7 @@ namespace Attrib
 
 class DataHolder;
 
-mClass(Attributes) Coherency : public Provider
+mClass Coherency : public Provider
 {
 public:
     static void		initClass();
@@ -98,5 +97,4 @@ protected:
 
 
 #endif
-
 

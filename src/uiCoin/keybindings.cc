@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: keybindings.cc,v 1.15 2012-05-02 15:12:02 cvskris Exp $";
+static const char* rcsID = "$Id: keybindings.cc,v 1.12 2010/08/19 06:55:43 cvsranojay Exp $";
 
 #include "keybindings.h"
 #include "settings.h"
@@ -150,8 +150,6 @@ const SoEvent* KeyBindMan::processSoEvent( const SoEvent* const event,
             {
                 ctrlpress = keyevent->getState() == SoButtonEvent::DOWN;
             } break;
-	    default:
-	    	break;
         }
     }
 

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene HUCK
  Date:          11-03-2010
- RCS:           $Id: attribdescsetsholder.h,v 1.3 2012-08-03 13:00:07 cvskris Exp $
+ RCS:           $Id: attribdescsetsholder.h,v 1.2 2010/05/12 10:22:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "commondefs.h"
 
 namespace Attrib 
@@ -21,13 +20,13 @@ class DescSet;
 class DescSetMan;
 class DescSetsHolder;
 
-mGlobal(AttributeEngine) const DescSetsHolder& DSHolder();
-mGlobal(AttributeEngine) DescSetsHolder& eDSHolder();
+mGlobal const DescSetsHolder& DSHolder();
+mGlobal DescSetsHolder& eDSHolder();
 
 /*!\brief Pack to carry DescSet Managers for live attributes and DescSets
   for stored data, both in 2D and 3D*/
 
-mClass(AttributeEngine) DescSetsHolder
+mClass DescSetsHolder
 {
 public:
     				DescSetsHolder();
@@ -66,5 +65,4 @@ public:
 } // namespace Attrib
 
 #endif
-
 

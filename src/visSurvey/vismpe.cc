@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismpe.cc,v 1.125 2012-08-13 09:36:58 cvsaneesh Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.118 2012/07/10 13:06:10 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -171,8 +171,8 @@ CubeSampling MPEDisplay::getBoxPosition() const
     cube.hrg.stop = BinID( mNINT32(center.x+width.x/2),
 			   mNINT32(center.y+width.y/2) );
     cube.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
-    cube.zrg.start = (float) ( center.z - width.z / 2 );
-    cube.zrg.stop = (float) ( center.z + width.z / 2 );
+    cube.zrg.start = center.z - width.z / 2;
+    cube.zrg.stop = center.z + width.z / 2;
     cube.zrg.step = SI().zStep();
     cube.hrg.snapToSurvey();
     SI().snapZ( cube.zrg.start, 0 );
@@ -190,6 +190,7 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
     const int dim = dim_;
 
     Coord3 center = drg->center();
+    Coord3 size = drg->size();
 
     Interval<float> sx, sy, sz;
     drg->getSpaceLimits( sx, sy, sz );
@@ -199,13 +200,9 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 	center = voltrans_->transform( center );
 	Coord3 spacelim( sx.start, sy.start, sz.start );
 	spacelim = voltrans_->transform( spacelim );
-	sx.start = (float) spacelim.x; 
-	sy.start = (float) spacelim.y; 
-	sz.start = (float) spacelim.z;
+	sx.start = spacelim.x; sy.start = spacelim.y; sz.start = spacelim.z;
 	spacelim = voltrans_->transform( Coord3( sx.stop, sy.stop, sz.stop ) ); 
-	sx.stop = (float) spacelim.x; 
-	sy.stop = (float) spacelim.y; 
-	sz.stop = (float) spacelim.z;
+	sx.stop = spacelim.x; sy.stop = spacelim.y; sz.stop = spacelim.z;
     }
 
     if ( !dim )
@@ -284,7 +281,7 @@ const Attrib::SelSpec* MPEDisplay::getSelSpec( int attrib ) const
 const char* MPEDisplay::getSelSpecUserRef() const
 {
     if ( as_.id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
-	return sKey::None();
+	return sKey::None;
     else if ( as_.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
 	return 0;
 
@@ -324,13 +321,9 @@ void MPEDisplay::moveMPEPlane( int nr )
 	center = voltrans_->transform( center );
 	Coord3 spacelim( sx.start, sy.start, sz.start );
 	spacelim = voltrans_->transform( spacelim );
-	sx.start = (float) spacelim.x;	
-	sy.start = (float) spacelim.y;	
-	sz.start = (float) spacelim.z;
+	sx.start = spacelim.x;	sy.start = spacelim.y;	sz.start = spacelim.z;
 	spacelim = voltrans_->transform( Coord3( sx.stop, sy.stop, sz.stop ) ); 
-	sx.stop = (float) spacelim.x;	
-	sy.stop = (float) spacelim.y;	
-	sz.stop = (float) spacelim.z;
+	sx.stop = spacelim.x;	sy.stop = spacelim.y;	sz.stop = spacelim.z;
     }
 
     center.x = 0.5 * ( SI().inlRange(true).snap( center.x - width.x/2 ) +
@@ -341,12 +334,12 @@ void MPEDisplay::moveMPEPlane( int nr )
 		       SI().zRange(true).snap( center.z + width.z/2 ) );
 
     const int nrsteps = abs(nr);
-    const float sign = nr > 0 ? 1.001f : -1.001f;
+    const float sign = nr > 0 ? 1.001 : -1.001;
     // sign is slightly to big to avoid that it does not trigger a track
     
-    sx.widen( 0.5f*SI().inlStep(), true ); sx.sort();
-    sy.widen( 0.5f*SI().crlStep(), true ); sy.sort();
-    sz.widen( 0.5f*SI().zStep(), true ); sz.sort();
+    sx.widen( 0.5*SI().inlStep(), true ); sx.sort();
+    sy.widen( 0.5*SI().crlStep(), true ); sy.sort();
+    sz.widen( 0.5*SI().zStep(), true ); sz.sort();
     // assure that border lines of survey are reachable in spite of foregoing
     
     for ( int idx=0; idx<nrsteps; idx++ )
@@ -535,7 +528,7 @@ void MPEDisplay::setPlaneOrientation( int orient )
 }
 
 
-int MPEDisplay::getPlaneOrientation() const
+const int MPEDisplay::getPlaneOrientation() const
 { 
     return dim_;
 }
@@ -687,10 +680,10 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
 	     : mMIN( abs(binid.crl-cs.hrg.start.crl),
 		     abs( binid.crl-cs.hrg.stop.crl) );
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
-    zdiff = (float) ( cs.zrg.includes(xytpos.z,false)
+    zdiff = cs.zrg.includes(xytpos.z,false)
 	     ? 0
 	     : mMIN(xytpos.z-cs.zrg.start,xytpos.z-cs.zrg.stop) *
-	       zfactor  * scene_->getZStretch() );
+	       zfactor  * scene_->getZStretch();
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();
@@ -1022,8 +1015,8 @@ CubeSampling MPEDisplay::getCubeSampling( bool manippos, bool displayspace,
 
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zrg.start = (float) ( center_.z - width_.z / 2 );
-	res.zrg.stop = (float) ( center_.z + width_.z / 2 );
+	res.zrg.start = center_.z - width_.z / 2;
+	res.zrg.stop = center_.z + width_.z / 2;
     }
     else
     {
@@ -1037,8 +1030,8 @@ CubeSampling MPEDisplay::getCubeSampling( bool manippos, bool displayspace,
 		mNINT32(transl.y-scale.y/2) );
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zrg.start = (float) ( transl.z+scale.z/2 );
-	res.zrg.stop = (float) ( transl.z-scale.z/2 );
+	res.zrg.start = transl.z+scale.z/2;
+	res.zrg.stop = transl.z-scale.z/2;
     }
 
     if ( alreadyTransformed(attrib) ) return res;
@@ -1086,22 +1079,22 @@ float MPEDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     if ( !slice ) return 0;
     const int dim = slice->getDim();
     float slicepos = slice->getPosition();
-    slicepos *= (float) -voltrans_->getScale()[dim];
+    slicepos *= -voltrans_->getScale()[dim];
 
     float pos;
     if ( dim == 2 )
     {
-	slicepos += (float) voltrans_->getTranslation()[0];
+	slicepos += voltrans_->getTranslation()[0];
 	pos = SI().inlRange(true).snap(slicepos);
     }
     else if ( dim == 1 )
     {
-	slicepos += (float) voltrans_->getTranslation()[1];
+	slicepos += voltrans_->getTranslation()[1];
 	pos = SI().crlRange(true).snap(slicepos);
     }
     else
     {
-	slicepos += (float) voltrans_->getTranslation()[2];
+	slicepos += voltrans_->getTranslation()[2];
 	pos = mNINT32(slicepos*1000);
     }
 
@@ -1112,7 +1105,7 @@ float MPEDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 float MPEDisplay::getValue( const Coord3& pos_ ) const
 {
     if ( !volumecache_ ) return mUdf(float);
-    const BinIDValue bidv( SI().transform(pos_), (float) pos_.z );
+    const BinIDValue bidv( SI().transform(pos_), pos_.z );
     float val;
     if ( !volumecache_->cube().getValue(0,bidv,&val,false) )
         return mUdf(float);
@@ -1252,9 +1245,8 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 	    float& start = planebox.zrg.start;
 	    float& stop =  planebox.zrg.stop;
 	    const double step = SI().zStep();
-	    start = stop = (float) ( engineplane.zrg.start + 
-						( inc ? step : -step ) );
-	    newplane.setMotion( 0, 0, (float) ( inc ? step : -step ) );
+	    start = stop = engineplane.zrg.start + ( inc ? step : -step );
+	    newplane.setMotion( 0, 0, inc ? step : -step );
 	}
 
 	const MPE::TrackPlane::TrackMode trkmode = newplane.getTrackMode();

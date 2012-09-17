@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: coltabindex.cc,v 1.18 2012-08-07 05:20:50 cvssalil Exp $";
+static const char* rcsID = "$Id: coltabindex.cc,v 1.12 2012/05/11 07:46:58 cvsbert Exp $";
 
 #include "coltabindex.h"
 #include "coltabsequence.h"
@@ -28,14 +28,12 @@ void ColTab::IndexedLookUpTable::update()
     cols_.erase();
     cols_.setSize( nrcols_, seq_.undefColor() );
 
-    mDefParallelCalc2Pars( ColTabIndexAppl,
-	    		   TypeSet<Color>&,cols, const Sequence&,seq )
+    mDefParallelCalc2Pars(ColTabIndexAppl,
+	    		  TypeSet<Color>&,cols,
+	    		  const Sequence&,seq)
     mDefParallelCalcBody(
-	const float dx = 1.f/(sz_-1)
-,
-	cols_[idx] = seq_.color( idx*dx )
-,
-	)
+	const float dx = 1./(sz_-1),
+	cols_[idx] = seq_.color( idx*dx ), )
 
     ColTabIndexAppl appl( cols_.size(), cols_, seq_ );
     appl.execute();

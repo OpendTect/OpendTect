@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: uipsviewer2dmainwin.h,v 1.10 2012-08-03 13:01:34 cvskris Exp $
+ RCS:           $Id: uipsviewer2dmainwin.h,v 1.9 2012/06/28 11:29:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiprestackviewermod.h"
 #include "uiobjectitemviewwin.h"
 #include "uiflatviewwin.h"
 #include "uiflatviewstdcontrol.h"
@@ -28,7 +27,7 @@ namespace PreStackView
     class uiViewer2DControl;
     class uiViewer2DPosDlg;
 
-mClass(uiPreStackViewer) uiViewer2DMainWin : public uiObjectItemViewWin, public uiFlatViewWin
+mClass uiViewer2DMainWin : public uiObjectItemViewWin, public uiFlatViewWin
 {
 public:    
 			uiViewer2DMainWin(uiParent*,const char* title);
@@ -78,7 +77,7 @@ protected:
 };
 
 
-mClass(uiPreStackViewer) uiViewer2DControl : public uiFlatViewStdControl
+mClass uiViewer2DControl : public uiFlatViewStdControl
 {
 public:
 			uiViewer2DControl(uiObjectItemView&,uiFlatViewer&);
@@ -94,8 +93,7 @@ protected:
     uiToolButton*    	databut_;
     uiObjectItemViewControl* objectitemctrl_;
 
-
-    void		doPropertiesDialog(int vieweridx,bool dowva);
+    void		doPropertiesDialog(int vieweridx,bool);
 
     void		applyProperties(CallBacker*);
     void		gatherPosCB(CallBacker*);
@@ -106,4 +104,3 @@ protected:
 }; //namespace
 
 #endif
-

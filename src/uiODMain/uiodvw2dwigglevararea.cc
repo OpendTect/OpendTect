@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.13 2012-09-07 22:08:05 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.11 2011/09/19 12:24:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,12 +14,12 @@ ________________________________________________________________________
 #include "uiattribpartserv.h"
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
+#include "uilistview.h"
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uitaskrunner.h"
-#include "uitreeview.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
@@ -78,8 +78,8 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
     vwr.dataChanged.notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,dataChangedCB) );
 
-    uitreeviewitem_->setChecked( fdpw );
-    uitreeviewitem_->setCheckable( fdpv && dpid_!=DataPack::cNoID() );
+    uilistviewitem_->setChecked( fdpw );
+    uilistviewitem_->setCheckable( fdpv && dpid_!=DataPack::cNoID() );
 
     checkStatusChange()->notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,checkCB) );
@@ -93,7 +93,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
 
 bool uiODVW2DWiggleVarAreaTreeItem::select()
 {
-    if ( !uitreeviewitem_->isSelected() )
+    if ( !uilistviewitem_->isSelected() )
 	return false;
 
     viewer2D()->dataMgr()->setSelected( dummyview_ );
@@ -127,8 +127,8 @@ void uiODVW2DWiggleVarAreaTreeItem::dataChangedCB( CallBacker* )
 
     const DataPack* fdpv = vwr.pack( false );
     
-    uitreeviewitem_->setChecked( fdpw );
-    uitreeviewitem_->setCheckable( fdpv &&
+    uilistviewitem_->setChecked( fdpw );
+    uilistviewitem_->setCheckable( fdpv &&
 	    			   (dpid_!=DataPack::cNoID() || fdpw) );
 
     if ( fdpw )
@@ -245,8 +245,8 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 		    			    DataPack::cNoID() );
 	    else
 	    {
-		const Interval<float> zrg( (float) dprdm->posData().range(false).start,
-					   (float) dprdm->posData().range(false).stop );
+		const Interval<float> zrg( dprdm->posData().range(false).start,
+					   dprdm->posData().range(false).stop );
 		TypeSet<BinID> bids;
 		if ( dprdm->pathBIDs() )
 		    bids = *dprdm->pathBIDs();

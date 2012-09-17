@@ -8,15 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.19 2012-08-03 13:00:11 cvskris Exp $
+ RCS:		$Id: errh.h,v 1.17 2009/07/23 08:22:16 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
-#include "basicmod.h"
 #include "msgh.h"
 #include "bufstring.h"
-#include "fixedstring.h"
 
 /*!\brief MsgClass holding an error message.
 
@@ -26,7 +24,7 @@ is set to true by default only if __debug__ is defined.
 */
 
 
-mClass(Basic) ErrMsgClass : public MsgClass
+mClass ErrMsgClass : public MsgClass
 {
 public:
 
@@ -38,7 +36,7 @@ public:
 };
 
 
-mGlobal(Basic) void ErrMsg(const char*,bool progr=false);
+mGlobal void ErrMsg(const char*,bool progr=false);
 
 
 inline void programmerErrMsg( const char* msg, const char* cname,
@@ -61,12 +59,4 @@ inline void programmerErrMsg( const char* msg, const char* cname,
 # define pFreeFnErrMsg(msg,fn)
 #endif
 
-/*! Installs segmentation fault dumper. Not available on all platforms. */
-mExtern(Basic) bool initCrashDumper( const char* dumpdir, const char* sendappl );
-
-mExtern(Basic) FixedString sSenderAppl();	//od_ReportIssue
-mExtern(Basic) FixedString sUiSenderAppl();	//od_uiReportIssue
-
-
 #endif
-

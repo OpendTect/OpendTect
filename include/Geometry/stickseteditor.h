@@ -8,19 +8,18 @@ ________________________________________________________________________
  Author:        J.C. Glas
  Date:          November 2008
  Contents:      Ranges
- RCS:           $Id: stickseteditor.h,v 1.4 2012-08-03 13:00:28 cvskris Exp $
+ RCS:           $Id: stickseteditor.h,v 1.3 2009/07/22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "geeditor.h"
 
 namespace Geometry
 {
 class FaultStickSet;
 
-mClass(Geometry) StickSetEditor : public ElementEditor
+mClass StickSetEditor : public ElementEditor
 {
 public:
     		StickSetEditor( Geometry::FaultStickSet& );
@@ -36,5 +35,4 @@ protected:
 };
 
 #endif
-
 

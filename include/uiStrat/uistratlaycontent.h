@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2012
- RCS:           $Id: uistratlaycontent.h,v 1.3 2012-08-09 14:12:55 cvsbert Exp $
+ RCS:           $Id: uistratlaycontent.h,v 1.2 2012/08/10 08:38:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uigroup.h"
 class uiComboBox;
 namespace Strat { class Content; class RefTree; }
@@ -20,7 +19,7 @@ namespace Strat { class Content; class RefTree; }
 
 /*!\brief Gets the layer content */
 
-mClass(uiStrat) uiStratLayerContent : public uiGroup
+mClass uiStratLayerContent : public uiGroup
 {
 public:
 
@@ -47,4 +46,3 @@ protected:
 
 
 #endif
-

@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.150 2012-08-24 22:20:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.145 2012/08/23 22:01:45 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -39,6 +39,7 @@ static const char* rcsID mUnusedVar = "$Id: visseis2ddisplay.cc,v 1.150 2012-08-
 #include "ptrman.h"
 #include "samplfunc.h"
 #include "posinfo.h"
+#include "seisinfo.h"
 #include "survinfo.h"
 #include "task.h"
 #include "zaxistransform.h"
@@ -431,10 +432,8 @@ void Seis2DDisplay::setData( int attrib,
 	{
 	    CubeSampling cs;
 	    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
-	    cs.hrg.start.crl =
-		trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start];
-	    cs.hrg.stop.crl =
-		trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop];
+	    cs.hrg.start.crl = trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start];
+	    cs.hrg.stop.crl = trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop];
 	    cs.hrg.step.crl = 1;
 	    assign( cs.zrg, trcdisplayinfo_.zrg );
 	    // use survey step here?
@@ -495,8 +494,7 @@ void Seis2DDisplay::setData( int attrib,
 		sz1 = usedarr->info().getSize(1);
 	}
 
-	ValueSeries<float>* stor =
-	    !resolution_ && !tmparr ? usedarr->getStorage() : 0;
+	ValueSeries<float>* stor = !resolution_ && !tmparr ? usedarr->getStorage() : 0;
 	bool ownsstor = false;
 
 	//We are only interested in the global, permanent storage
@@ -543,10 +541,7 @@ void Seis2DDisplay::setData( int attrib,
 		Array2DReSampler<float,float> 
 			resampler( sourcearr2d, *stor, sz0, sz1, true );
 		resampler.setInterpolate( true );
-		if ( tr )
-		    tr->execute( resampler );
-		else
-		    resampler.execute();
+		resampler.execute();
 	    }
 	}
 
@@ -586,7 +581,9 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     s2dd->setGeometry( geometry_ );
     s2dd->setZRange( trcdisplayinfo_.zrg );
     s2dd->setTraceNrRange( getTraceNrRange() );
+
     s2dd->setResolution( getResolution(), tr );
+
     s2dd->setLineInfo( linesetid_, getLineName() );
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
@@ -618,7 +615,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
     float zdif = 0;
     if ( !zrg.includes(xytpos.z,false) )
     {
-	zdif = (float) mMIN(fabs(xytpos.z-zrg.start), fabs(xytpos.z-zrg.stop));
+	zdif = mMIN( fabs(xytpos.z-zrg.start), fabs(xytpos.z-zrg.stop) );
 	const float zscale = scene_
 	    ? scene_->getZScale() * scene_->getZStretch()
 	    : SI().zScale();
@@ -734,14 +731,14 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
 				     IOPar& par ) const
 {
     par.setEmpty();
-    par.set( sKey::XCoord(), evinfo.worldpickedpos.x );
-    par.set( sKey::YCoord(), evinfo.worldpickedpos.y );
-    par.set( sKey::LineKey(), name() );
+    par.set( sKey::XCoord, evinfo.worldpickedpos.x );
+    par.set( sKey::YCoord, evinfo.worldpickedpos.y );
+    par.set( sKey::LineKey, name() );
 
     int dataidx = -1;
     float mindist;
     if ( getNearestTrace(evinfo.worldpickedpos,dataidx,mindist) )
-	par.set( sKey::TraceNr(), geometry_.positions()[dataidx].nr_ );
+	par.set( sKey::TraceNr, geometry_.positions()[dataidx].nr_ );
 
 }
 
@@ -762,7 +759,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
 
 void Seis2DDisplay::getObjectInfo( BufferString& info ) const
 {
-    info = "Line: "; info.add( getLineName() );
+    info = "Line: "; info += getLineName();
 }
 
 
@@ -852,9 +849,9 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    posb = posa;
 	}
 
-	const float dist2a = (float) posa.sqDistTo( pos );
-	const float dist2b = (float) posb.sqDistTo( pos );
-	const float dist2c = (float) posa.sqDistTo( posb );
+	const float dist2a = posa.sqDistTo( pos );
+	const float dist2b = posb.sqDistTo( pos );
+	const float dist2c = posa.sqDistTo( posb );
 
 	if ( dist2b >= dist2a+dist2c )
 	{
@@ -894,7 +891,7 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    frac = sqrt( dist2a - height2 ) / distc;
 	}
     }
-    return mindist2!=MAXFLOAT ? sqrt(mindist2) : -1.0f;
+    return mindist2!=MAXFLOAT ? sqrt(mindist2) : -1.0;
 }
 
 
@@ -927,7 +924,7 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start],
 	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop]);
     const int nidx = geometry_.nearestIdx( pos, trcnrrg );
-    mindist = (float) geometry_.positions()[nidx].coord_.distTo( pos );
+    mindist = geometry_.positions()[nidx].coord_.distTo( pos );
     trcidx = nidx;
     return trcidx >= 0;
 }

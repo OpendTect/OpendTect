@@ -7,19 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.14 2012-08-03 13:00:24 cvskris Exp $
+ RCS:           $Id: mouseevent.h,v 1.13 2011/09/29 15:59:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "keyenum.h"
 #include "gendefs.h"
 #include "geometry.h"
 #include "position.h"
 
 
-mClass(General) TabletInfo
+mClass TabletInfo
 {
     friend class	QtTabletEventFilter;
 
@@ -69,7 +68,7 @@ protected:
 };
 
 
-mClass(General) MouseEvent
+mClass MouseEvent
 {
 public:
 
@@ -150,7 +149,7 @@ void MyClass::handleMouseClick( CallBacker* cb )
 
 */
 
-mClass(General) MouseEventHandler : public CallBacker
+mClass MouseEventHandler : public CallBacker
 {
 public:
     				MouseEventHandler();
@@ -190,11 +189,11 @@ protected:
    displaying a marker (or similar) at the current positions may subscribe to
    the notifier. */
 
-mClass(General) MouseCursorExchange : public CallBacker
+mClass MouseCursorExchange : public CallBacker
 {
 public:
     				MouseCursorExchange();
-    mClass(General) Info
+    mClass Info
     {
     public:
 				Info(const Coord3&,float offset=mUdf(float));
@@ -209,4 +208,3 @@ public:
 
 
 #endif
-

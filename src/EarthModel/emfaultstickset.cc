@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emfaultstickset.cc,v 1.17 2012-08-08 05:47:54 cvssalil Exp $";
+static const char* rcsID = "$Id: emfaultstickset.cc,v 1.13 2011/10/28 11:29:35 cvsjaap Exp $";
 
 #include "emfaultstickset.h"
 
@@ -55,7 +55,7 @@ void FaultStickSet::apply( const Pos::Filter& pf )
 	    for ( rc.col=colrg.stop; rc.col>=colrg.start; rc.col-=colrg.step )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
-		if ( !pf.includes( (Coord) pos, (float) pos.z) )
+		if ( !pf.includes( (Coord) pos, pos.z) )
 		    fssg->removeKnot( rc );
 	    }
 	}
@@ -239,7 +239,8 @@ bool FaultStickSetGeometry::insertKnot( const SectionID& sid,
 					bool addtohistory )
 {
     Geometry::FaultStickSet* fss = sectionGeometry( sid );
-    RowCol rc = RowCol::fromInt64( subid );
+    RowCol rc;
+    rc.fromInt64( subid );
     if ( !fss || !fss->insertKnot(rc,pos) )
 	return false;
 
@@ -261,7 +262,8 @@ bool FaultStickSetGeometry::removeKnot( const SectionID& sid,
     Geometry::FaultStickSet* fss = sectionGeometry( sid );
     if ( !fss ) return false;
 
-    RowCol rc = RowCol::fromInt64( subid );
+    RowCol rc;
+    rc.fromInt64( subid );
     const Coord3 pos = fss->getKnot( rc );
 
     if ( !pos.isDefined() || !fss->removeKnot(rc) )

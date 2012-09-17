@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003 / Sep 2010
- RCS:		$Id: stratunitref.h,v 1.45 2012-08-03 13:00:43 cvskris Exp $
+ RCS:		$Id: stratunitref.h,v 1.44 2012/08/03 18:49:42 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "stratmod.h"
 #include "compoundkey.h"
 #include "stratlevel.h"
 #include "enums.h"
@@ -37,7 +36,7 @@ class LeafUnitRef;
 
  */
 
-mClass(Strat) UnitRef : public CallBacker
+mClass UnitRef : public CallBacker
 {
 public:
 
@@ -113,7 +112,7 @@ public:
 
 /*!\brief UnitRef for units containing other units only */
 
-mClass(Strat) NodeUnitRef : public UnitRef
+mClass NodeUnitRef : public UnitRef
 {
 public:
 
@@ -164,18 +163,19 @@ public:
     			{ delete refs_.remove(uridx); }
     void		remove( const UnitRef* ur )
     			{ remove( indexOf( ur ) ); }
-    void		removeAllChildren()
-			{ deepErase( refs_ ); }
 
     virtual void	getPropsFrom(const IOPar&);
     virtual void	putPropsTo(IOPar&) const;
+    void                removeAllChildren()
+			{ deepErase( refs_ ); }
+
 
 };
 
 
 /*!\brief UnitRef for units containing non-Leaf units only */
 
-mClass(Strat) NodeOnlyUnitRef : public NodeUnitRef
+mClass NodeOnlyUnitRef : public NodeUnitRef
 {
 public:
 			NodeOnlyUnitRef( NodeUnitRef* up, const char* c,
@@ -191,7 +191,7 @@ public:
 
 /*!\brief UnitRef for units containing Leaf units only */
 
-mClass(Strat) LeavedUnitRef : public NodeUnitRef
+mClass LeavedUnitRef : public NodeUnitRef
 {
 public:
 			LeavedUnitRef( NodeUnitRef* up, const char* c,
@@ -221,7 +221,7 @@ protected:
 
 /*!\brief UnitRef for layers */
 
-mClass(Strat) LeafUnitRef : public UnitRef
+mClass LeafUnitRef : public UnitRef
 {
 public:
 
@@ -263,4 +263,3 @@ inline const NodeUnitRef* UnitRef::topNode() const
 }; // namespace Strat
 
 #endif
-

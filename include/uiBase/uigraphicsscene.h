@@ -7,14 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.41 2012-08-28 05:10:19 cvsnageswara Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.36 2011/08/24 05:57:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uigraphicsitem.h"
-#include "task.h"
 #include "bufstringset.h"
 #include "color.h"
 #include "keyboardevent.h"
@@ -22,10 +20,10 @@ ________________________________________________________________________
 #include "namedobj.h"
 
 
-mFDQtclass(QGraphicsScene)
-mFDQtclass(QGraphicsLinearLayout)
-mFDQtclass(QGraphicsWidget)
-mFDQtclass(ODGraphicsScene)
+class QGraphicsScene;
+class QGraphicsLinearLayout;
+class QGraphicsWidget;
+class ODGraphicsScene;
 
 class ArrowStyle;
 class Alignment;
@@ -36,7 +34,7 @@ class uiPolyLineItem;
 class uiRectItem;
 class uiObjectItem;
 
-mClass(uiBase) uiGraphicsScene : public NamedObject
+mClass uiGraphicsScene : public NamedObject
 {
 public:
 				uiGraphicsScene(const char*);
@@ -85,17 +83,14 @@ public:
     void			setSceneRect(float x,float y,float w,float h);
     uiRect			sceneRect();
 
-    bool			isMouseEventActive() const	
+    const bool			isMouseEventActive() const	
     				{ return ismouseeventactive_; }
     void			setMouseEventActive( bool yn )
     				{ ismouseeventactive_ = yn; }
-    mQtclass(QGraphicsScene*)	qGraphicsScene()
-    			{return (mQtclass(QGraphicsScene*))odgraphicsscene_;}
+    QGraphicsScene*		qGraphicsScene()
+    				{ return (QGraphicsScene*)odgraphicsscene_; }
     void			copyToClipBoard();
 
-
-    void			addUpdateToQueue(Task*);
-    bool			executePendingUpdates();
 protected:
 
     ObjectSet<uiGraphicsItem>	items_;
@@ -108,18 +103,17 @@ protected:
     uiGraphicsItem*		doAddItem(uiGraphicsItem*);
     int				indexOf(int id) const;
 
-    int				queueid_;
 };
 
 
 template <class T>
 inline T* uiGraphicsScene::addItem( T* itm )
 {
-    return (T*) doAddItem( itm );
+    return (T*)(itm ? itm->addToScene( this ) : itm);
 }
 
 
-mClass(uiBase) uiGraphicsObjectScene : public uiGraphicsScene
+mClass uiGraphicsObjectScene : public uiGraphicsScene
 {
 public:
 				uiGraphicsObjectScene(const char*);
@@ -138,29 +132,8 @@ protected:
 
     void 			resizeLayoutToContent();
 
-    mQtclass(QGraphicsLinearLayout*)	layout_;
-    mQtclass(QGraphicsWidget*)		layoutitem_;
+    QGraphicsLinearLayout*      layout_;
+    QGraphicsWidget*		layoutitem_;
 };
-
-
-class uiGraphicsSceneChanger : public Task
-{
-public:
-    uiGraphicsSceneChanger( uiGraphicsScene& scene, uiGraphicsItem& itm,
-			    bool remove );
-    uiGraphicsSceneChanger( uiGraphicsItemGroup& scene, uiGraphicsItem& itm,
-			    bool remove );
-
-    bool execute();
-
-protected:
-    uiGraphicsScene*    	scene_;
-    uiGraphicsItemGroup*	group_;
-    uiGraphicsItem&     	itm_;
-    bool                	remove_;
-};
-
-
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Jan 2011
- RCS:		$Id: reflectivitysampler.h,v 1.5 2012-08-03 13:00:05 cvskris Exp $
+ RCS:		$Id: reflectivitysampler.h,v 1.4 2012/02/29 12:08:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
 #include "task.h"
@@ -24,7 +23,7 @@ time domain.
 */
 
 
-mClass(Algo) ReflectivitySampler : public ParallelTask
+mClass ReflectivitySampler : public ParallelTask
 {
 public:
     			ReflectivitySampler(const ReflectivityModel&,
@@ -57,4 +56,3 @@ protected:
 
 
 #endif
-

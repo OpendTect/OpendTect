@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: attribdescsettr.h,v 1.5 2012-08-03 13:00:07 cvskris Exp $
+ RCS:		$Id: attribdescsettr.h,v 1.4 2011/07/24 13:06:35 cvskris Exp $
 ________________________________________________________________________
 
 @$*/
  
-#include "attributeenginemod.h"
 #include "transl.h"
 #include "ctxtioobj.h"
 class Conn;
 namespace Attrib { class DescSet; }
 
-mClass(AttributeEngine) AttribDescSetTranslatorGroup : public TranslatorGroup
+mClass AttribDescSetTranslatorGroup : public TranslatorGroup
 {			  isTranslatorGroup(AttribDescSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(AttribDescSet)
@@ -27,7 +26,7 @@ public:
 };
 
 
-mClass(AttributeEngine) AttribDescSetTranslator : public Translator
+mClass AttribDescSetTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(AttribDescSet)
@@ -47,7 +46,7 @@ public:
 
 
 
-mClass(AttributeEngine) dgbAttribDescSetTranslator : public AttribDescSetTranslator
+mClass dgbAttribDescSetTranslator : public AttribDescSetTranslator
 {			     isTranslator(dgb,AttribDescSet)
 public:
 			mDefEmptyTranslatorConstructor(dgb,AttribDescSet)
@@ -61,4 +60,3 @@ public:
 
 
 #endif
-

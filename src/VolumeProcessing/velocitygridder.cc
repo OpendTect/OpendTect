@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: velocitygridder.cc,v 1.27 2012-08-09 03:43:21 cvssalil Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.22 2012/05/07 11:35:50 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -258,8 +258,9 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 				      int thread )
 {
     Attrib::DataCubes* output = task_.getStep().getOutput();
+    const bool zit = task_.getStep().getChain().zIsT();
     const int zsz = output->getZSz();
-    const SamplingData<float> zsd((float) output->zstep_*output->z0_,(float) output->zstep_);
+    const SamplingData<double> zsd(output->zstep_*output->z0_,output->zstep_);
 
     Vel::Function* func = velfuncs_[thread];
     const StepInterval<float> zrg( zsd.start, zsd.atIndex(zsz-1), zsd.step );
@@ -277,7 +278,7 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 
 	for ( int idy=0; idy<zsz; idy++ )
 	{
-	    const float z = (float) ((output->z0_+idy) * output->zstep_);
+	    const float z = (output->z0_+idy) * output->zstep_;
 	    const float vel = func->getVelocity( z );
 
 	    output->setValue( 0, inlidx, crlidx, idy, vel );
@@ -338,9 +339,12 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
     Array3D<float>& array = output.getCube(0);
     ValueSeries<float>* storage = array.getStorage();
     if ( !storage )
-		return false;
+	return false;
 
     const int zsz = output.getZSz();
+    const SamplingData<double> zsd(output.zstep_*output.z0_,output.zstep_);
+    const StepInterval<float> zrg( zsd.start, zsd.atIndex(zsz-1), zsd.step );
+
     Gridder2D* gridder = gridders_[thread];
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
@@ -517,7 +521,7 @@ void VelGriddingStep::fillPar( IOPar& par ) const
     {
 	IOPar gridpar;
 	gridder_->fillPar( gridpar );
-	gridpar.set( sKey::Name(), gridder_->factoryKeyword() );
+	gridpar.set( sKey::Name, gridder_->factoryKeyword() );
 	par.mergeComp( gridpar, sKeyGridder() );
     }
 }
@@ -565,8 +569,8 @@ bool VelGriddingStep::usePar( const IOPar& par )
 	if ( !source )
 	{
 	    errmsg_ = "Cannot create a velocity source of type ";
-	    errmsg_.add( sourcetype.buf() ).add( ". " )
-	    	   .add( Vel::FunctionSource::factory().errMsg() );
+	    errmsg_ += sourcetype.buf();
+	    errmsg_ += ". Perhaps all plugins are not loaded.\n";
 	    return false;
 	}
 
@@ -591,7 +595,7 @@ bool VelGriddingStep::usePar( const IOPar& par )
     if ( velgridpar )
     {
 	BufferString nm;
-	velgridpar->get( sKey::Name(), nm );
+	velgridpar->get( sKey::Name, nm );
 	gridder = Gridder2D::factory().create( nm.buf() );
 	if ( !gridder )
 	    return false;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.28 2012-08-31 21:42:29 cvsnanne Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.26 2012/09/14 19:40:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include <math.h>
 
 
-uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
+uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id )
     : uiGroup( p, "Mapper with color slider group" )
     , id_(id)
     , ctmapper_(new ColTab::MapperSetup)
@@ -36,7 +36,6 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
 {
     uiHistogramDisplay::Setup hsu;
     hsu.border( uiBorder(20,20,20,40) );
-    hsu.fixdrawrg(fixdrawrg);
     histogramdisp_ = new uiHistogramDisplay( this, hsu, true );
     histogramdisp_->getMouseEventHandler().buttonPressed.notify(
 	    		     mCB(this,uiMapperRangeEditor,mousePressed) );

@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawimpl.h,v 1.11 2012-08-23 11:13:27 cvsnageswara Exp $
+ RCS:           $Id: iodrawimpl.h,v 1.9 2009/07/22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "iodraw.h"
 
 class ioDrawTool;
-mFDQtclass(QPaintDevice)
+class QPaintDevice;
 
-mClass(uiBase) ioDrawAreaImpl : public ioDrawArea
+mClass ioDrawAreaImpl : public ioDrawArea
 {
 public:
 				ioDrawAreaImpl()
@@ -30,7 +29,7 @@ public:
 
 protected:
 
-    virtual mQtclass(QPaintDevice*)	qPaintDevice()		= 0;
+    virtual QPaintDevice*	qPaintDevice()		= 0;
     void			releaseDrawTool(); 
 
 private:
@@ -40,4 +39,3 @@ private:
 };
 
 #endif
-

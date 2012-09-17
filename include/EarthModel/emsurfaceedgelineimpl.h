@@ -7,20 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgelineimpl.h,v 1.15 2012-08-03 13:00:19 cvskris Exp $
+ RCS:		$Id: emsurfaceedgelineimpl.h,v 1.14 2009/07/22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emsurfaceedgeline.h"
 
 namespace EM
 {
 
 
-mClass(EarthModel) TerminationEdgeLineSegment : public EdgeLineSegment
+mClass TerminationEdgeLineSegment : public EdgeLineSegment
 {
 public:
 		    mEdgeLineSegmentClone(TerminationEdgeLineSegment, TermLine);
@@ -33,7 +32,7 @@ public:
 };
 
 
-mClass(EarthModel) SurfaceConnectLine : public EdgeLineSegment
+mClass SurfaceConnectLine : public EdgeLineSegment
 {
 public:
     			mEdgeLineSegmentClone(SurfaceConnectLine,ConnLine);
@@ -65,4 +64,3 @@ protected:
 };
 
 #endif
-

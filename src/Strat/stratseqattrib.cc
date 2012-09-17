@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratseqattrib.cc,v 1.15 2012-09-13 13:59:09 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: stratseqattrib.cc,v 1.11 2012/09/13 13:59:02 cvsbert Exp $";
 
 #include "stratlayseqattrib.h"
 #include "stratlayseqattribcalc.h"
@@ -50,8 +50,8 @@ void Strat::LaySeqAttribSet::putTo( IOPar& iop ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const LaySeqAttrib& lsa = attr( idx );
-	mDoIOPar( set, sKey::Name(), lsa.name() );
-	mDoIOPar( set, sKey::Property(), lsa.prop_.name() );
+	mDoIOPar( set, sKey::Name, lsa.name() );
+	mDoIOPar( set, sKey::Property, lsa.prop_.name() );
 	mDoIOPar( setYN, LaySeqAttrib::sKeyIsLocal(), lsa.islocal_ );
 	mDoIOPar( set, LaySeqAttrib::sKeyStats(), lsa.stat_ );
 	if ( !lsa.islocal_ )
@@ -61,7 +61,7 @@ void Strat::LaySeqAttribSet::putTo( IOPar& iop ) const
 	}
 	FileMultiString fms( LaySeqAttrib::TransformNames()[lsa.transform_] );
 	if ( mIsUdf(lsa.transformval_) )
-	    fms += sKey::FloatUdf();
+	    fms += sKey::FloatUdf;
 	else
 	    fms += lsa.transformval_;
 	mDoIOPar( set, LaySeqAttrib::sKeyTransform(), fms );
@@ -75,7 +75,7 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 
     for ( int idx=0; ; idx++ )
     {
-	const char* res = iop.find( IOPar::compKey(sKey::Property(),idx) );
+	const char* res = iop.find( IOPar::compKey(sKey::Property,idx) );
 	if ( !res || !*res ) break;
 
 	const PropertyRef* pr = PROPS().find( res );
@@ -83,7 +83,7 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 	    pr = &Strat::Layer::thicknessRef();
 	if ( !pr )
 	    continue;
-	BufferString nm; mDoIOPar( get, sKey::Name(), nm );
+	BufferString nm; mDoIOPar( get, sKey::Name, nm );
 	if ( nm.isEmpty() || attr(nm) ) continue;
 
 	LaySeqAttrib* lsa = new LaySeqAttrib( *this, *pr, nm );
@@ -333,7 +333,7 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
     if ( SI().zIsTime() )
 	calczwdth_ *= 2000;
 
-    dpsdepthcidx_ = dps_.indexOf( sKey::Depth() );
+    dpsdepthcidx_ = dps_.indexOf( sKey::Depth );
     if ( dpsdepthcidx_ < 0 )
 	return;
 

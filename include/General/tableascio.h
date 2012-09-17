@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Nov 2006
- RCS:		$Id: tableascio.h,v 1.15 2012-08-03 13:00:25 cvskris Exp $
+ RCS:		$Id: tableascio.h,v 1.14 2010/07/12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "bufstringset.h"
 #include "repos.h"
 #include <iosfwd>
@@ -28,7 +27,7 @@ class ExportHandler;
 class Converter;
 class FileFormatRepository;
 
-mGlobal(General) FileFormatRepository& FFR();
+mGlobal FileFormatRepository& FFR();
 
 
 /*!\brief Ascii I/O using Format Description.
@@ -39,7 +38,7 @@ mGlobal(General) FileFormatRepository& FFR();
  
  */
 
-mClass(General) AscIO
+mClass AscIO
 {
 public:
 
@@ -94,7 +93,7 @@ protected:
 /*!\brief Holds system- and user-defined formats for different data types
   ('groups') */
 
-mClass(General) FileFormatRepository
+mClass FileFormatRepository
 {
 public:
 
@@ -127,7 +126,7 @@ protected:
 
     ObjectSet<Entry>	entries_;
 
-    mGlobal(General) friend FileFormatRepository& FFR();
+    mGlobal friend FileFormatRepository& FFR();
 
 };
 
@@ -136,4 +135,3 @@ protected:
 
 
 #endif
-

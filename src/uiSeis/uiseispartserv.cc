@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseispartserv.cc,v 1.135 2012-09-13 18:36:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.131 2011/05/11 05:36:23 cvssatyaki Exp $";
 
 #include "uiseispartserv.h"
 
@@ -66,7 +66,7 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 {
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
-    SeisIOObjInfo::initDefault( sKey::Steering() );
+    SeisIOObjInfo::initDefault( sKey::Steering );
 }
 
 
@@ -174,7 +174,7 @@ bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
 void uiSeisPartServer::get2DLineSetName( const MultiID& mid, 
 					 BufferString& setname )
 {
-    mGet2DLineSet(;)
+    mGet2DLineSet()
     setname = lineset.name();
 }
 
@@ -347,6 +347,6 @@ void uiSeisPartServer::processVelConv() const
 void uiSeisPartServer::get2DZdomainAttribs( const MultiID& mid,
 	const char* linenm, const char* zdomainstr, BufferStringSet& attribs )
 {
-    mGet2DLineSet(;)
+    mGet2DLineSet()
     lineset.getZDomainAttrib( attribs, linenm, zdomainstr );
 }

@@ -7,12 +7,11 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: visvw2dfaultss2d.h,v 1.7 2012-08-03 13:01:17 cvskris Exp $
+ RCS:		$Id: visvw2dfaultss2d.h,v 1.6 2011/06/03 15:08:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiviewer2dmod.h"
 #include "visvw2ddata.h"
 
 #include "emposid.h"
@@ -23,7 +22,7 @@ class uiFlatViewAuxDataEditor;
 namespace MPE { class FaultStickSetFlatViewEditor; class FaultStickSetEditor; }
 
 
-mClass(uiViewer2D) VW2DFaultSS2D : public Vw2DEMDataObject
+mClass VW2DFaultSS2D : public Vw2DEMDataObject
 {
 public:
     static VW2DFaultSS2D* create(const EM::ObjectID& id,uiFlatViewWin* win,
@@ -55,4 +54,3 @@ protected:
 };
 
 #endif
-

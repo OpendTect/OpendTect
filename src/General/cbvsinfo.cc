@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: cbvsinfo.cc,v 1.29 2012-05-02 15:11:32 cvskris Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.26 2011/03/25 15:02:34 cvsbert Exp $";
 
 #include "cbvsinfo.h"
 #include "cubesampling.h"
@@ -14,18 +14,18 @@ static const char* rcsID mUnusedVar = "$Id: cbvsinfo.cc,v 1.29 2012-05-02 15:11:
 
 CBVSInfo& CBVSInfo::operator =( const CBVSInfo& ci )
 {
-    seqnr_ = ci.seqnr_;
-    nrtrcsperposn_ = ci.nrtrcsperposn_;
-    auxinfosel_ = ci.auxinfosel_;
-    geom_ = ci.geom_;
-    stdtext_ = ci.stdtext_;
-    usertext_ = ci.usertext_;
-    sd_ = ci.sd_;
-    nrsamples_ = ci.nrsamples_;
+    seqnr = ci.seqnr;
+    nrtrcsperposn = ci.nrtrcsperposn;
+    auxinfosel = ci.auxinfosel;
+    geom = ci.geom;
+    stdtext = ci.stdtext;
+    usertext = ci.usertext;
+    sd = ci.sd;
+    nrsamples = ci.nrsamples;
 
-    deepErase( compinfo_ );
-    for ( int idx=0; idx<ci.compinfo_.size(); idx++ )
-	compinfo_ += new BasicComponentInfo( *ci.compinfo_[idx] );
+    deepErase( compinfo );
+    for ( int idx=0; idx<ci.compinfo.size(); idx++ )
+	compinfo += new BasicComponentInfo( *ci.compinfo[idx] );
 
     return *this;
 }
@@ -211,12 +211,12 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 
 bool CBVSInfo::contributesTo( const CubeSampling& cs ) const
 {
-    if ( cs.hrg.start.inl > geom_.stop.inl || cs.hrg.stop.inl < geom_.start.inl
-      || cs.hrg.start.crl > geom_.stop.crl || cs.hrg.stop.crl < geom_.start.crl )
+    if ( cs.hrg.start.inl > geom.stop.inl || cs.hrg.stop.inl < geom.start.inl
+      || cs.hrg.start.crl > geom.stop.crl || cs.hrg.stop.crl < geom.start.crl )
 	return false;
 
-    float zend = sd_.start + (nrsamples_-1) * sd_.step;
-    if ( sd_.start > cs.zrg.stop+1e-7 || zend < cs.zrg.start-1e-7 )
+    float zend = sd.start + (nrsamples-1) * sd.step;
+    if ( sd.start > cs.zrg.stop+1e-7 || zend < cs.zrg.start-1e-7 )
 	return false;
 
     return true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.45 2012-09-07 17:20:14 cvsnanne Exp $
+ RCS:           $Id: geometry.h,v 1.43 2012/07/10 13:05:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,18 +26,17 @@ class Point2D
 {
 public:
 				Point2D(T xx=0,T yy=0);
+    virtual			~Point2D()				{}
 
     template <class TT>
     Point2D<T>&			setFrom(const Point2D<TT>&);
 
-    template <class TT>
-    inline void			setXY(TT xx,TT yy);
     inline void			setXY(T xx,T yy);
     inline Point2D<T>&		zero();
     inline Point2D<T>		operator-();
 
-    inline T&			operator[](int idx);
-    inline T			operator[](int idx) const;
+    virtual inline T&		operator[](int idx);
+    virtual inline T		operator[](int idx) const;
 
     inline bool			operator==(const Point2D<T>&) const;
     inline bool			operator!=(const Point2D<T>&) const;
@@ -53,11 +52,11 @@ public:
     
     inline void			swapXY();
 
-    inline bool			isDefined() const;
-    inline double		abs() const;
-    inline T			sqAbs() const;
-    inline double		distTo(const Point2D<T>&) const;
-    inline T			sqDistTo(const Point2D<T>&) const;
+    virtual inline bool		isDefined() const;
+    virtual inline double	abs() const;
+    virtual inline T		sqAbs() const;
+    virtual inline double	distTo(const Point2D<T>&) const;
+    virtual inline T		sqDistTo(const Point2D<T>&) const;
 
     static Point2D<T>		udf() { return Point2D<T>(mUdf(T),mUdf(T)); }
     
@@ -130,9 +129,9 @@ public:
 
     inline Point2D<T>	moveInside(const Point2D<T>&) const;
 
+    inline void		translate(const Point2D<T>&);
     inline void		include(const Rectangle<T>&);
     inline void		limitTo(const Rectangle<T>&);
-    inline void		translate(const Point2D<T>&);
 
     inline bool		operator >(const Rectangle<T>&) const;
 
@@ -258,18 +257,16 @@ Point2D<T>::Point2D ( T xx , T yy )
 template <class T> template <class TT> inline
 Point2D<T>& Point2D<T>::setFrom( const Point2D<TT>& a )
 { x=a.x; y=a.y; return *this;}
-
+    				
 template <class T> inline
 void Point2D<T>::setXY( T xx, T yy )
 { x = xx ; y = yy; }  
 
-template <class T> template <class TT> inline
-void Point2D<T>::setXY( TT xx, TT yy )
-{ x = (T)xx; y = (T)yy; }
 
 template <class T> inline
 Point2D<T>& Point2D<T>::zero()
 { x = y = 0; return *this; }
+
 
 template <class T> inline
 Point2D<T> Point2D<T>::operator -()
@@ -843,14 +840,14 @@ inline void Rectangle<T>::limitTo( const Rectangle<T>& r )
     }
 }
 
-    
+
 template <class T>
-inline void Rectangle<T>::translate(const Point2D<T> & trans )
+inline void Rectangle<T>::translate( const Point2D<T> & trans )
 {
     topleft_ += trans;
     bottomright_ += trans;
 }
-    
+
 
 template <class T>
 inline void Rectangle<T>::include( const Rectangle<T>& r )

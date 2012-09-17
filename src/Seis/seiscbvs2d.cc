@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiscbvs2d.cc,v 1.63 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.59 2012/02/17 23:11:56 cvsnanne Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -46,7 +46,7 @@ static const BufferString& gtFileName( const char* fnm )
 
 static const BufferString& gtFileName( const IOPar& iop )
 {
-    return gtFileName( iop.find( sKey::FileName() ).str() );
+    return gtFileName( iop.find( sKey::FileName ).str() );
 }
 
 const char* SeisCBVS2DLineIOProvider::getFileName( const IOPar& iop )
@@ -63,7 +63,7 @@ SeisCBVS2DLineIOProvider::SeisCBVS2DLineIOProvider()
 
 bool SeisCBVS2DLineIOProvider::isUsable( const IOPar& iop ) const
 {
-    return Seis2DLineIOProvider::isUsable(iop) && iop.find( sKey::FileName() );
+    return Seis2DLineIOProvider::isUsable(iop) && iop.find( sKey::FileName );
 }
 
 
@@ -246,8 +246,8 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
     tr->readMgr()->getPositions( coords );
     tr->readMgr()->getPositions( binids );
 
-    StepInterval<float> zrg( cbvsinf.sd_.start, 0, cbvsinf.sd_.step );
-    zrg.stop = cbvsinf.sd_.start + (cbvsinf.nrsamples_-1) * cbvsinf.sd_.step;
+    StepInterval<float> zrg( cbvsinf.sd.start, 0, cbvsinf.sd.step );
+    zrg.stop = cbvsinf.sd.start + (cbvsinf.nrsamples-1) * cbvsinf.sd.step;
     geom.setZRange( zrg );
     const int sz = mMIN(coords.size(),binids.size());
     for ( int idx=0; idx<sz; idx++ )
@@ -287,7 +287,7 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getReplacer(
 {
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
 
-    const char* res = iop.find( sKey::FileName() );
+    const char* res = iop.find( sKey::FileName );
     if ( !res )
 	mErrRet("Knurft")
 
@@ -301,11 +301,11 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 {
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
 
-    BufferString fnm = iop.find( sKey::FileName() ).str();
+    BufferString fnm = iop.find( sKey::FileName ).str();
     if ( fnm.isEmpty() )
     {
 	if ( previop )
-	    fnm = CBVSIOMgr::baseFileName(previop->find(sKey::FileName())).buf();
+	    fnm = CBVSIOMgr::baseFileName(previop->find(sKey::FileName)).buf();
 	else
 	{
 	    if ( lsetnm && *lsetnm )
@@ -315,10 +315,10 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 	    fnm += ".cbvs";
 	    cleanupString( fnm.buf(), false, true, true );
 	}
-	const char* prevfnm = previop ? previop->find(sKey::FileName()) : 0;
+	const char* prevfnm = previop ? previop->find(sKey::FileName) : 0;
 	const int prevlnr = CBVSIOMgr::getFileNr( prevfnm );
 	fnm = CBVSIOMgr::getFileName( fnm, previop ? prevlnr+1 : 0 );
-	iop.set( sKey::FileName(), fnm );
+	iop.set( sKey::FileName, fnm );
     }
 
     return new SeisCBVS2DLinePutter( fnm.buf(), iop );
@@ -336,7 +336,7 @@ SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const char* fnm, const IOPar& iop )
     tr->set2D( true );
     bid.inl = CBVSIOMgr::getFileNr( fnm );
     DataCharacteristics::parseEnumUserType(
-	    iop.find(sKey::DataStorage()), preseldt );
+	    iop.find(sKey::DataStorage), preseldt );
 }
 
 

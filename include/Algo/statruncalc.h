@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.32 2012-09-07 17:23:28 cvsnanne Exp $
+ RCS:           $Id: statruncalc.h,v 1.27 2012/01/11 11:41:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "convert.h"
 #include "math2.h"
 #include "stattype.h"
@@ -34,7 +33,7 @@ namespace Stats
  */
 
 
-mClass(Algo) CalcSetup
+mClass CalcSetup
 { 
 public:
     			CalcSetup( bool weighted=false )
@@ -96,7 +95,7 @@ are needed, you may need to specialise an isZero function for each new type.
 
 
 template <class T>
-class BaseCalc
+mClass BaseCalc
 {
 public:
 
@@ -188,7 +187,7 @@ require buffering all data.
 
 
 template <class T>
-class RunCalc : public BaseCalc<T>
+mClass RunCalc : public BaseCalc<T>
 {
 public:
     			RunCalc( const CalcSetup& s )
@@ -482,12 +481,12 @@ inline T BaseCalc<T>::mostFreq() const
 	    { maxwt = clsswt_[idx]; ret = clss_[idx]; }
     }
 
-    return (T)ret;
+    return ret;
 }
 
 
-template <class T> inline
-T computeMedian( const T* data, int sz, int pol, int* idx_of_med ) 
+template <class T>
+mGlobal T computeMedian( const T* data, int sz, int pol, int* idx_of_med ) 
 {
     if ( idx_of_med ) *idx_of_med = 0;
     if ( sz < 2 )
@@ -517,8 +516,8 @@ T computeMedian( const T* data, int sz, int pol, int* idx_of_med )
 }
 
 
-template <class T> inline
-T computeWeightedMedian( const T* data, const T* wts, int sz, 
+template <class T>
+mGlobal T computeWeightedMedian( const T* data, const T* wts, int sz, 
 				int* idx_of_med ) 
 {
     if ( idx_of_med ) *idx_of_med = 0;
@@ -534,16 +533,16 @@ T computeWeightedMedian( const T* data, const T* wts, int sz,
     for ( int idx=0; idx<sz; idx++ )
     {
 	const_cast<T&>(wts[idx]) = wtcopy[ idxs[idx] ];
-	wsum += (float) wts[idx];
+	wsum += wts[idx];
     }
     delete [] idxs;
 
-    const float hwsum = wsum * 0.5f;
+    const float hwsum = wsum * 0.5;
     wsum = 0;
     int medidx = 0;
     for ( int idx=0; idx<sz; idx++ )
     {
-	wsum += (float) wts[idx];
+	wsum += wts[idx];
 	if ( wsum >= hwsum )
 	    { medidx = idx; break; }
     }
@@ -826,4 +825,3 @@ inline WindowedCalc<T>&	WindowedCalc<T>::addValue( T val, T wt )
 }; // namespace Stats
 
 #endif
-

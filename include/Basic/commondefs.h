@@ -7,22 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.56 2012-09-06 19:08:16 cvsnanne Exp $
+ RCS:		$Id: commondefs.h,v 1.40 2012/08/24 13:06:13 cvsbert Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
 
 -*/
 
-#include "basicmod.h"
 #include "plfdefs.h"
-#include "rounding.h"
-
-#define mRounded(typ,x)		roundOff<typ>( x )
-#define mNINT32(x)		mRounded( od_int32, x )
-#define mNINT64(x)		mRounded( od_int64, x )
 
 #define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
+#define mRounded(typ,x)		( (typ)((x)>0 ? (x)+.5 : (x)-.5) )
+#define mNINT(x)		mRounded(int,x)
+#define mNINT32(x)		mRounded(int,x)
+#define mNINT64(x)		mRounded(od_int64,x)
 #define mMAX(x,y)		( (x)>(y) ? (x) : (y) )
 #define mMIN(x,y)		( (x)<(y) ? (x) : (y) )
 
@@ -31,9 +29,7 @@ ________________________________________________________________________
 #define mIsEqualRel(x,y,e)	( (y) ? ((x)/(y))-1<(e) && ((x)/(y)-1)>(-e) \
 				      : mIsZero(x,e) )
 #define mIsEqualWithUdf(x,y,e)	((mIsUdf(x) && mIsUdf(y)) || mIsEqual(x,y,e) )
-#define mDefEpsF		(1e-10f)
-#define mDefEpsD		(1e-10)
-#define mDefEps			mDefEpsD
+#define mDefEps			(1e-10)
 
 # define mC_True	1
 # define mC_False	0
@@ -62,19 +58,17 @@ ________________________________________________________________________
 # define MAXDOUBLE	1.7976931348623157e+308
 #endif
 
-#ifndef MAXSIZE
-# define MAXSIZE	((size_t)-1)
-#endif
-
 #ifdef __win__
 # include <stdio.h>
 # undef small
 #endif
 
 
+#define mFromFeetFactor		0.3048
+#define mFromFeetFactorD	mFromFeetFactor
 #define mFromFeetFactorF	0.3048f
-#define mFromFeetFactorD	0.3048
-#define mToFeetFactorF		3.2808399f
+#define mToFeetFactor		3.2808399f
+#define mToFeetFactorF		mToFeetFactor
 #define mToFeetFactorD		3.28083989501312336
 #define mToSqMileFactor		0.3861 			//km^2 to mile^2
 #define mMileToFeetFactor	5280
@@ -83,9 +77,6 @@ ________________________________________________________________________
 #ifdef __msvc__
 # include "msvcdefs.h"
 #else
-# define dll_export
-# define dll_import
-
 
 # define mMaxFilePathLength	255
 
@@ -103,31 +94,45 @@ ________________________________________________________________________
 #define mTODOHelpID	"0.0.0"
 #define mNoHelpID	"-"
 
-#define mExp( module )		dll_export
-//#define mExp( module )		Export_##module
-
-#define mExpClass( module )		class mExp( module )
-#define mExpStruct( module )		struct mExp( module )
-
-#define mGlobal( module )		mExp( module )
-#define mClass( module )		mExpClass( module )
-#define mStruct( module )		mExpStruct( module )
-#define mExtern( module )		extern mExp( module )
-#define mExternC( module)		extern "C" mExp( module )
-
-#define mExportTemplateInst( mod, clss, inst ) \
-template <class T> class clss; \
-template mExp(mod) class clss<inst>
-
-//for Qt
-#ifndef QT_NAMESPACE
-# define mFDQtclass(cls) class cls;
-# define mQtclass(cls) cls
-# define mUseQtnamespace
+#ifdef __msvc__
+# define dll_export	__declspec( dllexport )
+# define dll_import	__declspec( dllimport )
 #else
-# define mFDQtclass(cls) namepace QT_NAMESPACE { class cls; }
-# define mQtclass(cls) ::QT_NAMESPACE::cls
-# define mUseQtnamespace using namespace ::QT_NAMESPACE;
+# define dll_export
+# define dll_import
+#endif
+
+#define mExportClass( module ) class Export_##module
+#define mExportStruct( module ) struct Export_##module
+#define mExportGlobal( module ) Export_##module
+#define mExportExtern( module ) extern Export_##module
+#define mExportExternC( module ) exptern "C" Export_##module
+
+#define mClass		class dll_export
+#define mDefClass(mod)	mClass
+#define mStruct		struct dll_export
+#define mGlobal		dll_export 
+#define mExtern		extern dll_export
+#define mExternC	extern "C" dll_export
+
+#if defined(Basic_EXPORTS) || defined(BASIC_EXPORTS)
+# define Export_Basic	dll_export
+#else
+# define Export_Basic	dll_import
+#endif
+
+# define mBasicClass	mExportClass( Basic )
+# define mBasicGlobal	mExportGlobal( Basic )
+# define mBasicExtern	mExportExtern( Basic )
+
+#if defined(General_EXPORTS) || defined(GENERAL_EXPORTS)
+# define mGeneralClass	class dll_export
+# define mGeneralGlobal	dll_export
+# define mGeneralExtern	extern dll_export
+#else
+# define mGeneralClass	class dll_import
+# define mGeneralGlobal	dll_import
+# define mGeneralExtern	extern dll_import
 #endif
 
 #define mIfNotFirstTime(act) \
@@ -135,10 +140,5 @@ template mExp(mod) class clss<inst>
     if ( _already_visited_ ) act; \
     _already_visited_ = true
 
-// Helps keep 4.4 compatibility
-#define mDefClass( module )	mClass(module)
-
 
 #endif
-
-

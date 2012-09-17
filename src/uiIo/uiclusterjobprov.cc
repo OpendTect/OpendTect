@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiclusterjobprov.cc,v 1.16 2012-05-22 14:48:38 cvskris Exp $";
+static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.13 2012/03/02 10:25:16 cvsraman Exp $";
 
 #include "uiclusterjobprov.h"
 
@@ -123,7 +123,7 @@ int nextStep()
     jobprov_.getJob( curidx_, iop );
     BufferString desc( "Inline " );
     desc.add( jobprov_.objName(curidx_++) );
-    iop.set( sKey::Desc(), desc.buf() );
+    iop.set( sKey::Desc, desc.buf() );
     BufferString filenm( "Job" );
     filenm += curidx_;
     FilePath fp( dirnm_.buf() );
@@ -132,8 +132,8 @@ int nextStep()
     BufferString parfnm = fp.fullPath();
     fp.setExtension( "log" );
     BufferString logfnm = fp.fullPath();
-    iop.set( sKey::LogFile(), logfnm );
-    if ( !iop.write(parfnm.buf(),sKey::Pars()) )
+    iop.set( sKey::LogFile, logfnm );
+    if ( !iop.write(parfnm.buf(),sKey::Pars) )
 	return ErrorOccurred();
 
     fp.setExtension( "scr" );
@@ -249,13 +249,13 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     jobprov_->setNrInlsPerJob( nrinlperjob );
     iopar_.set( "Output.ID", outseisid );
     iopar_.set( "Script dir", scriptdir.buf() );
-    iopar_.set( sKey::TmpStor(), tmpdir.buf() );
+    iopar_.set( sKey::TmpStor, tmpdir.buf() );
     const char* cmd = cmdfld_->text();
     if ( !cmd || !*cmd )
 	mErrRet("Please enter a valid command for submitting jobs")
 
     iopar_.set( "Command", cmd );
-    if ( !iopar_.write(parfnm.buf(),sKey::Pars()) )
+    if ( !iopar_.write(parfnm.buf(),sKey::Pars) )
 	mErrRet("Failed to write parameter file")
 
     if ( !createJobScripts(scriptdir.buf()) )

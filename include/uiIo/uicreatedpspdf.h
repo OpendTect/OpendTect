@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          Jan 2010
- RCS:           $Id: uicreatedpspdf.h,v 1.7 2012-08-31 06:25:57 cvssatyaki Exp $
+ RCS:           $Id: uicreatedpspdf.h,v 1.6 2012/08/31 06:27:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 
 class ArrayNDProbDenFunc;
@@ -25,47 +24,52 @@ class uiGenInput;
 class uiIOObjSel;
 class uiDataPointSetCrossPlotter;
 class uiPrDenFunVarSel;
-/*! \brief Dialog for Horizon Import */
 
-mClass(uiIo) uiCreateDPSPDF : public uiDialog
+mClass uiCreateDPSPDF : public uiDialog
 {
 public:
 			uiCreateDPSPDF(uiParent*,
-				       const uiDataPointSetCrossPlotter*);
-			uiCreateDPSPDF(uiParent*,const DataPointSet&,
-				       bool restricted=false);
+				       uiDataPointSetCrossPlotter&,
+				       const BufferStringSet&);
+			// Implementation removed, Do not use TODO remove
 			~uiCreateDPSPDF();
-    const ProbDenFunc*	probDensFunc() const			{ return pdf_; }
-    void		setPrefDefNames(const BufferStringSet&);
 
 protected:
 
     ObjectSet<uiPrDenFunVarSel>	probflds_;
     ObjectSet<uiButton>		addbuts_;
     ObjectSet<uiButton>		rmbuts_;
-    ProbDenFunc*		pdf_;
     int				nrdisp_;
-    bool			restrictedmode_;
 
     uiIOObjSel*			outputfld_;
     uiComboBox*			createfrmfld_;
     uiComboBox*			createoffld_;
     uiGenInput*			nrbinfld_;
     const uiDataPointSetCrossPlotter* plotter_;
-    const DataPointSet&		dps_;
 
-    void			createDefaultUI();
-    bool 			createPDF();
-    void 			viewPDF();
-    
-    float			getVal(int rid,int cid) const;
     void 			fillPDF(ArrayNDProbDenFunc&);
     void			setColRange(CallBacker*);
     void			butPush(CallBacker*);
     void			handleDisp(CallBacker*);
     bool			acceptOK(CallBacker*);
+
+    ProbDenFunc*		pdf_;
+    bool			restrictedmode_;
+    const DataPointSet&		dps_;
+
+    void			createDefaultUI();
+    bool			createPDF();
+    void			viewPDF();
+    float 			getVal(int rid,int cid) const;
+
+public:
+				uiCreateDPSPDF(uiParent*,
+					const uiDataPointSetCrossPlotter*);
+    				uiCreateDPSPDF(uiParent*,const DataPointSet&,
+					bool restricted=false);
+    const ProbDenFunc*		probDensFunc() const	{ return pdf_; }
+    void			setPrefDefNames(const BufferStringSet&);
 };
 
 
 #endif
-

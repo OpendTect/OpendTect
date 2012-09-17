@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: od_process_attrib.cc,v 1.46 2012-09-11 08:39:53 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.42 2012/09/11 08:40:01 cvshelene Exp $";
 
 #include "batchprog.h"
 
@@ -88,15 +88,15 @@ bool BatchProgram::go( std::ostream& strm )
     
     const int process_id = GetPID();
     Attrib::Processor* proc = 0;
-    const char* tempdir = pars().find(sKey::TmpStor());
+    const char* tempdir = pars().find(sKey::TmpStor);
     if ( tempdir && *tempdir )
     {
 	if ( !File::exists(tempdir) )
-	    mRetFileProb(sKey::TmpStor(),tempdir,"does not exist")
+	    mRetFileProb(sKey::TmpStor,tempdir,"does not exist")
 	else if ( !File::isDirectory(tempdir) )
-	    mRetFileProb(sKey::TmpStor(),tempdir,"is not a directory")
+	    mRetFileProb(sKey::TmpStor,tempdir,"is not a directory")
 	else if ( !File::isWritable(tempdir) )
-	    mRetFileProb(sKey::TmpStor(),tempdir,"is not writeable")
+	    mRetFileProb(sKey::TmpStor,tempdir,"is not writeable")
     }
 
     Seis2DLineSet::installPreSet( pars(), SeisJobExecProv::sKeyOutputLS(),
@@ -187,7 +187,7 @@ bool BatchProgram::go( std::ostream& strm )
 	    else
 	        break;
 	}
-	linename = output->find(sKey::LineKey());
+	linename = output->find(sKey::LineKey);
 	indexoutp++;
     }
     BufferString errmsg;
@@ -205,7 +205,7 @@ bool BatchProgram::go( std::ostream& strm )
     const bool is2d = attrtypstr && *attrtypstr == '2';
     const double pause_sleep_time = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
     TextStreamProgressMeter progressmeter(strm);
-    bool loading = true;
+    bool cont = true; bool loading = true;
     int nriter = 0, nrdone = 0;
 
     while ( true )

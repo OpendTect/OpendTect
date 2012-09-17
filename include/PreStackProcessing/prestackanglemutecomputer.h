@@ -7,13 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          June 2011
- RCS:           $Id: prestackanglemutecomputer.h,v 1.4 2012-08-03 13:00:33 cvskris Exp $
+ RCS:           $Id: prestackanglemutecomputer.h,v 1.3 2012/01/17 16:09:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
-#include "prestackprocessingmod.h"
 #include "task.h"
 #include "ranges.h"
 #include "horsampling.h"
@@ -30,13 +28,13 @@ namespace PreStack
 {
     class MuteDef;
 
-mClass(PreStackProcessing) AngleMuteComputer : public ParallelTask, public AngleMuteBase
+mClass AngleMuteComputer : public ParallelTask, public AngleMuteBase
 {
 public:
     				AngleMuteComputer();
 				~AngleMuteComputer();
 
-    mStruct(PreStackProcessing) AngleMuteCompPars : public AngleMuteBase::Params
+    mStruct AngleMuteCompPars : public AngleMuteBase::Params
     {
 	MultiID			outputmutemid_;
 	HorSampling 		hrg_;
@@ -68,5 +66,3 @@ protected:
 
 }
 #endif
-
-

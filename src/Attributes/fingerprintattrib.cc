@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: fingerprintattrib.cc,v 1.23 2012-08-09 04:38:06 cvssalil Exp $";
+static const char* rcsID = "$Id: fingerprintattrib.cc,v 1.19 2011/01/06 15:25:01 cvsbert Exp $";
 
 #include "fingerprintattrib.h"
 
@@ -34,7 +34,7 @@ static void scaleVector( const TypeSet<float>& rawvalues,
     for ( int idx=0; idx<rawvalues.size(); idx++ )
     {
 	float diff = ranges[idx].stop - ranges[idx].start;
-	float denom = mIsZero( diff , 0.001 ) ? 0.001f : diff;
+	float denom = mIsZero( diff , 0.001 ) ? 0.001 : diff;
 	scaledvalues += ( rawvalues[idx] - ranges[idx].start ) / denom;
     }
 }
@@ -220,6 +220,7 @@ bool FingerPrint::computeData( const DataHolder& output, const BinID& relpos,
     TypeSet<float> scaledlocal;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
+	const int cursample = idx + z0;
 	TypeSet<float> localvals;
 	for ( int inpidx=0; inpidx<inputdata_.size(); inpidx++ )
 	    localvals += getInputValue( *inputdata_[inpidx], 

@@ -2,7 +2,7 @@ dTect V4.2.0
 OpendTect commands
 Tue 28 Sep 2010, 14:59:21
 !
-# $Id: DemoDatapointSet.odcmd,v 1.1 2010-10-08 08:56:55 cvsnageswara Exp $
+# $Id: DemoDatapointSet.odcmd,v 1.1 2010/10/08 08:56:55 cvsnageswara Exp $
 
 Comment "Please load DPSDemo plugin before running this script"
 

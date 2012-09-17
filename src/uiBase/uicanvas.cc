@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicanvas.cc,v 1.53 2012-08-24 07:32:51 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uicanvas.cc,v 1.50 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "uicanvas.h"
 #include "i_uidrwbody.h"
@@ -18,22 +18,22 @@ static const char* rcsID mUnusedVar = "$Id: uicanvas.cc,v 1.53 2012-08-24 07:32:
 static const int cDefaultWidth  = 1;
 static const int cDefaultHeight = 1;
 
-class uiCanvasBody : public uiDrawableObjBody<uiCanvas,mQtclass(QFrame)>
+class uiCanvasBody : public uiDrawableObjBody<uiCanvas,QFrame>
 {
 
 public:
 uiCanvasBody( uiCanvas& hndle, uiParent* p, const char *nm="uiCanvasBody")
-    : uiDrawableObjBody<uiCanvas,mQtclass(QFrame)>( hndle, p, nm ) 
+    : uiDrawableObjBody<uiCanvas,QFrame>( hndle, p, nm ) 
     , handle_( hndle )
 {
     setStretch( 2, 2 );
     setPrefWidth( cDefaultWidth );
     setPrefHeight( cDefaultHeight );
-    setFrameStyle( mQtclass(QFrame)::StyledPanel | mQtclass(QFrame)::Sunken );
+    setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
 }
 
     virtual		~uiCanvasBody()		{}
-    void		updateCanvas()		{ mQtclass(QWidget)::update(); }
+    void		updateCanvas()		{ QWidget::update(); }
 
 private:
     uiCanvas&		handle_;

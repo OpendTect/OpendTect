@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribprocessor.cc,v 1.76 2012-06-29 08:14:18 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.73 2012/06/29 08:14:07 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -41,7 +41,7 @@ Processor::Processor( Desc& desc , const char* lk, BufferString& err )
     provider_->ref();
     desc_.ref();
 
-    is2d_ = desc_.is2D();
+    is2d_ = desc_.descSet()->is2D();
     if ( is2d_ )
 	provider_->setCurLineKey( lk );
 }
@@ -252,7 +252,9 @@ void Processor::init()
 
     //Special case for attributes (like PreStack) which inputs are not treated
     //as normal input cubes and thus not delivering adequate cs automaticly
-    provider_->updateCSIfNeeded(globalcs);
+    if ( provider_->getMyMainHackingClass() &&
+	    provider_->getMyMainHackingClass()->isTheOne() )
+	provider_->getMyMainHackingClass()->updateCSIfNeeded( globalcs );
 
     computeAndSetPosAndDesVol( globalcs );
     for ( int idx=0; idx<outputs_.size(); idx++ )

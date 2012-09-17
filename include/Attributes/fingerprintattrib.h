@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          23-02-2006
- RCS:           $Id: fingerprintattrib.h,v 1.11 2012-08-03 13:00:09 cvskris Exp $
+ RCS:           $Id: fingerprintattrib.h,v 1.10 2011/01/06 15:25:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 
 /*!\brief FingerPrint Attribute
@@ -37,7 +36,7 @@ Output:
 namespace Attrib
 {
 
-mClass(Attributes) FingerPrint : public Provider
+mClass FingerPrint : public Provider
 {
 public:
     static void			initClass();
@@ -87,4 +86,3 @@ protected:
 
 
 #endif
-

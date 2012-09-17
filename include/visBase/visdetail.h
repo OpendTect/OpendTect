@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-06-2003
- RCS:		$Id: visdetail.h,v 1.7 2012-08-03 13:01:24 cvskris Exp $
+ RCS:		$Id: visdetail.h,v 1.6 2009/07/22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "bufstring.h"
 #include "position.h"
 
@@ -33,7 +32,7 @@ class Coordinates;
 
 enum DetailType { Face };
 
-mClass(visBase) Detail
+mClass Detail
 {
 public:
 			Detail( DetailType dt )
@@ -47,7 +46,7 @@ protected:
 };  
    
 
-mClass(visBase) FaceDetail : public Detail
+mClass FaceDetail : public Detail
 {
 public:
 			FaceDetail( SoFaceDetail* d )
@@ -64,4 +63,3 @@ protected:
 
 
 #endif
-

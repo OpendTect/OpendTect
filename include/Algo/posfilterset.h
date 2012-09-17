@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterset.h,v 1.11 2012-08-03 13:00:04 cvskris Exp $
+ RCS:           $Id: posfilterset.h,v 1.10 2011/11/14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "algomod.h"
 #include "posfilter.h"
 
 
@@ -24,7 +23,7 @@ namespace Pos
 
 /*!\brief Set of Filters. Owns the Filters. */
 
-mClass(Algo) FilterSet : public virtual Filter
+mClass FilterSet : public virtual Filter
 {
 public:
 
@@ -73,7 +72,7 @@ protected:
 			{ return FilterSet::includes(c,z); } \
 
 
-mClass(Algo) FilterSet3D : public FilterSet
+mClass FilterSet3D : public FilterSet
 		  , public Filter3D
 {
 public:
@@ -86,7 +85,7 @@ public:
 };
 
 
-mClass(Algo) FilterSet2D : public FilterSet
+mClass FilterSet2D : public FilterSet
 		  , public Filter2D
 {
 public:
@@ -102,4 +101,3 @@ public:
 } // namespace
 
 #endif
-

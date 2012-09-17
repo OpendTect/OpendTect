@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ioobj.cc,v 1.43 2012-05-22 14:48:31 cvskris Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.39 2011/12/14 13:16:41 cvsbert Exp $";
 
 #include "iostrm.h"
 #include "iosubdir.h"
@@ -145,6 +145,8 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 			bool gendef )
 {
+    IOObj* objptr = 0;
+
     if ( !nm || !*nm ) nm = "?";
     MultiID ky( keyin );
     if ( ky.isEmpty() && IOM().dirPtr() )
@@ -157,7 +159,6 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 	if ( prod.canMake(typ) )
 	    return prod.make( nm, ky, gendef );
     }
-
     return 0;
 }
 
@@ -259,7 +260,7 @@ bool IOObj::isReadDefault() const
 
 bool IOObj::isSurveyDefault( const MultiID& ky )
 {
-    IOPar* dpar = SI().pars().subselect( sKey::Default() );
+    IOPar* dpar = SI().pars().subselect( sKey::Default );
     bool ret = false;
     if ( dpar && !dpar->isEmpty() )
 	ret = dpar->findKeyFor( ky );

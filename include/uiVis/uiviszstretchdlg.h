@@ -6,19 +6,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiviszstretchdlg.h,v 1.4 2012-08-03 13:01:19 cvskris Exp $
+ RCS:           $Id: uiviszstretchdlg.h,v 1.3 2009/07/22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidialog.h"
 
 class uiCheckBox;
 class uiLabeledComboBox;
 class uiSliderExtra;
 
-mClass(uiVis) uiZStretchDlg : public uiDialog
+mClass uiZStretchDlg : public uiDialog
 {
 public:
 			uiZStretchDlg(uiParent*);
@@ -51,4 +50,3 @@ protected:
 };
 
 #endif
-

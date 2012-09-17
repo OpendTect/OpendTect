@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: strmoper.cc,v 1.40 2012-05-02 15:11:27 cvskris Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.40 2012/06/28 12:33:27 cvskris Exp $";
 
 #include "strmoper.h"
 #include "strmio.h"
@@ -18,6 +18,7 @@ static const char* rcsID mUnusedVar = "$Id: strmoper.cc,v 1.40 2012-05-02 15:11:
 
 #include <iostream>
 #include <limits.h>
+#include <stdio.h>
 
 static const unsigned int nrretries = 4;
 static const float retrydelay = 1;
@@ -25,7 +26,9 @@ static const float retrydelay = 1;
 
 bool StrmOper::readBlock( std::istream& strm, void* ptr, unsigned int nrbytes )
 {
-    if ( strm.bad() || strm.eof() || !ptr ) return false;
+    if ( strm.bad() || strm.eof() || !ptr )
+	return false;
+    
     strm.clear();
 
     strm.read( (char*)ptr, nrbytes );
@@ -34,7 +37,10 @@ bool StrmOper::readBlock( std::istream& strm, void* ptr, unsigned int nrbytes )
     nrbytes -= strm.gcount();
     if ( nrbytes > 0 )
     {
-	if ( strm.eof() ) return false;
+	if ( strm.eof() )
+	{
+	    return false;
+	}
 
 	char* cp = (char*)ptr + strm.gcount();
 	for ( unsigned int idx=0; idx<nrretries; idx++ )
@@ -130,7 +136,7 @@ bool StrmOper::readLine( std::istream& strm, BufferString* bs )
     if ( !getres ) return false;
 
     char bsbuf[1024+1];
-    while ( ch != '\n' )
+    while ( ch != '\n' && ch != EOF )
     {
 	if ( bs )
 	{

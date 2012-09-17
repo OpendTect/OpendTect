@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: createattriblog.cc,v 1.10 2012-08-10 04:11:25 cvssalil Exp $";
+static const char* rcsID = "$Id: createattriblog.cc,v 1.6 2012/07/10 13:06:04 cvskris Exp $";
 
 #include "createattriblog.h"
 
@@ -89,7 +89,7 @@ bool AttribLogCreator::createLog( Well::Data& wd, const AttribLogExtractor& ale)
 
 bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
 {
-    bidset_.setEmpty(); positions_.erase(); depths_.erase();
+    bidset_.empty(); positions_.erase(); depths_.erase();
     const int nrsteps = dahintv.nrSteps();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
@@ -100,7 +100,7 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
 
 	if ( SI().zIsTime() && wd_->d2TModel() )
 	    pos.z = wd_->d2TModel()->getTime( md );
-	bidset_.add( bid, (float) pos.z, (float)idx );
+	bidset_.add( bid, pos.z, (float)idx );
 	depths_ += md;
 	positions_ += BinIDValueSet::Pos(0,0);
     }

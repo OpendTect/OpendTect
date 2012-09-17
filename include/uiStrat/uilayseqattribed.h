@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uilayseqattribed.h,v 1.6 2012-08-03 13:01:10 cvskris Exp $
+ RCS:           $Id: uilayseqattribed.h,v 1.5 2012/04/10 14:29:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uidialog.h"
 class uiListBox;
 class uiComboBox;
@@ -23,11 +22,11 @@ namespace Strat { class LaySeqAttrib; class RefTree; };
 
 /*! \brief edits a layer sequence attribute */
 
-mClass(uiStrat) uiLaySeqAttribEd : public uiDialog
+mClass uiLaySeqAttribEd : public uiDialog
 {
 public:
 
-    mClass(uiStrat) Setup
+    mClass Setup
     {
     public:
 			Setup( bool isnw )
@@ -80,4 +79,3 @@ protected:
 };
 
 #endif
-

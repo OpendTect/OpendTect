@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.16 2012-08-03 13:00:25 cvskris Exp $
+ RCS:		$Id: posvecdataset.h,v 1.15 2011/10/12 07:25:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "binidvalset.h"
 #include "bufstringset.h"
 class IOPar;
@@ -28,7 +27,7 @@ class DataColDef;
 
 */
 
-mClass(General) PosVecDataSet
+mClass PosVecDataSet
 {
 public:
     			PosVecDataSet(const char* nm=0);
@@ -90,4 +89,3 @@ protected:
 
 
 #endif
-

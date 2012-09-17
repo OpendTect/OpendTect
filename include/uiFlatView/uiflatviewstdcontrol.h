@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.34 2012-08-23 15:03:43 cvsbruno Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.30 2012/08/24 10:39:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "uiflatviewcontrol.h"
 #include "menuhandler.h"
 
@@ -23,7 +22,7 @@ class uiToolBar;
 
 /*!\brief The standard tools to control uiFlatViewer(s). */
 
-mClass(uiFlatView) uiFlatViewStdControl : public uiFlatViewControl
+mClass uiFlatViewStdControl : public uiFlatViewControl
 {
 public:
 
@@ -36,14 +35,12 @@ public:
 			    , withedit_(false)
 			    , withthumbnail_(true)		      
 			    , withstates_(true)
-			    , withhanddrag_(true)
 			    , tba_(-1)		      	{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
 	mDefSetupMemb(bool,withcoltabed)
 	mDefSetupMemb(bool,withedit)
 	mDefSetupMemb(bool,withthumbnail)
-	mDefSetupMemb(bool,withhanddrag)
 	mDefSetupMemb(bool,withstates)
 	mDefSetupMemb(int,tba)		//!< uiToolBar::ToolBarArea preference
 	mDefSetupMemb(BufferString,helpid)
@@ -55,15 +52,10 @@ public:
     virtual uiFlatViewColTabEd* colTabEd()	{ return ctabed_; }
     void		setEditMode(bool yn);
 
-    NotifierAccess* 	editPushed();
-
 protected:
 
     bool		manip_;
     bool		mousepressed_;
-    uiPoint		mousedownpt_;
-    uiWorldRect		mousedownwr_;
-    
     bool		viewdragged_;
     uiToolBar*		tb_;
     uiToolButton*	zoominbut_;
@@ -81,7 +73,7 @@ protected:
 
     virtual void	coltabChg(CallBacker*);
     void		dispChgCB(CallBacker*);
-    virtual void	editCB(CallBacker*);
+    void		editCB(CallBacker*);
     void		flipCB(CallBacker*);
     void		helpCB(CallBacker*);
     void		handDragStarted(CallBacker*);
@@ -105,7 +97,9 @@ protected:
     void                handleMenuCB(CallBacker*);
 
     BufferString	helpid_;
+
+public:
+    NotifierAccess*     editPushed();
 };
 
 #endif
-

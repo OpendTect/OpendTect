@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiobjfileman.h,v 1.18 2012-08-23 21:47:18 cvsnanne Exp $
+ RCS:           $Id: uiobjfileman.h,v 1.14 2010/11/09 04:41:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 
 class IOObj;
@@ -23,7 +22,7 @@ class uiToolButton;
 class uiTextEdit;
 
 
-mClass(uiIo) uiObjFileMan : public uiDialog
+mClass uiObjFileMan : public uiDialog
 {
 public:
 				~uiObjFileMan();
@@ -43,7 +42,6 @@ protected:
 					     const IOObjContext&);
 
     uiTextEdit*			infofld_;
-    uiTextEdit*			notesfld_;
     uiIOObjSelGrp*		selgrp_;
     uiToolButton*		mkdefbut_;
     uiGroup*			listgrp_;
@@ -54,8 +52,6 @@ protected:
     IOObjContext&		ctxt_;
     bool			curimplexists_;
 
-    void			saveNotes(CallBacker*);
-    void			readNotes();
     void			setInfo(const char* txt);
     void			setPrefWidth(int width); //!< width in char
     void			createDefaultUI(bool needreloc=false);
@@ -72,4 +68,3 @@ protected:
 
 
 #endif
-

@@ -7,14 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsscene.cc,v 1.64 2012-07-10 08:05:34 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.59 2012/07/10 13:06:05 cvskris Exp $";
 
 
 #include "uigraphicsscene.h"
 
 #include "draw.h"
-#include "threadwork.h"
-#include "uimain.h"
 #include "uigraphicsitemimpl.h"
 
 #include <QApplication>
@@ -72,7 +70,6 @@ private:
 
 void ODGraphicsScene::drawBackground( QPainter* painter, const QRectF& rect )
 {
-    uiscene_.executePendingUpdates();
     painter->setBackgroundMode( bgopaque_ ? Qt::OpaqueMode 
 	    				  : Qt::TransparentMode );
     QGraphicsScene::drawBackground( painter, rect );
@@ -140,6 +137,7 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 }
 
 
+
 uiGraphicsScene::uiGraphicsScene( const char* nm )
     : NamedObject(nm)
     , mousehandler_(MouseEventHandler())
@@ -151,9 +149,6 @@ uiGraphicsScene::uiGraphicsScene( const char* nm )
     odgraphicsscene_->setObjectName( nm );
     odgraphicsscene_->setBackgroundBrush( Qt::white );
     ctrlCPressed.notify( mCB(this,uiGraphicsScene,CtrlCPressedCB) );
-
-    queueid_ = Threads::WorkManager::twm().addQueue(
-	    Threads::WorkManager::Manual );
 }
 
 
@@ -161,7 +156,6 @@ uiGraphicsScene::~uiGraphicsScene()
 {
     removeAllItems();
     delete odgraphicsscene_;
-    Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
 
 
@@ -171,77 +165,13 @@ int uiGraphicsScene::nrItems() const
 }
 
 
-uiGraphicsSceneChanger::uiGraphicsSceneChanger( uiGraphicsScene& scene,
-	uiGraphicsItem& itm, bool remove )
-    : scene_( &scene )
-    , group_( 0 )
-    , itm_( itm )
-    , remove_( remove )
-{}
-
-
-uiGraphicsSceneChanger::uiGraphicsSceneChanger( uiGraphicsItemGroup& group,
-	uiGraphicsItem& itm, bool remove )
-    : group_( &group )
-    , itm_( itm )
-    , scene_( 0 )
-    , remove_( remove )
-{}
-
-
-bool uiGraphicsSceneChanger::execute()
-{
-    if ( !isMainThreadCurrent() )
-    {
-	pErrMsg("Violating QT threading");
-	return false;
-    }
-
-    if ( remove_ )
-    {
-	if ( scene_ ) scene_->removeItem( &itm_ );
-	else group_->remove( &itm_, false );
-    }
-    else
-    {
-	if ( scene_ ) scene_->addItem( &itm_ );
-	else group_->add( &itm_ );
-    }
-
-    return true;
-}
-
-
-bool uiGraphicsScene::executePendingUpdates()
-{
-    return Threads::WorkManager::twm().executeQueue( queueid_ );
-}
-
-
-void uiGraphicsScene::addUpdateToQueue( Task* t )
-{
-    Threads::WorkManager::twm().addWork( 
-	Threads::Work( *t, true ), 0, queueid_, false );
-
-    odgraphicsscene_->update();
-}
-
-
 uiGraphicsItem* uiGraphicsScene::doAddItem( uiGraphicsItem* itm )
 {
     if ( !itm ) return 0;
 
-    if ( !isMainThreadCurrent() )
-    {
-	addUpdateToQueue( new uiGraphicsSceneChanger(*this,*itm,false) );
-    }
-    else
-    {
-	itm->setScene( this );
-	odgraphicsscene_->addItem( itm->qGraphicsItem() );
-	items_ += itm;
-    }
-
+    itm->setScene( this );
+    odgraphicsscene_->addItem( itm->qGraphicsItem() );
+    items_ += itm;
     return itm;
 }
 

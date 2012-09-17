@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.h,v 1.10 2012-08-03 13:00:49 cvskris Exp $
+ RCS:           $Id: uifrequencyattrib.h,v 1.9 2009/07/22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -22,7 +21,7 @@ class uiWindowFunctionSel;
 
 /*! \brief Frequency Attribute description editor */
 
-mClass(uiAttributes) uiFrequencyAttrib : public uiAttrDescEd
+mClass uiFrequencyAttrib : public uiAttrDescEd
 {
 public:
 
@@ -52,4 +51,3 @@ protected:
 };
 
 #endif
-

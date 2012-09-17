@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.21 2012-08-29 15:58:00 cvsnanne Exp $
+ RCS:           $Id: convert.h,v 1.17 2011/02/03 21:25:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,12 +23,12 @@ namespace Conv{
 //! template based type converstion
 template <class T, class F>
 inline void set( T& _to, const F& fr )
-    { _to = (T)fr; }
+    { _to = fr; }
 
 template <class T, class F>
-inline T to( const F& fr )
+inline T& to( const F& fr )
 { 
-    T ret;
+    static T ret;
     Values::setUdf(ret);
     set<T,F>(ret,fr);
 
@@ -50,9 +50,9 @@ inline void udfset(T& _to, const F& fr, const T& und= Values::Undef<T>::val())
 }
 
 template <class T, class F>
-inline T udfto( const F& fr, const T& und = Values::Undef<T>::val() )
+inline T& udfto( const F& fr, const T& und = Values::Undef<T>::val() )
 { 
-    T ret;
+    static T ret;
     Values::setUdf(ret);
     udfset<T,F>(ret,fr,und);
 
@@ -106,9 +106,9 @@ inline void set( type& _to, const char* const& s ) \
     if ( !s || !*s ) { return; } \
 \
     char* endptr; \
-    type tmpval = (type) function; \
+    type tmpval = function; \
     if ( s != endptr ) \
-	_to = (type) tmpval; \
+	_to = tmpval; \
     else if ( Values::Undef<type>::hasUdf() ) \
 	    Values::setUdf( _to ); \
 } 
@@ -153,7 +153,7 @@ inline void set( short& _to, const float& f )
 
 template <>
 inline void set( unsigned short& _to, const float& f )
-    { _to = mRounded(od_uint16,f); }
+    { _to = mRounded(unsigned short,f); }
 
 template <>
 inline void set( od_uint32& _to, const float& f )
@@ -177,7 +177,7 @@ inline void set( short& _to, const double& f )
 
 template <>
 inline void set( unsigned short& _to, const double& f )
-    { _to = mRounded(od_uint16,f); }
+    { _to = mRounded(unsigned short,f); }
 
 template <>
 inline void set( od_uint32& _to, const double& f )
@@ -193,11 +193,11 @@ inline void set( bool& _to, const int& i )
 
 template <>
 inline void set( bool& _to, const float& f )
-    { _to = !mIsZero(f,mDefEpsF); }
+    { _to = !mIsZero(f,mDefEps); }
 
 template <>
 inline void set( bool& _to, const double& d )
-    { _to = !mIsZero(d,mDefEpsD); }
+    { _to = !mIsZero(d,mDefEps); }
 
 
 }

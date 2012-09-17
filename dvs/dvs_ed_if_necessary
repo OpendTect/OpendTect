@@ -1,32 +1,33 @@
-#!/bin/csh -f
-
-if ( ! -d CVS ) then
-    echo "No Subversion support yet"
-    exit 1
-endif
+#!/bin/csh
 
 set predcmd="dvs editors"
 set edcmd="dvs_ed"
 set startdir=`pwd`
 
 foreach fil ( $* )
-    if ( ! -r $fil || -d $fil ) continue
+	if ( ! -r $fil || -d $fil ) continue
+	echo -n "$fil ... "
 
-    echo -n "$fil ... "
+	if ( $fil:t != $fil ) then
 
-    if ( $fil:t != $fil ) then
-	echo -n "cd $fil:h ... "
-	cd $fil:h
-	set fil=$fil:t
-    endif
+		echo -n "cd $fil:h ... "
+		cd $fil:h
+		set fil=$fil:t
 
-    if ( `$predcmd $fil` == "" ) then
-	echo -n "checking out ... "
-	$edcmd $fil
-	echo "done."
-    else
-	echo "already checked out."
-    endif
+	endif
 
-    cd $startdir
+	if ( `$predcmd $fil` == "" ) then
+
+		echo -n "checking out ... "
+		$edcmd $fil
+		echo "done."
+
+	else
+
+		echo "already checked out."
+
+	endif
+
+	cd $startdir
+
 end

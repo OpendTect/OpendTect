@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2007
- RCS:           $Id: flatposdata.h,v 1.10 2012-08-08 04:59:08 cvssalil Exp $
+ RCS:           $Id: flatposdata.h,v 1.8 2010/01/21 13:04:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "ranges.h"
 #include "indexinfo.h"
 
@@ -24,7 +23,7 @@ ________________________________________________________________________
  
  */
 
-mClass(General) FlatPosData
+mClass FlatPosData
 {
 public:
 				FlatPosData()
@@ -50,7 +49,7 @@ public:
     inline int			nrPts( bool forx1 ) const
 				{ return range(forx1).nrSteps() + 1; }
     float			width( bool forx1 ) const
-				{ return ( float )( range(forx1).width() ); }
+				{ return range(forx1).width(); }
     IndexInfo			indexInfo(bool forx1,double pos) const;
 
     double			position(bool forx1,int) const;
@@ -83,4 +82,3 @@ protected:
 
 
 #endif
-

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiemhorizonpreloaddlg.cc,v 1.11 2012-07-24 12:42:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.6 2010/12/16 13:04:29 cvsbert Exp $";
 
 #include "uiempreloaddlg.h"
 
@@ -45,26 +45,24 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     listfld_ = new uiListBox( this, "Loaded entries", true );
     listfld_->selectionChanged.notify(mCB(this,uiHorizonPreLoadDlg,selCB) );
 
-    uiToolButton* opentb = new uiToolButton( this, "openpreload",
+    uiToolButton* opentb = new uiToolButton( this, "openpreload.png",
 	    "Retrieve pre-loads", mCB(this,uiHorizonPreLoadDlg,openPushCB) );
     opentb->attach( leftAlignedBelow, listfld_ );
 
-    savebut_ = new uiToolButton( this, "savepreload", "Save pre-loads",
+    savebut_ = new uiToolButton( this, "savepreload.png", "Save pre-loads",
 		     mCB(this,uiHorizonPreLoadDlg,savePushCB) );
     savebut_->attach( rightAlignedBelow, listfld_ );
 
     uiButtonGroup* butgrp = new uiButtonGroup( this, "Manip buttons" );
     butgrp->attach( rightOf, listfld_ );
 
-    uiPushButton* add3dbut mUnusedVar =
-	new uiPushButton( butgrp, "Add 3D Horizon",
-			  mCB(this,uiHorizonPreLoadDlg,add3DPushCB), false );
+    uiPushButton* add3dbut = new uiPushButton( butgrp, "Add 3D Horizon",
+		    mCB(this,uiHorizonPreLoadDlg,add3DPushCB), false );
 
     if ( SI().has2D() )
     {
-	uiPushButton* add2dbut mUnusedVar =
-	    new uiPushButton( butgrp, "Add 2D Horizon",
-			      mCB(this,uiHorizonPreLoadDlg,add2DPushCB), false);
+	uiPushButton* add2dbut = new uiPushButton( butgrp, "Add 2D Horizon",
+			mCB(this,uiHorizonPreLoadDlg,add2DPushCB), false );
     }
 
     unloadbut_ = new uiPushButton( this, "Unload selected",
@@ -196,6 +194,7 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	return;
     }
 
+    EM::HorizonPreLoader& hpl = EM::HPreL();
     PtrMan<IOPar> par = fulliop.subselect( "Hor" );
     TypeSet<MultiID> selmids;
     for ( int idx=0; idx<par->size(); idx++ )
@@ -204,7 +203,7 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	if ( !multiidpar )
 	    continue;
 
-	const char* id = multiidpar->find( sKey::ID() );
+	const char* id = multiidpar->find( sKey::ID );
 	if ( !id || !*id )
 	    continue;
 

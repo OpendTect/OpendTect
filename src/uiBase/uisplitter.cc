@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisplitter.cc,v 1.10 2012-08-30 07:52:52 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uisplitter.cc,v 1.7 2011/04/21 13:09:13 cvsbert Exp $";
 
 
 #include "uisplitter.h"
@@ -18,12 +18,12 @@ static const char* rcsID mUnusedVar = "$Id: uisplitter.cc,v 1.10 2012-08-30 07:5
 #include <QSplitter>
 
 
-class uiSplitterBody : public uiObjBodyImpl<uiSplitter,mQtclass(QSplitter)>
+class uiSplitterBody : public uiObjBodyImpl<uiSplitter,QSplitter>
 {
 public:
 
 uiSplitterBody( uiSplitter& hndl, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiSplitter,mQtclass(QSplitter)>(hndl,p,nm)
+    : uiObjBodyImpl<uiSplitter,QSplitter>(hndl,p,nm)
 {
 }
 
@@ -33,8 +33,7 @@ uiSplitterBody( uiSplitter& hndl, uiParent* p, const char* nm )
 uiSplitter::uiSplitter( uiParent* p, const char* txt, bool hor )
     : uiObject(p, txt, mkbody(p,txt) )
 {
-    body_->setOrientation( hor ? mQtclass(Qt)::Horizontal
-	    		       : mQtclass(Qt)::Vertical );
+    body_->setOrientation( hor ? Qt::Horizontal : Qt::Vertical );
     setStretch( 2, 2 );
 }
 

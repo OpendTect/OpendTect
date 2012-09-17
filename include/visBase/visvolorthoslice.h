@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: visvolorthoslice.h,v 1.15 2012-08-03 13:01:27 cvskris Exp $
+ RCS:           $Id: visvolorthoslice.h,v 1.14 2012/01/05 10:47:58 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 
@@ -27,7 +26,7 @@ class DepthTabPlaneDragger; class PickStyle;
 Slice that cuts orthogonal through a VolumeData.
 */
 
-mClass(visBase) OrthogonalSlice : public visBase::VisualObjectImpl
+mClass OrthogonalSlice : public visBase::VisualObjectImpl
 {
 public:
     static OrthogonalSlice*	create()
@@ -77,4 +76,3 @@ protected:
 };
 	
 #endif
-

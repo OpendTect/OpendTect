@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestacklateralstack.h,v 1.5 2012-08-03 13:00:33 cvskris Exp $
+ RCS:		$Id: prestacklateralstack.h,v 1.4 2011/01/25 20:34:00 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "multiid.h"
 #include "offsetazimuth.h"
 #include "prestackprocessor.h"
@@ -21,7 +20,7 @@ ________________________________________________________________________
 namespace PreStack
 {
 
-mClass(PreStackProcessing) LateralStack : public Processor
+mClass LateralStack : public Processor
 {
 public:
     			mDefaultFactoryInstanciationBase(
@@ -69,4 +68,3 @@ protected:
 }; //namespace
 
 #endif
-

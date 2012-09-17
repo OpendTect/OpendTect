@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.38 2012-08-03 13:01:27 cvskris Exp $
+ RCS:		$Id: vistexturerect.h,v 1.36 2012/01/31 11:01:34 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "visbasemod.h"
 #include "visobject.h"
 
 class CubeSampling;
@@ -30,7 +29,7 @@ class TextureChannels;
     A TextureRectangle is a Rectangle with a datatexture.  The data is set via setData.
 */
 
-mClass(visBase) TextureRectangle : public VisualObjectImpl
+mClass TextureRectangle : public VisualObjectImpl
 {
 public:
     static TextureRectangle*	create()
@@ -43,9 +42,6 @@ public:
     Coord3			getWidth() const;
     Coord3			getCenter() const;
 
-    void			swapTextureAxes(bool yn=true);
-    bool			areTextureAxesSwapped() const;
-
 protected:
     				~TextureRectangle();
 
@@ -56,4 +52,3 @@ protected:
 };
 
 #endif
-

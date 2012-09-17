@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipickpartserv.cc,v 1.74 2012-08-10 03:50:05 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.69 2011/06/17 05:23:36 cvsranojay Exp $";
 
 #include "uipickpartserv.h"
 
@@ -30,13 +30,13 @@ static const char* rcsID mUnusedVar = "$Id: uipickpartserv.cc,v 1.74 2012-08-10 
 #include "statrand.h"
 #include "ptrman.h"
 
-int uiPickPartServer::evGetHorInfo2D()	{ return 0; }
-int uiPickPartServer::evGetHorInfo3D()	{ return 1; } 
-int uiPickPartServer::evGetHorDef3D()	{ return 2; }
-int uiPickPartServer::evGetHorDef2D()	{ return 3; }
-int uiPickPartServer::evFillPickSet()	{ return 4; }
-int uiPickPartServer::evGet2DLineInfo()	{ return 5; }
-int uiPickPartServer::evGet2DLineDef()	{ return 6; }
+const int uiPickPartServer::evGetHorInfo2D()	{ return 0; }
+const int uiPickPartServer::evGetHorInfo3D()	{ return 1; } 
+const int uiPickPartServer::evGetHorDef3D()	{ return 2; }
+const int uiPickPartServer::evGetHorDef2D()	{ return 3; }
+const int uiPickPartServer::evFillPickSet()	{ return 4; }
+const int uiPickPartServer::evGet2DLineInfo()	{ return 5; }
+const int uiPickPartServer::evGet2DLineDef()	{ return 6; }
 
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
@@ -82,7 +82,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
     if ( poly )
-	ctio->ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+	ctio->ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
 
     uiIOObjSelDlg dlg( appserv().parent(), *ctio, 0, true );
     if ( !dlg.go() ) return false;
@@ -210,8 +210,7 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
     {
 	const int posidx = Stats::RandGen::getIndex( nrpos );
 	Interval<float> zrg = rp.needhor_ ? hor2dzrgs_[posidx] : rp.zrg_;
-	float val = (float) ( zrg.start + 
-				  Stats::RandGen::get() * zrg.width(false) ); 
+	float val = zrg.start + Stats::RandGen::get() * zrg.width(false);
 	ps += Pick::Location( coords2d_[posidx], val );
     }
 

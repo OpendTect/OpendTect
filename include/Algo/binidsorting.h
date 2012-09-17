@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: binidsorting.h,v 1.6 2012-08-03 13:00:02 cvskris Exp $
+ RCS:		$Id: binidsorting.h,v 1.5 2010/07/12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "position.h"
 #include "bufstring.h"
 
@@ -23,7 +22,7 @@ ________________________________________________________________________
  
  */
 
-mClass(Algo) BinIDSorting
+mClass BinIDSorting
 {
 public:
     			BinIDSorting( bool is2d )
@@ -60,7 +59,7 @@ protected:
 };
 
 
-mClass(Algo) BinIDSortingAnalyser
+mClass BinIDSortingAnalyser
 {
 public:
     			BinIDSortingAnalyser(bool is2d);
@@ -83,4 +82,3 @@ protected:
 
 
 #endif
-

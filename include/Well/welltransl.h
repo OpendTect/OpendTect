@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: welltransl.h,v 1.11 2012-08-03 13:00:46 cvskris Exp $
+ RCS:		$Id: welltransl.h,v 1.10 2009/07/22 16:01:19 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "wellmod.h"
 #include "transl.h"
 #include "position.h"
 class Executor;
@@ -24,7 +23,7 @@ class BufferStringSet;
 namespace Well { class Data; };
 
 
-mClass(Well) WellTranslatorGroup : public TranslatorGroup
+mClass WellTranslatorGroup : public TranslatorGroup
 {			    isTranslatorGroup(Well)
 public:
     			mDefEmptyTranslatorGroupConstructor(Well)
@@ -32,7 +31,7 @@ public:
 };
 
 
-mClass(Well) WellTranslator : public Translator
+mClass WellTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(Well)
@@ -53,7 +52,7 @@ public:
 };
 
 
-mClass(Well) dgbWellTranslator : public WellTranslator
+mClass dgbWellTranslator : public WellTranslator
 {			  isTranslator(dgb,Well)
 public:
     			mDefEmptyTranslatorConstructor(dgb,Well)
@@ -65,4 +64,3 @@ public:
 
 
 #endif
-

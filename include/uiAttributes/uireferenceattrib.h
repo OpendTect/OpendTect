@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:           $Id: uireferenceattrib.h,v 1.9 2012-08-03 13:00:49 cvskris Exp $
+ RCS:           $Id: uireferenceattrib.h,v 1.8 2009/07/22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -22,7 +21,7 @@ class uiGenInput;
 
 /*! \brief Reference Attribute description editor */
 
-mClass(uiAttributes) uiReferenceAttrib : public uiAttrDescEd
+mClass uiReferenceAttrib : public uiAttrDescEd
 {
 public:
 
@@ -49,4 +48,3 @@ protected:
 };
 
 #endif
-

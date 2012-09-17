@@ -4,7 +4,7 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vissower.cc,v 1.16 2012-09-06 10:09:36 cvsjaap Exp $";
+static const char* rcsID = "$Id: vissower.cc,v 1.13 2012/09/06 10:09:50 cvsjaap Exp $";
 
 
 #include "vissower.h"
@@ -35,19 +35,18 @@ namespace visSurvey
 
 
 Sower::Sower( const visBase::VisualObjectImpl* editobj )
-    : visBase::VisualObjectImpl(false)
-    , editobject_(editobj)
-    , eventcatcher_(0)
-    , transformation_(0)
-    , mode_(Idle)
-    , sowingline_(visBase::PolyLine::create())
-    , pickstyle_(visBase::PickStyle::create())
-    , linelost_(false)
-    , singleseeded_(true)
-    , curpid_(EM::PosID::udf())
-    , curpidstamp_(mUdf(int))
-    , workrange_(0)
-    , underlyingobjid_(-1)
+    : visBase::VisualObjectImpl( false )
+    , editobject_( editobj )
+    , eventcatcher_( 0 )
+    , transformation_( 0 )
+    , mode_( Idle )
+    , sowingline_( visBase::PolyLine::create() )
+    , pickstyle_( visBase::PickStyle::create() )
+    , linelost_( false )
+    , singleseeded_( true )
+    , curpid_( EM::PosID::udf() )
+    , curpidstamp_( mUdf(int) )
+    , workrange_( 0 )
 {
     pickstyle_->ref();
     pickstyle_->setStyle( visBase::PickStyle::Unpickable );
@@ -412,7 +411,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	bendpoints_.reverse();
 
     if ( intersowing )
-	bendpoints_.insert( 1,  bendpoints_[bendpoints_.size()-1] );
+	bendpoints_.insert( 1, bendpoints_[bendpoints_.size()-1] );
 
     mode_ = FirstSowing;
     int count = 0;

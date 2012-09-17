@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uielasticpropsel.h,v 1.8 2012-08-03 13:01:06 cvskris Exp $
+ RCS:           $Id: uielasticpropsel.h,v 1.7 2012/03/26 15:05:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "multiid.h"
 #include "elasticpropsel.h"
 
@@ -32,7 +31,7 @@ class uiIOObjSel;
 class uiTabStack;
 
 
-mClass(uiSeis) uiElasticPropSelGrp : public uiGroup
+mClass uiElasticPropSelGrp : public uiGroup
 {
 public:
     				uiElasticPropSelGrp(uiParent*,
@@ -40,7 +39,7 @@ public:
 					 ElasticPropertyRef&,
 					 const TypeSet<ElasticFormula>&);
 
-    void			setPropRef(const ElasticPropertyRef& pr)
+    void                        setPropRef(const ElasticPropertyRef& pr)
 				{ elpropref_ = pr; }
 
     void			getFromScreen();
@@ -63,7 +62,7 @@ protected:
 
     MathExpression*	   	expr_;
 
-    mClass(uiSeis) uiSelInpGrp : public uiGroup
+    mClass uiSelInpGrp : public uiGroup
     {
     public:
 			uiSelInpGrp(uiParent*,const BufferStringSet&,int);
@@ -99,7 +98,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiElasticPropSelDlg : public uiDialog
+mClass uiElasticPropSelDlg : public uiDialog
 {
 public:
 				uiElasticPropSelDlg(uiParent*,
@@ -142,4 +141,3 @@ protected:
 
 
 #endif
-

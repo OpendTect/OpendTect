@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segyhdrdef.cc,v 1.12 2012-08-02 15:42:19 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: segyhdrdef.cc,v 1.8 2012/06/14 09:28:29 cvsraman Exp $";
 
 
 #include "segythdef.h"
@@ -99,7 +99,7 @@ static const unsigned char* getBytes( const void* inpbuf, bool swapped,
 }
 
 
-#define mGetBytes() getBytes(buf,swapped,bytepos_,byteSize())
+#define mGetBytes(nr) getBytes(buf,swapped,bytepos_,byteSize())
 
 int SEGY::HdrEntry::getValue( const void* buf, bool swapped ) const
 {

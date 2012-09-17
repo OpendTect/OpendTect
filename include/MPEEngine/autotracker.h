@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.15 2012-08-03 13:00:29 cvskris Exp $
+ RCS:           $Id: autotracker.h,v 1.14 2009/09/01 22:15:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emposid.h"
 #include "executor.h"
 #include "sets.h"
@@ -33,7 +32,7 @@ class SectionAdjuster;
 class SectionExtender;
 class EMTracker;
 
-mClass(MPEEngine) AutoTracker : public Executor
+mClass AutoTracker : public Executor
 {
 public:
 				AutoTracker(EMTracker&,const EM::SectionID&);
@@ -81,5 +80,4 @@ protected:
 }; // namespace MPE
 
 #endif
-
 

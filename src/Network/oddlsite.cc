@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: oddlsite.cc,v 1.25 2012-08-07 11:30:28 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddlsite.cc,v 1.21 2012/08/07 11:47:23 cvsranojay Exp $";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -123,6 +123,7 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
 	
 	    return false;
 	}
+	 
     }
     else
     {

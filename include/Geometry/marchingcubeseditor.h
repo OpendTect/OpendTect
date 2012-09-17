@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          August 2007
- RCS:           $Id: marchingcubeseditor.h,v 1.11 2012-08-03 13:00:28 cvskris Exp $
+ RCS:           $Id: marchingcubeseditor.h,v 1.10 2009/07/22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "task.h"
 #include "callback.h"
 #include "position.h"
@@ -37,7 +36,7 @@ the movement, and the factor is set by from the outside.
 */
 
 
-mClass(Geometry) MarchingCubesSurfaceEditor : public ParallelTask
+mClass MarchingCubesSurfaceEditor : public ParallelTask
 {
 public:
     			MarchingCubesSurfaceEditor(MarchingCubesSurface&);
@@ -86,4 +85,3 @@ private:
 };
 
 #endif
-

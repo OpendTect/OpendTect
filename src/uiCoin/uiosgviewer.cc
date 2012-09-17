@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiosgviewer.cc,v 1.8 2012-06-20 13:10:56 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiosgviewer.cc,v 1.4 2011/12/20 14:44:14 cvsjaap Exp $";
 
 #include "uiosgviewer.h"
 
@@ -19,9 +19,11 @@ static const char* rcsID mUnusedVar = "$Id: uiosgviewer.cc,v 1.8 2012-06-20 13:1
 #include "vissurvscene.h"
 #include "visdatagroup.h"
 
+#ifdef __have_osg__
 #include <osgViewer/View>
 #include <osgViewer/CompositeViewer>
 #include <osgQt/GraphicsWindowQt>
+#endif
 
 class uiOsgViewer
 {
@@ -35,7 +37,9 @@ public:
     static uiOsgViewer& getCommonViewer();
 
 protected:
+#ifdef __have_osg__
     osg::ref_ptr<osgViewer::CompositeViewer>	osgviewer_;
+#endif
     ObjectSet<uiOsgViewHandle>     		views_;
 };
 
@@ -51,7 +55,9 @@ void uiOsgViewHandle::detachView()
 	viewer_->removeView( this );
     viewer_ = 0;
 
+#ifdef __have_osg__
     if ( osgview_ ) osgview_->unref();
+#endif
     osgview_ = 0;
 }
 
@@ -65,8 +71,10 @@ void uiOsgViewHandle::setOsgView( osgViewer::View* view )
     }
 
     osgview_ = view;
+#ifdef __have_osg__
     osgview_->ref();
     uiOsgViewer::getCommonViewer().addView( this );
+#endif
 }
 
 
@@ -78,12 +86,15 @@ uiOsgViewer& uiOsgViewer::getCommonViewer()
 
 
 uiOsgViewer::uiOsgViewer()
+#ifdef __have_osg__
     : osgviewer_( new osgViewer::CompositeViewer )
+#endif
 {
+#ifdef __have_osg__
     osgviewer_->ref();
     osgviewer_->setThreadingModel( osgViewer::ViewerBase::SingleThreaded );
-    osgviewer_->getEventVisitor()->setTraversalMask( visBase::EventTraversal );
     osgQt::setViewer( osgviewer_.get() );
+#endif
 }
 
 
@@ -95,13 +106,17 @@ uiOsgViewer::~uiOsgViewer()
 	views_[idx]->setViewer( 0 );
     }
 
+#ifdef __have_osg__
     osgviewer_->unref();
+#endif
 }
 
 
 void uiOsgViewer::addView(uiOsgViewHandle* view )
 {
+#ifdef __have_osg__
     osgviewer_->addView( view->getOsgView() );
+#endif
     view->setViewer( this );
     views_ += view;
 }
@@ -109,6 +124,8 @@ void uiOsgViewer::addView(uiOsgViewHandle* view )
 
 void uiOsgViewer::removeView( uiOsgViewHandle* view )
 {
+#ifdef __have_osg__
     osgviewer_->removeView( view->getOsgView() );
+#endif
     views_ -= view;
 }

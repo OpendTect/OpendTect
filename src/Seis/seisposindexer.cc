@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID mUnusedVar = "$Id: seisposindexer.cc,v 1.20 2012-07-24 14:22:53 cvsbert Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.17 2012/06/28 12:31:05 cvskris Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -142,7 +142,7 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_int64 offset,
     if ( strm_ )
 	delete strm_;
 
-    strm_ = StreamProvider( fnm ).makeIStream().istrm;
+    strm_ = StreamProvider( fnm ).makeIStream().istrm; 
     if ( !strm_->good() )
     {
 	delete strm_;
@@ -403,6 +403,8 @@ void Seis::PosIndexer::getCrls( int inl, TypeSet<int>& crls ) const
     if ( !pres )
 	return;
 
+    const TypeSet<int>* crlsetptr = 0;
+
     if ( strm_ )
     {
 	if ( curinl_!=inl )
@@ -458,10 +460,7 @@ od_int64 Seis::PosIndexer::findFirst( const Seis::PosKey& pk, bool wo ) const
 
     for ( ; ret<=maxidx_; ret++ )
     {
-	PosKey curpk;
-	if ( !pkl_.key( ret, curpk ) )
-	    return -1;
-	
+	const PosKey curpk( pkl_.key(ret) );
 	if ( curpk.isUndef() )
 	    continue;
 	else if ( curpk.binID() != pk.binID() )
@@ -486,12 +485,9 @@ od_int64 Seis::PosIndexer::findOcc( const Seis::PosKey& pk, int occ ) const
     od_int64 ret = strm_ ? curidxset_[crlidx] : (*idxsets_[inlidx])[crlidx];
     if ( occ < 1 ) return ret;
 
-    PosKey curpk;
     for ( ret++; ret<=maxidx_; ret++ )
     {
-	if ( !pkl_.key( ret, curpk ) )
-	    return -1;
-
+	const PosKey curpk( pkl_.key(ret) );
 	if ( curpk.isUndef() )
 	    continue;
 	else if ( curpk.binID() != pk.binID() )
@@ -519,12 +515,9 @@ TypeSet<od_int64> Seis::PosIndexer::findAll( const Seis::PosKey& pk ) const
     od_int64 idx = strm_ ? curidxset_[crlidx] : (*idxsets_[inlidx])[crlidx];
     retidxs += idx;
 
-    PosKey curpk;
     for ( ; idx<=maxidx_; idx++ )
     {
-	if ( !pkl_.key(idx,curpk) )
-	    break;
-	
+	const PosKey curpk( pkl_.key(idx) );
 	if ( curpk.isUndef() )
 	    continue;
 	else if ( curpk.binID() != pk.binID() )
@@ -541,15 +534,8 @@ void Seis::PosIndexer::reIndex()
     empty();
 
     const od_int64 sz = pkl_.size();
-    
-    PosKey curpk;
     for ( od_int64 idx=0; idx<sz; idx++ )
-    {
-	if ( !pkl_.key( idx, curpk ) )
-	    return;
-	
-	add( curpk, idx );
-    }
+	add( pkl_.key( idx ), idx );
 }
 
 

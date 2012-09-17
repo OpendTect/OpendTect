@@ -7,19 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: uisplashscreen.h,v 1.5 2012-08-30 06:05:55 cvsnageswara Exp $
+ RCS:		$Id: uisplashscreen.h,v 1.3 2009/07/22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "commondefs.h"
 
 class ioPixmap;
 class uiMainWin;
-mFDQtclass(QSplashScreen)
+class QSplashScreen;
 
-mClass(uiBase) uiSplashScreen
+mClass uiSplashScreen
 {
 public:
     				uiSplashScreen(const ioPixmap&);
@@ -30,8 +29,7 @@ public:
     void			showMessage(const char*);
 
 protected:
-    mQtclass(QSplashScreen*)	qsplashscreen_;
+    QSplashScreen*		qsplashscreen_;
 };
 
 #endif
-

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Sep 2008
- RCS:           $Id: SoTextureComposer.h,v 1.12 2012-08-27 13:16:49 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.h,v 1.10 2009/07/22 16:01:19 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/lists/SbPList.h>
 #include <Inventor/fields/SoSFImage.h>
 #include <Inventor/fields/SoSFVec3i32.h>
@@ -37,7 +36,7 @@ class SbImage;
    to OpenGL */
 
 
-mSoODClass SoTextureComposer: public SoNode
+mClass SoTextureComposer: public SoNode
 { SO_NODE_HEADER(SoTextureComposer);
 public:
     static		void initClass();
@@ -79,7 +78,7 @@ protected:
 };
 
 
-mSoODClass SoTextureComposerInfo : public SoNode
+mClass SoTextureComposerInfo : public SoNode
 { SO_NODE_HEADER(SoTextureComposerInfo );
 public:
     static		void initClass();
@@ -100,4 +99,3 @@ protected:
 };
 
 #endif
-

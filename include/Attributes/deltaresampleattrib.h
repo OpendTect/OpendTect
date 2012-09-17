@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Oct 2006
- RCS:           $Id: deltaresampleattrib.h,v 1.1 2010-03-22 10:13:06 cvsbert Exp $
+ RCS:           $Id: deltaresampleattrib.h,v 1.1 2010/03/22 10:13:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: helpview.cc,v 1.51 2012-08-03 13:01:35 cvskris Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.50 2012/07/05 09:44:25 cvsraman Exp $";
 
 #include "helpview.h"
 
@@ -33,6 +33,7 @@ static const char* sWebSite = "http://opendtect.org";
 
 static bool showhelpstuff = GetEnvVarYN("DTECT_SHOW_HELP")
 			 || GetEnvVarYN("DTECT_SHOW_HELPINFO_ONLY");
+
 
 static StreamData getStreamData( const char* fnm )
 {
@@ -315,8 +316,9 @@ BufferString HelpViewer::getWebUrlFromLocal( const char* localfnm )
     return url;
 }
 
+
 #include "texttranslator.h"
-mGlobal( General )  TextTranslateMgr& TrMgr()
+mGlobal TextTranslateMgr& TrMgr()
 {
     static TextTranslateMgr* trmgr = 0;
     if ( !trmgr ) trmgr = new TextTranslateMgr();

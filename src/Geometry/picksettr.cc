@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: picksettr.cc,v 1.31 2012-08-08 05:26:29 cvssalil Exp $";
+static const char* rcsID = "$Id: picksettr.cc,v 1.26 2012/06/20 17:34:40 cvsnanne Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -26,7 +26,7 @@ static const char* rcsID mUnusedVar = "$Id: picksettr.cc,v 1.31 2012-08-08 05:26
 #include "keystrs.h"
 
 mDefSimpleTranslatorioContextWithExtra( PickSet, Loc,
-	ctxt->toselect.require_.set( sKey::Type(), "PickSet``Polygon" )	)
+	ctxt->toselect.require_.set( sKey::Type, "PickSet``Polygon" )	)
 
 int PickSetTranslatorGroup::selector( const char* key )
 {
@@ -99,12 +99,12 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	for ( int ips=0; !atEndOfSection(astrm); ips++ )
 	{
 	    astrm.next();
-	    if ( astrm.hasKeyword(sKey::Color()) )
+	    if ( astrm.hasKeyword(sKey::Color) )
 	    {
 		ps.disp_.color_.use( astrm.value() );
 		astrm.next();
 	    }
-	    if ( astrm.hasKeyword(sKey::Size()) )
+	    if ( astrm.hasKeyword(sKey::Size) )
 	    {
 		ps.disp_.pixsize_ = astrm.getIValue();
 		astrm.next();
@@ -188,7 +188,7 @@ void PickSetTranslator::createBinIDValueSets(
 	for ( int ipck=0; ipck<crds.size(); ipck++ )
 	{
 	    const Coord3& crd( crds[idx] );
-	    bs->add( SI().transform(crd), (float) crd.z );
+	    bs->add( SI().transform(crd), crd.z );
 	}
     }
 }
@@ -269,7 +269,7 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
     {
 	const Pick::Location& pl = ps[idx];
 	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos );
-	ret->add( Geom::Point2D<float>((float) fbid.x,(float) fbid.y) );
+	ret->add( Geom::Point2D<float>(fbid.x,fbid.y) );
     }
 
     return ret;

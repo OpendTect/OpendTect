@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.24 2012-08-21 09:28:52 cvsbruno Exp $
+ RCS:		$Id: wellmarker.h,v 1.22 2012/08/24 10:40:40 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "wellmod.h"
 #include "namedobj.h"
 #include "color.h"
 
@@ -28,7 +27,7 @@ class Track;
 
 */
 
-mClass(Well) Marker : public ::NamedObject
+mClass Marker : public ::NamedObject
 {
 public:
 
@@ -37,7 +36,6 @@ public:
 			, dah_(dh)
 			, levelid_(-1)		{}
 			Marker(int lvlid,float dh);
-			Marker(const Marker&);
 
     float		dah() const		{ return dah_; }
     void		setDah( float v )	{ dah_ = v; }
@@ -51,20 +49,23 @@ public:
 
     // setName() and setColor() only used as fallback, if not attached to level
     void		setColor( Color col )	{ color_ = col; }
-    bool                operator > (const Marker& dm) const 
-    			{ return dah_ >= dm.dah_; }
-
 
 protected:
 
     float		dah_;
     int			levelid_;
     Color		color_;
+
+public:
+    			Marker(const Well::Marker&);
+
+    bool  		operator > (const Marker& m) const 
+			{ return dah_ >= m.dah_; }
 };
 
 
 
-mClass(Well) MarkerSet : public ObjectSet<Marker>
+mClass MarkerSet : public ObjectSet<Marker>
 {
 public:
     			MarkerSet()		{}
@@ -79,23 +80,23 @@ public:
 
     bool		isPresent(const char* n) const 	{ return getByName(n); }
     int			indexOf(const char*) const;		  
-    bool		insertNew(Well::Marker*); //becomes mine
+    void		insertNew(Well::Marker*); //becomes mine
 
     int			indexOf( const Marker* m ) const
 			{ return ObjectSet<Marker>::indexOf(m); }	
     bool		isPresent( const Marker* m ) const
-			{ return ObjectSet<Marker>::isPresent(m); }	
-
-    void		getNames(BufferStringSet&) const;
+			{ return ObjectSet<Marker>::isPresent(m); }
 
 protected:
 
     Marker* 		gtByName(const char*) const;
     Marker* 		gtByLvlID(int) const;
+
+public:
+    void                getNames(BufferStringSet&) const;
 };
 
 
 } // namespace Well
 
 #endif
-

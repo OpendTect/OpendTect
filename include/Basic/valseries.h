@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.40 2012-08-30 14:10:52 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.34 2011/09/22 21:39:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "gendefs.h"
 #include "errh.h"
 #include "odmemory.h"
@@ -179,7 +178,7 @@ protected:
 };
 
 template <class T>
-class ValueSeriesGetAll : public ParallelTask
+mClass ValueSeriesGetAll : public ParallelTask
 {
 public:
 		ValueSeriesGetAll(const ValueSeries<T>& from,
@@ -203,12 +202,10 @@ bool		doWork( od_int64 start, od_int64 stop, int )
 		{
 		    od_int64 nrleft = stop-start+1;
 		    const T* fromarr = from_.arr();
-		    T* toarr = toptr_ ? toptr_ : to_->arr(); 
+		    T* toarr = toptr_ ? toptr_ : to_->arr();
 		    if ( toarr && fromarr )
-		    {
-			memcpy( toarr+start, fromarr+start,
-			        (size_t) (nrleft*from_.bytesPerItem()) );
-		    }
+			memcpy( toarr+start, fromarr+start, 
+				nrleft*from_.bytesPerItem() );
 		    else if ( toarr )
 		    {
 			toarr += start;
@@ -414,10 +411,10 @@ bool ArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     else
 	ptr_ = 0;
 
-    const od_int64 copysize = mMIN(sz,cursize_);
+    const int copysize = mMIN(sz,cursize_);
     cursize_ = ptr_ ? sz : -1;
     if ( ptr_ && copysize>0 )
-	memcpy( ptr_, oldptr, (size_t) (copysize*sizeof(AT)) );
+        memcpy( ptr_, oldptr, copysize*sizeof(AT) );
     
     delete [] oldptr;
     return ptr_;
@@ -437,8 +434,7 @@ MultiArrayValueSeries<RT,AT>::MultiArrayValueSeries( od_int64 sz )
 template <class RT, class AT> inline
 MultiArrayValueSeries<RT, AT>::MultiArrayValueSeries( 
 				const MultiArrayValueSeries<RT, AT>& mavs )
-    : ValueSeries<RT>( mavs )
-    , cursize_( -1 )
+    : cursize_( -1 )
     , chunksize_( mavs.chunksize_ )
 {
     ptrs_.allowNull( true );
@@ -486,7 +482,7 @@ RT MultiArrayValueSeries<RT,AT>::value( od_int64 idx ) const
 	return RT();
 
     idx -= arridx*chunksize_;
-    return  ptrs_[arridx][idx];
+    return ptrs_[arridx][idx];
 }
 
 
@@ -583,4 +579,3 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 #undef mChunkSize
 
 #endif
-

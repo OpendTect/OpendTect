@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackeventsapi.cc,v 1.4 2012-09-13 18:36:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: prestackeventsapi.cc,v 1.1 2009/09/14 16:23:58 cvskris Exp $";
 
 #include "prestackeventsapi.h"
 
@@ -376,7 +376,7 @@ void PreStack::EventsAPIMgr::getEvent( int handle, int index, float* offsets,
 	    if ( azimuths ) azimuths[idy] = pick->offsetazimuth_[idy].azimuth();
 	    if ( depths ) depths[idy] = pick->pick_[idy];
 	    if ( quality ) quality[idy] = pick->pickquality_
-					    ? pick->pickquality_[idy] : 1.f;
+					    ? pick->pickquality_[idy] : 1;
 	}
     }
     else

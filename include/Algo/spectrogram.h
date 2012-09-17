@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: spectrogram.h,v 1.2 2012-08-03 13:00:05 cvskris Exp $
+ RCS:		$Id: spectrogram.h,v 1.1 2010/08/11 16:41:52 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "fourier.h"
 
 
@@ -24,7 +23,7 @@ and is the 'traditional' way to view a signal's frequency distribution.
 Spectrogram is not reversible.
 */
 
-mClass(Algo) Spectrogram 
+mClass Spectrogram 
 {
 public:
 			Spectrogram();
@@ -57,4 +56,3 @@ protected:
 
 
 #endif
-

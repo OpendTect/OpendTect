@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPerspectiveSel.h,v 1.9 2012-08-27 13:16:48 cvskris Exp $
+ RCS:		$Id: SoPerspectiveSel.h,v 1.7 2009/07/22 16:01:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/fields/SoMFVec3f.h>
@@ -19,7 +18,7 @@ ________________________________________________________________________
 
 #include "soodbasic.h"
 
-mSoODClass SoPerspectiveSel : public SoGroup
+mClass SoPerspectiveSel : public SoGroup
 {
     typedef SoGroup inherited;
 
@@ -54,4 +53,3 @@ private:
 };
 
 #endif
-

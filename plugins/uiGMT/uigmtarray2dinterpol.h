@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id: uigmtarray2dinterpol.h,v 1.5 2012-08-03 13:01:33 cvskris Exp $
+ RCS:           $Id: uigmtarray2dinterpol.h,v 1.4 2011/01/10 10:20:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uigmtmod.h"
 #include "uiarray2dinterpol.h"
 
 class BufferString;
@@ -20,7 +19,7 @@ class IOPar;
 class uiGenInput;
 
 
-mClass(uiGMT) uiGMTSurfaceGrid	: public uiArray2DInterpol
+mClass uiGMTSurfaceGrid	: public uiArray2DInterpol
 {
 public:
 				uiGMTSurfaceGrid(uiParent*);
@@ -39,7 +38,7 @@ protected:
 };
 
 
-mClass(uiGMT) uiGMTNearNeighborGrid : public uiArray2DInterpol
+mClass uiGMTNearNeighborGrid : public uiArray2DInterpol
 {
 public:
 				uiGMTNearNeighborGrid(uiParent*);
@@ -59,4 +58,3 @@ protected:
 };
 
 #endif
-

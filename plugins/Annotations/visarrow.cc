@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visarrow.cc,v 1.20 2012-08-13 03:56:43 cvssalil Exp $";
+static const char* rcsID = "$Id: visarrow.cc,v 1.17 2009/12/01 02:35:14 cvsnanne Exp $";
 
 #include "visarrow.h"
 
@@ -121,7 +121,7 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
     const Coord3 c1 = loc.pos+vector;
     Coord3 d1 = world2Display( c1 );
     Coord3 displayvector = d1-d0;
-    const double len = displayvector.abs();
+    const float len = displayvector.abs();
     if ( mIsZero(len,1e-3) )
 	return;
 

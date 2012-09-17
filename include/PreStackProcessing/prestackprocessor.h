@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.31 2012-08-03 13:00:33 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.29 2011/07/17 02:41:53 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,7 +53,6 @@ ________________________________________________________________________
   DataPack::ID result = processmanager.getOutput();
 \endcode
 */
-#include "prestackprocessingmod.h"
 #include "bufstringset.h"
 #include "datapack.h"
 #include "factory.h"
@@ -72,7 +71,7 @@ class Gather;
 /*!Processes prestackdata at one cdp location. The algorithm is implemented
    in subclasses, and can be created by the PreStack::PF() factory. */
 
-mClass(PreStackProcessing) Processor : public ParallelTask
+mClass Processor : public ParallelTask
 {
 public:
 				mDefineFactoryInClass( Processor, factory );
@@ -128,7 +127,7 @@ protected:
 /*!Orgainizes a number of PreStack::Processors into a chain which
    can be processed. */
 
-mClass(PreStackProcessing) ProcessManager : public CallBacker
+mClass ProcessManager : public CallBacker
 {
 public:
     				ProcessManager();
@@ -170,7 +169,7 @@ public:
     const char*			errMsg() const	{ return errmsg_.str(); }
 
     //Keys for od_process_prestack
-    static const char*		sKeyLineKey()	{ return sKey::LineKey(); }
+    static const char*		sKeyLineKey()	{ return sKey::LineKey; }
     static const char*		sKeySetup(){ return "Processing Setup"; }
     static const char*		sKeyCDPRange(){ return "CDP Range"; }
     static const char*		sKeyInputData()	{ return "Input"; }
@@ -216,4 +215,3 @@ protected:
 
 
 #endif
-

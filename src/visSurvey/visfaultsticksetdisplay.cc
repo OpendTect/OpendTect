@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visfaultsticksetdisplay.cc,v 1.52 2012-08-13 04:04:39 cvsaneesh Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.48 2012/06/29 15:44:01 cvskris Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -354,7 +354,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		for ( int dir=-1; dir<=1; dir+=2 )
 		{
 		    Coord3 pos = fss->getKnot( rc );
-		    pos.x += inlcrlsystem_->inlDistance() * 0.5 * dir;
+		    pos.x += inlCrlSystem()->inlDistance() * 0.5 * dir;
 		    const int ci = poly->getCoordinates()->addPos( pos );
 		    poly->setCoordIndex( cii++, ci );
 		}
@@ -363,7 +363,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		for ( int dir=-1; dir<=1; dir+=2 )
 		{
 		    Coord3 pos = fss->getKnot( rc );
-		    pos.y += inlcrlsystem_->inlDistance() * 0.5 * dir;
+		    pos.y += inlCrlSystem()->inlDistance() * 0.5 * dir;
 		    const int ci = poly->getCoordinates()->addPos( pos );
 		    poly->setCoordIndex( cii++, ci );
 		}
@@ -372,7 +372,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		for ( int dir=-1; dir<=1; dir+=2 )
 		{
 		    Coord3 pos = fss->getKnot( rc );
-		    pos.z += inlcrlsystem_->zStep() * 0.5 * dir;
+		    pos.z += inlCrlSystem()->zStep() * 0.5 * dir;
 		    const int ci = poly->getCoordinates()->addPos( pos );
 		    poly->setCoordIndex( cii++, ci );
 		}
@@ -499,7 +499,7 @@ Coord3 FaultStickSetDisplay::disp2world( const Coord3& displaypos ) const
 static float zdragoffset = 0;
 
 #define mZScale() \
-    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : inlcrlsystem_->zScale() )
+    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : inlCrlSystem()->zScale() )
 
 #define mSetUserInteractionEnd() \
     if ( !viseditor_->sower().moreToSow() ) \
@@ -538,7 +538,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     if ( !mousepid.isUdf() )
     {
-	const int sticknr = mousepid.getRowCol().row;
+	const int sticknr = RowCol( mousepid.subID() ).row;
 	pos = emfss_->getPos( mousepid );
 	pickedmid = fssg.pickedMultiID( mousepid.sectionID(), sticknr );
 	pickednm = fssg.pickedName( mousepid.sectionID(), sticknr );
@@ -619,7 +619,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    return;
 
 	editpids_.erase();
-	const int rmnr = mousepid.getRowCol().row;
+	const int rmnr = RowCol(mousepid.subID()).row;
 	if ( fssg.nrKnots(mousepid.sectionID(), rmnr) == 1 )
 	    fssg.removeStick( mousepid.sectionID(), rmnr, true );
 	else
@@ -679,7 +679,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 static bool isSameMarkerPos( const Coord3& pos1, const Coord3& pos2 )
 {
     const Coord3 diff = pos2 - pos1;
-    float xymargin = 0.01f * SI().inlDistance();
+    float xymargin = 0.01 * SI().inlDistance();
     if ( diff.x*diff.x + diff.y*diff.y > xymargin*xymargin )
 	return false;
 
@@ -743,7 +743,7 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
 		if ( pid.objectID() == -1 )
 		    return;
 
-		const int sticknr = pid.getRowCol().row;
+		const int sticknr = RowCol( pid.subID() ).row;
 		mMatchMarker( pid.sectionID(), sticknr,
 			      marker->centerPos(), emfss_->getPos(pid) );
 	    }
@@ -754,7 +754,7 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
 
 void FaultStickSetDisplay::setActiveStick( const EM::PosID& pid )
 {
-    const int sticknr = pid.isUdf() ? mUdf(int) : pid.getRowCol().row;
+    const int sticknr = pid.isUdf() ? mUdf(int) : RowCol(pid.subID()).row;
     if ( activesticknr_ != sticknr )
     {
 	activesticknr_ = sticknr;
@@ -775,7 +775,7 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange && emfss_ )
     {
 	const int sid = cbdata.pid0.sectionID();
-	RowCol rc = cbdata.pid0.getRowCol();
+	RowCol rc( cbdata.pid0.subID() );
 
 	const MultiID* mid = emfss_->geometry().pickedMultiID( sid, rc.row );
 	if ( mid && !emfss_->geometry().pickedOnPlane(sid, rc.row) )
@@ -810,7 +810,7 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 		    if ( nm )
 			pos.z += atof(nm) / scene_->zDomainInfo().userFactor();
 
-		    zdragoffset = (float) ( pos.z - dragpos.z );
+		    zdragoffset = pos.z - dragpos.z;
 		}
 	    }
 
@@ -881,7 +881,7 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	    continue;
 
 	const float onestepdist = Coord3(1,1,mZScale()).dot(
-		inlcrlsystem_->oneStepTranslation(Coord3(0,0,1)) );
+		inlCrlSystem()->oneStepTranslation(Coord3(0,0,1)) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
@@ -922,7 +922,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	const bool coincidemode = fabs(vec1.dot(vec2)) > 0.5;
 
 	const float onestepdist = Coord3(1,1,mZScale()).dot(
-	    inlcrlsystem_->oneStepTranslation(plane->getNormal(Coord3::udf())));
+	    inlCrlSystem()->oneStepTranslation(plane->getNormal(Coord3::udf())) );
 
 	float prevdist;
 	Coord3 prevpos;
@@ -1124,7 +1124,7 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 	if ( pid.objectID() == -1 )
 	    break;
 
-	const int sticknr = pid.getRowCol().row;
+	const int sticknr = RowCol( pid.subID() ).row;
 	const EM::SectionID sid = pid.sectionID();
 	Geometry::FaultStickSet* fss = emfss_->geometry().sectionGeometry(sid);
 
@@ -1195,7 +1195,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 	    break;
 
 	const int sid = pid.sectionID();
-	const int sticknr = pid.getRowCol().row;
+	const int sticknr = RowCol( pid.subID() ).row;
 	Geometry::FaultStickSet* fss = emfss_->geometry().sectionGeometry(sid);
 	if ( !fss || fss->isStickHidden(sticknr) )
 	    continue;

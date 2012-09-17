@@ -2,13 +2,7 @@
 #
 # AL 15/9/99
 #
-# Wrapper around cvs/svn.
-
-
-if ( ! -d CVS ) then
-    svn $*
-    exit $status
-endif
+# Wrapper around cvs.
 
 if ( "$1" == ed ) then
     shift
@@ -99,7 +93,7 @@ if ( $#argv > 0 ) then
 
     if ( "$1" == update ) then
 	shift
-	cvs $cvsremoteargs -q update -d -P $*
+	cvs $cvsremoteargs update -d -P $*
 	exit $status
     endif
 

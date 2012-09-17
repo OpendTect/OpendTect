@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datainterp.h,v 1.17 2012-06-28 12:59:27 cvskris Exp $
+ RCS:		$Id: datainterp.h,v 1.17 2012/06/28 12:27:22 cvskris Exp $
 ________________________________________________________________________
 
 */

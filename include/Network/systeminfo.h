@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2010
- RCS:		$Id: systeminfo.h,v 1.3 2012-08-03 13:00:32 cvskris Exp $
+ RCS:		$Id: systeminfo.h,v 1.2 2011/02/02 09:26:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "networkmod.h"
 #include "gendefs.h"
 
 class BufferString;
@@ -21,20 +20,19 @@ class IOObj;
 
 namespace System
 {
-    mGlobal(Network) const char*		localHostName();
-    mGlobal(Network) const char*		localAddress();
+    mGlobal const char*		localHostName();
+    mGlobal const char*		localAddress();
 
-    mGlobal(Network) const char*		hostName(const char* ip);
-    mGlobal(Network) const char*		hostAddress(const char* hostname);
+    mGlobal const char*		hostName(const char* ip);
+    mGlobal const char*		hostAddress(const char* hostname);
 
-    mGlobal(Network) void		macAddresses(BufferStringSet& names,
+    mGlobal void		macAddresses(BufferStringSet& names,
 					     BufferStringSet& addresses);
 
-    mGlobal(Network) int			getFreeMBOnDisk(const char* path);
-    mGlobal(Network) int			getFreeMBOnDisk(const IOObj&);
-    mGlobal(Network) void		getFreeMBOnDiskMsg(int,BufferString&);
-    mGlobal(Network) const char*		getFileSystemName(const char* path);
+    mGlobal int			getFreeMBOnDisk(const char* path);
+    mGlobal int			getFreeMBOnDisk(const IOObj&);
+    mGlobal void		getFreeMBOnDiskMsg(int,BufferString&);
+    mGlobal const char*		getFileSystemName(const char* path);
 }
 
 #endif
-

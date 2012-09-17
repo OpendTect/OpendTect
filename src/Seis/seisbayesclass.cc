@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisbayesclass.cc,v 1.21 2012-08-09 03:35:32 cvssalil Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.15 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -51,7 +51,7 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
 {
     aprdrs_.allowNull( true );
 
-    const char* res = pars_.find( sKey::Type() );
+    const char* res = pars_.find( sKey::Type );
     is2d_ = res && *res == '2';
     if ( is2d_ )
 	{ msg_ = "2D not implemented"; return; }
@@ -171,10 +171,10 @@ SeisTrcReader* SeisBayesClass::getReader( const char* id, bool isdim, int idx )
 	msg_.setEmpty(); const ProbDenFunc& pdf0 = *inppdfs_[0];
 	if ( isdim )
 	    msg_.add( "Cannot find input cube for " )
-		.add( pdf0.dimName(idx) );
+		.add( inppdfs_[0]->dimName(idx) );
 	else
 	    msg_.add( "Cannot find a priori scaling cube for " )
-		.add( pdf0.name() );
+		.add( inppdfs_[idx]->name() );
 	msg_.add( "\nID found is " ).add( id );
 	return 0;
     }
@@ -417,17 +417,17 @@ float SeisBayesClass::getPDFValue( int ipdf, int isamp, int icomp,
 {
     const SeisTrc& inptrc0 = *inptrcs_.get( 0 );
     const SeisTrc& outtrc = *outtrcs_.get( ipdf );
-    const float eps = inptrc0.info().sampling.step * 0.0001f;
+    const float eps = inptrc0.info().sampling.step * 0.0001;
 
     for ( int idim0=0; idim0<nrdims_; idim0++ )
     {
 	const int idim = (*pdfxtbls_[ipdf])[idim0];
 	const SeisTrc& inptrc = *inptrcs_.get( idim );
 	const float z = outtrc.samplePos( isamp );
-	if ( z < inptrc.startPos() - eps )
-	    pdfinpvals_[idim] = inptrc.getFirst( icomp );
-	else if ( z > inptrc.endPos() + eps )
-	    pdfinpvals_[idim] = inptrc.getLast( icomp );
+	if ( z < inptrc.samplePos(0) - eps )
+	    pdfinpvals_[idim] = inptrc.get( 0, icomp );
+	else if ( z > inptrc.samplePos(inptrc.size()-1) + eps )
+	    pdfinpvals_[idim] = inptrc.get( inptrc.size()-1, icomp );
 	else
 	    pdfinpvals_[idim] = inptrc.getValue( z, icomp );
     }

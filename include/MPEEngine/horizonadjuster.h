@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.29 2012-08-03 13:00:30 cvskris Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.28 2010/04/12 11:20:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "sectionadjuster.h"
 #include "ranges.h"
 #include "trackplane.h"
@@ -29,7 +28,7 @@ namespace MPE
 class DataHolder;
 class SectionExtender;
 
-mClass(MPEEngine) HorizonAdjuster : public SectionAdjuster
+mClass HorizonAdjuster : public SectionAdjuster
 {
 public:
 			HorizonAdjuster(EM::Horizon&,const EM::SectionID&);
@@ -97,4 +96,3 @@ private:
 }; // namespace MPE
 
 #endif
-

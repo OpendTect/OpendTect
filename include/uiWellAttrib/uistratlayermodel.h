@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratlayermodel.h,v 1.35 2012-09-14 14:05:11 cvshelene Exp $
+ RCS:           $Id: uistratlayermodel.h,v 1.35 2012/09/14 14:05:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uimainwin.h"
 class CtxtIOObj;
 class Wavelet;
@@ -33,7 +32,7 @@ class uiStratLayModEditTools;
 namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
 
 
-mClass(uiWellAttrib) uiStratLayerModel : public uiMainWin
+mClass uiStratLayerModel : public uiMainWin
 {
 public:
 
@@ -63,15 +62,6 @@ public:
     Notifier<uiStratLayerModel>	waveletChanged;
 
     bool			checkUnscaledWavelet();
-
-    static void			doBasicLayerModel();
-    static void			doLayerModel(const char* modnm);
-
-    uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
-    void			displayFRResult( SyntheticData* );
-
-    //Utility
-    SyntheticData*		getCurrentSyntheticData() const;
 
 protected:
 
@@ -116,9 +106,15 @@ protected:
 public:
 
     static void			initClass();
+    static void			doBasicLayerModel();
+    static void			doLayerModel(const char* modnm);
+
+    uiStratLayerModelDisp*      getLayModelDisp() const { return moddisp_; }
+    void                        displayFRResult( SyntheticData* );
+//Utility
+    SyntheticData*		getCurrentSyntheticData() const;
 
 };
 
 
 #endif
-

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.18 2012-08-03 13:00:05 cvskris Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.17 2011/10/06 15:15:46 cvsbert Exp $
 ________________________________________________________________________
 
 
 */
 
-#include "algomod.h"
 #include "probdenfunc.h"
 #include "samplingdata.h"
 #include "arrayndimpl.h"
@@ -27,7 +26,7 @@ class IOPar;
 
 */
 
-mClass(Algo) ArrayNDProbDenFunc
+mClass ArrayNDProbDenFunc
 {
 public:
 
@@ -94,7 +93,7 @@ protected:
     virtual void		prepareRandDrawing() const { prepRndDrw(); }
 
 
-mClass(Algo) Sampled1DProbDenFunc : public ProbDenFunc1D
+mClass Sampled1DProbDenFunc : public ProbDenFunc1D
 			    , public ArrayNDProbDenFunc
 {
 public:
@@ -129,7 +128,7 @@ protected:
 };
 
 
-mClass(Algo) Sampled2DProbDenFunc : public ProbDenFunc2D
+mClass Sampled2DProbDenFunc : public ProbDenFunc2D
 			    , public ArrayNDProbDenFunc
 {
 public:
@@ -172,7 +171,7 @@ protected:
  */
 
 
-mClass(Algo) SampledNDProbDenFunc : public ProbDenFunc
+mClass SampledNDProbDenFunc : public ProbDenFunc
 			    , public ArrayNDProbDenFunc
 {
 public:
@@ -217,4 +216,3 @@ public:
 
 
 #endif
-

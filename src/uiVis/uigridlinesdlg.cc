@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigridlinesdlg.cc,v 1.20 2012-08-13 04:04:38 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.16 2012/07/10 13:06:09 cvskris Exp $";
 
 #include "uigridlinesdlg.h"
 
@@ -113,12 +113,12 @@ static void getDefaultHorSampling( int& start, int& stop, int& step )
 
 static void getDefaultZSampling( StepInterval<float>& zrg )
 {
-    const float width = (zrg.stop-zrg.start) * SI().zDomain().userFactor();
+    const float width = (zrg.stop-zrg.start) * SI().zFactor();
     zrg.step = getDefaultStep( width );
     zrg.start = zrg.step * 
-	ceil( (float)zrg.start * SI().zDomain().userFactor() /(float)zrg.step );
+	ceil( (float)zrg.start * SI().zFactor() / (float)zrg.step );
     zrg.stop = zrg.step * 
-	floor( (float)zrg.stop * SI().zDomain().userFactor() /(float)zrg.step );
+	floor( (float)zrg.stop * SI().zFactor() / (float)zrg.step );
 }
 
 
@@ -129,7 +129,7 @@ void uiGridLinesDlg::setParameters()
     if ( hasgl )
     {
 	cs = pdd_->gridlines()->getGridCubeSampling();
-	cs.zrg.scale( SI().zDomain().userFactor() );
+	cs.zrg.scale( SI().zFactor() );
     }
     else
     {
@@ -180,7 +180,7 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
     if ( zfld_ )
     {
 	cs.zrg.setFrom( zspacingfld_->getFStepInterval() );
-	cs.zrg.scale( 1.f/SI().zDomain().userFactor() );
+	cs.zrg.scale( 1./SI().zFactor() );
     }
 
     if ( (inlfld_ && inlfld_->isChecked() && cs.hrg.step.inl==0) ||

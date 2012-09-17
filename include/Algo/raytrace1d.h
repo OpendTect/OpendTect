@@ -6,26 +6,25 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.38 2012-08-03 13:00:05 cvskris Exp $
+ RCS:		$Id: raytrace1d.h,v 1.37 2012/06/21 13:17:57 cvsbruno Exp $
 ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "ailayer.h"
 #include "fixedstring.h"
 #include "factory.h"
 #include "odcomplex.h"
 #include "reflectivitymodel.h"
 #include "survinfo.h"
-#include "task.h"
 #include "velocitycalc.h"
+#include "task.h"
 
 template <class T> class Array2DImpl;
 class IOPar;
 class TimeDepthModel;
 
-mClass(Algo) RayTracer1D : public ParallelTask
+mClass RayTracer1D : public ParallelTask
 { 
 public:
     mDefineFactoryInClass( RayTracer1D, factory );
@@ -34,7 +33,7 @@ public:
 
 			~RayTracer1D();
 
-    mClass(Algo) Setup
+    mClass Setup
     {
     public:
 			Setup() 
@@ -85,10 +84,6 @@ public:
     static const char*	sKeySRDepth()	   { return "Source/Receiver Depths"; }
     static const char*	sKeyOffset()	   { return "Offset Range"; }
     static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
-    static const char*  sKeyVelBlock()     { return "Block velocities"; }
-    static const char*  sKeyVelBlockVal()  { return "Block threshold"; }
-
-    static void		setIOParsToZeroOffset(IOPar& iop);
 
 protected:
 			RayTracer1D();
@@ -118,7 +113,7 @@ protected:
 
 
 
-mClass(Algo) VrmsRayTracer1D : public RayTracer1D
+mClass VrmsRayTracer1D : public RayTracer1D
 { 
 public:
 
@@ -138,5 +133,20 @@ protected:
 };
 
 
-#endif
+static void blockElasticModel( ElasticModel& mdl )
+{
+    float velthreshold = 5; //in m/s
+    float denthreshold = 5; //in kg/m3
+    for ( int idx=mdl.size()-1; idx>=1; idx-- )
+    {
+	const float veldiff = mdl[idx].vel_ - mdl[idx-1].vel_;
+	const float dendiff = mdl[idx].den_ - mdl[idx-1].den_;
+	if ( fabs( veldiff ) < velthreshold && fabs( dendiff ) < denthreshold )
+	{
+	    mdl[idx-1].thickness_ += mdl[idx].thickness_;
+	    mdl.remove( idx );
+	}
+    }
+}
 
+#endif

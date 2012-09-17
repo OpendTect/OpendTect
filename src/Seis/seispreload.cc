@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID mUnusedVar = "$Id: seispreload.cc,v 1.16 2012-07-24 14:22:53 cvsbert Exp $";
+static const char* rcsID = "$Id: seispreload.cc,v 1.12 2011/01/11 16:20:59 cvskris Exp $";
 
 #include "seispreload.h"
 #include "seiscbvs.h"
@@ -65,7 +65,7 @@ void Seis::PreLoader::getLineKeys( BufferStringSet& lks ) const
     for ( int iln=0; iln<nrlns; iln++ )
     {
 	const IOPar& iop = ls.getInfo( iln );
-	const char* fnm = iop.find( sKey::FileName() );
+	const char* fnm = iop.find( sKey::FileName );
 	if ( !fnm ) continue;
 
 	const int idxof = nms.indexOf( fnm );
@@ -82,7 +82,7 @@ void Seis::PreLoader::getLineKeys( BufferStringSet& lks ) const
     if ( !is2dln && strcmp(ioobj->translator(), \
 		CBVSSeisTrcTranslator::translKey()) ) \
 	{ errmsg_ = "Cannot pre-load other than CBVS data"; return false; } \
-    TaskRunner& trunnr mUnusedVar = getTr()
+    TaskRunner& trunnr = getTr()
 
 
 bool Seis::PreLoader::loadVol() const
@@ -228,7 +228,7 @@ void Seis::PreLoader::load( const IOPar& iniop, TaskRunner* tr )
 
 void Seis::PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 {
-    const char* id = iop.find( sKey::ID() );
+    const char* id = iop.find( sKey::ID );
     if ( !id || !*id ) return;
 
     const MultiID ky( id );
@@ -256,7 +256,7 @@ void Seis::PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 	} break;
 	case Seis::VolPS: {
 	    Interval<int> nrrg; Interval<int>* toload = 0;
-	    if ( iop.get(sKey::Range(),nrrg) )
+	    if ( iop.get(sKey::Range,nrrg) )
 		toload = &nrrg;
 	    spl.loadPS3D( toload );
 	} break;
@@ -275,7 +275,7 @@ void Seis::PreLoader::fillPar( IOPar& iop ) const
 {
     SeisIOObjInfo oinf( id_ );
     if ( !oinf.isOK() ) return;
-    iop.set( sKey::ID(), id_.buf() );
+    iop.set( sKey::ID, id_.buf() );
     const Seis::GeomType gt = oinf.geomType();
 
     switch ( gt )
@@ -295,7 +295,7 @@ void Seis::PreLoader::fillPar( IOPar& iop ) const
 	    iop.set( sKeyLines(), lnms ); iop.set( sKeyAttrs(), attrs );
 	} break;
 	case Seis::VolPS: {
-	    iop.set( sKey::Range(), inlRange() );
+	    iop.set( sKey::Range, inlRange() );
 	} break;
 	case Seis::LinePS: {
 	    BufferStringSet fnms;

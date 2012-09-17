@@ -4,7 +4,7 @@
  * DATE     : August 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id Exp $";
+static const char* rcsID = "$Id Exp $";
 
 #include "uiodmain.h"
 #include "uiodapplmgr.h"

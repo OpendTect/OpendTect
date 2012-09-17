@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datainterp.cc,v 1.31 2012-06-28 12:59:27 cvskris Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.30 2012/06/28 13:00:58 cvskris Exp $";
 
 #include "datainterp.h"
 
@@ -636,31 +636,31 @@ type DataInterpreter<type>::get( std::istream& strm ) const \
     StrmOper::readBlock( strm, buf, nrBytes() ); \
     return get( buf, 0 ); \
 } \
- \
 template <> \
 bool DataInterpreter<type>::get( const DataInterpreter<type>* di, \
-				 std::istream& strm, type& res ) \
+std::istream& strm, type& res ) \
 { \
-    if ( di ) \
-    { \
-	char buf[16]; \
-        if ( !StrmOper::readBlock( strm, buf, di->nrBytes() ) ) \
-	    return false;\
-	res = di->get( buf, 0 ); \
-	return true; \
-    } \
-    \
-    return StrmOper::readBlock( strm, &res, sizeof(type) ); \
+if ( di ) \
+{ \
+char buf[16]; \
+if ( !StrmOper::readBlock( strm, buf, di->nrBytes() ) ) \
+return false;\
+res = di->get( buf, 0 ); \
+return true; \
+} \
+\
+return StrmOper::readBlock( strm, &res, sizeof(type) ); \
 } \
  \
 template <> \
 type DataInterpreter<type>::get( const DataInterpreter<type>* di, \
-std::istream& strm ) \
+				 std::istream& strm ) \
 { \
-type val; \
-get( di, strm, val ); \
-return val; \
+    type val; \
+    get( di, strm, val ); \
+    return val; \
 } \
+ \
 template <> DataInterpreter<type>* \
 DataInterpreter<type>::create( \
 			const DataCharacteristics& dchar, \

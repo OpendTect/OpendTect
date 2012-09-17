@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emhorizonztransform.h,v 1.16 2012-08-03 13:00:18 cvskris Exp $
+ RCS:		$Id: emhorizonztransform.h,v 1.15 2010/11/30 16:48:16 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "zaxistransform.h"
 
 namespace EM
@@ -24,7 +23,7 @@ class Horizon;
 accordingly. In case of reverse faulting, the area between the two patches will
 not be included.  */
 
-mClass(EarthModel) HorizonZTransform : public ZAxisTransform
+mClass HorizonZTransform : public ZAxisTransform
 			 , public CallBacker
 {
 public:
@@ -68,4 +67,3 @@ protected:
 } // namespace EM
 
 #endif
-

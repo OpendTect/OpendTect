@@ -7,13 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.33 2012-08-03 13:00:39 cvskris Exp $
+ RCS:		$Id: synthseis.h,v 1.31 2012/03/14 15:12:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
-#include "seismod.h"
 #include "ailayer.h"
 #include "factory.h"
 #include "reflectivitymodel.h"
@@ -46,7 +44,7 @@ namespace Seis
 */
 
 
-mClass(Seis) SynthGenBase 
+mClass SynthGenBase 
 {
 public:
 
@@ -66,9 +64,9 @@ public:
 
     static const char*		sKeyFourier() 	{ return "Convolution Domain"; }
     static const char* 		sKeyNMO() 	{ return "Use NMO"; }
-    static const char*  	sKeyInternal()  { return "Internal Multiples"; }
-    static const char*  	sKeySurfRefl()  
-    					{ return "Surface Reflection coef"; }
+    static const char*		sKeyInternal() 	{ return "Internal Multiples"; }
+    static const char*		sKeySurfRefl() 	
+				    { return "Surface Reflection coefficient"; }
 
 protected:
     				SynthGenBase();
@@ -77,19 +75,21 @@ protected:
     bool			isfourier_;
     bool			usenmotimes_;
     bool			waveletismine_;
+    bool			dointernalmultiples_;
     const Wavelet*		wavelet_;
+    float			surfacereflcoeff_;
     StepInterval<float>		outputsampling_;
-    bool 	                dointernalmultiples_;
-    float       	        surfreflcoeff_;
-
     TaskRunner* 		tr_;
 
     BufferString		errmsg_;
+
+public:
+    void			setInternalMultiples(bool yn,float coeff);
 };
 
 
 
-mClass(Seis) SynthGenerator : public SynthGenBase
+mClass SynthGenerator : public SynthGenBase
 {
 public:
     mDefineFactoryInClass( SynthGenerator, factory );
@@ -109,13 +109,13 @@ public:
     SeisTrc&			result() 		{ return outtrc_; }
 
     void 			getSampledReflectivities(TypeSet<float>&) const;
-    virtual void 		setConvolDomain(bool fourier);
 
 protected:
 
     bool 			computeTrace(float* result); 
     bool 			doTimeConvolve(float* result); 
     bool 			doFFTConvolve(float* result);
+    void 			setConvDomain(bool fourier);
     virtual bool		computeReflectivities();
 
     const ReflectivityModel*	refmodel_;
@@ -138,7 +138,7 @@ public:
 };
 
 
-mClass(Seis) MultiTraceSynthGenerator : public ParallelTask, public SynthGenBase
+mClass MultiTraceSynthGenerator : public ParallelTask, public SynthGenBase
 {
 public:
     				MultiTraceSynthGenerator();
@@ -171,7 +171,7 @@ protected:
 
 
 
-mClass(Seis) RaySynthGenerator : public ParallelTask, public SynthGenBase 
+mClass RaySynthGenerator : public SynthGenBase
 {
 public:
 			RaySynthGenerator();
@@ -182,9 +182,12 @@ public:
     void		fillPar(IOPar& raypars) const;
     bool		usePar(const IOPar& raypars);
 
-    const char*         message() const { return "Generating synthetics..."; }
+    //execute functions
+    bool		doRayTracing();
+    bool		doSynthetics(); 
+    bool		doWork() { return doRayTracing() && doSynthetics(); }
 
-    mStruct(Seis) RayModel
+    mStruct RayModel
     {
 			RayModel(const RayTracer1D& rt1d,int nroffsets);
 			~RayModel();	
@@ -202,10 +205,10 @@ public:
 	ObjectSet<const ReflectivityModel> 	refmodels_;
 	TypeSet<float>  			sampledrefs_;
 
-	friend class 				RaySynthGenerator;
-
     public:
 	void		forceReflTimes(const StepInterval<float>&);
+
+	friend class 				RaySynthGenerator;
     };
 
     //available after execution
@@ -215,27 +218,17 @@ public:
     const Interval<float>&	raySampling() const { return raysampling_; }
 
 protected:
-    od_int64            	nrIterations() const;
-    bool                        doPrepare(int);
-    bool        		doWork(od_int64,od_int64,int);
 
     TypeSet<ElasticModel>	aimodels_;
     TypeSet<float>		offsets_;
     Interval<float>		raysampling_;
     IOPar 			raysetup_;
+
     ObjectSet<RayModel>		raymodels_;
-
-    StepInterval<float>		forcedrefltimes_;
-    bool			forcerefltimes_;
-
-public:
-    void			forceReflTimes(const StepInterval<float>&);
 };
 
 } //namespace
 
 
 #endif
-
-
 

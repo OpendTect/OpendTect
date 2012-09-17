@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2008
- RCS:		$Id: uivelocityvolumeconversion.h,v 1.4 2012-08-03 13:01:10 cvskris Exp $
+ RCS:		$Id: uivelocityvolumeconversion.h,v 1.3 2010/11/22 17:07:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uibatchlaunch.h"
 
 
@@ -27,7 +26,7 @@ namespace Vel
 
 /*!Dialog to setup a velocity conversion for volumes on disk. */
 
-mClass(uiSeis) uiBatchVolumeConversion : public uiFullBatchDialog
+mClass uiBatchVolumeConversion : public uiFullBatchDialog
 {
 public:
 			uiBatchVolumeConversion(uiParent*);
@@ -49,4 +48,3 @@ protected:
 
 
 #endif
-

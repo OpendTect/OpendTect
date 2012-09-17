@@ -4,7 +4,7 @@
  * FUNCTION : Synchronize OpendTect sys tools with cygwin, if installed.
 -*/
 
-static const char* rcsID = "$Id: SyncCygwin.cc,v 1.4 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: SyncCygwin.cc,v 1.4 2011/12/14 13:16:41 cvsbert Exp $";
 
 
 #include "prog.h"

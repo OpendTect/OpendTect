@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.24 2012-08-03 06:38:38 cvsaneesh Exp $
+ RCS:		$Id: rcol.h,v 1.23 2011/09/08 15:05:17 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #define mImplInlineRowColFunctions(clss, row, col) \
 inline clss::clss( int r, int c ) : row(r), col(c) {}       \
 inline clss::clss( const clss& rc ) : row(rc.row), col(rc.col) {}       \
+inline clss::clss( const od_int64& ser )   { fromInt64(ser); } \
 inline clss::clss() : row( 0 ), col ( 0 )  {} \
 inline bool clss::operator==(const clss& rc ) const \
 	    { return row==rc.row && col==rc.col; }  \
@@ -54,17 +55,17 @@ inline int& clss::operator[](int idx) { return idx==0 ? row : col; } \
 inline int clss::operator[](int idx) const { return idx==0 ? row : col; } \
 inline int clss::toInt32() const \
 { return (((unsigned int) row)<<16)+ ((unsigned int) col & 0xFFFF); } \
-inline clss clss::fromInt32(int ll) \
-{ return clss ( ll>>16, ((short)(ll&0xFFFF)) ); } \
+inline void clss::fromInt32(int ll) \
+{ row = ll>>16; col = ((short)(ll&0xFFFF)); } \
 inline od_int64 clss::toInt64() const \
 { \
     return (((od_uint64) row )<<32)+ \
 	    ((od_uint64) col &  0xFFFFFFFF); \
 } \
-inline clss clss::fromInt64( od_int64 serialized ) \
+inline void clss::fromInt64( od_int64 serialized ) \
 { \
-    return clss( (od_int32) (serialized>>32), \
-                 (od_int32) (serialized & 0xFFFFFFFF)); \
+    row = (od_int32) (serialized>>32); \
+    col = (od_int32) (serialized & 0xFFFFFFFF); \
 } \
  \
  \

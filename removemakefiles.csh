@@ -1,6 +1,6 @@
 #!/bin/csh
 
-set command = "rm -f"
+set command = "rm -r"
 
 
 $command Pmake/ModDeps.od

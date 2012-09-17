@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Nov 2010
- RCS:		$Id: semblancealgo.h,v 1.5 2012-08-03 13:00:34 cvskris Exp $
+ RCS:		$Id: semblancealgo.h,v 1.4 2011/05/16 12:03:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "factory.h"
 #include "objectset.h"
 
@@ -26,7 +25,7 @@ namespace PreStack
 class Gather;
 
 /*! Base class for algorithms that computes semblance along a moveout */
-mClass(PreStackProcessing) SemblanceAlgorithm
+mClass SemblanceAlgorithm
 {
 public:
     			mDefineFactoryInClass( SemblanceAlgorithm, factory );
@@ -52,4 +51,3 @@ public:
 }; //namespace
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: frequencyattrib.cc,v 1.38 2012-08-09 04:38:06 cvssalil Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.33 2012/07/10 13:06:00 cvskris Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -74,7 +74,7 @@ void Frequency::updateDesc( Desc& desc )
     else if ( winstr == "CosTaper20" )
     { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.8 ); }
 
-    WindowFunction* winfunc = WINFUNCS().create( winstr );
+    WindowFunction* winfunc = WinFuncs().create( winstr );
     const bool hasvar = winfunc && winfunc->hasVariable();
     desc.setParamEnabled( paramvalStr(), hasvar );
     delete winfunc;
@@ -85,7 +85,7 @@ void Frequency::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
-    float roundedzstep = SI().zStep()*SI().zDomain().userFactor();
+    float roundedzstep = SI().zStep()*SI().zFactor();
     if ( roundedzstep > 0 )
 	roundedzstep = (int)( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
@@ -106,7 +106,7 @@ Frequency::Frequency( Desc& ds )
     if ( !isOK() ) return;
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1.f/zFactor() );
+    gate_.scale( 1./zFactor() );
 
     mGetBool( normalize_, normalizeStr() );
     mGetString( windowtype_, windowStr() );

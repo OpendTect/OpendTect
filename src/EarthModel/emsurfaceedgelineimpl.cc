@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceedgelineimpl.cc,v 1.31 2012-05-02 15:11:31 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.29 2010/06/18 12:23:27 cvskris Exp $";
 
 
 

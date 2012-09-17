@@ -6,92 +6,24 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.25 2012-09-13 14:30:46 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.16 2011/12/13 22:07:47 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "sets.h"
 #include "thread.h"
-#include "callback.h"
-#include "ptrman.h"
-#include "refcount.h"
-#include "geometry.h"
-#include "enums.h"
 
 class Coord3List;
 class TaskRunner;
 
 namespace Geometry
 {
-    
-mClass(Geometry) PrimitiveSet
-{ mRefCountImplNoDestructor(PrimitiveSet);
-public:
-    enum 	PrimitiveType{Points,Lines,Triangles,
-			      LineStrips,TriangleStrip,TriangleFan};
-		DeclareEnumUtils(PrimitiveType);
-    
-    
-
-    virtual int			size() const				= 0;
-    virtual int			get(int) const 				= 0;
-    
-    virtual PrimitiveType	getPrimitiveType() const;
-    virtual void		setPrimitiveType(PrimitiveType tp);
-    
-protected:
-				PrimitiveSet();
-    PrimitiveType		primitivetype_;
-};
-
-    
-mClass(Geometry) IndexedPrimitiveSet : public PrimitiveSet
-{
-public:
-    static IndexedPrimitiveSet*	create(bool large);
-				/*!<Set large if you will have larger indices
-				    than 65535 */
-    
-    virtual void		setEmpty()			= 0;
-    virtual void		append( int )			= 0;
-    virtual int			pop()				= 0;
-    virtual int			set(int,int) 			= 0;
-    virtual void		set(const int*,int num)		= 0;
-    virtual void		append(const int*,int num)	= 0;
-};
-   
-    
-mClass(Geometry) RangePrimitiveSet : public PrimitiveSet
-{
-public:
-    static RangePrimitiveSet*	create();
-    virtual void		setRange(const Interval<int>&)	= 0;
-    virtual Interval<int>	getRange() const		= 0;
-};
-    
-    
-mClass(Geometry) PrimitiveSetCreator
-{
-public:
-    virtual 			~PrimitiveSetCreator() {}
-    
-    static PrimitiveSet*	create(bool indexed,bool large = false);
-				/*!<Set large if you will have larger indices
-				 than 65535 */
-    static void			setCreator(PrimitiveSetCreator*);
-    
-protected:
-    virtual PrimitiveSet*	doCreate(bool indexed,bool large)	= 0;
-
-    static PtrMan<PrimitiveSetCreator>	creator_;
-};
 
 /*!A geomtetry that is defined by a number of coordinates (defined outside
    the class), by specifying connections between the coordiates. */
 
-mClass(Geometry) IndexedGeometry
+mClass IndexedGeometry
 {
 public:
     enum	Type { Points, Lines, Triangles, TriangleStrip, TriangleFan };
@@ -115,25 +47,23 @@ public:
     void	hide(bool yn)				{ ishidden_ = yn; }
 
 
-    mutable Threads::Mutex		lock_;
+    mutable Threads::Mutex	lock_;
 
-    Type				type_;
-    NormalBinding			normalbinding_;
-    
-    ObjectSet<IndexedPrimitiveSet>	primitivesets_;
+    Type			type_;
+    NormalBinding		normalbinding_;
 
-    TypeSet<int>			coordindices_;
-    TypeSet<int>			texturecoordindices_;
-    TypeSet<int>			normalindices_;
+    TypeSet<int>		coordindices_;
+    TypeSet<int>		texturecoordindices_;
+    TypeSet<int>		normalindices_;
 
-    mutable bool			ischanged_;
-	
+    mutable bool		ischanged_;
+
 protected:
-    bool				ishidden_;
+    bool			ishidden_;
 
-    Coord3List*				coordlist_;
-    Coord3List*				texturecoordlist_;
-    Coord3List*				normallist_;
+    Coord3List*			coordlist_;
+    Coord3List*			texturecoordlist_;
+    Coord3List*			normallist_;
 };
 
 
@@ -141,7 +71,7 @@ protected:
    is defined in an ObjectSet of IndexedGeometry. All IndexedGeometry share
    one common coordinate and normal list. */
 
-mClass(Geometry) IndexedShape
+mClass IndexedShape
 {
 public:
     virtual 		~IndexedShape();
@@ -188,7 +118,7 @@ private:
 };
 
 
-mClass(Geometry) ExplicitIndexedShape : public IndexedShape, public CallBacker
+mClass ExplicitIndexedShape : public IndexedShape, public CallBacker
 {
 public:
     			ExplicitIndexedShape()	{}
@@ -209,4 +139,3 @@ public:
 }; //namespace
 
 #endif
-

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		December 2005
- RCS:		$Id: visgridlines.h,v 1.12 2012-08-03 13:01:24 cvskris Exp $
+ RCS:		$Id: visgridlines.h,v 1.11 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "cubesampling.h"
 
@@ -30,7 +29,7 @@ class DrawStyle;
 class IndexedPolyLine;
 class Transformation;
 
-mClass(visBase) GridLines : public VisualObjectImpl
+mClass GridLines : public VisualObjectImpl
 {
 public:
     static GridLines*		create()
@@ -94,4 +93,3 @@ protected:
 } // Namespace visBase
 
 #endif
-

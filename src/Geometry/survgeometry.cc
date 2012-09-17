@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: survgeometry.cc,v 1.3 2012-05-02 15:11:38 cvskris Exp $";
+static const char* rcsID = "$Id: survgeometry.cc,v 1.1 2009/07/23 05:10:45 cvsraman Exp $";
 
 
 #include "survgeometry.h"

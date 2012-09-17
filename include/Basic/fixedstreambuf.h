@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id: fixedstreambuf.h,v 1.6 2011-08-11 06:04:30 cvsranojay Exp $
+ RCS:		$Id: fixedstreambuf.h,v 1.6 2011/08/11 06:04:30 cvsranojay Exp $
 ________________________________________________________________________
 
 */

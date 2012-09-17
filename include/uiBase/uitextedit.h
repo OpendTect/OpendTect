@@ -7,21 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.34 2012-08-31 10:51:43 cvsraman Exp $
+ RCS:           $Id: uitextedit.h,v 1.30 2012/08/31 11:07:07 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 #include "undefval.h"
 
 class uiTextEditBody;
 class uiTextBrowserBody;
-mFDQtclass(QTextEdit)
+class QTextEdit;
 class Timer;
 
-mClass(uiBase) uiTextEditBase : public uiObject
+mClass uiTextEditBase : public uiObject
 {
 public:
     void		readFromFile(const char*,int linecutlen=0);
@@ -36,17 +35,15 @@ public:
     int			defaultHeight()		  { return defaultheight_; }
     void		setDefaultHeight( int h ) { defaultheight_ = h; }
 
-    bool		isModified() const;
-    void        allowTextSelection(bool);
+    void		allowTextSelection(bool yn);
 
-    void		hideFrame();
-    void		hideScrollBar(bool vertical);
+    bool		isModified() const;
 
 protected:
 			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
 
-    virtual mQtclass(QTextEdit&)	qte()			    = 0;
-    const mQtclass(QTextEdit&)		qte() const 
+    virtual QTextEdit&	qte()			    = 0;
+    const QTextEdit&	qte() const 
 			{ return const_cast<uiTextEditBase*>(this)->qte(); }
 
     int			defaultwidth_;
@@ -58,7 +55,7 @@ protected:
 
 
 
-mClass(uiBase) uiTextEdit : public uiTextEditBase
+mClass uiTextEdit : public uiTextEditBase
 {
 public:
                         uiTextEdit(uiParent* parnt,const char* nm="Text editor",
@@ -70,7 +67,7 @@ public:
 
 protected:
 
-    virtual mQtclass(QTextEdit&)	qte();
+    virtual QTextEdit&	qte();
 
 private:
 
@@ -80,7 +77,7 @@ private:
 
 
 
-mClass(uiBase) uiTextBrowser : public uiTextEditBase
+mClass uiTextBrowser : public uiTextEditBase
 {
 friend class		i_BrowserMessenger;
 public:
@@ -106,9 +103,6 @@ public:
     void		home();
     void		reload();
     void		scrollToBottom();
-    void		showToolTip(const char*);
-    void		recordScrollPos();
-    void		restoreScrollPos();
 
     bool		canGoForward()		{ return cangoforw_; }
     bool		canGoBackward()		{ return cangobackw_; }
@@ -129,7 +123,7 @@ protected:
 
     virtual int		maxLines() const		{ return maxlines_; }
 
-    virtual mQtclass(QTextEdit&)	qte();
+    virtual QTextEdit&	qte();
 
     void		readTailCB(CallBacker*);
     Timer*		timer_;
@@ -141,7 +135,12 @@ private:
 
     uiTextBrowserBody*	body_;
     uiTextBrowserBody&	mkbody(uiParent*,const char*,bool);
+
+public:
+
+    void		showToolTip(const char*);
+    void		recordScrollPos();
+    void		restoreScrollPos();
 };
 
 #endif
-

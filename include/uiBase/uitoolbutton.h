@@ -6,19 +6,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2010
- RCS:           $Id: uitoolbutton.h,v 1.3 2012-08-30 06:05:56 cvsnageswara Exp $
+ RCS:           $Id: uitoolbutton.h,v 1.1 2010/11/16 09:49:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uibutton.h"
 #include "uiicons.h"
 class uiToolButtonBody;
 class uiToolButtonSetup;
 
 
-mClass(uiBase) uiToolButton : public uiButton
+mClass uiToolButton : public uiButton
 {
 public:
 
@@ -63,14 +62,14 @@ private:
     int				id_; // Used by toolbar
 
     uiPopupMenu*		uimenu_;
-    mQtclass(QMenu*)		qmenu_;
+    QMenu*			qmenu_;
 
 };
 
 
 #define mDefuiTBSUMemb(typ,memb) mDefSetupClssMemb(uiToolButtonSetup,typ,memb)
 
-mClass(uiBase) uiToolButtonSetup
+mClass uiToolButtonSetup
 {
 public:
 		    uiToolButtonSetup( const char* fnm, const char* tt,
@@ -97,4 +96,3 @@ public:
 
 
 #endif
-

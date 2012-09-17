@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2008
- RCS:		$Id: externalattribrandom.h,v 1.5 2012-09-07 22:08:03 cvsnanne Exp $
+ RCS:		$Id: externalattribrandom.h,v 1.4 2011/11/04 08:20:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -87,7 +87,7 @@ public:
 
 protected:
 
-    bool		anyButtonClick( uiTreeViewItem* );
+    bool		anyButtonClick( uiListViewItem* );
     BufferString	createDisplayName() const;
     void		updateColumnText( int );
 

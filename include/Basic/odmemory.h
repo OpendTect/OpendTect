@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2009
- RCS:		$Id: odmemory.h,v 1.9 2012-08-30 14:06:35 cvskris Exp $
+ RCS:		$Id: odmemory.h,v 1.8 2012/04/13 10:41:59 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -24,6 +24,7 @@ template <class T> class ValueSeries;
 
 // 1M operations min per thread
 #define mMemMinThreadSize 1048576
+
 
 
 /*!Sets large amounts of values to a constant using multiple threads. */
@@ -176,7 +177,7 @@ bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
 template <> inline
 bool MemSetter<char>::setPtr( od_int64 start, od_int64 size )
 {
-    memset( ptr_+start, (int)val_, (size_t) size );
+    memset( ptr_+start, (int)val_, size );
     return true;
 }
 
@@ -184,7 +185,7 @@ bool MemSetter<char>::setPtr( od_int64 start, od_int64 size )
 template <> inline
 bool MemSetter<unsigned char>::setPtr( od_int64 start, od_int64 size )
 {
-    memset( ptr_+start, (int)val_, (size_t) size );
+    memset( ptr_+start, (int)val_, size );
     return true;
 }
 
@@ -192,7 +193,7 @@ bool MemSetter<unsigned char>::setPtr( od_int64 start, od_int64 size )
 template <> inline
 bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
 {
-    memset( ptr_+start, (int)val_, (size_t) size );
+    memset( ptr_+start, (int)val_, size );
     return true;
 }
 
@@ -212,7 +213,7 @@ bool MemSetter<Type>::setPtr( od_int64 start, od_int64 size ) \
 { \
     if ( val_==0 ) \
     { \
-	memset( ptr_+start, 0, (size_t) (size*sizeof(Type)) ); \
+	memset( ptr_+start, 0, size*sizeof(Type) ); \
 	return true; \
     } \
  \
@@ -295,7 +296,7 @@ bool MemCopier<T>::doWork( od_int64 start, od_int64 stop, int )
 template <class T> inline
 bool MemCopier<T>::setPtr( od_int64 start, od_int64 size )
 {
-    memcpy( outptr_ + start, inptr_ + start, (size_t) (size * sizeof(T)) );
+    memcpy( outptr_ + start, inptr_ + start, size * sizeof(T) );
     return true;
 }
 

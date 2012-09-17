@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: polynd.h,v 1.9 2012-09-13 18:36:27 cvsnanne Exp $
+ RCS:           $Id: polynd.h,v 1.8 2009/07/22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 PolynomialND is a N-dimensional polynomial with arbitary orders in each
@@ -225,7 +225,7 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
 		    coeff *= intpow( positer[idx], powiter[idx] );
 		}
 	    
-		poscoeffs.set( row, col, (T)coeff );
+		poscoeffs.set(row,col, coeff);
 		col++;
 	    } while ( powiter.next() );
 

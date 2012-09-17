@@ -8,13 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.33 2012-08-03 13:00:04 cvskris Exp $
+ RCS:		$Id: mathfunc.h,v 1.32 2012/07/16 20:31:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "algomod.h"
 #include "mathfunc.h"
 #include "position.h"
 #include "ptrman.h"
@@ -148,7 +147,7 @@ public:
 
  */
 
-mClass(Algo) PointBasedMathFunction : public FloatMathFunction
+mClass PointBasedMathFunction : public FloatMathFunction
 {
 public:
 
@@ -156,9 +155,11 @@ public:
     enum ExtrapolType   { None, EndVal, ExtraPolGradient };
 
     			PointBasedMathFunction( InterpolType t=Linear,
-			       			ExtrapolType extr=EndVal )
-			    : itype_(t)
-			    , extrapol_(extr)	{}
+			       			bool extr=true )
+			    : itype_(t)    { setExtrapolate( extr ); }
+			PointBasedMathFunction( InterpolType t,
+						ExtrapolType extr )
+			    : itype_(t)	   { setExtrapolate( extr ); }
 
     void		setEmpty()		{ x_.setSize(0); y_.setSize(0);}
     int			size() const		{ return x_.size(); }
@@ -175,12 +176,25 @@ public:
     InterpolType	interpolType() const	{ return itype_; }
     bool		extrapolate() const	{ return extrapol_; }
     void		setInterpolType( InterpolType t ) { itype_ = t; }
-    void		setExtrapolate( ExtrapolType yn ) { extrapol_ = yn; }
+    void		setExtrapolate( bool yn ) { extrapol_ = yn ? cEdgeVal() : cNone(); }
+    void		setExtrapolate( ExtrapolType t )
+			{
+			    if ( t==ExtraPolGradient )
+				extrapol_ = cExtraPolGradient();
+			    else if ( t==None )
+				extrapol_ = cNone();
+			    else
+				extrapol_ = cEdgeVal();
+			}
 
 protected:
 
+    static char		cNone() { return 0; }
+    static char		cEdgeVal() { return 1; }
+    static char		cExtraPolGradient() { return 2; }
+
     InterpolType	itype_;
-    ExtrapolType	extrapol_;
+    char		extrapol_;
     TypeSet<float>	x_;
     TypeSet<float>	y_;
 
@@ -236,7 +250,7 @@ protected:
     a x^2 + b x + c
 */
 
-mClass(Algo) SecondOrderPoly : public FloatMathFunction
+mClass SecondOrderPoly : public FloatMathFunction
 {
 public:
     			SecondOrderPoly( float a_=0, float b_=0, float c_=0 )
@@ -306,7 +320,7 @@ public:
     a x^3 + b x^2 + c x + d
 */
 
-mClass(Algo) ThirdOrderPoly : public FloatMathFunction
+mClass ThirdOrderPoly : public FloatMathFunction
 {
 public:
     			ThirdOrderPoly( float a_=0, float b_=0,
@@ -357,4 +371,3 @@ public:
 
 
 #endif
-

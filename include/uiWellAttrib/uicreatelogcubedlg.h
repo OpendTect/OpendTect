@@ -6,33 +6,51 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          July 2011
- RCS:           $Id: uicreatelogcubedlg.h,v 1.3 2012-08-03 13:01:21 cvskris Exp $
+ RCS:           $Id: uicreatelogcubedlg.h,v 1.3 2012/05/08 07:36:23 cvsbruno Exp $
  _______________________________________________________________________
 
 -*/
 
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 
-class MultiID;
 class uiGenInput;
 class uiLabeledSpinBox;
+class uiListBox;
 class uiMultiWellLogSel;
 
-mClass(uiWellAttrib) uiCreateLogCubeDlg : public uiDialog
+namespace Well { class Data; class LogSet; }
+
+
+//4.3 only
+mClass uiMultiWellCreateLogCubeDlg : public uiDialog
 {
 public:
-    				uiCreateLogCubeDlg(uiParent*,const MultiID*);
+    				uiMultiWellCreateLogCubeDlg(uiParent*);
+protected:
+
+    uiMultiWellLogSel*		welllogsel_;
+    uiGenInput*			savefld_;
+    uiLabeledSpinBox*		repeatfld_;
+    
+    bool			acceptOK(CallBacker*);
+    void			initDlg(CallBacker*);
+};
+
+
+mClass uiCreateLogCubeDlg : public uiDialog
+{
+public:
+    				uiCreateLogCubeDlg(uiParent*,const Well::Data&);
 
 protected:
 
+    const Well::Data& 		wd_;
+    uiListBox*			loglistfld_;
     uiGenInput*			savefld_;
     uiLabeledSpinBox*		repeatfld_;
-    uiMultiWellLogSel*		welllogsel_;
     
     bool			acceptOK(CallBacker*);
 };
 
 #endif
-

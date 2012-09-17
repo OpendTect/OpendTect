@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrsetman.cc,v 1.15 2012-05-02 15:11:57 cvskris Exp $";
+static const char* rcsID = "$Id: uiattrsetman.cc,v 1.12 2011/09/16 10:01:23 cvsbert Exp $";
 
 #include "uiattrsetman.h"
 
@@ -25,7 +25,8 @@ mDefineInstanceCreatedNotifierAccess(uiAttrSetMan)
 
 
 uiAttrSetMan::uiAttrSetMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Manage Attribute Sets",mNoDlgTitle,
+    : uiObjFileMan(p,uiDialog::Setup("Attribute Set file management",
+				     "Manage attribute sets",
 				     "101.3.0").nrstatusflds(1),
 	           AttribDescSetTranslatorGroup::ioContext())
 {

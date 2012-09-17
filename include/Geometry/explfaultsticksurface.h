@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.23 2012-08-03 13:00:27 cvskris Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.22 2011/12/20 18:06:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "indexedshape.h"
 #include "enums.h"
 #include "position.h"
@@ -33,7 +32,7 @@ class ExplFaultStickTexturePositionExtracter;
 #define mFltTriProj Geometry::ExplFaultStickSurface::TriProjection
 
 
-mClass(Geometry) ExplFaultStickSurface: public Geometry::IndexedShape,
+mClass ExplFaultStickSurface: public Geometry::IndexedShape,
        			      public CallBacker
 {
 public:
@@ -141,4 +140,3 @@ protected:
 };
 
 #endif
-

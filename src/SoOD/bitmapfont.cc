@@ -1,4 +1,4 @@
-static const char* rcsID_ mUnusedVar = "$Id: bitmapfont.cc,v 1.3 2012-05-02 15:17:11 cvskris Exp $";
+static const char* _rcsID = "$Id: bitmapfont.cc,v 1.2 2008/11/25 15:35:23 cvsbert Exp $";
 
 /**************************************************************************\
  *

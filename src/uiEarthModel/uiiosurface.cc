@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiiosurface.cc,v 1.89 2012-05-30 13:24:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.85 2012/05/21 22:41:25 cvsnanne Exp $";
 
 #include "uiiosurface.h"
 
@@ -25,7 +25,6 @@ static const char* rcsID mUnusedVar = "$Id: uiiosurface.cc,v 1.89 2012-05-30 13:
 #include "embodytr.h"
 #include "emsurface.h"
 #include "emsurfacetr.h"
-#include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
 #include "iodirentry.h"
@@ -118,8 +117,7 @@ bool uiIOSurface::fillFields( const MultiID& id, bool showerrmsg )
 
     if ( forread_ )
     {
-	EM::IOObjInfo oi( id );
-	const char* res = oi.getSurfaceData( sd );
+	const char* res = EM::EMM().getSurfaceData( id, sd );
 	if ( res )
 	{
 	    if ( showerrmsg )
@@ -422,10 +420,6 @@ int uiSurfaceWrite::getStratLevelID() const
 {
     return stratlvlfld_ ? stratlvlfld_->getID() : -1;
 }
-
-
-void uiSurfaceWrite::setColor( const Color& col )
-{ if ( colbut_ ) colbut_->setColor( col ); }
 
 
 Color uiSurfaceWrite::getColor() const

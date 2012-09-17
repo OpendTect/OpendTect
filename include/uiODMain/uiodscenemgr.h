@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.91 2012-09-07 22:08:02 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.89 2012/08/21 10:33:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodapplmgr.h"
 
 #include "datapack.h"
@@ -24,7 +23,7 @@ class Timer;
 class uiDockWin;
 class uiFlatViewWin;
 class uiLabel;
-class uiTreeView;
+class uiListView;
 class uiMdiArea;
 class uiMdiAreaWindow;
 class uiODTreeTop;
@@ -43,12 +42,11 @@ class ZAxisTransform;
 
  */
 
-mClass(uiODMain) uiODSceneMgr : public CallBacker
+mClass uiODSceneMgr : public CallBacker
 {
 public:
 
     void			cleanUp(bool startnew=true);
-    int				nrScenes()	{ return scenes_.size(); }
     int				addScene(bool maximized,ZAxisTransform* =0,
 	    				 const char* nm=0);
     				//!<Returns scene id
@@ -115,7 +113,7 @@ public:
     int				getActiveSceneID() const;
     Notifier<uiODSceneMgr>	activeSceneChanged;
 
-    uiODTreeTop*		getTreeItemMgr(const uiTreeView*) const;
+    uiODTreeTop*		getTreeItemMgr(const uiListView*) const;
 
     void			displayIn2DViewer(int visid,int attribid,
 	    					  bool wva);
@@ -140,7 +138,7 @@ public:
     void			findItems(const char*,ObjectSet<uiTreeItem>&);
 
     uiTreeFactorySet*		treeItemFactorySet()	{ return tifs_; }
-    uiTreeView*			getTree(int sceneid);
+    uiListView*			getTree(int sceneid);
 
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
@@ -179,14 +177,14 @@ protected:
     inline uiODMenuMgr&		menuMgr()     { return appl_.menuMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
-    mClass(uiODMain) Scene
+    mClass Scene
     {
     public:
 				Scene(uiMdiArea*);
 				~Scene();
        
 	uiDockWin*		dw_;
-	uiTreeView*		lv_;
+	uiListView*		lv_;
 	uiMdiAreaWindow* 	mdiwin_;
 	ui3DViewer*		sovwr_;
 	uiODTreeTop*		itemmanager_;
@@ -201,7 +199,8 @@ protected:
     void			sceneTimerCB(CallBacker*);
 
     friend class		uiODMain;
+public:
+    int				nrScenes()	{ return scenes_.size(); }
 };
 
 #endif
-

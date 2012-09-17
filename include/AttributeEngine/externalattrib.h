@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: externalattrib.h,v 1.15 2012-08-29 06:25:40 cvskris Exp $
+ RCS:		$Id: externalattrib.h,v 1.13 2011/04/26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "factory.h"
 #include "datapack.h"
 #include "sets.h"
@@ -33,7 +32,7 @@ class DataCubes;
 /*! Generic class for attribs that does not come from the attribute engine. */
 
 
-mClass(AttributeEngine) ExtAttribCalc
+mClass ExtAttribCalc
 {
 public:
     virtual			~ExtAttribCalc()			{}
@@ -56,10 +55,9 @@ public:
 };
 
 
-mDefineFactory1Param( AttributeEngine, ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
+mDefineFactory1Param( ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
 
 
 } // namespace Attrib
 
 #endif
-

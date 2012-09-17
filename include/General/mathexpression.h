@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.20 2012-08-03 13:00:24 cvskris Exp $
+ RCS:           $Id: mathexpression.h,v 1.19 2011/09/01 12:16:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "bufstringset.h"
 template <class T> class TypeSet;
 
@@ -26,7 +25,7 @@ setVariable( int, float ). Then, the calculation can be done with getValue().
 
 -*/
 
-mClass(General) MathExpression
+mClass MathExpression
 {
 public:
 
@@ -99,7 +98,7 @@ Then, errmsg_ should contain info.
 -*/
 
 
-mClass(General) MathExpressionParser
+mClass MathExpressionParser
 {
 public:
 
@@ -126,7 +125,7 @@ protected:
 
 /*!\brief Expression desc to build UI */
 
-mClass(General) MathExpressionOperatorDesc
+mClass MathExpressionOperatorDesc
 {
 public:
     			MathExpressionOperatorDesc( const char* s,
@@ -143,7 +142,7 @@ public:
 
 /*!\brief Group of similar expression descs */
 
-mClass(General) MathExpressionOperatorDescGroup
+mClass MathExpressionOperatorDescGroup
 {
 public:
 
@@ -156,4 +155,3 @@ public:
 
 
 #endif
-

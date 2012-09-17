@@ -7,13 +7,12 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Umesh Sinha
 Date:          Sep 2008
-RCS:           $Id: velocityfunctionstored.h,v 1.6 2012-08-03 13:00:44 cvskris Exp $
+RCS:           $Id: velocityfunctionstored.h,v 1.5 2010/11/19 16:56:06 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "velocitymod.h"
 #include "velocityfunction.h"
 #include "binidvalset.h"
 
@@ -29,7 +28,7 @@ class StoredFunctionSource;
 
 /*!VelocityFunction that gets its information from a Velocity Picks. */
 
-mClass(Velocity) StoredFunction : public Function
+mClass StoredFunction : public Function
 {
 public:
 				StoredFunction(StoredFunctionSource&);
@@ -47,7 +46,7 @@ protected:
 };
 
 
-mClass(Velocity) StoredFunctionSource : public FunctionSource
+mClass StoredFunctionSource : public FunctionSource
 {
 public:
     mDefaultFactoryInstanciationBase( "StoredVelFunc", sFactoryKeyword());
@@ -90,4 +89,3 @@ protected:
 
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: faultstickset.cc,v 1.18 2012-08-03 21:32:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faultstickset.cc,v 1.15 2012/08/08 21:02:34 cvsyuancheng Exp $";
 
 #include "faultstickset.h"
 
@@ -248,6 +248,13 @@ const Coord3& FaultStickSet::getEditPlaneNormal( int sticknr ) const
 void FaultStickSet::addEditPlaneNormal( const Coord3& editnormal )
 {
     editplanenormals_ += editnormal;
+
+    if ( editplanenormals_.size() > 1 )
+	return;
+    if ( !editnormal.isDefined() || mIsZero(editnormal.sqAbs(),mDefEps) )
+	return;
+
+    const Coord3 normvec = editnormal.normalize();
 }
 
 

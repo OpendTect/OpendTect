@@ -4,18 +4,28 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: pickretriever.cc,v 1.6 2012-05-04 21:55:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: pickretriever.cc,v 1.3 2009/07/22 16:01:32 cvsbert Exp $";
 
 #include "pickretriever.h"
 
 RefMan<PickRetriever> PickRetriever::instance_ = 0;
 
-PickRetriever::PickRetriever()	{}
-PickRetriever::~PickRetriever()	{}
+
+PickRetriever::PickRetriever()
+{}
+
+
+PickRetriever::~PickRetriever()
+{}
+
 
 void PickRetriever::setInstance( PickRetriever* npr )
-{ instance_ = npr; }
+{
+    instance_ = npr;
+}
+
 
 PickRetriever* PickRetriever::getInstance()
-{ return instance_; }
-
+{
+    return instance_;
+}

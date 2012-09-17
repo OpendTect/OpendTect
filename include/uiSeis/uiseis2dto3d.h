@@ -7,13 +7,12 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Feb 2011
-RCS:           $Id: uiseis2dto3d.h,v 1.6 2012-08-03 13:01:07 cvskris Exp $
+RCS:           $Id: uiseis2dto3d.h,v 1.5 2012/06/19 12:27:29 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uiseismod.h"
 #include "uidialog.h"
 
 
@@ -24,7 +23,7 @@ class uiGenInput;
 class CtxtIOObj;
 class Seis2DTo3D;
 
-mClass(uiSeis) uiSeis2DTo3D : public uiDialog
+mClass uiSeis2DTo3D : public uiDialog
 {
 public:
 
@@ -41,7 +40,6 @@ protected:
     uiSeisSel*		outfld_;
     uiGenInput*		iterfld_;
     uiGenInput*		winfld_;
-    uiGenInput*		interpoltypefld_;
     uiCheckBox*		reusetrcsbox_;
     uiGenInput*		velfiltfld_;
 
@@ -51,4 +49,3 @@ protected:
 
 
 #endif
-

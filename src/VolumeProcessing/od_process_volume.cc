@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: od_process_volume.cc,v 1.32 2012-07-10 08:05:32 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.29 2012/07/10 13:06:03 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -21,7 +21,6 @@ static const char* rcsID mUnusedVar = "$Id: od_process_volume.cc,v 1.32 2012-07-
 bool BatchProgram::go( std::ostream& strm )
 { 
     OD::ModDeps().ensureLoaded( "VolumeProcessing" );
-    OD::ModDeps().ensureLoaded( "Well" );
     
     MultiID chainid;
     pars().get( VolProcessingTranslatorGroup::sKeyChainID(), chainid );

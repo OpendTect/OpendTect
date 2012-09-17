@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.22 2012-08-03 13:00:24 cvskris Exp $
+ RCS:           $Id: menuhandler.h,v 1.20 2011/12/16 16:04:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "refcount.h"
 #include "position.h"
 #include "callback.h"
@@ -21,7 +20,7 @@ class BufferStringSet;
 class MenuItem;
 class MenuHandler;
 
-mClass(General) MenuItemHolder : public CallBacker
+mClass MenuItemHolder : public CallBacker
 {
 public:
     				MenuItemHolder();
@@ -69,7 +68,7 @@ private:
 
 /*!A generic representation of an item in a menu. */
 
-mClass(General) MenuItem : public MenuItemHolder
+mClass MenuItem : public MenuItemHolder
 {
 public:
     				MenuItem(const char* text=0,int placement=-1);
@@ -98,7 +97,7 @@ public:
 };
 
 
-mClass(General) SeparatorItem : public MenuItem
+mClass SeparatorItem : public MenuItem
 {
 public:
 				SeparatorItem(int plmnt=-1)
@@ -167,7 +166,7 @@ inserted into the menu.
     \endcode
 */
     
-mClass(General) MenuHandler : public MenuItemHolder
+mClass MenuHandler : public MenuItemHolder
 {				mRefCountImpl(MenuHandler);
 public:
     				MenuHandler( int id );
@@ -216,7 +215,7 @@ protected:
      by an inheriting object in the shouldAddMenu(), shouldBeEnabled() and
      shouldBeChecked() functions. */
 
-mClass(General) MenuItemHandler : public CallBacker
+mClass MenuItemHandler : public CallBacker
 {
 public:
 			MenuItemHandler(MenuHandler&,const char* nm,
@@ -264,7 +263,7 @@ protected:
 { \
     MenuItem* _item = item; \
     MenuItemHolder* _parent = parent; \
-    if ( _parent && (_parent)->itemIndex(_item)==-1 ) \
+    if ( (_parent)->itemIndex(_item)==-1 ) \
 	(_parent)->addItem( _item ); \
    \
     (_item)->enabled = (enab); \
@@ -280,16 +279,15 @@ mAddMenuItemWithManageFlag( parent, item, true, enab, check )
 
 
 #define mAddMenuItemCond( menu, item, enab, check, cond ) { \
-    if ( menu && cond ) \
+    if ( cond ) \
 	mAddMenuItem( menu, item, enab, check ) \
     else \
 	mResetMenuItem( item ) } \
 
-//Macro that can poplulate both a toolbar and a menu. 
-#define mAddMenuOrTBItem( istoolbar, tbparent, popupparent, item, enab, check )\
-    mAddMenuItem( \
-	istoolbar?(MenuItemHolder*)(tbparent):(MenuItemHolder*)(popupparent), \
-	    item, enab, check )
+//Macro that can poplulate both a toolbar and a menu. Only
+//items with an icon is put in a toolbar.
+#define mAddMenuOrTBItem( istoolbar, parent, item, enab, check ) \
+    mAddMenuItemCond( parent, item, enab, check, \
+	    (!istoolbar || !(item)->iconfnm.isEmpty()) )
 
 #endif
-

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: cbvswritemgr.cc,v 1.40 2012-05-02 15:11:32 cvskris Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.37 2010/10/14 09:58:06 cvsbert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -111,7 +111,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
     	, single_file(sf)
     	, coordpol_(cp)
 {
-    const int totsamps = info_.nrsamples_;
+    const int totsamps = info_.nrsamples;
     if ( totsamps < 1 ) return;
 
     VBrickSpec spec; if ( bs ) spec = *bs;
@@ -149,9 +149,9 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	    { endsamp++; extrasamps--; }
 	if ( endsamp >= totsamps ) endsamp = totsamps-1;
 
-	inf.sd_.start = info_.sd_.start + startsamp * info_.sd_.step;
-	inf.sd_.start = info_.sd_.start + startsamp * info_.sd_.step;
-	inf.nrsamples_ = endsamp - startsamp + 1;
+	inf.sd.start = info_.sd.start + startsamp * info_.sd.step;
+	inf.sd.start = info_.sd.start + startsamp * info_.sd.step;
+	inf.nrsamples = endsamp - startsamp + 1;
 
 	std::ostream* strm = mkStrm();
 	if ( !strm )
@@ -160,7 +160,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	writers_ += wr;
 
 	if ( writers_.size() == 1 )
-	    inf.auxinfosel_.setAll( false );
+	    inf.auxinfosel.setAll( false );
 
 	endsamps_ += endsamp;
     }
@@ -282,9 +282,9 @@ bool CBVSWriteMgr::put( void** data )
 		std::ostream* strm = mkStrm();
 		if ( !strm ) return false;
 
-		if ( info_.geom_.fullyrectandreg )
-		    info_.geom_.start.inl = writer->survGeom().stop.inl
-					 + info_.geom_.step.inl;
+		if ( info_.geom.fullyrectandreg )
+		    info_.geom.start.inl = writer->survGeom().stop.inl
+					 + info_.geom.step.inl;
 
 		writer->forceLineStep( writer->survGeom().step );
 		CBVSWriter* newwriter = new CBVSWriter( strm, *writer, info_ );

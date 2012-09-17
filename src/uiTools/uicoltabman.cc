@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicoltabman.cc,v 1.52 2012-09-07 22:08:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.47 2011/11/23 11:35:56 cvsbert Exp $";
 
 #include "uicoltabman.h"
 
@@ -28,11 +28,11 @@ static const char* rcsID mUnusedVar = "$Id: uicoltabman.cc,v 1.52 2012-09-07 22:
 #include "uirgbarray.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
+#include "uilistview.h"
 #include "uimsg.h"
 #include "uimenu.h"
 #include "uispinbox.h"
 #include "uisplitter.h"
-#include "uitreeview.h"
 #include "uiworld2ui.h"
 
 #define mTransHeight	150
@@ -59,14 +59,14 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     uiGroup* leftgrp = new uiGroup( this, "Left" );
 
-    coltablistfld_ = new uiTreeView( leftgrp, "Colortable Manager" );
+    coltablistfld_ = new uiListView( leftgrp, "Colortable Manager" );
     BufferStringSet labels;
     labels.add( "Color table" ).add( "Status" );
     coltablistfld_->addColumns( labels );
     coltablistfld_->setRootDecorated( false );
-    coltablistfld_->setHScrollBarMode( uiTreeView::AlwaysOff );
+    coltablistfld_->setHScrollBarMode( uiListView::AlwaysOff );
     coltablistfld_->setStretch( 2, 2 );
-    coltablistfld_->setSelectionBehavior( uiTreeView::SelectRows );
+    coltablistfld_->setSelectionBehavior( uiListView::SelectRows );
     coltablistfld_->selectionChanged.notify( mCB(this,uiColorTableMan,selChg) );
 
     uiGroup* rightgrp = new uiGroup( this, "Right" );
@@ -194,11 +194,11 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 	else
 	    status = sKeyOwn;
 
-	uiTreeViewItem* itm mUnusedVar = new uiTreeViewItem( coltablistfld_,
-		uiTreeViewItem::Setup().label(seq->name()).label(status) );
+	uiListViewItem* itm = new uiListViewItem( coltablistfld_,
+		uiListViewItem::Setup().label(seq->name()).label(status) );
     }
 
-    uiTreeViewItem* itm = coltablistfld_->findItem( selctnm, 0, true );
+    uiListViewItem* itm = coltablistfld_->findItem( selctnm, 0, true );
     if ( !itm ) return;
 
     coltablistfld_->setCurrentItem( itm );
@@ -209,7 +209,7 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 
 void uiColorTableMan::selChg( CallBacker* cb )
 {
-    const uiTreeViewItem* itm = coltablistfld_->selectedItem();
+    const uiListViewItem* itm = coltablistfld_->selectedItem();
     if ( !itm || !ColTab::SM().get(itm->text(0),ctab_) )
 	return;
 
@@ -483,7 +483,7 @@ void uiColorTableMan::rightClick( CallBacker* )
     }
 
     if ( selidx_<0 ) return;
-    Color col = ctab_.color( (float) wpt.x );
+    Color col = ctab_.color( wpt.x );
     if ( selectColor(col,this,"Color selection",false) )
     {
 	ctab_.changeColor( selidx_-1, col.r(), col.g(), col.b() );

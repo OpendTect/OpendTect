@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.23 2012-08-03 13:00:34 cvskris Exp $
+ RCS:		$Id: segydirectdef.h,v 1.22 2011/03/23 11:57:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "segyfiledata.h"
 #include "bufstringset.h"
 #include "executor.h"
@@ -31,7 +30,7 @@ class FileDataSet;
 class PosKeyList;
 
 
-mClass(Seis) DirectDef
+mClass DirectDef
 {
 public:
 
@@ -99,7 +98,7 @@ protected:
 
 
 /*!Scans a file and creates an index file that can be read by OD. */
-mClass(Seis) FileIndexer : public Executor
+mClass FileIndexer : public Executor
 {
 public:
     			FileIndexer(const MultiID& mid,bool isvol,
@@ -132,4 +131,3 @@ protected:
 }; //Namespace
 
 #endif
-

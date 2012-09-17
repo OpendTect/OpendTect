@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiprestkmergedlg.cc,v 1.33 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.29 2011/11/23 11:35:56 cvsbert Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -86,10 +86,10 @@ void uiPreStackMergeDlg::createSelectButtons( uiGroup* selbuttons )
 {
     uiLabel* sellbl = new uiLabel( selbuttons, "Select" );
     CallBack cb = mCB(this,uiPreStackMergeDlg,selButPush);
-    toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow, "", cb);
+    toselect_ = new uiToolButton( selbuttons, "rightarrow.png", "", cb );
     toselect_->attach( centeredBelow, sellbl );
     toselect_->setHSzPol( uiObject::Undef );
-    fromselect_ = new uiToolButton( selbuttons, uiToolButton::LeftArrow, "",cb);
+    fromselect_ = new uiToolButton( selbuttons, "leftarrow.png", "", cb );
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selbuttons->setHAlignObj( toselect_ );
@@ -100,11 +100,10 @@ void uiPreStackMergeDlg::createMoveButtons( uiGroup* movebuttons )
 {
     uiLabel* movelbl = new uiLabel( movebuttons, "Change \n Priority" );
     CallBack cb = mCB(this,uiPreStackMergeDlg,moveButPush);
-    moveupward_ = new uiToolButton( movebuttons, uiToolButton::UpArrow,"",cb);
+    moveupward_ = new uiToolButton( movebuttons, "uparrow.png","", cb );
     moveupward_->attach( centeredBelow, movelbl );
     moveupward_->setHSzPol( uiObject::Undef );
-    movedownward_ = new uiToolButton( movebuttons, uiToolButton::DownArrow,
-	    					"", cb );
+    movedownward_ = new uiToolButton( movebuttons, "downarrow.png", "", cb );
     movedownward_->attach( alignedBelow, moveupward_ );
     movedownward_->setHSzPol( uiObject::Undef );
     movebuttons->setHAlignObj( moveupward_ );
@@ -197,7 +196,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
     }
 
     BufferString storage = "";
-    static const char* storagekey = sKey::DataStorage();
+    static const char* storagekey = sKey::DataStorage;
     bool altstormsgdone = false;
     for ( int idx=0; idx<nrobjs; idx++ )
     {

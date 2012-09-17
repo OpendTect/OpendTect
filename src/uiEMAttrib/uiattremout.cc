@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattremout.cc,v 1.17 2012-05-22 14:48:36 cvskris Exp $";
+static const char* rcsID = "$Id: uiattremout.cc,v 1.14 2012/02/17 23:06:35 cvsnanne Exp $";
 
 
 #include "uiattremout.h"
@@ -106,11 +106,11 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
 			      const char* idlbl, const char* outid )
 {
-    iopar.set( IOPar::compKey( sKey::Output(), sKey::Type()), outtyp );
+    iopar.set( IOPar::compKey( sKey::Output, sKey::Type), outtyp );
 
     BufferString key;
     BufferString tmpkey;
-    static const BufferString keybase( IOPar::compKey( sKey::Output(), 0 ) );
+    static const BufferString keybase( IOPar::compKey( sKey::Output, 0 ) );
     tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey() );
     key = IOPar::compKey( tmpkey.buf(), DescSet::highestIDStr() );
     iopar.set( key, 1 );

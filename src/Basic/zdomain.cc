@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: zdomain.cc,v 1.12 2012-05-22 14:48:30 cvskris Exp $";
+static const char* rcsID = "$Id: zdomain.cc,v 1.9 2011/12/09 16:12:58 cvskris Exp $";
 
 #include "zdomain.h"
 #include "survinfo.h"
@@ -217,9 +217,9 @@ bool ZDomain::Info::hasID() const
 
 const char* ZDomain::Info::getID() const
 {
-    const char* res = pars_.find( sKey::ID() );
+    const char* res = pars_.find( sKey::ID );
     if ( !res || !*res )
-	res = pars_.find( IOPar::compKey(sKey(),sKey::ID()) );
+	res = pars_.find( IOPar::compKey(sKey(),sKey::ID) );
     if ( !res || !*res )
 	res = pars_.find( "ZDomain ID" );
     return res;
@@ -228,7 +228,7 @@ const char* ZDomain::Info::getID() const
 
 void ZDomain::Info::setID( const char* id )
 {
-    pars_.set( sKey::ID(), id );
+    pars_.set( sKey::ID, id );
 }
 
 

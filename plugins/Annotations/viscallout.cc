@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viscallout.cc,v 1.36 2012-08-13 03:56:43 cvssalil Exp $";
+static const char* rcsID = "$Id: viscallout.cc,v 1.33 2012/07/10 13:05:57 cvskris Exp $";
 
 #include "viscallout.h"
 
@@ -177,8 +177,8 @@ Sphere Callout::getDirection() const
     textpos.z *= zscale_;
 
     Sphere res;
-    res.theta = (float) atan2( textpos.x, textpos.z );
-    res.radius = (float) textpos.abs();
+    res.theta = atan2( textpos.x, textpos.z );
+    res.radius = textpos.abs();
 
     Quaternion phi( 0, 0, 0, 0 );
     rotation_->get( phi );
@@ -230,7 +230,7 @@ void Callout::setTextSize( float ns )
     backtext_->setFontData(fd);
     updateCoords();
 
-    rotfeedbackradius_ = ns/1.5f;
+    rotfeedbackradius_ = ns/1.5;
     setupRotFeedback();
 
     const Coord3 feedbacksz( ns/3, ns/3, ns/3 );
@@ -421,9 +421,9 @@ void Callout::updateCoords()
 
 	rotfeedbackpos_ =  Coord3( dragcorner.x, dragcorner.z, dragcorner.y );
 	if ( dragcorner11 ) 
-	    rotfeedbackradius_ = fronttext_->getFontData().pointSize()/1.5f;
+	    rotfeedbackradius_ = fronttext_->getFontData().pointSize()/1.5;
 	else
-	    rotfeedbackradius_ = -fronttext_->getFontData().pointSize()/1.5f;
+	    rotfeedbackradius_ = -fronttext_->getFontData().pointSize()/1.5;
 
 	setupRotFeedback();
 	if ( !isdragging_ )
@@ -450,7 +450,7 @@ void Callout::updateCoords()
 
 void Callout::updateArrow()
 {
-    Interval<double> xrange, yrange;
+    Interval<float> xrange, yrange;
     if ( faceset_->getCoordinates()->size(false) != 
 	 faceset_->getCoordinates()->size(true) )
 	return;
@@ -488,8 +488,8 @@ void Callout::updateArrow()
 		const Coord3 nextpos =
 		    faceset_->getCoordinates()->getPos( nextidx );
 
-		const float sqdist = (float) (pickpos.sqDistTo(pos) +
-		    		     pickpos.sqDistTo(nextpos));
+		const float sqdist = pickpos.sqDistTo(pos) +
+		    		     pickpos.sqDistTo(nextpos);
 
 		if ( !idx || sqdist<minsqdist )
 		{
@@ -518,7 +518,7 @@ void Callout::setupRotFeedback()
 {
     const float angleperstep=M_PI/16;
     const int nrsteps = 4;
-    const float width = rotfeedbackradius_*0.03f;
+    const float width = rotfeedbackradius_*0.03;
     const int coneres = 16;
     const int cylinderres = 4;
 
@@ -526,7 +526,7 @@ void Callout::setupRotFeedback()
     const Coord3 center( rotfeedbackradius_, 0, 0 );
     for ( int idx=0; idx<coneres; idx++ )
     {
-	const float angle = (float) (M_PI*2)/coneres*idx;
+	const float angle = (M_PI*2)/coneres*idx;
 	const float sina = sin( angle ) * width * 5;
 	const float cosa = cos( angle ) * width * 5;
 
@@ -536,7 +536,7 @@ void Callout::setupRotFeedback()
     TypeSet<Coord3> circlepos;
     for ( int idx=0; idx<cylinderres; idx++ )
     {
-	const float angle = (float) (M_PI*2)/cylinderres*idx;
+	const float angle = (M_PI*2)/cylinderres*idx;
 	const float sina = sin( angle ) * width;
 	const float cosa = cos( angle ) * width;
 
@@ -546,7 +546,7 @@ void Callout::setupRotFeedback()
     int ci = 0, cii=0;
 
     float curangle = -(angleperstep*nrsteps)/2;
-    float arrowangle = (float) (curangle - mArrowAngle);
+    float arrowangle = curangle - mArrowAngle;
 
     Quaternion rot( Coord3( 0, 0, 1 ), arrowangle );
     rotfeedback_->getCoordinates()->setPos( ci++,
@@ -617,7 +617,7 @@ void Callout::setupRotFeedback()
     rotfeedback_->getCoordinates()->setPos( ci++,
 	    rotfeedbackpos_+rot.rotate( center ) );
 
-    curangle += (float) mArrowAngle-angleperstep;
+    curangle += mArrowAngle-angleperstep;
     rot.setRotation( Coord3( 0, 0, 1 ), curangle );
 
     topidx =  ci;

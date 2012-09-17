@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: volprochorinterfiller.h,v 1.9 2012-08-03 13:00:44 cvskris Exp $
+ RCS:		$Id: volprochorinterfiller.h,v 1.8 2011/08/26 08:24:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "volumeprocessingmod.h"
 #include "multiid.h"
 #include "samplingdata.h"
 #include "volprocchain.h"
@@ -28,7 +27,7 @@ namespace VolProc
     gradient or to a fixed value at the bottom boundary. */
 
     
-mClass(VolumeProcessing) HorInterFiller : public Step
+mClass HorInterFiller : public Step
 {
 public:
 				mDefaultFactoryInstantiation( VolProc::Step,
@@ -96,4 +95,3 @@ protected:
 
 
 #endif
-

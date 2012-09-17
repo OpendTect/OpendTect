@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: pca.h,v 1.14 2012-08-09 06:49:31 cvsaneesh Exp $
+ RCS:		$Id: pca.h,v 1.12 2011/02/14 22:23:30 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "algomod.h"
 #include "arrayndimpl.h"
 #include "sets.h"
 #include "trigonometry.h"
@@ -70,7 +69,7 @@ Example of usage:\code
 
 */
 
-mClass(Algo) PCA
+mClass PCA
 {
 public:
     					PCA( int nrvars );
@@ -143,7 +142,7 @@ void PCA::addSample( const IDXABL& sample )
     TypeSet<float>& ownsample = *new TypeSet<float>;
     for ( int idx=0; idx<nrvars_; idx++ )
     {
-	const float val = (float) sample[idx];
+	const float val = sample[idx];
 	ownsample += val;
 	samplesums_[idx] += val;
     }
@@ -159,5 +158,4 @@ void PCA::getEigenVector(int idy, IDXABL& vec ) const
 }
 
 #endif
-
 

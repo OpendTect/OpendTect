@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.h,v 1.19 2012-08-03 13:01:15 cvskris Exp $
+ RCS:           $Id: uiselsimple.h,v 1.18 2012/03/14 11:09:32 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 
 class uiListBox;
@@ -22,11 +21,11 @@ class BufferStringSet;
 
 /*!\brief Select entry from list */
 
-mClass(uiTools) uiSelectFromList : public uiDialog
+mClass uiSelectFromList : public uiDialog
 { 	
 public:
 
-    mClass(uiTools) Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
 			Setup( const char* wintitl, const BufferStringSet& its )
@@ -68,11 +67,11 @@ private:
 
 /*!\brief Get a name from user, whilst displaying names that already exist */
 
-mClass(uiTools) uiGetObjectName : public uiDialog
+mClass uiGetObjectName : public uiDialog
 { 	
 public:
 
-    mClass(uiTools) Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
 			Setup( const char* wintitl,const BufferStringSet& its )
@@ -109,7 +108,7 @@ protected:
 
 /*!\brief Get an action from a series of possibilities from user */
 
-mClass(uiTools) uiGetChoice : public uiDialog
+mClass uiGetChoice : public uiDialog
 { 	
 public:
 
@@ -139,4 +138,3 @@ protected:
 
 
 #endif
-

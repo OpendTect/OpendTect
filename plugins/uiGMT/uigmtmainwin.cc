@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtmainwin.cc,v 1.34 2012-05-22 14:48:45 cvskris Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.29 2012/02/13 09:21:45 cvsbert Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -98,7 +98,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 	    			"Move current item up", butpushcb );
     downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
 	    			 "Move current item down", butpushcb );
-    rmbut_ = new uiToolButton( bgrp, "trashcan",
+    rmbut_ = new uiToolButton( bgrp, "trashcan.png",
 	    			"Remove current item from flow", butpushcb );
     bgrp->attach( centeredBelow, llb );
 
@@ -125,11 +125,11 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     setParFileNmDef( "GMT_Proc" );
 
     uiToolBar* toolbar = new uiToolBar( this, "Flow Tools" );
-    toolbar->addButton( "newflow", "New flow",
+    toolbar->addButton( "newflow.png", "New flow",
 	    		mCB(this,uiGMTMainWin,newFlow) );
-    toolbar->addButton( "openflow", "Open Flow",
+    toolbar->addButton( "openflow.png", "Open Flow",
 	    		mCB(this,uiGMTMainWin,openFlow) );
-    toolbar->addButton( "saveflow", "Save Current Flow",
+    toolbar->addButton( "saveflow.png", "Save Current Flow",
 			mCB(this,uiGMTMainWin,saveFlow) );
 
     tabSel(0);
@@ -214,10 +214,10 @@ void uiGMTMainWin::saveFlow( CallBacker* )
 
     BufferString fnm = filefld_->fileName();
     if ( !fnm.isEmpty() )
-	par.set( sKey::FileName(), fnm );
+	par.set( sKey::FileName, fnm );
 
     IOPar basemappar;
-    basemappar.set( ODGMT::sKeyGroupName(), "Basemap" );
+    basemappar.set( ODGMT::sKeyGroupName, "Basemap" );
     if ( !basemapgrp_->fillPar(basemappar) )
 	 return;
 
@@ -296,7 +296,7 @@ void uiGMTMainWin::selChg( CallBacker* )
 	return;
     }
 
-    FixedString tabname = pars_[selidx]->find( ODGMT::sKeyGroupName() );
+    FixedString tabname = pars_[selidx]->find( ODGMT::sKeyGroupName );
     for ( int idx=0; idx<overlaygrps_.size(); idx++ )
     {
 	if ( tabname == overlaygrps_[idx]->name() )
@@ -322,7 +322,7 @@ void uiGMTMainWin::addCB( CallBacker* )
     if ( !gmtgrp ) return;
 
     IOPar iop;
-    iop.set( ODGMT::sKeyGroupName(), gmtgrp->name() );
+    iop.set( ODGMT::sKeyGroupName, gmtgrp->name() );
     if ( !gmtgrp->fillPar(iop) )
 	return;
 
@@ -350,7 +350,7 @@ void uiGMTMainWin::editCB( CallBacker* )
     if ( !gmtgrp ) return;
 
     IOPar iop;
-    iop.set( ODGMT::sKeyGroupName(), gmtgrp->name() );
+    iop.set( ODGMT::sKeyGroupName, gmtgrp->name() );
     if ( !gmtgrp->fillPar(iop) )
 	return;
 
@@ -442,27 +442,27 @@ bool uiGMTMainWin::fillPar( IOPar& par )
     if ( File::exists(fnm.buf()) && !File::isWritable(fnm.buf()) )
 	mErrRet("Output file already exists and is read only")
 
-    par.set( sKey::FileName(), fnm );
+    par.set( sKey::FileName, fnm );
     int idx = 0;
     Interval<float> mapdim, xrg, yrg;
     IOPar basemappar;
-    basemappar.set( ODGMT::sKeyGroupName(), "Basemap" );
+    basemappar.set( ODGMT::sKeyGroupName, "Basemap" );
     if ( !basemapgrp_->fillPar(basemappar) )
 	 return false;
 
-    basemappar.setYN( ODGMT::sKeyClosePS(), !pars_.size() );
-    basemappar.get( ODGMT::sKeyMapDim(), mapdim );
-    basemappar.get( ODGMT::sKeyXRange(), xrg );
-    basemappar.get( ODGMT::sKeyYRange(), yrg );
+    basemappar.setYN( ODGMT::sKeyClosePS, !pars_.size() );
+    basemappar.get( ODGMT::sKeyMapDim, mapdim );
+    basemappar.get( ODGMT::sKeyXRange, xrg );
+    basemappar.get( ODGMT::sKeyYRange, yrg );
     BufferString numkey( "", idx++ );
     par.mergeComp( basemappar, numkey );
     bool isclippingon = false;
     for ( int ldx=0; ldx<pars_.size(); ldx++ )
     {
 	numkey = idx++;
-	pars_[ldx]->set( ODGMT::sKeyMapDim(), mapdim );
-	pars_[ldx]->set( ODGMT::sKeyXRange(), xrg );
-	pars_[ldx]->set( ODGMT::sKeyYRange(), yrg );
+	pars_[ldx]->set( ODGMT::sKeyMapDim, mapdim );
+	pars_[ldx]->set( ODGMT::sKeyXRange, xrg );
+	pars_[ldx]->set( ODGMT::sKeyYRange, yrg );
 	par.mergeComp( *pars_[ldx], numkey );
 	mDynamicCastGet(const GMTClip*,gmtclip,pars_[ldx])
 	if ( gmtclip )
@@ -482,7 +482,7 @@ bool uiGMTMainWin::fillPar( IOPar& par )
     if ( isclippingon )
     {
 	IOPar termclippingpar;
-	termclippingpar.set( ODGMT::sKeyGroupName(), "Clipping" );
+	termclippingpar.set( ODGMT::sKeyGroupName, "Clipping" );
 	uiGMTClipGrp::getTerminatingPars( termclippingpar );
 	numkey = idx;
 	par.mergeComp( termclippingpar, numkey );
@@ -494,7 +494,7 @@ bool uiGMTMainWin::fillPar( IOPar& par )
 
 bool uiGMTMainWin::usePar( const IOPar& par )
 {
-    FixedString fnm = par.find( sKey::FileName() );
+    FixedString fnm = par.find( sKey::FileName );
     if ( fnm )
 	filefld_->setFileName( fnm );
 

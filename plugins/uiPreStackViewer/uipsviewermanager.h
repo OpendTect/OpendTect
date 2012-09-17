@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.21 2011-05-04 15:20:02 cvsbruno Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.21 2011/05/04 15:20:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/

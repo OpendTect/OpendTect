@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: surv2dgeom.cc,v 1.34 2012-07-20 21:13:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: surv2dgeom.cc,v 1.29 2012/06/19 04:06:29 cvsranojay Exp $";
 
 #include "surv2dgeom.h"
 
@@ -39,9 +39,6 @@ void doDel( CallBacker* ) { delete theinst; theinst = 0; }
 
 bool PosInfo::GeomID::isOK() const
 { return S2DPOS().hasLine( lineid_, lsid_ ); }
-
-void PosInfo::GeomID::setUndef()
-{ lineid_ = lsid_ = -1; }
 
 BufferString PosInfo::GeomID::toString() const
 {
@@ -82,7 +79,7 @@ PosInfo::Survey2D& PosInfo::POS2DAdmin()
 { \
     BufferString cmd("od_DispMsg --err ",BufferString(s1 " '",s2, "' " s3)); \
     StreamProvider prov( cmd ); \
-    prov.executeCommand( false ); \
+    prov.executeCommand( false, true ); \
     return; \
 }
 
@@ -288,7 +285,7 @@ bool PosInfo::Survey2D::hasLineSet( int lsid ) const
 const char* PosInfo::Survey2D::getLineName( int lineid ) const
 {
     if ( lineid < 0 )
-	return 0;
+	return false;
     
     for ( int idx=0; idx<lineindex_.size(); idx++ )
     {
@@ -358,16 +355,6 @@ void PosInfo::Survey2D::getLines( BufferStringSet& nms, const char* lsnm ) const
 }
 
 
-void PosInfo::Survey2D::getLines( BufferStringSet& nms, int lsid ) const
-{
-    if ( lsid == -1 )
-	return getLines( nms, 0 );
-
-    BufferString lsnm = getLineSet( lsid );
-    getLines( nms, lsnm );
-}
-
-
 void PosInfo::Survey2D::getLineIDs( TypeSet<int>& ids, int lsid ) const
 {
     if ( lsid >=0 && !hasLineSet(lsid) )
@@ -393,12 +380,12 @@ void PosInfo::Survey2D::getLineIDs( TypeSet<int>& ids, int lsid ) const
     getIDs( iop, ids );
 }
 
-
 int PosInfo::Survey2D::getNewID( IOPar& iop ) 
 {
     int savedmeaxid = -mUdf(int);
     iop.get( sKeyMaxID, savedmeaxid );
     int newlineidx = 0;
+    bool parisok = false;
     
     if ( !iop.size() )
 	return 0;
@@ -446,6 +433,7 @@ BufferString PosInfo::Survey2D::getNewStorageName( const char* nm,
 
     return clnnm;
 }
+
 
 
 void PosInfo::Survey2D::setCurLineSet( int lsid ) const
@@ -797,7 +785,7 @@ const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
     PosInfo::GeomID geomid = getGeomID( lsnm, linenm );
     if ( !geomid.isOK() )
 	return 0;
-    return fnm = FilePath(basefp_,cllsnm,cllnm).fullPath();
+    return FilePath(basefp_,cllsnm,cllnm).fullPath();
 }
 
 

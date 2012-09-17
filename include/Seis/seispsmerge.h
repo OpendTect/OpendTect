@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	R. K. Singh
  Date:		Oct 2007
- RCS:		$Id: seispsmerge.h,v 1.11 2012-08-03 13:00:37 cvskris Exp $
+ RCS:		$Id: seispsmerge.h,v 1.10 2011/10/07 13:15:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "executor.h"
 #include "cubesampling.h"
 class IOObj;
@@ -31,7 +30,7 @@ namespace Seis { class SelData; }
 
 */
 
-mClass(Seis) SeisPSMerger : public Executor
+mClass SeisPSMerger : public Executor
 {
 public:
 			SeisPSMerger(const ObjectSet<IOObj>& in,
@@ -70,4 +69,3 @@ protected:
 
 
 #endif
-

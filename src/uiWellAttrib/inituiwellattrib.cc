@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: inituiwellattrib.cc,v 1.5 2012-05-02 15:12:29 cvskris Exp $";
+static const char* rcsID = "$Id: inituiwellattrib.cc,v 1.3 2011/08/23 14:51:33 cvsbert Exp $";
 
 #include "moddepmgr.h"
 #include "uistratlayermodel.h"

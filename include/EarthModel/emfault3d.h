@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault3d.h,v 1.14 2012-08-20 21:19:53 cvsyuancheng Exp $
+ RCS:		$Id: emfault3d.h,v 1.12 2010/09/23 04:46:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emfault.h"
 #include "tableascio.h"
 #include "emfaultstickset.h"
@@ -27,9 +26,8 @@ namespace Pos { class Filter; }
 namespace EM
 {
 class EMManager;
-class FaultAuxData;
 
-mClass(EarthModel) Fault3DGeometry : public FaultGeometry
+mClass Fault3DGeometry : public FaultGeometry
 {
 public:
     			Fault3DGeometry(Surface&);
@@ -70,14 +68,12 @@ protected:
 /*!\brief 3D Fault
 */
 
-mClass(EarthModel) Fault3D : public Fault
+mClass Fault3D : public Fault
 { mDefineEMObjFuncs( Fault3D );
 public:
     Fault3DGeometry&		geometry();
     const Fault3DGeometry&	geometry() const;
     void			apply(const Pos::Filter&);
-
-    FaultAuxData&		auxdata;
 
 protected:
 
@@ -89,7 +85,7 @@ protected:
 };
 
 
-mClass(EarthModel) FaultAscIO : public Table::AscIO
+mClass FaultAscIO : public Table::AscIO
 {
 public:
     				FaultAscIO( const Table::FormatDesc& fd )
@@ -110,4 +106,3 @@ protected:
 
 
 #endif
-

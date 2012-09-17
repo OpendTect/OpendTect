@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicreateattriblogdlg.cc,v 1.37 2012-08-28 13:21:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.34 2012/05/11 14:17:06 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -54,11 +54,8 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     , attribfld_(0)
     , datasetup_(AttribLogCreator::Setup( attrib, 0 ))
 {
-    uiWellExtractParams::Setup wsu; 
-    wsu.withzstep_ = true; wsu.withzintime_ = false;
-    wsu.defmeterstep_ = 0.15;
-    wsu.withextractintime_ = false;
-    zrangeselfld_ = new uiWellExtractParams( this, wsu );
+    zrangeselfld_ = new uiWellExtractParams(this,
+	    uiWellExtractParams::Setup().withzstep(true).withzintime(false));
 
     datasetup_ = AttribLogCreator::Setup( attrib, &zrangeselfld_->params() );
     datasetup_.nlamodel_ = mdl;
@@ -95,21 +92,19 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     lognmfld_->attach( ensureBelow, sep2 );
     lognmfld_->attach( alignedBelow, zrangeselfld_);
 
-    postFinalise().notify( mCB(this, uiCreateAttribLogDlg, init ) );
+    postFinalise().notify( mCB(this,uiCreateAttribLogDlg,init) );
 }
 
 
 void uiCreateAttribLogDlg::init( CallBacker* )
 {
-    Well::MarkerSet mrkrs;
     for ( int idx=0; idx<wellnames_.size(); idx++ )
     {
 	int wdidx = getWellIndex( wellnames_.get(idx) );
 	Well::Data* wdtmp = Well::MGR().wells()[wdidx];
 	if ( wdtmp )
-	    mrkrs.append( wdtmp->markers() );
+	    zrangeselfld_->addMarkers( wdtmp->markers() );
     }
-    sort( mrkrs ); zrangeselfld_->setMarkers( mrkrs );
 }
 
 

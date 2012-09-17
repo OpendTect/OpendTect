@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		April 2010
- RCS:		$Id: emioobjinfo.h,v 1.3 2012-08-03 13:00:18 cvskris Exp $
+ RCS:		$Id: emioobjinfo.h,v 1.2 2012/05/24 14:41:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "earthmodelmod.h"
 #include "emobject.h"
 #include "ranges.h"
 #include "typeset.h"
@@ -30,7 +29,7 @@ namespace EM
 class dgbSurfaceReader;
 class SurfaceIOData;
 
-mClass(EarthModel) IOObjInfo
+mClass IOObjInfo
 {
 public:
 
@@ -103,4 +102,3 @@ protected:
 
 
 #endif
-

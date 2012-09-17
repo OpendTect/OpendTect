@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.18 2012-08-03 13:01:25 cvskris Exp $
+ RCS:		$Id: vispolyline.h,v 1.16 2011/03/10 22:33:24 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visshape.h"
 #include "position.h"
 
@@ -33,7 +32,7 @@ class DrawStyle;
 
 */
 
-mClass(visBase) PolyLineBase : public VertexShape
+mClass PolyLineBase : public VertexShape
 {
 public:
     int 		size() const;
@@ -42,7 +41,6 @@ public:
     void		setPoint( int, const Coord3& );
     void		removePoint( int );
     virtual void	setLineStyle(const LineStyle&) = 0;
-    virtual const LineStyle& lineStyle() const = 0;
 protected:
     			PolyLineBase(SoVertexShape*);
     SoMFInt32*		numvertices_;
@@ -50,14 +48,13 @@ protected:
 
 
 
-mClass(visBase) PolyLine	: public PolyLineBase
+mClass PolyLine	: public PolyLineBase
 {
 public:
     static PolyLine*	create()
 			mCreateDataObj(PolyLine);
 
     void		setLineStyle(const LineStyle&);
-    const LineStyle&	lineStyle() const;
 
 protected:
     SoLineSet*		lineset_;
@@ -65,21 +62,20 @@ protected:
 };
 
 
-mClass(visBase) PolyLine3D : public PolyLineBase
+mClass PolyLine3D : public PolyLineBase
 {
 public:
     static PolyLine3D*	create()
 			mCreateDataObj(PolyLine3D);
 
     void		setLineStyle(const LineStyle&);
-    const LineStyle&	lineStyle() const;
 
 protected:
     SoLineSet3D*	lineset_;
 };
 
 
-mClass(visBase) IndexedPolyLine	: public IndexedShape
+mClass IndexedPolyLine	: public IndexedShape
 {
 public:
     static IndexedPolyLine*	create()
@@ -87,7 +83,7 @@ public:
 };
 
 
-mClass(visBase) IndexedPolyLine3D	: public IndexedShape
+mClass IndexedPolyLine3D	: public IndexedShape
 {
 public:
     static IndexedPolyLine3D*	create()
@@ -105,4 +101,3 @@ public:
 
 
 #endif
-

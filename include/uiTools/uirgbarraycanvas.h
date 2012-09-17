@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.h,v 1.13 2012-08-03 13:01:14 cvskris Exp $
+ RCS:           $Id: uirgbarraycanvas.h,v 1.12 2009/07/22 16:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigraphicsview.h"
 #include "color.h"
 
@@ -33,7 +32,7 @@ class MouseEventHandler;
 
  */
 
-mClass(uiTools) uiRGBArrayCanvas : public uiGraphicsView
+mClass uiRGBArrayCanvas : public uiGraphicsView
 {
 public:
     			uiRGBArrayCanvas(uiParent*,uiRGBArray&);
@@ -82,4 +81,3 @@ protected:
 
 
 #endif
-

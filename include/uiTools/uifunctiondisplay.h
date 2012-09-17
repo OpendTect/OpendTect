@@ -7,21 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.40 2012-08-03 13:01:13 cvskris Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.39 2012/05/17 05:52:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigraphicsview.h"
 #include "draw.h"
 class uiGraphicsScene;
 class uiGraphicsItem;
 class uiAxisHandler;
-class uiRectItem;
-class uiLineItem;
 class uiPolygonItem;
 class uiPolyLineItem;
+class uiRectItem;
+class uiLineItem;
 class uiGraphicsItemGroup;
 
 /*!\brief displays a function of (X,Y) pairs on a canvas - optionally a Y2.
@@ -33,7 +32,7 @@ class uiGraphicsItemGroup;
  
  */
 
-mClass(uiTools) uiFunctionDisplay : public uiGraphicsView
+mClass uiFunctionDisplay : public uiGraphicsView
 {
 public:
 
@@ -71,7 +70,6 @@ public:
 				    , drawscattery1_(false)
 				    , drawscattery2_(false)
 				    , drawborder_(false)
-				    , fixdrawrg_(true)
 				    , borderstyle_(LineStyle())
 				    , closepolygon_(true)
 				    , drawliney_(true)
@@ -114,7 +112,6 @@ public:
 	mDefSetupMemb(LineStyle,borderstyle)
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
 	mDefSetupMemb(float,epsaroundzero)
-	mDefSetupMemb(bool,fixdrawrg)		
 
 	Setup&		drawline( bool yn )
 			{ drawliney_ = drawliney2_ = yn; return *this; }
@@ -186,8 +183,8 @@ protected:
     TypeSet<float>		y2yvals_;
     TypeSet<float>		y2xvals_;
     float			xmarklineval_;
-    float			ymarklineval_;
     float			xmarkline2val_;
+    float			ymarklineval_;
     float			ymarkline2val_;
     int				selpt_;
     bool			mousedown_;
@@ -205,7 +202,7 @@ protected:
     void			drawMarker(const TypeSet<uiPoint>&,
 	    				   bool y2=false);
     void			drawMarkLine(uiAxisHandler*,float,Color,
-	                                      uiLineItem*&);
+					      uiLineItem*&);
     void			drawBorder();
     void			drawMarkLines();
     bool			setSelPt();
@@ -221,4 +218,3 @@ protected:
 
 
 #endif
-

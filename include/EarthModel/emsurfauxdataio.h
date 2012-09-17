@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.24 2012-08-03 13:00:20 cvskris Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.23 2012/02/17 23:05:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emposid.h"
 #include "executor.h"
 class HorSampling;
@@ -27,7 +26,7 @@ class Horizon3D;
 
 /*!\brief  Writes auxdata to file */
 
-mClass(EarthModel) dgbSurfDataWriter : public Executor
+mClass dgbSurfDataWriter : public Executor
 {
 public:
     				dgbSurfDataWriter(const EM::Horizon3D& surf,
@@ -89,7 +88,7 @@ protected:
 
 /*!\brief Reads auxdata from file */
 
-mClass(EarthModel) dgbSurfDataReader : public Executor
+mClass dgbSurfDataReader : public Executor
 {
 public:
     				dgbSurfDataReader(const char* filename);
@@ -138,4 +137,3 @@ protected:
 };
 
 #endif
-

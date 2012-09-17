@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C Glas
  Date:		November 2008
- RCS:		$Id: emfaultstickset.h,v 1.10 2012-08-03 13:00:17 cvskris Exp $
+ RCS:		$Id: emfaultstickset.h,v 1.9 2011/10/28 11:29:35 cvsjaap Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emfault.h"
 
 namespace Geometry { class FaultStickSet; }
@@ -23,7 +22,7 @@ namespace EM
 {
 class EMManager;
 
-mClass(EarthModel) FaultStickSetGeometry : public FaultGeometry
+mClass FaultStickSetGeometry : public FaultGeometry
 {
 public:
     			FaultStickSetGeometry(Surface&);
@@ -84,7 +83,7 @@ protected:
 /*!\brief Fault stick set
 */
 
-mClass(EarthModel) FaultStickSet: public Fault
+mClass FaultStickSet: public Fault
 { mDefineEMObjFuncs( FaultStickSet );
 public:
     FaultStickSetGeometry&		geometry();
@@ -103,4 +102,3 @@ protected:
 
 
 #endif
-

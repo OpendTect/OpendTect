@@ -4,7 +4,7 @@
  * DATE     : July 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiprestackanglemutecomputer.cc,v 1.9 2012-05-02 15:12:14 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackanglemutecomputer.cc,v 1.7 2012/05/07 11:14:48 cvsbruno Exp $";
 
 #include "uiprestackanglemutecomputer.h"
 #include "uiprestackanglemute.h"
@@ -70,7 +70,6 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
     HorSampling hrg;
     if ( !subsel_->isAll() )
 	subsel_->getSampling( hrg );
-
     processor_->params().hrg_ = hrg;
     processor_->params().outputmutemid_ = mutedeffld_->key(true); 
 

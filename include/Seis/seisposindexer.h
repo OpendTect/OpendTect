@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2008
- RCS:           $Id: seisposindexer.h,v 1.14 2012-08-03 13:00:37 cvskris Exp $
+ RCS:           $Id: seisposindexer.h,v 1.11 2011/03/30 11:47:16 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "seismod.h"
 #include "seisposkey.h"
 #include "sets.h"
 #include "thread.h"
@@ -24,12 +23,12 @@ template <class T> class DataInterpreter;
 namespace Seis
 {
 
-mClass(Seis) PosKeyList
+mClass PosKeyList
 {
 public:
     virtual		~PosKeyList()			{}
     virtual od_int64	size() const			= 0;
-    virtual bool	key(od_int64,PosKey&) const	= 0;
+    virtual PosKey	key(od_int64) const		= 0;
 };
 
 /*!\brief builds an index of a list of positions, making it easy to find a
@@ -40,7 +39,7 @@ public:
 
 */
 
-mClass(Seis) PosIndexer
+mClass PosIndexer
 {
 public:
 
@@ -79,7 +78,7 @@ public:
     const Interval<int>&	crlRange() const	{ return crlrg_; }
     const Interval<int>&	trcNrRange() const	{ return crlrg_; }
     const Interval<float>&	offsetRange() const	{ return offsrg_; }
-    od_int64			nrRejected() const	{ return nrrejected_; }
+    const od_int64		nrRejected() const	{ return nrrejected_; }
 
     bool			dumpTo(std::ostream& strm) const;
     bool			readFrom(const char* nm, od_int64 offset,
@@ -139,4 +138,3 @@ protected:
 } // namespace
 
 #endif
-

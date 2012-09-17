@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiioobjmanip.cc,v 1.49 2012-07-27 09:46:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.45 2011/01/10 13:29:58 cvsbert Exp $";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
@@ -44,12 +44,17 @@ uiToolButton* uiManipButGrp::addButton( Type tp, const char* tooltip,
     const char* pm = 0;
     switch ( tp )
     {
-	case FileLocation:	pm = "filelocation";	break;
-	case Rename:		pm = "renameobj";	break;
-	case Remove:		pm = "trashcan";	break;
-	case ReadOnly:		pm = "readonly";	break;
-	default:		pm = "home";
-				pErrMsg("Unknown toolbut typ");
+	case FileLocation:
+	    pm = "filelocation.png"; break;
+	case Rename:
+	    pm = "renameobj.png"; break;
+	case Remove:
+	    pm = "trashcan.png"; break;
+	case ReadOnly:
+	    pm = "readonly.png"; break;
+	default:
+	    pErrMsg("Unknown toolbut typ");
+	    pm = "home.png";
     }
 
     return addButton( pm, tooltip, cb );
@@ -114,7 +119,7 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool reloc )
 	locbut = addButton( FileLocation, "Change location on disk", cb );
     renbut = addButton( Rename, "Rename this object", cb );
     robut = addButton( ReadOnly, "Toggle Read only : locked", cb );
-    setAlternative( robut, "unlock", "Toggle Read only : editable" );
+    setAlternative( robut, "unlock.png", "Toggle Read only : editable" );
     rembut = addButton( Remove, "Remove this object", cb );
     attach( rightOf, subj_.obj_ );
 }
@@ -335,17 +340,10 @@ bool uiIOObjManipGroup::readonlyEntry( IOObj* ioobj, Translator* tr )
     const bool oldreadonly = tr ? tr->implReadOnly(ioobj)
 				: ioobj->implReadOnly();
     bool newreadonly = !oldreadonly;
-    if ( tr )
-    {
-	tr->implSetReadOnly(ioobj,newreadonly);
-	newreadonly = tr->implReadOnly(ioobj);
-    }
-    else
-    {
-	ioobj->implSetReadOnly(newreadonly);
-	newreadonly = ioobj->implReadOnly();
-    }
+    bool res = tr ? tr->implSetReadOnly(ioobj,newreadonly)
+		: ioobj->implSetReadOnly(newreadonly);
 
+    newreadonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
     if ( oldreadonly == newreadonly )
 	uiMSG().warning( "Could not change the read-only status" );
 

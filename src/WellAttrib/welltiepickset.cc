@@ -7,19 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiepickset.cc,v 1.41 2012-08-10 04:11:25 cvssalil Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.38 2012/07/02 19:31:38 cvskris Exp $";
 
 #include "arrayndimpl.h"
 #include "sorting.h"
 #include "seistrc.h"
 #include "welltiepickset.h"
-#include "bufstringset.h"
 #include "welltiedata.h"
-
 
 namespace WellTie
 {
-
 
 PickSetMgr::PickSetMgr( PickData& pd )
     : evtype_ (VSEvent::Extr)
@@ -29,28 +26,39 @@ PickSetMgr::PickSetMgr( PickData& pd )
 {}
 
 
-void PickSetMgr::setEventType( const char* ev )
+void PickSetMgr::setEventType( int seltype )
 {
-    if ( !VSEvent::parseEnum(ev, evtype_) )
-        evtype_ = VSEvent::None;
-}
-    
-    
-const char* PickSetMgr::getEventType() const
-{
-    return VSEvent::toString( evtype_ );
+    if ( seltype==1 )
+	evtype_ = VSEvent::Extr;
+    else if ( seltype==2 )
+	evtype_ = VSEvent::Max;
+    else if ( seltype==3 )
+	evtype_ = VSEvent::Min;
+    else if ( seltype==4 )
+	evtype_ = VSEvent::ZC;
+    else 
+	evtype_ = VSEvent::None;
 }
 
-
-void PickSetMgr::getEventTypes( BufferStringSet& bss ) const
-{
-    bss.erase();
     
-    bss.add( VSEvent::toString(VSEvent::None) );
-    bss.add( VSEvent::toString(VSEvent::Extr) );
-    bss.add( VSEvent::toString(VSEvent::Max) );
-    bss.add( VSEvent::toString(VSEvent::Min) );
-    bss.add( VSEvent::toString(VSEvent::ZC) );
+int PickSetMgr::getEventType() const
+{
+    switch ( evtype_ )
+    {
+        case VSEvent::Extr:
+            return 1;
+        case VSEvent::Max:
+            return 2;
+        case VSEvent::Min:
+            return 3;
+        case VSEvent::ZC:
+            return 4;
+            
+        default:
+            break;
+    }
+    
+    return 0;
 }
     
     
@@ -75,7 +83,7 @@ void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
 
 
 
-#define mTimeGate 0.02f
+#define mTimeGate 0.02
 float PickSetMgr::findEvent( const SeisTrc& trc, float zpos ) const
 {
     zpos *= 0.001;

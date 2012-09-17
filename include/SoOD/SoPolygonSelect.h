@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPolygonSelect.h,v 1.10 2012-08-27 13:16:48 cvskris Exp $
+ RCS:		$Id: SoPolygonSelect.h,v 1.8 2011/07/08 14:20:09 cvshelene Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/fields/SoSFEnum.h>
 #include <Inventor/lists/SbList.h>
@@ -37,7 +36,7 @@ class SoSceneManager;
 */
 
 
-mSoODClass SoPolygonSelect : public SoNode
+mClass SoPolygonSelect : public SoNode
 {
     friend class		SoTabletEventFilter;
     friend class		uiSoViewerBody;
@@ -91,4 +90,3 @@ protected:
 };
 
 #endif
-

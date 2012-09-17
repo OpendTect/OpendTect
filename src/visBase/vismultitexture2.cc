@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismultitexture2.cc,v 1.75 2012-08-10 03:50:09 cvsaneesh Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.71 2012/07/10 13:06:10 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -167,7 +167,7 @@ void MultiTexture2::setTextureTransparency( int texturenr, unsigned char trans )
 		isTextureEnabled(layeropacity_->value.getNum()) &&
 	    getCurrentTextureIndexData(layeropacity_->value.getNum()) ? 1 : 0 );
 
-	const float opacity = 1.0f - (float) trans/255;
+	const float opacity = 1.0 - (float) trans/255;
 	layeropacity_->value.set1Value( texturenr,
 		isTextureEnabled( texturenr ) &&
 		getCurrentTextureIndexData( texturenr ) ? opacity : 0 );
@@ -278,10 +278,10 @@ void MultiTexture2::enableInterpolation( bool yn )
     enableinterpolation_ = yn;
 
     if ( useshading_ && canUseShading() && shadingcomplexity_ )
-	shadingcomplexity_->textureQuality.setValue( yn ? 0.9f : 0.1f );
+	shadingcomplexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
     else if ( complexity_ )
     {
-	complexity_->textureQuality.setValue( yn ? 0.9f : 0.1f );
+	complexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
     	//if ( !yn ) updateColorTables();
 	//Crap, if you need it to work, ebale it.
     }
@@ -631,8 +631,6 @@ void MultiTexture2::updateColorTables()
 	    else if ( getOperation(idx)==MultiTexture::ADD )
 		op = SoColTabMultiTexture2::ADD;
 
-	    texture_->operation.set1Value( idx, op );
-
 	    texture_->component.set1Value( idx, getComponents(idx) );
 	}
 
@@ -737,7 +735,7 @@ void MultiTexture2::createShadingVars()
 	    shadingcomplexity_ = new SoComplexity;
     	    
 	shadingcomplexity_->textureQuality.setValue( 
-		enableinterpolation_ ? 1 : 0.1f );
+		enableinterpolation_ ? 1 : 0.1 );
 	shadinggroup_->addChild( shadingcomplexity_ );
 
 	datatexturegrp_ = new SoGroup;

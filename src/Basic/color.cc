@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: color.cc,v 1.27 2012-08-30 12:12:45 cvskris Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.22 2012/07/10 13:06:00 cvskris Exp $";
 
 #include "color.h"
 
@@ -192,7 +192,7 @@ void Color::getHSV( unsigned char& h_, unsigned char& s_,
             h = (fg-fb)/delta; break;
         case 1:
             h = 2 + (fb-fr)/delta; break;
-        default: // 2
+        case 2:
             h = 4 + (fr-fg)/delta; break;
     }
 
@@ -241,7 +241,6 @@ void Color::setHSV( unsigned char h_, unsigned char s_, unsigned char v_ )
         case 4:
             fr = u; fg = p; fb = v; break;
         case 5:
-	default:
             fr = v; fg = p; fb = q; break;
     }
 
@@ -529,12 +528,7 @@ bool Color::fromDescription( const char* inp )
     {
 	const ColorDescriptionData& cdd = cColDD[idx];
 	if ( caseInsensitiveEqual(cdd.nm_,inp) )
-	{
-	    *this = Color( (unsigned char) cdd.r_,
-		    	   (unsigned char) cdd.g_,
-			   (unsigned char) cdd.b_ );
-	    return true;
-	}
+	    { *this = Color( cdd.r_, cdd.g_, cdd.b_ ); return true; }
     }
 
     return false;
@@ -563,9 +557,7 @@ const TypeSet<Color>& Color::descriptionCenters()
 	for ( int idx=0; idx<cNrColDD; idx++ )
 	{
 	    const ColorDescriptionData& cdd = cColDD[idx];
-	    *cols += Color( (unsigned char) cdd.r_,
-		    	    (unsigned char) cdd.g_,
-			    (unsigned char) cdd.b_ );
+	    *cols += Color( cdd.r_, cdd.g_, cdd.b_ );
 	}
     }
     return *cols;

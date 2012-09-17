@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vislight.cc,v 1.18 2012-08-10 03:50:09 cvsaneesh Exp $";
+static const char* rcsID = "$Id: vislight.cc,v 1.14 2012/04/18 11:15:29 cvskris Exp $";
 
 #include "vislight.h"
 #include "iopar.h"
@@ -92,12 +92,12 @@ int Light::usePar( const IOPar& par )
     if ( !par.get( intensitystr(), intens ))
 	return -1;
 
-    setIntensity( (float) intens );
+    setIntensity( intens );
     return 1;
 }
 
 
-const char* PointLight::positionstr() { return sKey::Position(); }
+const char* PointLight::positionstr() { return sKey::Position; }
 
 PointLight::PointLight()
     : Light( new SoPointLight )
@@ -133,7 +133,7 @@ int PointLight::usePar( const IOPar& par )
     if ( !par.get( positionstr(), x, y, z ))
 	return -1;
 
-    setPosition( (float) x, (float) y, (float) z );
+    setPosition( x, y, z );
     return 1;
 }
 
@@ -175,13 +175,13 @@ int DirectionalLight::usePar( const IOPar& par )
     if ( !par.get( directionstr(), x, y, z ))
 	return -1;
 
-    setDirection( (float) x, (float) y, (float) z );
+    setDirection( x, y, z );
     return 1;
 }
 
 
 const char* SpotLight::directionstr()  { return "Direction"; }
-const char* SpotLight::positionstr()   { return sKey::Position(); }
+const char* SpotLight::positionstr()   { return sKey::Position; }
 const char* SpotLight::coneanglestr()  { return "Cone Angle"; }
 const char* SpotLight::dropoffratestr(){ return "Drop Off Rate"; }
 
@@ -258,22 +258,22 @@ int SpotLight::usePar( const IOPar& par )
     if ( !par.get( directionstr(), x, y, z ))
 	return -1;
 
-    setDirection( (float) x, (float) y, (float) z );
+    setDirection( x, y, z );
 
     if ( !par.get( positionstr(), x, y, z ))
 	return -1;
 
-    setPosition( (float) x, (float) y, (float) z );
+    setPosition( x, y, z );
 
     if ( !par.get( coneanglestr(), x ))
 	return -1;
 
-    setConeAngle( (float) x );
+    setConeAngle( x );
 
     if ( !par.get( dropoffratestr(), x ))
 	return -1;
 
-    setDropOffRate( (float) x );
+    setDropOffRate( x );
 
     return 1;
 }

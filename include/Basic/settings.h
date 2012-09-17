@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		4-11-1995
- RCS:		$Id: settings.h,v 1.13 2012-08-03 13:00:14 cvskris Exp $
+ RCS:		$Id: settings.h,v 1.12 2009/10/05 06:00:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "basicmod.h"
 #include "iopar.h"
 
 
@@ -32,7 +31,7 @@ ________________________________________________________________________
 */
 
 
-mClass(Basic) Settings : public IOPar
+mClass Settings : public IOPar
 {
 public:
 
@@ -79,4 +78,3 @@ protected:
 	Settings::common().write();
 
 #endif
-

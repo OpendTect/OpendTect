@@ -5,7 +5,7 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: dateinfo.cc,v 1.24 2012-05-22 14:48:29 cvskris Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.21 2011/12/23 15:24:14 cvskris Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"
@@ -295,7 +295,7 @@ const char* DateInfo::whenRelative( const DateInfo* di ) const
 void DateInfo::getRel( const DateInfo& reld, BufferString& bs ) const
 {
     if ( isUdf() || reld.isUdf() )
-	mRet(sKey::Undef())
+	mRet(sKey::Undef)
     else if ( reld.days1900_ == days1900_ )
 	mRet("that day")
 
@@ -352,7 +352,7 @@ void DateInfo::getRel( const DateInfo& reld, BufferString& bs ) const
 
 void DateInfo::getRelToday( BufferString& bs ) const
 {
-    if ( isUdf() ) mRet(sKey::Undef())
+    if ( isUdf() ) mRet(sKey::Undef)
 
     DateInfo today;
 
@@ -422,7 +422,7 @@ void DateInfo::addDay( BufferString& bs ) const
 void DateInfo::toString( BufferString& str ) const
 {
     if ( isUdf() )
-	{ str += sKey::Undef(); return; }
+	{ str += sKey::Undef; return; }
 
     str += day(); str += "-";
     str += DateInfo::getMonthString(month()); str += "-";
@@ -516,7 +516,7 @@ bool DateInfo::fromNumString( const char* inp, bool yrfirst )
 
 void DateInfo::getUsrDisp( BufferString& disp, bool withcurtime ) const
 {
-    if ( isUdf() ) { disp = sKey::Undef(); return; }
+    if ( isUdf() ) { disp = sKey::Undef; return; }
 
     disp = fullMonthName();
     disp += day(); disp += " ";

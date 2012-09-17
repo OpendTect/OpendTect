@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseis2dgeom.cc,v 1.27 2012-06-21 19:17:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.24 2012/06/21 19:25:17 cvsnanne Exp $";
 
 #include "uiseis2dgeom.h"
 
@@ -34,6 +34,8 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
 				 "Specify parameters for 2D geometry dump",
 				 "103.1.4"))
     , ctio(*mMkCtxtIOObj(SeisTrc))
+    , incnrfld(0)
+    , zfld(0)
 {
     CallBack cb( mCB(this,uiSeisDump2DGeom,seisSel) );
     if ( ioobj )

@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.49 2012-08-03 13:00:35 cvskris Exp $
+ RCS:		$Id: seiscbvs.h,v 1.48 2011/10/06 21:38:53 cvsnanne Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
 
 -*/
 
-#include "seismod.h"
 #include "seistrctr.h"
 #include "tracedata.h"
 #include "cbvsinfo.h"
@@ -24,7 +23,7 @@ class VBrickSpec;
 class SeisTrcBuf;
 
 
-mClass(Seis) CBVSSeisTrcTranslator : public SeisTrcTranslator
+mClass CBVSSeisTrcTranslator : public SeisTrcTranslator
 {			isTranslator(CBVS,SeisTrc)
 public:
 
@@ -110,4 +109,3 @@ private:
 
 
 #endif
-

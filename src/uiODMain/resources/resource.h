@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by odmain.rc
+// Used by od_main.rc
 //
 #define IDI_ICON1                       101
 

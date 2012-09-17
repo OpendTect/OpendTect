@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: matchdeltaattrib.cc,v 1.6 2012-05-02 15:11:23 cvskris Exp $";
+static const char* rcsID = "$Id: matchdeltaattrib.cc,v 1.3 2011/01/06 15:25:01 cvsbert Exp $";
 
 #include "matchdeltaattrib.h"
 #include "attribdataholder.h"
@@ -135,7 +135,7 @@ void MatchDelta::findEvents( int z0, int nrsamples ) const
 void MatchDelta::fillOutput( const DataHolder& output,
 			     int z0, int nrsamples ) const
 {
-    const float outfac = refstep_ * SI().zDomain().userFactor();
+    const float outfac = refstep_ * SI().zFactor();
     if ( poss_.size() < 2 )
     {
 	const float deltaval = (deltas_.isEmpty() ? 0 : deltas_[0]) * outfac;

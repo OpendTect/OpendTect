@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiseispreloadmgr.cc,v 1.34 2012-07-24 09:03:15 cvskris Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.30 2012/07/10 13:06:08 cvskris Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -74,10 +74,10 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     }
     mAddBut("Unload Selected",unloadPush);
 
-    uiToolButton* opentb = new uiToolButton( topgrp, "openpreload",
+    uiToolButton* opentb = new uiToolButton( topgrp, "openpreload.png",
 	    "Retrieve pre-loads", mCB(this,uiSeisPreLoadMgr,openPush) );
     opentb->attach( leftAlignedBelow, listfld_ );
-    uiToolButton* savetb = new uiToolButton( topgrp, "savepreload",
+    uiToolButton* savetb = new uiToolButton( topgrp, "savepreload.png",
 	    "Save pre-loads", mCB(this,uiSeisPreLoadMgr,savePush) );
     savetb->attach( rightAlignedBelow, listfld_ );
 
@@ -392,6 +392,7 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
     mCheckIOObjExistance( dlg.ioObj() );
 
     Seis::PreLoader spl( dlg.ioObj()->key() );
+    const char* id = spl.id().buf();
     Interval<int> inlrg; assign(inlrg,inlrgfld->getRange());
     uiTaskRunner tr( this ); spl.setRunner( tr );
     if ( !spl.loadPS3D(&inlrg) )
@@ -468,6 +469,7 @@ void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
     mCheckIOObjExistance( dlg.ioObj() );
 
     Seis::PreLoader spl( dlg.ioObj()->key() );
+    const char* id = spl.id().buf();
     uiTaskRunner tr( this ); spl.setRunner( tr );
     if ( !spl.loadPS2D(dlg.lnms_) )
     {

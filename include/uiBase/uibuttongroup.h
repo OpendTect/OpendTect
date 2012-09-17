@@ -7,20 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.h,v 1.17 2012-08-24 06:42:46 cvsnageswara Exp $
+ RCS:           $Id: uibuttongroup.h,v 1.15 2009/07/22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 #include "uigroup.h"
 
-mFDQtclass(QButtonGroup)
+class QButtonGroup;
 class uiButton;
 
 
-mClass(uiBase) uiButtonGroup : public uiGroup
+mClass uiButtonGroup : public uiGroup
 { 	
 public:
 			uiButtonGroup(uiParent*,const char* nm="uiButtonGrp",
@@ -43,11 +42,10 @@ public:
 
 protected:
 
-    mQtclass(QButtonGroup*)	qbuttongrp_;
-    ObjectSet<uiButton>		uibuts_;
-    bool			vertical_;
+    QButtonGroup*	qbuttongrp_;
+    ObjectSet<uiButton>	uibuts_;
+    bool		vertical_;
 
 };
 
 #endif
-

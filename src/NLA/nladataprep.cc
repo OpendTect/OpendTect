@@ -4,7 +4,7 @@
  * DATE     : May 2005
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: nladataprep.cc,v 1.13 2012-08-09 03:37:45 cvssalil Exp $";
+static const char* rcsID = "$Id: nladataprep.cc,v 1.9 2012/07/10 13:06:02 cvskris Exp $";
 
 #include "nladataprep.h"
 #include "binidvalset.h"
@@ -14,7 +14,7 @@ static const char* rcsID mUnusedVar = "$Id: nladataprep.cc,v 1.13 2012-08-09 03:
 void NLADataPreparer::limitRange( const Interval<float>& r )
 {
     Interval<float> rg( r ); rg.sort(true);
-    const float ext = rg.width() * mDefEpsF;
+    const float ext = rg.width() * mDefEps;
     rg.widen( ext, false );
     bvs_.removeRange( targetcol_, rg, false );
 }
@@ -88,7 +88,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
     }
 
     Stats::RandGen::init();
-    bvs_.setEmpty();
+    bvs_.empty();
     for ( int idx=0; idx<setup.nrclasses; idx++ )
     {
 	BinIDValueSet& bvs = *bvss[idx];
@@ -129,8 +129,8 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 	    {
 		float wdth = rgs[validx].stop - rgs[validx].start;
 		wdth *= noiselvl;
-		newvals[validx] = (float) (vals[validx] +
-		    		  ((Stats::RandGen::get()-0.5) * wdth));
+		newvals[validx] = vals[validx] +
+		    		  ((Stats::RandGen::get()-.5) * wdth);
 	    }
 	    bvsnew.add( bid, newvals );
 	}

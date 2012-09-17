@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.65 2012-08-03 13:01:23 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.63 2012/03/19 13:41:52 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "callback.h"
 #include "refcount.h"
 #include "sets.h"
@@ -24,8 +23,6 @@ class IOPar;
 class BufferString;
 
 namespace visBase { class DataObject; class EventInfo; }
-
-namespace osg { class Node; }
 
 
 #define mVisTrans visBase::Transformation
@@ -39,15 +36,6 @@ class SelectionManager;
 class DataManager;
 class Scene;
 
-
-// OSG traversal bitmasks defined by OpendTect
-enum TraversalType
-{
-    EventTraversal		=	0x00000001,
-    IntersectionTraversal	=	0x00000002
-}; 
-
-
 /*!\brief
 DataObject is the base class off all objects that are used in Visualisation and
 ought to be shared in visBase::DataManager. The DataManager owns all the
@@ -55,30 +43,19 @@ objects and is thus the only one that is allowed to delete it. The destructors
 on the inherited classes should thus be protected.
 */
 
-mClass(visBase) DataObject : public CallBacker
+mClass DataObject : public CallBacker
 { mRefCountImpl(DataObject);
 public:
 
     virtual const char*		getClassName() const	{ return "Not impl"; }
 
-    static void			setOsg();
-    static bool			doOsg();
-    
     virtual bool		isOK() const		{ return true; }
 
     int				id() const		{ return id_; }
-    void			setID(int nid);
+    void			setID(int nid)		{ id_= nid; }
 
     const char*			name() const;
     virtual void		setName(const char*);
-
-    osg::Node*			osgNode()		{return gtOsgNode();}
-    const osg::Node*		osgNode() const
-				    { return const_cast<DataObject*>(this)->
-							gtOsgNode(); }
-
-    void			enableTraversal(TraversalType,bool yn=true); 
-    bool			isTraversalEnabled(TraversalType) const;
 
     inline SoNode*		getInventorNode()	{return gtInvntrNode();}
     inline const SoNode*	getInventorNode() const
@@ -162,15 +139,9 @@ protected:
 
     virtual SoNode*		gtInvntrNode()		{ return 0; }
 
-    virtual osg::Node*		gtOsgNode()		{ return 0; }
-
-    void			updateOsgNodeData();
-
 private:
     int				id_;
     BufferString*		name_;
-
-    static bool			doosg_;
 };
 
 };
@@ -235,4 +206,3 @@ mCreateFactoryEntryNoInitClass( clss );
 
 
 #endif
-

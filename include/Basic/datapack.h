@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2007
- RCS:		$Id: datapack.h,v 1.13 2012-08-03 13:00:11 cvskris Exp $
+ RCS:		$Id: datapack.h,v 1.11 2011/09/20 13:02:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "namedobj.h"
 #include "manobjectset.h"
 #include "multiid.h"
@@ -33,7 +32,7 @@ class IOPar;
  */ 
 
 
-mClass(Basic) DataPack : public NamedObject
+mClass DataPack : public NamedObject
 {
 public:
 
@@ -61,7 +60,7 @@ public:
     virtual void	dumpInfo(IOPar&) const;
 
     static const char*	sKeyCategory();
-    static ID		cNoID()		    { return 0; }
+    static const ID	cNoID()		    { return 0; }
 
     virtual bool	isOK() const 		{ return true; }
 
@@ -73,7 +72,7 @@ protected:
     mutable Threads::Mutex	nruserslock_;
 
     static ID		getNewID(); 	//!< ensures a global data pack ID
-    static float	sKb2MbFac();	//!< 1 / 1024
+    static const float	sKb2MbFac();	//!< 1 / 1024
 
     void		setCategory( const char* c )
     			{ *const_cast<BufferString*>(&category_) = c; }
@@ -83,7 +82,7 @@ protected:
 
 /*!\brief Simple DataPack based on an unstructured char array buffer. */
 
-mClass(Basic) BufferDataPack : public DataPack
+mClass BufferDataPack : public DataPack
 {
 public:
 
@@ -127,7 +126,7 @@ protected:
 
    */
 
-mClass(Basic) DataPackMgr : public CallBacker
+mClass DataPackMgr : public CallBacker
 {
 public:
 			// You can, but normally should not, construct
@@ -161,11 +160,11 @@ public:
     Notifier<DataPackMgr> packToBeRemoved;	//!< Passed CallBacker* = Pack
 
 			// Standard mgr IDs take the low integer numbers
-    static ID		BufID();	//!< Simple data buffer: 1
-    static ID		PointID();	//!< Sets of 'unconnected' points: 2
-    static ID		CubeID();	//!< Cube/Block (N1xN2xN3) data: 3
-    static ID		FlatID();	//!< Flat (N1xN2) data: 4
-    static ID		SurfID();	//!< Surface (triangulated) data: 5
+    static const ID	BufID();	//!< Simple data buffer: 1
+    static const ID	PointID();	//!< Sets of 'unconnected' points: 2
+    static const ID	CubeID();	//!< Cube/Block (N1xN2xN3) data: 3
+    static const ID	FlatID();	//!< Flat (N1xN2) data: 4
+    static const ID	SurfID();	//!< Surface (triangulated) data: 5
 
     			// Convenience to get info without any obtain()
     const char*		nameOf(DataPack::ID) const;
@@ -210,9 +209,9 @@ public:
 };
 
 
-mGlobal(Basic) DataPackMgr& DPM(DataPackMgr::ID);
+mGlobal DataPackMgr& DPM(DataPackMgr::ID);
 		//!< will create a new mgr if needed
-mGlobal(Basic) DataPackMgr& DPM(const DataPack::FullID&);
+mGlobal DataPackMgr& DPM(const DataPack::FullID&);
 		//!< will return empty dummy mgr if mgr ID not found
 
 
@@ -238,4 +237,3 @@ type var = 0; \
 mObtainDataPack( var, type, mgrid, newid ); \
 
 #endif
-

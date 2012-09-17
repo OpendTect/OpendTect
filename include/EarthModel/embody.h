@@ -7,14 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embody.h,v 1.15 2012-08-29 15:58:00 cvsnanne Exp $
+ RCS:		$Id: embody.h,v 1.13 2012/02/29 17:14:24 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "arraynd.h"
 #include "emobject.h"
 #include "samplingdata.h"
@@ -26,9 +24,8 @@ namespace EM
 
 /*!Implicit representation of a body. */
 
-mClass(EarthModel) ImplicitBody
+mStruct ImplicitBody
 {
-public:
     				ImplicitBody();
     				ImplicitBody(const ImplicitBody& nb);
     virtual			~ImplicitBody();
@@ -42,7 +39,7 @@ public:
 
 /*!A body that can deliver an implicit body. */
 
-mClass(EarthModel) Body
+mClass Body
 { 
 public:
 
@@ -70,5 +67,3 @@ protected:
 }; // Namespace
 
 #endif
-
-

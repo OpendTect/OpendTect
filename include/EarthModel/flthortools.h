@@ -7,14 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.30 2012-08-03 13:00:20 cvskris Exp $
+ RCS:		$Id: flthortools.h,v 1.28 2012/05/29 12:55:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "executor.h"
-#include "multiid.h"
 #include "positionlist.h"
 #include "sets.h"
 #include "surv2dgeom.h"
@@ -27,7 +25,7 @@ class BinIDValueSet;
 class HorSampling;
 
 
-mClass(EarthModel) FaultTrace : public Coord3List
+mClass FaultTrace : public Coord3List
 {
 public:
 
@@ -100,7 +98,7 @@ public:
 };
 
 
-mClass(EarthModel) FaultTraceExtractor
+mClass FaultTraceExtractor
 {
 public:
     				FaultTraceExtractor(EM::Fault*,int,bool);
@@ -124,7 +122,7 @@ protected:
 };
 
 
-mClass(EarthModel) FaultTraceCalc : public Executor
+mClass FaultTraceCalc : public Executor
 {
 public:
 			FaultTraceCalc(EM::Fault*,const HorSampling&,
@@ -147,7 +145,7 @@ protected:
 };
 
 
-mClass(EarthModel) FaultTrcDataProvider
+mClass FaultTrcDataProvider
 {
 public:
 			FaultTrcDataProvider()
@@ -173,8 +171,6 @@ public:
     bool		isEmpty() const;
     const char*		errMsg() const;
 
-    const TypeSet<MultiID>& getFaultIds() const { return multiids_; }
-    				
 protected:
 
     bool		calcFaultBBox(const EM::Fault&,HorSampling&) const;
@@ -183,7 +179,6 @@ protected:
     bool				is2d_;
     ObjectSet<ObjectSet<FaultTrace> >   flttrcs_;
     TypeSet<HorSampling>                flths_;
-    TypeSet<MultiID> 			multiids_;
     PosInfo::GeomID			geomid_;
     BufferString			errmsg_;
 public:
@@ -192,4 +187,3 @@ public:
 };
 
 #endif
-

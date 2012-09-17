@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: seisselectionimpl.h,v 1.6 2012-08-03 13:00:38 cvskris Exp $
+ RCS:		$Id: seisselectionimpl.h,v 1.5 2011/03/01 10:21:40 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seisselection.h"
 #include "position.h"
 
@@ -27,7 +26,7 @@ namespace Seis
 
 /*!\brief selection data in simple ranges */
 
-mClass(Seis) RangeSelData : public SelData
+mClass RangeSelData : public SelData
 {
 public:
 
@@ -73,7 +72,7 @@ protected:
 
 /*!\brief selection data in a table */
 
-mClass(Seis) TableSelData : public SelData
+mClass TableSelData : public SelData
 {
 public:
 
@@ -127,7 +126,7 @@ protected:
 
  */
 
-mClass(Seis) PolySelData : public SelData
+mClass PolySelData : public SelData
 {
 public:
 
@@ -181,4 +180,3 @@ protected:
 } // namespace
 
 #endif
-

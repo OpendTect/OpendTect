@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visrandomtrackdisplay.cc,v 1.136 2012-08-13 09:36:58 cvsaneesh Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.131 2012/07/10 13:06:10 cvskris Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -424,13 +424,13 @@ TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 	const int nrtraces = nrinl > nrcrl ? nrinl : nrcrl;
 	const Coord startcoord = SI().transform( start );
 	const Coord stopcoord = SI().transform( stop );
-	const float delx = (float) ( stopcoord.x - startcoord.x ) / nrtraces;
-	const float dely = (float) ( stopcoord.y - startcoord.y ) / nrtraces; 
+	const float delx = ( stopcoord.x - startcoord.x ) / nrtraces;
+	const float dely = ( stopcoord.y - startcoord.y ) / nrtraces; 
    
 	for ( int idx=0; idx<nrtraces; idx++ )
 	{
-	    const float x = (float) ( startcoord.x + delx * idx );
-	    const float y = (float) ( startcoord.y + dely * idx );
+	    const float x = startcoord.x + delx * idx;
+	    const float y = startcoord.y + dely * idx;
 	    coords += Coord( x, y );
 	}
     }
@@ -781,7 +781,7 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
     const BinID bid1( mNINT32(pos1.x), mNINT32(pos1.y));
 
     const Coord dir = SI().transform(bid0)-SI().transform(bid1);
-    const float dist = (float) dir.abs();
+    const float dist = dir.abs();
 
     if ( dist<=mMIN(SI().inlDistance(),SI().crlDistance()) )
 	return Coord3::udf();
@@ -806,9 +806,9 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
     float zdiff = 0;
     const Interval<float> intv = getDataTraceRange();
     if ( xytpos.z < intv.start )
-	zdiff = (float) ( intv.start - xytpos.z );
+	zdiff = intv.start - xytpos.z;
     else if ( xytpos.z > intv.stop )
-	zdiff = (float) ( xytpos.z - intv.stop );
+	zdiff = xytpos.z - intv.stop;
 
     return zdiff;
 }
@@ -857,7 +857,7 @@ void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	par.set( key, getKnotPos(idx) );
     }
 
-    par.set( sKey::Version(), 3 );
+    par.set( sKey::Version, 3 );
     par.setYN( sKeyLockGeometry(), lockgeometry_ );
 }
 
@@ -931,7 +931,7 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
     if ( trcidx<0 ) return false;
 
     const SeisTrc& trc = *cache_[attrib]->get( trcidx );
-    const int sampidx = trc.nearestSample( (float) pos.z );
+    const int sampidx = trc.nearestSample( pos.z );
     if ( sampidx>=0 && sampidx<trc.size() )
     {
 	val = trc.get( sampidx, 0 );

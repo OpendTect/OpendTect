@@ -4,9 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uigmtpi.cc,v 1.40 2012-08-29 07:57:16 cvskris Exp $";
-
-#include "uigmtmod.h"
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.35 2012/01/10 17:44:39 cvsnanne Exp $";
 
 #include "envvars.h"
 #include "file.h"
@@ -125,7 +123,7 @@ uiGMTMgr::~uiGMTMgr()
 
 void uiGMTMgr::updateToolBar( CallBacker* )
 {
-    appl_->menuMgr().dtectTB()->addButton( "gmt_logo", "GMT Mapping Tool",
+    appl_->menuMgr().dtectTB()->addButton( "gmt_logo.png", "GMT Mapping Tool",
 	    				   mCB(this,uiGMTMgr,createMap) );
 }
 
@@ -135,7 +133,7 @@ void uiGMTMgr::updateMenu( CallBacker* )
     delete dlg_; dlg_ = 0;
     uiMenuItem* newitem = new uiMenuItem( "GMT Mapping Tool ...",
 	    				  mCB(this,uiGMTMgr,createMap),
-	   				  "gmt_logo" );
+	   				  "gmt_logo.png" );
     appl_->menuMgr().procMnu()->insertItem( newitem );
 }
 
@@ -165,10 +163,10 @@ mDefODInitPlugin(uiGMT)
     static uiGMTMgr* mgr = 0; if ( mgr ) return 0;
     mgr = new uiGMTMgr( ODMainWin() );
 
-    IOMan::CustomDirData cdd( ODGMT::sKeyGMTSelKey(), ODGMT::sKeyGMT(),
+    IOMan::CustomDirData cdd( ODGMT::sKeyGMTSelKey, ODGMT::sKeyGMT,
 	    		      "GMT data" );
     MultiID id = IOMan::addCustomDataDir( cdd );
-    if ( id != ODGMT::sKeyGMTSelKey() )
+    if ( id != ODGMT::sKeyGMTSelKey )
 	return "Cannot create 'GMT' directory in survey";
 
     uiGMTContourGrp::initClass();

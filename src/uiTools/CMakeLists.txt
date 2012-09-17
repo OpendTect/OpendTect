@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General uiToolkits
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.16 2012-09-17 14:48:53 cvsbert Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.14 2012/09/17 14:48:33 cvsbert Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiBase Network )
@@ -11,7 +11,6 @@ SET(OD_MODULE_SOURCES
 		annotbuffill.cc	
 		drawaxis2d.cc	
 		uiamplspectrum.cc
-		uiapplserv.cc
 		uiarray2dchg.cc	
 		uiarray1dinterpol.cc
 		uiarray2dinterpol.cc
@@ -32,7 +31,6 @@ SET(OD_MODULE_SOURCES
 		uidlggroup.cc	
 		uifileinput.cc	
 		uifillpattern.cc	
-		uifreqfilter.cc
 		uiforminputsel.cc
 		uifunctiondisplay.cc
 		uigeninput.cc	
@@ -45,7 +43,6 @@ SET(OD_MODULE_SOURCES
 		uihistogramdisplay.cc   
 		uiiosel.cc	
 		uiissuereporter.cc
-		uistratlvlsel.cc
 		uimapperrangeeditor.cc  
 		uimenuhandler.cc
 		uimapperrangeeditordlg.cc 
@@ -74,6 +71,7 @@ SET(OD_MODULE_SOURCES
 		uislicesel.cc	
 		uistatsdisplay.cc
 		uistepoutsel.cc	
+		uistratlvlsel.cc
 		uitblimpexpdatasel.cc
 		uitaskrunner.cc	
 		uitextfile.cc	
@@ -90,5 +88,5 @@ SET(OD_MODULE_SOURCES
 		uizaxistransform.cc
                 uipolardiagram.cc)
 
-SET(OD_MODULE_GUI_PROGS od_FileBrowser od_ProgressViewer od_uiReportIssue.cc )
+SET(OD_MODULE_GUI_PROGS od_FileBrowser od_ProgressViewer od_uiReportIssue )
 OD_INIT_MODULE()

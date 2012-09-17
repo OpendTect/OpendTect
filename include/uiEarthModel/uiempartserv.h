@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.113 2012-08-03 13:00:55 cvskris Exp $
+ RCS:           $Id: uiempartserv.h,v 1.111 2011/10/20 16:44:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "emposid.h"
 #include "horsampling.h"
 #include "multiid.h"
@@ -42,7 +41,7 @@ namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; };
 
 /*! \brief Earth Model UI Part Server */
 
-mClass(uiEarthModel) uiEMPartServer : public uiApplPartServer
+mClass uiEMPartServer : public uiApplPartServer
 {
 public:
 			uiEMPartServer(uiApplService&);
@@ -147,14 +146,14 @@ public:
 
     void		removeUndo();
 
-    static int		evDisplayHorizon();
-    static int		evRemoveTreeObject();
+    static const int	evDisplayHorizon();
+    static const int	evRemoveTreeObject();
 
 			// Interaction stuff
     const EM::ObjectID&	selEMID() const			{ return selemid_; }
     EM::EMObject*	selEMObject();
 
-    EM::ObjectID	saveUnsavedEMObject();
+    const EM::ObjectID	saveUnsavedEMObject();
     void		removeUnsavedEMObjectFromTree();
     void		removeTreeObject(const EM::ObjectID&);
 
@@ -200,4 +199,3 @@ protected:
 */
 
 #endif
-

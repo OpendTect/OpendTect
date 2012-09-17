@@ -2,7 +2,7 @@ dTect V4.2.0
 OpendTect commands
 May 2010
 !
-# $Id: ImportData.cmd,v 1.8 2011-03-18 16:23:44 cvsjaap Exp $
+# $Id: ImportData.cmd,v 1.8 2011/03/18 16:23:44 cvsjaap Exp $
 
 Case Insensitive
 

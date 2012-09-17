@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisaveimagedlg.cc,v 1.24 2012-09-04 15:52:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.19 2012/01/10 17:45:28 cvsnanne Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -70,13 +70,9 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd )
 
     setSaveButtonChecked( true );
     
+    uiParent* fldabove = 0;
+
     IOM().afterSurveyChange.notify( mCB(this,uiSaveImageDlg,surveyChanged) );
-}
-
-
-void uiSaveImageDlg::setDirName( const char* nm )
-{
-    dirname_ = nm;
 }
 
 
@@ -127,16 +123,16 @@ void uiSaveImageDlg::sInch2Pixels( const Geom::Size2D<float>& from,
 void uiSaveImageDlg::sCm2Inch( const Geom::Size2D<float>& from,
 			       Geom::Size2D<float>& to )
 {
-    to.setWidth( from.width() / 2.54f );
-    to.setHeight( from.height() / 2.54f );
+    to.setWidth( from.width() / 2.54 );
+    to.setHeight( from.height() / 2.54 );
 }
 
 
 void uiSaveImageDlg::sInch2Cm( const Geom::Size2D<float>& from,
 			       Geom::Size2D<float>& to )
 {
-    to.setWidth( from.width() * 2.54f );
-    to.setHeight( from.height() * 2.54f );
+    to.setWidth( from.width() * 2.54 );
+    to.setHeight( from.height() * 2.54 );
 }
 
 

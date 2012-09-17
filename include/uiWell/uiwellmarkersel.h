@@ -6,12 +6,11 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bert
 Date:          Aug 2012
-RCS:           $Id: uiwellmarkersel.h,v 1.6 2012-09-04 10:12:04 cvsbert Exp $
+RCS:           $Id: uiwellmarkersel.h,v 1.3 2012/09/04 10:11:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
 class uiComboBox;
@@ -21,7 +20,7 @@ namespace Well { class Marker; class MarkerSet; }
 
 /*!\brief Select one or two markers (i.e. a range) */
 
-mDefClass(uiWell) uiWellMarkerSel : public uiGroup
+mClass uiWellMarkerSel : public uiGroup
 {
 public:
 

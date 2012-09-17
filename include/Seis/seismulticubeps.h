@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2008
- RCS:		$Id: seismulticubeps.h,v 1.11 2012-08-03 13:00:36 cvskris Exp $
+ RCS:		$Id: seismulticubeps.h,v 1.10 2011/02/17 19:22:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seispsread.h"
 #include "seispsioprov.h"
 class SeisTrcReader;
@@ -21,7 +20,7 @@ class MultiID;
 
 /*!\brief PS data store reader based on multiple 3D CBVS cubes */
 
-mClass(Seis) MultiCubeSeisPSReader : public SeisPS3DReader
+mClass MultiCubeSeisPSReader : public SeisPS3DReader
 {
 public:
 
@@ -63,7 +62,7 @@ protected:
 };
 
 
-mClass(Seis) MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
+mClass MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(MultiCube,SeisPS3D)
 public:
     			mDefEmptyTranslatorConstructor(MultiCube,SeisPS3D)
@@ -74,4 +73,3 @@ public:
 
 
 #endif
-

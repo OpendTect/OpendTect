@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.19 2012-08-30 10:59:17 cvskris Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.16 2012/03/12 15:40:37 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "propertyref.h"
 #include "scaler.h"
 #include "repos.h"
@@ -20,7 +19,7 @@ ________________________________________________________________________
 
 class UnitOfMeasureRepository;
 
-mGlobal(General) UnitOfMeasureRepository& UoMR();
+mGlobal UnitOfMeasureRepository& UoMR();
 
 
 /*!\brief Unit of Measure
@@ -32,7 +31,7 @@ mGlobal(General) UnitOfMeasureRepository& UoMR();
 
  */
 
-mClass(General) UnitOfMeasure : public NamedObject
+mClass UnitOfMeasure : public NamedObject
 {
 public:
 
@@ -61,10 +60,10 @@ public:
 
     template <class T>
     T			getSIValue( T inp ) const
-    						{ return ( T ) scaler_.scale(inp); }
+    						{ return scaler_.scale(inp); }
     template <class T>
     T			getUserValueFromSI( T inp ) const
-						{ return ( T ) scaler_.unScale(inp); }
+						{ return scaler_.unScale(inp); }
     template <class T>
     T			internalValue(T inp) const;
     template <class T>
@@ -101,7 +100,7 @@ protected:
  */
 
 
-mClass(General) UnitOfMeasureRepository
+mClass UnitOfMeasureRepository
 {
 public:
 
@@ -130,7 +129,7 @@ private:
 	    			  const char* nm) const;
     			//!< Will try names first, then symbols, otherwise null
 
-    friend mGlobal(General) UnitOfMeasureRepository& UoMR();
+    friend UnitOfMeasureRepository& UoMR();
 
 };
 
@@ -171,4 +170,3 @@ template <class T> T UnitOfMeasure::userValue( T inp ) const
 
 
 #endif
-

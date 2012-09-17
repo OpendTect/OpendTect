@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seistrc.cc,v 1.57 2012-07-10 08:05:32 cvskris Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.54 2012/07/10 13:06:03 cvskris Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -171,8 +171,8 @@ SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 
     newtrc->info_ = info_;
     newtrc->info_.sampling.start = zgate.start;
-    const float z0 = startPos() - snapdist * info_.sampling.step;
-    const float z1 = endPos() + snapdist * info_.sampling.step;
+    const float z0 = info_.sampling.start - snapdist * info_.sampling.step;
+    const float z1 = samplePos( size() - 1 ) + snapdist * info_.sampling.step;
 
     for ( int icomp=0; icomp<nrComponents(); icomp++ )
     {

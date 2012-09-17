@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: odcomplex.h,v 1.10 2012-07-24 19:19:39 cvskris Exp $
+ RCS:		$Id: odcomplex.h,v 1.9 2012/04/02 16:15:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 typedef std::complex<float> float_complex;
 
+
 #ifdef __win__
 # define mSetComplexReal(compl_numb,val) compl_numb.real(val)
 # define mSetComplexImag(compl_numb,val) compl_numb.imag(val)
@@ -24,7 +25,6 @@ typedef std::complex<float> float_complex;
 # define mSetComplexReal(compl_numb,val) compl_numb.real() = val
 # define mSetComplexImag(compl_numb,val) compl_numb.imag() = val
 #endif
-
 
 namespace Values
 {
@@ -44,8 +44,8 @@ public:
 				{
 				    const float r = f.real();
 				    const float i = f.imag();
-				    return __mIsUndefinedF(r)
-					|| __mIsUndefinedF(i);
+				    return __mIsUndefined(r)
+					|| __mIsUndefined(i);
 				}
     static void			setUdf( float_complex& f )
 				{

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoDGBDragPointDragger.cc,v 1.17 2012-05-02 15:11:49 cvskris Exp $";
+static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.15 2010/04/27 06:15:46 cvskarthika Exp $";
 
 #include "SoDGBDragPointDragger.h"
 

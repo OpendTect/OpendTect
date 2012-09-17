@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: draw.cc,v 1.86 2012-09-17 08:42:49 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.84 2012/09/17 08:42:08 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 

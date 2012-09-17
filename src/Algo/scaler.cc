@@ -5,7 +5,7 @@
  * FUNCTION : Scaler functions
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: scaler.cc,v 1.15 2012-05-02 15:11:19 cvskris Exp $";
+static const char* rcsID = "$Id: scaler.cc,v 1.13 2010/10/15 11:38:42 cvsbert Exp $";
 
 #include "scaler.h"
 #include "separstr.h"

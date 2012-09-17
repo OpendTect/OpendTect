@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id: uiempreloaddlg.h,v 1.5 2012-08-03 13:00:56 cvskris Exp $
+ RCS:           $Id: uiempreloaddlg.h,v 1.4 2010/09/10 06:44:52 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 
 class uiListBox;
@@ -22,7 +21,7 @@ class uiToolButton;
 class BufferString;
 class MultiID;
 
-mClass(uiEarthModel) uiEMPreLoadDlg : public uiDialog
+mClass uiEMPreLoadDlg : public uiDialog
 {
 public:
 			uiEMPreLoadDlg( uiParent* p )
@@ -39,7 +38,7 @@ protected:
     uiToolButton*	savebut_;
 };
 
-mClass(uiEarthModel) uiHorizonPreLoadDlg : public uiEMPreLoadDlg
+mClass uiHorizonPreLoadDlg : public uiEMPreLoadDlg
 {
 public:
 			uiHorizonPreLoadDlg(uiParent*);
@@ -56,4 +55,3 @@ protected:
 
 
 #endif
-

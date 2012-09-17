@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.25 2012-08-03 13:00:19 cvskris Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.24 2010/08/19 05:27:58 cvsranojay Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emposid.h"
 #include "callback.h"
 #include "mathfunc.h"
@@ -47,7 +46,7 @@ EM::EdgeLineSegmentFactory fact##clss( clss::sClassName(), \
 
 class EdgeLineSegmentFactory;
 
-mClass(EarthModel) EdgeLineSegment : public CallBacker
+mClass EdgeLineSegment : public CallBacker
 { 
 public:
     				mEdgeLineSegmentClone(EdgeLineSegment,Default);
@@ -169,7 +168,7 @@ private:
 };
 
 
-mClass(EarthModel) EdgeLineSegmentFactory 
+mClass EdgeLineSegmentFactory 
 {
 public:
 			EdgeLineSegmentFactory( const char* nm,
@@ -182,7 +181,7 @@ public:
 };
 
 
-mClass(EarthModel) EdgeLine : public CallBacker
+mClass EdgeLine : public CallBacker
 {
 public:
     			EdgeLine( EM::Horizon3D&, const EM::SectionID& );
@@ -251,7 +250,7 @@ protected:
 };
 
 
-mClass(EarthModel) EdgeLineIterator
+mClass EdgeLineIterator
 {
 public:
     			EdgeLineIterator( const EM::EdgeLine& el_,
@@ -287,7 +286,7 @@ protected:
 };
 
 
-mClass(EarthModel) EdgeLineSet : public CallBacker
+mClass EdgeLineSet : public CallBacker
 {
 public:
     			EdgeLineSet( EM::Horizon3D&, const EM::SectionID&);
@@ -332,7 +331,7 @@ protected:
 };
 
 
-mClass(EarthModel) EdgeLineManager : public CallBacker
+mClass EdgeLineManager : public CallBacker
 {
 public:
     				EdgeLineManager(Horizon3D&);
@@ -361,7 +360,6 @@ protected:
 };
 
 #endif
-
 
 
 

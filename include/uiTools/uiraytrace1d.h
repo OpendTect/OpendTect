@@ -7,26 +7,24 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiraytrace1d.h,v 1.13 2012-09-10 13:25:34 cvsbruno Exp $
+ RCS:		$Id: uiraytrace1d.h,v 1.10 2012/09/10 14:15:14 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uitoolsmod.h"
 #include "raytrace1d.h"
 #include "uigroup.h"
 
 class uiGenInput;
-class uiCheckBox;
 class uiLabeledComboBox;
 
 
-mClass(uiTools) uiRayTracer1D : public uiGroup
+mClass uiRayTracer1D : public uiGroup
 {
 public:
 
-    mClass(uiTools) Setup 		
+    mClass Setup 		
     {
 	public:	
 			Setup()
@@ -49,13 +47,8 @@ public:
     virtual bool 	usePar(const IOPar&);
     virtual void  	fillPar(IOPar&) const;
 
-    void		displayOffsetFlds(bool yn); 
-    void		setOffsetRange(StepInterval<float>);
-
 protected:
 			uiRayTracer1D(uiParent*,const Setup&);
-
-    bool 		doreflectivity_;
 
     uiGenInput*		srcdepthfld_;
     uiGenInput*		downwavefld_;
@@ -63,13 +56,17 @@ protected:
 
     uiGenInput* 	offsetfld_;
     uiGenInput* 	offsetstepfld_;
-    uiGenInput*		blockfld_;
 
     uiGenInput*		lastfld_;
+    bool		doreflectivity_;
+
+public:
+    void		displayOffsetFlds(bool yn); 
+    void		setOffsetRange(StepInterval<float>);
 };
 
 
-mClass(uiTools) uiVrmsRayTracer1D : public uiRayTracer1D
+mClass uiVrmsRayTracer1D : public uiRayTracer1D
 {
 public:
 			uiVrmsRayTracer1D(uiParent*,
@@ -82,16 +79,13 @@ public:
 };
 
 
-mClass(uiTools) uiRayTracerSel : public uiGroup
+mClass uiRayTracerSel : public uiGroup
 {
 public:
     			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);
 
     void                usePar(const IOPar&);
     void                fillPar(IOPar&) const;
-
-    uiRayTracer1D*	current();
-    const uiRayTracer1D* current() const;
 
 protected:
 
@@ -100,8 +94,11 @@ protected:
     ObjectSet<uiRayTracer1D> grps_;
 
     void		selRayTraceCB(CallBacker*);
+
+public:
+    uiRayTracer1D*	current();
+    const uiRayTracer1D* current() const;
 };
 
 
 #endif
-

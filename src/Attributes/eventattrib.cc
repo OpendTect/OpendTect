@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: eventattrib.cc,v 1.42 2012-08-09 04:38:06 cvssalil Exp $";
+static const char* rcsID = "$Id: eventattrib.cc,v 1.39 2012/07/10 13:06:00 cvskris Exp $";
 
 #include "eventattrib.h"
 #include "survinfo.h"
@@ -96,7 +96,7 @@ Event::Event( Desc& desc )
 	if ( eventtype_ == VSEvent::GateMax || eventtype_ == VSEvent::GateMin )
 	{
 	    mGetFloatInterval( gate_, gateStr() );
-	    gate_.scale( 1.f/zFactor() );
+	    gate_.scale( 1./zFactor() );
 	    gate_.stop += SI().zStep();
 	}
 

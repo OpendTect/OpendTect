@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seismulticubeps.cc,v 1.14 2012-05-02 15:11:47 cvskris Exp $";
+static const char* rcsID = "$Id: seismulticubeps.cc,v 1.11 2011/03/25 15:02:34 cvsbert Exp $";
 
 #include "seismulticubeps.h"
 #include "seispsioprov.h"
@@ -192,7 +192,7 @@ void MultiCubeSeisPSReader::getCubeData( const SeisTrcReader& rdr,
     if ( !cbvstr )
 	return;
 
-    const CBVSInfo::SurvGeom& sg = cbvstr->readMgr()->info().geom_;
+    const CBVSInfo::SurvGeom& sg = cbvstr->readMgr()->info().geom;
     if ( !sg.fullyrectandreg )
 	cd = sg.cubedata;
     else

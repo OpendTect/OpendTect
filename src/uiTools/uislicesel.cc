@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uislicesel.cc,v 1.70 2012-07-25 15:06:44 cvsjaap Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.66 2012/07/10 13:06:09 cvskris Exp $";
 
 #include "uislicesel.h"
 
@@ -81,6 +81,7 @@ void uiSliceSel::setApplyCB( const CallBack& acb )
 void uiSliceSel::createInlFld()
 {
     BufferString label( isinl_ ? "Inline nr" : "Inline range" );
+    const char* nm = label;
     inl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			BufferString(isinl_ ? "Inl nr" : "Inl Start") );
     inl1fld_ = new uiSpinBox( this, 0, "Inl Stop" );
@@ -531,20 +532,20 @@ void uiSliceSel::usePar( const IOPar& par )
 {
     if ( !is2d_ )
     {
-	int inlnr; par.get( sKey::FirstInl(), inlnr );
+	int inlnr; par.get( sKey::FirstInl, inlnr );
 	inl0fld_->box()->setValue( inlnr );
 
-	int inl1; par.get( sKey::LastInl(), inl1 );
+	int inl1; par.get( sKey::LastInl, inl1 );
 	if ( inl1fld_->isDisplayed() ) inl1fld_->setValue( inl1 );
     }
 
-    int crl0; par.get( sKey::FirstCrl(), crl0 );
+    int crl0; par.get( sKey::FirstCrl, crl0 );
     crl0fld_->box()->setValue( crl0 );
-    int crl1; par.get( sKey::LastCrl(), crl1 );
+    int crl1; par.get( sKey::LastCrl, crl1 );
     if ( crl1fld_->isDisplayed() ) crl1fld_->setValue( crl1 );
 
     StepInterval<float> zrg;
-    par.get( sKey::ZRange(), zrg ); 
+    par.get( sKey::ZRange, zrg ); 
     z0fld_->box()->setValue( zrg.start );
     if ( z1fld_->isDisplayed() ) z1fld_->setValue( zrg.stop );
 }

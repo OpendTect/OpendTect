@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.115 2012-08-10 03:50:08 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.107 2012/07/30 08:31:42 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -38,7 +38,6 @@ static const char* rcsID mUnusedVar = "$Id: uiwelldlgs.cc,v 1.115 2012-08-10 03:
 #include "strmprov.h"
 #include "survinfo.h"
 #include "tabledef.h"
-#include "unitofmeasure.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellimpasc.h"
@@ -110,13 +109,13 @@ bool uiWellTrackDlg::fillTable( CallBacker* )
 
     float fac = 1;
     if ( SI().zIsTime() )
-	fac = zinft ? mToFeetFactorF : 1;
+	fac = zinft ? mToFeetFactor : 1;
     else
     {
 	if ( SI().zInFeet() && !zinft )
-	    fac = mFromFeetFactorF;
+	    fac = mFromFeetFactor;
 	else if ( SI().zInMeter() && zinft )
-	    fac = mToFeetFactorF;
+	    fac = mToFeetFactor;
     }
 
     for ( int idx=0; idx<sz; idx++ )
@@ -209,11 +208,11 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 
     float fac = 1;
     if ( SI().zIsTime() && zinft )
-	fac = mFromFeetFactorF;
+	fac = mFromFeetFactor;
     else if ( SI().zInFeet() && !zinft )
-	fac = mToFeetFactorF;
+	fac = mToFeetFactor;
     else if ( SI().zInMeter() && zinft )
-	fac = mFromFeetFactorF;
+	fac = mFromFeetFactor;
 
     bool needfill = false;
     for ( int idx=0; idx<nrrows; idx++ )
@@ -243,12 +242,11 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 	    dahval = toFloat(sval) * fac; 
 	else if ( idx > 0 )
 	{
-	    dahval = (float) ( track_.dah(idx-1) + 
-					track_.pos(idx-1).distTo( newc ) );
+	    dahval = track_.dah(idx-1) + track_.pos(idx-1).distTo( newc );
 	    needfill = true;
 	}
 
-	track_.addPoint( newc, (float) newc.z, dahval );
+	track_.addPoint( newc, newc.z, dahval );
     }
 
     if ( track_.nrPoints() > 1 )
@@ -397,7 +395,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
     if ( !sz ) return;
     tbl_->setNrRows( sz + nremptyrows );
 
-    const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactorF;
+    const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactor;
     for ( int idx=0; idx<sz; idx++ )
     {
 	tbl_->setValue( RowCol(idx,0), d2t->dah(idx) * zfac );
@@ -479,7 +477,7 @@ void uiD2TModelDlg::expData( CallBacker* )
 	{ uiMSG().error( BufferString("Cannot open '", dlg.fileName(),
 		    			"' for write") ); return; }
 
-    const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactorF;
+    const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactor;
     for ( int idx=0; idx<d2t.size(); idx++ )
 	*sd.ostrm << d2t.dah(idx)*zfac << '\t' << d2t.t(idx)*1000 << '\n';
 
@@ -502,7 +500,7 @@ void uiD2TModelDlg::updNow( CallBacker* )
 void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 {
     d2t.erase();
-    const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactorF;
+    const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactor;
     const int nrrows = tbl_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
@@ -518,7 +516,7 @@ void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 
 	sval = tbl_->text( RowCol(idx,1) );
 	if ( !sval || !*sval ) continue;
-	float tm = toFloat(sval) * 0.001f;
+	float tm = toFloat(sval) * 0.001;
 	d2t.add( dah, tm );
     }
 }
@@ -709,18 +707,18 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zunitgrp_->attach( alignedBelow, typefld_ );
     uiLabel* zlbl = new uiLabel( this, "Output Z-unit" );
     zlbl->attach( leftOf, zunitgrp_ );
-    new uiRadioButton( zunitgrp_, "meter" );
-    new uiRadioButton( zunitgrp_, "feet" );
+    uiRadioButton* meterbut = new uiRadioButton( zunitgrp_, "meter" );
+    uiRadioButton* feetbut = new uiRadioButton( zunitgrp_, "feet" );
     bool have2dtmodel = true;
     for ( int idwell=0; idwell<wds_.size(); idwell++ )
     {
 	if ( !wds_[idwell]->haveD2TModel() ) 
-	{ have2dtmodel = false; break; }
+	    { have2dtmodel = false; break; }
     }
     if ( SI().zIsTime() && have2dtmodel)
     {
-	new uiRadioButton( zunitgrp_, "sec" );
-	new uiRadioButton( zunitgrp_, "msec" );
+	uiRadioButton* secbut = new uiRadioButton( zunitgrp_, "sec" );
+	uiRadioButton* msecbut = new uiRadioButton( zunitgrp_, "msec" );
     }
     zunitgrp_->selectButton( zinft );
 
@@ -763,9 +761,9 @@ void uiExportLogs::setDefaultRange( bool zinft )
 
     if ( zinft )
     {
-	dahintv.start *= mToFeetFactorF;
-	dahintv.stop *= mToFeetFactorF;
-	dahintv.step *= mToFeetFactorF;
+	dahintv.start *= mToFeetFactor;
+	dahintv.stop *= mToFeetFactor;
+	dahintv.step *= mToFeetFactor;
     }
 
     zrangefld_->setValue( dahintv );
@@ -854,6 +852,7 @@ void uiExportLogs::writeHeader( StreamData& sdo, const Well::Data& wd )
 
 void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 {
+    bool inmeter = zunitgrp_->selectedId() == 0;
     bool infeet = zunitgrp_->selectedId() == 1;
     bool insec = zunitgrp_->selectedId() == 2;
     bool inmsec = zunitgrp_->selectedId() == 3;
@@ -867,10 +866,10 @@ void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	float md = intv.atIndex( idx );
-	if ( zinft ) md *= mFromFeetFactorF;
+	if ( zinft ) md *= mFromFeetFactor;
 	if ( outtypesel == 0 )
 	{
-	    const float mdout = infeet ? md*mToFeetFactorF : md;
+	    const float mdout = infeet ? md*mToFeetFactor : md;
 	    *sdo.ostrm << mdout;
 	}
 	else
@@ -892,8 +891,8 @@ void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 		*sdo.ostrm << str;
 	    }
 
-	    float z = (float) pos.z;
-	    if ( infeet ) z *= mToFeetFactorF;
+	    float z = pos.z;
+	    if ( infeet ) z *= mToFeetFactor;
 	    else if ( insec ) z = wd.d2TModel()->getTime( md );
 	    else if ( inmsec ) z = wd.d2TModel()->getTime( md ) * 1000;
 	    *sdo.ostrm << '\t' << z;

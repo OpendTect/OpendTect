@@ -1,4 +1,4 @@
- /*+
+/*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatviewbitmap.cc,v 1.39 2012-08-10 03:50:04 cvsaneesh Exp $";
+static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.35 2012/07/10 13:06:06 cvskris Exp $";
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
@@ -56,8 +56,7 @@ void FlatView::BitMapMgr::setupChg()
 	return;
 
     pos_ = new A2DBitMapPosSetup( arr.info(), pd.getPositions(true) );
-    pos_->setDim1Positions( (float) ( pd.range(false).start ), 
-					  (float) ( pd.range(false).stop ) );
+    pos_->setDim1Positions( pd.range(false).start, pd.range(false).stop );
     data_ = new A2DBitMapInpData( arr );
 
     if ( !wva_ )
@@ -146,10 +145,9 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     if ( !pack ) return true;
 
     const FlatPosData& pd = pack->posData();
-    pos_->setDimRange( 0, Interval<float>((float) (wr.left()-pd.offset(true)),
-				      (float) (wr.right()-pd.offset(true))) );
-    pos_->setDimRange( 1, Interval<float>( (float) ( wr.bottom() ), 
-						 (float) ( wr.top() ) ) );
+    pos_->setDimRange( 0, Interval<float>(wr.left()-pd.offset(true),
+					  wr.right()-pd.offset(true)) );
+    pos_->setDimRange( 1, Interval<float>( wr.bottom(), wr.top() ) );
 
     bmp_ = new A2DBitMapImpl( sz.width(), sz.height() );
     if ( !bmp_ || !bmp_->isOK() || !bmp_->getData() )
@@ -181,15 +179,12 @@ FlatView::BitMap2RGB::BitMap2RGB( const FlatView::Appearance& a,
 
 
 void FlatView::BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
-       				 const Geom::Point2D<int>& offs,
-				 bool clear )
+       				 const Geom::Point2D<int>& offs )
 {
-    if ( clear )
-	arr_.clear( Color::White() );
-
-    if ( vd && app_.ddpars_.vd_.show_ )
+    arr_.clear( Color::White() );
+    if ( vd )
 	drawVD( *vd, offs );
-    if ( wva && app_.ddpars_.wva_.show_ )
+    if ( wva )
 	drawWVA( *wva, offs );
 }
 

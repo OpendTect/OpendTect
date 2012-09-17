@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.h,v 1.15 2012-08-03 13:00:48 cvskris Exp $
+ RCS:           $Id: uiattrinpdlg.h,v 1.14 2011/12/23 15:00:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uidialog.h"
 
 class uiTextEdit;
@@ -20,7 +19,7 @@ class CtxtIOObj;
 class BufferStringSet;
 
 
-mClass(uiAttributes) uiAttrInpDlg : public uiDialog
+mClass uiAttrInpDlg : public uiDialog
 {
 public:
 			uiAttrInpDlg(uiParent*,const BufferStringSet& attrnms,
@@ -55,4 +54,3 @@ protected:
 };
 
 #endif
-

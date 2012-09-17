@@ -7,40 +7,36 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiimphorizon.cc,v 1.144 2012-05-02 15:12:05 cvskris Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.140 2012/02/09 08:41:07 cvsbert Exp $";
 
 #include "uiimphorizon.h"
-
 #include "uiarray2dinterpol.h"
+#include "array2dinterpolimpl.h"
+#include "uipossubsel.h"
+
 #include "uicombobox.h"
 #include "uicompoundparsel.h"
+#include "uilistbox.h"
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uitaskrunner.h"
 #include "uifileinput.h"
 #include "uigeninputdlg.h"
 #include "uiioobjsel.h"
-#include "uilistbox.h"
 #include "uimsg.h"
-#include "uipossubsel.h"
 #include "uiscaler.h"
 #include "uiseparator.h"
 #include "uistratlvlsel.h"
 #include "uitblimpexpdatasel.h"
 
 #include "arrayndimpl.h"
-#include "array2dinterpolimpl.h"
 #include "binidvalset.h"
 #include "ctxtioobj.h"
-#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
-#include "file.h"
-#include "filepath.h"
 #include "horizonscanner.h"
 #include "ioobj.h"
-#include "oddirs.h"
 #include "pickset.h"
 #include "randcolor.h"
 #include "strmdata.h"
@@ -48,12 +44,14 @@ static const char* rcsID mUnusedVar = "$Id: uiimphorizon.cc,v 1.144 2012-05-02 1
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "file.h"
+#include "emhorizon3d.h"
 
 #include <math.h>
 
 static const char* sZVals = "Z values";
 
-static BufferString sImportFromPath = GetDataDir();
+
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     : uiDialog(p,uiDialog::Setup("Import Horizon","Specify parameters",
@@ -75,18 +73,17 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
     BufferString fltr( "Text (*.txt *.dat);;XY/IC (*.*xy* *.*ic* *.*ix*)" );
     inpfld_ = new uiFileInput( this, "Input ASCII File",
-		uiFileInput::Setup(uiFileDialog::Gen)
-		.withexamine(true).forread(true).filter(fltr)
-		.defseldir(sImportFromPath) );
+	    uiFileInput::Setup(uiFileDialog::Gen)
+	    .withexamine(true).forread(true).filter(fltr) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,inputChgd) );
+    inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,formatSel) );
 
     attrlistfld_ = new uiLabeledListBox( this, "Select Attribute(s) to import",
 	   				 true );
     attrlistfld_->box()->setNrLines( 4 );
     attrlistfld_->attach( alignedBelow, inpfld_ );
     attrlistfld_->box()->selectionChanged.notify(
-	    			mCB(this,uiImportHorizon,inputChgd) );
+	    			mCB(this,uiImportHorizon,formatSel) );
 
     addbut_ = new uiPushButton( this, "Add new",
 	    			mCB(this,uiImportHorizon,addAttrib), false );
@@ -101,7 +98,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
 
     scanbut_ = new uiPushButton( this, "Scan &Input File",
-				 mCB(this,uiImportHorizon,scanPush), true );
+	    			 mCB(this,uiImportHorizon,scanPush), true );
     scanbut_->attach( alignedBelow, dataselfld_);
 
     sep = new uiSeparator( this, "H sep" );
@@ -115,12 +112,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     outputfld_ = new uiIOObjSel( this, ctio_ );
     outputfld_->setLabelText( isgeom_ ? "Output Horizon" : "Add to Horizon" );
 
-    if ( !isgeom_ )
-    {
-	fd_.setName( EM::Horizon3DAscIO::sKeyAttribFormatStr() );
-	outputfld_->attach( alignedBelow, subselfld_ );
-    }
-    else
+    if ( isgeom_ )
     {
 	setHelpID("104.0.0");
 	filludffld_ = new uiGenInput( this, "Fill undefined parts",
@@ -140,8 +132,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	stratlvlfld_->selChange.notify( mCB(this,uiImportHorizon,stratLvlChg) );
 
 	colbut_ = new uiColorInput( this,
-				    uiColorInput::Setup(getRandStdDrawColor())
-				    .lbltxt("Base color") );
+		  		   uiColorInput::Setup(getRandStdDrawColor())
+	       			   .lbltxt("Base color") );
 	colbut_->attach( alignedBelow, stratlvlfld_ );
 
 	displayfld_ = new uiCheckBox( this, "Display after import" );
@@ -149,8 +141,10 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	
 	fillUdfSel(0);
     }
+    else
+	outputfld_->attach( alignedBelow, subselfld_ );
 
-    postFinalise().notify( mCB(this,uiImportHorizon,inputChgd) );
+    postFinalise().notify( mCB(this,uiImportHorizon,formatSel) );
 }
 
 
@@ -184,9 +178,8 @@ void uiImportHorizon::interpolSettingsCB( CallBacker* )
 	interpol_ = arr2dinterpfld->getResult();
     }
 }
-
-
-void uiImportHorizon::inputChgd( CallBacker* cb )
+	
+void uiImportHorizon::formatSel( CallBacker* cb )
 {
     BufferStringSet attrnms;
     attrlistfld_->box()->getSelectedItems( attrnms );
@@ -195,20 +188,14 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
     EM::Horizon3DAscIO::updateDesc( fd_, attrnms );
     dataselfld_->updateSummary();
     dataselfld_->setSensitive( nrattrib );
-
-    const FixedString fnm = inpfld_->fileName();
-    scanbut_->setSensitive( !fnm.isEmpty() && nrattrib );
+    scanbut_->setSensitive( *inpfld_->fileName() && nrattrib );
+    inpfld_->fileName();
     if ( !scanner_ ) 
     {
 	subselfld_->setSensitive( false );
 	if ( filludffld_ )
 	    filludffld_->setSensitive( false );
     }
-
-    FilePath fnmfp( fnm );
-    sImportFromPath = fnmfp.pathOnly();
-    if ( isgeom_ )
-	outputfld_->setInputText( fnmfp.baseName() );
 }
 
 
@@ -460,8 +447,10 @@ bool uiImportHorizon::getFileNames( BufferStringSet& filenames ) const
 bool uiImportHorizon::checkInpFlds()
 {
     BufferStringSet filenames;
-    if ( !getFileNames(filenames) || !dataselfld_->commit() )
-	return false;
+    if ( !getFileNames(filenames) ) return false;
+
+    if ( !dataselfld_->commit() )
+	mErrRet( "Please define data format" );
 
     const char* outpnm = outputfld_->getInput();
     if ( !outpnm || !*outpnm )

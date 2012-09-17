@@ -7,20 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odhttp.h,v 1.20 2012-08-03 13:00:32 cvskris Exp $
+ RCS:           $Id: odhttp.h,v 1.18 2012/06/22 05:07:51 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "networkmod.h"
 #include "callback.h"
 #include "bufstringset.h"
 
 class MyHttp;
 class QHttpConnector;
 
-mClass(Network) ODHttp : public CallBacker
+mClass ODHttp : public CallBacker
 {
 friend class QHttpConnector;
 
@@ -62,7 +61,7 @@ public:
     int			nrDone() const          { return nrdone_; }
     int			totalNr() const         { return totalnr_; }
 
-    bool		isOK() const		{ return !error_; }
+    const bool		isOK() const		{ return !error_; }
     void		setMessage(const char*);
     const char*		message() const		{ return message_.buf(); }
 
@@ -98,4 +97,3 @@ protected:
 };
 
 #endif
-

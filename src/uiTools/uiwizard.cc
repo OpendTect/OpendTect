@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwizard.cc,v 1.18 2012-07-17 12:55:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiwizard.cc,v 1.15 2011/11/23 11:35:56 cvsbert Exp $";
 
 
 #include "uiwizard.h"
@@ -57,6 +57,7 @@ bool uiWizard::acceptOK( CallBacker* )
 {
     const int prevpage = pageidx;
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    bool firstpage = pageidx == firstPage();
 
     if ( !leavePage(pageidx,false) )
 	return false;

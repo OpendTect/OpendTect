@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2010
- RCS:		$Id: surv2dgeom.h,v 1.14 2012-08-03 13:00:15 cvskris Exp $
+ RCS:		$Id: surv2dgeom.h,v 1.11 2012/02/16 04:50:21 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include "basicmod.h"
 #include "posinfo2d.h"
 #include "separstr.h"
 #include "thread.h"
@@ -25,7 +24,7 @@ class BufferStringSet;
 namespace PosInfo
 {
 
-mClass(Basic) GeomID
+mClass GeomID
 {
 public:
     		GeomID( int lsid=-1, int lineid=-1 )
@@ -35,8 +34,6 @@ public:
     int		lineid_;
 
     bool	isOK() const;
-    void	setUndef();
-
     bool	operator ==( const GeomID& a ) const
     		{ return a.lsid_ == lsid_ && a.lineid_ == lineid_; }
     bool	operator !=( const GeomID& a ) const
@@ -51,7 +48,7 @@ public:
  
  */
 
-mClass(Basic) Survey2D : public CallBacker
+mClass Survey2D : public CallBacker
 {
 public:
 
@@ -82,7 +79,6 @@ public:
     bool		hasLineSet(int lsid) const;
     bool		hasLine(int lineid,int lsid=-1) const;
     void		getLineIDs(TypeSet<int>&,int lsid) const;
-    void		getLines(BufferStringSet&,int lsid) const;
 
     int			curLineSetID() const;
     void		setCurLineSet(int lsid) const;
@@ -125,7 +121,7 @@ private:
     int			getLineSetIdx(int lsid) const;
     int			getLineIdx(int lineid) const;
 
-    mGlobal(Basic) friend Survey2D&	POS2DAdmin();
+    mGlobal friend Survey2D&	POS2DAdmin();
 
     			Survey2D();
 public:
@@ -133,14 +129,13 @@ public:
 
 };
 
-mGlobal(Basic) Survey2D& POS2DAdmin();
+mGlobal Survey2D& POS2DAdmin();
 
 } // namespace PosInfo
 
 
-inline mGlobal(Basic) const PosInfo::Survey2D& S2DPOS()
+inline mGlobal const PosInfo::Survey2D& S2DPOS()
 { return const_cast<PosInfo::Survey2D&>( PosInfo::POS2DAdmin() ); }
 
 
 #endif
-

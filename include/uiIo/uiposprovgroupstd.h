@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroupstd.h,v 1.15 2012-08-03 13:01:01 cvskris Exp $
+ RCS:           $Id: uiposprovgroupstd.h,v 1.13 2011/11/14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uiposprovgroup.h"
 class MultiID;
 class CtxtIOObj;
@@ -28,7 +27,7 @@ class uiIOFileSelect;
 
 /*! \brief UI for RangePosProvider */
 
-mClass(uiIo) uiRangePosProvGroup : public uiPosProvGroup
+mClass uiRangePosProvGroup : public uiPosProvGroup
 {
 public:
 
@@ -51,7 +50,6 @@ protected:
 
     uiSelHRange*	hrgfld_;
     uiSelZRange*	zrgfld_;
-    uiSelNrRange*	nrrgfld_;
 
     uiPosProvGroup::Setup setup_;
 
@@ -60,7 +58,7 @@ protected:
 
 /*! \brief UI for PolyPosProvider */
 
-mClass(uiIo) uiPolyPosProvGroup : public uiPosProvGroup
+mClass uiPolyPosProvGroup : public uiPosProvGroup
 {
 public:
 			uiPolyPosProvGroup(uiParent*,
@@ -93,7 +91,7 @@ protected:
 
 /*! \brief UI for TablePosProvider */
 
-mClass(uiIo) uiTablePosProvGroup : public uiPosProvGroup
+mClass uiTablePosProvGroup : public uiPosProvGroup
 {
 public:
 			uiTablePosProvGroup(uiParent*,
@@ -124,4 +122,3 @@ protected:
 
 
 #endif
-

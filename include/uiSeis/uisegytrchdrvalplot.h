@@ -7,19 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2011
- RCS:           $Id: uisegytrchdrvalplot.h,v 1.4 2012-08-03 13:01:07 cvskris Exp $
+ RCS:           $Id: uisegytrchdrvalplot.h,v 1.3 2011/03/16 12:10:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uigroup.h"
 class uiLabel;
 class uiFunctionDisplay;
 namespace SEGY { class HdrEntry; }
 
 
-mClass(uiSeis) uiSEGYTrcHdrValPlot : public uiGroup
+mClass uiSEGYTrcHdrValPlot : public uiGroup
 {
 public:
 
@@ -49,4 +48,3 @@ protected:
 
 
 #endif
-

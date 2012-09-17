@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initgmt.cc,v 1.17 2012-05-02 15:11:09 cvskris Exp $";
+static const char* rcsID = "$Id: initgmt.cc,v 1.13 2012/03/19 13:24:34 cvsnageswara Exp $";
 
 #include "gmtarray2dinterpol.h"
 #include "gmtbasemap.h"
@@ -18,14 +18,10 @@ static const char* rcsID mUnusedVar = "$Id: initgmt.cc,v 1.17 2012-05-02 15:11:0
 #include "gmtlocations.h"
 #include "gmt2dlines.h"
 #include "initgmtplugin.h"
-#include "gmtprocflowtr.h"
 
 
 void GMT::initStdClasses()
 {
-    ODGMTProcFlowTranslatorGroup::initClass();
-    dgbODGMTProcFlowTranslator::initClass();
-    
     GMTBaseMap::initClass();
     GMTClip::initClass();
     GMTLegend::initClass();

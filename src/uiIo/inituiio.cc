@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: inituiio.cc,v 1.12 2012-05-02 15:12:07 cvskris Exp $";
+static const char* rcsID = "$Id: inituiio.cc,v 1.10 2011/08/23 14:51:33 cvsbert Exp $";
 
 #include "moddepmgr.h"
 #include "uiposprovgroupstd.h"

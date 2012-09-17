@@ -8,14 +8,13 @@ ________________________________________________________________________
  Author:	A.H. Lammertink
  Date:		09-10-2003
  Contents:	Utilities for win32 support
- RCS:		$Id: winutils.h,v 1.11 2012-08-03 13:00:16 cvskris Exp $
+ RCS:		$Id: winutils.h,v 1.10 2012/07/11 04:25:15 cvsranojay Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "basicmod.h"
 #include "gendefs.h"
 
 #ifdef __win__
@@ -26,9 +25,9 @@ ________________________________________________________________________
 extern "C" 
 {
 #endif
-    mGlobal(Basic) const char*	getCleanUnxPath( const char* path );
-    mGlobal(Basic) const char* getCleanWinPath( const char* path );
-    mGlobal(Basic) const char* GetSpecialFolderLocation(int csidl);
+    mGlobal const char*	getCleanUnxPath( const char* path );
+    mGlobal const char* getCleanWinPath( const char* path );
+    mGlobal const char* GetSpecialFolderLocation(int csidl);
 #ifdef __cpp__
  } //extern "C"
 #endif
@@ -36,21 +35,19 @@ extern "C"
 #ifdef __win__
 
 #ifdef __cpp__
-mGlobal(Basic)	bool		winCopy(const char* from,const char* to,
-				bool isfile, bool ismove=false);
-mGlobal(Basic)	bool		winRemoveDir( const char* dirnm );
-
-
-mGlobal(Basic) bool		executeWinProg(const char* comm,const char* parm,
+mGlobal	bool		winCopy(const char* from,const char* to,bool isfile);
+mGlobal	bool		winRemoveDir( const char* dirnm );
+mGlobal	bool		winMove(const char* from,const char* to,bool isfile);
+mGlobal bool		executeWinProg(const char* comm,const char* parm,
 					const char* runin=0);
-mGlobal(Basic)	unsigned int	getWinVersion();
-mGlobal(Basic)	bool		execShellCmd(const char* comm,const char* parm,
+mGlobal	unsigned int	getWinVersion();
+mGlobal	bool		execShellCmd(const char* comm,const char* parm,
 					const char* runin );
-mGlobal(Basic) bool		execProc(const char* comm,bool inconsole,bool inbg,
+mGlobal bool		execProc(const char* comm,bool inconsole,bool inbg,
 				    const char* runin );
 #endif
 
-mGlobal(Basic) const char*	getCygDir();
+mGlobal const char*	getCygDir();
 
 
 
@@ -366,4 +363,3 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
 #endif /* __win__ */
 
 #endif
-

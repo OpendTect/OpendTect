@@ -1,4 +1,4 @@
-# $Id: EnvVars,v 1.1 2005-08-29 14:56:18 cvsbert Exp $
+# $Id: EnvVars,v 1.1 2005/08/29 14:56:18 cvsbert Exp $
 #
 # OpendTect gets its environment variables from:
 # * Home_directory/.od/envvars

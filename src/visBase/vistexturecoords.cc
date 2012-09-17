@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistexturecoords.cc,v 1.20 2012-09-05 14:53:44 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturecoords.cc,v 1.16 2011/04/28 07:00:12 cvsbert Exp $";
 
 #include "vistexturecoords.h"
 
@@ -17,8 +17,6 @@ static const char* rcsID mUnusedVar = "$Id: vistexturecoords.cc,v 1.20 2012-09-0
 
 #include <Inventor/nodes/SoTextureCoordinate3.h>
 
-#include <osg/Array>
-
 mCreateFactoryEntry( visBase::TextureCoords );
 
 namespace visBase
@@ -27,31 +25,17 @@ namespace visBase
 TextureCoords::TextureCoords()
     : coords_( new SoTextureCoordinate3 )
     , mutex_( *new Threads::Mutex )
-    , osgcoords_( doOsg() ? new osg::Vec2Array : 0 )
 {
-    if ( coords_ )
-    {
-	coords_->ref();
-	unusedcoords_ += 0;
-	//!<To compensate for that the first coord is set by default by coin
-	return;
-    }
-    
-    mGetOsgVec2Arr(osgcoords_)->ref();
+    coords_->ref();
+    unusedcoords_ += 0;
+    //!<To compensate for that the first coord is set by default by coin
 }
 
 
 TextureCoords::~TextureCoords()
 {
+    coords_->unref();
     delete &mutex_;
-    
-    if ( coords_ )
-    {
-	coords_->unref();
-	return;
-    }
-    
-    mGetOsgVec2Arr(osgcoords_)->unref();
 }
 
 
@@ -66,8 +50,7 @@ void TextureCoords::setCoord( int idx, const Coord3& pos )
     for ( int idy=coords_->point.getNum(); idy<idx; idy++ )
 	unusedcoords_ += idy;
 
-    coords_->point.set1Value( idx, SbVec3f( (float) pos.x, 
-					     (float) pos.y, (float) pos.z ));
+    coords_->point.set1Value( idx, SbVec3f( pos.x, pos.y, pos.z ));
 }
 
 
@@ -78,7 +61,7 @@ void TextureCoords::setCoord( int idx, const Coord& pos )
     for ( int idy=coords_->point.getNum(); idy<idx; idy++ )
 	unusedcoords_ += idy;
 
-    coords_->point.set1Value( idx, SbVec3f( (float) pos.x, (float) pos.y, 0 ));
+    coords_->point.set1Value( idx, SbVec3f( pos.x, pos.y, 0 ));
 }
 
 
@@ -86,8 +69,7 @@ int TextureCoords::addCoord( const Coord3& pos )
 {
     Threads::MutexLocker lock( mutex_ );
     const int res = getFreeIdx();
-    coords_->point.set1Value( res, SbVec3f( (float) pos.x, 
-					      (float) pos.y, (float) pos.z ));
+    coords_->point.set1Value( res, SbVec3f( pos.x, pos.y, pos.z ));
 
     return res;
 }
@@ -97,7 +79,7 @@ int TextureCoords::addCoord( const Coord& pos )
 {
     Threads::MutexLocker lock( mutex_ );
     const int res = getFreeIdx();
-    coords_->point.set1Value( res, SbVec3f( (float) pos.x, (float) pos.y, 0 ));
+    coords_->point.set1Value( res, SbVec3f( pos.x, pos.y, 0 ));
 
     return res;
 }

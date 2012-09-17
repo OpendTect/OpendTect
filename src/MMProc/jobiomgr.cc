@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: jobiomgr.cc,v 1.45 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.42 2012/07/21 22:02:35 cvskris Exp $";
 
 #include "jobiomgr.h"
 
@@ -425,11 +425,11 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     FilePath remotelogfnm( machine.convPath( HostData::Data, logfp ));
 
     IOPar newiop( iop );
-    newiop.set( sKey::LogFile(), remotelogfnm.fullPath(machine.pathStyle()) );
+    newiop.set( sKey::LogFile, remotelogfnm.fullPath(machine.pathStyle()) );
 
     FilePath remdata = machine.prefixFilePath(HostData::Data);
 
-    const char* tmpstor = iop.find( sKey::TmpStor() );
+    const char* tmpstor = iop.find( sKey::TmpStor );
     if ( tmpstor )
     {
 	FilePath path = machine.convPath( HostData::Data, tmpstor );
@@ -441,11 +441,11 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 			.add( path.fileName() );
 	}
     
-	newiop.set( sKey::TmpStor(), remotetmpdir.fullPath(machine.pathStyle()) );
+	newiop.set( sKey::TmpStor, remotetmpdir.fullPath(machine.pathStyle()) );
     }
 
-    newiop.set( sKey::DataRoot(), remdata.fullPath(machine.pathStyle()) );
-    newiop.set( sKey::Survey(), IOM().surveyName() );
+    newiop.set( sKey::DataRoot, remdata.fullPath(machine.pathStyle()) );
+    newiop.set( sKey::Survey, IOM().surveyName() );
 
     if ( File::exists(iopfnm) ) File::remove( iopfnm );
     if ( File::exists(logfnm) ) File::remove( logfnm );
@@ -457,7 +457,7 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 	s += iopfnm; s += "' for write ...";
 	mErrRet(s)
     }
-    bool res = newiop.write( *iopsd.ostrm, sKey::Pars() );
+    bool res = newiop.write( *iopsd.ostrm, sKey::Pars );
     iopsd.close();
     if ( !res )
     {
@@ -483,16 +483,16 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     FilePath remotelogfnm( machine.convPath( HostData::Data, logfp ));
 
     IOPar newiop( iop );
-    newiop.set( sKey::LogFile(), remotelogfnm.fullPath(machine.pathStyle()) );
+    newiop.set( sKey::LogFile, remotelogfnm.fullPath(machine.pathStyle()) );
 
-    const char* tmpstor = iop.find( sKey::TmpStor() );
+    const char* tmpstor = iop.find( sKey::TmpStor );
     if ( tmpstor )
     {
 	FilePath remotetmpdir = machine.convPath( HostData::Data, tmpstor );
-	newiop.set( sKey::TmpStor(), remotetmpdir.fullPath(machine.pathStyle()) );
+	newiop.set( sKey::TmpStor, remotetmpdir.fullPath(machine.pathStyle()) );
     }
 
-    newiop.set( sKey::Survey(), IOM().surveyName() );
+    newiop.set( sKey::Survey, IOM().surveyName() );
 
     if ( File::exists(iopfnm) ) File::remove( iopfnm );
     if ( File::exists(logfnm) ) File::remove( logfnm );
@@ -504,7 +504,7 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 	s += iopfnm; s += "' for write ...";
 	mErrRet(s)
     }
-    bool res = newiop.write( *iopsd.ostrm, sKey::Pars() );
+    bool res = newiop.write( *iopsd.ostrm, sKey::Pars );
     iopsd.close();
     if ( !res )
     {

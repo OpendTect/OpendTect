@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uisynthtorealscale.h,v 1.5 2012-08-03 13:01:22 cvskris Exp $
+ RCS:           $Id: uisynthtorealscale.h,v 1.4 2011/09/13 14:14:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 
 #include "horsampling.h"
@@ -37,7 +36,7 @@ namespace EM { class Horizon3D; class Horizon; }
 
  */
 
-mClass(uiWellAttrib) uiSynthToRealScale : public uiDialog
+mClass uiSynthToRealScale : public uiDialog
 { 	
 public:
 
@@ -93,4 +92,3 @@ protected:
 
 
 #endif
-

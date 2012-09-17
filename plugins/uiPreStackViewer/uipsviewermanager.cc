@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewermanager.cc,v 1.72 2012-09-13 19:02:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.68 2012/09/14 19:38:48 cvsnanne Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -405,7 +405,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
  	viewer->flatViewer()->appearance().annot_.x2_.showgridlines_ = showx2;
     }
     
-    viewer->flatViewer()->handleChange( FlatView::Viewer::DisplayPars );
+    viewer->flatViewer()->handleChange( FlatView::Viewer::VDPars );
     viewer->flatViewer()->turnOnGridLines( showx1, showx2 );
 
     if ( viewer->getScene() )
@@ -470,10 +470,10 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
 
     vwr.setInitialSize( uiSize(pw,600) );  
     viewwin->addControl( new uiFlatViewStdControl( vwr,
-	uiFlatViewStdControl::Setup().withstates(true) ) );
+    uiFlatViewStdControl::Setup().withstates(true) ) );
     viewwin->windowClosed.notify( mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
-    //vwr.drawBitMaps();
-    //vwr.drawAnnot();
+    vwr.drawBitMaps();
+    vwr.drawAnnot();
     DPM(DataPackMgr::FlatID()).release( dp );
     return viewwin;
 }

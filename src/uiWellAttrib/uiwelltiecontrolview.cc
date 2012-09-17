@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltiecontrolview.cc,v 1.44 2012-08-13 09:36:57 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.39 2012/06/21 08:58:37 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -55,7 +55,6 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
     , server_(server)
     , redrawNeeded(this)
     , redrawAnnotNeeded(this)
-    , mrkrdlg_(0)			     
 {
     mDynamicCastGet(uiMainWin*,mw,p)
     if ( mw )
@@ -64,21 +63,27 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 	tb_->display(false);
     toolbar_->addSeparator();
     toolbar_->addObject( vwr_.rgbCanvas().getSaveImageButton(toolbar_) );
-    mDefBut(parsbut_,"2ddisppars",parsCB,"Set display parameters");
-    mDefBut(zoominbut_,"zoomforward",altZoomCB,"Zoom in");
-    mDefBut(zoomoutbut_,"zoombackward",altZoomCB,"Zoom out");
-    mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode (Esc)");
-    mDefBut(editbut_,"seedpickmode",editCB,"Pick mode (P)");
+    mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");
+    mDefBut(zoominbut_,"zoomforward.png",altZoomCB,"Zoom in");
+    mDefBut(zoomoutbut_,"zoombackward.png",altZoomCB,"Zoom out");
+    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode (Esc)");
+    mDefBut(editbut_,"seedpickmode.png",editCB,"Pick mode (P)");
 
     toolbar_->addSeparator();
-    mDefBut(horbut_,"loadhoronseis",loadHorizons,"Load Horizon(s)");
-    mDefBut(hormrkdispbut_,"drawhoronseis",dispHorMrks,
+    mDefBut(horbut_,"loadhoronseis.png",loadHorizons,"Load Horizon(s)");
+    mDefBut(hormrkdispbut_,"drawhoronseis.png",dispHorMrks,
 	    					"Marker display properties");
     editbut_->setToggleButton( true );
 
     vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
 	                    mCB(this,uiControlView,keyPressCB) );
     toolbar_->addSeparator();
+}
+
+
+void uiControlView::finalPrepare()
+{
+    uiFlatViewStdControl::finalPrepare();
 }
 
 
@@ -95,7 +100,7 @@ bool uiControlView::handleUserClick()
 	bool synth = ( wp.x < (bbox.right()-bbox.left())/2 );
 	const SeisTrc& trc = synth ? server_.data().synthtrc_ 
 				   : server_.data().seistrc_; 
-	server_.pickMgr().addPick( (float) wp.y, synth, &trc );
+	server_.pickMgr().addPick( wp.y, synth, &trc );
 	redrawAnnotNeeded.trigger();
 	return true;
     }
@@ -185,7 +190,7 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
 }
 
 
-bool uiControlView::isZoomAtStart() const
+const bool uiControlView::isZoomAtStart() const
 { return zoommgr_.atStart(); }
 
 
@@ -200,13 +205,13 @@ class uiMrkDispDlg : public uiDialog
 {
 public :
 
-    uiMrkDispDlg( uiParent* p, DispParams& pms )
-	: uiDialog(p,uiDialog::Setup("Display Markers/Horizons","",mNoHelpID)
-		.modal(false))
+    uiMrkDispDlg( uiParent* p, DispParams& pms, uiControlView* vw )
+	: uiDialog(p,uiDialog::Setup("Display Markers/Horizons","",mNoHelpID))
 	, pms_(pms)
-	, redrawneeded_(this)		   
+	, view_(vw) 
     {
 	setCtrlStyle( LeaveOnly );
+
 	uiGroup* topgrp = new uiGroup( this, "top group" );
 	dispmrkfld_ = new uiCheckBox( topgrp, "display markers");
 	dispmrkfld_->setChecked( pms_.isvwrmarkerdisp_ );
@@ -224,7 +229,7 @@ public :
 	disphorfullnamefld_ = new uiCheckBox( topgrp, "display full name" );
 	disphorfullnamefld_->attach( rightOf, disphorfld_ );
 	disphorfullnamefld_->setChecked(
-			    pms_.isvwrhordisp_ && pms_.disphorfullnames_ );
+	pms_.isvwrhordisp_ && pms_.disphorfullnames_ );
 	disphorfullnamefld_->activated.notify(mCB(this,uiMrkDispDlg,dispChged));
 
 	uiSeparator* sep = new uiSeparator( this, "Well2Seismic Sep" );
@@ -237,8 +242,6 @@ public :
 	mrkdispfld_->attach( alignedBelow, topgrp );
 	mrkdispfld_->putToScreen();
 	mrkdispfld_->propChanged.notify(mCB(this,uiMrkDispDlg,dispChged));
-
-	dispChged(0);
     }
 
     void dispChged( CallBacker* )
@@ -250,10 +253,8 @@ public :
 	dispmrkfullnamefld_->setSensitive( pms_.isvwrmarkerdisp_ );
 	disphorfullnamefld_->setSensitive( pms_.isvwrhordisp_ );
 
-	redrawneeded_.trigger(); 
+	view_->redrawNeeded.trigger();
     }
-
-    Notifier<uiMrkDispDlg>	redrawneeded_;
 
 protected:
 
@@ -263,23 +264,14 @@ protected:
     uiCheckBox*         dispmrkfullnamefld_;
     uiCheckBox*         disphorfullnamefld_;
     uiWellMarkersDispProperties* mrkdispfld_;
+    uiControlView*	view_;
 };
 
 
 void uiControlView::dispHorMrks( CallBacker* )
 {
-    if ( !mrkrdlg_ )
-    {
-	mrkrdlg_ = new uiMrkDispDlg( this, server_.dispParams() );
-	mrkrdlg_->redrawneeded_.notify(mCB(this,uiControlView,reDrawNeeded) );
-    }
-    mrkrdlg_->go();
-}
-
-
-void uiControlView::reDrawNeeded( CallBacker* )
-{
-    redrawAnnotNeeded.trigger();
+    uiMrkDispDlg dlg( this, server_.dispParams(), this );
+    dlg.go();
 }
 
 

@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          May 2009
- RCS:           $Id: uiclusterjobprov.h,v 1.5 2012-08-03 13:00:59 cvskris Exp $
+ RCS:           $Id: uiclusterjobprov.h,v 1.4 2012/03/02 10:22:53 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "multiid.h"
 
@@ -22,7 +21,7 @@ class uiFileInput;
 class uiLabel;
 
 
-mClass(uiIo) uiClusterJobProv : public uiDialog
+mClass uiClusterJobProv : public uiDialog
 {
 public:
     			uiClusterJobProv(uiParent* p,const IOPar& iop,
@@ -55,4 +54,3 @@ protected:
 };
 
 #endif
-

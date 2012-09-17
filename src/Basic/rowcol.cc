@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: rowcol.cc,v 1.24 2012-08-06 10:58:15 cvsranojay Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.20 2010/06/18 12:23:27 cvskris Exp $";
 
 #include "rowcol.h"
 #include "bufstring.h"
@@ -24,27 +24,29 @@ float RowCol::clockwiseAngleTo(const RowCol& rc) const
     const RowCol tmprc(rc);
     const TypeSet<RowCol>& clockwisedirs = RowCol::clockWiseSequence();
     const int selfidx = clockwisedirs.indexOf(*this);
-    const float selfangle =  selfidx!=-1 ? selfidx * (float) M_PI_4 
-					 : atan2( (float)col, (float)-row );
+    const float selfangle = selfidx!=-1
+	? selfidx * M_PI_4 
+	: atan2( (float)col, (float)-row );
     const int rcidx =  clockwisedirs.indexOf(tmprc);
-    const float rcangle = rcidx!=-1 ? rcidx * (float) M_PI_4 
-				 : atan2( (float)tmprc.col, (float)-tmprc.row );
+    const float rcangle = rcidx!=-1
+	? rcidx * M_PI_4 
+	: atan2( (float)tmprc.col, (float)-tmprc.row );
+
     static double twopi = M_PI*2;
     float anglediff = rcangle-selfangle;
-    if ( anglediff<0 ) anglediff = (float)( anglediff + twopi );
-    else if ( anglediff>twopi )
-	anglediff = (float)( anglediff - twopi );
-    
+    if ( anglediff<0 ) anglediff+=twopi;
+    else if ( anglediff>twopi ) anglediff-=twopi;
+
     return anglediff;
 }
 
 
 float RowCol::counterClockwiseAngleTo(const RowCol& rc) const
 {
-    static float twopi = (float) M_PI*2;
+    static double twopi = M_PI*2;
     float anglediff = -clockwiseAngleTo(rc);
-    if ( anglediff<0 ) anglediff += twopi;
-    else if ( anglediff>twopi ) anglediff -= twopi;
+    if ( anglediff<0 ) anglediff+=twopi;
+    else if ( anglediff>twopi ) anglediff-=twopi;
 
     return anglediff;
 }
@@ -53,7 +55,7 @@ float RowCol::counterClockwiseAngleTo(const RowCol& rc) const
 float RowCol::angleTo(const RowCol& rc) const
 {
     const float anglediff = clockwiseAngleTo(rc);
-    return (float)( anglediff>M_PI ? M_PI*2-anglediff : anglediff );
+    return anglediff>M_PI ? M_PI*2-anglediff : anglediff;
 }
 
 

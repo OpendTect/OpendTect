@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvinfoed.cc,v 1.137 2012-08-10 03:50:05 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.132 2012/07/10 13:06:07 cvskris Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -118,7 +118,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	, impiop_(0)
 	, topgrp_( 0 )
 {
-    static int sipidx mUnusedVar = addInfoProvider( new uiCopySurveySIP );
+    static int sipidx = addInfoProvider( new uiCopySurveySIP );
 
     orgstorepath_ = si_.datadir_.buf();
     isnew_ = orgdirname_.isEmpty();
@@ -402,7 +402,7 @@ void uiSurveyInfoEditor::setValues()
     crlfld_->setValue( crlrg );
 
     const StepInterval<float>& zrg = si_.zRange( false );
-    const float zfac = si_.zDomain().userFactor();
+    const float zfac = si_.zFactor();
     setZValFld( zfld_, 0, zrg.start, zfac );
     setZValFld( zfld_, 1, zrg.stop, zfac );
     setZValFld( zfld_, 2, zrg.step, zfac );
@@ -720,11 +720,11 @@ bool uiSurveyInfoEditor::setRanges()
     cs.zrg = zfld_->getFStepInterval();
     if ( mIsUdf(cs.zrg.start) || mIsUdf(cs.zrg.stop) || mIsUdf(cs.zrg.step) )
 	mErrRet("Please enter the Z Range")
-    const float zfac = 1.f / si_.zDomain().userFactor();
+    const float zfac = 1. / si_.zFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
 	{ cs.zrg.start *= zfac; cs.zrg.stop *= zfac; cs.zrg.step *= zfac; }
     if ( mIsZero(cs.zrg.step,1e-8) )
-	cs.zrg.step = si_.zIsTime() ? 0.004f : 1;
+	cs.zrg.step = si_.zIsTime() ? 0.004 : 1;
     cs.normalise();
     if ( !hs.totalNr() )
 	mErrRet("Please specify inline/crossline ranges")

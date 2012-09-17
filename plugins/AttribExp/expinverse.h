@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expinverse.h,v 1.6 2009-07-22 16:01:26 cvsbert Exp $
+ RCS:           $Id: expinverse.h,v 1.6 2009/07/22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 Inverse gate=[-64,64] steering=Yes window=[Box] neighbourhood=1,1 pos1=0,1

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uisystemtrayicon.cc,v 1.4 2012-08-30 07:52:52 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uisystemtrayicon.cc,v 1.1 2010/09/20 06:07:45 cvsnanne Exp $";
 
 #include "uisystemtrayicon.h"
 #include "i_qsystemtrayicon.h"
@@ -24,9 +24,8 @@ uiSystemTrayIcon::uiSystemTrayIcon( const ioPixmap& pm )
     , middleClicked(this)
     , doubleClicked(this)
 {
-    qsystemtrayicon_ = new mQtclass(QSystemTrayIcon)();
-    messenger_ = new mQtclass(QSystemTrayIconMessenger)( qsystemtrayicon_,
-	    						 this );
+    qsystemtrayicon_ = new QSystemTrayIcon();
+    messenger_ = new QSystemTrayIconMessenger( qsystemtrayicon_, this );
     setPixmap( pm );
 }
 
@@ -40,8 +39,8 @@ uiSystemTrayIcon::~uiSystemTrayIcon()
 
 void uiSystemTrayIcon::setPixmap( const ioPixmap& pm )
 {
-    mQtclass(QIcon) qicon; 
-    if ( pm.qpixmap() ) qicon = mQtclass(QIcon)( *pm.qpixmap() );
+    QIcon qicon; 
+    if ( pm.qpixmap() ) qicon = QIcon( *pm.qpixmap() );
     qsystemtrayicon_->setIcon( qicon );
 }
 

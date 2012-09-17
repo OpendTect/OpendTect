@@ -7,14 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.64 2012-08-29 07:11:05 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.55 2012/04/19 19:18:14 cvsdgb Exp $
 ________________________________________________________________________
 
 */
 
-#include "basicmod.h"
-#include "commondefs.h"
-#include "plftypes.h"
+#include "callback.h"
 
 #ifndef OD_NO_QT
 class QThread;
@@ -22,12 +20,14 @@ class QMutex;
 class QWaitCondition;
 #endif
 
-class CallBack;
-
 #ifdef __win__
-#include <windows.h>
-#define mHasAtomic
-#define mAtomicWithMutex
+# include "windows.h"
+# define mHasAtomic
+# define mAtomicWithMutex
+#endif
+
+#ifdef __mac__
+# define mAtomicWithMutex
 #endif
 
 /*!\brief interface to threads that should be portable.
@@ -41,13 +41,12 @@ namespace Threads
 {
 class Mutex;
 
-
 /*! Atomic variable where an operation (add, subtract) can
     be done without locking in a multithreaded environment. Only
     available for long, unsigned long */
 
 template <class T>
-class Atomic
+class Atomic 
 {
 public:
     		Atomic(T val=0);
@@ -56,11 +55,9 @@ public:
 		~Atomic();
 #endif
 
-		operator T() const	{ return val_; }
-    T		get() const		{ return val_; }
-    
-    T		operator=(T v)		{ val_=v; return val_; }
+    		operator T() const	{ return val_; }
 
+    T		operator=(T v)		{ val_=v; return val_; }
     inline T	operator+=(T);
     inline T	operator-=(T);
     inline T	operator++();
@@ -69,59 +66,16 @@ public:
     inline T	operator--(int);
 
     inline bool	setIfEqual(T newval, T oldval );
-    /*!<Sets the val_ only if value is previously set
-     to oldval */
-    
-      
+		/*!<Sets the val_ only if value is previously set
+		    to oldval */
+
 protected:
-    volatile T	val_;
-    
 #ifdef mAtomicWithMutex
     Mutex*	lock_;
 #endif
 
+    volatile T	val_;
 };
-
-#ifdef __win__
-#define mAtomicPointerType od_uint64
-#else
-#define mAtomicPointerType void*
-#endif
-
-    
-/*Atomic instanciated with a pointer. The class really only handles the
-  casting from a void* to a T*. */
-template <class T>
-class AtomicPointer
-{
-public:
-    inline	AtomicPointer(T* newptr = 0);
-
-    inline bool	setIfOld(const T* oldptr, T* newptr);
-    
-    inline void	unRef();
-    		/*!<Don't be confused, class works for non-ref-counted objects
-		    as well. Just don't call ref/unRef(); */
-    inline void	ref();
-    
-    inline T*	setToNull();
-		/*!<Returns the last value of the ptr. */
-    
-    inline	operator T*();
-
-    inline T*	operator+=(int);
-    inline T*	operator-=(int);
-    inline T*	operator++();
-    inline T*	operator--();
-    inline T*	operator++(int);
-    inline T*	operator--(int);
-
-protected:
-
-
-    Atomic<mAtomicPointerType>	ptr_;
-};
-
 
 /*!\brief Is a lock that allows a thread to have exlusive rights to something.
 
@@ -130,7 +84,7 @@ it is unlocked. If a thread tries to lock it, it will be postponed until
 the thread that has locked it will unlock it.
 */
 
-mClass(Basic) Mutex
+mClass Mutex
 {
 public:
 			Mutex( bool recursive=false );
@@ -155,7 +109,7 @@ protected:
 };
 
 
-mClass(Basic) SpinLock
+mClass SpinLock
 {
 public:
 			SpinLock();
@@ -205,7 +159,7 @@ When you want to change the condition:
 */
 
 
-mClass(Basic) ConditionVar : public Mutex
+mClass ConditionVar : public Mutex
 {
 public:
 				ConditionVar();
@@ -233,7 +187,7 @@ but it will not allow any readers when writelocked, and no writelock is allowed
 when readlocked. */
 
 
-mClass(Basic) ReadWriteLock
+mClass ReadWriteLock
 {
 public:
     			ReadWriteLock();
@@ -289,8 +243,8 @@ int function()
 }
 */
 
-#define mLockerClassImpl( mod, clssnm, clss, lockfn, unlockfn, trylockfn ) \
-mClass(mod) clssnm \
+#define mLockerClassImpl( clssnm, clss, lockfn, unlockfn, trylockfn ) \
+class clssnm \
 { \
 public: \
 		clssnm( clss& thelock, bool wait=true ) \
@@ -302,34 +256,34 @@ public: \
 		} \
  \
 		~clssnm() { if ( islocked_ ) lock_.unlockfn; } \
-    bool	isLocked() const { return islocked_; } \
- \
-    void	unLock() { islocked_ = false; lock_.unlockfn; } \
+    bool        isLocked() const { return islocked_; } \
+     \
+    void        unLock() { islocked_ = false; lock_.unlockfn; } \
 		/*!<Use at own risk! To be safe, it should only be called \
 		    by the process that created the lock. */ \
-    void	lock() { islocked_ = true; lock_.lockfn; } \
+    void        lock() { islocked_ = true; lock_.lockfn; } \
 		/*!<Use at own risk! To be safe, it should only be called \
 		    by the process that created the lock, and have \
 		    called the unLock(). */ \
  \
 protected: \
- \
-    clss&	lock_; \
-    bool	islocked_; \
+	    \
+    clss&       lock_; \
+    bool        islocked_; \
 };
 
-mLockerClassImpl( Basic, MutexLocker, Mutex, lock(), unLock(), tryLock() )
-mLockerClassImpl( Basic, SpinLockLocker, SpinLock, lock(), unLock(), tryLock() )
-mLockerClassImpl( Basic, ReadLockLocker, ReadWriteLock,
+mLockerClassImpl( MutexLocker, Mutex, lock(), unLock(), tryLock() )
+mLockerClassImpl( SpinLockLocker, SpinLock, lock(), unLock(), tryLock() )
+mLockerClassImpl( ReadLockLocker, ReadWriteLock,
 		  readLock(), readUnLock(), tryReadLock() )
-mLockerClassImpl( Basic, WriteLockLocker, ReadWriteLock,
+mLockerClassImpl( WriteLockLocker, ReadWriteLock,
 		  writeLock(), writeUnLock(), tryWriteLock() )
 
 
 /*!Waits for a number of threads to reach a certain point (i.e. the call to
    Barrier::waitForAll). Once everyone has arrived, everyone is released. */
 
-mClass(Basic) Barrier
+mClass Barrier
 {
 public:
     			Barrier(int nrthreads=-1,bool immediatrelease=true);
@@ -374,7 +328,7 @@ The process that has created the thread must call destroy() or detach().
 
 */
 
-mClass(Basic) Thread
+mClass Thread
 {
 public:
 
@@ -383,6 +337,8 @@ public:
     virtual			~Thread();
 
     const void*			threadID() const;
+
+    static const void*		currentThread();
 
     void			waitForFinish();
     				/*!< Stop the thread with this function.
@@ -400,13 +356,11 @@ protected:
   * The user settings contain a 'Nr Processors' entry.
 */
 
-mGlobal(Basic) int getNrProcessors();
-mGlobal(Basic) const void* currentThread();
-
+mGlobal int getNrProcessors();
 
 
 /*! Causes the current thread to sleep */
-mGlobal(Basic) void sleep(double time); /*!< Time in seconds */
+mGlobal void sleep(double time); /*!< Time in seconds */
 
 
 #define mThreadDeclareMutexedVar(T,var) \
@@ -434,19 +388,10 @@ mGlobal(Basic) void sleep(double time); /*!< Time in seconds */
 #define mAtomicSpecialization( type, postfix ) \
 template <> inline \
 Atomic<type>::Atomic( type val ) \
-: val_( val ) \
-, lock_( 0 ) \
+    : val_( val ) \
+    , lock_( 0 ) \
 {} \
 \
-\
-template <> inline \
-bool Atomic<type>::setIfEqual(type newval, type oldval ) \
-{ \
-if ( newval==oldval ) \
-return true; \
-\
-return InterlockedCompareExchange##postfix( &val_, newval, oldval )!=newval; \
-} \
 \
 template <> inline \
 type Atomic<type>::operator += (type b) \
@@ -487,8 +432,20 @@ type Atomic<type>::operator -- (int) \
 { \
     return InterlockedDecrement##postfix( &val_ )+1; \
 } \
+\
+\
+\
+template <> inline \
+bool Atomic<type>::setIfEqual(type newval, type oldval ) \
+{ \
+    if ( newval==oldval ) \
+	return true; \
+\
+    return InterlockedCompareExchange##postfix( &val_, newval, oldval )!=newval; \
+}
 
 mAtomicSpecialization( long, )
+mAtomicSpecialization( unsigned long, )
 #ifdef _WIN64
 mAtomicSpecialization( long long, 64 )
 #endif
@@ -560,7 +517,7 @@ bool Atomic<T>::setIfEqual(T newval, T oldval )
     return res;
 }
 
-#else //not win
+#else
 
 
 template <class T> inline
@@ -661,10 +618,13 @@ bool Atomic<T>::setIfEqual(T newval, T oldval )
 #endif // not win
 
 #ifdef mAtomicWithMutex
+
 template <class T> inline
-Atomic<T>::Atomic( const Atomic<T>& b )
-    : lock_( new Mutex ), val_( b.val_ )
+Atomic<T>::Atomic( const Atomic<T>& a )
+    : lock_( new Mutex )
+    , val_( a.val_ )
 {}
+
 
 template <class T> inline
 Atomic<T>::~Atomic()
@@ -674,85 +634,6 @@ Atomic<T>::~Atomic()
 
 #undef mAtomicWithMutex
 #endif
-
-    
-    
-
-
-/* AtomicPointer implementations. */
-template <class T> inline
-AtomicPointer<T>::AtomicPointer(T* newptr )
-    : ptr_( (mAtomicPointerType) newptr )
-{}
-
-
-template <class T> inline
-bool AtomicPointer<T>::setIfOld(const T* oldptr, T* newptr)
-{
-    return ptr_.setIfEqual( (mAtomicPointerType) newptr,
-			    (mAtomicPointerType)oldptr );
-}
-    
-    
-template <class T> inline
-T* AtomicPointer<T>::setToNull()
-{
-    T* oldptr = (T*) ptr_.get();
-    while ( oldptr && !setIfOld( oldptr, 0 ) )
-	oldptr = (T*) ptr_.get();
-    
-    return oldptr;    
-}
-
-
-template <class T> inline
-void AtomicPointer<T>::unRef()
-{
-    T* oldptr = setToNull();
-    if ( oldptr )
-	oldptr->unRef();
-}
-
-
-template <class T> inline
-void AtomicPointer<T>::ref() { ((T*) ptr_ )->ref(); }
-
-
-template <class T> inline
-AtomicPointer<T>::operator T*() { return (T*) ptr_.get(); }
-
-
-template <class T> inline
-T* AtomicPointer<T>::operator+=( int b )
-{ return ptr_ += b*sizeof(T); }
-
-
-template <class T> inline
-T* AtomicPointer<T>::operator-=(int b)
-{ return ptr_ -= b*sizeof(T); }
-
-
-#define mImplAtomicPointerOperator( func, op, ret ) \
-template <class T> inline \
-T* AtomicPointer<T>::func \
-{ \
-    T* old = (T*) ptr_.get(); \
- \
-    while ( !ptr_.setIfEqual( (mAtomicPointerType) (op), \
-			      (mAtomicPointerType) old ) ) \
-	old = (T*) ptr_.get(); \
- \
-    return ret; \
-}
-
-
-mImplAtomicPointerOperator( operator++(), old+1, old+1 );
-mImplAtomicPointerOperator( operator--(), old-1, old-1 );
-mImplAtomicPointerOperator( operator++(int), old+1, old );
-mImplAtomicPointerOperator( operator--(int), old-1, old );
-
-
 } //namespace
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisbounds.h,v 1.7 2012-08-03 13:00:35 cvskris Exp $
+ RCS:		$Id: seisbounds.h,v 1.6 2009/07/22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "ranges.h"
 #include "position.h"
 class CubeSampling;
@@ -28,7 +27,7 @@ namespace Seis
  
  */
 
-mClass(Seis) Bounds
+mClass Bounds
 {
 public:
 
@@ -50,7 +49,7 @@ public:
 };
 
 
-mClass(Seis) Bounds3D : public Bounds
+mClass Bounds3D : public Bounds
 {
 public:
 
@@ -71,7 +70,7 @@ public:
 };
 
 
-mClass(Seis) Bounds2D : public Bounds
+mClass Bounds2D : public Bounds
 {
 public:
 
@@ -100,4 +99,3 @@ public:
 } // namespace Seis
 
 #endif
-

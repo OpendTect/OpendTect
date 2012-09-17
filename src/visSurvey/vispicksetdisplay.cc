@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vispicksetdisplay.cc,v 1.111 2012-08-13 09:36:58 cvsaneesh Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.107 2012/05/04 19:32:47 cvsnanne Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -43,6 +43,7 @@ PickSetDisplay::~PickSetDisplay()
 {
     if ( bodydisplay_ ) 
 	bodydisplay_->unRef();
+
     if ( scene_ )
 	scene_->zstretchchange.remove(
 		mCB(this,PickSetDisplay,sceneZChangeCB) );
@@ -304,8 +305,8 @@ int PickSetDisplay::usePar( const IOPar& par )
 	    Coord3 pos( toDouble(fms[0]), toDouble(fms[1]), toDouble(fms[2]) );
 	    Sphere dir;
 	    if ( fms.size() > 3 )
-		dir = Sphere( (float) toDouble(fms[3]),
-			(float) toDouble(fms[4]), (float) toDouble(fms[5]) );
+		dir = Sphere( toDouble(fms[3]), toDouble(fms[4]),
+				toDouble(fms[5]) );
 
 	    *newps += Pick::Location( pos, dir );
 	}
@@ -324,7 +325,7 @@ int PickSetDisplay::usePar( const IOPar& par )
 	newps->disp_.color_ = getMaterial()->getColor();
 
 	BufferString psname;
-	par.get( sKey::Name(), psname );
+	par.get( sKey::Name, psname );
 	newps->setName( psname );
 	setSet( newps );
 

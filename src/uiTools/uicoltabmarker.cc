@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicoltabmarker.cc,v 1.17 2012-08-10 03:50:07 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.12 2011/03/31 09:24:38 cvsnanne Exp $";
 
 #include "uicoltabmarker.h"
 
@@ -110,7 +110,7 @@ void uiColTabMarkerDlg::markerInserted( CallBacker* )
 	return;
     }
 
-    RowCol rccolor( rcvalue.row, 1 );
+    RowCol rccolor = ( rcvalue.row, 1 );
     const float newpos = ctab_.position(rcvalue.row-1) +
 			 ( ctab_.position(rcvalue.row) - 
 			   ctab_.position(rcvalue.row-1) ) / 2;
@@ -178,6 +178,8 @@ bool uiColTabMarkerDlg::acceptOK( CallBacker* )
 {
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
+	RowCol rc( idx, 0 );
+	const float position = table_->getfValue( rc );
 	Color col( table_->getColor( RowCol(idx,1) ) );
 	ctab_.changeColor( idx, col.r(), col.g(), col.b() );
     }
@@ -257,7 +259,7 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
     for ( int idx=0; idx<ctab_.size(); idx++ )
     {
 	const float val = ctab_.position( idx );
-	const float ref = (float) ( wpt.x );
+	const float ref = wpt.x;
 	const float diffinpix = fabs(val-ref) / fabs(fac);
 	if ( diffinpix < mindiff )
 	{
@@ -351,7 +353,7 @@ void uiColTabMarkerCanvas::mouse2Clk( CallBacker* cb )
 
     const MouseEvent& ev = meh_.event();
     uiWorldPoint wpt = w2ui_->transform( ev.pos() );
-    addMarker( (float) (wpt.x), true );
+    addMarker( wpt.x, true );
     selidx_ = -1;
     meh_.setHandled( true );
 }
@@ -377,7 +379,7 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
 
     const MouseEvent& ev = meh_.event();
     uiWorldPoint wpt = w2ui_->transform( ev.pos() );
-    float changepos = (float) ( wpt.x );
+    float changepos = wpt.x;
 
     const int sz = ctab_.size();
     if ( selidx_<0 || selidx_>=sz ) return;
@@ -387,9 +389,9 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
 
     float position = mUdf(float); 
     if ( (selidx_ > 0 && ctab_.position(selidx_-1)>=changepos) )
-	position = (float) ( ctab_.position(selidx_-1) + 1.01*mEps );
+	position = ctab_.position(selidx_-1) + 1.01*mEps;
     else if ( (selidx_ < sz-1 && ctab_.position(selidx_+1)<=changepos) )
-	position = (float) ( ctab_.position( selidx_+1 ) - 1.01*mEps );
+	position = ctab_.position( selidx_+1 ) - 1.01*mEps;
     else
 	position = changepos;
 

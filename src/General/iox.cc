@@ -5,7 +5,7 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: iox.cc,v 1.21 2012-05-02 15:11:34 cvskris Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.19 2010/12/14 15:53:16 cvsbert Exp $";
 
 #include "iox.h"
 #include "iostrm.h"

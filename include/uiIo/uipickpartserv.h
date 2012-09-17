@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.48 2012-08-03 13:01:00 cvskris Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.46 2011/06/17 05:23:36 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uipicksetmgr.h"
 #include "uiapplserv.h"
 #include "ranges.h"
@@ -31,7 +30,7 @@ namespace PosInfo { class Line2DData; }
 
 /*! \brief Service provider for application level - seismics */
 
-mClass(uiIo) uiPickPartServer  : public uiApplPartServer
+mClass uiPickPartServer  : public uiApplPartServer
 			, public uiPickSetMgr
 {
 public:
@@ -54,13 +53,13 @@ public:
     void			setPickSet(const Pick::Set&);
     void			fillZValsFrmHor(Pick::Set*,int);
 
-    static int			evGetHorInfo2D();
-    static int			evGetHorInfo3D();
-    static int			evGetHorDef3D();
-    static int		        evGetHorDef2D();
-    static int		        evFillPickSet();
-    static int			evGet2DLineInfo();
-    static int			evGet2DLineDef();
+    static const int		evGetHorInfo2D();
+    static const int		evGetHorInfo3D();
+    static const int		evGetHorDef3D();
+    static const int            evGetHorDef2D();
+    static const int            evFillPickSet();
+    static const int		evGet2DLineInfo();
+    static const int		evGet2DLineDef();
 
 
 				// Interaction stuff
@@ -107,4 +106,3 @@ protected:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: i_qtable.h,v 1.8 2012-08-29 16:21:07 cvsnanne Exp $
+ RCS:		$Id: i_qtable.h,v 1.7 2011/04/21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,9 +25,6 @@ ________________________________________________________________________
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
-
-QT_BEGIN_NAMESPACE
-
 class i_tableMessenger : public QObject 
 {
     Q_OBJECT
@@ -189,8 +186,7 @@ void rowDoubleClicked( int idx )
 void columnDoubleClicked( int idx )
 { mNoHeaderTrigger( columnDoubleClicked, idx, false ); }
 
-};
 
-QT_END_NAMESPACE
+};
 
 #endif

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture.h,v 1.15 2012-08-03 13:01:25 cvskris Exp $
+ RCS:		$Id: vismultitexture.h,v 1.14 2009/07/22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 template <class T> class Array2D;
@@ -25,7 +24,7 @@ class TextureInfo;
 class VisColorTab;
 class ColorSequence;
 
-mClass(visBase) MultiTexture : public DataObject
+mClass MultiTexture : public DataObject
 {
 public:
     enum Operation		{ BLEND, ADD, REPLACE };
@@ -101,4 +100,3 @@ protected:
 }; // Namespace
 
 #endif
-

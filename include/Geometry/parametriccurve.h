@@ -6,12 +6,11 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        A.H. Bril
 Date:          23-10-1996
-RCS:           $Id: parametriccurve.h,v 1.10 2012-08-03 13:00:28 cvskris Exp $
+RCS:           $Id: parametriccurve.h,v 1.9 2012/02/01 09:44:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "geomelement.h"
 
 class Plane3;
@@ -29,7 +28,7 @@ namespace Geometry
   parameterRange().stop and parameterRange().start.
 */
 
-mClass(Geometry) ParametricCurve : public Element
+mClass ParametricCurve : public Element
 {
 public:
     virtual Coord3 	computePosition( float ) const	= 0;
@@ -71,4 +70,3 @@ public:
 };
 
 #endif
-

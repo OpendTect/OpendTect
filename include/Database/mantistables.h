@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.h,v 1.15 2012-08-03 13:00:16 cvskris Exp $
+ RCS:           $Id: mantistables.h,v 1.13 2012/01/18 11:46:00 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "databasemod.h"
 #include "typeset.h"
 #include "objectset.h"
 
@@ -23,7 +22,7 @@ class BufferStringSet;
 namespace SqlDB
 {
 
-mClass(Database) BugHistoryTableEntry
+mClass BugHistoryTableEntry
 {
 public:    
 
@@ -45,7 +44,7 @@ public:
 };
 
 
-mClass(Database) BugTextTableEntry
+mClass BugTextTableEntry
 {
 public:
 
@@ -74,7 +73,7 @@ protected:
 };
 
 
-mClass(Database) BugTableEntry
+mClass BugTableEntry
 {
 public:
 
@@ -84,22 +83,22 @@ public:
     static const char*	sKeyFixedInVersion();
     static const char*	sKeySevere();
     static const char*	sKeyMinor();
-    static int		cStatusNew();
-    static int		cStatusAssigned();
-    static int		cStatusFeedback();
-    static int 		cStatusResolved();
-    static int		cStatusClosed();
-    static int		cResolutionOpen();
-    static int		cResolutionFixed();
-    static int		cResolutionWillNotFixed();
-    static int		cSeverityFeature();
-    static int		cSeverityTrivial();
-    static int		cSeverityText();
-    static int		cSeverityTweak();
-    static int		cSeverityMinor();
-    static int		cSeverityMajor();
-    static int		cSeverityCrash();
-    static int		cSeverityBlock();
+    static const int    cStatusNew();
+    static const int    cStatusAssigned();
+    static const int    cStatusFeedback();
+    static const int    cStatusResolved();
+    static const int    cStatusClosed();
+    static const int    cResolutionOpen();
+    static const int    cResolutionFixed();
+    static const int    cResolutionWillNotFixed();
+    static const int    cSeverityFeature();
+    static const int    cSeverityTrivial();
+    static const int    cSeverityText();
+    static const int    cSeverityTweak();
+    static const int    cSeverityMinor();
+    static const int    cSeverityMajor();
+    static const int    cSeverityCrash();
+    static const int    cSeverityBlock();
 
     void		getQueryInfo(BufferStringSet& colnms,
 	    			     BufferStringSet& values,bool isedit);
@@ -139,4 +138,3 @@ protected:
 } // namespace
 
 #endif
-

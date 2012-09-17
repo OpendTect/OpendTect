@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initmpeengine.cc,v 1.16 2012-05-02 15:11:41 cvskris Exp $";
+static const char* rcsID = "$Id: initmpeengine.cc,v 1.13 2011/08/23 14:51:33 cvsbert Exp $";
 
 #include "moddepmgr.h"
 #include "faulteditor.h"
@@ -19,15 +19,11 @@ static const char* rcsID mUnusedVar = "$Id: initmpeengine.cc,v 1.16 2012-05-02 1
 #include "horizon2dextender.h"
 #include "horizon3dextender.h"
 #include "polygonsurfeditor.h"
-#include "mpesetup.h"
 
 mDefModInitFn(MPEEngine)
 {
     mIfNotFirstTime( return );
 
-    MPESetupTranslatorGroup::initClass();
-    dgbMPESetupTranslator::initClass();
-    
     MPE::FaultEditor::initClass();
     MPE::FaultStickSetEditor::initClass();
     MPE::HorizonEditor::initClass();

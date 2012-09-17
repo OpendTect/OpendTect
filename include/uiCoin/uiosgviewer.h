@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          07/02/2002
- RCS:           $Id: uiosgviewer.h,v 1.3 2012-08-03 13:00:54 cvskris Exp $
+ RCS:           $Id: uiosgviewer.h,v 1.2 2011/12/14 15:27:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uicoinmod.h"
 #include "general.h"
 
 namespace osgViewer { class CompositeViewer; class View; }
@@ -24,7 +23,7 @@ class uiOsgViewer;
     arranged by storing the osgViewer::View in this class, which
     takes care of the rest. */
 
-mClass(uiCoin) uiOsgViewHandle
+mClass uiOsgViewHandle
 {
 public:
 				uiOsgViewHandle();
@@ -43,4 +42,3 @@ private:
 
 
 #endif
-

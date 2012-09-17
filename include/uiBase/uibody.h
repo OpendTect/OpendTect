@@ -7,17 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibody.h,v 1.18 2012-08-24 06:38:36 cvsnageswara Exp $
+ RCS:           $Id: uibody.h,v 1.16 2011/04/21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiparent.h"
 
-mFDQtclass(QWidget)
+class QWidget;
 
-mClass(uiBase) uiBody
+mClass uiBody
 {
 public:
 				uiBody()				{}
@@ -30,14 +29,13 @@ public:
 
 
 				//! can return 0
-    inline const mQtclass(QWidget*)  qwidget() const
-    				     { return qwidget_();}
+    inline const QWidget*       qwidget() const		{ return qwidget_();}
 				//! can return 0
-    inline mQtclass(QWidget*) qwidget()
-                            {return const_cast<mQtclass(QWidget*)>(qwidget_());}
+    inline QWidget*             qwidget()
+                                   {return const_cast<QWidget*>(qwidget_());}
 
 protected:
-    virtual const mQtclass(QWidget*)	qwidget_() const		=0;
+    virtual const QWidget*	qwidget_() const		=0;
 
 };
 
@@ -67,8 +65,8 @@ public:
 protected:
 			~uiBodyImpl()			{ delete qthing_; }
 
-    virtual const mQtclass(QWidget*) qwidget_() const		
-			   {return dynamic_cast<mQtclass(QWidget*)>( qthing_ );}
+    virtual const QWidget* qwidget_() const		
+			    { return dynamic_cast<QWidget*>( qthing_ ); }
 
     T*			qthing_;
 
@@ -79,4 +77,3 @@ private:
 };
 
 #endif
-

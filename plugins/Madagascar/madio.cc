@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: madio.cc,v 1.12 2012-05-22 14:48:45 cvskris Exp $";
+static const char* rcsID = "$Id: madio.cc,v 1.9 2011/12/14 13:16:41 cvsbert Exp $";
 
 #include "madio.h"
 #include "keystrs.h"
@@ -76,19 +76,19 @@ bool ODMad::FileSpec::set( const char* fnm, const char* maskfnm )
 
 void ODMad::FileSpec::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Type(), forread_ ? "Read" : "Write" );
-    iop.set( sKey::FileName(), fnm_ );
+    iop.set( sKey::Type, forread_ ? "Read" : "Write" );
+    iop.set( sKey::FileName, fnm_ );
     iop.set( sKeyMaskFile(), maskfnm_ );
 }
 
 
 bool ODMad::FileSpec::usePar( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::Type() );
+    const char* res = iop.find( sKey::Type );
     forread_ = !res || (*res != 'w' && *res != 'W');
 
     BufferString fnm = fnm_, maskfnm = maskfnm_;
-    iop.get( sKey::FileName(), fnm );
+    iop.get( sKey::FileName, fnm );
     iop.get( sKeyMaskFile(), maskfnm );
     return set( fnm, maskfnm );
 }

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.33 2012-08-03 13:01:18 cvskris Exp $
+ RCS:		$Id: uivisemobj.h,v 1.32 2011/11/30 23:32:58 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uivismod.h"
 #include "callback.h"
 #include "emposid.h"
 #include "menuhandler.h"
@@ -27,7 +26,7 @@ class uiVisPartServer;
 class MultiID;
 
 
-mClass(uiVis) uiVisEMObject : public CallBacker
+mClass uiVisEMObject : public CallBacker
 {
 public:
     			uiVisEMObject(uiParent*,int displayid,
@@ -110,4 +109,3 @@ protected:
 };
 
 #endif
-

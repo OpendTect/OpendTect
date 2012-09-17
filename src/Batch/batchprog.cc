@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: batchprog.cc,v 1.120 2012-05-22 14:48:30 cvskris Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.116 2012/08/22 12:37:25 cvshelene Exp $";
 
 #include "batchprog.h"
 #include "envvars.h"
@@ -13,6 +13,7 @@ static const char* rcsID mUnusedVar = "$Id: batchprog.cc,v 1.120 2012-05-22 14:4
 #include "ioman.h"
 #include "iodir.h"
 #include "iopar.h"
+#include "oddirs.h"
 #include "strmprov.h"
 #include "strmdata.h"
 #include "filepath.h"
@@ -37,7 +38,9 @@ static const char* rcsID mUnusedVar = "$Id: batchprog.cc,v 1.120 2012-05-22 14:4
 # include "_execbatch.h"
 #endif
 
-#include "oddirs.h"
+#if defined(__mac__) || defined(__msvc__)
+# include "oddirs.h"
+#endif
 
 
 BatchProgram* BatchProgram::inst_ = 0;
@@ -150,7 +153,7 @@ void BatchProgram::init( int* pac, char** av )
     }
  
     ascistream aistrm( *sd.istrm, true );
-    if ( aistrm.fileType()!=sKey::Pars() )
+    if ( aistrm.fileType()!=sKey::Pars )
     {
 	errorMsg( BufferString("Input file ",fn," is not a parameter file") );
 	std::cerr << aistrm.fileType() << std::endl;
@@ -167,15 +170,15 @@ void BatchProgram::init( int* pac, char** av )
     }
 
 
-    BufferString res = iopar->find( sKey::LogFile() ).str();
+    BufferString res = iopar->find( sKey::LogFile ).str();
     if ( !res )
-	iopar->set( sKey::LogFile(), StreamProvider::sStdErr() );
+	iopar->set( sKey::LogFile, StreamProvider::sStdErr() );
 
-    res = iopar->find( sKey::DataRoot() ).str();
+    res = iopar->find( sKey::DataRoot ).str();
     if ( !res.isEmpty() && File::exists(res) )
 	SetEnvVar( "DTECT_DATA", res );
 
-    res = iopar->find( sKey::Survey() ).str();
+    res = iopar->find( sKey::Survey ).str();
     if ( res.isEmpty() )
 	IOMan::newSurvey();
     else
@@ -320,7 +323,7 @@ bool BatchProgram::initOutput()
 	exit( 0 );
     }
 
-    BufferString res = pars().find( sKey::LogFile() ).str();
+    BufferString res = pars().find( sKey::LogFile ).str();
     if ( res == "stdout" ) res.setEmpty();
  
     bool hasviewprogress = true;
@@ -330,9 +333,20 @@ bool BatchProgram::initOutput()
 
     if ( hasviewprogress && res && res=="window" )
     {
-	BufferString cmd = "@";
+	BufferString cmd;
+
+#ifndef __msvc__
+	cmd.add( GetExecScript(false) ).add( " " );
+#endif
+
+	cmd.add( "@od_ProgressViewer " );
+
+
+#ifdef __msvc__ 
+	cmd = "@";
 	cmd += FilePath(GetBinPlfDir()).add("od_ProgressViewer").fullPath();
 	cmd += " ";
+#endif
 
 	cmd += GetPID();
 	StreamProvider sp( cmd );

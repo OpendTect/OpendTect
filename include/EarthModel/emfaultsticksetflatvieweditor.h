@@ -7,12 +7,11 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultsticksetflatvieweditor.h,v 1.4 2012-08-03 13:00:17 cvskris Exp $
+ RCS:		$Id: emfaultsticksetflatvieweditor.h,v 1.3 2010/08/04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "callback.h"
 #include "cubesampling.h"
 
@@ -23,7 +22,7 @@ namespace FlatView { class AuxDataEditor; }
 namespace EM
 {
 
-mClass(EarthModel) FaultStickSetFlatViewEditor : public CallBacker
+mClass FaultStickSetFlatViewEditor : public CallBacker
 {
 public:
     			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*);
@@ -39,4 +38,3 @@ protected:
 
 
 #endif
-

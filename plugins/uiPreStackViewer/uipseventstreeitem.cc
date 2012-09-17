@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uipseventstreeitem.cc,v 1.16 2012-09-07 22:08:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipseventstreeitem.cc,v 1.12 2011/12/20 05:38:20 cvsranojay Exp $";
 
 #include "uipseventstreeitem.h"
 
@@ -22,13 +22,13 @@ static const char* rcsID mUnusedVar = "$Id: uipseventstreeitem.cc,v 1.16 2012-09
 #include "ptrman.h"
 #include "survinfo.h"
 #include "uiioobjsel.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmain.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uitaskrunner.h"
-#include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "vispseventdisplay.h"
@@ -166,10 +166,11 @@ bool PSEventsTreeItem::init()
     mnu->getItem(midx)->checked = true; \
     items.erase(); \
 
-void PSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
+void PSEventsTreeItem::createMenuCB( CallBacker* cb )
 {
-    uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !eventdisplay_ || !menu || menu->menuID()!=displayID() )
+    uiODDisplayTreeItem::createMenuCB(cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
+    if ( !eventdisplay_ || menu->menuID()!=displayID() )
 	return;
 
     mAddMenuItem( menu, coloritem_, true, false );
@@ -242,7 +243,7 @@ void PSEventsTreeItem::updateDisplay()
 }
 
 
-bool PSEventsTreeItem::anyButtonClick( uiTreeViewItem* lvm )
+bool PSEventsTreeItem::anyButtonClick( uiListViewItem* lvm )
 {
     applMgr()->updateColorTable( displayid_, 0 );
     displayMiniColTab();
@@ -272,7 +273,7 @@ void PSEventsTreeItem::displayMiniColTab()
     if ( !seq )
 	return;
     ioPixmap pixmap( *seq, cPixmapWidth(), cPixmapHeight(), true );
-    uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), pixmap );
+    uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), pixmap );
 }
 
 

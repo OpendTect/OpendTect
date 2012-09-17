@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.31 2012-08-21 15:54:52 cvsnanne Exp $
+ RCS:           $Id: uispinbox.h,v 1.27 2011/03/15 05:18:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 #include "uigroup.h"
 #include "ranges.h"
@@ -21,7 +20,7 @@ class uiSpinBoxBody;
 class uiLabel;
 
 
-mClass(uiBase) uiSpinBox : public uiObject
+mClass uiSpinBox : public uiObject
 {
 friend class		uiSpinBoxBody;
 
@@ -44,21 +43,23 @@ public:
     float		getFValue() const;
     const char*		text() const;
 
-    void		setInterval( int start, int stop, int s=1 )
-			{ setInterval( StepInterval<int>(start,stop,s) ); }
+    void		setInterval( int start, int stop, int mystep=1 )
+			{ setInterval( StepInterval<int>(start,stop,mystep) ); }
     void		setInterval( const Interval<int>& i, int s=1 )
 			{ setInterval( StepInterval<int>(i.start,i.stop,s) ); }
     void		setInterval(const StepInterval<int>&);
     StepInterval<int>	getInterval() const;
 
-    void		setInterval( float start, float stop, float s=1 )
-			{ setInterval(StepInterval<float>(start,stop,s)); }
+    void		setInterval(float start,float stop,float thestep=1)
+			{ setInterval(StepInterval<float>(start,stop,thestep)); }
     void		setInterval(const StepInterval<float>&);
     StepInterval<float> getFInterval() const;
 
-    void		setInterval( double start, double stop, double s=1 )
-			{ setInterval(StepInterval<double>(start,stop,s)); }
-    void		setInterval(const StepInterval<double>&);
+    void		setInterval( double v0,double v1,double vs=1)
+			{ setInterval(StepInterval<float>(v0,v1,vs)); }
+    void		setInterval( const StepInterval<double>& si )
+			{ setInterval(StepInterval<float>(si.start,si.stop,
+				    			  si.step)); }
 
     void		setMinValue(int);
     void		setMinValue(float);
@@ -112,14 +113,13 @@ private:
 };
 
 
-mClass(uiBase) uiLabeledSpinBox : public uiGroup
+mClass uiLabeledSpinBox : public uiGroup
 {
 public:
                 	uiLabeledSpinBox(uiParent*,const char* txt,
 					 int nrdecimals=0,const char* nm=0);
 
     uiSpinBox*  	box()			{ return sb; }
-    const uiSpinBox*  	box() const		{ return sb; }
     uiLabel*    	label()			{ return lbl; }
 
 protected:
@@ -129,4 +129,3 @@ protected:
 };
 
 #endif
-

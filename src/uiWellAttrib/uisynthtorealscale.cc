@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uisynthtorealscale.cc,v 1.19 2012-08-10 03:50:07 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.15 2012/05/29 17:00:25 cvshelene Exp $";
 
 #include "uisynthtorealscale.h"
 
@@ -171,7 +171,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     horfld_->attach( alignedBelow, seisfld_ );
 
     IOObjContext polyctxt( mIOObjContext(PickSet) );
-    polyctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    polyctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
     uiIOObjSel::Setup polysu( "Within Polygon" ); polysu.optional( true );
     polyfld_ = new uiIOObjSel( this, polyctxt, polysu );
     polyfld_->attach( alignedBelow, horfld_ );
@@ -395,10 +395,10 @@ bool uiSynthToRealScale::getBinIDs( BinIDValueSet& bvs,
 	{
 	    const Geom::Point2D<float> point( bid.inl, bid.crl );
 	    if ( ds.polygon_->isInside( point, true, 0 ) )
-		bvs.add( bid, (float) crd.z );
+		bvs.add( bid, crd.z );
 	}
 	else
-	    bvs.add( bid, (float) crd.z );
+	    bvs.add( bid, crd.z );
     }
 
     bvs.randomSubselect( synth_.size() );
@@ -444,7 +444,7 @@ void uiSynthToRealScale::updRealStats()
 	for ( int trcidx=0; trcidx<=windowsz; trcidx++ )
 	{
 	    const BinID bid = trc.info().binid;
-	    const float refz = (float) ds.horizon_->getPos( sid, bid.toInt64() ).z;
+	    const float refz = ds.horizon_->getPos( sid, bid.toInt64() ).z;
 	    const float val = trc.getValue( refz+window.atIndex(trcidx), 0 );
 	    sumsq += val * val;
 	    nrterms++;

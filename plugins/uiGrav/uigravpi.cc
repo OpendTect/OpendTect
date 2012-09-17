@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uigravpi.cc,v 1.5 2012-08-29 08:18:06 cvskris Exp $";
+static const char* rcsID = "$Id: uigravpi.cc,v 1.2 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "uigravhorcalc.h"
 #include "uiodmain.h"
@@ -13,8 +13,6 @@ static const char* rcsID mUnusedVar = "$Id: uigravpi.cc,v 1.5 2012-08-29 08:18:0
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
 #include "odplugin.h"
-
-#include "uigravmod.h"
 
 
 mDefODPluginInfo(uiGrav)

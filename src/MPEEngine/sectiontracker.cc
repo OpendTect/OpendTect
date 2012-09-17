@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: sectiontracker.cc,v 1.28 2012-08-03 06:38:40 cvsaneesh Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.25 2011/12/08 09:56:18 cvsjaap Exp $";
 
 #include "sectiontracker.h"
 
@@ -133,7 +133,7 @@ void SectionTracker::removeUnSupported( TypeSet<EM::SubID>& subids ) const
 	change = false;
 	for ( int idx=0; idx<subids.size(); idx++ )
 	{
-	    if ( !gesurf->hasSupport(RowCol::fromInt64(subids[idx])) )
+	    if ( !gesurf->hasSupport(RowCol(subids[idx])) )
 	    {
 		const EM::PosID pid( emobject.id(), sid, subids[idx] );
 		emobject.unSetPos(pid,false);

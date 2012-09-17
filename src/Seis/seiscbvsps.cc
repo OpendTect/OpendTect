@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiscbvsps.cc,v 1.61 2012-07-21 22:39:07 cvskris Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.56 2012/04/18 11:50:09 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 
@@ -203,7 +203,7 @@ bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
 
 void SeisCBVSPSIO::usePar( const IOPar& iopar )
 {
-    const char* res = iopar.find( sKey::DataStorage() );
+    const char* res = iopar.find( sKey::DataStorage );
     if ( res && *res )
 	reqdtype_ = (DataCharacteristics::UserType)(*res-'0');
 }
@@ -368,7 +368,7 @@ void SeisCBVSPS3DReader::addInl( int inl )
     if ( !mkTr(inl) ) return;
 
     PosInfo::LineData* newid = new PosInfo::LineData( inl );
-    const CBVSInfo::SurvGeom& sg = tr_->readMgr()->info().geom_;
+    const CBVSInfo::SurvGeom& sg = tr_->readMgr()->info().geom;
 
     if ( sg.fullyrectandreg )
 
@@ -650,6 +650,7 @@ bool SeisCBVSPS2DWriter::put( const SeisTrc& trc )
     if ( !ensureTr(trc) ) return false;
 
     SeisTrcInfo& ti = const_cast<SeisTrcInfo&>( trc.info() );
+    const int trcnr = ti.nr;
     if ( ti.nr != prevnr_ )
 	nringather_ = 1;
     prevnr_ = ti.nr;

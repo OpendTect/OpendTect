@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: attribposvecoutput.cc,v 1.11 2012-05-02 15:11:21 cvskris Exp $";
+static const char* rcsID = "$Id: attribposvecoutput.cc,v 1.9 2009/07/22 16:01:30 cvsbert Exp $";
 
 #include "attribposvecoutput.h"
 #include "attribdescset.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          July 2009
- RCS:           $Id: seiscbvs2dlinegetter.h,v 1.2 2012-08-03 13:01:35 cvskris Exp $
+ RCS:           $Id: seiscbvs2dlinegetter.h,v 1.1 2009/07/22 16:00:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class CBVSSeisTrcTranslator;
 namespace Seis { class SelData; }
 
 
-class SeisCBVS2DLineGetter : public Executor
+mClass SeisCBVS2DLineGetter : public Executor
 {
 public:
 

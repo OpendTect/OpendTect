@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiiosurfacedlg.cc,v 1.61 2012-08-20 21:21:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.58 2010/08/11 14:50:45 cvsbert Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -15,7 +15,6 @@ static const char* rcsID mUnusedVar = "$Id: uiiosurfacedlg.cc,v 1.61 2012-08-20 
 #include "ctxtioobj.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
-#include "emfaultauxdata.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emioobjinfo.h"
@@ -29,11 +28,9 @@ static const char* rcsID mUnusedVar = "$Id: uiiosurfacedlg.cc,v 1.61 2012-08-20 
 #include "rangeposprovider.h"
 #include "survinfo.h"
 
-#include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
-#include "uiselsimple.h"
 #include "uitaskrunner.h"
 #include "uipossubsel.h"
 
@@ -158,71 +155,6 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
     }
 
     return present;
-}
-
-
-uiStoreFaultData::uiStoreFaultData( uiParent* p, const EM::Fault3D& surf )
-    : uiDialog(p,uiDialog::Setup("Output selection","Specify attribute name",
-				 mTODOHelpID))
-    , surface_(surf)
-{
-    attrnmfld_ = new uiGenInput( this, "Surface data" );
-    if ( surface_.auxdata.auxDataList().size() )
-    	attrnmfld_->setText( surface_.auxdata.auxDataList().get(0) );
-
-    selbut_ = new uiPushButton( this, "Select", false );
-    selbut_->attach( rightTo, attrnmfld_ );
-    selbut_->activated.notify( mCB(this,uiStoreFaultData,selButPushedCB) );
-}
-
-
-uiStoreFaultData::~uiStoreFaultData()
-{}
-
-void uiStoreFaultData::selButPushedCB( CallBacker* )
-{
-    const BufferStringSet& nmlist = surface_.auxdata.auxDataList();
-    uiGetObjectName dlg( this, uiGetObjectName::Setup(0,nmlist) );
-    if ( dlg.go() )
-	attrnmfld_->setText( dlg.text() );
-}
-
-
-const char* uiStoreFaultData::surfaceDataName() const
-{ return attrnmfld_->text(); }
-
-
-int uiStoreFaultData::surfaceDataIdx() const
-{
-    BufferString attrnm = attrnmfld_->text();
-    return surface_.auxdata.dataIndex( attrnm.buf() );
-}
-
-
-Executor* uiStoreFaultData::dataSaver()
-{ return surface_.auxdata.dataSaver( surfaceDataIdx(), dooverwrite_ ); }
-
-
-bool uiStoreFaultData::acceptOK( CallBacker* )
-{
-    dooverwrite_ = false;
-    BufferString attrnm = attrnmfld_->text();
-    const int sdidx = surface_.auxdata.dataIndex(attrnm.buf());
-    if ( sdidx>=0 )
-    {
-	BufferString msg( "This surface already has an attribute called:\n" );
-	msg += attrnm; msg += "\nDo you wish to overwrite this data?";
-	if ( !uiMSG().askOverwrite(msg) )
-	    return false;
-	dooverwrite_ = true;
-    }
-
-    if ( dooverwrite_ )
-	surface_.auxdata.setDataName( sdidx, attrnm );
-    else
-       surface_.auxdata.addData( attrnm );	
-
-    return true;
 }
 
 

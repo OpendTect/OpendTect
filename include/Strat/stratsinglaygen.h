@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratsinglaygen.h,v 1.7 2012-08-03 13:00:43 cvskris Exp $
+ RCS:		$Id: stratsinglaygen.h,v 1.6 2012/01/24 16:40:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "stratlaygen.h"
 
 
@@ -23,7 +22,7 @@ class Content;
 
 /*!\brief Layer generator based on Leaf Unit */
 
-mClass(Strat) SingleLayerGenerator : public LayerGenerator
+mClass SingleLayerGenerator : public LayerGenerator
 {
 public:
 
@@ -57,4 +56,3 @@ protected:
 }; // namespace Strat
 
 #endif
-

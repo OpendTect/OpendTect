@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: uistratlaymoddisp.h,v 1.21 2012-09-13 14:37:37 cvshelene Exp $
+ RCS:		$Id: uistratlaymoddisp.h,v 1.20 2012/09/13 14:37:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uigroup.h"
 class PropertyRef;
 class uiStratLayModEditTools;
@@ -25,30 +24,24 @@ namespace Strat { class LayerModel; class Layer; }
 
   */
 
-mClass(uiStrat) uiStratLayerModelDisp : public uiGroup
+mClass uiStratLayerModelDisp : public uiGroup
 {
 public:
 
-			uiStratLayerModelDisp(uiStratLayModEditTools&,
-					    const Strat::LayerModel&);
-			~uiStratLayerModelDisp();
+				uiStratLayerModelDisp(uiStratLayModEditTools&,
+						    const Strat::LayerModel&);
+				~uiStratLayerModelDisp();
 
-    virtual void	modelChanged()			= 0;
-    virtual void	setZoomBox(const uiWorldRect&)	= 0;
+    virtual void		modelChanged()			= 0;
+    virtual void		setZoomBox(const uiWorldRect&)	= 0;
 
-    const TypeSet<float>& levelDepths() const		{ return lvldpths_; }
-    int			selectedSequence() const	{ return selseqidx_; }
-    void		selectSequence(int seqidx);
+    const TypeSet<float>&	levelDepths() const	{ return lvldpths_; }
+    int				selectedSequence() const { return selseqidx_; }
+    void			selectSequence(int seqidx);
 
     virtual uiBaseObject* getViewer() { return 0; }
     bool		isFlattened() const		{ return flattened_; }
     void		setFlattened(bool yn);
-    bool		isFluidReplOn() const		{ return fluidreplon_; }
-    void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
-    void		setFRPars( const IOPar& pars )	{ frpars_ = pars; }
-
-    float		getLayerPropValue(const Strat::Layer&,
-	    				  const PropertyRef*,int) const;
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
@@ -62,16 +55,23 @@ protected:
     uiWorldRect		zoomwr_;
     int			selseqidx_;
     bool		flattened_;
-    bool		fluidreplon_;
     Interval<float>	zrg_;
     TypeSet<float>	lvldpths_;
-    IOPar		frpars_;
 
     bool		haveAnyZoom() const;
     virtual void	drawSelectedSequence()		= 0;
+
+    bool		fluidreplon_;
+    IOPar		frpars_;
+
+public:
+    bool		isFluidReplOn() const		{ return fluidreplon_; }
+    void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
+    void		setFRPars( const IOPar& pars )	{ frpars_ = pars; }
+    float		getLayerPropValue(const Strat::Layer&,
+					    const PropertyRef*,int) const;
 
 };
 
 
 #endif
-

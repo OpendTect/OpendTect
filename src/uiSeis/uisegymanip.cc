@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegymanip.cc,v 1.25 2012-08-01 14:44:27 cvshelene Exp $";
+static const char* rcsID = "$Id: uisegymanip.cc,v 1.22 2012/08/01 14:44:23 cvshelene Exp $";
 
 #include "uisegymanip.h"
 #include "uisegytrchdrvalplot.h"
@@ -265,16 +265,17 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     trchdrfld_->doubleClicked.notify( edcb );
     trchdrfld_->setHSzPol( uiObject::Medium );
 
-    edbut_ = new uiToolButton( grp, "edit", "Edit calculation", edcb );
+    edbut_ = new uiToolButton( grp, "edit.png", "Edit calculation", edcb );
     edbut_->attach( rightOf, trchdrfld_ );
-    rmbut_ = new uiToolButton( grp, "trashcan", "Remove calculation",
-		    mCB(this,uiSEGYFileManip,rmReq) );
+    rmbut_ = new uiToolButton( grp, "trashcan.png",
+		    "Remove calculation", mCB(this,uiSEGYFileManip,rmReq) );
     rmbut_->attach( alignedBelow, edbut_ );
-    uiToolButton* openbut = new uiToolButton( grp, "openset",
+    uiToolButton* openbut = new uiToolButton( grp, "openset.png",
 		    "Open stored calculation set",
 		    mCB(this,uiSEGYFileManip,openReq) );
     openbut->attach( alignedBelow, rmbut_ );
-    savebut_ = new uiToolButton( grp, "save", "Save calculation set",
+    savebut_ = new uiToolButton( grp, "save.png",
+		    "Save calculation set",
 		    mCB(this,uiSEGYFileManip,saveReq) );
     savebut_->attach( alignedBelow, openbut );
 
@@ -298,7 +299,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     thtbl_->setStretch( 0, 1 );
     thtbl_->selectionChanged.notify( mCB(this,uiSEGYFileManip,rowClck) );
 
-    plotbut_ = new uiToolButton( grp, "distmap",
+    plotbut_ = new uiToolButton( grp, "distmap.png",
 		    "Plot the values of the selected header entries",
 		    mCB(this,uiSEGYFileManip,plotReq) );
     plotbut_->attach( alignedBelow, thtbl_ );

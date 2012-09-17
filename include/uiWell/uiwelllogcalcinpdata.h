@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Helene
  Date:		March 2012
- RCS:		$Id: uiwelllogcalcinpdata.h,v 1.1 2012-03-23 08:59:06 cvshelene Exp $
+ RCS:		$Id: uiwelllogcalcinpdata.h,v 1.1 2012/03/23 10:39:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/

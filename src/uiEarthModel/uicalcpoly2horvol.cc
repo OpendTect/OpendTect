@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uicalcpoly2horvol.cc,v 1.17 2012-08-07 05:20:51 cvssalil Exp $";
+static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.12 2011/09/06 15:31:42 cvsbert Exp $";
 
 #include "uicalcpoly2horvol.h"
 #include "poly2horvol.h"
@@ -119,7 +119,7 @@ void uiCalcHorVol::calcReq( CallBacker* )
 	if ( mIsUdf(vel) || vel < 0.1 )
 	    mErrRet("Please provide the velocity")
 	if ( zinft_ )
-	    vel *= mFromFeetFactorF;
+	    vel *= mFromFeetFactor;
     }
 
     Poly2HorVol ph2v( ps, const_cast<EM::Horizon3D*>(hor) );
@@ -193,7 +193,7 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
 	{ new uiLabel( this, "Invalid horizon" ); return; }
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
-    ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
     pssel_ = new uiIOObjSel( this, ctxt, "Calculate from polygon" );
     pssel_->selectionDone.notify( mCB(this,uiCalcHorPolyVol,psSel) );
 
@@ -209,6 +209,7 @@ uiCalcHorPolyVol::~uiCalcHorPolyVol()
 
 void uiCalcHorPolyVol::psSel( CallBacker* cb )
 {
+    bool havenew = ps_;
     if ( ps_ ) delete ps_;
     ps_ = 0;
 

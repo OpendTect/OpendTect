@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.26 2012-08-03 13:00:45 cvskris Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.24 2011/11/28 16:03:13 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "wellmod.h"
 #include "welldahobj.h"
 
 namespace Well
@@ -21,7 +20,7 @@ namespace Well
 
 class Track;
 
-mClass(Well) D2TModel : public DahObj
+mClass D2TModel : public DahObj
 {
 public:
 
@@ -49,7 +48,7 @@ public:
 
     void		add( float d_ah, float tm )
 						{ dah_ += d_ah; t_ += tm; }
-    bool		insertAtDah(float d_ah,float t);
+    bool		insertAtDah(float d_ah,float t,bool ascendingonly=true);
 
 protected:
 
@@ -69,4 +68,3 @@ protected:
 }; // namespace Well
 
 #endif
-

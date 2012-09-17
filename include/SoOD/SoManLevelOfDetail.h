@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoManLevelOfDetail.h,v 1.10 2012-08-27 13:16:48 cvskris Exp $
+ RCS:		$Id: SoManLevelOfDetail.h,v 1.8 2009/07/22 16:01:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/fields/SoMFFloat.h>
@@ -31,7 +30,7 @@ to SO_MANLEVELOFDETAIL_AUTO
 */
 
 
-mSoODClass SoManLevelOfDetail : public SoGroup {
+mClass SoManLevelOfDetail : public SoGroup {
     typedef SoGroup inherited;
 
     SO_NODE_HEADER(SoManLevelOfDetail);
@@ -61,4 +60,3 @@ private:
 };
 
 #endif
-

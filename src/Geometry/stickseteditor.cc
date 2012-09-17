@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stickseteditor.cc,v 1.6 2012-08-03 06:38:39 cvsaneesh Exp $";
+static const char* rcsID = "$Id: stickseteditor.cc,v 1.3 2010/06/17 19:00:58 cvskris Exp $";
 
 #include "stickseteditor.h"
 
@@ -39,7 +39,7 @@ bool StickSetEditor::mayTranslate2D( GeomPosID gpid ) const
 Coord3 StickSetEditor::translation2DNormal( GeomPosID gpid ) const
 {
     const FaultStickSet& fss = reinterpret_cast<const FaultStickSet&>(element);
-    const int stick = RowCol::fromInt64(gpid).row;
+    const int stick = RowCol(gpid).row;
     return fss.getEditPlaneNormal( stick );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatauxdataeditor.cc,v 1.16 2012-07-10 13:27:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatauxdataeditor.cc,v 1.13 2011/03/24 04:40:22 cvsranojay Exp $";
 
 #include "uiflatauxdataeditor.h"
 
@@ -41,7 +41,7 @@ uiFlatViewAuxDataEditor::~uiFlatViewAuxDataEditor()
 
 void uiFlatViewAuxDataEditor::viewChangeCB( CallBacker* cb )
 {
-    setView( uivwr_.curView(), uivwr_.getViewRect() );
+    setView( uivwr_.curView(), uivwr_.rgbCanvas().arrArea() );
 }
 
 

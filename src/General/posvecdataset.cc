@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posvecdataset.cc,v 1.28 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.24 2011/02/03 11:58:14 cvsbert Exp $";
 
 #include "posvecdataset.h"
 
@@ -262,6 +262,7 @@ static StreamData getInpSD( const char* fnm, BufferString& errmsg,
 	mErrRet("Cannot open input file")
     std::string buf; *sd.istrm >> buf;
     sd.istrm->seekg( 0, std::ios::beg );
+    char c = sd.istrm->peek();
     tabstyle = buf != "dTect" && buf != "dGB-GDI"; // For legacy data
     if ( !tabstyle )
     {
@@ -395,7 +396,7 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 		    delete cd;
 		}
 	    }
-	    else if ( strm.hasKeyword( sKey::Name() ) )
+	    else if ( strm.hasKeyword( sKey::Name ) )
 		setName( strm.value() );
 	}
 	if ( !atEndOfSection(strm.next()) )
@@ -464,7 +465,7 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
 	    mErrRet("Cannot write header to output file")
 
 	if ( *name() )
-	    strm.put( sKey::Name(), name() );
+	    strm.put( sKey::Name, name() );
 	strm.put( "--\n-- Column definitions:" );
 	for ( int idx=0; idx<nrCols(); idx++ )
 	{

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: jobrunner.cc,v 1.52 2012-08-03 13:01:35 cvskris Exp $";
+static const char* rcsID = "$Id: jobrunner.cc,v 1.49 2011/05/10 06:20:39 cvsraman Exp $";
 
 #include "jobrunner.h"
 #include "jobinfo.h"
@@ -60,7 +60,7 @@ int mkTmpFileNr()
  
 
 static int tmpfile_nr = mkTmpFileNr();
-mGlobal( MMProc ) int MMJob_getTempFileNr(); // keep compiler happy
+mGlobal int MMJob_getTempFileNr(); // keep compiler happy
 int MMJob_getTempFileNr()
 {
     return tmpfile_nr;

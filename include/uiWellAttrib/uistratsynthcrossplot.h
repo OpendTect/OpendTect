@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.21 2012-08-03 13:01:21 cvskris Exp $
+ RCS:           $Id: uistratsynthcrossplot.h,v 1.20 2011/10/05 12:25:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "datapack.h"
 
@@ -34,7 +33,7 @@ namespace PreStack { class GatherSetDataPack; }
 
 /*!\brief Dialog specifying what to crossplot */
 
-mClass(uiWellAttrib) uiStratSynthCrossplot : public uiDialog
+mClass uiStratSynthCrossplot : public uiDialog
 {
 public:
 				uiStratSynthCrossplot(uiParent*,
@@ -77,4 +76,3 @@ protected:
 
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: array2dinterpol.cc,v 1.42 2012-08-30 09:48:31 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.37 2012/07/10 13:05:59 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -212,9 +212,11 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	def = owndef.ptr();
     }
 
+    bool initialstate = true;
+
     MemSetter<bool> setter( shouldinterpol, filltype_!=ConvexHull,
 	    		    nrcells_ );
-    tr ? tr->execute(setter) : setter.execute();
+    const bool res = tr ? tr->execute(setter) : setter.execute();
 
     if ( filltype_==ConvexHull )
     {
@@ -491,8 +493,8 @@ void Array2DInterpol::setFrom( int target, const int* sources,
     {
 	mDoLoop( const float val = ptr[sources[idx]] );
 	ptr[target] = isclassification_
-	    ? (float) calc.mostFreq() 
-	    : (float) calc.average();
+	    ? calc.mostFreq()
+	    : calc.average();
     }
     else
     {
@@ -501,14 +503,14 @@ void Array2DInterpol::setFrom( int target, const int* sources,
 	{
 	    mDoLoop( const float val = storage->value(sources[idx]) );
 	    storage->setValue(target,
-	    isclassification_ ? (float) calc.mostFreq() : (float) calc.average());
+		    isclassification_ ? calc.mostFreq() : calc.average() );
 	}
 	else
 	{
 	    mDoLoop( const int src = sources[idx];
 		     const float val = arr_->get(src/nrcols_,src%nrcols_ ) );
 	    arr_->set( target/nrcols_, target%nrcols_,
-            isclassification_ ? (float) calc.mostFreq() : (float) calc.average());
+		    isclassification_ ? calc.mostFreq() : calc.average() );
 	}
     }
 }
@@ -755,7 +757,7 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 		if ( dist2>radius2 )
 		    continue;
 
-		const float weight = 1.0f/Math::Sqrt( dist2 );
+		const float weight = 1.0/Math::Sqrt( dist2 );
 
 		neighbors_ += RowCol(relrow,relcol);
 		neighborweights_ += weight;
@@ -816,7 +818,7 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	if ( idx<0 )
 	    break;
 
-	int targetrow = (int) idx/nrcols_, targetcol = (int) idx%nrcols_;
+	int targetrow = idx/nrcols_, targetcol = idx%nrcols_;
 
 	if ( definedidxs_.size() ) //No search radius, do all pts
 	{
@@ -830,7 +832,7 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 		const float rowdist2 = rowdist*rowdist;
 		const float coldist = (targetcol-sourcecol)*colstep_;
 		const int coldist2 = mNINT32(coldist*coldist);
-		const float weight = 1.f/Math::Sqrt( coldist2+rowdist2 );
+		const float weight = 1./Math::Sqrt( coldist2+rowdist2 );
 
 		weights[idy] = weight;
 	    }
@@ -1392,6 +1394,7 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
     if ( !triangleinterpolator_ )
 	return false;
 
+    int dupid = -1;
     TypeSet<od_int64> currenttask;
     TypeSet<od_int64> definedidices;
 
@@ -1515,6 +1518,7 @@ void A2DIntExtenExecutor::createStateArr()
     
     for ( int irow=0; irow<aie_.nrrows_; irow++ )
     {
+	bool havedef = false;
 	for ( int icol=0; icol<aie_.nrcols_; icol++ )
 	{
 	    const float val = aie_.arr_->get( irow, icol );
@@ -1566,6 +1570,7 @@ bool A2DIntExtenExecutor::doInterpolate( int irow, int icol )
 
 bool A2DIntExtenExecutor::interpExtension( int irow, int icol, float& val )
 {
+    static const float sqrt2 = Math::Sqrt( 2.0 );
     float defs[12]; float wts[12]; int nrdefs = 0;
     if ( irow )
     {
@@ -1609,7 +1614,7 @@ bool A2DIntExtenExecutor::interpExtension( int irow, int icol, float& val )
     float sumval = 0, sumwt = 0;
     for ( int idx=0; idx<nrdefs; idx++ )
     {
-	float wt = 1.f / wts[idx];
+	float wt = 1. / wts[idx];
 	sumval += defs[idx] * wt;
 	sumwt += wt;
     }

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          August 2011
- RCS:           $Id: uidatapointsetmerger.h,v 1.5 2012-08-03 13:00:59 cvskris Exp $
+ RCS:           $Id: uidatapointsetmerger.h,v 1.4 2011/09/09 11:59:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "bufstringset.h"
 #include "ctxtioobj.h"
 #include "datapointset.h"
@@ -29,7 +28,7 @@ class uiTable;
 CrossPlot manager
 */
 
-mClass(uiIo) DPSMergerProp 
+mClass DPSMergerProp 
 {
 public:
     				DPSMergerProp( const MultiID& id, int mid,
@@ -87,7 +86,7 @@ protected:
 };
 
 
-mClass(uiIo) DPSMerger : public Executor
+mClass DPSMerger : public Executor
 {
 public:
     				DPSMerger(const DPSMergerProp&);
@@ -114,7 +113,7 @@ protected:
 };
 
 
-mClass(uiIo) uiDataPointSetMerger : public uiDialog
+mClass uiDataPointSetMerger : public uiDialog
 {
 public:
     				uiDataPointSetMerger(uiParent*,DataPointSet*,
@@ -144,4 +143,3 @@ protected:
 };
 
 #endif
-

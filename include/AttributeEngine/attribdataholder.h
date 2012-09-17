@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.27 2012-08-03 13:00:07 cvskris Exp $
+ RCS:           $Id: attribdataholder.h,v 1.26 2011/09/21 08:53:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "refcount.h"
@@ -41,7 +40,7 @@ class DataCubes;
 
       */
 
-mClass(AttributeEngine) DataHolder
+mClass DataHolder
 {
 public:
 			DataHolder( int z0, int nrsamples );
@@ -81,7 +80,7 @@ protected:
 
 /*!Class that holds 2d data seismic or attribute data. */
 
-mClass(AttributeEngine) Data2DHolder
+mClass Data2DHolder
 { mRefCountImpl(Data2DHolder);
 public:
 
@@ -100,7 +99,7 @@ public:
 
 };
 
-mClass(AttributeEngine) Data2DArray
+mClass Data2DArray
 { mRefCountImpl(Data2DArray);
 public:
     				Data2DArray(const Data2DHolder&);
@@ -122,4 +121,3 @@ public:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID mUnusedVar = "$Id: uiamplspectrum.cc,v 1.41 2012-08-10 03:50:06 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.38 2012/07/10 13:06:08 cvskris Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -123,7 +123,7 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	mDynamicCastGet(const FlatDataPack*,dp,datapack);
 	if ( dp )
 	{
-	    setup_.nyqvistspspace_ = (float) (dp->posData().range(false).step);	    
+	    setup_.nyqvistspspace_ = dp->posData().range(false).step;	    
 	    setData( dp->data() );
 	}
     }

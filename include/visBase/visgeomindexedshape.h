@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.17 2012-08-03 13:01:24 cvskris Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.16 2012/01/18 18:36:00 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "valseries.h"
 #include "visobject.h"
 #include "coltabsequence.h"
@@ -38,7 +37,7 @@ class ForegroundLifter;
 
 /*!Visualisation for Geometry::IndexedShape. */
 
-mClass(visBase) GeomIndexedShape : public VisualObjectImpl
+mClass GeomIndexedShape : public VisualObjectImpl
 {
 public:
     static GeomIndexedShape*	create()
@@ -90,7 +89,7 @@ protected:
     void			reMap(TaskRunner*);
     void			matChangeCB(CallBacker*);
 
-    mClass(visBase)			ColTabMaterial
+    mClass			ColTabMaterial
     {
     public:
 					ColTabMaterial();
@@ -134,4 +133,3 @@ protected:
 };
 	
 #endif
-

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		18-8-2000
- RCS:		$Id: helpview.h,v 1.17 2012-08-03 13:00:23 cvskris Exp $
+ RCS:		$Id: helpview.h,v 1.16 2012/05/08 03:50:53 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "generalmod.h"
 #include "bufstring.h"
 class IOPar;
 
@@ -29,22 +28,21 @@ class IOPar;
 namespace HelpViewer
 {
 
-mGlobal(General) BufferString	getURLForWinID(const char* winid);
+mGlobal BufferString	getURLForWinID(const char* winid);
     			//!< Combines Link -> WinID -> URL
 
-mGlobal(General) BufferString	getCreditsURLForWinID(const char* winid);
+mGlobal BufferString	getCreditsURLForWinID(const char* winid);
     			//!< Finds link in the appropriate credits page
 
 
-mGlobal(General) BufferString	getLinkNameForWinID(const char*,const char*);
-mGlobal(General) BufferString	getURLForLinkName(const char*,const char*);
-mGlobal(General) BufferString	getCreditsFileName(const char* winid);
-mGlobal(General) bool		getCreditsData(const char* filenm,IOPar&);
-mGlobal(General) bool		hasSpecificCredits(const char* winid);
-mGlobal(General) const char*	getCreditsSpecificFileName(const char* winid);
-mGlobal(General) BufferString	getWebUrlFromLocal(const char*);
+mGlobal BufferString	getLinkNameForWinID(const char*,const char*);
+mGlobal BufferString	getURLForLinkName(const char*,const char*);
+mGlobal BufferString	getCreditsFileName(const char* winid);
+mGlobal bool		getCreditsData(const char* filenm,IOPar&);
+mGlobal bool		hasSpecificCredits(const char* winid);
+mGlobal const char*	getCreditsSpecificFileName(const char* winid);
+mGlobal BufferString	getWebUrlFromLocal(const char*);
 
 };
 
 #endif
-

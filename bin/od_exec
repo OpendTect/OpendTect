@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.53 2012-05-01 12:32:45 cvskris Exp $
+# $Id: od_exec,v 1.52 2012/03/02 10:20:15 cvsraman Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -33,7 +33,6 @@ endif
 
 set bindir="$DTECT_APPL/bin/$binsubdir"
 set nicecmd=""
-set debug=no
 set extrascript=""
 set xtermcmd=""
 set indosbox=no
@@ -52,18 +51,6 @@ if ( "$1" == "--sys" ) then
 else if ( "$1" == "--inbg" ) then
 
     set background=yes
-    shift
-    goto next_arg
-
-else if ( "$1" == "--debug" ) then
-    set bindir=$bindir/Debug
-    echo $bindir
-    shift
-    goto next_arg
-
-else if ( "$1" == "--release" ) then
-    set bindir=$bindir/Release
-    echo $bindir
     shift
     goto next_arg
 

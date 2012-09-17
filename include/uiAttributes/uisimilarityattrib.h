@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisimilarityattrib.h,v 1.11 2012-08-03 13:00:49 cvskris Exp $
+ RCS:           $Id: uisimilarityattrib.h,v 1.10 2010/10/04 18:04:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 #include "uisteeringsel.h"
 
@@ -23,7 +22,7 @@ class uiStepOutSel;
 
 /*! \brief Similarity Attribute description editor */
 
-mClass(uiAttributes) uiSimilarityAttrib : public uiAttrDescEd
+mClass uiSimilarityAttrib : public uiAttrDescEd
 {
 public:
 
@@ -59,7 +58,7 @@ protected:
 
     			mDeclReqAttribUIFns
 
-    mClass(uiAttributes) uiSimiSteeringSel : public uiSteeringSel
+    mClass uiSimiSteeringSel : public uiSteeringSel
     {                                                                           
 	public:                                                                     
 			uiSimiSteeringSel(uiParent*,const Attrib::DescSet*,
@@ -80,4 +79,3 @@ protected:
 
 
 #endif
-

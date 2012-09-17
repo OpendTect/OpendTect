@@ -6,12 +6,11 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
 Date:          April 2011
-RCS:           $Id: arraytesselator.h,v 1.10 2012-08-03 13:00:26 cvskris Exp $
+RCS:           $Id: arraytesselator.h,v 1.8 2011/08/11 16:06:16 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "arraynd.h"
 
 
@@ -23,7 +22,7 @@ namespace Geometry
 /*!Class to tesselate part of an array2D data, rrg/crg are given to set the 
   start, step and size of the tesselation. */
 
-mClass(Geometry) ArrayTesselator : public ParallelTask
+mClass ArrayTesselator : public ParallelTask
 {
 public:
     			ArrayTesselator(const float* data,
@@ -98,6 +97,7 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
     const int glastrowidx = datarowsize_ - 1;
     const int glastcolidx = datacolsize_ - 1;
     const int colsz = colrange_.nrSteps()+1;
+    const int startidx = rowrange_.start * datacolsize_ + colrange_.start;
 
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
@@ -205,4 +205,3 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 };
 
 #endif
-

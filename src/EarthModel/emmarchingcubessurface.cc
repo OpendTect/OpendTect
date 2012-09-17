@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emmarchingcubessurface.cc,v 1.33 2012-05-22 14:48:30 cvskris Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.30 2011/12/23 21:27:40 cvsyuancheng Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -85,7 +85,7 @@ public:
 	surface.setZSampling( zsampling );
 
 	Color col;
-	if ( par.get( sKey::Color(), col ) )
+	if ( par.get( sKey::Color, col ) )
 	    surface.setPreferredColor( col );
 
 	exec_ = surface.surface().readFrom(strm,int32interpreter_);
@@ -176,7 +176,7 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
     par.set( MarchingCubesSurfaceReader::sKeyZSampling(),
 	     surface.zSampling().start,surface.zSampling().step );
 
-    par.set( sKey::Color(), surface.preferredColor() );
+    par.set( sKey::Color, surface.preferredColor() );
 
     par.putTo( astream );
 

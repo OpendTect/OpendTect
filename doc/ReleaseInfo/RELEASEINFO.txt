@@ -11,7 +11,7 @@ Windows 64 : Windows XP Professional x64 SP2
 
 Compiler:
 
-Linux: gcc/g++ 3.4.4
+Linux: gcc/g++ 4.1.2
 Mac: gcc/g++ 4.0.1
 Windows: Visual C++ 8.0
 
@@ -28,4 +28,4 @@ Qt: 4.4.3
 
 FFTW: 3.2.1 (Linux, Mac), 3.2.2 (Windows)
 
-# $Id: RELEASEINFO.txt,v 1.8 2009-09-21 03:01:35 cvsnanne Exp $
+# $Id: RELEASEINFO.txt,v 1.9 2012/04/19 09:34:10 cvsraman Exp $

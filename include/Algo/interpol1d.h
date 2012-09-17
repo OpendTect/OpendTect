@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: interpol1d.h,v 1.5 2010-07-26 14:15:31 cvsnanne Exp $
+ RCS:		$Id: interpol1d.h,v 1.5 2010/07/26 14:15:31 cvsnanne Exp $
 ________________________________________________________________________
 
 */

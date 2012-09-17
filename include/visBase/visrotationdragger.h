@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		July 2006
- RCS:		$Id: visrotationdragger.h,v 1.6 2012-08-03 13:01:26 cvskris Exp $
+ RCS:		$Id: visrotationdragger.h,v 1.5 2011/04/28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 #include "trigonometry.h"
@@ -32,7 +31,7 @@ namespace visBase
 /*! Dragger for rotations. Rotation can either be free (i.e. a trackball type),
     or bound to be around the z axis. */
 
-mClass(visBase) RotationDragger : public DataObject
+mClass RotationDragger : public DataObject
 {
 public:
     static RotationDragger*	create()
@@ -83,4 +82,3 @@ protected:
 } // namespace
 	
 #endif
-

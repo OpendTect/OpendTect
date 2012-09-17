@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.30 2012-08-03 13:00:47 cvskris Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.29 2012/06/13 08:25:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "wellattribmod.h"
 #include "commondefs.h"
 
 /* !brief performs the computations needed by TWTS  !*/   
@@ -23,14 +22,14 @@ template <class T> class Array1DImpl;
 namespace WellTie
 {
 
-mClass(WellAttrib) GeoCalculator
+mClass GeoCalculator
 {
 public :
 //Well data operations
     Well::D2TModel* 	getModelFromVelLog(const Well::Data&,const char* son, 
-					   bool issonic) const;
-    void		ensureValidD2TModel(Well::D2TModel&,const Well::Data&,
-					    float) const;
+					   bool issonic,float replacevel) const;
+    void		ensureValidD2TModel(Well::D2TModel&,
+	    				const Well::Data&) const;
 
     void		son2TWT(Well::Log&,bool straight,float startdah) const;
     void 		vel2TWT(Well::Log&,bool straight,float startdah) const;
@@ -42,8 +41,11 @@ public :
     void		removeSpikes(float* inp,int sz,int gate,int fac) const;
     double 		crossCorr(const float*,const float*,float*,int) const;
     void 		deconvolve(const float*,const float*,float*,int) const;
+
+public:
+    void		ensureValidD2TModel(Well::D2TModel&,const Well::Data&,
+					    float replacevel ) const;
 };
 
 }; //namespace WellTie
 #endif
-

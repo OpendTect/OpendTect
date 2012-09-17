@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: volprocattrib.h,v 1.8 2012-08-03 13:00:44 cvskris Exp $
+ RCS:		$Id: volprocattrib.h,v 1.7 2011/04/26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "volumeprocessingmod.h"
 //#include "attribprovider.h"
 #include "attribparam.h"
 #include "externalattrib.h"
@@ -25,7 +24,7 @@ namespace VolProc
 class Chain;
 class ChainExecutor;
 /*
-mClass(VolumeProcessing) AttributeAdapter : public Attrib::Provider
+mClass AttributeAdapter : public Attrib::Provider
 {
 public:
     static void		initClass();
@@ -58,7 +57,7 @@ protected:
 
 /*!Adapter for a VolProc chain to external attribute calculation */
 
-mClass(VolumeProcessing) ExternalAttribCalculator : public Attrib::ExtAttribCalc
+mClass ExternalAttribCalculator : public Attrib::ExtAttribCalc
 {
 public:
     static void		initClass();
@@ -96,4 +95,3 @@ protected:
 }; //namespace
 
 #endif
-

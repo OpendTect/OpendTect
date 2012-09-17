@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Feb 2001
  Contents:	Binary data interpretation
- RCS:		$Id: bindatadesc.h,v 1.15 2012-08-03 13:00:10 cvskris Exp $
+ RCS:		$Id: bindatadesc.h,v 1.14 2010/12/29 15:24:40 cvskris Exp $
 ________________________________________________________________________
 
 */
 
-#include "basicmod.h"
 #include "gendefs.h"
 
 #define mDeclBinDataDescConstr(T,ii,is) \
@@ -41,7 +40,7 @@ data types.
 
 */
 
-mClass(Basic) BinDataDesc
+mClass BinDataDesc
 {
 public:
 
@@ -134,4 +133,3 @@ protected:
 
 
 #endif
-

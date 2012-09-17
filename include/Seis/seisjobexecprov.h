@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		April 2002
- RCS:		$Id: seisjobexecprov.h,v 1.16 2012-08-03 13:00:36 cvskris Exp $
+ RCS:		$Id: seisjobexecprov.h,v 1.15 2010/07/12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "bufstring.h"
 #include "multiid.h"
 #include "ranges.h"
@@ -47,7 +46,7 @@ template <class T> class TypeSet;
 
  */
 
-mClass(Seis) SeisJobExecProv
+mClass SeisJobExecProv
 {
 public:
 
@@ -100,4 +99,3 @@ protected:
 
 
 #endif
-

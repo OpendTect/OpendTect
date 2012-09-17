@@ -7,16 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: visvw2dseismic.h,v 1.2 2012-08-03 13:01:17 cvskris Exp $
+ RCS:		$Id: visvw2dseismic.h,v 1.1 2010/06/24 08:37:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiviewer2dmod.h"
 #include "visvw2ddata.h"
 
 
-mClass(uiViewer2D) VW2DSeis : public Vw2DDataObject
+mClass VW2DSeis : public Vw2DDataObject
 {
 public:
     			VW2DSeis();
@@ -31,4 +30,3 @@ protected:
 
 
 #endif
-

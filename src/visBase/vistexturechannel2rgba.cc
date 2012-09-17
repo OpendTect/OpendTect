@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistexturechannel2rgba.cc,v 1.68 2012-07-24 02:13:57 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.63 2012/07/10 14:28:32 cvsjaap Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -32,8 +32,6 @@ static const char* rcsID mUnusedVar = "$Id: vistexturechannel2rgba.cc,v 1.68 201
 #include "Inventor/nodes/SoShaderParameter.h"
 #include "Inventor/nodes/SoTexture2.h"
 #include "SoOD.h"
-
-#include <osgGeo/LayeredTexture>
 
 #define mNrColors	255
 #define mLayersPerUnit	4
@@ -287,8 +285,6 @@ ColTabTextureChannel2RGBA::~ColTabTextureChannel2RGBA()
 {
     shaderswitch_->unref();
     deepErase( coltabs_ );
-    deepErase( osgcolsequences_ );
-    deepErase( osgcolseqarrays_ );
 }
 
 
@@ -296,74 +292,6 @@ void ColTabTextureChannel2RGBA::setChannels( TextureChannels* ch )
 {
     TextureChannel2RGBA::setChannels( ch );
     adjustNrChannels();
-}
-
-
-void ColTabTextureChannel2RGBA::updateOsgTexture() const
-{
-    if ( channels_ && channels_->getOsgTexture() )
-    {
-	TypeSet<int> layerids;
-	osgGeo::LayeredTexture& laytex = *channels_->getOsgTexture();
-	for ( int procidx=laytex.nrProcesses()-1; procidx>=0; procidx-- )
-	{
-	    mDynamicCastGet( osgGeo::ColTabLayerProcess*, proc,
-			     laytex.getProcess(procidx) );
-
-	    const int layerid = proc->getDataLayerID();
-	    if ( laytex.getDataLayerIndex(layerid)<0 )
-	    {
-		const osgGeo::ColorSequence* colseq = proc->getColorSequence();
-		const int colseqidx = osgcolsequences_.indexOf( colseq );
-		delete osgcolsequences_.remove( colseqidx );
-		delete osgcolseqarrays_.remove( colseqidx );
-		laytex.removeProcess( proc );
-	    }
-	    else
-		layerids.insert( 0, layerid );
-	}
-
-	for ( int channel=0; channel<channels_->nrChannels(); channel++ )
-	{
-	    const int layerid = (*channels_->getOsgIDs(channel))[0];
-	    int procidx = layerids.indexOf(layerid);
-	    if ( procidx != channel )
-	    {
-		mDynamicCastGet( osgGeo::ColTabLayerProcess*, proc,
-				 laytex.getProcess(procidx) );
-		if ( !proc )
-		{
-		    procidx = laytex.nrProcesses();
-		    proc = new osgGeo::ColTabLayerProcess( laytex );
-		    laytex.addProcess( proc );
-		    proc->setDataLayerID( layerid );
-
-		    TypeSet<unsigned char>* ts = new TypeSet<unsigned char>();
-		    getColors( channel, *ts );
-		    osgcolseqarrays_ += ts;
-		    osgcolsequences_ += new osgGeo::ColorSequence( ts->arr() );
-
-		    proc->setColorSequence( osgcolsequences_[procidx] );
-
-		    const Color& col = getSequence(channel)->undefColor();
-		    const osg::Vec4f newudfcol( col.r(), col.g(), col.b(),
-			    			255-col.t() );
-		    proc->setNewUndefColor( newudfcol/255.0 );
-		}
-		else
-		    layerids.remove( procidx );
-
-		for ( int idx=procidx; idx>channel; idx-- )
-		{
-		    laytex.moveProcessEarlier( proc );
-		    osgcolsequences_.swap( idx, idx-1 );
-		    osgcolseqarrays_.swap( idx, idx-1 );
-		}
-
-		layerids.insert( channel, layerid );
-	    }
-	}
-    }
 }
 
 
@@ -384,18 +312,6 @@ void ColTabTextureChannel2RGBA::adjustNrChannels() const
 	enabled_.remove( nr );
 	opacity_.remove( nr );
     }
-
-    updateOsgTexture();
-}
-
-
-void ColTabTextureChannel2RGBA::swapChannels( int ch0, int ch1 )
-{
-    coltabs_.swap( ch0, ch1 );
-    enabled_.swap( ch0, ch1 );
-    opacity_.swap( ch0, ch1 );
-
-    update();
 }
 
 
@@ -411,7 +327,6 @@ void ColTabTextureChannel2RGBA::notifyChannelInsert( int ch )
     update();
 }
 
-
 void ColTabTextureChannel2RGBA::notifyChannelRemove( int ch )
 {
     if ( ch<0 && ch>=coltabs_.size() )
@@ -420,6 +335,16 @@ void ColTabTextureChannel2RGBA::notifyChannelRemove( int ch )
     delete coltabs_.remove( ch );
     enabled_.remove( ch );
     opacity_.remove( ch );
+
+    update();
+}
+
+
+void ColTabTextureChannel2RGBA::swapChannels( int ch0, int ch1 )
+{
+    coltabs_.swap( ch0, ch1 );
+    enabled_.swap( ch0, ch1 );
+    opacity_.swap( ch0, ch1 );
 
     update();
 }
@@ -436,21 +361,6 @@ void ColTabTextureChannel2RGBA::setSequence( int channel,
     
     *coltabs_[channel] = seq;
     update();
-
-    if ( channels_ && channels_->getOsgTexture() )
-    {
-	getColors( channel, *osgcolseqarrays_[channel] );
-	osgcolsequences_[channel]->touch();
-
-	osgGeo::LayeredTexture& laytex = *channels_->getOsgTexture();
-	if ( laytex.getProcess(channel) )
-	{
-	    const Color& col = getSequence(channel)->undefColor();
-	    const osg::Vec4f newudfcol( col.r(), col.g(), col.b(),
-					255-col.t() );
-	    laytex.getProcess(channel)->setNewUndefColor( newudfcol/255.0 );
-	}
-    }
 }
 
 
@@ -474,12 +384,6 @@ void ColTabTextureChannel2RGBA::setEnabled( int ch, bool yn )
 
     enabled_[ch] = yn;
     update();
-
-    if ( channels_ && channels_->getOsgTexture() )
-    {
-	const float opac = yn ? opacity_[ch]/255.0 : 0.0;
-	channels_->getOsgTexture()->getProcess(ch)->setOpacity( opac );
-    }
 }
 
 
@@ -523,12 +427,6 @@ void ColTabTextureChannel2RGBA::setTransparency( int ch, unsigned char t )
 
     opacity_[ch] = 255-t;
     update();
-
-    if ( channels_ && channels_->getOsgTexture() )
-    {
-	const float opac = enabled_[ch] ? opacity_[ch]/255.0 : 0.0;
-	channels_->getOsgTexture()->getProcess(ch)->setOpacity( opac );
-    }
 }
 
 
@@ -548,9 +446,6 @@ void ColTabTextureChannel2RGBA::allowShading( bool yn )
 
     TextureChannel2RGBA::allowShading( yn );
     update();
-
-    if ( channels_ && channels_->getOsgTexture() )
-	channels_->getOsgTexture()->useShaders( yn );
 }
 
 

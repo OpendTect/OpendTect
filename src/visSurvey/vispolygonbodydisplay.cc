@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vispolygonbodydisplay.cc,v 1.25 2012-08-13 04:04:40 cvsaneesh Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.20 2012/06/29 14:53:51 cvsjaap Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -195,15 +195,15 @@ void PolygonBodyDisplay::getLineWidthBounds( int& min, int& max )
 void PolygonBodyDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 {
     const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
-    const float linewidth = islinesolid ? 0.5f*lineStyle()->width_ : -1.0f;
+    const float linewidth = islinesolid ? 0.5*lineStyle()->width_ : -1.0;
     const float inllen = SI().inlDistance() * SI().inlRange(true).width();
     const float crllen = SI().crlDistance() * SI().crlRange(true).width();
-    const float maxlinethickness = 0.02f * mMAX( inllen, crllen );
+    const float maxlinethickness = 0.02 * mMAX( inllen, crllen );
     if ( shape )
 	shape->set3DLineRadius( linewidth, true, maxlinethickness );
 
-    nearestpolygonmarker_->setRadius( mMAX(linewidth+0.5f, 1.0f),
-				      true, maxlinethickness );
+    nearestpolygonmarker_->setRadius( mMAX(linewidth+0.5, 1.0),
+	    			      true, maxlinethickness );
 }
 
 
@@ -543,6 +543,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     CubeSampling mouseplanecs; 
     mouseplanecs.setEmpty();
     EM::PosID mousepid( EM::PosID::udf() );
+    bool mouseondragger = false;
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
@@ -570,7 +571,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     polygonsurfeditor_->getInteractionInfo( nearestpid0, nearestpid1, insertpid,					    pos, zscale );
 
     const int nearestpolygon = 
-	nearestpid0.isUdf() ? mUdf(int) : insertpid.getRowCol().row;
+	nearestpid0.isUdf() ? mUdf(int) : RowCol(insertpid.subID()).row;
 
     if ( nearestpolygon_!=nearestpolygon )
     {
@@ -595,7 +596,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	    eventcatcher_->setHandled();
 	    if ( !eventinfo.pressed )
 	    {
-		const int removepolygon = pid.getRowCol().row;
+		const int removepolygon = RowCol(pid.subID()).row;
 		const bool res = empolygonsurf_->geometry().nrKnots( 
 			pid.sectionID(),removepolygon)==1  ? 
 		    empolygonsurf_->geometry().removePolygon( 
@@ -644,7 +645,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 		    SI().transform(BinID(0,0)), 0 );
 
 	if ( empolygonsurf_->geometry().insertPolygon( insertpid.sectionID(),
-	       insertpid.getRowCol().row, 0, pos, editnormal, true ) )
+	       RowCol(insertpid.subID()).row, 0, pos, editnormal, true ) )
 	{
 	    polygonsurfeditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
@@ -687,7 +688,7 @@ void PolygonBodyDisplay::emChangeCB( CallBacker* cb )
 	updateSingleColor();
 	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
 	{
-	     if ( cbdata.pid0.getRowCol().row==nearestpolygon_ )
+	     if ( RowCol(cbdata.pid0.subID()).row==nearestpolygon_ )
 		updateNearestPolygonMarker();
 	}
 	else
@@ -936,8 +937,7 @@ void PolygonBodyDisplay::setNewIntersectingPolygon( const Coord3& normal,
     {
 	TypeSet<Coord3> knots;
 	if ( geo.sectionGeometry(sid) )
-	    geo.sectionGeometry(sid)->getCubicBezierCurve(
-						plg, knots, (float) scale.z );
+	    geo.sectionGeometry(sid)->getCubicBezierCurve(plg, knots, scale.z);
 	
 	const int nrknots = knots.size();
 	if ( !nrknots )

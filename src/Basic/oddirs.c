@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: oddirs.c,v 1.46 2012-09-04 09:47:59 cvsnageswara Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.33 2012/07/04 15:01:39 cvsranojay Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -68,22 +68,22 @@ static const char* mkFullPath( const char* path, const char* filename )
 
 /* -> hidden survey functions used in survinfo.cc, ioman.cc etc. */
 
-mGlobal( Basic ) int SurveyNameDirty(void);
-int SurveyNameDirty(void)
+mGlobal int SurveyNameDirty();
+mGlobal int SurveyNameDirty()
 {
     return surveynamedirty;
 }
 
 
-mGlobal( Basic ) void SetSurveyNameDirty(void);
-void SetSurveyNameDirty(void)
+mGlobal void SetSurveyNameDirty();
+mGlobal void SetSurveyNameDirty()
 {
     surveynamedirty = 1;
 }
 
 
-mGlobal( Basic ) const char* GetSurveyFileName(void);
-const char* GetSurveyFileName(void)
+mGlobal const char* GetSurveyFileName();
+mGlobal const char* GetSurveyFileName()
 {
     static FileNameString sfname;
     static int inited = mC_False;
@@ -112,8 +112,8 @@ const char* GetSurveyFileName(void)
 }
 
 
-mGlobal( Basic ) void SetSurveyName(const char*);
-void SetSurveyName( const char* newnm )
+mGlobal void SetSurveyName(const char*);
+mGlobal void SetSurveyName( const char* newnm )
 {
     mSkipBlanks( newnm );
     strcpy( surveyname, newnm );
@@ -122,8 +122,8 @@ void SetSurveyName( const char* newnm )
 }
 
 
-mGlobal( Basic ) const char* GetSurveyName(void);
-const char* GetSurveyName(void)
+mGlobal const char* GetSurveyName();
+mGlobal const char* GetSurveyName()
 {
     FILE* fp; char* ptr;
     static char tmpbuf[mMaxFilePathLength];
@@ -156,9 +156,9 @@ const char* GetSurveyName(void)
 
 	/* 'survey data' scope */
 
-extern const char* GetSettingsDataDir(void);
+extern const char* GetSettingsDataDir();
 
-const char* GetBaseDataDir(void)
+const char* GetBaseDataDir()
 {
     static FileNameString bddir;
     const char* dir = 0;
@@ -186,7 +186,7 @@ const char* GetBaseDataDir(void)
 }
 
 
-const char* GetDataDir(void)
+const char* GetDataDir()
 {
     static FileNameString filenamebuf;
     const char* survnm;
@@ -248,11 +248,8 @@ static int gtSoftwareDirFromArgv( char* dirnm )
     if ( !*dirnm ) mRetNope()
 
     chptr2 = chptr1 = dirnm;
-    while ( chptr2 )
-    {
-	chptr2 = strstr( chptr1 + 1, "bin" );
+    while ( (chptr2 = strstr( chptr1 + 1, "bin" )) )
 	chptr1 = chptr2;
-    }
 
     if ( !chptr1 ) mRetNope()
 
@@ -284,12 +281,12 @@ static int getBundleLocation( char* dirnm )
 
 const char* GetSoftwareDir( int acceptnone )
 {
-#ifdef __msvc__
-    char* termchar;
-#endif
     static char dirnm[1024];
+    char* chptr1; char* chptr2;
     const char* dir = 0;
     static const char* ret = 0;
+    int termidx = 0;
+    char* termchar = 0;
     if ( ret ) return ret;
     ret = dirnm;
 
@@ -305,9 +302,12 @@ const char* GetSoftwareDir( int acceptnone )
     {
 	GetShortPathName(_getcwd(NULL,0),dirnm,sizeof(dirnm));
 	termchar = strstr( dirnm, "\\bin\\win" ); // remove \bin\win%%
+	if ( !termchar )
+	    termchar = strstr( dirnm, "\\bin\\Win" ); // just playing safe
+
 	if ( termchar )
 	    *termchar = '\0';
-	
+	    
 	dir = dirnm;
     }
 #endif
@@ -349,7 +349,7 @@ const char* GetSoftwareDir( int acceptnone )
 }
 
 
-const char* GetApplSetupDir(void)
+const char* GetApplSetupDir()
 {
     static char* ret = 0;
     static FileNameString filenamebuf;
@@ -437,13 +437,13 @@ const char* GetDocFileDir( const char* filedir )
 }
 
 
-const char* GetPlfSubDir(void)
+const char* GetPlfSubDir()
 {
     return __plfsubdir__;
 }
 
 
-const char* GetBinPlfDir(void)
+const char* GetBinPlfDir()
 {
     static FileNameString dirnm;
     strcpy( dirnm, mkFullPath(GetSoftwareDir(0),"bin") );
@@ -484,7 +484,7 @@ const char* GetExecScript( int remote )
 }
 
 
-const char* GetSoftwareUser(void)
+const char* GetSoftwareUser()
 {
     const char* ptr = 0;
     static const char* ret = 0;
@@ -506,11 +506,11 @@ const char* GetSoftwareUser(void)
 }
 
 
-const char* GetUserNm(void)
+const char* GetUserNm()
 {
 #ifdef __win__
     static char usernm[256];
-    DWORD len = 256;
+    int len = 256;
     GetUserName( usernm, &len );
     return usernm;
 #else
@@ -578,19 +578,6 @@ static void getHomeDir( char* val )
 #endif
 }
 
-
-const char* GetBinSubDir()
-{
-#ifndef __debug__
-# ifdef __hassymbols__
-    return "RelWithDebInfo";
-# else
-    return "Release";
-# endif
-#else
-    return "Debug";
-#endif
-}
 
 const char* GetPersonalDir( void )
 {

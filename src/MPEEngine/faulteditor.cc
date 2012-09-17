@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: faulteditor.cc,v 1.22 2012-08-10 04:11:23 cvssalil Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.18 2011/09/02 09:15:17 cvskris Exp $";
 
 #include "faulteditor.h"
 
@@ -66,7 +66,7 @@ void FaultEditor::setLastClicked( const EM::PosID& pid )
     Geometry::Element* ge = emobj.sectionGeometry( pid.sectionID() );
     mDynamicCastGet( Geometry::FaultStickSet*, fss, ge );
     if ( fss )
-	fss->preferStick( pid.getRowCol().row  );
+	fss->preferStick( RowCol(pid.subID()).row  );
 
     if ( sowingpivot_.isDefined() )
     {
@@ -88,7 +88,7 @@ int FaultEditor::getLastClickedStick() const
 
     if ( fss )
     {
-	const int lastclickedsticknr = lastclickedpid_.getRowCol().row;
+	const int lastclickedsticknr = RowCol( lastclickedpid_.subID() ).row;
 	if ( lastclickedsticknr == fss->preferredStickNr() )
 	    return lastclickedsticknr;
     }
@@ -143,7 +143,7 @@ float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
     const Plane3 plane( posnormal ? *posnormal : sticknormal,
 			mWorldScale(mousepos), false );
 
-    const double onestepdist =
+    const float onestepdist =
 		mWorldScale( SI().oneStepTranslation( plane.normal()) ).abs();
 
     bool insameplane = false;
@@ -173,7 +173,7 @@ float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
 
     avgpos /= count;
  
-    return (float)(mCustomScale(avgpos).Coord::distTo(mCustomScale(mousepos)));
+    return mCustomScale(avgpos).Coord::distTo( mCustomScale(mousepos) );
 }
 
 
@@ -223,12 +223,12 @@ float FaultEditor::panelIntersectDist(
 
     const Plane3 plane( posnormal, mWorldScale(mousepos), false );
 
-    float d0 = (float) plane.distanceToPoint( mWorldScale(avgpos0), true );
-    float d1 = (float) plane.distanceToPoint( mWorldScale(avgpos1), true );
+    float d0 = plane.distanceToPoint( mWorldScale(avgpos0), true );
+    float d1 = plane.distanceToPoint( mWorldScale(avgpos1), true );
     if ( mIsUdf(d0) || mIsUdf(d1) )
 	return mUdf(float);
 
-    const double onestepdist =
+    const float onestepdist =
 		mWorldScale( SI().oneStepTranslation( plane.normal()) ).abs();
 	
     if ( fabs(d0) < 0.5*onestepdist )
@@ -255,7 +255,7 @@ float FaultEditor::panelIntersectDist(
     else if ( d0*d1 > 0.0 )
 	return mUdf(float);
 
-    return (float) (mCustomScale(pos).Coord::distTo( mCustomScale(mousepos) ));
+    return mCustomScale(pos).Coord::distTo( mCustomScale(mousepos) );
 }
 
 
@@ -531,7 +531,7 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 
 	float sqdist = 0;
 	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pos )
-	    sqdist = (float)mCustomScale(pos).sqDistTo( mCustomScale(mousepos) );
+	    sqdist = mCustomScale(pos).sqDistTo( mCustomScale(mousepos) );
 
 	if ( nearestknotidx==-1 || sqdist<minsqdist )
 	{
@@ -620,7 +620,7 @@ void FaultEditor::cloneMovingNode()
     mDynamicCastGet( EM::Fault3D*, emfault, &emobject );
     EM::Fault3DGeometry& fg = emfault->geometry();
     const EM::SectionID& sid = movingnode.sectionID();
-    const int sticknr = movingnode.getRowCol().row;
+    const int sticknr = RowCol( movingnode.subID() ).row;
     Geometry::FaultStickSurface* fss = fg.sectionGeometry( sid );
 
     const Coord3& normal = fss->getEditPlaneNormal( sticknr );

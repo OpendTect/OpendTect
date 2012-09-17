@@ -7,13 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.34 2012-08-03 13:01:10 cvskris Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.32 2012/07/04 10:35:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
-#include "uistratmod.h"
 #include "uigraphicsview.h"
 #include "uigraphicsitem.h"
 #include "uiaxishandler.h"
@@ -35,7 +33,7 @@ class MouseEvent;
 
 
 
-mClass(uiStrat) uiStratDrawer 
+mClass uiStratDrawer 
 {
 public:
 				uiStratDrawer(uiGraphicsScene&,
@@ -54,7 +52,7 @@ public:
     const uiAxisHandler* 	xAxis() const	{ return xax_; }
     const uiAxisHandler* 	yAxis() const	{ return yax_; }
 
-    mStruct(uiStrat) ColumnItem
+    mStruct ColumnItem
     {
 				ColumnItem(const char* nm)
 				    : name_(nm)
@@ -100,7 +98,7 @@ protected:
 
 
 
-mClass(uiStrat) uiStratDisplay : public uiGraphicsView
+mClass uiStratDisplay : public uiGraphicsView
 {
 public:
 				uiStratDisplay(uiParent*,uiStratRefTree&);
@@ -108,18 +106,15 @@ public:
     
     void			display(bool,bool shrk=false,bool max=false);
     void			setZRange(Interval<float>);
+    void			setTree(Strat::RefTree&);
     
     void			addControl(uiToolBar*);
     uiStratViewControl*		control() 	{ return uicontrol_; }
 
-    void			setTree();
-
-    void			setIsLocked(bool yn ) { islocked_ = yn; }
-
 protected :
 
-    uiStratTreeToDisp*		uidatagather_;
-    uiStratDispToTree		uidatawriter_;
+    uiStratTreeToDispTransl*	uidatagather_;
+    uiStratDispToTreeTransl	uidatawriter_;
 
     uiStratViewControl*		uicontrol_;
     StratDispData		data_;
@@ -130,12 +125,10 @@ protected :
     uiGroup*			dispparamgrp_;
     uiPushButton*		fillbutton_;
     uiPushButton*		viewcolbutton_;
-    bool			islocked_;
     
     Interval<float>		maxrg_;
    
     void			createDispParamGrp();
-    void			setRange();
 
     bool			handleUserClick(const MouseEvent&);
 
@@ -152,10 +145,16 @@ protected :
     void			reDraw(CallBacker*);
     void			selCols(CallBacker*);
     void			usrClickCB(CallBacker*);
+
+    void			setRange();
+
+    bool			islocked_; 
+public:
+    void			setIsLocked(bool yn ) { islocked_ = yn; }
 };
 
 
-mClass(uiStrat) uiStratViewControl : public CallBacker
+mClass uiStratViewControl : public CallBacker
 {
 public:
 
@@ -212,5 +211,3 @@ protected:
 
 
 #endif
-
-

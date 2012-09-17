@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpps.h,v 1.7 2012-08-03 13:00:36 cvskris Exp $
+ RCS:		$Id: seisimpps.h,v 1.6 2010/07/12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "strmdata.h"
 #include "bufstringset.h"
 #include "multiid.h"
@@ -33,7 +32,7 @@ class SeisPSImpLineBuf;
  */
 
 
-mClass(Seis) SeisPSImpDataMgr
+mClass SeisPSImpDataMgr
 {
 public:
 
@@ -73,4 +72,3 @@ protected:
 
 
 #endif
-

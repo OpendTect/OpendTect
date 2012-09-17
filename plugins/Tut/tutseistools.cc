@@ -1,10 +1,11 @@
+
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: tutseistools.cc,v 1.16 2012-08-07 04:23:04 cvsmahant Exp $";
+static const char* rcsID = "$Id: tutseistools.cc,v 1.13 2010/02/18 10:37:39 cvsbert Exp $";
 
 #include "cubesampling.h"
 #include "tutseistools.h"

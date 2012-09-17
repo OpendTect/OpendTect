@@ -7,39 +7,36 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.19 2012-09-13 18:42:24 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.16 2012/01/11 22:12:43 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
 
 class uiSliceSelDlg;
 class CubeSampling;
 namespace Attrib { class DescID; }
-namespace Well { class Data; }
 
 
-mClass(uiODMain) uiODPlaneDataTreeItem : public uiODDisplayTreeItem
+mClass uiODPlaneDataTreeItem : public uiODDisplayTreeItem
 {
 public:
-    enum Type		{ Default, Empty, RGBA };
+    enum Type		{ Default, Empty, RGBA, FromWell };
     enum Orientation	{ Inline, Crossline, ZSlice };
 
     			uiODPlaneDataTreeItem(int displayid,Orientation,Type);
 			~uiODPlaneDataTreeItem();
     bool		init();
-    void		setAtWellLocation(const Well::Data&);
-    bool		displayDefaultData();
 
 protected:
     BufferString	createDisplayName() const;
     bool		getDefaultDescID(Attrib::DescID&);
+    bool		displayDefaultData();
 
     void		addToToolBarCB(CallBacker*);
-    virtual void	createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
     void		updatePlanePos(CallBacker*);
@@ -64,7 +61,7 @@ protected:
 mDefineItem( InlineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass(uiODMain) uiODInlineTreeItemFactory : public uiODTreeItemFactory
+mClass uiODInlineTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -74,7 +71,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODInlineTreeItem : public uiODPlaneDataTreeItem
+mClass uiODInlineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
     			uiODInlineTreeItem(int displayid,Type);
@@ -88,7 +85,7 @@ protected:
 mDefineItem( CrosslineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass(uiODMain) uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
+mClass uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -98,7 +95,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
+mClass uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
     			uiODCrosslineTreeItem(int displayid,Type);
@@ -112,7 +109,7 @@ protected:
 mDefineItem( ZsliceParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass(uiODMain) uiODZsliceTreeItemFactory : public uiODTreeItemFactory
+mClass uiODZsliceTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -122,7 +119,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODZsliceTreeItem : public uiODPlaneDataTreeItem
+mClass uiODZsliceTreeItem : public uiODPlaneDataTreeItem
 {
 public:
     			uiODZsliceTreeItem(int displayid,Type);
@@ -134,4 +131,3 @@ protected:
 
 
 #endif
-

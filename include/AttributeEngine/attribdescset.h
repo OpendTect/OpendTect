@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.55 2012-08-03 13:00:07 cvskris Exp $
+ RCS:           $Id: attribdescset.h,v 1.53 2011/12/23 15:00:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "callback.h"
 #include "sets.h"
 #include "multiid.h"
@@ -26,7 +25,7 @@ namespace Attrib
 {
 class Desc; class DescSetup; class SelSpec;
 
-mClass(AttributeEngine) DescSet : public CallBacker
+mClass DescSet : public CallBacker
 {
 public:
     			DescSet(bool is2d);
@@ -142,7 +141,6 @@ public:
     static const char*	userRefStr()		{ return "UserRef"; }
     static const char*	inputPrefixStr()	{ return "Input"; }
     static const char*	hiddenStr()		{ return "Hidden"; }
-    static const char*	indexStr()		{ return "Index"; }
 
     CNotifier<DescSet,DescID>	descToBeRemoved;
 
@@ -172,5 +170,4 @@ public:
 } // namespace Attrib
 
 #endif
-
 

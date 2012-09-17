@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewzoommgr.h,v 1.8 2012-08-03 13:00:57 cvskris Exp $
+ RCS:           $Id: flatviewzoommgr.h,v 1.7 2010/03/05 09:27:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "geometry.h"
 #include "sets.h"
 
@@ -22,7 +21,7 @@ namespace FlatView
 /*!\brief Manages zoom factors. Will always provide a new zoom when forward()
           called, using fwdFac(). For back, will stop at initial. */
 
-mClass(uiFlatView) ZoomMgr
+mClass ZoomMgr
 {
 public:
 
@@ -69,4 +68,3 @@ protected:
 
 
 #endif
-

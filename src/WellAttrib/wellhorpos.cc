@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: wellhorpos.cc,v 1.14 2012-08-10 04:11:25 cvssalil Exp $";
+static const char* rcsID = "$Id: wellhorpos.cc,v 1.11 2012/04/24 07:00:14 cvsbruno Exp $";
 
 
 #include "wellhorpos.h"
@@ -89,7 +89,7 @@ float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const
 	const Coord3& horpos = hor3d_->getPos( hor3d_->sectionID(0), subid ); 
 	const BinID horbid = SI().transform( horpos );
 	if ( bid == horbid )
-	    return (float)horpos.z;
+	    return horpos.z;
     }
     else if ( hor2d_ )
     {
@@ -108,7 +108,7 @@ float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const
 					hor2d_->sectionID(0), rc.toInt64() );
 		const BinID horbid = SI().transform( horpos );
 		if ( bid == horbid )
-		    return (float) pos.z;
+		    return pos.z;
 	    }
 	}
     }

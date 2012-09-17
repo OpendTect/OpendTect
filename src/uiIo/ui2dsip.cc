@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: ui2dsip.cc,v 1.14 2012-05-09 10:53:32 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: ui2dsip.cc,v 1.12 2012/05/09 10:53:30 cvsbert Exp $";
 
 #include "ui2dsip.h"
 #include "uidialog.h"

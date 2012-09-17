@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.20 2012-08-03 13:00:20 cvskris Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.18 2010/07/12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "transl.h"
 #include "emsurfaceiodata.h"
 
@@ -40,60 +39,60 @@ typedef EM::FaultStickSet	EMFaultStickSet;
 
 /*!\brief Read/write EM::Horizon to storage */
 
-mClass(EarthModel) EMHorizon3DTranslatorGroup : public TranslatorGroup
+mClass EMHorizon3DTranslatorGroup : public TranslatorGroup
 {				   isTranslatorGroup(EMHorizon3D)
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon3D)
 
     const char*			defExtension() const	{ return "hor"; }
 
-    static FixedString		keyword();
+    static const char*		keyword();
 };
 
 
-mClass(EarthModel) EMHorizon2DTranslatorGroup : public TranslatorGroup
+mClass EMHorizon2DTranslatorGroup : public TranslatorGroup
 {				   isTranslatorGroup(EMHorizon2D)
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon2D)
 
     const char*			defExtension() const	{ return "2dh"; }
 
-    static FixedString		keyword();
+    static const char*		keyword();
 };
 
 
-mClass(EarthModel) EMAnyHorizonTranslatorGroup : public TranslatorGroup
+mClass EMAnyHorizonTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(EMAnyHorizon)
 public:
 			    mDefEmptyTranslatorGroupConstructor(EMAnyHorizon)
 
-    static FixedString	    keyword();
+    static const char*	    keyword();
 };
 
 
-mClass(EarthModel) EMFault3DTranslatorGroup : public TranslatorGroup
+mClass EMFault3DTranslatorGroup : public TranslatorGroup
 {			       isTranslatorGroup(EMFault3D)
 public:
     			mDefEmptyTranslatorGroupConstructor(EMFault3D)
 
     const char*		defExtension() const { return "flt"; }
 
-    static FixedString	keyword();
+    static const char*	keyword();
 };
 
 
-mClass(EarthModel) EMFaultStickSetTranslatorGroup : public TranslatorGroup
+mClass EMFaultStickSetTranslatorGroup : public TranslatorGroup
 {				       isTranslatorGroup(EMFaultStickSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(EMFaultStickSet)
 
     const char*		defExtension() const { return "fss"; }
 
-    static FixedString	keyword();
+    static const char*	keyword();
 };
 
 
-mClass(EarthModel) EMSurfaceTranslator : public Translator
+mClass EMSurfaceTranslator : public Translator
 {
 public:
     				EMSurfaceTranslator(const char* nm,
@@ -141,7 +140,7 @@ protected:
 };
 
 
-mClass(EarthModel) dgbEMSurfaceTranslator : public EMSurfaceTranslator
+mClass dgbEMSurfaceTranslator : public EMSurfaceTranslator
 {
 public:
     				dgbEMSurfaceTranslator(const char*,const char*);
@@ -167,7 +166,7 @@ protected:
 };
 
 
-mClass(EarthModel) dgbEMHorizon3DTranslator : public dgbEMSurfaceTranslator
+mClass dgbEMHorizon3DTranslator : public dgbEMSurfaceTranslator
 {				 isTranslator(dgb,EMHorizon3D)
 public:
     				dgbEMHorizon3DTranslator(const char* unm,
@@ -182,7 +181,7 @@ protected:
 };
 
 
-mClass(EarthModel) dgbEMHorizon2DTranslator : public dgbEMSurfaceTranslator
+mClass dgbEMHorizon2DTranslator : public dgbEMSurfaceTranslator
 {				 isTranslator(dgb,EMHorizon2D)
 public:
     				dgbEMHorizon2DTranslator(const char* unm,
@@ -197,7 +196,7 @@ protected:
 };
 
 
-mClass(EarthModel) dgbEMFault3DTranslator : public dgbEMSurfaceTranslator
+mClass dgbEMFault3DTranslator : public dgbEMSurfaceTranslator
 {			       isTranslator(dgb,EMFault3D)
 public:
     				dgbEMFault3DTranslator(const char* unm,
@@ -212,7 +211,7 @@ protected:
 };
 
 
-mClass(EarthModel) dgbEMFaultStickSetTranslator : public dgbEMSurfaceTranslator
+mClass dgbEMFaultStickSetTranslator : public dgbEMSurfaceTranslator
 {				     isTranslator(dgb,EMFaultStickSet)
 public:
     				dgbEMFaultStickSetTranslator(const char* unm,
@@ -228,4 +227,3 @@ protected:
 
 
 #endif
-

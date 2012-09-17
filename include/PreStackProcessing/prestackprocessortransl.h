@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Oct 2008
- RCS:		$Id: prestackprocessortransl.h,v 1.5 2012-08-03 13:00:34 cvskris Exp $
+ RCS:		$Id: prestackprocessortransl.h,v 1.4 2009/07/22 16:01:17 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
  
-#include "prestackprocessingmod.h"
 #include "transl.h"
 namespace PreStack { class ProcessManager; }
 
 
-mClass(PreStackProcessing) PreStackProcTranslatorGroup : public TranslatorGroup
+mClass PreStackProcTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(PreStackProc)
 public:
     			mDefEmptyTranslatorGroupConstructor(PreStackProc)
@@ -27,7 +26,7 @@ public:
 };
 
 
-mClass(PreStackProcessing) PreStackProcTranslator : public Translator
+mClass PreStackProcTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(PreStackProc)
@@ -44,7 +43,7 @@ public:
 };
 
 
-mClass(PreStackProcessing) dgbPreStackProcTranslator : public PreStackProcTranslator
+mClass dgbPreStackProcTranslator : public PreStackProcTranslator
 {			     isTranslator(dgb,PreStackProc)
 public:
 
@@ -57,4 +56,3 @@ public:
 
 
 #endif
-

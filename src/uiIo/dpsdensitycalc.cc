@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          Mar 2010
- RCS:           $Id: dpsdensitycalc.cc,v 1.6 2012-08-10 03:50:04 cvsaneesh Exp $
+ RCS:           $Id: dpsdensitycalc.cc,v 1.6 2012/08/08 03:28:48 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,22 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "uidatapointset.h"
+
+
+DPSDensityCalcND::DPSDensityCalcND( const uiDataPointSet& dps,
+				    const ObjectSet<AxisParam>& axisdatas,
+       				    ArrayND<float>& freqdata )
+    : ParallelTask( "Calclulating Density" )
+    , dps_( dps.pointSet() )
+    , freqdata_( freqdata )
+    , axisdatas_( axisdatas )
+    , nrdims_( axisdatas_.size() )
+    , nrdone_( 0 )
+{
+    freqdata_.setAll( (float)0 );
+}
+
 
 DPSDensityCalcND::DPSDensityCalcND( const DataPointSet& dps,
 				    const ObjectSet<AxisParam>& axisdatas,
@@ -59,7 +75,7 @@ float DPSDensityCalcND::getVal( int dcid, int drid ) const
 	return val*SI().zDomain().userFactor();
     }
 
-    return dcid == (float) ( -3 ? dps_.coord(drid).x : dps_.coord(drid).y );
+    return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
 }
 
 

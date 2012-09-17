@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsticksettransl.h,v 1.9 2012-08-03 13:00:19 cvskris Exp $
+ RCS:		$Id: emsticksettransl.h,v 1.8 2010/08/04 14:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "transl.h"
 #include "emstickset.h"
 
@@ -23,7 +22,7 @@ ________________________________________________________________________
 typedef EM::StickSet EMStickSet;
 
 
-mClass(EarthModel) EMStickSetTranslatorGroup : public TranslatorGroup
+mClass EMStickSetTranslatorGroup : public TranslatorGroup
 {				  isTranslatorGroup(EMStickSet)
 public:
     				mDefEmptyTranslatorGroupConstructor(EMStickSet)
@@ -34,7 +33,7 @@ public:
 };
 
 
-mClass(EarthModel) EMStickSetTranslator : public Translator
+mClass EMStickSetTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(EMStickSet)
@@ -55,7 +54,7 @@ public:
 };
 
 
-mClass(EarthModel) lmkEMStickSetTranslator : public EMStickSetTranslator
+mClass lmkEMStickSetTranslator : public EMStickSetTranslator
 {				isTranslator(lmk,EMStickSet)
 public:
     			mDefEmptyTranslatorConstructor(lmk,EMStickSet)
@@ -82,7 +81,7 @@ public:
 };
 
 
-mClass(EarthModel) lmkEMStickSetReader : public Executor
+mClass lmkEMStickSetReader : public Executor
 {
 public:
 			lmkEMStickSetReader(EM::StickSet&, Conn*,
@@ -119,7 +118,7 @@ protected:
 };
 
 
-mClass(EarthModel) lmkEMStickSetWriter : public Executor
+mClass lmkEMStickSetWriter : public Executor
 {
 public:
 			lmkEMStickSetWriter(const EM::StickSet&,
@@ -157,4 +156,3 @@ protected:
 #define mLMK_CONTROL_PT		4
 
 #endif
-

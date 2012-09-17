@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.47 2012-08-20 15:08:00 cvsyuancheng Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.45 2012/05/21 14:09:42 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 
 #include "emposid.h"
@@ -51,7 +50,7 @@ class HorizonDisplay;
 
 */
 
-mClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject
+mClass FaultDisplay : public MultiTextureSurveyObject
 {
 public:
     static FaultDisplay*	create()
@@ -66,7 +65,6 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int) const
 				{ return SurveyObject::RandomPos; }
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
-    void			getRandomPosCache(int,DataPointSet&) const;
     void			setRandomPosData(int,const DataPointSet*,
 	    					 TaskRunner*); 
 
@@ -148,13 +146,6 @@ public:
 				{ return DataPackMgr::SurfID(); }
 
     static const char*		sKeyTriProjection() { return "TriangulateProj";}
-
-    void			doOtherObjectsMoved( 
-				    const ObjectSet<const SurveyObject>& objs,
-				    int whichobj)
-				{ otherObjectsMoved( objs, whichobj ); }
-
-    EM::Fault3D*		emFault()	{ return emfault_; }
 
 protected:
 
@@ -265,10 +256,17 @@ protected:
     ObjectSet<StickIntersectPoint> stickintersectpoints_;
 
     visBase::DrawStyle*			drawstyle_;
+
+public:
+
+    void                                doOtherObjectsMoved(
+				    const ObjectSet<const SurveyObject>& objs,
+				    int whichobj)
+				    { otherObjectsMoved( objs, whichobj ); }
+
 };
 
 };
 
 
 #endif
-

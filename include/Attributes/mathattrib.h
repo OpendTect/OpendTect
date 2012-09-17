@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.22 2012-08-03 13:00:09 cvskris Exp $
+ RCS:           $Id: mathattrib.h,v 1.21 2010/07/14 10:32:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 */
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 
 class MathExpression;
@@ -27,7 +26,7 @@ class MathExpression;
 namespace Attrib
 {
 
-mClass(Attributes) Math : public Provider
+mClass Math : public Provider
 {
 public:
     static void			initClass();
@@ -133,4 +132,3 @@ private:
 }; // namespace Attrib
 
 #endif
-

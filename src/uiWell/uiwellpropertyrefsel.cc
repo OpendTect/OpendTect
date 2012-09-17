@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellpropertyrefsel.cc,v 1.18 2012-09-02 10:26:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpropertyrefsel.cc,v 1.6 2012/09/02 10:10:43 cvsbruno Exp $";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -22,9 +22,9 @@ static const char* rcsID mUnusedVar = "$Id: uiwellpropertyrefsel.cc,v 1.18 2012-
 #include "elasticpropsel.h"
 #include "unitofmeasure.h"
 #include "property.h"
-#include "welldata.h"
 #include "welllogset.h"
 #include "welllog.h"
+#include "welldata.h"
 #include "wellman.h"
 
 
@@ -137,9 +137,10 @@ const PropertyRef& uiPropSelFromList::propRef() const
 
 
 
-uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
+uiWellPropSel::uiWellPropSel( uiParent* p, 
+				const PropertyRefSelection& prs )
     : uiGroup(p," property selection from well logs")
-    , proprefsel_(prs) 
+    , proprefsel_(prs)  
 {
     initFlds();
 }
@@ -150,7 +151,7 @@ void uiWellPropSel::initFlds()
     for ( int idx=0; idx<proprefsel_.size(); idx ++ )
     {
 	const PropertyRef& pr = *proprefsel_[idx];
-	if ( pr.isThickness() )
+	if ( pr == PropertyRef::thickness() )
 	    continue;
 
 	const PropertyRef* altpr = 0;
@@ -175,7 +176,7 @@ void uiWellPropSel::initFlds()
 
 void uiWellPropSel::setLogs( const Well::LogSet& logs  )
 {
-    BufferStringSet lognms;
+    BufferStringSet lognms; 
     for ( int idx=0; idx<logs.size(); idx++ )
 	lognms.add( logs.getLog(idx).name() );
 
@@ -266,7 +267,7 @@ bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs,
 
 
 uiWellPropSelWithCreate::uiWellPropSelWithCreate( uiParent* p, 
-				const PropertyRefSelection& prs )
+					const PropertyRefSelection& prs )
     : uiWellPropSel(p,prs)
     , logscreated(this) 
 { 
@@ -274,7 +275,7 @@ uiWellPropSelWithCreate::uiWellPropSelWithCreate( uiParent* p,
     {
 	uiPushButton* createbut = new uiPushButton( this, "&Create", false );
 	createbut->activated.notify( 
-		mCB(this,uiWellPropSelWithCreate,createLogPushed) );
+	mCB(this,uiWellPropSelWithCreate,createLogPushed) );
 	if ( idx )
 	{
 	    createbut->attach( ensureBelow, propflds_[idx-1] );
@@ -297,12 +298,12 @@ void uiWellPropSelWithCreate::createLogPushed( CallBacker* cb )
     const Well::LogSet& logs = wd->logs();
     BufferStringSet lognms;
     for ( int idx=0; idx<logs.size(); idx++ )
-	lognms.add( logs.getLog(idx).name() );
+    lognms.add( logs.getLog(idx).name() );
 
     mDynamicCastGet(uiPushButton*,but,cb);
     const int idxofbut = createbuts_.indexOf( but );
     if ( !propflds_.validIdx( idxofbut ) )
-	return;
+    return;
 
     TypeSet<MultiID> idset; idset += wellid_;
     uiWellLogCalc dlg( this, logs, lognms, idset );
@@ -318,10 +319,16 @@ void uiWellPropSelWithCreate::createLogPushed( CallBacker* cb )
 
 
 
+
 uiWellElasticPropSel::uiWellElasticPropSel( uiParent* p, bool withswaves )
-    : uiWellPropSel(p,*new ElasticPropSelection())
+    : uiWellPropSel(p,*new PropertyRefSelection)
 {
-    propflds_[propflds_.size()-1]->display( withswaves );
+    PropertyRefSelection& eps = const_cast<PropertyRefSelection&>(proprefsel_);
+
+    eps += new PropertyRef( "Density", PropertyRef::Den );
+    eps += new PropertyRef( "Velocity", PropertyRef::Vel );
+
+    initFlds();
 }
 
 

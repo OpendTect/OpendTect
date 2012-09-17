@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddataman.cc,v 1.7 2012-05-22 14:48:41 cvskris Exp $
+ RCS:		$Id: visvw2ddataman.cc,v 1.6 2011/06/03 15:29:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* win,
 	    if ( !idx ) continue;
 	    break;
 	}
-	const char* type = objpar->find( sKey::Type() );
+	const char* type = objpar->find( sKey::Type );
 	RefMan<Vw2DDataObject> obj = factory().create(type, -1 ,win,eds);
 	if ( obj && obj->usePar( *objpar ) )
 	{

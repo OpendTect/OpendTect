@@ -3,7 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : Sep 2000
 -*/
-static const char* rcsID mUnusedVar = "$Id: SoPerspectiveSel.cc,v 1.10 2012-05-02 15:11:50 cvskris Exp $";
+static const char* rcsID = "$Id: SoPerspectiveSel.cc,v 1.8 2009/07/22 16:01:35 cvsbert Exp $";
 
 #include <SoPerspectiveSel.h>
 

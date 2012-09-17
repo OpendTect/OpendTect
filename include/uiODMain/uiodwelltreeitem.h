@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodwelltreeitem.h,v 1.18 2012-08-03 13:01:05 cvskris Exp $
+ RCS:		$Id: uiodwelltreeitem.h,v 1.16 2011/11/03 09:22:54 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 #include "multiid.h"
@@ -23,7 +22,7 @@ class uiCreateAttribLogDlg;
 class uiD2TMLogSelDlg;
 class uiMenuItem;
 
-mClass(uiODMain) uiODWellParentTreeItem : public uiODTreeItem
+mClass uiODWellParentTreeItem : public uiODTreeItem
 {
     typedef uiODTreeItem	inheritedClass;
 public:
@@ -40,7 +39,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODWellTreeItemFactory : public uiODTreeItemFactory
+mClass uiODWellTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -49,7 +48,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODWellTreeItem : public uiODDisplayTreeItem
+mClass uiODWellTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODWellTreeItem( int );
@@ -60,7 +59,7 @@ protected:
     void		initMenuItems();
     bool		init();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
-    virtual void	createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODWellParentTreeItem).name(); }
@@ -86,4 +85,3 @@ protected:
 
 
 #endif
-

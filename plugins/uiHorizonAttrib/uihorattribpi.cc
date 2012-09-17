@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorattribpi.cc,v 1.34 2012-08-29 08:18:06 cvskris Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.30 2012/05/21 22:41:24 cvsnanne Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -35,7 +35,6 @@ static const char* rcsID mUnusedVar = "$Id: uihorattribpi.cc,v 1.34 2012-08-29 0
 #include "ioobj.h"
 #include "odplugin.h"
 #include "survinfo.h"
-
 
 static const char* sKeyContours = "Contours";
 
@@ -180,7 +179,7 @@ void uiHorAttribPIMgr::doIsopachThruMenu( CallBacker* )
 }
 
 
-class uiSelContourAttribDlg : public uiDialog
+mClass uiSelContourAttribDlg : public uiDialog
 {
 public:
 

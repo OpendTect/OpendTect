@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackevents.cc,v 1.21 2012-08-10 04:11:24 cvssalil Exp $";
+static const char* rcsID = "$Id: prestackevents.cc,v 1.17 2012/09/17 22:27:54 cvskris Exp $";
 
 #include "prestackevents.h"
 
@@ -700,9 +700,9 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	if ( previnl==nextinl )
 	    return false;
 
-	const float inldiff = (float) 
-	    (emhorizons_[horidx]->getPos(sid,nextinl.toInt64() ).z -
-	     emhorizons_[horidx]->getPos(sid,previnl.toInt64() ).z);
+	const float inldiff =
+	    emhorizons_[horidx]->getPos(sid,nextinl.toInt64() ).z -
+	    emhorizons_[horidx]->getPos(sid,previnl.toInt64() ).z;
 
 	BinID prevcrl( bidv.binid.inl, bidv.binid.crl-horstep.inl );
 	BinID nextcrl( bidv.binid.inl, bidv.binid.crl+horstep.inl );
@@ -714,9 +714,9 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	if ( prevcrl==nextcrl )
 	    return false;
 
-	const float crldiff = (float) 
-	    (emhorizons_[horidx]->getPos(sid,nextcrl.toInt64() ).z -
-	     emhorizons_[horidx]->getPos(sid,prevcrl.toInt64() ).z);
+	const float crldiff =
+	    emhorizons_[horidx]->getPos(sid,nextcrl.toInt64() ).z -
+	    emhorizons_[horidx]->getPos(sid,prevcrl.toInt64() ).z;
 
 	inldip = inldiff/((nextinl.inl-previnl.inl)*SI().inlDistance() );
 	crldip = crldiff/((nextcrl.crl-prevcrl.crl)*SI().crlDistance() );
@@ -759,8 +759,8 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 
 	if ( SI().zIsTime() )
 	{
-	    inldip = tmpinldip/1e6f;
-	    crldip = tmpcrldip/1e6f;
+	    inldip = tmpinldip/1e6;
+	    crldip = tmpcrldip/1e6;
 	}
 	else
 	{
@@ -802,8 +802,8 @@ void EventManager::DipSource::fill( BufferString& buf ) const
 
 bool EventManager::DipSource::use( const char* str )
 {
-    const FileMultiString fms( str );
-    const char* type = fms[0];
+    const SeparString sep( str, '`' );
+    const char* type = sep[0];
     if ( !type || !type )
 	return false;
 
@@ -813,7 +813,7 @@ bool EventManager::DipSource::use( const char* str )
 
     if ( typeenum==SteeringVolume )
     {
-	const char* midstr = fms[1];
+	const char* midstr = sep[1];
 	if ( !midstr )
 	    return false;
 

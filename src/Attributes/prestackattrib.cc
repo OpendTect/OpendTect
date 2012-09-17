@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackattrib.cc,v 1.27 2012-06-29 08:14:18 cvshelene Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.25 2012/06/29 08:14:07 cvshelene Exp $";
 
 #include "prestackattrib.h"
 
@@ -117,6 +117,8 @@ PSAttrib::PSAttrib( Desc& ds )
 	    preprocessor_ = 0;
 	}
     }
+
+    setMyMainHackingClass( new MyChildHackingClass(this) );
 }
 
 
@@ -323,6 +325,14 @@ bool PSAttrib::computeData( const DataHolder& output, const BinID& relpos,
     }
 
     return true;
+}
+
+
+void MyChildHackingClass::updateCSIfNeeded( CubeSampling& cs ) const
+{
+    mDynamicCastGet( PSAttrib*, psattrprov, prov_ )
+    if ( psattrprov )
+	psattrprov->updateCSIfNeeded( cs );
 }
 
 } // namespace Attrib

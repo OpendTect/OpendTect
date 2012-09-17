@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribdatacubes.cc,v 1.36 2012-08-09 03:40:06 cvssalil Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.33 2012/07/10 13:05:59 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
@@ -137,7 +137,7 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
 
     if ( !cubes_.validIdx(array) || !cubes_[array] ) return false;
 
-    const float zpos = (float) (bidv.value/zstep_-z0_);
+    const float zpos = bidv.value/zstep_-z0_;
 
     if ( !interpolate )
     {
@@ -170,8 +170,8 @@ bool DataCubes::includes( const BinIDValue& bidv ) const
     if ( !includes( bidv.binid ) )
 	return false;
 
-    const float zpos = (float) (bidv.value/zstep_-z0_);
-    const float eps = (float) (bidv.compareEpsilon()/zstep_);
+    const float zpos = bidv.value/zstep_-z0_;
+    const float eps = bidv.compareEpsilon()/zstep_;
     return zpos>-eps && zpos<=zsz_-1+eps;
 }
 
@@ -216,9 +216,9 @@ CubeSampling DataCubes::cubeSampling() const
 			      crlsampling_.atIndex(crlsz_-1) );
 	res.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
 
-	res.zrg.start = (float) (z0_ * zstep_);
-	res.zrg.stop = (float) ((z0_ + zsz_ - 1) * zstep_);
-	res.zrg.step = (float) zstep_;
+	res.zrg.start = z0_ * zstep_;
+	res.zrg.stop = (z0_+zsz_-1) * zstep_;
+	res.zrg.step = zstep_;
     }
 
     return res;

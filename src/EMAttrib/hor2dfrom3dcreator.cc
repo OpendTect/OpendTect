@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: hor2dfrom3dcreator.cc,v 1.11 2012-08-08 05:47:53 cvssalil Exp $";
+static const char* rcsID = "$Id: hor2dfrom3dcreator.cc,v 1.8 2010/12/13 07:07:43 cvssatyaki Exp $";
 
 #include "hor2dfrom3dcreator.h"
 
@@ -85,7 +85,7 @@ int Hor2DFrom3DCreator::nextStep()
 	BinID bid = SI().transform( posinfo.coord_ );
 	EM::SubID subid = bid.toInt64();
 	const Coord3 pos3d = hor3d_.getPos( hor3d_.sectionID(0), subid );
-	hor2d_.setPos( hor2d_.sectionID(0), geomid_, posinfo.nr_,(float) pos3d.z,false);
+	hor2d_.setPos( hor2d_.sectionID(0), geomid_, posinfo.nr_,pos3d.z,false);
 	nrdone_++;
 	return MoreToDo();
     }

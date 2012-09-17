@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.38 2012-07-17 14:03:47 cvskris Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.36 2011/04/21 13:09:13 cvsbert Exp $
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: od_cbvs_browse.cc,v 1.38 2012-07-17 14:03:47 cvskris Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.36 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -73,30 +73,30 @@ int main( int argc, char** argv )
     const CBVSReadMgr& mgr = *tri->readMgr();
     mgr.dumpInfo( std::cerr, true );
     const CBVSInfo& info = mgr.info();
-    const int singinl = info.geom_.start.inl == info.geom_.stop.inl
-			? info.geom_.start.inl : -999;
+    const int singinl = info.geom.start.inl == info.geom.stop.inl
+			? info.geom.start.inl : -999;
 
     SeisTrc trc; BinID bid( singinl, 0 );
-    BinID step( abs(info.geom_.step.inl), abs(info.geom_.step.crl) );
+    BinID step( abs(info.geom.step.inl), abs(info.geom.step.crl) );
     StepInterval<int> samps;
-    const int nrcomps = info.compinfo_.size();
+    const int nrcomps = info.compinfo.size();
     while ( true )
     {
 	if ( singinl == -999 )
 	{
-	    std::cerr << "\nExamine In-line (" << info.geom_.start.inl
-		<< "-" << info.geom_.stop.inl;
+	    std::cerr << "\nExamine In-line (" << info.geom.start.inl
+		<< "-" << info.geom.stop.inl;
 	    if ( step.inl > 1 )
 		std::cerr << " [" << step.inl << "]";
-	    int stopinl = info.geom_.start.inl == 0 ? -1 : 0;
+	    int stopinl = info.geom.start.inl == 0 ? -1 : 0;
 	    std::cerr << ", " << stopinl << " to stop): ";
 	    getInt( bid.inl );
 	    if ( bid.inl == stopinl ) break;
 	}
 
-	if ( info.geom_.fullyrectandreg )
+	if ( info.geom.fullyrectandreg )
 	{
-	    if ( bid.inl < info.geom_.start.inl || bid.inl > info.geom_.stop.inl )
+	    if ( bid.inl < info.geom.start.inl || bid.inl > info.geom.stop.inl )
 	    {
 		std::cerr << "Invalid inline" << std::endl;
 		continue;
@@ -104,14 +104,14 @@ int main( int argc, char** argv )
 	}
 	else
 	{
-	    const int ldidx = info.geom_.cubedata.indexOf( bid.inl );
+	    const int ldidx = info.geom.cubedata.indexOf( bid.inl );
 	    if ( ldidx < 0 )
 	    {
 		std::cerr << "This inline is not present in the cube"
 		    	  << std::endl;
 		continue;
 	    }
-	    const PosInfo::LineData& inlinf = *info.geom_.cubedata[ldidx];
+	    const PosInfo::LineData& inlinf = *info.geom.cubedata[ldidx];
 	    std::cerr << "Xline range available: ";
 	    for ( int idx=0; idx<inlinf.segments_.size(); idx++ )
 	    {
@@ -159,7 +159,7 @@ int main( int argc, char** argv )
 	{
 	    BufferString str; trc.info().coord.fill(str.buf());
 	    std::cerr << "Coordinate: " << str;
-	    BinID b = info.geom_.b2c.transformBack( trc.info().coord );
+	    BinID b = info.geom.b2c.transformBack( trc.info().coord );
 	    if ( b != trc.info().binid )
 	    {
 		b.fill( str.buf() );

@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisimporter.cc,v 1.33 2012-05-02 15:11:47 cvskris Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.30 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "seisimporter.h"
 
@@ -396,7 +396,7 @@ SeisInlCrlSwapper( const char* inpfnm, IOObj* out, int nrtrcs )
 {
     if ( !tri_->initRead(new StreamConn(inpfnm,Conn::Read)) )
 	{ errmsg_ = tri_->errMsg(); return; }
-    geom_ = &tri_->readMgr()->info().geom_;
+    geom_ = &tri_->readMgr()->info().geom;
     linenr_ = geom_->start.crl;
     trcnr_ = geom_->start.inl - geom_->step.inl;
 

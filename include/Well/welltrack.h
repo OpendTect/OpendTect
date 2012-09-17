@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.21 2012-09-04 09:13:08 cvsbert Exp $
+ RCS:		$Id: welltrack.h,v 1.17 2012/09/05 15:05:16 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "wellmod.h"
 #include "welldahobj.h"
 #include "position.h"
 
@@ -21,20 +20,20 @@ namespace Well
 {
 class D2TModel;
 
-mClass(Well) Track : public DahObj
+mClass Track : public DahObj
 {
 public:
 
 			Track( const char* nm=0 )
-			: DahObj(nm), zistime_(false) {}
+			: DahObj(nm), zistime_(false)	{}
 			Track( const Track& t )
-			: DahObj("")		{ *this = t; }
+			: DahObj("")			{ *this = t; }
     Track&		operator =(const Track&);
 
-    const Coord3&	pos( int idx ) const	{ return pos_[idx]; }
-    float		value( int idx ) const	{ return (float) pos_[idx].z; }
-    int			nrPoints() const	{ return pos_.size(); }
-    bool		zIsTime() const		{ return zistime_; }
+    const Coord3&	pos( int idx ) const		{ return pos_[idx]; }
+    float		value( int idx ) const		{ return pos_[idx].z; }
+    int			nrPoints() const		{ return pos_.size(); }
+    bool		zIsTime() const			{ return zistime_; }
 
     int			insertPoint(const Coord&,float z);
     			//!< a 'good' place will be found
@@ -50,11 +49,9 @@ public:
     			//!< Will correct all dahs below point
 
     Coord3		getPos(float d_ah) const;
-    const TypeSet<Coord3>& getAllPos() const { return pos_; }
-
     float		getDahForTVD(float,float prevdah=mUdf(float)) const;
     			//!< Non-unique. previous DAH may be helpful
-    			//!< Don't use if track is in time
+    			//!< Don;t use is track is in time
     float		nearestDah(const Coord3&) const;
     			// If zIsTime() z must be time
 
@@ -83,4 +80,3 @@ protected:
 }; // namespace Well
 
 #endif
-

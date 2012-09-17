@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.22 2012-09-07 22:08:02 cvsnanne Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.19 2012/04/25 17:02:08 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodtreeitem.h"
 
 class uiODDataTreeItem;
@@ -21,7 +20,7 @@ class uiVisPartServer;
 namespace Attrib { class SelSpec; }
 
 
-mClass(uiODMain) uiODDisplayTreeItem : public uiODTreeItem
+mClass uiODDisplayTreeItem : public uiODTreeItem
 {
 public:
 
@@ -47,7 +46,7 @@ protected:
 
     bool		shouldSelect(int selkey) const;
     int			selectionKey() const;
-    int			uiTreeViewItemType() const;
+    int			uiListViewItemType() const;
     virtual void	checkCB(CallBacker*);
     virtual bool	init();
 
@@ -61,9 +60,8 @@ protected:
     virtual bool	askContinueAndSaveIfNeeded(bool withcancel)	
 			{ return true; }
 
-    void		addToToolBarCB(CallBacker*);
-    void		createMenuCB(CallBacker*);
-    virtual void	createMenu(MenuHandler*,bool istb);
+    virtual void	addToToolBarCB(CallBacker*);
+    virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
     
     uiVisPartServer*	visserv_;
@@ -82,4 +80,3 @@ protected:
 
 
 #endif
-

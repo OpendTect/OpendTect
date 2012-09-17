@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Jaap Glas
  Date:		December 2009
- RCS:		$Id: uiodfaulttoolman.h,v 1.13 2012-08-03 13:01:03 cvskris Exp $
+ RCS:		$Id: uiodfaulttoolman.h,v 1.12 2011/02/09 16:50:08 cvsjaap Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "uiodmainmod.h"
 #include "bufstringset.h"
 #include "multiid.h"
 #include "timer.h"
@@ -40,14 +39,14 @@ namespace visSurvey		{ class FaultDisplay;
     				  class FaultStickSetDisplay; }
 
 
-mClass(uiODMain) uiFaultStickTransferDlg : public uiDialog
+mClass uiFaultStickTransferDlg : public uiDialog
 {
 public:
 
     enum ColorMode		{ Inherit=0, Random, SerialUserDef,
 				  Current, ExistsUserDef,
 				  SingleUserDef };
-    mClass(uiODMain) Setup
+    mClass Setup
     {
     public:			Setup()
 				    : displayifnot_( true )
@@ -88,7 +87,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODFaultToolMan : public CallBacker
+mClass uiODFaultToolMan : public CallBacker
 {
 public:
     				uiODFaultToolMan(uiODMain&);
@@ -233,4 +232,3 @@ protected:
 
 
 #endif
-

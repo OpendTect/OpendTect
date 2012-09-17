@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.42 2012-09-04 04:50:34 cvsraman Exp $
+ RCS:		$Id: file.cc,v 1.41 2012/09/04 04:34:19 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -373,6 +373,15 @@ bool copy( const char* from, const char* to )
 }
 
 
+bool move( const char* from, const char* to )
+{
+#ifdef __win__
+    return winMove( from, to, isFile(from) );
+#endif
+    return true;
+}
+
+
 bool copyDir( const char* from, const char* to )
 {
     if ( !from || !exists(from) || !to || !*to || exists(to) )
@@ -392,7 +401,7 @@ bool copyDir( const char* from, const char* to )
     cmd.add(" '").add(from).add("' '").add(to).add("'");
 #endif
 
-    bool res = !system( cmd );
+    bool res = system( cmd ) != -1;
     if ( res ) res = exists( to );
 #endif
     return res;

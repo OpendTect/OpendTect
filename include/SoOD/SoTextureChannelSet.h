@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoTextureChannelSet.h,v 1.9 2012-08-27 13:16:49 cvskris Exp $
+ RCS:           $Id: SoTextureChannelSet.h,v 1.7 2011/08/02 09:13:16 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "soodmod.h"
 #include "SoMFImage.h"
 #include <Inventor/fields/SoMFBool.h>
 #include <Inventor/nodes/SoNode.h>
@@ -28,7 +27,7 @@ class SoSensor;
 */
 
 
-mSoODClass SoTextureChannelSet : public SoNode
+mClass SoTextureChannelSet : public SoNode
 { SO_NODE_HEADER(SoTextureChannelSet);
 public:
     static		void initClass();
@@ -43,4 +42,3 @@ protected:
 
 
 #endif
-

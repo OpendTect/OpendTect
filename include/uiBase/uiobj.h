@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.77 2012-09-13 18:36:28 cvsnanne Exp $
+ RCS:           $Id: uiobj.h,v 1.73 2011/05/13 10:03:03 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uibaseobject.h"
 #include "uigeom.h"
 #include "uilayout.h"
@@ -20,7 +19,6 @@ ________________________________________________________________________
 
 #include <stdlib.h>
 
-mFDQtclass(QWidget)
 class MouseCursor;
 class uiFont;
 class uiObjectBody;
@@ -28,12 +26,13 @@ class uiParent;
 class uiMainWin;
 class i_LayoutItem;
 class ioPixmap;
+class QWidget;
 class uiObjEventFilter;
 
 
 /*!\ The base class for most UI elements. */
 
-mClass(uiBase) uiObject : public uiBaseObject
+mClass uiObject : public uiBaseObject
 {
     friend class	uiObjectBody;
     friend class	i_LayoutItem;
@@ -92,13 +91,11 @@ public:
 
     int			prefHNrPics() const;
     virtual void	setPrefWidth(int);
-    void		setPrefWidthInChar(int);
-    void		setPrefWidthInChar(float);
+    void                setPrefWidthInChar(float);
     void		setMinimumWidth(int);
     void		setMaximumWidth(int);
     int			prefVNrPics() const;
     virtual void	setPrefHeight(int);
-    void		setPrefHeightInChar(int);
     void		setPrefHeightInChar(float);
     void		setMinimumHeight(int);
     void		setMaximumHeight(int);
@@ -140,11 +137,9 @@ public:
     void		reParent(uiParent*);
     
     uiMainWin*		mainwin();
-    
-    mQtclass(QWidget*)	getWidget() { return qwidget(); }
-    mQtclass(QWidget*)	qwidget();
-    const mQtclass(QWidget*)	qwidget() const
-			      { return const_cast<uiObject*>(this)->qwidget(); }
+    QWidget*		qwidget();
+    const QWidget*	qwidget() const
+			{ return const_cast<uiObject*>(this)->qwidget(); }
 
     virtual bool	handleLongTabletPress();
 
@@ -197,9 +192,9 @@ private:
 	mTemplTypeDef(fromclass,templ_arg,toclass)
 
 
-#define mUsrEvGuiThread	   mQtclass(QEvent)::Type( mQtclass(QEvent)::User + 0 )
-#define mUsrEvPopUpReady   mQtclass(QEvent)::Type( mQtclass(QEvent)::User + 1 )
-#define mUsrEvLongTabletPress  mQtclass(QEvent)::Type(mQtclass(QEvent)::User+2)
+#define mUsrEvGuiThread			QEvent::Type( QEvent::User + 0 )
+#define mUsrEvPopUpReady		QEvent::Type( QEvent::User + 1 )
+#define mUsrEvLongTabletPress		QEvent::Type( QEvent::User + 2 )
 
 
 /*! \mainpage Basic User Interface (uiBase)
@@ -277,4 +272,3 @@ the ubiquitous uiDialog.
 
 
 #endif
-

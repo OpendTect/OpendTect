@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.h,v 1.9 2012-08-03 13:00:57 cvskris Exp $
+ RCS:           $Id: flatviewaxesdrawer.h,v 1.6 2009/07/22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "drawaxis2d.h"
 
 class uiGraphicsView;
@@ -23,11 +22,12 @@ class Viewer;
 
 /*!\brief Axis drawer for flat viewers */
 
-mClass(uiFlatView) AxesDrawer : public ::uiGraphicsSceneAxisMgr
+mClass AxesDrawer : public ::DrawAxis2D
 {
 public:
     			AxesDrawer(Viewer&,uiGraphicsView&);
-    
+
+    void		draw(uiRect,uiWorldRect);
 
     int			altdim0_;
 
@@ -42,4 +42,3 @@ protected:
 } // namespace
 
 #endif
-

@@ -8,18 +8,17 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		25-7-1997
  Contents:	IOObj on other IOObj
- RCS:		$Id: iox.h,v 1.21 2012-08-03 13:00:23 cvskris Exp $
+ RCS:		$Id: iox.h,v 1.20 2010/12/16 13:04:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "ioobj.h"
 
 
 /*\brief is a X-Group entry in the omf, e.g. PS data based on 3D cubes.  */
 
-mClass(General) IOX : public IOObj
+mClass IOX : public IOObj
 {
 public:
 			IOX(const char* nm=0,const char* ky=0,bool =0);
@@ -53,4 +52,3 @@ protected:
 
 
 #endif
-

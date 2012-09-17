@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.32 2012-08-03 13:01:20 cvskris Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.30 2012/05/29 11:56:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "bufstringset.h"
 #include "multiid.h"
 #include "ranges.h"
@@ -38,11 +37,11 @@ namespace Well
     class LogSet;
 }
 
-mClass(uiWell) uiWellDispProperties : public uiGroup
+mClass uiWellDispProperties : public uiGroup
 {
 public:
 
-    mClass(uiWell) Setup
+    mClass Setup
     {
     public:
 			Setup( const char* sztxt=0, const char* coltxt=0 )
@@ -78,7 +77,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellTrackDispProperties : public uiWellDispProperties
+mClass uiWellTrackDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellTrackDispProperties(uiParent*,const Setup&,
@@ -101,7 +100,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellMarkersDispProperties : public uiWellDispProperties
+mClass uiWellMarkersDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellMarkersDispProperties(uiParent*,const Setup&,
@@ -127,15 +126,15 @@ protected:
     uiLabeledSpinBox*	nmsizefld_;
     uiComboBox*		nmstylefld_;
     uiCheckBox*		samecolasmarkerfld_;
-    uiCheckBox*		checkallfld_;
     uiColorInput*	nmcolfld_;
     uiLabeledSpinBox*	cylinderheightfld_;
     uiListBox*		displaymarkersfld_;
+    BufferStringSet&	selmarkernms_;
     bool		is2d_;
 };
 
 
-mClass(uiWell) uiWellLogDispProperties : public uiWellDispProperties
+mClass uiWellLogDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellLogDispProperties(uiParent*,const Setup&,
@@ -148,7 +147,6 @@ public:
     void 		resetProps(Well::DisplayProperties::Log&);
     void		setLogSet(const Well::LogSet*);
     void		disableSeisStyle(bool);
-    void		disableLogWidth(bool);
 
 protected:
 
@@ -195,7 +193,9 @@ protected:
     Interval<float>     valuerange_;
     Interval<float>     fillvaluerange_;
     const Well::LogSet*  wl_;
+
+public:
+    void		disableLogWidth(bool yn);
 };
 
 #endif
-

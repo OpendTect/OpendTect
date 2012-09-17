@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		June 2003
- RCS:		$Id: viscoltabmod.h,v 1.8 2012-08-03 13:01:23 cvskris Exp $
+ RCS:		$Id: viscoltabmod.h,v 1.7 2010/08/19 08:21:10 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "ranges.h"
 
@@ -26,7 +25,7 @@ namespace visBase
 
 */
 
-mClass(visBase) VisColTabMod : public DataObject
+mClass VisColTabMod : public DataObject
 {
 public:
     static VisColTabMod*	create()
@@ -70,4 +69,3 @@ protected:
 
 
 #endif
-

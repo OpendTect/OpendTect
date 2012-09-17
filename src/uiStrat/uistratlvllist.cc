@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlvllist.cc,v 1.14 2012-07-04 10:36:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratlvllist.cc,v 1.12 2012/07/04 10:35:30 cvsbruno Exp $";
 
 #include "uistratlvllist.h"
 
@@ -22,7 +22,7 @@ static const char* sNoLevelTxt      = "--- None ---";
 
 uiStratLvlList::uiStratLvlList( uiParent* p )
     : uiLabeledListBox(p,"Regional markers",false,uiLabeledListBox::AboveMid)
-    , islocked_(false)
+  , islocked_(false)
 {
     box()->setStretch( 2, 2 );
     box()->setFieldWidth( 10 );
@@ -55,7 +55,8 @@ uiStratLvlList::~uiStratLvlList()
 
 void uiStratLvlList::rClickLvlCB( CallBacker* )
 {
-    if ( islocked_ ) return;
+    if ( islocked_ ) 
+	return;
 
     int curit = box()->currentItem();
     Strat::LevelSet& levelset = Strat::eLVLS();

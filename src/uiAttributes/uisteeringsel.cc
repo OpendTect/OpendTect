@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisteeringsel.cc,v 1.59 2012-05-22 14:48:36 cvskris Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.56 2012/01/11 08:20:25 cvshelene Exp $";
 
 
 #include "uisteeringsel.h"
@@ -300,7 +300,7 @@ void uiSteerCubeSel::doFinalise( CallBacker* c )
 {
     if ( workctio_.ioobj ) return;
 
-    const MultiID& defid = SeisIOObjInfo::getDefault( sKey::Steering() );
+    const MultiID& defid = SeisIOObjInfo::getDefault( sKey::Steering );
     workctio_.setObj( IOM().get(defid) );
     if ( workctio_.ioobj )
 	updateInput();
@@ -315,7 +315,7 @@ const IOObjContext& uiSteerCubeSel::ioContext( bool is2d )
 	ctxt = new IOObjContext( SeisTrcTranslatorGroup::ioContext() );
 	ctxt->deftransl = CBVSSeisTrcTranslator::translKey();
 	if ( !is2d )
-	    ctxt->toselect.require_.set( sKey::Type(), sKey::Steering() );
+	    ctxt->toselect.require_.set( sKey::Type, sKey::Steering );
     }
 
     return *ctxt;
@@ -330,7 +330,7 @@ CtxtIOObj* uiSteerCubeSel::mkCtxtIOObj( bool is2d, bool forread )
     if ( is2d )
 	ret->ctxt.deftransl = "2D";
     else
-	ret->ctxt.toselect.require_.set( sKey::Type(), sKey::Steering() );
+	ret->ctxt.toselect.require_.set( sKey::Type, sKey::Steering );
 
     if ( forread && !is2d )
     {

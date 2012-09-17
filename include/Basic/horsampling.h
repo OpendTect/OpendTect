@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: horsampling.h,v 1.15 2012-08-03 13:00:12 cvskris Exp $
+ RCS:           $Id: horsampling.h,v 1.14 2012/06/25 14:16:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "ranges.h"
 #include "position.h"
 
@@ -21,7 +20,7 @@ class IOPar;
 
 /*\brief Horizontal sampling (inline and crossline range and steps) */
 
-mClass(Basic) HorSampling
+mClass HorSampling
 {
 public:
 			HorSampling( bool settoSI=true ) { init(settoSI); }
@@ -111,20 +110,22 @@ public:
 
 //\brief Finds next BinID in HorSampling; initializes to first position
 
-mClass(Basic) HorSamplingIterator
+mClass HorSamplingIterator
 {
 public:
-    		HorSamplingIterator() : hrg_( true ) { reset(); }
-    		HorSamplingIterator( const HorSampling& hs )
-		    : hrg_(hs)	{ reset(); }
+    			HorSamplingIterator() : hrg_( true ) { reset(); }
+    			HorSamplingIterator( const HorSampling& hs )
+			    : hrg_(hs)	{ reset(); }
 
-    void	setSampling( const HorSampling& hs )
-		{ hrg_ = hs; reset(); }
+    void		setSampling( const HorSampling& hs )
+			{ hrg_ = hs; reset(); }
+    
 
-    void	reset(bool nextisfirstpos=true)	{ firstpos_ = nextisfirstpos; }
-    		/*!<If nextisfirstpos, the next call to next will automatically
-		    be hrg_.start. */
-    bool	next(BinID&);
+    void		reset(bool nextisfirstpos)
+    			{ firstpos_ = nextisfirstpos; }
+    void		reset() { firstpos_=true;}
+    
+    bool		next(BinID&);
 
 protected:
 
@@ -135,4 +136,3 @@ protected:
 
 
 #endif
-

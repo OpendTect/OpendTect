@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.71 2012-08-03 13:01:28 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.69 2012/01/24 14:45:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "vissurveymod.h"
 #include "bufstringset.h"
 #include "draw.h"
 #include "emposid.h"
@@ -40,7 +39,7 @@ class MPEEditor;
 class EdgeLineSetDisplay;
 
 
-mClass(visSurvey) EMObjectDisplay :  public  visBase::VisualObjectImpl,
+mClass EMObjectDisplay :  public  visBase::VisualObjectImpl,
                           public visSurvey::SurveyObject
 {
 public:
@@ -116,9 +115,6 @@ public:
 
     void			lock(bool yn);
     NotifierAccess*		getLockNotifier()	{ return &locknotifier;}
-    virtual void		doOtherObjectsMoved(
-				    const ObjectSet<const SurveyObject>&,
-				    int whichobj )	=0;
 
 protected:
     				~EMObjectDisplay();
@@ -176,6 +172,5 @@ protected:
 };
 
 #endif
-
 
 

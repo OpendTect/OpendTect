@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.75 2012-08-03 13:00:18 cvskris Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.73 2012/04/04 10:22:15 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emhorizon.h"
 #include "binidsurface.h"
 #include "tableascio.h"
@@ -34,7 +33,7 @@ namespace Pos { class Provider3D; }
 namespace EM
 {
 
-mClass(EarthModel) Horizon3DGeometry : public HorizonGeometry
+mClass Horizon3DGeometry : public HorizonGeometry
 {
 public:
 				Horizon3DGeometry(Surface&);
@@ -72,7 +71,6 @@ public:
     EMObjectIterator*   	createIterator(const EM::SectionID&,
 					       const CubeSampling* =0) const;
 protected:
-
     Geometry::BinIDSurface*	createSectionGeometry() const;
 
     RowCol			loadedstep_;
@@ -87,7 +85,7 @@ The grids are defined by knot-points in a matrix and the fillstyle inbetween
 the knots.
 */
 
-mClass(EarthModel) Horizon3D : public Horizon
+mClass Horizon3D : public Horizon
 { mDefineEMObjFuncs( Horizon3D );
 public:
 
@@ -95,10 +93,10 @@ public:
 				//!< Fast: reads from the first section
     bool			setZ(const BinID&,float z,bool addtohist);
 				//!< Fast: writes to the first section
+    HorSampling			range(SectionID sid=-1) const;
     virtual float		getZValue(const Coord&,bool allow_udf=true,
 	    				  int nr=0) const;
-				//!< Slow: if you need the choices
-    HorSampling			range(SectionID sid=-1) const;
+    				//!< Slow: if you need the choices
 
     void			removeAll();
     Horizon3DGeometry&		geometry();
@@ -136,7 +134,7 @@ protected:
 };
 
 
-mClass(EarthModel) Horizon3DAscIO : public Table::AscIO
+mClass Horizon3DAscIO : public Table::AscIO
 {
 public:
     				Horizon3DAscIO( const Table::FormatDesc& fd,
@@ -155,9 +153,6 @@ public:
     bool			isXY() const;
     int				getNextLine(Coord&,TypeSet<float>&);
 
-    static const char*		sKeyFormatStr();
-    static const char*		sKeyAttribFormatStr();
-
 protected:
 
     std::istream&		strm_;
@@ -169,4 +164,3 @@ protected:
 } // namespace EM
 
 #endif
-

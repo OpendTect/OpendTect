@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterstd.h,v 1.10 2012-08-09 06:49:31 cvsaneesh Exp $
+ RCS:           $Id: posfilterstd.h,v 1.8 2011/11/14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "algomod.h"
 #include "posfilter.h"
 
 
@@ -22,7 +21,7 @@ namespace Pos
 
 /*!\brief Passes a percentage of the positions */
 
-mClass(Algo) RandomFilter : public virtual Filter
+mClass RandomFilter : public virtual Filter
 {
 public:
 
@@ -74,7 +73,7 @@ mSimpPosFilterDefFnsBase
 
 /*!\brief Passes a percentage of the positions (3D) */
 
-mClass(Algo) RandomFilter3D : public Filter3D
+mClass RandomFilter3D : public Filter3D
 		     , public RandomFilter
 {
 public:
@@ -86,7 +85,7 @@ public:
 
 /*!\brief Passes a percentage of the positions (2D) */
 
-mClass(Algo) RandomFilter2D : public Filter2D
+mClass RandomFilter2D : public Filter2D
 		     , public RandomFilter
 {
 public:
@@ -97,7 +96,7 @@ public:
 
 /*!\brief Passes each nth position */
 
-mClass(Algo) SubsampFilter : public virtual Filter
+mClass SubsampFilter : public virtual Filter
 {
 public:
 
@@ -111,7 +110,7 @@ public:
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
     virtual void	getSummary(BufferString&) const;
-    virtual float	estRatio(const Provider&) const	{ return 1.f/each_; }
+    virtual float	estRatio(const Provider&) const	{ return 1./each_; }
 
     int			each_;
 
@@ -128,7 +127,7 @@ protected:
 
 /*!\brief Passes each nth position (3D) */
 
-mClass(Algo) SubsampFilter3D : public Filter3D
+mClass SubsampFilter3D : public Filter3D
 		      , public SubsampFilter
 {
 public:
@@ -140,7 +139,7 @@ public:
 
 /*!\brief Passes each nth position (2D) */
 
-mClass(Algo) SubsampFilter2D : public Filter2D
+mClass SubsampFilter2D : public Filter2D
 		      , public SubsampFilter
 {
 public:
@@ -152,4 +151,3 @@ public:
 } // namespace
 
 #endif
-

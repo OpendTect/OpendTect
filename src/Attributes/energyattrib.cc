@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: energyattrib.cc,v 1.43 2012-08-09 04:38:06 cvssalil Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.39 2012/07/10 13:05:59 cvskris Exp $";
 
 #include "energyattrib.h"
 
@@ -51,7 +51,7 @@ Energy::Energy( Desc& ds )
 
     mGetBool( dograd_, dogradStr() );
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1.f/zFactor() );
+    gate_.scale( 1./zFactor() );
     if ( dograd_ )
 	dessampgate_ = Interval<int>(-1,1);
 }
@@ -61,7 +61,7 @@ void Energy::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
-    float roundedzstep = SI().zStep()*SI().zDomain().userFactor();
+    float roundedzstep = SI().zStep()*SI().zFactor();
     if ( roundedzstep > 0 )
 	roundedzstep = (int)( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );

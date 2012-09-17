@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfaceauxdata.cc,v 1.37 2012-08-03 06:38:38 cvsaneesh Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.33 2012/02/16 20:11:19 cvsnanne Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -140,7 +140,7 @@ float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
     if ( !auxdata_.validIdx(sectionidx) || !auxdata_[sectionidx] )
 	return mUdf(float);
 
-    const BinID geomrc( posid.getRowCol() );
+    const BinID geomrc( RowCol(posid.subID()) );
     const BinIDValueSet::Pos pos = auxdata_[sectionidx]->findFirst( geomrc );
     if ( !pos.valid() )
 	return mUdf(float);
@@ -166,7 +166,7 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
     if ( !auxdata_[sectionidx] )
 	auxdata_.replace( sectionidx, new BinIDValueSet( nrAuxData(), false ) );
 
-    const BinID geomrc( posid.getRowCol() );
+    const BinID geomrc( RowCol(posid.subID()) );
     const BinIDValueSet::Pos pos = auxdata_[sectionidx]->findFirst( geomrc );
     if ( !pos.valid() )
     {
@@ -289,18 +289,18 @@ void SurfaceAuxData::removeSection( const SectionID& sectionid )
 }
 
 
-bool SurfaceAuxData::hasAttribute( const IOObj& ioobj, const char* attrnm )
-{ return getFileName(ioobj,attrnm).isEmpty(); }
+BufferString SurfaceAuxData::getFileName( const IOObj& ioobj,
+					  const char* attrnm )
+{
+    return getFileName( ioobj.fullUserExpr(true), attrnm );
+}
 
-BufferString
-    SurfaceAuxData::getFileName( const IOObj& ioobj, const char* attrnm )
-{ return getFileName( ioobj.fullUserExpr(true), attrnm ); }
 
-
-BufferString
-    SurfaceAuxData::getFileName( const char* fulluserexp, const char* attrnm )
+BufferString SurfaceAuxData::getFileName( const char* fulluserexp,
+					  const char* attrnm )
 {
     const BufferString basefnm( fulluserexp );
+
     BufferString fnm; int gap = 0;
     for ( int idx=0; ; idx++ )
     {

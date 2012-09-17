@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "";
+static const char* rcsID = "";
 
 #include "uiimpexpselgrp.h"
 
@@ -36,13 +36,14 @@ static const char* rcsID mUnusedVar = "";
 #include "survinfo.h"
 #include "timefun.h"
 
+static const char* filefilter = "Text (*.txt *.dat)";
 static const char* sKeyFileType = "CrossPlot Selection";
 static const char* sKeyNrSelGrps = "Nr of Selection Groups";
 static const char* sKeySelGrp()		{ return "SelectionGrps"; }
 static const char* sKeyIdxFileName() 	{ return "index.txt"; }
 
 
-class SGSelGrpManager
+mClass SGSelGrpManager
 {
 
 public:
@@ -231,15 +232,16 @@ uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
 	nmfld_->setStretch( 2, 0 );
     }
 
-    infobut_ = new uiToolButton( this, "info", "Info",
+    infobut_ = new uiToolButton( this, "info.png", "Info",
 	    			 mCB(this,uiSGSelGrp,showInfo) );
     infobut_->attach( rightTo, listfld_ );
 
-    delbut_ = new uiToolButton( this, "trashcan", "Delete Selection-Groups",
+    delbut_ = new uiToolButton( this, "trashcan.png", "Delete Selection-Groups",
 	    		        mCB(this,uiSGSelGrp,delSelGrps) );
     delbut_->attach( alignedBelow, infobut_ );
 
-    renamebut_ = new uiToolButton( this, "renameobj", "Rename Selection-Groups",
+    renamebut_ = new uiToolButton( this, "renameobj.png",
+	    			   "Rename Selection-Groups",
 	    			   mCB(this,uiSGSelGrp,renameSelGrps) );
     renamebut_->attach( alignedBelow, delbut_ );
 
@@ -288,7 +290,7 @@ void uiSGSelGrp::delSelGrps( CallBacker* )
 
 
 
-class uiRenameDlg : public uiDialog
+mClass uiRenameDlg : public uiDialog
 {
 public:
 
@@ -402,12 +404,12 @@ ObjectSet<SelectionGrp> SelGrpImporter::getSelections()
     
     if ( par.hasKey(sKeyNrSelGrps) )
 	par.get( sKeyNrSelGrps, nrselgrps );
-    if ( par.hasKey(IOPar::compKey(sKey::Attribute(),"X")) )
-	par.get( IOPar::compKey(sKey::Attribute(),"X"), xname_ );
-    if ( par.hasKey(IOPar::compKey(sKey::Attribute(),"Y")) )
-	par.get( IOPar::compKey(sKey::Attribute(),"Y"), yname_ );
-    if ( par.hasKey(IOPar::compKey(sKey::Attribute(),"Y2")) )
-	par.get( IOPar::compKey(sKey::Attribute(),"Y2"), y2name_ );
+    if ( par.hasKey(IOPar::compKey(sKey::Attribute,"X")) )
+	par.get( IOPar::compKey(sKey::Attribute,"X"), xname_ );
+    if ( par.hasKey(IOPar::compKey(sKey::Attribute,"Y")) )
+	par.get( IOPar::compKey(sKey::Attribute,"Y"), yname_ );
+    if ( par.hasKey(IOPar::compKey(sKey::Attribute,"Y2")) )
+	par.get( IOPar::compKey(sKey::Attribute,"Y2"), y2name_ );
 
     for ( int selidx=0; selidx < nrselgrps; selidx++ )
     {
@@ -453,10 +455,10 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
     }
 
     IOPar selectionpar;
-    selectionpar.set( IOPar::compKey(sKey::Attribute(),"X"), xname );
-    selectionpar.set( IOPar::compKey(sKey::Attribute(),"Y"), yname );
+    selectionpar.set( IOPar::compKey(sKey::Attribute,"X"), xname );
+    selectionpar.set( IOPar::compKey(sKey::Attribute,"Y"), yname );
     if ( y2name )
-	selectionpar.set( IOPar::compKey(sKey::Attribute(),"Y2"), y2name );
+	selectionpar.set( IOPar::compKey(sKey::Attribute,"Y2"), y2name );
     selectionpar.set( sKeyNrSelGrps, selgrps.size() );
 
     for ( int selidx=0; selidx<selgrps.size(); selidx++ )
@@ -479,7 +481,7 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
 }
 
 
-class uiSGSelDlg : public uiDialog
+mClass uiSGSelDlg : public uiDialog
 {
 public:
 
@@ -720,7 +722,7 @@ BufferStringSet uiReadSelGrp::getAvailableAxisNames() const
 }
 
 #define mGetAxisVals \
-    const int xaxis mUnusedVar = xselfld_->currentItem(); \
+    int xaxis = xselfld_->currentItem(); \
     int yaxis=-1; \
     int y2axis=-2; \
     if ( !ychkfld_->isDisplayed() || ychkfld_->isChecked() ) \
@@ -790,33 +792,35 @@ void uiReadSelGrp::fillRectangle( const SelectionArea& selarea,
     }
     else 
     {
-	uiWorldRect rect = selarea.worldrect_;
-	uiWorldRect altrect = hasalt ? selarea.altworldrect_
+	const bool xis1 = xaxis == 1;
+	const bool yis0 = yaxis == 0;
+       uiWorldRect rect = selarea.worldrect_;
+       uiWorldRect altrect = hasalt ? selarea.altworldrect_
 				    : selarea.worldrect_;
-	TypeSet<double> ltptval;
-	ltptval += rect.topLeft().x;
-	ltptval += rect.topLeft().y;
-	ltptval += altrect.topLeft().y;
+       TypeSet<double> ltptval;
+       ltptval += rect.topLeft().x;
+       ltptval += rect.topLeft().y;
+       ltptval += altrect.topLeft().y;
+       
+       TypeSet<double> rbptval;
+       rbptval += rect.bottomRight().x;
+       rbptval += rect.bottomRight().y;
+       rbptval += altrect.bottomRight().y;
 
-	TypeSet<double> rbptval;
-	rbptval += rect.bottomRight().x;
-	rbptval += rect.bottomRight().y;
-	rbptval += altrect.bottomRight().y;
+       const bool onlyy2 = actselarea.axistype_ == SelectionArea::Y2;
+       const int yaxisnr = (yaxis<0 || onlyy2) ? y2axis : yaxis;
 
-	const bool onlyy2 = actselarea.axistype_ == SelectionArea::Y2;
-	const int yaxisnr = (yaxis<0 || onlyy2) ? y2axis : yaxis;
-
-	actselarea.worldrect_ =
+       actselarea.worldrect_ =
 	   uiWorldRect( ltptval[xaxis], ltptval[yaxisnr],
-			rbptval[xaxis], rbptval[yaxisnr] );
-	actselarea.worldrect_.checkCorners( true, false );
-	if (hasalt && actselarea.axistype_==SelectionArea::Both)
-	{
+		        rbptval[xaxis], rbptval[yaxisnr] );
+       actselarea.worldrect_.checkCorners( true, false );
+       if (hasalt && actselarea.axistype_==SelectionArea::Both)
+       {
 	   actselarea.altworldrect_ =
 	       uiWorldRect( ltptval[xaxis], ltptval[y2axis],
 			    rbptval[xaxis], rbptval[y2axis] );
 	   actselarea.altworldrect_.checkCorners( true, false );
-	}
+       }
     }
 }
 
@@ -836,13 +840,15 @@ void uiReadSelGrp::fillPolygon( const SelectionArea& selarea,
     }
     else 
     {
-	ODPolygon<double> worldpoly,altworldpoly;
-	TypeSet< Geom::Point2D<double> > pts = selarea.worldpoly_.data();
-	TypeSet< Geom::Point2D<double> > altpts =
+	const bool xis1 = xaxis == 1;
+	const bool yis0 = yaxis == 0;
+       ODPolygon<double> worldpoly,altworldpoly;
+       TypeSet< Geom::Point2D<double> > pts = selarea.worldpoly_.data();
+       TypeSet< Geom::Point2D<double> > altpts =
 				   hasalt ? selarea.altworldpoly_.data()
 					  : selarea.worldpoly_.data();
-	for ( int idx=0; idx<pts.size(); idx++ )
-	{
+       for ( int idx=0; idx<pts.size(); idx++ )
+       {
 	   TypeSet<double> ptval;
 	   ptval += pts[idx].x; ptval += pts[idx].y;
 	   ptval += altpts[idx].y;
@@ -854,10 +860,10 @@ void uiReadSelGrp::fillPolygon( const SelectionArea& selarea,
 	   if (hasalt && actselarea.axistype_==SelectionArea::Both)
 	       altworldpoly.add( Geom::Point2D<double>(ptval[xaxis],
 				 ptval[y2axis]) );
-	}
+       }
 
-	actselarea.worldpoly_ = worldpoly;
-	actselarea.altworldpoly_ = altworldpoly;
+       actselarea.worldpoly_ = worldpoly;
+       actselarea.altworldpoly_ = altworldpoly;
     }
 }
 

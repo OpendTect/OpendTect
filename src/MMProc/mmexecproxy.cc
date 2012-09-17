@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id";
+static const char* rcsID = "$Id";
 
 #include "mmexecproxy.h"
 

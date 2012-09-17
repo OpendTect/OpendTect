@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emposid.cc,v 1.22 2012-08-07 16:52:09 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emposid.cc,v 1.18 2010/06/18 12:23:27 cvskris Exp $";
 
 #include "emposid.h"
 #include "iopar.h"
@@ -27,7 +27,9 @@ bool PosID::isUdf() const { return objectID()==-1; }
 
 
 RowCol PosID::getRowCol() const
-{ return RowCol::fromInt64( subID() ); }
+{
+    return RowCol( subID() );
+}
 
 
 void PosID::fillPar( IOPar& par ) const

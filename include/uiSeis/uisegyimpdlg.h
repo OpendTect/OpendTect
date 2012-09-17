@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.h,v 1.12 2012-08-03 13:01:07 cvskris Exp $
+ RCS:           $Id: uisegyimpdlg.h,v 1.11 2009/07/22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uisegyreaddlg.h"
 class uiSeisSel;
 class CtxtIOObj;
@@ -22,7 +21,7 @@ class uiSeisTransfer;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mClass(uiSeis) uiSEGYImpDlg : public uiSEGYReadDlg
+mClass uiSEGYImpDlg : public uiSEGYReadDlg
 {
 public :
 
@@ -50,4 +49,3 @@ protected:
 
 
 #endif
-

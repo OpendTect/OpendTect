@@ -4,7 +4,7 @@
  * FUNCTION : get special folder location
 -*/
 
-static const char* rcsID = "$Id: SearchODFile.cc,v 1.9 2011-12-14 13:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: SearchODFile.cc,v 1.9 2011/12/14 13:16:41 cvsbert Exp $";
 
 
 #include "prog.h"

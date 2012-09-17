@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: gridcreator.h,v 1.2 2012-08-03 13:00:17 cvskris Exp $
+ RCS:		$Id: gridcreator.h,v 1.1 2010/08/26 03:50:37 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "emattribmod.h"
 #include "executor.h"
 
 #include "bufstring.h"
@@ -26,7 +25,7 @@ class TaskRunner;
 namespace EM { class Horizon2D; }
 
 
-mClass(EMAttrib) Seis2DGridCreator : public ExecutorGroup
+mClass Seis2DGridCreator : public ExecutorGroup
 {
 public:
     			Seis2DGridCreator(const IOPar&);
@@ -61,7 +60,7 @@ protected:
 };
 
 
-mClass(EMAttrib) Horizon2DGridCreator : public ExecutorGroup
+mClass Horizon2DGridCreator : public ExecutorGroup
 {
 public:
     			Horizon2DGridCreator();
@@ -88,4 +87,3 @@ protected:
 
 
 #endif
-

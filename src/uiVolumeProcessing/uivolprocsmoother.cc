@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uivolprocsmoother.cc,v 1.20 2012-07-10 08:05:38 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.17 2012/07/10 13:06:09 cvskris Exp $";
 
 #include "uivolprocsmoother.h"
 
@@ -56,7 +56,7 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
     crllenfld_->box()->setValue( step.crl*(smoother_->crlSz()/2) );
     crllenfld_->attach( alignedBelow, inllenfld_ );
 
-    const float zstep = SI().zStep() * SI().zDomain().userFactor();
+    const float zstep = SI().zStep() * SI().zFactor();
     BufferString zlabel = "Vertical ";
     zlabel += SI().getZUnitString(true);
 
@@ -85,7 +85,7 @@ bool uiSmoother::acceptOK( CallBacker* cb )
     if ( !uiStepDialog::acceptOK( cb ) )
 	return false;
 
-    const float zstep = SI().zStep() * SI().zDomain().userFactor();
+    const float zstep = SI().zStep() * SI().zFactor();
     const int inlsz = mNINT32(inllenfld_->box()->getFValue()/SI().inlStep())*2+1;
     const int crlsz = mNINT32(crllenfld_->box()->getFValue()/SI().crlStep())*2+1;
     const int zsz = mNINT32(zlenfld_->box()->getFValue()/zstep)*2+1;

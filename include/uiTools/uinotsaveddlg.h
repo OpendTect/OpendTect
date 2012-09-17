@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2010
- RCS:           $Id: uinotsaveddlg.h,v 1.4 2012-08-03 13:01:14 cvskris Exp $
+ RCS:           $Id: uinotsaveddlg.h,v 1.3 2011/02/17 17:20:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uitoolsmod.h"
 #include "bufstring.h"
 #include "callback.h"
 
@@ -69,7 +68,7 @@ void MyClass::saveCB( CallBacker* )
 */
 
    
-mClass(uiTools) NotSavedPrompter : public CallBacker
+mClass NotSavedPrompter : public CallBacker
 {
 public:
     static NotSavedPrompter&	NSP(); //gives instance
@@ -128,4 +127,3 @@ protected:
 
 
 #endif
-

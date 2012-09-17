@@ -7,13 +7,12 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.71 2012-08-03 13:01:28 cvskris Exp $
+RCS:        $Id: vismpe.h,v 1.69 2011/05/09 23:34:55 cvskarthika Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
 
@@ -42,7 +41,7 @@ namespace visSurvey
 
 */
 
-mClass(visSurvey) MPEDisplay : public visBase::VisualObjectImpl, 
+mClass MPEDisplay : public visBase::VisualObjectImpl, 
 		    public visSurvey::SurveyObject
 {
 public:
@@ -64,7 +63,7 @@ public:
     float           getDraggerTransparency() const;
     
     void            setPlaneOrientation(int orient);
-    int       getPlaneOrientation() const;
+    const int       getPlaneOrientation() const;
 
     bool            getPlanePosition(CubeSampling&) const;
     void            moveMPEPlane(int nrsteps);    
@@ -263,5 +262,4 @@ protected:
 }; // namespace visSurvey
 
 #endif
-
 

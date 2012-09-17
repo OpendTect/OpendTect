@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: linear.h,v 1.11 2012-08-03 13:00:04 cvskris Exp $
+ RCS:		$Id: linear.h,v 1.10 2011/04/22 13:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "algomod.h"
 #include "mathfunc.h"
 namespace Geom { template <class T> class Point2D; }
 
@@ -65,7 +64,7 @@ typedef PlaneParameters<float> PlanePars;
 
 /*!\brief linear stats in 2D. */
 
-mClass(Algo) LinStats2D
+mClass LinStats2D
 {
 public:
 		LinStats2D() : corrcoeff(0)	{}
@@ -81,7 +80,7 @@ public:
 
 /*!\brief linear stats in 3D. */
 
-mClass(Algo) LinStats3D
+mClass LinStats3D
 {
 public:
 		LinStats3D() : corrcoeff(0)	{}
@@ -94,4 +93,3 @@ public:
 
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2005 / Dec 2009
- RCS:		$Id: axislayout.h,v 1.6 2012-08-29 07:56:38 cvskris Exp $
+ RCS:		$Id: axislayout.h,v 1.3 2012/07/10 13:05:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "ranges.h"
 #include "samplingdata.h"
 
@@ -22,7 +21,7 @@ ________________________________________________________________________
 /*!\brief helps making nice axes for graphs */
 
 template <class T>
-class AxisLayout
+mClass AxisLayout
 {
 public:
 			// Have layout calculated
@@ -80,12 +79,12 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
     else if ( scwdth < 50 )     scstep = 10;
     else                        scstep = 20;
 
-    sd_.step = (T) ( scstep / stepfac );
+    sd_.step = scstep / stepfac;
     if ( wdth > 1e-30 )
     {
-	const T fidx = (T) ( rev
+	const T fidx = rev
 	    ? ceil( intv.stop / sd_.step + 1e-6 )
-	    : floor( intv.start / sd_.step + 1e-6 ) );
+	    : floor( intv.start / sd_.step + 1e-6 );
 	sd_.start = mNINT32( fidx ) * sd_.step;
     }
     if ( rev ) sd_.step = -sd_.step;
@@ -109,7 +108,7 @@ T AxisLayout<T>::findEnd( T datastop ) const
     if ( worksd.start + 10000 * worksd.step < datastop )
 	return datastop;
 
-    T pos = (T) ( ceil( (datastop-worksd.start) / worksd.step - 1e-6 ) );
+    T pos = ceil( (datastop-worksd.start) / worksd.step - 1e-6 );
     if ( pos < .5 ) pos = 1;
     T wdth = mNINT32(pos) * worksd.step;
 
@@ -118,4 +117,3 @@ T AxisLayout<T>::findEnd( T datastop ) const
 
 
 #endif
-

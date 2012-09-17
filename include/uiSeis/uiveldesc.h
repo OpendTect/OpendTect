@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.23 2012-08-03 13:01:10 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.22 2010/11/19 16:55:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uigeninput.h"
 #include "uiseissel.h"
 #include "uizaxistransform.h"
@@ -24,11 +23,11 @@ class VelocityStretcher;
 
 /*!Group that allows the user to edit VelocityDesc information. */
 
-mClass(uiSeis) uiVelocityDesc : public uiGroup
+mClass uiVelocityDesc : public uiGroup
 {
 public:
 
-    mClass(uiSeis) Setup
+    mClass Setup
     {
     public:
 				Setup( const VelocityDesc* vd=0 )
@@ -58,7 +57,7 @@ protected:
 
 
 /*!Dialog that allows the user to edit VelocityDesc information. */
-mClass(uiSeis) uiVelocityDescDlg : public uiDialog
+mClass uiVelocityDescDlg : public uiDialog
 {
 public:
     			uiVelocityDescDlg(uiParent*,const IOObj* cursel=0,
@@ -89,7 +88,7 @@ protected:
 //!Field that selects a velocity volume, and edit it's properties/velocity tag
 
 
-mClass(uiSeis) uiVelSel : public uiSeisSel
+mClass uiVelSel : public uiSeisSel
 {
 public:
     				uiVelSel(uiParent*,IOObjContext&,
@@ -114,7 +113,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiTimeDepthBase : public uiZAxisTransform
+mClass uiTimeDepthBase : public uiZAxisTransform
 {
 public:
     bool			acceptOK();
@@ -142,7 +141,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiTime2Depth : public uiTimeDepthBase
+mClass uiTime2Depth : public uiTimeDepthBase
 {
 public:
     static void			initClass();
@@ -152,7 +151,7 @@ public:
 };
 
 
-mClass(uiSeis) uiDepth2Time : public uiTimeDepthBase
+mClass uiDepth2Time : public uiTimeDepthBase
 {
 public:
     static void			initClass();
@@ -163,4 +162,3 @@ public:
 
 
 #endif
-

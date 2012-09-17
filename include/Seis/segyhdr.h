@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.34 2012-08-03 13:00:34 cvskris Exp $
+ RCS:		$Id: segyhdr.h,v 1.33 2011/03/08 13:54:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "seismod.h"
 #include "segythdef.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -33,7 +32,7 @@ class Hdrdef;
  
 */
 
-mClass(Seis) TxtHeader
+mClass TxtHeader
 {
 public:
 
@@ -74,7 +73,7 @@ protected:
 
 class X;
 
-mClass(Seis) BinHeader
+mClass BinHeader
 {
 public:
 
@@ -138,7 +137,7 @@ public:
 };
 
 
-mClass(Seis) TrcHeader
+mClass TrcHeader
 {
 public:
 
@@ -216,4 +215,3 @@ public:
 
 
 #endif
-

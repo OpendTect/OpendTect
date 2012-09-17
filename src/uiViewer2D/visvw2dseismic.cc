@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: visvw2dseismic.cc,v 1.1 2010-06-24 08:41:01 cvsumesh Exp $
+ RCS:		$Id: visvw2dseismic.cc,v 1.1 2010/06/24 08:41:01 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/

@@ -6,12 +6,11 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          March 2006
-RCS:           $Id: horizon2dline.h,v 1.14 2012-08-03 13:00:27 cvskris Exp $
+RCS:           $Id: horizon2dline.h,v 1.13 2011/10/20 14:17:39 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "rowcolsurface.h"
 #include "samplingdata.h"
 #include "surv2dgeom.h"
@@ -27,7 +26,7 @@ namespace Geometry
 /*!A curve that goes along a fixed set of x,y coordinates with a varying
    z. */
 
-mClass(Geometry) Horizon2DLine : public RowColSurface
+mClass Horizon2DLine : public RowColSurface
 {
 public:
     			Horizon2DLine();
@@ -90,4 +89,3 @@ protected:
 } // namespace Geometry
 
 #endif
-

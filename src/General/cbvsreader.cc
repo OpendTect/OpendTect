@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: cbvsreader.cc,v 1.89 2012-07-20 06:26:16 cvsnageswara Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.84 2012/03/06 10:47:48 cvsbert Exp $";
 
 /*!
 
@@ -108,19 +108,19 @@ bool CBVSReader::readInfo( bool wanttrailer, bool forceusecbvsinfo )
     // const int nrbytesinheader = iinterp_.get( ptr+8 );
 
     strm_.read( ptr, integersize );
-    getText( iinterp_.get(ptr,0), info_.stdtext_ );
+    getText( iinterp_.get(ptr,0), info_.stdtext );
 
     if ( !readComps() || !readGeom(forceusecbvsinfo) )
 	return false;
 
     strm_.read( ptr, 2 * integersize );
-    info_.seqnr_ = iinterp_.get( ptr, 0 );
-    getText( iinterp_.get(ptr,1), info_.usertext_ );
-    removeTrailingBlanks( info_.usertext_.buf() );
+    info_.seqnr = iinterp_.get( ptr, 0 );
+    getText( iinterp_.get(ptr,1), info_.usertext );
+    removeTrailingBlanks( info_.usertext.buf() );
 
     datastartfo_ = strm_.tellg();
 
-    CBVSInfo::SurvGeom& geom = info_.geom_;
+    CBVSInfo::SurvGeom& geom = info_.geom;
     if ( !wanttrailer )
 	geom.fullyrectandreg = true;
 
@@ -153,8 +153,8 @@ void CBVSReader::setCubePos( bool fromgeom ) const
 {
     PosInfo::CubeDataPos& inp = fromgeom ? curgeomcubepos_ : curldscubepos_;
     PosInfo::CubeDataPos& out = fromgeom ? curldscubepos_ : curgeomcubepos_;
-    const PosInfo::CubeData& inpcd = fromgeom ? info_.geom_.cubedata : lds_;
-    const PosInfo::CubeData& outcd = fromgeom ? lds_ : info_.geom_.cubedata;
+    const PosInfo::CubeData& inpcd = fromgeom ? info_.geom.cubedata : lds_;
+    const PosInfo::CubeData& outcd = fromgeom ? lds_ : info_.geom.cubedata;
 
     out = inp; // guess
     if ( outcd.binID(out) != inpcd.binID(inp) )
@@ -164,7 +164,7 @@ void CBVSReader::setCubePos( bool fromgeom ) const
 
 void CBVSReader::updCurBinID() const
 {
-    curbinid_ = info_.geom_.cubedata.binID( curgeomcubepos_ );
+    curbinid_ = info_.geom.cubedata.binID( curgeomcubepos_ );
 }
 
 
@@ -207,15 +207,15 @@ const char* CBVSReader::check( std::istream& strm )
 
 void CBVSReader::getAuxInfoSel( const char* ptr )
 {
-    info_.auxinfosel_.startpos =	mAuxSetting(ptr,1);
-    info_.auxinfosel_.coord =	mAuxSetting(ptr,2);
-    info_.auxinfosel_.offset =	mAuxSetting(ptr,4);
-    info_.auxinfosel_.pick =	mAuxSetting(ptr,8);
-    info_.auxinfosel_.refnr =	mAuxSetting(ptr,16);
-    info_.auxinfosel_.azimuth =	mAuxSetting(ptr,32);
+    info_.auxinfosel.startpos =	mAuxSetting(ptr,1);
+    info_.auxinfosel.coord =	mAuxSetting(ptr,2);
+    info_.auxinfosel.offset =	mAuxSetting(ptr,4);
+    info_.auxinfosel.pick =	mAuxSetting(ptr,8);
+    info_.auxinfosel.refnr =	mAuxSetting(ptr,16);
+    info_.auxinfosel.azimuth =	mAuxSetting(ptr,32);
 
 #define mAddBytes(memb,t) \
-    if ( info_.auxinfosel_.memb ) auxnrbytes_ += sizeof(t)
+    if ( info_.auxinfosel.memb ) auxnrbytes_ += sizeof(t)
     auxnrbytes_ = 0;
     mAddBytes(startpos,float);
     if ( coordpol_ == InAux )
@@ -257,26 +257,26 @@ bool CBVSReader::readComps()
 	    // extra 2 bytes reserved for compression type
 	    newinf->datachar.fmt_ = DataCharacteristics::Ieee;
 	strm_.read( ucbuf, sizeof(float) );
-	    info_.sd_.start = finterp_.get( ucbuf, 0 );
+	    info_.sd.start = finterp_.get( ucbuf, 0 );
 	strm_.read( ucbuf, sizeof(float) );
-	    info_.sd_.step = finterp_.get( ucbuf, 0 );
-
+	    info_.sd.step = finterp_.get( ucbuf, 0 );
+	int nrsamples;
 	strm_.read( ucbuf, integersize ); // nr samples
-	    info_.nrsamples_ = iinterp_.get( ucbuf, 0 );
+	    info_.nrsamples = iinterp_.get( ucbuf, 0 );
 	strm_.read( ucbuf, 2*sizeof(float) );
 	    // reserved for per-component scaling: LinScaler( a, b )
 
-	if ( info_.nrsamples_ < 0 || newinf->datatype < 0 )
+	if ( info_.nrsamples < 0 || newinf->datatype < 0 )
 	{
 	    delete newinf;
 	    mErrRet("Corrupt CBVS format: Component desciption error")
 	}
 
-	info_.compinfo_ += newinf;
+	info_.compinfo += newinf;
 
-	cnrbytes_[icomp] = info_.nrsamples_ * newinf->datachar.nrBytes();
+	cnrbytes_[icomp] = info_.nrsamples * newinf->datachar.nrBytes();
 	bytespertrace_ += cnrbytes_[icomp];
-	samprg_ = Interval<int>( 0, info_.nrsamples_-1 );
+	samprg_ = Interval<int>( 0, info_.nrsamples-1 );
     }
 
     return true;
@@ -288,16 +288,16 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
     char buf[8*sizeof(double)];
 
     strm_.read( buf, 8*integersize );
-    info_.geom_.fullyrectandreg = (bool)iinterp_.get( buf, 0 );
-    info_.nrtrcsperposn_ = iinterp_.get( buf, 1 );
-    info_.geom_.start.inl = iinterp_.get( buf, 2 );
-    info_.geom_.start.crl = iinterp_.get( buf, 3 );
-    info_.geom_.stop.inl = iinterp_.get( buf, 4 );
-    info_.geom_.stop.crl = iinterp_.get( buf, 5 );
-    info_.geom_.step.inl = iinterp_.get( buf, 6 );
-    if ( info_.geom_.step.inl == 0 ) info_.geom_.step.inl = 1;
-    info_.geom_.step.crl = iinterp_.get( buf, 7 );
-    if ( info_.geom_.step.crl == 0 ) info_.geom_.step.crl = 1;
+    info_.geom.fullyrectandreg = (bool)iinterp_.get( buf, 0 );
+    info_.nrtrcsperposn = iinterp_.get( buf, 1 );
+    info_.geom.start.inl = iinterp_.get( buf, 2 );
+    info_.geom.start.crl = iinterp_.get( buf, 3 );
+    info_.geom.stop.inl = iinterp_.get( buf, 4 );
+    info_.geom.stop.crl = iinterp_.get( buf, 5 );
+    info_.geom.step.inl = iinterp_.get( buf, 6 );
+    if ( info_.geom.step.inl == 0 ) info_.geom.step.inl = 1;
+    info_.geom.step.crl = iinterp_.get( buf, 7 );
+    if ( info_.geom.step.crl == 0 ) info_.geom.step.crl = 1;
 
     strm_.read( buf, 6*sizeof(double) );
     RCol2Coord::RCTransform xtr, ytr;
@@ -307,12 +307,12 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
     static const bool useinfvar = GetEnvVarYN("DTECT_CBVS_USE_STORED_SURVINFO");
     const bool useinfo = forceusecbvsinfo ? true : useinfvar;
     if ( useinfo && xtr.valid(ytr) )
-	info_.geom_.b2c.setTransforms( xtr, ytr );
+	info_.geom.b2c.setTransforms( xtr, ytr );
     else
-	info_.geom_.b2c = SI().binID2Coord();
+	info_.geom.b2c = SI().binID2Coord();
 
-    hs_.start = hs_.stop = BinID( info_.geom_.start.inl, info_.geom_.start.crl );
-    hs_.include( BinID( info_.geom_.stop.inl, info_.geom_.stop.crl ) );
+    hs_.start = hs_.stop = BinID( info_.geom.start.inl, info_.geom.start.crl );
+    hs_.include( BinID( info_.geom.stop.inl, info_.geom.stop.crl ) );
 
     return strm_.good();
 }
@@ -341,7 +341,7 @@ bool CBVSReader::readTrailer()
 	}
     }
 
-    if ( !info_.geom_.fullyrectandreg )
+    if ( !info_.geom.fullyrectandreg )
     {
 	strm_.read( buf, integersize );
 	const int nrinl = iinterp_.get( buf, 0 );
@@ -376,13 +376,13 @@ bool CBVSReader::readTrailer()
 	    lds_ += iinf;
 	}
 
-	info_.geom_.start = hs_.start;
-	info_.geom_.stop = hs_.stop;
+	info_.geom.start = hs_.start;
+	info_.geom.stop = hs_.stop;
     }
 
-    info_.geom_.fullyrectandreg = lds_.isFullyRectAndReg();;
-    if ( !info_.geom_.fullyrectandreg )
-	info_.geom_.cubedata = lds_;
+    info_.geom.fullyrectandreg = lds_.isFullyRectAndReg();;
+    if ( !info_.geom.fullyrectandreg )
+	info_.geom.cubedata = lds_;
     return strm_.good();
 }
 
@@ -399,8 +399,8 @@ bool CBVSReader::toStart()
 BinID CBVSReader::nextBinID() const
 {
     PosInfo::CubeDataPos cdp( curgeomcubepos_ );
-    info_.geom_.cubedata.toNext( cdp );
-    return info_.geom_.cubedata.binID( cdp );
+    info_.geom.cubedata.toNext( cdp );
+    return info_.geom.cubedata.binID( cdp );
 }
 
 
@@ -427,8 +427,8 @@ bool CBVSReader::goTo( const BinID& bid )
 #else
     std::streamoff so;
 #endif
-    so = posnr * (info_.nrtrcsperposn_ < 2
-	    	      ? 1 : info_.nrtrcsperposn_);
+    so = posnr * (info_.nrtrcsperposn < 2
+	    	      ? 1 : info_.nrtrcsperposn);
     so *= auxnrbytes_ + bytespertrace_;
 
 #ifdef __win32__
@@ -494,11 +494,11 @@ bool CBVSReader::toNext()
     hinfofetched_ = false;
 
     idxatpos_++;
-    if ( idxatpos_ >= info_.nrtrcsperposn_ )
+    if ( idxatpos_ >= info_.nrtrcsperposn )
 	idxatpos_ = 0;
     if ( idxatpos_ == 0 )
     {
-	if ( !info_.geom_.cubedata.toNext(curgeomcubepos_) )
+	if ( !info_.geom.cubedata.toNext(curgeomcubepos_) )
 	    return false;
 	setCubePos( true );
 	updCurBinID();
@@ -512,7 +512,7 @@ bool CBVSReader::toNext()
 
 
 #define mCondGetAux(memb) \
-    if ( info_.auxinfosel_.memb ) \
+    if ( info_.auxinfosel.memb ) \
 	{ mGetAuxFromStrm(auxinf,buf,memb,strm_); }
 
 bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
@@ -521,12 +521,12 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 	return true;
 #ifdef __debug__
     // gdb says: "Couldn't find method ostream::tellp"
-    std::streampos curfo mUnusedVar = strm_.tellg();
+    std::streampos curfo = strm_.tellg();
 #endif
 
     auxinf.binid = curbinid_;
-    auxinf.coord = info_.geom_.b2c.transform( curbinid_ );
-    auxinf.startpos = info_.sd_.start;
+    auxinf.coord = info_.geom.b2c.transform( curbinid_ );
+    auxinf.startpos = info_.sd.start;
     auxinf.offset = auxinf.azimuth = 0;
     auxinf.pick = mSetUdf(auxinf.refnr);
 
@@ -538,7 +538,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 
     char buf[2*sizeof(double)];
     mCondGetAux(startpos)
-    if ( coordpol_ == InAux && info_.auxinfosel_.coord )
+    if ( coordpol_ == InAux && info_.auxinfosel.coord )
 	{ mGetCoordAuxFromStrm(auxinf,buf,strm_); }
     else if ( coordpol_ == InTrailer )
 	auxinf.coord = getTrailerCoord( auxinf.binid );
@@ -555,15 +555,15 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
 {
     int arridx = 0;
-    if ( info_.geom_.fullyrectandreg )
+    if ( info_.geom.fullyrectandreg )
     {
-	if ( bid.inl != info_.geom_.start.inl )
+	if ( bid.inl != info_.geom.start.inl )
 	{
-	    const int nrcrl = (info_.geom_.stop.crl-info_.geom_.start.crl)
-			    / info_.geom_.step.crl + 1;
-	    arridx = nrcrl * (bid.inl - info_.geom_.start.inl);
+	    const int nrcrl = (info_.geom.stop.crl-info_.geom.start.crl)
+			    / info_.geom.step.crl + 1;
+	    arridx = nrcrl * (bid.inl - info_.geom.start.inl);
 	}
-	arridx += (bid.crl-info_.geom_.start.crl) / info_.geom_.step.crl;
+	arridx += (bid.crl-info_.geom.start.crl) / info_.geom.step.crl;
     }
     else
     {
@@ -589,7 +589,7 @@ Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
     if ( arridx < trailercoords_.size() )
 	return trailercoords_[arridx];
 
-    return info_.geom_.b2c.transform( bid );
+    return info_.geom.b2c.transform( bid );
 }
 
 
@@ -614,7 +614,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	}
 	iselc++;
 
-	BasicComponentInfo* compinfo = info_.compinfo_[icomp];
+	BasicComponentInfo* compinfo = info_.compinfo[icomp];
 	int bps = compinfo->datachar.nrBytes();
 	if ( samps->start )
 	    StrmOper::seek( strm_, samps->start*bps, std::ios::cur );
@@ -622,8 +622,8 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 		    		   (samps->stop-samps->start+1) * bps ) )
 	    break;
 
-	if ( samps->stop < info_.nrsamples_-1 )
-	    StrmOper::seek( strm_, (info_.nrsamples_-samps->stop-1)*bps,
+	if ( samps->stop < info_.nrsamples-1 )
+	    StrmOper::seek( strm_, (info_.nrsamples-samps->stop-1)*bps,
 		    std::ios::cur );
     }
 

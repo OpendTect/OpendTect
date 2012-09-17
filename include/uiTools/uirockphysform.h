@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uirockphysform.h,v 1.10 2012-08-03 13:01:15 cvskris Exp $
+ RCS:           $Id: uirockphysform.h,v 1.7 2012/03/29 08:24:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "propertyref.h"
 class uiComboBox;
@@ -23,7 +22,7 @@ class uiTextEdit;
 class uiRockPhysCstFld;
 
 
-mClass(uiTools) uiRockPhysForm : public uiGroup
+mClass uiRockPhysForm : public uiGroup
 {
 public:
 
@@ -37,8 +36,10 @@ public:
     void		setFormulaName(const char*);
 
     bool		getFormulaInfo(BufferString&,BufferString&,
-	    			       BufferStringSet&,bool) const;
-    BufferString	getText(bool usecstevals) const;
+	    			       BufferStringSet&,
+				       bool usecstvals=true) const;
+    BufferString	getText(bool) const;
+    const char*		getText() const;	//will be removed, do not use
     const char*		errMsg() const		{ return errmsg_.buf(); }
     bool		isOK();
 
@@ -46,8 +47,8 @@ protected:
 
     uiComboBox*		typfld_;
     uiComboBox*		nmfld_;
-    uiTextEdit*		formulafld_;
     uiTextEdit*		descriptionfld_;
+    uiTextEdit*		formulafld_;
     const PropertyRef::StdType fixedtype_;
 
     void		typSel(CallBacker*);
@@ -61,7 +62,7 @@ protected:
 };
 
 
-mClass(uiTools) uiRockPhysCstFld : public uiGroup
+mClass uiRockPhysCstFld : public uiGroup
 {
 public:
 
@@ -87,4 +88,3 @@ protected:
 
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsread.h,v 1.12 2012-08-03 13:00:37 cvskris Exp $
+ RCS:		$Id: seispsread.h,v 1.11 2009/07/22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "position.h"
 class IOPar;
 class SeisTrc;
@@ -28,7 +27,7 @@ namespace PosInfo { class CubeData; class Line2DData; }
 
 */
 
-mClass(Seis) SeisPSReader
+mClass SeisPSReader
 {
 public:
 
@@ -48,7 +47,7 @@ public:
 
 /*!\brief reads from a 3D pre-stack seismic data store. */
 
-mClass(Seis) SeisPS3DReader : public SeisPSReader
+mClass SeisPS3DReader : public SeisPSReader
 {
 public:
 
@@ -61,7 +60,7 @@ public:
 
 /*!\brief reads from a 2D pre-stack seismic data store. */
 
-mClass(Seis) SeisPS2DReader : public SeisPSReader
+mClass SeisPS2DReader : public SeisPSReader
 {
 public:
     			SeisPS2DReader( const char* lnm )
@@ -85,4 +84,3 @@ protected:
 
 
 #endif
-

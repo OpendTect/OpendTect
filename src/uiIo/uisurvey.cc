@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurvey.cc,v 1.145 2012-08-10 03:50:05 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.138 2012/07/10 13:06:06 cvskris Exp $";
 
 #include "uisurvey.h"
 
@@ -56,15 +56,16 @@ extern "C" const char* GetSurveyFileName();
 extern "C" void SetSurveyName(const char*);
 
 
+
 static ObjectSet<uiSurvey::Util>& getUtils()
 {
     static ObjectSet<uiSurvey::Util>* utils = 0;
     if ( !utils )
     {
 	utils = new ObjectSet<uiSurvey::Util>;
-	*utils += new uiSurvey::Util( "xy2ic", "Convert (X,Y) to/from I/C",
+	*utils += new uiSurvey::Util( "xy2ic.png", "Convert (X,Y) to/from I/C",
 				      CallBack() );
-	*utils += new uiSurvey::Util( "spherewire",
+	*utils += new uiSurvey::Util( "spherewire.png",
 				"Setup geographical coordinates",
 				      CallBack() );
     }
@@ -187,11 +188,6 @@ uiSurvey::uiSurvey( uiParent* p )
 	    			 mCB(this,uiSurvey,copyButPushed), false );
     copybut_->attach( alignedBelow, editbut_ );
     copybut_->setPrefWidthInChar( 12 );
-
-    archbut_ = new uiPushButton( leftgrp, "&Archive",
-				 mCB(this,uiSurvey,archButPushed), false );
-    archbut_->attach( alignedBelow, copybut_ );
-    archbut_->setPrefWidthInChar( 12 );
 
     ObjectSet<uiSurvey::Util>& utils = getUtils();
     uiGroup* utilbutgrp = new uiGroup( rightgrp, "Surv Util buttons" );
@@ -434,6 +430,7 @@ void uiSurvey::rmButPushed( CallBacker* )
     msg += "\nFull path: "; msg += truedirnm;
     if ( !uiMSG().askRemove( msg ) ) return;
 
+
     MouseCursorManager::setOverride( MouseCursor::Wait );
     bool rmres = File::remove( truedirnm );
     MouseCursorManager::restoreOverride();
@@ -454,19 +451,6 @@ void uiSurvey::rmButPushed( CallBacker* )
         writeSurveyName( newsel );
 	if ( button(CANCEL) ) button(CANCEL)->setSensitive( false );
     }
-}
-
-
-void uiSurvey::archButPushed( CallBacker* )
-{
-    uiDialog dlg( this,
-	uiDialog::Setup("Archive survey",mNoDlgTitle,mTODOHelpID) );
-    (void)new uiFileInput( &dlg, "Destination",
-			    uiFileInput::Setup().directories(true) );
-    if ( !dlg.go() )
-	return;
-
-    uiMSG().error( "Not implemented yet" );
 }
 
 
@@ -582,7 +566,7 @@ void uiSurvey::mkInfo()
 	int nr, rest;    
 	bininfo += "inl: "; mkString(inldist);
 	bininfo += "  crl: "; mkString(crldist);
-	float area = (float) ( si.computeArea(false) * 1e-6 ); //in km2
+	float area = si.computeArea(false) * 1e-6; //in km2
 	if ( si.xyInFeet() )
 	    area /= 2.590; // square miles
 
@@ -658,7 +642,7 @@ bool uiSurvey::rejectOK( CallBacker* )
 	    return false;
 	}
     }
-
+    
     return true;
 }
 

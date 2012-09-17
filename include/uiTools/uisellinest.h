@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.h,v 1.17 2012-08-03 13:01:15 cvskris Exp $
+ RCS:           $Id: uisellinest.h,v 1.16 2011/04/08 12:37:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class uiComboBox;
@@ -25,11 +24,11 @@ class LineStyle;
 Provides selection of linestyle, linecolor and linewidth
 */
 
-mClass(uiTools) uiSelLineStyle : public uiGroup
+mClass uiSelLineStyle : public uiGroup
 { 	
 public:
 
-    mClass(uiTools) Setup
+    mClass Setup
     {
     public:
 			Setup( const char* lbltxt=0 )
@@ -84,4 +83,3 @@ private:
 };
 
 #endif
-

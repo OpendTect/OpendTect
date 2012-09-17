@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpsdemo.cc,v 1.18 2012-08-13 03:56:45 cvssalil Exp $";
+static const char* rcsID = "$Id: uidpsdemo.cc,v 1.15 2011/02/23 16:14:01 cvsbert Exp $";
 
 #include "uidpsdemo.h"
 
@@ -164,14 +164,14 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	if ( needrandsel && dps.bivSet().valid(bid) )
 	    mNextTry()
 
-	const float z = (float) (mSectGeom(selsect).getKnot(bid,false).z);
+	const float z = mSectGeom(selsect).getKnot(bid,false).z;
 	if ( mIsUdf(z) )
 	    mNextTry()
 
 	// Add the position to the set, set will allocate all the columns.
 	// We store section+1 because DataPointSet's groups start at 1
 	DataPointSet::Pos dpspos( bid,
-						(float) (mSectGeom(selsect).getKnot(bid,false).z) );
+				  mSectGeom(selsect).getKnot(bid,false).z );
 	DataPointSet::DataRow dr( dpspos, selsect+1 );
 	dps.addRow( dr );
     }
@@ -218,7 +218,7 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
 	{
 	    const float vm1 = trc.getValue( z-trc.info().sampling.step, icomp );
 	    const float v1  = trc.getValue( z+trc.info().sampling.step, icomp );
-	    vals[1] = (vm1 + v1) * .5f;
+	    vals[1] = (vm1 + v1) * .5;
 	    vals[2] = vm1 - v1;
 	    vals[1] /= vals[0]; vals[2] /= vals[0];
 	}

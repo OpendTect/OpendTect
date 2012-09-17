@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelltiewavelet.cc,v 1.50 2012-05-09 07:51:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.46 2012/02/06 08:36:52 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -106,15 +106,15 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
 {
     viewer_ = new uiFlatViewer( this );
     
-    wvltbuts_ += new uiToolButton( this, "info", "Properties",
+    wvltbuts_ += new uiToolButton( this, "info.png", "Properties",
 	    mCB(this,uiWavelet,dispProperties) );
     wvltbuts_[0]->attach( alignedBelow, viewer_ );
 
-    wvltbuts_ += new uiToolButton( this, "phase", "Rotate phase",
+    wvltbuts_ += new uiToolButton( this, "phase.png", "Rotate phase",
 	    mCB(this,uiWavelet,rotatePhase) );
     wvltbuts_[1]->attach( rightOf, wvltbuts_[0] );
 
-    wvltbuts_ += new uiToolButton( this, "wavelet_taper", "Taper Wavelet",
+    wvltbuts_ += new uiToolButton( this, "wavelet_taper.png", "Taper Wavelet",
 	    mCB(this,uiWavelet,taper) );
     wvltbuts_[2]->attach( rightOf, wvltbuts_[1] );
 
@@ -213,7 +213,7 @@ void uiWavelet::drawWavelet()
     dp->setName( wvlt_->name() );
     viewer_->setPack( true, dp->id(), false, false );
     StepInterval<double> posns; posns.setFrom( wvlt_->samplePositions() );
-    if ( SI().zIsTime() ) posns.scale( SI().zDomain().userFactor() );
+    if ( SI().zIsTime() ) posns.scale( SI().zFactor() );
     dp->posData().setRange( false, posns );
     viewer_->handleChange( uiFlatViewer::All );
 }

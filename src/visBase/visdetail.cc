@@ -4,7 +4,7 @@
  * DATE     : 23-06-2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visdetail.cc,v 1.11 2012-08-13 09:36:57 cvsaneesh Exp $";
+static const char* rcsID = "$Id: visdetail.cc,v 1.8 2012/02/10 15:40:57 cvskris Exp $";
 
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/details/SoPointDetail.h>
@@ -35,8 +35,7 @@ int FaceDetail::getClosestIdx( const Coordinates* coordinates,
     for ( int idx=0; idx<nrpoints; idx++ )
     {
         const int coordidx = pointdetail[idx].getCoordinateIndex();
-        float dist = (float) pickedpoint.sqDistTo( 
-				    coordinates->getPos(coordidx,true) );
+        float dist = pickedpoint.sqDistTo( coordinates->getPos(coordidx,true) );
         if ( !idx || dist < mindist )
         {
            mindist = dist;

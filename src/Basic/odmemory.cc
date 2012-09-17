@@ -7,22 +7,23 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odmemory.cc,v 1.14 2012-08-30 11:13:20 cvskris Exp $";
+static const char* rcsID = "$Id: odmemory.cc,v 1.10 2012/07/10 13:06:00 cvskris Exp $";
 
 #include "odsysmem.h"
 #include "odmemory.h"
 
 #ifdef __lux__
-# include "strmoper.h" 
-# include <fstream>
-static float swapfree;
+#include "strmoper.h" 
+#include <fstream>
 #endif
-
 #ifdef __mac__
-# include <unistd.h>
-# include <mach/mach_init.h>
-# include <mach/mach_host.h>
-# include <mach/host_info.h>
+#include <unistd.h>
+#include <mach/mach_init.h>
+#include <mach/mach_host.h>
+#include <mach/host_info.h>
+#endif
+#ifdef __win__
+#include <Windows.h>
 #endif
 
 #include "iopar.h" 
@@ -37,10 +38,6 @@ void OD::dumpMemInfo( IOPar& res )
     int itot = mNINT32(total); int ifree = mNINT32(free);
     res.set( "Total memory (MB)", itot );
     res.set( "Free memory (MB)", ifree );
-#ifdef __lux__
-    free = swapfree; free /= 1024 * 1024; ifree = mNINT32(free);
-    res.set( "Available swap space (MB)", ifree );
-#endif
 }
 
 
@@ -79,7 +76,6 @@ void OD::getSystemMemory( float& total, float& free )
     total = getMemFromStr( filecont.buf(), "MemTotal:" );
     free = getMemFromStr( filecont.buf(), "MemFree:" );
     free += getMemFromStr( filecont.buf(), "Cached:" );
-    swapfree = getMemFromStr( filecont.buf(), "SwapFree:" );
 
 #endif
 #ifdef __mac__
@@ -96,11 +92,12 @@ void OD::getSystemMemory( float& total, float& free )
     free = vm_info.free_count * vm_page_size;
 
 #endif
+
 #ifdef __win__
     MEMORYSTATUSEX status;
     status.dwLength = sizeof(status);
     GlobalMemoryStatusEx(&status);
-    total = (float) status.ullTotalPhys;
-    free = (float) status.ullAvailPhys;
+    total = status.ullTotalPhys;
+    free = status.ullAvailPhys;
 #endif
 }

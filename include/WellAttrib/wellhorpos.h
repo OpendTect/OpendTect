@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jul 2010
- RCS:           $Id: wellhorpos.h,v 1.9 2012-08-03 13:00:46 cvskris Exp $
+ RCS:           $Id: wellhorpos.h,v 1.7 2011/06/21 10:48:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "wellattribmod.h"
 #include "emposid.h"
 #include "namedobj.h"
 #include "position.h"
@@ -22,7 +21,7 @@ ________________________________________________________________________
 namespace Well { class Track; class D2TModel; }
 namespace EM { class Horizon2D; class Horizon3D; }
 
-mClass(WellAttrib) WellHorIntersectFinder
+mClass WellHorIntersectFinder
 {
 public:
     				WellHorIntersectFinder(const Well::Track&,
@@ -32,7 +31,8 @@ public:
     void			setHorizon(const EM::ObjectID& emid);
 
     float			findZIntersection() const;
-   				//return undef if not found
+   				//return undef if not found else z pos (in s)
+    				//of the intersect.
 
 protected:
 
@@ -45,4 +45,3 @@ protected:
 };
 
 #endif
-

@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Tutorial plugin
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-03-29 11:26:26 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.5 2012/03/29 11:33:26 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_NAME uiTut)

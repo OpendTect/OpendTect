@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistexturechannels.cc,v 1.50 2012-07-24 02:13:57 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.45 2012/05/04 07:54:38 cvsjaap Exp $";
 
 #include "vistexturechannels.h"
 
@@ -17,9 +17,6 @@ static const char* rcsID mUnusedVar = "$Id: vistexturechannels.cc,v 1.50 2012-07
 #include "SoTextureComposer.h"
 #include "Inventor/nodes/SoSwitch.h"
 #include "coltabmapper.h"
-
-#include <osg/Image>
-#include <osgGeo/LayeredTexture>
 
 #define mNrColors	255
 
@@ -43,10 +40,6 @@ public:
     void			setSize(int,int,int);
     int				getSize(unsigned char dim) const;
     od_int64			nrElements(bool percomponent) const;
-
-    void			setOsgIDs(const TypeSet<int>& );
-    const TypeSet<int>&		getOsgIDs() const { return osgids_; }
-    int				nrComponents() const { return osgids_.size(); }
 
     void			setColTabMapperSetup(
 	    					const ColTab::MapperSetup&);
@@ -81,17 +74,14 @@ public:
     BoolTypeSet					ownsunmappeddata_;
     ObjectSet<ColTab::Mapper>			mappers_;
     int						currentversion_;
-    TextureChannels&				texturechannels_;
+    TextureChannels&				owner_;
     TypeSet<float>				histogram_;
     int						size_[3];
-
-    ObjectSet<osg::Image>			osgimages_;
-    TypeSet<int>				osgids_;
 };
 
 
 ChannelInfo::ChannelInfo( TextureChannels& nc )
-    : texturechannels_( nc )
+    : owner_( nc )
     , currentversion_( 0 )
     , histogram_( mNrColors, 0 )
 {
@@ -99,7 +89,6 @@ ChannelInfo::ChannelInfo( TextureChannels& nc )
     size_[1] = 0;
     size_[2] = 0;
 
-    osgimages_.allowNull(true);
     mappeddata_.allowNull(true);
     unmappeddata_.allowNull(true);
     setNrVersions( 1 );
@@ -134,9 +123,6 @@ od_int64 ChannelInfo::nrElements( bool percomponent ) const
     od_int64 nrelements = size_[0];
     nrelements *= size_[1];
     nrelements *= size_[2];
-    if ( !percomponent )
-	nrelements *= nrComponents();
-
     return nrelements;
 }
 
@@ -222,9 +208,6 @@ bool ChannelInfo::reMapData(bool dontreclip,TaskRunner* tr )
 
 void ChannelInfo::removeImages()
 {
-    mObjectSetApplyToAll( osgimages_,
-	    { if ( osgimages_[idx] ) osgimages_[idx]->unref();
-	      osgimages_.replace( idx, 0 ); } );
 }
 
 
@@ -240,7 +223,7 @@ void ChannelInfo::removeCaches()
 
     removeImages();
 
-    texturechannels_.update( this, true );
+    owner_.update( this, true );
 
     for ( int idx=0; idx<ownsmappeddata_.size(); idx++ )
     {
@@ -292,23 +275,6 @@ void ChannelInfo::setNrVersions( int nsz )
 
 int ChannelInfo::nrVersions() const
 { return ownsmappeddata_.size(); }
-
-
-void ChannelInfo::setOsgIDs( const TypeSet<int>& osgids )
-{
-    osgids_ = osgids;
-    const int nr = osgids.size();
-
-    while ( nr>osgimages_.size() )
-	osgimages_ += 0;
-
-    while ( osgimages_.size()>nr )
-    {
-	osg::Image* image = osgimages_.remove( nr );
-	if ( image )
-	    image->unref();
-    }
-}
 
 
 bool ChannelInfo::setUnMappedData(int version, const ValueSeries<float>* data,
@@ -379,13 +345,13 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 
     if ( !unmappeddata_[version] )
     {
-	texturechannels_.update( this, true );
+	owner_.update( this, true );
 	removeImages();
 	return true;
     }
 
     const od_int64 nrelements = nrElements( false );
-    const unsigned char spacing = texturechannels_.doOsg() ? 2 : 1;
+    const unsigned char spacing = 1;
 
     if ( !mappeddata_[version] )
     {
@@ -400,7 +366,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
     ColTab::MapperTask< unsigned char> 	maptask( *mappers_[version], nrelements,
 	    mNrColors, *unmappeddata_[version],
 	    mappeddata_[version], spacing,
-	    texturechannels_.doOsg() ? mappeddata_[version]+1 : 0, spacing  );
+	    0, spacing  );
 
     if ( ( tr && tr->execute(maptask) ) || maptask.execute() )
     {
@@ -422,7 +388,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 	    memset( histogram_.arr(), 0, histogram_.size()*sizeof(float) );
 	}
 
-	texturechannels_.update( this, true );
+	owner_.update( this, true );
 	return true;
     }
 
@@ -472,7 +438,7 @@ bool ChannelInfo::setMappedData( int version, unsigned char* data,
 	ownsmappeddata_[version] = true;
     }
 
-    texturechannels_.update( this, true );
+    owner_.update( this, true );
     return true;
 }
 
@@ -489,36 +455,7 @@ void ChannelInfo::setCurrentVersion( int nidx )
     }
 
     currentversion_ = nidx;
-    texturechannels_.update( this, true );
-}
-
-
-void ChannelInfo::updateOsgImages()
-{
-    if ( !mappeddata_[currentversion_] )
-    {
-	removeImages();
-	return;
-    }
-
-    const od_int64 componentsize = nrElements( true );
-    for ( int idx=0; idx<osgimages_.size(); idx++ )
-    {
-	if ( !osgimages_[idx] )
-	{
-	    osg::Image* image = new osg::Image;
-	    image->ref();
-	    osgimages_.replace( idx, image );
-	}
-
-	const od_int64 offset = idx * componentsize*2;
-
-	osgimages_[idx]->setImage( size_[2], size_[1],
-			    size_[0], GL_LUMINANCE_ALPHA,
-			    GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE,
-			    mappeddata_[currentversion_]+offset,
-			    osg::Image::NO_DELETE, 1 );
-    }
+    owner_.update( this, true );
 }
 
 
@@ -526,17 +463,9 @@ TextureChannels::TextureChannels()
     : tc_( 0 )
     , onoff_ ( new SoSwitch )
     , tc2rgba_( 0 )
-    , osgtexture_( 0 )
 {
     onoff_->ref();
     turnOn( true );
-
-    if ( doOsg() )
-    {
-	osgtexture_ = new osgGeo::LayeredTexture;
-	osgtexture_->invertUndefLayers();
-	osgtexture_->ref();
-    }
 
     addChannel();
 }
@@ -547,8 +476,6 @@ TextureChannels::~TextureChannels()
     deepErase( channelinfo_ );
     setChannels2RGBA( 0 );
     onoff_->unref();
-
-    if ( osgtexture_ ) osgtexture_->unref();
 }
 
 
@@ -608,20 +535,6 @@ int TextureChannels::nrChannels() const
 
 int TextureChannels::addChannel()
 {
-    TypeSet<int> osgids;
-
-    int osgid = -1;
-    if ( osgtexture_ )
-    {
-	osgid = osgtexture_->addDataLayer();
-	osgtexture_->setDataLayerUndefLayerID( osgid, osgid );
-	osgtexture_->setDataLayerUndefChannel( osgid, 3 );
-	const osg::Vec4f imageudfcolor( 1.0, 1.0, 1.0, 0.0 );
-	osgtexture_->setDataLayerImageUndefColor( osgid, imageudfcolor );
-    }
-
-    osgids += osgid;
-
     ChannelInfo* newchannel = new ChannelInfo( *this );
 
     const int res = channelinfo_.size();
@@ -631,7 +544,6 @@ int TextureChannels::addChannel()
 			     channelinfo_[0]->getSize(2) );
 
     channelinfo_ += newchannel;
-    newchannel->setOsgIDs( osgids );
 
     update ( res, false );
 
@@ -687,13 +599,6 @@ void TextureChannels::removeChannel( int channel )
 	return;
 
     PtrMan<ChannelInfo> info = channelinfo_[channel];
-
-    if ( osgtexture_ )
-    {
-	for ( int idx=info->getOsgIDs().size()-1; idx>=0; idx-- )
-	    osgtexture_->removeDataLayer( info->getOsgIDs()[idx] );
-    }
-
     channelinfo_.remove(channel);
 
     bool oldenable = tc_->enableNotify( false );
@@ -745,32 +650,6 @@ TextureChannels::getColTabMapperSetup( int channel, int version ) const
 const ColTab::Mapper&
 TextureChannels::getColTabMapper( int channel, int version ) const
 { return channelinfo_[channel]->getColTabMapper( version ); }
-
-
-int TextureChannels::getNrComponents( int channel ) const 
-{ return channelinfo_[channel]->nrComponents(); }
-
-
-void TextureChannels::setNrComponents( int channel, int newsz )
-{
-    if ( !channelinfo_.validIdx(channel) )
-	return;
-
-    if ( newsz==channelinfo_[channel]->nrComponents() )
-	return;
-
-    TypeSet<int> osgids = channelinfo_[channel]->getOsgIDs();
-    while ( osgids.size()<newsz )
-	osgids += osgtexture_->addDataLayer();
-
-    while ( osgids.size()>newsz )
-    {
-	osgtexture_->removeDataLayer( osgids[newsz] );
-	osgids.remove( newsz );
-    }
-
-    channelinfo_[channel]->setOsgIDs( osgids );
-}
 
 
 int TextureChannels::nrVersions( int channel ) const 
@@ -944,20 +823,6 @@ void TextureChannels::update( ChannelInfo* ti, bool tc2rgba )
 
 void TextureChannels::update( int channel, bool tc2rgba )
 {
-    if ( osgtexture_ )
-    {
-	channelinfo_[channel]->updateOsgImages();
-	for ( int component=channelinfo_[channel]->nrComponents()-1;
-	      component>=0; component-- )
-	{
-	    osgtexture_->setDataLayerImage(
-		    channelinfo_[channel]->osgids_[component],
-		    channelinfo_[channel]->osgimages_[component] );
-	}
-
-	return;
-    }
-
     if ( !tc_ )
 	return;
 
@@ -977,15 +842,6 @@ void TextureChannels::update( int channel, bool tc2rgba )
 void TextureChannels::touchMappedData()
 {
     tc_->touch();
-}
-
-
-const TypeSet<int>* TextureChannels::getOsgIDs( int channel ) const
-{
-    if ( channel<0 || channel>=channelinfo_.size() )
-	return 0;
-
-    return &channelinfo_[channel]->getOsgIDs();
 }
 
 

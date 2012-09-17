@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsitemimpl.cc,v 1.65 2012-09-13 18:36:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.52 2012/07/10 13:06:05 cvskris Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -19,11 +19,8 @@ static const char* rcsID mUnusedVar = "$Id: uigraphicsitemimpl.cc,v 1.65 2012-09
 #include "uigeom.h"
 #include "uigroup.h"
 #include "uiobj.h"
-#include "uirgbarray.h"
 
-#include <QMutex>
 #include <QBrush>
-#include <QPainter>
 #include <QFont>
 #include <QFontMetrics>
 #include <QGraphicsProxyWidget>
@@ -217,17 +214,12 @@ QGraphicsItem* uiLineItem::mkQtObj()
 
 
 void uiLineItem::setLine( const uiPoint& start, const uiPoint& end, bool abs )
-{ setLine( start.x, start.y, end.x, end.y, abs ); }
+{
+    setLine( start.x, start.y, end.x, end.y, abs );
+}
 
-void uiLineItem::setLine( const Geom::Point2D<float>& start,
-			  const Geom::Point2D<float>& end, bool abs )
-{ setLine( start.x, start.y, end.x, end.y, abs ); }
 
 void uiLineItem::setLine( int x1, int y1, int x2, int y2, bool abs )
-{ setLine( (float)x1, (float)y1, (float)x2, (float)y2, abs ); }
-
-
-void uiLineItem::setLine( float x1, float y1, float x2, float y2, bool abs )
 {
     if ( !abs )
 	qlineitem_->setLine( x1, y1, x2, y2 );
@@ -278,48 +270,6 @@ void uiLineItem::setPenStyle( const LineStyle& ls, bool )
     qlineitem_->setPen( qpen );
 }
 
-
-//uiDynamicImageItem
-uiDynamicImageItem::uiDynamicImageItem()
-    : uiGraphicsItem( mkQtObj() )
-{}
-
-
-uiDynamicImageItem::~uiDynamicImageItem()
-{}
-
-
-void uiDynamicImageItem::setImage( bool isdynamic, const uiRGBArray& image,
-				   const uiWorldRect& wr )
-{
-    item_->setImage( isdynamic, image.qImage(),
-	      QRectF( wr.left(), wr.top(), wr.width(), wr.height() ) );
-}
-
-
-NotifierAccess& uiDynamicImageItem::wantsData()
-{ return item_->wantsData; }
-
-
-uiWorldRect uiDynamicImageItem::wantedWorldRect() const
-{
-    QRectF res = item_->wantedWorldRect();
-    return uiWorldRect( res.left(), res.top(), res.right(), res.bottom() );
-}
-
-
-uiSize uiDynamicImageItem::wantedScreenSize() const
-{
-    QSize sz = item_->wantedScreenSize();
-    return uiSize( sz.width(), sz.height() );
-}
-
-
-QGraphicsItem* uiDynamicImageItem::mkQtObj()
-{
-    item_ = new ODGraphicsDynamicImageItem();
-    return item_;
-}
 
 // uiPixmapItem
 uiPixmapItem::uiPixmapItem()
@@ -378,19 +328,22 @@ uiPolygonItem::uiPolygonItem()
 {}
 
 
-#define mImplPolygonConstructor( type ) \
-uiPolygonItem::uiPolygonItem( type polygon, bool dofill ) \
-    : uiGraphicsItem(mkQtObj()) \
-{ \
-    setPolygon( polygon ); \
-    if ( dofill ) \
-	fill(); \
+uiPolygonItem::uiPolygonItem( const ODPolygon<int>& polygon, bool dofill )
+    : uiGraphicsItem(mkQtObj())
+{
+    setPolygon( polygon );
+    if ( dofill )
+	fill();
 }
 
 
-mImplPolygonConstructor( const ODPolygon<int>& )
-mImplPolygonConstructor( const TypeSet<uiPoint>& );
-mImplPolygonConstructor( const TypeSet<uiWorldPoint>& );
+uiPolygonItem::uiPolygonItem( const TypeSet<uiPoint>& polygon, bool dofill )
+    : uiGraphicsItem(mkQtObj())
+{
+    setPolygon( polygon );
+    if ( dofill )
+	fill();
+}
 
 uiPolygonItem::~uiPolygonItem()
 {
@@ -410,20 +363,23 @@ void uiPolygonItem::fill()
 }
 
 
-#define mImplSetPolygon( type, ptaccess ) \
-void uiPolygonItem::setPolygon( type ptlist ) \
-{ \
-    QPolygonF qpolygonf( ptlist.size() );\
-    for ( unsigned int idx=0; idx<ptlist.size(); idx++ )\
-	qpolygonf[idx] = QPointF( (float) ptaccess[idx].x, \
-			         (float) ptaccess[idx].y );\
-    qpolygonitem_->setPolygon( qpolygonf ); \
+void uiPolygonItem::setPolygon( const TypeSet<uiPoint>& ptlist )
+{
+    QPolygon qpolygon( ptlist.size() );
+    for ( int idx=0; idx<ptlist.size(); idx++ )
+	qpolygon.setPoint( (unsigned int)idx, ptlist[idx].x, ptlist[idx].y );
+    QPolygonF qpolygonf(qpolygon);
+    qpolygonitem_->setPolygon( qpolygonf );
 }
 
 
-mImplSetPolygon( const TypeSet<uiPoint>&, ptlist )
-mImplSetPolygon( const ODPolygon<int>&, ptlist.data() )
-mImplSetPolygon( const TypeSet<uiWorldPoint>&, ptlist )
+void uiPolygonItem::setPolygon( const ODPolygon<int>& polygon )
+{
+    TypeSet<uiPoint> ptlist;
+    for ( int idx=0; idx<polygon.size(); idx++ )
+	ptlist += polygon.data()[idx];
+    setPolygon( ptlist );
+}
 
 
 // uiPolyLineItem
@@ -439,48 +395,92 @@ uiPolyLineItem::uiPolyLineItem( const TypeSet<uiPoint>& ptlist )
 }
 
 
-uiPolyLineItem::uiPolyLineItem( const TypeSet<uiWorldPoint>& ptlist )
-    : uiGraphicsItem(mkQtObj())
-{
-    setPolyLine( ptlist );
-}
-
-
 uiPolyLineItem::~uiPolyLineItem()
-{ }
-
-#define mImpSetPolyline( type ) \
-void uiPolyLineItem::setPolyLine( type ptlist ) \
-{ \
-    QPainterPath path; \
-    bool newpt = true; \
-    for ( int idx=0; idx<ptlist.size(); idx++ ) \
-    { \
-	if ( mIsUdf( ptlist[idx].x ) || mIsUdf( ptlist[idx].y ) ) \
-	{  \
-	    newpt = true; \
-	    continue; \
-	} \
-	if ( newpt ) \
-	{ \
-	    path.moveTo( ptlist[idx].x, ptlist[idx].y ); \
-	    newpt = false; \
-	} \
-	else \
-	    path.lineTo( ptlist[idx].x, ptlist[idx].y ); \
-    } \
- \
-    qgraphicspath_->setPath( path ); \
+{
+    polylines_.erase();
 }
 
-mImpSetPolyline( const TypeSet<uiPoint>& )
-mImpSetPolyline( const TypeSet<uiWorldPoint>& )
+
+void uiPolyLineItem::setPolyLine( const TypeSet<uiPoint>& ptlist )
+{
+    for ( int idx=0; idx<polylines_.size(); idx++ )
+	polylines_[idx]->setEmpty();
+
+    QPolygon qpolygon; 
+    for ( int idx=0; idx<ptlist.size(); idx++ )
+    {
+	if ( mIsUdf( ptlist[idx].x ) || mIsUdf( ptlist[idx].y ) )
+	{ 
+	    setPolyLine( qpolygon ); 
+	    qpolygon.clear(); 
+	    continue;
+	}
+	qpolygon.append( QPoint( ptlist[idx].x, ptlist[idx].y ) );
+    }
+    setPolyLine( qpolygon );
+}
+
+
+void uiPolyLineItem::setPolyLine( const QPolygon& qpolygon )
+{
+    if ( qpolygon.isEmpty() ) return;
+
+    ODGraphicsPolyLineItem* qpolyline = getEmptyPolyLine();
+    if ( qpolyline ) qpolyline->setPolyLine( qpolygon );
+}
+
+
+ODGraphicsPolyLineItem* uiPolyLineItem::getEmptyPolyLine() 
+{
+    ODGraphicsPolyLineItem* polyline = 0;
+    for ( int idx=0; idx<polylines_.size(); idx++ )
+    {
+	polyline = polylines_[idx];
+	if ( polyline->isEmpty() )
+	    return polyline;
+    }
+    polyline = new ODGraphicsPolyLineItem();
+    polylines_ += polyline;
+    qgraphicsitemgrp_->addToGroup( polyline );
+    return polyline;
+}
+
+
+void uiPolyLineItem::setPenStyle( const LineStyle& ls, bool alpha )
+{
+    QColor color = QColor( QRgb(ls.color_.rgb()) );
+    if ( alpha ) color.setAlpha( ls.color_.t() );
+    QBrush qbrush( color );
+    QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
+    for ( int idx=0; idx<polylines_.size(); idx++ )
+	polylines_[idx]->setPen( qpen );
+}
+
+
+void uiPolyLineItem::setPenColor( const Color& col, bool alpha )
+{
+    QColor qcol = QColor(QRgb(col.rgb()));
+    if ( alpha ) qcol.setAlpha( col.t() );
+    QPen qpen( qcol );
+    for ( int idx=0; idx<polylines_.size(); idx++ )
+	polylines_[idx]->setPen( qpen );
+}
+
+
+void uiPolyLineItem::setFillColor( const Color& col, bool alpha )
+{
+    QColor qcol = QColor(QRgb(col.rgb()));
+    if ( alpha ) qcol.setAlpha( col.t() );
+    QBrush qbrush( qcol );
+    for ( int idx=0; idx<polylines_.size(); idx++ )
+	polylines_[idx]->setBrush( qbrush );
+} 
 
 
 QGraphicsItem* uiPolyLineItem::mkQtObj()
 {
-    qgraphicspath_ = new QGraphicsPathItem();
-    return qgraphicspath_;
+    qgraphicsitemgrp_ = new QGraphicsItemGroup();
+    return qgraphicsitemgrp_;
 }
 
 
@@ -523,8 +523,8 @@ void uiRectItem::setRect( int x, int y, int width, int height )
 
 
 // uiTextItem
-uiTextItem::uiTextItem( bool useodvwrtxtitem )
-    : uiGraphicsItem(useodvwrtxtitem ? mkODObj() : mkQtObj())
+uiTextItem::uiTextItem()
+    : uiGraphicsItem(mkQtObj())
     , pos_(0,0)
     , al_(Alignment::Left,Alignment::Top)
 {
@@ -543,7 +543,7 @@ uiTextItem::uiTextItem( const char* txt, const Alignment& al )
 uiTextItem::uiTextItem( const uiPoint& pos, const char* txt,
 			const Alignment& al )
     : uiGraphicsItem(mkQtObj())
-    , pos_(pos.x, pos.y )
+    , pos_(pos)
     , al_(al)
 {
     setText( txt );
@@ -559,13 +559,6 @@ uiTextItem::~uiTextItem()
 QGraphicsItem* uiTextItem::mkQtObj()
 {
     qtextitem_ = new QGraphicsTextItem();
-    return qtextitem_;
-}
-
-
-QGraphicsItem* uiTextItem::mkODObj()
-{
-    qtextitem_ = new ODViewerTextItem();
     return qtextitem_;
 }
 
@@ -599,24 +592,15 @@ void uiTextItem::setFont( const uiFont& font )
 }
 
 
-
-void uiTextItem::setFontData( const FontData& fd )
-{
-    QFont font = qtextitem_->font();
-    uiFont::setFontData( font, fd );
-    qtextitem_->setFont( font );
-}
-
-
 void uiTextItem::setAlignment( const Alignment& al )
 {
     al_ = al; updatePos();
 }
 
 
-void uiTextItem::stPos( float x, float y )
+void uiTextItem::stPos( int x, int y )
 {
-    pos_ = uiWorldPoint(x,y); updatePos();
+    pos_ = uiPoint(x,y); updatePos();
 }
 
 
@@ -650,7 +634,8 @@ void uiTextItem::updatePos()
 	    break;
     }
 
-    qtextitem_->setPos( pos_.x+movex, pos_.y+movey );
+    uiPoint newpos( mNINT32(pos_.x+movex), mNINT32(pos_.y+movey) );
+    qtextitem_->setPos( newpos.x, newpos.y );
 }
 
 
@@ -668,7 +653,6 @@ void uiTextItem::setBackgroundColor( const Color& col )
 
 Color uiTextItem::getBackgroundColor() const
 { return Color(); }
-
 
 
 // uiMarkerItem
@@ -829,7 +813,7 @@ void uiArrowItem::update()
     setPos( headpos_ );
     const uiPoint relvec( mNINT32(diffx), mNINT32(diffy) );
     const float ang = atan2((float)relvec.y,(float)relvec.x) * 180/M_PI;
-    setRotation( ang );
+    rotate( ang );
 }
 
 

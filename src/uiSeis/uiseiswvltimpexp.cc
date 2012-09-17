@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiswvltimpexp.cc,v 1.9 2012-05-22 10:17:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltimpexp.cc,v 1.6 2012/05/22 10:17:53 cvsbert Exp $";
 
 
 #include "uiseiswvltimpexp.h"
@@ -166,7 +166,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 	mErrRet( "Cannot open output file" )
 
     const bool addz = addzfld_->getBoolValue();
-    const float zfac = SI().zDomain().userFactor();
+    const float zfac = SI().zFactor();
     const StepInterval<float> zpos( wvlt->samplePositions() );
     for ( int idx=0; idx<wvlt->size(); idx++ )
     {

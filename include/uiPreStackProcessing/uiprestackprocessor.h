@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uiprestackprocessor.h,v 1.11 2012-08-29 06:25:40 cvskris Exp $
+ RCS:		$Id: uiprestackprocessor.h,v 1.9 2009/07/22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "iopar.h"
 #include "multiid.h"
 #include "uidialog.h"
@@ -30,7 +29,7 @@ namespace PreStack
 class ProcessManager;
 class Processor;
 /*! An editor for a PreStackManager, with save/load possibilities. */
-mClass(uiPreStackProcessing) uiProcessorManager : public uiGroup
+mClass uiProcessorManager : public uiGroup
 {
 public:
 				uiProcessorManager(uiParent*,ProcessManager&);
@@ -86,11 +85,9 @@ protected:
 };
 
 
-mDefineFactory2Param( uiPreStackProcessing, uiDialog, uiParent*, Processor*,
-		      uiPSPD );
+mDefineFactory2Param( uiDialog, uiParent*, Processor*, uiPSPD );
 
 
 }; //namespace
 
 #endif
-

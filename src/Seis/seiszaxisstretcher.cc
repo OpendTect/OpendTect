@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiszaxisstretcher.cc,v 1.26 2012-08-09 03:35:33 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: seiszaxisstretcher.cc,v 1.26 2012/07/18 07:34:55 cvskris Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -196,7 +196,7 @@ void SeisZAxisStretcher::setLineKey( const char* lk )
 bool SeisZAxisStretcher::doWork( od_int64, od_int64, int ) 
 {
     StepInterval<float> trcrg = outcs_.zrg;
-    SamplingData<float> sd( trcrg );
+    SamplingData<double> sd( trcrg );
     ArrPtrMan<float> outputptr = new float[trcrg.nrSteps()+1];
 
     SeisTrc intrc;
@@ -244,7 +244,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    mAllocVarLenArr(float, twt, insz);
 	    mAllocVarLenArr(float, depths, insz);
 	    
-	    SamplingData<float> inputsd( intrc.info().sampling );
+	    SamplingData<double> inputsd( intrc.info().sampling );
 	    SeisTrcValueSeries inputvs( intrc, 0 );
 	    
 	    
@@ -336,6 +336,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 			    depths[idx] = twt[idx] * inputvs[idx]/2;
 		    }
 		}
+
 	    }
 	    
 	    PointBasedMathFunction dtfunc( PointBasedMathFunction::Linear,

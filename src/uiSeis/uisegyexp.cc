@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyexp.cc,v 1.47 2012-05-22 10:17:24 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyexp.cc,v 1.44 2012/05/22 10:17:26 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -60,10 +60,10 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
     autogenfld_ = new uiGenInput( this, "Automatically generate",
 	    			  BoolInpSpec(false) );
     autogenfld_->valuechanged.notify( cb );
-    uiToolButton* wtb = new uiToolButton( this, "saveset", "Write to file",
+    uiToolButton* wtb = new uiToolButton( this, "saveset.png", "Write to file",
 			    mCB(this,uiSEGYExpTxtHeaderDlg,writePush));
     wtb->attach( rightBorder );
-    uiToolButton* rtb = new uiToolButton( this, "openset", "Read file",
+    uiToolButton* rtb = new uiToolButton( this, "openset.png", "Read file",
 			    mCB(this,uiSEGYExpTxtHeaderDlg,readPush) );
     rtb->attach( leftOf, wtb );
 

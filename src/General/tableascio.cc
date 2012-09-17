@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: tableascio.cc,v 1.46 2012-09-13 19:00:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.38 2011/08/31 13:08:35 cvskris Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -19,7 +19,7 @@ static const char* rcsID mUnusedVar = "$Id: tableascio.cc,v 1.46 2012-09-13 19:0
 #include "staticstring.h"
 #include <iostream>
 
-extern Export_Basic std::ostream& logMsgStrm();
+mBasicExtern std::ostream& logMsgStrm();
 
 namespace Table
 {
@@ -130,8 +130,8 @@ void FileFormatRepository::set( const char* grp, const char* nm,
 	{ Entry* entry = entries_[idx]; entries_.remove( idx ); delete entry; }
     if ( !iop ) return;
 
-    if ( iop->find(sKey::Name()) )
-	iop->removeWithKey(sKey::Name());
+    if ( iop->find(sKey::Name) )
+	iop->removeWithKey(sKey::Name);
     iop->setName( nm );
     iop->set( sKeyGroup, grp );
     entries_ += new Entry( src, iop );
@@ -260,8 +260,8 @@ void TargetInfo::usePar( const IOPar& iopar )
 }
 
 
-Table::TargetInfo*
-	TargetInfo::mkPos( bool ishor, bool isreq, bool wu, int zopt )
+Table::TargetInfo* Table::TargetInfo::mkPos( bool ishor, bool isreq, bool wu,
+       					     int zopt )
 {
     Table::TargetInfo* ti;
     const Table::ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
@@ -563,7 +563,7 @@ const char* mkErrMsg( const HdrInfo& hdrinf, const char* msg )
 	errmsg_ += hdrinf.form_.name();
     }
     if ( hdrinf.form_.specs_.size() > 1 )
-	{ errmsg_ += " (field "; errmsg_ += hdrinf.specnr_; errmsg_ += ")"; }
+	{ errmsg_ += " (field "; hdrinf.specnr_; errmsg_ += ")"; }
     if ( diffnms )
 	errmsg_ += "]";
 

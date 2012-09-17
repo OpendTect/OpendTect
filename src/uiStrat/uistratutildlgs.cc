@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratutildlgs.cc,v 1.59 2012-09-17 14:48:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.55 2012/09/17 14:48:33 cvsbert Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -272,7 +272,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
 
     const int butsz = 20;
     uiPushButton* newlithbut = new uiPushButton( rightgrp, "&Add as new",
-	    ioPixmap("addnew"), mCB(this,uiStratLithoDlg,newLith), true );
+	    ioPixmap("addnew.png"), mCB(this,uiStratLithoDlg,newLith), true );
     newlithbut->setPrefWidthInChar( butsz );
     newlithbut->attach( alignedBelow, toprightgrp );
 
@@ -282,12 +282,12 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     rightgrp->attach( rightTo, sep );
 
     uiButton* renamebut = new uiPushButton( rightgrp, "Re&name selected",
-	    ioPixmap("renameobj"), mCB(this,uiStratLithoDlg,renameCB), true );
+	ioPixmap("renameobj.png"), mCB(this,uiStratLithoDlg,renameCB), true );
     renamebut->setPrefWidthInChar( butsz );
     renamebut->attach( alignedBelow, newlithbut );
 
     uiButton* rmbut = new uiPushButton( rightgrp, "&Remove Last",
-	    ioPixmap("trashcan"), mCB(this,uiStratLithoDlg,rmLast), true );
+	    ioPixmap("trashcan.png"), mCB(this,uiStratLithoDlg,rmLast), true );
     rmbut->setPrefWidthInChar( butsz );
     rmbut->attach( alignedBelow, renamebut );
 
@@ -776,6 +776,7 @@ bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
     }
 
     unit_.setLevelID( lvlid_ );
+
     Strat::eLVLS().levelChanged.trigger();
     return true;
 }

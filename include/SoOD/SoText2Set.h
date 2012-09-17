@@ -24,7 +24,6 @@
  *
 \**************************************************************************/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoShape.h>
 #include <Inventor/fields/SoMFFloat.h>
 #include <Inventor/fields/SoSFInt32.h>
@@ -38,7 +37,7 @@
 #include "soodbasic.h"
 
 
-mSoODClass SoText2Set : public SoShape
+mClass SoText2Set : public SoShape
 {
   typedef SoShape inherited;
 
@@ -80,4 +79,3 @@ private:
 };
 
 #endif // !SMALLCHANGE_SOTEXT2SET_H
-

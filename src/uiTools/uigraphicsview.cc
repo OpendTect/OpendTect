@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicsview.cc,v 1.10 2012-05-09 07:51:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsview.cc,v 1.7 2010/11/16 09:49:11 cvsbert Exp $";
 
 
 #include "uigraphicsview.h"
@@ -29,7 +29,7 @@ uiToolButton* uiGraphicsView::getSaveImageButton( uiParent* p )
 {
     if ( !enableimagesave_ ) return 0;
 
-    return new uiToolButton( p, "snapshot", "Save image",
+    return new uiToolButton( p, "snapshot.png", "Save image",
 			mCB(this,uiGraphicsView,saveImageCB) );
 }
 

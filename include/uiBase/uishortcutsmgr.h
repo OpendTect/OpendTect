@@ -7,24 +7,23 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          20/01/2006
- RCS:           $Id: uishortcutsmgr.h,v 1.14 2012-08-30 06:05:55 cvsnageswara Exp $
+ RCS:           $Id: uishortcutsmgr.h,v 1.12 2012/01/13 20:17:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "iopar.h"
 #include "enums.h"
 #include "keyenum.h"
 #include "bufstringset.h"
-mFDQtclass(QKeyEvent)
+class QKeyEvent;
 
 
 class uiShortcutsMgr;
-mGlobal(uiBase) uiShortcutsMgr& SCMgr(); //!< This is where you get your shortcuts
+mGlobal uiShortcutsMgr& SCMgr(); //!< This is where you get your shortcuts
 
 
-mClass(uiBase) uiKeyDesc
+mClass uiKeyDesc
 {
 public:
 			uiKeyDesc(const char* statestr=0,const char* keystr=0);
@@ -47,7 +46,7 @@ public:
     const char*		stateStr() const;
     const char*		keyStr() const;
 
-    			uiKeyDesc(mQtclass(QKeyEvent*));
+    			uiKeyDesc(QKeyEvent*);
 
 protected:
 
@@ -59,7 +58,7 @@ protected:
 };
 
 
-mClass(uiBase) uiShortcutsList
+mClass uiShortcutsList
 {
 public:
 
@@ -98,7 +97,7 @@ protected:
 };
 
 
-mClass(uiBase) uiShortcutsMgr : public CallBacker
+mClass uiShortcutsMgr : public CallBacker
 {
 public:
 			uiShortcutsMgr();
@@ -120,7 +119,7 @@ protected:
 };
 
 
-mClass(uiBase) uiExtraIntKeyDesc : public uiKeyDesc
+mClass uiExtraIntKeyDesc : public uiKeyDesc
 {
 public:			
 			uiExtraIntKeyDesc(const char* statestr=0,
@@ -145,4 +144,3 @@ protected:
 };
 
 #endif
-

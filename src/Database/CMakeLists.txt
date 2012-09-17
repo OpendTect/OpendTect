@@ -2,16 +2,16 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.6 2012-03-21 09:19:41 cvsbert Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012/01/23 20:55:23 cvskris Exp $
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS General )
+SET(OD_MODULE_DEPS Basic)
 SET(OD_MODULE_SOURCES 
 	sqldatabase.cc sqlquery.cc
 	mantisdatabase.cc mantistables.cc
 	databaseobject.cc )
 
-# SET(USESQL 1)
+#SET(USESQL 1)
 
 IF(USESQL)
     SET(OD_USEQT Sql)

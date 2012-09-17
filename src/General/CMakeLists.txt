@@ -2,11 +2,11 @@
 #
 #	Makefile : 	General utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.11 2012-09-10 10:02:15 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.8 2012/07/16 20:20:13 cvskris Exp $
 #_______________________________________________________________________________
 
-SET ( OD_MODULE_DEPS Algo )
-SET ( OD_MODULE_SOURCES arrayndutils.cc
+SET(OD_MODULE_DEPS Algo )
+SET(OD_MODULE_SOURCES arrayndutils.cc
 	    array2dbitmap.cc
 	    basemap.cc
 	    beachballdata.cc
@@ -62,18 +62,21 @@ SET ( OD_MODULE_SOURCES arrayndutils.cc
 	    tableconv.cc
 	    transl.cc
 	    unitofmeasure.cc
-	    usrinputobj.cc
 	    variogramcomputers.cc
 	    zaxistransformdatapack.cc )
 
 if ( CMAKE_COMPILER_IS_GNUCC )
-    if ( ${CMAKE_CXX_COMPILER} STREQUAL "/usr/bin/g++4" )
-	message( "Turning down optimizations on ibmformat.cc to avoid "
-		 "compiler problems." )
-	set_source_files_properties( ibmformat.cc PROPERTIES COMPILE_FLAGS -O )
-    endif()
+    if ( NOT OD_DEBUG )
+        if ( ${CMAKE_CXX_COMPILER} STREQUAL "/usr/bin/g++4" )
+            message( "Turning down optimizations on ibmformat.cc to avoid "
+                     "compiler problems." )
+            set_source_files_properties( ibmformat.cc PROPERTIES COMPILE_FLAGS
+-O )
+        endif()
+    endif ( NOT OD_DEBUG )
 endif ( CMAKE_COMPILER_IS_GNUCC )
 
 OD_INIT_MODULE()
+
 
 

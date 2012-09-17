@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.h,v 1.16 2012-08-03 13:01:24 cvskris Exp $
+ RCS:		$Id: visflatviewer.h,v 1.14 2009/09/08 22:07:14 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "flatview.h"
 #include "visobject.h"
 
@@ -26,7 +25,7 @@ class SplitTexture2Rectangle;
 
 /*!Implementation of FlatViewer::Viewer in 3D. */
 
-mClass(visBase) FlatViewer : public FlatView::Viewer, public VisualObjectImpl
+mClass FlatViewer : public FlatView::Viewer, public VisualObjectImpl
 {
 public:
     static FlatViewer*		create()
@@ -50,15 +49,6 @@ public:
     int				getResolution() const	{ return resolution_; } 
     BufferString		getResolutionName(int) const;
 
-    FlatView::AuxData*		createAuxData(const char* nm) const { return 0; }
-
-    int				nrAuxData() const { return 0; }
-    FlatView::AuxData*		getAuxData(int idx) { return 0; }
-    const FlatView::AuxData*	getAuxData(int idx) const { return 0; }
-    void			addAuxData(FlatView::AuxData* a) {}
-    FlatView::AuxData*		removeAuxData(FlatView::AuxData* a) { return a; }
-    FlatView::AuxData*		removeAuxData(int idx) { return 0; }
-
 protected:
     				~FlatViewer();
     
@@ -78,4 +68,3 @@ protected:
 
 
 #endif
-

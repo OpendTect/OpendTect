@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisiosimple.cc,v 1.31 2012-08-09 03:35:32 cvssalil Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.26 2012/07/10 13:06:03 cvskris Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -176,8 +176,8 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 
     if ( !data_.linekey_.isEmpty() )
     {
-	data_.subselpars_.set( sKey::LineKey(), data_.linekey_ );
-	data_.subselpars_.set( sKey::Attribute(), data_.linekey_.attrName());
+	data_.subselpars_.set( sKey::LineKey, data_.linekey_ );
+	data_.subselpars_.set( sKey::Attribute, data_.linekey_.attrName());
 	    // Needed because attrnm can disappear from line key
     }
     Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
@@ -418,7 +418,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     trc.info().binid = bid;
     prevbid_ = bid;
     trc.info().coord = coord;
-    trc.info().offset = SI().xyInFeet() ? offs * mFromFeetFactorF : offs;
+    trc.info().offset = SI().xyInFeet() ? offs * mFromFeetFactor : offs;
     trc.info().azimuth = azim;
     trc.info().nr = nr;
     trc.info().refnr = refnr;
@@ -439,7 +439,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 		return Executor::Finished();
 	}
 
-	if ( data_.scaler_ ) val = (float) data_.scaler_->scale( val );
+	if ( data_.scaler_ ) val = data_.scaler_->scale( val );
 	trc.set( idx, val, 0 );
     }
 
@@ -562,7 +562,7 @@ int SeisIOSimple::writeExpTrc()
 	{
 	    float offs = trc_.info().offset;
 	    mPIEPAdj(Offset,offs,false);
-	    if ( SI().xyInFeet() ) offs *= mToFeetFactorF;
+	    if ( SI().xyInFeet() ) offs *= mToFeetFactor;
 	    if ( data_.isasc_ )
 		*sd_.ostrm << '\t' << offs;
 	    else
@@ -582,7 +582,7 @@ int SeisIOSimple::writeExpTrc()
     for ( int idx=0; idx<data_.nrsamples_; idx++ )
     {
 	val = trc_.get( idx, 0 );
-	if ( data_.scaler_ ) val = (float) data_.scaler_->scale( val );
+	if ( data_.scaler_ ) val = data_.scaler_->scale( val );
 	if ( data_.isasc_ )
 	    *sd_.ostrm << '\t' << val;
 	else

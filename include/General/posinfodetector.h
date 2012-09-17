@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2008
- RCS:		$Id: posinfodetector.h,v 1.10 2012-09-13 18:54:42 cvsnanne Exp $
+ RCS:		$Id: posinfodetector.h,v 1.8 2010/07/12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 */
 
-#include "generalmod.h"
 #include "posinfo.h"
 class IOPar;
 class HorSampling;
@@ -24,7 +23,7 @@ namespace PosInfo
 
 /*!\brief Just hold inl, crl, x, y and offs. For 2D, crl=nr. */
 
-mClass(General) CrdBidOffs
+mClass CrdBidOffs
 {
 public:
 		CrdBidOffs()
@@ -47,7 +46,7 @@ public:
     corresponding BinID or trace numbers and offsets if pre-stack. */
 
 
-mClass(General) Detector
+mClass Detector
 {
 public:
 
@@ -88,7 +87,6 @@ public:
     BinID		start() const		{ return start_; }
     BinID		stop() const		{ return stop_; }
     BinID		step() const		{ return step_; }
-    void		getHorSampling(HorSampling&) const;
     Interval<float>	offsRg() const		{ return offsrg_; }
     float		avgDist() const		{ return avgdist_; }
     CrdBidOffs		firstPosition() const	{ return userCBO(firstcbo_); }
@@ -163,4 +161,3 @@ protected:
 } // namespace
 
 #endif
-

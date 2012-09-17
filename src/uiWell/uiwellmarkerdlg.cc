@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellmarkerdlg.cc,v 1.51 2012-08-07 05:20:52 cvssalil Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.47 2012/02/09 08:41:07 cvsbert Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -87,7 +87,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 			  mCB(this,uiMarkerDlg,setAsRegMarkersCB), false );
     setregmrkar->attach( alignedBelow, updatebut );
     
-    uiToolButton* stratbut = new uiToolButton( this, "man_strat",
+    uiToolButton* stratbut = new uiToolButton( this, "man_strat.png",
 	    			"Edit Stratigraphy to define Levels",
 				mCB(this,uiMarkerDlg,doStrat) );
     stratbut->attach( rightOf, setregmrkar );
@@ -163,13 +163,13 @@ float uiMarkerDlg::zFactor() const
     const bool unitval = !unitfld_->isChecked();
     
     if ( SI().zIsTime() )
-	return unitval ? 1 : mToFeetFactorF;
+	return unitval ? 1 : mToFeetFactor;
 
     return ((SI().zInFeet() && !unitval) ||
 	    (SI().zInMeter() && unitval)) ? 1
 					  : ( SI().zInFeet() && unitval )
-					      ? mFromFeetFactorF
-					      : mToFeetFactorF;
+					      ? mFromFeetFactor
+					      : mToFeetFactor;
 }
 
 

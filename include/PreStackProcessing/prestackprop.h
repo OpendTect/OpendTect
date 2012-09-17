@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: prestackprop.h,v 1.5 2012-09-11 14:17:23 cvsbert Exp $
+ RCS:		$Id: prestackprop.h,v 1.4 2012/09/11 14:23:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "stattype.h"
 #include "enums.h"
 #include "ranges.h"
@@ -29,7 +28,7 @@ class Gather;
 
 /*!\brief calculates 'post-stack' properties of a Pre-Stack data store */
 
-mClass(PreStackProcessing) PropCalc
+mClass PropCalc
 {
 public:
 
@@ -40,7 +39,7 @@ public:
     enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff, CorrCoeff };
     			DeclareEnumUtils(LSQType)
 
-    mClass(PreStackProcessing) Setup
+    mClass Setup
     {
     public:
 			Setup()
@@ -91,4 +90,3 @@ protected:
 
 
 #endif
-

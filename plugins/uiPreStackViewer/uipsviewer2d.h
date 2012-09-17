@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Feb 2011
- RCS:           $Id: uipsviewer2d.h,v 1.8 2012-08-03 13:01:34 cvskris Exp $
+ RCS:           $Id: uipsviewer2d.h,v 1.6 2011/05/16 09:27:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiprestackviewermod.h"
 #include "position.h"
 #include "uiobjectitemview.h"
 #include "uigroup.h"
@@ -26,10 +25,10 @@ namespace PreStackView
     class Viewer2DGatherPainter;
     class uiViewer2DAxisPainter;
 
-mClass(uiPreStackViewer) uiGatherDisplay : public uiGroup
+mClass uiGatherDisplay : public uiGroup
 {
 public:
-    				uiGatherDisplay(uiParent*);
+    				uiGatherDisplay(uiParent*,bool havepan=false);
     				~uiGatherDisplay();
 
     virtual void                setPosition(const BinID&,
@@ -69,7 +68,7 @@ protected:
 
 
 
-mClass(uiPreStackViewer) uiViewer2D : public uiObjectItemView
+mClass uiViewer2D : public uiObjectItemView
 {
 public: 
 				uiViewer2D(uiParent*);
@@ -96,4 +95,3 @@ public:
 }; //namespace
 
 #endif
-

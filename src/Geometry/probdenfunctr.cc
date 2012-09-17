@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: probdenfunctr.cc,v 1.14 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID = "$Id: probdenfunctr.cc,v 1.11 2010/04/16 03:29:33 cvsnanne Exp $";
 
 #include "probdenfunctr.h"
 
@@ -89,7 +89,7 @@ ProbDenFunc* odProbDenFuncTranslator::read( std::istream& strm )
 {
     ascistream astrm( strm );
     IOPar par( astrm );
-    FixedString type = par.find( sKey::Type() );
+    FixedString type = par.find( sKey::Type );
     if ( type.isEmpty() )
 	return 0;
 
@@ -103,7 +103,7 @@ ProbDenFunc* odProbDenFuncTranslator::read( std::istream& strm )
 
     pdf->usePar( par );
     binary_ = false;
-    par.getYN( sKey::Binary(), binary_ );
+    par.getYN( sKey::Binary, binary_ );
 
     pdf->obtain( strm, binary_ );
     return pdf;
@@ -121,7 +121,7 @@ bool odProbDenFuncTranslator::write( const ProbDenFunc& pdf,
 
     IOPar par;
     pdf.fillPar( par );
-    par.setYN( sKey::Binary(), binary_ );
+    par.setYN( sKey::Binary, binary_ );
     par.putTo( astrm );
 
     pdf.dump( strm, binary_ );

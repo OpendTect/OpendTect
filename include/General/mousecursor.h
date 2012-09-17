@@ -7,24 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: mousecursor.h,v 1.10 2012-09-14 21:27:59 cvskris Exp $
+ RCS:           $Id: mousecursor.h,v 1.8 2010/01/22 11:26:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "bufstring.h"
 #include "ptrman.h"
-
-namespace OD { class RGBImage; }
 
 /*!Definition of a mouse cursor, can be either a predefined shape (from the
    enum, or a file. */
 
-mClass(General) MouseCursor
+mClass MouseCursor
 {
 public:
-    virtual		~MouseCursor();
+    virtual		~MouseCursor()					{}
 		    /*! This enum type defines the various cursors that can be
 		        used.
 
@@ -59,19 +56,13 @@ public:
 			  Last = ClosedHand, Bitmap = 24, NotSet
 			};
 
-    			MouseCursor();
-			MouseCursor( Shape s );
-
+    			MouseCursor() : shape_(NotSet)			{}
+			MouseCursor( Shape s ) : shape_(s)		{}
     bool		operator==(const MouseCursor&) const;
     bool		operator!=(const MouseCursor&) const;
 
     Shape		shape_;
-
     BufferString	filename_;
-			//!<Only used if shape_==Bitmap
-    OD::RGBImage*	image_;
-			//!<Only used if shape_==Bitmap && filename_ is empty
-    
     int			hotx_;
     int			hoty_;
 };
@@ -100,7 +91,7 @@ public:
 */
 
 
-mClass(General) MouseCursorManager
+mClass MouseCursorManager
 {
 public:
 
@@ -133,7 +124,7 @@ protected:
     class is running out of scope.
 */
 
-mClass(General) MouseCursorChanger
+mClass MouseCursorChanger
 {
 public:
 		MouseCursorChanger(const char* fnm, int hotx, int hoty);
@@ -148,4 +139,3 @@ protected:
 
 
 #endif
-

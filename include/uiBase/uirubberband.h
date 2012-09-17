@@ -7,43 +7,41 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		November 2006
- RCS:		$Id: uirubberband.h,v 1.7 2012-08-30 05:49:34 cvsnageswara Exp $
+ RCS:		$Id: uirubberband.h,v 1.5 2009/07/22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uigeom.h"
 
-mFDQtclass(QMouseEvent)
-mFDQtclass(QRubberBand)
-mFDQtclass(QWidget)
+class QMouseEvent;
+class QRubberBand;
+class QWidget;
 
-mClass(uiBase) uiRubberBand
+mClass uiRubberBand
 {
 public:
-    			uiRubberBand(mQtclass(QWidget*) p)
+    			uiRubberBand(QWidget* p)
 			    : parent_(p)
 			    , qrubberband_(0)	{}
 			~uiRubberBand();
 
-    void		start(mQtclass(QMouseEvent*));
-    void		extend(mQtclass(QMouseEvent*));
-    void		stop(mQtclass(QMouseEvent*));
+    void		start(QMouseEvent*);
+    void		extend(QMouseEvent*);
+    void		stop(QMouseEvent*);
 
     uiPoint		origin() const		{ return origin_; }
     uiRect		area() const		{ return area_; }
 
 protected:
 
-    mQtclass(QRubberBand*)	qrubberband_;
-    mQtclass(QWidget*)		parent_;
+    QRubberBand*	qrubberband_;
+    QWidget*		parent_;
 
     uiPoint		origin_;
     uiRect		area_;
 
-    void		handleEv(mQtclass(QMouseEvent*),bool);
+    void		handleEv(QMouseEvent*,bool);
 };
 
 #endif
-

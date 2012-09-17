@@ -4,7 +4,7 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoScale3Dragger.cc,v 1.6 2012-05-02 15:11:51 cvskris Exp $";
+static const char* rcsID = "$Id: SoScale3Dragger.cc,v 1.4 2009/07/22 16:01:35 cvsbert Exp $";
 
 
 #include "SoScale3Dragger.h"

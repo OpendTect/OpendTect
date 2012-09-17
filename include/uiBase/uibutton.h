@@ -7,28 +7,27 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.37 2012-08-24 06:45:25 cvsnageswara Exp $
+ RCS:           $Id: uibutton.h,v 1.35 2010/11/16 09:49:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 
 class uiButtonBody;
 class uiCheckBoxBody;
 class uiPushButtonBody;
 class uiRadioButtonBody;
-mFDQtclass(QAbstractButton)
+class QAbstractButton;
 
 class uiPopupMenu;
 class ioPixmap;
-mFDQtclass(QEvent)
-mFDQtclass(QMenu)
+class QEvent;
+class QMenu;
 
 
 //!\brief Button Abstract Base class
-mClass(uiBase) uiButton : public uiObject
+mClass uiButton : public uiObject
 {
 public:
 			uiButton(uiParent*,const char*,const CallBack*,
@@ -46,7 +45,7 @@ protected:
 
 public:
     			//! Not for casual use
-    mQtclass(QAbstractButton*)	qButton();
+    QAbstractButton*	qButton();
 };
 
 
@@ -55,7 +54,7 @@ public:
   text. In principle, it could also get another appearance.
   */
 
-mClass(uiBase) uiPushButton : public uiButton
+mClass uiPushButton : public uiButton
 {
 public:
 				uiPushButton(uiParent*,const char* nm,
@@ -86,7 +85,7 @@ private:
 };
 
 
-mClass(uiBase) uiRadioButton : public uiButton
+mClass uiRadioButton : public uiButton
 {                        
 public:
 				uiRadioButton(uiParent*,const char*);
@@ -106,7 +105,7 @@ private:
 };
 
 
-mClass(uiBase) uiCheckBox: public uiButton
+mClass uiCheckBox: public uiButton
 {
 public:
 
@@ -130,7 +129,7 @@ private:
 
 
 //! Button Abstract Base class
-mClass(uiBase) uiButtonBody
+mClass uiButtonBody
 {
     friend class        i_ButMessenger;
 
@@ -151,4 +150,3 @@ protected:
 
 
 #endif
-

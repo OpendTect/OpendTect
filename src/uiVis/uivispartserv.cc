@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivispartserv.cc,v 1.484 2012-08-07 04:03:34 cvsmahant Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.477 2012/06/27 15:23:39 cvsjaap Exp $";
 
 #include "uivispartserv.h"
 
@@ -58,27 +58,27 @@ static const char* rcsID mUnusedVar = "$Id: uivispartserv.cc,v 1.484 2012-08-07 
 #include "zdomain.h"
 
 
-int uiVisPartServer::evUpdateTree()		    { return 0; }
-int uiVisPartServer::evSelection()		    { return 1; }
-int uiVisPartServer::evDeSelection()	            { return 2; }
-int uiVisPartServer::evGetNewData()		    { return 3; }
-int uiVisPartServer::evMouseMove()		    { return 4; }
-int uiVisPartServer::evInteraction()		    { return 5; }
-int uiVisPartServer::evSelectAttrib()	   	    { return 6; }
-int uiVisPartServer::evViewAll()		    { return 9; }
-int uiVisPartServer::evToHomePos()	   	    { return 10; }
-int uiVisPartServer::evPickingStatusChange() 	    { return 11; }
-int uiVisPartServer::evViewModeChange()	  	    { return 12; }
-int uiVisPartServer::evShowSetupDlg()	  	    { return 13; }
-int uiVisPartServer::evLoadPostponedData()   	    { return 14; }
-int uiVisPartServer::evToggleBlockDataLoad() 	    { return 15; }
-int uiVisPartServer::evDisableSelTracker()  	    { return 16; }
-int uiVisPartServer::evColorTableChange()	    { return 17; }
-int uiVisPartServer::evLoadAttribDataInMPEServ()    { return 18; }
-int uiVisPartServer::evPostponedLoadingData()	    { return 19; }
-int uiVisPartServer::evFromMPEManStoreEMObject()    { return 20; }
-int uiVisPartServer::evGetHeadOnIntensity()	    { return 21; }
-int uiVisPartServer::evSetHeadOnIntensity()	    { return 22; }
+const int uiVisPartServer::evUpdateTree()	    { return 0; }
+const int uiVisPartServer::evSelection()	    { return 1; }
+const int uiVisPartServer::evDeSelection()	    { return 2; }
+const int uiVisPartServer::evGetNewData()	    { return 3; }
+const int uiVisPartServer::evMouseMove()	    { return 4; }
+const int uiVisPartServer::evInteraction()	    { return 5; }
+const int uiVisPartServer::evSelectAttrib()	    { return 6; }
+const int uiVisPartServer::evViewAll()		    { return 9; }
+const int uiVisPartServer::evToHomePos()	    { return 10; }
+const int uiVisPartServer::evPickingStatusChange()  { return 11; }
+const int uiVisPartServer::evViewModeChange()	    { return 12; }
+const int uiVisPartServer::evShowSetupDlg()	    { return 13; }
+const int uiVisPartServer::evLoadPostponedData()    { return 14; }
+const int uiVisPartServer::evToggleBlockDataLoad()  { return 15; }
+const int uiVisPartServer::evDisableSelTracker()    { return 16; }
+const int uiVisPartServer::evColorTableChange()	    { return 17; }
+const int uiVisPartServer::evLoadAttribDataInMPEServ()	{ return 18; }
+const int uiVisPartServer::evPostponedLoadingData()	{ return 19; }
+const int uiVisPartServer::evFromMPEManStoreEMObject()	{ return 20; }
+const int uiVisPartServer::evGetHeadOnIntensity()	{ return 21; }
+const int uiVisPartServer::evSetHeadOnIntensity()	{ return 22; }
 
 
 
@@ -125,7 +125,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , selectionmode_( Polygon )
     , selectionmodechange(this)
 {
-    changematerialmnuitem_.iconfnm = "disppars";
+    changematerialmnuitem_.iconfnm = "disppars.png";
 
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -740,6 +740,7 @@ int uiVisPartServer::selectedTexture( int id, int attrib ) const
 void uiVisPartServer::getRandomPos( int id, DataPointSet& dtps ) const
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
+    visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->getRandomPos( dtps, 0 );
 }
@@ -749,6 +750,7 @@ void uiVisPartServer::getRandomPosCache( int id, int attrib,
 					 DataPointSet& dtps ) const
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
+    visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->getRandomPosCache( attrib, dtps );
 }
@@ -1253,7 +1255,7 @@ uiWorkAreaDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Set work volume","","0.3.4"))
 {
     selfld_ = new uiSelSubvol( this, false );
-    fullbut_ = new uiToolButton( this, "exttofullsurv",
+    fullbut_ = new uiToolButton( this, "exttofullsurv.png",
 	    			"Set ranges to full survey",
 				 mCB(this,uiWorkAreaDlg,fullPush) );
     fullbut_->attach( rightOf, selfld_ );
@@ -1699,16 +1701,13 @@ bool uiVisPartServer::setMaterial( int id )
 	    dynamic_cast<visSurvey::SurveyObject*>(vo) );
     dlg->setDeleteOnClose( true );
     dlg->go();
-    
     return true;
 }
 
 
 bool uiVisPartServer::writeSceneToFile( int id, const char* dlgtitle ) const
 {
-    const char* extension = visBase::DataObject::doOsg()
-	? "*.osg"
-	: "*.iv";
+    const char* extension = "*.iv";
     uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(),
 	    		extension, dlgtitle );
     if ( filedlg.go() )

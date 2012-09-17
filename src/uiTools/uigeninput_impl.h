@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink / Bert
  Date:          21/2/2002 / Sep 2011
- RCS:           $Id: uigeninput_impl.h,v 1.2 2012-08-03 13:01:36 cvskris Exp $
+ RCS:           $Id: uigeninput_impl.h,v 1.1 2011/09/06 12:02:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,7 @@ protected:
 };
 
 
-class uiGenInputBoolFld : public UserInputObjImpl<bool>, public uiGroup
+mClass uiGenInputBoolFld : public UserInputObjImpl<bool>, public uiGroup
 {
 public:
 

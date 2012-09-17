@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emtracker.cc,v 1.42 2012-07-18 08:55:58 cvsjaap Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.39 2010/07/13 21:10:30 cvskris Exp $";
 
 #include "emtracker.h"
 
@@ -68,6 +68,7 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 	return true;
 
 
+    const int initialhistnr = EM::EMM().undo().currentEventID();
     bool success = true;
     for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {

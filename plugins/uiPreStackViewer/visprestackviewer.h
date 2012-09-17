@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.36 2012-08-03 13:01:34 cvskris Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.35 2012/02/21 19:14:53 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiprestackviewermod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
 #include "iopar.h"
@@ -39,7 +38,7 @@ namespace visSurvey
 namespace PreStackView
 {
 
-mClass(uiPreStackViewer) Viewer3D : public visBase::VisualObjectImpl, 
+mClass Viewer3D : public visBase::VisualObjectImpl, 
     		 public visSurvey::SurveyObject
 {
 public:
@@ -158,4 +157,3 @@ protected:
 }; //namespace
 
 #endif
-

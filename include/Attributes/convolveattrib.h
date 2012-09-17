@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolveattrib.h,v 1.19 2012-08-03 13:00:08 cvskris Exp $
+ RCS:           $Id: convolveattrib.h,v 1.18 2011/01/06 15:25:01 cvsbert Exp $
 ________________________________________________________________________
 
     
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 
 class Wavelet;
@@ -48,7 +47,7 @@ N       Subkernel N
 namespace Attrib
 {
 
-mClass(Attributes) Convolve : public Provider
+mClass Convolve : public Provider
 {
 public:
     static void			initClass();
@@ -101,7 +100,7 @@ protected:
 
     ObjectSet<const DataHolder>	inputdata_;
 
-    mClass(Attributes) Kernel
+    mClass Kernel
     {
     public:
 	const float*            getKernel() const;
@@ -129,5 +128,4 @@ protected:
 
 
 #endif
-
 

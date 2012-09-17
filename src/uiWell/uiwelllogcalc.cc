@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogcalc.cc,v 1.33 2012-08-29 17:12:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.28 2012/09/02 10:10:11 cvsbruno Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -84,7 +84,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
     mesu.withsetbut( true ).fnsbelow( false );
     formfld_ = new uiMathExpression( inpgrp, mesu );
     formfld_->formSet.notify( formsetcb );
-    uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
+    uiToolButtonSetup tbsu( "rockphys.png", "Choose rockphysics formula",
 	    		    mCB(this,uiWellLogCalc,rockPhysReq), "RockPhysics");
     formfld_->addButton( tbsu );
     inpgrp->setHAlignObj( formfld_ );
@@ -207,7 +207,7 @@ void uiWellLogCalc::feetSel( CallBacker* )
     zsampintv_ = srfld_->getfValue();
     if ( !mIsUdf(zsampintv_) )
     {
-	zsampintv_ *= ftbox_->isChecked() ? mToFeetFactorF : mFromFeetFactorF;
+	zsampintv_ *= ftbox_->isChecked() ? mToFeetFactor : mFromFeetFactor;
 	srfld_->setValue( zsampintv_ );
     }
 }
@@ -254,7 +254,7 @@ void uiWellLogCalc::inpSel( CallBacker* )
     if ( mIsUdf(sr) ) return;
 
     if ( ftbox_->isChecked() )
-	sr *= mToFeetFactorF;
+	sr *= mToFeetFactor;
     srfld_->setValue( sr );
 }
 
@@ -279,7 +279,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     if ( mIsUdf(zsampintv_) )
 	mErrRet("Please provide the Z dample rate for the  output log")
     if ( ftbox_->isChecked() )
-    	zsampintv_ *= mFromFeetFactorF;
+    	zsampintv_ *= mFromFeetFactor;
 
 
     //TODO needs to be in Executor
@@ -399,6 +399,7 @@ bool uiWellLogCalc::getInpData( TypeSet<uiWellLogCalc::InpData>& inpdata )
 
 bool uiWellLogCalc::getRecInfo()
 {
+    float startval = 0;
     const int nrrec = recvaridxs_.size();
     if ( nrrec < 1 ) return true;
 
@@ -507,3 +508,6 @@ const char* uiWellLogCalc::getOutputLogName() const
 {
     return nmfld_->text();
 }
+
+
+

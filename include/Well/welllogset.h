@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllogset.h,v 1.16 2012-08-03 13:00:45 cvskris Exp $
+ RCS:		$Id: welllogset.h,v 1.15 2012/03/01 12:54:51 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "wellmod.h"
 #include "sets.h"
 #include "position.h"
 #include "ranges.h"
@@ -23,7 +22,7 @@ namespace Well
 
 class Log;
 
-mClass(Well) LogSet
+mClass LogSet
 {
 public:
 
@@ -71,4 +70,3 @@ protected:
 }; // namespace Well
 
 #endif
-

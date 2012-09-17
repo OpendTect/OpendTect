@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: gridder2d.cc,v 1.36 2012-08-09 06:49:32 cvsaneesh Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.33 2011/09/16 10:54:03 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -104,9 +104,9 @@ float Gridder2D::getValue() const
 	return mUdf(float);
 
     if ( nrvals==usedvalues_.size() )
-	return (float) valweightsum;
+	return valweightsum;
 
-    return (float) ( valweightsum/weightsum );
+    return valweightsum/weightsum;
 }
 
 
@@ -203,12 +203,12 @@ bool InverseDistanceGridder2D::init()
 	const double weight = useradius ? 1-dist/radius_ : 1./dist;
 
 	weightsum += weight;
-	weights_ += (float) weight;
+	weights_ += weight;
 	usedvalues_ += idx;
     }
 
     for ( int idx=weights_.size()-1; idx>=0; idx-- )
-	weights_[idx] /= (float) weightsum;
+	weights_[idx] /= weightsum;
 
     inited_ = true;
     return true;
@@ -306,9 +306,9 @@ bool TriangulatedGridder2D::init()
 		return false;
 
 	    usedvalues_ += 0;
-	    weights_ += (float) ( (totaldist-dist0)/totaldist );
+	    weights_ += (totaldist-dist0)/totaldist;
 	    usedvalues_ += 1;
-	    weights_ += (float) ( (totaldist-dist1)/totaldist );
+	    weights_ += (totaldist-dist1)/totaldist;
 
 	    return true;
 	}

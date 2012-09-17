@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		November 2011
- RCS:		$Id: uifltdispoptgrp.h,v 1.2 2012-08-03 13:01:18 cvskris Exp $
+ RCS:		$Id: uifltdispoptgrp.h,v 1.1 2011/11/04 15:41:58 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uivismod.h"
 #include "uidlggroup.h"
 
 
@@ -21,7 +20,7 @@ class uiGenInput;
 class uiPushButton;
 namespace visSurvey { class FaultDisplay; }
 
-mClass(uiVis) uiFaultDisplayOptGrp : public uiDlgGroup
+mClass uiFaultDisplayOptGrp : public uiDlgGroup
 {
 public: 
     		 		uiFaultDisplayOptGrp(uiParent*,
@@ -40,4 +39,3 @@ protected:
 
 
 #endif
-

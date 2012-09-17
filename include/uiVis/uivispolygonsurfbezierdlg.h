@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		Feb 2009
- RCS:		$Id: uivispolygonsurfbezierdlg.h,v 1.3 2012-08-03 13:01:19 cvskris Exp $
+ RCS:		$Id: uivispolygonsurfbezierdlg.h,v 1.2 2009/07/22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uivismod.h"
 #include "uidlggroup.h"
 
 class uiGenInput;
@@ -22,7 +21,7 @@ namespace Geometry { class PolygonSurface; }
 namespace visSurvey { class PolygonBodyDisplay; };
 
 
-mClass(uiVis) uiVisPolygonSurfBezierDlg : public uiDlgGroup
+mClass uiVisPolygonSurfBezierDlg : public uiDlgGroup
 {
 public:
     					uiVisPolygonSurfBezierDlg(uiParent*,
@@ -40,4 +39,3 @@ protected:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodtreeitem.cc,v 1.221 2012-09-07 22:08:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.217 2011/12/16 09:27:36 cvskris Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -17,11 +17,11 @@ static const char* rcsID mUnusedVar = "$Id: uiodtreeitem.cc,v 1.221 2012-09-07 2
 #include "uivispartserv.h"
 
 #include "settings.h"
+#include "uilistview.h"
 #include "uimsg.h"
 #include "uiodscenemgr.h"
 #include "ui3dviewer.h"
 #include "uiscenepropdlg.h"
-#include "uitreeview.h"
 #include "vissurvscene.h"
 
 
@@ -31,7 +31,7 @@ const char* uiODTreeTop::applmgrstr()		{ return "Applmgr"; }
 const char* uiODTreeTop::scenestr()		{ return "Scene"; }
 
 
-uiODTreeTop::uiODTreeTop( ui3DViewer* sovwr, uiTreeView* lv, uiODApplMgr* am,
+uiODTreeTop::uiODTreeTop( ui3DViewer* sovwr, uiListView* lv, uiODApplMgr* am,
 			    uiTreeFactorySet* tfs_ )
     : uiTreeTopItem(lv)
     , tfs(tfs_)
@@ -102,7 +102,7 @@ void uiODTreeTop::loopOverChildrenIds( TypeSet<int>& dispids, int& selectedid,
 	    else if ( !usechecked )
 		dispids += disptreeitem->displayID();
 
-	    if ( childrenlist[idy]->uitreeviewitem_->isSelected() )
+	    if ( childrenlist[idy]->uilistviewitem_->isSelected() )
 		selectedid = disptreeitem->displayID();
 	}
     }
@@ -113,9 +113,9 @@ uiODTreeItem::uiODTreeItem( const char* name__ )
     : uiTreeItem( name__ )
 {}
 
-bool uiODTreeItem::anyButtonClick( uiTreeViewItem* item )
+bool uiODTreeItem::anyButtonClick( uiListViewItem* item )
 {
-    if ( item!=uitreeviewitem_ )
+    if ( item!=uilistviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
 
     if ( !select() ) return false;
@@ -272,6 +272,7 @@ bool uiODSceneTreeItem::showSubMenu()
     {
 	ObjectSet<ui3DViewer> viewers;
 	ODMainWin()->sceneMgr().getSoViewers( viewers );
+
 	uiScenePropertyDlg dlg( getUiParent(), viewers, 
 			viewers.indexOf( viewer() ) );
 	dlg.go();

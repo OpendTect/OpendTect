@@ -8,12 +8,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          June 2007
- RCS:           $Id: uiautoattrdescset.h,v 1.5 2012-08-03 13:00:48 cvskris Exp $
+ RCS:           $Id: uiautoattrdescset.h,v 1.4 2009/07/22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uidialog.h"
 #include "multiid.h"
 #include "bufstringset.h"
@@ -32,7 +31,7 @@ class IOObj;
 /*! \brief class for selecting Auto-load Attribute Set  */
 
 
-mClass(uiAttributes) uiAutoAttrSelDlg : public uiDialog
+mClass uiAutoAttrSelDlg : public uiDialog
 {
 public:
     				uiAutoAttrSelDlg(uiParent* p,bool);
@@ -58,7 +57,7 @@ protected:
 };
 
 
-mClass(uiAttributes) uiAutoAttrSetOpen : public uiDialog
+mClass uiAutoAttrSetOpen : public uiDialog
 {
 public:
 				uiAutoAttrSetOpen(uiParent*,BufferStringSet&,
@@ -93,4 +92,3 @@ protected:
 
 
 #endif
-

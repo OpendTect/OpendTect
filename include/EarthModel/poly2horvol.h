@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Aug 2008
- RCS:           $Id: poly2horvol.h,v 1.2 2012-08-03 13:00:20 cvskris Exp $
+ RCS:           $Id: poly2horvol.h,v 1.1 2009/08/21 13:43:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "gendefs.h"
 class MultiID;
 class TaskRunner;
@@ -22,7 +21,7 @@ namespace EM	{ class Horizon3D; }
 
 /*! \brief Calculate volume between horizon and polygon */
 
-mClass(EarthModel) Poly2HorVol
+mClass Poly2HorVol
 {
 public:
 
@@ -49,4 +48,3 @@ protected:
 
 
 #endif
-

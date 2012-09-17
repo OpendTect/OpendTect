@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seissingtrcproc.cc,v 1.66 2012-07-24 14:22:53 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.63 2012/03/12 11:40:23 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -265,6 +265,17 @@ const char* SeisSingleTraceProc::nrDoneText() const
 od_int64 SeisSingleTraceProc::totalNr() const
 {
     return totnr_-nrskipped_ < 0 ? -1 : totnr_-nrskipped_;
+}
+
+
+static void scaleTrc( SeisTrc& trc, Scaler& sclr )
+{
+    for ( int icomp=0; icomp<trc.data().nrComponents(); icomp++ )
+    {
+	const int sz = trc.size();
+	for ( int isamp=0; isamp<sz; isamp++ )
+	    trc.set( isamp, sclr.scale(trc.get(isamp,icomp)), icomp );
+    }
 }
 
 

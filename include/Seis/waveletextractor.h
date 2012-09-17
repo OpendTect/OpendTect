@@ -6,12 +6,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          July 2009
- RCS:           $Id: waveletextractor.h,v 1.8 2012-08-03 13:00:39 cvskris Exp $ 
+ RCS:           $Id: waveletextractor.h,v 1.7 2010/10/27 12:07:22 cvsnageswara Exp $ 
  ________________________________________________________________________
                  
 -*/   
 
-#include "seismod.h"
 #include "executor.h"
 
 namespace Fourier { class CC; }
@@ -22,7 +21,7 @@ class SeisTrcReader;
 class Wavelet;
 template <class T> class Array1DImpl;
 
-mClass(Seis) WaveletExtractor : public Executor
+mClass WaveletExtractor : public Executor
 {
 public:
 				WaveletExtractor(const IOObj&,int wvltsize);
@@ -74,4 +73,3 @@ protected:
 };
 
 #endif
-

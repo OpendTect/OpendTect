@@ -7,23 +7,22 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dtreeitem.h,v 1.6 2012-09-07 22:08:02 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dtreeitem.h,v 1.4 2011/06/28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uitreeitemmanager.h"
 
 class CubeSampling;
-class uiTreeView;
+class uiListView;
 class uiODApplMgr;
 class uiODViewer2D;
 
 namespace Attrib { class SelSpec; }
 
 
-mClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
+mClass uiODVw2DTreeItem : public uiTreeItem
 {
 public:
     			uiODVw2DTreeItem(const char*);
@@ -50,7 +49,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVw2DTreeItemFactory : public uiTreeItemFactory
+mClass uiODVw2DTreeItemFactory : public uiTreeItemFactory
 {
     public:
 	virtual uiTreeItem* createForVis(const uiODViewer2D&,int visid) const
@@ -59,10 +58,10 @@ mClass(uiODMain) uiODVw2DTreeItemFactory : public uiTreeItemFactory
 
 
 
-mClass(uiODMain) uiODVw2DTreeTop : public uiTreeTopItem
+mClass uiODVw2DTreeTop : public uiTreeTopItem
 {
 public:
-				uiODVw2DTreeTop(uiTreeView*,uiODApplMgr*,
+    				uiODVw2DTreeTop(uiListView*,uiODApplMgr*,
 					uiODViewer2D*,uiTreeFactorySet*);
 				~uiODVw2DTreeTop();
     
@@ -87,4 +86,3 @@ protected:
 
 
 #endif
-

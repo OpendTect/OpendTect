@@ -7,16 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.18 2012-08-03 13:00:09 cvskris Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.16 2010/08/11 16:55:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 #include "arrayndutils.h"
 #include "arrayndimpl.h"
+#include "fourier.h"
 #include <complex>
 
 
@@ -37,7 +37,7 @@ Output:                                 ||
 namespace Attrib
 {
 
-mClass(Attributes) FreqFilter: public Provider
+mClass FreqFilter: public Provider
 {
 public:
     static void		initClass();
@@ -78,6 +78,8 @@ protected:
     float                       maxfreq_;
     int				nrpoles_;
     bool			isfftfilter_;
+    Fourier::CC*		fft_;
+    Fourier::CC*		fftinv_;
     int                         fftsz_;
 
     ArrayNDWindow*              window_;
@@ -90,6 +92,8 @@ protected:
 
     Array1DImpl<float_complex>  signal_;
     Array1DImpl<float_complex>  timedomain_;
+    Array1DImpl<float_complex>  freqdomain_;
+    Array1DImpl<float_complex>  tmpfreqdomain_;
     Array1DImpl<float_complex>  timecplxoutp_;
     
     const DataHolder*		redata_;
@@ -102,4 +106,3 @@ protected:
 }; // namespace Attrib
 
 #endif
-

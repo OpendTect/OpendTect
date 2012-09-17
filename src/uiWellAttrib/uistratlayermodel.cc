@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.74 2012-09-14 14:05:11 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.70 2012/09/14 14:05:09 cvshelene Exp $";
 
 #include "uistratlayermodel.h"
 
@@ -133,7 +133,14 @@ void theCB( CallBacker* cb )
 	    Settings::common().write( false );
 	modnm = newmodnm;
     }
+
     doLayerModel( par, modnm );
+}
+
+
+void doBasicLayerModel( uiParent* p )
+{
+    doLayerModel( p, uiBasicLayerSequenceGenDesc::typeStr() );
 }
 
 
@@ -147,12 +154,9 @@ void doLayerModel( uiParent* p, const char* modnm )
 }
 
 
-
-
-
 void addToTreeWin()
 {
-    uiToolButtonSetup* su = new uiToolButtonSetup( "stratlayermodeling",
+    uiToolButtonSetup* su = new uiToolButtonSetup( "stratlayermodeling.png",
 			    "Start layer/synthetics modeling",
 			    mCB(this,uiStratLayerModelLauncher,theCB) );
     uiStratTreeWin::addTool( su );
@@ -195,7 +199,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 
     if ( !edtyp || !*edtyp )
 	edtyp = uiBasicLayerSequenceGenDesc::typeStr();
-    descctio_.ctxt.toselect.require_.set( sKey::Type(), edtyp );
+    descctio_.ctxt.toselect.require_.set( sKey::Type, edtyp );
 
     uiGroup* gengrp = new uiGroup( this, "Gen group" );
     seqdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_ );
@@ -223,7 +227,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 
     synthdisp_ = new uiStratSynthDisp( topgrp, modl_ );
     analtb_ = new uiToolBar( this, "Analysis toolbar", uiToolBar::Right );
-    uiToolButtonSetup tbsu( "xplot", "Attributes vs model properties",
+    uiToolButtonSetup tbsu( "xplot.png", "Attributes vs model properties",
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
@@ -432,6 +436,7 @@ void uiStratLayerModel::modDispRangeChanged( CallBacker* )
 }
 
 
+
 void uiStratLayerModel::manPropsCB( CallBacker* )
 {
     seqdisp_->selProps();
@@ -633,7 +638,7 @@ bool uiStratLayerModel::closeOK()
 void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
 {
     synthdisp_->displaySynthetic( synthdata ? synthdata
-	    				: synthdisp_->getCurrentSyntheticData() );
+	    			: synthdisp_->getCurrentSyntheticData() );
     moddisp_->modelChanged();
 }
 

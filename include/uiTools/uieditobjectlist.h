@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2012
- RCS:           $Id: uieditobjectlist.h,v 1.2 2012-09-17 10:01:33 cvsbert Exp $
+ RCS:           $Id: uieditobjectlist.h,v 1.2 2012/09/17 10:01:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 class BufferStringSet;
 class uiListBox;
@@ -24,7 +23,7 @@ class uiButtonGroup;
 /*!\brief Base class for element allowing maintenance of lists of
 		(usually small) objects. */
 
-mClass(uiTools) uiEditObjectList : public uiGroup
+mClass uiEditObjectList : public uiGroup
 {
 public:
 

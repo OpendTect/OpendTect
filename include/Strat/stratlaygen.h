@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2011
- RCS:		$Id: stratlaygen.h,v 1.8 2012-08-22 11:03:24 cvsbert Exp $
+ RCS:		$Id: stratlaygen.h,v 1.7 2012/08/22 11:03:00 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "stratmod.h"
 #include "property.h"
 class IOPar;
 
@@ -32,7 +31,7 @@ class LayerSequenceGenDesc;
  
  */
 
-mClass(Strat) LayerGenerator
+mClass LayerGenerator
 {
 public:	
 

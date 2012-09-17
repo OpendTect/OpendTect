@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.20 2012-08-30 09:42:31 cvskris Exp $
+ RCS:		$Id: gmtdef.h,v 1.17 2011/05/12 06:40:39 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "gmtmod.h"
 #include "settings.h"
 #include "enums.h"
 
@@ -20,78 +19,71 @@ namespace ODGMT
 {
     enum Shape		{ Star, Circle, Diamond, Square, Triangle, Cross,
    			  Polygon, Line };
-    			DeclareNameSpaceEnumUtils(GMT,Shape)
+    			DeclareNameSpaceEnumUtils(Shape)
     enum Resolution	{ Full, High, Intermediate, Low, Crude };
-			DeclareNameSpaceEnumUtils(GMT,Resolution)
+			DeclareNameSpaceEnumUtils(Resolution)
     enum Alignment	{ Above, Below, Left, Right };
-			DeclareNameSpaceEnumUtils(GMT,Alignment);
+			DeclareNameSpaceEnumUtils(Alignment);
     enum ExecStatus	{ Success, FatalError, Failure };
 
-    mGlobal(GMT) inline const char**	sShapeKeys()
-    			{
-			    static const char* buf[] = { "a", "c", "d", "s", "t", "x", "n", "-", 0 };
-			    return buf;
-			}
-    mGlobal(GMT) inline const char**	sResolKeys()
-    			{
-			    static const char* buf[] = { "f", "h", "i", "l", "c" };
-			    return buf;
-			}
+    static const char*	sShapeKeys[] = { "a", "c", "d", "s", "t", "x", "n",
+					 "-", 0 };
+    static const char*	sResolKeys[] = { "f", "h", "i", "l", "c" };
 
-    mGlobal(GMT) inline const char*	sKeyAttribName() { return "Attribute name"; }
-    mGlobal(GMT) inline const char*	sKeyClipOutside() { return "Clip outside"; }
-    mGlobal(GMT) inline const char*	sKeyClosePS() { return "Close PostScript"; }
-    mGlobal(GMT) inline const char*	sKeyColSeq() { return "Color sequence"; }
-    mGlobal(GMT) inline const char*	sKeyCustomComm() { return "Custom command"; }
-    mGlobal(GMT) inline const char*	sKeyDataRange() { return "Data range"; }
-    mGlobal(GMT) inline const char*	sKeyDrawContour() { return "Draw contour"; }
-    mGlobal(GMT) inline const char*	sKeyDrawGridLines() { return "Draw gridlines"; }
-    mGlobal(GMT) inline const char*	sKeyDryFill() { return "Fill Dry"; }
-    mGlobal(GMT) inline const char*	sKeyDryFillColor() { return "Fill Color Dry"; }
-    mGlobal(GMT) inline const char*	sKeyFill() { return "Fill"; }
-    mGlobal(GMT) inline const char*	sKeyFillColor() { return "Fill Color"; }
-    mGlobal(GMT) inline const char*	sKeyFlipColTab() { return "Flip color table"; }
-    mGlobal(GMT) inline const char*	sKeyFontSize() { return "Font size"; }
-    mGlobal(GMT) inline const char*	sKeyGMT() { return "GMT"; }
-    mGlobal(GMT) inline const char*	sKeyGMTSelKey() { return "808080"; }
-    mGlobal(GMT) inline const char*	sKeyGroupName() { return "Group Name"; }
-    mGlobal(GMT) inline const char*	sKeyLabelAlignment() { return "Label alignment"; }
-    mGlobal(GMT) inline const char*	sKeyLabelIntv() { return "Label Interval"; }
-    mGlobal(GMT) inline const char*	sKeyLegendParams() { return "Legend Parameters"; }
-    mGlobal(GMT) inline const char*	sKeyLineNames() { return "Line names"; }
-    mGlobal(GMT) inline const char*	sKeyLineStyle() { return "Line Style"; }
-    mGlobal(GMT) inline const char*	sKeyMapDim() { return "Map Dimension"; }
-    mGlobal(GMT) inline const char*	sKeyMapScale() { return "Map scale"; }
-    mGlobal(GMT) inline const char*	sKeyMapTitle() { return "Map Title"; }
-    mGlobal(GMT) inline const char*	sKeyPostLabel() { return "Post label"; }
-    mGlobal(GMT) inline const char*	sKeyPostColorBar() { return "Post Color bar"; }
-    mGlobal(GMT) inline const char*	sKeyPostStart() { return "Post start"; }
-    mGlobal(GMT) inline const char*  sKeyPostStop() { return "Post stop"; }
-    mGlobal(GMT) inline const char*	sKeyPostTitleBox() { return "Post title box"; }
-    mGlobal(GMT) inline const char*	sKeyPostTraceNrs() { return "Post Trace Nrs"; }
-    mGlobal(GMT) inline const char*	sKeyRemarks() { return "Remarks"; }
-    mGlobal(GMT) inline const char*	sKeyResolution() { return "Resolution"; }
-    mGlobal(GMT) inline const char*	sKeyShape() { return "Shape"; }
-    mGlobal(GMT) inline const char*	sKeySkipWarning() { return "Skip Warning"; }
-    mGlobal(GMT) inline const char*	sKeyStartClipping() { return "Start Clipping"; }
-    mGlobal(GMT) inline const char*	sKeyUTMZone() { return "UTM zone"; }
-    mGlobal(GMT) inline const char*	sKeyWetFill() { return "Fill Wet"; }
-    mGlobal(GMT) inline const char*	sKeyWetFillColor() { return "Fill Color Wet"; }
-    mGlobal(GMT) inline const char*	sKeyWellNames() { return "Well names"; }
-    mGlobal(GMT) inline const char*	sKeyXRange() { return "X Range"; }
-    mGlobal(GMT) inline const char*	sKeyYRange() { return "Y Range"; }
-    mGlobal(GMT) inline const char*	sKeyZVals() { return "Z values"; }
-    mGlobal(GMT) inline const char*  sKeyFaultID() { return "FaultID"; }
-    mGlobal(GMT) inline const char*  sKeyHorizonID() { return "HorizonID"; }
-    mGlobal(GMT) inline const char*  sKeyZIntersectionYN() { return "ZIntersection"; }
-    mGlobal(GMT) inline const char*  sKeyUseFaultColorYN() { return "Use Fault Color"; }
-    mGlobal(GMT) inline const char*  sKeyFaultColor() { return "Fault Color"; }
-    mGlobal(GMT) inline const char*  sKeyUseWellSymbolsYN() { return "Use Well Symbols"; }
-    mGlobal(GMT) inline const char*  sKeyWellSymbolName() { return "Symbol Name"; }
+    static const char*	sKeyAttribName = "Attribute name";
+    static const char*	sKeyClipOutside = "Clip outside";
+    static const char*	sKeyClosePS = "Close PostScript";
+    static const char*	sKeyColSeq = "Color sequence";
+    static const char*	sKeyCustomComm = "Custom command";
+    static const char*	sKeyDataRange = "Data range";
+    static const char*	sKeyDrawContour = "Draw contour";
+    static const char*	sKeyDrawGridLines = "Draw gridlines";
+    static const char*	sKeyDryFill = "Fill Dry";
+    static const char*	sKeyDryFillColor = "Fill Color Dry";
+    static const char*	sKeyFill = "Fill";
+    static const char*	sKeyFillColor = "Fill Color";
+    static const char*	sKeyFlipColTab = "Flip color table";
+    static const char*	sKeyFontSize = "Font size";
+    static const char*	sKeyGMT = "GMT";
+    static const char*	sKeyGMTSelKey = "808080";
+    static const char*	sKeyGroupName = "Group Name";
+    static const char*	sKeyLabelAlignment = "Label alignment";
+    static const char*	sKeyLabelIntv = "Label Interval";
+    static const char*	sKeyLegendParams = "Legend Parameters";
+    static const char*	sKeyLineNames = "Line names";
+    static const char*	sKeyLineStyle = "Line Style";
+    static const char*	sKeyMapDim = "Map Dimension";
+    static const char*	sKeyMapScale = "Map scale";
+    static const char*	sKeyMapTitle = "Map Title";
+    static const char*	sKeyPostLabel = "Post label";
+    static const char*	sKeyPostColorBar = "Post Color bar";
+    static const char*	sKeyPostStart = "Post start";
+    static const char*  sKeyPostStop = "Post stop";
+    static const char*	sKeyPostTitleBox = "Post title box";
+    static const char*	sKeyPostTraceNrs = "Post Trace Nrs";
+    static const char*	sKeyRemarks = "Remarks";
+    static const char*	sKeyResolution = "Resolution";
+    static const char*	sKeyShape = "Shape";
+    static const char*	sKeySkipWarning = "Skip Warning";
+    static const char*	sKeyStartClipping = "Start Clipping";
+    static const char*	sKeyUTMZone = "UTM zone";
+    static const char*	sKeyWetFill = "Fill Wet";
+    static const char*	sKeyWetFillColor = "Fill Color Wet";
+    static const char*	sKeyWellNames = "Well names";
+    static const char*	sKeyXRange = "X Range";
+    static const char*	sKeyYRange = "Y Range";
+    static const char*	sKeyZVals = "Z values";
+    static const char*  sKeyFaultID = "FaultID";
+    static const char*  sKeyHorizonID = "HorizonID";
+    static const char*  sKeyZIntersectionYN = "ZIntersection";
+    static const char*  sKeyUseFaultColorYN = "Use Fault Color";
+    static const char*  sKeyFaultColor = "Fault Color";
+    static const char*  sKeyUseWellSymbolsYN = "Use Well Symbols";
+    static const char*  sKeyWellSymbolName = "Symbol Name";
 };
 
 
-mClass(GMT) GMTWellSymbol : public NamedObject
+mClass GMTWellSymbol : public NamedObject
 {
 public:
     BufferString	iconfilenm_;
@@ -104,7 +96,7 @@ public:
 };
 
 
-mClass(GMT) GMTWellSymbolRepository
+mClass GMTWellSymbolRepository
 {
 public:
     			GMTWellSymbolRepository();
@@ -122,7 +114,7 @@ protected:
 };
 
 
-mGlobal(GMT) const GMTWellSymbolRepository& GMTWSR();
+mGlobal const GMTWellSymbolRepository& GMTWSR();
 
 
 #define mGetDefault( key, fn, var ) \
@@ -134,4 +126,3 @@ mGlobal(GMT) const GMTWellSymbolRepository& GMTWSR();
     Settings::fetch("GMT").write();
 
 #endif
-

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uiflatviewmainwin.h"
 #include "bufstringset.h"
@@ -42,7 +41,7 @@ namespace WellTie
     class uiTieView;
     class uiWaveletView;
 
-mClass(uiWellAttrib) uiTieWin : public uiFlatViewMainWin
+mClass uiTieWin : public uiFlatViewMainWin
 {
 public:
 
@@ -111,7 +110,7 @@ protected:
     bool 			matchHorMrks(CallBacker*);
     void 			provideWinHelp(CallBacker*);
     void			reDrawSeisViewer(CallBacker*);
-    void			reDrawAuxDatas(CallBacker*);
+    void			reDrawSeisViewerAnnot(CallBacker*);
     void			reDrawAll(CallBacker*);
     bool			rejectOK(CallBacker*);
     void 			setView(CallBacker*);
@@ -123,7 +122,7 @@ protected:
 
 
 
-mClass(uiWellAttrib) uiInfoDlg : public uiDialog
+mClass uiInfoDlg : public uiDialog
 {
 public:		
     		
@@ -168,5 +167,4 @@ protected:
 }; //namespace WellTie
 
 #endif
-
 

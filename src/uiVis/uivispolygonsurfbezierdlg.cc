@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivispolygonsurfbezierdlg.cc,v 1.4 2012-05-02 15:12:26 cvskris Exp $";
+static const char* rcsID = "$Id: uivispolygonsurfbezierdlg.cc,v 1.2 2009/07/22 16:01:43 cvsbert Exp $";
 
 #include "uivispolygonsurfbezierdlg.h"
 

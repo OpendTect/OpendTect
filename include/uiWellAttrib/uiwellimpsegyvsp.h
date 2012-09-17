@@ -6,13 +6,12 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2009
- RCS:           $Id: uiwellimpsegyvsp.h,v 1.8 2012-08-03 13:01:22 cvskris Exp $
+ RCS:           $Id: uiwellimpsegyvsp.h,v 1.7 2009/07/22 16:01:24 cvsbert Exp $
  _______________________________________________________________________
 
       -*/
 
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "iopar.h"
 #include "samplingdata.h"
@@ -25,7 +24,7 @@ class SeisTrc;
 class CtxtIOObj;
 
 
-mClass(uiWellAttrib) uiWellImportSEGYVSP : public uiDialog
+mClass uiWellImportSEGYVSP : public uiDialog
 {
 public:
     			uiWellImportSEGYVSP(uiParent*);
@@ -69,4 +68,3 @@ protected:
 };
 
 #endif
-

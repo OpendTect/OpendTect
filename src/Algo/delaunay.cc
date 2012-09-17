@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: delaunay.cc,v 1.56 2012-08-09 06:49:31 cvsaneesh Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.51 2012/04/03 21:24:47 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -289,7 +289,7 @@ bool DAGTriangleTree::getTriangle( const Coord& pt, int& dupid,
     dupid = cNoVertex();
     vertices.erase();
     int ti0;
-    searchTriangle( pt, 0, ti0, dupid );
+    const char res = searchTriangle( pt, 0, ti0, dupid );
     if ( dupid!=cNoVertex() )
 	return true;
 
@@ -603,15 +603,10 @@ int DAGTriangleTree::getNeighbor( int v0, int v1, int ti ) const
     
     if ( (id0==0 && id1==1) || (id0==1 && id1==0) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[0] );
-    else if ( (id0==0 && id1==2) || (id0==2 && id1==0) )
+    if ( (id0==0 && id1==2) || (id0==2 && id1==0) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[2] );
     else if ( (id0==1 && id1==2) || (id0==2 && id1==1) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[1] );
-    else
-    {
-	pErrMsg("Should never happen");
-	return mUdf(int);
-    }
 
     return res;
 }
@@ -1008,7 +1003,7 @@ Triangle2DInterpolator::Triangle2DInterpolator( const DAGTriangleTree& tri )
 	perimeterazimuth_ += initcenter_.angle( startpt,
 		triangles_.coordList()[perimeter_[idx]] );
 
-    sort_coupled(perimeterazimuth_.arr(), perimeter_.arr(), perimeter_.size());
+    sort_coupled(perimeterazimuth_.arr(),perimeter_.arr(),perimeter_.size());
 }
 
 
@@ -1218,9 +1213,9 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 
     //Inverse distance weighting.
     vertices += preidx;
-    weights += (float)((f/(e+f))*(d/(c+d)));
+    weights += (f/(e+f))*(d/(c+d));
     vertices += aftidx;
-    weights += (float)((f/(e+f))*(c/(c+d)));
+    weights += (f/(e+f))*(c/(c+d));
 
     for ( int idx=0; idx<2; idx++ )
     {
@@ -1234,11 +1229,11 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 	{ conns = &corner2_; ws = &cornerweights2_; }
 	
 	const double useddist = idx ? x : y;
-	const float factor = (float)((e/(e+f))*(useddist/(x+y)));
+	const float factor = (e/(e+f))*(useddist/(x+y));
 	for ( int idz=0; idz<conns->size(); idz++ )
 	{
 	    vertices += (*conns)[idz];
-	    weights += (float)((*ws)[idz] * factor);
+	    weights += (*ws)[idz] * factor;
 	}
     }
     

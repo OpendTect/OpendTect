@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: repos.cc,v 1.13 2012-08-30 09:48:32 cvskris Exp $";
+static const char* rcsID = "$Id: repos.cc,v 1.10 2011/12/14 13:16:41 cvsbert Exp $";
 
 #include "repos.h"
 #include "filepath.h"
@@ -41,7 +41,7 @@ void Repos::FileProvider::getFname( BufferString& res, bool withdot ) const
     char* ptr = res.buf();
     while ( *ptr )
     {
-	if ( isupper(*ptr) ) *ptr = (char) tolower(*ptr);
+	if ( isupper(*ptr) ) *ptr = tolower(*ptr);
 	ptr++;
     }
 }

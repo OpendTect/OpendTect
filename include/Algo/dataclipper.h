@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.20 2012-08-03 13:00:03 cvskris Exp $
+ RCS:		$Id: dataclipper.h,v 1.19 2012/07/04 10:03:27 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "algomod.h"
 #include "sets.h"
 #include "ranges.h"
 class IOPar;
@@ -73,7 +72,7 @@ Example
 */
 
 
-mClass(Algo) DataClipper
+mClass DataClipper
 {
 public:
     				DataClipper();
@@ -88,8 +87,9 @@ public:
 						  int statsize=2000);
     				/*!< Will make it faster if large amount
 				     of data is used. The Object will then
-				     randomly subselect on the input to get
-				     about statsize samples to do the stats on.
+				     randomly subselect
+				     on the input to get about statsize samples
+				     to do the stats on.
 				*/
     void			putData(float);
     void			putData(const float*,od_int64 sz);
@@ -126,11 +126,11 @@ protected:
     float			sampleprob_;
     bool			subselect_;
     TypeSet<float>		samples_;
-    Interval<float>		absoluterg_;
+
 };
 
 
-mClass(Algo) DataClipSampler
+mClass DataClipSampler
 {
 public:
 			DataClipSampler(int bufsz=10000);
@@ -162,4 +162,3 @@ protected:
 
 
 #endif
-

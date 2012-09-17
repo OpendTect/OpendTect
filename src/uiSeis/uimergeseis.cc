@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimergeseis.cc,v 1.49 2012-05-22 14:48:39 cvskris Exp $";
+static const char* rcsID = "$Id: uimergeseis.cc,v 1.46 2009/08/21 10:11:46 cvsbert Exp $";
 
 #include "uimergeseis.h"
 
@@ -95,7 +95,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 	    uiMSG().error( "Please enter an output Seismic data set name" );
         return false;
     }
-    outpar.set( sKey::ID(), ctio_.ioobj->key() );
+    outpar.set( sKey::ID, ctio_.ioobj->key() );
 
     ObjectSet<IOObj> selobjs;
     for ( int idx=0; idx<inpfld_->size(); idx++ )
@@ -118,21 +118,21 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 	const IOObj& ioobj = *selobjs[idx];
 	if ( idx == 0 ) 
 	{
-	    if ( ioobj.pars().hasKey(sKey::Type()) )
-		type = ioobj.pars().find(sKey::Type());
+	    if ( ioobj.pars().hasKey(sKey::Type) )
+		type = ioobj.pars().find(sKey::Type);
 	    if ( ioobj.pars().hasKey(optdirkey) )
 		optdir = ioobj.pars().find( optdirkey );
 	}
 	IOPar* iop = new IOPar;
-	iop->set( sKey::ID(), ioobj.key() );
+	iop->set( sKey::ID, ioobj.key() );
 	inpars += iop;
     }
     deepErase( selobjs );
 
     if ( type.isEmpty() )
-	ctio_.ioobj->pars().removeWithKey( sKey::Type() );
+	ctio_.ioobj->pars().removeWithKey( sKey::Type );
     else
-	ctio_.ioobj->pars().set( sKey::Type(), type );
+	ctio_.ioobj->pars().set( sKey::Type, type );
     if ( optdir.isEmpty() )
 	ctio_.ioobj->pars().removeWithKey( optdirkey );
     else

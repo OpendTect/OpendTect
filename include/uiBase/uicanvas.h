@@ -7,17 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.24 2012-08-03 13:00:50 cvskris Exp $
+ RCS:           $Id: uicanvas.h,v 1.23 2009/10/07 13:26:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uidrawable.h"
 
 class uiCanvasBody;
 
-mClass(uiBase) uiCanvas : public uiDrawableObj
+mClass uiCanvas : public uiDrawableObj
 {
 public:
 				uiCanvas(uiParent*,const Color&,const char*);
@@ -38,4 +37,3 @@ private:
 };
 
 #endif
-

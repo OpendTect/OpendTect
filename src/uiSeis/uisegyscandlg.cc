@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyscandlg.cc,v 1.37 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.33 2011/10/24 09:56:31 cvskris Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -90,7 +90,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 
     if ( attobj )
     {
-	uiToolButton* tb = new uiToolButton( this, "prescan",
+	uiToolButton* tb = new uiToolButton( this, "prescan.png",
 					"Limited Pre-scan",
 				       mCB(this,uiSEGYScanDlg,preScanCB) );
 	tb->attach( rightTo, attobj ); tb->attach( rightBorder );
@@ -191,8 +191,8 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	pars_.set( SEGY::IO::sKeyTask(), isps ? SEGY::IO::sKeyIndexPS()
 					      : SEGY::IO::sKeyIndex3DVol() );
 	pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
-	pars_.set( sKey::Output(), outfld_->key(true) );
-	pars_.set( sKey::LineName(), lnm );
+	pars_.set( sKey::Output, outfld_->key(true) );
+	pars_.set( sKey::LineName, lnm );
 	uiBatchLaunch launcher( this, pars_, 0, "od_process_segyio", false );
 	launcher.setParFileName( parfilefld_->text() );
 

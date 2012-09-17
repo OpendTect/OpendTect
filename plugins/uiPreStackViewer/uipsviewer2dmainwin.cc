@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2dmainwin.cc,v 1.24 2012-09-13 19:02:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipsviewer2dmainwin.cc,v 1.18 2012/06/28 11:29:12 cvsbruno Exp $";
 
 #include "uipsviewer2dmainwin.h"
 
@@ -149,12 +149,14 @@ void uiViewer2DMainWin::posDlgChgCB( CallBacker* )
 void uiViewer2DMainWin::setUpView()
 {
     HorSamplingIterator hsit( cs_.hrg );
+    const int nrvwrs = cs_.hrg.totalNr();
+    const int curnrvwrs = mainviewer_->nrItems();
 
     uiMainWin win( this, "Creating gather displays ... " );
     uiProgressBar pb( &win );
     pb.setPrefWidthInChar( 50 );
     pb.setStretch( 2, 2 );
-    pb.setTotalSteps( cs_.hrg.totalNr() );
+    pb.setTotalSteps( nrvwrs );
     win.show();
 
     removeAllGathers();
@@ -239,7 +241,7 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
 	    if ( tb )
 		tb->addButton( 
 		    new uiToolButton( tb, "contexthelp", "Help",
-			mCB(this,uiViewer2DMainWin,doHelp) ) );
+				mCB(this,uiViewer2DMainWin,doHelp) ) );
 	}
 	control_->addViewer( *fv );
     }
@@ -250,6 +252,7 @@ void uiViewer2DMainWin::doHelp( CallBacker* )
 {
     provideHelp( "50.2.2" );
 }
+
 
 void uiViewer2DMainWin::displayInfo( CallBacker* cb )
 {
@@ -267,10 +270,9 @@ void uiViewer2DMainWin::displayInfo( CallBacker* cb )
 
 uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     : uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(mw.parent())
-			.withstates(true)
-			.withthumbnail(false)
-			.withcoltabed(false)
-			.withedit(false))
+			    .withthumbnail(false)
+			    .withcoltabed(false)
+			    .withedit(false))
     , posdlgcalled_(this)
     , datadlgcalled_(this)
 {
@@ -281,9 +283,9 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     objectitemctrl_ = new uiObjectItemViewControl( mw );
     tb_ = objectitemctrl_->toolBar();
 
-    mDefBut(posbut_,"orientation64",gatherPosCB,"Set positions");
-    mDefBut(parsbut_,"2ddisppars",parsCB,"Set seismic display properties");
-    mDefBut(databut_,"gatherdisplaysettings64",gatherDataCB,"Set gather data");
+    mDefBut(posbut_,"orientation64.png",gatherPosCB,"Set positions");
+    mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set seismic display properties");
+    mDefBut(databut_,"gatherdisplaysettings64.png",gatherDataCB,"Set gather data");
     tb_->addSeparator();
 }
 
@@ -318,7 +320,8 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	}
 
 	vwr.setAnnotChoice( selannot );
-	vwr.handleChange( FlatView::Viewer::DisplayPars );
+	vwr.handleChange( FlatView::Viewer::VDPars );
+	vwr.handleChange( FlatView::Viewer::WVAPars );
 	vwr.handleChange( FlatView::Viewer::Annot, false );
     }
 }
@@ -353,5 +356,7 @@ void uiViewer2DControl::doPropertiesDialog( int vieweridx, bool dowva )
     }
     return uiFlatViewControl::doPropertiesDialog( ivwr, dowva );
 }
+
+
 
 }; //namepsace

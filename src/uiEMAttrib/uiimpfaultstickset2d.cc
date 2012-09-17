@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiimpfaultstickset2d.cc,v 1.7 2012-05-02 15:12:03 cvskris Exp $";
+static const char* rcsID = "$Id: uiimpfaultstickset2d.cc,v 1.5 2010/07/19 15:17:25 cvshelene Exp $";
 
 #include "uiimpfaultstickset2d.h"
 

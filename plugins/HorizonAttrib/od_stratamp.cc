@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		June 2011
- RCS:		$Id: od_stratamp.cc,v 1.6 2012-05-22 14:48:45 cvskris Exp $
+ RCS:		$Id: od_stratamp.cc,v 1.5 2012/04/26 12:22:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ ________________________________________________________________________
 
 static bool getHorsampling( const IOPar& par, HorSampling& hs )
 {
-    BufferString compkey = IOPar::compKey( sKey::Output(), sKey::Subsel() );
+    BufferString compkey = IOPar::compKey( sKey::Output, sKey::Subsel );
     const IOPar* hspar = par.subselect( compkey );
     if ( !hspar ) return false;
 

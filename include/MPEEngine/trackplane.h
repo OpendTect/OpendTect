@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: trackplane.h,v 1.11 2012-08-03 13:00:31 cvskris Exp $
+ RCS:		$Id: trackplane.h,v 1.10 2009/07/22 16:01:17 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "mpeenginemod.h"
 #include "cubesampling.h"
 #include "mathfunc.h"
 #include "enums.h"
@@ -28,7 +27,7 @@ namespace MPE
 
 */
 
-mClass(MPEEngine) TrackPlane
+mClass TrackPlane
 {
 public:
     enum TrackMode	{ None, Extend, ReTrack, Erase, Move };
@@ -76,4 +75,3 @@ protected:
 }; // Namespace
 
 #endif
-

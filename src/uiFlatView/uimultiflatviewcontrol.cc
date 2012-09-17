@@ -7,12 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimultiflatviewcontrol.cc,v 1.17 2012-07-12 15:04:45 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimultiflatviewcontrol.cc,v 1.13 2012/06/11 12:16:01 cvsbruno Exp $";
 
 #include "uimultiflatviewcontrol.h"
 
 #include "uiflatviewer.h"
-#include "uimainwin.h"
 #include "uigraphicsscene.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -88,7 +87,7 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
 
     vwr.setRubberBandingOn( !manip_ );
     vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,vwChgCB) );
-    //vwr.dispParsChanged.notify( mCB(this,uiMultiFlatViewControl,dispChgCB) );
+    vwr.dispParsChanged.notify( mCB(this,uiMultiFlatViewControl,dispChgCB) );
     vwr.appearance().annot_.editable_ = false;
     vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomAreasCB) );
     vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomBoxesCB) );

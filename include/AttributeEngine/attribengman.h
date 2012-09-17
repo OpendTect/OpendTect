@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.38 2012-08-03 13:00:07 cvskris Exp $
+ RCS:           $Id: attribengman.h,v 1.37 2011/01/27 15:56:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "sets.h"
 #include "ranges.h"
 #include "bufstring.h"
@@ -41,7 +40,7 @@ class Data2DHolder;
 
 /*!\brief The Attribute engine Manager. */
 
-mClass(AttributeEngine) EngineMan
+mClass EngineMan
 {
 public:
 			EngineMan();
@@ -144,4 +143,3 @@ private:
 
 
 #endif
-

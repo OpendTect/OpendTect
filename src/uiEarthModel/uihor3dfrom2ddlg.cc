@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihor3dfrom2ddlg.cc,v 1.26 2012-07-17 14:25:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: uihor3dfrom2ddlg.cc,v 1.23 2012/01/06 15:21:06 cvsnanne Exp $";
 
 #include "uihor3dfrom2ddlg.h"
 
@@ -30,6 +30,8 @@ static const char* rcsID mUnusedVar = "$Id: uihor3dfrom2ddlg.cc,v 1.26 2012-07-1
 #include "ioman.h"
 #include "survinfo.h"
 
+static int nrsteps = 10;
+static float srchrad = -1;
 
 uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 				    uiEMPartServer* ems )

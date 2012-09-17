@@ -2,13 +2,13 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.13 2012-08-31 06:04:13 cvsraman Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.10 2012/04/25 10:41:44 cvsbert Exp $
 #_______________________________________________________________________________
 
 SET(OD_USEQT Core)
 SET(OD_USEZLIB Yes)
 SET(QT_MOC_HEADERS qfilesystemcomm.h qtimercomm.h)
-SET(OD_MODULE_SOURCES genc.c filegen.c oddirs.c
+SET(OD_MODULE_SOURCES genc.c filegen.c errnomsg.c oddirs.c
 	    arrayndinfo.cc
 	    arrayndslice.cc
 	    ascstream.cc
@@ -33,8 +33,8 @@ SET(OD_MODULE_SOURCES genc.c filegen.c oddirs.c
 	    filepath.cc
 	    globexpr.cc
 	    hostdata.cc
-	    iopar.cc
 	    initbasic.cc
+	    iopar.cc
 	    latlong.cc
 	    math2.cc
 	    moddepmgr.cc
@@ -74,7 +74,5 @@ SET(OD_MODULE_SOURCES genc.c filegen.c oddirs.c
 	    winutils.cc
 	    winterminate.cc
 	    zdomain.cc
-	    ziputils.cc
-	    ziparchiveinfo.cc 
-	    ziphandler.cc )
+	    ziputils.cc )
 OD_INIT_MODULE()

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uidlggroup.h,v 1.13 2012-08-03 13:01:12 cvskris Exp $
+ RCS:           $Id: uidlggroup.h,v 1.11 2009/08/27 09:58:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "uitabstack.h"
@@ -23,7 +22,7 @@ Dialog that either can be used standalone (with uiSingleGroupDlg) or
 in a tabstack (uiTabStackDlg) */
 
 
-mClass(uiTools) uiDlgGroup : public uiGroup
+mClass uiDlgGroup : public uiGroup
 {
 public:
     			uiDlgGroup(uiParent* p,const char* nm)
@@ -49,7 +48,7 @@ public:
 
 /*! Dialog with one uiDlgGroup. */
 
-mClass(uiTools) uiSingleGroupDlg : public uiDialog
+mClass uiSingleGroupDlg : public uiDialog
 {
 public:
 		uiSingleGroupDlg( uiParent* p,const uiDialog::Setup& st )
@@ -71,7 +70,7 @@ protected:
 
 
 /*! Dialog with multiple uiDlgGroup in a tabstack. */
-mClass(uiTools) uiTabStackDlg : public uiDialog
+mClass uiTabStackDlg : public uiDialog
 {
 public:
 			uiTabStackDlg(uiParent*,const uiDialog::Setup&);
@@ -85,7 +84,7 @@ public:
     uiDlgGroup&		getGroup(int idx)	{ return *groups_[idx]; }
     const uiDlgGroup&	getGroup(int idx) const { return *groups_[idx]; }
     void		showGroup(int idx);
-    int			currentGroupID()	
+    const int		currentGroupID()	
     			{ return tabstack_->currentPageId(); }
 
     const char*		helpID() const;
@@ -108,4 +107,3 @@ protected:
 };
 
 #endif
-

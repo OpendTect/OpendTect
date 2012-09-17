@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrsel.cc,v 1.81 2012-07-31 20:59:34 cvskris Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.77 2012/04/25 10:54:11 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -125,7 +125,6 @@ mImplInitVar
 void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 				 bool isinp4otherattrib )
 {
-    //TODO: steering will never be displayed: on purpose?
     attrinf_ = new SelInfo( &attrdata_.attrSet(), attrdata_.nlamodel_,
 	    		    is2D(), ignoreid );
     if ( dpfids_.size() )
@@ -140,6 +139,9 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 	setOkText( "" );
 	return;
     }
+
+    const bool havenlaouts = attrinf_->nlaoutnms_.size();
+    const bool haveattribs = attrinf_->attrnms_.size();
 
     BufferString nm( "Select " ); nm += seltxt;
     setName( nm );
@@ -191,7 +193,6 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 	}
     }
 
-    const bool havenlaouts = attrinf_->nlaoutnms_.size();
     if ( storcur == -1 )		storcur = 0;
     if ( attrcur == -1 )		attrcur = attrinf_->attrnms_.size()-1;
     if ( nlacur == -1 && havenlaouts )	nlacur = 0;
@@ -271,6 +272,7 @@ void uiAttrSelDlg::createSelectionFields()
 {
     const bool havenlaouts = attrinf_->nlaoutnms_.size();
     const bool haveattribs = attrinf_->attrnms_.size();
+    const bool havestored = attrinf_->ioobjnms_.size();
 
     storoutfld_ = new uiListBox( this, attrinf_->ioobjnms_ );
     storoutfld_->setHSzPol( uiObject::Wide );
@@ -339,6 +341,16 @@ void uiAttrSelDlg::selDone( CallBacker* c )
 {
     if ( !selgrp_ ) return;
 
+    mDynamicCastGet(uiRadioButton*,but,c);
+   
+    bool dosrc, docalc, donla; 
+    if ( but == storfld_ )
+    { dosrc = true; docalc = donla = false; }
+    else if ( but == attrfld_ )
+    { docalc = true; dosrc = donla = false; }
+    else if ( but == nlafld_ )
+    { donla = true; docalc = dosrc = false; }
+
     const int seltyp = selType();
     if ( attroutfld_ ) attroutfld_->display( seltyp == 2 );
     if ( nlaoutfld_ ) nlaoutfld_->display( seltyp == 3 );
@@ -383,6 +395,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 	return;
     }
 
+    int selidx = storoutfld_ ? storoutfld_->currentItem() : -1;
     bool is2d = false;
     BufferString ioobjkey;
     if ( seltyp==0 )
@@ -658,6 +671,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 
     const DescID attrid( toInt(bs[0]), toBool(bs[1],true) );
     const int outnr = toInt( bs[2] );
+    const int compnr = bs.size() == 4 ? toInt( bs[3] ) : -1;
     if ( !attrid.isValid() )
     {
 	if ( !attrdata_.nlamodel_ || outnr < 0 )
@@ -856,7 +870,31 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 	return false;
     }
 
-    //TODO check cyclic dependencies and bad stored IDs
+    //TODO this is pretty difficult to get right
+    if ( !attrdata_.attribid_.isValid() )
+	return true;
+
+    const Desc& ad = *attrdata_.attrSet().getDesc( attrdata_.attribid_ );
+    bool isdep = false;
+/*
+    if ( !is2D() )
+	isdep = ad.isDependentOn(ioobj,0);
+    else
+    {
+	// .. and this too
+	if ( ad.isStored() )
+	{
+	    LineKey lk( ad.defStr() );
+	    isdep = ioobj.key() == lk.lineName();
+	}
+    }
+    if ( isdep )
+    {
+	uiMSG().error( "Cannot output to an input" );
+	return false;
+    }
+*/
+
     return true;
 }
 

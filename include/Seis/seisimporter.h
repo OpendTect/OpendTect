@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: seisimporter.h,v 1.14 2012-08-30 14:21:18 cvskris Exp $
+ RCS:		$Id: seisimporter.h,v 1.12 2011/03/20 04:18:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seistype.h"
 #include "executor.h"
 #include "bufstring.h"
@@ -30,7 +29,7 @@ namespace Seis { class SelData; }
 
 /*!\brief Helps import or export of seismic data. */
 
-mClass(Seis) SeisImporter : public Executor
+mClass SeisImporter : public Executor
 {
 public:
 
@@ -43,7 +42,7 @@ public:
 
       */
 
-    mStruct(Seis) Reader
+    struct Reader
     {
 	virtual			~Reader()			{}
 
@@ -104,7 +103,7 @@ protected:
 };
 
 
-mClass(Seis) SeisStdImporterReader : public SeisImporter::Reader
+mClass SeisStdImporterReader : public SeisImporter::Reader
 {
 public:
 			SeisStdImporterReader(const IOObj&,const char* nm);
@@ -134,4 +133,3 @@ protected:
 
 
 #endif
-

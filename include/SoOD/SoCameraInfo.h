@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoCameraInfo.h,v 1.9 2012-08-27 13:16:47 cvskris Exp $
+ RCS:		$Id: SoCameraInfo.h,v 1.7 2009/07/22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "soodmod.h"
 #include "Inventor/nodes/SoNode.h"
 #include "Inventor/nodes/SoSubNode.h"
 
@@ -25,7 +24,7 @@ ________________________________________________________________________
 Puts information about the camera/rendertype into the state.
 */
 
-mSoODClass SoCameraInfo : public SoNode
+mClass SoCameraInfo : public SoNode
 {
     SO_NODE_HEADER(SoCameraInfo);
     typedef SoNode inherited;
@@ -52,5 +51,4 @@ protected:
 };
 
 #endif
-
 

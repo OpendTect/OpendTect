@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: valseriestracker.h,v 1.11 2012-08-03 13:00:06 cvskris Exp $
+ RCS:		$Id: valseriestracker.h,v 1.10 2009/07/29 06:22:14 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "valseriesevent.h"
 
 class IOPar;
@@ -21,7 +20,7 @@ template <class T> class ValueSeries;
 /*!Base class for a tracker that tracks something (e.g. min, max, a certain
    value)++ from one ValueSeries<float> to another. */
 
-mClass(Algo) ValSeriesTracker
+mClass ValSeriesTracker
 {
 public:
     			ValSeriesTracker();
@@ -58,7 +57,7 @@ protected:
 /*!Tracker that tracks Min/Max & Zero crossings between valueseries. */
 
 
-mClass(Algo) EventTracker : public ValSeriesTracker
+mClass EventTracker : public ValSeriesTracker
 {
 public:
     				EventTracker();
@@ -191,4 +190,3 @@ protected:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.35 2012-08-13 04:04:37 cvsaneesh Exp $
+ RCS:		$Id: polygon.h,v 1.31 2012/01/11 23:25:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "sets.h"
 #include "iopar.h"
 #include "bufstring.h"
-#include <math.h>
 
 /*!\brief (Closed) sequence of connected 2-D coordinates */
 
@@ -537,11 +536,10 @@ float ODPolygon<T>::sgnArea() const
     {
 	const Geom::Point2D<T>& pt1 = poly_[idx];
 	const Geom::Point2D<T>& pt2 = nextVertex( idx );
-	area2 += (float) ( (pt1.x-pt0.x) * (pt2.y-pt0.y) - 
-					(pt2.x-pt0.x) * (pt1.y-pt0.y) );
+	area2 += (pt1.x-pt0.x) * (pt2.y-pt0.y) - (pt2.x-pt0.x) * (pt1.y-pt0.y);
     }
 
-    return 0.5f * area2;
+    return 0.5*area2;
 }
 
 
@@ -668,6 +666,8 @@ double ODPolygon<T>::distTo( const Geom::Point2D<T>& refpt,
 	return mUdf(double);
 
     double mindist = MAXDOUBLE;
+    int mindistidx;
+    double mindistfrac;
 
     for ( int idx=(isClosed() ? sz-1 : sz-2); idx>=0; idx-- )
     {

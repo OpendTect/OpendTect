@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.7 2012-09-04 08:41:16 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogextract.cc,v 1.3 2012/08/31 06:27:38 cvssatyaki Exp $";
 
 #include "uiwelllogextract.h"
 
@@ -56,8 +56,8 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 {
     welllogselfld_ =
 	new uiMultiWellLogSel( this, uiWellExtractParams::Setup()
-					.withsampling(true).withzstep(true)
-					.withextractintime(SI().zIsTime())
+					.withsampling(ads_).withzstep(ads_)
+					.withextractintime(ads_)
 					.singlelog(setup.singlelog_)
 					.prefpropnm(setup.prefpropnm_));
 
@@ -271,7 +271,7 @@ bool uiWellLogExtractGrp::extractDPS()
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     if ( curdps_ )
-	releaseDPS();
+	mDPM.release( curdps_ );
     curdps_ =
 	new DataPointSet( TypeSet<DataPointSet::DataRow>(), dcds, false, false);
     mDPM.addAndObtain( curdps_ );

@@ -4,7 +4,7 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seis2dlineio.cc,v 1.16 2012-08-09 03:35:32 cvssalil Exp $";
+static const char* rcsID = "$Id: seis2dlineio.cc,v 1.12 2012/04/03 05:53:30 cvssatyaki Exp $";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
@@ -205,8 +205,8 @@ bool Seis2DLineMerger::nextFetcher()
 
     const int lid = currentlyreading_ == 1 ? lid1_ : lid2_;
     PosInfo::Line2DData& l2dd( currentlyreading_==1 ? l2dd1_ : l2dd2_ );
-    l2dd.setLineName( currentlyreading_ == 1 ? lnm1_ : lnm2_ );
-    const char* lnm = l2dd.lineName().buf();
+    const char* lnm = currentlyreading_ == 1 ? lnm1_.buf() : lnm2_.buf();
+    l2dd.setLineName( lnm );
     SeisTrcBuf& tbuf = currentlyreading_==1 ? tbuf1_ : tbuf2_;
     tbuf.deepErase();
 
@@ -292,7 +292,7 @@ int Seis2DLineMerger::doWork()
 		    PosInfo::POS2DAdmin().setGeometry( outl2dd_ ); \
 		    return Executor::Finished(); \
 		} \
-	    }	
+	    }
 	    mRetNextAttr;
 	}
 
@@ -472,7 +472,7 @@ void Seis2DLineMerger::doMerge( const TypeSet<int>& idxs, bool snap )
 	    nrsnapped++;
 	    if ( stckdupl_ )
 		SeisTrcPropChg( *prvtrc )
-		    .stack( *curtrc, false, 1.f / ((float)nrsnapped) );
+		    .stack( *curtrc, false, 1. / ((float)nrsnapped) );
 
 	    delete outbuf_.remove( itrc );
 	    itrc--;

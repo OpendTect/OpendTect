@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          May 2010
- RCS:           $Id: uit2dconvsel.h,v 1.5 2012-08-03 13:01:02 cvskris Exp $
+ RCS:           $Id: uit2dconvsel.h,v 1.4 2012/07/02 14:57:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uigroup.h"
 #include "factory.h"
 
@@ -25,11 +24,11 @@ class uiT2DConvSelGroup;
 
 /*! \brief single-line object for selecting T to depth conversion. */
 
-mClass(uiIo) uiT2DConvSel : public uiGroup
+mClass uiT2DConvSel : public uiGroup
 {
 public:
 
-    mClass(uiIo) Setup
+    mClass Setup
     {
     public:
 			Setup( uiIOObjSel* tied, bool opt=true )
@@ -60,7 +59,7 @@ protected:
 };
 
 
-mClass(uiIo) uiT2DConvSelGroup : public uiGroup
+mClass uiT2DConvSelGroup : public uiGroup
 {
 public:
    			uiT2DConvSelGroup( uiParent* p, const char* gnm )
@@ -73,7 +72,7 @@ public:
 };
 
 
-mClass(uiIo) uiT2DLinConvSelGroup : public uiT2DConvSelGroup
+mClass uiT2DLinConvSelGroup : public uiT2DConvSelGroup
 {
 public:
     				uiT2DLinConvSelGroup(uiParent*);
@@ -91,4 +90,3 @@ protected:
 };
 
 #endif
-

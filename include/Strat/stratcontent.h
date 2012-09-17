@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2012
- RCS:		$Id: stratcontent.h,v 1.6 2012-09-17 14:42:27 cvsbert Exp $
+ RCS:		$Id: stratcontent.h,v 1.5 2012/09/17 14:42:26 cvsbert Exp $
 ________________________________________________________________________
 
  Impl is in stratlith.cc.
 
 -*/
 
-#include "stratmod.h"
 #include "namedobj.h"
 #include "objectset.h"
 #include "draw.h"
@@ -25,7 +24,7 @@ namespace Strat
 
 /*!\brief stuff that can be inside porous layers */
 
-mClass(Strat) Content : public NamedObject
+mClass Content : public NamedObject
 {
 public:
 
@@ -54,7 +53,7 @@ public:
 
 /*!\brief set of names for stuff that can be inside porous layers */
 
-mClass(Strat) ContentSet : public ObjectSet<Content>
+mClass ContentSet : public ObjectSet<Content>
 {
 public:
 
@@ -76,4 +75,3 @@ public:
 } // namespace Strat
 
 #endif
-

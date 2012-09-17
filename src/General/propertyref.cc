@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: propertyref.cc,v 1.8 2012-07-24 15:14:24 cvsbert Exp $";
+static const char* rcsID = "$Id: propertyref.cc,v 1.5 2012/07/24 15:14:22 cvsbert Exp $";
 
 #include "propertyref.h"
 #include "property.h"
@@ -170,7 +170,7 @@ void PropertyRef::usePar( const IOPar& iop )
     for ( int ifms=0; ifms<sz; ifms++ )
 	aliases_.add( fms[ifms] );
 
-    fms = iop.find( sKey::Range() );
+    fms = iop.find( sKey::Range );
     sz = fms.size();
     if ( sz > 1 )
     {
@@ -190,7 +190,7 @@ void PropertyRef::usePar( const IOPar& iop )
 	}
     }
 
-    iop.get( sKey::Color(), disp_.color_ );
+    iop.get( sKey::Color, disp_.color_ );
 
     fms = iop.find( sKeyDefaultValue );
     sz = fms.size();
@@ -220,7 +220,7 @@ void PropertyRef::fillPar( IOPar& iop ) const
 	iop.set( sKeyAliases, fms );
     }
 
-    iop.set( sKey::Color(), disp_.color_ );
+    iop.set( sKey::Color, disp_.color_ );
 
     Interval<float> vintv( disp_.range_ );
     const UnitOfMeasure* uom = UoMR().get( disp_.unit_ );
@@ -236,7 +236,7 @@ void PropertyRef::fillPar( IOPar& iop ) const
     fms += ::toString( vintv.stop );
     if ( !disp_.unit_.isEmpty() )
 	fms += disp_.unit_;
-    iop.set( sKey::Range(), fms );
+    iop.set( sKey::Range, fms );
 
     if ( !disp_.defval_ )
 	iop.removeWithKey( sKeyDefaultValue );

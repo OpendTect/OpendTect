@@ -7,20 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.113 2012-08-03 13:00:15 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.106 2012/06/29 15:42:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include "basicmod.h"
 #include "namedobj.h"
 #include "ranges.h"
 #include "rcol2coord.h"
 #include "enums.h"
 #include "zdomain.h"
-#include "refcount.h"
-#include "thread.h"
 #include "cubesampling.h"
 
 class ascostream;
@@ -31,8 +28,8 @@ class LatLong2Coord;
 /*!Scaled down survey geometry for an inl/crl geometry . */
 
 
-mClass(Basic) InlCrlSystem
-{ mRefCountImplNoDestructor( InlCrlSystem );
+mClass InlCrlSystem
+{
 public:
     friend		class SurveyInfo;
     
@@ -95,19 +92,19 @@ at the bottom part of the class too for some more public functions.
 
 */
 
-mClass(Basic) SurveyInfo : public NamedObject
+mClass SurveyInfo : public NamedObject
 {
 
-    mGlobal(Basic) friend const SurveyInfo&	SI();
-		
+    mGlobal friend const SurveyInfo&	SI();
 
 public:
+
 			~SurveyInfo();
     bool		isValid() const		{ return valid_; }
     bool		has2D() const;
     bool		has3D() const;
     
-    RefMan<InlCrlSystem> get3DGeometry(bool work) const;
+    InlCrlSystem*	create3DGeometry(bool work) const;
 
     StepInterval<int>	inlRange(bool work) const;
     StepInterval<int>	crlRange(bool work) const;
@@ -135,8 +132,6 @@ public:
     const char*		getXYUnitString(bool withparens=true) const;
     const ZDomain::Def&	zDomain() const;
     bool		depthsInFeet() const	{ return depthsinfeet_; }
-    inline float	showZ2UserFactor() const
-			{ return (float)zDomain().userFactor(); }
 
     bool		depthsInFeetByDefault() const { return depthsInFeet(); }
     			//!<Legacy, don't use. Use depthsInFeet().
@@ -148,6 +143,20 @@ public:
     inline bool		zInFeet() const
     			{ return zDomain().isDepth() && depthsinfeet_;}
     			//<Legacy, don't use
+    int			zFactor() const
+    			{ return zDomain().userFactor(); }
+    			//!<Legacy, don't use
+    			//!< Factor between real and displayed unit in UI
+    static int		zFactor(bool time)	
+    			//!<Legacy, don't use
+			{
+			    return ( time
+				? ZDomain::Time()
+				: ZDomain::Depth()
+				).userFactor();
+			}
+			
+    			//!< Factor between real and displayed unit in UI
     const char*		getZUnitString(bool withparens=true) const
     			//!<Legacy, don't use
 			{ return zDomain().unitStr( withparens ); }
@@ -176,9 +185,9 @@ public:
     bool		includes(const BinID&,const float,bool work) const;
 			//!< Returns true when pos is inside survey-range
 
-    void		snap(BinID&,const BinID& dir=BinID(0,0)) const;
+    void		snap(BinID&,BinID direction=BinID(0,0)) const;
 			//!< dir = 0 : auto; -1 round downward, 1 round upward
-    void		snapStep(BinID&,const BinID& dir=BinID(0,0))const;
+    void		snapStep(BinID&,BinID direction=BinID(0,0)) const;
     			//!< see snap() for direction
     void		snapZ(float&,int direction=0) const;
     			//!< see snap() for direction
@@ -210,9 +219,6 @@ protected:
     CubeSampling&	cs_;
     CubeSampling&	wcs_;
     IOPar&		pars_;
-    
-    mutable Threads::AtomicPointer<InlCrlSystem>	inlcrlsystem_;
-    mutable Threads::AtomicPointer<InlCrlSystem>	winlcrlsystem_;
 
     RCol2Coord		b2c_;
     LatLong2Coord&	ll2c_;
@@ -319,11 +325,16 @@ public:
     void		setWSPwd( const char* nm ) const
 			{ const_cast<SurveyInfo*>(this)->wspwd_ = nm; }
 
+    inline float        showZ2UserFactor() const
+			{ return (float)zDomain().userFactor(); }
+
 };
 
 
-mGlobal(Basic) const SurveyInfo& SI();
+mGlobal const SurveyInfo& SI();
+
+
+
 
 
 #endif
-

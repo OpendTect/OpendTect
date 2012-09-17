@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.28 2012-09-07 22:08:02 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.25 2012/01/11 22:14:00 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 
@@ -25,7 +24,7 @@ class uiTaskRunner;
 
 mDefineItem( Seis2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
-mClass(uiODMain) Seis2DTreeItemFactory : public uiODTreeItemFactory
+mClass Seis2DTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -35,7 +34,7 @@ public:
 };
 
 
-mClass(uiODMain) uiOD2DLineSetTreeItem : public uiODTreeItem
+mClass uiOD2DLineSetTreeItem : public uiODTreeItem
 {
 public:
     			uiOD2DLineSetTreeItem(const MultiID&);
@@ -48,10 +47,10 @@ public:
 protected:
     			~uiOD2DLineSetTreeItem();
     bool		init();
-    int			uiTreeViewItemType() const;
+    int			uiListViewItemType() const;
 
     void		checkCB(CallBacker*);
-    virtual void	createMenuCB(CallBacker*);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
     void		createAttrMenu(MenuHandler*);
@@ -86,7 +85,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiOD2DLineSetSubItem : public uiODDisplayTreeItem
+mClass uiOD2DLineSetSubItem : public uiODDisplayTreeItem
 {
 public:
 			uiOD2DLineSetSubItem(const char* nm,int displayid=-1);
@@ -105,7 +104,7 @@ protected:
 
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
 
-    void		createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     void		getNewData(CallBacker*);
 
@@ -115,7 +114,7 @@ private:
 };
 
 
-mClass(uiODMain) uiOD2DLineSetAttribItem : public uiODAttribTreeItem
+mClass uiOD2DLineSetAttribItem : public uiODAttribTreeItem
 {
 public:
 				uiOD2DLineSetAttribItem(const char* parenttype);
@@ -137,4 +136,3 @@ protected:
 
 
 #endif
-

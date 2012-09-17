@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: i_qtoolbut.h,v 1.7 2012-08-29 16:21:07 cvsnanne Exp $
+ RCS:           $Id: i_qtoolbut.h,v 1.6 2009/07/22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include <QToolButton>
 #include "callback.h"
 
-QT_BEGIN_NAMESPACE
 
 class i_QToolButReceiver : public QObject, public CallBacker
 {
@@ -35,6 +34,6 @@ public slots:
 
 };
 
-QT_END_NAMESPACE
+
 
 #endif

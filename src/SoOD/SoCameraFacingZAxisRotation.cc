@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoCameraFacingZAxisRotation.cc,v 1.4 2012-05-02 15:11:49 cvskris Exp $";
+static const char* rcsID = "$Id: SoCameraFacingZAxisRotation.cc,v 1.2 2009/07/22 16:01:35 cvsbert Exp $";
 
 
 #include "SoCameraFacingZAxisRotation.h"

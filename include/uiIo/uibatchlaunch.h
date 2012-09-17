@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.30 2012-08-03 13:00:58 cvskris Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.28 2012/08/20 21:42:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 
@@ -24,7 +23,7 @@ class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
 
-mClass(uiIo) uiBatchLaunch : public uiDialog
+mClass uiBatchLaunch : public uiDialog
 {
 public:
 			uiBatchLaunch(uiParent*,const IOPar&,
@@ -59,14 +58,14 @@ protected:
 };
 
 
-mClass(uiIo) uiFullBatchDialog : public uiDialog
+mClass uiFullBatchDialog : public uiDialog
 {
 public:
     enum Mode		{ Single, Multi, Cluster };
 
 protected:
 
-    mClass(uiIo) Setup
+    mClass Setup
     {
     public:
 			Setup(const char* txt)
@@ -122,7 +121,7 @@ protected:
 };
 
 
-mClass(uiIo) uiRestartBatchDialog : public uiFullBatchDialog
+mClass uiRestartBatchDialog : public uiFullBatchDialog
 {
 public:
 
@@ -138,4 +137,3 @@ protected:
 };
 
 #endif
-

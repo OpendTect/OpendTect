@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiswvltsel.cc,v 1.12 2012-05-22 14:48:41 cvskris Exp $";
+static const char* rcsID = "$Id: uiseiswvltsel.cc,v 1.8 2011/11/07 08:17:27 cvsbruno Exp $";
 
 #include "uiseiswvltsel.h"
 #include "uiseiswvltman.h"
@@ -28,7 +28,7 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt )
 	    					seltxt ? seltxt : "Wavelet" );
     nmfld_ = lcb->box();
 
-    uiToolButton* tb = new uiToolButton( this, "man_wvlt",
+    uiToolButton* tb = new uiToolButton( this, "man_wvlt.png",
 	    "Manage wavelets", mCB(this,uiSeisWaveletSel,startMan) );
 
     tb->attach( rightOf, lcb );
@@ -137,7 +137,7 @@ void uiSeisWaveletSel::rebuildList()
     if ( curwvlt.isEmpty() || newidx < 0 )
     {
 	const char* res = SI().pars().find(
-		IOPar::compKey(sKey::Default(),ctxt.trgroup->userName()) );
+		IOPar::compKey(sKey::Default,ctxt.trgroup->userName()) );
 	if ( res && *res )
 	{
 	    IOObj* ioobj = IOM().get( MultiID(res) );

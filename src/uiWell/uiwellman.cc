@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellman.cc,v 1.95 2012-07-30 06:56:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.92 2012/07/30 08:31:42 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -77,20 +77,20 @@ uiWellMan::uiWellMan( uiParent* p )
 			mCB(this,uiWellMan,renameLogPush) );
     butgrp->addButton( uiManipButGrp::Remove, "Remove selected log",
 			mCB(this,uiWellMan,removeLogPush) );
-    butgrp->addButton( "export", "Export log",
+    butgrp->addButton( "export.png", "Export log",
 	    		mCB(this,uiWellMan,exportLogs) );
-    butgrp->addButton( "unitsofmeasure", "View/edit unit of measure",
+    butgrp->addButton( "unitsofmeasure.png", "View/edit unit of measure",
 	    		mCB(this,uiWellMan,logUOMPush) );
-    logupbut_ = butgrp->addButton( "uparrow", "Move up",
+    logupbut_ = butgrp->addButton( "uparrow.png", "Move up",
 	    		mCB(this,uiWellMan,moveLogsPush) );
-    logdownbut_ = butgrp->addButton( "downarrow", "Move down",
+    logdownbut_ = butgrp->addButton( "downarrow.png", "Move down",
 	    		mCB(this,uiWellMan,moveLogsPush) );
     logsfld_->selectionChanged.notify( mCB(this,uiWellMan,checkMoveLogs) );
     selGroup()->getListField()->setMultiSelect(true);
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 
-    uiToolButton* welltrackbut = new uiToolButton( listgrp_, "edwelltrack",
+    uiToolButton* welltrackbut = new uiToolButton( listgrp_, "edwelltrack.png",
 	    	"Edit Well Track", mCB(this,uiWellMan, edWellTrack) );
     welltrackbut->attach( alignedBelow, selgrp_ );
     welltrackbut->attach( ensureBelow, selgrp_ );
@@ -99,20 +99,20 @@ uiWellMan::uiWellMan( uiParent* p )
     uiToolButton* d2tbut = 0;
     if ( SI().zIsTime() )
     {
-	uiToolButton* csbut = new uiToolButton( listgrp_, "checkshot",
+	uiToolButton* csbut = new uiToolButton( listgrp_, "checkshot.png",
 			"Edit Checkshot Data", mCB(this,uiWellMan,edChckSh));
 	csbut->attach( rightOf, welltrackbut );
-	d2tbut = new uiToolButton( listgrp_, "z2t", "Edit Depth/Time Model",
+	d2tbut = new uiToolButton( listgrp_, "z2t.png", "Edit Depth/Time Model",
 				   mCB(this,uiWellMan, edD2T));
 	d2tbut->attach( rightOf, csbut );
     }
 
-    uiToolButton* markerbut = new uiToolButton( listgrp_, "edmarkers",
+    uiToolButton* markerbut = new uiToolButton( listgrp_, "edmarkers.png",
 	    		"Edit Markers", mCB(this,uiWellMan, edMarkers) );
     markerbut->attach( rightOf, d2tbut ? d2tbut : welltrackbut );
     lastexternal_ = markerbut;
 
-    uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools",
+    uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools.png",
 	    		"Log tools", mCB(this,uiWellMan,logTools) );
     logtoolbut->attach( rightOf, markerbut );
     lastexternal_ = logtoolbut;
@@ -550,16 +550,16 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
 	    txt += "Reference Datum Elevation (KB)"; txt += ": ";
-	    txt += zun ? zun->userValue(rdelev) : rdelev; 
-	    txt += zun->symbol(); txt += "\n";
+	    txt += zun ? zun->userValue(rdelev) : rdelev;
+	    txt += zun ? zun->symbol() : ""; txt += "\n";
 	}
 
 	const float surfelev = -info.surfaceelev;
 	if ( !mIsZero(surfelev,1e-4) && !mIsUdf(surfelev) )
 	{
 	    txt += "Difference MSL - SRD"; txt += ": ";
-	    txt += zun ? zun->userValue(surfelev) : surfelev;
-	    txt += zun->symbol(); txt += "\n";
+	    txt += zun ? zun->userValue(surfelev) : surfelev; 
+	    txt += zun ? zun->symbol() : ""; txt += "\n";
 	}
     }
 

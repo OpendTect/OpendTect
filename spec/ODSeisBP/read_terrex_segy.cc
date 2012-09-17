@@ -15,7 +15,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: read_terrex_segy.cc,v 1.4 2010-04-23 05:15:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: read_terrex_segy.cc,v 1.4 2010/04/23 05:15:05 cvsnanne Exp $";
 
 #include "ioobj.h"
 #include "iopar.h"

@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratunit.cc,v 1.42 2012-05-22 14:48:35 cvskris Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.39 2012/01/12 16:18:38 cvsbert Exp $";
 
 #include "stratunitref.h"
 #include "stratreftree.h"
@@ -75,8 +75,8 @@ void Strat::UnitRef::getPropsFrom( const IOPar& iop )
 {
     pars_ = iop;
     pars_.setName( "Properties" );
-    iop.get( sKey::Color(), color_ );
-    pars_.removeWithKey( sKey::Color() );
+    iop.get( sKey::Color, color_ );
+    pars_.removeWithKey( sKey::Color );
     pars_.removeWithKey( "Level" ); // legacy
 }
 
@@ -87,7 +87,7 @@ void Strat::UnitRef::putPropsTo( IOPar& iop ) const
     BufferString nm( sKeyPropsFor() );
     nm += this == topNode() ? sKeyTreeProps() : fullCode().buf();
     iop.setName( nm );
-    iop.set( sKey::Color(), color_ );
+    iop.set( sKey::Color, color_ );
     iop.merge( pars_ );
 }
 
@@ -187,15 +187,15 @@ Strat::NodeUnitRef::~NodeUnitRef()
 void Strat::NodeUnitRef::getPropsFrom( const IOPar& iop )
 {
     UnitRef::getPropsFrom( iop );
-    iop.get( sKey::Time(), timerg_ );
-    pars_.removeWithKey( sKey::Time() );
+    iop.get( sKey::Time, timerg_ );
+    pars_.removeWithKey( sKey::Time );
 }
 
 
 void Strat::NodeUnitRef::putPropsTo( IOPar& iop ) const
 {
     UnitRef::putPropsTo( iop );
-    iop.set( sKey::Time(), timerg_ );
+    iop.set( sKey::Time, timerg_ );
 }
 
 
@@ -362,7 +362,7 @@ Strat::LeafUnitRef::LeafUnitRef( Strat::NodeUnitRef* up, int lithidx,
 void Strat::LeafUnitRef::getPropsFrom( const IOPar& iop )
 {
     UnitRef::getPropsFrom( iop );
-    pars_.removeWithKey( sKey::Time() );
+    pars_.removeWithKey( sKey::Time );
 }
 
 

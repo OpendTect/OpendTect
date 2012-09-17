@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratlith.h,v 1.12 2012-08-03 13:00:43 cvskris Exp $
+ RCS:		$Id: stratlith.h,v 1.11 2012/01/19 16:10:47 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "stratmod.h"
 #include "namedobj.h"
 #include "manobjectset.h"
 #include "color.h"
@@ -30,7 +29,7 @@ namespace Strat
 
 */
 
-mClass(Strat) Lithology : public ::NamedObject
+mClass Lithology : public ::NamedObject
 {
 public:
 
@@ -70,7 +69,7 @@ public:
 };
 
 
-mClass(Strat) LithologySet : public CallBacker
+mClass LithologySet : public CallBacker
 {
 public:
     			LithologySet()
@@ -121,4 +120,3 @@ public:
 }; // namespace Strat
 
 #endif
-

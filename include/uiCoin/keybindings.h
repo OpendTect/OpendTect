@@ -7,12 +7,11 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          Dec 2002
- RCS:           $Id: keybindings.h,v 1.10 2012-08-03 13:00:54 cvskris Exp $
+ RCS:           $Id: keybindings.h,v 1.9 2010/08/19 06:55:51 cvsranojay Exp $
 ________________________________________________________________________
 
 */
 
-#include "uicoinmod.h"
 #include "bufstringset.h"
 class SoMouseButtonEvent;
 class SoEvent;
@@ -25,7 +24,7 @@ separated by a `.  e.g. zoom = "Left`Control"
 */
 
 
-mClass(uiCoin) KeyBindings
+mClass KeyBindings
 {
 public:
     				KeyBindings(const char* nm=0)
@@ -52,7 +51,7 @@ public:
 };
 
 
-mClass(uiCoin) EventButton
+mClass EventButton
 {
 public:
                                 EventButton() {}
@@ -62,7 +61,7 @@ public:
 };
 
 
-mClass(uiCoin) KeyBindMan
+mClass KeyBindMan
 {
 public:
                                 KeyBindMan();
@@ -96,4 +95,3 @@ protected:
 };
 
 #endif
-

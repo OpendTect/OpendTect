@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiproxydlg.cc,v 1.6 2012-09-13 18:36:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiproxydlg.cc,v 1.5 2012/06/30 16:29:08 cvsraman Exp $";
 
 
 #include "uiproxydlg.h"
@@ -24,7 +24,7 @@ static const char* rcsID mUnusedVar = "$Id: uiproxydlg.cc,v 1.6 2012-09-13 18:36
 
 
 uiProxyDlg::uiProxyDlg( uiParent* p )
-    : uiDialog(p,Setup("Connection Settings",mNoDlgTitle,"0.4.7"))
+    : uiDialog(p,Setup("Connection Settings",mNoDlgTitle,"0.5.7"))
 {
     useproxyfld_ = new uiGenInput( this, "Use proxy", BoolInpSpec(true) );
     useproxyfld_->valuechanged.notify( mCB(this,uiProxyDlg,useProxyCB) );
@@ -37,7 +37,7 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
     portfld_->box()->setInterval( 1, 65535 );
 
     authenticationfld_ =
-	new uiCheckBox( this, "Use uthentication" );
+	new uiCheckBox( this, "Use Authentication" );
     authenticationfld_->activated.notify( 
 				    mCB(this,uiProxyDlg,useProxyCB) );
     authenticationfld_->attach( alignedBelow, hostfld_ );
@@ -47,7 +47,7 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
     pwdfld_ = new uiLineEdit( this, "Password" );
     pwdfld_->setToolTip( "Password is case sensitive" );
     pwdfld_->attach( alignedBelow, usernamefld_ );
-    pwdfld_->setPrefWidthInChar( 23 );
+    pwdfld_->setPrefWidthInChar( 23.0 );
     pwdfld_->setPasswordMode();
     pwdlabel_ = new uiLabel( this, "Password" );
     pwdlabel_->attach( leftOf, pwdfld_ );
@@ -75,6 +75,11 @@ void uiProxyDlg::initFromSettings()
     int port = 1;
     setts.get( ODHttp::sKeyProxyPort(), port );
     portfld_->box()->setValue( port );
+
+    bool useauth = false;
+    setts.getYN( ODHttp::sKeyUseAuthentication(), useauth );
+    authenticationfld_->setChecked( useauth );
+    authenticationfld_->setSensitive( useauth );
 
     BufferString username;
     setts.get( ODHttp::sKeyProxyUserName(), username );

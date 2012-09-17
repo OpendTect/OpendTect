@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.19 2012-08-03 13:00:47 cvskris Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.18 2012/01/05 06:28:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uiattributesmod.h"
 #include "bufstringset.h"
 #include "ioobj.h"
 
@@ -29,7 +28,7 @@ class uiListBox;
 namespace Attrib { class DescSet; class SelInfo; }
 
 
-mClass(uiAttributes) uiAttribCrossPlot : public uiDialog
+mClass uiAttribCrossPlot : public uiDialog
 {
 public:
 					uiAttribCrossPlot(uiParent*,
@@ -71,4 +70,3 @@ protected:
 
 
 #endif
-

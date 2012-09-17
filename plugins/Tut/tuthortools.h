@@ -4,10 +4,9 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh / Karthika
  * DATE     : May 2007
- * ID       : $Id: tuthortools.h,v 1.13 2012-08-03 13:01:32 cvskris Exp $
+ * ID       : $Id: tuthortools.h,v 1.12 2010/02/09 05:15:28 cvsnanne Exp $
 -*/
 
-#include "tutmod.h"
 #include "executor.h"
 #include "emposid.h"
 #include "horsampling.h"
@@ -21,7 +20,7 @@ namespace EM { class Horizon3D; }
 namespace Tut
 {
 
-mClass(Tut) HorTool : public Executor
+mClass HorTool : public Executor
 {
 public:
     virtual		~HorTool();
@@ -51,7 +50,7 @@ protected:
 
 
 
-mClass(Tut) ThicknessCalculator : public HorTool
+mClass ThicknessCalculator : public HorTool
 {
 public:
     			ThicknessCalculator();
@@ -71,7 +70,7 @@ protected:
 };
 
 
-mClass(Tut) HorSmoother : public HorTool
+mClass HorSmoother : public HorTool
 {
 public:
 			HorSmoother();
@@ -92,4 +91,3 @@ protected:
 } // namespace
 
 #endif
-

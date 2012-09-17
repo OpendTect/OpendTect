@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wavelet.cc,v 1.46 2012-08-09 03:35:33 cvssalil Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.41 2012/02/16 14:24:01 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -59,15 +59,15 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
     float pos = iw * dpos;
     for ( int idx=0; idx<lw; idx++ )
     {
-	double x = M_PI * fpeak * pos;
-	double x2 = x * x;
+	float x = M_PI * fpeak * pos;
+	float x2 = x * x;
 	if ( idx == -iw )
 	    samps[idx] = scale;
 	else if ( isricker )
-	    samps[idx] = (float) (scale * exp(-x2) * (1-2*x2));
+	    samps[idx] = scale * exp(-x2) * (1-2*x2);
 	else
 	{
-	    samps[idx] = (float) (scale * exp(-x2) * sin(x)/x);
+	    samps[idx] = scale * exp(-x2) * sin(x)/x;
 	    if ( samps[idx] < 0 ) samps[idx] = 0;
 	}
 	pos += dpos;
@@ -179,7 +179,7 @@ void Wavelet::transform( float constant, float factor )
 
 void Wavelet::normalize()
 {
-    transform( 0, 1.f/mMAX( fabs(getExtrValue(true)),
+    transform( 0, 1./mMAX( fabs(getExtrValue(true)),
 		  fabs(getExtrValue(false))) );
 }
 
@@ -284,7 +284,7 @@ bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 	    wv->reSize( astream.getIValue() );
         else if ( astream.hasKeyword( sIndex ) )
 	    iw = astream.getIValue();
-        else if ( astream.hasKeyword(sKey::Name()) )
+        else if ( astream.hasKeyword(sKey::Name) )
 	    wv->setName( astream.value() );
         else if ( astream.hasKeyword( sSampRate ) )
 	    sr = astream.getFValue();
@@ -306,10 +306,10 @@ bool dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
     const BufferString head( mTranslGroupName(Wavelet), " file" );
     if ( !astream.putHeader( head ) ) return false;
 
-    if ( *(const char*)wv->name() ) astream.put( sKey::Name(), wv->name() );
+    if ( *(const char*)wv->name() ) astream.put( sKey::Name, wv->name() );
     astream.put( sLength, wv->size() );
     astream.put( sIndex, -wv->centerSample() );
-    astream.put( sSampRate, wv->sampleRate() * SI().zDomain().userFactor() );
+    astream.put( sSampRate, wv->sampleRate() * SI().zFactor() );
     astream.newParagraph();
     for ( int idx=0; idx<wv->size(); idx++ )
 	astream.stream() << wv->samples()[idx] << '\n';

@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Basic UI-classes
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.7 2012-09-07 22:08:04 cvsnanne Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.6 2012/04/20 06:38:10 cvsranojay Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS General)
@@ -13,6 +13,7 @@ SET(QT_MOC_HEADERS i_qaction.h
 		i_qdial.h
 		i_qlineedit.h
 		i_qlistbox.h
+		i_qlistview.h
 		i_qmdiarea.h
 		i_qmenu.h
 		i_qslider.h
@@ -23,7 +24,6 @@ SET(QT_MOC_HEADERS i_qaction.h
 		i_qtextedit.h
 		i_qtoolbar.h
 		i_qtoolbut.h
-		i_qtreeview.h
 		i_qtxtbrowser.h)
 SET(OD_MODULE_SOURCES     i_layout.cc
 		i_layoutitem.cc
@@ -54,6 +54,7 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uilayout.cc
 		uilineedit.cc
 		uilistbox.cc
+		uilistview.cc
 		uimain.cc
 		uimainwin.cc
 		uimdiarea.cc
@@ -79,7 +80,6 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uitabstack.cc
 		uitextedit.cc
 		uitoolbar.cc
-		uitreeview.cc
 		uivirtualkeyboard.cc)
 SET(OD_MODULE_GUI_PROGS od_DispMsg )
 OD_INIT_MODULE()

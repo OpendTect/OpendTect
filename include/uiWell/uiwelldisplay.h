@@ -7,13 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2009
- RCS:           $Id: uiwelldisplay.h,v 1.16 2012-08-03 13:01:20 cvskris Exp $
+ RCS:           $Id: uiwelldisplay.h,v 1.13 2012/04/02 15:22:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
-#include "uiwellmod.h"
 #include "uigroup.h"
 #include "uimainwin.h"
 #include "welldata.h"
@@ -29,28 +27,30 @@ class uiWellStratDisplay;
 
 namespace Well { class Data; }
 
-mClass(uiWell) uiWellDisplay : public uiGroup
+mClass uiWellDisplay : public uiGroup
 {
 public:
 
-    mStruct(uiWell) Setup
+    mStruct Setup
     {
 				Setup()
 				    : nobackground_(false)  
 				    , nologborder_(false)
 				    , noxannot_(false)
 				    , noyannot_(false)
-				    , xaxisinpercents_(false)
+				    , xaxisinpercents_(false) 
 				    , withcontrol_(true)
+				    , preflogsz_(uiSize(150,600))
 				    , takedisplayfrom3d_(false)
 				    {}
 
 	mDefSetupMemb(bool,nobackground)
 	mDefSetupMemb(bool,noxannot)
-	mDefSetupMemb(bool,xaxisinpercents)
 	mDefSetupMemb(bool,noyannot)
 	mDefSetupMemb(int,nologborder)
+	mDefSetupMemb(bool,xaxisinpercents)
 	mDefSetupMemb(bool,withcontrol) //will add a control 
+	mDefSetupMemb(uiSize,preflogsz) //base log size  
 	mDefSetupMemb(bool,takedisplayfrom3d) //read 3d scene display pars 
 
 	void copyFrom(const Setup& su)
@@ -58,10 +58,11 @@ public:
 	    nobackground_ 	= su.nobackground_;
 	    nologborder_  	= su.nologborder_;
 	    withcontrol_  	= su.withcontrol_;
+	    preflogsz_ 	  	= su.preflogsz_;
 	    noxannot_	  	= su.noxannot_;
 	    noyannot_	  	= su.noyannot_;
-	    xaxisinpercents_ 	= su.xaxisinpercents_;
 	    takedisplayfrom3d_ 	= su.takedisplayfrom3d_;
+	    xaxisinpercents_ 	= su.xaxisinpercents_;
 	}
     };
 
@@ -81,10 +82,9 @@ public:
     uiWellDisplayControl*	control() 	{ return control_; }
     const uiWellDisplayControl*	control() const	{ return control_; }
     const Setup&		setup() const	{ return setup_; }
-
     const uiWellStratDisplay*	stratDisplay() const { return stratdisp_; }
-    bool			hasStrat() const { return stratdisp_; }
-    int				nrLogDisps() const { return logdisps_.size(); }
+
+    const uiSize&		size() const 	{ return size_; }
 
 protected:
 
@@ -93,7 +93,7 @@ protected:
     Interval<float>		zrg_;
     bool			dispzinft_;
     bool			zistime_;
-    bool			use3ddisp_;
+    bool			is3ddisp_;
     uiSize			size_;
     const Setup 		setup_;
 
@@ -101,6 +101,7 @@ protected:
     uiWellDisplayControl*	control_;
     uiWellStratDisplay*		stratdisp_; 
 
+    void			setInitialSize();
     void			setDahData();
     void			setDisplayProperties();
 
@@ -108,7 +109,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellDisplayWin : public uiMainWin
+mClass uiWellDisplayWin : public uiMainWin
 {
 public :
 			    	uiWellDisplayWin(uiParent*,Well::Data&);
@@ -123,5 +124,3 @@ protected:
 };
 
 #endif
-
-

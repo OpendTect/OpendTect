@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seiscbvs2d.h,v 1.16 2012-08-03 13:00:35 cvskris Exp $
+ RCS:		$Id: seiscbvs2d.h,v 1.15 2010/07/12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seis2dlineio.h"
 class SeisTrc;
 class CBVSSeisTrcTranslator;
@@ -20,7 +19,7 @@ class CBVSSeisTrcTranslator;
 namespace PosInfo { class Line2DData; }
 
 
-mClass(Seis) SeisCBVS2DLineIOProvider : public Seis2DLineIOProvider
+mClass SeisCBVS2DLineIOProvider : public Seis2DLineIOProvider
 {
 public:
 
@@ -53,7 +52,7 @@ public:
 };
 
 
-mClass(Seis) SeisCBVS2DLinePutter : public Seis2DLinePutter
+mClass SeisCBVS2DLinePutter : public Seis2DLinePutter
 {
 public:
 
@@ -75,4 +74,3 @@ public:
 };
 
 #endif
-

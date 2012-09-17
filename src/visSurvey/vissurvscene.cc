@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vissurvscene.cc,v 1.164 2012-09-13 14:32:21 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.157 2011/12/22 12:57:25 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -137,12 +137,10 @@ void Scene::init()
     scenecoltab_->doSaveInSessions( false );
 
     topimg_ = visBase::TopBotImage::create();
-    topimg_->setName( "TopImage");
     addUTMObject( topimg_ );
     topimg_->turnOn( false );
 
     botimg_ = visBase::TopBotImage::create();
-    botimg_->setName( "BottomImage");
     addUTMObject( botimg_ );
     botimg_->turnOn( false );
 
@@ -317,7 +315,7 @@ void Scene::addInlCrlZObject( visBase::DataObject* obj )
     mDynamicCastGet(SurveyObject*,so,obj);
     if ( so )
     {
-	so->setInlCrlSystem( SI().get3DGeometry(true) );
+	so->setInlCrlSystem( SI() );
     }
 
     inlcrl2disptransform_->addObject( obj );
@@ -331,7 +329,7 @@ void Scene::addObject( visBase::DataObject* obj )
 
     if ( so )
     {
-	so->setInlCrlSystem( SI().get3DGeometry(true) );
+	so->setInlCrlSystem( SI() );
 	if ( so->getMovementNotifier() )
 	    so->getMovementNotifier()->notify( mCB(this,Scene,objectMoved));
 
@@ -660,13 +658,13 @@ void Scene::setMarkerPos( const Coord3& coord, int sceneid )
     if ( datatransform_ && coord.isDefined() )
     {
 	BufferString linenm; int trcnr = -1;
-	infopar_.get( sKey::LineKey(), linenm );
-	infopar_.get( sKey::TraceNr(), trcnr );
+	infopar_.get( sKey::LineKey, linenm );
+	infopar_.get( sKey::TraceNr, trcnr );
 	if ( !linenm.isEmpty() && trcnr>=0 )
 	{
 	    BinID bid( datatransform_->lineIndex(linenm), trcnr );
 	    displaypos.z = datatransform_->transform(
-		    BinIDValue(bid,(float) coord.z) );
+		    BinIDValue(bid,coord.z) );
 	}
 	else
 	    displaypos.z = datatransform_->transform( coord );
@@ -702,7 +700,7 @@ void Scene::updateBaseMapCursor( const Coord& coord )
     {
 	basemapcursor_ = new BaseMapMarkers;
 	basemapcursor_->setMarkerStyle(
-		MarkerStyle2D(MarkerStyle2D::Target,5) );
+		MarkerStyle2D(MarkerStyle2D::Target) );
     }
 
     if ( basemapcursor_ && basemapcursor_->lock_.tryLock() )
@@ -829,7 +827,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     if ( datatransform_ )
     {
 	IOPar transpar;
-	transpar.set( sKey::Name(), datatransform_->factoryKeyword() );
+	transpar.set( sKey::Name, datatransform_->factoryKeyword() );
 	datatransform_->fillPar( transpar );
 	par.mergeComp( transpar, sKeyZAxisTransform() );
     }
@@ -838,7 +836,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	zdomaininfo_->def_.set( par );
 	par.mergeComp( zdomaininfo_->pars_, ZDomain::sKey() );
 	cs_.fillPar( par );
-	par.set( sKey::Scale(), zscale_ );
+	par.set( sKey::Scale, zscale_ );
     }
 
     par.set( sKeyTopImageID(), topimg_->id() );
@@ -904,7 +902,7 @@ int Scene::usePar( const IOPar& par )
     PtrMan<IOPar> transpar = par.subselect( sKeyZAxisTransform() );
     if ( transpar )
     {
-	const char* nm = transpar->find( sKey::Name() );
+	const char* nm = transpar->find( sKey::Name );
 	RefMan<ZAxisTransform> transform =
 	    ZAxisTransform::factory().create( nm );
 	if ( transform && transform->usePar( *transpar ) )
@@ -913,7 +911,7 @@ int Scene::usePar( const IOPar& par )
     else
     {
 	CubeSampling cs; float zscale;
-	if ( cs.usePar( par ) && par.get( sKey::Scale(), zscale ) )
+	if ( cs.usePar( par ) && par.get( sKey::Scale, zscale ) )
 	{
 	    setCubeSampling( cs );
 	    setZScale( zscale );

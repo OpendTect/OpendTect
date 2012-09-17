@@ -7,12 +7,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          June 2011
- RCS:           $Id: uidpsrefineseldlg.h,v 1.2 2012-08-03 13:00:59 cvskris Exp $: 
+ RCS:           $Id: uidpsrefineseldlg.h,v 1.1 2011/07/05 09:24:05 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 
@@ -24,7 +23,7 @@ class uiTable;
 
 class MathExpression;
 
-mClass(uiIo) uiDPSRefineSelDlg : public uiDialog
+mClass uiDPSRefineSelDlg : public uiDialog
 {
 public:
 
@@ -53,4 +52,3 @@ protected:
 };
 
 #endif
-

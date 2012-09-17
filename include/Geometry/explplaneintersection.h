@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          May 2008
- RCS:           $Id: explplaneintersection.h,v 1.8 2012-08-03 13:00:27 cvskris Exp $
+ RCS:           $Id: explplaneintersection.h,v 1.7 2011/12/20 18:06:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "indexedshape.h"
 #include "position.h"
 
@@ -25,7 +24,7 @@ namespace Geometry
     IndexedShape and one ore many planes. */
 
 
-mClass(Geometry) ExplPlaneIntersection: public Geometry::IndexedShape,
+mClass ExplPlaneIntersection: public Geometry::IndexedShape,
 			      public CallBacker
 {
 public:
@@ -85,4 +84,3 @@ protected:
 };
 
 #endif
-

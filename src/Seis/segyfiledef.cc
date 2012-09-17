@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segyfiledef.cc,v 1.29 2012-07-23 08:11:14 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.26 2012/07/23 08:11:16 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -97,7 +97,7 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
 
 void SEGY::FileSpec::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::FileName(), fname_ );
+    iop.set( sKey::FileName, fname_ );
     if ( mIsUdf(nrs_.start) )
 	iop.removeWithKey( sKeyFileNrs() );
     else
@@ -113,7 +113,7 @@ void SEGY::FileSpec::fillPar( IOPar& iop ) const
 
 bool SEGY::FileSpec::usePar( const IOPar& iop )
 {
-    if ( !iop.get( sKey::FileName(), fname_ ) )
+    if ( !iop.get( sKey::FileName, fname_ ) )
 	return false;
 
     getMultiFromString( iop.find(sKeyFileNrs()) );
@@ -123,7 +123,7 @@ bool SEGY::FileSpec::usePar( const IOPar& iop )
 
 void SEGY::FileSpec::getReport( IOPar& iop, bool ) const
 {
-    iop.set( sKey::FileName(), fname_ );
+    iop.set( sKey::FileName, fname_ );
     if ( mIsUdf(nrs_.start) ) return;
 
     BufferString str;
@@ -155,10 +155,10 @@ void SEGY::FileSpec::ensureWellDefined( IOObj& ioobj )
     if ( !iostrm ) return;
     iostrm->setTranslator( "SEG-Y" );
     IOPar& iop = ioobj.pars();
-    if ( !iop.find( sKey::FileName() ) ) return;
+    if ( !iop.find( sKey::FileName ) ) return;
 
     SEGY::FileSpec fs; fs.usePar( iop );
-    iop.removeWithKey( sKey::FileName() );
+    iop.removeWithKey( sKey::FileName );
     iop.removeWithKey( sKeyFileNrs() );
 
     iostrm->setFileName( fs.fname_ );
@@ -405,7 +405,7 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
     if ( !rev1 )
     {
 	if ( is2d )
-	    reportHdrEntry( iop, sKey::TraceNr(), thdef_.trnr_ );
+	    reportHdrEntry( iop, sKey::TraceNr, thdef_.trnr_ );
 	else
 	{
 	    iop.set( "Positioning defined by",
@@ -432,8 +432,8 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
 	iop.set( sKeyOffsDef(), offsdef_ );
     else if ( psdef_ != SrcRcvCoords )
     {
-	reportHdrEntry( iop, sKey::Offset(), thdef_.offs_ );
+	reportHdrEntry( iop, sKey::Offset, thdef_.offs_ );
 	if ( !thdef_.azim_.isUdf() )
-	    reportHdrEntry( iop, sKey::Azimuth(), thdef_.azim_ );
+	    reportHdrEntry( iop, sKey::Azimuth, thdef_.azim_ );
     }
 }

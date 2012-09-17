@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uidrawable.h,v 1.16 2012-08-03 13:00:51 cvskris Exp $
+ RCS:           $Id: uidrawable.h,v 1.15 2009/07/22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 #include "iodrawtool.h"
 #include "mouseevent.h"
 #include "keyboardevent.h"
 
-mClass(uiBase) uiDrawableObj : public uiObject, public ioDrawArea
+mClass uiDrawableObj : public uiObject, public ioDrawArea
 {
     mTTFriend(C,T,uiDrawableObjBody);
 
@@ -84,4 +83,3 @@ private:
 
 
 #endif
-

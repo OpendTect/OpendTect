@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseiscbvsimp.h,v 1.17 2012-08-03 13:01:08 cvskris Exp $
+ RCS:           $Id: uiseiscbvsimp.h,v 1.16 2011/03/11 14:36:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
@@ -28,7 +27,7 @@ class uiLabeledComboBox;
 
 /*!\brief Actually imports or just transfers data through selection */
 
-mClass(uiSeis) uiSeisImpCBVS : public uiDialog
+mClass uiSeisImpCBVS : public uiDialog
 {
 public:
 
@@ -74,7 +73,7 @@ private:
 };
 
 
-mClass(uiSeis) uiSeisCopyLineSet : public uiDialog
+mClass uiSeisCopyLineSet : public uiDialog
 {
 public:
 
@@ -95,4 +94,3 @@ protected:
 
 
 #endif
-

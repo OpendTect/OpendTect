@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: attribsel.cc,v 1.67 2012-06-28 13:05:54 cvshelene Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.64 2012/06/28 13:05:49 cvshelene Exp $";
 
 #include "attribsel.h"
 
@@ -179,10 +179,11 @@ void SelSpec::setRefFromID( const DescSet& ds )
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
 	    if ( ioobj )
 	    {
-		Desc* ncdesc = const_cast<Desc*>( desc );
 		BufferString attrnm;
 		LineKey lk( desc->userRef() );
 		attrnm = lk.attrName();
+		Desc* ncdesc = const_cast<Desc*>( desc );
+
 		if ( !desc->is2D() && attrnm == LineKey::sKeyDefAttrib() )
 		    ncdesc->setUserRef( ioobj->name() );
 		else
@@ -305,9 +306,9 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	if ( !ZDomain::isSI(ioobj.pars()) )
 	    continue;
 
-	const char* res = ioobj.pars().find( sKey::Type() );
-	if ( res && ( (!steerdata && !strcmp(res,sKey::Steering()) )
-	         || ( steerdata && strcmp(res,sKey::Steering()) ) ) )
+	const char* res = ioobj.pars().find( sKey::Type );
+	if ( res && ( (!steerdata && !strcmp(res,sKey::Steering) )
+	         || ( steerdata && strcmp(res,sKey::Steering) ) ) )
 	    continue;
 
 	if ( !res && steerdata && !is2d ) continue;

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.36 2012-09-13 11:27:32 cvsbert Exp $
+ RCS:           $Id: iodrawtool.h,v 1.34 2012/09/13 11:27:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "iodraw.h"
 #include "uigeom.h"
 #include "draw.h"
@@ -20,9 +19,9 @@ ________________________________________________________________________
 class uiFont;
 class ioPixmap;
 class BufferStringSet;
-mFDQtclass(QPainter)
-mFDQtclass(QPaintDevice)
-mFDQtclass(QPen)
+class QPainter;
+class QPaintDevice;
+class QPen;
 
 
 /*!\brief Tool to draw on ioDrawAreas.
@@ -31,7 +30,7 @@ mFDQtclass(QPen)
   ioDrawArea.
  */
 
-mClass(uiBase) ioDrawTool
+mClass ioDrawTool
 {
 public:
 
@@ -54,6 +53,7 @@ public:
     void		setFont(const uiFont&);
     LineStyle		lineStyle() const;
     const uiFont*	font()			{ return font_; }
+
     void		drawText(int x,int y,const char*,const Alignment&);
     void		drawText(const uiPoint& p,const char*,const Alignment&);
     			/*! Alignment = Start, Middle or Stop (see draw.h)
@@ -113,9 +113,9 @@ public:
 protected:
 
     friend class ioDrawAreaImpl;
-			ioDrawTool(mQtclass(QPaintDevice*));
+			ioDrawTool(QPaintDevice*);
 
-    mQtclass(QPainter*)	qpainter_;
+    QPainter*		qpainter_;
     bool		qpaintermine_;
     bool		qpainterprepared_;
 
@@ -123,16 +123,16 @@ protected:
 
 public:
 
-    void		setActivePainter(mQtclass(QPainter*));
+    void		setActivePainter(QPainter*);
     void		dismissPainter();
-    mQtclass(QPainter*)	qPainter()		{ return qpainter_; }
-    mQtclass(QPen&)	qPen()			{ return qpen_; }
-    mQtclass(QPaintDevice&)	qPaintDevice()	{ return qpaintdev_; }
+    QPainter*		qPainter()		{ return qpainter_; }
+    QPen&		qPen()			{ return qpen_; }
+    QPaintDevice&	qPaintDevice()		{ return qpaintdev_; }
 
 private:
 
-    mQtclass(QPen&)	qpen_;
-    mQtclass(QPaintDevice&)	qpaintdev_;
+    QPen&		qpen_;
+    QPaintDevice&	qpaintdev_;
 
     const uiFont*	font_;
     Color		areabgcolor_;
@@ -140,4 +140,3 @@ private:
 };
 
 #endif
-

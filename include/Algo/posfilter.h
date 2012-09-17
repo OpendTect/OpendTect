@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilter.h,v 1.15 2012-08-03 13:00:04 cvskris Exp $
+ RCS:           $Id: posfilter.h,v 1.14 2011/11/14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "algomod.h"
 #include "position.h"
 #include "factory.h"
 #include "surv2dgeom.h"
@@ -42,7 +41,7 @@ class Provider;
  
  */
 
-mClass(Algo) Filter
+mClass Filter
 {
 public:
 
@@ -74,7 +73,7 @@ public:
 
 /*!\brief provides a filter related to 3D data */
 
-mClass(Algo) Filter3D : public virtual Filter
+mClass Filter3D : public virtual Filter
 {
 public:
 
@@ -91,7 +90,7 @@ public:
 
 /*!\brief provides a filter related to 2D seismic data */
 
-mClass(Algo) Filter2D : public virtual Filter
+mClass Filter2D : public virtual Filter
 {
 public:
     			Filter2D()				{}
@@ -123,4 +122,3 @@ protected:
 } // namespace
 
 #endif
-

@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Mar 2009
- RCS:           $Id: statdirdata.h,v 1.14 2012-08-29 07:56:38 cvskris Exp $
+ RCS:           $Id: statdirdata.h,v 1.10 2012/07/25 07:47:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "manobjectset.h"
 #include "angles.h"
 #include "ranges.h"
@@ -19,7 +18,7 @@ ________________________________________________________________________
 namespace Stats
 {
 
-class SectorPartData
+mClass SectorPartData
 {
 public:
 
@@ -48,11 +47,11 @@ typedef TypeSet<SectorPartData> SectorData;
 
  */
 
-class DirectionalData : public ManagedObjectSet<SectorData>
+mClass DirectionalData : public ManagedObjectSet<SectorData>
 {
 public:
 
-    class Setup
+    mClass Setup
     {
     public:
     			Setup()
@@ -93,7 +92,7 @@ inline float DirectionalData::angle( int isect, int bound ) const
     float fullc; Angle::getFullCircle( setup_.angletype_, fullc );
     const float angstep = fullc / size();
     const float centerang = setup_.angle0_ + angstep * isect;
-    return centerang + bound * angstep * .5f;
+    return centerang + bound * angstep * .5;
 }
 
 
@@ -129,7 +128,7 @@ inline DirectionalData::DirectionalData( int nrsect, int nrparts )
 	SectorData* sd = new SectorData;
 	*this += sd;
 	for ( int ipart=0; ipart<nrparts; ipart++ )
-	    *sd += SectorPartData( 0, (ipart + .5f) / nrparts, 0 );
+	    *sd += SectorPartData( 0, (ipart + .5) / nrparts, 0 );
     }
 }
 
@@ -137,4 +136,3 @@ inline DirectionalData::DirectionalData( int nrsect, int nrparts )
 }; // namespace Stats
 
 #endif
-

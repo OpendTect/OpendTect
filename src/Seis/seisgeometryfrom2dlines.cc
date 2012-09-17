@@ -4,7 +4,7 @@
  * DATE     : Aug 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisgeometryfrom2dlines.cc,v 1.4 2012-08-03 13:01:35 cvskris Exp $";
+static const char* rcsID = "$Id: seisgeometryfrom2dlines.cc,v 1.1 2011/08/10 06:15:41 cvskris Exp $";
 
 #include "bufstringset.h"
 #include "file.h"
@@ -26,8 +26,8 @@ public:
 };
 
 
-mGlobal(Seis) void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines(); // compiler
-mGlobal(Seis) void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines()
+mGlobal void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines(); // compiler
+mGlobal void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines()
 {
     static OD_2DLineGeometryFrom2DLinesTransf transf;
     transf.doTransf();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visemobjdisplay.cc,v 1.143 2012-08-03 06:38:40 cvsaneesh Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.139 2012/01/06 13:43:26 cvsjaap Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -191,7 +191,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     }
     else if ( keycb )
     {
-	const RowCol closestrc = closestnode.getRowCol();
+	const RowCol closestrc( closestnode.subID() );
 	BufferString str = "Section: "; str += closestnode.sectionID();
 	str += " ("; str += closestrc.row;
 	str += ","; str += closestrc.col; str += ",";
@@ -569,7 +569,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyEarthModelID(), getMultiID() );
     par.setYN( sKeyEdit(), isEditingEnabled() );
     par.setYN( sKeyOnlyAtSections(), getOnlyAtSectionsDisplay() );
-    par.set( sKey::Color(), (int)getColor().rgb() );
+    par.set( sKey::Color, (int)getColor().rgb() );
 
     if ( lineStyle() )
     {
@@ -616,7 +616,7 @@ int EMObjectDisplay::usePar( const IOPar& par )
 
     par.getYN( sKeyEdit(), enableedit_ );
 
-    nontexturecolisset_ = par.get(sKey::Color(),(int&)nontexturecol_.rgb() );
+    nontexturecolisset_ = par.get(sKey::Color,(int&)nontexturecol_.rgb() );
 
     bool filter = false;
     par.getYN( sKeyOnlyAtSections(), filter );

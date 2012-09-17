@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.28 2012-08-03 13:00:14 cvskris Exp $
+ RCS:		$Id: separstr.h,v 1.27 2011/02/03 21:29:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstring.h"
 #include "convert.h"
 
@@ -30,7 +29,7 @@ escaped.
 
 */
 
-mClass(Basic) SeparString
+mClass SeparString
 {
 public:
 			SeparString( const SeparString& ss )
@@ -105,14 +104,14 @@ private:
     const char*		findSeparator(const char*) const;
 };
 
-mGlobal(Basic) std::ostream& operator <<(std::ostream&,const SeparString&);
-mGlobal(Basic) std::istream& operator >>(std::istream&,SeparString&);
+mGlobal std::ostream& operator <<(std::ostream&,const SeparString&);
+mGlobal std::istream& operator >>(std::istream&,SeparString&);
 
 
 
 /*!\brief SeparString with backquotes as separators, use in most ascii files */
 
-mClass(Basic) FileMultiString : public SeparString
+mClass FileMultiString : public SeparString
 {
 public:
 
@@ -138,4 +137,3 @@ public:
 };
 
 #endif
-

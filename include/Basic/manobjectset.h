@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id: manobjectset.h,v 1.4 2012-09-13 09:54:50 cvsbert Exp $
+ RCS:		$Id: manobjectset.h,v 1.4 2012/09/13 09:54:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

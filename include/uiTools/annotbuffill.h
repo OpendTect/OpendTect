@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          04/09/2006
- RCS:           $Id: annotbuffill.h,v 1.8 2012-08-03 13:01:11 cvskris Exp $
+ RCS:           $Id: annotbuffill.h,v 1.7 2009/07/22 16:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigeom.h"
 #include "draw.h"
 
@@ -27,12 +26,12 @@ class uiRGBArray;
 typedef Geom::Point2D<double> dPoint;
 typedef Geom::Point2D<int> iPoint;
 
-mClass(uiTools) AnnotBufferFiller
+mClass AnnotBufferFiller
 {
 
 public:
 
-    mClass(uiTools) LineInfo
+    mClass LineInfo
     {
 	public:
 
@@ -76,4 +75,3 @@ protected:
 
 
 #endif
-

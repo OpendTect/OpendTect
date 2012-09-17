@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uithumbwheel.cc,v 1.18 2012-07-10 08:05:34 cvskris Exp $";
+static const char* rcsID = "$Id: uithumbwheel.cc,v 1.16 2012/07/10 13:06:05 cvskris Exp $";
 
 #include "uithumbwheel.h"
 #include "i_qthumbwhl.h"

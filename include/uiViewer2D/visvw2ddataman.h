@@ -7,12 +7,11 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: visvw2ddataman.h,v 1.5 2012-08-03 13:01:17 cvskris Exp $
+ RCS:		$Id: visvw2ddataman.h,v 1.4 2011/06/03 14:10:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiviewer2dmod.h"
 #include "callback.h"
 #include "factory.h"
 #include "emposid.h"
@@ -26,7 +25,7 @@ class uiFlatViewAuxDataEditor;
 
 
 
-mClass(uiViewer2D) Vw2DDataManager : public CallBacker
+mClass Vw2DDataManager : public CallBacker
 {
 public:
     				Vw2DDataManager();
@@ -65,4 +64,3 @@ protected:
 };
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		August 2008
- RCS:		$Id: visscenecoltab.h,v 1.19 2012-08-03 13:01:26 cvskris Exp $
+ RCS:		$Id: visscenecoltab.h,v 1.18 2012/02/20 10:08:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "coltabsequence.h"
 
@@ -23,9 +22,9 @@ namespace ColTab { class MapperSetup; }
 namespace visBase
 {
 
-mClass(visBase) VisColorTab;
+mClass VisColorTab;
 
-mClass(visBase) SceneColTab : public VisualObjectImpl
+mClass SceneColTab : public VisualObjectImpl
 {
 public:
     static SceneColTab*		create()
@@ -59,4 +58,3 @@ protected:
 
 
 #endif
-

@@ -12,15 +12,12 @@ $
 ________________________________________________________________________
 -*/
 
-#include "wellattribmod.h"
-#include "wellattribmod.h"
 #include "callback.h"
 #include "color.h"
 #include "iopar.h"
 #include "multiid.h"
 #include "welldisp.h"
 #include "welltied2tmodelmanager.h"
-#include "welltiesetup.h"
 
 class BinID;
 class CtxtIOObj;
@@ -38,9 +35,8 @@ namespace WellTie
     class Setup;
     class PickSetMgr;
 
-mClass(WellAttrib) DispParams
+mStruct DispParams
 {
-public:
 			    DispParams()
 			    : ismarkerdisp_(true)
 			    , isvwrmarkerdisp_(true)
@@ -66,9 +62,8 @@ public:
 };
 
 
-mClass(WellAttrib) Marker
+mStruct Marker
 {
-public:
 			    Marker(float z)
 				: zpos_(z)
 				, size_(2)  
@@ -84,9 +79,9 @@ public:
 					{ return m.zpos_ == zpos_; }
 };
 
-mStruct(WellAttrib) PickData		{ TypeSet<Marker> synthpicks_, seispicks_; };
+mStruct PickData		{ TypeSet<Marker> synthpicks_, seispicks_; };
 
-mClass(WellAttrib) Data
+mClass Data
 {
 public :
     				Data(const Setup&,Well::Data& wd);
@@ -103,7 +98,7 @@ public :
     bool			isinitwvltactive_;
     const StepInterval<float>& 	timeintv_;
     Interval<float>		dahrg_;
-    const Setup&		setup() const		{ return setup_; }
+    const Setup&		setup() const	{ return setup_; }
 
     const char*  		sonic() 	const;
     const char*  		density() 	const;
@@ -118,7 +113,7 @@ public :
     DispParams			dispparams_;
     TaskRunner*			trunner_;
 
-    mStruct(WellAttrib) CorrelData
+    mStruct CorrelData
     {
 				CorrelData() : lag_(200), coeff_(0) {}
 
@@ -134,7 +129,7 @@ protected:
 };
 
 
-mClass(WellAttrib) WellDataMgr : public CallBacker
+mClass WellDataMgr : public CallBacker
 {
 public:
     				WellDataMgr(const MultiID&);
@@ -153,13 +148,13 @@ protected:
 };
 
 
-mClass(WellAttrib) DataWriter 
+mClass DataWriter 
 {	
 public:    
 				DataWriter(Well::Data&,const MultiID&);
 				~DataWriter();
 
-    mStruct(WellAttrib) LogData
+    mStruct LogData
     {
 				LogData( const Well::LogSet& logset )
 				    : logset_(logset)
@@ -177,27 +172,26 @@ public:
 
     bool 			writeD2TM() const;		
     bool                        writeLogs(const Well::LogSet&) const;
-    bool                        writeLogs2Cube(LogData&,Interval<float>) const;
+    bool                        writeLogs2Cube(LogData&) const { return false;};
 
     void			setWD(Well::Data* wd)
     				{ wd_ = wd; setWellWriter(); }
-
-    const char*			errMsg() const 
-    				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
 protected:
 
     Well::Writer* 		wtr_;
     Well::Data*			wd_;
     const MultiID&		wellid_;
-    BufferString		errmsg_;
 
     void 			setWellWriter();
     bool                        writeLog2Cube(LogData&) const;
+
+public:
+    bool                        writeLogs2Cube(LogData&,Interval<float>) const;
 };
 
 
-mClass(WellAttrib) HorizonMgr
+mClass HorizonMgr
 {
 public:
     				HorizonMgr(TypeSet<Marker>& hor)
@@ -205,9 +199,9 @@ public:
 				   , horizons_(hor)  
 				   {}
 
-    mStruct(WellAttrib) PosCouple 		
+    mStruct PosCouple 		
     { 
-	float 			z1_, z2_; 
+	float z1_, z2_; 
 	bool 			operator == ( const PosCouple& pc ) const
 				{ return z1_ == pc.z1_ && z2_ == pc.z2_; }
     };
@@ -226,7 +220,7 @@ protected:
 };
 
 
-mClass(WellAttrib) Server : public CallBacker
+mClass Server : public CallBacker
 {
 public :
     				Server(const WellTie::Setup&);
@@ -277,5 +271,3 @@ protected :
 
 
 #endif
-
-

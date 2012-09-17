@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseisbrowser.cc,v 1.72 2012-09-13 18:36:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.63 2012/08/01 14:44:23 cvshelene Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -157,7 +157,7 @@ const BinID& uiSeisBrowser::curBinID() const
 }
 
 
-float uiSeisBrowser::curZ() const
+const float uiSeisBrowser::curZ() const
 {
     return sd_.start + tbl_->currentRow() * sd_.step;
 }
@@ -186,13 +186,13 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 	Seis2DLineSet seislineset( ioobj->fullUserExpr(true) );
 	const int index = seislineset.indexOf( su.linekey_ );
 	IOPar par( seislineset.getInfo(index) );
-	FixedString fname = par.find( sKey::FileName() );
+	FixedString fname = par.find( sKey::FileName );
 	FilePath fp( fname );
 	if ( !fp.isAbsolute() )
 	    fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
 	tr_ = CBVSSeisTrcTranslator::make( fp.fullPath(), false,
 					   Seis::is2D(su.geom_), &emsg );
-	if ( su.linekey_.attrName() == sKey::Steering() )
+	if ( su.linekey_.attrName() == sKey::Steering )
 	    compnr_ = 1;
     }
     else
@@ -224,14 +224,14 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 void uiSeisBrowser::createMenuAndToolBar()
 {
     uitb_ = new uiToolBar( this, "Tool Bar" );
-    mAddButton( "gotopos",goToPush,"Goto position",false );
-    mAddButton( "info",infoPush,"Information",false );
+    mAddButton( "gotopos.png",goToPush,"Goto position",false );
+    mAddButton( "info.png",infoPush,"Information",false );
     if ( !is2d_ )
-	crlwisebutidx_ = mAddButton( "crlwise",switchViewTypePush,
+	crlwisebutidx_ = mAddButton( "crlwise.png",switchViewTypePush,
 				     "Switch to Crossline",true );
-    mAddButton( "leftarrow",leftArrowPush,"Move left",false );
-    mAddButton( "rightarrow",rightArrowPush,"Move right",false );
-    showwgglbutidx_ = mAddButton( "vd",dispTracesPush,
+    mAddButton( "leftarrow.png",leftArrowPush,"Move left",false );
+    mAddButton( "rightarrow.png",rightArrowPush,"Move right",false );
+    showwgglbutidx_ = mAddButton( "vd.png",dispTracesPush,
 	    			  "Display current traces",false );
     tr_->getComponentNames( compnms_ );
     if ( compnms_.size()>1 )
@@ -247,7 +247,7 @@ void uiSeisBrowser::createMenuAndToolBar()
 
 void uiSeisBrowser::createTable()
 {
-    const int nrrows = tr_->readMgr()->info().nrsamples_;
+    const int nrrows = tr_->readMgr()->info().nrsamples;
     const int nrcols = 2*stepout_ + 1;
     tbl_ = new uiTable( this, uiTable::Setup( nrrows, nrcols )
 			     .selmode(uiTable::Multi)
@@ -264,7 +264,7 @@ void uiSeisBrowser::createTable()
 BinID uiSeisBrowser::getNextBid( const BinID& cur, int idx,
 				   bool before ) const
 {
-    const BinID& step = tr_->readMgr()->info().geom_.step;
+    const BinID& step = tr_->readMgr()->info().geom.step;
     return crlwise_ ? BinID( cur.inl + (before?-1:1) * step.inl * idx, cur.crl)
 		    : BinID( cur.inl, cur.crl + (before?-1:1) * step.crl * idx);
 }
@@ -374,12 +374,12 @@ void uiSeisBrowser::fillUdf( SeisTrc& trc )
 }
 
 
-static const char* getZValStr( float z, int zfac )
+static const char* getZValStr( float z, const float zfac )
 {
     static BufferString txt;
     float dispz = zfac * z * 10;
     int idispz = mNINT32( dispz );
-    dispz = idispz * 0.1f;
+    dispz = idispz * 0.1;
     txt = dispz;
     return txt.buf();
 }
@@ -388,11 +388,11 @@ static const char* getZValStr( float z, int zfac )
 void uiSeisBrowser::fillTable()
 {
     const CBVSInfo& info = tr_->readMgr()->info();
-    const int zfac = zdomdef_->userFactor();
+    const float zfac = zdomdef_->userFactor();
     const char* zunstr = zdomdef_->unitStr(false);
-    for ( int idx=0; idx<info.nrsamples_; idx++ )
+    for ( int idx=0; idx<info.nrsamples; idx++ )
     {
-	const BufferString zvalstr( getZValStr(info.sd_.atIndex(idx),zfac) );
+	const BufferString zvalstr( getZValStr(info.sd.atIndex(idx),zfac) );
 	tbl_->setRowLabel( idx, zvalstr );
 	BufferString tt;
 	tt.add( idx+1 ).add( getRankPostFix(idx+1) ).add( " sample at " )
@@ -474,6 +474,7 @@ void uiSeisBrowser::infoPush( CallBacker* )
 {
     const SeisTrc& trc = tbl_->currentCol()<0 ? ctrc_ 
 					      : *tbuf_.get(tbl_->currentCol());
+    const bool hadinfo = infovwr_;
     if ( !infovwr_ )
     {
 	infovwr_ = new uiSeisBrowserInfoVwr( this, trc, is2d_, *zdomdef_ );
@@ -825,7 +826,7 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
 	   			coordinpspec.setName("X",0).setName("Y",0) );
     coordfld_->setReadOnly();
 
-    BufferString label( is2d_ ? "Trace/Ref number" : sKey::Position() );
+    BufferString label( is2d_ ? "Trace/Ref number" : sKey::Position );
     IntInpSpec iis; FloatInpSpec fis;
     DataInpSpec* pdis = &iis; if ( is2d_ ) pdis = &fis;
     trcnrbinidfld_ = new uiGenInput( valgrp, label.buf(), iis, *pdis );
@@ -904,7 +905,7 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 	    { amplrg.stop = v; peakzs.stop = trc.info().samplePos(isamp); }
     }
 
-    const int zfac = zdomdef_.userFactor();
+    const float zfac = zdomdef_.userFactor();
     minamplfld_->setValue( amplrg.start );
     minamplatfld_->setText( getZValStr(peakzs.start,zfac) );
     maxamplfld_->setValue( amplrg.stop );

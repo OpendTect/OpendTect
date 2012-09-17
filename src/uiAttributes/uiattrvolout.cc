@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.91 2012-08-20 17:45:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.89 2012/08/21 22:23:27 cvsnanne Exp $";
 
 #include "uiattrvolout.h"
 
@@ -46,6 +46,7 @@ static const char* rcsID mUnusedVar = "$Id: uiattrvolout.cc,v 1.91 2012-08-20 17
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 
 using namespace Attrib;
 
@@ -80,7 +81,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 	transffld->selFld2D()->singLineSel.notify(
 				mCB(this,uiAttrVolOut,singLineSel) );
 
-    ctio.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
+    ctio.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
     uiSeisSel::Setup su( is2d, false );
     su.selattr( true ).allowlinesetsel( false );
     
@@ -114,7 +115,9 @@ void uiAttrVolOut::singLineSel( CallBacker* )
 {
     if ( !transffld->selFld2D() ) return;
 
-    setMode( transffld->selFld2D()->isSingLine() ? Single : Multi );
+    if ( singmachfld_ )
+	singmachfld_->setValue( transffld->selFld2D()->isSingLine() );
+    singTogg( 0 );
 }
 
 
@@ -162,10 +165,13 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	PtrMan<IOObj> ioobj = 0;
 	if ( prov )
 	{
+	    /* TODO Nanne: Implement 'prov->getGeomID()'
 	    PosInfo::GeomID geomid = prov->getGeomID();
 	    BufferString lsnm = S2DPOS().getLineSet( geomid.lsid_ );
 	    SeisIOObjInfo info( lsnm );
 	    ioobj = info.ioObj()->clone();
+	    */
+	    ioobj = IOM().get( MultiID(desc->getStoredID(true)) );
 	}
 
 	if ( !ioobj )
@@ -236,7 +242,7 @@ bool uiAttrVolOut::prepareProcessing()
 
     if ( todofld->is3D() )
     {
-	ctio.ioobj->pars().set( sKey::Type(), sKey::Attribute() );
+	ctio.ioobj->pars().set( sKey::Type, sKey::Attribute );
 	IOM().commitChanges( *ctio.ioobj );
     }
 
@@ -300,7 +306,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 		 attrpar.getValue(idx) );
     }
 
-    iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
+    iop.set( IOPar::compKey(sKey::Output,sKey::Type), "Cube" );
     const BufferString keybase = IOPar::compKey( Output::outputstr(), 0 );
     const BufferString attribkey =
 	IOPar::compKey( keybase, SeisTrcStorOutput::attribkey() );
@@ -335,14 +341,14 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     transffld->selfld->fillPar( tmpiop );
     BufferString typestr;
     //Subselection type and geometry will have an extra level key: 'Subsel
-    if ( tmpiop.get( sKey::Type(), typestr ) )
-	tmpiop.removeWithKey( sKey::Type() );
+    if ( tmpiop.get( sKey::Type, typestr ) )
+	tmpiop.removeWithKey( sKey::Type );
     
     CubeSampling::removeInfo( tmpiop );
     iop.mergeComp( tmpiop, keybase );
     tmpiop.setEmpty();
     if ( strcmp( typestr.buf(), "" ) )
-	tmpiop.set( sKey::Type(), typestr );
+	tmpiop.set( sKey::Type, typestr );
     
     bool usecs = strcmp( typestr.buf(), "None" );
     if ( usecs )
@@ -357,12 +363,12 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	}
     }
 
-    const BufferString subkey = IOPar::compKey( sKey::Output(), sKey::Subsel() );
+    const BufferString subkey = IOPar::compKey( sKey::Output, sKey::Subsel );
     iop.mergeComp( tmpiop, subkey );
 
     CubeSampling::removeInfo( subselpar );
-    subselpar.removeWithKey( sKey::Type() );
-    iop.mergeComp( subselpar, sKey::Output() );
+    subselpar.removeWithKey( sKey::Type );
+    iop.mergeComp( subselpar, sKey::Output );
 
     Scaler* sc = transffld->scfmtfld->getScaler();
     if ( sc )
@@ -377,11 +383,10 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	const char* outputnm = objfld->getInput();
 	attrnm = LineKey( outputnm ).attrName();
     }
-    iop.set( sKey::Target(), attrnm.buf() );
+    iop.set( sKey::Target, attrnm.buf() );
     BufferString linename;
     if ( todofld->is2D() )
     {
-	MultiID ky;
 	DescSet descset(true);
 	if ( nlamodel )
 	    descset.usePar( nlamodel->pars(), nlamodel->versionNr() );
@@ -397,24 +402,27 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 		iop.set( "Input Line Set", lk.lineName() );
 		linename = lk.lineName();
 	    }
-	}
 
-	Seis2DLineSet::invalidateCache();
+	    PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid) );
+	    if ( ioobj )
+	    {
+		Seis2DLineSet lset( *ioobj );
+		lset.invalidateCache();
+	    }
+	}
     }
 
     if ( usecs )
     {
 	EngineMan::getPossibleVolume( *clonedset, cs, linename, targetid );
-	iop.set( sKeyMaxInlRg(),
-		 cs.hrg.start.inl, cs.hrg.stop.inl, cs.hrg.step.inl );
-	iop.set( sKeyMaxCrlRg(),
-		 cs.hrg.start.crl, cs.hrg.stop.crl, cs.hrg.step.crl );
+	iop.set(sKeyMaxInlRg(),cs.hrg.start.inl,cs.hrg.stop.inl,cs.hrg.step.inl);
+	iop.set(sKeyMaxCrlRg(),cs.hrg.start.crl,cs.hrg.stop.crl,cs.hrg.step.crl);
     }
     delete clonedset;
 
     FilePath fp( ctio.ioobj->fullUserExpr() );
     fp.setExtension( "proc" );
-    iop.write( fp.fullPath(), sKey::Pars() );
+    iop.write( fp.fullPath(), sKey::Pars );
     return true;
 }
 

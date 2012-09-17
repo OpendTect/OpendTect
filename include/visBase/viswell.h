@@ -7,14 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.45 2012-08-03 13:01:28 cvskris Exp $
+ RCS:           $Id: viswell.h,v 1.42 2012/02/08 21:15:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "visbasemod.h"
-#include "visbasemod.h"
 #include "color.h"
 #include "fontdata.h"
 #include "ranges.h"
@@ -35,6 +33,7 @@ class SoSwitch;
 
 namespace visBase
 {
+class DrawStyle;
 class PolyLineBase;
 class DataObjectGroup;
 class Text2;
@@ -44,14 +43,14 @@ class Transformation;
 Base class for well display
 */
 
-mClass(visBase) Well : public VisualObjectImpl
+mClass Well : public VisualObjectImpl
 {
 public:
 
     static Well*		create()
     				mCreateDataObj(Well);
 
-    mStruct(visBase) BasicParams
+    mStruct BasicParams
     {
 				BasicParams(){}
 	const char* 		name_;
@@ -60,7 +59,7 @@ public:
     };
     
     //Well
-    mStruct(visBase) TrackParams : public BasicParams
+    mStruct TrackParams : public BasicParams
     {
 				TrackParams()
 				{}
@@ -80,7 +79,7 @@ public:
 
     
     //Markers
-    mStruct(visBase) MarkerParams : public BasicParams
+    mStruct MarkerParams : public BasicParams
     {
 				MarkerParams()
 				{}
@@ -107,7 +106,7 @@ public:
     float			constantLogSizeFactor() const;
 
     //logs
-    mStruct(visBase) LogParams : public BasicParams
+    mStruct LogParams : public BasicParams
     {
 				LogParams()
 				{}
@@ -198,6 +197,7 @@ protected:
     				~Well();
 
     PolyLineBase*		track_;
+    DrawStyle*			drawstyle_;
     Text2*			welltoptxt_;
     Text2*			wellbottxt_;
     DataObjectGroup*		markergroup_;
@@ -214,11 +214,9 @@ protected:
     
     ObjectSet<SoPlaneWellLog>	log_;
     ZAxisTransform*		zaxistransform_;
-    int				voiidx_;
 };
 
-} // namespace visBase
+
+};
 
 #endif
-
-

@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.35 2012-08-03 13:00:05 cvskris Exp $
+ RCS:		$Id: simpnumer.h,v 1.34 2009/09/08 21:40:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "undefval.h"
 #include "math2.h"
 #include <math.h>
@@ -137,7 +136,7 @@ int nrBlocks( int totalsamples, int basesize, int overlapsize )
  will be set to zero. The taper can be either cosine or linear.
 */
 
-mClass(Algo) Taper
+mClass Taper
 {
 public:
     enum Type { Cosine, Linear };
@@ -357,4 +356,3 @@ inline bool holdsClassValues( const T* vals, od_int64 sz,
 
 
 #endif
-

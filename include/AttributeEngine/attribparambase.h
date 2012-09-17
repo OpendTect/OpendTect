@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          16-01-2008
- RCS:           $Id: attribparambase.h,v 1.4 2012-08-03 13:00:08 cvskris Exp $
+ RCS:           $Id: attribparambase.h,v 1.3 2009/07/22 16:01:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "bufstring.h"
 
 class DataInpSpec;
@@ -31,7 +30,7 @@ AttribNameWithoutSpaces param1=value1 param2=value2,value3
 The parameter thus has a key (e.g. param1) and one or more associated values.
 */
 
-mClass(AttributeEngine) Param
+mClass Param
 {
 public:
     				Param(const char* key);
@@ -85,7 +84,7 @@ protected:
 };
 
 
-mClass(AttributeEngine) ValParam : public Param
+mClass ValParam : public Param
 {
 public:
     				ValParam(const char* key,DataInpSpec*);
@@ -135,4 +134,3 @@ protected:
 
 
 #endif
-

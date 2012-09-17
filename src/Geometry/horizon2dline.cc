@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: horizon2dline.cc,v 1.26 2012-08-08 05:26:29 cvssalil Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.22 2011/10/20 14:17:39 cvsjaap Exp $";
 
 #include "horizon2dline.h"
 
@@ -108,6 +108,7 @@ void Horizon2DLine::syncRow( const PosInfo::GeomID& geomid,
     }
 
     const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
+    const int nrtraces = posns.size();
     for ( int tridx=posns.size()-1; tridx>=0; tridx-- )
     {
 	int colidx = colsampling_[rowidx].nearestIndex( posns[tridx].nr_ );
@@ -260,7 +261,7 @@ Interval<float> Horizon2DLine::zRange( const PosInfo::GeomID& geomid ) const
     for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
     {
 	const int rowidx = getRowIndex( geomid );
-	const float z = (float) getKnot( RowCol(rowidx,col) ).z;
+	const float z = getKnot( RowCol(rowidx,col) ).z;
 	if ( !mIsUdf(z) )
 	    zrange.include( z, false );
     }

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.38 2012-08-03 13:00:15 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.33 2012/01/16 12:25:14 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "basicmod.h"
 #include "task.h"
 #include "objectset.h"
 #include "callback.h"
@@ -34,7 +33,7 @@ or manual.
 */
 
 
-mClass(Basic) WorkManager : public CallBacker
+mClass WorkManager : public CallBacker
 {
 public:
 
@@ -53,23 +52,20 @@ public:
     				/*!<Removes queue. If finishall is true,
 				    all work in the queue will be finished. */
     static int			cDefaultQueueID() { return 0; }
-    bool			executeQueue(int queueid);
+    void			executeQueue(int queueid);
     				/*!<Runs all jobs in a que. Only for manual
 				    queues */
 
     void			addWork(const Work&,CallBack* finished,
-	    				int queueid, bool putfirstinline,
-					bool discardduplicates=false);
+	    				int queueid, bool putfirstinline);
+    				//!< Managed by caller if manage flag is false
 
-    bool			addWork(TypeSet<Work>&, int queueid = -1,
+    bool			addWork(TypeSet<Work>&, int queueid,
 	    				bool firstinline = false);
-    
-    bool			executeWork( Work*, int sz, int queueid = -1,
-					bool firstinline = false );
-    				//!<Returns when finished with all
     bool			removeWork(const Work&);	
     				/*!< Removes the task from queue
-				     and stop it if allready running.
+				     and stop it if allready running. If
+				     task is managed, it will be deleted.
 				    \returns true if the task was removed
 				    before it had started.*/
 
@@ -127,7 +123,7 @@ protected:
     below.
 
 \code
-    mClass(Basic) MyClass : public CallBacker
+    mClass MyClass : public CallBacker
     {
         void		normalCallBack(CallBacker*);
 	bool		taskFunction();
@@ -152,7 +148,7 @@ the work is done, or if there is an error.
 */
 
 
-mClass(Basic) Work
+mClass Work
 {
 public:
     inline		Work();
@@ -174,7 +170,7 @@ protected:
     CallBackFunction	cbf_;
     TaskFunction	tf_;
     StaticTaskFunction	stf_;
-    bool		takeover_;
+    bool			takeover_;
 };
 
 #define mSTFN(clss,fn) ((::TaskFunction)(&clss::fn))
@@ -227,4 +223,3 @@ inline bool Threads::Work::doRun()
 
 
 #endif
-

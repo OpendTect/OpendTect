@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uicoherencyattrib.h,v 1.8 2012-08-03 13:00:48 cvskris Exp $
+ RCS:           $Id: uicoherencyattrib.h,v 1.7 2009/07/22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -25,7 +24,7 @@ class uiStepOutSel;
 
 /*! \brief Coherency attribute description editor */
 
-mClass(uiAttributes) uiCoherencyAttrib : public uiAttrDescEd
+mClass uiCoherencyAttrib : public uiAttrDescEd
 {
 public:
 
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

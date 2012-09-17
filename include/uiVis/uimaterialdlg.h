@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.h,v 1.15 2012-08-03 13:01:18 cvskris Exp $
+ RCS:           $Id: uimaterialdlg.h,v 1.14 2011/04/28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidialog.h"
 #include "uidlggroup.h"
 #include "draw.h"
@@ -26,7 +25,7 @@ namespace visBase { class Material; class VisualObject; };
 namespace visSurvey { class SurveyObject; };
 
 
-mClass(uiVis) uiMaterialGrp : public uiDlgGroup
+mClass uiMaterialGrp : public uiDlgGroup
 {
 public:
 				uiMaterialGrp(uiParent*,
@@ -59,7 +58,7 @@ protected:
 };
 
 
-mClass(uiVis) uiLineStyleGrp : public uiDlgGroup
+mClass uiLineStyleGrp : public uiDlgGroup
 {
 public:
     				uiLineStyleGrp(uiParent*,
@@ -78,7 +77,7 @@ protected:
 };
 
 
-mClass(uiVis) uiTextureInterpolateGrp : public uiDlgGroup
+mClass uiTextureInterpolateGrp : public uiDlgGroup
 {
 public:
 				uiTextureInterpolateGrp(uiParent*,
@@ -91,7 +90,7 @@ protected:
 };
 
 
-mClass(uiVis) uiPropertiesDlg : public uiTabStackDlg
+mClass uiPropertiesDlg : public uiTabStackDlg
 {
 public:
 				uiPropertiesDlg(uiParent*,
@@ -103,4 +102,3 @@ protected:
 };
 
 #endif
-

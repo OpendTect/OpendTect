@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_SeisMMBatch.cc,v 1.28 2012-05-22 14:48:39 cvskris Exp $";
+static const char* rcsID = "$Id: od_SeisMMBatch.cc,v 1.25 2009/07/22 16:01:41 cvsbert Exp $";
 
 #include "uiseismmproc.h"
 #include "uimain.h"
@@ -44,7 +44,7 @@ int main( int argc, char ** argv )
 	std::cerr << argv[0] << ": Cannot open parameter file" << std::endl;
 	ExitProgram( 1 );
     }
-    IOPar iop; iop.read( *sdin.istrm, sKey::Pars() );
+    IOPar iop; iop.read( *sdin.istrm, sKey::Pars );
     if ( iop.size() == 0 )
     {
 	std::cerr << argv[0] << ": Invalid parameter file" << std::endl;
@@ -55,7 +55,7 @@ int main( int argc, char ** argv )
     if ( bgadd )
 	forkProcess();
 
-    const char* res = iop.find( sKey::Survey() );
+    const char* res = iop.find( sKey::Survey );
     if ( res && *res && SI().getDirName() != res )
 	IOMan::setSurvey( res );
 

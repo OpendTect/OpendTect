@@ -4,7 +4,7 @@
  * DATE     : September 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: mouseevent.cc,v 1.15 2012-08-08 04:59:50 cvssalil Exp $";
+static const char* rcsID = "$Id: mouseevent.cc,v 1.12 2011/09/29 15:59:37 cvsjaap Exp $";
 
 #include "mouseevent.h"
 #include "timefun.h"
@@ -66,9 +66,8 @@ int TabletInfo::postPressTime() const
 
 float TabletInfo::postPressDist() const
 {
-    return ( float )( globalpresspos_.isDefined() 
-				 		? globalpresspos_.distTo(globalpos_)
-				 		: mUdf(float) );
+    return globalpresspos_.isDefined() ? globalpresspos_.distTo(globalpos_)
+				       : mUdf(float);
 }
 
 

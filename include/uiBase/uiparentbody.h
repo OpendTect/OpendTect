@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiparentbody.h,v 1.20 2012-08-30 05:49:34 cvsnageswara Exp $
+ RCS:           $Id: uiparentbody.h,v 1.19 2011/05/11 04:05:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,10 +60,10 @@ public:
     void      		clearChildren();	// body: uiobj.cc
 
 			//! widget to be used as parent for QWidgets
-    inline const mQtclass(QWidget*) managewidg() const	{ return managewidg_();}
+    inline const QWidget* managewidg() const	{ return managewidg_();}
 			//! widget to be used as parent for QWidgets
-    inline mQtclass(QWidget*)	managewidg()
-    		    { return const_cast<mQtclass(QWidget*)>( managewidg_() ); }
+    inline QWidget*	managewidg()
+    			{ return const_cast<QWidget*>( managewidg_() ); }
 
 protected:
     void	deleteAllChildren()
@@ -81,7 +81,7 @@ protected:
 		    if ( obj ) children_ -= obj;
 		}
 
-    virtual const mQtclass(QWidget*)	managewidg_() const = 0;
+    virtual const QWidget*	managewidg_() const			= 0;
     virtual void		manageChld_(uiBaseObject&,uiObjectBody&) {}
 
     ObjectSet<uiBaseObject>	children_;

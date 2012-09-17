@@ -7,22 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.37 2012-08-23 10:10:54 cvsnageswara Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.35 2011/04/21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "i_layout.h"
 #include "uiobjbody.h"
 
 #include <QSize>
 #include <QWidget>
 
-mFDQtclass(QLayoutItem)
+class QLayoutItem;
 
 //! Wrapper around QLayoutItem class. Stores some dGB specific layout info.
-mClass(uiBase) i_LayoutItem : public uiBody, public NamedObject
+mClass i_LayoutItem : public uiBody, public NamedObject
 {   
     friend class		i_LayoutMngr;
     friend class		i_LayoutIterator;
@@ -31,8 +30,7 @@ mClass(uiBase) i_LayoutItem : public uiBody, public NamedObject
 #endif
 
 public: 
-				i_LayoutItem(i_LayoutMngr&,
-					     mQtclass(QLayoutItem&));
+				i_LayoutItem(i_LayoutMngr&,QLayoutItem&);
     virtual			~i_LayoutItem();
 
     virtual int			horAlign(LayoutMode m ) const
@@ -46,12 +44,12 @@ public:
 				    }
 
     virtual uiSize 		minimumsize() const 
-				{
-				    mQtclass(QSize) s =qwidget()->minimumSize();
+				    {
+					QSize s =  qwidget()->minimumSize();
 
 					return
 					    uiSize( s.width(), s.height());
-				 }
+				    }
 
     uiSize			prefSize() const
 				{ 
@@ -62,7 +60,7 @@ public:
 					i_LayoutItem* self =
 					    const_cast<i_LayoutItem*>(this);
 					self->prefSzDone = true;
-					mQtclass(QSize) ps( qlayoutItm().sizeHint() );
+					QSize ps( qlayoutItm().sizeHint() );
 					int width = ps.width();
 					if ( width==0 ) width = 1;
 					int height = ps.height();
@@ -125,23 +123,22 @@ protected:
 							(this)->bodyLayouted(); 
 				}
 
-    inline mQtclass(QLayoutItem&)	qlayoutItm()    { return *qlayoutitm; }
-    inline const mQtclass(QLayoutItem&)	qlayoutItm() const
-    					{ return *qlayoutitm; }
+    inline QLayoutItem&		qlayoutItm()	    { return *qlayoutitm; }
+    inline const QLayoutItem&	qlayoutItm() const  { return *qlayoutitm; }
 
 				// Immediately delete me if you take my
 				// qlayoutitm !!
-    inline mQtclass(QLayoutItem*)  takeQlayoutItm()
-    				   {
-				       mQtclass(QLayoutItem*) ret = qlayoutitm;
-				       qlayoutitm = 0;
-				       return ret;
-				   }
+    inline QLayoutItem*		takeQlayoutItm()
+				{
+				    QLayoutItem* ret = qlayoutitm;
+				    qlayoutitm = 0;
+				    return ret;
+				}
 
-    virtual const mQtclass(QWidget*)	qwidget_() const
-    					{ return qlayoutitm->widget(); }
-    virtual const mQtclass(QWidget*)	managewidg_() const
-    					{ return qlayoutitm->widget(); }
+    virtual const QWidget*	qwidget_() const 
+				    { return qlayoutitm->widget(); }
+    virtual const QWidget*	managewidg_() const 
+				    { return qlayoutitm->widget(); }
 
     inline i_LayoutMngr& 	mngr()			{ return mngr_; } 
 
@@ -149,7 +146,7 @@ protected:
 
 private:
 
-    mQtclass(QLayoutItem*)	qlayoutitm;
+    QLayoutItem*		qlayoutitm;
     i_LayoutMngr&		mngr_;
 
     constraintList		constrList;
@@ -165,12 +162,11 @@ private:
 
 
 //! Wrapper around QLayoutItems that have been wrapped by a i_QObjWrp wrapper and therefore have a reference to a uiObject.
-mClass(uiBase) i_uiLayoutItem : public i_LayoutItem
+mClass i_uiLayoutItem : public i_LayoutItem
 {
 public:
 			i_uiLayoutItem( i_LayoutMngr& mgr, uiObjectBody& obj )
-			    : i_LayoutItem(mgr,
-				    *new mQtclass(QWidgetItem)(obj.qwidget()) )
+			    : i_LayoutItem(mgr,*new QWidgetItem(obj.qwidget()) )
 			    , uiObjBody_(obj)		{}
 
     virtual		~i_uiLayoutItem();
@@ -196,4 +192,3 @@ protected:
 };
 
 #endif
-

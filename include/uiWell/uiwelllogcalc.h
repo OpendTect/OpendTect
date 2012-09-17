@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2009
- RCS:		$Id: uiwelllogcalc.h,v 1.14 2012-08-29 17:12:03 cvsbruno Exp $
+ RCS:		$Id: uiwelllogcalc.h,v 1.13 2012/09/02 10:10:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "multiid.h"
@@ -27,7 +26,7 @@ namespace Well { class Log; class LogSet; }
 
 /*! \brief Dialog for marker specifications */
 
-mClass(uiWell) uiWellLogCalc : public uiDialog
+mClass uiWellLogCalc : public uiDialog
 {
 public:
 				uiWellLogCalc(uiParent*,const Well::LogSet&,
@@ -36,9 +35,6 @@ public:
 				~uiWellLogCalc();
 
     bool			haveNewLogs() const	{ return havenew_; }
-
-    void			setOutputLogName(const char* nm);
-    const char*			getOutputLogName() const;
 
 protected:
 
@@ -96,7 +92,10 @@ protected:
     void			inpSel(CallBacker*);
     bool			acceptOK(CallBacker*);
 
+public:
+    void                        setOutputLogName(const char* nm);
+    const char*                 getOutputLogName() const;
+
 };
 
 #endif
-

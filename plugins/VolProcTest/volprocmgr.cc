@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocmgr.cc,v 1.5 2012-05-09 07:51:23 cvsbert Exp $";
+static const char* rcsID = "$Id: volprocmgr.cc,v 1.2 2009/07/22 16:01:27 cvsbert Exp $";
 
 
 #include "volprocmgr.h"
@@ -27,7 +27,7 @@ Manager::Manager( uiParent* p )
     , chain_( *new ProcessingChain )
 {
     chain_.ref();
-    showsetupidx_ = toolbar_->addButton( "edvelmodrendpars",
+    showsetupidx_ = toolbar_->addButton( "edvelmodrendpars.png",
 			mCB( this, Manager, buttonClickCB  ),
 			"Edit volume processing setup", false );
 }

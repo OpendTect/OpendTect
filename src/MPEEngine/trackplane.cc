@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: trackplane.cc,v 1.15 2012-08-10 04:11:24 cvssalil Exp $";
+static const char* rcsID = "$Id: trackplane.cc,v 1.11 2010/12/07 20:20:20 cvskris Exp $";
    
 
 #include "trackplane.h"
@@ -24,7 +24,7 @@ namespace MPE
 {
 
 DefineEnumNames( TrackPlane, TrackMode, 0, "Tracking modes" )
-{ sKey::None(), "Extend", "Retrack", "Erase", "Move", 0 };
+{ sKey::None, "Extend", "Retrack", "Erase", "Move", 0 };
 
 
 TrackPlane::TrackPlane( const BinID& start, const BinID& stop, float time )
@@ -76,9 +76,9 @@ float TrackPlane::distance( const Coord3& pos,
 	    ? t2d->getValue(cubesampling.zrg.start)
 	    : cubesampling.zrg.start;
 	double testz = t2d
-	    ? t2d->getValue((float) pos.z)
+	    ? t2d->getValue(pos.z)
 	    : pos.z;
-	return (float) fabs(ownz-testz);
+	return fabs(ownz-testz);
     }
 
     const Coord3 start = Coord3(SI().transform(cubesampling.hrg.start),pos.z);
@@ -86,7 +86,7 @@ float TrackPlane::distance( const Coord3& pos,
     const Coord3 dir = start-stop;
 
     const Line3 line(start,dir);
-    return (float) line.distanceToPoint( pos );
+    return line.distanceToPoint( pos );
 }
 
 

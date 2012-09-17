@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodpicksettreeitem.h,v 1.22 2012-08-03 13:01:04 cvskris Exp $
+ RCS:		$Id: uiodpicksettreeitem.h,v 1.20 2011/09/07 17:36:01 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
 namespace Pick		{ class Set; }
 
@@ -28,7 +27,7 @@ mDefineItem( PickSetParent, TreeItem, TreeTop, \
     mShowMenu mMenuOnAnyButton );
 
 
-mClass(uiODMain) uiODPickSetTreeItemFactory : public uiODTreeItemFactory
+mClass uiODPickSetTreeItemFactory : public uiODTreeItemFactory
 {
 public:
 
@@ -39,7 +38,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODPickSetTreeItem : public uiODDisplayTreeItem
+mClass uiODPickSetTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODPickSetTreeItem(int dispid,Pick::Set&);
@@ -54,7 +53,7 @@ protected:
     void		prepareForShutdown();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     void		setChg(CallBacker*);
-    virtual void	createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     const char*		parentType() const
     			{ return typeid(uiODPickSetParentTreeItem).name(); }
@@ -74,4 +73,3 @@ protected:
 
 
 #endif
-

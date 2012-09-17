@@ -7,19 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: randomlinetr.h,v 1.5 2012-08-03 13:00:28 cvskris Exp $
+ RCS:		$Id: randomlinetr.h,v 1.4 2009/07/22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "geometrymod.h"
 #include "transl.h"
 #include "bufstringset.h"
 
 namespace Geometry { class RandomLineSet; }
 class Conn;
 
-mClass(Geometry) RandomLineSetTranslatorGroup : public TranslatorGroup
+mClass RandomLineSetTranslatorGroup : public TranslatorGroup
 {				  isTranslatorGroup(RandomLineSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(RandomLineSet)
@@ -28,7 +27,7 @@ public:
 };
 
 
-mClass(Geometry) RandomLineSetTranslator : public Translator
+mClass RandomLineSetTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(RandomLineSet)
@@ -45,7 +44,7 @@ public:
 };
 
 
-mClass(Geometry) dgbRandomLineSetTranslator : public RandomLineSetTranslator
+mClass dgbRandomLineSetTranslator : public RandomLineSetTranslator
 {				isTranslator(dgb,RandomLineSet)
 public:
 
@@ -57,4 +56,3 @@ public:
 
 
 #endif
-

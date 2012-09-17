@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vissplittextureseis2d.cc,v 1.21 2012-08-10 03:50:10 cvsaneesh Exp $";
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.17 2011/12/16 15:57:21 cvskris Exp $";
 
 #include "vissplittextureseis2d.h"
 
@@ -239,6 +239,7 @@ void SplitTextureSeis2D::updateDisplay( )
     ObjectSet<SoSeparator> unusedseparators = separators_;
 
     int coordidx = 0;
+    const float inithorpos = (*horblocktrcindices_[0])[0];
     for ( int horidx=0; horidx<horblocktrcindices_.size(); horidx++ )
     {
 	const int starthorpixel = horidx * (maxtexturesz_-1) * horscale_;
@@ -282,13 +283,13 @@ void SplitTextureSeis2D::updateDisplay( )
 	 
 	    if ( tc )
 	    {
-		const float tcstart = 0.5f/textureversz;
-		const float tcstop = (versz-0.5f)/textureversz;
+		const float tcstart = 0.5/textureversz;
+		const float tcstop = (versz-0.5)/textureversz;
 		int tcidx = 0;
 		for ( int idx=0; idx<bpsz; idx++ )
 		{
 		    const float dist = (*horblockrg)[idx]-(*horblockrg)[0];
-		    const float tcrd = (0.5f+dist*horscale_)/texturehorsz;
+		    const float tcrd = (0.5+dist*horscale_)/texturehorsz;
 	
 		    tc->point.set1Value( tcidx, SbVec2f(tcstart,tcrd) );
 		    tcidx++;

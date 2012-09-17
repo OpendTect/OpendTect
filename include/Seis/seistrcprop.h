@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrcprop.h,v 1.12 2012-08-03 13:00:38 cvskris Exp $
+ RCS:		$Id: seistrcprop.h,v 1.11 2009/07/22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seistype.h"
 #include "valseriesevent.h"
 class SeisTrc;
@@ -20,7 +19,7 @@ class SeisTrc;
 
 /*!\brief calculates properties of a trace component */
 
-mClass(Seis) SeisTrcPropCalc
+mClass SeisTrcPropCalc
 {
 public:
 		SeisTrcPropCalc( const SeisTrc& t, int ic=0 )
@@ -48,7 +47,7 @@ protected:
   Component -1 (the default) changes all components.
  */
 
-mClass(Seis) SeisTrcPropChg : public SeisTrcPropCalc
+mClass SeisTrcPropChg : public SeisTrcPropCalc
 {
 public:
 		SeisTrcPropChg( SeisTrc& t, int ic=-1 )
@@ -73,4 +72,3 @@ protected:
 
 
 #endif
-

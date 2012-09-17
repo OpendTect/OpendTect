@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: i_qslider.h,v 1.9 2012-08-29 16:21:06 cvsnanne Exp $
+ RCS:           $Id: i_qslider.h,v 1.7 2011/04/21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,15 +17,12 @@ ________________________________________________________________________
 #include <QObject>
 #include <QSlider> 
 
+class QString;
+
 //! Helper class for uislider to relay Qt's messages.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
-
-QT_BEGIN_NAMESPACE
-
-class QString;
-
 class i_SliderMessenger : public QObject 
 {
     Q_OBJECT
@@ -62,7 +59,5 @@ void sliderReleased()	{ mTrigger(sliderReleased); }
 void valueChanged(int)	{ mTrigger(valueChanged); }
 
 };
-
-QT_END_NAMESPACE
 
 #endif

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctiongrid.h,v 1.11 2012-08-03 13:00:44 cvskris Exp $
+ RCS:		$Id: velocityfunctiongrid.h,v 1.10 2011/08/15 12:28:51 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "velocitymod.h"
 #include "binidvalset.h"
 #include "samplingdata.h"
 #include "thread.h"
@@ -32,7 +31,7 @@ class GriddedSource;
 /*!A velocity funcion where the velocity is computed from
    Residual Moveout picks. */
 
-mClass(Velocity) GriddedFunction : public Function
+mClass GriddedFunction : public Function
 {
 public:
 			GriddedFunction(GriddedSource&);
@@ -63,7 +62,7 @@ protected:
 };
 
 
-mClass(Velocity) GriddedSource : public FunctionSource
+mClass GriddedSource : public FunctionSource
 {
 public:
     			GriddedSource();
@@ -114,4 +113,3 @@ protected:
 }; //namespace
 
 #endif
-

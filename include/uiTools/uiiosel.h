@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.47 2012-08-03 13:01:13 cvskris Exp $
+ RCS:           $Id: uiiosel.h,v 1.46 2012/05/25 12:47:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
 class IOPar;
@@ -24,11 +23,11 @@ class uiPushButton;
 
 /*! \brief UI element for selection of data objects */
 
-mClass(uiTools) uiIOSelect : public uiGroup
+mClass uiIOSelect : public uiGroup
 {
 public:
 
-    mClass(uiTools) Setup
+    mClass Setup
     {
     public:
 			Setup( const char* seltext=0 )
@@ -125,7 +124,7 @@ protected:
 };
 
 
-mClass(uiTools) uiIOFileSelect : public uiIOSelect
+mClass uiIOFileSelect : public uiIOSelect
 {
 public:
 			uiIOFileSelect(uiParent*,const char* txt,
@@ -172,4 +171,3 @@ protected:
 
 
 #endif
-

@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimultoutsel.cc,v 1.7 2012-05-02 15:11:58 cvskris Exp $";
+static const char* rcsID = "$Id: uimultoutsel.cc,v 1.6 2012/06/27 12:46:34 cvshelene Exp $";
 
 #include "uimultoutsel.h"
 
 #include "attribdesc.h"
 #include "attribprovider.h"
+#include "attribstorprovider.h"
 #include "uibutton.h"
 #include "uilistbox.h"
 
@@ -49,6 +50,11 @@ void uiMultOutSel::fillInAvailOutNames( Desc* desc,
     tmpprov->computeRefStep();
 
     tmpprov->getCompNames( outnames );
+
+    mDynamicCastGet(StorageProvider*,storprov,tmpprov)
+    if ( storprov )
+	storprov->getCompNamesFakeToKeepHeadersOK( outnames );
+
     tmpprov->unRef();
 }
 

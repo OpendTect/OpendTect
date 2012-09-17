@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivisisosurface.h,v 1.15 2012-08-03 13:01:18 cvskris Exp $
+ RCS:		$Id: uivisisosurface.h,v 1.14 2011/02/14 19:57:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uivismod.h"
 #include "uidlggroup.h"
 
 class uiAxisHandler;
@@ -31,7 +30,7 @@ template <class T> class TypeSet;
 
 /*!\brief Dialog to set isovalue of an isosurface.  */
 
-mClass(uiVis) uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
+mClass uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
 {
 public:
     		uiVisIsoSurfaceThresholdDlg(uiParent*,
@@ -74,4 +73,3 @@ protected:
 };
 
 #endif
-

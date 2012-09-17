@@ -7,23 +7,21 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uioddatatreeitem.cc,v 1.73 2012-09-13 19:00:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.65 2012/07/10 14:08:29 cvsjaap Exp $";
 
 #include "uioddatatreeitem.h"
 
-#include "uiamplspectrum.h"
-#include "uifkspectrum.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uioddisplaytreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
+#include "uivispartserv.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
-#include "uitreeview.h"
-#include "uivispartserv.h"
-
+#include "uiamplspectrum.h"
 #include "attribsel.h"
 #include "pixmap.h"
 
@@ -48,21 +46,20 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , removemnuitem_("&Remove",-1000)
     , changetransparencyitem_("Change &transparency ...")
     , statisticsitem_("Show &Histogram ...")
-    , amplspectrumitem_("Show &Amplitude Spectrum ...")
-    , fkspectrumitem_("Show &F-K Spectrum ...")
+    , amplspectrumitem_("Show &Amplitude Spectrum...")
+    , addto2dvieweritem_("Display in a &2D Viewer as")
     , view2dwvaitem_("2D Viewer - &Wiggle")
     , view2dvditem_("2D Viewer - &VD")
 {
-    statisticsitem_.iconfnm = "histogram";
-    removemnuitem_.iconfnm = "stop";
-    view2dwvaitem_.iconfnm = "wva";
-    view2dvditem_.iconfnm = "vd";
-    amplspectrumitem_.iconfnm = "amplspectrum";
-
-    movetotopmnuitem_.iconfnm = "totop";
-    moveupmnuitem_.iconfnm = "uparrow";
-    movedownmnuitem_.iconfnm = "downarrow";
-    movetobottommnuitem_.iconfnm = "tobottom";
+    statisticsitem_.iconfnm = "histogram.png";
+    removemnuitem_.iconfnm = "stop.png";
+    view2dwvaitem_.iconfnm = "wva.png";
+    view2dvditem_.iconfnm = "vd.png";
+    amplspectrumitem_.iconfnm = "amplspectrum.png";
+    movetotopmnuitem_.iconfnm = "totop.png";
+    moveupmnuitem_.iconfnm = "uparrow.png";
+    movedownmnuitem_.iconfnm = "downarrow.png";
+    movetobottommnuitem_.iconfnm = "tobottom.png";
 }
 
 
@@ -97,13 +94,13 @@ uiODDataTreeItem* uiODDataTreeItem::create( const Attrib::SelSpec& as,
 */
 
 
-int uiODDataTreeItem::uiTreeViewItemType() const
+int uiODDataTreeItem::uiListViewItemType() const
 {
     uiVisPartServer* visserv = applMgr()->visServer();
     if ( visserv->canHaveMultipleAttribs( displayID() ) )
-	return uiTreeViewItem::CheckBox;
+	return uiListViewItem::CheckBox;
     else
-	return uiTreeItem::uiTreeViewItemType();
+	return uiTreeItem::uiListViewItemType();
 }
 
 
@@ -121,7 +118,7 @@ bool uiODDataTreeItem::init()
     if ( visserv->canHaveMultipleAttribs(displayID()) )
     {
 	getItem()->stateChanged.notify( mCB(this,uiODDataTreeItem,checkCB) );
-	uitreeviewitem_->setChecked( visserv->isAttribEnabled(displayID(),
+	uilistviewitem_->setChecked( visserv->isAttribEnabled(displayID(),
 		    		     attribNr() ) );
     }
 
@@ -179,7 +176,48 @@ void uiODDataTreeItem::addToToolBarCB( CallBacker* cb )
     if ( !tb || tb->menuID() != displayID() || !isSelected() )
 	return;
 
-    createMenu( tb, true );
+    uiVisPartServer* visserv = applMgr()->visServer();
+    const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
+    const bool hasdatapack = dpid>DataPack::cNoID();
+    const bool isvert = visserv->isVerticalDisp( displayID() );
+    
+    if ( hasdatapack )
+    {
+	mAddMenuItem( tb, &statisticsitem_, true, false )
+	if ( isvert )
+	    mAddMenuItem( tb, &amplspectrumitem_, true, false )
+    }
+    else
+    {
+	mResetMenuItem( &statisticsitem_ )
+	mResetMenuItem( &amplspectrumitem_ )
+    }
+
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	                applMgr()->visServer()->getObject(sceneID()));
+    const bool hasztransform = scene && scene->getZAxisTransform();
+//TODO:remove when Z-transformed scenes are ok for 2D Viewer
+
+    if ( visserv->canBDispOn2DViewer(displayID()) && !hasztransform
+	    && dpid>DataPack::cNoID() )
+    {
+	const Attrib::SelSpec* as =
+	    visserv->getSelSpec( displayID(), attribNr() );
+	const bool hasattrib =
+	    as && as->id().asInt()!=Attrib::SelSpec::cAttribNotSel().asInt();
+
+	mAddMenuItem( tb, &view2dvditem_, hasattrib, false )
+	mAddMenuItem( tb, &view2dwvaitem_, hasattrib, false )
+    }
+    else
+    {
+	mResetMenuItem( &view2dwvaitem_ );
+	mResetMenuItem( &view2dvditem_ );
+    }
+
+    const bool islocked = visserv->isLocked( displayID() );
+    mAddMenuItem( tb, &removemnuitem_,
+		  !islocked && visserv->canRemoveAttrib( displayID()), false );
 }
 
 
@@ -214,19 +252,20 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     if ( !islocked && (!isfirst || !islast) )
     {
-	mAddMenuOrTBItem( istb, 0, &movemnuitem_, &movetotopmnuitem_,
+	mAddMenuOrTBItem( istb, &movemnuitem_, &movetotopmnuitem_,
 		      !islocked && !isfirst, false );
-	mAddMenuOrTBItem( istb, 0, &movemnuitem_, &moveupmnuitem_,
+	mAddMenuOrTBItem( istb, &movemnuitem_, &moveupmnuitem_,
 		      !islocked && !isfirst, false );
-	mAddMenuOrTBItem( istb, 0, &movemnuitem_, &movedownmnuitem_,
+	mAddMenuOrTBItem( istb, &movemnuitem_, &movedownmnuitem_,
 		      !islocked && !islast, false );
-	mAddMenuOrTBItem( istb, 0, &movemnuitem_, &movetobottommnuitem_,
+	mAddMenuOrTBItem( istb, &movemnuitem_, &movetobottommnuitem_,
 		      !islocked && !islast, false );
 
-	mAddMenuOrTBItem( istb, 0, menu, &movemnuitem_, true, false );
+	mAddMenuOrTBItem( istb, menu, &movemnuitem_, true, false );
     }
     else
     {
+	mResetMenuItem( &changetransparencyitem_ );
 	mResetMenuItem( &movetotopmnuitem_ );
 	mResetMenuItem( &moveupmnuitem_ );
 	mResetMenuItem( &movedownmnuitem_ );
@@ -235,31 +274,25 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mResetMenuItem( &movemnuitem_ );
     }
 
-    mAddMenuOrTBItem( istb, 0, menu, &displaymnuitem_, true, false );
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, true, false );
     const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
     const bool hasdatapack = dpid>DataPack::cNoID();
     const bool isvert = visserv->isVerticalDisp( displayID() );
     if ( hasdatapack )
-	mAddMenuOrTBItem( istb, menu, &displaymnuitem_,
-			  &statisticsitem_, true, false)
+	mAddMenuOrTBItem( istb, &displaymnuitem_, &statisticsitem_, true, false )
     else
 	mResetMenuItem( &statisticsitem_ )
 
     if ( hasdatapack && isvert )
-    {
-	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrumitem_,
-			  true, false )
-	mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &fkspectrumitem_,
-			  true, false )
-    }
+	mAddMenuOrTBItem( istb, &displaymnuitem_, &amplspectrumitem_,true,false)
     else
 	mResetMenuItem( &amplspectrumitem_ )
 
-    mAddMenuOrTBItem( istb, menu, menu, &removemnuitem_,
+    mAddMenuOrTBItem( istb, menu, &removemnuitem_,
 		  !islocked && visserv->canRemoveAttrib( displayID()), false );
     if ( visserv->canHaveMultipleAttribs(displayID()) && hasTransparencyMenu() )
-	mAddMenuOrTBItem( istb, 0, &displaymnuitem_,
-			  &changetransparencyitem_, true, false )
+	mAddMenuOrTBItem( istb, &displaymnuitem_, &changetransparencyitem_,
+				true, false )
     else
 	mResetMenuItem( &changetransparencyitem_ );
 
@@ -276,19 +309,20 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	const bool hasattrib =
 	    as && as->id().asInt()!=Attrib::SelSpec::cAttribNotSel().asInt();
 	if ( isvert )
-	    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dwvaitem_,
-			      hasattrib, false)
+	    mAddMenuOrTBItem(istb, &displaymnuitem_, &view2dwvaitem_,
+		    		  hasattrib, false)
 	else
 	    mResetMenuItem( &view2dwvaitem_ );
 
-	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dvditem_,
-			  hasattrib, false )
+	mAddMenuOrTBItem( istb, &displaymnuitem_, &view2dvditem_, hasattrib,
+			       false )
     }
     else
     {
 	mResetMenuItem( &view2dwvaitem_ );
 	mResetMenuItem( &view2dvditem_ );
     }
+    mResetMenuItem( &addto2dvieweritem_ );
 }
 
 
@@ -320,6 +354,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==movetobottommnuitem_.id )
     {
+	const int nrattribs = visserv->getNrAttribs( displayID() );
 	for ( int idx=attribNr(); idx; idx-- )
 	    visserv->swapAttribs( displayID(), idx, idx-1 );
 
@@ -373,32 +408,26 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	dwin->show();
 	menu->setIsHandled( true );
     }
-    else if ( mnuid==amplspectrumitem_.id || mnuid==fkspectrumitem_.id )
+    else if ( mnuid==amplspectrumitem_.id )
     {
-	const DataPack::ID dpid =
-	    visserv->getDataPackID( displayID(), attribNr() );
+	const DataPack::ID dpid = visserv->getDataPackID( displayID(),
+							  attribNr() );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
 	const bool isselmodeon = visserv->isSelectionModeOn();
+
 	if ( !isselmodeon )
 	{
-	    if ( mnuid==amplspectrumitem_.id )
-	    {
-		uiAmplSpectrum* asd = new uiAmplSpectrum(
+	    uiAmplSpectrum* asd = new uiAmplSpectrum(
 					applMgr()->applService().parent() );
-		asd->setDeleteOnClose( true );
-		asd->setDataPackID( dpid, dmid );
-		asd->show();
-	    }
-	    else
-	    {
-		uiFKSpectrum* fks = new uiFKSpectrum(
-					applMgr()->applService().parent() );
-		fks->setDeleteOnClose( true );
-		fks->setDataPackID( dpid, dmid );
-		fks->show();
-	    }
+	    asd->setDeleteOnClose( true );
+	    asd->setDataPackID( dpid, dmid );
+	    asd->show();
 	}
+	else
+	{
 
+	}
+	
 	menu->setIsHandled( true );
     }
     else if ( mnuid==view2dwvaitem_.id || mnuid==view2dvditem_.id )
@@ -446,5 +475,5 @@ void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( *seq, cPixmapWidth(),
 					    cPixmapHeight(), true );
-    uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *pixmap );
+    uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *pixmap );
 }

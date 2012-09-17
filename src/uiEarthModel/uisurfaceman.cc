@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.102 2012-09-13 19:03:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.95 2012/07/10 13:06:06 cvskris Exp $";
 
 
 #include "uisurfaceman.h"
@@ -32,23 +32,21 @@ static const char* rcsID mUnusedVar = "$Id: uisurfaceman.cc,v 1.102 2012-09-13 1
 
 #include "uibodyoperatordlg.h"
 #include "uibodyregiondlg.h"
-#include "uicolor.h"
-#include "uiimpbodycaldlg.h"
+#include "uitaskrunner.h"
+#include "uitoolbutton.h"
 #include "uigeninputdlg.h"
 #include "uihorizonmergedlg.h"
 #include "uihorizonrelations.h"
-#include "uilistbox.h"
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
 #include "uiiosurfacedlg.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uisplitter.h"
 #include "uistratlvlsel.h"
 #include "uistrattreewin.h"
 #include "uitable.h"
-#include "uitaskrunner.h"
 #include "uitextedit.h"
-#include "uitoolbutton.h"
 
 
 #define mGet( typ, hor2d, hor3d, anyhor, emfss, flt3d,  body ) \
@@ -93,18 +91,18 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
     if ( strcmp(typ,EMBodyTranslatorGroup::sKeyword()) )
-    	manipgrp->addButton( "copyobj", mGetCopyStr(typ),
+    	manipgrp->addButton( "copyobj.png", mGetCopyStr(typ),
 		mCB(this,uiSurfaceMan,copyCB) );
 
     if ( mGet(typ,true,false,true,false,false,false) )
     {
-	man2dbut_ = manipgrp->addButton( "man2d", "Manage 2D Horizons",
+	man2dbut_ = manipgrp->addButton( "man2d.png", "Manage 2D Horizons",
 					 mCB(this,uiSurfaceMan,man2dCB) );
 	man2dbut_->setSensitive( false );
     }
 
     if ( mGet(typ,false,true,false,false,false,false) )
-	manipgrp->addButton( "mergehorizons", "Merge 3D Horizons",
+	manipgrp->addButton( "mergehorizons.png", "Merge 3D Horizons",
 			     mCB(this,uiSurfaceMan,merge3dCB) );
 
     if ( mGet(typ,false,true,true,false,false,false) )
@@ -113,12 +111,13 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 		"Horizon Data", true, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
-	attribfld_->setToolTip( "Horizon Data (Attributes stored in Horizon format)" );
+	attribfld_->setToolTip(
+		"Horizon Data (Attributes stored in Horizon format)" );
 
 	uiManipButGrp* butgrp = new uiManipButGrp( llb );
 	butgrp->addButton( uiManipButGrp::Remove,"Remove selected Horizon Data",
 			   mCB(this,uiSurfaceMan,removeAttribCB) );
-	butgrp->addButton( uiManipButGrp::Rename, "Rename selected Horizon Data",
+	butgrp->addButton( uiManipButGrp::Rename,"Rename selected Horizon Data",
 			   mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
 
@@ -133,16 +132,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 	relbut->attach( ensureBelow, llb );
 
 	setPrefWidth( 50 );
-    }
-
-    if ( mGet(typ,false,false,false,false,false,true) )
-    {
-	manipgrp->addButton( "set_union", "Merge bodies",
-		mCB(this,uiSurfaceMan,mergeBodyCB) );
-	manipgrp->addButton( "set_implicit", "Create region body",
-		mCB(this,uiSurfaceMan,createBodyRegionCB) );
-	manipgrp->addButton( "bodyvolume", "Volume estimate",
-		mCB(this,uiSurfaceMan,calVolCB) );
     }
 
     mTriggerInstanceCreatedNotifier();
@@ -167,7 +156,7 @@ const char* uiSurfaceMan::getDefKey() const
     if ( !curioobj_ )
 	return uiObjFileMan::getDefKey();
 
-    return IOPar::compKey( sKey::Default(), curioobj_->group() );
+    return IOPar::compKey( sKey::Default, curioobj_->group() );
 }
 
 
@@ -217,32 +206,16 @@ void uiSurfaceMan::merge3dCB( CallBacker* )
 void uiSurfaceMan::mergeBodyCB( CallBacker* )
 {
     uiBodyOperatorDlg dlg( this );
-    if ( dlg.go() )
-    	selgrp_->fullUpdate( dlg.getBodyMid() );
-}
-
-
-void uiSurfaceMan::calVolCB( CallBacker* )
-{
-    RefMan<EM::EMObject> emo = 
-	EM::EMM().loadIfNotFullyLoaded( curioobj_->key(), 0 );
-    mDynamicCastGet( EM::Body*, emb, emo.ptr() );
-    if ( !emb ) 
-    {
-	uiMSG().error( "Body is empty" );
-	return;
-    }
-
-    uiImplBodyCalDlg dlg( this, *emb );
     dlg.go();
+    selgrp_->fullUpdate( dlg.getBodyMid() );
 }
 
 
 void uiSurfaceMan::createBodyRegionCB( CallBacker* )
 {
     uiBodyRegionDlg dlg( this );
-    if ( dlg.go() )
-    	selgrp_->fullUpdate( dlg.getBodyMid() );
+    dlg.go();
+    selgrp_->fullUpdate( dlg.getBodyMid() );
 }
 
 
@@ -259,7 +232,7 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 
     if ( curioobj_->implReadOnly() )
     {
-	uiMSG().error( "Could not remove Horizon Data. Surface is read-only" );
+	uiMSG().error( "Could not remove Horizon Data. Horizon is read-only" );
 	return;
     }
 
@@ -314,7 +287,7 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     ascostream aostrm( *sdout.ostrm );
     aostrm.putHeader( aistrm.fileType() );
     IOPar iop( aistrm );
-    iop.set( sKey::Attribute(), newnm );
+    iop.set( sKey::Attribute, newnm );
     iop.putTo( aostrm );
 
     char c;
@@ -408,10 +381,8 @@ void uiSurfaceMan::mkFileInfo()
 	if ( !zrange.isUdf() )
 	{
 	    txt += "Z range"; txt += SI().getZUnitString(); txt += ": ";
-	    txt += mNINT32( zrange.start * SI().zDomain().userFactor() );
-	    txt += " - ";
-	    txt += mNINT32( zrange.stop * SI().zDomain().userFactor() );
-	    txt += "\n";
+	    txt += mNINT32( zrange.start * SI().zFactor() ); txt += " - ";
+	    txt += mNINT32( zrange.stop * SI().zFactor() ); txt += "\n";
 	}
     }
 
@@ -468,9 +439,8 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     tbl_->setColumnResizeMode( uiTable::ResizeToContents );
     tbl_->setColumnStretchable( 2, true );
     tbl_->setPrefWidth( 400 );
-    tbl_->doubleClicked.notify( mCB(this,uiSurfaceStratDlg,doCol) );
 
-    uiToolButton* sb = new uiToolButton( this, "man_strat",
+    uiToolButton* sb = new uiToolButton( this, "man_strat.png",
 	    				"Edit Stratigraphy to define Markers",
 					mCB(this,uiSurfaceStratDlg,doStrat) );
     sb->attach( rightOf, tbl_ );
@@ -481,16 +451,15 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
 	par.setEmpty();
 	EM::EMM().readPars( *ids[idx], par );
 	tbl_->setText( RowCol(idx,0), EM::EMM().objectName(*ids[idx]) );
-
 	Color col( Color::White() );
-	par.get( sKey::Color(), col );
+	par.get( sKey::Color, col );
 	tbl_->setColor( RowCol(idx,1), col );
 
 	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true, 0 );
 	levelsel->selChange.notify( mCB(this,uiSurfaceStratDlg,lvlChg) );
 	tbl_->setCellGroup( RowCol(idx,2), levelsel );
 	int lvlid = -1;
-	par.get( sKey::StratRef(), lvlid );
+	par.get( sKey::StratRef, lvlid );
 	levelsel->setID( lvlid );
     }
 }
@@ -499,28 +468,8 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
 protected:
 
 void doStrat( CallBacker* )
-{ StratTWin().popUp(); }
-
-void doCol( CallBacker* )
 {
-    const RowCol& cell = tbl_->notifiedCell();
-    if ( cell.col != 1 )
-	return;
-
-    mDynamicCastGet(uiStratLevelSel*,levelsel,
-	tbl_->getCellGroup(RowCol(cell.row,2)))
-    const bool havelvl = levelsel && levelsel->getID() >= 0;
-    if ( havelvl )
-    {
-	uiMSG().error( "Cannot change color of regional marker" );
-	return;
-    }
-
-    Color newcol = tbl_->getColor( cell );
-    if ( selectColor(newcol,this,"Horizon color") )
-	tbl_->setColor( cell, newcol );
-
-    tbl_->setSelected( cell, false );
+    StratTWin().popUp();
 }
 
 void lvlChg( CallBacker* cb )
@@ -541,12 +490,12 @@ bool acceptOK( CallBacker* )
     {
 	IOPar par;
 	Color col = tbl_->getColor( RowCol(idx,1) );
-	par.set( sKey::Color(), col );
+	par.set( sKey::Color, col );
 
 	mDynamicCastGet(uiStratLevelSel*,levelsel,
 			tbl_->getCellGroup(RowCol(idx,2)))
 	const int lvlid = levelsel ? levelsel->getID() : -1;
-	par.set( sKey::StratRef(), lvlid );
+	par.set( sKey::StratRef, lvlid );
 	EM::EMM().writePars( *objids_[idx], par );
     }
 
@@ -615,9 +564,9 @@ void uiSurface2DMan::lineSel( CallBacker* )
     if ( trcranges.validIdx(curitm) )
     {
 	StepInterval<int> trcrg = trcranges[ curitm ];
-	txt += BufferString( sKey::FirstTrc(), ": " ); txt += trcrg.start;
+	txt += BufferString( sKey::FirstTrc, ": " ); txt += trcrg.start;
 	txt += "\n";
-	txt += BufferString( sKey::LastTrc(), ": " ); txt += trcrg.stop;
+	txt += BufferString( sKey::LastTrc, ": " ); txt += trcrg.stop;
 	txt += "\n";
 	txt += BufferString( "Trace Step: " ); txt += trcrg.step;
     }

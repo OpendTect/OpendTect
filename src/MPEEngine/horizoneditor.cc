@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: horizoneditor.cc,v 1.20 2012-08-10 04:11:24 cvssalil Exp $";
+static const char* rcsID = "$Id: horizoneditor.cc,v 1.16 2010/06/18 12:23:27 cvskris Exp $";
 
 #include "horizoneditor.h"
 #include "geeditorimpl.h"
@@ -116,7 +116,7 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 	return;
 
     const EM::SectionID sectionid = movingnode.sectionID();
-    const RowCol rc = movingnode.getRowCol();
+    const RowCol rc = movingnode.subID();
     const RowCol step = horizon->geometry().step();
 
     for ( int ridx=-editarea.row; ridx<=editarea.row; ridx++ )
@@ -132,7 +132,7 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 		if ( curradius>1 ) 
 		    continue;
 
-		effect = 1.0f - curradius;
+		effect = 1.0-curradius;
 	    }
 	    else
 	    {
@@ -161,7 +161,7 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 	    }
 
 	    if ( vertstyle==mSinus )
-		effect = (float) sin( effect*M_PI_2 );
+		effect = sin( effect*M_PI_2 );
 	    else if ( vertstyle==mBox )
 		effect = effect ? 1 : 0;
 	    

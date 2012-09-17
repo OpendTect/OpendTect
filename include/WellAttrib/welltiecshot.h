@@ -13,14 +13,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellattribmod.h"
 #include "commondefs.h"
 
 namespace Well { class D2TModel; }
 namespace WellTie
 {
 
-mClass(WellAttrib) CheckShotCorr  
+mClass CheckShotCorr  
 {
 public:
     static void		calibrate(const Well::D2TModel& cs,Well::D2TModel& d2t);
@@ -28,4 +27,3 @@ public:
 
 }; //namespace WellTie
 #endif
-

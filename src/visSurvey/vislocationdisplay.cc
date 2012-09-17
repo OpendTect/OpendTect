@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vislocationdisplay.cc,v 1.74 2012-08-13 04:04:39 cvsaneesh Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.71 2012/05/04 19:32:47 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -36,22 +36,22 @@ const char* LocationDisplay::sKeyShowAll()	{ return "Show all"; }
 const char* LocationDisplay::sKeyMarkerType()	{ return "Shape"; }
 const char* LocationDisplay::sKeyMarkerSize()	{ return "Size"; }
 
-static const float cDistEps = 0.1f;
+static const float cDistEps = 0.1;
 
 static float findDistance( Coord3 p1, Coord3 p2, Coord3 p )
 {
     const Coord3 vec = p2 - p1;
     const Coord3 newvec = p - p1;
-    const float prod = (float) vec.dot(newvec);
-    const float sq = (float) vec.sqAbs();
+    const float prod = vec.dot(newvec);
+    const float sq = vec.sqAbs();
     if ( mIsZero(sq,cDistEps) ) return mUdf(float);	// p1 and p2 coincide.
 
     const float factor = prod / sq;
     if ( factor<0 || factor>1 )		// projected point outside the segment.
-	return (float) mMIN( p1.distTo(p), p2.distTo(p) );
+	return mMIN( p1.distTo(p), p2.distTo(p) );
 
     const Coord3 proj = p1 + vec * factor;
-    return (float) proj.distTo( p );
+    return proj.distTo( p );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: array2dresample.h,v 1.10 2012-08-24 22:19:51 cvsnanne Exp $
+ RCS:           $Id: array2dresample.h,v 1.9 2012/07/10 13:05:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,7 @@ public:
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
     inline		Array2DReSampler(const Array2D<T>& from,
-			    ValueSeries<TT>& to,int sz0,int sz1,
-			    bool fromhasudfs,
+			    ValueSeries<TT>& to, int sz0, int sz1, bool fromhasudfs,
 			    const Geom::PosRectangle<float>* rectinfrom=0 );
     			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
@@ -63,8 +62,8 @@ public:
     			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
-    inline void		set(const Array2D<T>& from,ValueSeries<TT>& to,
-			    int sz0, int sz1,bool fromhasudfs,
+    inline void		set(const Array2D<T>& from, ValueSeries<TT>& to, int sz0, int sz1,
+	    		    bool fromhasudfs,
 			    const Geom::PosRectangle<float>* rectinfrom=0 );
     			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
@@ -96,7 +95,6 @@ template <class T, class TT> inline
 Array2DReSampler<T,TT>::Array2DReSampler( const Array2D<T>& from,
 			Array2D<TT>& to, bool fromhasudfs,
 			const Geom::PosRectangle<float>* rectinfrom )
-    : ParallelTask("Re-sampling data")
 { set( from, to, fromhasudfs, rectinfrom ); }
 
 
@@ -104,7 +102,6 @@ template <class T, class TT> inline
 Array2DReSampler<T,TT>::Array2DReSampler( const Array2D<T>& from,
 			TT* to, int sz0, int sz1, bool fromhasudfs,
 			const Geom::PosRectangle<float>* rectinfrom )
-    : ParallelTask("Re-sampling data")
 { set( from, to, sz0, sz1, fromhasudfs, rectinfrom ); }
 
 
@@ -112,7 +109,6 @@ template <class T, class TT> inline
 Array2DReSampler<T,TT>::Array2DReSampler( const Array2D<T>& from,
 			ValueSeries<TT>& to, int sz0, int sz1, bool fromhasudfs,
 			const Geom::PosRectangle<float>* rectinfrom )
-    : ParallelTask("Re-sampling data")
 { set( from, to, sz0, sz1, fromhasudfs, rectinfrom ); }
 
 

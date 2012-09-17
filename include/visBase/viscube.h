@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.17 2012-08-03 13:01:23 cvskris Exp $
+ RCS:		$Id: viscube.h,v 1.16 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visshape.h"
 #include "position.h"
 
@@ -32,7 +31,7 @@ Cube is a basic cube that is settable in size.
 
 */
 
-mClass(visBase) Cube : public Shape
+mClass Cube : public Shape
 {
 public:
     static Cube*	create()
@@ -62,4 +61,3 @@ protected:
 
 
 #endif
-

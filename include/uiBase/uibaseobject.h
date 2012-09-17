@@ -7,21 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibaseobject.h,v 1.12 2012-09-05 07:28:25 cvsjaap Exp $
+ RCS:           $Id: uibaseobject.h,v 1.8 2012/09/17 16:37:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "namedobj.h"
 
 class uiBody;
-mFDQtclass(QWidget)
 
-mClass(uiBase) uiBaseObject : public NamedObject
+mClass uiBaseObject : public NamedObject
 {
 public:
-				uiBaseObject(const char* nm, uiBody* = 0);
+				uiBaseObject(const char* nm, uiBody*);
     virtual			~uiBaseObject();
 
 				// implementation: uiobj.cc
@@ -32,8 +30,8 @@ public:
     inline const uiBody*	body() const		{ return body_; }
     inline uiBody*		body()			{ return body_; }
 
-    static void			addCmdRecorder(const CallBack&);
-    static void			removeCmdRecorder(const CallBack&);
+    static void			setCmdRecorder(const CallBack&); // obsolete
+    static void			unsetCmdRecorder(); 		 // obsolete
 
     int	 /* refnr */		beginCmdRecEvent(const char* msg=0);
     void			endCmdRecEvent(int refnr,const char* msg=0);
@@ -50,10 +48,6 @@ public:
 				{ return finaliseStart; }
     virtual Notifier<uiBaseObject>& postFinalise()
 				{ return finaliseDone; }
-    
-    
-    virtual mQtclass(QWidget*)	getWidget() { return 0; }
-    const mQtclass(QWidget*)	getWidget() const;
 
 protected:
 
@@ -65,8 +59,13 @@ protected:
     				//!< triggered when finalising finished
 
 private:
+    static CallBack*		cmdrecorder_;		// obsolete
     int				cmdrecrefnr_;
     uiBody*			body_;
+
+public:
+    static void			addCmdRecorder(const CallBack&);
+    static void			removeCmdRecorder(const CallBack&);
 };
 
 
@@ -81,7 +80,7 @@ using this annotation unnecessarily.
 
 #define mBlockCmdRec		CmdRecStopper cmdrecstopper(this);
 
-mClass(uiBase) CmdRecStopper
+mClass CmdRecStopper
 {
 public:
     				CmdRecStopper(const uiBaseObject*);
@@ -95,4 +94,3 @@ public:
 
 
 #endif
-

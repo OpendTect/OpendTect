@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwindowfuncseldlg.cc,v 1.47 2012-08-10 03:50:07 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.42 2010/11/09 09:25:59 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -151,7 +151,9 @@ void uiFunctionDrawer::createLine( DrawFunction* func )
     {
 	float x = xrg.atIndex( idx );
 	const float y = func->mathfunc_->getValue( x );
-	x = (float) ( scaler.scale( x ) );
+	x = scaler.scale( x );
+	const int xpix = xax_->getPix( x );
+	const int ypix = yax_->getPix( y );
 	pointlist += uiPoint( transform_->transform( uiWorldPoint(x,y) ) );
     }
 }
@@ -275,11 +277,11 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
   
     uiFunctionDrawer::Setup su;
     funcdrawer_ = new uiFuncSelDraw( this, su );
-    funcnames_ = WINFUNCS().getNames();
+    funcnames_ = WinFuncs().getNames();
 
     for ( int idx=0; idx<funcnames_.size(); idx++ )
     {
-	winfunc_ += WINFUNCS().create( funcnames_[idx]->buf() );
+	winfunc_ += WinFuncs().create( funcnames_[idx]->buf() );
 	funcdrawer_->addFunction( funcnames_[idx]->buf(), winfunc_[idx] );
     }
 
@@ -310,10 +312,10 @@ void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
 	{
 	    isvartappresent = true;
 	    float prevvariable = variable_;
-	    variable_ = mIsUdf(variable_) ? 0.05f : varinpfld_->getfValue(0)/100;
+	    variable_ = mIsUdf(variable_) ? 0.05 : varinpfld_->getfValue(0)/100;
 	    if ( variable_ > 1 || mIsUdf(variable_) )
 		variable_ = prevvariable; 
-	    wf->setVariable( 1.0f - variable_ );
+	    wf->setVariable( 1.0 - variable_ );
 	    varinpfld_->setValue( variable_ *100 );
 	}
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visinvisiblelinedragger.cc,v 1.7 2012-08-10 03:50:09 cvsaneesh Exp $";
+static const char* rcsID = "$Id: visinvisiblelinedragger.cc,v 1.4 2011/12/16 15:57:21 cvskris Exp $";
 
 #include "visinvisiblelinedragger.h"
 
@@ -58,8 +58,7 @@ InvisibleLineDragger::~InvisibleLineDragger()
 
 void InvisibleLineDragger::setDirection( const Coord3& newdir )
 {
-    dragger_->setDirection( SbVec3f( (float) newdir.x, 
-				(float) newdir.y, (float) newdir.z ) );
+    dragger_->setDirection( SbVec3f( newdir.x, newdir.y, newdir.z ) );
 }
 
 

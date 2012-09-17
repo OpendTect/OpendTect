@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: seispreload.h,v 1.12 2012-08-03 13:00:37 cvskris Exp $
+ RCS:           $Id: seispreload.h,v 1.10 2010/07/14 16:54:12 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "seismod.h"
 #include "bufstringset.h"
 #include "multiid.h"
 #include "ranges.h"
@@ -23,7 +22,7 @@ class IOObj;
 namespace Seis
 {
 
-mClass(Seis) PreLoader
+mClass PreLoader
 {
 public:
 
@@ -53,7 +52,7 @@ public:
     static void		load(const IOPar&,TaskRunner* tr=0);
     			//!< Seis.N.[loadObj_fmt]
     static void		loadObj(const IOPar&,TaskRunner* tr=0);
-    			//!< sKey::ID() and optional subselections
+    			//!< sKey::ID and optional subselections
     void		fillPar(IOPar&) const;
 
     static const char*	sKeyLines();
@@ -74,4 +73,3 @@ protected:
 } // namespace
 
 #endif
-

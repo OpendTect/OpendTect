@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.34 2012-08-03 13:01:11 cvskris Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.33 2012/05/03 11:56:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "draw.h"
 #include "bufstringset.h"
 #include "namedobj.h"
@@ -45,7 +44,7 @@ template <class T> class LineParameters;
  
  */
 
-mClass(uiTools) uiAxisHandler : public NamedObject
+mClass uiAxisHandler : public NamedObject
 {
 public:
 
@@ -56,7 +55,7 @@ public:
 			    , noaxisline_(false)
 			    , noaxisannot_(false)
 			    , nogridline_(false)
-			    , noannotpos_(false)
+			    , noannotpos_(false)			
 			    , annotinside_(false)
 			    , ticsz_(2)	
 			    , width_(w)
@@ -72,10 +71,10 @@ public:
 	mDefSetupMemb(int,width)
 	mDefSetupMemb(int,height)
 	mDefSetupMemb(bool,islog)
-	mDefSetupMemb(bool,noannotpos)
 	mDefSetupMemb(bool,noaxisline)
 	mDefSetupMemb(bool,noaxisannot)
 	mDefSetupMemb(bool,nogridline)
+	mDefSetupMemb(bool,noannotpos)
 	mDefSetupMemb(bool,annotinside)
 	mDefSetupMemb(int,ticsz)
 	mDefSetupMemb(uiBorder,border)
@@ -130,7 +129,8 @@ public:
 
     void		createAnnotItems();
     void		createGridLines();
-    uiLineItem*		getFullLine(int pix);
+    void		drawGridLine(int); // Will be protected in 5.0
+    uiLineItem*		getFullLine(int); // Add to scene yourself
 
 protected:
 
@@ -166,17 +166,15 @@ protected:
 
     int			ticSz() const;
     void		drawAxisLine();
-    void		drawGridLine(int);
     void		annotPos(int,const char*,const LineStyle&);
     void		drawName();
 
 };
 
 //! draws line not outside box defined by X and Y value ranges
-mGlobal(uiTools) void drawLine(uiLineItem&,const LineParameters<float>&,
+mGlobal void drawLine(uiLineItem&,const LineParameters<float>&,
 			const uiAxisHandler& xah,const uiAxisHandler& yah,
 			const Interval<float>* xvalrg = 0);
 
 
 #endif
-

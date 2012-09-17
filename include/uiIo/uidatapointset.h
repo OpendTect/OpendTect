@@ -7,13 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.42 2012-08-03 13:00:59 cvskris Exp $
+ RCS:           $Id: uidatapointset.h,v 1.39 2011/12/05 09:05:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "datapointset.h"
 #include "bufstringset.h"
@@ -24,7 +22,6 @@ class uiToolBar;
 class uiIOObjSelDlg;
 class uiStatsDisplayWin;
 class uiDataPointSetCrossPlotWin;
-class uiDPSDispPropDlg;
 class uiVariogramDisplay;
 
 class DataPointSetDisplayMgr;
@@ -41,7 +38,7 @@ namespace Stats { template <class T> class RunCalc; }
  */
 
 
-mClass(uiIo) uiDataPointSet : public uiDialog
+mClass uiDataPointSet : public uiDialog
 { 	
 public:
 
@@ -50,7 +47,7 @@ public:
     typedef DataPointSet::ColID	DColID;
     typedef DataPointSet::RowID	DRowID;
 
-    mStruct(uiIo) Setup : public uiDialog::Setup
+    mStruct Setup : public uiDialog::Setup
     {
 				Setup(const char* wintitl,bool ismodal=false);
 
@@ -78,7 +75,7 @@ public:
 
     void			setZFactor( float f, const char* unnm )
     				{ zfac_ = f; zunitnm_ = unnm; }
-				//!< Default is SI().zDomain().userFactor()
+					//!< Default is SI().zFactor()
 
     uiTable*			table()		{ return tbl_; }
     uiToolBar*			ioToolBar()	{ return iotb_; }
@@ -179,7 +176,6 @@ protected:
     int				dispxytbid_;
     int				dispztbid_;
     uiIOObjSelDlg*		curseldlg_;
-    uiDPSDispPropDlg*		dpsdisppropdlg_;
 
     void			mkToolBars();
 
@@ -227,7 +223,6 @@ protected:
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
-    void			showPtsInWorkSpace(CallBacker*);
 
     friend class		uiDataPointSetCrossPlotter;
     uiDataPointSetCrossPlotWin*	xplotwin_;
@@ -261,5 +256,3 @@ public:
 
 
 #endif
-
-

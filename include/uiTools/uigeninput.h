@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.44 2012-08-03 13:01:13 cvskris Exp $
+ RCS:           $Id: uigeninput.h,v 1.43 2011/09/06 12:02:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "datainpspec.h"
 #include "position.h"
@@ -54,7 +53,7 @@ only if the uiGenInput has not been finalised yet.
 
 */
 
-mClass(uiTools) uiGenInput : public uiGroup
+mClass uiGenInput : public uiGroup
 {
 public:
 			uiGenInput( uiParent* p, const char* disptxt
@@ -274,4 +273,3 @@ private:
 
 
 #endif
-

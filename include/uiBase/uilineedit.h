@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.28 2012-08-03 13:00:52 cvskris Exp $
+ RCS:           $Id: uilineedit.h,v 1.27 2010/10/28 11:09:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 #include "userinputobj.h"
 
 class uiLineEditBody;
 
-mClass(uiBase) uiIntValidator
+mClass uiIntValidator
 {
 public:
     		uiIntValidator()
@@ -31,7 +30,7 @@ public:
 };
 
 
-mClass(uiBase) uiFloatValidator
+mClass uiFloatValidator
 {
 public:
     		uiFloatValidator()
@@ -48,7 +47,7 @@ public:
 };
 
 
-mClass(uiBase) uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
+mClass uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
 {
 public:
 			//! pref_empty : return empty string/ null value
@@ -124,4 +123,3 @@ private:
 
 };
 #endif
-

@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          January 2002
- RCS:           $Id: uiseis2dgeom.h,v 1.6 2012-08-03 13:01:07 cvskris Exp $
+ RCS:           $Id: uiseis2dgeom.h,v 1.4 2009/07/22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 class IOObj;
 class uiSeisSel;
@@ -20,7 +19,7 @@ class uiGenInput;
 class uiFileInput;
 
 
-mClass(uiSeis) uiSeisDump2DGeom : public uiDialog
+mClass uiSeisDump2DGeom : public uiDialog
 {
 public:
                         uiSeisDump2DGeom(uiParent*,const IOObj* ioobj=0);
@@ -30,6 +29,8 @@ protected:
 
     uiSeisSel*		seisfld;
     uiGenInput*		lnmsfld;
+    uiGenInput*		incnrfld;
+    uiGenInput*		zfld;
     uiFileInput*	outfld;
 
     CtxtIOObj&		ctio;
@@ -40,4 +41,3 @@ protected:
 };
 
 #endif
-

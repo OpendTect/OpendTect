@@ -7,15 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman K Singh
  Date:          July 2009
- RCS:           $Id: survgeometry.h,v 1.2 2012-08-03 13:00:28 cvskris Exp $
+ RCS:           $Id: survgeometry.h,v 1.1 2009/07/23 05:10:26 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "position.h"
 
-mClass(Geometry) SurveyGeometry
+mClass SurveyGeometry
 {
 public:
 
@@ -30,4 +29,3 @@ public:
 };
 
 #endif
-

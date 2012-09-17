@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseispsman.cc,v 1.30 2012-07-24 09:03:15 cvskris Exp $";
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.25 2012/07/10 13:06:08 cvskris Exp $";
 
 
 #include "uiseispsman.h"
@@ -29,12 +29,10 @@ static const char* rcsID mUnusedVar = "$Id: uiseispsman.cc,v 1.30 2012-07-24 09:
 mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 
 
-#define mCapt \
-    is2d ? "Manage 2D Pre-stack seismics" : "Manage 3D Pre-stack seismics"
-#define mHelpID is2d ? "103.4.1" : "103.4.0"
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
-    : uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID)
-		     .nrstatusflds(1),
+    : uiObjFileMan(p,uiDialog::Setup("Pre-stack seismics management",
+				 "Manage Pre-stack seismics",
+				 is2d ? "103.4.1" : "103.4.0").nrstatusflds(1),
 	    	   is2d ? SeisPS2DTranslatorGroup::ioContext()
 		        : SeisPS3DTranslatorGroup::ioContext())
     , is2d_(is2d)
@@ -43,11 +41,11 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     if ( !is2d )
     {
-	manipgrp->addButton( "copyobj", "Copy data store",
+	manipgrp->addButton( "copyobj.png", "Copy data store",
 			     mCB(this,uiSeisPreStackMan,copyPush) );
-	manipgrp->addButton( "mergeseis", "Merge data stores",
+	manipgrp->addButton( "mergeseis.png", "Merge data stores",
 			     mCB(this,uiSeisPreStackMan,mergePush) );
-	manipgrp->addButton( "mkmulticubeps","Create Multi-Cube data store",
+	manipgrp->addButton( "mkmulticubeps.png","Create Multi-Cube data store",
 			     mCB(this,uiSeisPreStackMan,mkMultiPush) );
     }
 
@@ -94,9 +92,12 @@ void uiSeisPreStackMan::mkFileInfo()
 	}
 	else
 	{
-	    PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *curioobj_ );
+	    SeisPS3DReader* rdr = SPSIOPF().get3DReader( *curioobj_ );
 	    const PosInfo::CubeData& cd = rdr->posData();
 	    txt.add( "Total number of gathers: " ).add( cd.totalSize() );
+	    const bool haveinlstep = cd.haveInlStepInfo();
+	    const bool havecrlstep = cd.haveCrlStepInfo();
+	    const bool havebothsteps = haveinlstep && havecrlstep;
 	    StepInterval<int> rg; cd.getInlRange( rg );
 	    txt.add( "\nInline range: " )
 			.add( rg.start ).add( " - " ).add( rg.stop );
@@ -107,6 +108,7 @@ void uiSeisPreStackMan::mkFileInfo()
 			.add( rg.start ).add( " - " ).add( rg.stop );
 	    if ( cd.haveCrlStepInfo() )
 		{ txt.add( " step " ).add( rg.step ); }
+	    delete rdr;
 	}
 	txt.add("\n");
 	CubeSampling cs;

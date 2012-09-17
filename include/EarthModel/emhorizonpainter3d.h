@@ -7,13 +7,11 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter3d.h,v 1.5 2012-08-03 13:00:18 cvskris Exp $
+ RCS:		$Id: emhorizonpainter3d.h,v 1.3 2011/09/21 10:41:08 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "cubesampling.h"
 #include "emposid.h"
 #include "flatview.h"
@@ -25,7 +23,7 @@ namespace EM
 
 class Horizon3D;
 
-mClass(EarthModel) HorizonPainter3D : public CallBacker
+mClass HorizonPainter3D : public CallBacker
 {
 public:
     			HorizonPainter3D(FlatView::Viewer&,const EM::ObjectID&);
@@ -40,7 +38,7 @@ public:
 
     void		paint();
 
-    	mStruct(EarthModel) Marker3D
+    	mStruct Marker3D
 	{
 	    			Marker3D()
 				    : marker_(0)
@@ -49,8 +47,8 @@ public:
 				~Marker3D()
 				{ delete marker_; }
 	     
-	    FlatView::AuxData*	marker_;
-	    EM::SectionID	sectionid_;	    
+	    FlatView::Annotation::AuxData*	marker_;
+	    EM::SectionID                       sectionid_;	    
 	};
 
     void		getDisplayedHor(ObjectSet<Marker3D>&);
@@ -95,5 +93,3 @@ protected:
 } //namespace EM
 
 #endif
-
-

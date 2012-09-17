@@ -7,30 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initgeometry.cc,v 1.9 2012-05-02 15:11:37 cvskris Exp $";
+static const char* rcsID = "$Id: initgeometry.cc,v 1.6 2011/08/23 14:51:33 cvsbert Exp $";
 
 #include "moddepmgr.h"
 #include "polyposprovider.h"
 #include "tableposprovider.h"
-#include "picksettr.h"
-#include "posvecdatasettr.h"
-#include "probdenfunctr.h"
-#include "randomlinetr.h"
 
 mDefModInitFn(Geometry)
 {
     mIfNotFirstTime( return );
 
-    PickSetTranslatorGroup::initClass();
-    PosVecDataSetTranslatorGroup::initClass();
-    ProbDenFuncTranslatorGroup::initClass();
-    RandomLineSetTranslatorGroup::initClass();
-    
-    dgbPickSetTranslator::initClass();
-    odPosVecDataSetTranslator::initClass();
-    odProbDenFuncTranslator::initClass();
-    dgbRandomLineSetTranslator::initClass();
-    
     Pos::PolyProvider3D::initClass();
     Pos::TableProvider3D::initClass();
 }

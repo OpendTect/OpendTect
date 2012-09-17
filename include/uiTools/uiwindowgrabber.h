@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          July 2008
- RCS:           $Id: uiwindowgrabber.h,v 1.7 2012-08-03 13:01:16 cvskris Exp $
+ RCS:           $Id: uiwindowgrabber.h,v 1.6 2009/10/23 09:21:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "thread.h"
 
@@ -25,7 +24,7 @@ class uiMainWin;
 
 /*!Dialog to specify the grab window and the output image file */
 
-mClass(uiTools) uiWindowGrabDlg : public uiDialog
+mClass uiWindowGrabDlg : public uiDialog
 {
 public:
 			uiWindowGrabDlg(uiParent*,bool desktop);
@@ -59,7 +58,7 @@ protected:
 
 /*!Grabs the screen area covered by a window or the whole desktop */
 
-mClass(uiTools) uiWindowGrabber: public CallBacker
+mClass uiWindowGrabber: public CallBacker
 {
 public:
 			uiWindowGrabber(uiParent*);
@@ -82,4 +81,3 @@ protected:
 
 
 #endif
-

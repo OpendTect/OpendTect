@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.37 2012-08-03 13:00:03 cvskris Exp $
+ RCS:           $Id: delaunay.h,v 1.36 2012/06/19 04:05:35 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "position.h"
 #include "odmemory.h"
 #include "sets.h"
@@ -28,7 +27,7 @@ ________________________________________________________________________
 */
 
 #define mDAGTriangleForceSingleThread
-mClass(Algo) DAGTriangleTree
+mClass DAGTriangleTree
 {
 public:
     			DAGTriangleTree();
@@ -139,7 +138,7 @@ protected:
 
 
 /*!<The parallel triangulation works for only one processor now.*/
-mClass(Algo) DelaunayTriangulator : public ParallelTask
+mClass DelaunayTriangulator : public ParallelTask
 {
 public:
 			DelaunayTriangulator(DAGTriangleTree&);
@@ -173,7 +172,7 @@ protected:
   located in or nearby the goemetry. If the point is located outside of the 
   boundary of the geometry, we compare azimuth to find related points and then
   apply inverse distance to calculate weights. */
-mClass(Algo) Triangle2DInterpolator
+mClass Triangle2DInterpolator
 {
 public:
     			Triangle2DInterpolator(const DAGTriangleTree&);
@@ -203,7 +202,11 @@ protected:
 
     TypeSet<int>		perimeter_;
     TypeSet<double>		perimeterazimuth_;
+    double			initazimuth_[3];//remove
+    double			maxdist_;//remove
 };
+    			
+
 
 #endif
 

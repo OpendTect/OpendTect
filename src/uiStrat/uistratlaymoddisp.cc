@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.38 2012-09-17 14:45:54 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.32 2012/09/17 14:48:33 cvsbert Exp $";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"
@@ -75,7 +75,7 @@ bool uiStratLayerModelDisp::haveAnyZoom() const
 
 float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 						const PropertyRef* pr,
-       						int propidx ) const
+						int propidx ) const
 {
     if ( propidx < lay.nrValues() )
     {
@@ -84,19 +84,19 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 	    const int nrunits = frpars_.size() / 2;
 	    BufferString namestr;
 	    if ( pr->isKnownAs("PVel") || pr->isKnownAs("SVel")
-		    		       || pr->isKnownAs("Den") )
+					|| pr->isKnownAs("Den") )
 	    {
 		float vp, vs, den;
 		for ( int idx=0; idx<nrunits; idx++ )
 		{
-		    frpars_.get( IOPar::compKey(toString(idx),sKey::Name()),
-			    	 namestr );
+		    frpars_.get( IOPar::compKey(toString(idx),sKey::Name),
+				namestr );
 		    if ( !strcmp( namestr.buf(), lay.name() ) )
 		    {
-			frpars_.get(IOPar::compKey(toString(idx),sKey::Value()),
+			frpars_.get(IOPar::compKey(toString(idx),sKey::Value),
 				    vp, vs, den );
 			return pr->isKnownAs("PVel")
-				    ? vp : pr->isKnownAs("SVel") ? vs : den;
+					? vp : pr->isKnownAs("SVel") ? vs : den;
 		    }
 		}
 	    }
@@ -109,8 +109,8 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 
 
 uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
-		uiStratLayModEditTools& t, const Strat::LayerModel& lm )
-    : uiStratLayerModelDisp(t,lm)
+uiStratLayModEditTools& t, const Strat::LayerModel& lm )
+: uiStratLayerModelDisp(t,lm)
     , emptyitm_(0)
     , zoomboxitm_(0)
     , dispprop_(1)
@@ -207,7 +207,6 @@ void uiStratSimpleLayerModelDisp::usrClicked( CallBacker* )
 	sequenceSelected.trigger();
 	mevh.setHandled( true );
     }
-
 }
 
 
@@ -381,7 +380,7 @@ void uiStratSimpleLayerModelDisp::modelChanged()
 	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth; \
 	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth; \
 	    const float val = \
-	       getLayerPropValue(lay,seq.propertyRefs()[dispprop_],dispprop_); \
+		getLayerPropValue(lay,seq.propertyRefs()[dispprop_],dispprop_);\
 
 #define mEndLayLoop() \
 	} \

@@ -4,7 +4,7 @@
  * DATE     : Sep 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stratlayer.cc,v 1.38 2012-08-30 13:31:07 cvsbert Exp $";
+static const char* rcsID = "$Id: stratlayer.cc,v 1.35 2012/08/30 13:31:06 cvsbert Exp $";
 
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -15,6 +15,8 @@ static const char* rcsID mUnusedVar = "$Id: stratlayer.cc,v 1.38 2012-08-30 13:3
 #include "strmoper.h"
 #include "keystrs.h"
 #include "elasticpropsel.h"
+
+static const char* sKeyLayModFileType = "Layer Model";
 
 
 const PropertyRef& Strat::Layer::thicknessRef()

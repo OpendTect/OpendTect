@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposfiltgroup.h,v 1.6 2012-08-03 13:01:01 cvskris Exp $
+ RCS:           $Id: uiposfiltgroup.h,v 1.5 2009/07/22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uigroup.h"
 #include "factory.h"
 class IOPar;
@@ -20,7 +19,7 @@ class IOPar;
 
 /*! \brief group for providing positions, usually for 2D or 3D seismics */
 
-mClass(uiIo) uiPosFiltGroup : public uiGroup
+mClass uiPosFiltGroup : public uiGroup
 {
 public:
 
@@ -45,4 +44,3 @@ public:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: horizonscanner.cc,v 1.52 2012-08-08 05:47:56 cvssalil Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.49 2012/07/10 13:06:02 cvskris Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -199,7 +199,7 @@ bool HorizonScanner::reInitAscIO( const char* fnm )
 }
 
 
-#define mGetZFac SI().zIsTime() ? 0.001f : 1
+#define mGetZFac SI().zIsTime() ? 0.001 : 1
 	
 bool HorizonScanner::analyzeData()
 {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.25 2012-09-07 22:08:05 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dhor2dtreeitem.cc,v 1.24 2012/02/16 05:05:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,13 +17,13 @@ ________________________________________________________________________
 #include "uiempartserv.h"
 #include "uiflatviewstdcontrol.h"
 #include "uigraphicsscene.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uimpepartserv.h"
+#include "uirgbarraycanvas.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
-#include "uirgbarraycanvas.h"
-#include "uitreeview.h"
 #include "uivispartserv.h"
 
 #include "emhorizon2d.h"
@@ -212,8 +212,8 @@ bool uiODVw2DHor2DTreeItem::init()
     displayMiniCtab();
 
     name_ = applMgr()->EMServer()->getName( emid_ );
-    uitreeviewitem_->setCheckable(true);
-    uitreeviewitem_->setChecked( true );
+    uilistviewitem_->setCheckable(true);
+    uilistviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DHor2DTreeItem,checkCB) );
 
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
@@ -255,7 +255,7 @@ void uiODVw2DHor2DTreeItem::displayMiniCtab()
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
     pixmap->fill( emobj->preferredColor() );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+    uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
 
@@ -349,7 +349,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 
 bool uiODVw2DHor2DTreeItem::select()
 {
-    uitreeviewitem_->setSelected( true );
+    uilistviewitem_->setSelected( true );
 
     if ( !trackerefed_ )
     {
@@ -404,7 +404,7 @@ void uiODVw2DHor2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 
 void uiODVw2DHor2DTreeItem::mousePressInVwrCB( CallBacker* )
 {
-    if ( !uitreeviewitem_->isSelected() || !horview_ )
+    if ( !uilistviewitem_->isSelected() || !horview_ )
 	return;
 
     horview_->setSeedPicking( applMgr()->visServer()->isPicking() );

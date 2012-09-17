@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiflatviewthumbnail.cc,v 1.19 2012-07-12 15:04:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.16 2010/10/28 10:10:28 cvsnanne Exp $";
 
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
@@ -27,6 +27,7 @@ uiFlatViewThumbnail::uiFlatViewThumbnail( uiParent* p, uiFlatViewer& fv )
 {
     setColors( Color(0,0,200), Color(255,255,200) );
     viewer_.viewChanged.notify( mCB(this,uiFlatViewThumbnail,vwChg) );
+    viewer_.viewChanging.notify( mCB(this,uiFlatViewThumbnail,vwChging) );
     mousehandler_.buttonReleased.notify(
 	    		mCB(this,uiFlatViewThumbnail,mouseRelCB) );
     mousehandler_.buttonPressed.notify(

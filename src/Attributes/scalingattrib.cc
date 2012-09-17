@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: scalingattrib.cc,v 1.49 2012-08-09 04:38:06 cvssalil Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.45 2012/07/10 13:06:00 cvskris Exp $";
 
 #include "scalingattrib.h"
 
@@ -215,7 +215,7 @@ Scaling::Scaling( Desc& desc )
     {
 	const ValParam& param = (ValParam&)(*gateset)[idx];
 	Interval<float> interval( param.getfValue(0), param.getfValue(1) );
-	interval.sort(); interval.scale( 1.f/zFactor() );
+	interval.sort(); interval.scale( 1./zFactor() );
 	gates_ += interval;
     }
     
@@ -228,8 +228,8 @@ Scaling::Scaling( Desc& desc )
     }
     
     desgate_ = Interval<int>( -(1024-1), 1024-1 );
-    window_ = Interval<float>( -width_/(2.f*SI().zDomain().userFactor()), 
-				width_/(2.f*SI().zDomain().userFactor()) );
+    window_ = Interval<float>( -width_/(2.*SI().zFactor()), 
+				width_/(2.*SI().zFactor()) );
 }
 
 
@@ -278,7 +278,7 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
 	    stats += getInputValue( *inputdata_, dataidx_, idx-z0, z0 );
 
 	float val = (float)stats.getValue( statstype );
-	scalefactors += !mIsZero(val,mDefEps) ? 1.f/val : 1;
+	scalefactors += !mIsZero(val,mDefEps) ? 1./val : 1;
 	stats.clear();
     }
 }

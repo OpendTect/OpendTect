@@ -6,19 +6,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2006
- RCS:           $Id: statrand.h,v 1.9 2012-08-03 13:00:06 cvskris Exp $
+ RCS:           $Id: statrand.h,v 1.8 2012/05/15 08:11:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "gendefs.h"
 #include "odset.h"
 
 namespace Stats
 {
 
-mClass(Algo) RandGen
+mClass RandGen
 {
 public:
 
@@ -27,7 +26,7 @@ public:
     static double	get();
     			//!< Uniform [0-1]
     static int		getInt();
-    			//!< Uniform int
+
     static double	getNormal(double expectation,double stdev);
     			//!< Normally distributed
     static int		getIndex(int sz);
@@ -85,4 +84,3 @@ inline void Stats::RandGen::subselect( OD::Set& ods, int targetsz )
 }; // namespace Stats
 
 #endif
-

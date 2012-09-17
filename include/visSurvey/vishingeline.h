@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: vishingeline.h,v 1.12 2012-08-03 13:01:28 cvskris Exp $
+ RCS:           $Id: vishingeline.h,v 1.11 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
           
 -*/
 
-#include "vissurveymod.h"
 #include "visobject.h"
 
 #include "emposid.h"
@@ -26,7 +25,7 @@ namespace EM { class EdgeLineSet; };
 namespace visSurvey
 {
 
-mClass(visSurvey) EdgeLineSetDisplay : public visBase::VisualObjectImpl
+mClass EdgeLineSetDisplay : public visBase::VisualObjectImpl
 {
 public:
     static EdgeLineSetDisplay*	create()
@@ -85,4 +84,3 @@ protected:
 }; // namespace visSurvey
 
 #endif
-

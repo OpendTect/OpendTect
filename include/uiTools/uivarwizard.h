@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uivarwizard.h,v 1.6 2012-08-07 04:00:22 cvsmahant Exp $
+ RCS:           $Id: uivarwizard.h,v 1.4 2012/05/22 08:51:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "iopar.h"
 class uiParent;
 class uiVarWizardDlg;
@@ -24,7 +23,7 @@ class uiVarWizardDlg;
  
  */
 
-mClass(uiTools) uiVarWizard : public CallBacker
+mClass uiVarWizard : public CallBacker
 {
 public:
 
@@ -37,9 +36,9 @@ public:
 
     Notifier<uiVarWizard> processEnded;
 
-    static int		cCancelled()		{ return 0; }
-    static int		cFinished()		{ return 1; }
-    static int		cWait4Dialog()		{ return 2; }
+    static const int	cCancelled()		{ return 0; }
+    static const int	cFinished()		{ return 1; }
+    static const int	cWait4Dialog()		{ return 2; }
 
 protected:
 
@@ -78,4 +77,3 @@ protected:
 
 
 #endif
-

@@ -7,13 +7,11 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter2d.h,v 1.5 2012-08-03 13:00:18 cvskris Exp $
+ RCS:		$Id: emhorizonpainter2d.h,v 1.3 2012/02/16 05:05:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "cubesampling.h"
 #include "emposid.h"
 #include "flatview.h"
@@ -21,7 +19,7 @@ ________________________________________________________________________
 namespace EM
 {
 
-mClass(EarthModel) HorizonPainter2D : public CallBacker
+mClass HorizonPainter2D : public CallBacker
 {
 public:
     			HorizonPainter2D(FlatView::Viewer&,const EM::ObjectID&);
@@ -38,7 +36,7 @@ public:
 
     void		paint();
 
-    	mStruct(EarthModel)	Marker2D
+    	mStruct	Marker2D
 	{
 	    			Marker2D()
 				    : marker_(0)
@@ -47,8 +45,8 @@ public:
 				~Marker2D()
 				{ delete marker_; }
 
-	    FlatView::AuxData*  marker_;
-	    EM::SectionID	sectionid_;
+	    FlatView::Annotation::AuxData*      marker_;
+	    EM::SectionID			sectionid_;
 	};
 
     void		getDisplayedHor(ObjectSet<Marker2D>&);
@@ -88,5 +86,3 @@ protected:
 
 
 #endif
-
-

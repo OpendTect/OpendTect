@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceposprov.cc,v 1.41 2012-08-08 09:01:28 cvsaneesh Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.34 2012/07/02 20:18:23 cvskris Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -83,7 +83,7 @@ void Pos::EMSurfaceProvider::copyFrom( const Pos::EMSurfaceProvider& pp )
 
 const char* Pos::EMSurfaceProvider::type() const
 {
-    return sKey::Surface();
+    return sKey::Surface;
 }
 
 
@@ -103,12 +103,12 @@ static void getSurfRanges( const EM::Surface& surf, HorSampling& hs,
 	    {
 		veryfirst = false;
 		hs.start = hs.stop = bid;
-		zrg.start = zrg.stop = (float) coord.z;
+		zrg.start = zrg.stop = coord.z;
 	    }
 	    else
 	    {
-		if ( coord.z < zrg.start ) zrg.start = (float) coord.z;
-		if ( coord.z > zrg.stop ) zrg.stop = (float) coord.z;
+		if ( coord.z < zrg.start ) zrg.start = coord.z;
+		if ( coord.z > zrg.stop ) zrg.stop = coord.z;
 		hs.include( bid );
 	    }
 	    estnrpos++;
@@ -168,11 +168,11 @@ bool Pos::EMSurfaceProvider::toNextPos()
     if ( curpos_.objectID() == -1 )
 	return false;
 
-    curzrg_.start = curzrg_.stop = (float) surf1_->getPos( curpos_ ).z;
+    curzrg_.start = curzrg_.stop = surf1_->getPos( curpos_ ).z;
     if ( surf2_ )
     {
 	const float stop =
-	    (float) surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z;
+	    surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z;
 	if ( !mIsUdf(stop) )
 	    curzrg_.stop = stop;
     }
@@ -225,11 +225,11 @@ float Pos::EMSurfaceProvider::adjustedZ( const Coord& c, float z ) const
     if ( !hasZAdjustment() ) return z;
 
     const BinID bid = SI().transform( c );
-    return (float) surf1_->getPos( surf1_->sectionID(0), bid.toInt64() ).z;
+    return surf1_->getPos( surf1_->sectionID(0), bid.toInt64() ).z;
 }
 
 
-#define mGetSurfKey(k) IOPar::compKey(sKey::Surface(),k)
+#define mGetSurfKey(k) IOPar::compKey(sKey::Surface,k)
 
 
 void Pos::EMSurfaceProvider::usePar( const IOPar& iop )
@@ -300,8 +300,8 @@ void Pos::EMSurfaceProvider::getZRange( Interval<float>& zrg ) const
 int Pos::EMSurfaceProvider::estNrZPerPos() const
 {
     if ( !surf2_ ) return 1;
-    Interval<float> avgzrg( (zrg1_.start + zrg2_.start)*.5f,
-			    (zrg1_.stop + zrg2_.stop)*.5f );
+    Interval<float> avgzrg( (zrg1_.start + zrg2_.start)*.5,
+			    (zrg1_.stop + zrg2_.stop)*.5 );
     return (int)((avgzrg.stop-avgzrg.start) / zstep_ + .5);
 }
 
@@ -316,7 +316,7 @@ int Pos::EMSurfaceProvider::nrSurfaces() const
 
 BinID Pos::EMSurfaceProvider3D::curBinID() const
 {
-    BinID bid = BinID::fromInt64( curpos_.subID() );
+    BinID bid; bid.fromInt64( curpos_.subID() );
     return bid;
 }
 
@@ -339,13 +339,13 @@ bool Pos::EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
 	if ( !crd2.isDefined() )
 	    return false;
 
-	zrg.start = (float) crd1.z; zrg.stop = (float) crd2.z;
+	zrg.start = crd1.z; zrg.stop = crd2.z;
 	zrg.sort();
     }
     else
     {
-	zrg.start = (float) crd1.z - SI().zStep()/2;
-	zrg.stop = (float) crd1.z + SI().zStep()/2;
+	zrg.start = crd1.z - SI().zStep()/2;
+	zrg.stop = crd1.z + SI().zStep()/2;
     }
 
     zrg += extraz_;
@@ -361,14 +361,15 @@ void Pos::EMSurfaceProvider3D::getExtent( BinID& start, BinID& stop ) const
 
 void Pos::EMSurfaceProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, sKey::Surface(), "Horizon" );
+    Pos::Provider3D::factory().addCreator( create, sKey::Surface, "Horizon" );
 }
 
 
 // ***** Pos::EMSurfaceProvider2D ****
 const char* Pos::EMSurfaceProvider2D::curLine() const
 {
-    BinID bid = BinID::fromInt64( curpos_.subID() );
+    BinID bid;
+    bid.fromInt64( curpos_.subID() );
     if ( surf1_ )
     {
 	mDynamicCastGet(EM::Horizon2D*,hor2d,surf1_);
@@ -386,7 +387,8 @@ const char* Pos::EMSurfaceProvider2D::curLine() const
 
 int Pos::EMSurfaceProvider2D::curNr() const
 {
-    BinID bid = BinID::fromInt64( curpos_.subID() );
+    BinID bid;
+    bid.fromInt64( curpos_.subID() );
     return bid.crl;
 }
 
@@ -447,15 +449,15 @@ bool Pos::EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
 	const Coord3 crd2 = hor2d2->getPos( hor2d2->sectionID(0),
 					    bid.toInt64() );
 	if ( !crd2.isDefined() )
-	    return false;
+	    false;
 
-	zrg.start = (float) crd1.z; zrg.stop = (float) crd2.z;
+	zrg.start = crd1.z; zrg.stop = crd2.z;
 	zrg.sort();
     }
     else
     {
-	zrg.start = (float) crd1.z - SI().zStep()/2;
-	zrg.stop = (float) crd1.z + SI().zStep()/2;
+	zrg.start = crd1.z - SI().zStep()/2;
+	zrg.stop = crd1.z + SI().zStep()/2;
     }
 
     zrg += extraz_;
@@ -471,7 +473,7 @@ void Pos::EMSurfaceProvider2D::getExtent( Interval<int>& intv, int lidx ) const
 
 void Pos::EMSurfaceProvider2D::initClass()
 {
-    Pos::Provider2D::factory().addCreator( create, sKey::Surface() );
+    Pos::Provider2D::factory().addCreator( create, sKey::Surface );
 }
 
 
@@ -521,7 +523,7 @@ void Pos::EMSurface2DProvider3D::mkDPS( const EM::Surface& s,
 	    if ( posid.objectID() < 0 )
 		break;
 
-	    const BinID bid2d = posid.getRowCol();
+	    const BinID bid2d( posid.subID() );
 	    DataPointSet::Pos pos( surf.getPos(posid) );
 	    pos.nr_ = bid2d.crl;
 	    dps.addRow( DataPointSet::DataRow(pos,bid2d.inl) );
@@ -568,7 +570,7 @@ bool Pos::EMSurface2DProvider3D::includes( const BinID& bid, float z ) const
     if ( rid2 >= 0 )
 	zrg.include( dpssurf2_.z(rid2), false );
     zrg += extraz_;
-    zrg.widen( SI().zStep() * .5f, false );
+    zrg.widen( SI().zStep() * .5, false );
     return zrg.includes( z, false );
 }
 
@@ -677,7 +679,7 @@ bool Pos::EMImplicitBodyProvider::toNextZ()
 }
 
 
-#define mGetBodyKey(k) IOPar::compKey(sKey::Body(),k)
+#define mGetBodyKey(k) IOPar::compKey(sKey::Body,k)
 
 void Pos::EMImplicitBodyProvider::usePar( const IOPar& iop )
 {
@@ -800,7 +802,7 @@ int Pos::EMImplicitBodyProvider::estNrZPerPos() const
 
 void Pos::EMImplicitBodyProvider::initClass()
 { 
-    Pos::Provider3D::factory().addCreator( create, sKey::Body() ); 
+    Pos::Provider3D::factory().addCreator( create, sKey::Body ); 
 }
 
 

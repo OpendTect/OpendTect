@@ -4,17 +4,16 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Sep 2009
- * ID       : $Id: bouncycontroller.h,v 1.6 2012-08-03 13:01:29 cvskris Exp $
+ * ID       : $Id: bouncycontroller.h,v 1.5 2009/09/16 14:34:59 cvskarthika Exp $
 -*/
 
-#include "bouncymod.h"
 #include "position.h"
 #include "timer.h"
 
 namespace Bouncy
 {
 
-mClass(Bouncy) BouncyController : public CallBacker
+mClass BouncyController : public CallBacker
 {
 public:
 
@@ -56,4 +55,3 @@ protected:
 
 
 #endif
-

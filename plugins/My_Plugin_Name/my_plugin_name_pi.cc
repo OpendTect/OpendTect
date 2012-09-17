@@ -4,7 +4,7 @@
  * DATE     : Apr 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: my_plugin_name_pi.cc,v 1.3 2012-05-02 15:11:11 cvskris Exp $";
+static const char* rcsID = "$Id: my_plugin_name_pi.cc,v 1.1 2012/04/17 09:55:24 cvsbert Exp $";
 
 #include "my_first_separate_source.h"
 #include "odplugin.h"

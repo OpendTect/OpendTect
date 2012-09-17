@@ -5,7 +5,7 @@
  * FUNCTION : SynthSeis
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: synthseis.cc,v 1.56 2012-07-03 12:03:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: synthseis.cc,v 1.51 2012/07/03 12:03:39 cvsbruno Exp $";
 
 #include "synthseis.h"
 
@@ -34,12 +34,12 @@ mImplFactory( SynthGenerator, SynthGenerator::factory );
 SynthGenBase::SynthGenBase()
     : wavelet_(0)
     , isfourier_(true)
-    , waveletismine_(false)
+    , waveletismine_( false )
     , usenmotimes_(false)
+    , dointernalmultiples_(false)			 
+    , surfacereflcoeff_(1)			 
     , outputsampling_(mUdf(float),mUdf(float),mUdf(float))
     , tr_(0)
-    , dointernalmultiples_(false)
-    , surfreflcoeff_(1)
 {}
 
 
@@ -71,7 +71,7 @@ void SynthGenBase::fillPar( IOPar& par ) const
     par.setYN( sKeyFourier(), isfourier_ );
     par.setYN( sKeyNMO(), usenmotimes_ );
     par.setYN( sKeyInternal(), dointernalmultiples_ );
-    par.set( sKeySurfRefl(), surfreflcoeff_ );
+    par.set( sKeySurfRefl(), surfacereflcoeff_ );
 }
 
 
@@ -79,8 +79,8 @@ bool SynthGenBase::usePar( const IOPar& par )
 {
     return par.getYN( sKeyNMO(), usenmotimes_ )
 	&& par.getYN( sKeyFourier(), isfourier_ )
-	&& par.getYN( sKeyInternal(), dointernalmultiples_ )
-        && par.get( sKeySurfRefl(), surfreflcoeff_ );
+	&& par.get( sKeySurfRefl(), surfacereflcoeff_ )
+	&& par.getYN( sKeyInternal(), dointernalmultiples_ );
 }
 
 
@@ -91,6 +91,11 @@ bool SynthGenBase::setOutSampling( const StepInterval<float>& si )
 }
 
 
+void SynthGenBase::setInternalMultiples( bool yn, float coeff )
+{
+    dointernalmultiples_ = yn;
+    surfacereflcoeff_ = coeff;
+}
 
 
 SynthGenerator::SynthGenerator()
@@ -142,7 +147,7 @@ bool SynthGenerator::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
 }
 
 
-void SynthGenerator::setConvolDomain( bool fourier )
+void SynthGenerator::setConvDomain( bool fourier )
 {
     if ( fourier == ((bool) fft_ ) )
 	return;
@@ -155,7 +160,6 @@ void SynthGenerator::setConvolDomain( bool fourier )
     {
 	fft_ = new Fourier::CC;
     }
-    isfourier_ = fourier;
 }
 
 
@@ -189,8 +193,8 @@ bool SynthGenerator::doPrepare()
     freqwavelet_ = new float_complex[ fftsz_ ];
 
     for ( int idx=0; idx<fftsz_; idx++ )
-	freqwavelet_[idx] = wavelet_ && idx<wavelet_->size() ? 
-	    			    wavelet_->samples()[idx] : 0;
+	freqwavelet_[idx] = wavelet_ && idx <wavelet_->size() ? 
+	    		      	     wavelet_->samples()[idx] : 0;
 
     mDoFFT( freqwavelet_, true, fftsz_ )
 
@@ -201,7 +205,7 @@ bool SynthGenerator::doPrepare()
 
 bool SynthGenerator::doWork()
 {
-    setConvolDomain( isfourier_ );
+    setConvDomain( isfourier_ && !dointernalmultiples_ );
 
     if ( needprepare_ )
 	doPrepare();
@@ -337,7 +341,7 @@ bool MultiTraceSynthGenerator::doPrepare( int nrthreads )
 {
     for ( int idx=0; idx<nrthreads; idx++ )
     {
-	SynthGenerator* synthgen = SynthGenerator::create( true );
+	SynthGenerator* synthgen = SynthGenerator::create(dointernalmultiples_);
 	synthgens_ += synthgen;
     }
 
@@ -411,7 +415,6 @@ void MultiTraceSynthGenerator::getSampledReflectivities(
 
 RaySynthGenerator::RaySynthGenerator()
     : raysampling_(0,0)
-    , forcerefltimes_(false)
 {}
 
 
@@ -427,18 +430,9 @@ void RaySynthGenerator::addModel( const ElasticModel& aim )
 }
 
 
-od_int64 RaySynthGenerator::nrIterations() const
-{
-    return aimodels_.size();
-}
-
-
-bool RaySynthGenerator::doPrepare( int )
+bool RaySynthGenerator::doRayTracing()
 {
     deepErase( raymodels_ );
-
-    if ( !wavelet_ )
-	mErrRet( "no wavelet found" )
 
     if ( aimodels_.isEmpty() )
 	mErrRet( "No AI model found" );
@@ -446,11 +440,9 @@ bool RaySynthGenerator::doPrepare( int )
     if ( offsets_.isEmpty() )
 	offsets_ += 0;
 
-    //TODO Put this in the doWork this by looking for the 0 offset longest time,
-    //run the corresponding RayTracer, get raysamling and put the rest in doWork
     RayTracerRunner rtr( aimodels_, raysetup_ );
-    if ( ( tr_ && !tr_->execute( rtr ) ) || !rtr.execute() ) 
-	mErrRet( rtr.errMsg() )
+    if ( ( tr_ && !tr_->execute( rtr ) ) || !rtr.execute() )
+	mErrRet( rtr.errMsg(); )
 
     ObjectSet<RayTracer1D>& rt1ds = rtr.rayTracers();
     for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
@@ -467,13 +459,17 @@ bool RaySynthGenerator::doPrepare( int )
 		raysampling_.include( d2t.getLastTime() );
 	}
 	raymodels_.insertAt( rm, 0 );
-
-	if ( forcerefltimes_ )
-	    rm->forceReflTimes( forcedrefltimes_ );
     }
     if ( !raysampling_.width() )
 	mErrRet( "no valid time generated from raytracing" );
+    return true;
+}
 
+
+bool RaySynthGenerator::doSynthetics()
+{
+    if ( !wavelet_ )
+	mErrRet( "no wavelet found" )
     if ( mIsUdf( outputsampling_.start ) )
     {
 	raysampling_.stop += wavelet_->sampleRate()*wavelet_->size()/2; 
@@ -486,18 +482,9 @@ bool RaySynthGenerator::doPrepare( int )
     if ( outputsampling_.nrSteps() < 1 )
 	mErrRet( "Time interval is empty" );
 
-    return true;
-}
-
-
-bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
-{
     IOPar par; fillPar( par );
-    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=0; idx<raymodels_.size(); idx++ )
     {
-	if ( !shouldContinue() )
-	    return false;
-
 	RayModel& rm = *raymodels_[idx];
 	deepErase( rm.outtrcs_ );
 
@@ -509,8 +496,10 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 	multitracegen.setOutSampling( outputsampling_ );
 	multitracegen.usePar( par );
 
-	if ( (tr_ && !tr_->execute(multitracegen)) || !multitracegen.execute() )
-	    mErrRet( multitracegen.errMsg() )
+	if ( tr_ && !tr_->execute( multitracegen ) )
+	    mErrRet( multitracegen.errMsg(); )
+	else if ( !multitracegen.execute() )
+	    mErrRet( multitracegen.errMsg())
 
 	multitracegen.getResult( rm.outtrcs_ );
 	for ( int idoff=0; idoff<offsets_.size(); idoff++ )
@@ -632,12 +621,6 @@ void RaySynthGenerator::fillPar( IOPar& par ) const
 {
     SynthGenBase::fillPar( par );
     par.merge( raysetup_ );
-}
-
-
-void RaySynthGenerator::forceReflTimes( const StepInterval<float>& si)
-{
-    forcedrefltimes_ = si; forcerefltimes_ = true;
 }
 
 }// namespace

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2011
- RCS:           $Id: oddlsite.h,v 1.10 2012-08-03 13:00:32 cvskris Exp $
+ RCS:           $Id: oddlsite.h,v 1.9 2012/02/28 06:46:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "networkmod.h"
 #include "callback.h"
 #include "bufstring.h"
 class BufferStringSet;
@@ -42,7 +41,7 @@ class ODHttp;
 
  */
 
-mClass(Network) ODDLSite : public CallBacker
+mClass ODDLSite : public CallBacker
 {
 public:
 
@@ -99,4 +98,3 @@ protected:
 
 
 #endif
-

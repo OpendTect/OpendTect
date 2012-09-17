@@ -7,19 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.29 2012-08-29 06:25:40 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.26 2012/05/07 12:11:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstringset.h"
-#include "staticstring.h"
 #include "ptrman.h"
 #include "errh.h"
+#include "staticstring.h"
 
 //!Helper class for Factories, Factories are defined later in this file
-mClass(Basic) FactoryBase
+mClass FactoryBase
 {
 public:
     virtual			~FactoryBase();
@@ -30,19 +29,20 @@ public:
 				//!<or -1 for none
     const char*			getDefaultName() const;
     static char			cSeparator()	{ return ','; }
-    
+
+#if mODMinorVersion > 3
     BufferString&		errMsg() const { return errmsgs_.getString(); }
-    				//!<Threadsafe, as each thread will have
-    				//!<a different string returned.
-    
+#endif
 protected:
     int				indexOf(const char*) const;
     void			addNames(const char*,const char*);
     void			setNames(int,const char*,const char*);
 
 private:
+#if mODMinorVersion > 3
     mutable StaticStringManager	errmsgs_;
-    
+#endif
+
     BufferStringSet		names_;
     BufferStringSet		usernames_;
     BufferStringSet		aliases_;
@@ -80,7 +80,7 @@ public:
 
 Two macros are available to make a static accessfuncion for the factory:
 \code
-mDefineFactory( Module, ClassName, FunctionName );
+mDefineFactory( ClassName, FunctionName );
 \endcode
 
 that will create a static function that returns an instance to
@@ -98,7 +98,7 @@ mImplFactory( ClassName, FunctionName );
 
 
 template <class T>
-class Factory : public FactoryBase
+mClass Factory : public FactoryBase
 {
 public:
     typedef			T* (*Creator)();
@@ -135,16 +135,7 @@ public:
 class B : public A
 {
 public:
-    static A*		createFunc(C* param)
-			{
-			    A* res = new B;
- 			    if ( res->setParam( param ) );
- 				return res;
- 
-			    thefactory.errMsg() = "Could not set param";
-			    delete res;
-			    return 0;
- 			}
+    static A*		createFunc(C* param) { return new B(param); }
     static void		initClass()
     			{ thefactory.addCreator(createFunc,"MyKeyword","My Name"); }
 			    
@@ -155,7 +146,7 @@ public:
 
 Two macros are available to make a static accessfuncion for the factory:
 \code
-mDefineFactory1Param( Module, ClassName, ParamClass, FunctionName );
+mDefineFactory1Param( ClassName, ParamClass, FunctionName );
 \endcode
 
 that will create a static function that returns an instance to
@@ -170,7 +161,7 @@ mImplFactory1Param( ClassName, ParamClass, FunctionName );
 
 
 template <class T, class P>
-class Factory1Param : public FactoryBase
+mClass Factory1Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P);
@@ -192,7 +183,7 @@ protected:
 
 
 template <class T, class P0, class P1>
-class Factory2Param : public FactoryBase
+mClass Factory2Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P0,P1);
@@ -215,7 +206,7 @@ protected:
 
 
 template <class T, class P0, class P1, class P2>
-class Factory3Param : public FactoryBase
+mClass Factory3Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P0,P1,P2);
@@ -266,18 +257,26 @@ static baseclss*	createInstance() { return new clss; } \
     mDefaultFactoryInstanciationBase( keywrd, usernm ) \
     mDefaultFactoryInitClassImpl( baseclss, createInstance )
 
-#define mCreateImpl( donames, createfunc ) \
-    if ( donames ) \
-    { \
-	const int idx = indexOf( name ); \
-	if ( idx==-1 ) \
-	{ \
+
+#if mODMinorVersion > 3
+# define mCreateErrRet( createfunc ) \
+    	if ( idx==-1 ) \
+ 	{ \
 	    errMsg() = "Name "; \
 	    errMsg().add( name ).add(" not found.\n" ) \
 		    .add( "Perhaps all plugins are not loaded\n" ); \
 	    return 0; \
 	} \
-	return createfunc; \
+	return createfunc;
+#else
+# define mCreateErrRet(createfunc) return idx==-1 ? 0 : createfunc;
+#endif 
+
+#define mCreateImpl( donames, createfunc ) \
+    if ( donames ) \
+    { \
+	const int idx = indexOf( name ); \
+	mCreateErrRet( createfunc ) \
     } \
  \
     for ( int idx=0; idx<creators_.size(); idx++ ) \
@@ -366,8 +365,8 @@ T* Factory3Param<T,P0,P1,P2>::create( const char* name, P0 p0, P1 p1, P2 p2,
 }
 
 
-#define mDefineFactory( mod, T, funcname ) \
-mGlobal(mod) ::Factory<T>& funcname()
+#define mDefineFactory( T, funcname ) \
+mGlobal ::Factory<T>& funcname()
 
 
 #define mDefineFactoryInClass( T, funcname ) \
@@ -384,8 +383,8 @@ virtual const char* factoryKeyword() const { return 0; }
 } 
 
 
-#define mDefineFactory1Param( mod, T, P, funcname ) \
-mGlobal(mod) ::Factory1Param<T,P>& funcname()
+#define mDefineFactory1Param( T, P, funcname ) \
+mGlobal ::Factory1Param<T,P>& funcname()
 
 
 #define mDefineFactory1ParamInClass( T, P, funcname ) \
@@ -403,8 +402,8 @@ virtual const char* factoryKeyword() const { return 0; }
 } 
 
 
-#define mDefineFactory2Param( mod, T, P0, P1, funcname ) \
-mGlobal(mod) ::Factory2Param<T,P0,P1>& funcname()
+#define mDefineFactory2Param( T, P0, P1, funcname ) \
+mGlobal ::Factory2Param<T,P0,P1>& funcname()
 
 
 #define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
@@ -422,8 +421,8 @@ virtual const char* factoryKeyword() const { return 0; }
 } 
 
 
-#define mDefineFactory3Param( mod, T, P0, P1, P2, funcname ) \
-mGlobal(mod) ::Factory3Param<T,P0,P1,P2>& funcname()
+#define mDefineFactory3Param( T, P0, P1, P2, funcname ) \
+mGlobal ::Factory3Param<T,P0,P1,P2>& funcname()
 
 
 #define mDefineFactory3ParamInClass( T, P0, P1, P2, funcname ) \
@@ -444,4 +443,3 @@ virtual const char* factoryKeyword() const { return 0; }
 #undef mAddCreator
 
 #endif
-

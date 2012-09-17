@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uiinstantattrib.h,v 1.10 2012-08-03 13:00:49 cvskris Exp $
+ RCS:           $Id: uiinstantattrib.h,v 1.9 2012/05/25 12:07:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -23,7 +22,7 @@ class uiLabeledSpinBox;
 
 /*! \brief Instantaneous Attribute description editor */
 
-mClass(uiAttributes) uiInstantaneousAttrib : public uiAttrDescEd
+mClass uiInstantaneousAttrib : public uiAttrDescEd
 {
 public:
 
@@ -46,10 +45,10 @@ protected:
     bool		getOutput(Attrib::Desc&);
 
     void		outputSelCB(CallBacker*);
-    void		getEvalParams( TypeSet<EvalParam>& params ) const;
 
     			mDeclReqAttribUIFns
+
+    void		getEvalParams( TypeSet<EvalParam>& params ) const;
 };
 
 #endif
-

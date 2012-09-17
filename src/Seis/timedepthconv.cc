@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: timedepthconv.cc,v 1.46 2012-08-09 03:35:33 cvssalil Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.41 2012/01/19 10:30:22 cvsnageswara Exp $";
 
 #include "timedepthconv.h"
 
@@ -106,8 +106,8 @@ Interval<float> Time2DepthStretcher::getDefaultVAvg()
     Interval<float> res( 1350, 4500 );
     if ( SI().depthsInFeetByDefault() )
     {
-	res.start *= mToFeetFactorF;
-	res.stop *= mToFeetFactorF;
+	res.start *= mToFeetFactor;
+	res.stop *= mToFeetFactor;
     }
 
     return res;
@@ -357,8 +357,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	const float t = sd_.atIndex( idx );
 	res_[idx] = trg_.includes(t,false) &&
 		findValue( samplfunc_, zrg_.start, zrg_.stop, depth, t )
-	    ? depth
-	    : mUdf(float);
+	? res_[idx] = depth : mUdf(float);
     }
 
     return true;
@@ -579,7 +578,7 @@ Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 float Time2DepthStretcher::getGoodZStep() const
 {
     if ( SI().zIsTime() )
-	return SI().zRange(true).step * (topvavg_.start+botvavg_.stop) * 0.25f;
+	return SI().zRange(true).step * (topvavg_.start+botvavg_.stop) * 0.25;
 
     return SI().zRange(true).step;
 }
@@ -804,7 +803,7 @@ int VelocityModelScanner::nextStep()
 
     if ( first!=-1 && last!=-1 && first!=last )
     {
-	const float firsttime = (float) sd.atIndex(first);
+	const float firsttime = sd.atIndex(first);
 	float v0 = -1;
     	if ( firsttime>0 )
     	    v0 = zistime_ ? 2*resvs.value(first)/firsttime
@@ -814,9 +813,9 @@ int VelocityModelScanner::nextStep()
     	else
     	{
 	    const float diff0 = resvs.value(first+1) - resvs.value(first); 
-	    v0 = (float) (zistime_
-						? 2 * diff0 / sd.step
-						: 2 * sd.step / diff0);
+	    v0 = zistime_
+		? 2 * diff0 / sd.step
+		: 2 * sd.step / diff0;
     	}
 
 	if ( v0 > 0 )
@@ -830,9 +829,9 @@ int VelocityModelScanner::nextStep()
 		startavgvel_.include( v0 );
 	}
 
-	const float v1 = (float) (zistime_
-									? 2 * resvs.value(last) / sd.atIndex(last)
-									: 2 * sd.atIndex(last) / resvs.value(last));
+	const float v1 = zistime_
+	    ? 2 * resvs.value(last) / sd.atIndex(last)
+	    : 2 * sd.atIndex(last) / resvs.value(last);
 
 	if ( !definedv1_ )
 	{
@@ -873,7 +872,7 @@ void LinearT2DTransform::transform( const BinID& bid,
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float time = sd.start + idx*sd.step;
-	res[idx] = ( startvel_*time/2.0f ) + ( 0.5f*dv_*time*time )/4.0f;
+	res[idx] = ( startvel_*time/2 ) + ( 0.5*dv_*time*time )/4;
     }
 }
 
@@ -970,7 +969,7 @@ void LinearD2TTransform::transformBack( const BinID& bid,
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float time = sd.start + idx*sd.step;
-	res[idx] = ( startvel_*time/2.0f ) + ( 0.5f*dv_*time*time )/4.0f;
+	res[idx] = ( startvel_*time/2 ) + ( 0.5*dv_*time*time )/4;
     }
 }
 

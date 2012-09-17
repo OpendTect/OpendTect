@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K.Tingdahl
  Date:		Jan 2006
- RCS:		$Id: multidimstorage.h,v 1.13 2012-07-10 08:05:25 cvskris Exp $
+ RCS:		$Id: multidimstorage.h,v 1.12 2012/07/10 13:05:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,6 +191,7 @@ bool MultiDimStorage<T>::append( const MultiDimStorage<T>& b )
     for ( int idx=0; idx<b.size(); idx++ )
     {
 	const int pos = b.getPos( idx );
+	const int targetidx = indexOf( pos );
 	int index = findFirstPos( pos );
 
 	const bool match = positions_.validIdx(index) && positions_[index]==pos;

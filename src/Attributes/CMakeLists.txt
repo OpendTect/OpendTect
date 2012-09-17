@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Attribute classes
 # 	May 2005	Helene Payraudeau
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-08-28 13:24:21 cvsbert Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.3 2012/09/05 14:11:06 cvsbert Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS AttributeEngine PreStackProcessing)

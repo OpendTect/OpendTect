@@ -7,48 +7,37 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initearthmodel.cc,v 1.17 2012-07-12 18:02:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: initearthmodel.cc,v 1.14 2012/07/12 18:04:18 cvsnanne Exp $";
 
 
 #include "moddepmgr.h"
-#include "embodytr.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
-#include "emhorizonztransform.h"
 #include "emmarchingcubessurface.h"
+#include "emhorizonztransform.h"
 #include "emobject.h"
-#include "empolygonbody.h"
 #include "emrandomposbody.h"
+#include "empolygonbody.h"
 #include "emsurfaceiodata.h"
-#include "emsurfaceposprov.h"
 #include "emsurfacetr.h"
+#include "emsurfaceposprov.h"
 #include "lmkemfaulttransl.h"
 #include "zdomain.h"
+
 
 mDefModInitFn(EarthModel)
 {
     mIfNotFirstTime( return );
-    
+
     EMFault3DTranslatorGroup::initClass();
     EMFaultStickSetTranslatorGroup::initClass();
-    EMBodyTranslatorGroup::initClass();
-    EMHorizon3DTranslatorGroup::initClass();
-    EMHorizon2DTranslatorGroup::initClass();
-    EMAnyHorizonTranslatorGroup::initClass();
-    
-    dgbEMHorizon3DTranslator::initClass();
-    dgbEMHorizon2DTranslator::initClass();
+
     dgbEMFault3DTranslator::initClass();
     lmkEMFault3DTranslator::initClass();
     dgbEMFaultStickSetTranslator::initClass();
-    
-    mcEMBodyTranslator::initClass();
-    polygonEMBodyTranslator::initClass();
-    randposEMBodyTranslator::initClass();
-    dGBEMBodyTranslator::initClass();
-    
+
     EM::FaultStickSet::initClass();
     EM::Fault3D::initClass();
     EM::Horizon2D::initClass();

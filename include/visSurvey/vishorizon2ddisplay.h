@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.26 2012-08-03 13:01:28 cvskris Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.25 2012/07/30 05:15:00 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "vissurveymod.h"
 #include "emposid.h"
 #include "multiid.h"
 #include "visemobjdisplay.h"
@@ -28,7 +27,7 @@ namespace visSurvey
 
 class Seis2DDisplay;
 
-mClass(visSurvey) Horizon2DDisplay : public EMObjectDisplay
+mClass Horizon2DDisplay : public EMObjectDisplay
 {
 public:
     static Horizon2DDisplay*	create()
@@ -51,9 +50,6 @@ public:
     //const ZAxisTransform*	getZAxisTransform() const;
     const visBase::PointSet*	getPointSet(const EM::SectionID&) const;
     const visBase::IndexedPolyLine3D* getLine(const EM::SectionID&) const;
-    void			doOtherObjectsMoved(
-				    const ObjectSet<const SurveyObject>&,
-				    int whichobj );
 
 protected:
     friend			class Horizon2DDisplayUpdater;
@@ -91,10 +87,14 @@ protected:
     ObjectSet<visBase::IndexedPolyLine3D>	lines_;
     ObjectSet<visBase::PointSet>		points_;
     TypeSet<EM::SectionID>			sids_;
+
+public:
+    void			doOtherObjectsMoved(
+				    const ObjectSet<const SurveyObject>&,
+				    int whichobj );
 };
 
 
 };
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qcombobox.h,v 1.11 2012-08-29 16:21:06 cvsnanne Exp $
+ RCS:           $Id: i_qcombobox.h,v 1.9 2011/04/21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,9 +20,6 @@ ________________________________________________________________________
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
-
-QT_BEGIN_NAMESPACE
-
 class i_comboMessenger : public QObject 
 {
     Q_OBJECT
@@ -66,7 +63,5 @@ void editTextChanged( const QString& )
 
 
 };
-
-QT_END_NAMESPACE
 
 #endif

@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimadiosel.cc,v 1.38 2012-07-31 20:06:50 cvskris Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.34 2011/11/23 11:35:55 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -61,7 +61,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     if ( isinp )
 	mAdd( "SU", idxsu_ );
 
-    mAdd( sKey::None(), idxnone_ );
+    mAdd( sKey::None, idxnone_ );
 
     typfld_ = new uiGenInput( this, isinp ? "Input" : "Output",
 	    		      StringListInpSpec(seistypes) );
@@ -190,7 +190,7 @@ void uiMadIOSelDlg::typSel( CallBacker* )
     if ( seis2dfld_ ) seis2dfld_->display( choice == idx2d_ );
     if ( seisps2dfld_ ) seisps2dfld_->display( choice == idxps2d_ );
     const bool filesel = choice == idxmad_ || choice == idxsu_;
-    madfld_->display( filesel );
+    madfld_->display( choice == idxmad_ || choice == idxsu_ );
     sconsfld_->display( choice == idxmad_ );
     if ( choice == idxsu_ )
 	madfld_->setFilter( "*.su" );
@@ -239,7 +239,7 @@ void uiMadIOSelDlg::selChg( CallBacker* )
 void uiMadIOSelDlg::usePar( const IOPar& iop )
 {
     bool istypselected = false;
-    if ( !iop.find(sKey::Type()) )
+    if ( !iop.find(sKey::Type) )
 	typfld_->setValue( 0 );
     else
 	istypselected = true;
@@ -249,7 +249,7 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
     if ( istypselected )
 	typfld_->setText( iot == ODMad::ProcFlow::Madagascar
 			? ODMad::sKeyMadagascar()
-			: iot == ODMad::ProcFlow::None ? sKey::None().str()
+			: iot == ODMad::ProcFlow::None ? sKey::None.str()
 						       : Seis::nameOf(gt) );
     typSel( this );
     if ( iot == ODMad::ProcFlow::None ) return;
@@ -264,7 +264,7 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
 	}
 
 	BufferString txt;
-	if ( iop.get(sKey::FileName(),txt) )
+	if ( iop.get(sKey::FileName,txt) )
 	    madfld_->setFileName( txt );
 	return;
     }
@@ -274,7 +274,7 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
     uiSeisSubSel* subsel = seisSubSel( gt );
     if ( subsel )
     {
-	PtrMan<IOPar> subpar = iop.subselect( sKey::Subsel() );
+	PtrMan<IOPar> subpar = iop.subselect( sKey::Subsel );
 	if ( subpar ) subsel->usePar( *subpar );
     }
 }
@@ -287,10 +287,10 @@ bool uiMadIOSelDlg::fillPar( IOPar& iop )
     if ( isMad() )
     {
 	iop.setYN( sKeyScons, sconsfld_->isChecked() );
-	iop.set( sKey::FileName(), madfld_->fileName() );
+	iop.set( sKey::FileName, madfld_->fileName() );
     }
     else if ( isSU() )
-	iop.set( sKey::FileName(), madfld_->fileName() );
+	iop.set( sKey::FileName, madfld_->fileName() );
     else if ( !isNone() )
     {
 	const Seis::GeomType gt = geomType();
@@ -303,7 +303,7 @@ bool uiMadIOSelDlg::fillPar( IOPar& iop )
 		return false;
 
 	    if ( subpar.size() )
-		iop.mergeComp( subpar, sKey::Subsel() );
+		iop.mergeComp( subpar, sKey::Subsel );
 	}
     }
 
@@ -369,17 +369,17 @@ void uiMadIOSel::usePar( const IOPar& iop )
 
 void uiMadIOSel::useParIfNeeded( const IOPar& iop )
 {
-    if ( iop_.find(sKey::Type()) ) return;
+    if ( iop_.find(sKey::Type) ) return;
 
-    BufferString typ( iop.find(sKey::Type()) );
+    BufferString typ( iop.find(sKey::Type) );
     if ( typ.isEmpty() || typ != Seis::nameOf(Seis::Line) ) return;
 
-    BufferString idval( iop.find(sKey::ID()) );
-    if ( !idval.isEmpty() && !iop_.find(sKey::ID()) )
-	iop_.set( sKey::ID(), idval );
+    BufferString idval( iop.find(sKey::ID) );
+    if ( !idval.isEmpty() && !iop_.find(sKey::ID) )
+	iop_.set( sKey::ID, idval );
 
-    iop_.set( sKey::Type(), typ );
-    const char* lkey = IOPar::compKey( sKey::Subsel(), sKey::LineKey() );
+    iop_.set( sKey::Type, typ );
+    const char* lkey = IOPar::compKey( sKey::Subsel, sKey::LineKey );
     BufferString lnm( iop.find(lkey) );
     if ( !lnm.isEmpty() && !iop_.find(lkey) )
 	iop_.set( lkey, lnm );
@@ -400,14 +400,14 @@ BufferString uiMadIOSel::getSummary() const
 {
     BufferString ret( "-" );
 
-    if ( !iop_.find(sKey::Type()) )
+    if ( !iop_.find(sKey::Type) )
 	return ret;
 
     ODMad::ProcFlow::IOType iot = ODMad::ProcFlow::ioType( iop_ );
     if ( iot == ODMad::ProcFlow::None )
-	ret = sKey::None();
+	ret = sKey::None;
     else if ( iot == ODMad::ProcFlow::Madagascar )
-	ret = iop_.find( sKey::FileName() );
+	ret = iop_.find( sKey::FileName );
     else
 	ret = IOM().nameOf( iop_.find("ID") );
 

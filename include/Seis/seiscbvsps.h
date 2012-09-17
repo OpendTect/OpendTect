@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.20 2012-08-03 13:00:36 cvskris Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.19 2010/07/12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seispsread.h"
 #include "seispswrite.h"
 class IOPar;
@@ -36,7 +35,7 @@ class CBVSSeisTrcTranslator;
 
  */
 
-mClass(Seis) SeisCBVSPSIO
+mClass SeisCBVSPSIO
 {
 public:
     			SeisCBVSPSIO(const char* dirnm);
@@ -79,7 +78,7 @@ protected:
 
 /*!\brief reads from a CBVS pre-stack seismic data store. */
 
-mClass(Seis) SeisCBVSPS3DReader : public SeisPS3DReader
+mClass SeisCBVSPS3DReader : public SeisPS3DReader
 		         , public SeisCBVSPSIO
 {
 public:
@@ -113,7 +112,7 @@ protected:
 
 /*!\brief reads from a CBVS pre-stack seismic data store. */
 
-mClass(Seis) SeisCBVSPS2DReader : public SeisPS2DReader
+mClass SeisCBVSPS2DReader : public SeisPS2DReader
 		         , public SeisCBVSPSIO
 {
 public:
@@ -145,7 +144,7 @@ protected:
 
  */
 
-mClass(Seis) SeisCBVSPS3DWriter : public SeisPSWriter
+mClass SeisCBVSPS3DWriter : public SeisPSWriter
 		         , public SeisCBVSPSIO
 {
 public:
@@ -177,7 +176,7 @@ protected:
 
  */
 
-mClass(Seis) SeisCBVSPS2DWriter : public SeisPSWriter
+mClass SeisCBVSPS2DWriter : public SeisPSWriter
 		         , public SeisCBVSPSIO
 {
 public:
@@ -203,4 +202,3 @@ protected:
 
 
 #endif
-

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.28 2012-09-07 22:08:01 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.23 2011/11/04 08:22:04 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodtreeitem.h"
 #include "factory.h"
 
@@ -24,7 +23,7 @@ namespace ColTab { class Sequence; };
 
 /*!Base class for a data treeitem. */
 
-mClass(uiODMain) uiODDataTreeItem : public uiTreeItem
+mClass uiODDataTreeItem : public uiTreeItem
 {
 public:
 				uiODDataTreeItem(const char* parenttype);
@@ -34,8 +33,8 @@ public:
     int				displayID() const;
     int				attribNr() const;
 
-    static int			cPixmapWidth()		{ return 16; }
-    static int			cPixmapHeight()		{ return 10; }
+    static const int		cPixmapWidth()		{ return 16; }
+    static const int		cPixmapHeight()		{ return 10; }
 
 				mDefineFactory2ParamInClass(uiODDataTreeItem,
 					const Attrib::SelSpec&,const char*,
@@ -48,7 +47,7 @@ public:
 
 protected:
 
-    int				uiTreeViewItemType() const;
+    int				uiListViewItemType() const;
     virtual bool		init();
 
     virtual void		checkCB(CallBacker*);
@@ -84,11 +83,10 @@ protected:
     MenuItem			changetransparencyitem_;
     MenuItem                    statisticsitem_;
     MenuItem			amplspectrumitem_;
-    MenuItem			fkspectrumitem_;
+    MenuItem			addto2dvieweritem_;
     MenuItem			view2dwvaitem_;
     MenuItem			view2dvditem_;
     const char*			parenttype_;
 };
 
 #endif
-

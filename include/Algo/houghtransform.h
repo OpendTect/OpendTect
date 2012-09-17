@@ -6,13 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Fredman
  Date:		18-12-2002
- RCS:		$Id: houghtransform.h,v 1.14 2012-08-03 13:00:04 cvskris Exp $
+ RCS:		$Id: houghtransform.h,v 1.13 2012/01/25 20:45:19 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
 
 
-#include "algomod.h"
 #include "thread.h"
 #include "arrayndimpl.h"
 #include "ranges.h"
@@ -44,7 +43,7 @@ Usage:
 
 */
 
-mClass(Algo) PlaneFrom3DSpaceHoughTransform
+mClass PlaneFrom3DSpaceHoughTransform
 {
 public:
     				PlaneFrom3DSpaceHoughTransform();
@@ -108,7 +107,7 @@ protected:
 };
 
 
-mClass(Algo) LineFrom2DSpaceHoughTransform
+mClass LineFrom2DSpaceHoughTransform
 {
 public:
     				LineFrom2DSpaceHoughTransform(
@@ -143,4 +142,3 @@ public:
 
 
 #endif
-

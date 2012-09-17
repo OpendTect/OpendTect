@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.62 2012-08-30 05:49:34 cvsnageswara Exp $
+ RCS:           $Id: uimenu.h,v 1.60 2012/09/17 16:37:45 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uibaseobject.h"
 #include "uiicons.h"
 #include "separstr.h"
@@ -28,21 +27,21 @@ class ioPixmap;
 class i_MenuMessenger;
 template<class> class uiMenuItemContainerBodyImpl;
 
-mFDQtclass(QAction)
-mFDQtclass(QMenu)
-mFDQtclass(QMenuBar)
+class QAction;
+class QMenu;
+class QMenuBar;
 
 template<class T> class ObjectSet;
 
 
-mClass(uiBase) MenuItemSeparString : public SeparString
+mClass MenuItemSeparString : public SeparString
 {
 public:
     	MenuItemSeparString(const char* str=0) : SeparString(str,'`')	{}
 };
 
 
-mClass(uiBase) uiMenuItemContainer : public uiBaseObject
+mClass uiMenuItemContainer : public uiBaseObject
 {
 template<class> friend class	uiMenuItemContainerBodyImpl;
 
@@ -87,7 +86,7 @@ protected:
     messenger, so Qt's signals can be relayed.
 */
 
-mClass(uiBase) uiMenuItem : public NamedObject
+mClass uiMenuItem : public NamedObject
 {
 template<class> friend class	uiMenuItemContainerBodyImpl;
 
@@ -98,7 +97,7 @@ public:
 				~uiMenuItem();
     int				id() const		{ return id_; }
 
-    const mQtclass(QAction*)	qAction() const		{ return qaction_; }
+    const QAction*		qAction() const		{ return qaction_; }
 
 				//! sets a new text 2b displayed
     void			setText(const char*);
@@ -133,12 +132,11 @@ protected:
     void 			setId( int newid )	{ id_ = newid; }
     void			setMenu( uiMenuItemContainerBody* mb )
 				{ menu_ = mb; }
-    void			setAction( mQtclass(QAction*) act )
-    							{ qaction_ = act; }
+    void			setAction( QAction* act ) { qaction_ = act; }
 
     i_MenuMessenger*		messenger()		{ return &messenger_; }
     uiMenuItemContainerBody*	menu_;
-    mQtclass(QAction*)		qaction_;
+    QAction*			qaction_;
 
     void			trlReady(CallBacker*);
     int				translateid_;
@@ -153,19 +151,22 @@ private:
     bool			enabled_;
     const ioPixmap*		pixmap_;
 
+    static CallBack*		cmdrecorder_;		// obsolete
     int				cmdrecrefnr_;
 
 public:
 				//! Not for casual use
-    static void			addCmdRecorder(const CallBack&);
-    static void			removeCmdRecorder(const CallBack&);
+    static void			setCmdRecorder(const CallBack&); // obsolete
+    static void			unsetCmdRecorder();		 // obsolete
     int  /* refnr */		beginCmdRecEvent(const char* msg=0);
     void			endCmdRecEvent(int refnr,const char* msg=0);
 
+    static void			addCmdRecorder(const CallBack&);
+    static void			removeCmdRecorder(const CallBack&);
 };
 
 
-mClass(uiBase) uiPopupItem : public uiMenuItem
+mClass uiPopupItem : public uiMenuItem
 {
 friend class uiPopupMenu;
 protected:
@@ -187,9 +188,9 @@ protected:
 };
 
 
-mFDQtclass(QPixmap)
+class QPixmap;
 
-mClass(uiBase) uiMenuBar : public uiMenuItemContainer
+mClass uiMenuBar : public uiMenuItemContainer
 {
 
     friend class		uiMainWinBody;
@@ -197,22 +198,21 @@ mClass(uiBase) uiMenuBar : public uiMenuItemContainer
 
 public:
 
-    void			setIcon(const mQtclass(QPixmap&));
+    void			setIcon(const QPixmap&);
     void			setSensitive(bool yn);
     				/*!< Works on complete menubar */
     bool			isSensitive() const;
 
 protected:
 				uiMenuBar(uiParent*,const char* nm);
-				uiMenuBar(uiParent*,const char* nm,
-					  mQtclass(QMenuBar&));
+				uiMenuBar(uiParent*,const char* nm,QMenuBar&);
 
     void 			reDraw(bool deep=true);
 
 };
 
 
-mClass(uiBase) uiPopupMenu : public uiMenuItemContainer
+mClass uiPopupMenu : public uiMenuItemContainer
 {
 
 public:                        
@@ -247,9 +247,10 @@ public:
 
 private:
 
-    int				findIdForAction(mQtclass(QAction*)) const;
+    int				findIdForAction(QAction*) const;
     uiPopupItem&		item_;
 
+    static CallBack*		interceptor_;		// obsolete
     uiMenuItem*			interceptitem_;
     bool			dointercept_;
 
@@ -257,11 +258,12 @@ private:
 
 public:
 				//! Not for casual use
-    static void			addInterceptor(const CallBack&);
-    static void			removeInterceptor(const CallBack&);
+    static void			setInterceptor(const CallBack&); // obsolete
+    static void			unsetInterceptor();		 // obsolete
     void			doIntercept(bool yn,uiMenuItem* activateitm=0);
 
+    static void			addInterceptor(const CallBack&);
+    static void			removeInterceptor(const CallBack&);
 };
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.83 2012-08-13 04:04:37 cvsaneesh Exp $
+ RCS:           $Id: datainpspec.h,v 1.79 2011/09/02 08:51:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "ranges.h"
 #include "string2.h"
 #include "undefval.h"
@@ -23,7 +22,7 @@ ________________________________________________________________________
 class RCol2Coord;
 class IOPar;
 
-mClass(General) DataType
+mClass DataType
 {
 public:
 
@@ -77,7 +76,7 @@ A DataInpSpec is a conceptual specification of intrinsic properties of data.
 With it, user interface parts can be constructed (uiGenInput).
 
 */
-mClass(General) DataInpSpec
+mClass DataInpSpec
 {
 public:
 
@@ -186,14 +185,14 @@ public:
 
     virtual int		getIntValue(int idx=0) const { return (int)value(); }
     virtual double	getdValue(int idx=0) const    { return value(); }
-    virtual float	getfValue(int idx=0) const   { return ( float ) value(); }
+    virtual float	getfValue(int idx=0) const   { return value(); }
 
     virtual int		getDefaultIntValue(int idx=0) const
     			{ return (int)defaultValue(); }
     virtual double	getDefaultValue(int idx=0) const
     			{ return defaultValue(); }
     virtual float	getDefaultfValue(int idx=0) const
-    			{ return ( float ) defaultValue(); }
+    			{ return defaultValue(); }
     
     virtual void	setDefaultValue( int val, int idx=0 )
 			{ defaultvalue_ = (T)val; }
@@ -382,10 +381,7 @@ public:
 
     virtual int		getIntValue(int idx=0) const { return (int)value(idx); }
     virtual double	getdValue(int idx=0) const    { return value(idx); }
-    virtual float	getfValue(int idx=0) const   
-			{ 
-			    return (float) value(idx); 
-			}
+    virtual float	getfValue(int idx=0) const   { return value(idx); }
 
     T			defaultValue( int idx=0 ) const
 			{
@@ -398,7 +394,7 @@ public:
     virtual double	getDefaultValue(int idx=0) const
     			{ return defaultValue(idx); }
     virtual float	getDefaultfValue(int idx=0) const
-    			{ return (float) defaultValue(idx); }
+    			{ return defaultValue(idx); }
     
     virtual const char*	text( int idx=0 ) const
 			{
@@ -545,7 +541,7 @@ typedef NumInpIntervalSpec<double>	DoubleInpIntervalSpec;
 
 
 /*! \brief Specifications for character string inputs. */
-mClass(General) StringInpSpec : public DataInpSpec
+mClass StringInpSpec : public DataInpSpec
 {
 public:
 			StringInpSpec( const char* s=0 );
@@ -575,7 +571,7 @@ protected:
 
 /*! \brief Specifications for file-name inputs.
 */
-mClass(General) FileNameInpSpec : public StringInpSpec
+mClass FileNameInpSpec : public StringInpSpec
 {
 public:
 				FileNameInpSpec( const char* fname=0 );
@@ -595,11 +591,11 @@ It does not change the underlying true/false texts.
 */
 
 
-mClass(General) BoolInpSpec : public DataInpSpec
+mClass BoolInpSpec : public DataInpSpec
 {
 public:
-			BoolInpSpec(bool yesno,const char* truetxt=sKey::Yes(),
-				    const char* falsetxt=sKey::No(),
+			BoolInpSpec(bool yesno,const char* truetxt=sKey::Yes,
+				    const char* falsetxt=sKey::No,
 				    bool isset=true);
 			BoolInpSpec(const BoolInpSpec&);
 
@@ -644,7 +640,7 @@ protected:
 
 /*! \brief Specifications for list of character string inputs.
 */
-mClass(General) StringListInpSpec : public DataInpSpec
+mClass StringListInpSpec : public DataInpSpec
 {
 public:
     			StringListInpSpec(const BufferStringSet&);
@@ -694,7 +690,7 @@ protected:
 
 /*! \brief Specifications for BinID/Coordinate/TrcNrs and offsets */
 
-mClass(General) PositionInpSpec : public DataInpSpec
+mClass PositionInpSpec : public DataInpSpec
 {
 public:
 
@@ -771,4 +767,3 @@ protected:
 };
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uiamplspectrum.h,v 1.19 2012-08-03 13:01:11 cvskris Exp $
+RCS:           $Id: uiamplspectrum.h,v 1.18 2011/11/15 07:50:17 cvssatyaki Exp $
 ______________________________________________________________________
                        
 */   
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "datapack.h"
 #include "survinfo.h"
@@ -30,7 +29,7 @@ template <class T> class Array3D;
 template <class T> class Array1DImpl;
 
 
-mClass(uiTools) uiAmplSpectrum : public uiMainWin
+mClass uiAmplSpectrum : public uiMainWin
 {
 public:
     struct Setup
@@ -91,4 +90,3 @@ protected:
 
 
 #endif
-

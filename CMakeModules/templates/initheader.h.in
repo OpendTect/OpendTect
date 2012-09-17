@@ -1,5 +1,5 @@
-#ifndef @OD_MODULE_NAME_LOWER@mod_h
-#define @OD_MODULE_NAME_LOWER@mod_h
+#ifndef init@OD_MODULE_NAME_LOWER@_h
+#define init@OD_MODULE_NAME_LOWER@_h
 
 /*+
 ________________________________________________________________________
@@ -7,20 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: initheader.h.in,v 1.8 2012-08-28 12:12:53 cvskris Exp $
+ RCS:		$Id: initheader.h.in,v 1.2 2012/03/06 13:15:16 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#ifndef dll_export
-# if defined( __win64__ ) || defined ( __win32__ )
-#  define dll_export	__declspec( dllexport )
-#  define dll_import	__declspec( dllimport )
-# else
-#  define dll_export
-#  define dll_import
-# endif
+#ifdef __msvc__
+# define dll_export	__declspec( dllexport )
+# define dll_import	__declspec( dllimport )
+#else
+# define dll_export
+# define dll_import
 #endif
 
 #if defined(@OD_MODULE_NAME@_EXPORTS) || defined(@OD_MODULE_NAME_UPPER@_EXPORTS)
@@ -29,7 +27,5 @@ ________________________________________________________________________
 # define Export_@OD_MODULE_NAME@	dll_import
 #endif
 
-
-@MODFILEHEADER@
 
 #endif

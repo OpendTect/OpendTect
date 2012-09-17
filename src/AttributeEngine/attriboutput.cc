@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.117 2012-09-11 08:39:53 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.112 2012/09/11 08:40:01 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -38,22 +38,22 @@ static const char* rcsID mUnusedVar = "$Id: attriboutput.cc,v 1.117 2012-09-11 0
 namespace Attrib
 {
 
-const char* Output::outputstr()	    { return sKey::Output(); }
-const char* Output::cubekey()	    { return sKey::Cube(); }
-const char* Output::surfkey()	    { return sKey::Surface(); }
+const char* Output::outputstr()	    { return sKey::Output; }
+const char* Output::cubekey()	    { return sKey::Cube; }
+const char* Output::surfkey()	    { return sKey::Surface; }
 const char* Output::tskey()	    { return "Trace Selection"; }
-const char* Output::scalekey()	    { return sKey::Scale(); }
+const char* Output::scalekey()	    { return sKey::Scale; }
 const char* Output::varzlinekey()   { return "Variable Z Line"; }
 
 const char* SeisTrcStorOutput::seisidkey()	{ return "Seismic.ID"; }
-const char* SeisTrcStorOutput::attribkey()	{ return sKey::Attributes(); }
+const char* SeisTrcStorOutput::attribkey()	{ return sKey::Attributes; }
 const char* SeisTrcStorOutput::inlrangekey()	{ return "In-line range"; }
 const char* SeisTrcStorOutput::crlrangekey()	{ return "Cross-line range"; }
 const char* SeisTrcStorOutput::depthrangekey()	{ return "Depth range"; }
 
 const char* LocationOutput::filenamekey()	{ return "Output.File name"; }
 const char* LocationOutput::locationkey()	{ return "Locations"; }
-const char* LocationOutput::attribkey()		{ return sKey::Attribute(); }
+const char* LocationOutput::attribkey()		{ return sKey::Attribute; }
 const char* LocationOutput::surfidkey()		{ return "Surface.ID"; }
 
 
@@ -191,6 +191,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
     if ( !datacubes_->includes(info.binid) )
 	return;
 		
+    const int totalnrcubes = desoutputs_.size();
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
 	if ( desout<datacubes_->nrCubes() )
@@ -355,8 +356,8 @@ SeisTrcStorOutput::~SeisTrcStorOutput()
 bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 {
     errmsg_ = "";
-    PtrMan<IOPar> outppar = pars.subselect( IOPar::compKey(sKey::Output(),0) );
-    if ( !outppar ) outppar = pars.subselect( IOPar::compKey(sKey::Output(),1) );
+    PtrMan<IOPar> outppar = pars.subselect( IOPar::compKey(sKey::Output,0) );
+    if ( !outppar ) outppar = pars.subselect( IOPar::compKey(sKey::Output,1) );
     if ( !outppar )
     {
         errmsg_ = "Could not find Output keyword in parameter file";
@@ -437,7 +438,7 @@ bool SeisTrcStorOutput::isDataType( const char* reqdatatype) const
 {
     BufferString datatypeinques;
 
-    if ( !strcmp(reqdatatype, sKey::Steering()) )
+    if ( !strcmp(reqdatatype, sKey::Steering) )
 	datatypeinques += "Dip";
     else
 	datatypeinques += reqdatatype;
@@ -516,7 +517,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	    for ( int idx=0; idx<sz; idx++ )
 	    {
 		float val = trc_->get( idx, icomp );
-		val = (float) scaler_->scale( val );
+		val = scaler_->scale( val );
 		trc_->set( idx, val, icomp );
 	    }
 	}
@@ -610,9 +611,9 @@ void SeisTrcStorOutput::deleteTrc()
 }
 
 
-bool SeisTrcStorOutput::finishWrite()
-{
-    return writer_->close();
+bool SeisTrcStorOutput::finishWrite()                                           
+{                                                                               
+    return writer_->close();                                                    
 }
 
 
@@ -1101,7 +1102,7 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
 	    for ( int idx=0; idx<trcsz; idx++ )
 	    {
 		float val = trc_->get( idx, icomp );
-		val = (float) scaler_->scale( val );
+		val = scaler_->scale( val );
 		trc_->set( idx, val, icomp );
 	    }
 	}
@@ -1169,8 +1170,8 @@ bool Trc2DVarZStorOutput::wantsOutput( const Coord& coord ) const
 
 
 bool Trc2DVarZStorOutput::finishWrite()
-{
-    return writer_->close();
+{                                                                               
+    return writer_->close();                                                    
 }
 
 
@@ -1317,14 +1318,14 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 		    ( mIsUdf(distpicktrc_[idx]) || distn<distpicktrc_[idx]) )
 		{
 		    rid = idx;
-		    const_cast<TableOutput*>(this)->distpicktrc_[idx] = (float) distn;
+		    const_cast<TableOutput*>(this)->distpicktrc_[idx] = distn;
 		    break;
 		}
 		else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 &&
 		    ( mIsUdf(distpicktrc_[idx+1]) || distn<distpicktrc_[idx+1]))
 		{
 		    rid = idx+1;
-		    const_cast<TableOutput*>(this)->distpicktrc_[idx+1] = (float) distnp1;
+		    const_cast<TableOutput*>(this)->distpicktrc_[idx+1]=distnp1;
 		    break;
 		}
 	    }
@@ -1333,7 +1334,7 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     else
     {
 	const double dist = coord.distTo(datapointset_.coord(rid));
-	const_cast<TableOutput*>(this)->distpicktrc_[rid] = (float) dist;
+	const_cast<TableOutput*>(this)->distpicktrc_[rid]=dist;
     }
 
     if ( rid< 0 ) return sampleinterval;

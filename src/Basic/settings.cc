@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: settings.cc,v 1.52 2012-08-03 13:01:35 cvskris Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.48 2011/12/14 13:16:41 cvsbert Exp $";
 
 #include "settings.h"
 
@@ -150,13 +150,14 @@ bool Settings::doRead( bool ext )
 
     if ( empty_initially )
     {
-#ifdef __ismac__
-	set( "Font.def.Control", "Helvetica`12`Normal`No" );
-	set( "Font.def.Small control", "Helvetica`10`Normal`No" );
-	set( "Font.def.Graphics small", "Helvetica`10`Normal`No" );
-	set( "Font.def.Graphics medium", "Helvetica`12`Normal`No" );
-	set( "Font.def.Fixed width", "Courier`12`Normal`No" );
-#endif 
+	if ( __ismac__ )
+	{
+	    set( "Font.def.Control", "Helvetica`12`Normal`No" );
+	    set( "Font.def.Small control", "Helvetica`10`Normal`No" );
+	    set( "Font.def.Graphics small", "Helvetica`10`Normal`No" );
+	    set( "Font.def.Graphics medium", "Helvetica`12`Normal`No" );
+	    set( "Font.def.Fixed width", "Courier`12`Normal`No" );
+	}
 	write( false );
     }
     else if ( iscommon && stream.majorVersion() < 3 )
@@ -203,8 +204,8 @@ bool Settings::write( bool do_merge ) const
 }
 
 
-mExternC( Basic ) const char* GetSettingsDataDir();
-mExternC( Basic ) const char* GetSettingsDataDir()
+mExternC const char* GetSettingsDataDir();
+mExternC const char* GetSettingsDataDir()
 {
     static StaticStringManager stm;
     BufferString& dirnm = stm.getString();

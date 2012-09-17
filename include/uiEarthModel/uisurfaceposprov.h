@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uisurfaceposprov.h,v 1.6 2012-08-03 13:00:57 cvskris Exp $
+ RCS:           $Id: uisurfaceposprov.h,v 1.5 2009/07/22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uiposprovgroup.h"
 class CtxtIOObj;
 class uiGenInput;
@@ -23,7 +22,7 @@ class uiLabel;
 
 /*! \brief UI for SurfacePosProvider */
 
-mClass(uiEarthModel) uiSurfacePosProvGroup : public uiPosProvGroup
+mClass uiSurfacePosProvGroup : public uiPosProvGroup
 {
 public:
 			uiSurfacePosProvGroup(uiParent*,
@@ -56,4 +55,3 @@ protected:
 
 
 #endif
-

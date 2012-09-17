@@ -6,17 +6,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          April 2007
- RCS:           $Id: uiflatauxdataeditor.h,v 1.5 2012-08-03 13:00:57 cvskris Exp $
+ RCS:           $Id: uiflatauxdataeditor.h,v 1.4 2011/03/24 04:40:22 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "flatauxdataeditor.h"
 
 class uiFlatViewer;
 
-mClass(uiFlatView) uiFlatViewAuxDataEditor : public FlatView::AuxDataEditor
+mClass uiFlatViewAuxDataEditor : public FlatView::AuxDataEditor
 {
 public:
 		uiFlatViewAuxDataEditor(uiFlatViewer&);
@@ -31,4 +30,3 @@ protected:
 };
 
 #endif
-

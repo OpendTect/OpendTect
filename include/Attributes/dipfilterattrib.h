@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: dipfilterattrib.h,v 1.16 2012-08-03 13:00:08 cvskris Exp $
+ RCS:           $Id: dipfilterattrib.h,v 1.15 2011/04/12 02:10:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 #include "arrayndimpl.h"
 
@@ -74,7 +73,7 @@ Inputs:
 namespace Attrib
 {
 
-mClass(Attributes) DipFilter : public Provider
+mClass DipFilter : public Provider
 {
 public:
     static void		initClass();
@@ -137,5 +136,4 @@ protected:
 
 
 #endif
-
 

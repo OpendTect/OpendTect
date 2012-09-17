@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emobject.cc,v 1.114 2012-08-08 09:01:28 cvsaneesh Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.110 2010/11/29 06:41:01 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -488,19 +488,20 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	{
 	    unSetPos( sectionID(idx), removallist[sididx], true );
 
-	    BinID bid = BinID::fromInt64( removallist[sididx] );
+	    BinID bid;
+	    bid.fromInt64( removallist[sididx] );
 	    const Coord3 pos = getPos( sectionID(idx), removallist[sididx] );
 	    if ( removebypolyposbox_.isEmpty() )
 	    {
 		removebypolyposbox_.hrg.start = removebypolyposbox_.hrg.stop
 		    			      = bid;
 		removebypolyposbox_.zrg.start = removebypolyposbox_.zrg.stop
-		    			      = (float) pos.z;
+		    			      = pos.z;
 	    }
 	    else
 	    {
 		removebypolyposbox_.hrg.include(bid);
-		removebypolyposbox_.zrg.include((float) pos.z);
+		removebypolyposbox_.zrg.include(pos.z);
 	    }
 
 	    if ( ++poscount >= 10000 )

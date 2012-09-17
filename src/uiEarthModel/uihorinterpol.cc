@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorinterpol.cc,v 1.28 2012-08-10 04:11:27 cvssalil Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.22 2011/04/22 20:09:47 cvsyuancheng Exp $";
 
 #include "uihorinterpol.h"
 
@@ -37,17 +37,14 @@ static const char* rcsID mUnusedVar = "$Id: uihorinterpol.cc,v 1.28 2012-08-10 0
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
     : uiDialog( p, uiDialog::Setup("Horizon Gridding","Gridding parameters",
-				   "104.0.16").modal(true) )
+				   "104.0.16") )
     , horizon_( hor )
     , is2d_( is2d )
     , inputhorsel_( 0 )
     , interpol2dsel_( 0 )
     , interpol1dsel_( 0 )
-    , savefldgrp_( 0 )
-    , finished(this)
+    , savefldgrp_( 0 )		       
 {
-    setCtrlStyle( DoAndStay );
-
     if ( horizon_ )
 	horizon_->ref();
     else
@@ -197,11 +194,11 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	    EM::PosID posid = iterator->next();
 	    if ( posid.objectID() == -1 )
 		break;
-	    BinID bid = posid.getRowCol();
+	    BinID bid( posid.subID() );
 	    if ( hs.includes(bid) )
 	    {
 		Coord3 pos = hor3d->getPos( posid );
-		arr->set( hs.inlIdx(bid.inl), hs.crlIdx(bid.crl), (float) pos.z );
+		arr->set( hs.inlIdx(bid.inl), hs.crlIdx(bid.crl), pos.z );
 	    }
 	}
 
@@ -314,12 +311,7 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
 	    return false;
     }
 
-    const bool res = savefldgrp_->saveHorizon();
-    if ( res )
-    {
-	finished.trigger();
-	uiMSG().message( "Horizon successfully gridded/interpolated" );
-    }
-
-    return false;
+    return savefldgrp_->saveHorizon();
 }
+
+

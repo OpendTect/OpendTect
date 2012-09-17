@@ -6,18 +6,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.23 2012-08-03 13:01:03 cvskris Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.21 2012/05/03 13:07:42 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiapplserv.h"
 
 class CtxtIOObj;
 class DataPointSet;
-class IOObj;
-class FilePath;
 class uiConvertPos;
 class uiDataPointSet;
 class uiDialog;
@@ -25,12 +22,10 @@ class uiODApplMgr;
 class uiSurveyMap;
 class uiVelSel;
 
-namespace Attrib { class SelSpec; }
-
 
 /*!\brief uiApplService for OD */
 
-mClass(uiODMain) uiODApplService : public uiApplService
+mClass uiODApplService : public uiApplService
 {
 public:
     			uiODApplService( uiParent* p, uiODApplMgr& am )
@@ -46,7 +41,7 @@ public:
 
 /*!\brief Dispatches work for Appl Mgr */
 
-mClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
+mClass uiODApplMgrDispatcher : public CallBacker
 {
     friend class	uiODApplMgr;
 
@@ -63,7 +58,6 @@ mClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     int			createMapDataPack(const DataPointSet&,int);
 
     void		processPreStack();
-    void		process2D3D(bool to2d);
     void		genAngleMuteFunction();
     void		bayesClass(bool is2d);
     void		resortSEGY();
@@ -75,7 +69,6 @@ mClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		setAutoUpdatePol();
     void		setFonts();
     void		openXPlot();
-    void		createCubeFromWells();
 
     void		showBaseMap();
     uiSurveyMap*	basemap_;
@@ -86,12 +79,15 @@ mClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     uiODApplMgr&	am_;
     uiParent*		par_;
     ObjectSet<uiDataPointSet> uidpsset_;
+
+    void		process2D3D(bool to2d);
+    void		createCubeFromWells();
 };
 
 
 /*!\brief Does visualisation-related work for uiODApplMgr */
 
-mClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
+mClass uiODApplMgrAttrVisHandler : public CallBacker
 {
     friend class	uiODApplMgr;
 
@@ -116,8 +112,6 @@ mClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
     NotifierAccess*	colorTableSeqChange();
     void		useDefColTab(int,int);
     void		saveDefColTab(int,int);
-    bool		set2DDataFileName(int visid,const Attrib::SelSpec*,
-	    			      const IOObj&,FilePath&);
 
     uiODApplMgr&	am_;
     uiParent*		par_;
@@ -125,4 +119,3 @@ mClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
 
 
 #endif
-

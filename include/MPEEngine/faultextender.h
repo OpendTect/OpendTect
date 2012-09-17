@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: faultextender.h,v 1.5 2012-08-03 13:00:29 cvskris Exp $
+ RCS:           $Id: faultextender.h,v 1.4 2009/07/22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "sectionextender.h"
 
 #include "position.h"
@@ -22,7 +21,7 @@ namespace EM { class Fault3D; };
 namespace MPE
 {
 
-mClass(MPEEngine) FaultExtender : public SectionExtender
+mClass FaultExtender : public SectionExtender
 {
 public:
 			FaultExtender(EM::Fault3D&,const EM::SectionID& =-1);
@@ -45,5 +44,4 @@ protected:
 }; // namespace MPE
 
 #endif
-
 

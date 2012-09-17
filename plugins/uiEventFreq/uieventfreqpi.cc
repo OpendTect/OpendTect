@@ -4,7 +4,7 @@
  * DATE     : Jul 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id";
+static const char* rcsID = "$Id";
 
 #include "uieventfreqattrib.h"
 #include "odplugin.h"

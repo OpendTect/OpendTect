@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Lammertink
  Date:		Oct 2004
- RCS:		$Id: jobiomgr.h,v 1.12 2012-08-03 13:00:29 cvskris Exp $
+ RCS:		$Id: jobiomgr.h,v 1.11 2011/05/10 06:21:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mmprocmod.h"
 #include "general.h"
 #include "callback.h"
 //#include "queue.h"
@@ -35,7 +34,7 @@ template <class T> class ObjQueue;
  * between the communication thread and the GUI/manager thread.
  *
 */
-mClass(MMProc) StatusInfo
+mClass StatusInfo
 {
 public:
 			StatusInfo( char tg, int desc, int stat, int pid,
@@ -59,7 +58,7 @@ public:
   sets up a separate thread to maintain contact with client.
 
 */
-mClass(MMProc) JobIOMgr : public CallBacker
+mClass JobIOMgr : public CallBacker
 {
 public:
     enum		Mode { Work, Pause, Stop };
@@ -95,8 +94,7 @@ protected:
 };
 
 
-mGlobal(MMProc) const BufferString& getTempBaseNm();
-mGlobal(MMProc) int mkTmpFileNr();
+mGlobal const BufferString& getTempBaseNm();
+mGlobal int mkTmpFileNr();
 
 #endif
-

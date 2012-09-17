@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicrdevenv.cc,v 1.39 2012-05-02 15:12:07 cvskris Exp $";
+static const char* rcsID = "$Id: uicrdevenv.cc,v 1.39 2012/04/17 10:57:08 cvsraman Exp $";
 
 #include "uicrdevenv.h"
 
@@ -70,16 +70,8 @@ bool uiCrDevEnv::isOK( const char* datadir )
     if ( !datafp.nrLevels() || !File::isDirectory( datafp.fullPath() ) )
 	return false;
 
-    datafp.add( "src" );
-    if ( !File::isDirectory(datafp.fullPath()) )
-	return false;
-
-    datafp.set( datadir ).add( "include" );
-    if ( !File::isDirectory(datafp.fullPath()) )
-	return false;
-
-    datafp.set( datadir ).add( "plugins" );
-    if ( !File::isDirectory(datafp.fullPath()) )
+    datafp.add( "CMakeLists.txt" );
+    if ( !File::exists(datafp.fullPath()) )
 	return false;
 
     return true;
@@ -144,14 +136,12 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     {
 	BufferString msg;
 	const bool isdir= File::isDirectory( workdirnm );
-	const bool isok = isOK(workdirnm);
 
 	if ( isdir )
 	{
 	    msg = "The directory you selected (";
 	    msg += workdirnm;
-	    msg += isok ? ")\nalready seems to be a work directory.\n\n" :
-			  ")\ndoes not seem to be a valid work directory.\n\n";
+	    msg += ")\nalready exists.\n\n";
 	}
 	else
 	{
@@ -200,17 +190,11 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     StreamProvider( cmd ).executeCommand( false );
 #endif
     
-    BufferString relfile = FilePath(workdirnm).add(".rel.devel").fullPath();
-    if ( !File::exists(relfile) )
+    BufferString cmakefile = FilePath(workdirnm).add("CMakeLists.txt").fullPath();
+    if ( !File::exists(cmakefile) )
 	mErrRet( "Creation seems to have failed" )
     else
-    {
-	uiMSG().message( "Creation seems to have succeeded."
-#ifndef __win__
-			 "\n\nSource 'init.csh' or 'init.bash' before starting."
-#endif
-			);
-    }
+	uiMSG().message( "Creation seems to have succeeded." );
 }
 
 

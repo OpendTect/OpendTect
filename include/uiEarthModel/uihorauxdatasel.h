@@ -6,12 +6,11 @@ ___________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          April 2010
- RCS:           $Id: uihorauxdatasel.h,v 1.2 2012-08-03 13:00:56 cvskris Exp $
+ RCS:           $Id: uihorauxdatasel.h,v 1.1 2010/04/22 21:15:33 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "bufstringset.h"
 #include "multiid.h"
 #include "uigroup.h"
@@ -20,11 +19,11 @@ class uiHorizonAuxDataDlg;
 class uiGenInput;
 class uiPushButton;
 
-mClass(uiEarthModel) uiHorizonAuxDataSel : public uiGroup
+mClass uiHorizonAuxDataSel : public uiGroup
 {
 public:
 
-    mClass(uiEarthModel) HorizonAuxDataInfo
+    mClass HorizonAuxDataInfo
     {
     public:
 			HorizonAuxDataInfo(bool load);
@@ -62,4 +61,3 @@ protected:
 
 
 #endif
-

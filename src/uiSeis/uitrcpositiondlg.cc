@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitrcpositiondlg.cc,v 1.11 2012-05-09 07:51:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.8 2011/06/15 04:28:21 cvsumesh Exp $";
 
 #include "uitrcpositiondlg.h"
 
@@ -65,7 +65,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 	crlfld_->setValue( cs.hrg.crlRange().snappedCenter() );
     }
 
-    getposbut_ = new uiToolButton( this, "pick", "Point in 3D scene",
+    getposbut_ = new uiToolButton( this, "pick.png", "Point in 3D scene",
 				   mCB(this,uiTrcPositionDlg,getPosCB) );
     if ( trcnrfld_ )
 	getposbut_->attach( rightOf, trcnrfld_ );

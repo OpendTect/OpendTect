@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: SoColTabMultiTexture2.h,v 1.9 2012-08-27 13:16:47 cvskris Exp $
+ RCS:		$Id: SoColTabMultiTexture2.h,v 1.7 2010/09/15 06:31:55 cvskarthika Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/fields/SoSFColor.h>
 #include <Inventor/fields/SoMFBool.h>
@@ -35,7 +34,7 @@ class SoGLImage;
 All textures are put in a sequence in SoColTabMultiTexture2::image, and the sequence
 is processed from the start to the end to create one texture. */
 
-mSoODClass SoColTabMultiTexture2 : public SoNode
+mClass SoColTabMultiTexture2 : public SoNode
 {
     SO_NODE_HEADER( SoColTabMultiTexture2 );
 public:
@@ -136,4 +135,3 @@ protected:
 
 #endif
     
-

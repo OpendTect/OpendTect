@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiexphorizon.cc,v 1.83 2012-08-13 09:36:57 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.78 2011/05/09 05:42:38 cvssatyaki Exp $";
 
 #include "uiexphorizon.h"
 
@@ -43,7 +43,7 @@ static const char* rcsID mUnusedVar = "$Id: uiexphorizon.cc,v 1.83 2012-08-13 09
 #include <stdio.h>
 
 
-static const char* zmodes[] = { sKey::Yes(), sKey::No(), "Transformed", 0 };
+static const char* zmodes[] = { sKey::Yes, sKey::No, "Transformed", 0 };
 static const char* exptyps[] = { "X/Y", "Inl/Crl", "IESX (3d_ci7m)", 0 };
 static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
@@ -90,7 +90,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     headerfld_->attach( alignedBelow, unitsel_ );
 
     udffld_ = new uiGenInput( this, "Undefined value",
-	    		      StringInpSpec(sKey::FloatUdf()) );
+	    		      StringInpSpec(sKey::FloatUdf) );
     udffld_->attach( alignedBelow, headerfld_ );
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
@@ -136,8 +136,8 @@ static void writeGF( std::ostream& strm, const BinID& bid, float z,
 {
     static char buf[mDataGFLineLen+2];
     const float crl = bid.crl;
-    const float gfval = (float) ( mIsUdf(val) ? mGFUndefValue : val );
-    const float depth = (float) ( mIsUdf(z) ? mGFUndefValue : z );
+    const float gfval = mIsUdf(val) ? mGFUndefValue : val;
+    const float depth = mIsUdf(z) ? mGFUndefValue : z;
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
 	     crd.x, crd.y, segid, 14, depth, crl, crl, bid.crl, gfval, bid.inl,
 	     "" );
@@ -215,7 +215,7 @@ bool uiExportHorizon::writeAscii()
     }
 
     BufferString udfstr = udffld_->text();
-    if ( udfstr.isEmpty() ) udfstr = sKey::FloatUdf();
+    if ( udfstr.isEmpty() ) udfstr = sKey::FloatUdf;
 
     BufferString basename = outfld_->fileName();
 
@@ -283,12 +283,12 @@ bool uiExportHorizon::writeAscii()
  		{
  		    first = false;
  		    bbox.hrg.start = bbox.hrg.stop = bid;
- 		    bbox.zrg.start = bbox.zrg.stop = (float) crd.z;
+ 		    bbox.zrg.start = bbox.zrg.stop = crd.z;
  		}
  		else
  		{
  		    bbox.hrg.include( bid );
- 		    bbox.zrg.include( (float) crd.z );
+ 		    bbox.zrg.include( crd.z );
  		}
  	    }
  
@@ -370,7 +370,7 @@ bool uiExportHorizon::writeAscii()
 		const BinID bid = SI().transform( crd );
 		const float auxvalue = nrattribs > 0
 		    ? hor->auxdata.getAuxDataVal(0,posid) : mUdf(float);
-		writeGF( *sdo.ostrm, bid, (float) crd.z, auxvalue, crd, sidx );
+		writeGF( *sdo.ostrm, bid, crd.z, auxvalue, crd, sidx );
 		continue;
 	    }
 

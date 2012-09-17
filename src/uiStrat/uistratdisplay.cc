@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.51 2012-08-10 03:50:06 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.46 2012/07/17 14:58:42 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -34,13 +34,13 @@ static const char* rcsID mUnusedVar = "$Id: uistratdisplay.cc,v 1.51 2012-08-10 
 uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     : uiGraphicsView(p,"Stratigraphy viewer")
     , drawer_(uiStratDrawer(scene(),data_))
-    , uidatawriter_(uiStratDispToTree(uitree ))
+    , uidatawriter_(uiStratDispToTreeTransl(uitree ))
     , uidatagather_(0)
     , uicontrol_(0)
-    , islocked_(false)
     , maxrg_(Interval<float>(0,2e3))
+    , islocked_(false)
 {
-    uidatagather_ = new uiStratTreeToDisp( data_ );
+    uidatagather_ = new uiStratTreeToDispTransl( data_ );
     uidatagather_->newtreeRead.notify( mCB(this,uiStratDisplay,reDraw) );
 
     getMouseEventHandler().buttonReleased.notify(
@@ -60,13 +60,6 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
 uiStratDisplay::~uiStratDisplay()
 {
     delete uidatagather_;
-}
-
-
-void uiStratDisplay::setTree()
-{
-    uidatagather_->setTree();
-    setRange();
 }
 
 
@@ -163,8 +156,9 @@ public :
     void selChg( CallBacker* cb )
     {
 	mDynamicCastGet(uiCheckBox*,box,cb)
-	if ( !box ) return;
+	if ( !cb ) return;
 
+	int idsel = colboxflds_.indexOf( box );
 	for ( int idbox=0; idbox<colboxflds_.size(); idbox++ )
 	{
 	    NotifyStopper ns( colboxflds_[idbox]->activated );
@@ -277,6 +271,13 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	return true;
     }
     return false;
+}
+
+
+void uiStratDisplay::setTree( Strat::RefTree& )
+{
+    uidatagather_->setTree();
+    setRange();
 }
 
 
@@ -518,13 +519,14 @@ void uiStratDrawer::drawEmptyText()
 {
     delete emptyitm_; emptyitm_ =0;
 
-    const int x = xax_->getPix( 0 );
-    const int y1 = yax_->getPix( yax_->range().stop );
-    const int y2 = yax_->getPix( yax_->range().start );
+    int x1 = xax_->getPix( 0 );
+    int x2 = xax_->getPix( 1 );
+    int y1 = yax_->getPix( yax_->range().stop );
+    int y2 = yax_->getPix( yax_->range().start );
 
     uiTextItem* ti = scene_.addItem( new uiTextItem( "<Click to add>" ) );
     ti->setTextColor( Color::Black() );
-    ti->setPos( x, y2 - abs((y2-y1)/2) -10 );
+    ti->setPos( x1, y2 - abs((y2-y1)/2) -10 );
     ti->setZValue( 2 );
     emptyitm_ = ti;
 }
@@ -606,9 +608,9 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
 	if ( mw )
 	    mw->addToolBar( tb_ );
     }
-    mDefBut(zoominbut_,"zoomforward",zoomCB,"Zoom in");
-    mDefBut(zoomoutbut_,"zoombackward",zoomCB,"Zoom out");
-    mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode")
+    mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
+    mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
+    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode")
 
     viewer_.getKeyboardEventHandler().keyPressed.notify(
 				mCB(this,uiStratViewControl,keyPressed) );
@@ -649,7 +651,7 @@ void uiStratViewControl::zoomCB( CallBacker* but )
 				   allarea.bottomRight().y );
 	    LinScaler scaler( allrg.start, range_.start, 
 			      allrg.stop, range_.stop );
-	    const float rgpos = (float) scaler.scale( pos.y );
+	    const float rgpos = scaler.scale( pos.y );
 	    range_.set( rgpos -margin, rgpos + margin );
 	}
 	else
@@ -686,7 +688,7 @@ void uiStratViewControl::stateCB( CallBacker* )
     if ( !manipdrawbut_ ) return;
     manip_ = !manip_;
 
-    manipdrawbut_->setPixmap( manip_ ? "altview" : "altpick" );
+    manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
     viewer_.setDragMode( !manip_ ? uiGraphicsViewBase::RubberBandDrag
 			         : uiGraphicsViewBase::ScrollHandDrag);
     viewer_.scene().setMouseEventActive( true );
@@ -721,7 +723,7 @@ void uiStratViewControl::handDragging( CallBacker* )
     startdragpos_ = newpos;
     Interval<float> rg( range_ );
     const float width = rg.width();
-    const float shift = mHandDragFac < 0.0005f ? 0.0005f : mHandDragFac;
+    const float shift = mHandDragFac < 0.0005 ? 0.0005 : mHandDragFac;
     const float center = rg.start + width/2 - fac*shift;
     rg.set( center - width/2, center + width/2 );
     if ( rg.start < boundingrange_.start )
@@ -766,8 +768,7 @@ void uiStratViewControl::rubBandCB( CallBacker* )
     allrg.sort();
 
     LinScaler scaler( allrg.start, range_.start, allrg.stop, range_.stop );
-    range_.set( (float) scaler.scale( selrg.start ), 
-				    (float) scaler.scale( selrg.stop ) );
+    range_.set( scaler.scale( selrg.start ), scaler.scale( selrg.stop ) );
     range_.limitTo( boundingrange_ );
     rangeChanged.trigger();
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          April 2008
- RCS:		$Id: uiclusterproc.cc,v 1.5 2012-05-22 14:48:39 cvskris Exp $
+ RCS:		$Id: uiclusterproc.cc,v 1.4 2012/03/02 11:47:04 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,7 +138,7 @@ ClusterProc( const IOPar& pars )
 
 bool init()
 {
-    FixedString res = pars_.find( sKey::Survey() );
+    FixedString res = pars_.find( sKey::Survey );
     if ( !res.isEmpty() && SI().getDirName() != res )
 	IOMan::setSurvey( res.str() );
 
@@ -152,10 +152,10 @@ bool init()
 	FilePath fp( scriptfiles.fullPath(idx) );
 	fp.setExtension( ".par" );
 	IOPar iop;
-	if ( !iop.read(fp.fullPath(),sKey::Pars()) )
+	if ( !iop.read(fp.fullPath(),sKey::Pars) )
 	    continue;
 
-	FixedString desc = iop.find( sKey::Desc() );
+	FixedString desc = iop.find( sKey::Desc );
 	fp.setExtension( ".log" );
 	jobs_ += new ClusterJobInfo( fp.fullPath(), desc.str() );
     }
@@ -332,7 +332,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tr,
 	IOM().permRemove( tempid );
     }
 
-    FixedString tmpdir = pars.find( sKey::TmpStor() );
+    FixedString tmpdir = pars.find( sKey::TmpStor );
     if ( tmpdir && File::isDirectory(tmpdir.str()) )
 	File::removeDir( tmpdir.str() );
 

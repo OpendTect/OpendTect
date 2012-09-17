@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: bufstring.cc,v 1.46 2012-08-30 11:12:38 cvskris Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.39 2012/04/13 14:20:49 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -377,6 +377,7 @@ static int getMatchDist( const BufferString& bs, const char* s, bool casesens )
     const int len2 = strlen( s2 );
     if ( len1 == 0 ) return len2;
     if ( len2 == 0 ) return len1;
+    int ret = 0;
 
     Array2DImpl<int> d( len1+1, len2+1 );
 
@@ -416,7 +417,7 @@ int BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
     if ( sz < 2 ) return 0;
     if ( !s ) s = "";
 
-    int mindist = -1; int minidx = -1;
+    int mindist; int minidx;
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int curdist = getMatchDist( get(idx), s, !caseinsens );
@@ -502,7 +503,7 @@ void BufferStringSet::sort( bool caseinsens, bool asc )
 }
 
 
-void BufferStringSet::useIndexes( const int* idxs )
+void BufferStringSet::useIndexes( int* idxs )
 {
     const int sz = size();
     if ( !idxs || sz < 2 ) return;
@@ -537,7 +538,7 @@ int* BufferStringSet::getSortIndexes( bool caseinsens, bool asc ) const
 	    const int len = newbs->size();
 	    char* buf = newbs->buf();
 	    for ( int ich=0; ich<len; ich++ )
-		buf[ich] = (char) toupper(buf[ich]);
+		buf[ich] = toupper(buf[ich]);
 	    uppcasebss += newbs;
 	}
     }

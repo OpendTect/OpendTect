@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackanglemutecomputer.cc,v 1.14 2012-07-02 14:11:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: prestackanglemutecomputer.cc,v 1.9 2012/04/04 14:26:30 cvsbruno Exp $";
 
 #include "prestackanglemutecomputer.h"
 
@@ -78,17 +78,17 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 {
     BinID startbid = params().hrg_.atIndex( start );
     BinID stopbid = params().hrg_.atIndex( stop );
-    HorSampling hs(false); 
+    HorSampling hs(false);
     hs.set( Interval<int>(startbid.inl,stopbid.inl), 
 	    Interval<int>(startbid.crl,stopbid.crl) );
-    hs.step = params().hrg_.step; 
+    hs.step = params().hrg_.step;
     HorSamplingIterator iterator( hs );
 
     ObjectSet<PointBasedMathFunction> mutefuncs;
     TypeSet<BinID> bids;
 
     RayTracerRunner* rtrunner = rtrunners_[thread];
-    BinID curbid = startbid;
+    BinID curbid;
     while ( iterator.next( curbid ) && shouldContinue() )
     {
 	TypeSet<ElasticLayer> layers; SamplingData<float> sd;
@@ -107,29 +107,17 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	float zpos = 0;
 	int lastioff =0;
 	float lastvalidmutelayer = 0;
-	TypeSet< Interval<float> > mutelayeritvs;
 	for ( int ioff=0; ioff<offsets.size(); ioff++ )
 	{
-	    getOffsetMuteLayers( *rtrunner->rayTracers()[0], 
-				nrlayers, ioff, true, mutelayeritvs );
-	    while ( !mutelayeritvs.isEmpty() )
+	    const float mutelayer = 
+		getOffsetMuteLayer( *rtrunner->rayTracers()[0], 
+				    nrlayers, ioff, true );
+	    if ( !mIsUdf( mutelayer ) )
 	    {
-		Interval<float> mlitv = mutelayeritvs[0]; 
-		mutelayeritvs.remove( 0 );
-
-		float mutelayer = mlitv.start;
-		const float offset = offsets[ioff];
-		zpos = offset== 0 ? 0 : sd.start + sd.step*mutelayer;
-		mutefunc->add( zpos, offset );
+		zpos = offsets[ioff] == 0 ? 0 : sd.start + sd.step*mutelayer;
 		lastvalidmutelayer = mutelayer;
+		mutefunc->add( offsets[ioff], zpos );
 		lastioff = ioff;
-
-		mutelayer = mlitv.stop;
-		if ( !mIsUdf( mutelayer ) )
-		{
-		    zpos = offset == 0 ? 0 : sd.start + sd.step*mutelayer;
-		    mutefunc->add( zpos, offset );
-		}
 	    }
 	}
 	if ( lastioff != offsets.size()-1 )
@@ -150,7 +138,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 		rtrunner->rayTracers()[0]->getSinAngle(nrlayers-1,lastioff);
 	    const float cosangle = sqrt(1-lastsinangle*lastsinangle);
 	    const float doff = thk*lastsinangle/cosangle;
-	    mutefunc->add( lastzpos, offsets[lastioff]+doff );
+	    mutefunc->add( offsets[lastioff]+doff, lastzpos );
 	}
 
 	mutefuncs += mutefunc;

@@ -7,16 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.40 2012-08-30 14:08:18 cvskris Exp $
+ RCS:		$Id: task.h,v 1.38 2012/07/10 07:09:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "namedobj.h"
 #include "objectset.h"
 #include "thread.h"
 
+#include <limits.h>
 
 namespace Threads { class ThreadWorkManager; }
 
@@ -27,7 +27,7 @@ class ProgressMeter;
 /* generalization of something (e.g. a computation) that needs to be
    done in multiple steps. */
 
-mClass(Basic) Task : public NamedObject
+mClass Task : public NamedObject
 {
 public:
     virtual		~Task();
@@ -69,7 +69,7 @@ protected:
 
 
 /*! A collection of tasks, that behave as a single task. */
-mClass(Basic) TaskGroup : public Task
+mClass TaskGroup : public Task
 {
 public:
     			~TaskGroup() { deepErase( tasks_ ); }
@@ -104,7 +104,7 @@ protected:
    be done in sequence, i.e. not parallely. */
 
 
-mClass(Basic) SequentialTask : public Task
+mClass SequentialTask : public Task
 {
 public:
 		SequentialTask(const char* nm=0)
@@ -185,7 +185,7 @@ and in use that instead of the for-loop:
 */
 
 
-mClass(Basic) ParallelTask : public Task
+mClass ParallelTask : public Task
 {
 public:
     virtual		~ParallelTask();
@@ -213,7 +213,15 @@ protected:
     virtual od_int64	nrIterations() const				= 0;
     			/*!<\returns the number of times the process should be
 			    run. */
-    virtual int		maxNrThreads() const;
+    virtual int		maxNrThreads() const
+    			{
+			    const od_int64 res = nrIterations();
+			    if ( res>INT_MAX )
+				return INT_MAX;
+
+			    return (int) res;
+			}
+
     virtual int		minThreadSize() const	{ return 1; }
     			/*!<\returns the minimum number of computations that
 			     effectively can be run in a separate thread.
@@ -288,7 +296,7 @@ interp.execute();
  
  */
 
-#define mDefParallelCalcNoPars(clss) \
+#define mDefParallelCalcNoPars(clss,sz) \
 	class clss : public ParallelTask \
 	{ \
 	public: \
@@ -314,7 +322,7 @@ interp.execute();
 	    T1 v1##_; T2 v2##_; \
 	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_ ) \
 		: sz_(_sz_) \
-		, v1##_(_##v1##_), v2##_(_##v2##_) 			{} \
+		, v1##_(_##v1##_), v2##_(_##v2##_) 		{} \
 	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalc3Pars(clss,T1,v1,T2,v2,T3,v3) \
@@ -326,7 +334,8 @@ interp.execute();
 	    clss( od_int64 _sz_, \
 		    T1 _##v1##_, T2 _##v2##_, T3 _##v3##_ ) \
 		: sz_(_sz_) \
-		, v1##_(_##v1##_), v2##_(_##v2##_) , v3##_(_##v3##_)	{} \
+		, v1##_(_##v1##_), v2##_(_##v2##_) \
+		, v3##_(_##v3##_)			{} \
 	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalc4Pars(clss,T1,v1,T2,v2,T3,v3,T4,v4) \
@@ -346,7 +355,7 @@ interp.execute();
 	    bool doWork( od_int64 start, od_int64 stop, int ) \
 	    { \
 		preop; \
-		for ( int idx=(int) start; idx<=stop; idx++ ) \
+		for ( int idx=start; idx<=stop; idx++ ) \
 		    { impl; } \
 		postop; \
 		return true; \
@@ -358,7 +367,7 @@ interp.execute();
 /*!Class that can execute a task. Can be used as such, be inherited by
    fancy subclasses with user interface and progressbars etc. */
 
-mClass(Basic) TaskRunner
+mClass TaskRunner
 {
 public:
 
@@ -376,4 +385,3 @@ protected:
 };
 
 #endif
-

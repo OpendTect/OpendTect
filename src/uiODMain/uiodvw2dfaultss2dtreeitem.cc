@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.20 2012-09-07 22:08:05 cvsnanne Exp $
+ RCS:		$Id: uiodvw2dfaultss2dtreeitem.cc,v 1.19 2012/02/16 05:05:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,12 +13,12 @@ ________________________________________________________________________
 
 #include "uiempartserv.h"
 #include "uiflatviewstdcontrol.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
-#include "uiodviewer2dmgr.h"
-#include "uitreeview.h"
 #include "uivispartserv.h"
+#include "uiodviewer2dmgr.h"
 #include "pixmap.h"
 
 #include "emfaultstickset.h"
@@ -144,7 +144,7 @@ uiODVw2DFaultSS2DTreeItem::~uiODVw2DFaultSS2DTreeItem()
 
 bool uiODVw2DFaultSS2DTreeItem::init()
 {
-    uitreeviewitem_->setCheckable(true);
+    uilistviewitem_->setCheckable(true);
     EM::EMObject* emobj = 0;
     if ( displayid_ < 0 )
     {
@@ -170,7 +170,7 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     emobj->change.notify(mCB(this,uiODVw2DFaultSS2DTreeItem,emobjChangeCB));
 
     name_ = applMgr()->EMServer()->getName( emid_ );
-    uitreeviewitem_->setChecked( true );
+    uilistviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultSS2DTreeItem,checkCB) );
 
     displayMiniCtab();
@@ -200,7 +200,7 @@ void uiODVw2DFaultSS2DTreeItem::displayMiniCtab()
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
     pixmap->fill( emobj->preferredColor() );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+    uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
 
@@ -227,7 +227,7 @@ void uiODVw2DFaultSS2DTreeItem::emobjChangeCB( CallBacker* cb )
 
 bool uiODVw2DFaultSS2DTreeItem::select()
 {
-    uitreeviewitem_->setSelected( true);
+    uilistviewitem_->setSelected( true);
 
     viewer2D()->dataMgr()->setSelected( fssview_ );
     fssview_->selected();

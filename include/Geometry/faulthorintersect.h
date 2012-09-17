@@ -6,12 +6,11 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
 Date:          March 2010
-RCS:           $Id: faulthorintersect.h,v 1.7 2012-08-03 13:00:27 cvskris Exp $
+RCS:           $Id: faulthorintersect.h,v 1.6 2011/04/26 20:09:38 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "position.h"
 
 class Coord3List;
@@ -24,7 +23,7 @@ class IndexedShape;
 class ExplFaultStickSurface;
 
 
-mClass(Geometry) FaultBinIDSurfaceIntersector
+mClass FaultBinIDSurfaceIntersector
 {
 public:
 				FaultBinIDSurfaceIntersector(float horshift,
@@ -54,4 +53,3 @@ protected:
 
 
 #endif
-

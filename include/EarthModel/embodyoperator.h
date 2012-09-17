@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		Feb 2009
- RCS:		$Id: embodyoperator.h,v 1.8 2012-08-03 13:00:17 cvskris Exp $
+ RCS:		$Id: embodyoperator.h,v 1.7 2009/07/22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "arrayndinfo.h"
 #include "enums.h"
 #include "iopar.h"
@@ -38,7 +37,7 @@ class ImplicitBody;
 /*!Operators for implicit body. Each BodyOperator has two children, either a
    Body or a BodyOperator. */
 
-mClass(EarthModel) BodyOperator
+mClass BodyOperator
 { 
 public:
     			BodyOperator();
@@ -100,7 +99,7 @@ protected:
    threshhold value. The arr's size is based on inlrg, crlrg, zrg. The value at
    each point is the min distance to the body, inside to be negative, and 
    outside to be positive. */
-mClass(EarthModel) Expl2ImplBodyExtracter : public ParallelTask
+mClass Expl2ImplBodyExtracter : public ParallelTask
 {
 public:
 			Expl2ImplBodyExtracter( const DAGTetrahedraTree& tree, 
@@ -129,4 +128,3 @@ private:
 }; // Namespace
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizoneditor.h,v 1.7 2012-08-03 13:00:30 cvskris Exp $
+ RCS:           $Id: horizoneditor.h,v 1.6 2010/06/07 16:00:41 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emeditor.h"
 
 #include "bufstringset.h"
@@ -22,7 +21,7 @@ namespace EM { class Horizon3D; class Horizon2D; };
 namespace MPE
 {
 
-mClass(MPEEngine) HorizonEditor : public ObjectEditor
+mClass HorizonEditor : public ObjectEditor
 {
 public:
     				HorizonEditor(EM::Horizon3D&);
@@ -60,7 +59,7 @@ protected:
 };
 
 
-mClass(MPEEngine) Horizon2DEditor : public ObjectEditor
+mClass Horizon2DEditor : public ObjectEditor
 {
 public:
 				Horizon2DEditor(EM::Horizon2D&);
@@ -75,5 +74,4 @@ protected:
 }; // namespace MPE
 
 #endif
-
 

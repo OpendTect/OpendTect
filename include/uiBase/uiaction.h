@@ -7,20 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:           $Id: uiaction.h,v 1.9 2012-08-24 06:29:12 cvsnageswara Exp $
+ RCS:           $Id: uiaction.h,v 1.7 2011/03/28 08:00:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "callback.h"
 
 class ioPixmap;
 class MenuItem;
 class i_ActionMessenger;
-mFDQtclass(QAction)
+class QAction;
 
-mClass(uiBase) uiAction : public CallBacker
+mClass uiAction : public CallBacker
 {
 friend class		i_ActionMessenger;
 public:
@@ -28,7 +27,7 @@ public:
                         uiAction(const char*,const CallBack&);
                         uiAction(const char*,const CallBack&,const ioPixmap&);
 			uiAction(const MenuItem&);
-			uiAction(mQtclass(QAction*));
+			uiAction(QAction*);
 			~uiAction();
 
     void		setText(const char*);
@@ -49,7 +48,7 @@ public:
     void		setVisible(bool);
     bool		isVisible() const;
 
-    mQtclass(QAction*)	qaction()		{ return qaction_; }
+    QAction*		qaction()		{ return qaction_; }
 
     Notifier<uiAction>	toggled;
     Notifier<uiAction>	triggered;
@@ -57,7 +56,7 @@ public:
 private:
 
     i_ActionMessenger*	msgr_;
-    mQtclass(QAction*)	qaction_;
+    QAction*		qaction_;
     CallBack		cb_;
     bool		checked_;
 
@@ -65,4 +64,3 @@ private:
 };
 
 #endif
-

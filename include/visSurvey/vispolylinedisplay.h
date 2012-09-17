@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          November 2005
- RCS:           $Id: vispolylinedisplay.h,v 1.8 2012-08-03 13:01:29 cvskris Exp $
+ RCS:           $Id: vispolylinedisplay.h,v 1.7 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "vistransform.h"
@@ -29,7 +28,7 @@ namespace visBase { class PolyLine; }
 namespace visSurvey
 {
 
-mClass(visSurvey) PolyLineDisplay :     public visBase::VisualObjectImpl,
+mClass PolyLineDisplay :     public visBase::VisualObjectImpl,
                             public visSurvey::SurveyObject
 {
 public:
@@ -52,4 +51,3 @@ protected:
 };//namespace
 
 #endif
-

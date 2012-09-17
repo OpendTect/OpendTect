@@ -7,25 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Nov 2011
- RCS:		$Id: databaseobject.h,v 1.11 2012-08-30 09:53:02 cvskris Exp $
+ RCS:		$Id: databaseobject.h,v 1.5 2012/02/29 14:55:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "databasemod.h"
 #include "sets.h"
 #include "fixedstring.h"
 #include "sqlquery.h"
-
-class DateInfo;
-class Price;
 
 namespace SqlDB
 {
 class DatabaseTable;
 class Access;
 
-mClass(Database) DatabaseColumnBase
+mClass DatabaseColumnBase
 {
 public:
     			DatabaseColumnBase( DatabaseTable& dobj,
@@ -49,26 +45,9 @@ protected:
 };
 
 
-#define mEnumDatabaseColumn( mod, clssnm, enmcls, enm )			\
-mClass(mod) clssnm : public ::SqlDB::DatabaseColumnBase			\
-{									\
-public:									\
-    		clssnm( ::SqlDB::DatabaseTable& dobj,	\
-				    const char* columnname )		\
-    		    : ::SqlDB::DatabaseColumnBase( dobj, columnname,	\
-			    		  "VARCHAR(50)" )		\
-		{}							\
- 									\
-    bool	parse(const ::SqlDB::Query& q,int column,enmcls::enm& e) const \
-    		{ return enmcls::parseEnum( q.data(column).buf(), e ); }\
-    const char*	dataString(const enmcls::enm& e) const			\
-		{ return enmcls::toString( e ); }			\
-}
-
-
 
 template<class T>
-mClass(Database) DatabaseColumn : public DatabaseColumnBase
+mClass DatabaseColumn : public DatabaseColumnBase
 {
 public:
     inline		DatabaseColumn( DatabaseTable& dobj,
@@ -79,7 +58,7 @@ public:
 };
 
 
-mClass(Database) IDDatabaseColumn : public DatabaseColumn<int>
+mClass IDDatabaseColumn : public DatabaseColumn<int>
 {
 public:
     		IDDatabaseColumn(DatabaseTable& dobj)
@@ -93,7 +72,7 @@ public:
 };
 
 
-mClass(Database) StringDatabaseColumn : public DatabaseColumn<BufferString>
+mClass StringDatabaseColumn : public DatabaseColumn<BufferString>
 {
 public:
     		StringDatabaseColumn( DatabaseTable& dobj,
@@ -101,41 +80,17 @@ public:
 };
 
 
-mClass(Database) CreatedTimeStampDatabaseColumn : public DatabaseColumnBase
+mClass CreatedTimeStampDatabaseColumn : public DatabaseColumn<od_int64>
 {
 public:
     		CreatedTimeStampDatabaseColumn( DatabaseTable& dobj );
     const char*	selectString() const;
-    bool	parse(const Query&,int column,time_t&) const;
-    const char*	dataString(const time_t&) const { return 0; }
+    bool	parse(const Query&,int column,od_int64&) const;
+    const char*	dataString(const od_int64&) const { return 0; }
 };
 
 
-mClass(Database) DateDatabaseColumn : public DatabaseColumnBase
-{
-public:
-    		DateDatabaseColumn( DatabaseTable& dobj,
-				    const char* columnname );
-    bool	parse( const Query&, int column, DateInfo& ) const;
-    const char*	dataString(const DateInfo&) const;
-};
-
-
-mClass(Database) PriceDatabaseColumn : public DatabaseColumnBase
-{
-public:
-    		PriceDatabaseColumn( DatabaseTable& dobj,
-				    const char* columnname );
-    bool	parse( const Query&, int column, Price& ) const;
-    const char*	dataString(const Price&) const;
-};
-
-
-/*!A database where each row has a unique id. A row is never deleted, by
-   a new row is added where entryidcol is set to the id of the row it is
-   replacing, and a timestamp will tell which row that is the current. */
-
-mClass(Database) DatabaseTable
+mClass DatabaseTable
 {
 public:
     			DatabaseTable(const char* tablename);
@@ -148,22 +103,9 @@ public:
 
     virtual const char*	tableName() const { return tablename_; }
 
-    const char*		rowIDSelectString() const;
-    bool		parseRowID(const Query& q,int col, int& id) const;
-
-    const char*		entryIDSelectString() const;
-    bool		parseEntryID(const Query& q,int col, int& id) const;
-
-    const char*		timeStampSelectString() const;
-    bool		parseTimeStamp(const Query& q,int col, time_t&) const;
-
-    bool		searchTable( Access&,int entryid, bool onlylatest,
-	    			     TypeSet<int>& rowids,
-	   			     BufferString& errmsg );
-
-    bool		insertRow( Access&,const BufferStringSet& cols,
-	    			const BufferStringSet& vals, int entryid,
-	   			int& rowid, BufferString& errmsg );
+    const char*		idColumnName() const;
+    const char*		idSelectString() const;
+    bool		parseID(const Query& q,int col, int& id) const;
 
 protected:
     TableStatus		checkTable(bool fix,Access&,BufferString& errmsg) const;
@@ -173,9 +115,7 @@ protected:
 
     const BufferString			tablename_;
 
-    IDDatabaseColumn*			rowidcolumn_;
-    CreatedTimeStampDatabaseColumn*	timestampcolumn_;
-    DatabaseColumn<int>*		entryidcolumn_;
+    IDDatabaseColumn*			idcolumn_;
     ObjectSet<DatabaseColumnBase>	columns_;
 };
 
@@ -218,4 +158,3 @@ const char* DatabaseColumn<T>::dataString( const T& val ) const
 
 
 #endif
-

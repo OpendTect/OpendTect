@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          May 2010
- RCS:           $Id: uimfcdialog.h,v 1.1 2010-05-05 11:56:58 cvsranojay Exp $
+ RCS:           $Id: uimfcdialog.h,v 1.1 2010/05/05 11:56:58 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/

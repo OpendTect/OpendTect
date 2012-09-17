@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldisplaycontrol.cc,v 1.29 2012-08-10 04:11:27 cvssalil Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.24 2012/07/10 13:06:09 cvskris Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -108,7 +108,7 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 	    time_ = ypos_;
 	    const Well::D2TModel* d2t = zdata.d2T();
 	    if ( d2t && d2t->size() >= 1 )
-		depth_ = d2t->getDah( ypos_*0.001f );
+		depth_ = d2t->getDah( ypos_*0.001 );
 	}
 	else
 	{
@@ -131,13 +131,14 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     if ( !seldisp_ ) return;
     if ( selmarker_ )
     {
+	float markerpos = selmarker_->dah();
 	info += " Marker: ";
 	info += selmarker_->name();
 	info += "  ";
     }
     info += "  MD: ";
     bool zinft = seldisp_->zData().dispzinft_ && seldisp_->zData().zistime_;
-    float dispdepth = zinft ? mToFeetFactorF*depth_ : depth_;
+    float dispdepth = zinft ? mToFeetFactor*depth_ : depth_;
     info += toString( mNINT32(dispdepth) );
     info += seldisp_->zData().zistime_ ? " Time: " : " Depth: ";
     info += toString( mNINT32(time_) );

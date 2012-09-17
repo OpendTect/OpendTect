@@ -7,12 +7,11 @@ ________________________________________________________________________
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: binidsurface.h,v 1.19 2012-08-03 13:00:26 cvskris Exp $
+RCS:           $Id: binidsurface.h,v 1.18 2012/02/01 09:43:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "parametricsurface.h"
 
 class BinIDValue;
@@ -25,7 +24,7 @@ namespace Geometry
 {
 
 
-mClass(Geometry) BinIDSurface : public ParametricSurface
+mClass BinIDSurface : public ParametricSurface
 {
 public:
     			BinIDSurface(const BinID& step);
@@ -74,4 +73,3 @@ protected:
 };
 
 #endif
-

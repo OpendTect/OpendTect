@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionselectorimpl.h,v 1.9 2012-08-03 13:00:31 cvskris Exp $
+ RCS:           $Id: sectionselectorimpl.h,v 1.8 2009/07/22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "sectionselector.h"
 
 #include "position.h"
@@ -26,7 +25,7 @@ namespace EM { class Horizon3D; }
 namespace MPE
 {
 
-mClass(MPEEngine) BinIDSurfaceSourceSelector : public SectionSourceSelector
+mClass BinIDSurfaceSourceSelector : public SectionSourceSelector
 {
 public:
     			BinIDSurfaceSourceSelector(const EM::Horizon3D&,
@@ -40,7 +39,7 @@ protected:
 
 
 
-mClass(MPEEngine) SurfaceSourceSelector : public SectionSourceSelector
+mClass SurfaceSourceSelector : public SectionSourceSelector
 {
 public:
     		SurfaceSourceSelector(const EM::EMObject&,
@@ -56,5 +55,4 @@ protected:
 };
 
 #endif
-
 

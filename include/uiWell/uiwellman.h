@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.29 2012-08-03 13:01:21 cvskris Exp $
+ RCS:           $Id: uiwellman.h,v 1.28 2012/03/01 12:56:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uiobjfileman.h"
 #include "bufstringset.h"
 
@@ -23,7 +22,7 @@ class uiPushButton;
 namespace Well { class Data; class Reader; };
 
 
-mClass(uiWell) uiWellMan : public uiObjFileMan
+mClass uiWellMan : public uiObjFileMan
 {
 public:
     				uiWellMan(uiParent*);
@@ -80,4 +79,3 @@ protected:
 };
 
 #endif
-

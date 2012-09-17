@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          November 2011
- RCS:           $Id: uipseventstreeitem.h,v 1.10 2012-09-07 22:08:03 cvsnanne Exp $
+ RCS:           $Id: uipseventstreeitem.h,v 1.7 2011/12/20 05:38:20 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,9 +61,9 @@ protected:
     virtual const char*	    parentType() const 
 			    { return typeid (PSEventsParentTreeItem).name(); }
     virtual const char*	    managerName() const { return "PreStackEvents"; }
-    virtual void	    createMenu(MenuHandler*,bool istb);
+    virtual void	    createMenuCB(CallBacker*);
     virtual void	    handleMenuCB(CallBacker*);
-    virtual bool	    anyButtonClick(uiTreeViewItem*);
+    virtual bool	    anyButtonClick(uiListViewItem*);
     virtual void	    updateColumnText(int);
 
     void		    coltabChangeCB(CallBacker*);
@@ -71,8 +71,8 @@ protected:
     void		    updateDisplay();
     void		    displayMiniColTab();
 
-    int			    cPixmapWidth() const { return 16; }
-    int			    cPixmapHeight() const { return 10; }
+    const int		    cPixmapWidth() const { return 16; }
+    const int		    cPixmapHeight() const { return 10; }
 
     PreStack::EventManager& psem_;
     const char*		    eventname_;

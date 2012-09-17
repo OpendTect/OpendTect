@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmt2dlines.h,v 1.4 2009-07-22 16:01:28 cvsbert Exp $
+ RCS:		$Id: uigmt2dlines.h,v 1.4 2009/07/22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

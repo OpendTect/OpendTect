@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseiswvltsel.h,v 1.6 2012-08-03 13:01:09 cvskris Exp $
+ RCS:           $Id: uiseiswvltsel.h,v 1.5 2011/09/13 15:09:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
 class MultiID;
@@ -21,7 +20,7 @@ class uiComboBox;
 
 /*!\brief 'Immediate' Wavelet selector, with 'Manage' button */
 
-mClass(uiSeis) uiSeisWaveletSel : public uiGroup
+mClass uiSeisWaveletSel : public uiGroup
 {
 public:
 
@@ -52,4 +51,3 @@ protected:
 
 
 #endif
-

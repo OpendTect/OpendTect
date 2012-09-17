@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.28 2012-08-03 13:00:14 cvskris Exp $
+ RCS:		$Id: rowcol.h,v 1.26 2010/06/18 12:23:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "rcol.h"
 
 template <class T> class TypeSet;
@@ -21,12 +20,13 @@ class BinID;
 /*!\brief Object with row and col. RowCol has most functions in common with
           BinID, so template-based functions can be based on both classes. */
 
-mClass(Basic) RowCol
+mClass RowCol
 {
 public:
     inline			RowCol(int r,int c);
     inline			RowCol(const RowCol&);
 				RowCol(const BinID&);
+    inline			RowCol(const od_int64&);
     inline			RowCol();
 
     inline bool			operator==(const RowCol&) const;
@@ -49,9 +49,9 @@ public:
     void			fill(char*) const;
     bool			use(const char*);
     inline od_int64		toInt64() const;
-    static inline RowCol	fromInt64(od_int64);
+    inline void			fromInt64(od_int64);
     inline int			toInt32() const;
-    static inline RowCol	fromInt32(int);
+    inline void			fromInt32(int);
     int				sqDistTo(const RowCol&) const;
     bool			isNeighborTo(const RowCol&,const RowCol&,
 					     bool eightconnectivity=true) const;
@@ -89,4 +89,3 @@ public:
 mImplInlineRowColFunctions(RowCol, row, col);
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Lammertink
  Date:		9-5-2005
- RCS:		$Id: jobcommunic.h,v 1.2 2012-08-03 13:00:31 cvskris Exp $
+ RCS:		$Id: jobcommunic.h,v 1.1 2010/09/01 05:42:01 cvsranojay Exp $
 ________________________________________________________________________
 
 */
 
-#include "networkmod.h"
 #include "bufstring.h"
 #include "genc.h"
 #include "thread.h"
@@ -48,7 +47,7 @@ class TcpSocket;
  *  Handles the communication between a client and the master, from
  *  the client's point of view. 
  */ 
-mClass(Network) JobCommunic : public CallBacker
+mClass JobCommunic : public CallBacker
 {
 public:
     enum State		{ Undef, Working, WrapUp, Finished, AllDone, Paused,
@@ -134,4 +133,3 @@ private:
 #undef mTryMaxtries
 
 #endif
-

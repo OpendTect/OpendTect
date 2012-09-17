@@ -7,23 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.51 2012-08-29 07:11:05 cvskris Exp $
+ RCS:		$Id: visobject.h,v 1.49 2012/03/19 08:01:30 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
-#include "thread.h"
 
 class SoSeparator;
 class SoLockableSeparator;
 class SoNode;
 class SoSwitch;
 class Coord3;
-
-namespace osg { class Switch; }
 
 namespace visBase
 {
@@ -33,7 +29,7 @@ class EventCatcher;
 
 /*!\brief Base class for all objects that are visual on the scene. */
 
-mClass(visBase) VisualObject : public DataObject
+mClass VisualObject : public DataObject
 {
 public:
     virtual void		turnOn(bool)				= 0;
@@ -77,7 +73,7 @@ private:
 };
 
 
-mClass(visBase) VisualObjectImpl : public VisualObject
+mClass VisualObjectImpl : public VisualObject
 {
 public:
     void		turnOn(bool);
@@ -118,12 +114,6 @@ protected:
     int			childIndex(const SoNode*) const;
     SoNode*		getChild(int);
 
-    void		addChild(osg::Node*);
-    void		insertChild(int pos,osg::Node*);
-    void		removeChild(osg::Node*);
-    int			childIndex(const osg::Node*) const;
-
-
 			VisualObjectImpl(bool selectable);
     virtual		~VisualObjectImpl();
 
@@ -132,18 +122,19 @@ protected:
     bool		righthandsystem_;
 
     SoNode*		gtInvntrNode();
-    osg::Node*		gtOsgNode();
 
 private:
     SoSeparator*	root_;
     SoLockableSeparator* lockableroot_;
-    osg::Switch*	osgroot_;
 };
 
-mLockerClassImpl( visBase, VisualReadLockLocker, VisualObjectImpl,
+
+mLockerClassImpl( VisualReadLockLocker, VisualObjectImpl,
 		  readLock(), readUnLock(), tryReadLock() )
-mLockerClassImpl( visBase, VisualWriteLockLocker, VisualObjectImpl,
+mLockerClassImpl( VisualWriteLockLocker, VisualObjectImpl,
 		  writeLock(), writeUnLock(), tryWriteLock() )
+
+
 };
 
 
@@ -176,4 +167,3 @@ mLockerClassImpl( visBase, VisualWriteLockLocker, VisualObjectImpl,
 */
 
 #endif
-

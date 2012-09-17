@@ -7,14 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: mantisdatabase.h,v 1.27 2012-08-03 13:00:16 cvskris Exp $
+ RCS:           $Id: mantisdatabase.h,v 1.23 2012/02/21 11:43:09 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "databasemod.h"
 #include "sqldatabase.h"
 #include "sqlquery.h"
+#include "bufstringset.h"
+#include "typeset.h"
+
 
 namespace SqlDB
 {
@@ -23,7 +25,7 @@ class BugTextTableEntry;
 class BugHistoryTableEntry;
 
 
-mClass(Database) MantisAccess : public MySqlAccess
+mClass MantisAccess : public MySqlAccess
 {
 public:
 
@@ -33,7 +35,7 @@ public:
 };
 
 
-mClass(Database) MantisQuery : public Query
+mClass MantisQuery : public Query
 {
 public:
 			MantisQuery(MantisAccess&);
@@ -43,12 +45,11 @@ public:
 };
 
 
-mClass(Database) MantisDBMgr
+mClass MantisDBMgr
 {
 public:
 
-    				MantisDBMgr(const ConnectionData* cd=0,
-					    const char* username=0);
+    				MantisDBMgr(const ConnectionData* cd=0);
     				~MantisDBMgr();
 
     inline MantisAccess&	access() 	{ return acc_; }
@@ -59,12 +60,10 @@ public:
     const char*			errMsg() const;
 
     int				getUserID(bool isdeveloper) const;
-    int				getUserID() const;
     int				getMaxBugIDFromBugTable() const;
     int				getMaxBugIDFromBugTextTable() const;
     int				getMaxNoteIDFromBugNoteTable() const;
     int				getMaxNoteIDFromBugNoteTextTable() const;
-    const BugTableEntry*	getBugTableForRead(int tableidx) const;
     BugTableEntry*		getBugTableEntry(int tableidx);
     BugTextTableEntry*		getBugTextTableEntry(int tableidx);
     inline int			nrBugs() const		{ return bugs_.size(); }
@@ -119,7 +118,6 @@ public:
     bool			deleteSelBugNote(int noteid);
     bool			updateBugNote(int noteid,
 	    				      const BufferString& note);
-    bool		addToBugNoteTable(const char*,int);
 
     static const char* 	sKeyAll();
     static const char* 	sKeyUnAssigned();
@@ -131,15 +129,16 @@ public:
     static const char*	sKeyProjectVersionTable();
     static const char*	sKeyBugFileTable();
     static const char*	sKeyProjectTable();
-    static int	 	cOpenDtectProjectID();
-    static int	 	cAccessLevelDeveloper();
-    static int	 	cAccessLevelCaseStudy();
+    static const int 	cOpenDtectProjectID();
+    static const int 	cAccessLevelDeveloper();
+    static const int 	cAccessLevelCaseStudy();
 
 
 protected:
 
     bool		addToBugTable(BugTableEntry&);
     bool		addToBugTextTable(BugTextTableEntry&);
+    bool		addToBugNoteTable(const char*,int);
     bool		addToBugNoteTextTable(const char*);
     bool		fillCategories();
     bool		fillBugTableEntries();
@@ -179,11 +178,9 @@ protected:
 
     mutable BufferString errmsg_;
     ObjectSet<BufferStringSet>	versionsbyproject_;
-    const BufferString username_;
 };
 
 
 } // namespace
 
 #endif
-

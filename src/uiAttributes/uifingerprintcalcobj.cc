@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifingerprintcalcobj.cc,v 1.23 2012-08-10 04:11:25 cvssalil Exp $";
+static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.20 2012/07/10 13:06:04 cvskris Exp $";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"
@@ -79,8 +79,8 @@ static void create2DRandPicks( const MultiID& lsetid, BinIDValueSet* rangesset )
 	const Coord& pos = geometry.positions()[crdidx].coord_;
 
 	const BinID bid = SI().transform( pos );
-	const float zpos = (float) (geometry.zRange().start +
-			    Stats::RandGen::get()*geometry.zRange().width());
+	const float zpos = geometry.zRange().start +
+			    Stats::RandGen::get()*geometry.zRange().width();
 	rangesset->add( bid, zpos );
     }
 }
@@ -96,8 +96,8 @@ static void create3DRandPicks( BinIDValueSet* rangesset )
 	bid.inl = mNINT32( irg.start + Stats::RandGen::get() * irg.nrSteps() );
 	bid.crl = mNINT32( crg.start + Stats::RandGen::get() * crg.nrSteps() );
 	SI().snap( bid );
-	const float z = (float) (SI().zRange(true).start
-	    	      + Stats::RandGen::get() * SI().zRange(true).width());
+	const float z = SI().zRange(true).start
+	    	      + Stats::RandGen::get() * SI().zRange(true).width();
 	rangesset->add( bid, z );
     }
 }
@@ -235,7 +235,7 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
 	fillInStats( valueset, statsset, styp );
 	
 	for ( int idx=0; idx<nrattribs; idx++ )
-	    vals[idx] = (float) statsset[idx]->getValue(styp);
+	    vals[idx] = statsset[idx]->getValue(styp);
 
 	deepErase( statsset );
     }

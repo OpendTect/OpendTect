@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: explfaultsticksurface.cc,v 1.58 2012-08-08 05:26:29 cvssalil Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.53 2012/07/10 13:06:02 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -278,7 +278,7 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 	    const Coord d0 = texture1-texture0;
 	    const Coord d1 = checkpos-texture0;
 	    const Coord d2 = texture1-texture2;
-	    const double fchkpt0 = (d0.x*d2.y-d0.y*d2.x)/(d1.x*d2.y-d1.y*d2.x);
+	    const float fchkpt0 = (d0.x*d2.y-d0.y*d2.x)/(d1.x*d2.y-d1.y*d2.x);
 	    const double factor12=(d1.x*d0.y-d1.y*d0.x)/(d1.x*d2.y-d1.y*d2.x);
 
 	    const Coord3 p0 = explsurf_.coordlist_->get( v0 );
@@ -567,10 +567,10 @@ void ExplFaultStickSurface::updateTextureCoords()
 		continue;
 
 	    const float rowcoord =
-		(texturecolcoords_[stickidx] + 0.5f)/texturesize_.col;
+		(texturecolcoords_[stickidx]+0.5)/texturesize_.col;
 
 	    const float knotpos = 
-		((*textureknotcoords_[stickidx])[idx] + 0.5f)/ texturesize_.row;
+		((*textureknotcoords_[stickidx])[idx]+0.5)/ texturesize_.row;
 
 	    texturecoords.set( ci, Coord3(knotpos,rowcoord,0) );
 	}
@@ -724,8 +724,8 @@ int ExplFaultStickSurface::point2LineSampleSz( const Coord3& point,
 	    (linept1.z-point.z)/texturesampling_.value);
 
     const Coord3 dir = lp0relpos-lp1relpos;
-    const float u = (float) (-lp1relpos.dot(dir)/dir.sqAbs());
-    const float nrsamples = (float) (lp1relpos+u*dir).abs();
+    const float u = -lp1relpos.dot(dir)/dir.sqAbs();
+    const float nrsamples = (lp1relpos+u*dir).abs();
 
     return mNINT32( nrsamples );
 }
@@ -737,7 +737,7 @@ int ExplFaultStickSurface::sampleSize( const Coord3& p0, const Coord3& p1 )
     const Coord3 sampl( (float)bid.inl/texturesampling_.binid.inl,
 	    		(float)bid.crl/texturesampling_.binid.crl,
 			(p0.z-p1.z)/texturesampling_.value );
-    const float nrsamples =  (float) sampl.abs();
+    const float nrsamples =  sampl.abs();
     return mNINT32( nrsamples );
 }
 
@@ -773,8 +773,8 @@ bool ExplFaultStickSurface::updateTextureSize()
 		const Coord3 pos1 =
 		    surface_->getKnot( RowCol(sticknr,knotnr+colrg.step));
 
-		const BinIDValue bid0( SI().transform( pos0.coord()), (float) pos0.z );
-		const BinIDValue bid1( SI().transform( pos1.coord()), (float) pos1.z );
+		const BinIDValue bid0( SI().transform( pos0.coord()), pos0.z );
+		const BinIDValue bid1( SI().transform( pos1.coord()), pos1.z );
 
 		const int inlsamples =
 		    (bid0.binid.inl-bid1.binid.inl)/texturesampling_.binid.inl;
@@ -1057,7 +1057,7 @@ float ExplFaultStickSurface::getAvgDistance( int stickidx,
 	     getCoord( stickidx-1, row-shift[stickidx-1] ).scaleBy(scalefacs_);
 	    if ( prevpos.isDefined() )
 	    {
-		dist += (float) prevpos.distTo( pos );
+		dist += prevpos.distTo( pos );
 		nrposused++;
 	    }
 	}
@@ -1069,7 +1069,7 @@ float ExplFaultStickSurface::getAvgDistance( int stickidx,
 
 	    if ( nextpos.isDefined() )
 	    {
-		dist += (float) nextpos.distTo( pos );
+		dist += nextpos.distTo( pos );
 		nrposused++;
 	    }
 	}
@@ -1160,7 +1160,7 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 {
     //Refine needed for pos calculation
 
-    const float zscale = SI().zDomain().userFactor();
+    const float zscale = SI().zFactor();
     
     TypeSet<Coord> knots;
     TypeSet<int> knotids;
@@ -1184,14 +1184,14 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 	{
 	    inlrg.start = inlrg.stop = bid.inl;
 	    crlrg.start = crlrg.stop = bid.crl;
-	    zrg.start = zrg.stop = (float) pos.z;
+	    zrg.start = zrg.stop = pos.z;
 	    found = true;
 	}
 	else
 	{
 	    inlrg.include( bid.inl );
 	    crlrg.include( bid.crl );
-	    zrg.include( (float) pos.z );
+	    zrg.include( pos.z );
 	}
     }
     
@@ -1501,8 +1501,8 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
     {
 	for ( int idy=0; idy<rsize; idy++ )
 	{
-	    const float sqdist = (float) mSqDist( lknots[idx], rknots[idy] );
-	    mSqDistArr( idx, idy ) = sqdist;
+	    const float sqdist = mSqDist( lknots[idx], rknots[idy] );
+	    mSqDistArr( idx, idy ) =  sqdist;
 	}
     }
 
@@ -1612,7 +1612,8 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
     mCBCapsuleUnpack( const TypeSet<GeomPosID>*, pidlist, cb );
     for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
     {
-	RowCol rc = RowCol::fromInt64( (*pidlist)[idx] );
+	RowCol rc;
+	rc.fromInt64( (*pidlist)[idx] );
 	const int stickidx = rc.row;
 
 	if ( rc.col==FaultStickSurface::StickChange )
@@ -1656,7 +1657,8 @@ void ExplFaultStickSurface::surfaceMovement( CallBacker* cb )
     mCBCapsuleUnpack( const TypeSet<GeomPosID>*, pidlist, cb );
     for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
     {
-	RowCol rc = RowCol::fromInt64( (*pidlist)[idx] );
+	RowCol rc;
+	rc.fromInt64( (*pidlist)[idx] );
 	const int stickidx = rc.row;
 
 	emptyPanel( stickidx-1 );

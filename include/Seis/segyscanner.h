@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.21 2012-08-03 13:00:35 cvskris Exp $
+ RCS:		$Id: segyscanner.h,v 1.20 2010/07/19 05:38:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "executor.h"
 #include "seistype.h"
 #include "bufstringset.h"
@@ -32,7 +31,7 @@ class FileDataSet;
 
 /*!\brief Scans SEG-Y file(s). For reports, you'd want to set rich info. */
 
-mClass(Seis) Scanner : public Executor
+mClass Scanner : public Executor
 {
 public:
 
@@ -105,4 +104,3 @@ protected:
 } // namespace
 
 #endif
-

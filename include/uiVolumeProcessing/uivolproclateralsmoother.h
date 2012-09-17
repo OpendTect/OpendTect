@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		February 2008
- RCS:		$Id: uivolproclateralsmoother.h,v 1.5 2012-08-03 13:01:19 cvskris Exp $
+ RCS:		$Id: uivolproclateralsmoother.h,v 1.4 2011/08/24 13:19:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uivolumeprocessingmod.h"
 #include "uivolprocchain.h"
 #include "volproclateralsmoother.h"
 
@@ -25,7 +24,7 @@ namespace VolProc
 class LateralSmoother;
 
 
-mClass(uiVolumeProcessing) uiLateralSmoother : public uiStepDialog
+mClass uiLateralSmoother : public uiStepDialog
 {
 public:
     mDefaultFactoryInstanciationBase(
@@ -61,4 +60,3 @@ protected:
 }; //namespace
 
 #endif
-

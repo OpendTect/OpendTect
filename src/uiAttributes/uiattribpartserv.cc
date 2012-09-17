@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.200 2012-08-23 21:47:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.189 2012/08/23 22:01:27 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -71,22 +71,21 @@ static const char* rcsID mUnusedVar = "$Id: uiattribpartserv.cc,v 1.200 2012-08-
 #include "uitaskrunner.h"
 #include "uivolprocbatchsetup.h"
 #include "uivolprocchain.h"
-#include "uicrossattrevaluatedlg.h"
 
 #include <math.h>
 
 using namespace Attrib;
 
-int uiAttribPartServer::evDirectShowAttr()	    { return 0; }
-int uiAttribPartServer::evNewAttrSet()	   	    { return 1; }
-int uiAttribPartServer::evAttrSetDlgClosed() 	    { return 2; }
-int uiAttribPartServer::evEvalAttrInit()	    { return 3; }
-int uiAttribPartServer::evEvalCalcAttr()	    { return 4; }
-int uiAttribPartServer::evEvalShowSlice()	    { return 5; }
-int uiAttribPartServer::evEvalStoreSlices()	    { return 6; }
-int uiAttribPartServer::evEvalRestore()      	    { return 7; }
-int uiAttribPartServer::objNLAModel2D()	   	    { return 100; }
-int uiAttribPartServer::objNLAModel3D()	  	    { return 101; }
+const int uiAttribPartServer::evDirectShowAttr()    { return 0; }
+const int uiAttribPartServer::evNewAttrSet()	    { return 1; }
+const int uiAttribPartServer::evAttrSetDlgClosed()  { return 2; }
+const int uiAttribPartServer::evEvalAttrInit()	    { return 3; }
+const int uiAttribPartServer::evEvalCalcAttr()	    { return 4; }
+const int uiAttribPartServer::evEvalShowSlice()	    { return 5; }
+const int uiAttribPartServer::evEvalStoreSlices()   { return 6; }
+const int uiAttribPartServer::evEvalRestore()       { return 7; }
+const int uiAttribPartServer::objNLAModel2D()	    { return 100; }
+const int uiAttribPartServer::objNLAModel3D()	    { return 101; }
 
 const char* uiAttribPartServer::attridstr()	    { return "Attrib ID"; }
 
@@ -275,8 +274,6 @@ bool uiAttribPartServer::editSet( bool is2d )
 	   				 attrsneedupdt_ );
     attrsetdlg_->dirshowcb.notify( mCB(this,uiAttribPartServer,directShowAttr));
     attrsetdlg_->evalattrcb.notify( mCB(this,uiAttribPartServer,showEvalDlg) );
-    attrsetdlg_->crossevalattrcb.notify( 
-	    mCB(this,uiAttribPartServer,showCrossEvalDlg) );
     attrsetdlg_->xplotcb.notify( mCB(this,uiAttribPartServer,showXPlot) );
     if ( attrsneedupdt_ )
     {
@@ -619,6 +616,7 @@ DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
     const DataCubes* output = createOutput( cs, cache );
     if ( !output || !output->nrCubes() )  return DataPack::cNoID();
 
+    const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const bool isflat = cs.isFlat();
     DataPack* newpack;
     if ( isflat )
@@ -1192,6 +1190,7 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
 	const DescSet* dset = DSHolder().getDescSet(is2d,false);
 	SelInfo attrinf( dset, nlamodel );
 	const bool isnla = as.isNLA();
+	const bool hasid = as.id().isValid();
 	const int start = 0; const int stop = attrinf.nlaoutnms_.size();
 	mInsertItems(nlaoutnms_,nlamnuitem,isnla);
     }
@@ -1233,6 +1232,7 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
        					      bool& dousemulticomp )
 {
+    const bool needext = SI().has2D() && SI().has3D();
     const bool is3d = stored3dmnuitem_.findItem(mnuid) ||
 		      calc3dmnuitem_.findItem(mnuid) ||
 		      nla3dmnuitem_.findItem(mnuid) ||
@@ -1519,7 +1519,7 @@ IOObj* uiAttribPartServer::getIOObj( const Attrib::SelSpec& as ) const
 
 #define mErrRet(msg) { uiMSG().error(msg); return; }
 
-void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
+void uiAttribPartServer::showEvalDlg( CallBacker* )
 {
     if ( !attrsetdlg_ ) return;
     const Desc* curdesc = attrsetdlg_->curDesc();
@@ -1530,64 +1530,36 @@ void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
     if ( !ade ) return;
 
     sendEvent( evEvalAttrInit() );
-    //if ( !alloweval_ ) mErrRet( "Evaluation of attributes only possible on\n"
-//			       "Inlines, Crosslines, Timeslices and Surfaces.");
+    if ( !alloweval_ ) mErrRet( "Evaluation of attributes only possible on\n"
+			       "Inlines, Crosslines, Timeslices and Surfaces.");
 
-    if ( !iscrossevaluate )
-    {
-    	uiEvaluateDlg* evaldlg = 
-	    new uiEvaluateDlg( attrsetdlg_, *ade, allowevalstor_ );
-    
-	if ( !evaldlg->evaluationPossible() )
-    	    mErrRet( "This attribute has no parameters to evaluate" )
-    
-	evaldlg->calccb.notify( mCB(this,uiAttribPartServer,calcEvalAttrs) );
-    	evaldlg->showslicecb.notify( mCB(this,uiAttribPartServer,showSliceCB) );
-    	evaldlg->windowClosed.notify(
-		mCB(this,uiAttribPartServer,evalDlgClosed) );
-	evaldlg->go();
-    }
-    else
-    {
-    	uiCrossAttrEvaluateDlg* crossevaldlg = 
-	    new uiCrossAttrEvaluateDlg(attrsetdlg_,*attrsetdlg_,allowevalstor_);
-	crossevaldlg->calccb.notify( 
-		mCB(this,uiAttribPartServer,calcEvalAttrs) );
-	crossevaldlg->showslicecb.notify( 
-		mCB(this,uiAttribPartServer,showSliceCB) );
-	crossevaldlg->windowClosed.notify(
-		mCB(this,uiAttribPartServer,evalDlgClosed) );
-	crossevaldlg->go();
-    }
+    uiEvaluateDlg* evaldlg = new uiEvaluateDlg( attrsetdlg_, *ade,
+	    					allowevalstor_ );
+    if ( !evaldlg->evaluationPossible() )
+	mErrRet( "This attribute has no parameters to evaluate" )
 
+    evaldlg->calccb.notify( mCB(this,uiAttribPartServer,calcEvalAttrs) );
+    evaldlg->showslicecb.notify( mCB(this,uiAttribPartServer,showSliceCB) );
+    evaldlg->windowClosed.notify( mCB(this,uiAttribPartServer,evalDlgClosed) );
+    evaldlg->go();
     attrsetdlg_->setSensitive( false );
 }
-
-
-void uiAttribPartServer::showCrossEvalDlg( CallBacker* )
-{ processEvalDlg( true ); }
-
-
-void uiAttribPartServer::showEvalDlg( CallBacker* cb )
-{ processEvalDlg( false ); }
 
 
 void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 {
     mDynamicCastGet(uiEvaluateDlg*,evaldlg,cb);
-    mDynamicCastGet(uiCrossAttrEvaluateDlg*,crossevaldlg,cb);
-    if ( !evaldlg && !crossevaldlg )
-       return;	
-    
-    if ( (evaldlg && evaldlg->storeSlices()) ||
-	 (crossevaldlg && crossevaldlg->storeSlices()) )
+    if ( !evaldlg ) { pErrMsg("cb is not uiEvaluateDlg*"); return; }
+
+    if ( evaldlg->storeSlices() )
 	sendEvent( evEvalStoreSlices() );
     
     Desc* curdesc = attrsetdlg_->curDesc();
     BufferString curusrref = curdesc->userRef();
+    uiAttrDescEd* ade = attrsetdlg_->curDescEd();
 
-    const Desc* evad = evaldlg ? evaldlg->getAttribDesc() 
-			       : crossevaldlg->getAttribDesc();
+    DescSet* curattrset = attrsetdlg_->getSet();
+    const Desc* evad = evaldlg->getAttribDesc();
     if ( evad )
     {
 	BufferString defstr;
@@ -1595,19 +1567,6 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 	curdesc->parseDefStr( defstr );
 	curdesc->setUserRef( curusrref );
 	attrsetdlg_->updateCurDescEd();
-
-	if ( crossevaldlg )
-	{
-	    const TypeSet<Attrib::DescID>& cids = 
-		crossevaldlg->evaluateChildIds();
-	    BufferString ds = crossevaldlg->acceptedDefStr();
-	    Attrib::DescSet* ads = attrsetdlg_->getSet();
-	    for ( int idx=0; idx<cids.size(); idx++ )
-	    {
-		Desc* ad = ads->getDesc( cids[idx] );
-		if ( ad ) ad->parseDefStr( ds );
-	    }
-	}
     }
 
     sendEvent( evEvalRestore() );
@@ -1618,18 +1577,12 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 void uiAttribPartServer::calcEvalAttrs( CallBacker* cb )
 {
     mDynamicCastGet(uiEvaluateDlg*,evaldlg,cb);
-    mDynamicCastGet(uiCrossAttrEvaluateDlg*,crossevaldlg,cb);
-    if ( !evaldlg && !crossevaldlg )
-       return;	
+    if ( !evaldlg ) { pErrMsg("cb is not uiEvaluateDlg*"); return; }
 
     const bool is2d = attrsetdlg_->is2D();
     DescSetMan* kpman = eDSHolder().getDescSetMan( is2d );
-    DescSet* ads = evaldlg ? evaldlg->getEvalSet() : crossevaldlg->getEvalSet();
-    if ( evaldlg )
-    	evaldlg->getEvalSpecs( targetspecs_ );
-    else
-	crossevaldlg->getEvalSpecs( targetspecs_ );
-    
+    DescSet* ads = evaldlg->getEvalSet();
+    evaldlg->getEvalSpecs( targetspecs_ );
     PtrMan<DescSetMan> tmpadsman = new DescSetMan( is2d, ads, false );
     eDSHolder().replaceADSMan( tmpadsman );
     set2DEvent( is2d );
@@ -1682,7 +1635,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
     {
 	BufferStringSet errmsgs;
 	BufferString versionstr;
-	float versionnr = iopar.get( sKey::Version(), versionstr )
+	float versionnr = iopar.get( sKey::Version, versionstr )
 	    			? toFloat( versionstr.buf() ) : 0 ;
 	if ( isstored && versionnr<4.05 )	//backward compatibility v<4.1.1
 	{

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.48 2012-09-10 10:39:59 cvsmahant Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.42 2012/08/07 11:02:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uiaxishandler.h"
 #include "uidatapointset.h"
 #include "coltabsequence.h"
@@ -34,7 +33,6 @@ class Timer;
 class uiDataPointSet;
 class uiPolygonItem;
 class uiLineItem;
-class uiPolyLineItem;
 class uiRectItem;
 class uiGraphicsItemGroup;
 class uiGraphicsItem;
@@ -45,7 +43,7 @@ template <class T> class Array1D;
 /*!\brief Data Point Set Cross Plotter */
 
 
-mClass(uiIo) uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
+mClass uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
 {
 public:
 
@@ -61,8 +59,8 @@ public:
 	mDefSetupMemb(LineStyle,y2style)
 	mDefSetupMemb(bool,showcc)		// corr coefficient
 	mDefSetupMemb(bool,showregrline)
-	mDefSetupMemb(bool,showy1userdefpolyline)
-	mDefSetupMemb(bool,showy2userdefpolyline)
+	mDefSetupMemb(bool,showy1userdefline)
+	mDefSetupMemb(bool,showy2userdefline)
     };
 
     			uiDataPointSetCrossPlotter(uiParent*,uiDataPointSet&,
@@ -90,7 +88,7 @@ public:
     void		dataChanged();
 
     //!< Only use if you know what you're doing
-    mClass(uiIo) AxisData : 	public uiAxisData
+    mClass AxisData : 	public uiAxisData
     {
 	public:
 				AxisData(uiDataPointSetCrossPlotter&,
@@ -153,14 +151,10 @@ public:
 				{ return axisData(ax).autoscalepars_; }
     uiAxisHandler*		axisHandler( int ax )	//!< 0=x 1=y 2=y2
 				{ return axisData(ax).axis_; }
-    const uiAxisHandler*	axisHandler( int ax ) const
-				{ return axisData(ax).axis_; }
     const LinStats2D&		linStats( bool y1=true ) const
 				{ return y1 ? lsy1_ : lsy2_; }
 
     AxisData&			axisData( int ax )
-				{ return ax ? (ax == 2 ? y2_ : y_) : x_; }
-    const AxisData&		axisData( int ax ) const
 				{ return ax ? (ax == 2 ? y2_ : y_) : x_; }
 
     friend class		uiDataPointSetCrossPlotWin;
@@ -168,13 +162,7 @@ public:
     
     LinePars&			userdefy1lp_;
     LinePars&			userdefy2lp_;
-
-    BufferString&		userdefy1str_;
-    BufferString&		userdefy2str_;
-
-    BufferString&		y1rmserr_;
-    BufferString&		y2rmserr_;
-
+    
     void			setMathObj(MathExpression*);
     void			setMathObjStr(const BufferString& str )
 				{ mathobjstr_ = str; }
@@ -192,6 +180,9 @@ public:
     uiDataPointSet&		uidps()			{ return uidps_; }
     
     const TypeSet<RowCol>&	getSelectedCells()	{ return selrowcols_; }
+
+    void			drawYUserDefLine(const Interval<int>&,bool draw,
+	    					 bool isy1);
 
     int				nrYSels() const		{ return selyitems_; }
     int				nrY2Sels() const	{ return sely2items_; }
@@ -252,10 +243,10 @@ public:
     void			setOverlayY1AttSeq(const ColTab::Sequence&);
     void			setOverlayY2AttSeq(const ColTab::Sequence&);
 
-    void			setUserDefDrawType(bool dodrw,bool isy2,
-	    						bool drwln = false);
-    void			setUserDefPolyLine(TypeSet<uiWorldPoint>&,bool);
-    void			drawUserDefPolyLine(bool);
+    void			setUserDefDrawType( bool dodrw, bool isy2 )
+				{ drawuserdefline_ = dodrw; drawy2_ = isy2;
+			       	  selectable_ = !dodrw; }
+    void			setUserDefLine(const uiPoint&,const uiPoint&);
 
     void			updateOverlayMapper(bool isy1);
     Color			getOverlayColor(uiDataPointSet::DRowID,bool);
@@ -290,8 +281,6 @@ protected:
     uiLineItem*			regrlineitm_;
     uiLineItem*			y1userdeflineitm_;
     uiLineItem*			y2userdeflineitm_;
-    uiPolyLineItem*		y1userdefpolylineitm_;
-    uiPolyLineItem*		y2userdefpolylineitm_;
     uiColTabItem*		y1overlayctitem_;
     uiColTabItem*		y2overlayctitem_;
 
@@ -312,9 +301,7 @@ protected:
     bool			rectangleselection_;
     bool                        isdensityplot_;
     bool                        drawuserdefline_;
-    bool			drawy1userdefpolyline_;
-    bool                        drawy2userdefpolyline_;
-    bool			drawy2_;
+    bool                        drawy2_;
     float			plotperc_;
     int				curgrp_;
     int				selyitems_;
@@ -328,8 +315,6 @@ protected:
     TypeSet<RowCol>		selrowcols_;
     TypeSet<Color>		y1grpcols_;
     TypeSet<Color>		y2grpcols_;
-    TypeSet<uiWorldPoint>	y1userdefpts_;
-    TypeSet<uiWorldPoint>	y2userdefpts_;
     Array1D<char>*		yrowidxs_;
     Array1D<char>*		y2rowidxs_;
     TypeSet<uiDataPointSet::DColID> modcolidxs_;
@@ -359,7 +344,12 @@ protected:
     void                        mouseMove(CallBacker*);
     void                        mouseReleased(CallBacker*);
     void                        removeSelections(CallBacker*);
+
+public:
+    const AxisData&		axisData( int ax ) const
+				{ return ax ? (ax == 2 ? y2_ : y_) : x_; }
+    const uiAxisHandler*	axisHandler( int ax ) const
+				{ return axisData(ax).axis_; }
 };
 
 #endif
-

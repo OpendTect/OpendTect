@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltietoseismic.cc,v 1.88 2012-07-17 09:30:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.78 2012/07/09 13:25:57 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -32,7 +32,6 @@ namespace WellTie
 {
 static const int cDefTimeResampFac = 20;
 
-#define mErrRet(msg) { errmsg_ = msg; return false; }
 #define mGetWD() { wd_ = data_.wd_; if ( !wd_ ) return false; }
 DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk ) 
     : data_(data)		    
@@ -49,12 +48,7 @@ DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
 
 bool DataPlayer::computeAll()
 {
-    mGetWD();
-
-    d2t_ = wd_->d2TModel(); 
-    if ( !d2t_ )
-	mErrRet( "No depth/time model computed" );
-
+    mGetWD()
 
     bool success = setAIModel() && doFullSynthetics() && extractSeismics(); 
     copyDataToLogSet();
@@ -65,6 +59,7 @@ bool DataPlayer::computeAll()
 }
 
 
+#define mErrRet(msg) { errmsg_ = msg; return false; }
 bool DataPlayer::processLog( const Well::Log* log, 
 			     Well::Log& outplog, const char* nm ) 
 {
@@ -115,13 +110,16 @@ bool DataPlayer::setAIModel()
     if ( data_.isSonic() )
 	{ GeoCalculator gc; gc.son2Vel( pslog, true ); }
 
+    if ( !wd_->d2TModel() )
+	mErrRet( "No depth/time model computed" );
+
     for ( int idx=0; idx<worksz_; idx++ )
     {
-	const float dah0 = d2t_->getDah( workrg_.atIndex( idx ) );
-	const float dah1 = d2t_->getDah( workrg_.atIndex( idx+1 ) );
-	const bool inside = data_.dahrg_.includes( dah1, true );
-	const float vel = inside ? pslog.getValue( dah1, true ) : mUdf(float);
-	const float den = inside ? pdlog.getValue( dah1, true ) : mUdf(float);
+	const float dah0 = wd_->d2TModel()->getDah(workrg_.atIndex(idx) );
+	const float dah1 = wd_->d2TModel()->getDah(workrg_.atIndex(idx+1) );
+	const bool inside = data_.dahrg_.includes(dah1,true);
+	const float vel = inside ? pslog.getValue(dah1,true) : mUdf(float);
+	const float den = inside ? pdlog.getValue(dah1,true) : mUdf(float);
 	aimodel_ += AILayer( fabs( dah1-dah0 ), vel, den );
     }
     return true;
@@ -133,27 +131,31 @@ bool DataPlayer::doFullSynthetics()
     refmodel_.erase();
     const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
 						  : data_.estimatedwvlt_;
-    StepInterval<float> reflrg = workrg_;
-    reflrg.start = d2t_->getTime( data_.dahrg_.start );
-    reflrg.stop  = d2t_->getTime( data_.dahrg_.stop );
-    if ( disprg_.start > reflrg.start )
-	reflrg.start = workrg_.start; 
-    if ( disprg_.stop < reflrg.stop )
-	reflrg.stop = workrg_.stop; 
-
     Seis::RaySynthGenerator gen;
     gen.addModel( aimodel_ );
-    gen.forceReflTimes( reflrg );
     gen.setWavelet( &wvlt, OD::UsePtr );
     gen.setOutSampling( disprg_ );
     IOPar par; 
     par.set(RayTracer1D::sKeySRDepth(),data_.dahrg_.start,data_.dahrg_.start);
     gen.usePar( par ); 
-    TaskRunner* tr = data_.trunner_;
-    if ( ( tr && !tr->execute( gen ) ) || !gen.execute() )
+    gen.setTaskRunner( data_.trunner_ );
+    if ( !gen.doRayTracing() )
 	mErrRet( gen.errMsg() )
 
     Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
+    StepInterval<float> reflrg = disprg_;
+    reflrg.step  = workrg_.step;
+    reflrg.start = wd_->d2TModel()->getTime( data_.dahrg_.start );
+    reflrg.stop  = wd_->d2TModel()->getTime( data_.dahrg_.stop );
+    if ( disprg_.start > reflrg.start )
+	reflrg.start = disprg_.start; 
+    if ( disprg_.stop < reflrg.stop )
+	reflrg.stop = disprg_.stop; 
+    rm.forceReflTimes( reflrg );
+
+    if ( !gen.doSynthetics() )
+	mErrRet( gen.errMsg() )
+
     data_.synthtrc_ = *rm.stackedTrc();
     rm.getSampledRefs( reflvals_ );
     for ( int idx=0; idx<reflvals_.size(); idx++ )
@@ -188,7 +190,7 @@ bool DataPlayer::doFastSynthetics()
 
 bool DataPlayer::extractSeismics()
 {
-    Well::SimpleTrackSampler wtextr( wd_->track(), d2t_, true, true);
+    Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true, true);
     wtextr.setSampling( disprg_ );
     data_.trunner_->execute( wtextr ); 
 
@@ -224,20 +226,19 @@ bool DataPlayer::copyDataToLogSet()
     for ( int idx=0; idx<dispsz_; idx++ )
     {
 	const int workidx = idx*cDefTimeResampFac;
-	const float dah = d2t_->getDah( workrg_.atIndex(workidx) );
-
-	if ( !data_.dahrg_.includes( dah, true ) )
+	const float dah = wd_->d2TModel()->getDah(workrg_.atIndex(workidx));
+	const bool inside = data_.dahrg_.includes( dah, true );
+	if ( !inside )
 	    continue;
 
 	dahlog += dah;
-	refs += reflvals_.validIdx(idx) ? reflvals_[idx] : mUdf(float);
+	refs += reflvals_.validIdx( idx ) ? reflvals_[idx] : mUdf(float);
 	synth += data_.synthtrc_.size() > idx ? data_.synthtrc_.get(idx,0) 
 					      : mUdf(float);
-
 	const AILayer& layer = aimodel_[workidx];
 	son += layer.vel_;
 	den += layer.den_;
-	ai += layer.getAI();
+	ai += layer.vel_*layer.den_;
     }
     createLog( data_.sonic(), dahlog.arr(), son.arr(), son.size() ); 
     createLog( data_.density(), dahlog.arr(), den.arr(), den.size() ); 
@@ -266,6 +267,7 @@ void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
     {
 	log = new Well::Log( nm );
 	data_.logset_.add( log );
+	const Well::Log* wdlog = wd_->logs().getLog( nm );
     }
     else
 	log = data_.logset_.getLog( nm );
@@ -283,14 +285,10 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
     const float step = disprg_.step;
     const int nrsamps = (int)( zrg.width()/step )+1;
 
-    if ( data_.seistrc_.size() < nrsamps || data_.synthtrc_.size() < nrsamps )
-	{ errmsg_ = "No valid synthetic or seismic trace"; return false; }
-
     if ( nrsamps <= 1 )
-	{ errmsg_ = "Invalid time or depth range specified"; return false; }
+	errmsg_ = "Invalid time or depth range specified";
 
     Data::CorrelData& cd = data_.correl_;
-    cd.vals_.erase();
     cd.vals_.setSize( nrsamps, 0 ); 
 
     mDeclareAndTryAlloc( float*, seisarr, float[nrsamps] );
@@ -299,8 +297,10 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 #define mGetIdx data_.timeintv_.getIndex( zrg.atIndex( idx, step ) ) 
     for ( int idx=0; idx<nrsamps; idx++ )
     {
-	syntharr[idx] = data_.synthtrc_.get( mGetIdx, 0 );
-	seisarr[idx] = data_.seistrc_.get( mGetIdx, 0 );
+	syntharr[idx] = data_.synthtrc_.size() > mGetIdx ?
+	    			data_.synthtrc_.get( mGetIdx, 0 ) : 0;
+	seisarr[idx] = data_.seistrc_.size() > mGetIdx ?
+	    			data_.seistrc_.get( mGetIdx, 0 ) : 0;
     }
     GeoCalculator gc;
     cd.coeff_ = gc.crossCorr( seisarr, syntharr, cd.vals_.arr(), nrsamps );
@@ -328,8 +328,9 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 
 	mGetWD()
 
+	const Well::D2TModel* d2t = wd_->d2TModel();
 	for ( int idx=0; idx<nrsamps; idx++ )
-	    refarr[idx]= log->getValue(d2t_->getDah(zrg.atIndex(idx,step)),true);
+	    refarr[idx]= log->getValue(d2t->getDah(zrg.atIndex(idx,step)),true);
 
 	gc.deconvolve( seisarr, refarr, wvltarr, nrsamps );
 	for ( int idx=0; idx<wvltsz; idx++ )

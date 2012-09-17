@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: uigmtfaults.cc,v 1.12 2012-07-10 08:05:27 cvskris Exp $
+ RCS:           $Id: uigmtfaults.cc,v 1.9 2012/07/10 13:05:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,14 +110,14 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 
     for ( int idx=0; idx<faultfld_->nrSel(); idx++ )
     {
-	iop.set( iop.compKey(ODGMT::sKeyFaultID(), idx),
+	iop.set( iop.compKey(ODGMT::sKeyFaultID, idx),
 		 faultfld_->selected(idx) );
     }
 
-    iop.set( sKey::Name(), namefld_->text() );
+    iop.set( sKey::Name, namefld_->text() );
     const bool onzslice = optionfld_->getBoolValue();
-    iop.setYN( ODGMT::sKeyZIntersectionYN(), onzslice );
-    const float zvalue = zvaluefld_->getfValue()/SI().zDomain().userFactor();
+    iop.setYN( ODGMT::sKeyZIntersectionYN, onzslice );
+    const float zvalue = zvaluefld_->getfValue()/SI().zFactor();
     StepInterval<float> zrg = SI().zRange( true );
     if ( onzslice )
     {
@@ -125,28 +125,28 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 	if ( !isbetween )
 	{
 	    BufferString msg( "Z value is out of survey range(" );
-	    msg.add( mNINT32(zrg.start*SI().zDomain().userFactor()) ).add( " , " )
-	       .add( mNINT32(zrg.stop*SI().zDomain().userFactor()) ).add( ")" );
+	    msg.add( mNINT32(zrg.start*SI().zFactor()) ).add( " , " )
+	       .add( mNINT32(zrg.stop*SI().zFactor()) ).add( ")" );
 	    uiMSG().message( msg );
 	    return false;
 	}
 
-	iop.set( ODGMT::sKeyZVals(), zvalue );
+	iop.set( ODGMT::sKeyZVals, zvalue );
     }
     else
     {
 	if ( !horfld_->ioobj() )
 	    return false;
 
-	iop.set( ODGMT::sKeyHorizonID(), horfld_->key() );
+	iop.set( ODGMT::sKeyHorizonID, horfld_->key() );
     }
 
     BufferString lskey;
     linestfld_->getStyle().toString( lskey );
-    iop.set( ODGMT::sKeyLineStyle(), lskey );
-    iop.setYN( ODGMT::sKeyUseFaultColorYN(), usecolorbut_->isChecked() );
+    iop.set( ODGMT::sKeyLineStyle, lskey );
+    iop.setYN( ODGMT::sKeyUseFaultColorYN, usecolorbut_->isChecked() );
     if ( !usecolorbut_->isChecked() )
-	iop.set( ODGMT::sKeyFaultColor(), colorfld_->color() );
+	iop.set( ODGMT::sKeyFaultColor, colorfld_->color() );
 
     return true;
 }
@@ -154,7 +154,7 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 
 bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 {
-    IOPar* fltpar = iop.subselect( ODGMT::sKeyFaultID() );
+    IOPar* fltpar = iop.subselect( ODGMT::sKeyFaultID );
     if ( !fltpar )
 	return false;
 
@@ -174,38 +174,38 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
     }
 
     BufferString nm;
-    iop.get( sKey::Name(), nm );
+    iop.get( sKey::Name, nm );
     namefld_->setText( nm );
 
     bool onzslice = false;
-    iop.getYN( ODGMT::sKeyZIntersectionYN(), onzslice );
+    iop.getYN( ODGMT::sKeyZIntersectionYN, onzslice );
     optionfld_->setValue( onzslice );
     if ( onzslice )
     {
 	float zvalue;
-	iop.get( ODGMT::sKeyZVals(), zvalue );
-	zvaluefld_->setValue( zvalue*SI().zDomain().userFactor() );
+	iop.get( ODGMT::sKeyZVals, zvalue );
+	zvaluefld_->setValue( zvalue*SI().zFactor() );
     }
     else
     {
 	MultiID horid;
-	iop.get( ODGMT::sKeyHorizonID(), horid );
+	iop.get( ODGMT::sKeyHorizonID, horid );
 	horfld_->setInput( horid );
     }
 
-    FixedString lskey = iop.find( ODGMT::sKeyLineStyle() );
+    FixedString lskey = iop.find( ODGMT::sKeyLineStyle );
     LineStyle ls;
     ls.fromString( lskey.str() );
     linestfld_->setStyle( ls );
 
     bool usecoloryn = false;
-    iop.getYN( ODGMT::sKeyUseFaultColorYN(), usecoloryn );
+    iop.getYN( ODGMT::sKeyUseFaultColorYN, usecoloryn );
     usecolorbut_->setChecked( usecoloryn );
 
     if ( !usecoloryn )
     {
 	Color clr;
-	iop.get( ODGMT::sKeyFaultColor(), clr );
+	iop.get( ODGMT::sKeyFaultColor, clr );
 	colorfld_->setColor( clr );
     }
 

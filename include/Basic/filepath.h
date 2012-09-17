@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.19 2012-08-03 13:00:12 cvskris Exp $
+ RCS:		$Id: filepath.h,v 1.17 2011/12/14 09:59:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstringset.h"
 
 
@@ -31,7 +30,7 @@ ________________________________________________________________________
  
  */
 
-mClass(Basic) FilePath
+mClass FilePath
 {
 public:
     enum Style		{ Local, Unix, Windows };
@@ -73,7 +72,6 @@ public:
     const char*		extension() const;	//!< may return null
 
     const BufferString& fileName() const;
-    BufferString	baseName() const; //!<return name of file w/o path & ext
     BufferString	pathOnly() const;
     BufferString	winDrive() const;
 
@@ -102,4 +100,3 @@ protected:
 
 
 #endif
-

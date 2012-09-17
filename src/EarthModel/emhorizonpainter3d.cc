@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter3d.cc,v 1.10 2012-08-08 09:01:28 cvsaneesh Exp $
+ RCS:		$Id: emhorizonpainter3d.cc,v 1.7 2011/09/21 10:41:37 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,12 +95,13 @@ bool HorizonPainter3D::addPolyLine()
 	EM::SectionID sid( ids );
 	SectionMarker3DLine* secmarkerln = new SectionMarker3DLine;
 	markerline_ += secmarkerln;
-	FlatView::AuxData* seedauxdata = viewer_.createAuxData( 0 );
+	FlatView::Annotation::AuxData* seedauxdata =
+	    				new FlatView::Annotation::AuxData( "" );
 	
 	seedauxdata->enabled_ = seedenabled_;
 	seedauxdata->poly_.erase();
 	seedauxdata->markerstyles_ += markerstyle_;
-	viewer_.addAuxData( seedauxdata );
+	viewer_.appearance().annot_.auxdata_ += seedauxdata;
 
 	markerseeds_ = new Marker3D;
 	markerseeds_->marker_ = seedauxdata;
@@ -180,8 +181,9 @@ void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
 					  SectionMarker3DLine& secmarkerln,
 					  Marker3D*& marker )
 {
-    FlatView::AuxData* auxdata = viewer_.createAuxData( 0 );
-    viewer_.addAuxData( auxdata );
+    FlatView::Annotation::AuxData* auxdata =
+					new FlatView::Annotation::AuxData( "" );
+    viewer_.appearance().annot_.auxdata_ += auxdata;
     auxdata->poly_.erase();
     auxdata->linestyle_ = markerlinestyle_;
     Color prefcol = hor3d.preferredColor();
@@ -250,7 +252,8 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		if ( emobject->hasBurstAlert() )
 		    return;
 		
-		BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
+		BinID bid;
+		bid.fromInt64( cbdata.pid0.subID() );
 		if ( cs_.hrg.includes(bid) || (path_&&path_->isPresent(bid)) )
 		{
 		    changePolyLinePosition( cbdata.pid0 );
@@ -318,7 +321,8 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 
     if ( id_ != pid.objectID() ) return;
 
-    BinID binid = BinID::fromInt64( pid.subID() );
+    BinID binid;
+    binid.fromInt64( pid.subID() );
 
     for ( int idx=0; idx<hor3d->nrSections(); idx++ )
     {
@@ -329,7 +333,8 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 	for ( int markidx=0; markidx<secmarkerlines->size(); markidx++ )
 	{
 	    Coord3 crd = hor3d->getPos( hor3d->sectionID(idx), pid.subID() );
-	    FlatView::AuxData* auxdata = (*secmarkerlines)[markidx]->marker_;
+	    FlatView::Annotation::AuxData* auxdata =
+					(*secmarkerlines)[markidx]->marker_;
 	    for ( int posidx = 0; posidx < auxdata->poly_.size(); posidx ++ )
 	    {
 		if ( path_ )
@@ -386,16 +391,15 @@ void HorizonPainter3D::removePolyLine()
     {
 	SectionMarker3DLine* markerlines = markerline_[markidx];
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
-	{
-	    viewer_.removeAuxData( (*markerlines)[idy]->marker_ );
-	}
+	    viewer_.appearance().annot_.auxdata_ -=
+						(*markerlines)[idy]->marker_;
     }
 
     deepErase( markerline_ );
 
     if ( markerseeds_ )
     {
-	viewer_.removeAuxData( markerseeds_->marker_ );
+	viewer_.appearance().annot_.auxdata_ -= markerseeds_->marker_;
 	delete markerseeds_;
 	markerseeds_ = 0;
     }

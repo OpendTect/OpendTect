@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.h,v 1.12 2012-08-03 13:01:13 cvskris Exp $
+ RCS:		$Id: uimapperrangeeditor.h,v 1.10 2011/09/12 15:43:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 
 #include "datapack.h"
@@ -26,12 +25,11 @@ class uiAxisHandler;
 template <class T> class Array2D;
 namespace ColTab { class MapperSetup; class Sequence; }
 
-mClass(uiTools) uiMapperRangeEditor : public uiGroup
+mClass uiMapperRangeEditor : public uiGroup
 {
 public:
 
-    				uiMapperRangeEditor(uiParent*,int id,
-					bool fixdrawrg=true);
+    				uiMapperRangeEditor(uiParent*,int id);
 				~uiMapperRangeEditor();
 
     int				ID()		       { return id_; }
@@ -89,4 +87,3 @@ protected:
 };
 
 #endif
-

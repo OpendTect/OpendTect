@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          April 2008
- RCS:           $Id: uicoltabimport.h,v 1.4 2012-08-03 13:01:12 cvskris Exp $
+ RCS:           $Id: uicoltabimport.h,v 1.3 2009/07/22 16:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "sets.h"
 
@@ -22,7 +21,7 @@ class uiGenInput;
 class uiLabeledListBox;
 
 
-mClass(uiTools) uiColTabImport : public uiDialog
+mClass uiColTabImport : public uiDialog
 {
 public:
 				uiColTabImport(uiParent*);
@@ -43,4 +42,3 @@ protected:
 };
 
 #endif
-

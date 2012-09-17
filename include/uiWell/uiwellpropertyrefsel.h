@@ -6,31 +6,29 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uiwellpropertyrefsel.h,v 1.12 2012-09-02 10:26:11 cvsbruno Exp $
+ RCS:           $Id: uiwellpropertyrefsel.h,v 1.3 2012/09/02 10:10:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
-#include "multiid.h"
 #include "propertyref.h"
-#include "welllogset.h"
 #include "uigroup.h"
+#include "multiid.h"
 
 class ElasticPropSelection;
 class PropertyRef;
 class UnitOfMeasure;
+class uiPushButton;
 
 class uiLabel;
 class uiComboBox;
 class uiCheckBox;
-class uiPushButton;
 class uiUnitSel;
 
 namespace Well { class LogSet; }
 
 
-mClass(uiWell) uiPropSelFromList : public uiGroup
+mClass uiPropSelFromList : public uiGroup
 {
 public:
 			uiPropSelFromList(uiParent*,const PropertyRef&,
@@ -68,7 +66,9 @@ protected:
 };
 
 
-mClass(uiWell) uiWellPropSel : public uiGroup
+
+
+mClass uiWellPropSel : public uiGroup
 {
 public:
 			uiWellPropSel(uiParent*,const PropertyRefSelection&);
@@ -81,7 +81,7 @@ public:
     bool		getLog(const PropertyRef::StdType,BufferString&,
 	    			bool&,BufferString& uom) const;
 
-    virtual bool	isOK() const; 
+    virtual bool	isOK() const;
 
 protected:
     void				initFlds();
@@ -93,11 +93,12 @@ protected:
 };
 
 
-mClass(uiWell) uiWellPropSelWithCreate : public uiWellPropSel
+
+mClass uiWellPropSelWithCreate : public uiWellPropSel
 {
 public:
 			uiWellPropSelWithCreate(uiParent*,
-				const PropertyRefSelection&);
+			const PropertyRefSelection&);
 
     void		setWellID(const MultiID& wid) { wellid_ = wid; }
     MultiID		wellid_;
@@ -111,7 +112,7 @@ protected:
 
 
 
-mClass(uiWell) uiWellElasticPropSel : public uiWellPropSel
+mClass uiWellElasticPropSel : public uiWellPropSel
 {
 public:
 			uiWellElasticPropSel(uiParent*,bool withswaves=false);
@@ -127,4 +128,3 @@ public:
 
 
 #endif
-

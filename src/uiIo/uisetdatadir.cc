@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisetdatadir.cc,v 1.38 2012-07-04 13:40:52 cvsraman Exp $";
+static const char* rcsID = "$Id: uisetdatadir.cc,v 1.36 2012/07/04 13:40:44 cvsraman Exp $";
 
 #include "uisetdatadir.h"
 
@@ -208,7 +208,9 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
     {
 	if ( demosurvenvvar && *demosurvenvvar ) //TODO: May be this should go.
 	{
-	    FilePath demosurvnm( GetSoftwareDir(0), demosurvenvvar );
+	    FilePath demosurvnm( GetSoftwareDir(0) );
+	    demosurvnm.add( GetEnvVar("DTECT_DEMO_SURVEY") );
+
 	    if ( File::isDirectory(demosurvnm.fullPath()) )
 	    {
 		FilePath fp( datadir, FilePath(demosurvnm).fileName() );

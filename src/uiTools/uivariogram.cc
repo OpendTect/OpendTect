@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id Exp $";
+static const char* rcsID = "$Id Exp $";
 
 #include "uivariogram.h"
 
@@ -43,11 +43,11 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     int dxmin = SI().inlDistance() <= SI().crlDistance() ?
        		(int)SI().inlDistance() : (int)SI().crlDistance();
     int minrgval = isvert ? 30 : SI().xyInFeet() ?
-       			    dxmin*mNINT32((float)300/dxmin) : dxmin*mNINT32((float) 100/dxmin);
+       			    dxmin*mNINT32(300/dxmin) : dxmin*mNINT32(100/dxmin);
     int maxrgval = isvert ? 300 : SI().xyInFeet() ? 
-			    dxmin*mNINT32((float) 10000/dxmin) : dxmin*mNINT32((float) 5000/dxmin);
+			    dxmin*mNINT32(10000/dxmin) : dxmin*mNINT32(5000/dxmin);
     int defrgval = isvert ? 50 : SI().xyInFeet() ?
-       			    dxmin*mNINT32((float) 5000/dxmin) : dxmin*mNINT32((float) 2000/dxmin);
+       			    dxmin*mNINT32(5000/dxmin) : dxmin*mNINT32(2000/dxmin);
     int minstepval = isvert ? 1 : dxmin;
     int maxstepval = isvert ? 10 : 10*dxmin;
     int defstep = isvert ? 1 : dxmin;
@@ -68,7 +68,7 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     lbl2 += isvert ? "(ms)" : SI().getXYUnitString();
     uiLabeledSpinBox* lblstepfld = new uiLabeledSpinBox( this, lbl2, 0 );
     stepfld_ = lblstepfld->box();
-    stepfld_->setInterval( minstepval, maxstepval, defstep );
+    stepfld_->setInterval( minstepval, maxrgval, defstep );
     stepfld_->setValue( defstep );
     stepfld_->valueChanged.notify(mCB(this,uiVariogramDlg,stepChgCB));
     lblstepfld->attach( alignedBelow, lblmaxrgfld );
@@ -199,14 +199,14 @@ void uiVariogramDisplay::draw()
 
     labelChangedCB(0);
     disp_->setup().xrg_.stop = maxrg_;
-    disp_->setup().yrg_.stop = maxdataval*1.1f;
+    disp_->setup().yrg_.stop = maxdataval*1.1;
 
     rangefld_->sldr()->setMaxValue( maxrg_ );
     rangefld_->sldr()->setStep( maxrg_/(100*(size-1)) );
     rangefld_->sldr()->setValue( maxrg_/4 );
 
     sillfld_->sldr()->setMinValue( 0 );
-    sillfld_->sldr()->setMaxValue( maxdataval*1.1f );
+    sillfld_->sldr()->setMaxValue( maxdataval*1.1 );
     sillfld_->sldr()->setStep( maxdataval/1000 );
     sillfld_->sldr()->setValue( maxdatavalcomp1 );
 

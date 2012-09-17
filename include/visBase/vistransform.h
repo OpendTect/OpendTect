@@ -7,16 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.23 2012-08-03 13:01:27 cvskris Exp $
+ RCS:		$Id: vistransform.h,v 1.23 2012/03/19 13:41:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdatagroup.h"
 #include "position.h"
-
-namespace osg { class MatrixTransform; class Vec3d; }
 
 class SoMatrixTransform;
 class SbMatrix;
@@ -43,7 +40,7 @@ x' = x''/m; y' = y''/m; z'=z''/m;
 */
 
 
-mClass(visBase) Transformation : public DataObjectGroup
+mClass Transformation : public DataObjectGroup
 {
 public:
     static Transformation*	create()
@@ -67,8 +64,6 @@ public:
     Coord3		transformBack(  const Coord3& ) const;
     void		transform( SbVec3f& ) const;
     void		transformBack( SbVec3f& ) const;
-    void		transform(osg::Vec3d&) const;
-    void		transformBack(osg::Vec3d&) const;
 
     Coord3		transformDir(const Coord3&) const;
     Coord3		transformDirBack(const Coord3&) const;
@@ -84,8 +79,6 @@ private:
     SoGroup*		transformgroup_;
     SoMatrixTransform*	transform_;
 
-    osg::MatrixTransform* node_;
-
     static const char*	matrixstr();
 
     virtual SoNode*	gtInvntrNode();
@@ -96,7 +89,7 @@ private:
 
 
 
-mClass(visBase) Rotation : public DataObject
+mClass Rotation : public DataObject
 {
 public:
     static Rotation*	create()
@@ -121,4 +114,3 @@ private:
 }
 
 #endif
-

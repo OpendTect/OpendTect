@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedef.h,v 1.9 2012-08-03 13:00:33 cvskris Exp $
+ RCS:		$Id: prestackmutedef.h,v 1.6 2011/10/14 15:42:43 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "namedobj.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -25,7 +24,7 @@ class PointBasedMathFunction;
 namespace PreStack
 {
 
-mClass(PreStackProcessing) MuteDef : public NamedObject
+mClass MuteDef : public NamedObject
 {
 public:
 					MuteDef(const char* nm=0);
@@ -47,12 +46,6 @@ public:
     float				value(float offs,const BinID&) const;
 					//!< Interpolates between defined
 					//!< positions
-    void				computeIntervals(float offs,
-					    const BinID&,
-					    TypeSet<Interval<float> >&) const;
-					/*!<Interpolates between 
-					  defined positions. */
-
     bool				isChanged() const { return ischanged_; }
     void				setChanged(bool yn) { ischanged_=yn; }
 
@@ -67,12 +60,9 @@ protected:
     MultiID				refhor_;
 
     bool				ischanged_;
-
-    void				getAllZVals(TypeSet<float>&) const;
 };
 
 
 }; //namespace
 
 #endif
-

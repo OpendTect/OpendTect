@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y word functions
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: ibmformat.cc,v 1.9 2012-07-10 08:05:31 cvskris Exp $";
+static const char* rcsID = "$Id: ibmformat.cc,v 1.6 2012/05/21 15:32:29 cvskris Exp $";
 
 #include "ibmformat.h"
 #include <string.h>
@@ -88,11 +88,23 @@ void IbmFormat::putUnsignedShort( unsigned short value, void* buf )
 }
 
 
+#if __GNUC__ == 4 && __GNUC_MINOR__ == 1 && __GNUC_PATCHLEVEL__ == 2
+#define mUseDummyFunc
+#endif
+
+#ifdef mUseDummyFunc
+int dummyfunc( int v )
+{
+    return 0;
+}
+#endif
+
+
 
 float IbmFormat::asFloat( const void* buf )
 {
-    register int fconv;
-    register int fmant, t;
+    int fconv;
+    int fmant, t;
     fconv = *((int*)buf);
 
 #ifdef __little__
@@ -115,6 +127,10 @@ float IbmFormat::asFloat( const void* buf )
     }
 
 
+#ifdef mUseDummyFunc
+    dummyfunc( fconv );
+#endif
+
     return *((float*)(&fconv));
 }
 
@@ -135,6 +151,11 @@ void IbmFormat::putFloat( float value, void* buf )
     fconv = (fconv<<24) | ((fconv>>24)&0xff) |
 	    ((fconv&0xff00)<<8) | ((fconv&0xff0000)>>8);
 #endif
+
+#ifdef mUseDummyFunc
+    dummyfunc( fconv );
+#endif
+
 
     memcpy( buf, &fconv, 4 );
 }

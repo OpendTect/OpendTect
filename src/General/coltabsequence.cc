@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: coltabsequence.cc,v 1.43 2012-08-08 04:59:49 cvssalil Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.38 2012/02/20 10:05:30 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -357,7 +357,7 @@ void ColTab::Sequence::flipColor()
     }
 
     for ( int idx=0; idx<size(); idx++ )
-	x_[idx] = 1.0f - x_[idx];
+	x_[idx] = 1.0-x_[idx];
 }
 
 
@@ -391,7 +391,7 @@ static float getfromPar( const IOPar& iopar, Color& col, const char* key,
 
 void ColTab::Sequence::fillPar( IOPar& iopar ) const
 {
-    iopar.set( sKey::Name(), name() );
+    iopar.set( sKey::Name, name() );
     FileMultiString fms;
     fms += (int)markcolor_.r(); fms += (int)markcolor_.g();
     fms += (int)markcolor_.b(); fms += (int)markcolor_.t();
@@ -425,7 +425,7 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 bool ColTab::Sequence::usePar( const IOPar& iopar )
 {
     ColTab::Sequence backup = *this;
-    FixedString res = iopar.find( sKey::Name() );
+    FixedString res = iopar.find( sKey::Name );
     if ( !res )
 	return false;
 
@@ -718,9 +718,9 @@ float ColTab::Sequence::snapToSegmentCenter( float x ) const
     if ( nrsegments_==1 )
 	return 0.5;
 
-    const float segmentsize = 1.0f / (nrsegments_ - 1);
+    const float segmentsize = 1.0/(nrsegments_-1);
 
-    int segment = (int) ( x/segmentsize + 0.5 );
+    int segment = (int) (x/segmentsize+0.5 );
     if ( segment<0 ) segment = 0;
     if ( segment>=nrsegments_ )
 	segment = nrsegments_-1;

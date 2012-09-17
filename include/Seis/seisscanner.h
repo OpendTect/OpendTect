@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.17 2012-08-03 13:00:38 cvskris Exp $
+ RCS:		$Id: seisscanner.h,v 1.16 2009/07/22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "position.h"
 #include "samplingdata.h"
 #include "executor.h"
@@ -29,7 +28,7 @@ namespace PosInfo { class Detector; }
 #define mSeisScanMaxNrDistribVals 50000
 
 
-mClass(Seis) SeisScanner : public Executor
+mClass SeisScanner : public Executor
 {
 public:
 
@@ -83,4 +82,3 @@ protected:
 
 
 #endif
-

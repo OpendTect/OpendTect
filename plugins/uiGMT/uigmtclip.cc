@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uigmtclip.cc,v 1.6 2012-05-22 14:48:45 cvskris Exp $";
+static const char* rcsID = "$Id: uigmtclip.cc,v 1.2 2011/11/23 11:35:55 cvsbert Exp $";
 
 #include "uigmtclip.h"
 
@@ -44,7 +44,7 @@ uiGMTClipGrp::uiGMTClipGrp( uiParent* p )
 						       "Stop clipping",true) );
 
     IOObjContext ctxt( PickSetTranslatorGroup::ioContext() );
-    ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
     polygonfld_ = new uiIOObjSel( this, ctxt, "Polygon" );
     polygonfld_->attach( alignedBelow, actionfld_ );
 
@@ -76,7 +76,7 @@ void uiGMTClipGrp::actionSel( CallBacker* )
 bool uiGMTClipGrp::fillPar( IOPar& par ) const
 {
     const bool isstartofclipping = actionfld_->getBoolValue();
-    par.setYN( ODGMT::sKeyStartClipping(), isstartofclipping );
+    par.setYN( ODGMT::sKeyStartClipping, isstartofclipping );
     if ( !isstartofclipping )
 	return true;
 
@@ -84,7 +84,7 @@ bool uiGMTClipGrp::fillPar( IOPar& par ) const
 	return false;
 
     polygonfld_->fillPar( par );
-    par.setYN( ODGMT::sKeyClipOutside(), optionfld_->getBoolValue() );
+    par.setYN( ODGMT::sKeyClipOutside, optionfld_->getBoolValue() );
     return true;
 }
 
@@ -92,13 +92,13 @@ bool uiGMTClipGrp::fillPar( IOPar& par ) const
 bool uiGMTClipGrp::usePar( const IOPar& par )
 {
     bool isstartofclipping = false;
-    par.getYN( ODGMT::sKeyStartClipping(), isstartofclipping );
+    par.getYN( ODGMT::sKeyStartClipping, isstartofclipping );
     actionfld_->setValue( isstartofclipping );
     if ( isstartofclipping )
     {
 	polygonfld_->usePar( par );
 	bool clipoutside = true;
-	par.getYN( ODGMT::sKeyClipOutside(), clipoutside );
+	par.getYN( ODGMT::sKeyClipOutside, clipoutside );
 	optionfld_->setValue( clipoutside );
     }
 
@@ -109,7 +109,7 @@ bool uiGMTClipGrp::usePar( const IOPar& par )
 
 bool uiGMTClipGrp::getTerminatingPars( IOPar& par )
 {
-    par.setYN( ODGMT::sKeyStartClipping(), false );
+    par.setYN( ODGMT::sKeyStartClipping, false );
     return true;
 }
 

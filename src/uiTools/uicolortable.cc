@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicolortable.cc,v 1.51 2012-05-22 15:21:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.48 2012/05/09 09:46:09 cvsbert Exp $";
 
 #include "uicolortable.h"
 
@@ -103,8 +103,6 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
     canvas_ = new uiColorTableCanvas( parnt, coltabseq_, true, vert );
     canvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTable,canvasClick) );
-    canvas_->getMouseEventHandler().doubleClick.notify(
-			mCB(this,uiColorTable,canvasDoubleClick) );
     canvas_->setPrefHeight( vert ? 160 : 25 );
     canvas_->setPrefWidth( vert ? 30 : 80 );
     canvas_->setStretch( 0, 0 );
@@ -322,10 +320,6 @@ void uiColorTable::canvasClick( CallBacker* )
 
     canvas_->getMouseEventHandler().setHandled( true );
 }
-
-
-void uiColorTable::canvasDoubleClick( CallBacker* )
-{ doManage(0); }
 
 
 void uiColorTable::commitInput()

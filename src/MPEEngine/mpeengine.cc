@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: mpeengine.cc,v 1.108 2012-08-13 04:04:37 cvsaneesh Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.105 2011/09/19 12:23:22 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -610,7 +610,7 @@ bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 	return false;
 
     CubeSampling cachedcs = cache->getCubeSampling();
-    const float zrgeps = 0.01f * SI().zStep();
+    const float zrgeps = 0.01 * SI().zStep();
     cachedcs.zrg.widen( zrgeps );  
     
     return cachedcs.includes( cs );

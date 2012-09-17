@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.38 2012-08-03 13:00:57 cvskris Exp $
+ RCS:           $Id: uiiosurface.h,v 1.36 2010/04/07 12:09:26 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "horsampling.h"
 #include "uigroup.h"
 
@@ -36,7 +35,7 @@ namespace EM { class Surface; class SurfaceIODataSelection; };
 
 /*! \brief Base group for Surface input and output */
 
-mClass(uiEarthModel) uiIOSurface : public uiGroup
+mClass uiIOSurface : public uiGroup
 {
 public:
 			~uiIOSurface();
@@ -84,11 +83,11 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiSurfaceWrite : public uiIOSurface
+mClass uiSurfaceWrite : public uiIOSurface
 {
 public:
 
-    mClass(uiEarthModel) Setup
+    mClass Setup
     {
     public:
 			Setup( const char* surftyp )
@@ -115,7 +114,6 @@ public:
 
     virtual bool	processInput();
     int			getStratLevelID() const;
-    void		setColor(const Color&);
     Color		getColor() const;
     bool		replaceInTree()	const;
 
@@ -130,10 +128,10 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiSurfaceRead : public uiIOSurface
+mClass uiSurfaceRead : public uiIOSurface
 {
 public:
-    mClass(uiEarthModel) Setup
+    mClass Setup
     {
     public:
 			Setup( const char* surftyp )
@@ -168,4 +166,3 @@ protected:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibuttongroup.cc,v 1.24 2012-08-24 07:26:41 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uibuttongroup.cc,v 1.21 2009/07/22 16:01:38 cvsbert Exp $";
 
 #include "uibuttongroup.h"
 #include "uibutton.h"
@@ -20,7 +20,7 @@ uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm, bool vertical )
     : uiGroup( p ,nm )
     , vertical_(vertical)
 {
-    qbuttongrp_ = new mQtclass(QButtonGroup)();
+    qbuttongrp_ = new QButtonGroup();
 }
 
 
@@ -60,7 +60,7 @@ int uiButtonGroup::nrButtons() const
 
 void uiButtonGroup::setSensitive( int id, bool yn )
 {
-    mQtclass(QAbstractButton*) but = qbuttongrp_->button( id );
+    QAbstractButton* but = qbuttongrp_->button( id );
     if ( but ) but->setEnabled( yn );
 }
 

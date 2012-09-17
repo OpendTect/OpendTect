@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: lmkemfaulttransl.cc,v 1.11 2012-08-07 05:20:49 cvssalil Exp $";
+static const char* rcsID = "$Id: lmkemfaulttransl.cc,v 1.8 2010/10/14 09:58:06 cvsbert Exp $";
 
 #include "lmkemfaulttransl.h"
 
@@ -217,7 +217,7 @@ int lmkEMFault3DReader::nextStep()
 	if ( str == "m" )
 	    zfac = 1;
 	else if ( str == "ft" )
-	    zfac = mFromFeetFactorF;
+	    zfac = mFromFeetFactor;
 	else if ( str != "ms" )
 	    { msg = "Unknown time unit"; return ErrorOccurred(); }
 

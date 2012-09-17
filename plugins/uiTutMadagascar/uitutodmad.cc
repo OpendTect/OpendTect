@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitutodmad.cc,v 1.10 2012-07-31 09:49:42 cvshelene Exp $";
+static const char* rcsID = "$Id: uitutodmad.cc,v 1.6 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "uitutodmad.h"
 
@@ -43,7 +43,7 @@ uiTutODMad::uiTutODMad( uiParent* p )
 bool uiTutODMad::acceptOK( CallBacker* )
 {
     iop_.setEmpty();
-    iop_.set( IOPar::compKey("Input",sKey::Type()), ODMad::sKeyMadagascar() );
+    iop_.set( IOPar::compKey("Input",sKey::Type), ODMad::sKeyMadagascar() );
     const BufferString fnm = maddatafld_->fileName();
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
@@ -51,7 +51,7 @@ bool uiTutODMad::acceptOK( CallBacker* )
 	return false;
     }
 
-    iop_.set( IOPar::compKey("Input",sKey::FileName()), fnm );
+    iop_.set( IOPar::compKey("Input",sKey::FileName), fnm );
     ODMad::MadStream madstream_( iop_ );
     if ( !madstream_.isOK() )
     {
@@ -59,6 +59,8 @@ bool uiTutODMad::acceptOK( CallBacker* )
 	return false;
     }
 
+    const int trcsize = madstream_.getNrSamples();
+    float* arr = new float[trcsize];
     madstream_.writeTraces( false );
 
     Seis::GeomType geom = madstream_.is2D()

@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: filepath.cc,v 1.41 2012-09-04 12:20:05 cvsnageswara Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.36 2011/12/14 09:59:02 cvsbert Exp $";
 
 #include "filepath.h"
 
@@ -272,17 +272,6 @@ const BufferString& FilePath::fileName() const
 { return dir(-1); }
 
 
-BufferString FilePath::baseName() const
-{
-    BufferString ret = fileName();
-    char* ptr = ret.buf();
-    while ( *ptr && *ptr != '.' ) ptr++;
-    if ( !*ptr ) return ret;
-    *ptr++ = '\0';
-    return ret;
-}
-
-
 BufferString FilePath::pathOnly() const
 { return dirUpTo(lvls_.size()-2); }
 
@@ -348,8 +337,8 @@ BufferString FilePath::getTempName( const char* ext )
 
     BufferString fname( "od", GetPID() );
     static int counter = 0;
-    time_t time_stamp = time( (time_t*)0 ) + counter++;
-    fname += (od_int64)time_stamp;
+    int time_stamp = time( (time_t*)0 ) + counter++;
+    fname += time_stamp;
 
     if ( ext && *ext )
     {

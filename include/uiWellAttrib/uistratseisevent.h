@@ -7,23 +7,22 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratseisevent.h,v 1.4 2012-08-03 13:01:21 cvskris Exp $
+ RCS:		$Id: uistratseisevent.h,v 1.3 2012/02/09 12:59:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uigroup.h"
 #include "stratseisevent.h"
 class uiGenInput;
 class uiStratLevelSel;
 
 
-mClass(uiWellAttrib) uiStratSeisEvent : public uiGroup
+mClass uiStratSeisEvent : public uiGroup
 {
 public:
 
-    mClass(uiWellAttrib) Setup
+    mClass Setup
     {
     public:
 			Setup( bool wew=false )
@@ -59,4 +58,3 @@ protected:
 
 
 #endif
-

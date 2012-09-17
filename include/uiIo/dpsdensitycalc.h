@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          March 2010
- RCS:           $Id: dpsdensitycalc.h,v 1.3 2012-07-23 09:32:24 cvssatyaki Exp $
+ RCS:           $Id: dpsdensitycalc.h,v 1.4 2012/08/08 03:28:48 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "datapointset.h"
 #include "ranges.h"
+
+class uiDataPointSet;
 
 class DPSDensityCalcND : public ParallelTask
 {
@@ -24,7 +26,7 @@ public:
 	StepInterval<float>	valrange_;
     };
 
-				DPSDensityCalcND(const DataPointSet&,
+				DPSDensityCalcND(const uiDataPointSet& uidps,
 						 const ObjectSet<AxisParam>&,
 						 ArrayND<float>&);
 
@@ -36,12 +38,17 @@ public:
     bool			doWork(od_int64 start,od_int64 stop,int);
 
 protected:
-    const DataPointSet&			dps_;
-    ArrayND<float>&			freqdata_;
-    ObjectSet<AxisParam>		axisdatas_;
-    int					nrdims_;
-    int					nrdone_;
+    const DataPointSet&		dps_;
+    ArrayND<float>&		freqdata_;
+    ObjectSet<AxisParam>	axisdatas_;
+    int				nrdims_;
+    int				nrdone_;
 
-    float				getVal(int colid,int rowid) const;
+    float			getVal(int colid,int rowid) const;
+public:
+				DPSDensityCalcND(const DataPointSet& uidps,
+						 const ObjectSet<AxisParam>&,
+						 ArrayND<float>&);
+
 };
 

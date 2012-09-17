@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polylinend.h,v 1.2 2012-08-03 10:15:09 cvsbruno Exp $
+ RCS:		$Id: polylinend.h,v 1.1 2012/07/17 12:53:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "math.h"
 #include "position.h"
 #include "typeset.h"
 

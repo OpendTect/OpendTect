@@ -8,7 +8,7 @@ Date:		June 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiprestackimpmute.cc,v 1.16 2012-05-02 15:12:14 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackimpmute.cc,v 1.14 2011/11/23 11:35:56 cvsbert Exp $";
 
 #include "uiprestackimpmute.h"
 #include "uifileinput.h"

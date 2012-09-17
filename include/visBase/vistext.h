@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.19 2012-08-03 13:01:26 cvskris Exp $
+ RCS:		$Id: vistext.h,v 1.18 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "fontdata.h"
 #include "visobject.h"
 #include "position.h"
@@ -27,7 +26,7 @@ namespace visBase
 {
 class PickStyle;
 
-mClass(visBase) Text : public VisualObjectImpl
+mClass Text : public VisualObjectImpl
 {
 public:
     enum			Justification { Left, Right, Center };
@@ -73,7 +72,7 @@ on the screen. It is advisable to turn off the text when doing a viewAll,
 since their sizes will corrupt the bounding box calculation.
 */
 
-mClass(visBase) Text2 : public Text
+mClass Text2 : public Text
 {
 public:
     static Text2*		create()
@@ -94,7 +93,7 @@ protected:
 
 /*!Text that is not rotated to face text. */
 
-mClass(visBase) TextBox : public Text
+mClass TextBox : public Text
 {
 public:
     static TextBox*		create()
@@ -115,4 +114,3 @@ protected:
 }; // Namespace
 
 #endif
-

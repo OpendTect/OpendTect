@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.37 2012-08-03 13:00:23 cvskris Exp $
+ RCS:		$Id: ioobj.h,v 1.35 2010/12/16 13:01:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include "generalmod.h"
 #include "conn.h"
 #include "multiid.h"
 #include "namedobj.h"
@@ -26,7 +25,7 @@ class Translator;
 
 /*\brief factory entry for IOObjs. Should deliver IOObj of certain type. */
 
-mClass(General) IOObjProducer
+mClass IOObjProducer
 {
 public:
 
@@ -53,7 +52,7 @@ fullUserExpr().
 */
 
 
-mClass(General) IOObj : public NamedObject
+mClass IOObj : public NamedObject
 {
 public:
 
@@ -101,7 +100,7 @@ public:
     virtual void	acquireNewKey();
     			//!< This will give the IOObj a new (free) ID
 
-    static int		tmpID()		{ return  999999; }
+    static const int	tmpID()		{ return  999999; }
     inline bool		isTmp() const	{ return key_.leafID() == tmpID(); }
     bool		isReadDefault() const;
 
@@ -140,9 +139,8 @@ public:
 
 };
 
-mGlobal(General) bool equalIOObj(const MultiID&,const MultiID&);
-mGlobal(General) bool areEqual(const IOObj*,const IOObj*);
-mGlobal(General) bool fullImplRemove(const IOObj&);
+mGlobal bool equalIOObj(const MultiID&,const MultiID&);
+mGlobal bool areEqual(const IOObj*,const IOObj*);
+mGlobal bool fullImplRemove(const IOObj&);
 
 #endif
-

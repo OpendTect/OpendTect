@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiedata.cc,v 1.68 2012-07-17 08:16:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.65 2012/07/12 07:16:06 cvsbruno Exp $";
 
 #include "ioman.h"
 #include "iostrm.h"
@@ -198,8 +198,7 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	if ( !hor ) continue;
 	WellHorIntersectFinder whfinder( wd_->track(), wd_->d2TModel() );
 	whfinder.setHorizon( emid );
-	const float zval = 
-	    whfinder.findZIntersection()*SI().zDomain().userFactor();
+	const float zval = whfinder.findZIntersection()*1000;
 	if ( !mIsUdf( zval ) )
 	{
 	    Marker hd( zval );
@@ -230,7 +229,7 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 		|| ( !bynames && hd.id_ >=0 && hd.id_ == mrk.levelID() ))
 	    {
 		PosCouple pc; pcs += pc;
-		pc.z1_ = dtm->getTime(mrk.dah())*SI().zDomain().userFactor(); 
+		pc.z1_ = dtm->getTime(mrk.dah())*1000; 
 		pc.z2_ = hd.zpos_;
 	    }
 	}
@@ -322,6 +321,7 @@ bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> dahrg ) const
     if ( ld.logset_.isEmpty() )
 	return false;
 
+    bool allsucceeded = true;
     Well::Data wd; 
     wd.track() = wd_->track();
     wd.setD2TModel( new Well::D2TModel( *wd_->d2TModel() ) );
@@ -332,11 +332,10 @@ bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> dahrg ) const
     {
 	const Well::Log& log = ld.logset_.getLog( idx );
 	wd.logs().add( new Well::Log( log ) );
-	BufferString lnm( log.name() );
 	int ctxtidx = ld.ctioidxset_.validIdx(idx) ? ld.ctioidxset_[idx] : -1;
 	if ( ctxtidx < 0 ) return false;
 	CtxtIOObj* ctx = new CtxtIOObj( *ld.seisctioset_[ctxtidx] );
-	logdatas += new LogCubeCreator::LogCubeData( lnm, *ctx );
+	logdatas += new LogCubeCreator::LogCubeData( log.name(), *ctx );
     }
     Well::ExtractParams wep; wep.setFixedRange( dahrg, false );
     lcr.setInput( logdatas, ld.nrtraces_, wep );

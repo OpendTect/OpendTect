@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.17 2012-08-02 14:59:53 cvsbruno Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.14 2011/02/10 10:15:25 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include <QPolygonF>
 #include <QString>
 #include <QTextOption>
-#include <QMutex>
 
 #include "draw.h"
 
@@ -57,7 +56,8 @@ public:
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
-    static void 		drawMarker(QPainter&,MarkerStyle2D::Type,float,float);
+    void 			drawMarker(QPainter&);
+    static void 		drawMarker(QPainter&,MarkerStyle2D::Type,int);
     void			setMarkerStyle(const MarkerStyle2D&);
     void			setFill( bool fill )	  { fill_ = fill; }
     void			setFillColor( const Color& col )
@@ -108,18 +108,28 @@ protected:
 };
 
 
-class ODViewerTextItem : public QGraphicsTextItem
+class ODGraphicsTextItem : public QGraphicsTextItem
 {
 public:
+    				ODGraphicsTextItem();
+
+    QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
+    void 			setTextAlignment(Alignment);
+    void			setText(const char*);
+
+protected:
+    QRectF			boundingrect_;
+    QString			text_;
+    QTextOption			alignoption_;
 };
 
 
 class ODGraphicsPolyLineItem : public QAbstractGraphicsShapeItem
 {
 public:
-    ODGraphicsPolyLineItem();
+				ODGraphicsPolyLineItem();
 
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
@@ -134,42 +144,6 @@ public:
 
 protected:
     QPolygonF			qpolygon_;
-};
-
-
-class ODGraphicsDynamicImageItem : public QGraphicsItem, public CallBacker
-{
-public:
-			ODGraphicsDynamicImageItem();
-
-    void		setImage( bool isdynamic, const QImage& image,
-	    			  const QRectF& rect );
-    const		QRectF& wantedWorldRect() const { return wantedwr_; }
-    const QSize&	wantedScreenSize() const { return wantedscreensz_; }
-
-    QRectF		boundingRect() const { return bbox_; }
-
-    void		paint(QPainter*,const QStyleOptionGraphicsItem*,
-	    		      QWidget*);
-
-    bool		updateResolution(const QPainter*);
-
-    Notifier<ODGraphicsDynamicImageItem>	wantsData;
-protected:
-
-    QRectF			wantedwr_;
-    QSize			wantedscreensz_;
-
-    bool			updatedynpixmap_;
-    QMutex			dynamiclock_;
-    QImage			dynamicimage_;
-    QRectF			dynamicimagebbox_;
-
-    PtrMan<QPixmap>		dynamicpixmap_; //Only access in paint
-    QRectF			dynamicpixmapbbox_; //Only access in paint
-
-    QPixmap			basepixmap_;
-    QRectF			bbox_;
 };
 
 

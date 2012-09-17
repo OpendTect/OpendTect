@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfacetr.cc,v 1.39 2012-05-03 11:22:17 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfacetr.cc,v 1.36 2010/12/16 13:04:29 cvsbert Exp $";
 
 #include "emsurfacetr.h"
 
@@ -22,7 +22,7 @@ static const char* rcsID mUnusedVar = "$Id: emsurfacetr.cc,v 1.39 2012-05-03 11:
 #include "settings.h"
 
 
-FixedString EMHorizon3DTranslatorGroup::keyword()   { return "Horizon"; }
+const char* EMHorizon3DTranslatorGroup::keyword()   { return "Horizon"; }
 
 mDefSimpleTranslatorSelector(EMHorizon3D,keyword())
 
@@ -40,7 +40,7 @@ const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
 }
 
 
-FixedString EMHorizon2DTranslatorGroup::keyword()	{ return "2D Horizon"; }
+const char* EMHorizon2DTranslatorGroup::keyword()	{ return "2D Horizon"; }
 
 mDefSimpleTranslatorSelector(EMHorizon2D,keyword())
 
@@ -58,7 +58,7 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 }
 
 
-FixedString EMAnyHorizonTranslatorGroup::keyword()	{ return "Any Horizon"; }
+const char* EMAnyHorizonTranslatorGroup::keyword()	{ return "Any Horizon"; }
 mDefSimpleTranslatorioContextWithExtra(EMAnyHorizon,Surf,
 				       ctxt->toselect.allowtransls_=mDGBKey)
 
@@ -70,11 +70,11 @@ int EMAnyHorizonTranslatorGroup::selector( const char* s )
 }
 
 
-FixedString EMFault3DTranslatorGroup::keyword()		{ return "Fault"; }
+const char* EMFault3DTranslatorGroup::keyword()		{ return "Fault"; }
 mDefSimpleTranslatorSelector(EMFault3D,keyword())
 mDefSimpleTranslatorioContext(EMFault3D,Surf)
 
-FixedString EMFaultStickSetTranslatorGroup::keyword()	{ return "FaultStickSet"; }
+const char* EMFaultStickSetTranslatorGroup::keyword()	{ return "FaultStickSet"; }
 mDefSimpleTranslatorSelector(EMFaultStickSet,keyword())
 mDefSimpleTranslatorioContext(EMFaultStickSet,Surf)
 

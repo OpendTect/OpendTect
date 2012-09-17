@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vishorizonsection.cc,v 1.130 2012-08-03 06:38:40 cvsaneesh Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.126 2012/07/10 13:06:09 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -47,9 +47,6 @@ static const char* rcsID mUnusedVar = "$Id: vishorizonsection.cc,v 1.130 2012-08
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoTextureCoordinate2.h>
-
-#include <osgGeo/Horizon3D>
-#include <osgGeo/LayeredTexture>
 
 mCreateFactoryEntry( visBase::HorizonSection );
 
@@ -436,7 +433,6 @@ HorizonSection::HorizonSection()
     , nrcells_( 0 )
     , normalstartidx_( 0 )
     , normalsidesize_( 0 )
-    , osghorizon_( 0 )
 {
     setLockable();
     cache_.allowNull( true );
@@ -460,11 +456,6 @@ HorizonSection::HorizonSection()
 
     wireframematerial_->ref();
 
-    if ( doOsg() )
-    {
-	osghorizon_ = new osgGeo::Horizon3DNode;
-	addChild( osghorizon_ );
-    }
 }
 
 
@@ -1104,76 +1095,6 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	    return;
     }
 
-    if ( osghorizon_ )
-    {
-	const Interval<int> rowrg = geometry_->rowRange();
-	const Interval<int> colrg = geometry_->colRange();
-	std::vector<osg::Vec2d> cornerpts;
-	Coord crd00 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.start ) );
-	Coord crd01 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.stop ) );
-	Coord crd10 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.stop ) );
-	std::vector<osg::Vec2d> cornerptr;
-	cornerpts.push_back( osg::Vec2d( crd00.x, crd00.y ) );
-	cornerpts.push_back( osg::Vec2d( crd01.x, crd01.y ) );
-	cornerpts.push_back( osg::Vec2d( crd10.x, crd10.y ) );
-
-	osg::ref_ptr<osg::FloatArray> deptharr =
-	    static_cast<osg::FloatArray*>( osghorizon_->getDepthArray() );
-
-	if ( !deptharr )
-	{
-	    deptharr = new osg::FloatArray;
-	    osghorizon_->setDepthArray( deptharr );
-	    gpids = 0; //Force full update
-	}
-
-	const int newsize = geometry_->getArray()->info().getTotalSz();
-
-	if ( deptharr->size()!=newsize )
-	    deptharr->resize( newsize, mUdf(float) );
-
-	float* depthptr = (float*) deptharr->getDataPointer();
-
-	if ( !gpids )
-	{
-	    if ( !zaxistransform_ )
-		geometry_->getArray()->getAll( depthptr );
-	    else
-	    {
-		PtrMan<Geometry::Iterator> iter = geometry_->createIterator();
-		GeomPosID posid;
-		while ( (posid=iter->next())!=-1 )
-		{
-		    float z = geometry_->getPosition( posid ).z;
-		    const BinID bid = BinID::fromInt64( posid );
-		    if ( !mIsUdf(z) )
-		    {
-			if ( zaxistransform_ )
-			    z = zaxistransform_->transform( BinIDValue( bid, z ) );
-		    }
-
-		    depthptr[geometry_->getKnotIndex( bid )] = z;
-		}
-	    }
-	}
-	else
-    	{
-	    const GeomPosID* gpidptr = gpids->arr();
-	    const GeomPosID* stopptr = gpidptr+gpids->size();
-
-	    while ( gpidptr!=stopptr )
-	    {
-		float z = geometry_->getPosition( *gpidptr ).z;
-		const BinID bid = BinID::fromInt64( *gpidptr );
-		if ( !mIsUdf(z) )
-		    z = zaxistransform_->transform( BinIDValue( bid, z ) );
-
-		depthptr[geometry_->getKnotIndex( bid )] = z;
-		gpidptr++;
-	    }
-	}
-    }
-
     if ( !gpids || !tiles_.info().getSize(0) || !tiles_.info().getSize(1) )
 	resetAllTiles( tr );
     else
@@ -1199,7 +1120,7 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 
     for ( int idx=(*gpids).size()-1; idx>=0; idx-- )
     {
-	const RowCol absrc = RowCol::fromInt64( (*gpids)[idx] );
+	const RowCol& absrc( (*gpids)[idx] );
 	RowCol rc = absrc - origin_; 
 	rc.row /= rrg.step; rc.col /= crg.step;
 
@@ -2151,7 +2072,7 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
 	int ci21 = ci11 + spacing*nrcoordspertile;
 	if ( islastrow && res ) ci21 -= nrcoordspertile;
 
-	bool                  nbdef01 = false, nbdef02= false;
+	bool nbdef00 = false, nbdef01 = false, nbdef02= false;
 	bool nbdef10 = false, nbdef11 = false, nbdef12= false;
 	bool nbdef20 = false, nbdef21 = false, nbdef22= false;
 
@@ -2294,7 +2215,7 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
 		mTerminateStrip;
 	    }
 	
-	                       nbdef01 = nbdef02;
+	    nbdef00 = nbdef01; nbdef01 = nbdef02;
     	    nbdef10 = nbdef11; nbdef11 = nbdef12;
     	    nbdef20 = nbdef21; nbdef21 = nbdef22;
     	    ci11 = ci12; ci21 = ci22;
@@ -2375,8 +2296,9 @@ void HorizonSectionTile::tesselateWireframe( char res, TypeSet<int>& ci,
 {
     const short sidesize = section_.mTileSideSize;
     const short spacing = section_.spacing_[res];
-    const int tilesz = sidesize/spacing + ( sidesize%spacing ? 1 : 0 );
-
+    const int tilesz = sidesize/spacing + 
+	( sidesize%spacing ? 1 : 0 );
+    int lnidx = 0;
     for ( int idx=0; idx<=tilesz; idx++ )
     {
 	const int rowstartidx = idx<tilesz
@@ -2679,7 +2601,7 @@ void HorizonSectionTile::tesselateGlue()
 	    const int nrconns = section_.spacing_[abs(nbres-res)];
 	    
 	    int adjedgeidx, adjnbidx, cornpos;
-	    bool dfadjedge, dfadjnb;
+	    bool dfadjedge, dfadjnb, dfcorner;
 
 	    int lowresidx = 0, skipped = 0; 
 	    for ( int idx=0; idx<highstopidx; idx++ ) 

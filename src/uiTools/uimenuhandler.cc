@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimenuhandler.cc,v 1.28 2012-08-01 11:11:42 cvsmahant Exp $";
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.24 2011/10/07 21:53:43 cvsnanne Exp $";
 
 
 #include "uimenuhandler.h"
@@ -16,8 +16,8 @@ static const char* rcsID mUnusedVar = "$Id: uimenuhandler.cc,v 1.28 2012-08-01 1
 #include "uimenu.h"
 #include "uitoolbar.h"
 
-int uiMenuHandler::fromTree()	{ return 1; }
-int uiMenuHandler::fromScene()	{ return 0; }
+const int uiMenuHandler::fromTree()	{ return 1; }
+const int uiMenuHandler::fromScene()	{ return 0; }
 
 
 uiMenuHandler::uiMenuHandler( uiParent* uiparent, int ni )
@@ -151,7 +151,7 @@ void uiTreeItemTBHandler::handleEmpty()
     if ( nrItems() > 0 )
 	return;
 
-    tb_->addButton( "base_icon", "No tools available", CallBack() );
+    tb_->addButton( "base_icon.png", "No tools available", CallBack() );
 }
 
 

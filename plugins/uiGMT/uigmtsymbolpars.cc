@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtsymbolpars.cc,v 1.16 2012-08-13 03:56:45 cvssalil Exp $";
+static const char* rcsID = "$Id: uigmtsymbolpars.cc,v 1.10 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "uigmtsymbolpars.h"
 
@@ -38,7 +38,7 @@ uiGMTSymbolPars::uiGMTSymbolPars( uiParent* p, bool usewellsymbols )
     setHAlignObj( lcb );
 
     sizefld_ = new uiGenInput( this, "Size (cm)",
-	    		       FloatInpSpec( usewellsymbols_ ? 0.5f : 0.2f ) );
+	    		       FloatInpSpec( usewellsymbols_ ? 0.5 : 0.2 ) );
     sizefld_->setElemSzPol( uiObject::Small );
     sizefld_->attach( rightTo, lcb );
 
@@ -88,6 +88,7 @@ void uiGMTSymbolPars::fillShapes()
 	    if ( shapekey.isEmpty() ) break;
 
 	    shapekey.buf()[0] = tolower( shapekey.buf()[0] );
+	    shapekey += ".png";
 	    shapefld_->insertItem( ioPixmap(shapekey), "", idx );
 	}
     }
@@ -98,23 +99,23 @@ void uiGMTSymbolPars::fillShapes()
 
 bool uiGMTSymbolPars::fillPar( IOPar& par ) const
 {
-    par.setYN( ODGMT::sKeyUseWellSymbolsYN(), usewellsymbols_ );
+    par.setYN( ODGMT::sKeyUseWellSymbolsYN, usewellsymbols_ );
     if ( !usewellsymbols_ )
     {
 	const int shp = shapefld_->currentItem();
 	BufferString shapestr = ODGMT::ShapeNames()[shp];
-	par.set( ODGMT::sKeyShape(), shapestr );
-	par.setYN( ODGMT::sKeyFill(), fillcolfld_->doDraw() );
-	par.set( ODGMT::sKeyFillColor(), fillcolfld_->color() );
+	par.set( ODGMT::sKeyShape, shapestr );
+	par.setYN( ODGMT::sKeyFill, fillcolfld_->doDraw() );
+	par.set( ODGMT::sKeyFillColor, fillcolfld_->color() );
     }
     else
     {
 	const int selitem = shapefld_->currentItem();
-	par.set( ODGMT::sKeyWellSymbolName(), shapefld_->textOfItem(selitem) );
+	par.set( ODGMT::sKeyWellSymbolName, shapefld_->textOfItem(selitem) );
     }
 
-    par.set( sKey::Size(), sizefld_->getfValue() );
-    par.set( sKey::Color(), outcolfld_->color() );
+    par.set( sKey::Size, sizefld_->getfValue() );
+    par.set( sKey::Color, outcolfld_->color() );
     return true;
 }
 
@@ -124,28 +125,28 @@ bool uiGMTSymbolPars::usePar( const IOPar& par )
     if ( usewellsymbols_ )
     {
 	BufferString wellname;
-	par.get( ODGMT::sKeyWellSymbolName(), wellname );
+	par.get( ODGMT::sKeyWellSymbolName, wellname );
 	shapefld_->setCurrentItem( wellname );
     }
     else
     {
 	ODGMT::Shape shp;
-	if ( ODGMT::parseEnumShape( par.find( ODGMT::sKeyShape() ), shp ) )
+	if ( ODGMT::parseEnumShape( par.find( ODGMT::sKeyShape ), shp ) )
 	    shapefld_->setCurrentItem( shp );
 
 	Color col;
-	bool dofill = false; par.getYN( ODGMT::sKeyFill(), dofill );
+	bool dofill = false; par.getYN( ODGMT::sKeyFill, dofill );
 	fillcolfld_->setDoDraw( dofill );
-	if ( dofill && par.get(ODGMT::sKeyFillColor(),col) )
+	if ( dofill && par.get(ODGMT::sKeyFillColor,col) )
 	    fillcolfld_->setColor( col );
     }
 
     float size;
-    if ( par.get(sKey::Size(),size) )
+    if ( par.get(sKey::Size,size) )
 	sizefld_->setValue( size );
 
     Color col;
-    if ( par.get(sKey::Color(),col) )
+    if ( par.get(sKey::Color,col) )
 	outcolfld_->setColor( col );
 
     return true;

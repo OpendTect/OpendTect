@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: polygonsurfeditor.cc,v 1.19 2012-08-10 04:11:24 cvssalil Exp $";
+static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.14 2011/09/19 12:54:40 cvskris Exp $";
 
 #include "polygonsurfeditor.h"
 
@@ -174,6 +174,7 @@ bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 	for ( int polygonidx=rowrange.nrSteps(); polygonidx>=0; polygonidx-- )
 	{
 	    Coord3 avgpos( 0, 0, 0 );
+	    int count = 0;
 	    const int curpolygon = rowrange.atIndex(polygonidx);
 	    const StepInterval<int> colrange = surface->colRange( curpolygon );
 	    if ( colrange.isUdf() )
@@ -255,7 +256,7 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
 
 	    const Plane3 plane( surface->getPolygonNormal(curpolygon),
 		    		avgpos, false );
-	    const float disttoplane = (float) 
+	    const float disttoplane =
 		plane.distanceToPoint( mCompareCoord(mousepos), true );
 
 	    if ( selsectionidx==-1 || fabs(disttoplane)<fabs(mindist) )
@@ -313,7 +314,7 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     if ( colrg.nrSteps()<3 )
 	return emobject.setPos( pid, mpos, addtoundo );
 
-    const int zscale =  SI().zDomain().userFactor();   
+    const int zscale =  SI().zFactor();   
     const int previdx = rc.col==colrg.start ? colrg.stop : rc.col-colrg.step;
     const int nextidx = rc.col<colrg.stop ? rc.col+colrg.step : colrg.start;
     
@@ -389,7 +390,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	float sqdist = 0;
 	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pt )
 	{
-	    sqdist = (float) mCompareCoord(pt).sqDistTo( mCompareCoord(mousepos) );
+	    sqdist = mCompareCoord(pt).sqDistTo( mCompareCoord(mousepos) );
 	    if ( mIsZero(sqdist, 1e-4) ) //mousepos is duplicated.
 		return;
 	}

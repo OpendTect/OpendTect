@@ -7,24 +7,23 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.35 2012-08-30 05:49:34 cvsnageswara Exp $
+ RCS:           $Id: uimsg.h,v 1.33 2009/08/07 12:53:11 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "gendefs.h"
 class uiMainWin;
 class uiStatusBar;
-mFDQtclass(QWidget)
+class QWidget;
 class BufferStringSet;
 class FileMultiString;
 
 
-mClass(uiBase) uiMsg
+mClass uiMsg
 {
     friend class uiMain;
-    mGlobal(uiBase) friend uiMsg& uiMSG();
+    mGlobal friend uiMsg& uiMSG();
 
 public:
 
@@ -77,7 +76,7 @@ protected:
 
 			uiMsg();
 
-    mQtclass(QWidget*)	popParnt();
+    QWidget*		popParnt();
 
     static uiMsg*	theinst_;
 
@@ -90,11 +89,11 @@ private:
     uiMainWin*		uimainwin_;
 };
 
-mGlobal(uiBase) uiMsg& uiMSG();
+mGlobal uiMsg& uiMSG();
 
 
 //!Sets the uiMSG's main window temporary during the scope of the object
-mClass(uiBase) uiMsgMainWinSetter
+mClass uiMsgMainWinSetter
 {
 public:
     			uiMsgMainWinSetter( uiMainWin* np )
@@ -113,4 +112,3 @@ protected:
 
 
 #endif
-

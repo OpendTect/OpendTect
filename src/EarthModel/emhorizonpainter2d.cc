@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		May 2010
- RCS:		$Id: emhorizonpainter2d.cc,v 1.11 2012-04-02 15:06:17 cvskris Exp $
+ RCS:		$Id: emhorizonpainter2d.cc,v 1.9 2012/02/16 05:05:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,12 +87,12 @@ bool HorizonPainter2D::addPolyLine()
 
 	SectionMarker2DLine* secmarkerln = new SectionMarker2DLine;
 	markerline_ += secmarkerln;
-	FlatView::AuxData* seedauxdata =
-	    viewer_.createAuxData( "Horizon2D Marker" );
+	FlatView::Annotation::AuxData* seedauxdata =
+			new FlatView::Annotation::AuxData( "Horizon2D Marker" );
 	seedauxdata->enabled_ = seedenabled_;
 	seedauxdata->poly_.erase();
 	seedauxdata->markerstyles_ += markerstyle_;
-	viewer_.addAuxData( seedauxdata );
+	viewer_.appearance().annot_.auxdata_ += seedauxdata;
 	
 	markerseeds_ = new Marker2D;
 	markerseeds_->marker_ = seedauxdata;
@@ -130,9 +130,9 @@ bool HorizonPainter2D::addPolyLine()
 	    
 	    if ( newmarker )
 	    {
-		FlatView::AuxData* auxdata =
-		    viewer_.createAuxData( "Horizon2D marker" );
-		viewer_.addAuxData( auxdata );
+		FlatView::Annotation::AuxData* auxdata =
+			new FlatView::Annotation::AuxData( "Horizon2D marker" );
+		viewer_.appearance().annot_.auxdata_ += auxdata;
 		auxdata->poly_.erase();
 		auxdata->linestyle_ = markerlinestyle_;
 		Color prefcol = hor2d->preferredColor();
@@ -243,15 +243,14 @@ void HorizonPainter2D::removePolyLine()
     {
 	SectionMarker2DLine* markerlines = markerline_[markidx];
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
-	{
-	    viewer_.removeAuxData( (*markerlines)[idy]->marker_ );
-	}
+	    viewer_.appearance().annot_.auxdata_ -=
+						(*markerlines)[idy]->marker_;
     }
     deepErase( markerline_ );
 
     if ( markerseeds_ )
     {
-	viewer_.removeAuxData(  markerseeds_->marker_ );
+	viewer_.appearance().annot_.auxdata_ -= markerseeds_->marker_;
 	delete markerseeds_;
 	markerseeds_ = 0;
     }

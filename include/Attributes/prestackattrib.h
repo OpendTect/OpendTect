@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.15 2012-08-03 13:00:09 cvskris Exp $
+ RCS:           $Id: prestackattrib.h,v 1.14 2012/06/29 08:14:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 #include "prestackprop.h"
 #include "multiid.h"
@@ -42,7 +41,7 @@ Output:
     
 //Classname should really be PreStack, but compiler complains and mixes up
 //with PreStack namespace.
-mClass(Attributes) PSAttrib : public Provider
+mClass PSAttrib : public Provider
 {
 public:
 
@@ -66,8 +65,6 @@ public:
     const ::PreStack::PropCalc::Setup&	setup() const	{ return setup_; }
     const MultiID&			psID() const	{ return psid_; }
     const MultiID&			preProcID() const { return preprocid_; }
-
-    void                updateCSIfNeeded(CubeSampling&) const;
 
 protected:
 
@@ -93,10 +90,23 @@ protected:
     int				dataidx_;
     const DataHolder*		inputdata_;
 
-    ObjectSet<PreStack::Gather>    gatherset_; 
+    ObjectSet<PreStack::Gather>    gatherset_;
+
+public:
+   void				updateCSIfNeeded(CubeSampling&) const;
+};
+
+
+mClass MyChildHackingClass : public MyMainHackingClass
+{                                                                               
+public:                                                                         
+                                MyChildHackingClass(Attrib::Provider* prov) 
+				    : MyMainHackingClass( prov )	{}
+
+    virtual bool                isTheOne()              { return true; }       
+    virtual void                updateCSIfNeeded(CubeSampling&) const; 
 };
 
 }; // namespace Attrib
 
 #endif
-

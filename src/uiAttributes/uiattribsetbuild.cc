@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribsetbuild.cc,v 1.26 2012-05-22 14:48:36 cvskris Exp $";
+static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.23 2011/10/17 13:24:04 cvsbruno Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -273,7 +273,7 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 	    if ( isdescanyd )
 	    {
 		IOPar par; descset.fillPar( par );
-		par.set( sKey::Type(), is2d ? "2D" : "3D" );
+		par.set( sKey::Type, is2d ? "2D" : "3D" );
 		descset.usePar( par );
 	    }
 	    descset_ = descset;

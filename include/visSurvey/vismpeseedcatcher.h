@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.24 2012-08-03 13:01:28 cvskris Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.23 2012/01/12 17:32:16 cvsjaap Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissurveymod.h"
 #include "visobject.h"
 
 #include "attribdatacubes.h"
@@ -41,7 +40,7 @@ class EMObjectDisplay;
 class MPEEditor;
 
 
-mClass(visSurvey) MPEClickInfo
+mClass MPEClickInfo
 {
     friend class MPEClickCatcher;
 public:
@@ -102,7 +101,7 @@ protected:
 };
 
 
-mClass(visSurvey) MPEClickCatcher : public visBase::VisualObjectImpl
+mClass MPEClickCatcher : public visBase::VisualObjectImpl
 {
 public:
     static MPEClickCatcher*	create()
@@ -155,4 +154,3 @@ protected:
 };
 
 #endif
-

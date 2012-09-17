@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventtransl.h,v 1.6 2012-08-03 13:00:33 cvskris Exp $
+ RCS:		$Id: prestackeventtransl.h,v 1.5 2011/04/26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "transl.h"
 
 class Executor;
@@ -24,7 +23,7 @@ class HorSampling;
 namespace PreStack { class EventManager; }
 
 
-mClass(PreStackProcessing) PSEventTranslatorGroup : public TranslatorGroup
+mClass PSEventTranslatorGroup : public TranslatorGroup
 { isTranslatorGroup(PSEvent);
 public:
     				mDefEmptyTranslatorGroupConstructor(PSEvent);
@@ -34,7 +33,7 @@ public:
 };
 
 
-mClass(PreStackProcessing) PSEventTranslator : public Translator
+mClass PSEventTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(PSEvent);
@@ -53,7 +52,7 @@ public:
 };
 
 
-mClass(PreStackProcessing) dgbPSEventTranslator : public PSEventTranslator
+mClass dgbPSEventTranslator : public PSEventTranslator
 { isTranslator(dgb,PSEvent)
 public:
     			mDefEmptyTranslatorConstructor(dgb,PSEvent);
@@ -68,4 +67,3 @@ public:
 
 
 #endif
-

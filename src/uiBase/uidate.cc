@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidate.cc,v 1.5 2012-05-02 15:12:00 cvskris Exp $";
+static const char* rcsID = "$Id: uidate.cc,v 1.2 2011/12/23 10:34:14 cvskris Exp $";
 
 
 #include "uidate.h"
@@ -75,7 +75,7 @@ uiDateSel::uiDateSel( uiParent* p,const char* label, const DateInfo* di )
     yearfld_->attach( rightOf, monthfld_ );
 
     showcalendarbut_ = new uiPushButton( this, "Select",
-	    mCB(this,uiDateSel,showCalendarCB), false );
+	    mCB(this,uiDateSel,showCalendarCB), true );
     showcalendarbut_->attach( rightOf, yearfld_ );
 
     setHAlignObj( dayfld_ );

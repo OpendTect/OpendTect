@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	Time functions
- RCS:		$Id: timefun.h,v 1.16 2012-08-03 13:00:15 cvskris Exp $
+ RCS:		$Id: timefun.h,v 1.15 2011/12/09 06:04:17 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "gendefs.h"
 
 class QTime;
@@ -21,7 +20,7 @@ class QTime;
 namespace Time
 {
 
-mClass(Basic) Counter
+mClass Counter
 {
 public:
     		Counter();
@@ -35,22 +34,22 @@ protected:
 };
 
 
-    mGlobal(Basic) int getMilliSeconds();          //!< From day start
-    mGlobal(Basic) int passedSince(int);
+    mGlobal int getMilliSeconds();          //!< From day start
+    mGlobal int passedSince(int);
 
 
-    mGlobal(Basic) const char*	defDateTimeFmt();
-    mGlobal(Basic) const char*	defDateFmt();
-    mGlobal(Basic) const char*	defTimeFmt();
+    mGlobal const char*	defDateTimeFmt();
+    mGlobal const char*	defDateFmt();
+    mGlobal const char*	defTimeFmt();
 
-    mGlobal(Basic) const char*	getDateTimeString(const char* fmt=defDateTimeFmt(),
+    mGlobal const char*	getDateTimeString(const char* fmt=defDateTimeFmt(),
 					  bool local=true);
-    mGlobal(Basic) const char*	getDateString(const char* fmt=defDateFmt(),
+    mGlobal const char*	getDateString(const char* fmt=defDateFmt(),
 				      bool local=true);
-    mGlobal(Basic) const char*	getTimeString(const char* fmt=defTimeFmt(),
+    mGlobal const char*	getTimeString(const char* fmt=defTimeFmt(),
 				      bool local=true);
 
-    mGlobal(Basic) bool isEarlier(const char* first, const char* second,
+    mGlobal bool isEarlier(const char* first, const char* second,
 	    		   const char* fmt=defDateTimeFmt());
 			/*! returns true if the first DateTime string is
 			  earlier than the second */
@@ -58,4 +57,3 @@ protected:
 } // namespace Time
 
 #endif
-

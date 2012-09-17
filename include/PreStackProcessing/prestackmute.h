@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmute.h,v 1.14 2012-08-03 13:00:33 cvskris Exp $
+ RCS:		$Id: prestackmute.h,v 1.13 2011/01/25 20:34:00 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "prestackprocessor.h"
 #include "multiid.h"
 
@@ -23,7 +22,7 @@ namespace PreStack
 {
 class MuteDef;
 
-mClass(PreStackProcessing) Mute : public Processor
+mClass Mute : public Processor
 {
 public:
 			mDefaultFactoryInstantiation( Processor, Mute,
@@ -73,4 +72,3 @@ protected:
 }; //namespace
 
 #endif
-

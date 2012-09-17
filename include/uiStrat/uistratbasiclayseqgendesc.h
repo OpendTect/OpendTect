@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2010
- RCS:           $Id: uistratbasiclayseqgendesc.h,v 1.4 2012-08-03 13:01:10 cvskris Exp $
+ RCS:           $Id: uistratbasiclayseqgendesc.h,v 1.3 2012/01/17 15:17:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uistratextlayseqgendesc.h"
 class uiTextItem;
 class uiLineItem;
@@ -21,7 +20,7 @@ class uiPolygonItem;
 namespace Strat { class LayerGenerator; class SingleLayerGenerator; }
 
 
-mClass(uiStrat) uiBasicLayerSequenceGenDesc : public uiExtLayerSequenceGenDesc
+mClass uiBasicLayerSequenceGenDesc : public uiExtLayerSequenceGenDesc
 {
 public:
 
@@ -61,4 +60,3 @@ protected:
 
 
 #endif
-

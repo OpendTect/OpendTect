@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_ClusterProc.cc,v 1.8 2012-05-22 14:48:39 cvskris Exp $";
+static const char* rcsID = "$Id: od_ClusterProc.cc,v 1.5 2012/03/02 11:47:04 cvsraman Exp $";
 
 #include "uiclusterproc.h"
 #include "uimain.h"
@@ -68,7 +68,7 @@ int main( int argc, char ** argv )
 	ExitProgram( 1 );
     }
 
-    IOPar iop; iop.read( *sdin.istrm, sKey::Pars() );
+    IOPar iop; iop.read( *sdin.istrm, sKey::Pars );
     if ( iop.size() == 0 )
     {
 	std::cerr << argv[0] << ": Invalid parameter file" << std::endl;
@@ -77,7 +77,7 @@ int main( int argc, char ** argv )
 
     sdin.close();
 
-    const char* res = iop.find( sKey::Survey() );
+    const char* res = iop.find( sKey::Survey );
     if ( res && *res && SI().getDirName() != res )
 	IOMan::setSurvey( res );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiswvltgen.cc,v 1.25 2012-08-10 03:50:06 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.21 2012/07/10 13:06:08 cvskris Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -74,7 +74,7 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
 				BoolInpSpec(true,"Ricker","Sinc") );
 
     const float sisr = SI().zStep();
-    float deffrq = 0.1f / sisr; int ideffr = mNINT32(deffrq);
+    float deffrq = 0.1 / sisr; int ideffr = mNINT32(deffrq);
     if ( ideffr > 0 && mIsZero(deffrq-ideffr,1e-4) )
 	deffrq = ideffr; // avoid awkward 99.999 display
     BufferString txt( "Central " );
@@ -82,7 +82,7 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
     freqfld_ = new uiGenInput( this, txt, FloatInpSpec(deffrq) );
     freqfld_->attach( alignedBelow, isrickfld_ );
 
-    const float usrsr = sisr * SI().zDomain().userFactor();
+    const float usrsr = sisr * SI().zFactor();
     txt = "Sample interval "; txt += SI().getZUnitString();
     srfld_ = new uiGenInput( this, txt, FloatInpSpec(usrsr) );
     srfld_->attach( alignedBelow, freqfld_ );
@@ -107,7 +107,7 @@ bool uiSeisWvltGen::acceptOK( CallBacker* )
     else if ( mIsUdf(freq) || freq <= 0 )
 	mErrRet( "The frequency must be positive" )
 
-    const float realsr = sr / SI().zDomain().userFactor();
+    const float realsr = sr / SI().zFactor();
     Wavelet wvlt( isrickfld_->getBoolValue(), freq, realsr, peakampl );
     putWvlt( wvlt );
 
@@ -388,7 +388,7 @@ uiSeisWvltMerge::WvltMathFunction::WvltMathFunction( const Wavelet* wvlt )
 
 float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
 {
-    float x = ( t*0.1f - samppos_.start );
+    float x = ( t*0.1 - samppos_.start );
     x /= samppos_.step;
     const int x1 = int(x);
     if ( x1 > size_-1 || x1<0 )

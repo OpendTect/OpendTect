@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: odusginfo.h,v 1.10 2012-08-03 13:00:43 cvskris Exp $
+ RCS:           $Id: odusginfo.h,v 1.9 2009/11/25 16:09:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "usagemod.h"
 #include "bufstring.h"
 #include <iosfwd>
 
@@ -22,13 +21,13 @@ namespace Usage
 
 /*!\brief Info going to and coming from server. */
 
-mClass(Usage) Info
+mClass Info
 {
 public:
 
     enum Delim		{ Start, Stop, Cont };
 
-    mClass(Usage) ID
+    mClass ID
     {
     public:
 			ID();					//!< client
@@ -85,4 +84,3 @@ protected:
 
 
 #endif
-

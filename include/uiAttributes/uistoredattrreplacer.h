@@ -7,11 +7,10 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		June 2008
- RCS:		$Id: uistoredattrreplacer.h,v 1.11 2012-08-03 13:00:50 cvskris Exp $
+ RCS:		$Id: uistoredattrreplacer.h,v 1.9 2011/12/23 15:00:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
-#include "uiattributesmod.h"
 #include "attribdescid.h"
 #include "bufstringset.h"
 #include "linekey.h"
@@ -24,7 +23,7 @@ namespace Attrib
     class DescSet;
 };
 
-mClass(uiAttributes) uiStoredAttribReplacer
+mClass uiStoredAttribReplacer
 {
 public:
     				uiStoredAttribReplacer(uiParent*,
@@ -37,18 +36,15 @@ protected:
 
     struct StoredEntry
     {
-				StoredEntry( Attrib::DescID id1, LineKey lk,
-				       	     BufferString storedref )
+				StoredEntry( Attrib::DescID id1, LineKey lk )
 				    : firstid_(id1)
 				    , secondid_(Attrib::DescID::undef())
-				    , lk_(lk)
-       				    , storedref_(storedref)	{}
+				    , lk_(lk) {}
 
 	bool			operator == ( const StoredEntry& a ) const
 	    			{ return firstid_ == a.firstid_
 				      && secondid_ == a.secondid_
-				      && lk_ == a.lk_
-				      && storedref_ == a.storedref_; }
+				      && lk_ == a.lk_; }
 
 	bool			has2Ids() const
 				{ return firstid_.isValid() &&
@@ -57,7 +53,6 @@ protected:
 	Attrib::DescID		secondid_;
 	LineKey			lk_;
 	BufferStringSet		userrefs_;
-	BufferString		storedref_;
     };
 
     void			usePar(const IOPar&);
@@ -87,5 +82,4 @@ protected:
 };
 
 #endif
-
 

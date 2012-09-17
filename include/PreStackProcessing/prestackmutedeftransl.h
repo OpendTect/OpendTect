@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedeftransl.h,v 1.7 2012-08-03 13:00:33 cvskris Exp $
+ RCS:		$Id: prestackmutedeftransl.h,v 1.6 2011/10/25 09:17:16 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
  
-#include "prestackprocessingmod.h"
 #include "transl.h"
 namespace PreStack { class MuteDef; }
 
 
-mClass(PreStackProcessing) MuteDefTranslatorGroup : public TranslatorGroup
+mClass MuteDefTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(MuteDef)
 public:
     			mDefEmptyTranslatorGroupConstructor(MuteDef)
@@ -27,7 +26,7 @@ public:
 };
 
 
-mClass(PreStackProcessing) MuteDefTranslator : public Translator
+mClass MuteDefTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(MuteDef)
@@ -43,7 +42,7 @@ public:
 };
 
 
-mClass(PreStackProcessing) dgbMuteDefTranslator : public MuteDefTranslator
+mClass dgbMuteDefTranslator : public MuteDefTranslator
 {			     isTranslator(dgb,MuteDef)
 public:
 
@@ -58,4 +57,3 @@ public:
 
 
 #endif
-

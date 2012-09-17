@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: SoDGBIndexedPointSet.h,v 1.5 2012-08-27 13:16:47 cvskris Exp $
+ RCS:		$Id: SoDGBIndexedPointSet.h,v 1.3 2011/04/28 07:00:11 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "soodmod.h"
 #include "Inventor/nodes/SoIndexedShape.h"
 
 #include "soodbasic.h"
@@ -26,7 +25,7 @@ UPDATE: Coin has a SoIndexedPointSet class, which should be used when
 it comes to the stable repository.
 */
 
-mSoODClass SoDGBIndexedPointSet : public SoIndexedShape
+mClass SoDGBIndexedPointSet : public SoIndexedShape
 {
     SO_NODE_HEADER(SoDGBIndexedPointSet);
 public:
@@ -55,5 +54,4 @@ private:
 };
 
 #endif
-
 

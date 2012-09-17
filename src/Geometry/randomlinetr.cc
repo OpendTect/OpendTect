@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: randomlinetr.cc,v 1.15 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID = "$Id: randomlinetr.cc,v 1.12 2011/02/01 19:57:22 cvskris Exp $";
 
 #include "randomlinetr.h"
 #include "randomlinefact.h"
@@ -88,14 +88,14 @@ bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
 static void getZRgAndName( ascistream& astrm, Interval<float>& zrg,
 			   BufferString& nm )
 {
-    if ( !astrm.hasKeyword(sKey::ZRange()) )
+    if ( !astrm.hasKeyword(sKey::ZRange) )
 	return;
 
     FileMultiString fms = astrm.value();
     zrg.start = toFloat( fms[0] ); zrg.stop = toFloat( fms[1] );
     astrm.next();
 
-    if ( astrm.hasKeyword(sKey::Name()) )
+    if ( astrm.hasKeyword(sKey::Name) )
     {
 	nm = astrm.value();
 	astrm.next();
@@ -109,9 +109,9 @@ static void putZRangeAndName( ascostream& astrm,
     const Interval<float> zrg( rdl.zRange() );
     FileMultiString fms = toString( zrg.start );
     fms.add( toString(zrg.stop) );
-    astrm.put( sKey::ZRange(), fms );
+    astrm.put( sKey::ZRange, fms );
     if ( !rdl.name().isEmpty() )
-	astrm.put( sKey::Name(), rdl.name() );
+	astrm.put( sKey::Name, rdl.name() );
 }
 
 

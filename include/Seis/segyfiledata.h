@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.15 2012-08-03 13:00:34 cvskris Exp $
+ RCS:		$Id: segyfiledata.h,v 1.14 2011/03/30 11:46:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "iopar.h"
@@ -37,7 +36,7 @@ namespace SEGY
 /*!<Stores scanned data from SEGY-files. */
 
 
-mClass(Seis) FileDataSet
+mClass FileDataSet
 {
 public:
 
@@ -163,4 +162,3 @@ protected:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: createlogcube.cc,v 1.15 2012-07-09 13:25:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: createlogcube.cc,v 1.12 2012/06/28 11:57:20 cvsbruno Exp $";
 
 #include "createlogcube.h"
 
@@ -24,6 +24,18 @@ static const char* rcsID mUnusedVar = "$Id: createlogcube.cc,v 1.15 2012-07-09 1
 #include "stattype.h"
 
 
+static Well::ExtractParams* extractparams_;
+
+
+void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs, 
+			const Well::ExtractParams& extractpars )
+{
+    setInput( lcds, nrdupltrcs );
+    *extractparams_ = extractpars;
+}
+
+
+
 LogCubeCreator::LogCubeData::~LogCubeData()
 {
     delete seisctio_.ioobj;
@@ -35,17 +47,19 @@ LogCubeCreator::LogCubeCreator( const Well::Data& wd )
     , hrg_(false)
     , nrduplicatetrcs_(0)		 
 {
+    extractparams_ = new Well::ExtractParams();
+    extractparams_->setFixedRange( SI().zRange( true ), true );
     Well::SimpleTrackSampler wtextr( wd_.track(), wd_.d2TModel() );
     if ( !wtextr.execute() )
 	pErrMsg( "unable to extract position" );
     wtextr.getBIDs( binids_ );
-    extractparams_.setFixedRange( SI().zRange( true ), true );
 }
 
 
 LogCubeCreator::~LogCubeCreator()
 {
     deepErase( logdatas_ );
+    delete extractparams_;
 }
 
 
@@ -53,16 +67,7 @@ void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs )
 {
     while ( !lcds.isEmpty() )
 	logdatas_ += lcds.remove(0);
-
     nrduplicatetrcs_ = nrdupltrcs;
-}
-
-
-void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs,
-			const Well::ExtractParams& pars )
-{
-    setInput( lcds, nrdupltrcs );
-    extractparams_ = pars;
 }
 
 
@@ -71,7 +76,7 @@ void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs,
 bool LogCubeCreator::doPrepare( int )
 {
     if ( binids_.isEmpty() )
-	mErrRet( "No valid position extracted along the track" );
+	mErrRet( "No valid position extracted along the track");
 
     hrg_ = HorSampling( false );
     for ( int idx=0; idx<binids_.size(); idx++ )
@@ -82,9 +87,8 @@ bool LogCubeCreator::doPrepare( int )
     hrg_.start -= bidvar;
     hrg_.snapToSurvey();
 
-    extractparams_.zstep_ = SI().zRange( true ).step;
-    extractparams_.extractzintime_ = SI().zIsTime();
-    extractparams_.snapZRangeToSurvey( true );
+    extractparams_->zstep_ = SI().zRange( true ).step;
+    extractparams_->extractzintime_ = SI().zIsTime();
     
     return true;
 }
@@ -97,11 +101,12 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 
     for ( int idx=start; idx<=stop; idx++ )
     {
+
 	if ( !shouldContinue() )
 	    return false;
 
 	if ( !writeLog2Cube( *logdatas_[idx] ) )
-	{
+	{ 
 	    errmsg_ = "One or several logs could not be written"; 
 	    errmsg_ += " for "; errmsg_ += wd_.name(); 
 	}
@@ -114,30 +119,32 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 
 bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 {
-    if ( !lcd.seisctio_.ioobj )
-	return false;
+    SeisTrcWriter writer( lcd.seisctio_.ioobj );
 
-    SeisTrc trc( SI().zRange(true).nrSteps()+1 );
+    SeisTrc trc( SI().zRange(true).nrSteps() +1 );
     trc.info().sampling = SI().zRange(true);
 
     BufferStringSet lognms; lognms.add( lcd.lognm_ );
-    Well::LogSampler ls( wd_, extractparams_, lognms );
+    Well::LogSampler ls( wd_, *extractparams_, lognms );
+    ls.snapZRangeToSI();
     if ( !ls.execute( false ) )
 	return false;
 
-    StepInterval<float> zrg = ls.zRange();
+    StepInterval<float> zrg = ls.zRange(); 
+    int idztrc = 0;
     const Well::D2TModel* d2t = wd_.d2TModel();
-    if ( SI().zIsTime() && !extractparams_.isInTime() && d2t )
+    if ( SI().zIsTime() && !extractparams_->isZRangeInTime() && d2t )
     {
 	zrg.start = d2t->getTime( zrg.start );
 	zrg.stop = d2t->getTime( zrg.stop );
     }
     zrg.step = trc.info().sampling.step;
-    for ( int idztrc=0; idztrc<trc.size(); idztrc++ )
+
+    for ( idztrc=0; idztrc<trc.size(); idztrc++ )
     {
 	const float z = trc.info().sampling.atIndex(idztrc);
 	float val = mUdf(float);
-	if ( zrg.includes( z, true ) )
+        if ( zrg.includes( z, true ) )
 	{
 	    const int idz = zrg.getIndex( z );
 	    if ( idz >=0 && idz< ls.nrZSamples() )
@@ -146,7 +153,6 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 	trc.set( idztrc, val, 0 );
     }
 
-    SeisTrcWriter writer( lcd.seisctio_.ioobj );
     HorSamplingIterator hsit( hrg_ );
     bool succeeded = true;
     BinID bid;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitblimpexpdatasel.cc,v 1.59 2012-07-17 12:53:31 cvskris Exp $";
+static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.55 2012/07/11 14:12:52 cvsbert Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -139,6 +139,7 @@ void addBoxes( int iform, int ifld )
 {
     uiSpinBox* rowspinbox = 0;
     uiLineEdit* kwinp = 0;
+    uiObject* prevrightmostfld = rightmostfld_;
 
     if ( ishdr_ )
     {
@@ -148,7 +149,7 @@ void addBoxes( int iform, int ifld )
 	*rowboxes_[iform] += rowspinbox;
 	ObjectSet<uiLineEdit>& kwinps = *kwinps_[iform];
 	kwinp = new uiLineEdit( this, "keyword" );
-	kwinps += kwinp;
+	*kwinps_[iform] += kwinp;
 	kwinp->setHSzPol( uiObject::Small );
     }
 
@@ -618,7 +619,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
 	    			  StringListInpSpec(hdrtyps) );
     hdrtypefld_->valuechanged.notify( typchgcb );
 
-    uiToolButton* button = new uiToolButton( this, "openfmt",
+    uiToolButton* button = new uiToolButton( this, "openfmt.png",
 	    			"Selecting existing format",
 				mCB(this,uiTableImpDataSel,openFmt) );
     button->setPrefWidthInChar( 6 );

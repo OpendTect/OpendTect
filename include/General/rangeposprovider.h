@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: rangeposprovider.h,v 1.13 2012-09-12 10:59:03 cvsraman Exp $
+ RCS:           $Id: rangeposprovider.h,v 1.10 2011/11/14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "generalmod.h"
 #include "posprovider.h"
 
 
@@ -22,7 +21,7 @@ namespace Pos
 
 /*!\brief 3D provider based on CubeSampling */
 
-mClass(General) RangeProvider3D : public Provider3D
+mClass RangeProvider3D : public Provider3D
 {
 public:
 
@@ -30,7 +29,7 @@ public:
 			RangeProvider3D(const RangeProvider3D&);
 			~RangeProvider3D();
     RangeProvider3D&	operator =(const RangeProvider3D&);
-    const char*		type() const;	//!< sKey::Range()
+    const char*		type() const;	//!< sKey::Range
     const char*		factoryKeyword() const { return type(); }
     virtual Provider*	clone() const	{ return new RangeProvider3D(*this); }
 
@@ -77,14 +76,14 @@ Can only be used if Line2DData is filled.
 
  */
 
-mClass(General) RangeProvider2D : public Provider2D
+mClass RangeProvider2D : public Provider2D
 {
 public:
 
 			RangeProvider2D();
 			RangeProvider2D(const RangeProvider2D&);
     RangeProvider2D&	operator =(const RangeProvider2D&);
-    const char*		type() const;	//!< sKey::Range()
+    const char*		type() const;	//!< sKey::Range
     const char*		factoryKeyword() const { return type(); }
     virtual Provider*	clone() const	{ return new RangeProvider2D(*this); }
 
@@ -117,7 +116,7 @@ protected:
 
     TypeSet< StepInterval<int> > trcrgs_;
     StepInterval<float>	zrg_;
-    int			curtrcidx_;
+    int			curidx_;
     int			curlineidx_;
     float		curz_;
 
@@ -132,4 +131,3 @@ public:
 } // namespace
 
 #endif
-

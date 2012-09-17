@@ -7,19 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: volproctrans.h,v 1.5 2012-08-03 13:00:45 cvskris Exp $
+ RCS:		$Id: volproctrans.h,v 1.4 2010/10/07 05:45:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "volumeprocessingmod.h"
 #include "transl.h"
 
 namespace VolProc { class Chain; }
 
 /*! Translator implementation for Volume Processing Setups. */
 
-mClass(VolumeProcessing) VolProcessingTranslatorGroup : public TranslatorGroup
+mClass VolProcessingTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(VolProcessing)
 public:
     			mDefEmptyTranslatorGroupConstructor(VolProcessing)
@@ -33,7 +32,7 @@ public:
 };
 
 
-mClass(VolumeProcessing) VolProcessingTranslator : public Translator
+mClass VolProcessingTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(VolProcessing)
@@ -50,7 +49,7 @@ public:
 };
 
 
-mClass(VolumeProcessing) dgbVolProcessingTranslator : public VolProcessingTranslator
+mClass dgbVolProcessingTranslator : public VolProcessingTranslator
 {			     isTranslator(dgb,VolProcessing)
 public:
 
@@ -63,4 +62,3 @@ public:
 
 
 #endif
-

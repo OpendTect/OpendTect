@@ -2,7 +2,7 @@
 #
 #	Makefile : 	uiGoogleIO plugin
 # 	March 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-03-29 11:26:25 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.3 2012/03/29 11:33:25 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain)

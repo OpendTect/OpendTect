@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: mathattrib.cc,v 1.52 2012-07-10 08:05:29 cvskris Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.49 2012/07/10 13:06:00 cvskris Exp $";
 
 #include "mathattrib.h"
 
@@ -84,8 +84,6 @@ void Math::updateDesc( Desc& desc )
 	    }
 	    case MathExpression::Constant :
 		nrconsts++;
-		break;
-	    default:
 		break;
 	}
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.144 2012-09-17 14:04:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.136 2012/07/10 13:06:11 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -19,7 +19,6 @@ static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.144 2012-09-
 #include "vismaterial.h"
 #include "visselman.h"
 #include "vistransform.h"
-#include "vistransmgr.h"
 #include "visvolorthoslice.h"
 #include "visvolrenscalarfield.h"
 #include "visvolren.h"
@@ -75,8 +74,8 @@ static CubeSampling getInitCubeSampling( const CubeSampling& csin )
     cs.hrg.start.crl = (5*csin.hrg.start.crl+3*csin.hrg.stop.crl)/8;
     cs.hrg.stop.inl = (3*csin.hrg.start.inl+5*csin.hrg.stop.inl)/8;
     cs.hrg.stop.crl = (3*csin.hrg.start.crl+5*csin.hrg.stop.crl)/8;
-    cs.zrg.start = ( 5*csin.zrg.start + 3*csin.zrg.stop ) / 8.f;
-    cs.zrg.stop = ( 3*csin.zrg.start + 5*csin.zrg.stop ) / 8.f;
+    cs.zrg.start = ( 5*csin.zrg.start + 3*csin.zrg.stop ) / 8;
+    cs.zrg.stop = ( 3*csin.zrg.start + 5*csin.zrg.stop ) / 8;
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
     float z0 = csin.zrg.snap( cs.zrg.start ); cs.zrg.start = z0;
@@ -102,17 +101,7 @@ VolumeDisplay::VolumeDisplay()
     , csfromsession_(true)
     , eventcatcher_( 0 )
     , onoffstatus_( true )
-    , inl2displaytrans_( 0 )
 {
-    if ( doOsg() )
-    {
-	inl2displaytrans_ = mVisTrans::create();
-	inl2displaytrans_->ref();
-	addChild( inl2displaytrans_->osgNode() );
-
-	inl2displaytrans_->addObject( boxdragger_ );
-    }
-
     boxdragger_->ref();
     boxdragger_->setBoxTransparency( 0.7 );
     addChild( boxdragger_->getInventorNode() );
@@ -156,19 +145,6 @@ VolumeDisplay::~VolumeDisplay()
     scalarfield_->unRef();
 
     setZAxisTransform( 0,0 );
-
-    if ( inl2displaytrans_ ) inl2displaytrans_->unRef();
-}
-
-
-void VolumeDisplay::setInlCrlSystem(const InlCrlSystem* ics )
-{
-    SurveyObject::setInlCrlSystem( ics );
-    if ( inl2displaytrans_ )
-    {
-	STM().setIC2DispayTransform(inlcrlsystem_->sampling().hrg,
-				    inl2displaytrans_);
-    }
 }
 
 
@@ -320,9 +296,6 @@ bool VolumeDisplay::canResetManipulation() const
 
 void VolumeDisplay::resetManipulation()
 {
-    if ( doOsg() )
-	return;
-
     const Coord3 center = voltrans_->getTranslation();
     const Coord3 width = voltrans_->getScale();
     boxdragger_->setCenter( center );
@@ -483,21 +456,13 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
     if ( scalarfield_ ) scalarfield_->turnOn( false );
 
     resetManipulation();
-
-    if ( doOsg() )
-    {
-	 boxdragger_->setCenter(
-		 	Coord3(xintv.center(),yintv.center(),zintv.center()) );
-	 boxdragger_->setWidth(
-		 	Coord3(xintv.width(),yintv.width(),zintv.width()) );
-    }
 }
 
 
 float VolumeDisplay::getValue( const Coord3& pos_ ) const
 {
     if ( !cache_ ) return mUdf(float);
-    const BinIDValue bidv( SI().transform(pos_), (float) pos_.z );
+    const BinIDValue bidv( SI().transform(pos_), pos_.z );
     float val;
     if ( !cache_->getValue(0,bidv,&val,false) )
 	return mUdf(float);
@@ -529,7 +494,7 @@ mVisMCSurf* VolumeDisplay::getIsoSurface( int idx )
 { return isosurfaces_.validIdx(idx) ? isosurfaces_[idx] : 0; }
 
 
-int VolumeDisplay::getNrIsoSurfaces()
+const int VolumeDisplay::getNrIsoSurfaces()
 { return isosurfaces_.size(); }
 
 
@@ -628,7 +593,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 	const BinID bid = SI().transform( pos );
 	const int i = cs.inlIdx( bid.inl );
 	const int j = cs.crlIdx( bid.crl );
-	const int k = cs.zIdx( (float) pos.z );
+	const int k = cs.zIdx( pos.z );
 	ff.addSeed( i, j, k );
     }
 
@@ -661,8 +626,7 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 		cache_->cubeSampling().zrg.stop );
 	isosurfaces_[idx]->setScales(
 		cache_->inlsampling_, cache_->crlsampling_,
-		SamplingData<float>((float) (cache_->z0_*cache_->zstep_),
-					    (float) (cache_->zstep_) ) );
+		SamplingData<float>(cache_->z0_*cache_->zstep_,cache_->zstep_) );
 	if ( isosurfsettings_[idx].mode_ )
     	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
 		    cache_->getCube(0), isosurfsettings_[idx].isovalue_, tr );
@@ -744,22 +708,22 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     if ( !slice ) return 0;
     const int dim = slice->getDim();
     float slicepos = slice->getPosition();
-    slicepos *= (float) -voltrans_->getScale()[dim];
+    slicepos *= -voltrans_->getScale()[dim];
 
     float pos;    
     if ( dim == 2 )
     {
-	slicepos += (float) voltrans_->getTranslation()[0];
+	slicepos += voltrans_->getTranslation()[0];
 	pos = SI().inlRange(true).snap(slicepos);
     }
     else if ( dim == 1 )
     {
-	slicepos += (float) voltrans_->getTranslation()[1];
+	slicepos += voltrans_->getTranslation()[1];
 	pos = SI().crlRange(true).snap(slicepos);
     }
     else
     {
-	slicepos += (float) voltrans_->getTranslation()[2];
+	slicepos += voltrans_->getTranslation()[2];
 	pos = slicepos;
     }
 
@@ -784,8 +748,8 @@ void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice,
     else
 	pos = (float)cs.zrg.start;
 
-    pos -= (float) voltrans_->getTranslation()[2-dim];
-    pos /= (float) -voltrans_->getScale()[dim];
+    pos -= voltrans_->getTranslation()[2-dim];
+    pos /= -voltrans_->getScale()[dim];
 
     float slicenr =  nrslices ? (pos-rg.start)*nrslices/rg.width() : 0;
     float draggerpos = slicenr /(nrslices-1) *rg.width() + rg.start;
@@ -961,8 +925,8 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zrg.start = (float) ( center_.z - width_.z / 2. );
-	res.zrg.stop = (float) ( center_.z + width_.z / 2. );
+	res.zrg.start = center_.z - width_.z / 2;
+	res.zrg.stop = center_.z + width_.z / 2;
     }
     else
     {
@@ -976,8 +940,8 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 			       mNINT32(transl.y-scale.y/2) );
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zrg.start = (float) ( transl.z+scale.z/2. );
-	res.zrg.stop = (float) ( transl.z-scale.z/2. );
+	res.zrg.start = transl.z+scale.z/2;
+	res.zrg.stop = transl.z-scale.z/2;
     }
 
     const bool alreadytf = alreadyTransformed( attrib );
@@ -1022,6 +986,8 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 {
     VolumeDisplay* vd = create();
 
+    SoNode* node = vd->getInventorNode();
+
     TypeSet<int> children;
     vd->getChildren( children );
     for ( int idx=0; idx<children.size(); idx++ )
@@ -1037,7 +1003,9 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
     {
-	vd->addIsoSurface();
+	const int isosurfid = vd->addIsoSurface();
+	mDynamicCastGet( mVisMCSurf*, isosurface,
+			 visBase::DM().getObject(isosurfid) );
 	vd->isosurfsettings_[idx] = isosurfsettings_[idx];
     }
 

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2008
- RCS:           $Id: uimdiarea.h,v 1.8 2012-08-30 05:49:33 cvsnageswara Exp $
+ RCS:           $Id: uimdiarea.h,v 1.6 2010/08/27 02:49:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uigroup.h"
 #include "uiobj.h"
 
@@ -20,10 +19,10 @@ class BufferStringSet;
 class IOPar;
 class uiMdiAreaBody;
 
-mFDQtclass(QMdiArea)
-mFDQtclass(QMdiSubWindow)
+class QMdiArea;
+class QMdiSubWindow;
 
-mClass(uiBase) uiMdiAreaWindow : public uiGroup
+mClass uiMdiAreaWindow : public uiGroup
 {
 public:
     			uiMdiAreaWindow(const char* nm=0);
@@ -42,17 +41,17 @@ public:
     bool		isMaximized() const;
 
     NotifierAccess&	closed();
-    mQtclass(QMdiSubWindow*)	qWidget();
+    QMdiSubWindow*	qWidget();
 
     Notifier<uiMdiAreaWindow> changed;
 
 protected:
-    mQtclass(QMdiSubWindow*)	qmdisubwindow_;
+    QMdiSubWindow*	qmdisubwindow_;
 
 };
 
 
-mClass(uiBase) uiMdiArea : public uiObject
+mClass uiMdiArea : public uiObject
 { 	
 friend class		uiMdiAreaBody;
 friend class		i_MdiAreaMessenger;
@@ -95,4 +94,3 @@ public:
 };
 
 #endif
-

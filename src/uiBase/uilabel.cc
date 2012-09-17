@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uilabel.cc,v 1.25 2012-08-28 05:29:58 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uilabel.cc,v 1.22 2011/04/21 13:09:13 cvsbert Exp $";
 
 
 #include "uilabel.h"
@@ -17,14 +17,13 @@ static const char* rcsID mUnusedVar = "$Id: uilabel.cc,v 1.25 2012-08-28 05:29:5
 #include <qlabel.h> 
 
 
-class uiLabelBody : public uiObjBodyImpl<uiLabel,mQtclass(QLabel)>
+class uiLabelBody : public uiObjBodyImpl<uiLabel,QLabel>
 {
 public:
 
                         uiLabelBody( uiLabel& hndle, uiParent* parnt,
 				     const char* txt )
-			    : uiObjBodyImpl<uiLabel
-			    , mQtclass(QLabel)>(hndle,parnt,txt)
+			    : uiObjBodyImpl<uiLabel,QLabel>(hndle,parnt,txt)
 			{}
 
     virtual int 	nrTxtLines() const		
@@ -85,7 +84,7 @@ uiLabelBody& uiLabel::mkbody( uiParent* p, const char* txt )
 
 void uiLabel::setText( const char* txt )
 { 
-    body_->setText( mQtclass(QString)(txt) );
+    body_->setText( QString(txt) );
     setName( txt );
 }
 
@@ -100,8 +99,8 @@ const char* uiLabel::text() const
 
 void uiLabel::setTextSelectable( bool yn ) 
 {
-    body_->setTextInteractionFlags( yn ? mQtclass(Qt)::TextSelectableByMouse :
-					 mQtclass(Qt)::NoTextInteraction );
+    body_->setTextInteractionFlags( yn ? Qt::TextSelectableByMouse :
+					 Qt::NoTextInteraction );
 }
 
 
@@ -114,7 +113,7 @@ void uiLabel::setPixmap( const ioPixmap& pixmap )
 void uiLabel::setAlignment( Alignment::HPos hal )
 {
     Alignment al( hal, Alignment::VCenter );
-    body_->setAlignment( (mQtclass(Qt)::AlignmentFlag)al.uiValue() );
+    body_->setAlignment( (Qt::AlignmentFlag)al.uiValue() );
 }
 
 

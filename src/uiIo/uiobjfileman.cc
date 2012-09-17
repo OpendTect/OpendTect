@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjfileman.cc,v 1.46 2012-08-23 21:47:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.39 2012/07/10 13:06:06 cvskris Exp $";
 
 
 #include "uiobjfileman.h"
@@ -27,8 +27,6 @@ static const char* rcsID mUnusedVar = "$Id: uiobjfileman.cc,v 1.46 2012-08-23 21
 #include "ioman.h"
 #include "keystrs.h"
 #include "streamconn.h"
-#include "strmdata.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "systeminfo.h"
 #include "transl.h"
@@ -65,29 +63,18 @@ void uiObjFileMan::createDefaultUI( bool needreloc )
     selgrp_->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
 
-    mkdefbut_ = selgrp_->getManipGroup()->addButton( "makedefault",
+    mkdefbut_ = selgrp_->getManipGroup()->addButton( "makedefault.png",
 	    "Set as default", mCB(this,uiObjFileMan,makeDefault) );
 
     infogrp_ = new uiGroup( this, "Info Group" );
     infofld_ = new uiTextEdit( infogrp_, "Object Info", true );
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
-
-    uiGroup* notesgrp = new uiGroup( this, "Notes Group" );
-    notesfld_ = new uiTextEdit( notesgrp, "User info" );
-    notesfld_->setPrefHeightInChar( 5 );
-    notesfld_->setStretch( 2, 2 );
-    notesfld_->setToolTip( "Notes" );
-    uiToolButton* savebut = new uiToolButton( notesgrp, "save", "Save Notes",
-	    mCB(this,uiObjFileMan,saveNotes) );
-    savebut->attach( rightTo, notesfld_ );
-
     setPrefWidth( cPrefWidth );
 
     uiSplitter* sep = new uiSplitter( this, "List-Info splitter", false );
     sep->addGroup( listgrp_ );
     sep->addGroup( infogrp_ );
-    sep->addGroup( notesgrp );
 }
 
 
@@ -105,61 +92,8 @@ void uiObjFileMan::addTool( uiButton* but )
 }
 
 
-static BufferString getFileName( const IOObj& ioobj )
-{
-    FilePath fp( ioobj.fullUserExpr() );
-    fp.setExtension( "note" );
-    return fp.fullPath();
-}
-
-
-void uiObjFileMan::saveNotes( CallBacker* )
-{
-    BufferString txt = notesfld_->text();
-    if ( !curioobj_ || txt.isEmpty() )
-	return;
-
-    StreamData sd = StreamProvider( getFileName(*curioobj_) ).makeOStream();
-    if ( !sd.usable() )
-	return;
-
-    *sd.ostrm << txt << '\n';
-    sd.close();
-}
-
-
-void uiObjFileMan::readNotes()
-{
-    if ( !curioobj_ )
-    {
-	notesfld_->setText( "" );
-	return;
-    }
-
-    StreamData sd = StreamProvider( getFileName(*curioobj_) ).makeIStream();
-    if ( !sd.usable() )
-    {
-	notesfld_->setText( "" );
-	return;
-    }
-
-    BufferString note;
-    char buf[1024];
-    while ( sd.istrm->getline(buf,1024) )
-    {
-	if ( !note.isEmpty() )
-	    note += "\n";
-	note += buf;
-    }
-
-    sd.close();
-    notesfld_->setText( note );
-}
-
-
 void uiObjFileMan::selChg( CallBacker* cb )
 {
-    saveNotes(0);
     delete curioobj_;
     curioobj_ = selgrp_->nrSel() > 0 ? IOM().get(selgrp_->selected(0)) : 0;
     curimplexists_ = curioobj_ && curioobj_->implExists(true);
@@ -171,7 +105,6 @@ void uiObjFileMan::selChg( CallBacker* cb )
     else
 	setInfo( "" );
 
-    readNotes();
     BufferString msg;
     if ( curioobj_ )
 	System::getFreeMBOnDiskMsg( System::getFreeMBOnDisk(*curioobj_), msg );
@@ -192,7 +125,7 @@ const char* uiObjFileMan::getDefKey() const
 {
     static BufferString ret;
     ctxt_.fillTrGroup();
-    ret = IOPar::compKey(sKey::Default(),ctxt_.trgroup->userName());
+    ret = IOPar::compKey(sKey::Default,ctxt_.trgroup->userName());
     return ret.buf();
 }
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visvolobliqueslice.cc,v 1.7 2012-08-13 04:04:39 cvsaneesh Exp $";
+static const char* rcsID = "$Id: visvolobliqueslice.cc,v 1.4 2009/07/22 16:01:45 cvsbert Exp $";
 
 
 #include "visvolobliqueslice.h"
@@ -46,8 +46,8 @@ Coord3 ObliqueSlice::getNormal() const
 
 void ObliqueSlice::set( const Coord3& normal, const Coord3& pos )
 {
-    SbPlane plane( SbVec3f((float) normal.x,(float) normal.y,(float) normal.z),
-	    	   SbVec3f((float) pos.x,(float) pos.y,(float) pos.z) );
+    SbPlane plane( SbVec3f(normal.x,normal.y,normal.z),
+	    	   SbVec3f(pos.x,pos.y,pos.z) );
     slice_->plane.setValue( plane );
 }
 

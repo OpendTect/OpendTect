@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fontdata.cc,v 1.10 2012-05-02 15:11:25 cvskris Exp $";
+static const char* rcsID = "$Id: fontdata.cc,v 1.9 2012/05/10 05:54:56 cvsranojay Exp $";
 
 #include "fontdata.h"
 #include "separstr.h"
@@ -42,7 +42,7 @@ const char* FontData::key( StdSz ss )		 { return defaultkeys[(int)ss];}
 
 // static variables and their access functions
 static BufferString defaultfamily( universalfamilies[0] );
-static int defaultpointsize = 12;
+static int defaultpointsize = 9;
 static FontData::Weight defaultweight = FontData::Bold;
 static bool defaultitalic = false;
 

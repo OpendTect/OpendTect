@@ -6,12 +6,11 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
 Date:          December 2011
-RCS:           $Id: impbodyplaneintersect.h,v 1.3 2012-08-03 13:00:27 cvskris Exp $
+RCS:           $Id: impbodyplaneintersect.h,v 1.2 2011/12/13 22:08:49 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "arraynd.h"
 #include "cubesampling.h"
 #include "position.h"
@@ -24,7 +23,7 @@ namespace Geometry
 class IndexedShape;
 
 
-mClass(Geometry) ImplicitBodyPlaneIntersector
+mClass ImplicitBodyPlaneIntersector
 {
 public:
 				ImplicitBodyPlaneIntersector(
@@ -56,4 +55,3 @@ protected:
 
 
 #endif
-

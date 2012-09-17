@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon2dseedpicker.h,v 1.14 2012-08-03 13:00:30 cvskris Exp $
+ RCS:           $Id: horizon2dseedpicker.h,v 1.13 2011/10/03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emseedpicker.h"
 #include "surv2dgeom.h"
 
@@ -22,7 +21,7 @@ namespace Attrib { class Data2DHolder; class SelSpec; }
 namespace MPE
 {
 
-mClass(MPEEngine) Horizon2DSeedPicker : public EMSeedPicker
+mClass Horizon2DSeedPicker : public EMSeedPicker
 {
 public:
     			Horizon2DSeedPicker(MPE::EMTracker&);
@@ -120,4 +119,3 @@ protected:
 };
 
 #endif
-

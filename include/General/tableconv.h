@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconv.h,v 1.11 2012-08-03 13:00:25 cvskris Exp $
+ RCS:		$Id: tableconv.h,v 1.10 2011/09/16 10:26:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "sets.h"
 #include "executor.h"
 #include "bufstringset.h"
@@ -21,7 +20,7 @@ ________________________________________________________________________
 namespace Table
 {
 
-mClass(General) ImportHandler
+mClass ImportHandler
 {
 public:
     			ImportHandler( std::istream& strm )
@@ -57,7 +56,7 @@ protected:
 };
 
 
-mClass(General) ExportHandler
+mClass ExportHandler
 {
 public:
     			ExportHandler( std::ostream& strm )
@@ -86,7 +85,7 @@ protected:
 
 
 
-mClass(General) Converter : public Executor
+mClass Converter : public Executor
 {
 public:
     			Converter( ImportHandler& i, ExportHandler& o )
@@ -135,4 +134,3 @@ protected:
 
 
 #endif
-

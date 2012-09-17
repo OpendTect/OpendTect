@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.46 2012-08-28 05:13:40 cvsnageswara Exp $
+ RCS:           $Id: uigroup.h,v 1.45 2012/05/17 05:57:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 #include "uiparent.h"
 #include "callback.h"
@@ -26,7 +25,7 @@ class uiGroup;
 class uiGroupObjBody;
 class uiGroupParentBody;
 
-mFDQtclass(QWidget)
+class QWidget;
 
 
 class uiGroupObj : public uiObject
@@ -52,7 +51,7 @@ protected:
 };
 
 
-mClass(uiBase) uiGroup : public uiParent
+mClass uiGroup : public uiParent
 { 	
 friend class		uiGroupObjBody;
 friend class		uiGroupParentBody;
@@ -83,11 +82,11 @@ public:
     void		setNoBackGround();
 
     uiObject*		hAlignObj();
-    void		setHAlignObj( uiObject* o );
+    void		setHAlignObj(uiObject*);
     void		setHAlignObj( uiGroup* o )
 			    { setHAlignObj(o->mainObject()); }
     uiObject*		hCenterObj();
-    void		setHCenterObj( uiObject* o );
+    void		setHCenterObj(uiObject*);
     void		setHCenterObj( uiGroup* o )
 			    { setHCenterObj(o->mainObject()); }
 
@@ -96,7 +95,7 @@ public:
     virtual uiMainWin*	mainwin()
 			    { return mainObject() ? mainObject()->mainwin() :0;}
 
-    static uiGroup*	gtDynamicCastToGrp( mQtclass(QWidget*) );
+    static uiGroup*	gtDynamicCastToGrp( QWidget* );
 
     void		setChildrenSensitive(bool);
 
@@ -127,10 +126,10 @@ protected:
     void		reSizeChildren(const uiObject*,float,float);
 
 public:
+
     virtual void	setSize(const uiSize&);
 
 };
 
 
 #endif
-

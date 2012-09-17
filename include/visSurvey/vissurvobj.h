@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.132 2012-08-03 13:01:29 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.131 2012/06/29 15:44:00 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissurveymod.h"
 #include "color.h"
 #include "cubesampling.h"
 #include "datapack.h"
@@ -24,8 +23,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "vissurvscene.h"
 
-
-class InlCrlSystem;
+class SurveyInfo;
 class BaseMap;
 class BaseMapObject;
 class DataPointSet;
@@ -34,6 +32,7 @@ class LineStyle;
 class NotifierAccess;
 class SeisTrcBuf;
 class ZAxisTransform;
+class InlCrlSystem;
 class TaskRunner;
 
 namespace ColTab  { class MapperSetup; class Sequence; }
@@ -53,12 +52,19 @@ namespace visSurvey
 /*!\brief Base class for all 'Display' objects
 */
 
-mClass(visSurvey) SurveyObject
+mClass SurveyObject
 {
 public:
-    virtual void		setInlCrlSystem(const InlCrlSystem*);
-    const InlCrlSystem*		getInlCrlSystem() const { return inlcrlsystem_;}
+			    
+    virtual void		setInlCrlSystem(const SurveyInfo& si);
+    				/*!<Don't use in new code. */
+    const SurveyInfo*		getInlCrlSystem() const { return &SI(); }
+    				/*!<Don't use in new code. */
+    
     virtual const char*		getInlCrlSystemName() const;
+    
+    void			setInlCrlSystem(const InlCrlSystem&);
+    const InlCrlSystem*		inlCrlSystem() const;
 
     virtual void		setBaseMap(BaseMap*);
     virtual Coord3		getNormal(const Coord3& pos) const
@@ -316,8 +322,7 @@ public:
 
 protected:
     				SurveyObject();
-				~SurveyObject();
-
+				~SurveyObject();	
     static int			cValNameOffset()	{ return 12; }
 
     mutable BufferString	errmsg_;
@@ -328,7 +333,7 @@ protected:
     virtual BaseMapObject*	createBaseMapObject()	{ return 0; }
     BaseMapObject*		basemapobj_;
 
-    const InlCrlSystem*		inlcrlsystem_;
+    const SurveyInfo*		survinfo_;
     BufferString		survname_; //Only from IOPar
 };
 
@@ -349,5 +354,4 @@ protected:
 
 
 #endif
-
 

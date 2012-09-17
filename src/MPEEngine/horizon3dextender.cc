@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon3dextender.cc,v 1.27 2012-08-10 04:11:24 cvssalil Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.20 2011/06/02 10:32:05 cvsumesh Exp $";
 
 #include "horizon3dextender.h"
 
@@ -87,10 +87,10 @@ int BaseHorizon3DExtender::nextStep()
     const bool alldirs = direction.binid.inl==0 && direction.binid.crl==0;
     
     TypeSet<BinID> sourcenodes;
-    
+    BinID dummy;
     for ( int idx=0; idx<startpos_.size(); idx++ )
     {
-	BinID dummy = BinID::fromInt64( startpos_[idx] );
+	dummy.fromInt64( startpos_[idx] );
 	sourcenodes += dummy;
     }
 
@@ -99,8 +99,8 @@ int BaseHorizon3DExtender::nextStep()
 
     const BinID sidehash( direction.binid.crl ? SI().inlStep() : 0,
 	    		  direction.binid.inl ? SI().crlStep() : 0 );
-    // const BinID firstnode = sourcenodes[0];
-    // const BinID lastnode = sourcenodes[sourcenodes.size()-1];
+    const BinID firstnode = sourcenodes[0];
+    const BinID lastnode = sourcenodes[sourcenodes.size()-1];
 
     const bool extend = 
 	engine().trackPlane().getTrackMode()==TrackPlane::Extend;
@@ -132,7 +132,7 @@ int BaseHorizon3DExtender::nextStep()
 	    else
 		directions = RowCol::clockWiseSequence();
 
-	    // const float depth = surface.getPos(sid_,srcbid.toInt64()).z;
+	    const float depth = surface.getPos(sid_,srcbid.toInt64()).z;
 	    const EM::PosID pid(surface.id(), sid_, srcbid.toInt64() );
 	    for ( int idy=0; idy<directions.size(); idy++ )
 	    {
@@ -142,7 +142,8 @@ int BaseHorizon3DExtender::nextStep()
 		if ( neighbor.sectionID()!=sid_ )
 		    continue;
 
-		BinID neighbbid = BinID::fromInt64( neighbor.subID() );
+		BinID neighbbid; 
+		neighbbid.fromInt64( neighbor.subID() );
 		if ( !getExtBoundary().hrg.includes(neighbbid) )
 		    continue;
 
@@ -153,9 +154,8 @@ int BaseHorizon3DExtender::nextStep()
 		if ( previndex!=-1 )
 		{
 		    const RowCol step( surface.geometry().step() );
-		    const od_int64 serc = addedpossrc_[previndex];
-		    const RowCol oldsrc( (RowCol::fromInt64(serc))/step );   
-		    const RowCol dst( (RowCol::fromInt64(serc))/step );
+		    const RowCol oldsrc((RowCol(addedpossrc_[previndex]))/step);
+		    const RowCol dst( (RowCol(addedpos_[previndex]))/step );
 		    const RowCol cursrc( srcbid/step );
 
 		    const int olddist = oldsrc.sqDistTo(dst);
@@ -196,7 +196,7 @@ int BaseHorizon3DExtender::nextStep()
 float BaseHorizon3DExtender::getDepth( const BinID& srcbid,
 					 const BinID& destbid ) const
 {
-    return (float) surface.getPos( sid_, srcbid.toInt64() ).z;
+    return surface.getPos( sid_, srcbid.toInt64() ).z;
 }
 
 

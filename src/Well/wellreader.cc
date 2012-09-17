@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellreader.cc,v 1.56 2012-09-04 10:08:39 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.50 2012/09/04 10:08:36 cvsbert Exp $";
 
 #include "wellreader.h"
 
@@ -227,6 +227,7 @@ bool Well::Reader::getOldTimeWell( std::istream& strm ) const
 
     // get track
     Coord3 c3, prevc, c0;
+    float z;
     float dah = 0;
     while ( strm )
     {
@@ -422,7 +423,7 @@ Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int& bintype, int idx )
     bintype = 0;
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( astrm.hasKeyword(sKey::Name()) )
+	if ( astrm.hasKeyword(sKey::Name) )
 	    newlog->setName( astrm.value() );
 	if ( astrm.hasKeyword(Well::Log::sKeyUnitLbl()) )
 	    newlog->setUnitMeasLabel( astrm.value() );
@@ -521,7 +522,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
     for ( int idx=1;  ; idx++ )
     {
 	BufferString basekey; basekey += idx;
-	BufferString key = IOPar::compKey( basekey, sKey::Name() );
+	BufferString key = IOPar::compKey( basekey, sKey::Name );
 	if ( !iopar.get(key,bs) ) break;
 
 	Well::Marker* wm = new Well::Marker( bs );
@@ -532,11 +533,11 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 	float val = toFloat( bs.buf() );
 	wm->setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactorF)
 						      : val ); 
-	key = IOPar::compKey( basekey, sKey::StratRef() );
+	key = IOPar::compKey( basekey, sKey::StratRef );
 	int lvlid = -1; iopar.get( key, lvlid );
 	wm->setLevelID( lvlid );
 
-	key = IOPar::compKey( basekey, sKey::Color() );
+	key = IOPar::compKey( basekey, sKey::Color );
 	if ( iopar.get(key,bs) )
 	{
 	    Color col( wm->color() );
@@ -578,9 +579,9 @@ bool Well::Reader::doGetD2T( std::istream& strm, bool csmdl ) const
     Well::D2TModel* d2t = new Well::D2TModel;
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( astrm.hasKeyword(sKey::Name()) )
+	if ( astrm.hasKeyword(sKey::Name) )
 	    d2t->setName( astrm.value() );
-	else if ( astrm.hasKeyword(sKey::Desc()) )
+	else if ( astrm.hasKeyword(sKey::Desc) )
 	    d2t->desc = astrm.value();
 	else if ( astrm.hasKeyword(Well::D2TModel::sKeyDataSrc()) )
 	    d2t->datasource = astrm.value();

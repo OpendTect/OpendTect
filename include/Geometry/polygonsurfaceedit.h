@@ -8,19 +8,18 @@ ________________________________________________________________________
  Author:        Y.C. Liu
  Date:          August 2008
  Contents:      Ranges
- RCS:           $Id: polygonsurfaceedit.h,v 1.5 2012-08-03 13:00:28 cvskris Exp $
+ RCS:           $Id: polygonsurfaceedit.h,v 1.4 2009/07/22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "geeditor.h"
 
 namespace Geometry
 {
 class PolygonSurface;
 
-mClass(Geometry) PolygonSurfEditor : public ElementEditor
+mClass PolygonSurfEditor : public ElementEditor
 {
 public:
     		PolygonSurfEditor( Geometry::PolygonSurface& );
@@ -37,5 +36,4 @@ protected:
 };
 
 #endif
-
 

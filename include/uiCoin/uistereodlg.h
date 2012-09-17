@@ -6,17 +6,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: uistereodlg.h,v 1.8 2012-08-03 13:00:54 cvskris Exp $
+ RCS:           $Id: uistereodlg.h,v 1.7 2011/12/08 16:29:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uicoinmod.h"
 #include "uidialog.h"
 class uiSliderExtra;
 class ui3DViewer;
 
-mClass(uiCoin) uiStereoDlg : public uiDialog
+mClass uiStereoDlg : public uiDialog
 {
 public:
 			uiStereoDlg(uiParent*,ObjectSet<ui3DViewer>&);
@@ -33,4 +32,3 @@ protected:
 };
 
 #endif
-

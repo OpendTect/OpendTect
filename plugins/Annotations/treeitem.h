@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.24 2012-09-07 22:08:02 cvsnanne Exp $
+ RCS:           $Id: treeitem.h,v 1.19 2009/07/22 16:01:25 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ public:
 protected:
     bool		init();
     const char*		parentType() const;
-    virtual bool	rightClick(uiTreeViewItem*);
+    virtual bool	rightClick(uiListViewItem*);
 };
 
 
@@ -103,7 +103,7 @@ protected:
     virtual void	mouseMoveCB(CallBacker*)	{}
     virtual void	rightclickCB(CallBacker*)	{}
 
-    virtual void	createMenu(MenuHandler*,bool istb);
+    virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
 
     virtual bool	hasScale() const		{ return false; }
@@ -139,7 +139,7 @@ protected:
     virtual void	pickAddedCB(CallBacker*);
     const char*		managerName() const	{ return sKeyManager(); }
 
-    void		createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
     bool		editText(BufferString& str, BufferString& url,
@@ -172,7 +172,7 @@ protected:
     virtual const char*	parentType() const;
 
     void		fillStoragePar(IOPar&) const;
-    void		createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     void		propertyChange(CallBacker*);
 
@@ -187,7 +187,6 @@ protected:
 
 };
 
-
 class ImageSubItem : public SubItem
 {
 public:
@@ -200,7 +199,7 @@ protected:
     const char*		parentType() const;
     void		fillStoragePar(IOPar&) const;
 
-    void		createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
     void		retrieveFileName(CallBacker*);
@@ -215,32 +214,6 @@ protected:
     MenuItem		filemnuitem_;
 };
 
-
-class ScaleBarSubItem : public SubItem
-{
-public:
-    			ScaleBarSubItem(Pick::Set&,int displayid=-1);
-    bool		init();
-    static const char*	sKeyManager() 	{ return "ScaleBarAnnotations"; }
-
-protected:
-			~ScaleBarSubItem()	{ removeStuff(); }
-
-    const char*		parentType() const;
-    void		fillStoragePar(IOPar&) const;
-
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
-    void		propertyChange(CallBacker*);
-
-    const char*		managerName() const		{ return sKeyManager();}
-
-    MenuItem		propmnuitem_;
-
-    static const char*		sKeyOrientation()      { return "Orientation"; }
-    static const char*		sKeyLineWidth()	       { return "Line width"; }
-    static const char*		sKeyLength()	       { return "Length"; }
-};
 
 
 #define mDefineParentItem(type,typestr,defsz) \
@@ -260,7 +233,6 @@ protected: \
 mDefineParentItem(Text,"Text",25);
 mDefineParentItem(Arrow,"Arrows",1000);
 mDefineParentItem(Image,"Image",1000);
-mDefineParentItem(ScaleBar,"ScaleBar",1000);
 
 
 }; // namespace Annotations

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uivisslicepos3d.h,v 1.10 2012-08-03 13:01:19 cvskris Exp $
+ RCS:           $Id: uivisslicepos3d.h,v 1.9 2012/01/02 14:04:14 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uislicepos.h"
 
 namespace visSurvey 
@@ -25,7 +24,7 @@ class uiVisPartServer;
 
 /*! \brief Toolbar for setting slice position _ 3D visualization display */
 
-mClass(uiVis) uiSlicePos3DDisp : public uiSlicePos
+mClass uiSlicePos3DDisp : public uiSlicePos
 {
 public:		
 			uiSlicePos3DDisp(uiParent*,uiVisPartServer*);
@@ -50,4 +49,3 @@ protected:
 };
 
 #endif
-

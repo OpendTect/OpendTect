@@ -4,10 +4,9 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.21 2012-08-29 08:18:06 cvskris Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.20 2010/02/16 04:45:15 cvsnanne Exp $
 -*/
 
-#include "uimadagascarmod.h"
 #include "uibatchlaunch.h"
 #include "iopar.h"
 #include "madprocflow.h"

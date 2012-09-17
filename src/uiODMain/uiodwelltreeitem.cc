@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodwelltreeitem.cc,v 1.68 2012-05-09 07:51:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.65 2012/04/24 17:49:03 cvsnanne Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -51,7 +51,7 @@ bool uiODWellParentTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("&Add ..."), cAddIdx );
     if ( SI().zIsTime() )
 	mnu.insertItem(
-	    new uiMenuItem("&Tie Well to Seismic ...","well_tie"), cTieIdx);
+	    new uiMenuItem("&Tie Well to Seismic ...","well_tie.png"),cTieIdx);
     mnu.insertItem( new uiMenuItem("&New WellTrack ..."), cNewWellIdx );
     if ( children_.size() > 1 )
 	mnu.insertItem( new uiMenuItem("&Create Attribute Log ..."),cAttribIdx);
@@ -230,10 +230,10 @@ uiODWellTreeItem::~uiODWellTreeItem()
 void uiODWellTreeItem::initMenuItems()
 {
     propertiesmnuitem_.text = "&Properties ...";
-    propertiesmnuitem_.iconfnm = "disppars";
+    propertiesmnuitem_.iconfnm = "disppars.png";
     logviewermnuitem_.text = "&2D Log Viewer ...";
     gend2tmmnuitem_.text = "&Tie Well to Seismic ...";
-    gend2tmmnuitem_.iconfnm = "well_tie";
+    gend2tmmnuitem_.iconfnm = "well_tie.png";
     nametopmnuitem_.text = "Well name (&Top)";
     namebotmnuitem_.text = "Well name (&Bottom)";
     markermnuitem_.text = "&Markers";
@@ -244,7 +244,7 @@ void uiODWellTreeItem::initMenuItems()
     showmnuitem_.text = "&Show" ;
     editmnuitem_.text = "&Edit Welltrack" ;
     storemnuitem_.text = "&Save";
-    storemnuitem_.iconfnm = "save";
+    storemnuitem_.iconfnm = "save.png";
     amplspectrummnuitem_.text = "Show &Amplitude Spectrum";
 
     nametopmnuitem_.checkable = true;
@@ -287,17 +287,12 @@ bool uiODWellTreeItem::init()
 }
 
 
-void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
+void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 {
-    uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() )
+    uiODDisplayTreeItem::createMenuCB(cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
+    if ( menu->menuID()!=displayID() )
 	return;
-
-    if ( istb )
-    {
-	mAddMenuItem( menu, &propertiesmnuitem_, true, false );
-	return;
-    }
 
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     const bool islocked = visserv_->isLocked( displayid_ );

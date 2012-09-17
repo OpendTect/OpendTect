@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.80 2012-09-07 22:08:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.75 2012/07/04 11:14:45 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.80 2012-09-07 
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uigroup.h"
+#include "uilistview.h"
 #include "uimain.h"
 #include "uimenu.h"
 #include "uiselsimple.h"
@@ -34,7 +35,6 @@ static const char* rcsID mUnusedVar = "$Id: uistrattreewin.cc,v 1.80 2012-09-07 
 #include "uistratdisplay.h"
 #include "uiselsimple.h"
 #include "uitoolbar.h"
-#include "uitreeview.h"
 
 #define	mExpandTxt(domenu)	domenu ? "&Expand all" : "Expand all"
 #define	mCollapseTxt(domenu)	domenu ? "&Collapse all" : "Collapse all"
@@ -74,7 +74,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
     IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
     if ( RT().isEmpty() )
-	setNewRT();
+	initRT();
 
     createMenu();
     createToolBar();
@@ -91,7 +91,7 @@ uiStratTreeWin::~uiStratTreeWin()
 }
 
 
-void uiStratTreeWin::setNewRT()
+void uiStratTreeWin::initRT()
 {
     BufferStringSet opts;
     opts.add( "<Build from scratch>" );
@@ -119,7 +119,7 @@ void uiStratTreeWin::setNewRT()
 	    {
 		rt = Strat::RefTree::createStd( nm );
 		if ( !rt )
-		    { pErrMsg( "Cannot read RefTree from Std!" ); return; }
+		{ pErrMsg( "Cannot read RefTree from Std!" ); return; }
 	    }
 	}
 	else
@@ -133,7 +133,7 @@ void uiStratTreeWin::setNewRT()
 	Strat::LVLS().store( dest );
 	Strat::RepositoryAccess().writeTree( Strat::RT(), dest );
 	if ( tb_ )
-	    resetCB( 0 );
+	resetCB( 0 );
     }
 }
 
@@ -162,28 +162,28 @@ void uiStratTreeWin::createMenu()
     expandmnuitem_ = new uiMenuItem( mExpandTxt(true),
 				     mCB(this,uiStratTreeWin,setExpCB) );
     mnu->insertItem( expandmnuitem_ );
-    expandmnuitem_->setPixmap( ioPixmap("collapse_tree") );
+    expandmnuitem_->setPixmap( ioPixmap("collapse_tree.png") );
     mnu->insertSeparator();
     editmnuitem_ = new uiMenuItem( mEditTxt(true),
 	    			   mCB(this,uiStratTreeWin,editCB) );
     mnu->insertItem( editmnuitem_ );
-    editmnuitem_->setPixmap( ioPixmap("unlock") );
+    editmnuitem_->setPixmap( ioPixmap("unlock.png") );
     savemnuitem_ = new uiMenuItem( "&Save", mCB(this,uiStratTreeWin,saveCB) );
     mnu->insertItem( savemnuitem_ );
-    savemnuitem_->setPixmap( ioPixmap("save") );
+    savemnuitem_->setPixmap( ioPixmap("save.png") );
     resetmnuitem_ = new uiMenuItem( "&Reset to last saved",
 	    			    mCB(this,uiStratTreeWin,resetCB));
     mnu->insertItem( resetmnuitem_ );
-    resetmnuitem_->setPixmap( ioPixmap("undo") );
+    resetmnuitem_->setPixmap( ioPixmap("undo.png") );
     mnu->insertSeparator();
     
     openmnuitem_ = new uiMenuItem( "&Open...", mCB(this,uiStratTreeWin,openCB));
     mnu->insertItem( openmnuitem_ );
-    openmnuitem_->setPixmap( ioPixmap("openset") );
+    openmnuitem_->setPixmap( ioPixmap("openset.png") );
     saveasmnuitem_ = new uiMenuItem( "Save&As...",
 	    			     mCB(this,uiStratTreeWin,saveAsCB) );
     mnu->insertItem( saveasmnuitem_ );
-    saveasmnuitem_->setPixmap( ioPixmap("saveas") );
+    saveasmnuitem_->setPixmap( ioPixmap("saveas.png") );
     menubar->insertItem( mnu );	    
 }
 
@@ -195,21 +195,21 @@ void uiStratTreeWin::createMenu()
 void uiStratTreeWin::createToolBar()
 {
     tb_ = new uiToolBar( this, "Stratigraphy Manager Tools" );
-    mDefBut(colexpbut_,"collapse_tree",setExpCB,mCollapseTxt(false));
+    mDefBut(colexpbut_,"collapse_tree.png",setExpCB,mCollapseTxt(false));
     tb_->addSeparator();
-    mDefBut(moveunitupbut_,"uparrow",moveUnitCB,"Move unit up");
-    mDefBut(moveunitdownbut_,"downarrow",moveUnitCB,"Move unit down");
+    mDefBut(moveunitupbut_,"uparrow.png",moveUnitCB,"Move unit up");
+    mDefBut(moveunitdownbut_,"downarrow.png",moveUnitCB,"Move unit down");
     tb_->addSeparator();
-    mDefBut(newbut_,"newset",newCB,"New");
-    mDefBut(lockbut_,"unlock",editCB,mEditTxt(false));
+    mDefBut(newbut_,"newset.png",newCB,"New");
+    mDefBut(lockbut_,"unlock.png",editCB,mEditTxt(false));
     lockbut_->setToggleButton( true );
     uiToolButton* uitb;
-    mDefBut(uitb,"save",saveCB,"Save");
-    mDefBut(uitb,"contexthelp",helpCB,"Help on this window");
+    mDefBut(uitb,"save.png",saveCB,"Save");
+    mDefBut(uitb,"contexthelp.png",helpCB,"Help on this window");
     tb_->addSeparator();
-    mDefBut( switchviewbut_, "strat_tree", switchViewCB, "Switch View" );
-    mDefBut( lithobut_, "lithologies", manLiths, "Manage Lithologies" );
-    mDefBut( contentsbut_, "contents", manConts, "Manage Content Types" );
+    mDefBut( switchviewbut_, "strat_tree.png", switchViewCB, "Switch View" );
+    mDefBut( lithobut_, "lithologies.png", manLiths, "Manage Lithologies" );
+    mDefBut( contentsbut_, "contents.png", manConts, "Manage Content Types" );
 
     for ( int idx=0; idx<tbsetups_.size(); idx++ )
 	tb_->addButton( *tbsetups_[idx] );
@@ -226,9 +226,9 @@ void uiStratTreeWin::createGroups()
     uitree_ = new uiStratRefTree( leftgrp );
     CallBack selcb = mCB( this,uiStratTreeWin,unitSelCB );
     CallBack renmcb = mCB(this,uiStratTreeWin,unitRenamedCB);
-    uitree_->treeView()->selectionChanged.notify( selcb );
-    uitree_->treeView()->itemRenamed.notify( renmcb );
-    uitree_->treeView()->display( false );
+    uitree_->listView()->selectionChanged.notify( selcb );
+    uitree_->listView()->itemRenamed.notify( renmcb );
+    uitree_->listView()->display( false );
 
     if ( !uitree_->haveTimes() )
 	uitree_->setEntranceDefaultTimes();
@@ -249,10 +249,10 @@ void uiStratTreeWin::setExpCB( CallBacker* )
     bool expand = !strcmp( expandmnuitem_->text(), mExpandTxt(true) );
     uitree_->expand( expand );
     expandmnuitem_->setText( expand ? mCollapseTxt(true) : mExpandTxt(true) );
-    expandmnuitem_->setPixmap( expand ? ioPixmap("collapse_tree")
-				      : ioPixmap("expand_tree") );
-    colexpbut_->setPixmap( expand ? ioPixmap("collapse_tree")
-	    			  : ioPixmap("expand_tree") );
+    expandmnuitem_->setPixmap( expand ? ioPixmap("collapse_tree.png")
+				      : ioPixmap("expand_tree.png") );
+    colexpbut_->setPixmap( expand ? ioPixmap("collapse_tree.png")
+	    			  : ioPixmap("expand_tree.png") );
     colexpbut_->setToolTip( expand ? mCollapseTxt(false) : mExpandTxt(false) );
 }
 
@@ -263,24 +263,15 @@ void uiStratTreeWin::unitSelCB(CallBacker*)
 }
 
 
-void uiStratTreeWin::newCB( CallBacker* )
-{
-    BufferString msg( "This will overwrite the current tree. \n" );
-    msg += "Your work will be lost. Continue anyway ?";
-    if ( RT().isEmpty() || uiMSG().askGoOn( msg ) )
-	setNewRT();
-}
-
-
 void uiStratTreeWin::editCB( CallBacker* )
 {
     bool doedit = !strcmp( editmnuitem_->text(), mEditTxt(true) );
     uitree_->makeTreeEditable( doedit );
     editmnuitem_->setText( doedit ? mLockTxt(true) : mEditTxt(true) );
-    editmnuitem_->setPixmap( doedit ? ioPixmap("unlock")
-				    : ioPixmap("readonly") );
-    lockbut_->setPixmap( doedit ? ioPixmap("unlock")
-	    			: ioPixmap("readonly") );
+    editmnuitem_->setPixmap( doedit ? ioPixmap("unlock.png")
+				    : ioPixmap("readonly.png") );
+    lockbut_->setPixmap( doedit ? ioPixmap("unlock.png")
+	    			: ioPixmap("readonly.png") );
     lockbut_->setToolTip( doedit ? mLockTxt(false) : mEditTxt(false) );
     lockbut_->setOn( !doedit );
     setIsLocked( !doedit );
@@ -305,9 +296,10 @@ void uiStratTreeWin::resetCB( CallBacker* )
     Strat::RefTree& bcktree = Strat::eRT(); 
     //for the time beeing, get back the global tree, but we may want to have 
     //a snapshot copy of the actual tree we are working on...
+    bool iseditmode = !strcmp( editmnuitem_->text(), mEditTxt(true) );
     uitree_->setTree( bcktree, true );
     uitree_->expand( true );
-    uistratdisp_->setTree();
+    uistratdisp_->setTree( bcktree );
     lvllist_->setLevels();
 }
 
@@ -365,9 +357,9 @@ void uiStratTreeWin::switchViewCB( CallBacker* )
     uistratdisp_->display( !istreedisp_ );
     if ( uistratdisp_->control() )
 	uistratdisp_->control()->setSensitive( !istreedisp_ );
-    uitree_->treeView()->display( istreedisp_ );
-    switchviewbut_->setPixmap( istreedisp_ ? "stratframeworkgraph"
-					   : "strat_tree" );
+    uitree_->listView()->display( istreedisp_ );
+    switchviewbut_->setPixmap( istreedisp_ ? "stratframeworkgraph.png"
+					   : "strat_tree.png" );
 }
 
 
@@ -450,6 +442,15 @@ void uiStratTreeWin::manConts( CallBacker* )
 {
     uiStratContentsDlg dlg( this );
     dlg.go();
+}
+
+
+void uiStratTreeWin::newCB( CallBacker* )
+{
+    BufferString msg( "This will overwrite the current tree. \n" );
+    msg += "Your work will be lost. Continue anyway ?";
+    if ( RT().isEmpty() || uiMSG().askGoOn( msg ) )
+	initRT();
 }
 
 

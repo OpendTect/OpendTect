@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistransform.cc,v 1.33 2012-07-24 02:13:57 cvskris Exp $";
+static const char* rcsID = "$Id: vistransform.cc,v 1.29 2012/03/19 13:41:52 cvskris Exp $";
 
 #include "vistransform.h"
 #include "iopar.h"
@@ -17,8 +17,6 @@ static const char* rcsID mUnusedVar = "$Id: vistransform.cc,v 1.33 2012-07-24 02
 #include <Inventor/nodes/SoMatrixTransform.h>
 #include <Inventor/nodes/SoRotation.h>
 #include <Inventor/SbLinear.h>
-
-#include <osg/MatrixTransform>
 
 mCreateFactoryEntry( visBase::Transformation );
 mCreateFactoryEntry( visBase::Rotation );
@@ -31,13 +29,7 @@ const char* Transformation::matrixstr()  { return "Matrix Row "; }
 Transformation::Transformation()
     : transform_( new SoMatrixTransform )
     , transformgroup_( new SoGroup )
-    , node_( 0 )
 {
-    if ( doOsg() )
-    {
-	osggroup_ = node_ = new osg::MatrixTransform;
-	osggroup_->ref();
-    }
     separate_ = false;
     transformgroup_->ref();
     transformgroup_->addChild( transform_ );
@@ -73,13 +65,6 @@ void Transformation::setRotation( const Coord3& vec, double angle )
     matrix.setTransform( translation, rotation, scale, scaleorientation );
 
     transform_->matrix.setValue( matrix );
-    if ( node_ )
-    {
-	osg::Matrix osgmatrix = node_->getMatrix();
-	const osg::Quat osgrotation( angle, osg::Vec3d(vec.x,vec.y,vec.z ) );
-	osgmatrix.setRotate( osgrotation );
-	node_->setMatrix( osgmatrix );
-    }
 }
 
 
@@ -96,24 +81,11 @@ void Transformation::setTranslation( const Coord3& vec )
     matrix.setTransform( translation, rotation, scale, scaleorientation );
 
     transform_->matrix.setValue( matrix );
-    if ( node_ )
-    {
-	osg::Matrix osgmatrix = node_->getMatrix();
-	osgmatrix.setTrans( vec.x, vec.y, vec.z );
-	node_->setMatrix( osgmatrix );
-    }
 }
 
 
 Coord3 Transformation::getTranslation() const
 {
-    if ( node_ )
-    {
-	const osg::Matrix matrix = node_->getMatrix();
-	const osg::Vec3d vec = matrix.getTrans();
-	return Coord3( vec.x(), vec.y(), vec.z() );
-    }
-
     SbVec3f translation;
     SbRotation rotation;
     SbVec3f scale;
@@ -138,42 +110,24 @@ void Transformation::setScale( const Coord3& vec )
     matrix.setTransform( translation, rotation, scale, scaleorientation );
 
     transform_->matrix.setValue( matrix );
-    if ( node_ )
-    {
-	osg::Matrix osgmatrix = node_->getMatrix();
-	osgmatrix.makeScale( vec.x, vec.y, vec.z );
-	node_->setMatrix( osgmatrix );
-    }
 }
 
 
 Coord3 Transformation::getScale() const
 {
-    if ( node_ )
-    {
-	const osg::Matrix matrix = node_->getMatrix();
-	const osg::Vec3d vec = matrix.getScale();
-	return Coord3( vec.x(), vec.y(), vec.z() );
-    }
-
     SbVec3f translation;
     SbRotation rotation;
     SbVec3f scale;
     SbRotation scaleorientation;
 
-    const SbMatrix coinmatrix = transform_->matrix.getValue();
-    coinmatrix.getTransform( translation, rotation, scale, scaleorientation );
+    const SbMatrix matrix = transform_->matrix.getValue();
+    matrix.getTransform( translation, rotation, scale, scaleorientation );
     return Coord3( scale[0], scale[1], scale[2] );
 }
 
 
 void Transformation::reset()
 {
-    if ( node_ )
-    {
-	node_->setMatrix( osg::Matrix::identity() );
-	return;
-    }
     setA( 1, 0, 0, 0,
 	  0, 1, 0, 0,
 	  0, 0, 1, 0,
@@ -191,14 +145,6 @@ void Transformation::setA( double a11, double a12, double a13, double a14,
 	    			a12, a22, a32, a42,
 				a13, a23, a33, a43,
 				a14, a24, a34, a44 );
-    if ( node_ )
-    {
-	node_->setMatrix( osg::Matrix(
-			    a11, a21, a31, a41,
-			    a12, a22, a32, a42,
-			    a13, a23, a33, a43,
-			    a14, a24, a34, a44 ) );
-    }
 }
 
 /*
@@ -211,12 +157,6 @@ void Transformation::setA( const SbMatrix& matrix )
 
 Coord3 Transformation::transform( const Coord3& pos ) const
 {
-    if ( node_ )
-    {
-	osg::Vec3d res( pos.x, pos.y, pos.z );
-	transform( res );
-	return Coord3( res[0], res[1], res[2] );
-    }
     SbVec3f res( pos.x, pos.y, pos.z );
     transform( res );
     if ( mIsUdf(pos.z) ) res[2] = mUdf(float);
@@ -236,34 +176,8 @@ void Transformation::transformBack( SbVec3f& res ) const
 }
 
 
-void Transformation::transform( osg::Vec3d& res ) const
-{
-//TODO Check that we should use preMult
-    if ( node_ )
-    {
-	res = node_->getMatrix().preMult( res );
-    }
-} 
-
-
-void Transformation::transformBack( osg::Vec3d& res ) const
-{
-//TODO Check that we should use preMult, the inverse or postMult
-    if ( node_ )
-    {
-	res = osg::Matrixd::inverse(node_->getMatrix()).preMult( res );
-    }
-}
-
-
 Coord3 Transformation::transformBack( const Coord3& pos ) const
 {
-    if ( node_ )
-    {
-	osg::Vec3d res( pos.x, pos.y, pos.z );
-	transformBack( res );
-	return Coord3( res[0], res[1], res[2] );
-    }
     SbVec3f res( pos.x, pos.y, pos.z );
     transformBack( res );
     if ( mIsUdf(pos.z) ) res[2] = mUdf(float);
@@ -275,22 +189,6 @@ Coord3 Transformation::transformBack( const Coord3& pos ) const
 void Transformation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
-    if ( node_ )
-    {
-	const osg::Matrix matrix = node_->getMatrix();
-	BufferString key = matrixstr(); key += 1; 
-	par.set( key, matrix(0,0), matrix(1,0), matrix(2,0), matrix(3,0) );
-
-	key = matrixstr(); key += 2;
-	par.set( key, matrix(0,1), matrix(1,1), matrix(2,1), matrix(3,1) );
-
-	key = matrixstr(); key += 3;
-	par.set( key, matrix(0,2), matrix(1,2), matrix(2,2), matrix(3,2) );
-
-	key = matrixstr(); key += 4;
-	par.set( key, matrix(0,3), matrix(1,3), matrix(2,3), matrix(3,3) );
-	return;
-    }
     const SbMat& matrix = transform_->matrix.getValue().getValue();
 
     BufferString key = matrixstr(); key += 1; 

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.65 2012-08-03 13:00:13 cvskris Exp $
+ RCS:		$Id: iopar.h,v 1.64 2011/09/23 13:02:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "basicmod.h"
 #include "namedobj.h"
 #include "sets.h"
 #include "fixedstring.h"
@@ -44,7 +43,7 @@ with the value. Use add() rather than set(). Values may contain newlines.
 */
 
 
-mClass(Basic) IOPar : public NamedObject
+mClass IOPar : public NamedObject
 {
 public:
 			IOPar(const char* nm=0); //!< empty
@@ -296,4 +295,3 @@ inline void IOPar::set( const char* k, const SamplingData<T>& sd )
 
 
 #endif
-

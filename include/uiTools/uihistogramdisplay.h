@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.h,v 1.12 2012-08-03 13:01:13 cvskris Exp $
+ RCS:		$Id: uihistogramdisplay.h,v 1.11 2011/10/26 14:20:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uifunctiondisplay.h"
 #include "datapack.h"
 
@@ -22,7 +21,7 @@ namespace Stats { template <class T> class ParallelCalc; }
 
 class DataPointSet;
 
-mClass(uiTools) uiHistogramDisplay : public uiFunctionDisplay
+mClass uiHistogramDisplay : public uiFunctionDisplay
 {
 public:
 
@@ -58,4 +57,3 @@ protected:
 
 
 #endif
-

@@ -7,22 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.26 2012-08-03 13:01:26 cvskris Exp $
+ RCS:		$Id: visscene.h,v 1.24 2011/09/23 13:17:17 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "visbasemod.h"
 #include "sets.h"
 #include "visdatagroup.h"
 
 class SoEnvironment;
 class SoAction;
 class SoCallback;
-
-namespace osg { class Group; }
 
 namespace visBase
 {
@@ -37,7 +34,7 @@ namespace visBase
     be common for the whole scene.
 */
 
-mClass(visBase) Scene : public DataObjectGroup
+mClass Scene : public DataObjectGroup
 {
 public:
     static Scene*	create()
@@ -79,7 +76,6 @@ protected:
     void		fillOffsetPar( IOPar& ) const;
 
     virtual SoNode*	gtInvntrNode();
-    virtual osg::Node*	gtOsgNode();
 
     static void		firstRender(void*,SoAction*);
 
@@ -95,10 +91,8 @@ private:
     SoGroup*		selroot_;
     SoCallback*		callback_;
     bool		blockmousesel_;
-    osg::Group*		osgsceneroot_;
 };
 
 }
 
 #endif
-

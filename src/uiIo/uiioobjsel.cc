@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiioobjsel.cc,v 1.163 2012-05-22 14:48:38 cvskris Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.160 2012/02/24 23:11:58 cvsnanne Exp $";
 
 #include "uiioobjsel.h"
 
@@ -484,13 +484,13 @@ bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
 	return false;
 
     if ( !ismultisel_ )
-	iop.set( sKey::ID(), ctio_.ioobj->key() );
+	iop.set( sKey::ID, ctio_.ioobj->key() );
     else
     {
 	TypeSet<MultiID> mids; getSelected( mids );
-	iop.set( sKey::Size(), mids.size() );
+	iop.set( sKey::Size, mids.size() );
 	for ( int idx=0; idx<mids.size(); idx++ )
-	    iop.set( IOPar::compKey(sKey::ID(),idx), mids[idx] );
+	    iop.set( IOPar::compKey(sKey::ID,idx), mids[idx] );
     }
 
     return true;
@@ -511,12 +511,12 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
     else
     {
 	int nrids;
-	iop.get( sKey::Size(), nrids );
+	iop.get( sKey::Size, nrids );
 	TypeSet<MultiID> mids;
 	for ( int idx=0; idx<nrids; idx++ )
 	{
 	    MultiID mid;
-	    if ( iop.get(IOPar::compKey(sKey::ID(),idx),mid) )
+	    if ( iop.get(IOPar::compKey(sKey::ID,idx),mid) )
 		mids += mid;
 	}
 
@@ -657,7 +657,7 @@ void uiIOObjSel::setForRead( bool yn )
 
 bool uiIOObjSel::fillPar( IOPar& iopar ) const
 {
-    iopar.set( sKey::ID(), workctio_.ioobj ? workctio_.ioobj->key() : MultiID() );
+    iopar.set( sKey::ID, workctio_.ioobj ? workctio_.ioobj->key() : MultiID() );
     return true;
 }
 
@@ -672,7 +672,7 @@ bool uiIOObjSel::fillPar( IOPar& iopar, const char* bky ) const
 
 void uiIOObjSel::usePar( const IOPar& iopar )
 {
-    const char* res = iopar.find( sKey::ID() );
+    const char* res = iopar.find( sKey::ID );
     if ( res && *res )
     {
 	workctio_.setObj( MultiID(res) );

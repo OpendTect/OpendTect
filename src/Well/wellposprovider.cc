@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellposprovider.cc,v 1.8 2012-08-10 04:11:25 cvssalil Exp $";
+static const char* rcsID = "$Id: wellposprovider.cc,v 1.4 2012/02/24 23:14:41 cvsnanne Exp $";
 
 #include "wellposprovider.h"
 
@@ -70,7 +70,7 @@ WellProvider3D& WellProvider3D::operator =( const WellProvider3D& pp )
 
 const char* WellProvider3D::type() const
 {
-    return sKey::Well();
+    return sKey::Well;
 }
 
 
@@ -151,7 +151,7 @@ bool WellProvider3D::includes( const BinID& bid, float z ) const
 
     if ( mIsUdf(z) ) return true;
 
-    const float zeps = zrg_.step * 1e-6f;
+    const float zeps = zrg_.step * 1e-6;
     return z > zrg_.start - zeps && z < zrg_.stop + zeps;
 }
 
@@ -160,7 +160,7 @@ bool WellProvider3D::includes( const Coord& c, float z ) const
 { return Provider3D::includes(c,z); }
 
 
-#define mGetWellKey(k) IOPar::compKey(sKey::Well(),k)
+#define mGetWellKey(k) IOPar::compKey(sKey::Well,k)
 
 void WellProvider3D::usePar( const IOPar& iop )
 {
@@ -169,11 +169,11 @@ void WellProvider3D::usePar( const IOPar& iop )
     iop.get( mGetWellKey(sKeyZExt()), zext_ );
     iop.getYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords_ );
     int nrwells = 0;
-    iop.get( mGetWellKey(sKey::Size()), nrwells );
+    iop.get( mGetWellKey(sKey::Size), nrwells );
     for ( int idx=0; idx<nrwells; idx++ )
     {
 	MultiID mid;
-	BufferString idkey = IOPar::compKey( sKey::ID(), idx );
+	BufferString idkey = IOPar::compKey( sKey::ID, idx );
 	iop.get( mGetWellKey(idkey), mid );
 	wellids_ += mid;
     }
@@ -188,10 +188,10 @@ void WellProvider3D::fillPar( IOPar& iop ) const
     iop.set( mGetWellKey(sKeyCrlExt()), crlext_ );
     iop.set( mGetWellKey(sKeyZExt()), zext_ );
     iop.setYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords_ );
-    iop.set( mGetWellKey(sKey::Size()), wellids_.size() );
+    iop.set( mGetWellKey(sKey::Size), wellids_.size() );
     for ( int idx=0; idx<wellids_.size(); idx++ )
     {
-	BufferString idkey = IOPar::compKey( sKey::ID(), idx );
+	BufferString idkey = IOPar::compKey( sKey::ID, idx );
 	iop.set( mGetWellKey(idkey), wellids_[idx] );
     }
 }
@@ -229,7 +229,7 @@ const Well::Data* WellProvider3D::wellData( int idx ) const
 
 void WellProvider3D::initClass()
 {
-    Provider3D::factory().addCreator( create, sKey::Well() );
+    Provider3D::factory().addCreator( create, sKey::Well );
 }
 
 } // namespace Pos

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: faultadjuster.cc,v 1.13 2012-08-03 06:38:39 cvsaneesh Exp $";
+static const char* rcsID = "$Id: faultadjuster.cc,v 1.10 2010/06/18 12:23:27 cvskris Exp $";
 
 #include "faultadjuster.h"
 
@@ -165,14 +165,14 @@ void FaultAdjuster::prepareCalc( EM::SubID subid )
 void FaultAdjuster::getTargetPositions( EM::SubID target, const EM::SubID* src,
 					TypeSet<BinID>& targetpos ) const
 {
-    RowCol rc = RowCol::fromInt64( target );
+    RowCol rc( target );
     const Coord3& pos = fault_.getPos( sectionid_, target );
     const BinID bid = SI().transform( pos );
     targetpos += bid;
 
     if ( !src ) return;
     
-    const RowCol srcrc = RowCol::fromInt64( *src );
+    const RowCol srcrc( *src );
 
     if ( srcrc.col==rc.col ) // tracking up/down
     {

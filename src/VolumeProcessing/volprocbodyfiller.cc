@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: volprocbodyfiller.cc,v 1.17 2012-08-23 16:31:36 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.14 2012/09/04 15:04:44 cvsyuancheng Exp $";
 
 #include "volprocbodyfiller.h"
 
@@ -171,7 +171,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	    val = outsideval_;
 	else
 	{
-	    const float z = (float) ( (output_->z0_+idx) * output_->zstep_ );
+	    const float z = (output_->z0_+idx)*output_->zstep_;
 	    if ( flatbody )
 		val = plgzrg.includes( z * SI().zScale(), true ) ? insideval_
 							   : outsideval_;
@@ -291,12 +291,12 @@ Task* BodyFiller::createTask()
 	if ( flatpolygon_.isEmpty() )
 	{
 	    flatpolygon_.hrg.start = flatpolygon_.hrg.stop = bid;
-	    flatpolygon_.zrg.start = flatpolygon_.zrg.stop = (float) plgknots_[idx].z;
+	    flatpolygon_.zrg.start = flatpolygon_.zrg.stop = plgknots_[idx].z;
 	}
 	else
 	{
 	    flatpolygon_.hrg.include( bid );
-	    flatpolygon_.zrg.include( (float) plgknots_[idx].z );
+	    flatpolygon_.zrg.include( plgknots_[idx].z );
 	}
     }
     

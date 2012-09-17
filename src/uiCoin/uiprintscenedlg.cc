@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiprintscenedlg.cc,v 1.59 2012-09-04 15:52:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.54 2012/07/10 13:06:05 cvskris Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -32,7 +32,9 @@ static const char* rcsID mUnusedVar = "$Id: uiprintscenedlg.cc,v 1.59 2012-09-04
 #include <Inventor/SoOffscreenRenderer.h>
 #include <Inventor/SoOutput.h>
 
+static const char* sKeySnapshot = "snapshot";
 static bool prevsavestate = true;
+BufferString uiSaveImageDlg::dirname_ = "";
 static StepInterval<float> pixelsize_range(1,9999,1);
 
 #define mAttachToAbove( fld ) \
@@ -56,7 +58,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     Settings::common().getYN( IOPar::compKey("dTect","Enable VRML"), showvrml );
     if ( nrfiletypes==0 && !showvrml )
     {
-	uiLabel* label mUnusedVar = new uiLabel( this,
+	uiLabel* label = new uiLabel( this,
 	    "No output file types found.\n"
 	    "Probably, 'libsimage.so' is not installed or invalid." );
 	setCtrlStyle( LeaveOnly );
@@ -125,6 +127,7 @@ void uiPrintSceneDlg::getSupportedFormats( const char** imagefrmt,
 					   const char** frmtdesc,
 					   BufferString& filters )
 {
+    const bool vrml = dovrmlfld_ && dovrmlfld_->getBoolValue();
     if ( dovrmlfld_ && dovrmlfld_->getBoolValue() )
 	filters = "VRML (*.wrl)";
     else
@@ -203,7 +206,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
     const ui3DViewer* vwr = viewers_[vwridx];
     FilePath filepath( fileinputfld_->fileName() );
-    setDirName( filepath.pathOnly() );
+    dirname_ = filepath.pathOnly();
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 

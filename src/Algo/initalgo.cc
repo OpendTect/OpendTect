@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initalgo.cc,v 1.27 2012-05-15 08:13:46 cvskris Exp $";
+static const char* rcsID = "$Id: initalgo.cc,v 1.24 2012/05/15 08:11:10 cvskris Exp $";
 
 #include "moddepmgr.h"
 #include "gridder2d.h"
@@ -24,7 +24,11 @@ mDefModInitFn(Algo)
 
     Stats::RandGen::init();
 
-    WindowFunction::addAllStdClasses();
+    BartlettWindow::initClass();
+    BoxWindow::initClass();
+    CosTaperWindow::initClass();
+    HammingWindow::initClass();
+    HanningWindow::initClass();
 
     InverseDistanceGridder2D::initClass();
     TriangulatedGridder2D::initClass();

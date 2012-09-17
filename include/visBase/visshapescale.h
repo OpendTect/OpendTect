@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshapescale.h,v 1.12 2012-08-03 13:01:26 cvskris Exp $
+ RCS:		$Id: visshapescale.h,v 1.11 2011/04/28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 class SoShapeScale;
@@ -28,7 +27,7 @@ a constant size is given to the object via setShape.
 
 */
 
-mClass(visBase) ShapeScale : public DataObject
+mClass ShapeScale : public DataObject
 {
 public:
 
@@ -74,4 +73,3 @@ private:
 
 
 #endif
-

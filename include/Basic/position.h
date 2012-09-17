@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.64 2012-08-03 13:00:14 cvskris Exp $
+ RCS:		$Id: position.h,v 1.62 2012/03/29 12:32:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "gendefs.h"
 #include "rcol.h"
 #include "geometry.h"
@@ -24,7 +23,7 @@ class RowCol;
 
 /*!\brief a cartesian coordinate in 2D space. */
 
-mClass(Basic) Coord : public Geom::Point2D<double>
+mClass Coord : public Geom::Point2D<double>
 {
 public:
 		Coord( const Geom::Point2D<double>& p )
@@ -65,7 +64,7 @@ bool getDirectionStr( const Coord&, BufferString& );
 
 /*!\brief a cartesian coordinate in 3D space. */
 
-mClass(Basic) Coord3 : public Coord
+mClass Coord3 : public Coord
 {
 public:
 
@@ -132,7 +131,7 @@ inline Coord3 operator*( double f, const Coord3& b )
 
 /*!\brief 2D coordinate and a value. */
 
-mClass(Basic) CoordValue
+mClass CoordValue
 {
 public:
 		CoordValue( double x=0, double y=0, float v=mUdf(float) )
@@ -151,7 +150,7 @@ public:
 
 /*!\brief 3D coordinate and a value. */
 
-mClass(Basic) Coord3Value
+mClass Coord3Value
 {
 public:
     		Coord3Value( double x=0, double y=0, double z=0, 
@@ -172,12 +171,13 @@ public:
 /*!\brief positioning in a seismic survey: inline/crossline. Most functions are
           identical to RowCol */
 
-mClass(Basic) BinID
+mClass BinID
 {
 public:
     inline			BinID(int r,int c);
     				BinID(const RowCol&);
     inline			BinID(const BinID&);
+    inline			BinID(const od_int64&);
     inline			BinID();
 
     inline bool			operator==(const BinID&) const;
@@ -197,15 +197,13 @@ public:
     inline const BinID&		operator/=(const BinID&);
     inline int&			operator[](int idx);
     inline int			operator[](int idx) const;
-    inline int			toInt32() const;
-    
-    inline static BinID		fromInt64(od_int64);
-    inline static BinID		fromInt32(int);
-    inline int			sqDistTo(const BinID&) const;
-
     void			fill(char*) const;
     bool			use(const char*);
     inline od_int64		toInt64() const;
+    inline int			toInt32() const;
+    inline void			fromInt64(od_int64);
+    inline void			fromInt32(int);
+    inline int			sqDistTo(const BinID&) const;
     bool                        isNeighborTo(const BinID&,const BinID&,
 					     bool eightconnectivity=true) const;
 
@@ -252,7 +250,7 @@ public:
 
 /*!\brief BinID and values. If one of the values is Z, make it the first one. */
 
-mClass(Basic) BinIDValues
+mClass BinIDValues
 {
 public:
 			BinIDValues( int inl=0, int crl=0, int n=2 )
@@ -387,4 +385,3 @@ inline Coord3 Coord3::normalize() const
 }
 
 #endif
-

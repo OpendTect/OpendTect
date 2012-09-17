@@ -4,13 +4,9 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: positionlist.cc,v 1.7 2012-09-05 08:14:03 cvskris Exp $";
+static const char* rcsID = "$Id: positionlist.cc,v 1.4 2010/03/30 11:52:31 cvskris Exp $";
 
 #include "positionlist.h"
-
-
-FloatVertexAttribList::~FloatVertexAttribList()
-{}
 
 
 Coord2ListImpl::Coord2ListImpl()

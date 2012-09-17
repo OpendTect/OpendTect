@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiiosel.cc,v 1.73 2012-09-13 18:36:29 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiiosel.cc,v 1.70 2012/05/25 13:09:33 cvsbert Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -148,7 +148,7 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
     int lastidx = 0;
     for ( ; ; lastidx++ )
     {
-	if ( !iopar.find( IOPar::compKey(sKey::IOSelection(),lastidx+1)) )
+	if ( !iopar.find( IOPar::compKey(sKey::IOSelection,lastidx+1)) )
 	    break;
     }
 
@@ -160,7 +160,7 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
 	if ( iopar.findKeyFor(key) ) continue;
 
 	lastidx++;
-	iopar.set( IOPar::compKey(sKey::IOSelection(),lastidx), key );
+	iopar.set( IOPar::compKey(sKey::IOSelection,lastidx), key );
     }
 }
 
@@ -172,7 +172,7 @@ void uiIOSelect::getHistory( const IOPar& iopar )
     for ( int idx=1; ; idx++ )
     {
 	BufferString bs;
-	if ( iopar.get( IOPar::compKey(sKey::IOSelection(),idx), bs ) )
+	if ( iopar.get( IOPar::compKey(sKey::IOSelection,idx), bs ) )
 	    bss.add( bs );
 	else
 	    break;
@@ -395,7 +395,7 @@ void uiIOSelect::setLabelText( const char* s )
 {
     if ( lbl_ )
     {
-	lbl_->setPrefWidthInChar( int(strlen(s)+1) );
+	lbl_->setPrefWidthInChar( strlen(s)+1 );
 	return lbl_->setText( s );
     }
     else if ( optbox_ )

@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.17 2012-09-07 22:08:02 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.h,v 1.15 2011/04/27 10:13:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstring.h"
 
@@ -20,14 +19,14 @@ class uiColorTableCanvas;
 class uiColTabMarkerCanvas;
 class uiFunctionDisplay;
 class uiGenInput;
-class uiTreeView;
+class uiListView;
 class uiPushButton;
 class uiSpinBox;
 class uiWorld2Ui;
 
 namespace ColTab { class Sequence; }
 
-mClass(uiTools) uiColorTableMan : public uiDialog
+mClass uiColorTableMan : public uiDialog
 {
 public:
 				uiColorTableMan(uiParent*,ColTab::Sequence&,
@@ -46,7 +45,7 @@ protected:
     uiFunctionDisplay*		cttranscanvas_;
     uiColorTableCanvas*		ctabcanvas_;
     uiColTabMarkerCanvas*	markercanvas_;
-    uiTreeView*			coltablistfld_;
+    uiListView*			coltablistfld_;
     uiPushButton*       	removebut_;
     uiPushButton*       	importbut_;
     uiColorInput*       	undefcolfld_;
@@ -95,4 +94,3 @@ protected:
 };
 
 #endif
-

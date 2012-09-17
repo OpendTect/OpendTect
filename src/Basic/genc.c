@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.126 2012-08-30 09:49:44 cvskris Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.119 2012/09/05 07:23:40 cvskris Exp $";
 
 #include "genc.h"
 #include "string2_c.h"
@@ -20,9 +20,6 @@ static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.126 2012-08-30 09:49:44 c
 #include <string.h>
 #ifndef __win__
 # include <unistd.h>
-# include <errno.h>
-# include <sys/types.h>
-# include <signal.h>
 #else
 # include <float.h>
 # include <time.h>
@@ -31,13 +28,13 @@ static const char* rcsID mUnusedVar = "$Id: genc.c,v 1.126 2012-08-30 09:49:44 c
 #endif
 
 static int insysadmmode_ = 0;
-mGlobal( Basic ) int InSysAdmMode(void);
-mGlobal( Basic ) int InSysAdmMode(void) { return insysadmmode_; }
-mGlobal( Basic ) void SetInSysAdmMode(void);
-mGlobal( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
+mGlobal int InSysAdmMode();
+mGlobal int InSysAdmMode() { return insysadmmode_; }
+mGlobal void SetInSysAdmMode();
+mGlobal void SetInSysAdmMode() { insysadmmode_ = 1; }
 
 #ifdef __win__
-const char* GetLocalIP(void)
+const char* GetLocalIP()
 {
     static char ret[16];
     struct in_addr addr;
@@ -94,7 +91,6 @@ void PutIsLittleEndian( unsigned char* ptr )
 }
 
 #ifdef __msvc__
-#include <process.h>
 #define getpid	_getpid
 #endif
 
@@ -116,7 +112,7 @@ void NotifyExitProgram( PtrAllVoidFn fn )
 # define ptr_cast od_int64
 #endif
 
-    if ( ((ptr_cast)fn) == ((ptr_cast)(-1)) )
+    if ( (ptr_cast)(fn) == ((ptr_cast)(-1)) )
     {
 	for ( idx=0; idx<nrfns; idx++ )
 	    (*(fns[idx]))();
@@ -129,15 +125,17 @@ void NotifyExitProgram( PtrAllVoidFn fn )
 }
 
 
-mGlobal( Basic ) void forkProcess(void);
-void forkProcess(void)
+extern const char* errno_message();
+
+mGlobal void forkProcess();
+mGlobal void forkProcess()
 {
-#ifndef __win__
+#if !defined( __mac__ ) && !defined( __win__ )
     switch ( fork() )
     {
     case 0:     break;
     case -1:
-	fprintf( stderr, "Cannot fork new process, errno=: %d\n", errno );
+	fprintf( stderr, "Cannot fork new process: %s\n", errno_message() );
     default:
 	ExitProgram( 0 );
     }
@@ -159,7 +157,7 @@ int isProcessAlive( int pid )
 }
 
 
-void ExitProgram( int ret )
+int ExitProgram( int ret )
 {
     if ( od_debug_isOn(DBG_PROGSTART) )
     {
@@ -176,12 +174,34 @@ void ExitProgram( int ret )
 // _Exit does not call registered exit functions and prevents crash
 #ifdef __mac__
     _Exit(0);
+    return 0;
 #endif
 
 #ifdef __msvc__
     exit( EXIT_SUCCESS );
+    return 0;
 #else
+
+#ifdef __win__
+
+
+    // open process
+    HANDLE hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, GetPID() );
+    if ( isBadHandle( hProcess ) )
+	printf( "OpenProcess() failed, err = %lu\n", GetLastError() );
+    else
+    {
+	// kill process
+	if ( ! TerminateProcess( hProcess, (DWORD) -1 ) )
+	    printf( "TerminateProcess() failed, err = %lu\n", GetLastError() );
+
+	// close handle
+	CloseHandle( hProcess );
+    }
+#endif
+
     exit(ret);
+    return ret;
 #endif
 }
 

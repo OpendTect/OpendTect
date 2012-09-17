@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emeditor.cc,v 1.30 2012-08-03 06:38:39 cvsaneesh Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.27 2011/09/02 09:14:48 cvskris Exp $";
 
 #include "emeditor.h"
 
@@ -286,7 +286,7 @@ void ObjectEditor::restartInteractionLine(const EM::PosID& pid)
 	     !interactionline->getLine(0)->getSegment(0)->size() )
 	{
 	    //Start a new line
-	    const RowCol activenoderc = pid.getRowCol();
+	    const RowCol activenoderc( pid.subID() );
 	    EM::EdgeLine* edgeline = interactionline->getLine(0);
 	    if ( !edgeline->nrSegments() )
 	    {
@@ -336,7 +336,7 @@ bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
 
     EM::Horizon3D& emsurface = interactionline->getHorizon();
     const EM::SectionID sid = interactionline->getSection();
-    const RowCol rc = pid.getRowCol();
+    const RowCol rc( pid.subID() );
 
     EM::EdgeLineSegment& els = *interactionline->getLine(0)->getSegment(0);
 

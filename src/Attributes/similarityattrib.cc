@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: similarityattrib.cc,v 1.64 2012-08-09 04:38:06 cvssalil Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.60 2012/07/10 13:06:00 cvskris Exp $";
 
 #include "similarityattrib.h"
 
@@ -125,7 +125,7 @@ void Similarity::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
-    float roundedzstep = SI().zStep()*SI().zDomain().userFactor();
+    float roundedzstep = SI().zStep()*SI().zFactor();
     if ( roundedzstep > 0 )
 	roundedzstep = (int)( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
@@ -153,7 +153,7 @@ Similarity::Similarity( Desc& desc )
     inputdata_.allowNull(true);
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1.f/zFactor() );
+    gate_.scale( 1./zFactor() );
 
     mGetBool( donormalize_, normalizeStr() );
     mGetEnum( extension_, extensionStr() );
@@ -472,11 +472,11 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	else
 	{
 	    if ( outputinterest_[0] )
-		setOutputValue( output, 0, idx, z0, (float) stats.average() );
+		setOutputValue( output, 0, idx, z0, stats.average() );
 	    if ( outputinterest_[1] )
 		setOutputValue( output, 1, idx, z0, stats.median() );
 	    if ( outputinterest_[2] ) 
-		setOutputValue( output, 2, idx, z0, (float) stats.variance() );
+		setOutputValue( output, 2, idx, z0, stats.variance() );
 	    if ( outputinterest_[3] )
 		setOutputValue( output, 3, idx, z0, stats.min() );
 	    if ( outputinterest_[4] )

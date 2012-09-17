@@ -6,19 +6,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H.Bril
  Date:          Jul 2006
- RCS:           $Id: uiodsysadmcoltabs.h,v 1.2 2012-08-03 13:01:11 cvskris Exp $
+ RCS:           $Id: uiodsysadmcoltabs.h,v 1.1 2010/01/06 13:11:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uisysadmmod.h"
 #include "uidialog.h"
 #include "sets.h"
 
 class uiListBox;
 
 
-mClass(uiSysAdm) uiODSysAdmColorTabs : public uiDialog
+mClass uiODSysAdmColorTabs : public uiDialog
 {
 public:
 
@@ -38,4 +37,3 @@ protected:
 
 
 #endif
-

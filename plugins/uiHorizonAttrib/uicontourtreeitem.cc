@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.40 2012-09-07 22:08:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.30 2012/07/10 13:05:58 cvskris Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -28,6 +28,7 @@ static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.40 2012-09-
 #include "uiempartserv.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uilistview.h"
 #include "uimsg.h"
 #include "uiprogressbar.h"
 #include "uiodapplmgr.h"
@@ -35,7 +36,6 @@ static const char* rcsID mUnusedVar = "$Id: uicontourtreeitem.cc,v 1.40 2012-09-
 #include "uiodscenemgr.h"
 #include "uisellinest.h"
 #include "uistatusbar.h"
-#include "uitreeview.h"
 #include "uivispartserv.h"
 
 #include "viscoord.h"
@@ -65,7 +65,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     iszval_ = zvalstr == attrnm;
     if ( iszval_ )
     {
-	const float zfac = SI().zDomain().userFactor();
+	const float zfac = SI().zFactor();
 	rg_.scale( zfac );
 	contourintv_.scale( zfac );
     }
@@ -106,7 +106,7 @@ StepInterval<float> getContourInterval() const
 {
     StepInterval<float> res = intvfld_->getFStepInterval();
     if ( iszval_ )
-	res.scale( 1.0f/SI().zDomain().userFactor() );
+	res.scale( 1.0/SI().zFactor() );
     
     return res;
 }
@@ -159,7 +159,7 @@ void intvChanged( CallBacker* cb )
 };
 
 
-class visContourLabels : public visBase::VisualObjectImpl
+mClass visContourLabels : public visBase::VisualObjectImpl
 {
 public:
 
@@ -200,7 +200,7 @@ void uiContourTreeItem::initClass()
 
 uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
-    , optionsmenuitem_( "Properties ..." )
+    , optionsmenuitem_( "Options ..." )
     , lines_( 0 )
     , drawstyle_( 0 )
     , material_(0)
@@ -212,8 +212,6 @@ uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     , color_(0,0,0)
     , showlabels_(true)
 {
-    optionsmenuitem_.iconfnm = "disppars";
-
     ODMainWin()->applMgr().visServer()->removeAllNotifier().notify(
 	    mCB(this,uiContourTreeItem,visClosingCB) );
 }
@@ -252,7 +250,7 @@ bool uiContourTreeItem::init()
     if ( !uiODDataTreeItem::init() )
 	return false;
 
-    uitreeviewitem_->setChecked( true );
+    uilistviewitem_->setChecked( true );
     parent_->checkStatusChange()->notify(mCB(this,uiContourTreeItem,checkCB));
     return true;
 }
@@ -269,7 +267,7 @@ uiODDataTreeItem* uiContourTreeItem::create( const Attrib::SelSpec& as,
 
 void uiContourTreeItem::checkCB(CallBacker*)
 {
-    bool newstatus = uitreeviewitem_->isChecked();
+    bool newstatus = uilistviewitem_->isChecked();
     if ( newstatus && parent_ )
 	newstatus = parent_->isChecked();
 
@@ -334,8 +332,13 @@ void uiContourTreeItem::removeLabels()
 void uiContourTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDataTreeItem::createMenu( menu, istb );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_,
-		      &optionsmenuitem_, lines_, false );
+    if ( istb )
+    { mAddMenuOrTBItem( istb, menu, &optionsmenuitem_, lines_, false ); }
+    else
+    {
+	mAddMenuOrTBItem( istb, &displaymnuitem_, &optionsmenuitem_,
+			  lines_, false );
+    }
 }
 
 
@@ -457,7 +460,7 @@ Array2D<float>* uiContourTreeItem::getDataSet( visSurvey::HorizonDisplay* hd )
 }
 
 
-class uiContourProgressWin : public uiMainWin
+mClass uiContourProgressWin : public uiMainWin
 {
 public:
 
@@ -499,6 +502,7 @@ void uiContourTreeItem::createContours()
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     StepInterval<int> rowrg = hd->geometryRowRange();
     StepInterval<int> colrg = hd->geometryColRange();
+    const int nrbids = ( rowrg.nrSteps() + 1 ) * ( colrg.nrSteps() + 1 );
 
     createLines();
     if ( !lines_ ) return;
@@ -515,10 +519,10 @@ void uiContourTreeItem::createContours()
     if ( !computeContours(*field,rowrg,colrg) )
 	return;
 
-    const float fac = SI().zDomain().userFactor();
+    const float fac = SI().zFactor();
 
     const Coord3 trans = applMgr()->visServer()->getTranslation( displayID() );
-    zshift_ = (float) trans.z;
+    zshift_ = trans.z;
 
     const char* fmt = SI().zIsTime() ? "%g" : "%f";
     int cii = 0;
@@ -671,7 +675,7 @@ void uiContourTreeItem::updateZShift()
 	return;
 
     const Coord3 trans = applMgr()->visServer()->getTranslation( displayID() );
-    const float deltaz = (float) (trans.z - zshift_);
+    const float deltaz = trans.z - zshift_;
     if ( !deltaz )
 	return;
 
@@ -694,9 +698,9 @@ void uiContourTreeItem::updateZShift()
 	pos.z += deltaz;
 	labels_[idx]->setPosition( pos );
 	float labelval = toFloat( labels_[idx]->getText() );
-	labelval += deltaz * SI().zDomain().userFactor(); 
+	labelval += deltaz * SI().zFactor(); 
 	labels_[idx]->setText( getStringFromFloat(fmt, labelval, buf) );
     }
 
-    zshift_ = (float) trans.z;
+    zshift_ = trans.z;
 }

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.25 2012-08-03 13:01:25 cvskris Exp $
+ RCS:		$Id: vismarker.h,v 1.24 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "trigonometry.h"
 #include "draw.h"
@@ -35,7 +34,7 @@ Size and shape are settable.
 
 */
 
-mClass(visBase) Marker : public VisualObjectImpl
+mClass Marker : public VisualObjectImpl
 {
 public:
     static Marker*	create()
@@ -113,4 +112,3 @@ protected:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: randomlinegeom.cc,v 1.12 2012-05-02 15:11:38 cvskris Exp $";
+static const char* rcsID = "$Id: randomlinegeom.cc,v 1.10 2011/09/07 13:51:29 cvsbruno Exp $";
 
 #include "randomlinegeom.h"
 

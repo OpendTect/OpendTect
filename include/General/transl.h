@@ -8,19 +8,16 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
-RCS:		$Id: transl.h,v 1.45 2012-08-27 13:41:11 cvskris Exp $
+RCS:		$Id: transl.h,v 1.41 2012/04/27 15:08:30 cvskris Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
-specific details about how to interpret/write a certain format.
-
-A Translator is member of a group, e.g. the Wavelet Translator group.
-Translator groups have a description of IOObj context needed to select an
-object of that type.
+specific details about e.g. vendor specific file transls. A Translator is member
+of a group, e.g. the Grid Translator group. Translator groups have a
+description of IOObj context.
 
 */
 
-#include "generalmod.h"
 #include "refcount.h"
 #include "objectset.h"
 #include "callback.h"
@@ -36,7 +33,7 @@ class Translator;
 #define mObjSelUnrelated	0
 #define mObjSelRelated		1
 #define mObjSelMatch		2
-mGlobal(General) int defaultSelector(const char*,const char*);
+mGlobal int defaultSelector(const char*,const char*);
 
 
 /*!\brief Group of Translators. Has a static factory.
@@ -53,7 +50,7 @@ mGlobal(General) int defaultSelector(const char*,const char*);
 
  */
 
-mClass(General) TranslatorGroup
+mClass TranslatorGroup
 { mRefCountImpl(TranslatorGroup);
 public:
 
@@ -78,21 +75,16 @@ public:
 
     static const ObjectSet<TranslatorGroup>& groups()	{ return getGroups(); }
     static TranslatorGroup&	getGroup(const char* nm,bool usr=true);
-    static bool			hasGroup(const char* nm,bool usr=true);
 
     				// Called from macros
-    bool			add(Translator*);
+    int				add(Translator*);
     static TranslatorGroup&	addGroup(TranslatorGroup*);
 
-    int				defTranslIdx() const	{ return deftridx_; }
-    void			setDefTranslIdx( int i ) { deftridx_ = i; }
-    
 protected:
 
     BufferString		clssname_;
     BufferString		usrname_;
     ObjectSet<const Translator>	templs_;
-    int				deftridx_;
     IOPar*			selhist_;
 
     static ObjectSet<TranslatorGroup>& getGroups();
@@ -115,7 +107,7 @@ protected:
   define every Translator(Group)-related class.
  */
 
-mClass(General) Translator : public CallBacker
+mClass Translator : public CallBacker
 {
 public:
     				Translator(const char* nm,const char* usr_nm);
@@ -145,7 +137,7 @@ public:
     virtual bool		isReadDefault() const		{ return true; }
     				//!< If true, objs are for 'normal' use, not
     				//!< just import
-    
+
 protected:
 
     BufferString		typname_;
@@ -155,53 +147,23 @@ protected:
 };
 
 
-
-
 // Essential macros for implementing the concept
-#define mImplTranslatorInitClass( spec, clss, usrnm ) \
-{ \
-    if ( !TranslatorGroup::hasGroup( #clss , false ) )\
-    { \
-	pFreeFnErrMsg( #clss "TranslatorGroup::initClass() is missing", "" ); \
-	clss##TranslatorGroup::initClass(); \
-    } \
-\
-    spec##clss##Translator* tr = new spec##clss##Translator( #spec, usrnm ); \
-    TranslatorGroup::getGroup( #clss, false).add( tr ); \
-}
-
-#define mImplTranslatorGroupTheInst( clss, usrnm ) \
-{ \
-    static RefMan<TranslatorGroup> inst = \
-	&TranslatorGroup::addGroup( new clss##TranslatorGroup(#clss,usrnm) );\
-    return *inst; \
-}
-
-
 
   //! In the class definition of a TranslatorGroup class
-#define isTranslatorGroupBody(clss) \
+#define isTranslatorGroup(clss) \
 protected: \
     ~clss##TranslatorGroup() {} \
 public: \
+    static TranslatorGroup& theInst();  \
     static int selector(const char*); \
-    static void initClass() { theInst(); } \
     static const IOObjContext& ioContext(); \
+    static void initClass() {} \
     virtual const IOObjContext&	ioCtxt() const { return ioContext(); } \
     virtual int	objSelector( const char* s ) const { return selector(s); } \
-    static TranslatorGroup& theInst()
-
-
-#define isTranslatorGroup( clss ) \
-isTranslatorGroupBody(clss);
-
-#define isTranslatorGroupWithInst( clss, usrnm ) \
-isTranslatorGroupBody( clss ) \
-mImplTranslatorGroupTheInst( clss, usrnm )
 
 
   //! In the class definition of a Translator class
-#define isTranslatorBody(spec,clss) \
+#define isTranslator(spec,clss) \
 public: \
     Translator* getNew() const \
     { \
@@ -211,28 +173,27 @@ public: \
     } \
     static spec##clss##Translator* getInstance(); \
     static const char* translKey(); \
-    static void initClass()
-
-
-#define isTranslator( spec, clss ) \
-isTranslatorBody( spec, clss );
-
-#define mIsTranslatorWithInitClass( spec, clss, usrnm ) \
-isTranslatorBody(spec, clss) \
-mImplTranslatorInitClass(spec, clss, usrnm )
+    static void initClass() {} \
+    static int listID()	; \
 
   //! In the source file of a TranslatorGroup class
 #define defineTranslatorGroup(clss,usrnm) \
+static RefMan<TranslatorGroup> clss##inst = \
+    &TranslatorGroup::addGroup( new clss##TranslatorGroup(#clss,usrnm) );\
 TranslatorGroup& clss##TranslatorGroup::theInst() \
-mImplTranslatorGroupTheInst( clss, usrnm )
+{ return *clss##inst; }
 
-//! In the source file of a Translator class
+
+  //! In the source file of a Translator class
 #define defineTranslator(spec,clss,usrnm) \
+static int spec##clss##listid_ \
+    = TranslatorGroup::getGroup( #clss , false ).add( \
+	    new spec##clss##Translator( #spec, usrnm ) ); \
+int spec##clss##Translator::listID()    { return spec##clss##listid_; }\
 spec##clss##Translator* spec##clss##Translator::getInstance() \
 { return new spec##clss##Translator(#clss,usrnm); } \
-const char* spec##clss##Translator::translKey() { return usrnm; } \
-void spec##clss##Translator::initClass() \
-mImplTranslatorInitClass( spec, clss, usrnm )
+const char* spec##clss##Translator::translKey() { return usrnm; }
+
 
 
   //! Convenience when the TranslatorGroup is not interesting 4 u.
@@ -256,19 +217,19 @@ mImplTranslatorInitClass( spec, clss, usrnm )
   //! Convenient when the entire Translator concept is not interesting 4 u.
   //! Use this in your header file to comply with the concept, so you
   //! can make use of OpendTect object selection, retrieval etc.
-#define mDeclEmptyTranslatorBundle(mod,clss,fmt,defext) \
-mClass(mod) clss##TranslatorGroup : public TranslatorGroup \
+#define mDeclEmptyTranslatorBundle(clss,fmt,defext) \
+mClass clss##TranslatorGroup : public TranslatorGroup \
 {		   	isTranslatorGroup(clss) \
     			mDefEmptyTranslatorGroupConstructor(clss) \
     const char*		defExtension() const	{ return defext; } \
 }; \
  \
-mClass(mod) clss##Translator : public Translator \
+mClass clss##Translator : public Translator \
 { public: \
     			mDefEmptyTranslatorBaseConstructor(clss) \
 }; \
  \
-mClass(mod) fmt##clss##Translator : public clss##Translator \
+mClass fmt##clss##Translator : public clss##Translator \
 {			isTranslator(fmt,clss) \
     			mDefEmptyTranslatorConstructor(fmt,clss) \
 };
@@ -355,4 +316,3 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 
 
 #endif
-

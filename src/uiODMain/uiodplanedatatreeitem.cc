@@ -7,12 +7,13 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodplanedatatreeitem.cc,v 1.72 2012-09-13 18:42:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.62 2012/07/10 13:06:07 cvskris Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
 #include "uiattribpartserv.h"
 #include "uigridlinesdlg.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -50,6 +51,7 @@ static uiODPlaneDataTreeItem::Type getType( int mnuid )
 	case 0: return uiODPlaneDataTreeItem::Empty; break;
 	case 1: return uiODPlaneDataTreeItem::Default; break;
 	case 2: return uiODPlaneDataTreeItem::RGBA; break;
+	case 3: return uiODPlaneDataTreeItem::FromWell; break;
 	default: return uiODPlaneDataTreeItem::Empty;
     }
 }
@@ -61,26 +63,11 @@ static uiODPlaneDataTreeItem::Type getType( int mnuid )
     mnu.insertItem( new uiMenuItem("Add &default data"), 1 ); \
     mnu.insertItem( new uiMenuItem("Add &color blended"), 2 ); \
     if ( fromwell ) \
-	mnu.insertItem( new uiMenuItem("Add at Well location ..."), 3 ); \
+	mnu.insertItem( new uiMenuItem("Add at Well location..."), 3 ); \
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
-    if ( mnuid==0 || mnuid==1 || mnuid==2 ) \
+    if ( mnuid==0 || mnuid==1 || mnuid==2 || mnuid==3 ) \
         addChild( new treeitm(-1,getType(mnuid)), false ); \
-    else if ( mnuid==3 ) \
-    { \
-    	ObjectSet<MultiID> wellids; \
-	if ( !applMgr()->wellServer()->selectWells(wellids) ) \
-	    return true; \
-	for ( int idx=0; idx<wellids.size(); idx++ ) \
-	{ \
-	    Well::Data* wd = Well::MGR().get( *wellids[idx] ); \
-	    if ( !wd ) continue; \
-	    treeitm* itm = new treeitm( -1, getType(0) ); \
-	    addChild( itm, false ); \
-	    itm->setAtWellLocation( *wd ); \
-	    itm->displayDefaultData(); \
-	} \
-    } \
     handleStandardItems( mnuid ); \
     return true
 
@@ -93,8 +80,7 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, Orientation o, Type t )
     , gridlinesmnuitem_("&Gridlines ...",cGridLinesIdx)
 {
     displayid_ = did;
-    positionmnuitem_.iconfnm = "orientation64";
-    gridlinesmnuitem_.iconfnm = "gridlines";
+    positionmnuitem_.iconfnm = "orientation64.png";
 }
 
 
@@ -144,6 +130,28 @@ bool uiODPlaneDataTreeItem::init()
 		pdd->setResolution( idx, 0 );
 	}
 
+	if ( type_ == FromWell )
+	{
+	    ObjectSet<MultiID> wellids;
+	    if ( applMgr()->wellServer()->selectWells(wellids) )
+	    {
+		Well::Data* wd = Well::MGR().get( *wellids[0] );
+		if ( wd )
+		{
+		    const Coord surfacecoord = wd->info().surfacecoord;
+		    const BinID bid = SI().transform( surfacecoord );
+		    CubeSampling cs = pdd->getCubeSampling();
+		    if ( orient_ == Inline )
+			cs.hrg.setInlRange( Interval<int>(bid.inl,bid.inl) );
+		    else
+			cs.hrg.setCrlRange( Interval<int>(bid.crl,bid.crl) );
+
+		    pdd->setCubeSampling( cs );
+		    displayDefaultData();
+		}
+	    }
+	}
+
 	if ( type_ == Default )
 	    displayDefaultData();
     }
@@ -164,28 +172,9 @@ bool uiODPlaneDataTreeItem::init()
 }
 
 
-void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
-{
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv_->getObject(displayid_));
-    if ( !pdd ) return;
-
-    const Coord surfacecoord = wd.info().surfacecoord;
-    const BinID bid = SI().transform( surfacecoord );
-    CubeSampling cs = pdd->getCubeSampling();
-    if ( orient_ == Inline )
-	cs.hrg.setInlRange( Interval<int>(bid.inl,bid.inl) );
-    else
-	cs.hrg.setCrlRange( Interval<int>(bid.crl,bid.crl) );
-
-    pdd->setCubeSampling( cs );
-    select();
-}
-
-
 bool uiODPlaneDataTreeItem::getDefaultDescID( Attrib::DescID& descid )
 {
-    BufferString keystr( SI().pars().find(sKey::DefCube()) );
+    BufferString keystr( SI().pars().find(sKey::DefCube) );
     if ( keystr.isEmpty() )
     {
 	const IODir* iodir = IOM().dirPtr();
@@ -239,10 +228,7 @@ bool uiODPlaneDataTreeItem::displayDefaultData()
     Attrib::SelSpec as( 0, descid, false, "" );
     as.setRefFromID( *ads );
     visserv_->setSelSpec( displayid_, 0, as );
-    const bool res = visserv_->calculateAttrib( displayid_, 0, false );
-    updateColumnText( uiODSceneMgr::cNameColumn() );
-    updateColumnText( uiODSceneMgr::cColorColumn() );
-    return res;
+    return visserv_->calculateAttrib( displayid_, 0, false );
 }
 
 
@@ -290,6 +276,8 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
 	    const float zval = cs.zrg.start * zdef.userFactor();
 	    res = toString( zdef.isTime() || zdef.userFactor()==1000
 		    ? (float)(mNINT32(zval)) : zval );
+	    // The userFactor()==1000 check is not really nice here.
+	    // Although I don't think it will cause problems.
 	}
     }
 
@@ -302,24 +290,23 @@ void uiODPlaneDataTreeItem::addToToolBarCB( CallBacker* cb )
     mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
     if ( !tb || tb->menuID() != displayID() || !isSelected() )
 	return;
-    
+
     mAddMenuItem( tb, &positionmnuitem_, !visserv_->isLocked(displayid_),
-	    false );
+	          false );
     uiODDisplayTreeItem::addToToolBarCB( cb );
 }
 
 
-void uiODPlaneDataTreeItem::createMenu( MenuHandler* menu, bool istb )
+void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
 {
-    uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID() != displayID() )
+    uiODDisplayTreeItem::createMenuCB(cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
+    if ( menu->menuID() != displayID() )
 	return;
 
-    const bool islocked = visserv_->isLocked( displayid_ );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionmnuitem_,
-		      !islocked, false );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &gridlinesmnuitem_,
-		      true, false );
+    mAddMenuItem( &displaymnuitem_, &positionmnuitem_,
+		  !visserv_->isLocked(displayid_), false );
+    mAddMenuItem( &displaymnuitem_, &gridlinesmnuitem_, true, false );
 }
 
 
@@ -394,6 +381,8 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 
 void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 {
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+	    	    visserv_->getObject(displayid_))
     mDynamicCastGet(uiSliceSel*,slicesel,cb)
     if ( !slicesel ) return;
 

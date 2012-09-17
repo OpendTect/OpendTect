@@ -7,27 +7,26 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.39 2012-09-07 22:08:02 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.37 2011/12/08 16:29:29 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uitreeitemmanager.h"
 #include "menuhandler.h"
 
-class uiTreeView;
+class uiListView;
 class uiODApplMgr;
 class uiPopupMenu;
 class ui3DViewer;
 
 
-mClass(uiODMain) uiODTreeItem : public uiTreeItem
+mClass uiODTreeItem : public uiTreeItem
 {
 public:
     			uiODTreeItem(const char*);
-    bool		anyButtonClick(uiTreeViewItem*);
+    bool		anyButtonClick(uiListViewItem*);
 
     int			sceneID() const;
 protected:
@@ -40,10 +39,10 @@ protected:
 };
 
 
-mClass(uiODMain) uiODTreeTop : public uiTreeTopItem
+mClass uiODTreeTop : public uiTreeTopItem
 {
 public:
-			uiODTreeTop(ui3DViewer*,uiTreeView*,
+			uiODTreeTop(ui3DViewer*,uiListView*,
 				    uiODApplMgr*,uiTreeFactorySet*);
 			~uiODTreeTop();
 
@@ -71,7 +70,7 @@ protected:
 
 
 
-mClass(uiODMain) uiODTreeItemFactory : public uiTreeItemFactory
+mClass uiODTreeItemFactory : public uiTreeItemFactory
 {
 public:
 
@@ -82,15 +81,15 @@ public:
 
 
 #define mShowMenu		bool showSubMenu();
-#define mMenuOnAnyButton	bool anyButtonClick(uiTreeViewItem* lv) \
+#define mMenuOnAnyButton	bool anyButtonClick(uiListViewItem* lv) \
 { \
-    if ( lv==uitreeviewitem_ ) { select(); showSubMenu(); return true; } \
+    if ( lv==uilistviewitem_ ) { select(); showSubMenu(); return true; } \
     return inheritedClass::anyButtonClick( lv ); \
 }
     
 
 #define mDefineItem( type, inherited, parentitem, extrapublic ) \
-mClass(uiODMain) uiOD##type##TreeItem : public uiOD##inherited \
+mClass uiOD##type##TreeItem : public uiOD##inherited \
 { \
     typedef uiOD##inherited inheritedClass; \
 public: \
@@ -102,4 +101,3 @@ protected: \
 
 
 #endif
-

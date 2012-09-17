@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.21 2012-08-03 13:01:22 cvskris Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.21 2012/04/12 08:29:31 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 
 namespace Well { class Data; }
@@ -33,13 +32,12 @@ class uiSeisWaveletSel;
 class uiWaveletExtraction;
 class uiWellElasticPropSel;
 
-
 namespace WellTie
 {
     class Setup;
     class uiTieWin;
 
-mClass(uiWellAttrib) uiTieWinMGRDlg : public uiDialog
+mClass uiTieWinMGRDlg : public uiDialog
 {
 
 public:    
@@ -60,7 +58,6 @@ protected:
     float		replacevel_;
     ObjectSet<uiTieWin> welltiedlgset_;
     ObjectSet<uiTieWin> welltiedlgsetcpy_;
-    uiWellElasticPropSel* logsfld_;
 
     Well::Data*		wd_;
 
@@ -71,6 +68,13 @@ protected:
     uiSeisSel* 		seis2dfld_;
     uiSeisSel* 		seis3dfld_;
     uiSeis2DLineNameSel* seislinefld_;
+    uiComboBox*		vellogfld_;
+    uiComboBox*		denlogfld_;
+    uiComboBox*		unfld_;
+    uiCheckBox*		isvelbox_;
+    uiGenInput*		veluomfld_;
+    uiGenInput*		denuomfld_;
+    uiWellElasticPropSel* logsfld_;
     uiCheckBox*		used2tmbox_;
     uiLabeledComboBox*	cscorrfld_;
     uiWaveletExtraction* extractwvltdlg_;
@@ -91,4 +95,3 @@ protected:
 
 }; //namespace WellTie
 #endif
-

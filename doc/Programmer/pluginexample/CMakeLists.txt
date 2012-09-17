@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Tutorial plugin
 # 	Jan 2012	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-04-11 12:58:27 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.4 2012/04/17 11:29:00 cvsraman Exp $
 #_______________________________________________________________________________
 
 
@@ -11,40 +11,31 @@ PROJECT(OpendTect_Tutorial_Plugin)
 
 SET ( OD_SUBSYSTEM "tut_plugin" )
 SET ( OpendTect_DIR "" CACHE PATH "OpendTect directory" )
+SET ( OD_BINARY_BASEDIR ${CMAKE_BINARY_DIR} )
 
 LIST(APPEND CMAKE_MODULE_PATH "${OpendTect_DIR}/CMakeModules")
 FIND_PACKAGE( OpendTect )
 
-OPTION ( OD_BUILD_LOCAL "Build in local directory" ON )
-
 #Setup the modules
-SET ( PLUGINS Tut uiTut )
+SET ( PLUGINS Tut uiTut My_Plugin_Name )
 OD_ADD_MODULES( plugins ${PLUGINS} )
 
-FOREACH ( plugin ${PLUGINS} )
-    LIST( APPEND RUNTIMEPATH ${OD_${plugin}_RUNTIMEPATH} )
-ENDFOREACH()
-
-LIST ( APPEND RUNTIMEPATH ${OD_EXEC_OUTPUT_PATH} )
-LIST ( REMOVE_DUPLICATES RUNTIMEPATH )
-
 IF( OD_CREATE_LAUNCHERS )
-    add_custom_target( od_main ALL )
+    add_custom_target( ${OD_MAIN_EXEC} ALL )
     foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
-	set_target_properties( od_main
-		PROPERTIES
-		LOCATION_${CONFIG}
-		${OD_EXEC_OUTPUT_PATH}/${CONFIG}/od_main )
+	set_target_properties( ${OD_MAIN_EXEC}
+	PROPERTIES
+	LOCATION_${CONFIG}
+	${OpendTect_DIR}/${OD_EXEC_OUTPUT_RELPATH}/${CONFIG}/${OD_MAIN_EXEC}${OD_EXECUTABLE_EXTENSION} )
     endforeach()
 
-    create_target_launcher( od_main
+    create_target_launcher( ${OD_MAIN_EXEC}
     	RUNTIME_LIBRARY_DIRS
-	${RUNTIMEPATH}
+	 ${OpendTect_DIR}/${OD_EXEC_OUTPUT_RELPATH}
+	 ${OD_BINARY_BASEDIR}/${OD_EXEC_OUTPUT_RELPATH} 
     	ENVIRONMENT
 	DTECT_APPL=${OpendTect_DIR}
 	WORK=${OpendTect_DIR} )
-
-    MESSAGE( 	${RUNTIMEPATH} )
 ENDIF( OD_CREATE_LAUNCHERS )
 
 OD_WRITE_ALOFILES( ${CMAKE_CURRENT_BINARY_DIR} )

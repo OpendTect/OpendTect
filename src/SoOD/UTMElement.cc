@@ -27,7 +27,7 @@
 
   FIXME: write doc.
 */
-static const char* rcsID mUnusedVar = "$Id: UTMElement.cc,v 1.5 2012-07-21 22:46:08 cvskris Exp $";
+static const char* rcsID = "$Id: UTMElement.cc,v 1.2 2008/11/25 15:35:23 cvsbert Exp $";
 
 #include "UTMElement.h"
 
@@ -133,8 +133,10 @@ UTMElement::setPosition(SoState * state,
                              float(northing - elem->northing),
                              float(elevation - elem->elevation));
   
+  SbVec3f diff = newtrans - elem->currtrans;
   elem->currtrans = newtrans;
   return newtrans;
+  //return diff;
 }
 
 const SbVec3f & 

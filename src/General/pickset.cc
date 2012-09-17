@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: pickset.cc,v 1.82 2012-08-08 04:59:50 cvssalil Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.77 2012/07/10 13:06:02 cvskris Exp $";
 
 #include "pickset.h"
 
@@ -161,11 +161,11 @@ bool Pick::Location::fromString( const char* s, bool doxy, bool testdir )
 	if ( !mIsUdf(yread) )
 	{
 	    if ( mIsUdf(zread) ) zread = 0;
-	    dir = Sphere( ( float ) xread,( float )  yread,( float )  zread );
+	    dir = Sphere( xread, yread, zread );
 	}
     }
     else
-	dir = Sphere( ( float )  xread,( float )  yread,( float )  zread );
+	dir = Sphere( xread, yread, zread );
 
     return true;
 }
@@ -467,7 +467,7 @@ float Pick::Set::getXYArea() const
     for ( int idx=size()-1; idx>=0; idx-- )
     {
 	const Coord localpos = (*this)[idx].pos;
-	posxy += Geom::Point2D<float>(( float )localpos.x,( float )localpos.y);
+	posxy += Geom::Point2D<float>( localpos.x, localpos.y );
     }
 
     ODPolygon<float> polygon( posxy );
@@ -476,7 +476,7 @@ float Pick::Set::getXYArea() const
 
     float area = polygon.area();
     if ( SI().xyInFeet() )
-	area *= (mFromFeetFactorF*mFromFeetFactorF);
+	area *= (mFromFeetFactor*mFromFeetFactor);
 
     return area;
 }
@@ -490,10 +490,10 @@ void Pick::Set::fillPar( IOPar& par ) const
     if ( disp_.color_ != Color::NoColor() )
     {
 	disp_.color_.fill( colstr.buf() );
-	par.set( sKey::Color(), colstr.buf() );
+	par.set( sKey::Color, colstr.buf() );
     }
 
-    par.set( sKey::Size(), disp_.pixsize_ );
+    par.set( sKey::Size, disp_.pixsize_ );
     par.set( sKeyMarkerType(), disp_.markertype_ );
     par.set( sKeyConnect, Disp::getConnectionString(disp_.connect_) );
     par.merge( pars_ );
@@ -503,11 +503,11 @@ void Pick::Set::fillPar( IOPar& par ) const
 bool Pick::Set::usePar( const IOPar& par )
 {
     BufferString colstr;
-    if ( par.get(sKey::Color(),colstr) )
+    if ( par.get(sKey::Color,colstr) )
 	disp_.color_.use( colstr.buf() );
 
     disp_.pixsize_ = 3;
-    par.get( sKey::Size(), disp_.pixsize_ );
+    par.get( sKey::Size, disp_.pixsize_ );
     par.get( sKeyMarkerType(), disp_.markertype_ );
 
     bool doconnect;
@@ -520,8 +520,8 @@ bool Pick::Set::usePar( const IOPar& par )
     }
 
     pars_ = par;
-    pars_.removeWithKey( sKey::Color() );
-    pars_.removeWithKey( sKey::Size() );
+    pars_.removeWithKey( sKey::Color );
+    pars_.removeWithKey( sKey::Size );
     pars_.removeWithKey( sKeyMarkerType() );
     pars_.removeWithKey( sKeyConnect );
     return true;

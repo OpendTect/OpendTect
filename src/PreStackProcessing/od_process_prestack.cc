@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: od_process_prestack.cc,v 1.20 2012-08-13 09:36:57 cvsaneesh Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.17 2011/10/19 07:51:21 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -362,8 +362,8 @@ bool BatchProgram::go( std::ostream& strm )
 		const StepInterval<double> zrg =
 		    gather->posData().range( PreStack::Gather::offsetDim() );
 		SeisTrc trc( nrsamples );
-		trc.info().sampling.start = (float) zrg.start;
-		trc.info().sampling.step = (float) zrg.step;
+		trc.info().sampling.start = zrg.start;
+		trc.info().sampling.step = zrg.step;
 
 		if ( reader2d )
 		{

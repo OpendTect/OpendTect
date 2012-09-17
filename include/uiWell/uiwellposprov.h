@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiwellposprov.h,v 1.4 2012-08-03 13:01:21 cvskris Exp $
+ RCS:           $Id: uiwellposprov.h,v 1.3 2012/02/24 23:13:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uiposprovgroup.h"
 #include "multiid.h"
 
@@ -24,7 +23,7 @@ class uiWellParSel;
 
 /*! \brief UI for WellPosProvider */
 
-mClass(uiWell) uiWellPosProvGroup : public uiPosProvGroup
+mClass uiWellPosProvGroup : public uiPosProvGroup
 {
 public:
 			uiWellPosProvGroup(uiParent*,
@@ -53,4 +52,3 @@ protected:
 };
 
 #endif
-

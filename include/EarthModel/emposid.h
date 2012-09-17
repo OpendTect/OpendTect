@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.27 2012-08-03 13:00:19 cvskris Exp $
+ RCS:		$Id: emposid.h,v 1.25 2009/10/16 04:19:10 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "multiid.h"
 #include "rowcol.h"
 
@@ -37,7 +36,7 @@ It has three parts,
 - a SubID, wich identifies the position on the section. 
 */
 
-mClass(EarthModel) PosID
+mClass PosID
 {
 public:
     				PosID( ObjectID emobjid=0,
@@ -53,7 +52,12 @@ public:
     void			setObjectID(const ObjectID&);
     void			setSectionID(SectionID);
     void			setSubID(SubID);
+
     RowCol			getRowCol() const;
+    				/*!< Should not be used, only for db
+				     purposes (it makes it possible to db
+				     SubID
+				 */
 
     bool			operator==(const PosID& b) const;
     bool			operator!=(const PosID& b) const;
@@ -110,4 +114,3 @@ inline void PosID::setSubID( SubID id )
 
 
 #endif
-

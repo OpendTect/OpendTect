@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.22 2012-08-31 10:21:54 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id: odinst.cc,v 1.18 2012/07/11 04:25:15 cvsranojay Exp $";
 
 #include "odinst.h"
 #include "file.h"
@@ -38,8 +38,6 @@ static BufferString getInstDir()
 }
 #undef mRelRootDir
 #define mRelRootDir getInstDir()
-#else
-#include "unistd.h"
 #endif
 
 DefineNameSpaceEnumNames(ODInst,AutoInstType,1,"Auto update")
@@ -89,6 +87,8 @@ const BufferStringSet& ODInst::autoInstTypeUserMsgs()
     if ( !ret )
     {
 	ret = new BufferStringSet;
+#ifndef __win__
+	
 	ret->add( "[&Manager] Start the Installation Manager "
 		    "when updates are available" );
 	ret->add( "[&Inform] When new updates are present, "
@@ -96,6 +96,11 @@ const BufferStringSet& ODInst::autoInstTypeUserMsgs()
 	ret->add( "[&Auto] Automatically download and install new updates "
 		    "(requires sufficient administrator rights)" );
 	ret->add( "[&None] Never check for updates" );
+#else
+	ret->add( "[&Inform] When new updates are present, "
+		    "show this in OpendTect's title bar" );
+	ret->add( "[&None] Never check for updates" );
+#endif
     };
     return *ret;
 }
@@ -109,24 +114,14 @@ bool ODInst::canInstall()
 
 
 #define mDefCmd(errretval) \
-    FilePath installerdir( GetInstallerDir() ); \
+    FilePath installerdir( GetSoftwareDir(0) ); \
+    installerdir.setFileName( "Installer" ); \
     if ( !File::isDirectory(installerdir.fullPath()) ) \
 	return errretval; \
     installerdir.add( __iswin__ ? "od_instmgr" : "run_installer" ); \
-    BufferString cmd( installerdir.fullPath() ); \
+    BufferString cmd( __iswin__ ? "" : "@", installerdir.fullPath() ); \
     cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" ); \
    
-
-BufferString ODInst::GetInstallerDir()
-{
-    BufferString appldir( GetSoftwareDir(0) );
-    if ( File::isLink(appldir) )
-	appldir = File::linkTarget( appldir );
-
-    FilePath installerdir( appldir );
-    installerdir.setFileName( "Installer" );
-    return installerdir.fullPath();
-}
 
 
 void ODInst::startInstManagement()
@@ -137,7 +132,10 @@ void ODInst::startInstManagement()
     StreamProvider( cmd ).executeCommand( true, true );
     chdir( GetSoftwareDir(0) );
 #else
-    FilePath installerdir( GetInstallerDir() ); 
+    FilePath installerdir( GetSoftwareDir(0) ); 
+    BufferString dir = installerdir.fullPath();
+    installerdir.setFileName( "Installer" );
+    dir = installerdir.fullPath();
     if ( !File::isDirectory(installerdir.fullPath()) )
 	return;
     installerdir.add( "od_instmgr" );
@@ -154,11 +152,10 @@ bool ODInst::updatesAvailable()
 
     mDefCmd(false); cmd.add( " --updcheck_report" );
 #ifndef __win__
-
     chdir( installerdir.pathOnly() );
-    const int ret = system( cmd );
+    const bool ret = !StreamProvider( cmd ).executeCommand( false );
     chdir( GetSoftwareDir(0) );
-    return ret == 1;
+    return ret;
 #else
     ExecOSCmd( cmd, false, true );
     FilePath tmp( File::getTempPath(), "od_updt" );

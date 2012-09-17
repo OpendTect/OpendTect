@@ -7,19 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uivarwizarddlg.h,v 1.4 2012-08-03 13:01:16 cvskris Exp $
+ RCS:           $Id: uivarwizarddlg.h,v 1.3 2012/02/24 14:12:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 class IOPar;
 
 
 /*!\brief Dialog in flexible wizard series. */
 
-mClass(uiTools) uiVarWizardDlg : public uiDialog
+mClass uiVarWizardDlg : public uiDialog
 {
 public:
 
@@ -46,4 +45,3 @@ protected:
 
 
 #endif
-

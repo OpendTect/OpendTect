@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoTranslateRectangleDragger.cc,v 1.9 2012-05-02 15:11:51 cvskris Exp $";
+static const char* rcsID = "$Id: SoTranslateRectangleDragger.cc,v 1.7 2009/07/22 16:01:35 cvsbert Exp $";
 
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiveldesc.cc,v 1.63 2012-07-02 15:09:40 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.59 2012/07/02 15:09:36 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -338,7 +338,7 @@ uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
     velsel_->selectionDone.notify(
 	    mCB(this,uiTimeDepthBase,setZRangeCB) );
 	
-    BufferString str = t2d ? sKey::Depth().str() : sKey::Time().str();
+    BufferString str = t2d ? sKey::Depth.str() : sKey::Time.str();
     str += " range ";
     str += UnitOfMeasure::zUnitAnnot( !t2d, true, true );
 
@@ -401,7 +401,7 @@ void uiTimeDepthBase::setZRangeCB( CallBacker* )
 	rg = SI().zRange( true );
 
     if ( !t2d_ )
-	rg.scale( ZDomain::Time().userFactor() );
+	rg.scale( SI().zFactor(true) );
 
     rangefld_->setValue( rg );
 }

@@ -7,12 +7,11 @@ ________________________________________________________________________
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: geomelement.h,v 1.14 2012-08-03 13:00:27 cvskris Exp $
+RCS:           $Id: geomelement.h,v 1.13 2012/01/31 10:49:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "position.h"
 #include "ranges.h"
 
@@ -23,7 +22,7 @@ namespace Geometry
 
 /*!Iterator through all positions on an element. */
 
-mClass(Geometry) Iterator
+mClass Iterator
 {
 public:
     virtual 			~Iterator()		{}
@@ -32,7 +31,7 @@ public:
 };
 
 
-mClass(Geometry) Element : public CallBacker
+mClass Element : public CallBacker
 {
 public:
     				Element();
@@ -90,4 +89,3 @@ private:
 };
 
 #endif
-

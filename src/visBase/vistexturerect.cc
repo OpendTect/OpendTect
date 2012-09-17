@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistexturerect.cc,v 1.54 2012-05-02 15:12:35 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.51 2012/01/31 11:01:34 cvskris Exp $";
 
 #include "vistexturerect.h"
 
@@ -66,18 +66,6 @@ Coord3 TextureRectangle::getWidth() const
 {
     const osg::Vec3f width = textureplane_->getWidth();
     return Coord3( width.x(), width.y(), width.z() );
-}
-
-
-void TextureRectangle::swapTextureAxes( bool yn )
-{
-    textureplane_->swapTextureAxes( yn );
-}
-
-
-bool TextureRectangle::areTextureAxesSwapped() const
-{
-    return textureplane_->areTextureAxesSwapped();
 }
 
 

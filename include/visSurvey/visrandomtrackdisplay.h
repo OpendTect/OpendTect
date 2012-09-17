@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.86 2012-08-03 13:01:29 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.85 2011/04/28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 #include "ranges.h"
 
@@ -46,7 +45,7 @@ class Scene;
     line can be changed by <code>setDepthInterval(const Interval<float>&)</code>
 */
 
-mClass(visSurvey) RandomTrackDisplay : public MultiTextureSurveyObject
+mClass RandomTrackDisplay : public MultiTextureSurveyObject
 			    
 {
 public:
@@ -213,4 +212,3 @@ protected:
 
 
 #endif
-

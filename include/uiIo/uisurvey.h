@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.39 2012-08-03 13:01:01 cvskris Exp $
+ RCS:           $Id: uisurvey.h,v 1.37 2011/05/26 07:07:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 
@@ -31,7 +30,7 @@ class uiSurvInfoProvider;
 
 /*!\brief The main survey selection dialog */
 
-mClass(uiIo) uiSurvey : public uiDialog
+mClass uiSurvey : public uiDialog
 {
 
 public:
@@ -78,7 +77,6 @@ protected:
     uiPushButton*	rmbut_;
     uiPushButton*	datarootbut_;
     uiPushButton*	copybut_;
-    uiPushButton*	archbut_;
     ObjectSet<uiToolButton> utilbuts_;
     uiLabel*		inllbl_;
     uiLabel*		crllbl_; 
@@ -94,7 +92,6 @@ protected:
     void		newButPushed(CallBacker*);
     void		editButPushed(CallBacker*);
     void		copyButPushed(CallBacker*);
-    void		archButPushed(CallBacker*);
     void		rmButPushed(CallBacker*);
     void		dataRootPushed(CallBacker*);
     void		utilButPush(CallBacker*);
@@ -113,4 +110,3 @@ protected:
 };
 
 #endif
-

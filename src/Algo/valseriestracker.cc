@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: valseriestracker.cc,v 1.19 2012-08-09 06:49:33 cvsaneesh Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.16 2012/07/10 13:05:59 cvskris Exp $";
 
 #include "valseriestracker.h"
 
@@ -450,8 +450,8 @@ bool EventTracker::snap( float threshold )
 
     const Interval<int> permsamplerange( mNINT32(permrange_.start/rangestep_),
 				       mNINT32(permrange_.stop/rangestep_) );
-    const float upbound = targetdepth_ + permsamplerange.start - 0.01f;
-    const float dnbound = targetdepth_ + permsamplerange.stop  + 0.01f;
+    const float upbound = targetdepth_ + permsamplerange.start - 0.01;
+    const float dnbound = targetdepth_ + permsamplerange.stop  + 0.01;
 
     const Interval<float> uprg( targetdepth_, mMAX(0,upbound-1) );
     const Interval<float> dnrg( targetdepth_, mMIN(targetsize_-1, dnbound+1) );
@@ -490,7 +490,7 @@ bool EventTracker::snap( float threshold )
 	ValueSeriesEvent<float,float> dnevent =
 	    findExtreme(evfinder,dnrg,threshold,dnampl,dnloopskip,dntroughampl);
 
-	float troughthreshold = !mIsUdf(threshold) ? -0.1f*threshold : 0;
+	float troughthreshold = !mIsUdf(threshold) ? -0.1*threshold : 0;
 	if ( evtype_==VSEvent::Min )
 	{
 	    troughthreshold *= -1;

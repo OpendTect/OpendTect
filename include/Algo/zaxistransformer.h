@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          September 2007
- RCS:           $Id: zaxistransformer.h,v 1.10 2012-08-03 13:00:07 cvskris Exp $
+ RCS:           $Id: zaxistransformer.h,v 1.9 2010/06/28 04:09:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "task.h"
 #include "cubesampling.h"
 
@@ -26,7 +25,7 @@ template <class T> class Array3D;
 */
 
 
-mClass(Algo) ZAxisTransformer : public ParallelTask
+mClass ZAxisTransformer : public ParallelTask
 {
 public:
     			ZAxisTransformer(ZAxisTransform&,bool forward = true);
@@ -65,4 +64,3 @@ protected:
 
 
 #endif
-

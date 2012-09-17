@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          07/02/2002
- RCS:           $Id: ui3dviewer.h,v 1.6 2012-08-03 13:00:54 cvskris Exp $
+ RCS:           $Id: ui3dviewer.h,v 1.6 2012/03/19 13:41:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uicoinmod.h"
 #include "uiobj.h"
 #include "uigroup.h"
 #include "color.h"
@@ -27,7 +26,7 @@ class SoNode;
 
 namespace visBase { class Scene; };
 
-mClass(uiCoin) ui3DViewer : public uiObject
+mClass ui3DViewer : public uiObject
 {
 friend class		uiSoViewerBody;
 friend class		ui3DViewerBody;
@@ -108,7 +107,6 @@ private:
     static const char* sKeyPersCamera() { return "Perspective camera"; }
 
     uiSoViewerBody*	sobody_;
-    ui3DViewerBody*	osgbody_;
 
     uiObjectBody&	mkBody(uiParent*,bool direct,const char*);
 
@@ -117,4 +115,3 @@ private:
 
 
 #endif
-

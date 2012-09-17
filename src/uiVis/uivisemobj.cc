@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.103 2012-08-13 04:04:38 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.96 2012/06/27 15:17:01 cvsjaap Exp $";
 
 #include "uivisemobj.h"
 
@@ -17,7 +17,6 @@ static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.103 2012-08-13 04:
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "mousecursor.h"
@@ -35,7 +34,6 @@ static const char* rcsID mUnusedVar = "$Id: uivisemobj.cc,v 1.103 2012-08-13 04:
 #include "visdataman.h"
 #include "vishorizondisplay.h"
 #include "vishorizon2ddisplay.h"
-#include "vismarchingcubessurfacedisplay.h"
 #include "vismpeeditor.h"
 #include "vissurvobj.h"
 
@@ -69,11 +67,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     if ( !EM::EMM().getObject(emid) )
     {
 	Executor* exec = 0;
-	EM::IOObjInfo oi( mid ); EM::SurfaceIOData sd;
-	const char* rdres = oi.getSurfaceData( sd );
-	if ( rdres )
-	    exec = EM::EMM().objectLoader( mid );
-	else
+	EM::SurfaceIOData sd;
+	if ( !EM::EMM().getSurfaceData(mid,sd) )
 	{
 	    EM::SurfaceIODataSelection sel( sd );
 	    sel.setDefault();
@@ -109,6 +104,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
 	    exec = EM::EMM().objectLoader( mid, &sel );
 	}
+	else
+	    exec = EM::EMM().objectLoader( mid );
 
 	if ( exec )
 	{
@@ -175,18 +172,15 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 	emod = visSurvey::Horizon2DDisplay::create();
 
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
-    if ( emod )
-    {
-     	emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
-    	emod->setZAxisTransform( scene->getZAxisTransform(),0 );
-	
-    	uiTaskRunner dlg( uiparent_ );
-    	if ( !emod->setEMObject(emid, &dlg ) ) mRefUnrefRet
-	    
-	    visserv_->addObject( emod, sceneid, true );
-    	displayid_ = emod->id();
-    	setDepthAsAttrib( 0 );
-    }
+    emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
+    emod->setZAxisTransform( scene->getZAxisTransform(),0 );
+
+    uiTaskRunner dlg( uiparent_ );
+    if ( !emod->setEMObject(emid, &dlg ) ) mRefUnrefRet
+
+    visserv_->addObject( emod, sceneid, true );
+    displayid_ = emod->id();
+    setDepthAsAttrib( 0 );
 
     setUpConnections();
 }
@@ -322,8 +316,6 @@ void uiVisEMObject::setDepthAsAttrib( int attrib )
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     if ( hordisp ) hordisp->setDepthAsAttrib( attrib );
-    mDynamicCastGet( visSurvey::MarchingCubesDisplay*, mcdisp, getDisplay() );
-    if ( mcdisp ) mcdisp->setDepthAsAttrib( attrib );
 }
 
 
@@ -368,7 +360,7 @@ void uiVisEMObject::checkTrackingStatus()
 float uiVisEMObject::getShift() const
 {
     mDynamicCastGet( const visSurvey::HorizonDisplay*, hordisp, getDisplay() );
-    return hordisp ? (float) hordisp->getTranslation().z : 0;
+    return hordisp ? hordisp->getTranslation().z : 0;
 }
 
 
@@ -381,6 +373,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     visSurvey::EMObjectDisplay* emod = getDisplay();
     const EM::ObjectID emid = emod->getObjectID();
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
+    const EM::SectionID sid = emod->getSectionID(menu->getPath());
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     mDynamicCastGet( visSurvey::Horizon2DDisplay*, hor2ddisp, getDisplay() );
@@ -415,12 +408,11 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     else
     { mResetMenuItem( &showbothmnuitem_ ); }
 
-    //Commented out as mAddMenu is commented out below
-    //visSurvey::Scene* scene = hordisp ? hordisp->getScene() : 0;
-    //const bool hastransform = scene && scene->getZAxisTransform();
-    //const bool enabmenu =
-	//!strcmp(getObjectType(displayid_),EM::Horizon3D::typeStr())
-	//&& !visserv_->isLocked(displayid_) && !hastransform;
+    visSurvey::Scene* scene = hordisp ? hordisp->getScene() : 0;
+    const bool hastransform = scene && scene->getZAxisTransform();
+    const bool enabmenu =
+	!strcmp(getObjectType(displayid_),EM::Horizon3D::typeStr())
+	&& !visserv_->isLocked(displayid_) && !hastransform;
 
     seedsmenuitem_.removeItems();
 
@@ -455,7 +447,6 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     }
 
 #ifdef __debug__
-    const EM::SectionID sid = emod->getSectionID(menu->getPath());
     MenuItemHolder* toolsmnuitem = menu->findItem( "Tools" );
     if ( !toolsmnuitem ) toolsmnuitem = menu;
     mAddMenuItem( toolsmnuitem, &changesectionnamemnuitem_, 

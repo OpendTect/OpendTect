@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: unitofmeasure.cc,v 1.24 2012-05-02 15:11:36 cvskris Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.22 2012/03/12 15:40:37 cvsbruno Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -287,7 +287,7 @@ void UnitOfMeasureRepository::getRelevant(
 
 
 const UnitOfMeasure* UnitOfMeasureRepository::getInternalFor(
-		PropertyRef::StdType st ) const
+	                PropertyRef::StdType st ) const
 {
     ObjectSet<const UnitOfMeasure> candidates;
     getRelevant( st, candidates );
@@ -298,3 +298,4 @@ const UnitOfMeasure* UnitOfMeasureRepository::getInternalFor(
     }
     return 0;
 }
+

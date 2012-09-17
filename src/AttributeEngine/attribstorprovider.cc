@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribstorprovider.cc,v 1.116 2012-08-09 03:40:07 cvssalil Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.111 2012/07/10 13:05:59 cvskris Exp $";
 
 #include "attribstorprovider.h"
 
@@ -105,7 +105,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	}
 
 	BufferStringSet steernms;
-	rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering() );
+	rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering );
 	const bool issteering = steernms.indexOf( attrnm ) >= 0;
 	if ( !issteering )
 	{
@@ -146,10 +146,10 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	}
 
 	BufferString type;
-	ioobj->pars().get( sKey::Type(), type );
+	ioobj->pars().get( sKey::Type, type );
 
 	const int nrattribs = transl->componentInfo().size();
-	if ( type == sKey::Steering() )
+	if ( type == sKey::Steering )
 	    desc.setNrOutputs( Seis::Dip, nrattribs );
 	else
 	{
@@ -730,6 +730,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 					     const DataHolder& data ) const
 {
     const int z0 = data.z0_;
+    float exacttime = 0;
     float extrazfromsamppos = 0;
     BoolTypeSet isclass( outputinterest_.size(), true );
     if ( needinterp_ )
@@ -740,7 +741,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     }
     
     Interval<float> trcrange = trc->info().sampling.interval(trc->size());
-    trcrange.widen( 0.001f * trc->info().sampling.step );
+    trcrange.widen( 0.001 * trc->info().sampling.step );
     for ( int idx=0; idx<data.nrsamples_; idx++ )
     {
 	const float curt = (float)(z0+idx)*refstep_ + extrazfromsamppos;
@@ -818,16 +819,6 @@ void StorageProvider::adjust2DLineStoredVolume()
 }
 
 
-PosInfo::GeomID StorageProvider::getGeomID() const
-{
-    const ValParam* idpar = desc_.getValParam( keyStr() );
-    LineKey lk( idpar->getStringValue() );
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
-    return !ioobj ? PosInfo::GeomID()
-                  : S2DPOS().getGeomID( ioobj->name(), curlinekey_.lineName() );
-}
-
-
 void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 {
     if ( !mscprov_ ) return;
@@ -835,7 +826,7 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
     if ( !trc ) return;
 
     Interval<float> trcrange = trc->info().sampling.interval(trc->size());
-    trcrange.widen( 0.001f * trc->info().sampling.step );
+    trcrange.widen( 0.001 * trc->info().sampling.step );
     const BinID bid = trc->info().binid;
     if ( !dc->includes(bid) )
 	return;
@@ -844,7 +835,7 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
     const int crlidx = dc->crlsampling_.nearestIndex( bid.crl );
     for ( int idz=0; idz<dc->getZSz(); idz++ )
     {
-	const float curt = (float) ((dc->z0_+idz) * dc->zstep_);
+	const float curt = (dc->z0_+idz) * dc->zstep_;
 	int cubeidx = -1;
 	for ( int idx=0; idx<outputinterest_.size(); idx++ )
 	{
@@ -937,9 +928,11 @@ float StorageProvider::getMaxDistBetwTrcs() const
 }
 
 
-void StorageProvider::getCompNames( BufferStringSet& nms ) const
+void StorageProvider::getCompNamesFakeToKeepHeadersOK( 
+					BufferStringSet& nms ) const
 {
     updateDescAndGetCompNms( desc_, &nms );
 }
+
 
 }; // namespace Attrib

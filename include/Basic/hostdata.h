@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.28 2012-08-03 13:00:12 cvskris Exp $
+ RCS:           $Id: hostdata.h,v 1.27 2009/07/22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstringset.h"
 #include "filepath.h"
 #include "manobjectset.h"
@@ -25,7 +24,7 @@ class ShareData;
     return bs;
 
 /*\brief Host name and aliases */
-mClass(Basic) HostData
+mClass HostData
 {
 public:
 
@@ -110,7 +109,7 @@ protected:
 
 
 /*\brief Describes shared drive and host. Mostly win32. */
-mClass(Basic) ShareData
+mClass ShareData
 {
 public:
 			ShareData( const HostData* hst=0 ) : host_(hst) {}
@@ -149,7 +148,7 @@ protected:
   The first entry will be the local host.
  
  */
-mClass(Basic) HostDataList : public ManagedObjectSet<HostData>
+mClass HostDataList : public ManagedObjectSet<HostData>
 {
 public:
 			HostDataList(bool readhostfile=true);
@@ -186,4 +185,3 @@ public:
 #undef mRetNoneIfEmpty
 
 #endif
-

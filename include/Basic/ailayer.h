@@ -7,20 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.15 2012-08-28 12:13:45 cvskris Exp $
+ RCS:		$Id: ailayer.h,v 1.7 2011/08/10 15:03:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 /*!\brief Acoustic Impedance layer.  */
 
-#include "basicmod.h"
 #include "commondefs.h"
-#include "math.h"
 #include "sets.h"
 
-
-class AILayer
+mClass AILayer
 {
 public:
 		AILayer( float thkness, float vel, float den )
@@ -29,8 +26,6 @@ public:
 		{ return thickness_ == p.thickness_; }
 
     float	thickness_, vel_, den_;
-
-    float	getAI() const 		{ return vel_*den_; }
 };
 
 
@@ -48,7 +43,7 @@ inline float getLayerDepth( const AIModel& mod, int layer )
 }
 
 
-class ElasticLayer : public AILayer
+mClass ElasticLayer : public AILayer
 {
 public:
 		ElasticLayer( float thkness, float pvel, float svel, float den )
@@ -67,23 +62,4 @@ public:
 
 typedef TypeSet<ElasticLayer> ElasticModel;
 
-
-inline void blockElasticModel( ElasticModel& mdl, float threshold )
-{
-    float velthreshold = threshold;
-    float denthreshold = threshold;
-    for ( int idx=mdl.size()-1; idx>=1; idx-- )
-    {
-	const float veldiff = mdl[idx].vel_ - mdl[idx-1].vel_;
-	const float dendiff = mdl[idx].den_ - mdl[idx-1].den_;
-	if ( fabs( veldiff ) < velthreshold && fabs( dendiff ) < denthreshold )
-	{
-	    mdl[idx-1].thickness_ += mdl[idx].thickness_;
-	    mdl.remove( idx );
-	}
-    }
-}
-
-
 #endif
-

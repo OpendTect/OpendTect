@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: seis2deventsnapper.cc,v 1.8 2012-08-08 05:47:54 cvssalil Exp $";
+static const char* rcsID = "$Id: seis2deventsnapper.cc,v 1.5 2010/11/15 09:35:45 cvssatyaki Exp $";
 
 #include "seis2deventsnapper.h"
 #include "seisselectionimpl.h"
@@ -56,7 +56,7 @@ int Seis2DEventSnapper::nextStep()
     EM::SectionID sid(0);
     Coord3 coord = orghor_.getPos( sid, horgeomid_, trc_.info().nr );
     newhor_.setPos( sid, horgeomid_, trc_.info().nr,
-	    	    findNearestEvent(trc_,(float) coord.z), false );
+	    	    findNearestEvent(trc_,coord.z), false );
     nrdone_ ++;
 
     return MoreToDo();

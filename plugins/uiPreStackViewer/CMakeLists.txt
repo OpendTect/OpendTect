@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Tutorial plugin
 # 	Jan 2012	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-03-29 11:26:26 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.3 2012/03/29 11:33:26 cvskris Exp $
 #_______________________________________________________________________________
 
 SET( OD_MODULE_DEPS uiODMain )

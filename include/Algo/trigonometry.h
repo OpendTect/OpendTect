@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.54 2012-08-09 06:49:31 cvsaneesh Exp $
+ RCS:		$Id: trigonometry.h,v 1.51 2012/05/22 03:25:43 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "algomod.h"
 #include "position.h"
 #include <math.h>
 
@@ -32,8 +31,8 @@ inline void interpolateOnTriangle2D( const Coord pt,
     const Coord d0 = b-a;
     const Coord d1 = pt-a;
     const Coord d2 = b-c;
-    const float para_pt = (float)((d0.x*d2.y-d0.y*d2.x)/(d1.x*d2.y-d1.y*d2.x));
-    const float para_bc = (float)((d1.x*d0.y-d1.y*d0.x)/(d1.x*d2.y-d1.y*d2.x));
+    const float para_pt = (d0.x*d2.y-d0.y*d2.x)/(d1.x*d2.y-d1.y*d2.x);
+    const float para_bc = (d1.x*d0.y-d1.y*d0.x)/(d1.x*d2.y-d1.y*d2.x);
 
     if ( mIsZero(para_pt, 1e-5) )
     {
@@ -55,7 +54,7 @@ point and line, point and triangle, point and circle or sphere.
 */
 
 /*Calculate a 3x3 matrix's determinent given by v[0]-v[8] with 9 elements. */
-inline double determinent33( const double* v )
+inline const double determinent33( const double* v )
 {
     return v[0]*(v[4]*v[8]-v[5]*v[7])+v[1]*(v[5]*v[6]-v[3]*v[8])+
 	v[2]*(v[3]*v[7]-v[4]*v[6]);
@@ -64,8 +63,8 @@ inline double determinent33( const double* v )
 
 /*Calculate a 4x4 matrix's determinent given by rows r0, r1, r2, r3 with the 
   last column 1, 1, 1, 1. */
-inline double determinent44( const Coord3& r0, const Coord3& r1, 
-		             const Coord3& r2, const Coord3& r3 )
+inline const double determinent44( const Coord3& r0, const Coord3& r1, 
+				   const Coord3& r2, const Coord3& r3 )
 {
     const double d0[9] = { r1.y, r1.z, 1, r2.y, r2.z, 1, r3.y, r3.z, 1 };
     const double d1[9] = { r1.x, r1.z, 1, r2.x, r2.z, 1, r3.x, r3.z, 1 };
@@ -76,8 +75,8 @@ inline double determinent44( const Coord3& r0, const Coord3& r1,
 }
 
 /*!<Each ri represents a row of 4 elements. */
-inline double determinent44( const double* r0, const double* r1, 
-			     const double* r2, const double* r3 )
+inline const double determinent44( const double* r0, const double* r1, 
+				   const double* r2, const double* r3 )
 {
     const double d0[9] = { r1[1], r1[2], r1[3], r2[1], r2[2], r2[3], 
 			   r3[1], r3[2], r3[3] };
@@ -272,10 +271,10 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>&, bool normalize,
  where: i*i = j*j = k*k = -1.
 */
 
-mClass(Algo) Quaternion
+mClass Quaternion
 {
 public:
-    			Quaternion(double s,double x,double y,double z);
+    			Quaternion(float s,float x,float y,float z);
 			Quaternion(const Vector3& axis,float angle);
 
     void		setRotation(const Vector3& axis,float angle);
@@ -292,7 +291,7 @@ public:
 
     Quaternion		inverse() const;
 
-    double		s_;
+    float		s_;
     Vector3		vec_;
 };
 
@@ -300,7 +299,7 @@ public:
 /*!\brief A Line2 is a line on XY-plane, and it is defined in slope-intercept
     form y = slope*x + y-intercept; for making operations easier. */
 
-mClass(Algo) Line2
+mClass Line2
 {
 public:			
     			Line2(double slope=0,double intcpt=0);
@@ -323,7 +322,6 @@ public:
 			/*!<Gives a parallel line at a distance dist */
     bool		getPerpendicularLine(Line2& line,const Coord& pt) const;
     			/*!<Gives a perpendicular line through point pt*/
-    bool		isOnLine(const Coord& pt) const;
 
     double		slope_;
     double		yintcpt_;
@@ -333,6 +331,7 @@ public:
 
     Coord		start_;			/*!<For line-segments only */
     Coord		stop_;			/*!<For line-segments only */
+    bool		isOnLine(const Coord& pt) const;
 };
 
 /*!\brief
@@ -346,7 +345,7 @@ z = z0 + gamma*t
 */
 
 
-mClass(Algo) Line3
+mClass Line3
 {
 public:			
     			Line3();
@@ -394,7 +393,7 @@ Ax + By + Cz + D = 0
 
 
 
-mClass(Algo) Plane3
+mClass Plane3
 {
 public:
 			Plane3();
@@ -452,7 +451,7 @@ public:
    3D space and the coordiante system. */
 
 
-mClass(Algo) Plane3CoordSystem
+mClass Plane3CoordSystem
 {
 public:
     			Plane3CoordSystem(const Coord3& normal,
@@ -490,15 +489,14 @@ protected:
   The angle phi lies in the horizontal plane, theta in the vertical plane.
 */
 
-mClass(Algo) Sphere
+mClass Sphere
 {
 public:
 			Sphere(float r=0,float t=0,float p=0)
 			    : radius(r),theta(t),phi(p) {}
 
 			Sphere(const Coord3& crd)
-			    : radius((float) crd.x),theta((float) crd.y),
-											phi((float) crd.z) {}
+			    : radius(crd.x),theta(crd.y),phi(crd.z) {}
     bool		operator ==( const Sphere& s ) const;
 
     float		radius;
@@ -507,10 +505,10 @@ public:
 };
 
 
-mGlobal(Algo) Sphere cartesian2Spherical(const Coord3&,bool math);
+mGlobal Sphere cartesian2Spherical(const Coord3&,bool math);
 	    /*!< math=true: transformation done in math-system
 		 math=false: transformation done in geo-system */
-mGlobal(Algo) Coord3 spherical2Cartesian(const Sphere&,bool math);
+mGlobal Coord3 spherical2Cartesian(const Sphere&,bool math);
 	    /*!< math=true: transformation done in math-system
 		 math=false: transformation done in geo-system */
 
@@ -524,4 +522,3 @@ inline bool Sphere::operator ==( const Sphere& s ) const
 
 
 #endif
-

@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Algorithms
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.12 2012-08-06 07:26:27 cvshelene Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.5 2012/08/06 07:06:18 cvshelene Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Basic )
@@ -13,8 +13,6 @@ SET(OD_MODULE_SOURCES timeser.c
 	    bendpointfinder.cc
 	    bendpoints2coords.cc
 	    binidsorting.cc
-	    bodyvolumecalc.cc
-	    conncomponents.cc
 	    convolve2d.cc
 	    costrans.cc
 	    curvature.cc
@@ -22,8 +20,6 @@ SET(OD_MODULE_SOURCES timeser.c
 	    delaunay.cc
 	    delaunay3d.cc
 	    extremefinder.cc
-	    dippca.cc
-	    fingervein.cc
 	    fftfilter.cc
 	    fourier.cc
 	    fourierinterpol.cc

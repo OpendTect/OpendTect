@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID mUnusedVar = "$Id: seiswrite.cc,v 1.73 2012-05-22 22:06:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.69 2012/02/21 15:12:23 cvsbert Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -133,7 +133,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
     }
     else if ( psioprov )
     {
-	const char* psstorkey = ioobj->fullUserExpr(true);
+	const char* psstorkey = ioobj->fullUserExpr(Conn::Write);
 	pswriter_ = is2d ? psioprov->make2DWriter( psstorkey, mCurLineKey )
 	    		: psioprov->make3DWriter( psstorkey );
 	if ( !pswriter_ )
@@ -237,7 +237,7 @@ bool SeisTrcWriter::next2DLine()
     lk.fillPar( *lineiopar, true );
 
     if ( !datatype_.isEmpty() )
-	lineiopar->set( sKey::DataType(), datatype_.buf() );
+	lineiopar->set( sKey::DataType, datatype_.buf() );
 
     lineiopar->merge( lineauxiopar_ );
     putter_ = lset->linePutter( lineiopar );

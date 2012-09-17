@@ -6,13 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Oct 2010
- RCS:           $Id: uiseiscbvsimpfromothersurv.h,v 1.7 2012-08-03 13:01:08 cvskris Exp $
+ RCS:           $Id: uiseiscbvsimpfromothersurv.h,v 1.6 2011/11/30 07:49:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
-#include "uiseismod.h"
 #include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "uidialog.h"
@@ -36,7 +34,7 @@ class uiLabeledSpinBox;
 class uiSeisSel;
 class uiSeisSubSel;
 
-mClass(uiSeis) SeisImpCBVSFromOtherSurvey : public Executor
+mClass SeisImpCBVSFromOtherSurvey : public Executor
 {
 public:
 
@@ -71,7 +69,7 @@ protected:
 
     Interpol		interpol_;
 
-    mStruct(uiSeis) 		PosData
+    mStruct 		PosData
     {
 			PosData()
 			    : hsit_(0)
@@ -106,7 +104,7 @@ protected:
 
 
 
-mClass(uiSeis) uiSeisImpCBVSFromOtherSurveyDlg : public uiDialog
+mClass uiSeisImpCBVSFromOtherSurveyDlg : public uiDialog
 {
 public:
 
@@ -133,5 +131,3 @@ protected:
 
 
 #endif
-
-

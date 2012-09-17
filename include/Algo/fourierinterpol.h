@@ -7,13 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Sept 2011
- RCS:		$Id: fourierinterpol.h,v 1.3 2012-08-03 13:00:03 cvskris Exp $
+ RCS:		$Id: fourierinterpol.h,v 1.2 2011/09/30 09:22:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
-#include "algomod.h"
 #include "arrayndimpl.h"
 #include "odcomplex.h"
 #include "ranges.h"
@@ -21,7 +19,7 @@ ________________________________________________________________________
 
 namespace Fourier { class CC; };
 
-mClass(Algo) FourierInterpolBase
+mClass FourierInterpolBase
 {
 public:
     void                	setTargetDomain(bool fourier);
@@ -34,11 +32,11 @@ protected:
 };
 
 
-mClass(Algo) FourierInterpol1D : public ParallelTask, public FourierInterpolBase
+mClass FourierInterpol1D : public ParallelTask, public FourierInterpolBase
 {
 public:
 
-    mStruct(Algo) Point 
+    mStruct Point 
     {
        				Point(float_complex v,float x)
 				    : val_(v), pos_(x) {}		    
@@ -75,11 +73,11 @@ protected:
 
 
 
-mClass(Algo) FourierInterpol2D : public ParallelTask, public FourierInterpolBase
+mClass FourierInterpol2D : public ParallelTask, public FourierInterpolBase
 {
 public:
 
-    mStruct(Algo) Point 
+    mStruct Point 
     {
        				Point(float_complex v,float x,float y)
 				    : val_(v), xpos_(x) , ypos_(y) {}		    
@@ -117,11 +115,11 @@ protected:
 
 
 
-mClass(Algo) FourierInterpol3D : public ParallelTask, public FourierInterpolBase
+mClass FourierInterpol3D : public ParallelTask, public FourierInterpolBase
 {
 public:
 
-    mStruct(Algo) Point 
+    mStruct Point 
     {
        				Point(float_complex v,float x,float y,float z)
 				    : val_(v), xpos_(x) , ypos_(y) , zpos_(z) {}		    
@@ -163,5 +161,3 @@ protected:
 };
 
 #endif
-
-

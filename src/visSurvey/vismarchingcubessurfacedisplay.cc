@@ -4,13 +4,12 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismarchingcubessurfacedisplay.cc,v 1.49 2012-08-13 04:04:39 cvsaneesh Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.38 2012/07/10 13:06:10 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
 #include "arrayndimpl.h"
 #include "datapointset.h"
-#include "datacoldef.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
 #include "executor.h"
@@ -18,10 +17,8 @@ static const char* rcsID mUnusedVar = "$Id: vismarchingcubessurfacedisplay.cc,v 
 #include "impbodyplaneintersect.h"
 #include "keystrs.h"
 #include "marchingcubes.h"
-#include "posvecdataset.h"
 #include "randcolor.h"
 #include "selector.h"
-#include "settings.h"
 #include "survinfo.h"
 #include "visgeomindexedshape.h"
 #include "vismarchingcubessurface.h"
@@ -38,10 +35,10 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     : VisualObjectImpl(true)
     , emsurface_( 0 )
     , displaysurface_( 0 )
+    , cache_( 0 )
     , impbody_( 0 )
     , displayintersections_( false )		   
 {
-    cache_.allowNull( true );
     setColor( getRandomColor( false ) );
     getMaterial()->setAmbience( 0.4 );
     getMaterial()->change.notify(
@@ -61,14 +58,8 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 
     getMaterial()->change.remove(
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
-    for ( int idx=cache_.size()-1; idx>=0; idx-- )
-    {
-	if ( !cache_[idx] )
-	    continue;
-	
-	DPM( DataPackMgr::PointID() ).release( cache_[idx]->id() );
-	delete cache_[idx];
-    }
+    if ( cache_ )
+	DPM( DataPackMgr::PointID() ).release( cache_->id() );
 }
 
 
@@ -231,101 +222,6 @@ const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec( int attrib ) const
 }
 
 
-#define mSetDataPointSet(nm) \
-    selspec_.set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
-    DataPointSet* data = new DataPointSet(false,true); \
-    DPM( DataPackMgr::PointID() ).addAndObtain( data ); \
-    getRandomPos( *data, 0 ); \
-    DataColDef* isovdef = new DataColDef("Depth"); \
-    data->dataSet().add( isovdef ); \
-    BinIDValueSet& bivs = data->bivSet();  \
-    if ( !data->size() || bivs.nrVals()!=3 ) \
-    { DPM( DataPackMgr::PointID() ).release( data->id() ); return;} \
-    int valcol = data->dataSet().findColDef( *isovdef, \
-	    PosVecDataSet::NameExact ); \
-    if ( valcol==-1 ) valcol = 1
-
-
-void MarchingCubesDisplay::setIsoPatch( int attrib )
-{
-    mSetDataPointSet("Isopach");
-
-    if ( !impbody_ ) impbody_ = emsurface_->createImplicitBody(0,false);
-    if ( !impbody_ || !impbody_->arr_ ) return;
-
-    const int inlsz = impbody_->cs_.nrInl();
-    const int crlsz = impbody_->cs_.nrCrl();
-    const int zsz = impbody_->cs_.nrZ();
-
-    BinIDValueSet::Pos pos;
-    while ( bivs.next(pos) )
-    {
-	BinID bid = bivs.getBinID(pos);
-	float* vals = bivs.getVals(pos);
-	const int inlidx = impbody_->cs_.hrg.inlRange().nearestIndex(bid.inl);
-	const int crlidx = impbody_->cs_.hrg.crlRange().nearestIndex(bid.crl);
-	if ( inlidx<0 || inlidx>=inlsz || crlidx<0 || crlidx>=crlsz )
-	{
-	    vals[valcol] = 0;
-	    continue;
-	}
-
-	bool found = false;
-	float minz=0, maxz=0;
-	for ( int idz=0; idz<zsz; idz++ )
-	{
-	    if ( impbody_->arr_->get(inlidx,crlidx,idz)>impbody_->threshold_ )
-		continue;
-
-	    const float curz = impbody_->cs_.zrg.atIndex(idz);
-	    if ( !found )
-	    {
-		found = true;
-		minz = maxz = curz;
-	    }
-	    else
-	    {
-		if ( minz>curz ) 
-		    minz = curz;
-		else if ( maxz<curz ) 
-		    maxz = curz;
-	    }
-	}
-	    
-	vals[valcol] = maxz-minz;
-    }
-
-    setRandomPosData( attrib, data, 0 );
-
-    BufferString seqnm;
-    Settings::common().get( "dTect.Color table.Horizon", seqnm );
-    ColTab::Sequence seq( seqnm );
-    setColTabSequence( attrib, seq, 0 );
-    DPM( DataPackMgr::PointID() ).release( data->id() );
-}
-
-
-void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
-{
-    mSetDataPointSet("Depth");
-    BinIDValueSet::Pos pos;
-    while ( bivs.next(pos) )
-    {
-	float* vals = bivs.getVals(pos);
-	vals[valcol] = vals[0];
-    }
-
-    setRandomPosData( attrib, data, 0 );
-
-    BufferString seqnm;
-    Settings::common().get( "dTect.Color table.Horizon", seqnm );
-    ColTab::Sequence seq( seqnm );
-    setColTabSequence( attrib, seq, 0 );
-
-    DPM( DataPackMgr::PointID() ).release( data->id() );
-}
-
-
 void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
 					 TaskRunner* tr ) const
 {
@@ -337,36 +233,20 @@ void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
 void MarchingCubesDisplay::setRandomPosData( int attrib,
 				 const DataPointSet* dps, TaskRunner* tr )
 {
-    if ( attrib<0 )
-	return;
-
-    DataPointSet* ndps = dps ? new DataPointSet( *dps ) : 0;
     if ( !attrib && dps && displaysurface_ )
     {
-	displaysurface_->getShape()->setAttribData( *ndps, tr );
+	displaysurface_->getShape()->setAttribData( *dps, tr );
 	useTexture( true );
 	materialChangeCB( 0 );
     }
 
-    if ( cache_.validIdx(attrib) )
-    {
-    	if ( cache_[attrib] )
-	{
-    	    DPM( DataPackMgr::PointID() ).release( cache_[attrib]->id() );
-	    delete cache_[attrib];
-	}
-
-	cache_.replace(attrib,ndps);
-    }
-    else
-    {
-	while ( attrib>cache_.size() )
-	    cache_ += 0;
-	cache_ += ndps;
-    }
+    if ( cache_ )
+	DPM( DataPackMgr::PointID() ).release( cache_->id() );
     
-    if ( cache_[attrib] )
-	DPM( DataPackMgr::PointID() ).obtain( cache_[attrib]->id() );
+    cache_ = dps;
+
+    if ( cache_ )
+	DPM( DataPackMgr::PointID() ).obtain( cache_->id() );
 }
 
 
@@ -379,22 +259,13 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
  			    Coord3& xyzpos, BufferString& val,
  			    BufferString& info) const
 {
-    val = sKey::EmptyString();
+    val = sKey::EmptyString;
     info = "Body: ";
     info += name();
-
-    int valididx = -1;
-    for ( int idx=0; idx<cache_.size(); idx++ )
-    {
-    	if ( !cache_[idx] ) continue;
-	valididx = idx;
-	break;
-    }
-
-    if ( valididx==-1 )
+    if ( !cache_ )
 	return;
 
-    const BinIDValueSet& bivset = cache_[valididx]->bivSet();
+    const BinIDValueSet& bivset = cache_->bivSet();
     const BinID bid = SI().transform( xyzpos );
 
     TypeSet<float> zdist;
@@ -409,7 +280,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 	const float depth = posvals[0];
 	if ( !mIsUdf(depth) )
 	{
-	    zdist += (float) fabs(depth-xyzpos.z);
+	    zdist += fabs(depth-xyzpos.z);
 	    vals += posvals[validx];
 	}
 
@@ -523,7 +394,7 @@ void MarchingCubesDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	IOPar seqpar;
 	const ColTab::Sequence* seq = getColTabSequence( 0 );
 	if ( seq->isSys() )
-	    seqpar.set( sKey::Name(), seq->name() );
+	    seqpar.set( sKey::Name, seq->name() );
 	else
 	    seq->fillPar( seqpar );
 	
@@ -574,7 +445,7 @@ int MarchingCubesDisplay::usePar( const IOPar& par )
 	    if ( !seq.usePar( *seqpar ) )
 	    {
 		BufferString seqname;
-		if ( seqpar->get( sKey::Name(), seqname ) ) 
+		if ( seqpar->get( sKey::Name, seqname ) ) 
 		    ColTab::SM().get( seqname.buf(), seq );
 	    }
 	    
@@ -783,7 +654,6 @@ void MarchingCubesDisplay::updateIntersectionDisplay()
     {
     	if ( !impbody_ )
     	    impbody_ = emsurface_->createImplicitBody(0,false);
-	if ( !impbody_ ) return;
 	
     	for ( int idx=0; idx<intsinfo_.size(); idx++ )
     	{

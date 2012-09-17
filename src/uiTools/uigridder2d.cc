@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigridder2d.cc,v 1.11 2012-05-02 15:12:22 cvskris Exp $";
+static const char* rcsID = "$Id: uigridder2d.cc,v 1.9 2010/11/10 19:39:18 cvskris Exp $";
 
 #include "uigridder2d.h"
 

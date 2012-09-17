@@ -20,7 +20,7 @@
  *  <URL:http://www.sim.no>.
  *
 \**************************************************************************/
-static const char* rcsID mUnusedVar = "$Id: ViewportRegion.cc,v 1.4 2012-05-02 15:11:51 cvskris Exp $";
+static const char* rcsID = "$Id: ViewportRegion.cc,v 1.2 2008/11/25 15:35:23 cvsbert Exp $";
 
 #include "ViewportRegion.h"
 #include <Inventor/elements/SoViewportRegionElement.h>

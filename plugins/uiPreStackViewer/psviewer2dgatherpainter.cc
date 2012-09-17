@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: psviewer2dgatherpainter.cc,v 1.3 2012-05-02 15:11:16 cvskris Exp $";
+static const char* rcsID = "$Id: psviewer2dgatherpainter.cc,v 1.1 2011/01/31 13:03:50 cvsbruno Exp $";
 
 #include "psviewer2dgatherpainter.h"
 

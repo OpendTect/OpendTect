@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2010
- RCS:           $Id: uiselobjothersurv.h,v 1.4 2012-08-03 13:01:01 cvskris Exp $
+ RCS:           $Id: uiselobjothersurv.h,v 1.3 2011/11/24 12:52:23 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,12 +17,11 @@ ________________________________________________________________________
   belonging to that survey !*/
 
 
-#include "uiiomod.h"
 #include "uiselsimple.h"
 
 class CtxtIOObj;
 
-mClass(uiIo) uiSelObjFromOtherSurvey : public uiSelectFromList
+mClass uiSelObjFromOtherSurvey : public uiSelectFromList
 {
 public:
     			uiSelObjFromOtherSurvey(uiParent*,CtxtIOObj&);
@@ -44,4 +43,3 @@ protected:
 };
 
 #endif
-

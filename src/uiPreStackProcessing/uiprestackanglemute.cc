@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiprestackanglemute.cc,v 1.18 2012-06-07 13:47:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiprestackanglemute.cc,v 1.15 2012/04/27 07:56:49 cvsbruno Exp $";
 
 #include "uiprestackanglemute.h"
 
@@ -50,6 +50,10 @@ uiAngleMuteGrp::uiAngleMuteGrp( uiParent* p,
     cutofffld_->attach( alignedBelow, raytracerfld_ );
     cutofffld_->setValue( params_.mutecutoff_ );
 
+    blockfld_ = new uiCheckBox( this, "Block (bend points)" );
+    blockfld_->attach( alignedBelow, cutofffld_ );
+    blockfld_->setChecked( params_.dovelblock_ );
+
     setHAlignObj( cutofffld_ );
 }
 
@@ -58,6 +62,7 @@ bool uiAngleMuteGrp::acceptOK()
 { 
     raytracerfld_->fillPar( params_.raypar_ );
     params_.mutecutoff_ = cutofffld_->getfValue();
+    params_.dovelblock_ = blockfld_->isChecked(); 
     params_.velvolmid_ = velfuncsel_->key(true);
 
     return true;

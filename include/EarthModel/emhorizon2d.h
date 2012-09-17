@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.33 2012-08-20 06:12:15 cvssatyaki Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.31 2012/07/30 05:13:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emhorizon.h"
 #include "bufstringset.h"
 #include "horizon2dline.h"
@@ -31,7 +30,7 @@ namespace EM
 {
 class EMManager;
 
-mClass(EarthModel) Horizon2DGeometry : public HorizonGeometry
+mClass Horizon2DGeometry : public HorizonGeometry
 {
 public:
 				Horizon2DGeometry(Surface&);
@@ -77,7 +76,7 @@ public:
 protected:
     Geometry::Horizon2DLine*	createSectionGeometry() const;
 
-    bool 			doAddLine(const PosInfo::GeomID&,
+    bool 			addLine(const PosInfo::GeomID&,
 					const StepInterval<int>& trcrg,
 					bool mergewithdouble);
 
@@ -92,12 +91,12 @@ protected:
 position's subid is formed by RowCol( lineid, tracenr ).getInt64(). If
 multiple z-values per trace is needed, multiple sections can be added. */
 
-mClass(EarthModel) Horizon2D : public Horizon
+mClass Horizon2D : public Horizon
 { mDefineEMObjFuncs( Horizon2D );
 public:
 
     virtual float		getZValue(const Coord&,bool allow_udf=true,
-					  int nr=0) const;
+	    				  int nr=0) const;
     				//!< Convenience function. If you need speed,
     				//!< don't use it.
 
@@ -139,7 +138,7 @@ protected:
 };
 
 
-mClass(EarthModel) Horizon2DAscIO : public Table::AscIO
+mClass Horizon2DAscIO : public Table::AscIO
 {
 public:
     				Horizon2DAscIO( const Table::FormatDesc& fd,
@@ -170,4 +169,3 @@ protected:
 } // namespace EM
 
 #endif
-

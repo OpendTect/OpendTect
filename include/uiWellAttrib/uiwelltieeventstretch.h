@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "callback.h"
 
 namespace Well { class D2TModel; }
@@ -25,7 +24,7 @@ class Marker;
 class PickSetMgr;
 class D2TModelMgr;
 
-mClass(uiWellAttrib) EventStretch : public CallBacker
+mClass EventStretch : public CallBacker
 {
 public:
 					EventStretch(PickSetMgr&,D2TModelMgr&);
@@ -50,4 +49,3 @@ protected:
 }; //namespace WellTie
 
 #endif
-

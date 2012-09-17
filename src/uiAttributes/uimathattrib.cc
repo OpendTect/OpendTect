@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimathattrib.cc,v 1.46 2012-09-13 18:36:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.38 2011/09/05 08:29:20 cvsbruno Exp $";
 
 
 #include "uimathattrib.h"
@@ -46,8 +46,8 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 
     xtable_ = new uiTable( this,uiTable::Setup().minrowhgt(1.5)
 					.maxrowhgt(2)
-					.mincolwdt(3.f*uiObject::baseFldSize())
-					.maxcolwdt(3.5f*uiObject::baseFldSize())
+					.mincolwdt(3*uiObject::baseFldSize())
+					.maxcolwdt(3.5*uiObject::baseFldSize())
 					.defrowlbl("")
 					.fillcol(true)
 					.fillrow(true)
@@ -63,8 +63,8 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 
     ctable_ = new uiTable( this,uiTable::Setup().minrowhgt(1)
 					.maxrowhgt(1.2)
-					.mincolwdt(1.f*uiObject::baseFldSize())
-					.maxcolwdt(1.5f*uiObject::baseFldSize())
+					.mincolwdt(uiObject::baseFldSize())
+					.maxcolwdt(1.5*uiObject::baseFldSize())
 					.defrowlbl("")
 					.fillcol(true)
 					.fillrow(true)
@@ -150,8 +150,6 @@ void uiMathAttrib::getVarsNrAndNms( MathExpression* expr )
 		cstnms.add( varnm );
 		break;
 	    }
-	    default:
-		break;
 	}
     }
 }
@@ -243,8 +241,7 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	float recstartpos =
 	    desc.getValParam( Attrib::Math::recstartposStr() )->getfValue(0);
 	if ( !mIsUdf( recstartpos ) )
-	    recstartposfld_->setValue(
-		    recstartpos * SI().zDomain().userFactor() );
+	    recstartposfld_->setValue( recstartpos * SI().zFactor() );
     }
     
     return true;
@@ -293,7 +290,7 @@ bool uiMathAttrib::getParameters( Desc& desc )
     
     mSetString( Attrib::Math::recstartvalsStr(), recstartfld_->text() );
     mSetFloat( Attrib::Math::recstartposStr(),
-	       recstartposfld_->getfValue() / SI().zDomain().userFactor() );
+	       recstartposfld_->getfValue() / SI().zFactor() );
     return true;
 }
 
@@ -312,8 +309,6 @@ bool uiMathAttrib::getInput( Desc& desc )
 
 void uiMathAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    if ( !curDesc() ) return;
-
     mDescGetConstParamGroup(FloatParam,cstset,(*curDesc()),
 	    		    Attrib::Math::cstStr());
     BufferString constantbase = "constant c";

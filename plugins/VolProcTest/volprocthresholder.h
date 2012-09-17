@@ -7,7 +7,7 @@ _________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  AUTHOR		: Y.C. Liu
  DATE		: Mar 2007
- ID		: $Id: volprocthresholder.h,v 1.2 2009-07-22 16:01:27 cvsbert Exp $
+ ID		: $Id: volprocthresholder.h,v 1.2 2009/07/22 16:01:27 cvsbert Exp $
 _________________________________________________________________________
 
 -*/

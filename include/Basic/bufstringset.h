@@ -8,12 +8,11 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.27 2012-09-16 12:12:11 cvshelene Exp $
+ RCS:		$Id: bufstringset.h,v 1.23 2012/04/13 14:17:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstring.h"
 #include "manobjectset.h"
 class IOPar;
@@ -22,7 +21,7 @@ class GlobExpr;
 
 /*!\brief Set of BufferString objects */
 
-mClass(Basic) BufferStringSet : public ManagedObjectSet<BufferString>
+mClass BufferStringSet : public ManagedObjectSet<BufferString>
 {
 public:
     			BufferStringSet();
@@ -45,7 +44,6 @@ public:
 				{ return indexOf(s) >= 0; }
     int			nearestMatch(const char*,bool caseinsens=true) const;
 			    //!< algo may not be very good, but anyway
-			    //!< returns -1 if size is 0
     bool		isSubsetOf(const BufferStringSet&) const;
 
     BufferStringSet&	add(const char*);
@@ -58,8 +56,7 @@ public:
     void		sort(bool caseinsens=true,bool asc=true);
     int*		getSortIndexes(bool caseinsns=true,bool asc=true) const;
     			//!< returns new int [size()] for you to 'delete []'
-    			//!< does NOT sort!! you should do useIndexes afterwards
-    void		useIndexes(const int*);
+    void		useIndexes(int*);
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
@@ -71,4 +68,3 @@ public:
 
 
 #endif
-

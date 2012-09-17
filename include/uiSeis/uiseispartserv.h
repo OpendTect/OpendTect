@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.48 2012-08-03 13:01:08 cvskris Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.47 2011/03/21 16:16:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uiapplserv.h"
 #include "multiid.h"
 #include "iodir.h"
@@ -33,7 +32,7 @@ namespace Geometry { class RandomLine; }
 
 /*! \brief Seismic User Interface Part Server */
 
-mClass(uiSeis) uiSeisPartServer : public uiApplPartServer
+mClass uiSeisPartServer : public uiApplPartServer
 {
 public:
 			uiSeisPartServer(uiApplService&);
@@ -91,4 +90,3 @@ protected:
 */
 
 #endif
-

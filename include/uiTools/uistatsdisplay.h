@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra / Bert
  Date:          Aug 2007
- RCS:           $Id: uistatsdisplay.h,v 1.15 2012-08-03 13:01:15 cvskris Exp $
+ RCS:           $Id: uistatsdisplay.h,v 1.14 2011/10/26 14:20:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "datapack.h"
 class uiHistogramDisplay;
@@ -22,7 +21,7 @@ template <class T> class Array2D;
 namespace Stats { template <class T> class ParallelCalc; }
 
 
-mClass(uiTools) uiStatsDisplay : public uiGroup
+mClass uiStatsDisplay : public uiGroup
 {
 public:
 
@@ -69,4 +68,3 @@ protected:
 
 
 #endif
-

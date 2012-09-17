@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2008
- RCS:           $Id: uiobjdisposer.h,v 1.5 2012-08-03 13:01:14 cvskris Exp $
+ RCS:           $Id: uiobjdisposer.h,v 1.4 2009/07/22 16:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "callback.h"
 #include "sets.h"
 class Timer;
@@ -26,7 +25,7 @@ class Timer;
  
  */
 
-mClass(uiTools) uiObjDisposer : public CallBacker
+mClass uiObjDisposer : public CallBacker
 { 	
 public:
 
@@ -40,12 +39,11 @@ protected:
 				uiObjDisposer();
 
     void			doDel(CallBacker*);
-    mGlobal(uiTools) friend uiObjDisposer*	uiOBJDISP();
+    mGlobal friend uiObjDisposer*	uiOBJDISP();
 
 };
 
-mGlobal(uiTools) uiObjDisposer* uiOBJDISP();
+mGlobal uiObjDisposer* uiOBJDISP();
 
 
 #endif
-

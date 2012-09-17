@@ -4,7 +4,7 @@
  * DATE     : Sep 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: errh.cc,v 1.9 2012-08-27 13:16:49 cvskris Exp $";
+static const char* rcsID = "$Id: errh.cc,v 1.2 2011/12/14 13:16:41 cvsbert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -15,8 +15,8 @@ static const char* rcsID mUnusedVar = "$Id: errh.cc,v 1.9 2012-08-27 13:16:49 cv
 #include <iostream>
 #include <fstream>
 
-Export_Basic const char* logMsgFileName();
-Export_Basic std::ostream& logMsgStrm();
+mGlobal const char* logMsgFileName();
+mGlobal std::ostream& logMsgStrm();
 bool ErrMsgClass::printProgrammerErrs =
 # ifdef __debug__
     true;
@@ -24,11 +24,11 @@ bool ErrMsgClass::printProgrammerErrs =
     false;
 # endif
 static BufferString logmsgfnm;
-Export_Basic int gLogFilesRedirectCode = -1;
+mBasicGlobal int gLogFilesRedirectCode = -1;
 // Not set. 0 = stderr, 1 = log file
 
 
-Export_Basic const char* logMsgFileName()
+mBasicGlobal const char* logMsgFileName()
 {
     return logmsgfnm.buf();
 }
@@ -45,7 +45,7 @@ Export_Basic const char* logMsgFileName()
 #endif
 	
   
-Export_Basic std::ostream& logMsgStrm()
+mBasicGlobal std::ostream& logMsgStrm()
 {
     if ( gLogFilesRedirectCode < 1 )
 	return std::cerr;
@@ -142,77 +142,3 @@ const char* MsgClass::nameOf( MsgClass::Type typ )
     	{ "Information", "Message", "Warning", "Error", "PE", 0 };
     return strs[ (int)typ ];
 }
-
-
-//Crashdumper stuff
-struct CrashDumper
-{
-    CrashDumper( const char* path, const char* sendappl )
-    : path_( path )
-    , sendappl_( sendappl )
-    {
-	init();
-    }
-    
-    void		sendDump(const char* filename);
-    
-    void		init();
-    
-    BufferString	sendappl_;
-    BufferString	path_;
-    
-#ifdef __msvc__
-//    ExceptionHandler*	handler_;
-#endif
-};
-
-
-CrashDumper* theinst mUnusedVar = 0;
-
-
-#ifdef __msvc__
-void CrashDumper::init()
-{
-    
-}
-#else
-void CrashDumper::init()
-{
-    
-}
-
-#endif
-
-
-void CrashDumper::sendDump( const char* filename )
-{
-    if ( sendappl_.isEmpty() )
-	return;
-    
-    if ( !File::exists( sendappl_ ) || !File::exists( filename ) )
-	return;
-    
-    const BufferString cmd( sendappl_, " ", filename );
-    StreamProvider(cmd).executeCommand( true, false );
-}
-
-
-bool initCrashDumper( const char* dumpdir, const char* sendappl )
-{
-    if ( !theinst )
-	theinst = new CrashDumper( dumpdir, sendappl );
-    else
-	pFreeFnErrMsg("initCrashDumper", "CrashDumper installed before");
-    
-    return true;
-}
-
-
-FixedString sSenderAppl()
-{ return FixedString("od_ReportIssue" ); }
-
-
-FixedString sUiSenderAppl()
-{ return FixedString( "od_uiReportIssue" ); } 
-
-

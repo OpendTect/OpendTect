@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: uisurfacesel.h,v 1.5 2012-08-03 13:00:57 cvskris Exp $
+ RCS:           $Id: uisurfacesel.h,v 1.4 2010/06/09 10:40:54 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uigroup.h"
 
 #include "bufstringset.h"
@@ -21,7 +20,7 @@ ________________________________________________________________________
 class IOObjContext;
 class uiListBox;
 
-mClass(uiEarthModel) uiSurfaceSel : public uiGroup
+mClass uiSurfaceSel : public uiGroup
 {
 public:
 			~uiSurfaceSel();
@@ -47,7 +46,7 @@ protected:
 /*! \brief ui for horizon 3D selection */
 
 // TODO implement
-mClass(uiEarthModel) uiSurface3DSel : public uiSurfaceSel
+mClass uiSurface3DSel : public uiSurfaceSel
 {
 public:
 protected:
@@ -58,7 +57,7 @@ protected:
 
 /*! \brief ui for horizon 2D selection */
 
-mClass(uiEarthModel) uiSurface2DSel : public uiSurfaceSel
+mClass uiSurface2DSel : public uiSurfaceSel
 {
 public:
     void		setLineSetID(const MultiID&);
@@ -72,7 +71,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiHorizon2DSel : public uiSurface2DSel
+mClass uiHorizon2DSel : public uiSurface2DSel
 {
 public:
     			uiHorizon2DSel(uiParent*);
@@ -81,7 +80,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiHorizon3DSel : public uiSurface3DSel
+mClass uiHorizon3DSel : public uiSurface3DSel
 {
 public:
     			uiHorizon3DSel(uiParent*);
@@ -91,4 +90,3 @@ protected:
 
 
 #endif
-

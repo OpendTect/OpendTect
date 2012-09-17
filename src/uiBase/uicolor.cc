@@ -7,10 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicolor.cc,v 1.47 2012-09-07 05:58:24 cvssatyaki Exp $";
-
-#include "pixmap.h"
-#include "coltabsequence.h"
+static const char* rcsID = "$Id: uicolor.cc,v 1.43 2012/07/10 13:06:04 cvskris Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -20,6 +17,7 @@ static const char* rcsID mUnusedVar = "$Id: uicolor.cc,v 1.47 2012-09-07 05:58:2
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimainwin.h"
+#include "pixmap.h"
 #include "uiparentbody.h"
 
 #include <QColorDialog>
@@ -62,23 +60,20 @@ static void endCmdRecEvent( int refnr, bool ok, const Color& col,
 
 bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 {
-    mQtclass(QWidget*) qparent = parnt ? parnt->pbody()->qwidget() : 0;
+    QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
     if ( !nm || !*nm ) nm = "Select color";
 
     const char* wintitle = uiMainWin::uniqueWinTitle( nm );
     const int refnr = beginCmdRecEvent( wintitle );
 
-    mQtclass(QColorDialog) qdlg( mQtclass(QColor)(col.r(),col.g(),
-					  	  col.b(),col.t()),
-	    			 qparent );
+    QColorDialog qdlg( QColor(col.r(),col.g(),col.b(),col.t()), qparent );
     qdlg.setWindowTitle( QString(wintitle) );
     if ( withtransp )
     {
-	qdlg.setOption( mQtclass(QColorDialog)::ShowAlphaChannel );
-	mQtclass(QList)<mQtclass(QLabel*)> lbllst =
-	    			       qdlg.findChildren<mQtclass(QLabel*)>("");
+	qdlg.setOption( QColorDialog::ShowAlphaChannel );
+	QList<QLabel*> lbllst = qdlg.findChildren<QLabel*>("");
 	bool found = false;
-	foreach(mQtclass(QLabel*) qlbl,lbllst)
+	foreach(QLabel* qlbl,lbllst)
 	{
 	    if ( qlbl->text() == "A&lpha channel:" )
 		{ qlbl->setText( "&Transparency:" ); found = true; break; }
@@ -88,11 +83,11 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 			    "selectColor" );
     }
 
-    const bool ok = qdlg.exec() == mQtclass(QDialog)::Accepted;
+    const bool ok = qdlg.exec() == QDialog::Accepted;
 
     if ( ok )
     {
-	mQtclass(QColor) newcol = qdlg.selectedColor();
+	QColor newcol = qdlg.selectedColor();
 	col.set( newcol.red(), newcol.green(), newcol.blue(),
 		 withtransp ? newcol.alpha() : col.t() );
     }
@@ -104,11 +99,10 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 
 void setExternalColor( const Color& col )
 {
-     mQtclass(QWidget*) amw = qApp->activeModalWidget();
-     mQtclass(QColorDialog*) qcd = dynamic_cast<mQtclass(QColorDialog*)>( amw );
+     QWidget* amw = qApp->activeModalWidget();
+     QColorDialog* qcd = dynamic_cast<QColorDialog*>( amw );
      if ( qcd )
-	 qcd->setCurrentColor( mQtclass(QColor)(col.r(),col.g(),col.b(),
-		     				col.t()) );
+	 qcd->setCurrentColor( QColor(col.r(),col.g(),col.b(),col.t()) );
 }
 
 
@@ -156,16 +150,6 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	descfld_ = new uiComboBox( this, Color::descriptions(),
 				    "Color description" );
 	descfld_->setHSzPol( uiObject::Medium );
-	TypeSet<Color> colors = Color::descriptionCenters();
-	for ( int idx=0; idx<colors.size(); idx++ )
-	{
-	    ColTab::Sequence ctseq;
-	    Color col = colors[idx];
-	    ctseq.setColor( 0, col.r(), col.g(), col.b() );
-	    ctseq.setColor( 1, col.r(), col.g(), col.b() );
-	    descfld_->setPixmap( ioPixmap(ctseq,15,10,true), idx );
-	}
-
 	if ( lsb )
 	    descfld_->attach( rightOf, lsb );
 	else

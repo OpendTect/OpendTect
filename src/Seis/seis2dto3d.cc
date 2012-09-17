@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.15 2012-08-13 04:04:38 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.9 2012/07/02 06:53:03 cvsbruno Exp $";
 
 #include "seis2dto3d.h"
 
@@ -29,6 +29,8 @@ static const char* rcsID mUnusedVar = "$Id: seis2dto3d.cc,v 1.15 2012-08-13 04:0
 #include "survinfo.h"
 #include "seiswrite.h"
 
+
+static bool nearesttrace_;
 
 Seis2DTo3D::Seis2DTo3D()
     : Executor("Generating 3D cube from LineSet")
@@ -53,7 +55,7 @@ void Seis2DTo3D::setIsNearestTrace( bool yn )
 {
     nearesttrace_ = yn;
     if ( yn )
-    cs_.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+	cs_.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 }
 
 
@@ -431,7 +433,7 @@ int SeisInterpol::nextStep()
     mDoTransform( fft_, true, trcarr_ );
     const float df = Fourier::CC::getDf( SI().zStep(), szz_ );
     const float mindist = mMIN(SI().inlDistance(),SI().crlDistance() );
-    const float fmax = (float) (maxvel_ / ( 2*mindist*sin( M_PI/6 ) ));
+    const float fmax = maxvel_ / ( 2*mindist*sin( M_PI/6 ) );
     const int poscutfreq = (int)(fmax/df);
 
 #define mDoLoopWork( docomputemax )\
@@ -594,13 +596,14 @@ SeisScaler::SeisScaler( const SeisTrcBuf& trcs )
 
 void SeisScaler::scaleTrace( SeisTrc& trc )
 {
+    const Coord& crd = trc.info().coord;
     float trcmaxval, trcminval;
     mGetTrcRMSVal( trc, trcmaxval, trcminval )
     LinScaler sc( trcminval, avgminval_, trcmaxval, avgmaxval_ );
     for ( int idz=0; idz<trc.size(); idz++ )
     {
-	float val = (float) trc.get( idz, 0 );
-	val = (float) sc.scale( val );
+	float val = trc.get( idz, 0 );
+	val = sc.scale( val );
 	trc.set( idz, val, 0 );
     }
 }

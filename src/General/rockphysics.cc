@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: rockphysics.cc,v 1.9 2012-05-22 14:48:32 cvskris Exp $";
+static const char* rcsID = "$Id: rockphysics.cc,v 1.6 2012/04/02 08:52:17 cvshelene Exp $";
 
 #include "rockphysics.h"
 #include "mathproperty.h"
@@ -66,8 +66,8 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
     setName( nm );
     type_ = PropertyRef::parseEnumStdType( iop.getValue(0) );
     iop.get( sKeyDef, def_ );
-    iop.get( sKey::Unit(), unit_ );
-    iop.get( sKey::Desc(), desc_ );
+    iop.get( sKey::Unit, unit_ );
+    iop.get( sKey::Desc, desc_ );
     desc_ = getStrFromFMS( desc_ );
 
     deepErase( vardefs_ );
@@ -76,14 +76,14 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
 	IOPar* subpar = iop.subselect( IOPar::compKey(sKeyVar,idx) );
 	if ( !subpar || subpar->isEmpty() )
 	    { delete subpar; break; }
-	nm = subpar->find( sKey::Name() );
+	nm = subpar->find( sKey::Name );
 	if ( !nm.isEmpty() )
 	{
 	    const PropType typ =
-			PropertyRef::parseEnumStdType( iop.find(sKey::Type()) );
+			PropertyRef::parseEnumStdType( iop.find(sKey::Type) );
 	    VarDef* vd = new VarDef( nm, typ );
-	    subpar->get( sKey::Unit(), vd->unit_ );
-	    subpar->get( sKey::Desc(), vd->desc_ );
+	    subpar->get( sKey::Unit, vd->unit_ );
+	    subpar->get( sKey::Desc, vd->desc_ );
 	    vd->desc_ = getStrFromFMS( vd->desc_ );
 
 	    vardefs_ += vd;
@@ -97,14 +97,14 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
 	IOPar* subpar = iop.subselect( IOPar::compKey(sKeyConst,idx) );
 	if ( !subpar || subpar->isEmpty() )
 	    { delete subpar; break; }
-	nm = subpar->find( sKey::Name() );
+	nm = subpar->find( sKey::Name );
 	if ( !nm.isEmpty() )
 	{
 	    ConstDef* cd = new ConstDef( nm );
-	    subpar->get( sKey::Desc(), cd->desc_ );
+	    subpar->get( sKey::Desc, cd->desc_ );
 	    cd->desc_ = getStrFromFMS( cd->desc_ );
 	    subpar->get( sKeyRg, cd->typicalrg_ );
-	    subpar->get( sKey::Default(), cd->defaultval_ );
+	    subpar->get( sKey::Default, cd->defaultval_ );
 	    constdefs_ += cd;
 	}
 	delete subpar;
@@ -127,25 +127,25 @@ void RockPhysics::Formula::fillPar( IOPar& iop ) const
     iop.setEmpty();
     iop.set( name(), toString(type_) );
     iop.set( sKeyDef, def_ );
-    setIOPWithNLs( iop, sKey::Desc(), desc_ );
-    iop.set( sKey::Unit(), unit_ );
+    setIOPWithNLs( iop, sKey::Desc, desc_ );
+    iop.set( sKey::Unit, unit_ );
     for ( int idx=0; idx<vardefs_.size(); idx++ )
     {
 	const VarDef& vd = *vardefs_[idx];
 	const BufferString keybase( IOPar::compKey(sKeyVar,idx) );
-	iop.set( IOPar::compKey(keybase,sKey::Type()), toString(vd.type_) );
-	iop.set( IOPar::compKey(keybase,sKey::Name()), vd.name() );
-	iop.set( IOPar::compKey(keybase,sKey::Unit()), vd.unit_ );
-	setIOPWithNLs( iop, IOPar::compKey(keybase,sKey::Desc()), vd.desc_ );
+	iop.set( IOPar::compKey(keybase,sKey::Type), toString(vd.type_) );
+	iop.set( IOPar::compKey(keybase,sKey::Name), vd.name() );
+	iop.set( IOPar::compKey(keybase,sKey::Unit), vd.unit_ );
+	setIOPWithNLs( iop, IOPar::compKey(keybase,sKey::Desc), vd.desc_ );
     }
     for ( int idx=0; idx<constdefs_.size(); idx++ )
     {
 	const ConstDef& cd = *constdefs_[idx];
 	const BufferString keybase( IOPar::compKey(sKeyConst,idx) );
-	iop.set( IOPar::compKey(keybase,sKey::Name()), cd.name() );
+	iop.set( IOPar::compKey(keybase,sKey::Name), cd.name() );
 	iop.set( IOPar::compKey(keybase,sKeyRg), cd.typicalrg_ );
-	iop.set( IOPar::compKey(keybase,sKey::Default()), cd.defaultval_ );
-	setIOPWithNLs( iop, IOPar::compKey(keybase,sKey::Desc()), cd.desc_ );
+	iop.set( IOPar::compKey(keybase,sKey::Default), cd.defaultval_ );
+	setIOPWithNLs( iop, IOPar::compKey(keybase,sKey::Desc), cd.desc_ );
     }
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emsurfacegeometry.cc,v 1.61 2012-08-13 04:04:37 cvsaneesh Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.57 2012/07/10 13:06:01 cvskris Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -30,6 +30,12 @@ static const char* rcsID mUnusedVar = "$Id: emsurfacegeometry.cc,v 1.61 2012-08-
 #include "survinfo.h"
 
 namespace EM {
+
+
+static const char* sDbInfo = "DB Info";
+static const char* sRange = "Range";
+static const char* sValnms = "Value Names";
+static const char* sSections = "Patches";
 
 
 class SurfaceSectionUndoEvent : public UndoEvent
@@ -898,20 +904,20 @@ int SurfaceGeometry::findPos( const CubeSampling& cs,
 			  TypeSet<PosID>* res ) const
 {
     Coord xypos = SI().transform(cs.hrg.start);
-    Interval<float> xinterval( (float) xypos.x, (float) xypos.x );
-    Interval<float> yinterval( (float) xypos.y, (float) xypos.y );
+    Interval<float> xinterval( xypos.x, xypos.x );
+    Interval<float> yinterval( xypos.y, xypos.y );
 
     xypos = SI().transform(cs.hrg.stop);
-    xinterval.include( (float) xypos.x );
-    yinterval.include( (float) xypos.y );
+    xinterval.include( xypos.x );
+    yinterval.include( xypos.y );
 
     xypos = SI().transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
-    xinterval.include( (float) xypos.x );
-    yinterval.include( (float) xypos.y );
+    xinterval.include( xypos.x );
+    yinterval.include( xypos.y );
 
     xypos = SI().transform( BinID(cs.hrg.stop.inl,cs.hrg.start.crl) );
-    xinterval.include( (float) xypos.x );
-    yinterval.include( (float) xypos.y );
+    xinterval.include( xypos.x );
+    yinterval.include( xypos.y );
 
     TypeSet<PosID> posids;
     findPos( xinterval, yinterval, cs.zrg, &posids );

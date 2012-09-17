@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.44 2012-09-13 18:36:28 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.33 2011/04/26 14:18:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uigraphicsitem.h"
 #include "uigeom.h"
 #include "draw.h"
@@ -23,8 +22,6 @@ class uiFont;
 class uiGroup;
 class uiObject;
 class uiSize;
-class uiRGBArray;
-class FontData;
 
 class QGraphicsItem;
 class QGraphicsEllipseItem;
@@ -36,7 +33,7 @@ class QGraphicsProxyWidget;
 class QGraphicsRectItem;
 class QGraphicsTextItem;
 class QPainterPath;
-class QPolygonF;
+class QPolygon;
 class QSize;
 
 class ODGraphicsArrowItem;
@@ -44,11 +41,10 @@ class ODGraphicsMarkerItem;
 class ODGraphicsPixmapItem;
 class ODGraphicsPointItem;
 class ODGraphicsPolyLineItem;
-class ODGraphicsDynamicImageItem;
 template <class T> class ODPolygon;
 
 
-mClass(uiBase) uiObjectItem : public uiGraphicsItem
+mClass uiObjectItem : public uiGraphicsItem
 {
 public:
 				uiObjectItem(uiObject* obj);
@@ -75,7 +71,7 @@ protected:
 };
 
 
-mClass(uiBase) uiEllipseItem : public uiGraphicsItem
+mClass uiEllipseItem : public uiGraphicsItem
 {
 public:
 				uiEllipseItem();
@@ -94,7 +90,7 @@ protected:
 };
 
 
-mClass(uiBase) uiCircleItem : public uiEllipseItem
+mClass uiCircleItem : public uiEllipseItem
 {
 public:
 				uiCircleItem();
@@ -105,7 +101,7 @@ public:
 };
 
 
-mClass(uiBase) uiLineItem : public uiGraphicsItem
+mClass uiLineItem : public uiGraphicsItem
 {
 public:
     			uiLineItem();
@@ -123,10 +119,6 @@ public:
     void		setLine(const uiPoint& start,const uiPoint& end,
 	    			bool abspos=true);
     void		setLine(int x1,int y1,int x2,int y2,bool abspos=true);
-    void		setLine(float x1,float y1,float x2,float y2,
-				bool abspos=true);
-    void		setLine(const Geom::Point2D<float>&,
-				const Geom::Point2D<float>&,bool abspos=true);
     void		setStartPos(const uiPoint&,bool abspos);
     void		setEndPos(const uiPoint&,bool abspos);
     uiRect		lineRect() const;
@@ -138,33 +130,7 @@ protected:
 };
 
 
-/*!Displays an image tied to a rectangle. There is one basic image (not dynamic)
-  that provides a background model. The notifier will trigger if object
-  wants a higher resolution version of the image. If so, that can be set
-  by callint setImage with dynamic==true. */
-
-mClass(uiBase) uiDynamicImageItem : public uiGraphicsItem
-{
-public:
-    				uiDynamicImageItem();
-				~uiDynamicImageItem();
-    
-    void			setImage(bool dynamic,const uiRGBArray&,
-					 const uiWorldRect&);
-    				/*!<If dynamic==false, worldrect will define
-				    the bounding box of the item. */
-
-    NotifierAccess&		wantsData();
-    uiWorldRect			wantedWorldRect() const;
-    uiSize			wantedScreenSize() const;
-
-protected:
-    QGraphicsItem*		mkQtObj();
-    ODGraphicsDynamicImageItem*	item_;
-};
-
-
-mClass(uiBase) uiPixmapItem : public uiGraphicsItem
+mClass uiPixmapItem : public uiGraphicsItem
 {
 public:
     				uiPixmapItem();
@@ -183,13 +149,11 @@ protected:
 };
 
 
-mClass(uiBase) uiPolygonItem : public uiGraphicsItem
+mClass uiPolygonItem : public uiGraphicsItem
 {
 public:
     			uiPolygonItem();
     			uiPolygonItem(const TypeSet<uiPoint>&,bool fill);
-    			uiPolygonItem(const TypeSet<uiWorldPoint>&,
-				      bool fill);
     			uiPolygonItem(const ODPolygon<int>&,bool fill);
     			uiPolygonItem(QGraphicsPolygonItem*);
 			~uiPolygonItem();
@@ -197,7 +161,6 @@ public:
     QGraphicsPolygonItem* qPolygonItem()	{ return qpolygonitem_; }
     void		fill();
     void		setPolygon(const TypeSet<uiPoint>&);
-    void		setPolygon(const TypeSet<uiWorldPoint>&);
     void		setPolygon(const ODPolygon<int>&);
 
 protected:
@@ -207,26 +170,48 @@ protected:
 };
 
 
-mClass(uiBase) uiPolyLineItem : public uiGraphicsItem
+mClass uiPolyLineItem : public uiGraphicsItem
 {
 public:
-    			uiPolyLineItem();
-    			uiPolyLineItem(const TypeSet<uiPoint>&);
-    			uiPolyLineItem(const TypeSet<uiWorldPoint>&);
-			~uiPolyLineItem();
+    				uiPolyLineItem();
+    				uiPolyLineItem(const TypeSet<uiPoint>&);
+				~uiPolyLineItem();
 
-    void		setPolyLine(const TypeSet<uiPoint>&);
-    void		setPolyLine(const TypeSet<uiWorldPoint>&);
+    int				nrSegments() const 
+    					{ return polylines_.size(); }
+    ODGraphicsPolyLineItem*	getSegment(int idx) const
+    					{ return gtSegment(idx); }
+
+    void			setPolyLine(const TypeSet<uiPoint>&);
+
+    //TODO remove this when qgraphicsitemgroup can support it :
+    void        		setPenStyle(const LineStyle&,bool alpha=false);
+    void        		setPenColor(const Color&,bool withalpha=false);
+    void        		setFillColor(const Color&,bool withalpha=false);
+
+    QGraphicsItemGroup* 	qPolyLineItemGroup()
+					{ return qgraphicsitemgrp_; }
 
 protected:
 
+    void			setPolyLine(const QPolygon&);
+    ODGraphicsPolyLineItem*	getEmptyPolyLine();
+    ODGraphicsPolyLineItem*	gtSegment(int idx) const
+				{
+				    return !polylines_.validIdx(idx) ? 0 
+				    : const_cast<ODGraphicsPolyLineItem*>( 
+					    polylines_[idx] );
+				}
+
+
     QGraphicsItem*		mkQtObj();
-    QGraphicsPathItem*		qgraphicspath_;
+    QGraphicsItemGroup*		qgraphicsitemgrp_;
+    ObjectSet<ODGraphicsPolyLineItem> polylines_;
 };
 
 
 
-mClass(uiBase) uiRectItem : public uiGraphicsItem
+mClass uiRectItem : public uiGraphicsItem
 {
 public:
     			uiRectItem();
@@ -244,17 +229,16 @@ protected:
 };
 
 
-mClass(uiBase) uiTextItem : public uiGraphicsItem
+mClass uiTextItem : public uiGraphicsItem
 {
 public:
-			uiTextItem(bool useodvwrtxtitem=false);
+			uiTextItem();
     			uiTextItem(const char*,const Alignment& al=Alignment());
     			uiTextItem(const uiPoint&,const char*,
 				   const Alignment& al=Alignment());
 			~uiTextItem();
 
     void 		setFont(const uiFont&);
-    void		setFontData(const FontData&);
     uiSize		getTextSize() const;
     void 		setAlignment(const Alignment&);
     void 		setText(const char*); 
@@ -269,21 +253,19 @@ public:
     QGraphicsTextItem*  qTextItem()	{ return qtextitem_; }
 
 protected:
-			uiTextItem(QGraphicsItem*);
 
-    QGraphicsItem* 	mkQtObj();
-    QGraphicsItem* 	mkODObj();
+    QGraphicsItem*	mkQtObj();
     QGraphicsTextItem*	qtextitem_;
 
     Alignment		al_;
-    uiWorldPoint	pos_;
+    uiPoint		pos_;
 
     void		updatePos();
-    virtual void	stPos(float,float);
+    virtual void	stPos(int,int);
 };
 
 
-mClass(uiBase) uiMarkerItem : public uiGraphicsItem
+mClass uiMarkerItem : public uiGraphicsItem
 {
 public:
     				uiMarkerItem(bool fill=true);
@@ -306,7 +288,7 @@ protected:
 };
 
 
-mClass(uiBase) uiPointItem : public uiGraphicsItem
+mClass uiPointItem : public uiGraphicsItem
 {
 public:
     				uiPointItem();
@@ -322,7 +304,7 @@ protected:
 };
 
 
-mClass(uiBase) uiArrowItem : public uiGraphicsItem
+mClass uiArrowItem : public uiGraphicsItem
 {
 public:
     				uiArrowItem();
@@ -353,24 +335,24 @@ protected:
 };
 
 
-mClass(uiBase) uiCurvedItem : public uiGraphicsItem
+mClass uiCurvedItem : public uiGraphicsItem
 {
 public:
 			uiCurvedItem(const uiPoint& startpt);
 			uiCurvedItem(const Geom::Point2D<float>& startpt);
 			~uiCurvedItem();
 
-    mClass(uiBase) ArcSpec
+    mClass ArcSpec
     {
     public:
 			ArcSpec( const uiPoint& c, float r,
 				 const Interval<float>& angs )
-			    : center_((float)c.x,(float)c.y), radius_(r)
-			    , angles_(angs), yratio_(1.0f)		{}
+			    : center_(c.x,c.y), radius_(r)
+			    , angles_(angs), yratio_(1)		{}
 			ArcSpec( const Geom::Point2D<float>& c, float r,
 				 const Interval<float>& angs )
 			    : center_(c), radius_(r)
-			    , angles_(angs), yratio_(1.0f)		{}
+			    , angles_(angs), yratio_(1)		{}
 
 	Geom::Point2D<float> center_;
 	float		radius_;	//!< X radius. Yrad = radius_ * yratio_
@@ -378,21 +360,19 @@ public:
 	float		yratio_;	//!< < 1 means: X size > Y size
     };
 
-    mClass(uiBase) SplineSpec
+    mClass SplineSpec
     {
     public:
 			SplineSpec( const uiPoint& endp, const uiPoint& cp )
-			    : end_((float)endp.x,(float)endp.y)
-			    , cp1_((float)cp.x,(float)cp.y)
+			    : end_(endp.x,endp.y), cp1_(cp.x,cp.y)
 			    , cubic_(false)				{}
 			SplineSpec( const Geom::Point2D<float>& endp,
 				    const Geom::Point2D<float>& cp )
 			    : end_(endp), cp1_(cp), cubic_(false)	{}
 			SplineSpec( const uiPoint& endp, const uiPoint& p1,
 				    const uiPoint& p2 )
-			    : end_((float)endp.x,(float)endp.y)
-			    , cp1_((float)p1.x,(float)p1.y)
-			    , cp2_((float)p2.x,(float)p2.y), cubic_(true)		{}
+			    : end_(endp.x,endp.y), cp1_(p1.x,p1.y)
+			    , cp2_(p2.x,p2.y), cubic_(true)		{}
 			SplineSpec( const Geom::Point2D<float>& endp,
 				    const Geom::Point2D<float>& p1,
 				    const Geom::Point2D<float>& p2 )
@@ -424,4 +404,3 @@ protected:
 
 
 #endif
-

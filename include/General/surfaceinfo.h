@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 2002
- RCS:		$Id: surfaceinfo.h,v 1.9 2012-09-13 18:36:27 cvsnanne Exp $
+ RCS:		$Id: surfaceinfo.h,v 1.6 2009/07/22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "bufstring.h"
 #include "multiid.h"
 
 /*!\brief Surface info name/attribname with an ID (usually the EM-ID). */
 
-class SurfaceInfo
+mClass SurfaceInfo
 {
 public:
 		   	 SurfaceInfo( const char* nm, MultiID mi, int vi=-1, 
@@ -34,4 +33,3 @@ public:
 
 
 #endif
-

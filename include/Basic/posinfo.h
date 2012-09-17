@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.25 2012-08-03 13:00:14 cvskris Exp $
+ RCS:		$Id: posinfo.h,v 1.23 2011/04/22 13:28:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "manobjectset.h"
 #include "typeset.h"
 #include "cubesampling.h"
@@ -43,7 +42,7 @@ namespace PosInfo
 /*!\brief Position info for a line - in a 3D cube, that would be an inline.
 	  Stored as (crossline-)number segments. */
 
-mClass(Basic) LineData
+mClass LineData
 {
 public:
     typedef StepInterval<int>	Segment;
@@ -67,7 +66,7 @@ public:
 
 /*!\brief Position in a CubeData */
 
-mClass(Basic) CubeDataPos
+mClass CubeDataPos
 {
 public:
     		CubeDataPos( int iln=0, int isn=0, int sidx=-1 )
@@ -89,7 +88,7 @@ public:
   The LineData's are not sorted.
  */
 
-mClass(Basic) CubeData : public ManagedObjectSet<LineData>
+mClass CubeData : public ManagedObjectSet<LineData>
 {
 public:
 
@@ -147,7 +146,7 @@ protected:
   The LineData's are sorted.
  */
 
-mClass(Basic) SortedCubeData : public CubeData
+mClass SortedCubeData : public CubeData
 {
 public:
     			SortedCubeData()				{}
@@ -155,7 +154,6 @@ public:
 				  const BinID& step )
 			    : CubeData(start,stop,step)		{}
     			SortedCubeData( const SortedCubeData& cd )
-			    : CubeData( cd )
 								{ *this = cd; }
     			SortedCubeData( const CubeData& cd )	{ *this = cd; }
     SortedCubeData&	operator =( const SortedCubeData& scd )
@@ -177,7 +175,7 @@ public:
 
 /*!\brief Fills CubeData object. Requires inline- and crossline-sorting. */
 
-mClass(Basic) CubeDataFiller
+mClass CubeDataFiller
 {
 public:
     			CubeDataFiller(CubeData&);
@@ -200,7 +198,7 @@ protected:
 };
 
 
-mClass(Basic) CubeDataIterator
+mClass CubeDataIterator
 {
 public:
 
@@ -224,4 +222,3 @@ public:
 } // namespace PosInfo
 
 #endif
-

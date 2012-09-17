@@ -4,8 +4,8 @@ Mon Nov 3 10:52:13 2003
 !
 3D.Evaluate Attributes:		Evaluate_attributes.attr
 2D.Evaluate Attributes:		Evaluate_2D_attributes.attr
-3D.AVO attributes from Intercept-Gradient:	AVO_attributes_from_Intercept-Gradient.attr
-2D.AVO attributes from Intercept-Gradient:	AVO_attributes_from_Intercept-Gradient_2D.attr
-3D.AVO attributes from Near-Far:	AVO_attributes_from_Near-Far.attr
-2D.AVO attributes from Near-Far:	AVO_attributes_from_Near-Far_2D.attr
+3D.AVO attributes from Intercept-Gradient:      AVO_attributes_from_Intercept-Gradient.attr                                                                     
+2D.AVO attributes from Intercept-Gradient:      AVO_attributes_from_Intercept-Gradient_2D.attr                                                                  
+3D.AVO attributes from Near-Far:        AVO_attributes_from_Near-Far.attr       
+2D.AVO attributes from Near-Far:        AVO_attributes_from_Near-Far_2D.attr
 !

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlacrdesc.h,v 1.12 2012-08-03 13:00:31 cvskris Exp $
+ RCS:		$Id: nlacrdesc.h,v 1.11 2009/07/22 16:01:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "nlamod.h"
 #include "nladesign.h"
 #include "multiid.h"
 #include "bufstringset.h"
@@ -23,7 +22,7 @@ class DataPointSet;
 
 /*\brief Description of how an NLA analysis Feature set is to be created */
 
-mClass(NLA) NLACreationDesc
+mClass NLACreationDesc
 {
 public:
     			NLACreationDesc()	{ clear(); }
@@ -64,4 +63,3 @@ public:
 
 
 #endif
-

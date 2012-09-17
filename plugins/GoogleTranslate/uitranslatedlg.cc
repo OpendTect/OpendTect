@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uitranslatedlg.cc,v 1.11 2012-07-31 04:23:22 cvskris Exp $";
+static const char* rcsID = "$Id: uitranslatedlg.cc,v 1.7 2012/01/24 21:25:50 cvsnanne Exp $";
 
 
 #include "uitranslatedlg.h"
@@ -51,7 +51,7 @@ uiTranslateDlg::uiTranslateDlg( uiParent* p )
 	keyfld_->attach( alignedBelow, lcb );
     }
 
-    ioPixmap pm( "logo-powered-by-google" );
+    ioPixmap pm( "logo-powered-by-google.png" );
     googlebut_ = new uiPushButton( this, "", pm,
 	    mCB(this,uiTranslateDlg,googleButPushCB), true );
     googlebut_->setMinimumHeight( 60 );
@@ -85,8 +85,8 @@ void uiTranslateDlg::fillBox()
 {
     BufferString curlang;
     Settings::common().get( "Translator.Language", curlang );
-    if ( !curlang.isEmpty() )
-	TrMgr().tr()->setToLanguage( curlang );
+    const bool res = !curlang.isEmpty()
+		? TrMgr().tr()->setToLanguage( curlang ) : false;
 
     const int nrlangs = TrMgr().tr()->nrSupportedLanguages();
     for ( int idx=0; idx<nrlangs; idx++ )

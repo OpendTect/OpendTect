@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.56 2012-09-11 08:39:53 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.55 2012/09/11 08:40:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
 #include "ranges.h"
@@ -37,7 +36,7 @@ class DataHolder;
 class DataCubes;
 class Data2DHolder;
 
-mClass(AttributeEngine) Output
+mClass Output
 { mRefCountImpl(Output);
 public:
     				Output();
@@ -67,7 +66,6 @@ public:
     const Seis::SelData&	getSelData()		{ return *seldata_; }
     const LineKey&		curLineKey() const;
     virtual void		adjustInlCrlStep(const CubeSampling&)	{};
-    virtual bool		finishWrite()		{ return false; }
 
     static const char*		outputstr();
     static const char*          cubekey();
@@ -82,6 +80,9 @@ protected:
     TypeSet<int>		desoutputs_;
     void			doSetGeometry(const CubeSampling&);
     void			ensureSelType(Seis::SelType);
+
+public:
+    virtual bool                finishWrite()           { return false; }
 };
 
 
@@ -93,7 +94,7 @@ protected:
     				{ return Output::getLocalZRanges(t,f,ts); }
 
 
-mClass(AttributeEngine) DataCubesOutput : public Output
+mClass DataCubesOutput : public Output
 {
 public:
 				DataCubesOutput(const CubeSampling&);
@@ -128,7 +129,7 @@ protected:
 };
 
 
-mClass(AttributeEngine) SeisTrcStorOutput : public Output
+mClass SeisTrcStorOutput : public Output
 {
 public:
 				SeisTrcStorOutput(const CubeSampling&,
@@ -148,7 +149,6 @@ public:
 				{ doSetGeometry(cs); }
 
     bool			doUsePar(const IOPar&);
-    virtual bool		finishWrite();
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     void			writeTrc();
@@ -190,11 +190,11 @@ protected:
 
 public:
     void			deleteTrc(); //only if you do not use writeTrc
-    
+    virtual bool                finishWrite();
 };
 
 
-mClass(AttributeEngine) Trc2DVarZStorOutput : public SeisTrcStorOutput
+mClass Trc2DVarZStorOutput : public SeisTrcStorOutput
 {
 public:
 				Trc2DVarZStorOutput(const LineKey&,
@@ -210,7 +210,6 @@ public:
     				mImplDefAttribOutputFns(BinID)
     void			setTrcsBounds(Interval<float>);
 
-    virtual bool		finishWrite();
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     void			setMaxDistBetwTrcs( float maxdist )
@@ -224,10 +223,13 @@ protected:
     float			stdstarttime_;
     float			outval_;
     float			maxdisttrcs_;
+
+public:
+    virtual bool                finishWrite();
 };
 
 
-mClass(AttributeEngine) TwoDOutput : public Output
+mClass TwoDOutput : public Output
 {
 public:
 				TwoDOutput(const Interval<int>&, 
@@ -258,7 +260,7 @@ protected:
 };
 
 
-mClass(AttributeEngine) LocationOutput : public Output
+mClass LocationOutput : public Output
 {
 public:
     				LocationOutput(BinIDValueSet&);
@@ -291,7 +293,7 @@ protected:
 };
 
 
-mClass(AttributeEngine) TrcSelectionOutput : public Output
+mClass TrcSelectionOutput : public Output
 {
 public:
     				TrcSelectionOutput(const BinIDValueSet&, 
@@ -319,7 +321,7 @@ protected:
 };
 
 
-mClass(AttributeEngine) TableOutput : public Output
+mClass TableOutput : public Output
 {
 public:
     				TableOutput(DataPointSet&,int);
@@ -362,4 +364,3 @@ protected:
 
 
 #endif
-

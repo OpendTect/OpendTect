@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimenu.cc,v 1.76 2012-08-30 07:52:51 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.73 2012/09/17 16:37:45 cvsjaap Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -39,10 +39,10 @@ public:
     virtual int			addItem(uiPopupMenu*,int id) =0;
     virtual int			insertMenu(uiPopupMenu*,uiPopupMenu* before) =0;
 
-    virtual mQtclass(QMenuBar*)	bar()			{ return 0; }
-    virtual mQtclass(QMenu*)	popup()			{ return 0; }
+    virtual QMenuBar*		bar()			{ return 0; }
+    virtual QMenu*		popup()			{ return 0; }
 
-    void			setIcon( const mQtclass(QPixmap&) pm )
+    void			setIcon( const QPixmap& pm )
 				{
     			    	    if ( bar() )
 					bar()->setWindowIcon( pm );
@@ -57,7 +57,7 @@ public:
 
     ObjectSet<uiMenuItem>	itms_;
     ObjectSet<uiAction>		uiactions_;
-    ObjectSet<mQtclass(QAction)> qactions_;
+    ObjectSet<QAction>		qactions_;
 
 protected:
 				uiMenuItemContainerBody()	{}
@@ -75,7 +75,7 @@ uiMenuItemContainerBodyImpl( uiMenuItemContainer& hndle, uiParent* parnt,
     , qmenu_( &qThing )
     , msgr_(0)
 {
-    mQtclass(QMenuBar*) qmenubar = bar();
+    QMenuBar* qmenubar = bar();
     if ( qmenubar )
 	msgr_ = new i_MenuMessenger( qmenubar );
 }
@@ -98,9 +98,9 @@ int getIndexFromID( int id )
 
 int addItem( uiMenuItem* it, int id )
 {
-    mQtclass(QString) nm( it->name() );
+    QString nm( it->name() );
     i_MenuMessenger* msgr = it->messenger();
-    mQtclass(QAction*) action = qmenu_->addAction( nm, msgr, SLOT(activated()));
+    QAction* action = qmenu_->addAction( nm, msgr, SLOT(activated()) );
     init( it, action, id, -1 );
     return id;
 }
@@ -109,9 +109,9 @@ int addItem( uiMenuItem* it, int id )
 int addItem( uiPopupMenu* pmnu, int id )
 {
     uiPopupItem* it = &pmnu->item();
-    mQtclass(QMenu*) pu = pmnu->body_->popup();
+    QMenu* pu = pmnu->body_->popup();
     pu->setTitle( it->name().buf() );
-    mQtclass(QAction*) action = qmenu_->addMenu( pu );
+    QAction* action = qmenu_->addMenu( pu );
     init( it, action, id, -1 );
     return id;
 }
@@ -120,17 +120,17 @@ int addItem( uiPopupMenu* pmnu, int id )
 int insertMenu( uiPopupMenu* pmnu, uiPopupMenu* before )
 {
     const int beforeidx = before ? getIndexFromID( before->item().id() ) : -1;
-    mQtclass(QAction*) actionbefore = before ? before->item().qaction_ : 0;
+    QAction* actionbefore = before ? before->item().qaction_ : 0;
     uiPopupItem* it = &pmnu->item();
-    mQtclass(QMenu*) pu = pmnu->body_->popup();
+    QMenu* pu = pmnu->body_->popup();
     pu->setTitle( it->name().buf() );
-    mQtclass(QAction*) action = qmenu_->insertMenu( actionbefore, pu );
+    QAction* action = qmenu_->insertMenu( actionbefore, pu );
     init( it, action, it->id(), beforeidx );
     return it->id();
 }
 
 
-void init( uiMenuItem* it, mQtclass(QAction*) action, int id, int idx )
+void init( uiMenuItem* it, QAction* action, int id, int idx )
 {
     if ( !action ) return;
 
@@ -171,13 +171,13 @@ void clear()
     uiactions_.erase();
 }
 
-mQtclass(QMenuBar*) bar()
-{ mDynamicCastGet(mQtclass(QMenuBar*),qbar,qmenu_) return qbar; }
+QMenuBar* bar()
+{ mDynamicCastGet(QMenuBar*,qbar,qmenu_) return qbar; }
 
-mQtclass(QMenu*) popup()
-{ mDynamicCastGet(mQtclass(QMenu*),qpopup,qmenu_) return qpopup; }
+QMenu* popup()
+{ mDynamicCastGet(QMenu*,qpopup,qmenu_) return qpopup; }
 
-virtual const mQtclass(QWidget*) managewidg_() const
+virtual const QWidget* managewidg_() const
 { return qmenu_; }
 
 private:
@@ -274,7 +274,7 @@ void uiMenuItem::setText( const char* txt )
 { if ( qaction_ ) qaction_->setText( txt ); }
 
 void uiMenuItem::setText( const wchar_t* txt )
-{ if ( qaction_ ) qaction_->setText( mQtclass(QString)::fromWCharArray(txt) ); }
+{ if ( qaction_ ) qaction_->setText( QString::fromWCharArray(txt) ); }
 
 void uiMenuItem::setPixmap( const char* pmnm )
 {
@@ -296,9 +296,11 @@ void uiMenuItem::setPixmap( const ioPixmap& pm )
 void uiMenuItem::setShortcut( const char* sctxt )
 {
     if ( qaction_ && sctxt && *sctxt )
-	qaction_->setShortcut( mQtclass(QString)(sctxt) );
+	qaction_->setShortcut( QString(sctxt) );
 }
 
+
+CallBack* uiMenuItem::cmdrecorder_ = 0;
 
 static CallBackSet cmdrecorders_;
 
@@ -326,6 +328,21 @@ void uiMenuItem::endCmdRecEvent( int refnr, const char* msg )
 	CBCapsule<const char*> caps( actstr, this );
 	cmdrecorders_.doCall( &caps );
     }
+}
+
+
+void uiMenuItem::unsetCmdRecorder()
+{
+    if ( cmdrecorder_ )
+	delete cmdrecorder_;
+    cmdrecorder_ = 0;
+}
+
+
+void uiMenuItem::setCmdRecorder( const CallBack& cb )
+{
+    unsetCmdRecorder();
+    cmdrecorder_ = new CallBack( cb );
 }
 
 
@@ -362,7 +379,7 @@ void uiMenuItem::trlReady( CallBacker* cb )
 	return;
 
     const wchar_t* translation = TrMgr().tr()->get();
-    mQtclass(QString) txt = mQtclass(QString)::fromWCharArray( translation );
+    QString txt = QString::fromWCharArray( translation );
     qaction_->setToolTip( txt );
     TrMgr().tr()->ready.remove( mCB(this,uiMenuItem,trlReady) );
 }
@@ -523,23 +540,20 @@ void uiMenuItemContainer::translate()
 uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm )
     : uiMenuItemContainer( nm, 0, 0 )
 {
-    mQtclass(QMenuBar*) qmenubar =
-			     new mQtclass(QMenuBar)( parnt->body()->qwidget() );
+    QMenuBar* qmenubar = new QMenuBar( parnt->body()->qwidget() );
     qmenubar->setObjectName( nm );
-    uiMenuItemContainerBodyImpl<mQtclass(QMenuBar)>* bd =
-	new uiMenuItemContainerBodyImpl<mQtclass(QMenuBar)>( *this, parnt,								     *qmenubar );
+    uiMenuItemContainerBodyImpl<QMenuBar>* bd =
+	new uiMenuItemContainerBodyImpl<QMenuBar>( *this, parnt, *qmenubar );
     body_ = bd;
     setBody( bd );
 }
 
 
-uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm,
-		      mQtclass(QMenuBar&) qThing )
+uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm, QMenuBar& qThing )
     : uiMenuItemContainer( nm, 0, 0 )
 { 
-    uiMenuItemContainerBodyImpl<mQtclass(QMenuBar)>* bd =
-	    new uiMenuItemContainerBodyImpl<mQtclass(QMenuBar)>( *this, parnt,
-		    						 qThing );
+    uiMenuItemContainerBodyImpl<QMenuBar>* bd =
+	    new uiMenuItemContainerBodyImpl<QMenuBar>( *this, parnt, qThing );
     body_ = bd;
     setBody( bd );
 }
@@ -548,7 +562,7 @@ uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm,
 void uiMenuBar::reDraw( bool deep )
 { if ( body_->bar() ) body_->bar()->update(); }
 
-void uiMenuBar::setIcon( const mQtclass(QPixmap&) pm )
+void uiMenuBar::setIcon( const QPixmap& pm )
 { body_->setIcon( pm ); }
 
 void uiMenuBar::setSensitive( bool yn )
@@ -559,6 +573,8 @@ bool uiMenuBar::isSensitive() const
 
 // -----------------------------------------------------------------------
 
+CallBack* uiPopupMenu::interceptor_ = 0;
+
 static CallBackSet interceptors_;
 
 uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm,
@@ -566,10 +582,9 @@ uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm,
     : uiMenuItemContainer( nm, 0, 0 )
     , item_( *new uiPopupItem( *this, nm, pmnm ) )
 {
-    mQtclass(QMenu*) qmenu = new mQtclass(QMenu)( parnt->body()->qwidget() );
-    uiMenuItemContainerBodyImpl<mQtclass(QMenu)>* bd =
-	new uiMenuItemContainerBodyImpl<mQtclass(QMenu)>( *this, parnt,
-							  *qmenu );
+    QMenu* qmenu = new QMenu( parnt->body()->qwidget() );
+    uiMenuItemContainerBodyImpl<QMenu>* bd =
+	new uiMenuItemContainerBodyImpl<QMenu>( *this, parnt, *qmenu );
     body_ = bd;
     setBody( bd );
 
@@ -599,7 +614,7 @@ void uiPopupMenu::setEnabled( bool yn )
 { item_.setEnabled( yn ); }
 
 
-int uiPopupMenu::findIdForAction( mQtclass(QAction*) qaction ) const
+int uiPopupMenu::findIdForAction( QAction* qaction ) const
 {
     const int actidx = body_->qactions_.indexOf( qaction );
     if ( body_->itms_.validIdx(actidx) )
@@ -618,7 +633,7 @@ int uiPopupMenu::findIdForAction( mQtclass(QAction*) qaction ) const
 
 int uiPopupMenu::exec()
 {
-    mQtclass(QMenu*) mnu = body_->popup();
+    QMenu* mnu = body_->popup();
     if ( !mnu ) return -1;
 
     if ( !interceptors_.isEmpty() )
@@ -637,7 +652,7 @@ int uiPopupMenu::exec()
 	}
     }
 
-    mQtclass(QAction*) qaction = body_->popup()->exec(mQtclass(QCursor)::pos());
+    QAction* qaction = body_->popup()->exec( QCursor::pos() );
     return findIdForAction( qaction );
 }
 
@@ -657,14 +672,28 @@ void uiPopupMenu::doIntercept( bool yn, uiMenuItem* interceptitm )
 }
 
 
-void uiPopupMenu::removeInterceptor( const CallBack& cb )
+void uiPopupMenu::unsetInterceptor()
 { 
+    if ( interceptor_ )
+	delete interceptor_;
+    interceptor_ = 0;
+}
+
+
+void uiPopupMenu::setInterceptor( const CallBack& cb )
+{ 
+    unsetInterceptor();
+    interceptor_ = new CallBack( cb );
+}
+
+
+void uiPopupMenu::removeInterceptor( const CallBack& cb )
+{
     interceptors_ -= cb;
 }
 
 
 void uiPopupMenu::addInterceptor( const CallBack& cb )
-{ 
+{
     interceptors_ += cb;
 }
-

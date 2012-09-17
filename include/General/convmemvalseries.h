@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris Tingdahl
  Date:          Oct 2006
- RCS:           $Id: convmemvalseries.h,v 1.11 2012-08-30 10:58:50 cvskris Exp $
+ RCS:           $Id: convmemvalseries.h,v 1.10 2010/03/15 18:37:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,7 +135,7 @@ bool ConvMemValueSeries<T>::setSize( od_int64 sz )
     if ( sz==size_ ) return true;
 
     delete [] ptr_;
-    ptr_ = new char[(int) sz*interpreter_.nrBytes()];
+    ptr_ = new char[sz*interpreter_.nrBytes()];
     return ptr_;
 }
 

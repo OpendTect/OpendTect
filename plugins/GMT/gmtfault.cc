@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		April 2010
-RCS:		$Id: gmtfault.cc,v 1.14 2012-05-22 14:48:44 cvskris Exp $
+RCS:		$Id: gmtfault.cc,v 1.10 2011/05/19 09:52:00 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,19 +52,19 @@ GMTPar* GMTFault::createInstance( const IOPar& iop )
 const char* GMTFault::userRef() const
 {
     static BufferString userref;
-    userref = BufferString( "Fault: ", find(sKey::Name()) );
+    userref = BufferString( "Fault: ", find(sKey::Name) );
     return userref.buf();
 }
 
 
 bool GMTFault::fillLegendPar( IOPar& par ) const
 {
-    FixedString str = find( sKey::Name() );
-    par.set( sKey::Name(), str );
-    par.set( ODGMT::sKeyShape(), "Line" );
-    par.set( sKey::Size(), 1 );
-    str = find( ODGMT::sKeyLineStyle() );
-    par.set( ODGMT::sKeyLineStyle(), str );
+    FixedString str = find( sKey::Name );
+    par.set( sKey::Name, str );
+    par.set( ODGMT::sKeyShape, "Line" );
+    par.set( sKey::Size, 1 );
+    str = find( ODGMT::sKeyLineStyle );
+    par.set( ODGMT::sKeyLineStyle, str );
     return true;
 }
 
@@ -86,13 +86,13 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 	mErrRet("Failed to fetch LineStyles")
 
     bool usecoloryn = false;
-    getYN( ODGMT::sKeyUseFaultColorYN(), usecoloryn );
+    getYN( ODGMT::sKeyUseFaultColorYN, usecoloryn );
 
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrRet("Failed to execute GMT command");
 
     bool onzslice = false;
-    getYN( ODGMT::sKeyZIntersectionYN(), onzslice );
+    getYN( ODGMT::sKeyZIntersectionYN, onzslice );
 
     for ( int midx=0; midx<flts_.size(); midx++ )
     {
@@ -104,8 +104,7 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 	Geometry::FaultStickSurface* fsssurf =
 	    			fault3d->geometry().sectionGeometry(fltsid);
 	PtrMan<Geometry::ExplFaultStickSurface> fltsurf = 
-	    new Geometry::ExplFaultStickSurface( fsssurf,
-		    				 SI().zDomain().userFactor() );
+	    new Geometry::ExplFaultStickSurface( fsssurf, SI().zFactor() );
 	fltsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
 	if ( !fltsurf->update(true,0) )
 	    continue;
@@ -118,7 +117,7 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 	if( onzslice )
 	{
 	    float zval;
-	    get( ODGMT::sKeyZVals(), zval );
+	    get( ODGMT::sKeyZVals, zval );
 	    TypeSet<Coord3> corners = getCornersOfZSlice( zval );
 	    Coord3 normal = ( corners[1] - corners[0] )
 			     .cross( corners[3] - corners[0] ).normalize();
@@ -212,7 +211,7 @@ bool GMTFault::calcOnHorizon( const Geometry::ExplFaultStickSurface& expfault,
 			      Coord3ListImpl& clist ) const
 {
     MultiID mid;
-    get( ODGMT::sKeyHorizonID(), mid );
+    get( ODGMT::sKeyHorizonID, mid );
     RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
     if ( !emobj )
 	return false;
@@ -237,14 +236,14 @@ bool GMTFault::calcOnHorizon( const Geometry::ExplFaultStickSurface& expfault,
 void GMTFault::getLineStyles( BufferStringSet& styles )
 {
     bool usecoloryn = false;
-    getYN( ODGMT::sKeyUseFaultColorYN(), usecoloryn );
+    getYN( ODGMT::sKeyUseFaultColorYN, usecoloryn );
     LineStyle ls;
-    BufferString lsstr = find( ODGMT::sKeyLineStyle() ).str();
+    BufferString lsstr = find( ODGMT::sKeyLineStyle ).str();
     ls.fromString( lsstr );
     if ( !usecoloryn )
     {
 	Color clr;
-	get( ODGMT::sKeyFaultColor(), clr );
+	get( ODGMT::sKeyFaultColor, clr );
 	ls.color_ = clr;
 	BufferString clrstr;
 	mGetLineStyleString( ls, clrstr );
@@ -272,7 +271,7 @@ void GMTFault::getLineStyles( BufferStringSet& styles )
 
 bool GMTFault::loadFaults( BufferString& errmsg )
 {
-    IOPar* fltpar = subselect( ODGMT::sKeyFaultID() );
+    IOPar* fltpar = subselect( ODGMT::sKeyFaultID );
     if ( !fltpar )
     {
 	errmsg = "No faults selected";

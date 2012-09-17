@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: polygonsurfeditor.h,v 1.8 2012-08-03 13:00:30 cvskris Exp $
+ RCS:           $Id: polygonsurfeditor.h,v 1.7 2011/04/26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emeditor.h"
 
 namespace EM { class PolygonBody; };
@@ -21,7 +20,7 @@ template <class T> class Selector;
 namespace MPE
 {
 
-mClass(MPEEngine) PolygonBodyEditor : public ObjectEditor
+mClass PolygonBodyEditor : public ObjectEditor
 {
 public:
     				PolygonBodyEditor(EM::PolygonBody&);
@@ -63,5 +62,4 @@ protected:
 };  // namespace MPE
 
 #endif
-
 

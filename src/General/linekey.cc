@@ -4,7 +4,7 @@
  * DATE     : Oct 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: linekey.cc,v 1.20 2012-05-22 14:48:31 cvskris Exp $";
+static const char* rcsID = "$Id: linekey.cc,v 1.17 2011/05/30 03:21:38 cvsnanne Exp $";
 
 #include "linekey.h"
 #include "iopar.h"
@@ -60,18 +60,18 @@ BufferString LineKey::attrName() const
 void LineKey::fillPar( IOPar& iop, bool iopnm ) const
 {
     if ( !iopnm )
-	iop.set( sKey::LineKey(), *this );
+	iop.set( sKey::LineKey, *this );
     else
     {
 	iop.setName( lineName() );
-	iop.set( sKey::Attribute(), attrName() );
+	iop.set( sKey::Attribute, attrName() );
     }
 }
 
 
 bool LineKey::usePar( const IOPar& iop, bool iopnm )
 {
-    const char* res = iop.find( iopnm ? sKey::Attribute() : sKey::LineKey() );
+    const char* res = iop.find( iopnm ? sKey::Attribute : sKey::LineKey );
     if ( (!iopnm && !res) || (iopnm && iop.name().isEmpty() ) )
 	return false;
 

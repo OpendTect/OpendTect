@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: prestackmuteasciio.cc,v 1.15 2012-05-22 14:48:33 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmuteasciio.cc,v 1.11 2010/09/27 06:32:12 cvsnanne Exp $";
 
 #include "prestackmuteasciio.h"
 #include "prestackmutedef.h"
@@ -38,7 +38,7 @@ void MuteAscIO::createDescBody( Table::FormatDesc& fd, bool haveposinfo )
     if ( haveposinfo )
 	fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
 
-    fd.bodyinfos_ += new Table::TargetInfo( sKey::Offset(), FloatInpSpec(),
+    fd.bodyinfos_ += new Table::TargetInfo( sKey::Offset, FloatInpSpec(),
 					    Table::Required );
 
     fd.bodyinfos_ += Table::TargetInfo::mkZPosition( true );
@@ -80,13 +80,8 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
    	    binid.crl = getIntValue(1);
 	}
 
-	const PointBasedMathFunction::ExtrapolType et = extrapol
-	    ? PointBasedMathFunction::EndVal
-	    : PointBasedMathFunction::None;
-	
-	
 	if ( mutedef.indexOf(binid) < 0 )
-	    mutedef.add( new PointBasedMathFunction(iptype, et ), binid );
+	    mutedef.add( new PointBasedMathFunction(iptype,extrapol), binid );
 
 	mutedef.getFn(mutedef.indexOf(binid)).add( getfValue(2), getfValue(3) );
     }
@@ -98,15 +93,8 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
 bool MuteAscIO::getMuteDef( MuteDef& mutedef, const BinID& binid, bool extrapol,
 			    PointBasedMathFunction::InterpolType iptype)
 {
-    
     if ( mutedef.indexOf(binid) < 0 )
-    {
-	const PointBasedMathFunction::ExtrapolType et = extrapol
-	    ? PointBasedMathFunction::EndVal
-	    : PointBasedMathFunction::None;
-	
-	mutedef.add( new PointBasedMathFunction(iptype,et), binid );
-    }
+	mutedef.add( new PointBasedMathFunction(iptype,extrapol), binid );
 
     while ( true )
     {

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.114 2012-09-04 08:41:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.107 2012/09/04 08:40:29 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -47,8 +47,10 @@ static const char* rcsID mUnusedVar = "$Id: uiwelltietoseismicdlg.cc,v 1.114 201
 namespace WellTie
 {
 
+static const char*  errdmsg = "unable to handle data, please check your input ";
 static const char*  helpid = "107.4.1";
-
+static const char*  eventtypes[] = { "None","Extrema","Maxima",
+				     "Minima","Zero-crossings",0 };
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 #define mGetWD(act) const Well::Data* wd = server_.wd(); if ( !wd ) act;
@@ -156,10 +158,9 @@ void uiTieWin::reDrawSeisViewer( CallBacker* )
 }
 
 
-void uiTieWin::reDrawAuxDatas( CallBacker* )
+void uiTieWin::reDrawSeisViewerAnnot( CallBacker* )
 {
-    drawer_->redrawLogsAuxDatas();
-    drawer_->redrawViewerAuxDatas();
+    drawer_->redrawViewerAnnots();
 }
 
 
@@ -176,8 +177,8 @@ void uiTieWin::reDrawAll( CallBacker* )
 void uiTieWin::addToolBarTools()
 {
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right ); 
-    mAddButton( "z2t", editD2TPushed, "View/Edit Model" );
-    mAddButton( "save", saveDataPushed, "Save Data" );
+    mAddButton( "z2t.png", editD2TPushed, "View/Edit Model" );
+    mAddButton( "save.png", saveDataPushed, "Save Data" );
 }    
 
 
@@ -186,7 +187,8 @@ void uiTieWin::addControls()
     addToolBarTools();
     controlview_ = new WellTie::uiControlView(this,toolbar_,&viewer(),server_);
     controlview_->redrawNeeded.notify( mCB(this,uiTieWin,reDrawAll) );
-    controlview_->redrawAnnotNeeded.notify( mCB(this,uiTieWin,reDrawAuxDatas) );
+    controlview_->redrawAnnotNeeded.notify( 
+	    			mCB(this,uiTieWin,reDrawSeisViewerAnnot) );
 }
 
 
@@ -202,6 +204,7 @@ void uiTieWin::drawFields()
     disppropgrp->attach( ensureBelow, viewer() );
     disppropgrp->attach( ensureBelow, drawer_->logDisps()[0] );
     disppropgrp->attach( ensureBelow, drawer_->logDisps()[1] );
+    disppropgrp->attach( leftBorder );
     createDispPropFields( disppropgrp );
 
     uiSeparator* horSepar = new uiSeparator( this );
@@ -217,7 +220,7 @@ void uiTieWin::drawFields()
 	      		mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
     infobut->attach( ensureBelow, horSepar );
-    uiToolButton* helpbut = new uiToolButton( this, "contexthelp", "Help",
+    uiToolButton* helpbut = new uiToolButton( this, "contexthelp.png", "Help",
 			mCB(this,uiTieWin,provideWinHelp) );
     helpbut->setPrefWidthInChar( 5 );
     helpbut->attach( rightOf, infobut );
@@ -238,17 +241,12 @@ void uiTieWin::provideWinHelp( CallBacker* )
 void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 {
     eventtypefld_ = new uiLabeledComboBox( taskgrp, "Track" );
-    BufferStringSet eventtypes;
-    server_.pickMgr().getEventTypes( eventtypes );
-    for ( int idx=0; idx<eventtypes.size(); idx++)
-	eventtypefld_->box()->addItem( eventtypes[idx]->buf() );
-    
-    eventtypefld_->box()->setCurrentItem( server_.pickMgr().getEventType() );
-    
+    for ( int idx=0; eventtypes[idx]; idx++)
+	eventtypefld_->box()->addItem( eventtypes[idx] );
+    eventtypefld_->box()->setCurrentItem(server_.pickMgr().getEventType() );
     eventtypefld_->box()->selectionChanged.
 	notify(mCB(this,uiTieWin,eventTypeChg));
     
-
     applybut_ = new uiPushButton( taskgrp, "&Apply Changes",
 	   mCB(this,uiTieWin,applyPushed), true );
     applybut_->setSensitive( false );
@@ -286,13 +284,17 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     dispgrp->setHSpacing( 50 );
 
     zinftfld_ = new uiCheckBox( dispgrp, "Z in feet" );
-    zinftfld_->attach( hCentered );
     zintimefld_ = new uiCheckBox( dispgrp, "Z in time" );
     zintimefld_ ->attach( alignedAbove, zinftfld_ );
     
+    markerfld_ = new uiCheckBox( dispgrp, "Display Markers" );
+    markerfld_->attach( rightOf, zintimefld_ );
+    markerfld_->display( wd->haveMarkers() );
+
     putDispParams();
 
     const CallBack pccb( mCB(this,uiTieWin,dispPropChg) );
+    markerfld_->activated.notify( pccb );
     zinftfld_->activated.notify( pccb );
     zintimefld_->activated.notify( pccb );
 
@@ -304,11 +306,13 @@ void uiTieWin::getDispParams()
 {
     params_.iszinft_ = zinftfld_->isChecked();
     params_.iszintime_ = zintimefld_->isChecked();
+    params_.ismarkerdisp_ = markerfld_->isChecked();
 }
 
 
 void uiTieWin::putDispParams()
 {
+    markerfld_->setChecked( params_.ismarkerdisp_ );
     zinftfld_->setChecked( params_.iszinft_ );
     zintimefld_->setChecked( params_.iszintime_ );
 }
@@ -354,7 +358,7 @@ bool uiTieWin::saveDataPushed( CallBacker* cb )
 
 void uiTieWin::eventTypeChg( CallBacker* )
 {
-    server_.pickMgr().setEventType( eventtypefld_->box()->text() );
+    server_.pickMgr().setEventType(eventtypefld_->box()->currentItem());
     controlview_->setEditOn( true );
 }
 
@@ -377,7 +381,7 @@ void uiTieWin::clearPicks( CallBacker* cb )
 {
     server_.pickMgr().clearAllPicks();
     checkIfPick( cb );
-    drawer_->redrawViewerAuxDatas();
+    reDrawSeisViewerAnnot(0);
 }
 
 
@@ -385,7 +389,7 @@ void uiTieWin::clearLastPick( CallBacker* cb )
 {
     server_.pickMgr().clearLastPicks();
     checkIfPick( cb );
-    drawer_->redrawViewerAuxDatas();
+    reDrawSeisViewerAnnot(0);
 }
 
 
@@ -465,10 +469,10 @@ bool uiTieWin::acceptOK( CallBacker* )
     BufferString msg("This will overwrite your depth/time model, do you want to continue?");
     if ( uiMSG().askOverwrite(msg) )
     {
-	drawer_->enableCtrlNotifiers( false );
-	close();
 	if ( !server_.d2TModelMgr().commitToWD() )
 	    mErrRet("Cannot write new depth/time model")
+	drawer_->enableCtrlNotifiers( false );
+	close();
 	if ( Well::MGR().isLoaded( server_.wellID() ) )
 	    Well::MGR().reload( server_.wellID() ); 
     }
@@ -582,8 +586,7 @@ void uiInfoDlg::putToScreen()
     const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_
 						 : data_.estimatedwvlt_;
     wvltdraw_->setActiveWavelet( data_.isinitwvltactive_ );
-    estwvltlengthfld_->setValue(
-	    wvlt.samplePositions().width()*SI().zDomain().userFactor());
+    estwvltlengthfld_->setValue( wvlt.samplePositions().width()*SI().zFactor());
     zrangeflds_[selidx_]->setValue( zrg_ );
     if ( !selidx_ )
     {
@@ -600,6 +603,7 @@ bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
     zrg.stop = data_.dahrg_.stop;
 
     const Interval<int> mintv = zrangeflds_[0]->getIInterval();
+    const bool zinft = SI().depthsInFeetByDefault();
     const Well::Marker* topmarkr = 
 			wd->markers().getByName( zrangeflds_[0]->text(0) );
     const Well::Marker* botmarkr = 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewerscalingtab.cc,v 1.6 2012-07-10 13:27:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uipsviewerscalingtab.cc,v 1.3 2011/02/10 06:29:54 cvssatyaki Exp $";
 
 #include "uipsviewerscalingtab.h"
 
@@ -96,7 +96,7 @@ bool uiViewer3DScalingTab::applyButPushedCB( CallBacker* cb )
     ddpars_.fillPar( par );
 
     vwr_.appearance().ddpars_.usePar( par );
-    vwr_.handleChange( FlatView::Viewer::DisplayPars );
+    vwr_.handleChange( FlatView::Viewer::VDPars );
 
     if ( !applyall_ )
 	return true;
@@ -108,7 +108,7 @@ bool uiViewer3DScalingTab::applyButPushedCB( CallBacker* cb )
 	    continue;
 
 	fvwr->appearance().ddpars_.usePar( par );
-	fvwr->handleChange( FlatView::Viewer::DisplayPars );
+	fvwr->handleChange( FlatView::Viewer::VDPars );
     }
 
     return true;

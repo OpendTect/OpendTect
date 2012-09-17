@@ -7,21 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2011
- RCS:           $Id: price.h,v 1.7 2012-08-29 15:58:00 cvsnanne Exp $
+ RCS:           $Id: price.h,v 1.4 2012/07/10 13:05:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "fixedstring.h"
 #include "manobjectset.h"
 
 class BufferStringSet;
 
 /* Class to hande currencies */
-mClass(General) Currency
+mStruct Currency
 {
-public:
 				Currency(const char* abrevation, short devisor)
 				    : devisor_( devisor )
 				    , abrevation_( abrevation )
@@ -34,34 +32,26 @@ public:
     static void			getCurrencyStrings(BufferStringSet&);
 
     static ManagedObjectSet<const Currency>	repository_;
-    static const char*		sKeyEUR() { return "EUR"; }
 };
 
 
-mClass(General) Price
+mStruct Price
 {
-public:
-               Price( double userprice = 0,
-		       const char* currencystr=Currency::sKeyEUR() )
-		    : currency_( Currency::getCurrency(currencystr) )
-		{
-		    setUserPrice( userprice );
-		}
+                        Price( float userprice = 0 )
+			    : currency_( Currency::getCurrency("EUR") )
+			{
+			    setUserPrice( userprice );
+			}
 
-    bool	operator==(const Price& p) const
-		{
-		    return p.amount_==amount_ &&
-			   currency_->abrevation_==p.currency_->abrevation_;
-		}
-
-    double	getUserPrice() const
-    		{ return ((double) amount_)/currency_->devisor_; }
-    void	setUserPrice( double p )
-		{ amount_ = currency_ ? mNINT32(p*currency_->devisor_)
-				      : mNINT32(p); }
+    float		getUserPrice() const
+    			{ return ((float) amount_)/currency_->devisor_; }
+    void		setUserPrice( float p )
+			{ amount_ = currency_ ? mNINT32(p*currency_->devisor_)
+					      : mNINT32(p); }
 
     int			amount_; //In lowest devisible unit
     const Currency*	currency_;
 };
+
 
 #endif

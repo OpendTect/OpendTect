@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.h,v 1.20 2012-08-03 13:00:09 cvskris Exp $
+ RCS:		$Id: eventattrib.h,v 1.19 2011/02/03 11:33:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 #include "valseriesevent.h"
 
@@ -34,7 +33,7 @@ Can optionally return the amplitude value at event exact position
 
 */
 
-mClass(Attributes) Event : public Provider
+mClass Event : public Provider
 {
 public:
     static void			initClass();
@@ -91,4 +90,3 @@ protected:
 } // namespace Attrib
 
 #endif
-

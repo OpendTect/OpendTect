@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.21 2012-08-03 13:00:05 cvskris Exp $
+ RCS:           $Id: posprovider.h,v 1.20 2011/11/14 07:39:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "algomod.h"
 #include "posfilter.h"
 #include "ranges.h"
 class CubeSampling;
@@ -36,7 +35,7 @@ public:
 
     virtual bool	isProvider() const			{ return true; }
 
-    mGlobal(Algo) virtual Provider*	clone() const			= 0;
+    mGlobal virtual Provider*	clone() const			= 0;
 
     virtual bool	toNextPos()				= 0;
     virtual bool	toNextZ()				= 0;
@@ -46,16 +45,16 @@ public:
     virtual od_int64	estNrPos() const			= 0;
     virtual int		estNrZPerPos() const			{ return 1; }
 
-    mGlobal(Algo) virtual float	estRatio(const Provider&) const;
-    mGlobal(Algo) virtual void	getCubeSampling(CubeSampling&) const;
+    mGlobal virtual float	estRatio(const Provider&) const;
+    mGlobal virtual void	getCubeSampling(CubeSampling&) const;
 
-    mGlobal(Algo) static Provider*	make(const IOPar&,bool is2d);
+    mGlobal static Provider*	make(const IOPar&,bool is2d);
 };
 
 
 /*!\brief provides a subselection for 3D surveys */
 
-mClass(Algo) Provider3D : public Filter3D
+mClass Provider3D : public Filter3D
 		 , public Provider
 {
 public:
@@ -79,7 +78,7 @@ public:
 
 /*!\brief provides a subselection for 2D surveys - requires the line name(s). */
 
-mClass(Algo) Provider2D : public Filter2D
+mClass Provider2D : public Filter2D
 		 , public Provider
 {
 public:
@@ -102,4 +101,3 @@ public:
 } // namespace
 
 #endif
-

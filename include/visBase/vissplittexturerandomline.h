@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		3-12-2008
- RCS:		$Id: vissplittexturerandomline.h,v 1.9 2012-08-03 13:01:26 cvskris Exp $
+ RCS:		$Id: vissplittexturerandomline.h,v 1.8 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "position.h"
 #include "visobject.h"
 
@@ -29,7 +28,7 @@ class Coordinates;
 /*!Splitting a surface along random line into smaller blocks, where the random 
    line is a set of binids with some knots. Before having the shape, you have to   at least set the knots and depth range. */
 
-mClass(visBase) SplitTextureRandomLine : public VisualObjectImpl
+mClass SplitTextureRandomLine : public VisualObjectImpl
 {
 public:
     static SplitTextureRandomLine* create()
@@ -68,4 +67,3 @@ protected:
 
 
 #endif
-

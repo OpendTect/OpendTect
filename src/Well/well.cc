@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.103 2012-09-07 10:19:54 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: well.cc,v 1.96 2012/09/05 15:05:16 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -121,8 +121,8 @@ Well::Data::Data( const char* nm )
     : info_(nm)
     , track_(*new Well::Track)
     , logs_(*new Well::LogSet)
-    , disp2d_(*new Well::DisplayProperties(sKey2DDispProp()))
-    , disp3d_(*new Well::DisplayProperties(sKey3DDispProp()))
+    , disp2d_(*new Well::DisplayProperties(sKey2DDispProp))
+    , disp3d_(*new Well::DisplayProperties(sKey3DDispProp))
     , d2tmodel_(0)
     , csmodel_(0)
     , markers_(*new MarkerSet)
@@ -436,6 +436,12 @@ void Well::Log::removeTopBottomUdfs()
     dah_.insert( insertidx+1, dh ); vals.insert( insertidx+1, v );\
 }
 
+bool Well::D2TModel::insertAtDah( float dh, float val, bool ascendingonly  )
+{
+    mInsertAtDah( dh, val, t_, ascendingonly  );
+    return true;
+}
+
 
 bool Well::Log::insertAtDah( float dh, float val )
 {
@@ -460,6 +466,7 @@ Well::Marker::Marker( const Well::Marker& mrk )
     levelid_ = mrk.levelID();
     color_ = mrk.color();
 }
+
 
 const BufferString& Well::Marker::name() const
 {
@@ -500,10 +507,10 @@ int Well::MarkerSet::indexOf( const char* mname ) const
 }
 
 
-bool Well::MarkerSet::insertNew( Well::Marker* newmrk ) 
+void Well::MarkerSet::insertNew( Well::Marker* newmrk ) 
 {
     if ( newmrk && isPresent( newmrk->name().buf() ) )
-	return false;
+	return;
     int idlist = 0;
     for ( int idmrk=0; idmrk<size(); idmrk++ )
     {
@@ -513,7 +520,6 @@ bool Well::MarkerSet::insertNew( Well::Marker* newmrk )
 	idlist++;
     }
     insertAt( newmrk, idlist );
-    return true;
 }
 
 
@@ -737,7 +743,7 @@ void Well::Track::removePoint( int idx )
     if ( idx < pos_.size()-1 && idx < dah_.size()-1 )
     {
 	float olddist = idx ? dah_[idx+1] - dah_[idx-1] : dah_[1];
-	float newdist = idx ? (float) pos_[idx+1].distTo( pos_[idx-1] ) : 0;
+	float newdist = idx ? pos_[idx+1].distTo( pos_[idx-1] ) : 0;
 	float extradah = olddist - newdist;
 	removeFromDahFrom( idx+1, extradah );
     }
@@ -765,7 +771,7 @@ Coord3 Well::Track::coordAfterIdx( float dh, int idx1 ) const
     const float d2 = dah_[idx2] - dh;
     const Coord3& c1 = pos_[idx1];
     const Coord3& c2 = pos_[idx2];
-    const float f = 1.f / (d1 + d2);
+    const float f = 1. / (d1 + d2);
     return Coord3( f * (d1 * c2.x + d2 * c1.x), f * (d1 * c2.y + d2 * c1.y),
 		   f * (d1 * c2.z + d2 * c1.z) );
 }
@@ -791,7 +797,7 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
     (zrg.start-eps < z  && zrg.stop+eps  > z) \
  || (zrg.stop-eps  < z  && zrg.start+eps > z)
 
-    Interval<double> zrg( pos_[0].z, 0 );
+    Interval<float> zrg( pos_[0].z, 0 );
     int idxafter = -1;
     for ( int idx=1; idx<pos_.size(); idx++ )
     {
@@ -953,13 +959,6 @@ float Well::D2TModel::getDah( float time ) const
 
 float Well::D2TModel::getVelocity( float dh ) const
 { return TimeDepthModel::getVelocity( dah_.arr(), t_.arr(), size(), dh ); }
-
-
-bool Well::D2TModel::insertAtDah( float dh, float val )
-{
-    mInsertAtDah( dh, val, t_, true  );
-    return true;
-}
 
 
 #define mName "Well name"

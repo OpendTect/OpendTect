@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribslice.h,v 1.9 2012-08-03 13:00:08 cvskris Exp $
+ RCS:           $Id: attribslice.h,v 1.8 2010/04/20 22:03:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "sets.h"
 #include "arrayndimpl.h"
 #include "cubesampling.h"
@@ -27,7 +26,7 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-mClass(AttributeEngine) Slice : public Array2DImpl<float>
+mClass Slice : public Array2DImpl<float>
 { mRefCountImplNoDestructor(Slice);
 public:
 
@@ -51,7 +50,7 @@ protected:
  
  */
 
-mClass(AttributeEngine) SliceSet : public ObjectSet<Slice>
+mClass SliceSet : public ObjectSet<Slice>
 { mRefCountImpl(SliceSet);
 public:
 
@@ -74,4 +73,3 @@ public:
 }; //namespace
 
 #endif
-

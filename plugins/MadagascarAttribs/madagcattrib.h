@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          Sep 2009
- RCS:           $Id: madagcattrib.h,v 1.3 2012-08-29 08:18:06 cvskris Exp $
+ RCS:           $Id: madagcattrib.h,v 1.2 2011/04/26 08:26:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "madagascarattribsmod.h"
 #include "attribprovider.h"
 template <class T> class ValueSeries;
 

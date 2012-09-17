@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlaymodtools.cc,v 1.12 2012-09-11 11:02:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.9 2012/09/11 12:50:53 cvsbert Exp $";
 
 #include "uistratlaymodtools.h"
 #include "uitoolbutton.h"
@@ -26,14 +26,14 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     , genReq(this)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
-    uiToolButton* opentb = new uiToolButton( leftgrp, "open",
+    uiToolButton* opentb = new uiToolButton( leftgrp, "open.png",
 				"Open stored generation description",
 				mCB(this,uiStratGenDescTools,openCB) );
-    savetb_ = new uiToolButton( leftgrp, "save",
+    savetb_ = new uiToolButton( leftgrp, "save.png",
 	    			"Save generation description",
 				mCB(this,uiStratGenDescTools,saveCB) );
     savetb_->attach( rightOf, opentb );
-    uiToolButton* proptb = new uiToolButton( leftgrp, "defprops",
+    uiToolButton* proptb = new uiToolButton( leftgrp, "defprops.png",
 	    			"Select layer properties",
 				mCB(this,uiStratGenDescTools,propEdCB) );
     proptb->attach( rightOf, savetb_ );
@@ -45,7 +45,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     nrmodlsfld_->setStretch( 0, 0 );
     nrmodlsfld_->setToolTip( "Number of models to generate", 0 );
     nrmodlsfld_->updateRequested.notify( gocb );
-    uiToolButton* gotb = new uiToolButton( rightgrp, "go",
+    uiToolButton* gotb = new uiToolButton( rightgrp, "go.png",
 	    			"Generate this amount of models", gocb );
     nrmodlsfld_->attach( leftOf, gotb );
     rightgrp->attach( ensureRightOf, leftgrp );

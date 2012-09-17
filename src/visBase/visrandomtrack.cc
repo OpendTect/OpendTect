@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visrandomtrack.cc,v 1.45 2012-08-10 03:50:09 cvsaneesh Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.41 2011/12/16 15:57:21 cvskris Exp $";
 
 #include "visrandomtrack.h"
 
@@ -137,8 +137,7 @@ void RandomTrack::moveDraggerToObjectPos()
 
     for ( int idx=0; idx<knots.size(); idx++ )
     {
-	dragger->knots.set1Value( idx, (float) knots[idx].x, 
-					(float) knots[idx].y );
+	dragger->knots.set1Value( idx, knots[idx].x, knots[idx].y );
     }
 
     dragger->z0 = depthrg.start;
@@ -213,7 +212,7 @@ void RandomTrack::setKnotPos( int idx, const Coord& pos )
 void RandomTrack::setDraggerKnotPos( int idx, const Coord& pos )
 {
     if ( !dragger ) { setKnotPos( idx, pos ); return; }
-    dragger->knots.set1Value( idx, (float) pos.x, (float) pos.y );
+    dragger->knots.set1Value( idx, pos.x, pos.y );
 }
 
 
@@ -296,7 +295,7 @@ void RandomTrack::setDraggerSize( const Coord3& nz )
     createDragger();
     SoScale* size =
 	dynamic_cast<SoScale*>(dragger->getPart("subDraggerScale", true ));
-    size->scaleFactor.setValue( (float) nz.x, (float) nz.y, (float) nz.z );
+    size->scaleFactor.setValue( nz.x, nz.y, nz.z );
 }
 
 
@@ -510,7 +509,9 @@ void RandomTrack::motionCB( void* data,
 
 void RandomTrack::startCB( void* data,
 				    SoRandomTrackLineDragger* dragger)
-{ }
+{
+    RandomTrack* myself = (RandomTrack*) data;
+}
 
 
 void RandomTrack::setResolution( int res )

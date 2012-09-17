@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: uivolprocvolreader.h,v 1.6 2012-08-03 13:01:20 cvskris Exp $
+ RCS:		$Id: uivolprocvolreader.h,v 1.5 2011/08/24 13:19:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uivolumeprocessingmod.h"
 #include "uivolprocchain.h"
 
 #include "volprocvolreader.h"
@@ -23,7 +22,7 @@ class CtxtIOObj;
 namespace VolProc
 {
 
-mClass(uiVolumeProcessing) uiVolumeReader : public uiStepDialog
+mClass uiVolumeReader : public uiStepDialog
 {
 public:
     mDefaultFactoryInstanciationBase(
@@ -52,4 +51,3 @@ protected:
 }; //namespace
 
 #endif
-

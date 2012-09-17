@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flatview.cc,v 1.85 2012-09-07 17:23:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.72 2012/09/02 10:11:20 cvsbruno Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -117,7 +117,7 @@ void FlatPosData::getPositions( bool isx1, TypeSet<float>& res ) const
     const int nrtimes = nrPts( isx1 );
     res.setCapacity( nrtimes );
     for ( int idx=0; idx<nrtimes; idx++ )
-	res += ( float )position( isx1, idx );
+	res += position( isx1, idx );
 }
 
 
@@ -133,7 +133,7 @@ float* FlatPosData::getPositions( bool isx1 ) const
     {
 	const StepInterval<double>& xrg = range( isx1 );
 	for ( int idx=0; idx<sz; idx++ )
-	    ret[idx] = ( float )xrg.atIndex( idx );
+	    ret[idx] = xrg.atIndex( idx );
     }
     return ret;
 }
@@ -201,8 +201,24 @@ FlatView::Annotation::Annotation( bool drkbg )
 
 FlatView::Annotation::~Annotation()
 {
+    deepErase( auxdata_ );
 }
 
+
+bool FlatView::Annotation::haveAux() const
+{
+    if ( !showaux_ ) return false;
+
+    for ( int idx=auxdata_.size()-1; idx>=0; idx-- )
+    {
+	if ( auxdata_[idx]->enabled_ )
+	{
+	    return true;
+	}
+    }
+
+    return false;
+}
 
 #define mIOPDoAxes(fn,keynm,memb) \
     iop.fn( IOPar::compKey(sKeyAxes(),keynm), memb )
@@ -212,10 +228,10 @@ FlatView::Annotation::~Annotation()
 
 void FlatView::Annotation::fillPar( IOPar& iop ) const
 {
-    mIOPDoAxes( set, sKey::Color(), color_ );
+    mIOPDoAxes( set, sKey::Color, color_ );
     mIOPDoAxes( set, sKeyX1Sampl(), x1_.sampling_ );
     mIOPDoAxes( set, sKeyX2Sampl(), x2_.sampling_ );
-    mIOPDoAxes2( set, sKey::Name(), x1_.name_, x2_.name_ );
+    mIOPDoAxes2( set, sKey::Name, x1_.name_, x2_.name_ );
     mIOPDoAxes2( setYN, sKeyShwAnnot(), x1_.showannot_, x2_.showannot_ );
     mIOPDoAxes2( setYN, sKeyShwGridLines(),x1_.showgridlines_,x2_.showgridlines_);
     mIOPDoAxes2( setYN, sKeyIsRev(), x1_.reversed_, x2_.reversed_ );
@@ -227,10 +243,10 @@ void FlatView::Annotation::fillPar( IOPar& iop ) const
 
 void FlatView::Annotation::usePar( const IOPar& iop )
 {
-    mIOPDoAxes( get, sKey::Color(), color_ );
+    mIOPDoAxes( get, sKey::Color, color_ );
     mIOPDoAxes( get, sKeyX1Sampl(), x1_.sampling_ );
     mIOPDoAxes( get, sKeyX2Sampl(), x2_.sampling_ );
-    mIOPDoAxes2( get, sKey::Name(), x1_.name_, x2_.name_ );
+    mIOPDoAxes2( get, sKey::Name, x1_.name_, x2_.name_ );
     mIOPDoAxes2( getYN, sKeyShwAnnot(), x1_.showannot_, x2_.showannot_ );
     mIOPDoAxes2( getYN, sKeyShwGridLines(),x1_.showgridlines_,
 	    	 x2_.showgridlines_);
@@ -241,7 +257,7 @@ void FlatView::Annotation::usePar( const IOPar& iop )
 }
 
 
-FlatView::AuxData::EditPermissions::EditPermissions()
+FlatView::Annotation::AuxData::EditPermissions::EditPermissions()
     : onoff_( true )
     , namepos_( true )
     , linestyle_( true )
@@ -255,7 +271,7 @@ FlatView::AuxData::EditPermissions::EditPermissions()
 
 
 
-FlatView::AuxData::AuxData( const char* nm )
+FlatView::Annotation::AuxData::AuxData( const char* nm )
     : name_( nm )
     , namepos_( mUdf(int) )
     , namealignment_(mAlignment(Center,Center))
@@ -271,7 +287,7 @@ FlatView::AuxData::AuxData( const char* nm )
 {}
 
 
-FlatView::AuxData::AuxData(const FlatView::AuxData& aux)
+FlatView::Annotation::AuxData::AuxData(const FlatView::Annotation::AuxData& aux)
     : name_( aux.name_ )
     , namepos_( aux.namepos_ )
     , namealignment_( aux.namealignment_ )
@@ -290,7 +306,7 @@ FlatView::AuxData::AuxData(const FlatView::AuxData& aux)
 {}
 
 
-FlatView::AuxData::~AuxData()
+FlatView::Annotation::AuxData::~AuxData()
 {
     delete x1rg_;
     delete x2rg_;
@@ -298,11 +314,11 @@ FlatView::AuxData::~AuxData()
 }
 
 
-bool FlatView::AuxData::isEmpty() const
+bool FlatView::Annotation::AuxData::isEmpty() const
 { return poly_.isEmpty(); }
 
 
-void FlatView::AuxData::empty()
+void FlatView::Annotation::AuxData::empty()
 { poly_.erase(); }
 
 
@@ -411,12 +427,10 @@ void FlatView::Appearance::setDarkBG( bool yn )
 }
 
 
-class FlatView_CB_Rcvr : public CallBacker
+struct FlatView_CB_Rcvr : public CallBacker
 {
-public:
 FlatView_CB_Rcvr( FlatView::Viewer& vwr ) : vwr_(vwr)	{}
 void theCB( CallBacker* dp ) { vwr_.removePack( ((DataPack*)dp)->id() ); }
-
 FlatView::Viewer& vwr_;
 };
 
@@ -485,26 +499,6 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 }
 
 
-void FlatView::Viewer::removeAllAuxData( bool del )
-{
-    while ( nrAuxData() )
-    {
-	AuxData* ad = removeAuxData( 0 );
-	if ( del ) delete ad;
-    }
-}
-
-
-void FlatView::Viewer::removeAuxDatas( ObjectSet<AuxData>& ads, bool del )
-{
-    for ( int idx=ads.size()-1; idx>=0; idx -- )
-    {
-	AuxData* ad = removeAuxData( ads[idx] );
-	if ( del ) delete ad;
-    }
-}
-
-
 FlatView::Appearance& FlatView::Viewer::appearance()
 {
     if ( !defapp_ )
@@ -530,7 +524,6 @@ void FlatView::Viewer::clearAllPacks()
 {
     while ( !ids_.isEmpty() )
 	removePack( ids_[0] );
-    handleChange( BitmapData );
 }
 
 
@@ -580,8 +573,7 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 	    annot.x2_.name_ = fdp->dimName( false );
     }
 
-    if ( id != DataPack::cNoID() )
-	handleChange( BitmapData );
+    handleChange( wva ? WVAData : VDData );
 }
 
 
@@ -624,13 +616,23 @@ const StepInterval<double> FlatView::Viewer::getDataPackRange(bool forx1) const
 }
 
 
-Interval<float> FlatView::Viewer::getDataRange( bool iswva ) const
+void FlatView::Viewer::removeAllAuxData( bool del )
 {
-    Interval<float> rg( mUdf(float), mUdf(float) );
-    const ColTab::MapperSetup mapper =
-	iswva ? appearance().ddpars_.wva_.mappersetup_
-	      : appearance().ddpars_.vd_.mappersetup_;
-    Interval<float> mapperrange = mapper.range_;
-    return mapperrange;
+    while ( appearance().annot_.auxdata_.size() )
+    {
+	FlatView::Annotation::AuxData* ad = 
+	    appearance().annot_.auxdata_.remove( 0 );
+	if ( del ) delete ad;
+    }
+}
+
+
+void FlatView::Viewer::removeAuxDatas( ObjectSet<FlatView::Annotation::AuxData>& ads, bool del )
+{
+    for ( int idx=ads.size()-1; idx>=0; idx -- )
+    {
+	AuxData* ad = removeAuxData( ads[idx] );
+	if ( del ) delete ad;
+    }
 }
 

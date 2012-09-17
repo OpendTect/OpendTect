@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.21 2012-08-03 13:01:22 cvskris Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.20 2011/12/05 09:05:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uiapplserv.h"
 
 class DataPointSet;
@@ -26,7 +25,7 @@ namespace WellTie { class uiTieWinMGRDlg; }
 
 /*! \brief Part Server for Wells */
 
-mClass(uiWellAttrib) uiWellAttribPartServer : public uiApplPartServer
+mClass uiWellAttribPartServer : public uiApplPartServer
 {
 public:
 				uiWellAttribPartServer(uiApplService&);
@@ -72,4 +71,3 @@ protected:
 
 
 #endif
-

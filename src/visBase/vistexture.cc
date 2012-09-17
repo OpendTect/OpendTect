@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vistexture.cc,v 1.50 2012-07-18 08:31:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.47 2012/07/10 13:06:10 cvskris Exp $";
 
 #include "vistexture.h"
 
@@ -459,6 +459,8 @@ void Texture::makeTexture()
 {
     if ( !indexcache )
 	return;
+
+    const int nrcomponents = usetrans ? 4 : 3;
 
     unsigned char* texture = getTexturePtr();
 

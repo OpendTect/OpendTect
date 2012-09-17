@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visshapescale.cc,v 1.17 2012-05-02 15:12:34 cvskris Exp $";
+static const char* rcsID = "$Id: visshapescale.cc,v 1.15 2011/04/28 07:00:12 cvsbert Exp $";
 
 #include "visshapescale.h"
 #include "iopar.h"

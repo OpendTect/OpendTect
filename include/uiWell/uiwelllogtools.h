@@ -6,43 +6,39 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uiwelllogtools.h,v 1.9 2012-08-03 13:01:21 cvskris Exp $
+RCS:           $Id: uiwelllogtools.h,v 1.5 2012/03/09 14:13:00 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uiwellmod.h"
-#include "uiwellmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "multiid.h"
 
-class uiCheckBox;
+class uiListBox;
 class uiComboBox;
-class uiFreqFilterSelFreq;
 class uiGenInput;
-class uiMultiWellLogSel;
+class uiCheckBox;
 class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
-class uiListBox;
+class uiMultiWellLogSel;
 class uiPushButton;
 class uiSpinBox;
 class uiWellLogDisplay;
 
 
-namespace Well { class Data; class Log; class LogSet; class D2TModel; }
+namespace Well { class Data; class Log; class LogSet; }
 
 
-mClass(uiWell) uiWellLogToolWin : public uiMainWin
+mClass uiWellLogToolWin : public uiMainWin
 {
 public:	
 
-    mStruct(uiWell) LogData
+    mStruct LogData
     {
-				LogData(const Well::LogSet&,
-					const Well::D2TModel*);
+				LogData(const Well::LogSet&);
 				~LogData();
 
 	MultiID			wellid_;
@@ -56,10 +52,8 @@ public:
 
 	Well::LogSet&		logs_;
 
-	ObjectSet<const Well::Log> inplogs_;
+	ObjectSet<Well::Log>	inplogs_;
 	ObjectSet<Well::Log>	outplogs_;
-
-	const Well::D2TModel* 	d2t_;
 
 	friend class		uiWellLogToolWin;
     };
@@ -82,7 +76,6 @@ protected:
     uiLabeledSpinBox*		thresholdfld_;
     uiLabeledComboBox*		replacespikefld_;
     uiGenInput*			replacespikevalfld_;
-    uiFreqFilterSelFreq*	freqfld_;
     uiPushButton*		applybut_;
     uiPushButton*               okbut_;
     uiPushButton*               cancelbut_;
@@ -103,7 +96,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellLogToolWinMgr : public uiDialog
+mClass uiWellLogToolWinMgr : public uiDialog
 {
 public:
 			uiWellLogToolWinMgr(uiParent*);
@@ -111,12 +104,11 @@ protected:
 
     uiMultiWellLogSel*	welllogselfld_;
 
-    bool		acceptOK(CallBacker*);
     void		winClosed(CallBacker*);
+    bool		acceptOK(CallBacker*);
+    void		initWin(CallBacker*);
 };
 
 
 
 #endif
-
-

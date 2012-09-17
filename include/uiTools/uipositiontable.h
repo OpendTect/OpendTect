@@ -7,12 +7,11 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          March 2010
- RCS:           $Id: uipositiontable.h,v 1.3 2012-08-03 13:01:14 cvskris Exp $
+ RCS:           $Id: uipositiontable.h,v 1.2 2010/03/19 04:20:23 cvssatyaki Exp $
  ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "position.h"
 
@@ -20,7 +19,7 @@ class uiGenInput;
 class uiTable;
 template <class T> class Interval;
 
-mClass(uiTools) uiPositionTable : public uiGroup
+mClass uiPositionTable : public uiGroup
 {
 public:
 			uiPositionTable(uiParent*,bool withxy,bool withic,
@@ -53,4 +52,3 @@ protected:
 };
 
 #endif
-

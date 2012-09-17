@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          April 2008
- RCS:           $Id: uicoltabmarker.h,v 1.7 2012-08-03 13:01:12 cvskris Exp $
+ RCS:           $Id: uicoltabmarker.h,v 1.6 2009/07/22 16:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uigraphicsview.h"
 
@@ -23,7 +22,7 @@ class uiParent;
 class uiWorld2Ui;
 
 
-mClass(uiTools) uiColTabMarkerDlg : public uiDialog
+mClass uiColTabMarkerDlg : public uiDialog
 {
 public:
 				uiColTabMarkerDlg(uiParent*,ColTab::Sequence&);
@@ -46,7 +45,7 @@ protected:
 };
 
 
-mClass(uiTools) uiColTabMarkerCanvas : public uiGraphicsView
+mClass uiColTabMarkerCanvas : public uiGraphicsView
 {
 public:
 				uiColTabMarkerCanvas(uiParent*,
@@ -77,4 +76,3 @@ protected:
 };
 
 #endif
-

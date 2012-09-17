@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: windowfunction.cc,v 1.9 2012-08-09 06:49:33 cvsaneesh Exp $";
+static const char* rcsID = "$Id: windowfunction.cc,v 1.5 2012/04/03 05:08:34 cvsraman Exp $";
 
 #include "windowfunction.h"
 
@@ -12,23 +12,12 @@ static const char* rcsID mUnusedVar = "$Id: windowfunction.cc,v 1.9 2012-08-09 0
 #include "keystrs.h"
 
 
-mImplFactory( WindowFunction, WINFUNCS );
-void WindowFunction::addAllStdClasses()
-{
-#define mInitStdWFClass(nm) nm##Window::initClass()
-    mInitStdWFClass(Box);
-    mInitStdWFClass(Bartlett);
-    mInitStdWFClass(CosTaper);
-    mInitStdWFClass(Hamming);
-    mInitStdWFClass(Hanning);
-    mInitStdWFClass(Blackman);
-    mInitStdWFClass(FlatTop);
-}
+mImplFactory( WindowFunction, WinFuncs );
 
 
 void WindowFunction::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Name(), name() );
+    par.set( sKey::Name, name() );
     if ( !hasVariable() )
 	return;
 
@@ -46,45 +35,90 @@ bool WindowFunction::usePar( const IOPar& par )
 }
 
 
-#define mImplClassMinimal(clss) \
-void clss##Window::initClass() \
-{ WINFUNCS().addCreator( clss##Window::create, clss##Window::sName() ); } \
-\
-float clss##Window::getValue( float x ) const \
+#define mImplClass( clss, nm ) \
+WindowFunction* clss::create() \
 { \
-    if ( x <= -1 || x >= 1 ) return 0;
-#define mImplClass(clss) \
-    mImplClassMinimal(clss) \
-    if ( x < 0 ) x = -x;
+    return new clss; \
+} \
+\
+\
+const char* clss::name() const\
+{ return clss::sName(); } \
+ \
+ \
+void clss::initClass() \
+{ \
+    WinFuncs().addCreator( clss::create, clss::sName() ); \
+} \
+\
+\
+const char* clss::sName() { return nm; } \
+\
+\
+float clss::getValue( float x ) const
+
+mImplClass( BoxWindow, "Box" )
+{ return fabs(x) > 1 ? 0 : 1; }
 
 
-mImplClassMinimal(Box)
-    return 1;
+mImplClass( HammingWindow, "Hamming" )
+{
+    float rx = fabs( x );
+    if ( rx > 1 )
+	return 0;
+
+    return 0.54 + 0.46 * cos( M_PI * rx );
 }
-mImplClass(Bartlett)
-    return 1 - x;
+
+
+mImplClass( HanningWindow, "Hanning" )
+{
+    float rx = fabs( x );
+    if ( rx > 1 ) return 0;
+
+    return (1 + cos( M_PI * rx )) / 2.0;
 }
-mImplClass(Hanning)
-    return (float) ( .5 * (1 + cos( M_PI * x )) );
+
+
+mImplClass( BlackmanWindow, "Blackman" )
+{
+    float rx = fabs( x );
+    if ( rx > 1 ) return 0;
+
+    return 0.42 + 0.5*cos( M_PI * rx )+ 0.08*cos( 2 *M_PI*rx);
 }
-mImplClass(Hamming)
-    return (float) ( 0.54 + 0.46 * cos( M_PI * x ) );
+
+
+mImplClass( BartlettWindow, "Bartlett" )
+{
+    float rx = fabs( x );
+
+    if ( rx > 1 ) return 0;
+    return 1-rx;
 }
-mImplClass(Blackman)
-    return (float) ( 0.42 + 0.5 * cos( M_PI * x ) + 
-				  0.08 * cos( 2 * M_PI * x ) );
+
+
+mImplClass( FlatTopWindow, "FlatTop" )
+{
+    const float pi_x = M_PI * x;
+    return (1	+ 1.93	* cos(     pi_x )
+		+ 1.29	* cos( 2 * pi_x )
+		+ 0.388	* cos( 3 * pi_x )
+		+ 0.032	* cos( 4 * pi_x )) / 4.64;
 }
-mImplClass(FlatTop)
-    const float pi_x = (float) ( M_PI * x );
-    return (1	+ 1.93f	 * cos(     pi_x )
-		+ 1.29f	 * cos( 2 * pi_x )
-		+ 0.388f * cos( 3 * pi_x )
-		+ 0.032f * cos( 4 * pi_x )) / 4.64f;
-}
-mImplClass(CosTaper)
-    if ( x < threshold_ ) return 1;
-    x -= threshold_; x *= factor_;
-    return (float) ( (1 + cos( M_PI * x )) * .5 );
+
+
+mImplClass( CosTaperWindow, "CosTaper" )
+{
+    float rx = fabs( x );
+
+    if ( rx > 1 ) return 0;
+    if ( rx < threshold_ ) return 1;
+
+    rx -= threshold_;
+    rx *= factor_;
+
+    return (1 + cos( M_PI * rx )) * .5;
 }
 
 
@@ -93,7 +127,7 @@ bool CosTaperWindow::setVariable( float threshold )
     if ( threshold<0 || threshold>1 ) return false;
 
     threshold_ = threshold;
-    factor_ = 1.0f / (1-threshold);
+    factor_ = 1.0/(1-threshold);
 
     return true;
 }

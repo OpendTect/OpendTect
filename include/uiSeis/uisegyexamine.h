@@ -6,13 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyexamine.h,v 1.15 2012-08-03 13:01:06 cvskris Exp $
+ RCS:		$Id: uisegyexamine.h,v 1.14 2011/05/05 13:01:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "segyfiledef.h"
 class Timer;
@@ -27,11 +25,11 @@ class uiSEGYTrcHdrValPlot;
 class SEGYSeisTrcTranslator;
 
 
-mClass(uiSeis) uiSEGYExamine : public uiDialog
+mClass uiSEGYExamine : public uiDialog
 {
 public:
 
-    mStruct(uiSeis) Setup : public uiDialog::Setup
+    mStruct Setup : public uiDialog::Setup
     {
 				Setup(int nrtraces=100);
 
@@ -87,5 +85,3 @@ protected:
 
 
 #endif
-
-

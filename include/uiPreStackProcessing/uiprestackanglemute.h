@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: uiprestackanglemute.h,v 1.7 2012-08-03 13:01:05 cvskris Exp $
+ RCS:		$Id: uiprestackanglemute.h,v 1.5 2011/10/12 11:32:33 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "prestackanglemute.h"
@@ -29,7 +28,7 @@ namespace PreStack
 
 class Processor;
 
-mClass(uiPreStackProcessing) uiAngleMuteGrp : public uiGroup
+mClass uiAngleMuteGrp : public uiGroup
 {
 public:
 			uiAngleMuteGrp(uiParent*,AngleMuteBase::Params&,
@@ -43,10 +42,11 @@ protected:
     uiRayTracerSel*	raytracerfld_;
     uiVelSel*		velfuncsel_;
     uiGenInput*		cutofffld_;
+    uiCheckBox*		blockfld_;
 };
 
 
-mClass(uiPreStackProcessing) uiAngleMute : public uiDialog
+mClass uiAngleMute : public uiDialog
 {
 public:
 
@@ -73,4 +73,3 @@ protected:
 }; //namespace
 
 #endif
-

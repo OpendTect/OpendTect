@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dlineio.h,v 1.2 2012-08-03 13:00:35 cvskris Exp $
+ RCS:		$Id: seis2dlineio.h,v 1.1 2009/12/15 12:20:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "seismod.h"
 #include "seistrctr.h"
 
 class IOPar;
@@ -25,7 +24,7 @@ namespace Seis		{ class SelData; }
 
 /*!\brief interface for object that writes 2D seismic data */
 
-mClass(Seis) Seis2DLinePutter
+mClass Seis2DLinePutter
 {
 public:
     virtual		~Seis2DLinePutter()	{}
@@ -44,7 +43,7 @@ public:
 /*!\brief Provides read/write to/from 2D seismic lines.
 	  Only interesting if you want to add your own 2D data I/O. */
 
-mClass(Seis) Seis2DLineIOProvider
+mClass Seis2DLineIOProvider
 {
 public:
 
@@ -88,7 +87,7 @@ ObjectSet<Seis2DLineIOProvider>& S2DLIOPs();
 //------
 //! Translator mechanism is only used for selection etc.
 
-mClass(Seis) TwoDSeisTrcTranslator : public SeisTrcTranslator
+mClass TwoDSeisTrcTranslator : public SeisTrcTranslator
 {			isTranslator(TwoD,SeisTrc) public:
 			TwoDSeisTrcTranslator( const char* s1, const char* s2 )
 			: SeisTrcTranslator(s1,s2)      {}
@@ -106,4 +105,3 @@ mClass(Seis) TwoDSeisTrcTranslator : public SeisTrcTranslator
 
 
 #endif
-

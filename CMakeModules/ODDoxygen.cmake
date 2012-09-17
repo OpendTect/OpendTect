@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODDoxygen.cmake,v 1.4 2012-03-26 14:58:44 cvskris Exp $
+#	RCS :		$Id: ODDoxygen.cmake,v 1.3 2012/03/26 14:58:37 cvsdgb Exp $
 #_______________________________________________________________________________
 
 OPTION( BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
@@ -24,9 +24,10 @@ MACRO( OD_BUILD_DOCUMENTATION )
     configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in 
 		 ${OD_DOXYGEN_FILE} @ONLY IMMEDIATE)
 
-    add_custom_target ( doc 
+    add_custom_target ( doc
 			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
 			SOURCES ${OD_DOXYGEN_FILE} )
+
     INSTALL ( DIRECTORY doc/Programmer/Generated/html DESTINATION doc/Programmer/Generated )
 ENDMACRO()
 

@@ -7,14 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y. Liu
  Date:		January 2011
- RCS:		$Id: prestackanglemute.h,v 1.15 2012-08-03 13:00:33 cvskris Exp $
+ RCS:		$Id: prestackanglemute.h,v 1.12 2012/01/17 16:09:27 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "prestackprocessingmod.h"
-#include "prestackprocessingmod.h"
 #include "prestackprocessor.h"
 #include "iopar.h"
 #include "samplingdata.h"
@@ -30,17 +28,19 @@ namespace PreStack
 {
 
 
-mClass(PreStackProcessing) AngleMuteBase 
+mClass AngleMuteBase 
 {
 public:
-    mStruct(PreStackProcessing) Params
+    mStruct Params
     {
 			    Params()
 				: mutecutoff_(30)
+				, dovelblock_(true)
 				, velvolmid_(MultiID::udf())
 				{}	
 
 	float 			mutecutoff_;
+	bool			dovelblock_;
 	MultiID			velvolmid_;   
 	IOPar			raypar_;
     };
@@ -51,6 +51,7 @@ public:
     static const char*	sKeyRayTracer()		{ return "Raytracer"; }	
     static const char*	sKeyVelVolumeID()	{ return "Velocity vol-mid"; }
     static const char*  sKeyMuteCutoff()	{ return "Mute cutoff"; }
+    static const char*  sKeyVelBlock()		{ return "Block velocities"; }
 
 protected:
     			AngleMuteBase();
@@ -63,18 +64,14 @@ protected:
     bool	setVelocityFunction();
     bool	getLayers(const BinID&,TypeSet<ElasticLayer>&,
 	    			SamplingData<float>&,int resamplesz=-1);
-    float	getOffsetMuteLayer(const RayTracer1D&,int,int,bool,
-	    				int,bool) const;
     float	getOffsetMuteLayer(const RayTracer1D&,int,int,bool) const;
-    void	getOffsetMuteLayers(const RayTracer1D&,int,int,bool,
-	    				TypeSet< Interval<float> >&) const;
 
     ObjectSet<RayTracerRunner>	rtrunners_;
 };
 
 
 
-mClass(PreStackProcessing) AngleMute : public Processor, public AngleMuteBase
+mClass AngleMute : public Processor, public AngleMuteBase
 {
 public:
     			mDefaultFactoryInstantiation(Processor,
@@ -83,7 +80,7 @@ public:
 			AngleMute();
 			~AngleMute();
 
-    mStruct(PreStackProcessing) AngleMutePars : public AngleMuteBase::Params
+    mStruct AngleMutePars : public AngleMuteBase::Params
     {
 			AngleMutePars()
 			    : tail_(false)
@@ -121,5 +118,3 @@ protected:
 }; //namespace
 
 #endif
-
-

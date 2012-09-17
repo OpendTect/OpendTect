@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackeventio.cc,v 1.21 2012-05-22 14:48:33 cvskris Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.18 2012/02/21 21:15:01 cvsyuancheng Exp $";
 
 #include "prestackeventio.h"
 
@@ -494,7 +494,7 @@ bool EventReader::readAuxData(const char* fnm)
     }
 
     Color col = Color(255,0,0); //Todo: Make mandatory to have color
-    par.get( sKey::Color(), col );
+    par.get( sKey::Color, col );
     eventmanager_->setColor( col );
 
     eventmanager_->setNextHorizonID( nexthor );
@@ -721,7 +721,7 @@ bool EventWriter::writeAuxData( const char* fnm )
     horidfnm.setPath( fnm );
     horidfnm.add( EventReader::sAuxDataFileName() );
 
-    auxinfo_.set( sKey::Color(), eventmanager_.getColor() );
+    auxinfo_.set( sKey::Color, eventmanager_.getColor() );
 
     SafeFileIO fileio( horidfnm.fullPath().buf(), false );
     if ( !fileio.open( false ) )

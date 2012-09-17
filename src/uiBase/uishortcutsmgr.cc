@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uishortcutsmgr.cc,v 1.21 2012-08-30 07:52:52 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uishortcutsmgr.cc,v 1.17 2011/10/07 15:03:02 cvsjaap Exp $";
 
 
 #include "uishortcutsmgr.h"
@@ -50,7 +50,7 @@ const int speckeystransbl[] =
 #define mQtbasefor0 0x30
 
 
-uiKeyDesc::uiKeyDesc( mQtclass(QKeyEvent*) ev )
+uiKeyDesc::uiKeyDesc( QKeyEvent* ev )
     : key_(ev->key())
 {
     state_ = (OD::ButtonState)(int)ev->modifiers();
@@ -131,9 +131,8 @@ const char* uiKeyDesc::keyStr() const
 
 bool uiKeyDesc::isSimpleAscii() const
 {
-    mQtclass(QKeyEvent) qke( mQtclass(QEvent)::KeyPress, key_,
-	    		     (mQtclass(Qt)::KeyboardModifiers)state_ );
-    mQtclass(QString) txt = qke.text();
+    QKeyEvent qke( QEvent::KeyPress, key_, (Qt::KeyboardModifiers)state_ );
+    QString txt = qke.text();
     return state_== 0 && !txt.isEmpty() && txt[0].isLetterOrNumber();
 }
 
@@ -142,9 +141,8 @@ char uiKeyDesc::asciiChar() const
 {
     if ( !isascii(key_) ) return 0;
 
-    mQtclass(QKeyEvent) qke( mQtclass(QEvent)::KeyPress, key_,
-	    		     (mQtclass(Qt)::KeyboardModifiers)state_ );
-    mQtclass(QString) txt = qke.text();
+    QKeyEvent qke( QEvent::KeyPress, key_, (Qt::KeyboardModifiers)state_ );
+    QString txt = qke.text();
     return !txt.isEmpty() ? txt[0].toAscii() : 0;
 }
 
@@ -227,15 +225,15 @@ void uiShortcutsList::fillPar( IOPar& iop ) const
     for ( int idx=0; idx<names_.size(); idx++ )
     {
 	BufferString basekey = IOPar::compKey(selkey_,idx);
-	iop.set( IOPar::compKey(basekey,sKey::Name()), names_.get(idx) );
-	iop.set( IOPar::compKey(basekey,sKey::Keys()),
+	iop.set( IOPar::compKey(basekey,sKey::Name), names_.get(idx) );
+	iop.set( IOPar::compKey(basekey,sKey::Keys),
 			keydescs_[idx]->stateStr(), keydescs_[idx]->keyStr() );
 	uiKeyDesc* nonconstkd = const_cast<uiKeyDesc*>(keydescs_[idx]);
 	mDynamicCastGet( uiExtraIntKeyDesc*, eikd, nonconstkd )
 	if ( eikd )
 	{
-	    iop.set( IOPar::compKey(basekey,sKey::Property()), eikd->getLabel());
-	    iop.set( IOPar::compKey(basekey,sKey::Value()), eikd->getIntValue() );
+	    iop.set( IOPar::compKey(basekey,sKey::Property), eikd->getLabel());
+	    iop.set( IOPar::compKey(basekey,sKey::Value), eikd->getIntValue() );
 	}
     }
 }
@@ -245,7 +243,7 @@ bool uiShortcutsList::getKeyValues( const IOPar& par, int scutidx,
 				    BufferString& val1,
 				    BufferString& val2 ) const
 {
-    BufferString key = IOPar::compKey( toString(scutidx), sKey::Keys() );
+    BufferString key = IOPar::compKey( toString(scutidx), sKey::Keys );
     return par.get( key.buf(), val1, val2 );
 }
 
@@ -254,8 +252,8 @@ bool uiShortcutsList::getSCProperties( const IOPar& par, int scutidx,
 				       BufferString& proplbl,
 				       int& propval) const
 {                                                                               
-    BufferString propnm = IOPar::compKey( toString(scutidx), sKey::Property() );
-    BufferString propv = IOPar::compKey( toString(scutidx), sKey::Value() );
+    BufferString propnm = IOPar::compKey( toString(scutidx), sKey::Property );
+    BufferString propv = IOPar::compKey( toString(scutidx), sKey::Value );
     return par.get( propnm.buf(), proplbl ) && par.get( propv.buf(), propval );
 }
 
@@ -301,7 +299,7 @@ int uiShortcutsList::valueOf( const uiKeyDesc& kd ) const
 bool uiShortcutsList::getSCNames( const IOPar& par, int scutidx,
 				  BufferString& name ) const
 {
-    BufferString key = IOPar::compKey( toString(scutidx), sKey::Name() );
+    BufferString key = IOPar::compKey( toString(scutidx), sKey::Name );
     return par.get( key.buf(), name );
 }
 

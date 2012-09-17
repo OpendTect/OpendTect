@@ -7,30 +7,31 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisimplemultiwell.cc,v 1.18 2012-08-10 03:50:08 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uisimplemultiwell.cc,v 1.13 2012/07/30 08:31:42 cvsbruno Exp $";
 
 
 #include "uisimplemultiwell.h"
-
+#include "ioobj.h"
+#include "ctxtioobj.h"
+#include "tabledef.h"
+#include "tableascio.h"
+#include "strmprov.h"
+#include "survinfo.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
-#include "strmprov.h"
-#include "survinfo.h"
-#include "tableascio.h"
-#include "tabledef.h"
 #include "unitofmeasure.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "welltrack.h"
 #include "welltransl.h"
 
+#include "uitable.h"
 #include "uibutton.h"
 #include "uifileinput.h"
-#include "uimsg.h"
-#include "uitable.h"
 #include "uitblimpexpdatasel.h"
+#include "uimsg.h"
 
 
 class uiSMWCData
@@ -56,7 +57,6 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 	    		.savebutton(true).savetext("Display after creation") )
     , velfld_(0)
     , zinft_(SI().depthsInFeetByDefault())
-    , zun_(UnitOfMeasure::surveyDefDepthUnit())
     , overwritepol_(0)
 {
     tbl_ = new uiTable( this, uiTable::Setup(20,7).rowgrow(true)
@@ -219,7 +219,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     {
 	Well::D2TModel* d2t = new Well::D2TModel("Simple");
 	Interval<float> zrg( -wcd.elev_+wcd.srd_, wcd.td_-wcd.elev_+wcd.srd_ );
-	Interval<float> trg( zrg ); trg.scale( 1.f / vel_ );
+	Interval<float> trg( zrg ); trg.scale( 1. / vel_ );
 	d2t->add( 0, trg.start );
 	d2t->add( wcd.td_, trg.stop );
 	wd.setD2TModel( d2t );
@@ -278,14 +278,15 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 	return false;
     }
 
+    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
     wcd.elev_ = tbl_->getfValue( RowCol(irow,3) );
     if ( mIsUdf(wcd.elev_) ) wcd.elev_ = 0;
-    if ( zinft_ && zun_ ) wcd.elev_ = zun_->internalValue( wcd.elev_ );
+    if ( zinft_ && zun ) wcd.elev_ = zun->internalValue( wcd.elev_ );
 
     wcd.td_ = tbl_->getfValue( RowCol(irow,4) );
     if ( wcd.td_ > 1e-6 && !mIsUdf(wcd.td_) )
     {
-	if ( zinft_ && zun_ ) wcd.td_ = zun_->internalValue( wcd.td_ );
+	if ( zinft_ && zun ) wcd.td_ = zun->internalValue( wcd.td_ );
     }
     else
     {
@@ -297,7 +298,7 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 
     wcd.srd_ = tbl_->getfValue( RowCol(irow,5) );
     if ( mIsUdf(wcd.srd_) ) wcd.srd_ = 0;
-    if ( zinft_ && zun_ ) wcd.srd_ = zun_->internalValue(  wcd.srd_ );
+    if ( zinft_ && zun ) wcd.srd_ = zun->internalValue(  wcd.srd_ );
 
     wcd.uwi_ = tbl_->text( RowCol(irow,6) );
     return true;
@@ -308,10 +309,11 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 {
     crwellids_.erase();
     vel_ = velfld_ ? velfld_->getfValue() : 1000;
-    if ( zinft_ && zun_ )
-	vel_ = zun_->internalValue( vel_ );
     if ( vel_ < 1e-5 || mIsUdf(vel_) )
 	{ uiMSG().error("Please enter a valid velocity"); return false; }
+    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+    if ( zinft_ && zun )
+	vel_ = zun->internalValue( vel_);
     vel_ /= 2; // TWT
 
     IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
@@ -356,15 +358,15 @@ void uiSimpleMultiWellCreate::addRow( const uiSMWCData& wcd, int& prevrow )
     if ( rc.row >= tbl_->nrRows() )
 	tbl_->setNrRows( tbl_->nrRows()+10 );
 
+    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
     tbl_->setText( rc, wcd.nm_ ); rc.col++;
     tbl_->setValue( rc, wcd.coord_.x ); rc.col++;
     tbl_->setValue( rc, wcd.coord_.y ); rc.col++;
-    float v = wcd.elev_; if ( zinft_ && zun_ ) zun_->userValue( v );
+    float v = wcd.elev_; if ( zinft_ && zun ) zun->userValue( v );
     tbl_->setValue( rc, v ); rc.col++;
-    v = wcd.td_; if ( zinft_ && zun_ ) zun_->userValue( v );
+    v = wcd.td_; if ( zinft_ && zun ) zun->userValue( v );
     tbl_->setValue( rc, v ); rc.col++;
-    v = wcd.srd_; if ( zinft_ && zun_ ) zun_->userValue( v );
+    v = wcd.srd_; if ( zinft_ && zun ) zun->userValue( v );
     tbl_->setValue( rc, v ); rc.col++;
     tbl_->setText( rc, wcd.uwi_ );
 }
-

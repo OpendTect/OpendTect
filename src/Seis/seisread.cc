@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisread.cc,v 1.109 2012-05-22 14:48:34 cvskris Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.106 2011/03/16 16:19:47 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -460,7 +460,7 @@ LineKey SeisTrcReader::lineKey() const
     if ( seldata )
 	return seldata->lineKey();
     else if ( ioobj )
-	return LineKey(ioobj->name(),ioobj->pars().find(sKey::Attribute()));
+	return LineKey(ioobj->name(),ioobj->pars().find(sKey::Attribute));
 
     return LineKey(0,0);
 }

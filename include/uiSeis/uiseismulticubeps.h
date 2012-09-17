@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uiseismulticubeps.h,v 1.6 2012-08-03 13:01:08 cvskris Exp $
+ RCS:           $Id: uiseismulticubeps.h,v 1.5 2011/02/17 13:31:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 class uiGenInput;
 class uiListBox;
@@ -24,7 +23,7 @@ class uiComboBox;
 class uiSeisMultiCubePSEntry;
 
 
-mClass(uiSeis) uiSeisMultiCubePS : public uiDialog
+mClass uiSeisMultiCubePS : public uiDialog
 {
 
 public:
@@ -59,4 +58,3 @@ protected:
 };
 
 #endif
-

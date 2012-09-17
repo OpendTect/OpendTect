@@ -7,17 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2010
- RCS:		$Id: ftptask.h,v 1.3 2012-08-03 13:00:31 cvskris Exp $
+ RCS:		$Id: ftptask.h,v 1.2 2010/06/30 12:45:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "networkmod.h"
 #include "executor.h"
 
 class ODFtp;
 
-mClass(Network) FtpTask : public Executor
+mClass FtpTask : public Executor
 {
 public:
 			FtpTask(ODFtp&);
@@ -46,4 +45,3 @@ protected:
 };
 
 #endif
-

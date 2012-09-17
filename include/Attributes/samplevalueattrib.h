@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert and Bruno
  Date:          Aug 2012
- RCS:           $Id: samplevalueattrib.h,v 1.1 2012-08-28 13:24:20 cvsbert Exp $
+ RCS:           $Id: samplevalueattrib.h,v 1.1 2012/09/05 14:11:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 
 /*!\brief Sample Value Attribute
@@ -25,7 +24,7 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-mClass(Attributes) SampleValue : public Provider
+mClass SampleValue : public Provider
 {
 public:
     static void			initClass();

@@ -3,7 +3,8 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID mUnusedVar = "$Id: segydirect.cc,v 1.40 2012-06-28 13:07:25 cvskris Exp $";
+
+static const char* rcsID = "$Id: segydirect.cc,v 1.36 2012/06/28 12:25:24 cvskris Exp $";
 
 #include "segydirectdef.h"
 
@@ -55,6 +56,17 @@ void setFDS( const FileDataSet* fds )
 }
 
 od_int64 size() const { return fds_->size(); }
+
+
+Seis::PosKey key( od_int64 nr ) const
+{
+    Seis::PosKey pk;
+    if ( !key( nr, pk ) )
+	pk = Seis::PosKey::undef();
+
+    return pk;
+}
+
 
 bool key( od_int64 nr, Seis::PosKey& pk ) const
 {
@@ -232,7 +244,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 
     IOPar iop1; iop1.getFrom( astrm );
     int version = 1;
-    iop1.get( sKey::Version(), version );
+    iop1.get( sKey::Version, version );
     if ( version<1 || version>2 )
     {
 	mErrRet(BufferString("Input file '",fnm,
@@ -331,7 +343,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 FixedString SEGY::DirectDef::fileName( int idx ) const
 {
     if ( !fds_ )
-	return sKey::EmptyString();
+	return sKey::EmptyString;
 
     return fds_->fileName( idx );
 }
@@ -361,7 +373,7 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
     astrm.putHeader( sKeyFileType() );
 
     IOPar iop1;
-    iop1.set( sKey::Version(), 2 );
+    iop1.set( sKey::Version, 2 );
     BufferString dc;
     mSetDc( iop1, od_int64, sKeyInt64DataChar() );
     mSetDc( iop1, od_int32, sKeyInt32DataChar() );
@@ -519,7 +531,7 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
 {
     if ( !ioobj_ )
 	{ msg_ = "Cannot find output object"; return; }
-    linename_ = segypar.find( sKey::LineName() );
+    linename_ = segypar.find( sKey::LineName );
     if ( is2d && linename_.isEmpty() )
 	{ delete ioobj_; ioobj_ = 0; msg_ = "Line name not specified"; return; }
 

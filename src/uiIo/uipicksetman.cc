@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipicksetman.cc,v 1.24 2012-05-22 14:48:38 cvskris Exp $";
+static const char* rcsID = "$Id: uipicksetman.cc,v 1.19 2011/09/16 10:01:23 cvsbert Exp $";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
@@ -28,12 +28,13 @@ mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
 
 
 uiPickSetMan::uiPickSetMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Manage PickSets/Polygons",mNoDlgTitle,
+    : uiObjFileMan(p,uiDialog::Setup("PickSet file management",
+				     "Manage picksets",
 				     "105.0.6").nrstatusflds(1),
 	           PickSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
-    selgrp_->getManipGroup()->addButton( "mergepicksets", "Merge pick sets",
+    selgrp_->getManipGroup()->addButton( "mergepicksets.png", "Merge pick sets",
 					 mCB(this,uiPickSetMan,mergeSets) );
     mTriggerInstanceCreatedNotifier();
     selChg( this );
@@ -61,8 +62,8 @@ void uiPickSetMan::mkFileInfo()
 	if ( !txt.isEmpty() )
 	    ErrMsg( txt );
 
-	const char* typ = curioobj_->pars().find( sKey::Type() );
-	const bool ispoly = typ && !strcmp( typ, sKey::Polygon() ); 
+	const char* typ = curioobj_->pars().find( sKey::Type );
+	const bool ispoly = typ && !strcmp( typ, sKey::Polygon ); 
 	const bool havetype = typ && *typ;
 	if ( havetype )
 	    txt.add( "Type: " ).add( typ );

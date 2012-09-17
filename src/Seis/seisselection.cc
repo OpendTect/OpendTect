@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisselection.cc,v 1.34 2012-08-09 03:35:33 cvssalil Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.29 2012/07/10 13:06:03 cvskris Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -24,7 +24,7 @@ static const char* rcsID mUnusedVar = "$Id: seisselection.cc,v 1.34 2012-08-09 0
 #include "polyposprovider.h"
 #include "strmprov.h"
 
-#define mGetSpecKey(s,k) IOPar::compKey(sKey::s(),k)
+#define mGetSpecKey(s,k) IOPar::compKey(sKey::s,k)
 
 
 Seis::SelData::SelData()
@@ -49,8 +49,8 @@ void Seis::SelData::copyFrom( const Seis::SelData& sd )
 
 void Seis::SelData::removeFromPar( IOPar& iop )
 {
-    iop.removeWithKey( sKey::BinIDSel() );
-    iop.set( sKey::Type(), sKey::None() );
+    iop.removeWithKey( sKey::BinIDSel );
+    iop.set( sKey::Type, sKey::None );
 }
 
 
@@ -76,7 +76,7 @@ Seis::SelData* Seis::SelData::get( Type t )
 
 Seis::SelData* Seis::SelData::get( const IOPar& iop )
 {
-    const Type t = Seis::selTypeOf( iop.find(sKey::Type()) );
+    const Type t = Seis::selTypeOf( iop.find(sKey::Type) );
     Seis::SelData* sd = get( t );
     sd->usePar( iop );
     return sd;
@@ -115,23 +115,23 @@ Interval<float> Seis::SelData::zRange() const
 void Seis::SelData::fillPar( IOPar& iop ) const
 {
     const char* typstr = Seis::nameOf(type());
-    iop.set( sKey::Type(), isall_ ? (const char*) sKey::None() : typstr );
+    iop.set( sKey::Type, isall_ ? (const char*) sKey::None : typstr );
     if ( linekey_.isEmpty() )
-	iop.removeWithKey( sKey::LineKey() );
+	iop.removeWithKey( sKey::LineKey );
     else
-	iop.set( sKey::LineKey(), linekey_ );
+	iop.set( sKey::LineKey, linekey_ );
 }
 
 
 void Seis::SelData::usePar( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::Type() );
+    const char* res = iop.find( sKey::Type );
     if ( !res )
-	res = iop.find( sKey::BinIDSel() );
-    isall_ = !res || !*res || *res == *sKey::None();
+	res = iop.find( sKey::BinIDSel );
+    isall_ = !res || !*res || *res == *sKey::None;
 
-    iop.get( sKey::LineKey(), linekey_ );
-    res = iop.find( sKey::Attribute() );
+    iop.get( sKey::LineKey, linekey_ );
+    res = iop.find( sKey::Attribute );
     if ( res && *res )
 	linekey_.setAttrName( res );
 }
@@ -435,7 +435,7 @@ void Seis::TableSelData::fillPar( IOPar& iop ) const
 
 void Seis::TableSelData::usePar( const IOPar& iop )
 {
-    bvs_.setEmpty();
+    bvs_.empty();
     Seis::SelData::usePar( iop );
     if ( isall_ ) return;
 
@@ -640,7 +640,7 @@ void Seis::PolySelData::fillPar( IOPar& iop ) const
     Seis::SelData::fillPar( iop );
     if ( isall_ ) return;
 
-    iop.set( mGetPolyKey(sKey::ZRange()), zrg_ );
+    iop.set( mGetPolyKey(sKey::ZRange), zrg_ );
     iop.set( mGetPolyKey("Stepoutreach"), stepoutreach_ );
 
     iop.set( mGetPolyKey("NrPolygons"), polys_.size() );
@@ -656,7 +656,7 @@ void Seis::PolySelData::usePar( const IOPar& iop )
 
     const bool wasfilled = !polys_.isEmpty();
 
-    iop.get( mGetPolyKey(sKey::ZRange()), zrg_ );
+    iop.get( mGetPolyKey(sKey::ZRange), zrg_ );
     iop.get( mGetPolyKey("Stepoutreach"), stepoutreach_ );
 
     int nrpolys = 0;
@@ -784,7 +784,7 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 	const Interval<float> polyinlrg = polys_[idx]->getRange( true );
 	const Interval<float> polycrlrg = polys_[idx]->getRange( false );
 	const float rectarea = polyinlrg.width() * polycrlrg.width();
-    const float coverfrac = rectarea ? polys_[idx]->area()/rectarea : 1.0f;
+    	const float coverfrac = rectarea ? polys_[idx]->area()/rectarea : 1.0;
 	
 	Interval<int> inlrg( mNINT32(polyinlrg.start), mNINT32(polyinlrg.stop) );
 	inlrg.widen( stepoutreach_.inl );

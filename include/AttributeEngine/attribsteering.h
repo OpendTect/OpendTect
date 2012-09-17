@@ -7,24 +7,22 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribsteering.h,v 1.4 2012-08-03 13:00:08 cvskris Exp $
+ RCS:           $Id: attribsteering.h,v 1.3 2009/07/22 16:01:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "position.h"
 #include "seistype.h"
 //#include "commondefs.h"
 namespace Attrib
 {
 
-mGlobal(AttributeEngine) BinID getSteeringPosition( int );
-mGlobal(AttributeEngine) int getSteeringIndex( const BinID& );
+mGlobal BinID getSteeringPosition( int );
+mGlobal int getSteeringIndex( const BinID& );
 
 
 }; //Namespace
 
 
 #endif
-

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.cc,v 1.14 2012-08-09 03:35:33 cvssalil Exp $
+ RCS:           $Id: waveletattrib.cc,v 1.12 2010/11/29 21:37:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool degree ) const
 	float re = coutdata.get(idx).real();
 	float im = coutdata.get(idx).imag();
 	float ph = (re*re+im*im) ? atan2( im, re )  : 0;
-	phase.set( idx, degree ? (float) (180*ph/M_PI) : ph );
+	phase.set( idx, degree ? 180*ph/M_PI : ph );
     }
 
     unwrapPhase( wvltsz_, 1, phase.arr() );
@@ -85,13 +85,15 @@ void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool degree ) const
 void WaveletAttrib::unwrapPhase( int nrsamples, float w, float* phase )
 {
     if ( w == 0 )
-	{ pFreeFnErrMsg("wrapping parameter is zero",
-			"WaveletAttrib::unwrapPhase"); return; }
+    {
+	fprintf( stderr, "wrapping parameter is zero" );
+	return;
+    }
 
     mAllocVarLenArr( float, dphase, nrsamples );
     mAllocVarLenArr( float, temp, nrsamples );
 
-    float pibyw = (float) M_PI/w;
+    float pibyw = M_PI/w;
 
     temp[0] = phase[0];
     dphase[0] = 0;

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		June 2012
- RCS:		$Id: issuereporter.h,v 1.2 2012-08-03 13:00:31 cvskris Exp $
+ RCS:		$Id: issuereporter.h,v 1.1 2012/06/26 12:57:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "networkmod.h"
 #include "bufstring.h"
 
 namespace System
@@ -21,7 +20,7 @@ namespace System
     
 /*Class that can post a crash-report to OpendTect's website */
     
-mClass(Network) IssueReporter
+mClass IssueReporter
 {
 public:
     				IssueReporter( const char* hostname = 0,
@@ -50,4 +49,3 @@ protected:
 } //Namespace
 
 #endif
-

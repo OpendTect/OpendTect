@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$";
+static const char* rcsID = "$";
 
 #include "uidatapointsetmerger.h"
 
@@ -233,7 +233,7 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     zgatefld_ = new uiGenInput( this, ztxt, FloatInpSpec() );
     zgatefld_->setElemSzPol( uiObject::Small );
     zgatefld_->attach( rightTo, distfld_ );
-    zgatefld_->setValue( SI().zStep()*SI().zDomain().userFactor() );
+    zgatefld_->setValue( SI().zStep()*SI().zFactor() );
     
     BufferStringSet replaceopts;
     BufferString opt1( "Keep '" ); opt1 += mdps_->name(); opt1 += "'";
@@ -416,8 +416,7 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
     uiTaskRunner tr( this );
     dpsmrfprop.setOverWriteUndef( overwritefld_->getBoolValue() );
     dpsmrfprop.setMaxAllowedHorDist( distfld_->getfValue() );
-    dpsmrfprop.setMaxAllowedZDist(
-	    zgatefld_->getfValue()/SI().zDomain().userFactor() );
+    dpsmrfprop.setMaxAllowedZDist( zgatefld_->getfValue()/SI().zFactor() );
     
     DPSMerger merger( dpsmrfprop ); 
     merger.addNewCols( newcolnms );

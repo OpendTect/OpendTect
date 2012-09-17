@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y. Liu
  Date:          Nov 2009
- RCS:           $Id: uihorsavefieldgrp.h,v 1.5 2012-08-03 13:00:56 cvskris Exp $
+ RCS:           $Id: uihorsavefieldgrp.h,v 1.4 2009/11/19 04:04:12 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uiearthmodelmod.h"
 #include "uigroup.h"
 
 namespace EM { class Horizon; }
@@ -28,7 +27,7 @@ class uiIOObjSel;
     from memory. You can also call saveHorizon() to save horizon based on your
     choice of as new or overwrite. */
 
-mClass(uiEarthModel) uiHorSaveFieldGrp : public uiGroup
+mClass uiHorSaveFieldGrp : public uiGroup
 {
 public:
 				uiHorSaveFieldGrp(uiParent*,EM::Horizon*,
@@ -65,4 +64,3 @@ protected:
 
 
 #endif
-

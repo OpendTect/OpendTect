@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vissurvobj.cc,v 1.67 2012-07-03 08:41:52 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.64 2012/06/29 15:44:01 cvskris Exp $";
 
 #include "vissurvobj.h"
 
@@ -18,25 +18,48 @@ static const char* rcsID mUnusedVar = "$Id: vissurvobj.cc,v 1.67 2012-07-03 08:4
 #include "iopar.h"
 #include "keystrs.h"
 #include "seisbuf.h"
+#include "hiddenparam.h"
+
+
+HiddenParam<visSurvey::SurveyObject, InlCrlSystem*> inlcrlsystem( 0 );
+
 
 namespace visSurvey {
 
 
 SurveyObject::SurveyObject()
     : scene_(0)
-    , inlcrlsystem_( 0 )
+    , survinfo_( 0 )
     , basemapobj_(0)
     , locked_(false)
 {
-    setInlCrlSystem( SI().get3DGeometry(true) );
+    inlcrlsystem.setParam( this, SI().create3DGeometry(true) );    
 }
-
+    
     
 SurveyObject::~SurveyObject()
 {
+    InlCrlSystem* ics = inlcrlsystem.getParam( this );
+    delete ics;
+    inlcrlsystem.removeParam( this );
+    
     deepErase(userrefs_);
-    setInlCrlSystem( 0 );
 }
+    
+
+    
+void SurveyObject::setInlCrlSystem( const InlCrlSystem& newics )
+{
+    InlCrlSystem* ics = inlcrlsystem.getParam( this );
+    *ics = newics;
+}
+    
+    
+const InlCrlSystem* SurveyObject::inlCrlSystem() const
+{
+    return inlcrlsystem.getParam( this );
+}
+
 
 float SurveyObject::sDefMaxDist()	{ return 10; }
 
@@ -125,26 +148,23 @@ void SurveyObject::getLineWidthBounds( int& min, int& max )
 { min = mUdf(int); max= mUdf(int); }
 
 
-void SurveyObject::setInlCrlSystem(const InlCrlSystem* ics)
+void SurveyObject::setInlCrlSystem(const SurveyInfo& si)
 {
-    if ( inlcrlsystem_ ) inlcrlsystem_->unRef();
-    
-    inlcrlsystem_ = ics;
-    
-    if ( inlcrlsystem_ ) inlcrlsystem_->ref();
+    PtrMan<InlCrlSystem> newics = si.create3DGeometry(true);
+    setInlCrlSystem( *newics );
 }
 
 
 const char* SurveyObject::getInlCrlSystemName() const
 {
-    return inlcrlsystem_ ? inlcrlsystem_->name().str() : survname_.str();
+    return inlCrlSystem() ? inlCrlSystem()->name().str() : survname_.str();
 }
 
 
 void SurveyObject::fillSOPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    if ( inlcrlsystem_ )
-	par.set( sKeySurvey(), inlcrlsystem_->name() );
+    if ( inlCrlSystem() )
+	par.set( sKeySurvey(), inlCrlSystem()->name() );
 
     par.setYN( sKeyLocked(), locked_ );
     const int nrattribs = nrAttribs();
@@ -158,7 +178,7 @@ void SurveyObject::fillSOPar( IOPar& par, TypeSet<int>& saveids ) const
 	    IOPar seqpar;
 	    const ColTab::Sequence* seq = getColTabSequence( attrib );
 	    if ( seq->isSys() )
-		seqpar.set( sKey::Name(), seq->name() );
+		seqpar.set( sKey::Name, seq->name() );
 	    else
 		seq->fillPar( seqpar );
 
@@ -249,7 +269,7 @@ int SurveyObject::useSOPar( const IOPar& par )
 	    if ( !seq.usePar( *seqpar ) )
 	    {
 		BufferString seqname;
-		if ( seqpar->get( sKey::Name(), seqname ) ) //Sys
+		if ( seqpar->get( sKey::Name, seqname ) ) //Sys
 		    ColTab::SM().get( seqname.buf(), seq );
 	    }
 	}

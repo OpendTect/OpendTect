@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#!/bin/csh
 
 if ( "$1" == "--upd" ) then
     shift
@@ -6,4 +6,4 @@ if ( "$1" == "--upd" ) then
 endif
 
 dvs_ed $*
-vim $*
+vi $*

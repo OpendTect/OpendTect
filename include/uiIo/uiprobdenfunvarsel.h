@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uigroup.h"
 
 class BufferStringSet;
@@ -18,7 +17,7 @@ class uiComboBox;
 class uiGenInput;
 template < class T > class StepInterval;
 
-mClass(uiIo) uiPrDenFunVarSel : public uiGroup
+mClass uiPrDenFunVarSel : public uiGroup
 {
 public:
 
@@ -37,12 +36,9 @@ struct DataColInfo
     int 			selColID() const;
     StepInterval<float>		selColRange() const;
     BufferString		selColName() const;
-    const char*			colName(int idx) const;
-    int				nrCols() const;
 
     void			setAttrRange(const StepInterval<float>&);
     void			setColNr(int);
-    void			setPrefCol(const char*);
 
     Notifier<uiPrDenFunVarSel>	attrSelChanged;
 
@@ -56,7 +52,11 @@ protected:
     void			attrChanged(CallBacker*);
     void			nrBinChanged(CallBacker*);
     void			rangeChanged(CallBacker*);
+
+public:
+    const char*			colName(int idx) const;
+    int				nrCols() const;
+    void			setPrefCol(const char*);
 };
 
 #endif
-

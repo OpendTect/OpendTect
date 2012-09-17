@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.35 2012-08-03 13:00:07 cvskris Exp $
+ RCS:		$Id: attribdatapack.h,v 1.34 2011/11/30 09:07:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "datapackbase.h"
 #include "cubesampling.h"
 #include "attribdescid.h"
@@ -33,7 +32,7 @@ class Data2DArray;
 
 /*!\brief Mixin to provide general services to Attrib data packs */
 
-mClass(AttributeEngine) DataPackCommon
+mClass DataPackCommon
 {
 public:
     			DataPackCommon( DescID id )
@@ -57,7 +56,7 @@ protected:
 
 /*!\brief Base class Data Pack for 2D. */
 
-mClass(AttributeEngine) Flat2DDataPack : public ::FlatDataPack
+mClass Flat2DDataPack : public ::FlatDataPack
 		     , public DataPackCommon
 {
 public:
@@ -83,7 +82,7 @@ protected:
 
 /*!\brief Data Pack from 2D attribute data. */
 
-mClass(AttributeEngine) Flat2DDHDataPack : public Flat2DDataPack
+mClass Flat2DDHDataPack : public Flat2DDataPack
 {
 public:
     			Flat2DDHDataPack(DescID,const Data2DHolder&,
@@ -122,7 +121,7 @@ protected:
 
 /*!\brief Flat data pack from 3D attribute extraction */ 
 
-mClass(AttributeEngine) Flat3DDataPack : public ::FlatDataPack
+mClass Flat3DDataPack : public ::FlatDataPack
 		     , public DataPackCommon
 {
 public:
@@ -166,7 +165,7 @@ protected:
 
 /*!\brief Volume data pack */ 
 
-mClass(AttributeEngine) CubeDataPack : public ::CubeDataPack
+mClass CubeDataPack : public ::CubeDataPack
 		   , public DataPackCommon
 {
 public:
@@ -192,7 +191,7 @@ protected:
 
 /*!\brief Data Pack from random traces extraction. */
 
-mClass(AttributeEngine) FlatRdmTrcsDataPack : public Flat2DDataPack
+mClass FlatRdmTrcsDataPack : public Flat2DDataPack
 {
 public:
     			FlatRdmTrcsDataPack(DescID,const SeisTrcBuf&,
@@ -224,4 +223,3 @@ protected:
 } // namespace Attrib
 
 #endif
-

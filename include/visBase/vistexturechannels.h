@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.24 2012-08-03 13:01:27 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.23 2012/03/19 13:41:52 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "odmemory.h"
 
@@ -24,8 +23,6 @@ class TaskRunner;
 
 template <class T> class Array2D;
 
-namespace osgGeo { class LayeredTexture; }
-
 namespace ColTab { class Mapper; class MapperSetup; };
 
 namespace visBase
@@ -35,7 +32,7 @@ class MappedTextureDataSet;
 class TextureChannel2RGBA;
 class ChannelInfo;
 
-mClass(visBase) TextureChannels : public DataObject
+mClass TextureChannels : public DataObject
 {
 public:
     static TextureChannels*	create()
@@ -91,9 +88,6 @@ public:
     const SbImagei32*		getChannels() const;
     void			touchMappedData();
 
-    osgGeo::LayeredTexture*	getOsgTexture() { return osgtexture_; }
-    const TypeSet<int>*		getOsgIDs(int channel) const;
-    
 protected:
     friend			class ChannelInfo;
     void			update(int channel,bool tc2rgba);
@@ -104,7 +98,6 @@ protected:
     MappedTextureDataSet*	tc_;
     SoSwitch*			onoff_;
     TextureChannel2RGBA*	tc2rgba_;
-    osgGeo::LayeredTexture*	osgtexture_;
 
     virtual SoNode*		gtInvntrNode();
 
@@ -112,7 +105,7 @@ protected:
 
 
 
-mClass(visBase) TextureComposer : public DataObject
+mClass TextureComposer : public DataObject
 {
 public:
 
@@ -130,4 +123,3 @@ protected:
 }; // Namespace
 
 #endif
-

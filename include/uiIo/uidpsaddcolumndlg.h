@@ -7,12 +7,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          July 2011
- RCS:           $Id: uidpsaddcolumndlg.h,v 1.2 2012-08-03 13:00:59 cvskris Exp $: 
+ RCS:           $Id: uidpsaddcolumndlg.h,v 1.1 2011/07/11 11:40:57 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 
@@ -22,7 +21,7 @@ class uiTable;
 
 class MathExpression;
 
-mClass(uiIo) uiDPSAddColumnDlg : public uiDialog
+mClass uiDPSAddColumnDlg : public uiDialog
 {
 public:
     				uiDPSAddColumnDlg(uiParent*,bool withmathop);
@@ -52,4 +51,3 @@ protected:
 };
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellimpsegyvsp.cc,v 1.25 2012-08-10 03:50:08 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.19 2011/11/23 11:35:56 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -81,7 +81,7 @@ void selPush( CallBacker* )
     delete defdlg;
     if ( !dlgok ) return;
 
-    FilePath fp( imp_.sgypars_.find(sKey::FileName()) );
+    FilePath fp( imp_.sgypars_.find(sKey::FileName) );
     fnm_ = fp.fileName();
     uiSEGYExamine::Setup exsu( nrexam );
     exsu.modal( false ); exsu.usePar( imp_.sgypars_ );
@@ -252,7 +252,7 @@ void uiWellImportSEGYVSP::use( const SeisTrc& trc )
     if ( isdpth_ )
     {
 	outzrgfld_->setValue( dispinpsamp_.start, 0 );
-	outzrgfld_->setValue( trc.endPos(), 1 );
+	outzrgfld_->setValue( trc.samplePos(trc.size()-1), 1 );
     }
 }
 
@@ -263,7 +263,7 @@ void uiWellImportSEGYVSP::isTimeChg( CallBacker* )
     isdpth_ = !istimefld_ || !istimefld_->getBoolValue();
 
     if ( oldisdpth != isdpth_ )
-	setInpSamp( inpsampfld_, dispinpsamp_, isdpth_ ? 0.001f : 1000 );
+	setInpSamp( inpsampfld_, dispinpsamp_, isdpth_ ? 0.001 : 1000 );
     inpistvdfld_->display( isdpth_ );
     inpinftfld_->display( isdpth_ );
     outSampChk( 0 );
@@ -299,15 +299,15 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
 	if ( !isdpth_ )
 	    { mScaleVal(inpsamp.start,0.001); mScaleVal(inpsamp.step,0.001); }
 	else if ( inpinftfld_->isChecked() )
-	    { mScaleVal(inpsamp.start,mFromFeetFactorF);
-		mScaleVal(inpsamp.step,mFromFeetFactorF); }
+	    { mScaleVal(inpsamp.start,mFromFeetFactor);
+		mScaleVal(inpsamp.step,mFromFeetFactor); }
     }
     if ( outzrgfld_->isChecked() )
     {
 	outzrg = outzrgfld_->getFInterval();
 	if ( outinftfld_->isChecked() )
-	    { mScaleVal(outzrg.start,mFromFeetFactorF);
-		mScaleVal(outzrg.stop,mFromFeetFactorF); }
+	    { mScaleVal(outzrg.start,mFromFeetFactor);
+		mScaleVal(outzrg.stop,mFromFeetFactor); }
     }
 
     SeisTrc trc;
@@ -356,7 +356,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     if ( wlidx >= 0 )
 	delete wd->logs().remove( wlidx );
     Well::Log* wl = new Well::Log( lognm );
-    wl->pars().set( sKey::FileName(), sgypars_.find(sKey::FileName()) );
+    wl->pars().set( sKey::FileName, sgypars_.find(sKey::FileName) );
 
     Interval<float> outzrg( ozr ); outzrg.sort();
     const bool havestartout = !mIsUdf(outzrg.start);

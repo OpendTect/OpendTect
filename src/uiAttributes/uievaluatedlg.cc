@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uievaluatedlg.cc,v 1.36 2012-09-13 18:36:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.31 2011/11/23 11:35:55 cvsbert Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -59,9 +59,6 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 	return;
     }
 
-    if ( !ade.curDesc() )
-	return;
-
     const ValParam* valpar1 = ade.curDesc()->getValParam( parstr1_ );
     const ValParam* valpar2 = ade.curDesc()->getValParam( parstr2_ );
 
@@ -94,8 +91,8 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 	incrfld->attach( alignedBelow, initfld );
     setHAlignObj( initfld );
 
-    delete initspec1; delete incrspec1;
-    delete initspec2; delete incrspec2;
+    delete initspec1, incrspec1;
+    delete initspec2, incrspec2;
 }
 
 
@@ -111,7 +108,7 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
     if ( gatepar )
     {
 	initspec = new FloatInpIntervalSpec( gatepar->getValue() );
-	const float zfac = SI().zIsTime() ? 1000.f : 1.f;
+	const float zfac = SI().zIsTime() ? 1000 : 1;
 	const float step = SI().zStep() * zfac;
 	incrspec = new FloatInpIntervalSpec( Interval<float>(-step,step) );
     }

@@ -7,13 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.h,v 1.12 2012-08-03 13:00:18 cvskris Exp $
+ RCS:		$Id: emhorizonpainter.h,v 1.10 2010/05/26 06:15:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "callback.h"
 
 #include "cubesampling.h"
@@ -27,7 +25,7 @@ ________________________________________________________________________
 namespace EM
 {
     
-mClass(EarthModel) EMObjPainterCallbackData
+mClass EMObjPainterCallbackData
 {
 public:
     		    EMObjPainterCallbackData() 
@@ -39,13 +37,13 @@ public:
 };
     
     
-mClass(EarthModel) HorizonPainter : public CallBacker
+mClass HorizonPainter : public CallBacker
 {
 public:
     			HorizonPainter(FlatView::Viewer&);
 			~HorizonPainter();
 
-	mStruct(EarthModel) HorizonInfo
+	mStruct HorizonInfo
     	{
 	    EM::ObjectID	id_;
 	    BufferString	name_;
@@ -104,10 +102,10 @@ protected:
     
     ObjectSet<HorizonInfo>  horizoninfos_;
 
-    typedef ObjectSet<FlatView::AuxData> SectionMarkerLine;
+    typedef ObjectSet<FlatView::Annotation::AuxData> SectionMarkerLine;
     ObjectSet< ObjectSet<SectionMarkerLine> > hormarkerlines_;
 
-    ObjectSet<FlatView::AuxData> horsmarkerseeds_;
+    ObjectSet<FlatView::Annotation::AuxData> horsmarkerseeds_;
     MarkerStyle2D	markerstyle_;
 
     bool		is2d_;
@@ -120,5 +118,3 @@ protected:
 }// namespace EM
 
 #endif
-
-

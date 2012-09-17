@@ -7,12 +7,11 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Apr 2010
- RCS:		$Id: uiodvw2dhor2dtreeitem.h,v 1.10 2012-08-07 04:00:22 cvsmahant Exp $
+ RCS:		$Id: uiodvw2dhor2dtreeitem.h,v 1.8 2011/06/28 13:35:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
 
 #include "emposid.h"
@@ -20,7 +19,7 @@ ________________________________________________________________________
 class Vw2DHorizon2D;
 
 
-mClass(uiODMain) uiODVw2DHor2DParentTreeItem : public uiODVw2DTreeItem
+mClass uiODVw2DHor2DParentTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVw2DHor2DParentTreeItem();
@@ -38,7 +37,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVw2DHor2DTreeItemFactory : public uiODVw2DTreeItemFactory
+mClass uiODVw2DHor2DTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const 	{ return typeid(*this).name(); }
@@ -48,7 +47,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODVw2DHor2DTreeItem : public uiODVw2DTreeItem
+mClass uiODVw2DHor2DTreeItem : public uiODVw2DTreeItem
 {
 public:
     			uiODVw2DHor2DTreeItem(const EM::ObjectID&);
@@ -73,8 +72,8 @@ protected:
     void		mouseReleaseInVwrCB(CallBacker*);
     void		displayMiniCtab();
 
-    int			cPixmapWidth()				{ return 16; }
-    int			cPixmapHeight()				{ return 10; }
+    const int		cPixmapWidth()				{ return 16; }
+    const int		cPixmapHeight()				{ return 10; }
     void		emobjChangeCB(CallBacker*);
 
     EM::ObjectID	emid_;
@@ -83,4 +82,3 @@ protected:
 };
 
 #endif
-

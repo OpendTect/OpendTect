@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initsood.cc,v 1.35 2012-08-27 13:16:49 cvskris Exp $";
+static const char* rcsID = "$Id: initsood.cc,v 1.31 2011/08/29 05:50:50 cvsranojay Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -54,7 +54,7 @@ static const char* rcsID mUnusedVar = "$Id: initsood.cc,v 1.35 2012-08-27 13:16:
 #include "SoBeachBall.h"
 #include "SoDGBDragPointDragger.h"
 
-mSoODExternC void od_SoOD_initStdClasses();
+ mExternC void od_SoOD_initStdClasses();
 extern "C" void od_SoOD_initStdClasses()
 {
     static bool have_inited = false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uirockphysform.cc,v 1.22 2012-07-03 12:47:46 cvshelene Exp $";
+static const char* rcsID = "$Id: uirockphysform.cc,v 1.19 2012/07/03 12:47:38 cvshelene Exp $";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -31,7 +31,6 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p )
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 	    			PropertyRef::StdTypeNames(), "Property Type" );
     typfld_ = lcb->box();
-    typfld_->setHSzPol( uiObject::Medium);
     typfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,typSel) );
 
     createFlds( lcb->attachObj() );
@@ -193,6 +192,12 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
 }
 
 
+const char* uiRockPhysForm::getText() const
+{
+    return "Please use 'getText(bool)' function instead";
+}
+
+
 BufferString uiRockPhysForm::getText( bool usecstvals ) const
 {
     BufferString formula;
@@ -290,7 +295,7 @@ uiRockPhysCstFld::uiRockPhysCstFld( uiParent* p )
     rangelbl_->attach( rightOf, valfld_ );
 
     CallBack cb = mCB(this,uiRockPhysCstFld,descPush);
-    descbutton_ = new uiPushButton( this, "", ioPixmap("info"), cb, true );
+    descbutton_ = new uiPushButton( this, "", ioPixmap("info.png"), cb, true );
     descbutton_->setPrefWidthInChar( 5 );
     descbutton_->attach( rightOf, rangelbl_ );
 }

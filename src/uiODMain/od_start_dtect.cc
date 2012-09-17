@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_start_dtect.cc,v 1.7 2012-05-02 15:12:11 cvskris Exp $";
+static const char* rcsID = "$Id: od_start_dtect.cc,v 1.6 2012/05/11 08:50:06 cvsranojay Exp $";
 
 #include "prog.h"
 
@@ -61,6 +61,6 @@ static bool ExecODInstMgr()
 
 int main( int argc, char** argv )
 {
-    ExecODInstMgr();
+    //ExecODInstMgr(); disable launch of od_instmanager for windows
     ExecODMain( argc, argv );
 }

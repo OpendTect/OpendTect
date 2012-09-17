@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.26 2012-08-03 13:00:23 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.24 2011/10/03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "flatview.h"
 #include "callback.h"
 #include "geometry.h"
@@ -30,7 +29,7 @@ class AuxDataEditor;
 
 #define mCtrlLeftButton ( (OD::ButtonState) (OD::LeftButton+OD::ControlButton) )
 
-mClass(General) Sower : public CallBacker
+mClass Sower : public CallBacker
 {
     friend class	AuxDataEditor;
 
@@ -79,7 +78,7 @@ protected:
 
     AuxDataEditor&		editor_;
     RCol2Coord			transformation_;
-    AuxData*			sowingline_;
+    Annotation::AuxData*	sowingline_;
     MouseEventHandler&		mouseeventhandler_;
     Geom::PixRectangle<int>	mouserectangle_;
     SowingMode			mode_;
@@ -104,19 +103,19 @@ protected:
 
 
 
-/*!Editor for FlatView::AuxData. Allows the enduser to
+/*!Editor for FlatView::Annotation::AuxData. Allows the enduser to
    click-drag-release the points in data.
    Users of the class have the choice if the editor should do the changes for
    them, or if they want to do changes themself, driven by the callback. */
 
-mClass(General) AuxDataEditor : public CallBacker
+mClass AuxDataEditor : public CallBacker
 {
     friend class	Sower;
 
 public:
 			AuxDataEditor(Viewer&,MouseEventHandler&);
     virtual		~AuxDataEditor();
-    int			addAuxData(FlatView::AuxData*,bool doedit);
+    int			addAuxData(FlatView::Annotation::AuxData*,bool doedit);
     			/*!<\param doedit says whether this object
 			     should change the auxdata, or if the user
 			     of the objects should do it.
@@ -180,8 +179,8 @@ public:
 
     void			setSelActive( bool yn ) { isselactive_ = yn; }
     bool			isSelActive() const	{ return isselactive_; }
-    const TypeSet<int>&		getIds() const;
-    const ObjectSet<AuxData>&	getAuxData() const;
+    const TypeSet<int>&				getIds() const;
+    const ObjectSet<Annotation::AuxData>&	getAuxData() const;
 
     void		removePolygonSelected(int dataid);
     			//!<If dataid ==-1, all pts inside polygon is removed
@@ -193,7 +192,8 @@ public:
     const Point*	markerPosAt(const Geom::Point2D<int>& mousepos) const;
 
 protected:
-    void		getPointSelections( const ObjectSet<AuxData>& polygon,
+    void		getPointSelections(
+	    		    const ObjectSet<Annotation::AuxData>& polygon,
 			    TypeSet<int>& ids, TypeSet<int>& idxs) const;
 			/*!<Each point within the limits of the polygons
 			    will be put in the typesets.*/
@@ -212,40 +212,39 @@ protected:
 
     int			dataSetIdxAt(const Geom::Point2D<int>&) const;
 
-    Viewer&			viewer_;
-    Sower*			sower_;
-    ObjectSet<AuxData>		auxdata_;
-    TypeSet<int>		ids_;
-    BoolTypeSet			allowadd_;
-    BoolTypeSet			allowmove_;
-    BoolTypeSet			allowremove_;
-    BoolTypeSet			allowpolysel_;
-    BoolTypeSet			doedit_;
+    Viewer&				viewer_;
+    Sower*				sower_;
+    ObjectSet<Annotation::AuxData>	auxdata_;
+    TypeSet<int>			ids_;
+    BoolTypeSet				allowadd_;
+    BoolTypeSet				allowmove_;
+    BoolTypeSet				allowremove_;
+    BoolTypeSet				allowpolysel_;
+    BoolTypeSet				doedit_;
 
-    int				addauxdataid_;
-    ObjectSet<AuxData>		polygonsel_;
-    LineStyle			polygonsellst_;
-    bool			polygonselrect_;
-    bool			isselactive_;
-    AuxData*			feedback_;
-    Geom::Point2D<int>		prevpt_;
+    int					addauxdataid_;
+    ObjectSet<Annotation::AuxData>	polygonsel_;
+    LineStyle				polygonsellst_;
+    bool				polygonselrect_;
+    bool				isselactive_;
+    Annotation::AuxData*		feedback_;
+    Geom::Point2D<int>			prevpt_;
 
-    Geom::PixRectangle<int>	mousearea_;
-    Rect			curview_;
-    MouseEventHandler&		mousehandler_;
-    bool			mousedown_;
-    bool			hasmoved_;
+    Geom::PixRectangle<int>		mousearea_;
+    Rect				curview_;
+    MouseEventHandler&			mousehandler_;
+    bool				mousedown_;
+    bool				hasmoved_;
 
-    int				seldatasetidx_;
-    TypeSet<int>		selptidx_;
-    Point			selptcoord_;
-    Rect*			movementlimit_;
+    int					seldatasetidx_;
+    TypeSet<int>			selptidx_;
+    Point				selptcoord_;
+    Rect*				movementlimit_;
 
-    MenuHandler*		menuhandler_;
+    MenuHandler*			menuhandler_;
 };
 
 
 }; // namespace FlatView
 
 #endif
-

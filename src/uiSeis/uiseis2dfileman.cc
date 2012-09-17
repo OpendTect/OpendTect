@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.31 2012-07-24 07:41:20 cvskris Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.24 2012/08/31 06:27:38 cvssatyaki Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -45,7 +45,8 @@ mDefineInstanceCreatedNotifierAccess(uiSeis2DFileMan)
 
 
 uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
-    : uiDialog(p,uiDialog::Setup("Manage 2D Seismic Lines",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup("Seismic line data management",
+				 "Manage 2D seismic lines",
 				 "103.1.3"))
     , issidomain(ZDomain::isSI( ioobj.pars() ))
     , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))
@@ -65,10 +66,10 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     linegrp_ = new uiManipButGrp( lllb );
     linegrp_->addButton( uiManipButGrp::Rename, "Rename line",
 			mCB(this,uiSeis2DFileMan,renameLine) );
-    linegrp_->addButton( "mergelines", "Merge lines",
+    linegrp_->addButton( "mergelines.png", "Merge lines",
 			mCB(this,uiSeis2DFileMan,mergeLines) );
     if ( SI().has3D() )
-	linegrp_->addButton( "extr3dseisinto2d", "Extract from 3D cube",
+	linegrp_->addButton( "extr3dseisinto2d.png", "Extract from 3D cube",
 			mCB(this,uiSeis2DFileMan,extrFrom3D) );
     linegrp_->attach( rightOf, linefld_ );
 
@@ -83,10 +84,8 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 	    	       mCB(this,uiSeis2DFileMan,renameAttrib) );
     attrgrp_->addButton( uiManipButGrp::Remove, "Remove selected attribute(s)",
 	    		mCB(this,uiSeis2DFileMan,removeAttrib) );
-    browsebut_ = attrgrp_->addButton( "browseseis", "Browse/edit this line",
+    browsebut_ = attrgrp_->addButton( "browseseis.png", "Browse/edit this line",
 	    	       mCB(this,uiSeis2DFileMan,browsePush) );
-    mkdefbut_ = attrgrp_->addButton( "makedefault",
-	    "Set as default", mCB(this,uiSeis2DFileMan,makeDefault) );
     attrgrp_->attach( rightOf, attrfld_ );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom" );
@@ -170,11 +169,7 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
     linefld_->getSelectedItems( linenms );
     attrfld_->getSelectedItems( attribnms );
     if ( linenms.isEmpty() || attribnms.isEmpty() )
-    {
-	browsebut_->setSensitive( false );
-	mkdefbut_->setSensitive( false );
-	return;
-    }
+	{ browsebut_->setSensitive( false ); return; }
 
     const LineKey linekey( linenms.get(0), attribnms.get(0) );
     const int lineidx = lineset_->indexOf( linekey );
@@ -193,6 +188,7 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
     }
 
     const int sz = trcrg.nrSteps() + 1;
+    const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
     PosInfo::Line2DPos firstpos, lastpos;
     l2dd.getPos( trcrg.start, firstpos );
     l2dd.getPos( trcrg.stop, lastpos );
@@ -232,7 +228,7 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
 	{ txt += "\nNumber of components: "; txt += nrcomp; }
 
     const IOPar& iopar = lineset_->getInfo( lineidx );
-    BufferString fname(iopar.find(sKey::FileName()) );
+    BufferString fname(iopar.find(sKey::FileName) );
     FilePath fp( fname );
     if ( !fp.isAbsolute() )
 	fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
@@ -247,26 +243,14 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
     infofld_->setText( txt );
 
     browsebut_->setSensitive( true );
-    mkdefbut_->setSensitive( true );
 }
 
 
 void uiSeis2DFileMan::browsePush( CallBacker* )
 {
     if ( !objinfo_ || !objinfo_->ioObj() ) return;
-
     const LineKey lk( linefld_->getText(), attrfld_->getText());
     uiSeisBrowser::doBrowse( this, *objinfo_->ioObj(), true, &lk );
-}
-
-
-void uiSeis2DFileMan::makeDefault( CallBacker* )
-{
-    if ( !objinfo_ || !objinfo_->ioObj() ) return;
-
-    BufferString attrnm = attrfld_->getText();
-    SI().getPars().set( sKey::DefAttribute(), attrnm );
-    SI().savePars();
 }
 
 
@@ -539,8 +523,8 @@ uiSeis2DExtractFrom3D( uiParent* p, const uiSeisIOObjInfo& objinf,
 	    		BoolInpSpec(true,"All lines", "Selected line(s)") );
     IOObjContext ctxt = uiSeisSel::ioContext(Seis::Vol,true);
     ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
-    
-    cubefld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
+    cubefld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
+	    			uiSeisSel::Setup(Seis::Vol) );
     cubefld_->attach( alignedBelow, alllnsfld_ );
     cubefld_->selectionDone.notify( mCB(this,uiSeis2DExtractFrom3D,cubeSel) );
     attrnmfld_ = new uiGenInput( this, "Store as attribute" );

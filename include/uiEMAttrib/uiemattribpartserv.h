@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiemattribpartserv.h,v 1.18 2012-08-03 13:00:55 cvskris Exp $
+ RCS:           $Id: uiemattribpartserv.h,v 1.16 2009/11/19 04:04:12 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiemattribmod.h"
 #include "uiapplserv.h"
 #include "attribdescid.h"
 #include "datacoldef.h"
@@ -30,7 +29,7 @@ class uiHorizonShiftDialog;
 
 /*! \brief Part Server for Attribute handling on EarthModel objects */
 
-mClass(uiEMAttrib) uiEMAttribPartServer : public uiApplPartServer
+mClass uiEMAttribPartServer : public uiApplPartServer
 {
 public:
 				uiEMAttribPartServer(uiApplService&);
@@ -38,12 +37,12 @@ public:
 
     const char*			name() const		{ return "EMAttribs"; }
 
-    static int			evCalcShiftAttribute()		{ return 0; }
-    static int			evHorizonShift()		{ return 1; }
-    static int			evStoreShiftHorizons()		{ return 2; }
-    static int			evShiftDlgOpened()		{ return 3; }
-    static int			evShiftDlgClosedCancel()	{ return 4; }
-    static int			evShiftDlgClosedOK()		{ return 5; }
+    static const int		evCalcShiftAttribute()		{ return 0; }
+    static const int		evHorizonShift()		{ return 1; }
+    static const int		evStoreShiftHorizons()		{ return 2; }
+    static const int		evShiftDlgOpened()		{ return 3; }
+    static const int		evShiftDlgClosedCancel()	{ return 4; }
+    static const int		evShiftDlgClosedOK()		{ return 5; }
 
     enum HorOutType		{ OnHor, AroundHor, BetweenHors };
     void			createHorizonOutput(HorOutType);
@@ -111,4 +110,3 @@ protected:
 
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2012
- RCS:		$Id: uistratsimplelaymoddisp.h,v 1.6 2012-09-11 11:02:11 cvsbert Exp $
+ RCS:		$Id: uistratsimplelaymoddisp.h,v 1.5 2012/09/11 12:50:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uistratlaymoddisp.h"
 class uiLineItem;
 class uiTextItem;
@@ -24,7 +23,7 @@ class uiGraphicsItemSet;
 namespace Strat { class LayerSequence; class Content; }
 
 
-mClass(uiStrat) uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
+mClass uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
 {
 public:
 
@@ -85,4 +84,3 @@ protected:
 
 
 #endif
-

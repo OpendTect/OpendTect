@@ -7,30 +7,29 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.h,v 1.18 2012-08-03 13:01:20 cvskris Exp $
+ RCS:           $Id: uiwellimpasc.h,v 1.14 2011/06/29 10:29:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uidialog.h"
+#include "welldata.h"
 
-class uiCheckBox;
-class uiD2TModelGroup;
-class uiFileInput;
-class uiGenInput;
+class CtxtIOObj;
 class uiLabel;
+class uiCheckBox;
+class uiGenInput;
+class uiIOObjSel;
+class uiFileInput;
+class uiD2TModelGroup;
 class uiTableImpDataSel;
-class uiWellSel;
-class UnitOfMeasure;
 
 namespace Table { class FormatDesc; }
-namespace Well { class Data; }
 
 
 /*! \brief Dialog for well import from Ascii */
 
-mClass(uiWell) uiWellImportAsc : public uiDialog
+mClass uiWellImportAsc : public uiDialog
 {
 public:
 			uiWellImportAsc(uiParent*);
@@ -45,21 +44,19 @@ protected:
     uiGenInput*		tdfld_;
     uiLabel*		vertwelllbl_;
 
-    Well::Data&		wd_;
+    Well::Data		wd_;
+    CtxtIOObj&		ctio_;
 
     Table::FormatDesc&  fd_;
     uiTableImpDataSel*  dataselfld_;
     uiD2TModelGroup*	d2tgrp_;
-    uiWellSel*		outfld_;
-    bool		zinft_;
-    const UnitOfMeasure* zun_;
+    uiIOObjSel*		outfld_;
 
     virtual bool	acceptOK(CallBacker*);
     bool		checkInpFlds();
     bool		doWork();
     void		doAdvOpt(CallBacker*);
     void		trckFmtChg(CallBacker*);
-    void		inputChgd(CallBacker*);
     void		haveTrckSel(CallBacker*);
 
     friend class	uiWellImportAscOptDlg;
@@ -67,4 +64,3 @@ protected:
 
 
 #endif
-

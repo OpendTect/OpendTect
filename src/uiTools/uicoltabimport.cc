@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicoltabimport.cc,v 1.12 2012-05-22 14:48:41 cvskris Exp $";
+static const char* rcsID = "$Id: uicoltabimport.cc,v 1.9 2010/11/10 15:26:43 cvsbert Exp $";
 
 #include "uicoltabimport.h"
 
@@ -85,7 +85,7 @@ void uiColTabImport::usrSel( CallBacker* )
 	    if ( idx )	break;
 	    else	continue;
 	}
-	const char* nm = subpar->find( sKey::Name() );
+	const char* nm = subpar->find( sKey::Name );
 	if ( !nm )
 	    { delete subpar; continue; }
 	

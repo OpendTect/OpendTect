@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.83 2012-09-17 14:04:05 cvsjaap Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.80 2012/01/02 14:04:14 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "vissurveymod.h"
 #include "visobject.h"
 #include "mousecursor.h"
 #include "vissurvobj.h"
@@ -45,14 +44,13 @@ namespace visSurvey
 
 class Scene;
 
-mClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl,
+mClass VolumeDisplay : public visBase::VisualObjectImpl,
 		      public SurveyObject
 {
 public:
     static VolumeDisplay*	create()
 				mCreateDataObj(VolumeDisplay);
-    bool			isInlCrl() const { return !inl2displaytrans_; }
-    void			setInlCrlSystem(const InlCrlSystem*);
+    bool			isInlCrl() const	{ return true; }
 
     static int			cInLine() 		{ return 2; }
     static int			cCrossLine() 		{ return 1; }
@@ -71,7 +69,7 @@ public:
     
     visBase::MarchingCubesSurface* getIsoSurface(int idx);
     void			updateIsoSurface(int,TaskRunner* = 0);
-    int				getNrIsoSurfaces();
+    const int			getNrIsoSurfaces();
     int				getIsoSurfaceIdx(
 	    			    const visBase::MarchingCubesSurface*) const;
     float			defaultIsoValue() const;
@@ -240,8 +238,6 @@ protected:
     bool			isinited_;
     bool                        onoffstatus_;
 
-    mVisTrans*			inl2displaytrans_;
-
     static const char*		sKeyVolumeID();
     static const char*		sKeyInline();
     static const char*		sKeyCrossLine();
@@ -266,4 +262,3 @@ protected:
 
 
 #endif
-

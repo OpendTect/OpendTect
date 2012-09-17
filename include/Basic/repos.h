@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: repos.h,v 1.8 2012-08-03 13:00:14 cvskris Exp $
+ RCS:		$Id: repos.h,v 1.7 2010/09/17 12:53:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstring.h"
 
 namespace Repos
@@ -45,7 +44,7 @@ namespace Repos
 
  */
 
-mClass(Basic) FileProvider
+mClass FileProvider
 {
 public:
 
@@ -75,4 +74,3 @@ protected:
 }; // namespace Repos
 
 #endif
-

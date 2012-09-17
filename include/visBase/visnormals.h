@@ -7,18 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.20 2012-09-05 14:53:43 cvskris Exp $
+ RCS:		$Id: visnormals.h,v 1.18 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "positionlist.h"
-#include "viscoord.h"
-
 
 class CallBacker;
 class SoNormal;
@@ -33,7 +30,7 @@ namespace visBase
 
 */
 
-mClass(visBase) Normals : public DataObject
+mClass Normals : public DataObject
 {
 public:
     static Normals*	create()
@@ -55,10 +52,7 @@ public:
 
     void		setDisplayTransformation( const mVisTrans* nt );
     const mVisTrans*	getDisplayTransformation() const { return transformation_; }
-    
-    osg::Array*		osgArray() { return osgnormals_; }
-    const osg::Array*	osgArray() const { return osgnormals_; }
-    
+
 protected:
     void		transformNormal(const Transformation*,Coord3&,
 	    				bool todisplay) const;
@@ -75,12 +69,10 @@ protected:
     const mVisTrans*		transformation_;
 
     virtual SoNode*		gtInvntrNode();
-    
-    osg::Array*			osgnormals_;
     			
 };
 
-mClass(visBase) NormalListAdapter : public Coord3List
+mClass NormalListAdapter : public Coord3List
 {
 public:
     		NormalListAdapter(Normals& n )
@@ -107,5 +99,4 @@ protected:
 };
 
 #endif
-
 

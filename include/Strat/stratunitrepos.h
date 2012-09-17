@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.31 2012-08-03 13:00:43 cvskris Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.30 2010/09/27 11:05:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "repos.h"
 
 namespace Strat
@@ -22,7 +21,7 @@ class RefTree;
 /*!\brief Repository of all stratigraphic descriptions defining the building
 	  blocks of subsurface descriptions */
 
-mClass(Strat) RepositoryAccess
+mClass RepositoryAccess
 {
 public:
 
@@ -79,4 +78,3 @@ the cret.upp.sand reference data).
 */
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2011
- RCS:		$Id: stratlayseqattribcalc.h,v 1.7 2012-09-13 13:59:09 cvsbert Exp $
+ RCS:		$Id: stratlayseqattribcalc.h,v 1.6 2012/09/13 13:59:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "stattype.h"
 #include "ranges.h"
 #include "executor.h"
@@ -31,7 +30,7 @@ class LayerSequence;
   Note that if the attribute is global, then the zrange is not used.
  */
 
-mClass(Strat) LaySeqAttribCalc
+mClass LaySeqAttribCalc
 {
 public:
 
@@ -58,7 +57,7 @@ protected:
 };
 
 
-mClass(Strat) LayModAttribCalc : public Executor
+mClass LayModAttribCalc : public Executor
 {
 public:
     			LayModAttribCalc(const LayerModel&,
@@ -93,4 +92,3 @@ protected:
 }; // namespace Strat
 
 #endif
-

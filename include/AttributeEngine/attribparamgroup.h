@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: attribparamgroup.h,v 1.12 2012-05-04 22:14:32 cvsnanne Exp $
+ RCS:           $Id: attribparamgroup.h,v 1.11 2010/07/12 22:52:41 cvskris Exp $
 ________________________________________________________________________
 */
 
@@ -55,13 +55,12 @@ public:
     bool                getCompositeValue(BufferString&) const;
     void                fillDefStr(BufferString&) const;
 
-    Param&		operator[]( int idx )		{ return *params_[idx];}
-    const Param&	operator[]( int idx ) const	{ return *params_[idx];}
+    Param&		operator[]( int idx )		{ return *params_[idx]; }
+    const Param&	operator[]( int idx ) const	{ return *params_[idx]; }
 
-    void		setSize(int);
-    int			size() const			{ return sz_; }
-    int			isEmpty() const			{ return sz_==0; }
-    const char*		getPrefix() const		{ return prefix_; }
+    void		setSize( int );
+    int			size() const { return sz_; }
+    const char*		getPrefix() const { return prefix_; }
 
 protected:
     int				getSize() const;

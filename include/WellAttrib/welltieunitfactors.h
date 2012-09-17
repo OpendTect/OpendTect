@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellattribmod.h"
 #include "commondefs.h"
 
 class UnitOfMeasure;
@@ -22,7 +21,7 @@ namespace Well { class Log; }
 namespace WellTie
 {
 
-mClass(WellAttrib) UnitFactors
+mClass UnitFactors
 {
 public:
 
@@ -45,4 +44,3 @@ protected:
 };//namespace WellTie
 
 #endif
-

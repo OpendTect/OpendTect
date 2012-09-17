@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisegyscandlg.h,v 1.13 2012-08-03 13:01:07 cvskris Exp $
+ RCS:           $Id: uisegyscandlg.h,v 1.12 2011/10/24 09:56:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uisegyreaddlg.h"
 namespace SEGY { class Scanner; class FileIndexer; }
 class CtxtIOObj;
@@ -22,7 +21,7 @@ class uiSeis2DLineSel;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mClass(uiSeis) uiSEGYScanDlg : public uiSEGYReadDlg
+mClass uiSEGYScanDlg : public uiSEGYReadDlg
 {
 public :
 
@@ -52,4 +51,3 @@ protected:
 
 
 #endif
-

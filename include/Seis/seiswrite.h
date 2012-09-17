@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.35 2012-08-03 13:00:38 cvskris Exp $
+ RCS:		$Id: seiswrite.h,v 1.34 2012/02/21 15:12:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,6 @@ is done.
 
 */
 
-#include "seismod.h"
 #include "seisstor.h"
 #include "fixedstring.h"
 #include "linekey.h"
@@ -33,7 +32,7 @@ class SeisPSWriter;
 class Seis2DLinePutter;
 
 
-mClass(Seis) SeisTrcWriter : public SeisStoreAccess
+mClass SeisTrcWriter : public SeisStoreAccess
 {
 public:
 
@@ -116,7 +115,7 @@ protected:
 
 
 
-mClass(Seis) SeisSequentialWriter
+mClass SeisSequentialWriter
 {
 public:
     			SeisSequentialWriter( SeisTrcWriter*, int buffsize=-1 );
@@ -165,4 +164,3 @@ protected:
     			
 
 #endif
-

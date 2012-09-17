@@ -2,7 +2,7 @@
 #
 #	Makefile : 	ui - Seis
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-03-29 11:26:27 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.3 2012/03/29 11:33:27 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiIo )

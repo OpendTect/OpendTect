@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uimadbldcmd.cc,v 1.28 2012-07-31 20:59:34 cvskris Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.24 2011/11/23 11:35:55 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uitoolbutton.h"
@@ -44,6 +44,32 @@ static BufferString& separateProgName( const char* cmd, bool wantprog )
     }
     *retptr = '\0';
     return ret;
+}
+
+
+static const char* separatePars( const char* cmd )
+{
+    BufferString* ret = new BufferString;
+    char buf[80];
+
+    while ( cmd && *cmd )
+    {
+	cmd = getNextWord( cmd, buf );
+	if ( !*buf ) break;
+
+	int idx = 0;
+	while ( buf[idx++] )
+	{
+	    if ( buf[idx] == '=' )
+	    {
+		*ret += " ";
+		*ret += buf;
+		break;
+	    }
+	}
+    }
+
+    return ret->buf();
 }
 
 
@@ -206,7 +232,7 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
     srchfld_->setToolTip( "Search expression" );
     srchfld_->setPrefWidthInChar( 15 );
     srchfld_->returnPressed.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
-    uiToolButton* srchbut = new uiToolButton( infogrp, "search", "Search",
+    uiToolButton* srchbut = new uiToolButton( infogrp, "search.png", "Search",
 				  mCB(this,uiMadagascarBldCmd,doSearch) );
     srchbut->attach( rightOf, srchfld_ );
 

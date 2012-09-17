@@ -7,26 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initgeneral.cc,v 1.15 2012-05-02 15:11:34 cvskris Exp $";
+static const char* rcsID = "$Id: initgeneral.cc,v 1.11 2012/02/09 11:13:56 cvskris Exp $";
 
 #include "moddepmgr.h"
 #include "rangeposprovider.h"
 #include "price.h"
 #include "mathproperty.h"
-#include "elasticpropseltransl.h"
-#include "preloads.h"
 
 mDefModInitFn(General)
 {
     mIfNotFirstTime( return );
-    
-    ElasticPropSelectionTranslatorGroup::initClass();
-    PreLoadsTranslatorGroup::initClass();
-    PreLoadSurfacesTranslatorGroup::initClass();
-    
-    dgbPreLoadsTranslator::initClass();
-    dgbPreLoadSurfacesTranslator::initClass();
-    odElasticPropSelectionTranslator::initClass();
 
     Pos::RangeProvider3D::initClass();
     Pos::RangeProvider2D::initClass();
@@ -34,6 +24,6 @@ mDefModInitFn(General)
     RangeProperty::initClass();
     MathProperty::initClass();
 
-    Currency::repository_ += new Currency( "EUR", 100 );
-    Currency::repository_ += new Currency( "USD", 100 );
+    Currency::repository_ += new Currency( "EUR", 2 );
+    Currency::repository_ += new Currency( "USD", 2 );
 }

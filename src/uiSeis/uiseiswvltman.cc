@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiswvltman.cc,v 1.78 2012-07-20 05:02:26 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.73 2012/07/18 06:09:28 cvsnageswara Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -51,15 +51,15 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     createDefaultUI();
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "impfromothsurv", "Get from other survey",
+    manipgrp->addButton( "impfromothsurv.png", "Get from other survey",
 			mCB(this,uiSeisWvltMan,getFromOtherSurvey) );
-    manipgrp->addButton( "info", "Display properties",
+    manipgrp->addButton( "info.png", "Display properties",
 			mCB(this,uiSeisWvltMan,dispProperties) );
-    manipgrp->addButton( "revpol", "Reverse polarity",
+    manipgrp->addButton( "revpol.png", "Reverse polarity",
 			mCB(this,uiSeisWvltMan,reversePolarity) );
-    manipgrp->addButton( "phase", "Rotate phase",
+    manipgrp->addButton( "phase.png", "Rotate phase",
 			mCB(this,uiSeisWvltMan,rotatePhase) );
-    manipgrp->addButton( "wavelet_taper", "Taper",
+    manipgrp->addButton( "wavelet_taper.png", "Taper",
 			mCB(this,uiSeisWvltMan,taper) );
 
     butgrp_ = new uiGroup( listgrp_, "Imp/Create buttons" );

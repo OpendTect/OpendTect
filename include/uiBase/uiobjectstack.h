@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uiobjectstack.h,v 1.4 2012-08-03 13:00:53 cvskris Exp $
+ RCS:           $Id: uiobjectstack.h,v 1.3 2009/07/22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 
 class uiGroup;
 class uiObjStackBody;
 
-mClass(uiBase) uiObjectStack : public uiObject
+mClass uiObjectStack : public uiObject
 {
 public:
 
@@ -37,4 +36,3 @@ private:
 };
 
 #endif
-

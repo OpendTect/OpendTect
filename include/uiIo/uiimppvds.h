@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jun 2010
- RCS:           $Id: uiimppvds.h,v 1.4 2012-08-03 13:01:00 cvskris Exp $
+ RCS:           $Id: uiimppvds.h,v 1.3 2010/06/28 13:13:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 class IOObj;
 class uiIOObjSel;
@@ -23,7 +22,7 @@ class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 
 
-mClass(uiIo) uiImpPVDS : public uiDialog 
+mClass uiImpPVDS : public uiDialog 
 {
 public:
 			uiImpPVDS(uiParent*,bool is2d=false);
@@ -48,4 +47,3 @@ protected:
 
 
 #endif
-

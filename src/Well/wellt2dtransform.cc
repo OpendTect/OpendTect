@@ -5,7 +5,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          July 2010
- RCS:           $Id: wellt2dtransform.cc,v 1.4 2012-08-10 04:11:25 cvssalil Exp $
+ RCS:           $Id: wellt2dtransform.cc,v 1.3 2010/11/30 16:48:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ bool WellT2DTransform::calcDepths()
 	const float dah2 = wllmodel->getDah( nexttime );
 	const Coord3 nextcrd = track.getPos( dah2 );
 	const float hyp = dah2 - dah1;
-	const float dist = (float) sqrt( ((prevcrd.x-nextcrd.x)*(prevcrd.x-nextcrd.x)) +
+	const float dist = sqrt( ((prevcrd.x-nextcrd.x)*(prevcrd.x-nextcrd.x)) +
 			   ((prevcrd.y-nextcrd.y)*(prevcrd.y-nextcrd.y)) ); 
 	vertdepth += sqrt( (hyp*hyp) - (dist*dist) );
 	depths_ += vertdepth;

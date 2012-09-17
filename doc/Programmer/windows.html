@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.37 2012-04-17 22:02:06 cvsbert Exp $ 
+  - RCS:        $Id: windows.html,v 1.40 2012/06/05 19:35:13 cvsbert Exp $ 
   -->
 
 <body background="backg.png"><title>Windows development [OpendTect
@@ -25,7 +25,7 @@ Programmer's manual V4.2]</title>
 
 <a name=vs10><h3>Visual Studio 10</h3></a>
 
-<p>OpendTect 4.3 is built with Visual Studio 2010 (version 10), and it also supports Visual Studio 2010 express edition. The express edition can be downloaded from <a href="http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express">Microsoft's official web site </a></p>
+<p>OpendTect 4.4 is built with Visual Studio 2010 (version 10), and it also supports Visual Studio 2010 express edition. The express edition can be downloaded from <a href="http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express">Microsoft's official web site </a></p>
 
 <a name=cmake><h3>CMake</h3></a>
 CMake is a cross-platform tool that takes care of generating system-dependent project files. It can be downloaded from <a href="http://www.cmake.org/cmake/resources/software.html">CMake's web site</a>.
@@ -37,7 +37,7 @@ To get the whole process going we will first build the Tutorial plugin. This wil
 <li>Install developers package from the installation manager. 
 <li>start OpendTect and then from Utilities-Tools-Create Devel Environment launch the create work environment tool. There specify a folder (WORK) to copy the plugin building material into. That can be any folder with names like "C:\WORK" or "D:\Tools\ODWork" but <b><i>Do Not Put It In The OpendTect Installation Folder</i></b>. After creation, tis will be where you do your work, so choose a stable, backed-up directory there.
 <li>Now start CMake (desktop item or its Windows start menu). Select the WORK directory you just created, and put it in both the "source" and "output". Then press the 'Configure' button.
-<li>Configure will probably fail due to missing OpendTect-DIR. This can be specified, choose the OpendTect installation directory there (e.g C:\Program files\OpendTect\4.3.1). Now press configure again.
+<li>Configure will probably fail due to missing OpendTect-DIR. This can be specified, choose the OpendTect installation directory there (e.g C:\Program files\OpendTect\4.4.0). Now press configure again.
 <li>Some virus scanners like AVG will ring the alarm bells, and this can make the whole process fail. This is because CMake tries to link a program to test the system setup. To get this right, I had to disable my virus scanner (AVG).
 <li>When you get 'Configuring done' you may still have a few red lines in the variables box. Don't worry: things should be ready and you can press the 'Generate' button. You can close CMake and switch your anti-virus back on.
 </ul>

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisrchprocfiles.cc,v 1.17 2012-05-22 14:48:39 cvskris Exp $";
+static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.14 2011/09/21 09:56:33 cvsbert Exp $";
 
 #include "uisrchprocfiles.h"
 
@@ -82,7 +82,7 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	IOPar iop; const BufferString fnm( dl.fullPath(idx) );
-	if ( !iop.read(fnm,sKey::Pars(),true) )
+	if ( !iop.read(fnm,sKey::Pars,true) )
 	    continue;
 	const char* res = iop.find( iopkey_ );
 	if ( res && key == res )

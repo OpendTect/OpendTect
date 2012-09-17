@@ -4,7 +4,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: segyhdr.cc,v 1.101 2012-08-09 03:35:32 cvssalil Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.96 2012/07/10 13:06:03 cvskris Exp $";
 
 
 #include "segyhdr.h"
@@ -359,7 +359,7 @@ const SEGY::HdrDef& SEGY::BinHeader::hdrDef()
 
 float SEGY::BinHeader::sampleRate( bool isdepth ) const
 {
-    float sr = entryVal( EntryDt() ) * 0.001f;
+    float sr = entryVal( EntryDt() ) * 0.001;
     if ( !isdepth )
 	sr *= 0.001;
     return sr;
@@ -442,7 +442,7 @@ void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
     SamplingData<float> sd( sdin );
     mPIEPAdj(Z,sd.start,false); mPIEPAdj(Z,sd.step,false);
 
-    const float zfac = SI().zDomain().userFactor();
+    const float zfac = SI().zFactor();
     float drt = sd.start * zfac;
     short delrt = (short)mNINT32(drt);
     setEntryVal( EntryLagA(), -delrt ); // For HRS and Petrel
@@ -517,7 +517,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     intval = mNINT32( ti.azimuth * 360 / M_PI );
     hdef_.azim_.putValue( buf_, intval );
 
-    const float zfac = SI().zDomain().userFactor();
+    const float zfac = SI().zFactor();
 #define mSetScaledMemb(nm,fac) \
     if ( !mIsUdf(ti.nm) ) \
 	{ intval = mNINT32(ti.nm*fac); hdef_.nm##_.putValue( buf_, intval ); }
@@ -540,17 +540,17 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
     HdrEntry he( *hdrDef()[EntryTrwf()] );
     static bool postscale_byte_established = false;
     static int bnr = he.bytepos_;
-    static bool smallbtsz = he.small_;
+    static bool small = he.small_;
     if ( !postscale_byte_established )
     {
 	postscale_byte_established = true;
 	bnr = GetEnvVarIVal( "OD_SEGY_TRCSCALE_BYTE", he.bytepos_ );
 	if ( bnr > 0 && bnr < 255 )
-	    smallbtsz = !GetEnvVarYN( "OD_SEGY_TRCSCALE_4BYTE" );
+	    small = !GetEnvVarYN( "OD_SEGY_TRCSCALE_4BYTE" );
     }
 
     he.bytepos_ = (HdrEntry::BytePos)bnr;
-    he.small_ = smallbtsz;
+    he.small_ = small;
     const short trwf = (short)he.getValue( buf_, needswap_ );
     if ( trwf == 0 || trwf > 50 || trwf < -50 ) return 1;
 
@@ -568,7 +568,7 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
     short scalnr = (short)entryVal( EntrySPscale() );
     if ( scalnr )
     {
-	ti.refnr *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
+	ti.refnr *= (scalnr > 0 ? scalnr : -1./scalnr);
 	ti.nr = mNINT32(ti.refnr);
     }
     mPIEPAdj(Coord,ti.coord,true);
@@ -594,7 +594,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( !isrev1_ )
 	getRev1Flds( ti );
 
-    const float zfac = 1.0f / SI().zDomain().userFactor();
+    const float zfac = 1. / SI().zFactor();
     short delrt = entryVal( EntryDelRt() );
     if ( delrt == 0 )
     {
@@ -607,7 +607,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	    delrt = 0;
     }
     ti.sampling.start = delrt * zfac;
-    ti.sampling.step = entryVal(EntryDt()) * zfac * 0.001f;
+    ti.sampling.step = entryVal(EntryDt()) * zfac * 0.001;
     mPIEPAdj(Z,ti.sampling.start,true);
     mPIEPAdj(Z,ti.sampling.step,true);
 
@@ -620,12 +620,12 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	float ftemp = (float)hdef_.memb##_.getValue(buf_,needswap_); \
 	ti.memb = ftemp * fac; \
     }
-    mGetFloatVal(pick,0.001f);
+    mGetFloatVal(pick,0.001);
     mPIEPAdj(Z,ti.pick,true);
     float nrfac = 1;
     short scalnr = (short)entryVal( EntrySPscale() );
     if ( scalnr == -10 || scalnr == -100 || scalnr == -1000 )
-	nrfac = 1.f / ((float)(-scalnr));
+	nrfac = 1. / ((float)(-scalnr));
     mGetFloatVal(refnr,nrfac);
 
     ti.coord.x = ti.coord.y = 0;

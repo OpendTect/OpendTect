@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: stats.cc,v 1.19 2012-05-15 08:13:47 cvskris Exp $";
+static const char* rcsID = "$Id: stats.cc,v 1.17 2012/05/15 08:11:10 cvskris Exp $";
 
 #include "statruncalc.h"
 #include "statrand.h"
@@ -102,7 +102,6 @@ int Stats::RandGen::getInt()
     return (int) lrand48();
 #endif
 }
-
 
 
 void Stats::RandGen::init( int seed )

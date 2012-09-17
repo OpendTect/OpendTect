@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: undo.cc,v 1.12 2012-05-02 15:11:28 cvskris Exp $";
+static const char* rcsID = "$Id: undo.cc,v 1.10 2011/02/01 10:03:32 cvsjaap Exp $";
 
 #include "undo.h"
 

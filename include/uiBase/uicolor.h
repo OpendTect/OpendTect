@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.26 2012-08-03 13:00:51 cvskris Exp $
+ RCS:           $Id: uicolor.h,v 1.23 2011/04/08 12:36:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "color.h"
 #include "uigroup.h"
 
@@ -26,11 +25,12 @@ class uiSpinBox;
 /*! \brief pops a selector box to select a new color 
      \return true if new color selected
 */
-mGlobal(uiBase) bool  	selectColor(Color&,uiParent* parnt=0,const char* seltxt=0,
+mGlobal bool  	selectColor(Color&,uiParent* parnt=0,const char* seltxt=0,
 		    bool withtransp=false); 
 
 // To be used by cmddriver to select a color while closing the QColorDialog
-mGlobal(uiBase) void		setExternalColor( const Color& );
+mGlobal void		setExternalColor( const Color& );
+static Color*	externalcolor = 0;
 
 
 /*! \brief small element for color selection. Has no text label.
@@ -40,10 +40,10 @@ mGlobal(uiBase) void		setExternalColor( const Color& );
  
  */
 
-mClass(uiBase) uiColorInput : public uiGroup
+mClass uiColorInput : public uiGroup
 {
 public:
-    mClass(uiBase) Setup
+    mClass Setup
     {
     public:
 
@@ -102,4 +102,3 @@ protected:
 };
 
 #endif
-

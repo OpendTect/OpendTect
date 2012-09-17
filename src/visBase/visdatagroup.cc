@@ -7,15 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visdatagroup.cc,v 1.23 2012-06-22 08:59:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: visdatagroup.cc,v 1.20 2012/03/19 13:41:52 cvskris Exp $";
 
 #include "visdatagroup.h"
 #include "visdataman.h"
 #include "iopar.h"
 
 #include <Inventor/nodes/SoSeparator.h>
-
-#include <osg/Group>
 
 mCreateFactoryEntry( visBase::DataObjectGroup );
 
@@ -27,7 +25,6 @@ const char* DataObjectGroup::kidprefix()	{ return "Child "; }
 
 DataObjectGroup::DataObjectGroup()
     : group_ ( 0 )
-    , osggroup_( 0 )
     , separate_( true )
     , change( this )
     , righthandsystem_( true )
@@ -39,18 +36,11 @@ DataObjectGroup::~DataObjectGroup()
     deepUnRef( objects_ );
 
     if ( group_ ) group_->unref();
-    if ( osggroup_ ) osggroup_->unref();
 }
 
 
 void DataObjectGroup::ensureGroup()
 {
-    if ( doOsg() && !osggroup_ )
-    {
-	osggroup_ = new osg::Group;
-	osggroup_->ref();
-	updateOsgNodeData();
-    }
 
     if ( group_ ) return;
     group_ = createGroup();
@@ -74,8 +64,6 @@ void DataObjectGroup::addObject( DataObject* no )
     objects_ += no;
     group_->addChild( no->getInventorNode() );
     nodes_ += no->getInventorNode();
-
-    if ( osggroup_ && no->osgNode() ) osggroup_->addChild( no->osgNode() );
 
     no->ref();
     no->setRightHandSystem( isRightHandSystem() );
@@ -133,7 +121,6 @@ void DataObjectGroup::insertObject( int insertpos, DataObject* no )
     nodes_.insertAt(no->getInventorNode(), insertpos );
     ensureGroup();
     group_->insertChild( no->getInventorNode(), insertpos );
-    if ( osggroup_ && no->osgNode() ) osggroup_->insertChild( insertpos, no->osgNode() );
     no->ref();
     no->setRightHandSystem( isRightHandSystem() );
     change.trigger();
@@ -160,7 +147,6 @@ void DataObjectGroup::removeObject( int idx )
     DataObject* sceneobject = objects_[idx];
     SoNode* node = nodes_[idx];
     group_->removeChild( node );
-    if ( osggroup_ ) osggroup_->removeChild( sceneobject->osgNode() );
 
     nodes_.remove( idx );
     objects_.remove( idx );
@@ -180,13 +166,6 @@ SoNode*  DataObjectGroup::gtInvntrNode()
 {
     ensureGroup();
     return group_;
-}
-
-
-osg::Node* DataObjectGroup::gtOsgNode()
-{
-    ensureGroup();
-    return osggroup_;
 }
 
 

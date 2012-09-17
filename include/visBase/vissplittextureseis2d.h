@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		3-8-2008
- RCS:		$Id: vissplittextureseis2d.h,v 1.14 2012-08-03 13:01:26 cvskris Exp $
+ RCS:		$Id: vissplittextureseis2d.h,v 1.13 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "posinfo2d.h"
 #include "visobject.h"
 
@@ -31,7 +30,7 @@ class Coordinates;
    size mMaxHorSz. should set path before having the shape. To split texture,
    make sure to set z pixels and texture units. */
 
-mClass(visBase) SplitTextureSeis2D : public VisualObjectImpl
+mClass SplitTextureSeis2D : public VisualObjectImpl
 {
 public:
     static SplitTextureSeis2D*	create()
@@ -77,4 +76,3 @@ protected:
 
 
 #endif
-

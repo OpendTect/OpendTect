@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.249 2012-09-11 14:36:29 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.244 2012/09/11 14:36:37 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -65,7 +65,7 @@ static const char* rcsID mUnusedVar = "$Id: uimainwin.cc,v 1.249 2012-09-11 14:3
 
 
 class uiMainWinBody : public uiParentBody
-		    , public mQtclass(QMainWindow)
+		    , public QMainWindow
 {
 friend class		uiMainWin;
 public:
@@ -77,8 +77,8 @@ public:
     virtual		~uiMainWinBody();
 
 #define mHANDLE_OBJ     uiMainWin
-#define mQWIDGET_BASE   mQtclass(QMainWindow)
-#define mQWIDGET_BODY   mQtclass(QMainWindow)
+#define mQWIDGET_BASE   QMainWindow
+#define mQWIDGET_BODY   QMainWindow
 #define UIBASEBODY_ONLY
 #define UIPARENT_BODY_CENTR_WIDGET
 #include                "i_uiobjqtbody.h"
@@ -103,7 +103,7 @@ public:
     void		removeDockWin(uiDockWin*);
     void		addDockWin(uiDockWin&,uiMainWin::Dock);
 
-    virtual mQtclass(QMenu*)	createPopupMenu();
+    virtual QMenu*	createPopupMenu();
     void		addToolBar(uiToolBar*);
     void		removeToolBar(uiToolBar*);
     uiPopupMenu&	getToolbarsMenu()		{ return *toolbarsmnu_;}
@@ -123,10 +123,10 @@ protected:
 
     virtual void	finalise()	{ finalise(false); }
     virtual void	finalise(bool trigger_finalise_start_stop);
-    void		closeEvent(mQtclass(QCloseEvent*));
-    bool		event(mQtclass(QEvent*));
+    void		closeEvent(QCloseEvent*);
+    bool		event(QEvent*);  
 
-    void		keyPressEvent(mQtclass(QKeyEvent*));
+    void		keyPressEvent(QKeyEvent*);
 
     void		doShow(bool minimized=false);
     void		managePopupPos();
@@ -155,12 +155,12 @@ protected:
 
 private:
 
-    mQtclass(QEventLoop)	eventloop_;
+    QEventLoop		eventloop_;
 
     int			iconsz_;
     bool		modal_;
     int			looplevel__;
-    mQtclass(Qt)::WFlags	getFlags(bool hasparent,bool modal) const;
+    Qt::WFlags		getFlags(bool hasparent,bool modal) const;
 
     void 		popTimTick(CallBacker*);
     Timer		poptimer;
@@ -178,8 +178,8 @@ private:
 uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p, 
 			      const char* nm, bool modal )
 	: uiParentBody(nm)
-	, mQtclass(QMainWindow)(p && p->pbody() ? p->pbody()->qwidget() : 0,
-		      		getFlags(p,modal) )
+	, QMainWindow(p && p->pbody() ? p->pbody()->qwidget() : 0,
+		      getFlags(p,modal) )
 	, handle_(uimw)
 	, initing(true)
 	, centralWidget_(0)
@@ -202,10 +202,9 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
     poptimer.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
 
     iconsz_ = uiObject::iconSize();
-    setIconSize( mQtclass(QSize)(iconsz_,iconsz_) );
+    setIconSize( QSize(iconsz_,iconsz_) );
 
-    setWindowModality( p && modal ? mQtclass(Qt)::WindowModal
-	    			  : mQtclass(Qt)::NonModal );
+    setWindowModality( p && modal ? Qt::WindowModal : Qt::NonModal );
 
     setDockOptions( VerticalTabs | AnimatedDocks | ForceTabbedDocks );
 
@@ -238,15 +237,13 @@ uiMainWinBody::~uiMainWinBody()
 void uiMainWinBody::setModal( bool yn )
 {
     modal_ = yn;
-    setWindowModality( yn ? mQtclass(Qt)::WindowModal
-	    		  : mQtclass(Qt)::NonModal );
+    setWindowModality( yn ? Qt::WindowModal : Qt::NonModal );
 }
 
 
-mQtclass(Qt)::WFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
+Qt::WFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 {
-    return  mQtclass(Qt)::WindowFlags( hasparent ? mQtclass(Qt)::Dialog
-	    					 : mQtclass(Qt)::Window );
+    return  Qt::WindowFlags( hasparent ? Qt::Dialog : Qt::Window );
 }
 
 
@@ -257,9 +254,9 @@ void uiMainWinBody::doShow( bool minimized )
     managePopupPos();
 
     if ( minimized )
-	mQtclass(QMainWindow)::showMinimized();
+	QMainWindow::showMinimized();
     else
-	mQtclass(QMainWindow)::show();
+	QMainWindow::show();
 
     if( poptimer.isActive() )
 	poptimer.stop();
@@ -267,8 +264,8 @@ void uiMainWinBody::doShow( bool minimized )
     popped_up = false;
     poptimer.start( 100, true );
 
-    mQtclass(QEvent*) ev = new mQtclass(QEvent)( mUsrEvPopUpReady );
-    mQtclass(QApplication)::postEvent( this, ev );
+    QEvent* ev = new QEvent( mUsrEvPopUpReady );
+    QApplication::postEvent( this, ev );
 
     if ( modal_ )
 	eventloop_.exec();
@@ -286,7 +283,7 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 
     if ( nrstatusflds != 0 )
     {
-	mQtclass(QStatusBar*) mbar= statusBar();
+	QStatusBar* mbar= statusBar();
 	if ( mbar )
 	    statusbar = new uiStatusBar( &handle(),
 					  "MainWindow StatusBar handle", *mbar);
@@ -301,7 +298,7 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
     }
     if ( wantmenubar )
     {   
-	mQtclass(QMenuBar*) myBar =  menuBar();
+	QMenuBar* myBar =  menuBar();
 
 	if ( myBar )
 	    menubar = new uiMenuBar( &handle(), "MainWindow MenuBar handle", 
@@ -318,9 +315,9 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 
 void uiMainWinBody::move( uiMainWin::PopupArea pa )
 {
-    mQtclass(QDesktopWidget) wgt;
-    const int xpos = wgt.screen()->width() - mQtclass(QMainWindow)::width();
-    const int ypos = wgt.screen()->height() - mQtclass(QMainWindow)::height();
+    QDesktopWidget wgt;
+    const int xpos = wgt.screen()->width() - QMainWindow::width();
+    const int ypos = wgt.screen()->height() - QMainWindow::height();
    
     switch( pa )
     {
@@ -333,7 +330,7 @@ void uiMainWinBody::move( uiMainWin::PopupArea pa )
 	case uiMainWin::BottomRight :
 	    move( xpos, ypos ); break;
 	case uiMainWin::Middle :
-	    move( mNINT32(((float) xpos)/2), mNINT32(((float) ypos) / 2));break;
+	    move( mNINT32(((float) xpos)/2), mNINT32(((float) ypos) / 2)); break;
 	default:
 	    break;
     }
@@ -342,13 +339,13 @@ void uiMainWinBody::move( uiMainWin::PopupArea pa )
 
 void uiMainWinBody::move( int xdir, int ydir )
 {
-    mQtclass(QWidget)::move( xdir, ydir );
+    QWidget::move( xdir, ydir );
     moved_ = true;
 }
 
 
 void uiMainWinBody::polish()
-{ mQtclass(QMainWindow)::ensurePolished(); }
+{ QMainWindow::ensurePolished(); }
 
 
 void uiMainWinBody::reDraw( bool deep )
@@ -381,8 +378,8 @@ bool uiMainWinBody::touch()
 }
 
 
-mQtclass(QMenu*) uiMainWinBody::createPopupMenu()
-{ return createtbmenu_ ? mQtclass(QMainWindow)::createPopupMenu() : 0; }
+QMenu* uiMainWinBody::createPopupMenu()
+{ return createtbmenu_ ? QMainWindow::createPopupMenu() : 0; }
 
 
 void uiMainWinBody::popTimTick( CallBacker* )
@@ -411,7 +408,7 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 }
 
 
-void uiMainWinBody::closeEvent( mQtclass(QCloseEvent*) ce )
+void uiMainWinBody::closeEvent( QCloseEvent* ce )
 {
     const int refnr = handle_.beginCmdRecEvent( "Close" );
 
@@ -439,7 +436,7 @@ void uiMainWinBody::close()
     if ( modal_ )
 	eventloop_.exit();
 
-    mQtclass(QMainWindow)::hide();
+    QMainWindow::hide();
 
     if ( exitapponclose_ )
 	qApp->quit();
@@ -464,11 +461,10 @@ void uiMainWinBody::removeDockWin( uiDockWin* dwin )
 
 void uiMainWinBody::addDockWin( uiDockWin& dwin, uiMainWin::Dock dock )
 {
-    mQtclass(Qt)::DockWidgetArea dwa = mQtclass(Qt)::LeftDockWidgetArea;
-    if ( dock == uiMainWin::Right ) dwa = mQtclass(Qt)::RightDockWidgetArea;
-    else if ( dock == uiMainWin::Top ) dwa = mQtclass(Qt)::TopDockWidgetArea;
-    else if ( dock == uiMainWin::Bottom ) dwa =
-					     mQtclass(Qt)::BottomDockWidgetArea;
+    Qt::DockWidgetArea dwa = Qt::LeftDockWidgetArea;
+    if ( dock == uiMainWin::Right ) dwa = Qt::RightDockWidgetArea;
+    else if ( dock == uiMainWin::Top ) dwa = Qt::TopDockWidgetArea;
+    else if ( dock == uiMainWin::Bottom ) dwa = Qt::BottomDockWidgetArea;
     addDockWidget( dwa, dwin.qwidget() );
     if ( dock == uiMainWin::TornOff )
 	dwin.setFloating( true );
@@ -508,8 +504,7 @@ void uiMainWinBody::updateToolbarsMenu()
 
 void uiMainWinBody::addToolBar( uiToolBar* tb )
 {
-    mQtclass(QMainWindow)::addToolBar((mQtclass(Qt)::ToolBarArea)tb->prefArea(),
-	   			      tb->qwidget() );
+    QMainWindow::addToolBar( (Qt::ToolBarArea)tb->prefArea(), tb->qwidget() );
     toolbars_ += tb;
     renewToolbarsMenu();
 }
@@ -517,7 +512,7 @@ void uiMainWinBody::addToolBar( uiToolBar* tb )
 
 void uiMainWinBody::removeToolBar( uiToolBar* tb )
 {
-    mQtclass(QMainWindow)::removeToolBar( tb->qwidget() );
+    QMainWindow::removeToolBar( tb->qwidget() );
     toolbars_ -= tb;
     renewToolbarsMenu();
 }
@@ -554,7 +549,7 @@ static BufferString getSettingsFileName()
 void uiMainWinBody::saveSettings()
 {
     const BufferString fnm = getSettingsFileName();
-    mQtclass(QSettings) settings( fnm.buf(), mQtclass(QSettings)::IniFormat );
+    QSettings settings( fnm.buf(), QSettings::IniFormat );
     settings.beginGroup( NamedObject::name().buf() );
     settings.setValue( "size", size() );
     settings.setValue( "pos", pos() );
@@ -566,13 +561,11 @@ void uiMainWinBody::saveSettings()
 void uiMainWinBody::readSettings()
 {
     const BufferString fnm = getSettingsFileName();
-    mQtclass(QSettings) settings( fnm.buf(), mQtclass(QSettings)::IniFormat );
+    QSettings settings( fnm.buf(), QSettings::IniFormat );
     settings.beginGroup( NamedObject::name().buf() );
-    mQtclass(QSize) qsz( settings.value("size",
-			 		mQtclass(QSize)(200,200)).toSize() );
+    QSize qsz( settings.value("size",QSize(200,200)).toSize() );
     prefsz_ = uiSize( qsz.width(), qsz.height() );
-    mQtclass(QPoint) qpt( settings.value("pos",
-					 mQtclass(QPoint)(200,200)).toPoint() );
+    QPoint qpt( settings.value("pos",QPoint(200,200)).toPoint() );
     prefpos_.setXY( qpt.x(), qpt.y() );
     restoreState( settings.value("state").toByteArray() );
     settings.endGroup();
@@ -582,7 +575,7 @@ void uiMainWinBody::readSettings()
 
 
 void uiMainWinBody::setWindowTitle( const char* txt )
-{ mQtclass(QMainWindow)::setWindowTitle( uiMainWin::uniqueWinTitle(txt,this) );}
+{ QMainWindow::setWindowTitle( uiMainWin::uniqueWinTitle(txt,this) ); }
 
 
 #define mExecMutex( statements ) \
@@ -594,8 +587,8 @@ void uiMainWinBody::activateInGUIThread( const CallBack& cb, bool busywait )
     CallBack* actcb = new CallBack( cb );
     mExecMutex( activatecbs_ += actcb );
 
-    mQtclass(QEvent*) guithreadev = new mQtclass(QEvent)( mUsrEvGuiThread );
-    mQtclass(QApplication)::postEvent( this, guithreadev );
+    QEvent* guithreadev = new QEvent( mUsrEvGuiThread );
+    QApplication::postEvent( this, guithreadev );
 
     float sleeptime = 0.01;
     while ( busywait )
@@ -611,22 +604,22 @@ void uiMainWinBody::activateInGUIThread( const CallBack& cb, bool busywait )
 }
 
 
-void uiMainWinBody::keyPressEvent( mQtclass(QKeyEvent*) ev )
+void uiMainWinBody::keyPressEvent( QKeyEvent* ev )
 {
     OD::KeyboardKey key = OD::KeyboardKey( ev->key() );
     OD::ButtonState modifier = OD::ButtonState( (int)ev->modifiers() );
 
-    if ( ev && ev->key() == mQtclass(Qt)::Key_F12 )
+    if ( ev && ev->key() == Qt::Key_F12 )
 	handle_.translate();
 
     if ( key == OD::C && modifier == OD::ControlButton )
 	handle_.ctrlCPressed.trigger();
 
-    return mQtclass(QMainWindow)::keyPressEvent( ev );
+    return QMainWindow::keyPressEvent( ev );
 }
 
 
-bool uiMainWinBody::event( mQtclass(QEvent*) ev )
+bool uiMainWinBody::event( QEvent* ev )
 {
     if ( ev->type() == mUsrEvGuiThread )
     {
@@ -641,7 +634,7 @@ bool uiMainWinBody::event( mQtclass(QEvent*) ev )
 	handle_.endCmdRecEvent( eventrefnr_, "WinPopUp" );
     }
     else
-	return mQtclass(QMainWindow)::event( ev );
+	return QMainWindow::event( ev );
     
     return true; 
 }
@@ -685,7 +678,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     body_->construct( setup.nrstatusflds_, setup.withmenubar_ );
     body_->setWindowIconText(
 	    setup.caption_.isEmpty() ? "OpendTect" : setup.caption_.buf() );
-    body_->setAttribute( mQtclass(Qt)::WA_DeleteOnClose, setup.deleteonclose_ );
+    body_->setAttribute( Qt::WA_DeleteOnClose, setup.deleteonclose_ );
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoard) );
 }
 
@@ -745,7 +738,7 @@ uiMainWin::~uiMainWin()
 }
 
 
-mQtclass(QWidget*) uiMainWin::qWidget() const
+QWidget* uiMainWin::qWidget() const
 { return body_; }
 
 void uiMainWin::provideHelp( const char* winid )
@@ -819,7 +812,7 @@ const char* uiMainWin::caption( bool unique ) const
 
 
 void uiMainWin::setDeleteOnClose( bool yn )
-{ body_->setAttribute( mQtclass(Qt)::WA_DeleteOnClose, yn ); }
+{ body_->setAttribute( Qt::WA_DeleteOnClose, yn ); }
 
 
 void uiMainWin::removeDockWindow( uiDockWin* dwin )
@@ -890,7 +883,7 @@ void uiMainWin::setSensitive( bool yn )
 }
 
 
-uiMainWin* uiMainWin::gtUiWinIfIsBdy(mQtclass(QWidget*) mwimpl)
+uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
 {
     if ( !mwimpl ) return 0;
 
@@ -908,13 +901,12 @@ void uiMainWin::setCornerPos( int x, int y )
 uiRect uiMainWin::geometry( bool frame ) const
 {
     // Workaround for Qt-bug: top left of area sometimes translates to origin!
-    mQtclass(QRect) qarea = body_->geometry();
-    mQtclass(QRect) qframe = body_->frameGeometry();
-    mQtclass(QPoint) correction = body_->mapToGlobal(mQtclass(QPoint)(0,0)) -
-					   qarea.topLeft();
+    QRect qarea = body_->geometry();
+    QRect qframe = body_->frameGeometry();
+    QPoint correction = body_->mapToGlobal(QPoint(0,0)) - qarea.topLeft();
     qframe.translate( correction );
     qarea.translate( correction ); 
-    mQtclass(QRect) qrect = frame ? qframe : qarea;
+    QRect qrect = frame ? qframe : qarea;
 
     //QRect qrect = frame ? body_->frameGeometry() : body_->geometry();
     uiRect rect( qrect.left(), qrect.top(), qrect.right(), qrect.bottom() );
@@ -950,7 +942,7 @@ uiMainWin* uiMainWin::activeWindow()
     if ( programmedactivewin_ )
 	return programmedactivewin_;
 
-    mQtclass(QWidget*) _aw = qApp->activeWindow();
+    QWidget* _aw = qApp->activeWindow();
     if ( !_aw )		return 0;
 
     uiMainWinBody* _awb = dynamic_cast<uiMainWinBody*>(_aw);
@@ -962,14 +954,14 @@ uiMainWin* uiMainWin::activeWindow()
 
 uiMainWin::ActModalTyp uiMainWin::activeModalType()
 {
-    mQtclass(QWidget*) amw = qApp->activeModalWidget();
+    QWidget* amw = qApp->activeModalWidget();
     if ( !amw )					return None;
 
     if ( dynamic_cast<uiMainWinBody*>(amw) ) 	return Main;
-    if ( dynamic_cast<mQtclass(QMessageBox*)>(amw) ) 	return Message;
-    if ( dynamic_cast<mQtclass(QFileDialog*)>(amw) ) 	return File;
-    if ( dynamic_cast<mQtclass(QColorDialog*)>(amw) ) 	return Colour;
-    if ( dynamic_cast<mQtclass(QFontDialog*)>(amw) ) 	return Font;
+    if ( dynamic_cast<QMessageBox*>(amw) ) 	return Message;
+    if ( dynamic_cast<QFileDialog*>(amw) ) 	return File;
+    if ( dynamic_cast<QColorDialog*>(amw) ) 	return Colour;
+    if ( dynamic_cast<QFontDialog*>(amw) ) 	return Font;
 
     return Unknown;
 }
@@ -977,7 +969,7 @@ uiMainWin::ActModalTyp uiMainWin::activeModalType()
 
 uiMainWin* uiMainWin::activeModalWindow()
 {
-    mQtclass(QWidget*) amw = qApp->activeModalWidget();
+    QWidget* amw = qApp->activeModalWidget();
     if ( !amw )	return 0;
 
     uiMainWinBody* mwb = dynamic_cast<uiMainWinBody*>( amw );
@@ -989,7 +981,7 @@ uiMainWin* uiMainWin::activeModalWindow()
 
 const char* uiMainWin::activeModalQDlgTitle()
 {
-    mQtclass(QWidget*) amw = qApp->activeModalWidget();
+    QWidget* amw = qApp->activeModalWidget();
     if ( !amw )
 	return 0;
 
@@ -1002,17 +994,16 @@ const char* uiMainWin::activeModalQDlgTitle()
 #define mGetStandardButton( qmb, buttonnr, stdbutcount, stdbut ) \
 \
     int stdbutcount = 0; \
-    mQtclass(QMessageBox)::StandardButton stdbut = \
-					mQtclass(QMessageBox)::NoButton; \
-    for ( unsigned int idx=mQtclass(QMessageBox)::Ok; \
-	  qmb && idx<=mQtclass(QMessageBox)::RestoreDefaults; idx+=idx ) \
+    QMessageBox::StandardButton stdbut = QMessageBox::NoButton; \
+    for ( unsigned int idx=QMessageBox::Ok; \
+	  qmb && idx<=QMessageBox::RestoreDefaults; idx+=idx ) \
     { \
-	const mQtclass(QAbstractButton*) abstrbut; \
-        abstrbut = qmb->button( (mQtclass(QMessageBox)::StandardButton) idx ); \
+	const QAbstractButton* abstrbut; \
+        abstrbut = qmb->button( (QMessageBox::StandardButton) idx ); \
 	if ( !abstrbut ) \
 	    continue; \
 	if ( stdbutcount == buttonnr ) \
-	    stdbut = (mQtclass(QMessageBox)::StandardButton) idx; \
+	    stdbut = (QMessageBox::StandardButton) idx; \
 	stdbutcount++; \
     }
 
@@ -1021,12 +1012,11 @@ const char* uiMainWin::activeModalQDlgTitle()
 const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 {
     const ActModalTyp typ = activeModalType();
-    mQtclass(QWidget*) amw = qApp->activeModalWidget();
+    QWidget* amw = qApp->activeModalWidget();
 
     if ( typ == Message )
     {
-	const mQtclass(QMessageBox*) qmb =
-	    			dynamic_cast<mQtclass(QMessageBox*)>( amw ); 
+	const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw ); 
 	mGetStandardButton( qmb, buttonnr, stdbutcount, stdbut );
 
 	static BufferString buttext;
@@ -1053,9 +1043,8 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 
 int uiMainWin::activeModalQDlgRetVal( int buttonnr )
 {
-    mQtclass(QWidget*) amw = qApp->activeModalWidget();
-    const mQtclass(QMessageBox*) qmb =
-				dynamic_cast<mQtclass(QMessageBox*)>( amw ); 
+    QWidget* amw = qApp->activeModalWidget();
+    const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw ); 
     mGetStandardButton( qmb, buttonnr, stdbutcount, stdbut );
 
     return stdbut ? ((int) stdbut) : buttonnr;
@@ -1067,11 +1056,11 @@ void uiMainWin::closeActiveModalQDlg( int retval )
     if ( activeModalWindow() )
 	return;
 
-    mQtclass(QWidget*) _amw = qApp->activeModalWidget();
+    QWidget* _amw = qApp->activeModalWidget();
     if ( !_amw ) 
 	return;
 
-    mQtclass(QDialog*) _qdlg = dynamic_cast<mQtclass(QDialog*)>(_amw);
+    QDialog* _qdlg = dynamic_cast<QDialog*>(_amw);
     if ( !_qdlg ) 
 	return;
 
@@ -1096,11 +1085,11 @@ void uiMainWin::getTopLevelWindows( ObjectSet<uiMainWin>& windowlist,
 void uiMainWin::getModalSignatures( BufferStringSet& signatures )
 {
     signatures.erase();
-    mQtclass(QWidgetList) toplevelwigs = qApp->topLevelWidgets();
+    QWidgetList toplevelwigs = qApp->topLevelWidgets();
 
     for ( int idx=0; idx<toplevelwigs.count(); idx++ )
     {
-	const mQtclass(QWidget*) qw = toplevelwigs.at( idx );
+	const QWidget* qw = toplevelwigs.at( idx );
 	if ( qw->isWindow() && !qw->isHidden() && qw->isModal() )
 	{
 	    BufferString qwptrstr;
@@ -1111,11 +1100,10 @@ void uiMainWin::getModalSignatures( BufferStringSet& signatures )
 }
 
 
-const char* uiMainWin::uniqueWinTitle( const char* txt,
-				       mQtclass(QWidget*) forwindow )
+const char* uiMainWin::uniqueWinTitle( const char* txt, QWidget* forwindow )
 {
     static BufferString wintitle;
-    const mQtclass(QWidgetList) toplevelwigs = qApp->topLevelWidgets();
+    const QWidgetList toplevelwigs = qApp->topLevelWidgets();
 
     for ( int count=1; true; count++ )
     {
@@ -1131,7 +1119,7 @@ const char* uiMainWin::uniqueWinTitle( const char* txt,
 
 	for ( int idx=0; idx<toplevelwigs.count(); idx++ )
 	{
-	    const mQtclass(QWidget*) qw = toplevelwigs.at( idx );
+	    const QWidget* qw = toplevelwigs.at( idx );
 	    if ( !qw->isWindow() || qw->isHidden() || qw==forwindow )
 		continue;
 
@@ -1148,14 +1136,13 @@ const char* uiMainWin::uniqueWinTitle( const char* txt,
 bool uiMainWin::grab( const char* filenm, int zoom,
 		      const char* format, int quality ) const
 {
-    const WId desktopwinid = mQtclass(QApplication)::desktop()->winId();
-    const mQtclass(QPixmap) desktopsnapshot =
-				mQtclass(QPixmap)::grabWindow( desktopwinid );
+    const WId desktopwinid = QApplication::desktop()->winId();
+    const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
 
-    mQtclass(QPixmap) snapshot = desktopsnapshot;
+    QPixmap snapshot = desktopsnapshot;
     if ( zoom > 0 )
     {
-	mQtclass(QWidget*) qwin = qApp->activeModalWidget();
+	QWidget* qwin = qApp->activeModalWidget();
 	if ( !qwin || zoom==1 )
 	    qwin = body_;
 
@@ -1164,7 +1151,7 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 	snapshot = desktopsnapshot.copy( qwin->x(), qwin->y(), width, height );
     }
 
-    return snapshot.save( mQtclass(QString)(filenm), format, quality );
+    return snapshot.save( QString(filenm), format, quality );
 }
 
 
@@ -1216,21 +1203,19 @@ void uiMainWin::translate()
 
 void uiMainWin::copyToClipBoard( CallBacker* )
 {
-    const WId desktopwinid = mQtclass(QApplication)::desktop()->winId();
-    const mQtclass(QPixmap) desktopsnapshot =
-				mQtclass(QPixmap)::grabWindow( desktopwinid );
+    const WId desktopwinid = QApplication::desktop()->winId();
+    const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
 
-    mQtclass(QWidget*) qwin = qApp->activeModalWidget();
+    QWidget* qwin = qApp->activeModalWidget();
     if ( !qwin )
 	qwin = body_;
 
     const int width = qwin->frameGeometry().width();
     const int height = qwin->frameGeometry().height();
-    mQtclass(QPixmap) snapshot =
-			desktopsnapshot.copy(qwin->x(),qwin->y(),width,height);
-    mQtclass(QImage) image = snapshot.toImage();
+    QPixmap snapshot = desktopsnapshot.copy(qwin->x(),qwin->y(),width,height);
+    QImage image = snapshot.toImage();
 
-    mQtclass(QClipboard*) clipboard = mQtclass(QApplication)::clipboard();
+    QClipboard* clipboard = QApplication::clipboard();
     clipboard->setImage( image );
 }
 
@@ -1312,7 +1297,7 @@ public:
 
 protected:
 
-    virtual const mQtclass(QWidget*) managewidg_() const 
+    virtual const QWidget* managewidg_() const 
 			{ 
 			    if ( !initing ) 
 				return dlgGroup->pbody()->managewidg();
@@ -1341,7 +1326,7 @@ protected:
 
     virtual void	finalise()	{ finalise(false); }
     virtual void	finalise(bool);
-    void		closeEvent(mQtclass(QCloseEvent*));
+    void		closeEvent(QCloseEvent*);
 
 private:
 
@@ -1366,6 +1351,7 @@ uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
 }
 
 
+
 uiDialogBody::~uiDialogBody()
 {
     if ( okbut )
@@ -1376,14 +1362,12 @@ uiDialogBody::~uiDialogBody()
 }
 
 
-
 int uiDialogBody::exec( bool showminimized )
 { 
     uiSetResult( 0 );
 
     if ( setup.fixedsize_ )
-	setSizePolicy( mQtclass(QSizePolicy)(mQtclass(QSizePolicy)::Fixed,
-		    			     mQtclass(QSizePolicy)::Fixed) );
+	setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed) );
 
     move( handle_.getPopupArea() );
     go( showminimized );
@@ -1440,7 +1424,7 @@ void uiDialogBody::done_( int v )
 }
 
 
-void uiDialogBody::closeEvent( mQtclass(QCloseEvent*) ce )
+void uiDialogBody::closeEvent( QCloseEvent* ce )
 {
     const int refnr = handle_.beginCmdRecEvent( "Close" );
 
@@ -1584,7 +1568,7 @@ uiObject* uiDialogBody::createChildren()
     if ( setup.savebutton_ && !setup.savetext_.isEmpty() )
     {
 	if ( setup.savebutispush_ )
-	    savebut_tb = new uiToolButton( centralWidget_, "save",
+	    savebut_tb = new uiToolButton( centralWidget_, "save.png",
 			  setup.savetext_, CallBack() );
 	else
 	{
@@ -1600,7 +1584,7 @@ uiObject* uiDialogBody::createChildren()
 #ifdef __debug__
 	shwhid = true;
 #endif
-	helpbut = new uiToolButton( centralWidget_, "contexthelp",
+	helpbut = new uiToolButton( centralWidget_, "contexthelp.png",
 			shwhid ? hid.buf() : "Help on this window",
 	       		mCB(this,uiDialogBody,provideHelp) );
 	helpbut->setPrefWidthInChar( 5 );
@@ -1613,16 +1597,18 @@ uiObject* uiDialogBody::createChildren()
 	}
 	if ( dlg.haveCredits() )
 	{
-	    creditsbut = new uiToolButton( centralWidget_, "credits",
+	    const ioPixmap pixmap( "credits.png" );
+	    creditsbut = new uiToolButton( centralWidget_, "credits.png",
 		    "Show credits", mCB(this,uiDialogBody,showCredits) );
 	    creditsbut->setPrefWidthInChar( 5 );
-	    creditsbut->attach( rightOf, translatebut ? translatebut : helpbut);
+	    creditsbut->attach( rightOf, translatebut ? translatebut : helpbut );
 	}
     }
 
     if ( !setup.menubar_ && !setup.dlgtitle_.isEmpty() )
     {
 	title = new uiLabel( centralWidget_, setup.dlgtitle_ );
+
 	uiObject* obj = setup.separator_ 
 			    ? (uiObject*) new uiSeparator(centralWidget_)
 			    : (uiObject*) title;
@@ -1807,16 +1793,16 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
 
 void uiDialog::showMinMaxButtons()
 {
-    mQtclass(Qt)::WindowFlags flags = body_->windowFlags();
-    flags |= mQtclass(Qt)::WindowMinMaxButtonsHint;
+    Qt::WindowFlags flags = body_->windowFlags();
+    flags |= Qt::WindowMinMaxButtonsHint;
     body_->setWindowFlags( flags );
 }
 
 
 void uiDialog::showAlwaysOnTop()
 {
-    mQtclass(Qt)::WindowFlags flags = body_->windowFlags(); 
-    flags |= mQtclass(Qt)::WindowStaysOnTopHint;
+    Qt::WindowFlags flags = body_->windowFlags();
+    flags |= Qt::WindowStaysOnTopHint;
     body_->setWindowFlags( flags );
 }
 

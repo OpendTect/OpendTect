@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolygonbodydisplay.h,v 1.15 2012-08-03 13:01:29 cvskris Exp $
+ RCS:		$Id: vispolygonbodydisplay.h,v 1.14 2012/06/29 14:53:51 cvsjaap Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 
 #include "emposid.h"
@@ -47,7 +46,7 @@ class MPEEditor;
 
 */
 
-mClass(visSurvey) PolygonBodyDisplay : public visBase::VisualObjectImpl,
+mClass PolygonBodyDisplay : public visBase::VisualObjectImpl,
 			    public SurveyObject
 {
 public:
@@ -65,7 +64,6 @@ public:
 
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
-    void			getLineWidthBounds(int& min,int& max);
 
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
@@ -158,10 +156,12 @@ protected:
     bool				displaypolygons_;
     visBase::DrawStyle*			drawstyle_;
     visBase::TriangleStripSet*		intsurf_;
+
+public:
+    void				getLineWidthBounds(int& min,int& max);
 };
 
 };
 
 
 #endif
-

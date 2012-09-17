@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		May 2009
- RCS:		$Id: curvature.h,v 1.4 2012-08-03 13:00:03 cvskris Exp $
+ RCS:		$Id: curvature.h,v 1.3 2009/07/22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "general.h"
 
 /*!Class to calculate curvature from 9 regularly sampled points. Equations are
@@ -21,10 +20,10 @@ ________________________________________________________________________
    http://www.soi.city.ac.uk/~jwo/phd"
 */
 
-mClass(Algo) Curvature
+mClass Curvature
 {
 public:
-    mClass(Algo) Setup
+    mClass Setup
     {
 	public:
 	    		Setup();
@@ -68,4 +67,3 @@ public:
 
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uipsviewerpi.cc,v 1.16 2012-07-31 07:29:51 cvskris Exp $";
+static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.13 2011/11/08 04:39:24 cvsranojay Exp $";
 
 #include "odplugin.h"
 #include "uiodmain.h"
@@ -32,6 +32,7 @@ mDefODInitPlugin(uiPreStackViewer)
     static PreStackView::uiViewer3DMgr* mgr=0;
     if ( mgr ) return 0;
     mgr = new PreStackView::uiViewer3DMgr();
-    new uiPreStackTreeItemManager( *ODMainWin() );
+    uiPreStackTreeItemManager* treemgr =  new
+	uiPreStackTreeItemManager( *ODMainWin() );
     return 0; 
 }

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobinfo.h,v 1.11 2012-08-03 13:00:29 cvskris Exp $
+ RCS:		$Id: jobinfo.h,v 1.10 2009/07/22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mmprocmod.h"
 #include "iopar.h"
 
 class HostData;
@@ -20,7 +19,7 @@ class HostData;
 
 /*!\brief All info on a job. */
 
-mClass(MMProc) JobInfo
+mClass JobInfo
 {
     friend class	JobRunner;
 public:
@@ -61,4 +60,3 @@ protected:
 
 
 #endif
-

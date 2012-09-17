@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Feb 2008
- RCS:           $Id: convolve3d.h,v 1.15 2012-08-02 14:48:14 cvskris Exp $
+ RCS:           $Id: convolve3d.h,v 1.14 2012/07/10 13:05:55 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -251,18 +251,15 @@ bool Convolver3D<T>::doFFT()
 template <class T> inline
 bool Convolver3D<T>::shouldFFT() const
 {
-    return false;
-}
-
-template <> inline
-bool Convolver3D<float>::shouldFFT() const
-{
     return false; //Remove when doFFT is implemented
-/*
+
     if ( correlate_ || normalize_ )
 	return false;
 
     if ( !x_ || !y_ || !z_ )
+	return false;
+
+    if ( typeid(T)!=typeid(float) )
 	return false;
 
     const int xsz = x_->info().getTotalSz();
@@ -279,7 +276,6 @@ bool Convolver3D<float>::shouldFFT() const
 
 
     return fftsz<tradsz;
-    */
 }
 
 

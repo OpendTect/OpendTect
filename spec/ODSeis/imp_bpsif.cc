@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : July 2007
 -*/
-static const char* rcsID = "$Id: imp_bpsif.cc,v 1.7 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: imp_bpsif.cc,v 1.7 2010/10/14 09:58:06 cvsbert Exp $";
 
 #include "seisimpbpsif.h"
 #include "multiid.h"

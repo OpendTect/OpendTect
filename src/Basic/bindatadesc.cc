@@ -5,7 +5,7 @@
  * FUNCTION : Binary data descritpion
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: bindatadesc.cc,v 1.11 2012-05-02 15:11:24 cvskris Exp $";
+static const char* rcsID = "$Id: bindatadesc.cc,v 1.9 2010/12/29 15:24:40 cvskris Exp $";
 
 #include "bindatadesc.h"
 #include "string2.h"

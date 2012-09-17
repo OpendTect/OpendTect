@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.39 2012-08-03 13:00:11 cvskris Exp $
+ RCS:           $Id: cubesampling.h,v 1.37 2010/08/26 11:39:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "horsampling.h"
 
 
@@ -31,7 +30,7 @@ ________________________________________________________________________
 
  */
 
-mClass(Basic) CubeSampling
+mClass CubeSampling
 {
 public:
 
@@ -74,7 +73,6 @@ public:
     bool		getIntersection(const CubeSampling&,
 	    				CubeSampling&) const;
     			//!< Returns false if intersection is empty
-    void		include(const BinID&,float z);
     void		include(const CubeSampling&);
     void		limitTo(const CubeSampling&);
     void		limitToWithUdf(const CubeSampling&);
@@ -122,4 +120,3 @@ inline int dimension( CubeSampling::Dir slctype, CubeSampling::Dir direction )
 
 
 #endif
-

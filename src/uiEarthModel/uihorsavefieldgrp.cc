@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorsavefieldgrp.cc,v 1.11 2012-05-02 15:12:05 cvskris Exp $";
+static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.9 2012/02/29 14:57:10 cvsnanne Exp $";
 
 #include "uihorsavefieldgrp.h"
 

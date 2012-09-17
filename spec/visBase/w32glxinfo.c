@@ -1,4 +1,4 @@
-static const char* rcsID = "$Id: w32glxinfo.c,v 1.1 2009-05-21 10:54:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: w32glxinfo.c,v 1.1 2009/05/21 10:54:04 cvsnanne Exp $";
 
 /*
 

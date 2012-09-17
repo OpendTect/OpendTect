@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.25 2012-08-03 13:01:23 cvskris Exp $
+ RCS:		$Id: visannot.h,v 1.24 2011/12/08 14:01:08 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "color.h"
 #include "cubesampling.h"
@@ -44,7 +43,7 @@ class PickStyle;
     axis.
 */
 
-mClass(visBase) Annotation : public VisualObjectImpl
+mClass Annotation : public VisualObjectImpl
 {
 public:
     static Annotation*		create()
@@ -110,4 +109,3 @@ protected:
 };
 
 #endif
-

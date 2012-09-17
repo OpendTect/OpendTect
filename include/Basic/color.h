@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.24 2012-08-03 13:00:11 cvskris Exp $
+ RCS:		$Id: color.h,v 1.23 2011/07/19 09:16:36 cvsbert Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -16,13 +16,12 @@ integer, similar to Qt.
 -*/
 
 
-#include "basicmod.h"
 #include "gendefs.h"
 class BufferStringSet;
 template <class T> class TypeSet;
 
 
-mClass(Basic) Color
+mClass Color
 {
 public:
 
@@ -89,4 +88,3 @@ protected:
 
 
 #endif
-

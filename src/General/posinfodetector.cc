@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posinfodetector.cc,v 1.22 2012-09-13 18:54:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.17 2011/03/25 15:02:34 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -97,14 +97,16 @@ bool PosInfo::Detector::finish()
 
 
 bool PosInfo::Detector::crlSorted() const
-{ return setup_.is2d_ ? false : !sorting_.inlSorted(); }
+{
+    return setup_.is2d_ ? false : !sorting_.inlSorted();
+}
+
 
 bool PosInfo::Detector::inlSorted() const
-{ return setup_.is2d_ ? true : sorting_.inlSorted(); }
+{
+    return setup_.is2d_ ? true : sorting_.inlSorted();
+}
 
-
-void PosInfo::Detector::getHorSampling( HorSampling& hs ) const
-{ hs.start = start_; hs.stop = stop_; hs.step = step_; }
 
 void PosInfo::Detector::getCubeData( PosInfo::CubeData& cd ) const
 {
@@ -308,6 +310,7 @@ void PosInfo::Detector::addLine()
 {
     if ( curline_ > -1 )
     {
+	mDefCurLineAndSegment;
 	double distsq = curlnstart_.coord_.sqDistTo( prevcbo_.coord_ );
 	if ( distsq > llnstart_.coord_.sqDistTo( llnstop_.coord_ ) )
 	    { llnstart_ = curlnstart_; llnstop_ = prevcbo_; }
@@ -364,7 +367,7 @@ void PosInfo::Detector::addPos()
 	}
 	if ( setup_.is2d_ )
 	{
-	    const float dist = ( float ) curcbo_.coord_.distTo( prevcbo_.coord_ );
+	    const float dist = curcbo_.coord_.distTo( prevcbo_.coord_ );
 	    if ( mIsUdf(distrg_.start) )
 		distrg_.start = distrg_.stop = dist;
 	    else

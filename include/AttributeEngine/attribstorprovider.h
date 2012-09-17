@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.39 2012-08-03 13:00:08 cvskris Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.37 2012/06/27 12:46:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "attribprovider.h"
 #include "cubesampling.h"
 #include "datachar.h"
@@ -25,7 +24,7 @@ namespace Attrib
 
 class DataHolder;
 
-mClass(AttributeEngine) StorageProvider : public Provider
+mClass StorageProvider : public Provider
 {
 public:
 
@@ -40,11 +39,8 @@ public:
     float		getMaxDistBetwTrcs() const;
     void		updateStorageReqs(bool all=true);
     void		adjust2DLineStoredVolume();
-    PosInfo::GeomID	getGeomID() const;
-
     void		fillDataCubesWithTrc(DataCubes*) const;
     bool		needStoredInput() const	{ return true; }
-    virtual void	getCompNames(BufferStringSet&) const;
 
 protected:
 
@@ -53,7 +49,6 @@ protected:
 
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
-    static void		updateDescAndGetCompNms(Desc&,BufferStringSet*);
 
     bool		checkInpAndParsAtStart();
     bool		allowParallelComputation() const { return false; }
@@ -95,9 +90,13 @@ protected:
     bool		isondisc_;
 
     enum Status        { Nada, StorageOpened, Ready } status_;
+
+    static void		updateDescAndGetCompNms(Desc&,BufferStringSet*);
+
+public:
+    void		getCompNamesFakeToKeepHeadersOK(BufferStringSet&) const;
 };
 
 }; // namespace Attrib
 
 #endif
-

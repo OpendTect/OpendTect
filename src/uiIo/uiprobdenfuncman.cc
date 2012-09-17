@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiprobdenfuncman.cc,v 1.16 2012-05-09 07:51:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.12 2011/04/21 13:09:14 cvsbert Exp $";
 
 #include "uiprobdenfuncman.h"
 
@@ -25,8 +25,8 @@ static const char* rcsID mUnusedVar = "$Id: uiprobdenfuncman.cc,v 1.16 2012-05-0
 static const int cPrefWidth = 75;
 
 uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Manage Probability Density Functions",
-				     mNoDlgTitle,
+    : uiObjFileMan(p,uiDialog::Setup("PDF file management",
+				     "Manage probability density functions",
 				     "112.1.0").nrstatusflds(1),
 	           ProbDenFuncTranslatorGroup::ioContext())
 {
@@ -35,7 +35,7 @@ uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
 	    			mCB(this,uiProbDenFuncMan,browsePush) );
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "browseprdf",
+    manipgrp->addButton( "browseprdf.png",
 	    		 "Browse/edit this Probability Density Function",
 			 mCB(this,uiProbDenFuncMan,browsePush) );
 

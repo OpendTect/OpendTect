@@ -6,18 +6,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.34 2012-09-17 08:42:49 cvsbert Exp $
+ RCS:           $Id: draw.h,v 1.33 2012/09/17 08:42:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "enums.h"
 #include "color.h"
 #include "geometry.h"
 
 
-mClass(General) Alignment
+mClass Alignment
 {
 public:
 
@@ -56,7 +55,7 @@ protected:
 #define mDeclAlignment(nm,h,v) Alignment nm( Alignment::h, Alignment::v )
 
 
-mClass(General) MarkerStyle2D
+mClass MarkerStyle2D
 {
 public:
 
@@ -84,7 +83,7 @@ public:
 };
 
 
-mClass(General) MarkerStyle3D
+mClass MarkerStyle3D
 {
 public:
 
@@ -110,7 +109,7 @@ public:
 };
 
 
-mClass(General) LineStyle
+mClass LineStyle
 {
 public:
 
@@ -136,7 +135,7 @@ public:
 };
 
 
-mClass(General) FillPattern
+mClass FillPattern
 {
 public:
 
@@ -153,7 +152,7 @@ public:
 
 
 
-mClass(General) ArrowHeadStyle
+mClass ArrowHeadStyle
 {
 public:
     enum Type		{ Line, Triangle, Square, Cross };
@@ -170,7 +169,7 @@ public:
 };
 
 
-mClass(General) ArrowStyle
+mClass ArrowStyle
 {
 public:
 
@@ -191,4 +190,3 @@ public:
 
 
 #endif
-

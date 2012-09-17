@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris (separated by Bert)
  Date:		Apr 2010
- RCS:		$Id: rcollinebuilder.h,v 1.2 2010-06-17 20:57:25 cvskris Exp $
+ RCS:		$Id: rcollinebuilder.h,v 1.2 2010/06/17 20:57:25 cvskris Exp $
 ________________________________________________________________________
 
 

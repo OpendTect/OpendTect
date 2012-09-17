@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.16 2012-08-08 05:47:54 cvssalil Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.13 2011/10/28 11:29:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,7 +115,8 @@ bool FaultStickPainter::addPolyLine()
 	{
 	    StepInterval<int> colrg = fss->colRange( rc.row ); 
 
-	    FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
+	    FlatView::Annotation::AuxData* stickauxdata =
+	 			new FlatView::Annotation::AuxData( 0 );
 	    stickauxdata->poly_.erase();
 	    stickauxdata->linestyle_ = markerlinestyle_;
 	    if ( rc.row == activestickid_ )
@@ -273,7 +274,7 @@ bool FaultStickPainter::addPolyLine()
 		stkmkrinfo->marker_ = stickauxdata;
 		stkmkrinfo->stickid_ = rc.row;
 		(*secmarkerlines) += stkmkrinfo;
-		viewer_.addAuxData( stickauxdata );
+		viewer_.appearance().annot_.auxdata_ += stickauxdata;
 	    }
 	}
     }
@@ -339,9 +340,7 @@ void FaultStickPainter::removePolyLine()
 	if ( !markerlines->size() ) continue;
 
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
-	{
-	    viewer_.removeAuxData( (*markerlines)[idy]->marker_ );
-	}
+	   viewer_.appearance().annot_.auxdata_ -= (*markerlines)[idy]->marker_;
     }
 
     deepErase( sectionmarkerlines_ );
@@ -407,7 +406,7 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 }
 
 
-FlatView::AuxData* FaultStickPainter::getAuxData(
+FlatView::Annotation::AuxData* FaultStickPainter::getAuxData(
 							 const EM::PosID* pid )
 {
     if ( pid->objectID() != emid_ )
@@ -465,7 +464,7 @@ bool FaultStickPainter::getNearestDistance( const Coord3& pos, float& dist )
 
     for ( int idx=coords_.size()-1; idx>=0; idx-- )
     {
-	const float caldist = (float) pos.Coord::sqDistTo( coords_[idx] );
+	const float caldist = pos.Coord::sqDistTo( coords_[idx] );
 	if ( caldist < dist )
 	{
 	    dist = caldist;
@@ -509,7 +508,7 @@ Coord FaultStickPainter::getNormalToTrace( int trcnr ) const
 	return Coord( 0, 1 );
     else
     {
-	double length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
+	float length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
 	return Coord( -v1.y/length, v1.x/length );
     }
 }

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceedgeline.cc,v 1.50 2012-08-08 05:47:55 cvssalil Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.45 2012/03/02 20:47:24 cvsnanne Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -304,7 +304,7 @@ bool EdgeLineSegment::usePar( const IOPar& par )
 
     nodes_.erase();
     for ( int idx=0; idx<subids.size(); idx++ )
-	nodes_ += RowCol::fromInt64(subids[idx]);
+	nodes_ += RowCol(subids[idx]);
 
     if ( notifier ) notifier->trigger();
     return true;
@@ -687,7 +687,7 @@ void EdgeLineSegment::posChangeCB(CallBacker* cb)
 
      if ( cbdata.pid0.sectionID()!=section ) return;
      
-     const RowCol rc = cbdata.pid0.getRowCol();
+     const RowCol rc(cbdata.pid0.subID());
      const int nodeidx = indexOf(rc);
      if ( nodeidx==-1 ) return;
 
@@ -742,7 +742,7 @@ int EdgeLine::getSegment( const EM::PosID& pos, int* seq ) const
     if ( pos.objectID()!=horizon_.id() || pos.sectionID()!=section )
 	return -1;
 
-    return getSegment( pos.getRowCol(), seq );
+    return getSegment( RowCol(pos.subID()), seq );
 }
 
 
@@ -807,7 +807,7 @@ bool EdgeLine::isInside( const EM::PosID& pid, bool undefval ) const
     if ( pid.objectID()!=horizon_.id() || pid.sectionID()!=section )
 	return undefval;
 
-    return isInside( pid.getRowCol(), undefval );
+    return isInside( RowCol(pid.subID()), undefval );
 }
 
 
@@ -919,8 +919,8 @@ bool EdgeLine::isHole() const
     float anglediff = 0;
     for ( int idx=1; idx<rcs.size()-1; idx++ )
     {
-	anglediff = (float) (anglediff + (rcs[idx-1]-rcs[idx]).getDirection().clockwiseAngleTo(
-		     (rcs[idx+1]-rcs[idx]).getDirection()) - M_PI);
+	anglediff += (rcs[idx-1]-rcs[idx]).getDirection().clockwiseAngleTo(
+		     (rcs[idx+1]-rcs[idx]).getDirection()) - M_PI;
     }
 
     return anglediff<0;
@@ -975,6 +975,9 @@ int EdgeLine::computeArea() const
 	const RowCol backnode = nodesinside[(idx)%layer2start];
 	const RowCol curnode = nodesinside[(idx+1)%layer2start];
 	const RowCol nextnode = nodesinside[(idx+2)%layer2start];
+
+	const RowCol backnodedir = (backnode-curnode).getDirection();
+	const RowCol nextnodedir = (nextnode-curnode).getDirection();
 
 	const int backnodeidx = dirs.indexOf((backnode-curnode).getDirection());
 	const int nextnodeidx = dirs.indexOf((nextnode-curnode).getDirection());

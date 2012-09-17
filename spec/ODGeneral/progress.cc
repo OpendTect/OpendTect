@@ -1,4 +1,4 @@
-static const char* rcsID = "$Id: progress.cc,v 1.11 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id: progress.cc,v 1.11 2010/10/14 09:58:06 cvsbert Exp $";
 
 #include <iostream>
 #include <stdlib.h>

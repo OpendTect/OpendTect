@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispscubetr.h,v 1.8 2012-08-03 13:00:37 cvskris Exp $
+ RCS:		$Id: seispscubetr.h,v 1.7 2009/12/04 11:36:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seistrctr.h"
 #include "position.h"
 class IOObj;
@@ -20,7 +19,7 @@ class SeisPS3DReader;
 namespace PosInfo { class CubeData; }
 
 
-mClass(Seis) SeisPSCubeSeisTrcTranslator : public SeisTrcTranslator
+mClass SeisPSCubeSeisTrcTranslator : public SeisTrcTranslator
 {				    isTranslator(SeisPSCube,SeisTrc)
 public:
 
@@ -66,4 +65,3 @@ protected:
 
 
 #endif
-

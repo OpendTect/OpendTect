@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.20 2012-08-03 13:00:09 cvskris Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.19 2011/04/26 13:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 #include "bufstringset.h"
 #include "fourier.h"
@@ -64,7 +63,7 @@ namespace Attrib
 
 class DataHolder;
 
-mClass(Attributes) Frequency : public Provider
+mClass Frequency : public Provider
 {
 public:
     static void			initClass();
@@ -121,7 +120,7 @@ protected:
     Array1DImpl<float_complex>*	timedomain_;
     Array1DImpl<float_complex>*	freqdomain_;
 
-    mClass(Attributes) FreqFunc : public FloatMathFunction
+    mClass FreqFunc : public FloatMathFunction
     {
     public:
 			FreqFunc(const ValueSeries<float>& func, int sz)
@@ -147,4 +146,3 @@ protected:
 }; // namespace Attrib
 
 #endif
-

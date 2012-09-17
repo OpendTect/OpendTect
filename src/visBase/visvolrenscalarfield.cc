@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visvolrenscalarfield.cc,v 1.35 2012-08-13 04:04:39 cvsaneesh Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.32 2011/04/28 07:00:12 cvsbert Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -282,7 +282,7 @@ void VolumeRenderScalarField::makeColorTables()
 	transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
-	transferfunc_->colorMap.set1Value( cti++, 1.0f-col.t()*opacityfactor );
+	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     }
 
     const ::Color col = sequence_.undefColor();
@@ -292,7 +292,7 @@ void VolumeRenderScalarField::makeColorTables()
         transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
-	transferfunc_->colorMap.set1Value( cti++, 1.0f-col.t()*opacityfactor );
+	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     }
 
     transferfunc_->predefColorMap = SoTransferFunction::NONE;

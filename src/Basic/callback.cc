@@ -4,66 +4,9 @@
  * DATE     : Sep 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: callback.cc,v 1.5 2012-07-10 14:58:27 cvskris Exp $";
+static const char* rcsID = "$Id: callback.cc,v 1.1 2011/09/16 09:47:35 cvsbert Exp $";
 
 #include "callback.h"
-
-
-CallBacker::CallBacker()
-{}
-
-
-CallBacker::CallBacker( const CallBacker& )
-{}
-
-
-CallBacker::~CallBacker()
-{
-    Threads::SpinLockLocker lock( cblock_ );
-    
-    for ( int idx=0; idx<listeners_.size(); idx++ )
-	listeners_[idx]->removeListener( this );
-    
-    for ( int idx=0; idx<attachednotifiers_.size(); idx++ )
-	attachednotifiers_[idx]->removeWith( this );
-}
-
-
-void CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb )
-{
-    notif.notify( cb );
- 
-    if ( cb.cbObj()!=this )
-	return;
-
-    notif.cber_->addListener( this );
-    
-    Threads::SpinLockLocker lock( cblock_ );
-    if ( attachednotifiers_.indexOf( &notif )==-1 )
-	attachednotifiers_ += &notif;
- 
-    listeners_ += notif.cber_;
-}
-
-
-void CallBacker::addListener( CallBacker* cb )
-{
-    Threads::SpinLockLocker lock( cblock_ );
-    listeners_ += cb;
-}
-
-
-void CallBacker::removeListener( CallBacker* cb )
-{
-    Threads::SpinLockLocker lock( cblock_ ); 
-    listeners_ -= cb;
-    
-    for ( int idx=attachednotifiers_.size()-1; idx>=0; idx-- )
-    {
-	if ( attachednotifiers_[idx]->cber_==cb )
-	    attachednotifiers_.remove( idx );
-    }
-}
 
 
 void CallBack::doCall( CallBacker* cber )
@@ -127,29 +70,7 @@ void CallBackSet::removeWith( StaticCallBackFunction cbfn )
 }
 
 
-NotifierAccess::NotifierAccess()
-    : enabled_(true)		
-{}
-
-
-void NotifierAccess::notify( const CallBack& cb, bool first )	
-{ 
-    if ( first ) 
-	cbs_.insert(0,cb); 
-    else
-	cbs_ += cb; 
-}
-
-
-void NotifierAccess::notifyIfNotNotified( const CallBack& cb )
-{ if ( cbs_.indexOf(cb)==-1 ) notify(cb); }
-
-
-void NotifierAccess::remove( const CallBack& cb )
-{ cbs_ -= cb; }
-
-
-void NotifierAccess::removeWith( CallBacker* cb )
+void i_Notifier::removeWith( CallBacker* cb )
 {
     if ( cber_ == cb )
 	{ cbs_.erase(); cber_ = 0; return; }

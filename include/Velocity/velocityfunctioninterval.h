@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		December 2008
- RCS:		$Id: velocityfunctioninterval.h,v 1.7 2012-08-03 13:00:44 cvskris Exp $
+ RCS:		$Id: velocityfunctioninterval.h,v 1.6 2011/01/25 23:06:32 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "velocitymod.h"
 #include "samplingdata.h"
 #include "thread.h"
 #include "velocityfunction.h"
@@ -31,7 +30,7 @@ class IntervalSource;
 /*!A velocity funcion that computes interval velocity from where from
    another velocity function with RMS velocity */
 
-mClass(Velocity) IntervalFunction : public Function
+mClass IntervalFunction : public Function
 {
 public:
 			IntervalFunction(IntervalSource&);
@@ -50,7 +49,7 @@ protected:
 };
 
 
-mClass(Velocity) IntervalSource : public FunctionSource
+mClass IntervalSource : public FunctionSource
 {
 public:
     			IntervalSource();
@@ -78,4 +77,3 @@ protected:
 }; //namespace
 
 #endif
-

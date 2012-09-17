@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigraphicssaveimagedlg.cc,v 1.19 2012-08-10 03:50:07 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.15 2012/02/27 16:14:26 cvsnanne Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID mUnusedVar = "$Id: uigraphicssaveimagedlg.cc,v 1.19 201
 #include "pixmap.h"
 #include "settings.h"
 
+static const char* sKeySnapshot = "snapshot";
 
 uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
 	uiGraphicsScene* scene )
@@ -90,7 +91,7 @@ const char* uiGraphicsSaveImageDlg::getExtension()
 
 
 void uiGraphicsSaveImageDlg::setAspectRatio( CallBacker* )
-{ aspectratio_ = (float) ( scene_->width() / scene_->height() ); }
+{ aspectratio_ = (float) scene_->width() / scene_->height(); }
 
 
 bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
@@ -149,7 +150,7 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
     {
 	lockfld_->setChecked( true );
 	lockfld_->setSensitive( false );
-	aspectratio_ = (float) ( scene_->width() / scene_->height() );
+	aspectratio_ = (float) scene_->width() / scene_->height();
 	setSizeInPix( (int)scene_->width(), (int)scene_->height() );
 	dpifld_->box()->setValue( scene_->getDPI() );
     }

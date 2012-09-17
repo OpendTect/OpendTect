@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibatchlaunch.cc,v 1.105 2012-07-31 08:46:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.101 2012/08/20 21:42:52 cvsnanne Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -50,9 +50,9 @@ static void getProcFilename( const char* basnm, const char* altbasnm,
 
 static bool writeProcFile( IOPar& iop, const char* tfname )
 {
-    const_cast<IOPar&>(iop).set( sKey::DataRoot(), GetBaseDataDir() );
-    const_cast<IOPar&>(iop).set( sKey::Survey(), IOM().surveyName() );
-    if ( !iop.write(tfname,sKey::Pars()) )
+    const_cast<IOPar&>(iop).set( sKey::DataRoot, GetBaseDataDir() );
+    const_cast<IOPar&>(iop).set( sKey::Survey, IOM().surveyName() );
+    if ( !iop.write(tfname,sKey::Pars) )
     {
 	BufferString msg = "Cannot write to:\n"; msg += tfname;
 	uiMSG().error( msg );
@@ -188,13 +188,13 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     BufferString fname = sel == 0 ? "window"
 		       : (sel == 2 ? "stdout" : filefld_->fileName());
     if ( fname.isEmpty() ) fname = "/dev/null";
-    iop_.set( sKey::LogFile(), fname );
-    iop_.set( sKey::Survey(), IOM().surveyName() );
+    iop_.set( sKey::LogFile, fname );
+    iop_.set( sKey::Survey, IOM().surveyName() );
 
     if ( selected() == 3 )
     {
-	iop_.set( sKey::LogFile(), "stdout" );
-	if ( !iop_.write(fname,sKey::Pars()) )
+	iop_.set( sKey::LogFile, "stdout" );
+	if ( !iop_.write(fname,sKey::Pars) )
 	{
 	    uiMSG().error( "Cannot write parameter file" );
             return false;
@@ -216,13 +216,13 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	const HostData* hd = hdl.find( hostname_.buf() );
 	FilePath remfp = hd->prefixFilePath( HostData::Data );
 	FilePath temppath( parfname_ );
-	iop_.set( sKey::DataRoot(), remfp.fullPath() );
+	iop_.set( sKey::DataRoot, remfp.fullPath() );
 	remfp.add(  GetSurveyName() ).add( "Proc" )
 	     .add( temppath.fileName() );
 	FilePath logfp( remfp );
 	logfp.setExtension( ".log", true );
-	iop_.set( sKey::LogFile(), logfp.fullPath() );
-	if ( !iop_.write(parfname_,sKey::Pars()) )
+	iop_.set( sKey::LogFile, logfp.fullPath() );
+	if ( !iop_.write(parfname_,sKey::Pars) )
 	{
 	    uiMSG().error( "Cannot write parameter file" );
             return false;
@@ -431,7 +431,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	    if ( !sd.usable() )
 		{ uiMSG().error( "Cannot open parameter file" ); return false; }
 	    ascistream aistrm( *sd.istrm, true );
-	    if ( aistrm.fileType()!=sKey::Pars() )
+	    if ( aistrm.fileType()!=sKey::Pars )
 	    {
 		sd.close();
 		uiMSG().error(BufferString(fnm," is not a parameter file"));

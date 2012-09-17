@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          Dec 2009
- RCS:		$Id: uisurveyselect.h,v 1.7 2012-08-03 13:01:02 cvskris Exp $
+ RCS:		$Id: uisurveyselect.h,v 1.6 2010/06/10 06:19:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "uiiosel.h"
 
@@ -20,7 +19,7 @@ class uiGenInput;
 class uiListBox;
 class uiFileInput;
 
-mClass(uiIo) uiSurveySelectDlg : public uiDialog
+mClass uiSurveySelectDlg : public uiDialog
 {
 public:
 			uiSurveySelectDlg(uiParent*,const char* survnm=0,
@@ -47,7 +46,7 @@ protected:
 };
 
 
-mClass(uiIo) uiSurveySelect : public uiIOSelect
+mClass uiSurveySelect : public uiIOSelect
 {
 public:
 			uiSurveySelect(uiParent*,const char* label=0);
@@ -66,4 +65,3 @@ protected:
 };
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl/Y. Liu
  Date:		August 2001
- RCS:		$Id: fourier.h,v 1.5 2012-08-03 13:00:03 cvskris Exp $
+ RCS:		$Id: fourier.h,v 1.4 2010/11/29 21:37:17 cvskris Exp $
 ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "transform.h"
 
 #include "factory.h"
@@ -26,7 +25,7 @@ class FFTCC1D;
 /*!\brief Does Fourier Transforms of any size */
 
 
-mClass(Algo) CC : public GenericTransformND
+mClass CC : public GenericTransformND
 {
 public:
     mDefaultFactoryInstantiation( CC, CC, "PFAFFT", "FFT" );
@@ -94,7 +93,7 @@ protected:
 
 
 /*!Computes FFT for any size of data. */
-mClass(Algo) FFTCC1D
+mClass FFTCC1D
 {
 public:
     			FFTCC1D();
@@ -154,4 +153,3 @@ protected:
 
 
 #endif
-

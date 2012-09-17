@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emundo.h,v 1.8 2012-08-03 13:00:20 cvskris Exp $
+ RCS:		$Id: emundo.h,v 1.7 2010/06/29 07:42:30 cvsjaap Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "undo.h"
 #include "emposid.h"
 #include "position.h"
@@ -27,7 +26,7 @@ namespace EM
 {
 class Horizon3D;
 
-mClass(EarthModel) SetPosUndoEvent : public UndoEvent
+mClass SetPosUndoEvent : public UndoEvent
 {
 public:
 			SetPosUndoEvent( const Coord3& oldpos,
@@ -46,7 +45,7 @@ protected:
 
 
 // Undo for setting all positions on a horizon3d-section
-mClass(EarthModel) SetAllHor3DPosUndoEvent : public UndoEvent
+mClass SetAllHor3DPosUndoEvent : public UndoEvent
 {
 public:
 			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
@@ -71,7 +70,7 @@ protected:
 };
 
 
-mClass(EarthModel) SetPosAttribUndoEvent : public UndoEvent
+mClass SetPosAttribUndoEvent : public UndoEvent
 {
 public:
 			SetPosAttribUndoEvent( const EM::PosID&,
@@ -90,7 +89,7 @@ protected:
 
 /*! Saves information from a EMObject::changePosID call */
 
-mClass(EarthModel) PosIDChangeEvent : public UndoEvent
+mClass PosIDChangeEvent : public UndoEvent
 {
 public:
     			PosIDChangeEvent( const EM::PosID& from,
@@ -107,7 +106,7 @@ protected:
 };
 
 
-mClass(EarthModel) SetPrefColorEvent : public UndoEvent
+mClass SetPrefColorEvent : public UndoEvent
 {
 public:
     			SetPrefColorEvent(const EM::ObjectID&,
@@ -128,4 +127,3 @@ protected:
 
 
 #endif
-

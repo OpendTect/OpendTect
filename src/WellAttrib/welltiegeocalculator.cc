@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltiegeocalculator.cc,v 1.71 2012-08-13 04:04:38 cvsaneesh Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.68 2012/06/13 08:25:34 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -41,18 +41,23 @@ float GeoCalculator::getSRDElevation( const Well::Data& wd ) const
     const Well::Info& info = wd.info();
     float surfelev = mIsUdf( info.surfaceelev ) ? 0 : -info.surfaceelev;
 
-    return fabs( rdelev - surfelev );
+    float srdel = fabs( rdelev - surfelev );
+    if ( mIsUdf( srdel ) || srdel < 0 ) 
+	srdel = 0;
+
+    return srdel;
 }
 
 
 Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd, 
-					const char* sonlog, bool issonic ) const
+					    const char* sonlog, bool issonic, 
+					    float replacevel ) const
 {
     const Well::Log* log = wd.logs().getLog( sonlog );
-    if ( !log ) return 0; 
+    if ( !log ) return 0;
 
     Well::Log proclog = Well::Log( *log );
-    
+
     const float srdel = getSRDElevation( wd );
     if ( issonic )
 	son2TWT( proclog, true, srdel );
@@ -77,9 +82,15 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
 }
 
 
+//stable only
 void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t, 
-					const Well::Data& wd,
-       					float replacevel ) const
+					const Well::Data& wd ) const
+{
+}
+
+void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t, 
+					const Well::Data& wd, 
+					float replacevel ) const
 {
     const int sz = d2t.size();
     TypeSet<float> dahs, times;
@@ -113,7 +124,7 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 }
 
 
-#define mMicroSFactor 10e5f
+#define mMicroSFactor 10e5
 void GeoCalculator::son2Vel( Well::Log& log, bool straight ) const
 {
     UnitFactors uf; double velfac = uf.getVelFactor( log, straight );
@@ -123,7 +134,7 @@ void GeoCalculator::son2Vel( Well::Log& log, bool straight ) const
     for ( int idx=0; idx<log.size(); idx++ )
     {
 	float& val = log.valArr()[idx];
-	val = val ? (float)velfac/val : val;
+	val = val ? velfac/val : val;
 	val *= straight ? 1 : mMicroSFactor;
     }
     log.setUnitMeasLabel( straight ? UnitFactors::getStdVelLabel() 
@@ -172,7 +183,7 @@ void GeoCalculator::vel2TWT(Well::Log& log, bool straight, float startdah) const
 	{
 	    float v = vals[idx];
 	    if ( !v ) continue; 
-	    newval = (float) ( 2*( dpts[idx] - dpts[idx-1] )/(v*velfac) );
+	    newval = 2*( dpts[idx] - dpts[idx-1] )/(v*velfac);
 	    newval += prevval;
 	    prevval = newval;
 	}
@@ -227,7 +238,7 @@ void GeoCalculator::removeSpikes( float* inp, int sz, int gate, int fac ) const
     tf->run(true); \
 }
 
-#define mNoise 0.05f
+#define mNoise 0.05
 void GeoCalculator::deconvolve( const float* inp, const float* filter,
 			        float* deconvals, int inpsz ) const
 {
@@ -269,8 +280,7 @@ void GeoCalculator::deconvolve( const float* inp, const float* filter,
 
 	double rfilterval = filterval.real();
 	double ifilterval = filterval.imag();
-	float_complex conjfilterval = float_complex( (float) rfilterval ,
-							(float) -ifilterval ); 
+	float_complex conjfilterval = float_complex( rfilterval ,-ifilterval ); 
 
 	float_complex num = inputval * conjfilterval;
 	float_complex denom = filterval * conjfilterval + cnoiseshift;

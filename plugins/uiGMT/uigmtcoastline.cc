@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uigmtcoastline.cc,v 1.14 2012-07-17 10:36:46 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtcoastline.cc,v 1.10 2011/11/09 06:21:57 cvsranojay Exp $";
 
 #include "uigmtcoastline.h"
 
@@ -127,21 +127,22 @@ void uiGMTCoastlineGrp::utmSel( CallBacker* cb )
 bool uiGMTCoastlineGrp::fillPar( IOPar& par ) const
 {
     const int utmzone = utmfld_->getValue();
-    par.set( ODGMT::sKeyUTMZone(), utmzone );
+    par.set( ODGMT::sKeyUTMZone, utmzone );
     const char* res = resolutionfld_->text();
-    par.set( ODGMT::sKeyResolution(), res );
+    par.set( ODGMT::sKeyResolution, res );
     const LineStyle ls = lsfld_->getStyle();
+    const bool drawline = ls.type_ != LineStyle::None;
     BufferString lsstr; ls.toString( lsstr );
-    par.set( ODGMT::sKeyLineStyle(), lsstr );
+    par.set( ODGMT::sKeyLineStyle, lsstr );
 
     const bool wetfill = wetcolfld_->doDraw();
     const bool dryfill = drycolfld_->doDraw();
-    par.setYN( ODGMT::sKeyWetFill(), wetfill );
-    par.setYN( ODGMT::sKeyDryFill(), dryfill );
+    par.setYN( ODGMT::sKeyWetFill, wetfill );
+    par.setYN( ODGMT::sKeyDryFill, dryfill );
     if ( wetfill )
-	par.set( ODGMT::sKeyWetFillColor(), wetcolfld_->color() );
+	par.set( ODGMT::sKeyWetFillColor, wetcolfld_->color() );
     if ( wetcolfld_ )
-	par.set( ODGMT::sKeyDryFillColor(), drycolfld_->color() );
+	par.set( ODGMT::sKeyDryFillColor, drycolfld_->color() );
 
     return true;
 }
@@ -150,27 +151,27 @@ bool uiGMTCoastlineGrp::fillPar( IOPar& par ) const
 bool uiGMTCoastlineGrp::usePar( const IOPar& par )
 {
     int utmzone;
-    par.get( ODGMT::sKeyUTMZone(), utmzone );
+    par.get( ODGMT::sKeyUTMZone, utmzone );
     utmfld_->setValue( utmzone );
-    resolutionfld_->setCurrentItem( par.find(ODGMT::sKeyResolution()) );
+    resolutionfld_->setCurrentItem( par.find(ODGMT::sKeyResolution) );
     LineStyle ls; BufferString lsstr;
-    par.get( ODGMT::sKeyLineStyle(), lsstr );
+    par.get( ODGMT::sKeyLineStyle, lsstr );
     ls.fromString( lsstr ); lsfld_->setStyle( ls );
 
     bool wetfill = false;
     bool dryfill = false;
-    par.getYN( ODGMT::sKeyWetFill(), wetfill );
-    par.getYN( ODGMT::sKeyDryFill(), dryfill );
+    par.getYN( ODGMT::sKeyWetFill, wetfill );
+    par.getYN( ODGMT::sKeyDryFill, dryfill );
     wetcolfld_->setDoDraw( wetfill );
     drycolfld_->setDoDraw( dryfill );
     if ( wetfill )
     {
-	Color col; par.get( ODGMT::sKeyWetFillColor(), col );
+	Color col; par.get( ODGMT::sKeyWetFillColor, col );
 	wetcolfld_->setColor( col );
     }
     if ( dryfill )
     {
-	Color col; par.get( ODGMT::sKeyDryFillColor(), col );
+	Color col; par.get( ODGMT::sKeyDryFillColor, col );
 	drycolfld_->setColor( col );
     }
 

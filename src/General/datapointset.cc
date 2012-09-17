@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapointset.cc,v 1.55 2012-09-07 17:23:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.47 2012/07/10 13:06:02 cvskris Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -49,7 +49,7 @@ DataPointSet::Pos::Pos( const Coord& c, float _z )
 
 DataPointSet::Pos::Pos( const Coord3& c )
     : binid_(SI().transform(c))
-    , z_(( float ) c.z)
+    , z_(c.z)
 {
     setOffs( c );
 }
@@ -58,8 +58,8 @@ DataPointSet::Pos::Pos( const Coord3& c )
 void DataPointSet::Pos::setOffs( const Coord& c )
 {
     const Coord sc( SI().transform(binid_) );
-    offsx_ = ( float ) (c.x - sc.x);
-    offsy_ = ( float ) (c.y - sc.y);
+    offsx_ = c.x - sc.x;
+    offsy_ = c.y - sc.y;
 }
 
 
@@ -72,7 +72,7 @@ void DataPointSet::Pos::set( const Coord& c )
 
 void DataPointSet::Pos::set( const Coord3& c )
 {
-    z_ = ( float ) c.z;
+    z_ = c.z;
     set( ((const Coord&)c) );
 }
 
@@ -96,7 +96,7 @@ void DataPointSet::DataRow::getBVSValues( TypeSet<float>& vals,
 	vals += grp_;
     }
     if ( is2d )
-	vals += (float)pos_.nr_;
+	vals += pos_.nr_;
     for ( int idx=0; idx<data_.size(); idx++ )
 	vals += data_[idx];
 }
@@ -192,7 +192,7 @@ DataPointSet::DataPointSet( ::Pos::Provider& prov,
 		    continue;
 	    }
 	    if ( filt->hasZAdjustment() )
-		dr.pos_.z_ = filt->adjustedZ( crd, (float) dr.pos_.z_ );
+		dr.pos_.z_ = filt->adjustedZ( crd, dr.pos_.z_ );
 	}
 	dr.data_.setSize( nrcols, mUdf(float) );
 	addRow( dr );
@@ -315,7 +315,7 @@ void DataPointSet::initPVDS()
 	data_.add( new DataColDef("Selection status") );
     }
     if ( is2d_ )
-	data_.add( new DataColDef(sKey::TraceNr()) );
+	data_.add( new DataColDef(sKey::TraceNr) );
 }
 
 
@@ -356,7 +356,7 @@ void DataPointSet::setEmpty()
 
 void DataPointSet::clearData()
 {
-    bivSet().setEmpty();
+    bivSet().empty();
 }
 
 
@@ -591,7 +591,7 @@ void DataPointSet::dumpInfo( IOPar& iop ) const
     BufferString typstr( "PointSet (" );
     typstr += is2d_ ? "2D" : "3D";
     typstr += minimal_ ? ",minimal)" : ")";
-    iop.set( sKey::Type(), typstr );
+    iop.set( sKey::Type, typstr );
     iop.set( "Number of rows", bivSet().totalSize() );
     const int nrcols = nrCols();
     iop.set( "Number of cols", nrcols );
@@ -767,14 +767,14 @@ if ( !SI().zIsTime() ) \
 	 (!SI().xyInFeet() && SI().zInMeter()) ) \
 	res = dz; \
     else \
-	res = SI().xyInFeet()&&SI().zInMeter() ? dz*mToFeetFactorF \
-					       : dz*mFromFeetFactorF; \
+	res = SI().xyInFeet()&&SI().zInMeter() ? dz*mToFeetFactor \
+					       : dz*mFromFeetFactor; \
 } \
 else \
 { \
-    res = dz * SI().zDomain().userFactor(); \
+    res = dz * SI().zFactor(); \
     if ( SI().xyInFeet() ) \
-	res *= mToFeetFactorF; \
+	res *= mToFeetFactor; \
 } 
 
 
@@ -792,10 +792,10 @@ DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos,
     {
 	mGetZ( z(rowidx), zinxy );
 	Coord3 poscoord( coord(rowidx), zinxy );
-	const float dist = (float) poscoord.distTo( targetpos );
+	const float dist = poscoord.distTo( targetpos );
 	if ( dist < maxdist  && dist < mindist )
 	{
-	    resrowidx = rowidx;
+	    resrowidx=rowidx;
 	    mindist = dist;
 	}
     }

@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiimpgprpi.cc,v 1.17 2012-08-29 08:18:06 cvskris Exp $";
+static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.13 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -22,8 +22,6 @@ static const char* rcsID mUnusedVar = "$Id: uiimpgprpi.cc,v 1.17 2012-08-29 08:1
 #include "strmprov.h"
 #include "filepath.h"
 #include "odplugin.h"
-
-#include "uiimpgprmod.h"
 
 
 static const char* menunm = "&GPR: DZT ...";
@@ -119,7 +117,7 @@ void inpSel( CallBacker* )
     FilePath fp( fnm ); fp.setExtension( "", true );
     lnmfld_->setText( fp.fileName() );
 
-    const float tdist = fh.spm ? 1.f / ((float)fh.spm) : SI().inlDistance();
+    const float tdist = fh.spm ? 1. / ((float)fh.spm) : SI().inlDistance();
     stepposfld_->setValue( tdist, 0 );
 
 }

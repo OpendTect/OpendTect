@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		September 2008
- RCS:		$Id: SoTextureComposerElement.h,v 1.11 2012-08-27 13:16:49 cvskris Exp $
+ RCS:		$Id: SoTextureComposerElement.h,v 1.9 2009/07/22 16:01:19 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/elements/SoReplacedElement.h>
 #include <Inventor/SbLinear.h>
 #include <Inventor/lists/SbList.h>
@@ -25,7 +24,7 @@ class SbImage;
 /* Element that holds one the active texture units for for SoTextureComposer
    and their transparency status. */
 
-mSoODClass SoTextureComposerElement : public SoReplacedElement
+mClass SoTextureComposerElement : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoTextureComposerElement);
 public:
@@ -45,4 +44,3 @@ private:
 };
 
 #endif
-

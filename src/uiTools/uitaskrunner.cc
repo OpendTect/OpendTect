@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uitaskrunner.cc,v 1.31 2012-08-10 03:50:07 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.27 2011/12/16 10:37:15 cvskris Exp $";
 
 #include "uitaskrunner.h"
 
@@ -104,6 +104,8 @@ bool uiTaskRunner::execute( Task& t )
 
 void uiTaskRunner::onFinalise( CallBacker* )
 {
+    const int totalnr = task_->totalNr();
+
     tim_.start( 100, true );
 
     Threads::MutexLocker lock( uitaskrunnerthreadmutex_ );
@@ -164,7 +166,7 @@ void uiTaskRunner::updateFields()
 	if ( nrdonechg )
 	    progbar_->setProgress( nrdone );
 
-	const float fpercentage = 100.f * ((float)nrdone) / totalnr;
+	const float fpercentage = 100. * ((float)nrdone) / totalnr;
 	int percentage = (int)fpercentage;
 	if ( percentage > 100 ) percentage = 100;
 	if ( percentage!=prevpercentage_ )

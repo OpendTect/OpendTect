@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwelldahdisplay.cc";
+static const char* rcsID = "$Id: uiwelldahdisplay.cc";
 
 
 #include "uiwelldahdisplay.h"
@@ -45,18 +45,16 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
     , cliprate_(0)
     , valrg_(mUdf(float),mUdf(float))
     , col_(Color::Black())
-    , pointsz_(5)
-    , curvesz_(1)
     , drawascurve_(true)
     , drawaspoints_(false)
-    , xaxprcts_(0)
+    ,  xaxprcts_(0) 
 {
     if ( !isfirst )
 	yax_.setup().nogridline(true);
     if ( s.xannotinpercents_ )
     {
 	xaxprcts_ = new uiAxisHandler( &scn, uiAxisHandler::Setup( 
-				    isfirst? uiRect::Top : uiRect::Bottom )
+				isfirst? uiRect::Top : uiRect::Bottom )
 				    .border(s.border_)
 				    .annotinside(s.annotinside_)
 				    .noannot(s.noxannot_)
@@ -65,6 +63,7 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
 	xax_.setup().noannot( true );
     }
 }
+
 
 void uiWellDahDisplay::DahObjData::plotAxis()
 {
@@ -198,8 +197,8 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
     }
     else if ( !zdata_.zistime_ && track() )
     {
-	startpos = (float) track()->getPos( startpos ).z;
-	stoppos = (float) track()->getPos( stoppos ).z;
+	startpos = track()->getPos( startpos ).z;
+	stoppos = track()->getPos( stoppos ).z;
     }
     ld.zrg_.start = startpos;
     ld.zrg_.stop = stoppos;
@@ -250,8 +249,8 @@ void uiWellDahDisplay::draw()
 {
     setAxisRelations();
 
-    ld1_->plotAxis();
-    ld2_->plotAxis();
+    ld1_->plotAxis(); ld1_->plotAxis();
+    ld2_->plotAxis(); ld2_->plotAxis();
 
     drawMarkers();
     drawCurve( true );
@@ -294,7 +293,6 @@ void uiWellDahDisplay::drawCurve( bool first )
     {
 	uiPolyLineItem* pli = scene().addItem( new uiPolyLineItem() );
 	pli->setPolyLine( pts );
-	ls.width_ = ld.curvesz_; 
 	pli->setPenStyle( ls );
 	pli->setZValue( ld.zoverlayval_ );
 	ld.curveitms_.add( pli );
@@ -306,7 +304,6 @@ void uiWellDahDisplay::drawCurve( bool first )
 	{
 	    uiCircleItem* ci = scene().addItem(new uiCircleItem( pts[idx], 1) );
 	    ld.curveitms_.add( ci );
-	    ls.width_ = ld.pointsz_; 
 	    ci->setPenStyle( ls );
 	    ci->setZValue( ld.zoverlayval_+1 );
 	}
@@ -323,15 +320,10 @@ void uiWellDahDisplay::drawCurve( bool first )
 	ti->setPos( txtpt );
 	ld.curveitms_.add( ti );
     }
-
-    /*
-    if ( first )
-	ld.yax_.annotAtEnd( zdata_.zistime_ ? "(ms)" : 
-			    zdata_.dispzinft_ ? "(ft)" : "(m)" );
-    */
 }
 
 
+#define mMrkrScale2DFac 1./(float)5
 #define mDefHorLineX1X2Y() \
 const int x1 = ld1_->xax_.getRelPosPix( 0 ); \
 const int x2 = ld1_->xax_.getRelPosPix( 1 ); \

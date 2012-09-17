@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.45 2012-08-03 13:01:11 cvskris Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.45 2012/07/04 10:35:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uimainwin.h"
 
 class uiMenuItem;
@@ -26,13 +25,13 @@ class uiToolButtonSetup;
 
 namespace Strat { class RepositoryAccess; }
 
-mGlobal(uiStrat) const uiStratTreeWin& StratTWin();
-mGlobal(uiStrat) uiStratTreeWin& StratTreeWin();
+mGlobal const uiStratTreeWin& StratTWin();
+mGlobal uiStratTreeWin& StratTreeWin();
 
 /*!\brief Main window for Stratigraphy display: holds the reference tree
   and the units description view */
 
-mClass(uiStrat) uiStratTreeWin : public uiMainWin
+mClass uiStratTreeWin : public uiMainWin
 {
 public:
 
@@ -60,23 +59,18 @@ protected:
     uiToolButton*		colexpbut_;
     uiToolButton*		lockbut_;
     uiToolButton*		openbut_;
-    uiToolButton*		newbut_;
     uiToolButton*		savebut_;
     uiToolButton*		moveunitupbut_;
     uiToolButton*		moveunitdownbut_;
     uiToolButton*		switchviewbut_;
-    uiToolButton*		lithobut_;
-    uiToolButton*		contentsbut_;
     bool			needsave_;
     bool			istreedisp_;
 
+    void			initRT();
     void			createMenu();
     void			createToolBar();
     void			createGroups();
-    void			setNewRT();
-    void			setIsLocked(bool yn);
 
-    void			newCB(CallBacker*);
     void			editCB(CallBacker*);
     void			openCB(CallBacker*);
     void			resetCB(CallBacker*);
@@ -99,11 +93,17 @@ private:
     friend const uiStratTreeWin& StratTWin();
     static ObjectSet<uiToolButtonSetup> tbsetups_;
 
-public:
-    void			changeLayerModelNumber(bool add);
+protected:
+    void                        newCB(CallBacker*);
+    uiToolButton*		lithobut_;
+    uiToolButton*		contentsbut_;
+    uiToolButton*		newbut_;
 
+public:
+    void			doLayerModel();
+    void			setIsLocked(bool yn);
+    void			changeLayerModelNumber(bool add);
 };
 
 
 #endif
-

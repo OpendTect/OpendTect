@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: flthortools.cc,v 1.58 2012-08-08 05:47:55 cvssalil Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.53 2012/07/10 13:06:01 cvskris Exp $";
 
 #include "flthortools.h"
 
@@ -141,7 +141,7 @@ bool FaultTrace::getHorTerminalPos( const EM::Horizon& hor,
     for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
     {
 	pos1bid = BinID( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
-	pos1z = (float) hor.getPos( sid, pos1bid.toInt64() ).z;
+	pos1z = hor.getPos( sid, pos1bid.toInt64() ).z;
 	if ( mIsUdf(pos1z) )
 	    continue;
 
@@ -356,7 +356,7 @@ float FaultTrace::getZValFor( const BinID& bid ) const
 {
     const StepInterval<float>& zrg = SI().zRange( false );
     Coord intersectn = getIntersection( bid, zrg.start, bid, zrg.stop );
-    return (float) intersectn.y;
+    return intersectn.y;
 }
 
 
@@ -411,17 +411,17 @@ void FaultTrace::computeTraceSegments()
 	const bool is2d = !trcnrs_.isEmpty();
 	if ( is2d )
 	{
-	    nodepos1.setXY( getTrcNr(previdx), pos1.z * SI().zDomain().userFactor() );
-	    nodepos2.setXY( getTrcNr(curidx), pos2.z * SI().zDomain().userFactor() );
+	    nodepos1.setXY( getTrcNr(previdx), pos1.z * SI().zFactor() );
+	    nodepos2.setXY( getTrcNr(curidx), pos2.z * SI().zFactor() );
 	}
 	else
 	{
 	    Coord posbid1 = SI().binID2Coord().transformBackNoSnap( pos1 );
 	    Coord posbid2 = SI().binID2Coord().transformBackNoSnap( pos2 );
 	    nodepos1.setXY( isinl_ ? posbid1.y : posbid1.x,
-		    	   pos1.z * SI().zDomain().userFactor() );
+		    	   pos1.z * SI().zFactor() );
 	    nodepos2.setXY( isinl_ ? posbid2.y : posbid2.x,
-		    	   pos2.z * SI().zDomain().userFactor() );
+		    	   pos2.z * SI().zFactor() );
 	}
 
 	tracesegs_ += Line2( nodepos1, nodepos2 );
@@ -441,8 +441,8 @@ Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
 
     Interval<float> zrg( z1, z2 );
     zrg.sort();
-    z1 *= SI().zDomain().userFactor();
-    z2 *= SI().zDomain().userFactor();
+    z1 *= SI().zFactor();
+    z2 *= SI().zFactor();
     if ( ( isinl_ && (bid1.inl != nr_ || bid2.inl != nr_) )
 	    || ( !isinl_ && (bid1.crl != nr_ || bid2.crl != nr_) ) )
 	return Coord::udf();
@@ -464,7 +464,7 @@ Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
 	Coord interpos = line.intersection( fltseg );
 	if ( interpos != Coord::udf() )
 	{
-	    interpos.y /= SI().zDomain().userFactor();
+	    interpos.y /= SI().zFactor();
 	    return interpos;
 	}
     }
@@ -488,7 +488,7 @@ bool FaultTrace::getIntersection( const BinID& bid1, float z1,
 
     bid.inl = isinl_ ? nr_ : trcnr;
     bid.crl = isinl_ ? trcnr : nr_;
-    z = (float) intersection.y;
+    z = intersection.y;
     return !intv || intv->includes( trcnr, true );
 }
 
@@ -536,7 +536,7 @@ void FaultTrace::computeRange()
 	trcrange_.set( (int) floattrcrg.start, (int) ceil(floattrcrg.stop) );
 	
 	for ( int idx=0; idx<coords_.size(); idx++ )
-	    zrange_.include( (float) coords_[idx].z, false );
+	    zrange_.include( coords_[idx].z, false );
     }
     else
     {
@@ -544,7 +544,7 @@ void FaultTrace::computeRange()
 	{
 	    const BinID bid = SI().transform( coords_[idx] );
 	    trcrange_.include( isinl_ ? bid.crl : bid.inl, false );
-	    zrange_.include( (float) coords_[idx].z, false );
+	    zrange_.include( coords_[idx].z, false );
 	}
     }
 
@@ -556,7 +556,7 @@ bool FaultTrace::isOK() const
 {
     if ( coords_.isEmpty() ) return false;
 
-    double prevz = coords_[0].z;
+    float prevz = coords_[0].z;
     for ( int idx=1; idx<coords_.size(); idx++ )
     {
 	if ( coords_[idx].z < prevz )
@@ -608,7 +608,7 @@ bool FaultTraceExtractor::execute()
     EM::SectionID fltsid = fault_->sectionID( 0 );
     mDynamicCastGet(EM::Fault3D*,fault3d,fault_)
     Geometry::IndexedShape* efss = new Geometry::ExplFaultStickSurface(
-		fault3d->geometry().sectionGeometry(fltsid), SI().zDomain().userFactor() );
+		fault3d->geometry().sectionGeometry(fltsid), SI().zFactor() );
     efss->setCoordList( new FaultTrace, new FaultTrace, 0 );
     if ( !efss->update(true,0) )
 	return false;
@@ -668,7 +668,7 @@ static float getFloatTrcNr( const PosInfo::Line2DData& linegeom,
     if ( index > 0 )
     {
 	const PosInfo::Line2DPos& prevpos = posns[index-1];
-	const float distfromnode = (float) prevpos.coord_.distTo( crd );
+	const float distfromnode = prevpos.coord_.distTo( crd );
 	if ( distfromnode < closestdistfromnode )
 	{
 	    closestdistfromnode = distfromnode;
@@ -679,7 +679,7 @@ static float getFloatTrcNr( const PosInfo::Line2DData& linegeom,
     if ( posns.validIdx(index+1) )
     {
 	const PosInfo::Line2DPos& nextpos = posns[index+1];
-	const float distfromnode = (float) nextpos.coord_.distTo( crd );
+	const float distfromnode = nextpos.coord_.distTo( crd );
 	if ( distfromnode < closestdistfromnode )
 	{
 	    closestdistfromnode = distfromnode;
@@ -697,8 +697,8 @@ static float getFloatTrcNr( const PosInfo::Line2DData& linegeom,
     if ( posonline.distTo(crd) > 100 )
 	return mUdf(float);
 
-    const float frac = (float) (linepos1.distTo(posonline) / linepos1.distTo(linepos2));
-    return (float)(pos.nr_ + frac * ( posns[index2].nr_ - pos.nr_ ));
+    const float frac = linepos1.distTo(posonline) / linepos1.distTo(linepos2);
+    return (float)pos.nr_ + frac * ( posns[index2].nr_ - pos.nr_ );
 }
 
 
@@ -952,13 +952,13 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 	hs.limitTo( hrg );
 	flths_ += hs;
 	execgrp.add( new FaultTraceCalc(flt,hs,*trcs) );
+
     }
 
     const bool ret = tr ? tr->execute(execgrp) : execgrp.execute();
     if ( !ret )
 	mErrRet("Failed to extract Fault traces")
 
-    multiids_ = faultids; 
     return true;
 }
 

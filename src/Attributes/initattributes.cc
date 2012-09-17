@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initattributes.cc,v 1.12 2012-08-28 13:24:21 cvsbert Exp $";
+static const char* rcsID = "$Id: initattributes.cc,v 1.10 2012/09/05 14:11:07 cvsbert Exp $";
 
 #include "moddepmgr.h"
 #include "convolveattrib.h"

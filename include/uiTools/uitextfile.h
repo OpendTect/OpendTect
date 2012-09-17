@@ -7,23 +7,22 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextfile.h,v 1.6 2012-08-03 13:01:16 cvskris Exp $
+ RCS:           $Id: uitextfile.h,v 1.5 2010/04/15 15:39:56 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 class uiTextEdit;
 class uiTextBrowser;
 class uiTable;
 
 
-mClass(uiTools) uiTextFile : public CallBacker
+mClass uiTextFile : public CallBacker
 {
 public:
 
-    mClass(uiTools) Setup
+    mClass Setup
     {
     public:
 
@@ -87,11 +86,11 @@ protected:
 };
 
 
-mClass(uiTools) uiTextFileDlg : public uiDialog
+mClass uiTextFileDlg : public uiDialog
 {
 public:
 
-    mClass(uiTools) Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
 
@@ -145,4 +144,3 @@ protected:
 
 
 #endif
-

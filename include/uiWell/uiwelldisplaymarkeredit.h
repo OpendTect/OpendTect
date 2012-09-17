@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Aug 2010
- RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.17 2012-08-30 15:11:29 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaymarkeredit.h,v 1.8 2012/09/02 10:12:54 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uiwellmod.h"
 #include "menuhandler.h"
 #include "uidialog.h"
 
@@ -29,7 +28,7 @@ class uiWellDisplayControl;
 namespace Well { class Marker; class MarkerSet; class Data; }
 
 
-mClass(uiWell) uiAddEditMrkrDlg : public uiDialog
+mClass uiAddEditMrkrDlg : public uiDialog
 {
 public :
     				uiAddEditMrkrDlg(uiParent*,Well::Marker&,
@@ -50,7 +49,7 @@ protected :
 
 
 
-mClass(uiWell) uiDispEditMarkerDlg : public uiDialog
+mClass uiDispEditMarkerDlg : public uiDialog
 {
 public:
 				uiDispEditMarkerDlg(uiParent*);
@@ -86,8 +85,7 @@ protected:
     bool 			hasedited_;
     bool 			ismarkerhit_;
     bool 			ispressed_;
-    
-    void			allowMarkersManagement(bool yn);
+   
     virtual void		addNewMrkrList();
     virtual void		editMrkrList();
     virtual bool		removeMrkrFromList();
@@ -99,19 +97,22 @@ protected:
 	    					const char* nm); 
     virtual Well::Marker*	getMarkerFromTmpList(const char* nm); 
 
-
     virtual bool		acceptOK(CallBacker*);
     void			buttonPushedCB(CallBacker*);
+    virtual void		editDlgClosedCB(CallBacker*);
     virtual void		fillMarkerList(CallBacker*);
     virtual void		handleUsrClickCB(CallBacker*) =0;
     virtual void		modeChg(CallBacker*);
     virtual void		listRClickCB(CallBacker*);
     virtual bool		rejectOK(CallBacker*);
+
+public:
+    void			allowMarkersManagement(bool yn);
 };
 
 
 
-mClass(uiWell) uiWellDispCtrlEditMarkerDlg : public uiDispEditMarkerDlg
+mClass uiWellDispCtrlEditMarkerDlg : public uiDispEditMarkerDlg
 {
 public:
 				uiWellDispCtrlEditMarkerDlg(uiParent*);

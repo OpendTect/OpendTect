@@ -8,12 +8,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: uiprestackexpmute.h,v 1.4 2012-08-03 13:01:05 cvskris Exp $
+ RCS:		$Id: uiprestackexpmute.h,v 1.3 2009/07/22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
@@ -24,7 +23,7 @@ class uiIOObjSel;
 namespace PreStack
 {
 
-mClass(uiPreStackProcessing) uiExportMute : public uiDialog
+mClass uiExportMute : public uiDialog
 {
 public:
 			uiExportMute(uiParent*);
@@ -46,4 +45,3 @@ protected:
 
 
 #endif
-

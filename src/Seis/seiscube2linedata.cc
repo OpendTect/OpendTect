@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiscube2linedata.cc,v 1.10 2012-09-13 18:36:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiscube2linedata.cc,v 1.6 2012/07/05 11:55:06 cvskris Exp $";
 
 #include "seiscube2linedata.h"
 #include "seisread.h"
@@ -18,9 +18,8 @@ static const char* rcsID mUnusedVar = "$Id: seiscube2linedata.cc,v 1.10 2012-09-
 #include "ioobj.h"
 
 
-class Cube2LineDataLineKeyProvider : public LineKeyProvider
+struct Cube2LineDataLineKeyProvider : public LineKeyProvider
 {
-public:
 Cube2LineDataLineKeyProvider( SeisCube2LineDataExtracter& lde ) : lde_(lde) {}
 
 LineKey lineKey() const
@@ -150,11 +149,10 @@ bool SeisCube2LineDataExtracter::getNextFetcher()
 
 int SeisCube2LineDataExtracter::handleTrace()
 {
-    SeisTrc* trc = tbuf_.remove( 0 );
+    PtrMan<SeisTrc> trc = tbuf_.remove( 0 );
     SeisTrcInfo ti( trc->info() );
-    delete trc;
 
-    if ( !rdr_.seisTranslator()->goTo( SI().transform(ti.coord) ) )
+    if ( !rdr_.seisTranslator()->goTo( SI().transform(trc->info().coord) ) )
 	return MoreToDo();
 
     SeisTrc trc3d;

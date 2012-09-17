@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odftp.h,v 1.13 2012-08-03 13:00:32 cvskris Exp $
+ RCS:           $Id: odftp.h,v 1.11 2011/04/19 08:24:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "networkmod.h"
 #include "callback.h"
 #include "bufstringset.h"
 
@@ -21,7 +20,7 @@ class QFile;
 class QFtp;
 class QFtpConnector;
 
-mClass(Network) ODFtp : public CallBacker
+mClass ODFtp : public CallBacker
 {
 friend class QFtpConnector;
 
@@ -52,7 +51,7 @@ public:
     od_int64		totalNr() const		{ return totalnr_; }
     const BufferStringSet& files() const	{ return files_; }
 
-    bool		isOK() const		{ return !error_; }
+    const bool		isOK() const		{ return !error_; }
     void		setMessage(const char*);
     const char*		message() const		{ return message_.buf(); }
     int			commandID() const	{ return commandid_; }
@@ -90,4 +89,3 @@ protected:
 };
 
 #endif
-

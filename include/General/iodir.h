@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.21 2012-08-03 13:00:23 cvskris Exp $
+ RCS:		$Id: iodir.h,v 1.20 2010/12/14 15:53:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include "generalmod.h"
 #include "multiid.h"
 #include "objectset.h"
 #include "namedobj.h"
@@ -33,7 +32,7 @@ the service access point.
 */
 
 
-mClass(General) IODir : public NamedObject
+mClass IODir : public NamedObject
 {
 public:
 			IODir(const char*);
@@ -93,4 +92,3 @@ private:
 
 
 #endif
-

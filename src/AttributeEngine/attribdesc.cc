@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUnusedVar = "$Id: attribdesc.cc,v 1.85 2012-07-26 03:39:33 cvskris Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.81 2011/05/27 06:52:46 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -258,52 +258,6 @@ void Desc::getDependencies(TypeSet<Attrib::DescID>& deps) const
 	deps += inputs_[idx]->id();
 	inputs_[idx]->getDependencies(deps);
     }
-}
-
-
-bool Desc::getParentID( DescID did, DescID& pid, int& dididx ) const
-{
-    TypeSet<DescID> tmp;
-    getDependencies( tmp );
-    if ( tmp.indexOf(did)==-1 )
-	return false; 
-
-    for ( int idx=nrInputs()-1; idx>=0; idx-- )
-    {
-	if ( inputs_[idx] && inputs_[idx]->id()==did )
-	{
-	    pid = id();
-	    dididx = idx;
-	    return true;
-	}
-    }
-
-    for ( int idx=nrInputs()-1; idx>=0; idx-- )
-    {
-	if ( !inputs_[idx] )
-	    continue;
-
-	if ( inputs_[idx]->getParentID(did,pid,dididx) )
-	    return true;
-    }
-
-    return true;
-}
-
-
-void Desc::getAncestorIDs( DescID cid, TypeSet<Attrib::DescID>& aids,
-       TypeSet<int>& pindices ) const
-{
-    int cidx;
-    DescID pid;
-    if ( !getParentID(cid,pid,cidx) )
-	return;
-
-    aids += pid;
-    pindices += cidx;
-
-    if ( pid!=id() )
-	getAncestorIDs( pid, aids, pindices );
 }
 
 
@@ -751,11 +705,13 @@ void Desc::getKeysVals( const char* defstr, BufferStringSet& keys,
 {
     const int len = strlen(defstr);
     int spacepos = 0;
+    int equalpos = 0;
     for ( int idx=0; idx<len; idx++ )
     {
 	if ( defstr[idx] != '=')
 	    continue;
 
+	equalpos = idx;
 	spacepos = idx-1;
 	while ( spacepos>=0 && isspace(defstr[spacepos]) ) spacepos--;
 	if ( spacepos < 0 ) continue;

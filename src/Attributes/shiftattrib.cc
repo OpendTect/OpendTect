@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: shiftattrib.cc,v 1.38 2012-08-28 13:23:46 cvsbert Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.35 2012/07/10 13:06:00 cvskris Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -63,6 +63,13 @@ Shift::Shift( Desc& desc )
     mGetFloat( time_, timeStr() );
     mGetBool( dosteer_, steeringStr() );
 
+    init();
+}
+
+
+void Shift::set( const BinID& bid, float z, bool dosteer )
+{
+    pos_ = bid; time_ = z; dosteer_ = dosteer;
     init();
 }
 

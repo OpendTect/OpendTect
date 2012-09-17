@@ -6,19 +6,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert/Bruno
  Date:          Feb 2011
- RCS:           $Id: statgrubbs.h,v 1.3 2012-08-03 13:00:06 cvskris Exp $
+ RCS:           $Id: statgrubbs.h,v 1.2 2011/02/04 15:28:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "gendefs.h"
 #include <math.h>
 
 namespace Stats
 {
 
-mClass(Algo) Grubbs
+mClass Grubbs
 {
 public:
 
@@ -76,4 +75,3 @@ inline T Stats::Grubbs::getMax( T* arr, SzTp sz, SzTp& idxof )
 } // namespace Stats
 
 #endif
-

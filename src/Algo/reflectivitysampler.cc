@@ -102,7 +102,7 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
 	const float anglesampling = -time * df;
 	while ( ptr!=stopptr )
 	{
-	    const float angle = (float) ( 2*M_PI *anglesampling * freqidx );
+	    const float angle = 2*M_PI *anglesampling * freqidx;
 	    const float freq = df * freqidx;
 	    const float_complex cexp = float_complex( cos(angle), sin(angle) );
 	    const float_complex cpexref = cexp * reflectivity;

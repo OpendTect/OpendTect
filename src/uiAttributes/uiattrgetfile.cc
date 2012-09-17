@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrgetfile.cc,v 1.21 2012-05-22 14:48:36 cvskris Exp $";
+static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.18 2011/02/01 11:34:01 cvsbert Exp $";
 
 #include "uiattrgetfile.h"
 #include "uiattrsrchprocfiles.h"
@@ -79,7 +79,7 @@ void uiGetFileForAttrSet::srchDir( CallBacker* )
 void uiGetFileForAttrSet::selChg( CallBacker* )
 {
     fname_ = fileinpfld->fileName();
-    IOPar iop; iop.read( fname_, sKey::Pars() );
+    IOPar iop; iop.read( fname_, sKey::Pars );
 
     BufferString version;
     float versionnr = 0;
@@ -144,7 +144,7 @@ CtxtIOObj& uiAttrSrchProcFiles::mkCtio( bool is2d )
 {
     ctioptr_ = uiSeisSel::mkCtxtIOObj(is2d?Seis::Line:Seis::Vol,true);
     ctioptr_->ctxt.forread = true;
-    ctioptr_->ctxt.toselect.require_.set( sKey::Type(), sKey::Attribute() );
+    ctioptr_->ctxt.toselect.require_.set( sKey::Type, sKey::Attribute );
     return *ctioptr_;
 }
 

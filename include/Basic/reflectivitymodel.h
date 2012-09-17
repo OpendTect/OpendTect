@@ -7,17 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Jan 2011
- RCS:		$Id: reflectivitymodel.h,v 1.5 2012-08-28 12:17:02 cvskris Exp $
+ RCS:		$Id: reflectivitymodel.h,v 1.3 2011/02/04 16:17:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "odcomplex.h"
 #include "sets.h"
 
 
-class ReflectivitySpike
+mClass ReflectivitySpike
 {
 public:
     			ReflectivitySpike()
@@ -58,4 +57,3 @@ inline bool ReflectivitySpike::operator!=(const ReflectivitySpike& s) const
 
 
 #endif
-

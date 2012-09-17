@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.36 2012-09-05 07:28:26 cvsjaap Exp $
+ RCS:           $Id: sighndl.cc,v 1.34 2012/09/17 16:37:45 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: sighndl.cc,v 1.36 2012-09-05 07:28:26 cvsjaap Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.34 2012/09/17 16:37:45 cvsjaap Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -142,7 +142,6 @@ void SignalHandling::initFatalSignalHandling()
 #endif
     }
 }
-
 
 
 void SignalHandling::handle( int signalnr )

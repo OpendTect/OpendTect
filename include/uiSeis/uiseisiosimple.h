@@ -6,7 +6,6 @@
  * DATE     : Nov 2003
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "samplingdata.h"
 #include "seisiosimple.h"
@@ -23,7 +22,7 @@ class uiSeisSubSel;
 class uiSeis2DLineNameSel;
 
  
-mClass(uiSeis) uiSeisIOSimple : public uiDialog
+mClass uiSeisIOSimple : public uiDialog
 {
 public:
 
@@ -92,4 +91,3 @@ private:
 
 
 #endif
-

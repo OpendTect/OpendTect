@@ -7,16 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: uiodvolrentreeitem.h,v 1.16 2012-09-07 22:08:02 cvsnanne Exp $
+ RCS:           $Id: uiodvolrentreeitem.h,v 1.13 2012/01/02 14:04:14 cvsbruno Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
 
-mClass(uiODMain) uiODVolrenParentTreeItem : public uiTreeItem
+mClass uiODVolrenParentTreeItem : public uiTreeItem
 {
     typedef uiTreeItem	inheritedClass;
 public:
@@ -34,7 +33,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVolrenTreeItemFactory : public uiODTreeItemFactory
+mClass uiODVolrenTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const   { return getName(); }
@@ -44,7 +43,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODVolrenTreeItem : public uiODDisplayTreeItem
+mClass uiODVolrenTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODVolrenTreeItem(int displayid_=-1);
@@ -55,9 +54,9 @@ protected:
     bool		init();
     BufferString	createDisplayName() const;
     uiODDataTreeItem*	createAttribItem( const Attrib::SelSpec* ) const;
-    virtual void	createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
-    bool		anyButtonClick(uiTreeViewItem*);
+    bool		anyButtonClick( uiListViewItem* item );
 
     bool		isExpandable() const		{ return true; }
     const char*		parentType() const;
@@ -79,7 +78,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVolrenSubTreeItem : public uiODDisplayTreeItem
+mClass uiODVolrenSubTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODVolrenSubTreeItem(int displayid);
@@ -91,12 +90,12 @@ public:
 protected:
 			~uiODVolrenSubTreeItem();
 
-    virtual void	createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     void		posChangeCB(CallBacker*);
     void		selChgCB(CallBacker*);
 
-    bool		anyButtonClick(uiTreeViewItem*);
+    bool		anyButtonClick( uiListViewItem* item );
     bool		init();
     const char*		parentType() const;
 
@@ -105,4 +104,3 @@ protected:
 };
 
 #endif
-

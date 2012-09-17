@@ -2,7 +2,7 @@
 #
 #	Makefile : 	VMB::VelocityFunction
 # 	2008		Kris
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-08-20 21:04:23 cvsyuancheng Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.1 2012/01/23 20:55:23 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Velocity)
@@ -11,7 +11,6 @@ SET(OD_MODULE_SOURCES
 		velocitygridder.cc
 		volprocchain.cc
 		volprocattrib.cc
-		volprocfaultangle.cc
 		volproclateralsmoother.cc
 		volprocsmoother.cc
 		volproctrans.cc

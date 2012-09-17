@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uisegyread.cc,v 1.54 2012-05-22 14:48:40 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisegyread.cc,v 1.51 2012/05/22 09:25:17 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uivarwizarddlg.h"
@@ -177,7 +177,7 @@ void uiSEGYRead::writeReq( CallBacker* cb )
     rddlg->updatePars();
     fillPar( ctio->ioobj->pars() );
     ctio->ioobj->pars().removeWithKey( uiSEGYExamine::Setup::sKeyNrTrcs );
-    ctio->ioobj->pars().removeWithKey( sKey::Geometry() );
+    ctio->ioobj->pars().removeWithKey( sKey::Geometry );
     SEGY::FileSpec::ensureWellDefined( *ctio->ioobj );
     IOM().commitChanges( *ctio->ioobj );
     delete ctio->ioobj;

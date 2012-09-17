@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_ProgressViewer.cc,v 1.33 2012-07-17 12:55:57 cvskris Exp $";
+static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.29 2011/12/14 13:16:41 cvsbert Exp $";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
@@ -81,9 +81,9 @@ uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
     topGroup()->setSpacing(0);
 
     tb_ = new uiToolBar( this, "ToolBar" );
-    quitid_ = mAddButton( "stop", "Stop process and Quit", quitFn );
-    mAddButton( "saveflow", "Save log", saveFn );
-    mAddButton( "contexthelp", "Help", helpFn );
+    quitid_ = mAddButton( "stop.png", "Stop process and Quit", quitFn );
+    mAddButton( "saveflow.png", "Save log", saveFn );
+    mAddButton( "contexthelp.png", "Help", helpFn );
 
     txtfld = new uiTextEdit( this, "", true );
     uiFont& fnt = FontList().add( "Non-prop",
@@ -127,6 +127,7 @@ void uiProgressViewer::appendToText()
 
 void uiProgressViewer::doWork( CallBacker* )
 {
+    bool ateof = strm.eof();
     if ( strm.eof() || strm.fail() )
     {
 	appendToText();

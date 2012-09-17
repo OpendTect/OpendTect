@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattrtypesel.cc,v 1.13 2012-07-31 08:52:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrtypesel.cc,v 1.10 2010/12/09 12:51:07 cvsbert Exp $";
 
 #include "uiattrtypesel.h"
 #include "uiattrdesced.h"
@@ -181,6 +181,7 @@ void uiAttrTypeSel::updAttrNms( const char* selattrnm )
 	    nms.add( attrnms_.get(idx) );
     }
 
+    int curitm = 0;
     nms.sort();
     for ( int idx=0; idx<nms.size(); idx++ )
     {

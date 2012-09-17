@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Dec 2011
- RCS:           $Id: cvsaccess.h,v 1.7 2012-08-03 13:00:31 cvskris Exp $
+ RCS:           $Id: cvsaccess.h,v 1.6 2011/12/14 08:17:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 ;
 
-#include "networkmod.h"
 #include "bufstring.h"
 class BufferStringSet;
 
 
-mClass(Network) CVSAccess
+mClass CVSAccess
 {
 
 public:
@@ -70,4 +69,3 @@ protected:
 };
 
 #endif
-

@@ -6,35 +6,49 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2009
- RCS:           $Id: soodbasic.h,v 1.14 2012-08-27 13:16:49 cvskris Exp $
+ RCS:           $Id: soodbasic.h,v 1.8 2012/07/20 06:52:08 cvskris Exp $
  ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
-
-#if defined( __win64__ ) || defined ( __win32__ )
+#if defined( WIN32 ) || defined( win32 ) || defined( win64 )
+# undef __win__
 # define __win__ 1
+# if defined(SOOD_EXPORTS) || defined(SoOD_EXPORTS)
+#  define Export_SoOD __declspec( dllexport )
+# else
+#  define Export_SoOD __declspec( dllimport )
+# endif
+#else
+# define Export_SoOD
 #endif
 
-#if defined ( __lux64__ ) || defined ( __lux32__ )
-# define __unix__ 1
-# define __lux__ 1
+#if defined( WIN32 ) || defined( win32 ) || defined( win64 )
+# if defined(SOOD_EXPORTS) || defined(SoOD_EXPORTS)
+#  define dll_export __declspec( dllexport )
+# endif
+#else
+# ifndef dll_export
+#  define dll_export
+# endif
 #endif
 
-#if defined( __mac__ )
-# define __unix__ 1
+
+
+# define mExportClass( module ) class Export_##module
+
+
+#ifndef mClass
+# define mClass class dll_export
 #endif
 
-#ifndef __unix__
-#ifndef __win__
-# error "Platform not detected."
-#endif
+#ifndef mGlobal
+# define mGlobal dll_export
 #endif
 
-#define mSoODGlobal 		Export_SoOD
-#define mSoODClass		class mSoODGlobal
-#define mSoODExternC		extern "C" mSoODGlobal
-
+#ifndef mExternC
+#define mExternC	extern "C" dll_export
 #endif
 
+
+#endif

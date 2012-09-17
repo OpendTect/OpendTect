@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uiattribsetbuild.h,v 1.13 2012-08-03 13:00:47 cvskris Exp $
+ RCS:           $Id: uiattribsetbuild.h,v 1.12 2011/06/27 08:41:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uiattributesmod.h"
 #include "uibuildlistfromlist.h"
 #include "datapack.h"
 
@@ -22,11 +21,11 @@ namespace Attrib { class DescSet; }
 class uiPreStackAttrib;
 
 
-mClass(uiAttributes) uiAttribDescSetBuild : public uiBuildListFromList
+mClass uiAttribDescSetBuild : public uiBuildListFromList
 {
 public:
 
-    mClass(uiAttributes) Setup
+    mClass Setup
     {
     public:
 			Setup(bool for2d);
@@ -71,4 +70,3 @@ protected:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.121 2012-09-13 18:39:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.114 2012/07/10 13:06:07 cvskris Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.121 2012-0
 #include "mousecursor.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -25,7 +26,6 @@ static const char* rcsID mUnusedVar = "$Id: uiodseis2dtreeitem.cc,v 1.121 2012-0
 #include "uiodscenemgr.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
-#include "uitreeview.h"
 #include "uivispartserv.h"
 #include "uitaskrunner.h"
 #include "visseis2ddisplay.h"
@@ -158,8 +158,8 @@ uiOD2DLineSetTreeItem::~uiOD2DLineSetTreeItem()
 }
 
 
-int uiOD2DLineSetTreeItem::uiTreeViewItemType() const
-{ return uiTreeViewItem::CheckBox; }
+int uiOD2DLineSetTreeItem::uiListViewItemType() const
+{ return uiListViewItem::CheckBox; }
 
 
 void uiOD2DLineSetTreeItem::checkCB( CallBacker* )
@@ -496,15 +496,15 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 
 	BufferString lbl( "Z-Range " ); lbl += SI().getZUnitString();
-	Interval<int> intzrg( mNINT32(curzrg_.start*SI().zDomain().userFactor()), 
-			      mNINT32(curzrg_.stop*SI().zDomain().userFactor()) );
+	Interval<int> intzrg( mNINT32(curzrg_.start*SI().zFactor()), 
+			      mNINT32(curzrg_.stop*SI().zFactor()) );
 	uiGenInputDlg dlg( getUiParent(), "Specify 2D line Z-Range", lbl,
 			   new IntInpIntervalSpec(intzrg) );
 	if ( !dlg.go() ) return;
 
 	intzrg = dlg.getFld()->getIInterval();
-	curzrg_.start = float(intzrg.start) / SI().zDomain().userFactor();
-	curzrg_.stop = float(intzrg.stop) / SI().zDomain().userFactor();
+	curzrg_.start = float(intzrg.start) / SI().zFactor();
+	curzrg_.stop = float(intzrg.stop) / SI().zFactor();
 	mForAllKidsWithBurstCtrl( setZRange(curzrg_) );
     }
     else if ( mnuid == expanditm_.id )
@@ -590,7 +590,7 @@ uiOD2DLineSetSubItem::uiOD2DLineSetSubItem( const char* nm, int displayid )
     name_ = nm;
     displayid_ = displayid;
 
-    positionitm_.iconfnm = "orientation64";
+    positionitm_.iconfnm = "orientation64.png";
     linenmitm_.checkable = true;
 }
 
@@ -690,15 +690,16 @@ uiODDataTreeItem* uiOD2DLineSetSubItem::createAttribItem(
 }
 
 
-void uiOD2DLineSetSubItem::createMenu( MenuHandler* menu, bool istb )
+void uiOD2DLineSetSubItem::createMenuCB( CallBacker* cb )
 {
-    uiODDisplayTreeItem::createMenu( menu, istb );
+    uiODDisplayTreeItem::createMenuCB(cb);
+    mDynamicCastGet(MenuHandler*,menu,cb)
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(displayid_))
-    if ( !menu || menu->menuID() != displayID() || !s2d || istb ) return;
+    if ( !menu || menu->menuID() != displayID() || !s2d ) return;
 
-    mAddMenuOrTBItem( istb, 0, menu, &linenmitm_, true, s2d->lineNameShown() );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionitm_, true, false );
+    mAddMenuItem( menu, &linenmitm_, true, s2d->lineNameShown() );
+    mAddMenuItem( &displaymnuitem_, &positionitm_, true, false );
 }
 
 
@@ -931,7 +932,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     const uiVisPartServer* visserv_ = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject( displayID() ))
-    if ( !menu || !s2d || istb ) return;
+    if ( !menu || !s2d ) return;
 
     uiSeisPartServer* seisserv = applMgr()->seisServer();
     uiAttribPartServer* attrserv = applMgr()->attrServer();

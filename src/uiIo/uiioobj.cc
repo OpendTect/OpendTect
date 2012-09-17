@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiioobj.cc,v 1.10 2012-05-02 15:12:08 cvskris Exp $";
+static const char* rcsID = "$Id: uiioobj.cc,v 1.8 2010/12/14 11:15:20 cvsbert Exp $";
 
 #include "uiioobj.h"
 #include "uimsg.h"

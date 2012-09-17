@@ -7,17 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uiflatviewslicepos.h,v 1.7 2012-08-03 13:00:58 cvskris Exp $
+ RCS:           $Id: uiflatviewslicepos.h,v 1.6 2011/05/06 13:43:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "uislicepos.h"
 
 /*! \brief Toolbar for setting slice position _ 2D viewer */
 
-mClass(uiFlatView) uiSlicePos2DView : public uiSlicePos
+mClass uiSlicePos2DView : public uiSlicePos
 {
 public:		
 			uiSlicePos2DView(uiParent*);
@@ -39,4 +38,3 @@ protected:
 };
 
 #endif
-

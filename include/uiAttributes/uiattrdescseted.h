@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.31 2012-08-03 13:00:47 cvskris Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.26 2010/10/07 17:29:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uidialog.h"
 #include "multiid.h"
 
@@ -25,8 +24,6 @@ namespace Attrib
 };
 
 namespace Pick { class Set; }
-class AttribParamGroup;
-class EvalParam;
 class uiAttrDescEd;
 class uiAttrTypeSel;
 class uiGenInput;
@@ -41,7 +38,7 @@ class uiToolButton;
 
 /*! \brief Editor for Attribute sets */
 
-mClass(uiAttributes) uiAttribDescSetEd : public uiDialog
+mClass uiAttribDescSetEd : public uiDialog
 {
 public:
 
@@ -55,7 +52,7 @@ public:
 
     uiAttrDescEd*	curDescEd();
     			//!< Use during operation only!
-    Attrib::Desc*	curDesc() const;
+    Attrib::Desc*		curDesc() const;
     			//!< Use during operation only!
     int			curDescNr() const;
     			//!< Use during operation only!
@@ -64,15 +61,8 @@ public:
 
     void		setSensitive(bool);
 
-    bool		getUiAttribParamGrps(
-	    			uiParent*,ObjectSet<AttribParamGroup>&,
-				BufferStringSet& paramnms,
-				TypeSet<BufferStringSet>& usernms);
-    			//!<Get curDesc() parameter grps and param-usernms info!
-
     Notifier<uiAttribDescSetEd>		dirshowcb;
     Notifier<uiAttribDescSetEd>		evalattrcb;
-    Notifier<uiAttribDescSetEd>		crossevalattrcb;
     Notifier<uiAttribDescSetEd>		xplotcb;
 
     static const char* 	sKeyUseAutoAttrSet;
@@ -98,7 +88,7 @@ protected:
     uiToolBar*			toolbar_;
     uiListBox*			attrlistfld_;
     uiAttrTypeSel*		attrtypefld_;
-
+    uiPushButton*		rmbut_;
     uiPushButton*		addbut_;
     uiPushButton*		revbut_;
     uiGenInput*			attrnmfld_;
@@ -107,7 +97,7 @@ protected:
     uiToolButton*       	moveupbut_;
     uiToolButton*       	movedownbut_;
     uiToolButton*       	sortbut_;
-    uiToolButton*		rmbut_;
+
 
     void			attrTypSel(CallBacker*);
     void			selChg(CallBacker*);
@@ -123,7 +113,6 @@ protected:
     void			openSet(CallBacker*);
     void                	openAttribSet(const IOObj*);
     void			savePush(CallBacker*);
-    void			saveAsPush(CallBacker*);
     void			changeInput(CallBacker*);
     void			defaultSet(CallBacker*);
     void			getDefaultAttribsets(BufferStringSet&,
@@ -134,7 +123,6 @@ protected:
     void			crossPlot(CallBacker*);
     void			directShow(CallBacker*);
     void			evalAttribute(CallBacker*);
-    void			crossEvalAttrs(CallBacker*);
     void			importFromFile(const char*);
 
     void			setButStates();
@@ -171,4 +159,3 @@ public:
 
 
 #endif
-

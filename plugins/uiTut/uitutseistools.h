@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: uitutseistools.h,v 1.12 2012-08-08 04:49:47 cvsmahant Exp $
+ * ID       : $Id: uitutseistools.h,v 1.10 2010/02/18 10:37:48 cvsbert Exp $
 -*/
 
 #include "uidialog.h"

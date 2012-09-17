@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratsynthdisp.cc,v 1.121 2012-09-12 10:40:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.98 2012/09/14 16:58:03 cvsbruno Exp $";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"
@@ -131,7 +131,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     cleanSynthetics();
 
     vwr_ = new uiFlatViewer( this );
-    vwr_->setExtraBorders( uiRect( 0, 0 , 0, 0 ) );
     vwr_->setInitialSize( uiSize(600,250) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
@@ -237,7 +236,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
     selectedtraceaux_->zvalue_ = 2;
     vwr_->addAuxData( selectedtraceaux_ );
 
-    const double ptx = selectedtrace_ + offset; 
+    const double ptx = selectedtrace_ + offset;
     const double ptz1 = zrg.start;
     const double ptz2 = zrg.stop;
 
@@ -246,8 +245,8 @@ void uiStratSynthDisp::setSelectedTrace( int st )
 
     selectedtraceaux_->poly_ += pt1;
     selectedtraceaux_->poly_ += pt2;
-    selectedtraceaux_->linestyle_ = 
-	LineStyle( LineStyle::Dot, 2, Color::DgbColor() );
+    selectedtraceaux_->linestyle_ =
+    LineStyle( LineStyle::Dot, 2, Color::DgbColor() );
 
     vwr_->handleChange( FlatView::Viewer::Annot, true );
 }
@@ -255,13 +254,13 @@ void uiStratSynthDisp::setSelectedTrace( int st )
 
 void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 				     const TypeSet<float>& zvals, Color col,
-       				     bool dispflattened )
+				     bool dispflattened	)
 {
-    const bool modelchange = dispflattened_ != dispflattened;
     StratSynth::Level* lvl = new StratSynth::Level( lnm, zvals, col );
     stratsynth_.setLevel( lvl );
     levelSnapChanged(0);
 
+    const bool modelchange = dispflattened_ != dispflattened;
     dispflattened_ = dispflattened;
     if ( modelchange )
 	doModelChange();
@@ -320,11 +319,10 @@ void uiStratSynthDisp::drawLevel()
 	auxd->linestyle_.type_ = LineStyle::None;
 	for ( int imdl=0; imdl<tbuf.size(); imdl ++ )
 	{
-	    const float tval = dispflattened_ ? 0 : imdl < tbuf.size() ? 
-		tbuf.get(imdl)->info().pick : mUdf(float);
-
+	    const float tval = imdl < tbuf.size() ? tbuf.get(imdl)->info().pick
+						  : mUdf(float);
 	    auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
-						  cMarkerSize, lvl->col_ );
+	    cMarkerSize, lvl->col_ );
 	    auxd->poly_ += FlatView::Point( imdl+1, tval );
 	}
 	if ( auxd->isEmpty() )
@@ -476,7 +474,8 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
     SeisTrcBuf* disptbuf = new SeisTrcBuf( true );
     tbuf->copyInto( *disptbuf );
 
-    stratsynth_.decimateTraces( *disptbuf, dispeach_ );
+    if ( dispeach_ > 1 )
+	stratsynth_.decimateTraces( *disptbuf, dispeach_ );
     if ( dispflattened_ )
     {
 	stratsynth_.snapLevelTimes( *disptbuf, sd->d2tmodels_ );
@@ -498,7 +497,6 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
 
     vwr_->setPack( true, dp->id(), false, !hadpack );
     vwr_->setPack( false, dp->id(), false, !hadpack );
-    vwr_->setViewToBoundingBox();
 }
 
 
@@ -522,7 +520,6 @@ void uiStratSynthDisp::displayPreStackDirSynthetic( const SyntheticData* sd )
     DPM(DataPackMgr::FlatID()).add( gdp );
 
     vwr.removeAllAuxData( true );
-
     vwr.setPack( false, gdp->id(), false ); 
     vwr.setPack( true, gdp->id(), false ); 
 }
@@ -637,6 +634,7 @@ const SeisTrcBuf& uiStratSynthDisp::postStackTraces(const PropertyRef* pr) const
     SyntheticData* sd = pr ? stratsynth_.getSynthetic(*pr) :currentsynthetic_;
 
     static SeisTrcBuf emptytb( true );
+
     if ( !sd || sd->isPS() ) return emptytb;
 
     const DataPack& dp = sd->getPack();
@@ -708,6 +706,7 @@ void uiStratSynthDisp::genSyntheticsFor( const Strat::LayerModel& lm ,
 	mErrRet( stratsynth_.errMsg(), return )
 }
 
+
 #define mChkPresent( nm )\
 {\
 if ( datalist_->box()->isPresent(nm) );\
@@ -761,10 +760,12 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
 }
 
 
-SyntheticData* uiStratSynthDisp::getCurrentSyntheticData() const
-{
-    return currentsynthetic_; 
+SyntheticData* uiStratSynthDisp::getCurrentSyntheticData() const        
+{                  
+    return currentsynthetic_;
 }
+
+
 
 
 uiSynthSlicePos::uiSynthSlicePos( uiParent* p, const char* lbltxt )
@@ -829,7 +830,6 @@ int uiSynthSlicePos::getValue() const
 
 
 
-
 uiSynthGenDlg::uiSynthGenDlg( uiParent* p, SynthGenParams& gp) 
     : uiDialog(p,uiDialog::Setup("Specify Synthetic Parameters",mNoDlgTitle,
 				 "103.4.4").modal(false))
@@ -845,9 +845,9 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, SynthGenParams& gp)
 			BoolInpSpec(true,"Post-Stack","Pre-Stack") );
     typefld_->valuechanged.notify( cb );
 
-    stackfld_ = new uiCheckBox( this, "Stack from Pre-Stack" );
-    stackfld_->activated.notify( cb );
-    stackfld_->attach( rightOf, typefld_ );
+    stackbox_ = new uiCheckBox( this, "Stack from Pre-Stack" );
+    stackbox_->activated.notify( cb );
+    stackbox_->attach( rightOf, typefld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Name separator" );
     sep->attach( stretchedBelow, typefld_ );
@@ -881,9 +881,9 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, SynthGenParams& gp)
 void uiSynthGenDlg::typeChg( CallBacker* )
 {
     const bool isps = !typefld_->getBoolValue();
-    stackfld_->display( !isps );
+    stackbox_->display( !isps );
     nmobox_->display( isps );
-    const bool needranges = isps || stackfld_->isChecked();
+    const bool needranges = isps || stackbox_->isChecked();
     rtsel_->current()->displayOffsetFlds( needranges );
     rtsel_->current()->setOffsetRange( uiRayTracer1D::Setup().offsetrg_ );
 }
@@ -902,12 +902,16 @@ void uiSynthGenDlg::getFromScreen()
     sd_.raypars_.setEmpty();
     rtsel_->fillPar( sd_.raypars_ );
     const bool isps = !typefld_->getBoolValue();
-    const bool dostack = stackfld_->isChecked();
+    const bool dostack = stackbox_->isChecked();
     if ( !isps && !dostack )
-	RayTracer1D::setIOParsToZeroOffset( sd_.raypars_ );
+    {
+	TypeSet<float> emptyset; emptyset += 0;
+	sd_.raypars_.set( RayTracer1D::sKeyOffset(), emptyset );
+    }
 
     sd_.raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), 
-				    nmobox_->isChecked() || isps );
+    nmobox_->isChecked() || isps );
+
     sd_.isps_ = isps; 
     sd_.name_ = namefld_->text();
 }
@@ -931,4 +935,5 @@ bool uiSynthGenDlg::genNewCB( CallBacker* )
     genNewReq.trigger();
     return true;
 }
+
 

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vismpeseedcatcher.cc,v 1.55 2012-08-03 06:38:40 cvsaneesh Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.52 2012/01/12 17:32:16 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -314,7 +314,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
     if ( !hor2d ) return;
 
-    const int lineidx = nodepid.getRowCol().row;
+    const int lineidx = RowCol( nodepid.subID() ).row;
     const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( lineidx );
     S2DPOS().setCurLineSet( geomid.lsid_ );
     BufferString linenm = S2DPOS().getLineName( geomid.lineid_ );

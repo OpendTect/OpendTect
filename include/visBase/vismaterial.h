@@ -7,21 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.22 2012-09-17 16:33:43 cvskris Exp $
+ RCS:		$Id: vismaterial.h,v 1.20 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "color.h"
 
 class SoMaterial;
-namespace osg {
-    class Material;
-    class Array;
-};
 
 namespace visBase
 {
@@ -31,7 +26,7 @@ namespace visBase
 
 */
 
-mClass(visBase) Material : public DataObject
+mClass Material : public DataObject
 {
 public:
     static Material*	create()
@@ -73,15 +68,11 @@ public:
     void		fillPar(IOPar&,TypeSet<int>&) const;
 
     int			nrOfMaterial() const;
-    
-    const osg::Array*	getColorArray() const;
-    const osg::Material* getMaterial() const;
 
 protected:
 			~Material();
     void		setMinNrOfMaterials(int);
     void		updateMaterial(int);
-    void		createArray();
 
     TypeSet<Color>	color_;
     TypeSet<float>	diffuseintencity_;
@@ -92,10 +83,7 @@ protected:
     float		emmissiveintensity_;
     float		shininess_;
 
-    SoMaterial*		coinmaterial_;
-    
-    osg::Material*	material_;
-    osg::Array*		colorarray_;
+    SoMaterial*		material_;
 
     static const char*	sKeyColor();
     static const char*	sKeyAmbience();
@@ -113,4 +101,3 @@ protected:
 
 
 #endif
-

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.98 2012-08-03 13:00:19 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.96 2011/08/24 22:14:19 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "bufstring.h"
 #include "callback.h"
 #include "cubesampling.h"
@@ -38,7 +37,7 @@ namespace EM
 {
 class EMManager;
 
-mClass(EarthModel) EMObjectCallbackData
+mClass EMObjectCallbackData
 {
 public:
     		EMObjectCallbackData() 
@@ -64,7 +63,7 @@ The object is created by EMObject::createIterator, and the next() function is
 called until no more positions can be found. */
 
 
-mClass(EarthModel) EMObjectIterator
+mClass EMObjectIterator
 {
 public:
     virtual		~EMObjectIterator() {}
@@ -77,7 +76,7 @@ public:
 };
 
 
-mClass(EarthModel) PosAttrib
+mClass PosAttrib
 {
 public:
     			PosAttrib()
@@ -98,7 +97,7 @@ public:
 
 /*!\brief Earth Model Object */
 
-mClass(EarthModel) EMObject : public CallBacker
+mClass EMObject : public CallBacker
 {
 mRefCountImplWithDestructor(EMObject,virtual ~EMObject(),
 { prepareForDelete(); delete this; } );
@@ -215,9 +214,9 @@ public:
     virtual bool		isLocked() const	{ return locked_; }
     virtual void		lock(bool yn)		{ locked_=yn;}
 
-    bool			isInsideSelRemoval() const
+    const bool			isInsideSelRemoval() const
 				{ return insideselremoval_; }
-    bool			isSelRemoving() const	{ return selremoving_; }
+    const bool			isSelRemoving() const	{ return selremoving_; }
 
     const char*			errMsg() const;
     void			setErrMsg(const char* m) { errmsg_ = m; }
@@ -339,4 +338,3 @@ void clss::setNewName() \
 */
 
 #endif
-

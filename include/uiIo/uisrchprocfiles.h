@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uisrchprocfiles.h,v 1.4 2012-08-03 13:01:01 cvskris Exp $
+ RCS:           $Id: uisrchprocfiles.h,v 1.3 2009/07/22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 
 class uiGenInput;
@@ -21,7 +20,7 @@ class CtxtIOObj;
 
 /*!\brief Finds created objects in processing specification files */
 
-mClass(uiIo) uiSrchProcFiles : public uiDialog
+mClass uiSrchProcFiles : public uiDialog
 {
 public:
 			uiSrchProcFiles(uiParent*,CtxtIOObj&,
@@ -45,4 +44,3 @@ protected:
 
 
 #endif
-

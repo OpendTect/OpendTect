@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		1-9-95
- RCS:		$Id: rawarray.h,v 1.8 2012-08-03 13:00:25 cvskris Exp $
+ RCS:		$Id: rawarray.h,v 1.7 2010/02/15 09:56:14 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
-#include "generalmod.h"
 #include "general.h"
 
 
 /*!\brief Raw binary data access.  */
 
-mClass(General) RawDataArray
+mClass RawDataArray
 {
 public:
 			RawDataArray( int byts=4 )
@@ -43,4 +42,3 @@ protected:
 
 
 #endif
-

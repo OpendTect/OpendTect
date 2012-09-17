@@ -8,13 +8,11 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswritemgr.h,v 1.19 2012-09-13 18:36:27 cvsnanne Exp $
+ RCS:		$Id: cbvswritemgr.h,v 1.17 2009/07/22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "generalmod.h"
 #include "cbvsio.h"
 #include "cbvsinfo.h"
 #include <iosfwd>
@@ -23,9 +21,8 @@ class CBVSWriter;
 
 /*!\brief Vertical bricking specification */
 
-mClass(General) VBrickSpec
+mStruct VBrickSpec
 {
-public:
 		VBrickSpec()		{ setStd(false); }
 
     void	setStd(bool yn_bricking=false);
@@ -37,7 +34,7 @@ public:
 
 /*!\brief Writer for CBVS file packs */
 
-mClass(General) CBVSWriteMgr : public CBVSIOMgr
+mClass CBVSWriteMgr : public CBVSIOMgr
 {
 public:
 
@@ -83,5 +80,3 @@ protected:
 
 
 #endif
-
-

@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	H. Huck
  Date:		Mar 2012
- RCS:		$Id: uiforminputsel.h,v 1.4 2012-08-31 13:17:29 cvshelene Exp $
+ RCS:		$Id: uiforminputsel.h,v 1.4 2012/08/31 12:31:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class BufferString;
@@ -21,7 +20,7 @@ class uiGenInput;
 class uiLabeledComboBox;
 class UnitOfMeasure;
 
-mClass(uiTools) uiFormInputSel : public uiGroup
+mClass uiFormInputSel : public uiGroup
 {
 public:
 
@@ -31,14 +30,11 @@ public:
 
     virtual void		use(MathExpression*);
     bool                        hasVarName(const char*) const;
-    BufferString		getVarName() const;
-
     const char*			getInput() const;
     void                        setUnit(const char*);
     const UnitOfMeasure*	getUnit() const;
     float			getCstVal() const;
     bool			isCst() const;
-    void			setCurSelIdx(int);
 
 protected:
 
@@ -50,8 +46,11 @@ protected:
     uiGenInput*         	cstvalfld_;
     const BufferStringSet&      posinpnms_;
     BufferString		varnm_;
+
+public:
+    BufferString                getVarName() const;
+    void                        setCurSelIdx(int);
 };
 
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.57 2012-08-03 13:00:07 cvskris Exp $
+ RCS:           $Id: attribdesc.h,v 1.55 2011/01/28 12:54:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "refcount.h"
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -32,7 +31,7 @@ class ValParam;
 typedef void(*DescStatusUpdater)(Desc&);
 typedef void(*DescDefaultsUpdater)(Desc&);
 
-mClass(AttributeEngine) DescSetup
+mClass DescSetup
 {
     public:
 				    DescSetup();
@@ -48,7 +47,7 @@ mClass(AttributeEngine) DescSetup
 };
 
 
-mClass(AttributeEngine) InputSpec
+mClass InputSpec
 {
 public:
     				InputSpec( const char* d, bool enabled )
@@ -77,7 +76,7 @@ public:
    Each Desc has DescID that is unique within it's DescSet.
  */
 
-mClass(AttributeEngine) Desc
+mClass Desc
 { mRefCountImpl(Desc);
 public:
 
@@ -93,10 +92,6 @@ public:
     void			setDescSet(DescSet*);
     DescSet*			descSet() const;
     DescID			id() const;
-    bool			getParentID(DescID cid,DescID& pid,int&) const;
-    void			getAncestorIDs(DescID cid,
-				TypeSet<Attrib::DescID>&,TypeSet<int>&) const;
-    				/*ordered from parent to oldest original*/
 
     bool			getDefStr(BufferString&) const;
     bool			parseDefStr(const char*);
@@ -318,6 +313,5 @@ protected:
     mGetFloatIntervalFromDesc( desc_, var, varstring )
 
 #endif
-
 
 

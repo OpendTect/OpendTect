@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.21 2012-08-03 13:00:39 cvskris Exp $
+ RCS:		$Id: wavelet.h,v 1.20 2012/02/09 12:21:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "seismod.h"
 #include "namedobj.h"
 #include "ranges.h"
 #include "transl.h"
@@ -21,7 +20,7 @@ class Conn;
 class IOObj;
 
 
-mClass(Seis) Wavelet : public NamedObject
+mClass Wavelet : public NamedObject
 {
 public:
 			Wavelet(const char* nm=0,int idxfsamp=0,
@@ -72,7 +71,7 @@ protected:
 };
 
 
-mClass(Seis) WaveletTranslatorGroup : public TranslatorGroup
+mClass WaveletTranslatorGroup : public TranslatorGroup
 {			       isTranslatorGroup(Wavelet)
 public:
     			mDefEmptyTranslatorGroupConstructor(Wavelet)
@@ -80,7 +79,7 @@ public:
     const char*		 defExtension() const		{ return "wvlt"; }
 };
 
-mClass(Seis) WaveletTranslator : public Translator
+mClass WaveletTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(Wavelet)
@@ -92,7 +91,7 @@ public:
 
 
 
-mClass(Seis) dgbWaveletTranslator : public WaveletTranslator
+mClass dgbWaveletTranslator : public WaveletTranslator
 {			     isTranslator(dgb,Wavelet)
 public:
     			mDefEmptyTranslatorConstructor(dgb,Wavelet)
@@ -103,7 +102,7 @@ public:
 };
 
 
-mClass(Seis) WaveletAscIO : public Table::AscIO
+mClass WaveletAscIO : public Table::AscIO
 {
 public:
     				WaveletAscIO( const Table::FormatDesc& fd )
@@ -118,4 +117,3 @@ public:
 
 
 #endif
-

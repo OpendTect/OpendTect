@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiodpicksettreeitem.cc,v 1.81 2012-07-31 04:07:06 cvskris Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.75 2012/06/20 17:41:45 cvsnanne Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -68,7 +68,12 @@ void uiODPickSetParentTreeItem::removeChild( uiTreeItem* child )
     const int idx = children_.indexOf( child );
     if ( idx<0 ) return;
 
+    mDynamicCastGet(uiODPickSetTreeItem*,itm,child)
+    const int setidx = Pick::Mgr().indexOf( itm->getSet() );
     uiTreeItem::removeChild( child );
+//    if ( setidx < 0 ) return;
+
+//    Pick::Mgr().set( Pick::Mgr().id(setidx), 0 );
 }
 
 
@@ -151,8 +156,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid<0 )
 	return false;
-
-    if ( mnuid==mLoadIdx || mnuid==mLoadPolyIdx )
+    else if ( mnuid==mLoadIdx || mnuid==mLoadPolyIdx )
     {
 	display_on_add = true;
 	TypeSet<MultiID> mids;
@@ -231,8 +235,8 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
     onlyatsectmnuitem_.checkable = true;
 
-    storemnuitem_.iconfnm = "save";
-    storeasmnuitem_.iconfnm = "saveas";
+    storemnuitem_.iconfnm = "save.png";
+    storeasmnuitem_.iconfnm = "saveas.png";
 }
 
 
@@ -284,19 +288,12 @@ bool uiODPickSetTreeItem::init()
 }
 
 
-void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
+void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
 {
-    uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() )
+    uiODDisplayTreeItem::createMenuCB(cb);
+    mDynamicCastGet( MenuHandler*, menu, cb );
+    if ( menu->menuID()!=displayID() )
 	return;
-
-    if ( istb )
-    {
-	const int setidx = Pick::Mgr().indexOf( set_ );
-	const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
-	mAddMenuItemCond( menu, &storemnuitem_, changed, false, changed );
-	return;
-    }
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));

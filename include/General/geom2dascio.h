@@ -7,19 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Sep 2010
- RCS:		$Id: geom2dascio.h,v 1.2 2012-08-03 13:00:23 cvskris Exp $
+ RCS:		$Id: geom2dascio.h,v 1.1 2010/09/30 06:39:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "generalmod.h"
 #include "tableascio.h"
 
 namespace PosInfo { class Line2DData; }
 namespace Table { class FormatDesc; }
 
-mClass(General) Geom2dAscIO : public Table::AscIO
+mClass Geom2dAscIO : public Table::AscIO
 {
 public:
 				Geom2dAscIO(const Table::FormatDesc&,
@@ -33,4 +32,3 @@ protected:
 };
 
 #endif
-

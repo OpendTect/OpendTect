@@ -7,15 +7,28 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellstratdisplay.cc,v 1.42 2012-08-10 03:50:08 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.40 2012/07/02 10:16:27 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
 #include "stratreftree.h"
 #include "uigraphicsscene.h"
+#include "welldata.h"
 #include "welldisp.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
+
+
+
+static ObjectSet<WellStratUnitGen> classinstances;
+static ObjectSet<const Well::Track> hiddentracks;
+
+static const Well::Track* hiddenTrack( const WellStratUnitGen* instance )
+{
+    const int idx = classinstances.indexOf( instance );
+    return idx<0 ? 0 : hiddentracks[idx];
+}
+
 
 uiWellStratDisplay::uiWellStratDisplay( uiParent* p )
     : uiWellDahDisplay(p,uiWellDahDisplay::Setup())
@@ -75,16 +88,32 @@ void uiWellStratDisplay::draw()
 
 
 
-
 WellStratUnitGen::WellStratUnitGen( StratDispData& data, 
-				    const Well::Data& wd )
+				    const Well::Data& wd ) 
     : data_(data)
-    , track_(wd.track())  
     , markers_(wd.markers())
     , d2tmodel_(wd.d2TModel())
 {
-    uidatagather_ = new uiStratTreeToDisp( data_, false, false );
+    uidatagather_ = new uiStratTreeToDispTransl( data_, false, false );
     uidatagather_->newtreeRead.notify(mCB(this,WellStratUnitGen,dataChangedCB));
+    classinstances += this;
+    hiddentracks += &wd.track();
+    gatherInfo();
+}
+
+
+
+WellStratUnitGen::WellStratUnitGen( StratDispData& data, 
+				    const ObjectSet<Well::Marker>& mrs, 
+				    const Well::D2TModel* d2t )
+    : data_(data)
+    , markers_(mrs)
+    , d2tmodel_(d2t)
+{
+    uidatagather_ = new uiStratTreeToDispTransl( data_, false, false );
+    uidatagather_->newtreeRead.notify(mCB(this,WellStratUnitGen,dataChangedCB));
+    classinstances += this;
+    hiddentracks += 0;
     gatherInfo();
 }
 
@@ -92,6 +121,8 @@ WellStratUnitGen::WellStratUnitGen( StratDispData& data,
 WellStratUnitGen::~WellStratUnitGen()
 {
     delete uidatagather_;
+    hiddentracks.remove( classinstances.indexOf(this) );
+    classinstances -= this;
 }
 
 
@@ -108,9 +139,10 @@ void WellStratUnitGen::gatherInfo()
 
 void WellStratUnitGen::gatherLeavedUnits()
 {
-    if ( markers_.isEmpty() ) return;
     posset_.erase(); leaveddispunits_.erase(); leavedunits_.erase();
     units_.erase(); dispunits_.erase();
+
+    if ( markers_.isEmpty() ) return;
     TypeSet<float> absunitpos;
     for ( int idcol=0; idcol<data_.nrCols(); idcol++ )
     {
@@ -119,6 +151,7 @@ void WellStratUnitGen::gatherLeavedUnits()
 	    StratDispData::Unit& unit = *data_.getUnit( idcol, idun );
 	    unit.isdisplayed_ = false;
 	    const Strat::UnitRef* ur = Strat::RT().find( unit.fullCode() );
+
 	    mDynamicCastGet( const Strat::NodeOnlyUnitRef*, nur,ur );
 	    if ( nur )
 	    {
@@ -126,27 +159,30 @@ void WellStratUnitGen::gatherLeavedUnits()
 		unit.zrg_.set( mUdf(float), mUdf(float) );
 		dispunits_ += &unit;
 	    }
+
 	    mDynamicCastGet( const Strat::LeavedUnitRef*, lur,ur );
 	    if ( !lur || lur->levelID() < 0)
 		continue;
+
 	    const Well::Marker* mrk = getMarkerFromLvlID( lur->levelID() );
+	    const Well::Track* trk = hiddenTrack(this);
 	    if ( mrk )
 	    {
 		float pos = mrk->dah();
 		if ( SI().zIsTime() && d2tmodel_ ) 
-		    pos = d2tmodel_->getTime(pos)*SI().zDomain().userFactor(); 
-		else
-		    pos = (float) track_.getPos( pos ).z;
+		    pos = d2tmodel_->getTime( pos )*SI().zFactor(); 
+		else if ( trk )
+		    pos = trk->getPos( pos ).z;
 
 		int idunit = 0;
-		for ( ; idunit<posset_.size(); idunit ++ )
+		for ( idunit; idunit<posset_.size(); idunit ++ )
 		{
 		    if ( unit.zrg_.stop < absunitpos[idunit] )
 			break;
 		}
 		leaveddispunits_.insertAt( &unit, idunit );
 		leavedunits_.insertAt( lur, idunit ); 
-		absunitpos.insert( idunit, unit.zrg_.stop ); 
+		absunitpos.insert( idunit, unit.zrg_.stop );
 		posset_.insert( idunit, pos );
 	    }
 	}
@@ -213,3 +249,5 @@ void WellStratUnitGen::assignTimesToAllUnits()
 	}
     }
 }
+
+

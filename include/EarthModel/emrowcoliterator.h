@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emrowcoliterator.h,v 1.5 2012-08-03 13:00:19 cvskris Exp $
+ RCS:		$Id: emrowcoliterator.h,v 1.4 2009/07/22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emsurface.h"
 #include "ranges.h"
 
@@ -22,7 +21,7 @@ namespace Geometry { class RowColSurface; }
 namespace EM
 {
 
-mClass(EarthModel) RowColIterator : public EMObjectIterator
+mClass RowColIterator : public EMObjectIterator
 {
 public:
     			RowColIterator(const Surface&,const SectionID&,
@@ -61,4 +60,3 @@ protected:
 
 
 #endif
-

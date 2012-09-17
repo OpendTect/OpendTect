@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gapdeconattrib.cc,v 1.28 2012-08-13 03:56:44 cvssalil Exp $";
+static const char* rcsID = "$Id: gapdeconattrib.cc,v 1.25 2012/07/10 13:05:58 cvskris Exp $";
 
 #include "gapdeconattrib.h"
 
@@ -79,9 +79,8 @@ static inline float* makeHilbFilt( int hlen )
     h[hlen] = 0;
     for ( int i=1; i<=hlen; i++ )
     {
-	const float taper = (float) (0.54 + 0.46 * 
-										cos( M_PI*(float)i / (float)(hlen) ));
-	h[hlen+i] = (float) (taper * ( -(float)(i%2)*2.0 / (M_PI*(float)(i)) ));
+	const float taper = 0.54 + 0.46 * cos( M_PI*(float)i / (float)(hlen) );
+	h[hlen+i] = taper * ( -(float)(i%2)*2.0 / (M_PI*(float)(i)) );
 	h[hlen-i] = -h[hlen+i];
     }
 
@@ -165,7 +164,7 @@ GapDecon::GapDecon( Desc& desc )
     if ( !isOK() ) return;
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1.f/zFactor() );
+    gate_.scale( 1./zFactor() );
     if ( !SI().zRange(true).includes(gate_.start,false) )
 	gate_.start = SI().zRange(true).start;
     if ( !SI().zRange(true).includes(gate_.stop,false) )
@@ -276,7 +275,7 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     if ( mIsZero( autocorr[0], 0.001 ) )
 	return false;
 
-    float scale = 1.f/autocorr[0];
+    float scale = 1./autocorr[0];
     for ( int idx=0; idx<safelcorr; idx++)  
 	autocorr[idx] *= scale;
 

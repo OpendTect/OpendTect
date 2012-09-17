@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visgeomindexedshape.cc,v 1.39 2012-08-13 09:36:57 cvsaneesh Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.33 2012/07/10 13:06:09 cvskris Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -245,6 +245,7 @@ void GeomIndexedShape::setDataSequence( const ColTab::Sequence& seq )
 	    ctab_->coltab_->setColor( col, idx+1 );
 	}
 
+	const Color col = seq.undefColor();
 	ctab_->coltab_->setColor( seq.undefColor(), mUndefMaterial+1 );
     }
 }
@@ -480,8 +481,7 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,TaskRunner*) const
 	    break;
 
 	const Coord3 pos = coords_->getPos( coordid );
-	DataPointSet::Pos dpsetpos( BinID(mNINT32(pos.x),mNINT32(pos.y)), 
-							    (float) pos.z );
+	DataPointSet::Pos dpsetpos( BinID(mNINT32(pos.x),mNINT32(pos.y)), pos.z );
 	DataPointSet::DataRow datarow( dpsetpos, 1 );
 	datarow.data_.setSize( set.nrCols(), mUdf(float) );
 	datarow.data_[col-set.nrFixedCols()] =  coordid;

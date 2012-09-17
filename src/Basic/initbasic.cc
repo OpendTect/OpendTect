@@ -7,15 +7,31 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initbasic.cc,v 1.4 2012-05-22 14:48:29 cvskris Exp $";
+static const char* rcsID = "$Id: initbasic.cc,v 1.2 2012/04/25 11:40:50 cvsbert Exp $";
 
 #include "moddepmgr.h"
 
 #define OD_EXT_KEYSTR_EXPAND 1
+
+#define mKeyStrsNameSpace(ns) namespace ns
+#ifdef __msvc__
+# define mKeyStrsDecl(nm,str) mBasicExtern FixedString nm = str
+#else
+# define mKeyStrsDecl(nm,str) FixedString nm = str
+#endif
 
 #include "keystrs.h"
 
 mDefModInitFn(Basic)
 {
     mIfNotFirstTime( return );
+
+#undef keystrs_h
+# define mKeyStrsNameSpace(ns) /* empty */
+# define mKeyStrsDecl(nm,str) \
+        static const char* backup_str_for_##nm = str; \
+        sKey::nm = backup_str_for_##nm
+
+#include "keystrs.h"
+
 }

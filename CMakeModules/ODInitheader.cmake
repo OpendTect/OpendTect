@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODInitheader.cmake,v 1.6 2012-08-31 07:55:24 cvskris Exp $
+#	RCS :		$Id: ODInitheader.cmake,v 1.4 2012/03/19 13:42:45 cvskris Exp $
 #_______________________________________________________________________________
 
 # OD_CREATE_INIT_HEADER
@@ -15,31 +15,16 @@ MACRO( OD_CREATE_INIT_HEADER )
     STRING ( TOUPPER ${OD_MODULE_NAME} OD_MODULE_NAME_UPPER )
     STRING ( TOLOWER ${OD_MODULE_NAME} OD_MODULE_NAME_LOWER )
 
-    if ( OD_IS_PLUGIN )
-	set ( INCLUDEDIR ${CMAKE_SOURCE_DIR}/plugins/${OD_MODULE_NAME} )
-    else ()
-	if ( EXISTS ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
-	    set ( INCLUDEDIR ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
-	else()
-	    if ( EXISTS ${CMAKE_SOURCE_DIR}/spec/${OD_MODULE_NAME} )
-		set ( INCLUDEDIR ${CMAKE_SOURCE_DIR}/spec/${OD_MODULE_NAME} )
-	    endif()
-	endif()
-    endif ()
+    IF ( OD_IS_PLUGIN )
+	SET( INCLUDEDIR ${CMAKE_SOURCE_DIR}/plugins/${OD_MODULE_NAME} )
+    ELSE()
+	SET( INCLUDEDIR ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
+    ENDIF()
 
-    if ( EXISTS ${INCLUDEDIR} )
-	set ( INITHEADER ${INCLUDEDIR}/${OD_MODULE_NAME_LOWER}mod.h )
-	set ( EXPORTHEADER ${OD_MODULE_NAME_LOWER}export.h )
-	if ( EXISTS ${INCLUDEDIR}/${EXPORTHEADER} )
-	    set ( MODFILEHEADER "#include \"${EXPORTHEADER}\"" )
-	endif()
-
-	foreach ( DEP ${OD_MODULE_DEPS} )
-	    string ( TOLOWER ${DEP} DEPLOWER )
-	    set ( MODFILEHEADER "${MODFILEHEADER}${OD_NEWLINE}#include \"${DEPLOWER}mod.h\"" )
-	endforeach()
+    IF ( EXISTS ${INCLUDEDIR} )
+	SET( INITHEADER ${INCLUDEDIR}/init${OD_MODULE_NAME_LOWER}.h )
 
 	CONFIGURE_FILE( ${OpendTect_DIR}/CMakeModules/templates/initheader.h.in 
 			${INITHEADER} )
-    endif ()
+    ENDIF()
 ENDMACRO()

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.21 2012-08-03 13:01:02 cvskris Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.19 2011/05/02 06:10:01 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uimpemod.h"
 #include "color.h"
 #include "draw.h"
 #include "valseriesevent.h"
@@ -39,7 +38,7 @@ class SectionTracker;
 
 /*!\brief Horizon tracking setup dialog. */
 
-mClass(uiMPE) uiHorizonSetupGroup : public uiSetupGroup
+mClass uiHorizonSetupGroup : public uiSetupGroup
 {
 public:
     //static void			initClass();
@@ -53,7 +52,7 @@ public:
     void			setAttribSet(const Attrib::DescSet*);
 
     void                        setMode(const EMSeedPicker::SeedModeOrder);
-    int		                getMode();
+    const int                   getMode();
     void                        setColor(const Color&);
     const Color&                getColor();
     void                        setMarkerStyle(const MarkerStyle3D&);
@@ -142,7 +141,7 @@ protected:
 };
 
 
-mClass(uiMPE) uiBaseHorizonSetupGroup : public uiHorizonSetupGroup
+mClass uiBaseHorizonSetupGroup : public uiHorizonSetupGroup
 {
 public:
     static void			initClass();
@@ -159,4 +158,3 @@ protected:
 } // namespace MPE
 
 #endif
-

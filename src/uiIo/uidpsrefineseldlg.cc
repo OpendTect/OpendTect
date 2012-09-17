@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpsrefineseldlg.cc,v 1.6 2012-09-05 06:43:51 cvsmahant Exp $: 
+ RCS:           $Id: uidpsrefineseldlg.cc,v 1.2 2011/07/11 11:50:16 cvssatyaki Exp $: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidpsrefineseldlg.cc,v 1.6 2012-09-05 06:43:51 cvsmahant Exp $";
+static const char* rcsID = "$Id: uidpsrefineseldlg.cc,v 1.2 2011/07/11 11:50:16 cvssatyaki Exp $";
 
 
 #include "uidpsrefineseldlg.h"
@@ -116,7 +116,7 @@ void uiDPSRefineSelDlg::updateDisplay()
     {
 	uiComboBox* varsel = new uiComboBox( 0, colnms_, "Variable");
 	if ( !dcolids_.isEmpty() && dcolids_.validIdx(idx) )
-	   varsel->setCurrentItem( cColIds(dcolids_[idx]) );
+	    varsel->setCurrentItem( cColIds(dcolids_[idx]) );
 	vartable_->setRowLabel( idx, mathobj_->uniqueVarName(idx) );
 	vartable_->setCellObject( RowCol(idx,0), varsel );
     }

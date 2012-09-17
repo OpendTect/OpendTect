@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapack.cc,v 1.13 2012-08-01 06:15:42 cvsmahant Exp $";
+static const char* rcsID = "$Id: datapack.cc,v 1.9 2011/01/11 11:47:27 cvsbert Exp $";
 
 #include "datapack.h"
 #include "ascstream.h"
@@ -12,13 +12,13 @@ static const char* rcsID mUnusedVar = "$Id: datapack.cc,v 1.13 2012-08-01 06:15:
 #include "keystrs.h"
 #include <iostream>
 
-DataPackMgr::ID DataPackMgr::BufID()		{ return 1; }
-DataPackMgr::ID DataPackMgr::PointID()		{ return 2; }
-DataPackMgr::ID DataPackMgr::CubeID()		{ return 3; }
-DataPackMgr::ID DataPackMgr::FlatID()		{ return 4; }
-DataPackMgr::ID DataPackMgr::SurfID()		{ return 5; }
+const DataPackMgr::ID DataPackMgr::BufID()	{ return 1; }
+const DataPackMgr::ID DataPackMgr::PointID()	{ return 2; }
+const DataPackMgr::ID DataPackMgr::CubeID()	{ return 3; }
+const DataPackMgr::ID DataPackMgr::FlatID()	{ return 4; }
+const DataPackMgr::ID DataPackMgr::SurfID()	{ return 5; }
 const char* DataPack::sKeyCategory()		{ return "Category"; }
-float DataPack::sKb2MbFac()			{ return 0.0009765625; }
+const float DataPack::sKb2MbFac()		{ return 0.0009765625; }
 
 
 DataPack::ID DataPack::getNewID()
@@ -294,7 +294,7 @@ void DataPackMgr::dumpInfoFor( DataPack::ID dpid, IOPar& iop ) const
 void DataPack::dumpInfo( IOPar& iop ) const
 {
     iop.set( sKeyCategory(), category() );
-    iop.set( sKey::Name(), name() );
+    iop.set( sKey::Name, name() );
     iop.set( "Pack.ID", id_ );
     iop.set( "Nr users", nrusers_ );
     iop.set( "Memory consumption (KB)", nrKBytes() );

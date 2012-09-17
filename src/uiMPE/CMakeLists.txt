@@ -2,7 +2,7 @@
 #
 #	Makefile: 	ui- MPE
 # 	May 2002	Nanne Hemstra
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-23 20:55:23 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.1 2012/01/23 20:55:23 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiAttributes MPEEngine )

@@ -4,7 +4,7 @@
  * DATE     : Nov 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uigoogleexp2dlines.cc,v 1.18 2012-07-31 04:22:41 cvskris Exp $";
+static const char* rcsID = "$Id: uigoogleexp2dlines.cc,v 1.15 2011/04/08 12:37:10 cvsbert Exp $";
 
 #include "uigoogleexp2dlines.h"
 #include "googlexmlwriter.h"
@@ -26,6 +26,9 @@ static const char* rcsID mUnusedVar = "$Id: uigoogleexp2dlines.cc,v 1.18 2012-07
 #include "bendpointfinder.h"
 #include "latlong.h"
 #include <iostream>
+
+static const char* sIconFileName = "markerdot";
+
 
 uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     : uiDialog(p,uiDialog::Setup("Export selected 2D seismics to KML",

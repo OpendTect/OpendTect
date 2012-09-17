@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: attribdescsettr.cc,v 1.14 2012-05-22 14:48:29 cvskris Exp $";
+static const char* rcsID = "$Id: attribdescsettr.cc,v 1.11 2011/02/01 11:34:01 cvsbert Exp $";
 
 #include "attribdescsettr.h"
 #include "ascstream.h"
@@ -50,7 +50,7 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
 	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(false); return false; }
-    ioobj->pars().set( sKey::Type(), ads.is2D() ? "2D" : "3D" );
+    ioobj->pars().set( sKey::Type, ads.is2D() ? "2D" : "3D" );
     IOM().commitChanges( *ioobj );
     bs = tr->write( ads, *conn );
     return bs.isEmpty();

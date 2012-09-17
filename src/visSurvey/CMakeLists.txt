@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Visualisation - OpendTect Specific
 # 	Jan 2002	K. Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-24 13:51:14 cvskris Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.1 2012/01/24 13:51:14 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS visBase EarthModel MPEEngine Well )

@@ -4,7 +4,7 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: vispointsetdisplay.cc,v 1.19 2012-06-26 08:59:34 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.17 2012/06/26 09:49:27 cvssatyaki Exp $";
 
 #include "randcolor.h"
 #include "selector.h"
@@ -118,6 +118,7 @@ void PointSetDisplay::update()
 	const float transp = (float)col.t();
 	pointset_->getMaterial()->setTransparency( transp/(float)255, ptidx );
     }
+
 }
 
 
@@ -175,28 +176,5 @@ void PointSetDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
     eventcatcher_ = nevc;
     eventcatcher_->ref();
 }
-
-/*void PointSetDisplay::eventCB( CallBacker* cb )
-{
-    if ( !isOn() || isLocked() ) return;
-
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-
-    if ( eventinfo.buttonstate_ != OD::RightButton )
-	return;
-
-    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
-    {
-	const DataObject* pickedobj =
-	    visBase::DM().getObject(eventinfo.pickedobjids[idx]);
-	mDynamicCastGet(const visBase::PointSet*,pointset,pickedobj);
-	if ( !pointset ) continue;
-
-	//if ( pointset_ == pointset )
-	    selpointsetidx_ = pidx;
-    }
-
-}*/
-
 
 } //namespace visSurvey

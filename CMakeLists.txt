@@ -6,13 +6,10 @@
 #_______________________________________________________________________________
 
 cmake_minimum_required (VERSION 2.6)
+PROJECT(OpendTect)
 
-SET (OpendTect_VERSION_MAJOR 4)
-SET (OpendTect_VERSION_MINOR 5)
-SET (OpendTect_VERSION_DETAIL 0)
-
-PROJECT( "OpendTect_${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )
-
+#Dummy statement to avoid warning if OSG_DIR is set
+SET ( DUMMY_VAR ${OSG_DIR} )
 
 INCLUDE(CTest)
 
@@ -27,6 +24,9 @@ ENDIF()
 SET(OD_DGB_DIR "" CACHE PATH
 	"Place where closed source part is found")
 
+SET (OpendTect_VERSION_MAJOR 4)
+SET (OpendTect_VERSION_MINOR 4)
+
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules")
 
 
@@ -36,13 +36,13 @@ INCLUDE ( ODInternal )
 SET (OD_SUBSYSTEM ${OD_CORE_SUBSYSTEM} )
 
 SET(OD_MODULES
-	Basic Algo General Database
+	Basic Algo Database General
 	Strat Network Batch Usage
 	Geometry EarthModel MMProc Seis
 	NLA AttributeEngine Velocity
 	VolumeProcessing PreStackProcessing Attributes
 	EMAttrib MPEEngine Well WellAttrib
-	uiBase uiTools uiCmdDriver uiFlatView uiIo uiSysAdm
+	uiBase uiTools uiFlatView uiIo uiSysAdm
 	uiNLA uiSeis uiStrat uiEarthModel uiWell
 	uiVelocity uiVolumeProcessing uiPreStackProcessing
 	uiAttributes uiEMAttrib uiMPE uiViewer2D uiWellAttrib
@@ -55,43 +55,44 @@ SET( OD_PLUGINS
 	Bouncy
 	ExpAttribs
 	GapDecon
-	GoogleTranslate
 	GMT
+	uiGMT
+	GoogleTranslate
 	Hello
 	HorizonAttrib
 	Madagascar
 	MadagascarAttribs
+	Tut
 	VoxelConnectivityFilter
 	uiBouncy
 	uiDPSDemo
 	uiExpAttribs
 	uiGapDecon
-	uiGMT
 	uiGoogleIO
-	uiGrav
 	uiHello
 	uiHorizonAttrib
 	uiImpGPR
 	uiMadagascar
-	uiMadagascarAttribs
-	#uiQtApp
+        uiTut
 	uiTutMadagascar
+	uiMadagascarAttribs
+	uiQtApp
 	uiVoxelConnectivityFilter
 	uiPreStackViewer
 	CmdDriver )
 
-
-SET( OD_SPECPROGS ODSeis )
+SET( OD_SPECPROGS ODGeneral ODSeis )
 
 OD_ADD_MODULES( src ${OD_MODULES} )
 OD_ADD_MODULES( plugins ${OD_PLUGINS} )
 OD_ADD_MODULES( spec ${OD_SPECPROGS} )
-OD_ADD_MODULES( test testGeneral )
+OD_ADD_MODULES( tests testGeneral )
 
-OD_WRITE_MODDEPS( ${OD_BINARY_BASEDIR}/data )
+OD_WRITE_MODDEPS( ${OD_BINARY_BASEDIR}/data/ )
 OD_WRITE_FINDFILE()
-OD_WRITE_TEST_PROJECT_DESC( ${OD_BINARY_BASEDIR}/test )
 OD_WRITE_ALOFILES( ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR} )
+
+OD_SIGN_TARGETS()
 
 IF( BUILD_DOCUMENTATION )
     OD_BUILD_DOCUMENTATION()

@@ -1,10 +1,10 @@
-	/*/+
+/*/+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: task.cc,v 1.37 2012-07-09 22:38:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.32 2012/07/09 20:58:37 cvskris Exp $";
 
 #include "task.h"
 
@@ -13,8 +13,6 @@ static const char* rcsID mUnusedVar = "$Id: task.cc,v 1.37 2012-07-09 22:38:35 c
 #include "varlenarray.h"
 #include "progressmeter.h"
 #include "ptrman.h"
-
-#include <limits.h>
 
 
 Task::Task( const char* nm )
@@ -369,10 +367,9 @@ bool ParallelTask::execute( bool parallel )
     if ( !size ) return true;
 
     ArrPtrMan<ParallelTaskRunner> runners = new ParallelTaskRunner[nrthreads];
-    mAllocVarLenArr( Threads::Work, tasks, nrthreads );
 
     od_int64 start = 0;
-    int nrtasks = 0;
+    TypeSet<Threads::Work> tasks;
     for ( int idx=nrthreads-1; idx>=0; idx-- )
     {
 	if ( start>=size )
@@ -383,25 +380,23 @@ bool ParallelTask::execute( bool parallel )
 	    continue;
 
 	const od_int64 stop = start + threadsize-1;
-	runners[nrtasks].set( this, start, stop, idx );
-	tasks[nrtasks] = mWMT(&runners[idx],ParallelTaskRunner,doRun);
-	
-	nrtasks++;
+	runners[idx].set( this, start, stop, idx );
+	tasks += mWMT(&runners[idx],ParallelTaskRunner,doRun);
 	start = stop+1;
     }
 
-    if ( !doPrepare( nrtasks ) )
+    if ( !doPrepare( tasks.size() ) )
 	return false;
 
     bool res;
-    if ( nrtasks<2 )
+    if ( tasks.size()<2 )
 	res = doWork( 0, nriterations-1, 0 );
     else
     {
 	if ( stopAllOnFailure() )
 	    enableWorkControl( true );
 
-	res = twm.executeWork( tasks, nrtasks );
+	res = twm.addWork( tasks, twm.cDefaultQueueID() );
     }
 
     res = doFinish( res );
@@ -410,23 +405,12 @@ bool ParallelTask::execute( bool parallel )
 }
 
 
-int ParallelTask::maxNrThreads() const
-{
-    const od_int64 res = nrIterations();
-    if ( res>INT_MAX )
-        return INT_MAX;
-    
-    return (int) res;
-}
-
-
 od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
 				            int idx ) const
 {
     if ( nrthreads==1 ) return totalnr;
 
-    const od_int64 idealnrperthread =
-    	mNINT64((float) (totalnr/(od_int64) nrthreads));
+    const od_int64 idealnrperthread = mNINT64((float) totalnr/nrthreads);
     const od_int64 nrperthread = idealnrperthread<minThreadSize()
 	?  minThreadSize()
 	: idealnrperthread;

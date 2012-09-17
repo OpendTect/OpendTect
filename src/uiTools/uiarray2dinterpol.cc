@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiarray2dinterpol.cc,v 1.20 2012-05-22 14:48:41 cvskris Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.17 2011/09/30 17:52:02 cvsyuancheng Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -206,7 +206,7 @@ void uiArray2DInterpolSel::fillPar( IOPar& iopar ) const
     if ( !result_ )
 	return;
 
-    iopar.set( sKey::Name(), methodsel_->text() );
+    iopar.set( sKey::Name, methodsel_->text() );
     result_->fillPar( iopar );
 }
 

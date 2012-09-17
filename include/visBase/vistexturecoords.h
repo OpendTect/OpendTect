@@ -7,16 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexturecoords.h,v 1.13 2012-09-05 14:53:44 cvskris Exp $
+ RCS:		$Id: vistexturecoords.h,v 1.11 2011/04/28 07:00:12 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "positionlist.h"
-#include "viscoord.h"
 
 class SoTextureCoordinate3;
 class Coord3;
@@ -30,7 +28,7 @@ namespace visBase
 
 */
 
-mClass(visBase) TextureCoords : public DataObject
+mClass TextureCoords : public DataObject
 {
 public:
     static TextureCoords*	create()
@@ -46,16 +44,12 @@ public:
 
     int				nextID(int previd) const;
 
-    osg::Array*			osgArray() { return osgcoords_; }
-    const osg::Array*		osgArray() const { return osgcoords_; }
-
 protected:
     				~TextureCoords();
     int				getFreeIdx();
     				/*!< Object should be locked before calling */
 
     SoTextureCoordinate3*	coords_;
-    osg::Array*			osgcoords_;
     TypeSet<int>		unusedcoords_;
     Threads::Mutex&		mutex_;
 
@@ -64,7 +58,7 @@ protected:
 };
 
 
-mClass(visBase) TextureCoordListAdapter : public Coord3List
+mClass TextureCoordListAdapter : public Coord3List
 {
 public:
     			TextureCoordListAdapter(TextureCoords&);
@@ -87,4 +81,3 @@ protected:
 }; //namespace
 
 #endif
-

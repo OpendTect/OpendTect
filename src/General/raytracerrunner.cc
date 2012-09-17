@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: raytracerrunner.cc,v 1.12 2012-05-02 15:11:35 cvskris Exp $";
+static const char* rcsID = "$Id: raytracerrunner.cc,v 1.10 2012/01/17 16:09:27 cvsbruno Exp $";
 
 
 #include "raytracerrunner.h"

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.81 2012-08-07 04:00:21 cvsmahant Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.77 2012/01/05 06:28:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiapplserv.h"
 
 #include "attribdescid.h"
@@ -60,7 +59,7 @@ template <class T> class Array3D;
 
 /*! \brief Service provider for application level - Attributes */
 
-mClass(uiAttributes) uiAttribPartServer : public uiApplPartServer
+mClass uiAttribPartServer : public uiApplPartServer
 {
 public:
 			uiAttribPartServer(uiApplService&);
@@ -68,26 +67,26 @@ public:
 
     const char*		name() const			{ return "Attributes"; }
 
-    static int		evDirectShowAttr();
+    static const int	evDirectShowAttr();
     			//!< User requested direct redisplay of curAttrDesc()
-    static int		evNewAttrSet();
+    static const int	evNewAttrSet();
     			//!< FYI
-    static int		evAttrSetDlgClosed();
+    static const int	evAttrSetDlgClosed();
     			//!< AttributeSet window closes
-    static int		evEvalAttrInit();
+    static const int	evEvalAttrInit();
     			//!< Initialization of evaluation dialog
-    static int		evEvalCalcAttr();
+    static const int	evEvalCalcAttr();
     			//!< User wants to evaluate current attribute
-    static int		evEvalShowSlice();
+    static const int	evEvalShowSlice();
     			//!< Display slice
-    static int		evEvalStoreSlices();
+    static const int	evEvalStoreSlices();
     			//!< Store slices
-    static int		evEvalRestore();
+    static const int	evEvalRestore();
     			//!< Update name in tree after evaluation dlg closed
 			//!< And restore mapper
-    static int		objNLAModel2D();
+    static const int	objNLAModel2D();
     			//!< Request current 2D NLAModel* via getObject()
-    static int		objNLAModel3D();
+    static const int	objNLAModel3D();
     			//!< Request current 3D NLAModel* via getObject()
 
     void		manageAttribSets();
@@ -220,12 +219,10 @@ protected:
     void		directShowAttr(CallBacker*);
 
     void		showEvalDlg(CallBacker*);
-    void		showCrossEvalDlg(CallBacker*);
     void		calcEvalAttrs(CallBacker*);
     void		showSliceCB(CallBacker*);
     void		evalDlgClosed(CallBacker*);
     void		xplotClosedCB(CallBacker*);
-    void		processEvalDlg(bool iscrossevaluate);
 
     void		attrsetDlgClosed(CallBacker*);
     void		attrsetDlgCloseTimTick(CallBacker*);
@@ -290,4 +287,3 @@ protected:
 
 
 #endif
-

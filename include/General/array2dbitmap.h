@@ -6,13 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.23 2012-08-07 05:20:49 cvssalil Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.20 2009/09/03 09:52:46 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "generalmod.h"
 #include "ranges.h"
 #include "arraynd.h"
 #include "dataclipper.h"
@@ -24,7 +22,7 @@ typedef Array2D<char>	A2DBitMap;
 
 /*! \brief Array2D Bitmap generation parameters */
 
-mStruct(General) A2DBitMapGenPars
+mStruct A2DBitMapGenPars
 {
 		A2DBitMapGenPars()
 		  : nointerpol_(false)
@@ -44,14 +42,14 @@ mStruct(General) A2DBitMapGenPars
     float	midvalue_;	//!< if mUdf(float), use the median data value
     Interval<float> scale_;	//!< Used when autoscale_ is false
 
-    static char cNoFill();	//!< -127, = background/transparent
+    static const char cNoFill();	//!< -127, = background/transparent
 
 };
 
 
 /*! \brief Array2D<float>& + statistics */
 
-mClass(General) A2DBitMapInpData
+mClass A2DBitMapInpData
 {
 public:
 
@@ -107,7 +105,7 @@ need a (usually linear) transformation in both directions for display.
 */
 
 
-mClass(General) A2DBitMapPosSetup
+mClass A2DBitMapPosSetup
 {
 public:
 
@@ -133,7 +131,7 @@ public:
     inline float	avgDist( int dim ) const
     			{ return dim ? dim1avgdist_ : dim0avgdist_; }
     inline float	dimEps( int dim ) const
-			{ return 1e-6f * avgDist(dim); }
+			{ return 1e-6 * avgDist(dim); }
 
     void		setBitMapSizes(int,int) const;
     inline int		nrXPix() const		{ return nrxpix_; }
@@ -182,7 +180,7 @@ protected:
 
 /*!\brief Generates Array2D bitmap from Array2D<float> */
 
-mClass(General) A2DBitMapGenerator
+mClass A2DBitMapGenerator
 {
 public:
 
@@ -240,5 +238,3 @@ protected:
 
 
 #endif
-
-

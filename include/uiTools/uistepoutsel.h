@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uistepoutsel.h,v 1.15 2012-08-03 13:01:15 cvskris Exp $
+ RCS:           $Id: uistepoutsel.h,v 1.14 2012/01/11 06:53:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "position.h"
 #include "rowcol.h"
@@ -25,7 +24,7 @@ class uiSpinBox;
  
  */
 
-mClass(uiTools) uiStepOutSel : public uiGroup
+mClass uiStepOutSel : public uiGroup
 {
 public:
 
@@ -88,7 +87,7 @@ private:
 
 /*! \brief allows selection of stepouts, extension to third direction (Z). */
 
-mClass(uiTools) uiStepout3DSel : public uiStepOutSel                                      
+mClass uiStepout3DSel : public uiStepOutSel                                      
 {                                                                               
 public:                                                                         
 
@@ -114,4 +113,3 @@ protected:
 
 
 #endif
-

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolorseq.h,v 1.12 2012-08-03 13:01:23 cvskris Exp $
+ RCS:		$Id: viscolorseq.h,v 1.11 2009/07/22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "callback.h"
 #include "visdata.h"
 
@@ -28,7 +27,7 @@ ColorSequence describes a basic sequence of colors on a scale ranging from zero
 to one.
 */
 
-mClass(visBase) ColorSequence : public DataObject
+mClass ColorSequence : public DataObject
 {
 public:
     static ColorSequence*	create()
@@ -57,4 +56,3 @@ protected:
 
 
 #endif
-

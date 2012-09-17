@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Feb 2012
- RCS:		$Id: rockphysics.h,v 1.8 2012-08-03 13:00:25 cvskris Exp $
+ RCS:		$Id: rockphysics.h,v 1.7 2012/04/13 14:36:57 cvshelene Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "generalmod.h"
 #include "propertyref.h"
 #include "repos.h"
 class MathProperty;
@@ -34,7 +33,7 @@ Aliases are matched with a GlobExpr, so you can add with wildcards and the like.
 namespace RockPhysics
 {
 
-mClass(General) Formula : public NamedObject
+mClass Formula : public NamedObject
 {
 public:
 
@@ -55,7 +54,7 @@ public:
     inline bool		hasPropType( PropType t ) const
 						{ return type_ == t; }
 
-    mClass(General) ConstDef : public NamedObject
+    mClass ConstDef : public NamedObject
     {
     public:
 			ConstDef( const char* nm )
@@ -64,9 +63,9 @@ public:
 			    , defaultval_(mUdf(float))	{}
 	BufferString	desc_;
 	Interval<float>	typicalrg_;
-	float defaultval_;
+	float		defaultval_;
     };
-    mClass(General) VarDef : public NamedObject
+    mClass VarDef : public NamedObject
     {
     public:
 			VarDef( const char* nm, PropType t )
@@ -94,7 +93,7 @@ public:
 };
 
 
-mClass(General) FormulaSet : public ObjectSet<const Formula>
+mClass FormulaSet : public ObjectSet<const Formula>
 {
 public:
     			~FormulaSet()
@@ -120,10 +119,9 @@ public:
 
 } // namespace RockPhysics
 
-mGlobal(General) const RockPhysics::FormulaSet& ROCKPHYSFORMS();
-mGlobal(General) inline RockPhysics::FormulaSet& eROCKPHYSFORMS()
+mGlobal const RockPhysics::FormulaSet& ROCKPHYSFORMS();
+mGlobal inline RockPhysics::FormulaSet& eROCKPHYSFORMS()
 { return const_cast<RockPhysics::FormulaSet&>( ROCKPHYSFORMS() ); }
 
 
 #endif
-

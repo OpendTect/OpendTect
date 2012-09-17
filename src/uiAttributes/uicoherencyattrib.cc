@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicoherencyattrib.cc,v 1.25 2012-05-02 15:11:57 cvskris Exp $";
+static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.23 2010/04/20 18:09:13 cvskris Exp $";
 
 #include "uicoherencyattrib.h"
 #include "coherencyattrib.h"

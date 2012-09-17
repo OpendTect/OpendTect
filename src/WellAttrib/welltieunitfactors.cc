@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltieunitfactors.cc,v 1.43 2012-08-07 05:20:51 cvssalil Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.40 2011/07/28 08:11:37 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 #include "unitofmeasure.h"
@@ -50,14 +50,14 @@ const UnitOfMeasure* UnitFactors::getUOM( const Well::Log& log ) const
 double UnitFactors::calcSonicVelFactor( const char* velunit ) const
 {
     const UnitOfMeasure* um = UoMR().get( velunit );
-    return um ? um->userValue( 1.0 ) : 0.001*mFromFeetFactorF;
+    return um ? um->userValue( 1.0 ) : 0.001*mFromFeetFactor;
 }
 
 
 double UnitFactors::calcVelFactor( const char* velunit ) const
 {
     const UnitOfMeasure* um = UoMR().get( velunit );
-    return um ? um->userValue( 1.0 ) : 1000/mFromFeetFactorF;
+    return um ? um->userValue( 1.0 ) : 1000/mFromFeetFactor;
 }
 
 

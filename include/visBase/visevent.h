@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.30 2012-08-03 13:01:24 cvskris Exp $
+ RCS:		$Id: visevent.h,v 1.28 2011/09/29 15:59:37 cvsjaap Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
 #include "keyenum.h"
 #include "visdata.h"
 #include "position.h"
@@ -21,9 +20,6 @@ ________________________________________________________________________
 
 class SoEventCallback;
 class TabletInfo;
-
-namespace osg { class Node; }
-
 
 namespace visBase
 {
@@ -33,13 +29,12 @@ namespace visBase
 
 */
 
-class EventCatchHandler;
 class Detail;
 
 
 enum EventType		{ Any=7, MouseClick=1, Keyboard=2, MouseMovement=4 };
 
-mClass(visBase) EventInfo
+mClass EventInfo
 {
 public:
     				EventInfo();
@@ -52,44 +47,41 @@ public:
 
     OD::ButtonState		buttonstate_;
 
-    Coord			mousepos;
-
     Line3			mouseline;
     				/*!< The line projected from the mouse-position
-				     into the scene. Line is in worldcoords.
+    						into the scene. The line is
+						in world coordinates.
 				*/
-
     bool			pressed;
-				/*!< Only set if type == MouseClick or Keyboard
-				     If false, the button has been released.
+				/*!< Only set if type==MouseClick or
+				     type==Keyboard
+				     If it is false, the button has been
+				     released.
 				*/
-    bool			dragging;
-    				//!< Only set if type == MouseMovement
-
-    int				key;
-    				//!< Only set if type == Keyboard
 
     TypeSet<int>		pickedobjids;
+    Coord3			displaypickedpos;	//display space
+    Coord3			localpickedpos; 	//object space
+    Coord3			worldpickedpos; 	//world space
 
-    Coord3			displaypickedpos;	// display space
-    Coord3			localpickedpos; 	// object space
-    Coord3			worldpickedpos; 	// world space
+    Detail*			detail;
+    void			setDetail(const Detail*);
 
     TabletInfo*			tabletinfo;
     void			setTabletInfo(const TabletInfo*);
-    
 
-    // No current need to support Detail class with OSG.
-    // Only used by obsolete EdgeLineSetDisplay class.
-    Detail*			detail;
-    void			setDetail(const Detail*);
+    
+    int				key;
+    				/*!< Only set if type==Keyboard */
+
+    				// These are always set
+    Coord			mousepos;
+
 };
 
 
-mClass(visBase) EventCatcher : public DataObject
+mClass EventCatcher : public DataObject
 {
-    friend class EventCatchHandler;
-
 public:
 
     static EventCatcher*	create()
@@ -99,6 +91,7 @@ public:
     int				eventType() const { return type_; }
 
     CNotifier<EventCatcher, const EventInfo&>		eventhappened;
+
     CNotifier<EventCatcher, const EventInfo&>		nothandled;
 
     bool			isHandled() const;
@@ -129,14 +122,10 @@ protected:
     bool			rehandled_;
 
     virtual SoNode*		gtInvntrNode();
-    virtual osg::Node*		gtOsgNode();
 
-    osg::Node*			osgnode_;
-    EventCatchHandler*		eventcatchhandler_;
 };
 
 }; // Namespace
 
 
 #endif
-

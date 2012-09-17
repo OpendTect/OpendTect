@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: attribdatacubeswriter.h,v 1.8 2012-08-03 13:00:07 cvskris Exp $
+ RCS:		$Id: attribdatacubeswriter.h,v 1.7 2010/08/13 12:16:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "cubesampling.h"
 #include "executor.h"
 #include "multiid.h" 
@@ -27,7 +26,7 @@ namespace Attrib
     
 class DataCubes;
 
-mClass(AttributeEngine) DataCubesWriter : public Executor
+mClass DataCubesWriter : public Executor
 {
 public:
     			DataCubesWriter(const MultiID&,const Attrib::DataCubes&,
@@ -62,4 +61,3 @@ private:
 
 
 #endif
-

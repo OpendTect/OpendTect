@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: posfilter.cc,v 1.19 2012-08-30 14:19:20 cvskris Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.15 2011/11/14 07:39:14 cvssatyaki Exp $";
 
 #include "cubesampling.h"
 #include "executor.h"
@@ -21,9 +21,9 @@ mImplFactory(Pos::Filter2D,Pos::Filter2D::factory);
 mImplFactory(Pos::Provider3D,Pos::Provider3D::factory);
 mImplFactory(Pos::Provider2D,Pos::Provider2D::factory);
 const char* Pos::FilterSet::typeStr() { return "Set"; }
-const char* Pos::RandomFilter::typeStr() { return sKey::Random(); }
+const char* Pos::RandomFilter::typeStr() { return sKey::Random; }
 const char* Pos::RandomFilter::ratioStr() { return "Pass ratio"; }
-const char* Pos::SubsampFilter::typeStr() { return sKey::Subsample(); }
+const char* Pos::SubsampFilter::typeStr() { return sKey::Subsample; }
 const char* Pos::SubsampFilter::eachStr() { return "Pass each"; }
 
 
@@ -44,7 +44,7 @@ bool Pos::Filter3D::includes( const Coord& c, float z ) const
 
 Pos::Filter3D* Pos::Filter3D::make( const IOPar& iop )
 {
-    const char* typ = iop.find(sKey::Type());
+    const char* typ = iop.find(sKey::Type);
     if ( !typ ) return 0;
     Pos::Filter3D* filt = strcmp(typ,Pos::FilterSet::typeStr())
 			? factory().create( typ )
@@ -67,7 +67,7 @@ int Pos::Filter2D::nrLines() const
 
 Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
 {
-    const char* typ = iop.find(sKey::Type());
+    const char* typ = iop.find(sKey::Type);
     if ( !typ ) return 0;
     Pos::Filter2D* filt = strcmp(typ,Pos::FilterSet::typeStr())
 			? factory().create( typ )
@@ -169,14 +169,14 @@ bool Pos::FilterSet::hasZAdjustment() const
 
 void Pos::FilterSet::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Type(), "Set" );
+    iop.set( sKey::Type, "Set" );
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Filter& filt = *filts_[idx];
 	IOPar filtpar;
-	filtpar.set( sKey::Type(), filt.type() );
+	filtpar.set( sKey::Type, filt.type() );
 	filt.fillPar( filtpar );
-	const BufferString keybase( IOPar::compKey(sKey::Filter(),idx) );
+	const BufferString keybase( IOPar::compKey(sKey::Filter,idx) );
 	iop.mergeComp( filtpar, keybase );
     }
 }
@@ -188,7 +188,7 @@ void Pos::FilterSet::usePar( const IOPar& iop )
 
     for ( int idx=0; ; idx++ )
     {
-	const BufferString keybase( IOPar::compKey(sKey::Filter(),idx) );
+	const BufferString keybase( IOPar::compKey(sKey::Filter,idx) );
 	PtrMan<IOPar> subpar = iop.subselect( keybase );
 	if ( !subpar || !subpar->size() ) return;
 
@@ -284,13 +284,13 @@ void Pos::RandomFilter::getSummary( BufferString& txt ) const
 
 void Pos::RandomFilter3D::initClass()
 {
-    Pos::Filter3D::factory().addCreator( create, sKey::Random() );
+    Pos::Filter3D::factory().addCreator( create, sKey::Random );
 }
 
 
 void Pos::RandomFilter2D::initClass()
 {
-    Pos::Filter2D::factory().addCreator( create, sKey::Random() );
+    Pos::Filter2D::factory().addCreator( create, sKey::Random );
 }
 
 
@@ -321,13 +321,13 @@ void Pos::SubsampFilter::getSummary( BufferString& txt ) const
 
 void Pos::SubsampFilter3D::initClass()
 {
-    Pos::Filter3D::factory().addCreator( create, sKey::Subsample() );
+    Pos::Filter3D::factory().addCreator( create, sKey::Subsample );
 }
 
 
 void Pos::SubsampFilter2D::initClass()
 {
-    Pos::Filter2D::factory().addCreator( create, sKey::Subsample() );
+    Pos::Filter2D::factory().addCreator( create, sKey::Subsample );
 }
 
 
@@ -341,7 +341,7 @@ float Pos::Provider::estRatio( const Pos::Provider& prov ) const
 	mDynamicCastGet(const Pos::Provider3D*,prov3d,&prov);
 	if ( !prov3d ) return mUdf(float);
 	CubeSampling provcs( true ); prov3d->getCubeSampling( provcs );
-	float provnr = (float) provcs.hrg.totalNr(); provnr *= provcs.zrg.nrSteps() + 1;
+	float provnr = provcs.hrg.totalNr(); provnr *= provcs.zrg.nrSteps() + 1;
 	return ( provnr / estNrPos() ) / estNrZPerPos();
     }
 }
@@ -392,7 +392,7 @@ Pos::Provider* Pos::Provider::make( const IOPar& iop, bool is2d )
 
 Pos::Provider3D* Pos::Provider3D::make( const IOPar& iop )
 {
-    Pos::Provider3D* prov = factory().create( iop.find(sKey::Type()) );
+    Pos::Provider3D* prov = factory().create( iop.find(sKey::Type) );
     if ( prov )
 	prov->usePar( iop );
     return prov;
@@ -401,7 +401,7 @@ Pos::Provider3D* Pos::Provider3D::make( const IOPar& iop )
 
 Pos::Provider2D* Pos::Provider2D::make( const IOPar& iop )
 {
-    Pos::Provider2D* prov = factory().create( iop.find(sKey::Type()) );
+    Pos::Provider2D* prov = factory().create( iop.find(sKey::Type) );
     if ( prov )
 	prov->usePar( iop );
     return prov;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uihorgeom2attr.cc,v 1.10 2012-08-10 04:11:27 cvssalil Exp $";
+static const char* rcsID = "$Id: uihorgeom2attr.cc,v 1.6 2012/05/30 11:39:27 cvsbert Exp $";
 
 #include "uihorgeom2attr.h"
 
@@ -88,7 +88,7 @@ bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
 	    if ( !hor_.geometry().isNodeOK(pid) )
 		continue;
 
-	    const float zval = (float) ( hor_.getPos(pid).z * zfac );
+	    const float zval = hor_.getPos(pid).z * zfac;
 	    hor_.auxdata.setAuxDataVal( auxidx, pid, zval );
 	}
 	delete iter;
@@ -154,7 +154,7 @@ int nextStep()
 	if ( pid.objectID() == -1 )
 	    return Finished();
  
-	const BinID bid = pid.getRowCol();
+	const BinID bid( pid.subID() );
 	DataPointSet::RowID rid = dps_.findFirst( bid );
 	Coord3 crd = hor_.getPos( pid );
 	if ( rid < 0 )
@@ -202,7 +202,7 @@ int nextStep()
 
 bool uiHorAttr2Geom::acceptOK( CallBacker* cb )
 {
-    mGetZFac( 0.001f );
+    mGetZFac( 0.001 );
     const bool isdelta = isdeltafld_->getBoolValue();
 
     uiHorAttr2GeomExec exec( hor_, dps_, colid_, zfac, isdelta );

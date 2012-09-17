@@ -7,20 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.16 2012-08-03 13:01:24 cvskris Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.13 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visbasemod.h"
-#include "ranges.h"
 #include "visobject.h"
 
 
-namespace osgManipulator { class TabPlaneDragger; }
-namespace osg { class Switch; }
-
+template <class T> class Interval;
 
 class SoDepthTabPlaneDragger;
 class SoDragger;
@@ -30,16 +26,12 @@ class IOPar;
 namespace visBase
 {
 
-class PlaneDraggerCallbackHandler;
-
 /*!\brief
 
 */
 
-mClass(visBase) DepthTabPlaneDragger : public VisualObjectImpl
+mClass DepthTabPlaneDragger : public VisualObjectImpl
 {
-    friend class PlaneDraggerCallbackHandler;
-
 public:
     static DepthTabPlaneDragger*	create()
 					mCreateDataObj(DepthTabPlaneDragger);
@@ -88,11 +80,6 @@ public:
 
     void			setOwnShape( SoNode* );
 
-    void			showDraggerBorder(bool yn=true);
-    bool			isDraggerBorderShown() const;
-
-    void			showPlane(bool yn=true);
-    bool			isPlaneShown() const;
 
     void			setTransDragKeys(bool depth,int keys);
     				/*!<\param depth specifies wheter the depth or
@@ -120,8 +107,6 @@ protected:
     Coord3			world2Dragger( const Coord3&, bool pos) const;
     Coord3			dragger2World( const Coord3&, bool pos) const;
 
-    void			initOsgDragger();
-
     SoDepthTabPlaneDragger*	dragger_;
 
     int				dim_;
@@ -130,13 +115,6 @@ protected:
     TypeSet<Coord3>		sizes_;
 
     const mVisTrans*		transform_;
-
-    osgManipulator::TabPlaneDragger*	osgdragger_;
-    osg::Switch*			osgdraggerplane_;
-    PlaneDraggerCallbackHandler*	osgcallbackhandler_;
-
-    Interval<float>		widthranges_[3];
-    Interval<float>		spaceranges_[3];
 
 private:
     static void			startCB( void*, SoDragger* );
@@ -152,5 +130,4 @@ private:
 };
 
 #endif
-
 

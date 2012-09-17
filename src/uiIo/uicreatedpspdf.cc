@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uicreatedpspdf.cc,v 1.20 2012-08-31 06:25:57 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id: uicreatedpspdf.cc,v 1.17 2012/08/31 06:27:38 cvssatyaki Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -34,6 +34,23 @@ static const char* rcsID mUnusedVar = "$Id: uicreatedpspdf.cc,v 1.20 2012-08-31 
 
 
 static int cMaxNrPDFs = 3;
+
+
+// TODO have to remove the constrcutor
+uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
+				uiDataPointSetCrossPlotter& plotter,
+       				const BufferStringSet& )
+    : uiDialog(p,uiDialog::Setup("Create Probability Density Function",
+				 "Specify parameters","111.0.3"))
+    , plotter_(0)
+    , dps_(plotter_->dps())
+    , createfrmfld_(0)
+    , nrdisp_(1)
+    , pdf_(0)
+    , restrictedmode_(false)
+{
+}
+
 
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 				const uiDataPointSetCrossPlotter* plotter )
@@ -163,7 +180,7 @@ float uiCreateDPSPDF::getVal( int dcid, int drid ) const
 	return val*SI().zDomain().userFactor();
     }
 
-    return dcid == (float) ( -3 ? dps_.coord(drid).x : dps_.coord(drid).y );
+    return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
 }
 
 
@@ -282,17 +299,6 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 }
 
 
-void uiCreateDPSPDF::setPrefDefNames( const BufferStringSet& prefdefnms )
-{
-    for ( int idx=0; idx<probflds_.size(); idx++ )
-    {
-	if ( !prefdefnms.validIdx(idx) )
-	    continue;
-	probflds_[idx]->setPrefCol( prefdefnms.get(idx).buf() );
-    }
-}
-
-
 bool uiCreateDPSPDF::acceptOK( CallBacker* )
 {
     if ( !createPDF() )
@@ -362,3 +368,15 @@ void uiCreateDPSPDF::viewPDF()
     editdlg.go();
     mSavePDF();
 }
+
+
+void uiCreateDPSPDF::setPrefDefNames( const BufferStringSet& prefdefnms )
+{
+    for ( int idx=0; idx<probflds_.size(); idx++ )
+    {
+	if ( !prefdefnms.validIdx(idx) )
+	    continue;
+	probflds_[idx]->setPrefCol( prefdefnms.get(idx).buf() );
+    }
+}
+

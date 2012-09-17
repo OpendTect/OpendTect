@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: faultstickseteditor.cc,v 1.16 2012-08-10 04:11:24 cvssalil Exp $";
+static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.12 2011/10/28 11:29:35 cvsjaap Exp $";
 
 #include "faultstickseteditor.h"
 
@@ -82,7 +82,7 @@ void FaultStickSetEditor::setLastClicked( const EM::PosID& pid )
     Geometry::Element* ge = emobj.sectionGeometry( pid.sectionID() );
     mDynamicCastGet( Geometry::FaultStickSet*, fss, ge );
     if ( fss )
-	fss->preferStick( pid.getRowCol().row  );
+	fss->preferStick( RowCol(pid.subID()).row  );
 
     if ( sowingpivot_.isDefined() )
     {
@@ -104,7 +104,7 @@ int FaultStickSetEditor::getLastClickedStick() const
 
     if ( fss )
     {
-	const int lastclickedsticknr = lastclickedpid_.getRowCol().row;
+	const int lastclickedsticknr = RowCol( lastclickedpid_.subID() ).row;
 	if ( lastclickedsticknr == fss->preferredStickNr() )
 	    return lastclickedsticknr;
     }
@@ -174,7 +174,7 @@ float FaultStickSetEditor::distToStick( int sticknr,const EM::SectionID& sid,
 	 fabs( posnormal->dot(plane.normal()) ) < 0.5 )
 	return mUdf(float);
 
-    const double onestepdist =
+    const float onestepdist =
 		mWorldScale( SI().oneStepTranslation(plane.normal()) ).abs();
 
     bool insameplane = false;
@@ -207,7 +207,7 @@ float FaultStickSetEditor::distToStick( int sticknr,const EM::SectionID& sid,
 
     avgpos /= count;
 
-    return (float) (mCustomScale(avgpos).Coord::distTo( mCustomScale(mousepos) ));
+    return mCustomScale(avgpos).Coord::distTo( mCustomScale(mousepos) );
 }
 
 
@@ -374,7 +374,7 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 
 	float sqdist = 0;
 	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pos )
-	    sqdist = (float)(mCustomScale(pos).sqDistTo( mCustomScale(mousepos) ));
+	    sqdist = mCustomScale(pos).sqDistTo( mCustomScale(mousepos) );
 
 	if ( nearestknotidx==-1 || sqdist<minsqdist )
 	{
@@ -468,7 +468,7 @@ void FaultStickSetEditor::cloneMovingNode()
     mDynamicCastGet( EM::FaultStickSet*, emfss, &emobject );
     EM::FaultStickSetGeometry& fssg = emfss->geometry();
     const EM::SectionID& sid = movingnode.sectionID();
-    const int sticknr = movingnode.getRowCol().row;
+    const int sticknr = RowCol( movingnode.subID() ).row;
     Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
     const MultiID* pickedmid = fssg.pickedMultiID( sid, sticknr );
     const char* pickednm = fssg.pickedName( sid, sticknr );

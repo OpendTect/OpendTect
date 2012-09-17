@@ -7,19 +7,18 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bert
 Date:          May 2012
-RCS:           $Id: uiseissingtrcdisp.h,v 1.4 2012-08-03 13:01:09 cvskris Exp $
+RCS:           $Id: uiseissingtrcdisp.h,v 1.3 2012/05/03 09:08:00 cvsbert Exp $
 ______________________________________________________________________
                        
 */
 
-#include "uiseismod.h"
 #include "uiflatviewer.h"
 #include "datapack.h"
 class Wavelet;
 class SeisTrc;
 
 
-mClass(uiSeis) uiSeisSingleTraceDisplay : public uiFlatViewer
+mClass uiSeisSingleTraceDisplay : public uiFlatViewer
 {
 public:
 
@@ -45,4 +44,3 @@ protected:
 
 
 #endif
-

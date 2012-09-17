@@ -6,20 +6,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.17 2012-08-03 13:00:21 cvskris Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.15 2010/06/14 18:57:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "generalmod.h"
 #include "array2dbitmap.h"
 #include "task.h"
 
 
 /*! \brief Common pars for A2DBitMapGenerators */
 
-mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
+mStruct WVAA2DBitMapGenPars : public A2DBitMapGenPars
 {
 		WVAA2DBitMapGenPars()
 		  : drawwiggles_(true)
@@ -39,17 +37,17 @@ mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
     				//!< If < 0, uses less than entire strip
     int		minpixperdim0_;	//!< Set to 0 or neg for dump everything
 
-    static char		cZeroLineFill();		// => -126
-    static char		cWiggFill();		// => -125
-    static char		cLeftFill();		// => -124
-    static char		cRightFill();		// => -123
+    static const char	cZeroLineFill();		// => -126
+    static const char	cWiggFill();		// => -125
+    static const char	cLeftFill();		// => -124
+    static const char	cRightFill();		// => -123
 
 };
 
 
 /*! \brief Wiggles/Variable Area Drawing on A2DBitMap's. */
 
-mClass(General) WVAA2DBitMapGenerator : public A2DBitMapGenerator
+mClass WVAA2DBitMapGenerator : public A2DBitMapGenerator
 {
 public:
 
@@ -84,15 +82,15 @@ protected:
 namespace Interpolate { template <class T> class Applier2D; }
 
 
-mStruct(General) VDA2DBitMapGenPars : public A2DBitMapGenPars
+mStruct VDA2DBitMapGenPars : public A2DBitMapGenPars
 {
 			VDA2DBitMapGenPars()
 			: lininterp_(false)	{}
 
     bool		lininterp_;	//!< Use bi-linear interpol, not poly
 
-    static char		cMinFill();	// => -120
-    static char		cMaxFill();	// => 120
+    static const char	cMinFill();	// => -120
+    static const char	cMaxFill();	// => 120
 
     static float	offset(char);	//!< cMinFill -> 0, 0 -> 0.5
 
@@ -101,7 +99,7 @@ mStruct(General) VDA2DBitMapGenPars : public A2DBitMapGenPars
 
 /*! \brief Wiggles/Variable Area Drawing on A2DBitMap's. */
 
-mClass(General) VDA2DBitMapGenerator : public A2DBitMapGenerator, ParallelTask
+mClass VDA2DBitMapGenerator : public A2DBitMapGenerator, ParallelTask
 {
 public:
 
@@ -143,5 +141,3 @@ protected:
 
 
 #endif
-
-

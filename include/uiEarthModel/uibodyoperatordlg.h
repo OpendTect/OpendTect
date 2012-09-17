@@ -7,29 +7,27 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		Feb 2009
- RCS:		$Id: uibodyoperatordlg.h,v 1.7 2012-09-07 22:08:01 cvsnanne Exp $
+ RCS:		$Id: uibodyoperatordlg.h,v 1.5 2012/03/02 19:25:46 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiearthmodelmod.h"
-#include "uiearthmodelmod.h"
 #include "multiid.h"
 #include "uidialog.h"
 #include "uiioobjsel.h"
 
 class uiGenInput;
 class uiLabeledComboBox;
-class uiTreeView;
-class uiTreeViewItem;
+class uiListView;
+class uiListViewItem;
 class uiPushButton;
 class uiToolButton;
 
 namespace EM { class BodyOperator; }
 
 
-mClass(uiEarthModel) uiBodyOperatorDlg : public uiDialog
+mClass uiBodyOperatorDlg : public uiDialog
 {
 public:
     			uiBodyOperatorDlg(uiParent*);
@@ -44,15 +42,15 @@ protected:
     void		oprSel(CallBacker*);
     void		typeSel(CallBacker*);
     void		turnOffAll();
-    void		deleteAllChildInfo(uiTreeViewItem*);
-    void		setOprator(uiTreeViewItem* lv,EM::BodyOperator& opt);
+    void		deleteAllChildInfo(uiListViewItem*);
+    void		setOprator(uiListViewItem* lv,EM::BodyOperator& opt);
 
     static char		sKeyUnion()	{ return 0; }
     static char		sKeyIntSect()	{ return 1; }
     static char		sKeyMinus()	{ return 2; }
     static char		sKeyUdf()	{ return -1; }
 
-    mStruct(uiEarthModel) bodyOprand
+    mStruct bodyOprand
     {
 			bodyOprand();
 	bool		operator==(const bodyOprand&) const;
@@ -70,14 +68,12 @@ protected:
     uiGenInput*			bodyselfld_;
     uiPushButton*		bodyselbut_;
 
-    uiTreeView*			tree_;
+    uiListView*			tree_;
     TypeSet<bodyOprand>		listinfo_;
-    ObjectSet<uiTreeViewItem>	listsaved_;
+    ObjectSet<uiListViewItem>	listsaved_;
 
     uiIOObjSel*			outputfld_;
 };
 
 
 #endif
-
-

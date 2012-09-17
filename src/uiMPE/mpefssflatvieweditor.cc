@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.26 2012-08-10 03:50:05 cvsaneesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.21 2011/10/03 08:07:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,6 +265,8 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 
     const Geom::Point2D<double> pos = editor_->getSelPtPos();
 
+    const CubeSampling& cs = fsspainter_->getCubeSampling();
+    
     const FlatDataPack* dp = editor_->viewer().pack( false );
     if ( !dp )
 	dp = editor_->viewer().pack( true );
@@ -332,7 +334,7 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
     {
 	IOPar infopar;
 	dp->getAuxInfo( ix.nearest_, iy.nearest_, infopar );
-	infopar.get( sKey::TraceNr(), *trcnr );
+	infopar.get( sKey::TraceNr, *trcnr );
     }
 
     return true;
@@ -359,14 +361,14 @@ Coord3 FaultStickSetFlatViewEditor::getScaleVector() const
     if ( !du || !dv )
 	return scalevec;
 
-    const float dz = (float) ( p2.z - p1.z );
+    const float dz = p2.z - p1.z;
 
     if ( mIsZero(dz,mDefEps) )	// z-slice
     {
 	const Coord eu = (p1-p0) / du;
 	const Coord ev = (p2-p0) / dv;
 
-	const float det = (float) fabs( eu.x*ev.y - eu.y*ev.x );
+	const float det = fabs( eu.x*ev.y - eu.y*ev.x );
 
 	const Coord ex(  ev.y/det, -eu.y/det );
 	const Coord ey( -ev.x/det,  eu.x/det );
@@ -375,7 +377,7 @@ Coord3 FaultStickSetFlatViewEditor::getScaleVector() const
     }
     else
     {
-	float ds = (float) Coord(p1).distTo(p2);
+	float ds = Coord(p1).distTo(p2);
 	// Assumption: straight in case of 2D line
 
 	scalevec.z = fabs( (ds*dv) / (dz*du) );
@@ -423,7 +425,7 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
     if ( pid.isUdf() )
 	return; 
 
-    const int sticknr = pid.isUdf() ? mUdf(int) : pid.getRowCol().row;
+    const int sticknr = pid.isUdf() ? mUdf(int) : RowCol(pid.subID()).row;
 
     if ( activestickid_ != sticknr )
 	activestickid_ = sticknr;
@@ -438,6 +440,8 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     if ( editor_ && editor_->sower().accept(meh_->event(), false) )
 	return;
 
+    bool active = editor_->viewer().appearance().annot_.editable_;
+    bool sel = editor_->isSelActive();
     if ( !editor_->viewer().appearance().annot_.editable_
 	 || editor_->isSelActive() )
 	return;
@@ -556,7 +560,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	 && !mouseevent.shiftStatus() )
     {
 	//Remove knot/stick
-	const int rmnr = mousepid_.getRowCol().row;
+	const int rmnr = RowCol(mousepid_.subID()).row;
 	if ( fssg.nrKnots(mousepid_.sectionID(),rmnr) == 1 )
 	{
 	    fssg.removeStick( mousepid_.sectionID(), rmnr, true );
@@ -609,7 +613,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 }
 
 
-int FaultStickSetFlatViewEditor::getStickId( int markerid ) const
+const int FaultStickSetFlatViewEditor::getStickId( int markerid ) const
 {
     if ( !markeridinfo_.size() )
 	return mUdf( int );

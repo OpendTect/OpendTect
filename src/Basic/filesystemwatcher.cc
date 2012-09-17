@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: filesystemwatcher.cc,v 1.4 2012-05-02 15:11:25 cvskris Exp $";
+static const char* rcsID = "$Id: filesystemwatcher.cc,v 1.2 2010/02/24 10:50:45 cvsnanne Exp $";
 
 #include "filesystemwatcher.h"
 #include "qfilesystemcomm.h"

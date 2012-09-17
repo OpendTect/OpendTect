@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiposprovgroup.cc,v 1.39 2012-08-10 03:50:05 cvsaneesh Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.35 2012/07/10 13:06:06 cvskris Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -18,6 +18,7 @@ static const char* rcsID mUnusedVar = "$Id: uiposprovgroup.cc,v 1.39 2012-08-10 
 #include "cubesampling.h"
 #include "ctxtioobj.h"
 #include "file.h"
+#include "hiddenparam.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -34,22 +35,23 @@ uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvGroup::Setup& su )
 {
 }
 
+static HiddenParam<uiRangePosProvGroup,uiSelNrRange*> nrrgflds( 0 );
 
 uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 					  const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
     , hrgfld_(0)
-    , nrrgfld_(0)
     , zrgfld_(0)
     , setup_(su)
 {
     uiObject* attobj = 0;
     if ( su.is2d_ )
     {
-	nrrgfld_ =
+	uiSelNrRange* nrrgfld =
 	    new uiSelNrRange( this, uiSelNrRange::Gen, su.withstep_ );
-	nrrgfld_->setRange( su.cs_.hrg.crlRange() );
-	attobj = nrrgfld_->attachObj();
+	nrrgfld->setRange( su.cs_.hrg.crlRange() );
+	attobj = nrrgfld->attachObj();
+	nrrgflds.setParam( this, nrrgfld );
     }
     else
     {
@@ -79,18 +81,19 @@ void uiRangePosProvGroup::usePar( const IOPar& iop )
 	hrgfld_->setSampling( cs.hrg );
     if ( zrgfld_ )
 	zrgfld_->setRange( cs.zrg );
-    if ( nrrgfld_ )
+    uiSelNrRange* nrrgfld = setup_.is2d_ ? nrrgflds.getParam( this ) : 0;
+    if ( nrrgfld )
     {
-	const StepInterval<int>& curnrrg = nrrgfld_->getRange();
-	nrrgfld_->setLimitRange( cs.hrg.crlRange() );
-	nrrgfld_->setRange( curnrrg );
+	const StepInterval<int>& curnrrg = nrrgfld->getRange();
+	nrrgfld->setLimitRange( cs.hrg.crlRange() );
+	nrrgfld->setRange( curnrrg );
     }
 }
 
 
 bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Type(), sKey::Range() );
+    iop.set( sKey::Type, sKey::Range );
     CubeSampling cs; getCubeSampling( cs );
     cs.fillPar( iop );
     return true;
@@ -115,7 +118,7 @@ static void getExtrDefCubeSampling( CubeSampling& cs )
 
     const int nrextr = cs.hrg.totalNr() * nrsamps;
     int blocks = nrextr / 50000;
-    float fstepfac = (float) ( Math::Sqrt( (double)blocks ) );
+    float fstepfac = Math::Sqrt( (double)blocks );
     int stepfac = mNINT32(fstepfac);
     cs.hrg.step.inl *= stepfac;
     cs.hrg.step.crl *= stepfac;
@@ -127,11 +130,12 @@ void uiRangePosProvGroup::setExtractionDefaults()
     CubeSampling cs( true ); getExtrDefCubeSampling( cs );
     if ( hrgfld_ )
 	hrgfld_->setSampling( cs.hrg );
-    if ( nrrgfld_ )
+    uiSelNrRange* nrrgfld = setup_.is2d_ ? nrrgflds.getParam( this ) : 0;
+    if ( nrrgfld )
     {
-	StepInterval<int> rg( nrrgfld_->getRange() );
+	StepInterval<int> rg( nrrgfld->getRange() );
 	rg.step = 10;
-	nrrgfld_->setRange( rg );
+	nrrgfld->setRange( rg );
     }
     zrgfld_->setRange( cs.zrg );
 }
@@ -142,8 +146,9 @@ void uiRangePosProvGroup::getCubeSampling( CubeSampling& cs ) const
     cs = SI().sampling( false );
     if ( hrgfld_ )
 	cs.hrg = hrgfld_->getSampling();
-    if ( nrrgfld_ )
-	cs.hrg.set( StepInterval<int>(0,mUdf(int),1), nrrgfld_->getRange() );
+    uiSelNrRange* nrrgfld = setup_.is2d_ ? nrrgflds.getParam( this ) : 0;
+    if ( nrrgfld )
+	cs.hrg.set( StepInterval<int>(0,mUdf(int),1), nrrgfld->getRange() );
     if ( zrgfld_ )
 	cs.zrg = zrgfld_->getRange();
 }
@@ -151,7 +156,7 @@ void uiRangePosProvGroup::getCubeSampling( CubeSampling& cs ) const
 
 void uiRangePosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Range() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Range );
 }
 
 
@@ -162,8 +167,8 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
     , zrgfld_(0)
     , stepfld_(0)
 {
-    ctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
-    polyfld_ = new uiIOObjSel( this, ctio_, sKey::Polygon() );
+    ctio_.ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
+    polyfld_ = new uiIOObjSel( this, ctio_, sKey::Polygon );
 
     uiGroup* attachobj = polyfld_;
     if ( su.withstep_ )
@@ -190,23 +195,23 @@ uiPolyPosProvGroup::~uiPolyPosProvGroup()
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-#define mGetPolyKey(k) IOPar::compKey(sKey::Polygon(),k)
+#define mGetPolyKey(k) IOPar::compKey(sKey::Polygon,k)
 
 
 void uiPolyPosProvGroup::usePar( const IOPar& iop )
 {
-    polyfld_->usePar( iop, sKey::Polygon() );
+    polyfld_->usePar( iop, sKey::Polygon );
     if ( stepfld_ )
     {
 	BinID stps( SI().sampling(true).hrg.step );
-	iop.get( mGetPolyKey(sKey::StepInl()), stps.inl );
-	iop.get( mGetPolyKey(sKey::StepCrl()), stps.crl );
+	iop.get( mGetPolyKey(sKey::StepInl), stps.inl );
+	iop.get( mGetPolyKey(sKey::StepCrl), stps.crl );
 	stepfld_->setSteps( stps );
     }
     if ( zrgfld_ )
     {
 	StepInterval<float> zrg( SI().zRange(true) );
-	iop.get( mGetPolyKey(sKey::ZRange()), zrg );
+	iop.get( mGetPolyKey(sKey::ZRange), zrg );
 	zrgfld_->setRange( zrg );
     }
 }
@@ -214,15 +219,15 @@ void uiPolyPosProvGroup::usePar( const IOPar& iop )
 
 bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Type(), sKey::Polygon() );
-    if ( !polyfld_->commitInput() || !polyfld_->fillPar(iop,sKey::Polygon()) )
+    iop.set( sKey::Type, sKey::Polygon );
+    if ( !polyfld_->commitInput() || !polyfld_->fillPar(iop,sKey::Polygon) )
 	mErrRet("Please select the polygon")
 
     const BinID stps(
 	stepfld_ ? stepfld_->getSteps() : SI().sampling(true).hrg.step );
-    iop.set( mGetPolyKey(sKey::StepInl()), stps.inl );
-    iop.set( mGetPolyKey(sKey::StepCrl()), stps.crl );
-    iop.set( mGetPolyKey(sKey::ZRange()),
+    iop.set( mGetPolyKey(sKey::StepInl), stps.inl );
+    iop.set( mGetPolyKey(sKey::StepCrl), stps.crl );
+    iop.set( mGetPolyKey(sKey::ZRange),
 	zrgfld_ ? zrgfld_->getRange() : SI().zRange(true) );
     return true;
 }
@@ -259,7 +264,7 @@ void uiPolyPosProvGroup::getZRange( StepInterval<float>& zrg ) const
 
 void uiPolyPosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Polygon() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Polygon );
 }
 
 
@@ -275,7 +280,7 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
     selfld_->valuechanged.notify( selcb );
     psfld_ = new uiIOObjSel( this, ctio_ );
     psfld_->attach( alignedBelow, selfld_ );
-    tffld_ = new uiIOFileSelect( this, sKey::FileName(), true,
+    tffld_ = new uiIOFileSelect( this, sKey::FileName, true,
 	    			 GetDataDir(), true );
     tffld_->getHistory( uiIOFileSelect::ixtablehistory() );
     tffld_->attach( alignedBelow, selfld_ );
@@ -292,12 +297,12 @@ void uiTablePosProvGroup::selChg( CallBacker* )
     tffld_->display( !isps );
 }
 
-#define mGetTableKey(k) IOPar::compKey(sKey::Table(),k)
+#define mGetTableKey(k) IOPar::compKey(sKey::Table,k)
 
 void uiTablePosProvGroup::usePar( const IOPar& iop )
 {
     const char* idres = iop.find( mGetTableKey("ID") );
-    const char* fnmres = iop.find( mGetTableKey(sKey::FileName()) );
+    const char* fnmres = iop.find( mGetTableKey(sKey::FileName) );
     const bool isfnm = fnmres && *fnmres;
     selfld_->setValue( !isfnm );
     if ( idres ) psfld_->setInput( MultiID(idres) );
@@ -307,12 +312,12 @@ void uiTablePosProvGroup::usePar( const IOPar& iop )
 
 bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Type(), sKey::Table() );
+    iop.set( sKey::Type, sKey::Table );
     if ( selfld_->getBoolValue() )
     {
-	if ( !psfld_->fillPar(iop,sKey::Table()) )
+	if ( !psfld_->fillPar(iop,sKey::Table) )
 	    mErrRet("Please select the Pick Set")
-	iop.removeWithKey( mGetTableKey(sKey::FileName()) );
+	iop.removeWithKey( mGetTableKey(sKey::FileName) );
     }
     else
     {
@@ -321,7 +326,7 @@ bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
 	    mErrRet("Please provide the table file name")
 	else if ( File::isEmpty(fnm.buf()) )
 	    mErrRet("Please select an existing/readable file")
-	iop.set( mGetTableKey(sKey::FileName()), fnm );
+	iop.set( mGetTableKey(sKey::FileName), fnm );
 	iop.removeWithKey( mGetTableKey("ID") );
     }
     return true;
@@ -354,5 +359,5 @@ bool uiTablePosProvGroup::getFileName( BufferString& fnm ) const
 
 void uiTablePosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Table() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Table );
 }

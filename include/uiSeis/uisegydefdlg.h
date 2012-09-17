@@ -7,13 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.h,v 1.15 2012-08-03 13:01:06 cvskris Exp $
+ RCS:           $Id: uisegydefdlg.h,v 1.14 2011/05/18 13:21:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
-#include "uiseismod.h"
 #include "uivarwizarddlg.h"
 #include "seistype.h"
 class uiSEGYFileSpec;
@@ -26,11 +24,11 @@ class IOObj;
 
 /*!\brief Initial dialog for SEG-Y I/O. */
 
-mClass(uiSeis) uiSEGYDefDlg : public uiVarWizardDlg
+mClass uiSEGYDefDlg : public uiVarWizardDlg
 {
 public:
 
-    mStruct(uiSeis) Setup : public uiDialog::Setup
+    mStruct Setup : public uiDialog::Setup
     {
 					Setup();
 
@@ -73,5 +71,3 @@ protected:
 
 
 #endif
-
-

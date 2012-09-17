@@ -4,23 +4,22 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Jun 2010
- * ID       : $Id: uisimplemultiwell.h,v 1.6 2012-08-03 13:01:20 cvskris Exp $
+ * ID       : $Id: uisimplemultiwell.h,v 1.2 2010/09/13 10:39:37 cvsranojay Exp $
 -*/
 
-#include "uiwellmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
-
+#include "multiid.h"
 class IOObj;
-class UnitOfMeasure;
+class uiTable;
 class uiGenInput;
 class uiSMWCData;
-class uiTable;
 
 
-mClass(uiWell) uiSimpleMultiWellCreate : public uiDialog
+mClass uiSimpleMultiWellCreate : public uiDialog
 {
 public:
+
 			uiSimpleMultiWellCreate(uiParent*);
 
     bool		wantDisplay() const;
@@ -35,7 +34,6 @@ protected:
     float		vel_;
     Interval<float>	defzrg_;
     BufferStringSet	crwellids_;
-    const UnitOfMeasure* zun_;
 
     bool		acceptOK(CallBacker*);
 
@@ -49,5 +47,5 @@ protected:
 
 };
 
-#endif
 
+#endif

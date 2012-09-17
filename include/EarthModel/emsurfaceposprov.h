@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.21 2012-08-03 13:00:20 cvskris Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.19 2011/12/15 21:45:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "earthmodelmod.h"
 #include "posprovider.h"
 
 #include "emposid.h"
@@ -37,12 +36,12 @@ namespace Pos
  
  */
 
-mClass(EarthModel) EMSurfaceProvider : public virtual Filter
+mClass EMSurfaceProvider : public virtual Filter
 {
 public:
 			EMSurfaceProvider();
 			~EMSurfaceProvider();
-    const char*		type() const;	//!< sKey::Surface()
+    const char*		type() const;	//!< sKey::Surface
 
     virtual bool	initialize(TaskRunner* tr=0);
     virtual void	reset();
@@ -119,7 +118,7 @@ protected:
 
 /*!\brief EMSurfaceProvider for 3D positioning */
 
-mClass(EarthModel) EMSurfaceProvider3D : public Provider3D
+mClass EMSurfaceProvider3D : public Provider3D
 			  , public EMSurfaceProvider
 {
 public:
@@ -155,7 +154,7 @@ public:
 
 /*!\brief EMSurfaceProvider for 2D positioning */
 
-mClass(EarthModel) EMSurfaceProvider2D : public Provider2D
+mClass EMSurfaceProvider2D : public Provider2D
 			  , public EMSurfaceProvider
 {
 public:
@@ -192,7 +191,7 @@ public:
 
 /* !\brief EMSurfaceProvider for 3D positions with 2D Horizon */
 
-mClass(EarthModel) EMSurface2DProvider3D : public Provider3D
+mClass EMSurface2DProvider3D : public Provider3D
 			    , public EMSurfaceProvider
 {
 public:
@@ -233,7 +232,7 @@ protected:
 };
 
 
-mClass(EarthModel) EMImplicitBodyProvider : public Provider3D
+mClass EMImplicitBodyProvider : public Provider3D
 {
 public:
 
@@ -248,7 +247,7 @@ public:
 				{ return new EMImplicitBodyProvider(*this); }
 
     EMImplicitBodyProvider&	operator =(const EMImplicitBodyProvider&);
-    const char*			type() const		{ return sKey::Body(); }
+    const char*			type() const		{ return sKey::Body; }
     const char*			factoryKeyword() const	{ return type(); }
 
     virtual bool		initialize(TaskRunner* tr=0);
@@ -297,4 +296,3 @@ protected:
 } // namespace
 
 #endif
-

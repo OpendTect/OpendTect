@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: emhor2dto3d.cc,v 1.24 2012-08-29 15:58:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.20 2012/07/10 13:06:01 cvskris Exp $";
 
 #include "emhor2dto3d.h"
 
@@ -23,9 +23,9 @@ static const char* rcsID mUnusedVar = "$Id: emhor2dto3d.cc,v 1.24 2012-08-29 15:
 namespace EM
 {
 
-class Hor2DTo3DSectionData
+struct Hor2DTo3DSectionData
 {
-public:
+
 Hor2DTo3DSectionData( EM::SectionID sid,
 		      const BinID& minbid, const BinID& maxbid,
 		      const BinID& step )
@@ -108,7 +108,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 	curinterp_->setRowStep( inldist );
 	curinterp_->setColStep( crldist );
 
-	curinterp_->setMaxHoleSize( mUdf(float) );
+	curinterp_->setMaxHoleSize(mUdf(int));
 	const bool issingleline = hor2d_.geometry().nrLines()<2;
   	curinterp_->setFillType( issingleline ? Array2DInterpol::Full 
 					      : Array2DInterpol::ConvexHull );
@@ -184,7 +184,7 @@ void Hor2DTo3D::fillSections()
 	    const Coord3 coord = hor2d_.getPos( posid );
 	    const BinID bid = SI().transform( coord );
 
-	    sd.add( bid, (float) coord.z );
+	    sd.add( bid, coord.z );
 	}
     }
 }
@@ -261,4 +261,4 @@ int Hor2DTo3D::nextStep()
     return Executor::MoreToDo();
 }
 
-} // namespace OD
+}

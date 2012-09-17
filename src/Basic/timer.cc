@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: timer.cc,v 1.6 2012-05-02 15:11:28 cvskris Exp $";
+static const char* rcsID = "$Id: timer.cc,v 1.4 2010/05/18 07:08:12 cvsjaap Exp $";
 
 #include "timer.h"
 #include "qtimercomm.h" 

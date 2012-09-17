@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: odgraphicsitem.cc,v 1.32 2012-08-24 05:05:38 cvsnageswara Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.23 2012/07/10 13:06:04 cvskris Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -27,34 +27,32 @@ static const char* rcsID mUnusedVar = "$Id: odgraphicsitem.cc,v 1.32 2012-08-24 
 #include <QStyleOption>
 
 
-mQtclass(QRectF) ODGraphicsPointItem::boundingRect() const
+QRectF ODGraphicsPointItem::boundingRect() const
 {
-    return highlight_ ? mQtclass(QRectF)( -2, -2, 4, 4 )
-		      : mQtclass(QRectF)( -1,-1, 2, 2 );
+    return highlight_ ? QRectF( -2, -2, 4, 4 ) : QRectF( -1,-1, 2, 2 );
 }
 
 
-void ODGraphicsPointItem::paint( mQtclass(QPainter*) painter,
-			       const mQtclass(QStyleOptionGraphicsItem*) option,
-			       mQtclass(QWidget) *widget )
+void ODGraphicsPointItem::paint( QPainter* painter,
+				 const QStyleOptionGraphicsItem* option,
+				 QWidget *widget )
 {
     painter->setPen( pen() );
     drawPoint( painter );
 
-    if ( option->state & mQtclass(QStyle::State_Selected) )
+    if ( option->state & QStyle::State_Selected )
     {
-	painter->setPen( mQtclass(QPen)(option->palette.text(),1.0,
-		    	 		mQtclass(Qt)::DashLine) );
-	painter->setBrush( mQtclass(Qt)::NoBrush );
+	painter->setPen( QPen(option->palette.text(),1.0,Qt::DashLine) );
+	painter->setBrush( Qt::NoBrush );
 	painter->drawRect( boundingRect().adjusted(2,2,-2,-2) );
     }
 }
 	
 
-void ODGraphicsPointItem::drawPoint( mQtclass(QPainter*) painter )
+void ODGraphicsPointItem::drawPoint( QPainter* painter )
 {
     painter->setPen( pen() );
-    mQtclass(QPoint) pts[13]; int ptnr = 0;
+    QPoint pts[13]; int ptnr = 0;
     #define mSetPt(ox,oy) pts[ptnr].setX(ox); pts[ptnr].setY(oy); ptnr++;
     mSetPt( 0, 0 );
     mSetPt( -1, 0 ); mSetPt( 1, 0 );
@@ -74,7 +72,7 @@ void ODGraphicsPointItem::drawPoint( mQtclass(QPainter*) painter )
 
 
 ODGraphicsMarkerItem::ODGraphicsMarkerItem()
-    : mQtclass(QAbstractGraphicsShapeItem)()
+    : QAbstractGraphicsShapeItem()
     , mstyle_( new MarkerStyle2D() )
     , fill_(false)
 {}
@@ -92,140 +90,128 @@ void ODGraphicsMarkerItem::setMarkerStyle( const MarkerStyle2D& mstyle )
 }
 
 
-mQtclass(QRectF) ODGraphicsMarkerItem::boundingRect() const
+QRectF ODGraphicsMarkerItem::boundingRect() const
 {
-    return mQtclass(QRectF)( -mstyle_->size_, -mstyle_->size_, 
-	    	             2*mstyle_->size_, 2*mstyle_->size_ );
+    return QRectF( -mstyle_->size_, -mstyle_->size_, 
+	    	   2*mstyle_->size_, 2*mstyle_->size_ );
 }
 
 
-void ODGraphicsMarkerItem::paint( mQtclass(QPainter*) painter,
-			       const mQtclass(QStyleOptionGraphicsItem*) option,
-			       mQtclass(QWidget*) widget )
+void ODGraphicsMarkerItem::paint( QPainter* painter,
+				  const QStyleOptionGraphicsItem* option,
+				  QWidget* widget )
 {
    /* if ( side_ != 0 )
     pErrMsg( "TODO: implement single-sided markers" );
     if ( !mIsZero(angle_,1e-3) )
     pErrMsg( "TODO: implement tilted markers" );*/
 
-    const mQtclass(QPointF) p00 = mapToScene( mQtclass(QPointF)(0,0) );
-    const mQtclass(QPointF) d01 = mapToScene( mQtclass(QPointF)(0,1) )-p00;
-    const mQtclass(QPointF) d10 = mapToScene( mQtclass(QPointF)(1,0) )-p00;
-
-    const float xdist = Math::Sqrt(d10.x()*d10.x()+d10.y()*d10.y() );
-    const float ydist = Math::Sqrt(d01.x()*d01.x()+d01.y()*d01.y() );
-
-    const float szx = mstyle_->size_/xdist;
-    const float szy = mstyle_->size_/ydist;
-
     painter->setPen( pen() );
-    if ( fill_ )
-	painter->setBrush( mQtclass(QColor)(mQtclass(QRgb)(fillcolor_.rgb())) );
+    drawMarker( *painter );
 
-    drawMarker( *painter, mstyle_->type_, szx, szy );
-
-    if ( option->state & mQtclass(QStyle)::State_Selected )
+    if ( option->state & QStyle::State_Selected )
     {
-	painter->setPen( mQtclass(QPen)(option->palette.text(),1.0,
-		    			mQtclass(Qt)::DashLine) );
-	painter->setBrush( mQtclass(Qt)::NoBrush );
+	painter->setPen( QPen(option->palette.text(),1.0,Qt::DashLine) );
+	painter->setBrush( Qt::NoBrush );
 	painter->drawRect( boundingRect().adjusted(2,2,-2,-2) );
     }
 }
 
 
-void ODGraphicsMarkerItem::drawMarker( mQtclass(QPainter&) painter,
-		    MarkerStyle2D::Type typ, float szx, float szy )
+void ODGraphicsMarkerItem::drawMarker( QPainter& painter )
+{
+    if ( fill_ )
+	painter.setBrush( QColor(QRgb(fillcolor_.rgb())) );
+    drawMarker( painter, mstyle_->type_, mstyle_->size_ );
+}
+
+
+void ODGraphicsMarkerItem::drawMarker( QPainter& painter,
+					MarkerStyle2D::Type typ, int sz )
 {
     switch ( typ )
     {
 	case MarkerStyle2D::Square:
-	    painter.drawRect( mQtclass(QRectF)(-szx, -szy, 2*szx, 2*szy) );
-	    break;
+	    painter.drawRect( QRectF(-sz, -sz, 2*sz, 2*sz) );
+	break;
 	
-	case MarkerStyle2D::Target:
-	    szx /=2;
-	    szy /=2;
 	case MarkerStyle2D::Circle:
-	    painter.drawEllipse( mQtclass(QRectF)( -szx, -szy, 2*szx, 2*szy) );
-	    break;
+	    painter.drawEllipse( -sz, -sz, 2*sz, 2*sz );
+	break;
 
 	case MarkerStyle2D::Cross:
-	    painter.drawLine( mQtclass(QLineF)(-szx, -szy, +szx, +szy) );
-	    painter.drawLine( mQtclass(QLineF)(-szx, +szy, +szx, -szy) );
-	    break;
+	    painter.drawLine( -sz, -sz, +sz, +sz );
+	    painter.drawLine( -sz, +sz, +sz, -sz );
+	break;
 
 	case MarkerStyle2D::HLine:
-	    painter.drawLine( mQtclass(QLineF)( -szx, 0, +szx, 0 ) );
-	    break;
+	    painter.drawLine( -sz, 0, +sz, 0 );
+	break;
 
 	case MarkerStyle2D::VLine:
-	    painter.drawLine( mQtclass(QLineF)( 0, -szy, 0, +szy ) );
-	    break;
+	    painter.drawLine( 0, -sz, 0, +sz );
+	break;
 
+	case MarkerStyle2D::Target:
+	    drawMarker( painter, MarkerStyle2D::Circle, sz/2 );
 	case MarkerStyle2D::Plus:
-	    drawMarker( painter, MarkerStyle2D::HLine, szx, szy );
-	    drawMarker( painter, MarkerStyle2D::VLine, szx, szy );
-	    break;
+	    drawMarker( painter, MarkerStyle2D::HLine, sz );
+	    drawMarker( painter, MarkerStyle2D::VLine, sz );
+	break;
 
 	case MarkerStyle2D::Plane:
-	    painter.drawRect( mQtclass(QRectF)(-3*szx, -szy/2, 6*szx, szy) );
-	    break;
+	    painter.drawRect( QRectF(-3*sz, -sz/2, 6*sz, sz) );
+	break;
 
 	case MarkerStyle2D::Triangle: {
-	    mQtclass(QPolygonF) triangle;
-	    triangle += mQtclass(QPointF)( -szx, 0 );
-	    triangle += mQtclass(QPointF)( 0, -2*szy );
-	    triangle += mQtclass(QPointF)( +szx, 0 );
+	    QPolygon triangle;
+	    triangle.putPoints( 0, 3, -sz, 0, 0, -2*sz, +sz, 0 );
 	    painter.drawPolygon( triangle );
 	    } break;
 
 	case MarkerStyle2D::Arrow:
-	    drawMarker( painter, MarkerStyle2D::VLine, 2*szx, 2*szy );
-	    drawMarker( painter, MarkerStyle2D::Triangle, -szx, -szy );
-	    break;
-	case MarkerStyle2D::None:
-	    break;
+	    drawMarker( painter, MarkerStyle2D::VLine, 2*sz );
+	    drawMarker( painter, MarkerStyle2D::Triangle, -sz );
+	break;
     }
 }
 
 
 ODGraphicsArrowItem::ODGraphicsArrowItem()
-    : mQtclass(QAbstractGraphicsShapeItem)()
+    : QAbstractGraphicsShapeItem()
 {
 }
 
 
-mQtclass(QRectF) ODGraphicsArrowItem::boundingRect() const
+QRectF ODGraphicsArrowItem::boundingRect() const
 {
-    return mQtclass(QRectF)( -arrowsz_, -arrowsz_/2, arrowsz_, arrowsz_ );
+    return QRectF( -arrowsz_, -arrowsz_/2, arrowsz_, arrowsz_ );
 }
 
 
-void ODGraphicsArrowItem::paint( mQtclass(QPainter*) painter,
-			       const mQtclass(QStyleOptionGraphicsItem*) option,
-			       mQtclass(QWidget*) widget )
+void ODGraphicsArrowItem::paint( QPainter* painter,
+				 const QStyleOptionGraphicsItem* option,
+				 QWidget* widget )
 {
     painter->setClipRect( option->exposedRect );
     painter->setPen( pen() );
     drawArrow( *painter );
 
-    if (option->state & mQtclass(QStyle)::State_Selected)
+    if (option->state & QStyle::State_Selected)
     {
-	painter->setPen( mQtclass(QPen)(option->palette.text(),1.0,
-		    			mQtclass(Qt)::DashLine) );
-	painter->setBrush( mQtclass(Qt)::NoBrush );
+	painter->setPen( QPen(option->palette.text(),1.0,Qt::DashLine) );
+	painter->setBrush( Qt::NoBrush );
 	painter->drawRect( boundingRect().adjusted(2,2,-2,-2) );
     }
 }
 
 
-void ODGraphicsArrowItem::drawArrow( mQtclass(QPainter&) painter )
+void ODGraphicsArrowItem::drawArrow( QPainter& painter )
 {
     setLineStyle( painter, arrowstyle_.linestyle_ );
 
-    mQtclass(QPoint) qpointtail( -arrowsz_, 0 );
-    mQtclass(QPoint) qpointhead( 0, 0 );
+    QPoint qpointtail( -arrowsz_, 0 );
+    QPoint qpointhead( 0, 0 );
     painter.drawLine( qpointtail.x(), qpointtail.y(), qpointhead.x(),
 	    	      qpointhead.y() ); 
     if ( arrowstyle_.hasHead() )
@@ -235,26 +221,23 @@ void ODGraphicsArrowItem::drawArrow( mQtclass(QPainter&) painter )
 }
 
 
-void ODGraphicsArrowItem::setLineStyle( mQtclass(QPainter&) painter,
-					const LineStyle& ls )
+void ODGraphicsArrowItem::setLineStyle( QPainter& painter, const LineStyle& ls )
 {
-    pen().setStyle( (mQtclass(Qt)::PenStyle)ls.type_ );
-    pen().setColor( mQtclass(QColor)(mQtclass(QRgb)(ls.color_.rgb())) );
+    pen().setStyle( (Qt::PenStyle)ls.type_ );
+    pen().setColor( QColor(QRgb(ls.color_.rgb())) );
     pen().setWidth( ls.width_ );
 
     painter.setPen( pen() );
 }
 
 
-void ODGraphicsArrowItem::drawArrowHead( mQtclass(QPainter&) painter,
-					 const mQtclass(QPoint&) qpt,
-					 const mQtclass(QPoint&) comingfrom )
+void ODGraphicsArrowItem::drawArrowHead( QPainter& painter, const QPoint& qpt,
+					 const QPoint& comingfrom )
 {
     static const float headangfac = .82; // bigger => lines closer to main line
 
     // In UI, Y is positive downward
-    const mQtclass(QPoint) relvec( qpt.x() - comingfrom.x(),
-	    			   comingfrom.y() - qpt.y() );
+    const QPoint relvec( qpt.x() - comingfrom.x(), comingfrom.y() - qpt.y() );
     const double ang( atan2((double)relvec.y(),(double)relvec.x()) );
 
     const ArrowHeadStyle& headstyle = arrowstyle_.headstyle_;
@@ -264,11 +247,10 @@ void ODGraphicsArrowItem::drawArrowHead( mQtclass(QPainter&) painter,
 	{
 	    case ArrowHeadStyle::Square:
 	    {
-	        TypeSet<mQtclass(QPoint)> polypts;
+	        TypeSet<QPoint> polypts;
 		polypts += qpt;
-	        const mQtclass(QPoint) pt1=getEndPoint(qpt,M_PI,headstyle.sz_);
-	        const mQtclass(QPoint) pt2 = getEndPoint(qpt,
-						         -(M_PI),headstyle.sz_);
+	        const QPoint pt1 = getEndPoint(qpt,M_PI,headstyle.sz_);
+	        const QPoint pt2 = getEndPoint(qpt,-(M_PI),headstyle.sz_);
 		polypts += pt1;
 		polypts += pt2;
 		painter.drawPolygon( polypts.arr(), 3 );
@@ -276,22 +258,22 @@ void ODGraphicsArrowItem::drawArrowHead( mQtclass(QPainter&) painter,
 	    }
 	    case ArrowHeadStyle::Cross:
 	    {
-		painter.drawLine( qpt, mQtclass(QPoint)(getEndPoint(qpt,
+		painter.drawLine( qpt, QPoint(getEndPoint(qpt,
 				  getAddedAngle(ang,.25),headstyle.sz_/2)) );
-		painter.drawLine( qpt, mQtclass(QPoint)(getEndPoint(qpt,
+		painter.drawLine( qpt, QPoint(getEndPoint(qpt,
 				  getAddedAngle(ang,.75),headstyle.sz_/2)) );
-		painter.drawLine( qpt, mQtclass(QPoint)(getEndPoint(qpt,
+		painter.drawLine( qpt, QPoint(getEndPoint(qpt,
 				  getAddedAngle(ang,-.25),headstyle.sz_/2)) );
-		painter.drawLine( qpt, mQtclass(QPoint)(getEndPoint(qpt,
+		painter.drawLine( qpt, QPoint(getEndPoint(qpt,
 				  getAddedAngle(ang,-.75),headstyle.sz_/2)) );
 		break;
 	    }
 	    case ArrowHeadStyle::Triangle:
 	    case ArrowHeadStyle::Line:
 	    {
-		const mQtclass(QPoint) rightend = getEndPoint( qpt,
+		const QPoint rightend = getEndPoint( qpt,
 		    getAddedAngle( ang,headangfac), headstyle.sz_ );
-		const mQtclass(QPoint) leftend = getEndPoint( qpt,
+		const QPoint leftend = getEndPoint( qpt,
 		    getAddedAngle( ang,-headangfac), headstyle.sz_ );
 		painter.drawLine( qpt, rightend );
 		painter.drawLine( qpt, leftend );
@@ -313,10 +295,10 @@ double ODGraphicsArrowItem::getAddedAngle( double ang, float ratiopi )
 }
 
 
-mQtclass(QPoint) ODGraphicsArrowItem::getEndPoint( const mQtclass(QPoint&) pt,
-				         double angle, double len )
+QPoint ODGraphicsArrowItem::getEndPoint( const QPoint& pt, double angle,
+					 double len )
 {
-    mQtclass(QPoint) endpt( pt.x(), pt.y() );
+    QPoint endpt( pt.x(), pt.y() );
     double delta = len * cos( angle );
     endpt.setX( pt.x() + mNINT32(delta) );
     // In UI, Y is positive downward
@@ -326,182 +308,84 @@ mQtclass(QPoint) ODGraphicsArrowItem::getEndPoint( const mQtclass(QPoint&) pt,
 }
 
 
-void ODViewerTextItem::paint( mQtclass(QPainter*) painter,
-			      const mQtclass(QStyleOptionGraphicsItem) *option,
-			      mQtclass(QWidget) *widget )
+ODGraphicsTextItem::ODGraphicsTextItem()
+    : QGraphicsTextItem()
 {
-    const mQtclass(QTransform) worldtrans = painter->worldTransform();
-    const mQtclass(QPointF) projectedpos = worldtrans.inverted().map( pos() );
+}
 
-    painter->save();
-    painter->resetTransform();
 
-    if ( option )
-	painter->setClipRect( option->exposedRect );
+void ODGraphicsTextItem::setTextAlignment( Alignment alignment )
+{
+    alignoption_.setAlignment( (Qt::Alignment)alignment.uiValue() );
+}
 
-    painter->drawText( projectedpos, toPlainText() );
 
-    painter->restore();
+void ODGraphicsTextItem::setText( const char* txt )
+{ text_ = txt; }
+
+
+QRectF ODGraphicsTextItem::boundingRect() const
+{
+    const uiFont& uifnt = FontList().get(
+				FontData::key(FontData::GraphicsSmall ) );
+    QFontMetrics fm( uifnt.qFont() );
+    QRectF rectf( fm.boundingRect( text_ ) );
+    return rectf;
+}
+
+
+void ODGraphicsTextItem::paint( QPainter* painter,
+				 const QStyleOptionGraphicsItem *option,
+				 QWidget *widget )
+{
+    painter->setClipRect( option->exposedRect );
+    painter->drawText( boundingRect(), text_, alignoption_ );
+
+    if (option->state & QStyle::State_Selected)
+    {
+	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
+	painter->setBrush(Qt::NoBrush);
+	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
+    }
 }
 
 
 
-
 ODGraphicsPixmapItem::ODGraphicsPixmapItem()
-    : mQtclass(QGraphicsPixmapItem)()
+    : QGraphicsPixmapItem()
 {}
 
 
 ODGraphicsPixmapItem::ODGraphicsPixmapItem( const ioPixmap& pm )
-    : mQtclass(QGraphicsPixmapItem)(*pm.qpixmap())
+    : QGraphicsPixmapItem(*pm.qpixmap())
 {}
 
 
-void ODGraphicsPixmapItem::paint( mQtclass(QPainter*) painter,
-			       const mQtclass(QStyleOptionGraphicsItem*) option,
-			       mQtclass(QWidget*) widget )
+void ODGraphicsPixmapItem::paint( QPainter* painter,
+				  const QStyleOptionGraphicsItem* option,
+				  QWidget* widget )
 {
     painter->setClipRect( option->exposedRect );
-    mQtclass(QGraphicsPixmapItem)::paint( painter, option, widget );
+    QGraphicsPixmapItem::paint( painter, option, widget );
 }
 
 
 
 ODGraphicsPolyLineItem::ODGraphicsPolyLineItem()
-    : mQtclass(QAbstractGraphicsShapeItem)()
+    : QAbstractGraphicsShapeItem()
 {}
 
 
-mQtclass(QRectF) ODGraphicsPolyLineItem::boundingRect() const
+QRectF ODGraphicsPolyLineItem::boundingRect() const
 {
     return qpolygon_.boundingRect();
 }
 
 
-void ODGraphicsPolyLineItem::paint( mQtclass(QPainter*) painter,
-			       const mQtclass(QStyleOptionGraphicsItem*) option,
-			       mQtclass(QWidget*) widget )
+void ODGraphicsPolyLineItem::paint( QPainter* painter,
+				    const QStyleOptionGraphicsItem* option,
+				    QWidget* widget )
 {
     painter->setPen( pen() );
     painter->drawPolyline( qpolygon_ );
-}
-
-
-ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
-    : wantsData( this )
-    , bbox_( 0, 0, 1, 1 )
-    , updatedynpixmap_( false )
-{}
-
-
-void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
-					   const mQtclass(QImage&) image,
-					   const mQtclass(QRectF&) rect )
-{
-    if ( isdynamic )
-    {
-	dynamiclock_.lock();
-	dynamicimage_ = image;
-	dynamicimagebbox_ = rect;
-	updatedynpixmap_ = true;
-	dynamiclock_.unlock();
-
-	update( rect );
-    }
-    else
-    {
-
-#if QT_VERSION>=0x040700
-	basepixmap_.convertFromImage( image );
-#else
-	basepixmap_ = mQtclass(QPixmap)::fromImage( image,
-					     mQtclass(Qt)::OrderedAlphaDither );
-#endif
-	bbox_ = rect;
-    }
-}
-
-
-void ODGraphicsDynamicImageItem::paint(mQtclass(QPainter*) painter,
-			      const mQtclass(QStyleOptionGraphicsItem*) option,
-			      mQtclass(QWidget*) widget )
-{
-    if ( updateResolution( painter ) )
-	wantsData.trigger();
-
-    if ( updatedynpixmap_ )
-    {
-	dynamiclock_.lock();
-
-	if ( !dynamicpixmap_ ) dynamicpixmap_ = new mQtclass(QPixmap);
-
-#if QT_VERSION>=0x040700
-	dynamicpixmap_->convertFromImage( dynamicimage_ );
-#else
-	*dynamicpixmap_ =
-	    mQtclass(QPixmap)::fromImage( dynamicimage_,
-		    			  mQtclass(Qt)::OrderedAlphaDither );
-#endif
-       
-	dynamicpixmapbbox_ = dynamicimagebbox_; 
-	updatedynpixmap_ = false;
-
-	dynamiclock_.unlock();
-
-    }
-
-    const mQtclass(QTransform) worldtrans = painter->worldTransform();
-
-    painter->save();
-    painter->resetTransform();
-
-    bool paintbase = true;
-    mQtclass(QRect) dynamicscenerect;
-
-    //Check if we cover everything
-    if ( dynamicpixmap_ )
-    {
-	dynamicscenerect = worldtrans.mapRect(dynamicpixmapbbox_).toRect();
-	paintbase = !dynamicscenerect.contains( painter->viewport() );
-    }
-
-    if ( paintbase )
-    {
-	const mQtclass(QRect) scenerect = worldtrans.mapRect(bbox_).toRect();
-	painter->drawPixmap( scenerect, basepixmap_ );
-    }
-
-    if ( dynamicpixmap_ )
-	painter->drawPixmap( dynamicscenerect, *dynamicpixmap_ );
-
-    painter->restore();
-}
-
-
-bool ODGraphicsDynamicImageItem::updateResolution(
-					     const mQtclass(QPainter*) painter )
-{
-    const mQtclass(QRectF) viewport = painter->viewport();
-    const mQtclass(QRectF) projectedwr =
-	painter->worldTransform().inverted().mapRect( viewport );
-
-    const mQtclass(QRectF) wantedwr = projectedwr.intersected( bbox_ );
-    if ( !wantedwr.isValid() )
-	return false;
-
-    if ( wantedwr==bbox_ )
-    {
-	dynamicpixmap_ = 0;
-	return false;
-    }
-
-    if ( wantedwr==wantedwr_ )
-	return false;
-
-    wantedwr_ = wantedwr;
-    const mQtclass(QRect) wantedscenerect =
-	painter->worldTransform().mapRect(wantedwr).toRect();
-
-    wantedscreensz_ = wantedscenerect.size();
-    return true;
 }

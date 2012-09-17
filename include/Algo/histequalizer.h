@@ -7,17 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		June 2008
- RCS:		$Id: histequalizer.h,v 1.5 2012-08-03 13:00:04 cvskris Exp $
+ RCS:		$Id: histequalizer.h,v 1.4 2009/07/22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "ranges.h"
 template <class T> class TypeSet;
 
 
-mClass(Algo) HistEqualizer
+mClass HistEqualizer
 {
 public:
     			HistEqualizer(const int nrseg=256);
@@ -38,5 +37,4 @@ protected:
 };
 
 #endif
-
 

@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          July 2012
- RCS:           $Id: uiwelllogextract.h,v 1.4 2012-08-31 06:25:57 cvssatyaki Exp $
+ RCS:           $Id: uiwelllogextract.h,v 1.3 2012/08/31 06:27:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uiwellattribmod.h"
 #include "uigroup.h"
 class IOObj;
 class uiListBox;
@@ -27,11 +26,10 @@ class uiPosFilterSetSel;
 namespace Attrib { class DescSet; }
 
 
-mClass(uiWellAttrib) uiWellLogExtractGrp : public uiGroup
+mClass uiWellLogExtractGrp : public uiGroup
 {
 public:
-
-    struct Setup
+	struct Setup
     {
 			Setup(bool singlog =false ,const char* prop =0)
 			    : singlelog_(singlog)

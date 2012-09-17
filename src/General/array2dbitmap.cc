@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: array2dbitmap.cc,v 1.47 2012-09-07 17:23:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.42 2012/07/10 13:06:02 cvskris Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -16,13 +16,13 @@ static const char* rcsID mUnusedVar = "$Id: array2dbitmap.cc,v 1.47 2012-09-07 1
 #include <iostream>
 
 
-char A2DBitMapGenPars::cNoFill()		{ return -127; }
-char WVAA2DBitMapGenPars::cZeroLineFill()	{ return -126; }
-char WVAA2DBitMapGenPars::cWiggFill()		{ return -125; }
-char WVAA2DBitMapGenPars::cLeftFill()		{ return -124; }
-char WVAA2DBitMapGenPars::cRightFill()		{ return -123; }
-char VDA2DBitMapGenPars::cMinFill()		{ return -120; }
-char VDA2DBitMapGenPars::cMaxFill()		{ return 120; }
+const char A2DBitMapGenPars::cNoFill()		{ return -127; }
+const char WVAA2DBitMapGenPars::cZeroLineFill()	{ return -126; }
+const char WVAA2DBitMapGenPars::cWiggFill()	{ return -125; }
+const char WVAA2DBitMapGenPars::cLeftFill()	{ return -124; }
+const char WVAA2DBitMapGenPars::cRightFill()	{ return -123; }
+const char VDA2DBitMapGenPars::cMinFill()	{ return -120; }
+const char VDA2DBitMapGenPars::cMaxFill()	{ return 120; }
 
 #define cNrFillSteps 241
 #define mMaxNrStatPts 5000
@@ -73,7 +73,7 @@ A2DBitMapPosSetup::A2DBitMapPosSetup( const Array2DInfo& i, float* p )
 	, dim0pos_(0)
 {
     setDim0Positions( p );
-    setDim1Positions( 0.f, (float)szdim1_-1 );
+    setDim1Positions( 0, szdim1_-1 );
 }
 
 
@@ -93,7 +93,7 @@ void A2DBitMapPosSetup::setDim0Positions( float* p )
     {
 	dim0pos_ = new float [szdim0_];
 	for ( int idx=0; idx<szdim0_; idx++ )
-	    dim0pos_[idx] = (float)idx;
+	    dim0pos_[idx] = idx;
     }
 
 
@@ -111,8 +111,8 @@ void A2DBitMapPosSetup::setDim0Positions( float* p )
     }
 
     posbounds.sort();
-    dim0rg_.start = posbounds.start - dim0avgdist_ * 0.5f;
-    dim0rg_.stop = posbounds.stop + dim0avgdist_ * 0.5f;
+    dim0rg_.start = posbounds.start - dim0avgdist_ * 0.5;
+    dim0rg_.stop = posbounds.stop + dim0avgdist_ * 0.5;
 }
 
 
@@ -121,8 +121,8 @@ void A2DBitMapPosSetup::setDim1Positions( float start, float stop )
     dim1pos_.start = start; dim1pos_.stop = stop;
     dim1pos_.sort();
     dim1avgdist_ = szdim1_ > 1 ? dim1pos_.width() / (szdim1_ - 1) : 1;
-    dim1rg_.start = dim1pos_.start - dim1avgdist_ * 0.5f;
-    dim1rg_.stop = dim1pos_.stop + dim1avgdist_ * 0.5f;
+    dim1rg_.start = dim1pos_.start - dim1avgdist_ * 0.5;
+    dim1rg_.stop = dim1pos_.stop + dim1avgdist_ * 0.5;
 }
 
 
@@ -218,8 +218,8 @@ void A2DBitMapGenerator::fill()
     dim1pos_ = setup_.dim1Positions();
     dim0rg_ = setup_.dimRange( 0 );
     dim1rg_ = setup_.dimRange( 1 );
-    dim0perpix_ = 1.f / setup_.getPixPerDim(0);
-    dim1perpix_ = 1.f / setup_.getPixPerDim(1);
+    dim0perpix_ = 1. / setup_.getPixPerDim(0);
+    dim1perpix_ = 1. / setup_.getPixPerDim(1);
 
     scalerg_ = pars_.autoscale_ ? data_.scale( pars_.clipratio_,
 	    				       pars_.midvalue_ )
@@ -241,7 +241,7 @@ static inline int gtPrettyBMVal( char c )
     static const float rgmax = 1000;
     float v = (c - VDA2DBitMapGenPars::cMinFill()) * (rgmax + 1)
 	    / (VDA2DBitMapGenPars::cMaxFill()-VDA2DBitMapGenPars::cMinFill())
-	    	- .5f;
+	    	- .5;
     const int ret = mNINT32(v);
     return ret < 0 ? 0 : (ret > rgmax+.5 ? (int)rgmax : ret);
 }
@@ -308,7 +308,7 @@ void WVAA2DBitMapGenerator::drawTrace( int idim0 )
     float midval = wvapars().midvalue_;
     if ( mIsUdf(midval) ) midval = data_.midVal();
     const float midratio = (midval - scalerg_.start) / scalewidth_;
-    const float offs = (midratio-0.5f) * stripwidth_;
+    const float offs = (midratio-0.5) * stripwidth_;
     const float middim0pos = dim0pos_[idim0] + (pars_.fliplr_ ? -offs : offs);
     const float dim1wdth = dim1pos_.width();
     const float dim1fac = (szdim1_ - 1) / (dim1wdth ? dim1wdth : 1);
@@ -360,7 +360,7 @@ void WVAA2DBitMapGenerator::drawVal( int idim0, int iy, float val,
 
     const float centerdim0pos = dim0pos_[idim0];
     const float valratio = (val - scalerg_.start) / scalewidth_;
-    const float valdim0offs = (valratio-0.5f) * stripwidth_;
+    const float valdim0offs = (valratio-0.5) * stripwidth_;
     const float valdim0pos = centerdim0pos
 			   + (pars_.fliplr_ ? -valdim0offs : valdim0offs);
 
@@ -389,7 +389,7 @@ void WVAA2DBitMapGenerator::drawVal( int idim0, int iy, float val,
 	prevval = scalerg_.limitValue( prevval );
 
 	const float prevvalratio = (prevval - scalerg_.start) / scalewidth_;
-	const float prevvaldim0offs = (prevvalratio-0.5f) * stripwidth_;
+	const float prevvaldim0offs = (prevvalratio-0.5) * stripwidth_;
 	const float prevvaldim0pos = centerdim0pos
 		       + (pars_.fliplr_ ? -prevvaldim0offs : prevvaldim0offs);
 	const int prevvalpix = setup_.getPix( 0, prevvaldim0pos, pars_.fliplr_);
@@ -474,8 +474,8 @@ void VDA2DBitMapGenerator::doFill()
     for ( int idim0=0; idim0<szdim0_; idim0++ )
     {
 	float pos2chk = dim0pos_[idim0];
-	if ( pos2chk < dim0rg_.start ) pos2chk += avgdim0dist*.5f;
-	if ( pos2chk > dim0rg_.stop ) pos2chk -= avgdim0dist*.5f;
+	if ( pos2chk < dim0rg_.start ) pos2chk += avgdim0dist*.5;
+	if ( pos2chk > dim0rg_.stop ) pos2chk -= avgdim0dist*.5;
 
 	if ( setup_.isInside(0,pos2chk) )
 	    stripstodraw_ += idim0;
@@ -520,7 +520,7 @@ void VDA2DBitMapGenerator::drawStrip( int idim0 )
     {
 	const float prevpos = dim0pos_[idim0-1];
 	float prevstripmidpix = setup_.getPixOffs( 0, prevpos, pars_.fliplr_ );
-	float halfwaypix = (prevstripmidpix + stripmidpix) * .5f;
+	float halfwaypix = (prevstripmidpix + stripmidpix) * .5;
 	if ( !pars_.fliplr_ && halfwaypix > pixs2do.start )
 	    pixs2do.start = (int)ceil(halfwaypix-1e-6);
 	if ( pars_.fliplr_ && halfwaypix < pixs2do.stop )
@@ -530,7 +530,7 @@ void VDA2DBitMapGenerator::drawStrip( int idim0 )
     {
 	const float nextpos = dim0pos_[idim0+1];
 	float nextstripmidpix = setup_.getPixOffs( 0, nextpos, pars_.fliplr_ );
-	float halfwaypix = (nextstripmidpix + stripmidpix) * .5f;
+	float halfwaypix = (nextstripmidpix + stripmidpix) * .5;
 	if ( !pars_.fliplr_ && halfwaypix < pixs2do.stop )
 	    pixs2do.stop = (int)floor(halfwaypix-1e-6);
 	if ( pars_.fliplr_ && halfwaypix > pixs2do.start )

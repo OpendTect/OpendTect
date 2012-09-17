@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackgather.cc,v 1.52 2012-08-14 03:31:38 cvssalil Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.47 2012/04/25 14:28:43 cvsbruno Exp $";
 
 #include "prestackgather.h"
 
@@ -173,7 +173,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 }
 
 
-bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
+bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snap2si )
 { 
     tbuf.sort( true, SeisTrcInfo::Offset );
 
@@ -207,13 +207,13 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 	return false;
     }
 
-    if ( snapzrgtosi )
+    if ( snap2si )
     {
 	SI().snapZ(zrg.start);
 	SI().snapZ(zrg.stop);
     }
     int nrsamples = zrg.nrSteps()+1;
-    if ( zrg.step>0 && (zrg.stop-zrg.atIndex(nrsamples-1))>fabs(zrg.step*0.5) )
+    if ( (zrg.stop-zrg.atIndex(nrsamples-1))>fabs(zrg.step*0.5) && zrg.step>0 )
 	nrsamples++;
 
     const Array2DInfoImpl newinfo( tbuf.size(), nrsamples );
@@ -260,7 +260,7 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 
 const char* Gather::dimName( bool dim0 ) const
 { 
-    return dim0 ? sKey::Offset() : (SI().zIsTime() ? sKey::Time() : sKey::Depth());
+    return dim0 ? sKey::Offset : (SI().zIsTime() ? sKey::Time : sKey::Depth);
 }
 
 
@@ -268,17 +268,17 @@ void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 {
     par.set( "X", coord_.x );
     par.set( "Y", coord_.y );
-    float z = (float) posData().position( false, idim1 );
+    float z = posData().position( false, idim1 );
     if ( zit_ ) z *= 1000;
     par.set( "Z", z );
-    par.set( sKey::Offset(), getOffset(idim0) );
-    par.set( sKey::Azimuth(), getAzimuth(idim0) );
+    par.set( sKey::Offset, getOffset(idim0) );
+    par.set( sKey::Azimuth, getAzimuth(idim0) );
     if ( !is3D() )
-	par.set( sKey::TraceNr(), binid_.crl );
+	par.set( sKey::TraceNr, binid_.crl );
     else
     {
 	BufferString str( 128, false ); binid_.fill( str.buf() );
-	par.set( sKey::Position(), str );
+	par.set( sKey::Position, str );
     }
 }
 
@@ -291,7 +291,7 @@ const char* Gather::getSeis2DName() const
 
 
 float Gather::getOffset( int idx ) const
-{ return (float) posData().position( true, idx ); }
+{ return posData().position( true, idx ); }
 
 
 float Gather::getAzimuth( int idx ) const
@@ -302,7 +302,7 @@ float Gather::getAzimuth( int idx ) const
 
 OffsetAzimuth Gather::getOffsetAzimuth( int idx ) const
 {
-    return OffsetAzimuth( (float) posData().position( true, idx ), 
+    return OffsetAzimuth( posData().position( true, idx ), 
 	    		  azimuths_[idx] );
 }
 
@@ -401,12 +401,10 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
 	trc->info().binid = gathers_[idx]->getBinID();	
 	trc->info().coord = SI().transform( gathers_[idx]->getBinID() );
 	trc->info().nr = idx+1;
-	const SamplingData<double>& sd = gathers_[idx]->posData().range( false);
-	trc->info().sampling.set((float) sd.start, (float) sd.step );
+	trc->info().sampling = gathers_[idx]->posData().range( false);
 	const Array2D<float>& data = gathers_[idx]->data();
 	for ( int idz=0; idz<gathersz; idz++ )
 	    trc->set( idz, data.get( offsetidx, idz ), 0 );
-
 	inp.add( trc );
     }
 }

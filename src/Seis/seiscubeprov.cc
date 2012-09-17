@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiscubeprov.cc,v 1.27 2012-07-24 14:22:53 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.23 2011/05/13 09:14:56 cvsraman Exp $";
 
 #include "seiscubeprov.h"
 
@@ -367,10 +367,10 @@ SeisTrc* SeisMSCProvider::get( const BinID& bid )
 	    BinID( pivotidx_, tbufs_[pivotidx_]->get(pivotidy_)->info().nr ) : \
 	    tbufs_[pivotidx_]->get(pivotidy_)->info().binid; \
     RowCol bidstepout( stepout ); bidstepout *= stepoutstep_; \
-    const int bottomdist mUnusedVar = pivotbid.inl-curbid.inl-bidstepout.row; \
-    const int topdist mUnusedVar = curbid.inl-pivotbid.inl-bidstepout.row; \
-    const int leftdist mUnusedVar = pivotbid.crl-curbid.crl-bidstepout.col; \
-    const int rightdist mUnusedVar = curbid.crl-pivotbid.crl-bidstepout.col;
+    const int bottomdist = pivotbid.inl - curbid.inl - bidstepout.row; \
+    const int topdist = curbid.inl - pivotbid.inl - bidstepout.row; \
+    const int leftdist = pivotbid.crl - curbid.crl - bidstepout.col; \
+    const int rightdist = curbid.crl - pivotbid.crl - bidstepout.col;
    
 
 bool SeisMSCProvider::isReqBoxFilled() const
@@ -580,9 +580,6 @@ bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
 }
 
 
-const SeisTrc* SeisFixedCubeProvider::getTrace( int trcnr ) const
-{ return getTrace( BinID(0,trcnr) ); }
-
 const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 {
     if ( !data_ || !cs_.hrg.includes(bid) )
@@ -590,3 +587,5 @@ const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 
     return data_->get( cs_.inlIdx(bid.inl), cs_.crlIdx(bid.crl) );
 }
+
+

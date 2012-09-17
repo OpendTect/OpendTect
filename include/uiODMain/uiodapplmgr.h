@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.126 2012-08-03 13:01:03 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.124 2012/05/30 15:17:44 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodmain.h"
 
 class MouseCursorExchange;
@@ -56,7 +55,7 @@ namespace Pick { class Set; }
  
  */
 
-mClass(uiODMain) uiODApplMgr : public CallBacker
+mClass uiODApplMgr : public CallBacker
 {
 public:
 
@@ -104,9 +103,6 @@ public:
     void			bayesClass2D(CallBacker* =0);
     void			bayesClass3D(CallBacker* =0);
     void			resortSEGY(CallBacker* =0);
-    void			createCubeFromWells(CallBacker* =0);
-    void			create2Dfrom3D();
-    void			create3Dfrom2D();
 
     // View menu operations
     void			showBaseMap();
@@ -170,13 +166,9 @@ public:
 				    { editAttribSet(true); }
     void			editAttr3DCB(CallBacker*)
 				    { editAttribSet(false);}
-    Notifier<uiODApplMgr>	attribSetChg;
-
     void			doVolProcCB(CallBacker*);
     void			doVolProc(const MultiID&);
     void			tieWellToSeismic(CallBacker*);
-    void			doWellLogTools(CallBacker*);
-    void			doLayerModeling(CallBacker*);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
 
@@ -280,8 +272,14 @@ protected:
     friend class		uiODMain;
     friend class		uiODApplMgrDispatcher;
     friend class		uiODApplMgrAttrVisHandler;
+
+public:
+    void			create2Dfrom3D();
+    void			create3Dfrom2D();
+    void			createCubeFromWells(CallBacker* =0);
+    void			doWellLogTools(CallBacker*);
+    void			doLayerModeling(CallBacker*);
 };
 
 
 #endif
-

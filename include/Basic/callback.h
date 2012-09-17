@@ -8,14 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.51 2012-08-03 13:00:10 cvskris Exp $
+ RCS:		$Id: callback.h,v 1.47 2011/09/16 10:00:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "sets.h"
-#include "thread.h"
 #include <string>
 
 /*!
@@ -33,8 +31,9 @@ interested in).
 
 */
 
-class CallBacker;
 
+//!> To be able to send and/or receive CallBacks, inherit from this class
+mClass CallBacker { public: virtual ~CallBacker() {} };
 
 typedef void (CallBacker::*CallBackFunction)(CallBacker*);
 #define mCBFn(clss,fn) ((CallBackFunction)(&clss::fn))
@@ -55,7 +54,7 @@ want to be able to send a CallBack, you must provide a 'sender' CallBacker*
 
 */
 
-mClass(Basic) CallBack
+mClass CallBack
 {
 public:
 			CallBack( CallBacker* o=0, CallBackFunction f=0 )
@@ -87,7 +86,7 @@ protected:
 
 /*!\brief TypeSet of CallBacks with a few extras. */
 
-mClass(Basic) CallBackSet : public TypeSet<CallBack>
+mClass CallBackSet : public TypeSet<CallBack>
 {
 public:
 
@@ -103,28 +102,84 @@ public:
 };
 
 
+/*!\brief Capsule class to wrap any class into a CallBacker.
+
+Callback functions are defined as:
+void clss::func( CallBacker* )
+Sometimes you want to pass other info. For this purpose, you can use the
+CBCapsule class, which isA CallBacker, but contains T data. For convenience,
+the originating CallBacker* is included, so the 'caller' will still be
+available.
+
+*/
+
+template <class T>
+class CBCapsule : public CallBacker
+{
+public:
+			CBCapsule( T d, CallBacker* c )
+			: data(d), caller(c)	{}
+
+    T			data;
+    CallBacker*		caller;
+};
+
+
+/*!\brief Unpacking data from capsule
+
+If you have a pointer to a capsule cb, this:
+\code
+    mCBCapsuleUnpack(const uiMouseEvent&,ev,cb)
+\endcode
+would result in the availability of:
+\code
+    const uiMouseEvent& ev
+\endcode
+
+If you're interested in the caller, you'll need to get the capsule itself:
+\code
+    mCBCapsuleGet(const uiMouseEvent&,caps,cb)
+\endcode
+would result in the availability of:
+\code
+    CBCapsule<const uiMouseEvent&>* caps
+\endcode
+
+*/
+
+#define mCBCapsuleGet(T,var,cb) \
+    CBCapsule<T>* var = dynamic_cast< CBCapsule<T>* >( cb );
+
+#define mCBCapsuleUnpack(T,var,cb) \
+    mCBCapsuleGet(T,cb##caps,cb) \
+    T var = cb##caps->data
+
+#define mCBCapsuleUnpackWithCaller(T,var,cber,cb) \
+    mCBCapsuleGet(T,cb##caps,cb) \
+    T var = cb##caps->data; \
+    CallBacker* cber = cb##caps->caller
+
+
 /*!\brief interface class for Notifier. See comments there. */
 
-mClass(Basic) NotifierAccess
+mClass NotifierAccess
 {
 
     friend class	NotifyStopper;
 
 public:
 
-			NotifierAccess();
-    
-    virtual void	notify(const CallBack&,bool first=false);
-    virtual void	notifyIfNotNotified(const CallBack&);
-    virtual void	remove(const CallBack&);
-    virtual void	removeWith(CallBacker*);
+			NotifierAccess()
+			    : enabled_(true)			{}
+    virtual		~NotifierAccess()			{}
+
+    virtual void	notify(const CallBack&)			=0;
+    virtual void	notifyIfNotNotified(const CallBack&)	=0;
+    virtual void	remove(const CallBack&)			=0;
 
     bool		isEnabled() const	{ return enabled_; }
     bool		enable( bool yn=true )	{ return doEnable(yn); }
     bool		disable()		{ return doEnable(false); }
-    
-    CallBackSet		cbs_;
-    CallBacker*		cber_;
 
 protected:
 
@@ -132,6 +187,25 @@ protected:
     inline bool		doEnable( bool yn=true )
     			{ bool ret = enabled_; enabled_ = yn; return ret; }
     			/*!< returns previous status */
+};
+
+
+/*!\brief implementation class for Notifier */
+
+mClass i_Notifier : public NotifierAccess
+{
+public:
+
+    virtual void	notify( const CallBack& cb )	{ cbs_ += cb; }
+    virtual void	notifyIfNotNotified( const CallBack& cb )
+			{ if ( cbs_.indexOf(cb)==-1 ) notify(cb); }
+    virtual void	remove( const CallBack& cb )	{ cbs_ -= cb; }
+    virtual void	removeWith(CallBacker*);
+
+    CallBackSet		cbs_;
+    CallBacker*		cber_;
+
+			i_Notifier()			{}
 };
 
 
@@ -171,7 +245,7 @@ when going out of scope.
 */
 
 template <class T>
-class Notifier : public NotifierAccess
+class Notifier : public i_Notifier
 {
 public:
 
@@ -187,98 +261,6 @@ public:
 };
 
 
-//!> To be able to send and/or receive CallBacks, inherit from this class
-mClass(Basic) CallBacker
-{
-public:
-				CallBacker();
-				CallBacker(const CallBacker&);
-    virtual 			~CallBacker();
-    
-    void			attachCB(NotifierAccess&,const CallBack&);
-    				/*!<Adds cb to notifier, and makes sure
-				    it is removed later when object is
-				    deleted. */
-    void			detachCB(NotifierAccess&,const CallBack&);
-    				/*!<\note Normally not needed if you don't
-				          Want this explicitly. */
-    
-private:
-    void			removeListener(CallBacker*);
-    void			addListener(CallBacker*);
-    ObjectSet<CallBacker>	listeners_;
-    
-    ObjectSet<NotifierAccess>	attachednotifiers_;
-    Threads::SpinLock		cblock_;
-};
-
-
-#define mAttachCB( notifier, clss, func ) \
-attachCB( notifier, mCB(this,clss,func) )
-
-#define mDetachCB( notifier, clss, func ) \
-detachCB( notifier, clss, func )
-
-
-/*!\brief Capsule class to wrap any class into a CallBacker.
- 
- Callback functions are defined as:
- void clss::func( CallBacker* )
- Sometimes you want to pass other info. For this purpose, you can use the
- CBCapsule class, which isA CallBacker, but contains T data. For convenience,
- the originating CallBacker* is included, so the 'caller' will still be
- available.
- 
- */
-
-template <class T>
-class CBCapsule : public CallBacker
-{
-public:
-    CBCapsule( T d, CallBacker* c )
-    : data(d), caller(c)	{}
-    
-    T			data;
-    CallBacker*		caller;
-};
-
-
-/*!\brief Unpacking data from capsule
- 
- If you have a pointer to a capsule cb, this:
- \code
- mCBCapsuleUnpack(const uiMouseEvent&,ev,cb)
- \endcode
- would result in the availability of:
- \code
- const uiMouseEvent& ev
- \endcode
- 
- If you're interested in the caller, you'll need to get the capsule itself:
- \code
- mCBCapsuleGet(const uiMouseEvent&,caps,cb)
- \endcode
- would result in the availability of:
- \code
- CBCapsule<const uiMouseEvent&>* caps
- \endcode
- 
- */
-
-#define mCBCapsuleGet(T,var,cb) \
-CBCapsule<T>* var = dynamic_cast< CBCapsule<T>* >( cb );
-
-#define mCBCapsuleUnpack(T,var,cb) \
-mCBCapsuleGet(T,cb##caps,cb) \
-T var = cb##caps->data
-
-#define mCBCapsuleUnpackWithCaller(T,var,cber,cb) \
-mCBCapsuleGet(T,cb##caps,cb) \
-T var = cb##caps->data; \
-CallBacker* cber = cb##caps->caller
-
-
-
 /*! \brief Notifier with automatic capsule creation.
 
 When non-callbacker data needs to be passed, you can put it in a capsule.
@@ -292,7 +274,7 @@ CNotifier<MyClass,const uiMouseEvent&>	mousepress;
 */
 
 template <class T,class C>
-class CNotifier : public NotifierAccess
+class CNotifier : public i_Notifier
 {
 public:
 
@@ -330,7 +312,7 @@ void xxx:doSomething()
 
 */
 
-mClass(Basic) NotifyStopper 
+mClass NotifyStopper 
 {
 public:
 			NotifyStopper( NotifierAccess& na ) 
@@ -369,4 +351,3 @@ Notifier<clss>& clss::instanceCreated() \
 
 
 #endif
-

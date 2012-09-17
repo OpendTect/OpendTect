@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: viscolorseq.cc,v 1.21 2012-05-02 15:12:31 cvskris Exp $";
+static const char* rcsID = "$Id: viscolorseq.cc,v 1.19 2009/07/22 16:01:44 cvsbert Exp $";
 
 #include "viscolorseq.h"
 #include "bufstringset.h"

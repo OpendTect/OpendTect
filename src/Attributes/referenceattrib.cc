@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: referenceattrib.cc,v 1.33 2012-08-09 04:38:06 cvssalil Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.28 2012/07/10 13:06:00 cvskris Exp $";
 
 
 #include "referenceattrib.h"
@@ -75,8 +75,9 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	setOutputValue( output, 0, idx, z0, (float) coord.x );
-	setOutputValue( output, 1, idx, z0, (float) coord.y );
+	const int outidx = z0 - output.z0_ + idx;
+	setOutputValue( output, 0, idx, z0, coord.x );
+	setOutputValue( output, 1, idx, z0, coord.y );
 	if ( outputinterest_[2] )
 	{
 	    if ( nrsamples==1 )

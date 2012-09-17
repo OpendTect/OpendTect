@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: attribdescsetman.h,v 1.6 2012-08-03 13:00:07 cvskris Exp $
+ RCS:           $Id: attribdescsetman.h,v 1.5 2010/03/31 13:44:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "multiid.h"
 
 class IOPar;
@@ -22,7 +21,7 @@ namespace Attrib
 
 class DescSet;
 
-mClass(AttributeEngine) DescSetMan
+mClass DescSetMan
 {
 public:
 
@@ -62,4 +61,3 @@ protected:
 }; // namespace Attrib
 
 #endif
-

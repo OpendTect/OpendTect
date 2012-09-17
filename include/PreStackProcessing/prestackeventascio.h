@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: prestackeventascio.h,v 1.7 2012-08-03 13:00:33 cvskris Exp $
+ RCS:		$Id: prestackeventascio.h,v 1.6 2011/05/25 04:49:12 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "binidvalset.h"
 #include "task.h"
 #include "horsampling.h"
@@ -42,7 +41,7 @@ columns are as follows:
 */
 
 
-mClass(PreStackProcessing) EventExporter : public SequentialTask
+mClass EventExporter : public SequentialTask
 {
 public:
     			EventExporter(std::ostream& strm,EventManager&);
@@ -71,7 +70,7 @@ protected:
 };
 
 
-mClass(PreStackProcessing) EventAscIO : public Table::AscIO
+mClass EventAscIO : public Table::AscIO
 {
 public:
     				EventAscIO( const Table::FormatDesc& fd,
@@ -98,7 +97,7 @@ protected:
 };
 
 
-mClass(PreStackProcessing) EventImporter : public SequentialTask
+mClass EventImporter : public SequentialTask
 {
 public:
     			EventImporter(const char*,const Table::FormatDesc&,
@@ -129,4 +128,3 @@ protected:
 } // namespace PreStack
 
 #endif
-

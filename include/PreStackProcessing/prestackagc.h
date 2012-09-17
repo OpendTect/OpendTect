@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackagc.h,v 1.10 2012-08-03 13:00:32 cvskris Exp $
+ RCS:		$Id: prestackagc.h,v 1.9 2011/01/25 20:34:00 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "ranges.h"
 #include "prestackprocessor.h"
 
@@ -21,7 +20,7 @@ namespace PreStack
 {
 
 
-mClass(PreStackProcessing) AGC : public Processor
+mClass AGC : public Processor
 {
 public:
     				mDefaultFactoryInstantiation( Processor, AGC,
@@ -58,4 +57,3 @@ protected:
 }; //namespace
 
 #endif
-

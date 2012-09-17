@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseiseventsnapper.cc,v 1.35 2012-08-10 04:11:26 cvssalil Exp $";
+static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.30 2011/09/16 10:59:21 cvskris Exp $";
 
 
 #include "uiseiseventsnapper.h"
@@ -62,8 +62,8 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 
     BufferString gatelbl( "Search gate " ); gatelbl += SI().getZUnitString();
     gatefld_ = new uiGenInput( this, gatelbl, FloatInpIntervalSpec() );
-    gatefld_->setValues( -SI().zStep() * SI().zDomain().userFactor(), 
-	    		  SI().zStep() * SI().zDomain().userFactor() );
+    gatefld_->setValues( -SI().zStep() * SI().zFactor(), 
+	    		  SI().zStep() * SI().zFactor() );
     gatefld_->attach( alignedBelow, eventfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
@@ -120,7 +120,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
     usedhor->setBurstAlert( true );
     
     Interval<float> rg = gatefld_->getFInterval();
-    rg.scale( 1.f / SI().zDomain().userFactor() );
+    rg.scale( 1. / SI().zFactor() );
 
     for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
     {
@@ -135,8 +135,9 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    if ( !newhor3d )
 		return false;
 
+	    EM::SectionID sid0 = hor3d->sectionID( 0 );
 	    BinIDValueSet bivs( 1, false );
-	    hor3d->geometry().fillBinIDValueSet( sid, bivs );
+	    hor3d->geometry().fillBinIDValueSet( sid0, bivs );
 	    
 	    SeisEventSnapper3D snapper( *seisctio_.ioobj, bivs, rg );
 	    snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
@@ -152,7 +153,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    {
 		BinID bid; float z;
 		bivs.get( pos, bid, z );
-		newhor3d->setPos( sid, bid.toInt64(), Coord3(0,0,z),
+		newhor3d->setPos( sid0, bid.toInt64(), Coord3(0,0,z),
 				  false );
 	    }
 

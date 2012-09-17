@@ -4,10 +4,9 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : June 2007
- * ID       : $Id: tutlogtools.h,v 1.4 2012-08-03 13:01:32 cvskris Exp $
+ * ID       : $Id: tutlogtools.h,v 1.3 2009/07/22 16:01:27 cvsbert Exp $
 -*/
 
-#include "tutmod.h"
 #include "commondefs.h"
 
 namespace Well { class Log; }
@@ -15,7 +14,7 @@ namespace Well { class Log; }
 namespace Tut
 {
 
-mClass(Tut) LogTools
+mClass LogTools
 {
 public:
 
@@ -34,4 +33,3 @@ protected:
 } // namespace
 
 #endif
-

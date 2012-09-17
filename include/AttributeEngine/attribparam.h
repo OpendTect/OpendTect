@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.36 2012-08-03 13:00:08 cvskris Exp $
+ RCS:           $Id: attribparam.h,v 1.35 2011/02/03 21:31:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "attribparambase.h"
 #include "datainpspec.h"
 
@@ -36,7 +35,7 @@ Subclasses are used to provide accurate parameter definition for parameters
 of each and every type
 */
 
-mClass(AttributeEngine) BinIDParam : public ValParam
+mClass BinIDParam : public ValParam
 {
 public:
     				BinIDParam(const char*);
@@ -60,7 +59,7 @@ public:
 };
 
 
-mClass(AttributeEngine) BoolParam : public ValParam
+mClass BoolParam : public ValParam
 {
 public:
     				BoolParam(const char*);
@@ -75,7 +74,7 @@ public:
 };
 
 
-mClass(AttributeEngine) EnumParam : public ValParam
+mClass EnumParam : public ValParam
 {
 public:
     				EnumParam(const char*);
@@ -93,7 +92,7 @@ public:
 };
 
 
-mClass(AttributeEngine) StringParam : public ValParam
+mClass StringParam : public ValParam
 {
 public:
     				StringParam(const char* key);
@@ -382,7 +381,7 @@ typedef NumGateParam<double>		DoubleGateParam;
 typedef NumGateParam<float>		ZGateParam;
 
 
-mClass(AttributeEngine) SeisStorageRefParam : public StringParam
+mClass SeisStorageRefParam : public StringParam
 {
 public:
 				SeisStorageRefParam(const char* key);
@@ -395,4 +394,3 @@ public:
 
 
 #endif
-

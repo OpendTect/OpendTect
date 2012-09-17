@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          May 2006
- RCS:           $Id: horizon2dextender.h,v 1.9 2012-08-03 13:00:30 cvskris Exp $
+ RCS:           $Id: horizon2dextender.h,v 1.8 2012/02/16 05:05:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "sectionextender.h"
 #include "position.h"
 #include "surv2dgeom.h"
@@ -22,7 +21,7 @@ namespace EM { class Horizon2D; };
 namespace MPE
 {
 
-mClass(MPEEngine) Horizon2DExtender : public SectionExtender
+mClass Horizon2DExtender : public SectionExtender
 {
 public:
 				Horizon2DExtender(EM::Horizon2D&,
@@ -60,5 +59,4 @@ protected:
 }; // namespace MPE
 
 #endif
-
 

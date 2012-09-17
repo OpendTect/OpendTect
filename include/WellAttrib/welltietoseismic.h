@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellattribmod.h"
 #include "ailayer.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
@@ -21,13 +20,13 @@ ________________________________________________________________________
 
 class LineKey;
 class MultiID;
-namespace Well { class Data; class D2TModel; }
+namespace Well { class Data; }
 
 namespace WellTie
 {
     class Data;
 
-mClass(WellAttrib) DataPlayer
+mClass DataPlayer
 {
 public:
 			DataPlayer(Data&,const MultiID&,const LineKey* lk=0);
@@ -47,26 +46,24 @@ protected:
     bool		processLog(const Well::Log*,Well::Log&,const char*); 
     void		createLog(const char*nm,float* dah,float* vals,int sz);
 
-    const Well::Data*	wd_;
-    const Well::D2TModel* d2t_;
     ElasticModel 	aimodel_;
     ReflectivityModel	refmodel_;
     Data&		data_;
-    GeoCalculator 	geocalc_;
 
     const MultiID&	seisid_;
     const LineKey*	linekey_;
+    TypeSet<float>	reflvals_;
 
     StepInterval<float> disprg_;
     StepInterval<float> workrg_;
-    StepInterval<float> timerg_;
     int			dispsz_;
     int			worksz_;
-    TypeSet<float>	reflvals_;
 
     BufferString	errmsg_;
+    const Well::Data*	wd_;
+
+    GeoCalculator 	geocalc_;
 };
 
 };//namespace WellTie
 #endif
-

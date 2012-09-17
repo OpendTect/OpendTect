@@ -8,7 +8,7 @@ _________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu 
  Date:		03-28-2007
- RCS:		$Id: uivolthresholder.h,v 1.2 2009-07-22 16:01:27 cvsbert Exp $
+ RCS:		$Id: uivolthresholder.h,v 1.2 2009/07/22 16:01:27 cvsbert Exp $
 _________________________________________________________________________
 
 -*/

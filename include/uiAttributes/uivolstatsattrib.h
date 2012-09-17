@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uivolstatsattrib.h,v 1.16 2012-08-03 13:00:50 cvskris Exp $
+ RCS:           $Id: uivolstatsattrib.h,v 1.15 2012/01/11 08:20:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 #include "uigroup.h"
 
@@ -28,7 +27,7 @@ class uiStepOutSel;
 
 /*! \brief VolumeStatistics Attribute description editor */
 
-mClass(uiAttributes) uiVolumeStatisticsAttrib : public uiAttrDescEd
+mClass uiVolumeStatisticsAttrib : public uiAttrDescEd
 {
 public:
 			uiVolumeStatisticsAttrib(uiParent*,bool);
@@ -67,4 +66,3 @@ protected:
 
 
 #endif
-

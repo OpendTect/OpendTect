@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uispinbox.cc,v 1.54 2012-08-30 07:52:52 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.50 2012/07/10 13:06:05 cvskris Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -22,7 +22,7 @@ static const char* rcsID mUnusedVar = "$Id: uispinbox.cc,v 1.54 2012-08-30 07:52
 #include <QValidator>
 #include <math.h>
 
-class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,mQtclass(QDoubleSpinBox)>
+class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,QDoubleSpinBox>
 {
 public:
                         uiSpinBoxBody(uiSpinBox&,uiParent*,const char*);
@@ -33,28 +33,26 @@ public:
     void		setAlpha(bool yn);
     bool		isAlpha() const		{ return isalpha_; }
 
-    mQtclass(QValidator)::State	validate( mQtclass(QString&) input,
-	    			          int& posn ) const
+    QValidator::State	validate( QString& input, int& posn ) const
 			{
 			    const double val = input.toDouble();
 			    if ( val > maximum() )
 				input.setNum( maximum() );
-			    return mQtclass(QDoubleSpinBox)::validate( input,
-				    				       posn );
+			    return QDoubleSpinBox::validate( input, posn );
 			}
 
-    virtual double		valueFromText(const mQtclass(QString&)) const;
-    virtual mQtclass(QString)	textFromValue(double value) const;
+    virtual double	valueFromText(const QString&) const;
+    virtual QString	textFromValue(double value) const;
 
 protected:
-    virtual void	contextMenuEvent(mQtclass(QContextMenuEvent*));
+    virtual void	contextMenuEvent(QContextMenuEvent*);
 
 
 private:
 
     i_SpinBoxMessenger& messenger_;
 
-    mQtclass(QDoubleValidator*)	dval;
+    QDoubleValidator*	dval;
 
     bool		isalpha_;
 
@@ -62,13 +60,13 @@ private:
 
 
 uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& hndl, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiSpinBox,mQtclass(QDoubleSpinBox)>(hndl,p,nm)
+    : uiObjBodyImpl<uiSpinBox,QDoubleSpinBox>(hndl,p,nm)
     , messenger_(*new i_SpinBoxMessenger(this,&hndl))
-    , dval(new mQtclass(QDoubleValidator)(this))
+    , dval(new QDoubleValidator(this))
     , isalpha_(false)
 {
     setHSzPol( uiObject::Small );
-    setCorrectionMode( mQtclass(QAbstractSpinBox)::CorrectToNearestValue );
+    setCorrectionMode( QAbstractSpinBox::CorrectToNearestValue );
 }
 
 
@@ -92,13 +90,13 @@ void uiSpinBoxBody::setAlpha( bool yn )
 }
 
 
-double uiSpinBoxBody::valueFromText( const mQtclass(QString&) qtxt ) const
+double uiSpinBoxBody::valueFromText( const QString& qtxt ) const
 {
     if ( !specialValueText().isEmpty() && qtxt==specialValueText() )
 	return handle_.minFValue();
 
     if ( !isalpha_ )
-	return mQtclass(QDoubleSpinBox)::valueFromText( qtxt );
+	return QDoubleSpinBox::valueFromText( qtxt );
 
     for ( int idx=0; idx<26; idx++ )
     {
@@ -110,20 +108,20 @@ double uiSpinBoxBody::valueFromText( const mQtclass(QString&) qtxt ) const
 }
 
 
-mQtclass(QString) uiSpinBoxBody::textFromValue( double val ) const
+QString uiSpinBoxBody::textFromValue( double val ) const
 {
     if ( !specialValueText().isEmpty() && val==handle_.minFValue() )
 	return specialValueText();
 
     if ( !isalpha_ )
-	return mQtclass(QDoubleSpinBox)::textFromValue( val );
+	return QDoubleSpinBox::textFromValue( val );
 
-    mQtclass(QString) svtxt = specialValueText();
+    QString svtxt = specialValueText();
     int intval = mNINT32(val);
     if ( !svtxt.isEmpty() )
 	intval--;
 
-    mQtclass(QString) str;
+    QString str;
     if ( intval < 0 )
 	str = "a";
     else if ( intval > 25 )
@@ -139,7 +137,7 @@ void uiSpinBoxBody::setNrDecimals( int dec )
 { dval->setDecimals( dec ); }
 
 
-void uiSpinBoxBody::contextMenuEvent( mQtclass(QContextMenuEvent*) ev )
+void uiSpinBoxBody::contextMenuEvent( QContextMenuEvent* ev )
 { handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() ); }
 
 
@@ -206,7 +204,7 @@ void uiSpinBox::setInterval( const StepInterval<int>& intv )
 {
     setMinValue( intv.start );
     setMaxValue( intv.stop );
-    setStep( intv.step );
+    setStep( intv.step ? intv.step : 1 );
 }
 
 
@@ -214,15 +212,7 @@ void uiSpinBox::setInterval( const StepInterval<float>& intv )
 {
     setMinValue( intv.start );
     setMaxValue( intv.stop );
-    setStep( intv.step );
-}
-
-
-void uiSpinBox::setInterval( const StepInterval<double>& intv )
-{
-    setMinValue( (float)intv.start );
-    setMaxValue( (float)intv.stop );
-    setStep( (float)intv.step );
+    setStep( intv.step ? intv.step : 1 );
 }
 
 
@@ -323,14 +313,14 @@ void uiSpinBox::stepBy( int nrsteps )
     body_->stepBy( nrsteps );
 }
 
-void uiSpinBox::setStep( int stp, bool snapcur )		
-{ setStep( (float)stp, snapcur ); }
+void uiSpinBox::setStep( int step_, bool snapcur )		
+{ setStep( (double)step_, snapcur ); }
 
-void uiSpinBox::setStep( float stp, bool snapcur )
+void uiSpinBox::setStep( float step_, bool snapcur )
 {
     mBlockCmdRec;
-    if ( mIsZero(stp,mDefEps) ) stp = 1;
-    body_->setSingleStep( stp );
+    if ( !step_ ) step_ = 1;
+    body_->setSingleStep( step_ );
     dosnap_ = snapcur;
     snapToStep(0);
 }

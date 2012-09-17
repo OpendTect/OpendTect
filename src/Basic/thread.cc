@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: thread.cc,v 1.62 2012-07-10 08:05:30 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.59 2012/07/10 13:06:01 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -510,7 +510,7 @@ const void* Threads::Thread::threadID() const
 }
 
 
-const void* Threads::currentThread()
+const void* Threads::Thread::currentThread()
 {
 #ifndef OD_NO_QT
     return QThread::currentThread();

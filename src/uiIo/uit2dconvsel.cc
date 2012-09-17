@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uit2dconvsel.cc,v 1.9 2012-07-02 15:07:07 cvskris Exp $";
+static const char* rcsID = "$Id: uit2dconvsel.cc,v 1.6 2012/07/02 15:07:10 cvskris Exp $";
 
 #include "uit2dconvsel.h"
 
@@ -32,8 +32,8 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
     if ( setup_.fldtext_.isEmpty() )
     {
 	const FixedString zunit = setup_.ist2d_
-	    ? sKey::Depth()
-	    : sKey::Time();
+	    ? sKey::Depth
+	    : sKey::Time;
 	
 	if ( setup_.optional_ )
 	    fldtext.add( "Convert to " ).add( zunit );
@@ -97,7 +97,7 @@ void uiT2DConvSel::inpSel( CallBacker* cb )
 
 bool uiT2DConvSel::usePar( const IOPar& iop )
 {
-    const char* typ = iop.find( sKey::Type() );
+    const char* typ = iop.find( sKey::Type );
     if ( !typ || !*typ || !choicefld_->isPresent(typ) )
 	return false;
 
@@ -117,7 +117,7 @@ bool uiT2DConvSel::fillPar( IOPar& iop, bool typeonly ) const
 {
     BufferString typestr = choicefld_->text();
     typestr += setup_.ist2d_ ? "T2D" : "D2T";
-    iop.set( sKey::Name(), typestr );
+    iop.set( sKey::Name, typestr );
     if ( typeonly )
 	return true;
 

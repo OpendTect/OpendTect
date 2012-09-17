@@ -5,12 +5,11 @@
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
-RCS:           $Id: parametricsurface.h,v 1.24 2012-08-03 13:00:28 cvskris Exp $
+RCS:           $Id: parametricsurface.h,v 1.23 2012/01/31 10:50:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "rowcol.h"
 #include "rowcolsurface.h"
 
@@ -21,7 +20,7 @@ namespace Geometry
 
 class ParametricCurve;
 
-mClass(Geometry) ParametricSurface : public RowColSurface
+mClass ParametricSurface : public RowColSurface
 {
 public:
     			ParametricSurface(const RowCol& origin=RowCol(0,0),
@@ -103,4 +102,3 @@ protected:
 };
 
 #endif
-

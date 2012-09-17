@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: string2.cc,v 1.21 2012-08-07 05:20:49 cvssalil Exp $";
+static const char* rcsID = "$Id: string2.cc,v 1.17 2012/07/10 13:06:01 cvskris Exp $";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -670,7 +670,7 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
 {
     BufferString val;
 
-    const float km2 = m2* float(1e-6);
+    const float km2 = m2*1e-6;
 
     FixedString unit;
 
@@ -691,7 +691,7 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
     {
 	if ( SI().xyInFeet() )
 	{
-	    val = m2*mToFeetFactorF*mToFeetFactorF;
+	    val = m2*mToFeetFactor*mToFeetFactor;
 	    unit =  "sq ft";
 	}
 	else

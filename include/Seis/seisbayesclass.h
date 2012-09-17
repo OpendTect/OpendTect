@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2010
- RCS:		$Id: seisbayesclass.h,v 1.11 2012-08-03 13:00:35 cvskris Exp $
+ RCS:		$Id: seisbayesclass.h,v 1.10 2010/04/08 09:26:50 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
-#include "seismod.h"
 #include "executor.h"
 #include "bufstringset.h"
 class IOPar;
@@ -39,7 +38,7 @@ class SeisTrcWriter;
 
   */
 
-mClass(Seis) SeisBayesClass : public Executor
+mClass SeisBayesClass : public Executor
 {
 public:
 
@@ -124,4 +123,3 @@ protected:
 
 
 #endif
-

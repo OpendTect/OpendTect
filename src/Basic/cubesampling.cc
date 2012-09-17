@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: cubesampling.cc,v 1.53 2012-08-06 07:18:37 cvssalil Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.48 2012/07/10 13:06:00 cvskris Exp $";
 
 #include "cubesampling.h"
 
@@ -211,35 +211,35 @@ void HorSampling::limitToWithUdf( const HorSampling& h )
 
 bool HorSampling::usePar( const IOPar& pars )
 {
-    bool ret = pars.get( sKey::FirstInl(), start.inl );
-    ret = pars.get( sKey::FirstCrl(), start.crl ) || ret;
-    ret = pars.get( sKey::LastInl(), stop.inl ) || ret;
-    ret = pars.get( sKey::LastCrl(), stop.crl ) || ret;
-    pars.get( sKey::StepInl(), step.inl );
-    pars.get( sKey::StepCrl(), step.crl );
+    bool ret = pars.get( sKey::FirstInl, start.inl );
+    ret = pars.get( sKey::FirstCrl, start.crl ) || ret;
+    ret = pars.get( sKey::LastInl, stop.inl ) || ret;
+    ret = pars.get( sKey::LastCrl, stop.crl ) || ret;
+    pars.get( sKey::StepInl, step.inl );
+    pars.get( sKey::StepCrl, step.crl );
     return ret;
 }
 
 
 void HorSampling::fillPar( IOPar& pars ) const
 {
-    pars.set( sKey::FirstInl(), start.inl );
-    pars.set( sKey::FirstCrl(), start.crl );
-    pars.set( sKey::LastInl(), stop.inl );
-    pars.set( sKey::LastCrl(), stop.crl );
-    pars.set( sKey::StepInl(), step.inl );
-    pars.set( sKey::StepCrl(), step.crl );
+    pars.set( sKey::FirstInl, start.inl );
+    pars.set( sKey::FirstCrl, start.crl );
+    pars.set( sKey::LastInl, stop.inl );
+    pars.set( sKey::LastCrl, stop.crl );
+    pars.set( sKey::StepInl, step.inl );
+    pars.set( sKey::StepCrl, step.crl );
 }
 
 
 void HorSampling::removeInfo( IOPar& par )
 {
-    par.removeWithKey( sKey::FirstInl() );
-    par.removeWithKey( sKey::FirstCrl() );
-    par.removeWithKey( sKey::LastInl() );
-    par.removeWithKey( sKey::LastCrl() );
-    par.removeWithKey( sKey::StepInl() );
-    par.removeWithKey( sKey::StepCrl() );
+    par.removeWithKey( sKey::FirstInl );
+    par.removeWithKey( sKey::FirstCrl );
+    par.removeWithKey( sKey::LastInl );
+    par.removeWithKey( sKey::LastCrl );
+    par.removeWithKey( sKey::StepInl );
+    par.removeWithKey( sKey::StepCrl );
 }
 
 
@@ -485,13 +485,6 @@ bool CubeSampling::includes( const CubeSampling& c ) const
 }
 
 
-void CubeSampling::include( const BinID& bid, float z )
-{
-    hrg.include( bid );
-    zrg.include( z );
-}
-
-
 void CubeSampling::include( const CubeSampling& c )
 {
     CubeSampling cs( c ); cs.normalise();
@@ -554,7 +547,7 @@ bool CubeSampling::operator==( const CubeSampling& cs ) const
    if ( cs.hrg == this->hrg )
    {
        float diff = cs.zrg.start - this->zrg.start;
-       const float eps = (float) ( SI().zIsTime() ? 1e-6 : 1e-3 );
+       const float eps = SI().zIsTime() ? 1e-6 : 1e-3;
        if ( fabs(diff) > eps ) return false;
 
        diff = cs.zrg.stop - this->zrg.stop;
@@ -572,21 +565,21 @@ bool CubeSampling::operator==( const CubeSampling& cs ) const
 
 bool CubeSampling::usePar( const IOPar& par )
 {
-    return hrg.usePar( par ) && par.get( sKey::ZRange(), zrg );
+    return hrg.usePar( par ) && par.get( sKey::ZRange, zrg );
 }
 
 
 void CubeSampling::fillPar( IOPar& par ) const
 {
     hrg.fillPar( par );
-    par.set( sKey::ZRange(), zrg.start, zrg.stop, zrg.step );
+    par.set( sKey::ZRange, zrg.start, zrg.stop, zrg.step );
 }
 
 
 void CubeSampling::removeInfo( IOPar& par )
 {
     HorSampling::removeInfo( par );
-    par.removeWithKey( sKey::ZRange() );
+    par.removeWithKey( sKey::ZRange );
 }
 
 

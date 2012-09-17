@@ -7,18 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.93 2012-08-09 03:48:45 cvssalil Exp $
+ RCS:           $Id: attribprovider.h,v 1.91 2012/08/21 05:41:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
-#include "bufstringset.h"
-#include "linekey.h"
+#include "refcount.h"
 #include "position.h"
 #include "ranges.h"
-#include "refcount.h"
 #include "sets.h"
+#include "linekey.h"
+#include "bufstringset.h"
 #include "surv2dgeom.h"
 
 class BinDataDesc;
@@ -41,10 +40,11 @@ class DataHolderLineBuffer;
 class Desc;
 class ProviderTask;
 
+class MyMainHackingClass;
 
 /*!\brief provides the actual output to ... */
 
-mClass(AttributeEngine) Provider
+mClass Provider
 {				mRefCountImpl(Provider);
 
     friend class		ProviderTask;
@@ -94,7 +94,6 @@ public:
     int				getTotalNrPos(bool);
     void			setCurLineKey( const char* linename ); 
     virtual void		adjust2DLineStoredVolume();
-    virtual PosInfo::GeomID	getGeomID() const;
     
     virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
 	    					bool firstcheck = false);
@@ -160,12 +159,6 @@ public:
     virtual void		setRdmPaths(TypeSet<BinID>* truepath,
 	    				    TypeSet<BinID>* snappedpath);
 				//!<For directional attributes
-
-    				//!<Special case for attributes (like PreStack)
-   				//!<which inputs are not treated as normal
-    				//!<input cubes and thus not delivering
-    				//!<adequate cs automaticly
-    virtual void		updateCSIfNeeded(CubeSampling&) const	{}
 
 protected:
 
@@ -334,8 +327,8 @@ protected:
     float			inldist() const; 
     float			crldist() const;
     float			maxSecureDip() const
-				{ return (float) (zIsTime() ? mMAXDIPSECURE
-						   : mMAXDIPSECUREDEPTH); }
+				{ return zIsTime() ? mMAXDIPSECURE
+						   : mMAXDIPSECUREDEPTH; }
     void			stdPrepSteering(const BinID&);
 
     ObjectSet<Provider>		inputs_;
@@ -369,13 +362,29 @@ protected:
     bool			isusedmulttimes_;
     bool			needinterp_;
     BufferString 		errmsg_;
+
+public:
+    MyMainHackingClass*		getMyMainHackingClass() const;
+    void			setMyMainHackingClass(MyMainHackingClass*);
+    PosInfo::GeomID		getGeomID() const;
 };
 
 
-mGlobal(AttributeEngine) int getSteeringIndex( const BinID& );
+mGlobal int getSteeringIndex( const BinID& );
 //!< For every position there is a single steering index ...?
 
+mClass MyMainHackingClass
+{
+public:
+    				MyMainHackingClass(Attrib::Provider* prov)
+				    : prov_(prov)	{}
 
+    virtual bool		isTheOne()		{ return false; }
+    virtual void		updateCSIfNeeded(CubeSampling&) const	{}
+
+protected:
+    Provider*			prov_;
+};
 
 }; // namespace Attrib
 
@@ -416,4 +425,3 @@ Attrib::Provider* clss::createInstance( Attrib::Desc& desc ) \
     desc->unRef();
 
 #endif
-

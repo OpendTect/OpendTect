@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id: emhorizonpreload.h,v 1.6 2012-08-03 13:00:18 cvskris Exp $
+ RCS:           $Id: emhorizonpreload.h,v 1.5 2010/09/16 12:36:14 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "callback.h"
 
 #include "bufstringset.h"
@@ -24,7 +23,7 @@ class TaskRunner;
 namespace EM
 {
 
-mClass(EarthModel) HorizonPreLoader : public CallBacker
+mClass HorizonPreLoader : public CallBacker
 {
 public:
 				HorizonPreLoader();
@@ -46,9 +45,8 @@ protected:
 };
 
 
-mGlobal(EarthModel) HorizonPreLoader& HPreL();
+mGlobal HorizonPreLoader& HPreL();
 
 } //namespace EM
 
 #endif
-

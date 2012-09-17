@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: arrayndinfo.cc,v 1.22 2012-08-30 09:48:32 cvskris Exp $";
+static const char* rcsID = "$Id: arrayndinfo.cc,v 1.17 2011/04/22 13:28:56 cvsbert Exp $";
 
 #include "arraynd.h"
 #include "typeset.h"
@@ -67,14 +67,14 @@ bool ArrayNDInfo::getArrayPos( od_uint64 mempos, int* pos ) const
 	product *= size;
     }
 
-    pos[0] =(int) mempos/dimdevisor[0];
+    pos[0] = mempos/dimdevisor[0];
     if ( pos[0]>=getSize(0) )
 	return false;
 
     mempos = mempos%dimdevisor[0];
     for ( int idx=1; idx<ndim; idx++ )
     {
-	pos[idx] = (int) mempos/dimdevisor[idx];
+	pos[idx] = mempos/dimdevisor[idx];
 	mempos = mempos%dimdevisor[idx];
     }
 
@@ -225,8 +225,7 @@ ArrayNDInfoImpl::ArrayNDInfoImpl( int ndim_ )
 
 
 ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfoImpl& nsz )
-	: ArrayNDInfo( nsz )
-        , sizes(new int[nsz.getNDim()]) 
+	: sizes(new int[nsz.getNDim()]) 
 	, ndim( nsz.getNDim() )
 {
     for (int idx = 0; idx < ndim; idx++)
@@ -274,10 +273,6 @@ ArrayNDIter::ArrayNDIter( const ArrayNDInfo& sz )
     : sz_ ( sz )
     , position_( new int[sz.getNDim()] )
 {
-    if ( !sz.getTotalSz() )
-    {
-	pErrMsg( "Not a valid array for iteration" );
-    }
     reset();
 }
 

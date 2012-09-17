@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.h,v 1.12 2012-08-03 13:01:14 cvskris Exp $
+ RCS:           $Id: uimenuhandler.h,v 1.10 2010/11/22 08:57:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uiparent.h"
 #include "menuhandler.h"
 #include "position.h"
@@ -25,7 +24,7 @@ Implementation of MenuHandler for the dGB-based userinterface.
 */
 
 
-mClass(uiTools) uiMenuHandler : public MenuHandler
+mClass uiMenuHandler : public MenuHandler
 {
 public:
     				uiMenuHandler( uiParent*, int id );
@@ -71,8 +70,8 @@ public:
     void			set2DPickedPos(const Geom::Point2D<double>& pos)
 					{ positionxy_=pos; }
     
-    static int			fromTree();
-    static int			fromScene();
+    static const int		fromTree();
+    static const int		fromScene();
 
 protected:
     bool			executeMenuInternal();
@@ -87,7 +86,7 @@ protected:
 };
 
 
-mClass(uiTools) uiTreeItemTBHandler : public MenuHandler
+mClass uiTreeItemTBHandler : public MenuHandler
 {
 public:
     				uiTreeItemTBHandler(uiParent*);
@@ -105,4 +104,3 @@ protected:
 };
 
 #endif
-

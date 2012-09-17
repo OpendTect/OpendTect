@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiobjectitemview.cc,v 1.26 2012-09-13 18:36:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.23 2012/06/26 13:13:20 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -28,9 +28,9 @@ uiObjectItemView::uiObjectItemView( uiParent* p )
     setScene( *newscene );
     setSceneAlignment( Alignment::HCenter );
 
-    CallBack resetareacb( mCB(this,uiObjectItemView,resetViewArea) );
-    reSize.notify( resetareacb );
-    scrollBarUsed.notify( resetareacb );
+    CallBack areacb( mCB(this,uiObjectItemView,resetViewArea) );
+    reSize.notify( areacb );
+    scrollBarUsed.notify( areacb );
     getMouseEventHandler().buttonReleased.notify(
 	                mCB(this,uiObjectItemView,rubberBandCB) );
 } 
@@ -129,7 +129,7 @@ uiObjectItem* uiObjectItemView::getItemFromPos( const Geom::Point2D<int>& pos )
 void uiObjectItemView::getItemsFromRect( const uiRect& rect, 
 				       ObjectSet<uiObjectItem>& objs ) 
 {
-    Interval<int> rectborders( rect.left(), rect.right() );
+    Interval<float> rectborders( rect.left(), rect.right() );
     Interval<int> objborders(0,0); 
     for ( int idx=0; idx<objectitems_.size(); idx++ )
     {

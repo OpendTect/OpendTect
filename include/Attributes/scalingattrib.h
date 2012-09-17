@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.22 2012-08-03 13:00:09 cvskris Exp $
+ RCS:           $Id: scalingattrib.h,v 1.21 2011/03/01 10:21:40 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 
 /*!\brief Scaling Attribute
@@ -34,7 +33,7 @@ Outputs:
 namespace Attrib
 {
 
-mClass(Attributes) Scaling: public Provider
+mClass Scaling: public Provider
 {
 public:
     static void		initClass();
@@ -118,4 +117,3 @@ protected:
 }; // namespace Attrib
 
 #endif
-

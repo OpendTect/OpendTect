@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seiscbvs.cc,v 1.96 2012-07-21 22:39:07 cvskris Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.91 2012/03/06 10:48:20 cvsbert Exp $";
 
 #include "seiscbvs.h"
 
@@ -163,27 +163,27 @@ bool CBVSSeisTrcTranslator::initRead_()
 
     const int nrcomp = rdmgr_->nrComponents();
     const CBVSInfo& info = rdmgr_->info();
-    insd = info.sd_;
-    innrsamples = info.nrsamples_;
+    insd = info.sd;
+    innrsamples = info.nrsamples;
     for ( int idx=0; idx<nrcomp; idx++ )
     {
-	const BasicComponentInfo& cinf = *info.compinfo_[idx];
+	const BasicComponentInfo& cinf = *info.compinfo[idx];
 	addComp( cinf.datachar, cinf.name(), cinf.datatype );
     }
 
-    pinfo.usrinfo = info.usertext_;
-    pinfo.stdinfo = info.stdtext_;
-    pinfo.nr = info.seqnr_;
-    pinfo.fullyrectandreg = info.geom_.fullyrectandreg;
-    pinfo.inlrg.start = info.geom_.start.inl;
-    pinfo.inlrg.stop = info.geom_.stop.inl;
-    pinfo.inlrg.step = abs(info.geom_.step.inl);
+    pinfo.usrinfo = info.usertext;
+    pinfo.stdinfo = info.stdtext;
+    pinfo.nr = info.seqnr;
+    pinfo.fullyrectandreg = info.geom.fullyrectandreg;
+    pinfo.inlrg.start = info.geom.start.inl;
+    pinfo.inlrg.stop = info.geom.stop.inl;
+    pinfo.inlrg.step = abs(info.geom.step.inl);
     pinfo.inlrg.sort();
-    pinfo.crlrg.start = info.geom_.start.crl;
-    pinfo.crlrg.stop = info.geom_.stop.crl;
-    pinfo.crlrg.step = abs(info.geom_.step.crl);
+    pinfo.crlrg.start = info.geom.start.crl;
+    pinfo.crlrg.stop = info.geom.stop.crl;
+    pinfo.crlrg.step = abs(info.geom.step.crl);
     if ( !pinfo.fullyrectandreg )
-	pinfo.cubedata = &info.geom_.cubedata;
+	pinfo.cubedata = &info.geom.cubedata;
 
     rdmgr_->getIsRev( pinfo.inlrev, pinfo.crlrev );
     return true;
@@ -288,7 +288,7 @@ bool CBVSSeisTrcTranslator::toNext()
 	return rdmgr_->toNext();
 
     const CBVSInfo& info = rdmgr_->info();
-    if ( info.nrtrcsperposn_ > 1 )
+    if ( info.nrtrcsperposn > 1 )
     {
 	if ( !rdmgr_->toNext() )
 	    return false;
@@ -312,14 +312,14 @@ bool CBVSSeisTrcTranslator::toNext()
 	    if ( !res ) break;
 
 	    if ( res%256 == 2 )
-		{ if ( !info.geom_.moveToNextInline(nextbid) ) return false; }
-	    else if ( !info.geom_.moveToNextPos(nextbid) )
+		{ if ( !info.geom.moveToNextInline(nextbid) ) return false; }
+	    else if ( !info.geom.moveToNextPos(nextbid) )
 		return false;
 	}
 
 	if ( goTo(nextbid) )
 	    break;
-	else if ( !info.geom_.moveToNextPos(nextbid) )
+	else if ( !info.geom.moveToNextPos(nextbid) )
 	    return false;
     }
 
@@ -413,7 +413,7 @@ RCol2Coord CBVSSeisTrcTranslator::getTransform() const
 {
     if ( !rdmgr_ || !rdmgr_->nrReaders() )
 	return SI().binID2Coord();
-    return rdmgr_->info().geom_.b2c;
+    return rdmgr_->info().geom.b2c;
 }
 
 
@@ -422,15 +422,15 @@ bool CBVSSeisTrcTranslator::startWrite()
     BufferString fnm; if ( !getFileName(fnm) ) return false;
 
     CBVSInfo info;
-    info.auxinfosel_.setAll( true );
-    info.geom_.fullyrectandreg = false;
-    info.geom_.b2c = SI().binID2Coord();
-    info.stdtext_ = pinfo.stdinfo;
-    info.usertext_ = pinfo.usrinfo;
+    info.auxinfosel.setAll( true );
+    info.geom.fullyrectandreg = false;
+    info.geom.b2c = SI().binID2Coord();
+    info.stdtext = pinfo.stdinfo;
+    info.usertext = pinfo.usrinfo;
     for ( int idx=0; idx<nrSelComps(); idx++ )
-	info.compinfo_ += new BasicComponentInfo(*outcds[idx]);
-    info.sd_ = insd;
-    info.nrsamples_ = innrsamples;
+	info.compinfo += new BasicComponentInfo(*outcds[idx]);
+    info.sd = insd;
+    info.nrsamples = innrsamples;
 
     wrmgr_ = new CBVSWriteMgr( fnm, info, &auxinf_, &brickspec_, single_file_,
 	    			(CBVSIO::CoordPol)coordpol_ );
@@ -448,6 +448,8 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
+	const unsigned char* trcdata
+	    		= trc.data().getComponent( selComp(iselc) )->data();
 	unsigned char* blockbuf = blockbufs_[iselc];
 	int icomp = selComp(iselc);
 	for ( int isamp=samps.start; isamp<=samps.stop; isamp++ )
@@ -474,7 +476,7 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 {
     SeisTrcTranslator::usePar( iopar );
 
-    const char* res = iopar.find( sKey::DataStorage() );
+    const char* res = iopar.find( sKey::DataStorage );
     if ( res && *res )
 	preseldatatype_ = (DataCharacteristics::UserType)(*res-'0');
 
@@ -562,8 +564,6 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 	if ( !sp.rename(spnew.fileName(),cb) )
 	    rv = false;
     }
-
-    return rv;
 }
 
 
@@ -579,6 +579,4 @@ bool CBVSSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 	if ( !sp.setReadOnly(yn) )
 	    rv = false;
     }
-
-    return rv;
 }

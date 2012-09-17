@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: trigonometry.cc,v 1.66 2012-08-13 04:04:37 cvsaneesh Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.62 2012/07/10 13:05:59 cvskris Exp $";
 
 #include "trigonometry.h"
 
@@ -113,7 +113,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
 }
 
 
-Quaternion::Quaternion( double s, double x, double y, double z )
+Quaternion::Quaternion( float s, float x, float y, float z )
     : vec_( x, y, z )
     , s_( s )
 { }
@@ -142,7 +142,7 @@ void Quaternion::setRotation( const Vector3& axis, float angle )
 void Quaternion::getRotation( Vector3& axis, float& angle ) const
 {
     if ( s_>=1 || s_<=-1 ) angle = 0;
-    else angle = (float) Math::ACos( s_ ) * 2;
+    else angle = Math::ACos( s_ ) * 2;
 
     //This should really be axis=vec_/sin(angle/2)
     //but can be simplified to this since length of axis is irrelevant
@@ -821,20 +821,20 @@ Coord3 Plane3CoordSystem::transform( const Coord& coord ) const
 	
 Sphere cartesian2Spherical( const Coord3& crd, bool math )
 {
-    double theta, phi;
-    double rad = crd.abs();
+    float theta, phi;
+    float rad = crd.abs();
     if ( math )
     {
-	theta = rad ? Math::ACos( (crd.z / rad) ) : 0;
+	theta = rad ? Math::ACos( crd.z / rad ) : 0;
 	phi = atan2( crd.y, crd.x );
     }
     else
     {
-	theta = rad ? Math::ASin( (crd.z / rad) ) : 0;
+	theta = rad ? Math::ASin( crd.z / rad ) : 0;
 	phi = atan2( crd.x, crd.y );
     }
 
-    return Sphere( (float)rad, (float)theta, (float)phi );
+    return Sphere(rad,theta,phi);
 }
 
 

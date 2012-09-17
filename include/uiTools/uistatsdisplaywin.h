@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplaywin.h,v 1.10 2012-08-03 13:01:15 cvskris Exp $
+ RCS:           $Id: uistatsdisplaywin.h,v 1.9 2012/05/29 12:56:53 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uimainwin.h"
 #include "uistatsdisplay.h"
 class BufferStringSet;
@@ -22,7 +21,7 @@ namespace Stats { template <class T> class ParallelCalc; }
 
 /*!\brief Stats display main window. See uistatsdisplay.h for details. */
 
-mClass(uiTools) uiStatsDisplayWin : public uiMainWin
+mClass uiStatsDisplayWin : public uiMainWin
 {
 public:
     				uiStatsDisplayWin(uiParent*,
@@ -30,7 +29,8 @@ public:
 					bool ismodal=true);
     
     uiStatsDisplay*		statsDisplay(int nr=0)	{ return disps_[nr]; }
-    void                        setData(const float* medarr,int medsz,int nr=0);
+    void                        setData(const Stats::ParallelCalc<float>&,
+					int nr=0);
     void			addDataNames(const BufferStringSet&);
     void			setDataName(const char*,int nr=0);
     void			setMarkValue(float,bool forx,int nr=0);
@@ -42,8 +42,10 @@ protected:
     uiComboBox*			statnmcb_;
 
     void			dataChanged(CallBacker*);
+public:
+    void                        setData( const float* array, int sz,
+					int nr=0);
 };
 
 
 #endif
-

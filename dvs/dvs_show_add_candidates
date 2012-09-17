@@ -1,24 +1,22 @@
-#!/bin/csh -f
+#!/bin/csh
 
 if ( $#argv < 2 ) then
-    echo "Usage: $0 file-extension sub-dir [subdir ...]"
-    exit 1
-endif
-
-if ( ! -d CVS ) then
-    echo "No Subversion support yet"
-    exit 1
+	echo "Usage: $0 file-extension sub-dir [subdir ...]"
+	exit 0
 endif
 
 set statcmd="dvs status"
 set ext=$1
 shift
 
+
 foreach dir ( $* )
-    if ( -d $dir && "$dir" != "CVS" ) then
-	echo "$dir ..."
-	cd $dir
-	$statcmd *.$ext > /dev/null
-	cd ..
-    endif
+
+	if ( -d $dir && "$dir" != "CVS" ) then
+	    echo "$dir ..."
+	    cd $dir
+	    $statcmd *.$ext > /dev/null
+	    cd ..
+	endif
+
 end

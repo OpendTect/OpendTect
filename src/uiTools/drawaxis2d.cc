@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: drawaxis2d.cc,v 1.44 2012-09-13 18:36:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.36 2012/07/10 13:06:08 cvskris Exp $";
 
 #include "drawaxis2d.h"
 
@@ -19,331 +19,351 @@ static const char* rcsID mUnusedVar = "$Id: drawaxis2d.cc,v 1.44 2012-09-13 18:3
 #include "uigraphicsitemimpl.h"
 #include "uiworld2ui.h"
 
+#define mTickLen	5
+
+#define mDefGrpItmInit \
+      xaxlineitmgrp_( 0 ) \
+    , yaxlineitmgrp_( 0 ) \
+    , xaxgriditmgrp_( 0 ) \
+    , yaxgriditmgrp_( 0 ) \
+    , xaxtxtitmgrp_( 0 ) \
+    , yaxtxtitmgrp_( 0 ) \
+    , xaxrectitem_( 0 ) \
+    , yaxlineitem_( 0 ) \
+    , xfactor_( 1 ) \
+    , yfactor_( 1 )
+
+DrawAxis2D::DrawAxis2D( uiGraphicsView& drawview )
+    : drawscene_( drawview.scene() )
+    , mDefGrpItmInit
+    , drawview_(drawview)
+    , inside_(false)
+    , drawaxisline_(true)
+    , xaxis_( 0, 1 )
+    , yaxis_( 0, 1 )
+    , xrg_( 0, 1 )
+    , yrg_( 0, 1 )
+    , useuirect_( false )
+    , zValue_( 3 )
+{}
+
+
+DrawAxis2D::~DrawAxis2D()
+{
+    delete xaxlineitmgrp_; delete yaxlineitmgrp_;
+    delete xaxgriditmgrp_; delete yaxgriditmgrp_;
+    delete xaxtxtitmgrp_; delete yaxtxtitmgrp_;
+    delete xaxrectitem_; delete yaxlineitem_;
+}
+
+
+void DrawAxis2D::setDrawRectangle( const uiRect* ur )
+{
+    if ( !ur )
+	useuirect_ = false;
+
+    uirect_ = *ur;
+    useuirect_ = true;
+}
+
+
+void DrawAxis2D::setup( const uiWorldRect& wr, float xfactor, float yfactor )
+{
+    xfactor_ = xfactor;
+    yfactor_ = yfactor;
+    xrg_.start = wr.left();
+    xrg_.stop = wr.right();
+    xaxis_ = AxisLayout<double>( Interval<double>(wr.left(),wr.right()) ).sd_;
+
+    yrg_.start = wr.top();
+    yrg_.stop = wr.bottom();
+    yaxis_ = AxisLayout<double>( Interval<double>(wr.top(), wr.bottom()) ).sd_;
+}
+
+
+void DrawAxis2D::setup( const StepInterval<float>& xrg,
+			const StepInterval<float>& yrg )
+{
+    xrg_.setFrom( xrg );
+    yrg_.setFrom( yrg );
+    xaxis_ = SamplingData<double>( xrg.start, xrg.step );
+    yaxis_ = SamplingData<double>( yrg.start, yrg.step );
+}
+
 # define mRemoveGraphicsItem( item ) \
-if ( item ) \
-{ scene_.removeItem( item ); delete item; item = 0; }
+    if ( item ) \
+    { drawscene_.removeItem( item ); delete item; item = 0; }
 
-#define mMaskZ	0
-#define mAnnotZ	100
-
-
-uiGraphicsSceneAxis::uiGraphicsSceneAxis( uiGraphicsScene& scene)
-    : scene_( scene )
-    , itmgrp_( 0 )
-    , txtfactor_( 1 )
-    , drawaxisline_( true )
-    , drawgridlines_( true )
-    , mask_( 0 )
+void DrawAxis2D::drawAxes( bool xdir, bool ydir,
+			   bool topside, bool leftside )
 {
-    itmgrp_ = new uiGraphicsItemGroup;
-    scene_.addItem( itmgrp_ );
-}
-
-
-uiGraphicsSceneAxis::~uiGraphicsSceneAxis()
-{
-    mRemoveGraphicsItem( itmgrp_ );
-}
-
-
-void uiGraphicsSceneAxis::setZValue( int zvalue )
-{
-    itmgrp_->setZValue( zvalue );
-}
-
-
-void uiGraphicsSceneAxis::setPosition(bool isx,bool istoporleft,bool isinside)
-{
-    inside_ = isinside;
-    isx_ = isx;
-    istop_ = istoporleft;
-    
-    update();
-}
-
-
-void uiGraphicsSceneAxis::drawMask( bool yn )
-{
-    if ( yn==(bool) mask_ )
-	return;
-    
-    if ( yn )
+    if ( xdir )
+	drawXAxis( topside );
+    else
     {
-	mask_ = new uiRectItem;
-	itmgrp_->add( mask_ );
-	mask_->setFillColor( Color::White() );
-	LineStyle lst; lst.type_ = LineStyle::None;
-	
-	mask_->setPenStyle( lst );
-	mask_->setZValue( mMaskZ );
+	mRemoveGraphicsItem( xaxlineitmgrp_ );
+	mRemoveGraphicsItem( xaxtxtitmgrp_ );
+	mRemoveGraphicsItem( xaxrectitem_ );
+    }
+
+    if ( ydir )
+	drawYAxis( leftside );
+    else
+    {
+	mRemoveGraphicsItem( yaxlineitmgrp_ );
+	mRemoveGraphicsItem( yaxtxtitmgrp_ );
+	mRemoveGraphicsItem( yaxlineitem_ );
+    }
+}
+
+#define mLoopStart( dim ) \
+    const int nrsteps = mNINT32(dim##rg_.width(false)/dim##axis_.step)+1; \
+    for ( int idx=0; idx<nrsteps; idx++ ) \
+    { \
+	const double dim##pos = dim##axis_.atIndex(idx); \
+	if ( !dim##rg_.includes(dim##pos,true) ) \
+	    continue;
+
+#define mLoopEnd }
+
+
+void DrawAxis2D::drawXAxis( bool topside )
+{
+    const uiRect drawarea = getDrawArea();
+    const uiWorld2Ui transform( uiWorldRect(xrg_.start,yrg_.start,
+					    xrg_.stop,yrg_.stop),
+					    drawarea.getPixelSize() );
+
+    int baseline, bias;
+    if ( topside )
+    {
+	baseline = drawarea.top();
+	bias = inside_ ? mTickLen : -mTickLen;
     }
     else
     {
-	itmgrp_->remove( mask_, true );
-	mask_ = 0;
+	baseline = drawarea.bottom();
+	bias = inside_ ? -mTickLen : mTickLen;
     }
-}
 
-
-void uiGraphicsSceneAxis::setViewRect( const uiRect& uir )
-{
-    viewrect_ = uir;
-    update();
-}
-
-
-void uiGraphicsSceneAxis::setWorldCoords( const Interval<double>& rg )
-{
-    rg_ = rg;
-    update();
-}
-
-
-void uiGraphicsSceneAxis::setFontData( const FontData& fnt )
-{
-    fontdata_ = fnt;
-    update();
-}
-
-
-void uiGraphicsSceneAxis::turnOn( bool yn )
-{
-    if ( itmgrp_ ) itmgrp_->setVisible( yn );
-}
-
-    
-#define mGetItem( type, nm, var ) \
-type* var; \
-if ( nm##s_.validIdx( cur##nm##itm ) ) \
-    var = nm##s_[cur##nm##itm]; \
-else \
-{ \
-    var = new type; \
-    itmgrp_->add( var ); \
-    nm##s_ += var; \
-} \
-cur##nm##itm++
-
-
-void uiGraphicsSceneAxis::update()
-{
-    SamplingData<double> axis =
-    	AxisLayout<double>( Interval<double>(rg_.start ,rg_.stop) ).sd_;
-    
-    
-    const Interval<int> axisrg( isx_ ? viewrect_.left() : viewrect_.top(),
-			 	isx_ ? viewrect_.right() : viewrect_.bottom() );
-    const Interval<int> datarg( isx_ ? viewrect_.top() : viewrect_.left(),
-			       isx_ ? viewrect_.bottom() : viewrect_.right() );
-    
-    
-    const int ticklen = fontdata_.pointSize();
-    
-    const int baseline = istop_ ? datarg.start : datarg.stop;
-    const int bias = inside_==istop_ ? ticklen : -ticklen;
-    
-    const int ticklinestart = baseline + bias;
-    const int ticklinestop = baseline;
-    
-    int curtextitm = 0;
-    int curlineitm = 0;
-    
-     
     if ( drawaxisline_ )
     {
-	mGetItem( uiLineItem, line, line );
-		
-	uiPoint start( axisrg.start, baseline );
-	uiPoint stop( axisrg.stop, baseline );
-	if ( !isx_ )
-	{
-	    start.swapXY();
-	    stop.swapXY();
-	}
+	if ( !xaxrectitem_ )
+	    xaxrectitem_ = drawscene_.addRect( drawarea.left(),
+						drawarea.top(),
+						drawarea.width(),
+						drawarea.height() );
+	else
+	    xaxrectitem_->setRect( drawarea.left(), drawarea.top(),
+		    		   drawarea.width(), drawarea.height() );
 	
-	line->setLine( start, stop, false );
-	line->setPenStyle( ls_ );
+	xaxrectitem_->setPenStyle( xls_ );
+	xaxrectitem_->setZValue( 5 );
     }
-    
-    Alignment al;
-    if ( isx_ )
+
+    if ( !xaxlineitmgrp_ )
     {
-	al.set( Alignment::HCenter );
-	al.set( bias<0 ? Alignment::Bottom : Alignment::Top );
+	xaxlineitmgrp_ = new uiGraphicsItemGroup( true );
+	drawscene_.addItemGrp( xaxlineitmgrp_ );
+	xaxlineitmgrp_->setZValue( zValue_ );
+    }
+    else
+	xaxlineitmgrp_->removeAll( true );
+
+    if ( !xaxtxtitmgrp_ )
+    {
+	xaxtxtitmgrp_ = new uiGraphicsItemGroup( true );
+	drawscene_.addItemGrp( xaxtxtitmgrp_ );
+	xaxtxtitmgrp_->setZValue( zValue_ );
+    }
+    else
+	xaxtxtitmgrp_->removeAll( true );
+    
+    mLoopStart( x )
+	BufferString text;
+	const double displaypos = getAnnotTextAndPos(true,xpos,&text);
+	const int wx = transform.toUiX( displaypos ) + drawarea.left();
+	uiLineItem* lineitem = new uiLineItem();
+	lineitem->setLine( wx, drawarea.top(), wx, drawarea.top()+bias );
+	lineitem->setPenStyle( xls_ );
+	xaxlineitmgrp_->add( lineitem );
+
+	mDeclAlignment( al, HCenter, Top );
+	if ( bias<0 ) al.set( Alignment::Bottom );
+	uiTextItem* textitem = new uiTextItem( text, al );
+	textitem->setTextColor( xls_.color_ );
+	textitem->setPos( uiPoint(wx,drawarea.top()+bias) );
+	xaxtxtitmgrp_->add( textitem );
+    mLoopEnd
+}
+
+
+void DrawAxis2D::setXLineStyle( const LineStyle& xls )
+{
+    xls_ = xls;
+    if ( xaxlineitmgrp_ )
+	xaxlineitmgrp_->setPenStyle( xls );
+    if ( xaxtxtitmgrp_ )
+	xaxtxtitmgrp_->setPenStyle( xls );
+}
+
+
+void DrawAxis2D::drawYAxis( bool leftside )
+{
+    const uiRect drawarea = getDrawArea();
+    const uiWorld2Ui transform(
+	    uiWorldRect(xrg_.start,yrg_.start,
+			xrg_.stop,yrg_.stop),
+	    drawarea.getPixelSize() );
+
+    int baseline, bias;
+    if ( leftside )
+    {
+	baseline = drawarea.left();
+	bias = inside_ ? mTickLen : -mTickLen;
     }
     else
     {
-	al.set( Alignment::VCenter );
-	al.set( bias<0 ? Alignment::Right : Alignment::Left );
+	baseline = drawarea.right();
+	bias = inside_ ? -mTickLen : mTickLen;
     }
-    
-    BufferString txt;
-    const float fnrsteps = (float) ( rg_.width(false)/axis.step );
-    const int nrsteps = mNINT32( fnrsteps )+1;
-    for ( int idx=0; idx<nrsteps; idx++ )
+
+    if ( drawaxisline_ )
     {
-	const double worldpos = axis.atIndex(idx);
-	if ( !rg_.includes(worldpos,true) )
-	    continue;
-	
-	txt = worldpos * txtfactor_;
-	const double worldrelpos = rg_.getfIndex( worldpos, rg_.width() );
-	float axispos = (float) ( axisrg.start + worldrelpos*axisrg.width() );
-	
-	mGetItem( uiLineItem, line, tickline );
-	
-	Geom::Point2D<float> tickstart( axispos, ticklinestart );
-	Geom::Point2D<float> tickstop( axispos, ticklinestop );
-	
-	if ( !isx_ )
-	{
-	    tickstart.swapXY();
-	    tickstop.swapXY();
-	}
-	
-	tickline->setLine( tickstart, tickstop, false );
-	tickline->setPenStyle( ls_ );
-	
-	if ( drawgridlines_ )
-	{
-	    mGetItem( uiLineItem, line, gridline );
-	    Geom::Point2D<float> gridstart( axispos, datarg.start );
-	    Geom::Point2D<float> gridstop( axispos, datarg.stop );
-	    
-	    if ( !isx_ )
-	    {
-		gridstart.swapXY();
-		gridstop.swapXY();
-	    }
-	    
-	    gridline->setLine( gridstart, gridstop );
-	    gridline->setPenStyle( gridls_ );
-	}
-	
-
-	mGetItem( uiTextItem, text, label );
-	label->setAlignment( al );
-	label->setText( txt );
-	label->setFontData( fontdata_ );
-	label->setPos( tickstart );
-	label->setTextColor( ls_.color_ );
+	const uiPoint& pt1 = drawarea.topLeft();
+	const uiPoint& pt2 = drawarea.bottomLeft();
+	if ( !yaxlineitem_ )
+	    yaxlineitem_ = drawscene_.addItem( new uiLineItem(pt1,pt2,true) );
+	else 
+	    yaxlineitem_->setLine( pt1, pt2, true );
+	yaxlineitem_->setPenStyle( yls_ );
     }
     
-    while ( curlineitm<lines_.size() )
-	itmgrp_->remove( lines_.pop(), true );
-    
-    while ( curtextitm<texts_.size() )
-	itmgrp_->remove( texts_.pop(), true );
+    if ( !yaxlineitmgrp_ )
+    {
+	yaxlineitmgrp_ = new uiGraphicsItemGroup( true );
+	drawscene_.addItemGrp( yaxlineitmgrp_ );
+	yaxlineitmgrp_->setZValue( zValue_ );
+    }
+    else
+	yaxlineitmgrp_->removeAll( true );
+    if ( !yaxtxtitmgrp_ )
+    {
+	yaxtxtitmgrp_ = new uiGraphicsItemGroup( true );
+	drawscene_.addItemGrp( yaxtxtitmgrp_ );
+	yaxtxtitmgrp_->setZValue( zValue_ );
+    }
+    else
+	yaxtxtitmgrp_->removeAll( true );
+    mLoopStart( y )
+	BufferString text;
+	const double displaypos = getAnnotTextAndPos( false, ypos, &text );
+	const int wy = transform.toUiY( displaypos ) + drawarea.top();
+	uiLineItem* lineitem = new uiLineItem();
+	lineitem->setLine( drawarea.left(), wy, drawarea.left() + bias, wy );
+	lineitem->setPenStyle( yls_ );
+	yaxlineitmgrp_->add( lineitem ); 
+
+	Alignment al( leftside ? Alignment::Right : Alignment::Left,
+		      Alignment::VCenter );
+	if ( bias < 0 ) al.set( Alignment::Right );
+	uiTextItem* txtitem =
+	    new uiTextItem( uiPoint(drawarea.left()+bias,wy), text, al );
+	txtitem->setTextColor( yls_.color_ );
+	yaxtxtitmgrp_->add( txtitem );
+    mLoopEnd
 }
 
 
-#define mAddMask( var ) \
-var = new uiRectItem(); \
-view_.scene().addItem( var ); \
-var->setFillColor( Color::White() ); \
-var->setPenStyle( lst )
-
-
-
-uiGraphicsSceneAxisMgr::uiGraphicsSceneAxisMgr( uiGraphicsView& view )
-    : view_( view )
-    , xaxis_( new uiGraphicsSceneAxis( view.scene() ) )
-    , yaxis_( new uiGraphicsSceneAxis( view.scene() ) )
+void DrawAxis2D::setYLineStyle( const LineStyle& yls )
 {
-    xaxis_->setPosition( true, true, false );
-    yaxis_->setPosition( false, true, false );
-    
-    LineStyle lst; lst.type_ = LineStyle::None;
-
-    mAddMask( topmask_ );
-    mAddMask( bottommask_ );
-    mAddMask( leftmask_ );
-    mAddMask( rightmask_ );
+    yls_ = yls;
+    if ( yaxlineitmgrp_ )
+	yaxlineitmgrp_->setPenStyle( yls );
+    if ( yaxtxtitmgrp_ )
+	yaxtxtitmgrp_->setPenStyle( yls );
 }
 
 
-uiGraphicsSceneAxisMgr::~uiGraphicsSceneAxisMgr()
+void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 {
-    delete xaxis_; delete yaxis_;
+    const uiRect drawarea = getDrawArea();
+    const uiWorld2Ui transform( uiWorldRect(xrg_.start,yrg_.start,
+					    xrg_.stop,yrg_.stop),
+				drawarea.getPixelSize() );
+    int zvalforgridlines = 5;
+    if ( xdir )
+    {
+	const int top = drawarea.top();
+	const int bot = drawarea.bottom();// - drawarea.top();
+	if ( !xaxgriditmgrp_ )
+	{
+	    xaxgriditmgrp_ = new uiGraphicsItemGroup( true );
+	    drawscene_.addItemGrp( xaxgriditmgrp_ );
+	    xaxgriditmgrp_->setZValue( zvalforgridlines );
+	}
+	else
+	    xaxgriditmgrp_->removeAll( true );
+	mLoopStart( x )
+	    const double displaypos = getAnnotTextAndPos( true, xpos );
+	    const int wx = transform.toUiX( displaypos ) + drawarea.left();
+	    uiLineItem* xgridline = new uiLineItem();
+	    xgridline->setLine( wx, top, wx, bot );
+	    xgridline->setPenStyle( gridls_ );
+	    xaxgriditmgrp_->add( xgridline );
+	mLoopEnd
+    }
+    else
+    { mRemoveGraphicsItem( xaxgriditmgrp_ ); }
+
+    if ( ydir )
+    {
+	const int left = drawarea.left();
+	const int right = drawarea.right();// - drawarea.left();
+	if ( !yaxgriditmgrp_ )
+	{
+	    yaxgriditmgrp_ = new uiGraphicsItemGroup( true );
+	    drawscene_.addItemGrp( yaxgriditmgrp_ );
+	    yaxgriditmgrp_->setZValue( zvalforgridlines );
+	}
+	else
+	    yaxgriditmgrp_->removeAll( true );
+	mLoopStart( y )
+	    const double displaypos = getAnnotTextAndPos(false, ypos);
+	    const int wy = transform.toUiY( displaypos ) + drawarea.top();
+	    uiLineItem* ygridline = new uiLineItem();
+	    ygridline->setLine( left, wy, right, wy );
+	    ygridline->setPenStyle( gridls_ );
+	    yaxgriditmgrp_->add( ygridline );
+	mLoopEnd
+    }
+    else
+    { mRemoveGraphicsItem( yaxgriditmgrp_ ); }
 }
 
 
-void uiGraphicsSceneAxisMgr::setZvalue( int z )
+void DrawAxis2D::setGridLineStyle( const LineStyle& gls )
 {
-    xaxis_->setZValue( z+1 );
-    yaxis_->setZValue( z+1 );
-    
-    topmask_->setZValue( z );
-    bottommask_->setZValue( z );
-    leftmask_->setZValue( z );
-    rightmask_->setZValue( z );
+    gridls_ = gls;
+    if ( yaxgriditmgrp_ )
+	yaxgriditmgrp_->setPenStyle( gls );
+    if ( xaxgriditmgrp_ )
+	xaxgriditmgrp_->setPenStyle( gls );
 }
 
 
-void uiGraphicsSceneAxisMgr::setViewRect( const uiRect& viewrect )
+uiRect DrawAxis2D::getDrawArea() const
 {
-    xaxis_->setViewRect( viewrect );
-    yaxis_->setViewRect( viewrect );
-    
-    const uiRect fullrect = view_.getViewArea();
-    
-    topmask_->setRect( fullrect.left(), fullrect.top(),
-		      fullrect.width(), viewrect.top()-fullrect.top() );
-    bottommask_->setRect( fullrect.left(), viewrect.bottom(),
-			 fullrect.width(), fullrect.bottom()-viewrect.bottom()+1);
-    leftmask_->setRect( fullrect.left(), fullrect.top(),
-		       viewrect.left()-fullrect.left(), fullrect.width() );
-    rightmask_->setRect( viewrect.right(), fullrect.top(),
-			fullrect.right()-viewrect.right(), fullrect.height());
+    if ( useuirect_ )
+	return uirect_;
+
+    return uiRect( 0, 0, drawview_.width(), drawview_.height() );
 }
 
 
-void uiGraphicsSceneAxisMgr::setXFactor( int xf )
+double DrawAxis2D::getAnnotTextAndPos( bool isx, double proposedpos,
+				     BufferString* text ) const
 {
-    xaxis_->setTextFactor( xf );
-}
-
-
-void uiGraphicsSceneAxisMgr::setYFactor( int yf )
-{
-    yaxis_->setTextFactor( yf );
-}
-
-
-void uiGraphicsSceneAxisMgr::setWorldCoords( const uiWorldRect& wr )
-{
-    xaxis_->setWorldCoords( Interval<double>(wr.left(),wr.right()) );
-    yaxis_->setWorldCoords( Interval<double>( wr.top(), wr.bottom() ) );
-}
-
-
-void uiGraphicsSceneAxisMgr::setXLineStyle( const LineStyle& xls )
-{
-    xaxis_->setLineStyle( xls );
-}
-
-
-void uiGraphicsSceneAxisMgr::setYLineStyle( const LineStyle& yls )
-{
-    yaxis_->setLineStyle( yls );
-}
-
-
-void uiGraphicsSceneAxisMgr::setGridLineStyle( const LineStyle& gls )
-{
-    xaxis_->setGridLineStyle( gls );
-    yaxis_->setGridLineStyle( gls );
-}
-
-
-void uiGraphicsSceneAxisMgr::annotInside( bool yn )
-{
-    // TODO: Implement!
-}
-
-
-void uiGraphicsSceneAxisMgr::drawAxisLine( bool yn )
-{
-    xaxis_->drawAxisLine( yn ); 
-    yaxis_->drawAxisLine( yn ); 
+    if ( text ) (*text) = proposedpos * (isx ? xfactor_ : yfactor_ );
+    return proposedpos;
 }
