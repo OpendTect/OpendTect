@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General uiToolkits
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.15 2012-08-30 13:39:23 cvsbert Exp $
+#	RCS :		$Id: CMakeLists.txt,v 1.16 2012-09-17 14:48:53 cvsbert Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiBase Network )
@@ -31,6 +31,7 @@ SET(OD_MODULE_SOURCES
 		uidirectionalplot.cc
 		uidlggroup.cc	
 		uifileinput.cc	
+		uifillpattern.cc	
 		uifreqfilter.cc
 		uiforminputsel.cc
 		uifunctiondisplay.cc
