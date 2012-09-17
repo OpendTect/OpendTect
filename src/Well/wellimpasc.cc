@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.94 2012-08-10 04:11:25 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id: wellimpasc.cc,v 1.95 2012-09-17 11:54:33 cvsraman Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -509,16 +509,14 @@ bool Well::MarkerSetAscIO::get( std::istream& strm, Well::MarkerSet& ms,
     if ( nmcol > dpthcol )
     {
 	// We'll assume that the name occupies up to 4 words
-	for ( int icol=nmcol+1; icol<5; icol++ )
+	for ( int icol=1; icol<4; icol++ )
 	{
-	    if ( icol == dpthcol ) break;
-
-	    if ( fd_.bodyinfos_[icol-nmcol+1]->selection_.elems_.isEmpty() )
-		fd_.bodyinfos_[icol-nmcol+1]->selection_.elems_ +=
-		    Table::TargetInfo::Selection::Elem( RowCol(0,icol), 0 );
+	    if ( fd_.bodyinfos_[icol+1]->selection_.elems_.isEmpty() )
+		fd_.bodyinfos_[icol+1]->selection_.elems_ +=
+		  Table::TargetInfo::Selection::Elem( RowCol(0,nmcol+icol), 0 );
 	    else
-		fd_.bodyinfos_[icol-nmcol+1]->selection_.elems_[0].pos_.col
-		    = icol;
+		fd_.bodyinfos_[icol+1]->selection_.elems_[0].pos_.col
+		    = icol + nmcol;
 	}
     }
 
@@ -536,7 +534,7 @@ bool Well::MarkerSetAscIO::get( std::istream& strm, Well::MarkerSet& ms,
 	    continue;
 
 	BufferString fullnm( namepart );
-	for ( int icol=nmcol+1; ; icol++ )
+	for ( int icol=2; icol<5; icol++ )
 	{
 	    if ( icol == dpthcol ) break;
 	    namepart = text( icol );
@@ -544,6 +542,7 @@ bool Well::MarkerSetAscIO::get( std::istream& strm, Well::MarkerSet& ms,
 
 	    fullnm += " "; fullnm += namepart;
 	}
+
 	ms += new Well::Marker( fullnm, dah );
     }
 
