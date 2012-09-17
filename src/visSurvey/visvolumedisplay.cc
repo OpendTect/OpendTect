@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.143 2012-08-13 09:36:58 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.144 2012-09-17 14:04:05 cvsjaap Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -19,6 +19,7 @@ static const char* rcsID mUnusedVar = "$Id: visvolumedisplay.cc,v 1.143 2012-08-
 #include "vismaterial.h"
 #include "visselman.h"
 #include "vistransform.h"
+#include "vistransmgr.h"
 #include "visvolorthoslice.h"
 #include "visvolrenscalarfield.h"
 #include "visvolren.h"
@@ -101,7 +102,17 @@ VolumeDisplay::VolumeDisplay()
     , csfromsession_(true)
     , eventcatcher_( 0 )
     , onoffstatus_( true )
+    , inl2displaytrans_( 0 )
 {
+    if ( doOsg() )
+    {
+	inl2displaytrans_ = mVisTrans::create();
+	inl2displaytrans_->ref();
+	addChild( inl2displaytrans_->osgNode() );
+
+	inl2displaytrans_->addObject( boxdragger_ );
+    }
+
     boxdragger_->ref();
     boxdragger_->setBoxTransparency( 0.7 );
     addChild( boxdragger_->getInventorNode() );
@@ -145,6 +156,19 @@ VolumeDisplay::~VolumeDisplay()
     scalarfield_->unRef();
 
     setZAxisTransform( 0,0 );
+
+    if ( inl2displaytrans_ ) inl2displaytrans_->unRef();
+}
+
+
+void VolumeDisplay::setInlCrlSystem(const InlCrlSystem* ics )
+{
+    SurveyObject::setInlCrlSystem( ics );
+    if ( inl2displaytrans_ )
+    {
+	STM().setIC2DispayTransform(inlcrlsystem_->sampling().hrg,
+				    inl2displaytrans_);
+    }
 }
 
 
@@ -296,6 +320,9 @@ bool VolumeDisplay::canResetManipulation() const
 
 void VolumeDisplay::resetManipulation()
 {
+    if ( doOsg() )
+	return;
+
     const Coord3 center = voltrans_->getTranslation();
     const Coord3 width = voltrans_->getScale();
     boxdragger_->setCenter( center );
@@ -456,6 +483,14 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
     if ( scalarfield_ ) scalarfield_->turnOn( false );
 
     resetManipulation();
+
+    if ( doOsg() )
+    {
+	 boxdragger_->setCenter(
+		 	Coord3(xintv.center(),yintv.center(),zintv.center()) );
+	 boxdragger_->setWidth(
+		 	Coord3(xintv.width(),yintv.width(),zintv.width()) );
+    }
 }
 
 

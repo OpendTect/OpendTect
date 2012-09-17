@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visboxdragger.h,v 1.16 2012-08-03 13:01:23 cvskris Exp $
+ RCS:		$Id: visboxdragger.h,v 1.17 2012-09-17 14:04:05 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,10 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
+
+
+namespace osgManipulator { class TabBoxDragger; }
+namespace osg { class Switch; }
 
 class SoTabBoxDragger;
 class SoMaterial;
@@ -27,9 +31,14 @@ template <class T> class Interval;
 namespace visBase
 {
 
+class BoxDraggerCallbackHandler;
+
 mClass(visBase) BoxDragger : public DataObject
 {
 public:
+    friend class BoxDraggerCallbackHandler;
+
+//public:
     static BoxDragger*		create()
 				mCreateDataObj(BoxDragger);
 
@@ -42,9 +51,13 @@ public:
     void			setBoxTransparency(float);
     				//!<Between 0 and 1
 
-    void			setSpaceLimits( const Interval<float>&,
-	    					const Interval<float>&,
-						const Interval<float>&);
+    void			setSpaceLimits(const Interval<float>&,
+					       const Interval<float>&,
+					       const Interval<float>&);
+
+    void			setWidthLimits(const Interval<float>& x,
+	    				       const Interval<float>& y,
+					       const Interval<float>& z );
 
     void			turnOn(bool yn);
     bool			isOn() const;
@@ -62,6 +75,8 @@ protected:
 				~BoxDragger();
     void			setOwnShapeHints();
 
+    void			initOsgDragger();
+
     static void			startCB( void*, SoDragger* );
     static void			motionCB( void*, SoDragger* );
     static void			valueChangedCB(void*, SoDragger* );
@@ -71,16 +86,23 @@ protected:
     SoTabBoxDragger*		boxdragger_;
     SoMaterial*			boxmaterial_;
 
+    osgManipulator::TabBoxDragger*	osgboxdragger_;
+    osg::Switch*			osgdraggerroot_;
+    BoxDraggerCallbackHandler*		osgcallbackhandler_;
+
     Interval<float>*		xinterval_;
     Interval<float>*		yinterval_;
     Interval<float>*		zinterval_;
+
+    Interval<float>		widthranges_[3];
+    Interval<float>		spaceranges_[3];
 
     Coord3			prevwidth_;
     Coord3			prevcenter_;
     bool			selectable_;
 
     virtual SoNode*		gtInvntrNode();
-
+    virtual osg::Node*		gtOsgNode();
 };
 
 };

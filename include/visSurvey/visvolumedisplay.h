@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.82 2012-08-03 13:01:29 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.83 2012-09-17 14:04:05 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -51,7 +51,8 @@ mClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl,
 public:
     static VolumeDisplay*	create()
 				mCreateDataObj(VolumeDisplay);
-    bool			isInlCrl() const	{ return true; }
+    bool			isInlCrl() const { return !inl2displaytrans_; }
+    void			setInlCrlSystem(const InlCrlSystem*);
 
     static int			cInLine() 		{ return 2; }
     static int			cCrossLine() 		{ return 1; }
@@ -238,6 +239,8 @@ protected:
 
     bool			isinited_;
     bool                        onoffstatus_;
+
+    mVisTrans*			inl2displaytrans_;
 
     static const char*		sKeyVolumeID();
     static const char*		sKeyInline();
