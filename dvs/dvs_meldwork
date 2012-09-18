@@ -8,13 +8,13 @@ endif
 
 if ( $bluntcopy == 0 ) then
     if ( ! -e "$1" ) then
-	    echo "$0 checks out a file and uses meld with the one from od or dgb"
-	    exit 1
+	echo "$0 checks out a file and uses meld with the one from od or dgb"
+	exit 1
     endif
 endif
 
 set fnm="$1"
-dvs_ed_if_necessary "$fnm"
+dvs_ed "$fnm"
 
 set dirnm=`pwd`
 
