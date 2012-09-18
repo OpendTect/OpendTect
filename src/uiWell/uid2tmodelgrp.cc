@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.25 2012/07/12 07:07:21 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uid2tmodelgrp.cc,v 1.29 2012-08-13 04:04:39 cvsaneesh Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -62,6 +62,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 }
 
 
+
 void uiD2TModelGroup::fileFldChecked( CallBacker* )
 {
     const bool havefile = setup_.fileoptional_ ? filefld_->isChecked() : true;
@@ -94,15 +95,14 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	if ( wd.track().isEmpty() )
 	    return "Cannot generate D2Time model without track";
 	
-	const float twtvel = velfld_->getfValue() * .5;
-	const float dah0 = wd.track().dah( 0 );
-	const float dah1 = wd.track().dah( wd.track().size()-1 );
-	const float srd = -wd.info().surfaceelev;
-	const float zstart = wd.track().value(0) + srd;
-	const float zstop = wd.track().value( wd.track().size()-1 ) + srd;
 	d2t.erase();
-	d2t.add( dah0, zstart / twtvel );
-	d2t.add( dah1, zstop / twtvel );
+	const float twtvel = velfld_->getfValue() * .5f;
+	for ( int idx=0; idx<wd.track().size(); idx++ )
+	{
+	    const float tvd = (float)wd.track().pos(idx).z;
+	    const float dah = wd.track().dah(idx);
+	    d2t.add( dah, tvd / twtvel );
+	}
     }
     else
     {
