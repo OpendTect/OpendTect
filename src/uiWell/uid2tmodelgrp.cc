@@ -95,15 +95,14 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	if ( wd.track().isEmpty() )
 	    return "Cannot generate D2Time model without track";
 	
-	const float twtvel = velfld_->getfValue() * .5f;
-	const float dah0 = wd.track().dah( 0 );
-	const float dah1 = wd.track().dah( wd.track().size()-1 );
-	const float srd = -wd.info().surfaceelev;
-	const float zstart = wd.track().value(0) + srd;
-	const float zstop = wd.track().value( wd.track().size()-1 ) + srd;
 	d2t.erase();
-	d2t.add( dah0, zstart / twtvel );
-	d2t.add( dah1, zstop / twtvel );
+	const float twtvel = velfld_->getfValue() * .5f;
+	for ( int idx=0; idx<wd.track().size(); idx++ )
+	{
+	    const float tvd = (float)wd.track().pos(idx).z;
+	    const float dah = wd.track().dah(idx);
+	    d2t.add( dah, tvd / twtvel );
+	}
     }
     else
     {
