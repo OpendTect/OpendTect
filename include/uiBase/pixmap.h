@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "namedobj.h"
-#include "iodrawimpl.h"
 
 mFDQtclass(QBitmap)
 mFDQtclass(QPaintDevice)
@@ -33,7 +32,7 @@ class uiRGBArray;
 
 */
 
-mClass(uiBase) ioPixmap : public NamedObject, public ioDrawAreaImpl
+mClass(uiBase) ioPixmap : public NamedObject
 {
 public:
 			ioPixmap() : qpixmap_(0)		{}
@@ -65,11 +64,8 @@ public:
 
 protected:
     
-    mQtclass(QPixmap*)		qpixmap_; 
+    mQtclass(QPixmap*)	qpixmap_;
     BufferString	srcname_;
-
-    virtual mQtclass(QPaintDevice*) qPaintDevice();         
-
 };
 
 
@@ -94,9 +90,6 @@ public:
 
 };
 
-
 mGlobal(uiBase) void supportedImageFormats(BufferStringSet&);
 
-
 #endif
-

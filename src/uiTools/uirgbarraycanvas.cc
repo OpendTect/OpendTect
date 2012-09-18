@@ -13,7 +13,6 @@ static const char* rcsID mUnusedVar = "$Id: uirgbarraycanvas.cc,v 1.25 2012-05-0
 #include "uirgbarray.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
-#include "iodrawtool.h"
 #include "pixmap.h"
 
 uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )

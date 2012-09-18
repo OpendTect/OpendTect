@@ -12,7 +12,6 @@ static const char* rcsID mUnusedVar = "$Id: uiwindowfuncseldlg.cc,v 1.47 2012-08
 
 #include "uiwindowfuncseldlg.h"
 #include "uiaxishandler.h"
-#include "uicanvas.h"
 #include "uigeninput.h"
 #include "uigraphicsview.h"
 #include "uigraphicsscene.h"
@@ -22,7 +21,6 @@ static const char* rcsID mUnusedVar = "$Id: uiwindowfuncseldlg.cc,v 1.47 2012-08
 
 #include "arrayndimpl.h"
 #include "arrayndutils.h"
-#include "iodraw.h"
 #include "randcolor.h"
 #include "scaler.h"
 #include "windowfunction.h"

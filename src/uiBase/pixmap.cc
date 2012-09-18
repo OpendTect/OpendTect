@@ -23,6 +23,7 @@ static const char* rcsID mUnusedVar = "$Id: pixmap.cc,v 1.52 2012-08-24 05:47:00
 #include "oddirs.h"
 #include "separstr.h"
 #include "settings.h"
+
 #include "uirgbarray.h"
 #include "uiicons.h"
 
@@ -31,16 +32,17 @@ static const char* rcsID mUnusedVar = "$Id: pixmap.cc,v 1.52 2012-08-24 05:47:00
 #include <QColor>
 #include <QImageWriter>
 
+mUseQtnamespace
 
 ioPixmap::ioPixmap( const ioPixmap& pm )
-    : qpixmap_(new mQtclass(QPixmap)(*pm.qpixmap_))
+    : qpixmap_(new QPixmap(*pm.qpixmap_))
     , srcname_(pm.srcname_)
 {
 }
 
 
 ioPixmap::ioPixmap( const uiRGBArray& rgbarr )
-    : qpixmap_(new mQtclass(QPixmap))
+    : qpixmap_(new QPixmap)
     , srcname_("[uiRGBArray]")
 {
     convertFromRGBArray( rgbarr );
@@ -48,22 +50,22 @@ ioPixmap::ioPixmap( const uiRGBArray& rgbarr )
 
 
 ioPixmap::ioPixmap( const char* xpm[] )
-    : qpixmap_(new mQtclass(QPixmap)(xpm))
+    : qpixmap_(new QPixmap(xpm))
     , srcname_("[xpm]")
 {
 }
 
 
 ioPixmap::ioPixmap( int w, int h )
-    : qpixmap_(new mQtclass(QPixmap)( w<2 ? 1 : w, h<2 ? 2 : h ))
+    : qpixmap_(new QPixmap( w<2 ? 1 : w, h<2 ? 2 : h ))
     , srcname_("[created]")
 {
-    qpixmap_->fill( mQtclass(QColor)(0,0,0,0) );
+    qpixmap_->fill( QColor(0,0,0,0) );
 }
 
 
-ioPixmap::ioPixmap( const mQtclass(QPixmap&) pm )
-    : qpixmap_(new mQtclass(QPixmap)(pm))
+ioPixmap::ioPixmap( const QPixmap& pm )
+    : qpixmap_(new QPixmap(pm))
 {
 }
 
@@ -92,7 +94,7 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     if ( srcname_ != uiIcon::None() )
 	isnone = false;
     if ( isnone )
-	{ qpixmap_ = new mQtclass(QPixmap); return; }
+        { qpixmap_ = new QPixmap; return; }
 
     if ( fmt )
     {
@@ -135,7 +137,7 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
 			"iconnotfound.png").fullPath();
     }
 
-    qpixmap_ = new mQtclass(QPixmap)( fname.buf(), fmt );
+    qpixmap_ = new QPixmap( fname.buf(), fmt );
 }
 
     
@@ -149,8 +151,8 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int w, int h, bool hor )
 
     if ( ctabin.size() == 0 || !validsz )
     {
-	qpixmap_ = new mQtclass(QPixmap)( w, h );
-	qpixmap_->fill( mQtclass(QColor)(0,0,0,0) );
+        qpixmap_ = new QPixmap( w, h );
+        qpixmap_->fill( QColor(0,0,0,0) );
 	return;
     }
 
@@ -177,30 +179,24 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int w, int h, bool hor )
 	}
     }
 
-    qpixmap_ = new mQtclass(QPixmap);
+    qpixmap_ = new QPixmap;
     convertFromRGBArray( rgbarr );
 }
 
 
 ioPixmap::~ioPixmap()
 {
-    releaseDrawTool();
     delete qpixmap_;
 }
 
 
 void ioPixmap::convertFromRGBArray( const uiRGBArray& rgbarr )
 {
-    releaseDrawTool();
-
-    if ( !qpixmap_ ) qpixmap_ = new mQtclass(QPixmap);
-    *qpixmap_ = mQtclass(QPixmap)::fromImage( rgbarr.qImage(),
-	    			    mQtclass(Qt)::OrderedAlphaDither );
+    if ( !qpixmap_ ) qpixmap_ = new QPixmap;
+    *qpixmap_ = QPixmap::fromImage( rgbarr.qImage(),
+                                    Qt::OrderedAlphaDither );
 }    
 
-
-mQtclass(QPaintDevice*) ioPixmap::qPaintDevice()
-{ return qpixmap_; }
 
 int ioPixmap::width() const
 { return qpixmap_->width(); }
@@ -212,7 +208,7 @@ bool ioPixmap::isEmpty() const
 { return !qpixmap_ || qpixmap_->isNull(); }
 
 void ioPixmap::fill( const Color& col )
-{ qpixmap_->fill( mQtclass(QColor)(col.r(),col.g(),col.b()) ); }
+{ qpixmap_->fill( QColor(col.r(),col.g(),col.b()) ); }
 
 
 bool ioPixmap::save( const char* fnm, const char* fmt, int quality ) const
@@ -221,8 +217,7 @@ bool ioPixmap::save( const char* fnm, const char* fmt, int quality ) const
 
 void ioPixmap::supportedImageFormats( BufferStringSet& list )
 {
-    mQtclass(QList)<mQtclass(QByteArray)> qlist =
-				mQtclass(QImageWriter)::supportedImageFormats();
+    QList<QByteArray> qlist = QImageWriter::supportedImageFormats();
     for ( int idx=0; idx<qlist.size(); idx++ )
 	list.add( qlist[idx].constData() );
 }
@@ -231,22 +226,21 @@ void ioPixmap::supportedImageFormats( BufferStringSet& list )
 // ----- ioBitmap -----
 ioBitmap::ioBitmap( const char* filenm, const char * format )
 {
-    qpixmap_ = new mQtclass(QBitmap)( filenm, format );
+    qpixmap_ = new QBitmap( filenm, format );
     srcname_ = filenm;
 }
 
 
-mQtclass(QBitmap*) ioBitmap::Bitmap() { return (mQtclass(QBitmap*))qpixmap_; }
+mQtclass(QBitmap*) ioBitmap::Bitmap() { return (QBitmap*)qpixmap_; }
 
 
 const mQtclass(QBitmap*) ioBitmap::Bitmap() const
-{ return (const mQtclass(QBitmap*))qpixmap_; }
+{ return (QBitmap*)qpixmap_; }
 
 
 void supportedImageFormats( BufferStringSet& imageformats )
 {
-    mQtclass(QList)<mQtclass(QByteArray)> imgfrmts =
-				mQtclass(QImageWriter)::supportedImageFormats();
+    QList<QByteArray> imgfrmts = QImageWriter::supportedImageFormats();
     for ( int idx=0; idx<imgfrmts.size(); idx++ )
 	imageformats.add( imgfrmts[idx].data() );
 }

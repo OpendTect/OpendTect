@@ -13,8 +13,6 @@ static const char* rcsID mUnusedVar = "$Id: flatviewaxesdrawer.cc,v 1.20 2012-07
 #include "flatview.h"
 #include "flatposdata.h"
 #include "datapackbase.h"
-#include "iodraw.h"
-#include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 
 
