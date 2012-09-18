@@ -177,6 +177,12 @@ mClass(uiStrat) uiStratContentsDlg : public uiDialog
 {
 public:
 			uiStratContentsDlg(uiParent*);
+     bool		anyChg() const		{ return anychg_; }
+
+protected:
+
+     bool		anychg_;
+
 };
 
 
