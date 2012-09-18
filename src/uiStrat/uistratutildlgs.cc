@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.55 2012/09/17 14:48:33 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratutildlgs.cc,v 1.59 2012-09-17 14:48:03 cvsbert Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -417,6 +417,7 @@ uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd )
     su.lbltxt( "Outline color" );
     colfld_ = new uiColorInput( this, uiColorInput::Setup(cont_.color_) );
     colfld_->attach( alignedBelow, fillfld_ );
+    new uiLabel( this, su.lbltxt_, colfld_ );
 }
 
 bool acceptOK( CallBacker* )
