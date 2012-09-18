@@ -12,25 +12,33 @@ static const char* rcsID mUnusedVar = "$Id: uifillpattern.cc,v 1.1 2012/09/17 14
 #include "uifillpattern.h"
 #include "uicombobox.h"
 #include "uigraphicsview.h"
+#include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
 
 
 uiFillPattern::uiFillPattern( uiParent* p )
 	: uiGroup(p)
 	, patternChanged(this)
 {
+    const CallBack selchgcb( mCB(this,uiFillPattern,selChg) );
     BufferStringSet nms; FillPattern::getTypeNames( nms );
     typefld_ = new uiComboBox( this, nms, "Type" );
     typefld_->setHSzPol( uiObject::Small );
-    typefld_->selectionChanged.notify( mCB(this,uiFillPattern,selChg) );
+    typefld_->selectionChanged.notify( selchgcb );
 
     optfld_ = new uiComboBox( this, "Option" );
     optfld_->attach( rightOf, typefld_ );
-    setHAlignObj( optfld_ );
+    optfld_->selectionChanged.notify( selchgcb );
 
-    gv_ = new uiGraphicsView( this, "Pattern" );
-    gv_->attach( rightOf, optfld_ );
-    gv_->setPrefWidthInChar( 10 );
-    gv_->setPrefHeightInChar( 1 );
+    uiGraphicsView* gv = new uiGraphicsView( this, "Pattern" );
+    gv->attach( rightOf, optfld_ );
+    gv->setPrefWidthInChar( 10 );
+    gv->setPrefHeightInChar( 1 );
+    gv->setStretch( 1, 0 );
+    patrect_ = gv->scene().addRect( 0, 0, 200, 100 );
+
+    setHAlignObj( optfld_ );
+    reDrawPattern();
 }
 
 
@@ -54,7 +62,7 @@ void uiFillPattern::selChg( CallBacker* cb )
 
 void uiFillPattern::reDrawPattern()
 {
-    //TODO
+    patrect_->setFillPattern( get() );
 }
 
 
