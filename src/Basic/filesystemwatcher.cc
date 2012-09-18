@@ -13,6 +13,7 @@ static const char* rcsID mUnusedVar = "$Id: filesystemwatcher.cc,v 1.4 2012-05-0
 #include "qfilesystemcomm.h"
 #include "bufstringset.h"
 
+mUseQtnamespace
 
 FileSystemWatcher::FileSystemWatcher()
     : directoryChanged(this)
