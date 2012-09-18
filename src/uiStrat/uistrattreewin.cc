@@ -292,7 +292,6 @@ void uiStratTreeWin::setIsLocked( bool yn )
     lithobut_->setSensitive( !yn );
     contentsbut_->setSensitive( !yn );
     newbut_->setSensitive( !yn );
-    openmnuitem_->setEnabled( !yn );
     saveasmnuitem_->setEnabled( !yn );
     resetmnuitem_->setEnabled( !yn );
 }
@@ -366,14 +365,6 @@ void uiStratTreeWin::switchViewCB( CallBacker* )
     uitree_->treeView()->display( istreedisp_ );
     switchviewbut_->setPixmap( istreedisp_ ? "stratframeworkgraph"
 					   : "strat_tree" );
-}
-
-
-void uiStratTreeWin::openCB( CallBacker* )
-{
-    uiMSG().error( "Not Implemented yet" );
-    return;
-    //TODO
 }
 
 

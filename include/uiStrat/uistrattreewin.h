@@ -54,12 +54,10 @@ protected:
     uiMenuItem*			editmnuitem_;
     uiMenuItem*			savemnuitem_;
     uiMenuItem*			saveasmnuitem_;
-    uiMenuItem*			openmnuitem_;
     uiMenuItem*			resetmnuitem_;
     uiToolBar*			tb_;
     uiToolButton*		colexpbut_;
     uiToolButton*		lockbut_;
-    uiToolButton*		openbut_;
     uiToolButton*		newbut_;
     uiToolButton*		savebut_;
     uiToolButton*		moveunitupbut_;
@@ -78,7 +76,6 @@ protected:
 
     void			newCB(CallBacker*);
     void			editCB(CallBacker*);
-    void			openCB(CallBacker*);
     void			resetCB(CallBacker*);
     void			saveCB(CallBacker*);
     void                        selLvlChgCB(CallBacker*);
