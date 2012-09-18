@@ -447,8 +447,9 @@ class uiStratContentsEd : public uiEditObjectList
 {
 public:
 
-uiStratContentsEd( uiParent* p )
+uiStratContentsEd( uiParent* p, bool& chg )
     : uiEditObjectList(p,"content",true)
+    , anychg_(chg)
 {
     fillList( 0 );
 }
@@ -480,7 +481,11 @@ void editReq( bool isadd )
 	delete newcont;
     else
     {
-	if ( newcont ) conts += newcont;
+	if ( newcont )
+	{
+	    anychg_ = true;
+	    conts += newcont;
+	}
 	fillList( selidx );
     }
 }
@@ -490,6 +495,8 @@ void removeReq()
     Strat::ContentSet& conts = Strat::eRT().contents();
     const int selidx = currentItem();
     if ( selidx < 0 ) return;
+
+    anychg_ = true;
     delete conts.remove( selidx );
     fillList( selidx );
 }
@@ -501,10 +508,13 @@ void itemSwitch( bool up )
     const int newselidx = up ? selidx-1 : selidx+1;
     if ( selidx < 0 || newselidx < 0 || newselidx > conts.size() - 1 )
 	return;
+
+    anychg_ = true;
     conts.swap( selidx, newselidx );
     fillList( newselidx );
 }
 
+    bool&	anychg_;
 
 };
 
@@ -512,9 +522,10 @@ void itemSwitch( bool up )
 uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Manage Contents",
 		"Define special layer contents","110.0.5"))
+    , anychg_(false)
 {
     setCtrlStyle( LeaveOnly );
-    (void)new uiStratContentsEd( this );
+    (void)new uiStratContentsEd( this, anychg_ );
 }
 
 
