@@ -6,7 +6,7 @@ if ( $#argv != 1 ) then
 endif
 
 if ( ! -d CVS ) then
-    echo "No Subversion support yet"
+    svn diff -rPREV $*
     exit 1
 endif
 
