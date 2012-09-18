@@ -15,10 +15,13 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "callback.h"
 #include "bufstring.h"
+#include "commondefs.h"
 
 class BufferStringSet;
-class QFileSystemWatcher;
-class QFileSystemWComm;
+mFDQtclass(QFileSystemWatcher)
+mFDQtclass(QFileSystemWComm)
+
+mUseQtnamespace
 
 mClass(Basic) FileSystemWatcher : public CallBacker 
 {
