@@ -51,6 +51,9 @@ public:
     void		moveUnit(bool);
     bool		canMoveUnit(bool);
 
+    bool		anyChg() const 		{ return anychange_; }
+    void		setNoChg()		{ anychange_ = false; }
+
     void		setEntranceDefaultTimes();
     bool		haveTimes() const;
 
@@ -59,6 +62,7 @@ protected:
     Strat::RefTree* 	tree_;
 
     uiTreeView*		lv_;
+    bool		anychange_;
 
     void		rClickCB(CallBacker*);
     void		mousePressedCB(CallBacker*);

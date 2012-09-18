@@ -252,6 +252,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Manage Lithologies",mNoDlgTitle,"110.0.4"))
     , prevlith_(0)
     , nmfld_(0)
+    , anychg_(false)
 {
     setCtrlStyle( LeaveOnly );
 
@@ -315,6 +316,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
     if ( lithfailedmsg )
 	{ mErrRet( lithfailedmsg, return; ) } 
 
+    anychg_ = true;
     prevlith_ = 0;
     lithos.reportAnyChange();
     selfld_->setCurrentItem( nm );
@@ -346,6 +348,7 @@ void uiStratLithoDlg::selChg( CallBacker* )
     nmfld_->setText( lith->name() );
     isporbox_->setChecked( lith->porous() );
     colfld_->setColor( lith->color() );
+    anychg_ = true;
     prevlith_ = const_cast<Strat::Lithology*>( lith );
 }
 
@@ -361,6 +364,7 @@ void uiStratLithoDlg::renameCB( CallBacker* )
     selfld_->setItemText( selfld_->currentItem(), nmfld_->text() );
     lithos.reportAnyChange();
     prevlith_ = lith;
+    anychg_ = true;
 }
 
 
@@ -379,6 +383,7 @@ void uiStratLithoDlg::rmLast( CallBacker* )
     prevlith_ = 0;
     selfld_->setCurrentItem( selidx-1 );
     selChg( 0 );
+    anychg_ = true;
 }
 
 

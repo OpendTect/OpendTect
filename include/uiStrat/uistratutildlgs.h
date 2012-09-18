@@ -79,6 +79,7 @@ public:
 
     const char*		getLithName() const;
     void		setSelectedLith(const char*);
+    bool		anyChg() const		{ return anychg_; }
 
 protected:
 
@@ -88,6 +89,7 @@ protected:
     uiColorInput*	colfld_;
 
     Strat::Lithology*	prevlith_;
+    bool		anychg_;
 
     void		newLith(CallBacker*);
     void		selChg(CallBacker*);

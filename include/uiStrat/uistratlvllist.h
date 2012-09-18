@@ -25,7 +25,8 @@ public:
     void			setLevels();
     void			setIsLocked(bool yn) { islocked_ = yn; }
 
-    bool			anyChg() const 		{ return anychange_; }
+    bool			anyChg() const 	{ return anychange_; }
+    void			setNoChg() 	{ anychange_ = false; }
 protected:
 
     bool			islocked_;

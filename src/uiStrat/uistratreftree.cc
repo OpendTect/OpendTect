@@ -39,6 +39,7 @@ using namespace Strat;
 
 uiStratRefTree::uiStratRefTree( uiParent* p )
     : tree_(0)
+    , anychange_(false)
 {
     lv_ = new uiTreeView( p, "RefTree viewer" );
     BufferStringSet labels;
@@ -255,6 +256,7 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
 	    insertUnitInLVIT( lvit, posidx, *newun );
 	    addLithologies( *newun, newurdlg.getLithologies() ); 
 	    tree_->unitAdded.trigger();
+	    anychange_ = true;
 	}
 	else
 	    uiMSG().error( "Cannot add unit" );
@@ -340,6 +342,7 @@ void uiStratRefTree::subdivideUnit( uiTreeViewItem* lvit )
 		addLithologies( ur, lithids );
 	    }
 	}
+	anychange_ = true;
 	updateUnitsPixmaps();
 	tree_->unitAdded.trigger();
     }
@@ -404,6 +407,7 @@ void uiStratRefTree::removeUnit( uiTreeViewItem* lvit )
 	lur.setLevelID( lvlid );
     }
 
+    anychange_ = true;
     lv_->triggerUpdate();
 }
 
@@ -431,6 +435,7 @@ void uiStratRefTree::updateUnitProperties( uiTreeViewItem* lvit )
 	lvit->setText( unitref->description(), cDescCol );
 	tree_->unitChanged.trigger();
 	updateUnitsPixmaps();
+	anychange_ = true;
     }
 }
 
@@ -579,7 +584,10 @@ void uiStratRefTree::setUnitLvl( const char* code )
 
     uiStratLinkLvlUnitDlg dlg( lv_->parent(), *ldun );
     if ( dlg.go() )
+    {
+	anychange_ = true;
 	tree_->unitChanged.trigger();
+    }
 }
 
 

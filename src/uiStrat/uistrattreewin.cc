@@ -129,6 +129,7 @@ void uiStratTreeWin::setNewRT()
 	}
 	Strat::setLVLS( ls );
 	Strat::setRT( rt );
+	needsave_ = true;
 	const Repos::Source dest = Repos::Survey;
 	Strat::LVLS().store( dest );
 	Strat::RepositoryAccess().writeTree( Strat::RT(), dest );
@@ -177,9 +178,6 @@ void uiStratTreeWin::createMenu()
     resetmnuitem_->setPixmap( ioPixmap("undo") );
     mnu->insertSeparator();
     
-    openmnuitem_ = new uiMenuItem( "&Open...", mCB(this,uiStratTreeWin,openCB));
-    mnu->insertItem( openmnuitem_ );
-    openmnuitem_->setPixmap( ioPixmap("openset") );
     saveasmnuitem_ = new uiMenuItem( "Save&As...",
 	    			     mCB(this,uiStratTreeWin,saveAsCB) );
     mnu->insertItem( saveasmnuitem_ );
@@ -388,10 +386,16 @@ void uiStratTreeWin::unitRenamedCB( CallBacker* )
 
 bool uiStratTreeWin::closeOK()
 {
-    if ( needsave_ )
+    const bool needsave = uitree_->anyChg() || needsave_ ||  lvllist_->anyChg();
+    uitree_->setNoChg();	
+    lvllist_->setNoChg();
+    needsave_ = false;
+
+    if ( needsave )
     {
 	int res = uiMSG().askSave( 
-			"Do you want to save this stratigraphic framework?" );
+	    "Stratigraphic framework has changed\n Do you want to save it?" );
+
 	if ( res == 1 )
 	    saveCB( 0 );
 	else if ( res == 0 )
@@ -441,7 +445,8 @@ void uiStratTreeWin::helpCB( CallBacker* )
 void uiStratTreeWin::manLiths( CallBacker* )
 {
     uiStratLithoDlg dlg( this );
-    dlg.go();
+    if ( dlg.go() && dlg.anyChg() )
+	needsave_ = true;
     uitree_->updateLithoCol();
 }
 
@@ -449,7 +454,8 @@ void uiStratTreeWin::manLiths( CallBacker* )
 void uiStratTreeWin::manConts( CallBacker* )
 {
     uiStratContentsDlg dlg( this );
-    dlg.go();
+    if ( dlg.go() && dlg.anyChg() )
+	needsave_ = true;
 }
 
 
