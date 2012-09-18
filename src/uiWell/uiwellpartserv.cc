@@ -155,7 +155,6 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
     if ( !edwd ) { pErrMsg("well data has been deleted"); return; }
     const Well::DisplayProperties& edprops = edwd->displayProperties();
 
-    dlg->disableWDNotifiers();
     if ( dlg->savedefault_ == true )
     {
 	edprops.defaults() = edprops;

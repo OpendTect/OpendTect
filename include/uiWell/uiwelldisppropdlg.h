@@ -29,16 +29,14 @@ mClass(uiWell) uiWellDispPropDlg : public uiDialog
 public:
 				uiWellDispPropDlg(uiParent*,Well::Data*,
 						    bool is2ddisplay=false);
-				~uiWellDispPropDlg();
 
     Notifier<uiWellDispPropDlg>	applyAllReq;
 
     Well::Data*			wellData()		{ return wd_; }
     const Well::Data*		wellData() const	{ return wd_; }
 
+
     bool 			savedefault_;
-    void			disableWDNotifiers()
-				{ setWDNotifiers( false ); }
  
 protected:
 
@@ -53,6 +51,7 @@ protected:
     virtual void		setWDNotifiers(bool yn);
 
     virtual void		applyAllPush(CallBacker*);
+    virtual void		onClose(CallBacker*);
     virtual void		propChg(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			wdChg(CallBacker*);
@@ -66,6 +65,7 @@ public:
 				uiMultiWellDispPropDlg(uiParent*,
 						ObjectSet<Well::Data>&,
 						bool is2ddisplay);
+
 protected:
 
     ObjectSet<Well::Data> 	wds_;
@@ -74,6 +74,7 @@ protected:
     void			resetProps(int logidx);
     virtual void 		wellSelChg(CallBacker*);
     virtual void		setWDNotifiers(bool yn);
+    void			onClose(CallBacker*);
 };
 
 

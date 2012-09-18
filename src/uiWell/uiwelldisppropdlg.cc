@@ -91,17 +91,13 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
     applbut->attach( centeredBelow, ts_ );
 
     setWDNotifiers( true );
+    windowClosed.notify( mCB(this,uiWellDispPropDlg,onClose) );
 }
-
-
-uiWellDispPropDlg::~uiWellDispPropDlg()
-{}
 
 
 void uiWellDispPropDlg::setWDNotifiers( bool yn ) 
 {
-    if ( !wd_ )
-	return;
+    if ( !wd_ ) return;
 
     if ( yn )
     {
@@ -159,6 +155,12 @@ void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 }
 
 
+void uiWellDispPropDlg::onClose( CallBacker* )
+{
+    setWDNotifiers( false );
+}
+
+
 bool uiWellDispPropDlg::rejectOK( CallBacker* )
 {
     savedefault_ = saveButtonChecked();
@@ -166,7 +168,7 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 }
 
 
-//uiMultiWellDispPropDlg
+
 uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p, 
 					        ObjectSet<Well::Data>& wds,
        						bool is2ddisplay )
@@ -225,6 +227,7 @@ void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
 
 void uiMultiWellDispPropDlg::setWDNotifiers( bool yn ) 
 {
+    Well::Data* curwd = wd_;
     for ( int idx=0; idx<wds_.size(); idx++ ) 
     {
 	wd_ = wds_[idx];
@@ -239,5 +242,14 @@ void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
 	    mDelNot.remove( mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
 	}
     }
-    wd_ = wds_[0];
+    wd_ = curwd;
 }
+
+
+void uiMultiWellDispPropDlg::onClose( CallBacker* )
+{
+    setWDNotifiers( false );
+    wds_.erase();
+}
+
+
