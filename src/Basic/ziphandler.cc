@@ -25,7 +25,10 @@ static const char* rcsID mUnusedVar = "$Id: ziphandler.cc,v 1.11 2012-09-07 06:3
 #include "QDateTime"
 #include "QDate"
 #include "QTime"
+
+#ifdef OD_USEZLIB
 #include "zlib.h"
+#endif
 
 #ifdef __win__
     #include "sys/utime.h"
@@ -161,6 +164,7 @@ void ZipHandler::setCompLevel( CompLevel cl )
 
 bool ZipHandler::doZCompress()
 {
+#ifdef OD_USEZLIB
     unsigned int ptrlocation = osd_.ostrm->tellp();
     if ( !setLocalFileHeader( ) )
 	return false;
@@ -248,6 +252,10 @@ bool ZipHandler::doZCompress()
     delete [] in;
     delete [] out;
     return true;
+#else
+    errormsg_ = "ZLib not available";
+    return false;
+#endif
 }
 
 bool ZipHandler::setLocalFileHeader()
@@ -682,81 +690,86 @@ bool ZipHandler::readFileHeader()
 
 bool ZipHandler::doZUnCompress()
 {
-	int ret, flush;
-        unsigned have;
-        z_stream strm;
-        unsigned char* in = new unsigned char[srcfilesize_];
-        unsigned char* out = new unsigned char[destfilesize_];
-	unsigned int crc = 0;
-	const int windowbits = -15;
-	crc = crc32( crc, 0, 0 );
-        /* allocate inflate state */
-        strm.zalloc = Z_NULL;
-        strm.zfree = Z_NULL;
-        strm.opaque = Z_NULL;
-        strm.avail_in = 0;
-        strm.next_in = Z_NULL;
-	ret = -3;
-        ret = inflateInit2( &strm, windowbits );
-        if ( ret!=Z_OK )
-        {
-	    delete [] in;
-	    delete [] out;
-	    errormsg_ = "Error:Initial state not initialised properly";
-	    return false;
-        }
-
-        do
-        {
-            isd_.istrm->read( (char *)in, srcfilesize_ );
-            strm.avail_in = isd_.istrm->gcount();
-	    flush =  Z_FINISH ;
-            if (strm.avail_in == 0 ) break;
-            strm.next_in = in;
-            do
-            {
-                strm.avail_out = destfilesize_;
-                strm.next_out = out;
-                ret = inflate( &strm, Z_NO_FLUSH );
-                
-                switch (ret)
-                {
-                case Z_NEED_DICT:
-                case Z_DATA_ERROR:
-                case Z_MEM_ERROR:
-                    (void)inflateEnd( &strm );
-		    delete [] in;
-		    delete [] out;
-		    errormsg_ = "Error in unzipping files.";
-                    return false;
-                }
-                have = destfilesize_ - strm.avail_out;
-		crc = crc32( crc, (Bytef*) out, have );
-		osd_.ostrm->write( (char*)out, have );
-		if ( osd_.ostrm->fail() )
-		{
-		    delete [] in;
-		    delete [] out;
-		    errormsg_ = "Error:Writing to disk failed";
-		    return false;
-		}
-            } while ( strm.avail_out == 0 );
-            
-            /* done when inflate() says it's done */
-        } while ( flush != Z_FINISH );
-        
-	if ( !(crc == crc_) )
-	{
-	    delete [] in;
-	    delete [] out;
-	    errormsg_ = "Error:Loss of data possible. CRC not matched";
-	    return false;
-	}
-
-        inflateEnd( &strm );
+#ifdef OD_USEZLIB
+    int ret, flush;
+    unsigned have;
+    z_stream strm;
+    unsigned char* in = new unsigned char[srcfilesize_];
+    unsigned char* out = new unsigned char[destfilesize_];
+    unsigned int crc = 0;
+    const int windowbits = -15;
+    crc = crc32( crc, 0, 0 );
+    /* allocate inflate state */
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+    strm.avail_in = 0;
+    strm.next_in = Z_NULL;
+    ret = -3;
+    ret = inflateInit2( &strm, windowbits );
+    if ( ret!=Z_OK )
+    {
 	delete [] in;
 	delete [] out;
-        return ret == Z_STREAM_END ? true : false;
+	errormsg_ = "Error:Initial state not initialised properly";
+	return false;
+    }
+
+    do
+    {
+	isd_.istrm->read( (char *)in, srcfilesize_ );
+	strm.avail_in = isd_.istrm->gcount();
+	flush =  Z_FINISH ;
+	if (strm.avail_in == 0 ) break;
+	strm.next_in = in;
+	do
+	{
+	    strm.avail_out = destfilesize_;
+	    strm.next_out = out;
+	    ret = inflate( &strm, Z_NO_FLUSH );
+	    
+	    switch (ret)
+	    {
+	    case Z_NEED_DICT:
+	    case Z_DATA_ERROR:
+	    case Z_MEM_ERROR:
+		(void)inflateEnd( &strm );
+		delete [] in;
+		delete [] out;
+		errormsg_ = "Error in unzipping files.";
+		return false;
+	    }
+	    have = destfilesize_ - strm.avail_out;
+	    crc = crc32( crc, (Bytef*) out, have );
+	    osd_.ostrm->write( (char*)out, have );
+	    if ( osd_.ostrm->fail() )
+	    {
+		delete [] in;
+		delete [] out;
+		errormsg_ = "Error:Writing to disk failed";
+		return false;
+	    }
+	} while ( strm.avail_out == 0 );
+	
+	/* done when inflate() says it's done */
+    } while ( flush != Z_FINISH );
+    
+    if ( !(crc == crc_) )
+    {
+	delete [] in;
+	delete [] out;
+	errormsg_ = "Error:Loss of data possible. CRC not matched";
+	return false;
+    }
+
+    inflateEnd( &strm );
+    delete [] in;
+    delete [] out;
+    return ret == Z_STREAM_END ? true : false;
+#else
+    errormsg_ = "ZLib not available";
+    return false;
+#endif
 }
 
 bool ZipHandler::initAppend( BufferString& srcfnm, BufferString& fnm )
