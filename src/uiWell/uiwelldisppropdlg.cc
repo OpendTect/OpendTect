@@ -229,12 +229,13 @@ void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
 	{
 	    mDispNot.notify( mCB(this,uiMultiWellDispPropDlg,wdChg) );
 	    mDelNot.notify( mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
+	    wd_ = wds_[0];
 	}
 	else
 	{
 	    mDispNot.remove( mCB(this,uiMultiWellDispPropDlg,wdChg) );
 	    mDelNot.remove( mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
+	    wds_.erase();
 	}
     }
-    wd_ = wds_[0];
 }
