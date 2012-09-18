@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "draw.h"
 class uiComboBox;
-class uiGraphicsView;
+class uiRectItem;
 
 
 
@@ -38,7 +38,7 @@ protected:
 
     uiComboBox*			typefld_;
     uiComboBox*			optfld_;
-    uiGraphicsView*		gv_;
+    uiRectItem*			patrect_;
 
     void			reDrawPattern();
     void			setOptNms();
