@@ -46,6 +46,9 @@ public:
 
     void		setDataPackInp(const TypeSet<DataPack::FullID>&,
 	    				bool isprestack=false);
+    bool		handleUnsaved();
+    			//!< returns false only if user want to cancel
+    bool		haveChange() const	{ return anychg_; }
 
 protected:
 
@@ -54,6 +57,7 @@ protected:
     CtxtIOObj&		ctio_;
     TypeSet<DataPack::FullID> dpfids_;
     TypeSet<DataPack::FullID> psdpfids_;
+    bool		anychg_;
 
     uiToolButton*	savebut_;
     uiPreStackAttrib*	uipsattrdesced_;
