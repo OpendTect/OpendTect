@@ -82,6 +82,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 
 	uiStratSelUnits::Setup ssusu( uiStratSelUnits::Multi,
 				      Strat::UnitRefIter::AllNodes );
+	ssusu.fldtxt( "Contributing units" );
 	unfld_ = new uiStratSelUnits( integrgrp_, reftree_, ssusu );
 	unfld_->setExpanded( 1 );
 
