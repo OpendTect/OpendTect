@@ -27,13 +27,11 @@ SET(QT_MOC_HEADERS i_qaction.h
 		i_qtxtbrowser.h)
 SET(OD_MODULE_SOURCES     i_layout.cc
 		i_layoutitem.cc
-		iodraw.cc
 		inituibase.cc
 		pixmap.cc
 		uiaction.cc
 		uibutton.cc
 		uibuttongroup.cc
-		uicanvas.cc
 		uicolor.cc
 		uicombobox.cc
 		uicursor.cc
@@ -41,7 +39,6 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uidate.cc
 		uidial.cc
 		uidockwin.cc
-		uidrawable.cc
 		uifiledlg.cc
 		uifont.cc
 		uigroup.cc
