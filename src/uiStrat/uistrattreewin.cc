@@ -436,8 +436,8 @@ void uiStratTreeWin::helpCB( CallBacker* )
 void uiStratTreeWin::manLiths( CallBacker* )
 {
     uiStratLithoDlg dlg( this );
-    if ( dlg.go() && dlg.anyChg() )
-	needsave_ = true;
+    dlg.go();
+    if ( dlg.anyChg() ) needsave_ = true;
     uitree_->updateLithoCol();
 }
 
@@ -445,8 +445,8 @@ void uiStratTreeWin::manLiths( CallBacker* )
 void uiStratTreeWin::manConts( CallBacker* )
 {
     uiStratContentsDlg dlg( this );
-    if ( dlg.go() && dlg.anyChg() )
-	needsave_ = true;
+    dlg.go(); 
+    if ( dlg.anyChg() ) needsave_ = true;
 }
 
 
