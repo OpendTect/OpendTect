@@ -35,6 +35,10 @@ public:
     const Strat::LaySeqAttribSet& attribSet() const	{ return attrset_; }
     const PropertyRefSelection&	  propertyRefs() const	{ return props_; }
 
+    bool			handleUnsaved();
+    				//!< Only returns false on user cancel
+    bool			haveChange() const	{ return anychg_; }
+
 protected:
 
     Strat::LaySeqAttribSet&	attrset_;
@@ -43,6 +47,7 @@ protected:
     PropertyRefSelection	props_;
     CtxtIOObj&			ctio_;
     const SetTypeSel		typesel_;
+    bool			anychg_;
 
     virtual void	editReq(bool);
     virtual void	removeReq();

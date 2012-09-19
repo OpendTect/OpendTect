@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqattrsetbuild.cc,v 1.11 2012/04/10 14:29:40 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayseqattrsetbuild.cc,v 1.13 2012-05-02 15:12:19 cvskris Exp $";
 
 #include "uistratlayseqattrsetbuild.h"
 #include "uilayseqattribed.h"
@@ -36,6 +36,7 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
     , ctio_(*mMkCtxtIOObj(StratLayerSequenceAttribSet))
     , typesel_(sts)
     , setismine_(!as)
+    , anychg_(false)
 {
     BufferStringSet dispnms;
     for ( int idx=0; idx<lm.propertyRefs().size(); idx++ )
@@ -63,6 +64,19 @@ uiStratLaySeqAttribSetBuild::~uiStratLaySeqAttribSetBuild()
     if ( setismine_ )
 	delete &attrset_;
     delete &ctio_;
+}
+
+
+bool uiStratLaySeqAttribSetBuild::handleUnsaved()
+{
+    if ( !anychg_ && !usrchg_ ) return true;
+
+    const int res = uiMSG().question( "Well Attribute Set not saved.\n"
+	"Do you want to save it now?", "Yes (store)", "No (discard)", "Cancel");
+    if ( res == 0 ) return true;
+    if ( res == -1 ) return false;
+
+    return ioReq(true);
 }
 
 
@@ -96,7 +110,10 @@ void uiStratLaySeqAttribSetBuild::editReq( bool isadd )
     su.allowintegr( typesel_ != OnlyLocal );
     uiLaySeqAttribEd dlg( this, *attr, reftree_, su );
     if ( dlg.go() )
+    {
+	anychg_ = true;
 	handleSuccessfullEdit( isadd, attr->name() );
+    }
     else if ( isadd )
 	attrset_-= attr;
 }
@@ -110,6 +127,7 @@ void uiStratLaySeqAttribSetBuild::removeReq()
 	Strat::LaySeqAttrib* attr = attrset_.attr( attrnm );
 	if ( attr )
 	{
+	    anychg_ = true;
 	    attrset_ -= attr;
 	    removeItem();
 	}
@@ -158,5 +176,7 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
 	}
     }
 
+    if ( rv )
+	anychg_ = false;
     return rv;
 }

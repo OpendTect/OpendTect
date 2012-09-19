@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribsetbuild.cc,v 1.23 2011/10/17 13:24:04 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiattribsetbuild.cc,v 1.26 2012-05-22 14:48:36 cvskris Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
@@ -54,6 +54,7 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
     , attrsetup_(su)
     , ctio_(*mMkCtxtIOObj(AttribDescSet))
     , uipsattrdesced_(0)			  
+    , anychg_(false)
 {
     descset_.setCouldBeUsedInAnyDimension( true );
     fillAvailable();
@@ -78,6 +79,19 @@ void uiAttribDescSetBuild::defSelChg()
 
     const Attrib::DescID descid = descset_.getID( attrnm, true );
     rmbut_->setSensitive( descid.isValid() && !descset_.isAttribUsed(descid) );
+}
+
+
+bool uiAttribDescSetBuild::handleUnsaved()
+{
+    if ( !anychg_ && !usrchg_ ) return true;
+
+    const int res = uiMSG().question( "Seismic Attribute Set not saved.\n"
+	"Do you want to save it now?", "Yes (store)", "No (discard)", "Cancel");
+    if ( res == 0 ) return true;
+    if ( res == -1 ) return false;
+
+    return ioReq(true);
 }
 
 
@@ -174,8 +188,12 @@ void uiAttribDescSetBuild::editReq( bool isadd )
 	dlg.setDataPackSelection( dpfids_ );
 	success = dlg.go();
     }
+
     if ( success )
+    {
 	handleSuccessfullEdit( isadd, desc.userRef() );
+	anychg_ = true;
+    }
     else if ( isadd )
 	descset_.removeDesc( did );
 
@@ -187,6 +205,7 @@ void uiAttribDescSetBuild::removeReq()
     const char* attrnm = curDefSel();
     if ( attrnm && *attrnm )
     {
+	anychg_ = true;
 	descset_.removeDesc( descset_.getID(attrnm,true) );
 	removeItem();
     }
@@ -232,6 +251,7 @@ bool uiAttribDescSetBuild::ioReq( bool forsave )
 	setCurDefSel( prevsel.isEmpty() ? 0 : prevsel.buf() );
     }
 
+    anychg_ = false;
     return true;
 }
 

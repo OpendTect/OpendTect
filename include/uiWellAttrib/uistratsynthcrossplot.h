@@ -69,6 +69,8 @@ protected:
 					const StepInterval<float>&);
     Attrib::EngineMan*		createEngineMan(const Attrib::DescSet&) const;
 
+    bool			handleUnsaved();
+    bool			rejectOK(CallBacker*);
     bool			acceptOK(CallBacker*);
 
 };

@@ -45,11 +45,11 @@ static const char* rcsID mUnusedVar = "$Id: uistratsynthcrossplot.cc,v 1.44 2012
 
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 			const Strat::LayerModel& lm,
-			const ObjectSet<SyntheticData>& synths)
+			const ObjectSet<SyntheticData>& synths )
     : uiDialog(p,Setup("Layer model/synthetics cross-plotting",
 			mNoDlgTitle,"110.3.0"))
     , lm_(lm)
-    , synthdatas_(synths)	     
+    , synthdatas_(synths)
 {
     if ( lm.isEmpty() )
 	{ errmsg_ = "Input model is empty."
@@ -241,6 +241,18 @@ void uiStratSynthCrossplot::setRefLevel( const char* lvlnm )
 }
 
 
+bool uiStratSynthCrossplot::handleUnsaved()
+{
+    return seisattrfld_->handleUnsaved() && layseqattrfld_->handleUnsaved();
+}
+
+
+bool uiStratSynthCrossplot::rejectOK( CallBacker* )
+{
+    return handleUnsaved();
+}
+
+
 #define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
 
 bool uiStratSynthCrossplot::acceptOK( CallBacker* )
@@ -256,5 +268,9 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
     const StepInterval<float>& extrwin = evfld_->event().extrwin_;
     const Strat::Level& lvl = *evfld_->event().level_;
     DataPointSet* dps = getData( seisattrs, seqattrs, lvl, extrwin );
-    return dps ? launchCrossPlot( *dps, lvl, extrwin ) : false;
+    const bool res = dps ? launchCrossPlot( *dps, lvl, extrwin ) : false;
+
+    if ( res && !handleUnsaved() )
+	return false;
+    return res;
 }
