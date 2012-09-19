@@ -129,6 +129,7 @@ void uiStratTreeWin::initRT()
 	}
 	Strat::setLVLS( ls );
 	Strat::setRT( rt );
+	needsave_ = true;
 	const Repos::Source dest = Repos::Survey;
 	Strat::LVLS().store( dest );
 	Strat::RepositoryAccess().writeTree( Strat::RT(), dest );
@@ -177,9 +178,6 @@ void uiStratTreeWin::createMenu()
     resetmnuitem_->setPixmap( ioPixmap("undo.png") );
     mnu->insertSeparator();
     
-    openmnuitem_ = new uiMenuItem( "&Open...", mCB(this,uiStratTreeWin,openCB));
-    mnu->insertItem( openmnuitem_ );
-    openmnuitem_->setPixmap( ioPixmap("openset.png") );
     saveasmnuitem_ = new uiMenuItem( "Save&As...",
 	    			     mCB(this,uiStratTreeWin,saveAsCB) );
     mnu->insertItem( saveasmnuitem_ );
@@ -285,7 +283,6 @@ void uiStratTreeWin::setIsLocked( bool yn )
     lithobut_->setSensitive( !yn );
     contentsbut_->setSensitive( !yn );
     newbut_->setSensitive( !yn );
-    openmnuitem_->setEnabled( !yn );
     saveasmnuitem_->setEnabled( !yn );
     resetmnuitem_->setEnabled( !yn );
 }
@@ -380,7 +377,11 @@ void uiStratTreeWin::unitRenamedCB( CallBacker* )
 
 bool uiStratTreeWin::closeOK()
 {
-    if ( needsave_ )
+    const bool needsave = uitree_->anyChg() || needsave_ ||  lvllist_->anyChg();
+    uitree_->setNoChg();	
+    lvllist_->setNoChg();
+    needsave_ = false;
+    if ( needsave )
     {
 	int res = uiMSG().askSave( 
 			"Do you want to save this stratigraphic framework?" );
@@ -434,6 +435,7 @@ void uiStratTreeWin::manLiths( CallBacker* )
 {
     uiStratLithoDlg dlg( this );
     dlg.go();
+    if ( dlg.anyChg() ) needsave_ = true;
     uitree_->updateLithoCol();
 }
 
@@ -442,6 +444,7 @@ void uiStratTreeWin::manConts( CallBacker* )
 {
     uiStratContentsDlg dlg( this );
     dlg.go();
+    if ( dlg.anyChg() ) needsave_ = true;
 }
 
 

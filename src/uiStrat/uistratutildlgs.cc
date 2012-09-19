@@ -252,6 +252,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Manage Lithologies",mNoDlgTitle,"110.0.4"))
     , prevlith_(0)
     , nmfld_(0)
+    , anychg_(false)
 {
     setCtrlStyle( LeaveOnly );
 
@@ -263,11 +264,13 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     uiGroup* toprightgrp = new uiGroup( rightgrp, "top right group" );
     nmfld_ = new uiGenInput( toprightgrp, "Name", StringInpSpec() );
     isporbox_ = new uiCheckBox( toprightgrp, "Porous" );
+    isporbox_->activated.notify( selchgcb );
     isporbox_->attach( rightOf, nmfld_ );
 
     uiColorInput::Setup csu( Color::White() );
     csu.dlgtitle( "Default color for this lithology" );
     colfld_ = new uiColorInput( toprightgrp, csu );
+    colfld_->colorChanged.notify( selchgcb );
     colfld_->attach( alignedBelow, nmfld_ );
 
     const int butsz = 20;
@@ -315,6 +318,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
     if ( lithfailedmsg )
 	{ mErrRet( lithfailedmsg, return; ) } 
 
+    anychg_ = true;
     prevlith_ = 0;
     lithos.reportAnyChange();
     selfld_->setCurrentItem( nm );
@@ -335,6 +339,7 @@ void uiStratLithoDlg::selChg( CallBacker* )
 	    prevlith_->porous() = newpor;
 	    prevlith_->color() = newcol;
 	    lithos.reportAnyChange();
+	    anychg_ = true;
 	}
     }
 
@@ -344,7 +349,9 @@ void uiStratLithoDlg::selChg( CallBacker* )
 	return; // can only happen when no lithologies defined at all
 
     nmfld_->setText( lith->name() );
+    NotifyStopper nspor( isporbox_->activated );
     isporbox_->setChecked( lith->porous() );
+    NotifyStopper nscol( colfld_->colorChanged );
     colfld_->setColor( lith->color() );
     prevlith_ = const_cast<Strat::Lithology*>( lith );
 }
@@ -361,6 +368,7 @@ void uiStratLithoDlg::renameCB( CallBacker* )
     selfld_->setItemText( selfld_->currentItem(), nmfld_->text() );
     lithos.reportAnyChange();
     prevlith_ = lith;
+    anychg_ = true;
 }
 
 
@@ -379,6 +387,7 @@ void uiStratLithoDlg::rmLast( CallBacker* )
     prevlith_ = 0;
     selfld_->setCurrentItem( selidx-1 );
     selChg( 0 );
+    anychg_ = true;
 }
 
 

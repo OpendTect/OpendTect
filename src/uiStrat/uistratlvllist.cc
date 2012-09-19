@@ -22,7 +22,8 @@ static const char* sNoLevelTxt      = "--- None ---";
 
 uiStratLvlList::uiStratLvlList( uiParent* p )
     : uiLabeledListBox(p,"Regional markers",false,uiLabeledListBox::AboveMid)
-  , islocked_(false)
+    , islocked_(false)
+    , anychange_(false)
 {
     box()->setStretch( 2, 2 );
     box()->setFieldWidth( 10 );
@@ -78,6 +79,7 @@ void uiStratLvlList::rClickLvlCB( CallBacker* )
 	if ( !levelset.isPresent( lvlnm ) ) return;
 	const Strat::Level& lvl = *levelset.get( lvlnm );
 	levelset.remove( lvl.id() );
+	anychange_ = true;
     }
     else if ( mnuid == 3 )
     {
@@ -90,7 +92,10 @@ void uiStratLvlList::rClickLvlCB( CallBacker* )
 	    {
 		const Strat::Level* lvl = levelset.levels()[idx];
 		if ( lvl->id() >= 0 )
+		{
 		    levelset.remove( lvl->id() );
+		    anychange_ = true;
+		}
 	    }
 	}
     }
@@ -155,6 +160,7 @@ void uiStratLvlList::editLevel( bool create )
 	    lvl->setColor( col );
 	}
 	lvls.store( Repos::Survey );
+	anychange_ = true;
     }
 }
 
