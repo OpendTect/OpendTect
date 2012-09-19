@@ -13,7 +13,7 @@ static const char* rcsID mUnusedVar = "$Id: canvascommands.cc,v 1.1 2012-09-17 1
 #include "cmddriverbasics.h"
 #include "cmdrecorder.h"
 
-#include "uicanvas.h"
+#include "mouseevent.h"
 #include "uigraphicsviewbase.h"
 #include "uimenu.h"
 
@@ -28,26 +28,15 @@ bool CanvasMenuCmd::act( const char* parstr )
     mParOnOffInit( parnexxt, partail, onoff );
     mParTail( partail );
 
-    mFindObjects2( objsfound, uiCanvas, uiGraphicsViewBase, keys, nrgrey );
+    mFindObjects( objsfound, uiGraphicsViewBase, keys, nrgrey );
     mParKeyStrPre( "canvas", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiCanvas*, uicanvas, objsfound[0] );
     mDynamicCastGet( const uiGraphicsViewBase*, uigraph, objsfound[0] );
 
     prepareIntercept( menupath, onoff );
-    
-    if ( uicanvas )
-	mActivate( CanvasMenu, Activator(*uicanvas) )
-    else
-	mActivate( GraphicsViewMenu, Activator(*uigraph) );
+
+    mActivate( GraphicsViewMenu, Activator(*uigraph) );
 
     return didInterceptSucceed( "Canvas" );
-}
-
-
-void CanvasMenuActivator::actCB( CallBacker* cb )
-{
-    const MouseEvent right( OD::RightButton );
-    actobj_.getMouseEventHandler().triggerButtonPressed( right );
 }
 
 
@@ -58,15 +47,12 @@ void GraphicsViewMenuActivator::actCB( CallBacker* cb )
 }
 
 
-#define mInterceptCanvasMenu( menupath, allowroot, uicanvas, uigraph ) \
+#define mInterceptCanvasMenu( menupath, allowroot, uigraph ) \
 \
     CmdDriver::InterceptMode mode = \
 	allowroot ? CmdDriver::NodeInfo : CmdDriver::ItemInfo; \
     prepareIntercept( menupath, 0, mode ); \
-    if ( uicanvas ) \
-	mActivate( CanvasMenu, Activator(*uicanvas) ) \
-    else \
-	mActivate( GraphicsViewMenu, Activator(*uigraph) ); \
+    mActivate( GraphicsViewMenu, Activator(*uigraph) ); \
 \
     if ( !didInterceptSucceed("Canvas") ) \
 	return false;
@@ -78,11 +64,10 @@ bool NrCanvasMenuItemsCmd::act( const char* parstr )
     mParPathStrInit( "menu", parnexxt, partail, menupath );
     mParTail( partail );
 
-    mFindObjects2( objsfound, uiCanvas, uiGraphicsViewBase, keys, nrgrey );
+    mFindObjects( objsfound, uiGraphicsViewBase, keys, nrgrey );
     mParKeyStrPre( "canvas", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiCanvas*, uicanvas, objsfound[0] );
     mDynamicCastGet( const uiGraphicsViewBase*, uigraph, objsfound[0] );
-    mInterceptCanvasMenu( menupath, true, uicanvas, uigraph );
+    mInterceptCanvasMenu( menupath, true, uigraph );
 
     mParIdentPost( identname, interceptedMenuInfo().nrchildren_, parnext );
     return true;
@@ -96,11 +81,10 @@ bool IsCanvasMenuItemOnCmd::act( const char* parstr )
     mParPathStrInit( "menu", parnexxt, partail, menupath );
     mParTail( partail );
 
-    mFindObjects2( objsfound, uiCanvas, uiGraphicsViewBase, keys, nrgrey );
+    mFindObjects( objsfound, uiGraphicsViewBase, keys, nrgrey );
     mParKeyStrPre( "canvas", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiCanvas*, uicanvas, objsfound[0] );
     mDynamicCastGet( const uiGraphicsViewBase*, uigraph, objsfound[0] );
-    mInterceptCanvasMenu( menupath, false, uicanvas, uigraph );
+    mInterceptCanvasMenu( menupath, false, uigraph );
 
     mParIdentPost( identname, interceptedMenuInfo().ison_, parnext );
     return true;
@@ -115,11 +99,10 @@ bool GetCanvasMenuItemCmd::act( const char* parstr )
     mParFormInit( parnexxxt, partail, form );
     mParTail( partail );
 
-    mFindObjects2( objsfound, uiCanvas, uiGraphicsViewBase, keys, nrgrey );
+    mFindObjects( objsfound, uiGraphicsViewBase, keys, nrgrey );
     mParKeyStrPre( "canvas", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiCanvas*, uicanvas, objsfound[0] );
     mDynamicCastGet( const uiGraphicsViewBase*, uigraph, objsfound[0] );
-    mInterceptCanvasMenu( menupath, false, uicanvas, uigraph );
+    mInterceptCanvasMenu( menupath, false, uigraph );
 
     const MenuInfo menuinfo = interceptedMenuInfo();
     mParForm( answer, form, menuinfo.text_, menuinfo.siblingnr_ );

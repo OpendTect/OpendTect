@@ -25,7 +25,6 @@ static const char* rcsID mUnusedVar = "$Id: cmdrecorder.cc,v 1.1 2012-09-17 12:3
 #include "timer.h"
 
 #include "uitoolbutton.h"
-#include "uicanvas.h"
 #include "uicombobox.h"
 #include "uigraphicsviewbase.h"
 #include "uilabel.h"
@@ -238,10 +237,10 @@ static void takeSimilarObjs( ObjectSet<const uiObject>& objects,
 	mMatchObjClass( srcobj, newobj, uiListBox, yn );
 	mMatchObjClass( srcobj, newobj, uiTreeView, yn );
 	mMatchObjClass( srcobj, newobj, uiTable, yn );
+	mMatchObjClass( srcobj, newobj, uiGraphicsViewBase, yn );
 
 	mMatchObjClassExtra( srcobj, newobj, uiLineEdit, uiSpinBox, yn );
-	mMatchObjClassExtra( srcobj, newobj, uiCanvas, uiGraphicsViewBase, yn );
-	mMatchObjClassExtra( srcobj, newobj, uiGraphicsViewBase, uiCanvas, yn );
+	mMatchObjClassExtra( srcobj, newobj, uiLineEdit, uiComboBox, yn );
 
 	if ( tofront!=yn && toback!=yn )
 	    objects.remove( idx );

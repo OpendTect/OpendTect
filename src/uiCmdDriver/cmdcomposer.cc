@@ -26,7 +26,6 @@ static const char* rcsID mUnusedVar = "$Id: cmdcomposer.cc,v 1.1 2012-09-17 12:3
 
 #include "timer.h"
 #include "uibutton.h"
-#include "uicanvas.h"
 #include "uicombobox.h"
 #include "uigraphicsviewbase.h"
 #include "uilineedit.h"

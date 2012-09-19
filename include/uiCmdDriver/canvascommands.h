@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "command.h"
 #include "cmdcomposer.h"
 
-class uiCanvas;
 class uiGraphicsViewBase;
 
 namespace CmdDrive
@@ -27,21 +26,19 @@ class CmdDriver;
 
 mStartDeclCmdClass( CanvasMenu, UiObjectCmd )		mEndDeclCmdClass
 
-#define mDeclCanvasMenuActivator( typ, objclass ) \
-\
-    mClass(CmdDriver) typ##Activator: public Activator \
-    { \
-    public: \
-		    typ##Activator(const objclass& obj) \
-			: actobj_( const_cast<objclass&>(obj) ) \
-		    {} \
-	void	    actCB(CallBacker*); \
-    protected: \
-	objclass&   actobj_; \
-    };
 
-mDeclCanvasMenuActivator( CanvasMenu, uiCanvas )
-mDeclCanvasMenuActivator( GraphicsViewMenu, uiGraphicsViewBase )
+mClass(CmdDriver) GraphicsViewMenuActivator: public Activator
+{
+public:
+		    GraphicsViewMenuActivator(const uiGraphicsViewBase& obj)
+			: actobj_( const_cast<uiGraphicsViewBase&>(obj) )
+		    {}
+    void	    actCB(CallBacker*);
+
+protected:
+    uiGraphicsViewBase&   actobj_;
+};
+
 
 mStartDeclCmdClass( NrCanvasMenuItems, UiObjQuestionCmd )	mEndDeclCmdClass
 mStartDeclCmdClass( IsCanvasMenuItemOn, UiObjQuestionCmd )	mEndDeclCmdClass
