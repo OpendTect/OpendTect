@@ -221,14 +221,9 @@ void uiHistogramDisplay::setHistogram( const TypeSet<float>& histdata,
 
 void uiHistogramDisplay::putN()
 {
-    if ( nrinpvals_ < 1 || nitm_ ) return;
-
-    BufferString str = "N="; str += nrinpvals_;
-    if ( !nitm_ )
-    {
-	nitm_ = scene().addItem( new uiTextItem(uiPoint(width()/2,0),str) );
-	nitm_->setPenColor( Color::Black() );
-    }
-    else
-	nitm_->setText( str );
+    delete nitm_; nitm_ = 0;
+    nitm_ = scene().addItem( new uiTextItem(uiPoint(width()/10,0),
+				BufferString("N=",nrinpvals_)) );
+    nitm_->setPenColor( Color::Black() );
+    nitm_->setZValue( 99999 );
 }
