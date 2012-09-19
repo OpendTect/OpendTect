@@ -4,20 +4,18 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.15 2012/05/29 17:00:25 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uisynthtorealscale.cc,v 1.19 2012-08-10 03:50:07 cvsaneesh Exp $";
 
 #include "uisynthtorealscale.h"
 
 #include "emhorizon3d.h"
-#include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
-#include "emsurfaceposprov.h"
-#include "binidvalset.h"
 #include "survinfo.h"
 #include "polygon.h"
 #include "position.h"
 #include "seistrc.h"
+#include "seistrctr.h"
 #include "seisbuf.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
@@ -40,6 +38,9 @@ static const char* rcsID = "$Id: uisynthtorealscale.cc,v 1.15 2012/05/29 17:00:2
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+
+static const char* sKeyAmplVals = "       [Amplitude values]       ";
+static const char* sKeyRMSVals = "[Amplitude RMS values]";
 
 
 #define mErrRetBool(s)\
@@ -141,17 +142,20 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
 					const MultiID& wid, const char* lvlnm )
     : uiDialog(p,Setup("Scale synthetics","Determine scaling for synthetics",
 			"110.2.1"))
+    , seisev_(*new Strat::SeisEvent)
     , is2d_(is2d)
     , synth_(tb)
     , inpwvltid_(wid)
     , seisfld_(0)
+    , horizon_(0)
+    , horiter_(0)
+    , polygon_(0)
 {
 #define mNoDealRet(cond,msg) \
     if ( cond ) \
 	{ new uiLabel( this, msg ); return; }
     mNoDealRet( Strat::LVLS().isEmpty(), "No Stratigraphic Levels defined" )
     mNoDealRet( tb.isEmpty(), "Please generate models first" )
-    mNoDealRet( !lvlnm || !*lvlnm, "Please select a Stratigraphic Level" )
     mNoDealRet( inpwvltid_.isEmpty(), "Please create a Wavelet first" )
     mNoDealRet( !lvlnm || !*lvlnm || (*lvlnm == '-' && *(lvlnm+1) == '-'),
 	    "Please select Stratigraphic Level\nbefore starting this tool" )
@@ -164,8 +168,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(sssu.geom_,true),
 	    		      sssu );
 
-    const IOObjContext horctxt( is2d_ ? mIOObjContext(EMHorizon2D)
-	    			      : mIOObjContext(EMHorizon3D) );
+    const IOObjContext horctxt( mIOObjContext(EMHorizon3D) );
     uiIOObjSel::Setup horsu( BufferString("Horizon for '",lvlnm,"'") );
     horfld_ = new uiIOObjSel( this, horctxt, horsu );
     horfld_->attach( alignedBelow, seisfld_ );
@@ -181,12 +184,16 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     evfld_ = new uiStratSeisEvent( this, ssesu );
     evfld_->attach( alignedBelow, polyfld_ );
 
-    uiPushButton* gobut = new uiPushButton( this, "Extract values",
+    uiPushButton* gobut = new uiPushButton( this, "&Extract amplitudes",
 	    			mCB(this,uiSynthToRealScale,goPush), true );
     gobut->attach( alignedBelow, evfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "separator" );
     sep->attach( stretchedBelow, gobut );
+
+    valislbl_ = new uiLabel( this, sKeyAmplVals );
+    valislbl_->setAlignment( Alignment::HCenter );
+    valislbl_->attach( centeredBelow, sep );
 
     uiGroup* statsgrp = new uiGroup( this, "Stats displays" );
 
@@ -197,8 +204,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     realstatsfld_->attach( rightOf, synthstatsfld_ );
     const CallBack setsclcb( mCB(this,uiSynthToRealScale,setScaleFld) );
     synthstatsfld_->usrValChanged.notify( setsclcb );
-    statsgrp->attach( centeredBelow, gobut );
-    statsgrp->attach( ensureBelow, sep );
+    statsgrp->attach( centeredBelow, valislbl_ );
     realstatsfld_->usrValChanged.notify( setsclcb );
     statsgrp->setHAlignObj( realstatsfld_ );
 
@@ -212,6 +218,16 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     wvltfld_->attach( alignedBelow, finalscalefld_ );
 
     postFinalise().notify( mCB(this,uiSynthToRealScale,initWin) );
+}
+
+
+uiSynthToRealScale::~uiSynthToRealScale()
+{
+    delete horiter_;
+    if ( horizon_ )
+	horizon_->unRef();
+    delete polygon_;
+    delete &seisev_;
 }
 
 
@@ -238,10 +254,217 @@ void uiSynthToRealScale::setScaleFld( CallBacker* )
 }
 
 
+bool uiSynthToRealScale::getEvent()
+{
+    if ( !evfld_->getFromScreen() )
+	return false;
+    seisev_ = evfld_->event();
+    const bool isrms = seisev_.extrwin_.nrSteps() > 0;
+    valislbl_->setText( isrms ? sKeyRMSVals : sKeyAmplVals );
+    return true;
+}
+
+
+bool uiSynthToRealScale::getHorData( TaskRunner& tr )
+{
+    delete polygon_; polygon_ = 0;
+    if ( horizon_ )
+	{ horizon_->unRef(); horizon_ = 0; }
+
+    if ( polyfld_->isChecked() )
+    {
+	const IOObj* ioobj = polyfld_->ioobj();
+	if ( !ioobj ) return false;
+	BufferString errmsg;
+	polygon_ = PickSetTranslator::getPolygon( *ioobj, errmsg );
+	if ( !polygon_ )
+	    mErrRetBool( errmsg );
+    }
+
+    const IOObj* ioobj = horfld_->ioobj();
+    if ( !ioobj ) return false;
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(), &tr );
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj);
+    if ( !hor ) return false;
+    horizon_ = hor;
+    horizon_->ref();
+    horiter_ = horizon_->createIterator( horizon_->sectionID(0) );
+    return true;
+}
+
+
+float uiSynthToRealScale::getTrcValue( const SeisTrc& trc, float reftm ) const
+{
+    const int lastsamp = trc.size() - 1;
+    const Interval<float> trg( trc.startPos(), trc.samplePos(lastsamp) );
+    const int nrtms = seisev_.extrwin_.nrSteps() + 1;
+    const bool calcrms = nrtms > 1;
+    float sumsq = 0;
+    for ( int itm=0; itm<nrtms; itm++ )
+    {
+	float extrtm = reftm + seisev_.extrwin_.atIndex(itm);
+	float val;
+	if ( extrtm <= trg.start )
+	    val = trc.get( 0, 0 );
+	if ( extrtm >= trg.stop )
+	    val = trc.get( lastsamp, 0 );
+	else
+	    val = trc.getValue( extrtm, 0 );
+	if ( calcrms ) val *= val;
+	sumsq += val;
+    }
+    return calcrms ? sqrt( sumsq / nrtms ) : sumsq;
+}
+
+
+void uiSynthToRealScale::updSynthStats()
+{
+    if ( !getEvent() )
+	return;
+
+    TypeSet<float> vals;
+    for ( int idx=0; idx<synth_.size(); idx++ )
+    {
+	const SeisTrc& trc = *synth_.get( idx );
+	const float reftm = seisev_.snappedTime( trc );
+	if ( !mIsUdf(reftm) )
+	    vals += getTrcValue( *synth_.get(idx), reftm );
+    }
+
+    uiHistogramDisplay& histfld = *synthstatsfld_->dispfld_;
+    histfld.setData( vals.arr(), vals.size() );
+    histfld.putN();
+    synthstatsfld_->avgfld_->setValue( histfld.getStatCalc().average() );
+}
+
+
+class uiSynthToRealScaleRealStatCollector : public Executor
+{
+public:
+uiSynthToRealScaleRealStatCollector( uiSynthToRealScale& d, SeisTrcReader& r )
+    : Executor( "Collect Amplitudes" )
+    , dlg_(d)
+    , rdr_(r)
+    , msg_("Collecting")
+    , nrdone_(0)
+    , totalnr_(-1)
+    , seldata_(0)
+{
+    if ( dlg_.polygon_ )
+    	seldata_ = new Seis::PolySelData( *dlg_.polygon_ );
+    if ( seldata_ )
+	totalnr_ = seldata_->expectedNrTraces( dlg_.is2d_ );
+    else
+	totalnr_ = dlg_.horiter_->approximateSize();
+}
+
+~uiSynthToRealScaleRealStatCollector()
+{
+    delete seldata_;
+}
+
+const char* message() const	{ return msg_; }
+const char* nrDoneText() const	{ return "Traces handled"; }
+od_int64 nrDone() const		{ return nrdone_; }
+od_int64 totalNr() const	{ return totalnr_; }
+
+bool getNextPos()
+{
+    while ( true )
+    {
+	const EM::PosID posid = dlg_.horiter_->next();
+	if ( posid.isUdf() )
+	    return false;
+
+	const Coord3 crd = dlg_.horizon_->getPos( posid );
+	bid_ = SI().transform( crd );
+	if ( seldata_ && !seldata_->isOK(bid_) )
+	    continue;
+
+	z_ = (float)crd.z;
+	break;
+    }
+
+    nrdone_++;
+    return true;
+}
+
+bool getTrc()
+{
+    if ( dlg_.is2d_ )
+	return false; //TODO
+    else
+    {
+	if ( !rdr_.seisTranslator()->goTo(bid_) || !rdr_.get(trc_) )
+	    return false;
+    }
+    return true;
+}
+
+int nextStep()
+{
+    if ( dlg_.is2d_ )
+	{ msg_ = "TODO: extract from 2D data"; return ErrorOccurred(); }
+
+    while ( true )
+    {
+	if ( !getNextPos() )
+	    return Finished();
+	if ( !getTrc() )
+	    continue;
+	break;
+    }
+
+    const float val = dlg_.getTrcValue( trc_, z_ );
+    if ( !mIsUdf(val) )
+	vals_ += val;
+    return MoreToDo();
+}
+
+    uiSynthToRealScale&	dlg_;
+    SeisTrcReader&	rdr_;
+    Seis::SelData*	seldata_;
+    SeisTrc		trc_;
+    BufferString	msg_;
+    od_int64		nrdone_;
+    od_int64		totalnr_;
+    BinID		bid_;
+    float		z_;
+    TypeSet<float>	vals_;
+
+};
+
+
+void uiSynthToRealScale::updRealStats()
+{
+    if ( !getEvent() )
+	return;
+
+    uiTaskRunner tr( this );
+    if ( !getHorData(tr) )
+	return;
+
+    SeisTrcReader rdr( seisfld_->ioobj() );
+    if ( !rdr.prepareWork() )
+	mErrRet( "Error opening input seismic data" );
+
+    uiSynthToRealScaleRealStatCollector coll( *this, rdr );
+    if ( !tr.execute(coll) )
+	return;
+
+    uiHistogramDisplay& histfld = *realstatsfld_->dispfld_;
+    histfld.setData( coll.vals_.arr(), coll.vals_.size() );
+    histfld.putN();
+    realstatsfld_->avgfld_->setValue( histfld.getStatCalc().average() );
+    setScaleFld( 0 );
+}
+
+
 bool uiSynthToRealScale::acceptOK( CallBacker* )
 {
     if ( !evfld_->getFromScreen() )
 	return false;
+
     const float scalefac = finalscalefld_->getfValue();
     if ( mIsUdf(scalefac) )
 	{ uiMSG().error( "Please enter the scale factor" ); return false; }
@@ -273,206 +496,4 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
     Wavelet::markScaled( outwvltid_, inpwvltid_, horfld_->key(),
 	    		seisfld_->ioobj()->key(), evfld_->levelName() );
     return true;
-}
-
-
-void uiSynthToRealScale::updSynthStats()
-{
-    TypeSet<float> vals;
-    if ( evfld_->getFromScreen() )
-    {
-	const Strat::SeisEvent& ssev = evfld_->event();
-	const int nrtms = ssev.extrwin_.nrSteps() + 1;
-	for ( int idx=0; idx<synth_.size(); idx++ )
-	{
-	    const SeisTrc& trc = *synth_.get( idx );
-	    const float reftm = ssev.snappedTime( trc );
-	    if ( mIsUdf(reftm) ) continue;
-
-	    if ( nrtms < 2 )
-		vals += trc.getValue( reftm + ssev.extrwin_.center(), 0 );
-	    else
-	    {
-		const int lastsamp = trc.size() - 1;
-		const Interval<float> trg( trc.startPos(),
-					   trc.samplePos(lastsamp) );
-		float sumsq = 0;
-		for ( int itm=0; itm<nrtms; itm++ )
-		{
-		    float extrtm = reftm + ssev.extrwin_.atIndex(itm);
-		    float val;
-		    if ( extrtm <= trg.start )
-			val = trc.get( 0, 0 );
-		    if ( extrtm >= trg.stop )
-			val = trc.get( lastsamp, 0 );
-		    else
-			val = trc.getValue( extrtm, 0 );
-		    sumsq += val * val;
-		}
-		vals += sqrt( sumsq / nrtms ); // RMS of selected samples
-	    }
-	}
-    }
-    
-    synthstatsfld_->dispfld_->setData( vals.arr(), vals.size() );
-    synthstatsfld_->avgfld_->setValue(
-    	    synthstatsfld_->dispfld_->getStatCalc().average() );
-}
-
-
-bool uiSynthToRealScale::getPolygon( DataSelection& ds ) const
-{
-    BufferString errmsg;
-    const IOObj* polyioobj = polyfld_->isChecked() ? polyfld_->ioobj() : 0;
-    ds.polygon_ = polyioobj ?
-	PickSetTranslator::getPolygon( *polyioobj, errmsg ) : 0;
-    if ( polyioobj && !ds.polygon_ )
-	mErrRetBool( errmsg );
-
-    if ( polyioobj )
-    {
-	TypeSet<Coord3> coords;
-	PickSetTranslator::getCoordSet( polyioobj->key().buf(), coords );
-	for ( int idx=0; idx<coords.size(); idx++ )
-	{
-	    const BinID bid = SI().transform( coords[idx] );
-	    ds.polyhs_.include( bid );
-	}
-    }
-
-    return true;
-}
-
-
-bool uiSynthToRealScale::getHorizon( DataSelection& ds, TaskRunner* tr ) const
-{
-    const MultiID mid = horfld_->key();
-    EM::ObjectID emid = EM::EMM().getObjectID( mid );
-    PtrMan<Executor> exec = 0;
-    if ( emid < 0 )
-    {
-	EM::SurfaceIOData sd;
-	EM::SurfaceIODataSelection sels( sd );
-	if ( ds.polyhs_.isDefined() )
-	    sels.rg = ds.polyhs_;
-	exec = EM::EMM().objectLoader( mid, &sels );
-	if ( !exec )
-	    mErrRetBool( "Cannot create horizon loader" );
-	const bool res = tr ? tr->execute( *exec ) : exec->execute();
-	if ( !res )
-	    mErrRetBool( "Error loading horizon" );
-
-	emid = EM::EMM().getObjectID( mid ); 
-    }
-
-    EM::EMObject* emobj = EM::EMM().getObject( emid );
-    if ( emobj ) emobj->ref();
-    mDynamicCastGet(EM::Horizon*,hor,emobj);
-    ds.setHorizon( hor );
-    if ( emobj ) emobj->unRef();
-    return hor;
-}
-
-
-bool uiSynthToRealScale::getBinIDs( BinIDValueSet& bvs, 
-				    const DataSelection& ds ) const
-{
-    const EM::SectionID sid = ds.horizon_->sectionID( 0 );
-    CubeSampling horcs;
-    if ( ds.polygon_ )
-	horcs.hrg = ds.polyhs_;
-
-    PtrMan<EM::EMObjectIterator> emiter = 
-	    ds.horizon_->createIterator( sid, &horcs );
-    while ( true )
-    {
-	const EM::PosID posid = emiter->next();
-	if ( posid.isUdf() ) break;
-
-	const Coord3 crd = ds.horizon_->getPos( posid );
-	const BinID bid = SI().transform( crd );
-	if ( ds.polygon_ )
-	{
-	    const Geom::Point2D<float> point( bid.inl, bid.crl );
-	    if ( ds.polygon_->isInside( point, true, 0 ) )
-		bvs.add( bid, crd.z );
-	}
-	else
-	    bvs.add( bid, crd.z );
-    }
-
-    bvs.randomSubselect( synth_.size() );
-    return true;
-}
-
-
-void uiSynthToRealScale::updRealStats()
-{
-    // TODO: Handle is2d_
-
-    uiTaskRunner tr( this );
-    DataSelection ds;
-    if ( !getPolygon(ds) || !getHorizon(ds,&tr) )
-	return;
-
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    
-    BinIDValueSet bvs( 1, false );
-    if ( !getBinIDs(bvs,ds) )
-	return;
-
-    const StepInterval<float> window = evfld_->event().extrwin_;
-    Seis::SelData* ssd = new Seis::TableSelData( bvs, &window );
-    SeisTrcReader rdr( seisfld_->ioobj() );
-    rdr.setSelData( ssd );
-    if ( !rdr.prepareWork() )
-	mErrRet( "Error reading seismic traces" );
-
-    SeisTrcBuf trcbuf( true );
-    SeisBufReader bufrdr( rdr, trcbuf );
-    if ( !bufrdr.execute() )
-	return;
-    
-    const int windowsz = window.nrSteps();
-    TypeSet<float> vals;
-    const EM::SectionID sid = ds.horizon_->sectionID( 0 );
-    for ( int idx=0; idx<trcbuf.size(); idx++ )
-    {
-	const SeisTrc& trc = *trcbuf.get( idx );
-	float sumsq = 0;
-	int nrterms = 0;
-	for ( int trcidx=0; trcidx<=windowsz; trcidx++ )
-	{
-	    const BinID bid = trc.info().binid;
-	    const float refz = ds.horizon_->getPos( sid, bid.toInt64() ).z;
-	    const float val = trc.getValue( refz+window.atIndex(trcidx), 0 );
-	    sumsq += val * val;
-	    nrterms++;
-	}
-
-	if ( nrterms )
-	    vals += sqrt( sumsq / nrterms );
-    }
-
-    uiHistogramDisplay* histfld = realstatsfld_->dispfld_;
-    histfld->setData( vals.arr(), vals.size() );
-    histfld->putN();
-    realstatsfld_->avgfld_->setValue( histfld->getStatCalc().average() );
-    setScaleFld( 0 );
-}
-
-
-// uiSynthToRealScale::DataSelection
-void uiSynthToRealScale::DataSelection::setHorizon( EM::Horizon* hor )
-{
-    if ( horizon_ ) horizon_->unRef();
-    horizon_ = hor;
-    if ( horizon_ ) horizon_->ref();
-}
-
-
-uiSynthToRealScale::DataSelection::~DataSelection()
-{
-    delete polygon_;
-    if ( horizon_ ) horizon_->unRef();
 }
