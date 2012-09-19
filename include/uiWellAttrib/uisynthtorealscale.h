@@ -18,17 +18,18 @@ ________________________________________________________________________
 #include "horsampling.h"
 #include "multiid.h"
 
-class BinIDValueSet;
+class SeisTrc;
 class SeisTrcBuf;
 class TaskRunner;
 class uiSeisSel;
 class uiIOObjSel;
+class uiLabel;
 class uiGenInput;
 class uiStratSeisEvent;
 class uiSynthToRealScaleStatsDisp;
 template <class T> class ODPolygon;
-
-namespace EM { class Horizon3D; class Horizon; }
+namespace EM { class Horizon3D; class EMObjectIterator; }
+namespace Strat { class SeisEvent; }
 
 
 /*!\brief To determine scaling of synthetics using real data.
@@ -44,6 +45,7 @@ public:
 			uiSynthToRealScale(uiParent*,bool is2d,SeisTrcBuf&,
 					   const MultiID& wvltid,
 					   const char* reflvlnm);
+			~uiSynthToRealScale();
 
     const MultiID&	inpWvltID() const	{ return inpwvltid_; }
     const MultiID&	selWvltID() const	{ return outwvltid_; }
@@ -55,12 +57,19 @@ protected:
     MultiID		inpwvltid_;
     MultiID		outwvltid_;
 
+    ODPolygon<float>*	polygon_;
+    HorSampling		polyhs_;
+    EM::Horizon3D*	horizon_;
+    EM::EMObjectIterator* horiter_;
+    Strat::SeisEvent&	seisev_;
+
     uiSeisSel*		seisfld_;
     uiIOObjSel*		horfld_;
     uiIOObjSel*		polyfld_;
     uiIOObjSel*		wvltfld_;
     uiStratSeisEvent*	evfld_;
     uiGenInput*		finalscalefld_;
+    uiLabel*		valislbl_;
     uiSynthToRealScaleStatsDisp*	synthstatsfld_;
     uiSynthToRealScaleStatsDisp*	realstatsfld_;
 
@@ -70,25 +79,14 @@ protected:
     			{ updSynthStats(); updRealStats(); }
     bool		acceptOK(CallBacker*);
 
+    bool		getEvent();
+    bool		getHorData(TaskRunner&);
+    float		getTrcValue(const SeisTrc&,float) const;
     void		updSynthStats();
     void		updRealStats();
-    bool		getBinIDs(BinIDValueSet&);
 
-    struct DataSelection
-    {
-			    DataSelection()
-				: polygon_(0), polyhs_(false), horizon_(0)  {}
-			    ~DataSelection();
+    friend class	uiSynthToRealScaleRealStatCollector;
 
-	void		    setHorizon(EM::Horizon*);
-	ODPolygon<float>*   polygon_;
-	HorSampling	    polyhs_;
-	EM::Horizon*	    horizon_;
-    };
-
-    bool		getPolygon(DataSelection&) const;
-    bool		getHorizon(DataSelection&,TaskRunner*) const;
-    bool		getBinIDs(BinIDValueSet&,const DataSelection&) const;
 };
 
 
