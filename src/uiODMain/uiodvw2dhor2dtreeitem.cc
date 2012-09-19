@@ -336,7 +336,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
 	if ( emobj )
 	{
-	    const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
+	    const EM::SectionID sectionid = emobj->sectionID( emobj->nrSections()-1 );
 	    applMgr()->mpeServer()->showSetupDlg( emid_, sectionid );
 	}
     }

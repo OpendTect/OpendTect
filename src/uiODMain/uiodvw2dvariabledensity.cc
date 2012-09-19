@@ -233,7 +233,7 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp)
 
     const Attrib::SelSpec& as = viewer2D()->selSpec( false );
-    MenuItem* subitem;
+    MenuItem* subitem = 0;
     applMgr()->attrServer()->resetMenuItems();
     if ( dp3d || dprdm )
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
