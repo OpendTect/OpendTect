@@ -75,7 +75,7 @@ public:
     int			nrOfMaterial() const;
     
     const osg::Array*	getColorArray() const;
-    const osg::Material* getMaterial() const;
+    osg::Material*	getMaterial();
 
 protected:
 			~Material();

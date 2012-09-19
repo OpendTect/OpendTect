@@ -237,7 +237,7 @@ void Material::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 }
     
     
-const osg::Material* Material::getMaterial() const
+osg::Material* Material::getMaterial()
 { return material_; }
     
     
