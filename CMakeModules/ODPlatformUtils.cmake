@@ -38,7 +38,7 @@ if(UNIX) #Apple an Linux
         FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
         set (EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
 	set (OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
-	set ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
+	#set ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
 
 	set ( OD_PLFSUBDIR mac )
 
