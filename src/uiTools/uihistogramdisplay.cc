@@ -206,7 +206,7 @@ void uiHistogramDisplay::updateHistogram()
 	histdata[seg] += 1; nrinpvals_++;
     }
 
-    setHistogram( histdata, Interval<float>(min + 0.5*step, max - 0.5*step),
+    setHistogram( histdata, Interval<float>(min + 0.5f*step, max - 0.5f*step),
 	    	  nrinpvals_ );
 }
 
@@ -221,14 +221,9 @@ void uiHistogramDisplay::setHistogram( const TypeSet<float>& histdata,
 
 void uiHistogramDisplay::putN()
 {
-    if ( nrinpvals_ < 1 || nitm_ ) return;
-
-    BufferString str = "N="; str += nrinpvals_;
-    if ( !nitm_ )
-    {
-	nitm_ = scene().addItem( new uiTextItem(uiPoint(width()/2,0),str) );
-	nitm_->setPenColor( Color::Black() );
-    }
-    else
-	nitm_->setText( str );
+    delete nitm_; nitm_ = 0;
+    nitm_ = scene().addItem( new uiTextItem(uiPoint(width()/10,0),
+				BufferString("N=",nrinpvals_)) );
+    nitm_->setPenColor( Color::Black() );
+    nitm_->setZValue( 99999 );
 }
