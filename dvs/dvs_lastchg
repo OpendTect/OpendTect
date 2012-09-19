@@ -5,6 +5,11 @@ if ( $#argv != 1 ) then
     exit 1
 endif
 
+if ( ! -d CVS ) then
+    svn diff -rPREV $*
+    exit 1
+endif
+
 set fil=$1
 
 set currev=`cvs log $fil | grep 'head:' | awk '{print $2}'`

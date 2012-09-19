@@ -1,7 +1,8 @@
-#!/bin/csh
+#!/bin/csh -f
 
-if ( ! $?DGB_CVS_DIR ) then
-    echo "Please source $WORK/dvs/set_dvs_env.csh"
+if ( ! -d CVS ) then
+    echo "No Subversion support yet"
+    svn diff $*
     exit 1
 endif
 
@@ -9,7 +10,6 @@ if ( $#argv < 1 ) then
     echo "Usage: $0 [-r <revision>] <file> "
     exit 1
 endif
-
 
 if ( "$1" == "-r" ) then
     shift

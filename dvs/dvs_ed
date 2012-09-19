@@ -1,4 +1,10 @@
-#!/bin/csh
+#!/bin/csh -f
+
+if ( ! -d CVS ) then
+    svn lock $*
+    exit $status
+endif
+
 
 set exit_status=0
 onintr goto finish_off

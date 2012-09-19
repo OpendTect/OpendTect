@@ -2,8 +2,8 @@
 # Revives file from Attic
 # $Id: dvs_restore,v 1.2 2012/08/02 09:15:27 cvsbert Exp $
 
-if ( ! $?DGB_CVS_DIR ) then
-    echo "Please source $WORK/dvs/set_dvs_env.csh"
+if ( ! -d CVS ) then
+    echo "No Subversion support yet"
     exit 1
 endif
 
