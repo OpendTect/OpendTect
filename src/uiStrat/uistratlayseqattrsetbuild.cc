@@ -16,6 +16,7 @@ static const char* rcsID mUnusedVar = "$Id: uistratlayseqattrsetbuild.cc,v 1.13 
 #include "uimsg.h"
 #include "uiioobjsel.h"
 
+#include "stratreftree.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlayseqattrib.h"
@@ -101,6 +102,8 @@ void uiStratLaySeqAttribSetBuild::editReq( bool isadd )
 	const PropertyRef* prop = props_.get( nm );
 	if ( !prop ) return;
 	attr = new Strat::LaySeqAttrib( attrset_, *prop );
+	for ( int idx=0; idx<reftree_.lithologies().size(); idx++ )
+	    attr->liths_.add( reftree_.lithologies().getLith(idx).name() );
 	attrset_ += attr;
     }
     if ( !attr ) { pErrMsg("Huh"); return; }
