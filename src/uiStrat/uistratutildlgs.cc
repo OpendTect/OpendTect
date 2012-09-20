@@ -411,10 +411,11 @@ class uiStratSingleContentDlg : public uiDialog
 {
 public:
 
-uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd )
+uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
     : uiDialog(p,uiDialog::Setup(isadd?"Add content":"Edit Content",
 		isadd?"Add content":"Edit content properties","110.0.5"))
     , cont_(c)
+    , anychg_(chg)
 {
     nmfld_ = new uiGenInput( this, "Name", StringInpSpec(c.name()) );
 
@@ -442,6 +443,7 @@ bool acceptOK( CallBacker* )
     cont_.setName( nm );
     cont_.pattern_ = fillfld_->get();
     cont_.color_ = colfld_->color();
+    anychg_ = true;
     return true;
 }
 
@@ -449,6 +451,7 @@ bool acceptOK( CallBacker* )
     uiGenInput*		nmfld_;
     uiFillPattern*	fillfld_;
     uiColorInput*	colfld_;
+    bool& 		anychg_;
 
 };
 
@@ -486,7 +489,7 @@ void editReq( bool isadd )
 	if ( selidx < 0 ) return;
 	cont = conts[selidx];
     }
-    uiStratSingleContentDlg dlg( this, *cont, isadd );
+    uiStratSingleContentDlg dlg( this, *cont, isadd, anychg_ );
     if ( !dlg.go() )
 	delete newcont;
     else
