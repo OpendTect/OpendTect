@@ -78,9 +78,9 @@ bool CmdRecorder::start()
     if ( !astrm.putHeader("OpendTect commands") )
 	return false;
 
-    uiBaseObject::setCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
-    uiMenuItem::setCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
-    uiPopupMenu::setInterceptor( mCB(this,CmdRecorder,dynamicMenuInterceptor) );
+    uiBaseObject::addCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
+    uiMenuItem::addCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
+    uiPopupMenu::addInterceptor( mCB(this,CmdRecorder,dynamicMenuInterceptor) );
     Timer::setUserWaitFlag( false );
 
     dynamicpopupmenu_ = 0;
@@ -109,9 +109,10 @@ void CmdRecorder::stop()
     dummy.srcwin_ = winstack_.topWin();
     insertWinAssertion( dummy );
 
-    uiBaseObject::unsetCmdRecorder();
-    uiMenuItem::unsetCmdRecorder();
-    uiPopupMenu::unsetInterceptor(); 
+    uiBaseObject::removeCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
+    uiMenuItem::removeCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
+    uiPopupMenu::removeInterceptor(
+	   			 mCB(this,CmdRecorder,dynamicMenuInterceptor) );
     recording_ = false;
 }
 

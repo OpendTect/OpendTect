@@ -1135,7 +1135,7 @@ bool CmdDriver::prepareActivate( Activator* activator )
 	return false;
 
     interceptstatus_ = NoInterception;
-    uiPopupMenu::setInterceptor( mCB(this,CmdDriver,dynamicMenuInterceptor) );
+    uiPopupMenu::addInterceptor( mCB(this,CmdDriver,dynamicMenuInterceptor) );
 
     storeModalStatus();
 
@@ -1157,7 +1157,7 @@ void CmdDriver::finishActivate( bool busywait )
 
     pendingwait_ = regularwait_;
 
-    uiPopupMenu::unsetInterceptor();
+    uiPopupMenu::removeInterceptor( mCB(this,CmdDriver,dynamicMenuInterceptor));
     if ( !interceptmenu_ && interceptstatus_!=NoInterception )
     {
 	mWinWarnStrm << "Unexpected popup menu clicked away. Item selection "
