@@ -394,7 +394,6 @@ bool acceptOk( CallBacker* )
 uiDataPointSetCrossPlotWin::~uiDataPointSetCrossPlotWin()
 {
     delete refineseldlg_;
-    delete propdlg_;
     delete selgrpdlg_;
 }
 
@@ -611,8 +610,6 @@ void uiDataPointSetCrossPlotWin::overlayAttrCB( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::editProps( CallBacker* )
 {
-    if ( propdlg_ ) delete propdlg_;
-    
     propdlg_ = new uiDataPointSetCrossPlotterPropDlg( &plotter_ );
 
     propdlg_->go();
