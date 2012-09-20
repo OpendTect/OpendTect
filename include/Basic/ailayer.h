@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: ailayer.h,v 1.15 2012-08-28 12:13:45 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

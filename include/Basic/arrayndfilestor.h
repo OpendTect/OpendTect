@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndfilestor.h,v 1.1 2010-03-08 15:03:32 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

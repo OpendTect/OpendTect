@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.20 2012-07-10 14:09:01 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

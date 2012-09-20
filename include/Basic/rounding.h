@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		July 2012
- RCS:		$Id: rounding.h,v 1.2 2012-07-24 19:17:02 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 Macros and inline functions for rounding floats and doubles.

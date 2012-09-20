@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Ranojay Sen
  Date:		December  2011
- RCS:		$Id: ziputils.h,v 1.11 2012-09-07 06:41:23 cvsraman Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

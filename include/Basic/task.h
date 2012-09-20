@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.40 2012-08-30 14:08:18 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

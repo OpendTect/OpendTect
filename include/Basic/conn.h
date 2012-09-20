@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.16 2012-08-03 13:00:11 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

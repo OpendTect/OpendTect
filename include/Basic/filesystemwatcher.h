@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: filesystemwatcher.h,v 1.3 2012-08-03 13:00:12 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

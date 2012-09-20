@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Salil Agarwal
  Date:		27 August 2012
- RCS:		$Id: ziparchiveinfo.h,v 1.5 2012-09-07 06:41:23 cvsraman Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

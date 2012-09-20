@@ -8,7 +8,7 @@ ________________________________________________________________________
  Date:		Aug 2003
  Contents:	Plugins
 
- RCS:		$Id: plugins.h,v 1.30 2012-08-03 13:00:14 cvskris Exp $
+ RCS:		$Id$
 
  For making your own plugins, no need to include this file. Use odplugin.h.
 ________________________________________________________________________

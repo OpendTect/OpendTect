@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.28 2012-08-03 13:00:14 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Jan 2011
  Contents:	Remainder of string2.h that has to be available for C
- RCS:		$Id: string2_c.h,v 1.2 2012-08-03 13:00:15 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 -*/
 
