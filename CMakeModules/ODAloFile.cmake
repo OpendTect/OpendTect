@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODAloFile.cmake,v 1.5 2012-03-28 13:54:19 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 

@@ -4,7 +4,7 @@
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.12 2010-10-14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "prog.h"
 #include "batchprog.h"

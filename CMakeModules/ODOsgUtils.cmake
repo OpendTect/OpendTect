@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODOsgUtils.cmake,v 1.14 2012-09-06 09:09:57 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 

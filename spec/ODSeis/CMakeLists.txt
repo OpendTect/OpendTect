@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Seismic/Test
 # 	May 2001 :	Bert
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-03-29 11:26:26 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET( OD_MODULE_DEPS Seis )

@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODInternal.cmake,v 1.5 2012-05-18 10:14:02 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 

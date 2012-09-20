@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: mksethdir,v 1.15 2007-02-05 13:41:54 cvsbert Exp $
+# $Id$
 #
 # HDIR variable setup
 # usage from a csh-script:

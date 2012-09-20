@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.19 2012-01-10 17:45:04 cvsnanne Exp $
+# $Id$
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`

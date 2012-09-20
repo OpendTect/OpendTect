@@ -2,6 +2,7 @@
 
 if ( ! -d CVS ) then
     echo "No Subversion support yet"
+    svn diff $*
     exit 1
 endif
 

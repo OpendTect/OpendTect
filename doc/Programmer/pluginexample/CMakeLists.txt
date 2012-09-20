@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Tutorial plugin
 # 	Jan 2012	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-04-11 12:58:27 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 

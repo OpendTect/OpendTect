@@ -49,4 +49,4 @@ Development release has odd release numbers: 3.1
 
 Bert Bril and Nanne Hemstra - dGB
 
-[$Id: RELEASE.txt,v 1.2 2007-09-13 08:00:37 cvsdgb Exp $]
+[$Id$]

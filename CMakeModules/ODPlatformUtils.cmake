@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODPlatformUtils.cmake,v 1.75 2012-09-10 10:05:15 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits

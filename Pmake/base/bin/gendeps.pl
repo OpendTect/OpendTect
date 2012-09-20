@@ -2,7 +2,7 @@
 # Puts the header file dependencies for a module into a file '.deps'
 # Author: Bert, May 2007
 #
-# $Id: gendeps.pl,v 1.11 2011-08-31 13:20:53 cvskris Exp $
+# $Id$
 #______________________________________________________________________________
 
 

@@ -2,7 +2,7 @@
 #
 #	Makefile : 	visBase
 # 	May 2012 :	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-05-07 03:40:13 cvsnageswara Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 IF ( UNIX )

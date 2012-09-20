@@ -3,7 +3,7 @@
  * AUTHOR   : R. K. Singh
  * DATE     : July 2007
 -*/
-static const char* rcsID = "$Id: od_create_ridge.cc,v 1.9 2012-07-10 08:05:28 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "conn.h"
 #include "cubesampling.h"

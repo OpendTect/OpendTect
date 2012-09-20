@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODQtUtils.cmake,v 1.18 2012-07-23 11:29:54 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(QTDIR "" CACHE PATH "QT Location" )

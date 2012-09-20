@@ -28,4 +28,4 @@ Qt: 4.4.3
 
 FFTW: 3.2.1 (Linux, Mac), 3.2.2 (Windows)
 
-# $Id: RELEASEINFO.txt,v 1.8 2009-09-21 03:01:35 cvsnanne Exp $
+# $Id$

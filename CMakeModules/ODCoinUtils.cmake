@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODCoinUtils.cmake,v 1.16 2012-09-06 09:55:55 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(COINDIR "" CACHE PATH "COIN Location" )

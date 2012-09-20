@@ -1,7 +1,7 @@
 #---------------------------------------------------------
 # Author: dGB Earth Sciences ( A.H.Bril )
 # Pmake Environment bash initialization shell script
-# $Id: PMinit.sh,v 1.10 2010-12-15 15:49:32 cvsbert Exp $
+# $Id$
 #---------------------------------------------------------
 
 if [ "$HDIR" = "" ]; then

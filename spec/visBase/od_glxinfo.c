@@ -1,4 +1,4 @@
-/* $Id: od_glxinfo.c,v 1.1 2009-05-21 10:54:04 cvsnanne Exp $ */
+/* $Id$ */
 
 /*
  * Copyright (C) 1999-2006  Brian Paul   All Rights Reserved.
@@ -34,7 +34,7 @@
  *
  * Brian Paul  26 January 2000
  */
-static const char* rcsID = "$Id: od_glxinfo.c,v 1.1 2009-05-21 10:54:04 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #define GLX_GLXEXT_PROTOTYPES
 

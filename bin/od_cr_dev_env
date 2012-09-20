@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.27 2009-06-24 04:40:19 cvsnanne Exp $
+# $Id$
 #
 # Script copies sources and libs into a development directory
 #

@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-07-11 07:43:15 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET ( OD_MODULE_DEPS General )

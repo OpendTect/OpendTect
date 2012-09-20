@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODInitheader.cmake,v 1.6 2012-08-31 07:55:24 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 # OD_CREATE_INIT_HEADER

@@ -2,7 +2,7 @@
 #---------------------------------------------------------
 # Author: de Groot - Bril Earth Sciences ( A.H.Bril )
 # Pmake Environment initialization C-shell script
-# $Id: PMinit.csh,v 1.13 2010-12-15 15:49:32 cvsbert Exp $
+# $Id$
 #---------------------------------------------------------
 
 if ( ! $?HDIR ) then

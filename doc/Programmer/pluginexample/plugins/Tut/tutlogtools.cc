@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: tutlogtools.cc,v 1.1 2012-03-29 07:23:42 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "tutlogtools.h"
 #include "welllog.h"

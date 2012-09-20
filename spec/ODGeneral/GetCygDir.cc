@@ -4,7 +4,7 @@
  * FUNCTION : Get cygwin directory if installed
 -*/
 
-static const char* rcsID = "$Id: GetCygDir.cc,v 1.2 2005-01-14 15:59:32 dgb Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "prog.h"

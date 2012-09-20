@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Tutorial plugin
 # 	Jan 2012	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-03-29 07:23:42 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 #Setup the module
