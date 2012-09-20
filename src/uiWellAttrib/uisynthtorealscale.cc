@@ -368,52 +368,72 @@ const char* nrDoneText() const	{ return "Traces handled"; }
 od_int64 nrDone() const		{ return nrdone_; }
 od_int64 totalNr() const	{ return totalnr_; }
 
-bool getNextPos()
+bool getNextPos3D()
 {
     while ( true )
     {
 	const EM::PosID posid = dlg_.horiter_->next();
 	if ( posid.isUdf() )
 	    return false;
-
 	const Coord3 crd = dlg_.horizon_->getPos( posid );
-	bid_ = SI().transform( crd );
-	if ( seldata_ && !seldata_->isOK(bid_) )
-	    continue;
-
-	z_ = (float)crd.z;
-	break;
+	if ( setBinID(crd) )
+	{
+	    z_ = (float)crd.z;
+	    break;
+	}
     }
 
-    nrdone_++;
     return true;
 }
 
-bool getTrc()
+bool setBinID( const Coord& crd )
 {
-    if ( dlg_.is2d_ )
-	return false; //TODO
-    else
+    bid_ = SI().transform( crd );
+    return seldata_ ? seldata_->isOK(bid_) : true;
+}
+
+
+int getTrc3D()
+{
+    while ( true )
     {
-	if ( !rdr_.seisTranslator()->goTo(bid_) || !rdr_.get(trc_) )
-	    return false;
+	if ( !getNextPos3D() )
+	    return Finished();
+	else if ( !rdr_.seisTranslator()->goTo(bid_) )
+	    continue;
+	else if ( !rdr_.get(trc_) )
+	    { msg_ = rdr_.errMsg(); return ErrorOccurred(); }
+
+	break;
     }
-    return true;
+    return MoreToDo();
+}
+
+int getTrc2D()
+{
+    if ( !rdr_.get(trc_) )
+	return Finished();
+
+    if ( !setBinID(trc_.info().coord) )
+	return 2;
+
+    const EM::SubID subid = bid_.toInt64();
+    const Coord3 crd = dlg_.horizon_->getPos( 0, subid );
+    if ( mIsUdf(crd.z) )
+	return 2;
+
+    z_ = (float)crd.z;
+    return MoreToDo();
 }
 
 int nextStep()
 {
-    if ( dlg_.is2d_ )
-	{ msg_ = "TODO: extract from 2D data"; return ErrorOccurred(); }
-
-    while ( true )
-    {
-	if ( !getNextPos() )
-	    return Finished();
-	if ( !getTrc() )
-	    continue;
-	break;
-    }
+    const int res = dlg_.is2d_ ? getTrc2D() : getTrc3D();
+    if ( res <= 0 )
+	return res;
+    nrdone_++;
+    if ( res > 1 )
+	return MoreToDo();
 
     const float val = dlg_.getTrcValue( trc_, z_ );
     if ( !mIsUdf(val) )
