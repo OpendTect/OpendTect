@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: moddepmgr.cc,v 1.14 2012-05-02 15:11:26 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "moddepmgr.h"
@@ -17,6 +17,7 @@ static const char* rcsID mUnusedVar = "$Id: moddepmgr.cc,v 1.14 2012-05-02 15:11
 #include "oddirs.h"
 #include "strmprov.h"
 #include "envvars.h"
+#include "errh.h"
 #include "sharedlibs.h"
 #include <iostream>
 
@@ -36,107 +37,39 @@ const OD::ModDepMgr& OD::ModDeps()
 }
 
 
-OD::ModDepMgr::ModDepMgr( const char* mdfnm )
-    : isrel_(true)
+OD::ModDepMgr::ModDepMgr( const char* mdfnm )	
 {
     if ( !mdfnm || !*mdfnm )
 	mdfnm = "ModDeps.od";
-    FilePath relfp( GetSoftwareDir(0), "data", mdfnm );
-    BufferString fnm( relfp.fullPath() );
-    const BufferString workdir = GetEnvVar("WORK");
-    FilePath devfp( workdir.buf(), "data", mdfnm );
-    if ( !File::exists(fnm) )
-    {
-	isrel_ = false;
-	BufferString devfnm = devfp.fullPath();
-	if ( !File::exists(devfnm) )
-	{
-	    if ( DBG::isOn(DBG_PROGSTART) )
-	    {
-		BufferString msg( "Ouch. No ",mdfnm," found.\nTried " );
-		msg.add( fnm ). add( " and " ).add( devfnm ).add( "." );
-		DBG::message( msg );
-	    }
-	    return;
-	}
-	fnm = devfnm;
-    }
-
-    StreamData sd( StreamProvider(fnm).makeIStream() );
+    
+    const FilePath moddepfp( GetSoftwareDir(0), "data", mdfnm );
+    const BufferString moddepfnm = moddepfp.fullPath();
+    StreamData sd( StreamProvider( moddepfnm ).makeIStream() );
     if ( !sd.usable() )
     {
 	if ( DBG::isOn(DBG_PROGSTART) )
 	{
-	    BufferString msg( "Ouch. Cannot read ",fnm,"." );
-	    msg.add( fnm ). add( " and " ).add( fnm ).add( "." );
+	    BufferString msg( "Ouch. Cannot read ", moddepfnm,"." );
 	    DBG::message( msg );
 	}
 	return;
     }
 
     if ( DBG::isOn(DBG_PROGSTART) )
-	DBG::message( BufferString("Start reading ",fnm,".") );
+	DBG::message( BufferString("Start reading ",moddepfnm,".") );
     readDeps( *sd.istrm );
     if ( DBG::isOn(DBG_PROGSTART) )
-	DBG::message( BufferString("Read ",fnm,".") );
+	DBG::message( BufferString("Read ",moddepfnm,".") );
     sd.close();
 
-    relfp.set( GetBinPlfDir() );
-#ifndef __cmake__
-#ifndef __win__
-    relfp.add( "so" );
-    relbindir_ = relfp.fullPath();
-    devfp = workdir.buf();
-    devfp.add( "lib" );
-    devfp.add( GetPlfSubDir() ).add( "G" );
-    devbindir_ = devfp.fullPath();
-    if ( !File::exists(devbindir_) )
+    bindir_ = FilePath( GetSoftwareDir(0), "bin", GetPlfSubDir(),
+		       	GetBinSubDir() ).fullPath();
+    if ( !File::exists( bindir_) )
     {
-	devfp = workdir;
-	devfp.add( "bin"). add( GetPlfSubDir() ).add( "G" ).add("so");
-	devbindir_ = devfp.fullPath();
-	if ( !File::exists(devbindir_) )
-	{
-	    devfp.setFileName( "OG" );
-	    devbindir_ = devfp.fullPath();
-	}
+	const BufferString msg( "Cannot find ", bindir_ );
+	pErrMsg( msg );
+	return;
     }
-#else
-    relbindir_ = relfp.fullPath();
-    devfp.setFileName( 0 );
-    BufferString plfdir( GetPlfSubDir() );
-    plfdir = plfdir == "win64" ? "x64" : "win32";
-    devfp = workdir;
-    devfp.add( "msvc10" ); devfp.add( plfdir );
-    devfp.add( isdebug ? "debug" : "release" );
-    devbindir_ = devfp.fullPath();
-    if ( !File::exists(devbindir_) )
-    {
-	devfp = workdir;
-	devfp.add( "lib" ); devfp.add( GetPlfSubDir() ).add( "G" );
-	devfp.add( isdebug ? "debug" : "release" );
-	devbindir_ = devfp.fullPath();
-	if ( !File::exists(devbindir_) )
-	{
-	    devbindir_ = "";
-	}
-    }
-#endif
-
-#else //CMAKE
-    relbindir_ = relfp.fullPath();
-    devfp = workdir.buf();
-    devfp.add( "bin" ).add( GetPlfSubDir() );
-# ifdef __win__
-    devfp.add( isdebug ? "debug" : "release" );
-#endif
-    devbindir_ = devfp.fullPath();
-    relbindir_ = isdebug ? devbindir_ : relbindir_;
-    if ( !File::exists(devbindir_) )
-    {
-	devbindir_ = "";
-    }
-#endif
 }
 
 
@@ -238,7 +171,7 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 
 	char libnm[256];
 	SharedLibAccess::getLibName( md->mods_.get(idep), libnm );
-	FilePath fp( isrel_ ? relbindir_ : devbindir_, libnm );
+	FilePath fp( bindir_, libnm );
 	SharedLibAccess* sla = new SharedLibAccess( fp.fullPath() );
 	if ( !sla->isOK() )
 	    { delete sla; continue; }

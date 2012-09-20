@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2011
- RCS:		$Id: moddepmgr.h,v 1.4 2012-08-03 13:00:13 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -50,9 +50,8 @@ public:
 protected:
 
     ObjectSet<ModDep>	deps_;
-    bool		isrel_;
-    BufferString	relbindir_;
-    BufferString	devbindir_;
+    BufferString	bindir_;
+
 
     mutable BufferStringSet		loadedmods_;
     mutable ObjectSet<SharedLibAccess>	shlibaccs_;

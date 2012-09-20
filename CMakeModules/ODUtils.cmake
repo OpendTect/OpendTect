@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: ODUtils.cmake,v 1.22 2012-09-10 10:20:22 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 if ( CMAKE_GENERATOR STREQUAL "Unix Makefiles" )
@@ -20,8 +20,7 @@ if ( CMAKE_GENERATOR STREQUAL "Unix Makefiles" )
 	MESSAGE( STATUS "Setting CMAKE_BUILD_TYPE to ${CMAKE_BUILD_TYPE}" )
     endif()
 
-#    set( OD_BUILDSUBDIR "/${CMAKE_BUILD_TYPE}" )
-#    To be enabled 
+    set( OD_BUILDSUBDIR "/${CMAKE_BUILD_TYPE}" )
 endif()
 
 ADD_DEFINITIONS("-D__cmake__")
