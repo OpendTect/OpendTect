@@ -11,7 +11,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "odplugin.h"
 
 
-mDefODPluginInfo(uiTexture)
+mDefODPluginInfo(uiTextureAttrib)
 {
     static PluginInfo retpi = {
 	"Texture Attribute",
@@ -21,7 +21,7 @@ mDefODPluginInfo(uiTexture)
     return &retpi;
 }
 
-mDefODInitPlugin(uiTexture)
+mDefODInitPlugin(uiTextureAttrib)
 {
     uiTextureAttrib::initClass();
     return 0;

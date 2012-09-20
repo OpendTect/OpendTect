@@ -15,7 +15,7 @@ mDefODPluginEarlyLoad(TextureAttrib)
 mDefODPluginInfo(TextureAttrib)
 {
     static PluginInfo retpi = {
-	"Texture Attribute",
+	"Texture Attribute (base)",
 	"dGB (Paul)",
 	"0.9",
     	"Implements Texture attributes" };
