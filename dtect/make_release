@@ -58,7 +58,7 @@ if ( -e CMakeCache.txt ) then
     endif
 endif
 if ( $doupd == "yes" ) then
-    cvs update
+    svn update
     cmake $cmakeargs
 endif
 
@@ -71,7 +71,7 @@ if ( -e CMakeCache.txt ) then
 endif
 
 if ( $doupd == "yes" ) then
-    cvs update
+    svn update
 endif
 cmake $cmakeargs -DOpendTect_DIR=$WORK
 
