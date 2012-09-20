@@ -62,6 +62,7 @@ SET( OD_PLUGINS
 	Madagascar
 	MadagascarAttribs
 	VoxelConnectivityFilter
+	TextureAttrib
 	uiBouncy
 	uiDPSDemo
 	uiExpAttribs
@@ -74,7 +75,7 @@ SET( OD_PLUGINS
 	uiImpGPR
 	uiMadagascar
 	uiMadagascarAttribs
-	#uiQtApp
+	uiTextureAttrib
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
 	uiPreStackViewer
