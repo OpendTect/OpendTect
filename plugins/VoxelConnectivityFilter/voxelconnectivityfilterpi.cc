@@ -13,8 +13,8 @@ mDefODPluginEarlyLoad(VoxelConnectivityFilter);
 mDefODPluginInfo(VoxelConnectivityFilter)
 {
     static PluginInfo retpi = {
-	"VoxelConnectivityFilter plugin",
-	"Kristofer",
+	"VoxelConnectivityFilter plugin (base)",
+	"dGB (Kristofer)",
 	"1.0",
    	"(c) dGB Beheer BV. Devlopment funded by Tetrale Technologies." };
     return &retpi;
