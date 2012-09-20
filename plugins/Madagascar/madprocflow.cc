@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: madprocflow.cc,v 1.10 2012-05-22 14:48:45 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "madprocflow.h"
 #include "madprocflowtr.h"

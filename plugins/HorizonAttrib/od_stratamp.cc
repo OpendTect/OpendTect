@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		June 2011
- RCS:		$Id: od_stratamp.cc,v 1.6 2012-05-22 14:48:45 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

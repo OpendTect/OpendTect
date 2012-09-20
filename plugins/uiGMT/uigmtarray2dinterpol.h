@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id: uigmtarray2dinterpol.h,v 1.5 2012-08-03 13:01:33 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

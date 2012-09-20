@@ -4,7 +4,7 @@
  * DATE     : Jul 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uigoogleiopi.cc,v 1.25 2012-08-29 08:18:06 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "uigoogleiomod.h"

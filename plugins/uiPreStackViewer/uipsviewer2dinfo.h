@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: uipsviewer2dinfo.h,v 1.3 2012-08-03 13:01:34 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

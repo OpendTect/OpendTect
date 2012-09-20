@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Jul 2007
- RCS:           $Id: eventfreqattrib.h,v 1.5 2010-03-22 11:54:39 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

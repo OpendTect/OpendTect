@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Plugin 'template'
 # 	Apr 2012	Bert
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-04-17 09:51:14 cvsbert Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain)

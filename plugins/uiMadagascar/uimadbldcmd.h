@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : June 2007
- * ID       : $Id: uimadbldcmd.h,v 1.9 2009-07-22 16:01:28 cvsbert Exp $
+ * ID       : $Id$
 -*/
 
 #include "uigroup.h"

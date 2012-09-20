@@ -4,7 +4,7 @@
  * DATE     : Aug 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: gapdeconpi.cc,v 1.9 2012-05-02 15:11:10 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "odplugin.h"
 #include "gapdeconattrib.h"

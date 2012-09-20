@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2008
- RCS:           $Id: uiisopachmaker.h,v 1.5 2011-07-07 11:52:26 cvsnageswara Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

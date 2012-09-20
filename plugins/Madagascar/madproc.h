@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: madproc.h,v 1.5 2012-08-03 13:01:32 cvskris Exp $
+ * ID       : $Id$
 -*/
 
 

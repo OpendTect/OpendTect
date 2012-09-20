@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Dec 2007
- * ID       : $Id: madprocflowtr.h,v 1.4 2012-08-03 13:01:32 cvskris Exp $
+ * ID       : $Id$
 -*/
  
 #include "madagascarmod.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.17 2012-08-29 08:18:06 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

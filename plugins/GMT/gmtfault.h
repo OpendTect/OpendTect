@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: gmtfault.h,v 1.7 2012-08-03 13:01:31 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

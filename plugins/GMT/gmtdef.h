@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.20 2012-08-30 09:42:31 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

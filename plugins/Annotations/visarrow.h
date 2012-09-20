@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: visarrow.h,v 1.6 2012-04-06 22:10:58 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

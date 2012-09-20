@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: visscalebar.h,v 1.2 2012-04-06 22:10:28 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

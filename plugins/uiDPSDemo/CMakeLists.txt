@@ -2,7 +2,7 @@
 #
 #	Makefile : 	DataPointSet demo
 # 	March 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-03-29 11:26:25 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain)

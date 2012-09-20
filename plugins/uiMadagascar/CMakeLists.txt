@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Madagascar (UI)
 # 	March 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.4 2012-04-06 09:47:52 cvsraman Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain Madagascar)

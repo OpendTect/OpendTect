@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: tutseistools.h,v 1.10 2012-08-03 13:01:33 cvskris Exp $
+ * ID       : $Id$
 -*/
 
 #include "tutmod.h"

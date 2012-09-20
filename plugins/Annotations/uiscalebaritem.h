@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2012
- RCS:		$Id: uiscalebaritem.h,v 1.1 2012-04-06 22:09:59 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

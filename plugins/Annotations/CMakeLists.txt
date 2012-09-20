@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Annotations plugin
 # 	Jan 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-04-06 22:09:59 cvsnanne Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET( OD_MODULE_DEPS uiODMain)

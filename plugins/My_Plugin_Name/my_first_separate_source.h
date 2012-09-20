@@ -4,7 +4,7 @@
  * (C) Your_copyright
  * AUTHOR   : You!
  * DATE     : Apr 2012
- * ID       : $Id: my_first_separate_source.h,v 1.2 2012-08-03 13:01:32 cvskris Exp $
+ * ID       : $Id$
 -*/
 
 #include "my_plugin_namemod.h"

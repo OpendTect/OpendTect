@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Hello World plugin
 # 	March 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-03-26 11:25:53 cvsbert Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain)

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipsviewer2dposdlg.cc,v 1.12 2012-07-19 06:58:33 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uipsviewer2dposdlg.h"
 

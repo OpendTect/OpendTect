@@ -2,7 +2,7 @@
 #
 #	Makefile : 	uiGMT plugin
 # 	March 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-04-06 09:45:38 cvsraman Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain GMT )

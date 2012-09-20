@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Aug 2009
- * ID       : $Id: uibouncymgr.h,v 1.5 2012-08-03 13:01:33 cvskris Exp $
+ * ID       : $Id$
 -*/
 
 #include "uibouncymod.h"

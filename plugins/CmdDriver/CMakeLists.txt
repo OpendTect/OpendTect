@@ -2,7 +2,7 @@
 #
 #	Makefile : 	GapDecon plugin
 # 	Feb 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-09-17 12:49:54 cvsjaap Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiCmdDriver uiODMain)

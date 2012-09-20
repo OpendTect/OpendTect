@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : June 2007
- * ID       : $Id: maddefs.h,v 1.9 2012-08-03 13:01:32 cvskris Exp $
+ * ID       : $Id$
 -*/
 
 #include "madagascarmod.h"

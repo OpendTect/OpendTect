@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: uitutorialattrib.h,v 1.6 2012-08-08 04:49:47 cvsmahant Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

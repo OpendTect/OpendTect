@@ -5,7 +5,7 @@
  * DATE     : Aug 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uibouncymain.cc,v 1.4 2012-05-02 15:11:12 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uibouncymain.h"
 #include "uibouncysettingsdlg.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          14-07-2006
- RCS:           $Id: gapdeconattrib.h,v 1.16 2012-08-29 08:18:05 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

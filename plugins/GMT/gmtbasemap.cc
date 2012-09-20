@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: gmtbasemap.cc,v 1.29 2012-07-17 10:32:24 cvsraman Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "bufstringset.h"
 #include "color.h"

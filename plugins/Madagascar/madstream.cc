@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: madstream.cc,v 1.45 2012-07-31 06:57:55 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "madstream.h"
 #include "cubesampling.h"

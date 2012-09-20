@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Oct 2009
- * ID       : $Id: uigoogleexpwells.h,v 1.3 2009-11-16 13:56:10 cvsbert Exp $
+ * ID       : $Id$
 -*/
 
 #include "uigoogleexpdlg.h"

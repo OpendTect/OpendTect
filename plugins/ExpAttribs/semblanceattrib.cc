@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: semblanceattrib.cc,v 1.13 2012-08-13 03:56:44 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "semblanceattrib.h"
 

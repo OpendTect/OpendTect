@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2010
- RCS:		$Id: dztimporter.h,v 1.2 2010-03-17 17:03:54 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

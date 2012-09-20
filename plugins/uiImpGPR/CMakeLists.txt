@@ -2,7 +2,7 @@
 #
 #	Makefile : 	uiImpGPR plugin
 # 	Feb 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-03-27 11:51:31 cvsnageswara Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain)

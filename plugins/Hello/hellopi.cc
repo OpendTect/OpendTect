@@ -4,7 +4,7 @@
  * DATE     : Sep 2003 / Apr 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: hellopi.cc,v 1.14 2012-08-27 13:53:31 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "hellomod.h"
 

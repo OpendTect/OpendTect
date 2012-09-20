@@ -4,7 +4,7 @@
  * DATE     : Nov 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uigoogleexp2dlines.cc,v 1.18 2012-07-31 04:22:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uigoogleexp2dlines.h"
 #include "googlexmlwriter.h"

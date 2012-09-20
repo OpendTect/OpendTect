@@ -5,7 +5,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Nageswara
  * DATE     : Mar 2008
- * ID       : $Id: uistratamp.h,v 1.8 2011-07-08 05:41:52 cvsnageswara Exp $
+ * ID       : $Id$
 -*/
 
 #include "uibatchlaunch.h"

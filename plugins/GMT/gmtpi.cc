@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: gmtpi.cc,v 1.13 2012-08-29 07:57:16 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "initgmtplugin.h"
 #include "odplugin.h"

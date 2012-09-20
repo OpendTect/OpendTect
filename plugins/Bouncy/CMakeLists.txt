@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Bouncy plugin
 # 	Jan 2012	Nageswara
-#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-06-08 11:38:45 cvsraman Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET( OD_MODULE_DEPS uiODMain)
