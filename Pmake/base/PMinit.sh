@@ -57,9 +57,9 @@ alias make="$PMAKECOMMAND"
 alias wdir='export WORK=`pwd`;export PMAKE=$WORK/Pmake/base; export OD_WORKDIR=`$PMAKE/bin/print_od_workdir`'
 alias cdw='cd $WORK'
 
-_pmake_dbg_dir_=G
+_pmake_dbg_dir_=Debug
 if [ "$DEBUG" = "no" ]; then
-    _pmake_dbg_dir_=O
+    _pmake_dbg_dir_=Release
 fi
 
 alias cdb='cd $WORK/bin/$PLFSUBDIR/'$_pmake_dbg_dir_

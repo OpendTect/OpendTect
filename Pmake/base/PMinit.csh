@@ -58,16 +58,16 @@ alias wdir		'setenv WORK `pwd`'
 alias wdir		'setenv WORK `pwd`;setenv PMAKE $WORK/Pmake/base; setenv OD_WORKDIR `$PMAKE/bin/print_od_workdir`'
 alias cdw		'cd $WORK'
 
-setenv DEBUG_SUBDIR G
+setenv DEBUG_SUBDIR Debug
 if ( $?DEBUG ) then
     if ( $DEBUG == no ) then
-	setenv DEBUG_SUBDIR O
+	setenv DEBUG_SUBDIR Release
     else if ( $DEBUG == optyes ) then
-	setenv DEBUG_SUBDIR OG
+	setenv DEBUG_SUBDIR RelWithDebInfo
     endif
 else
-    setenv DEBUG_SUBDIR O
+    setenv DEBUG_SUBDIR Release
 endif
 
-alias cdb		'cd $WORK/bin/$PLFSUBDIR/'$DEBUG_SUBDIR
-alias cdl		'cd $WORK/lib/$PLFSUBDIR/'$DEBUG_SUBDIR
+alias cdb		'cd $WORK/bin/$PLFSUBDIR/$DEBUG_SUBDIR'
+alias cdl		'cd $WORK/lib/$PLFSUBDIR/$DEBUG_SUBDIR'
