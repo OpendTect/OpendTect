@@ -5,7 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_NAME uiTextureAttrib)
 SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_DEPS uiAttributes TextureAttrib)
 SET(OD_MODULE_SOURCES 
