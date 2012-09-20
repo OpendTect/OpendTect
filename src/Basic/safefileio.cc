@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: safefileio.cc,v 1.14 2012-05-02 15:11:27 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "safefileio.h"
 

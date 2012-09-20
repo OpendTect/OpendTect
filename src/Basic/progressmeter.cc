@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: progressmeter.cc,v 1.30 2012-08-30 11:47:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "progressmeter.h"
 #include "timefun.h"

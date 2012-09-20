@@ -5,7 +5,7 @@
  * FUNCTION : Unit IDs
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: compoundkey.cc,v 1.11 2012-05-02 15:11:24 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "multiid.h"
 #include "globexpr.h"

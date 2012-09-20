@@ -2,6 +2,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Jan 2008
+ * SVN      : $Id$
 -*/
 
 

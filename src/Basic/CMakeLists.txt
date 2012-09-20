@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.13 2012-08-31 06:04:13 cvsraman Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_USEQT Core)

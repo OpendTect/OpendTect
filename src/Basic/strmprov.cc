@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: strmprov.cc,v 1.123 2012-07-10 04:09:34 cvsranojay Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include <stdio.h>
 #include <stdlib.h>

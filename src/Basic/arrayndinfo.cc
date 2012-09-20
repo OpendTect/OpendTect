@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: arrayndinfo.cc,v 1.22 2012-08-30 09:48:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "arraynd.h"
 #include "typeset.h"
