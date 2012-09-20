@@ -5,7 +5,7 @@
  * DATE     : Sep 2012
 -*/
 
-static const char* mUnusedVar rcsID = "$Id$";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "textureattrib.h"
 #include "odplugin.h"
