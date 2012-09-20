@@ -34,6 +34,13 @@ public:
     void			setIsLocked(bool yn) { islocked_ = yn; }
 protected:
     bool			islocked_;
+
+    bool                	anychange_;
+
+public:
+    void                	setNoChg()    		{ anychange_ = false; }
+    bool                	anyChg() const          { return anychange_; }
+
 };
 
 

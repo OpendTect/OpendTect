@@ -92,6 +92,10 @@ protected:
     void		selChg(CallBacker*);
     void		rmLast(CallBacker*);
     void		renameCB(CallBacker*);
+
+    bool                anychg_;
+public:
+    bool                anyChg() const          { return anychg_; }
 };
 
 

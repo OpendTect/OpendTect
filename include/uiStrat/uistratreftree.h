@@ -90,6 +90,12 @@ protected:
 
 
     friend class 	uiStratDispToTreeTransl;
+
+    bool		anychange_;
+
+public:
+    void		setNoChg() 		{ anychange_ = false; }
+    bool		anyChg() const 		{ return anychange_; }
 };
 
 
