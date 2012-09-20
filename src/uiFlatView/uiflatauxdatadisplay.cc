@@ -118,6 +118,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	    }
 
 	    polygonitem_->setFillColor( fillcolor_, true );
+	    polygonitem_->setFillPattern( fillpattern_ );
 	    item = polygonitem_;
 
 	    if ( polylineitem_ )

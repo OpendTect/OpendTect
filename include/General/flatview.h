@@ -73,6 +73,7 @@ public:
 
     LineStyle			linestyle_;
     Color			fillcolor_;
+    FillPattern			fillpattern_;
     int				zvalue_; 	//overlay zvalue ( max=on top )
 
     //TypeSet<int>		dispids_;	//!<ids of corresponding displed
