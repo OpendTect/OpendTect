@@ -510,7 +510,6 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    if ( fillmdls_ )
 	    {
 		it->setFillColor( laycol );
-		FillPattern fp;
 		if ( isannotcont )
 		    it->setFillPattern( lay.content().pattern_ );
 	    }
