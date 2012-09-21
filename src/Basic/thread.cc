@@ -23,6 +23,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 # include "windows.h"
 #endif
 
+mUseQtnamespace
 
 Threads::Mutex::Mutex( bool recursive )
 #ifndef OD_NO_QT
