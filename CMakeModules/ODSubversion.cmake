@@ -10,7 +10,12 @@
 include(FindSubversion)
 
 # extract working copy information for SOURCE_DIR into MY_XXX variables
-Subversion_WC_INFO( ${CMAKE_SOURCE_DIR} MY)
+if ( Subversion_FOUND )
+    Subversion_WC_INFO( ${CMAKE_SOURCE_DIR} MY)
+else()
+    set ( MY_WC_REVISION 0 )
+    set ( MY_WC_URL "" )
+endif()
 
 set ( INC_DIR ${CMAKE_SOURCE_DIR}/include/Basic )
 set ( TMPFILE ${INC_DIR}/svnversion.h.tmp )
