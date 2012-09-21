@@ -162,11 +162,11 @@ protected:
 };
 
 
-mGlobal(CmdDriver) const char* windowTitle(const uiMainWin* applwin,
-					   const uiMainWin* uimw,
-					   int aliasnr=0);
-mGlobal(CmdDriver) bool isCmdDriverWindow(const uiMainWin*);
-mGlobal(CmdDriver) const char* controllerTitle();
+mGlobal(uiCmdDriver) const char* windowTitle(const uiMainWin* applwin,
+					     const uiMainWin* uimw,
+					     int aliasnr=0);
+mGlobal(uiCmdDriver) bool isCmdDriverWindow(const uiMainWin*);
+mGlobal(uiCmdDriver) const char* controllerTitle();
 
 
 mClass(uiCmdDriver) WindowStack
