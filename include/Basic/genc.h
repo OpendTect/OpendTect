@@ -63,6 +63,13 @@ mGlobal void SwapBytes(void*,int nbytes);
 mGlobal int InSysAdmMode();
 		/*!< returns 0 unless in sysadm mode */
 
+
+mGlobal int GetSubversionRevision(void);
+
+
+mGlobal const char* GetSubversionUrl(void);
+
+
 #ifdef __cpp__
 }
 #else

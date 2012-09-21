@@ -17,3 +17,5 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Programmer/pluginexample DESTINATION 
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Programmer/batchprogexample
 		   DESTINATION doc/Programmer
 		   PATTERN "CVS" EXCLUDE )
+
+include ( ODSubversion )
