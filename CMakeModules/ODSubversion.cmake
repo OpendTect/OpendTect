@@ -7,6 +7,13 @@
 
 
 # the FindSubversion.cmake module is part of the standard distribution
+if ( WIN32 )
+    set ( CMAKE_SYSTEM_PROGRAM_PATH ${CMAKE_SYSTEM_PROGRAM_PATH}
+	    "C:/Program Files/SlikSvn/bin"
+	    "C:/Program Files (x86)/SlikSvn/bin" )
+    #Add more likely paths if need be
+endif()
+
 include(FindSubversion)
 
 # extract working copy information for SOURCE_DIR into MY_XXX variables
