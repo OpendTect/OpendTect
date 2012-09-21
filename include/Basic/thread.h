@@ -17,9 +17,9 @@ ________________________________________________________________________
 #include "plftypes.h"
 
 #ifndef OD_NO_QT
-class QThread;
-class QMutex;
-class QWaitCondition;
+mFDQtclass(QThread)
+mFDQtclass(QMutex)
+mFDQtclass(QWaitCondition)
 #endif
 
 class CallBack;
@@ -150,7 +150,7 @@ public:
 protected:
 
 #ifndef OD_NO_QT
-    QMutex*		qmutex_;
+    mQtclass(QMutex*)		qmutex_;
 #endif
 };
 
@@ -223,7 +223,7 @@ public:
 protected:
 
 #ifndef OD_NO_QT
-    QWaitCondition*		cond_;
+    mQtclass(QWaitCondition*)		cond_;
 #endif
 };
 
@@ -391,7 +391,7 @@ public:
 protected:
 
 #ifndef OD_NO_QT
-    QThread*			thread_;
+    mQtclass(QThread*)			thread_;
 #endif
 };
 
