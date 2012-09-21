@@ -12,6 +12,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "timer.h"
 #include "qtimercomm.h" 
 
+mUseQtnamespace
 
 Timer::Timer( const char* nm )
     : NamedObject(nm)
