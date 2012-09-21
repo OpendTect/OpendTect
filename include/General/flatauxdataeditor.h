@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.26 2012-08-03 13:00:23 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

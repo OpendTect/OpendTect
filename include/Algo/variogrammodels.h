@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A. Huck & H.Huck
  Date:		27-09-2011
- RCS:		$Id: variogrammodels.h,v 1.1 2011-10-18 19:25:14 cvshelene Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

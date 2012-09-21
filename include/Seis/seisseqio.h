@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: seisseqio.h,v 1.14 2012-08-03 13:00:38 cvskris Exp $
+ * ID       : $Id$
 -*/
 
 #include "seismod.h"

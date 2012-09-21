@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2008
- RCS:		$Id: uibatchtime2depthsetup.h,v 1.7 2010-10-25 18:52:54 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

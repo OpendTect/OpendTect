@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2007
- RCS:		$Id: emhor2dto3d.h,v 1.13 2012-08-03 13:00:18 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

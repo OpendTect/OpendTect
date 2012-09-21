@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          Feb 2010
- RCS:           $Id: uidpsoverlayattrdlg.h,
+ SVN:           $Id$
 ________________________________________________________________________
 
 -*/

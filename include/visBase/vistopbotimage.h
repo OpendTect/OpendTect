@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Ranojay Sen
  Date:		June 2009
- RCS:		$Id: vistopbotimage.h,v 1.6 2012-09-13 14:31:57 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.31 2012-08-03 13:00:33 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

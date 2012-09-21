@@ -1,4 +1,4 @@
-/* $Id: odlogo64x64.xpm,v 1.4 2012-05-21 05:55:42 cvskris Exp $ XPM */
+/* $Id$ XPM */
 static const char * od_logo_64x64[] = {
 "64 64 971 2",
 "  	c None",

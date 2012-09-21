@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Sep 2010
- RCS:		$Id: stratlayermodel.h,v 1.11 2012-08-03 13:00:42 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

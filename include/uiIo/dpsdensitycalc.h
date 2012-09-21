@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          March 2010
- RCS:           $Id: dpsdensitycalc.h,v 1.3 2012-07-23 09:32:24 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: uivisplanedatadisplaydragprop.h,v 1.4 2012-08-03 13:01:19 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

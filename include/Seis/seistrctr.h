@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.62 2012-08-03 13:00:38 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 Translators for seismic traces.

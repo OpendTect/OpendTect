@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2011
- RCS:		$Id: SoLineSet3D.h,v 1.3 2012-08-27 13:16:47 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

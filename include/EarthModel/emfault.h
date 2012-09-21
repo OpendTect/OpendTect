@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.45 2012-08-03 13:00:17 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

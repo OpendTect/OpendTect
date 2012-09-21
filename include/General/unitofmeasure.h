@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.19 2012-08-30 10:59:17 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

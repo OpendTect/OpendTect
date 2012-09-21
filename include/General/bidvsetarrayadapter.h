@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	H.Huck
  Date:		March 2008
- RCS:		$Id: bidvsetarrayadapter.h,v 1.6 2012-08-03 13:00:21 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

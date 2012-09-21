@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		2009
- RCS:		$Id: SoAxes.h,v 1.5 2012-08-27 13:16:46 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

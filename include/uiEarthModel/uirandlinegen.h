@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: uirandlinegen.h,v 1.8 2012-08-03 13:00:57 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

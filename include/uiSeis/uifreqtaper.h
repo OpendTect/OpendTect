@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Nov 2009
- RCS:		$Id: uifreqtaper.h,v 1.9 2012-08-03 13:01:06 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

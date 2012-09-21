@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.48 2012-09-10 10:39:59 cvsmahant Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          2001
- RCS:           $Id: templ_wavlttransimpl.h,v 1.5 2010-08-11 16:55:33 cvsyuancheng Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
  This is part of another include file. Do not protect against multiple

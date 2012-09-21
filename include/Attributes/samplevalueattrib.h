@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert and Bruno
  Date:          Aug 2012
- RCS:           $Id: samplevalueattrib.h,v 1.1 2012-08-28 13:24:20 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

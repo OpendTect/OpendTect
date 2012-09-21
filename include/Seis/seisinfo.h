@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.32 2012-08-03 13:00:36 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

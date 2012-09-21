@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.22 2012-08-03 13:00:54 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

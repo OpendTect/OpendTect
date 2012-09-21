@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		08-01-2012
- RCS:		$Id: emfaultauxdata.h,v 1.1 2012-08-20 14:51:11 cvsyuancheng Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

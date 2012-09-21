@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.24 2012-08-03 13:00:38 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizontracker.h,v 1.1 2012-08-22 04:27:01 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

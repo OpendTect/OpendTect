@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivelocityfunctionstored.h,v 1.6 2012-08-03 13:01:17 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

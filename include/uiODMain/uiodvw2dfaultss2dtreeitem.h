@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dfaultss2dtreeitem.h,v 1.7 2012-08-07 04:00:21 cvsmahant Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

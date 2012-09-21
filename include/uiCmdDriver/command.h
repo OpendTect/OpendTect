@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Jaap Glas
  Date:          February 2009
- RCS:           $Id: command.h,v 1.1 2012-09-17 12:38:32 cvsjaap Exp $
+ RCS:           $Id$
  ________________________________________________________________________
 
 -*/

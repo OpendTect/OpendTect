@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B. Bril & H. Huck
  Date:          08/09/06
- RCS:           $Id: uirgbarray.h,v 1.12 2012-09-14 21:32:52 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

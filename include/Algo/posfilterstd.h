@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterstd.h,v 1.10 2012-08-09 06:49:31 cvsaneesh Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

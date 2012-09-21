@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: datacoldef.h,v 1.7 2012-08-03 13:00:22 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

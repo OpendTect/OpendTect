@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: rangeposprovider.h,v 1.13 2012-09-12 10:59:03 cvsraman Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: uiseispreloadmgr.h,v 1.6 2012-08-03 13:01:08 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMFImage.h,v 1.10 2012-08-27 13:16:48 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

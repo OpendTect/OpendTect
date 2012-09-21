@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2010
- RCS:           $Id: arrayndsmoother.h,v 1.4 2012-08-29 07:56:38 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

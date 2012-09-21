@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          December 2004
-RCS:           $Id: cubicbeziersurface.h,v 1.14 2012-08-03 13:00:26 cvskris Exp $
+RCS:           $Id$
 ________________________________________________________________________
 
 -*/

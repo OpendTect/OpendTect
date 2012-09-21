@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2005 / Dec 2009
- RCS:		$Id: axislayout.h,v 1.6 2012-08-29 07:56:38 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

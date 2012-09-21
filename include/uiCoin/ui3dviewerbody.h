@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2011
- RCS:           $Id: ui3dviewerbody.h,v 1.1 2011-12-21 12:03:35 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

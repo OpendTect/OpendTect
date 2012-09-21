@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Lammertink
  Date:		30-10-2003
- RCS:		$Id: _execbatch.h,v 1.13 2012-05-01 07:57:40 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
  The implementation fo Execute_batch should be in the executable on 

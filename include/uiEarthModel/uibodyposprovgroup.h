@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y. Liu
  Date:          Nov 2011
- RCS:           $Id: uibodyposprovgroup.h,v 1.2 2012-08-03 13:00:55 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

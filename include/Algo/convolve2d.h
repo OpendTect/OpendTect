@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.20 2012-07-18 21:20:55 cvsyuancheng Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

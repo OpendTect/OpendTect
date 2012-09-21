@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.33 2012-09-17 14:48:03 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

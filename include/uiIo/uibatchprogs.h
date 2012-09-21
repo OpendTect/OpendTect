@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Apr 2003
- RCS:           $Id: uibatchprogs.h,v 1.10 2012-08-03 13:00:59 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

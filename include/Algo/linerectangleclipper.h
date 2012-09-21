@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: linerectangleclipper.h,v 1.5 2010-04-09 08:09:24 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

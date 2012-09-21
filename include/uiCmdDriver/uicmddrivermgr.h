@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          October 2009
- RCS:           $Id: uicmddrivermgr.h,v 1.1 2012-09-17 12:38:34 cvsjaap Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.21 2012-08-03 13:00:54 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

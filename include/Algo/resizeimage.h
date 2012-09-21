@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          August 2010
- RCS:           $Id: resizeimage.h,v 1.1 2010-08-11 18:55:38 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

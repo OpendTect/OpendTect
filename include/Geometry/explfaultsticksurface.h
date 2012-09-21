@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.23 2012-08-03 13:00:27 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

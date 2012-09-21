@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uiseisfmtscale.h,v 1.18 2012-08-03 13:01:08 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

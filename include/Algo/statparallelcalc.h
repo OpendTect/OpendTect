@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Kris and Bruno
 Date:          Oct 2011
-RCS:           $Id: statparallelcalc.h,v 1.9 2012-08-29 07:56:38 cvskris Exp $
+RCS:           $Id$
 ________________________________________________________________________
 
 -*/

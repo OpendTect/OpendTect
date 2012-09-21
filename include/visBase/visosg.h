@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Sep 2012
- RCS:		$Id: visosg.h,v 1.1 2012-09-17 15:55:56 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uivisslicepos3d.h,v 1.10 2012-08-03 13:01:19 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Nov 2006
- RCS:           $Id: array2dfilter.h,v 1.15 2012-08-09 03:48:45 cvssalil Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

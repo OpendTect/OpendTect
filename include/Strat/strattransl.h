@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2011
- RCS:		$Id: strattransl.h,v 1.2 2012-08-27 13:41:11 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

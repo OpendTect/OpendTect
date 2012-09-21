@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K.Tingdahl
  Date:		Jan 2006
- RCS:		$Id: multidimstorage.h,v 1.13 2012-07-10 08:05:25 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

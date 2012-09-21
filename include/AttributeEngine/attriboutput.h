@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.56 2012-09-11 08:39:53 cvshelene Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

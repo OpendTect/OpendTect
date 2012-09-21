@@ -7,7 +7,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          March 2010
- RCS:           $Id: uipositiontable.h,v 1.3 2012-08-03 13:01:14 cvskris Exp $
+ RCS:           $Id$
  ________________________________________________________________________
 
 -*/

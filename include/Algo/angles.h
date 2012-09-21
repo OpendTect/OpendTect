@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Mar 2009
  Contents:	Angle functions
- RCS:		$Id: angles.h,v 1.5 2012-07-25 04:34:40 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
  Converting degrees, radians and user degrees to one another.

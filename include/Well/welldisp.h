@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.41 2012-08-03 13:00:45 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

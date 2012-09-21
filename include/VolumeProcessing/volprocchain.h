@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.17 2012-08-03 13:00:44 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

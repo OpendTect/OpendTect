@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uifkspectrum.h,v 1.3 2012-08-03 13:01:06 cvskris Exp $
+RCS:           $Id$
 ______________________________________________________________________
                        
 */   

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.16 2012-08-03 13:00:25 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

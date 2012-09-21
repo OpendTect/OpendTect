@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswritemgr.h,v 1.19 2012-09-13 18:36:27 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

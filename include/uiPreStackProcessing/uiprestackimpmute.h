@@ -8,7 +8,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: uiprestackimpmute.h,v 1.10 2012-08-03 13:01:05 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

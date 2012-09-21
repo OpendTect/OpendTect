@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Nanne Hemstra
  * DATE     : May 2012
- * ID       : $Id: uibulkwellimp.h,v 1.2 2012-08-03 13:01:20 cvskris Exp $
+ * ID       : $Id$
 -*/
 
 #include "uiwellmod.h"

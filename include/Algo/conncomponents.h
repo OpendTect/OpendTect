@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: conncomponents.h,v 1.4 2012-08-13 21:44:01 cvsyuancheng Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

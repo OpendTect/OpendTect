@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          January 2002
- RCS:           $Id: uimergeseis.h,v 1.12 2012-08-03 13:01:06 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

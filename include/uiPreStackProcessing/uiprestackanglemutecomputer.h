@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: uiprestackanglemutecomputer.h,v 1.2 2012-08-03 13:01:05 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

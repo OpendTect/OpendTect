@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bo Zhang/Yuancheng Liu
  Date:          July 2012
- RCS:           $Id: fingervein.h,v 1.12 2012-08-23 20:41:25 cvsyuancheng Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

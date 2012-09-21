@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.21 2012-08-03 13:01:02 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

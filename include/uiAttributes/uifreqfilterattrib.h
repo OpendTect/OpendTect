@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.h,v 1.15 2012-08-03 13:00:49 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

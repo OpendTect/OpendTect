@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2008
- RCS:		$Id: posinfodetector.h,v 1.10 2012-09-13 18:54:42 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

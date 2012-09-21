@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: zaxistransformdatapack.h,v 1.10 2012-08-03 13:00:26 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

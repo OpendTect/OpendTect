@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene HUCK
  Date:          11-03-2010
- RCS:           $Id: attribdescsetsholder.h,v 1.3 2012-08-03 13:00:07 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.34 2012-08-03 13:00:21 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

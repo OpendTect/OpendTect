@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          February 2009
- RCS:           $Id: uisaveimagedlg.h,v 1.9 2012-09-04 15:52:01 cvsranojay Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

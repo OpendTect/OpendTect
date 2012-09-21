@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiwellattribxplot.h,v 1.17 2012-08-03 13:01:22 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

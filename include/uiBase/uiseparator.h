@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          17/1/2001
- RCS:           $Id: uiseparator.h,v 1.8 2012-08-03 13:00:53 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

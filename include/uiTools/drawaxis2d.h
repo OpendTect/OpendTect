@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.18 2012-08-03 13:01:11 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

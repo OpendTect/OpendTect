@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.h,v 1.15 2012-08-24 07:21:40 cvsnageswara Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

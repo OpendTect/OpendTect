@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2012
- RCS:           $Id: uistratlaymodtools.h,v 1.7 2012-09-11 11:02:11 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

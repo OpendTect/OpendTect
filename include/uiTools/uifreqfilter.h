@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2012
- RCS:           $Id: uifreqfilter.h,v 1.5 2012-09-03 12:11:14 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

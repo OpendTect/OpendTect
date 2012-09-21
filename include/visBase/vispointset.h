@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: vispointset.h,v 1.6 2012-08-03 13:01:25 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Jaap Glas
  Date:          October 2010
- RCS:           $Id: uivirtualkeyboard.h,v 1.4 2012-08-03 13:00:54 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jun 2003
- RCS:		$Id: emsurfaceiodata.h,v 1.13 2012-08-03 13:00:20 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

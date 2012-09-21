@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: polynd.h,v 1.9 2012-09-13 18:36:27 cvsnanne Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 PolynomialND is a N-dimensional polynomial with arbitary orders in each

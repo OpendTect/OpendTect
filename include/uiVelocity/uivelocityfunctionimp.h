@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: uivelocityfunctionimp.h,v 1.7 2012-08-03 13:01:17 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

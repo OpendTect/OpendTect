@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Jun 2010
- * ID       : $Id: uisimplemultiwell.h,v 1.6 2012-08-03 13:01:20 cvskris Exp $
+ * ID       : $Id$
 -*/
 
 #include "uiwellmod.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Sept 2010
- RCS:           $Id: uiwelldahdisplay.h,v 1.18 2012-08-10 04:11:23 cvssalil Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

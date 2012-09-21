@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2011
-RCS:           $Id: uimultiwelllogsel.h,v 1.18 2012-08-28 13:21:40 cvsbert Exp $
+RCS:           $Id$
 ________________________________________________________________________
 
 -*/

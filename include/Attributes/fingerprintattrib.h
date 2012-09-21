@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          23-02-2006
- RCS:           $Id: fingerprintattrib.h,v 1.11 2012-08-03 13:00:09 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

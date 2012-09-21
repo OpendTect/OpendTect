@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.42 2012-08-03 13:00:59 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.15 2012-07-10 13:05:14 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

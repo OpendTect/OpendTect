@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.19 2012-09-07 22:08:01 cvsnanne Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2010
- RCS:           $Id: sqlquery.h,v 1.10 2012-08-03 13:00:16 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultsticksetflatvieweditor.h,v 1.4 2012-08-03 13:00:17 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
