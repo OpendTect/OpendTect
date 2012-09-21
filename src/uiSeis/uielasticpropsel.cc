@@ -92,7 +92,13 @@ void uiElasticPropSelGrp::uiSelInpGrp::setVariable( const char* txt, float val )
 	inpfld_->setCurrentItem( inpfld_->size()-1 ); 
     }
     else
-	inpfld_->setCurrentItem( txt ); 
+    {
+	const int nearidx = propnms_.nearestMatch( txt );
+	if ( nearidx >= 0 )
+	    inpfld_->setCurrentItem( nearidx );
+	else
+	    inpfld_->setCurrentItem( txt ); 
+    }
 }
 
 
