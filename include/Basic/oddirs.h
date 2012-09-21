@@ -98,7 +98,8 @@ mGlobal(Basic) const char* GetPlfSubDir(void);
 
 mGlobal(Basic) const char* GetBinPlfDir(void);
 /*!< Platform dependent bin directory
-  Returns full path to bin dir: GetSoftwareDir()/bin/GetPlfSubDir
+  Returns full path to bin dir:
+  GetSoftwareDir()/bin/GetPlfSubDir()/GetBinSubDir()
 */
 
 mGlobal(Basic) const char* GetDocFileDir(const char* filedir);
