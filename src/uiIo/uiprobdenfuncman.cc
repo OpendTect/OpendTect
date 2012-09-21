@@ -18,6 +18,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "uiioobjmanip.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
+#include "uiseparator.h"
 #include "uimsg.h"
 
 #include "bufstring.h"
@@ -111,19 +112,16 @@ uiProbDenFuncGen( uiParent* p )
     gengaussfld_->attach( alignedBelow, lsb );
     gengaussfld_->valuechanged.notify( chgcb );
 
-    uiGenInput* alfld = gengaussfld_;
+    uiGroup* alfld = gengaussfld_;
     for ( int idx=0; idx<3; idx++ )
     {
 	uiGenInput* nmfld = new uiGenInput( this,
 			BufferString("Dimension ",idx+1,": Name") );
 	uiGenInput* rgfld = new uiGenInput( this, "Range",
 				FloatInpSpec(), FloatInpSpec() );
-	uiGenInput* expstdfld = new uiGenInput( this, "Exp/StdDev",
-				FloatInpSpec(), FloatInpSpec() );
-	nmflds_ += nmfld; rgflds_ += rgfld; expstdflds_ += expstdfld;
+	nmflds_ += nmfld; rgflds_ += rgfld;
 	nmfld->attach( alignedBelow, alfld );
 	rgfld->attach( rightOf, nmfld );
-	expstdfld->attach( rightOf, rgfld );
 	alfld = nmfld;
     }
 
@@ -133,10 +131,34 @@ uiProbDenFuncGen( uiParent* p )
     nrnodesfld_->setValue( 25 );
     lsb->attach( alignedBelow, alfld );
 
+    alfld = lsb;
+    for ( int idx=0; idx<3; idx++ )
+    {
+	uiGenInput* expstdfld = new uiGenInput( this,
+				BufferString("Dimension ",idx+1,": Exp/Std"),
+				FloatInpSpec(), FloatInpSpec() );
+	expstdfld->attach( alignedBelow, alfld );
+	expstdflds_ += expstdfld;
+	alfld = expstdfld;
+    }
+    dir01fld_ = new uiGenInput( this, "Angle (deg) Dim 1 -> Dim 2" );
+    dir01fld_->setElemSzPol( uiObject::Small );
+    dir01fld_->attach( rightOf, expstdflds_[1] );
+    dir02fld_ = new uiGenInput( this, "Dim 1 -> Dim 3" );
+    dir02fld_->attach( alignedBelow, dir01fld_ );
+    dir02fld_->setElemSzPol( uiObject::Small );
+    dir12fld_ = new uiGenInput( this, "Dim 2 -> Dim 3" );
+    dir12fld_->attach( rightOf, dir02fld_ );
+    dir12fld_->setElemSzPol( uiObject::Small );
+
+    uiSeparator* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, dir12fld_ );
+
     IOObjContext ctxt( ProbDenFuncTranslatorGroup::ioContext() );
     ctxt.forread = false;
     outfld_ = new uiIOObjSel( this, ctxt,"Output Probability Density Function");
-    outfld_->attach( alignedBelow, lsb );
+    outfld_->attach( alignedBelow, alfld );
+    outfld_->attach( ensureBelow, sep );
 
     postFinalise().notify( chgcb );
 }
@@ -152,6 +174,9 @@ void chgCB( CallBacker* )
 	rgflds_[idx]->display( havedim );
 	expstdflds_[idx]->display( havedim && isgauss );
     }
+    dir01fld_->display( isgauss && nrdims > 1 );
+    dir02fld_->display( isgauss && nrdims > 2 );
+    dir12fld_->display( isgauss && nrdims > 2 );
 }
 
 
@@ -173,6 +198,9 @@ bool acceptOK( CallBacker* )
     ObjectSet<uiGenInput>	nmflds_;
     ObjectSet<uiGenInput>	rgflds_;
     ObjectSet<uiGenInput>	expstdflds_;
+    uiGenInput*			dir01fld_;
+    uiGenInput*			dir02fld_;
+    uiGenInput*			dir12fld_;
     uiIOObjSel*			outfld_;			
 
 };
