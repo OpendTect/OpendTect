@@ -14,8 +14,11 @@ install ( DIRECTORY CMakeModules DESTINATION .
 	  PATTERN "CVS" EXCLUDE )
 
 #Install plugin example
-install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Programmer/pluginexample DESTINATION doc/Programmer
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Programmer/pluginexample
+	DESTINATION doc/Programmer
 	 PATTERN "CVS" EXCLUDE )
 
 #Install data
 install ( DIRECTORY "data" DESTINATION . PATTERN "CVS" EXCLUDE )
+
+include ( ODSubversion )

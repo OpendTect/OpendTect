@@ -13,6 +13,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "mallocdefs.h"
 #include "debugmasks.h"
 #include "oddirs.h"
+#include "svnversion.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -361,6 +362,14 @@ int WriteEnvVar( const char* env, const char* val )
 
     return 1;
 }
+
+
+int GetSubversionRevision(void)
+{ return mSVN_VERSION; }
+
+
+const char* GetSubversionUrl(void)
+{ return mSVN_URL; }
 
 
 char GetEnvSeparChar()
