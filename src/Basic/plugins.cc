@@ -225,7 +225,7 @@ void PluginManager::getDefDirs()
     if ( !fromenv )
 	fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
-    fp.add( GetBinSubDir() )
+    fp.add( GetBinSubDir() );
 
     applibdir_ = fp.fullPath();
 
@@ -241,7 +241,7 @@ void PluginManager::getDefDirs()
     if ( !fromenv )
 	fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
-    fp.add( GetBinSubDir() )
+    fp.add( GetBinSubDir() );
     userlibdir_ = fp.fullPath();
 
     if( DBG::isOn(DBG_PROGSTART) )
