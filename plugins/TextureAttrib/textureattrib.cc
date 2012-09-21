@@ -196,8 +196,8 @@ bool Texture::allowParallelComputation () const
 void Texture::prepareForComputeData()
 {
     firsttracescaling_ = 0;
-    sampgate_.start = gate_.start/refstep_;
-    sampgate_.stop = gate_.stop/refstep_;
+    sampgate_.start = mNINT32(gate_.start/refstep_);
+    sampgate_.stop = mNINT32(gate_.stop/refstep_);
     dessampgate_ = Interval<int>( sampgate_.start-2, sampgate_.stop+2 );
     	// TODO: Please update later to protect against steep dip crashes!
 }	
