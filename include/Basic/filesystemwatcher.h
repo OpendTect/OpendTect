@@ -21,12 +21,10 @@ class BufferStringSet;
 mFDQtclass(QFileSystemWatcher)
 mFDQtclass(QFileSystemWComm)
 
-mUseQtnamespace
-
 mClass(Basic) FileSystemWatcher : public CallBacker 
 {
 public:
-    friend class QFileSystemWComm;
+    friend class mQtclass(QFileSystemWComm);
 
 				FileSystemWatcher();
 				~FileSystemWatcher();
@@ -47,8 +45,8 @@ protected:
     BufferString		chgddir_;
     BufferString		chgdfile_;
 
-    QFileSystemWatcher*		qfswatcher_;
-    QFileSystemWComm*		qfswatchercomm_;
+    mQtclass(QFileSystemWatcher*)	qfswatcher_;
+    mQtclass(QFileSystemWComm*)		qfswatchercomm_;
 
 };
 

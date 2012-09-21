@@ -25,7 +25,7 @@ QT_BEGIN_NAMESPACE
 class QFileSystemWComm : public QObject 
 {
     Q_OBJECT
-    friend class	FileSystemWatcher;
+    friend class	::FileSystemWatcher;
 
 protected:
 

@@ -125,7 +125,7 @@ template mExp(mod) class clss<inst>
 # define mQtclass(cls) cls
 # define mUseQtnamespace
 #else
-# define mFDQtclass(cls) namepace QT_NAMESPACE { class cls; }
+# define mFDQtclass(cls) namespace QT_NAMESPACE { class cls; }
 # define mQtclass(cls) ::QT_NAMESPACE::cls
 # define mUseQtnamespace using namespace ::QT_NAMESPACE;
 #endif
