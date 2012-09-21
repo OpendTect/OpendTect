@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"
 
-class QTime;
+mFDQtclass(QTime)
 
 namespace Time
 {
@@ -31,7 +31,7 @@ public:
     int		elapsed() const;	//!< Returns elapsed time in ms
 
 protected:
-    QTime&	qtime_;
+    mQtclass(QTime&)	qtime_;
 };
 
 
