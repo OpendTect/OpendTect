@@ -62,11 +62,9 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
 	DBG::message( BufferString("Read ",moddepfnm,".") );
     sd.close();
 
-    bindir_ = FilePath( GetSoftwareDir(0), "bin", GetPlfSubDir(),
-		       	GetBinSubDir() ).fullPath();
-    if ( !File::exists( bindir_) )
+    if ( !File::exists( GetBinPlfDir()) )
     {
-	const BufferString msg( "Cannot find ", bindir_ );
+	const BufferString msg( "Cannot find ", GetBinPlfDir() );
 	pErrMsg( msg );
 	return;
     }
@@ -171,7 +169,7 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 
 	char libnm[256];
 	SharedLibAccess::getLibName( md->mods_.get(idep), libnm );
-	FilePath fp( bindir_, libnm );
+	FilePath fp( GetBinPlfDir(), libnm );
 	SharedLibAccess* sla = new SharedLibAccess( fp.fullPath() );
 	if ( !sla->isOK() )
 	    { delete sla; continue; }

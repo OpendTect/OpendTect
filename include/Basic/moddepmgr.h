@@ -50,8 +50,6 @@ public:
 protected:
 
     ObjectSet<ModDep>	deps_;
-    BufferString	bindir_;
-
 
     mutable BufferStringSet		loadedmods_;
     mutable ObjectSet<SharedLibAccess>	shlibaccs_;
