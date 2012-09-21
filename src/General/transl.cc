@@ -17,7 +17,7 @@
 
 #include <iostream>
 
-static const char* rcsID mUnusedVar = "$Id: transl.cc,v 1.36 2012-07-31 12:53:49 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)

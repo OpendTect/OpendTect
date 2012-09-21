@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: SoTextureComposer.cc,v 1.29 2012-08-24 22:20:26 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "SoTextureComposer.h"
 #include "SoTextureComposerElement.h"

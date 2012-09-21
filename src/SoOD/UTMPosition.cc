@@ -52,7 +52,7 @@
   an improved one...
 
 */
-static const char* rcsID mUnusedVar = "$Id: UTMPosition.cc,v 1.5 2012-05-02 15:11:51 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 // *************************************************************************
 

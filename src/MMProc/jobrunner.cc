@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: jobrunner.cc,v 1.52 2012-08-03 13:01:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "jobrunner.h"
 #include "jobinfo.h"

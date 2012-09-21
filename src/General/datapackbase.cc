@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: datapackbase.cc,v 1.15 2012-08-08 04:59:50 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "datapackbase.h"
 #include "arrayndimpl.h"

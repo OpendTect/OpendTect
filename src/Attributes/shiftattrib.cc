@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: shiftattrib.cc,v 1.38 2012-08-28 13:23:46 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"

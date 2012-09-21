@@ -4,7 +4,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.16 2012-05-15 10:44:35 cvsbruno Exp $
+RCS:           $Id$
 ________________________________________________________________________
 
 */

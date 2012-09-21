@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: rowcolsurface.cc,v 1.10 2012-08-03 06:38:39 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "rowcolsurface.h"
 

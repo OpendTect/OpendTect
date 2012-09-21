@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: attribdatapack.cc,v 1.53 2012-08-09 03:40:07 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "attribdatapack.h"
 

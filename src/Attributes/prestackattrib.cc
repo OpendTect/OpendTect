@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: prestackattrib.cc,v 1.27 2012-06-29 08:14:18 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "prestackattrib.h"
 

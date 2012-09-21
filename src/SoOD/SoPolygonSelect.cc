@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoPolygonSelect.cc,v 1.14 2012-08-10 03:50:04 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "SoPolygonSelect.h"

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon2dselector.cc,v 1.5 2012-05-02 15:11:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "horizon2dselector.h"
 

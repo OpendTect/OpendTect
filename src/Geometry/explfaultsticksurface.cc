@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: explfaultsticksurface.cc,v 1.58 2012-08-08 05:26:29 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "explfaultsticksurface.h"
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initgeneral.cc,v 1.15 2012-05-02 15:11:34 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "moddepmgr.h"
 #include "rangeposprovider.h"

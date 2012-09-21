@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: empolygonbodytr.cc,v 1.9 2012-05-02 15:11:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "embodytr.h"
 #include "empolygonbody.h"

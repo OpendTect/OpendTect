@@ -4,7 +4,7 @@
  * DATE     : August 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: resizeimage.cc,v 1.6 2012-08-09 06:49:33 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "resizeimage.h"
 

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: windowfunction.cc,v 1.9 2012-08-09 06:49:33 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "windowfunction.h"
 

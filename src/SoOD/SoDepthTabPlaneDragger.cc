@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: SoDepthTabPlaneDragger.cc,v 1.25 2012-07-18 07:07:21 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "SoDepthTabPlaneDragger.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initgeometry.cc,v 1.9 2012-05-02 15:11:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "moddepmgr.h"
 #include "polyposprovider.h"

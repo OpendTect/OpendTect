@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: polygonsurfaceedit.cc,v 1.7 2012-08-03 06:38:39 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "polygonsurfaceedit.h"
 

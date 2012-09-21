@@ -9,7 +9,7 @@
 --------------------------------------------------------------------------- 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: bodyvolumecalc.cc,v 1.9 2012-08-09 06:49:31 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "bodyvolumecalc.h"

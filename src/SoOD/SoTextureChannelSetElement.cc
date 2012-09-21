@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: SoTextureChannelSetElement.cc,v 1.7 2012-05-02 15:11:51 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "SoTextureChannelSetElement.h"
 

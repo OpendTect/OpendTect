@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: SoColTabMultiTexture2.cc,v 1.12 2012-05-02 15:11:49 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "SoColTabMultiTexture2.h"
 

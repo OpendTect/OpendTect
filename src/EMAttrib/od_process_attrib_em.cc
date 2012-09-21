@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_process_attrib_em.cc,v 1.94 2012-09-11 08:39:53 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "attribdesc.h"
 #include "attribdescid.h"

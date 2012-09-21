@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: SoLockableSeparator.cc,v 1.5 2012-05-02 15:11:50 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "SoLockableSeparator.h"

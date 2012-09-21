@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: tcpsocket.cc,v 1.12 2012-05-02 15:11:43 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "tcpsocket.h"
 #include "qtcpsocketcomm.h"

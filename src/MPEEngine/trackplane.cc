@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: trackplane.cc,v 1.15 2012-08-10 04:11:24 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
    
 
 #include "trackplane.h"

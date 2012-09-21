@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emstickset.cc,v 1.15 2012-05-02 15:11:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "emstickset.h"
 

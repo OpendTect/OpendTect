@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Algorithms
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.12 2012-08-06 07:26:27 cvshelene Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Basic )

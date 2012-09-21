@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: matchdeltaattrib.cc,v 1.6 2012-05-02 15:11:23 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "matchdeltaattrib.h"
 #include "attribdataholder.h"

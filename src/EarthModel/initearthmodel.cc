@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initearthmodel.cc,v 1.17 2012-07-12 18:02:16 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "moddepmgr.h"

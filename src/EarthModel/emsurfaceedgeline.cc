@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emsurfaceedgeline.cc,v 1.50 2012-08-08 05:47:55 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
    
 
 #include "emsurfaceedgeline.h"

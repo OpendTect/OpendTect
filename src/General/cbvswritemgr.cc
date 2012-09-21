@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: cbvswritemgr.cc,v 1.40 2012-05-02 15:11:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"

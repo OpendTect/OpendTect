@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID mUnusedVar = "$Id: houghtransform.cc,v 1.24 2012-08-29 15:58:00 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "houghtransform.h"

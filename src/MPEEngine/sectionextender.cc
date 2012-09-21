@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: sectionextender.cc,v 1.18 2012-05-02 15:11:42 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "sectionextender.h"
 #include "mpeengine.h"

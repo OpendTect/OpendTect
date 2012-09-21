@@ -4,7 +4,7 @@
  * DATE     : Aug 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: seisgeometryfrom2dlines.cc,v 1.4 2012-08-03 13:01:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "bufstringset.h"
 #include "file.h"

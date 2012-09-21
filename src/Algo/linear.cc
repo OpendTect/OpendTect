@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: linear.cc,v 1.22 2012-08-09 06:49:32 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "linear.h"

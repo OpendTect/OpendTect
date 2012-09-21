@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: mantistables.cc,v 1.18 2012-08-01 10:07:24 cvsmahant Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

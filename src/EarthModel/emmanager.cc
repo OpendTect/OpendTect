@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emmanager.cc,v 1.104 2012-05-24 11:39:50 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "emmanager.h"
 

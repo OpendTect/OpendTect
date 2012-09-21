@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: tableposprovider.cc,v 1.11 2012-08-08 05:26:29 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "tableposprovider.h"
 #include "keystrs.h"

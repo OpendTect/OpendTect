@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID mUnusedVar = "$Id: seiswrite.cc,v 1.73 2012-05-22 22:06:05 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "seiswrite.h"
 #include "keystrs.h"

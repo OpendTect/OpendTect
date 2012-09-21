@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: array2dbitmap.cc,v 1.47 2012-09-07 17:23:28 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"

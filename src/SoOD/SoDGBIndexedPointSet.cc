@@ -21,7 +21,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoMaterialBindingElement.h>
 #include <Inventor/system/gl.h>
 
-static const char* rcsID mUnusedVar = "$Id: SoDGBIndexedPointSet.cc,v 1.4 2012-05-02 15:11:49 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 SO_NODE_SOURCE(SoDGBIndexedPointSet);
 

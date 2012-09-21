@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID mUnusedVar = "$Id: genericnumer.cc,v 1.28 2012-08-09 06:49:32 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "genericnumer.h"
 #include "undefval.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: prestackmutedeftransl.cc,v 1.15 2012-07-02 12:26:41 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "prestackmutedeftransl.h"
 

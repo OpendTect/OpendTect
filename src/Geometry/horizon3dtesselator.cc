@@ -4,7 +4,7 @@
  * DATE     : August 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: horizon3dtesselator.cc,v 1.4 2012-08-08 05:26:29 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "horizon3dtesselator.h"
 

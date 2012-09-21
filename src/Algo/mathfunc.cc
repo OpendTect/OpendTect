@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: mathfunc.cc,v 1.11 2012-05-14 11:46:01 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "mathfunc.h"

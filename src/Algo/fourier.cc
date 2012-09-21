@@ -4,7 +4,7 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: fourier.cc,v 1.14 2012-08-30 13:34:14 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "fourier.h"
 #include "odmemory.h"

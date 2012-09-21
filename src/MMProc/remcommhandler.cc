@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: remcommhandler.cc,v 1.15 2012-05-03 09:42:48 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "remcommhandler.h"
 

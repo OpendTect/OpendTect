@@ -5,7 +5,7 @@
  * FUNCTION : SynthSeis
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: synthseis.cc,v 1.56 2012-07-03 12:03:22 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "synthseis.h"
 

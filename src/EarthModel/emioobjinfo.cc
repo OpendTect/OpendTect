@@ -4,7 +4,7 @@
  * DATE     : April 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: emioobjinfo.cc,v 1.10 2012-05-24 11:39:50 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "emioobjinfo.h"
 #include "emsurfaceio.h"

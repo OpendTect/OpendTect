@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: helpview.cc,v 1.51 2012-08-03 13:01:35 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "helpview.h"
 

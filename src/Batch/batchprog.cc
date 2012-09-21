@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID mUnusedVar = "$Id: batchprog.cc,v 1.120 2012-05-22 14:48:30 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "batchprog.h"
 #include "envvars.h"
