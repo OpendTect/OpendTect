@@ -14,6 +14,8 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include <QDateTime>
 #include <QTime>
 
+mUseQtnamespace
+
 namespace Time
 {
 
