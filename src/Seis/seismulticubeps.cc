@@ -8,10 +8,10 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 #include "seismulticubeps.h"
 #include "seispsioprov.h"
-#include "seiscbvs.h"
-#include "cbvsreadmgr.h"
 #include "seisread.h"
 #include "seistrc.h"
+#include "seistrctr.h"
+#include "seispacketinfo.h"
 #include "seisbuf.h"
 #include "posinfo.h"
 #include "strmprov.h"
@@ -188,23 +188,15 @@ void MultiCubeSeisPSReader::getCubeData( const SeisTrcReader& rdr,
 					 PosInfo::CubeData& cd ) const
 {
     const SeisTrcTranslator* tr = rdr.seisTranslator();
-    mDynamicCastGet(const CBVSSeisTrcTranslator*,cbvstr,tr)
-    if ( !cbvstr )
+    if ( !tr )
 	return;
-
-    const CBVSInfo::SurvGeom& sg = cbvstr->readMgr()->info().geom_;
-    if ( !sg.fullyrectandreg )
-	cd = sg.cubedata;
+    const SeisPacketInfo& pi( const_cast<SeisTrcTranslator*>(tr)->packetInfo());
+    if ( pi.cubedata )
+	cd = *pi.cubedata;
     else
-    {
-	for ( int iinl=sg.start.inl; iinl<=sg.stop.inl; iinl+=sg.step.inl )
-	{
-	    PosInfo::LineData* ld = new PosInfo::LineData( iinl );
-	    ld->segments_ += PosInfo::LineData::Segment( sg.start.crl,
-		    				sg.stop.crl, sg.step.crl );
-	    cd += ld;
-	}
-    }
+	cd.generate( BinID(pi.inlrg.start,pi.crlrg.start),
+		     BinID(pi.inlrg.stop,pi.crlrg.stop),
+		     BinID(pi.inlrg.step,pi.crlrg.step) );
 }
 
 
