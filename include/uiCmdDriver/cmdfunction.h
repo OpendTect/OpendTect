@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uicmddrivermod.h"
 #include "bufstringset.h"
+#include "factory.h"
 
 
 class uiMainWin;
@@ -24,14 +25,17 @@ namespace CmdDrive
 class CmdDriver;
 class WildcardManager;
 
-mClass(CmdDriver) Function
+mClass(uiCmdDriver) Function
 {
 public:
+
+    mDefineFactory1ParamInClass( Function, const CmdDriver&, factory );
+    static void		initStandardFunctions();
+    static const char*	factoryKey(const char* name);
+
     			Function(const CmdDriver& cmddrv)
 			    : drv_(cmddrv)
 			{}
-
-    static Function*	factory(const char* keyword,const CmdDriver&);
 
     virtual const char*	name() const					=0;
     virtual bool	eval(const BufferStringSet& args,
@@ -39,6 +43,8 @@ public:
 
 
 protected:
+
+    static const char*	createFactoryKey(const char* keyword);
 
     const CmdDriver&	drv_;
 
@@ -52,7 +58,7 @@ protected:
 
 #define mStartDeclFunClassNoEval(funkey,parentclass) \
 \
-mClass(CmdDriver) funkey##Func : public parentclass \
+mClass(uiCmdDriver) funkey##Func : public parentclass \
 { \
 public: \
 			funkey##Func(const CmdDriver& cmddrv) \
@@ -73,7 +79,13 @@ protected: \
     mStartDeclFunClassNoEval(funkey,parentclass) \
 public: \
     virtual bool        eval(const BufferStringSet& args, \
-			     BufferString& res) const;
+			     BufferString& res) const; \
+\
+    static Function*	createInstance(const CmdDriver& cmddrv) \
+    			{ return new funkey##Func(cmddrv); } \
+    static void		initClass() \
+    			{ factory().addCreator( createInstance, \
+						createFactoryKey(keyWord()) ); }
 
 #define mEndDeclFunClass \
 };

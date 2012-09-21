@@ -20,7 +20,7 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mClass(CmdDriver) IdentifierManager
+mClass(uiCmdDriver) IdentifierManager
 {
 public:
     			IdentifierManager();

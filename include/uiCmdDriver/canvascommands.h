@@ -15,19 +15,16 @@ ________________________________________________________________________
 #include "uicmddrivermod.h"
 #include "command.h"
 #include "cmdcomposer.h"
+#include "uigraphicsviewbase.h"
 
-class uiGraphicsViewBase;
 
 namespace CmdDrive
 {
 
-class CmdDriver;
-
-
 mStartDeclCmdClass( CanvasMenu, UiObjectCmd )		mEndDeclCmdClass
 
 
-mClass(CmdDriver) GraphicsViewMenuActivator: public Activator
+mClass(uiCmdDriver) GraphicsViewMenuActivator: public Activator
 {
 public:
 		    GraphicsViewMenuActivator(const uiGraphicsViewBase& obj)
@@ -44,7 +41,8 @@ mStartDeclCmdClass( NrCanvasMenuItems, UiObjQuestionCmd )	mEndDeclCmdClass
 mStartDeclCmdClass( IsCanvasMenuItemOn, UiObjQuestionCmd )	mEndDeclCmdClass
 mStartDeclCmdClass( GetCanvasMenuItem, UiObjQuestionCmd )	mEndDeclCmdClass
 
-mStartDeclComposerClass( CanvasMenu, CmdComposer )	mEndDeclComposerClass
+mStartDeclComposerClass( CanvasMenu, CmdComposer, uiGraphicsViewBase )
+mEndDeclComposerClass
 
 
 }; // namespace CmdDrive

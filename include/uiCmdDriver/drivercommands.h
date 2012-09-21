@@ -17,8 +17,6 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-class CmdDriver;
-
 mStartDeclCmdClass( Assign, StealthCmd )	mEndDeclCmdClass
 mStartDeclCmdClass( Case, StealthCmd )		mEndDeclCmdClass
 mStartDeclCmdClass( Comment, StealthCmd )	mEndDeclCmdClass

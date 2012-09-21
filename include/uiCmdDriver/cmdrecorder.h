@@ -33,7 +33,7 @@ namespace CmdDrive
     if ( !rec_.mustSkip() ) rec_.outputStrm()
 
 
-mClass(CmdDriver) CmdRecEvent
+mClass(uiCmdDriver) CmdRecEvent
 {
 public:
 			CmdRecEvent()
@@ -69,7 +69,7 @@ public:
 
 class CmdComposer;
 
-mClass(CmdDriver) CmdRecorder : public CallBacker
+mClass(uiCmdDriver) CmdRecorder : public CallBacker
 {
 public:
     friend class	CmdComposer;

@@ -60,7 +60,7 @@ namespace CmdDrive
 #define mWinWarnStrm    mWinStrm( true )
 
 
-mClass(CmdDriver) ModalStatus
+mClass(uiCmdDriver) ModalStatus
 {
 public:
     bool			operator==(const ModalStatus&) const;
@@ -74,7 +74,7 @@ public:
 };
 
 
-mClass(CmdDriver) Action
+mClass(uiCmdDriver) Action
 {
 public:
     				Action(const char* line)
@@ -87,7 +87,7 @@ public:
 };
 
 
-mClass(CmdDriver) MenuInfo
+mClass(uiCmdDriver) MenuInfo
 {
 public:
     int				nrchildren_;
@@ -100,7 +100,7 @@ public:
 enum WinStateType { NoState=0, Existent, Inexistent, Accessible, Inaccessible };
 
 
-mClass(CmdDriver) CmdDriver : public CallBacker
+mClass(uiCmdDriver) CmdDriver : public CallBacker
 {
 public:
     friend class 	Command;

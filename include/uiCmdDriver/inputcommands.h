@@ -16,23 +16,22 @@ ________________________________________________________________________
 #include "command.h"
 #include "cmdcomposer.h"
 
-class uiLineEdit;
-class uiSpinBox;
-class uiSlider;
-//class uiThumbWheel;
+#include "uilineedit.h"
+#include "uislider.h"
+#include "uispinbox.h"
+
+
 class uiComboBox;
+
 
 namespace CmdDrive
 {
-
-class CmdDriver;
-
 
 mStartDeclCmdClass( Input, UiObjectCmd )		mEndDeclCmdClass
 
 #define mDeclInputActivator( typ, objclass ) \
 \
-    mClass(CmdDriver) typ##Activator: public Activator \
+    mClass(uiCmdDriver) typ##Activator: public Activator \
     { \
     public: \
 			typ##Activator(const objclass& obj,const char* txt=0, \
@@ -56,7 +55,7 @@ mDeclInputActivator( ComboInput, uiComboBox )
 
 mStartDeclCmdClass( Spin, UiObjectCmd )			mEndDeclCmdClass
 
-mClass(CmdDriver) SpinActivator: public Activator
+mClass(uiCmdDriver) SpinActivator: public Activator
 {
 public:
 			SpinActivator(const uiSpinBox&,int nrsteps);
@@ -69,7 +68,7 @@ protected:
 
 mStartDeclCmdClass( Slider, UiObjectCmd )		mEndDeclCmdClass
 
-mClass(CmdDriver) SliderActivator: public Activator
+mClass(uiCmdDriver) SliderActivator: public Activator
 {
 public:
 			SliderActivator(const uiSlider&,float fraction);
@@ -79,40 +78,20 @@ protected:
     float		actfrac_;
 };
 
-/*
-mStartDeclCmdClass( Wheel, UiObjectCmd )		mEndDeclCmdClass
-
-mClass(CmdDriver) WheelActivator: public Activator
-{
-public:
-			WheelActivator(const uiThumbWheel&,float angle);
-    void		actCB(CallBacker*);
-protected:
-    uiThumbWheel&	actwheel_;
-    float		actangle_;
-};
-*/
 
 mStartDeclCmdClass( GetInput, UiObjQuestionCmd )	mEndDeclCmdClass
 mStartDeclCmdClass( GetSpin, UiObjQuestionCmd )		mEndDeclCmdClass
 mStartDeclCmdClass( GetSlider, UiObjQuestionCmd )	mEndDeclCmdClass
-//mStartDeclCmdClass( GetWheel, UiObjQuestionCmd )	mEndDeclCmdClass
 
 
-mStartDeclComposerClass( Slider, CmdComposer )		mEndDeclComposerClass 
+mStartDeclComposerClass( Slider, CmdComposer, uiSlider ) mEndDeclComposerClass 
 
-mStartDeclComposerClassWithInit( Input, CmdComposer )
+mStartDeclComposerClassWithInit( Input, CmdComposer, uiLineEdit )
 protected:
     float textchanged_;
 mEndDeclComposerClass 
-/*
-mStartDeclComposerClassWithInit( Wheel, CmdComposer )
-protected:
-    float oldvalue_;
-mEndDeclComposerClass 
-*/
 
-mStartDeclComposerClassWithInit( Spin, CmdComposer )
+mStartDeclComposerClassWithInit( Spin, CmdComposer, uiSpinBox )
 protected:
     int pendingsteps_;
     float pendinginput_;

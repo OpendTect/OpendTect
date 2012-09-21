@@ -19,10 +19,7 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-class CmdDriver;
-
-
-mStartDeclCmdClassNoAct( Tree, UiObjectCmd )
+mStartDeclCmdClassNoActNoEntry( Tree, UiObjectCmd )
 protected:
 
     bool		parTreeSelPre(const uiTreeView&,
@@ -38,7 +35,7 @@ protected:
 
 mEndDeclCmdClass
 
-mClass(CmdDriver) TreeActivator: public Activator
+mClass(uiCmdDriver) TreeActivator: public Activator
 {
 public:
 			TreeActivator(const uiTreeView&,const uiTreeViewItem&,
@@ -60,7 +57,7 @@ mStartDeclCmdClass( TreeMenu, TreeCmd )			mEndDeclCmdClass
 mStartDeclCmdClass( TreeButton, TreeCmd )		mEndDeclCmdClass
 mStartDeclCmdClass( TreeExpand, TreeCmd )		mEndDeclCmdClass
 
-mStartDeclCmdClassNoAct( TreeQuestion, TreeCmd )
+mStartDeclCmdClassNoActNoEntry( TreeQuestion, TreeCmd )
     virtual bool	isUiObjChangeCommand() const	{ return false; }
     virtual bool	isVisualCommand() const		{ return false; }
 mEndDeclCmdClass
@@ -81,7 +78,7 @@ mStartDeclCmdClass( IsTreeMenuItemOn, TreeQuestionCmd )		mEndDeclCmdClass
 mStartDeclCmdClass( GetTreeMenuItem, TreeQuestionCmd )		mEndDeclCmdClass
 
 
-mStartDeclComposerClassWithInit( Tree, CmdComposer )
+mStartDeclComposerClassWithInit( Tree, CmdComposer, uiTreeView )
 public:
     virtual void		updateInternalState();
 

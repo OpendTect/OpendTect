@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uicmddrivermod.h"
 #include "callback.h"
 #include "bufstringset.h"
+#include "factory.h"
 
 class uiMainWin;
 
@@ -26,15 +27,39 @@ class CmdRecorder;
 class CmdRecEvent;
 
 
-mClass(CmdDriver) CmdComposer : public CallBacker
+mClass(uiCmdDriver) Classifier
+{
+public:
+    virtual const char* name() const				= 0;
+    virtual bool	approved(const CallBacker*) const	= 0;
+};
+
+#define mDeclClassifierClass(callerclass) \
+\
+class callerclass##Classifier : public Classifier \
+{ \
+public: \
+\
+    static const char*	className()	{ return #callerclass; } \
+    const char*		name() const	{ return className(); } \
+\
+    bool		approved(const CallBacker* caller) const \
+			{ return dynamic_cast<const callerclass*>(caller); } \
+};
+
+
+mClass(uiCmdDriver) CmdComposer : public CallBacker
 {
 
 public:
+
+    mDefineFactory1ParamInClass( CmdComposer, CmdRecorder&, factory );
+    static void		initStandardComposers();
+    static const char*	factoryKey(const CallBacker* caller,
+	    			   const char* extrakey=0);
+
 			CmdComposer(CmdRecorder&);
 			~CmdComposer();
-
-    static CmdComposer* factory(const CallBacker* caller,const char* extrakey,
-	    			CmdRecorder&);
 
     virtual const char*	name()				= 0;
 
@@ -51,6 +76,8 @@ public:
     void		testCB(CallBacker*); 
 
 protected:
+
+    static const char*	createFactoryKey(const Classifier*,const char* keyword);
 
     virtual void	init()				{};
 
@@ -89,7 +116,7 @@ private:
 
 #define mStartDeclComposerClassNoAccept(cmdkey,parentclass) \
 \
-mClass(CmdDriver) cmdkey##CmdComposer : public parentclass \
+mClass(uiCmdDriver) cmdkey##CmdComposer : public parentclass \
 { \
 public: \
 			cmdkey##CmdComposer(CmdRecorder& cmdrec) \
@@ -99,13 +126,22 @@ public: \
     static const char*	keyWord()			{ return #cmdkey; } \
     virtual const char* name()				{ return keyWord(); } \
 
-#define mStartDeclComposerClass(cmdkey,parentclass) \
+#define mStartDeclComposerClass(cmdkey,parentclass,callerclass) \
 \
     mStartDeclComposerClassNoAccept(cmdkey,parentclass) \
-    virtual bool	accept(const CmdRecEvent&);
+    mDeclClassifierClass(callerclass) \
+\
+    virtual bool	accept(const CmdRecEvent&); \
+\
+    static CmdComposer*	createInstance(CmdRecorder& cmdrec) \
+			{ return new cmdkey##CmdComposer(cmdrec); } \
+    static void		initClass() \
+    			{ factory().addCreator( createInstance, \
+			    createFactoryKey(new callerclass##Classifier(), \
+					     keyWord()) ); }
 
-#define mStartDeclComposerClassWithInit(cmdkey,parentclass) \
-    mStartDeclComposerClass(cmdkey,parentclass) \
+#define mStartDeclComposerClassWithInit(cmdkey,parentclass,callerclass) \
+    mStartDeclComposerClass(cmdkey,parentclass,callerclass) \
     virtual void	init();
 
 #define mEndDeclComposerClass \

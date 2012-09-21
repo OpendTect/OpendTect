@@ -15,18 +15,14 @@ ________________________________________________________________________
 #include "uicmddrivermod.h"
 #include "command.h"
 #include "cmdcomposer.h"
-
 #include "rowcol.h"
+#include "uitable.h"
 
-
-class uiTable;
 
 namespace CmdDrive
 {
 
-class CmdDriver;
-
-mStartDeclCmdClassNoAct( Table, UiObjectCmd )
+mStartDeclCmdClassNoActNoEntry( Table, UiObjectCmd )
 protected:
     enum		TableTag { RowTag=0,RowHead,CellTag,ColHead,ColTag };
 
@@ -43,7 +39,7 @@ mEndDeclCmdClass
 
 mStartDeclCmdClass( TableClick, TableCmd )	mEndDeclCmdClass
 
-mClass(CmdDriver) TableActivator: public Activator
+mClass(uiCmdDriver) TableActivator: public Activator
 {
 public:
     			TableActivator(const uiTable&,const RowCol&,
@@ -59,7 +55,7 @@ protected:
 
 mStartDeclCmdClass( TableFill, TableCmd )	mEndDeclCmdClass
 
-mClass(CmdDriver) TableFillActivator: public Activator
+mClass(uiCmdDriver) TableFillActivator: public Activator
 {
 public:
     			TableFillActivator(const uiTable&,const RowCol&,
@@ -74,7 +70,7 @@ protected:
 
 mStartDeclCmdClass( TableSelect, TableCmd )	mEndDeclCmdClass
 
-mClass(CmdDriver) TableSelectActivator: public Activator
+mClass(uiCmdDriver) TableSelectActivator: public Activator
 {
 public:
     			TableSelectActivator(const uiTable&,
@@ -87,7 +83,7 @@ protected:
 };
 
 
-mStartDeclCmdClassNoAct( TableQuestion, TableCmd )
+mStartDeclCmdClassNoActNoEntry( TableQuestion, TableCmd )
     virtual bool	isUiObjChangeCommand() const	{ return false; }
     virtual bool	isVisualCommand() const		{ return false; }
 mEndDeclCmdClass
@@ -117,7 +113,7 @@ mStartDeclCmdClass( GetTableMenuItem, TableQuestionCmd )	mEndDeclCmdClass
    and (row1,col) encode a series of rows in column col from row0 to
    row1 with a positive step step.
 */
-mClass(CmdDriver) TableState
+mClass(uiCmdDriver) TableState
 {
 public:
     			TableState(const uiTable* uitable=0)
@@ -144,7 +140,7 @@ protected:
 };
 
 
-mStartDeclComposerClassWithInit( Table, CmdComposer )
+mStartDeclComposerClassWithInit( Table, CmdComposer, uiTable )
 public:
     virtual void	updateInternalState();
     static void		getExecPrefix(CmdRecEvent&,const RowCol&);

@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uicmddrivermod.h"
+#include "factory.h"
 #include "identifierman.h"
 #include "objectfinder.h"
 #include "uidialog.h"
@@ -32,16 +33,19 @@ namespace CmdDrive
 class Activator;
 
 
-mClass(CmdDriver) Command
+mClass(uiCmdDriver) Command
 {
 public:
+
+    mDefineFactory1ParamInClass( Command, CmdDriver&, factory );
+    static void		initStandardCommands();
+    static const char*	factoryKey(const char* name);
+
     			Command(CmdDriver& cmddrv)
 			    : drv_(cmddrv)
     			{}
 
-    static Command*	factory(const char* keyword,CmdDriver&);
-
-    virtual const char* name()				= 0; 			
+    virtual const char* name() const			= 0; 			
     virtual bool	act(const char* parstr)		= 0;
 
     virtual bool	isOpenQDlgCommand() const	{ return true; }
@@ -55,6 +59,8 @@ public:
 			  Minimum, Maximum, Step, Percentage, FilePath };
 
 protected:
+
+    static const char*	createFactoryKey(const char* keyword);
 
     CmdDriver&		drv_;
     uiMainWin*		applWin();
@@ -113,9 +119,9 @@ protected:
 };
 
 
-#define mStartDeclCmdClassNoAct(cmdkey,parentclass) \
+#define mStartDeclCmdClassNoActNoEntry(cmdkey,parentclass) \
 \
-mClass(CmdDriver) cmdkey##Cmd : public parentclass \
+mClass(uiCmdDriver) cmdkey##Cmd : public parentclass \
 { \
 public: \
     			cmdkey##Cmd(CmdDriver& cmddrv) \
@@ -123,10 +129,23 @@ public: \
 			{} \
 \
     static const char*	keyWord()			{ return #cmdkey; } \
-    virtual const char* name()				{ return keyWord(); }
+    virtual const char* name() const			{ return keyWord(); }
+
+#define mStartDeclCmdClassNoAct(cmdkey,parentclass) \
+\
+    mStartDeclCmdClassNoActNoEntry(cmdkey,parentclass) \
+\
+    static Command*	createInstance(CmdDriver& cmddrv) \
+			{ return new cmdkey##Cmd(cmddrv); } \
+    static void		initClass() \
+			{ factory().addCreator( createInstance, \
+					        createFactoryKey(keyWord()) ); }
+
+#define mStartDeclCmdClassNoEntry(cmdkey,parentclass) \
+    mStartDeclCmdClassNoActNoEntry(cmdkey,parentclass) \
+    virtual bool	act(const char* parstr);
 
 #define mStartDeclCmdClass(cmdkey,parentclass) \
-\
     mStartDeclCmdClassNoAct(cmdkey,parentclass) \
     virtual bool	act(const char* parstr);
 
@@ -134,19 +153,19 @@ public: \
 };
 
 
-mStartDeclCmdClassNoAct( UiObject, Command )
+mStartDeclCmdClassNoActNoEntry( UiObject, Command )
     virtual bool	isOpenQDlgCommand() const	{ return false; }
     virtual bool	isLocalEnvCommand() const	{ return true; }
     virtual bool	isUiObjChangeCommand() const	{ return true; }
 mEndDeclCmdClass
 
-mStartDeclCmdClassNoAct( UiObjQuestion, Command )
+mStartDeclCmdClassNoActNoEntry( UiObjQuestion, Command )
     virtual bool	isOpenQDlgCommand() const	{ return false; }
     virtual bool	isLocalEnvCommand() const	{ return true; }
     virtual bool	isVisualCommand() const		{ return false; }
 mEndDeclCmdClass
 
-mStartDeclCmdClassNoAct( Stealth, Command )
+mStartDeclCmdClassNoActNoEntry( Stealth, Command )
     virtual bool	isVisualCommand() const		{ return false; }
 mEndDeclCmdClass
 
@@ -164,7 +183,7 @@ mEndDeclCmdClass
     in case activateInGUIThread(.,.) is going to be called with busywait=false.
 */
 
-mClass(CmdDriver) Activator : public CallBacker
+mClass(uiCmdDriver) Activator : public CallBacker
 {
 public:
     virtual		~Activator()			{};
@@ -172,7 +191,7 @@ public:
 };
 
 
-mClass(CmdDriver) CloseActivator: public Activator
+mClass(uiCmdDriver) CloseActivator: public Activator
 {
 public:
 			CloseActivator(const uiMainWin& uimw)
@@ -185,7 +204,7 @@ protected:
 };
 
 
-mClass(CmdDriver) CloseQDlgActivator: public Activator
+mClass(uiCmdDriver) CloseQDlgActivator: public Activator
 {
 public:
 			CloseQDlgActivator(int retval)
@@ -201,7 +220,7 @@ protected:
 //====== Menu tracer ==========================================================
 
 
-mClass(CmdDriver) MenuTracer
+mClass(uiCmdDriver) MenuTracer
 {
 public:
     			MenuTracer(const uiMenuItemContainer& mnu,
@@ -460,6 +479,29 @@ protected:
     { \
 	mParseErrStrm << "Double-quoted string or numeric argument " \
 		      << "expected as input" << std::endl; \
+	return false; \
+    }
+
+
+#define mParSteps( parstr, parnext, nrsteps, minval, defval ) \
+\
+    char* parnext; \
+    int nrsteps = strtol( parstr, &parnext, 0 ); \
+    if ( parnext!=parstr && nrsteps<minval ) \
+    { \
+	mParseWarnStrm << "Number of steps should be at least " << minval \
+		       << std::endl; \
+    } \
+    if ( parnext==parstr || nrsteps<minval ) \
+	nrsteps = defval;
+
+
+#define mPopUpWinInLoopCheck( prevwin ) \
+\
+    if ( openQDlg() || curWin()!=prevwin ) \
+    { \
+	mWinErrStrm << "Next step blocked by popped-up modal window" \
+		    << std::endl; \
 	return false; \
     }
 

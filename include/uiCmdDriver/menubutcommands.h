@@ -16,23 +16,20 @@ ________________________________________________________________________
 #include "command.h"
 #include "cmdcomposer.h"
 
-class uiButton;
-class uiTabBar;
-class uiMdiArea;
-class uiMdiAreaWindow;
+#include "uibutton.h"
+#include "uimdiarea.h"
+#include "uimenu.h"
+#include "uitabbar.h"
 
 
 namespace CmdDrive
 {
 
-class CmdDriver;
-
-
 mStartDeclCmdClass( Menu, UiObjectCmd )
     bool        isLocalEnvCommand() const       	{ return false; }    
 mEndDeclCmdClass
 
-mClass(CmdDriver) MenuActivator : public Activator
+mClass(uiCmdDriver) MenuActivator : public Activator
 {
 public:	
 		MenuActivator(const uiMenuItem&);
@@ -50,7 +47,7 @@ protected:
     bool	actQDlgButton(const char* parstr);
 mEndDeclCmdClass
 
-mClass(CmdDriver) ButtonActivator : public Activator
+mClass(uiCmdDriver) ButtonActivator : public Activator
 {
 public:	
 		ButtonActivator(const uiButton&);
@@ -66,7 +63,7 @@ protected:
     bool	actCloseCurWin(const char* parstr);
 mEndDeclCmdClass
 
-mClass(CmdDriver) MdiAreaCloseActivator : public Activator
+mClass(uiCmdDriver) MdiAreaCloseActivator : public Activator
 {
 public:	
 		MdiAreaCloseActivator(const uiMdiArea&,const char* winname);
@@ -84,7 +81,7 @@ protected:
     bool	actShowCurWin(const char* parstr);
 mEndDeclCmdClass
 
-mClass(CmdDriver) ShowActivator : public Activator
+mClass(uiCmdDriver) ShowActivator : public Activator
 {
 public:	
 		ShowActivator(const uiMainWin&,int minnormax);
@@ -96,7 +93,7 @@ protected:
 };
 
 
-mClass(CmdDriver) MdiAreaShowActivator : public Activator
+mClass(uiCmdDriver) MdiAreaShowActivator : public Activator
 {
 public:	
 		MdiAreaShowActivator(const uiMdiArea&,const char* winname,
@@ -111,7 +108,7 @@ protected:
 
 mStartDeclCmdClass( Tab, UiObjectCmd )			mEndDeclCmdClass
 
-mClass(CmdDriver) TabActivator : public Activator
+mClass(uiCmdDriver) TabActivator : public Activator
 {
 public:
 		TabActivator(const uiTabBar&,int tabidx);
@@ -124,7 +121,7 @@ protected:
 
 
 mStartDeclCmdClass( ButtonMenu, UiObjectCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( OkCancel, Command )			mEndDeclCmdClass
+mStartDeclCmdClassNoEntry( OkCancel, Command )		mEndDeclCmdClass
 mStartDeclCmdClassNoAct( Ok, OkCancelCmd )		mEndDeclCmdClass
 mStartDeclCmdClassNoAct( Cancel, OkCancelCmd )		mEndDeclCmdClass
 
@@ -171,12 +168,14 @@ protected:
 mEndDeclCmdClass
 
 
-mStartDeclComposerClass( Menu, CmdComposer )		mEndDeclComposerClass
-mStartDeclComposerClass( Button, CmdComposer )		mEndDeclComposerClass
-mStartDeclComposerClass( Close, CmdComposer )		mEndDeclComposerClass
-mStartDeclComposerClass( MdiArea, CmdComposer )		mEndDeclComposerClass
-mStartDeclComposerClass( QMsgBoxBut, CmdComposer )	mEndDeclComposerClass
-mStartDeclComposerClass( Tab, CmdComposer )		mEndDeclComposerClass
+mStartDeclComposerClass( Menu, CmdComposer, uiMenuItem )  mEndDeclComposerClass
+mStartDeclComposerClass( Button, CmdComposer, uiButton )  mEndDeclComposerClass
+mStartDeclComposerClass( Close, CmdComposer, uiMainWin )  mEndDeclComposerClass
+mStartDeclComposerClass( MdiArea,CmdComposer,uiMdiArea )  mEndDeclComposerClass
+mStartDeclComposerClass( Tab, CmdComposer, uiTabBar )	  mEndDeclComposerClass
+
+mStartDeclComposerClass( QMsgBoxBut, CmdComposer, uiMainWin )
+mEndDeclComposerClass
 
 
 }; // namespace CmdDrive

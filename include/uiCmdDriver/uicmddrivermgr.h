@@ -30,7 +30,7 @@ class CmdRecorder;
 class uiCmdDriverDlg;
 
 
-mClass(CmdDriver) uiCmdDriverMgr:public CallBacker
+mClass(uiCmdDriver) uiCmdDriverMgr:public CallBacker
 {
 public:
 				uiCmdDriverMgr(uiMainWin& applwin);

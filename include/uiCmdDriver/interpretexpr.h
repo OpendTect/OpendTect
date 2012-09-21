@@ -21,7 +21,7 @@ namespace CmdDrive
 
 class CmdDriver;
 
-mClass(CmdDriver) ExprInterpreter
+mClass(uiCmdDriver) ExprInterpreter
 {
 public:
     			ExprInterpreter(const CmdDriver&);

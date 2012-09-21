@@ -19,16 +19,13 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-class CmdDriver;
-
-
 mStartDeclCmdClass( ColorOk, Command )		mEndDeclCmdClass
 mStartDeclCmdClass( FileOk, Command )		mEndDeclCmdClass
 
 
 mStartDeclCmdClass( Snapshot, StealthCmd )	mEndDeclCmdClass
 
-mClass(CmdDriver) SnapshotActivator: public Activator
+mClass(uiCmdDriver) SnapshotActivator: public Activator
 {
 public:
 		SnapshotActivator(const uiMainWin&,const char* filenm,int zoom);
@@ -40,9 +37,9 @@ protected:
 };
 
 
-mStartDeclComposerClass( QColorDlg, CmdComposer )	mEndDeclComposerClass
+mStartDeclComposerClass( QColorDlg,CmdComposer,uiMainWin ) mEndDeclComposerClass
 
-mClass(CmdDriver) SetColorActivator: public Activator
+mClass(uiCmdDriver) SetColorActivator: public Activator
 {
 public:
 		SetColorActivator(const Color&);
@@ -52,7 +49,7 @@ protected:
     Color	color_;
 };
 
-mStartDeclComposerClass( QFileDlg, CmdComposer )	mEndDeclComposerClass
+mStartDeclComposerClass( QFileDlg,CmdComposer,uiMainWin ) mEndDeclComposerClass
 
 
 }; // namespace CmdDrive
