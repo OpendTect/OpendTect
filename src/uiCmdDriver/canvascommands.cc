@@ -14,7 +14,6 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "cmdrecorder.h"
 
 #include "mouseevent.h"
-#include "uigraphicsviewbase.h"
 #include "uimenu.h"
 
 namespace CmdDrive

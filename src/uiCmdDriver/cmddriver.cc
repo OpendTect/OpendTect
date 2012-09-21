@@ -123,6 +123,8 @@ CmdDriver::CmdDriver( uiMainWin& aw )
 	, executeFinished(this)
 	, interactRequest(this)
 {
+    Command::initStandardCommands();
+    Function::initStandardFunctions();
     reInit();
 }
 
@@ -815,7 +817,8 @@ void CmdDriver::setSleep( float time, bool regular )
     if ( parenthesisptr ) \
     { \
 	*parenthesisptr = '\0'; \
-	PtrMan<Function> func = Function::factory( funcprocname, *this ); \
+	const char* fackey = Function::factoryKey( funcprocname ); \
+	PtrMan<Function> func = Function::factory().create( fackey, drv_ ); \
 	FileMultiString keyfms; \
 	keyfms += funcprocname; keyfms += "\a"; \
 	if ( (!func)==idm_->doesExist(keyfms) && (!func)==(token=='?') ) \
@@ -915,8 +918,8 @@ bool CmdDriver::doAction( const char* actstr )
     }
 
     mSkipBlanks( parstr );
-    PtrMan<Command> cmd = Command::factory( firstword, drv_ );
-
+    const char* fackey = Command::factoryKey( firstword );
+    PtrMan<Command> cmd = Command::factory().create( fackey, drv_ );
     if ( !cmd )
     {
 	mParseErrStrm << (firstword.isEmpty() ? "Missing command"

@@ -28,147 +28,170 @@ static const char* rcsID mUnusedVar = "$Id$";
 namespace CmdDrive
 {
 
-#define mGetCmdClass( key, cmdclass, cmddrv ) \
-\
-     if ( mMatchCI(key,cmdclass::keyWord()) ) \
-	return new cmdclass( cmddrv );
+mImplFactory1Param( Command, CmdDriver&, Command::factory );
 
-Command* Command::factory( const char* key, CmdDriver& cmddrv )
+
+const char* Command::factoryKey( const char* name )
 {
-    mGetCmdClass( key, AssignCmd,	cmddrv );
-    mGetCmdClass( key, BreakCmd,	cmddrv );
-    mGetCmdClass( key, ButtonCmd,	cmddrv );
-    mGetCmdClass( key, ButtonMenuCmd,	cmddrv );
-    mGetCmdClass( key, CallCmd,		cmddrv );
-    mGetCmdClass( key, CanvasMenuCmd,	cmddrv );
-    mGetCmdClass( key, CancelCmd,	cmddrv );
-    mGetCmdClass( key, CaseCmd,		cmddrv );
-    mGetCmdClass( key, CloseCmd,	cmddrv );
-    mGetCmdClass( key, ColorOkCmd,	cmddrv );
-    mGetCmdClass( key, ComboCmd,	cmddrv );
-    mGetCmdClass( key, CommentCmd,	cmddrv );
-    mGetCmdClass( key, ContinueCmd,	cmddrv );
-    mGetCmdClass( key, DefCmd,		cmddrv );
-    mGetCmdClass( key, DoCmd,		cmddrv );
-    mGetCmdClass( key, DoWhileCmd,	cmddrv );
-    mGetCmdClass( key, ElseCmd,		cmddrv );
-    mGetCmdClass( key, ElseIfCmd,	cmddrv );
-    mGetCmdClass( key, EndCmd,		cmddrv );
-    mGetCmdClass( key, FedCmd,		cmddrv );
-    mGetCmdClass( key, FiCmd,		cmddrv );
-    mGetCmdClass( key, FileOkCmd,	cmddrv );
-    mGetCmdClass( key, ForCmd,		cmddrv );
-    mGetCmdClass( key, GreyOutsCmd,	cmddrv );
-    mGetCmdClass( key, GuideCmd,	cmddrv );
-    mGetCmdClass( key, IfCmd,		cmddrv );
-    mGetCmdClass( key, InputCmd,	cmddrv );
-    mGetCmdClass( key, ListButtonCmd,	cmddrv );
-    mGetCmdClass( key, ListClickCmd,	cmddrv );
-    mGetCmdClass( key, ListMenuCmd,	cmddrv );
-    mGetCmdClass( key, ListSelectCmd,	cmddrv );
-    mGetCmdClass( key, LogModeCmd,	cmddrv );
-    mGetCmdClass( key, MenuCmd,		cmddrv );
-    mGetCmdClass( key, OdCmd,		cmddrv );
-    mGetCmdClass( key, OdUntilCmd,	cmddrv );
-    mGetCmdClass( key, OkCmd,		cmddrv );
-    mGetCmdClass( key, OnErrorCmd,	cmddrv );
-    mGetCmdClass( key, OnOffCheckCmd,	cmddrv );
-    mGetCmdClass( key, PauseCmd,	cmddrv );
-    mGetCmdClass( key, ReturnCmd,	cmddrv );
-    mGetCmdClass( key, RofCmd,		cmddrv );
-    mGetCmdClass( key, ShowCmd,		cmddrv );
-    mGetCmdClass( key, SleepCmd,	cmddrv );
-    mGetCmdClass( key, SliderCmd,	cmddrv );
-    mGetCmdClass( key, SnapshotCmd,	cmddrv );
-    mGetCmdClass( key, SpinCmd,		cmddrv );
-    mGetCmdClass( key, TabCmd,		cmddrv );
-    mGetCmdClass( key, TableClickCmd,	cmddrv );
-    mGetCmdClass( key, TableExecCmd,	cmddrv );
-    mGetCmdClass( key, TableFillCmd,	cmddrv );
-    mGetCmdClass( key, TableMenuCmd,	cmddrv );
-    mGetCmdClass( key, TableSelectCmd,	cmddrv );
-    mGetCmdClass( key, TreeButtonCmd,	cmddrv );
-    mGetCmdClass( key, TreeClickCmd,	cmddrv );
-    mGetCmdClass( key, TreeExpandCmd,	cmddrv );
-    mGetCmdClass( key, TreeMenuCmd,	cmddrv );
-    mGetCmdClass( key, TryCmd,		cmddrv );
-    mGetCmdClass( key, WaitCmd,		cmddrv );
-    mGetCmdClass( key, WinAssertCmd,	cmddrv );
-    mGetCmdClass( key, WindowCmd,	cmddrv );
-//    mGetCmdClass( key, WheelCmd,	cmddrv );
+    static BufferString fackey;
+    fackey = name;
+    StringProcessor(fackey).capitalize();
+    return fackey.buf();
+}
 
-    mGetCmdClass( key, GetButtonCmd,		cmddrv );
-    mGetCmdClass( key, IsButtonOnCmd,		cmddrv );
-    mGetCmdClass( key, GetButtonMenuItemCmd,	cmddrv );
-    mGetCmdClass( key, IsButtonMenuItemOnCmd,	cmddrv );
-    mGetCmdClass( key, NrButtonMenuItemsCmd,	cmddrv );
-    mGetCmdClass( key, GetCanvasMenuItemCmd,	cmddrv );
-    mGetCmdClass( key, IsCanvasMenuItemOnCmd,	cmddrv );
-    mGetCmdClass( key, NrCanvasMenuItemsCmd,	cmddrv );
-    mGetCmdClass( key, CurComboItemCmd,		cmddrv );
-    mGetCmdClass( key, GetComboItemCmd,		cmddrv );
-    mGetCmdClass( key, IsComboItemOnCmd,	cmddrv );
-    mGetCmdClass( key, NrComboItemsCmd,		cmddrv );
-    mGetCmdClass( key, GetInputCmd,		cmddrv );
 
-    mGetCmdClass( key, IsListButtonOnCmd,	cmddrv );
-    mGetCmdClass( key, CurListItemCmd,		cmddrv );
-    mGetCmdClass( key, GetListItemCmd,		cmddrv );
-    mGetCmdClass( key, IsListItemOnCmd,		cmddrv );
-    mGetCmdClass( key, NrListItemsCmd,		cmddrv );
-    mGetCmdClass( key, GetListMenuItemCmd,	cmddrv );
-    mGetCmdClass( key, IsListMenuItemOnCmd,	cmddrv );
-    mGetCmdClass( key, NrListMenuItemsCmd,	cmddrv );
+const char* Command::createFactoryKey( const char* keyword )
+{
+    const char* fackey = factoryKey( keyword );
 
-    mGetCmdClass( key, IsMatchCmd,		cmddrv );
-    mGetCmdClass( key, GetMenuItemCmd,		cmddrv );
-    mGetCmdClass( key, IsMenuItemOnCmd,		cmddrv );
-    mGetCmdClass( key, NrMenuItemsCmd,		cmddrv );
-    mGetCmdClass( key, IsShownCmd,		cmddrv );
-    mGetCmdClass( key, GetSliderCmd,		cmddrv );
-    mGetCmdClass( key, GetSpinCmd,		cmddrv );
-    mGetCmdClass( key, CurTabCmd,		cmddrv );
-    mGetCmdClass( key, GetTabCmd,		cmddrv );
-    mGetCmdClass( key, IsTabOnCmd,		cmddrv );
-    mGetCmdClass( key, NrTabsCmd,		cmddrv );
+    if ( factory().hasName( fackey ) )
+    {
+	BufferString errmsg( "Redefining command \"" );
+	errmsg += keyword; errmsg += "\"";
+	pFreeFnErrMsg( errmsg, "CmdDrive::Command" );
+    }
 
-    mGetCmdClass( key, CurTableColCmd,		cmddrv );
-    mGetCmdClass( key, CurTableItemCmd,		cmddrv );
-    mGetCmdClass( key, CurTableRowCmd,		cmddrv );
-    mGetCmdClass( key, GetTableColCmd,		cmddrv );
-    mGetCmdClass( key, GetTableItemCmd,		cmddrv );
-    mGetCmdClass( key, GetTableRowCmd,		cmddrv );
-    mGetCmdClass( key, IsTableItemOnCmd,	cmddrv );
-    mGetCmdClass( key, NrTableColsCmd,		cmddrv );
-    mGetCmdClass( key, NrTableRowsCmd,		cmddrv );
-    mGetCmdClass( key, GetTableMenuItemCmd,	cmddrv );
-    mGetCmdClass( key, IsTableMenuItemOnCmd,	cmddrv );
-    mGetCmdClass( key, NrTableMenuItemsCmd,	cmddrv );
+    return fackey; 
+}
 
-    mGetCmdClass( key, CurTreeColCmd,		cmddrv );
-    mGetCmdClass( key, CurTreeItemCmd,		cmddrv );
-    mGetCmdClass( key, CurTreePathCmd,		cmddrv );
-    mGetCmdClass( key, GetTreeColCmd,		cmddrv );
-    mGetCmdClass( key, GetTreeItemCmd,		cmddrv );
-    mGetCmdClass( key, GetTreePathCmd,		cmddrv );
-    mGetCmdClass( key, IsTreeItemOnCmd,		cmddrv );
-    mGetCmdClass( key, IsTreeItemExpandedCmd,	cmddrv );
-    mGetCmdClass( key, NrTreeColsCmd,		cmddrv );
-    mGetCmdClass( key, NrTreeItemsCmd,		cmddrv );
-    mGetCmdClass( key, IsTreeButtonOnCmd,	cmddrv );
-    mGetCmdClass( key, GetTreeMenuItemCmd,	cmddrv );
-    mGetCmdClass( key, IsTreeMenuItemOnCmd,	cmddrv );
-    mGetCmdClass( key, NrTreeMenuItemsCmd,	cmddrv );
 
-//    mGetCmdClass( key, GetWheelCmd,		cmddrv );
-    mGetCmdClass( key, IsWindowCmd,		cmddrv );
-    return 0;
+
+void Command::initStandardCommands()
+{
+    static bool done = false;
+    if ( done ) return; 
+    done = true;
+
+    AssignCmd::initClass();
+    BreakCmd::initClass();
+    ButtonCmd::initClass();
+    ButtonMenuCmd::initClass();
+    CallCmd::initClass();
+    CanvasMenuCmd::initClass();
+    CancelCmd::initClass();
+    CaseCmd::initClass();
+    CloseCmd::initClass();
+    ColorOkCmd::initClass();
+    ComboCmd::initClass();
+    CommentCmd::initClass();
+    ContinueCmd::initClass();
+    DefCmd::initClass();
+    DoCmd::initClass();
+    DoWhileCmd::initClass();
+    ElseCmd::initClass();
+    ElseIfCmd::initClass();
+    EndCmd::initClass();
+    FedCmd::initClass();
+    FiCmd::initClass();
+    FileOkCmd::initClass();
+    ForCmd::initClass();
+    GreyOutsCmd::initClass();
+    GuideCmd::initClass();
+    IfCmd::initClass();
+    InputCmd::initClass();
+    ListButtonCmd::initClass();
+    ListClickCmd::initClass();
+    ListMenuCmd::initClass();
+    ListSelectCmd::initClass();
+    LogModeCmd::initClass();
+    MenuCmd::initClass();
+    OdCmd::initClass();
+    OdUntilCmd::initClass();
+    OkCmd::initClass();
+    OnErrorCmd::initClass();
+    OnOffCheckCmd::initClass();
+    PauseCmd::initClass();
+    ReturnCmd::initClass();
+    RofCmd::initClass();
+    ShowCmd::initClass();
+    SleepCmd::initClass();
+    SliderCmd::initClass();
+    SnapshotCmd::initClass();
+    SpinCmd::initClass();
+    TabCmd::initClass();
+    TableClickCmd::initClass();
+    TableExecCmd::initClass();
+    TableFillCmd::initClass();
+    TableMenuCmd::initClass();
+    TableSelectCmd::initClass();
+    TreeButtonCmd::initClass();
+    TreeClickCmd::initClass();
+    TreeExpandCmd::initClass();
+    TreeMenuCmd::initClass();
+    TryCmd::initClass();
+    WaitCmd::initClass();
+    WinAssertCmd::initClass();
+    WindowCmd::initClass();
+
+    GetButtonCmd::initClass();
+    IsButtonOnCmd::initClass();
+    GetButtonMenuItemCmd::initClass();
+    IsButtonMenuItemOnCmd::initClass();
+    NrButtonMenuItemsCmd::initClass();
+    GetCanvasMenuItemCmd::initClass();
+    IsCanvasMenuItemOnCmd::initClass();
+    NrCanvasMenuItemsCmd::initClass();
+    CurComboItemCmd::initClass();
+    GetComboItemCmd::initClass();
+    IsComboItemOnCmd::initClass();
+    NrComboItemsCmd::initClass();
+    GetInputCmd::initClass();
+
+    IsListButtonOnCmd::initClass();
+    CurListItemCmd::initClass();
+    GetListItemCmd::initClass();
+    IsListItemOnCmd::initClass();
+    NrListItemsCmd::initClass();
+    GetListMenuItemCmd::initClass();
+    IsListMenuItemOnCmd::initClass();
+    NrListMenuItemsCmd::initClass();
+
+    IsMatchCmd::initClass();
+    GetMenuItemCmd::initClass();
+    IsMenuItemOnCmd::initClass();
+    NrMenuItemsCmd::initClass();
+    IsShownCmd::initClass();
+    GetSliderCmd::initClass();
+    GetSpinCmd::initClass();
+    CurTabCmd::initClass();
+    GetTabCmd::initClass();
+    IsTabOnCmd::initClass();
+    NrTabsCmd::initClass();
+
+    CurTableColCmd::initClass();
+    CurTableItemCmd::initClass();
+    CurTableRowCmd::initClass();
+    GetTableColCmd::initClass();
+    GetTableItemCmd::initClass();
+    GetTableRowCmd::initClass();
+    IsTableItemOnCmd::initClass();
+    NrTableColsCmd::initClass();
+    NrTableRowsCmd::initClass();
+    GetTableMenuItemCmd::initClass();
+    IsTableMenuItemOnCmd::initClass();
+    NrTableMenuItemsCmd::initClass();
+
+    CurTreeColCmd::initClass();
+    CurTreeItemCmd::initClass();
+    CurTreePathCmd::initClass();
+    GetTreeColCmd::initClass();
+    GetTreeItemCmd::initClass();
+    GetTreePathCmd::initClass();
+    IsTreeItemOnCmd::initClass();
+    IsTreeItemExpandedCmd::initClass();
+    NrTreeColsCmd::initClass();
+    NrTreeItemsCmd::initClass();
+    IsTreeButtonOnCmd::initClass();
+    GetTreeMenuItemCmd::initClass();
+    IsTreeMenuItemOnCmd::initClass();
+    NrTreeMenuItemsCmd::initClass();
+    IsWindowCmd::initClass();
 }
 
 
 bool Command::isQuestionName( const char* name, CmdDriver& cmddrv )
 {
-    PtrMan<Command> cmd = factory( name, cmddrv );
+    PtrMan<Command> cmd = factory().create( factoryKey(name), cmddrv );
     if ( !cmd )
 	return false;
 

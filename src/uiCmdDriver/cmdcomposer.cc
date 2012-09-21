@@ -25,24 +25,66 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "treecommands.h"
 
 #include "timer.h"
-#include "uibutton.h"
-#include "uicombobox.h"
-#include "uigraphicsviewbase.h"
-#include "uilineedit.h"
-#include "uilistbox.h"
-#include "uimainwin.h"
-#include "uimdiarea.h"
-#include "uimenu.h"
 #include "uimsg.h"
-#include "uislider.h"
-#include "uispinbox.h"
-#include "uitabbar.h"
-#include "uitable.h"
-//#include "uithumbwheel.h"
-#include "uitreeview.h"
+
 
 namespace CmdDrive
 {
+
+mImplFactory1Param( CmdComposer, CmdRecorder&, CmdComposer::factory );
+
+static ObjectSet<const Classifier> classifiers;
+
+
+#define mComposeFactoryKey( fackey, basekey, extrakey ) \
+{ \
+    fackey = basekey; \
+    if ( fackey=="uiMainWin" && extrakey ) \
+    { \
+	fackey += "_"; fackey += extrakey; \
+    } \
+    StringProcessor(fackey).capitalize(); \
+}
+
+const char* CmdComposer::factoryKey( const CallBacker* caller,
+				     const char* extrakey )
+{
+    static BufferString fackey;
+    for ( int idx=0; idx<classifiers.size(); idx++ )
+    {
+	if ( classifiers[idx]->approved(caller) )
+	{
+	    mComposeFactoryKey( fackey, classifiers[idx]->name(), extrakey );
+	    return fackey.buf();
+	}
+    }
+
+    return "";
+}
+
+
+const char* CmdComposer::createFactoryKey( const Classifier* classifier,
+					   const char* keyword )
+{
+    classifiers.insertAt( classifier, 0 );
+    for ( int idx=classifiers.size()-1; idx>0; idx-- )
+    {
+	if ( !strcmp(classifiers[idx]->name(), classifier->name()) )
+	    delete classifiers.remove( idx );
+    }
+
+    static BufferString fackey;
+    mComposeFactoryKey( fackey, classifier->name(), keyword );
+
+    if ( factory().hasName(fackey) )
+    {
+	BufferString errmsg( "Redefining composer \"" );
+	errmsg += keyword; errmsg += "\"";
+	pFreeFnErrMsg( errmsg, "CmdDrive::CmdComposer" );
+    }
+
+    return fackey.buf();
+}
 
 
 CmdComposer::CmdComposer( CmdRecorder& cmdrec )
@@ -66,36 +108,28 @@ CmdComposer::~CmdComposer()
 }
 
 
-#define mGetComposerClass( prefix, objclass, caller, extrakey, cmdrec ) \
-{ \
-    mDynamicCastGet( const objclass*, uiobj, caller ); \
-    if ( uiobj && \
-	 (!extrakey || mMatchCI(extrakey,prefix##CmdComposer::keyWord())) ) \
-	return new prefix##CmdComposer( cmdrec ); \
-}
-
-CmdComposer* CmdComposer::factory( const CallBacker* caller,
-				   const char* extrakey, CmdRecorder& cmdrec )
+void CmdComposer::initStandardComposers()
 {
-    mGetComposerClass( Menu, uiMenuItem,		caller, 0, cmdrec );
-    mGetComposerClass( Button, uiButton,		caller, 0, cmdrec );
-    mGetComposerClass( Input, uiLineEdit,		caller, 0, cmdrec );
-    mGetComposerClass( Spin, uiSpinBox,			caller, 0, cmdrec );
-    mGetComposerClass( Slider, uiSlider,		caller, 0, cmdrec );
-//    mGetComposerClass( Wheel, uiThumbWheel,		caller, 0, cmdrec );
-    mGetComposerClass( Combo, uiComboBox,		caller, 0, cmdrec );
-    mGetComposerClass( List, uiListBox,			caller, 0, cmdrec );
-    mGetComposerClass( Tab, uiTabBar,			caller, 0, cmdrec );
-    mGetComposerClass( Table, uiTable,			caller, 0, cmdrec );
-    mGetComposerClass( Tree, uiTreeView,		caller, 0, cmdrec );
-    mGetComposerClass( CanvasMenu, uiGraphicsViewBase,	caller, 0, cmdrec );
-    mGetComposerClass( MdiArea, uiMdiArea,		caller, 0, cmdrec );
-    mGetComposerClass( Close, uiMainWin,	 caller, extrakey, cmdrec );
-    mGetComposerClass( QMsgBoxBut, uiMainWin,	 caller, extrakey, cmdrec );
-    mGetComposerClass( QColorDlg, uiMainWin,	 caller, extrakey, cmdrec );
-    mGetComposerClass( QFileDlg, uiMainWin,	 caller, extrakey, cmdrec );
+    static bool done = false;
+    if ( done ) return;
+    done = true;
 
-    return 0;
+    MenuCmdComposer::initClass();
+    ButtonCmdComposer::initClass();
+    InputCmdComposer::initClass();
+    SpinCmdComposer::initClass();
+    SliderCmdComposer::initClass();
+    ComboCmdComposer::initClass();
+    ListCmdComposer::initClass();
+    TabCmdComposer::initClass();
+    TableCmdComposer::initClass();
+    TreeCmdComposer::initClass();
+    CanvasMenuCmdComposer::initClass();
+    MdiAreaCmdComposer::initClass();
+    CloseCmdComposer::initClass();
+    QMsgBoxButCmdComposer::initClass();
+    QColorDlgCmdComposer::initClass();
+    QFileDlgCmdComposer::initClass();
 }
 
 

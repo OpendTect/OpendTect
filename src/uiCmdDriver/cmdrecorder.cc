@@ -24,23 +24,12 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "strmprov.h"
 #include "timer.h"
 
-#include "uitoolbutton.h"
-#include "uicombobox.h"
-#include "uigraphicsviewbase.h"
+#include "uigroup.h"
 #include "uilabel.h"
-#include "uilineedit.h"
-#include "uilistbox.h"
-#include "uimainwin.h"
-#include "uimdiarea.h"
 #include "uimenu.h"
-#include "uiobj.h"
-#include "uislider.h"
-#include "uispinbox.h"
-#include "uitabbar.h"
-#include "uitable.h"
 #include "uiseparator.h"
-//#include "uithumbwheel.h"
-#include "uitreeview.h"
+#include "uitoolbutton.h"
+
 
 namespace CmdDrive
 {
@@ -59,7 +48,9 @@ CmdRecorder::CmdRecorder( const uiMainWin& aw )
 	, writetailonly_(false)
 	, bufstream_(*new std::ostringstream())
 	, bufsize_(0)
-{}
+{
+    CmdComposer::initStandardComposers();
+}
 
 
 CmdRecorder::~CmdRecorder()
@@ -199,20 +190,8 @@ void CmdRecorder::dynamicMenuInterceptor( CallBacker* cb )
 }
 
 
-#define mMatchObjClassExtra( srcobj, newobj, objclass, extraclass, yn ) \
-{ \
-    mDynamicCastGet( const objclass*,   srcobj0, &srcobj ); \
-    mDynamicCastGet( const objclass*,   newobj1, &newobj ); \
-    mDynamicCastGet( const extraclass*, newobj2, &newobj ); \
-    if ( srcobj0 && (newobj1 || newobj2) ) \
-	yn = true; \
-}
-
-#define mMatchObjClass( srcobj, newobj, objclass, yn ) \
-    mMatchObjClassExtra( srcobj, newobj, objclass, objclass, yn )
-
 static void takeSimilarObjs( ObjectSet<const uiObject>& objects,
-			     const uiObject& srcobj, bool tofront, bool toback )
+			     const char* srckey, bool tofront, bool toback )
 {
     int nrobjstodo = objects.size();
     int offset = 0;
@@ -220,27 +199,19 @@ static void takeSimilarObjs( ObjectSet<const uiObject>& objects,
 
     while ( nrobjstodo )
     {
-	const uiObject& newobj = *objects[idx];
-	bool yn = false;
+	const uiObject* newobj = objects[idx];
+	const BufferString objkey = CmdComposer::factoryKey( newobj );
+	bool yn = srckey && objkey==srckey;
 
-	mMatchObjClass( srcobj, newobj, uiLabel, yn );
-	mMatchObjClass( srcobj, newobj, uiGroupObj, yn );
-	mMatchObjClass( srcobj, newobj, uiSeparator, yn );
+	if ( !strcmp(srckey, "UILINEEDIT") )
+	    yn = yn || objkey=="UISPINBOX" || objkey=="UICOMBOBOX";
 
-	mMatchObjClass( srcobj, newobj, uiButton, yn );
-	mMatchObjClass( srcobj, newobj, uiSpinBox, yn );
-	mMatchObjClass( srcobj, newobj, uiSlider, yn );
-//	mMatchObjClass( srcobj, newobj, uiThumbWheel, yn );
-	mMatchObjClass( srcobj, newobj, uiMdiArea, yn );
-	mMatchObjClass( srcobj, newobj, uiTabBar, yn );
-	mMatchObjClass( srcobj, newobj, uiComboBox, yn );
-	mMatchObjClass( srcobj, newobj, uiListBox, yn );
-	mMatchObjClass( srcobj, newobj, uiTreeView, yn );
-	mMatchObjClass( srcobj, newobj, uiTable, yn );
-	mMatchObjClass( srcobj, newobj, uiGraphicsViewBase, yn );
-
-	mMatchObjClassExtra( srcobj, newobj, uiLineEdit, uiSpinBox, yn );
-	mMatchObjClassExtra( srcobj, newobj, uiLineEdit, uiComboBox, yn );
+	if ( !strcmp(srckey, "UILABEL") )
+	    yn = yn || dynamic_cast<const uiLabel*>(newobj);
+	if ( !strcmp(srckey, "UIGROUPOBJ") )
+	    yn = yn || dynamic_cast<const uiGroupObj*>(newobj);
+	if ( !strcmp(srckey, "UISEPARATOR") )
+	    yn = yn || dynamic_cast<const uiSeparator*>(newobj);
 
 	if ( tofront!=yn && toback!=yn )
 	    objects.remove( idx );
@@ -276,7 +247,8 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
     bool allobjsrelative = false;
     ObjectFinder csobjfinder( srcwin, true );
     mFindAllNodes( csobjfinder, localenv, objsfound );
-    takeSimilarObjs( objsfound, *event.object_, true, true );
+    const char* srckey = CmdComposer::factoryKey( event.object_ );
+    takeSimilarObjs( objsfound, srckey, true, true );
 
     if ( objsfound.indexOf(event.object_) < 0 )
 	return deepFindKeyStr( srcwin, event, localenv );
@@ -298,14 +270,10 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 		break;
 	}
 
-	static uiLabel lbldummy(0,0);
-	static uiSeparator sepdummy(0);
-	static uiGroup grpdummy(0);
-
-	takeSimilarObjs( relatives, lbldummy, true, false );
-	takeSimilarObjs( relatives, sepdummy, false, true );
-	takeSimilarObjs( relatives, *event.object_, false, true );
-	takeSimilarObjs( relatives, *grpdummy, false, true );
+	takeSimilarObjs( relatives, "UILABEL", true, false );
+	takeSimilarObjs( relatives, "UISEPARATOR", false, true );
+	takeSimilarObjs( relatives, srckey, false, true );
+	takeSimilarObjs( relatives, "UIGROUPOBJ", false, true );
 
 	ObjectSet<const uiObject> minobjset;
 	BufferString minkey;
@@ -686,7 +654,8 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 
     if ( !ev.nraccepts_ && !ev.dynamicpopup_ )
     {
-	CmdComposer* newcomp = CmdComposer::factory( caller, keyword, rec_ );
+	const char* fackey = CmdComposer::factoryKey( caller, keyword );
+	CmdComposer* newcomp = CmdComposer::factory().create( fackey, rec_ );
 
 	if ( newcomp )
 	{

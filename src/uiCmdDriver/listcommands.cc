@@ -12,9 +12,6 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "listcommands.h"
 #include "cmddriverbasics.h"
 #include "cmdrecorder.h"
-
-#include "uicombobox.h"
-#include "uilistbox.h"
 #include "uimenu.h"
 
 

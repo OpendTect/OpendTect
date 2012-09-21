@@ -530,6 +530,20 @@ void StringProcessor::removeExtraSpace()
 }
 
 
+void StringProcessor::capitalize( bool yn )
+{
+    mReturnIfReadOnly();
+
+    char* ptr = bufstr_->buf();
+
+    while ( *ptr )
+    {
+	*ptr = char( yn ? toupper(*ptr) : tolower(*ptr) );
+	ptr++;
+    }
+}
+
+
 void StringProcessor::removeTrailingDots()
 {
     mReturnIfReadOnly();

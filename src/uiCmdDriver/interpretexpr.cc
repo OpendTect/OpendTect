@@ -109,7 +109,8 @@ const char* ExprInterpreter::interpretSingleExpr( const char* parstr,
 	    BufferStringSet args;
 	    BufferString breakprefix1, errmsg1, res;
 
-	    PtrMan<Function> func = Function::factory( name, drv_ );
+	    const char* fackey = Function::factoryKey( name );
+	    PtrMan<Function> func = Function::factory().create( fackey, drv_ );
 	    if ( !func )
 		mErrRet( parnext+1, "~Unknown built-in function" );
 

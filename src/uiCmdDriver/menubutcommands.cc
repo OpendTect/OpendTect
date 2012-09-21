@@ -18,9 +18,6 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "uibuttongroup.h"
 #include "uicolor.h"
 #include "uidialog.h"
-#include "uimdiarea.h"
-#include "uimenu.h"
-#include "uitabbar.h"
 #include "uitoolbutton.h"
 
 

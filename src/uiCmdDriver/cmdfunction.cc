@@ -23,71 +23,92 @@ static const char* rcsID mUnusedVar = "$Id$";
 namespace CmdDrive
 {
 
+mImplFactory1Param( Function, const CmdDriver&, Function::factory );
 
-#define mGetFunClass( key, funclass, cmddrv ) \
-\
-     if ( mMatchCI(key,funclass::keyWord()) ) \
-	return new funclass( cmddrv );
 
-Function* Function::factory( const char* scopedkey, const CmdDriver& cmddrv )
+const char* Function::factoryKey( const char* name )
 {
-    mUnscope( scopedkey, key );
+    static BufferString fackey;
+    fackey = name;
+    StringProcessor(fackey).capitalize();
+    mUnscope( fackey.buf(), unscoped );
+    return unscoped;
+}
 
-    mGetFunClass( key, AbsFunc,		cmddrv );
-    mGetFunClass( key, AsinFunc,	cmddrv );
-    mGetFunClass( key, AcosFunc,	cmddrv );
-    mGetFunClass( key, AtanFunc,	cmddrv );
-    mGetFunClass( key, CeilFunc,	cmddrv );
-    mGetFunClass( key, CosFunc,		cmddrv );
-    mGetFunClass( key, ExpFunc,		cmddrv );
-    mGetFunClass( key, FloorFunc,	cmddrv );
-    mGetFunClass( key, LnFunc,		cmddrv );
-    mGetFunClass( key, LogFunc,		cmddrv );
-    mGetFunClass( key, RoundFunc,	cmddrv );
-    mGetFunClass( key, SgnFunc,		cmddrv );
-    mGetFunClass( key, SinFunc,		cmddrv );
-    mGetFunClass( key, SqrtFunc,	cmddrv );
-    mGetFunClass( key, TanFunc,		cmddrv );
-    mGetFunClass( key, TruncFunc,	cmddrv );
 
-    mGetFunClass( key, RandFunc,	cmddrv );
-    mGetFunClass( key, RandGFunc,	cmddrv );
-    mGetFunClass( key, Atan2Func,	cmddrv );
+const char* Function::createFactoryKey( const char* keyword )
+{
+    const char* fackey = factoryKey( keyword );
 
-    mGetFunClass( key, AvgFunc,		cmddrv );
-    mGetFunClass( key, MaxFunc,		cmddrv );
-    mGetFunClass( key, MedFunc,		cmddrv );
-    mGetFunClass( key, MinFunc,		cmddrv );
-    mGetFunClass( key, SumFunc,		cmddrv );
-    mGetFunClass( key, VarFunc,		cmddrv );
+    if ( factory().hasName(fackey) )
+    {
+	BufferString errmsg( "Redefining function \"" );
+	errmsg += keyword; errmsg += "\"";
+	pFreeFnErrMsg( errmsg, "CmdDrive::Function" );
+    }
 
-    mGetFunClass( key, IsAlNumFunc,	cmddrv );
-    mGetFunClass( key, IsAlphaFunc,	cmddrv );
-    mGetFunClass( key, IsDigitFunc,	cmddrv );
-    mGetFunClass( key, IsLowerFunc,	cmddrv );
-    mGetFunClass( key, IsSpaceFunc,	cmddrv );
-    mGetFunClass( key, IsUpperFunc,	cmddrv );
+    return fackey;
+}
 
-    mGetFunClass( key, ToLowerFunc,	cmddrv );
-    mGetFunClass( key, ToUpperFunc,	cmddrv );
+void Function::initStandardFunctions()
+{
+    static bool done = false;
+    if ( done ) return;
+    done = true;
 
-    mGetFunClass( key, IsNumberFunc,	cmddrv );
-    mGetFunClass( key, IsIntegerFunc,	cmddrv );
+    AbsFunc::initClass();
+    AsinFunc::initClass();
+    AcosFunc::initClass();
+    AtanFunc::initClass();
+    CeilFunc::initClass();
+    CosFunc::initClass();
+    ExpFunc::initClass();
+    FloorFunc::initClass();
+    LnFunc::initClass();
+    LogFunc::initClass();
+    RoundFunc::initClass();
+    SgnFunc::initClass();
+    SinFunc::initClass();
+    SqrtFunc::initClass();
+    TanFunc::initClass();
+    TruncFunc::initClass();
 
-    mGetFunClass( key, StrCatFunc,	cmddrv );
-    mGetFunClass( key, StrLenFunc,	cmddrv );
-    mGetFunClass( key, StrSelFunc,	cmddrv );
+    RandFunc::initClass();
+    RandGFunc::initClass();
+    Atan2Func::initClass();
 
-    mGetFunClass( key, SepStrCatFunc,	cmddrv );
-    mGetFunClass( key, SepStrLenFunc,	cmddrv );
-    mGetFunClass( key, SepStrSelFunc,	cmddrv );
+    AvgFunc::initClass();
+    MaxFunc::initClass();
+    MedFunc::initClass();
+    MinFunc::initClass();
+    SumFunc::initClass();
+    VarFunc::initClass();
 
-    mGetFunClass( key, WildcardFunc,	cmddrv );
-    mGetFunClass( key, WildcardStrFunc,	cmddrv );
+    IsAlNumFunc::initClass();
+    IsAlphaFunc::initClass();
+    IsDigitFunc::initClass();
+    IsLowerFunc::initClass();
+    IsSpaceFunc::initClass();
+    IsUpperFunc::initClass();
 
-    mGetFunClass( key, CurWindowFunc,	cmddrv );
+    ToLowerFunc::initClass();
+    ToUpperFunc::initClass();
 
-    return 0;
+    IsNumberFunc::initClass();
+    IsIntegerFunc::initClass();
+
+    StrCatFunc::initClass();
+    StrLenFunc::initClass();
+    StrSelFunc::initClass();
+
+    SepStrCatFunc::initClass();
+    SepStrLenFunc::initClass();
+    SepStrSelFunc::initClass();
+
+    WildcardFunc::initClass();
+    WildcardStrFunc::initClass();
+
+    CurWindowFunc::initClass();
 }
 
 
