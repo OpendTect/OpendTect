@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uisurfaceposprov.cc,v 1.17 2012-05-22 14:48:37 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"

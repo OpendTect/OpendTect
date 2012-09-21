@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          July 2011
- RCS:           $Id: uidpsselectednessdlg.cc,v 1.4 2012-05-30 11:36:15 cvsbert Exp $: 
+ RCS:           $Id$: 
 ________________________________________________________________________
 
 -*/

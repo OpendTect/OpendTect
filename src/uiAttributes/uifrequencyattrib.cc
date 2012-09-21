@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uifrequencyattrib.cc,v 1.28 2012-08-10 04:11:26 cvssalil Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "uifrequencyattrib.h"

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiemhorizonpreloaddlg.cc,v 1.11 2012-07-24 12:42:54 cvsjaap Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uiempreloaddlg.h"
 

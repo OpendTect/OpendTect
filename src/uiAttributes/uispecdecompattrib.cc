@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uispecdecompattrib.cc,v 1.41 2012-09-13 18:36:28 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"

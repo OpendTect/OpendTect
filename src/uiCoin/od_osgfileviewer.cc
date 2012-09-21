@@ -3,7 +3,7 @@
  * AUTHOR   : Jaap Glas
  * DATE     : Sep 2012
 -*/
-static const char* __rcsID mUnusedVar = "$Id: od_osgfileviewer.cc,v 1.1 2012-09-13 12:30:29 cvskris Exp $";
+static const char* __rcsID mUnusedVar = "$Id$";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 

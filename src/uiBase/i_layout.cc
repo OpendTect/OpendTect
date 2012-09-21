@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: i_layout.cc,v 1.88 2012-08-23 09:47:52 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "i_layout.h"
 #include "i_layoutitem.h"

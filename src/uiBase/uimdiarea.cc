@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimdiarea.cc,v 1.13 2012-08-30 07:52:51 cvsnageswara Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uimdiarea.h"
 #include "i_qmdiarea.h"

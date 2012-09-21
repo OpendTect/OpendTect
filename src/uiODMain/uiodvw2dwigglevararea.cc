@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2010
- RCS:		$Id: uiodvw2dwigglevararea.cc,v 1.13 2012-09-07 22:08:05 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

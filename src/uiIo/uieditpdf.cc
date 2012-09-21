@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uieditpdf.cc,v 1.27 2012-08-01 14:44:26 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uieditpdf.h"
 

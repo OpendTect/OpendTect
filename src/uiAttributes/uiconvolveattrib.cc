@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiconvolveattrib.cc,v 1.25 2012-05-02 15:11:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uiconvolveattrib.h"
 #include "convolveattrib.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimultisurfaceread.cc,v 1.32 2012-07-03 13:14:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uimultisurfaceread.h"
 
