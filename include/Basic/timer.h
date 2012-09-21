@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "namedobj.h"
 
-class QTimer;
-class QTimerComm;
+mFDQtclass(QTimer)
+mFDQtclass(QTimerComm)
 
 mClass(Basic) Timer : public NamedObject
 {
@@ -38,8 +38,8 @@ public :
     void		setScriptPolicy(ScriptPolicy);
 
 protected:
-    QTimer*		timer_;
-    QTimerComm*		comm_;
+    mQtclass(QTimer*)		timer_;
+    mQtclass(QTimerComm*)		comm_;
     ScriptPolicy	scriptpolicy_;		
 
 public:	

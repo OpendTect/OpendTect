@@ -25,7 +25,7 @@ QT_BEGIN_NAMESPACE
 class QTimerComm : public QObject 
 {
     Q_OBJECT
-    friend class	Timer;
+    friend class	::Timer;
 
 protected:
 
