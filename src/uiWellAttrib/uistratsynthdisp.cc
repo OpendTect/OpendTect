@@ -910,7 +910,7 @@ void uiSynthGenDlg::getFromScreen()
     }
 
     sd_.raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), 
-    nmobox_->isChecked() || isps );
+			    nmobox_->isChecked() || !isps );
 
     sd_.isps_ = isps; 
     sd_.name_ = namefld_->text();
