@@ -16,10 +16,12 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "uieditpdf.h"
 #include "uiioobjsel.h"
 #include "uiioobjmanip.h"
+#include "uigeninput.h"
+#include "uispinbox.h"
 #include "uimsg.h"
 
 #include "bufstring.h"
-#include "probdenfunc.h"
+#include "sampledprobdenfunc.h"
 #include "probdenfunctr.h"
 
 static const int cPrefWidth = 75;
@@ -38,6 +40,9 @@ uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
     manipgrp->addButton( "browseprdf",
 	    		 "Browse/edit this Probability Density Function",
 			 mCB(this,uiProbDenFuncMan,browsePush) );
+    manipgrp->addButton( "genprdf",
+	    		 "Generate Probability Density Function",
+			 mCB(this,uiProbDenFuncMan,genPush) );
 
     selgrp_->setPrefWidthInChar( cPrefWidth );
     infofld_->setPrefWidthInChar( cPrefWidth );
@@ -83,6 +88,101 @@ void uiProbDenFuncMan::browsePush( CallBacker* )
 	else
 	    selgrp_->fullUpdate( saveioobj->key() );
     }
+}
+
+
+class uiProbDenFuncGen : public uiDialog
+{
+public:
+
+uiProbDenFuncGen( uiParent* p )
+    : uiDialog(p,Setup("Generate PDF",mNoDlgTitle,mTODOHelpID))
+{
+    const CallBack chgcb( mCB(this,uiProbDenFuncGen,chgCB) );
+
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Number of dimensions");
+    nrdimsfld_ = lsb->box();
+    nrdimsfld_->setInterval( 1, 3, 1 );
+    nrdimsfld_->setValue( 2 );
+    nrdimsfld_->valueChanging.notify( chgcb );
+
+    gengaussfld_ = new uiGenInput( this, "Distribution type",
+	    			   BoolInpSpec(true,"Gaussian","Uniform") );
+    gengaussfld_->attach( alignedBelow, lsb );
+    gengaussfld_->valuechanged.notify( chgcb );
+
+    uiGenInput* alfld = gengaussfld_;
+    for ( int idx=0; idx<3; idx++ )
+    {
+	uiGenInput* nmfld = new uiGenInput( this,
+			BufferString("Dimension ",idx+1,": Name") );
+	uiGenInput* rgfld = new uiGenInput( this, "Range",
+				FloatInpSpec(), FloatInpSpec() );
+	uiGenInput* expstdfld = new uiGenInput( this, "Exp/StdDev",
+				FloatInpSpec(), FloatInpSpec() );
+	nmflds_ += nmfld; rgflds_ += rgfld; expstdflds_ += expstdfld;
+	nmfld->attach( alignedBelow, alfld );
+	rgfld->attach( rightOf, nmfld );
+	expstdfld->attach( rightOf, rgfld );
+	alfld = nmfld;
+    }
+
+    lsb = new uiLabeledSpinBox( this, "Size of the dimensions" );
+    nrnodesfld_ = lsb->box();
+    nrnodesfld_->setInterval( 3, 10000, 1 );
+    nrnodesfld_->setValue( 25 );
+    lsb->attach( alignedBelow, alfld );
+
+    IOObjContext ctxt( ProbDenFuncTranslatorGroup::ioContext() );
+    ctxt.forread = false;
+    outfld_ = new uiIOObjSel( this, ctxt,"Output Probability Density Function");
+    outfld_->attach( alignedBelow, lsb );
+
+    postFinalise().notify( chgcb );
+}
+
+void chgCB( CallBacker* )
+{
+    const int nrdims = nrdimsfld_->getValue();
+    const bool isgauss = gengaussfld_->getBoolValue();
+    for ( int idx=0; idx<nmflds_.size(); idx++ )
+    {
+	const bool havedim = idx < nrdims;
+	nmflds_[idx]->display( havedim );
+	rgflds_[idx]->display( havedim );
+	expstdflds_[idx]->display( havedim && isgauss );
+    }
+}
+
+
+MultiID newObjKey() const
+{
+    const IOObj* ioobj = outfld_->ioobj();
+    return ioobj ? ioobj->key() : MultiID();
+}
+
+bool acceptOK( CallBacker* )
+{
+    uiMSG().error( "TODO: implement" );
+    return false;
+}
+
+    uiSpinBox*			nrdimsfld_;
+    uiSpinBox*			nrnodesfld_;
+    uiGenInput*			gengaussfld_;
+    ObjectSet<uiGenInput>	nmflds_;
+    ObjectSet<uiGenInput>	rgflds_;
+    ObjectSet<uiGenInput>	expstdflds_;
+    uiIOObjSel*			outfld_;			
+
+};
+
+
+void uiProbDenFuncMan::genPush( CallBacker* )
+{
+    uiProbDenFuncGen dlg( this );
+    if ( dlg.go() )
+	selgrp_->fullUpdate( dlg.newObjKey() );
 }
 
 

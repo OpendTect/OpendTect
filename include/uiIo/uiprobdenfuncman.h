@@ -28,6 +28,7 @@ public:
 protected:
 
     void			browsePush(CallBacker*);
+    void			genPush(CallBacker*);
 
     void			mkFileInfo();
 
