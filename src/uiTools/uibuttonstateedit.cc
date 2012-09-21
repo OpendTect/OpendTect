@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uibuttonstateedit.cc,v 1.8 2012-05-22 14:48:41 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uibuttonstateedit.h"
 #include "uigeninput.h"

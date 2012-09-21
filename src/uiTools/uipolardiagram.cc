@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uipolardiagram.cc,v 1.10 2012-08-10 03:50:07 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uipolardiagram.h"
 #include "uigraphicsscene.h"

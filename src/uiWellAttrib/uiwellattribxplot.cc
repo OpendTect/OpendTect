@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiwellattribxplot.cc,v 1.55 2012-07-23 09:32:25 cvssatyaki Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uiwellattribxplot.h"
 

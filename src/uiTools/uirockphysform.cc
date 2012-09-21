@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uirockphysform.cc,v 1.22 2012-07-03 12:47:46 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"

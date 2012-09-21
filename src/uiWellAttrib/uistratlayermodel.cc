@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayermodel.cc,v 1.74 2012-09-14 14:05:11 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uistratlayermodel.h"
 

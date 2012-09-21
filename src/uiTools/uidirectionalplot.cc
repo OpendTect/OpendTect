@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uidirectionalplot.cc,v 1.42 2012-08-10 03:50:07 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"

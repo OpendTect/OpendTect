@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uicolortable.cc,v 1.51 2012-05-22 15:21:53 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uicolortable.h"
 

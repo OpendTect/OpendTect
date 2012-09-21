@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseis2dfileman.cc,v 1.31 2012-07-24 07:41:20 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "uiseis2dfileman.h"

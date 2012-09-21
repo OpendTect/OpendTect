@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: welltied2tmodelmanager.cc,v 1.41 2012-06-13 08:25:59 cvsbruno Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "welltied2tmodelmanager.h"
 

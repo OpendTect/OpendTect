@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: visannot.cc,v 1.45 2012-09-17 16:34:32 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "visannot.h"
 #include "vistext.h"

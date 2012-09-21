@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uifunctiondisplay.cc,v 1.70 2012-09-06 17:39:36 cvsnanne Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"

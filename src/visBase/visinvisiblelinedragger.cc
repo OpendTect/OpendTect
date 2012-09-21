@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: visinvisiblelinedragger.cc,v 1.7 2012-08-10 03:50:09 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "visinvisiblelinedragger.h"
 

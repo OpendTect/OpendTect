@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uiseispreloadmgr.cc,v 1.34 2012-07-24 09:03:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"

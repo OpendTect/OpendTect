@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_ProgressViewer.cc,v 1.33 2012-07-17 12:55:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"

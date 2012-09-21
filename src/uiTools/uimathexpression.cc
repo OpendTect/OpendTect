@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uimathexpression.cc,v 1.6 2012-05-02 15:12:22 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uimathexpression.h"
 #include "mathexpression.h"

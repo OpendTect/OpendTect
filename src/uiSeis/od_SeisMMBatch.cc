@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: od_SeisMMBatch.cc,v 1.28 2012-05-22 14:48:39 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uiseismmproc.h"
 #include "uimain.h"

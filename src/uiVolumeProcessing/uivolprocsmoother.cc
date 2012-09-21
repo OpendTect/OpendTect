@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uivolprocsmoother.cc,v 1.20 2012-07-10 08:05:38 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uivolprocsmoother.h"
 

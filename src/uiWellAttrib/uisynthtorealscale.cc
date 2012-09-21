@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: uisynthtorealscale.cc,v 1.19 2012-08-10 03:50:07 cvsaneesh Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uisynthtorealscale.h"
 

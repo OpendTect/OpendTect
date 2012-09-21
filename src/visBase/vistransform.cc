@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: vistransform.cc,v 1.33 2012-07-24 02:13:57 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "vistransform.h"
 #include "iopar.h"

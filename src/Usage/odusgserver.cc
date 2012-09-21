@@ -4,8 +4,8 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: odusgserver.cc,v 1.15 2012-05-02 15:11:52 cvskris Exp $";
-static const char* rcsPrStr = "$Revision: 1.15 $ $Date: 2012-05-02 15:11:52 $";
+static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsPrStr = "$Revision$ $Date$";
 
 #include "odusgserver.h"
 #include "odusgbaseadmin.h"

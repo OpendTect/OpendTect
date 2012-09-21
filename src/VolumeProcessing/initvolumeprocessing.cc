@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: initvolumeprocessing.cc,v 1.15 2012-08-20 21:04:23 cvsyuancheng Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 
 #include "moddepmgr.h"

@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: inituivelocity.cc,v 1.8 2012-05-02 15:12:25 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "moddepmgr.h"
 #include "uivelocityfunctionvolume.h"

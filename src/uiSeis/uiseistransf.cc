@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiseistransf.cc,v 1.53 2012-07-24 09:03:15 cvskris Exp $";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uiseistransf.h"
 #include "uiseissubsel.h"
