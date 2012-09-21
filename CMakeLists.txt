@@ -2,7 +2,7 @@
 #
 #       CopyRight:      dGB Beheer B.V.
 #       Jan 2012        K. Tingdahl
-#       RCS :           $Id: RootMakefile,v 1.4 2010-09-28 07:21:07 cvsbert
+#       SVN:		$Id$
 #_______________________________________________________________________________
 
 cmake_minimum_required (VERSION 2.6)
