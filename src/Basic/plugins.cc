@@ -225,11 +225,8 @@ void PluginManager::getDefDirs()
     if ( !fromenv )
 	fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
-#ifdef __debug__
-    fp.add( "Debug" );
-#else
-    fp.add( "Release" );
-#endif
+    fp.add( GetBinSubDir() )
+
     applibdir_ = fp.fullPath();
 
     fromenv = false;
@@ -244,11 +241,7 @@ void PluginManager::getDefDirs()
     if ( !fromenv )
 	fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
-#ifdef __debug__
-    fp.add( "Debug" );
-#else
-    fp.add( "Release" );
-#endif
+    fp.add( GetBinSubDir() )
     userlibdir_ = fp.fullPath();
 
     if( DBG::isOn(DBG_PROGSTART) )
