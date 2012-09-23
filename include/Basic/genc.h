@@ -66,7 +66,10 @@ mGlobal(Basic) int InSysAdmMode(void);
     
     
 mGlobal(Basic) int GetSubversionRevision(void);
+		/*!< Returns Subversion revision number */
+
 mGlobal(Basic) const char* GetSubversionUrl(void);
+		/*!< Returns Subversion url */
 
 
 #ifdef __cpp__
