@@ -14,36 +14,36 @@
 #					  on.
 # OD_${OD_MODULE_NAME}_INCLUDEPATH	: The include directories for each module
 
-MACRO( OD_WRITE_MODDEPS BASEDIR )
+macro( OD_WRITE_MODDEPS BASEDIR )
 
-SET( OD_MODDEPS_FILE ${BASEDIR}/ModDeps.${OD_SUBSYSTEM} )
-INSTALL( FILES ${OD_MODDEPS_FILE} DESTINATION data )
+set( OD_MODDEPS_FILE ${BASEDIR}/ModDeps.${OD_SUBSYSTEM} )
+install( FILES ${OD_MODDEPS_FILE} DESTINATION data )
 
-LIST( APPEND OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM} "AllNonUi" )
-SET( OD_AllNonUi_DEPS MPEEngine WellAttrib VolumeProcessing )
+list( APPEND OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM} "AllNonUi" )
+set( OD_AllNonUi_DEPS MPEEngine WellAttrib VolumeProcessing )
 
 
-FILE(WRITE ${OD_MODDEPS_FILE} "")
-FOREACH ( MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
+file( WRITE ${OD_MODDEPS_FILE} "")
+foreach ( MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
     #Start write ModDeps-line
-    FILE(APPEND ${OD_MODDEPS_FILE}
+    file( APPEND ${OD_MODDEPS_FILE}
 	"${MODULE}:\t\tS.${MODULE}")
 
     #Add all module dependencies
-    IF( OD_${MODULE}_DEPS )
-	FOREACH( DEP ${OD_${MODULE}_DEPS} )
-	    FILE(APPEND ${OD_MODDEPS_FILE}
+    if( OD_${MODULE}_DEPS )
+	foreach( DEP ${OD_${MODULE}_DEPS} )
+	    file( APPEND ${OD_MODDEPS_FILE}
 	     " D.${DEP}")
-	ENDFOREACH()
-    ENDIF()
+	endforeach()
+    endif()
 
     #End ModDeps-line
-    FILE(APPEND ${OD_MODDEPS_FILE} "\n")
-ENDFOREACH()
+    file( APPEND ${OD_MODDEPS_FILE} "\n")
+endforeach()
 
 
 
-ENDMACRO()
+endmacro()
 
 # OD_WRITE_FINDFILE - Marcro that writes all modules and their dependencies to
 #		      a file that can be read by pluginmakers
@@ -54,35 +54,36 @@ ENDMACRO()
 #					  on.
 # OD_${OD_MODULE_NAME}_INCLUDEPATH	: The include directories for each module
 
-MACRO( OD_WRITE_FINDFILE )
+macro( OD_WRITE_FINDFILE )
 
-SET( OD_FIND_OD_FILE ${CMAKE_SOURCE_DIR}/CMakeModules/FindOpendTect.cmake )
+set( OD_FIND_OD_FILE ${CMAKE_SOURCE_DIR}/CMakeModules/FindOpendTect.cmake )
 
-INSTALL( FILES ${OD_FIND_OD_FILE} DESTINATION data )
-FILE(WRITE ${OD_FIND_OD_FILE} "INCLUDE ( \${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake )\n")
-FILE(APPEND ${OD_FIND_OD_FILE} "LINK_DIRECTORIES ( \${OpendTect_DIR}/\${OD_EXEC_OUTPUT_RELPATH} )\n")
-FILE(APPEND ${OD_FIND_OD_FILE} "SET ( OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM} ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )\n" )
+install( FILES ${OD_FIND_OD_FILE} DESTINATION data )
+file( WRITE ${OD_FIND_OD_FILE} "INCLUDE ( \${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake )\n")
+file( APPEND ${OD_FIND_OD_FILE} "LINK_DIRECTORIES ( \${OpendTect_DIR}/\${OD_EXEC_OUTPUT_RELPATH} )\n")
+file( APPEND ${OD_FIND_OD_FILE} "set ( OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM} ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )\n" )
+file( APPEND ${OD_FIND_OD_FILE} "set ( OD_BINARY_BASEDIR \"${OD_BINARY_BASEDIR}\" )\n" )
 
-FOREACH ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
-    IF ( OD_${MODULE}_DEPS )
-	FILE(APPEND ${OD_FIND_OD_FILE}
-	    "SET( OD_${MODULE}_DEPS ${OD_${MODULE}_DEPS} )\n" )
-    ENDIF()
+foreach ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
+    if ( OD_${MODULE}_DEPS )
+	file( APPEND ${OD_FIND_OD_FILE}
+	    "set( OD_${MODULE}_DEPS ${OD_${MODULE}_DEPS} )\n" )
+    endif()
 
-    IF ( OD_${MODULE}_INCLUDEPATH )
-	STRING( REPLACE ${CMAKE_SOURCE_DIR} "" INCLUDEPATH
+    if ( OD_${MODULE}_INCLUDEPATH )
+	string( REPLACE ${CMAKE_SOURCE_DIR} "" INCLUDEPATH
 			${OD_${MODULE}_INCLUDEPATH} )
-	FILE(APPEND ${OD_FIND_OD_FILE}
-	   "SET( OD_${MODULE}_INCLUDEPATH \${OpendTect_DIR}${INCLUDEPATH} )\n" )
-    ENDIF()
-    #IF ( OD_${MODULE}_RUNTIMEPATH )
-	#STRING( REPLACE ${CMAKE_SOURCE_DIR} "" RUNTIMEPATH
+	file( APPEND ${OD_FIND_OD_FILE}
+	   "set( OD_${MODULE}_INCLUDEPATH \${OpendTect_DIR}${INCLUDEPATH} )\n" )
+    endif()
+    #if ( OD_${MODULE}_RUNTIMEPATH )
+	#string( REPLACE ${CMAKE_SOURCE_DIR} "" RUNTIMEPATH
 			#${OD_${MODULE}_RUNTIMEPATH} )
-	#FILE(APPEND ${OD_FIND_OD_FILE}
-       #"SET( OD_${MODULE}_RUNTIMEPATH \${}${RUNTIMEPATH} )\n" )
-    #ENDIF()
-ENDFOREACH()
-ENDMACRO()
+	#file( APPEND ${OD_FIND_OD_FILE}
+       #"set( OD_${MODULE}_RUNTIMEPATH \${}${RUNTIMEPATH} )\n" )
+    #endif()
+endforeach()
+endmacro()
 
 
 # OD_WRITE_TEST_PROJECT_DESC - Marcro that writes an xml-file for cdash submition
@@ -93,33 +94,33 @@ ENDMACRO()
 #					  on.
 # OD_${OD_MODULE_NAME}_INCLUDEPATH	: The include directories for each module
 
-MACRO( OD_WRITE_TEST_PROJECT_DESC BASEDIR )
+macro( OD_WRITE_TEST_PROJECT_DESC BASEDIR )
 
-SET( OD_PROJECT_FILE ${BASEDIR}/Project.xml )
-SET( OD_SUBPROJECT_LISTFILE ${BASEDIR}/subprojects.cmake )
+set( OD_PROJECT_FILE ${BASEDIR}/Project.xml )
+set( OD_SUBPROJECT_LISTFILE ${BASEDIR}/subprojects.cmake )
 
-FILE(WRITE ${OD_PROJECT_FILE} "<Project name=\"OpendTect\">\n")
-FILE(WRITE ${OD_SUBPROJECT_LISTFILE} "set ( CTEST_PROJECT_SUBPROJECTS\n")
-FOREACH ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
-    IF ( NOT ${MODULE} MATCHES "AllNonUi" )
-	FILE(APPEND ${OD_PROJECT_FILE}
+file( WRITE ${OD_PROJECT_FILE} "<Project name=\"OpendTect\">\n")
+file( WRITE ${OD_SUBPROJECT_LISTFILE} "set ( CTEST_PROJECT_SUBPROJECTS\n")
+foreach ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
+    if ( NOT ${MODULE} MATCHES "AllNonUi" )
+	file( APPEND ${OD_PROJECT_FILE}
 	    "    <SubProject name=\"${MODULE}\">\n")
 
-	FILE(APPEND ${OD_SUBPROJECT_LISTFILE}
+	file( APPEND ${OD_SUBPROJECT_LISTFILE}
 	    "    \"${MODULE}\"\n")
 
 	#Add all module dependencies
-	IF( OD_${MODULE}_DEPS )
-	    FOREACH( DEP ${OD_${MODULE}_DEPS} )
-		FILE(APPEND ${OD_PROJECT_FILE}
+	if( OD_${MODULE}_DEPS )
+	    foreach( DEP ${OD_${MODULE}_DEPS} )
+		file( APPEND ${OD_PROJECT_FILE}
 		 "\t<Dependency name=\"${DEP}\">\n")
-	    ENDFOREACH()
-	ENDIF()
+	    endforeach()
+	endif()
 
-	FILE(APPEND ${OD_PROJECT_FILE} "    </SubProject>\n")
-    ENDIF()
-ENDFOREACH()
-FILE(APPEND ${OD_PROJECT_FILE} "</Project>\n")
-FILE(APPEND ${OD_SUBPROJECT_LISTFILE} ")\n" )
+	file( APPEND ${OD_PROJECT_FILE} "    </SubProject>\n")
+    endif()
+endforeach()
+file( APPEND ${OD_PROJECT_FILE} "</Project>\n")
+file( APPEND ${OD_SUBPROJECT_LISTFILE} ")\n" )
 
-ENDMACRO()
+endmacro()
