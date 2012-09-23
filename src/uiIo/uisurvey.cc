@@ -428,7 +428,7 @@ void uiSurvey::rmButPushed( CallBacker* )
 					    .add(selnm).fullPath();
     const BufferString truedirnm = getTrueDir( seldirnm );
 
-    BufferString msg( "This will remove the entire survey:\n\t" );
+    BufferString msg( "This will remove the entire survey directory:\n\t" );
     msg += selnm;
     msg += "\nFull path: "; msg += truedirnm;
     if ( !uiMSG().askRemove( msg ) ) return;
