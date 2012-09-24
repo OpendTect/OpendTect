@@ -22,6 +22,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 #include <QCalendarWidget>
 
+mUseQtnamespace
 
 class uiCalendarBody : public uiObjBodyImpl<uiCalendar,QCalendarWidget>
 {

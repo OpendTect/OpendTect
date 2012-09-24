@@ -15,12 +15,13 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include <QButtonGroup>
 #include <QAbstractButton>
 
+mUseQtnamespace
 
 uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm, bool vertical )
     : uiGroup( p ,nm )
     , vertical_(vertical)
 {
-    qbuttongrp_ = new mQtclass(QButtonGroup)();
+    qbuttongrp_ = new QButtonGroup();
 }
 
 
@@ -60,7 +61,7 @@ int uiButtonGroup::nrButtons() const
 
 void uiButtonGroup::setSensitive( int id, bool yn )
 {
-    mQtclass(QAbstractButton*) but = qbuttongrp_->button( id );
+    QAbstractButton* but = qbuttongrp_->button( id );
     if ( but ) but->setEnabled( yn );
 }
 

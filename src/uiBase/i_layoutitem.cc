@@ -28,9 +28,11 @@ static bool lyoutdbg = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
 # define MAX_ITER	10000
 #endif
 
+mUseQtnamespace
+
 //------------------------------------------------------------------------------
 
-i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, mQtclass(QLayoutItem&) itm ) 
+i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm ) 
     : mngr_( m ), qlayoutitm( &itm ) 
     , preferred_pos_inited( false ), minimum_pos_inited( false )
     , prefSzDone( false ), hsameas( false ), vsameas( false )
@@ -93,8 +95,8 @@ void i_LayoutItem::commitGeometrySet( bool store2prefpos )
     }
 #endif
 
-    qlayoutitm->setGeometry ( mQtclass(QRect) ( mPos.left(), mPos.top(), 
-                                        mPos.hNrPics(), mPos.vNrPics() )); 
+    qlayoutitm->setGeometry ( QRect ( mPos.left(), mPos.top(), 
+                                      mPos.hNrPics(), mPos.vNrPics() )); 
 }
 
 

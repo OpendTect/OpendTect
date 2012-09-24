@@ -15,9 +15,11 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "menuhandler.h"
 #include "pixmap.h"
 
+mUseQtnamespace
+
 #define mInit toggled(this), triggered(this), msgr_(0)
 
-uiAction::uiAction( mQtclass(QAction*) qact )
+uiAction::uiAction( QAction* qact )
     : mInit
     , qaction_(qact)
 {
@@ -69,12 +71,12 @@ uiAction::~uiAction()
 
 void uiAction::init( const char* txt )
 {
-    qaction_ = new mQtclass(QAction)( mQtclass(QString)(txt), 0 );
+    qaction_ = new QAction( QString(txt), 0 );
 }
 
 
 void uiAction::setText( const char* txt )
-{ qaction_->setText( mQtclass(QString)(txt) ); }
+{ qaction_->setText( QString(txt) ); }
 
 const char* uiAction::text() const
 {
@@ -89,7 +91,7 @@ void uiAction::setIconText( const char* txt )
 
 const char* uiAction::iconText() const
 {
-    mQtclass(QString) qstr = qaction_->iconText();
+    QString qstr = qaction_->iconText();
     return qstr.toAscii().data();
 }
 

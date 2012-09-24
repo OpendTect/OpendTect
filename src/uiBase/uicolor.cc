@@ -26,6 +26,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include <QLabel>
 #include <QApplication>
 
+mUseQtnamespace
 
 #define mGlobalQColorDlgCmdRecId 1
 
@@ -62,23 +63,20 @@ static void endCmdRecEvent( int refnr, bool ok, const Color& col,
 
 bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 {
-    mQtclass(QWidget*) qparent = parnt ? parnt->pbody()->qwidget() : 0;
+    QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
     if ( !nm || !*nm ) nm = "Select color";
 
     const char* wintitle = uiMainWin::uniqueWinTitle( nm );
     const int refnr = beginCmdRecEvent( wintitle );
 
-    mQtclass(QColorDialog) qdlg( mQtclass(QColor)(col.r(),col.g(),
-					  	  col.b(),col.t()),
-	    			 qparent );
+    QColorDialog qdlg( QColor(col.r(),col.g(), col.b(),col.t()), qparent );
     qdlg.setWindowTitle( QString(wintitle) );
     if ( withtransp )
     {
-	qdlg.setOption( mQtclass(QColorDialog)::ShowAlphaChannel );
-	mQtclass(QList)<mQtclass(QLabel*)> lbllst =
-	    			       qdlg.findChildren<mQtclass(QLabel*)>("");
+	qdlg.setOption( QColorDialog::ShowAlphaChannel );
+	QList<QLabel*> lbllst = qdlg.findChildren<QLabel*>("");
 	bool found = false;
-	foreach(mQtclass(QLabel*) qlbl,lbllst)
+	foreach(QLabel* qlbl,lbllst)
 	{
 	    if ( qlbl->text() == "A&lpha channel:" )
 		{ qlbl->setText( "&Transparency:" ); found = true; break; }
@@ -88,11 +86,11 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 			    "selectColor" );
     }
 
-    const bool ok = qdlg.exec() == mQtclass(QDialog)::Accepted;
+    const bool ok = qdlg.exec() == QDialog::Accepted;
 
     if ( ok )
     {
-	mQtclass(QColor) newcol = qdlg.selectedColor();
+	QColor newcol = qdlg.selectedColor();
 	col.set( newcol.red(), newcol.green(), newcol.blue(),
 		 withtransp ? newcol.alpha() : col.t() );
     }
@@ -104,10 +102,10 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 
 void setExternalColor( const Color& col )
 {
-     mQtclass(QWidget*) amw = qApp->activeModalWidget();
-     mQtclass(QColorDialog*) qcd = dynamic_cast<mQtclass(QColorDialog*)>( amw );
+     QWidget* amw = qApp->activeModalWidget();
+     QColorDialog* qcd = dynamic_cast<QColorDialog*>( amw );
      if ( qcd )
-	 qcd->setCurrentColor( mQtclass(QColor)(col.r(),col.g(),col.b(),
+	 qcd->setCurrentColor( QColor(col.r(),col.g(),col.b(),
 		     				col.t()) );
 }
 

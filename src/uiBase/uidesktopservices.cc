@@ -18,6 +18,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include <QDesktopServices>
 #include <QUrl>
 
+mUseQtnamespace
 
 bool uiDesktopServices::openUrl( const char* url )
 {
