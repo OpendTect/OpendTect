@@ -97,7 +97,6 @@ Strat::LayerSequence::LayerSequence( const PropertyRefSelection* prs )
 Strat::LayerSequence::~LayerSequence()
 {
     deepErase( layers_ );
-    deepErase( layerspostfr_ );
 }
 
 
@@ -107,7 +106,6 @@ Strat::LayerSequence& Strat::LayerSequence::operator =(
     if ( this != &oth )
     {
 	deepCopy( layers_, oth.layers_ );
-	deepCopy( layerspostfr_, oth.layerspostfr_ );
 	z0_ = oth.z0_;
 	props_ = oth.props_;
     }
@@ -187,8 +185,7 @@ float Strat::LayerSequence::depthOf( const Strat::Level& lvl ) const
 
 
 void Strat::LayerSequence::getLayersFor( const UnitRef* ur,
-					 ObjectSet<const Layer>& lys,
-       					 bool ispostfr ) const
+					 ObjectSet<const Layer>& lys ) const
 {
     const int sz = size();
     if ( sz < 1 ) return;
@@ -196,7 +193,7 @@ void Strat::LayerSequence::getLayersFor( const UnitRef* ur,
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	const Layer* ly = ispostfr ? layerspostfr_[idx] : layers_[idx];
+	const Layer* ly = layers_[idx];
 	if ( ur == &ly->unitRef() || ur->isParentOf(ly->unitRef()) )
 	    lys += ly;
     }
@@ -212,12 +209,6 @@ void Strat::LayerSequence::prepareUse() const
 	ly.setZTop( z );
 	z += ly.thickness();
     }
-}
-
-
-void Strat::LayerSequence::prepareFluidRepl()
-{
-    deepCopy( layerspostfr_, layers_ );
 }
 
 
@@ -237,13 +228,13 @@ Strat::LayerModel& Strat::LayerModel::operator =( const Strat::LayerModel& oth )
 {
     if ( this != &oth )
     {
+	props_ = oth.props_;
 	for ( int iseq=0; iseq<oth.seqs_.size(); iseq++ )
 	{
 	    LayerSequence* newseq = new LayerSequence( *oth.seqs_[iseq] );
 	    newseq->propertyRefs() = props_;
 	    seqs_ += newseq;
 	}
-	props_ = oth.props_;
     }
     return *this;
 }

@@ -45,10 +45,8 @@ public:
     bool		isEmpty() const		{ return layers_.isEmpty(); }
 
     int			size() const		{ return layers_.size(); }
-    ObjectSet<Layer>&	layers(bool postfr=false)
-			{ return postfr ? layerspostfr_ : layers_; }
-    const ObjectSet<Layer>& layers(bool postfr=false) const
-    			{ return postfr ? layerspostfr_ : layers_; }
+    ObjectSet<Layer>&	layers()		{ return layers_; }
+    const ObjectSet<Layer>& layers() const	{ return layers_; }
     int			layerIdxAtZ(float,bool ret_size_if_after=false) const;
     			//!< return -1 if outside, unless below and par==true
 
@@ -58,17 +56,13 @@ public:
     PropertyRefSelection& propertyRefs() 	{ return props_; }
     const PropertyRefSelection& propertyRefs() const	{ return props_; }
 
-    void		getLayersFor( const UnitRef* ur, ObjectSet<Layer>& lys,
-	   			      bool ispostfr=false )
-			{ return getLayersFor(ur,(ObjectSet<const Layer>&)lys,
-					      ispostfr);}
+    void		getLayersFor( const UnitRef* ur, ObjectSet<Layer>& lys )
+			{ return getLayersFor(ur,(ObjectSet<const Layer>&)lys);}
     void		getLayersFor(const UnitRef*,
-	    			     ObjectSet<const Layer>&,
-				     bool ispostfr=false) const;
+	    			     ObjectSet<const Layer>&) const;
     const RefTree&	refTree() const;
 
     void		prepareUse() const ;	//!< needed after changes
-    void		prepareFluidRepl();
 
     int			indexOf(const Level&,int startsearchat=0) const;
     			//!< may return -1 for not found (level below layers)
@@ -78,7 +72,6 @@ public:
 protected:
 
     ObjectSet<Layer>	layers_;
-    ObjectSet<Layer>	layerspostfr_;
     float		z0_;
     PropertyRefSelection props_;
 
