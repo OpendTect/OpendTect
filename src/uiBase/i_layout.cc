@@ -30,13 +30,13 @@ static bool lyoutdbg = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
 #define MAX_ITER	20000
 #endif
 
+mUseQtnamespace
 
 #define mFinalised() ( managedBody.uiObjHandle().mainwin()  ? \
 		     managedBody.uiObjHandle().mainwin()->finalised() : true )
 
-i_LayoutMngr::i_LayoutMngr( mQtclass(QWidget*) parnt, 
-			    const char* nm, uiObjectBody& mngbdy )
-    : mQtclass(QLayout)(parnt)
+i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm, uiObjectBody& mngbdy )
+    : QLayout(parnt)
     , NamedObject(nm)
     , minimumDone(false), preferredDone(false), ismain(false)
     , prefposStored(false)
@@ -68,7 +68,7 @@ void i_LayoutMngr::addItem( i_LayoutItem* itm )
     parent's manager using i_LayoutMngr::addItem( i_LayoutItem* itm )
 
 */
-void i_LayoutMngr::addItem( mQtclass(QLayoutItem) *qItem )
+void i_LayoutMngr::addItem( QLayoutItem *qItem )
 {
     if ( !qItem ) return;
     addItem( new i_LayoutItem( *this, *qItem) );
@@ -86,13 +86,13 @@ void i_LayoutMngr::itemDel( CallBacker* cb )
 }
 
 
-mQtclass(QSize) i_LayoutMngr::minimumSize() const
+QSize i_LayoutMngr::minimumSize() const
 {
-    if ( !mFinalised() ) return mQtclass(QSize)(0,0);
+    if ( !mFinalised() ) return QSize(0,0);
 
     if ( !minimumDone )
     { 
-	doLayout( minimum, mQtclass(QRect)() ); 
+	doLayout( minimum, QRect() ); 
 	const_cast<i_LayoutMngr*>(this)->minimumDone=true; 
     }
 
@@ -101,9 +101,9 @@ mQtclass(QSize) i_LayoutMngr::minimumSize() const
     if ( ismain )
     {
 	if ( managedBody.shrinkAllowed() )	
-	    return mQtclass(QSize)(0, 0);
+	    return QSize(0, 0);
 
-	mQtclass(QSize) sh = sizeHint();
+	QSize sh = sizeHint();
 
 	int hsz = sh.width();
 	int vsz = sh.height();
@@ -134,17 +134,17 @@ mQtclass(QSize) i_LayoutMngr::minimumSize() const
     }
 
     mPos = curpos(minimum);
-    return mQtclass(QSize)( mPos.hNrPics(), mPos.vNrPics() );
+    return QSize( mPos.hNrPics(), mPos.vNrPics() );
 }
 
 
-mQtclass(QSize) i_LayoutMngr::sizeHint() const
+QSize i_LayoutMngr::sizeHint() const
 {
-    if ( !mFinalised() ) return mQtclass(QSize)(0, 0);
+    if ( !mFinalised() ) return QSize(0, 0);
 
     if ( !preferredDone )
     { 
-	doLayout( preferred, mQtclass(QRect)() ); 
+	doLayout( preferred, QRect() ); 
 	const_cast<i_LayoutMngr*>(this)->preferredDone=true; 
     }
     uiRect mPos = curpos(preferred);
@@ -177,7 +177,7 @@ mQtclass(QSize) i_LayoutMngr::sizeHint() const
 
 #endif
 
-    return mQtclass(QSize)( mPos.hNrPics(), mPos.vNrPics() );
+    return QSize( mPos.hNrPics(), mPos.vNrPics() );
 }
 
 
@@ -333,7 +333,7 @@ void i_LayoutMngr::moveChildrenTo(int rTop, int rLeft, LayoutMode lom )
 bool i_LayoutMngr::tryToGrowItem( resizeItem& itm, 
 				  const int maxhdelt, const int maxvdelt,
 				  int hdir, int vdir,
-				  const mQtclass(QRect&) targetRect, int iternr )
+				  const QRect& targetRect, int iternr )
 {
     layoutChildren( setGeom );
     uiRect childrenBBox = childrenRect(setGeom);
@@ -488,7 +488,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 }
 
 
-void i_LayoutMngr::resizeTo( const mQtclass(QRect&) targetRect )
+void i_LayoutMngr::resizeTo( const QRect& targetRect )
 {
     doLayout( setGeom, targetRect );//init to prefer'd size and initial layout
 
@@ -540,7 +540,7 @@ void i_LayoutMngr::resizeTo( const mQtclass(QRect&) targetRect )
 }
 
 
-void i_LayoutMngr::setGeometry( const mQtclass(QRect) &extRect )
+void i_LayoutMngr::setGeometry( const QRect &extRect )
 {
     if ( !mFinalised() ) return;
 
@@ -591,7 +591,7 @@ void i_LayoutMngr::setGeometry( const mQtclass(QRect) &extRect )
 	prefposStored = true;
     }
 
-    mQtclass(QLayout)::setGeometry( extRect );
+    QLayout::setGeometry( extRect );
 }
 
 
@@ -602,7 +602,7 @@ void i_LayoutMngr::childrenCommitGeometrySet( bool store2prefpos )
 }
 
 
-void i_LayoutMngr::doLayout( LayoutMode lom, const mQtclass(QRect&) extrect )
+void i_LayoutMngr::doLayout( LayoutMode lom, const QRect& extrect )
 {
     bool geomSetExt = extrect.width()>0 && extrect.height()>0;
     if ( geomSetExt )
@@ -700,20 +700,20 @@ void i_LayoutMngr::initChildLayout( LayoutMode lom )
 }
 
 
-mQtclass(QLayoutItem*) i_LayoutMngr::itemAt( int idx ) const
+QLayoutItem* i_LayoutMngr::itemAt( int idx ) const
 {
     if ( childrenlist.validIdx(idx) && childrenlist[idx] )
-	return const_cast<mQtclass(QLayoutItem*)>(&childrenlist[idx]->qlayoutItm());
+	return const_cast<QLayoutItem*>(&childrenlist[idx]->qlayoutItm());
     return 0; 
 }
 
 
-mQtclass(QLayoutItem*) i_LayoutMngr::takeAt( int idx )
+QLayoutItem* i_LayoutMngr::takeAt( int idx )
 {
     i_LayoutItem* itm = childrenlist[idx];
     childrenlist -= itm;
 
-    mQtclass(QLayoutItem*) ret = itm->takeQlayoutItm(); delete itm;
+    QLayoutItem* ret = itm->takeQlayoutItm(); delete itm;
     return ret;
 }
  
@@ -722,8 +722,8 @@ int i_LayoutMngr::count () const
     { return childrenlist.size(); }
 
 
-bool i_LayoutMngr::attach( constraintType type, mQtclass(QWidget&) current, 
-			   mQtclass(QWidget*) other, int mrgin,
+bool i_LayoutMngr::attach( constraintType type, QWidget& current, 
+			   QWidget* other, int mrgin,
 			   bool reciprocal ) 
 {
     if ( &current == other )
