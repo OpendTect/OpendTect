@@ -642,3 +642,10 @@ SyntheticData* uiStratLayerModel::getCurrentSyntheticData() const
 {                                                                                 
     return synthdisp_->getCurrentSyntheticData();
 }
+
+
+void uiStratLayerModel::prepareFluidRepl()
+{
+    for ( int idx=0; idx<layerModel().size(); idx++ )
+	layerModel().sequence(idx).prepareFluidRepl();
+}

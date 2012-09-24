@@ -50,6 +50,7 @@ public:
 
     const Strat::LayerSequenceGenDesc&	genDesc() const	   { return desc_; }
     const Strat::LayerModel&		layerModel() const { return modl_; }
+    Strat::LayerModel&			layerModel()	   { return modl_; }
     const char*				levelName() const; //!< null if none
     const SeisTrcBuf&			postStackTraces() const;
     const SeisTrcBuf&			modelTraces(const PropertyRef&) const;
@@ -69,6 +70,7 @@ public:
 
     uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
     void			displayFRResult( SyntheticData* );
+    void			prepareFluidRepl();
 
     //Utility
     SyntheticData*		getCurrentSyntheticData() const;
