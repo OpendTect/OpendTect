@@ -26,19 +26,18 @@ namespace CmdDrive
 mImplFactory1Param( Function, const CmdDriver&, Function::factory );
 
 
-const char* Function::factoryKey( const char* name )
+BufferString Function::factoryKey( const char* name )
 {
-    static BufferString fackey;
-    fackey = name;
+    mUnscope( name, unscoped );
+    BufferString fackey = unscoped;
     StringProcessor(fackey).capitalize();
-    mUnscope( fackey.buf(), unscoped );
-    return unscoped;
+    return fackey;
 }
 
 
-const char* Function::createFactoryKey( const char* keyword )
+BufferString Function::createFactoryKey( const char* keyword )
 {
-    const char* fackey = factoryKey( keyword );
+    const BufferString fackey = factoryKey( keyword );
 
     if ( factory().hasName(fackey) )
     {
@@ -49,6 +48,7 @@ const char* Function::createFactoryKey( const char* keyword )
 
     return fackey;
 }
+
 
 void Function::initStandardFunctions()
 {

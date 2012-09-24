@@ -31,18 +31,17 @@ namespace CmdDrive
 mImplFactory1Param( Command, CmdDriver&, Command::factory );
 
 
-const char* Command::factoryKey( const char* name )
+BufferString Command::factoryKey( const char* name )
 {
-    static BufferString fackey;
-    fackey = name;
+    BufferString fackey = name;
     StringProcessor(fackey).capitalize();
-    return fackey.buf();
+    return fackey;
 }
 
 
-const char* Command::createFactoryKey( const char* keyword )
+BufferString Command::createFactoryKey( const char* keyword )
 {
-    const char* fackey = factoryKey( keyword );
+    const BufferString fackey = factoryKey( keyword );
 
     if ( factory().hasName( fackey ) )
     {

@@ -31,7 +31,7 @@ public:
 
     mDefineFactory1ParamInClass( Function, const CmdDriver&, factory );
     static void		initStandardFunctions();
-    static const char*	factoryKey(const char* name);
+    static BufferString	factoryKey(const char* name);
 
     			Function(const CmdDriver& cmddrv)
 			    : drv_(cmddrv)
@@ -44,7 +44,7 @@ public:
 
 protected:
 
-    static const char*	createFactoryKey(const char* keyword);
+    static BufferString	createFactoryKey(const char* keyword);
 
     const CmdDriver&	drv_;
 

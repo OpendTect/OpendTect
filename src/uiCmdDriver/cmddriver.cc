@@ -817,7 +817,7 @@ void CmdDriver::setSleep( float time, bool regular )
     if ( parenthesisptr ) \
     { \
 	*parenthesisptr = '\0'; \
-	const char* fackey = Function::factoryKey( funcprocname ); \
+	const BufferString fackey = Function::factoryKey( funcprocname ); \
 	PtrMan<Function> func = Function::factory().create( fackey, drv_ ); \
 	FileMultiString keyfms; \
 	keyfms += funcprocname; keyfms += "\a"; \
@@ -918,7 +918,7 @@ bool CmdDriver::doAction( const char* actstr )
     }
 
     mSkipBlanks( parstr );
-    const char* fackey = Command::factoryKey( firstword );
+    const BufferString fackey = Command::factoryKey( firstword );
     PtrMan<Command> cmd = Command::factory().create( fackey, drv_ );
     if ( !cmd )
     {

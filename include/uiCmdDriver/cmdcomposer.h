@@ -55,7 +55,7 @@ public:
 
     mDefineFactory1ParamInClass( CmdComposer, CmdRecorder&, factory );
     static void		initStandardComposers();
-    static const char*	factoryKey(const CallBacker* caller,
+    static BufferString	factoryKey(const CallBacker* caller,
 	    			   const char* extrakey=0);
 
 			CmdComposer(CmdRecorder&);
@@ -77,7 +77,7 @@ public:
 
 protected:
 
-    static const char*	createFactoryKey(const Classifier*,const char* keyword);
+    static BufferString	createFactoryKey(const Classifier*,const char* keyword);
 
     virtual void	init()				{};
 

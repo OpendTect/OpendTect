@@ -46,25 +46,25 @@ static ObjectSet<const Classifier> classifiers;
     StringProcessor(fackey).capitalize(); \
 }
 
-const char* CmdComposer::factoryKey( const CallBacker* caller,
-				     const char* extrakey )
+BufferString CmdComposer::factoryKey( const CallBacker* caller,
+				      const char* extrakey )
 {
-    static BufferString fackey;
+    BufferString fackey;
     for ( int idx=0; idx<classifiers.size(); idx++ )
     {
 	if ( classifiers[idx]->approved(caller) )
 	{
 	    mComposeFactoryKey( fackey, classifiers[idx]->name(), extrakey );
-	    return fackey.buf();
+	    break;
 	}
     }
 
-    return "";
+    return fackey;
 }
 
 
-const char* CmdComposer::createFactoryKey( const Classifier* classifier,
-					   const char* keyword )
+BufferString CmdComposer::createFactoryKey( const Classifier* classifier,
+					    const char* keyword )
 {
     classifiers.insertAt( classifier, 0 );
     for ( int idx=classifiers.size()-1; idx>0; idx-- )
@@ -73,7 +73,7 @@ const char* CmdComposer::createFactoryKey( const Classifier* classifier,
 	    delete classifiers.remove( idx );
     }
 
-    static BufferString fackey;
+    BufferString fackey;
     mComposeFactoryKey( fackey, classifier->name(), keyword );
 
     if ( factory().hasName(fackey) )
@@ -83,7 +83,7 @@ const char* CmdComposer::createFactoryKey( const Classifier* classifier,
 	pFreeFnErrMsg( errmsg, "CmdDrive::CmdComposer" );
     }
 
-    return fackey.buf();
+    return fackey;
 }
 
 

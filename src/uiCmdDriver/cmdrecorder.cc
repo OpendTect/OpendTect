@@ -247,7 +247,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
     bool allobjsrelative = false;
     ObjectFinder csobjfinder( srcwin, true );
     mFindAllNodes( csobjfinder, localenv, objsfound );
-    const char* srckey = CmdComposer::factoryKey( event.object_ );
+    const BufferString srckey = CmdComposer::factoryKey( event.object_ );
     takeSimilarObjs( objsfound, srckey, true, true );
 
     if ( objsfound.indexOf(event.object_) < 0 )
@@ -654,7 +654,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 
     if ( !ev.nraccepts_ && !ev.dynamicpopup_ )
     {
-	const char* fackey = CmdComposer::factoryKey( caller, keyword );
+	const BufferString fackey = CmdComposer::factoryKey( caller, keyword );
 	CmdComposer* newcomp = CmdComposer::factory().create( fackey, rec_ );
 
 	if ( newcomp )

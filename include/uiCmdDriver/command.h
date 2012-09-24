@@ -39,7 +39,7 @@ public:
 
     mDefineFactory1ParamInClass( Command, CmdDriver&, factory );
     static void		initStandardCommands();
-    static const char*	factoryKey(const char* name);
+    static BufferString	factoryKey(const char* name);
 
     			Command(CmdDriver& cmddrv)
 			    : drv_(cmddrv)
@@ -60,7 +60,7 @@ public:
 
 protected:
 
-    static const char*	createFactoryKey(const char* keyword);
+    static BufferString	createFactoryKey(const char* keyword);
 
     CmdDriver&		drv_;
     uiMainWin*		applWin();
