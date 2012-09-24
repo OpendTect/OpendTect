@@ -1,3 +1,4 @@
+
 #ifndef ziputils_h
 #define ziputils_h
 
@@ -28,19 +29,27 @@ public:
     void			makeFileList(const char* zipfile);
     const BufferStringSet&	getFileList() const	{ return filelist_; }
 
-    bool			unZipArchive(BufferString&,BufferString&,
-					     TaskRunner* tr=0); 
-    bool			unZipFile(BufferString&,BufferString&);
-    bool			makeZip(BufferString&,TaskRunner* tr=0,
-	    			   ZipHandler::CompLevel cl=ZipHandler::Normal);
-    bool			appendToArchive(BufferString&,BufferString&,
-					   TaskRunner* tr=0,
-				    ZipHandler::CompLevel c=ZipHandler::Normal);
+    bool			unZipArchive(const char* src,const char* dest,
+					     TaskRunner* tr=0);
+    bool			unZipFile(const char* ziparchive,
+					  const char* fnm,const char* path);
+
+    bool			makeZip(const char* zipfilenm,
+					BufferStringSet&,
+				        TaskRunner* tr=0,
+					ZipHandler::CompLevel c=
+							    ZipHandler::Normal);
+    bool			appendToArchive(const char* zipfile,
+						const char* toappend,
+						TaskRunner* tr=0,
+						ZipHandler::CompLevel c=
+							    ZipHandler::Normal);
 
 protected:
 
     bool			doZip(const char* src,const char* dest);
     bool			doUnZip(const char* src,const char* dest);
+
     BufferString		errmsg_;
     BufferStringSet		filelist_;
     BufferString		filelistname_;
@@ -54,9 +63,9 @@ mClass(Basic) Zipper : public Executor
 {
 public:
 				 Zipper(ZipHandler& zh)
-				     : Executor( "Compressing Files" )
-				     , ziphd_(zh)
-				     , nrdone_(0)	{}
+				 : Executor( "Compressing Files" )
+				 , ziphd_(zh)
+				 , nrdone_(0)	{}
 
     const char*			 message() const;
     od_int64			 nrDone() const;
@@ -75,9 +84,9 @@ mClass(Basic) UnZipper : public Executor
 {
 public:
 				 UnZipper(ZipHandler& zh)
-				     : Executor("Uncompressing Files")
-				     , ziphd_(zh)
-				     , nrdone_(0)	{}
+				 : Executor("Uncompressing Files")
+				 , ziphd_(zh)
+				 , nrdone_(0)	{}
 
     const char*			 message() const;
     od_int64			 nrDone() const;
@@ -93,4 +102,3 @@ protected:
 
 
 #endif
-

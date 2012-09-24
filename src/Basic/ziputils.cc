@@ -109,18 +109,27 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     return res;
 }
 
-bool ZipUtils::makeZip( BufferString& src, TaskRunner* tr,
+bool ZipUtils::makeZip( const char* zipfnm, BufferStringSet& src, TaskRunner* tr,
 			ZipHandler::CompLevel cl )
 {
     ziphdler_.setCompLevel( cl );
-    if( !ziphdler_.initMakeZip(src) )
+    if ( !ziphdler_.initMakeZip(zipfnm,src.get(0).buf()) )
 	return false;
 
     Zipper exec( ziphdler_ );
-    return tr ? tr->execute( exec ) : exec.execute();
+    if ( !tr ? tr->execute(exec) : exec.execute() )
+	return false;
+    
+    BufferString srcfnm = zipfnm;
+    srcfnm.add(".zip");
+    for ( int idx = 1; idx < src.size(); idx++ )
+	if ( !appendToArchive( srcfnm.buf(), src.get( idx ).buf()) )
+	    return false;
+
+    return true;
 }
 
-bool ZipUtils::appendToArchive( BufferString& srcfnm, BufferString& fnm,
+bool ZipUtils::appendToArchive( const char* srcfnm, const char* fnm,
 				TaskRunner* tr, ZipHandler::CompLevel cl )
 {
     bool res;
@@ -138,7 +147,7 @@ bool ZipUtils::appendToArchive( BufferString& srcfnm, BufferString& fnm,
 int Zipper::nextStep()
 {
     int ret;
-    ret = ziphd_.openStrmToRead(ziphd_.getAllFiles().get(nrdone_));
+    ret = ziphd_.openStrmToRead(ziphd_.getAllFileNames().get(nrdone_));
     if ( ret == 0 )
     {
 	ziphd_.closeDestStream();
@@ -162,14 +171,14 @@ int Zipper::nextStep()
 	return MoreToDo();
 	
     int ptrlctn = ziphd_.getDestStream().tellp();
-    ret = ziphd_.setCntrlDirHeader();
+    ret = ziphd_.setCentralDirHeader();
     if ( !ret )
     {
 	ziphd_.closeDestStream();
 	return ErrorOccurred();
     }
 
-    ret = ziphd_.setEndOfCntrlDirHeader ( ptrlctn );
+    ret = ziphd_.setEndOfCentralDirHeader ( ptrlctn );
     if ( !ret )
     {
 	ziphd_.closeDestStream();
@@ -184,7 +193,7 @@ od_int64 Zipper::nrDone() const
 { return nrdone_; }
 
 od_int64 Zipper::totalNr() const
-{ return ziphd_.getAllFiles().size(); }
+{ return ziphd_.getAllFileNames().size(); }
 
 const char* Zipper::nrDoneText() const
 { return ( "Files" ); }
@@ -192,20 +201,22 @@ const char* Zipper::nrDoneText() const
 const char* Zipper::message() const
 { return ziphd_.errorMsg(); }
 
-bool ZipUtils::unZipArchive( BufferString& srcfnm,BufferString& basepath,
+bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
 							    TaskRunner* tr )
 {
-    bool ret = ziphdler_.unZipArchiveInIt( srcfnm, basepath );
+    bool ret = ziphdler_.initUnZipArchive( srcfnm, basepath );
     if( !ret )
 	return false;
+
     UnZipper exec( ziphdler_ );
     ret = tr ? tr->execute( exec ) : exec.execute();
     return ret;
 }
 
-bool ZipUtils::unZipFile( BufferString& srcfnm, BufferString& fnm )
+bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, 
+					      const char* path )
 {
-    bool ret = ziphdler_.unZipFile( srcfnm, fnm );
+    bool ret = ziphdler_.unZipFile( srcfnm, fnm, path );
     return ret;
 }
 
@@ -224,7 +235,7 @@ od_int64 UnZipper::nrDone() const
 { return nrdone_; }
 
 od_int64 UnZipper::totalNr() const
-{ return ziphd_.getTotalFiles(); }
+{ return ziphd_.getTotalFileCount(); }
 
 const char* UnZipper::nrDoneText() const
 { return ( "Files" ); }

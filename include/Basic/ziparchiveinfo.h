@@ -17,55 +17,40 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class ZipHandler;
+class ZipFileInfo;
+
+
 
 mClass(Basic) ZipArchiveInfo
 {
 public:
 
-    mClass(Basic) FileInfo
-    {
-    public:
-				FileInfo( BufferString& fnm, 
-					       unsigned int compsize, 
-					       unsigned int uncompsize,
-					       unsigned int offset )
-					:fnm_(fnm)
-					, compsize_(compsize) 
-					, uncompsize_(uncompsize)
-					, localheaderoffset_(offset)	{}
-	BufferString		fnm_;
-	unsigned int		compsize_;
-	unsigned int		uncompsize_;
-	unsigned int		localheaderoffset_;
-    };
-
-				ZipArchiveInfo( BufferString& fnm );
+				ZipArchiveInfo(const char* fnm);
 				~ZipArchiveInfo();
 
-    bool			isOK(){ return isok_; }
-    const char*			errorMsg();
+    bool			isOK() const { return isok_; }
+    const char*			errorMsg() const;
 
-    bool			getAllFnms( BufferStringSet& );
+    bool			getAllFnms(BufferStringSet&)const;
 
     				//!< All sizes in Bytes
-    od_int64			getFileCompSize( BufferString& fnm );
-    od_int64			getFileCompSize( int );
-    od_int64			getFileUnCompSize( BufferString& fnm );
-    od_int64			getFileUnCompSize( int );
+    od_int64			getFileCompSize(const char* fnm) const;
+    od_int64			getFileCompSize(int) const;
+    od_int64			getFileUnCompSize(const char* fnm)const;
+    od_int64			getFileUnCompSize(int)const;
 
-    od_int64			getLocalHeaderOffset( BufferString& fnm );
-    od_int64			getLocalHeaderOffset( int );
+    od_int64			getLocalHeaderOffset(const char* fnm)const;
+    od_int64			getLocalHeaderOffset(int)const;
 
 protected:
 
-    bool			readZipArchive( BufferString& fnm );
-    ObjectSet<FileInfo>		files_;
+    bool			readZipArchive(const char* fnm);
+    ObjectSet<ZipFileInfo>	fileinfo_;
     ZipHandler&			ziphd_;
-    BufferString		errormsg_;
+    mutable BufferString	errormsg_;
     bool			isok_;
 
 };
-
 
 
 #endif

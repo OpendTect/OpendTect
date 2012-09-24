@@ -40,11 +40,11 @@ ________________________________________________________________________
     T[2] = 5; \
     T[3] = 6; \
 
-#define mInsertToCharBuff( buff, T, pnt, len) \
-    buf = ( char* ) &T;\
-    for( int i = 0; i<len; i++ ) \
+#define mInsertToCharBuff( inserttobuffer, datatype, insertat, len) \
+    buf = ( char* ) &datatype;\
+    for( int idx=0; idx<len; idx++ ) \
     { \
-	buff[pnt+i] = *(buf + i); \
+	inserttobuffer[insertat+idx] = *(buf + idx); \
     } \
 
 #define mCntrlFileHeaderSigCheck( buff, ptr ) \
@@ -66,83 +66,133 @@ ________________________________________________________________________
 #define mDigSigSize 6
 #define mEndOfDirHeaderSize 22
 
+
+mClass(Basic) ZipFileInfo
+{
+    
+public:
+
+				ZipFileInfo(const char* fnm, 
+					    unsigned int compsize, 
+					    unsigned int uncompsize,
+					    unsigned int offset)
+				: fnm_(fnm)
+				, compsize_(compsize) 
+				, uncompsize_(uncompsize)
+				, localheaderoffset_(offset)	{}
+
+    BufferString		fnm_;
+    unsigned int		compsize_;
+    unsigned int		uncompsize_;
+    unsigned int		localheaderoffset_;
+
+};
+
+
 mClass(Basic) ZipHandler
 {
 public:
+
+    friend class		ZipUtils;
+    friend class		Zipper;
+    friend class		UnZipper;
+
     enum CompLevel		{ NoComp=0, SuperFast=1, Fast=3, Normal=6,
 				  Maximum=9 };
 
 				ZipHandler()
-				:totalfiles_(0)
-				,initialfiles_(0)
-				,srcfilesize_(0)
-				,destfilesize_(0)
-				,srcfnmsize_(0)
-				,offsetofcentraldir_(0)
-				,sizeofcentraldir_(0)			{}
+				: totalfilecount_(0)
+				, initialfilecount_(0)
+				, srcfilesize_(0)
+				, destfilesize_(0)
+				, srcfnmsize_(0)
+				, offsetofcentraldir_(0)
+				, sizeofcentraldir_(0)			{}
 
-    bool			unZipArchiveInIt(BufferString&,BufferString&);
-    bool			unZipFile(BufferString&,BufferString&);
+    const char*			errorMsg()const;
+
+    bool			getArchiveInfo(const char*,
+						    ObjectSet<ZipFileInfo>&);
+
+    bool			getBitValue(const unsigned char byte,
+							int bitposition)const;
+    void			setBitValue(unsigned char& byte, 
+					    int bitposition, bool value)const;
+
+protected:
+
+    bool			initUnZipArchive(const char*,const char*);
+    bool			unZipFile(const char* srcfnm,const char* fnm,
+					  const char* path);
+
     bool			doZUnCompress();
-    const char*			errorMsg();
-    bool			readEndOfCntrlDirHeader(std::istream&);
+    bool			readEndOfCentralDirHeader();
     bool			readFileHeader();
 
-    bool			initMakeZip(BufferString&);
-    bool			initAppend(BufferString&,BufferString&);
+    bool			initMakeZip(const char*,const char*);
+    bool			initAppend(const char*,const char*);
 
     bool			manageDir(const char*);
     bool			doZCompress();
     int				openStrmToRead(const char* src); 
     bool			setLocalFileHeader();
     bool			setLocalFileHeaderForDir();
-    bool			setCntrlDirHeader();
-    bool			setEndOfCntrlDirHeader(int);
+    bool			setCentralDirHeader();
+    bool			setEndOfCentralDirHeader(int);
 
-    bool			getBitValue(const unsigned char byte,
-							int bitposition);
-    void			setBitValue(unsigned char& byte, 
-						int bitposition, bool value);
-
-    short			dateInDosFormat(const char*);
-    short			timeInDosFormat(const char*);
+    short			dateInDosFormat(const char*)const;
+    short			timeInDosFormat(const char*)const;
     bool			setTimeDateModified();
 
-    BufferStringSet&		getAllFiles() { return allfiles_; }
-    std::ostream&		getDestStream() { return *osd_.ostrm; }
-    unsigned int		getOffsetOfCentralDir() 
-				{ return offsetofcentraldir_; }
-    std::istream&		getSrcStream() { return *isd_.istrm; }
-    unsigned int		getTotalFiles() { return totalfiles_; }
+    const BufferStringSet&	getAllFileNames() { return allfilenames_; }
+    std::ostream&		getDestStream()const { return *osd_.ostrm; }
+    std::istream&		getSrcStream()const { return *isd_.istrm; }
+    unsigned int		getTotalFileCount()const 
+				{ return totalfilecount_; }
     void			closeDestStream() { osd_.close(); }
     void			closeSrcStream() { isd_.close(); }
-    StreamData			makeOStreamForAppend(BufferString&);
+    StreamData			makeOStreamForAppend(const char*)const;
     void			setCompLevel(CompLevel);
+
+
+    BufferString		errormsg_;
+    BufferStringSet		allfilenames_;
     
-protected:
-    BufferStringSet		allfiles_;
+    BufferString		srcfile_ ;
+    unsigned int		srcfilesize_;
+    BufferString		srcfnm_;
+    unsigned short		srcfnmsize_;
+
+    BufferString		destbasepath_;
+    BufferString	    	destfile_;
+    unsigned int		destfilesize_ ;
+    BufferString		destfnm_;
+
     unsigned short		compmethod_;
     int				complevel_;
-    BufferString		destbasepath_;
-    BufferString	    	destfile_ ;
-    BufferString		errormsg_;
-    BufferString		srcfile_ ;
-    unsigned int		srcfilesize_, destfilesize_ ;
-    int				nrlevel_;
-    unsigned int		totalfiles_, initialfiles_;
+    
+    int				nrlevels_;
+
+    unsigned int		initialfilecount_;
+    unsigned int		totalfilecount_;
+    
     unsigned short		version_;
     unsigned short		lastmodtime_;
     unsigned short		lastmoddate_;
-    BufferString		destfnm_;
-    BufferString		srcfnm_;
-    unsigned short		srcfnmsize_, xtrafldlth_ ;
-    unsigned long		crc_;
-    unsigned int		sizeofcentraldir_, offsetofcentraldir_;
+    
+    unsigned short		xtrafldlth_ ;
     unsigned short		commentlen_;
+
+    unsigned long		crc_;
+
+    unsigned int		sizeofcentraldir_;
+    unsigned int		offsetofcentraldir_;
+
     StreamData			osd_;
     StreamData			isd_;
-
-
+    
 };
 
+
 #endif
+    
