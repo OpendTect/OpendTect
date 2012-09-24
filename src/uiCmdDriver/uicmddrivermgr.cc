@@ -43,8 +43,8 @@ namespace CmdDrive
 static const char* autoexecfnm = "autoexec.odcmd";
 
 
-uiCmdDriverMgr::uiCmdDriverMgr( uiMainWin& aw )
-    	: applwin_(aw)
+uiCmdDriverMgr::uiCmdDriverMgr()
+    	: applwin_(*uiMain::theMain().topLevel())
 	, cmddlg_(0)
 	, settingsautoexec_(true)
 	, surveyautoexec_(true)
@@ -52,8 +52,8 @@ uiCmdDriverMgr::uiCmdDriverMgr( uiMainWin& aw )
         , historec_(0)
 {
     tim_ = new Timer();
-    rec_ = new CmdRecorder( aw );
-    drv_ = new CmdDriver( aw );
+    rec_ = new CmdRecorder( applwin_ );
+    drv_ = new CmdDriver( applwin_ );
 
     commandLineParsing();
 

@@ -33,7 +33,7 @@ class uiCmdDriverDlg;
 mClass(uiCmdDriver) uiCmdDriverMgr:public CallBacker
 {
 public:
-				uiCmdDriverMgr(uiMainWin& applwin);
+				uiCmdDriverMgr();
 				~uiCmdDriverMgr();
 
     void			showDlgCB(CallBacker*);

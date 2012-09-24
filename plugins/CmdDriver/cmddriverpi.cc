@@ -10,7 +10,6 @@ ________________________________________________________________________
 static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uimenu.h"
-#include "uimain.h"
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uicmddrivermgr.h"
@@ -51,7 +50,7 @@ mDefODInitPlugin(CmdDriver)
 {
     static uiCmdDriverMgr* mgr = 0;
     if ( mgr ) return 0;
-    mgr = new uiCmdDriverMgr( *ODMainWin() );
+    mgr = new uiCmdDriverMgr();
 
     static uiMenuItem* cmdmnuitm = 0;
     if ( cmdmnuitm ) return 0;
