@@ -48,6 +48,7 @@ public:
     const RefTree&	refTree() const;
     const Lithology&	lithology() const;
     const Content&	content() const;
+    bool		contentPresent() const		{ return contentpres_; }
 
     inline float	zTop() const			{ return ztop_; }
     inline float	thickness() const		{ return vals_[0]; }
@@ -57,6 +58,7 @@ public:
     inline void		setThickness( float v )		{ vals_[0] = v; }
     void		setValue(int,float);
     void		setContent( const Content& c )	{ content_ = &c; }
+    void		setContentPresent( bool yn )	{ contentpres_ = yn; }
 
     inline float	zBot() const	{ return zTop() + thickness(); }
     inline float	depth() const	{ return zTop() + 0.5f * thickness(); }
@@ -74,6 +76,7 @@ protected:
     float		ztop_;
     TypeSet<float>	vals_;
     const Content*	content_;
+    bool		contentpres_;
 
 };
 

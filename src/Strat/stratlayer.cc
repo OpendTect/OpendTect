@@ -25,6 +25,7 @@ const PropertyRef& Strat::Layer::thicknessRef()
 
 Strat::Layer::Layer( const LeafUnitRef& r )
     : ref_(&r)
+    , contentpres_(true)
 {
     setValue( 0, 0 ); setValue( 1, 0 );
 }
@@ -327,6 +328,7 @@ bool Strat::LayerModel::read( std::istream& strm )
 	    {
 		const Content* c = rt.contents().getByName(fms[1]);
 		newlay->setContent( c ? *c : Content::unspecified() );
+		newlay->setContentPresent( toBool(fms[2]) );
 	    }
 	    float val; strm >> val;
 	    newlay->setThickness( val );
@@ -365,6 +367,7 @@ bool Strat::LayerModel::write( std::ostream& strm, int modnr ) const
 	    {
 		FileMultiString fms( lay.name() );
 		fms += lay.content().name();
+		fms += toString(lay.contentPresent());
 		strm << fms;
 	    }
 	    strm << '\t' << lay.thickness();
