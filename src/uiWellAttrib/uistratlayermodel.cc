@@ -188,9 +188,11 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     : uiMainWin(p,"",0,false)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , modl_(*new Strat::LayerModel)
+    , modlpostfr_(*new Strat::LayerModel)
     , elpropsel_(0)				   
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
-    , analtb_(0)				   
+    , analtb_(0)
+    , usepostfrmodl_(false)      
     , newModels(this)				   
     , levelChanged(this)				   
     , waveletChanged(this)				   
@@ -279,6 +281,7 @@ uiStratLayerModel::~uiStratLayerModel()
 {
     delete &desc_;
     delete &modl_;
+    delete &modlpostfr_;
     delete descctio_.ioobj; delete &descctio_;
     StratTreeWin().changeLayerModelNumber( false );
 }
@@ -411,7 +414,8 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
     if ( !checkUnscaledWavelet() )
 	return;
 
-    uiStratSynthCrossplot dlg( this, modl_, synthdisp_->getSynthetics() );
+    uiStratSynthCrossplot dlg( this, usepostfrmodl_ ? modlpostfr_ : modl_,
+	    		       synthdisp_->getSynthetics() );
     if ( dlg.errMsg() )
 	{ uiMSG().error( dlg.errMsg() ); return; } 
     const char* lvlnm = modtools_->selLevel();
@@ -534,6 +538,7 @@ bool uiStratLayerModel::openGenDesc()
     seqdisp_->setNeedSave( false );
     seqdisp_->descHasChanged();
     modl_.setEmpty();
+    modlpostfr_.setEmpty();
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
     delete elpropsel_; elpropsel_ = 0;
@@ -571,6 +576,7 @@ void uiStratLayerModel::genModels( CallBacker* )
 
     modl_.setEmpty();
     modl_.propertyRefs() = seqdisp_->desc().propSelection();
+    modlpostfr_.setEmpty();
     uiTaskRunner tr( this );
     Strat::LayerModelGenerator ex( desc_, modl_, nrmods );
     tr.execute( ex );
@@ -626,6 +632,7 @@ void uiStratLayerModel::setElasticProps()
     }
 
     modl_.addElasticPropSel( *elpropsel_ );
+    modlpostfr_.addElasticPropSel( *elpropsel_ );
 }
 
 
@@ -637,6 +644,7 @@ bool uiStratLayerModel::closeOK()
 
 void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
 {
+    usepostfrmodl_ = synthdata;
     synthdisp_->displaySynthetic( synthdata ? synthdata
 	    			: synthdisp_->getCurrentSyntheticData() );
     moddisp_->modelChanged();
@@ -646,4 +654,10 @@ void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
 SyntheticData* uiStratLayerModel::getCurrentSyntheticData() const
 {                                                                                 
     return synthdisp_->getCurrentSyntheticData();
+}
+
+
+void uiStratLayerModel::prepareFluidRepl()
+{
+    modlpostfr_ = modl_;
 }

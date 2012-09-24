@@ -49,6 +49,9 @@ public:
 
     const Strat::LayerSequenceGenDesc&	genDesc() const	   { return desc_; }
     const Strat::LayerModel&		layerModel() const { return modl_; }
+    const Strat::LayerModel&		layerModelPostFR() const
+							 { return modlpostfr_; }
+    Strat::LayerModel&			layerModelPostFR(){ return modlpostfr_;}
     const char*				levelName() const; //!< null if none
     const SeisTrcBuf&			postStackTraces() const;
     const SeisTrcBuf&			modelTraces(const PropertyRef&) const;
@@ -74,8 +77,10 @@ protected:
 
     Strat::LayerSequenceGenDesc& desc_;
     Strat::LayerModel&		modl_;
+    Strat::LayerModel&		modlpostfr_;
     CtxtIOObj&			descctio_;
     ElasticPropSelection*	elpropsel_;
+    bool			usepostfrmodl_;
 
     void			initWin(CallBacker*);
     void			dispEachChg(CallBacker*);
@@ -111,6 +116,7 @@ public:
 
     uiStratLayerModelDisp*      getLayModelDisp() const { return moddisp_; }
     void                        displayFRResult( SyntheticData* );
+    void			prepareFluidRepl();
 //Utility
     SyntheticData*		getCurrentSyntheticData() const;
 

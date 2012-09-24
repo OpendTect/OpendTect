@@ -228,13 +228,13 @@ Strat::LayerModel& Strat::LayerModel::operator =( const Strat::LayerModel& oth )
 {
     if ( this != &oth )
     {
+	props_ = oth.props_;
 	for ( int iseq=0; iseq<oth.seqs_.size(); iseq++ )
 	{
 	    LayerSequence* newseq = new LayerSequence( *oth.seqs_[iseq] );
 	    newseq->propertyRefs() = props_;
 	    seqs_ += newseq;
 	}
-	props_ = oth.props_;
     }
     return *this;
 }
