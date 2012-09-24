@@ -244,8 +244,8 @@ void uiGraphicsItem::setFillPattern( const FillPattern& inpfp )
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
-    mQtclass(QBrush) qbrush = agsitm->brush();
-    mQtclass(Qt::BrushStyle) qbs = Qt::NoBrush;
+    QBrush qbrush = agsitm->brush();
+    Qt::BrushStyle qbs = Qt::NoBrush;
     FillPattern fp = inpfp;
 
     // Beware, this is a duplication of what is in draw.cc
