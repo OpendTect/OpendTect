@@ -10,6 +10,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "batchprog.h"
 #include "envvars.h"
 #include "file.h"
+#include "genc.h"
 #include "ioman.h"
 #include "iodir.h"
 #include "iopar.h"
@@ -77,7 +78,8 @@ void BatchProgram::init( int* pac, char** av )
     argv_ = av;
     fullpath = argv_[0];
 
-    od_putProgInfo( *pargc, argv_ );
+    const int theargc = *pargc;
+    SetProgramArgs( theargc, argv_ );
 
     BufferString masterhost;
     int masterport = -1;
