@@ -13,7 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "plfdefs.h"
+#include "commondefs.h"
+
 
 
 /*!> advances given pointer to first non-whitespace. */
@@ -26,6 +27,12 @@ ________________________________________________________________________
 #define mTrimBlanks(ptr) \
     { mSkipBlanks(ptr); removeTrailingBlanks(ptr); }
 
+
+
+/*!> bluntly puts a '\0' on trailing white space. */
+mGlobal(Basic) void removeTrailingBlanks(char*);
+
+
 #ifndef __cpp__
 # include "string2_c.h"
 #else
@@ -34,10 +41,6 @@ ________________________________________________________________________
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-
-/*!> bluntly puts a '\0' on trailing white space. */
-mGlobal(Basic) void removeTrailingBlanks(char*);
-
 /*!> stricmp with option to compare part, default is all */
 mGlobal(Basic) bool caseInsensitiveEqual(const char*,const char*,int match_nrchars=-1);
 /*!> checks whether a string is the start of another string. */
