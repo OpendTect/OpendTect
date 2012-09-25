@@ -30,7 +30,15 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 static std::ostream* dbglogstrm = 0;
 
-static bool doisudfmsgs = GetEnvVarYN( "OD_SHOW_NOT_NORMAL_NUMBER_MSGS" );
+static bool doisudfmsgs = false;
+
+
+mExternC(Basic) void od_debug_init(void)
+{
+    doisudfmsgs  = GetEnvVarYN( "OD_SHOW_NOT_NORMAL_NUMBER_MSGS" );
+}
+
+
 bool dbgIsUdf( float val )
 {
     if ( !Math::IsNormalNumber(val) )
