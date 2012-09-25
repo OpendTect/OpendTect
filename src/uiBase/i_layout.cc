@@ -25,7 +25,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 #ifdef __debug__
 #define MAX_ITER	2000
-static bool lyoutdbg = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
+static bool lyoutdbg = false;
 #else
 #define MAX_ITER	20000
 #endif
@@ -43,6 +43,11 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm, uiObjectBody& mngbdy
     , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
     , poptimer(*new Timer), popped_up(false), timer_running(false)
 {
+#ifdef __debug__
+    static bool lyoutdbg_loc = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
+    lyoutdbg = lyoutdbg_loc;
+#endif
+
     poptimer.tick.notify( mCB(this,i_LayoutMngr,popTimTick) );
 }
 

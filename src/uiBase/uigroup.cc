@@ -426,13 +426,12 @@ int i_uiGroupLayoutItem::centre(LayoutMode m, bool hor) const
 }
 
 
-static bool showgrps__ = GetEnvVarYN("DTECT_SHOW_GROUP_FRAMES");
-
 uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     : uiParent( nm, 0 )
     , grpobj_( 0 )
     , body_( 0 )
 {
+    static bool showgrps__ = GetEnvVarYN("DTECT_SHOW_GROUP_FRAMES");
     grpobj_ =  new uiGroupObj( this,p,nm,manage );
     uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
 
