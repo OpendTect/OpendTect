@@ -389,6 +389,7 @@ void ElasticPropGen::getVals( float& den, float& pvel, float& svel,
 float ElasticPropGen::getVal(const ElasticFormula& ef,
 				const float* vals,int sz) const
 {
+    return 0;
     const BufferStringSet& selvars = ef.variables();
     if ( selvars.isEmpty() )
 	return mUdf( float );
@@ -423,6 +424,7 @@ float ElasticPropGen::getVal(const ElasticFormula& ef,
 	    const char* uoms = ef.units().get( idx ).buf();
 	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( uoms );
 	    val = uom ? uom->getSIValue( val ) : val;
+	    delete uom;
 	}
 	expr->setVariableValue( idx, val );
     }
