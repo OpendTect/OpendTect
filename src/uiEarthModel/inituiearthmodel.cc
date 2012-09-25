@@ -12,10 +12,13 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "moddepmgr.h"
 #include "uibodyposprovgroup.h"
 #include "uisurfaceposprov.h"
+#include "uiimphorizon.h"
 
 mDefModInitFn(uiEarthModel)
 {
     mIfNotFirstTime( return );
+    
+    uiImportHorizon::initClass();
 
     uiBodyPosProvGroup::initClass();
     uiSurfacePosProvGroup::initClass();

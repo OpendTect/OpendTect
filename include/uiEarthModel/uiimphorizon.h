@@ -42,6 +42,7 @@ namespace EM { class Horizon3D; }
 mClass(uiEarthModel) uiImportHorizon : public uiDialog
 {
 public:
+    static void		initClass();
 			uiImportHorizon(uiParent*,bool);
 			~uiImportHorizon();
 

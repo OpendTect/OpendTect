@@ -53,7 +53,12 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 static const char* sZVals = "Z values";
 
-static BufferString sImportFromPath = GetDataDir();
+static BufferString sImportFromPath;
+
+
+void uiImportHorizon::initClass()
+{ sImportFromPath = GetDataDir(); }
+
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     : uiDialog(p,uiDialog::Setup("Import Horizon","Specify parameters",
