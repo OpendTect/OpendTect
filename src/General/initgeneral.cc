@@ -15,10 +15,13 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "mathproperty.h"
 #include "elasticpropseltransl.h"
 #include "preloads.h"
+#include "helpview.h"
 
 mDefModInitFn(General)
 {
     mIfNotFirstTime( return );
+    
+    HelpViewer::init();
     
     ElasticPropSelectionTranslatorGroup::initClass();
     PreLoadsTranslatorGroup::initClass();

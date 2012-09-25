@@ -31,8 +31,16 @@ static const char* sNotInstHtml = "docnotinst.html";
 static const char* sToDoHtml = "todo.html";
 static const char* sWebSite = "http://opendtect.org";
 
-static bool showhelpstuff = GetEnvVarYN("DTECT_SHOW_HELP")
-			 || GetEnvVarYN("DTECT_SHOW_HELPINFO_ONLY");
+static bool showhelpstuff = false;
+
+
+
+void HelpViewer::init()
+{
+    showhelpstuff = GetEnvVarYN("DTECT_SHOW_HELP")
+		|| GetEnvVarYN("DTECT_SHOW_HELPINFO_ONLY");
+}
+
 
 static StreamData getStreamData( const char* fnm )
 {

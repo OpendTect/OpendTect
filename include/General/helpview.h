@@ -29,6 +29,8 @@ class IOPar;
 namespace HelpViewer
 {
 
+mGlobal(General) void		init();
+    
 mGlobal(General) BufferString	getURLForWinID(const char* winid);
     			//!< Combines Link -> WinID -> URL
 
