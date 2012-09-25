@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: property.cc,v 1.60 2012/09/13 13:20:47 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: property.cc 26398 2012-09-25 14:14:44Z bert.bril@dgbes.com $";
 
 #include "mathproperty.h"
 #include "propertyref.h"
@@ -158,7 +158,7 @@ MathProperty::MathProperty( const PropertyRef& pr, const char* df )
     , expr_(0)
     , uom_(0)
 {
-    inps_.allowNull( true );
+    inps_.allowNull( true ); inpunits_.allowNull( true );
     if ( df && *df )
 	setDef( df );
 }
@@ -169,9 +169,11 @@ MathProperty::MathProperty( const MathProperty& mp )
     , expr_(0)
     , uom_(mp.uom_)
 {
-    inps_.allowNull( true );
+    inps_.allowNull( true ); inpunits_.allowNull( true );
     if ( !mp.def_.isEmpty() )
 	setDef( mp.def_ );
+    for ( int idx=0; idx<mp.inpunits_.size(); idx++ )
+	inpunits_ += mp.inpunits_[idx];
 }
 
 
@@ -247,6 +249,22 @@ void MathProperty::setInput( int idx, const Property* p )
 	p = 0;
     }
     inps_.replace( idx, p );
+}
+
+
+const UnitOfMeasure* MathProperty::inputUnit( int idx ) const
+{
+    return idx >= 0 && idx<inpunits_.size() ? inpunits_[idx] : 0;
+}
+
+
+void MathProperty::setInputUnit( int idx, const UnitOfMeasure* un )
+{
+    if ( idx < 0 || idx >= inps_.size() )
+	return;
+    while ( inpunits_.size() <= idx )
+	addDefInpUnit();
+    inpunits_.replace( idx, un );
 }
 
 
@@ -361,6 +379,17 @@ bool MathProperty::isDepOn( const Property& p ) const
 }
 
 
+void MathProperty::addDefInpUnit() const
+{
+    const int inpidx = inpunits_.size();
+    const Property* pr = inps_[inpidx];
+    const UnitOfMeasure* uom = 0;
+    if ( pr )
+	uom = UoMR().get( pr->ref().stdType(), pr->ref().disp_.unit_ );
+    inpunits_ += uom;
+}
+
+
 bool MathProperty::init( const PropertySet& ps ) const
 {
     if ( !expr_ )
@@ -373,6 +402,8 @@ bool MathProperty::init( const PropertySet& ps ) const
     inps_.erase();
     while ( nrinps > inps_.size() )
 	inps_ += findInput( ps, inputName(inps_.size()), true );
+    while ( inpunits_.size() < nrinps )
+	addDefInpUnit();
 
     for ( int idep=0; idep<nrinps; idep++ )
     {
@@ -403,6 +434,11 @@ const char* MathProperty::def() const
     }
     if ( uom_ )
 	fms += uom_->name();
+    else
+	fms.add( "" );
+
+    for ( int idx=0; idx<inpunits_.size(); idx++ )
+	fms.add( inpunits_[idx] ? inpunits_[idx]->name() : "" );
 
     fulldef_ = fms;
     return fulldef_.buf();
@@ -411,7 +447,7 @@ const char* MathProperty::def() const
 
 void MathProperty::setDef( const char* s )
 {
-    inps_.erase(); consts_.erase();
+    inps_.erase(); consts_.erase(); inpunits_.erase();
     FileMultiString fms( s );
     def_ = fms[0];
     MathExpressionParser mep( def_ );
@@ -420,13 +456,14 @@ void MathProperty::setDef( const char* s )
 
     const int varsz = getNrVars( expr_, true );
     const int constsz = getNrVars( expr_, false );
-
     const int fmssz = fms.size();
+
     for ( int idx=0; idx<fmssz; idx++ )
     {
 	BufferString word( fms[idx] );
 	const int wordlen = word.size();
-	if ( wordlen < 3 ) continue;
+	if ( wordlen < 3 || wordlen > 4 )
+	    continue;
 	if ( word[0] == 'c' && isdigit(word[1]) && word[2] == '=' )
 	    consts_ += toFloat( word.buf() + 3 );
     }
@@ -437,7 +474,16 @@ void MathProperty::setDef( const char* s )
 	inps_ += 0;
 
     if ( fmssz > constsz+1 )
-	uom_ = UoMR().get( ref_.stdType(), fms[fmssz-1] );
+	uom_ = UoMR().get( ref_.stdType(), fms[constsz+1] );
+
+    for ( int idx=0; idx<inps_.size(); idx++ )
+    {
+	const Property* inp = inps_[idx];
+	if ( !inp || fmssz <= constsz + 2 + idx )
+	    addDefInpUnit();
+	else
+	    inpunits_ += UoMR().get( inp->ref().stdType(), fms[constsz+2+idx] );
+    }
 }
 
 
@@ -480,7 +526,12 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	if ( p == &xposprop )
 	    v = eo.relpos_;
 	else if ( p != &depthprop )
+	{
 	    v = p->value( eo );
+	    const UnitOfMeasure* uom = inpunits_[idx];
+	    if ( uom )
+		v = uom_->getUserValueFromSI( v );
+	}
 	else if ( SI().depthsInFeetByDefault() )
 	    v *= mToFeetFactorF;
 	expr_->setVariableValue( getMathVarIdx(*expr_,idx,true), v );
