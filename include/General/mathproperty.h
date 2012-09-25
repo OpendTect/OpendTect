@@ -37,6 +37,8 @@ public:
 
     int			nrInputs() const;
     const char*		inputName(int) const;
+    const UnitOfMeasure* inputUnit(int) const;
+    void		setInputUnit(int idx,const UnitOfMeasure*);
     int			nrConsts() const;
     const char*		constName(int) const;
     bool		haveInput( int idx ) const    { return inps_[idx]; }
@@ -63,12 +65,14 @@ protected:
 
     mutable MathExpression*	expr_;
     mutable ObjectSet<const Property> inps_;
+    mutable ObjectSet<const UnitOfMeasure> inpunits_;
     mutable TypeSet<float>	consts_;
     mutable BufferString	errmsg_;
     mutable BufferString	fulldef_;
 
     const Property*		findInput(const PropertySet&,const char*,
 	    				  bool) const;
+    void			addDefInpUnit() const;
 
 };
 
