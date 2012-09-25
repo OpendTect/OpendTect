@@ -402,7 +402,7 @@ bool ZipHandler::setCentralDirHeader()
     mInsertToCharBuff( headerbuff, nullvalue, mLExtFileAttr, mSizeFourBits );
     headerbuff[mLDiskNoStart] = 1;
     headerbuff[mLDiskNoStart + 1] = 0;
-    for( int idx=0; idx<totalfilecount_+initialfilecount_; idx++ )
+    for( int index=0; index<totalfilecount_+initialfilecount_; index++ )
     {
 	unsigned int offset;
 	unsigned int compsize;
