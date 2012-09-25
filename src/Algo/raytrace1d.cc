@@ -164,10 +164,18 @@ bool RayTracer1D::doPrepare( int nrthreads )
 
     for ( int idx=0; idx<layersize; idx++ )
 	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_ 
-	               : setup().sourcedepth_ + model_[idx].thickness_;
+	               : model_[idx].thickness_;
 
-    sourcelayer_ = 0;
-    float targetdepth = setup().receiverdepth_; 
+    const float sourcedepth = setup().sourcedepth_; 
+    for ( int idx=0; idx<model_.size(); idx++ )
+    {
+	sourcelayer_ = idx;
+	const float depth = depths_[idx];
+	if ( sourcedepth <= depth  )
+	    break;
+    }
+
+    const float targetdepth = setup().receiverdepth_; 
     for ( int idx=0; idx<model_.size(); idx++ )
     {
 	receiverlayer_ = idx;
@@ -338,13 +346,15 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     const int layersize = nrIterations();
 
     TypeSet<float> times, depths;
+    depths += 0;
+    times += 0;
     for ( int idx=0; idx<layersize; idx++ )
     {
 	depths += depths_[idx];
 	times += twt_->get( idx, offsetidx ); 
     }
-    sort_array( times.arr(), layersize );
-    return d2tm.setModel( depths.arr(), times.arr(), layersize ); 
+    sort_array( times.arr(), layersize+1 );
+    return d2tm.setModel( depths.arr(), times.arr(), layersize+1 ); 
 }
 
 
@@ -356,7 +366,8 @@ bool VrmsRayTracer1D::doPrepare( int nrthreads )
 	return false;
 
     const int layersize = nrIterations();
-    const bool iszerooff = offsets_.size() == 1 && mIsZero(offsets_[0],1e-3);
+    const float sourcedepth = setup().sourcedepth_; 
+    const float recdepth = setup().receiverdepth_; 
 
     TypeSet<float> dnmotimes, dvrmssum, unmotimes, uvrmssum; 
     for ( int idx=firstlayer_; idx<layersize; idx++ )
@@ -366,15 +377,34 @@ bool VrmsRayTracer1D::doPrepare( int nrthreads )
 	unmotimes += 0; uvrmssum += 0;
 	const float dvel = setup_.pdown_ ? layer.vel_ : layer.svel_;
 	const float uvel = setup_.pup_ ? layer.vel_ : layer.svel_;
-	const float dz = layer.thickness_;
+	float dz = layer.thickness_;
 	if ( idx >= sourcelayer_)
 	{
+	    if ( idx == sourcelayer_ )
+	    {
+		const float sourcedz = idx ? depths_[idx-1] : 0 ;
+		dz -= fabs( sourcedepth - sourcedz );
+	    }
+
+	    if ( dz <= 0 )
+		continue;
+
 	    dnmotimes[idx] += dz / dvel;
 	    dvrmssum[idx] += dz * dvel; 
 	}
 
+	dz = layer.thickness_;
 	if ( idx >= receiverlayer_ )
 	{
+	    if ( idx == receiverlayer_ )
+	    {
+		const float recdz = idx ? depths_[idx-1] : 0 ;
+		dz -= fabs( recdepth - recdz );
+	    }
+
+	    if ( dz <= 0 )
+		continue;
+
 	    unmotimes[idx] += dz / uvel;
 	    uvrmssum[idx] += dz * uvel; 
 	}
