@@ -26,7 +26,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 int main( int argc, char ** argv )
 {
-    od_putProgInfo( argc, argv );
+    SetProgramArgs( argc, argv );
 
     const int bgadd = argc > 1 && !strcmp(argv[1],"-bg") ? 1 : 0;
     if ( argc+bgadd < 3 )

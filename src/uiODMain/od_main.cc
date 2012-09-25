@@ -29,6 +29,7 @@ inline static bool isPromised( const char* claim )
 
 int main( int argc, char** argv )
 {
+    SetProgramArgs( argc, argv );
     const bool showversiononly = argv[1]
 	    && (!strcmp(argv[1],"-v") || !strcmp(argv[1],"--version"));
 
@@ -57,8 +58,6 @@ int main( int argc, char** argv )
 	    if ( gLogFilesRedirectCode == 1 )
 		UsrMsg( msg );
 	}
-
-	od_putProgInfo( argc, argv );
    
 	ret = ODMain( argc, argv );
     }

@@ -19,7 +19,7 @@ extern int ODSysAdmMain(int,char**);
 
 int main( int argc, char** argv )
 {
-    od_putProgInfo( argc, argv );
+    SetProgramArgs( argc, argv );
 
     int ret = ODSysAdmMain( argc, argv );
     ExitProgram( ret );

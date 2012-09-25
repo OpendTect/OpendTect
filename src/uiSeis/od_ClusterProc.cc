@@ -34,7 +34,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 int main( int argc, char ** argv )
 {
-    od_putProgInfo( argc, argv );
+    SetProgramArgs( argc, argv );
 
     BufferString parfilenm;
     bool withdelete = true;

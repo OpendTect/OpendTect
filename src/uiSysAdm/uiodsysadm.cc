@@ -32,8 +32,6 @@ uiODSysAdm& ODSysAdmMainWin()
 }
 
 
-extern "C" void SetInSysAdmMode();
-
 mGlobal(uiSysAdm) int ODSysAdmMain(int,char**); // keep compiler happy
 int ODSysAdmMain( int argc, char** argv )
 {
