@@ -54,6 +54,8 @@ extern "C" {
     mGlobal(Basic) void od_debug_messagef( int flag, const char* msg );
     mGlobal(Basic) void od_debug_putProgInfo(int,char**);
     mGlobal(Basic) void od_putProgInfo(int,char**);
+    mGlobal(Basic) void od_debug_init(void);
+    
 
 # ifdef __cpp__
 }
