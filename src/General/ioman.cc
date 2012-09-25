@@ -19,6 +19,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "errh.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "survinfo.h"
 #include "ascstream.h"
 #include "timefun.h"
 #include "oddatadirmanip.h"
@@ -29,9 +30,6 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include <stdlib.h>
 
 IOMan*	IOMan::theinst_	= 0;
-extern "C" void SetSurveyName(const char*);
-extern "C" const char* GetSurveyName();
-extern "C" void SetSurveyNameDirty();
 
 static bool survchg_triggers = false;
 static const MultiID emptykey( "" );
@@ -265,8 +263,6 @@ static bool validOmf( const char* dir )
     return true;
 }
 
-
-extern "C" const char* GetSurveyFileName();
 
 #define mErrRet(str) \
     { errmsg = str; return false; }
