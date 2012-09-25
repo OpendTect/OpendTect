@@ -68,6 +68,9 @@ protected:
 };
 
 
+mExternC( Basic ) const char* GetSettingsDataDir(void);
+
+
 //!> macro for easy set to Settings::common()
 #define mSettUse(fn,basekey,key,value) \
 	Settings::common().fn( IOPar::compKey(basekey,key), value )

@@ -203,8 +203,7 @@ bool Settings::write( bool do_merge ) const
 }
 
 
-mExternC( Basic ) const char* GetSettingsDataDir();
-mExternC( Basic ) const char* GetSettingsDataDir()
+mExternC(Basic) const char* GetSettingsDataDir()
 {
     static StaticStringManager stm;
     BufferString& dirnm = stm.getString();
