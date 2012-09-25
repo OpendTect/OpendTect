@@ -22,6 +22,10 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "strmoper.h"
 
+#ifdef __win__
+#include <direct.h>
+#endif
+
 #ifndef OD_NO_QT
 #include <QDateTime>
 #include <QDir>
@@ -432,6 +436,15 @@ bool removeDir( const char* dirnm )
 #endif
 }
 
+
+bool changeDir( const char* dir )
+{
+#ifdef __win__
+    return _chdir( dir );
+#else
+    chdir( dir );
+#endif
+}
 
 bool makeWritable( const char* fnm, bool yn, bool recursive )
 {
