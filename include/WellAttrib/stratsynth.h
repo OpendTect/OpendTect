@@ -212,12 +212,6 @@ protected:
 	    				const Strat::LayerModel&);
     SyntheticData* 		generateSD(const Strat::LayerModel&,
 					TaskRunner* tr=0);
-
-    virtual bool		getVPVSDenValsFromUnitPars(float&,float&,
-	    						   float&,
-							   const char*) const
-				{ return false; }
-
 };
 
 #endif

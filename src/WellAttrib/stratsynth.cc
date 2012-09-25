@@ -414,8 +414,7 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
     {
 	lay = seq.layers()[idx];
 	float dval, pval, sval;
-       	if ( !getVPVSDenValsFromUnitPars( pval, sval, dval, lay->name() ) )
-	    elpgen.getVals( dval, pval, sval, lay->values(), props.size() );
+	elpgen.getVals( dval, pval, sval, lay->values(), props.size() );
 
 	ElasticLayer ail ( lay->thickness(), pval, sval, dval );
 	BufferString msg( "Can not derive synthetic layer property " );

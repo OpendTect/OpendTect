@@ -34,7 +34,7 @@ public:
 
     virtual uiObject*			outerObj()	{ return this; }
     virtual uiStratLayerModelDisp*	getLayModDisp(uiStratLayModEditTools&,
-	    				Strat::LayerModel&);
+	    				Strat::LayerModelProvider&);
 
 protected:
 

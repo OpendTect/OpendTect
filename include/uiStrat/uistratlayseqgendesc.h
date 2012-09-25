@@ -18,7 +18,7 @@ class uiParent;
 class uiObject;
 class uiStratLayerModelDisp;
 class uiStratLayModEditTools;
-namespace Strat { class LayerSequenceGenDesc; class LayerModel; }
+namespace Strat { class LayerSequenceGenDesc; class LayerModelProvider; }
 
 
 /*!\brief Base class for LayerSequenceGenDesc editors - with factory.
@@ -44,7 +44,7 @@ public:
     virtual void	descHasChanged()		= 0;
     virtual uiObject*	outerObj()			= 0;
     virtual uiStratLayerModelDisp* getLayModDisp(uiStratLayModEditTools&,
-				    Strat::LayerModel&)	= 0;
+				    Strat::LayerModelProvider&)	= 0;
 
     Strat::LayerSequenceGenDesc& desc()			{ return desc_; }
     bool		needSave() const		{ return needsave_; }

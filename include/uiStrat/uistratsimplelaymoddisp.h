@@ -29,7 +29,7 @@ mClass(uiStrat) uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
 public:
 
     			uiStratSimpleLayerModelDisp(uiStratLayModEditTools&,
-					    const Strat::LayerModel&);
+					    const Strat::LayerModelProvider&);
     			~uiStratSimpleLayerModelDisp();
 
     virtual void	modelChanged();
