@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "positionlist.h"
 #include "viscoord.h"
 
+class SoTextureCoordinate2;
 class SoTextureCoordinate3;
 class Coord3;
 class Coord;
@@ -61,6 +62,22 @@ protected:
 
     virtual SoNode*		gtInvntrNode();
 
+};
+
+
+mClass(visBase) TextureCoords2 : public DataObject
+{
+public:
+    static TextureCoords2*	create()
+				mCreateDataObj(TextureCoords2);
+
+    void			setCoord( int,  const Coord& );
+
+protected:
+    				~TextureCoords2();
+    SoTextureCoordinate2*	coords_;
+    virtual SoNode*		gtInvntrNode();
+    Threads::Mutex&		mutex_;
 };
 
 
