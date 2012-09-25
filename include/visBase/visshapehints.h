@@ -35,6 +35,8 @@ public:
     void			setSolidShape(bool);
     bool			isSolidShape() const;
 
+    void			touch();
+
 protected:
     				~ShapeHints();
 

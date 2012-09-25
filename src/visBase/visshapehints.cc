@@ -69,4 +69,8 @@ SoNode* ShapeHints::gtInvntrNode()
 { return shapehints_; }
 
 
+void ShapeHints::touch()
+{ shapehints_->touch(); }
+
+
 }; //namespace
