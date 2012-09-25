@@ -23,8 +23,8 @@ mClass uiStratLayerContent : public uiGroup
 {
 public:
 
-  			uiStratLayerContent(uiParent*,
-					    const Strat::RefTree* rt=0);
+  			uiStratLayerContent(uiParent*,bool isfinal,
+					    const Strat::RefTree&);
 
     void		set(const Strat::Content&);
     const Strat::Content& get() const;

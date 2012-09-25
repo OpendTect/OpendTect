@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayseqgendesc.cc,v 1.46 2012/08/21 10:43:37 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc 26301 2012-09-21 04:06:36Z nanne.hemstra@dgbes.com $";
 
 #include "uistratlaycontent.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -38,18 +38,18 @@ mImplFactory2Param(uiLayerSequenceGenDesc,uiParent*,
 	Strat::LayerSequenceGenDesc&,uiLayerSequenceGenDesc::factory)
 
 
-uiStratLayerContent::uiStratLayerContent( uiParent* p,
-					  const Strat::RefTree* srt )
+uiStratLayerContent::uiStratLayerContent( uiParent* p, bool isfinal,
+				  const Strat::RefTree& srt )
     : uiGroup(p,"Layer content")
-    , rt_(srt ? *srt : Strat::RT())
+    , rt_(srt)
     , contentSelected(this)
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Content" );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+				isfinal ? "Content" : "Content zone" );
     fld_ = lcb->box();
-    const Strat::RefTree& rt = srt ? *srt : Strat::RT();
     fld_->addItem( "-" );
-    for ( int idx=0; idx<rt.contents().size(); idx++ )
-	fld_->addItem( rt.contents()[idx]->name() );
+    for ( int idx=0; idx<rt_.contents().size(); idx++ )
+	fld_->addItem( rt_.contents()[idx]->name() );
     setHAlignObj( lcb );
     fld_->selectionChanged.notify( mCB(this,uiStratLayerContent,contSel) );
 }
@@ -632,7 +632,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 	propflds_ += fld;
     }
 
-    contfld_ = new uiStratLayerContent( propgrp, &rt_ );
+    contfld_ = new uiStratLayerContent( propgrp, false, rt_ );
     contfld_->set( edun_->content() );
     if ( !propflds_.isEmpty() )
 	contfld_->attach( alignedBelow, propflds_[ propflds_.size()-1 ] );

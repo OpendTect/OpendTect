@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrateditlayer.cc,v 1.4 2012/09/12 12:30:01 cvsbert Exp $";
+static const char* rcsID mUnusedVar = "$Id: uistrateditlayer.cc 26301 2012-09-21 04:06:36Z nanne.hemstra@dgbes.com $";
 
 #include "uistrateditlayer.h"
 #include "stratlayersequence.h"
@@ -66,7 +66,7 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 	valflds_ += valfld;
     }
 
-    contfld_ = new uiStratLayerContent( this, &lay.unitRef().refTree() ); 
+    contfld_ = new uiStratLayerContent( this, true, lay.unitRef().refTree() ); 
     contfld_->set( lay.content() );
     contfld_->attach( alignedBelow, algrp );
 }
