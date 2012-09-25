@@ -29,6 +29,7 @@ class uiStratLayerModelDisp;
 class uiLayerSequenceGenDesc;
 class uiStratGenDescTools;
 class uiStratLayModEditTools;
+class uiStratLayerModelLMProvider;
 namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
 
 
@@ -48,10 +49,12 @@ public:
     uiToolBar*			analysisToolBar()	   { return analtb_; }
 
     const Strat::LayerSequenceGenDesc&	genDesc() const	   { return desc_; }
-    const Strat::LayerModel&		layerModel() const { return modl_; }
-    const Strat::LayerModel&		layerModelPostFR() const
-							 { return modlpostfr_; }
-    Strat::LayerModel&			layerModelPostFR(){ return modlpostfr_;}
+    const Strat::LayerModel&		layerModelOriginal() const;
+    Strat::LayerModel&			layerModelOriginal();
+    const Strat::LayerModel&		layerModelEdited() const;
+    Strat::LayerModel&			layerModelEdited();
+    const Strat::LayerModel&            layerModel() const;
+    Strat::LayerModel&                  layerModel();
     const char*				levelName() const; //!< null if none
     const SeisTrcBuf&			postStackTraces() const;
     const SeisTrcBuf&			modelTraces(const PropertyRef&) const;
@@ -76,8 +79,7 @@ protected:
     uiToolBar*			analtb_;
 
     Strat::LayerSequenceGenDesc& desc_;
-    Strat::LayerModel&		modl_;
-    Strat::LayerModel&		modlpostfr_;
+    uiStratLayerModelLMProvider& lmp_;
     CtxtIOObj&			descctio_;
     ElasticPropSelection*	elpropsel_;
     bool			usepostfrmodl_;

@@ -411,12 +411,10 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
     {
 	lay = seq.layers()[idx];
 	float dval, pval, sval;
-	if ( !getVPVSDenValsFromUnitPars( pval, sval, dval, lay->name() ) )
-	{
-	    dval  = elpgen.getVal(denref,lay->values(),props.size());
-	    pval = elpgen.getVal(pvref,lay->values(),props.size());
-	    sval = elpgen.getVal(svref,lay->values(),props.size());
-	}
+	dval  = elpgen.getVal(denref,lay->values(),props.size());
+	pval = elpgen.getVal(pvref,lay->values(),props.size());
+	sval = elpgen.getVal(svref,lay->values(),props.size());
+	
 
 	ElasticLayer ail ( lay->thickness(), pval, sval, dval );
 	BufferString msg( "Can not derive synthetic layer property " );

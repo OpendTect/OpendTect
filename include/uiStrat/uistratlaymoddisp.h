@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 class PropertyRef;
 class uiStratLayModEditTools;
-namespace Strat { class LayerModel; class Layer; }
+namespace Strat { class LayerModelProvider; class Layer; }
 
 
 /*!\brief Strat: Layer Model Displayer
@@ -28,9 +28,9 @@ mClass uiStratLayerModelDisp : public uiGroup
 {
 public:
 
-				uiStratLayerModelDisp(uiStratLayModEditTools&,
-						    const Strat::LayerModel&);
-				~uiStratLayerModelDisp();
+			uiStratLayerModelDisp(uiStratLayModEditTools&,
+					    const Strat::LayerModelProvider&);
+			~uiStratLayerModelDisp();
 
     virtual void		modelChanged()			= 0;
     virtual void		setZoomBox(const uiWorldRect&)	= 0;
@@ -50,7 +50,7 @@ public:
 
 protected:
 
-    const Strat::LayerModel& lm_;
+    const Strat::LayerModelProvider& lmp_;
     uiStratLayModEditTools& tools_;
     uiWorldRect		zoomwr_;
     int			selseqidx_;

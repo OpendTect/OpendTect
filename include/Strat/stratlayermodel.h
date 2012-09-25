@@ -69,6 +69,16 @@ protected:
 };
 
 
+mClass LayerModelProvider
+{
+public:
+
+    virtual LayerModel&		get()	= 0;
+    const LayerModel&	get() const
+			{ return const_cast<LayerModelProvider*>(this)->get(); }
+};
+
+
 }; // namespace Strat
 
 #endif

@@ -217,11 +217,6 @@ public:
 
 protected:
 
-    virtual bool                getVPVSDenValsFromUnitPars(float&,float&,
-	    						   float&,
-							   const char*) const
-				{ return false; }
-
 public:
     SyntheticData* 		getSynthetic(const PropertyRef&);
     void			flattenTraces(SeisTrcBuf&) const;
