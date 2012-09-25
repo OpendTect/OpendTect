@@ -40,6 +40,9 @@ void ConnComponents::compute( TaskRunner* tr )
     
     for ( int idx=0; idx<sz; idx++ )
     {
+	if ( markers[idx]<1 )
+	    continue;
+
 	const int curidx = labels.indexOf(markers[idx]);
 	if ( curidx==-1 )
 	{
