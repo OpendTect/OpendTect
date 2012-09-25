@@ -146,6 +146,7 @@ mDefModInitFn(visBase)
     visBase::MovableTextureSlice::initClass();
     visBase::Texture3Slice::initClass();
     visBase::TextureCoords::initClass();
+    visBase::TextureCoords2::initClass();
     visBase::TextureChannels::initClass();
     visBase::ColTabTextureChannel2RGBA::initClass();
     visBase::TextureChannel2VolData::initClass();
