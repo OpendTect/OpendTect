@@ -442,7 +442,7 @@ bool changeDir( const char* dir )
 #ifdef __win__
     return _chdir( dir );
 #else
-    chdir( dir );
+    return chdir( dir );
 #endif
 }
 
