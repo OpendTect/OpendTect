@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "callback.h"
+#include "ptrman.h"
 
 namespace DBG { mGlobal(Basic) void forceCrash(bool); }
 
@@ -24,6 +25,8 @@ mClass(Basic) SignalHandling : public CallBacker
 {
 public:
 
+    static void			initClass();
+    
     enum EvType			{
 				    ConnClose,
 				    ChldStop,
@@ -43,31 +46,31 @@ public:
 
 protected:
 
-				SignalHandling();
-    static SignalHandling	theinst_;
+					SignalHandling();
+    static PtrMan<SignalHandling>	theinst_;
 
-    CallBackSet			conncbs;
-    CallBackSet			chldcbs;
-    CallBackSet			reinitcbs;
-    CallBackSet			stopcbs;
-    CallBackSet			contcbs;
-    CallBackSet			alarmcbs;
-    CallBackSet			killcbs;
+    CallBackSet				conncbs_;
+    CallBackSet				chldcbs_;
+    CallBackSet				reinitcbs_;
+    CallBackSet				stopcbs_;
+    CallBackSet				contcbs_;
+    CallBackSet				alarmcbs_;
+    CallBackSet				killcbs_;
 
-    CallBackSet&		getCBL(EvType);
+    CallBackSet&			getCBL(EvType);
 
-    static void			handle(int);
+    static void				handle(int);
 
-    void			doKill(int);
-    void			doStop(int,bool withcbs=true);
-    void			doCont();
-    void			handleConn();
-    void			handleChld();
-    void			handleAlarm();
-    void			handleReInit();
+    void				doKill(int);
+    void				doStop(int,bool withcbs=true);
+    void				doCont();
+    void				handleConn();
+    void				handleChld();
+    void				handleAlarm();
+    void				handleReInit();
 
 
-    friend void			DBG::forceCrash(bool);
+    friend void				DBG::forceCrash(bool);
 
 };
 

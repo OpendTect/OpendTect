@@ -10,6 +10,9 @@ ________________________________________________________________________
 static const char* rcsID mUnusedVar = "$Id$";
 
 #include "moddepmgr.h"
+#include "debug.h"
+#include "sighndl.h"
+#include "surv2dgeom.h"
 
 #define OD_EXT_KEYSTR_EXPAND 1
 
@@ -18,4 +21,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 mDefModInitFn(Basic)
 {
     mIfNotFirstTime( return );
+    SignalHandling::initClass();
+    od_debug_init();
+    PosInfo::Survey2D::initClass();
 }
