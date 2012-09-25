@@ -66,7 +66,7 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 	valflds_ += valfld;
     }
 
-    contfld_ = new uiStratLayerContent( this, &lay.unitRef().refTree() ); 
+    contfld_ = new uiStratLayerContent( this, true, lay.unitRef().refTree() ); 
     contfld_->set( lay.content() );
     contfld_->attach( alignedBelow, algrp );
 }
