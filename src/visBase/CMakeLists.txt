@@ -67,6 +67,7 @@ SET(OD_MODULE_SOURCES
 	   vissplittexturerandomline.cc
 	   vissplittexture2rectangle.cc
 	   vissplittextureseis2d.cc
+	   visswitch.cc
 	   vistext.cc
 	   vistexture.cc
 	   vistexture2.cc
