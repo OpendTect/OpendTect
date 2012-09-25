@@ -50,9 +50,6 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 #define mMapWidth	300
 #define mMapHeight	300
-extern "C" const char* GetSurveyName();
-extern "C" const char* GetSurveyFileName();
-extern "C" void SetSurveyName(const char*);
 
 
 static ObjectSet<uiSurvey::Util>& getUtils()

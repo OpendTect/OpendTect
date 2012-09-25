@@ -19,8 +19,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uisurvey.h"
-
-extern "C" const char* GetSurveyName();
+#include "survinfo.h"
 
 #define mErrRet(s) { uiMSG().error(s); return; }
 

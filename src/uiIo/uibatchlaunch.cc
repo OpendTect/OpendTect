@@ -169,8 +169,6 @@ int uiBatchLaunch::selected()
 }
 
 
-extern "C" const char* GetSurveyName();
-
 bool uiBatchLaunch::acceptOK( CallBacker* )
 {
     const bool dormt = execRemote();

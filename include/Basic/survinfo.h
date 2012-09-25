@@ -324,6 +324,13 @@ public:
 
 mGlobal(Basic) const SurveyInfo& SI();
 
+mExternC( Basic ) const char* GetSurveyFileName(void);
+mExternC( Basic ) int SurveyNameDirty(void);
+mExternC( Basic ) void SetSurveyNameDirty(void);
+mExternC( Basic ) void SetSurveyName(const char*);
+mExternC( Basic ) const char* GetSurveyName(void);
+
+
 
 #endif
 
