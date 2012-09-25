@@ -14,7 +14,9 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "bufstring.h"
 #include "file.h"
 #include "filepath.h"
+#include "oddirs.h"
 #include "strmprov.h"
+#include "winutils.h"
 #include "ziparchiveinfo.h"
 
 #include <iostream>
@@ -40,16 +42,10 @@ ZipUtils::~ZipUtils()
 
 bool ZipUtils::Zip( const char* src, const char* dest )
 {
-   mDirCheck( src );
-   mDirCheck( dest );
-
-#ifdef __win__
+    mDirCheck( src );
     return doZip( src, dest );
-#else
-    // TODO on Linux
-    return false;
-#endif
 }
+
 
 bool ZipUtils::UnZip( const char* src, const char* dest )
 {
@@ -60,7 +56,24 @@ bool ZipUtils::UnZip( const char* src, const char* dest )
 
 bool ZipUtils::doZip( const char* src, const char* dest )
 {
-    return true;
+    FilePath srcfp( src );
+    BufferString newsrc = srcfp.fileName();
+    FilePath zipcomfp( GetBinPlfDir(), "zip.exe" );
+    BufferString cmd( zipcomfp.fullPath() );
+    cmd += " -r \""; 
+    cmd += dest;
+    cmd += "\"";
+    cmd += " ";
+    cmd += newsrc;
+#ifndef __win__
+    File::changeDir( srcfp.pathOnly() );
+    const bool ret = !system( cmd );
+    File::changeDir( GetSoftwareDir(0) );
+    return ret;
+#else
+    const bool ret = execProc( cmd, true, false, srcfp.pathOnly() );
+    return ret;
+#endif
 }
 
 bool ZipUtils::doUnZip( const char* src, const char* dest )
