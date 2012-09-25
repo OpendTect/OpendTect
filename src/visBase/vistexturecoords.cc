@@ -15,12 +15,41 @@ static const char* rcsID = "$Id: vistexturecoords.cc,v 1.16 2011/04/28 07:00:12 
 #include "position.h"
 #include "thread.h"
 
+#include <Inventor/nodes/SoTextureCoordinate2.h>
 #include <Inventor/nodes/SoTextureCoordinate3.h>
 
 mCreateFactoryEntry( visBase::TextureCoords );
+mCreateFactoryEntry( visBase::TextureCoords2 );
 
 namespace visBase
 {
+
+
+TextureCoords2::TextureCoords2()
+    : coords_( new SoTextureCoordinate2 )
+    , mutex_( *new Threads::Mutex )
+{
+    coords_->ref();
+}
+
+
+TextureCoords2::~TextureCoords2()
+{
+    delete &mutex_;
+    coords_->unref();
+}
+
+
+void TextureCoords2::setCoord( int idx, const Coord& pos )
+{
+    Threads::MutexLocker lock( mutex_ );
+    coords_->point.set1Value( idx, (float)pos.x, (float)pos.y );
+}
+
+
+SoNode* TextureCoords2::gtInvntrNode()
+{ return coords_; }
+
 
 TextureCoords::TextureCoords()
     : coords_( new SoTextureCoordinate3 )
