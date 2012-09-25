@@ -55,6 +55,7 @@ mClass(Basic) Survey2D : public CallBacker
 {
 public:
 
+    static void		initClass();
     bool		isEmpty() const		{ return lsnm_.isEmpty(); }
 
     //using names

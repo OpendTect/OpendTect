@@ -28,7 +28,14 @@ static PosInfo::Survey2D* theinst = 0;
 static const char* sIdxFilename = "idx.txt";
 static const char* sKeyStor = "Storage";
 static const char* sKeyMaxID = "Max ID";
-static bool cWriteAscii = Settings::common().isTrue("2DGeometry.Write Ascii");
+static bool cWriteAscii = false;
+
+
+
+void PosInfo::Survey2D::initClass()
+{
+    cWriteAscii = Settings::common().isTrue("2DGeometry.Write Ascii");
+}
 
 
 namespace PosInfo {
