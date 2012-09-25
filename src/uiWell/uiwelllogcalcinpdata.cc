@@ -32,7 +32,7 @@ static const BufferStringSet specvars( specvararr );
 
 uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
 					    int fieldnr )
-    : uiFormInputSel(inpgrp,p->lognms_,fieldnr)
+    : uiMathExpressionVariable(inpgrp,p->lognms_,fieldnr)
     , wls_(&p->wls_)
     , convertedlog_(0)
 {
@@ -50,7 +50,7 @@ uiWellLogCalcInpData::~uiWellLogCalcInpData()
 }
 
 
-void uiWellLogCalcInpData::use( MathExpression* expr )
+void uiWellLogCalcInpData::use( const MathExpression* expr )
 {
     const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
     if ( idx_ >= nrvars )

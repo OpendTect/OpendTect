@@ -1,5 +1,5 @@
-#ifndef uiforminputsel_h
-#define uiforminputsel_h
+#ifndef uimathexpressionvariable_h
+#define uimathexpressionvariable_h
 /*+
 ________________________________________________________________________
 
@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-
 class BufferString;
 class BufferStringSet;
 class MathExpression;
@@ -21,15 +20,17 @@ class uiGenInput;
 class uiLabeledComboBox;
 class UnitOfMeasure;
 
-mClass(uiTools) uiFormInputSel : public uiGroup
+
+mClass(uiTools) uiMathExpressionVariable : public uiGroup
 {
 public:
 
-				uiFormInputSel(uiGroup*,const BufferStringSet&,
-					       int curselidx =0,
-					       bool displayuom =true);
+				uiMathExpressionVariable(uiGroup*,
+						const BufferStringSet&,
+						int curselidx=0,
+						bool displayuom=true);
 
-    virtual void		use(MathExpression*);
+    virtual void		use(const MathExpression*);
     bool                        hasVarName(const char*) const;
     BufferString		getVarName() const;
 
