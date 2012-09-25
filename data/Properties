@@ -11,16 +11,19 @@ Pwave velocity: Velocity
 Aliases: PVel`Vel`V
 Color: 0`200`0
 Range: 1500`4500`m/s
+DefaultValue: Value`2000
 !
 Swave velocity: Velocity
 Aliases: SVel`Svel
 Color: 0`255`0
 Range: 500`2000`m/s
+DefaultValue: Value`3400
 !
 Porosity: Volumetrics
 Aliases: Phi`Por`Phie`PIGN
 Color: 200`200`0
 Range: 0`30`%
+DefaultValue: Value`10
 !
 Permeability: Permeability
 Aliases: Perm
@@ -68,12 +71,13 @@ Shear Impedance: Impedance
 Aliases: SI
 Color: 100`255`100
 Range: 2e6`2e7
+DefaultValue: Math`Density * Swave velocity
 !
 Water Saturation: Volumetrics
 Aliases: Sat`SW`SWE
 Color: 0`200`255
 Range: 0`100`%
-DefaultValue: Value`0
+DefaultValue: Value`1
 !
 Spontaneous Potential: Electrical Potential
 Aliases: SP
@@ -95,11 +99,13 @@ Vp/Vs: Elastic Ratio
 Aliases: vpvs
 Color: 200`150`200
 Range: 0.1`0.5
+DefaultValue: Math`Pwave velocity / Swave velocity
 !
 Vs/Vp: Elastic Ratio
 Aliases: vsvp
 Color: 200`150`150
 Range: 2`10
+DefaultValue: Math`Swave velocity / Pwave velocity
 !
 LambdaRho: Pressure-Weight
 Color: 100`150`255
@@ -117,7 +123,7 @@ Vshale: Volumetrics
 Aliases: Vclay`VCL`VSH
 Color: 100`200`100
 Range: 0`100`%
-DefaultValue: Value`0
+DefaultValue: Value`1
 !
 Delta: Anisotropy
 Color: 150`200`150
