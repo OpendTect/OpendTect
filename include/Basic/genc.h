@@ -40,7 +40,18 @@ mGlobal(Basic) const char* GetLocalHostName(void);
 mGlobal(Basic) const char* GetLocalIP(void);
 		/*!< returns local IP Address */
 #endif
-
+    
+    
+mGlobal(Basic) const char* GetFullExecutablePath(void);
+		/*!< returns full path to executable. setProgramArgs
+		     must be called for it to work. */
+    
+mGlobal(Basic) char** GetArgV(void);
+    
+mGlobal(Basic) int GetArgC(void);
+    
+mGlobal(Basic) void SetProgramArgs(int argc, char** argv);
+    
 mGlobal(Basic) int isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */
 
@@ -70,6 +81,15 @@ mGlobal(Basic) int GetSubversionRevision(void);
 
 mGlobal(Basic) const char* GetSubversionUrl(void);
 		/*!< Returns Subversion url */
+    
+    
+mGlobal( Basic ) void forkProcess(void);
+    
+    
+mGlobal( Basic ) int InSysAdmMode(void);
+    
+    
+mGlobal( Basic ) void SetInSysAdmMode(void);
 
 
 #ifdef __cpp__
