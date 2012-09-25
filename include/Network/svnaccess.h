@@ -36,19 +36,20 @@ public:
 
     			// changes locally
     bool		update(const char* fnm=0);
-    bool		edit(const char*);
-    bool		edit(const BufferStringSet&);
+    bool		lock(const char*);
+    bool		lock(const BufferStringSet&);
 
     			// sets up for repos change
     bool		add(const char*);
     bool		add(const BufferStringSet&);
+
     			// sets up for repos change and changes locally
-    bool		remove(const char*);
-    bool		remove(const BufferStringSet&);
     bool		rename(const char* subdir,const char* from,
 				const char* to);
     bool		changeFolder(const char* fnm,const char* fromsubdir,
 				     const char* tosubdir);
+    bool		remove(const char*);
+    bool		remove(const BufferStringSet&);
 
     			// changes repository
     bool		commit(const char* fnm,const char* msg=0);

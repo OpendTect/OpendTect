@@ -109,14 +109,14 @@ bool SVNAccess::update( const char* fnm )
 }
 
 
-bool SVNAccess::edit( const char* fnm )
+bool SVNAccess::lock( const char* fnm )
 {
     BufferStringSet bss; bss.add( fnm );
-    return edit( bss );
+    return lock( bss );
 }
 
 
-bool SVNAccess::edit( const BufferStringSet& fnms )
+bool SVNAccess::lock( const BufferStringSet& fnms )
 {
     if ( !isOK() )
 	return true;
