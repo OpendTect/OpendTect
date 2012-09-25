@@ -61,32 +61,29 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 					.singlelog(setup.singlelog_)
 					.prefpropnm(setup.prefpropnm_));
 
-    if ( ads_ )
-    {
-	uiLabeledListBox* llba = 0;
-	llba = new uiLabeledListBox( this, "Attributes", true );
-	attrsfld_ = llba->box();
-	llba->display( ads_, true );
-	welllogselfld_->attach( ensureBelow, llba );
-	const float inldist = SI().inlDistance();
-	const char* distunit =  SI().getXYUnitString();
-	BufferString radiusbuf( "  Radius around wells "); 
-	radiusbuf += distunit;
-	radiusfld_ = new uiGenInput( this, radiusbuf,
-				     FloatInpSpec((float)((int)(inldist+.5))) );
-	if ( llba )
-	    radiusfld_->attach( alignedBelow, llba );
-	else
-	    radiusfld_->attach( alignedBelow, welllogselfld_ );
-	radiusfld_->attach( ensureBelow, welllogselfld_ );
+    uiLabeledListBox* llba = 0;
+    llba = new uiLabeledListBox( this, "Attributes", true );
+    attrsfld_ = llba->box();
+    llba->display( setup.withattrib_, true );
+    welllogselfld_->attach( ensureBelow, llba );
+    const float inldist = SI().inlDistance();
+    const char* distunit =  SI().getXYUnitString();
+    BufferString radiusbuf( "  Radius around wells "); 
+    radiusbuf += distunit;
+    radiusfld_ = new uiGenInput( this, radiusbuf,
+				 FloatInpSpec((float)((int)(inldist+.5))) );
+    if ( llba )
+	radiusfld_->attach( alignedBelow, llba );
+    else
+	radiusfld_->attach( alignedBelow, welllogselfld_ );
+    radiusfld_->attach( ensureBelow, welllogselfld_ );
 
-	if ( !ads_->is2D() )
-	{
-	    uiPosFilterSet::Setup fsu( false );
-	    fsu.seltxt( "Filter positions" ).incprovs( true );
-	    posfiltfld_ = new uiPosFilterSetSel( this, fsu );
-	    posfiltfld_->attach( alignedBelow, radiusfld_ );
-	}
+    if ( ads_ && !ads_->is2D() )
+    {
+	uiPosFilterSet::Setup fsu( false );
+	fsu.seltxt( "Filter positions" ).incprovs( true );
+	posfiltfld_ = new uiPosFilterSetSel( this, fsu );
+	posfiltfld_->attach( alignedBelow, radiusfld_ );
     }
 
     setDescSet( d );

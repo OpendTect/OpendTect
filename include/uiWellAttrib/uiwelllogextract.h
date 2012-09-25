@@ -33,10 +33,13 @@ public:
 
     struct Setup
     {
-			Setup(bool singlog =false ,const char* prop =0)
+			Setup(bool wa=true,bool singlog =false,
+			      const char* prop =0)
 			    : singlelog_(singlog)
+			    , withattrib_(wa)
 			    , prefpropnm_(prop)	{}
 	mDefSetupMemb(bool,singlelog);
+	mDefSetupMemb(bool,withattrib);
 	mDefSetupMemb(BufferString,prefpropnm);
     };
 				uiWellLogExtractGrp(uiParent*,

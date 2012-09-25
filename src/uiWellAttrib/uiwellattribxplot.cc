@@ -26,7 +26,8 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 		     ,"111.1.1").modal(false))
     	, dpsdispmgr_(0)
 {
-    wellextractgrp_ = new uiWellLogExtractGrp( this, d );
+    wellextractgrp_ =
+	new uiWellLogExtractGrp( this, uiWellLogExtractGrp::Setup(), d );
 }
 
 #define mDPM DPM(DataPackMgr::PointID())
