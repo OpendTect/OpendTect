@@ -434,6 +434,7 @@ float ElasticPropGen::getVal(const ElasticFormula& ef,
 	    const char* uoms = ef.units().get( idx ).buf();
 	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( uoms );
 	    val = uom ? uom->getSIValue( val ) : val;
+	    delete uom;
 	}
 
 	expr->setVariableValue( idx, val );
