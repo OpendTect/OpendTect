@@ -20,21 +20,25 @@ class uiGenInput;
 class uiLabeledComboBox;
 class UnitOfMeasure;
 
-mClass uiFormInputSel : public uiGroup
+mClass uiMathExpressionVariable : public uiGroup
 {
 public:
 
-				uiFormInputSel(uiGroup*,const BufferStringSet&,
-					       int curselidx =0,
-					       bool displayuom =true);
+				uiMathExpressionVariable(uiGroup*,
+						const BufferStringSet&,
+						int curselidx=0,
+						bool displayuom=true);
 
-    virtual void		use(MathExpression*);
+    virtual void		use(const MathExpression*);
     bool                        hasVarName(const char*) const;
+    BufferString		getVarName() const;
+
     const char*			getInput() const;
     void                        setUnit(const char*);
     const UnitOfMeasure*	getUnit() const;
     float			getCstVal() const;
     bool			isCst() const;
+    void			setCurSelIdx(int);
 
 protected:
 
@@ -47,9 +51,6 @@ protected:
     const BufferStringSet&      posinpnms_;
     BufferString		varnm_;
 
-public:
-    BufferString                getVarName() const;
-    void                        setCurSelIdx(int);
 };
 
 

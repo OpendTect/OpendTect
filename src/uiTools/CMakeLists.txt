@@ -31,7 +31,6 @@ SET(OD_MODULE_SOURCES
 		uidlggroup.cc	
 		uifileinput.cc	
 		uifillpattern.cc	
-		uiforminputsel.cc
 		uifunctiondisplay.cc
 		uigeninput.cc	
 		uigeninput_impl.cc
@@ -48,6 +47,7 @@ SET(OD_MODULE_SOURCES
 		uimapperrangeeditordlg.cc 
 		uimarkerstyle.cc
 		uimathexpression.cc
+		uimathexpressionvariable.cc
 		uinotsaveddlg.cc
 		uiobjdisposer.cc
 		uiobjectitemview.cc

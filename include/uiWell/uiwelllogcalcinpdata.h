@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiforminputsel.h"
+#include "uimathexpressionvariable.h"
 #include "bufstringset.h"
 #include "uiwelllogcalc.h"
 
@@ -23,14 +23,14 @@ namespace Well { class Log; class LogSet; }
 /*! \ Brief: UI utility to select the well logs which will be used as input
   to compute a new log from a formula*/
 
-class uiWellLogCalcInpData : public uiFormInputSel
+class uiWellLogCalcInpData : public uiMathExpressionVariable
 {
 public:
 				uiWellLogCalcInpData(uiWellLogCalc*,
 						     uiGroup*,int);
 				~uiWellLogCalcInpData();
 
-    virtual void		use(MathExpression*);
+    virtual void		use(const MathExpression*);
     const Well::Log*		getLog();
     bool			getInp(uiWellLogCalc::InpData&);
 

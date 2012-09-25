@@ -7,10 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiforminputsel.cc,v 1.6 2012/08/31 12:31:00 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uimathexpressionvariable.cc -1   $";
 
 
-#include "uiforminputsel.h"
+#include "uimathexpressionvariable.h"
 
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -26,7 +26,7 @@ static const char* rcsID = "$Id: uiforminputsel.cc,v 1.6 2012/08/31 12:31:00 cvs
 static const char* specvararr[] = { "MD", "DZ", 0 };
 static const BufferStringSet specvars( specvararr );
 
-uiFormInputSel::uiFormInputSel( uiGroup* inpgrp, 
+uiMathExpressionVariable::uiMathExpressionVariable( uiGroup* inpgrp, 
 				const BufferStringSet& posinpnms,
        				int curselidx, bool displayuom )
     : uiGroup(inpgrp,"Inp data group")
@@ -43,7 +43,8 @@ uiFormInputSel::uiFormInputSel( uiGroup* inpgrp,
     int selidx = curselidx;
     if ( selidx >= posinpnms_.size() ) selidx = posinpnms_.size();
     inpfld_->box()->setCurrentItem( selidx );
-    inpfld_->box()->selectionChanged.notify( mCB(this,uiFormInputSel,selChg) );
+    inpfld_->box()->selectionChanged.notify(
+	    		mCB(this,uiMathExpressionVariable,selChg) );
 
     if ( displayuom )
     {
@@ -64,7 +65,7 @@ uiFormInputSel::uiFormInputSel( uiGroup* inpgrp,
 }
 
 
-void uiFormInputSel::use( MathExpression* expr )
+void uiMathExpressionVariable::use( const MathExpression* expr )
 {
     varnm_.setEmpty();
     const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
@@ -81,46 +82,46 @@ void uiFormInputSel::use( MathExpression* expr )
 }
 
 
-bool uiFormInputSel::hasVarName( const char* nm ) const
+bool uiMathExpressionVariable::hasVarName( const char* nm ) const
 {
     return varnm_ == nm;
 }
 
 
-const char* uiFormInputSel::getInput() const
+const char* uiMathExpressionVariable::getInput() const
 {
     return inpfld_->box()->text();
 }
 
 
-void uiFormInputSel::setUnit( const char* s )
+void uiMathExpressionVariable::setUnit( const char* s )
 {
     if ( unfld_ )
 	unfld_->box()->setText( s );
 }
 
 
-const UnitOfMeasure* uiFormInputSel::getUnit() const
+const UnitOfMeasure* uiMathExpressionVariable::getUnit() const
 {
     if ( !unfld_ || !unfld_->mainObject()->isDisplayed() ) return 0;
     return UoMR().get( unfld_->box()->text() );
 }
 
 
-float uiFormInputSel::getCstVal() const
+float uiMathExpressionVariable::getCstVal() const
 {
     return cstvalfld_->mainObject()->isDisplayed() ? cstvalfld_->getfValue()
 						   : mUdf(float);
 }
 
 
-bool uiFormInputSel::isCst() const
+bool uiMathExpressionVariable::isCst() const
 {
     return cstvalfld_->mainObject()->isDisplayed();
 }
 
 
-void uiFormInputSel::selChg( CallBacker* )
+void uiMathExpressionVariable::selChg( CallBacker* )
 {
     const int selidx = inpfld_->box()->currentItem();
     const bool iscst = selidx == posinpnms_.size();
@@ -129,13 +130,13 @@ void uiFormInputSel::selChg( CallBacker* )
 }
 
 
-BufferString uiFormInputSel::getVarName() const
+BufferString uiMathExpressionVariable::getVarName() const
 {
     return varnm_;
 }
 
 
-void uiFormInputSel::setCurSelIdx( int idx )                                    
-{                                                                               
-    inpfld_->box()->setCurrentItem( idx );                                      
+void uiMathExpressionVariable::setCurSelIdx( int idx )
+{
+    inpfld_->box()->setCurrentItem( idx );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalcinpdata.cc,v 1.3 2012/04/13 14:36:57 cvshelene Exp $";
+static const char* rcsID mUnusedVar = "$Id: uiwelllogcalcinpdata.cc 26301 2012-09-21 04:06:36Z nanne.hemstra@dgbes.com $";
 
 
 #include "uiwelllogcalcinpdata.h"
@@ -32,7 +32,7 @@ static const BufferStringSet specvars( specvararr );
 
 uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
 					    int fieldnr )
-    : uiFormInputSel(inpgrp,p->lognms_,fieldnr)
+    : uiMathExpressionVariable(inpgrp,p->lognms_,fieldnr)
     , wls_(&p->wls_)
     , lognmsettodef_(false)
     , convertedlog_(0)
@@ -51,7 +51,7 @@ uiWellLogCalcInpData::~uiWellLogCalcInpData()
 }
 
 
-void uiWellLogCalcInpData::use( MathExpression* expr )
+void uiWellLogCalcInpData::use( const MathExpression* expr )
 {
     const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
     if ( idx_ >= nrvars )
