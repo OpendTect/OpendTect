@@ -19,6 +19,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "segydirecttr.h"
 #include "wavelet.h"
 #include "seismulticubeps.h"
+#include "seispacketinfo.h"
 
 
 #define sKeySeisTrcTranslatorGroup "Seismic Data"
@@ -35,6 +36,8 @@ mDefSimpleTranslatorioContext(SeisTrc,Seis)
 mDefModInitFn(Seis)
 {
     mIfNotFirstTime( return );
+    
+    SeisPacketInfo::initClass();
 
     SeisTrcTranslatorGroup::initClass();
     SeisPS3DTranslatorGroup::initClass();

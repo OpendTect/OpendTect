@@ -25,7 +25,8 @@ namespace PosInfo { class CubeData; }
 mClass(Seis) SeisPacketInfo
 {
 public:
-
+    static void		initClass();
+    
 			SeisPacketInfo()	{ clear(); }
 
     BufferString	usrinfo;

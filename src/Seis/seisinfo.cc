@@ -55,7 +55,12 @@ static BufferString getUsrInfo()
     return bs;
 }
 
-BufferString SeisPacketInfo::defaultusrinfo = getUsrInfo();
+
+BufferString SeisPacketInfo::defaultusrinfo;
+
+
+void SeisPacketInfo::initClass()
+{ defaultusrinfo = getUsrInfo(); }
 
 class SeisEnum
 {

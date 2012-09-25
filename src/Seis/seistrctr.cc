@@ -45,29 +45,26 @@ SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
 }
 
 
-static bool defnowrreg = GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION");
-static bool defsurvinfwr = GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE");
-
 SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
-	: Translator(nm,unm)
-	, conn(0)
-	, errmsg(0)
-	, inpfor_(0)
-	, nrout_(0)
-	, inpcds(0)
-	, outcds(0)
-	, seldata(0)
-    	, prevnr_(mUdf(int))
-    	, pinfo(*new SeisPacketInfo)
-    	, trcblock_(*new SeisTrcBuf(false))
-    	, lastinlwritten(SI().sampling(false).hrg.start.inl)
-    	, read_mode(Seis::Prod)
-    	, is_prestack(false)
-    	, is_2d(false)
-    	, enforce_regular_write(!defnowrreg) // default true
-    	, enforce_survinfo_write(defsurvinfwr)// default false
-	, compnms_(0)
-	, warnings_(*new BufferStringSet)
+    : Translator(nm,unm)
+    , conn(0)
+    , errmsg(0)
+    , inpfor_(0)
+    , nrout_(0)
+    , inpcds(0)
+    , outcds(0)
+    , seldata(0)
+    , prevnr_(mUdf(int))
+    , pinfo(*new SeisPacketInfo)
+    , trcblock_(*new SeisTrcBuf(false))
+    , lastinlwritten(SI().sampling(false).hrg.start.inl)
+    , read_mode(Seis::Prod)
+    , is_prestack(false)
+    , is_2d(false)
+    , enforce_regular_write( !GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION") )
+    , enforce_survinfo_write( GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE") )
+    , compnms_(0)
+    , warnings_(*new BufferStringSet)
 {
 }
 
