@@ -68,6 +68,7 @@ IF(UNIX) #Apple an Linux
     ENDIF()
 
     ADD_DEFINITIONS("'-DmUnusedVar=__attribute__ ((unused))'")
+    ADD_DEFINITIONS("'-DmUsedVar=__attribute__ ((used))'")
     SET(OD_STATIC_EXTENSION ".a")
         
 ENDIF(UNIX)
@@ -84,6 +85,7 @@ IF(WIN32)
     ADD_DEFINITIONS("/W1 /Ob1 /vmg /Zc:wchar_t-")
     SET(EXTRA_LIBS "ws2_32" "shlwapi")
     ADD_DEFINITIONS( "\"-DmUnusedVar=\"")
+    ADD_DEFINITIONS( "\"-DmUsedVar=\"")
     SET(OD_STATIC_EXTENSION ".lib")
     SET( OD_EXECUTABLE_EXTENSION ".exe" )
     IF ( OD_64BIT )
