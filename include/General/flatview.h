@@ -76,20 +76,18 @@ public:
     FillPattern			fillpattern_;
     int				zvalue_; 	//overlay zvalue ( max=on top )
 
-    //TypeSet<int>		dispids_;	//!<ids of corresponding displed
-    						//!<object
     bool			displayed_;
-
     bool			close_;
 
+    void			setFillPattern( const FillPattern& fp )
+						{ fillpattern_ = fp; }
     bool			isEmpty() const;
     void			empty();
 
-//protected:
-//Temporary public, will be protected.
-			    friend class Viewer;
-			    AuxData( const char* nm );
-			    AuxData( const AuxData& );
+    // should be protected, don't use.
+				AuxData( const char* nm );
+				AuxData( const AuxData& );
+				friend class Viewer;
 };
 
 /*!\brief Annotation data for flat views */
