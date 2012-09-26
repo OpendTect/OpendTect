@@ -163,7 +163,7 @@ void ElasticFormulaRepository::addRockPhysicsFormulas()
 		else
 		{
 		    if ( rpf->vardefs_.validIdx( varidx ) )
-		    fm.variables().add( rpf->vardefs_[varidx]->name() );
+		    fm.variables().add( rpf->vardefs_[varidx]->desc_ );
 		    varidx++;
 		}
 	    }
