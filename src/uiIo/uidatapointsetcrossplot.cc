@@ -115,7 +115,6 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , trmsg_("Calculating Density" )
 {
     setup_.showy1userdefline(false).showy2userdefline(false);
-
     enableImageSave();
     enableScrollZoom();
     x_.defaxsu_.style_ = setup_.xstyle_;
