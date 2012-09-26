@@ -193,6 +193,9 @@ class uiStratLayerModelLMProvider : public Strat::LayerModelProvider
 {
 public:
 
+uiStratLayerModelLMProvider()
+    : useed_(false)	{}
+
 Strat::LayerModel& get()
 {
     return useed_ ? modled_ : modl_;
