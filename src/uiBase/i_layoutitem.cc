@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "i_layoutitem.h"
 #include "i_layout.h"

@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "odver.h"
 #include "oddirs.h"

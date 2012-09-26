@@ -4,7 +4,7 @@
  * DATE     : May 2005
 -*/
  
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "nladataprep.h"
 #include "binidvalset.h"

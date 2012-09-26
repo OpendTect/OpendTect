@@ -5,7 +5,7 @@
  * FUNCTION : Unit IDs
 -*/
  
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "multiid.h"
 #include "globexpr.h"

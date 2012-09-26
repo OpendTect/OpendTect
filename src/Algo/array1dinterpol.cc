@@ -4,7 +4,7 @@
  * DATE     : December 2009
 -*/
 
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "array1dinterpol.h"
 

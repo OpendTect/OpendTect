@@ -4,7 +4,7 @@
  * DATE     : Dec 2011
 -*/
 
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "price.h"
 #include "bufstringset.h"

@@ -4,7 +4,7 @@
  * DATE     : 14-3-2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "bidvsetarrayadapter.h"
 #include "survinfo.h"

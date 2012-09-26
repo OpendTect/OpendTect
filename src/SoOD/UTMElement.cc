@@ -27,7 +27,7 @@
 
   FIXME: write doc.
 */
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "UTMElement.h"
 

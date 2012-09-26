@@ -8,7 +8,7 @@ Date:		June 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiprestackimpmute.h"
 #include "uifileinput.h"

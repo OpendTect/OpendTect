@@ -4,7 +4,7 @@
  * DATE     : July 2007
 -*/
 
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "maddefs.h"
 #include "odplugin.h"

@@ -4,7 +4,7 @@
  * DATE     : Apr 2012
 -*/
 
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "my_first_separate_source.h"
 #include "uimsg.h"

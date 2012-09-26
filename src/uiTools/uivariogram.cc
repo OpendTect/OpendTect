@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id Exp $";
+static const char* rcsID mUsedVar = "$Id Exp $";
 
 #include "uivariogram.h"
 

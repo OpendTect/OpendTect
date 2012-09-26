@@ -4,7 +4,7 @@
  * DATE     : September 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "displaypropertylinks.h"
 #include "ptrman.h"

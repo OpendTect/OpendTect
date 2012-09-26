@@ -4,7 +4,7 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "transform.h"
 #include "arraynd.h"
