@@ -8,7 +8,7 @@
 SET(OD_USEQT Core)
 SET(OD_USEZLIB Yes)
 SET(QT_MOC_HEADERS qfilesystemcomm.h qtimercomm.h)
-SET(OD_MODULE_SOURCES genc.cc filegen.c oddirs.c
+SET(OD_MODULE_SOURCES genc.cc filegen.c oddirs.cc
 	    arrayndinfo.cc
 	    arrayndslice.cc
 	    ascstream.cc

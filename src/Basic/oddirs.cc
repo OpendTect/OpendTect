@@ -9,11 +9,13 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 #include "genc.h"
 #include "oddirs.h"
-#include "string2_c.h"
+#include <string.h>
 #include "envvars.h"
 #include "filegen.h"
 #include "winutils.h"
 #include "debugmasks.h"
+#include "filepath.h"
+#include "settings.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -46,11 +48,11 @@ static const char* mkFullPath( const char* path, const char* filename )
 
     /* Copy path to result buf */
     if ( path != result )
-	strcpy( result, path && *path ? path : "." );
+	strcpy( result.buf(), path && *path ? path : "." );
     if ( !filename || !*filename ) return result;
 
     /* Remove trailing dirseps from result */
-    chptr = result;
+    chptr = result.buf();
     while ( *chptr ) chptr++;	/* chptr on '\0' */
     chptr--;			/* chptr on last char */
     while ( *chptr == *dirsep && chptr != result-1 )
@@ -68,43 +70,38 @@ static const char* mkFullPath( const char* path, const char* filename )
 
 /* -> hidden survey functions used in survinfo.cc, ioman.cc etc. */
 
-mGlobal( Basic ) int SurveyNameDirty(void);
-int SurveyNameDirty(void)
+mExternC(Basic) int SurveyNameDirty(void)
 {
     return surveynamedirty;
 }
 
 
-mGlobal( Basic ) void SetSurveyNameDirty(void);
-void SetSurveyNameDirty(void)
+mExternC(Basic) void SetSurveyNameDirty(void)
 {
     surveynamedirty = 1;
 }
 
 
-mGlobal( Basic ) const char* GetSurveyFileName(void);
-const char* GetSurveyFileName(void)
-{
-    static FileNameString sfname;
-    static int inited = mC_False;
-    const char* ptr;
 
-    if ( !inited )
+mExternC(Basic) const char* GetSurveyFileName(void)
+{
+    static BufferString sfname;
+
+    if ( sfname.isEmpty() )
     {
-	ptr = GetSettingsDir();
-	strcpy( sfname, mkFullPath(ptr,"survey") );
+	const char* ptr = GetSettingsDir();
+	sfname = mkFullPath(ptr,"survey");
 	ptr = GetSoftwareUser();
 	if ( ptr )
 	{
-	    strcat( sfname, "." );
-	    strcat( sfname, ptr );
+	    sfname += ".";
+	    sfname += ptr;
 	}
-	inited = mC_True;
     }
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( dbgstrbuf, "GetSurveyFileName: '%s'", sfname );
+	sprintf( dbgstrbuf, "GetSurveyFileName: '%s'", sfname.buf() );
 	od_debug_message( dbgstrbuf );
     }
 
@@ -112,18 +109,16 @@ const char* GetSurveyFileName(void)
 }
 
 
-mGlobal( Basic ) void SetSurveyName(const char*);
-void SetSurveyName( const char* newnm )
+mExternC(Basic) void SetSurveyName( const char* newnm )
 {
     mSkipBlanks( newnm );
-    strcpy( surveyname, newnm );
-    C_removeTrailingBlanks( surveyname );
+    strcpy( surveyname.buf(), newnm );
+    removeTrailingBlanks( surveyname.buf() );
     surveynamedirty = 0;
 }
 
 
-mGlobal( Basic ) const char* GetSurveyName(void);
-const char* GetSurveyName(void)
+mExternC(Basic) const char* GetSurveyName(void)
 {
     FILE* fp; char* ptr;
     static char tmpbuf[mMaxFilePathLength];
@@ -139,12 +134,12 @@ const char* GetSurveyName(void)
     mTrimBlanks( ptr );
     if ( !*ptr ) return 0;
 
-    strcpy( surveyname, ptr );
+    strcpy( surveyname.buf(), ptr );
     surveynamedirty = 0;
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( dbgstrbuf, "GetSurveyName: %s", surveyname );
+	sprintf( dbgstrbuf, "GetSurveyName: %s", surveyname.buf() );
 	od_debug_message( dbgstrbuf );
     }
 
@@ -154,9 +149,7 @@ const char* GetSurveyName(void)
 
 /*-> implementing oddirs.h */
 
-	/* 'survey data' scope */
-
-extern const char* GetSettingsDataDir(void);
+/* 'survey data' scope */
 
 const char* GetBaseDataDir(void)
 {
@@ -181,7 +174,7 @@ const char* GetBaseDataDir(void)
 #endif
 
     if ( !dir ) return 0;
-    strcpy( bddir, dir );
+    strcpy( bddir.buf(), dir );
     return bddir;
 }
 
@@ -195,11 +188,11 @@ const char* GetDataDir(void)
 
     survnm = GetSurveyName();
     if ( !survnm || !*survnm ) survnm = "_no_current_survey_";
-    strcpy( filenamebuf, mkFullPath(basedir,survnm) );
+    strcpy( filenamebuf.buf(), mkFullPath(basedir,survnm) );
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( dbgstrbuf, "GetDataDir: '%s'", filenamebuf );
+	sprintf( dbgstrbuf, "GetDataDir: '%s'", filenamebuf.buf() );
 	od_debug_message( dbgstrbuf );
     }
 
@@ -210,9 +203,9 @@ const char* GetDataDir(void)
 const char* GetProcFileName( const char* fname )
 {
     static FileNameString filenamebuf;
-    strcpy( filenamebuf, mkFullPath( GetDataDir(), "Proc" ) );
+    strcpy( filenamebuf.buf(), mkFullPath( GetDataDir(), "Proc" ) );
     if ( fname && *fname )
-	strcpy( filenamebuf, mkFullPath( filenamebuf, fname ) );
+	strcpy( filenamebuf.buf(), mkFullPath( filenamebuf, fname ) );
     return filenamebuf;
 }
 
@@ -222,130 +215,49 @@ const char* GetScriptsDir( const char* subdir )
     static FileNameString filenamebuf;
     const char* ret = GetEnvVar( "DTECT_SCRIPTS_DIR" );
     if ( ret && *ret )
-	strcpy( filenamebuf, ret );
+	strcpy( filenamebuf.buf(), ret );
     else
     {
-	strcpy( filenamebuf, GetProcFileName(0) );
+	strcpy( filenamebuf.buf(), GetProcFileName(0) );
 	if ( subdir && *subdir )
-	    strcpy( filenamebuf, mkFullPath(filenamebuf,subdir) );
+	    strcpy( filenamebuf.buf(), mkFullPath(filenamebuf,subdir) );
     }
 
     return filenamebuf;
 }
 
 
-	/* 'sytem' scope */
-
-#define mRetNope() { *dirnm = '\0'; return 0; }
-
-static int gtSoftwareDirFromArgv( char* dirnm )
-{
-    char* chptr1; char* chptr2;
-
-    if ( !GetEnvVar("DTECT_ARGV0") ) mRetNope()
-
-    strcpy( dirnm, GetEnvVar("DTECT_ARGV0") );
-    if ( !*dirnm ) mRetNope()
-
-    chptr2 = chptr1 = dirnm;
-    while ( chptr2 )
-    {
-	chptr2 = strstr( chptr1 + 1, "bin" );
-	chptr1 = chptr2;
-    }
-
-    if ( !chptr1 ) mRetNope()
-
-    *chptr1-- = '\0';
-    /* Remove trailing dirseps */
-    while ( chptr1 != dirnm-1 && *chptr1 == *dirsep )
-	*chptr1-- = '\0';
-
-    return *dirnm ? 1 : 0;
-}
-
-#ifdef __mac__
-static int getBundleLocation( char* dirnm )
-{
-    *dirnm = 0;
-    CFBundleRef mainBundle = CFBundleGetMainBundle();
-    CFURLRef url = CFBundleCopyBundleURL(mainBundle);
-    CFStringRef cfStr = CFURLCopyPath(url);
-
-    const char* bundlepath =
-	CFStringGetCStringPtr(cfStr, CFStringGetSystemEncoding());
-    if ( !bundlepath || !*bundlepath ) return 0;
-
-    strcpy( dirnm, bundlepath );
-    return 1;
-}
-#endif
-
 
 const char* GetSoftwareDir( int acceptnone )
 {
-#ifdef __msvc__
-    char* termchar;
-#endif
-    static char dirnm[1024];
-    const char* dir = 0;
-    static const char* ret = 0;
-    if ( ret ) return ret;
-    ret = dirnm;
-
-#ifdef __cygwin__
-    dir = GetEnvVar( "DTECT_WINAPPL" );
-    if ( !dir ) dir = getCleanWinPath( GetEnvVar("DTECT_APPL") );
-#else
-    dir = GetEnvVar( "DTECT_APPL" );
-#endif
-
-#ifdef __msvc__
-    if ( !dir || !*dir )
+    static BufferString res;
+    
+    if ( res.isEmpty() )
     {
-	GetShortPathName(_getcwd(NULL,0),dirnm,sizeof(dirnm));
-	termchar = strstr( dirnm, "\\bin\\win" ); // remove \bin\win%%
-	if ( termchar )
-	    *termchar = '\0';
-	
-	dir = dirnm;
-    }
-#endif
-
-    if ( !dir || !*dir )
-    {
-#ifdef __mac__
-       	if ( getBundleLocation(dirnm) )
-	    dir = dirnm;
-#endif
-       	if ( !dir && gtSoftwareDirFromArgv(dirnm) )
-	    dir = dirnm;
-	if ( !dir || !*dir )
+	res = GetEnvVar( "DTECT_APPL" );
+	if ( res.isEmpty() )
+	{
+	    FilePath filepath = GetFullExecutablePath();
+	    res = filepath.dirUpTo( filepath.nrLevels()-5 );
+	}
+    
+	if ( res.isEmpty() )
 	{
 	    if ( acceptnone )
 		return 0;
-
+	    
 	    fprintf( stderr, "Cannot determine OpendTect location\n" );
 	    ExitProgram( 1 );
 	}
+	
+	if ( od_debug_isOn(DBG_SETTINGS) )
+	{
+	    BufferString dgbstrbuf( "GetSoftwareDir: '", res.str(), "'" );
+	    od_debug_message( dbgstrbuf );
+	}
     }
-
-#ifdef __win__
-    SetEnvVar( "DTECT_WINAPPL" , dir );
-#else
-    SetEnvVar( "DTECT_APPL" , dir );
-#endif
-
-    if ( od_debug_isOn(DBG_SETTINGS) )
-    {
-	sprintf( dbgstrbuf, "GetSoftwareDir: '%s'", dir );
-	od_debug_message( dbgstrbuf );
-    }
-
-    if ( dir != dirnm )
-	strcpy( dirnm, dir );
-
-    return ret;
+    
+    return res;
 }
 
 
@@ -358,7 +270,7 @@ const char* GetApplSetupDir(void)
 	return *ret ? ret : 0;
 
     filenamebuf[0] = '\0';
-    ret = filenamebuf;
+    ret = filenamebuf.buf();
 
 #ifdef __win__
     envstr = GetEnvVar( "DTECT_WINAPPL_SETUP" );
@@ -378,12 +290,12 @@ const char* GetSetupDataFileDir( ODSetupLocType lt, int acceptnone )
     static FileNameString dirnm;
     const char* appldir;
     if ( lt > ODSetupLoc_ApplSetupPref )
-	strcpy( dirnm, mkFullPath(GetSoftwareDir(acceptnone),"data") );
+	strcpy( dirnm.buf(), mkFullPath(GetSoftwareDir(acceptnone),"data") );
     else
     {
 	appldir = GetApplSetupDir();
 	if ( !appldir ) return 0;
-	strcpy( dirnm, mkFullPath(appldir,"data") );
+	strcpy( dirnm.buf(), mkFullPath(appldir,"data") );
     }
     return dirnm;
 }
@@ -397,7 +309,8 @@ const char* GetSetupDataFileName( ODSetupLocType lt, const char* fnm,
 
     if ( lt == ODSetupLoc_SWDirOnly )
     {
-	strcpy( filenm, mkFullPath( GetSetupDataFileDir(lt, acceptnone), fnm ) );
+	strcpy( filenm.buf(),
+	        mkFullPath( GetSetupDataFileDir(lt, acceptnone), fnm ) );
 	return filenm;
     }
 
@@ -406,7 +319,8 @@ const char* GetSetupDataFileName( ODSetupLocType lt, const char* fnm,
 	return lt == ODSetupLoc_ApplSetupOnly ? 0
 	     : GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm, acceptnone);
 
-    strcpy( filenm, mkFullPath( GetSetupDataFileDir(lt, acceptnone), fnm ) );
+    strcpy( filenm.buf(),
+	    mkFullPath( GetSetupDataFileDir(lt, acceptnone), fnm ) );
 
     if ( (lt == ODSetupLoc_ApplSetupPref || lt == ODSetupLoc_SWDirPref)
 	&& !File_exists(filenm) )
@@ -431,8 +345,8 @@ const char* GetSetupDataFileName( ODSetupLocType lt, const char* fnm,
 const char* GetDocFileDir( const char* filedir )
 {
     static FileNameString dirnm;
-    strcpy( dirnm, mkFullPath(GetSoftwareDir(0),"doc") );
-    strcpy( dirnm, mkFullPath(dirnm,filedir) );
+    strcpy( dirnm.buf(), mkFullPath(GetSoftwareDir(0),"doc") );
+    strcpy( dirnm.buf(), mkFullPath(dirnm,filedir) );
     return dirnm;
 }
 
@@ -445,20 +359,23 @@ const char* GetPlfSubDir(void)
 
 const char* GetBinPlfDir(void)
 {
-    static FileNameString dirnm;
-    strcpy( dirnm, mkFullPath(GetSoftwareDir(0),"bin") );
-    strcpy( dirnm, mkFullPath(dirnm,GetPlfSubDir()) );
-    strcpy( dirnm, mkFullPath(dirnm,GetBinSubDir()));
-    return dirnm;
+    static BufferString res;
+    if ( res.isEmpty() )
+    {
+	FilePath path = GetFullExecutablePath();
+	res = path.pathOnly();
+    }
+ 
+    return res.buf();
 }
 
 
 static const char* gtExecScript( const char* basedir, int remote )
 {
     static FileNameString scriptnm;
-    strcpy( scriptnm, mkFullPath(basedir,"bin") );
-    strcpy( scriptnm, mkFullPath(scriptnm,"od_exec") );
-    if ( remote ) strcat( scriptnm, "_rmt" );
+    strcpy( scriptnm.buf(), mkFullPath(basedir,"bin") );
+    strcpy( scriptnm.buf(), mkFullPath(scriptnm,"od_exec") );
+    if ( remote ) strcat( scriptnm.buf(), "_rmt" );
     return scriptnm;
 }
 
@@ -479,7 +396,9 @@ const char* GetExecScript( int remote )
     if ( !fnm || !File_exists(fnm) )
 	fnm = gtExecScript( GetSoftwareDir(0), remote );
 
-    strcpy( progname, "'" ); strcat( progname, fnm ); strcat( progname, "' " );
+    strcpy( progname.buf(), "'" );
+    strcat( progname.buf(), fnm );
+    strcat( progname.buf(), "' " );
     return progname;
 #endif
 }
@@ -603,13 +522,13 @@ const char* GetPersonalDir( void )
     {
 	ptr = GetEnvVar( "DTECT_PERSONAL_DIR" );
 	if ( ptr )
-	    strcpy( dirnm, ptr );
+	    strcpy( dirnm.buf(), ptr );
 	else
-	    getHomeDir( dirnm );
+	    getHomeDir( dirnm.buf() );
 
 	if ( od_debug_isOn(DBG_SETTINGS) )
 	{
-	    sprintf( dbgstrbuf, "GetPersonalDir: '%s'", dirnm );
+	    sprintf( dbgstrbuf, "GetPersonalDir: '%s'", dirnm.buf() );
 	    od_debug_message( dbgstrbuf );
 	}
 
@@ -636,11 +555,11 @@ const char* GetSettingsDir(void)
 #endif
 
 	if ( ptr )
-	    strcpy( dirnm, ptr );
+	    strcpy( dirnm.buf(), ptr );
 	else
 	{
-	    getHomeDir( dirnm );
-	    strcpy( dirnm, mkFullPath(dirnm,".od") );
+	    getHomeDir( dirnm.buf() );
+	    strcpy( dirnm.buf(), mkFullPath(dirnm,".od") );
 	}
 
 	if ( !File_isDirectory(dirnm) )
@@ -650,19 +569,20 @@ const char* GetSettingsDir(void)
 	    if ( !File_createDir(dirnm,0) )
 	    {
 		fprintf( stderr, "Fatal: Cannot create '.od' directory in home "
-				    "directory:\n%s\n", dirnm );
+				    "directory:\n%s\n", dirnm.buf() );
 		ExitProgram( 1 );
 	    }
 	    if ( od_debug_isOn(DBG_SETTINGS) )
 	    {
-		sprintf( dbgstrbuf, "Had to create SettingsDir: '%s'", dirnm );
+		sprintf( dbgstrbuf, "Had to create SettingsDir: '%s'",
+			 dirnm.buf() );
 		od_debug_message( dbgstrbuf );
 	    }
 	}
 
 	if ( od_debug_isOn(DBG_SETTINGS) )
 	{
-	    sprintf( dbgstrbuf, "GetSettingsDir: '%s'", dirnm );
+	    sprintf( dbgstrbuf, "GetSettingsDir: '%s'", dirnm.buf() );
 	    od_debug_message( dbgstrbuf );
 	}
 
