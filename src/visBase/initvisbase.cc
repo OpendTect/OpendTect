@@ -60,6 +60,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visscenecoltab.h"
 #include "visshapehints.h"
 #include "visshapescale.h"
+#include "visswitch.h"
 #include "vistext.h"
 #include "vistexture2.h"
 #include "vistexture3.h"
@@ -132,11 +133,13 @@ mDefModInitFn(visBase)
     visBase::RotationDragger::initClass();
     visBase::Scene::initClass();
     visBase::SceneColTab::initClass();
+    visBase::Separator::initClass();
     visBase::ShapeHints::initClass();
     visBase::ShapeScale::initClass();
     visBase::SplitTextureRandomLine::initClass();
     visBase::SplitTexture2Rectangle::initClass();
     visBase::SplitTextureSeis2D::initClass();
+    visBase::Switch::initClass();
     visBase::Text2::initClass();
     visBase::TextBox::initClass();
     visBase::Texture2::initClass();
