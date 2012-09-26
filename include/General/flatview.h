@@ -85,6 +85,9 @@ public:
 
 	bool			isEmpty() const;
 	void			empty();
+
+	void			setFillPattern(const FillPattern&)	{}
+				//!< planned for 5.0
     };
 
     mStruct AxisData
