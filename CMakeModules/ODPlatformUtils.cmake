@@ -67,6 +67,7 @@ if(UNIX) #Apple an Linux
 
 
     add_definitions("'-DmUnusedVar=__attribute__ ((unused))'")
+    add_definitions("'-DmUsedVar=__attribute__ ((used))'")
     set (OD_STATIC_EXTENSION ".a")
 
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-non-template-friend" )
@@ -105,6 +106,7 @@ if(WIN32)
     add_definitions("/Ob1 /vmg /Zc:wchar_t-")
     set (EXTRA_LIBS "ws2_32" "shlwapi")
     add_definitions(  "\"-DmUnusedVar=\"")
+    add_definitions(  "\"-DmUsedVar=\"")
     add_definitions( /W4 )
     
     add_definitions( /wd4389 ) # unsigned/signed mismatch
