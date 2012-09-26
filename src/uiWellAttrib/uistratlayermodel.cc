@@ -567,8 +567,8 @@ bool uiStratLayerModel::openGenDesc()
 	return false;
 
     seqdisp_->setNeedSave( false );
-    seqdisp_->descHasChanged();
     lmp_.setEmpty();
+    seqdisp_->descHasChanged();
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
     delete elpropsel_; elpropsel_ = 0;
