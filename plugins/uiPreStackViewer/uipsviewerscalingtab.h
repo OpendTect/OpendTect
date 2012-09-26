@@ -15,18 +15,18 @@ ________________________________________________________________________
 #include "uiflatviewproptabs.h"
 
 class uiPushButton;
+namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
 {
 
 class uiViewer3DMgr; 
-class Viewer3D;
 
 class uiViewer3DScalingTab : public uiFlatViewDataDispPropTab
 {
 public:
 				uiViewer3DScalingTab(uiParent*,
-						 PreStackView::Viewer3D&,
+						 visSurvey::PreStackDisplay&,
   						 uiViewer3DMgr&);
     virtual void		putToScreen();
     virtual void		setData()		{ doSetData(true); }
@@ -54,7 +54,6 @@ protected:
 };
 
 
-}; //namespace
+} // namespace
 
 #endif
-

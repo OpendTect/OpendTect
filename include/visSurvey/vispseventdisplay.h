@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiprestackviewermod.h"
+#include "vissurveymod.h"
 #include "vissurvobj.h"
 
 #include "draw.h"
@@ -28,11 +28,11 @@ namespace visBase
 };
 
 namespace PreStack { class EventManager; class EventSet; }
+
 namespace visSurvey
 {
 
-    
-mClass(uiPreStackViewer) PSEventDisplay : public visBase::VisualObjectImpl,
+mClass(visSurvey) PSEventDisplay : public visBase::VisualObjectImpl,
 		       public SurveyObject
 {
 public:
@@ -136,8 +136,6 @@ protected:
     visBase::DataObjectGroup*		eventseeds_;
 };
 
-
-}; //namespace
+} // namespace visSurvey
 
 #endif
-

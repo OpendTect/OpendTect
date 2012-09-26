@@ -25,8 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsioprov.h"
 #include "sorting.h"
 #include "survinfo.h"
-#include "uimsg.h"
-#include "uipsviewermanager.h"
+
 #include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
@@ -40,14 +39,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-mCreateFactoryEntry( PreStackView::Viewer3D );
+mCreateFactoryEntry( visSurvey::PreStackDisplay );
 
 #define mDefaultWidth ((SI().inlDistance() + SI().crlDistance() ) * 100)
 
-namespace PreStackView
+static const char* sKeyMultiID()	{ return "Data ID"; }
+static const char* sKeyTraceNr()	{ return "TraceNr"; }
+
+namespace visSurvey
 {
 
-Viewer3D::Viewer3D()
+PreStackDisplay::PreStackDisplay()
     : VisualObjectImpl( true )
     , draggerrect_( visBase::FaceSet::create() )
     , pickstyle_( visBase::PickStyle::create() )
@@ -76,8 +78,8 @@ Viewer3D::Viewer3D()
     setMaterial( 0 );
     planedragger_->ref();
     planedragger_->removeScaleTabs();
-    planedragger_->motion.notify( mCB( this, Viewer3D, draggerMotion ) );
-    planedragger_->finished.notify( mCB( this, Viewer3D, finishedCB ) );
+    planedragger_->motion.notify( mCB(this,PreStackDisplay,draggerMotion) );
+    planedragger_->finished.notify( mCB(this,PreStackDisplay,finishedCB) );
     addChild( planedragger_->getInventorNode() );
     
     draggerrect_->ref();
@@ -114,32 +116,33 @@ Viewer3D::Viewer3D()
     flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
     flatviewer_->getMaterial()->setAmbience( 0.8 );
     flatviewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
-
-    flatviewer_->dataChange.notify( mCB( this, Viewer3D, dataChangedCB ) );
+    flatviewer_->dataChange.notify( mCB(this,PreStackDisplay,dataChangedCB) );
     addChild( flatviewer_->getInventorNode() );
 }
 
 
-Viewer3D::~Viewer3D()
+PreStackDisplay::~PreStackDisplay()
 {
     pickstyle_->unRef();
     draggerrect_->unRef();
     draggermaterial_->unRef();
 
-    flatviewer_->dataChange.remove( mCB( this, Viewer3D, dataChangedCB ));
+    flatviewer_->dataChange.remove( mCB(this,PreStackDisplay,dataChangedCB) );
     flatviewer_->unRef();
     
     if ( section_ )
     {
 	if ( planedragger_ )
 	{ 
-	    planedragger_->motion.remove( mCB(this,Viewer3D,draggerMotion) );
-	    planedragger_->finished.remove( mCB(this,Viewer3D,finishedCB) );
+	    planedragger_->motion.remove(
+		mCB(this,PreStackDisplay,draggerMotion) );
+	    planedragger_->finished.remove(
+		mCB(this,PreStackDisplay,finishedCB) );
 	    planedragger_->unRef();
 	}
 
     	section_->getMovementNotifier()->remove( 
-		mCB( this, Viewer3D, sectionMovedCB ) );
+		mCB(this,PreStackDisplay,sectionMovedCB) );
     	section_->unRef();
     }
     
@@ -147,7 +150,7 @@ Viewer3D::~Viewer3D()
     {
 	if ( seis2d_->getMovementNotifier() )
     	    seis2d_->getMovementNotifier()->remove( 
-		    mCB( this, Viewer3D, seis2DMovedCB ) );
+		    mCB(this,PreStackDisplay,seis2DMovedCB) );
 	seis2d_->unRef();
     }
 
@@ -156,17 +159,15 @@ Viewer3D::~Viewer3D()
 }
 
 
-void Viewer3D::allowShading( bool yn )
+void PreStackDisplay::allowShading( bool yn )
 { flatviewer_->allowShading( yn ); }
 
 
-BufferString Viewer3D::getObjectName() const
-{
-    return ioobj_->name();
-}
+BufferString PreStackDisplay::getObjectName() const
+{ return ioobj_->name(); }
 
 
-void Viewer3D::setMultiID( const MultiID& mid )
+void PreStackDisplay::setMultiID( const MultiID& mid )
 { 
     mid_ = mid;
     delete ioobj_; ioobj_ = IOM().get( mid_ );
@@ -184,22 +185,22 @@ void Viewer3D::setMultiID( const MultiID& mid )
 
     if ( seis2d_ && seis2d_->getMovementNotifier() )
 	seis2d_->getMovementNotifier()->notify(
-		mCB(this,Viewer3D,seis2DMovedCB));
+		mCB(this,PreStackDisplay,seis2DMovedCB) );
     
     if ( section_ && section_->getMovementNotifier() )
 	section_->getMovementNotifier()->notify(
-		mCB( this, Viewer3D, sectionMovedCB ) );
+		mCB(this,PreStackDisplay,sectionMovedCB) );
 }
 
 
-bool Viewer3D::setPreProcessor( PreStack::ProcessManager* mgr )
+bool PreStackDisplay::setPreProcessor( PreStack::ProcessManager* mgr )
 {
     preprocmgr_ = mgr;
     return updateData();
 }
 
 
-DataPack::ID Viewer3D::preProcess()
+DataPack::ID PreStackDisplay::preProcess()
 {
     if ( !ioobj_ || !reader_ )
 	return -1;
@@ -242,7 +243,7 @@ DataPack::ID Viewer3D::preProcess()
 }
 
 
-bool Viewer3D::setPosition( const BinID& nb )
+bool PreStackDisplay::setPosition( const BinID& nb )
 {
     if ( bid_==nb )
 	return true;
@@ -256,9 +257,9 @@ bool Viewer3D::setPosition( const BinID& nb )
 	static bool resetpos = true;
 	if ( !shown3d )
 	{
-	    resetpos = uiMSG().askContinue(
-		    "There is no data at the selected location.\n"
-		    "Do you want to find a nearby location to continue?" );
+//	    resetpos = uiMSG().askContinue(
+//		    "There is no data at the selected location.\n"
+//		    "Do you want to find a nearby location to continue?" );
 	    shown3d = true;
 	}
 
@@ -267,7 +268,8 @@ bool Viewer3D::setPosition( const BinID& nb )
 	{
 	    BinID nearbid = getNearBinID( nb );
 	    if ( nearbid.inl==-1 || nearbid.crl==-1 )
-		uiMSG().warning("No gather data at the whole section.");
+		;
+//		uiMSG().warning("No gather data at the whole section.");
 	    else
 	    {
 		bid_ = nearbid;
@@ -275,7 +277,8 @@ bool Viewer3D::setPosition( const BinID& nb )
 	    }
         }
 	else
-	    uiMSG().warning("No gather data at the picked location.");
+	    ;
+//	    uiMSG().warning("No gather data at the picked location.");
 	
     	if ( !hasdata )
 	{
@@ -292,7 +295,7 @@ bool Viewer3D::setPosition( const BinID& nb )
 }
 
 
-bool Viewer3D::updateData()
+bool PreStackDisplay::updateData()
 {
     if ( (is3DSeis() && (bid_.inl==-1 || bid_.crl==-1)) || 
 	 (!is3DSeis() && !seis2d_) || !ioobj_ || !reader_ )
@@ -360,7 +363,7 @@ bool Viewer3D::updateData()
 }
 
 
-const StepInterval<int> Viewer3D::getTraceRange( const BinID& bid ) const
+const StepInterval<int> PreStackDisplay::getTraceRange( const BinID& bid ) const
 {
     if ( is3DSeis() )
     {
@@ -409,7 +412,7 @@ const StepInterval<int> Viewer3D::getTraceRange( const BinID& bid ) const
 }
 
 
-BinID Viewer3D::getNearBinID( const BinID& bid ) const
+BinID PreStackDisplay::getNearBinID( const BinID& bid ) const
 {
     const StepInterval<int> tracerg = getTraceRange( bid );
     if ( tracerg.isUdf() )
@@ -431,7 +434,7 @@ BinID Viewer3D::getNearBinID( const BinID& bid ) const
 }
 
 
-int Viewer3D::getNearTraceNr( int trcnr ) const
+int PreStackDisplay::getNearTraceNr( int trcnr ) const
 {
     mDynamicCastGet(SeisPS2DReader*, rdr2d, reader_ );
     if ( !rdr2d )
@@ -456,7 +459,7 @@ int Viewer3D::getNearTraceNr( int trcnr ) const
 }
 
 
-void Viewer3D::displaysAutoWidth( bool yn )
+void PreStackDisplay::displaysAutoWidth( bool yn )
 {
     if ( autowidth_ == yn )
 	return;
@@ -466,7 +469,7 @@ void Viewer3D::displaysAutoWidth( bool yn )
 }
 
 
-void Viewer3D::displaysOnPositiveSide( bool yn )
+void PreStackDisplay::displaysOnPositiveSide( bool yn )
 {
     if ( posside_ == yn )
 	return;
@@ -476,7 +479,7 @@ void Viewer3D::displaysOnPositiveSide( bool yn )
 }
 
 
-void Viewer3D::setFactor( float scale )
+void PreStackDisplay::setFactor( float scale )
 {
     if (  factor_ == scale )
 	return;
@@ -485,7 +488,7 @@ void Viewer3D::setFactor( float scale )
     dataChangedCB( 0 );
 }
 
-void Viewer3D::setWidth( float width )
+void PreStackDisplay::setWidth( float width )
 {
     if ( width_ == width )
 	return;
@@ -495,7 +498,7 @@ void Viewer3D::setWidth( float width )
 }
 
 
-void Viewer3D::dataChangedCB( CallBacker* )
+void PreStackDisplay::dataChangedCB( CallBacker* )
 {
     if ( (!section_ && !seis2d_) || factor_<0 || width_<0 )
 	return;
@@ -504,7 +507,7 @@ void Viewer3D::dataChangedCB( CallBacker* )
 	return;
 	
     const Coord direction = posside_ ? basedirection_ : -basedirection_;
-    const float offsetscale = (float) Coord( basedirection_.x*SI().inlDistance(),
+    const double offsetscale = Coord( basedirection_.x*SI().inlDistance(),
 	    			     basedirection_.y*SI().crlDistance()).abs();
 
     const FlatDataPack* fdp = flatviewer_->pack( false );
@@ -542,7 +545,7 @@ void Viewer3D::dataChangedCB( CallBacker* )
     if ( section_ )
     {
 	bool isinline = 
-	    section_->getOrientation()==visSurvey::PlaneDataDisplay::Inline;
+	    section_->getOrientation()==PlaneDataDisplay::Inline;
 	planedragger_->setDim( isinline ? 1 : 0 );
 
 	const float xwidth = 
@@ -573,24 +576,25 @@ void Viewer3D::dataChangedCB( CallBacker* )
 }
 
 
-const BinID& Viewer3D::getPosition() const 
+const BinID& PreStackDisplay::getPosition() const 
 { return bid_; }
 
 
-bool Viewer3D::isOrientationInline() const
+bool PreStackDisplay::isOrientationInline() const
 {
     if ( !section_ )
 	return false;
 
-    return section_->getOrientation() == visSurvey::PlaneDataDisplay::Inline; 
+    return section_->getOrientation() == PlaneDataDisplay::Inline; 
 }
 
 
-const visSurvey::PlaneDataDisplay* Viewer3D::getSectionDisplay() const
+const visSurvey::PlaneDataDisplay* PreStackDisplay::getSectionDisplay() const
 { return section_;}
 
 
-void Viewer3D::setDisplayTransformation( const visBase::Transformation* nt )
+void PreStackDisplay::setDisplayTransformation(
+					const visBase::Transformation* nt )
 { 
     flatviewer_->setDisplayTransformation( nt ); 
     if ( planedragger_ )
@@ -601,13 +605,13 @@ void Viewer3D::setDisplayTransformation( const visBase::Transformation* nt )
 }
 
 
-void Viewer3D::setSectionDisplay( visSurvey::PlaneDataDisplay* pdd )
+void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
 {
     if ( section_ )
     {
 	if ( section_->getMovementNotifier() )
 	    section_->getMovementNotifier()->remove(
-		    mCB( this, Viewer3D, sectionMovedCB ) );
+		    mCB( this, PreStackDisplay, sectionMovedCB ) );
 	section_->unRef();
     }
 
@@ -628,19 +632,19 @@ void Viewer3D::setSectionDisplay( visSurvey::PlaneDataDisplay* pdd )
     }
 
     const bool offsetalonginl = 
-	section_->getOrientation()==visSurvey::PlaneDataDisplay::Crossline;
+	section_->getOrientation()==PlaneDataDisplay::Crossline;
     basedirection_ = offsetalonginl ? Coord( 0, 1  ) : Coord( 1, 0 );
 
-    if ( section_->getOrientation() == visSurvey::PlaneDataDisplay::Zslice )
+    if ( section_->getOrientation() == PlaneDataDisplay::Zslice )
 	return;
     
     if ( section_->getMovementNotifier() )
 	section_->getMovementNotifier()->notify(
-		mCB( this, Viewer3D, sectionMovedCB ) );
+		mCB( this, PreStackDisplay, sectionMovedCB ) );
 }
 
 
-void Viewer3D::sectionMovedCB( CallBacker* )
+void PreStackDisplay::sectionMovedCB( CallBacker* )
 {
     BinID newpos = bid_;
 
@@ -648,10 +652,10 @@ void Viewer3D::sectionMovedCB( CallBacker* )
 	return;
     else
     {
-    	if ( section_->getOrientation() == visSurvey::PlaneDataDisplay::Inline )
+    	if ( section_->getOrientation() == PlaneDataDisplay::Inline )
 	    newpos.inl = section_->getCubeSampling( -1 ).hrg.start.inl;
     	else if ( section_->getOrientation() == 
-		visSurvey::PlaneDataDisplay::Crossline )
+		PlaneDataDisplay::Crossline )
 	    newpos.crl = section_->getCubeSampling( -1 ).hrg.start.crl;
     	else
 	    return;
@@ -662,23 +666,23 @@ void Viewer3D::sectionMovedCB( CallBacker* )
 }    
 
 
-const visSurvey::Seis2DDisplay* Viewer3D::getSeis2DDisplay() const
+const visSurvey::Seis2DDisplay* PreStackDisplay::getSeis2DDisplay() const
 { return seis2d_; }
 
 
-DataPack::ID Viewer3D::getDataPackID(int) const
+DataPack::ID PreStackDisplay::getDataPackID(int) const
 {
     return flatviewer_->packID( false );
 }
 
 
-bool Viewer3D::is3DSeis() const
+bool PreStackDisplay::is3DSeis() const
 {
     return section_;
 }
 
 
-void Viewer3D::setTraceNr( int trcnr )
+void PreStackDisplay::setTraceNr( int trcnr )
 {
     if ( trcnr_==trcnr ) 
 	return;
@@ -695,9 +699,9 @@ void Viewer3D::setTraceNr( int trcnr )
     	    static bool resettrace = true;
     	    if ( !show2d )
     	    {
-		resettrace = uiMSG().askContinue(
-			"There is no data at the selected location.\n"
-			"Do you want to find a nearby location to continue?" );
+//		resettrace = uiMSG().askContinue(
+//			"There is no data at the selected location.\n"
+//			"Do you want to find a nearby location to continue?" );
     		show2d = true;
     	    }
 	    
@@ -706,7 +710,7 @@ void Viewer3D::setTraceNr( int trcnr )
 		trcnr_ = getNearTraceNr( trcnr );
 		if ( trcnr_==-1 )
 		{
-		    uiMSG().warning("Can not read or no data at the section.");
+//		    uiMSG().warning("Can not read or no data at the section.");
 		    trcnr_ = trcnr; //If no data, we still display the panel.
 		}
 	    }
@@ -730,14 +734,14 @@ void Viewer3D::setTraceNr( int trcnr )
 	    seis2d_->getCoord(trcnr_) );
 
 
-bool Viewer3D::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
+bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 {
     if ( !s2d ) return false;
 
     if ( planedragger_ )
     { 
-     	planedragger_->motion.remove( mCB(this,Viewer3D,draggerMotion) );
-    	planedragger_->finished.remove( mCB(this,Viewer3D,finishedCB) );
+     	planedragger_->motion.remove( mCB(this,PreStackDisplay,draggerMotion) );
+    	planedragger_->finished.remove( mCB(this,PreStackDisplay,finishedCB) );
     	planedragger_->unRef();
     }
 
@@ -746,7 +750,7 @@ bool Viewer3D::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
     {
 	if ( seis2d_->getMovementNotifier() )
     	    seis2d_->getMovementNotifier()->remove( 
-		    mCB(this,Viewer3D,seis2DMovedCB) );
+		    mCB(this,PreStackDisplay,seis2DMovedCB) );
 
 	seis2d_->unRef();
     }
@@ -772,13 +776,13 @@ bool Viewer3D::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
 
     if ( seis2d_->getMovementNotifier() )
 	seis2d_->getMovementNotifier()->notify( 
-    		    mCB(this,Viewer3D,seis2DMovedCB) );
+    		    mCB(this,PreStackDisplay,seis2DMovedCB) );
 
     return updateData();
 }
 
 
-void Viewer3D::seis2DMovedCB( CallBacker* )
+void PreStackDisplay::seis2DMovedCB( CallBacker* )
 {
     if ( !seis2d_ || trcnr_<0 )
 	return;
@@ -788,11 +792,11 @@ void Viewer3D::seis2DMovedCB( CallBacker* )
 }    
 
 
-const Coord Viewer3D::getBaseDirection() const 
+const Coord PreStackDisplay::getBaseDirection() const 
 { return basedirection_; }
 
 
-const char* Viewer3D::lineName() const
+const char* PreStackDisplay::lineName() const
 {
     if ( !seis2d_ )
 	return 0;
@@ -801,7 +805,7 @@ const char* Viewer3D::lineName() const
 }
 
 
-void Viewer3D::otherObjectsMoved( const ObjectSet<const SurveyObject>&
+void PreStackDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>&
 					 , int whichobj )
 {
     if ( !section_ && ! seis2d_ )
@@ -829,7 +833,7 @@ void Viewer3D::otherObjectsMoved( const ObjectSet<const SurveyObject>&
 }
 
 
-void Viewer3D::draggerMotion( CallBacker* )
+void PreStackDisplay::draggerMotion( CallBacker* )
 {
     if ( !section_ )
 	return;
@@ -837,13 +841,12 @@ void Viewer3D::draggerMotion( CallBacker* )
     const int newinl = SI().inlRange( true ).snap( planedragger_->center().x );
     const int newcrl = SI().inlRange( true ).snap( planedragger_->center().y );
 
-    const visSurvey::PlaneDataDisplay::Orientation orientation =
+    const PlaneDataDisplay::Orientation orientation =
 	    section_->getOrientation();
-
     bool showplane = false;
-    if ( orientation==visSurvey::PlaneDataDisplay::Inline && newcrl!=bid_.crl )
+    if ( orientation==PlaneDataDisplay::Inline && newcrl!=bid_.crl )
         showplane = true;
-    else if ( orientation==visSurvey::PlaneDataDisplay::Crossline && 
+    else if ( orientation==PlaneDataDisplay::Crossline && 
 	      newinl!=bid_.inl )
 	showplane = true;
     
@@ -854,19 +857,19 @@ void Viewer3D::draggerMotion( CallBacker* )
 }
 
 
-void Viewer3D::finishedCB( CallBacker* )
+void PreStackDisplay::finishedCB( CallBacker* )
 { 
     if ( !section_ )
 	return;
 
     BinID newpos;
-    if ( section_->getOrientation() == visSurvey::PlaneDataDisplay::Inline )
+    if ( section_->getOrientation() == PlaneDataDisplay::Inline )
     {
 	newpos.inl = section_->getCubeSampling( -1 ).hrg.start.inl;
 	newpos.crl = SI().crlRange(true).snap( planedragger_->center().y );
     }
     else if ( section_->getOrientation() ==
-	    visSurvey::PlaneDataDisplay::Crossline )
+	    PlaneDataDisplay::Crossline )
     {
 	newpos.inl = SI().inlRange(true).snap( planedragger_->center().x );
 	newpos.crl = section_->getCubeSampling( -1 ).hrg.start.crl;
@@ -878,7 +881,7 @@ void Viewer3D::finishedCB( CallBacker* )
 }
 
 
-void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
+void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 				      Coord3& pos, 
 				      BufferString& val,
 				      BufferString& info ) const
@@ -914,7 +917,7 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
 	    return;
 
 	const float cal = posdata.width(true)*distance/width_;
-	if ( section_->getOrientation()==visSurvey::PlaneDataDisplay::Inline )
+	if ( section_->getOrientation()==PlaneDataDisplay::Inline )
 	    offset = cal*SI().inlDistance()+rg.start;
 	else
 	    offset= cal*SI().crlDistance()+rg.start;
@@ -958,7 +961,7 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
 }
 
 
-void Viewer3D::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void PreStackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     if ( !section_ && !seis2d_ )
 	return;
@@ -969,18 +972,18 @@ void Viewer3D::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     {
 	saveids.addIfNew( section_->id() );
         par.set( sKeyParent(), section_->id() );
-	par.set( uiViewer3DMgr::sKeyBinID(), bid_ );
+	par.set( sKey::Position(), bid_ );
     }
 
     if  ( seis2d_ )
     {
 	saveids.addIfNew( seis2d_->id() );
     	par.set( sKeyParent(), seis2d_->id() );
-	par.set( uiViewer3DMgr::sKeyTraceNr(), trcnr_ );
+	par.set( sKeyTraceNr(), trcnr_ );
 	//Line name is kept with parent
     }
     
-    par.set( uiViewer3DMgr::sKeyMultiID(), mid_ );
+    par.set( sKeyMultiID(), mid_ );
     par.setYN( sKeyAutoWidth(), autowidth_ );
     par.setYN( sKeySide(), posside_ );
 
@@ -994,7 +997,7 @@ void Viewer3D::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 }
 
 
-int Viewer3D::usePar( const IOPar& par )
+int PreStackDisplay::usePar( const IOPar& par )
 {
    int res =  VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
@@ -1015,7 +1018,7 @@ int Viewer3D::usePar( const IOPar& par )
 	return 0;
 
     MultiID mid;
-    if ( !par.get( uiViewer3DMgr::sKeyMultiID(), mid ) ) 
+    if ( !par.get( sKeyMultiID(), mid ) ) 
     {
 	if ( !par.get("PreStack MultiID",mid) ) 
 	{
@@ -1025,8 +1028,8 @@ int Viewer3D::usePar( const IOPar& par )
     
     setMultiID( mid );
 
-    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, parent );
-    mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, parent );
+    mDynamicCastGet( PlaneDataDisplay*, pdd, parent );
+    mDynamicCastGet( Seis2DDisplay*, s2d, parent );
     if ( !pdd && !s2d )
 	return -1;
     
@@ -1034,7 +1037,7 @@ int Viewer3D::usePar( const IOPar& par )
     {	
     	setSectionDisplay( pdd );
 	BinID bid;
-	if ( !par.get( uiViewer3DMgr::sKeyBinID(), bid ) )
+	if ( !par.get( sKey::Position(), bid ) )
 	{
 	    if ( !par.get("PreStack BinID",bid) )
 		return -1;
@@ -1047,7 +1050,7 @@ int Viewer3D::usePar( const IOPar& par )
     if ( s2d )
     {
 	int tnr;
-	if ( !par.get( uiViewer3DMgr::sKeyTraceNr(), tnr ) )
+	if ( !par.get( sKeyTraceNr(), tnr ) )
 	{
 	    if ( !par.get( "Seis2D TraceNumber", tnr ) )
 		return -1;
@@ -1080,4 +1083,4 @@ int Viewer3D::usePar( const IOPar& par )
 }
 
 
-}; //namespace
+} // namespace visSurvey

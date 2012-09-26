@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStackView
 {
 uiViewer3DScalingTab::uiViewer3DScalingTab( uiParent* p, 
-	PreStackView::Viewer3D& psv, uiViewer3DMgr& mgr )
+	visSurvey::PreStackDisplay& psv, uiViewer3DMgr& mgr )
     : uiFlatViewDataDispPropTab( p, *psv.flatViewer(), "Scaling", false)
     , applyall_( false )
     , savedefault_( false )

@@ -20,17 +20,17 @@ class uiCheckBox;
 class uiPushButton;
 class uiLabeledSpinBox;
 
+namespace visSurvey { class PreStackDisplay; }
+
 namespace PreStackView 
 { 
-class Viewer3D; 
-
 
 class uiViewer3DPositionDlg : public uiDialog
 {
 public:			
 
     			uiViewer3DPositionDlg(uiParent*,
-					      PreStackView::Viewer3D&);
+					      visSurvey::PreStackDisplay&);
 			~uiViewer3DPositionDlg();
 
     bool		is3D() const;
@@ -56,12 +56,10 @@ protected:
     bool		applyCB(CallBacker*);
 
     bool		rejectOK(CallBacker*);
-    
-    PreStackView::Viewer3D& viewer_;
+
+    visSurvey::PreStackDisplay& viewer_;
 };
 
-
-}; //namespace 
+} // namespace 
 
 #endif
-

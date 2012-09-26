@@ -18,17 +18,17 @@ ________________________________________________________________________
 class uiGenInput;
 class uiPushButton;
 class uiSlider;
+namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
 {
-
-class Viewer3D;
 class uiViewer3DMgr;
 
 class uiViewer3DShapeTab : public uiDlgGroup
 {
 public:
-			uiViewer3DShapeTab(uiParent*,PreStackView::Viewer3D&, 
+			uiViewer3DShapeTab(uiParent*,
+					   visSurvey::PreStackDisplay&,
 					   uiViewer3DMgr&);
 			~uiViewer3DShapeTab();
     bool		acceptOK();
@@ -52,7 +52,7 @@ protected:
     uiSlider*		widthslider_;
     uiPushButton*	switchsidebutton_;
     
-    PreStackView::Viewer3D& viewer_;
+    visSurvey::PreStackDisplay& viewer_;
     uiViewer3DMgr&	mgr_;
     
     float		initialfactor_;
@@ -63,8 +63,6 @@ protected:
     bool		savedefault_;
 };
 
-
-}; //namespace
+} // namespace
 
 #endif
-

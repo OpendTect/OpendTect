@@ -20,7 +20,7 @@ namespace PreStackView
 
 
 uiViewer3DPreProcTab::uiViewer3DPreProcTab( uiParent* p, 
-	PreStackView::Viewer3D& vwr, uiViewer3DMgr& mgr, 
+	visSurvey::PreStackDisplay& vwr, uiViewer3DMgr& mgr, 
 	PreStack::ProcessManager& preprocmgr )
     : uiDlgGroup( p, "Preprocessing" )
     , vwr_( vwr )
@@ -74,7 +74,7 @@ bool uiViewer3DPreProcTab::applyButPushedCB( CallBacker* cb )
 
     for ( int idx=0; idx<mgr_.get3DViewers().size(); idx++ )
     {
-	PreStackView::Viewer3D* vwr = mgr_.get3DViewers()[idx];
+	visSurvey::PreStackDisplay* vwr = mgr_.get3DViewers()[idx];
 	if ( !applyall_ && vwr != &vwr_ )
 	    continue;
 

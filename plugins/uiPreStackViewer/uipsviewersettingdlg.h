@@ -17,10 +17,10 @@ ________________________________________________________________________
 
 class uiCheckBox;
 namespace PreStack { class ProcessManager; }
+namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView 
 { 
-    class Viewer3D; 
     class uiViewer3DMgr;
     class uiViewer3DScalingTab;
     class uiViewer3DAppearanceTab; 
@@ -32,7 +32,7 @@ class uiViewer3DSettingDlg : public uiTabStackDlg
 {
 public:
 				uiViewer3DSettingDlg(uiParent*,
-						   PreStackView::Viewer3D&,
+						   visSurvey::PreStackDisplay&,
 						   uiViewer3DMgr&,
 						   PreStack::ProcessManager&);
 protected:

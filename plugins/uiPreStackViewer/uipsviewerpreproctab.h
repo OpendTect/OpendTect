@@ -19,18 +19,18 @@ class uiGenInput;
 class uiPushButton;
 
 namespace PreStack { class ProcessManager; class uiProcessorManager; }
+namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
 {
 
-class Viewer3D;
 class uiViewer3DMgr;
 
 class uiViewer3DPreProcTab :  public uiDlgGroup
 {
 public:
 				uiViewer3DPreProcTab(uiParent*,
-					PreStackView::Viewer3D&,
+					visSurvey::PreStackDisplay&,
 					uiViewer3DMgr&,
 					PreStack::ProcessManager&);
 				~uiViewer3DPreProcTab();
@@ -44,7 +44,7 @@ protected:
     bool				applyButPushedCB(CallBacker*);
     void				processorChangeCB(CallBacker*);
 
-    PreStackView::Viewer3D&		vwr_;
+    visSurvey::PreStackDisplay&		vwr_;
     uiViewer3DMgr&			mgr_;
     PreStack::ProcessManager*		preprocmgr_;
     PreStack::uiProcessorManager*	uipreprocmgr_;

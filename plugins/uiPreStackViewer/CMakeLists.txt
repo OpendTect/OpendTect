@@ -23,7 +23,6 @@ SET( OD_MODULE_SOURCES
 		uipsviewer2dinfo.cc
 		uipsviewer2dmainwin.cc
 		uipsviewer2dposdlg.cc
-		visprestackviewer.cc
-		vispseventdisplay.cc )
+)
 SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 OD_INIT_MODULE()

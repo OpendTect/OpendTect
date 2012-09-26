@@ -22,9 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visplanedatadisplay.h"
 #include "vistransform.h"
 #include "visprestackviewer.h"
-#include "uiodapplmgr.h"
-#include "uiodmain.h"
-#include "uivispartserv.h"
 
  
 mCreateFactoryEntry( visSurvey::PSEventDisplay );
@@ -293,7 +290,7 @@ void PSEventDisplay::otherObjectsMoved(
     {
 	int objid = -1;
 	    
-	mDynamicCastGet(const PreStackView::Viewer3D*,gather,objs[idx]);
+	mDynamicCastGet(const visSurvey::PreStackDisplay*,gather,objs[idx]);
 	if ( gather )
 	    objid = gather->id();
 	else
@@ -462,7 +459,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     if ( displaymode_==FullOnGathers )
     {
 	fullevent = true;
-	mDynamicCastGet(const PreStackView::Viewer3D*,gather,
+	mDynamicCastGet(const visSurvey::PreStackDisplay*,gather,
 		visBase::DM().getObject(pao->parentid_) );
 	if ( !gather )
 	{
@@ -736,17 +733,17 @@ void PSEventDisplay::retriveParents()
     if ( !scene_ )
 	return;
     
-    uiVisPartServer& visserv = *ODMainWin()->applMgr().visServer();
     TypeSet<int> visids;
-    visserv.getChildIds( scene_->id(), visids );
-    
+    for ( int idx=0; idx<scene_->size(); idx++ )
+	visids += scene_->getObject( idx )->id();
+
     for ( int idx=0; idx<visids.size(); idx++ )
     {
 	mDynamicCastGet( visSurvey::SurveyObject*, so,
-		visserv.getObject(visids[idx])  );
+		scene_->getObject(visids[idx])  );
 	if ( !so ) continue;
 	
-	mDynamicCastGet(const PreStackView::Viewer3D*,gather,so);
+	mDynamicCastGet(const visSurvey::PreStackDisplay*,gather,so);
 	mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,so);
 	if ( gather || (pdd && pdd->isOn() &&
 	     pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Zslice) )
@@ -777,6 +774,4 @@ PSEventDisplay::ParentAttachedObject::~ParentAttachedObject()
     deepUnRef( eventsets_ );
 }
 
-
-
-};//namespace
+} // namespace

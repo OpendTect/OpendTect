@@ -28,7 +28,7 @@ mDefODPluginInfo(uiPreStackViewer)
 
 mDefODInitPlugin(uiPreStackViewer)
 {
-    PreStackView::Viewer3D::initClass();
+    visSurvey::PreStackDisplay::initClass();
     static PreStackView::uiViewer3DMgr* mgr=0;
     if ( mgr ) return 0;
     mgr = new PreStackView::uiViewer3DMgr();

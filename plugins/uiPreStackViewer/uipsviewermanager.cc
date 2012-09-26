@@ -118,7 +118,7 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &selectpsdatamenuitem_ );
 
 
-    mDynamicCastGet( PreStackView::Viewer3D*, psv, dataobj.ptr() );
+    mDynamicCastGet( visSurvey::PreStackDisplay*, psv, dataobj.ptr() );
     resolutionmenuitem_.id = -1;
     resolutionmenuitem_.removeItems();
 
@@ -196,7 +196,7 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
     const int mnuidx = selectpsdatamenuitem_.itemIndex( mnuid );
 
     RefMan<visBase::DataObject> dataobj = visserv_->getObject( menu->menuID() );
-    mDynamicCastGet(PreStackView::Viewer3D*,psv,dataobj.ptr())
+    mDynamicCastGet(visSurvey::PreStackDisplay*,psv,dataobj.ptr())
     if ( mnuidx < 0 && !psv )
 	return;
 
@@ -325,7 +325,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     if ( !pdd && !s2d )
 	mErrReturn( "Display panel is not set." )
 
-    PreStackView::Viewer3D* viewer = PreStackView::Viewer3D::create();
+    visSurvey::PreStackDisplay* viewer = visSurvey::PreStackDisplay::create();
     viewer->ref();
     viewer->setMultiID( ioobj->key() );
     visserv_->addObject( viewer, sceneid, false );
@@ -382,15 +382,15 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     //Read defaults 
     const Settings& settings = Settings::fetch(uiViewer3DMgr::sSettings3DKey()); 
     bool autoview;
-    if ( settings.getYN(PreStackView::Viewer3D::sKeyAutoWidth(), autoview) )
+    if ( settings.getYN(visSurvey::PreStackDisplay::sKeyAutoWidth(), autoview) )
 	viewer->displaysAutoWidth( autoview );
 
     float factor;
-    if ( settings.get( PreStackView::Viewer3D::sKeyFactor(), factor ) )
+    if ( settings.get( visSurvey::PreStackDisplay::sKeyFactor(), factor ) )
 	viewer->setFactor( factor );
    
     float width; 
-    if ( settings.get( PreStackView::Viewer3D::sKeyWidth(), width ) )
+    if ( settings.get( visSurvey::PreStackDisplay::sKeyWidth(), width ) )
 	viewer->setWidth( width );
     
     IOPar* flatviewpar = settings.subselect( sKeyFlatviewPars() );
@@ -419,8 +419,9 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 }
 
 
-uiViewer3DPositionDlg* uiViewer3DMgr::mkNewPosDialog( const uiMenuHandler* menu,
-						PreStackView::Viewer3D& vwr )
+uiViewer3DPositionDlg*
+    uiViewer3DMgr::mkNewPosDialog( const uiMenuHandler* menu,
+				   visSurvey::PreStackDisplay& vwr )
 {
     mDeclareAndTryAlloc( uiViewer3DPositionDlg*, dlg,
 	    uiViewer3DPositionDlg( menu->getParent(), vwr ) );
@@ -480,9 +481,9 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
 
 
 uiViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer( 
-						const Viewer3D& psv )
+				    const visSurvey::PreStackDisplay& psv )
 {
-    const MultiID mid = const_cast<Viewer3D&>(psv).getMultiID();
+    const MultiID mid = psv.getMultiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
        return 0;
@@ -574,7 +575,7 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 {
     for ( int idx = 0; idx<viewers3d_.size(); idx++ )
     {
-	PreStackView::Viewer3D* psv = viewers3d_[idx];
+	visSurvey::PreStackDisplay* psv = viewers3d_[idx];
 	visBase::Scene* scene = psv->getScene();	
 
 	int dpid = psv->getDataPackID();
@@ -618,11 +619,11 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
     deepErase( viewers2d_ );
 
     TypeSet<int> vispsviewids;
-    visserv_->findObject( typeid(PreStackView::Viewer3D), vispsviewids );
+    visserv_->findObject( typeid(visSurvey::PreStackDisplay), vispsviewids );
 
     for ( int idx=0; idx<vispsviewids.size(); idx++ )
     {
-	mDynamicCastGet( PreStackView::Viewer3D*, psv,
+	mDynamicCastGet( visSurvey::PreStackDisplay*, psv,
 			 visserv_->getObject(vispsviewids[idx]) );
 	if ( !psv )
 	    continue;

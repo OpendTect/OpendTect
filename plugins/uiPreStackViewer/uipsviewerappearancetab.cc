@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStackView
 {
 uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
-			    PreStackView::Viewer3D& psv, uiViewer3DMgr& mgr )
+		visSurvey::PreStackDisplay& psv, uiViewer3DMgr& mgr )
     : uiDlgGroup( p, "Appearance" )
     , applyall_( false )
     , savedefault_( false )

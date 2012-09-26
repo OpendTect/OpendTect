@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiprestackviewermod.h"
+#include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
 #include "iopar.h"
@@ -27,25 +27,23 @@ namespace visBase
     class FaceSet;
     class FlatViewer;
     class PickStyle;
-};
+}
 
 namespace visSurvey 
 { 
-    class PlaneDataDisplay; 
-    class Seis2DDisplay;
-};
+
+class PlaneDataDisplay; 
+class Seis2DDisplay;
 
 
-namespace PreStackView
-{
-
-mClass(uiPreStackViewer) Viewer3D : public visBase::VisualObjectImpl, 
+mClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl, 
     		 public visSurvey::SurveyObject
 {
 public:
 
-    static Viewer3D*		create()
-				mCreateDataObj( Viewer3D );
+    static PreStackDisplay*	create()
+				mCreateDataObj( PreStackDisplay );
+
     void			allowShading(bool yn);
     void			setMultiID(const MultiID& mid);
     BufferString		getObjectName() const;
@@ -67,18 +65,17 @@ public:
     				//3D case
     bool			setPosition(const BinID&);
     const BinID&		getPosition() const;
-    void			setSectionDisplay(visSurvey::PlaneDataDisplay*);
-    const visSurvey::PlaneDataDisplay* getSectionDisplay() const;
+    void			setSectionDisplay(PlaneDataDisplay*);
+    const PlaneDataDisplay*	getSectionDisplay() const;
     
-    Notifier<Viewer3D>		draggermoving;
+    Notifier<PreStackDisplay>	draggermoving;
     NotifierAccess*		getMovementNotifier() { return &draggermoving;}
     const BinID			draggerPosition() const	{ return draggerpos_; }
 
    				//2D case 
-    const visSurvey::Seis2DDisplay*    getSeis2DDisplay() const;
+    const Seis2DDisplay*	getSeis2DDisplay() const;
     bool			setSeis2DData(const IOObj* ioobj); 
-    bool			setSeis2DDisplay(visSurvey::Seis2DDisplay*,
-	    					 int trcnr);
+    bool			setSeis2DDisplay(Seis2DDisplay*,int trcnr);
     void			setTraceNr(int trcnr);
     int				traceNr() const 	  { return trcnr_; }
     const char*			lineName() const;
@@ -114,48 +111,47 @@ public:
     static const char*		sKeySide() 	{ return "ShowSide"; }
 
 protected:
-    					~Viewer3D();
-    void				setDisplayTransformation(const mVisTrans*);
-    void				dataChangedCB(CallBacker*);
-    void				sectionMovedCB(CallBacker*);
-    void				seis2DMovedCB(CallBacker*);
-    bool				updateData();
-    int					getNearTraceNr(int) const;
-    BinID				getNearBinID(const BinID& pos) const;
+    				~PreStackDisplay();
+    void			setDisplayTransformation(const mVisTrans*);
+    void			dataChangedCB(CallBacker*);
+    void			sectionMovedCB(CallBacker*);
+    void			seis2DMovedCB(CallBacker*);
+    bool			updateData();
+    int				getNearTraceNr(int) const;
+    BinID			getNearBinID(const BinID& pos) const;
 
-    void				draggerMotion(CallBacker*);
-    void				finishedCB(CallBacker*);
+    void			draggerMotion(CallBacker*);
+    void			finishedCB(CallBacker*);
 
-    BinID				bid_;
-    BinID				draggerpos_;
+    BinID			bid_;
+    BinID			draggerpos_;
     visBase::DepthTabPlaneDragger* 	planedragger_;
-    visBase::FaceSet*                   draggerrect_;
-    visBase::FlatViewer*		flatviewer_;
-    visBase::Material*			draggermaterial_;
-    visBase::PickStyle*			pickstyle_;
-    PreStack::ProcessManager*		preprocmgr_;
+    visBase::FaceSet*		draggerrect_;
+    visBase::FlatViewer*	flatviewer_;
+    visBase::Material*		draggermaterial_;
+    visBase::PickStyle*		pickstyle_;
+    PreStack::ProcessManager*	preprocmgr_;
     
-    MultiID				mid_;
-    visSurvey::PlaneDataDisplay*	section_;
-    visSurvey::Seis2DDisplay*		seis2d_;
-    int 				trcnr_;
-    Coord				basedirection_;
-    Coord				seis2dpos_;
-    Coord				seis2dstoppos_;
+    MultiID			mid_;
+    PlaneDataDisplay*		section_;
+    Seis2DDisplay*		seis2d_;
+    int 			trcnr_;
+    Coord			basedirection_;
+    Coord			seis2dpos_;
+    Coord			seis2dstoppos_;
     
-    bool				posside_;
-    bool				autowidth_;
-    float				factor_;
-    float				width_;
-    Interval<float>			offsetrange_;
-    Interval<float>			zrg_;
+    bool			posside_;
+    bool			autowidth_;
+    float			factor_;
+    float			width_;
+    Interval<float>		offsetrange_;
+    Interval<float>		zrg_;
 
-    SeisPSReader*			reader_;
-    IOObj*				ioobj_;
-    Notifier<Viewer3D>			movefinished_;
+    SeisPSReader*		reader_;
+    IOObj*			ioobj_;
+    Notifier<PreStackDisplay>	movefinished_;
 };
 
-}; //namespace
+} // namespace visSurvey
 
 #endif
-
