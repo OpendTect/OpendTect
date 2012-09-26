@@ -175,8 +175,17 @@ void uiStratLayerModel::doBasicLayerModel()
 
 void uiStratLayerModel::doLayerModel( const char* modnm )
 {
-    uiStratLayerModelLauncher launcher;
-    launcher.doLayerModel( &StratTreeWin(), modnm );
+    if ( Strat::RT().isEmpty() )
+    {
+	if ( uiMSG().askContinue( 
+		"No stratigraphic model found, please create one first" ) )
+	    StratTreeWin().popUp();
+    }
+    else
+    {
+	uiStratLayerModelLauncher launcher;
+	launcher.doLayerModel( &StratTreeWin(), modnm );
+    }
 }
 
 
