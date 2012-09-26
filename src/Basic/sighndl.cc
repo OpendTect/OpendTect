@@ -42,6 +42,9 @@ void SignalHandling::initClass()
 
 void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 {
+    if ( !theinst_ ) 
+	initClass();
+
     CallBackSet& cbs = theinst_->getCBL( et );
     if ( cbs.indexOf(cb) < 0 ) cbs += cb;
 #ifndef __win__
@@ -63,6 +66,9 @@ void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 
 void SignalHandling::stopNotify( SignalHandling::EvType et, const CallBack& cb )
 {
+    if ( !theinst_ ) 
+	initClass();
+
     CallBackSet& cbs = theinst_->getCBL( et );
     cbs -= cb;
 }
@@ -153,6 +159,9 @@ void SignalHandling::initFatalSignalHandling()
 
 void SignalHandling::handle( int signalnr )
 {
+    if ( !theinst_ ) 
+	initClass();
+
     switch( signalnr )
     {
     case SIGINT: case SIGFPE: case SIGSEGV: case SIGTERM:
