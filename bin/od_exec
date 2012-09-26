@@ -151,10 +151,10 @@ endif
 set prog="$1"
 
 if ( ! -e "$bindir/$prog" ) then
-    if ( $?DEBUG && -e "$bindir/G/$prog" ) then
-	set bindir="$bindir/G"
-    else if ( -e "$bindir/O/$prog" ) then
-	set bindir="$bindir/O"
+    if ( $?DEBUG && -e "$bindir/Debug/$prog" ) then
+	set bindir="$bindir/Debug"
+    else if ( -e "$bindir/Release/$prog" ) then
+	set bindir="$bindir/Release"
     endif
     if ( ! -e "$bindir/$prog" ) then
     	if ( $binsubdir == lux64 && -e "$DTECT_APPL/bin/lux32/$prog" ) then

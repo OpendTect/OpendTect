@@ -19,8 +19,10 @@ static const char* rcsID mUsedVar = "$Id$";
 # include "file.h"
 #endif
 
-int main( int argc, char ** argv )
+int main( int argc, char** argv )
 {
+    SetProgramArgs( argc, argv );
+
     int argidx = 1;
     bool edit = false, table = false, dofork = true, logview = false;
     int maxlines = mUdf(int);

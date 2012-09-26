@@ -229,6 +229,8 @@ void uiProgressViewer::saveFn( CallBacker* )
 
 int main( int argc, char** argv )
 {
+    SetProgramArgs( argc, argv );
+
     uiMain app( argc, argv );
     int ppid = argc > 1 ? toInt(argv[1]) : 0;
     uiProgressViewer* pv = new uiProgressViewer( 0, std::cin, ppid );
