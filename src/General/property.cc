@@ -172,6 +172,7 @@ MathProperty::MathProperty( const MathProperty& mp )
     inps_.allowNull( true ); inpunits_.allowNull( true );
     if ( !mp.def_.isEmpty() )
 	setDef( mp.def_ );
+    inpunits_.erase();
     for ( int idx=0; idx<mp.inpunits_.size(); idx++ )
 	inpunits_ += mp.inpunits_[idx];
 }
@@ -479,8 +480,10 @@ void MathProperty::setDef( const char* s )
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
 	const Property* inp = inps_[idx];
-	if ( !inp || fmssz <= constsz + 2 + idx )
+	if ( fmssz <= constsz + 2 + idx )
 	    addDefInpUnit();
+	else if ( !inp )
+	    inpunits_ += UoMR().get( fms[constsz+2+idx] );
 	else
 	    inpunits_ += UoMR().get( inp->ref().stdType(), fms[constsz+2+idx] );
     }
@@ -530,7 +533,7 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	    v = p->value( eo );
 	    const UnitOfMeasure* uom = inpunits_[idx];
 	    if ( uom )
-		v = uom_->getUserValueFromSI( v );
+		v = uom->getUserValueFromSI( v );
 	}
 	else if ( SI().depthsInFeetByDefault() )
 	    v *= mToFeetFactorF;
