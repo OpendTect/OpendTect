@@ -321,7 +321,7 @@ bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
     model.setCapacity( nrlayers );
     ReflectivitySpike spike;
 
-    for ( int idx=0; idx<nrlayers; idx++ )
+    for ( int idx=firstlayer_; idx<nrlayers; idx++ )
     {
 	spike.reflectivity_ = reflectivity_->get( idx, offsetidx );
 	spike.depth_ = depths_[idx]; 
@@ -348,7 +348,7 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     TypeSet<float> times, depths;
     depths += 0;
     times += 0;
-    for ( int idx=0; idx<layersize; idx++ )
+    for ( int idx=firstlayer_; idx<layersize; idx++ )
     {
 	depths += depths_[idx];
 	times += twt_->get( idx, offsetidx ); 
@@ -371,14 +371,15 @@ bool VrmsRayTracer1D::doPrepare( int nrthreads )
     const float sourcedepth = setup().sourcedepth_; 
     const float recdepth = setup().receiverdepth_; 
 
-    TypeSet<float> dnmotimes, dvrmssum, unmotimes, uvrmssum; 
+    float dnmotime, dvrmssum, unmotime, uvrmssum;
+    float prevdnmotime, prevdvrmssum, prevunmotime, prevuvrmssum;
+    prevdnmotime = prevdvrmssum = prevunmotime = prevuvrmssum = 0;
     for ( int idx=firstlayer_; idx<layersize; idx++ )
     {
 	const ElasticLayer& layer = model_[idx];
-	dnmotimes += 0; dvrmssum += 0;
-	unmotimes += 0; uvrmssum += 0;
 	const float dvel = setup_.pdown_ ? layer.vel_ : layer.svel_;
 	const float uvel = setup_.pup_ ? layer.vel_ : layer.svel_;
+	dnmotime = dvrmssum = unmotime = uvrmssum = 0;
 	float dz = layer.thickness_;
 	if ( idx >= sourcelayer_)
 	{
@@ -391,8 +392,8 @@ bool VrmsRayTracer1D::doPrepare( int nrthreads )
 	    if ( dz <= 0 )
 		continue;
 
-	    dnmotimes[idx] += dz / dvel;
-	    dvrmssum[idx] += dz * dvel;  
+	    dnmotime = dz / dvel;
+	    dvrmssum = dz * dvel;  
 	}
 
 	dz = layer.thickness_;
@@ -407,18 +408,21 @@ bool VrmsRayTracer1D::doPrepare( int nrthreads )
 	    if ( dz <= 0 )
 		continue;
 
-	    unmotimes[idx] += dz / uvel;
-	    uvrmssum[idx] += dz * uvel; 
+	    unmotime = dz / uvel;
+	    uvrmssum = dz * uvel; 
 	}
-	if ( idx ) 
-	{
-	    dvrmssum[idx] += dvrmssum[idx-1];
-	    uvrmssum[idx] += uvrmssum[idx-1];
-	    dnmotimes[idx] += dnmotimes[idx-1];
-	    unmotimes[idx] += unmotimes[idx-1];
-	}
-	const float vrmssum = dvrmssum[idx] + uvrmssum[idx];
-	const float twt = unmotimes[idx] + dnmotimes[idx];
+	dvrmssum += prevdvrmssum;
+	uvrmssum += prevuvrmssum;
+	dnmotime += prevdnmotime;
+	unmotime += prevunmotime;
+
+	prevdvrmssum = dvrmssum;
+	prevuvrmssum = uvrmssum;
+	prevdnmotime = dnmotime;
+	prevunmotime = unmotime;
+
+	const float vrmssum = dvrmssum + uvrmssum;
+	const float twt = unmotime + dnmotime;
 	velmax_ += sqrt( vrmssum / twt );
 	twt_->set( idx, 0, twt );
     }
@@ -432,6 +436,9 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
     for ( int layer=start; layer<=stop; layer++ )
     {
+	if ( layer < firstlayer_ )
+	    continue;
+
 	const ElasticLayer& ellayer = model_[layer];
 	const float depth = 2*depths_[layer];
 	const float vel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;
