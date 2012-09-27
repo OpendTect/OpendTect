@@ -33,6 +33,10 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     const BufferStringSet& filtnms( setup_.is2d_
 	    		? Pos::Filter2D::factory().getNames()
 			: Pos::Filter3D::factory().getNames() );
+    
+    const BufferStringSet& usrfiltnms( setup_.is2d_
+				   ? Pos::Filter2D::factory().getNames(true)
+				   : Pos::Filter3D::factory().getNames(true) );
     for ( int idx=0; idx<filtnms.size(); idx++ )
     {
 	const BufferString& nm( filtnms.get(idx) );
@@ -40,7 +44,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	    			.create(nm,this,setup_,true);
 	if ( grp )
 	{
-	    nms.add( nm );
+	    nms.add( usrfiltnms.get(idx) );
 	    grp->setName( nm );
 	    grps_ += grp;
 	    issel_ += false;
@@ -52,6 +56,10 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	const BufferStringSet& provnms( setup_.is2d_
 			    ? Pos::Provider2D::factory().getNames()
 			    : Pos::Provider3D::factory().getNames() );
+	
+	const BufferStringSet& usrprovnms( setup_.is2d_
+			       ? Pos::Provider2D::factory().getNames(true)
+			       : Pos::Provider3D::factory().getNames(true) );
 	for ( int idx=0; idx<provnms.size(); idx++ )
 	{
 	    const BufferString& nm( provnms.get(idx) );
@@ -60,7 +68,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 				    .create(nm,this,ppgsu,true);
 	    if ( grp )
 	    {
-		nms.add( nm );
+		nms.add( usrprovnms.get(idx) );
 		grp->setName( nm );
 		grps_ += grp;
 		issel_ += false;
