@@ -32,6 +32,7 @@ void ProbDenFuncDraw::reset()
 {
     pdf_.prepareRandDrawing();
     usecount_.setSize( pdf_.nrDims(), 0 );
+    usecount_.setAll( -1 );
     reDraw();
 }
 
@@ -46,7 +47,11 @@ void ProbDenFuncDraw::reDraw()
 float ProbDenFuncDraw::value( int ival, bool redrw ) const
 {
     if ( redrw && usecount_[ival] )
+    {
 	const_cast<ProbDenFuncDraw*>(this)->reDraw();
+	if ( usecount_[ival] < 0 )
+	    usecount_.setAll( 0 );
+    }
     usecount_[ival]++;
     return vals_[ival];
 }
