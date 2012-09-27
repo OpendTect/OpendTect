@@ -35,7 +35,7 @@ static bool doisudfmsgs = false;
 
 mExternC(Basic) void od_debug_init(void)
 {
-    doisudfmsgs  = GetEnvVarYN( "OD_SHOW_NOT_NORMAL_NUMBER_MSGS" )
+    doisudfmsgs  = GetEnvVarYN( "OD_SHOW_NOT_NORMAL_NUMBER_MSGS" );
 }
 
 
