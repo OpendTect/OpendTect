@@ -32,9 +32,17 @@ public:
 			Content( const char* nm )
 			    : NamedObject(nm)				{}
 			Content( const Content& c )
-			    : NamedObject(c), pattern_(c.pattern_)	{}
+			    : NamedObject(c)
+			    , pattern_(c.pattern_)
+			    , color_(c.color_)				{}
+
     Content&		operator =( const Content& c )
-			{ setName(c.name()); pattern_=c.pattern_; return *this;}
+			{ 
+			    setName(c.name()); 
+			    pattern_=c.pattern_; 
+			    color_ = c.color_; 
+			    return *this;
+			}
     bool		operator ==( const Content& c ) const
     			{ return name() == c.name(); }
 
