@@ -90,7 +90,7 @@ void uiGMTFaultsGrp::typeChgCB( CallBacker* )
 {
     const bool onzslice = optionfld_->getBoolValue();
     zvaluefld_->display( onzslice );
-    horfld_->display( !onzslice )
+    horfld_->display( !onzslice );
 }
 
 
