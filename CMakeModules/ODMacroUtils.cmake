@@ -161,6 +161,10 @@ endif( OD_MODULE_HAS_LIBRARY )
 
 #Extract static libraries
 foreach( STATIC_LIB ${OD_MODULE_STATIC_LIBS} )
+    if ( NOT EXISTS ${STATIC_LIB} )
+	message( FATAL_ERROR "${STATIC_LIB} does not exist" )
+    endif()
+
     get_filename_component( STATIC_LIB_NAME ${STATIC_LIB} NAME )
     set( STATIC_LIB_DIR
          ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${OD_MODULE_NAME}.dir/${STATIC_LIB_NAME}.dir )
