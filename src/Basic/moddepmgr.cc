@@ -82,48 +82,7 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     sd.close();
 
     relfp.set( GetBinPlfDir() );
-#ifndef __cmake__
-#ifndef __win__
-    relfp.add( "so" );
-    relbindir_ = relfp.fullPath();
-    devfp = workdir.buf();
-    devfp.add( "lib" );
-    devfp.add( GetPlfSubDir() ).add( "G" );
-    devbindir_ = devfp.fullPath();
-    if ( !File::exists(devbindir_) )
-    {
-	devfp = workdir;
-	devfp.add( "bin"). add( GetPlfSubDir() ).add( "G" ).add("so");
-	devbindir_ = devfp.fullPath();
-	if ( !File::exists(devbindir_) )
-	{
-	    devfp.setFileName( "OG" );
-	    devbindir_ = devfp.fullPath();
-	}
-    }
-#else
-    relbindir_ = relfp.fullPath();
-    devfp.setFileName( 0 );
-    BufferString plfdir( GetPlfSubDir() );
-    plfdir = plfdir == "win64" ? "x64" : "win32";
-    devfp = workdir;
-    devfp.add( "msvc10" ); devfp.add( plfdir );
-    devfp.add( isdebug ? "debug" : "release" );
-    devbindir_ = devfp.fullPath();
-    if ( !File::exists(devbindir_) )
-    {
-	devfp = workdir;
-	devfp.add( "lib" ); devfp.add( GetPlfSubDir() ).add( "G" );
-	devfp.add( isdebug ? "debug" : "release" );
-	devbindir_ = devfp.fullPath();
-	if ( !File::exists(devbindir_) )
-	{
-	    devbindir_ = "";
-	}
-    }
-#endif
 
-#else //CMAKE
     relbindir_ = relfp.fullPath();
     devfp = workdir.buf();
     devfp.add( "bin" ).add( GetPlfSubDir() );
@@ -142,7 +101,6 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     {
 	devbindir_ = "";
     }
-#endif
 }
 
 
