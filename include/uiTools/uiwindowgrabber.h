@@ -14,13 +14,13 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
-#include "thread.h"
 
 class uiLabeledComboBox;
 class uiFileInput;
 class uiSliderExtra;
 class uiLabel;
 class uiMainWin;
+class Timer;
 
 
 /*!Dialog to specify the grab window and the output image file */
@@ -75,9 +75,7 @@ protected:
     uiMainWin*		grabwin_;
     BufferString	filename_;
     int			quality_;
-    
-    void		mkThread(CallBacker*);
-    Threads::Thread*	execthr_;
+    Timer*		tmr_;
 };
 
 
