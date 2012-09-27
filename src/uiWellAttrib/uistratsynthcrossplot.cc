@@ -114,9 +114,9 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     dps->dataSet().add(
 	    	new DataColDef(Strat::LayModAttribCalc::sKeyModelIdx()) );
 
-    for ( int idx=0; idx<synthdatas_.size(); idx++ )
+    for ( int isynth=0; isynth<synthdatas_.size(); isynth++ )
     {
-	const SyntheticData& sd = *synthdatas_[idx];
+	const SyntheticData& sd = *synthdatas_[isynth];
 	const ObjectSet<const TimeDepthModel>& d2tmodels = sd.d2tmodels_;
 	const int nrmdls = d2tmodels.size();
 
@@ -137,6 +137,8 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	    lvltms += ssev.snappedTime( trc );
 	}
 
+	if ( isynth == 0 )
+	{
 	const int nrextr = extrwin.nrSteps() + 1;
 	for ( int iextr=0; iextr<nrextr; iextr++ )
 	{
@@ -152,6 +154,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 		dr.data_[depthcol] = d2tmodels[itrc]->getDepth( dr.pos_.z_ );
 		dps->addRow( dr );
 	    }
+	}
 	}
     }
 
