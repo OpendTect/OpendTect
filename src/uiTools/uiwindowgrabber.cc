@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.19 2011/07/09 23:58:14 c
 #include "oddirs.h"
 #include "pixmap.h"
 #include "settings.h"
-#include "thread.h"
+#include "timer.h"
 
 BufferString uiWindowGrabDlg::dirname_ = "";
 
@@ -223,17 +223,24 @@ int uiWindowGrabDlg::getQuality() const
 { return qualityfld_->sldr()->getIntValue(); }
 
 
+
+static Timer* tmr_ = new Timer();
+
 uiWindowGrabber::uiWindowGrabber( uiParent* p )
     : parent_(p)
     , desktop_(false)
     , grabwin_(0)
     , quality_(50)
-    , execthr_(0)
-{}
+{
+    tmr_->tick.notify( mCB(this,uiWindowGrabber,actCB) );
+}
 
 
 bool uiWindowGrabber::go()
 {
+    if ( tmr_->isActive() )
+	return false;
+
     uiWindowGrabDlg dlg( parent_, desktop_ );
     if ( !dlg.go() )
 	return false;
@@ -242,12 +249,10 @@ bool uiWindowGrabber::go()
     filename_ = dlg.getFilename();
     quality_ = dlg.getQuality();
 
-    if ( execthr_ )
-    {
-	execthr_->waitForFinish();
-	delete execthr_;
-    }
-    execthr_ = new Threads::Thread( mCB(this,uiWindowGrabber,mkThread) );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+
+    // give window manager chance to remove the uiWindowGrabDlg from screen
+    tmr_->start( 1000, true );
 
     return true;
 }
@@ -255,26 +260,19 @@ bool uiWindowGrabber::go()
 
 uiWindowGrabber::~uiWindowGrabber()
 {
-    if ( execthr_ )
-    {
-	execthr_->waitForFinish();
-	delete execthr_;
-    }
+    tmr_->tick.remove( mCB(this,uiWindowGrabber,actCB) );
 }
 
 
-void uiWindowGrabber::mkThread( CallBacker* )
-{
-    // give window manager chance to remove the uiWindowGrabDlg from screen
-    Threads::sleep( 1 );
-
-    grabwin_->activateInGUIThread( mCB(this,uiWindowGrabber,actCB) ); 
-}
+void uiWindowGrabber::mkThread( CallBacker* ) /* obsolete */
+{}
 
 
-void uiWindowGrabber::actCB( CallBacker* cb )
+void uiWindowGrabber::actCB( CallBacker* )
 {
     const int zoom = desktop_ ? 0 : 1;
     grabwin_->grab( filename_, zoom, 0, quality_ );
+
+    MouseCursorManager::restoreOverride();
 }
 

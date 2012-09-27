@@ -75,8 +75,8 @@ protected:
     BufferString	filename_;
     int			quality_;
     
-    void		mkThread(CallBacker*);
-    Threads::Thread*	execthr_;
+    void		mkThread(CallBacker*);	/* obsolete */
+    Threads::Thread*	execthr_;		/* obsolete */
 };
 
 
