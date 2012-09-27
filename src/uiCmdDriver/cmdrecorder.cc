@@ -687,10 +687,9 @@ void CmdRecorder::insertWinAssertion( const CmdRecEvent& ev )
 	return;
 
     BufferString winstr;
-    const char* qdlgtitle = uiMainWin::activeModalQDlgTitle();
 
     if ( ev.openqdlg_ )
-	winstr = qdlgtitle ? qdlgtitle : ev.qdlgtitle_.buf();
+	winstr = ev.qdlgtitle_;
     else if ( ev.srcwin_ )
 	winstr = windowTitle( applWin(), ev.srcwin_ );
     else
@@ -702,7 +701,7 @@ void CmdRecorder::insertWinAssertion( const CmdRecEvent& ev )
     SearchKey(winstr, true).getMatchingWindows( applWin(), cswinlist ); 
     SearchKey(winstr,false).getMatchingWindows( applWin(), ciwinlist ); 
 
-    if ( cswinlist.size() > (ev.openqdlg_ & !qdlgtitle ? 0 : 1) )
+    if ( cswinlist.size() > (ev.openqdlg_ && !ev.begin_ ? 0 : 1) )
     {
 	winstr += "#";
 	winstr += (ev.openqdlg_ ? 1 + cswinlist.size() :
