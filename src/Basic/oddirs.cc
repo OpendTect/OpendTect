@@ -11,9 +11,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include <string.h>
 #include "envvars.h"
-#include "filegen.h"
 #include "winutils.h"
 #include "debugmasks.h"
+#include "file.h"
 #include "filepath.h"
 #include "settings.h"
 
@@ -323,13 +323,13 @@ const char* GetSetupDataFileName( ODSetupLocType lt, const char* fnm,
 	    mkFullPath( GetSetupDataFileDir(lt, acceptnone), fnm ) );
 
     if ( (lt == ODSetupLoc_ApplSetupPref || lt == ODSetupLoc_SWDirPref)
-	&& !File_exists(filenm) )
+	&& !File::exists(filenm) )
     {
 	/* try 'other' file */
 	GetSetupDataFileName( lt == ODSetupLoc_ApplSetupPref
 		? ODSetupLoc_SWDirOnly : ODSetupLoc_ApplSetupOnly, fnm,
 				acceptnone );
-	if ( File_exists(filenm) )
+	if ( File::exists(filenm) )
 	    return filenm;
 
 	/* 'other' file also doesn't exist: revert */
@@ -393,7 +393,7 @@ const char* GetExecScript( int remote )
     if ( basedir )
 	fnm = gtExecScript( basedir, remote );
 
-    if ( !fnm || !File_exists(fnm) )
+    if ( !fnm || !File::exists(fnm) )
 	fnm = gtExecScript( GetSoftwareDir(0), remote );
 
     strcpy( progname.buf(), "'" );
@@ -462,7 +462,7 @@ static void getHomeDir( char* val )
 	strcpy( val, GetEnvVar("HOMEDRIVE") );
 	strcat( val, GetEnvVar("HOMEPATH") );
 	if ( *val && !C_caseInsensitiveEqual(val,"c:\\",0)
-	  && File_isDirectory(val) )
+	  && File::isDirectory(val) )
 	    dir = val;
     }
 
@@ -562,11 +562,11 @@ const char* GetSettingsDir(void)
 	    strcpy( dirnm.buf(), mkFullPath(dirnm,".od") );
 	}
 
-	if ( !File_isDirectory(dirnm) )
+	if ( !File::isDirectory(dirnm) )
 	{
-	    if ( File_exists(dirnm) )
-		File_remove( dirnm, mFile_NotRecursive );
-	    if ( !File_createDir(dirnm,0) )
+	    if ( File::exists(dirnm) )
+		File::remove( dirnm );
+	    if ( !File::createDir(dirnm) )
 	    {
 		fprintf( stderr, "Fatal: Cannot create '.od' directory in home "
 				    "directory:\n%s\n", dirnm.buf() );
