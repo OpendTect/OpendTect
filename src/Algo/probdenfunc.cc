@@ -32,6 +32,7 @@ void ProbDenFuncDraw::reset()
 {
     pdf_.prepareRandDrawing();
     usecount_.setSize( pdf_.nrDims(), 0 );
+    usecount_.setAll( -1 );
     reDraw();
 }
 
@@ -46,7 +47,11 @@ void ProbDenFuncDraw::reDraw()
 float ProbDenFuncDraw::value( int ival, bool redrw ) const
 {
     if ( redrw && usecount_[ival] )
+    {
 	const_cast<ProbDenFuncDraw*>(this)->reDraw();
+	if ( usecount_[ival] < 0 )
+	    usecount_.setAll( 0 );
+    }
     usecount_[ival]++;
     return vals_[ival];
 }
@@ -211,7 +216,7 @@ float ArrayNDProbDenFunc::getNormFac() const
     for ( od_int64 idx=0; idx<totalsz; idx++ )
 	sumval += values[idx];
 
-    return 1. / sumval;
+    return 1.f / sumval;
 }
 
 
@@ -270,18 +275,19 @@ float ArrayNDProbDenFunc::findAveragePos( const float* arr, int sz,
 					  float grandtotal )
 {
     float sum = 0, prevsum = 0;
-    const float halfway = grandtotal * .5;
+	const float halfway = grandtotal * .5f;
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	sum += arr[idx];
 	if ( sum >= halfway )
 	{
 	    const float frac = (sum-halfway) / (sum-prevsum);
-	    return idx - frac + 0.5;
+	    return idx - frac + 0.5f;
 	}
 	prevsum = sum;
     }
-    return sz-0.5; // not normal
+    return sz-0.5f; // not normal
 }
 
 
