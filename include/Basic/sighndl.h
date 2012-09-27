@@ -24,7 +24,6 @@ namespace DBG { mGlobal(Basic) void forceCrash(bool); }
 mClass(Basic) SignalHandling : public CallBacker
 {
 public:
-
     static void			initClass();
     
     enum EvType			{
@@ -47,7 +46,8 @@ public:
 protected:
 
 					SignalHandling();
-    static PtrMan<SignalHandling>	theinst_;
+    static SignalHandling&		SH();
+    					/*!<Access to a static instance */
 
     CallBackSet				conncbs_;
     CallBackSet				chldcbs_;
