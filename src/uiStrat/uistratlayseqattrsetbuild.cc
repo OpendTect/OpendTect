@@ -146,6 +146,7 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
 	return false;
     ctio_.setObj( dlg.ioObj()->clone() );
 
+    MouseCursorChanger cursorchgr( MouseCursor::Wait );
     StreamProvider sp( ctio_.ioobj->fullUserExpr(false) );
     StreamData sd( forsave ? sp.makeOStream() : sp.makeIStream() );
     bool rv = false;
