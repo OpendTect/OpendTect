@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc,v 1.70 2012/09/14 14:05:09 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratlayermodel.cc 26436 2012-09-26 15:13:41Z kristofer.tingdahl@dgbes.com $";
 
 #include "uistratlayermodel.h"
 
@@ -531,6 +531,7 @@ bool uiStratLayerModel::saveGenDesc() const
     const BufferString fnm( descctio_.ioobj->fullUserExpr(false) );
     StreamData sd( StreamProvider(fnm).makeOStream() );
     bool rv = false;
+    MouseCursorChanger mcch( MouseCursor::Wait );
     if ( !sd.usable() )
 	uiMSG().error( "Cannot open output file" );
     else if ( !desc_.putTo(*sd.ostrm) )
@@ -564,6 +565,7 @@ bool uiStratLayerModel::openGenDesc()
 	{ uiMSG().error( "Cannot open input file" ); return false; }
 
     desc_.erase();
+    MouseCursorChanger mcch( MouseCursor::Wait );
     bool rv = desc_.getFrom( *sd.istrm );
     if ( !rv )
 	uiMSG().error(desc_.errMsg());
