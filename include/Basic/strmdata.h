@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 /*!\brief holds data to use and close an iostream.
 
-Usualyy created by StreamProvider.
+Usually created by StreamProvider.
 Need to find out what to do with the pipe in windows.
 
 */
