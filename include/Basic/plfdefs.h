@@ -180,6 +180,13 @@ Always defined:
 #endif
 
 
+#undef mUnusedVar
+#if defined( __gnuc__ )
+# define mUnusedVar __attribute__ ((unused))
+#else
+# define mUnusedVar
+#endif
+
 /* And, probably unnecessary, for external header files: */
 #ifndef NeedFunctionPrototypes
 # define NeedFunctionPrototypes 1

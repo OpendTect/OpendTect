@@ -36,5 +36,11 @@
 #define mSoODClass		class mSoODGlobal
 #define mSoODExternC		extern "C" mSoODGlobal
 
+#if defined( __win__ )
+# define mUnusedVar
+#else
+# define mUnusedVar __attribute__ ((unused))
+#endif
+
 #endif
 
