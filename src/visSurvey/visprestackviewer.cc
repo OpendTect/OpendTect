@@ -277,8 +277,9 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 	    }
         }
 	else
-	    ;
+	{
 //	    uiMSG().warning("No gather data at the picked location.");
+	}
 	
     	if ( !hasdata )
 	{
