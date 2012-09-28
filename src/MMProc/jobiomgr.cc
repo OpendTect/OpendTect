@@ -401,8 +401,8 @@ FilePath getConvFilePath( const HostData& hd, const FilePath& fp )
     BufferString proc( getTempBaseNm() );
     proc += "_";
     proc += MMJob_getTempFileNr()-1;
-    newfp.add(  GetSurveyName() ).add( "Proc" )
-	 .add( proc ).add( fp.fileName() );
+    /*newfp.add(  GetSurveyName() ).add( "Proc" )
+	 .add( proc ).add( fp.fileName() );*/
     return newfp;
 }
 
