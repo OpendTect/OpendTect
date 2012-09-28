@@ -173,7 +173,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
     {
 	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_ 
 	               : model_[idx].thickness_;
-	velmax_ += 0;
+	velmax_ += model_[idx].vel_;
     }
 
     const float sourcedepth = setup().sourcedepth_; 
@@ -354,11 +354,14 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     for ( int idx=firstlayer_; idx<layersize; idx++ )
     {
 	depths += depths_[idx];
-	const float time = twt_->get( idx, offsetidx );
-	times += mIsUdf( time ) ? times[times.size()-1] : time;
+	float time = twt_->get( idx, offsetidx );
+	if ( mIsUdf( time ) ) time = times[times.size()-1];
+	if ( time < times[times.size()-1] )
+	    continue;
+
+	times += time;
     }
-    sort_array( times.arr(), layersize+1 );
-    return d2tm.setModel( depths.arr(), times.arr(), layersize+1 ); 
+    return d2tm.setModel( depths.arr(), times.arr(), times.size() ); 
 }
 
 
