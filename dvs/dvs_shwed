@@ -1,8 +1,8 @@
 #!/bin/csh -f
 
-if ( ! -d CVS ) then
-    echo "No Subversion support yet"
+if ( -d CVS ) then
+    dvs editors $*  
     exit 1
 endif
 
-dvs editors $*  
+dvs_showlocks $*
