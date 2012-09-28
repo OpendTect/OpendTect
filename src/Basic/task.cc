@@ -118,50 +118,43 @@ void TaskGroup::enableNrDoneCounting( bool yn )
 
 od_int64 TaskGroup::nrDone() const
 {
-    lock_.lock();
-    const od_int64 res = tasks_[curtask_]->nrDone();
-    lock_.unLock();
-    return res;
+    Threads::MutexLocker lock( lock_ );
+    return tasks_[curtask_]->nrDone();
 }
 
 
 od_int64 TaskGroup::totalNr() const
 {
-    lock_.lock();
+    Threads::MutexLocker lock( lock_ );
     return tasks_[curtask_]->totalNr();
-    lock_.unLock();
 }
 
 
 const char* TaskGroup::message() const
 {
-    lock_.lock();
+    Threads::MutexLocker lock( lock_ );
     return tasks_[curtask_]->message();
-    lock_.unLock();
 }
 
 
 const char* TaskGroup::nrDoneText() const
 {
-    lock_.lock();
+    Threads::MutexLocker lock( lock_ );
     return tasks_[curtask_]->nrDoneText();
-    lock_.unLock();
 }
 
 
 bool TaskGroup::execute()
 {
-    lock_.lock();
+    Threads::MutexLocker lock( lock_ );
     for ( curtask_=0; curtask_<tasks_.size(); curtask_++ )
     {
-	lock_.unLock();
+	lock.unLock();
 	if ( !tasks_[curtask_]->execute() )
 	    return false;
 
-	lock_.lock();
+	lock.lock();
     }
-
-    lock_.unLock();
 
     return true;
 }
@@ -176,18 +169,15 @@ void TaskGroup::enableWorkControl( bool yn )
 
 void TaskGroup::controlWork( Task::Control t )
 {
-    lock_.lock();
+    Threads::MutexLocker lock( lock_ );
     tasks_[curtask_]->controlWork( t );
-    lock_.unLock();
 }
 
 
 Task::Control TaskGroup::getState() const
 {
-    lock_.lock();
-    Task::Control res = tasks_[curtask_]->getState();
-    lock_.unLock();
-    return res;
+    Threads::MutexLocker lock( lock_ );
+    return tasks_[curtask_]->getState();
 }
 
 
