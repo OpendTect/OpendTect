@@ -39,7 +39,7 @@ void uiGMTFaultsGrp::initClass()
 {
     if ( factoryid_ < 0 )
 	factoryid_ = uiGMTOF().add( "Faults",
-				    uiGMTFaultsGrp::createInstance )
+				    uiGMTFaultsGrp::createInstance );
 }
 
 
