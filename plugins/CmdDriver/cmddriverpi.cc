@@ -9,11 +9,16 @@ ________________________________________________________________________
 -*/
 static const char* rcsID = "$Id: cmddriverpi.cc,v 1.34 2011/04/21 13:09:13 cvsbert Exp $";
 
-#include "uimain.h"
+#include "uimenu.h"
+#include "uiodmain.h"
 #include "uiodmenumgr.h"
-#include "cmddrivermgr.h"
+#include "uicmddrivermgr.h"
 #include "odplugin.h"
+#include "coincommands.h"
 
+
+namespace CmdDrive
+{
 
 mDefODPluginInfo(CmdDriver)
 {
@@ -26,10 +31,39 @@ mDefODPluginInfo(CmdDriver)
 }
 
 
+static void initExtraCommands()
+{
+    WheelCmd::initClass();
+    GetWheelCmd::initClass();
+}
+
+static void initExtraFunctions()
+{}
+
+static void initExtraComposers()
+{
+    WheelCmdComposer::initClass();
+}
+
+
 mDefODInitPlugin(CmdDriver)
 {
-    static CmdDrive::uiCmdDriverMgr* mgr = 0;
+    static uiCmdDriverMgr* mgr = 0;
     if ( mgr ) return 0;
-    mgr = new CmdDrive::uiCmdDriverMgr( *ODMainWin() );
+    mgr = new uiCmdDriverMgr( true );
+
+    static uiMenuItem* cmdmnuitm = 0;
+    if ( cmdmnuitm ) return 0;
+    cmdmnuitm = new uiMenuItem( "Command &Driver ..." );
+
+    ODMainWin()->menuMgr().toolsMnu()->insertItem( cmdmnuitm );
+    cmdmnuitm->activated.notify( mCB(mgr,uiCmdDriverMgr,showDlgCB) );
+
+    initExtraCommands();
+    initExtraFunctions();
+    initExtraComposers();
+
     return 0;
 }
+
+}; // namespace CmdDrive
