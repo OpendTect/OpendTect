@@ -30,11 +30,19 @@ class CmdRecorder;
 class uiCmdDriverDlg;
 
 
-mClass(uiCmdDriver) uiCmdDriverMgr:public CallBacker
+mClass(uiCmdDriver) uiCmdDriverMgr : public CallBacker
 {
 public:
-				uiCmdDriverMgr();
+				uiCmdDriverMgr(bool fullodmode=false);
 				~uiCmdDriverMgr();
+
+    void			enableCmdLineParsing(bool yn=true);
+
+    void			addCmdLineScript(const char* fnm);
+    void			setLogFileName(const char* fnm);
+
+    void			setDefaultScriptsDir(const char* dirnm);
+    void			setDefaultLogDir(const char* dirnm);
 
     void			showDlgCB(CallBacker*);
 
@@ -61,6 +69,10 @@ protected:
     Timer*			tim_;
     uiMenuItem*			cmdmnuitm_;
     uiCmdDriverDlg*		cmddlg_;
+
+    bool			cmdlineparsing_;
+    BufferString		defaultscriptsdir_;
+    BufferString		defaultlogdir_;
 
     BufferStringSet		cmdlinescripts_;
     bool			settingsautoexec_;

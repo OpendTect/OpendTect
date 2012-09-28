@@ -50,7 +50,7 @@ mDefODInitPlugin(CmdDriver)
 {
     static uiCmdDriverMgr* mgr = 0;
     if ( mgr ) return 0;
-    mgr = new uiCmdDriverMgr();
+    mgr = new uiCmdDriverMgr( true );
 
     static uiMenuItem* cmdmnuitm = 0;
     if ( cmdmnuitm ) return 0;

@@ -49,8 +49,10 @@ protected:
 mClass(uiCmdDriver) uiCmdDriverDlg : public uiDialog
 {
 public:
-				uiCmdDriverDlg(uiParent*,CmdDriver&,
-					       CmdRecorder&);
+				uiCmdDriverDlg(uiParent*,
+					       CmdDriver&,CmdRecorder&,
+					       const char* defaultscriptsdir=0,
+					       const char* defaultlogdir=0);
 				~uiCmdDriverDlg();
 
     void			popUp();
@@ -94,6 +96,9 @@ protected:
     uiCheckBox*			tooltipfld_;
     CmdDriver&			drv_;
     CmdRecorder&		rec_;
+
+    BufferString		defaultscriptsdir_;
+    BufferString		defaultlogdir_;
 
     uiCmdInteractDlg*		interactdlg_;
 };

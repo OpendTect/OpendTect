@@ -88,7 +88,8 @@ bool uiCmdInteractDlg::rejectOK( CallBacker* )
 
 const char* optstrs[] = { "Run", "Record", 0 };
 
-uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r )
+uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
+			    const char* defscriptsdir, const char* deflogdir )
         : uiDialog( 0, Setup( controllerTitle(), "Specify your command script",
 			      "0.4.3").modal(false))
 	, drv_(d), rec_(r)
@@ -96,6 +97,8 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r )
 	, outfldsurveycheck_(false)
 	, logfldsurveycheck_(false)
 	, interactdlg_(0)
+	, defaultscriptsdir_(defscriptsdir)
+	, defaultlogdir_(deflogdir)
 {
     setCtrlStyle( LeaveOnly );
     setCancelText( "&Hide" );
@@ -481,15 +484,22 @@ void uiCmdDriverDlg::afterSurveyChg()
 
 void uiCmdDriverDlg::setDefaultSelDirs()
 {
-    inpfld_->setDefaultSelectionDir( GetScriptsDir(0) );
-    logfld_->setDefaultSelectionDir( GetProcFileName(0) );
-    outfld_->setDefaultSelectionDir( GetScriptsDir(0) );
+    const char* dir = defaultscriptsdir_.isEmpty() ? GetScriptsDir(0)
+						   : defaultscriptsdir_.buf();
+    inpfld_->setDefaultSelectionDir( dir );
+    outfld_->setDefaultSelectionDir( dir );
+
+    dir = defaultlogdir_.isEmpty() ? GetProcFileName(0) : defaultlogdir_.buf();
+    logfld_->setDefaultSelectionDir( dir );
 }
 
 
 void uiCmdDriverDlg::setDefaultLogFile()
 {
-    logproposal_ = GetProcFileName( CmdDriver::defaultLogFilename() );
+    const char* dir = defaultlogdir_.isEmpty() ? GetProcFileName(0)
+					       : defaultlogdir_.buf();
+
+    logproposal_ = FilePath(dir, CmdDriver::defaultLogFilename()).fullPath();
     logfld_->setFileName( logproposal_ );
     logfldsurveycheck_ = false;
 }

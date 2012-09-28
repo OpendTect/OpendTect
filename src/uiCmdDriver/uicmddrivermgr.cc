@@ -43,13 +43,16 @@ namespace CmdDrive
 static const char* autoexecfnm = "autoexec.odcmd";
 
 
-uiCmdDriverMgr::uiCmdDriverMgr()
+uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
     	: applwin_(*uiMain::theMain().topLevel())
 	, cmddlg_(0)
-	, settingsautoexec_(true)
-	, surveyautoexec_(true)
+	, settingsautoexec_(fullodmode)
+	, surveyautoexec_(fullodmode)
 	, scriptidx_(-3)
         , historec_(0)
+	, cmdlineparsing_(fullodmode)
+	, defaultscriptsdir_(fullodmode ? "" : GetPersonalDir())
+	, defaultlogdir_(fullodmode ? "" : GetPersonalDir())
 {
     tim_ = new Timer();
     rec_ = new CmdRecorder( applwin_ );
@@ -103,7 +106,8 @@ uiCmdDriverDlg* uiCmdDriverMgr::getCmdDlg()
     if ( !cmddlg_ )
     {
 	initCmdLog( cmdlogname_ );
-	cmddlg_ = new uiCmdDriverDlg( &applwin_, *drv_, *rec_ );
+	cmddlg_ = new uiCmdDriverDlg( &applwin_, *drv_, *rec_,
+				      defaultscriptsdir_, defaultlogdir_ );
 	cmddlg_->go();
     }
 
@@ -141,8 +145,64 @@ void uiCmdDriverMgr::showDlgCB( CallBacker* )
 }
 
 
+void uiCmdDriverMgr::enableCmdLineParsing( bool yn )
+{
+    cmdlineparsing_ = yn;
+}
+
+
+void uiCmdDriverMgr::setDefaultScriptsDir( const char* dirnm )
+{
+    if ( File::isDirectory(dirnm) )
+	defaultscriptsdir_ = dirnm;
+}
+
+
+void uiCmdDriverMgr::setDefaultLogDir( const char* dirnm )
+{
+    if ( File::isDirectory(dirnm) )
+	defaultlogdir_ = dirnm;
+}
+
+
+void uiCmdDriverMgr::setLogFileName( const char* fnm )
+{
+    cmdlogname_ = fnm;
+}
+
+
+#define mCheckFilePath( fnm, defaultdir, altdir ) \
+{ \
+    FilePath fp( fnm ); \
+    if ( !File::exists(fnm) && !fp.isAbsolute() ) \
+    { \
+	fp.setPath( defaultdir.isEmpty() ? altdir : defaultdir.buf() ); \
+	fnm = fp.fullPath(); \
+    } \
+}
+
+void uiCmdDriverMgr::addCmdLineScript( const char* fnm )
+{
+    BufferString filenm( fnm );
+    mCheckFilePath( filenm, defaultscriptsdir_, GetScriptsDir(0) );
+
+    if ( !File::exists(filenm) )
+    {
+	FilePath fp( filenm );
+	fp.setExtension( "odcmd", true );
+	filenm = fp.fullPath();
+    }
+
+    if ( File::exists(filenm) )
+	cmdlinescripts_.add( filenm );
+}
+
+
 void uiCmdDriverMgr::commandLineParsing()
 {
+    if ( !cmdlineparsing_ )
+	return;
+
     BufferStringSet cmdline;
     uiMain::theMain().getCmdLineArgs( cmdline );
     for ( int idx=1; idx<cmdline.size(); idx++ )
@@ -174,16 +234,7 @@ void uiCmdDriverMgr::commandLineParsing()
 		continue;
 	    }
 
-	    if ( !File::exists(fnm) && !FilePath(fnm).isAbsolute() )
-		fnm = GetScriptsDir( fnm );
-	    if ( !File::exists(fnm) )
-	    {
-		FilePath fp( fnm );
-		fp.setExtension( "odcmd", true );
-		fnm = fp.fullPath();
-	    }
-	    if ( File::exists(fnm) )
-		cmdlinescripts_.add( fnm );
+	    addCmdLineScript( fnm );
 	}
 
 	if ( !strcmp(str,"cmdlog") )
@@ -198,10 +249,9 @@ void uiCmdDriverMgr::initCmdLog( const char* cmdlognm )
     if ( fnm.isEmpty() )
 	fnm = drv_->defaultLogFilename();
 
-    if ( !File::exists(fnm) && !FilePath(fnm).isAbsolute() )
-	fnm = GetProcFileName( fnm );
+    mCheckFilePath( fnm, defaultlogdir_, GetProcFileName(0) );
 
-    FilePath fp( fnm );
+    const FilePath fp( fnm );
     if ( File::isWritable(fp.pathOnly()) &&
 	 (!File::exists(fp.fullPath()) || File::isWritable(fp.fullPath())) )
     {
