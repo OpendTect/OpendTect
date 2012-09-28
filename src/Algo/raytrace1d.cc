@@ -170,8 +170,11 @@ bool RayTracer1D::doPrepare( int nrthreads )
     const int layersize = nrIterations();
 
     for ( int idx=0; idx<layersize; idx++ )
+    {
 	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_ 
 	               : model_[idx].thickness_;
+	velmax_ += 0;
+    }
 
     const float sourcedepth = setup().sourcedepth_; 
     for ( int idx=0; idx<model_.size(); idx++ )
@@ -424,7 +427,7 @@ bool VrmsRayTracer1D::doPrepare( int nrthreads )
 
 	const float vrmssum = dvrmssum + uvrmssum;
 	const float twt = unmotime + dnmotime;
-	velmax_ += sqrt( vrmssum / twt );
+	velmax_[idx] = sqrt( vrmssum / twt );
 	twt_->set( idx, 0, twt );
     }
     return true;
