@@ -132,6 +132,7 @@ mGlobal(Batch) BatchProgram& BP();
 # endif
     int main( int argc, char** argv )
     {
+	SetProgramArgs( argc, argv );
 	int ret = Execute_batch(&argc,argv);
 	ExitProgram( ret );
 	return ret;

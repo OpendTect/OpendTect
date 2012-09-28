@@ -24,9 +24,6 @@ ________________________________________________________________________
 
 int Execute_batch( int* pargc, char** argv )
 {
-    SetProgramArgs( *pargc, argv );
-    SetEnvVar( "DTECT_ARGV0", argv[0] );
-
     PIM().setArgs( *pargc, argv ); PIM().loadAuto( false );
 
     BP().init( pargc, argv );
