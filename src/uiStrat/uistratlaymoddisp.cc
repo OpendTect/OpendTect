@@ -22,7 +22,17 @@ static const char* rcsID mUnusedVar = "$Id: uistratlaymoddisp.cc,v 1.32 2012/09/
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratreftree.h"
+#include "survinfo.h"
 #include "property.h"
+
+#define mGetConvZ(var,conv) \
+    if ( SI().depthsInFeet() ) var *= conv
+#define mGetRealZ(var) mGetConvZ(var,mFromFeetFactorF)
+#define mGetDispZ(var) mGetConvZ(var,mToFeetFactorF)
+#define mGetDispZrg(var) \
+    Interval<float> var( zrg_ ); \
+    if ( SI().depthsInFeet() ) \
+	var.scale( mToFeetFactorF )
 
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
@@ -68,7 +78,8 @@ void uiStratLayerModelDisp::setFlattened( bool yn )
 bool uiStratLayerModelDisp::haveAnyZoom() const
 {
     const int nrseqs = lmp_.get().size();
-    uiWorldRect wr( 1, zrg_.start, nrseqs + 1, zrg_.stop );
+    mGetDispZrg(dispzrg);
+    uiWorldRect wr( 1, dispzrg.start, nrseqs + 1, dispzrg.stop );
     return zoomwr_.isInside( wr, 1e-5 );
 }
 
@@ -138,7 +149,8 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     xahsu.border( border ).nogridline( true );
     xax_ = new uiAxisHandler( &scene(), xahsu );
     uiAxisHandler::Setup yahsu( uiRect::Left );
-    yahsu.border( border ).name( "Depth" );
+    const BufferString zlbl( "Depth (", SI().depthsInFeet() ? "ft" : "m", ")" );
+    yahsu.border( border ).name( zlbl );
     yax_ = new uiAxisHandler( &scene(), yahsu );
     yax_->setEnd( xax_ );
     xax_->setBegin( yax_ );
@@ -217,6 +229,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
     ObjectSet<Strat::Layer>& lays = ls.layers();
     MouseEventHandler& mevh = gv_->getMouseEventHandler();
     float zsel = yax_->getVal( mevh.event().pos().y );
+    mGetRealZ( zsel );
     mevh.setHandled( true );
     if ( flattened_ )
     {
@@ -416,8 +429,9 @@ void uiStratSimpleLayerModelDisp::getBounds()
     {
 	zoomwr_.setLeft( 1 );
 	zoomwr_.setRight( nrseqs+1 );
-	zoomwr_.setTop( zrg_.stop );
-	zoomwr_.setBottom( zrg_.start );
+	mGetDispZrg(dispzrg);
+	zoomwr_.setTop( dispzrg.stop );
+	zoomwr_.setBottom( dispzrg.start );
     }
 }
 
@@ -464,7 +478,8 @@ void uiStratSimpleLayerModelDisp::doDraw()
     if ( !showzoomed_ )
     {
 	xax_->setBounds( Interval<float>(1,lmp_.get().size()+1) );
-	yax_->setBounds( Interval<float>(zrg_.stop,zrg_.start) );
+    	mGetDispZrg(dispzrg);
+	yax_->setBounds( Interval<float>(dispzrg.stop,dispzrg.start) );
     }
     else
     {
@@ -475,21 +490,24 @@ void uiStratSimpleLayerModelDisp::doDraw()
     }
     yax_->plotAxis(); xax_->plotAxis();
     const float vwdth = vrg_.width();
+    float zfac = 1; mGetDispZ( zfac );
 
     mStartLayLoop( true )
 
+	float dispz0 = z0; float dispz1 = z1;
+	mGetConvZ( dispz0, zfac ); mGetConvZ( dispz1, zfac );
 	if ( showzoomed_ )
 	{
-	    if ( z0 > zoomwr_.top() || z1 < zoomwr_.bottom() )
+	    if ( dispz0 > zoomwr_.top() || dispz1 < zoomwr_.bottom() )
 		continue;
-	    if ( z1 > zoomwr_.top() )
-		const_cast<float&>(z1) = (float)zoomwr_.top();
-	    if ( z0 < zoomwr_.bottom() )
-		const_cast<float&>(z0) = (float)zoomwr_.bottom();
+	    if ( dispz1 > zoomwr_.top() )
+		dispz1 = (float)zoomwr_.top();
+	    if ( dispz0 < zoomwr_.bottom() )
+		dispz0 = (float)zoomwr_.bottom();
 	}
 
-	const int ypix0 = yax_->getPix( z0 );
-	const int ypix1 = yax_->getPix( z1 );
+	const int ypix0 = yax_->getPix( dispz0 );
+	const int ypix1 = yax_->getPix( dispz1 );
 	if ( ypix0 != ypix1 && !mIsUdf(val) )
 	{
 	    const float relx = (val-vrg_.start) / vwdth;
@@ -510,7 +528,6 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    if ( fillmdls_ )
 	    {
 		it->setFillColor( laycol );
-		FillPattern fp;
 		if ( isannotcont )
 		    it->setFillPattern( lay.content().pattern_ );
 	    }
@@ -534,10 +551,11 @@ void uiStratSimpleLayerModelDisp::drawLevels()
     lvlcol_ = tools_.selLevelColor();
     for ( int iseq=0; iseq<lvldpths_.size(); iseq++ )
     {
-	const float zlvl = lvldpths_[iseq];
+	float zlvl = lvldpths_[iseq];
 	if ( mIsUdf(zlvl) )
 	    continue;
 
+	mGetDispZ(zlvl);
 	const int ypix = yax_->getPix( flattened_ ? 0 : zlvl );
 	const int xpix1 = getXPix( iseq, 0 );
 	const int xpix2 = getXPix( iseq, 1 );
