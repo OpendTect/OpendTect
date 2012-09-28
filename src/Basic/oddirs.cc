@@ -461,7 +461,7 @@ static void getHomeDir( char* val )
 	/* This may be not be trustworthy */
 	strcpy( val, GetEnvVar("HOMEDRIVE") );
 	strcat( val, GetEnvVar("HOMEPATH") );
-	if ( *val && !C_caseInsensitiveEqual(val,"c:\\",0)
+	if ( *val && !caseInsensitiveEqual(val,"c:\\",0)
 	  && File::isDirectory(val) )
 	    dir = val;
     }
@@ -494,7 +494,7 @@ static void getHomeDir( char* val )
 #ifdef __win__
     if ( !GetEnvVar("DTECT_WINHOME") )
 	SetEnvVar( "DTECT_WINHOME", val );
-    C_replaceCharacter( val, '\r', '\0' );
+    replaceCharacter( val, '\r', '\0' );
 #endif
 }
 

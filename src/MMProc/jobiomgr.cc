@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "string2.h"
 #include "strmprov.h"
+#include "survinfo.h"
 #include "systeminfo.h"
 #include "tcpserver.h"
 #include "thread.h"

@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include "survinfo.h"
 #include "ascstream.h"
 
 static const char* sSingBaseNm = "batch_processing";
