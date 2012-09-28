@@ -276,6 +276,7 @@ bool uiTaskRunner::rejectOK( CallBacker* )
     finalizeTask();
     uitaskrunnerthreadmutex_.unLock();
 
+    state_ = (int) Task::Stop;
     execres_ = false;
     return true;
 }
