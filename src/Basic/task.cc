@@ -68,8 +68,6 @@ Task::Control Task::getState() const
     workcontrolcondvar_->lock();
     Task::Control res = control_;
     workcontrolcondvar_->unLock();
-
-    return res;
 }
 
 
