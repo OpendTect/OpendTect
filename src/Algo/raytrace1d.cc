@@ -351,7 +351,8 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     for ( int idx=firstlayer_; idx<layersize; idx++ )
     {
 	depths += depths_[idx];
-	times += twt_->get( idx, offsetidx ); 
+	const float time = twt_->get( idx, offsetidx );
+	times += mIsUdf( time ) ? times[times.size()-1] : time;
     }
     sort_array( times.arr(), layersize+1 );
     return d2tm.setModel( depths.arr(), times.arr(), layersize+1 ); 
