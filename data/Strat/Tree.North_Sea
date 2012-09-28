@@ -1,15 +1,17 @@
-dTect V4.3
+dTect V4.5
 Stratigraphic Tree
-Wed 25 Jan 2012, 17:01:35
+Fri Sep 28 14:58:15 2012
 !
 General
-Lithology: sand`0`P`#dc3232
-Lithology: shale`1`N`#3232dc
-Lithology: limestone`2`P`#32c832
-Lithology: dolomite`3`P`#32c8c8
-Lithology: halite`4`N`#ffd200
-Lithology: anhydrite`5`N`#dc00dc
+Lithology: sand`0`P`#ffd700
+Lithology: shale`1`N`#8b4500
+Lithology: limestone`2`P`#00aaff
+Lithology: dolomite`3`P`#0000ff
+Lithology: halite`4`N`#ff00ff
+Lithology: anhydrite`5`N`#9be8e8
 Contents: Oil`Gas
+Contents.Oil.Appearance: 1`6`#008000
+Contents.Gas.Appearance: 1`6`#ff0000
 !
 Units
 Quaternary:  
