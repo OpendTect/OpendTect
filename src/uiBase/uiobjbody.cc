@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QPixmap>
 #include <QToolTip>
 
+mUseQtnamespace
 
 #define mParntBody( p ) dynamic_cast<uiParentBody*>( p->body() )
 
@@ -213,7 +214,7 @@ void uiObjectBody::setVSzPol( uiObject::SzPolicy pol )
 
 Color uiObjectBody::uibackgroundColor() const
 {
-    const mQtclass(QBrush&) qbr = qwidget()->palette().brush(
+    const QBrush& qbr = qwidget()->palette().brush(
 	    qwidget()->backgroundRole() );
     return Color( qbr.color().rgb() );
 }
@@ -221,27 +222,26 @@ Color uiObjectBody::uibackgroundColor() const
 
 void uiObjectBody::uisetBackgroundColor( const Color& col )
 {
-    mQtclass(QPalette) qpal( qwidget()->palette() );
-    qpal.setColor( mQtclass(QPalette)::Base,
-		   mQtclass(QColor)(col.r(),col.g(),col.b(),255-col.t()) );
+    QPalette qpal( qwidget()->palette() );
+    qpal.setColor( QPalette::Base,
+		   QColor(col.r(),col.g(),col.b(),255-col.t()) );
     qwidget()->setPalette( qpal );
 }
 
 
 void uiObjectBody::uisetBackgroundPixmap( const ioPixmap& pm )
 {
-    mQtclass(QPalette) qpal;
-    qpal.setBrush( qwidget()->backgroundRole(),
-	    	   mQtclass(QBrush)(*pm.qpixmap()) );
+    QPalette qpal;
+    qpal.setBrush( qwidget()->backgroundRole(), QBrush(*pm.qpixmap()) );
     qwidget()->setPalette( qpal );
 }
 
 
 void uiObjectBody::uisetTextColor( const Color& col )
 {
-    mQtclass(QPalette) qpal( qwidget()->palette() );
-    qpal.setColor( mQtclass(QPalette)::Text,
-		   mQtclass(QColor)(col.r(),col.g(),col.b(),255-col.t()) );
+    QPalette qpal( qwidget()->palette() );
+    qpal.setColor( QPalette::Text,
+		   QColor(col.r(),col.g(),col.b(),255-col.t()) );
     qwidget()->setPalette( qpal );
 }
 
@@ -500,20 +500,19 @@ void uiObjectBody::setToolTip( const char* txt )
 
 
 void uiObjectBody::getToolTipBGColor( Color& col )
-{ col = Color( mQtclass(QToolTip)::palette().color(mQtclass(QPalette)::ToolTipBase).rgb() ); }
+{ col = Color( QToolTip::palette().color(QPalette::ToolTipBase).rgb() ); }
 
 
 void uiObjectBody::setToolTipBGColor( const Color& col )
 {
-    mQtclass(QPalette) palette;
-    palette.setColor( mQtclass(QPalette)::ToolTipBase,
-	    	      mQtclass(QColor)(col.r(),col.g(),col.b()) );
-    mQtclass(QToolTip)::setPalette( palette );
+    QPalette palette;
+    palette.setColor( QPalette::ToolTipBase, QColor(col.r(),col.g(),col.b()) );
+    QToolTip::setPalette( palette );
 } 
 
 
 void uiObjectBody::uisetCaption( const char* str )
-    { qwidget()->setWindowTitle( mQtclass(QString)(str) ); }
+    { qwidget()->setWindowTitle( QString(str) ); }
 
 i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
     { return new i_uiLayoutItem( mngr , *this ); }
@@ -534,7 +533,7 @@ const uiFont* uiObjectBody::uifont() const
 {
     if ( !font_ )
     { 
-	mQtclass(QFont) qf( qwidget()->font() );
+	QFont qf( qwidget()->font() );
 	const_cast<uiObjectBody*>(this)->font_ = &FontList().getFromQfnt(&qf); 
 	const_cast<uiObjectBody*>(this)->qwidget()->setFont( font_->qFont() );
     }
@@ -553,11 +552,11 @@ void uiObjectBody::uisetFont( const uiFont& f )
 int uiObjectBody::fontWdtFor( const char* str ) const
 {
     gtFntWdtHgt();
-    const mQtclass(QWidget*) qw = qwidget();
+    const QWidget* qw = qwidget();
     if ( !qw )
 	{ gtFntWdtHgt(); return strlen(str) * fnt_wdt; }
 
-    return qw->fontMetrics().width( mQtclass(QString)( str ) );
+    return qw->fontMetrics().width( QString( str ) );
 }
 
 
@@ -574,10 +573,10 @@ void uiObjectBody::gtFntWdtHgt() const
 
     uiObjectBody& self = *const_cast<uiObjectBody*>(this);
 
-    mQtclass(QFont) qft = mQtclass(QFont());
-    mQtclass(QFontMetrics) qfm( qft );
+    QFont qft = QFont();
+    QFontMetrics qfm( qft );
     self.fnt_hgt = qfm.lineSpacing() + 2;
-    self.fnt_wdt = qfm.width( mQtclass(QChar)('x') );
+    self.fnt_wdt = qfm.width( QChar('x') );
 
     self.fnt_maxwdt = qfm.maxWidth();
 
@@ -595,7 +594,7 @@ void uiObjectBody::gtFntWdtHgt() const
     { 
 	for ( char idx=32; idx<127; idx++ )
 	{
-	    mQtclass(QChar) ch( idx );
+	    QChar ch( idx );
 	    if ( ch.isPrint() )
 	    {
 		const int width = qfm.width( ch );

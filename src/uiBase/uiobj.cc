@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QEvent>
 
+mUseQtnamespace
 
 static CallBackSet cmdrecorders_;
 
@@ -110,7 +111,7 @@ int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
 }
 
 
-const mQtclass(QWidget*) uiBaseObject::getWidget() const
+const QWidget* uiBaseObject::getWidget() const
 { return const_cast<uiBaseObject*>(this)->getWidget(); }
 
 
@@ -232,20 +233,19 @@ void uiParentBody::clearChildren()
 }
 
 
-class uiObjEventFilter : public mQtclass(QObject)
+class uiObjEventFilter : public QObject
 {
 public:
 			uiObjEventFilter( uiObject& uiobj )
 			    : uiobject_( uiobj )
 			{}
 protected:
-    bool		eventFilter(mQtclass(QObject*),mQtclass(QEvent*));
+    bool		eventFilter(QObject*,QEvent*);
     uiObject&		uiobject_;
 };
 
 
-bool uiObjEventFilter::eventFilter( mQtclass(QObject*) obj,
-				    mQtclass(QEvent*) ev )
+bool uiObjEventFilter::eventFilter( QObject* obj, QEvent* ev )
 {
     if ( ev && ev->type() == mUsrEvLongTabletPress )
     {
@@ -265,8 +265,8 @@ static ObjectSet<uiObject> uiobjectlist_;
 
 static BufferString getCleanName( const char* nm )
 {
-    mQtclass(QString) qstr( nm );
-    qstr.remove( mQtclass(QChar)('&') );
+    QString qstr( nm );
+    qstr.remove( QChar('&') );
     return BufferString( qstr.toAscii().data() );
 }
 
@@ -381,8 +381,8 @@ void uiObject::trlReady( CallBacker* cb )
 	return;
 
     const wchar_t* translation = TrMgr().tr()->get();
-    mQtclass(QString) txt = mQtclass(QString)::fromWCharArray( translation );
-    mQtclass(QString) tt( name().buf() ); tt += "\n\n"; tt += txt;
+    QString txt = QString::fromWCharArray( translation );
+    QString tt( name().buf() ); tt += "\n\n"; tt += txt;
     qwidget()->setToolTip( tt );
 
     translateid_ = -1;
@@ -405,13 +405,13 @@ bool uiObject::hasFocus() const
 void uiObject::disabFocus()
 {
     if ( qwidget() )
-	qwidget()->setFocusPolicy( mQtclass(Qt)::NoFocus );
+	qwidget()->setFocusPolicy( Qt::NoFocus );
 }
 
 
 void uiObject::setCursor( const MouseCursor& cursor )
 {
-    mQtclass(QCursor) qcursor;
+    QCursor qcursor;
     uiCursorManager::fillQCursor( cursor, qcursor );
     body()->qwidget()->setCursor( qcursor );
 }
@@ -420,9 +420,7 @@ void uiObject::setCursor( const MouseCursor& cursor )
 bool uiObject::isCursorInside() const
 {
     const uiPoint cursorpos = uiCursorManager::cursorPos();
-    const mQtclass(QPoint) objpos = mConstBody()->qwidget()->mapToGlobal(
-	    						mQtclass(QPoint)(0,0) );
-
+    const QPoint objpos = mConstBody()->qwidget()->mapToGlobal( QPoint(0,0) );
     return cursorpos.x>=objpos.x() && cursorpos.x<objpos.x()+width() &&
 	   cursorpos.y>=objpos.y() && cursorpos.y<objpos.y()+height();
 }
@@ -536,8 +534,7 @@ void uiObject::attach ( constraintType tp, uiParent* other, int margin,
 */
 void uiObject::setTabOrder( uiObject* first, uiObject* second )
 {
-    mQtclass(QWidget)::setTabOrder( first->body()->qwidget(),
-	    			    second->body()->qwidget() );
+    QWidget::setTabOrder( first->body()->qwidget(), second->body()->qwidget() );
 }
 
 
@@ -583,7 +580,7 @@ uiMainWin* uiObject::mainwin()
 }
 
 
-mQtclass(QWidget*) uiObject::qwidget()
+QWidget* uiObject::qwidget()
 { return body() ? body()->qwidget() : 0 ; }
 
 

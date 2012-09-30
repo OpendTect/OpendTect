@@ -17,14 +17,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QStackedWidget>
 
+mUseQtnamespace
 
-class uiObjStackBody : public uiObjBodyImpl<uiObjectStack,
-    					    mQtclass(QStackedWidget)>
+class uiObjStackBody : public uiObjBodyImpl<uiObjectStack,QStackedWidget>
 {
 public:
 uiObjStackBody( uiObjectStack& hndle, uiParent* parnt,
 		const char* txt )
-    : uiObjBodyImpl<uiObjectStack,mQtclass(QStackedWidget)>(hndle,parnt,txt) {}
+    : uiObjBodyImpl<uiObjectStack,QStackedWidget>(hndle,parnt,txt) {}
 };
 
 
