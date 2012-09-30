@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "pixmap.h"
 
+mUseQtnamespace
 
 uiSystemTrayIcon::uiSystemTrayIcon( const ioPixmap& pm )
     : action_(-1)
@@ -24,8 +25,8 @@ uiSystemTrayIcon::uiSystemTrayIcon( const ioPixmap& pm )
     , middleClicked(this)
     , doubleClicked(this)
 {
-    qsystemtrayicon_ = new mQtclass(QSystemTrayIcon)();
-    messenger_ = new mQtclass(QSystemTrayIconMessenger)( qsystemtrayicon_,
+    qsystemtrayicon_ = new QSystemTrayIcon();
+    messenger_ = new QSystemTrayIconMessenger( qsystemtrayicon_,
 	    						 this );
     setPixmap( pm );
 }
@@ -40,8 +41,8 @@ uiSystemTrayIcon::~uiSystemTrayIcon()
 
 void uiSystemTrayIcon::setPixmap( const ioPixmap& pm )
 {
-    mQtclass(QIcon) qicon; 
-    if ( pm.qpixmap() ) qicon = mQtclass(QIcon)( *pm.qpixmap() );
+    QIcon qicon; 
+    if ( pm.qpixmap() ) qicon = QIcon( *pm.qpixmap() );
     qsystemtrayicon_->setIcon( qicon );
 }
 

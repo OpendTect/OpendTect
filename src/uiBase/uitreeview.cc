@@ -28,13 +28,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "i_qtreeview.h"
 
-static ODQtObjectSet<uiTreeViewItem,mQtclass(QTreeWidgetItem)> odqtobjects_;
+mUseQtnamespace
+
+static ODQtObjectSet<uiTreeViewItem,QTreeWidgetItem> odqtobjects_;
 
 
 #define mQitemFor(itm)		uiTreeViewItem::qitemFor(itm)
 #define mItemFor(itm)		uiTreeViewItem::itemFor(itm)
 
-class uiTreeViewBody : public uiObjBodyImpl<uiTreeView,mQtclass(QTreeWidget)>
+class uiTreeViewBody : public uiObjBodyImpl<uiTreeView,QTreeWidget>
 {
 
 public:
@@ -61,11 +63,11 @@ protected:
 
     int 		prefnrlines_;
 
-    void		resizeEvent(mQtclass(QResizeEvent) *);
-    void		keyPressEvent(mQtclass(QKeyEvent*));
-    bool		moveItem(mQtclass(QKeyEvent*));
-    void		mousePressEvent(mQtclass(QMouseEvent*));
-    void		mouseReleaseEvent(mQtclass(QMouseEvent*));
+    void		resizeEvent(QResizeEvent *);
+    void		keyPressEvent(QKeyEvent*);
+    bool		moveItem(QKeyEvent*);
+    void		mousePressEvent(QMouseEvent*);
+    void		mouseReleaseEvent(QMouseEvent*);
 
     TypeSet<int>	fixcolwidths_;
 
@@ -79,7 +81,7 @@ private:
 
 uiTreeViewBody::uiTreeViewBody( uiTreeView& hndle, uiParent* p,
 				const char* nm, int nrl )
-    : uiObjBodyImpl<uiTreeView,mQtclass(QTreeWidget)>( hndle, p, nm )
+    : uiObjBodyImpl<uiTreeView,QTreeWidget>( hndle, p, nm )
     , messenger_( *new i_treeVwMessenger(*this,hndle) )
     , prefnrlines_( nrl )
     , lvhandle_(hndle)
@@ -89,12 +91,12 @@ uiTreeViewBody::uiTreeViewBody( uiTreeView& hndle, uiParent* p,
 
     setAcceptDrops( true );
     viewport()->setAcceptDrops( true );
-    setSelectionBehavior( mQtclass(QTreeWidget)::SelectItems );
+    setSelectionBehavior( QTreeWidget::SelectItems );
     setMouseTracking( true );
 
     if ( header() )
     {
-	header()->setResizeMode( mQtclass(QHeaderView)::Interactive );
+	header()->setResizeMode( QHeaderView::Interactive );
 	header()->setMovable( false );
     }
 }
@@ -104,32 +106,32 @@ uiTreeViewBody::~uiTreeViewBody()
 { delete &messenger_; }
 
 
-void uiTreeViewBody::resizeEvent( mQtclass(QResizeEvent*) ev )
+void uiTreeViewBody::resizeEvent( QResizeEvent* ev )
 {
     const int nrcols = columnCount();
     if ( nrcols != 2 )
-	return mQtclass(QTreeWidget)::resizeEvent( ev );
+	return QTreeWidget::resizeEvent( ev );
 
 // hack for OpendTect scene tree
     if ( lvhandle_.columnWidthMode(1) == uiTreeView::Fixed )
     {
 	const int fixedwidth = fixcolwidths_[ 1 ];
 	if ( mIsUdf(fixedwidth) || fixedwidth==0 )
-	    return mQtclass(QTreeWidget)::resizeEvent( ev );
-	mQtclass(QScrollBar*) sb = verticalScrollBar();
+	    return QTreeWidget::resizeEvent( ev );
+	QScrollBar* sb = verticalScrollBar();
 	int sbwidth = sb && sb->isVisible() ? sb->width() : 0;
 	setColumnWidth( 0, width()-fixedwidth-sbwidth-4 );
     }
 
-    mQtclass(QTreeWidget)::resizeEvent( ev );
+    QTreeWidget::resizeEvent( ev );
 }
 
 
-void uiTreeViewBody::keyPressEvent( mQtclass(QKeyEvent*) ev )
+void uiTreeViewBody::keyPressEvent( QKeyEvent* ev )
 {
     if ( moveItem(ev) ) return;
 
-    if ( ev->key() == mQtclass(Qt)::Key_Return )
+    if ( ev->key() == Qt::Key_Return )
     {
 	lvhandle_.returnPressed.trigger();
 	return;
@@ -144,37 +146,37 @@ void uiTreeViewBody::keyPressEvent( mQtclass(QKeyEvent*) ev )
     if ( cbc.data.key() != 0 )
     {
 	lvhandle_.unusedKey.trigger();
-	mQtclass(QTreeWidget)::keyPressEvent( ev );
+	QTreeWidget::keyPressEvent( ev );
     }
 }
 
 
-void uiTreeViewBody::mouseReleaseEvent( mQtclass(QMouseEvent*) ev )
+void uiTreeViewBody::mouseReleaseEvent( QMouseEvent* ev )
 {
     if ( !ev ) return;
 
-    if ( ev->button() == mQtclass(Qt)::RightButton )
+    if ( ev->button() == Qt::RightButton )
 	lvhandle_.buttonstate_ = OD::RightButton;
-    else if ( ev->button() == mQtclass(Qt)::LeftButton )
+    else if ( ev->button() == Qt::LeftButton )
 	lvhandle_.buttonstate_ = OD::LeftButton;
     else
 	lvhandle_.buttonstate_ = OD::NoButton;
 
-    mQtclass(QTreeWidget)::mouseReleaseEvent( ev );
+    QTreeWidget::mouseReleaseEvent( ev );
     lvhandle_.buttonstate_ = OD::NoButton;
 }
 
 
-void uiTreeViewBody::mousePressEvent( mQtclass(QMouseEvent*) ev )
+void uiTreeViewBody::mousePressEvent( QMouseEvent* ev )
 {
     if ( !ev ) return;
 
-    if ( ev->button() == mQtclass(Qt)::RightButton )
+    if ( ev->button() == Qt::RightButton )
     {
 	lvhandle_.rightButtonPressed.trigger();
 	lvhandle_.buttonstate_ = OD::RightButton;
     }
-    else if ( ev->button() == mQtclass(Qt)::LeftButton )
+    else if ( ev->button() == Qt::LeftButton )
     {
 	lvhandle_.mouseButtonPressed.trigger();
 	lvhandle_.buttonstate_ = OD::LeftButton;
@@ -182,27 +184,27 @@ void uiTreeViewBody::mousePressEvent( mQtclass(QMouseEvent*) ev )
     else
 	lvhandle_.buttonstate_ = OD::NoButton;
 
-    mQtclass(QTreeWidget)::mousePressEvent( ev );
+    QTreeWidget::mousePressEvent( ev );
     lvhandle_.buttonstate_ = OD::NoButton;
 }
 
 
-bool uiTreeViewBody::moveItem( mQtclass(QKeyEvent*) ev )
+bool uiTreeViewBody::moveItem( QKeyEvent* ev )
 {
-    if ( ev->modifiers() != mQtclass(Qt)::ShiftModifier )
+    if ( ev->modifiers() != Qt::ShiftModifier )
 	return false;
 
-    mQtclass(QTreeWidgetItem*) currentitem = currentItem();
+    QTreeWidgetItem* currentitem = currentItem();
     if ( !currentitem ) return false;
 
-    mQtclass(QTreeWidgetItem*) twpar = currentitem->parent();
+    QTreeWidgetItem* twpar = currentitem->parent();
     if ( !twpar ) return false;
 
     const int childidx = twpar->indexOfChild( currentitem );
     int newchildidx = -1;
-    if ( ev->key() == mQtclass(Qt)::Key_Up )
+    if ( ev->key() == Qt::Key_Up )
 	newchildidx = childidx - 1;
-    else if ( ev->key() == mQtclass(Qt)::Key_Down )
+    else if ( ev->key() == Qt::Key_Down )
 	newchildidx = childidx + 1;
 
     if ( newchildidx<0 || newchildidx>=twpar->childCount() )
@@ -286,13 +288,11 @@ uiTreeViewBody& uiTreeView::mkbody( uiParent* p, const char* nm, int nl )
 
 
 void uiTreeView::setHScrollBarMode( ScrollMode mode )
-{ body_->setHorizontalScrollBarPolicy(
-				(mQtclass(Qt)::ScrollBarPolicy)(int)mode ); }
+{ body_->setHorizontalScrollBarPolicy( (Qt::ScrollBarPolicy)(int)mode ); }
 
 
 void uiTreeView::setVScrollBarMode( ScrollMode mode )
-{ body_->setVerticalScrollBarPolicy(
-				(mQtclass(Qt)::ScrollBarPolicy)(int)mode ); }
+{ body_->setVerticalScrollBarPolicy( (Qt::ScrollBarPolicy)(int)mode ); }
 
 
 /*! \brief Set preferred number of lines. 
@@ -341,11 +341,11 @@ void uiTreeView::addColumns( const BufferStringSet& lbls )
     for ( int idx=0; idx<nrcol; idx++ )
 	body_->model()->removeColumn( idx, body_->currentIndex() );
 
-    mQtclass(QStringList) qlist;
+    QStringList qlist;
     for ( int idx=0; idx<lbls.size(); idx++ )
     {
 	body_->fixedColWidth() += 0;
-	qlist.append( mQtclass(QString)(lbls.get(idx).buf()) );
+	qlist.append( QString(lbls.get(idx).buf()) );
     }
 
     body_->setHeaderLabels( qlist );
@@ -360,13 +360,13 @@ void uiTreeView::removeColumn( int col )
 
 
 void uiTreeView::setColumnText( int col, const char* label )
-{ body_->headerItem()->setText( col, mQtclass(QString)(label) ); }
+{ body_->headerItem()->setText( col, QString(label) ); }
 
 
 const char* uiTreeView::columnText( int col ) const
 {
     if ( col < 0  ) return "";
-    mQtclass(QString) qlabel = body_->headerItem()->text( col );
+    QString qlabel = body_->headerItem()->text( col );
     return qlabel.toAscii().data();
 }
 
@@ -395,7 +395,7 @@ int uiTreeView::nrColumns() const
 void uiTreeView::setColumnWidthMode( int column, WidthMode widthmode )
 {
     body_->header()->setResizeMode( column,
-	    		(mQtclass(QHeaderView)::ResizeMode)int(widthmode) ); 
+	    			    (QHeaderView::ResizeMode)int(widthmode) ); 
 }
 
 
@@ -427,14 +427,13 @@ void uiTreeView::ensureItemVisible( const uiTreeViewItem* itm )
 
 
 void uiTreeView::setSelectionMode( SelectionMode mod )
-{ body_->setSelectionMode( (mQtclass(QTreeWidget)::SelectionMode)int(mod) ); }
+{ body_->setSelectionMode( (QTreeWidget::SelectionMode)int(mod) ); }
 
 uiTreeView::SelectionMode uiTreeView::selectionMode() const
 { return (uiTreeView::SelectionMode)int(body_->selectionMode()); }
 
 void uiTreeView::setSelectionBehavior( SelectionBehavior behavior )
-{ body_->setSelectionBehavior(
-		   (mQtclass(QTreeWidget)::SelectionBehavior)int(behavior)); }
+{ body_->setSelectionBehavior( (QTreeWidget::SelectionBehavior)int(behavior)); }
 
 
 uiTreeView::SelectionBehavior uiTreeView::selectionBehavior() const
@@ -497,12 +496,11 @@ int uiTreeView::nrItems() const
 uiTreeViewItem* uiTreeView::findItem( const char* text, int column,
 				      bool casesensitive ) const
 {
-    mQtclass(Qt)::MatchFlags flags =
-	casesensitive ? mQtclass(Qt)::MatchFixedString |
-						mQtclass(Qt)::MatchCaseSensitive
-		      : mQtclass(Qt)::MatchFixedString;
-    mQtclass(QList)<mQtclass(QTreeWidgetItem*)> items =
-	lvbody()->findItems( mQtclass(QString)(text), flags, column );
+    Qt::MatchFlags flags =
+	casesensitive ? Qt::MatchFixedString | Qt::MatchCaseSensitive
+		      : Qt::MatchFixedString;
+    QList<QTreeWidgetItem*> items =
+	lvbody()->findItems( QString(text), flags, column );
 
     if ( items.isEmpty() && !casesensitive )
     {
@@ -536,7 +534,7 @@ int uiTreeView::indexOfItem( uiTreeViewItem* it ) const
 void uiTreeView::clear()
 {
     mBlockCmdRec;
-    ((mQtclass(QTreeWidget*))body_)->clear();
+    ((QTreeWidget*)body_)->clear();
 }
 
 void uiTreeView::selectAll()
@@ -584,7 +582,7 @@ bool uiTreeView::handleLongTabletPress()
 }
 
 
-void uiTreeView::setNotifiedItem( mQtclass(QTreeWidgetItem*) itm )
+void uiTreeView::setNotifiedItem( QTreeWidgetItem* itm )
 { lastitemnotified_ = mItemFor( itm ); }
 
 
@@ -605,7 +603,7 @@ uiTreeViewItem::uiTreeViewItem( uiTreeView* p, const Setup& setup )
     , keyPressed(this)
     , translateid_(-1)
 { 
-    qtreeitem_ = new mQtclass(QTreeWidgetItem)( p ? p->lvbody() : 0 );
+    qtreeitem_ = new QTreeWidgetItem( p ? p->lvbody() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
     init( setup );
 }
@@ -616,7 +614,7 @@ uiTreeViewItem::uiTreeViewItem( uiTreeViewItem* p, const Setup& setup )
     , keyPressed(this)
     , translateid_(-1)
 { 
-    qtreeitem_ = new mQtclass(QTreeWidgetItem)( p ? p->qItem() : 0 );
+    qtreeitem_ = new QTreeWidgetItem( p ? p->qItem() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
     init( setup );
 }
@@ -663,15 +661,15 @@ uiTreeViewItem::~uiTreeViewItem()
 
 void uiTreeViewItem::setText( const char* txt, int column )
 { 
-    qtreeitem_->setText( column, mQtclass(QString)(txt) );
-    qtreeitem_->setToolTip( column, mQtclass(QString)(txt) );
+    qtreeitem_->setText( column, QString(txt) );
+    qtreeitem_->setToolTip( column, QString(txt) );
 }
 
 
 void uiTreeViewItem::setBGColor( int column, const Color& color )
 {
     qtreeitem_->setBackground( column,
-	    mQtclass(QBrush)( mQtclass(QColor)( color.r(), color.g(),
+	    QBrush( QColor( color.r(), color.g(),
 		    				color.b() ) ) );
 }
 
@@ -700,8 +698,8 @@ void uiTreeViewItem::trlReady( CallBacker* cb )
 	return;
 
     const wchar_t* translation = TrMgr().tr()->get();
-    mQtclass(QString) txt = mQtclass(QString)::fromWCharArray( translation );
-    mQtclass(QString) tt( text(0) ); tt += "\n\n"; tt += txt;
+    QString txt = QString::fromWCharArray( translation );
+    QString tt( text(0) ); tt += "\n\n"; tt += txt;
     qtreeitem_->setToolTip( 0, tt );
     TrMgr().tr()->ready.remove( mCB(this,uiTreeViewItem,trlReady) );
 }
@@ -709,7 +707,7 @@ void uiTreeViewItem::trlReady( CallBacker* cb )
 
 void uiTreeViewItem::setPixmap( int column, const ioPixmap& pm )
 { qItem()->setIcon( column, pm.qpixmap() ? *pm.qpixmap()
-					 : mQtclass(QPixmap)() ); }
+					 : QPixmap() ); }
 
 int uiTreeViewItem::nrChildren() const
 { return qItem()->childCount(); }
@@ -779,7 +777,7 @@ uiTreeViewItem* uiTreeViewItem::itemBelow()
 
 uiTreeView* uiTreeViewItem::treeView() const
 {
-    mQtclass(QTreeWidget*) lv = qtreeitem_->treeWidget();
+    QTreeWidget* lv = qtreeitem_->treeWidget();
     uiTreeViewBody* lvb = dynamic_cast<uiTreeViewBody*>(lv);
     return lvb ? &lvb->lvhandle() : 0;
 }
@@ -803,7 +801,7 @@ void uiTreeViewItem::insertItem( int idx, uiTreeViewItem* itm )
 void uiTreeViewItem::removeItem( uiTreeViewItem* itm )
 {
     mTreeViewBlockCmdRec;
-    mQtclass(QTreeWidget*) qtw = qItem()->treeWidget();
+    QTreeWidget* qtw = qItem()->treeWidget();
     if ( qtw && qtw->currentItem()==itm->qItem() )
 	qtw->setCurrentItem( 0 );
 
@@ -840,10 +838,10 @@ void uiTreeViewItem::setDropEnabled( bool yn )
 
 
 bool uiTreeViewItem::dragEnabled() const
-{ return qItem()->flags().testFlag( mQtclass(Qt)::ItemIsDragEnabled ); }
+{ return qItem()->flags().testFlag( Qt::ItemIsDragEnabled ); }
 
 bool uiTreeViewItem::dropEnabled() const
-{ return qItem()->flags().testFlag( mQtclass(Qt)::ItemIsDropEnabled ); }
+{ return qItem()->flags().testFlag( Qt::ItemIsDropEnabled ); }
 
 
 void uiTreeViewItem::setVisible( bool yn )
@@ -862,7 +860,7 @@ void uiTreeViewItem::setRenameEnabled( int column, bool yn )
 
 
 bool uiTreeViewItem::renameEnabled( int column ) const
-{ return qItem()->flags().testFlag( mQtclass(Qt)::ItemIsEditable ); }
+{ return qItem()->flags().testFlag( Qt::ItemIsEditable ); }
 
 
 void uiTreeViewItem::setEnabled( bool yn )
@@ -881,7 +879,7 @@ void uiTreeViewItem::setSelectable( bool yn )
 
 
 bool uiTreeViewItem::isSelectable() const
-{ return qItem()->flags().testFlag( mQtclass(Qt)::ItemIsSelectable ); }
+{ return qItem()->flags().testFlag( Qt::ItemIsSelectable ); }
 
 
 void uiTreeViewItem::setCheckable( bool yn )
@@ -892,7 +890,7 @@ void uiTreeViewItem::setCheckable( bool yn )
 
 
 bool uiTreeViewItem::isCheckable() const
-{ return qItem()->flags().testFlag( mQtclass(Qt)::ItemIsUserCheckable ); }
+{ return qItem()->flags().testFlag( Qt::ItemIsUserCheckable ); }
 
 
 void uiTreeViewItem::setChecked( bool yn, bool trigger )
@@ -900,8 +898,7 @@ void uiTreeViewItem::setChecked( bool yn, bool trigger )
     mTreeViewBlockCmdRec;
     NotifyStopper ns( stateChanged );
     if ( trigger ) ns.restore();
-    qItem()->setCheckState( 0, yn ? mQtclass(Qt)::Checked
-	    			  : mQtclass(Qt)::Unchecked );
+    qItem()->setCheckState( 0, yn ? Qt::Checked : Qt::Unchecked );
     checked_ = yn;
     stateChanged.trigger();
 }
@@ -909,40 +906,39 @@ void uiTreeViewItem::setChecked( bool yn, bool trigger )
 
 bool uiTreeViewItem::isChecked( bool qtstatus ) const
 {
-    return qtstatus ? qtreeitem_->checkState(0) == mQtclass(Qt)::Checked
+    return qtstatus ? qtreeitem_->checkState(0) == Qt::Checked
 		    : checked_;
 }
 
 
 void uiTreeViewItem::setToolTip( int column, const char*  txt )
-{ qtreeitem_->setToolTip( column, mQtclass(QString)(txt) ); }
+{ qtreeitem_->setToolTip( column, QString(txt) ); }
 
 
 void uiTreeViewItem::updateFlags()
 {
-    mQtclass(Qt)::ItemFlags itmflags;
+    Qt::ItemFlags itmflags;
     if ( isselectable_ )
-	itmflags |= mQtclass(Qt)::ItemIsSelectable;
+	itmflags |= Qt::ItemIsSelectable;
     if ( iseditable_ )
-	itmflags |= mQtclass(Qt)::ItemIsEditable;
+	itmflags |= Qt::ItemIsEditable;
     if ( isdragenabled_ )
-	itmflags |= mQtclass(Qt)::ItemIsDragEnabled;
+	itmflags |= Qt::ItemIsDragEnabled;
     if ( isdropenabled_ )
-	itmflags |= mQtclass(Qt)::ItemIsDropEnabled;
+	itmflags |= Qt::ItemIsDropEnabled;
     if ( ischeckable_ )
-	itmflags |= mQtclass(Qt)::ItemIsUserCheckable;
+	itmflags |= Qt::ItemIsUserCheckable;
     if ( isenabled_ )
-	itmflags |= mQtclass(Qt)::ItemIsEnabled;
+	itmflags |= Qt::ItemIsEnabled;
 
     qtreeitem_->setFlags( itmflags );
 }
 
 
-uiTreeViewItem* uiTreeViewItem::itemFor( mQtclass(QTreeWidgetItem*) itm )
+uiTreeViewItem* uiTreeViewItem::itemFor( QTreeWidgetItem* itm )
 { return odqtobjects_.getODObject( *itm ); }
 
-const uiTreeViewItem* uiTreeViewItem::itemFor(
-					const mQtclass(QTreeWidgetItem*) itm )
+const uiTreeViewItem* uiTreeViewItem::itemFor( const QTreeWidgetItem* itm )
 { return odqtobjects_.getODObject( *itm ); }
 
 

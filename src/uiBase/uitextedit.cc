@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QTextEdit> 
 #include <QToolTip> 
 
+mUseQtnamespace
 
 #define mMaxLineLength 32768
 
@@ -58,11 +59,9 @@ bool uiTextEditBase::isModified() const
 
 void uiTextEditBase::allowTextSelection( bool yn )
 {
-    const mQtclass(Qt)::TextInteractionFlags selflag =
-					mQtclass(Qt)::TextSelectableByMouse;
-    const mQtclass(Qt)::TextInteractionFlags mask = ~selflag;
-    mQtclass(Qt)::TextInteractionFlags flags =
-					qte().textInteractionFlags() & mask;
+    const Qt::TextInteractionFlags selflag = Qt::TextSelectableByMouse;
+    const Qt::TextInteractionFlags mask = ~selflag;
+    Qt::TextInteractionFlags flags = qte().textInteractionFlags() & mask;
     
     if ( yn )
         flags |= selflag;
@@ -71,7 +70,7 @@ void uiTextEditBase::allowTextSelection( bool yn )
 }
 
 void uiTextEditBase::hideFrame()
-{ qte().setFrameShape( mQtclass(QFrame)::NoFrame ); }
+{ qte().setFrameShape( QFrame::NoFrame ); }
 
 void uiTextEditBase::hideScrollBar( bool vertical )
 {
@@ -207,7 +206,7 @@ int uiTextEditBase::nrLines() const
 }
 
 
-class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,mQtclass(QTextEdit)>
+class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,QTextEdit>
 {
 public:
 
@@ -224,7 +223,7 @@ protected:
 
 uiTextEditBody::uiTextEditBody( uiTextEdit& hndl, uiParent* p, 
 				const char* nm, bool ro )
-    : uiObjBodyImpl<uiTextEdit,mQtclass(QTextEdit)>( hndl, p, nm )
+    : uiObjBodyImpl<uiTextEdit,QTextEdit>( hndl, p, nm )
     , messenger_(*new i_TextEditMessenger(this,&hndl))
 {
     setReadOnly( ro );
@@ -234,9 +233,9 @@ uiTextEditBody::uiTextEditBody( uiTextEdit& hndl, uiParent* p,
 
 void uiTextEditBody::append( const char* txt)
 { 
-    mQtclass(QTextEdit)::append( txt );
+    QTextEdit::append( txt );
     repaint();
-    moveCursor( mQtclass(QTextCursor)::End );
+    moveCursor( QTextCursor::End );
 }
 
 //-------------------------------------------------------
@@ -267,15 +266,14 @@ void uiTextEdit::setText( const char* txt, bool trigger_notif )
 
 void uiTextEdit::append( const char* txt )	{ body_->append(txt); }
 
-mQtclass(QTextEdit&) uiTextEdit::qte()			{ return *body_; }
+QTextEdit& uiTextEdit::qte()			{ return *body_; }
 
 
 
 //-------------------------------------------------------
 
 
-class uiTextBrowserBody : public uiObjBodyImpl<uiTextBrowser,
-    					       mQtclass(QTextBrowser)>
+class uiTextBrowserBody : public uiObjBodyImpl<uiTextBrowser,QTextBrowser>
 {
 public:
 
@@ -295,7 +293,7 @@ protected:
 
 uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& hndl, uiParent* p, 
 				      const char* nm, bool plaintxt )
-    : uiObjBodyImpl<uiTextBrowser,mQtclass(QTextBrowser)>( hndl, p, nm )
+    : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( hndl, p, nm )
     , messenger_( *new i_BrowserMessenger(this, &hndl))
     , scrollpos_(mUdf(int),mUdf(int))
 {
@@ -359,13 +357,12 @@ uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
 }
 
 
-mQtclass(QTextEdit&) uiTextBrowser::qte()	{ return *body_; }
+QTextEdit& uiTextBrowser::qte()	{ return *body_; }
 
 
 void uiTextBrowser::showToolTip( const char* txt )
 {
-    mQtclass(QToolTip)::showText( mQtclass(QCursor)::pos(),
-	    			  mQtclass(QString)(txt) );
+    QToolTip::showText( QCursor::pos(), QString(txt) );
 }
 
 
@@ -417,7 +414,7 @@ void uiTextBrowser::setHtmlText( const char* txt )
 
 void uiTextBrowser::getHtmlText( BufferString& res ) const
 {
-    const mQtclass(QString) str = body_->toHtml();
+    const QString str = body_->toHtml();
     res = str.toAscii().data();
 }
 
@@ -458,7 +455,7 @@ void uiTextBrowser::setSource( const char* src )
 	    readFromFile( src );
     }
     else
-        body_->setSource( mQtclass(QUrl)(src) );
+        body_->setSource( QUrl(src) );
 }
 
 
@@ -475,7 +472,7 @@ void uiTextBrowser::home()
 { body_->home(); }
 
 void uiTextBrowser::scrollToBottom()
-{ body_->moveCursor( mQtclass(QTextCursor)::End ); }
+{ body_->moveCursor( QTextCursor::End ); }
 
 void uiTextBrowser::recordScrollPos()
 { body_->recordScrollPos(); }
