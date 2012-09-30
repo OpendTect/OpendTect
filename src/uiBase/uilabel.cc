@@ -16,15 +16,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <qlabel.h> 
 
+mUseQtnamespace
 
-class uiLabelBody : public uiObjBodyImpl<uiLabel,mQtclass(QLabel)>
+class uiLabelBody : public uiObjBodyImpl<uiLabel,QLabel>
 {
 public:
 
                         uiLabelBody( uiLabel& hndle, uiParent* parnt,
 				     const char* txt )
-			    : uiObjBodyImpl<uiLabel
-			    , mQtclass(QLabel)>(hndle,parnt,txt)
+			    : uiObjBodyImpl<uiLabel, QLabel>(hndle,parnt,txt)
 			{}
 
     virtual int 	nrTxtLines() const		
@@ -85,7 +85,7 @@ uiLabelBody& uiLabel::mkbody( uiParent* p, const char* txt )
 
 void uiLabel::setText( const char* txt )
 { 
-    body_->setText( mQtclass(QString)(txt) );
+    body_->setText( QString(txt) );
     setName( txt );
 }
 
@@ -100,8 +100,8 @@ const char* uiLabel::text() const
 
 void uiLabel::setTextSelectable( bool yn ) 
 {
-    body_->setTextInteractionFlags( yn ? mQtclass(Qt)::TextSelectableByMouse :
-					 mQtclass(Qt)::NoTextInteraction );
+    body_->setTextInteractionFlags( yn ? Qt::TextSelectableByMouse :
+					 Qt::NoTextInteraction );
 }
 
 
@@ -114,7 +114,7 @@ void uiLabel::setPixmap( const ioPixmap& pixmap )
 void uiLabel::setAlignment( Alignment::HPos hal )
 {
     Alignment al( hal, Alignment::VCenter );
-    body_->setAlignment( (mQtclass(Qt)::AlignmentFlag)al.uiValue() );
+    body_->setAlignment( (Qt::AlignmentFlag)al.uiValue() );
 }
 
 
