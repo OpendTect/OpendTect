@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 class uiGroupObjBody;
 class uiGroupParentBody;
 
-
+mUseQtnamespace
 
 class i_uiGroupLayoutItem : public i_uiLayoutItem
 {
@@ -51,20 +51,20 @@ protected:
 };
 
 
-class uiGroupObjBody  : public uiObjectBody, public mQtclass(QFrame)
+class uiGroupObjBody  : public uiObjectBody, public QFrame
 { 	
     friend class 		uiMainWin;
     friend class 		uiDialog;
     friend class 		i_LayoutMngr;
     friend class		i_uiGroupLayoutItem;
-    friend			uiGroup* gtDynamicCastToGrp(mQtclass(QWidget*));
+    friend			uiGroup* gtDynamicCastToGrp(QWidget*);
 public:
     				uiGroupObjBody(uiGroupObj&,uiParent*,
 					       const char*);
 
 #define mHANDLE_OBJ     	uiGroupObj
-#define mQWIDGET_BASE		mQtclass(QFrame)
-#define mQWIDGET_BODY   	mQtclass(QFrame)
+#define mQWIDGET_BASE		QFrame
+#define mQWIDGET_BODY   	QFrame
 #include               		"i_uiobjqtbody.h"
 
 public:
@@ -78,7 +78,7 @@ public:
     uiGroupParentBody*		prntbody_;
 
     // Hack: Prevents scenewindow movements while trying to rotate
-    virtual void		mouseMoveEvent(mQtclass(QMouseEvent*))	{}
+    virtual void		mouseMoveEvent(QMouseEvent*)	{}
 
 protected:
 
@@ -96,7 +96,7 @@ class uiGroupParentBody : public uiParentBody
     friend class 	i_LayoutMngr;
     friend class	i_uiGroupLayoutItem;
     friend class	uiGroupObjBody;
-    friend		uiGroup* gtDynamicCastToGrp( mQtclass(QWidget*));
+    friend		uiGroup* gtDynamicCastToGrp( QWidget*);
 
 public:
     			uiGroupParentBody(uiGroup&,uiGroupObjBody&,uiParent*,
@@ -158,9 +158,9 @@ protected:
 				reciprocal );
 			}
 
-    virtual const mQtclass(QWidget*) qwidget_() const
+    virtual const QWidget* qwidget_() const
     						{ return objbody_.qwidget(); }
-    virtual const mQtclass(QWidget*) managewidg_() const
+    virtual const QWidget* managewidg_() const
     						{ return objbody_.qwidget();}
 
     void		mngrDel( CallBacker* cb ) 
@@ -295,8 +295,7 @@ void uiGroupParentBody::finalise( bool trigger_finalise_start_stop )
     uiGroupObjBody::uiGroupObjBody( uiGroupObj& hndle, uiParent* parnt,
 	    			    const char* nm )
     : uiObjectBody( parnt, nm )
-    , mQtclass(QFrame)( parnt && parnt->pbody() ?  parnt->pbody()->managewidg()
-	    					: 0 )
+    , QFrame( parnt && parnt->pbody() ?  parnt->pbody()->managewidg() : 0 )
     , handle_( hndle )
     , prntbody_( 0 )			
 {}
@@ -435,8 +434,8 @@ uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     grpobj_ =  new uiGroupObj( this,p,nm,manage );
     uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
 
-    if ( showgrps__ ) grpbdy->setFrameStyle( mQtclass(QFrame)::Box |
-	    				     mQtclass(QFrame)::Plain );
+    if ( showgrps__ ) grpbdy->setFrameStyle( QFrame::Box |
+	    				     QFrame::Plain );
 
 #ifdef __debug__
     if( !grpbdy ) { pErrMsg("Huh") ; return; }
@@ -451,7 +450,7 @@ uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
 	if( manage ) p->manageChld( *grpobj_, *grpobj_->body_ );
 	else	 p->addChild( *this );
     }
-    setFrameStyle( mQtclass(QFrame)::NoFrame );
+    setFrameStyle( QFrame::NoFrame );
 }
 
 uiGroup::~uiGroup()
@@ -524,10 +523,10 @@ uiObject* uiGroup::hAlignObj()
 void uiGroup::setFrame( bool yn )
 {
     if( !yn )
-	setFrameStyle( mQtclass(QFrame)::NoFrame );
+	setFrameStyle( QFrame::NoFrame );
     else
     {
-	setFrameStyle(mQtclass(QFrame)::StyledPanel | mQtclass(QFrame)::Raised); 
+	setFrameStyle(QFrame::StyledPanel | QFrame::Raised); 
 	grpobj_->body_->setLineWidth( 1 );
 	grpobj_->body_->setMidLineWidth( 0 );
     }
@@ -551,7 +550,7 @@ void uiGroup::setHCenterObj( uiObject* o )
 
 
 void uiGroup::setNoBackGround()
-    { grpobj_->body_->setAttribute( mQtclass(Qt)::WA_NoSystemBackground ); }
+    { grpobj_->body_->setAttribute( Qt::WA_NoSystemBackground ); }
 
 
 void uiGroup::setChildrenSensitive( bool yn )
@@ -639,7 +638,7 @@ void uiGroupObj::grpDel( CallBacker* cb )
     else pErrMsg("huh?");
 }
 
-uiGroup* uiGroup::gtDynamicCastToGrp( mQtclass(QWidget*) widg )
+uiGroup* uiGroup::gtDynamicCastToGrp( QWidget* widg )
 { 
     uiGroupObjBody* body = dynamic_cast<uiGroupObjBody*>( widg );
     if( !body || !body->prntbody_ ) return 0;
