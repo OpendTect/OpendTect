@@ -15,18 +15,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QFrame>
 
+mUseQtnamespace
 
-class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,mQtclass(QFrame)>
+class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,QFrame>
 {
 public:
 
 uiSeparatorBody( uiSeparator& hndl, uiParent* p, const char* nm,
 		 bool hor, bool raised )
-    : uiObjBodyImpl<uiSeparator,mQtclass(QFrame)>(hndl,p,nm)
+    : uiObjBodyImpl<uiSeparator,QFrame>(hndl,p,nm)
 {
-    setFrameStyle( (hor ? mQtclass(QFrame)::HLine : mQtclass(QFrame)::VLine)
-		 | (raised ? mQtclass(QFrame)::Raised
-		     	   : mQtclass(QFrame)::Sunken) );
+    setFrameStyle( (hor ? QFrame::HLine : QFrame::VLine)
+		 | (raised ? QFrame::Raised
+		     	   : QFrame::Sunken) );
     setLineWidth( 1 ); setMidLineWidth( 0 );
 }
 
@@ -48,6 +49,6 @@ uiSeparatorBody& uiSeparator::mkbody( uiParent* p, const char* txt,
 
 void uiSeparator::setRaised( bool yn )
 { 
-    body_->setFrameShadow( yn ? mQtclass(QFrame)::Raised
-	    		      : mQtclass(QFrame)::Sunken );
+    body_->setFrameShadow( yn ? QFrame::Raised
+	    		      : QFrame::Sunken );
 }

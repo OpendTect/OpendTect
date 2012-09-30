@@ -17,13 +17,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QSplitter>
 
+mUseQtnamespace
 
-class uiSplitterBody : public uiObjBodyImpl<uiSplitter,mQtclass(QSplitter)>
+class uiSplitterBody : public uiObjBodyImpl<uiSplitter,QSplitter>
 {
 public:
 
 uiSplitterBody( uiSplitter& hndl, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiSplitter,mQtclass(QSplitter)>(hndl,p,nm)
+    : uiObjBodyImpl<uiSplitter,QSplitter>(hndl,p,nm)
 {
 }
 
@@ -33,8 +34,7 @@ uiSplitterBody( uiSplitter& hndl, uiParent* p, const char* nm )
 uiSplitter::uiSplitter( uiParent* p, const char* txt, bool hor )
     : uiObject(p, txt, mkbody(p,txt) )
 {
-    body_->setOrientation( hor ? mQtclass(Qt)::Horizontal
-	    		       : mQtclass(Qt)::Vertical );
+    body_->setOrientation( hor ? Qt::Horizontal : Qt::Vertical );
     setStretch( 2, 2 );
 }
 

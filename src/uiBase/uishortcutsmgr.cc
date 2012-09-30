@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QKeyEvent>
 
+mUseQtnamespace
 
 uiShortcutsMgr& SCMgr()
 {
@@ -50,7 +51,7 @@ const int speckeystransbl[] =
 #define mQtbasefor0 0x30
 
 
-uiKeyDesc::uiKeyDesc( mQtclass(QKeyEvent*) ev )
+uiKeyDesc::uiKeyDesc( QKeyEvent* ev )
     : key_(ev->key())
 {
     state_ = (OD::ButtonState)(int)ev->modifiers();
@@ -131,9 +132,8 @@ const char* uiKeyDesc::keyStr() const
 
 bool uiKeyDesc::isSimpleAscii() const
 {
-    mQtclass(QKeyEvent) qke( mQtclass(QEvent)::KeyPress, key_,
-	    		     (mQtclass(Qt)::KeyboardModifiers)state_ );
-    mQtclass(QString) txt = qke.text();
+    QKeyEvent qke( QEvent::KeyPress, key_, (Qt::KeyboardModifiers)state_ );
+    QString txt = qke.text();
     return state_== 0 && !txt.isEmpty() && txt[0].isLetterOrNumber();
 }
 
@@ -142,9 +142,8 @@ char uiKeyDesc::asciiChar() const
 {
     if ( !isascii(key_) ) return 0;
 
-    mQtclass(QKeyEvent) qke( mQtclass(QEvent)::KeyPress, key_,
-	    		     (mQtclass(Qt)::KeyboardModifiers)state_ );
-    mQtclass(QString) txt = qke.text();
+    QKeyEvent qke( QEvent::KeyPress, key_, (Qt::KeyboardModifiers)state_ );
+    QString txt = qke.text();
     return !txt.isEmpty() ? txt[0].toAscii() : 0;
 }
 

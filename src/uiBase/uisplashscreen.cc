@@ -18,12 +18,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QDesktopWidget>
 #include <QSplashScreen>
 
+mUseQtnamespace
 
 uiSplashScreen::uiSplashScreen( const ioPixmap& pm )
 {
-    mQtclass(QDesktopWidget*) qdw = mQtclass(QApplication)::desktop();
-    mQtclass(QWidget*) parent = qdw->screen( qdw->primaryScreen() );
-    qsplashscreen_ = new mQtclass(QSplashScreen)( parent, *pm.qpixmap() );
+    QDesktopWidget* qdw = QApplication::desktop();
+    QWidget* parent = qdw->screen( qdw->primaryScreen() );
+    qsplashscreen_ = new QSplashScreen( parent, *pm.qpixmap() );
 }
 
 
