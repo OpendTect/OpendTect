@@ -134,6 +134,7 @@ void uiMultiFlatViewControl::reInitZooms()
 {
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
+	vwrs_[idx]->setView( vwrs_[idx]->boundingBox() );
 	zoommgrs_[idx]->reInit( vwrs_[idx]->boundingBox() );
     }
 }
