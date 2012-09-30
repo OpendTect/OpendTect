@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QTextDocument>
 #include <QWidget>
 
+mUseQtnamespace
 
 uiObjectItem::uiObjectItem( uiObject* obj )
     : uiGraphicsItem(mkQtObj())

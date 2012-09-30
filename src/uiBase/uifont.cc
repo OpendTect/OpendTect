@@ -29,6 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <qfontdialog.h> 
 #include <qfontmetrics.h> 
 
+mUseQtnamespace
+
 static const char* fDefKey = "Font.def";
 
 

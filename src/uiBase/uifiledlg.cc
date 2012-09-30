@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QFileDialog>
 #include <QPushButton>
 
+mUseQtnamespace
 
 const char* uiFileDialog::filesep_ = ";";
 

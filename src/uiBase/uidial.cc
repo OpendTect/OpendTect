@@ -18,6 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilineedit.h"
 
+mUseQtnamespace
+
 // TODO: Combine with uiSlider
 
 class uiDialBody : public uiObjBodyImpl<uiDial,QDial>

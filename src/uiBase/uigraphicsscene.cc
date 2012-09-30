@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <QX11Info>
 #endif
 
-
+mUseQtnamespace
 
 class ODGraphicsScene : public QGraphicsScene
 {

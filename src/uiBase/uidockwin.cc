@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QDockWidget>
 
+mUseQtnamespace
 
 class uiDockWinBody : public uiParentBody, public QDockWidget
 {
