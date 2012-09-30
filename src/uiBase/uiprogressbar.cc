@@ -15,16 +15,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include	<QProgressBar>
 
+mUseQtnamespace
 
-class uiProgressBarBody : public uiObjBodyImpl<uiProgressBar,
-    					       mQtclass(QProgressBar)>
+class uiProgressBarBody : public uiObjBodyImpl<uiProgressBar,QProgressBar>
 {
 public:
 
                         uiProgressBarBody( uiProgressBar& hndle, 
 					   uiParent* parnt, const char* nm )
-			    : uiObjBodyImpl<uiProgressBar,
-			    		    mQtclass(QProgressBar)>
+			    : uiObjBodyImpl<uiProgressBar,QProgressBar>
 				(hndle,parnt,nm)
 			    { 
 				setStretch( 1, 0 );

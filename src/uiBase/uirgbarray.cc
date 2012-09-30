@@ -17,9 +17,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QColor>
 #include <QColormap>
 
+mUseQtnamespace
 
 uiRGBArray::uiRGBArray( bool walpha )
-    : qimg_(new mQtclass(QImage))
+    : qimg_(new QImage)
     , withalpha_(walpha)
 {
 }
@@ -31,7 +32,7 @@ uiRGBArray::uiRGBArray( const OD::RGBImage& image )
     if ( !input )
 	pErrMsg( "Not supported. Go ahead and implement");
     
-    qimg_ = new mQtclass(QImage)( input->qImage() );
+    qimg_ = new QImage( input->qImage() );
     qimg_->detach();
 }
 
@@ -47,9 +48,8 @@ bool uiRGBArray::setSize( int d0, int d1 )
 	return true;
 
     delete qimg_;
-    qimg_ = new mQtclass(QImage)( d0, d1,
-	    			  withalpha_ ? mQtclass(QImage)::Format_ARGB32 
-	    				     : mQtclass(QImage)::Format_RGB32 );
+    qimg_ = new QImage( d0, d1,withalpha_ ? QImage::Format_ARGB32 
+	    				  : QImage::Format_RGB32 );
 
     return true;
 }
@@ -73,10 +73,10 @@ bool uiRGBArray::set( int i0, int i1, const Color& c )
     if ( withalpha_ )
     {
 	const Color newcol( c.r(), c.g(), c.b(), 255-c.t() );
-	qimg_->setPixel( i0, i1, (mQtclass(QRgb))newcol.rgb() );
+	qimg_->setPixel( i0, i1, (QRgb)newcol.rgb() );
     }
     else
-	qimg_->setPixel( i0, i1, (mQtclass(QRgb))c.rgb() );
+	qimg_->setPixel( i0, i1, (QRgb)c.rgb() );
 
     return true;
 }
@@ -84,8 +84,8 @@ bool uiRGBArray::set( int i0, int i1, const Color& c )
 
 void uiRGBArray::clear( const Color& c )
 {
-    mQtclass(QColor) col( (mQtclass(QRgb))c.rgb() );
-    mQtclass(QColormap) cmap = mQtclass(QColormap)::instance();
+    QColor col( (QRgb)c.rgb() );
+    QColormap cmap = QColormap::instance();
     uint pixel = cmap.pixel( col );
     qimg_->fill( pixel );
 }
