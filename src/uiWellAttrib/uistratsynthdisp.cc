@@ -457,7 +457,6 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
     const bool hadpack = vwr_->pack( true ) || vwr_->pack( false ); 
 
     vwr_->clearAllPacks(); 
-    vwr_->control()->zoomMgr().toStart();
     vwr_->removeAllAuxData( true );
 
     if ( !sd ) return;
