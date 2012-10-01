@@ -24,6 +24,8 @@ static const char* rcsID mUsedVar = "$Id: odinst.cc,v 1.18 2012/07/11 04:25:15 c
 #define mDeclEnvVarVal const char* envvarval = GetEnvVar("OD_INSTALLER_POLICY")
 #define mRelRootDir GetSoftwareDir(1)
 
+#include <QProcess>
+
 #ifdef __win__
 #include <Windows.h>
 #include <direct.h>
@@ -119,7 +121,7 @@ bool ODInst::canInstall()
     if ( !File::isDirectory(installerdir.fullPath()) ) \
 	return errretval; \
     installerdir.add( __iswin__ ? "od_instmgr" : "run_installer" ); \
-    BufferString cmd( __iswin__ ? "" : "@", installerdir.fullPath() ); \
+    cmd.add( installerdir.fullPath() ); \
     cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" ); \
    
 
@@ -127,6 +129,7 @@ bool ODInst::canInstall()
 void ODInst::startInstManagement()
 {
 #ifndef __win__
+    BufferString cmd( "@" );
     mDefCmd();
     chdir( installerdir.pathOnly() );
     StreamProvider( cmd ).executeCommand( true, true );
@@ -149,13 +152,13 @@ void ODInst::startInstManagement()
 
 bool ODInst::updatesAvailable()
 {
-
+    BufferString cmd;
     mDefCmd(false); cmd.add( " --updcheck_report" );
 #ifndef __win__
     chdir( installerdir.pathOnly() );
-    const bool ret = !StreamProvider( cmd ).executeCommand( false );
+    const int res = QProcess::execute( QString(cmd.buf()) );
     chdir( GetSoftwareDir(0) );
-    return ret;
+    return res == 1;
 #else
     ExecOSCmd( cmd, false, true );
     FilePath tmp( File::getTempPath(), "od_updt" );
