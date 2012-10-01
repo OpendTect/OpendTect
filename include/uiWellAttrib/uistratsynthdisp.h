@@ -88,6 +88,8 @@ public:
     bool		haveUserScaleWavelet();
     void		displaySynthetic(const SyntheticData*);
 
+    uiMultiFlatViewControl* control() 	{ return control_; }
+
 protected:
 
     int			longestaimdl_;
