@@ -156,6 +156,7 @@ public:
     const PropertyRefSelection& modelPropertyRefs() const;
     void 		setSelectedTrace(int);
     SyntheticData*	getCurrentSyntheticData() const;
+    uiMultiFlatViewControl* control() 	{ return control_; }
 
 };
 
