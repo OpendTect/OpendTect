@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 
 
-static const char* rcsID mUnusedVar = "$Id: uiseis2dto3d.cc,v 1.7 2012/06/19 12:27:29 cvsbruno Exp $";
+static const char* rcsID mUsedVar = "$Id: uiseis2dto3d.cc,v 1.7 2012/06/19 12:27:29 cvsbruno Exp $";
 
 #include "ctxtioobj.h"
 #include "cubesampling.h"

@@ -5,7 +5,7 @@
  * FUNCTION : 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: testibmformat.cc,v 1.1 2012/07/13 07:35:07 cvskris Exp $";
+static const char* rcsID mUsedVar = "$Id: testibmformat.cc,v 1.1 2012/07/13 07:35:07 cvskris Exp $";
 
 #include "ibmformat.h"
 #include "math2.h"

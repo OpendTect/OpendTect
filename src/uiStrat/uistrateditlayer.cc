@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistrateditlayer.cc 26301 2012-09-21 04:06:36Z nanne.hemstra@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id: uistrateditlayer.cc 26301 2012-09-21 04:06:36Z nanne.hemstra@dgbes.com $";
 
 #include "uistrateditlayer.h"
 #include "stratlayersequence.h"

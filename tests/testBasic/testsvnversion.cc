@@ -5,7 +5,7 @@
  * FUNCTION : 
 -*/
 
-static const char* rcsID mUnusedVar = "$Id: testsvnversion.cc 26335 2012-09-21 19:08:55Z kristofer.tingdahl@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id: testsvnversion.cc 26335 2012-09-21 19:08:55Z kristofer.tingdahl@dgbes.com $";
 
 #include "genc.h"
 

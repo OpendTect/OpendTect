@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: iodraw.cc,v 1.55 2012/09/13 11:27:27 cvsbert Exp $";
+static const char* rcsID mUsedVar = "$Id: iodraw.cc,v 1.55 2012/09/13 11:27:27 cvsbert Exp $";
 
 #include "iodrawtool.h"
 #include "iodrawimpl.h"

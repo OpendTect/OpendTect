@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uistratlayseqgendesc.cc 26301 2012-09-21 04:06:36Z nanne.hemstra@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id: uistratlayseqgendesc.cc 26301 2012-09-21 04:06:36Z nanne.hemstra@dgbes.com $";
 
 #include "uistratlaycontent.h"
 #include "uistratbasiclayseqgendesc.h"

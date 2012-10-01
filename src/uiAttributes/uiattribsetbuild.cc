@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id: uiattribsetbuild.cc,v 1.26 2012-05-22 14:48:36 cvskris Exp $";
+static const char* rcsID mUsedVar = "$Id: uiattribsetbuild.cc,v 1.26 2012-05-22 14:48:36 cvskris Exp $";
 
 #include "uiattribsetbuild.h"
 #include "uiattrdesced.h"
