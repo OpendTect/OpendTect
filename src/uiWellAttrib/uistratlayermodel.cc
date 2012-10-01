@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisplitter.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
+#include "uimultiflatviewcontrol.h"
 #include "uistratbasiclayseqgendesc.h"
 #include "uistratsimplelaymoddisp.h"
 #include "uistratsynthdisp.h"
@@ -677,10 +678,20 @@ bool uiStratLayerModel::closeOK()
 
 void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
 {
+    uiMultiFlatViewControl* ctrl = synthdisp_->control();
+    const uiWorldRect wr = ctrl && ctrl->activeVwr() ? 
+		    ctrl->activeVwr()->curView() : synthdisp_->curView(false);
+
+
     lmp_.useed_ = (bool)synthdata;
     synthdisp_->displaySynthetic( synthdata ? synthdata
-	    				: synthdisp_->getCurrentSyntheticData() );
+				    : synthdisp_->getCurrentSyntheticData() );
     moddisp_->modelChanged();
+
+    Geom::Point2D<double> centre = wr.centre();
+    Geom::Size2D<double> newsz = wr.size();
+
+    ctrl->setNewView( centre, newsz ); 
 }
 
 
@@ -732,3 +743,6 @@ Strat::LayerModel& uiStratLayerModel::layerModel()
 {
     return lmp_.get();
 }
+
+
+
