@@ -271,9 +271,7 @@ Expl2ImplBodyExtracter::Expl2ImplBodyExtracter( const DAGTetrahedraTree& tree,
     , inlrg_( inlrg )
     , crlrg_( crlrg )
     , zrg_( zrg )
-{
-    zrg_.scale( SI().zScale() );
-}
+{}
 
 
 bool Expl2ImplBodyExtracter::doPrepare( int nrthreads )
@@ -394,7 +392,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 		    ( curz>segment.stop ? curz-segment.stop : 
 		      (nrintersections>2 ? 0 : 
 		      -mMIN(curz-segment.start, segment.stop-curz)) );		
-		arr_.set( inlidx, crlidx, zidx, val/SI().zScale() );
+		arr_.set( inlidx, crlidx, zidx, val );
 	    }
 	}
 	else 
@@ -855,8 +853,9 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     ParallelDTetrahedralator triangulator( dagtree );
     if ( (tr && tr->execute(triangulator)) || triangulator.execute(true) )
     {
+	StepInterval<float> tmpzrg( zrg ); tmpzrg.scale( zscale );
 	PtrMan<Expl2ImplBodyExtracter> extract = new
-    	    Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, zrg, *arr );
+    	    Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, tmpzrg, *arr );
     	if ( (tr && tr->execute( *extract )) || extract->execute() )
 	{
 	    res->arr_ = arr;
