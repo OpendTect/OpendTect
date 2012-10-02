@@ -333,20 +333,9 @@ bool BatchProgram::initOutput()
 
     if ( hasviewprogress && res && res=="window" )
     {
-	BufferString cmd;
-
-#ifndef __msvc__
-	cmd.add( GetExecScript(false) ).add( " " );
-#endif
-
-	cmd.add( "@od_ProgressViewer " );
-
-
-#ifdef __msvc__ 
-	cmd = "@";
+	BufferString cmd = "@";
 	cmd += FilePath(GetBinPlfDir()).add("od_ProgressViewer").fullPath();
 	cmd += " ";
-#endif
 
 	cmd += GetPID();
 	StreamProvider sp( cmd );
