@@ -267,7 +267,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	fnmfld_->attach( alignedBelow, isascfld_ );
     }
 
-    fnmfld_->setDefaultSelectionDir( FilePath(data().fname_).pathOnly() );
+    fnmfld_->setDefaultSelectionDir( data().fname_ );
     postFinalise().notify( mCB(this,uiSeisIOSimple,initFlds) );
 }
 
