@@ -225,6 +225,7 @@ Strat::LayerModel::~LayerModel()
 
 Strat::LayerModel& Strat::LayerModel::operator =( const Strat::LayerModel& oth )
 {
+    setEmpty();
     if ( this != &oth )
     {
 	props_ = oth.props_;
