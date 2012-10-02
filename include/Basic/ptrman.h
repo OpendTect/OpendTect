@@ -31,6 +31,7 @@ public: \
 				{ set(p); return *this; } \
 \
     inline T*			ptr()			{ return ptr_; } \
+    inline const T*		ptr() const		{ return ptr_; } \
     inline			operator T*()		{ return ptr_; } \
     inline			operator const T*() const { return ptr_; } \
     inline T*			operator ->()		{ return ptr_; } \
