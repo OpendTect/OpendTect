@@ -29,7 +29,7 @@ Task* VolumeReader::createTask()
 {
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     if ( !ioobj )
-	return false;
+	return 0;
 
     TypeSet<int> components( 1, 0 );
     ObjectSet<Array3D<float> > arrays;
