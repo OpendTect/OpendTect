@@ -723,7 +723,9 @@ void WindowStack::synchronize()
 			stackidx--;
 
 		    winstack_.insertAt( curwin, stackidx );
-		    moveToTopWithoutSync( curwin );
+		    if ( !curwin->isHidden() )
+			moveToTopWithoutSync( curwin );
+
 		    continue;
 		}
 	    }
