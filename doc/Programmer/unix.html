@@ -58,7 +58,7 @@ to your ODWork directory. A good place for your ODWork directory may be your hom
 The only environment variable besides the one you may want to use for your own CMake settings is $WORK. Set it to the root of your development tree (which itself contains the plugin subdirectories).
 </p><p>
 As you will need to consult the OpendTect header files all the time, it may be handy to set links to the include directory in the installation, as in:
-<pre><code>ln -s /apps/OpendTect/4.4.1/include .</code></pre>
+<pre><code>ln -s /apps/OpendTect/4.4.0/include .</code></pre>
 Another thing may be handy. If you have your own Qt or COIN installation, then try linking the Qt and COIN installations immediately in $WORK. CMake will automatically configure from this. Example:
 <pre><code>ln -s /apps/qt/inst_453 $WORK/qt
 ln -s /apps/coin/inst_rel $WORK/coin
@@ -114,14 +114,14 @@ For distribution to the outside world, you'll need to package your plugins, docu
 <p>
 If you're really into it, you can build the entire OpendTect from source after you've installed OpendTect and built a plugin. For that, you will have to get hold of a Qt and a COIN source distribution. This is because you'll need the correct header files to go with the libraries.
 
-<h4>Qt = http://www.trolltech.no</h4>
-<a href="http://www.trolltech.no">Qt from TrollTech</a> (now Nokia) is used for the GUI. Use Qt 4.5 or lower. We configured with:<br>
+<h4>Qt</h4>
+<a href="http://qt-project.org">Qt from Digia</a> is used for the GUI. Use the latest Qt release. We configured with:<br>
 <pre><code>
 ./configure -shared -release -no-gif -enable-opengl -thread -no-g++-exceptions -disable-xml -disable-sql -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -qt-libpng -qt-libjpeg -qt-libmng -qt-imgfmt-jpeg -qt-imgfmt-mng -qt-imgfmt-png
 </code></pre>
 
 <h4>COIN</h4>
-You need the main <a href="http://www.sim.no">COIN</a> library ('Coin-2') and SoQt. For the volume rendering plugin, find the SIMVoleon download too. In rare cases you also want simage. Our configuration:<br>
+You need the main <a href="http://www.coin3d.org">COIN</a> library ('Coin-3') and SoQt. For the volume rendering plugin, find the SIMVoleon download too. In rare cases you also want simage. Our configuration:<br>
 <pre><code>
 ./configure --disable-debug --disable-symbols --enable-shared --disable-static --enable-vrml97 --enable-threadsafe --enable-rtti --disable-warnings --disable-dependency-tracking --enable-html CFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" CPPFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" LDFLAGS="-s -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -lstdc++"
 </code></pre>
