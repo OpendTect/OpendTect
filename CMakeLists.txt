@@ -7,11 +7,7 @@
 
 cmake_minimum_required (VERSION 2.6)
 
-if ( CTEST_PROJECT_NAME )
-    project( ${CTEST_PROJECT_NAME} )
-else()
-    project(OpendTect)
-endif()
+project(OpendTect)
 
 #Dummy statement to avoid warning if OSG_DIR is set
 SET ( DUMMY_VAR ${OSG_DIR} )
