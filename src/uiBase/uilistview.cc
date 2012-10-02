@@ -651,6 +651,7 @@ uiListViewItem::~uiListViewItem()
 
 void uiListViewItem::setText( const char* txt, int column )
 { 
+    mListViewBlockCmdRec;
     qtreeitem_->setText( column, QString(txt) );
     qtreeitem_->setToolTip( column, QString(txt) );
 }
@@ -688,7 +689,11 @@ void uiListViewItem::trlReady( CallBacker* cb )
 
 
 void uiListViewItem::setPixmap( int column, const ioPixmap& pm )
-{ qItem()->setIcon( column, pm.qpixmap() ? *pm.qpixmap() : QPixmap() ); }
+{
+    mListViewBlockCmdRec;
+    qItem()->setIcon( column, pm.qpixmap() ? *pm.qpixmap() : QPixmap() );
+}
+
 
 int uiListViewItem::nrChildren() const
 { return qItem()->childCount(); }
@@ -895,6 +900,8 @@ void uiListViewItem::setToolTip( int column, const char*  txt )
 
 void uiListViewItem::updateFlags()
 {
+    mListViewBlockCmdRec;
+
     Qt::ItemFlags itmflags;
     if ( isselectable_ )
 	itmflags |= Qt::ItemIsSelectable;
