@@ -39,7 +39,7 @@ static const char* rcsID = "$Id: uistratlayermodel.cc 26436 2012-09-26 15:13:41Z
 #include "uiselsimple.h"
 #include "uisplitter.h"
 #include "uiflatviewer.h"
-#include "uiflatviewstdcontrol.h"
+#include "uimultiflatviewcontrol.h"
 #include "uistratbasiclayseqgendesc.h"
 #include "uistratsimplelaymoddisp.h"
 #include "uistratsynthdisp.h"
@@ -625,6 +625,9 @@ void uiStratLayerModel::genModels( CallBacker* )
     synthdisp_->modelChanged();
     levelChg( 0 );
     newModels.trigger();
+
+    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
+    if ( mfvc ) mfvc->reInitZooms();
 }
 
 

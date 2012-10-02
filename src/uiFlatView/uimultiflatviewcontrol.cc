@@ -126,7 +126,6 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
 
 void uiMultiFlatViewControl::dataChangeCB( CallBacker* cb )
 {
-    reInitZooms();
 }
 
 

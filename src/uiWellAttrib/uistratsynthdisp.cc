@@ -456,8 +456,6 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
 {
     const bool hadpack = vwr_->pack( true ) || vwr_->pack( false ); 
 
-    vwr_->clearAllPacks();
-    vwr_->control()->zoomMgr().toStart();
     vwr_->removeAllAuxData( true );
 
     if ( !sd ) return;
@@ -509,8 +507,6 @@ void uiStratSynthDisp::displayPreStackDirSynthetic( const SyntheticData* sd )
     if ( !prestackwin_ ) return;
 
     uiFlatViewer& vwr = prestackwin_->viewer();
-    vwr.clearAllPacks();
-    vwr.control()->zoomMgr().toStart();
 
     if ( !sd ) return;
     mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,&sd->getPack())

@@ -32,6 +32,8 @@ public:
     void		setZoomCoupled( bool yn ) { iszoomcoupled_ = yn; }
     void		setDrawZoomBoxes( bool yn ) { drawzoomboxes_ = yn; }
 
+    void		reInitZooms();
+
 protected:
     ObjectSet<FlatView::ZoomMgr> zoommgrs_;
     ObjectSet<uiToolBar> toolbars_;
@@ -39,7 +41,6 @@ protected:
     ObjectSet<FlatView::AuxData> zoomboxes_;
 
     bool		handleUserClick();
-    void		reInitZooms();
     bool		iszoomcoupled_;
     bool		drawzoomboxes_;
 
