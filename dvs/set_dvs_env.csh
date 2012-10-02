@@ -1,5 +1,6 @@
 #
 # environent for dGB's CVS development tools
+#SVN: $Id$
 
 setenv DGB_CVS_HOST cvsserv
 setenv OD_CVS_HOST cvs.opendtect.org

@@ -1,6 +1,6 @@
 #!/bin/csh -f
 # Revives file from Attic
-# $Id: dvs_restore,v 1.2 2012/08/02 09:15:27 cvsbert Exp $
+# $Id$
 
 if ( ! -d CVS ) then
     echo "No Subversion support yet"

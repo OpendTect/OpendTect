@@ -1,4 +1,5 @@
 #!/bin/csh -f
+# SVN: $Id$
 
 if ( $#argv < 2 ) then
     echo "Usage: $0 file-extension sub-dir [subdir ...]"

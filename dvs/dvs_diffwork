@@ -1,4 +1,5 @@
 #!/bin/csh -f
+# SVN: $Id$
 
 if ( $#argv < 1 ) then
 	echo "$0 diffs files with corresponding in od or dgb"

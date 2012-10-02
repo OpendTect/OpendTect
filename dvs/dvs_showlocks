@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+# SVN: $Id$
+
+use XML::Simple;
+
+$xml = new XML::Simple;
+my $output = `svn status -u --xml`;
+$data = $xml->XMLin( $output );
+
+my $target = $data->{target};
+foreach $e (@{$target->{entry}})
+{
+    my $lockowner = $e->{"repos-status"}->{"lock"}->{"owner"};
+    my $lockdate = $e->{"repos-status"}->{"lock"}->{"created"};
+    if ( $lockowner )
+    {
+	print "Path '$e->{path}' is locked by '$lockowner' at '$lockdate'";
+	print "\n";
+    }
+}
+

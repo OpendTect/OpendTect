@@ -1,6 +1,6 @@
 #!/bin/csh -f
 # Calls ckin from $WORK/..
-# $Id: ckinall,v 1.3 2009/07/23 10:57:14 cvsbert Exp $
+# $Id$
 
 set args="$*"
 if ( $#argv < 1 ) then
