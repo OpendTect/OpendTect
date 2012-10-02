@@ -52,7 +52,7 @@ const int uiNLAPartServer::evGetData()		{ return 5; }
 const int uiNLAPartServer::evSaveMisclass()	{ return 6; }
 const int uiNLAPartServer::evCreateAttrSet()	{ return 7; }
 const int uiNLAPartServer::evCr2DRandomSet()	{ return 8; }
-const char* uiNLAPartServer::sKeyUsrCancel()	{ return "User cancel";  }
+const char* uiNLAPartServer::sKeyUsrCancel()	{ return "User cancel"; }
 
 #define mDPM DPM(DataPackMgr::PointID())
 
@@ -71,6 +71,7 @@ uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 uiNLAPartServer::~uiNLAPartServer()
 {
     deepErase( inpnms_ );
+    delete uidps_;
     if ( dps_ )
 	mDPM.release( dps_->id() );
     delete &storepars_;
