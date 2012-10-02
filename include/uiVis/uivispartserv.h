@@ -406,7 +406,7 @@ protected:
     				/*!< Should set all cbs for the object */
     void			removeConnections(int id);
 
-    void			toggleDraggers();
+    void			updateDraggers();
     int				getTypeSetIdx(int);
 
     ObjectSet<visSurvey::Scene>	scenes_;

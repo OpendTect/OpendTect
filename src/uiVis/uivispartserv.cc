@@ -999,7 +999,7 @@ void uiVisPartServer::setViewMode( bool yn, bool notify)
     viewmode_ = yn;
     workmode_ = viewmode_ ? uiVisPartServer::View 
 			  : uiVisPartServer::Interactive;
-    toggleDraggers();
+    updateDraggers();
     if ( notify )
     {
 	eventmutex_.lock();
@@ -1018,7 +1018,7 @@ void uiVisPartServer::setWorkMode( uiVisPartServer::WorkMode wm,
     workmode_ = wm;
     viewmode_ = ( workmode_ == uiVisPartServer::View ) 
 	? true : false;
-    toggleDraggers();
+    updateDraggers();
     if ( notify )
     {
 	eventmutex_.lock();
@@ -1152,7 +1152,7 @@ void uiVisPartServer::setTopBotImg( int sceneid )
 }
 
 
-void uiVisPartServer::toggleDraggers()
+void uiVisPartServer::updateDraggers()
 {
     const TypeSet<int>& selected = visBase::DM().selMan().selected();
 
