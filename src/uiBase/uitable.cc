@@ -773,7 +773,7 @@ void uiTable::setPixmap( const RowCol& rc, const ioPixmap& pm )
 void uiTable::setColor( const RowCol& rc, const Color& col )
 {
     mBlockCmdRec;
-    QColor qcol( col.r(), col.g(), col.b() );
+    QColor qcol( col.r(), col.g(), col.b(), 255-col.t() );
     QTableWidgetItem* itm = body_->getItem( rc );
     if ( itm ) itm->setBackground( qcol );
     body_->setFocus();
@@ -786,7 +786,7 @@ Color uiTable::getColor( const RowCol& rc ) const
     if ( !itm ) return Color(255,255,255);
 
     const QColor qcol = itm->background().color();
-    return Color( qcol.red(), qcol.green(), qcol.blue() );
+    return Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
 }
 
 
