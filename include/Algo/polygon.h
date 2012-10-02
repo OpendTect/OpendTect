@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "bufstring.h"
 
+#include <math.h>
+
 /*!\brief (Closed) sequence of connected 2-D coordinates */
 
 template <class T>
