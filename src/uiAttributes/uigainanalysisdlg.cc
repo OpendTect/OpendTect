@@ -67,6 +67,8 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
     stepfld_->attach( rightOf, rangefld_ );
     stepfld_->box()->valueChanging.notify(
 	    mCB(this,uiGainAnalysisDlg,dispRangeChgd) );
+    if ( al.sd_.step<1 )
+	stepfld_->box()->setNrDecimals( 2 );
     stepfld_->box()->setValue( al.sd_.step );
 
     ampscaletypefld_ = new uiGenInput( mandispgrp, "Amplitude Scale",

@@ -209,8 +209,11 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	    const ValParam& param = (ValParam&)(*gateset)[idx];
 	    
 	    if ( typefld->getIntValue() == 4 )
-		zvals_.addIfNew( idx==0 ? param.getfValue(1)
-					: param.getfValue(0) );
+	    {
+		if ( idx==0 )
+		    zvals_.addIfNew( param.getfValue(0) );
+		zvals_.addIfNew( param.getfValue(1) );
+	    }
 	    else
 	    {
 		table->setValue( RowCol(idx,startcol), param.getfValue(0) );
@@ -227,7 +230,7 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	{
 	    const ValParam& param = (ValParam&)(*factorset)[idx];
 	    if ( typefld->getIntValue() == 4 )
-		scalefactors_.addIfNew( param.getfValue(0) );
+		scalefactors_ += param.getfValue(0);
 	    else
 		table->setValue( RowCol(idx,factcol), param.getfValue(0) );
 	}
@@ -282,11 +285,11 @@ bool uiScalingAttrib::getParameters( Desc& desc )
     {
 	tgs.erase();
 	factors.erase();
-	for ( int idx=0; idx<=zvals_.size(); idx++ )
+	for ( int idx=0; idx<zvals_.size()-1; idx++ )
 	{
-	    float zstart = !idx ? cs.zrg.start*1000 : zvals_[idx-1];
-	    float zstop = (idx>=zvals_.size()) ? cs.zrg.stop*1000 : zvals_[idx];
-
+	    float zstart = zvals_[idx];
+	    float zstop = zvals_[idx+1];
+	    
 	    tgs += ZGate( zstart, zstop );
 	    if ( scalefactors_.validIdx(idx) )
 		factors += scalefactors_[idx];
