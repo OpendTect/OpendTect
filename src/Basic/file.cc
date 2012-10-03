@@ -288,8 +288,16 @@ bool isWritable( const char* fnm )
 bool isFileInUse( const char* fnm )
 {
 #ifdef __win__
-    QFile qfile( fnm );
-    return qfile.isOpen();
+    HANDLE handle = CreateFileA( fnm, 
+				 GENERIC_READ | GENERIC_WRITE,
+				 0,
+				 0,
+				 OPEN_EXISTING,
+				 0,
+				 0 );
+    const bool ret = handle == INVALID_HANDLE_VALUE;
+    CloseHandle( handle );
+    return ret;
 #else
     return false;
 #endif
