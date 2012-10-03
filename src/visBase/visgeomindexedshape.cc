@@ -116,14 +116,17 @@ GeomIndexedShape::ColTabMaterial::~ColTabMaterial()
 void GeomIndexedShape::ColTabMaterial::updatePropertiesFrom( const Material* m )
 {
     const float diffintensity = m->getDiffIntensity( 0 );
+    const float transparency = m->getTransparency( 0 );
     for ( int idx=0; idx<mNrMaterials; idx++ )
+    {
 	coltab_->setDiffIntensity( diffintensity, idx );
+	coltab_->setTransparency( transparency, idx );
+    }
 
     coltab_->setAmbience( m->getAmbience() );
     coltab_->setSpecIntensity( m->getSpecIntensity() );
     coltab_->setEmmIntensity( m->getEmmIntensity() );
     coltab_->setShininess( m->getShininess() );
-    coltab_->setTransparency( m->getTransparency() );
 }
 
 
