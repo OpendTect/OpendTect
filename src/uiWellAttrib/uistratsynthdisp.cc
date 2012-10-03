@@ -509,8 +509,6 @@ void uiStratSynthDisp::displayPreStackDirSynthetic( const SyntheticData* sd )
     if ( !prestackwin_ ) return;
 
     uiFlatViewer& vwr = prestackwin_->viewer();
-    vwr.clearAllPacks();
-    vwr.control()->zoomMgr().toStart();
 
     if ( !sd ) return;
     mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,&sd->getPack())

@@ -621,6 +621,9 @@ void uiStratLayerModel::genModels( CallBacker* )
     synthdisp_->modelChanged();
     levelChg( 0 );
     newModels.trigger();
+
+    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
+    if ( mfvc ) mfvc->reInitZooms();
 }
 
 
@@ -678,11 +681,6 @@ bool uiStratLayerModel::closeOK()
 
 void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
 {
-    uiMultiFlatViewControl* ctrl = synthdisp_->control();
-    const uiWorldRect wr = ctrl && ctrl->activeVwr() ? 
-		    ctrl->activeVwr()->curView() : synthdisp_->curView(false);
-
-
     lmp_.useed_ = (bool)synthdata;
     synthdisp_->displaySynthetic( synthdata ? synthdata
 				    : synthdisp_->getCurrentSyntheticData() );
@@ -690,13 +688,11 @@ void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
 
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
-
-    ctrl->setNewView( centre, newsz ); 
 }
 
 
 SyntheticData* uiStratLayerModel::getCurrentSyntheticData() const
-{                                                                                 
+{
     return synthdisp_->getCurrentSyntheticData();
 }
 
