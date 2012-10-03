@@ -143,7 +143,10 @@ void Scaling::updateDesc( Desc& desc )
 
 	desc.setParamEnabled( gateStr(), true );
 	const int statstype = desc.getValParam(statsTypeStr())->getIntValue();
-	desc.setParamEnabled( factorStr(), statstype==mStatsTypeUser );
+	desc.setParamEnabled( factorStr(),
+		(type==scalingTypeNamesStr(mScalingTypeWindow) &&
+		 statstype==mStatsTypeUser) ||
+		type == scalingTypeNamesStr(mScalingTypeGain) );
     }
     else if ( type == scalingTypeNamesStr(mScalingTypeAGC) )
     {
@@ -440,32 +443,26 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
     int curgateidx = 0;
     TypeSet< Interval<int> > gates;
     for ( int idx=0; idx<gates_.size(); idx++ )
-	gates += Interval<int>( (int)gates_[idx].start*1000, 
-				(int)gates_[idx].stop*1000 );
+	gates += Interval<int>( (int)(gates_[idx].start*1000), 
+				(int)(gates_[idx].stop*1000) );
     
-    while ( true )
-    {
-	if ( gates[curgateidx].includes(z0, true ) || (curgateidx>=gates.size()-1) )
-	    break;
-	curgateidx++;
-    }
-
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const float curt = (idx+z0)*refstep_;
-	if ( !gates_[curgateidx].includes(curt, true ) && curgateidx<gates_.size()-1 )
-	    curgateidx++;
 
-	const float scalefacstart =
-	    ( curgateidx==0 || curgateidx >= gates_.size()-1 )
-	   		? 1 : factors_[curgateidx-1];
-	const float scalefacstop =
-	    ( curgateidx==0 || curgateidx >= gates_.size()-1 )
-	    		? 1 : factors_[curgateidx];
+	if ( curt>gates_[curgateidx].stop && curgateidx<gates_.size()-1 )
+	    curgateidx++;
+	if ( !gates_.validIdx(curgateidx) )
+	    break;
+
+	const float scalefacstart = factors_[curgateidx];
+	const float scalefacstop = factors_[curgateidx+1];
 	Interval<float> curgate = gates_[curgateidx];
 	const float val = getInputValue( *inputdata_, dataidx_, idx, z0);
-	const float factor = interpolator( scalefacstart, scalefacstop,
-					   curgate.start, curgate.stop, curt );
+	const float factor =
+	    (curt<gates_[0].start || curt>gates_[gates_.size()-1].stop) ?
+	    1.0f : interpolator( scalefacstart, scalefacstop,
+			         curgate.start, curgate.stop, curt );
 	const float result = val*factor;
        	setOutputValue( output, 0, idx, z0, result );
     }
