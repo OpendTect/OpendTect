@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uisetdatadir.h"
 #include "uisip.h"
+#include "uisplitter.h"
 #include "uisurveyselect.h"
 #include "uisurvinfoed.h"
 #include "uisurvmap.h"
@@ -151,14 +152,14 @@ uiSurvey::uiSurvey( uiParent* p )
 
     mkDirList();
 
-    uiGroup* rightgrp = new uiGroup( this, "Survey selection right" );
+    uiGroup* topgrp = new uiGroup( this, "TopGroup" );
+    uiGroup* rightgrp = new uiGroup( topgrp, "Survey selection right" );
 
     survmap_ = new uiSurveyMap( rightgrp );
-    survmap_->setStretch( 0, 0 );
     survmap_->setPrefWidth( mMapWidth );
     survmap_->setPrefHeight( mMapHeight );
 
-    uiGroup* leftgrp = new uiGroup( this, "Survey selection left" );
+    uiGroup* leftgrp = new uiGroup( topgrp, "Survey selection left" );
     listbox_ = new uiListBox( leftgrp, dirlist_, "Surveys" );
     listbox_->setCurrentItem( GetSurveyName() );
     listbox_->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
@@ -208,13 +209,13 @@ uiSurvey::uiSurvey( uiParent* p )
 	    			mCB(this,uiSurvey,dataRootPushed), false );
     datarootbut_->attach( centeredBelow, listbox_ );
 
-    uiSeparator* horsep1 = new uiSeparator( this );
+    uiSeparator* horsep1 = new uiSeparator( topgrp );
     horsep1->setPrefWidth( totwdth );
     horsep1->attach( stretchedBelow, rightgrp, -2 );
     horsep1->attach( ensureBelow, leftgrp );
 
-    uiGroup* infoleft = new uiGroup( this, "Survey info left" );
-    uiGroup* inforight = new uiGroup( this, "Survey info right" );
+    uiGroup* infoleft = new uiGroup( topgrp, "Survey info left" );
+    uiGroup* inforight = new uiGroup( topgrp, "Survey info right" );
     infoleft->attach( alignedBelow, leftgrp );
     infoleft->attach( ensureBelow, horsep1 );
     inforight->attach( alignedBelow, rightgrp );
@@ -249,16 +250,17 @@ uiSurvey::uiSurvey( uiParent* p )
     binlbl_->attach( alignedBelow, zlbl_ );
     typelbl_->attach( alignedBelow, binlbl_ );
 
-    uiSeparator* horsep2 = new uiSeparator( this );
-    horsep2->attach( stretchedBelow, infoleft, -2 );
-    horsep2->setPrefWidth( totwdth );
-
-    uiLabel* notelbl = new uiLabel( this, "Notes:" );
-    notelbl->attach( alignedBelow, horsep2 );
-    notes_ = new uiTextEdit( this, "Notes" );
-    notes_->attach( alignedBelow, notelbl);
+    uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
+    uiLabel* notelbl = new uiLabel( botgrp, "Notes:" );
+    notes_ = new uiTextEdit( botgrp, "Notes" );
+    notes_->attach( alignedBelow, notelbl );
     notes_->setPrefHeightInChar( noteshght );
     notes_->setPrefWidth( totwdth );
+    notes_->setStretch( 2, 2 );
+
+    uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
+    splitter->addGroup( topgrp );
+    splitter->addGroup( botgrp );
 
     getSurvInfo(); 
     mkInfo();
