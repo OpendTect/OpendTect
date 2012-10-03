@@ -209,7 +209,10 @@ uiRect i_LayoutMngr::winpos( LayoutMode lom ) const
     i_LayoutItem* managedItem = 
 	    const_cast<i_LayoutItem*>(managedBody.layoutItem());
 
-    if ( ismain && !managedItem )
+    if ( ismain && managedItem )
+	return managedItem->curpos(lom);
+
+    if ( !managedItem )
     {
 	int hborder = layoutpos[lom].left();
 	int vborder = layoutpos[lom].top();
@@ -217,9 +220,7 @@ uiRect i_LayoutMngr::winpos( LayoutMode lom ) const
 			     layoutpos[lom].bottom()+2*vborder );
     }
 
-    if ( ismain ) { return managedItem->curpos(lom); }
-
-    return managedItem->mngr().winpos(lom);
+    return managedItem->mngr().winpos( lom );
 }
 
 
