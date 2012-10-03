@@ -4,6 +4,10 @@
 # Date:		August 2012		
 #RCS:           $Id: ODPackages.cmake,v 1.6 2012/09/11 12:26:50 cvsnageswara Exp $
 
+add_custom_target( do_install ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install
+        --config ${CMAKE_BUILD_TYPE} 
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+
 add_custom_target( packages  ${CMAKE_COMMAND} 
         -DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR} 
         -DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR} 
@@ -15,5 +19,6 @@ add_custom_target( packages  ${CMAKE_COMMAND}
 	-DQTDIR=${QTDIR}
 	-DCOINDIR=${COINDIR}
         -P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
+	DEPENDS do_install
         COMMENT "Creating packages" ) 
 
