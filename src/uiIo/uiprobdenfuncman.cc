@@ -367,6 +367,8 @@ ProbDenFunc* uiProbDenFuncGen::calcPDF3D() const
 	arr.setAll( val );
     else 
     {
+	float scalefactor = cMaxProbVal / calcGaussian3D( mus_[0], mus_[1],	
+								    mus_[2] );
 	for ( int idx=0; idx<nrnodes_; idx++ )
 	{
 	    const float xval = ranges_[0].start + idx * ranges_[0].step;
@@ -376,7 +378,8 @@ ProbDenFunc* uiProbDenFuncGen::calcPDF3D() const
 		for ( int idz=0; idz<nrnodes_; idz++ )
 		{
 		    const float zval = ranges_[2].start + idz * ranges_[2].step;
-		    arr.set( idx, idy, idz, calcGaussian3D(xval,yval,zval) );
+		    arr.set( idx, idy, idz, 
+				scalefactor * calcGaussian3D(xval,yval,zval) );
 		}
 	    }
 	}
@@ -423,7 +426,7 @@ float uiProbDenFuncGen::calcGaussian3D( float x, float y, float z ) const
     float val1 = pow( x-mus_[0], 2 ) / ( 2*sigmas_[0]*sigmas_[0] ); 
     float val2 = pow( y-mus_[1], 2 ) / ( 2*sigmas_[1]*sigmas_[1] ); 
     float val3 = pow( z-mus_[2], 2 ) / ( 2*sigmas_[2]*sigmas_[2] ); 
-    return 100 * exp( -(val1+val2+val3) );
+    return exp( -(val1+val2+val3) );
 }
 
 
