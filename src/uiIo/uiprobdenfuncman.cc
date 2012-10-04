@@ -328,7 +328,7 @@ ProbDenFunc* uiProbDenFuncGen::calcPDF1D() const
 
     Sampled1DProbDenFunc* pdf = new Sampled1DProbDenFunc( arr );
     pdf->sd_.start = ranges_[0].start; pdf->sd_.step = ranges_[0].step;
-    pdf->setDimName( 0, nmflds_[0]->name() );
+    pdf->setDimName( 0, nmflds_[0]->text() );
     return pdf ;
 }
 
@@ -356,6 +356,8 @@ ProbDenFunc* uiProbDenFuncGen::calcPDF2D() const
     Sampled2DProbDenFunc* pdf = new Sampled2DProbDenFunc( arr );
     pdf->sd0_.start = ranges_[0].start; pdf->sd0_.step = ranges_[0].step;
     pdf->sd1_.start = ranges_[1].start; pdf->sd1_.step = ranges_[1].step;
+    pdf->setDimName( 0, nmflds_[0]->text() );
+    pdf->setDimName( 1, nmflds_[1]->text() );
     return pdf;
 }
 
@@ -390,6 +392,9 @@ ProbDenFunc* uiProbDenFuncGen::calcPDF3D() const
     pdf->sds_[0].start = ranges_[0].start; pdf->sds_[0].step = ranges_[0].step;
     pdf->sds_[1].start = ranges_[1].start; pdf->sds_[1].step = ranges_[1].step;
     pdf->sds_[2].start = ranges_[2].start; pdf->sds_[2].step = ranges_[2].step;
+    pdf->setDimName( 0, nmflds_[0]->text() );
+    pdf->setDimName( 1, nmflds_[1]->text() );
+    pdf->setDimName( 2, nmflds_[2]->text() );
     return pdf;
 }
 
