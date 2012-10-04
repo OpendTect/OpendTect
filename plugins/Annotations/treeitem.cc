@@ -549,6 +549,7 @@ void SubItem::removeStuff()
     if ( setidx>= 0 )
 	mgr.set( mgr.id(setidx), 0 );
     mgr.removeCBs( this );
+    visserv_->removeObject( displayid_, sceneID() );
 }
 
 
