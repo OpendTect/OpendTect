@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bufstring.h"
 #include "sampledprobdenfunc.h"
+#include "simpnumer.h"
 #include "probdenfunctr.h"
 
 static const int cPrefWidth = 75;
