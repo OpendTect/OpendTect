@@ -685,9 +685,6 @@ void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
     synthdisp_->displaySynthetic( synthdata ? synthdata
 				    : synthdisp_->getCurrentSyntheticData() );
     moddisp_->modelChanged();
-
-    Geom::Point2D<double> centre = wr.centre();
-    Geom::Size2D<double> newsz = wr.size();
 }
 
 
