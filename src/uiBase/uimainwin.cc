@@ -256,7 +256,10 @@ void uiMainWinBody::doShow( bool minimized )
     if ( minimized )
 	QMainWindow::showMinimized();
     else
+    {
+	if ( isMinimized() ) showNormal();
 	QMainWindow::show();
+    }
 
     if( poptimer.isActive() )
 	poptimer.stop();
