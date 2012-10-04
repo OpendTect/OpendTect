@@ -19,6 +19,6 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Programmer/pluginexample
 	 PATTERN "CVS" EXCLUDE )
 
 #Install data
-install ( DIRECTORY "data" DESTINATION . PATTERN "CVS" EXCLUDE )
+install ( DIRECTORY "data" DESTINATION . PATTERN ".svn" EXCLUDE )
 
 include ( ODSubversion )
