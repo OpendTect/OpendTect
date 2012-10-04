@@ -305,21 +305,17 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	{
 	    const char* desunittxt = unfld_->text();
 	    newwl->setUnitMeasLabel( desunittxt );
-	    if ( !rpoutunit_.isEmpty() )
+	    const UnitOfMeasure* logun = rpoutunit_.isEmpty() ? 0
+					: UoMR().get( rpoutunit_.buf() );
+	    const UnitOfMeasure* convertun = UoMR().get( desunittxt );
+	    for ( int idx=0; idx<newwl->size(); idx++ )
 	    {
-		const UnitOfMeasure* logun = UoMR().get( rpoutunit_.buf() );
-		const UnitOfMeasure* convertun = UoMR().get( desunittxt );
-		if ( logun && convertun && logun!=convertun )
-		{
-		    for ( int idx=0; idx<newwl->size(); idx++ )
-		    {
-			const float initialval = newwl->value( idx );
-			const float valinsi = logun->getSIValue( initialval );
-			const float convertedval =
-				    convertun->getUserValueFromSI( valinsi );
-			newwl->valArr()[idx] = convertedval;
-		    }
-		}
+		const float initialval = newwl->value( idx );
+		const float valinsi = logun ? logun->getSIValue( initialval )
+		    			    : initialval;
+		const float convertedval = convertun ?
+			    convertun->getUserValueFromSI( valinsi ) : valinsi;
+		newwl->valArr()[idx] = convertedval;
 	    }
 	}
 
