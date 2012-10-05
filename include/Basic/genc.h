@@ -49,6 +49,8 @@ mGlobal(Basic) const char* GetFullExecutablePath(void);
 mGlobal(Basic) char** GetArgV(void);
     
 mGlobal(Basic) int GetArgC(void);
+
+mGlobal(Basic) int IsProgramArgsSet(void);
     
 mGlobal(Basic) void SetProgramArgs(int argc, char** argv);
     
