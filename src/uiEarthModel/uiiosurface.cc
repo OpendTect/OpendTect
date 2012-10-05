@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "emmanager.h"
 #include "embodytr.h"
+#include "emfaultstickset.h"
 #include "emsurface.h"
 #include "emsurfacetr.h"
 #include "emioobjinfo.h"
@@ -33,7 +34,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "randcolor.h"
 #include "survinfo.h"
-
 
 const int cListHeight = 5;
 
@@ -524,4 +524,188 @@ bool uiSurfaceRead::processInput()
     }
 
     return true;
+}
+
+
+// uiFaultParSel
+class uiFSS2DLineSelDlg : public uiDialog
+{
+public:
+    uiFSS2DLineSelDlg( uiParent* p, const TypeSet<PosInfo::GeomID>& geoids )    
+    	: uiDialog(p,uiDialog::Setup("FaultStickSet selection",
+		    "Available for 2D lines",mNoHelpID))
+    {
+	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(EMFaultStickSet);
+	IOM().to( ctio->ctxt.getSelKey() );
+	IODirEntryList entlst( IOM().dirPtr(), ctio->ctxt );
+
+	for ( int idx=0; idx<entlst.size(); idx++ )
+	{
+	    const IOObj* obj = entlst[idx]->ioobj;
+	    if ( !obj ) continue;
+
+	    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(obj->key());
+	    mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
+	    if ( !fss ) continue;
+
+	    EM::SectionID sid = fss->sectionID(0);
+	    const int nrsticks = fss->geometry().nrSticks( sid );
+	
+	    bool fssvalid = false;
+	    for ( int gidx=0; gidx<geoids.size(); gidx++ )
+	    {
+		if ( fssvalid ) break;
+
+    		S2DPOS().setCurLineSet(geoids[gidx].lsid_);
+    		PosInfo::Line2DData linegeom;
+    		if ( !S2DPOS().getGeometry(geoids[gidx].lineid_,linegeom) )
+    		    return;
+
+		for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
+		{
+		    const Geometry::FaultStickSet* fltgeom =
+			fss->geometry().sectionGeometry( sid );
+		    if ( !fltgeom ) continue;
+		    
+		    const int sticknr = fltgeom->rowRange().atIndex( stickidx );
+		    if ( !fss->geometry().pickedOn2DLine(sid, sticknr) )
+			continue;
+	    
+		    const MultiID* lsid =
+			fss->geometry().pickedMultiID(sid,sticknr);
+		    if ( !lsid ) continue;
+		    
+		    PtrMan<IOObj> lsobj = IOM().get( *lsid );
+		    if ( !lsobj ) continue;
+		    
+		    const char* lnnm = fss->geometry().pickedName(sid,sticknr);
+		    if ( !lnnm ) continue;
+
+		    if ( geoids[gidx]==S2DPOS().getGeomID(lsobj->name(),lnnm) )
+		    {
+			fssvalid = true;
+			break;
+		    }
+		}
+	    }
+
+	    if ( fssvalid )
+	    {
+		validfss_.add( fss->name() );
+		validmids_ += obj->key();
+	    }
+	}
+
+	fsslistfld_ = new uiListBox(this,"",true,validmids_.size()+1,20);
+	fsslistfld_->addItems( validfss_ );
+    }
+
+    void getSelected( BufferStringSet& nms, TypeSet<MultiID>& mids ) 
+    {
+	TypeSet<int> selids;
+	fsslistfld_->getSelectedItems( selids );
+	for ( int idx=0; idx<selids.size(); idx++ )
+	{
+	    nms.add( *validfss_[selids[idx]] );
+	    mids += validmids_[selids[idx]];
+	}
+    }
+
+    void setSelectedItems( BufferStringSet sel )
+    { fsslistfld_->setSelectedItems(sel); }
+
+
+    uiListBox*		fsslistfld_;
+    BufferStringSet	validfss_;
+    TypeSet<MultiID>	validmids_;
+};
+
+
+uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d )
+    : uiCompoundParSel(p,"Faults","Select")
+    , is2d_(is2d)
+    , selChange(this)
+{
+    butPush.notify( mCB(this,uiFaultParSel,doDlg) );
+    uiPushButton* clearbut = new uiPushButton( this, "Clear", true );
+    clearbut->activated.notify( mCB(this,uiFaultParSel,clearPush) );
+    clearbut->attach( rightOf, selbut_ );
+}
+
+
+void uiFaultParSel::setSelectedFaults( const TypeSet<MultiID>& ids )
+{
+    selfaultids_.erase();
+    selfaultnms_.erase();
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( ids[idx] );
+	if ( !ioobj ) continue;
+
+	selfaultnms_.add( ioobj->name() );
+	selfaultids_ += ids[idx];
+    }
+    updSummary(0);
+    selChange.trigger();
+}
+
+
+void uiFaultParSel::clearPush( CallBacker* )
+{
+    selfaultnms_.erase();
+    selfaultids_.erase();
+    updSummary(0);
+    selChange.trigger();
+}
+
+
+void uiFaultParSel::set2DGeomIds( const TypeSet<PosInfo::GeomID>& nids )
+{
+    geomids_.erase();
+    geomids_ = nids;
+}
+
+
+void uiFaultParSel::doDlg( CallBacker* )
+{
+    if ( is2d_ && geomids_.size() )
+    {
+    	uiFSS2DLineSelDlg dlg( this, geomids_ );
+    	dlg.setSelectedItems( selfaultnms_ );
+    	if ( !dlg.go() ) return;
+    	
+	selfaultnms_.erase();
+    	selfaultids_.erase();
+    	dlg.getSelected( selfaultnms_, selfaultids_ );
+    }
+    else
+    {
+	PtrMan<CtxtIOObj> ctio = is2d_ ? mMkCtxtIOObj(EMFaultStickSet)
+				       : mMkCtxtIOObj(EMFault3D);
+	uiIOObjSelDlg dlg( this, *ctio, "Select Faults", true );
+	dlg.selGrp()->getListField()->setSelectedItems( selfaultnms_ );
+	if ( !dlg.go() ) return;
+
+	selfaultnms_.erase();
+	selfaultids_.erase();
+	uiIOObjSelGrp* selgrp = dlg.selGrp();
+	selgrp->processInput();
+	selgrp->getListField()->getSelectedItems( selfaultnms_ );
+	for ( int idx=0; idx<selfaultnms_.size(); idx++ )
+	    selfaultids_ += selgrp->selected(idx);
+    }
+
+    selChange.trigger();
+}
+
+
+BufferString uiFaultParSel::getSummary() const
+{
+    BufferString summ;
+    for ( int idx=0; idx<selfaultnms_.size(); idx++ )
+    {
+	summ += selfaultnms_.get(idx);
+	summ += idx == selfaultnms_.size()-1 ? "." : ", ";
+    }
+    return summ.isEmpty() ? BufferString(" - ") : summ;
 }

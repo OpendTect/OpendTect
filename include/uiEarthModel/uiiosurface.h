@@ -13,8 +13,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
-#include "horsampling.h"
+#include "uicompoundparsel.h"
 #include "uigroup.h"
+#include "horsampling.h"
+#include "surv2dgeom.h"
 
 class BufferStringSet;
 class CtxtIOObj;
@@ -22,14 +24,13 @@ class IODirEntryList;
 class IOObj;
 class MultiID;
 
-class uiPosSubSel;
+class uiCheckBox;
 class uiColorInput;
 class uiGenInput;
 class uiIOObjSel;
 class uiLabeledListBox;
-class uiCheckBox;
+class uiPosSubSel;
 class uiStratLevelSel;
-
 
 namespace EM { class Surface; class SurfaceIODataSelection; };
 
@@ -167,5 +168,29 @@ protected:
 };
 
 
-#endif
+mClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
+{
+public:
+				uiFaultParSel(uiParent*,bool);
 
+    void			setSelectedFaults(const TypeSet<MultiID>&);
+    BufferString		getSummary() const;
+    const TypeSet<MultiID>&	selFaultIDs() const { return selfaultids_; }
+					
+    void			set2DGeomIds(const TypeSet<PosInfo::GeomID>&);
+    				/*<for FaultStickSet picked from 2D lines.*/
+
+    Notifier<uiFaultParSel>	selChange;
+
+protected:
+
+    void			clearPush(CallBacker*);
+    void			doDlg(CallBacker*);
+
+    bool			is2d_;
+    BufferStringSet		selfaultnms_;
+    TypeSet<MultiID>		selfaultids_;
+    TypeSet<PosInfo::GeomID>	geomids_;
+};
+
+#endif
