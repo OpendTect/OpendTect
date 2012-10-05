@@ -165,7 +165,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    PosInfo::GeomID geomid = prov->getGeomID();
 	    BufferString lsnm = S2DPOS().getLineSet( geomid.lsid_ );
 	    SeisIOObjInfo info( lsnm );
-	    ioobj = info.ioObj()->clone();
+	    ioobj = info.ioObj() ? info.ioObj()->clone() : 0;
 	}
 
 	if ( !ioobj )
