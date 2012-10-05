@@ -15,10 +15,11 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uicompoundparsel.h"
 #include "uigroup.h"
+
+#include "bufstringset.h"
 #include "horsampling.h"
 #include "surv2dgeom.h"
 
-class BufferStringSet;
 class CtxtIOObj;
 class IODirEntryList;
 class IOObj;
