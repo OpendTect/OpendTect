@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUnusedVar = "$Id$";
 
 #include "textureattrib.h"
 #include "attribdataholder.h"
@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statruncalc.h"
 #include "survinfo.h"
 #include <math.h>
+#include "statruncalc.h"
 
 
 namespace Attrib
@@ -29,7 +30,7 @@ mAttrDefCreateInstance(Texture)
     
 void Texture::initClass()
 {
-    mAttrStartInitClassWithUpdate
+    mAttrStartInitClass
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-1000,1000) );
@@ -37,12 +38,11 @@ void Texture::initClass()
     gate->setDefaultValue( defgate );
     desc->addParam( gate );
 	    
-    FloatParam* globalmean = new FloatParam( globalmeanStr() );
-    desc->addParam( globalmean );
+    FloatParam* globalmin = new FloatParam( globalminStr() );
+    desc->addParam( globalmin );
 
-    FloatParam* globalstdev = new FloatParam( globalstdevStr() );
-    globalstdev->setLimits( Interval<float>(0,mUdf(float)) );
-    desc->addParam( globalstdev );
+    FloatParam* globalmax = new FloatParam( globalmaxStr() );
+    desc->addParam( globalmax );
 
     EnumParam* action = new EnumParam( actionStr() );
     action->addEnum( "Contrast" );
@@ -62,7 +62,7 @@ void Texture::initClass()
     desc->addParam( steering );
 
     BinIDParam* stepout = new BinIDParam( stepoutStr() );
-    stepout->setDefaultValue( BinID(1,1) );
+    stepout->setDefaultValue( BinID(3,3) );
     stepout->setLimits(Interval<int>(1,50),Interval<int>(1,50)),
     desc->addParam( stepout );
 
@@ -76,20 +76,9 @@ void Texture::initClass()
     BoolParam* glcmsize = new BoolParam( glcmsizeStr() );
     desc->addParam( glcmsize );
 
-    BoolParam* scalingtype = new BoolParam( scalingtypeStr() );
-    desc->addParam( scalingtype );
-
     mAttrEndInitClass
 }
 
-void Texture::updateDesc( Desc& desc )
-{
-    bool isauto = desc.getValParam( scalingtypeStr() )->getBoolValue();
-	
-    desc.setParamEnabled( globalmeanStr(), !isauto );
-    desc.setParamEnabled( globalstdevStr(), !isauto );
-
-}
 
 void Texture::updateDefaults( Desc& desc )
 {
@@ -103,17 +92,22 @@ void Texture::updateDefaults( Desc& desc )
 
 Texture::Texture( Desc& desc )
     : Provider( desc )
-	
 {
     if ( !isOK() ) return;
 
+    mGetFloat( globalmin_, globalminStr() );
+    mGetFloat( globalmax_, globalmaxStr() );
+    if ( mIsEqual( globalmin_, globalmax_, 1e-3 ) )
+    {
+	errmsg_ = "Minimum and Maximum values cannot be the same.\n";
+	errmsg_ = "Values represent the clipping range of the input.";
+	return;
+    }
+
     mGetFloatInterval( gate_, gateStr() );
-    mGetFloat( globalmean_, globalmeanStr() );
-    mGetFloat( globalstdev_, globalstdevStr() );
     gate_.scale( 1./SI().showZ2UserFactor() );
     mGetEnum( action_, actionStr() );
     mGetBinID( stepout_, stepoutStr() );
-    mGetBool ( scalingtype_, scalingtypeStr() );
     mGetBool ( matrix_, glcmsizeStr() );
     glcmsize_ = matrix_ ? 16 : 32;
 
@@ -127,20 +121,21 @@ Texture::Texture( Desc& desc )
 	    posandsteeridx_.steeridx_ += steeridx;
 	}
     }
-
     inpdata_.allowNull( true );
 }
+
 
 bool Texture::getInputOutput( int input, TypeSet<int>& res ) const
 {
     if ( input == 0 )
-    	return Provider::getInputOutput( input, res );
+	return Provider::getInputOutput( input, res );
 
     for ( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
 	res += posandsteeridx_.steeridx_[idx];
 
     return true;
 }
+
 
 bool Texture::getInputData( const BinID& relpos, int zintv )
 {
@@ -149,8 +144,7 @@ bool Texture::getInputData( const BinID& relpos, int zintv )
     const DataHolder* inpdata = inputs_[0]->getData( relpos, zintv );
     if ( !inpdata ) return false;
     inpdata_.replace( 0, inpdata);
-
-    
+   
     steeringdata_ = inputs_[1] ? inputs_[1]->getData( relpos, zintv ) : 0;
     const int maxlength  = mMAX(stepout_.inl, stepout_.crl)*2 + 1;
     while ( inpdata_.size() < maxlength * maxlength )
@@ -170,6 +164,7 @@ bool Texture::getInputData( const BinID& relpos, int zintv )
     return true;
 }
 
+
 const BinID* Texture::desStepout( int inp, int out ) const
 {
     if ( inp==0 )
@@ -178,9 +173,10 @@ const BinID* Texture::desStepout( int inp, int out ) const
     return 0;
 }
 
+
 int Texture::scaleVal( float val ) const
 {	
-    val = val * factor_ + shift_ ;
+    val = val * scalingfactor_ + scalingshift_ ;
     if ( val <= 0 ) 
 	val = 0 ;
     else if ( val > glcmsize_ - 1 )
@@ -188,262 +184,196 @@ int Texture::scaleVal( float val ) const
     return (int)val;
 }
 
+
 bool Texture::allowParallelComputation () const 
 {
-    return !scalingtype_;
+    return true;
 }
+
+
+// Compute unnormalized GLCM Matrix
+int Texture::computeGlcmMatrix( const BinID& relpos,
+		    int idx, int z0, int nrsamples,
+		    int threadid, Array2D<int>& glcm ) const
+{
+    int refpixpos, neighpixpos, glcmcount = 0;
+	
+    for ( int posidx=0; posidx<inpdata_.size()-1; posidx++ )
+    {
+	if ( !inpdata_[posidx] || !inpdata_[posidx+1]) continue;
+	const float shift = steeringdata_ ? 
+	    getInputValue( *steeringdata_,posidx, idx, z0 ) : 0;
+	const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT32(shift) );
+	if ( sampidx < 0 || sampidx >= nrsamples ) continue;
+	for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++ )
+	{
+	    const float val = getInputValue( *inpdata_[posidx], 
+		dataidx_, sampidx+isamp, z0 );
+	    const float val1 = getInputValue( *inpdata_[posidx+1], 
+		dataidx_, sampidx+isamp, z0 );
+	    refpixpos = scaleVal(val);
+	    neighpixpos = scaleVal(val1);	
+	    glcm.set( refpixpos, neighpixpos,
+		      glcm.get( refpixpos, neighpixpos ) +1 );
+	    glcm.set( neighpixpos, refpixpos,
+		      glcm.get( neighpixpos, refpixpos ) +1 );
+	    glcmcount++;
+	}
+    }
+
+    return glcmcount;
+ }
+
 
 void Texture::prepareForComputeData()
 {
-    firsttracescaling_ = 0;
-    sampgate_.start = mNINT32(gate_.start/refstep_);
-    sampgate_.stop = mNINT32(gate_.stop/refstep_);
-    dessampgate_ = Interval<int>( sampgate_.start-2, sampgate_.stop+2 );
-    	// TODO: Please update later to protect against steep dip crashes!
+    scalingfactor_ = ((float) (glcmsize_-1)) /
+			((float)( globalmax_- globalmin_ ));
+    scalingshift_ = -globalmin_*scalingfactor_;
+    sampgate_.start = gate_.start/refstep_;
+    sampgate_.stop = gate_.stop/refstep_;
+    const float biggestdist = mMAX (SI().inlDistance(), SI().crlDistance() );
+    const float safeextrasamp = biggestdist * mMAXDIP / refstep_;
+    dessampgate_ = Interval<int>( sampgate_.start-safeextrasamp,
+				  sampgate_.stop+safeextrasamp );
 }	
 
+
 bool Texture::computeData( const DataHolder& output, const BinID& relpos,
-		int z0, int nrsamples, int threadid ) const
-	
+	int z0, int nrsamples, int threadid ) const
 {
-    float min, max, mean, stdev, sqdif;
-    if ( firsttracescaling_== 0 && scalingtype_ )
+    Array2DImpl<int> glcm( glcmsize_, glcmsize_ );
+
+    for ( int idx=0; idx<nrsamples; idx++ ) 
     {
-	min=0;
-	max=0;
-	mean=0;
-	stdev=0;
-	sqdif=0;
-	int counter=0;
-	for ( int idx=0; idx<nrsamples; idx++ ) // Compute scaling and shift factors 
+	float normprob=0, textmeasure=0, glcmmean=0, glcmvar=0;
+	glcm.setAll(0);
+
+	const int glcmcount = computeGlcmMatrix( relpos, idx, z0, nrsamples,
+						 threadid, glcm ); 	
+
+	/* Texture Attribute definitions
+	from http://www.fp.ucalgary.ca/mhallbey/equations.htm */
+
+	if (action_== 0 ) /* 0=Contrast */
 	{
-		for ( int posidx=0; posidx<inpdata_.size()-1; posidx++ )
+	    for (int m=0; m<glcmsize_; m++)
+	    {
+		for (int n=0; n<glcmsize_; n++)
 		{
-			if ( !inpdata_[posidx] ) continue;
-			const float val = getInputValue( *inpdata_[posidx], 
-				dataidx_, idx, z0 );
-		
-			mean += val;
-			counter++;
+		    normprob = glcm.get( n, m )/(float)(2*glcmcount);
+		    textmeasure += normprob*(n - m)*(n - m); 
 		}
+	    }
 	}
-	mean = mean/((float)counter);
 
-	for ( int idx=0; idx<nrsamples; idx++ )  
+	if (action_ == 1 ) /* 1=Dissimilarity */
 	{
-		for ( int posidx=0; posidx<inpdata_.size()-1; posidx++ )
+	    for (int m=0; m<glcmsize_; m++)
+	    {
+		for (int n=0; n<glcmsize_; n++)
 		{
-			if ( !inpdata_[posidx] ) continue;
-			const float val = getInputValue( *inpdata_[posidx], 
-				dataidx_, idx, z0 );
-		
-			sqdif += (val-mean)*(val-mean);
+		    normprob = glcm.get( n, m )/(float)(2*glcmcount);
+		    textmeasure += normprob*abs(n - m); 
 		}
+	    }
 	}
-	stdev = sqrt(sqdif / ((float) counter));
-	const_cast < Texture* > (this)-> firsttracescaling_ = 1;
 
-	min = mean - (3 * stdev);
-	max = mean + (3 * stdev);
-
-	if (max==min) 
+	if (action_ == 2 ) /* 2=Homogeneity */
 	{
-		const_cast < Texture* > (this)-> factor_ = 1;
-		const_cast < Texture* > (this)-> shift_ = 0;
-	}
-	else
-	{
-		const_cast < Texture* > (this)-> factor_ = ((float) (glcmsize_-1)) / ((float)(max-min));
-		const_cast < Texture* > (this)-> shift_ = -min*factor_;
+	    for (int m=0; m<glcmsize_; m++)
+	    {
+		for (int n=0; n<glcmsize_; n++)
+		{
+		    normprob = glcm.get( n, m )/(float)(2*glcmcount);
+		    textmeasure += normprob/(1.0+((n - m)*(n - m))); 
+		}
+	    }
 	}
 
+	if (action_ == 3 || action_ == 4) /* 3=ASM (Angular Second Moment); 4=Energy */
+	{
+	    for (int m=0; m<glcmsize_; m++)
+	    {
+		for (int n=0; n<glcmsize_; n++)
+		{
+		    normprob = glcm.get( n, m )/(float)(2*glcmcount);
+		    textmeasure += normprob*normprob; 
+		}
+	    }
+	    if (action_ == 4)
+	    {
+		textmeasure = sqrt(textmeasure);
+	    }
+	}
+
+	if (action_ == 5 ) /* 5=Entropy */
+	{
+	    for (int m=0; m<glcmsize_; m++)
+	    {
+		for (int n=0; n<glcmsize_; n++)
+		{
+		    normprob = glcm.get( n, m )/(float)(2*glcmcount);
+		    if (normprob == 0.0) continue;
+		    else textmeasure += normprob*(-log(normprob)); 
+		}
+	    }
+	}
+
+	/* 6=GLCM Mean; 7=GLCM Variance; 8=GLCM Standard Deviation; 9=GLCM correlation */
+	if (action_ == 6 || action_ == 7 || action_ == 8 || action_ == 9) 
+	{
+	    for (int m=0; m<glcmsize_; m++)
+	    {
+		for (int n=0; n<glcmsize_; n++)
+		{
+		    normprob = glcm.get( n, m )/(float)(2*glcmcount);
+		    textmeasure += normprob*n; 
+		}
+	    }
+	    glcmmean = textmeasure;
+	}
+
+	if (action_ == 7 || action_ == 8 || action_ == 9) 
+	{
+	    textmeasure = 0;
+	    for (int m=0; m<glcmsize_; m++)
+	    {
+		for (int n=0; n<glcmsize_; n++)
+		{
+		    normprob = glcm.get( n, m )/(float)(2*glcmcount);
+		    textmeasure += normprob*(n - glcmmean)*(n - glcmmean); 
+		}
+	    }
+	    glcmvar = textmeasure;
+
+	    if (action_ == 8)
+	    {
+		textmeasure = sqrt(textmeasure);
+	    }
+	}
+
+	if (action_ == 9 ) 
+	{
+	    textmeasure = 0; 
+	    if (glcmvar == 0.0) textmeasure = 1;
+	    else for (int m=0; m<glcmsize_; m++) 
+	    {
+		for (int n=0; n<glcmsize_; n++)
+		{
+		    normprob = glcm.get( n, m )/(float)(2*glcmcount);
+		    textmeasure += normprob*((n-glcmmean)*(m-glcmmean)/glcmvar); 
+		}
+	    }
+	    if (textmeasure<=0 ) 
+		textmeasure=0 ;
+	    else if (textmeasure>= 1)
+		textmeasure=1 ;
+	}
+	setOutputValue( output, 0, idx, z0, textmeasure );
     }
 
-    else if (firsttracescaling_== 0 && !scalingtype_ )
-    {
-	    mean = globalmean_;
-	    stdev = globalstdev_;
-	    min = mean - (3 * stdev);
-	    max = mean + (3 * stdev);
-	    const_cast < Texture* > (this)-> firsttracescaling_ = 1;
-
-	    if (max==min) 
-	    {
-		    const_cast < Texture* > (this)-> factor_ = 1;
-		    const_cast < Texture* > (this)-> shift_ = 0;
-	    }
-	    else
-	    {
-		    const_cast < Texture* > (this)-> factor_ = ((float) (glcmsize_-1)) / ((float)(max-min));
-		    const_cast < Texture* > (this)-> shift_ = -min*factor_;
-	    }
-    }
-
-    //float outval=0;   // Test scaling 
-    //for ( int idx=0; idx<nrsamples; idx++ ) 
-    //{
-    //	const float val = getInputValue( *inpdata_[0], 
-    //		dataidx_, idx, z0 );
-    //	outval = scaleVal(val);
-    //	setOutputValue( output, 0, idx, z0, outval );
-    //}
-
-    for ( int idx=0; idx<nrsamples; idx++ ) // Compute unnormalized GLCM Matrix
-    {
-	    float outval = 0;
-	    int refpixpos, neighpixpos, count = 0;
-	    float normprob=0, textmeasure=0, glcmmean=0, glcmvar=0;
-	    Array2DImpl<int> glcm( glcmsize_, glcmsize_ );
-	    glcm.setAll(0);
-
-	    for ( int posidx=0; posidx<inpdata_.size()-1; posidx++ )
-	    {
-		    if ( !inpdata_[posidx] || !inpdata_[posidx+1]) continue;
-		    const float shift = steeringdata_ ? 
-				    getInputValue( *steeringdata_,posidx, idx, z0 ) : 0;
-		    const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT32(shift) );
-		    if ( sampidx < 0 || sampidx >= nrsamples ) continue;
-		    for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++ )
-		    {
-			    const float val = getInputValue( *inpdata_[posidx], 
-				    dataidx_, sampidx+isamp, z0 );
-			    const float val1 = getInputValue( *inpdata_[posidx+1], 
-				    dataidx_, sampidx+isamp, z0 );
-	    
-			    refpixpos = scaleVal(val);
-			    neighpixpos = scaleVal(val1);	
-			    glcm.set( refpixpos, neighpixpos, glcm.get( refpixpos, neighpixpos ) +1 );
-			    glcm.set( neighpixpos, refpixpos, glcm.get( neighpixpos, refpixpos ) +1 );
-			    count++;
-		    }
-	    }
-	    /* Texture Attribute definitions from http://www.fp.ucalgary.ca/mhallbey/equations.htm */
-
-	    if (action_== 0 ) /* 0=Contrast */
-	    {
-		    for (int m=0; m<glcmsize_; m++)
-		    {
-			    for (int n=0; n<glcmsize_; n++)
-			    {
-				    normprob = glcm.get( n, m )/(float)(2*count);
-				    textmeasure += normprob*(n - m)*(n - m); 
-			    }
-		    }
-	    }
-
-	    if (action_ == 1 ) /* 1=Dissimilarity */
-	    {
-		    for (int m=0; m<glcmsize_; m++)
-		    {
-			    for (int n=0; n<glcmsize_; n++)
-			    {
-				    normprob = glcm.get( n, m )/(float)(2*count);
-				    textmeasure += normprob*abs(n - m); 
-			    }
-		    }
-	    }
-
-	    if (action_ == 2 ) /* 2=Homogeneity */
-	    {
-		    for (int m=0; m<glcmsize_; m++)
-		    {
-			    for (int n=0; n<glcmsize_; n++)
-			    {
-				    normprob = glcm.get( n, m )/(float)(2*count);
-				    textmeasure += normprob/(1.0+((n - m)*(n - m))); 
-			    }
-		    }
-	    }
-
-	    if (action_ == 3 || action_ == 4) /* 3=ASM (Angular Second Moment); 4=Energy */
-	    {
-		    for (int m=0; m<glcmsize_; m++)
-		    {
-			    for (int n=0; n<glcmsize_; n++)
-			    {
-				    normprob = glcm.get( n, m )/(float)(2*count);
-				    textmeasure += normprob*normprob; 
-			    }
-		    }
-		    if (action_ == 4)
-		    {
-		    textmeasure = sqrt(textmeasure);
-		    }
-	    }
-
-	    if (action_ == 5 ) /* 5=Entropy */
-	    {
-		    for (int m=0; m<glcmsize_; m++)
-		    {
-			    for (int n=0; n<glcmsize_; n++)
-			    {
-				    normprob = glcm.get( n, m )/(float)(2*count);
-				    if (normprob == 0.0) continue;
-				    else textmeasure += normprob*(-log(normprob)); 
-			    }
-		    }
-	    }
-
-	    if (action_ == 6 || action_ == 7 || action_ == 8 || action_ == 9) /* 6=GLCM Mean; 7=GLCM Variance; 8=GLCM Standard Deviation; 9=GLCM correlation */
-	    {
-		    for (int m=0; m<glcmsize_; m++)
-		    {
-			    for (int n=0; n<glcmsize_; n++)
-			    {
-				    normprob = glcm.get( n, m )/(float)(2*count);
-				    textmeasure += normprob*n; 
-			    }
-		    }
-		    glcmmean = textmeasure;
-	    }
-
-	    if (action_ == 7 || action_ == 8 || action_ == 9) 
-	    {
-		    textmeasure = 0;
-		    for (int m=0; m<glcmsize_; m++)
-		    {
-			    for (int n=0; n<glcmsize_; n++)
-			    {
-				    normprob = glcm.get( n, m )/(float)(2*count);
-				    textmeasure += normprob*(n - glcmmean)*(n - glcmmean); 
-			    }
-		    }
-		    glcmvar = textmeasure;
-
-		    if (action_ == 8)
-		    {
-		    textmeasure = sqrt(textmeasure);
-		    }
-	    }
-
-	    if (action_ == 9 ) 
-	    {
-		    textmeasure = 0;
-		    for (int m=0; m<glcmsize_; m++)
-		    {
-			    for (int n=0; n<glcmsize_; n++)
-			    {
-				    normprob = glcm.get( n, m )/(float)(2*count);
-				    if (glcmvar == 0.0) continue;
-				    else textmeasure += normprob*((n-glcmmean)*(m-glcmmean)/glcmvar); 
-			    }
-		    }
-		    if (textmeasure<=0 ) 
-		    {
-			    textmeasure=0 ;
-		    }
-		    else if (textmeasure>= 1)
-		    {
-			    textmeasure=1 ;
-		    }
-     }
-
-    outval = textmeasure;
-    
-    setOutputValue( output, 0, idx, z0, outval );
-     }
-
-return true;
+    return true;
 }
 
 
@@ -451,6 +381,5 @@ const Interval<int>* Texture::desZSampMargin(int,int) const
 {
     return 0;
 }
-
 
 } // namespace Attrib
