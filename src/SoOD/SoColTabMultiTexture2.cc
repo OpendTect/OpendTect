@@ -695,7 +695,7 @@ const unsigned char* SoColTabMultiTexture2::createImage( SbVec2s& size, int& nc 
 
     bool hastransperancy = false;
     int coltabstart = 0;
-    bool nrimagesused = 0;
+    int nrimagesused = 0;
     for ( int idx=0; idx<numimages; idx++ )
     {
 	SbVec2i32 lsz;
