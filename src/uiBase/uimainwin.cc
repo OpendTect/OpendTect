@@ -259,7 +259,10 @@ void uiMainWinBody::doShow( bool minimized )
     if ( minimized )
 	mQtclass(QMainWindow)::showMinimized();
     else
+    {
+	if ( isMinimized() ) showNormal();
 	mQtclass(QMainWindow)::show();
+    }
 
     if( poptimer.isActive() )
 	poptimer.stop();
