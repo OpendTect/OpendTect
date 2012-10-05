@@ -26,22 +26,19 @@ class uiTextureAttrib : public uiAttrDescEd
 {
 public:
 
-			uiTextureAttrib(uiParent*,bool);
-
-	void		getEvalParams(TypeSet<EvalParam>&) const;
+    uiTextureAttrib(uiParent*,bool);
+    void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
 
     uiAttrSel*		inpfld_;
     uiGenInput*		actionfld_;
-    uiLabel*		label_;
-    uiSteeringSel*  	steerfld_;
-    uiStepOutSel*   	stepoutfld_;
+    uiSteeringSel*	steerfld_;
+    uiStepOutSel*	stepoutfld_;
     uiGenInput*		gatefld_;
     uiGenInput*		glcmsizefld_;
-    uiGenInput*		scalingtypefld_;
-    uiGenInput*		globalmeanfld_;
-    uiGenInput*		globalstdevfld_;
+    uiGenInput*		globalminfld_;
+    uiGenInput*		globalmaxfld_;
 
     void		actionSel(CallBacker*);
     void		steerTypeSel(CallBacker*);
@@ -50,8 +47,7 @@ protected:
     bool		setInput(const Attrib::Desc&);
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
-    			mDeclReqAttribUIFns
-
+				mDeclReqAttribUIFns
 };
 
 #endif
