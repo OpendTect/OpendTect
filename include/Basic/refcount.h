@@ -124,14 +124,14 @@ mObjectSetApplyToAllFunc( deepUnRefNoDelete,
 
 //Macro to implement a refman class
 #define mDefRefMan( clss, reffunc, unreffunc ) \
-mDefPtrMan1(clss, if ( ptr_ ) ptr_->reffunc(), if ( ptr_ ) ptr_->unreffunc() ) \
+mDefPtrMan1(clss, if ( ptr_ ) reffunc, if ( ptr_ ) unreffunc ) \
 inline clss(const clss<T>& p) : ptr_( 0 ) {  set(p.ptr_); } \
 inline clss<T>& operator=(const clss<T>& p) { set(p.ptr_); return *this; }\
-mDefPtrMan2(clss, if (ptr_) ptr_->reffunc(), if ( ptr_ ) ptr_->unreffunc() )\
-mDefPtrMan3(clss, if (ptr_) ptr_->reffunc(), if ( ptr_ ) ptr_->unreffunc() )
+mDefPtrMan2(clss, if (ptr_) reffunc, if ( ptr_ ) unreffunc )\
+mDefPtrMan3(clss, if (ptr_) reffunc, if ( ptr_ ) unreffunc )
 
 //Implement RefMan
-mDefRefMan( RefMan, ref, unRef )
+mDefRefMan( RefMan, ptr_->ref(), ptr_->unRef() )
 
 
 
