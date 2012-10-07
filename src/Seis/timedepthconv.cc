@@ -467,7 +467,7 @@ void Time2DepthStretcher::transformBack(const BinID& bid,
 	    continue;
 
 	Interval<float> tmp( resrg );
-	if ( !voirg.overlaps( resrg ), false )
+	if ( !voirg.overlaps( resrg, false ) )
 	    continue;
 
 	tmp.limitTo( voirg );
