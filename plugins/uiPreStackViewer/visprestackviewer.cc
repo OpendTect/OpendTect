@@ -835,7 +835,7 @@ void Viewer3D::draggerMotion( CallBacker* )
 	return;
     
     const int newinl = SI().inlRange( true ).snap( planedragger_->center().x );
-    const int newcrl = SI().inlRange( true ).snap( planedragger_->center().y );
+    const int newcrl = SI().crlRange( true ).snap( planedragger_->center().y );
 
     const visSurvey::PlaneDataDisplay::Orientation orientation =
 	    section_->getOrientation();
