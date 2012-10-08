@@ -368,7 +368,7 @@ void uiObjectItemViewInfoBar::addItem( uiObjectItem* infoitm,
 {
     addItem( infoitm );
     coupleditems_ += cpleditm;
-    updateItemsPos();
+    resetViewArea(0);
 }
 
 
@@ -377,7 +377,7 @@ void uiObjectItemViewInfoBar::removeItem( uiObjectItem* itm )
     const int idx = objectitems_.indexOf( itm );
     if ( idx >= 0 ) coupleditems_.remove( idx );
     uiObjectItemView::removeItem( itm );
-    updateItemsPos();
+    resetViewArea(0);
 }
 
 
@@ -386,6 +386,7 @@ void uiObjectItemViewInfoBar::removeItemByCouple( uiObjectItem* coupleditem )
     const int idx = coupleditems_.indexOf( coupleditem );
     if ( objectitems_.validIdx( idx ) )
 	removeItem( objectitems_[idx] );
+    resetViewArea(0);
 }
 
 
@@ -394,7 +395,7 @@ void uiObjectItemViewInfoBar::insertItem( uiObjectItem* itm,
 {
     insertItem( itm, pos );
     coupleditems_.insertAt( cpleditm, pos );
-    updateItemsPos();
+    resetViewArea(0);
 }
 
 
@@ -407,18 +408,6 @@ void uiObjectItemViewInfoBar::reSizeItems()
 	const int w = cpleditm->objectSize().width();
 	const int h = height();
 	itm->setObjectSize( w, h );
-    }
-    updateItemsPos();
-}
-
-
-void uiObjectItemViewInfoBar::updateItemsPos()
-{
-    for( int idx=0; idx<objectitems_.size(); idx++ )
-    {
-	uiObjectItem* itm = objectitems_[idx];
-	uiObjectItem* cpleditm = coupleditems_[idx];
-	itm->setPos( cpleditm->getPos().x, itm->getPos().y );
     }
     resetViewArea(0);
 }
