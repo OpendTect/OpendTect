@@ -1,5 +1,5 @@
-#ifndef pseventstreeitem_h
-#define pseventstreeitem_h
+#ifndef uiodpseventstreeitem_h
+#define uiodpseventstreeitem_h
 
 /*+
 ________________________________________________________________________

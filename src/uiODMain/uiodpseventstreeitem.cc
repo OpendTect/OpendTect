@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uipseventstreeitem.h"
+#include "uiodpseventstreeitem.h"
 
 #include "ctxtioobj.h"
 #include "enums.h"
