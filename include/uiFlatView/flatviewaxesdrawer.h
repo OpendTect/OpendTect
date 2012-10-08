@@ -31,6 +31,8 @@ public:
 
     int			altdim0_;
 
+    void		update();
+
 protected:
 
     Viewer&		vwr_;

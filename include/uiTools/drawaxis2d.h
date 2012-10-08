@@ -66,6 +66,8 @@ public:
     void		turnOn(bool);
     
     void		drawAxisLine(bool yn) { drawaxisline_=yn; update(); }
+    void		drawGridLines(bool yn) { drawgridlines_=yn; update(); }
+
     void		drawMask(bool yn);
     void		setTextFactor(int n) { txtfactor_ = n; update(); }
     void		setLineStyle(const LineStyle& lst) {ls_=lst; update(); }
@@ -113,8 +115,8 @@ public:
     void		setWorldCoords(const StepInterval<float>& xrg,
 				       const StepInterval<float>& yrg);
 
-    void		enableXAxis(bool yn);
-    void		enableYAxis(bool yn);
+    void		enableXAxis(bool yn) { xaxis_->turnOn(yn); }
+    void		enableYAxis(bool yn) { yaxis_->turnOn(yn); } 
     
     void		annotInside( bool yn );
     void		drawAxisLine( bool yn );

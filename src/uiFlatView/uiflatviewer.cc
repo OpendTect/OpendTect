@@ -125,7 +125,7 @@ void uiFlatViewer::updateAuxDataCB( CallBacker* )
 
 void uiFlatViewer::updateAnnotCB( CallBacker* )
 {
-    //TODO
+    axesdrawer_.update();
 }
 
 

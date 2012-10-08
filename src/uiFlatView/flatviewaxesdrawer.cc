@@ -40,3 +40,13 @@ double FlatView::AxesDrawer::getAnnotTextAndPos( bool isx, double pos,
 	*txt = altdimval;
     return pos;
 }
+
+
+void FlatView::AxesDrawer::update()
+{
+    const FlatView::Annotation& annot  = vwr_.appearance().annot_;
+    enableXAxis( annot.x1_.showannot_ );
+    enableYAxis( annot.x2_.showannot_ );
+    xaxis_->drawGridLines( annot.x1_.showgridlines_ );
+    yaxis_->drawGridLines( annot.x2_.showgridlines_ );
+}
