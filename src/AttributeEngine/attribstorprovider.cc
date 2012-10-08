@@ -196,7 +196,11 @@ bool StorageProvider::checkInpAndParsAtStart()
 {
     if ( status_!=Nada ) return false;
 
-    if ( !isondisc_ ) return true;
+    if ( !isondisc_ )
+    {
+	storedvolume_.zrg.start = 0;    //cover up for synthetics
+	return true;
+    }
 
     const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
     const MultiID mid( lk.lineName() );
