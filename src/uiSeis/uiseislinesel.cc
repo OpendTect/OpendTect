@@ -275,7 +275,7 @@ void uiSeis2DMultiLineSelDlg::finalised( CallBacker* )
     const IOObj* lsetobj = linesetfld_->ioobj( true );
     if ( !lsetobj )
 	linesetfld_->doSel( 0 );
-    else
+    else if ( lnmsfld_->nrSelected()==0 )
 	lineSetSel( 0 );
 }
 
@@ -682,7 +682,7 @@ void uiSeis2DMultiLineSel::updateFromLineset()
 
 
 void uiSeis2DMultiLineSel::setSelLines( const BufferStringSet& sellines )
-{ sellines_ = sellines; updateSummary(); }
+{ isall_ = false; sellines_ = sellines; updateSummary(); }
 
 void uiSeis2DMultiLineSel::setAll( bool yn )
 { isall_ = yn; updateSummary(); }

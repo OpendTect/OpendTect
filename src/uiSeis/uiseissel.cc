@@ -555,7 +555,10 @@ void uiSeisSel::updateInput()
     if ( workctio_.ctxt.forread )
 	updateAttrNm();
 
-    uiIOSelect::setInput( LineKey(ioobjkey,attrnm_).buf() );
+    if ( seissetup_.selattr_ )
+	uiIOSelect::setInput( LineKey(ioobjkey,attrnm_).buf() );
+    else
+	uiIOSelect::setInput( ioobjkey );
 
     if ( seissetup_.selectcomp_ && !mIsUdf( compnr_ ) )
     {
@@ -577,6 +580,12 @@ void uiSeisSel::updateInput()
 
 void uiSeisSel::updateAttrNm()
 {
+    if ( !seissetup_.selattr_ )
+    {
+	attrnm_ = "";
+	return;
+    }
+
     if ( is2D() && workctio_.ioobj )
     {
 	SeisIOObjInfo seisinfo( workctio_.ioobj  );
