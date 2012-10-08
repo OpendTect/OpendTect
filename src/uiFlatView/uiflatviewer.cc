@@ -99,14 +99,15 @@ uiRect uiFlatViewer::getViewRect() const
 {
     const FlatView::Annotation& annot = appearance().annot_;
     int l = extraborders_.left();
-    int r = extraborders_.right() + 2;
+    int r = extraborders_.right();
     int t = extraborders_.top();
     int b = extraborders_.bottom();
     
     if ( annot.haveTitle() ) t += mAxisHeight;
-    if ( annot.haveAxisAnnot(false) ) l += mAxisWidth;
+    if ( annot.haveAxisAnnot(false) ) 
+	{ l += mAxisWidth; r += 2; }
     if ( annot.haveAxisAnnot(true) )
-    { b += mAxisHeight;  t += mAxisHeight; }
+	{ b += mAxisHeight;  t += mAxisHeight; }
     
     const uiBorder annotborder(l,t,r,b);
 
