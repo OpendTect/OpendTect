@@ -164,19 +164,9 @@ void TextStreamProgressMeter::annotate( bool withrate )
     int tdiff = newtime - oldtime_;
     if ( withrate && tdiff > 0 )
     {
-	float nrdone;
-	if ( totalnr_>0 )
- 	{
-	    const float lastpercentage = ((float)lastannotatednrdone_)/totalnr_;
-	    nrdone = (percentage-lastpercentage)*100;
-	}
- 	else
- 	    nrdone = (float) nrdone_ - lastannotatednrdone_;
-
+	od_int64 nrdone = nrdone_ - lastannotatednrdone_;
 	od_int64 permsec = (od_int64)(1.e6 * nrdone / tdiff + .5);
-	strm_ << " (" << permsec * .001;
-	if ( totalnr_>0 ) strm_ << "%";
-	strm_ << "/s)";
+	strm_ << " (" << permsec * .001 << "/s)";
     }
     if ( withrate && tdiff>0 && totalnr_>0 )
     {
