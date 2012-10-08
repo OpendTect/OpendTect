@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uipsviewermanager.h"
 #include "uislider.h"
-#include "visprestackviewer.h"
+#include "visprestackdisplay.h"
 
 #define mSliderMinFactor 0.1f
 #define mSliderMaxFactor 1.9f

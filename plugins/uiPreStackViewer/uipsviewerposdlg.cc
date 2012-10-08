@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uispinbox.h"
 #include "uimsg.h"
-#include "visprestackviewer.h"
+#include "visprestackdisplay.h"
 #include "visseis2ddisplay.h"
 
 

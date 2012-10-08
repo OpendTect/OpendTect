@@ -9,7 +9,7 @@ _______________________________________________________________________________
  -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "visprestackviewer.h"
+#include "visprestackdisplay.h"
 
 #include "flatposdata.h"
 #include "ioman.h"

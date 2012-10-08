@@ -10,7 +10,6 @@ SET( OD_IS_PLUGIN yes)
 SET( OD_MODULE_SOURCES
 		uipsviewerpi.cc
 		psviewer2dgatherpainter.cc
-		uiprestacktreeitemmgr.cc
 		uipsviewerappearancetab.cc
 		uipsviewermanager.cc
 		uipsviewerposdlg.cc

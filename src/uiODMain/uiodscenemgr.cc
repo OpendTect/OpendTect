@@ -53,17 +53,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltransl.h"
 
 // For factories
-#include "uiodhortreeitem.h"
-#include "uiodfaulttreeitem.h"
-#include "uiodscenetreeitem.h"
-#include "uioddatatreeitem.h"
-#include "uiodpicksettreeitem.h"
-#include "uiodseis2dtreeitem.h"
-#include "uiodplanedatatreeitem.h"
 #include "uiodbodydisplaytreeitem.h"
+#include "uioddatatreeitem.h"
 #include "uiodemsurftreeitem.h"
+#include "uiodfaulttreeitem.h"
+#include "uiodhortreeitem.h"
+#include "uiodpicksettreeitem.h"
+#include "uiodplanedatatreeitem.h"
+#include "uiodpseventstreeitem.h"
 #include "uiodrandlinetreeitem.h"
 #include "uiodseis2dtreeitem.h"
+#include "uiodscenetreeitem.h"
 #include "uiodvolrentreeitem.h"
 #include "uiodwelltreeitem.h"
 
@@ -127,6 +127,8 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 	    	       SurveyInfo::No2D );
     tifs_->addFactory( new uiODWellTreeItemFactory, 8000,
 	    	       SurveyInfo::Both2DAnd3D );
+    tifs_->addFactory( new uiODPSEventsTreeItemFactory, 8500,
+		       SurveyInfo::Both2DAnd3D );
 
     mdiarea_->windowActivated.notify( mCB(this,uiODSceneMgr,mdiAreaChanged) );
     mdiarea_->setPrefWidth( cWSWidth );

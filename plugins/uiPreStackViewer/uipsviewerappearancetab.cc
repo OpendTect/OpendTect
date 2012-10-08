@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uipsviewermanager.h"
 #include "visflatviewer.h"
-#include "visprestackviewer.h"
+#include "visprestackdisplay.h"
 #include "survinfo.h"
 #include "samplingdata.h"
 

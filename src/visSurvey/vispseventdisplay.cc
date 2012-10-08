@@ -18,10 +18,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdrawstyle.h"
 #include "vismarker.h"
 #include "vismaterial.h"
-#include "vispolyline.h"
 #include "visplanedatadisplay.h"
+#include "vispolyline.h"
+#include "visprestackdisplay.h"
 #include "vistransform.h"
-#include "visprestackviewer.h"
 
  
 mCreateFactoryEntry( visSurvey::PSEventDisplay );

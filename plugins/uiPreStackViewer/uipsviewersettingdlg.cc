@@ -16,8 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipsviewerappearancetab.h"
 #include "uipsviewershapetab.h"
 #include "uipsviewerpreproctab.h"
-#include "visprestackviewer.h"
 #include "visflatviewer.h"
+#include "visprestackdisplay.h"
 #include "prestackprocessor.h"
 
 namespace PreStackView

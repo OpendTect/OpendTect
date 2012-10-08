@@ -1,5 +1,5 @@
-#ifndef visprestackviewer_h
-#define visprestackviewer_h
+#ifndef visprestackdisplay_h
+#define visprestackdisplay_h
 
 /*+
 ________________________________________________________________________

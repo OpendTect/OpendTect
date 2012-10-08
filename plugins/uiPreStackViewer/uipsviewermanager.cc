@@ -37,7 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivispartserv.h"
 #include "visflatviewer.h"
 #include "visplanedatadisplay.h"
-#include "visprestackviewer.h"
+#include "visprestackdisplay.h"
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
 #include "uiamplspectrum.h"

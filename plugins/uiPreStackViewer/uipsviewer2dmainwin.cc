@@ -120,6 +120,8 @@ void uiViewer2DMainWin::posDlgPushed( CallBacker* )
     {
 	posdlg_->setCubeSampling( cs_ );
     }
+
+    posdlg_->raise();
     posdlg_->show();
 }
 

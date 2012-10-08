@@ -9,9 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odplugin.h"
 #include "uiodmain.h"
 #include "uipsviewermanager.h"
-#include "uiprestacktreeitemmgr.h"
-#include "visprestackviewer.h"
-
 
 
 mDefODPluginInfo(uiPreStackViewer)
@@ -28,10 +25,8 @@ mDefODPluginInfo(uiPreStackViewer)
 
 mDefODInitPlugin(uiPreStackViewer)
 {
-    visSurvey::PreStackDisplay::initClass();
     static PreStackView::uiViewer3DMgr* mgr=0;
     if ( mgr ) return 0;
     mgr = new PreStackView::uiViewer3DMgr();
-    new uiPreStackTreeItemManager( *ODMainWin() );
     return 0; 
 }

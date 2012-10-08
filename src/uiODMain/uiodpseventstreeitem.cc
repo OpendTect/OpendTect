@@ -34,17 +34,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispseventdisplay.h"
 
 
-PSEventsParentTreeItem::PSEventsParentTreeItem()
+uiODPSEventsParentTreeItem::uiODPSEventsParentTreeItem()
     : uiODTreeItem("PreStackEvents")
     , child_(0)
 {}
 
 
-PSEventsParentTreeItem::~PSEventsParentTreeItem()
+uiODPSEventsParentTreeItem::~uiODPSEventsParentTreeItem()
 {}
 
 
-bool PSEventsParentTreeItem::showSubMenu()
+bool uiODPSEventsParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Add ..."), 0 );
@@ -58,7 +58,7 @@ bool PSEventsParentTreeItem::showSubMenu()
 	if ( !loadPSEvent(key,eventname) )
 	    return false;
 
-	child_ = new PSEventsTreeItem( key, eventname );
+	child_ = new uiODPSEventsTreeItem( key, eventname );
 	addChild( child_, true ); 
     }
 
@@ -67,7 +67,8 @@ bool PSEventsParentTreeItem::showSubMenu()
 }
 
 
-bool PSEventsParentTreeItem::loadPSEvent( MultiID& key,BufferString& eventname )
+bool uiODPSEventsParentTreeItem::loadPSEvent( MultiID& key,
+					      BufferString& eventname )
 {
     CtxtIOObj context = PSEventTranslatorGroup::ioContext();
     context.ctxt.forread = true;
@@ -89,7 +90,7 @@ bool PSEventsParentTreeItem::loadPSEvent( MultiID& key,BufferString& eventname )
 }
 
 
-int PSEventsParentTreeItem::sceneID() const
+int uiODPSEventsParentTreeItem::sceneID() const
 {
     int sceneid;
     if ( !getProperty<int>(uiODTreeTop::sceneidkey(),sceneid) )
@@ -98,7 +99,7 @@ int PSEventsParentTreeItem::sceneID() const
 }
 
 
-bool PSEventsParentTreeItem::init()
+bool uiODPSEventsParentTreeItem::init()
 {
     bool ret = uiTreeItem::init();
     if ( !ret ) return false;
@@ -107,13 +108,18 @@ bool PSEventsParentTreeItem::init()
 }
 
 
-const char* PSEventsParentTreeItem::parentType() const
+const char* uiODPSEventsParentTreeItem::parentType() const
 { return typeid(uiODTreeTop).name(); }
 
 
-// Child Item
 
-PSEventsTreeItem::PSEventsTreeItem( MultiID key, const char* eventname )
+// uiODPSEventsTreeItem
+
+#define mPixmapWidth	16
+#define mPixmapHeight	10
+
+uiODPSEventsTreeItem::uiODPSEventsTreeItem( const MultiID& key,
+					    const char* eventname )
     : key_(key)
     , psem_(*new PreStack::EventManager) 
     , eventname_(eventname)
@@ -121,21 +127,21 @@ PSEventsTreeItem::PSEventsTreeItem( MultiID key, const char* eventname )
     , dir_(Coord(1,0))
     , scalefactor_(1)
     , coloritem_(new MenuItem("Colors"))
-    , clridx_(0)
+    , coloridx_(0)
     , dispidx_(0)
 {
     psem_.setStorageID( key, true );
 }
 
 
-PSEventsTreeItem::~PSEventsTreeItem()
+uiODPSEventsTreeItem::~uiODPSEventsTreeItem()
 {
     ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>( 
 	   &ODMainWin()->colTabEd().getColTabSequence() );
     if ( cseq )
     {
 	cseq->colorChanged.remove(
-			mCB(this,PSEventsTreeItem,coltabChangeCB) );
+			mCB(this,uiODPSEventsTreeItem,coltabChangeCB) );
     }
 
     if ( eventdisplay_ )
@@ -148,7 +154,7 @@ PSEventsTreeItem::~PSEventsTreeItem()
 }
 
 
-bool PSEventsTreeItem::init()
+bool uiODPSEventsTreeItem::init()
 {
     updateDisplay();
     eventdisplay_->setDisplayMode( visSurvey::PSEventDisplay::ZeroOffset );
@@ -166,7 +172,7 @@ bool PSEventsTreeItem::init()
     mnu->getItem(midx)->checked = true; \
     items.erase(); \
 
-void PSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
+void uiODPSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
     if ( !eventdisplay_ || !menu || menu->menuID()!=displayID() )
@@ -174,7 +180,7 @@ void PSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mAddMenuItem( menu, coloritem_, true, false );
     BufferStringSet items;
-    mAddPSMenuItems( coloritem_, markerColorNames, clridx_ )
+    mAddPSMenuItems( coloritem_, markerColorNames, coloridx_ )
     if ( eventdisplay_->hasParents() )
     {
 	mAddMenuItem( menu, &displaymnuitem_, true, false );
@@ -184,7 +190,7 @@ void PSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
 }
 
 
-void PSEventsTreeItem::handleMenuCB( CallBacker* cb )
+void uiODPSEventsTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, menuid, caller, cb );
@@ -202,15 +208,14 @@ void PSEventsTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( coloritem_->id!=-1 && coloritem_->itemIndex(menuid)!=-1 )
     {
-	clridx_ = coloritem_->itemIndex( menuid );
-	updateColorMode( clridx_ );
+	coloridx_ = coloritem_->itemIndex( menuid );
+	updateColorMode( coloridx_ );
 	menu->setIsHandled( true );
     }
-
 }
 
 
-void PSEventsTreeItem::updateColorMode( int mode )
+void uiODPSEventsTreeItem::updateColorMode( int mode )
 {
     eventdisplay_->setMarkerColor(
 	(visSurvey::PSEventDisplay::MarkerColor) mode );
@@ -218,7 +223,7 @@ void PSEventsTreeItem::updateColorMode( int mode )
 }
 
 
-void PSEventsTreeItem::updateDisplay()
+void uiODPSEventsTreeItem::updateDisplay()
 {
     if ( !eventdisplay_ )
     {
@@ -235,14 +240,14 @@ void PSEventsTreeItem::updateDisplay()
    	if ( cseq )
 	{
 	    cseq->colorChanged.notify(
-			    mCB(this,PSEventsTreeItem,coltabChangeCB) );
+			    mCB(this,uiODPSEventsTreeItem,coltabChangeCB) );
 	    eventdisplay_->setColTabSequence( *cseq );
 	}
     }
 }
 
 
-bool PSEventsTreeItem::anyButtonClick( uiTreeViewItem* lvm )
+bool uiODPSEventsTreeItem::anyButtonClick( uiTreeViewItem* lvm )
 {
     applMgr()->updateColorTable( displayid_, 0 );
     displayMiniColTab();
@@ -250,20 +255,20 @@ bool PSEventsTreeItem::anyButtonClick( uiTreeViewItem* lvm )
 }
 
 
-void PSEventsTreeItem::coltabChangeCB( CallBacker* cb )
+void uiODPSEventsTreeItem::coltabChangeCB( CallBacker* cb )
 {
     displayMiniColTab();
 }
 
 
-void PSEventsTreeItem::updateColumnText( int col )
+void uiODPSEventsTreeItem::updateColumnText( int col )
 {
     uiODDisplayTreeItem::updateColumnText( col );
     displayMiniColTab();
 }
 
 
-void PSEventsTreeItem::displayMiniColTab()
+void uiODPSEventsTreeItem::displayMiniColTab()
 {
     if ( eventdisplay_->getMarkerColor() == visSurvey::PSEventDisplay::Single )
 	return;
@@ -271,8 +276,7 @@ void PSEventsTreeItem::displayMiniColTab()
     const ColTab::Sequence* seq = eventdisplay_->getColTabSequence();
     if ( !seq )
 	return;
-    ioPixmap pixmap( *seq, cPixmapWidth(), cPixmapHeight(), true );
+    ioPixmap pixmap( *seq, mPixmapWidth, mPixmapHeight, true );
     uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), pixmap );
 }
-
 

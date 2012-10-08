@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiprestackprocessor.h"
 #include "uipsviewermanager.h"
-#include "visprestackviewer.h"
+#include "visprestackdisplay.h"
 
 namespace PreStackView
 {
