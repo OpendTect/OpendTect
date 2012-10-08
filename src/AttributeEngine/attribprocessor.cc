@@ -282,6 +282,7 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
 	CubeSampling cs;
+	cs.zrg.start = 0;    //cover up for synthetics
 	if ( !outputs_[idx]->getDesiredVolume(cs) )
 	{
 	    outputs_[idx]->unRef();
