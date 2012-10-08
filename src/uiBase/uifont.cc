@@ -44,12 +44,7 @@ uiFont::uiFont( const char* ky, const char* fam, int ps, FontData::Weight w,
 
 
 uiFont::uiFont( const char* ky, FontData fdat )
-	: qfont_( new QFont(
-		    QString( fdat.family() && *fdat.family()
-				? fdat.family() : "helvetica" ),
-		    fdat.pointSize() > 1 ? fdat.pointSize() : 12,
-		    FontData::numWeight(fdat.weight()),
-		    fdat.isItalic()))  
+	: qfont_( createQFont(fdat))
 	, qfontmetrics_(*new QFontMetrics(*qfont_))
 	, key_( ky )
 {}
@@ -423,4 +418,14 @@ void uiFontList::removeOldEntries( Settings& settings )
     settings.removeWithKey( "Dialog font size" );
     settings.removeWithKey( "Graphics large font size" );
     settings.removeWithKey( "Graphics small font size" );
+}
+
+
+mQtclass(QFont)* uiFont::createQFont( const FontData& fdat )
+{
+    return new QFont(
+	QString( fdat.family() && *fdat.family() ? fdat.family(): "helvetica" ),
+		 fdat.pointSize() > 1 ? fdat.pointSize() : 12,
+		 FontData::numWeight(fdat.weight()),
+		fdat.isItalic() );
 }
