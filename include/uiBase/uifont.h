@@ -56,6 +56,8 @@ public:
     int			descent() const; 
 
     const char*		key() const		{ return key_; }
+    
+    static mQtclass(QFont)*	createQFont(const FontData&);
 
 protected: 
 
