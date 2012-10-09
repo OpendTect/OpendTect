@@ -43,7 +43,7 @@ public:
 			{ getFrom(s); }
 
 			//! Store/retrieve (in FileMultiString format).
-    void		getFrom(const char*);
+    bool		getFrom(const char*);
     void		putTo(BufferString&) const;
 
     const char*		family() const		{ return family_; }

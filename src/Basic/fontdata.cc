@@ -58,16 +58,18 @@ void FontData::setDefaultItalic( bool yn )      { defaultitalic = yn; }
 
 
 
-void FontData::getFrom( const char* s )
+bool FontData::getFrom( const char* s )
 {
     FileMultiString fms( s );
     const int nr = fms.size();
-    if ( nr < 1 ) return;
+    if ( nr < 1 ) return false;
 
     family_ = fms[0];
     if ( nr > 1 ) pointsize_ = toInt( fms[1] );
     if ( nr > 2 ) parseEnumWeight( fms[2], weight_ );
     if ( nr > 3 ) italic_ = toBool(fms[3],false);
+    
+    return true;
 }
 
 
