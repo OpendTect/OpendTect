@@ -19,12 +19,15 @@ ________________________________________________________________________
 class uiButton;
 class uiLabeledComboBox;
 class uiFont;
+class FontData;
 
 
-bool	select( uiFont&, uiParent* parnt=0, const char* nm=0 );
+mGlobal(uiBase) bool select( uiFont&, uiParent* parnt=0, const char* nm=0 );
 	/*!< \brief pops a selector box to select a new font
 	     \return true if new font selected
 	*/
+
+mGlobal(uiBase) bool select( FontData&,uiParent* parnt=0,const char* nm = 0);
 
 mClass(uiBase) uiSetFonts : public uiDialog
 {

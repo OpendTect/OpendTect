@@ -74,9 +74,9 @@ uiFont& uiFont::operator=( const uiFont& tf )
 
 FontData uiFont::fontData() const
 {
-    return FontData( qfont_->pointSize(), mQStringToConstChar(qfont_->family()),
-		     FontData::enumWeight(qfont_->weight()),
-		     qfont_->italic() );
+    FontData fdata;
+    getFontData( fdata, *qfont_ );
+    return fdata;
 }
 
 
@@ -87,7 +87,7 @@ void uiFont::setFontData( const FontData& fData )
 }
 
 
-void uiFont::setFontData( QFont& qfont, const FontData& fData )
+void uiFont::setFontData( mQtclass(QFont)& qfont, const FontData& fData )
 {
     qfont.setFamily(
 	    fData.family() && *fData.family() ? fData.family(): "helvetica" );
@@ -95,6 +95,15 @@ void uiFont::setFontData( QFont& qfont, const FontData& fData )
     qfont.setWeight( fData.weight() );
     qfont.setItalic( fData.isItalic() );
 }
+
+
+void uiFont::getFontData( FontData& fData, const mQtclass(QFont)& qfont )
+{
+    fData = FontData( qfont.pointSize(), mQStringToConstChar(qfont.family()),
+		    FontData::enumWeight(qfont.weight()),
+		    qfont.italic() );
+}
+
 
 
 void uiFont::updateMetrics()
@@ -141,13 +150,16 @@ int uiFont::ascent() const
 }
 
 
+#define mImplGetFont( qfont, oldfont ) \
+bool ok; \
+qfont  = QFontDialog::getFont( &ok, oldfont, \
+			      parnt ? parnt->pbody()->qwidget() : 0, nm ) 
+
 bool select( uiFont& fnt, uiParent* parnt, const char* nm )
-{
-    bool ok;
-  
+{  
     QFont fontNew;
-    fontNew = QFontDialog::getFont( &ok, fnt.qFont(), 
-				    parnt ? parnt->pbody()->qwidget() : 0, nm );
+    mImplGetFont( fontNew, fnt.qFont() );
+    
     if( ok ) 
     { 
 	*fnt.qfont_ = fontNew;
@@ -157,6 +169,17 @@ bool select( uiFont& fnt, uiParent* parnt, const char* nm )
     return ok;
 }
 
+bool select( FontData& fnt, uiParent* parnt, const char* nm )
+{
+    mQtclass(QFont) qfont;
+    uiFont::setFontData( qfont, fnt );
+    mImplGetFont( qfont, qfont );
+    
+    if ( ok )
+	uiFont::getFontData( fnt, qfont );
+    
+    return ok;
+}
 
 //----------------------------------------------------------------------------
 
