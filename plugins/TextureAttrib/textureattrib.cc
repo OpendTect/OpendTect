@@ -191,33 +191,54 @@ bool Texture::allowParallelComputation () const
 }
 
 
+#define mFillGlmcMatrix( posidx1, posidx2 ) \
+    if ( !inpdata_[posidx1] || !inpdata_[posidx2]) continue; \
+    const float shift = steeringdata_ ? \
+	getInputValue( *steeringdata_,posidx1, idx, z0 ) : 0; \
+    const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT32(shift) ); \
+    if ( sampidx < 0 || sampidx >= nrsamples ) continue; \
+    for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++ ) \
+    { \
+	const float val = getInputValue( *inpdata_[posidx1], \
+	    dataidx_, sampidx+isamp, z0 ); \
+	const float val1 = getInputValue( *inpdata_[posidx2], \
+	    dataidx_, sampidx+isamp, z0 ); \
+	refpixpos = scaleVal(val); \
+	neighpixpos = scaleVal(val1); \
+	glcm.set( refpixpos, neighpixpos, \
+		  glcm.get( refpixpos, neighpixpos ) +1 ); \
+	glcm.set( neighpixpos, refpixpos, \
+		  glcm.get( neighpixpos, refpixpos ) +1 ); \
+	glcmcount++; \
+    }
+
 // Compute unnormalized GLCM Matrix
 int Texture::computeGlcmMatrix( const BinID& relpos,
 		    int idx, int z0, int nrsamples,
 		    int threadid, Array2D<int>& glcm ) const
 {
     int refpixpos, neighpixpos, glcmcount = 0;
+
+    const int inlsz = stepout_.inl *2 +1;
+    const int crlsz = stepout_.crl *2 +1;
 	
-    for ( int posidx=0; posidx<inpdata_.size()-1; posidx++ )
+    for ( int idi=0; idi<inlsz; idi++ )
     {
-	if ( !inpdata_[posidx] || !inpdata_[posidx+1]) continue;
-	const float shift = steeringdata_ ? 
-	    getInputValue( *steeringdata_,posidx, idx, z0 ) : 0;
-	const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT32(shift) );
-	if ( sampidx < 0 || sampidx >= nrsamples ) continue;
-	for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++ )
+	for ( int idc=0; idc<crlsz-1; idc++ )
 	{
-	    const float val = getInputValue( *inpdata_[posidx], 
-		dataidx_, sampidx+isamp, z0 );
-	    const float val1 = getInputValue( *inpdata_[posidx+1], 
-		dataidx_, sampidx+isamp, z0 );
-	    refpixpos = scaleVal(val);
-	    neighpixpos = scaleVal(val1);	
-	    glcm.set( refpixpos, neighpixpos,
-		      glcm.get( refpixpos, neighpixpos ) +1 );
-	    glcm.set( neighpixpos, refpixpos,
-		      glcm.get( neighpixpos, refpixpos ) +1 );
-	    glcmcount++;
+	    int posidxcrl1 = idi*crlsz + idc;
+	    int posidxcrl2 = posidxcrl1 + 1;
+	    mFillGlmcMatrix( posidxcrl1, posidxcrl2 );
+	}
+    }
+
+    for ( int idc=0; idc<crlsz; idc++ )
+    {
+	for ( int idi=0; idi<inlsz-1; idi++ )
+	{
+	    int posidxinl1 = idi*crlsz + idc;
+	    int posidxinl2 = posidxinl1 + crlsz;
+	    mFillGlmcMatrix( posidxinl1, posidxinl2 );
 	}
     }
 
