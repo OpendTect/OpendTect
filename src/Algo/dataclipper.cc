@@ -85,12 +85,21 @@ public:
 	TypeSet<float> localsamples;
 	Interval<float> localrg( mUdf(float), -mUdf(float) );
 	
-	for ( int idx=start; idx<=stop; idx++ )
+	for ( od_int64 idx=start; idx<=stop; idx++ )
 	{
-	    double rand = Stats::RandGen::get();
-	    rand *= (nrvals_-1);
-	    const od_int64 sampidx = mNINT64(rand);
-	    const float val = input_[sampidx];
+	    float val;
+	    if ( doall_ )
+	    {
+		val = input_[idx];
+	    }
+	    else
+	    {
+		double rand = Stats::RandGen::get();
+		rand *= (nrvals_-1);
+		const od_int64 sampidx = mNINT64(rand);
+		val = input_[sampidx];
+	    }
+	    
 	    
 	    mAddValue( localsamples, localrg );
 	}
