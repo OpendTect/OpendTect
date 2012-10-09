@@ -44,9 +44,10 @@ public:
     void		setFontData(const FontData&); 
                         //!< Updates internal QFont and QFontMetrics.
     static void		setFontData(mQtclass(QFont&),const FontData&);
-
-    inline const mQtclass(QFont&)	qFont() const { return *qfont_; } 
-
+    static mQtclass(QFont)* createQFont(const FontData&);
+    
+    inline const mQtclass(QFont&)	qFont() const { return *qfont_; }
+    
     int			height() const;
     int			leading() const; 
     int 		maxWidth() const;
@@ -57,7 +58,7 @@ public:
 
     const char*		key() const		{ return key_; }
     
-    static mQtclass(QFont)*	createQFont(const FontData&);
+    
 
 protected: 
 
