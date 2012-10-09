@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.43 2011/01/10 13:29:58 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:

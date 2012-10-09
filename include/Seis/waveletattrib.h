@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.h,v 1.11 2010/10/27 06:56:31 cvsnageswara Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

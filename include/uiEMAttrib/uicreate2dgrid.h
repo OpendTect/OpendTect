@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2009
- RCS:		$Id: uicreate2dgrid.h,v 1.2 2011/04/22 09:32:49 cvssatyaki Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

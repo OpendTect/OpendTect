@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisioobjinfo.cc,v 1.25 2011/02/02 09:26:05 cvsranojay Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiseisioobjinfo.h"
 

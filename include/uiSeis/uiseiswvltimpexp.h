@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2006 / Dec 2009
- RCS:           $Id: uiseiswvltimpexp.h,v 1.1 2009/12/11 09:42:23 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

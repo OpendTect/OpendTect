@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.12 2010/04/20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "attriblinebuffer.h"
 

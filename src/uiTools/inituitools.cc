@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituitools.cc,v 1.8 2011/10/07 12:14:15 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "uigridder2d.h"

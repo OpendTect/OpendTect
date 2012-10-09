@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.37 2010/08/26 11:39:30 cvsjaap Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

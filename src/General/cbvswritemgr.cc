@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.37 2010/10/14 09:58:06 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"

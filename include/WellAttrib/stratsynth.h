@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: stratsynth.h,v 1.23 2012/09/14 16:58:02 cvsbruno Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

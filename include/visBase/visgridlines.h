@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		December 2005
- RCS:		$Id: visgridlines.h,v 1.11 2011/12/16 15:57:20 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

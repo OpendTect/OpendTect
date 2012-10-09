@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.69 2011/05/09 23:34:55 cvskarthika Exp $
+RCS:        $Id$
 ________________________________________________________________________
 
 

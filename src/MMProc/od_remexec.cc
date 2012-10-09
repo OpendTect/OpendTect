@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_remexec.cc,v 1.3 2011/04/26 07:00:42 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "bufstring.h"
 #include "genc.h"

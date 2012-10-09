@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.40 2011/09/16 10:00:48 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "streamconn.h"
 #include "strmprov.h"

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2009
- RCS:		$Id: uihorinterpol.h,v 1.7 2009/12/16 06:03:19 cvssatyaki Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

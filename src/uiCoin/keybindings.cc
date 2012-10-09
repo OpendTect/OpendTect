@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: keybindings.cc,v 1.12 2010/08/19 06:55:43 cvsranojay Exp $";
+static const char* rcsID = "$Id$";
 
 #include "keybindings.h"
 #include "settings.h"

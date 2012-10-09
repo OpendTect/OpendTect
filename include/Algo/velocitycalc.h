@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.40 2012/05/23 15:09:37 cvsbruno Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2009
- RCS:		$Id: posimpexppars.h,v 1.5 2009/08/27 03:05:34 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

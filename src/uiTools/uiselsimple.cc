@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsimple.cc,v 1.21 2012/03/14 11:09:32 cvsranojay Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiselsimple.h"
 #include "uilabel.h"

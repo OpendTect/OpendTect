@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: compoundkey.h,v 1.14 2011/07/23 22:06:52 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

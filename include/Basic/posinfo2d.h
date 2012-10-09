@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2010 (org 2005 / 2008)
- RCS:		$Id: posinfo2d.h,v 1.2 2010/08/19 11:28:24 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

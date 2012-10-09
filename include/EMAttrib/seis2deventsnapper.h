@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          October 2009
- RCS:           $Id: seis2deventsnapper.h,v 1.3 2010/11/15 09:35:45 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.17 2011/10/19 07:51:21 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "batchprog.h"
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmarchingcubessurface.h,v 1.12 2011/12/15 21:45:41 cvsyuancheng Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

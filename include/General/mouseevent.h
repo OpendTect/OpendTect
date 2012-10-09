@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.13 2011/09/29 15:59:37 cvsjaap Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

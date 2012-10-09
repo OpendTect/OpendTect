@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.17 2011/09/02 08:58:24 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "extremefinder.h"
 #include "mathfunc.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.139 2012/01/06 13:43:26 cvsjaap Exp $";
+static const char* rcsID = "$Id$";
 
 #include "visemobjdisplay.h"
 

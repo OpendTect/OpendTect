@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          April 2009
- RCS:           $Id: uiarray2dinterpol.h,v 1.12 2011/09/30 17:52:02 cvsyuancheng Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

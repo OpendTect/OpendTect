@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribsteering.cc,v 1.3 2009/07/22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "attribsteering.h"
 

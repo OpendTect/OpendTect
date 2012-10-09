@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiwell.cc,v 1.4 2012/02/24 23:17:35 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "uiwellposprov.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.h,v 1.11 2010/01/12 12:11:14 cvsyuancheng Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

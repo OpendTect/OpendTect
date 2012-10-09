@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.20 2012/06/26 11:15:28 cvssatyaki Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uivisdatapointsetdisplaymgr.h"
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id: emhorizonpreload.h,v 1.5 2010/09/16 12:36:14 cvsnageswara Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

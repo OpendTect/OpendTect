@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.20 2011/12/16 16:04:23 cvsnanne Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

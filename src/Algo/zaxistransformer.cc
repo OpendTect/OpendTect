@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: zaxistransformer.cc,v 1.11 2011/02/04 05:53:25 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "zaxistransformer.h"
 

@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.17 2010/12/28 22:23:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id$";
 
 #include "polygonsurface.h"
 

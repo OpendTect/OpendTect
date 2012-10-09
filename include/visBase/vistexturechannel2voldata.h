@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Karthika
  Date:		Nov 2009
- RCS:		$Id: vistexturechannel2voldata.h,v 1.9 2011/04/28 07:00:12 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.100 2012/05/24 14:41:34 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "emmanager.h"
 

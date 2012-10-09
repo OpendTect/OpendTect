@@ -4,7 +4,7 @@
  * DATE     : Sep 2011
 -*/
 
-static const char* rcsID = "$Id: callback.cc,v 1.1 2011/09/16 09:47:35 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "callback.h"
 

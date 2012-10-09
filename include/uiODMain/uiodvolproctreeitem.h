@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2007
- RCS:		$Id: uiodvolproctreeitem.h,v 1.4 2012/06/20 19:23:02 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

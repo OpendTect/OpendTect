@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.29 2012/05/08 10:36:09 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

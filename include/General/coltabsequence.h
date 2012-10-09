@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.18 2010/12/01 11:24:38 cvsumesh Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Aug 2009
- RCS:		$Id: bendpointfinder.h,v 1.3 2009/08/12 06:14:16 cvsranojay Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

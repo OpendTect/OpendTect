@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.h,v 1.10 2010/05/26 06:15:50 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

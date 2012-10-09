@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K Tingdahl
  Date:		April 2003
- RCS:		$Id: toplist.h,v 1.7 2012/04/13 13:23:53 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

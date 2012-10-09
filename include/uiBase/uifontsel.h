@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          25/9/2000
- RCS:           $Id: uifontsel.h,v 1.8 2009/07/22 16:01:20 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

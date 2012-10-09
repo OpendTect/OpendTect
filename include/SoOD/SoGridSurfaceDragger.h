@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Marc Gerritsen, Jeroen Post
  Date:          23-04-2003
- RCS:           $Id: SoGridSurfaceDragger.h,v 1.7 2010/08/04 14:49:36 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

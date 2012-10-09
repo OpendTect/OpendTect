@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.34 2009/09/08 21:40:35 cvsyuancheng Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

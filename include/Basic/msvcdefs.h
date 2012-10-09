@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.11 2009/11/26 07:13:02 cvsranojay Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
  For use with Microsoft Visual C++ 8.0 and 9.0

@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: tableposprovider.cc,v 1.6 2012/04/26 07:05:22 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "tableposprovider.h"
 #include "keystrs.h"

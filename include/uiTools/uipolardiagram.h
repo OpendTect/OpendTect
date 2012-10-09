@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uipolardiagram.h,v 1.4 2009/12/15 10:38:48 cvskarthika Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
  Displays a polar diagram which can be used to set the azimuth and the dip 

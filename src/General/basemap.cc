@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: basemap.cc,v 1.3 2011/10/04 13:44:59 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "basemapimpl.h"
 #include "position.h"

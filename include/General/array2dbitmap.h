@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.20 2009/09/03 09:52:46 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

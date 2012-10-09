@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		1-9-95
- RCS:		$Id: rawarray.h,v 1.7 2010/02/15 09:56:14 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		June 2003
- RCS:		$Id: viscoltabmod.h,v 1.7 2010/08/19 08:21:10 cvsranojay Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

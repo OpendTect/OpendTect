@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          August 2010
- RCS:           $Id: remjobexec.h,v 1.2 2010/09/10 11:59:03 cvsranojay Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

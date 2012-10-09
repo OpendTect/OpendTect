@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: horsampling.h,v 1.14 2012/06/25 14:16:33 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

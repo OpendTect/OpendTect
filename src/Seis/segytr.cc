@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID mUsedVar = "$Id: segytr.cc,v 1.110 2012/08/24 13:07:03 cvsbert Exp $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "segytr.h"
 #include "seistrc.h"

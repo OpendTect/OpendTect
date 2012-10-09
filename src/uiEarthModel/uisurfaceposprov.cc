@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.13 2012/05/21 22:41:25 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"

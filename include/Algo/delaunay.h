@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.36 2012/06/19 04:05:35 cvsranojay Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

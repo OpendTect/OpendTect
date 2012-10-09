@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapack.cc,v 1.9 2011/01/11 11:47:27 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "datapack.h"
 #include "ascstream.h"

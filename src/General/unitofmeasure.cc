@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.22 2012/03/12 15:40:37 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"

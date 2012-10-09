@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uiprestacklateralstack.h,v 1.1 2009/11/25 22:22:54 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

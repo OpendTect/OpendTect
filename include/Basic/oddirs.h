@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.21 2010/10/28 06:01:48 cvsranojay Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 OpendTect directories.

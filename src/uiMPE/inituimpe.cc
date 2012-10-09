@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituimpe.cc,v 1.7 2011/08/23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "moddepmgr.h"

@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.20 2010/06/18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "rowcol.h"
 #include "bufstring.h"

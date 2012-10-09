@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_SeisMMBatch.cc,v 1.25 2009/07/22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiseismmproc.h"
 #include "uimain.h"

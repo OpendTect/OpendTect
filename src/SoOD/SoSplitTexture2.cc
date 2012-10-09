@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoSplitTexture2.cc,v 1.19 2009/09/21 20:16:55 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "SoSplitTexture2.h"

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.18 2011/09/02 09:15:17 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "faulteditor.h"
 

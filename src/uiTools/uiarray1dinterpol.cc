@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray1dinterpol.cc,v 1.2 2010/03/04 09:14:27 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiarray1dinterpol.h"
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emhorizonpreload.cc,v 1.7 2011/04/12 06:12:44 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "emhorizonpreload.h"
 

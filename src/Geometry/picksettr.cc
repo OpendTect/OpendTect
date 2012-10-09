@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: picksettr.cc,v 1.26 2012/06/20 17:34:40 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "picksetfact.h"
 #include "pickset.h"

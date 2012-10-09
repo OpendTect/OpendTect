@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID = "$Id: genericnumer.cc,v 1.24 2011/12/06 07:58:48 cvsranojay Exp $";
+static const char* rcsID = "$Id$";
 
 #include "genericnumer.h"
 #include "undefval.h"

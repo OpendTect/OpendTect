@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          May 2006
- RCS:           $Id: horizon2dextender.h,v 1.8 2012/02/16 05:05:37 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

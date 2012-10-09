@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: i_layoutitem.cc,v 1.16 2011/04/21 13:09:13 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "i_layoutitem.h"
 #include "i_layout.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.23 2012/03/19 13:41:52 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

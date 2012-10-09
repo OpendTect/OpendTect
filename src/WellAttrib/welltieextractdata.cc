@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.41 2012/02/03 14:17:28 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"

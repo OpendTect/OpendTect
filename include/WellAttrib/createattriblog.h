@@ -6,7 +6,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          March 2008
- RCS:           $Id: createattriblog.h,v 1.4 2012/03/01 13:01:02 cvsbruno Exp $
+ RCS:           $Id$
  _______________________________________________________________________
 
 -*/

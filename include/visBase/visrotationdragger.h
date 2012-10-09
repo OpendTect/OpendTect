@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		July 2006
- RCS:		$Id: visrotationdragger.h,v 1.5 2011/04/28 07:00:12 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

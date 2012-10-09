@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.23 2011/10/20 07:12:37 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "uiprestackattrib.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.19 2011/12/15 21:45:41 cvsyuancheng Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipositionattrib.cc,v 1.18 2012/01/11 08:20:25 cvshelene Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "uipositionattrib.h"

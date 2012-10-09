@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uivarwizarddlg.h,v 1.3 2012/02/24 14:12:18 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

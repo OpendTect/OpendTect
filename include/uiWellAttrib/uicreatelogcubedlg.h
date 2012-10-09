@@ -6,7 +6,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          July 2011
- RCS:           $Id: uicreatelogcubedlg.h,v 1.3 2012/05/08 07:36:23 cvsbruno Exp $
+ RCS:           $Id$
  _______________________________________________________________________
 
 -*/

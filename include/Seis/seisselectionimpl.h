@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: seisselectionimpl.h,v 1.5 2011/03/01 10:21:40 cvssatyaki Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emrandlinegen.cc,v 1.18 2012/07/10 13:06:01 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "emrandlinegen.h"
 #include "emhorizon3d.h"

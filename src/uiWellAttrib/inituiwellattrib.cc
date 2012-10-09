@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiwellattrib.cc,v 1.3 2011/08/23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "uistratlayermodel.h"

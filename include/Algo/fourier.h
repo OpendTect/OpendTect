@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl/Y. Liu
  Date:		August 2001
- RCS:		$Id: fourier.h,v 1.4 2010/11/29 21:37:17 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

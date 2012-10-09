@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          July 2012
- RCS:           $Id: uiwelllogextract.h,v 1.3 2012/08/31 06:27:38 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

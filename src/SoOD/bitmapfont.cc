@@ -1,4 +1,4 @@
-static const char* _rcsID = "$Id: bitmapfont.cc,v 1.2 2008/11/25 15:35:23 cvsbert Exp $";
+static const char* _rcsID = "$Id$";
 
 /**************************************************************************\
  *

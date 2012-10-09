@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Kris Tingdahl
  Date:		12-4-1999
  Contents:	Periodic value interpolation and so forth
- RCS:		$Id: periodicvalue.h,v 1.9 2012/07/10 13:05:56 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

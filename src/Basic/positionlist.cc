@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: positionlist.cc,v 1.4 2010/03/30 11:52:31 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "positionlist.h"
 

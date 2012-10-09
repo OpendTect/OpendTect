@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Helene Huck
  Date:		March 2008
- RCS:		$Id: emdatapack.h,v 1.1 2010/04/20 13:48:50 cvshelene Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

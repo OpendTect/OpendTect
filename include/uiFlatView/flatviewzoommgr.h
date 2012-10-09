@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewzoommgr.h,v 1.7 2010/03/05 09:27:49 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

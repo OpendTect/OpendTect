@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2009
- RCS:           $Id: horflatvieweditor.h,v 1.7 2009/11/13 11:04:48 cvsumesh Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

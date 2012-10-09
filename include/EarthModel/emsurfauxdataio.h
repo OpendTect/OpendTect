@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.23 2012/02/17 23:05:37 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

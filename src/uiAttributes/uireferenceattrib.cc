@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uireferenceattrib.cc,v 1.15 2010/04/20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 
 

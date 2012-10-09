@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: mathfunc.cc,v 1.9 2012/05/14 11:45:17 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "mathfunc.h"

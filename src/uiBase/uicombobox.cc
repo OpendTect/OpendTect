@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.63 2011/09/09 13:48:49 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uicombobox.h"
 #include "uilabel.h"

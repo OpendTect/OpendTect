@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		November 2011
- RCS:		$Id: uifltdispoptgrp.h,v 1.1 2011/11/04 15:41:58 cvsyuancheng Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

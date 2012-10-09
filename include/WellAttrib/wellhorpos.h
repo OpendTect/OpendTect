@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jul 2010
- RCS:           $Id: wellhorpos.h,v 1.7 2011/06/21 10:48:05 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

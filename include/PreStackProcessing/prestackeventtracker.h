@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		November 2010
- RCS:		$Id: prestackeventtracker.h,v 1.1 2010/11/17 15:15:32 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

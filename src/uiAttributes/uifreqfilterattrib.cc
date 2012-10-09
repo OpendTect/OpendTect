@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.39 2012/07/10 13:06:04 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "uifreqfilterattrib.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.43 2012/07/10 13:05:56 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

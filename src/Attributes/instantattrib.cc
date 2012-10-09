@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: instantattrib.cc,v 1.26 2012/01/11 08:22:59 cvshelene Exp $";
+static const char* rcsID = "$Id$";
 
 #include "instantattrib.h"
 

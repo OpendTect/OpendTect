@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Y.C. Liu
 Date:          July 2008
-RCS:           $Id: polygonsurface.h,v 1.14 2011/04/22 13:28:56 cvsbert Exp $
+RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewbitmapmgr.h,v 1.6 2009/09/03 09:52:46 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Oct 2011 
- RCS:		$Id: httptask.h,v 1.3 2012/02/21 08:49:42 cvsranojay Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

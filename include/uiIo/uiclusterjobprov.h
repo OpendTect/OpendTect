@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          May 2009
- RCS:           $Id: uiclusterjobprov.h,v 1.4 2012/03/02 10:22:53 cvsraman Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

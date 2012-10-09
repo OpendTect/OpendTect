@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.42 2012/07/10 13:06:02 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"

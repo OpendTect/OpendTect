@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: gatherprop.cc,v 1.6 2011/10/26 14:20:13 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 #include "prestackgatherpropcalc.h"
 

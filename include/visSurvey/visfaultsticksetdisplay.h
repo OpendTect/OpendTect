@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.20 2012/01/24 14:45:37 cvsyuancheng Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

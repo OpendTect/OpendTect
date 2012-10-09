@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratsynthdisp.cc,v 1.98 2012/09/14 16:58:03 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uistratsynthdisp.h"
 #include "uiseiswvltsel.h"

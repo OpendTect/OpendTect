@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: objectset.h,v 1.8 2012/03/22 15:35:32 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

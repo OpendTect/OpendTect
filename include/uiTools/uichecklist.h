@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uichecklist.h,v 1.5 2011/11/17 15:55:56 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

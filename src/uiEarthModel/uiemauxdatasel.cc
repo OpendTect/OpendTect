@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2010
- RCS:           $Id: uiemauxdatasel.cc,v 1.1 2010/04/07 12:11:40 cvsnageswara Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

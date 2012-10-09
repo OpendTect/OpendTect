@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emhorizonztransform.h,v 1.15 2010/11/30 16:48:16 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoLineSet3D.cc,v 1.3 2011/09/26 15:28:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id$";
 
 #include "SoLineSet3D.h"
 

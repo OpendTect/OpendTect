@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: lmkemfaulttransl.h,v 1.5 2011/04/26 10:18:12 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

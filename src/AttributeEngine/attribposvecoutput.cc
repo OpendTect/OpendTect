@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribposvecoutput.cc,v 1.9 2009/07/22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "attribposvecoutput.h"
 #include "attribdescset.h"

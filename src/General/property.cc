@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id: property.cc 26398 2012-09-25 14:14:44Z bert.bril@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "mathproperty.h"
 #include "propertyref.h"

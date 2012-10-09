@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: faulteditor.h,v 1.13 2011/02/09 16:50:08 cvsjaap Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

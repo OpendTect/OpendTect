@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          Dec 2009
- RCS:		$Id: uisurveyselect.h,v 1.6 2010/06/10 06:19:41 cvsranojay Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

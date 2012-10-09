@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatviewaxesdrawer.cc,v 1.16 2012/05/30 09:16:31 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 #include "flatviewaxesdrawer.h"
 #include "flatview.h"

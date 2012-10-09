@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: stickseteditor.cc,v 1.3 2010/06/17 19:00:58 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "stickseteditor.h"
 

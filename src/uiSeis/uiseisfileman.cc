@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.128 2012/08/16 08:54:34 cvsraman Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "uiseisfileman.h"

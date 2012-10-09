@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID = "$Id: uibodyregiondlg.cc,v 1.14 2012/03/02 19:25:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uibodyregiondlg.h"
 

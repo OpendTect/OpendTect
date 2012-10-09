@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Coin/Ui
 # 	Feb 2002	Arend Lammertink
-#	RCS :		$Id: CMakeLists.txt,v 1.7 2012/04/12 04:36:48 cvsranojay Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS visSurvey uiTools )

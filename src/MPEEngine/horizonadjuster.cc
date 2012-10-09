@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.67 2011/09/19 12:23:22 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "horizonadjuster.h"
 

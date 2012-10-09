@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.45 2011/01/10 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"

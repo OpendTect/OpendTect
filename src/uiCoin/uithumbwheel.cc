@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uithumbwheel.cc,v 1.16 2012/07/10 13:06:05 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uithumbwheel.h"
 #include "i_qthumbwhl.h"

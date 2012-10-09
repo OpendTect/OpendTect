@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiprestackimpevent.cc,v 1.2 2011/12/27 12:01:05 cvsraman Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiprestackimpevent.h"
 

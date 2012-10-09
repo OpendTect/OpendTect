@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoTextureChannelSet.h,v 1.7 2011/08/02 09:13:16 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

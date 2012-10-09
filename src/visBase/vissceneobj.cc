@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissceneobj.cc,v 1.11 2009/07/22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "vistransform.h"

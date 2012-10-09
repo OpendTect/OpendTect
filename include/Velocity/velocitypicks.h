@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.16 2011/09/29 06:40:05 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

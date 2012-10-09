@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: matchdeltaattrib.cc,v 1.3 2011/01/06 15:25:01 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "matchdeltaattrib.h"
 #include "attribdataholder.h"

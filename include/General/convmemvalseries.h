@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris Tingdahl
  Date:          Oct 2006
- RCS:           $Id: convmemvalseries.h,v 1.10 2010/03/15 18:37:02 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

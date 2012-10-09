@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2010
- RCS:           $Id: uitoolbutton.h,v 1.1 2010/11/16 09:49:10 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

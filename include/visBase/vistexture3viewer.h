@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: vistexture3viewer.h,v 1.15 2010/08/19 08:21:10 cvsranojay Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

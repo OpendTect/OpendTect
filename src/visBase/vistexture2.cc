@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexture2.cc,v 1.44 2012/07/10 13:06:10 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "vistexture2.h"
 #include "viscolortab.h"

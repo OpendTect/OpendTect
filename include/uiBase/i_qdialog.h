@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qdialog.h,v 1.6 2009/09/28 02:42:08 cvsnanne Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

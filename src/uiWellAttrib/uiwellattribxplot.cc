@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.52 2012/09/04 10:05:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiwellattribxplot.h"
 

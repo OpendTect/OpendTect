@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		1-9-95
- RCS:		$Id: databuf.h,v 1.8 2009/10/07 08:32:09 cvshelene Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

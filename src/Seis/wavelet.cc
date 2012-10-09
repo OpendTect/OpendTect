@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.41 2012/02/16 14:24:01 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "wavelet.h"
 #include "seisinfo.h"

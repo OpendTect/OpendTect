@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emundo.h,v 1.7 2010/06/29 07:42:30 cvsjaap Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoOD.h,v 1.13 2011/09/23 13:15:54 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

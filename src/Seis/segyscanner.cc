@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.33 2012/03/07 12:44:01 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "segyscanner.h"
 

@@ -4,7 +4,7 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.17 2012/06/26 09:49:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id$";
 
 #include "randcolor.h"
 #include "selector.h"

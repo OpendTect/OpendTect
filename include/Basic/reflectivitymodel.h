@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Jan 2011
- RCS:		$Id: reflectivitymodel.h,v 1.3 2011/02/04 16:17:25 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

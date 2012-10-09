@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Umesh Sinha
 Date:          Sep 2008
-RCS:           $Id: velocityfunctionstored.h,v 1.5 2010/11/19 16:56:06 cvskris Exp $
+RCS:           $Id$
 ________________________________________________________________________
 
 

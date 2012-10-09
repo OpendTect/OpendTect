@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureChannelSetElement.cc,v 1.5 2010/09/15 06:29:40 cvskarthika Exp $";
+static const char* rcsID = "$Id$";
 
 #include "SoTextureChannelSetElement.h"
 

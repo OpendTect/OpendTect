@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.20 2011/08/15 12:34:51 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.39 2012/07/10 13:06:00 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"

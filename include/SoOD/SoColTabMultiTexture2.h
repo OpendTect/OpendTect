@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: SoColTabMultiTexture2.h,v 1.7 2010/09/15 06:31:55 cvskarthika Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

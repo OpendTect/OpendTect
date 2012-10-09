@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A. Huck & H. Huck
  Date:		Sep 2011
- RCS:		$Id: uivariogram.h,v 1.5 2012/03/02 13:43:30 cvshelene Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

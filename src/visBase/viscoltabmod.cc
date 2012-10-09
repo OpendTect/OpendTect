@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscoltabmod.cc,v 1.15 2011/02/10 05:11:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id$";
 
 #include "viscoltabmod.h"
 

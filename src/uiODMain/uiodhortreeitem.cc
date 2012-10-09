@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.74 2011/10/07 21:53:43 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiodhortreeitem.h"
 

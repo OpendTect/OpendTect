@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.80 2012/01/02 14:04:14 cvsbruno Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

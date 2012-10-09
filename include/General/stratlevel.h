@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratlevel.h,v 1.4 2012/01/26 13:20:17 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

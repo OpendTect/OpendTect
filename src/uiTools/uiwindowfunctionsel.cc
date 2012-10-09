@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.24 2009/11/27 15:34:42 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiwindowfunctionsel.h"
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initalgo.cc,v 1.24 2012/05/15 08:11:10 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "gridder2d.h"

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2009
- RCS:		$Id: uiwaveletextraction.h,v 1.15 2010/10/21 12:35:29 cvsnageswara Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

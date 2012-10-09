@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodemsurftreeitem.h,v 1.18 2012/06/27 15:23:39 cvsjaap Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

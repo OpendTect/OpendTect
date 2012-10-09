@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.34 2011/04/22 16:09:12 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

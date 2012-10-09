@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		November 2007
- RCS:		$Id: uivolprocbodyfiller.h,v 1.2 2011/08/24 13:19:43 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

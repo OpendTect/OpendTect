@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.h,v 1.8 2011/12/16 15:57:20 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

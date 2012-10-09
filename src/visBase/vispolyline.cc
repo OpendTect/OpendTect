@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolyline.cc,v 1.22 2012/06/28 08:48:17 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 #include "vispolyline.h"
 #include "viscoord.h"

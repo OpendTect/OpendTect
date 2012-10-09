@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.73 2012/06/29 08:14:07 cvshelene Exp $";
+static const char* rcsID = "$Id$";
 
 #include "attribprocessor.h"
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.28 2012/05/29 12:55:08 cvssatyaki Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

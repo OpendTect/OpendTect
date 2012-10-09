@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: raytrace1d.h,v 1.37 2012/06/21 13:17:57 cvsbruno Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

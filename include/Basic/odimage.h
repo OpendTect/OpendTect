@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          August 2010
- RCS:           $Id: odimage.h,v 1.3 2010/08/11 19:33:43 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

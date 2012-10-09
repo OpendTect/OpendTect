@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2011
- RCS:           $Id: uisegytrchdrvalplot.h,v 1.3 2011/03/16 12:10:59 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

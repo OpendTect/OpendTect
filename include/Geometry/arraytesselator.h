@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
 Date:          April 2011
-RCS:           $Id: arraytesselator.h,v 1.8 2011/08/11 16:06:16 cvsyuancheng Exp $
+RCS:           $Id$
 ________________________________________________________________________
 
 -*/

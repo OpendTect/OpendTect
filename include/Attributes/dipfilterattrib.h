@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: dipfilterattrib.h,v 1.15 2011/04/12 02:10:00 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

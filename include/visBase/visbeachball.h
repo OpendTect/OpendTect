@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Aug 2009
- RCS:           $Id: visbeachball.h,v 1.10 2011/12/16 15:57:20 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

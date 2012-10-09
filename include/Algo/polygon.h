@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.31 2012/01/11 23:25:38 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

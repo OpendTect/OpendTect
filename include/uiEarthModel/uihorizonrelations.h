@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.h,v 1.6 2010/09/06 04:55:47 cvsraman Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

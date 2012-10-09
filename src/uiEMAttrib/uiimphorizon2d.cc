@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.34 2012/06/21 18:01:01 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiimphorizon2d.h"
 

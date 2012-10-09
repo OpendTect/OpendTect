@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Sept 2011
- RCS:		$Id: fourierinterpol.h,v 1.2 2011/09/30 09:22:02 cvsbruno Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

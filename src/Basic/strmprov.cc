@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.120 2012/07/09 10:23:36 cvsranojay Exp $";
+static const char* rcsID = "$Id$";
 
 #include <stdio.h>
 #include <stdlib.h>

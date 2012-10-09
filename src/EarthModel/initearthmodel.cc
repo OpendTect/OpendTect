@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initearthmodel.cc,v 1.14 2012/07/12 18:04:18 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "moddepmgr.h"

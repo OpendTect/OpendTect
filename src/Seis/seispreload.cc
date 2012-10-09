@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seispreload.cc,v 1.12 2011/01/11 16:20:59 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "seispreload.h"
 #include "seiscbvs.h"

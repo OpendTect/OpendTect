@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.55 2012/07/11 14:12:52 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"

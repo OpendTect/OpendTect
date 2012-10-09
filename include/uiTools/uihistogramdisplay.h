@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.h,v 1.11 2011/10/26 14:20:13 cvsbruno Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

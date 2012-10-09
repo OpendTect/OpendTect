@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		July 2008
- RCS:		$Id: empolygonbody.h,v 1.7 2011/12/15 21:45:41 cvsyuancheng Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

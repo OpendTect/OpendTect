@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdataholderarray.cc,v 1.8 2012/06/29 19:13:19 cvsyuancheng Exp $";
+static const char* rcsID = "$Id$";
 
 #include "attribdataholderarray.h"
 #include "attribdataholder.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          Oct 2009
- RCS:           $Id: uiscenecolorbarmgr.h,v 1.1 2009/10/16 05:45:15 cvsranojay Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

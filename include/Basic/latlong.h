@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		2008
  Contents:	Geographics lat/long <-> Coord transform (an estimate)
- RCS:		$Id: latlong.h,v 1.9 2009/07/22 16:01:14 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

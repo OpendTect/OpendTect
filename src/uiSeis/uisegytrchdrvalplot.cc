@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegytrchdrvalplot.cc,v 1.7 2012/07/10 13:06:07 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uisegytrchdrvalplot.h"
 #include "uifunctiondisplay.h"

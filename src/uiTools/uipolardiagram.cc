@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipolardiagram.cc,v 1.7 2010/10/28 07:28:36 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uipolardiagram.h"
 #include "uigraphicsscene.h"

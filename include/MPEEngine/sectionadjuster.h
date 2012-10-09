@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.21 2009/09/01 21:59:25 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

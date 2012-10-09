@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.40 2012/08/08 04:02:37 cvssatyaki Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

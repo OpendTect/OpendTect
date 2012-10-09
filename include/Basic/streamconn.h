@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		21-10-1995
- RCS:		$Id: streamconn.h,v 1.15 2010/12/14 15:53:15 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: linsolv.h,v 1.8 2009/07/22 16:01:12 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 LinSolver - Solves linear systems of equations on the form A*x=B. A is

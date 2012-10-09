@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		December 2007
- RCS:		$Id: hilberttransform.h,v 1.9 2010/07/12 22:52:41 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

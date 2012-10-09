@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Earth Model
 # 	MNov 1999	Kris Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012/02/17 09:21:57 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS EarthModel AttributeEngine )

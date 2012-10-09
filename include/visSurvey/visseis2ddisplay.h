@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.57 2012/06/28 13:41:20 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

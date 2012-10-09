@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.30 2011/08/02 09:37:57 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

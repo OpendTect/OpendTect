@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.24 2011/12/16 15:57:20 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

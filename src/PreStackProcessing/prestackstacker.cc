@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackstacker.cc,v 1.11 2011/09/02 09:20:55 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "prestackstacker.h"
 

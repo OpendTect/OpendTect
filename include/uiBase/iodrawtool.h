@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.34 2012/09/13 11:27:27 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

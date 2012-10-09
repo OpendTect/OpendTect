@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfuncdraw.h,v 1.2 2011/10/06 15:15:46 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

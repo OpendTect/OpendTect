@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.26 2010/10/26 21:05:38 cvskarthika Exp $";
+static const char* rcsID = "$Id$";
 
 #include "SoTextureComposer.h"
 #include "SoTextureComposerElement.h"

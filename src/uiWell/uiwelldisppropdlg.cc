@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.39 2012/06/19 08:46:17 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiwelldisppropdlg.h"
 

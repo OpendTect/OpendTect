@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.20 2011/01/27 04:48:17 cvsnanne Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

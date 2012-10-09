@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Feb 2011
-RCS:           $Id: uiseis2dto3d.h,v 1.5 2012/06/19 12:27:29 cvsbruno Exp $
+RCS:           $Id$
 ________________________________________________________________________
 
 -*/

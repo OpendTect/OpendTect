@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.18 2012/05/07 12:15:24 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "velocityfunctionvolume.h"
 

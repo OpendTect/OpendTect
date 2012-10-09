@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlayermodel.cc 26436 2012-09-26 15:13:41Z kristofer.tingdahl@dgbes.com $";
+static const char* rcsID = "$Id$";
 
 #include "uistratlayermodel.h"
 

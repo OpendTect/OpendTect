@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.23 2012/06/26 13:13:20 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "uiobjectitemview.h"

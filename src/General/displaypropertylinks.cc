@@ -4,7 +4,7 @@
  * DATE     : September 2008
 -*/
 
-static const char* rcsID = "$Id: displaypropertylinks.cc,v 1.6 2009/07/22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "displaypropertylinks.h"
 #include "ptrman.h"

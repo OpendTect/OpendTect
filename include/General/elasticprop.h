@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		July 2011
- RCS:		$Id: elasticprop.h,v 1.6 2012/03/14 15:12:03 cvsbruno Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

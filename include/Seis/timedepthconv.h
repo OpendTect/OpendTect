@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.22 2010/11/30 16:48:16 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

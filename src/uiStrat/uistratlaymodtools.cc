@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlaymodtools.cc,v 1.9 2012/09/11 12:50:53 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uistratlaymodtools.h"
 #include "uitoolbutton.h"

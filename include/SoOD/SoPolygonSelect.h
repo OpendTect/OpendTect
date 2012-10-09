@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPolygonSelect.h,v 1.8 2011/07/08 14:20:09 cvshelene Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

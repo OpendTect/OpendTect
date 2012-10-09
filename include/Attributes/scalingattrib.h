@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.21 2011/03/01 10:21:40 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

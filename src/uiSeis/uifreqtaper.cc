@@ -7,7 +7,7 @@ _______________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifreqtaper.cc,v 1.12 2012/07/10 13:06:07 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uifreqtaper.h"
 #include "uiamplspectrum.h"

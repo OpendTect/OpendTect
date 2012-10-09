@@ -21,7 +21,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoMaterialBindingElement.h>
 #include <Inventor/system/gl.h>
 
-static const char* rcsID = "$Id: SoDGBIndexedPointSet.cc,v 1.2 2009/07/22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 SO_NODE_SOURCE(SoDGBIndexedPointSet);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.16 2011/05/02 06:10:01 cvsumesh Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

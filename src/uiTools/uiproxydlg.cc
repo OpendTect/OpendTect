@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiproxydlg.cc,v 1.5 2012/06/30 16:29:08 cvsraman Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "uiproxydlg.h"

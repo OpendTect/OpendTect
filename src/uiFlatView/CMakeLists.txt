@@ -2,7 +2,7 @@
 #
 #	Makefile : 	uiFlatView
 # 	Feb 2007	Bert
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012/02/16 20:04:40 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiTools )

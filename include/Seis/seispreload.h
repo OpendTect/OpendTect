@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: seispreload.h,v 1.10 2010/07/14 16:54:12 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

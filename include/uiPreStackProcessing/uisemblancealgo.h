@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Nov 2010
- RCS:		$Id: uisemblancealgo.h,v 1.1 2010/11/09 22:23:08 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

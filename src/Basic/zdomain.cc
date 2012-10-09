@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: zdomain.cc,v 1.9 2011/12/09 16:12:58 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "zdomain.h"
 #include "survinfo.h"

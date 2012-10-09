@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.39 2012/06/21 08:58:37 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiwelltiecontrolview.h"
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.34 2011/11/30 09:07:08 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

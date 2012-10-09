@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2011
- RCS:		$Id: hiddenparam.h,v 1.3 2011/08/08 13:56:44 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

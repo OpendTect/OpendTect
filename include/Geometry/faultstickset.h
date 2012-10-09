@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        J.C. Glas
 Date:          November 2008
-RCS:           $Id: faultstickset.h,v 1.12 2011/06/02 06:55:29 cvsnanne Exp $
+RCS:           $Id$
 ________________________________________________________________________
 
 -*/

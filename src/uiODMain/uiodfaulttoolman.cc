@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.37 2012/05/04 19:31:59 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "uiodfaulttoolman.h"

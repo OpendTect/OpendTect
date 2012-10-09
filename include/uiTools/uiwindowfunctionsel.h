@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.h,v 1.13 2009/11/27 15:34:42 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

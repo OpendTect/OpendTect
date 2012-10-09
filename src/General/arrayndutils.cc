@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.26 2012/02/24 10:20:07 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "arrayndutils.h"
 

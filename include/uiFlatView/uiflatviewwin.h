@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.15 2011/06/29 11:15:32 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

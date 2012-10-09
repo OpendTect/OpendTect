@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.18 2012/01/11 08:20:25 cvshelene Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

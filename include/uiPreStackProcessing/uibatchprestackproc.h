@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2009
- RCS:		$Id: uibatchprestackproc.h,v 1.3 2011/10/25 09:19:26 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

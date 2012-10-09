@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		2007
- RCS:		$Id: windowfunction.h,v 1.9 2012/04/03 05:06:59 cvsraman Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

@@ -3,7 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : May 2000
 -*/
-static const char* _rcsID = "$Id: od_ivfileviewer.cc,v 1.3 2009/07/22 16:01:39 cvsbert Exp $";
+static const char* _rcsID = "$Id$";
 
 #define USESOODCLASSES
 

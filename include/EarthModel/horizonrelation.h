@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Jul 2010
- RCS:           $Id: horizonrelation.h,v 1.3 2010/09/03 05:31:13 cvsraman Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

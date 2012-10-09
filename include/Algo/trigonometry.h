@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.51 2012/05/22 03:25:43 cvssatyaki Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

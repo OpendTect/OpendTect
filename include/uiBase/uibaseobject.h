@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibaseobject.h,v 1.8 2012/09/17 16:37:44 cvsjaap Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

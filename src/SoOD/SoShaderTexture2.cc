@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoShaderTexture2.cc,v 1.9 2009/09/21 20:16:55 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "SoShaderTexture2.h"

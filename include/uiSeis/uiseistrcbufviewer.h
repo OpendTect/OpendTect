@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki
  Date:          November 2007
- RCS:           $Id: uiseistrcbufviewer.h,v 1.15 2012/04/05 13:52:39 cvsbert Exp $
+ RCS:           $Id$
 _______________________________________________________________________
 
 -*/

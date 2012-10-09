@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.17 2012/06/28 12:31:05 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "seisposindexer.h"
 #include "idxable.h"

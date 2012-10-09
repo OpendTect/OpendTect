@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.52 2012/07/10 13:06:05 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uislider.h"
 #include "i_qslider.h"

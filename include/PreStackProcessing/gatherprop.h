@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: gatherprop.h,v 1.6 2010/08/04 14:49:36 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

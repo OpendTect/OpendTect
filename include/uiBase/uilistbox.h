@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.67 2012/09/02 10:08:51 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

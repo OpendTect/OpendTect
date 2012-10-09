@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: uistratlaymoddisp.cc,v 1.32 2012/09/17 14:48:33 cvsbert Exp $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistratsimplelaymoddisp.h"
 #include "uistratlaymodtools.h"

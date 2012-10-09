@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: raytracerrunner.cc,v 1.10 2012/01/17 16:09:27 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "raytracerrunner.h"

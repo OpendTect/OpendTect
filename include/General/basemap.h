@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2009
- RCS:		$Id: basemap.h,v 1.7 2011/10/04 13:44:59 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

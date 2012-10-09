@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellman.cc,v 1.12 2012/05/30 14:55:27 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 #include "welldata.h"
 #include "wellman.h"

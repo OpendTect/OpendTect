@@ -8,7 +8,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.h,v 1.8 2011/01/27 04:48:17 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

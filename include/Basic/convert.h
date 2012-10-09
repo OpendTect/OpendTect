@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.17 2011/02/03 21:25:50 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

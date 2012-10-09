@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselectvelocityfunction.cc,v 1.9 2011/05/02 18:45:36 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiselectvelocityfunction.h"
 

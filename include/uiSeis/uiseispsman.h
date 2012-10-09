@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseispsman.h,v 1.11 2011/09/16 10:01:23 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

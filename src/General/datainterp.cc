@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.30 2012/06/28 13:00:58 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "datainterp.h"
 

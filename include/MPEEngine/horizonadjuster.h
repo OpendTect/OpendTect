@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.28 2010/04/12 11:20:29 cvsumesh Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

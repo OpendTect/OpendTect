@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.62 2012/03/29 12:32:05 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

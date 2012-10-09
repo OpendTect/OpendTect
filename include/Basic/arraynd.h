@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.46 2012/07/04 09:52:47 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The

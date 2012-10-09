@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: prestackeventascio.h,v 1.6 2011/05/25 04:49:12 cvsraman Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

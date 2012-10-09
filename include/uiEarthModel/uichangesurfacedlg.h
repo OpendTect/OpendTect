@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          June 2006
- RCS:           $Id: uichangesurfacedlg.h,v 1.12 2009/11/19 04:04:12 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

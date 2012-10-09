@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2011
- RCS:		$Id: staticstring.h,v 1.5 2011/09/20 13:03:15 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 -*/
 

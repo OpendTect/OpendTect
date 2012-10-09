@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUsedVar = "$Id: seismulticubeps.cc 26298 2012-09-21 03:33:18Z nanne.hemstra@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "seismulticubeps.h"
 #include "seispsioprov.h"

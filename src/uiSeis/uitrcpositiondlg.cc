@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitrcpositiondlg.cc,v 1.8 2011/06/15 04:28:21 cvsumesh Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uitrcpositiondlg.h"
 

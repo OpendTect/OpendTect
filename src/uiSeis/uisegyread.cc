@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: uisegyread.cc,v 1.51 2012/05/22 09:25:17 cvsbert Exp $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisegyread.h"
 #include "uivarwizarddlg.h"

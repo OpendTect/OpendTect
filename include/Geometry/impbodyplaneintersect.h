@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
 Date:          December 2011
-RCS:           $Id: impbodyplaneintersect.h,v 1.2 2011/12/13 22:08:49 cvsyuancheng Exp $
+RCS:           $Id$
 ________________________________________________________________________
 
 -*/

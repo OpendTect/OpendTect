@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.13 2012/07/19 11:25:37 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "velocityfunctionstored.h"
 

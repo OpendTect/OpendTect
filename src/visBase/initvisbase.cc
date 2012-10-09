@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.25 2012/03/19 13:41:51 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 
 

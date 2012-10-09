@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.14 2011/09/19 12:54:40 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "polygonsurfeditor.h"
 

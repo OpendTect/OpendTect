@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uirockphysform.h,v 1.7 2012/03/29 08:24:39 cvshelene Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

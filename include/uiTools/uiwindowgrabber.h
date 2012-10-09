@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          July 2008
- RCS:           $Id: uiwindowgrabber.h,v 1.6 2009/10/23 09:21:05 cvsjaap Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

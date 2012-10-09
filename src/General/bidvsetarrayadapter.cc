@@ -4,7 +4,7 @@
  * DATE     : 14-3-2008
 -*/
 
-static const char* rcsID = "$Id: bidvsetarrayadapter.cc,v 1.5 2010/12/02 09:32:42 cvsnageswara Exp $";
+static const char* rcsID = "$Id$";
 
 #include "bidvsetarrayadapter.h"
 #include "survinfo.h"

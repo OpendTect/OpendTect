@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Aug 2008
- RCS:           $Id: uicalcpoly2horvol.h,v 1.4 2011/09/06 15:31:42 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

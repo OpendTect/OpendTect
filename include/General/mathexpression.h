@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.19 2011/09/01 12:16:24 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

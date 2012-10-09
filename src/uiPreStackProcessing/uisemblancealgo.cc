@@ -4,7 +4,7 @@
  * DATE     : Nov 2010
 -*/
 
-static const char* rcsID = "$Id: uisemblancealgo.cc,v 1.1 2010/11/09 22:23:08 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uisemblancealgo.h"
 #include "ptrman.h"

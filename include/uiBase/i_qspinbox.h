@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: i_qspinbox.h,v 1.10 2011/04/21 13:09:13 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

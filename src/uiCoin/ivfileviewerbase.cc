@@ -3,7 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : May 2000
 -*/
-static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.10 2011/08/23 14:51:33 cvsbert Exp $";
+static const char* __rcsID = "$Id$";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 

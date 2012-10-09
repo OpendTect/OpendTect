@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Fredman
  Date:		18-12-2002
- RCS:		$Id: houghtransform.h,v 1.13 2012/01/25 20:45:19 cvsyuancheng Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.28 2012/01/18 18:36:00 cvsyuancheng Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

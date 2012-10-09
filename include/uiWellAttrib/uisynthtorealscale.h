@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uisynthtorealscale.h,v 1.4 2011/09/13 14:14:59 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

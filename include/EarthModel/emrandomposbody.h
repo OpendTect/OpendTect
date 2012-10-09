@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		January 2009
- RCS:		$Id: emrandomposbody.h,v 1.9 2011/12/15 21:45:41 cvsyuancheng Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

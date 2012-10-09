@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.43 2012/07/10 13:06:04 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uicolor.h"
 #include "uibutton.h"

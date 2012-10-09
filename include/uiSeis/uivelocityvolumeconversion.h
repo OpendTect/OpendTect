@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2008
- RCS:		$Id: uivelocityvolumeconversion.h,v 1.3 2010/11/22 17:07:59 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

@@ -2,7 +2,7 @@
 #
 #	Makefile : 	uiWell
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.6 2012/08/28 09:38:23 cvsbert Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiStrat Well)

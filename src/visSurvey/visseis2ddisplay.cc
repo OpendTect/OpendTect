@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.145 2012/08/23 22:01:45 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "visseis2ddisplay.h"
 

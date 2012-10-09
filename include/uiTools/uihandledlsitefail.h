@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2011
- RCS:           $Id: uihandledlsitefail.h,v 1.2 2012/07/19 06:29:42 cvsranojay Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

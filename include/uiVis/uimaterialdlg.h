@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.h,v 1.14 2011/04/28 07:00:12 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

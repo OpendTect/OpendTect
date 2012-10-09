@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_ClusterProc.cc,v 1.5 2012/03/02 11:47:04 cvsraman Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiclusterproc.h"
 #include "uimain.h"

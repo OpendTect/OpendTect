@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Sep 2009
- * ID       : $Id: beachballdata.h,v 1.7 2010/08/04 14:49:36 cvsbert Exp $
+ * ID       : $Id$
 -*/
 
 #include "color.h"

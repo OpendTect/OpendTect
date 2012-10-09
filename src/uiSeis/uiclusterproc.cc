@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          April 2008
- RCS:		$Id: uiclusterproc.cc,v 1.4 2012/03/02 11:47:04 cvsraman Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

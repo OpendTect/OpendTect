@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		October 2011
- RCS:		$Id: uibodyregiondlg.h,v 1.3 2012/03/02 19:25:46 cvsyuancheng Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.38 2012/07/02 19:31:38 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "arrayndimpl.h"
 #include "sorting.h"

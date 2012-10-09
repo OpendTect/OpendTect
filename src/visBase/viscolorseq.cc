@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscolorseq.cc,v 1.19 2009/07/22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "viscolorseq.h"
 #include "bufstringset.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		May 2009
- RCS:		$Id: emobjectselremoval.h,v 1.3 2009/11/06 10:54:21 cvsumesh Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

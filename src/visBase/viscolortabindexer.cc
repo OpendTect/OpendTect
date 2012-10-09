@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.12 2009/07/22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "viscolortabindexer.h"
 

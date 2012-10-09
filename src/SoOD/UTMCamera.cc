@@ -52,7 +52,7 @@
 
   \sa UTMPosition, UTMCoordinate 
 */
-static const char* rcsID = "$Id: UTMCamera.cc,v 1.4 2008/11/25 15:35:23 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 // *************************************************************************
 

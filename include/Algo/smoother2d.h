@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother2d.h,v 1.6 2011/07/24 13:04:48 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

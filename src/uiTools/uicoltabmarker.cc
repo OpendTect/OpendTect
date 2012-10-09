@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.12 2011/03/31 09:24:38 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uicoltabmarker.h"
 

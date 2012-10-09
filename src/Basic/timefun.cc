@@ -5,7 +5,7 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.24 2011/08/31 13:08:35 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "timefun.h"
 #include "bufstring.h"

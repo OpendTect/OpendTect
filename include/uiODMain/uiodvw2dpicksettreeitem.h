@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		Mar 2011
- RCS:		$Id: uiodvw2dpicksettreeitem.h,v 1.4 2011/06/28 13:35:43 cvsbruno Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

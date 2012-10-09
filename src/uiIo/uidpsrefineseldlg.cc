@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpsrefineseldlg.cc,v 1.2 2011/07/11 11:50:16 cvssatyaki Exp $: 
+ RCS:           $Id$: 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsrefineseldlg.cc,v 1.2 2011/07/11 11:50:16 cvssatyaki Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "uidpsrefineseldlg.h"

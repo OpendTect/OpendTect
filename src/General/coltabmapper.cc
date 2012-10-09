@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.34 2012/07/04 10:02:49 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"

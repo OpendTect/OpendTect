@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoOneSideRender.h,v 1.1 2011/02/16 03:22:57 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2003
- RCS:           $Id: attribsetcreator.h,v 1.5 2009/07/28 07:09:41 cvsranojay Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

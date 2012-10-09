@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: odver.cc,v 1.16 2012/03/13 08:18:36 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: odver.cc,v 1.16 2012/03/13 08:18:36 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "odver.h"
 #include "oddirs.h"

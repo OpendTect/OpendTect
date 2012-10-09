@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiattributes.cc,v 1.9 2012/09/05 14:11:07 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "moddepmgr.h"

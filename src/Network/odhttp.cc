@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odhttp.cc,v 1.22 2012/06/22 05:07:52 cvsranojay Exp $";
+static const char* rcsID = "$Id$";
 
 #include "odhttp.h"
 #include "qhttpconn.h"

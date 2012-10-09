@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivirtualkeyboard.cc,v 1.9 2012/07/10 13:06:05 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uivirtualkeyboard.h"
 

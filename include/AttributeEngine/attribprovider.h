@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.91 2012/08/21 05:41:15 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

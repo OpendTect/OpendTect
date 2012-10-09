@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		10-10-2007
- RCS:		$Id: visellipsoid.h,v 1.5 2011/12/16 15:57:20 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

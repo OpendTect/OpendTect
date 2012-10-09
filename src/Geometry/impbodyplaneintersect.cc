@@ -4,7 +4,7 @@
  * DATE     : December 2011
 -*/
 
-static const char* rcsID = "$Id: impbodyplaneintersect.cc,v 1.2 2011/12/13 22:08:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id$";
 
 #include "impbodyplaneintersect.h"
 

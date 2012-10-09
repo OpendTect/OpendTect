@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.17 2010/12/13 07:07:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id$";
 
 #include "horflatvieweditor.h"
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltab.h,v 1.8 2011/02/10 05:11:27 cvssatyaki Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

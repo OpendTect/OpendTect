@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Feb 2007
- RCS:		$Id: seisbufadapters.h,v 1.14 2012/04/05 13:51:44 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

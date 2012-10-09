@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.20 2012/07/10 13:06:04 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"

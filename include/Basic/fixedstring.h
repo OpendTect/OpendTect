@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		April 2009
- RCS:		$Id: fixedstring.h,v 1.10 2010/03/17 19:03:26 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

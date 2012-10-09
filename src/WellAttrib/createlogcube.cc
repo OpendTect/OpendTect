@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: createlogcube.cc,v 1.12 2012/06/28 11:57:20 cvsbruno Exp $";
+static const char* rcsID = "$Id$";
 
 #include "createlogcube.h"
 

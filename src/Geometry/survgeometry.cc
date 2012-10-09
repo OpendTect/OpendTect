@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: survgeometry.cc,v 1.1 2009/07/23 05:10:45 cvsraman Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "survgeometry.h"

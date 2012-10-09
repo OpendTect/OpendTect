@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.244 2012/09/11 14:36:37 cvsjaap Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uimainwin.h"
 #include "uidialog.h"

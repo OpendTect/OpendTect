@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: uicreatedpspdf.cc,v 1.17 2012/08/31 06:27:38 cvssatyaki Exp $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicreatedpspdf.h"
 

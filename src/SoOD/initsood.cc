@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initsood.cc,v 1.31 2011/08/29 05:50:50 cvsranojay Exp $";
+static const char* rcsID = "$Id$";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 

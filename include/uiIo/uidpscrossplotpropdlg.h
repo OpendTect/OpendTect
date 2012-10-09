@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jun 2008
- RCS:           $Id: uidpscrossplotpropdlg.h,v 1.8 2011/07/05 09:44:30 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

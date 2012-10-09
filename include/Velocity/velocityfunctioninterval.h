@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		December 2008
- RCS:		$Id: velocityfunctioninterval.h,v 1.6 2011/01/25 23:06:32 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

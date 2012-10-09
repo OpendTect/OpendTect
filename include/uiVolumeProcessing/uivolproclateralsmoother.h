@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		February 2008
- RCS:		$Id: uivolproclateralsmoother.h,v 1.4 2011/08/24 13:19:43 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

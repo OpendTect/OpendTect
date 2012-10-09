@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C Glas
  Date:		November 2008
- RCS:		$Id: emfaultstickset.h,v 1.9 2011/10/28 11:29:35 cvsjaap Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

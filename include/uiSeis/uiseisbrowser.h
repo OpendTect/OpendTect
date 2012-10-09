@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.23 2011/12/26 14:12:48 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

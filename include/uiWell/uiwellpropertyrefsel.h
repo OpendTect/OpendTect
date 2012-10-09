@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uiwellpropertyrefsel.h,v 1.3 2012/09/02 10:10:43 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

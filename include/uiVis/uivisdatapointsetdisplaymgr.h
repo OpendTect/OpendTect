@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Apr 2009
- RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.10 2011/12/05 09:05:44 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

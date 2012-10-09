@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2010
- RCS:		$Id: seisbayesclass.h,v 1.10 2010/04/08 09:26:50 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

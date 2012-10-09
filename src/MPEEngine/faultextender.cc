@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultextender.cc,v 1.9 2010/06/18 12:23:27 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "faultextender.h"
 

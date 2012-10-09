@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.17 2012/02/15 15:18:58 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "emhorizonztransform.h"
 

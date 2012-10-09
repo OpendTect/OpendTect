@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2011
- RCS:           $Id: oddlsite.h,v 1.9 2012/02/28 06:46:41 cvsranojay Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

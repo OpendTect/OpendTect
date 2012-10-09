@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.21 2012/04/05 13:52:39 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "seisbufadapters.h"
 #include "seisinfo.h"

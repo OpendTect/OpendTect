@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Oct 2010
- RCS:		$Id: stratsinglaygen.h,v 1.6 2012/01/24 16:40:14 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

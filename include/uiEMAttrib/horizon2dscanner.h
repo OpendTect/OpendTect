@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: horizon2dscanner.h,v 1.8 2010/09/27 07:28:09 cvsnageswara Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Apr 2011
- RCS:		$Id: odplugin.h,v 1.2 2011/04/21 09:44:17 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

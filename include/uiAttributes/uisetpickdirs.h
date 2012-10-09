@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Dec 2003
- RCS:           $Id: uisetpickdirs.h,v 1.8 2011/11/29 04:44:12 cvsranojay Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

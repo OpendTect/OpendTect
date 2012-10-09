@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.14 2011/03/30 11:46:58 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

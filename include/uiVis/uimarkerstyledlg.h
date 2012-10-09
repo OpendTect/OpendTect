@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uimarkerstyledlg.h,v 1.5 2012/09/14 19:38:48 cvsnanne Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

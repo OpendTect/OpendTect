@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.29 2012/06/28 12:30:04 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "segyfiledata.h"
 

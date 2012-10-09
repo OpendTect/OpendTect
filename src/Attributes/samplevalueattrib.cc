@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id: samplevalueattrib.cc,v 1.1 2012/09/05 14:11:07 cvsbert Exp $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "samplevalueattrib.h"
 #include "attribdataholder.h"

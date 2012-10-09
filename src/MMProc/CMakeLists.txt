@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Multi-Machine processing
 # 	July 2008	Bert
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012/03/29 11:33:26 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 

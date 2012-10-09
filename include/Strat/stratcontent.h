@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2012
- RCS:		$Id: stratcontent.h,v 1.5 2012/09/17 14:42:26 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
  Impl is in stratlith.cc.

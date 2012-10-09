@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatauxdataeditorlist.cc,v 1.14 2010/11/10 15:26:43 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiflatauxdataeditorlist.h"
 

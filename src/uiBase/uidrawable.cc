@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidrawable.cc,v 1.10 2009/07/22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uidrawable.h"
 #include "i_uidrwbody.h"

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          Jan 2010
- RCS:		$Id: emhorizonztransformer.h,v 1.3 2010/04/23 08:24:32 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

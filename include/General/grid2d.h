@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Jun 2010
- RCS:           $Id: grid2d.h,v 1.1 2010/08/25 11:37:11 cvsraman Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

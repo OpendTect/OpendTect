@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: curvature.cc,v 1.3 2009/07/22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "curvature.h"

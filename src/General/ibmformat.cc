@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y word functions
 -*/
 
-static const char* rcsID = "$Id: ibmformat.cc,v 1.6 2012/05/21 15:32:29 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "ibmformat.h"
 #include <string.h>

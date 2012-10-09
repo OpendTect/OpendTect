@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.18 2010/10/29 03:35:22 cvsraman Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiseisrandto2dline.h"
 

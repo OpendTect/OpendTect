@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.17 2011/10/24 13:11:52 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

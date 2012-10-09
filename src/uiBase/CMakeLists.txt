@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Basic UI-classes
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.6 2012/04/20 06:38:10 cvsranojay Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS General)

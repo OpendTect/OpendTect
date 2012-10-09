@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: prestackprocessortransl.cc,v 1.3 2009/07/22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "prestackprocessortransl.h"
 

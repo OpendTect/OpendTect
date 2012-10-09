@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: uipropvalfld.cc,v 1.2 2012/08/30 14:50:12 cvsbert Exp $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uipropvalfld.h"
 #include "uigeninput.h"

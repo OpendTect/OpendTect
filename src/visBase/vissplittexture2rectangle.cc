@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittexture2rectangle.cc,v 1.14 2011/12/16 15:57:21 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "vissplittexture2rectangle.h"
 

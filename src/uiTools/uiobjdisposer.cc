@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjdisposer.cc,v 1.5 2012/01/12 12:28:56 cvsranojay Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiobjdisposer.h"
 #include "timer.h"

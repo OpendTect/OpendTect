@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctiongrid.h,v 1.10 2011/08/15 12:28:51 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

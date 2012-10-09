@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.42 2012/08/21 21:20:23 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uihorizontracksetup.h"
 

@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Coin Wrapper classes
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012/03/19 13:41:52 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS SoOD Geometry)

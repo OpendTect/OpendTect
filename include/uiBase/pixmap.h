@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.25 2010/07/05 09:01:35 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

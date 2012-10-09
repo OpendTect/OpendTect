@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seiseventsnapper.cc,v 1.12 2011/11/22 23:30:11 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "seiseventsnapper.h"
 #include "seistrc.h"

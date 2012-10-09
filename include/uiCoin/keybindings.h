@@ -7,7 +7,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          Dec 2002
- RCS:           $Id: keybindings.h,v 1.9 2010/08/19 06:55:51 cvsranojay Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 */

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.25 2011/12/08 09:56:18 cvsjaap Exp $";
+static const char* rcsID = "$Id$";
 
 #include "sectiontracker.h"
 

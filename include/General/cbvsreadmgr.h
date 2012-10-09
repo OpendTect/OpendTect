@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.24 2011/03/25 15:02:34 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

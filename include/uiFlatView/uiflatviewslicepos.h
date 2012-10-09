@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uiflatviewslicepos.h,v 1.6 2011/05/06 13:43:52 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

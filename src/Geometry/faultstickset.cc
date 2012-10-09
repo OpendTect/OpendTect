@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID = "$Id: faultstickset.cc,v 1.15 2012/08/08 21:02:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id$";
 
 #include "faultstickset.h"
 

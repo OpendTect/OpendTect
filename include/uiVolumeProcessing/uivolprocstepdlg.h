@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2009
- RCS:		$Id: uivolprocstepdlg.h,v 1.4 2011/09/19 12:27:48 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

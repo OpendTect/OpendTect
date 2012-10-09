@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.32 2011/01/20 12:56:05 cvshelene Exp $";
+static const char* rcsID = "$Id$";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.23 2011/07/19 09:16:36 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte

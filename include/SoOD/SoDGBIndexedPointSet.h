@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: SoDGBIndexedPointSet.h,v 1.3 2011/04/28 07:00:11 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

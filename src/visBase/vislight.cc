@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vislight.cc,v 1.14 2012/04/18 11:15:29 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "vislight.h"
 #include "iopar.h"

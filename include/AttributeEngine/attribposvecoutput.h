@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: attribposvecoutput.h,v 1.6 2009/07/22 16:01:13 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

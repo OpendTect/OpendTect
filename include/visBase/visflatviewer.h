@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.h,v 1.14 2009/09/08 22:07:14 cvsyuancheng Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

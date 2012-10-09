@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: uimanprops.cc,v 1.9 2012/07/24 15:17:04 cvsbert Exp $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimanprops.h"
 #include "uibuildlistfromlist.h"

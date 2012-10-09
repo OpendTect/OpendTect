@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2010
- RCS:		$Id: squeezing.h,v 1.2 2010/08/23 13:44:03 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

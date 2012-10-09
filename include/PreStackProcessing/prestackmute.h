@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmute.h,v 1.13 2011/01/25 20:34:00 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

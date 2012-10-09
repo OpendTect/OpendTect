@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          Feb 2009
- RCS:           $Id: uihorizonshiftdlg.h,v 1.6 2009/07/22 16:01:21 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Feb 2012
- RCS:		$Id: rockphysics.h,v 1.7 2012/04/13 14:36:57 cvshelene Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

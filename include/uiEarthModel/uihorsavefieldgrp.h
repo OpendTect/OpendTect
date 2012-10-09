@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y. Liu
  Date:          Nov 2009
- RCS:           $Id: uihorsavefieldgrp.h,v 1.4 2009/11/19 04:04:12 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

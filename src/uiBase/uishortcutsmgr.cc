@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uishortcutsmgr.cc,v 1.17 2011/10/07 15:03:02 cvsjaap Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "uishortcutsmgr.h"

@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2007
- * ID       : $Id: googlexmlwriter.h,v 1.9 2010/07/12 22:52:41 cvskris Exp $
+ * ID       : $Id$
 -*/
 
 #include "bufstring.h"

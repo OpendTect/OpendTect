@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.18 2011/02/09 14:03:44 cvshelene Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

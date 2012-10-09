@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.14 2009/09/01 22:15:15 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

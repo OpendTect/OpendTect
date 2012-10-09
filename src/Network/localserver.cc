@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: localserver.cc,v 1.1 2009/10/27 03:22:20 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "localserver.h"
 #include "qlocalservercomm.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathexpression.cc,v 1.57 2012/06/25 13:58:21 cvshelene Exp $";
+static const char* rcsID = "$Id$";
 
 #include "mathexpression.h"
 #include "ctype.h"

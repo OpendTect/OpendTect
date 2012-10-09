@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Aug 2012
- RCS:           $Id: uipropvalfld.h,v 1.3 2012/08/30 14:50:12 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

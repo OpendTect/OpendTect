@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.126 2012/07/10 13:06:09 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "vishorizonsection.h"
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003 / Sep 2010
- RCS:		$Id: stratunitref.h,v 1.44 2012/08/03 18:49:42 cvsbruno Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

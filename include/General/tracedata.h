@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: tracedata.h,v 1.10 2012/07/10 13:05:57 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

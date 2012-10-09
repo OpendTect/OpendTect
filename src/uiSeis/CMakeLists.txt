@@ -2,7 +2,7 @@
 #
 #	Makefile : 	ui - Seis
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.5 2012/05/10 05:55:33 cvsranojay Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiIo Seis Usage Velocity )

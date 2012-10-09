@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.106 2012/06/29 15:42:52 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

@@ -4,7 +4,7 @@
  * DATE     : Mar 2008
 -*/
 
-static const char* rcsID = "$Id: mousecursor.cc,v 1.5 2009/07/22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "mousecursor.h"
 

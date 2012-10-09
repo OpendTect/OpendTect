@@ -51,7 +51,7 @@
 
   \sa SoText2
 */
-static const char* rcsID = "$Id: SoText2Set.cc,v 1.3 2008/11/25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "SoText2Set.h"
 #include <Inventor/nodes/SoSubNode.h>

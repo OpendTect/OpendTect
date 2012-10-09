@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink / Bert
  Date:          21/2/2002 / Sep 2011
- RCS:           $Id: uigeninput_impl.h,v 1.1 2011/09/06 12:02:33 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

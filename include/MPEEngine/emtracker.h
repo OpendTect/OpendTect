@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.31 2011/05/02 06:14:48 cvsumesh Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

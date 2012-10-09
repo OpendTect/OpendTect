@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.14 2012/06/29 08:14:07 cvshelene Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

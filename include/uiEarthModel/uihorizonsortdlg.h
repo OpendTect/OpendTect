@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          January 2006
- RCS:           $Id: uihorizonsortdlg.h,v 1.9 2010/08/27 04:58:09 cvsraman Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

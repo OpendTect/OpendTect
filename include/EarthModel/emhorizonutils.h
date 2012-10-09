@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.14 2010/12/08 11:52:33 cvsnageswara Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

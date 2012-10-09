@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2009
- RCS:		$Id: odmemory.h,v 1.8 2012/04/13 10:41:59 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

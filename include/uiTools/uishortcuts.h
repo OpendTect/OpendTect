@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          06/12/2005
- RCS:           $Id: uishortcuts.h,v 1.8 2011/08/04 16:36:02 cvshelene Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

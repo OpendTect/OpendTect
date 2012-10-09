@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabindex.cc,v 1.12 2012/05/11 07:46:58 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "coltabindex.h"
 #include "coltabsequence.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2010
- RCS:		$Id: uistratsynthdisp.h,v 1.58 2012/09/14 16:58:02 cvsbruno Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

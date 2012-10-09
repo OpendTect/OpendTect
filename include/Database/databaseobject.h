@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		Nov 2011
- RCS:		$Id: databaseobject.h,v 1.5 2012/02/29 14:55:28 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

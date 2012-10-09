@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.53 2012/07/02 22:47:10 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

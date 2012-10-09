@@ -2,7 +2,7 @@
 #
 #	Makefile : 	uiEMAttrib
 # 	October 2004	N. Hemstra
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012/01/23 20:55:23 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiAttributes uiEarthModel EMAttrib )

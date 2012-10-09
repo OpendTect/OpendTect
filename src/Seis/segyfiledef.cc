@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.26 2012/07/23 08:11:16 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "segyfiledef.h"
 #include "iopar.h"

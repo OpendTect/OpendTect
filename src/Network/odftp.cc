@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odftp.cc,v 1.10 2010/10/21 06:16:23 cvsumesh Exp $";
+static const char* rcsID = "$Id$";
 
 #include "odftp.h"
 #include "qftpconn.h"

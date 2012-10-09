@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.47 2012/09/06 10:09:50 cvsjaap Exp $";
+static const char* rcsID = "$Id$";
 
 #include "flatauxdataeditor.h"
 

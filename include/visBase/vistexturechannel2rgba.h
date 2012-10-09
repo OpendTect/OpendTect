@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.28 2012/05/04 07:54:38 cvsjaap Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

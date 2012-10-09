@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          April 2011
- RCS:           $Id: uielasticpropsel.h,v 1.7 2012/03/26 15:05:35 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

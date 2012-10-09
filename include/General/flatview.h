@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) iGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.61 2012/09/02 10:09:41 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

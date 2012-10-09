@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.16 2010/10/07 17:29:19 cvshelene Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

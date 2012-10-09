@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratlevel.cc,v 1.11 2012/01/26 13:20:17 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "stratlevel.h"
 #include "bufstringset.h"

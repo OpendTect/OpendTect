@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jan 2011
- RCS:           $Id: uistratsynthcrossplot.h,v 1.20 2011/10/05 12:25:32 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

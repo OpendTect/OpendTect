@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: transform.h,v 1.14 2010/08/15 19:54:44 cvskarthika Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

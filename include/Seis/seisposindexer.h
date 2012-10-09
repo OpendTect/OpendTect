@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2008
- RCS:           $Id: seisposindexer.h,v 1.11 2011/03/30 11:47:16 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

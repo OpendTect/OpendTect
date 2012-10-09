@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.24 2011/11/28 16:03:13 cvsbruno Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

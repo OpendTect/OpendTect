@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          April 2009
- RCS:           $Id: uiicons.h,v 1.6 2010/11/16 11:26:58 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

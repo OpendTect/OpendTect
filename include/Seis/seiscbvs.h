@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.48 2011/10/06 21:38:53 cvsnanne Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 CBVS-based seimic translator.

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.41 2012/01/16 12:25:14 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "threadwork.h"
 #include "task.h"

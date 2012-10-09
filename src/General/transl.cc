@@ -16,7 +16,7 @@
 #include "preloads.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.32 2012/04/25 11:41:09 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)

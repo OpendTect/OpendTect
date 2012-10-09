@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Sep 2010
- RCS:		$Id: geom2dascio.h,v 1.1 2010/09/30 06:39:33 cvssatyaki Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

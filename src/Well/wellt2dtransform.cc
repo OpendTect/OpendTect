@@ -5,7 +5,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          July 2010
- RCS:           $Id: wellt2dtransform.cc,v 1.3 2010/11/30 16:48:16 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

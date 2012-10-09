@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: probdenfunctr.h,v 1.7 2010/02/09 16:04:07 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

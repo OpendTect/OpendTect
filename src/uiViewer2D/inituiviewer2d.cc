@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID = "$Id: inituiviewer2d.cc,v 1.3 2011/08/23 14:51:33 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 
 

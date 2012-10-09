@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: zaxistransformdatapack.cc,v 1.11 2010/06/28 04:09:54 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "zaxistransformdatapack.h"
 

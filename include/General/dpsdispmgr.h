@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Nov 2009
- RCS:		$Id: dpsdispmgr.h,v 1.9 2012/07/10 13:05:56 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

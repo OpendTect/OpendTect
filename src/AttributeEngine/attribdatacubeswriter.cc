@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.9 2011/09/02 08:59:11 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "attribdatacubeswriter.h"
 

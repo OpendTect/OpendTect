@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: envvars.h,v 1.8 2010/09/02 06:41:07 cvsraman Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

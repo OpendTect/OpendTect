@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.35 2012/07/10 13:06:06 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"

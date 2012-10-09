@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uizaxistransform.h,v 1.3 2010/04/30 14:30:06 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

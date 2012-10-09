@@ -5,7 +5,7 @@
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
-RCS:           $Id: parametricsurface.h,v 1.23 2012/01/31 10:50:38 cvskris Exp $
+RCS:           $Id$
 ________________________________________________________________________
 
 -*/

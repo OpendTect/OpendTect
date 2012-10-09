@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.13 2012/03/02 10:25:16 cvsraman Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiclusterjobprov.h"
 

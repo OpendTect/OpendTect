@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.17 2011/10/06 13:36:22 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"

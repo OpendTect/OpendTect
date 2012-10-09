@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxisdata.cc,v 1.8 2011/08/22 11:56:07 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiaxisdata.h"
 #include "dataclipper.h"

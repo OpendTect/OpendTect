@@ -5,7 +5,7 @@
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.22 2009/11/18 19:52:28 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include <string.h>
 #include <stdlib.h>

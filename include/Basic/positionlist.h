@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: positionlist.h,v 1.12 2010/03/30 12:00:30 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

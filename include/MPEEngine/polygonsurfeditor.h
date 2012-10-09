@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: polygonsurfeditor.h,v 1.7 2011/04/26 13:25:48 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

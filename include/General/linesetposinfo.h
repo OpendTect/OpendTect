@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: linesetposinfo.h,v 1.4 2010/07/12 14:24:33 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

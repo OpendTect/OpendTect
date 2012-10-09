@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2010
- RCS:           $Id: uimarkerstyle.h,v 1.3 2010/08/04 14:49:36 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

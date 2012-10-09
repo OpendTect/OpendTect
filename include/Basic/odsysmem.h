@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		April 2012
- RCS:		$Id: odsysmem.h,v 1.3 2012/05/17 05:57:31 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

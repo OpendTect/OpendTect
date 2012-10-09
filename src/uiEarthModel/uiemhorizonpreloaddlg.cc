@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiemhorizonpreloaddlg.cc,v 1.6 2010/12/16 13:04:29 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uiempreloaddlg.h"
 

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: emfact.cc,v 1.5 2009/09/11 08:39:55 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 
 #include "emsurfacetr.h"

@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: propertyref.cc,v 1.5 2012/07/24 15:14:22 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "propertyref.h"
 #include "property.h"

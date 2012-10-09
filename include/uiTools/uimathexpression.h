@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2011
- RCS:           $Id: uimathexpression.h,v 1.3 2012/02/03 14:16:01 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

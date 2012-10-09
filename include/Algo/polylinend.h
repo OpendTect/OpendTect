@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polylinend.h,v 1.1 2012/07/17 12:53:02 cvsjaap Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

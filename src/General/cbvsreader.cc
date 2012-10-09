@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.84 2012/03/06 10:47:48 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 /*!
 

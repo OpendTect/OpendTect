@@ -4,7 +4,7 @@
  * DATE     : 23-06-2003
 -*/
 
-static const char* rcsID = "$Id: visdetail.cc,v 1.8 2012/02/10 15:40:57 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/details/SoPointDetail.h>

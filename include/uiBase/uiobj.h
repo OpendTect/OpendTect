@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.73 2011/05/13 10:03:03 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

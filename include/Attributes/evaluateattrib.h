@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          19-10-2005
- RCS:           $Id: evaluateattrib.h,v 1.7 2009/07/22 16:01:13 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

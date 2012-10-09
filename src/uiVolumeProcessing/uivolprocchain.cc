@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.27 2011/11/02 14:46:05 cvsnanne Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uivolprocchain.h"
 

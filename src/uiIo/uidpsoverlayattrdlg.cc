@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsoverlayattrdlg.cc,v 1.10 2011/06/16 10:25:25 cvssatyaki Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uidpsoverlayattrdlg.h"
 #include "uidatapointsetcrossplot.h"

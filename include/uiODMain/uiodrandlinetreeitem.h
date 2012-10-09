@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodrandlinetreeitem.h,v 1.16 2011/05/05 08:53:01 cvssatyaki Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

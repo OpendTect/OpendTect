@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.52 2011/09/19 12:23:22 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

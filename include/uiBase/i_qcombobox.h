@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qcombobox.h,v 1.9 2011/04/21 13:09:13 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

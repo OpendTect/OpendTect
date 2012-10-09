@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	R. K. Singh
  Date:		Oct 2007
- RCS:		$Id: seispsmerge.h,v 1.10 2011/10/07 13:15:04 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

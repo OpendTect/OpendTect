@@ -7,7 +7,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          February 2005
- RCS:           $Id: uieventattrib.h,v 1.9 2011/02/03 11:33:25 cvshelene Exp $
+ RCS:           $Id$
  ________________________________________________________________________
 
 -*/

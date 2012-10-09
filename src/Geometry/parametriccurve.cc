@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.17 2012/02/01 09:44:27 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "parametriccurve.h"
 

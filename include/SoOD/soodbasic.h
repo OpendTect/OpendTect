@@ -6,7 +6,7 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2009
- RCS:           $Id: soodbasic.h,v 1.8 2012/07/20 06:52:08 cvskris Exp $
+ RCS:           $Id$
  ________________________________________________________________________
 
 -*/

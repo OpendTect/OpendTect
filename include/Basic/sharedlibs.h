@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jun 2006
- RCS:		$Id: sharedlibs.h,v 1.6 2011/08/23 11:42:03 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

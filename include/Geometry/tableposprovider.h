@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: tableposprovider.h,v 1.8 2011/04/22 13:28:56 cvsbert Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 

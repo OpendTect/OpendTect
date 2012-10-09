@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2007
- RCS:           $Id: flatposdata.h,v 1.8 2010/01/21 13:04:35 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

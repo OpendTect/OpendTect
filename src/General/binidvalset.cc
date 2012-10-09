@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.39 2012/05/08 10:36:09 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "binidvalset.h"
 #include "iopar.h"

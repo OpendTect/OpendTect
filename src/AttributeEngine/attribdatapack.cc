@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.48 2012/06/22 12:17:43 cvshelene Exp $";
+static const char* rcsID = "$Id$";
 
 #include "attribdatapack.h"
 

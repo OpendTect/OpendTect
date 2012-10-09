@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.18 2011/04/21 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "uibatchtime2depthsetup.h"
 

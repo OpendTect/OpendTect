@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID = "$Id: stratseqgen.cc,v 1.39 2012/08/22 11:03:00 cvsbert Exp $";
+static const char* rcsID = "$Id$";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"

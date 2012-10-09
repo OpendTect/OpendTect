@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          June 2011
- RCS:           $Id: uidpscrossplottools.h,v 1.2 2011/07/11 11:50:16 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

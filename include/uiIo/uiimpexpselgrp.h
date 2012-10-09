@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          Dec 2010
- RCS:           $Id: uiimpexpselgrp.h,v 1.3 2011/05/25 09:49:22 cvssatyaki Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: visvolorthoslice.h,v 1.14 2012/01/05 10:47:58 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

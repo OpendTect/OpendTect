@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          June 2006
- RCS:           $Id: uifingerprintcalcobj.h,v 1.7 2009/09/15 07:58:02 cvsnanne Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

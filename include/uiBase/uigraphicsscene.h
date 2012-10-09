@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.36 2011/08/24 05:57:17 cvssatyaki Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

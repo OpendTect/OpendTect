@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika S
  Date:          August 2010
- RCS:           $Id: SbImagei32.h,v 1.2 2010/09/03 08:49:33 cvskarthika Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

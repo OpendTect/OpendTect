@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoIndexedTriangleFanSet.h,v 1.7 2011/04/28 07:00:11 cvsbert Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

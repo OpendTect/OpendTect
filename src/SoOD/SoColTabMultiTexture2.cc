@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.10 2011/09/22 13:32:01 cvskris Exp $";
+static const char* rcsID = "$Id$";
 
 #include "SoColTabMultiTexture2.h"
 

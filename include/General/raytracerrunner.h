@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          May 2011
- RCS:           $Id: raytracerrunner.h,v 1.7 2012/01/17 16:09:27 cvsbruno Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

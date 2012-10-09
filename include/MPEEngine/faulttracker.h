@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: faulttracker.h,v 1.5 2010/11/06 16:21:05 cvsumesh Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

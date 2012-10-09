@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.47 2011/08/12 10:16:32 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

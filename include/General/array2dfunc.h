@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: array2dfunc.h,v 1.4 2011/08/02 09:12:52 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */

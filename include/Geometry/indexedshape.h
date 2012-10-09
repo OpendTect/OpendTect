@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.16 2011/12/13 22:07:47 cvsyuancheng Exp $
+RCS:           $Id$
 ________________________________________________________________________
 
 -*/
