@@ -74,12 +74,21 @@ public:
     bool doWork( od_int64 start, od_int64 stop, int )
     {
 	TypeSet<float> localsamples;
-	for ( int idx=start; idx<=stop; idx++ )
+	for ( od_int64 idx=start; idx<=stop; idx++ )
 	{
-	    double rand = Stats::RandGen::get();
-	    rand *= (nrvals_-1);
-	    const od_int64 sampidx = mNINT64(rand);
-	    const float val = input_[sampidx];
+	    float val;
+	    if ( doall_ )
+	    {
+		val = input_[idx];
+	    }
+	    else
+	    {
+		double rand = Stats::RandGen::get();
+		rand *= (nrvals_-1);
+		const od_int64 sampidx = mNINT64(rand);
+		val = input_[sampidx];
+	    }
+	    
 	    if ( Math::IsNormalNumber( val ) && !mIsUdf( val ) )
 		localsamples += val;
 	}
