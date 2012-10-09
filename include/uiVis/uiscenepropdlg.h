@@ -52,7 +52,7 @@ protected:
     Color			annotcolor_;
     float			oldfactor_;
     float			oldunits_;
-    static bool			savestatus;
+    static bool			savestatus_;
 
     uiCheckBox*			annotfld_;
     uiCheckBox*			annotscalefld_;
