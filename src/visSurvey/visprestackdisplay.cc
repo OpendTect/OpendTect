@@ -32,12 +32,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdepthtabplanedragger.h"
 #include "visfaceset.h"
 #include "visflatviewer.h"
+#include "visforegroundlifter.h"
 #include "vismaterial.h"
 #include "vispickstyle.h"
 #include "visplanedatadisplay.h"
 #include "visseis2ddisplay.h"
 #include <math.h>
-
 
 mCreateFactoryEntry( visSurvey::PreStackDisplay );
 
@@ -74,8 +74,24 @@ PreStackDisplay::PreStackDisplay()
     , reader_( 0 )
     , ioobj_( 0 )
     , movefinished_(this)
+    , lifter_( visBase::ForegroundLifter::create() )  
 {
     setMaterial( 0 );
+    
+    flatviewer_->ref();
+    flatviewer_->setSelectable( false );
+    flatviewer_->removeSwitch();
+    flatviewer_->appearance().setGeoDefaults( true );
+    flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
+    flatviewer_->getMaterial()->setAmbience( 0.8 );
+    flatviewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
+    flatviewer_->dataChange.notify( mCB(this,PreStackDisplay,dataChangedCB) );
+    addChild( flatviewer_->getInventorNode() );
+    
+    lifter_->ref();
+    lifter_->setLift(0.8);
+    addChild( lifter_->getInventorNode() );
+    
     planedragger_->ref();
     planedragger_->removeScaleTabs();
     planedragger_->motion.notify( mCB(this,PreStackDisplay,draggerMotion) );
@@ -108,21 +124,13 @@ PreStackDisplay::PreStackDisplay()
     pickstyle_->ref();
     addChild( pickstyle_->getInventorNode() );
     pickstyle_->setStyle( visBase::PickStyle::Shape );
-
-    flatviewer_->ref();
-    flatviewer_->setSelectable( false );
-    flatviewer_->removeSwitch();
-    flatviewer_->appearance().setGeoDefaults( true );
-    flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
-    flatviewer_->getMaterial()->setAmbience( 0.8 );
-    flatviewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
-    flatviewer_->dataChange.notify( mCB(this,PreStackDisplay,dataChangedCB) );
-    addChild( flatviewer_->getInventorNode() );
 }
 
 
 PreStackDisplay::~PreStackDisplay()
 {
+    lifter_->unRef();
+
     pickstyle_->unRef();
     draggerrect_->unRef();
     draggermaterial_->unRef();
