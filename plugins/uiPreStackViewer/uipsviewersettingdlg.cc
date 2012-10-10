@@ -28,7 +28,7 @@ uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
 	PreStackView::Viewer3D& viewer, uiViewer3DMgr& mgr, 
 	PreStack::ProcessManager& prepromgr )
     : uiTabStackDlg( p, uiDialog::Setup( viewer.getObjectName(), 
-		"Prestack display properties", "50.0.8") ) 
+		"Prestack display properties", "50.0.8").modal(false) ) 
     , preproctab_( 0 )		     
 {
     shapetab_ = new uiViewer3DShapeTab( tabParent(), viewer, mgr );
