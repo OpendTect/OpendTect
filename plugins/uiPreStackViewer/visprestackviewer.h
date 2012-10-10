@@ -25,6 +25,7 @@ namespace visBase
     class DepthTabPlaneDragger;
     class FaceSet;
     class FlatViewer;
+    class ForegroundLifter;
     class PickStyle;
 };
 
@@ -133,6 +134,7 @@ protected:
     visBase::Material*			draggermaterial_;
     visBase::PickStyle*			pickstyle_;
     PreStack::ProcessManager*		preprocmgr_;
+    visBase::ForegroundLifter*		lifter_;
     
     MultiID				mid_;
     visSurvey::PlaneDataDisplay*	section_;

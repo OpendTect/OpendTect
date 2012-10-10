@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: visprestackviewer.cc,v 1.74 2011/12/16 15:57:20
 #include "visdepthtabplanedragger.h"
 #include "visfaceset.h"
 #include "visflatviewer.h"
+#include "visforegroundlifter.h"
 #include "vismaterial.h"
 #include "vispickstyle.h"
 #include "visplanedatadisplay.h"
@@ -74,6 +75,21 @@ Viewer3D::Viewer3D()
     , movefinished_(this)
 {
     setMaterial( 0 );
+    
+    flatviewer_->ref();
+    flatviewer_->setSelectable( false );
+    flatviewer_->removeSwitch();
+    flatviewer_->appearance().setGeoDefaults( true );
+    flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
+    flatviewer_->getMaterial()->setAmbience( 0.8 );
+    flatviewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
+    flatviewer_->dataChange.notify( mCB( this, Viewer3D, dataChangedCB ) );
+    addChild( flatviewer_->getInventorNode() );
+
+    lifter_->ref();
+    lifter_->setLift(0.8);
+    addChild( lifter_->getInventorNode() );
+    
     planedragger_->ref();
     planedragger_->removeScaleTabs();
     planedragger_->motion.notify( mCB( this, Viewer3D, draggerMotion ) );
@@ -106,22 +122,12 @@ Viewer3D::Viewer3D()
     pickstyle_->ref();
     addChild( pickstyle_->getInventorNode() );
     pickstyle_->setStyle( visBase::PickStyle::Shape );
-
-    flatviewer_->ref();
-    flatviewer_->setSelectable( false );
-    flatviewer_->removeSwitch();
-    flatviewer_->appearance().setGeoDefaults( true );
-    flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
-    flatviewer_->getMaterial()->setAmbience( 0.8 );
-    flatviewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
-
-    flatviewer_->dataChange.notify( mCB( this, Viewer3D, dataChangedCB ) );
-    addChild( flatviewer_->getInventorNode() );
 }
 
 
 Viewer3D::~Viewer3D()
 {
+    lifter_->unRef();
     pickstyle_->unRef();
     draggerrect_->unRef();
     draggermaterial_->unRef();
