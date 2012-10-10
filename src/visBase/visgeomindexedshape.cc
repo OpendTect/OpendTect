@@ -117,7 +117,8 @@ void GeomIndexedShape::ColTabMaterial::updatePropertiesFrom( const Material* m )
 {
     const float diffintensity = m->getDiffIntensity( 0 );
     const float transparency = m->getTransparency( 0 );
-    for ( int idx=0; idx<mNrMaterials; idx++ )
+    const int materialsize = mMAX( coltab_->nrOfMaterial(), (mNrMaterials) );
+    for ( int idx=0; idx<materialsize; idx++ )
     {
 	coltab_->setDiffIntensity( diffintensity, idx );
 	coltab_->setTransparency( transparency, idx );
