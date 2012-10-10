@@ -110,13 +110,14 @@ public:
     StepInterval<int>&		trcRange(int lidx)	{ return trcrgs_[lidx];}
     const StepInterval<int>&	trcRange(int lidx) const {return trcrgs_[lidx];}
     
-    StepInterval<float>&	zRange() 		{ return zrg_; }
-    const StepInterval<float>&	zRange() const		{ return zrg_; };
+    StepInterval<float>&	zRange(int lidx=0) 	{ return zrgs_[lidx]; }
+    const StepInterval<float>&	zRange(int lidx=0) const {return zrgs_[lidx];}
 
 protected:
 
+    TypeSet<PosInfo::GeomID>	geomids_;
     TypeSet< StepInterval<int> > trcrgs_;
-    StepInterval<float>	zrg_;
+    TypeSet< StepInterval<float> > zrgs_;
     int			curtrcidx_;
     int			curlineidx_;
     float		curz_;
@@ -132,4 +133,3 @@ public:
 } // namespace
 
 #endif
-
