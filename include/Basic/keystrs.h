@@ -54,6 +54,7 @@ namespace sKey
     inline FixedString IOSelection()	{ return "I/O Selection"; }
     inline FixedString Inline()		{ return "In-line"; }
     inline FixedString Keys()		{ return "Keys"; }
+    inline FixedString Line()		{ return "Line"; }
     inline FixedString LineKey()	{ return "Line key"; }
     inline FixedString LineName()	{ return "Line name"; }
     inline FixedString Log()		{ return "Log"; }
