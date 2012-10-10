@@ -142,6 +142,7 @@ protected:
     bool			showall_;
     int				mousepressid_;
     int				pickedsobjid_; //!< Picked SurveyObject ID
+    int				voiidx_;
 
     visBase::PickStyle*		pickstyle_;
     visBase::DataObjectGroup*	group_;

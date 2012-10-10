@@ -71,6 +71,7 @@ LocationDisplay::LocationDisplay()
     , polyline_(0)
     , needline_(false)
     , pickedsobjid_(-1)
+    , voiidx_(-1)
 {
     group_->ref();
     addChild( group_->getInventorNode() );
@@ -149,7 +150,28 @@ void LocationDisplay::setSetMgr( Pick::SetMgr* mgr )
 void LocationDisplay::fullRedraw( CallBacker* )
 {
     if ( !set_ ) return;
+    
 
+    if ( datatransform_ && datatransform_->needsVolumeOfInterest() )
+    {
+	CubeSampling cs( false );
+	for ( int pidx=0; pidx<set_->size(); pidx++ )
+	{
+	    Pick::Location loc = (*set_)[pidx];
+	    BinID bid = SI().transform( loc.pos );
+	    const float zval = loc.pos.z;
+	    cs.hrg.include( bid );
+	    cs.zrg.include( zval, false );
+	}
+
+	if ( voiidx_<0 )
+	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
+	else
+	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
+
+	datatransform_->loadDataIfMissing( voiidx_ );
+    }
+    
     getMaterial()->setColor( set_->disp_.color_ );
     const int nrpicks = set_->size();
 
@@ -872,8 +894,9 @@ bool LocationDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 	datatransform_->ref();
     }
 
+    
     fullRedraw();
-    showAll( !datatransform_ || !datatransform_->needsVolumeOfInterest() ); 
+    showAll( datatransform_ && datatransform_->needsVolumeOfInterest() ); 
     return true;
 }
 
