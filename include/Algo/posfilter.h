@@ -98,29 +98,25 @@ public:
 			~Filter2D();
 
     virtual bool	is2D() const				{ return true; }
-    virtual bool	worksWithCoords() const
-    			{ return geomids_.size(); }
-
     virtual bool	includes(int,float z=mUdf(float),int lidx=0) const = 0;
     virtual bool	includes(const Coord&,
 	    			 float z=mUdf(float)) const	= 0;
 
-    mDefineFactoryInClass(Filter2D,factory);
-    static Filter2D*	make(const IOPar&);
-
     void		addLineID(const PosInfo::GeomID&);
     void		removeLineID(int lidx);
     PosInfo::GeomID	lineID(int) const;
+    int			indexOf(const PosInfo::GeomID&) const;
     int			nrLines() const;
+
+    mDefineFactoryInClass(Filter2D,factory);
+    static Filter2D*	make(const IOPar&);
 
 protected:
 
     TypeSet<PosInfo::GeomID>	geomids_;
-
 };
 
 
 } // namespace
 
 #endif
-
