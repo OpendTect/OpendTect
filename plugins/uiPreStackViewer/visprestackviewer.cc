@@ -73,6 +73,7 @@ Viewer3D::Viewer3D()
     , reader_( 0 )
     , ioobj_( 0 )
     , movefinished_(this)
+    , lifter_( visBase::ForegroundLifter::create() )  
 {
     setMaterial( 0 );
     
