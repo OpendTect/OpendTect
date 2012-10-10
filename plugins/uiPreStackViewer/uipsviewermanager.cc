@@ -219,8 +219,10 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
     else if ( mnuid==proptymenuitem_.id )
     {
 	menu->setIsHandled( true );
-	uiViewer3DSettingDlg dlg(menu->getParent(), *psv, *this, *preprocmgr_);
-	dlg.go();
+	uiViewer3DSettingDlg* dlg = new uiViewer3DSettingDlg(
+		menu->getParent(), *psv, *this, *preprocmgr_);
+	dlg->setDeleteOnClose( true );
+	dlg->go();
     }
     else if ( mnuid==positionmenuitem_.id )
     {
