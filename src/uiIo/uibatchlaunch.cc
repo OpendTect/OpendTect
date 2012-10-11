@@ -530,7 +530,7 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
 	.add( " \"" ).add( fnm ).add( "\"" );
 
 #ifdef __msvc__ 
-    if ( !ExecOSCmd( comm, false ) )
+    if ( !ExecOSCmd( comm, true, true ) )
 #else
     if ( !ExecOSCmd( comm, true ) )
 #endif
