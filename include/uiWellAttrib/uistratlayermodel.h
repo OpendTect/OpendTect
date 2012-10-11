@@ -80,6 +80,9 @@ public:
     //Utility
     SyntheticData*		getCurrentSyntheticData() const;
 
+    void			setSynthView(const uiWorldRect& wr);
+    const uiWorldRect&		curSynthView() const; 
+
 protected:
 
     uiLayerSequenceGenDesc*	seqdisp_;
