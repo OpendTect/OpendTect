@@ -86,7 +86,8 @@ void RecursiveCopier::makeFileList( const char* dir )
 	BufferString relpath( srcdir.relativeFilePath(curdir.buf())
 						.toAscii().constData() );
 	filelist_.add( relpath );
-	makeFileList( curdir );
+	if ( !File::isLink(curdir) )
+	    makeFileList( curdir );
     }
 }
 
@@ -108,23 +109,17 @@ int RecursiveCopier::nextStep()
 
     FilePath srcfile( src_, filelist_.get(fileidx_) );
     FilePath destfile( dest_, filelist_.get(fileidx_) );
-    if ( isDirectory(srcfile.fullPath()) )
-    {
-	if ( !File::createDir(destfile.fullPath()) )
-	    mErrRet("Cannot create directory ",destfile.fullPath())
-
-	fileidx_++;
-	return MoreToDo();
-    }
-
     if ( File::isLink(srcfile.fullPath()) )
     {
 	BufferString linkval = linkValue( srcfile.fullPath() );
 	if ( !createLink(linkval,destfile.fullPath()) )
 	    mErrRet("Cannot create symbolic link ",destfile.fullPath())
     }
+    else if ( isDirectory(srcfile.fullPath())
+	    && !File::createDir(destfile.fullPath()) )
+	mErrRet("Cannot create directory ",destfile.fullPath())
     else if ( !File::copy(srcfile.fullPath(),destfile.fullPath()) )
-	    mErrRet("Cannot create file ", destfile.fullPath())
+	mErrRet("Cannot create file ", destfile.fullPath())
 
     fileidx_++;
     return MoreToDo();
