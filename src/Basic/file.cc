@@ -115,9 +115,11 @@ int RecursiveCopier::nextStep()
 	if ( !createLink(linkval,destfile.fullPath()) )
 	    mErrRet("Cannot create symbolic link ",destfile.fullPath())
     }
-    else if ( isDirectory(srcfile.fullPath())
-	    && !File::createDir(destfile.fullPath()) )
-	mErrRet("Cannot create directory ",destfile.fullPath())
+    else if ( isDirectory(srcfile.fullPath()) )
+    {
+	if ( !File::createDir(destfile.fullPath()) )
+	    mErrRet("Cannot create directory ",destfile.fullPath())
+    }
     else if ( !File::copy(srcfile.fullPath(),destfile.fullPath()) )
 	mErrRet("Cannot create file ", destfile.fullPath())
 
