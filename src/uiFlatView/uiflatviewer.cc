@@ -134,10 +134,17 @@ void uiFlatViewer::updateTransforms()
 {
     const uiRect viewrect = getViewRect();
 
-    const double xscale = viewrect.width()/wr_.width();
-    const double yscale = viewrect.height()/wr_.height();
-    const double xpos = viewrect.left()-xscale*wr_.left();
-    const double ypos = viewrect.top()-yscale*wr_.top();
+    uiWorldRect wr = wr_;
+    if ( wr.left() > wr.right() ) 
+	wr.swapHor();
+    if ( wr.bottom() < wr.top() ) 
+	wr.swapVer();
+
+    axesdrawer_.setWorldCoords( wr );
+    const double xscale = viewrect.width()/wr.width();
+    const double yscale = viewrect.height()/wr.height();
+    const double xpos = viewrect.left()-xscale*wr.left();
+    const double ypos = viewrect.top()-yscale*wr.top();
 
     worldgroup_->setPos( uiWorldPoint( xpos, ypos ) );
     worldgroup_->setScale( (float) xscale, (float) yscale );
@@ -219,12 +226,6 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
 	return;
 
     wr_ = wr;
-    if ( (wr_.left() > wr.right()) != appearance().annot_.x1_.reversed_ )
-	wr_.swapHor();
-    if ( (wr_.bottom() > wr.top()) != appearance().annot_.x2_.reversed_ )
-	wr_.swapVer();
-
-    axesdrawer_.setWorldCoords( wr_ );
     updateTransforms();
 
     viewChanged.trigger();

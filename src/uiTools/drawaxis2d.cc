@@ -131,12 +131,11 @@ void uiGraphicsSceneAxis::update()
     	AxisLayout<double>( Interval<double>(rg_.start ,rg_.stop) ).sd_;
     
     
-    const Interval<int> axisrg( isx_ ? viewrect_.left() : viewrect_.top(),
+    Interval<int> axisrg( isx_ ? viewrect_.left() : viewrect_.top(),
 			 	isx_ ? viewrect_.right() : viewrect_.bottom() );
-    const Interval<int> datarg( isx_ ? viewrect_.top() : viewrect_.left(),
+    Interval<int> datarg( isx_ ? viewrect_.top() : viewrect_.left(),
 			       isx_ ? viewrect_.bottom() : viewrect_.right() );
-    
-    
+
     const int ticklen = fontdata_.pointSize();
     
     const int baseline = istop_ ? datarg.start : datarg.stop;
@@ -187,7 +186,7 @@ void uiGraphicsSceneAxis::update()
 	    continue;
 	
 	txt = worldpos * txtfactor_;
-	const double worldrelpos = rg_.getfIndex( worldpos, rg_.width() );
+	const double worldrelpos = fabs(rg_.getfIndex( worldpos, rg_.width() ));
 	float axispos = (float) ( axisrg.start + worldrelpos*axisrg.width() );
 	
 	mGetItem( uiLineItem, line, tickline );
@@ -347,3 +346,4 @@ void uiGraphicsSceneAxisMgr::drawAxisLine( bool yn )
     xaxis_->drawAxisLine( yn ); 
     yaxis_->drawAxisLine( yn ); 
 }
+
