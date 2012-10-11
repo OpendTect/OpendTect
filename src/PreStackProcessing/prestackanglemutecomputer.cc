@@ -107,29 +107,17 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	float zpos = 0;
 	int lastioff =0;
 	float lastvalidmutelayer = 0;
-	TypeSet< Interval<float> > mutelayeritvs;
 	for ( int ioff=0; ioff<offsets.size(); ioff++ )
 	{
-	    getOffsetMuteLayers( *rtrunner->rayTracers()[0], 
-				nrlayers, ioff, true, mutelayeritvs );
-	    while ( !mutelayeritvs.isEmpty() )
+	    const float mutelayer = 
+		getOffsetMuteLayer( *rtrunner->rayTracers()[0], 
+				    nrlayers, ioff, true );
+	    if ( !mIsUdf( mutelayer ) )
 	    {
-		Interval<float> mlitv = mutelayeritvs[0]; 
-		mutelayeritvs.remove( 0 );
-
-		float mutelayer = mlitv.start;
-		const float offset = offsets[ioff];
-		zpos = offset== 0 ? 0 : sd.start + sd.step*mutelayer;
-		mutefunc->add( zpos, offset );
+		zpos = offsets[ioff] == 0 ? 0 : sd.start + sd.step*mutelayer;
 		lastvalidmutelayer = mutelayer;
+		mutefunc->add( offsets[ioff], zpos );
 		lastioff = ioff;
-
-		mutelayer = mlitv.stop;
-		if ( !mIsUdf( mutelayer ) )
-		{
-		    zpos = offset == 0 ? 0 : sd.start + sd.step*mutelayer;
-		    mutefunc->add( zpos, offset );
-		}
 	    }
 	}
 	if ( lastioff != offsets.size()-1 )

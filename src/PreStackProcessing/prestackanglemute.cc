@@ -209,40 +209,6 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 }
 
 
-float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers, 
-					    int ioff, bool tail ) const 
-{
-    return getOffsetMuteLayer( rt, nrlayers, ioff, tail, 0, true );
-}
-
-
-void AngleMuteBase::getOffsetMuteLayers( const RayTracer1D& rt, int nrlayers, 
-					int ioff, bool tail, 
-					TypeSet< Interval<float> >& res ) const 
-{
-    int lid = 0;
-    while ( true )
-    {
-	Interval<float> ires( mUdf(float), mUdf(float) );
-	ires.start = getOffsetMuteLayer( rt, nrlayers, ioff, tail, lid, true );
-        if ( mIsUdf( ires.start ) )
-	    break;
-
-	res += ires;
-
-	lid = (int)ires.start;
-	if ( lid <= 0 || lid >= nrlayers )
-	    break;
-
-	lid ++;
-	ires.stop = getOffsetMuteLayer( rt, nrlayers, ioff, tail, lid, false );
-        if ( mIsUdf( ires.stop ) )
-	   break;
-    }
-}
-
-
-
 AngleMute::AngleMute()
     : Processor( sFactoryKeyword() )
     , muter_( 0 )
@@ -332,41 +298,27 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	    if ( !trace.init() )
 		continue;
 
-	    TypeSet< Interval<float> > mutelayeritvs;
-	    getOffsetMuteLayers( *rtrunners_[thread]->rayTracers()[0],
-				nrlayers, ioffs, params().tail_, mutelayeritvs);
+	    float mutelayer = 
+		    getOffsetMuteLayer( *rtrunners_[thread]->rayTracers()[0],
+	    nrblockedlayers, ioffs, params().tail_ );
+	    if ( mIsUdf( mutelayer ) )
+		continue;
+
 	    if ( nrlayers != nrblockedlayers )
 	    {
 		float depth = 0;
-		for ( int iml=0; iml<mutelayeritvs.size(); iml ++ )
+		for ( int il=0; il<(int)mutelayer+2; il++ )
 		{
-		    Interval<float>& itvml = mutelayeritvs[iml];
-		    float startdpt; float stopdpt;
-		    const float startml = itvml.start;
-		    const float stopml = itvml.stop;
-		    for ( int il=0; il<mMAX((int)start+2,(int)stopml+2); il++ )
-		    {
-			if ( il >= layers.size() ) break;
-			float thk = layers[il].thickness_;
-			if ( !mIsUdf(startml) && il == (int)startml+1 )
-			{
-			    const float dlayerstart = startml - (int)startml;
-			    startdpt =depth + thk*dlayerstart;
-			}
-			if ( !mIsUdf(stopml) && il == (int)stopml+1 )
-			{
-			    const float dlayerstop = stopml - (int)stopml;
-			    stopdpt = depth + thk*dlayerstop;
-			}
+		    if ( il >= layers.size() ) break;
+		    float thk = layers[il].thickness_;
+		    if ( il == (int)mutelayer+1 )
+			thk *= ( mutelayer - (int)mutelayer);
 
-			depth += thk;
-		    }
-		    itvml.start = sd.getfIndex( startdpt );
-		    itvml.stop = sd.getfIndex( stopdpt );
+		    depth += thk;
 		}
+		mutelayer = sd.getfIndex( depth );
 	    }
-
-	    muter_->muteIntervals( trace, nrlayers, mutelayeritvs );
+	    muter_->mute( trace, nrlayers, mutelayer );
 	}
     }
 

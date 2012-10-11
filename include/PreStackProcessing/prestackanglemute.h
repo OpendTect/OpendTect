@@ -64,10 +64,7 @@ protected:
     bool	getLayers(const BinID&,TypeSet<ElasticLayer>&,
 	    			SamplingData<float>&,int resamplesz=-1);
     float	getOffsetMuteLayer(const RayTracer1D&,int,int,bool,
-	    				int,bool) const;
-    float	getOffsetMuteLayer(const RayTracer1D&,int,int,bool) const;
-    void	getOffsetMuteLayers(const RayTracer1D&,int,int,bool,
-	    				TypeSet< Interval<float> >&) const;
+				int startlayer=0,bool belowcutoff=true) const;
 
     ObjectSet<RayTracerRunner>	rtrunners_;
 };
@@ -110,7 +107,7 @@ public:
 protected:
 
     od_int64 		nrIterations() const	{ return outputs_.size(); }
-    bool		doWork(od_int64,od_int64,int);
+    virtual bool	doWork(od_int64,od_int64,int);
 
     BufferString	errmsg_;
     bool		raytraceparallel_;

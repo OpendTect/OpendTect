@@ -161,21 +161,20 @@ bool Mute::doWork( od_int64 start, od_int64 stop, int )
 
 	const int nrsamples = input->size(Gather::zDim()==0);
 	const float offs = input->getOffset(ioffs);
-	TypeSet< Interval<float> > muteitvs;
-	def_.computeIntervals( offs, input->getBinID(), muteitvs );
-	if ( muteitvs.isEmpty() )
+
+	const float mutez = def_.value( offs, input->getBinID() );
+	if ( mIsUdf(mutez) )
 	    continue;
 
-	TypeSet< Interval<float> > muteitvspos;
-	Muter::muteIntervalsPos( muteitvs, muteitvspos, 
-				 input->posData().range(false) );
+	const float mutepos =
+	    Muter::mutePos( mutez, input->posData().range(false) );
 
 	Array1DSlice<float> slice( output->data() );
 	slice.setPos( 0, ioffs );
 	if ( !slice.init() )
 	    continue;
 
-	muter_->muteIntervals( slice, nrsamples, muteitvspos );
+	muter_->mute( slice, nrsamples, mutepos );
     }
 
     return true;
