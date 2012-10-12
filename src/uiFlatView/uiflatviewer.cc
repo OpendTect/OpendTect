@@ -140,7 +140,6 @@ void uiFlatViewer::updateTransforms()
     if ( wr.bottom() < wr.top() ) 
 	wr.swapVer();
 
-    axesdrawer_.setWorldCoords( wr );
     const double xscale = viewrect.width()/wr.width();
     const double yscale = viewrect.height()/wr.height();
     const double xpos = viewrect.left()-xscale*wr.left();
@@ -226,6 +225,12 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
 	return;
 
     wr_ = wr;
+    if ( (wr_.left() > wr.right()) != appearance().annot_.x1_.reversed_ )
+	wr_.swapHor();
+    if ( (wr_.bottom() > wr.top()) != appearance().annot_.x2_.reversed_ )
+	wr_.swapVer();
+
+    axesdrawer_.setWorldCoords( wr_ );
     updateTransforms();
 
     viewChanged.trigger();
