@@ -20,16 +20,17 @@ ________________________________________________________________________
 #include "position.h"
 
 class BinID;
-class HorSampling;
 class BinIDValueSet;
-class DataPointSet;
 class BufferStringSet;
+class CubeSampling;
+class DataPointSet;
+class HorSampling;
 class MultiID;
 class SurfaceInfo;
-class uiImportHorizon;
-class uiImportFault3D;
 class uiExportHorizon;
 class uiExportFault;
+class uiImportHorizon;
+class uiImportFault3D;
 class uiPopupMenu;
 class uiVariogramDisplay;
 
@@ -131,7 +132,8 @@ public:
     bool		getAuxData(const EM::ObjectID&,int auxdatanr,
 	    			   DataPointSet&, float& shift) const;
     bool		getAllAuxData(const EM::ObjectID&,DataPointSet&,
-	    			      TypeSet<float>* shfs=0) const;
+	    			      TypeSet<float>* shfs=0,
+				      const CubeSampling* cs=0) const;
     bool		interpolateAuxData(const EM::ObjectID&,const char* nm,
 	    				   DataPointSet& res);
     bool		filterAuxData(const EM::ObjectID&,const char* nm,
