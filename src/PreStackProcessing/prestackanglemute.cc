@@ -306,17 +306,37 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
 	    if ( nrlayers != nrblockedlayers )
 	    {
-		float depth = 0;
-		for ( int il=0; il<(int)mutelayer+2; il++ )
+		const int muteintlayer = (int)mutelayer;
+		if ( input->zIsTime() )
 		{
-		    if ( il >= layers.size() ) break;
-		    float thk = layers[il].thickness_;
-		    if ( il == (int)mutelayer+1 )
-			thk *= ( mutelayer - (int)mutelayer);
-
-		    depth += thk;
+		    float mtime = 0;
+		    for ( int il=0; il<=muteintlayer; il++ )
+		    {
+			mtime += layers[il].thickness_/layers[il].vel_;
+			if ( il==muteintlayer )
+			{
+			    const float diff = mutelayer-muteintlayer;
+			    if ( diff>0 )
+				mtime += diff*
+				    layers[il+1].thickness_/layers[il+1].vel_;
+			}
+		    }
+		    mutelayer = sd.getfIndex( mtime );
 		}
-		mutelayer = sd.getfIndex( depth );
+		else
+		{
+		    float depth = 0;
+		    for ( int il=0; il<muteintlayer+2; il++ )
+		    {
+			if ( il >= nrblockedlayers ) break;
+			float thk = layers[il].thickness_;
+			if ( il == muteintlayer+1 )
+			    thk *= ( mutelayer - muteintlayer);
+			
+			depth += thk;
+		    }
+		    mutelayer = sd.getfIndex( depth );
+		}
 	    }
 	    muter_->mute( trace, nrlayers, mutelayer );
 	}
