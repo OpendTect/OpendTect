@@ -19,16 +19,17 @@ ________________________________________________________________________
 #include "position.h"
 
 class BinID;
-class HorSampling;
 class BinIDValueSet;
-class DataPointSet;
 class BufferStringSet;
+class CubeSampling;
+class DataPointSet;
+class HorSampling;
 class MultiID;
 class SurfaceInfo;
-class uiImportHorizon;
-class uiImportFault3D;
 class uiExportHorizon;
 class uiExportFault;
+class uiImportHorizon;
+class uiImportFault3D;
 class uiPopupMenu;
 class uiVariogramDisplay;
 
@@ -79,7 +80,7 @@ public:
     			/*!<return bool is overwrite old horizon or not. */
     void		fillPickSet(Pick::Set&,MultiID);
     void		deriveHor3DFrom2D(const EM::ObjectID&);
-    bool		askUserToSave(const EM::ObjectID&,bool withcancel) const;
+    bool		askUserToSave(const EM::ObjectID&,bool withcancl) const;
     			/*!< If object has changed, user is asked whether
 			    to save it or not, and if so, the object is saved.
 			    Returns false when save option is cancelled. */
@@ -184,8 +185,13 @@ protected:
     bool		disponcreation_;
 
     ObjectSet<uiVariogramDisplay>	variodlgs_;
-
     static const char*  sKeySectionID() { return "Section ID"; }
+
+public:    
+    
+    bool		getAllAuxData(const EM::ObjectID&,DataPointSet&,
+				TypeSet<float>* shfs,
+				const CubeSampling* cs) const;
 };
 
 

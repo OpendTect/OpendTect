@@ -869,6 +869,13 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 				    DataPointSet& data,
 				    TypeSet<float>* shifts ) const
 {
+    return getAllAuxData( oid, data, shifts, 0 );
+}
+
+
+bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid, DataPointSet& data,
+       TypeSet<float>* shifts, const CubeSampling* cs ) const
+{
     mDynamicCastAll(oid);
     if ( !hor3d ) return false;
 
@@ -897,12 +904,23 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	auxvals[0] = 0;
 	auxvals[1] = sid;
 	BinID bid;
-	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
+	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator(sid,cs);
 	while ( true )
 	{
 	    const EM::PosID pid = iterator->next();
 	    if ( pid.objectID()==-1 )
 		break;
+
+	    bid.fromInt64( pid.subID() );
+	    if ( cs )
+	    {
+		if ( !cs->hrg.includes(bid) )
+		    continue;
+		
+		BinID diff = bid - cs->hrg.start;
+		if ( diff.inl % cs->hrg.step.inl || diff.crl % cs->hrg.step.crl)
+		    continue;
+	    }
 
 	    auxvals[0] = hor3d->getPos( pid ).z;
 	    for ( int idx=0; idx<nms.size(); idx++ )
@@ -910,7 +928,6 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 		const int auxidx = hor3d->auxdata.auxDataIndex( nms.get(idx) );
 		auxvals[idx+2] = hor3d->auxdata.getAuxDataVal( auxidx, pid );
 	    }
-	    bid.fromInt64( pid.subID() );
 	    data.bivSet().add( bid, mVarLenArr(auxvals) );
 	}
     }
