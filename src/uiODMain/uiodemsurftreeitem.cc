@@ -37,6 +37,7 @@ static const char* rcsID = "$Id$";
 #include "uivispartserv.h"
 #include "visemobjdisplay.h"
 #include "vishorizondisplay.h"
+#include "vishorizonsection.h"
 
 
 uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
@@ -306,13 +307,26 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !applMgr()->EMServer()->showLoadAuxDataDlg(emid_) )
 	    return;
 
-	TypeSet<float> shifts;
-	DataPointSet vals( false, true );
-	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts );
-	setDataPointSet( vals );
-
 	mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
 			visserv->getObject(visid) );
+	if ( !vishor )
+	    return;
+
+	const StepInterval<int>& grrg = vishor->geometryRowRange();
+	const StepInterval<int>& gcrg = vishor->geometryColRange();
+	const visBase::HorizonSection* horsect = vishor->getSection( 0 );
+	StepInterval<int> loadrrg = horsect ? horsect->displayedRowRange()
+	    				    : grrg;
+	StepInterval<int> loadcrg = horsect ? horsect->displayedColRange()
+					    : gcrg;
+	CubeSampling cs( true );
+	cs.hrg.set( loadrrg, loadcrg );
+
+	TypeSet<float> shifts;
+	DataPointSet vals( false, true );
+	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts, &cs );
+	setDataPointSet( vals );
+
 	vishor->setAttribShift( attribnr, shifts );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );
