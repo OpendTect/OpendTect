@@ -847,9 +847,15 @@ void HorizonSection::updateTexture( int channel, const DataPointSet* dpset,
 	    continue;
 
 	const BinID bid = data->getBinID( pos );
-	if ( userchangedisplayrg_ && (!rrg.includes(bid.inl, false) ||
-		    		      !crg.includes(bid.crl, false)) )
-	    continue;
+	if ( userchangedisplayrg_ )
+	{
+	   if ( !rrg.includes(bid.inl, false) ||!crg.includes(bid.crl, false) )
+   	       continue;
+
+	   if ( (bid.inl-rrg.start) % rrg.step || 
+      		(bid.crl-crg.start) % crg.step )
+	       continue;
+	}
 
 	const int inlidx = rrg.nearestIndex(bid.inl);
 	const int crlidx = crg.nearestIndex(bid.crl);
