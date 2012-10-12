@@ -25,7 +25,9 @@ ________________________________________________________________________
 #endif
 
 #ifdef _DEBUG
+#ifndef __debug__
 # define __debug__
+#endif
 #endif
 
 #define snprintf	_snprintf
