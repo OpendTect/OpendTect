@@ -725,7 +725,7 @@ void HorizonDisplay::createAndDispDataPack( int channel,
 					    const DataPointSet* positions,
 					    TaskRunner* tr )
 {
-    if ( !positions ) return;
+    if ( !positions || sections_.isEmpty() ) return;
 
     BufferStringSet* attrnms = new BufferStringSet();
     for ( int idx=0; idx<positions->nrCols(); idx++ )
@@ -733,11 +733,14 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     userrefs_.replace( channel, attrnms );
 
     setRandomPosData( channel, positions, tr );
-    const BinIDValueSet* cache =
-	sections_.isEmpty() ? 0 : sections_[0]->getCache( channel );
+    const BinIDValueSet* cache =sections_[0]->getCache( channel );
     const bool isz = attrnms->size()>=1 &&
 		     !strcmp(attrnms->get(0).buf(),"Depth");
-    BinID step( SI().inlStep(), SI().crlStep() );
+
+    StepInterval<int> dispinlrg = sections_[0]->displayedRowRange();
+    StepInterval<int> dispcrlrg = sections_[0]->displayedColRange();
+    BinID step( dispinlrg.step, dispcrlrg.step );
+
     mDeclareAndTryAlloc(BIDValSetArrAdapter*, bvsarr, 
 	    		BIDValSetArrAdapter(*cache,isz?0:2,step));
     const char* catnm = isz ? "Geometry" : "Horizon Data";
@@ -745,12 +748,10 @@ void HorizonDisplay::createAndDispDataPack( int channel,
 			   : (attrnms->size()>1 ? attrnms->get(1).buf() : "");
     mDeclareAndTryAlloc(MapDataPack*,newpack,MapDataPack(catnm,dpnm,bvsarr));
 
-    StepInterval<int> tempinlrg = bvsarr->hrg_.inlRange();
-    StepInterval<int> tempcrlrg = bvsarr->hrg_.crlRange();
-    StepInterval<double> inlrg( (double)tempinlrg.start, (double)tempinlrg.stop,
-	    			(double)tempinlrg.step );
-    StepInterval<double> crlrg( (double)tempcrlrg.start, (double)tempcrlrg.stop,
-	    			(double)tempcrlrg.step );
+    StepInterval<double> inlrg( (double)dispinlrg.start, (double)dispinlrg.stop,
+	    			(double)dispinlrg.step );
+    StepInterval<double> crlrg( (double)dispcrlrg.start, (double)dispcrlrg.stop,
+	    			(double)dispcrlrg.step );
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
     newpack->setProps( inlrg, crlrg, true, &dimnames );
