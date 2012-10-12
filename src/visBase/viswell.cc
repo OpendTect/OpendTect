@@ -161,7 +161,13 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 	if ( zaxistransform_ )
 	    crd.z = zaxistransform_->transform( crd );
 	if ( idx>=track_->size() )
-	    track_->addPoint( crd );
+	{
+	    const int lastidx = track_->size();
+	    const Coord3 lastcrd =
+		track_->getPoint( lastidx >= 0 ? lastidx-1 : lastidx );
+	    if ( lastcrd != crd )
+		track_->addPoint( crd );
+	}
 	else
 	    track_->setPoint( idx, crd );
     }
