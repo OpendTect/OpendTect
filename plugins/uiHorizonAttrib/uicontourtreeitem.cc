@@ -534,7 +534,7 @@ void uiContourTreeItem::createContours()
 
     while ( contourval < maxcontourval+mDefEps )
     {
-	ObjectSet<ODPolygon<float> > isocontours;
+	ManagedObjectSet<ODPolygon<float> > isocontours( false );
 	ictracer.getContours( isocontours, contourval, false );
 	for ( int cidx=0; cidx<isocontours.size(); cidx++ )
 	{
@@ -563,7 +563,7 @@ void uiContourTreeItem::createContours()
 		const int posidx = lines_->getCoordinates()->addPos( pos );
 		lines_->setCoordIndex( cii++, posidx );
 		const float labelval =
-		    attrnm_=="ZValue" ? (zval+zshift_) * fac : contourval;
+		    attrnm_=="ZValue" ? (contourval+zshift_) * fac : contourval;
 		if ( ic.size() > cMinNrNodesForLbl && vidx == ic.size()/2 )
 		    addText( pos, getStringFromFloat(fmt, labelval, buf) );
 	    }
@@ -577,13 +577,11 @@ void uiContourTreeItem::createContours()
 	    lines_->setCoordIndex( cii++, -1 );
 	}
 
-	deepErase( isocontours );
 	progwin.setProgress( progwin.progress() + 1 );
 	contourval += contourintv_.step;
     }
 
     progwin.close();
-    lines_->getCoordinates()->removeAfter( cii-1 );
     lines_->removeCoordIndexAfter( cii-1 );
     if ( hd->getZAxisTransform() )
 	delete field;
