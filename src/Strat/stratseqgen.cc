@@ -29,6 +29,11 @@ mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
 mDefSimpleTranslators(StratLayerSequenceGenDesc,mFileType,od,Mdl);
 
 
+
+const char* Strat::LayerSequenceGenDesc::sKeyWorkBenchParams()
+{ return "Workbench parameters"; }
+
+
 Strat::LayerModelGenerator::LayerModelGenerator(
 		const Strat::LayerSequenceGenDesc& desc, Strat::LayerModel& lm,
 		int nrseqs )
@@ -125,6 +130,9 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
 
     IOPar iop; iop.getFrom(astrm);
     iop.get( sKeyElasticPropSelID, elasticpropselmid_ );
+    PtrMan<IOPar> workbenchpars = iop.subselect( sKeyWorkBenchParams() );
+    if ( workbenchpars )
+	workbenchparams_ = *workbenchpars;
 
     while ( !atEndOfSection(astrm.next()) )
     {
@@ -155,6 +163,8 @@ bool Strat::LayerSequenceGenDesc::putTo( std::ostream& strm ) const
 	{ errmsg_ = "Cannot write file header"; return false; }
 
     IOPar iop; iop.set( sKeyElasticPropSelID, elasticpropselmid_ );
+    iop.mergeComp( workbenchparams_, sKeyWorkBenchParams() );
+    
     iop.putTo( astrm );
 
     for ( int idx=0; idx<size(); idx++ )
@@ -210,6 +220,7 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
     for ( int idx=0; idx<size(); idx++ )
     {
 	const LayerGenerator& lgen = *((*this)[idx]);
+	
 	if ( !lgen.generateMaterial(ls,eo) )
 	{
 	    errmsg_ = lgen.errMsg();

@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "multiid.h"
 #include "propertyref.h"
-class IOPar;
+#include "iopar.h"
 
 namespace Strat
 {
@@ -57,9 +57,13 @@ public:
     const char*		userIdentification(int) const;
     int			indexFromUserIdentification(const char*) const;
 
-    const RefTree&	refTree() const			{ return rt_; }
+    const RefTree&	refTree() const		{ return rt_; }
+    
+    IOPar&		getWorkBenchParams()	{ return workbenchparams_; }
 
 protected:
+    static const char*		sKeyWorkBenchParams();
+    IOPar			workbenchparams_;
 
     const RefTree&		rt_;
     PropertyRefSelection	propsel_;
