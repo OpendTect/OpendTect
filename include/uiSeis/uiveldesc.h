@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uizaxistransform.h"
 #include "veldesc.h"
+#include "timedepthconv.h"
 
 class uiSeisSel;
 class uiCheckBox;
@@ -52,8 +53,6 @@ protected:
     uiGenInput*			typefld_;
     uiGenInput*			hasstaticsfld_;
     uiStaticsDesc*		staticsfld_;
-    uiCheckBox*			setdefbox_;
-
 };
 
 
@@ -65,24 +64,25 @@ public:
 					  const uiVelocityDesc::Setup* s=0);
 			~uiVelocityDescDlg();
 
-   IOObj*		getSelection() const;
+    IOObj*		getSelection() const;
    			//!<returned object must be managed by caller
     Interval<float>	getVelocityTopRange() const	
-    			{ return topavgvelfld_->getFInterval(0); }
+    			{ return toprange_; }
     Interval<float>	getVelocityBottomRange() const	
-    			{ return botavgvelfld_->getFInterval(0); }
+    			{ return bottomrange_; }
 
 protected:
 
    bool			acceptOK(CallBacker*);
    void			volSelChange(CallBacker*);
-   void			scanAvgVelCB(CallBacker*);
+   bool			scanAvgVel(const IOObj&, const VelocityDesc&);
 
+   Interval<float>	toprange_;
+   Interval<float>	bottomrange_;
+
+   VelocityDesc		oldveldesc_;
    uiSeisSel*		volselfld_;
    uiVelocityDesc*	veldescfld_;
-   uiGenInput*		topavgvelfld_;
-   uiGenInput*		botavgvelfld_;
-   uiPushButton*	scanavgvel_;
 };
 
 
