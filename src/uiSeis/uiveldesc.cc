@@ -232,6 +232,8 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
     , velrgchanged( this )
     , editcubebutt_(0)
 {
+    seissetup_.allowsetsurvdefault_ = true;
+    seissetup_.survdefsubsel_ = "Velocity";
     if ( iseditbutton )
     {
 	editcubebutt_ = new uiPushButton( this, "",

@@ -265,7 +265,9 @@ void uiSeis2DFileMan::makeDefault( CallBacker* )
     if ( !objinfo_ || !objinfo_->ioObj() ) return;
 
     BufferString attrnm = attrfld_->getText();
-    SI().getPars().set( sKey::DefAttribute(), attrnm );
+    SI().getPars().set(
+       IOPar::compKey(sKey::Default(),
+		      SeisTrcTranslatorGroup::sKeyDefaultAttrib()), attrnm );
     SI().savePars();
 }
 

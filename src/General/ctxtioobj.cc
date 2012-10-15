@@ -334,27 +334,12 @@ void CtxtIOObj::fillDefault( bool oone2 )
 {
     ctxt.fillTrGroup();
 
-    BufferString keystr( ctxt.trgroup->userName() );
-    if ( keystr == "Seismic Data" )
-    {
-	bool is3d = SI().survDataType() != SurveyInfo::Only2D;
-	if ( SI().survDataType() == SurveyInfo::Both2DAnd3D
-		&& ctxt.deftransl == "2D" )
-	    is3d = false;
-	keystr = is3d ? sKey::DefCube() : sKey::DefLineSet();
-	FixedString typestr = ctxt.toselect.require_.find( sKey::Type() );
-	if ( is3d && !typestr.isEmpty() )
+    BufferString keystr( ctxt.trgroup->getSurveyDefaultKey( 0 ) );
+    
+    const FixedString typestr = ctxt.toselect.require_.find( sKey::Type() );
+    if ( !typestr.isEmpty() )
 	    keystr = IOPar::compKey(keystr,typestr);
-    }
-    else
-    {
-	if ( keystr == "Pre-Stack Seismics"
-		&& SI().survDataType() != SurveyInfo::Only2D )
-	    keystr = "PS3D Data Store";
 	
-	keystr = IOPar::compKey(sKey::Default(),keystr);
-    }
-
     return fillDefaultWithKey( keystr, oone2 );
 }
 

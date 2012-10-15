@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
+#include "seistrctr.h"
 #include "odver.h"
 
 namespace Attrib
@@ -84,10 +85,11 @@ DescID DescSet::ensureDefStoredPresent() const
     BufferString idstr; DescID retid;
 
     if ( is2d_ )
-	idstr = LineKey( SI().pars().find(sKey::DefLineSet()),
-			 SI().pars().find(sKey::DefAttribute()) );
+	idstr =
+	    LineKey( SI().pars().find(SeisTrcTranslatorGroup::sKeyDefault2D()),
+		SI().pars().find(SeisTrcTranslatorGroup::sKeyDefaultAttrib()));
     else
-	idstr = SI().pars().find( sKey::DefCube() );
+	idstr = SI().pars().find( SeisTrcTranslatorGroup::sKeyDefault3D() );
 
     if ( defidstr_ == idstr && defattribid_ != DescID::undef() )
 	return defattribid_;

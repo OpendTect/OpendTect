@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
 #include "uilistbox.h"
+#include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uistatusbar.h"
 
@@ -96,13 +97,14 @@ void relocStart( const char* msg )
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 			      const char* seltxt, bool multisel,
-			      bool havereloc )
+			      bool havereloc, bool havesetsurvdefault )
     : uiGroup(p)
     , ctio_(c)
     , ismultisel_(multisel && ctio_.ctxt.forread)
     , nmfld_(0)
     , manipgrpsubj(0)
     , newStatusMsg(this)
+    , mkdefbut_( 0 )
     , selectionChg(this)
     , confirmoverwrite_(true)
     , asked2overwrite_(false)
@@ -159,6 +161,13 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	manipgrpsubj = new uiIOObjSelGrpManipSubj( this );
 	manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj,
 							 havereloc );
+	
+	if ( havesetsurvdefault )
+	{
+	    mkdefbut_ = manipgrpsubj->manipgrp_->addButton(
+		"makedefault", "Set as default",
+		mCB(this,uiIOObjSelGrp,makeDefaultCB) );
+    }
     }
 
     listfld_->setHSzPol( uiObject::Wide );
@@ -252,6 +261,27 @@ void uiIOObjSelGrp::delPress( CallBacker* )
 {
     if ( manipgrpsubj && manipgrpsubj->manipgrp_ )
 	manipgrpsubj->manipgrp_->triggerButton( uiManipButGrp::Remove );
+}
+
+
+void uiIOObjSelGrp::setSurveyDefaultSubsel(const char* subsel)
+{
+    surveydefaultsubsel_ = subsel;
+}
+
+
+void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
+{
+    if ( nrSel()!=1 )
+	return;
+    
+    PtrMan<IOObj> ioobj = IOM().get( selected() );
+    if ( !ioobj )
+	return;
+    
+    ioobj->setSurveyDefault( surveydefaultsubsel_.str() );
+    
+    fullUpdate( 0 );
 }
 
 
@@ -366,10 +396,12 @@ IOObj* uiIOObjSelGrp::getIOObj( int idx )
 void uiIOObjSelGrp::selChg( CallBacker* cb )
 {
     BufferString info;
+    bool allowsetdefault;
     if ( ismultisel_ && nrSel()>1 )
     {
 	info += "Multiple objects selected (";
 	info += nrSel(); info += "/"; info += listfld_->size(); info += ")";
+	allowsetdefault = false;
     }
     else
     {
@@ -379,7 +411,11 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
 	    nmfld_->setText( ioobj ? ioobj->name() : "" );
 	info = getLimitedDisplayString( !ioobj ? "" :
 			 ioobj->fullUserExpr(ctio_.ctxt.forread), 40, false );
+	allowsetdefault = ioobj && ioobj->implExists(true);
     }
+
+    if ( mkdefbut_ )
+	mkdefbut_->setSensitive( allowsetdefault );
 
     toStatusBar( info );
     selectionChg.trigger();
@@ -526,7 +562,8 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
-			      const char* seltxt, bool multisel )
+			      const char* seltxt, bool multisel,
+			      bool havesetsurvdefault)
 	: uiIOObjRetDlg(p,
 		Setup(c.ctxt.forread?"Input selection":"Output selection",
 		    	mNoDlgTitle,"8.1.1")
@@ -534,7 +571,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	, selgrp_( 0 )
 {
     const bool ismultisel = multisel && c.ctxt.forread;
-    selgrp_ = new uiIOObjSelGrp( this, c, 0, multisel );
+    selgrp_ = new uiIOObjSelGrp( this, c, 0, multisel, false,
+				 havesetsurvdefault );
     selgrp_->getListField()->setHSzPol( uiObject::Wide );
     statusBar()->setTxtAlign( 0, Alignment::Right );
     selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
@@ -575,6 +613,13 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const char*,msg,cb);
     toStatusBar( msg );
+}
+
+
+void uiIOObjSelDlg::setSurveyDefaultSubsel(const char* subsel)
+{
+    selgrp_->setSurveyDefaultSubsel(subsel);
+
 }
 
 

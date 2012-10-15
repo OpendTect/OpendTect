@@ -49,9 +49,13 @@ SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
 const char*
 SeisTrcTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
 {
-    return ioobj && SeisTrcTranslator::is2D( *ioobj )
-	? sKey::DefLineSet()
-	: sKey::DefCube();
+    if ( ioobj && SeisTrcTranslator::is2D( *ioobj ) )
+	return sKeyDefault2D();
+    
+    if ( SI().survDataType()==SurveyInfo::Only2D )
+	return sKeyDefault2D();
+
+    return sKeyDefault3D();
 }
 
 

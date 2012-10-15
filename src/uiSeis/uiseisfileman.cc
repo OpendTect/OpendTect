@@ -100,13 +100,6 @@ uiSeisFileMan::~uiSeisFileMan()
 }
 
 
-const char* uiSeisFileMan::getDefKey() const
-{
-    const bool is2d = curioobj_ && SeisTrcTranslator::is2D( *curioobj_ );
-    return is2d ? sKey::DefLineSet() : sKey::DefCube();
-}
-
-
 void uiSeisFileMan::ownSelChg()
 {
     if ( !browsebut_ ) return;

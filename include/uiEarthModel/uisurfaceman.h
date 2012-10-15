@@ -57,8 +57,6 @@ protected:
     void		mkFileInfo();
     void		fillAttribList(const BufferStringSet&);
     double		getFileSize(const char*,int&) const;
-
-    const char*		getDefKey() const;
 };
 
 

@@ -43,7 +43,6 @@ protected:
     virtual void	ownSelChg();
     double		getFileSize(const char*,int&) const;
 
-    const char*		getDefKey() const;
     void		man2DGeom(CallBacker*);
 
 };

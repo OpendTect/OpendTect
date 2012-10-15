@@ -127,13 +127,6 @@ namespace sKey
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
 
     inline FixedString Default()	{ return "Default"; }
-    inline FixedString DefCube()	{ return "Default.Cube"; }
-    inline FixedString DefLineSet()	{ return "Default.LineSet"; }
-    inline FixedString DefLine()	{ return "Default.Line"; }
-    inline FixedString DefAttribute()	{ return "Default.Attribute"; }
-    inline FixedString DefPS3D()	{ return "Default.PS3D Data Store"; }
-    inline FixedString DefPS2D()	{ return "Default.PS2D Data Store"; }
-    inline FixedString DefWavelet()	{ return "Default.Wavelet"; }
 };
 
 

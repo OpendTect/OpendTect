@@ -26,6 +26,7 @@ class uiIOObjManipGroup;
 class uiIOObjSelGrp;
 class uiIOObjSelGrpManipSubj;
 class uiListBox;
+class uiToolButton;
 
 
 /*! \brief Dialog letting the user select an object.
@@ -53,7 +54,8 @@ public:
 				uiIOObjSelGrp(uiParent*,const CtxtIOObj& ctio,
 					      const char* seltxt=0,
 					      bool multisel=false,
-					      bool needreloc=false);
+					      bool needreloc=false,
+					      bool setdefaultbut=false);
 				~uiIOObjSelGrp();
 
     void			fullUpdate(const MultiID& kpselected);
@@ -74,6 +76,8 @@ public:
     Notifier<uiIOObjSelGrp>	newStatusMsg;
     				/*!< Triggers when there is a new message for
 				     statusbars and similar */
+
+    void			setSurveyDefaultSubsel(const char* subsel);
 
     void			setContext(const IOObjContext&);
     const CtxtIOObj&		getCtxtIOObj() const	{ return ctio_; }
@@ -98,6 +102,7 @@ protected:
     ObjectSet<MultiID>	ioobjids_;
     BufferStringSet	ioobjnms_;
     BufferStringSet	dispnms_;
+    BufferString	surveydefaultsubsel_;
     bool		ismultisel_;
     bool		confirmoverwrite_;
     bool		asked2overwrite_;
@@ -110,6 +115,8 @@ protected:
     uiGenInput*		filtfld_;
     uiGroup*		topgrp_;
 
+    uiToolButton*	mkdefbut_;
+
     void		fullUpdate(int);
     void		newList();
     void		fillListBox();
@@ -121,6 +128,7 @@ protected:
     void		selChg(CallBacker*);
     void		filtChg(CallBacker*);
     void		delPress(CallBacker*);
+    void		makeDefaultCB(CallBacker*);
     IOObj*		getIOObj(int);
 };
 
@@ -130,7 +138,8 @@ mClass(uiIo) uiIOObjSelDlg : public uiIOObjRetDlg
 {
 public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-				      const char* seltxt=0,bool multisel=false);
+				      const char* seltxt=0,bool multisel=false,
+				      bool allowsetsurvdefault=false);
 
     int			nrSel() const		{ return selgrp_->nrSel(); }
     const MultiID&	selected( int i ) const	{ return selgrp_->selected(i); }
@@ -138,6 +147,8 @@ public:
     uiIOObjSelGrp*	selGrp()		{ return selgrp_; }
     bool		fillPar( IOPar& i ) const {return selgrp_->fillPar(i);}
     void		usePar( const IOPar& i ) { selgrp_->usePar(i); }
+
+    void		setSurveyDefaultSubsel(const char*);
 
 protected:
 

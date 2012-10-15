@@ -45,7 +45,6 @@ protected:
     uiTextEdit*			infofld_;
     uiTextEdit*			notesfld_;
     uiIOObjSelGrp*		selgrp_;
-    uiToolButton*		mkdefbut_;
     uiGroup*			listgrp_;
     uiGroup*			infogrp_;
     uiButton*			lastexternal_;
@@ -62,11 +61,9 @@ protected:
     BufferString		getFileInfo();
     virtual void		mkFileInfo()			= 0;
     virtual double		getFileSize(const char*,int&) const;
-    virtual const char*		getDefKey() const;
 
     void			selChg(CallBacker*);
     virtual void		ownSelChg()		{}
-    void			makeDefault(CallBacker*);
 
 };
 

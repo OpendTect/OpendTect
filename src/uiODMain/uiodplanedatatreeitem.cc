@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodplanedatatreeitem.h"
 
+#include "seistrctr.h"
 #include "uiattribpartserv.h"
 #include "uigridlinesdlg.h"
 #include "uimenu.h"
@@ -185,7 +186,9 @@ void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
 
 bool uiODPlaneDataTreeItem::getDefaultDescID( Attrib::DescID& descid )
 {
-    BufferString keystr( SI().pars().find(sKey::DefCube()) );
+    BufferString keystr(
+	IOPar::compKey( sKey::Default(),
+		SI().pars().find(SeisTrcTranslatorGroup::sKeyDefault3D()) ) );
     if ( keystr.isEmpty() )
     {
 	const IODir* iodir = IOM().dirPtr();

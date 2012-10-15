@@ -162,15 +162,6 @@ void uiSurfaceMan::addTool( uiButton* but )
 }
 
 
-const char* uiSurfaceMan::getDefKey() const
-{
-    if ( !curioobj_ )
-	return uiObjFileMan::getDefKey();
-
-    return IOPar::compKey( sKey::Default(), curioobj_->group() );
-}
-
-
 bool uiSurfaceMan::isCur2D() const
 {
     return curioobj_ && 

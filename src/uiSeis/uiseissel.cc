@@ -103,13 +103,15 @@ static const CtxtIOObj& getDlgCtio( const CtxtIOObj& c,
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& sssu )
-    : uiIOObjSelDlg(p,getDlgCtio(c,sssu),"",false)
+    : uiIOObjSelDlg(p,getDlgCtio(c,sssu),"",false,sssu.allowsetsurvdefault_)
     , attrfld_(0)
     , compfld_(0)
     , attrlistfld_(0)
     , steerpol_(sssu.steerpol_)
     , zdomainkey_(sssu.zdomkey_)
 {
+    setSurveyDefaultSubsel( sssu.survdefsubsel_ );
+    
     const bool is2d = Seis::is2D( sssu.geom_ );
     const bool isps = Seis::isPS( sssu.geom_ );
 
@@ -398,7 +400,9 @@ CtxtIOObj* uiSeisSel::mkCtxtIOObj( Seis::GeomType gt, bool forread )
     {
 	ret = mMkCtxtIOObj(SeisTrc);
 	if ( forread )
-	    ret->fillDefaultWithKey( is2d ? sKey::DefLineSet() : sKey::DefCube() );
+	    ret->fillDefaultWithKey( IOPar::compKey( sKey::Default(),
+	       is2d ? SeisTrcTranslatorGroup::sKeyDefault2D()
+		    : SeisTrcTranslatorGroup::sKeyDefault3D() ) );
     }
 
     ret->ctxt.forread = forread;

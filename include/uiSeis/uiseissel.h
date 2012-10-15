@@ -36,6 +36,8 @@ public:
 			    , steerpol_(NoSteering)
 			    , allowlinesetsel_(true)
 			    , enabotherdomain_(false)
+			    , survdefsubsel_( 0 )
+			    , allowsetsurvdefault_(false)
 			    , selectcomp_(false)	{}
 			Setup( bool is2d, bool isps )
 			    : geom_(Seis::geomTypeOf(is2d,isps))
@@ -44,6 +46,8 @@ public:
 			    , steerpol_(NoSteering)
 			    , allowlinesetsel_(true)
 			    , enabotherdomain_(false)
+			    , survdefsubsel_( 0 )
+			    , allowsetsurvdefault_(false)
 			    , selectcomp_(false)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
@@ -53,6 +57,8 @@ public:
 	mDefSetupMemb(SteerPol,steerpol)
 	mDefSetupMemb(BufferString,zdomkey)
 	mDefSetupMemb(bool,allowlinesetsel)
+	mDefSetupMemb(const char*,survdefsubsel)
+	mDefSetupMemb(bool,allowsetsurvdefault)
 	mDefSetupMemb(bool,selectcomp)		//!< Select only one component
 
 	Setup&		wantSteering( bool yn=true )

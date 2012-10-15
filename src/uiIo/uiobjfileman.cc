@@ -61,12 +61,9 @@ void uiObjFileMan::createDefaultUI( bool needreloc )
     listgrp_ = new uiGroup( this, "List Group" );
     IOM().to( ctxt_.getSelKey(), true );
     selgrp_ = new uiIOObjSelGrp( listgrp_, CtxtIOObj(ctxt_), 0, false,
-				 needreloc);
+				 needreloc, true );
     selgrp_->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
-
-    mkdefbut_ = selgrp_->getManipGroup()->addButton( "makedefault",
-	    "Set as default", mCB(this,uiObjFileMan,makeDefault) );
 
     infogrp_ = new uiGroup( this, "Info Group" );
     infofld_ = new uiTextEdit( infogrp_, "Object Info", true );
@@ -162,8 +159,6 @@ void uiObjFileMan::selChg( CallBacker* cb )
     saveNotes(0);
     delete curioobj_;
     curioobj_ = selgrp_->nrSel() > 0 ? IOM().get(selgrp_->selected(0)) : 0;
-    curimplexists_ = curioobj_ && curioobj_->implExists(true);
-    mkdefbut_->setSensitive( curimplexists_ );
 
     ownSelChg();
     if ( curioobj_ )
@@ -176,24 +171,6 @@ void uiObjFileMan::selChg( CallBacker* cb )
     if ( curioobj_ )
 	System::getFreeMBOnDiskMsg( System::getFreeMBOnDisk(*curioobj_), msg );
     toStatusBar( msg );
-}
-
-
-void uiObjFileMan::makeDefault( CallBacker* )
-{
-    if ( !curioobj_ ) return;
-    SI().getPars().set( getDefKey(), curioobj_->key() );
-    SI().savePars();
-    selgrp_->fullUpdate( curioobj_->key() );
-}
-
-
-const char* uiObjFileMan::getDefKey() const
-{
-    static BufferString ret;
-    ctxt_.fillTrGroup();
-    ret = IOPar::compKey(sKey::Default(),ctxt_.trgroup->userName());
-    return ret.buf();
 }
 
 
