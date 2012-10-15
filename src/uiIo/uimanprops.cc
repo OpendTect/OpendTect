@@ -160,8 +160,9 @@ uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
 		mNoDlgTitle,mTODOHelpID) )
     , pr_(pr)
 {
-    uiMathExpression::Setup mesu( "Formula" ); mesu.withsetbut( false );
+    uiMathExpression::Setup mesu( "Formula" ); mesu.withsetbut( true );
     formfld_ = new uiMathExpression( this, mesu );
+    formfld_->formSet.notify( mCB(this,uiEditPropRefMathDef,formSet) );
     BufferString curdef( pr_.disp_.defval_ ? pr_.disp_.defval_->def() : "" );
     if ( !pr_.disp_.defval_ )
     {
@@ -184,6 +185,31 @@ void rockPhysReq( CallBacker* )
     if ( dlg.go() )
 	formfld_->setText( formgrp->getText(true) );
 }
+
+//TODO implement
+void formSet( CallBacker*  c )                                   
+{                                                                               
+    getMathExpr();                                                              
+//    nrvars_ = expr_ ? expr_->nrUniqueVarNames() : 0;                            
+}
+
+
+void getMathExpr()                                               
+{                                                                               
+/*    delete expr_; expr_ = 0;                                                    
+    if ( !formfld_ ) return;                                                    
+
+    const BufferString inp( formfld_->text() );                                 
+    if ( inp.isEmpty() ) return;                                                
+	    
+    MathExpressionParser mep( inp );                                            
+    expr_ = mep.parse();                                                        
+		    
+    if ( !expr_ )                                                               
+    uiMSG().warning(                                                        
+	BufferString("The provided expression cannot be used:\n",mep.errMsg()));
+*/}
+
 
     const PropertyRef&	pr_;
     uiMathExpression*	formfld_;
