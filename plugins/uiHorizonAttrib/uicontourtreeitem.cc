@@ -567,7 +567,7 @@ void uiContourTreeItem::createContours()
 		const int posidx = lines_->getCoordinates()->addPos( pos );
 		lines_->setCoordIndex( cii++, posidx );
 		const float labelval =
-		    attrnm_=="ZValue" ? (zval+zshift_) * fac : contourval;
+		    attrnm_=="ZValue" ? (contourval+zshift_) * fac : contourval;
 		if ( ic.size() > cMinNrNodesForLbl && vidx == ic.size()/2 )
 		    addText( pos, getStringFromFloat(fmt, labelval, buf) );
 	    }
