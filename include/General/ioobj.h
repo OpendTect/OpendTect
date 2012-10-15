@@ -89,11 +89,15 @@ public:
     			//!< The directory ame within the tree
     virtual IOPar&	pars() const			{ return pars_; }
     			//!< These are the extra parameters: #xxx: yyy in .omf
-
+    
     static bool		isKey(const char*);
     			//!< Returns whether given string may be a valid key
     static bool		isSurveyDefault(const MultiID&);
     			//!< Checks the 'Default.' entries in SI().pars()
+    void		setSurveyDefault(const char* subsel = 0) const;
+			/*!<\param subsel may be a subselection lower than
+			           the translator group, such as "Velocity".*/
+
 
     Translator*		getTranslator() const;
     			//!< returns a subclass of Translator according to

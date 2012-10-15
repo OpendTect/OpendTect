@@ -87,6 +87,8 @@ public:
     int				defTranslIdx() const	{ return deftridx_; }
     void			setDefTranslIdx( int i ) { deftridx_ = i; }
     
+    virtual const char*		getSurveyDefaultKey(const IOObj* = 0) const;
+    
 protected:
 
     BufferString		clssname_;
@@ -134,7 +136,7 @@ public:
     virtual bool		implRename(const IOObj*,const char*,
 	    					const CallBack* cb=0) const;
     virtual bool		implSetReadOnly(const IOObj*,bool) const;
-
+    
     virtual const char*		connType() const;
     virtual void		usePar(const IOPar&)		{}
     virtual const char*		defExtension() const

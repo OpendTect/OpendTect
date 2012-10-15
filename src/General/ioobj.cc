@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "iosubdir.h"
 #include "ioman.h"
+#include "iopar.h"
 #include "iodir.h"
 #include "ascstream.h"
 #include "filepath.h"
@@ -254,6 +255,18 @@ bool IOObj::isReadDefault() const
     bool isrddef = tr->isReadDefault();
     delete tr;
     return isrddef;
+}
+
+
+void IOObj::setSurveyDefault( const char* subsel ) const
+{
+    CompoundKey defaultkey = sKey::Default().str();
+    defaultkey += getTranslator()->group()->getSurveyDefaultKey( this );
+    if ( subsel )
+	defaultkey += subsel;
+    
+    SI().getPars().set( defaultkey.buf(), key() );
+    SI().savePars();
 }
 
 

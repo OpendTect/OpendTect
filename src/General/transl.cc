@@ -241,6 +241,12 @@ const Translator* TranslatorGroup::getTemplate( const char* nm, bool usr ) const
 }
 
 
+const char* TranslatorGroup::getSurveyDefaultKey(const IOObj*) const
+{
+    return userName();
+}
+
+
 extern "C" void od_Basic_initStdClasses();
 
 Translator::Translator( const char* nm, const char* unm )

@@ -79,6 +79,8 @@ mClass(Seis) SeisTrcTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisTrc)
 public:
     			mDefEmptyTranslatorGroupConstructor(SeisTrc)
+    
+    const char*		getSurveyDefaultKey(const IOObj*) const;
 };
 
 

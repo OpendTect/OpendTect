@@ -8,6 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seistrctr.h"
+#include "keystrs.h"
 #include "seistrc.h"
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -42,6 +43,15 @@ SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
 	: BasicComponentInfo(nm)
 {
     datachar = trc.data().getInterpreter(icomp)->dataChar();
+}
+
+
+const char*
+SeisTrcTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
+{
+    return ioobj && SeisTrcTranslator::is2D( *ioobj )
+	? sKey::DefLineSet()
+	: sKey::DefCube();
 }
 
 
