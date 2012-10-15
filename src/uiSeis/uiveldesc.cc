@@ -46,11 +46,7 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
     vigrp->setHAlignObj( hasstaticsfld_ );
     vigrp->attach( alignedBelow, typefld_ );
 
-    setdefbox_ = new uiCheckBox( this, "Set as default" );
-    setdefbox_->attach( alignedBelow, vigrp );
-
     setHAlignObj( typefld_ );
-
     set( vsu ? vsu->desc_ : VelocityDesc() );
 }
 
@@ -97,7 +93,6 @@ bool uiVelocityDesc::get( VelocityDesc& res, bool disperr ) const
 	if ( !staticsfld_->get( res.statics_, disperr ) )
 	    return false;
     }
-
     return true;
 }
 
@@ -118,13 +113,6 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 	if ( disperr ) uiMSG().error("Cannot write velocity information");
 	return false;
     }
-
-    if ( setdefbox_->isChecked() )
-    {
-	SI().getPars().set( sKeyDefVelCube, ioobj.key() );
-	SI().savePars();
-    }
-
     return true;
 }
 
@@ -132,33 +120,19 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 				      const uiVelocityDesc::Setup* vsu )
     : uiDialog( p, uiDialog::Setup("Specify velocity information",0,"103.6.7") )
+    , toprange_( mUdf(float), mUdf(float ) )
+    , bottomrange_( mUdf(float), mUdf(float ) )
 {
     uiSeisSel::Setup ssu( Seis::Vol ); ssu.seltxt( "Velocity cube" );
     volselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
 	    			ssu );
-    if ( sel ) volselfld_->setInput( *sel );
+    if ( sel )
+	volselfld_->setInput( *sel );  
+
     volselfld_->selectionDone.notify(mCB(this,uiVelocityDescDlg,volSelChange) );
 
     veldescfld_ = new uiVelocityDesc( this, vsu );
     veldescfld_->attach( alignedBelow, volselfld_ );
-
-    BufferString str( "Vavg range at top " );
-    str += VelocityDesc::getVelUnit( true );
-
-    topavgvelfld_ =
-	new uiGenInput( this, str.buf(), FloatInpIntervalSpec(false) );
-    topavgvelfld_->attach( alignedBelow, veldescfld_ );
-
-    scanavgvel_ = new uiPushButton( this, "Scan",
-			    mCB(this,uiVelocityDescDlg, scanAvgVelCB ), false );
-    scanavgvel_->attach( rightOf, topavgvelfld_ );
-
-    str = "Vavg range at bottom ";
-    str += VelocityDesc::getVelUnit( true );
-
-    botavgvelfld_ =
-	new uiGenInput( this, str.buf(), FloatInpIntervalSpec(false) );
-    botavgvelfld_->attach( alignedBelow, topavgvelfld_ );
 
     volSelChange( 0 );
 }
@@ -177,42 +151,40 @@ IOObj* uiVelocityDescDlg::getSelection() const
 void uiVelocityDescDlg::volSelChange(CallBacker*)
 {
     const IOObj* ioobj = volselfld_->ioobj( true );
-    scanavgvel_->setSensitive( ioobj );
-
-    VelocityDesc vd;
-    Interval<float> topavgvel = Time2DepthStretcher::getDefaultVAvg();
-    Interval<float> botavgvel = Time2DepthStretcher::getDefaultVAvg();
-
     if ( ioobj )
     {
-	vd.usePar( ioobj->pars() );
-	ioobj->pars().get( VelocityStretcher::sKeyTopVavg(), topavgvel );
-	ioobj->pars().get( VelocityStretcher::sKeyBotVavg(), botavgvel );
+	if ( !ioobj->pars().get( VelocityStretcher::sKeyTopVavg(),toprange_ ) ||
+	     !ioobj->pars().get( VelocityStretcher::sKeyBotVavg(),bottomrange_))
+	{
+	    toprange_.start = mUdf(float);
+	    toprange_.stop = mUdf(float);
+	    bottomrange_.start = mUdf(float);
+	    bottomrange_.stop = mUdf(float);
+	}
+
+	if ( !oldveldesc_.usePar( ioobj->pars() ) )
+	    oldveldesc_.type_ = VelocityDesc::Unknown;
     }
 
-    veldescfld_->set( vd );
-    topavgvelfld_->setValue( topavgvel );
-    botavgvelfld_->setValue( botavgvel );
+    veldescfld_->set( oldveldesc_ );
 }
 
 
-void uiVelocityDescDlg::scanAvgVelCB( CallBacker* )
+bool uiVelocityDescDlg::scanAvgVel( const IOObj& ioobj, 
+				    const VelocityDesc& desc )
 {
-    const IOObj* ioobj = volselfld_->ioobj( true );
-    if ( !ioobj )
-	return;
-
-    VelocityDesc desc;
-    if ( !veldescfld_->get( desc, true ) )
-	return;
-
-    VelocityModelScanner scanner( *ioobj, desc );
+    VelocityModelScanner scanner( ioobj, desc );
     uiTaskRunner tr( this );
-    if ( tr.execute( scanner ) )
-    {
-	topavgvelfld_->setValue( scanner.getTopVAvg() );
-	botavgvelfld_->setValue( scanner.getBotVAvg() );
-    }
+    if ( !tr.execute(scanner) )
+	return false;
+     
+    toprange_ = scanner.getTopVAvg(); 
+    bottomrange_ = scanner.getBotVAvg();
+
+    toprange_.sort();
+    bottomrange_.sort();
+
+    return true;
 }
 
 
@@ -221,15 +193,34 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
     volselfld_->commitInput();
     PtrMan<IOObj> ioobj = volselfld_->getIOObj( false );
     if ( !ioobj )
+    {
+	uiMSG().error("Please select a valid volume cube.");
 	return false;
+    }
 
-    Interval<float> range = topavgvelfld_->getFInterval(0);
-    range.sort();
-    ioobj->pars().set( VelocityStretcher::sKeyTopVavg(), range );
+    VelocityDesc desc;
+    if ( !veldescfld_->get( desc, true ) ) 
+    {
+	uiMSG().error("Please provide valid velocity type");
+	return false;
+    }
 
-    range = botavgvelfld_->getFInterval(0);
-    range.sort();
-    ioobj->pars().set( VelocityStretcher::sKeyBotVavg(), range );
+    if ( oldveldesc_==desc )
+	return true;
+
+    if ( desc.isVelocity() )
+    {
+	if ( !scanAvgVel(*ioobj,desc) )
+	    return false;
+
+	ioobj->pars().set( VelocityStretcher::sKeyTopVavg(), toprange_ );
+	ioobj->pars().set( VelocityStretcher::sKeyBotVavg(), bottomrange_ );
+    }
+    else
+    {
+	ioobj->pars().remove( VelocityStretcher::sKeyTopVavg() );
+	ioobj->pars().remove( VelocityStretcher::sKeyBotVavg() );
+    }
 
     return veldescfld_->updateAndCommit( *ioobj, true );
 }
