@@ -90,34 +90,21 @@ void ConnComponents::classifyMarks( Array2D<int>& mark )
 		if ( m>0 )
 		{
 		    mark.set(i,j,m);
-		    if ( mark.get(i,j-1)>0 && 
-			 mark.get(i,j-1)!=mark.get(i-1,j+1) )
+		    
+		    const int smij = mark.get(i,j-1);
+		    if ( smij<1 )
+			continue;
+
+		    const int nwmij = mark.get(i-1,j+1);
+		    const int swmij = mark.get(i-1,j-1);
+		    if ( smij!=nwmij )
 		    {
-			if ( mark.get(i-1,j+1)<mark.get(i,j-1) )
-			{
-			    setMark( mark, mark.get(i,j-1),
-					    mark.get(i-1,j+1) ); 
-			}
-			else
-			{
-			    setMark( mark, mark.get(i-1,j+1),
-					    mark.get(i,j-1) ); 
-			}
+			setMark( mark, mMAX(smij,nwmij), mMIN(smij,nwmij) );
 		    }
 
-		    if ( mark.get(i-1,j-1)>0 &&
-			 mark.get(i-1,j-1)!=mark.get(i-1,j+1) )
+		    if ( swmij!=nwmij )
 		    {
-			if ( mark.get(i-1,j+1)<mark.get(i-1,j-1) )
-			{
-			    setMark( mark, mark.get(i-1,j-1),
-					    mark.get(i-1,j+1) ); 
-			}
-			else
-			{
-			    setMark( mark, mark.get(i-1,j+1),
-					    mark.get(i-1,j-1) ); 
-			}
+			setMark( mark, mMAX(swmij,nwmij), mMIN(swmij,nwmij) );
 		    }
 		}
 		else
@@ -128,8 +115,9 @@ void ConnComponents::classifyMarks( Array2D<int>& mark )
 	    }
 	    else if ( input_.get(i-1,j) )
 	    {
-		if ( mark.get(i-1,j)>0 )
-		    mark.set(i,j,mark.get(i-1,j));
+		const int wmij = mark.get(i-1,j);
+		if ( wmij>0 )
+		    mark.set(i,j,wmij);
 		else
 		{
 		    index++;
@@ -138,8 +126,9 @@ void ConnComponents::classifyMarks( Array2D<int>& mark )
 	    }
 	    else if ( input_.get(i-1,j-1) )
 	    {
-		if ( mark.get(i-1,j-1)>0 )
-		    mark.set(i,j,mark.get(i-1,j-1));
+		const int swmij = mark.get(i-1,j-1);
+		if ( swmij>0 )
+		    mark.set(i,j,swmij);
 		else
 		{
 		    index++;
@@ -148,8 +137,9 @@ void ConnComponents::classifyMarks( Array2D<int>& mark )
 	    }
 	    else if ( input_.get(i,j-1) )
 	    {
-		if ( mark.get(i,j-1)>0 )
-		    mark.set(i,j,mark.get(i,j-1));
+		const int smij = mark.get(i,j-1);
+		if ( smij>0 )
+		    mark.set(i,j,smij);
 		else
 		{
 		    index++;
