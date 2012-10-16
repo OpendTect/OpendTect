@@ -172,7 +172,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 	dispval = zun->userValue( -info.surfaceelev );
     if ( mIsZero(dispval,0.01) ) dispval = 0;
     elevfld = new uiGenInput( this,
-	    "Difference between MSL and Seismic Reference Datum (SRD)",
+	    "Seismic Reference Datum",
 	    FloatInpSpec(dispval) );
     elevfld->attach( alignedBelow, coordfld );
     zinftbox = new uiCheckBox( this, "Feet" );

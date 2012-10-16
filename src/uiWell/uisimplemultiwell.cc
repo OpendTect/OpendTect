@@ -153,7 +153,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     ti = Table::TargetInfo::mkDepthPosition( false );
     ti->setName( "TD" ); fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( "Difference between MSL and SRD" ); fd_.bodyinfos_ += ti;
+    ti->setName( "Seismic Reference Datum" ); fd_.bodyinfos_ += ti;
     fd_.bodyinfos_ += new Table::TargetInfo( "Well ID (UWI)", Table::Optional );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "107.0.9" );
