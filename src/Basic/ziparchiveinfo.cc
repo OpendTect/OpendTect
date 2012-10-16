@@ -1,9 +1,9 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Salil Agarwal
- Date:          27 August 2012
+(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+Author:        Salil Agarwal
+Date:          27 August 2012
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ bool ZipArchiveInfo::readZipArchive( const char* srcfnm )
 {
     if ( ziphd_.getArchiveInfo(srcfnm,fileinfo_) )
 	return true;
+
     return false;
 }
 
@@ -89,7 +90,7 @@ od_int64 ZipArchiveInfo::getFileUnCompSize( const char* fnm ) const
     for( int idx=0; idx<fileinfo_.size(); idx++ )
 	if ( filenm.matches( fileinfo_[idx]->fnm_ ) )
 	    return fileinfo_[idx]->uncompsize_;
-    
+
     errormsg_ = fnm;
     errormsg_ += ": File not found";
     return -1;
@@ -117,9 +118,11 @@ od_int64 ZipArchiveInfo::getLocalHeaderOffset( const char* fnm ) const
 
     BufferString filenm = fnm;
     for( int idx=0; idx<fileinfo_.size(); idx++ )
+    {
 	if ( filenm.matches( fileinfo_[idx]->fnm_ ) )
 	    return fileinfo_[idx]->localheaderoffset_;
-   
+    }
+
     errormsg_ = fnm;
     errormsg_ += ": File not found";
     return -1;
@@ -145,5 +148,6 @@ const char* ZipArchiveInfo::errorMsg() const
 { 
     if ( errormsg_.size() != 0 )
 	return errormsg_.buf();
+
     return ziphd_.errorMsg();
 }

@@ -1,9 +1,9 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Ranojay Sen
- Date:          December 2011
+(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+Author:        Ranojay Sen
+Date:          December 2011
 ________________________________________________________________________
 
 -*/
@@ -23,22 +23,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mDirCheck( dir ) \
     if ( !File::exists(dir) ) \
-    { \
-	errmsg_ = dir; \
-	errmsg_ += " does not exist"; \
-	return false; \
-    } \
+{ \
+    errmsg_ = dir; \
+    errmsg_ += " does not exist"; \
+    return false; \
+} \
 
 
 
 ZipUtils::ZipUtils( const char* filelistnm )
     : filelistname_( filelistnm )
     , needfilelist_( !filelistname_.isEmpty() )
-    , ziphdler_(*new ZipHandler)
 {}
 
 ZipUtils::~ZipUtils()
-{ delete &ziphdler_; }
+{ }
 
 bool ZipUtils::Zip( const char* src, const char* dest )
 {
@@ -58,7 +57,7 @@ bool ZipUtils::doZip( const char* src, const char* dest )
 {
     FilePath srcfp( src );
     BufferString newsrc = srcfp.fileName();
-    FilePath zipcomfp( GetBinPlfDir(), "zip.exe" );
+    FilePath zipcomfp( GetBinPlfDir(), "zip" );
     BufferString cmd( zipcomfp.fullPath() );
     cmd += " -r \""; 
     cmd += dest;
@@ -131,43 +130,66 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     return res;
 }
 
-bool ZipUtils::makeZip( const char* zipfnm, BufferStringSet& src, TaskRunner* tr,
-			ZipHandler::CompLevel cl )
+
+bool ZipUtils::makeZip( const char* zipfnm, BufferString& src, 
+    TaskRunner* tr, ZipHandler::CompLevel cl )
 {
+    BufferStringSet src2;
+    src2.add( src );
+    return makeZip( zipfnm, src2, tr, cl );
+}
+
+
+
+bool ZipUtils::makeZip( const char* zipfnm, BufferStringSet& src, 
+    TaskRunner* tr, ZipHandler::CompLevel cl )
+{
+    ZipHandler ziphdler_;
     ziphdler_.setCompLevel( cl );
-    if ( !ziphdler_.initMakeZip(zipfnm,src.get(0).buf()) )
+    if ( !ziphdler_.initMakeZip(zipfnm,src) )
+    {
 	return false;
+    }
 
     Zipper exec( ziphdler_ );
-    if ( !tr ? tr->execute(exec) : exec.execute() )
+    if ( !(tr ? tr->execute(exec) : exec.execute()) )
+    {
 	return false;
-    
-    BufferString srcfnm = zipfnm;
-    srcfnm.add(".zip");
-    for ( int idx = 1; idx < src.size(); idx++ )
-	if ( !appendToArchive( srcfnm.buf(), src.get( idx ).buf()) )
-	    return false;
+    }
 
     return true;
 }
 
+
 bool ZipUtils::appendToArchive( const char* srcfnm, const char* fnm,
-				TaskRunner* tr, ZipHandler::CompLevel cl )
+    TaskRunner* tr, ZipHandler::CompLevel cl )
 {
-    bool res;
+    ZipHandler ziphdler_;
     ziphdler_.setCompLevel( cl );
-    res = ziphdler_.initAppend( srcfnm, fnm );
-    if ( !res )
+    if ( !ziphdler_.initAppend(srcfnm,fnm) )
+    {
 	return false;
+    }
 
     Zipper exec( ziphdler_ );
-    res = tr ? tr->execute( exec ) : exec.execute();
-    return res;
+    if ( !(tr ? tr->execute( exec ) : exec.execute()) )
+    {
+	return false;
+    }
+
+    return true;
 }
 
 
 int Zipper::nextStep()
 {
+    if ( ziphd_.getTotalFileCount(nrdir_) == nrdone_ )
+    {
+	nrdir_++;
+	FilePath fp( ziphd_.getAllFileNames().get(nrdone_) );
+	ziphd_.setNrLevel( fp.nrLevels() );
+    }
+
     int ret;
     ret = ziphd_.openStrmToRead(ziphd_.getAllFileNames().get(nrdone_));
     if ( ret == 0 )
@@ -191,7 +213,7 @@ int Zipper::nextStep()
     nrdone_++;
     if ( nrdone_ < totalNr() )
 	return MoreToDo();
-	
+
     int ptrlctn = ziphd_.getDestStream().tellp();
     ret = ziphd_.setCentralDirHeader();
     if ( !ret )
@@ -224,22 +246,33 @@ const char* Zipper::message() const
 { return ziphd_.errorMsg(); }
 
 bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
-							    TaskRunner* tr )
+    TaskRunner* tr )
 {
-    bool ret = ziphdler_.initUnZipArchive( srcfnm, basepath );
-    if( !ret )
+    ZipHandler ziphdler_;
+    if ( !ziphdler_.initUnZipArchive(srcfnm,basepath) )
+    {
 	return false;
+    }
 
     UnZipper exec( ziphdler_ );
-    ret = tr ? tr->execute( exec ) : exec.execute();
-    return ret;
+    if ( !(tr ? tr->execute( exec ) : exec.execute()) )
+    {
+	return false;
+    }
+
+    return true;
 }
 
 bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, 
-					      const char* path )
+    const char* path )
 {
-    bool ret = ziphdler_.unZipFile( srcfnm, fnm, path );
-    return ret;
+    ZipHandler ziphdler_;
+    if ( !ziphdler_.unZipFile(srcfnm,fnm,path) )
+    {
+	return false;
+    }
+
+    return true;
 }
 
 

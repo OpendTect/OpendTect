@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "bufstringset.h"
 #include "strmprov.h"
+#include "typeset.h"
 
 #define mLocalFileHeaderSig(T) \
     T[0] = 80; \
@@ -73,9 +74,9 @@ mClass(Basic) ZipFileInfo
 public:
 
 				ZipFileInfo(const char* fnm, 
-					    unsigned int compsize, 
-					    unsigned int uncompsize,
-					    unsigned int offset)
+				    unsigned int compsize, 
+				    unsigned int uncompsize,
+				    unsigned int offset)
 				: fnm_(fnm)
 				, compsize_(compsize) 
 				, uncompsize_(uncompsize)
@@ -98,38 +99,39 @@ public:
     friend class		UnZipper;
 
     enum CompLevel		{ NoComp=0, SuperFast=1, Fast=3, Normal=6,
-				  Maximum=9 };
+								Maximum=9 };
 
 				ZipHandler()
-				: totalfilecount_(0)
-				, initialfilecount_(0)
+				: initialfilecount_(0)
 				, srcfilesize_(0)
 				, destfilesize_(0)
 				, srcfnmsize_(0)
 				, offsetofcentraldir_(0)
-				, sizeofcentraldir_(0)			{}
+				, sizeofcentraldir_(0)	{}
 
     const char*			errorMsg()const;
 
     bool			getArchiveInfo(const char*,
-						    ObjectSet<ZipFileInfo>&);
+						ObjectSet<ZipFileInfo>&);
 
     bool			getBitValue(const unsigned char byte,
 							int bitposition)const;
     void			setBitValue(unsigned char& byte, 
 					    int bitposition, bool value)const;
 
+	void			setNrLevel(int level){ nrlevels_ = level; }
+
 protected:
 
     bool			initUnZipArchive(const char*,const char*);
     bool			unZipFile(const char* srcfnm,const char* fnm,
-					  const char* path);
+															const char* path);
 
     bool			doZUnCompress();
     bool			readEndOfCentralDirHeader();
     bool			readFileHeader();
 
-    bool			initMakeZip(const char*,const char*);
+    bool			initMakeZip(const char*,BufferStringSet);
     bool			initAppend(const char*,const char*);
 
     bool			manageDir(const char*);
@@ -148,7 +150,8 @@ protected:
     std::ostream&		getDestStream()const { return *osd_.ostrm; }
     std::istream&		getSrcStream()const { return *isd_.istrm; }
     unsigned int		getTotalFileCount()const 
-				{ return totalfilecount_; }
+					{ return totalfilecount_.last(); }
+	int			getTotalFileCount(int)const;
     void			closeDestStream() { osd_.close(); }
     void			closeSrcStream() { isd_.close(); }
     StreamData			makeOStreamForAppend(const char*)const;
@@ -164,7 +167,7 @@ protected:
     unsigned short		srcfnmsize_;
 
     BufferString		destbasepath_;
-    BufferString	    	destfile_;
+    BufferString		destfile_;
     unsigned int		destfilesize_ ;
     BufferString		destfnm_;
 
@@ -174,7 +177,7 @@ protected:
     int				nrlevels_;
 
     unsigned int		initialfilecount_;
-    unsigned int		totalfilecount_;
+    TypeSet<unsigned int>	totalfilecount_;
     
     unsigned short		version_;
     unsigned short		lastmodtime_;

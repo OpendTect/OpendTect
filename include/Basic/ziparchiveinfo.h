@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Salil Agarwal
- Date:		27 August 2012
- RCS:		$Id$
+(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+Author:	Salil Agarwal
+Date:		27 August 2012
+RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
 
     bool			getAllFnms(BufferStringSet&)const;
 
-    				//!< All sizes in Bytes
+    //!< All sizes in Bytes
     od_int64			getFileCompSize(const char* fnm) const;
     od_int64			getFileCompSize(int) const;
     od_int64			getFileUnCompSize(const char* fnm)const;
