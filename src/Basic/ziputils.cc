@@ -131,7 +131,7 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 }
 
 
-bool ZipUtils::makeZip( const char* zipfnm, BufferString& src, 
+bool ZipUtils::makeZip( const char* zipfnm, const BufferString& src, 
     TaskRunner* tr, ZipHandler::CompLevel cl )
 {
     BufferStringSet src2;
@@ -141,7 +141,7 @@ bool ZipUtils::makeZip( const char* zipfnm, BufferString& src,
 
 
 
-bool ZipUtils::makeZip( const char* zipfnm, BufferStringSet& src, 
+bool ZipUtils::makeZip( const char* zipfnm, const BufferStringSet& src, 
     TaskRunner* tr, ZipHandler::CompLevel cl )
 {
     ZipHandler ziphdler_;

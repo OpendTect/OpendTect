@@ -35,11 +35,12 @@ public:
 					const char* fnm,const char* path);
 
     static bool			makeZip(const char* zipfilenm,
-					BufferStringSet&, TaskRunner* tr=0,
+					const BufferStringSet&, 
+					TaskRunner* tr=0,
 					ZipHandler::CompLevel c=
 					ZipHandler::Normal);
-	static bool		makeZip(const char* zipfilenm,
-					BufferString&, TaskRunner* tr=0,
+    static bool			makeZip(const char* zipfilenm,
+					const BufferString&, TaskRunner* tr=0,
 					ZipHandler::CompLevel c=
 					ZipHandler::Normal);
     static bool			appendToArchive(const char* zipfile,
