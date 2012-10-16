@@ -82,6 +82,10 @@ void uiODPickSetParentTreeItem::setAdd( CallBacker* cb )
     display_on_add = true;
     mDynamicCastGet(Pick::Set*,ps,cb)
     if ( !ps ) return;
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	    	    applMgr()->visServer()->getObject(sceneID()));
+    if ( scene && scene->getZAxisTransform() )
+	return;
 
     uiODDisplayTreeItem* item = new uiODPickSetTreeItem( -1, *ps );
     addChild( item, false );
@@ -124,6 +128,11 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     mDynamicCastGet(visSurvey::Scene*,scene,
 	    	    applMgr()->visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
+    if ( hastransform )
+    {
+	uiMSG().message( "Cannot display Picksets/Polygons in this scene" );
+	return false;
+    }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Add PickSet ..."), mLoadIdx );
