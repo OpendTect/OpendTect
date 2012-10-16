@@ -557,7 +557,7 @@ void uiWellMan::mkFileInfo()
 	const float surfelev = -info.surfaceelev;
 	if ( !mIsZero(surfelev,1e-4) && !mIsUdf(surfelev) )
 	{
-	    txt += "Difference MSL - SRD"; txt += ": ";
+	    txt += "Seismic Reference Datum"; txt += ": ";
 	    txt += zun ? zun->userValue(surfelev) : surfelev;
 	    txt += zun->symbol(); txt += "\n";
 	}

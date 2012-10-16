@@ -566,6 +566,7 @@ void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
 {
     Table::TargetInfo* ti = gtDepthTI( withunits );
     ti->add( new Table::TargetInfo::Form( "TVD rel SRD", FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( "TVD rel KB", FloatInpSpec() ) );
     fd->bodyinfos_ += ti;
 
     ti = new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
@@ -587,30 +588,55 @@ static bool getTVDD2TModel( Well::D2TModel& d2t,
 		const TypeSet<float>& zvals, const TypeSet<float>& tvals,
 		const Well::Track& trck )
 {
-    const float eps = 1e-4;
+    if ( zvals.size() < 2 )
+	return false;
     TypeSet<float> mds, ts;
-    for ( int iz=0; iz<zvals.size(); iz++ )
+
+    int iz=-1;
+    do iz++; while ( zvals[iz] < trck.pos(0).z && iz+1 < zvals.size() );
+    float curvel = ( zvals[iz+1] - zvals[iz] ) / ( tvals[iz+1] - tvals[iz] );
+
+    mds += trck.dah(0);
+    ts  += tvals[iz] + ( trck.pos(0).z - zvals[iz] ) / curvel;
+    float prevz = trck.pos(0).z;
+    float prevt = tvals[iz] + ( trck.pos(0).z - zvals[iz] ) / curvel;
+
+    for ( int idah=1; idah<trck.size(); idah++ )
     {
-	const float targettvd = zvals[iz];
-	const float curt = tvals[iz];
+	const float targetz = trck.pos(idah).z;
+	const bool isdescending = trck.pos(idah).z > trck.pos(idah-1).z;
 
-	// find MD intervals including this TVD. Can be multiple.
-	float prevtvd = (float) trck.pos(0).z;
-	for ( int idah=1; idah<trck.size(); idah++ )
+	if ( isdescending && iz+1 < zvals.size() )
 	{
-	    const float tvd = (float) trck.pos(idah).z;
-	    const float tvddist = tvd - prevtvd;
-	    if ( mIsZero(tvddist,eps) )
-		continue;
-
-	    if ( targettvd > prevtvd-eps && targettvd < tvd+eps )
+	    while ( targetz > zvals[iz+1] )
 	    {
-		const float relpos = (targettvd - prevtvd) / tvddist;
-		mds += relpos*trck.dah(idah) + (1-relpos)*trck.dah(idah-1);
-		ts += curt;
+		if ( iz+2 < zvals.size() ) iz++;
+		curvel = ( zvals[iz+1] - zvals[iz] ) / ( tvals[iz+1] - tvals[iz] );
+		const float relpos = ( zvals[iz] - trck.pos(idah-1).z ) / ( targetz - trck.pos(idah-1).z );
+		mds  += relpos*trck.dah(idah) + (1-relpos)*trck.dah(idah-1);
+		ts   += prevt + ( zvals[iz] - prevz ) / curvel;
+		prevz = zvals[iz];
+		prevt = tvals[iz];
 	    }
-	    prevtvd = tvd;
 	}
+	else
+	{
+	    while ( targetz < zvals[iz-1] )
+	    {
+		if ( iz-2 > 0 ) iz--;
+		curvel = ( zvals[iz] - zvals[iz-1] ) / ( tvals[iz] - tvals[iz-1] );
+		const float relpos = ( zvals[iz] - trck.pos(idah-1).z ) / ( targetz - trck.pos(idah-1).z );
+		mds  += relpos*trck.dah(idah) + (1-relpos)*trck.dah(idah-1);
+		ts   += prevt + ( zvals[iz] - prevz ) / curvel;
+		prevz = zvals[iz];
+		prevt = tvals[iz];
+	    }
+	}
+
+	mds   += trck.dah(idah);
+	ts    += prevt + ( targetz - prevz ) / curvel;
+	prevt += ( targetz - prevz ) / curvel;
+	prevz  = trck.pos(idah).z;
     }
 
     const int sz = mds.size();
@@ -644,7 +670,9 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 	if ( mIsUdf(zval) || mIsUdf(tval) )
 	    continue;
 	if ( dpthopt == 2 )
-	    zval -= wll.info().surfaceelev;
+	    zval += wll.info().surfaceelev;
+	if ( dpthopt == 3 )
+	    zval -= wll.track().dah(0)-wll.track().pos(0).z;
 	if ( tmopt == 1 )
 	    tval *= 2;
 
