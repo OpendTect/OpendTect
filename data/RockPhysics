@@ -1,10 +1,12 @@
-dTect V4.3
+dTect V4.5
 Rock Physics
-Fri Apr 13 17:06:18 2012
+Tue Oct 16 11:22:18 2012
 !
 Net Pay: Classification
 Description: Compute Net Pay from porosity, saturation, Vshale
 Formula: phi >= c0 && vsh <= c1 && sw <= c2 ? 1 : 0
+Formula.Unit: Fraction
+Unit: Fraction
 Variable.0.Type: Volumetrics
 Variable.0.Name: Phi
 Variable.0.Description: Porosity
@@ -27,6 +29,8 @@ Constant.2.Default: 0.50
 Reservoir: Classification
 Description: Compute Net Pay from porosity, saturation, Vshale
 Formula: phi >= c0 || vsh <= c1 || sw <= c2 ? 1 : 0
+Formula.Unit: Fraction
+Unit: Fraction
 Variable.0.Type: Volumetrics
 Variable.0.Name: Phi
 Variable.0.Description: Porosity
@@ -49,6 +53,7 @@ Constant.2.Default: 0.50
 Gardner equation - Sonic: Density
 Description: Compute density from sonic
 Formula: c0 * (1/dt)^c1
+Formula.Unit: Gram/cm3
 Unit: Gram/cm3
 Variable.0.Type: Sonic travel time
 Variable.0.Name: DT
@@ -62,6 +67,7 @@ Constant.1.Default: 0.25
 Gardner equation - P-wave: Density
 Description: Compute density from P-wave velocity
 Formula: c0 * Pwave^c1
+Formula.Unit: Gram/cm3
 Unit: Gram/cm3
 Variable.0.Type: Velocity
 Variable.0.Name: Vp
@@ -75,6 +81,7 @@ Constant.1.Default: 0.25
 Density from Porosity: Density
 Description: Beware that this formula only works if the input porosity is always between the 0 and 1.
 Formula: c0 * ( 1 - por ) +  por * c1
+Formula.Unit: Gram/cm3
 Unit: Gram/cm3
 Variable.0.Type: Porosity
 Variable.0.Name: Porosity
@@ -90,7 +97,8 @@ Constant.1.Typical Range: 0.5`1.2
 Extended elastic density using CHI angle: Density
 Description: Compute elastic density from Density, P-wave velocity and S-wave velocity
 Formula: (c0*c1*((velp/c0)^(cos(c2*PI/180)+sin(c2*PI/180)))*((vels/c3)^(-8*((c3/c0)^2)*sin(c2*PI/180)))*((den/c1)^(cos(c2*PI/180)-4*((c3/c0)^2)*sin(c2*PI/180))))/velp
-Unit: Kg/m3
+Formula.Unit: Kg/m3
+Unit: Gram/cm3
 Variable.0.Type: Velocity
 Variable.0.Name: Vp
 Variable.0.Description: P-wave velocity
@@ -104,21 +112,22 @@ Variable.2.Name: Rhob
 Variable.2.Description: Density
 Variable.2.Unit: Kg/m3
 Constant.0.Name: a0
-Constant.0.Description: Mean Vp (from all wells)
+Constant.0.Description: Mean Vp in m/s (from all wells)
 Constant.0.Default: 2500
 Constant.1.Name: d0
-Constant.1.Description: Mean Rhob (from all wells)
+Constant.1.Description: Mean Rhob in kg/m3 (from all wells)
 Constant.1.Default: 2000
 Constant.2.Name: chi
 Constant.2.Description: CHI rotation angle in degrees`NOT the incidence angle
 Constant.2.Default: 15
 Constant.3.Name: b0
-Constant.3.Description: Mean Vs (from all wells)
+Constant.3.Description: Mean Vs in m/s (from all wells)
 Constant.3.Default: 1500
 !
 Gardner equation - Density spliced with longer sonic: Density
 Description: Extend existing density log with longer sonic
 Formula: den == undef ? c0 * (1/dt)^c1 : den
+Formula.Unit: Gram/cm3
 Unit: Gram/cm3
 Variable.0.Type: Density
 Variable.0.Name: Rhob
@@ -136,6 +145,7 @@ Constant.1.Default: 0.25
 Gardner equation - Density spliced with longer P-wave: Density
 Description: Extend exisiting density log with longer P-wave velocity
 Formula: den == undef ? c0 * Pwave^c1 : den
+Formula.Unit: Gram/cm3
 Unit: Gram/cm3
 Variable.0.Type: Density
 Variable.0.Name: Rhob
@@ -153,6 +163,7 @@ Constant.1.Default: 0.25
 Poisson's ratio from Velocity logs: Elastic Ratio
 Description: Poisson's ratio
 Formula: ( (velp/vels)^2 - 2 ) / ( 2* ( (velp/vels)^2 - 1 ) )
+Formula.Unit: Ratio
 Unit: Ratio
 Variable.0.Type: Velocity
 Variable.0.Name: Vp
@@ -166,6 +177,7 @@ Variable.1.Unit: Meter/second
 Vp/Vs ratio from Velocity curves: Elastic Ratio
 Description: Vp/Vs ratio
 Formula: velp / vels
+Formula.Unit: Ratio
 Unit: Ratio
 Variable.0.Type: Velocity
 Variable.0.Name: Vp
@@ -179,6 +191,7 @@ Variable.1.Unit: Meter/second
 Vs/Vp ratio from Velocity curves: Elastic Ratio
 Description: Vs/Vp ratio
 Formula: vels / velp
+Formula.Unit: Ratio
 Unit: Ratio
 Variable.0.Type: Velocity
 Variable.0.Name: Vs
@@ -192,6 +205,7 @@ Variable.1.Unit: Meter/second
 Poisson's ratio from Sonic logs: Elastic Ratio
 Description: Poisson's ratio
 Formula: ( (dts/dt)^2 - 2 ) / ( 2* ( (dts/dt)^2 - 1 ) )
+Formula.Unit: Ratio
 Unit: Ratio
 Variable.0.Type: Sonic travel time
 Variable.0.Name: DT
@@ -205,6 +219,7 @@ Variable.1.Unit: Seconds/meter
 Vp/Vs ratio from Sonic logs: Elastic Ratio
 Description: Vp/Vs ratio
 Formula: dts / dt
+Formula.Unit: Ratio
 Unit: Ratio
 Variable.0.Type: Sonic travel time
 Variable.0.Name: DTS
@@ -218,6 +233,7 @@ Variable.1.Unit: Seconds/meter
 Vs/Vp ratio from Sonic logs: Elastic Ratio
 Description: Vs/Vp ratio
 Formula: dt / dts
+Formula.Unit: Ratio
 Unit: Ratio
 Variable.0.Type: Sonic travel time
 Variable.0.Name: DT
@@ -231,7 +247,8 @@ Variable.1.Unit: Seconds/meter
 Acoustic Impedance from sonic: Impedance
 Description: Compute acoustic impedance from sonic and density
 Formula: den / dt
-Unit: Kg/m2s
+Formula.Unit: Kg/m2s
+Unit: G/cm2s
 Variable.0.Type: Density
 Variable.0.Name: Rhob
 Variable.0.Description: Density
@@ -244,7 +261,8 @@ Variable.1.Unit: Seconds/meter
 Shear Impedance from sonic: Impedance
 Description: Compute shear impedance from shear sonic and density
 Formula: den / dts
-Unit: Kg/m2s
+Formula.Unit: Kg/m2s
+Unit: G/cm2s
 Variable.0.Type: Density
 Variable.0.Name: Rhob
 Variable.0.Description: Density
@@ -257,7 +275,8 @@ Variable.1.Unit: Seconds/meter
 Acoustic Impedance from P-wave velocity: Impedance
 Description: Compute acoustic impedance from P-wave velocity and density
 Formula: velp * den
-Unit: Kg/m2s
+Formula.Unit: Kg/m2s
+Unit: G/cm2s
 Variable.0.Type: Velocity
 Variable.0.Name: Vp
 Variable.0.Description: P-wave velocity
@@ -270,7 +289,8 @@ Variable.1.Unit: Kg/m3
 Shear Impedance from S-wave velocity: Impedance
 Description: Compute shear impedance from S-wave velocity and density
 Formula: vels * den
-Unit: Kg/m2s
+Formula.Unit: Kg/m2s
+Unit: G/cm2s
 Variable.0.Type: Velocity
 Variable.0.Name: Vs
 Variable.0.Description: S-wave velocity
@@ -283,7 +303,8 @@ Variable.1.Unit: Kg/m3
 Extended elastic impedance using CHI angle: Impedance
 Description: Compute elastic impedance from Density, P-wave velocity and S-wave velocity
 Formula: c0*c1*((velp/c0)^(cos(c2*PI/180)+sin(c2*PI/180)))*((vels/c3)^(-8*((c3/c0)^2)*sin(c2*PI/180)))*((den/c1)^(cos(c2*PI/180)-4*((c3/c0)^2)*sin(c2*PI/180)))
-Unit: Kg/m2s
+Formula.Unit: Kg/m2s
+Unit: G/cm2s
 Variable.0.Type: Velocity
 Variable.0.Name: Vp
 Variable.0.Description: P-wave velocity
@@ -297,21 +318,22 @@ Variable.2.Name: Rhob
 Variable.2.Description: Density
 Variable.2.Unit: Kg/m3
 Constant.0.Name: a0
-Constant.0.Description: Mean Vp (from all wells)
+Constant.0.Description: Mean Vp in m/s (from all wells)
 Constant.0.Default: 2500
 Constant.1.Name: d0
-Constant.1.Description: Mean Rhob (from all wells)
+Constant.1.Description: Mean Rhob in kg/m3 (from all wells)
 Constant.1.Default: 2000
 Constant.2.Name: chi
 Constant.2.Description: CHI rotation angle in degrees`NOT the incidence angle
 Constant.2.Default: 15
 Constant.3.Name: b0
-Constant.3.Description: Mean Vs (from all wells)
+Constant.3.Description: Mean Vs in m/s (from all wells)
 Constant.3.Default: 1500
 !
 Lambda: Pressure
 Description: Lambda from Ip-Is and density
 Formula: ( Ip^2 - c0*Is^2 ) /  den
+Formula.Unit: Pascal
 Unit: GigaPascal
 Variable.0.Type: Impedance
 Variable.0.Name: Ip
@@ -332,6 +354,7 @@ Constant.0.Typical Range: 2`2.5
 Mhu: Pressure
 Description: Mhu from Is and density
 Formula: Is^2 / den
+Formula.Unit: Pascal
 Unit: GigaPascal
 Variable.0.Type: Impedance
 Variable.0.Name: Is
@@ -345,6 +368,7 @@ Variable.1.Unit: Kg/m3
 Lambda-Rho: Pressure-Weight
 Description: Lambda-Rho from Ip-Is
 Formula: Ip^2 - c0*Is^2
+Formula.Unit: Pascal.Kg/m3
 Unit: GigaPascal.g/cm3
 Variable.0.Type: Impedance
 Variable.0.Name: Ip
@@ -361,6 +385,7 @@ Constant.0.Typical Range: 2`2.5
 Mhu-Rho: Pressure-Weight
 Description: Mhu-Rho from Is
 Formula: Is^2
+Formula.Unit: Pascal.Kg/m3
 Unit: GigaPascal.g/cm3
 Variable.0.Type: Impedance
 Variable.0.Name: Is
@@ -370,7 +395,8 @@ Variable.0.Unit: Kg/m2s
 Sonic from velocity: Sonic travel time
 Description: Conversion from velocity to sonic travel time
 Formula: 1 / vel
-Unit: Microseconds/meter
+Formula.Unit: Seconds/meter
+Unit: Microseconds/foot
 Variable.0.Type: Velocity
 Variable.0.Name: Velocity
 Variable.0.Description: Velocity
@@ -379,6 +405,7 @@ Variable.0.Unit: Meter/second
 Castagna's equation: Velocity
 Description: S-wave from P-wave velocity.
 Formula: c0*Vp + c1
+Formula.Unit: Meter/second
 Unit: Meter/second
 Variable.0.Type: Velocity
 Variable.0.Name: Vp
@@ -392,7 +419,8 @@ Constant.1.Default: -1172
 Krief's equation: Velocity
 Description: S-wave from P-wave velocity.
 Formula: sqrt( c0*Vp^2 + c1 )
-Unit: Km/second
+Formula.Unit: Km/second
+Unit: Meter/second
 Variable.0.Type: Velocity
 Variable.0.Name: Vp
 Variable.0.Description: P-wave velocity
@@ -407,6 +435,7 @@ Constant.1.Default: -1.743
 Faust's equation: Velocity
 Description: P-wave from resistivity
 Formula: c0 * ( Z * Res ) ^ c1
+Formula.Unit: Meter/second
 Unit: Meter/second
 Variable.0.Type: Distance/Depth
 Variable.0.Name: Depth
@@ -424,6 +453,7 @@ Constant.1.Default: 0.166667
 Reversed Gardner's equation: Velocity
 Description: P-wave velocity from density
 Formula: ( den / c0 ) ^ (1/c1)
+Formula.Unit: Meter/second
 Unit: Meter/second
 Variable.0.Type: Density
 Variable.0.Name: Rhob
@@ -437,6 +467,7 @@ Constant.1.Default: 0.25
 Velocity from Sonic: Velocity
 Description: Velocity from Sonic travel time
 Formula: 1 / dt
+Formula.Unit: Meter/second
 Unit: Meter/second
 Variable.0.Type: Sonic travel time
 Variable.0.Name: Sonic
@@ -446,6 +477,7 @@ Variable.0.Unit: Seconds/meter
 Castagna's equation - S-wave velocity spliced with longer P-wave: Velocity
 Description: Extend exisiting S-wave velocity log with longer P-wave velocity.
 Formula: Vs == undef ? c0*Vp + c1 : Vs
+Formula.Unit: Meter/second
 Unit: Meter/second
 Variable.0.Type: Velocity
 Variable.0.Name: Vs
@@ -463,6 +495,7 @@ Constant.1.Default: -1172
 P-wave velocity from Lambda-Mhu and density: Velocity
 Description: Compute P-wave velocity from Lambda-Mhu and density
 Formula: sqrt ( ( lambda+2*mhu )  / den )
+Formula.Unit: Meter/second
 Unit: Meter/second
 Variable.0.Type: Pressure
 Variable.0.Name: Lambda
@@ -480,6 +513,7 @@ Variable.2.Unit: Kg/m3
 S-wave velocity from Mhu and density: Velocity
 Description: Compute P-wave velocity from Mhu and density
 Formula: sqrt ( mhu / den )
+Formula.Unit: Meter/second
 Unit: Meter/second
 Variable.0.Type: Pressure
 Variable.0.Name: Mhu
@@ -493,6 +527,7 @@ Variable.1.Unit: Kg/m3
 Porosity from Density: Volumetrics
 Description: Standard formula.`Beware that this formula only works if the input density is always between the matrix and fluid density.
 Formula: (c0 - den) / (c0 - c1)
+Formula.Unit: Fraction
 Unit: Fraction
 Variable.0.Type: Density
 Variable.0.Name: Rhob
@@ -510,6 +545,7 @@ Constant.1.Typical Range: 0.5`1.2
 Porosity from Density and Resistivity: Volumetrics
 Description: Porosity from density and resistivity log
 Formula: ( 0.9 * sqrt(c0/res) * ( c1 - c2 ) + ( c3 - den  ) ) / ( c3 - c2 )
+Formula.Unit: Fraction
 Unit: Fraction
 Variable.0.Type: Resistivity
 Variable.0.Name: Rt
