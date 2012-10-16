@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "rcol.h"
 #include "geometry.h"
+#include "undefval.h"
 
 class BufferString;
 class RowCol;
@@ -291,6 +292,32 @@ protected:
 
 };
 
+namespace Values {
+    
+    
+template<>
+class Undef<Coord>
+{
+public:
+    static Coord	val()			{ return Coord::udf(); }
+    static bool		hasUdf()		{ return true; }
+    static bool		isUdf( Coord& i )	{ return !i.isDefined(); }
+    static void		setUdf( Coord& i )	{ i = Coord::udf(); }
+};
+
+
+template<>
+class Undef<Coord3>
+{
+public:
+    static Coord3	val()			{ return Coord3::udf(); }
+    static bool		hasUdf()		{ return true; }
+    static bool		isUdf( Coord3& i )	{ return !i.isDefined(); }
+    static void		setUdf( Coord3& i )	{ i = Coord3::udf(); }
+};
+
+    
+}
 
 inline bool Coord3::operator==( const Coord3& b ) const
 {
