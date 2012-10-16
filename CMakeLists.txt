@@ -7,7 +7,9 @@
 
 cmake_minimum_required (VERSION 2.6)
 
-project(OpendTect)
+SET (OpendTect_VERSION_MAJOR 4)
+SET (OpendTect_VERSION_MINOR 4)
+project(OpendTect-${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR})
 
 #Dummy statement to avoid warning if OSG_DIR is set
 SET ( DUMMY_VAR ${OSG_DIR} )
@@ -17,7 +19,6 @@ INCLUDE(CTest)
 SET ( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
 SET( OD_BINARY_BASEDIR ${OpendTect_DIR} )
 
-
 IF ( NOT DEFINED CMAKE_BUILD_TYPE )
     SET(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Release or Debug" )
 ENDIF()
@@ -25,8 +26,6 @@ ENDIF()
 SET(OD_DGB_DIR "" CACHE PATH
 	"Place where closed source part is found")
 
-SET (OpendTect_VERSION_MAJOR 4)
-SET (OpendTect_VERSION_MINOR 4)
 
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules")
 
