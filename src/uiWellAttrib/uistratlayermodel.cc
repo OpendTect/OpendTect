@@ -528,6 +528,9 @@ bool uiStratLayerModel::saveGenDesc() const
     StreamData sd( StreamProvider(fnm).makeOStream() );
     bool rv = false;
     MouseCursorChanger mcch( MouseCursor::Wait );
+    
+    
+    fillWorkbenchPars( desc_.getWorkBenchParams() );
     if ( !sd.usable() )
 	uiMSG().error( "Cannot open output file" );
     else if ( !desc_.putTo(*sd.ostrm) )
@@ -566,6 +569,10 @@ bool uiStratLayerModel::openGenDesc()
     if ( !rv )
 	uiMSG().error(desc_.errMsg());
     sd.close();
+    
+    if ( !useWorkbenchPars( desc_.getWorkBenchParams() ))
+	return false;
+    
     if ( !rv )
 	return false;
 
@@ -738,4 +745,14 @@ Strat::LayerModel& uiStratLayerModel::layerModel()
 }
 
 
+bool uiStratLayerModel::useWorkbenchPars( const IOPar& par )
+{
+    return true;
+}
+
+
+void uiStratLayerModel::fillWorkbenchPars( IOPar& par ) const
+{
+    par.setEmpty();
+}
 

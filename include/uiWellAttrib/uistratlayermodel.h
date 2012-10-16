@@ -122,6 +122,9 @@ protected:
     void			manPropsCB(CallBacker*);
 
     bool			closeOK();
+    
+    void			fillWorkbenchPars(IOPar&) const;
+    bool			useWorkbenchPars(const IOPar&);
 
 public:
 
