@@ -70,12 +70,12 @@ public:
 					{ return false; }
 
     inline void				setAll(const T&);
-    virtual void		getAll(T* ptr) const;
+    virtual void			getAll(T* ptr) const;
     					/*!<Fills ptr with values from array.
 					    ptr is assumed to be allocated
 					    with info().getTotalSz() number
 					    of values. */
-    virtual void		getAll(ValueSeries<T>& vs) const;
+    virtual void			getAll(ValueSeries<T>& vs) const;
     					/*!<Fills vs with values from array.
 					    ptr is assumed to be allocated
 					    with info().getTotalSz() number
