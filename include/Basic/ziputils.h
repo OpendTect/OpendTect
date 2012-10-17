@@ -30,21 +30,27 @@ public:
     const BufferStringSet&	getFileList() const	{ return filelist_; }
 
     static bool			unZipArchive(const char* src,const char* dest,
-							TaskRunner* tr=0);
+	    				     BufferString& errmsg,
+					     TaskRunner* tr=0);
     static bool			unZipFile(const char* ziparchive,
-					const char* fnm,const char* path);
+					  const char* fnm,const char* path,
+					  BufferString& errmsg);
 
     static bool			makeZip(const char* zipfilenm,
-					const BufferStringSet&, 
+					const BufferStringSet&,
+				        BufferString& errmsg,	
 					TaskRunner* tr=0,
 					ZipHandler::CompLevel c=
 					ZipHandler::Normal);
     static bool			makeZip(const char* zipfilenm,
-					const BufferString&, TaskRunner* tr=0,
+					const char* tozip,
+					BufferString& errmsg,
+					TaskRunner* tr=0,
 					ZipHandler::CompLevel c=
 					ZipHandler::Normal);
     static bool			appendToArchive(const char* zipfile,
-						const char* toappend, 
+						const char* toappend,
+						BufferString& errmsg,
 						TaskRunner* tr=0,
 						ZipHandler::CompLevel c=
 						ZipHandler::Normal);

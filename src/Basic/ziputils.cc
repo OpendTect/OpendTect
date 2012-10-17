@@ -32,12 +32,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 ZipUtils::ZipUtils( const char* filelistnm )
-    : filelistname_( filelistnm )
-    , needfilelist_( !filelistname_.isEmpty() )
+    : filelistname_(filelistnm)
+    , needfilelist_(!filelistname_.isEmpty())
 {}
 
+
 ZipUtils::~ZipUtils()
-{ }
+{}
 
 bool ZipUtils::Zip( const char* src, const char* dest )
 {
@@ -52,6 +53,7 @@ bool ZipUtils::UnZip( const char* src, const char* dest )
     mDirCheck( dest );
     return doUnZip( src, dest );
 }
+
 
 bool ZipUtils::doZip( const char* src, const char* dest )
 {
@@ -131,51 +133,47 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 }
 
 
-bool ZipUtils::makeZip( const char* zipfnm, const BufferString& src, 
-    TaskRunner* tr, ZipHandler::CompLevel cl )
+bool ZipUtils::makeZip( const char* zipfnm, const char* src,
+			BufferString& errmsg, TaskRunner* tr,
+			ZipHandler::CompLevel cl )
 {
     BufferStringSet src2;
     src2.add( src );
-    return makeZip( zipfnm, src2, tr, cl );
+    return makeZip( zipfnm, src2, errmsg, tr, cl );
 }
 
 
+#define mErrRet { errmsg = ziphdler_.errorMsg(); return false; }
 
-bool ZipUtils::makeZip( const char* zipfnm, const BufferStringSet& src, 
-    TaskRunner* tr, ZipHandler::CompLevel cl )
+bool ZipUtils::makeZip( const char* zipfnm, const BufferStringSet& src,
+       			BufferString& errmsg, TaskRunner* tr,
+			ZipHandler::CompLevel cl )
 {
     ZipHandler ziphdler_;
     ziphdler_.setCompLevel( cl );
     if ( !ziphdler_.initMakeZip(zipfnm,src) )
-    {
-	return false;
-    }
+	mErrRet
 
     Zipper exec( ziphdler_ );
     if ( !(tr ? tr->execute(exec) : exec.execute()) )
-    {
-	return false;
-    }
+	mErrRet
 
     return true;
 }
 
 
 bool ZipUtils::appendToArchive( const char* srcfnm, const char* fnm,
-    TaskRunner* tr, ZipHandler::CompLevel cl )
+				BufferString& errmsg, TaskRunner* tr,
+				ZipHandler::CompLevel cl )
 {
     ZipHandler ziphdler_;
     ziphdler_.setCompLevel( cl );
     if ( !ziphdler_.initAppend(srcfnm,fnm) )
-    {
-	return false;
-    }
+	mErrRet
 
     Zipper exec( ziphdler_ );
     if ( !(tr ? tr->execute( exec ) : exec.execute()) )
-    {
-	return false;
-    }
+	mErrRet
 
     return true;
 }
@@ -240,37 +238,32 @@ od_int64 Zipper::totalNr() const
 { return ziphd_.getAllFileNames().size(); }
 
 const char* Zipper::nrDoneText() const
-{ return ( "Files" ); }
+{ return "Files"; }
 
 const char* Zipper::message() const
 { return ziphd_.errorMsg(); }
 
 bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
-    TaskRunner* tr )
+			     BufferString& errmsg, TaskRunner* tr )
 {
     ZipHandler ziphdler_;
     if ( !ziphdler_.initUnZipArchive(srcfnm,basepath) )
-    {
-	return false;
-    }
+	mErrRet
 
     UnZipper exec( ziphdler_ );
     if ( !(tr ? tr->execute( exec ) : exec.execute()) )
-    {
-	return false;
-    }
+	mErrRet
 
     return true;
 }
 
-bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, 
-    const char* path )
+
+bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, const char* path,
+			  BufferString& errmsg )
 {
     ZipHandler ziphdler_;
     if ( !ziphdler_.unZipFile(srcfnm,fnm,path) )
-    {
-	return false;
-    }
+	mErrRet
 
     return true;
 }
@@ -293,7 +286,7 @@ od_int64 UnZipper::totalNr() const
 { return ziphd_.getTotalFileCount(); }
 
 const char* UnZipper::nrDoneText() const
-{ return ( "Files" ); }
+{ return "Files"; }
 
 const char* UnZipper::message() const
 { return ziphd_.errorMsg(); }
