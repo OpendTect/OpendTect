@@ -77,9 +77,9 @@ void ConnComponents::classifyMarks( Array2D<int>& mark )
     const int c = mark.info().getSize(1);
 
     int index = 0;
-    for ( int i=1; i<r-2; i++ )
+    for ( int i=1; i<r-1; i++ )
     {
-	for ( int j=1; j<c-2; j++ )
+	for ( int j=1; j<c-1; j++ )
 	{
 	    if ( !input_.get(i,j) )
 		continue;
@@ -92,17 +92,14 @@ void ConnComponents::classifyMarks( Array2D<int>& mark )
 		    mark.set(i,j,m);
 		    
 		    const int smij = mark.get(i,j-1);
-		    if ( smij<1 )
-			continue;
-
 		    const int nwmij = mark.get(i-1,j+1);
 		    const int swmij = mark.get(i-1,j-1);
-		    if ( smij!=nwmij )
+		    if ( smij>0 && smij!=nwmij )
 		    {
 			setMark( mark, mMAX(smij,nwmij), mMIN(smij,nwmij) );
 		    }
 
-		    if ( swmij!=nwmij )
+		    if ( swmij>0 && swmij!=nwmij )
 		    {
 			setMark( mark, mMAX(swmij,nwmij), mMIN(swmij,nwmij) );
 		    }
