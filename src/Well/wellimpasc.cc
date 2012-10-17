@@ -588,6 +588,8 @@ static bool getTVDD2TModel( Well::D2TModel& d2t,
 		const TypeSet<float>& zvals, const TypeSet<float>& tvals,
 		const Well::Track& trck )
 {
+    // We assume the model is a sorted 1D velocity model
+    // All track positions are inserted to honour horizontal wells
     if ( zvals.size() < 2 )
 	return false;
     TypeSet<float> mds, ts;
@@ -611,10 +613,12 @@ static bool getTVDD2TModel( Well::D2TModel& d2t,
 	    while ( targetz > zvals[iz+1] )
 	    {
 		if ( iz+2 < zvals.size() ) iz++;
-		curvel = ( zvals[iz+1] - zvals[iz] ) / ( tvals[iz+1] - tvals[iz] );
-		const float relpos = ( zvals[iz] - trck.pos(idah-1).z ) / ( targetz - trck.pos(idah-1).z );
+		else break;
+		const float relpos = ( zvals[iz] - trck.pos(idah-1).z ) /
+		    		     ( targetz - trck.pos(idah-1).z );
 		mds  += relpos*trck.dah(idah) + (1-relpos)*trck.dah(idah-1);
 		ts   += prevt + ( zvals[iz] - prevz ) / curvel;
+		curvel = ( zvals[iz+1] - zvals[iz] )/( tvals[iz+1] - tvals[iz] );
 		prevz = zvals[iz];
 		prevt = tvals[iz];
 	    }
@@ -624,10 +628,12 @@ static bool getTVDD2TModel( Well::D2TModel& d2t,
 	    while ( targetz < zvals[iz-1] )
 	    {
 		if ( iz-2 > 0 ) iz--;
-		curvel = ( zvals[iz] - zvals[iz-1] ) / ( tvals[iz] - tvals[iz-1] );
-		const float relpos = ( zvals[iz] - trck.pos(idah-1).z ) / ( targetz - trck.pos(idah-1).z );
+		else break;
+		const float relpos = ( zvals[iz] - trck.pos(idah-1).z ) /
+		   		     ( targetz - trck.pos(idah-1).z );
 		mds  += relpos*trck.dah(idah) + (1-relpos)*trck.dah(idah-1);
 		ts   += prevt + ( zvals[iz] - prevz ) / curvel;
+		curvel = ( zvals[iz] - zvals[iz-1] )/( tvals[iz] - tvals[iz-1] );
 		prevz = zvals[iz];
 		prevt = tvals[iz];
 	    }
