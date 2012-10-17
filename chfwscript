@@ -1,7 +1,8 @@
 #!/bin/csh -f
 
-#set binpath=$1
+#Changing the dependency path of the libraries on MAC platform.
 set binpath="$WORK/inst/bin/mac"
+cp -p $WORK/bin/mac/* $binpath/.
 echo "Changing the dependency path in : $binpath"
 foreach bnry ( ${binpath}/* )
     if ( -f ${bnry} ) then
