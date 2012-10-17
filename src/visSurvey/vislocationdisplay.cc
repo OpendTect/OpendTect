@@ -164,12 +164,15 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	    cs.zrg.include( zval, false );
 	}
 
-	if ( voiidx_<0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
-	else
-	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
+	if ( set_->size() )
+	{
+	    if ( voiidx_<0 )
+		voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
+	    else
+		datatransform_->setVolumeOfInterest( voiidx_, cs, true );
 
-	datatransform_->loadDataIfMissing( voiidx_ );
+	    datatransform_->loadDataIfMissing( voiidx_ );
+	}
     }
     
     getMaterial()->setColor( set_->disp_.color_ );
