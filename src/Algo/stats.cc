@@ -36,6 +36,10 @@ DefineNameSpaceEnumNames(Stats,UpscaleType,0,"Upscale type")
 #include <stdlib.h>
 
 
+Stats::RandGen::RandGen()
+    :seed_(0)		{}
+
+
 Stats::RandGen Stats::randGen()
 {
     static Stats::RandGen* rgptr = 0;

@@ -22,8 +22,7 @@ mClass(Algo) RandGen
 {
 public:
 
-			RandGen()
-			:seed_(0)			{}
+			RandGen();
 
     void		init(int seed=0);
     			//!< If no seed passed, will generate one if needed
