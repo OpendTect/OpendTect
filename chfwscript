@@ -1,6 +1,8 @@
 #!/bin/csh -f
 
-set binpath=$1
+#set binpath=$1
+set binpath="$WORK/inst/bin/mac"
+echo "Changing the dependency path in : $binpath"
 foreach bnry ( ${binpath}/* )
     if ( -f ${bnry} ) then
 	echo ${bnry}
