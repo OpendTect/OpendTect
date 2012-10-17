@@ -47,7 +47,7 @@ using namespace Attrib;
 uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 	const uiWellLogExtractGrp::Setup& setup, const Attrib::DescSet* d )
 	: uiGroup(p)
-	, ads_( !d ? 0 : new Attrib::DescSet(d->is2D()))
+	, ads_( d )
     	, attrsfld_(0)
     	, posfiltfld_(0)
     	, radiusfld_(0)
@@ -93,7 +93,6 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 
 uiWellLogExtractGrp::~uiWellLogExtractGrp()
 {
-    delete const_cast<Attrib::DescSet*>(ads_);
     releaseDPS();
 }
 
