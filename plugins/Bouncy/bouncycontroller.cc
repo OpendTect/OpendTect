@@ -79,11 +79,11 @@ void BouncyController::simulateCB( CallBacker* )
 {
     if ( nummovesrem_ == mMaxNumMoves )
     {
-	Stats::RandGen::init();
+	Stats::randGen().init();
 
-	int randx = Stats::RandGen::getIndex(int(maxpos_.x - minpos_.x));
-	int randy = Stats::RandGen::getIndex(int(maxpos_.y - minpos_.y));
-	int randz = Stats::RandGen::getIndex(int((zStop_-zStart_)*100));
+	int randx = Stats::randGen().getIndex(int(maxpos_.x - minpos_.x));
+	int randy = Stats::randGen().getIndex(int(maxpos_.y - minpos_.y));
+	int randz = Stats::randGen().getIndex(int((zStop_-zStart_)*100));
 	  // multiply by 100 and later divide by 100 to get more precision
 
 	// Later: to be more correct, subtract the ball's radius to get rid 

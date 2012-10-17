@@ -87,7 +87,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 	bvss[clss]->add( bid, vals );
     }
 
-    Stats::RandGen::init();
+    Stats::randGen().init();
     bvs_.setEmpty();
     for ( int idx=0; idx<setup.nrclasses; idx++ )
     {
@@ -116,7 +116,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
     const bool nonoise = noiselvl < 1e-6 || noiselvl > 1 + 1e-6;
     for ( int idx=0; idx<nr; idx++ )
     {
-	const int dupidx = Stats::RandGen::getIndex( orgsz );
+	const int dupidx = Stats::randGen().getIndex( orgsz );
 	BinIDValueSet::Pos pos = bvs.getPos( dupidx );
 	const float* vals = bvs.getVals( pos );
 	bvs.get( pos, bid );
@@ -130,7 +130,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 		float wdth = rgs[validx].stop - rgs[validx].start;
 		wdth *= noiselvl;
 		newvals[validx] = (float) (vals[validx] +
-		    		  ((Stats::RandGen::get()-0.5) * wdth));
+		    		  ((Stats::randGen().get()-0.5) * wdth));
 	    }
 	    bvsnew.add( bid, newvals );
 	}

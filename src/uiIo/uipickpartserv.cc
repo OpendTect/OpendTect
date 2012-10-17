@@ -172,7 +172,7 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
-    Stats::RandGen::init();
+    Stats::randGen().init();
     setid_ = setids_[rp.lsetidx_];
     selectlines_ = rp.linenms_;
     deepErase( linegeoms_ );
@@ -208,10 +208,10 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 
     for ( int ipt=0; ipt<rp.nr_; ipt++ )
     {
-	const int posidx = Stats::RandGen::getIndex( nrpos );
+	const int posidx = Stats::randGen().getIndex( nrpos );
 	Interval<float> zrg = rp.needhor_ ? hor2dzrgs_[posidx] : rp.zrg_;
 	float val = (float) ( zrg.start + 
-				  Stats::RandGen::get() * zrg.width(false) ); 
+				  Stats::randGen().get() * zrg.width(false) ); 
 	ps += Pick::Location( coords2d_[posidx], val );
     }
 

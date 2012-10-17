@@ -17,12 +17,12 @@ ________________________________________________________________________
 
 inline Color getRandomColor( bool withtransp=false )
 {
-    Stats::RandGen::init();
-    return Color( (unsigned char) Stats::RandGen::getIndex(255),
-	          (unsigned char) Stats::RandGen::getIndex(255),
-		  (unsigned char) Stats::RandGen::getIndex(255),
+    Stats::randGen().init();
+    return Color( (unsigned char) Stats::randGen().getIndex(255),
+	          (unsigned char) Stats::randGen().getIndex(255),
+		  (unsigned char) Stats::randGen().getIndex(255),
 		  (unsigned char)
-		     withtransp ? Stats::RandGen::getIndex(255) : 0 );
+		     withtransp ? Stats::randGen().getIndex(255) : 0 );
 }
 
 
@@ -31,8 +31,8 @@ inline Color getRandStdDrawColor()
     static int curidx = -1;
     if ( curidx == -1 )
     {
-	Stats::RandGen::init();
-	curidx = Stats::RandGen::getIndex( Color::nrStdDrawColors() );
+	Stats::randGen().init();
+	curidx = Stats::randGen().getIndex( Color::nrStdDrawColors() );
     }
     else
     {

@@ -135,7 +135,7 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
     if ( totnrnodes < 1 )
 	mErrRet( "Horizon is empty" )
 
-    Stats::RandGen::init();
+    Stats::randGen().init();
     bool needrandsel = nrpts < totnrnodes;
     const int actualnrpts = needrandsel ? nrpts : totnrnodes;
     const int maxnrunsuccessful = actualnrpts * 1000;
@@ -146,7 +146,7 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	if ( nrunsuccessful > maxnrunsuccessful )
 	    break;
 
-	int selnodenr = needrandsel ? Stats::RandGen::getIndex( totnrnodes )
+	int selnodenr = needrandsel ? Stats::randGen().getIndex( totnrnodes )
 	    			    : ipt;
 	BinID bid; EM::SectionID selsect = 0;
 	for ( EM::SectionID isect=0; isect<nrsectnodes.size(); isect++ )

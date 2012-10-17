@@ -72,15 +72,15 @@ static void create2DRandPicks( const MultiID& lsetid, BinIDValueSet* rangesset )
     const int nrlines = geoms.size();
     while ( rangesset->totalSize() < cNrRandPicks )
     {
-	const int lineidx = Stats::RandGen::getIndex( nrlines );
+	const int lineidx = Stats::randGen().getIndex( nrlines );
 	PosInfo::Line2DData& geometry = *geoms[lineidx];
 	const int nrcoords = geometry.positions().size();
-	const int crdidx = Stats::RandGen::getIndex( nrcoords );
+	const int crdidx = Stats::randGen().getIndex( nrcoords );
 	const Coord& pos = geometry.positions()[crdidx].coord_;
 
 	const BinID bid = SI().transform( pos );
 	const float zpos = (float) (geometry.zRange().start +
-			    Stats::RandGen::get()*geometry.zRange().width());
+			    Stats::randGen().get()*geometry.zRange().width());
 	rangesset->add( bid, zpos );
     }
 }
@@ -93,11 +93,11 @@ static void create3DRandPicks( BinIDValueSet* rangesset )
     {
 	StepInterval<int> irg = SI().inlRange( true );
 	StepInterval<int> crg = SI().crlRange( true );
-	bid.inl = mNINT32( irg.start + Stats::RandGen::get() * irg.nrSteps() );
-	bid.crl = mNINT32( crg.start + Stats::RandGen::get() * crg.nrSteps() );
+	bid.inl = mNINT32( irg.start + Stats::randGen().get() * irg.nrSteps() );
+	bid.crl = mNINT32( crg.start + Stats::randGen().get() * crg.nrSteps() );
 	SI().snap( bid );
 	const float z = (float) (SI().zRange(true).start
-	    	      + Stats::RandGen::get() * SI().zRange(true).width());
+	    	      + Stats::randGen().get() * SI().zRange(true).width());
 	rangesset->add( bid, z );
     }
 }

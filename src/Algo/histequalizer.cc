@@ -111,7 +111,7 @@ void HistEqualizer::getSegmentSizes( TypeSet<int>& segszs )
     {
 	if ( numberofb == 0 )
 	    break;
-	int idx = Stats::RandGen::getIndex( nrseg_ );
+	int idx = Stats::randGen().getIndex( nrseg_ );
 	if ( segszs[idx] == bindexlength )
 	    continue;
 

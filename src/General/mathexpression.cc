@@ -411,7 +411,7 @@ float MathExpressionAND::getValue() const
 
 static int ensureRandInited()
 {
-    Stats::RandGen::init();
+    Stats::randGen().init();
     return 0;
 }
 
@@ -423,7 +423,7 @@ float MathExpressionRandom::getValue() const
 	return mUdf(float);
 
     static int dum mUnusedVar = ensureRandInited();
-    return ( float )( maxval * Stats::RandGen::get() );
+    return ( float )( maxval * Stats::randGen().get() );
 }
 
 
@@ -435,7 +435,7 @@ float MathExpressionGaussRandom::getValue() const
 	return mUdf(float);
 
     static int dum mUnusedVar = ensureRandInited();
-    return ( float ) Stats::RandGen::getNormal(0,stdev);
+    return ( float ) Stats::randGen().getNormal(0,stdev);
 }
 
 

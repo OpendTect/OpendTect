@@ -32,10 +32,18 @@ DefineNameSpaceEnumNames(Stats,UpscaleType,0,"Upscale type")
 };
 
 
-int Stats::RandGen::seed_ = 0;
-
 #include <math.h>
 #include <stdlib.h>
+
+
+Stats::RandGen Stats::randGen()
+{
+    static Stats::RandGen* rgptr = 0;
+    if ( !rgptr )
+	rgptr = new Stats::RandGen();
+
+    return *rgptr;
+}
 
 
 Stats::CalcSetup& Stats::CalcSetup::require( Stats::Type t )
@@ -111,8 +119,10 @@ void Stats::RandGen::init( int seed )
     {
 	if ( seed_ != 0 )
 	    return;
+
 	seed = (int)Time::getMilliSeconds();
     }
+
     seed_ = seed;
 
 #ifdef __win__

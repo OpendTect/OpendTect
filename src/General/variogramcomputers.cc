@@ -111,9 +111,9 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
     //              computer.add(itested);
 		if ( itested > fold*100 ) break;
 		int posinl1 = mininl +
-			    mNINT32((maxinl-mininl)*Stats::RandGen::get());
+			    mNINT32((maxinl-mininl)*Stats::randGen().get());
 		int poscrl1 = mincrl +
-			    mNINT32((maxcrl-mincrl)*Stats::RandGen::get());
+			    mNINT32((maxcrl-mincrl)*Stats::randGen().get());
 		BinID pos1 = BinID( posinl1, poscrl1 );
 		DataPointSet::RowID posval1 = dpset.findFirst(pos1);
 		if ( posval1<0 ) continue;

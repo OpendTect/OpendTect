@@ -133,7 +133,7 @@ Frequency::~Frequency()
 	    {
 		FilePath fp( GetDataDir() );
 		BufferString filename( "frequency." );
-		filename += Stats::RandGen::getIndex(mUdf(int));
+		filename += Stats::randGen().getIndex(mUdf(int));
 		filename = fp.add( filename ).fullPath();
 		StreamData sd = StreamProvider( filename ).makeOStream();
 		if ( sd.usable() )

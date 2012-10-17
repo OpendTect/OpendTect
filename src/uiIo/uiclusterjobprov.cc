@@ -46,8 +46,8 @@ static BufferString getDefTempStorDir()
     BufferString stordir = "Proc_";
     stordir += HostData::localHostName();
     stordir += "_";
-    Stats::RandGen::init();
-    stordir += Stats::RandGen::getIndex(100000);
+    Stats::randGen().init();
+    stordir += Stats::randGen().getIndex(100000);
     const FilePath fp( GetDataDir(), "Seismics", stordir );
     if ( !File::createDir(fp.fullPath()) )
 	return BufferString(File::getTempPath());

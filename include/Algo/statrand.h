@@ -22,37 +22,43 @@ mClass(Algo) RandGen
 {
 public:
 
-    static void		init(int seed=0);
+			RandGen()
+			:seed_(0)			{}
+
+    void		init(int seed=0);
     			//!< If no seed passed, will generate one if needed
-    static double	get();
+    double		get();
     			//!< Uniform [0-1]
-    static int		getInt();
+    int			getInt();
     			//!< Uniform int
-    static double	getNormal(double expectation,double stdev);
+    double		getNormal(double expectation,double stdev);
     			//!< Normally distributed
-    static int		getIndex(int sz);
+    int	    		getIndex(int sz);
     			//!< random index in the range [0,sz>
-    static int		getIndexFast(int sz,int seed);
+    int			getIndexFast(int sz,int seed);
     			//!< getIndex using a very simple random generator
-    static od_int64	getIndex(od_int64 sz);
+    od_int64		getIndex(od_int64 sz);
     			//!< random index in the range [0,sz>
-    static od_int64	getIndexFast(od_int64 sz,od_int64 seed);
+    od_int64		getIndexFast(od_int64 sz,od_int64 seed);
     			//!< getIndex using a very simple random generator
 
     template <class T,class SzTp>
-    static void		subselect(T*,SzTp sz,SzTp targetsz);
+    void		subselect(T*,SzTp sz,SzTp targetsz);
     			//!< Does not preserve order.
     			//!< Afterwards, the 'removed' values occupy
     			//!< the indexes targetsz - maxsz-1
-    static void		subselect(OD::Set&,int targetsz);
+    void		subselect(OD::Set&,int targetsz);
     			//!< Does not preserve order
     			//!< The removed items will really be erased
 
 private:
 
-    static int		seed_;
+    int			seed_;
 
 };
+
+
+mGlobal(Algo) RandGen randGen();
 
 
 template <class T,class SzTp>

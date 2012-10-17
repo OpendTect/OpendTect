@@ -22,7 +22,7 @@ mDefModInitFn(Algo)
 {
     mIfNotFirstTime( return );
 
-    Stats::RandGen::init();
+    Stats::randGen().init();
 
     WindowFunction::addAllStdClasses();
 

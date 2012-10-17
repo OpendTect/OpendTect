@@ -455,8 +455,8 @@ const char* uiSurveyInfoEditor::newSurvTempDirName()
     if ( usr )
 	{ nm += usr; nm += "_"; }
     nm += GetPID();
-    Stats::RandGen::init();
-    nm += Stats::RandGen::getIndex(1000000);
+    Stats::randGen().init();
+    nm += Stats::randGen().getIndex(1000000);
     return nm.buf();
 }
 

@@ -214,7 +214,7 @@ bool clss##Func::eval( const BufferStringSet& args, BufferString& res ) const \
     if ( !args.size() ) \
 	num = 1.0; \
 \
-    res = mIsUdf(num) ? num : num*Stats::RandGen::funcall; \
+    res = mIsUdf(num) ? num : num*Stats::randGen().funcall; \
     return true; \
 }
 

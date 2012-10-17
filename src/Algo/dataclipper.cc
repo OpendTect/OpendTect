@@ -26,7 +26,7 @@ DataClipper::DataClipper()
     , approxstatsize_( 2000 )
     , absoluterg_( mUdf(float), -mUdf(float) )
 {
-    Stats::RandGen::init();
+    Stats::randGen().init();
 } 
 
 
@@ -51,7 +51,7 @@ void DataClipper::putData( float val )
 {
     if ( subselect_ )
     {
-	double rand = Stats::RandGen::get();
+	double rand = Stats::randGen().get();
 
 	if ( rand>sampleprob_ )
 	    return;
@@ -94,7 +94,7 @@ public:
 	    }
 	    else
 	    {
-		double rand = Stats::RandGen::get();
+		double rand = Stats::randGen().get();
 		rand *= (nrvals_-1);
 		const od_int64 sampidx = mNINT64(rand);
 		val = input_[sampidx];
@@ -367,10 +367,10 @@ void DataClipSampler::add( const float* v, int sz )
     const int nr2add = (int)(relwt * sz - .5);
     if ( nr2add < 1 ) return;
 
-    int randint = Stats::RandGen::getIndex( mUdf(int) );
+    int randint = Stats::randGen().getIndex( mUdf(int) );
     for ( int idx=0; idx<nr2add; idx++ )
     {
-	od_int64 vidx = Stats::RandGen::getIndexFast( sz, randint );
+	od_int64 vidx = Stats::randGen().getIndexFast( sz, randint );
 	doAdd( v[vidx] );
 	randint *= vidx;
     }
@@ -379,7 +379,7 @@ void DataClipSampler::add( const float* v, int sz )
 
 void DataClipSampler::add( float val )
 {
-    if ( Stats::RandGen::getIndex(count_) < maxnrvals_ )
+    if ( Stats::randGen().getIndex(count_) < maxnrvals_ )
 	doAdd( val );
 }
 
@@ -395,7 +395,7 @@ void DataClipSampler::doAdd( float val )
     if ( count_ < maxnrvals_ )
 	vals_[count_] = val;
     else
-	vals_[ Stats::RandGen::getIndex(maxnrvals_) ] = val;
+	vals_[ Stats::randGen().getIndex(maxnrvals_) ] = val;
 
     count_++;
 }

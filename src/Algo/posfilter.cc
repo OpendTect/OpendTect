@@ -253,14 +253,14 @@ bool Pos::FilterSet2D::includes( int nr, float z, int lidx ) const
 
 void Pos::RandomFilter::initStats()
 {
-    Stats::RandGen::init();
+    Stats::randGen().init();
     if ( passratio_ > 1 ) passratio_ /= 100;
 }
 
 
 bool Pos::RandomFilter::drawRes() const
 {
-    return Stats::RandGen::get() < passratio_;
+    return Stats::randGen().get() < passratio_;
 }
 
 

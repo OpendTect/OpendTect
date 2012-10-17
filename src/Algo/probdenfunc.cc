@@ -25,7 +25,7 @@ static const float snappos = 1e-5;
 const char* ProbDenFunc::sKeyNrDim()	{ return "Nr dimensions"; }
 
 #define mRandSDPos(sd,indx) \
-    (sd).atIndex( (float)(indx) + Stats::RandGen::get() - 0.5 );
+    (sd).atIndex( (float)(indx) + Stats::randGen().get() - 0.5 );
 
 
 void ProbDenFuncDraw::reset()
@@ -232,7 +232,7 @@ void ArrayNDProbDenFunc::doScale( float fac )
 void ArrayNDProbDenFunc::prepRndDrw() const
 {
     fillCumBins();
-    Stats::RandGen::init();
+    Stats::randGen().init();
 }
 
 
@@ -253,7 +253,7 @@ void ArrayNDProbDenFunc::fillCumBins() const
 od_uint64 ArrayNDProbDenFunc::getRandBin() const
 {
     if ( !cumbins_ ) fillCumBins();
-    return getBinPos( (float) ( Stats::RandGen::get() ) );
+    return getBinPos( (float) ( Stats::randGen().get() ) );
 }
 
 

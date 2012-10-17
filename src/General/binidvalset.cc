@@ -145,7 +145,7 @@ void BinIDValueSet::randomSubselect( od_int64 maxsz )
 	{ setEmpty(); return; }
 
     const bool buildnew = ((od_int64)maxsz) < (orgsz / ((od_int64)2));
-    Stats::RandGen::subselect( idxs, orgsz, maxsz );
+    Stats::randGen().subselect( idxs, orgsz, maxsz );
     TypeSet<Pos> poss;
     if ( buildnew )
     {
