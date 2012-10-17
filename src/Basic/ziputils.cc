@@ -181,7 +181,7 @@ bool ZipUtils::appendToArchive( const char* srcfnm, const char* fnm,
 
 int Zipper::nextStep()
 {
-    if ( ziphd_.getTotalFileCount(nrdir_) == nrdone_ )
+    if ( ziphd_.getCumulativeFileCount(nrdir_) == nrdone_ )
     {
 	nrdir_++;
 	FilePath fp( ziphd_.getAllFileNames().get(nrdone_) );
@@ -283,7 +283,7 @@ od_int64 UnZipper::nrDone() const
 { return nrdone_; }
 
 od_int64 UnZipper::totalNr() const
-{ return ziphd_.getTotalFileCount(); }
+{ return ziphd_.getCumulativeFileCount(); }
 
 const char* UnZipper::nrDoneText() const
 { return "Files"; }

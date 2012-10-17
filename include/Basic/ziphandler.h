@@ -149,9 +149,9 @@ protected:
     const BufferStringSet&	getAllFileNames() { return allfilenames_; }
     std::ostream&		getDestStream()const { return *osd_.ostrm; }
     std::istream&		getSrcStream()const { return *isd_.istrm; }
-    unsigned int		getTotalFileCount()const 
-					{ return totalfilecount_.last(); }
-	int			getTotalFileCount(int)const;
+    unsigned int		getCumulativeFileCount()const 
+					{ return cumulativefilecount_.last(); }
+	int			getCumulativeFileCount(int)const;
     void			closeDestStream() { osd_.close(); }
     void			closeSrcStream() { isd_.close(); }
     StreamData			makeOStreamForAppend(const char*)const;
@@ -177,7 +177,7 @@ protected:
     int				nrlevels_;
 
     unsigned int		initialfilecount_;
-    TypeSet<unsigned int>	totalfilecount_;
+    TypeSet<unsigned int>	cumulativefilecount_;
     
     unsigned short		version_;
     unsigned short		lastmodtime_;

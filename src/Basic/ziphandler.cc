@@ -82,13 +82,13 @@ bool ZipHandler::initMakeZip( const char* destfnm, BufferStringSet srcfnm )
 	if ( File::isFile(srcfnm.get(idx).buf()) == true )
 	{
 	    allfilenames_.add( srcfnm.get(idx) );
-	    totalfilecount_ += allfilenames_.size();
+	    cumulativefilecount_ += allfilenames_.size();
 	}
 	else if ( File::isDirectory(srcfnm.get(idx).buf()) == true )
 	{
 	    allfilenames_.add( srcfnm.get(idx) );
 	    manageDir( srcfnm.get(idx).buf() );
-	    totalfilecount_ += allfilenames_.size();
+	    cumulativefilecount_ += allfilenames_.size();
 	}
 	else
 	{
@@ -404,7 +404,8 @@ bool ZipHandler::setCentralDirHeader()
     mInsertToCharBuff( headerbuff, nullvalue, mLExtFileAttr, mSizeFourBits );
     headerbuff[mLDiskNoStart] = 1;
     headerbuff[mLDiskNoStart + 1] = 0;
-    for( int index=0; index<totalfilecount_.last()+initialfilecount_; index++ )
+    for( int index=0; index<cumulativefilecount_.last()+initialfilecount_; 
+								index++ )
     {
 	unsigned int offset;
 	unsigned int compsize;
@@ -464,11 +465,11 @@ bool ZipHandler::setEndOfCentralDirHeader( int ptrlctn )
     int sizecntrldir = ptrlocation - ptrlctn;
     char* buf;
 
-    totalfilecount_[(totalfilecount_.size()-1)] = totalfilecount_.last() + 
-	initialfilecount_;
-    mInsertToCharBuff( headerbuff, totalfilecount_.last(), mLTotalEntryOnDisk, 
-	mSizeTwoBits );
-    mInsertToCharBuff( headerbuff, totalfilecount_.last(), mLTotalEntry, 
+    cumulativefilecount_[(cumulativefilecount_.size()-1)] = 
+			  cumulativefilecount_.last() + initialfilecount_;
+    mInsertToCharBuff( headerbuff, cumulativefilecount_.last(), 
+					    mLTotalEntryOnDisk, mSizeTwoBits );
+    mInsertToCharBuff( headerbuff, cumulativefilecount_.last(), mLTotalEntry, 
 	mSizeTwoBits);
     mInsertToCharBuff( headerbuff, sizecntrldir, mLSizeCentralDir, 
 	mSizeFourBits );
@@ -498,6 +499,13 @@ bool ZipHandler::initUnZipArchive( const char* srcfnm, const char* basepath )
 
     FilePath fp;
     srcfile_ = srcfnm;
+    if ( !File::isDirectory(basepath) )
+    {
+	errormsg_ = basepath;
+	errormsg_ += " is not a valid path";
+	return false;
+    }
+
     destbasepath_ = basepath;
     destbasepath_ += fp.dirSep( fp.Local );
     isd_ = StreamProvider( srcfnm ).makeIStream();
@@ -516,7 +524,7 @@ bool ZipHandler::initUnZipArchive( const char* srcfnm, const char* basepath )
 
 
 bool ZipHandler::unZipFile( const char* srcfnm, const char* fnm, 
-    const char* path )
+			    const char* path )
 {
     if ( !File::exists(srcfnm) )
     {
@@ -545,6 +553,13 @@ bool ZipHandler::unZipFile( const char* srcfnm, const char* fnm,
     srcfile_ = srcfnm;
     FilePath fp;
     fp = srcfnm;
+    if ( !File::isDirectory(path) )
+    {
+	errormsg_ = path;
+	errormsg_ += " is not a valid path";
+	return false;
+    }
+
     destbasepath_ = path;	//If destination to unzip also given
     destbasepath_ += fp.dirSep( fp.Local );
     if ( !readFileHeader() )
@@ -591,7 +606,7 @@ bool ZipHandler::readEndOfCentralDirHeader()
 
     isd_.istrm->read( (char*)headerbuff+4, 18 );
     isd_.istrm->seekg(0);   
-    totalfilecount_ += *( (short*)(headerbuff+mLTotalEntry) );
+    cumulativefilecount_ += *( (short*)(headerbuff+mLTotalEntry) );
     sizeofcentraldir_  = *( (int*)(headerbuff+mLSizeCentralDir) );
     offsetofcentraldir_ = *( (int*)(headerbuff+mLOffsetCentralDir) );
     commentlen_ = *( (short*)(headerbuff+mLZipFileComntLength) );
@@ -829,18 +844,19 @@ bool ZipHandler::initAppend( const char* srcfnm, const char* fnm )
     if ( !readEndOfCentralDirHeader() )
 	return false;
 
-    initialfilecount_ = totalfilecount_.last();
+    initialfilecount_ = cumulativefilecount_.last();
     isd_.close();
     if ( File::isFile( fnm ) )
     {
-	totalfilecount_[ (totalfilecount_.size()-1) ] = 1;
+	cumulativefilecount_[ (cumulativefilecount_.size()-1) ] = 1;
 	allfilenames_.add( fnm );
     }
     else if ( File::isDirectory( fnm ) )
     {
 	allfilenames_.add( fnm );
 	manageDir( fnm );
-	totalfilecount_[ (totalfilecount_.size()-1) ] = allfilenames_.size();
+	cumulativefilecount_[ (cumulativefilecount_.size()-1) ] = 
+							   allfilenames_.size();
     }
     else
     {
@@ -889,7 +905,7 @@ bool ZipHandler::getArchiveInfo( const char* srcfnm,
     ptrlocation = isd_.istrm->tellg();
     BufferString headerbuff;
     bool sigcheck;
-    for ( int idx=0; idx<totalfilecount_.last(); idx++ )
+    for ( int idx=0; idx<cumulativefilecount_.last(); idx++ )
     {
 	isd_.istrm->read( headerbuff.buf(), mCentralHeaderSize);
 	mCntrlFileHeaderSigCheck( headerbuff, 0 );
@@ -1086,10 +1102,10 @@ StreamData ZipHandler::makeOStreamForAppend( const char* fnm ) const
 }
 
 
-int ZipHandler::getTotalFileCount( int dir ) const
+int ZipHandler::getCumulativeFileCount( int dir ) const
 {
-    if ( totalfilecount_.validIdx(dir) )
-	return totalfilecount_[dir];
+    if ( cumulativefilecount_.validIdx(dir) )
+	return cumulativefilecount_[dir];
 
     return -1;
 }
