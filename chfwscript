@@ -1,0 +1,21 @@
+#!/bin/csh -f
+
+set binpath=$1
+foreach bnry ( ${binpath}/* )
+    if ( -f ${bnry} ) then
+	echo ${bnry}
+	set filenm=`basename $bnry`
+	echo ${filenm}
+	set deplist=`otool -L ${bnry} | sed 's/ .*//'`
+	foreach dep ( ${deplist} )
+	    if ( -e ${dep} ) then
+		echo "Dep: ${dep}"
+		set libnm=`basename ${dep}`
+		set rootdir=`echo ${dep} | cut -c 2-4`
+		if ( ${libnm} != ${filenm} && ($rootdir == "d52" || $rootdir == "exe") ) then
+		install_name_tool -change ${dep} @executable_path/${libnm} ${bnry}
+		endif
+	    endif
+	end
+    endif
+end
