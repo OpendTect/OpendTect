@@ -251,12 +251,12 @@ void Texture::prepareForComputeData()
     scalingfactor_ = ((float) (glcmsize_-1)) /
 			((float)( globalmax_- globalmin_ ));
     scalingshift_ = -globalmin_*scalingfactor_;
-    sampgate_.start = gate_.start/refstep_;
-    sampgate_.stop = gate_.stop/refstep_;
+    sampgate_.start = mNINT32(gate_.start/refstep_);
+    sampgate_.stop = mNINT32(gate_.stop/refstep_);
     const float biggestdist = mMAX (SI().inlDistance(), SI().crlDistance() );
     const float safeextrasamp = biggestdist * mMAXDIP / refstep_;
-    dessampgate_ = Interval<int>( sampgate_.start-safeextrasamp,
-				  sampgate_.stop+safeextrasamp );
+    dessampgate_ = Interval<int>( mNINT32(sampgate_.start-safeextrasamp),
+				  mNINT32(sampgate_.stop+safeextrasamp) );
 }	
 
 
