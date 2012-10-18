@@ -1,0 +1,69 @@
+#!/bin/csh 
+#
+# Copyright (C): dGB Beheer B. V.
+#
+
+set progname = $0
+set exceptionfile=""
+
+if ( $#argv<2 ) then
+    goto syntax
+endif
+
+
+if ( "${1}" != "--keyword" ) then
+    goto syntax
+endif
+
+shift
+set keyword = $1
+shift
+handlearg:
+
+if ( "${1}" == "" ) then
+    exit 0
+endif
+
+if ( "${1}" == "--exceptionfile" ) then
+    set exceptionfile=${2}
+    if ( "${exceptionfile}" == "" ) then
+	goto syntax
+    endif
+
+    if ( ! -e "${exceptionfile}" ) then
+	echo Exception file \"${exceptionfile}\" does not exist.
+	exit 1
+    endif
+
+    shift
+else
+    set filename = ${1}
+    grep -q ${keyword} ${filename}
+    if ( ${status} == 0 ) then
+	if ( "${exceptionfile}" != "" ) then
+	    grep -q ${filename} ${exceptionfile}
+	    if ( ${status} == 0 ) then
+		goto nextarg
+	    endif
+	endif
+		
+        echo Found \"${keyword}\" in ${filename}.
+	exit 1
+    endif
+endif
+
+nextarg:
+shift
+
+goto handlearg
+
+syntax:
+echo
+echo ${progname} - Finds the presens of keyword in files, unless they are
+echo present in an exceptionfile.
+echo
+echo Returns 0 if keyword is not found, otherwise 1
+echo
+echo "Syntax ${progname} --keyword <kw> [--exceptionfile <file>] [files ..]"
+echo
+exit 1
