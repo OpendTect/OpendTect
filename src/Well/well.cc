@@ -26,6 +26,8 @@ const char* Well::Info::sKeystate()	{ return "State"; }
 const char* Well::Info::sKeycounty()	{ return "County"; }
 const char* Well::Info::sKeycoord()	{ return "Surface coordinate"; }
 const char* Well::Info::sKeyelev()	{ return "Surface elevation"; }
+const char* Well::Info::sKeyreplvel()	{ return "Replacement velocity"; }
+const char* Well::Info::sKeygroundelev(){ return "Ground level elevation"; }
 const char* Well::D2TModel::sKeyTimeWell()	{ return "=Time"; }
 const char* Well::D2TModel::sKeyDataSrc()	{ return "Data source"; }
 const char* Well::Marker::sKeyDah()	{ return "Depth along hole"; }
@@ -977,6 +979,8 @@ void Well::Info::fillPar(IOPar& par) const
     par.set( sKeycoord(), coord );
 
     par.set( sKeyelev(), surfaceelev );
+    par.set( sKeyreplvel(), replvel );
+    par.set( sKeygroundelev(), groundelev );
 }
 
 void Well::Info::usePar(const IOPar& par)
@@ -992,5 +996,7 @@ void Well::Info::usePar(const IOPar& par)
     surfacecoord.use( coord );
 
     par.get( sKeyelev(), surfaceelev );
+    par.get( sKeyreplvel(), replvel );
+    par.get( sKeygroundelev(), groundelev );
 }
 

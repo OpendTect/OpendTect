@@ -550,15 +550,32 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
 	    txt += "Reference Datum Elevation (KB)"; txt += ": ";
-	    txt += zun ? zun->userValue(rdelev) : rdelev; 
+	    txt += zun ? zun->userValue(rdelev) : rdelev;
 	    txt += zun->symbol(); txt += "\n";
 	}
 
 	const float surfelev = -info.surfaceelev;
 	if ( !mIsZero(surfelev,1e-4) && !mIsUdf(surfelev) )
 	{
-	    txt += "Seismic Reference Datum"; txt += ": ";
+	    txt += "Seismic Reference Datum (SRD)"; txt += ": ";
 	    txt += zun ? zun->userValue(surfelev) : surfelev;
+	    txt += zun->symbol(); txt += "\n";
+	}
+
+	const float replvel = info.replvel;
+	if ( !mIsZero(replvel,1e-4) && !mIsUdf(replvel) )
+	{
+	     txt += "Replacement velocity (from KB to SRD)"; txt += ": ";
+	     txt += zun ? zun->userValue(replvel) : replvel;
+	     txt += UnitOfMeasure::zUnitAnnot( false, true, false );
+	     txt += "/s\n";
+	}
+
+	const float groundelev = info.groundelev;
+	if ( !mIsZero(groundelev,1e-4) && !mIsUdf(groundelev) )
+	{
+	    txt += "Ground level elevation (GL)"; txt += ": ";
+	    txt += zun ? zun->userValue(groundelev) : groundelev;
 	    txt += zun->symbol(); txt += "\n";
 	}
     }

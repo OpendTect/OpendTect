@@ -82,6 +82,8 @@ bool Well::Writer::putInfoAndTrack( std::ostream& strm ) const
 	astrm.put( Well::Info::sKeycoord(), str );
     }
     astrm.put( Well::Info::sKeyelev(), wd.info().surfaceelev );
+    astrm.put( Well::Info::sKeyreplvel(), wd.info().replvel );
+    astrm.put( Well::Info::sKeygroundelev(), wd.info().groundelev );
     astrm.newParagraph();
 
     return putTrack( strm );
