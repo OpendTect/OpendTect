@@ -52,20 +52,19 @@ do_it:
 if ( "${listfile}" != "" ) then
     if ( "${exceptionfile}" != "" ) then
 	cat ${listfile} | xargs ${progname} --keyword ${keyword} --exceptionfile ${exceptionfile}
+	exit ${status}
     else
 	cat ${listfile} | xargs ${progname} --keyword ${keyword}
+	exit ${status}
     endif
-    exit ${status}
 endif
-
-set error = 0
 
 nextfile:
 
 set filename = ${1}
 
 if ( "${filename}" == "" ) then
-    exit ${error}
+    exit 0
 endif
 
 shift 
@@ -80,7 +79,7 @@ if ( ${status} == 0 ) then
     endif
 	    
     echo Found \"${keyword}\" in ${filename}
-    set error = 1
+    exit 1
 endif
 
 goto nextfile
