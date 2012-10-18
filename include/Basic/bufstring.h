@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "convert.h"
 #include <iosfwd>
 
+class FixedString;
+
 /*!\brief String with variable length but guaranteed minimum buffer size.
 
 The minimum buffer size makes life easier in worlds where strcpy etc. rule.
@@ -38,6 +40,7 @@ public:
 
     inline		BufferString();
     inline		BufferString(const char*);
+			BufferString(const FixedString&);
 			BufferString(int minlen,bool setnull);
 			BufferString(const BufferString& bs);
     template <class T>

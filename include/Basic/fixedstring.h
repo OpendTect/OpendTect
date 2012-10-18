@@ -53,6 +53,8 @@ inline bool operator==(const char* a, const FixedString& b)
 inline bool operator!=(const char* a, const FixedString& b)
 { return b!=a; }
 
+mGlobal(Basic) std::ostream& operator <<(std::ostream&,const FixedString&);
+
 
 #endif
 
