@@ -626,17 +626,19 @@ StreamProvider::StreamProvider( const char* hostnm, const char* fnm,
 }
 
 
-void StreamProvider::set( const char* inp )
+void StreamProvider::set( const char* inpstr )
 {
     iscomm_ = isbad_ = false;
     hostname_.setEmpty(); fname_.setEmpty();
 
-    if ( !inp || !strcmp(inp,sStdIO()) || !strcmp(inp,sStdErr()) )
-	{ fname_ = inp ? inp : sStdIO(); return; }
-    else if ( !*inp )
+    FixedString inp = inpstr;
+
+    if ( !inp || inp==sStdIO() || inp==sStdErr() )
+	{ fname_ = inpstr ? inpstr : sStdIO(); return; }
+    else if ( inp.isEmpty() )
 	{ isbad_ = true; return; }
 
-    char* ptr = (char*)inp;
+    char* ptr = (char*)inpstr;
     mSkipBlanks( ptr );
     if ( *ptr == '@' ) { iscomm_ = true; ptr++; }
 
