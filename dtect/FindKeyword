@@ -58,14 +58,17 @@ if ( "${listfile}" != "" ) then
     exit ${status}
 endif
 
+set error = 0
+
 nextfile:
 
 set filename = ${1}
-shift 
 
 if ( "${filename}" == "" ) then
-    exit 0
+    exit ${error}
 endif
+
+shift 
 
 grep -q ${keyword} ${filename}
 if ( ${status} == 0 ) then
@@ -77,7 +80,7 @@ if ( ${status} == 0 ) then
     endif
 	    
     echo Found \"${keyword}\" in ${filename}
-    exit 1
+    set error = 1
 endif
 
 goto nextfile
