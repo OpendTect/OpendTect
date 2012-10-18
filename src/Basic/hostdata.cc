@@ -245,7 +245,7 @@ bool HostDataList::readHostFile( const char* fname )
 		newhd->aliases_.add( bufptr );
 
 	    mGetVStr(1);
-	    newhd->iswin_ = !strcmp( bufptr, "win" );
+	    newhd->iswin_ = FixedString(bufptr)== "win";
 
 	    mGetVStr(2);
 	    if ( *bufptr )
