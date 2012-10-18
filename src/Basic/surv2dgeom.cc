@@ -230,14 +230,16 @@ int PosInfo::Survey2D::curLineSetID() const
 }
 
 
-int PosInfo::Survey2D::getLineSetID( const char* lsnm ) const
+int PosInfo::Survey2D::getLineSetID( const char* lsnmstr ) const
 {
-    if ( !lsnm ) return -1;
+    if ( !lsnmstr ) return -1;
+
+    FixedString lsnm = lsnmstr;
 
     for ( int idx=0; idx<lsindex_.size(); idx++ )
     {
 	FileMultiString info( lsindex_.getValue(idx) );
-	if ( info.size()>0 && !strcmp(lsnm,lsindex_.getKey(idx)) )
+	if ( info.size()>0 && lsnm==lsindex_.getKey(idx) )
 	    return info.getIValue( 1 );
     }
 
@@ -252,7 +254,7 @@ int PosInfo::Survey2D::getLineID( const char* linenm ) const
     for ( int idx=0; idx<lineindex_.size(); idx++ )
     {
 	FileMultiString info( lineindex_.getValue(idx) );
-	if ( info.size()>0 && !strcmp(linenm,lineindex_.getKey(idx)) )
+	if ( info.size()>0 && linenm==lineindex_.getKey(idx) )
 	    return info.getIValue( 1 );
     }
 
@@ -310,7 +312,7 @@ const char* PosInfo::Survey2D::getLineName( int lineid ) const
 
 bool PosInfo::Survey2D::hasLine( const char* lnm, const char* lsnm ) const
 {
-    if ( !lsnm || !strcmp(lsnm_.buf(),lsnm) )
+    if ( !lsnm || lsnm_==lsnm )
 	return lineindex_.hasKey( lnm );
 
     BufferStringSet nms; getLines( nms, lsnm );
@@ -347,7 +349,7 @@ int PosInfo::Survey2D::getLineSetIdx( int lsid ) const
 
 void PosInfo::Survey2D::getLines( BufferStringSet& nms, const char* lsnm ) const
 {
-    if ( !lsnm || !strcmp(lsnm_.buf(),lsnm) )
+    if ( !lsnm || lsnm_==lsnm )
     {
 	getKeys(lineindex_,nms);
 	return;
@@ -412,7 +414,7 @@ int PosInfo::Survey2D::getNewID( IOPar& iop )
 
     for ( int idx=0; idx<iop.size(); idx++ )
     {
-	if ( !strcmp(iop.getKey(idx),sKeyMaxID) )
+	if ( iop.getKey(idx)==sKeyMaxID )
 	    continue;
 
 	FileMultiString fms( iop.getValue(idx) );
@@ -563,7 +565,7 @@ bool PosInfo::Survey2D::getGeometry( PosInfo::Line2DData& l2dd ) const
     bool isascii = cWriteAscii;
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( !strcmp(astrm.keyWord(),sKeyStor) )
+	if ( FixedString(astrm.keyWord())==sKeyStor )
 	    isascii = *astrm.value() != 'B';
     }
     if ( !l2dd.read(sfio.istrm(),isascii) )

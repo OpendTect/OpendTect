@@ -272,7 +272,7 @@ const PluginManager::Data* PluginManager::findDataWithDispName(
     {
 	const Data* data = data_[idx];
 	const PluginInfo* piinf = data->info_;
-	if ( piinf && piinf->dispname && !strcmp(piinf->dispname,nm) )
+	if ( piinf && piinf->dispname && FixedString(piinf->dispname)==nm)
 	    return data;
     }
     return 0;

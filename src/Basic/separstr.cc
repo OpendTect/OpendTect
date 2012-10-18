@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "convert.h"
 #include "string2.h"
+#include "fixedstring.h"
 #include "bufstringset.h"
 
 #ifdef __msvc__
@@ -246,10 +247,10 @@ int SeparString::indexOf( const char* str ) const
     int elemnr = 0;
     while ( *startptr )
     {
-	const char* nextsep = findSeparator( startptr );
-	const char* elemstr = getUnescaped( startptr, nextsep );
+	FixedString nextsep = findSeparator( startptr );
+	FixedString elemstr = getUnescaped( startptr, nextsep );
 
-	if ( !strcmp(elemstr, str) )
+	if ( elemstr==str )
 	    return elemnr;
 
 	if ( !nextsep )

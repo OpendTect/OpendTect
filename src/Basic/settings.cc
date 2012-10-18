@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyDeflt = "Default settings";
 static const char* sKeyCommon = "Common";
 #define mGetKey(key) (key && *key ? key : sKeyCommon)
-#define mIsCommon(key) (!key || !*key || !strcmp(key,sKeyCommon))
+#define mIsCommon(key) (!key || !*key || FixedString(key)==sKeyCommon)
 
 static ObjectSet<Settings>& getSetts()
 {

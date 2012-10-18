@@ -64,15 +64,15 @@ bool ZDomain::isSI( const IOPar& iop )
 
 bool ZDomain::isDepth( const IOPar& iop )
 {
-    const char* domstr = iop.find( sKey() );
-    return domstr && *domstr ? !strcmp(domstr,sKeyDepth()) : !::SI().zIsTime();
+    FixedString domstr = iop.find( sKey() );
+    return !domstr.isEmpty() ? domstr==sKeyDepth() : !::SI().zIsTime();
 }
 
 
 bool ZDomain::isTime( const IOPar& iop )
 {
-    const char* domstr = iop.find( sKey() );
-    return !domstr || !*domstr ? ::SI().zIsTime() : !strcmp(domstr,sKeyTime());
+    FixedString domstr = iop.find( sKey() );
+    return domstr.isEmpty() ? ::SI().zIsTime() : domstr==sKeyTime();
 }
 
 
