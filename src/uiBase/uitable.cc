@@ -1351,15 +1351,17 @@ RowCol uiTable::getCell( uiObject* obj )
 const ObjectSet<uiTable::SelectionRange>& uiTable::selectedRanges() const
 {
     deepErase( selranges_ );
-    QList<QTableWidgetSelectionRange> qranges =
-							body_->selectedRanges();
-    for ( int idx=0; idx<qranges.size(); idx++ )
+    QItemSelectionModel* mdl = body_->selectionModel();
+    if ( !mdl ) return selranges_;
+
+    const QList<QItemSelectionRange> qranges = mdl->selection();
+    for ( int idx=0; idx<qranges.count(); idx++ )
     {
 	uiTable::SelectionRange* rg = new uiTable::SelectionRange;
-	rg->firstrow_ = qranges[idx].topRow();
-	rg->lastrow_ = qranges[idx].bottomRow();
-	rg->firstcol_ = qranges[idx].leftColumn();
-	rg->lastcol_ = qranges[idx].rightColumn();
+	rg->firstrow_ = qranges[idx].top();
+	rg->lastrow_ = qranges[idx].bottom();
+	rg->firstcol_ = qranges[idx].left();
+	rg->lastcol_ = qranges[idx].right();
 	selranges_ += rg;
     }
 
