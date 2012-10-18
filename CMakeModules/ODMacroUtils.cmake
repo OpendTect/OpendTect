@@ -58,6 +58,8 @@ get_filename_component( OD_MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
 
 set ( OD_MODULE_HAS_LIBRARY ${OD_MODULE_SOURCES} )
 
+#test for keywords not allowed in source
+
 #Add this module to the list
 if ( OD_MODULE_HAS_LIBRARY )
     set( OD_MODULE_NAMES_${OD_SUBSYSTEM} ${OD_MODULE_NAMES_${OD_SUBSYSTEM}}
@@ -231,6 +233,13 @@ if ( OD_MODULE_HAS_LIBRARY )
 	    RUNTIME DESTINATION ${OD_EXEC_INSTALL_PATH} 
 	    LIBRARY DESTINATION ${OD_EXEC_INSTALL_PATH}
 	    ARCHIVE DESTINATION lib )
+
+    #Add to list of all files
+    foreach ( THEFILE ${OD_MODULE_SOURCES} ${OD_MODULE_INCFILES} )
+	get_filename_component( PATH ${THEFILE} ABSOLUTE )
+	file(RELATIVE_PATH RELPATH ${CMAKE_SOURCE_DIR} ${PATH} )
+	file ( APPEND ${OD_SOURCELIST_FILE} ${RELPATH} "\n" )
+    endforeach()
 
 endif ( OD_MODULE_HAS_LIBRARY )
 
@@ -423,3 +432,17 @@ macro ( OD_ADD_PLUGIN_BATCHPROGS )
 	list( APPEND OD_MODULE_BATCHPROGS src/${OD_PLUGINSUBDIR}/${SRC} )
     endforeach()
 endmacro()
+
+macro ( OD_ADD_KEYWORD_TEST )
+    if ( NOT DEFINED WIN32 )
+	foreach ( KW ${ARGV} )
+	    set( CMD "${CMAKE_SOURCE_DIR}/dtect/FindKeyword" )
+	    list( APPEND CMD "--keyword" "${KW}" "--listfile" "${OD_SOURCELIST_FILE}" )
+	    if ( EXISTS ${CMAKE_SOURCE_DIR}/CMakeModule/exceptions/${KW}_exceptions )
+		list( APPEND CMD "--exceptionfile" "${CMAKE_SOURCE_DIR}/dtect/${KW}_exceptions" )
+	    endif()
+	    add_test( Keyword_${KW} ${CMD} )
+	endforeach()
+    endif()
+endmacro()
+
