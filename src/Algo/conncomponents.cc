@@ -10,11 +10,62 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "conncomponents.h"
 
 #include "arrayndimpl.h"
+#include "arrayndslice.h"
 #include "executor.h"
 #include "sorting.h"
 //#include "stmatrix.h"
 #include "task.h"
 
+
+class CC2DExtracor : public ParallelTask
+{
+public:
+
+CC2DExtracor( const Array3D<bool>& inp )
+    : input_(inp)
+{
+    const int slicesz = input_.info().getSize(2);
+    for ( int idx=0; idx<slicesz; idx++ )
+    {
+	TypeSet<TypeSet<int> > comps;
+	slicecomps_ += comps;
+    }
+}
+
+const TypeSet<TypeSet<TypeSet<int> > >&	getCubeComps()	{ return slicecomps_; }
+
+protected:
+od_int64 nrIterations() const	{ return input_.info().getSize(2); }
+const char* message() const	{ return "Computing 2D connected  compoments"; }
+
+bool doWork( od_int64 start, od_int64 stop, int threadid )
+{
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
+    {
+	PtrMan<Array2DSlice<bool> > slice = new Array2DSlice<bool>( input_ );
+	slice->setPos( 2, idx );
+	slice->setDimMap( 0, 0 );
+	slice->setDimMap( 1, 1 );
+	slice->init();
+
+	ConnComponents cc( *slice );
+	cc.compute();
+
+	TypeSet<TypeSet<int> >& slicecomp = slicecomps_[idx];
+	for ( int idy=cc.nrComponents()-1; idy>=0; idy-- )
+	{
+	    const TypeSet<int>* comp = cc.getComponent(idy);
+	    if ( comp )
+		slicecomp += *comp;
+	}
+    }
+
+    return true;
+}
+
+const Array3D<bool>&			input_;
+TypeSet<TypeSet<TypeSet<int> > >	slicecomps_;
+};
 
 
 ConnComponents::ConnComponents( const Array2D<bool>& input ) 
@@ -310,149 +361,127 @@ float ConnComponents::overLapRate( int componentidx )
 }
 
 
-ConnComponents3D::ConnComponents3D( const Array3D<bool>& input, bool hc ) 
+ConnComponents3D::ConnComponents3D( const Array3D<bool>& input ) 
     : input_(input)
-    , highconn_(hc)  
 {}
+
+
+ConnComponents3D::~ConnComponents3D()
+{ deepErase(components_); }
 
 
 int ConnComponents3D::nrComponents() const
 { return components_.size(); }
 
 
-const TypeSet<int>* ConnComponents3D::getComponent( int compidx )
-{
-    if ( compidx<0 || compidx>=nrComponents() )
-	return 0;
-
-    return &components_[compidx];
-}
+const ObjectSet<ConnComponents3D::VPos>* ConnComponents3D::getComponent( int ci)
+{ return  ci<0 || ci>=nrComponents() ? 0 : components_[sortedindex_[ci]]; }
 
 
 void ConnComponents3D::compute( TaskRunner* tr )
 {
-    mDeclareAndTryAlloc( Array3DImpl<int>*, mark, 
-	    Array3DImpl<int>(input_.info()) );
-    if ( !mark ) return;
-    
-    mark->setAll(0);
-    classifyMarks( *mark );
+    CC2DExtracor cc( input_ );
+    bool extraced = tr ? tr->execute( cc ) : cc.execute();
+    if ( !extraced )
+	return;
 
-    const int sz = input_.info().getTotalSz();
-    int* markers = mark->getData();
-    components_.erase();
-    TypeSet<int> labels;
+    const TypeSet<TypeSet<TypeSet<int> > >& comps = cc.getCubeComps();
+    const int nrslices = comps.size();
     
-    for ( int idx=0; idx<sz; idx++ )
+    TypeSet<TypeSet<unsigned char> > usedcomps;
+    for ( int idx=0; idx<nrslices; idx++ )
     {
-	const int curidx = labels.indexOf(markers[idx]);
-	if ( curidx==-1 )
+	const TypeSet<TypeSet<int> >& slicecomps = comps[idx];
+	const int slicecompsz = slicecomps.size();
+	
+	TypeSet<unsigned char> used;
+	for ( int idy=0; idy<slicecompsz; idy++ )
+	    used += 0;
+
+	usedcomps += used;
+    }
+
+    deepErase( components_ );
+    TypeSet<int> nrcomps;
+    for ( int idx=0; idx<nrslices; idx++ )
+    {
+	const TypeSet<TypeSet<int> >& slicecomps = comps[idx];
+	const int slicecompsz = slicecomps.size();
+	
+	for ( int idy=0; idy<slicecompsz; idy++ )
 	{
-	    labels += markers[idx];
-	     
-	    TypeSet<int> ids;
-	    ids += idx;
-	    components_ += ids;
-	}
-	else
-	{
-	    components_[curidx] += idx;
+	    if ( usedcomps[idx][idy] )
+		continue;
+
+	    ObjectSet<VPos>  ccomp;
+	    addToComponent( comps, idx, idy, usedcomps, ccomp );
+
+	    const int compsz = ccomp.size();
+	    if ( compsz )
+	    {
+		components_ += &ccomp;
+		nrcomps += compsz;
+	    }
 	}
     }
-    
-    const int nrcomps = labels.size(); 
-    TypeSet<int> nrnodes;
+
+    const int totalcompsz = components_.size();
     sortedindex_.erase();
-    for ( int idx=0; idx<nrcomps; idx++ )
-    {
-	nrnodes += components_[idx].size();
+    for ( int idx=0; idx<totalcompsz; idx++ )
 	sortedindex_ += idx;
-    }
 
-    sort_coupled( nrnodes.arr(), sortedindex_.arr(), nrcomps );
+    sort_coupled( nrcomps.arr(), sortedindex_.arr(), totalcompsz );
 }
 
 
-void ConnComponents3D::classifyMarks( Array3D<int>& mark )
+void ConnComponents3D::addToComponent( 
+	const TypeSet<TypeSet<TypeSet<int> > >& comps, int sliceidx, 
+	int compidx, TypeSet<TypeSet<unsigned char> >& usedcomps,
+        ObjectSet<VPos>& rescomp )
 {
-    //TODO 
-    /*
-    const bool is3d = true;
-    unsigned int dx[26], dy[26], dz[26], nb = 0;
-    
-    for ( int i=0; i<=1; i++ )
+    const int slicesz = comps.size();
+    if ( sliceidx<0 || sliceidx>=slicesz || usedcomps[sliceidx][compidx] )
+	return;
+
+    const TypeSet<TypeSet<int> >& slicecomps = comps[sliceidx];
+    if ( compidx<0 || compidx>=slicecomps.size() )
+	return;
+
+    const TypeSet<int>& startcomp = slicecomps[compidx];
+    const int compsz = startcomp.size();
+    const int nrcrls = input_.info().getSize(1);
+    for ( int idx=0; idx<compsz; idx++ )
     {
-	for ( int j=0; j<=1; j++ )
-	{
-	    const int kb = is3d ? 1 : 0;
-	    for ( int k=0;  k<=kb; k++ )
-	    {
-		const int isnb = i+j+k;
-		if ( isnb && ( highconn_ || isnb==1) ) 
-		{ 
-		    dx[nb] = i; dy[nb] = j; dz[nb] = k; nb++; 
-		}
-	    }
-	}
+	VPos* v = new VPos();
+	v->i = startcomp[idx]/nrcrls;
+	v->j = startcomp[idx]%nrcrls;
+	v->k = sliceidx;
+	rescomp += v;
     }
 
+    usedcomps[sliceidx][compidx] = 1;
 
-    // Init label numbers.
-    
-    int *ptr = mark.getData();
-    cimg_foroff(_res,p) *(ptr++) = p;
+    const int nextslice = sliceidx+1;
+    if ( nextslice>=slicesz )
+	return;
 
-    const int width = mark.info().getSize(0);
-    const int height = mark.info().getSize(1);
-    const int depth = mark.info().getSize(2);
-    
-    // For each neighbour-direction, label.
-    for ( int n=0; n<nb; n++ ) 
+    const TypeSet<TypeSet<int> >& nextslicecomps = comps[nextslice];
+    const int nextcompsz = nextslicecomps.size();
+    for ( int idx=0; idx<nextcompsz; idx++ )
     {
-	const int dx = dx[n], dy = dy[n], dz = dz[n];
-	if ( dx || dy || dz ) 
+	const TypeSet<int>& curcomp = nextslicecomps[idx];
+	bool doconnect = false;
+	for ( int idy=0; idy<curcomp.size(); idy++ )
 	{
-	    const int x1 = width-dx, y1 = height-dy, z1 = depth-dz, 
-		  wh = width*height;
-	    const int offset = dz*wh + dy*width + dx;
-	    for ( int z=0, nz=dz, pz=0; z<z1;  ++z, ++nz, pz+=wh ) 
+	    if ( startcomp.indexOf(curcomp[idy])!=-1 )
 	    {
-		for ( int y=0, ny= dy, py=pz; y<y1; ++y, ++ny, py+=_width ) 
-		{
-		    for ( int x=0, nx=dx, p=py; x<x1;  ++x, ++nx, ++p ) 
-		    {
-			if ( (*this)(x,y,z,0,wh)==(*this)(nx,ny,nz,0,wh)) 
-			{
-			    const unsigned long q = p + offset;
-			    unsigned long x, y;
-			    for (x = p<q?q:p, y = p<q?p:q; 
-				    x!=y && _res[x]!=x; ) 
-			    { x = _res[x]; if (x<y) cimg::swap(x,y); }
-			    if (x!=y) _res[x] = y;
-			    for (unsigned long _p = p; _p!=y; ) 
-			    { const unsigned long h = _res[_p]; 
-				_res[_p] = y; _p = h; 
-			    }
-			    for (unsigned long _q = q; _q!=y; ) 
-			    { 
-				const unsigned long h = _res[_q]; 
-				_res[_q] = y; _q = h; 
-			    }
-			}
-		    }
-		}
+		doconnect = true;
+		break;
 	    }
 	}
-    }
 
-    // Remove equivalences.
-    
-    
-    unsigned long counter = 0;
-    ptr = _res.data();
-    cimg_foroff(_res,p) 
-    { 
-	*ptr = *ptr==p?counter++:_res[*ptr]; ++ptr; 
-    }*/
+	if ( doconnect )
+	    addToComponent( comps, nextslice, idx, usedcomps, rescomp );
+    }
 }
 
