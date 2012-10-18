@@ -380,6 +380,7 @@ void uiODMenuMgr::fillManMenu()
 	    		"man_strat" )
     mInsertPixmapItem( manmnu_, "Wa&velets ...", mManWvltMnuItm, "man_wvlt" )
     mInsertPixmapItem( manmnu_, "&Wells ...", mManWellMnuItm, "man_wll"  )
+    manmnu_->insertSeparator();
 }
 
 
