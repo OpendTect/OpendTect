@@ -81,8 +81,8 @@ bool IOPar::isEqual( const IOPar& iop, bool worder ) const
 	}
 	else
 	{
-	    const char* res = iop.find( getKey(idx) );
-	    if ( !res || strcmp(res,getValue(idx)) )
+	    FixedString res = iop.find( getKey(idx) );
+	    if ( !res || res!=getValue(idx) )
 		return false;
 	}
     }
@@ -1090,7 +1090,7 @@ bool IOPar::write( const char* fnm, const char* typ ) const
 bool IOPar::write( std::ostream& strm, const char* typ ) const
 {
 
-    if ( typ && !strcmp(typ,sKeyDumpPretty()) )
+    if ( typ && FixedString(typ)==sKeyDumpPretty() )
 	dumpPretty( strm );
     else
     {
