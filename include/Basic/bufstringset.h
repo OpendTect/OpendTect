@@ -49,6 +49,7 @@ public:
     bool		isSubsetOf(const BufferStringSet&) const;
 
     BufferStringSet&	add(const char*);
+    BufferStringSet&	add(const FixedString&);
     BufferStringSet&	add(const BufferString&);
     BufferStringSet&	add(const BufferStringSet&,bool allowduplicates);
     bool		addIfNew(const char*);	//!< returns whether added
