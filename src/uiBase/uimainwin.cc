@@ -206,7 +206,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 
     setWindowModality( p && modal ? Qt::WindowModal : Qt::NonModal );
 
-    setDockOptions( VerticalTabs | AnimatedDocks | ForceTabbedDocks );
+    setDockOptions( VerticalTabs | AnimatedDocks );
 
     deletefrombody_ = deletefromod_ = false;
 }
