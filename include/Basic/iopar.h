@@ -62,8 +62,8 @@ public:
     bool		isEqual(const IOPar&,bool need_same_order=false) const;
 
     int			indexOf(const char* key) const;
-    const char*		getKey(int) const;
-    const char*		getValue(int) const;
+    FixedString		getKey(int) const;
+    FixedString		getValue(int) const;
     bool		setKey(int,const char*);
     void		setValue(int,const char*);
     void		remove(int);

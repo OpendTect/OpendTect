@@ -111,17 +111,17 @@ int IOPar::indexOf( const char* key ) const
 }
 
 
-const char* IOPar::getKey( int nr ) const
+FixedString IOPar::getKey( int nr ) const
 {
     if ( nr >= size() ) return "";
-    return keys_.get( nr ).buf();
+    return FixedString(keys_.get( nr ).buf() );
 }
 
 
-const char* IOPar::getValue( int nr ) const
+FixedString IOPar::getValue( int nr ) const
 {
     if ( nr >= size() ) return "";
-    return vals_.get( nr ).buf();
+    return FixedString(vals_.get( nr ).buf() );
 }
 
 
