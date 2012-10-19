@@ -44,9 +44,9 @@ bool Pos::Filter3D::includes( const Coord& c, float z ) const
 
 Pos::Filter3D* Pos::Filter3D::make( const IOPar& iop )
 {
-    const char* typ = iop.find(sKey::Type());
+    FixedString typ = iop.find(sKey::Type());
     if ( !typ ) return 0;
-    Pos::Filter3D* filt = strcmp(typ,Pos::FilterSet::typeStr())
+    Pos::Filter3D* filt = typ!=Pos::FilterSet::typeStr()
 			? factory().create( typ )
 			: (Pos::Filter3D*)new Pos::FilterSet3D;
     if ( filt )
@@ -67,9 +67,9 @@ int Pos::Filter2D::nrLines() const
 
 Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
 {
-    const char* typ = iop.find(sKey::Type());
+    FixedString typ = iop.find(sKey::Type());
     if ( !typ ) return 0;
-    Pos::Filter2D* filt = strcmp(typ,Pos::FilterSet::typeStr())
+    Pos::Filter2D* filt = typ!=Pos::FilterSet::typeStr()
 			? factory().create( typ )
 			: (Pos::Filter2D*)new Pos::FilterSet2D;
     if ( filt )
