@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "gendefs.h"
+#include "fixedstring.h"
 #include <string.h>
 
 /*!\brief updates a variable when changes occur.
@@ -117,7 +118,7 @@ inline bool ChangeTracker::set( const char*& val, const char*& newval )
     if ( !ret ) { setChanged(true); return true; }
     if ( !val ) return false;
 
-    ret = strcmp( val, newval );
+    ret = FixedString(val)!=newval;
     setChanged( ret );
     return ret;
 }
