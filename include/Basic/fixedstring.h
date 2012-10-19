@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 */
 
-#include "basicmod.h"
+#include "commondefs.h"
 
 #include <iosfwd>
 
