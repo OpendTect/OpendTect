@@ -20,6 +20,7 @@ ________________________________________________________________________
 class uiGenInput;
 class uiCheckBox;
 class uiComboBox;
+class uiLabeledComboBox;
 class uiMathExpression;
 class MathExpression;
 class uiWellLogCalcInpData;
@@ -46,7 +47,8 @@ protected:
     uiGenInput*			nmfld_;
     uiGenInput*			srfld_;
     uiCheckBox*			ftbox_;
-    uiComboBox*			unfld_;
+    uiLabeledComboBox*		formulaunfld_;
+    uiComboBox*			outunfld_;
     ObjectSet<uiWellLogCalcInpData> inpdataflds_;
 
     int				nrvars_;
@@ -62,7 +64,6 @@ protected:
     const Well::LogSet&		wls_;
     const TypeSet<MultiID>	wellids_;
     BufferStringSet		inputunits_;
-    BufferString		rpoutunit_;
 
     friend class		uiWellLogCalcInpData;
 

@@ -196,9 +196,10 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
 BufferString uiRockPhysForm::getText( bool usecstvals ) const
 {
     BufferString formula;
+    BufferString formulaunit;
     BufferString outunit;
     BufferStringSet varsunits;
-    if ( getFormulaInfo( formula, outunit, varsunits, usecstvals ) )
+    if ( getFormulaInfo( formula, formulaunit, outunit, varsunits, usecstvals ))
 	return formula;
 
     return 0;
@@ -206,6 +207,7 @@ BufferString uiRockPhysForm::getText( bool usecstvals ) const
 
 
 bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
+				     BufferString& formulaunit,
 				     BufferString& outputunit,
 				     BufferStringSet& varsunits,
 				     bool usecstvals ) const
@@ -252,7 +254,8 @@ bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
     }
 
     cleanformula = ret;
-    outputunit = fm->unit_;
+    formulaunit = fm->formulaunit_;
+    outputunit = fm->outputunit_;
     return true;
 }
 

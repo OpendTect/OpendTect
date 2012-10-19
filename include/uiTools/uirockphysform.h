@@ -37,7 +37,8 @@ public:
     void		setFormulaName(const char*);
 
     bool		getFormulaInfo(BufferString&,BufferString&,
-	    			       BufferStringSet&,bool) const;
+				       BufferString&,BufferStringSet&,
+				       bool) const;
     BufferString	getText(bool usecstevals) const;
     const char*		errMsg() const		{ return errmsg_.buf(); }
     bool		isOK();

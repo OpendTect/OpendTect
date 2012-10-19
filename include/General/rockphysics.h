@@ -83,7 +83,8 @@ public:
     ObjectSet<ConstDef>	constdefs_;
     ObjectSet<VarDef>	vardefs_;
     Repos::Source	src_;
-    BufferString	unit_;
+    BufferString	formulaunit_;
+    BufferString	outputunit_;
 
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
