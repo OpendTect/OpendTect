@@ -373,9 +373,9 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 
     StepInterval<float> newintv = dlg.getContourInterval();
 
-    const bool intvchged = !mIsEqual(newintv.start, oldintv.start, 0.00001) ||
-			   !mIsEqual(newintv.stop, oldintv.stop, 0.00001) ||
-			   !mIsEqual(newintv.step, oldintv.step, 0.00001);
+    const bool intvchged = !mIsEqual(newintv.start, oldintv.start, 0.0001) ||
+			   !mIsEqual(newintv.stop, oldintv.stop, 0.0001) ||
+			   !mIsEqual(newintv.step, oldintv.step, 0.0001);
 
     if ( intvchged )
     {
