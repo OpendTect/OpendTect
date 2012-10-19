@@ -535,16 +535,15 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	{
 	    attribcache_[idx]->unRef();
 	    attribcachedatapackids_.remove( idx );
-	    attribbkpcachedatapackids_.remove( idx );
 	    attribcache_.remove( idx );
-	    attribcachespecs_.remove( idx );
+	    delete attribcachespecs_.remove( idx );
 	}
 	else
 	{
-	    attribcache_[idx]->unRef();
 	    const DataHolder* newdata = getAttribCache( cacheid );
 	    if ( newdata )
 	    {
+		attribcache_[idx]->unRef();
 		attribcachedatapackids_[idx] = cacheid;
 		attribcache_.replace( idx, newdata );
 		newdata->ref();
@@ -553,13 +552,13 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     }
     else if ( cacheid > DataPack::cNoID() )
     {
-	attribcachespecs_ += as.is2D() ?
-	    new CacheSpecs( as, active2DLineSetID(), active2DLineName() ) :
-	    new CacheSpecs( as ) ;
-
 	const DataHolder* newdata = getAttribCache( cacheid );
 	if ( newdata )
 	{
+	    attribcachespecs_ += as.is2D() ?
+		new CacheSpecs( as, active2DLineSetID(), active2DLineName() ) :
+		new CacheSpecs( as ) ;
+
 	    attribcachedatapackids_ += cacheid;
 	    attribcache_ += newdata;
 	    newdata->ref();
@@ -580,7 +579,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	if ( !newdata )
 	{
 	    attribcache_.remove( idx );
-	    attribcachespecs_.remove( idx );
+	    delete attribcachespecs_.remove( idx );
 	}
 	else
 	{
