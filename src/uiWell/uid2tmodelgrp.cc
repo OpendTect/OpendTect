@@ -101,7 +101,7 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	{
 	    const float tvd = (float)wd.track().pos(idx).z;
 	    const float dah = wd.track().dah(idx);
-	    d2t.add( dah, tvd / twtvel );
+	    d2t.add( dah, ( tvd - wd.info().surfaceelev ) / twtvel );
 	}
     }
     else
