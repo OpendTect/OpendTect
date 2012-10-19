@@ -39,8 +39,10 @@ mClass(Well) Info : public ::NamedObject
 public:
 
 			Info( const char* nm )
-			    : ::NamedObject(nm), surfaceelev(0), replvel(0),
-				groundelev(0)	{}
+			    : ::NamedObject(nm)
+			    , surfaceelev(0)
+			    , replvel(mUdf(float))
+			    , groundelev(mUdf(float))	{}
 
     void                fillPar(IOPar&) const;
     void                usePar(const IOPar&);

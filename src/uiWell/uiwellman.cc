@@ -563,7 +563,7 @@ void uiWellMan::mkFileInfo()
 	}
 
 	const float replvel = info.replvel;
-	if ( !mIsZero(replvel,1e-4) && !mIsUdf(replvel) )
+	if ( !mIsUdf(replvel) )
 	{
 	     txt += "Replacement velocity (from KB to SRD)"; txt += ": ";
 	     txt += zun ? zun->userValue(replvel) : replvel;
@@ -572,7 +572,7 @@ void uiWellMan::mkFileInfo()
 	}
 
 	const float groundelev = info.groundelev;
-	if ( !mIsZero(groundelev,1e-4) && !mIsUdf(groundelev) )
+	if ( !mIsUdf(groundelev) )
 	{
 	    txt += "Ground level elevation (GL)"; txt += ": ";
 	    txt += zun ? zun->userValue(groundelev) : groundelev;

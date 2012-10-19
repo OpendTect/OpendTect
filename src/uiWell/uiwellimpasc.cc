@@ -195,11 +195,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     replvelfld = new uiGenInput( this, str, FloatInpSpec() );
     replvelfld->attach( alignedBelow, elevfld );
 
-    dispval = info.groundelev;
-    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.groundelev) && zun_ ) 
-	dispval = zun_->userValue( info.groundelev );
-    if ( mIsZero(dispval,0.01) ) dispval = 0;
-    gdelevfld = new uiGenInput( this, "Ground level elevation", FloatInpSpec(0) );
+    gdelevfld = new uiGenInput( this, "Ground level elevation", FloatInpSpec());
     gdelevfld->attach( alignedBelow, replvelfld );
     zinftbox = new uiCheckBox( this, "Feet" );
     zinftbox->attach( rightOf, gdelevfld );
@@ -243,7 +239,6 @@ bool acceptOK( CallBacker* )
 	if ( zinftbox->isChecked() && !mIsUdf(info.groundelev) && zun_ )
 	    info.groundelev = zun_->internalValue( info.groundelev );
     }
-    else info.groundelev = 0;
 
 
     info.uwid = idfld->text();
