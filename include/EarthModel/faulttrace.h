@@ -1,5 +1,5 @@
-#ifndef flthortools_h
-#define flthortools_h
+#ifndef faulttrace_h
+#define faulttrace_h
 
 /*+
 ________________________________________________________________________

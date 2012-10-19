@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "autotracker.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "flthortools.h"
+#include "faulttrace.h"
 #include "horizonadjuster.h"
 #include "sectionextender.h"
 #include "sectiontracker.h"

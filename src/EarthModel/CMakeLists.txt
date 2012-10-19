@@ -51,7 +51,7 @@ SET(OD_MODULE_SOURCES
 		emsurfaceposprov.cc
 		emsurfacetr.cc
 		emsurfauxdataio.cc
-		flthortools.cc
+		faulttrace.cc
 		horizonmerger.cc
 		horizonmodifier.cc
 		horizonrelation.cc

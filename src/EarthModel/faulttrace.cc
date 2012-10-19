@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "flthortools.h"
+#include "faulttrace.h"
 
 #include "binidvalset.h"
 #include "emfaultstickset.h"
