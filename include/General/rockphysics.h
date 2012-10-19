@@ -90,6 +90,7 @@ public:
     bool		setDef(const char*); // Will add var- and constdefs
     MathProperty*	getProperty(const PropertyRef* pr=0) const;
 
+    BufferString	getFormulaUnit() const;
 };
 
 

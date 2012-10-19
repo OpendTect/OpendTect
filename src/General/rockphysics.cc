@@ -9,6 +9,7 @@ static const char* rcsID = "$Id$";
 #include "rockphysics.h"
 #include "mathproperty.h"
 #include "ascstream.h"
+#include "hiddenparam.h"
 #include "safefileio.h"
 #include "separstr.h"
 #include "keystrs.h"
@@ -20,6 +21,13 @@ static const char* sKeyDef = "Formula";
 static const char* sKeyVar = "Variable";
 static const char* sKeyConst = "Constant";
 static const char* sKeyRg = "Typical Range";
+
+HiddenParam<RockPhysics::Formula,BufferString>  myfuparammanager( "" );
+
+BufferString RockPhysics::Formula::getFormulaUnit() const
+{
+    return myfuparammanager.getParam( this );
+}
 
 
 RockPhysics::Formula* RockPhysics::Formula::get( const IOPar& iop )
@@ -41,6 +49,7 @@ RockPhysics::Formula& RockPhysics::Formula::operator =(
 	def_ = fm.def_;
 	desc_ = fm.desc_;
 	src_ = fm.src_;
+	myfuparammanager.setParam(this, fm.getFormulaUnit() );
 	unit_ = fm.unit_;
 	deepCopy( vardefs_, fm.vardefs_ );
 	deepCopy( constdefs_, fm.constdefs_ );
@@ -66,6 +75,9 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
     setName( nm );
     type_ = PropertyRef::parseEnumStdType( iop.getValue(0) );
     iop.get( sKeyDef, def_ );
+    BufferString tmpstr;
+    iop.get( IOPar::compKey( sKeyDef, sKey::Unit ), tmpstr );
+    myfuparammanager.setParam( this, tmpstr );
     iop.get( sKey::Unit, unit_ );
     iop.get( sKey::Desc, desc_ );
     desc_ = getStrFromFMS( desc_ );
@@ -128,6 +140,8 @@ void RockPhysics::Formula::fillPar( IOPar& iop ) const
     iop.set( name(), toString(type_) );
     iop.set( sKeyDef, def_ );
     setIOPWithNLs( iop, sKey::Desc, desc_ );
+    iop.set( IOPar::compKey( sKeyDef, sKey::Unit ),
+	     myfuparammanager.getParam(this) );
     iop.set( sKey::Unit, unit_ );
     for ( int idx=0; idx<vardefs_.size(); idx++ )
     {

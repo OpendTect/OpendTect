@@ -201,16 +201,30 @@ const char* uiRockPhysForm::getText() const
 BufferString uiRockPhysForm::getText( bool usecstvals ) const
 {
     BufferString formula;
+    BufferString formulaunit;
     BufferString outunit;
     BufferStringSet varsunits;
-    if ( getFormulaInfo( formula, outunit, varsunits, usecstvals ) )
+    if ( getFormulaInfo( formula, formulaunit, outunit, varsunits, usecstvals ))
 	return formula;
 
     return 0;
 }
 
 
+//Will be removed shortly, please do not use.
 bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
+				     BufferString& outputunit,
+				     BufferStringSet& varsunits,
+				     bool usecstvals ) const
+{
+    BufferString formulaunit;
+    return getFormulaInfo( cleanformula, formulaunit, outputunit, varsunits,
+	    		   usecstvals );
+}
+
+
+bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
+				     BufferString& formulaunit,
 				     BufferString& outputunit,
 				     BufferStringSet& varsunits,
 				     bool usecstvals ) const
@@ -257,6 +271,7 @@ bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
     }
 
     cleanformula = ret;
+    formulaunit = fm->getFormulaUnit();
     outputunit = fm->unit_;
     return true;
 }

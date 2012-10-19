@@ -35,6 +35,7 @@ public:
     const char*		formulaName() const;
     void		setFormulaName(const char*);
 
+    //will be removed, do not use
     bool		getFormulaInfo(BufferString&,BufferString&,
 	    			       BufferStringSet&,
 				       bool usecstvals=true) const;
@@ -59,6 +60,11 @@ protected:
     ObjectSet<uiRockPhysCstFld>	cstflds_;
 
     BufferString	errmsg_;
+
+public:
+    bool		getFormulaInfo(BufferString&,BufferString&,
+	    				BufferString&,BufferStringSet&,
+				       	bool usecstvals=true) const;
 };
 
 

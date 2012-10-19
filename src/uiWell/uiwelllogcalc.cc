@@ -24,6 +24,7 @@ static const char* rcsID = "$Id$";
 #include "uiseparator.h"
 #include "uiwelllogcalcinpdata.h"
 
+#include "hiddenparam.h"
 #include "welllogset.h"
 #include "wellreader.h"
 #include "welldata.h"
@@ -39,6 +40,8 @@ static const char* rcsID = "$Id$";
 static const int cMaxNrInps = 6;
 static const char* specvararr[] = { "MD", "DZ", 0 };
 static const BufferStringSet specvars( specvararr );
+
+HiddenParam<uiWellLogCalc,uiLabeledComboBox*>    fufldmanager( 0 );
 
 static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 {
@@ -99,6 +102,16 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
 	inpdataflds_ += fld;
     }
 
+    const ObjectSet<const UnitOfMeasure>& uns( UoMR().all() );
+    uiLabeledComboBox* formulaunfld =
+		new uiLabeledComboBox(inpgrp, "Formula provides result in");
+    formulaunfld->box()->addItem( "-" );
+    for ( int idx=0; idx<uns.size(); idx++ )
+	formulaunfld->box()->addItem( uns[idx]->name() );
+    formulaunfld->attach( alignedBelow,
+			    inpdataflds_[inpdataflds_.size()-1]->attachObj() );
+    fufldmanager.setParam( this, formulaunfld );
+
     uiSeparator* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, inpgrp );
 
@@ -120,7 +133,6 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 	    					"Output unit of measure" );
     unfld_ = lcb->box();
-    const ObjectSet<const UnitOfMeasure>& uns( UoMR().all() );
     unfld_->addItem( "-" );
     for ( int idx=0; idx<uns.size(); idx++ )
 	unfld_->addItem( uns[idx]->name() );
@@ -176,10 +188,12 @@ bool acceptOK( CallBacker* )
 }
 
 
-bool getFormulaInfo( BufferString& cleanformula, BufferString& outputunit,
+bool getFormulaInfo( BufferString& cleanformula, BufferString& formulaunit,
+		     BufferString& outputunit,
 		     BufferStringSet& varsunits ) const
 {
-    return formgrp_->getFormulaInfo( cleanformula, outputunit, varsunits, true);
+    return formgrp_->getFormulaInfo( cleanformula, formulaunit, outputunit,
+	    			     varsunits, true);
 }
 
     uiRockPhysForm*	formgrp_;
@@ -191,12 +205,19 @@ void uiWellLogCalc::rockPhysReq( CallBacker* )
 {
     uiWellLogCalcRockPhys dlg( this );
     BufferString formula;
+    BufferString formulaunit;
     BufferString outunit;
-    if ( dlg.go() && dlg.getFormulaInfo( formula, outunit, inputunits_ ) )
+    if ( dlg.go() && 
+	 dlg.getFormulaInfo( formula, formulaunit, outunit, inputunits_ ) )
     {
 	formfld_->setText( formula.buf() );
-	unfld_->setText( outunit.buf() );
-	rpoutunit_ = outunit;
+	BufferString formunstr = formulaunit.isEmpty() && !outunit.isEmpty() ? 
+				    outunit : formulaunit;
+	BufferString outunitstr = outunit.isEmpty() && !formulaunit.isEmpty() ? 
+				    formulaunit : outunit;
+	fufldmanager.getParam(this)->box()->setText( formunstr.buf() );
+	fufldmanager.getParam(this)->display( false );
+	unfld_->setText( outunitstr.buf() );
 	formSet( 0 );
     }
 }
@@ -229,7 +250,8 @@ void uiWellLogCalc::formSet( CallBacker*  c )
     }
 
     inpSel( 0 );
-    if ( c ) rpoutunit_.setEmpty();
+    if ( c )
+	fufldmanager.getParam(this)->display( true );
 }
 
 
@@ -303,10 +325,11 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	const int unselidx = unfld_->currentItem();
 	if ( unselidx > 0 )
 	{
+	    const char* formulaunittxt =
+			fufldmanager.getParam(this)->box()->text();
 	    const char* desunittxt = unfld_->text();
 	    newwl->setUnitMeasLabel( desunittxt );
-	    const UnitOfMeasure* logun = rpoutunit_.isEmpty() ? 0
-					: UoMR().get( rpoutunit_.buf() );
+	    const UnitOfMeasure* logun = UoMR().get( formulaunittxt );
 	    const UnitOfMeasure* convertun = UoMR().get( desunittxt );
 	    for ( int idx=0; idx<newwl->size(); idx++ )
 	    {
