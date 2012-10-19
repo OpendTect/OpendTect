@@ -74,7 +74,7 @@ MACRO(OD_SETUP_QT)
     IF( QT_MOC_HEADERS )
         FOREACH( HEADER ${QT_MOC_HEADERS} )
             LIST(APPEND QT_MOC_INPUT
-                ${OpendTect_SOURCE_DIR}/include/${OD_MODULE_NAME}/${HEADER})
+                ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME}/${HEADER})
         ENDFOREACH()
 
         QT4_WRAP_CPP (QT_MOC_OUTFILES ${QT_MOC_INPUT})
