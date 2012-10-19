@@ -23,7 +23,9 @@ ________________________________________________________________________
 #include "strmoper.h"
 
 #ifdef __win__
-#include <direct.h>
+# include <direct.h>
+#else
+# include <unistd.h>
 #endif
 
 #ifndef OD_NO_QT
