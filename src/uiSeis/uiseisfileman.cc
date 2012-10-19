@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "zdomain.h"
 #include "separstr.h"
+#include "timedepthconv.h"
 
 #include "ui2dgeomman.h"
 #include "uitoolbutton.h"
@@ -167,9 +168,41 @@ void uiSeisFileMan::mkFileInfo()
 	    txt += curioobj_->pars().find(optstr); }
 	if ( curioobj_->pars().isTrue("Is Velocity") )
 	{
+	    Interval<float> topvavg, botvavg;
 	    txt += "\nVelocity Type: ";
 	    const char* typstr = curioobj_->pars().find( "Velocity Type" );
 	    txt += typstr ? typstr : "<unknown>";
+
+	    if ( curioobj_->pars().get(VelocityStretcher::sKeyTopVavg(),topvavg)
+	    && curioobj_->pars().get(VelocityStretcher::sKeyBotVavg(),botvavg) )
+	    {
+		StepInterval<float> rg;
+		StepInterval<float> zrg = SI().zRange(true);
+
+		if ( SI().zIsTime() )
+		{
+		    rg.start = zrg.start * topvavg.start / 2;
+		    rg.stop = zrg.stop * botvavg.stop / 2;
+		    rg.step = (rg.stop-rg.start) / zrg.nrSteps();
+		    txt += "\nDepth Range ";
+		    txt += ZDomain::Depth().unitStr(true);
+		}
+
+		else 
+		{
+		    rg.start = 2 * zrg.start / topvavg.stop;
+		    rg.stop = 2 * zrg.stop / botvavg.start;
+		    rg.step = (rg.stop-rg.start) / zrg.nrSteps();
+		    rg.scale( ZDomain::Time().userFactor() );
+		    txt += "\nTime Range ";
+		    txt += ZDomain::Time().unitStr(true);  
+		}
+
+		txt += ": ";
+		txt += rg.start;
+		txt += " - ";
+		txt += rg.stop;
+	    }
 	}
     }
 
