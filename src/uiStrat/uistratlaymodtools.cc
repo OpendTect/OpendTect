@@ -17,6 +17,31 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "stratlevel.h"
 
+const char* uiStratGenDescTools::sKeyNrModels()
+{ return "Nr models"; }
+
+const char* uiStratLayModEditTools::sKeyDisplayedProp()
+{return "Displayed property";}
+
+const char* uiStratLayModEditTools::sKeyDecimation()
+{ return "Decimation"; }
+
+const char* uiStratLayModEditTools::sKeySelectedLevel()
+{ return "Selected level"; }
+
+const char* uiStratLayModEditTools::sKeySelectedContent()
+{return "Selected content";}
+
+const char* uiStratLayModEditTools::sKeyZoomToggle()
+{ return "Allow zoom"; }
+
+const char* uiStratLayModEditTools::sKeyDispLith()
+{ return "Dislay lithology"; }
+
+
+const char* uiStratLayModEditTools::sKeyShowFlattened()
+{ return "Display flattened";}
+
 
 uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     : uiGroup(p,"Gen Desc Tools")
@@ -63,6 +88,22 @@ void uiStratGenDescTools::enableSave( bool yn )
 {
     savetb_->setSensitive( yn );
 }
+
+void uiStratGenDescTools::fillPar( IOPar& par ) const
+{
+    par.set( sKeyNrModels(), nrModels() );
+}
+
+
+bool uiStratGenDescTools::usePar( const IOPar& par )
+{
+    int nrmodels;
+    if ( par.get( sKeyNrModels(), nrmodels ) )
+	nrmodlsfld_->setValue( nrmodels );
+	
+    return true;
+}
+
 
 
 uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
@@ -258,4 +299,64 @@ void uiStratLayModEditTools::setDispLith( bool yn )
 void uiStratLayModEditTools::setShowFlattened( bool yn )
 {
     flattenedtb_->setOn( yn );
+}
+
+#define mGetProp( func, key ) \
+if ( func ) \
+par.set( key, func )
+
+void uiStratLayModEditTools::fillPar( IOPar& par ) const
+{
+    mGetProp( selProp(), sKeyDisplayedProp() );
+    par.set( sKeyDecimation(), dispEach() );
+
+    mGetProp( selLevel(), sKeySelectedLevel() );
+    mGetProp( selContent(), sKeySelectedContent() );
+    
+    par.setYN( sKeyZoomToggle(), dispZoomed() );
+    par.setYN( sKeyDispLith(), dispLith() );
+    par.setYN( sKeyShowFlattened(), showFlattened() );
+}
+
+#define mSetProp( fld, key ) \
+{ \
+    FixedString selprop = par[key()]; \
+    if ( selprop && fld->isPresent( selprop ) ) \
+    { \
+	fld->setCurrentItem( selprop ); \
+	fld->selectionChanged.trigger(); \
+    } \
+}
+
+#define mSetYN( func, key, cb ) \
+{ \
+    bool yn; \
+    if ( par.getYN( key(), yn ) ) \
+    { \
+	func( yn ); \
+	cb( 0 ); \
+    } \
+}
+
+
+
+
+bool uiStratLayModEditTools::usePar( const IOPar& par )
+{
+    mSetProp( propfld_, sKeyDisplayedProp );
+    mSetProp( lvlfld_, sKeySelectedLevel );
+    mSetProp( contfld_, sKeySelectedContent );
+
+    int decimation;
+    if ( par.get( sKeyDecimation(), decimation ) )
+    {
+	setDispEach( decimation );
+	dispEachCB( 0 );
+    }
+    
+    mSetYN( setDispZoomed, sKeyZoomToggle, dispZoomedCB );
+    mSetYN( setDispLith, sKeyDispLith, dispLithCB );
+    mSetYN( setShowFlattened, sKeyShowFlattened, showFlatCB );
+
+    return true;
 }

@@ -34,9 +34,14 @@ public:
     Notifier<uiStratGenDescTools>	saveReq;
     Notifier<uiStratGenDescTools>	propEdReq;
     Notifier<uiStratGenDescTools>	genReq;
+    
+    void	fillPar(IOPar&) const;
+    bool	usePar(const IOPar&);
 
 protected:
 
+    static const char*		sKeyNrModels();
+    
     uiGenInput*	nrmodlsfld_;
     uiToolButton* savetb_;
 
@@ -88,8 +93,19 @@ public:
     Color	selLevelColor() const;		//!< May return NoColor
 
     uiToolButton* lithButton() 		{ return lithtb_; }
+    
+    void	fillPar(IOPar&) const;
+    bool	usePar(const IOPar&);
 
 protected:
+    
+    static const char*		sKeyDisplayedProp();
+    static const char*		sKeyDecimation();
+    static const char*		sKeySelectedLevel();
+    static const char*		sKeySelectedContent();
+    static const char*		sKeyZoomToggle();
+    static const char*		sKeyDispLith();
+    static const char*		sKeyShowFlattened();
 
     uiComboBox*	propfld_;
     uiComboBox*	lvlfld_;
