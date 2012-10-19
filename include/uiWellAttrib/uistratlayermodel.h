@@ -123,8 +123,9 @@ protected:
 
     bool			closeOK();
     
-    void			fillWorkbenchPars(IOPar&) const;
-    bool			useWorkbenchPars(const IOPar&);
+    void			fillDisplayPars(IOPar&) const;
+    void			fillWorkBenchPars(IOPar&) const;
+    bool			useDisplayPars(const IOPar&);
 
 public:
 
