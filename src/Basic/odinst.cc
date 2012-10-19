@@ -40,6 +40,8 @@ static BufferString getInstDir()
 }
 #undef mRelRootDir
 #define mRelRootDir getInstDir()
+#else
+#include "unistd.h"
 #endif
 
 DefineNameSpaceEnumNames(ODInst,AutoInstType,1,"Auto update")

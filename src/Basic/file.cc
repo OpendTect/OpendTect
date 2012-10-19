@@ -22,6 +22,12 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "strmoper.h"
 
+#ifdef __win__
+# include <direct.h>
+#else
+# include <unistd.h>
+#endif
+
 #ifndef OD_NO_QT
 #include <QDateTime>
 #include <QDir>
