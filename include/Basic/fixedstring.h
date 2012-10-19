@@ -12,7 +12,10 @@ ________________________________________________________________________
 */
 
 #include "basicmod.h"
-#include "bufstring.h"
+
+#include <iosfwd>
+
+class BufferString;
 
 
 /*! Class that holds a text string, and provides basic services around it. The
@@ -25,7 +28,7 @@ public:
 		FixedString(const char* p = 0 ) : ptr_(p) {}
     FixedString& operator=(const FixedString& f) { return *this = f.ptr_; }
     FixedString& operator=(const char* p)	{ ptr_ = p; return *this; }
-    FixedString& operator=(const BufferString& b){ptr_=b.buf();return *this;}
+    FixedString& operator=(const BufferString& b);
 
     bool	operator==(const char*) const;
     bool	operator!=(const char* s) const		{ return !(*this==s); }

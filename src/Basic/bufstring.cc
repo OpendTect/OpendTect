@@ -632,6 +632,10 @@ void BufferStringSet::unCat( const char* inpstr, char sepchar )
 }
 
 
+FixedString& FixedString::operator=( const BufferString& b )
+{ptr_=b.buf();return *this;}
+
+
 bool FixedString::operator==( const char* s ) const
 {
     if ( ptr_==s )
