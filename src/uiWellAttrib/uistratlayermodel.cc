@@ -528,8 +528,9 @@ bool uiStratLayerModel::saveGenDesc() const
     bool rv = false;
     MouseCursorChanger mcch( MouseCursor::Wait );
     
-    
-    fillWorkBenchPars( desc_.getWorkBenchParams() );
+    desc_.getWorkBenchParams().setEmpty();
+    fillDisplayPars( desc_.getWorkBenchParams() ); 
+    fillComputationPars( desc_.getWorkBenchParams() );
     
     if ( !sd.usable() )
 	uiMSG().error( "Cannot open output file" );
@@ -571,7 +572,7 @@ bool uiStratLayerModel::openGenDesc()
     sd.close();
     
     //Before calculation
-    if ( !gentools_->usePar( desc_.getWorkBenchParams() ) )
+    if ( !useComputationPars(desc_.getWorkBenchParams() ) )
 	return false;
     
     if ( !rv )
@@ -751,6 +752,18 @@ Strat::LayerModel& uiStratLayerModel::layerModel()
 }
 
 
+bool uiStratLayerModel::useComputationPars( const IOPar& par )
+{
+    return gentools_->usePar( par );
+}
+
+
+void uiStratLayerModel::fillComputationPars( IOPar& par ) const
+{
+    gentools_->fillPar( par );
+}
+
+
 bool uiStratLayerModel::useDisplayPars( const IOPar& par )
 {
     if ( !modtools_->usePar( par ) )
@@ -760,16 +773,6 @@ bool uiStratLayerModel::useDisplayPars( const IOPar& par )
 }
 
     
-
-void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
-{
-    par.setEmpty();
-    
-    gentools_->fillPar( par );
-    fillDisplayPars( par );
-}
-
-
 void uiStratLayerModel::fillDisplayPars( IOPar& par ) const
 {
     modtools_->fillPar( par );

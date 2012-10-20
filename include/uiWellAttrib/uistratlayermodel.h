@@ -124,8 +124,9 @@ protected:
     bool			closeOK();
     
     void			fillDisplayPars(IOPar&) const;
-    void			fillWorkBenchPars(IOPar&) const;
+    void			fillComputationPars(IOPar&) const;
     bool			useDisplayPars(const IOPar&);
+    bool			useComputationPars(const IOPar&);
 
 public:
 
