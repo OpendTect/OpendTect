@@ -324,8 +324,8 @@ void uiCheckShotEdit::drawDrift()
     for ( int idx=0; idx<maxsz; idx++ )
     {
 	const float dah = longermdl->dah( idx );
-	const float d2tval = orgd2t_->getTime( dah );
-	const float csval = cs_->getTime( dah );
+	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
+	const float csval = cs_->getTime( dah, wd_.track() );
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
 	driftcurve_.add( dah, drift ); 
     }
@@ -338,7 +338,7 @@ void uiCheckShotEdit::drawDrift()
     for ( int idx=0; idx<sz2; idx++ )
     {
 	const float dah = cs_->dah( idx );
-	const float d2tval = orgd2t_->getTime( dah );
+	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
 	const float csval = cs_->value( idx );
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
 	uiWellDahDisplay::PickData pd( dah, Color::stdDrawColor( 0 ) );
@@ -362,7 +362,7 @@ void uiCheckShotEdit::applyCB( CallBacker* )
     {
 	const float dah = driftcurve.dah( idx );
 	const float drift = driftcurve.value( idx );
-	const float d2tval = orgd2t_->getTime( dah );
+	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
 	const float csval = drift / SI().zDomain().userFactor() + d2tval;
 	tmpcs.add( dah, csval ); 
     }

@@ -99,7 +99,7 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
 	if ( !bid.inl && !bid.crl ) continue;
 
 	if ( SI().zIsTime() && wd_->d2TModel() )
-	    pos.z = wd_->d2TModel()->getTime( md );
+	    pos.z = wd_->d2TModel()->getTime( md, wd_->track() );
 	bidset_.add( bid, (float) pos.z, (float)idx );
 	depths_ += md;
 	positions_ += BinIDValueSet::Pos(0,0);

@@ -66,7 +66,7 @@ public:
     			//!< will interpolate x,y coords
 
     bool		alwaysDownward() const;
-    void		toTime(const D2TModel&);
+    void		toTime(const D2TModel&, const Track&);
 
 protected:
 

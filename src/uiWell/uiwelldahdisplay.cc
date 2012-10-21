@@ -191,10 +191,10 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
 
     float startpos = ld.zrg_.start = ld.dahobj_->dah( 0 );
     float stoppos = ld.zrg_.stop = ld.dahobj_->dah( sz-1 );
-    if ( zdata_.zistime_ && d2T() && d2T()->size() > 1 )
+    if ( zdata_.zistime_ && d2T() && d2T()->size() > 1 && track() )
     {
-	startpos = d2T()->getTime( startpos )*1000;
-	stoppos = d2T()->getTime( stoppos )*1000;
+	startpos = d2T()->getTime( startpos, *track() )*1000;
+	stoppos = d2T()->getTime( stoppos, *track() )*1000;
     }
     else if ( !zdata_.zistime_ && track() )
     {

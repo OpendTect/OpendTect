@@ -299,7 +299,7 @@ void uiTieView::drawViewerWellMarkers()
 	if ( !mrkdisp.selmarkernms_.isPresent( marker->name() ) )
 	    continue;
 	
-	float zpos = d2tm->getTime( marker->dah() );
+	float zpos = d2tm->getTime( marker->dah(), wd->track() );
 	
 	if ( !zrange_.includes( zpos, true ) )
 	    continue;

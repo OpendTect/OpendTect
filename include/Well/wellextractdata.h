@@ -106,7 +106,8 @@ protected:
     void		getLimitPos(const MarkerSet&,bool,float&,
 				    const Interval<float>&) const;
     void		snapZRangeToSurvey(Interval<float>&,bool,
-	    				  const D2TModel*) const;
+	    				  const D2TModel*,
+					  const Track&) const;
 };
 
 
@@ -333,6 +334,7 @@ public:
 				const BufferStringSet& lognms);
 
 			LogSampler(const Well::D2TModel* d2t,
+				const Well::Track* track,
 				const Interval<float>& zrg, bool zrgintime,
 				float zstep, bool extractintime,
 				Stats::UpscaleType samppol,
@@ -352,9 +354,8 @@ public:
     Interval<float> 	zRange() const 	{ return zrg_; } //can be in time
 
 protected:
-    void 		init (const Well::D2TModel* d2t,
-			    const Interval<float>& zrg, bool zrgintime,
-			    float zstep, bool extractintime,
+    void 		init (const Well::D2TModel*,const Interval<float>&,
+	    		    bool zrgintime,float zstep, bool extractintime,
 			    Stats::UpscaleType samppol);
 
     od_int64            	nrIterations() const;
@@ -364,6 +365,7 @@ protected:
     bool 			doWork(od_int64,od_int64,int);
 
     const Well::D2TModel* 	d2t_;
+    const Well::Track&		track_;
     Interval<float>		zrg_;
     float			zstep_; 
     bool 			extrintime_;

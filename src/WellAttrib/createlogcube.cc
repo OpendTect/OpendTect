@@ -129,8 +129,8 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
     const Well::D2TModel* d2t = wd_.d2TModel();
     if ( SI().zIsTime() && !extractparams_.isInTime() && d2t )
     {
-	zrg.start = d2t->getTime( zrg.start );
-	zrg.stop = d2t->getTime( zrg.stop );
+	zrg.start = d2t->getTime( zrg.start, wd_.track() );
+	zrg.stop = d2t->getTime( zrg.stop, wd_.track() );
     }
     zrg.step = trc.info().sampling.step;
     for ( int idztrc=0; idztrc<trc.size(); idztrc++ )

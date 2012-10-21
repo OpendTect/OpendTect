@@ -210,7 +210,8 @@ void Well::ZRangeSelector::setMarker( bool top, BufferString nm, float offset )
 
 
 void Well::ZRangeSelector::snapZRangeToSurvey(Interval<float>& zrg,bool zistime,
-					      const Well::D2TModel* d2t ) const
+					      const Well::D2TModel* d2t,
+       					      const Well::Track& track) const
 {
     if ( !snapzrgtosurvey_ ) 
 	return;
@@ -219,8 +220,8 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<float>& zrg,bool zistime,
     if ( SI().zIsTime() && !zistime )
     {
 	if ( !d2t ) return;
-	zrg.start = survrg.snap( d2t->getTime( zrg.start ) );
-	zrg.stop = survrg.snap( d2t->getTime( zrg.stop ) );
+	zrg.start = survrg.snap( d2t->getTime( zrg.start, track ) );
+	zrg.stop = survrg.snap( d2t->getTime( zrg.stop, track ) );
 	zrg.start = d2t->getDah( zrg.start );
 	zrg.stop = d2t->getDah( zrg.stop );
     }
@@ -271,7 +272,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
     if ( zselection_ == Times )
     {
 	Interval<float> rg( fixedzrg_ );
-	snapZRangeToSurvey( rg, true, wd.d2TModel() );
+	snapZRangeToSurvey( rg, true, wd.d2TModel(), wd.track() );
 	return rg;
     }
 
@@ -290,7 +291,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 	    dahrg.stop = track.getDahForTVD( fixedzrg_.stop );
 	    dahrg.limitTo( track.dahRange() );
 	}
-	snapZRangeToSurvey( dahrg, false, 0 );
+	snapZRangeToSurvey( dahrg, false, 0, wd.track() );
 	return dahrg;
     }
 
@@ -322,7 +323,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 	mDah2TVD( dahrg.start, dahrg.start );
 	mDah2TVD( dahrg.stop, dahrg.stop );
     }
-    snapZRangeToSurvey( dahrg, false, 0 );
+    snapZRangeToSurvey( dahrg, false, 0, wd.track() );
     return dahrg;
 }
 
@@ -514,7 +515,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
     float zpos = dahrg.start;
     if ( extractintime )
     {
-	zpos = zrgistime ? zrg_.start : d2t->getTime( zpos );
+	zpos = zrgistime ? zrg_.start : d2t->getTime( zpos, wd.track() );
     }
     zpos -= zincr;
 
@@ -558,7 +559,7 @@ bool Well::TrackSampler::getPos( const Well::Data& wd, float dah,
     biv.binid = SI().transform( pos );
     if ( SI().zIsTime() && wd.d2TModel() )
     {
-	pos.z = wd.d2TModel()->getTime( dah );
+	pos.z = wd.d2TModel()->getTime( dah, wd.track() );
 	if ( mIsUdf(pos.z) )
 	    return false;
     }
@@ -664,7 +665,7 @@ int Well::LogDataExtracter::nextStep()
     {
 	if ( !wr.getD2T() ) mRetNext()
 	timetrack = new Well::Track( wd.track() );
-	timetrack->toTime( *wd.d2TModel() );
+	timetrack->toTime( *wd.d2TModel(), wd.track() );
     }
     const Well::Track& track = zistime_ ? *timetrack : wd.track();
     if ( track.size() < 2 ) mRetNext()
@@ -904,10 +905,10 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Well::Track& t,
     float zstart = track_.dah( 0 );
     if ( d2t )
     {
-	zstart = d2t->getTime( zstart );
-	zstop = d2t->getTime( zstop );
-	extrintv_.start = d2t->getTime( extrintv_.start );
-	extrintv_.stop = d2t->getTime( extrintv_.stop );
+	zstart = d2t->getTime( zstart, track_ );
+	zstop = d2t->getTime( zstop, track_ );
+	extrintv_.start = d2t->getTime( extrintv_.start, track_ );
+	extrintv_.stop = d2t->getTime( extrintv_.stop, track_ );
     }
     tracklimits_.start = zstart;
     tracklimits_.stop = zstop; 
@@ -952,6 +953,7 @@ int Well::SimpleTrackSampler::nextStep()
 Well::LogSampler::LogSampler( const Well::Data& wd, 
 			    const Well::ExtractParams& pars, 
 			    const BufferStringSet& lognms )
+    : track_( wd.track() )
 {
     init( wd.d2TModel(), pars.calcFrom(wd,lognms), pars.isInTime(), 
 	    pars.zstep_, pars.extractzintime_, pars.samppol_ );
@@ -963,11 +965,12 @@ Well::LogSampler::LogSampler( const Well::Data& wd,
 }
 
 
-Well::LogSampler::LogSampler( const Well::Data& wd, 
+Well::LogSampler::LogSampler( const Well::Data& wd,
 			    const Interval<float>& zrg, bool zrgisintime,
 			    float zstep, bool extrintime,
 			    Stats::UpscaleType samppol,
 			    const BufferStringSet& lognms )
+    : track_( wd.track() )
 { 
     init( wd.d2TModel(), zrg, zrgisintime, zstep, extrintime, samppol);
     for ( int idx=0; idx<lognms.size(); idx++ ) 
@@ -978,11 +981,13 @@ Well::LogSampler::LogSampler( const Well::Data& wd,
 }
 
 
-Well::LogSampler::LogSampler( const Well::D2TModel* d2t, 
+Well::LogSampler::LogSampler(const Well::D2TModel* d2t,
+			    const Well::Track* track,
 			    const Interval<float>& zrg, bool zrgisintime,
 			    float zstep, bool extrintime,
 			    Stats::UpscaleType samppol,
 			    const ObjectSet<const Well::Log>& logs )
+    : track_( *track )
 { 
     init( d2t, zrg, zrgisintime, zstep, extrintime, samppol );
     logset_ = logs;
@@ -990,7 +995,7 @@ Well::LogSampler::LogSampler( const Well::D2TModel* d2t,
 
 
 
-void Well::LogSampler::init( const Well::D2TModel* d2t, 
+void Well::LogSampler::init( const Well::D2TModel* d2t,
 			const Interval<float>& zrg, bool zrgisintime,
 			float zstep, bool extrintime,
 			Stats::UpscaleType samppol )
@@ -1042,7 +1047,7 @@ bool Well::LogSampler::doPrepare( int thread )
     float time = mUdf(float);
     if ( extrintime_ )
     {
-	time = zrgisintime_ ? zrg_.start : d2t_->getTime( dah );
+	time = zrgisintime_ ? zrg_.start : d2t_->getTime( dah, track_ );
 	time -= zstep_;
     }
     else

@@ -189,13 +189,20 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     zinftbox->attach( rightOf, elevfld );
     zinftbox->setChecked( SI().depthsInFeetByDefault() );
 
+    dispval = info.replvel;
+    if ( mIsUdf(info.groundelev) ) dispval = mUdf(float);
     BufferString str = "Replacement velocity "; str += "(";
     str += UnitOfMeasure::zUnitAnnot( false, true, false );
     str += "/s)";
-    replvelfld = new uiGenInput( this, str, FloatInpSpec() );
+    replvelfld = new uiGenInput( this, str, FloatInpSpec(dispval) );
     replvelfld->attach( alignedBelow, elevfld );
 
-    gdelevfld = new uiGenInput( this, "Ground level elevation", FloatInpSpec());
+    dispval = info.groundelev;
+    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.groundelev) && zun_ )
+	dispval = zun_->userValue( info.groundelev );
+    if ( mIsUdf(info.groundelev) ) dispval = mUdf(float);
+    gdelevfld = new uiGenInput( this, "Ground level elevation",
+       				       FloatInpSpec(dispval) );
     gdelevfld->attach( alignedBelow, replvelfld );
     zinftbox = new uiCheckBox( this, "Feet" );
     zinftbox->attach( rightOf, gdelevfld );

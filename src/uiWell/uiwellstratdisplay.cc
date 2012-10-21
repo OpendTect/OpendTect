@@ -134,7 +134,8 @@ void WellStratUnitGen::gatherLeavedUnits()
 	    {
 		float pos = mrk->dah();
 		if ( SI().zIsTime() && d2tmodel_ ) 
-		    pos = d2tmodel_->getTime(pos)*SI().zDomain().userFactor(); 
+		    pos = d2tmodel_->getTime(pos, track_)*
+			  SI().zDomain().userFactor(); 
 		else
 		    pos = (float) track_.getPos( pos ).z;
 

@@ -134,8 +134,8 @@ bool DataPlayer::doFullSynthetics()
     const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
 						  : data_.estimatedwvlt_;
     StepInterval<float> reflrg = workrg_;
-    reflrg.start = d2t_->getTime( data_.dahrg_.start );
-    reflrg.stop  = d2t_->getTime( data_.dahrg_.stop );
+    reflrg.start = d2t_->getTime( data_.dahrg_.start, wd_->track() );
+    reflrg.stop  = d2t_->getTime( data_.dahrg_.stop, wd_->track() );
     if ( disprg_.start > reflrg.start )
 	reflrg.start = workrg_.start; 
     if ( disprg_.stop < reflrg.stop )

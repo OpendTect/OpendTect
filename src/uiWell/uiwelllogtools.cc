@@ -69,7 +69,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
 	Well::LogSet* wls = new Well::LogSet( wd.logs() );
 	uiWellLogToolWin::LogData* ldata = 
-	    new uiWellLogToolWin::LogData( *wls, wd.d2TModel());
+	    new uiWellLogToolWin::LogData( *wls, wd.d2TModel(), &wd.track());
 	const Well::ExtractParams& params = welllogselfld_->params();
 	ldata->dahrg_ = params.calcFrom( wd, lognms, false );
 	ldata->wellname_ = wellnms[idx]->buf();
@@ -112,10 +112,12 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 
 
 uiWellLogToolWin::LogData::LogData( const Well::LogSet& ls, 
-				    const Well::D2TModel* d2t )
+				    const Well::D2TModel* d2t,
+       				    const Well::Track* track )
     : logs_(*new Well::LogSet)
 {
     d2t_ = d2t ? new Well::D2TModel(*d2t) : 0;
+    track_ = track ? new Well::Track(*track) : 0;
     for ( int idx=0; idx<ls.size(); idx++ )
 	logs_.add( new Well::Log( ls.getLog( idx ) ) );
 }
@@ -423,7 +425,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		ObjectSet<const Well::Log> reslogs;
 		reslogs += outplog;
 		Stats::UpscaleType ut = Stats::TakeNearest;
-		Well::LogSampler ls( ld.d2t_, dahrg, false, 
+		Well::LogSampler ls( ld.d2t_, ld.track_, dahrg, false, 
 					step, SI().zIsTime(), 
 					ut, reslogs );
 		ls.execute();

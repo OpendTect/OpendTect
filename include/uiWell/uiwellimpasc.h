@@ -42,6 +42,7 @@ protected:
     uiCheckBox*		havetrckbox_;
     uiGenInput*		coordfld_;
     uiGenInput*		kbelevfld_;
+    uiGenInput*		replvelfld_;
     uiGenInput*		tdfld_;
     uiLabel*		vertwelllbl_;
 

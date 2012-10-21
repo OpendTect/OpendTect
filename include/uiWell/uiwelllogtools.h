@@ -32,7 +32,7 @@ class uiSpinBox;
 class uiWellLogDisplay;
 
 
-namespace Well { class Data; class Log; class LogSet; class D2TModel; }
+namespace Well { class Data; class Log; class LogSet; class D2TModel; class Track; }
 
 
 mClass(uiWell) uiWellLogToolWin : public uiMainWin
@@ -42,7 +42,8 @@ public:
     mStruct(uiWell) LogData
     {
 				LogData(const Well::LogSet&,
-					const Well::D2TModel*);
+					const Well::D2TModel*,
+					const Well::Track*);
 				~LogData();
 
 	MultiID			wellid_;
@@ -60,6 +61,7 @@ public:
 	ObjectSet<Well::Log>	outplogs_;
 
 	const Well::D2TModel* 	d2t_;
+	const Well::Track*	track_;
 
 	friend class		uiWellLogToolWin;
     };

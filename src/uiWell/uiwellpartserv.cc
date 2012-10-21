@@ -370,7 +370,8 @@ bool uiWellPartServer::showAmplSpectrum( const MultiID& mid, const char* lognm )
     if ( SI().zIsTime() && wd->haveD2TModel() )
     {
 	const Well::D2TModel& d2t = *wd->d2TModel();
-	resamprg.set(d2t.getTime(resamprg.start),d2t.getTime(resamprg.stop),1);
+	resamprg.set(d2t.getTime(resamprg.start, wd->track()),
+		     d2t.getTime(resamprg.stop, wd->track()),1);
 	resamprg.step /= SI().zDomain().userFactor();
 	resampsz = resamprg.nrSteps(); 
 	for ( int idx=0; idx<resampsz; idx++ )

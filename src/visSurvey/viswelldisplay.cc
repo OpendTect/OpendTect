@@ -340,7 +340,7 @@ TypeSet<Coord3> WellDisplay::getTrackPos( const Well::Data* wd )
     if ( zistime_ )
     {
 	mTryAlloc( ttrack, Well::Track( wd->track() ) );
-	ttrack->toTime( *d2t );
+	ttrack->toTime( *d2t , wd->track() );
     }
     const Well::Track& track = zistime_ ? *ttrack : wd->track();
 
@@ -377,7 +377,7 @@ void WellDisplay::updateMarkers( CallBacker* )
 	if ( !pos.x && !pos.y && !pos.z ) continue;
 
 	if ( zistime_ )
-	    pos.z = wd->d2TModel()->getTime( wellmarker->dah() );
+	    pos.z = wd->d2TModel()->getTime( wellmarker->dah(), wd->track() );
 
 	if ( mIsUdf( pos.z ) )
 	    continue;
@@ -465,7 +465,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	    maxval = val;
 
 	if ( zistime_ )
-	    pos.z = wd->d2TModel()->getTime( dah );
+	    pos.z = wd->d2TModel()->getTime( dah, wd->track() );
 
 	if ( mIsUdf( pos.z ) )
 	    continue;
@@ -624,7 +624,7 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     if ( zistime_ && wd->haveD2TModel() )
     {
 	mTryAlloc( ttrack, Well::Track( wd->track() ) );
-	ttrack->toTime( *wd->d2TModel() );
+	ttrack->toTime( *wd->d2TModel(), wd->track() );
     }
     const Well::Track& track = zistime_ ? *ttrack : wd->track();
 

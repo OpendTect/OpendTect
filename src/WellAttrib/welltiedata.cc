@@ -230,7 +230,8 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 		|| ( !bynames && hd.id_ >=0 && hd.id_ == mrk.levelID() ))
 	    {
 		PosCouple pc; pcs += pc;
-		pc.z1_ = dtm->getTime(mrk.dah())*SI().zDomain().userFactor(); 
+		pc.z1_ = dtm->getTime(mrk.dah(), wd_->track())*
+		    		      SI().zDomain().userFactor(); 
 		pc.z2_ = hd.zpos_;
 	    }
 	}

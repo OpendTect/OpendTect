@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "welld2tmodel.h"
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -96,12 +97,21 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	    return "Cannot generate D2Time model without track";
 	
 	d2t.erase();
+	const UnitOfMeasure* zun_ = UnitOfMeasure::surveyDefDepthUnit();
+	float srd = -wd.info().surfaceelev;
+	const float kb  = wd.track().dah(0)-wd.track().pos(0).z;
+	if ( SI().depthsInFeetByDefault() &&
+	     !mIsUdf(wd.info().surfaceelev) && zun_ )
+	    srd = zun_->userValue( -wd.info().surfaceelev );
+	if ( mIsZero(srd,0.01) ) srd = 0;
 	const float twtvel = velfld_->getfValue() * .5f;
+	const float bulkshift = mIsUdf( wd.info().replvel ) ? 0 : ( kb-srd )*
+				( (1 / twtvel) - (2 / wd.info().replvel) );
 	for ( int idx=0; idx<wd.track().size(); idx++ )
 	{
 	    const float tvd = (float)wd.track().pos(idx).z;
 	    const float dah = wd.track().dah(idx);
-	    d2t.add( dah, ( tvd-wd.info().surfaceelev ) / twtvel );
+	    d2t.add( dah, ( tvd+srd ) / twtvel + bulkshift );
 	}
     }
     else
