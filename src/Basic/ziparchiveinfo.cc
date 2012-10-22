@@ -45,7 +45,7 @@ bool ZipArchiveInfo::getAllFnms( BufferStringSet& fnms ) const
     if ( !isok_ )
 	return false;
 
-    for( int idx=0; idx<fileinfo_.size(); idx++ )
+    for( od_int32 idx=0; idx<fileinfo_.size(); idx++ )
 	fnms.add( fileinfo_[idx]->fnm_ );
 
     return true;
@@ -58,7 +58,7 @@ od_int64 ZipArchiveInfo::getFileCompSize( const char* fnm ) const
 	return -1;
 
     BufferString filenm = fnm;
-    for( int idx=0; idx<fileinfo_.size(); idx++ )
+    for( od_int32 idx=0; idx<fileinfo_.size(); idx++ )
 	if ( filenm.matches( fileinfo_[idx]->fnm_ ) )
 	    return fileinfo_[idx]->compsize_;
 
@@ -68,7 +68,7 @@ od_int64 ZipArchiveInfo::getFileCompSize( const char* fnm ) const
 }
 
 
-od_int64 ZipArchiveInfo::getFileCompSize( int idx ) const
+od_int64 ZipArchiveInfo::getFileCompSize( od_int32 idx ) const
 {
     if ( !isok_ )
 	return -1;
@@ -87,7 +87,7 @@ od_int64 ZipArchiveInfo::getFileUnCompSize( const char* fnm ) const
 	return -1;
 
     BufferString filenm = fnm;
-    for( int idx=0; idx<fileinfo_.size(); idx++ )
+    for( od_int32 idx=0; idx<fileinfo_.size(); idx++ )
 	if ( filenm.matches( fileinfo_[idx]->fnm_ ) )
 	    return fileinfo_[idx]->uncompsize_;
 
@@ -96,7 +96,7 @@ od_int64 ZipArchiveInfo::getFileUnCompSize( const char* fnm ) const
     return -1;
 }
 
-od_int64 ZipArchiveInfo::getFileUnCompSize( int idx ) const
+od_int64 ZipArchiveInfo::getFileUnCompSize( od_int32 idx ) const
 {
     if ( !isok_ )
 	return -1;
@@ -117,7 +117,7 @@ od_int64 ZipArchiveInfo::getLocalHeaderOffset( const char* fnm ) const
 	return -1;
 
     BufferString filenm = fnm;
-    for( int idx=0; idx<fileinfo_.size(); idx++ )
+    for( od_int32 idx=0; idx<fileinfo_.size(); idx++ )
     {
 	if ( filenm.matches( fileinfo_[idx]->fnm_ ) )
 	    return fileinfo_[idx]->localheaderoffset_;
@@ -129,7 +129,7 @@ od_int64 ZipArchiveInfo::getLocalHeaderOffset( const char* fnm ) const
 }
 
 
-od_int64 ZipArchiveInfo::getLocalHeaderOffset( int idx ) const
+od_int64 ZipArchiveInfo::getLocalHeaderOffset( od_int32 idx ) const
 {
     if ( !isok_ )
 	return -1;

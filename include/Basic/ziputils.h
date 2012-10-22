@@ -84,10 +84,10 @@ public:
 
 protected:
 
-    int				nextStep();
+    od_int32				nextStep();
     ZipHandler&			ziphd_;
-    int				nrdone_;
-    int				nrdir_;
+    od_int32				nrdone_;
+    od_int32				nrdir_;
 };
 
 
@@ -106,9 +106,9 @@ public:
 
 protected:
 
-    int				nextStep();
+    od_int32				nextStep();
     ZipHandler&			ziphd_;
-    int				nrdone_;
+    od_int32				nrdone_;
 };
 
 

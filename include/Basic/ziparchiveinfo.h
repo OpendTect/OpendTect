@@ -35,12 +35,12 @@ public:
 
     //!< All sizes in Bytes
     od_int64			getFileCompSize(const char* fnm) const;
-    od_int64			getFileCompSize(int) const;
+    od_int64			getFileCompSize(od_int32) const;
     od_int64			getFileUnCompSize(const char* fnm)const;
-    od_int64			getFileUnCompSize(int)const;
+    od_int64			getFileUnCompSize(od_int32)const;
 
     od_int64			getLocalHeaderOffset(const char* fnm)const;
-    od_int64			getLocalHeaderOffset(int)const;
+    od_int64			getLocalHeaderOffset(od_int32)const;
 
 protected:
 

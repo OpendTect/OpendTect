@@ -43,7 +43,7 @@ ________________________________________________________________________
 
 #define mInsertToCharBuff( inserttobuffer, datatype, insertat, len) \
     buf = ( char* ) &datatype;\
-    for( int idx=0; idx<len; idx++ ) \
+    for( od_int32 idx=0; idx<len; idx++ ) \
     { \
 	inserttobuffer[insertat+idx] = *(buf + idx); \
     } \
@@ -74,18 +74,18 @@ mClass(Basic) ZipFileInfo
 public:
 
 				ZipFileInfo(const char* fnm, 
-				    unsigned int compsize, 
-				    unsigned int uncompsize,
-				    unsigned int offset)
+				    od_uint32 compsize, 
+				    od_uint32 uncompsize,
+				    od_uint32 offset)
 				: fnm_(fnm)
 				, compsize_(compsize) 
 				, uncompsize_(uncompsize)
 				, localheaderoffset_(offset)	{}
 
     BufferString		fnm_;
-    unsigned int		compsize_;
-    unsigned int		uncompsize_;
-    unsigned int		localheaderoffset_;
+    od_uint32			compsize_;
+    od_uint32			uncompsize_;
+    od_uint32			localheaderoffset_;
 
 };
 
@@ -115,11 +115,11 @@ public:
 						ObjectSet<ZipFileInfo>&);
 
     bool			getBitValue(const unsigned char byte,
-							int bitposition)const;
-    void			setBitValue(unsigned char& byte, 
-					    int bitposition, bool value)const;
+						od_int32 bitposition)const;
+    void			setBitValue(unsigned char& byte, od_int32 
+						bitposition, bool value)const;
 
-	void			setNrLevel(int level){ nrlevels_ = level; }
+	void			setNrLevel(od_int32 level){ nrlevels_ = level; }
 
 protected:
 
@@ -136,22 +136,22 @@ protected:
 
     bool			manageDir(const char*);
     bool			doZCompress();
-    int				openStrmToRead(const char* src); 
+    od_int32			openStrmToRead(const char* src); 
     bool			setLocalFileHeader();
     bool			setLocalFileHeaderForDir();
     bool			setCentralDirHeader();
-    bool			setEndOfCentralDirHeader(int);
+    bool			setEndOfCentralDirHeader(od_int32);
 
-    short			dateInDosFormat(const char*)const;
-    short			timeInDosFormat(const char*)const;
+    od_int16			dateInDosFormat(const char*)const;
+    od_int16			timeInDosFormat(const char*)const;
     bool			setTimeDateModified();
 
     const BufferStringSet&	getAllFileNames() { return allfilenames_; }
     std::ostream&		getDestStream()const { return *osd_.ostrm; }
     std::istream&		getSrcStream()const { return *isd_.istrm; }
-    unsigned int		getCumulativeFileCount()const 
+    od_uint32			getCumulativeFileCount()const 
 					{ return cumulativefilecount_.last(); }
-	int			getCumulativeFileCount(int)const;
+    od_int32			getCumulativeFileCount(od_int32)const;
     void			closeDestStream() { osd_.close(); }
     void			closeSrcStream() { isd_.close(); }
     StreamData			makeOStreamForAppend(const char*)const;
@@ -162,34 +162,34 @@ protected:
     BufferStringSet		allfilenames_;
     
     BufferString		srcfile_ ;
-    unsigned int		srcfilesize_;
+    od_uint32			srcfilesize_;
     BufferString		srcfnm_;
-    unsigned short		srcfnmsize_;
+    od_uint16			srcfnmsize_;
 
     BufferString		destbasepath_;
     BufferString		destfile_;
-    unsigned int		destfilesize_ ;
+    od_uint32			destfilesize_ ;
     BufferString		destfnm_;
 
-    unsigned short		compmethod_;
-    int				complevel_;
+    od_uint16			compmethod_;
+    od_int32			complevel_;
     
-    int				nrlevels_;
+    od_int32			nrlevels_;
 
-    unsigned int		initialfilecount_;
-    TypeSet<unsigned int>	cumulativefilecount_;
+    od_uint32			initialfilecount_;
+    TypeSet<od_uint32>		cumulativefilecount_;
     
-    unsigned short		version_;
-    unsigned short		lastmodtime_;
-    unsigned short		lastmoddate_;
+    od_uint16			version_;
+    od_uint16			lastmodtime_;
+    od_uint16			lastmoddate_;
     
-    unsigned short		xtrafldlth_ ;
-    unsigned short		commentlen_;
+    od_uint16			xtrafldlth_ ;
+    od_uint16			commentlen_;
 
-    unsigned long		crc_;
+    od_uint32			crc_;
 
-    unsigned int		sizeofcentraldir_;
-    unsigned int		offsetofcentraldir_;
+    od_uint32			sizeofcentraldir_;
+    od_uint32			offsetofcentraldir_;
 
     StreamData			osd_;
     StreamData			isd_;

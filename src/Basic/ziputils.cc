@@ -179,7 +179,7 @@ bool ZipUtils::appendToArchive( const char* srcfnm, const char* fnm,
 }
 
 
-int Zipper::nextStep()
+od_int32 Zipper::nextStep()
 {
     if ( ziphd_.getCumulativeFileCount(nrdir_) == nrdone_ )
     {
@@ -188,7 +188,7 @@ int Zipper::nextStep()
 	ziphd_.setNrLevel( fp.nrLevels() );
     }
 
-    int ret;
+    od_int32 ret;
     ret = ziphd_.openStrmToRead(ziphd_.getAllFileNames().get(nrdone_));
     if ( ret == 0 )
     {
@@ -212,7 +212,7 @@ int Zipper::nextStep()
     if ( nrdone_ < totalNr() )
 	return MoreToDo();
 
-    int ptrlctn = ziphd_.getDestStream().tellp();
+    od_int32 ptrlctn = ziphd_.getDestStream().tellp();
     ret = ziphd_.setCentralDirHeader();
     if ( !ret )
     {
@@ -269,7 +269,7 @@ bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, const char* path,
 }
 
 
-int UnZipper::nextStep()
+od_int32 UnZipper::nextStep()
 {
     bool ret = ziphd_.readFileHeader(); 
     if ( ret == 0)
