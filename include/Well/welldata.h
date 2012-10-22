@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "fixedstring.h"
 #include "sets.h"
 #include "position.h"
 #include "namedobj.h"
@@ -56,6 +57,13 @@ public:
     static const char*	sKeycounty();
     static const char*	sKeycoord();
     static const char*	sKeyelev();
+
+    float 		getReplVel() const;
+    float 		getGroundElev() const;
+    void		setReplVel(float);
+    void		setGroundElev(float);
+    inline FixedString	getsKeyreplvel() { return "Replacement velocity"; }
+    inline FixedString	getsKeygroundelev() { return "Ground level elevation"; }
 
 };
 
