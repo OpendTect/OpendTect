@@ -781,6 +781,27 @@ visBase::OrthogonalSlice* MPEDisplay::getSlice( int index )
 }
 
 
+void MPEDisplay::alignSliceToSurvey( visBase::OrthogonalSlice& slice )
+{
+    Coord3 center = slice.getDragger()->center();
+
+    if ( voltrans_ )
+	center = voltrans_->transform( center );
+
+    if ( slice.getDim() == cInLine() )
+	center.x = SI().inlRange(true).snap( center.x );
+    if ( slice.getDim() == cCrossLine() )
+	center.y = SI().crlRange(true).snap( center.y );
+    if ( slice.getDim() == cTimeSlice() )
+	center.z = SI().zRange(true).snap( center.z );
+
+    if ( voltrans_ )
+	center = voltrans_->transformBack( center );
+
+    slice.setCenter( center, false );
+}
+
+
 void MPEDisplay::setCubeSampling( const CubeSampling& cs )
 {
     const Interval<float> xintv( cs.hrg.start.inl, cs.hrg.stop.inl );
@@ -791,9 +812,12 @@ void MPEDisplay::setCubeSampling( const CubeSampling& cs )
     voltrans_->setRotation( Coord3( 0, 1, 0 ), M_PI_2 );
     voltrans_->setScale( Coord3(-zintv.width(),yintv.width(),xintv.width()) );
     for ( int idx=0; idx<slices_.size(); idx++ )
+    {
 	slices_[idx]->setSpaceLimits( Interval<float>(-0.5,0.5),
-		Interval<float>(-0.5,0.5),
-		Interval<float>(-0.5,0.5) );
+				      Interval<float>(-0.5,0.5),
+				      Interval<float>(-0.5,0.5) );
+	alignSliceToSurvey( *slices_[idx] );
+    }
 
     resetManipulation();
 }
@@ -1070,6 +1094,8 @@ int MPEDisplay::addSlice( int dim, bool show )
     const CubeSampling cs = getCubeSampling( 0 );
     const Interval<float> defintv(-0.5,0.5);
     slice->setSpaceLimits( defintv, defintv, defintv );
+    alignSliceToSurvey( *slice );
+
     if ( volumecache_ )
     {
 	const Array3D<float>& arr = volumecache_->cube().getCube(0);

@@ -174,6 +174,8 @@ protected:
     			~MPEDisplay();
     CubeSampling	getBoxPosition() const;
     void		setPlanePosition(const CubeSampling&);
+
+    void		alignSliceToSurvey(visBase::OrthogonalSlice&);
 	
     void		setSceneEventCatcher(visBase::EventCatcher*);
 	
@@ -207,7 +209,6 @@ protected:
     
     // texture channel-related methods
     bool		updateFromCacheID(int attrib, TaskRunner* tr);
-
 
     MPE::Engine&		engine_;
     visBase::BoxDragger*	boxdragger_;
