@@ -68,6 +68,7 @@ public:
     Notifier<uiStratLayerModel>	levelChanged;
     Notifier<uiStratLayerModel>	waveletChanged;
     Notifier<uiStratLayerModel> saveRequired;   // CallBacker: CBCapsule<IOPar>
+    Notifier<uiStratLayerModel> retireveRequired;// CallBacker: CBCapsule<IOPar>
 
     bool			checkUnscaledWavelet();
 

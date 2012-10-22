@@ -581,6 +581,11 @@ bool uiStratLayerModel::openGenDesc()
     seqdisp_->setNeedSave( false );
     lmp_.setEmpty();
     seqdisp_->descHasChanged();
+
+    CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(), 
+	    		    const_cast<uiStratLayerModel*>(this) );
+    const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
+
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
     delete elpropsel_; elpropsel_ = 0;
