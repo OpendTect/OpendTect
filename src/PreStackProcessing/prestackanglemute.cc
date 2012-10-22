@@ -211,7 +211,6 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 
 AngleMute::AngleMute()
     : Processor( sFactoryKeyword() )
-    , muter_( 0 )
 {
     params_ = new AngleMutePars();
 }
@@ -219,24 +218,25 @@ AngleMute::AngleMute()
 
 AngleMute::~AngleMute()
 { 
-    delete muter_;
+    deepErase( muters_ );
 }
 
 
 bool AngleMute::doPrepare( int nrthreads )
 {
     deepErase( rtrunners_ );
+    deepErase( muters_ );
 
     if ( !setVelocityFunction() )
 	return false;
 
     raytraceparallel_ = nrthreads < Threads::getNrProcessors();
 
-    if ( !muter_ ) 
-	muter_ = new Muter( params().taperlen_, params().tail_ );
-
     for ( int idx=0; idx<nrthreads; idx++ )
+    {
+	muters_ += new Muter( params().taperlen_, params().tail_ );
 	rtrunners_ += new RayTracerRunner( params().raypar_ );
+    }
 
     return true;
 }
@@ -338,7 +338,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		    mutelayer = sd.getfIndex( depth );
 		}
 	    }
-	    muter_->mute( trace, nrlayers, mutelayer );
+	    muters_[thread]->mute( trace, nrlayers, mutelayer );
 	}
     }
 

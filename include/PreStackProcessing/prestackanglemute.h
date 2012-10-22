@@ -111,7 +111,7 @@ protected:
 
     BufferString	errmsg_;
     bool		raytraceparallel_;
-    Muter*		muter_;
+    ObjectSet<Muter>	muters_;
 };
 
 
