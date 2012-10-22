@@ -17,6 +17,7 @@ static const char* rcsID = "$Id$";
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "ptrman.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -557,8 +558,25 @@ void uiWellMan::mkFileInfo()
 	const float surfelev = -info.surfaceelev;
 	if ( !mIsZero(surfelev,1e-4) && !mIsUdf(surfelev) )
 	{
-	    txt += "Seismic Reference Datum"; txt += ": ";
-	    txt += zun ? zun->userValue(surfelev) : surfelev; 
+	    txt += "Seismic Reference Datum (SRD)"; txt += ": ";
+	    txt += zun ? zun->userValue(surfelev) : surfelev;
+	    txt += zun ? zun->symbol() : ""; txt += "\n";
+	}
+
+	const float replvel = info.getReplVel();
+	if ( !mIsUdf(replvel) )
+	{
+	    txt += "Replacement velocity (from KB to SRD)"; txt += ": ";
+	    txt += zun ? zun->userValue(replvel) : replvel;
+	    txt += UnitOfMeasure::zUnitAnnot( false, true, false );
+	    txt += "/s\n";
+	}
+
+	const float groundelev = info.getGroundElev();
+	if ( !mIsUdf(groundelev) )
+	{
+	    txt += "Ground level elevation (GL)"; txt += ": ";
+	    txt += zun ? zun->userValue(groundelev) : groundelev;
 	    txt += zun ? zun->symbol() : ""; txt += "\n";
 	}
     }

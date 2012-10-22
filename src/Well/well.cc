@@ -14,8 +14,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "stratlevel.h"
+#include "fixedstring.h"
 #include "idxable.h"
 #include "bendpointfinder.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "tabledef.h"
 #include "velocitycalc.h"
@@ -32,6 +34,9 @@ const char* Well::Marker::sKeyDah()	{ return "Depth along hole"; }
 const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
 const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
 const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
+
+HiddenParam<Well::Info,float> wellinforeplvelmanager( mUdf(float) );
+HiddenParam<Well::Info,float> wellinfogroundelevmanager( mUdf(float) );
 
 
 int Well::DahObj::indexOf( float dh ) const
@@ -963,6 +968,30 @@ float Well::D2TModel::getVelocity( float dh ) const
 
 #define mName "Well name"
 
+float Well::Info::getReplVel() const
+{
+    return wellinforeplvelmanager.getParam( this );
+}
+
+
+void Well::Info::setReplVel(float replvel)
+{
+    wellinforeplvelmanager.setParam( this, replvel );
+}
+
+
+float Well::Info::getGroundElev() const
+{
+    return wellinfogroundelevmanager.getParam( this );
+}
+
+
+void Well::Info::setGroundElev(float groundelev)
+{
+    wellinfogroundelevmanager.setParam( this, groundelev );
+}
+
+
 void Well::Info::fillPar(IOPar& par) const
 {
     par.set( mName, name() );
@@ -976,6 +1005,8 @@ void Well::Info::fillPar(IOPar& par) const
     par.set( sKeycoord(), coord );
 
     par.set( sKeyelev(), surfaceelev );
+    par.set( "Replacement velocity", getReplVel() );
+    par.set( "Ground level elevation", getGroundElev() );
 }
 
 void Well::Info::usePar(const IOPar& par)
@@ -991,5 +1022,11 @@ void Well::Info::usePar(const IOPar& par)
     surfacecoord.use( coord );
 
     par.get( sKeyelev(), surfaceelev );
+    float tmpreplvel;
+    par.get( "Replacement velocity", tmpreplvel );
+    setReplVel(tmpreplvel);
+    float tmpgroundelev;
+    par.get( "Ground level elevation", tmpgroundelev );
+    setGroundElev(tmpgroundelev);
 }
 

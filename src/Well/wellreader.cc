@@ -13,6 +13,8 @@ static const char* rcsID = "$Id$";
 #include "errh.h"
 #include "file.h"
 #include "filepath.h"
+#include "fixedstring.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -45,7 +47,6 @@ const char* Well::IO::sExtD2T()		{ return ".wlt"; }
 const char* Well::IO::sExtCSMdl()	{ return ".csmdl"; }
 const char* Well::IO::sExtDispProps()	{ return ".disp"; }
 const char* Well::IO::sExtWellTieSetup() { return ".tie"; }
-
 
 Well::IO::IO( const char* f, bool fr )
     	: basenm(f)
@@ -185,6 +186,8 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 	{ ErrMsg("Bad file header for main well file"); return false; }
 
     ascistream astrm( strm, false );
+    bool replvelisset = false;
+    bool groundelevisset = false;
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword(Well::Info::sKeyuwid()) )
@@ -199,7 +202,23 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 	    wd.info().surfacecoord.use( astrm.value() );
 	else if ( astrm.hasKeyword(Well::Info::sKeyelev()) )
 	    wd.info().surfaceelev = astrm.getFValue();
+	else if ( astrm.hasKeyword(wd.info().getsKeyreplvel()) )
+	{
+	    wd.info().setReplVel(astrm.getFValue());
+	    replvelisset = true;
+	}
+	else if ( astrm.hasKeyword(wd.info().getsKeygroundelev()) )
+	{
+	    wd.info().setGroundElev(astrm.getFValue());
+	    groundelevisset = true;
+	}
     }
+
+    if ( !replvelisset )
+	wd.info().setReplVel( mUdf(float) );
+
+    if ( !groundelevisset )
+	wd.info().setGroundElev( mUdf(float) );
 
     if ( !getTrack(strm) )
 	return false;

@@ -16,6 +16,8 @@ static const char* rcsID = "$Id$";
 #include "welldisp.h"
 #include "ascstream.h"
 #include "errh.h"
+#include "fixedstring.h"
+#include "hiddenparam.h"
 #include "strmprov.h"
 #include "keystrs.h"
 #include "envvars.h"
@@ -82,6 +84,8 @@ bool Well::Writer::putInfoAndTrack( std::ostream& strm ) const
 	astrm.put( Well::Info::sKeycoord(), str );
     }
     astrm.put( Well::Info::sKeyelev(), wd.info().surfaceelev );
+    astrm.put( "Replacement velocity", wd.info().getReplVel() );
+    astrm.put( "Ground level elevation", wd.info().getGroundElev() );
     astrm.newParagraph();
 
     return putTrack( strm );
