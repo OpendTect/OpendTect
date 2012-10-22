@@ -11,6 +11,7 @@ static const char* rcsID = "$Id$";
 #include "ailayer.h"
 #include "arrayndslice.h"
 #include "flatposdata.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "math.h"
@@ -203,36 +204,40 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 }
 
 
-
+HiddenParam<AngleMute,ObjectSet<Muter>* > mutersmanager(0);
 
 AngleMute::AngleMute()
     : Processor( sFactoryKeyword() )
     , muter_( 0 )
 {
     params_ = new AngleMutePars();
+    mutersmanager.setParam( this, new ObjectSet<Muter>() );
 }
 
 
 AngleMute::~AngleMute()
 { 
     delete muter_;
+    delete mutersmanager.getParam( this );
 }
 
 
 bool AngleMute::doPrepare( int nrthreads )
 {
     deepErase( rtrunners_ );
+    ObjectSet<Muter>* muters = mutersmanager.getParam( this );
+    deepErase ( *muters );
 
     if ( !setVelocityFunction() )
 	return false;
 
     raytraceparallel_ = nrthreads < Threads::getNrProcessors();
 
-    if ( !muter_ ) 
-	muter_ = new Muter( params().taperlen_, params().tail_ );
-
     for ( int idx=0; idx<nrthreads; idx++ )
+    {
+	*muters += new Muter( params().taperlen_, params().tail_ );
 	rtrunners_ += new RayTracerRunner( params().raypar_ );
+    }
 
     return true;
 }
@@ -260,6 +265,8 @@ void AngleMute::fillPar( IOPar& par ) const
 
 bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 {
+    ObjectSet<Muter>& muters = *mutersmanager.getParam( this );
+
     for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
 	Gather* output = outputs_[idx];
@@ -283,7 +290,10 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	rtrunners_[thread]->setOffsets( offsets );
 	rtrunners_[thread]->addModel( layers, true );
 	if ( !rtrunners_[thread]->execute(raytraceparallel_) )
-	    { errmsg_ = rtrunners_[thread]->errMsg(); continue; }
+	{ 
+	    errmsg_ = rtrunners_[thread]->errMsg(); 
+	    continue; 
+	}
 
 	Array1DSlice<float> trace( output->data() );
 	trace.setDimMap( 0, Gather::zDim() );
@@ -334,7 +344,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		    mutelayer = sd.getfIndex( depth );
 		}
 	    }
-	    muter_->mute( trace, nrlayers, mutelayer );
+	    muters[thread]->mute( trace, nrlayers, mutelayer );
 	}
     }
 
