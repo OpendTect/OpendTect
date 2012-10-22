@@ -62,7 +62,6 @@ public:
     IOPar&		getWorkBenchParams()	{ return workbenchparams_; }
 
 protected:
-    static const char*		sKeyWorkBenchParams();
     IOPar			workbenchparams_;
 
     const RefTree&		rt_;

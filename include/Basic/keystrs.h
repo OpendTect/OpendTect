@@ -127,6 +127,8 @@ namespace sKey
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
 
     inline FixedString Default()	{ return "Default"; }
+
+    inline FixedString WorkBenchParams(){ return "Workbench parameters"; }
 };
 
 
