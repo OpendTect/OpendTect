@@ -231,6 +231,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , levelChanged(this)				   
     , waveletChanged(this)
     , saveRequired(this) 
+    , retrieveRequired(this) 
 {
     setDeleteOnClose( true );
 
