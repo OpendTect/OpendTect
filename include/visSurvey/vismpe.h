@@ -257,6 +257,7 @@ protected:
 
     virtual SoNode*		gtInvntrNode();
 
+    void			alignSliceToSurvey(visBase::OrthogonalSlice&);
 };
 
 }; // namespace visSurvey
