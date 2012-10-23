@@ -102,9 +102,14 @@ InlineSplitJobDescProv::~InlineSplitJobDescProv()
 }
 
 
-static const BufferString outsubselkey(
+const BufferString& getOutSubSelKey()
+{
+    static const BufferString outsubselkey(
 		IOPar::compKey(sKey::Output(),sKey::Subsel()) );
-#define mGetSubselKey(s) IOPar::compKey(outsubselkey.buf(),sKey::s())
+    return outsubselkey;
+}
+
+#define mGetSubselKey(s) IOPar::compKey(getOutSubSelKey().buf(),sKey::s())
 
 void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
 {

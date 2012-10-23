@@ -42,27 +42,30 @@ static const char* rcsID mUsedVar = "$Id$";
     msg += Time::passedSince(ji.recvtime_)/1000; \
     msg += " seconds ago.";
 
-static BufferString tmpfnm_base;
 
 const BufferString& getTempBaseNm()
 {
+    static BufferString tmpfnm_base;
+    if ( tmpfnm_base.isEmpty() )
+    {
+	tmpfnm_base = HostData::localHostName();
+	tmpfnm_base += "_";
+	tmpfnm_base += GetPID();
+    }
     return tmpfnm_base;
 }
 
 
 int mkTmpFileNr()
 {
-    tmpfnm_base = HostData::localHostName();
-    tmpfnm_base += "_";
-    tmpfnm_base += GetPID();
     return 1;
 }
  
 
-static int tmpfile_nr = mkTmpFileNr();
-mGlobal( MMProc ) int MMJob_getTempFileNr(); // keep compiler happy
-int MMJob_getTempFileNr()
+mGlobal(MMProc) int& MMJob_getTempFileNr(); // keep compiler happy
+int& MMJob_getTempFileNr()
 {
+    static int tmpfile_nr = 1;
     return tmpfile_nr;
 }
 
@@ -90,9 +93,9 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
     	, curjobfp_(*new FilePath)
     	, curjobinfo_(0)
 {
-    procdir_ = GetProcFileName( tmpfnm_base );
-    procdir_ += "_"; procdir_ += tmpfile_nr;
-    tmpfile_nr++;
+    procdir_ = GetProcFileName( getTempBaseNm() );
+    procdir_ += "_"; procdir_ += MMJob_getTempFileNr();
+    MMJob_getTempFileNr()++;
 
     if ( File::exists(procdir_) && !File::isDirectory(procdir_) )
 	File::remove(procdir_);
