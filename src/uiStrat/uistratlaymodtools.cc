@@ -159,7 +159,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 			"Do not zoom into models when on",
 			mCB(this,uiStratLayModEditTools,dispZoomedCB) );
     zoomtb_->setToggleButton( true );
-    zoomtb_->setOn( true );
+    zoomtb_->setOn( false );
     zoomtb_->attach( leftOf, lithtb_ );
     rightgrp->attach( rightTo, leftgrp );
     rightgrp->attach( rightBorder );

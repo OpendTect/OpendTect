@@ -67,7 +67,10 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     mDefBut(zoominbut_,"zoomforward",zoomCB,"Zoom in");
     mDefBut(zoomoutbut_,"zoombackward",zoomCB,"Zoom out");
-    uiToolButton* mDefBut(fliplrbut,"flip_lr",flipCB,"Flip left/right");
+    if ( setup.withflip_ )
+    {
+	uiToolButton* mDefBut(fliplrbut,"flip_lr",flipCB,"Flip left/right");
+    }
     tb_->addObject( vwr_.rgbCanvas().getSaveImageButton(tb_) );
 
     tb_->addSeparator();

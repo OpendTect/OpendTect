@@ -37,6 +37,7 @@ public:
 			    , withthumbnail_(true)		      
 			    , withstates_(true)
 			    , withhanddrag_(true)
+				, withflip_(true)
 			    , tba_(-1)		      	{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
@@ -47,6 +48,7 @@ public:
 	mDefSetupMemb(bool,withstates)
 	mDefSetupMemb(int,tba)		//!< uiToolBar::ToolBarArea preference
 	mDefSetupMemb(BufferString,helpid)
+	mDefSetupMemb(bool,withflip)
     };
 
     			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
