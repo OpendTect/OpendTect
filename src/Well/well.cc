@@ -957,9 +957,27 @@ float Well::D2TModel::getTime( float dh ) const
 { return mUdf(float); }
 
 
-//TODO
 float Well::D2TModel::getTime( float dh, const Track& track ) const
-{ return TimeDepthModel::getTime( dah_.arr(), t_.arr(), size(), dh ); }
+{
+   const int dtsize = size();
+   if ( track.nrPoints() < 2 || dtsize < 2 )
+       return TimeDepthModel::getTime( dah_.arr(), t_.arr(), dtsize, dh );
+   else
+   {
+       int idahtop = 0;
+       idahtop = IdxAble::getLowIdx(dah_,dtsize,dh);
+       if ( idahtop < 0 )
+	   idahtop = 0;
+       else if ( idahtop == (dah_.size()-1) )
+	   idahtop = dtsize-2;
+
+       const float ztop = track.getPos(dah_[idahtop]).z;
+       const float zbase= track.getPos(dah_[idahtop+1]).z;
+       const float curvel = ( zbase - ztop ) / ( t_[idahtop+1] - t_[idahtop] );
+
+       return t_[idahtop] + ( track.getPos(dh).z - ztop ) / curvel;
+   }
+}
 
 
 float Well::D2TModel::getDah( float time ) const
