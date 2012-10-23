@@ -134,6 +134,8 @@ public:
 
     void			calcSelectedness();
     void			setDisp(DataPointSetDisplayProp*);
+    void			showXY(bool yn);
+    void			showZ(bool yn);
 
     mDeclInstanceCreatedNotifierAccess(uiDataPointSet);
 
