@@ -85,6 +85,14 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, dataselfld_ );
 
+    float dispval = wd_.info().surfaceelev;
+    if ( !mIsZero(dispval, 0.01) )
+	wd_.info().surfaceelev = dispval;
+
+    dispval = wd_.info().replvel;
+    if ( !mIsUdf(dispval) )
+	wd_.info().replvel = dispval;
+
     const bool zistime = SI().zIsTime();
     if ( zistime )
     {
@@ -190,7 +198,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     zinftbox->setChecked( SI().depthsInFeetByDefault() );
 
     dispval = info.replvel;
-    if ( mIsUdf(info.groundelev) ) dispval = mUdf(float);
+    if ( mIsUdf(info.replvel) ) dispval = mUdf(float);
     BufferString str = "Replacement velocity "; str += "(";
     str += UnitOfMeasure::zUnitAnnot( false, true, false );
     str += "/s)";
@@ -283,7 +291,7 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
     {
 	doWork();
 	wd_.info().surfacecoord.x = wd_.info().surfacecoord.y = 0;
-	wd_.info().surfaceelev = 0;
+	wd_.info().groundelev = mUdf(float);
     }
     return false;
 }
