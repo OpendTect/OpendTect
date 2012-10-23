@@ -48,6 +48,8 @@ public:
     void		setViewing(bool);
     bool		isViewing() const;
 
+    void		enableAnimation(bool);
+    bool		isAnimationEnabled() const;
     void		anyWheelStart();
     void		anyWheelStop();
     void		rotateH(float angle);
@@ -89,6 +91,7 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		savePropertySettings() const;
 
     void		setKeyBindings(const char* keybindname);
     void		getAllKeyBindings(BufferStringSet&);
@@ -99,6 +102,7 @@ public:
 
 private:
     static const char* sKeySceneID()    { return "Scene ID"; }
+    static const char* sKeyAnimate()	{ return "Animate"; }
     static const char* sKeyBGColor()    { return "Background color"; }
     static const char* sKeyHomePos()    { return "Home position"; }
     static const char* sKeyStereo()     { return "Stereo viewing"; }
