@@ -400,6 +400,7 @@ protected:
   * The user settings contain a 'Nr Processors' entry.
 */
 
+mGlobal(Basic) int getSystemNrProcessors();
 mGlobal(Basic) int getNrProcessors();
 mGlobal(Basic) const void* currentThread();
 

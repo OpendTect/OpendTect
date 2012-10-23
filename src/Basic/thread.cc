@@ -529,6 +529,9 @@ void Threads::Thread::waitForFinish()
 }
 
 
+int Threads::getSystemNrProcessors()
+{ return QThread::idealThreadCount(); }
+
 int Threads::getNrProcessors()
 {
     static int nrproc = -1;
@@ -558,7 +561,10 @@ int Threads::getNrProcessors()
 	}
 
 	if ( nrproc < 1 || needauto )
+	{
+	    havesett = false;
 	    nrproc = QThread::idealThreadCount();
+	}
 
 	float fnrproc = nrproc * perc * 0.01;
 	nrproc = mNINT32(fnrproc);
