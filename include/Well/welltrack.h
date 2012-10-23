@@ -63,7 +63,9 @@ public:
     			//!< will interpolate x,y coords
 
     bool		alwaysDownward() const;
-    void		toTime(const D2TModel&);
+
+    //Do not use! To be removed shortly
+    void		toTime(const D2TModel&)		{}
 
 protected:
 
@@ -74,6 +76,8 @@ protected:
     void		removeAux( int idx )		{ pos_.remove(idx); }
     void		eraseAux()			{ pos_.erase(); }
 
+public:
+    void		toTime(const D2TModel&, const Track&);
 };
 
 

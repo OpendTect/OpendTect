@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "stratlevel.h"
-#include "fixedstring.h"
 #include "idxable.h"
 #include "bendpointfinder.h"
 #include "hiddenparam.h"
@@ -887,7 +886,7 @@ bool Well::Track::alwaysDownward() const
 }
 
 
-void Well::Track::toTime( const D2TModel& d2t )
+void Well::Track::toTime( const D2TModel& d2t, const Track& track )
 {
     TypeSet<float> newdah;
     TypeSet<Coord3> newpos;
@@ -935,7 +934,7 @@ void Well::Track::toTime( const D2TModel& d2t )
     for ( int idx=0; idx<dah_.size(); idx++ )
     {
 	Coord3& pt = pos_[idx];
-	pt.z = d2t.getTime( dah_[idx] );
+	pt.z = d2t.getTime( dah_[idx], track );
     }
 
     zistime_ = true;
@@ -955,6 +954,11 @@ Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 
 
 float Well::D2TModel::getTime( float dh ) const
+{ return mUdf(float); }
+
+
+//TODO
+float Well::D2TModel::getTime( float dh, const Track& track ) const
 { return TimeDepthModel::getTime( dah_.arr(), t_.arr(), size(), dh ); }
 
 

@@ -488,7 +488,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 
     if ( extractintime )
     {
-	zpos = zrgistime ? zrg_.start : d2t->getTime( zpos );
+	zpos = zrgistime ? zrg_.start : d2t->getTime( zpos, wd.track() );
     }
     zpos -= zincr;
 
@@ -534,7 +534,7 @@ bool Well::TrackSampler::getSnapPos( const Well::Data& wd, float dah,
     biv.binid = SI().transform( pos );
     if ( SI().zIsTime() && wd.d2TModel() )
     {
-	pos.z = wd.d2TModel()->getTime( dah );
+	pos.z = wd.d2TModel()->getTime( dah, wd.track() );
 	if ( mIsUdf(pos.z) )
 	    return false;
     }
@@ -642,7 +642,7 @@ int Well::LogDataExtracter::nextStep()
     {
 	if ( !wr.getD2T() ) mRetNext()
 	timetrack = new Well::Track( wd.track() );
-	timetrack->toTime( *wd.d2TModel() );
+	timetrack->toTime( *wd.d2TModel(), wd.track() );
     }
     const Well::Track& track = zistime_ ? *timetrack : wd.track();
     if ( track.size() < 2 ) mRetNext()
@@ -883,10 +883,10 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Well::Track& t,
     float zstart = track_.dah( 0 );
     if ( d2t )
     {
-	zstart = d2t->getTime( zstart );
-	zstop = d2t->getTime( zstop );
-	extrintv_.start = d2t->getTime( extrintv_.start );
-	extrintv_.stop = d2t->getTime( extrintv_.stop );
+	zstart = d2t->getTime( zstart, track_ );
+	zstop = d2t->getTime( zstop, track_ );
+	extrintv_.start = d2t->getTime( extrintv_.start, track_ );
+	extrintv_.stop = d2t->getTime( extrintv_.stop, track_ );
     }
     tracklimits_.start = zstart;
     tracklimits_.stop = zstop; 
@@ -996,7 +996,7 @@ bool Well::LogSampler::doPrepare( int thread )
     float time = mUdf(float);
     if ( extrintime_ )
     {
-	time = zrgisintime_ ? zrg_.start : d2t->getTime( dah );
+	time = zrgisintime_ ? zrg_.start : d2t->getTime( dah, wd_.track() );
 	time -= zstep_;
     }
     else
@@ -1100,9 +1100,10 @@ void Well::LogSampler::snapZRangeToSI()
     if ( SI().zIsTime() && !zrgisintime_ )
     {
 	const Well::D2TModel* d2t = wd_.d2TModel();
+	const Well::Track& track = wd_.track();
 	if ( !d2t ) return;
-	zrg_.start = sizrg.snap( d2t->getTime( zrg_.start ) );
-	zrg_.stop = sizrg.snap( d2t->getTime( zrg_.stop ) );
+	zrg_.start = sizrg.snap( d2t->getTime( zrg_.start, track ) );
+	zrg_.stop = sizrg.snap( d2t->getTime( zrg_.stop, track ) );
 	zrg_.start = d2t->getDah( zrg_.start );
 	zrg_.stop = d2t->getDah( zrg_.stop );
     }

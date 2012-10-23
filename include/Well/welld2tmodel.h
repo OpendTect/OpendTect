@@ -30,7 +30,7 @@ public:
 			: DahObj("") 	{ *this = d2t; }
     D2TModel&		operator =(const D2TModel&);
 
-    float		getTime(float d_ah) const;
+    float		getTime(float d_ah) const;//Do not use,to be removed shortly
     float		getVelocity(float d_ah) const;
     float		getDah(float time) const;
 
@@ -61,6 +61,10 @@ protected:
 
     inline float	getDepth( float time ) const { return getDah(time); }
     			//!< Legacy, misleading name. Use getDah().
+
+public:
+    float		getTime(float d_ah,const Track&) const;
+
 
 };
 

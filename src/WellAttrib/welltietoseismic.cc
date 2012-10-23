@@ -145,8 +145,8 @@ bool DataPlayer::doFullSynthetics()
     Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
     StepInterval<float> reflrg = disprg_;
     reflrg.step  = workrg_.step;
-    reflrg.start = wd_->d2TModel()->getTime( data_.dahrg_.start );
-    reflrg.stop  = wd_->d2TModel()->getTime( data_.dahrg_.stop );
+    reflrg.start = wd_->d2TModel()->getTime( data_.dahrg_.start, wd_->track() );
+    reflrg.stop  = wd_->d2TModel()->getTime( data_.dahrg_.stop, wd_->track() );
     if ( disprg_.start > reflrg.start )
 	reflrg.start = disprg_.start; 
     if ( disprg_.stop < reflrg.stop )

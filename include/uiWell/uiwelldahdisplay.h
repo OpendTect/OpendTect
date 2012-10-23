@@ -34,7 +34,7 @@ class UnitOfMeasure;
 
 #define mDefZPos(zpos)\
 if ( zdata_.zistime_ && zdata_.d2T() )\
-    zpos = d2T()->getTime( zpos )*SI().zFactor();\
+    zpos = d2T()->getTime( zpos, *track() )*SI().zFactor();\
 else if ( !zdata_.zistime_ && track() )\
     zpos = track() ? zdata_.track()->getPos( zpos ).z : 0;
 

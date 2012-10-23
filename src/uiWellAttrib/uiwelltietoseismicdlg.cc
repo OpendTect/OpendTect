@@ -643,7 +643,7 @@ void uiInfoDlg::usePar( const IOPar& par )
 
 
 #define md2T( zval, time )\
-    time ? d2t->getTime( zval ) : d2t->getDah( zval ); 
+    time ? d2t->getTime( zval, wd->track() ) : d2t->getDah( zval ); 
 #define md2TI( zrg, time )\
     { zrg.start = md2T( zrg.start, time ); zrg.stop = md2T( zrg.stop, time ) }
 void uiInfoDlg::propChanged( CallBacker* )
