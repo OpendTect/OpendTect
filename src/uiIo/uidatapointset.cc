@@ -241,6 +241,18 @@ void uiDataPointSet::mkToolBars()
 }
 
 
+void uiDataPointSet::showXY( bool yn )
+{
+    disptb_->turnOn( dispxytbid_, yn );
+    toggleXYZ( 0 );
+}
+
+void uiDataPointSet::showZ( bool yn )
+{
+    disptb_->turnOn( dispztbid_, yn );
+    toggleXYZ( 0 );
+}
+
 void uiDataPointSet::updColNames()
 {
     const int nrcols = dps_.nrCols() + 3;

@@ -252,6 +252,8 @@ public:
 				{ return getVal(did,rid,userunits); }
     void			setUnsavedChg( bool chg )
 				{ unsavedchgs_ = chg; }
+    void			showXY(bool yn);
+    void			showZ(bool yn);
 };
 
 
