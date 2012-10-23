@@ -13,8 +13,6 @@ static const char* rcsID = "$Id$";
 #include "errh.h"
 #include "file.h"
 #include "filepath.h"
-#include "fixedstring.h"
-#include "hiddenparam.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "ioman.h"

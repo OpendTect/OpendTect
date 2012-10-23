@@ -16,8 +16,6 @@ static const char* rcsID = "$Id$";
 #include "welldisp.h"
 #include "ascstream.h"
 #include "errh.h"
-#include "fixedstring.h"
-#include "hiddenparam.h"
 #include "strmprov.h"
 #include "keystrs.h"
 #include "envvars.h"

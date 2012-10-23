@@ -17,7 +17,6 @@ static const char* rcsID = "$Id$";
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
-#include "hiddenparam.h"
 #include "ptrman.h"
 #include "strmprov.h"
 #include "survinfo.h"
