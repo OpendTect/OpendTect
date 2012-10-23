@@ -82,6 +82,8 @@ protected:
 
     void		mergeColDefs(const PosVecDataSet&,ColMatchPol,int*);
     friend class	DataPointSet;
+public:
+    bool		insert(int idx,DataColDef*);
 
 };
 

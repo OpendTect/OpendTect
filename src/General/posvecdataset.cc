@@ -144,6 +144,16 @@ int PosVecDataSet::add( DataColDef* cd )
 }
 
 
+bool PosVecDataSet::insert( int idx, DataColDef* cd )
+{
+    if ( !coldefs_.validIdx(idx) )
+	return false;
+    coldefs_.insertAt( cd, idx );;
+    data_.insertVal( idx );
+    return true;
+}
+
+
 void PosVecDataSet::removeColumn( int colidx )
 {
     if ( colidx > 0 && colidx < coldefs_.size() )

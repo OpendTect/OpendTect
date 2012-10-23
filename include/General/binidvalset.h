@@ -233,6 +233,7 @@ protected:
 public:
 
     inline void		empty() 	{ setEmpty(); } //!< legacy
+    bool		insertVal(int);
 
 };
 
