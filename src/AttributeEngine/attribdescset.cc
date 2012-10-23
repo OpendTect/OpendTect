@@ -1133,15 +1133,16 @@ void DescSet::setContainStoredDescOnly( bool yn )
 	defattribid_.setStored( yn );
 }
 
-
-DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu ) const
+DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu,
+					   bool withstored ) const
 {
     TypeSet<DataPointSet::DataRow> pts;
     ObjectSet<DataColDef> dcds;
     for ( int idx=0; idx<descs_.size(); idx++ )
     {
 	const Attrib::Desc* tmpdsc = desc(idx);
-	if ( !tmpdsc || (tmpdsc->isHidden() && !dsu.hidden_) )
+	if ( !tmpdsc || (tmpdsc->isHidden() && !dsu.hidden_) ||
+	     (tmpdsc->isStored() && !withstored) )
 	    continue;
 
 	BufferString defstr;
@@ -1150,6 +1151,12 @@ DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu ) const
     }
 
     return new DataPointSet( pts, dcds, is2D() );
+}
+
+
+DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu ) const
+{
+    createDataPointSet( dsu, true );
 }
 
 

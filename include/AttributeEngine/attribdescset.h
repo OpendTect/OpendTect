@@ -164,6 +164,8 @@ private:
 public:
 
     DescID		ensureDefStoredPresent() const;
+    DataPointSet*	createDataPointSet(Attrib::DescSetup,
+	    				   bool withstored) const;
 
 };
 
