@@ -1156,7 +1156,7 @@ DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu,
 
 DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu ) const
 {
-    createDataPointSet( dsu, true );
+    return createDataPointSet( dsu, true );
 }
 
 
