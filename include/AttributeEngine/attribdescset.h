@@ -122,7 +122,8 @@ public:
     void		fillInAttribColRefs(BufferStringSet&) const;
 
     			//!<will create an empty DataPointSet
-    DataPointSet*	createDataPointSet(Attrib::DescSetup) const;
+    DataPointSet*	createDataPointSet(Attrib::DescSetup,
+	    				   bool withstored=true) const;
     void		fillInSelSpecs(Attrib::DescSetup,
 	    			       TypeSet<Attrib::SelSpec>&) const;
 
