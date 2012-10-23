@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stattype.h"
 #include  <iostream>
 
-#define mNrThinning 20	
+#define mNrThinning 80	
 
 class VeinSliceCalculator : public ParallelTask
 {
