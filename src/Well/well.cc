@@ -947,58 +947,23 @@ Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 
 float Well::D2TModel::getTime( float dh, const Track& track ) const
 {
-    const int tracksize = track.nrPoints();
-    const int d2tmodelsize = size();
-    if ( tracksize < 2 || d2tmodelsize < 2 )
-	return TimeDepthModel::getTime( dah_.arr(), t_.arr(), size(), dh );
+    const int dtsize = size();
+    if ( track.nrPoints() < 2 || dtsize < 2 )
+	return TimeDepthModel::getTime( dah_.arr(), t_.arr(), dtsize, dh );
     else
     {
-/*	const float pos = track.getPos(dh).z;
+	int idahtop = 0;
+	idahtop = IdxAble::getLowIdx(dah_,dtsize,dh);
+	if ( idahtop < 0 )
+	    idahtop = 0;
+	else if ( idahtop == (dah_.size()-1) )
+	    idahtop = dtsize-2;
 
-	int iz=-1;
-	do iz++; while ( track.getPos(dah_[iz]).z < track.value(0) &&
-			 iz+1 < d2tmodelsize );
-	float curvel = ( track.getPos(dah_[iz+1]).z - track.getPos(dah_[iz]).z ) /
-	    	       ( t_[iz+1] - t_[iz] );
-	int idah = 0;
-	float prevz = track.value(idah);
-	float prevt = t_[iz] + ( prevz - track.getPos(dah_[iz]).z ) / curvel;
-	idah++;
-	while ( track.value(idah) < pos )
-	{
-	    const float targetz = track.value(idah);
-	    const bool isdescending = track.value(idah) > track.value(idah-1);
-	    if ( isdescending && iz+1 < d2tmodelsize )
-	    {
-		while ( targetz > track.getPos(dah_[iz+1]).z )
-		{
-		    if ( iz+2 < d2tmodelsize ) iz++;
-		    else break;
-		    curvel = ( track.getPos(dah_[iz+1]).z-track.getPos(dah_[iz]).z)/
-			     ( t_[iz+1] - t_[iz] );
-		    prevz = track.getPos(dah_[iz]).z;
-		    prevt = t_[iz];
-		}
-	    }
-	    else
-	    {
-		while ( targetz < track.getPos(dah_[iz-1]).z )
-		{
-		    if ( iz-2 > 0 ) iz--;
-		    else break;
-		    curvel = ( track.getPos(dah_[iz]).z-track.getPos(dah_[iz-1]).z)/
-			     ( t_[iz] - t_[iz-1] );
-		    prevz = track.getPos(dah_[iz]).z;
-		    prevt = t_[iz];
-		}
-	    }
-	    prevt += ( targetz - prevz ) / curvel;
-	    prevz  = track.value(idah);
-	    idah++;
-	}
-	const float output = prevt + ( pos - prevz ) / curvel;
-	return prevt + ( pos - prevz ) / curvel;*/
-	return TimeDepthModel::getTime( dah_.arr(), t_.arr(), size(), dh );
+	const float ztop = track.getPos(dah_[idahtop]).z;
+	const float zbase= track.getPos(dah_[idahtop+1]).z;
+	const float curvel = ( zbase - ztop ) / ( t_[idahtop+1] - t_[idahtop] );
+
+	return t_[idahtop] + ( track.getPos(dh).z - ztop ) / curvel;
     }
 }
 
