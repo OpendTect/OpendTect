@@ -146,8 +146,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 	app.ddpars_.vd_.mappersetup_.symmidval_ = 0;
 
     uiFlatViewStdControl::Setup fvsu( this );
-    fvsu.withedit(true).withthumbnail(false).withcoltabed(false).tba( 
-	    						(int)uiToolBar::Right );
+    fvsu.withedit(true).withthumbnail(false).withcoltabed(false)
+	.tba((int)uiToolBar::Right ).withflip(false);
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
 
