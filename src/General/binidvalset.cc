@@ -759,6 +759,40 @@ void BinIDValueSet::removeVal( int validx )
     const_cast<int&>(nrvals_)--;
 }
 
+bool BinIDValueSet::insertVal( int validx )
+{
+    if ( validx < 0 || validx >= nrvals_ )
+	return false;
+    
+    const int oldnrvals = nrvals_;
+    const_cast<int&>( nrvals_ ) = oldnrvals+1;
+
+    for ( int iinl=0; iinl<inls_.size(); iinl++ )
+    {
+	const int nrcrl = getCrlSet(iinl).size();
+	TypeSet<float>* oldvals = valsets_[iinl];
+	mDeclareAndTryAlloc( TypeSet<float>*, newvals,
+			     TypeSet<float>( nrcrl*nrvals_, mUdf(float) ) );
+	if ( !newvals )
+	    return false;
+	valsets_.replace( iinl, newvals );
+	float* oldarr = oldvals->arr();
+	float* newarr = newvals->arr();
+	for ( int icrl=0; icrl<nrcrl; icrl++ )
+	{
+	    memcpy( newarr+(icrl*nrvals_), oldarr+(icrl*oldnrvals),
+		    (validx) * sizeof(float) );
+	    memcpy( newarr+(icrl*nrvals_+validx+1),
+		    oldarr+(icrl*oldnrvals+validx+1),
+		    (oldnrvals-validx) * sizeof(float) );
+	}
+
+	delete oldvals;
+    }
+
+    return true;
+}
+
 
 bool BinIDValueSet::setNrVals( int newnrvals, bool keepdata )
 {

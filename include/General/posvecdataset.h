@@ -40,6 +40,7 @@ public:
     bool		isEmpty() const		{ return data_.isEmpty(); }
     void		setEmpty();
     int			add(DataColDef*);
+    bool		insert(int idx,DataColDef*);
     			//!<\returns index
     void		removeColumn(int); //!< "Z" col (idx=0) can't be removed
     enum OvwPolicy	{ Keep, OvwIfUdf, Ovw };

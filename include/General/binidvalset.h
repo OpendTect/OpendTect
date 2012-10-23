@@ -141,6 +141,7 @@ public:
     			//!< You cannot remove while iterating
     			//!< Collect the to-be-removed and use this instead
     void		removeVal(int); // Will remove entire 'column'
+    bool		insertVal(int);
     bool		setNrVals(int,bool kp_data=true);
     int			nrDuplicateBinIDs() const;
     void		sortDuplicateBids(int value_nr,bool ascending=true);
