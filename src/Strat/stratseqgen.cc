@@ -28,6 +28,8 @@ static const char* sKeyElasticPropSelID = "Elastic Property Selection";
 mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
 mDefSimpleTranslators(StratLayerSequenceGenDesc,mFileType,od,Mdl);
 
+const char* Strat::LayerSequenceGenDesc::sKeyWorkBenchParams()
+{ return "Workbench parameters"; }
 
 Strat::LayerModelGenerator::LayerModelGenerator(
 		const Strat::LayerSequenceGenDesc& desc, Strat::LayerModel& lm,
@@ -125,7 +127,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
 
     IOPar iop; iop.getFrom(astrm);
     iop.get( sKeyElasticPropSelID, elasticpropselmid_ );
-    PtrMan<IOPar> workbenchpars = iop.subselect( sKey::WorkBenchParams() );
+    PtrMan<IOPar> workbenchpars = iop.subselect( sKeyWorkBenchParams() );
     if ( workbenchpars )
 	workbenchparams_ = *workbenchpars;
 
@@ -158,7 +160,7 @@ bool Strat::LayerSequenceGenDesc::putTo( std::ostream& strm ) const
 	{ errmsg_ = "Cannot write file header"; return false; }
 
     IOPar iop; iop.set( sKeyElasticPropSelID, elasticpropselmid_ );
-    iop.mergeComp( workbenchparams_, sKey::WorkBenchParams() );
+    iop.mergeComp( workbenchparams_, sKeyWorkBenchParams() );
     
     iop.putTo( astrm );
 

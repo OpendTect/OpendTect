@@ -68,6 +68,7 @@ protected:
     PropertyRefSelection	propsel_;
     MultiID			elasticpropselmid_;
 
+    static const char*		sKeyWorkBenchParams();
     mutable BufferString	errmsg_;
 
 };
