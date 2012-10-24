@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "undefval.h"
+#include "fixedstring.h"
 #include "string2.h"
 
 #ifdef __msvc__
@@ -108,6 +109,18 @@ inline void set( type& _to, const char* const& s ) \
     char* endptr; \
     type tmpval = (type) function; \
     if ( s != endptr ) \
+	_to = (type) tmpval; \
+    else if ( Values::Undef<type>::hasUdf() ) \
+	    Values::setUdf( _to ); \
+} \
+template <> \
+inline void set( type& _to, const FixedString& s ) \
+{ \
+    if ( !s ) { return; } \
+\
+    char* endptr; \
+    type tmpval = (type) function; \
+    if ( s.str() != endptr ) \
 	_to = (type) tmpval; \
     else if ( Values::Undef<type>::hasUdf() ) \
 	    Values::setUdf( _to ); \
