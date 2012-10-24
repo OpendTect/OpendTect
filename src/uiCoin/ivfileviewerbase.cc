@@ -15,6 +15,7 @@ static const char* __rcsID mUsedVar = "$Id$";
 
 #ifdef USESOODCLASSES
 # include "moddepmgr.h"
+# include "genc.h"
 # include "file.h"
 # include "uifiledlg.h"
 # ifdef __msvc__
@@ -24,6 +25,10 @@ static const char* __rcsID mUsedVar = "$Id$";
 
 int main( int narg, char** argv )
 {
+#ifdef USESOODCLASSES
+    SetProgramArgs( narg, argv );
+#endif
+
     QWidget* myWindow = SoQt::init( narg, argv, argv[0] );
 
 #ifdef USESOODCLASSES
