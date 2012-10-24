@@ -70,7 +70,7 @@ uiHorizonAttrib::~uiHorizonAttrib()
 
 bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Horizon::attribName()) )
+    if ( FixedString(desc.attribName())!=Horizon::attribName() )
 	return false;
 
     mIfGetString( Horizon::sKeyHorID(), horidstr,
@@ -103,7 +103,7 @@ bool uiHorizonAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Horizon::attribName()) )
+    if ( FixedString(desc.attribName())!=Horizon::attribName() )
 	return false;
 
     mSetString( Horizon::sKeyHorID(),
