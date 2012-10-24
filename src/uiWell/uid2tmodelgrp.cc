@@ -107,12 +107,26 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	const float twtvel = velfld_->getfValue() * .5f;
 	const float bulkshift = mIsUdf( wd.info().replvel ) ? 0 : ( kb-srd )*
 				( (1 / twtvel) - (2 / wd.info().replvel) );
+	int idahofminz = 0;
+	int idahofmaxz = wd.track().size()-1;
+	float tvdmin = 1e10;
+	float tvdmax = -1;
 	for ( int idx=0; idx<wd.track().size(); idx++ )
 	{
-	    const float tvd = (float)wd.track().pos(idx).z;
-	    const float dah = wd.track().dah(idx);
-	    d2t.add( dah, ( tvd+srd ) / twtvel + bulkshift );
+	    const float zpostrack = (float)wd.track().pos(idx).z;
+	    if ( zpostrack > tvdmax )
+	    {
+		tvdmax = zpostrack;
+		idahofmaxz = idx;
+	    }
+	    else if ( zpostrack < tvdmin )
+	    {
+		tvdmin = zpostrack;
+		idahofminz = idx;
+	    }
 	}
+	d2t.add( wd.track().dah(idahofminz), ( tvdmin+srd ) / twtvel + bulkshift );
+	d2t.add( wd.track().dah(idahofmaxz), ( tvdmax+srd ) / twtvel + bulkshift );
     }
     else
     {
