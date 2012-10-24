@@ -626,16 +626,16 @@ template <class T>
 static bool iopget_scaled( const IOPar& iop, const char* s,
 			   T** vptrs, int nrvals, T sc, bool setudf )
 {
-    const char* ptr = iop.find( s );
+    FixedString ptr = iop.find( s );
     bool havedata = false;
-    if ( setudf || (ptr && *ptr) )
+    if ( setudf || !ptr.isEmpty() )
     {
 	FileMultiString fms = ptr;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    ptr = fms[idx];
 	    T& f( *(vptrs[idx]) );
-	    if ( *ptr )
+	    if ( !ptr.isEmpty() )
 	    {
 		havedata = true;
 		Conv::udfset( f, ptr );

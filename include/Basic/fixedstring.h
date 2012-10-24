@@ -12,6 +12,7 @@ ________________________________________________________________________
 */
 
 #include "commondefs.h"
+#include "undefval.h"
 
 #include <iosfwd>
 
@@ -48,6 +49,20 @@ protected:
 
     const char*	ptr_;
 };
+
+namespace Values
+{
+    template<>
+    class Undef<FixedString>
+    {
+    public:
+	static FixedString	val()			{ return FixedString(); }
+	static bool		hasUdf()		{ return true; }
+	static bool		isUdf(const FixedString& s)
+				{ return !s.isEmpty(); }
+	static void		setUdf(FixedString& s)	{ s = FixedString(); }
+    };
+}
 
 inline bool operator==(const char* a, const FixedString& b)
 { return b==a; }
