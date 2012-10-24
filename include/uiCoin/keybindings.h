@@ -38,17 +38,17 @@ public:
     BufferString		pan;
 
 
-    static const char*		sName();
-    static const char*		sRotate();
-    static const char*		sPan();
-    static const char*		sZoom();
+    static FixedString		sName();
+    static FixedString		sRotate();
+    static FixedString		sPan();
+    static FixedString		sZoom();
 
-    static const char*		sControl();
-    static const char*		sShift();
-    static const char*		sRight();
-    static const char*		sLeft();
-    static const char*		sMiddle();
-    static const char*		sNone();
+    static FixedString		sControl();
+    static FixedString		sShift();
+    static FixedString		sRight();
+    static FixedString		sLeft();
+    static FixedString		sMiddle();
+    static FixedString		sNone();
 };
 
 

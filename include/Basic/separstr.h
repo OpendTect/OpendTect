@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstring.h"
+#include "fixedstring.h"
 #include "convert.h"
 
 class BufferStringSet;
@@ -46,8 +47,8 @@ public:
     inline void		setEmpty()		{ rep_.setEmpty(); }
 
     int			size() const;
-    const char*		operator[](int) const;		//!< Output unescaped
-    const char*		from(int) const;		//!< Output escaped
+    FixedString		operator[](int) const;		//!< Output unescaped
+    FixedString		from(int) const;		//!< Output escaped
 
     int			getIValue(int) const;
     od_uint32		getUIValue(int) const;

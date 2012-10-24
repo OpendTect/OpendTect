@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "convert.h"
 #include "string2.h"
+#include "keystrs.h"
 #include "fixedstring.h"
 #include "bufstringset.h"
 
@@ -163,11 +164,10 @@ int SeparString::size() const
 }
 
 
-const char* SeparString::operator[]( int elemnr ) const
+FixedString SeparString::operator[]( int elemnr ) const
 {
-    static const char* emptystr = "";
     if ( elemnr < 0 )
-	return emptystr;
+	return sKey::EmptyString();
 
     const char* startptr = rep_.buf();
     while ( *startptr )
@@ -178,17 +178,17 @@ const char* SeparString::operator[]( int elemnr ) const
 	    return getUnescaped( startptr, nextsep );
 
 	if ( !nextsep )
-	    return emptystr;
+	    return sKey::EmptyString();
 
 	elemnr--;
 	startptr = nextsep+1;
     }
 
-    return emptystr;
+    return sKey::EmptyString();
 }
 
 
-const char* SeparString::from( int idx ) const
+FixedString SeparString::from( int idx ) const
 {
     const char* ptr = rep_.buf();
     for ( ; idx!=0; idx-- )
