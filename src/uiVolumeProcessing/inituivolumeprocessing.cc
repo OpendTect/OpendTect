@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "moddepmgr.h"
-#include "uivolprocfaultangle.h"
 #include "uivelocitygridder.h"
 #include "uivolprochorinterfiller.h"
 #include "uivolproclateralsmoother.h"
@@ -24,7 +23,6 @@ mDefModInitFn(uiVolumeProcessing)
 {
     mIfNotFirstTime( return );
 
-    VolProc::uiFaultAngle::initClass();
     VolProc::uiHorInterFiller::initClass();
     VolProc::uiBodyFiller::initClass();
     VolProc::uiLateralSmoother::initClass();

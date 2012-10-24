@@ -7,6 +7,8 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "visplanedatadisplay.h"
+#include "conncomponents.h"
+#include "fingervein.h"
 
 #include "arrayndimpl.h"
 #include "array2dresample.h"
@@ -1190,6 +1192,75 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 		dparr.getAll( tmparr );
 	    else
 	    	interpolArray( attrib, tmparr, sz0, sz1, dparr, tr );
+
+	    if ( attrib>0 )
+	    {
+		mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, res,
+			Array2DImpl<bool> (sz0,sz1) );
+		mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, tinp,
+			Array2DImpl<float> (sz0,sz1) );
+		
+		const int allsz=sz0*sz1;
+		bool* resdata = res->getData();
+		float* tinpdata = tinp->getData();
+		for ( int i=0; i<allsz; i++ )
+    			tinpdata[i] = tmparr[i];
+
+		FingerVein fv( *tinp, 0.89, false, true, *res );
+	       fv.compute( true, true, 10, 0.8 );	
+
+		//ConnComponents cc( *res );
+		//cc.compute();
+		//const int nrcomp = cc.nrComponents();
+		const TypeSet<TypeSet<int> >& fcc = fv.validConnComponents();
+		const int nrcomp = fcc.size();
+		for ( int idy=0; idy<nrcomp; idy++ )
+		{
+		    const TypeSet<int>* comp = &fcc[idy];
+		    //const TypeSet<int>* comp = cc.getComponent( idy );
+		    if ( !comp ) continue;
+		    
+		    const int nrnodes = comp->size();	    
+		    TypeSet<int> idxs, idys, glbidxs, glbidys;
+		    TypeSet<int>  allxs, allys;
+		    for ( int j=0; j<nrnodes; j++ )
+    		    {
+    			const int row = (*comp)[j]/sz1;
+			const int col = (*comp)[j]%sz1;
+			allxs += row;
+			allys += col;
+			if ( idxs.indexOf(row)<0 )
+    			{
+    			    idxs += row;
+			    glbidxs += (*comp)[j];
+			}
+			if ( idys.indexOf(col)<0 )
+    			{
+    			    idys += col;
+			    glbidys += (*comp)[j];
+			}
+		    }
+		    const int xsz= idxs.size();
+		    const int ysz= idys.size();
+		    const int maxsz = mMAX(xsz,ysz);
+		    const bool useinldir = xsz > ysz;
+		    const float overlapr = 1 - (float)maxsz/((float)nrnodes);
+		    bool val = maxsz>=10 && overlapr<=0.7;
+		    if ( useinldir )
+		    {
+			for ( int i=0; i<maxsz; i++ )
+			    resdata[glbidxs[i]] = val;
+		    }
+		    else
+		    {
+			for ( int i=0; i<maxsz; i++ )
+			    resdata[glbidys[i]] = val;
+		    }
+		}
+		    
+		for ( int i=0; i<allsz; i++ )
+		    tmparr[i] = resdata[i] ? 1: -1;
+	    }
 
 	    arr = tmparr;
 	    cp = OD::TakeOverPtr;

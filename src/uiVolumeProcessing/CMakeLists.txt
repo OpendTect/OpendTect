@@ -8,7 +8,6 @@
 SET(OD_MODULE_DEPS uiVelocity VolumeProcessing)
 SET(OD_MODULE_SOURCES
 		inituivolumeprocessing.cc
-		uivolprocfaultangle.cc
 		uivelocitygridder.cc
 		uivolprocchain.cc
                 uivolprochorinterfiller.cc 

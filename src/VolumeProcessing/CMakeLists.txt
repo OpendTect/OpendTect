@@ -11,7 +11,6 @@ SET(OD_MODULE_SOURCES
 		velocitygridder.cc
 		volprocchain.cc
 		volprocattrib.cc
-		volprocfaultangle.cc
 		volproclateralsmoother.cc
 		volprocsmoother.cc
 		volproctrans.cc

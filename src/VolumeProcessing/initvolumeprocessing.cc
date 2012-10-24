@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "moddepmgr.h"
-#include "volprocfaultangle.h"
 #include "velocitygridder.h"
 #include "volprochorinterfiller.h"
 #include "volprocattrib.h"
@@ -29,7 +28,6 @@ mDefModInitFn(VolumeProcessing)
     VolProcessingTranslatorGroup::initClass();
     dgbVolProcessingTranslator::initClass();
 
-    VolProc::FaultAngle::initClass();
     VolProc::HorInterFiller::initClass();
     VolProc::LateralSmoother::initClass();
     VolProc::Smoother::initClass();
