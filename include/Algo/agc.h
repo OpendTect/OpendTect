@@ -96,7 +96,8 @@ const Interval<int>& AGC<T>::getSampleGate() const
 template <class T> inline
 bool AGC<T>::doPrepare( int nrthreads )
 {
-    if ( !input_ || !output_ || !output_->setSize(size_) )
+    if ( !input_ || !output_ ||
+	 (output_->reSizeable() && !output_->setSize(size_)) )
 	return false;
 
     energies_.setSize( size_, mUdf(T) );
