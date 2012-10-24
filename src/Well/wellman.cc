@@ -34,7 +34,9 @@ void Well::Man::removeAll()
     //Note: Don't change this order, as it may cause a key to be found
     //While the well is just about to be deleted.
     deepErase( keys_ );
-    deepErase( wells_ );
+    ObjectSet<Well::Data> wellcopy = wells_;
+    wells_.erase();
+    deepErase( wellcopy );
 }
 
 
