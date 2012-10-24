@@ -56,10 +56,9 @@ namespace Values
     class Undef<FixedString>
     {
     public:
-	static FixedString	val()			{ return FixedString(); }
+	static FixedString	val()			{ return FixedString();}
 	static bool		hasUdf()		{ return true; }
-	static bool		isUdf(const FixedString& s)
-				{ return !s.isEmpty(); }
+	static bool		isUdf(const FixedString& s){return s.isEmpty();}
 	static void		setUdf(FixedString& s)	{ s = FixedString(); }
     };
 }
