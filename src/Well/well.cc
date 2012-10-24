@@ -968,7 +968,7 @@ float Well::D2TModel::getTime( float dh, const Track& track ) const
        idahtop = IdxAble::getLowIdx(dah_,dtsize,dh);
        if ( idahtop < 0 )
 	   idahtop = 0;
-       else if ( idahtop == (dah_.size()-1) )
+       else if ( idahtop >= (dtsize-2) )
 	   idahtop = dtsize-2;
 
        const float ztop = track.getPos(dah_[idahtop]).z;
