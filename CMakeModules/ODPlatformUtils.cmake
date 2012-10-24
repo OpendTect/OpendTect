@@ -65,6 +65,12 @@ IF(UNIX) #Apple an Linux
                  CACHE STRING "C flags" FORCE )
         ENDIF()
 
+	if ( (CMAKE_CXX_COMPILER STREQUAL "/usr/bin/g++4") OR
+	     (CMAKE_C_COMPILER STREQUAL "/usr/bin/gcc4") )
+	    set( CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2" )
+	    set( CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O2" )
+	endif()
+
     ENDIF()
 
     ADD_DEFINITIONS("'-DmUnusedVar=__attribute__ ((unused))'")
