@@ -245,7 +245,7 @@ void TextBox::setText( const char* newtext )
     SeparString sepstr( newtext, '\n' );
     text_->string.deleteValues( sepstr.size() );
     for ( int idx=0; idx<sepstr.size(); idx++ )
-	text_->string.set1Value( idx, sepstr[idx] );
+	text_->string.set1Value( idx, SbString(sepstr[idx]) );
 }
 
 
