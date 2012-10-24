@@ -182,7 +182,7 @@ void uiODViewer2D::createViewWin( bool isvert )
     uiParent* controlparent = 0;
     if ( !wantdock )
     {
-	uiFlatViewMainWin* fvmw = new uiFlatViewMainWin( 0,
+	uiFlatViewMainWin* fvmw = new uiFlatViewMainWin( &appl_,
 		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(true)
 	       					  .withhanddrag(true) );
 	fvmw->windowClosed.notify( mCB(this,uiODViewer2D,winCloseCB) );
