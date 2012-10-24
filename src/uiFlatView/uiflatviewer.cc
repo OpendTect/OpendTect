@@ -140,6 +140,9 @@ void uiFlatViewer::updateTransforms()
     if ( wr.bottom() < wr.top() ) 
 	wr.swapVer();
 
+    if ( mIsZero(wr_.width(),mDefEps) || mIsZero(wr_.height(),mDefEps) )
+        return;
+
     const double xscale = viewrect.width()/wr.width();
     const double yscale = viewrect.height()/wr.height();
     const double xpos = viewrect.left()-xscale*wr.left();
