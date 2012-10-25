@@ -100,7 +100,7 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 	    {
 		BufferString msg( cbvsnm ); msg += " is already present ";
 
-		if ( strcmp( presentobj->translator(),ctio->ctxt.deftransl) )
+		if (FixedString(presentobj->translator())!=ctio->ctxt.deftransl)
 		{
 		    msg += "as another type";
 		    msg += "\n and won't be created";

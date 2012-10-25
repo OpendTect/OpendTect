@@ -100,7 +100,7 @@ void SeisIOObjInfo::setType()
 	isps = true;
     ioobj_->pars().getYN( SeisTrcTranslator::sKeyIsPS(), isps );
 
-    if ( !isps && strcmp(ioobj_->group(),mTranslGroupName(SeisTrc)) )
+    if ( !isps && ioobj_->group()!=mTranslGroupName(SeisTrc) )
 	{ bad_ = true; return; }
 
     const bool is2d = SeisTrcTranslator::is2D( *ioobj_, false );
@@ -316,8 +316,8 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
     { \
 	const char* lndt = lset->datatype(idx); \
 	const char* attrnm = lset->attribute(idx); \
-	const bool issteer = (lndt && !strcmp(lndt,sKey::Steering())) || \
-				(!lndt && !strcmp(attrnm,sKey::Steering())); \
+	const bool issteer = (lndt && lndt==sKey::Steering()) || \
+				(!lndt && attrnm==sKey::Steering()); \
 	if ( (o2d.steerpol_ == 0 && issteer) \
 	  || (o2d.steerpol_ == 1 && !issteer) ) \
 	    continue; \

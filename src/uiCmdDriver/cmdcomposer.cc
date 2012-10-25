@@ -203,9 +203,10 @@ bool CmdComposer::accept( const CmdRecEvent& ev )
 
 bool CmdComposer::traceSrcWin( CmdRecEvent& ev ) const
 {
+    FixedString evidstr( ev.idstr_ );
     for ( int idx=0; idx<eventlist_.size(); idx++ )
     {
-	if ( !strcmp(eventlist_[idx]->idstr_, ev.idstr_) )
+	if ( eventlist_[idx]->idstr_==evidstr )
 	{
 	    ev.srcwin_ = eventlist_[idx]->srcwin_;
 	    ev.openqdlg_ = eventlist_[idx]->openqdlg_;

@@ -409,7 +409,7 @@ float ElasticPropGen::getVal(const ElasticFormula& ef,
 	    const int pridx = refprops_.indexOf(var);
 	    val = vals[pridx];
 	}
-	else if ( elasticprops_.isPresent( var ) && strcmp(var,ef.name()) )
+	else if ( elasticprops_.isPresent( var ) && var!=ef.name() )
 	{
 	    const int propidx = elasticprops_.indexOf(var);
 	    val = getVal( elasticprops_.get( propidx ), vals, sz );
