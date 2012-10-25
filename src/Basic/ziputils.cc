@@ -212,7 +212,7 @@ od_int32 Zipper::nextStep()
     if ( nrdone_ < totalNr() )
 	return MoreToDo();
 
-    od_int32 ptrlctn = ziphd_.getDestStream().tellp();
+    const od_int32 ptrlctn = (od_int32) ziphd_.getDestStream().tellp();
     ret = ziphd_.setCentralDirHeader();
     if ( !ret )
     {
