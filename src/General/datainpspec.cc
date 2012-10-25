@@ -172,7 +172,7 @@ DataInpSpec& DataInpSpec::setName( const char* nm, int idx )
 
 StringInpSpec::StringInpSpec( const char* s )
     : DataInpSpec( DataTypeImpl<const char*>() )
-    , isUndef_(s?false:true), str( s )
+    , isUndef_(s?false:true), str_( s )
 {}
 
 
@@ -187,12 +187,12 @@ DataInpSpec* StringInpSpec::clone() const
 const char* StringInpSpec::text() const
 { 
     if ( isUndef() ) return "";
-    return (const char*) str;
+    return (const char*) str_;
 }
 
 bool StringInpSpec::setText( const char* s, int idx )
 {
-    str = s; isUndef_ = s ? false : true;
+    str_ = s; isUndef_ = s ? false : true;
     return true;
 }
 
@@ -205,13 +205,13 @@ const char* StringInpSpec::text( int idx ) const
 
 void StringInpSpec::setDefaultValue( const char* s, int idx )
 {
-    defaultstr = s;
+    defaultstr_ = s;
 }
 
 
 const char* StringInpSpec::getDefaultStringValue( int idx ) const
 {
-    return defaultstr;
+    return defaultstr_;
 }
 
 
@@ -230,27 +230,27 @@ DataInpSpec* FileNameInpSpec::clone() const
 BoolInpSpec::BoolInpSpec( bool yesno, const char* truetxt,
 			  const char* falsetxt, bool setyn )
     : DataInpSpec( DataTypeImpl<bool>() )
-    , truetext(truetxt ? truetxt : (const char*) sKey::Yes() )
-    , yn(yesno)
-    , defaultyn(true)
-    , isset(setyn)
+    , truetext_(truetxt ? truetxt : (const char*) sKey::Yes() )
+    , yn_(yesno)
+    , defaultyn_(true)
+    , isset_(setyn)
 {
-    if ( falsetxt ) falsetext = falsetxt;
-    if ( !truetext.isEmpty() )
-	setName( truetext, 0 );
-    if ( !falsetext.isEmpty() )
-	setName( falsetext, 1 );
+    if ( falsetxt ) falsetext_ = falsetxt;
+    if ( !truetext_.isEmpty() )
+	setName( truetext_, 0 );
+    if ( !falsetext_.isEmpty() )
+	setName( falsetext_, 1 );
 }
 
 
 
 BoolInpSpec::BoolInpSpec( const BoolInpSpec& oth )
     : DataInpSpec( oth )
-    , truetext( oth.truetext )
-    , falsetext( oth.falsetext )
-    , yn( oth.yn )
-    , defaultyn( oth.defaultyn )
-    , isset(oth.isset)
+    , truetext_( oth.truetext_ )
+    , falsetext_( oth.falsetext_ )
+    , yn_( oth.yn_ )
+    , defaultyn_( oth.defaultyn_ )
+    , isset_(oth.isset_)
 {}
 
 
@@ -263,57 +263,57 @@ DataInpSpec* BoolInpSpec::clone() const
 
 
 const char* BoolInpSpec::trueFalseTxt( bool tf ) const
-{ return tf ? truetext : falsetext; }
+{ return tf ? truetext_ : falsetext_; }
 
 
 void BoolInpSpec::setTrueFalseTxt( bool tf, const char* txt )
 {
     if ( tf )
-	truetext=txt;
+	truetext_=txt;
     else
-	falsetext=txt;
+	falsetext_=txt;
 
     setName( txt, tf ? 0 : 1 );
 }
 
 
 bool BoolInpSpec::checked() const 
-{ return yn; }
+{ return yn_; }
 
 
 void BoolInpSpec::setChecked( bool yesno )
-{ yn = yesno; isset = true;}
+{ yn_ = yesno; isset_ = true;}
 
 
 const char* BoolInpSpec::text( int idx ) const
 {
-    return yn ? (const char*)truetext
-	      : (const char*)falsetext;
+    return yn_ ? (const char*)truetext_
+	      : (const char*)falsetext_;
 }
 
 
 bool BoolInpSpec::setText( const char* s, int idx )
 {
-    yn = s && strcmp(s,falsetext);
-    isset = true;
+    yn_ = s && s!=falsetext_;
+    isset_ = true;
     return true;
 }
 
 
 bool BoolInpSpec::getBoolValue( int idx ) const
-{ return yn; }
+{ return yn_; }
 
 
 void BoolInpSpec::setValue( bool b, int idx )
-{ yn = b; isset = true; }
+{ yn_ = b; isset_ = true; }
 
 
 bool BoolInpSpec::getDefaultBoolValue( int idx ) const
-{ return defaultyn; }
+{ return defaultyn_; }
 
 
 void BoolInpSpec::setDefaultValue( bool b, int idx )
-{ defaultyn = b; }
+{ defaultyn_ = b; }
 
 
 StringListInpSpec::StringListInpSpec( const BufferStringSet& bss )

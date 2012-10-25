@@ -568,8 +568,8 @@ public:
 protected:
 
     bool		isUndef_;
-    BufferString	str;
-    BufferString	defaultstr;
+    BufferString	str_;
+    BufferString	defaultstr_;
 
 };
 
@@ -626,16 +626,16 @@ public:
     			mDefDISSetDefValBaseClassImpl(double)
     			mDefDISSetDefValBaseClassImpl(const char*)
 
-    bool		isSet() const 			{ return isset; }
-    void		setSet( bool yesno=true )	{ isset = yesno; }
+    bool		isSet() const 			{ return isset_; }
+    void		setSet( bool yesno=true )	{ isset_ = yesno; }
 
 protected:
 
-    BufferString	truetext;
-    BufferString	falsetext;
-    bool		yn;
-    bool		defaultyn;
-    bool		isset;
+    BufferString	truetext_;
+    BufferString	falsetext_;
+    bool		yn_;
+    bool		defaultyn_;
+    bool		isset_;
 
 };
 
