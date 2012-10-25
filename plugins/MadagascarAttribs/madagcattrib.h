@@ -29,7 +29,7 @@ public:
     static void			initClass();
 				MadAGC(Desc&);
 
-    static const char*		attribName()	   { return "MadagascarAGC"; }
+    static FixedString		attribName()	   { return "MadagascarAGC"; }
     static const char*		nrrepeatStr()	   { return "nrrepeat"; }
     static const char*		smoothradiusStr()  { return "latradius"; }
     static const char*		smoothzradiusStr() { return "zradius"; }
