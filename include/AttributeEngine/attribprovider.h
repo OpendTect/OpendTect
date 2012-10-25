@@ -210,8 +210,8 @@ protected:
     				/*!<Gets the index of the serie needed in the 
 				input DataHolder*/
     void			fillInputRangesArray(
-					    Array2DImpl< Interval<int> >&,
-					    int,const Interval<int>&);
+					    Array2DImpl< BasicInterval<int> >&,
+					    int,const BasicInterval<int>&);
 
     				// MultiThreading stuff
     virtual bool		allowParallelComputation() const

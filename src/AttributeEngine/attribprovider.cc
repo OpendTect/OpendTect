@@ -843,10 +843,10 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
     const Interval<int> possintv( mNINT32(possiblevolume_->zrg.start/dz),
 	    			  mNINT32(possiblevolume_->zrg.stop/dz) );
 
-    Array2DImpl< Interval<int> > inputranges( inputs_.size(), intvs.size() );
+    Array2DImpl< BasicInterval<int> > inputranges( inputs_.size(), intvs.size() );
     for ( int idx=0; idx<intvs.size(); idx++ )
     {
-	Interval<int> reqintv = intvs[idx];
+	BasicInterval<int> reqintv = intvs[idx];
 	if ( reqintv.start > possintv.stop || reqintv.stop < possintv.start )
 	{
 	    for ( int inp=0; inp<inputs_.size(); inp++ )
@@ -880,7 +880,7 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 	TypeSet<Interval<int> > inpranges;
 	for ( int idx=0; idx<intvs.size(); idx++ )
 	{
-	    const Interval<int> rg = inputranges.get( inp, idx );
+	    const BasicInterval<int> rg = inputranges.get( inp, idx );
 	    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
 		continue;
 	    inpranges += rg;
@@ -896,8 +896,9 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 	const Interval<type>* des##ts = desZ##Ts##Margin( inp, out );\
 	if ( des##ts ) zrg##ts.include( *des##ts );\
 
-void Provider::fillInputRangesArray( Array2DImpl< Interval<int> >& inputranges, 
-				     int idx, const Interval<int>& reqintv )
+void Provider::fillInputRangesArray(
+				Array2DImpl< BasicInterval<int> >& inputranges,
+				int idx, const BasicInterval<int>& reqintv )
 {
     const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
     for ( int out=0; out<outputinterest_.size(); out++ )
@@ -909,11 +910,11 @@ void Provider::fillInputRangesArray( Array2DImpl< Interval<int> >& inputranges,
 	    if ( !inputs_[inp] )
 		continue;
 
-	    Interval<int> inputrange( reqintv );
-	    Interval<float> zrg( 0, 0 );
+	    BasicInterval<int> inputrange( reqintv );
+	    BasicInterval<float> zrg( 0, 0 );
 	    mUseMargins(float,,);
 
-	    Interval<int> zrgsamp( 0, 0 );
+	    BasicInterval<int> zrgsamp( 0, 0 );
 	    mUseMargins(int,Samp,samp);
 
 	    inputrange.start += mNINT32(zrg.start/dz);
