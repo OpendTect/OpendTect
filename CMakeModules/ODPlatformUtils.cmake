@@ -128,6 +128,8 @@ if(WIN32)
     #add_definitions( /wd4275 ) # 'identifier' : dll-interface
     add_definitions( /wd4996 ) # function': was declared deprecated
     add_definitions( /wd4101 ) # The local variable is never used (disable only for Windows)
+    add_definitions( /wd4267 ) # conversion from 'size_t' to 'type', possible loss of data
+    add_definitions( /wd4267 ) # conversion from 'size_t' to 'type', possible loss of data
     add_definitions( /wd4512 ) # class' : assignment operator could not be generated (not important)
     add_definitions( /wd4127 ) # conditional expression is constant, e.g. while ( true )
     add_definitions( /wd4189 ) # local variable is initialized but not referenced
