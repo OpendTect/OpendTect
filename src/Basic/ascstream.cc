@@ -80,7 +80,7 @@ void ascostream::putKeyword( const char* keyword, bool withsep )
     while ( ptr )
     {
 	// Need to escape mAscStrmKeyValSep in keyword
-	const int offs = ptr - towrite.buf();
+	const od_int64 offs = ptr - towrite.buf();
 	BufferString tmp( ptr + 1 );
 	char escbuf[3];
 	escbuf[0] = '\\'; escbuf[1] = mAscStrmKeyValSep; escbuf[2] = '\0';

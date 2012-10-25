@@ -35,7 +35,7 @@ protected:
 
     TypeSet<int>		vardim_;
     TypeSet<int>		position_;
-    long			offset_;
+    od_int64			offset_;
 };
 
 
