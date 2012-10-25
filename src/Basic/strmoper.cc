@@ -23,7 +23,7 @@ static const unsigned int nrretries = 4;
 static const float retrydelay = 1;
 
 
-bool StrmOper::readBlock( std::istream& strm, void* ptr, unsigned int nrbytes )
+bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
 {
     if ( strm.bad() || strm.eof() || !ptr ) return false;
     strm.clear();
@@ -57,7 +57,7 @@ bool StrmOper::readBlock( std::istream& strm, void* ptr, unsigned int nrbytes )
 
 
 bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
-			   unsigned int nrbytes )
+			   od_uint64 nrbytes )
 {
     if ( strm.bad() || !ptr ) return false;
 
@@ -89,7 +89,7 @@ bool StrmOper::getNextChar( std::istream& strm, char& ch )
     {
 	Threads::sleep( retrydelay );
 	strm.clear();
-	ch = strm.peek();
+	ch = (char) strm.peek();
 	strm.ignore( 1 );
 	return strm.good();
     }

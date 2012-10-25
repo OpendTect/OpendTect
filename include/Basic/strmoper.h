@@ -23,8 +23,8 @@ class BufferString;
 
 namespace StrmOper
 {
-    mGlobal(Basic) bool	readBlock(std::istream&,void*,unsigned int nrbytes);
-    mGlobal(Basic) bool	writeBlock(std::ostream&,const void*,unsigned int);
+    mGlobal(Basic) bool	readBlock(std::istream&,void*,od_uint64 nrbytes);
+    mGlobal(Basic) bool	writeBlock(std::ostream&,const void*,od_uint64);
 
     mGlobal(Basic) bool	getNextChar(std::istream&,char&);
     mGlobal(Basic) bool	wordFromLine(std::istream&,char*,int maxnrchars);
