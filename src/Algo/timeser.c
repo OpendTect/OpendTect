@@ -114,7 +114,7 @@ void AntiAlias( float frac, int sz, const float* arrin, float* arrout )
     float* wts;
 
     if ( frac < 0 ) frac = -frac;
-    width = 2 * (1.f / frac + .5f);
+    width = mCast(int,2 * (1.f / frac + .5f));
     if ( width < 2 || frac >= 1 )
     {
 	memcpy( arrout, arrin, sz * sizeof(float) );
