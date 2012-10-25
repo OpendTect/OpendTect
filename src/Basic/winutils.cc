@@ -52,7 +52,7 @@ const char* getCleanUnxPath( const char* path )
     *drivesep = '\0';
 
     res = drvstr;
-    *ptr = tolower(*ptr);
+    *ptr = (char) tolower(*ptr);
     res += ptr;
     res += ++drivesep;
 
