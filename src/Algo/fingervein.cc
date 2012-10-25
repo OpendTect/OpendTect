@@ -1974,7 +1974,6 @@ void FaultOrientation::thinStep( const Array2D<bool>& input,
 	    bool bw01 = !idx ? false : input.get(idx-1,idy);
 	    bool bw02 = !idx || idy==lastidy ? false : input.get(idx-1,idy+1);
 	    bool bw10 = !idy ? false : input.get(idx,idy-1);
-	    bool bw11 = input.get(idx,idy);
 	    bool bw12 = idy==lastidy ? false : input.get(idx,idy+1);
 	    bool bw20 = idx==lastidx || !idy ? false : input.get(idx+1,idy-1);
 	    bool bw21 = idx==lastidx ? false : input.get(idx+1,idy);
@@ -1997,8 +1996,8 @@ void FaultOrientation::thinStep( const Array2D<bool>& input,
 	    if ( NCondition2<2 || NCondition2>3 )
 		continue;
 	    
-	    int NCondition3 = firststep ? ((bw12 | bw01 | (!bw22)) & bw12)
-					: ((bw20 | bw21 | (!bw11)) & bw10);
+	    int NCondition3 = firststep ? ((bw02 | bw01 | (!bw22)) & bw12)
+					: ((bw20 | bw21 | (!bw00)) & bw10);
 	    if ( !NCondition3 )
 		output.set( idx, idy, 0 );
 	}
