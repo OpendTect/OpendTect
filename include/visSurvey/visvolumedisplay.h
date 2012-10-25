@@ -159,7 +159,6 @@ public:
     virtual bool		allowsPicks() const;
     bool			canDuplicate() const		{ return true; }
     visSurvey::SurveyObject*	duplicate(TaskRunner*) const;
-    void			init();
 
     void			allowShading(bool yn ) { allowshading_ = yn; }
 
@@ -180,6 +179,8 @@ public:
 
 protected:
 				~VolumeDisplay();
+
+    void			init();
     bool			updateSeedBasedSurface(int,TaskRunner* = 0);
     void			materialChange(CallBacker*);
     void			updateIsoSurfColor();
