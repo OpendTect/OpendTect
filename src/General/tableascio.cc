@@ -239,9 +239,11 @@ void TargetInfo::usePar( const IOPar& iopar )
 
     for ( int idx=0; idx<nrelems; idx++ )
     {
-	const char typc = *fms[curfmsidx];
+	FixedString typestring = fms[curfmsidx];
+	const char typc = typestring.isEmpty() ? 0 : *typestring.str();
 	const int typ = typc == 'P' ? 2 : (typc == 'K' ? 1 : 0);
-	curfmsidx++; res = fms[curfmsidx];
+	curfmsidx++;
+	res = fms[curfmsidx];
 	TargetInfo::Selection::Elem elem;
 	if ( typ == 0 )
 	    elem.val_ = res;
