@@ -27,15 +27,15 @@ Scaler* Scaler::get( const char* str )
     if ( !str || ! *str ) return new LinScaler;
 
     FileMultiString fs( str );
-    const char* typ = fs[0];
+    FixedString typ = fs[0];
     Scaler* scaler = 0;
-    if ( !strcmp(typ,sLinScaler) )
+    if ( typ==sLinScaler )
 	scaler = new LinScaler;
-    else if ( !strcmp(typ,sLogScaler) )
+    else if ( typ==sLogScaler )
 	scaler = new LogScaler;
-    else if ( !strcmp(typ,sExpScaler) )
+    else if ( typ==sExpScaler )
 	scaler = new ExpScaler;
-    else if ( !strcmp(typ,sAsymptScaler) )
+    else if ( typ==sAsymptScaler )
 	scaler = new AsymptScaler;
 
     if ( scaler ) scaler->fromString( fs.from(1) );
