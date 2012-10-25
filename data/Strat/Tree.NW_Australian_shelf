@@ -1,0 +1,1710 @@
+dTect V4.4
+Stratigraphic Tree
+Wed 24 Oct 2012, 22:55:23
+!
+General
+Lithology: unknown`0`N`#55aa7f
+Lithology: carbonates`1`N`#ffff7f
+Lithology: sandstone`2`N`#00ff7f
+Lithology: shale`3`N`#aa5500
+Lithology: shale-anoxic`4`N`#00aa7f
+Lithology: carbonates_and_sandstone`5`N`#55aa7f
+Lithology: carbonates,sandstone,shale`6`N`#00557f
+Lithology: carbonates_and_shale`7`N`#81ff19
+Lithology: sandstone_and_carbonate`8`N`#81ff19
+Lithology: sandstone_and_shale`9`N`#ffaa7f
+Lithology: radiolarite`10`N`#aa00ff
+Lithology: shale_and_sandstone`11`N`#55aa7f
+!
+Units
+Quaternary:  
+Quaternary.Pliestocene:  
+Quaternary.Pliestocene.ionian:  
+Quaternary.Pliestocene.ionian.P__leonis: -1` 
+Quaternary.Pliestocene.ionian.P__leonis.carbonates,sandstone,shale: 6` 
+Quaternary.Pliestocene.Calabrian:  
+Quaternary.Pliestocene.Calabrian.P_leonis: -1` 
+Quaternary.Pliestocene.Calabrian.P_leonis.carbonates,sandstone,shale: 6` 
+TERTIARY:  
+TERTIARY.Late_Pliocene:  
+TERTIARY.Late_Pliocene.Gelasian:  
+TERTIARY.Late_Pliocene.Gelasian.A_ramulifera: -1` 
+TERTIARY.Late_Pliocene.Gelasian.A_ramulifera.carbonates,sandstone,shale: 6` 
+TERTIARY.Late_Pliocene.Placenzian:  
+TERTIARY.Late_Pliocene.Placenzian.M_choanophorum: -1` 
+TERTIARY.Late_Pliocene.Placenzian.M_choanophorum.carbonates,sandstone,shale: 6` 
+TERTIARY.Early_Pliocene:  
+TERTIARY.Early_Pliocene.Zanclean:  
+TERTIARY.Early_Pliocene.Zanclean.M_choanophorum: -1` 
+TERTIARY.Early_Pliocene.Zanclean.M_choanophorum.carbonates,sandstone,shale: 6` 
+TERTIARY.Late_Miocene:  
+TERTIARY.Late_Miocene.Messinian:  
+TERTIARY.Late_Miocene.Messinian.F__bifurcatus: 2` 
+TERTIARY.Late_Miocene.Messinian.F__bifurcatus.carbonates,sandstone,shale: 6` 
+TERTIARY.Late_Miocene.Tortonian:  
+TERTIARY.Late_Miocene.Tortonian.T_bellus: -1` 
+TERTIARY.Late_Miocene.Tortonian.T_bellus.carbonates,sandstone,shale: 6` 
+TERTIARY.Mid_Miocene:  
+TERTIARY.Mid_Miocene.Serravallian:  
+TERTIARY.Mid_Miocene.Serravallian.T_bellus: -1` 
+TERTIARY.Mid_Miocene.Serravallian.T_bellus.carbonates_and_sandstone: 5` 
+TERTIARY.Mid_Miocene.Langhian:  
+TERTIARY.Mid_Miocene.Langhian.T_bellus: -1` 
+TERTIARY.Mid_Miocene.Langhian.T_bellus.carbonates_and_sandstone: 5` 
+TERTIARY.Early_Miocene:  
+TERTIARY.Early_Miocene.Burdigalian:  
+TERTIARY.Early_Miocene.Burdigalian.P_tuberculatus: 3` 
+TERTIARY.Early_Miocene.Burdigalian.P_tuberculatus.carbonates_and_sandstone: 5` 
+TERTIARY.Early_Miocene.Aquitanian:  
+TERTIARY.Early_Miocene.Aquitanian.P_tuberculatus: -1` 
+TERTIARY.Early_Miocene.Aquitanian.P_tuberculatus.carbonates_and_sandstone: 5` 
+TERTIARY.Late_Oligocene:  
+TERTIARY.Late_Oligocene.Chattian:  
+TERTIARY.Late_Oligocene.Chattian.P_tuberculatus: -1` 
+TERTIARY.Late_Oligocene.Chattian.P_tuberculatus.carbonates_and_sandstone: 5` 
+TERTIARY.Early_Oligocene:  
+TERTIARY.Early_Oligocene.Rupelian:  
+TERTIARY.Early_Oligocene.Rupelian.P_tuberculatus: -1` 
+TERTIARY.Early_Oligocene.Rupelian.P_tuberculatus.sandstone_and_carbonate: 8` 
+TERTIARY.Early_Oligocene.Rupelian.F_leos: 4` 
+TERTIARY.Early_Oligocene.Rupelian.F_leos.sandstone_and_carbonate: 8` 
+TERTIARY.Early_Oligocene.Rupelian.P_comatum_Acme: -1` 
+TERTIARY.Early_Oligocene.Rupelian.P_comatum_Acme.sandstone_and_carbonate: 8` 
+TERTIARY.Late_Eocene:  
+TERTIARY.Late_Eocene.Priabonian:  
+TERTIARY.Late_Eocene.Priabonian.S_kakanuiensis: -1` 
+TERTIARY.Late_Eocene.Priabonian.S_kakanuiensis.sandstone_and_carbonate: 8` 
+TERTIARY.Late_Eocene.Priabonian.D_incompositum: -1` 
+TERTIARY.Late_Eocene.Priabonian.D_incompositum.sandstone_and_carbonate: 8` 
+TERTIARY.Mid_Eocene:  
+TERTIARY.Mid_Eocene.Bartonian:  
+TERTIARY.Mid_Eocene.Bartonian.C_incompositum: -1` 
+TERTIARY.Mid_Eocene.Bartonian.C_incompositum.sandstone_and_carbonate: 8` 
+TERTIARY.Mid_Eocene.Bartonian.D_heterophlycta: -1` 
+TERTIARY.Mid_Eocene.Bartonian.D_heterophlycta.sandstone_and_carbonate: 8` 
+TERTIARY.Mid_Eocene.Lutetian:  
+TERTIARY.Mid_Eocene.Lutetian.E_partridgei: -1` 
+TERTIARY.Mid_Eocene.Lutetian.E_partridgei.sandstone_and_carbonate: 8` 
+TERTIARY.Mid_Eocene.Lutetian.A_antarcticum: -1` 
+TERTIARY.Mid_Eocene.Lutetian.A_antarcticum.sandstone_and_carbonate: 8` 
+TERTIARY.Mid_Eocene.Lutetian.P_asteris: -1` 
+TERTIARY.Mid_Eocene.Lutetian.P_asteris.sandstone_and_carbonate: 8` 
+TERTIARY.Mid_Eocene.Lutetian.M_perforatum: -1` 
+TERTIARY.Mid_Eocene.Lutetian.M_perforatum.sandstone_and_carbonate: 8` 
+TERTIARY.Mid_Eocene.Lutetian.C_edwardsii: -1` 
+TERTIARY.Mid_Eocene.Lutetian.C_edwardsii.sandstone_and_carbonate: 8` 
+TERTIARY.Early_Eocene:  
+TERTIARY.Early_Eocene.Ypresian:  
+TERTIARY.Early_Eocene.Ypresian.C_edwardsii: -1` 
+TERTIARY.Early_Eocene.Ypresian.C_edwardsii.carbonates_and_sandstone: 5` 
+TERTIARY.Early_Eocene.Ypresian.C_thompsoniae: -1` 
+TERTIARY.Early_Eocene.Ypresian.C_thompsoniae.carbonates_and_sandstone: 5` 
+TERTIARY.Early_Eocene.Ypresian.W_ornatum: -1` 
+TERTIARY.Early_Eocene.Ypresian.W_ornatum.carbonates_and_sandstone: 5` 
+TERTIARY.Early_Eocene.Ypresian.R_waipawaense: -1` 
+TERTIARY.Early_Eocene.Ypresian.R_waipawaense.carbonates_and_sandstone: 5` 
+TERTIARY.Early_Eocene.Ypresian.A_homomorphum: -1` 
+TERTIARY.Early_Eocene.Ypresian.A_homomorphum.carbonates_and_sandstone: 5` 
+TERTIARY.Late_Paleocene:  
+TERTIARY.Late_Paleocene.Thanetian:  
+TERTIARY.Late_Paleocene.Thanetian.A_hyperacanthum: -1` 
+TERTIARY.Late_Paleocene.Thanetian.A_hyperacanthum.sandstone_and_shale: 9` 
+TERTIARY.Late_Paleocene.Thanetian.A_reburrus_Acme: -1` 
+TERTIARY.Late_Paleocene.Thanetian.A_reburrus_Acme.sandstone_and_shale: 9` 
+TERTIARY.Late_Paleocene.Thanetian.S_dilwynensis: -1` 
+TERTIARY.Late_Paleocene.Thanetian.S_dilwynensis.sandstone_and_shale: 9` 
+TERTIARY.Late_Paleocene.Thanetian.E_crassitabulata: -1` 
+TERTIARY.Late_Paleocene.Thanetian.E_crassitabulata.sandstone_and_shale: 9` 
+TERTIARY.Late_Paleocene.Selandian:  
+TERTIARY.Late_Paleocene.Selandian.E_crassitabulata: -1` 
+TERTIARY.Late_Paleocene.Selandian.E_crassitabulata.sandstone_and_shale: 9` 
+TERTIARY.Late_Paleocene.Selandian.A_circumtabulata: -1` 
+TERTIARY.Late_Paleocene.Selandian.A_circumtabulata.sandstone_and_shale: 9` 
+TERTIARY.Early_Paleocene:  
+TERTIARY.Early_Paleocene.Danian:  
+TERTIARY.Early_Paleocene.Danian.P_pyrophorum: -1` 
+TERTIARY.Early_Paleocene.Danian.P_pyrophorum.sandstone_and_shale: 9` 
+TERTIARY.Early_Paleocene.Danian.T_evittii_Acme: -1` 
+TERTIARY.Early_Paleocene.Danian.T_evittii_Acme.sandstone_and_shale: 9` 
+Cretaceous:  
+Cretaceous.Senonian:  
+Cretaceous.Senonian.Late_Maastrichtian:  
+Cretaceous.Senonian.Late_Maastrichtian.M__druggii: 5` 
+Cretaceous.Senonian.Late_Maastrichtian.M__druggii.shale: 3` 
+Cretaceous.Senonian.Early_Maastrichtian: -1` 
+Cretaceous.Senonian.Early_Maastrichtian.shale: 3` 
+Cretaceous.Senonian.Late_Campanian:  
+Cretaceous.Senonian.Late_Campanian.I__korojonense: -1` 
+Cretaceous.Senonian.Late_Campanian.I__korojonense.shale: 3` 
+Cretaceous.Senonian.Mid_Campanian:  
+Cretaceous.Senonian.Mid_Campanian.I__korojonense: -1` 
+Cretaceous.Senonian.Mid_Campanian.I__korojonense.shale: 3` 
+Cretaceous.Senonian.Early_Campanian:  
+Cretaceous.Senonian.Early_Campanian.X__australis: -1` 
+Cretaceous.Senonian.Early_Campanian.X__australis.shale: 3` 
+Cretaceous.Senonian.Early_Campanian.N__aceras: -1` 
+Cretaceous.Senonian.Early_Campanian.N__aceras.shale: 3` 
+Cretaceous.Senonian.Santonian:  
+Cretaceous.Senonian.Santonian.N_aceras: -1` 
+Cretaceous.Senonian.Santonian.N_aceras.shale: 3` 
+Cretaceous.Senonian.Santonian.I_cretaceum: -1` 
+Cretaceous.Senonian.Santonian.I_cretaceum.shale: 3` 
+Cretaceous.Senonian.Coniacian:  
+Cretaceous.Senonian.Coniacian.C__striataconum: -1` 
+Cretaceous.Senonian.Coniacian.C__striataconum.shale: 3` 
+Cretaceous.Senonian.Coniacian.P__infususunoides: -1` 
+Cretaceous.Senonian.Coniacian.P__infususunoides.shale: 3` 
+Cretaceous.Senonian.Turonian:  
+Cretaceous.Senonian.Turonian.P__infusunoides: -1` 
+Cretaceous.Senonian.Turonian.P__infusunoides.shale: 3` 
+Cretaceous.Senonian.Cenomanian:  
+Cretaceous.Senonian.Cenomanian.D__multispinum: 6` 
+Cretaceous.Senonian.Cenomanian.D__multispinum.shale: 3` 
+Cretaceous.Gallic:  
+Cretaceous.Gallic.Albian:  
+Cretaceous.Gallic.Albian.X__asperatus: -1` 
+Cretaceous.Gallic.Albian.X__asperatus.shale: 3` 
+Cretaceous.Gallic.Albian.D__armata: -1` 
+Cretaceous.Gallic.Albian.D__armata.shale: 3` 
+Cretaceous.Gallic.Albian.E__ludbrookiae: -1` 
+Cretaceous.Gallic.Albian.E__ludbrookiae.shale: 3` 
+Cretaceous.Gallic.Albian.C,_denticulata: -1` 
+Cretaceous.Gallic.Albian.C,_denticulata.shale: 3` 
+Cretaceous.Gallic.Albian.M__tetracantha: -1` 
+Cretaceous.Gallic.Albian.M__tetracantha.shale: 3` 
+Cretaceous.Gallic.Aptian:  
+Cretaceous.Gallic.Aptian.D_davidii: -1` 
+Cretaceous.Gallic.Aptian.D_davidii.radiolarite: 10` 
+Cretaceous.Gallic.Aptian.O_operculata: 7` 
+Cretaceous.Gallic.Aptian.O_operculata.radiolarite: 10` 
+Cretaceous.Gallic.Barremian:  
+Cretaceous.Gallic.Barremian.M_australis: -1` 
+Cretaceous.Gallic.Barremian.M_australis.shale-anoxic: 4` 
+Cretaceous.Neocomian:  
+Cretaceous.Neocomian.Hauterivian:  
+Cretaceous.Neocomian.Hauterivian.M_australis: -1` 
+Cretaceous.Neocomian.Hauterivian.M_australis.sandstone_and_shale: 9` 
+Cretaceous.Neocomian.Hauterivian.M_testudinnaria: -1` 
+Cretaceous.Neocomian.Hauterivian.M_testudinnaria.shale-anoxic: 4` 
+Cretaceous.Neocomian.Hauterivian.P_burgeri: -1` 
+Cretaceous.Neocomian.Hauterivian.P_burgeri.shale-anoxic: 4` 
+Cretaceous.Neocomian.Hauterivian.S_tabulata: -1` 
+Cretaceous.Neocomian.Hauterivian.S_tabulata.shale-anoxic: 4` 
+Cretaceous.Neocomian.Valanginian:  
+Cretaceous.Neocomian.Valanginian.S_areolata: -1` 
+Cretaceous.Neocomian.Valanginian.S_areolata.shale-anoxic: 4` 
+Cretaceous.Neocomian.Valanginian.E_torynum: 9` 
+Cretaceous.Neocomian.Valanginian.E_torynum.shale-anoxic: 4` 
+Cretaceous.Neocomian.Berriasian:  
+Cretaceous.Neocomian.Berriasian.B_reticulatum: -1` 
+Cretaceous.Neocomian.Berriasian.B_reticulatum.shale-anoxic: 4` 
+Cretaceous.Neocomian.Berriasian.D_lobospinosum: -1` 
+Cretaceous.Neocomian.Berriasian.D_lobospinosum.shale-anoxic: 4` 
+Cretaceous.Neocomian.Berriasian.C_delicata: -1` 
+Cretaceous.Neocomian.Berriasian.C_delicata.shale-anoxic: 4` 
+Cretaceous.Neocomian.Berriasian.K_wisemaniae: -1` 
+Cretaceous.Neocomian.Berriasian.K_wisemaniae.shale-anoxic: 4` 
+Cretaceous.Neocomian.Berriasian.P_iehiense: 10` 
+Cretaceous.Neocomian.Berriasian.P_iehiense.shale-anoxic: 4` 
+JURASSIC:  
+JURASSIC.Late_Jurassic:  
+JURASSIC.Late_Jurassic.Tithonian:  
+JURASSIC.Late_Jurassic.Tithonian.P_iehiense: -1` 
+JURASSIC.Late_Jurassic.Tithonian.P_iehiense.shale_and_sandstone: 11` 
+JURASSIC.Late_Jurassic.Tithonian.D_jurassicum: -1` 
+JURASSIC.Late_Jurassic.Tithonian.D_jurassicum.shale_and_sandstone: 11` 
+JURASSIC.Late_Jurassic.Tithonian.O_montgomeryi: -1` 
+JURASSIC.Late_Jurassic.Tithonian.O_montgomeryi.shale_and_sandstone: 11` 
+JURASSIC.Late_Jurassic.Tithonian.C_perforans: -1` 
+JURASSIC.Late_Jurassic.Tithonian.C_perforans.shale_and_sandstone: 11` 
+JURASSIC.Late_Jurassic.Kimmeridgian:  
+JURASSIC.Late_Jurassic.Kimmeridgian.D_swanense: 20` 
+JURASSIC.Late_Jurassic.Kimmeridgian.D_swanense.shale_and_sandstone: 11` 
+JURASSIC.Late_Jurassic.Kimmeridgian.W_clathrata: -1` 
+JURASSIC.Late_Jurassic.Kimmeridgian.W_clathrata.shale_and_sandstone: 11` 
+JURASSIC.Late_Jurassic.Oxfordian:  
+JURASSIC.Late_Jurassic.Oxfordian.W_clathrata: -1` 
+JURASSIC.Late_Jurassic.Oxfordian.W_clathrata.shale_and_sandstone: 11` 
+JURASSIC.Late_Jurassic.Oxfordian.W_spectabilis: -1` 
+JURASSIC.Late_Jurassic.Oxfordian.W_spectabilis.shale_and_sandstone: 11` 
+JURASSIC.Late_Jurassic.Oxfordian.C_ancorum: 21` 
+JURASSIC.Late_Jurassic.Oxfordian.C_ancorum.shale_and_sandstone: 11` 
+JURASSIC.Middle_Jurassic:  
+JURASSIC.Middle_Jurassic.Callovian:  
+JURASSIC.Middle_Jurassic.Callovian.V_tabulata: -1` 
+JURASSIC.Middle_Jurassic.Callovian.V_tabulata.shale_and_sandstone: 11` 
+JURASSIC.Middle_Jurassic.Callovian.T_balmei: -1` 
+JURASSIC.Middle_Jurassic.Callovian.T_balmei.shale_and_sandstone: 11` 
+JURASSIC.Middle_Jurassic.Callovian.W_indotata: 22` 
+JURASSIC.Middle_Jurassic.Callovian.W_indotata.sandstone: 2` 
+JURASSIC.Middle_Jurassic.Bathonian:  
+JURASSIC.Middle_Jurassic.Bathonian.W_indotata: -1` 
+JURASSIC.Middle_Jurassic.Bathonian.W_indotata.sandstone_and_shale: 9` 
+JURASSIC.Middle_Jurassic.Bathonian.W_verrucosa: -1` 
+JURASSIC.Middle_Jurassic.Bathonian.W_verrucosa.sandstone_and_shale: 9` 
+JURASSIC.Middle_Jurassic.Bajocian:  
+JURASSIC.Middle_Jurassic.Bajocian.N_deflandrei: -1` 
+JURASSIC.Middle_Jurassic.Bajocian.N_deflandrei.sandstone: 2` 
+JURASSIC.Middle_Jurassic.Bajocian.D_caddaense: -1` 
+JURASSIC.Middle_Jurassic.Bajocian.D_caddaense.sandstone: 2` 
+JURASSIC.Middle_Jurassic.Aalenian:  
+JURASSIC.Middle_Jurassic.Aalenian.Upper_C_turbatus: -1` 
+JURASSIC.Middle_Jurassic.Aalenian.Upper_C_turbatus.shale: 3` 
+JURASSIC.Early_Jurassic:  
+JURASSIC.Early_Jurassic.Toarcian:  
+JURASSIC.Early_Jurassic.Toarcian.Lower_C_turbatus: -1` 
+JURASSIC.Early_Jurassic.Toarcian.Lower_C_turbatus.shale: 3` 
+JURASSIC.Early_Jurassic.Toarcian.Luehndea_Assemblage: -1` 
+JURASSIC.Early_Jurassic.Toarcian.Luehndea_Assemblage.shale: 3` 
+JURASSIC.Early_Jurassic.Pliensbachian:  
+JURASSIC.Early_Jurassic.Pliensbachian.upper_D_priscum: -1` 
+JURASSIC.Early_Jurassic.Pliensbachian.upper_D_priscum.sandstone: 2` 
+JURASSIC.Early_Jurassic.Sinemurian:  
+JURASSIC.Early_Jurassic.Sinemurian.upper_D_priscum: -1` 
+JURASSIC.Early_Jurassic.Sinemurian.upper_D_priscum.shale: 3` 
+JURASSIC.Early_Jurassic.Hettangian:  
+JURASSIC.Early_Jurassic.Hettangian.upper_D_priscum: -1` 
+JURASSIC.Early_Jurassic.Hettangian.upper_D_priscum.shale: 3` 
+TRIASSIC:  
+TRIASSIC.Late_Triassic:  
+TRIASSIC.Late_Triassic.Rhaetian:  
+TRIASSIC.Late_Triassic.Rhaetian.lower_D_priscum: -1` 
+TRIASSIC.Late_Triassic.Rhaetian.lower_D_priscum.shale: 3` 
+TRIASSIC.Late_Triassic.Rhaetian.R_rhaetica: -1` 
+TRIASSIC.Late_Triassic.Rhaetian.R_rhaetica.sandstone_and_shale: 9` 
+TRIASSIC.Late_Triassic.Norian:  
+TRIASSIC.Late_Triassic.Norian.H_balmei: 24` 
+TRIASSIC.Late_Triassic.Norian.H_balmei.shale_and_sandstone: 11` 
+TRIASSIC.Late_Triassic.Norian.S_listeri: -1` 
+TRIASSIC.Late_Triassic.Norian.S_listeri.shale_and_sandstone: 11` 
+TRIASSIC.Late_Triassic.Carnian:  
+TRIASSIC.Late_Triassic.Carnian.S_wigginsii: -1` 
+TRIASSIC.Late_Triassic.Carnian.S_wigginsii.sandstone_and_shale: 9` 
+TRIASSIC.Late_Triassic.Carnian.S_speciosus: -1` 
+TRIASSIC.Late_Triassic.Carnian.S_speciosus.shale_and_sandstone: 11` 
+TRIASSIC.Middle_Triassic:  
+TRIASSIC.Middle_Triassic.Ladinian:  
+TRIASSIC.Middle_Triassic.Ladinian.S_speciosus: -1` 
+TRIASSIC.Middle_Triassic.Ladinian.S_speciosus.shale_and_sandstone: 11` 
+TRIASSIC.Middle_Triassic.Ladinian.s__quad_/_S_otti: -1` 
+TRIASSIC.Middle_Triassic.Ladinian.s__quad_/_S_otti.shale_and_sandstone: 11` 
+TRIASSIC.Middle_Triassic.Anisian:  
+TRIASSIC.Middle_Triassic.Anisian.S_quad_/_S_otti: -1` 
+TRIASSIC.Middle_Triassic.Anisian.S_quad_/_S_otti.shale_and_sandstone: 11` 
+TRIASSIC.Middle_Triassic.Anisian.T_playfordii: -1` 
+TRIASSIC.Middle_Triassic.Anisian.T_playfordii.shale_and_sandstone: 11` 
+TRIASSIC.Early_Triassic:  
+TRIASSIC.Early_Triassic.Olenekian:  
+TRIASSIC.Early_Triassic.Olenekian.T_playfordii: -1` 
+TRIASSIC.Early_Triassic.Olenekian.T_playfordii.shale_and_sandstone: 11` 
+TRIASSIC.Early_Triassic.Olenekian.P_samoilovichii: -1` 
+TRIASSIC.Early_Triassic.Olenekian.P_samoilovichii.shale_and_sandstone: 11` 
+TRIASSIC.Early_Triassic.Induan:  
+TRIASSIC.Early_Triassic.Induan.L_pellucidus: -1` 
+TRIASSIC.Early_Triassic.Induan.L_pellucidus.shale_and_sandstone: 11` 
+PERMIAN:  
+PERMIAN.Lopingian:  
+PERMIAN.Lopingian.Changhsingian:  
+PERMIAN.Lopingian.Changhsingian.P_microcorpus: 26` 
+PERMIAN.Lopingian.Changhsingian.P_microcorpus.shale_and_sandstone: 11` 
+PERMIAN.Lopingian.Changhsingian.P_crenulata: -1` 
+PERMIAN.Lopingian.Changhsingian.P_crenulata.shale_and_sandstone: 11` 
+PERMIAN.Lopingian.Wuchiapingian:  
+PERMIAN.Lopingian.Wuchiapingian.D_parvithola: -1` 
+PERMIAN.Lopingian.Wuchiapingian.D_parvithola.shale_and_sandstone: 11` 
+PERMIAN.Guadalupian:  
+PERMIAN.Guadalupian.Capitanian:  
+PERMIAN.Guadalupian.Capitanian.D_parvithola: -1` 
+PERMIAN.Guadalupian.Capitanian.D_parvithola.shale_and_sandstone: 11` 
+PERMIAN.Guadalupian.Capitanian.D_dulhuntyi: -1` 
+PERMIAN.Guadalupian.Capitanian.D_dulhuntyi.shale_and_sandstone: 11` 
+PERMIAN.Guadalupian.Wordian:  
+PERMIAN.Guadalupian.Wordian.D_encianus: -1` 
+PERMIAN.Guadalupian.Wordian.D_encianus.shale_and_sandstone: 11` 
+PERMIAN.Guadalupian.Roadian:  
+PERMIAN.Guadalupian.Roadian.D_granulata: -1` 
+PERMIAN.Guadalupian.Roadian.D_granulata.shale_and_sandstone: 11` 
+PERMIAN.Guadalupian.Roadian.M_villosa: -1` 
+PERMIAN.Guadalupian.Roadian.M_villosa.shale_and_sandstone: 11` 
+PERMIAN.Cisuralian:  
+PERMIAN.Cisuralian.Kungurian:  
+PERMIAN.Cisuralian.Kungurian.M_villosa: -1` 
+PERMIAN.Cisuralian.Kungurian.M_villosa.shale_and_sandstone: 11` 
+PERMIAN.Cisuralian.Kungurian.P_sinuosis: -1` 
+PERMIAN.Cisuralian.Kungurian.P_sinuosis.shale_and_sandstone: 11` 
+PERMIAN.Cisuralian.Arlinskian:  
+PERMIAN.Cisuralian.Arlinskian.M_trisina: -1` 
+PERMIAN.Cisuralian.Arlinskian.M_trisina.shale_and_sandstone: 11` 
+PERMIAN.Cisuralian.Arlinskian.D_byroensis: -1` 
+PERMIAN.Cisuralian.Arlinskian.D_byroensis.shale_and_sandstone: 11` 
+PERMIAN.Cisuralian.Sakmarian:  
+PERMIAN.Cisuralian.Sakmarian.S_fusus: -1` 
+PERMIAN.Cisuralian.Sakmarian.S_fusus.shale_and_sandstone: 11` 
+PERMIAN.Cisuralian.Sakmarian.P_pseudoreticulata: -1` 
+PERMIAN.Cisuralian.Sakmarian.P_pseudoreticulata.shale_and_sandstone: 11` 
+PERMIAN.Cisuralian.Sakmarian.P_confluens: -1` 
+PERMIAN.Cisuralian.Sakmarian.P_confluens.shale_and_sandstone: 11` 
+PERMIAN.Cisuralian.Asselian:  
+PERMIAN.Cisuralian.Asselian.P_confluens: -1` 
+PERMIAN.Cisuralian.Asselian.P_confluens.shale_and_sandstone: 11` 
+PERMIAN.Cisuralian.Asselian.M_tentula: -1` 
+PERMIAN.Cisuralian.Asselian.M_tentula.shale_and_sandstone: 11` 
+CARBONIFEROUS:  
+CARBONIFEROUS.Late_Pensylvanian:  
+CARBONIFEROUS.Late_Pensylvanian.Gzhelian:  
+CARBONIFEROUS.Late_Pensylvanian.Gzhelian.M_tenuistriata: -1` 
+CARBONIFEROUS.Late_Pensylvanian.Gzhelian.M_tenuistriata.shale_and_sandstone: 11` 
+CARBONIFEROUS.Late_Pensylvanian.Kasimovian:  
+CARBONIFEROUS.Late_Pensylvanian.Kasimovian.M_tenuistriata: -1` 
+CARBONIFEROUS.Late_Pensylvanian.Kasimovian.M_tenuistriata.shale_and_sandstone: 11` 
+CARBONIFEROUS.Middle_Pennsylvanian:  
+CARBONIFEROUS.Middle_Pennsylvanian.Moscovian:  
+CARBONIFEROUS.Middle_Pennsylvanian.Moscovian.M_tenuistriata: -1` 
+CARBONIFEROUS.Middle_Pennsylvanian.Moscovian.M_tenuistriata.shale_and_sandstone: 11` 
+CARBONIFEROUS.Early_Pennsylvanian:  
+CARBONIFEROUS.Early_Pennsylvanian.Bashkirian:  
+CARBONIFEROUS.Early_Pennsylvanian.Bashkirian.D_birkenheadensis: -1` 
+CARBONIFEROUS.Early_Pennsylvanian.Bashkirian.D_birkenheadensis.shale_and_sandstone: 11` 
+CARBONIFEROUS.Early_Pennsylvanian.Bashkirian.S_ybertii: -1` 
+CARBONIFEROUS.Early_Pennsylvanian.Bashkirian.S_ybertii.shale_and_sandstone: 11` 
+CARBONIFEROUS.Late_Mississippian:  
+CARBONIFEROUS.Late_Mississippian.Serpukhovian:  
+CARBONIFEROUS.Late_Mississippian.Serpukhovian.S_ybertii: -1` 
+CARBONIFEROUS.Late_Mississippian.Serpukhovian.S_ybertii.shale_and_sandstone: 11` 
+CARBONIFEROUS.Late_Mississippian.Serpukhovian.G_makulosa: -1` 
+CARBONIFEROUS.Late_Mississippian.Serpukhovian.G_makulosa.shale_and_sandstone: 11` 
+CARBONIFEROUS.Mid_Mississippian:  
+CARBONIFEROUS.Mid_Mississippian.Visean:  
+CARBONIFEROUS.Mid_Mississippian.Visean.A_Largus: -1` 
+CARBONIFEROUS.Mid_Mississippian.Visean.A_Largus.shale_and_sandstone: 11` 
+CARBONIFEROUS.Early_Mississippi:  
+CARBONIFEROUS.Early_Mississippi.Tournaisian: -1` 
+CARBONIFEROUS.Early_Mississippi.Tournaisian.shale_and_sandstone: 11` 
+!
+Properties for entire tree
+Color: 255`255`255
+Time: 0`2000
+!
+Properties for Quaternary
+Color: 255`255`127
+Time: 0`1.81
+!
+Properties for Quaternary.Pliestocene
+Color: 255`255`127
+Time: 0`1.81
+!
+Properties for Quaternary.Pliestocene.ionian
+Color: 50`200`50
+Time: 0`0.78
+!
+Properties for Quaternary.Pliestocene.ionian.P__leonis
+Color: 255`255`0
+Time: 0`0.78
+!
+Properties for Quaternary.Pliestocene.ionian.P__leonis.carbonates,sandstone,shale
+Color: 255`255`255
+!
+Properties for Quaternary.Pliestocene.Calabrian
+Color: 50`200`200
+Time: 0.78`1.81
+!
+Properties for Quaternary.Pliestocene.Calabrian.P_leonis
+Color: 255`255`0
+Time: 0.78`1.81
+!
+Properties for Quaternary.Pliestocene.Calabrian.P_leonis.carbonates,sandstone,shale
+Color: 255`255`255
+!
+Properties for TERTIARY
+Color: 170`255`0
+Time: 1.81`65.5
+!
+Properties for TERTIARY.Late_Pliocene
+Color: 255`255`0
+Time: 1.81`3.6
+!
+Properties for TERTIARY.Late_Pliocene.Gelasian
+Color: 255`210`0
+Time: 1.81`2.59
+!
+Properties for TERTIARY.Late_Pliocene.Gelasian.A_ramulifera
+Color: 140`130`80
+Time: 1.81`2.59
+!
+Properties for TERTIARY.Late_Pliocene.Gelasian.A_ramulifera.carbonates,sandstone,shale
+Color: 255`255`255
+!
+Properties for TERTIARY.Late_Pliocene.Placenzian
+Color: 220`0`220
+Time: 2.59`3.6
+!
+Properties for TERTIARY.Late_Pliocene.Placenzian.M_choanophorum
+Color: 85`170`0
+Time: 2.59`3.6
+!
+Properties for TERTIARY.Late_Pliocene.Placenzian.M_choanophorum.carbonates,sandstone,shale
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Pliocene
+Color: 85`255`127
+Time: 3.6`5.332
+!
+Properties for TERTIARY.Early_Pliocene.Zanclean
+Color: 140`130`80
+Time: 3.6`5.332
+!
+Properties for TERTIARY.Early_Pliocene.Zanclean.M_choanophorum
+Color: 85`170`0
+Time: 3.6`5.332
+!
+Properties for TERTIARY.Early_Pliocene.Zanclean.M_choanophorum.carbonates,sandstone,shale
+Color: 255`255`255
+!
+Properties for TERTIARY.Late_Miocene
+Color: 255`255`127
+Time: 5.332`11.608
+!
+Properties for TERTIARY.Late_Miocene.Messinian
+Color: 100`160`0
+Time: 5.332`7.246
+!
+Properties for TERTIARY.Late_Miocene.Messinian.F__bifurcatus
+Color: 204`133`61
+Time: 5.332`7.246
+!
+Properties for TERTIARY.Late_Miocene.Messinian.F__bifurcatus.carbonates,sandstone,shale
+Color: 255`255`255
+!
+Properties for TERTIARY.Late_Miocene.Tortonian
+Color: 140`35`80
+Time: 7.246`11.608
+!
+Properties for TERTIARY.Late_Miocene.Tortonian.T_bellus
+Color: 85`170`255
+Time: 7.246`11.608
+!
+Properties for TERTIARY.Late_Miocene.Tortonian.T_bellus.carbonates,sandstone,shale
+Color: 255`255`255
+!
+Properties for TERTIARY.Mid_Miocene
+Color: 255`255`0
+Time: 11.608`15.97
+!
+Properties for TERTIARY.Mid_Miocene.Serravallian
+Color: 204`133`61
+Time: 11.608`13.65
+!
+Properties for TERTIARY.Mid_Miocene.Serravallian.T_bellus
+Color: 85`170`255
+Time: 11.608`13.65
+!
+Properties for TERTIARY.Mid_Miocene.Serravallian.T_bellus.carbonates_and_sandstone
+Color: 255`255`255
+!
+Properties for TERTIARY.Mid_Miocene.Langhian
+Color: 220`50`50
+Time: 13.65`15.97
+!
+Properties for TERTIARY.Mid_Miocene.Langhian.T_bellus
+Color: 85`170`255
+Time: 13.65`15.97
+!
+Properties for TERTIARY.Mid_Miocene.Langhian.T_bellus.carbonates_and_sandstone
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Miocene
+Color: 255`255`127
+Time: 15.97`23.030001
+!
+Properties for TERTIARY.Early_Miocene.Burdigalian
+Color: 50`50`220
+Time: 15.97`20.43
+!
+Properties for TERTIARY.Early_Miocene.Burdigalian.P_tuberculatus
+Color: 255`0`255
+Time: 15.97`20.43
+!
+Properties for TERTIARY.Early_Miocene.Burdigalian.P_tuberculatus.carbonates_and_sandstone
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Miocene.Aquitanian
+Color: 50`200`50
+Time: 20.43`23.030001
+!
+Properties for TERTIARY.Early_Miocene.Aquitanian.P_tuberculatus
+Color: 255`0`255
+Time: 20.43`23.030001
+!
+Properties for TERTIARY.Early_Miocene.Aquitanian.P_tuberculatus.carbonates_and_sandstone
+Color: 255`255`255
+!
+Properties for TERTIARY.Late_Oligocene
+Color: 255`216`60
+Time: 23.030001`28.4
+!
+Properties for TERTIARY.Late_Oligocene.Chattian
+Color: 50`200`200
+Time: 23.030001`28.4
+!
+Properties for TERTIARY.Late_Oligocene.Chattian.P_tuberculatus
+Color: 255`0`255
+Time: 23.030001`28.4
+!
+Properties for TERTIARY.Late_Oligocene.Chattian.P_tuberculatus.carbonates_and_sandstone
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Oligocene
+Color: 255`170`0
+Time: 28.4`33.900002
+!
+Properties for TERTIARY.Early_Oligocene.Rupelian
+Color: 255`210`0
+Time: 28.4`33.900002
+!
+Properties for TERTIARY.Early_Oligocene.Rupelian.P_tuberculatus
+Color: 255`0`255
+Time: 28.4`31
+!
+Properties for TERTIARY.Early_Oligocene.Rupelian.P_tuberculatus.sandstone_and_carbonate
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Oligocene.Rupelian.F_leos
+Color: 204`133`61
+Time: 31`32.5
+!
+Properties for TERTIARY.Early_Oligocene.Rupelian.F_leos.sandstone_and_carbonate
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Oligocene.Rupelian.P_comatum_Acme
+Color: 220`50`50
+Time: 32.5`33.900002
+!
+Properties for TERTIARY.Early_Oligocene.Rupelian.P_comatum_Acme.sandstone_and_carbonate
+Color: 255`255`255
+!
+Properties for TERTIARY.Late_Eocene
+Color: 214`174`53
+Time: 33.900002`37.200001
+!
+Properties for TERTIARY.Late_Eocene.Priabonian
+Color: 220`0`220
+Time: 33.900002`37.200001
+!
+Properties for TERTIARY.Late_Eocene.Priabonian.S_kakanuiensis
+Color: 50`50`220
+Time: 33.900002`34.599998
+!
+Properties for TERTIARY.Late_Eocene.Priabonian.S_kakanuiensis.sandstone_and_carbonate
+Color: 255`255`255
+!
+Properties for TERTIARY.Late_Eocene.Priabonian.D_incompositum
+Color: 85`255`0
+Time: 34.599998`37.200001
+!
+Properties for TERTIARY.Late_Eocene.Priabonian.D_incompositum.sandstone_and_carbonate
+Color: 255`255`255
+!
+Properties for TERTIARY.Mid_Eocene
+Color: 255`170`0
+Time: 37.200001`48.599998
+!
+Properties for TERTIARY.Mid_Eocene.Bartonian
+Color: 204`133`61
+Time: 37.200001`40.400002
+!
+Properties for TERTIARY.Mid_Eocene.Bartonian.C_incompositum
+Color: 85`255`0
+Time: 37.200001`37.900002
+!
+Properties for TERTIARY.Mid_Eocene.Bartonian.C_incompositum.sandstone_and_carbonate
+Color: 255`255`255
+!
+Properties for TERTIARY.Mid_Eocene.Bartonian.D_heterophlycta
+Color: 255`210`0
+Time: 37.900002`40.400002
+!
+Properties for TERTIARY.Mid_Eocene.Bartonian.D_heterophlycta.sandstone_and_carbonate
+Color: 255`255`255
+!
+Properties for TERTIARY.Mid_Eocene.Lutetian
+Color: 100`160`0
+Time: 40.400002`48.599998
+!
+Properties for TERTIARY.Mid_Eocene.Lutetian.E_partridgei
+Color: 220`0`220
+Time: 40.400002`44.900002
+!
+Properties for TERTIARY.Mid_Eocene.Lutetian.E_partridgei.sandstone_and_carbonate
+Color: 255`255`255
+!
+Properties for TERTIARY.Mid_Eocene.Lutetian.A_antarcticum
+Color: 140`130`80
+Time: 44.900002`46.200001
+!
+Properties for TERTIARY.Mid_Eocene.Lutetian.A_antarcticum.sandstone_and_carbonate
+Color: 255`255`255
+!
+Properties for TERTIARY.Mid_Eocene.Lutetian.P_asteris
+Color: 255`255`127
+Time: 46.200001`46.700001
+!
+Properties for TERTIARY.Mid_Eocene.Lutetian.P_asteris.sandstone_and_carbonate
+Color: 255`255`255
+!
+Properties for TERTIARY.Mid_Eocene.Lutetian.M_perforatum
+Color: 140`35`80
+Time: 46.700001`47.099998
+!
+Properties for TERTIARY.Mid_Eocene.Lutetian.M_perforatum.sandstone_and_carbonate
+Color: 255`255`255
+!
+Properties for TERTIARY.Mid_Eocene.Lutetian.C_edwardsii
+Color: 170`170`255
+Time: 47.099998`48.599998
+!
+Properties for TERTIARY.Mid_Eocene.Lutetian.C_edwardsii.sandstone_and_carbonate
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Eocene
+Color: 217`157`17
+Time: 48.599998`55.799999
+!
+Properties for TERTIARY.Early_Eocene.Ypresian
+Color: 220`50`50
+Time: 48.599998`55.799999
+!
+Properties for TERTIARY.Early_Eocene.Ypresian.C_edwardsii
+Color: 170`170`255
+Time: 48.599998`49.599998
+!
+Properties for TERTIARY.Early_Eocene.Ypresian.C_edwardsii.carbonates_and_sandstone
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Eocene.Ypresian.C_thompsoniae
+Color: 50`50`220
+Time: 49.599998`50.299999
+!
+Properties for TERTIARY.Early_Eocene.Ypresian.C_thompsoniae.carbonates_and_sandstone
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Eocene.Ypresian.W_ornatum
+Color: 50`200`50
+Time: 50.299999`52.299999
+!
+Properties for TERTIARY.Early_Eocene.Ypresian.W_ornatum.carbonates_and_sandstone
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Eocene.Ypresian.R_waipawaense
+Color: 50`200`200
+Time: 52.299999`52.799999
+!
+Properties for TERTIARY.Early_Eocene.Ypresian.R_waipawaense.carbonates_and_sandstone
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Eocene.Ypresian.A_homomorphum
+Color: 255`210`0
+Time: 52.799999`55.799999
+!
+Properties for TERTIARY.Early_Eocene.Ypresian.A_homomorphum.carbonates_and_sandstone
+Color: 255`255`255
+!
+Properties for TERTIARY.Late_Paleocene
+Color: 158`52`79
+Time: 55.799999`61.700001
+!
+Properties for TERTIARY.Late_Paleocene.Thanetian
+Color: 50`50`220
+Time: 55.799999`58.700001
+!
+Properties for TERTIARY.Late_Paleocene.Thanetian.A_hyperacanthum
+Color: 220`0`220
+Time: 55.799999`56.099998
+!
+Properties for TERTIARY.Late_Paleocene.Thanetian.A_hyperacanthum.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for TERTIARY.Late_Paleocene.Thanetian.A_reburrus_Acme
+Color: 140`130`80
+Time: 56.099998`57.099998
+!
+Properties for TERTIARY.Late_Paleocene.Thanetian.A_reburrus_Acme.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for TERTIARY.Late_Paleocene.Thanetian.S_dilwynensis
+Color: 255`170`0
+Time: 57.099998`57.200001
+!
+Properties for TERTIARY.Late_Paleocene.Thanetian.S_dilwynensis.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for TERTIARY.Late_Paleocene.Thanetian.E_crassitabulata
+Color: 170`0`127
+Time: 57.200001`58.700001
+!
+Properties for TERTIARY.Late_Paleocene.Thanetian.E_crassitabulata.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for TERTIARY.Late_Paleocene.Selandian
+Color: 50`200`50
+Time: 58.700001`61.700001
+!
+Properties for TERTIARY.Late_Paleocene.Selandian.E_crassitabulata
+Color: 170`0`127
+Time: 58.700001`60.200001
+!
+Properties for TERTIARY.Late_Paleocene.Selandian.E_crassitabulata.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for TERTIARY.Late_Paleocene.Selandian.A_circumtabulata
+Color: 220`50`50
+Time: 60.200001`61.700001
+!
+Properties for TERTIARY.Late_Paleocene.Selandian.A_circumtabulata.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Paleocene
+Color: 255`85`255
+Time: 61.700001`65.5
+!
+Properties for TERTIARY.Early_Paleocene.Danian
+Color: 50`200`200
+Time: 61.700001`65.5
+!
+Properties for TERTIARY.Early_Paleocene.Danian.P_pyrophorum
+Color: 50`50`220
+Time: 61.700001`63.700001
+!
+Properties for TERTIARY.Early_Paleocene.Danian.P_pyrophorum.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for TERTIARY.Early_Paleocene.Danian.T_evittii_Acme
+Color: 50`200`50
+Time: 63.700001`65.5
+!
+Properties for TERTIARY.Early_Paleocene.Danian.T_evittii_Acme.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for Cretaceous
+Color: 50`200`200
+Time: 65.5`145.5
+!
+Properties for Cretaceous.Senonian
+Color: 140`35`80
+Time: 65.5`99.599998
+!
+Properties for Cretaceous.Senonian.Late_Maastrichtian
+Color: 50`50`220
+Time: 65.5`69.5
+!
+Properties for Cretaceous.Senonian.Late_Maastrichtian.M__druggii
+Color: 255`210`0
+Time: 65.5`68.5
+!
+Properties for Cretaceous.Senonian.Late_Maastrichtian.M__druggii.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Senonian.Early_Maastrichtian
+Color: 50`200`50
+Time: 69.5`70.599998
+!
+Properties for Cretaceous.Senonian.Early_Maastrichtian.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Senonian.Late_Campanian
+Color: 50`200`200
+Time: 70.599998`76.5
+!
+Properties for Cretaceous.Senonian.Late_Campanian.I__korojonense
+Color: 140`130`80
+Time: 75`76.5
+!
+Properties for Cretaceous.Senonian.Late_Campanian.I__korojonense.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Senonian.Mid_Campanian
+Color: 255`210`0
+Time: 76.5`81
+!
+Properties for Cretaceous.Senonian.Mid_Campanian.I__korojonense
+Color: 128`128`128
+Time: 76.5`80.5
+!
+Properties for Cretaceous.Senonian.Mid_Campanian.I__korojonense.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Senonian.Early_Campanian
+Color: 220`0`220
+Time: 81`83.5
+!
+Properties for Cretaceous.Senonian.Early_Campanian.X__australis
+Color: 204`133`61
+Time: 81`82
+!
+Properties for Cretaceous.Senonian.Early_Campanian.X__australis.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Senonian.Early_Campanian.N__aceras
+Color: 50`50`220
+Time: 82`83.5
+!
+Properties for Cretaceous.Senonian.Early_Campanian.N__aceras.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Senonian.Santonian
+Color: 140`130`80
+Time: 83.5`85.800003
+!
+Properties for Cretaceous.Senonian.Santonian.N_aceras
+Color: 220`50`50
+Time: 83.5`84
+!
+Properties for Cretaceous.Senonian.Santonian.N_aceras.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Senonian.Santonian.I_cretaceum
+Color: 50`200`50
+Time: 84`85.199997
+!
+Properties for Cretaceous.Senonian.Santonian.I_cretaceum.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Senonian.Coniacian
+Color: 100`160`0
+Time: 85.800003`89.300003
+!
+Properties for Cretaceous.Senonian.Coniacian.C__striataconum
+Color: 50`200`200
+Time: 85.800003`87.300003
+!
+Properties for Cretaceous.Senonian.Coniacian.C__striataconum.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Senonian.Coniacian.P__infususunoides
+Color: 85`0`255
+Time: 87.300003`89.300003
+!
+Properties for Cretaceous.Senonian.Coniacian.P__infususunoides.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Senonian.Turonian
+Color: 140`35`80
+Time: 89.300003`93.5
+!
+Properties for Cretaceous.Senonian.Turonian.P__infusunoides
+Color: 50`50`220
+Time: 89.300003`93.5
+!
+Properties for Cretaceous.Senonian.Turonian.P__infusunoides.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Senonian.Cenomanian
+Color: 204`133`61
+Time: 93.5`99.599998
+!
+Properties for Cretaceous.Senonian.Cenomanian.D__multispinum
+Color: 220`50`50
+Time: 93.5`99.599998
+!
+Properties for Cretaceous.Senonian.Cenomanian.D__multispinum.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Gallic
+Color: 204`133`61
+Time: 99.599998`130
+!
+Properties for Cretaceous.Gallic.Albian
+Color: 220`50`50
+Time: 99.599998`112
+!
+Properties for Cretaceous.Gallic.Albian.X__asperatus
+Color: 220`0`220
+Time: 99.599998`101.19999
+!
+Properties for Cretaceous.Gallic.Albian.X__asperatus.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Gallic.Albian.D__armata
+Color: 140`130`80
+Time: 101.19999`103.19999
+!
+Properties for Cretaceous.Gallic.Albian.D__armata.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Gallic.Albian.E__ludbrookiae
+Color: 100`160`0
+Time: 103.19999`106.69999
+!
+Properties for Cretaceous.Gallic.Albian.E__ludbrookiae.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Gallic.Albian.C,_denticulata
+Color: 140`35`80
+Time: 106.69999`109.19999
+!
+Properties for Cretaceous.Gallic.Albian.C,_denticulata.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Gallic.Albian.M__tetracantha
+Color: 204`133`61
+Time: 109.19999`112
+!
+Properties for Cretaceous.Gallic.Albian.M__tetracantha.shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Gallic.Aptian
+Color: 50`50`220
+Time: 112`125
+!
+Properties for Cretaceous.Gallic.Aptian.D_davidii
+Color: 140`35`80
+Time: 112`121
+!
+Properties for Cretaceous.Gallic.Aptian.D_davidii.radiolarite
+Color: 255`255`255
+!
+Properties for Cretaceous.Gallic.Aptian.O_operculata
+Color: 220`50`50
+Time: 121`125
+!
+Properties for Cretaceous.Gallic.Aptian.O_operculata.radiolarite
+Color: 255`255`255
+!
+Properties for Cretaceous.Gallic.Barremian
+Color: 50`200`50
+Time: 125`130
+!
+Properties for Cretaceous.Gallic.Barremian.M_australis
+Color: 50`50`220
+Time: 125`130
+!
+Properties for Cretaceous.Gallic.Barremian.M_australis.shale-anoxic
+Color: 255`255`255
+!
+Properties for Cretaceous.Neocomian
+Color: 220`50`50
+Time: 130`145.5
+!
+Properties for Cretaceous.Neocomian.Hauterivian
+Color: 50`200`200
+Time: 130`136.39999
+!
+Properties for Cretaceous.Neocomian.Hauterivian.M_australis
+Color: 85`0`255
+Time: 130`131
+!
+Properties for Cretaceous.Neocomian.Hauterivian.M_australis.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for Cretaceous.Neocomian.Hauterivian.M_testudinnaria
+Color: 50`200`200
+Time: 131`133
+!
+Properties for Cretaceous.Neocomian.Hauterivian.M_testudinnaria.shale-anoxic
+Color: 255`255`255
+!
+Properties for Cretaceous.Neocomian.Hauterivian.P_burgeri
+Color: 255`210`0
+Time: 133`135
+!
+Properties for Cretaceous.Neocomian.Hauterivian.P_burgeri.shale-anoxic
+Color: 255`255`255
+!
+Properties for Cretaceous.Neocomian.Hauterivian.S_tabulata
+Color: 220`0`220
+Time: 135`136.39999
+!
+Properties for Cretaceous.Neocomian.Hauterivian.S_tabulata.shale-anoxic
+Color: 255`255`255
+!
+Properties for Cretaceous.Neocomian.Valanginian
+Color: 204`133`61
+Time: 136.39999`140.19999
+!
+Properties for Cretaceous.Neocomian.Valanginian.S_areolata
+Color: 140`130`80
+Time: 136.39999`139
+!
+Properties for Cretaceous.Neocomian.Valanginian.S_areolata.shale-anoxic
+Color: 255`255`255
+!
+Properties for Cretaceous.Neocomian.Valanginian.E_torynum
+Color: 100`160`0
+Time: 139`140.19999
+!
+Properties for Cretaceous.Neocomian.Valanginian.E_torynum.shale-anoxic
+Color: 255`255`255
+!
+Properties for Cretaceous.Neocomian.Berriasian
+Color: 255`210`0
+Time: 140.19999`145.5
+!
+Properties for Cretaceous.Neocomian.Berriasian.B_reticulatum
+Color: 140`35`80
+Time: 140.19999`141.19999
+!
+Properties for Cretaceous.Neocomian.Berriasian.B_reticulatum.shale-anoxic
+Color: 255`255`255
+!
+Properties for Cretaceous.Neocomian.Berriasian.D_lobospinosum
+Color: 204`133`61
+Time: 141.19999`142.19999
+!
+Properties for Cretaceous.Neocomian.Berriasian.D_lobospinosum.shale-anoxic
+Color: 255`255`255
+!
+Properties for Cretaceous.Neocomian.Berriasian.C_delicata
+Color: 220`50`50
+Time: 142.19999`143.19999
+!
+Properties for Cretaceous.Neocomian.Berriasian.C_delicata.shale-anoxic
+Color: 255`255`255
+!
+Properties for Cretaceous.Neocomian.Berriasian.K_wisemaniae
+Color: 50`50`220
+Time: 143.19999`144.19999
+!
+Properties for Cretaceous.Neocomian.Berriasian.K_wisemaniae.shale-anoxic
+Color: 255`255`255
+!
+Properties for Cretaceous.Neocomian.Berriasian.P_iehiense
+Color: 50`200`50
+Time: 144.19999`145.5
+!
+Properties for Cretaceous.Neocomian.Berriasian.P_iehiense.shale-anoxic
+Color: 255`255`255
+!
+Properties for JURASSIC
+Color: 170`255`255
+Time: 145.5`199.6
+!
+Properties for JURASSIC.Late_Jurassic
+Color: 140`35`80
+Time: 145.5`163.53334
+!
+Properties for JURASSIC.Late_Jurassic.Tithonian
+Color: 50`50`220
+Time: 145.5`151.51109
+!
+Properties for JURASSIC.Late_Jurassic.Tithonian.P_iehiense
+Color: 50`200`50
+Time: 145.5`147.00277
+!
+Properties for JURASSIC.Late_Jurassic.Tithonian.P_iehiense.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Late_Jurassic.Tithonian.D_jurassicum
+Color: 50`200`200
+Time: 147.00277`148.50555
+!
+Properties for JURASSIC.Late_Jurassic.Tithonian.D_jurassicum.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Late_Jurassic.Tithonian.O_montgomeryi
+Color: 255`210`0
+Time: 148.50555`150.00833
+!
+Properties for JURASSIC.Late_Jurassic.Tithonian.O_montgomeryi.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Late_Jurassic.Tithonian.C_perforans
+Color: 220`0`220
+Time: 150.00833`151.51109
+!
+Properties for JURASSIC.Late_Jurassic.Tithonian.C_perforans.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Late_Jurassic.Kimmeridgian
+Color: 50`200`50
+Time: 151.51109`157.52223
+!
+Properties for JURASSIC.Late_Jurassic.Kimmeridgian.D_swanense
+Color: 140`130`80
+Time: 151.51109`154.51666
+!
+Properties for JURASSIC.Late_Jurassic.Kimmeridgian.D_swanense.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Late_Jurassic.Kimmeridgian.W_clathrata
+Color: 100`160`0
+Time: 154.51666`157.52223
+!
+Properties for JURASSIC.Late_Jurassic.Kimmeridgian.W_clathrata.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Late_Jurassic.Oxfordian
+Color: 50`200`200
+Time: 157.52223`163.53334
+!
+Properties for JURASSIC.Late_Jurassic.Oxfordian.W_clathrata
+Color: 85`170`0
+Time: 157.52223`159.52594
+!
+Properties for JURASSIC.Late_Jurassic.Oxfordian.W_clathrata.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Late_Jurassic.Oxfordian.W_spectabilis
+Color: 204`133`61
+Time: 159.52594`161.52963
+!
+Properties for JURASSIC.Late_Jurassic.Oxfordian.W_spectabilis.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Late_Jurassic.Oxfordian.C_ancorum
+Color: 220`50`50
+Time: 161.52963`163.53334
+!
+Properties for JURASSIC.Late_Jurassic.Oxfordian.C_ancorum.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Middle_Jurassic
+Color: 204`133`61
+Time: 163.53334`181.56666
+!
+Properties for JURASSIC.Middle_Jurassic.Callovian
+Color: 255`210`0
+Time: 163.53334`168.04167
+!
+Properties for JURASSIC.Middle_Jurassic.Callovian.V_tabulata
+Color: 50`50`220
+Time: 163.53334`165.03611
+!
+Properties for JURASSIC.Middle_Jurassic.Callovian.V_tabulata.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Middle_Jurassic.Callovian.T_balmei
+Color: 50`200`50
+Time: 165.03611`166.53889
+!
+Properties for JURASSIC.Middle_Jurassic.Callovian.T_balmei.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Middle_Jurassic.Callovian.W_indotata
+Color: 85`255`255
+Time: 166.539`168.04167
+!
+Properties for JURASSIC.Middle_Jurassic.Callovian.W_indotata.sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Middle_Jurassic.Bathonian
+Color: 220`0`220
+Time: 168.04167`172.55
+!
+Properties for JURASSIC.Middle_Jurassic.Bathonian.W_indotata
+Color: 85`255`255
+Time: 168.042`170.296
+!
+Properties for JURASSIC.Middle_Jurassic.Bathonian.W_indotata.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for JURASSIC.Middle_Jurassic.Bathonian.W_verrucosa
+Color: 220`0`220
+Time: 170.296`172.55
+!
+Properties for JURASSIC.Middle_Jurassic.Bathonian.W_verrucosa.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for JURASSIC.Middle_Jurassic.Bajocian
+Color: 140`130`80
+Time: 172.55`177.05833
+!
+Properties for JURASSIC.Middle_Jurassic.Bajocian.N_deflandrei
+Color: 140`130`80
+Time: 172.55`174.80417
+!
+Properties for JURASSIC.Middle_Jurassic.Bajocian.N_deflandrei.sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Middle_Jurassic.Bajocian.D_caddaense
+Color: 100`160`0
+Time: 174.80417`177.05833
+!
+Properties for JURASSIC.Middle_Jurassic.Bajocian.D_caddaense.sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Middle_Jurassic.Aalenian
+Color: 100`160`0
+Time: 177.05833`181.56666
+!
+Properties for JURASSIC.Middle_Jurassic.Aalenian.Upper_C_turbatus
+Color: 140`35`80
+Time: 177.05833`181.56666
+!
+Properties for JURASSIC.Middle_Jurassic.Aalenian.Upper_C_turbatus.shale
+Color: 255`255`255
+!
+Properties for JURASSIC.Early_Jurassic
+Color: 220`50`50
+Time: 181.567`199.6
+!
+Properties for JURASSIC.Early_Jurassic.Toarcian
+Color: 140`35`80
+Time: 181.567`186.07525
+!
+Properties for JURASSIC.Early_Jurassic.Toarcian.Lower_C_turbatus
+Color: 204`133`61
+Time: 181.567`183.82113
+!
+Properties for JURASSIC.Early_Jurassic.Toarcian.Lower_C_turbatus.shale
+Color: 255`255`255
+!
+Properties for JURASSIC.Early_Jurassic.Toarcian.Luehndea_Assemblage
+Color: 220`50`50
+Time: 183.82113`186.07525
+!
+Properties for JURASSIC.Early_Jurassic.Toarcian.Luehndea_Assemblage.shale
+Color: 255`255`255
+!
+Properties for JURASSIC.Early_Jurassic.Pliensbachian
+Color: 204`133`61
+Time: 186.07525`190.58349
+!
+Properties for JURASSIC.Early_Jurassic.Pliensbachian.upper_D_priscum
+Color: 50`50`220
+Time: 186.07525`190.58349
+!
+Properties for JURASSIC.Early_Jurassic.Pliensbachian.upper_D_priscum.sandstone
+Color: 255`255`255
+!
+Properties for JURASSIC.Early_Jurassic.Sinemurian
+Color: 220`50`50
+Time: 190.58349`195.09175
+!
+Properties for JURASSIC.Early_Jurassic.Sinemurian.upper_D_priscum
+Color: 71`71`213
+Time: 190.58349`195.09175
+!
+Properties for JURASSIC.Early_Jurassic.Sinemurian.upper_D_priscum.shale
+Color: 255`255`255
+!
+Properties for JURASSIC.Early_Jurassic.Hettangian
+Color: 50`50`220
+Time: 195.09199`199.6
+!
+Properties for JURASSIC.Early_Jurassic.Hettangian.upper_D_priscum
+Color: 69`69`207
+Time: 195.09199`199.6
+!
+Properties for JURASSIC.Early_Jurassic.Hettangian.upper_D_priscum.shale
+Color: 255`255`255
+!
+Properties for TRIASSIC
+Color: 170`0`127
+Time: 199.6`251
+!
+Properties for TRIASSIC.Late_Triassic
+Color: 100`160`0
+Time: 199.6`228
+!
+Properties for TRIASSIC.Late_Triassic.Rhaetian
+Color: 220`50`50
+Time: 199.6`203.6
+!
+Properties for TRIASSIC.Late_Triassic.Rhaetian.lower_D_priscum
+Color: 220`0`220
+Time: 199.6`201.6
+!
+Properties for TRIASSIC.Late_Triassic.Rhaetian.lower_D_priscum.shale
+Color: 255`255`255
+!
+Properties for TRIASSIC.Late_Triassic.Rhaetian.R_rhaetica
+Color: 140`130`80
+Time: 201.6`203.6
+!
+Properties for TRIASSIC.Late_Triassic.Rhaetian.R_rhaetica.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for TRIASSIC.Late_Triassic.Norian
+Color: 100`160`0
+Time: 203.6`218.5
+!
+Properties for TRIASSIC.Late_Triassic.Norian.H_balmei
+Color: 140`35`80
+Time: 203.6`210
+!
+Properties for TRIASSIC.Late_Triassic.Norian.H_balmei.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for TRIASSIC.Late_Triassic.Norian.S_listeri
+Color: 204`133`61
+Time: 210`218.5
+!
+Properties for TRIASSIC.Late_Triassic.Norian.S_listeri.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for TRIASSIC.Late_Triassic.Carnian
+Color: 220`50`50
+Time: 218.5`228
+!
+Properties for TRIASSIC.Late_Triassic.Carnian.S_wigginsii
+Color: 50`50`220
+Time: 218.5`224.5
+!
+Properties for TRIASSIC.Late_Triassic.Carnian.S_wigginsii.sandstone_and_shale
+Color: 255`255`255
+!
+Properties for TRIASSIC.Late_Triassic.Carnian.S_speciosus
+Color: 50`200`50
+Time: 224.5`228
+!
+Properties for TRIASSIC.Late_Triassic.Carnian.S_speciosus.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for TRIASSIC.Middle_Triassic
+Color: 140`35`80
+Time: 228`245
+!
+Properties for TRIASSIC.Middle_Triassic.Ladinian
+Color: 50`200`200
+Time: 228`237
+!
+Properties for TRIASSIC.Middle_Triassic.Ladinian.S_speciosus
+Color: 84`193`25
+Time: 228`235
+!
+Properties for TRIASSIC.Middle_Triassic.Ladinian.S_speciosus.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for TRIASSIC.Middle_Triassic.Ladinian.s__quad_/_S_otti
+Color: 128`128`128
+Time: 235`237
+!
+Properties for TRIASSIC.Middle_Triassic.Ladinian.s__quad_/_S_otti.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for TRIASSIC.Middle_Triassic.Anisian
+Color: 255`210`0
+Time: 237`245
+!
+Properties for TRIASSIC.Middle_Triassic.Anisian.S_quad_/_S_otti
+Color: 128`128`128
+Time: 237`241
+!
+Properties for TRIASSIC.Middle_Triassic.Anisian.S_quad_/_S_otti.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for TRIASSIC.Middle_Triassic.Anisian.T_playfordii
+Color: 140`35`80
+Time: 241`245
+!
+Properties for TRIASSIC.Middle_Triassic.Anisian.T_playfordii.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for TRIASSIC.Early_Triassic
+Color: 204`133`61
+Time: 245`251
+!
+Properties for TRIASSIC.Early_Triassic.Olenekian
+Color: 204`133`61
+Time: 245`249.69999
+!
+Properties for TRIASSIC.Early_Triassic.Olenekian.T_playfordii
+Color: 170`0`127
+Time: 245`249
+!
+Properties for TRIASSIC.Early_Triassic.Olenekian.T_playfordii.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for TRIASSIC.Early_Triassic.Olenekian.P_samoilovichii
+Color: 50`200`200
+Time: 249`249.69999
+!
+Properties for TRIASSIC.Early_Triassic.Olenekian.P_samoilovichii.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for TRIASSIC.Early_Triassic.Induan
+Color: 220`50`50
+Time: 249.69999`251
+!
+Properties for TRIASSIC.Early_Triassic.Induan.L_pellucidus
+Color: 255`210`0
+Time: 249.69999`251
+!
+Properties for TRIASSIC.Early_Triassic.Induan.L_pellucidus.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN
+Color: 255`85`0
+Time: 251`299
+!
+Properties for PERMIAN.Lopingian
+Color: 220`0`220
+Time: 251`260.39999
+!
+Properties for PERMIAN.Lopingian.Changhsingian
+Color: 100`160`0
+Time: 251`253.8
+!
+Properties for PERMIAN.Lopingian.Changhsingian.P_microcorpus
+Color: 140`35`80
+Time: 251`251.5
+!
+Properties for PERMIAN.Lopingian.Changhsingian.P_microcorpus.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Lopingian.Changhsingian.P_crenulata
+Color: 204`133`61
+Time: 251.5`253.8
+!
+Properties for PERMIAN.Lopingian.Changhsingian.P_crenulata.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Lopingian.Wuchiapingian
+Color: 220`50`50
+Time: 253.8`260.39999
+!
+Properties for PERMIAN.Lopingian.Wuchiapingian.D_parvithola
+Color: 50`200`50
+Time: 253.8`260.39999
+!
+Properties for PERMIAN.Lopingian.Wuchiapingian.D_parvithola.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Guadalupian
+Color: 140`130`80
+Time: 260.39999`270.6
+!
+Properties for PERMIAN.Guadalupian.Capitanian
+Color: 50`200`200
+Time: 260.39999`265.79998
+!
+Properties for PERMIAN.Guadalupian.Capitanian.D_parvithola
+Color: 96`193`0
+Time: 260.39999`263.79998
+!
+Properties for PERMIAN.Guadalupian.Capitanian.D_parvithola.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Guadalupian.Capitanian.D_dulhuntyi
+Color: 160`73`159
+Time: 263.79998`265.79998
+!
+Properties for PERMIAN.Guadalupian.Capitanian.D_dulhuntyi.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Guadalupian.Wordian
+Color: 255`210`0
+Time: 265.79998`268
+!
+Properties for PERMIAN.Guadalupian.Wordian.D_encianus
+Color: 212`212`12
+Time: 265.79998`268
+!
+Properties for PERMIAN.Guadalupian.Wordian.D_encianus.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Guadalupian.Roadian
+Color: 220`0`220
+Time: 268`270.6
+!
+Properties for PERMIAN.Guadalupian.Roadian.D_granulata
+Color: 204`133`61
+Time: 268`270
+!
+Properties for PERMIAN.Guadalupian.Roadian.D_granulata.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Guadalupian.Roadian.M_villosa
+Color: 220`50`50
+Time: 270`270.6
+!
+Properties for PERMIAN.Guadalupian.Roadian.M_villosa.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Cisuralian
+Color: 100`160`0
+Time: 270.6`299
+!
+Properties for PERMIAN.Cisuralian.Kungurian
+Color: 50`50`220
+Time: 270.6`275.79998
+!
+Properties for PERMIAN.Cisuralian.Kungurian.M_villosa
+Color: 220`33`61
+Time: 270.6`272
+!
+Properties for PERMIAN.Cisuralian.Kungurian.M_villosa.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Cisuralian.Kungurian.P_sinuosis
+Color: 140`130`80
+Time: 272`275.79998
+!
+Properties for PERMIAN.Cisuralian.Kungurian.P_sinuosis.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Cisuralian.Arlinskian
+Color: 50`200`50
+Time: 275.79998`284.39999
+!
+Properties for PERMIAN.Cisuralian.Arlinskian.M_trisina
+Color: 255`170`127
+Time: 275.79998`282
+!
+Properties for PERMIAN.Cisuralian.Arlinskian.M_trisina.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Cisuralian.Arlinskian.D_byroensis
+Color: 140`35`80
+Time: 282`284.39999
+!
+Properties for PERMIAN.Cisuralian.Arlinskian.D_byroensis.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Cisuralian.Sakmarian
+Color: 50`200`200
+Time: 284.39999`294.6
+!
+Properties for PERMIAN.Cisuralian.Sakmarian.S_fusus
+Color: 204`133`61
+Time: 284.39999`287
+!
+Properties for PERMIAN.Cisuralian.Sakmarian.S_fusus.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Cisuralian.Sakmarian.P_pseudoreticulata
+Color: 220`50`50
+Time: 287`290
+!
+Properties for PERMIAN.Cisuralian.Sakmarian.P_pseudoreticulata.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Cisuralian.Sakmarian.P_confluens
+Color: 170`255`127
+Time: 290`294.6
+!
+Properties for PERMIAN.Cisuralian.Sakmarian.P_confluens.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Cisuralian.Asselian
+Color: 255`210`0
+Time: 294.6`299
+!
+Properties for PERMIAN.Cisuralian.Asselian.P_confluens
+Color: 170`255`127
+Time: 294.6`297
+!
+Properties for PERMIAN.Cisuralian.Asselian.P_confluens.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for PERMIAN.Cisuralian.Asselian.M_tentula
+Color: 50`200`200
+Time: 297`299
+!
+Properties for PERMIAN.Cisuralian.Asselian.M_tentula.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for CARBONIFEROUS
+Color: 0`255`255
+Time: 299`359
+!
+Properties for CARBONIFEROUS.Late_Pensylvanian
+Color: 255`210`0
+Time: 299`306.5
+!
+Properties for CARBONIFEROUS.Late_Pensylvanian.Gzhelian
+Color: 255`170`127
+Time: 299`303.79998
+!
+Properties for CARBONIFEROUS.Late_Pensylvanian.Gzhelian.M_tenuistriata
+Color: 255`228`196
+Time: 299`303.79998
+!
+Properties for CARBONIFEROUS.Late_Pensylvanian.Gzhelian.M_tenuistriata.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for CARBONIFEROUS.Late_Pensylvanian.Kasimovian
+Color: 220`0`220
+Time: 303.79998`306.5
+!
+Properties for CARBONIFEROUS.Late_Pensylvanian.Kasimovian.M_tenuistriata
+Color: 255`228`196
+Time: 303.79998`306.5
+!
+Properties for CARBONIFEROUS.Late_Pensylvanian.Kasimovian.M_tenuistriata.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for CARBONIFEROUS.Middle_Pennsylvanian
+Color: 220`0`220
+Time: 306.5`311.70001
+!
+Properties for CARBONIFEROUS.Middle_Pennsylvanian.Moscovian
+Color: 140`130`80
+Time: 306.5`311.70001
+!
+Properties for CARBONIFEROUS.Middle_Pennsylvanian.Moscovian.M_tenuistriata
+Color: 255`228`196
+Time: 306.5`311.70001
+!
+Properties for CARBONIFEROUS.Middle_Pennsylvanian.Moscovian.M_tenuistriata.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for CARBONIFEROUS.Early_Pennsylvanian
+Color: 140`130`80
+Time: 311.70001`318.39999
+!
+Properties for CARBONIFEROUS.Early_Pennsylvanian.Bashkirian
+Color: 100`160`0
+Time: 311.70001`318.39999
+!
+Properties for CARBONIFEROUS.Early_Pennsylvanian.Bashkirian.D_birkenheadensis
+Color: 50`50`220
+Time: 311.70001`317.70001
+!
+Properties for CARBONIFEROUS.Early_Pennsylvanian.Bashkirian.D_birkenheadensis.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for CARBONIFEROUS.Early_Pennsylvanian.Bashkirian.S_ybertii
+Color: 255`255`224
+Time: 317.70001`318.39999
+!
+Properties for CARBONIFEROUS.Early_Pennsylvanian.Bashkirian.S_ybertii.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for CARBONIFEROUS.Late_Mississippian
+Color: 100`160`0
+Time: 318.39999`326.39999
+!
+Properties for CARBONIFEROUS.Late_Mississippian.Serpukhovian
+Color: 50`50`220
+Time: 318.39999`326.39999
+!
+Properties for CARBONIFEROUS.Late_Mississippian.Serpukhovian.S_ybertii
+Color: 255`255`224
+Time: 318.39999`324
+!
+Properties for CARBONIFEROUS.Late_Mississippian.Serpukhovian.S_ybertii.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for CARBONIFEROUS.Late_Mississippian.Serpukhovian.G_makulosa
+Color: 255`210`0
+Time: 324`326.39999
+!
+Properties for CARBONIFEROUS.Late_Mississippian.Serpukhovian.G_makulosa.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for CARBONIFEROUS.Mid_Mississippian
+Color: 140`35`80
+Time: 326.39999`345.5
+!
+Properties for CARBONIFEROUS.Mid_Mississippian.Visean
+Color: 50`200`50
+Time: 326.39999`345.5
+!
+Properties for CARBONIFEROUS.Mid_Mississippian.Visean.A_Largus
+Color: 220`0`220
+Time: 326.39999`345.5
+!
+Properties for CARBONIFEROUS.Mid_Mississippian.Visean.A_Largus.shale_and_sandstone
+Color: 255`255`255
+!
+Properties for CARBONIFEROUS.Early_Mississippi
+Color: 220`50`50
+Time: 345.5`359
+!
+Properties for CARBONIFEROUS.Early_Mississippi.Tournaisian
+Color: 50`200`200
+Time: 345.5`359
+!
+Properties for CARBONIFEROUS.Early_Mississippi.Tournaisian.shale_and_sandstone
+Color: 255`255`255
+!
