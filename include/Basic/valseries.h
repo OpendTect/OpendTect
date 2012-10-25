@@ -486,7 +486,7 @@ RT MultiArrayValueSeries<RT,AT>::value( od_int64 idx ) const
 	return RT();
 
     idx -= arridx*chunksize_;
-    return  ptrs_[(int)arridx][(int)idx];
+    return  ptrs_[mIdx(arridx)][mIdx(idx)];
 }
 
 
@@ -505,7 +505,7 @@ void MultiArrayValueSeries<RT,AT>::setValue( od_int64 idx, RT v )
 	return;
 
     idx -= arridx*chunksize_;
-    ptrs_[(int) arridx][(int) idx] = v;
+    ptrs_[mIdx(arridx)][mIdx(idx)] = v;
 }
 
 
@@ -543,7 +543,7 @@ RT* MultiArrayValueSeries<RT,AT>::arr()
 }
 
 
-template <class RT, class AT> inline
+template <class RT, class AT> inlinef
 const RT* MultiArrayValueSeries<RT,AT>::arr() const
 { return const_cast<MultiArrayValueSeries<RT,AT>*>( this )->arr(); }
 
