@@ -529,7 +529,7 @@ bool PosInfo::CubeData::isFullyRectAndReg() const
 	return sz == 1;
     const PosInfo::LineData::Segment seg = ld->segments_[0];
 
-    int lnrstep;
+    int lnrstep = mUdf(int);
     for ( int ilnr=0; ilnr<sz; ilnr++ )
     {
 	ld = (*this)[ilnr];

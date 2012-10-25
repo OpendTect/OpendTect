@@ -338,7 +338,7 @@ bool ParallelTask::execute( bool parallel )
 
     const int minthreadsize = minThreadSize();
     int maxnrthreads = parallel
-	? mMIN( nriterations/minthreadsize, maxNrThreads() )
+	? mMIN( (int)(nriterations/minthreadsize), maxNrThreads() )
 	: 1;
 
     if ( maxnrthreads<1 )

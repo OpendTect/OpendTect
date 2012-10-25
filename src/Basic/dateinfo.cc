@@ -458,7 +458,7 @@ bool DateInfo::fromStdDateString( const char* inp )
     ptr = getNextWord( ptr, buf );
     if ( !ptr ) return false;
 
-    buf[0] = tolower( buf[0] );
+    buf[0] = (char) tolower( buf[0] );
     Month monthvar;
     parseEnumMonth( buf, monthvar );
     months_ = (int) monthvar;

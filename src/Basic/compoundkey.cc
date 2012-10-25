@@ -49,7 +49,14 @@ int CompoundKey::nrKeys() const
 
     int nrkeys = 1;
     const char* ptr = id_;
-    while ( ( ptr=strchr(ptr,'.') ) ) { nrkeys++; ptr++; }
+    while ( true )
+    {
+	ptr = strchr(ptr,'.');
+	if ( !ptr )
+	    break;
+	nrkeys++;
+	ptr++;
+    }
 
     return nrkeys;
 }

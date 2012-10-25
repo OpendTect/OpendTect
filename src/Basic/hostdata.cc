@@ -83,7 +83,7 @@ void HostData::init( const char* nm )
     { \
 	char* ptr=bs.buf(); \
 	for ( unsigned int idx=0; idx<bs.size(); idx++, ptr++ ) \
-	    { *ptr = tolower(*ptr); } \
+	    { *ptr = (char) tolower(*ptr); } \
     }
 
 static FilePath getReplacePrefix( const FilePath& dir_,

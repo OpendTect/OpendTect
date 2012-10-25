@@ -157,7 +157,7 @@ void PosInfo::Line2DData::dump( std::ostream& strm, bool pretty ) const
     else
     {
 	strm << lnm_ << '\n';
-	const float fac = SI().zDomain().userFactor();
+	const int fac = SI().zDomain().userFactor();
 	strm << "Z range " << SI().getZUnitString() << ":\t" << fac*zrg_.start
 	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
 	strm << "\n\nTrace number\tX-coord\tY-coord" << std::endl;

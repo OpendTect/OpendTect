@@ -120,9 +120,6 @@ protected:
 //! Execute command in OS
 mGlobal(Basic) bool ExecOSCmd(const char*,bool inconsloe=false,bool inbg=false);
 
-//! Create Execute command
-mGlobal(Basic) const char* GetExecCommand(const char* prognm,const char* filenm);
-
 //! Execute command
 mGlobal(Basic) bool ExecuteScriptCommand(const char* prognm,const char* filenm);
 

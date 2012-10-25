@@ -164,6 +164,10 @@ bool ExecOSCmd( const char* comm, bool inconsole, bool inbg )
 #endif
 }
 
+#ifndef __msvc__
+//! Create Execute command
+const char* GetExecCommand(const char* prognm,const char* filenm);
+
 const char* GetExecCommand( const char* prognm, const char* filenm )
 {
     static BufferString cmd;
@@ -176,6 +180,7 @@ const char* GetExecCommand( const char* prognm, const char* filenm )
     cmd += " \'"; cmd += fp.fullPath( FilePath::Unix ); cmd += "\' ";
     return cmd;
 }
+#endif
 
 
 bool ExecuteScriptCommand( const char* prognm, const char* filenm )
@@ -193,8 +198,7 @@ bool ExecuteScriptCommand( const char* prognm, const char* filenm )
     cmd += filenm;
     cmd += "\"";
     return ExecOSCmd( cmd, true, inbg );
-#endif
-    
+#else
     cmd = GetExecCommand( prognm, filenm );
     StreamProvider strmprov( cmd );
 
@@ -207,6 +211,7 @@ bool ExecuteScriptCommand( const char* prognm, const char* filenm )
     }
 
     return true;
+#endif
 }
 
 

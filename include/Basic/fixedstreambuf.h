@@ -81,12 +81,12 @@ virtual pos_type seekpos( pos_type newpos, ios_base::openmode which )
 virtual streamsize xsgetn( char_type* s, streamsize n )
 {
     streamsize toget = n;
-    const int memsz = epptr() - pptr();
+    const od_int64 memsz = epptr() - pptr();
     if ( toget > memsz && memsz >= 0  )
 	toget = memsz;
 
     memcpy( s, gptr(), toget );
-    gbump( toget );
+    gbump( (int) toget );
 
     return toget;
 }
@@ -94,12 +94,12 @@ virtual streamsize xsgetn( char_type* s, streamsize n )
 virtual streamsize xsputn( const char_type* s, streamsize n )
 {
     streamsize toput = n;
-    const int memsz = epptr() - pptr();
+    const od_int64 memsz = epptr() - pptr();
     if ( toput > memsz && memsz >= 0  )
 	toput = memsz;
 
     memcpy( pptr(), s, toput );
-    pbump( toput );
+    pbump( (int) toput );
 
     return toput;
 }
