@@ -105,7 +105,7 @@ static void mkUIntStr( char* buf, od_uint64 val, int isneg )
     {
 	int restval = val % 10;
 	val /= 10;
-	*pbuf++ = '0' + restval;
+	*pbuf++ = '0' + (char) restval;
     }
     if ( isneg ) *pbuf++ = '-';
     *pbuf = '\0';
