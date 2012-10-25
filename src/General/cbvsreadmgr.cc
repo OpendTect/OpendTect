@@ -35,7 +35,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
 {
     bool foundone = false;
 
-    if ( !fnm || !strcmp(fnm,StreamProvider::sStdIO()) )
+    if ( !fnm || FixedString(fnm)==StreamProvider::sStdIO() )
     {
 	addReader( &std::cin, cs, glob_info_only, forceusecbvsinfo );
 	if ( readers_.isEmpty() )
