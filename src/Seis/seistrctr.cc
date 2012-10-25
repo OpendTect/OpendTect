@@ -525,7 +525,7 @@ bool SeisTrcTranslator::getRanges( const MultiID& ky, CubeSampling& cs,
 bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
 				   const char* lk )
 {
-    PtrMan<Translator> transl = ioobj.getTranslator();
+    PtrMan<Translator> transl = ioobj.createTranslator();
     mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
     if ( !tr ) return false;
     PtrMan<Seis::SelData> sd = 0;

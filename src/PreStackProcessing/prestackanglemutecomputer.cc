@@ -164,7 +164,10 @@ bool AngleMuteComputer::doFinish( bool sucess )
 	return false;
 
     PtrMan<IOObj> obj = IOM().get( params().outputmutemid_ );
-    MuteDefTranslator* tr = obj ? (MuteDefTranslator*)obj->getTranslator() : 0;
+    PtrMan<MuteDefTranslator> tr = obj
+    	? (MuteDefTranslator*)obj->createTranslator()
+    	: 0;
+    
     BufferString bs;
     return tr ? tr->store( outputmute_, obj, bs ) : false;
 }

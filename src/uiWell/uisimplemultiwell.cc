@@ -225,7 +225,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
 	wd.setD2TModel( d2t );
     }
 
-    PtrMan<Translator> t = ioobj.getTranslator();
+    PtrMan<Translator> t = ioobj.createTranslator();
     mDynamicCastGet(WellTranslator*,wtr,t.ptr())
     if ( !wtr ) return true; // Huh?
     if ( !wtr->write(wd,ioobj) )

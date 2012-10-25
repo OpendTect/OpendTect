@@ -85,17 +85,17 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 	{
 	    case Seis::Vol:
 	    {
-		Translator* tr = ioobj->getTranslator();
+		Translator* tr = ioobj->createTranslator();
 		mDynamicCastGet(SEGYDirectSeisTrcTranslator*,str,tr)
 		if ( !str )
 		    { msg_ = "Input must be scanned SEG-Y cube"; delete tr; }
 		else
 		{
-		    Conn* conn = ioobj->getConn( Conn::Read );
+		    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
 		    if ( !conn )
 			{ msg_ = "Cannot open SEG-Y scan file"; delete str; }
 		    else if ( !str->initRead(conn) )
-			{ msg_ = str->errMsg(); delete str; delete conn; }
+			{ msg_ = str->errMsg(); delete str; }
 		    else
 			drdr_ = str;
 		}

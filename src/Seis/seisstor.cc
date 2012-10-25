@@ -85,7 +85,7 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
     is2d = SeisTrcTranslator::is2D( *ioobj, true );
     const bool isps = SeisTrcTranslator::isPS( *ioobj );
 
-    trl = ioobj->getTranslator();
+    trl = ioobj->createTranslator();
     if ( isps )
 	psioprov = SPSIOPF().provider( ioobj->translator() );
     else if ( is2d )

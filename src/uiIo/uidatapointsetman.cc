@@ -51,8 +51,9 @@ uiDataPointSetMan::~uiDataPointSetMan()
 #define mGetDPS(dps) \
     PosVecDataSet pvds; \
     DataPointSet* dps = 0; \
-    Translator* tr = curioobj_ ? curioobj_->getTranslator() : 0; \
-    mDynamicCastGet(PosVecDataSetTranslator*,pvdstr,tr); \
+    mDynamicCast(PosVecDataSetTranslator*, \
+		 PtrMan<PosVecDataSetTranslator> pvdstr, \
+		 curioobj_ ? curioobj_->createTranslator() : 0); \
     if ( pvdstr ) \
     { \
 	pvdstr->read( *curioobj_, pvds ); \

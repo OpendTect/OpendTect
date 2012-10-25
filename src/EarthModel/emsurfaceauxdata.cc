@@ -203,7 +203,7 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 	{ horizon_.errmsg_ = "Cannot find surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
-			(EMSurfaceTranslator*)ioobj->getTranslator();
+			(EMSurfaceTranslator*)ioobj->createTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
     { horizon_.errmsg_ = tr ? tr->errMsg() : "Cannot find Translator";return 0;}
 

@@ -227,7 +227,7 @@ bool ODSessionTranslator::retrieve( ODSession& session,
 {
     if ( !ioobj ) { err = "Cannot find object in data base"; return false; }
     PtrMan<ODSessionTranslator> tr =
-		dynamic_cast<ODSessionTranslator*>(ioobj->getTranslator());
+		dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
     if ( !tr ) { err = "Selected object is not an Session"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
@@ -244,7 +244,7 @@ bool ODSessionTranslator::store( const ODSession& session,
 {
     if ( !ioobj ) { err = "No object to store set in data base"; return false; }
     PtrMan<ODSessionTranslator> tr
-	 = dynamic_cast<ODSessionTranslator*>(ioobj->getTranslator());
+	 = dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
     if ( !tr )
 	{ err = "Selected object is not an OpendTect Session"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );

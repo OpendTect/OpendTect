@@ -31,7 +31,7 @@ bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,
 				    BufferString& bs )
 {
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
-    mDynamicCastGet(VolProcessingTranslator*,t,ioobj->getTranslator())
+    mDynamicCastGet(VolProcessingTranslator*,t,ioobj->createTranslator())
     if ( !t )
     {
 	bs = "Selected object is not a Volume Processing Setup";
@@ -57,7 +57,8 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
 				const IOObj* ioobj, BufferString& bs )
 {
     if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
-    mDynamicCastGet(VolProcessingTranslator*,tr,ioobj->getTranslator())
+    mDynamicCast(VolProcessingTranslator*,PtrMan<VolProcessingTranslator> tr,
+		 ioobj->createTranslator())
     if ( !tr )
     {
 	bs = "Selected object is not a Volume Processing Setup";
@@ -71,7 +72,6 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
     else
 	bs = tr->write( vr, *conn );
 
-    delete tr;
     return bs.isEmpty();
 }
 

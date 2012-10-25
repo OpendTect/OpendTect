@@ -958,7 +958,7 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 	{ surface_.errmsg_ = "Cannot find surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
-			(EMSurfaceTranslator*)ioobj->getTranslator();
+			(EMSurfaceTranslator*)ioobj->createTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
 	{ surface_.errmsg_ = tr ? tr->errMsg() :
 	    "Cannot find Translator"; return 0; }
@@ -1006,7 +1006,7 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
 	{ surface_.errmsg_ = "Cannot find surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
-			(EMSurfaceTranslator*)ioobj->getTranslator();
+			(EMSurfaceTranslator*)ioobj->createTranslator();
     if ( !tr || !tr->startWrite(surface_) )
 	{ surface_.errmsg_ = tr ? tr->errMsg() : "No Translator"; return 0; }
 

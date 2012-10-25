@@ -37,8 +37,8 @@ const char* ProbDenFuncTranslator::key()
 ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
 					  BufferString* emsg )
 {
-    Translator* trl = ioobj.getTranslator();
-    mDynamicCastGet(ProbDenFuncTranslator*,pdftr,trl)
+    mDynamicCast(ProbDenFuncTranslator*,
+	    	 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
     if ( !pdftr )
 	{ if ( emsg ) *emsg = "Cannot create Translator"; return 0; }
 
@@ -63,8 +63,8 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
 bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 				   BufferString* emsg )
 {
-    Translator* trl = ioobj.getTranslator();
-    mDynamicCastGet(ProbDenFuncTranslator*,pdftr,trl)
+    mDynamicCast(ProbDenFuncTranslator*,
+		 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
     if ( !pdftr )
 	{ if ( emsg ) *emsg = "Cannot create Translator"; return false; }
 

@@ -40,9 +40,10 @@ bool ODGMTProcFlowTranslator::retrieve( ODGMT::ProcFlow& pf, const IOObj* ioobj,
 					BufferString& bs )
 {
     if ( !ioobj ) { bs = "Cannot find flow object in data base"; return false; }
-    mDynamicCastGet(ODGMTProcFlowTranslator*,t,ioobj->getTranslator())
-    if ( !t ) { bs = "Selected object is not a GMT flow"; return false; }
-    PtrMan<ODGMTProcFlowTranslator> tr = t;
+    mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> tr,
+		 ioobj->createTranslator());
+    if ( !tr ) { bs = "Selected object is not a GMT flow"; return false; }
+    
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -55,7 +56,9 @@ bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
 				     const IOObj* ioobj, BufferString& bs )
 {
     if ( !ioobj ) { bs = "No object to store flow in data base"; return false; }
-    mDynamicCastGet(ODGMTProcFlowTranslator*,tr,ioobj->getTranslator())
+    mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> tr,
+		 ioobj->createTranslator());
+
     if ( !tr ) { bs = "Selected object is not a GMT flow"; return false;}
 
     bs = "";
@@ -64,7 +67,7 @@ bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
     else
 	bs = tr->write( pf, *conn );
-    delete tr;
+
     return bs.isEmpty();
 }
 

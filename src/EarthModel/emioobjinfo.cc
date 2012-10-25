@@ -214,7 +214,7 @@ const char* IOObjInfo::getSurfaceData( SurfaceIOData& sd ) const
 	return "Internal: Trying to get surface data from a non-surface";
     }
 
-    Translator* tr = ioobj_->getTranslator();
+    Translator* tr = ioobj_->createTranslator();
     mDynamicCastGet(EMSurfaceTranslator*,str,tr)
     PtrMan<EMSurfaceTranslator> ptrman_tr = str;
     if ( !str )

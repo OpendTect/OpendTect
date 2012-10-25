@@ -277,7 +277,9 @@ Executor* PolygonBody::saver( IOObj* inpioobj )
 	return 0; 
     }
 
-    mDynamicCastGet( polygonEMBodyTranslator*, tr, ioobj->getTranslator() );
+    mDynamicCast( polygonEMBodyTranslator*,
+		  PtrMan<polygonEMBodyTranslator> tr,
+		  ioobj->createTranslator() );
     if ( !tr )
     {
 	errmsg_ = "No Translator";
@@ -288,8 +290,6 @@ Executor* PolygonBody::saver( IOObj* inpioobj )
     if ( !exec )
     {
 	errmsg_ = tr->errMsg();
-	delete tr;
-
 	return 0;
     }
 
@@ -302,7 +302,9 @@ Executor* PolygonBody::loader()
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
     if ( !ioobj ) { errmsg_ = "Cannot find surface"; return 0; }
 
-    mDynamicCastGet( polygonEMBodyTranslator*, tr, ioobj->getTranslator() );
+    mDynamicCast( polygonEMBodyTranslator*,
+		 PtrMan<polygonEMBodyTranslator> tr,
+		 ioobj->createTranslator() );
     if ( !tr )
     {
 	errmsg_ = "No Translator";
@@ -313,8 +315,6 @@ Executor* PolygonBody::loader()
     if ( !exec )
     {
 	errmsg_ = tr->errMsg();
-	delete tr;
-
 	return 0;
     }
 

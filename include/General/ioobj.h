@@ -99,7 +99,7 @@ public:
 			           the translator group, such as "Velocity".*/
 
 
-    Translator*		getTranslator() const;
+    Translator*		createTranslator() const;
     			//!< returns a subclass of Translator according to
 			//!< the translator name and group.
     virtual void	acquireNewKey();

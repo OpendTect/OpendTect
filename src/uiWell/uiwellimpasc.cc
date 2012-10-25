@@ -356,7 +356,7 @@ bool uiWellImportAsc::doWork()
     }
 
     const IOObj* ioobj = outfld_->ioobj();
-    PtrMan<Translator> t = ioobj ? ioobj->getTranslator() : 0;
+    PtrMan<Translator> t = ioobj ? ioobj->createTranslator() : 0;
     mDynamicCastGet(WellTranslator*,wtr,t.ptr())
     if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
 	    		 "Another type object with this name already exists." );

@@ -51,7 +51,7 @@ Well::Data* Well::Man::release( const MultiID& key )
 }
 
 
-#define mErrRet(s) { delete tr; delete wd; msg_ = s; return 0; }
+#define mErrRet(s) { delete wd; msg_ = s; return 0; }
 
 
 Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
@@ -66,15 +66,15 @@ Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 	mustreplace = true;
     }
 
-    Translator* tr = 0; Well::Data* wd = 0;
+    PtrMan<Translator> tr = 0; Well::Data* wd = 0;
 
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj )
 	mErrRet("Cannot find well key in data store")
-    tr = ioobj->getTranslator();
+    tr = ioobj->createTranslator();
     if ( !tr )
 	mErrRet("Well translator not found")
-    mDynamicCastGet(WellTranslator*,wtr,tr)
+    mDynamicCastGet(WellTranslator*,wtr,tr.ptr() )
     if ( !wtr )
 	mErrRet("Translator produced is not a Well Transator")
 
@@ -87,7 +87,6 @@ Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
     else
 	add( key, wd );
 
-    delete tr;
     return wd;
 }
 

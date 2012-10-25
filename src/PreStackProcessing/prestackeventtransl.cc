@@ -37,31 +37,31 @@ Executor* PSEventTranslator::reader( PreStack::EventManager& pse,
        const BinIDValueSet* bvs, const HorSampling* hs, IOObj* ioobj,
        bool trigger )
 {
-    mDynamicCastGet( PSEventTranslator*, t, ioobj->getTranslator() );
-    if ( !t ) { return 0; }
+    mDynamicCast( PSEventTranslator*, PtrMan<PSEventTranslator> trans,
+		  ioobj->createTranslator() );
+    if ( !trans ) { return 0; }
 
-    PtrMan<PSEventTranslator> trans = t;
-    return t->createReader( pse, bvs, hs, ioobj, trigger );
+    return trans->createReader( pse, bvs, hs, ioobj, trigger );
 }
 
 
 Executor* PSEventTranslator::writer( PreStack::EventManager& pse, IOObj* ioobj )
 {
-    mDynamicCastGet( PSEventTranslator*, t, ioobj->getTranslator() );
-    if ( !t ) { return 0; }
-
-    PtrMan<PSEventTranslator> trans = t;
-    return t->createWriter( pse, ioobj );
+    mDynamicCast( PSEventTranslator*, PtrMan<PSEventTranslator> trans,
+		 ioobj->createTranslator() );
+    if ( !trans ) { return 0; }
+    
+    return trans->createWriter( pse, ioobj );
 }
 
 
 Executor* PSEventTranslator::writeAs( PreStack::EventManager& pse, IOObj* ioobj )
 {
-    mDynamicCastGet( PSEventTranslator*, t, ioobj->getTranslator() );
-    if ( !t ) { return 0; }
-
-    PtrMan<PSEventTranslator> trans = t;
-    return t->createSaveAs( pse, ioobj );
+    mDynamicCast( PSEventTranslator*, PtrMan<PSEventTranslator> trans,
+		 ioobj->createTranslator() );
+    if ( !trans ) { return 0; }
+    
+    return trans->createSaveAs( pse, ioobj );
 }
 
 
@@ -69,10 +69,10 @@ Executor* dgbPSEventTranslator::createReader( PreStack::EventManager& pse,
 	const BinIDValueSet* bvs, const HorSampling* hs, IOObj* ioobj,
         bool trigger )
 {
-    mDynamicCastGet( PSEventTranslator*, t, ioobj->getTranslator() );
-    if ( !t ) { return 0; }
-    PtrMan<PSEventTranslator> trans = t;
-
+    mDynamicCast( PSEventTranslator*, PtrMan<PSEventTranslator> trans,
+		     ioobj->createTranslator() );
+    if ( !trans ) { return 0; }
+    
     PreStack::EventReader* res = new PreStack::EventReader(ioobj,&pse,trigger);
     res->setSelection( bvs );
     res->setSelection( hs );
@@ -83,10 +83,9 @@ Executor* dgbPSEventTranslator::createReader( PreStack::EventManager& pse,
 Executor* dgbPSEventTranslator::createWriter( PreStack::EventManager& pse,
 					      IOObj* ioobj)
 {
-    mDynamicCastGet( PSEventTranslator*, t, ioobj->getTranslator() );
-    if ( !t ) { return 0; }
-    PtrMan<PSEventTranslator> trans = t;
-
+    mDynamicCast( PSEventTranslator*, PtrMan<PSEventTranslator> trans,
+		 ioobj->createTranslator() );
+    if ( !trans ) { return 0; }
     return new PreStack::EventWriter( ioobj, pse );
 }
 
@@ -94,13 +93,9 @@ Executor* dgbPSEventTranslator::createWriter( PreStack::EventManager& pse,
 Executor* dgbPSEventTranslator::createSaveAs( PreStack::EventManager& pse,
 					      IOObj* newstorage )
 {
-    mDynamicCastGet( PSEventTranslator*, t, newstorage->getTranslator() );
-    if ( !t ) { return 0; }
-    PtrMan<PSEventTranslator> trans = t;
-
-    PtrMan<IOObj> oldstorage = IOM().get( pse.getStorageID() );
-
     if ( !newstorage ) return 0;
+    
+    PtrMan<IOObj> oldstorage = IOM().get( pse.getStorageID() );
 
     ExecutorGroup* grp = new ExecutorGroup( "Save as", false );
 

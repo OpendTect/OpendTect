@@ -43,7 +43,7 @@ bool uiSeisIOObjInfo::provideUserInfo() const
     if ( is2D() )
 	return true;
 
-    PtrMan<Translator> t = ioObj()->getTranslator();
+    PtrMan<Translator> t = ioObj()->createTranslator();
     if ( !t )
 	{ pErrMsg("No Translator"); return true; }
     mDynamicCastGet(CBVSSeisTrcTranslator*,tr,t.ptr());

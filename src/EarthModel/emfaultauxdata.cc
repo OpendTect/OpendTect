@@ -310,7 +310,7 @@ Executor* FaultAuxData::dataLoader( int selidx )
 	return 0; 
 
     PtrMan<EMSurfaceTranslator> tr = 
-	(EMSurfaceTranslator*)ioobj->getTranslator();
+	(EMSurfaceTranslator*)ioobj->createTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
 	return 0;
 

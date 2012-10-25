@@ -170,7 +170,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     if ( !tb ) { pErrMsg("CallBacker is not uiToolButton!"); return; }
 
     MultiID prevkey( ioobj->key() );
-    PtrMan<Translator> tr = ioobj->getTranslator();
+    PtrMan<Translator> tr = ioobj->createTranslator();
 
     bool chgd = false;
     if ( tb == locbut )

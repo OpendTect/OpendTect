@@ -169,7 +169,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	PtrMan<Translator> t = ioobj->getTranslator();
+	PtrMan<Translator> t = ioobj->createTranslator();
 	mDynamicCastGet(WellTranslator*,wtr,t.ptr())
 	if ( wtr && wtr->write(*wd,*ioobj) )
 	    continue;

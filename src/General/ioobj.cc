@@ -163,7 +163,7 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 }
 
 
-Translator* IOObj::getTranslator() const
+Translator* IOObj::createTranslator() const
 {
     if ( isSubdir() ) return 0;
 
@@ -249,11 +249,10 @@ int IOObj::myKey() const
 bool IOObj::isReadDefault() const
 {
     if ( myKey() < 2 || isSubdir() ) return false;
-    Translator* tr = getTranslator();
+    PtrMan<Translator> tr = createTranslator();
     if ( !tr ) return false;
 
     bool isrddef = tr->isReadDefault();
-    delete tr;
     return isrddef;
 }
 
@@ -261,7 +260,8 @@ bool IOObj::isReadDefault() const
 void IOObj::setSurveyDefault( const char* subsel ) const
 {
     CompoundKey defaultkey = sKey::Default().str();
-    defaultkey += getTranslator()->group()->getSurveyDefaultKey( this );
+    PtrMan<Translator> tr = createTranslator();
+    defaultkey += tr->group()->getSurveyDefaultKey( this );
     if ( subsel )
 	defaultkey += subsel;
     
@@ -308,7 +308,7 @@ bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 bool fullImplRemove( const IOObj& ioobj )
 {
     if ( ioobj.isSubdir() ) return false;
-    PtrMan<Translator> tr = ioobj.getTranslator();
+    PtrMan<Translator> tr = ioobj.createTranslator();
     return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
 }
 

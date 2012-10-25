@@ -195,8 +195,8 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 	return -1;
     }
 
-    Translator* tr = ioobj_->getTranslator();
-    mDynamicCastGet(SeisTrcTranslator*,sttr,tr)
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+		    ioobj_->createTranslator() );
     if ( !sttr )
 	{ pErrMsg("No Translator!"); return -1; }
 
@@ -204,7 +204,7 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 	return -1;
 
     int overhead = sttr->bytesOverheadPerTrace();
-    delete tr;
+
     double sz = si.expectednrsamps;
     sz *= si.maxbytespsamp;
     sz = (sz + overhead) * si.expectednrtrcs;
@@ -256,8 +256,8 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 	return false;
     }
 
-    Translator* tr = ioobj_->getTranslator();
-    mDynamicCastGet(SeisTrcTranslator*,sttr,tr)
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+		 ioobj_->createTranslator() );
     if ( !sttr )
 	{ pErrMsg("No Translator!"); return false; }
 
@@ -528,8 +528,8 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
 
     if ( !is2D() )
     {
-	Translator* tr = ioobj_->getTranslator();
-	mDynamicCastGet(SeisTrcTranslator*,sttr,tr)
+	mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+		     ioobj_->createTranslator() );
 	if ( !sttr )
 	    { pErrMsg("No Translator!"); return 0; }
 	Conn* conn = ioobj_->getConn( Conn::Read );
@@ -542,7 +542,6 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
 		    nms->add( sttr->componentInfo()[icomp]->name() );
 	    }
 	}
-	delete tr;
     }
     else
     {

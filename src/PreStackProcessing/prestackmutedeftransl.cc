@@ -39,9 +39,10 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
 				  BufferString& bs )
 {
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
-    mDynamicCastGet(MuteDefTranslator*,t,ioobj->getTranslator())
-    if ( !t ) { bs = "Selected object is not a Mute Definition"; return false; }
-    PtrMan<MuteDefTranslator> tr = t;
+    mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> tr,
+		 ioobj->createTranslator());
+    if ( !tr ) { bs = "Selected object is not a Mute Definition"; return false; }
+    
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -54,7 +55,8 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
 				BufferString& bs )
 {
     if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
-    mDynamicCastGet(MuteDefTranslator*,tr,ioobj->getTranslator())
+    mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> tr,
+		 ioobj->createTranslator());
     if ( !tr ) { bs = "Selected object is not a Mute Definition"; return false;}
 
     bs = "";
@@ -66,7 +68,6 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
 	bs = tr->write( md, *conn );
     }
 
-    delete tr;
     return bs.isEmpty();
 }
 

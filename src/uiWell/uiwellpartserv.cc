@@ -322,7 +322,7 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     ctio->setObj(0); ctio->setName( wellname );
     if ( !ctio->fillObj() )
 	mErrRet("Cannot create an entry in the data store")
-    PtrMan<Translator> tr = ctio->ioobj->getTranslator();
+    PtrMan<Translator> tr = ctio->ioobj->createTranslator();
     mDynamicCastGet(WellTranslator*,wtr,tr.ptr())
     if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
 			 "Another type object with this name already exists." );

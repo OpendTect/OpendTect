@@ -167,9 +167,9 @@ bool ODMadProcFlowTranslator::retrieve( ODMad::ProcFlow& pf, const IOObj* ioobj,
 					BufferString& bs )
 {
     if ( !ioobj ) { bs = "Cannot find flow object in data base"; return false; }
-    mDynamicCastGet(ODMadProcFlowTranslator*,t,ioobj->getTranslator())
-    if ( !t ) { bs = "Selected object is not a processing flow"; return false; }
-    PtrMan<ODMadProcFlowTranslator> tr = t;
+    mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> tr,
+		 ioobj->createTranslator());
+    if ( !tr ) { bs = "Selected object is not a processing flow"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -182,7 +182,8 @@ bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
 				     const IOObj* ioobj, BufferString& bs )
 {
     if ( !ioobj ) { bs = "No object to store flow in data base"; return false; }
-    mDynamicCastGet(ODMadProcFlowTranslator*,tr,ioobj->getTranslator())
+    mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> tr,
+		 ioobj->createTranslator());
     if ( !tr ) { bs = "Selected object is not a Processing flow"; return false;}
 
     bs = "";
@@ -191,7 +192,7 @@ bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
     else
 	bs = tr->write( pf, *conn );
-    delete tr;
+    
     return bs.isEmpty();
 }
 

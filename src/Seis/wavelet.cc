@@ -102,7 +102,7 @@ Wavelet::~Wavelet()
 Wavelet* Wavelet::get( const IOObj* ioobj )
 {
     if ( !ioobj ) return 0;
-    WaveletTranslator* tr = (WaveletTranslator*)ioobj->getTranslator();
+    PtrMan<WaveletTranslator> tr = (WaveletTranslator*)ioobj->createTranslator();
     if ( !tr ) return 0;
     Wavelet* newwv = 0;
 
@@ -122,7 +122,7 @@ Wavelet* Wavelet::get( const IOObj* ioobj )
 	}
     }
 
-    delete connptr; delete tr;
+    delete connptr;
     return newwv;
 }
 
@@ -130,7 +130,8 @@ Wavelet* Wavelet::get( const IOObj* ioobj )
 bool Wavelet::put( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
-    WaveletTranslator* tr = (WaveletTranslator*)ioobj->getTranslator();
+    PtrMan<WaveletTranslator> tr =
+        (WaveletTranslator*)ioobj->createTranslator();
     if ( !tr ) return false;
     bool retval = false;
 
@@ -145,7 +146,7 @@ bool Wavelet::put( const IOObj* ioobj ) const
     else
 	ErrMsg( "Cannot open Wavelet file for write" );
 
-    delete connptr; delete tr;
+    delete connptr;
     return retval;
 }
 

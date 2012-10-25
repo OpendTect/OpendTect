@@ -63,7 +63,7 @@ bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
     if ( !ioobj ) { err = "Cannot find object in data base"; return false; }
 
     PtrMan<MPESetupTranslator> tr =
-		dynamic_cast<MPESetupTranslator*>(ioobj->getTranslator());
+		dynamic_cast<MPESetupTranslator*>(ioobj->createTranslator());
     if ( !tr ) { err = "Selected object is not a Setup"; return false; }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
@@ -86,7 +86,7 @@ bool MPESetupTranslator::store( const MPESetup& setup, const IOObj* ioobj,
     if ( !ioobj ) { err = "No object to store in data base"; return false; }
 
     PtrMan<MPESetupTranslator> tr =
-		dynamic_cast<MPESetupTranslator*>(ioobj->getTranslator());
+		dynamic_cast<MPESetupTranslator*>(ioobj->createTranslator());
     if ( !tr ) { err = "Selected object is not a Setup"; return false; }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );

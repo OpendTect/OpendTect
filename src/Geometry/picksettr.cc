@@ -43,9 +43,9 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 				  bool checkdir, BufferString& bs )
 {
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
-    mDynamicCastGet(PickSetTranslator*,t,ioobj->getTranslator())
-    if ( !t ) { bs = "Selected object is not a Pick Set"; return false; }
-    PtrMan<PickSetTranslator> tr = t;
+    mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
+		 ioobj->createTranslator());
+    if ( !tr ) { bs = "Selected object is not a Pick Set"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -58,7 +58,8 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 				BufferString& bs )
 {
     if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
-    mDynamicCastGet(PickSetTranslator*,tr,ioobj->getTranslator())
+    mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
+		 ioobj->createTranslator());
     if ( !tr ) { bs = "Selected object is not a Pick Set"; return false; }
 
     bs = "";
@@ -67,7 +68,7 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
     else
 	bs = tr->write( ps, *conn );
-    delete tr;
+
     return bs.isEmpty();
 }
 

@@ -444,22 +444,22 @@ ElasticPropSelection* ElasticPropSelection::get( const MultiID& mid )
 ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
 {
     if ( !ioobj ) return 0;
-    ElasticPropSelectionTranslator* tr = 
-		(ElasticPropSelectionTranslator*)ioobj->getTranslator();
+    PtrMan<ElasticPropSelectionTranslator> tr =
+		(ElasticPropSelectionTranslator*)ioobj->createTranslator();
 
     if ( !tr ) return 0;
     ElasticPropSelection* eps = 0;
 
-    Conn* conn = ioobj->getConn( Conn::Read );
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( conn && !conn->bad() )
     {
 	eps = new ElasticPropSelection;
 	
-	if ( !conn->forRead() || !conn->isStream() )  return false;
+	if ( !conn->forRead() || !conn->isStream() )  return 0;
 
 	ascistream astream( ((StreamConn&)(*conn)).iStream() );
 	if ( !astream.isOfFileType(mTranslGroupName(ElasticPropSelection)) )
-	    return false;
+	    return 0;
 
 	while ( !atEndOfSection( astream.next() ) )
 	{
@@ -476,7 +476,6 @@ ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
     else
 	ErrMsg( "Cannot open elastic property selection file" );
 
-    delete conn; delete tr;
     return eps;
 }
 
@@ -484,12 +483,12 @@ ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
 bool ElasticPropSelection::put( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
-    ElasticPropSelectionTranslator* tr = 
-		(ElasticPropSelectionTranslator*)ioobj->getTranslator();
+    PtrMan<ElasticPropSelectionTranslator> tr =
+		(ElasticPropSelectionTranslator*)ioobj->createTranslator();
     if ( !tr ) return false;
     bool retval = false;
 
-    Conn* conn = ioobj->getConn( Conn::Write );
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( conn && !conn->bad() )
     {
 	if ( !conn->forWrite() || !conn->isStream() ) return false;
@@ -514,7 +513,6 @@ bool ElasticPropSelection::put( const IOObj* ioobj ) const
     else
 	ErrMsg( "Cannot open elastic property selection file for write" );
 
-    delete conn; delete tr;
     return retval;
 }
 

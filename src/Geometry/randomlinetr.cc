@@ -36,7 +36,7 @@ bool RandomLineSetTranslator::retrieve( Geometry::RandomLineSet& rdls,
 	{ bs = "Cannot find object in data base"; return false; }
 
     PtrMan<RandomLineSetTranslator> tr
-	= dynamic_cast<RandomLineSetTranslator*>(ioobj->getTranslator());
+	= dynamic_cast<RandomLineSetTranslator*>(ioobj->createTranslator());
     if ( !tr )
 	{ bs = "Selected object is not a Random Line"; return false; }
 
@@ -72,7 +72,7 @@ bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
 	{ bs = "No object to store set in data base"; return false; }
     
     PtrMan<RandomLineSetTranslator> tr
-	= dynamic_cast<RandomLineSetTranslator*>(ioobj->getTranslator());
+	= dynamic_cast<RandomLineSetTranslator*>(ioobj->createTranslator());
     if ( !tr )
 	{ bs = "Selected object is not an Attribute Set"; return false; }
 

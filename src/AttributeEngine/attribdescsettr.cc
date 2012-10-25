@@ -28,7 +28,7 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
 {
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
     PtrMan<AttribDescSetTranslator> tr
-	= dynamic_cast<AttribDescSetTranslator*>(ioobj->getTranslator());
+	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
     if ( !tr ) { bs = "Selected object is not an Attribute Set"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
@@ -45,7 +45,7 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
 {
     if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
     PtrMan<AttribDescSetTranslator> tr
-	= dynamic_cast<AttribDescSetTranslator*>(ioobj->getTranslator());
+	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
     if ( !tr ) { bs = "Selected object is not an Attribute Set"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
