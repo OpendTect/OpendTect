@@ -159,6 +159,7 @@ public:
     virtual bool		allowsPicks() const;
     bool			canDuplicate() const		{ return true; }
     visSurvey::SurveyObject*	duplicate(TaskRunner*) const;
+    void			init();
 
     void			allowShading(bool yn ) { allowshading_ = yn; }
 

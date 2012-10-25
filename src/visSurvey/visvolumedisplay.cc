@@ -226,6 +226,9 @@ void VolumeDisplay::updateIsoSurfColor()
 
 bool VolumeDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
+    if ( zat == datatransform_ )
+	return true;
+
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )
     {
@@ -874,7 +877,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 				    attribdata->cubeSampling() );
 	datatransformer_->setOutputRange( getCubeSampling(true,true,0) );
 
-	if ( (tr && tr->execute(*datatransformer_)) ||
+	if ( (tr && !tr->execute(*datatransformer_)) ||
              !datatransformer_->execute() )
 	{
 	    pErrMsg( "Transform failed" );
@@ -883,7 +886,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 
 	usedarray = datatransformer_->getOutput( true );
 	if ( !usedarray )
-	{
+	{ 
 	    pErrMsg( "No output from transform" );
 	    return false;
 	}
@@ -1027,6 +1030,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
     for ( int idx=0; idx<children.size(); idx++ )
 	vd->removeChild( children[idx] );
 
+    vd->setZAxisTransform( const_cast<ZAxisTransform*>(datatransform_), tr );
     for ( int idx=0; idx<slices_.size(); idx++ )
     {
 	const int sliceid = vd->addSlice( slices_[idx]->getDim() );
@@ -1040,7 +1044,8 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 	vd->addIsoSurface();
 	vd->isosurfsettings_[idx] = isosurfsettings_[idx];
     }
-
+    
+    vd->init();
     vd->showVolRen( isVolRenShown() );
 
     vd->setCubeSampling( getCubeSampling(false,true,0) );
@@ -1051,31 +1056,35 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 }
 
 
+void VolumeDisplay::init()
+{
+    isinited_ = true;
+    scalarfield_->useShading( allowshading_ );
+
+    const int voltransidx = childIndex( voltrans_->getInventorNode() );
+    insertChild( voltransidx+1, scalarfield_->getInventorNode() );
+
+    scalarfield_->turnOn( true );
+
+    if ( !slices_.size() )
+    {
+	addSlice( cInLine() );
+	addSlice( cCrossLine() );
+	addSlice( cTimeSlice() );
+    }
+    
+    if ( !volren_ )
+    {
+	showVolRen( true );
+	showVolRen( false );
+    }
+}
+
+
 SoNode* VolumeDisplay::gtInvntrNode()
 {
     if ( !isinited_ )
-    {
-	isinited_ = true;
-	scalarfield_->useShading( allowshading_ );
-
-	const int voltransidx = childIndex( voltrans_->getInventorNode() );
-	insertChild( voltransidx+1, scalarfield_->getInventorNode() );
-
-	scalarfield_->turnOn( true );
-
-	if ( !slices_.size() )
-	{
-	    addSlice( cInLine() );
-	    addSlice( cCrossLine() );
-	    addSlice( cTimeSlice() );
-	}
-    
-	if ( !volren_ )
-	{
-	    showVolRen( true );
-	    showVolRen( false );
-	}
-    }
+	init();
 
     return VisualObjectImpl::gtInvntrNode();
 }
