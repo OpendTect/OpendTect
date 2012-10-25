@@ -384,13 +384,16 @@ DataColDef& DataPointSet::gtColDef( DataPointSet::ColID cid ) const
 }
 
 
-DataPointSet::ColID DataPointSet::indexOf( const char* nm ) const
+DataPointSet::ColID DataPointSet::indexOf( const char* nmstr ) const
 {
-    if ( !nm || !*nm ) return -1;
+    FixedString nm( nmstr );
+    if ( nm.isEmpty() )
+	return -1;
+    
     const int nrcols = nrCols();
     for ( int idx=0; idx<nrcols; idx++ )
     {
-	if ( !strcmp(nm,colName(idx)) )
+	if ( nm==colName(idx) )
 	    return idx;
     }
     return -1;
