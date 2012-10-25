@@ -195,7 +195,7 @@ const char* CBVSReader::check( std::istream& strm )
     if ( !strm.good() ) mErrRet;
 
     msg = "File is not in CBVS format";
-    if ( strcmp(buf,"dGB") ) mErrRet;
+    if ( FixedString(buf)!="dGB" ) mErrRet;
 
     char plf; strm.read( &plf, 1 );
     if ( plf > 2 ) mErrRet;
@@ -323,7 +323,7 @@ bool CBVSReader::readTrailer()
     StrmOper::seek( strm_, -3, std::ios::end );
     char buf[40];
     strm_.read( buf, 3 ); buf[3] = '\0';
-    if ( strcmp(buf,"BGd") ) mErrRet("Missing required file trailer")
+    if ( FixedString(buf)!="BGd" ) mErrRet("Missing required file trailer")
     
     StrmOper::seek( strm_,-4-integersize, std::ios::end );
     strm_.read( buf, integersize );

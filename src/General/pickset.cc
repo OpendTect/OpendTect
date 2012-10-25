@@ -61,7 +61,7 @@ void Pick::Location::unSetText( const char* key )
     SeparString sepstr( *text, '\'' );
     for ( int idx=0; idx<sepstr.size(); idx+=2 )
     {
-	if ( strcmp(key,sepstr[idx]) )
+	if ( key!=sepstr[idx] )
 	    continue;
 
 	SeparString copy( 0, '\'' );
@@ -229,7 +229,7 @@ bool Pick::Location::getText( const char* idkey, BufferString& val ) const
 
     for ( int idx=0; idx<strsz; idx+=2 )
     {
-	if ( strcmp(idkey,sepstr[idx]) )
+	if ( idkey!=sepstr[idx] )
 	    continue;
 
 	val = sepstr[idx+1];
