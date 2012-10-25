@@ -37,8 +37,8 @@ BinID HorSampling::atIndex(  od_int64 globalidx ) const
     if ( !nrcrl )
 	return BinID(0,0);
 
-    const int inlidx = globalidx/nrcrl;
-    const int crlidx = globalidx%nrcrl;
+    const int inlidx = (int)(globalidx/nrcrl);
+    const int crlidx = (int)(globalidx%nrcrl);
     return atIndex( inlidx, crlidx );
 }
 
@@ -388,7 +388,7 @@ void HorSampling::toString( BufferString& str ) const
 void HorSampling::getRandomSet( int nr, TypeSet<BinID>& bidset ) const
 {
     if ( nr > totalNr() )
-	nr = totalNr();
+	nr = (int) totalNr();
 
     while ( nr )
     {
