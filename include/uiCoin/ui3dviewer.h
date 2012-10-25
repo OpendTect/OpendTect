@@ -111,6 +111,11 @@ private:
     uiObjectBody&	mkBody(uiParent*,bool direct,const char*);
 
     IOPar		homepos_;
+
+public:
+    void		savePropertySettings() const;
+    void		enableAnimation(bool);
+    bool		isAnimationEnabled() const;
 };
 
 
