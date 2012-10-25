@@ -614,7 +614,7 @@ static bool getTVDD2TModel( Well::D2TModel& d2t,
 	{
 	    while ( targetz > zvals[iz+1] )
 	    {
-		if ( (iz+1) > zvals.size() ) break;
+		if ( (iz+2) >= zvals.size() ) break;
 		else
 		{
 		    iz++;
