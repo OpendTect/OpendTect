@@ -21,8 +21,7 @@ ________________________________________________________________________
 #define mRounded(typ,x)		roundOff<typ>( x )
 #define mNINT32(x)		mRounded( od_int32, x )
 #define mNINT64(x)		mRounded( od_int64, x )
-#define mAsInt32(v)		((od_int32)(v))
-#define mAsInt64(v)		((od_int64)(v))
+#define mCast(tp,v)		((tp)(v))
 
 #define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
 #define mMAX(x,y)		( (x)>(y) ? (x) : (y) )
