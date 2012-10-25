@@ -391,7 +391,7 @@ bool JobIOMgr::startProg( const char* progname,
 
 extern const BufferString& getTempBaseNm();
 
-extern int MMJob_getTempFileNr();
+extern int& MMJob_getTempFileNr();
 
 FilePath getConvFilePath( const HostData& hd, const FilePath& fp )
 {
