@@ -27,6 +27,7 @@ public:
     			ImportHandler( std::istream& strm )
 			    : strm_(strm)
 			    , colpos_(0)	{}
+    virtual		~ImportHandler()	{}
 
     enum State		{ Error, InCol, EndCol, EndRow };
 
@@ -62,6 +63,7 @@ mClass(General) ExportHandler
 public:
     			ExportHandler( std::ostream& strm )
 			    : strm_(strm)		{}
+    virtual		~ExportHandler()		{}
 
     virtual const char*	putRow(const BufferStringSet&)	= 0;
 

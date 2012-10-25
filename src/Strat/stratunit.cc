@@ -291,7 +291,7 @@ bool Strat::NodeUnitRef::insert( UnitRef* un, int posidx )
 Strat::UnitRef* Strat::NodeUnitRef::replace( int unidx, Strat::UnitRef* un )
 {
     if ( !un || hasLeaves() != un->isLeaf() )
-	return false;
+	return 0;
 
     UnitRef* oldun = refs_.replace( unidx, un );
     refTree().reportAdd( un );

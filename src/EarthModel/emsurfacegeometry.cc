@@ -47,10 +47,10 @@ public:
 protected:
     bool				action(bool add) const;
 
-    bool				add;
-    ObjectID				object;
-    SectionID				sid;
-    BufferString			name;
+    bool				add_;
+    ObjectID				object_;
+    SectionID				sid_;
+    BufferString			name_;
 
     static const char*  		addKey();
     static const char*  		objKey();
@@ -62,10 +62,10 @@ protected:
 SurfaceSectionUndoEvent::SurfaceSectionUndoEvent(
 	bool doadd, ObjectID oid,
         const SectionID& sectionid, const char* nm)
-    : object( oid )
-    , sid( sid )
-    , name( nm )
-    , add( doadd )
+    : object_( oid )
+    , sid_( sectionid )
+    , name_( nm )
+    , add_( doadd )
 {}
 
 
@@ -77,13 +77,13 @@ const char* SurfaceSectionUndoEvent::getStandardDesc() const
 
 bool SurfaceSectionUndoEvent::unDo()
 {
-    return action( !add );
+    return action( !add_ );
 }
 
 
 bool SurfaceSectionUndoEvent::reDo()
 {
-    return action( add );
+    return action( add_ );
 }
 
 
@@ -95,25 +95,25 @@ const char* SurfaceSectionUndoEvent::nameKey() { return "Name"; }
 
 void SurfaceSectionUndoEvent::fillPar( IOPar& iopar ) const
 {
-    iopar.setYN( addKey(), add );
-    iopar.set( objKey(), object );
-    iopar.set( sectionKey(), (int) sid );
-    if ( add ) iopar.set( nameKey(), name );
+    iopar.setYN( addKey(), add_ );
+    iopar.set( objKey(), object_ );
+    iopar.set( sectionKey(), (int) sid_ );
+    if ( add_ ) iopar.set( nameKey(), name_ );
 }
 
 
 bool SurfaceSectionUndoEvent::usePar( const IOPar& iopar )
 {
     int tmpsection;
-    bool res = iopar.getYN( addKey(), add ) && iopar.get( objKey(), object )
+    bool res = iopar.getYN( addKey(), add_ ) && iopar.get( objKey(), object_ )
 	    && iopar.get( sectionKey(), tmpsection );
     if ( res )
     {
-	if ( add )
-	    res = iopar.get( nameKey(), name );
+	if ( add_ )
+	    res = iopar.get( nameKey(), name_ );
 
 	if ( res )
-	    sid = tmpsection;
+	    sid_ = tmpsection;
     }
 
     return res;
@@ -123,13 +123,13 @@ bool SurfaceSectionUndoEvent::usePar( const IOPar& iopar )
 bool SurfaceSectionUndoEvent::action( bool doadd ) const
 {
     EMManager& manager = EMM();
-    EMObject* objectptr = manager.getObject(object);
+    EMObject* objectptr = manager.getObject(object_);
     Surface* emsurface = dynamic_cast<Surface*>(objectptr);
 
     if ( doadd )
-	return emsurface->geometry().addSection( name.buf(), sid, false );
+	return emsurface->geometry().addSection( name_.buf(), sid_, false );
 
-    emsurface->geometry().removeSection( sid, false );
+    emsurface->geometry().removeSection( sid_, false );
     return true;
 }
 

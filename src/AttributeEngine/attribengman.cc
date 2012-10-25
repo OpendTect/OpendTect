@@ -937,7 +937,7 @@ Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
 
 
 #undef mErrRet
-#define mErrRet(s) { errmsg = s; return false; }
+#define mErrRet(s) { errmsg = s; return 0; }
 
 Processor* EngineMan::getProcessor( BufferString& errmsg )
 {

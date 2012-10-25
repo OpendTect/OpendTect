@@ -139,7 +139,7 @@ SeisTrc* SeisPSReader::getTrace( const BinID& bid, int trcnr ) const
 {
     SeisTrcBuf buf( true );
     if ( !getGather(bid,buf) || buf.size() <= trcnr )
-	return false;
+	return 0;
     return buf.remove( trcnr );
 }
 
