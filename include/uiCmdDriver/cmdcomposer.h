@@ -30,6 +30,7 @@ class CmdRecEvent;
 mClass(uiCmdDriver) Classifier
 {
 public:
+    virtual		~Classifier()				{}
     virtual const char* name() const				= 0;
     virtual bool	approved(const CallBacker*) const	= 0;
 };
