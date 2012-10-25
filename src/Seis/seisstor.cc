@@ -32,30 +32,30 @@ const char* Seis::SeqIO::sKeyODType = "OpendTect";
 
 
 SeisStoreAccess::SeisStoreAccess( const IOObj* ioob )
-	: ioobj(0)
-	, trl(0)
-	, lset(0)
-	, seldata(0)
-	, is2d(false)
-	, psioprov(0)
+	: ioobj_(0)
+	, trl_(0)
+	, lset_(0)
+	, seldata_(0)
+	, is2d_(false)
+	, psioprov_(0)
 {
     setIOObj( ioob );
 }
 
 
 SeisStoreAccess::SeisStoreAccess( const char* fnm, bool isps, bool is_2d )
-	: ioobj(0)
-	, trl(0)
-	, lset(0)
-	, seldata(0)
-	, is2d(is_2d)
-	, psioprov(0)
+	: ioobj_(0)
+	, trl_(0)
+	, lset_(0)
+	, seldata_(0)
+	, is2d_(is_2d)
+	, psioprov_(0)
 {
     char str[255];
     getStringFromInt(IOObj::tmpID(),str);
     IOStream iostrm( "_tmp_SeisStoreAccess", str );
     iostrm.setGroup( !isps ? mTranslGroupName(SeisTrc)
-		   : (is2d ? mTranslGroupName(SeisPS2D)
+		   : (is2d_ ? mTranslGroupName(SeisPS2D)
 		   :	     mTranslGroupName(SeisPS3D)) );
     iostrm.setTranslator( CBVSSeisTrcTranslator::translKey() );
     iostrm.setFileName( fnm && *fnm ? fnm : StreamProvider::sStdIO() );
@@ -71,8 +71,8 @@ SeisStoreAccess::~SeisStoreAccess()
 
 SeisTrcTranslator* SeisStoreAccess::strl() const
 {
-    Translator* nctrl = const_cast<Translator*>( trl );
-    mDynamicCastGet(SeisTrcTranslator*,ret,nctrl)
+    Translator* nctrl_ = const_cast<Translator*>( trl_ );
+    mDynamicCastGet(SeisTrcTranslator*,ret,nctrl_)
     return ret;
 }
 
@@ -81,56 +81,56 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
 {
     close();
     if ( !ioob ) return;
-    ioobj = ioob->clone();
-    is2d = SeisTrcTranslator::is2D( *ioobj, true );
-    const bool isps = SeisTrcTranslator::isPS( *ioobj );
+    ioobj_ = ioob->clone();
+    is2d_ = SeisTrcTranslator::is2D( *ioobj_, true );
+    const bool isps = SeisTrcTranslator::isPS( *ioobj_ );
 
-    trl = ioobj->createTranslator();
+    trl_ = ioobj_->createTranslator();
     if ( isps )
-	psioprov = SPSIOPF().provider( ioobj->translator() );
-    else if ( is2d )
+	psioprov_ = SPSIOPF().provider( ioobj_->translator() );
+    else if ( is2d_ )
     {
-	lset = new Seis2DLineSet( ioobj->fullUserExpr(true) );
-	if ( !ioobj->name().isEmpty() )
-	    lset->setName( ioobj->name() );
+	lset_ = new Seis2DLineSet( ioobj_->fullUserExpr(true) );
+	if ( !ioobj_->name().isEmpty() )
+	    lset_->setName( ioobj_->name() );
     }
     else
     {
-	if ( !trl )
-	    { delete ioobj; ioobj = 0; }
+	if ( !trl_ )
+	    { delete ioobj_; ioobj_ = 0; }
 	else if ( strl() )
-	    strl()->setSelData( seldata );
+	    strl()->setSelData( seldata_ );
     }
 }
 
 
 const Conn* SeisStoreAccess::curConn3D() const
-{ return !is2d && strl() ? strl()->curConn() : 0; }
+{ return !is2d_ && strl() ? strl()->curConn() : 0; }
 Conn* SeisStoreAccess::curConn3D()
-{ return !is2d && strl() ? strl()->curConn() : 0; }
+{ return !is2d_ && strl() ? strl()->curConn() : 0; }
 
 
 void SeisStoreAccess::setSelData( Seis::SelData* tsel )
 {
-    delete seldata; seldata = tsel;
-    if ( strl() ) strl()->setSelData( seldata );
+    delete seldata_; seldata_ = tsel;
+    if ( strl() ) strl()->setSelData( seldata_ );
 }
 
 
-bool SeisStoreAccess::cleanUp( bool alsoioobj )
+bool SeisStoreAccess::cleanUp( bool alsoioobj_ )
 {
     bool ret = true;
     if ( strl() )
 	{ ret = strl()->close(); if ( !ret ) errmsg_ = strl()->errMsg(); }
-    delete trl; trl = 0;
-    delete lset; lset = 0;
-    psioprov = 0;
-    nrtrcs = 0;
+    delete trl_; trl_ = 0;
+    delete lset_; lset_ = 0;
+    psioprov_ = 0;
+    nrtrcs_ = 0;
 
-    if ( alsoioobj )
+    if ( alsoioobj_ )
     {
-	delete ioobj; ioobj = 0;
-	delete seldata; seldata = 0;
+	delete ioobj_; ioobj_ = 0;
+	delete seldata_; seldata_ = 0;
     }
     init();
 
@@ -146,7 +146,7 @@ bool SeisStoreAccess::close()
 
 void SeisStoreAccess::fillPar( IOPar& iopar ) const
 {
-    if ( ioobj ) iopar.set( sKey::ID(), ioobj->key() );
+    if ( ioobj_ ) iopar.set( sKey::ID(), ioobj_->key() );
 }
 
 
@@ -160,12 +160,12 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 	if ( res && *res )
 	{
 	    IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );
-	    const IOObj* tryioobj = (*IOM().dirPtr())[ res ];
-	    if ( !tryioobj )
+	    const IOObj* tryioobj_ = (*IOM().dirPtr())[ res ];
+	    if ( !tryioobj_ )
 		res = 0;
 	    else
 	    {
-		tmp = tryioobj->key();
+		tmp = tryioobj_->key();
 		res = tmp.buf();
 	    }
 	}
@@ -174,19 +174,19 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
     if ( res && *res )
     {
 	IOObj* ioob = IOM().get( res );
-	if ( ioob && (!ioobj || ioobj->key() != ioob->key()) )
+	if ( ioob && (!ioobj_ || ioobj_->key() != ioob->key()) )
 	    setIOObj( ioob );
 	delete ioob;
     }
 
-    if ( !seldata )
-	seldata = Seis::SelData::get( iopar );
-    if ( seldata->isAll() && seldata->lineKey().isEmpty() )
-	{ delete seldata; seldata = 0; }
+    if ( !seldata_ )
+	seldata_ = Seis::SelData::get( iopar );
+    if ( seldata_->isAll() && seldata_->lineKey().isEmpty() )
+	{ delete seldata_; seldata_ = 0; }
 
     if ( strl() )
     {
-	strl()->setSelData( seldata );
+	strl()->setSelData( seldata_ );
 	strl()->usePar( iopar );
     }
 }
