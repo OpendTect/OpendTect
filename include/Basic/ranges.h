@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "errh.h"
 #include "ptrman.h"
 
+template <class T> class Interval;
+
 /* Base class for Interval. Has no virtual functions and can hence
    be used in places where no virtual functions are allowed (e.g. large
    memcpy operations. Does not have sort, clone and scale functions. If
@@ -69,6 +71,10 @@ public:
     template <class X>
     inline bool			includes(const BasicInterval<X>&,
 					 bool allowrev=true) const;
+    template <class X>
+    inline bool			includes(const Interval<X>&,
+					 bool allowrev=true) const;
+    
     template <class X>
     inline float        	pos(X val,bool limit=true,
 				    bool allowrev=true) const;
@@ -450,6 +456,13 @@ template <class T> template <class X> inline
 bool BasicInterval<T>::includes( const BasicInterval<X>& t, bool allowrev ) const
 {
     return includes( t.start, allowrev ) && includes( t.stop, allowrev );
+}
+
+
+template <class T> template <class X> inline
+bool BasicInterval<T>::includes( const Interval<X>& t, bool allowrev ) const
+{
+    return BasicInterval<T>::includes( static_cast<BasicInterval>( t ));
 }
 
 
