@@ -134,7 +134,7 @@ Seis::GeomType Seis::geomTypeOf( const char* s )
 
 Seis::DataType Seis::dataTypeOf( const char* s )
 {
-    if ( s && !strcmp(s,sKey::Steering()) )
+    if ( s && s==sKey::Steering() )
 	return Seis::Dip;
     SeisEnum::DataType res; SeisEnum::parseEnumDataType(s,res); return res;
 }

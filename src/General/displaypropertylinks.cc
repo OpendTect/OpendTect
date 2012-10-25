@@ -178,10 +178,11 @@ int DisplayLinkManager::getDisplayPropertyLinkID( int idx ) const
 
 int DisplayLinkManager::addDisplayPropertyLink( DisplayPropertyLink* lnk )
 {
+    FixedString lnktype = lnk->type();
     Threads::MutexLocker lock( lock_ );
     for ( int idx=propertylinks_.size()-1; idx>=0; idx-- )
     {
-	if ( strcmp(propertylinks_[idx]->type(), lnk->type() ) )
+	if ( propertylinks_[idx]->type()!=lnktype )
 	    continue;
 
 	//If we have at least one holder in common, we can combine them

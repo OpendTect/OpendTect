@@ -66,10 +66,11 @@ BufferString CmdComposer::factoryKey( const CallBacker* caller,
 BufferString CmdComposer::createFactoryKey( const Classifier* classifier,
 					    const char* keyword )
 {
+    FixedString classifiername = classifier->name();
     classifiers.insertAt( classifier, 0 );
     for ( int idx=classifiers.size()-1; idx>0; idx-- )
     {
-	if ( !strcmp(classifiers[idx]->name(), classifier->name()) )
+	if ( classifiers[idx]->name()==classifiername )
 	    delete classifiers.remove( idx );
     }
 
