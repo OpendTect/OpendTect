@@ -151,7 +151,7 @@ protected:
 
     bool			dosteer_;
     bool			allowedgeeffects_;
-    Interval<float>             desgate_;
+    Interval<float>             unuseddesgate_;
 
     TypeSet<int>		steerindexes_;
     TypeSet<BinID>*		linepath_;
