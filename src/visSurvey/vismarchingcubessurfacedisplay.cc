@@ -633,6 +633,7 @@ void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
 	TaskRunner* tr )
 {
     return; //TODO
+    /*
     if ( !selector.isOK() || !displaysurface_ )
 	return;
 
@@ -693,6 +694,7 @@ void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
 	mRetDetele()
 
     emsurface_->setChangedFlag();
+    */
 }
 
 

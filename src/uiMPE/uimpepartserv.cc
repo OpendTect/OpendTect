@@ -209,10 +209,7 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);
     if ( !tracker ) return false;
 
-    const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
-
     activetrackerid_ = trackerid;
-
     if ( (addedtosceneid!=-1) && 
 	 !sendEvent(::uiMPEPartServer::evAddTreeObject()) )
     {
@@ -220,12 +217,11 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 	MPE::engine().removeTracker( trackerid );
 	emobj->ref(); emobj->unRef();
     }
-    
+
+    const EM::SectionID sid = emobj->sectionID( emobj->nrSections()-1 );
     emobj->setPreferredColor( getRandomColor(false) );
-
     trackercurrentobject_ = emobj->id();
-
-    if ( !initSetupDlg(emobj,tracker,sectionid,true) )
+    if ( !initSetupDlg(emobj,tracker,sid,true) )
 	return false;
 
     initialundoid_ = EM::EMM().undo().currentEventID();
@@ -462,9 +458,8 @@ void uiMPEPartServer::adjustSeedBox()
     EM::EMObject* emobj = EM::EMM().getObject( objid );
     if ( !emobj ) return;
 
-    const int sectionid = emobj->sectionID( emobj->nrSections() - 1 );
-    PtrMan<EM::EMObjectIterator> iterator = emobj->createIterator( sectionid );
-
+    const EM::SectionID sid = emobj->sectionID( emobj->nrSections()-1 );
+    PtrMan<EM::EMObjectIterator> iterator = emobj->createIterator( sid );
     while( true )
     {
 	const EM::PosID pid = iterator->next();
@@ -480,14 +475,12 @@ void uiMPEPartServer::adjustSeedBox()
 	if ( trackerseedbox_.isEmpty() )
 	{
 	    trackerseedbox_.hrg.start = trackerseedbox_.hrg.stop = bid;
-	    trackerseedbox_.zrg.start = trackerseedbox_.zrg.stop = 
-							    (float) pos.z;
-
+	    trackerseedbox_.zrg.start = trackerseedbox_.zrg.stop =(float)pos.z;
 	}
 	else
 	{
-	    trackerseedbox_.hrg.include(bid);
-	    trackerseedbox_.zrg.include((float) pos.z);
+	    trackerseedbox_.hrg.include( bid );
+	    trackerseedbox_.zrg.include( (float)pos.z );
 	}
     }
 } 

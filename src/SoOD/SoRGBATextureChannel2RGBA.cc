@@ -71,7 +71,7 @@ void SoRGBATextureChannel2RGBA::GLRender( SoGLRenderAction* action )
 		: false;
 
 	    SbVec3i32 size;
-	    int nc;
+	    int nc=4;
 	    unsigned const char* data = idx<nrinputchannels
 		? inputchannels[idx].getValue( size, nc )
 		: 0;

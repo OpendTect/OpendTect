@@ -105,8 +105,7 @@ bool Fault3DPainter::addPolyLine()
 
     for ( int sidx=0; sidx<emf3d->nrSections(); sidx++ )
     {
-	int sid = emf3d->sectionID( sidx );
-
+	const EM::SectionID sid = emf3d->sectionID( sidx );
 	Fault3DMarker* f3dsectionmarker = new Fault3DMarker;
 	f3dmarkers_ += f3dsectionmarker;
 

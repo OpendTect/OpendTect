@@ -382,8 +382,8 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
 	if ( emobj )
 	{
-	    const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
-	    applMgr()->mpeServer()->showSetupDlg( emid_, sectionid );
+	    const EM::SectionID sid = emobj->sectionID( emobj->nrSections()-1 );
+	    applMgr()->mpeServer()->showSetupDlg( emid_, sid );
 	}
     }
     else if ( mnuid == 3 )

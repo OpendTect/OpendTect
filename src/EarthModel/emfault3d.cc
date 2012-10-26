@@ -261,7 +261,7 @@ void Fault3DGeometry::fillPar( IOPar& par ) const
 {
     for ( int idx=0; idx<nrSections(); idx++ )
     {
-	int sid = sectionID( idx );
+	const EM::SectionID sid = sectionID( idx );
 	const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
 	if ( !fss ) continue;
 
@@ -279,7 +279,7 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 {
     for ( int idx=0; idx<nrSections(); idx++ )
     {
-	int sid = sectionID( idx );
+	const EM::SectionID sid = sectionID( idx );
 	Geometry::FaultStickSurface* fss = sectionGeometry( sid );
 	if ( !fss ) return false;
 

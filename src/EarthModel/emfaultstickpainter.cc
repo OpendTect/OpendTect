@@ -99,9 +99,9 @@ bool FaultStickPainter::addPolyLine()
 
     for ( int sidx=0; sidx<emfss->nrSections(); sidx++ )
     {
-	int sid = emfss->sectionID( sidx );
-	mDynamicCastGet( const Geometry::FaultStickSet*, fss,
-			 emfss->sectionGeometry( sid ) );
+	const EM::SectionID sid = emfss->sectionID( sidx );
+	mDynamicCastGet(const Geometry::FaultStickSet*,fss,
+			emfss->sectionGeometry(sid));
 	if ( fss->isEmpty() )
 	    continue;
 

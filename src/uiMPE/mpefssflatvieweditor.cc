@@ -275,7 +275,7 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
     const IndexInfo ix = pd.indexInfo( true, pos.x );
     const IndexInfo iy = pd.indexInfo( false, pos.y );
     Coord3 coord3 = dp->getCoord( ix.nearest_, iy.nearest_ );
-    coord3.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : pos.y;
+    coord3.z = (!cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : pos.y;
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
     if ( emid == -1 ) return; 
@@ -285,7 +285,7 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
     if ( !emfss )
 	return;
 
-    int sid = emfss->sectionID( 0 );
+    const EM::SectionID sid = emfss->sectionID( 0 );
     mDynamicCastGet( const Geometry::FaultStickSet*, fss, 
 		     emfss->sectionGeometry( sid ) );
 
@@ -298,10 +298,8 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 	return;
 
     const RowCol knotrc( fsspainter_->getActiveStickId(), knotid );
-
-    EM::PosID pid( emid,0,knotrc.toInt64() );
-
-    emfss->setPos(pid,coord3,true);
+    const EM::PosID pid( emid,0,knotrc.toInt64() );
+    emfss->setPos( pid, coord3, true );
 }
 
 
@@ -478,23 +476,21 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss ) return;
 
-    int sid = emfss->sectionID( 0 );
-    mDynamicCastGet( const Geometry::FaultStickSet*, fss, 
-		     emfss->sectionGeometry( sid ) );
+    const EM::SectionID sid = emfss->sectionID( 0 );
+    mDynamicCastGet(const Geometry::FaultStickSet*,fss, 
+		    emfss->sectionGeometry(sid));
 
     RowCol rc;
     rc.row = stickid;
-    int knotid = -1;
-
-    StepInterval<int> colrg = fss->colRange( rc.row );
-    knotid = colrg.start + displayedknotid*colrg.step;
+    const StepInterval<int> colrg = fss->colRange( rc.row );
+    rc.col = colrg.start + displayedknotid*colrg.step;
 
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     if ( !fsseditor )
 	return;
 
-    EM::PosID mousepid( emid, 0, RowCol(stickid,knotid).toInt64() );
+    EM::PosID mousepid( emid, 0, rc.toInt64() );
     fsseditor->setLastClicked( mousepid );
     activestickid_ = stickid;
     fsspainter_->setActiveStick( mousepid );
@@ -588,7 +584,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	    editnormal = Coord3( fsspainter_->getNormalToTrace(trcnr), 0 );
 	}
 
-	const int sid = emfss->sectionID(0);
+	const EM::SectionID sid = emfss->sectionID(0);
 	Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
 	const int insertsticknr = !fss || fss->isEmpty() 
 	    			  ? 0 : fss->rowRange().stop+1;
@@ -631,16 +627,14 @@ void FaultStickSetFlatViewEditor::removeSelectionCB( CallBacker* cb )
     TypeSet<int> selectedids;
     TypeSet<int> selectedidxs;
     editor_->getPointSelections( selectedids, selectedidxs );
-
     if ( !selectedids.size() ) return;
 
     RefMan<EM::EMObject> emobject = 
 			EM::EMM().getObject( fsspainter_->getFaultSSID() );
-    
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss ) return;
     
-    int sid = emfss->sectionID( 0 );
+    const EM::SectionID sid = emfss->sectionID( 0 );
     mDynamicCastGet(const Geometry::FaultStickSet*,
 	    	    fss, emfss->sectionGeometry(sid ) );
     if ( !fss ) return;
@@ -650,18 +644,12 @@ void FaultStickSetFlatViewEditor::removeSelectionCB( CallBacker* cb )
     RowCol rc;
     for ( int ids=0; ids<selectedids.size(); ids++ )
     {
-	int stickid = getStickId( selectedids[ids] );
-	rc.row = stickid;
-	
-	int knotid = -1;
-	StepInterval<int> colrg = fss->colRange( rc.row );
-	knotid = colrg.start + selectedidxs[ids]*colrg.step;
-	rc.col = knotid;
-
+	rc.row = getStickId( selectedids[ids] );
+	const StepInterval<int> colrg = fss->colRange( rc.row );
+	rc.col = colrg.start + selectedidxs[ids]*colrg.step;
 	emfss->geometry().removeKnot( sid, rc.toInt64(), false );
-	
-	if ( !emfss->geometry().nrKnots(sid,stickid) )
-	    emfss->geometry().removeStick( sid, stickid, false );
+	if ( !emfss->geometry().nrKnots(sid,rc.row) )
+	    emfss->geometry().removeStick( sid, rc.row, false );
     }
 
     emfss->setBurstAlert( false );

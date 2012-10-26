@@ -22,7 +22,7 @@ inline Color getRandomColor( bool withtransp=false )
 	          (unsigned char) Stats::randGen().getIndex(255),
 		  (unsigned char) Stats::randGen().getIndex(255),
 		  (unsigned char)
-		     withtransp ? Stats::randGen().getIndex(255) : 0 );
+		     (withtransp ? Stats::randGen().getIndex(255) : 0) );
 }
 
 

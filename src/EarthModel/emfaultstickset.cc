@@ -357,7 +357,7 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
 {
     for ( int idx=0; idx<nrSections(); idx++ )
     {
-	int sid = sectionID( idx );
+	const EM::SectionID sid = sectionID( idx );
 	const Geometry::FaultStickSet* fss = sectionGeometry( sid );
 	if ( !fss ) continue;
 
@@ -389,7 +389,7 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 {
     for ( int idx=0; idx<nrSections(); idx++ )
     {
-	int sid = sectionID( idx );
+	const EM::SectionID sid = sectionID( idx );
 	Geometry::FaultStickSet* fss = sectionGeometry( sid );
 	if ( !fss ) return false;
 

@@ -186,7 +186,7 @@ int SoPerspectiveSel::whichToTraverse(SoAction *action)
 
   int n = this->perspectives.getNum();
   float maxangle=-1;
-  int mini;
+  int mini=-1;
 
   for ( int i=0; i<n; i++)
   {

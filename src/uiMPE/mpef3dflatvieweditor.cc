@@ -245,7 +245,7 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
     if ( !emf3d )
 	return;
 
-    int sid = emf3d->sectionID( 0 );
+    const EM::SectionID sid = emf3d->sectionID( 0 );
     mDynamicCastGet( const Geometry::FaultStickSet*, emfss, 
 		     emf3d->sectionGeometry( sid ) );
     if ( !emfss ) return;
@@ -432,7 +432,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d ) return;
 
-    int sid = emf3d->sectionID( 0 );
+    const EM::SectionID sid = emf3d->sectionID( 0 );
     mDynamicCastGet( const Geometry::FaultStickSet*, fss, 
 		     emf3d->sectionGeometry( sid ) );
 
@@ -626,9 +626,9 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
     if ( !emf3d )
 	return;
 
-    int sid = emf3d->sectionID( 0 );
-    mDynamicCastGet( const Geometry::FaultStickSet*, fss,
-	    	     emf3d->sectionGeometry( sid ) );
+    const EM::SectionID sid = emf3d->sectionID( 0 );
+    mDynamicCastGet(const Geometry::FaultStickSet*,fss,
+	    	    emf3d->sectionGeometry(sid));
     if ( !fss ) return;
 
     emf3d->setBurstAlert( true );
@@ -636,18 +636,12 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
     RowCol rc;
     for ( int ids=0; ids<selectedids.size(); ids++ )
     {
-	int stickid = getStickId( selectedids[ids] );
-	rc.row = stickid;
-
-	int knotid = -1;
-	StepInterval<int> colrg = fss->colRange( rc.row );
-	knotid = colrg.start + selectedidxs[ids]*colrg.step;
-	rc.col = knotid;
-
+	rc.row = getStickId( selectedids[ids] );
+	const StepInterval<int> colrg = fss->colRange( rc.row );
+	rc.col = colrg.start + selectedidxs[ids]*colrg.step;
 	emf3d->geometry().removeKnot( sid, rc.toInt64(), false );
-
-	if ( !emf3d->geometry().nrKnots(sid,stickid) )
-	    emf3d->geometry().removeStick( sid, stickid, false );
+	if ( !emf3d->geometry().nrKnots(sid,rc.row) )
+	    emf3d->geometry().removeStick( sid, rc.row, false );
     }
 
     emf3d->setBurstAlert( false );
