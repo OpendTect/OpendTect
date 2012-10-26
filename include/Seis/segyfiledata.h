@@ -43,13 +43,13 @@ public:
 
     struct TrcIdx
     {
-			TrcIdx( int fnr=-1, int tnr=0 )
+			TrcIdx( int fnr=-1, od_int64 tnr=0 )
 			    : filenr_(fnr), trcidx_(tnr)	{}
 	bool		isValid() const		{ return filenr_>=0; }
 	void		toNextFile()		{ filenr_++; trcidx_ = 0; }
 
 	int		filenr_;
-	int		trcidx_;
+	od_int64	trcidx_;
     };
 
     			FileDataSet(const IOPar& iop, ascistream& );
@@ -147,7 +147,7 @@ protected:
     int				nrstanzas_;
     BufferStringSet		filenames_;
     TypeSet<od_int64>		cumsizes_;
-    int				totalsz_;
+    od_int64			totalsz_;
     int				nrusable_;
 
     				//TraceData

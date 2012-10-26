@@ -448,7 +448,7 @@ bool SEGY::FileDataSet::readVersion1File( ascistream& astrm )
 
 	while ( strm.good() )
 	{
-	    const char ch = strm.peek();
+	    const char ch = (char) strm.peek();
 	    if ( ch == '\n' )
 		{ strm.ignore( 1 ); break; }
 
