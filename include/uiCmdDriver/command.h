@@ -44,6 +44,7 @@ public:
     			Command(CmdDriver& cmddrv)
 			    : drv_(cmddrv)
     			{}
+    virtual		~Command()			{}
 
     virtual const char* name() const			= 0; 			
     virtual bool	act(const char* parstr)		= 0;

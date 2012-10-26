@@ -36,6 +36,7 @@ public:
     			Function(const CmdDriver& cmddrv)
 			    : drv_(cmddrv)
 			{}
+    virtual		~Function()					{}
 
     virtual const char*	name() const					=0;
     virtual bool	eval(const BufferStringSet& args,
