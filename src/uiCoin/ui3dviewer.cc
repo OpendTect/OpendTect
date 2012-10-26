@@ -749,10 +749,6 @@ SbBool uiSoViewerBody::processSoEvent( const SoEvent* const event )
 {
     SoPolygonSelect::setActiveSceneManager( getSceneManager() );
 
-    QWidget* qglwidget = getGLWidget();
-    if ( qglwidget && !qglwidget->hasFocus() )
-	qglwidget->setFocus();
-
     const SoType type( event->getTypeId() );
     const SoKeyboardEvent* keyevent = 0;
     if ( type.isDerivedFrom( SoKeyboardEvent::getClassTypeId() ) )
