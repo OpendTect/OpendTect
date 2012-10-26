@@ -354,7 +354,7 @@ bool TrcHeader::useTrcInfo( const SeisTrcInfo& ti )
 
 #define mbuflen 2048
 
-bool TrcHeader::read( std::istream* istrm )
+bool TrcHeader::read( std::istream& istrm )
 {
     for ( int idx = 0; idx < trchdrdef_.size_; idx++ ) // 91
     {
@@ -364,12 +364,12 @@ bool TrcHeader::read( std::istream* istrm )
 
 	if ( trchdrdef_.isbinary_ )
 	{
-	    istrm->read( buf, mbuflen );	
+	    istrm.read( buf, mbuflen );	
     	    (*this)[idx] = toInt( buf );
 	}
 	else
 	{
-    	    *istrm >> buf;
+    	    istrm >> buf;
 	    (*this)[idx] = toInt( buf );
 	}
     }
@@ -377,7 +377,7 @@ bool TrcHeader::read( std::istream* istrm )
 }
 
 
-void TrcHeader::write( std::ostream* ostrm ) const
+void TrcHeader::write( std::ostream& ostrm ) const
 {
     for ( int idx = 0; idx < trchdrdef_.size_; idx++ ) // 91
     {
@@ -386,76 +386,62 @@ void TrcHeader::write( std::ostream* ostrm ) const
     	//buf = toString( (*this)[idx] );
 
 	if ( trchdrdef_.isbinary_ )
-    	    ostrm->write( buf, mbuflen );
+    	    ostrm.write( buf, mbuflen );
 	else
-    	    *ostrm << buf;
+    	    ostrm << buf;
     }
 }
 
 
-TrcHdrStrm::TrcHdrStrm( bool is2d, bool read, StreamData* sd,
-		TrcHdrDef& def,	const RSFHeader* rsfheader )
+TrcHdrStrm::TrcHdrStrm( bool is2d, bool read, const char* fnm, TrcHdrDef& def )
 	      : is2d_(is2d)
-	      , read_(read)
-	      , sd_(sd)
 	      , trchdrdef_(def)
-    	      , rsfheader_(rsfheader)
+	      , sd_(*new StreamData)
 {
-    trcnum_ = 0;
+    sd_ = read ? StreamProvider(fnm).makeIStream()
+			: StreamProvider(fnm).makeOStream();
+}
 
-    int nrsamps = 0;
-    if( rsfheader_->get( "n1", nrsamps ) )
-    	trchdrdef_.size_ = nrsamps;
 
-    BufferString dataformat;
-    if ( rsfheader_->get(sKeyDataFormat,dataformat)
-	    && dataformat == (sKeyNativeFloat || sKeyNativeInt) )
-    	trchdrdef_.isbinary_ = true;
+bool TrcHdrStrm::initRead()
+{
+    rsfheader_->read(*sd_.istrm);
+    trchdrdef_.size_ = rsfheader_->nrVals(1);
+
+    if ( rsfheader_->getDataFormat() == (sKeyNativeFloat || sKeyNativeInt) )
+	trchdrdef_.isbinary_ = true;
     else
 	trchdrdef_.isbinary_ = false;
+
+    const char* datasrc = rsfheader_->getDataSource();
+    sd_ = StreamProvider(datasrc).makeIStream();
+
+    return true;
 }
 
 
-int TrcHdrStrm::nrTrcHdrs() const
+bool TrcHdrStrm::initWrite() const
 {
-    int nrdims = rsfheader_->nrDims();
-    int nrtrchdrs = 1;
-
-    for ( int idx = 2; idx <= nrdims; idx++ )
-	nrtrchdrs = nrtrchdrs * rsfheader_->nrVals( idx );
-
-    return nrtrchdrs;
+    return rsfheader_->write(*sd_.ostrm);
 }
 
 
-TrcHeader* TrcHdrStrm::initRead()
+TrcHeader* TrcHdrStrm::readNextTrc()
 {
-    if ( !trcnum_ || trcnum_ > nrTrcHdrs() )
-	trcnum_ = 1;
-
     TrcHeader* trchdr;
-
-    while ( trcnum_ <= nrTrcHdrs() )
+    
+    while ( *sd_.istrm )
     {
-	trchdr->read( sd_->istrm );
-	trcnum_++;
+	trchdr->read( *sd_.istrm );
     }
-
+    
     return trchdr;
 }
 
 
-bool TrcHdrStrm::initWrite( const TrcHeader& trchdr )
+bool TrcHdrStrm::writeNextTrc( const TrcHeader& trchdr ) const
 {
-    if ( !trcnum_ || trcnum_ > nrTrcHdrs() )
-	trcnum_ = 1;
-
-    while ( trcnum_ <= nrTrcHdrs() )
-    {
-	trchdr.write( sd_->ostrm );
-	trcnum_++;
-    }
-
+    trchdr.write( *sd_.ostrm );
     return true;
 }
 

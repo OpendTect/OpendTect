@@ -67,6 +67,7 @@ private:
 mClass(Madagascar) TrcHdrDef : public IOPar
 {
 public:
+    			TrcHdrDef();
 
     int			size_;
     bool		isbinary_;
@@ -113,8 +114,8 @@ public:
     bool		fillTrcInfo(SeisTrcInfo&) const;
     bool		useTrcInfo(const SeisTrcInfo&);
 
-    bool		read(std::istream*);
-    void		write(std::ostream*) const;
+    bool		read(std::istream&);
+    void		write(std::ostream&) const;
 
 protected:
 
@@ -126,21 +127,21 @@ protected:
 mClass(Madagascar) TrcHdrStrm
 {
 public:
-			TrcHdrStrm(bool is2d,bool read,StreamData* sd,
-				TrcHdrDef& def,const RSFHeader* rsfheader);
+			TrcHdrStrm(bool is2d,bool read,const char* fnm,
+					TrcHdrDef& def);
 
-    int 		nrTrcHdrs() const;
-    TrcHeader*		initRead();
-    bool		initWrite(const TrcHeader&);
+    bool		initRead();
+    bool		initWrite() const;
+
+    TrcHeader*          readNextTrc();
+    bool		writeNextTrc(const TrcHeader&) const;
 
 protected:
 
     bool		is2d_;
-    bool		read_;
-    int			trcnum_;
-    StreamData*		sd_;
+    StreamData&		sd_;
     TrcHdrDef&		trchdrdef_;
-    const RSFHeader*	rsfheader_;
+    RSFHeader*		rsfheader_;
 };
 
 
