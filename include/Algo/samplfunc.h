@@ -27,7 +27,7 @@ public:
 				SampledFunction( bool periodic_= false )
 				    : periodic( periodic_ ) {}
 
-    virtual RT			operator[](int)	const			= 0;
+    virtual RT			operator[](od_int64)	const		= 0;
 
     virtual float		getDx() const				= 0;
     virtual float		getX0() const				= 0;
@@ -101,7 +101,7 @@ public:
 			    , interpolate_( true )
 			{}
 
-    RT			operator[](int idx) const	{ return idxabl_[idx]; }
+    RT			operator[](od_int64 idx) const	{ return idxabl_[idx];}
 
     float		getDx() const			{ return dx_; }
     float		getX0() const			{ return x0_; }
