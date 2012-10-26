@@ -259,6 +259,24 @@ void RSFHeader::setODVersion( const char* odver )
 }
 
 
+TrcHdrDef::TrcHdrDef()
+{
+    set( sKeySize, StdSize() );
+    set( sKeyTrcNr, StdIdxTrcNr() );
+    set( sKeyOffset, StdIdxOffset() );
+    set( sKeyScalco, StdIdxScalco());
+    set( sKeyDelRt, StdIdxDelRt() );
+    set( sKeyNs, StdIdxNs() );
+    set( sKeyDt, StdIdxDt() );
+    set( sKeyXcdp, StdIdxXcdp() );
+    set( sKeyYcdp, StdIdxYcdp() );
+    set( sKeyInline, StdIdxInline() );
+    set( sKeyCrossline, StdIdxCrossline() );
+    set( sKeySP, StdIdxSP() );
+    set( sKeySPScale, StdIdxSPScale() );
+}
+
+
 TrcHeader::TrcHeader( bool is2d, const TrcHdrDef& def )
     : TypeSet<int>(trchdrdef_.StdSize(),0)
     , is2d_(is2d)
@@ -321,10 +339,10 @@ bool TrcHeader::useTrcInfo( const SeisTrcInfo& ti )
     if ( xyscale )
     {
 	(*this)[trchdrdef_.StdIdxXcdp()] = (*this)[trchdrdef_.StdIdxXcdp()]
-	    * (xyscale > 0 ? 1./xyscale:-xyscale);
+	    * (xyscale > 0 ? 1./xyscale : -xyscale);
 
 	(*this)[trchdrdef_.StdIdxYcdp()] = (*this)[trchdrdef_.StdIdxYcdp()]
-	    * (xyscale > 0 ? 1./xyscale:-xyscale);
+	    * (xyscale > 0 ? 1./xyscale : -xyscale);
     }
     if ( spscale )
 	(*this)[trchdrdef_.StdIdxSP()] = (*this)[trchdrdef_.StdIdxSP()]
