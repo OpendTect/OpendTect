@@ -471,7 +471,7 @@ bool Array2DInterpol::doPrepare( int )
 }
 
 
-void Array2DInterpol::setFrom( int target, const int* sources,
+void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
 			       const float* weights, int nrsrc)
 {
     if ( !nrsrc )
@@ -501,14 +501,19 @@ void Array2DInterpol::setFrom( int target, const int* sources,
 	{
 	    mDoLoop( const float val = storage->value(sources[idx]) );
 	    storage->setValue(target,
-	    isclassification_ ? (float) calc.mostFreq() : (float) calc.average());
+		isclassification_
+		    ? (float) calc.mostFreq()
+		    : (float) calc.average());
 	}
 	else
 	{
-	    mDoLoop( const int src = sources[idx];
-		     const float val = arr_->get(src/nrcols_,src%nrcols_ ) );
-	    arr_->set( target/nrcols_, target%nrcols_,
-            isclassification_ ? (float) calc.mostFreq() : (float) calc.average());
+	    mDoLoop( const od_int64 src = sources[idx];
+	        const float val =
+		  arr_->get(mCast(int,src/nrcols_),mCast(int,src%nrcols_) ) );
+	    arr_->set( mCast(int,target/nrcols_), mCast(int,target%nrcols_),
+		isclassification_
+		? (float) calc.mostFreq()
+		: (float) calc.average());
 	}
     }
 }
@@ -787,7 +792,7 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 {
     ArrPtrMan<float> weights = 0;
-    ArrPtrMan<int> sources = 0;
+    ArrPtrMan<od_int64> sources = 0;
 
     int rowradius,colradius;
 
@@ -805,7 +810,7 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	const int maxnr = (rowradius*2+1)*(colradius*2+1)-1;
 
 	mTryAllocPtrMan( weights, float[maxnr] );
-	mTryAllocPtrMan( sources, int[maxnr] );
+	mTryAllocPtrMan( sources, od_int64[maxnr] );
 	if ( !weights )
 	    return false;
     }
@@ -822,9 +827,9 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	{
 	    for ( int idy=definedidxs_.size()-1; idy>=0; idy-- )
 	    {
-		const int source = definedidxs_[idy];
-		const float sourcerow = source/nrcols_;
-		const float sourcecol = source%nrcols_;
+		const od_int64 source = definedidxs_[idy];
+		const float sourcerow = mCast(float,source/nrcols_);
+		const float sourcecol = mCast(float,source%nrcols_);
 
 		const float rowdist = (targetrow-sourcerow)*rowstep_;
 		const float rowdist2 = rowdist*rowdist;
@@ -902,7 +907,8 @@ class InvDistArr2DGridFindSources : public ParallelTask
 public:
     InvDistArr2DGridFindSources( const bool* def, const bool* nodestofill,
 	    			 int nrrows, int nrcols,
-				 TypeSet<int>& res, TypeSet<int>& nrs,
+				 TypeSet<od_int64>& res,
+				 TypeSet<od_int64>& nrs,
 				 int stepsize, bool cornersfirst )
 	    : nrcells_( nrrows * nrcols )
 	    , nrrows_( nrrows )
@@ -927,16 +933,16 @@ public:
     bool doWork( od_int64 start, od_int64 stop, int )
     {
 	int maxnrsources = 0;
-	TypeSet<int> localres;
-	TypeSet<int> nrsourceslist;
+	TypeSet<od_int64> localres;
+	TypeSet<od_int64> nrsourceslist;
 
-	for ( int idx=start; idx<=stop; idx++ )
+	for ( od_int64 idx=start; idx<=stop; idx++ )
 	{
 	    if ( curdefined_[idx] || !nodestofill_[idx] )
 		continue;
 
-	    const int col = idx%nrcols_;
-	    const int row = idx/nrcols_;
+	    const int col = mCast(int,idx%nrcols_);
+	    const int row = mCast(int,idx/nrcols_);
 
 	    int nrsources = 0;
 
@@ -954,7 +960,7 @@ public:
 
 		for ( int idz=-stepsize_; idz<=stepsize_; idz++ )
 		{
-		    const int offset = idx+idy+idz*nrcols_;
+		    const od_int64 offset = idx+idy+idz*nrcols_;
 
 		    if ( offset<0 )
 		    {
@@ -1037,8 +1043,8 @@ protected:
     int				nrcols_;
     const bool*			curdefined_;
     const bool*			nodestofill_;
-    TypeSet<int>&		res_;
-    TypeSet<int>&		nrsourceslist_;
+    TypeSet<od_int64>&		res_;
+    TypeSet<od_int64>&		nrsourceslist_;
     int				stepsize_;
     int				maxnrsources_;
     bool			cornersfirst_;
@@ -1141,7 +1147,7 @@ od_int64 InverseDistanceArray2DInterpol::getNextIdx()
     }
 
     //Take the last item from list
-    const int res = todothisstep_[nrleft-1];
+    const od_int64 res = todothisstep_[nrleft-1];
     todothisstep_.remove( nrleft-1 );
     if ( nrsources_.size() )
     {
@@ -1404,13 +1410,13 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 	for ( int idx=0; idx<currenttask.size(); idx++, addToNrDone(1) )
 	{
 	    const od_int64 curnode = currenttask[idx];
-	    const int row = curnode/nrcols_;
-	    const int col = curnode%nrcols_;
+	    const int row = mCast(int,curnode/nrcols_);
+	    const int col = mCast(int,curnode%nrcols_);
 	    const Coord crd(rowstep_*row, colstep_*col);
 
 	    TypeSet<int> vertices;
 	    TypeSet<float> weights;
-	    TypeSet<int> usedindices;
+	    TypeSet<od_int64> usedindices;
 	    if ( !triangleinterpolator_->computeWeights( crd, vertices,
 			weights, maxdistance_, dointerpolation_ ) )
 		return false;
@@ -1541,7 +1547,7 @@ bool A2DIntExtenExecutor::doInterpolate( int irow, int icol )
     float val;
     if ( interpExtension(irow,icol,val) )
     {
-	state_[irow][icol] = curlvl_ + 1;
+	state_[irow][icol] = mCast(short,curlvl_ + 1);
 	aie_.arr_->set( irow, icol, val );
 	return true;
     }
@@ -1640,6 +1646,8 @@ void A2DIntExtenExecutor::adjustInitialStates()
 	}
     }
 
+#define mGeomPoint( i, j ) Geom::Point2D<float>((float) i,(float) j)
+
     if ( aie_.filltype_ == Array2DInterpol::ConvexHull )
     {
 	ODPolygon<float> poly;
@@ -1650,14 +1658,14 @@ void A2DIntExtenExecutor::adjustInitialStates()
 	    {
 		if ( state_[irow][icol] == cA2DStateDefined )
 		{
-		    poly.add( Geom::Point2D<float>(irow,icol) );
+		    poly.add( mGeomPoint(irow,icol) );
 		    inside[icol] = irow;
 		    
 		    for ( int jrow=aie_.nrrows_-1; jrow>irow; jrow-- )
 		    {
 			if ( state_[jrow][icol] == cA2DStateDefined )
 			{
-			    poly.add( Geom::Point2D<float>(jrow,icol) );
+			    poly.add( mGeomPoint(jrow,icol) );
 			    break;
 			}
 		    }
@@ -1680,7 +1688,7 @@ void A2DIntExtenExecutor::adjustInitialStates()
 		{
 		    if ( state_[irow][icol] == cA2DStateKeepUdf )
 		    {
-			if ( !poly.isInside( Geom::Point2D<float>(irow,icol),
+			if ( !poly.isInside( mGeomPoint(irow,icol),
 				    true, 0 ) )
 			    break;			
 			

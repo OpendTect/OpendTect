@@ -61,10 +61,10 @@ public:
     {
     public:
 	virtual			~ArrayAccess()				{}
-	virtual void		set(int target, const int* sources,
+	virtual void		set(od_int64 target, const od_int64* sources,
 				    const float* weights, int nrsrc,
 				    bool isclassification)		= 0;
-	virtual bool		isDefined(int) const			= 0;
+	virtual bool		isDefined(od_int64) const		= 0;
 	virtual int		getSize(char dim) const			= 0;
     };
 
@@ -94,7 +94,7 @@ protected:
     bool	isDefined(int idx) const;
     		/*!<idx refers to positions on the grid by
 		    row=idx/nrcols_,col=idx%nrcols_ */
-    virtual void setFrom(int target, const int* sources,
+    virtual void setFrom(od_int64 target, const od_int64* sources,
 			const float* weights, int nrsrc);
     		/*!<For convenience, inheriting obj may set arr_ directly. */
     void	floodFillArrFrom(int seed, const bool* isdef,

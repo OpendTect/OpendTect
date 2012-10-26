@@ -107,19 +107,19 @@ protected:
     				//Working arrays
     bool*			curdefined_;
     bool*			nodestofill_;
-    TypeSet<int>		definedidxs_;		//Only when no radius
+    TypeSet<od_int64>		definedidxs_;		//Only when no radius
     TypeSet<RowCol>		neighbors_;		//Only when radius
     TypeSet<float>		neighborweights_;	//Only when radius
 
 
     				//Per support size				
-    TypeSet<int>		addedwithcursuport_;
+    TypeSet<od_int64>		addedwithcursuport_;
     int				nraddedthisstep_;
-    int				prevsupportsize_;
+    od_int64			prevsupportsize_;
 
     				//perstep
-    TypeSet<int>		todothisstep_;
-    TypeSet<int>		nrsources_;	//linked to todothisstep or zero
+    TypeSet<od_int64>		todothisstep_;
+    TypeSet<od_int64>		nrsources_;	//linked to todothisstep or zero
 };
 
 
@@ -188,7 +188,7 @@ public:
     bool		canUseArrayAccess() const	{ return true; }
     
     void		setNrSteps(int n)		{ nrsteps_ = n; }
-    int			getNrSteps() const		{ return nrsteps_; }
+    od_int64		getNrSteps() const		{ return nrsteps_; }
 
     bool	fillPar(IOPar&) const;
     bool	usePar(const IOPar&);
