@@ -49,11 +49,11 @@ public:
     IOObj*		getFirst(const IOObjContext&,int* nrpresent=0) const;
     			//!< if interested in nrpresent pass valid address
 
-    IODir*		dirPtr()		{ return dirptr; }
-    const IODir*	dirPtr() const		{ return dirptr; }
+    IODir*		dirPtr()		{ return dirptr_; }
+    const IODir*	dirPtr() const		{ return dirptr_; }
     const MultiID&	key() const;		//!< of current IODir
     const char*		curDirName() const;	//!< OS dir name
-    const char*		rootDir() const		{ return rootdir; }
+    const char*		rootDir() const		{ return rootdir_; }
     const char*		nameOf(const char* keystr) const;
     			//!< if keystr is not an IOObj key, will return keystr
 
@@ -104,9 +104,9 @@ private:
 
     enum State		{ Bad, NeedInit, Good };
     State		state_;
-    IODir*		dirptr;
-    int			curlvl;
-    FileNameString	rootdir;
+    IODir*		dirptr_;
+    int			curlvl_;
+    FileNameString	rootdir_;
     bool		canchangesurvey_;
 
     void		init();
@@ -118,7 +118,7 @@ private:
 
     bool		setDir(const char*);
     int			levelOf(const char* dirnm) const;
-    int			curLevel() const	{ return curlvl; }
+    int			curLevel() const	{ return curlvl_; }
     const char*		generateFileName(Translator*,const char*);
     bool		to(const IOSubDir*,bool);
 
