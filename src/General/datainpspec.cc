@@ -396,7 +396,7 @@ double StringListInpSpec::getdValue( int idx ) const
 
 
 float StringListInpSpec::getfValue( int idx ) const
-{ return cur_; }
+{ return (float) cur_; }
 
 
 void StringListInpSpec::setValue( int i, int idx )
