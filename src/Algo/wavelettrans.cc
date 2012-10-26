@@ -422,8 +422,8 @@ void CWT::CWTWavelets::createMorletWavelet( int nrsamples, float scale,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
-	float omega0 = idx<=nrsamples/2 ? 5 : -5;
-	float omega = (float) ( 2 * M_PI * omidx / scale );
+	float omega0 = idx<=nrsamples/2 ? 5.f : -5.f;
+	float omega =  2 * M_PIf * omidx / scale;
         float val = (omega-omega0) * (omega-omega0) / 2;
 	wavelet += exp( -val );
     }
