@@ -261,11 +261,11 @@ inline bool interpolateReg( const T& idxabl, int sz, float pos, RT& ret,
     if ( res < 0 )
 	{ ret = mUdf(RT); return false; }
     else if ( res == 0 )
-	{ ret = idxabl[mIdx(p[0])]; return true; }
+	{ ret = idxabl[p[0]]; return true; }
 
     const float relpos = pos - p[1];
-    ret = Interpolate::polyReg1D( idxabl[mIdx(p[0])], idxabl[mIdx(p[1])], idxabl[mIdx(p[2])],
-				  idxabl[mIdx(p[3])], relpos );
+    ret = Interpolate::polyReg1D( idxabl[p[0]], idxabl[p[1]], idxabl[p[2]],
+				  idxabl[p[3]], relpos );
     return true;
 }
 
@@ -284,11 +284,11 @@ inline bool interpolateRegWithUdfWithOff( const T& idxabl, od_int64 sz,
     if ( res < 0 )
 	{ ret = mUdf(RT); return false; }
     else if ( res == 0 )
-	{ ret = idxabl[mIdx(p[0])]; return true; }
+	{ ret = idxabl[p[0]]; return true; }
 
     const float relpos = pos - p[1];
-    ret = Interpolate::polyReg1DWithUdf( idxabl[mIdx(p[0])], idxabl[mIdx(p[1])],
-	    				 idxabl[mIdx(p[2])], idxabl[mIdx(p[3])], relpos );
+    ret = Interpolate::polyReg1DWithUdf( idxabl[p[0]], idxabl[p[1]],
+	    				 idxabl[p[2]], idxabl[p[3]], relpos );
     return true;
 }
 
