@@ -86,7 +86,7 @@ bool FourierInterpol1D::doWork( od_int64 start ,od_int64 stop, int thread )
 
     Array1D<float_complex>& interpvals = *arrs_[thread];
 
-    for ( int idpt=start; idpt<=stop; idpt++ )
+    for ( int idpt=(int) start; idpt<=stop; idpt++ )
     {
 	float_complex cplxval = pts_[idpt].val_;
 	if ( mIsUdf( cplxval ) ) 
@@ -172,7 +172,7 @@ bool FourierInterpol2D::doWork( od_int64 start ,od_int64 stop, int thread )
 
     Array2D<float_complex>& interpvals = *arrs_[thread];
 
-    for ( int idpt=start; idpt<=stop; idpt++ )
+    for ( int idpt=(int) start; idpt<=stop; idpt++ )
     {
 	float_complex cplxval = pts_[idpt].val_;
 	if ( mIsUdf( cplxval ) ) 
@@ -275,7 +275,7 @@ bool FourierInterpol3D::doWork( od_int64 start ,od_int64 stop, int thread )
 
     Array3DImpl<float_complex>& interpvals = *arrs_[thread];
 
-    for ( int idpt=start; idpt<=stop; idpt++ )
+    for ( int idpt=(int) start; idpt<=stop; idpt++ )
     {
 	float_complex cplxval = pts_[idpt].val_;
 	if ( mIsUdf( cplxval ) ) 
