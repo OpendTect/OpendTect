@@ -471,6 +471,12 @@ bool getCurWorkDir( char* dir, int pathlen )
 	return false;
     else
 	return true;
+#else
+    getcwd( dir, pathlen );
+    if ( !dir || !*dir )
+	return false;
+    else
+	return true;
 #endif
 }
 
