@@ -191,6 +191,7 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
     if ( vwr )
     {
 	vwr->setBackgroundColor( oldbgcolor_ );
+	vwr->setAxisAnnotColor( annotcolor_ );
 	vwr->enableAnimation( hadanimation_ );
     }
 
@@ -252,13 +253,17 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
 
     for ( int idx=0; idx<viewers_.size() && viewers_[idx]; idx++ )
     {
-        mDynamicCastGet(visSurvey::Scene*, scene, const_cast <visBase::Scene*> 
-			(viewers_[idx]->getScene()));
-	updateScene( scene );
-	const_cast<ui3DViewer*>(viewers_[idx])->setBackgroundColor(
-		bgcolfld_->color() );
-	const_cast<ui3DViewer*>(viewers_[idx])->setAxisAnnotColor(
-		annotcolfld_->color() );
+        mDynamicCastGet(visSurvey::Scene*, scene,const_cast <visBase::Scene*>
+                        (viewers_[idx]->getScene()));
+        updateScene( scene );
+
+	ui3DViewer* vwr = const_cast<ui3DViewer*> (viewers_[idx]);
+	if ( vwr )
+	{
+	    vwr->setBackgroundColor( bgcolfld_->color() );
+	    vwr->setAxisAnnotColor( annotcolfld_->color() );
+	    vwr->enableAnimation( animationfld_->isChecked() );
+	}
     }
 
     return true;
