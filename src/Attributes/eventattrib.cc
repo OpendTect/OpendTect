@@ -317,8 +317,9 @@ void Event::multipleEvents( const DataHolder& output,
 	else if ( prevudf || nextudf )
 	{
 	    const float val = outamp_ ? nextudf ? mUdf(float) : nextev.val
-				      : fabs(firstsample - prevudf ? nextev.pos
-		    					 : prevev.pos)*refstep_;
+				      : fabs(firstsample - 
+					      (prevudf ? nextev.pos
+		    				       : prevev.pos))*refstep_;
 	    setOutputValue( output, 0, 0, z0, val );
 	}
 	else
