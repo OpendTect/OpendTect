@@ -674,14 +674,14 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
     if ( File::exists(fnm) && !File::isWritable(fnm)
 		&& !File::makeWritable(fnm,true,false) )
     {
-	BufferString msg( "Cannot make:\n" ); msg == fnm; msg += "\nwritable.";
+	BufferString msg( "Cannot make:\n" ); msg += fnm; msg += "\nwritable.";
 	ErrMsg( msg ); return false;
     }
 
     StreamData sd = StreamProvider( fnm ).makeOStream();
     if ( !sd.usable() || !sd.ostrm->good() )
     {
-	BufferString msg( "Cannot open:\n" ); msg == fnm; msg += "\nfor write.";
+	BufferString msg( "Cannot open:\n" ); msg += fnm; msg += "\nfor write.";
 	ErrMsg( msg ); return false;
     }
 
