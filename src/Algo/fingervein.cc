@@ -50,7 +50,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	                Array2DImpl<bool> (isz,csz) );
     const bool is_t_slic = true;
 
-    for ( int idz=start; idz<=stop && shouldContinue(); idz++, addToNrDone(1) )
+    for ( int idz=(int) start; idz<=stop && shouldContinue(); idz++, addToNrDone(1) )
     {
 	for ( int idx=0; idx<isz; idx++ )
 	{
@@ -112,7 +112,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_sect,
 	    Array2DImpl<float> (isz,csz) );
 
-    for ( int idz=start; idz<=stop && shouldContinue(); idz++,addToNrDone(1) )
+    for ( int idz=(int) start; idz<=stop && shouldContinue(); idz++,addToNrDone(1) )
     {
 	for ( int idx=0; idx<isz; idx++ )
 	{
@@ -168,7 +168,7 @@ bool FingerVein::compute( bool domerge, bool dothinning,
 		*score, tr ) )
 	return false;
 
-    const od_int64 datasz = input_.info().getTotalSz();
+    const int datasz = (int) input_.info().getTotalSz();
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, tmparr,
 	    Array2DImpl<float> (input_.info()) );
     if ( !tmparr ) return false;
@@ -780,7 +780,7 @@ void FaultOrientation::stablizeDip( const Array3D<bool>& conf_bina,
     TypeSet<float> arc_set, angle_set;
     for ( int idx=0; idx<4; idx++ )
     {
-	arc_set += idx*M_PI/4;
+	arc_set += idx*M_PI_4f;
 	angle_set += idx*45.f;
     }
 
@@ -1145,7 +1145,7 @@ void FaultOrientation::computeDipPCA( const Array3D<bool>& conf_base,
     TypeSet<float> arc_set, angle_set;
     for ( int idx=0; idx<4; idx++ )
     {
-	arc_set += idx*M_PI/4;
+	arc_set += idx*M_PI_4f;
 	angle_set += idx*45.f;
     }
 
@@ -1338,7 +1338,7 @@ void FaultOrientation::stabilizeAngleSection( const Array2D<bool>& conf_sect,
 	Array2D<float>& angl_stab )
 {
     const float* anglvals = angl_sect.getData();
-    const int totalsz = angl_sect.info().getTotalSz();
+    const int totalsz = (int) angl_sect.info().getTotalSz();
     float* angstabvals = angl_stab.getData();
     for ( int idx=0; idx<totalsz; idx++ )
 	angstabvals[idx] = anglvals[idx]; 
@@ -1505,7 +1505,7 @@ float FaultOrientation::getAnglePCA( const TypeSet<int>& point_set_x,
 	if ( mIsZero(eigenvec[0],1e-8) )
 	    return 90;
 
-	azimuth_dip = atan( eigenvec[1]/eigenvec[0] )*180/M_PI;
+	azimuth_dip = atan( eigenvec[1]/eigenvec[0] )*180/M_PIf;
 	if ( azimuth_dip<0 )
 	    azimuth_dip += 180;
     }
@@ -1822,7 +1822,7 @@ bool FaultOrientation::compute2DVeinBinary( const Array2D<float>& input,
     if ( !tmparr ) return false;
     tmparr->copyFrom( *vein_score );
     float* vein_score_vector_sort = tmparr->getData();
-    const od_int64 datasz = input.info().getTotalSz();
+    const int datasz = (int) input.info().getTotalSz();
     sort_array(vein_score_vector_sort,datasz);
 
     const od_int64 thresholdidx = (od_int64)(perc*datasz);
@@ -2025,8 +2025,8 @@ bool FaultOrientation::computeMaxCurvature( const Array2D<float>& input,
     {
 	for ( int idy=0; idy<sidesize; idy++ )
 	{
-	    xtmp->set( idx, idy, idy-winsize );
-	    ytmp->set( idx, idy, idx-winsize );
+	    xtmp->set( idx, idy, mCast(float,idy-winsize) );
+	    ytmp->set( idx, idy, mCast(float,idx-winsize) );
 	}
     }
 
@@ -2045,9 +2045,9 @@ bool FaultOrientation::computeMaxCurvature( const Array2D<float>& input,
     if ( !h || !hx || !hy || !hxx || !hxy | !hyy )
 	return false;
 
-    const float sigma2 = sigma*sigma;
-    const float sigma4 = sigma2*sigma2;
-    const float coef = 1.0/(2*M_PI*sigma2);
+    const int sigma2 = sigma*sigma;
+    const int sigma4 = sigma2*sigma2;
+    const float coef = 1.0f/(2*M_PIf*sigma2);
     for ( int idx=0; idx<sidesize; idx++ )
     {
 	for ( int idy=0; idy<sidesize; idy++ )
@@ -2149,7 +2149,7 @@ bool FaultOrientation::computeMaxCurvature( const Array2D<float>& input,
 	angle_set_sin2;
     for ( int idx=0; idx<nrangles; idx++ )
     {
-	const float angle = M_PI*idx/nrangles;
+	const float angle = M_PIf*idx/nrangles;
 	const float cosangle = cos(angle);
 	const float sinangle = sin(angle);
 	angle_set += angle;
@@ -2177,7 +2177,7 @@ bool FaultOrientation::computeMaxCurvature( const Array2D<float>& input,
 		    fxy->get(idx,idy)*2*angle_set_cos[idz]*angle_set_sin[idz] +
     		    fyy->get(idx,idy)*angle_set_sin2[idz];
 
-		float demomenator = Math::PowerOf( 1.0+dir1*dir1, 1.5 );
+		float demomenator = Math::PowerOf( 1.0f+dir1*dir1, 1.5f );
 		k->set( idx, idy, idz, dir2/demomenator ); 
 	    }
 	}
