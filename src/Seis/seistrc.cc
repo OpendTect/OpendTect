@@ -267,6 +267,14 @@ void SeisTrc::copyDataFrom( const SeisTrc& trc, int tarcomp, bool forcefloats )
 }
 
 
+float SeisTrcValueSeries::value( od_int64 idx ) const
+{ return trc_.get((int) idx,icomp_); }
+
+
+void SeisTrcValueSeries::setValue( od_int64 idx,float v )
+{ trc_.set((int) idx,v,icomp_); }
+
+
 float* SeisTrcValueSeries::arr()
 {
     float val;

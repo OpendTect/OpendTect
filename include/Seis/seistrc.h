@@ -139,9 +139,9 @@ public:
 		    , icomp_(c)			{}
 
     void	setComponent( int idx )		{ icomp_ = idx; }
-    float	value( od_int64 idx ) const	{ return trc_.get(idx,icomp_); }
+    float	value( od_int64 idx ) const;
     bool	writable() const		{ return true; }
-    void	setValue( od_int64 idx,float v)	{ trc_.set(idx,v,icomp_); }
+    void	setValue( od_int64 idx,float v);
     float*	arr();
     const float* arr() const;
 
