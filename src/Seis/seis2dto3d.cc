@@ -122,8 +122,8 @@ bool Seis2DTo3D::read()
 	mErrRet("No trace could be read")
 
     CubeSampling linecs( false );
-    Interval<float> inlrg( cs_.hrg.inlRange().start, cs_.hrg.inlRange().stop );
-    Interval<float> crlrg( cs_.hrg.crlRange().start, cs_.hrg.crlRange().stop );
+    Interval<int> inlrg( cs_.hrg.inlRange().start, cs_.hrg.inlRange().stop );
+    Interval<int> crlrg( cs_.hrg.crlRange().start, cs_.hrg.crlRange().stop );
     for ( int idx=0; idx<seisbuf_.size(); idx++ )
     {
 	const SeisTrc& trc = *seisbuf_.get( idx );
@@ -179,7 +179,7 @@ int Seis2DTo3D::nextStep()
 	prevbid_ = curbid_;
     }
 
-    float mindist = mUdf(float);
+    od_int64 mindist = mUdf(od_int64);
     if ( nearesttrace_ )
     {
 	const SeisTrc* nearesttrc = 0;
