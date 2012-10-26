@@ -448,6 +448,12 @@ const char* GetBinPlfDir()
     static FileNameString dirnm;
     strcpy( dirnm, mkFullPath(GetSoftwareDir(0),"bin") );
     strcpy( dirnm, mkFullPath(dirnm,GetPlfSubDir()) );
+#ifdef __msvc__
+#ifdef __debug__
+    strcpy( dirnm, mkFullPath(dirnm,"Debug") );
+#endif
+#endif
+
     return dirnm;
 }
 
