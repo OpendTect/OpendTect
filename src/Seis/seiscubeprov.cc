@@ -202,7 +202,7 @@ int SeisMSCProvider::estimatedNrTraces() const
     if ( estnrtrcs_ != -2 ) return estnrtrcs_;
     estnrtrcs_ = -1;
     if ( !rdr_.selData() )
-	return is2D() ? estnrtrcs_ : SI().sampling(false).hrg.totalNr();
+	return is2D() ? estnrtrcs_ : (int) SI().sampling(false).hrg.totalNr();
 
     estnrtrcs_ = rdr_.selData()->expectedNrTraces( is2D() );
     return estnrtrcs_;
