@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "typeset.h"
 #include "seisinfo.h"
+#include "strmdata.h"
 #include "commondefs.h"
 
 
@@ -29,6 +30,7 @@ public:
 			~RSFHeader();
 
     enum Format		{ NativeFloat, NativeInt, AsciiFloat, AsciiInt, Other };
+    			DeclareEnumUtils(Format);
 
     bool		read(const char* fnm);
     bool		read(std::istream&);
@@ -69,8 +71,23 @@ public:
     int			size_;
     bool		isbinary_;
 
-    static int  StdSize();
-    
+    static const char*	sKeySize;
+    static const char*	sKeyTrcNr;
+    static const char*	sKeyOffset;
+    static const char*	sKeyScalco;
+    static const char*	sKeyDelRt;
+    static const char*	sKeyNs;
+    static const char*	sKeyDt;
+    static const char*	sKeyXcdp;
+    static const char*	sKeyYcdp;
+    static const char*	sKeyInline;
+    static const char*	sKeyCrossline;
+    static const char*	sKeySP;
+    static const char*	sKeySPScale;
+
+
+    static int  StdSize();    
+
     static int  StdIdxTrcNr();
     static int  StdIdxOffset();
     static int  StdIdxScalco();
@@ -96,8 +113,8 @@ public:
     bool		fillTrcInfo(SeisTrcInfo&) const;
     bool		useTrcInfo(const SeisTrcInfo&);
 
-    bool		read(const char* fnm);
-    void		write(char* fnm) const;
+    bool		read(std::istream*);
+    void		write(std::ostream*) const;
 
 protected:
 
@@ -106,20 +123,22 @@ protected:
 };
 
 
-mClass(Madagascar) TrcHeaderSet
+mClass(Madagascar) TrcHdrStrm
 {
 public:
-			TrcHeaderSet(bool is2d,TrcHdrDef& def,
-					const RSFHeader* rsfheader);
+			TrcHdrStrm(bool is2d,bool read,StreamData* sd,
+				TrcHdrDef& def,const RSFHeader* rsfheader);
 
-    int			nrSamples() const;
-
-    TrcHeader*		read(const char* fnm);
-    bool		write(const TrcHeader&,char* fnm) const;
+    int 		nrTrcHdrs() const;
+    TrcHeader*		initRead();
+    bool		initWrite(const TrcHeader&);
 
 protected:
 
     bool		is2d_;
+    bool		read_;
+    int			trcnum_;
+    StreamData*		sd_;
     TrcHdrDef&		trchdrdef_;
     const RSFHeader*	rsfheader_;
 };

@@ -23,11 +23,26 @@ static const char* sKeyIn = "in";
 //static const char* sKeyStdIn = "\"stdin\"";
 static const char* sKeyDataFormat = "data_format";
 static const char* sKeyNativeInt = "\"native_int\"";
-static const char* sKeyAsciiInt = "\"ascii_int\"";
+//static const char* sKeyAsciiInt = "\"ascii_int\"";
 static const char* sKeyNativeFloat = "\"native_float\"";
-static const char* sKeyAsciiFloat = "\"ascii_float\"";
+//static const char* sKeyAsciiFloat = "\"ascii_float\"";
 static const char* sKeyTrcHeader = "head";
 static const char* sKeyODVer = "OD Version";
+
+
+const char* TrcHdrDef::sKeySize = "Size";
+const char* TrcHdrDef::sKeyTrcNr = "Trace Number";
+const char* TrcHdrDef::sKeyOffset = "Offset";
+const char* TrcHdrDef::sKeyScalco = "Scale Factor";
+const char* TrcHdrDef::sKeyDelRt = "Delay Recording Time";
+const char* TrcHdrDef::sKeyNs = "No. of Samples";
+const char* TrcHdrDef::sKeyDt = "Sample Interval";
+const char* TrcHdrDef::sKeyXcdp = "X coordinate of CDP";
+const char* TrcHdrDef::sKeyYcdp = "Y coordinate of CDP";
+const char* TrcHdrDef::sKeyInline = "Inline Number";
+const char* TrcHdrDef::sKeyCrossline = "Crossline Number";
+const char* TrcHdrDef::sKeySP = "Shotpoint Number";
+const char* TrcHdrDef::sKeySPScale = "Scale Factor of Shotpoint";
 
 
 int TrcHdrDef::StdSize()		{ return 91; }
@@ -44,6 +59,10 @@ int TrcHdrDef::StdIdxInline()		{ return 73; }
 int TrcHdrDef::StdIdxCrossline()	{ return 74; }
 int TrcHdrDef::StdIdxSP()		{ return 75; }
 int TrcHdrDef::StdIdxSPScale()		{ return 76; }
+
+
+DefineEnumNames( RSFHeader, Format, 0, "data_format" )
+{ "native_float", "native_int", "ascii_float", "ascii_int", "other" };
 
 
 bool RSFHeader::read( const char* fnm )
@@ -201,41 +220,16 @@ void RSFHeader::setDataSource( const char* datasrc )
 
 RSFHeader::Format RSFHeader::getDataFormat() const
 {
-    BufferString datafmt;
-    get( sKeyDataFormat, datafmt );
-
-    if ( datafmt == sKeyNativeFloat )
-	return NativeFloat;
-    else if ( datafmt == sKeyNativeInt )
-	return NativeInt;
-    else if ( datafmt == sKeyAsciiFloat )
-	return AsciiFloat;
-    else if ( datafmt == sKeyAsciiInt )
-	return AsciiInt;
-    else
-	return Other;
+    RSFHeader::Format datafmt;
+    if ( !parseEnumFormat( find(sKeyDataFormat), datafmt ) )
+	datafmt = Other;
+    return datafmt;
 }
 
 
 void RSFHeader::setDataFormat( Format fmt )
 {
-    switch ( fmt )
-    {
-	case 0:
-	    set( sKeyDataFormat, sKeyNativeFloat );
-	    break;
-	case 1:
-	    set( sKeyDataFormat, sKeyNativeInt );
-	    break;
-	case 2:
-	    set( sKeyDataFormat, sKeyAsciiFloat );
-	    break;
-	case 3:
-	    set( sKeyDataFormat, sKeyAsciiInt );
-	    break;
-	case 4:
-	    break;
-    }
+    set( sKeyDataFormat, RSFHeader::getFormatString(fmt) );
 }
 
 
@@ -277,12 +271,8 @@ TrcHeader::TrcHeader( bool is2d, const TrcHdrDef& def )
     if ( (*this)[trchdrdef_.StdIdx##fld()] ) val = \
 		(*this)[trchdrdef_.StdIdx##fld()]
 bool TrcHeader::fillTrcInfo( SeisTrcInfo& ti ) const
-    // Fills the rsf data in SeisTrcInfo so as to display in OD
 {
     mGetFld( Xcdp, ti.coord.x );
-    /*if ( (*this)[StdIdxXcdp()] )
-	ti.coord.x = (*this)[StdIdxXcdp()];*/
-
     mGetFld( Ycdp, ti.coord.y );
     mGetFld( Inline, ti.binid.inl );
     mGetFld( Crossline, ti.binid.crl );
@@ -313,7 +303,6 @@ bool TrcHeader::fillTrcInfo( SeisTrcInfo& ti ) const
 #define mPutFld( val, fld ) \
         if ( val ) (*this)[trchdrdef_.StdIdx##fld()] = val
 bool TrcHeader::useTrcInfo( const SeisTrcInfo& ti )
-    // Uses the data in SeisTrcInfo so that it can be written in rsf format
 {
     mPutFld( ti.coord.x, Xcdp );
     mPutFld( ti.coord.y, Ycdp );
@@ -337,7 +326,7 @@ bool TrcHeader::useTrcInfo( const SeisTrcInfo& ti )
 	(*this)[trchdrdef_.StdIdxYcdp()] = (*this)[trchdrdef_.StdIdxYcdp()]
 	    * (xyscale > 0 ? 1./xyscale:-xyscale);
     }
-    if( spscale )
+    if ( spscale )
 	(*this)[trchdrdef_.StdIdxSP()] = (*this)[trchdrdef_.StdIdxSP()]
 	    * (spscale > 0 ? 1./spscale : -spscale);
 
@@ -347,70 +336,112 @@ bool TrcHeader::useTrcInfo( const SeisTrcInfo& ti )
 
 #define mbuflen 2048
 
-bool TrcHeader::read( const char* fnm ) // Reads from rsf file
+bool TrcHeader::read( std::istream* istrm )
 {
     for ( int idx = 0; idx < trchdrdef_.size_; idx++ ) // 91
     {
-    	StreamData sd( StreamProvider(fnm).makeIStream() );
-    	if ( !sd.usable() ) return false;
+    	if ( !istrm ) return false;
     	
 	static char buf[mbuflen];
 
 	if ( trchdrdef_.isbinary_ )
 	{
-	    sd.istrm->read( buf, mbuflen ); // for binary ( unformatted input )	
+	    istrm->read( buf, mbuflen );	
     	    (*this)[idx] = toInt( buf );
 	}
 	else
 	{
-    	    *sd.istrm >> buf;
-	    (*this)[idx] = toInt( buf ); // for ascii ( formatted input )
+    	    *istrm >> buf;
+	    (*this)[idx] = toInt( buf );
 	}
-
-	sd.close();
     }
     return true;
 }
 
 
-void TrcHeader::write( char* fnm ) const // writes to rsf file
+void TrcHeader::write( std::ostream* ostrm ) const
 {
     for ( int idx = 0; idx < trchdrdef_.size_; idx++ ) // 91
     {
-	StreamData sd( StreamProvider(fnm).makeOStream() );
-    	if ( !sd.usable() ) return;
-	
     	//static char buf[mbuflen];
 	const char* buf = toString( (*this)[idx] );
     	//buf = toString( (*this)[idx] );
 
 	if ( trchdrdef_.isbinary_ )
-    	    sd.ostrm->write( buf, mbuflen ); // for binary (unformatted output)
+    	    ostrm->write( buf, mbuflen );
 	else
-    	    *sd.ostrm << buf; //for ascii (formatted output)
-	
-    	sd.close();
+    	    *ostrm << buf;
     }
 }
-#undef mbuflen
-#undef mPutFld
-#undef mGetFld
 
 
-TrcHeaderSet::TrcHeaderSet( bool is2d, TrcHdrDef& def,
-				const RSFHeader* rsfheader )
+TrcHdrStrm::TrcHdrStrm( bool is2d, bool read, StreamData* sd,
+		TrcHdrDef& def,	const RSFHeader* rsfheader )
 	      : is2d_(is2d)
+	      , read_(read)
+	      , sd_(sd)
 	      , trchdrdef_(def)
     	      , rsfheader_(rsfheader)
 {
-    int nrsamps;
+    trcnum_ = 0;
+
+    int nrsamps = 0;
     if( rsfheader_->get( "n1", nrsamps ) )
     	trchdrdef_.size_ = nrsamps;
 
     BufferString dataformat;
     if ( rsfheader_->get(sKeyDataFormat,dataformat)
-	    && dataformat != (sKeyAsciiFloat || sKeyAsciiInt) )
+	    && dataformat == (sKeyNativeFloat || sKeyNativeInt) )
     	trchdrdef_.isbinary_ = true;
     else
 	trchdrdef_.isbinary_ = false;
 }
+
+
+int TrcHdrStrm::nrTrcHdrs() const
+{
+    int nrdims = rsfheader_->nrDims();
+    int nrtrchdrs = 1;
+
+    for ( int idx = 2; idx <= nrdims; idx++ )
+	nrtrchdrs = nrtrchdrs * rsfheader_->nrVals( idx );
+
+    return nrtrchdrs;
+}
+
+
+TrcHeader* TrcHdrStrm::initRead()
+{
+    if ( !trcnum_ || trcnum_ > nrTrcHdrs() )
+	trcnum_ = 1;
+
+    TrcHeader* trchdr;
+
+    while ( trcnum_ <= nrTrcHdrs() )
+    {
+	trchdr->read( sd_->istrm );
+	trcnum_++;
+    }
+
+    return trchdr;
+}
+
+
+bool TrcHdrStrm::initWrite( const TrcHeader& trchdr )
+{
+    if ( !trcnum_ || trcnum_ > nrTrcHdrs() )
+	trcnum_ = 1;
+
+    while ( trcnum_ <= nrTrcHdrs() )
+    {
+	trchdr.write( sd_->ostrm );
+	trcnum_++;
+    }
+
+    return true;
+}
+
+
+#undef mbuflen
+#undef mPutFld
+#undef mGetFld
