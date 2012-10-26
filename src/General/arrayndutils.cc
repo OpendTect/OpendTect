@@ -93,7 +93,7 @@ bool ArrayNDWindow::setType( const char* winnm, float val )
 
 bool ArrayNDWindow::buildWindow( const char* winnm, float val )
 {
-    unsigned long totalsz = size_.getTotalSz();
+    const od_int64 totalsz = size_.getTotalSz();
     window_ = new float[totalsz];  
     const int ndim = size_.getNDim();
     ArrayNDIter position( size_ );

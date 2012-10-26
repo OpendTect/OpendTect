@@ -77,7 +77,7 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 
     if ( out_ && in->info() != out_->info() ) return false;
 
-    const int sz = in->info().getTotalSz();
+    const od_int64 sz = in->info().getTotalSz();
 
     T* inpptr = in->getData();
     T* outptr = out->getData();
@@ -194,7 +194,7 @@ public:
 	if ( out_ && in->info() != out_->info() ) return false;
 	if ( in->info() != size_ ) return false;
 
-	unsigned long totalsz = size_.getTotalSz();
+	const od_int64 totalsz = size_.getTotalSz();
 
 	Type* indata = in->getData();
 	Type* outdata = out->getData();
