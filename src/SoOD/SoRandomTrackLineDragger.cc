@@ -397,8 +397,7 @@ SbBool SoRandomTrackLineDragger::setUpConnections( SbBool onOff,
 
 	SoBaseKit::setUpConnections( onOff, doItAlways );
     }
-    
-    return !(connectionsSetUp == onOff);
+
+    connectionsSetUp = onOff;
+    return !connectionsSetUp;
 }
-
-

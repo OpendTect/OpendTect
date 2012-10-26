@@ -288,7 +288,8 @@ SbBool SoScale3Dragger::setUpConnections( SbBool onoff, SbBool doitalways )
 	SoDragger::setUpConnections( onoff, doitalways );
     }
 
-    return !(connectionsSetUp==onoff);
+    connectionsSetUp = onoff;
+    return !connectionsSetUp;
 }
 
 

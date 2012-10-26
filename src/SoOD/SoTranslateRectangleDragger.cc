@@ -89,7 +89,8 @@ SbBool SoTranslateRectangleDragger::setUpConnections( SbBool onoff,
 	SoDragger::setUpConnections( onoff, doitalways );
     }
 
-    return !(connectionsSetUp==onoff);
+    connectionsSetUp = onoff;
+    return !connectionsSetUp;
 }
 
 
