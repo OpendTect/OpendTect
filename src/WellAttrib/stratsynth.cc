@@ -214,7 +214,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
     errmsg_.setEmpty(); 
 
     if ( lm.isEmpty() ) 
-	return false;
+	return 0;
 
     Seis::RaySynthGenerator synthgen;
     synthgen.setWavelet( wvlt_, OD::UsePtr );
@@ -234,17 +234,17 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	if ( !fillElasticModel( lm, aimod, idm ) )
 	{
 	    BufferString msg( errmsg_ );
-	    mErrRet( msg.buf(), return false;) 
+	    mErrRet( msg.buf(), return 0;) 
 	}
 	maxsz = mMAX( aimod.size(), maxsz );
 	synthgen.addModel( aimod );
     }
     if ( maxsz == 0 )
-	return false;
+	return 0;
 
     if ( maxsz == 1 )
 	mErrRet( "Model has only one layer, please add an other layer.", 
-		return false; );
+		return 0; );
 
     if ( (tr && !tr->execute( synthgen ) ) || !synthgen.execute() )
     {

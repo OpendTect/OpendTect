@@ -167,7 +167,7 @@ void Reader::getWellTieSetup( WellTie::Setup& wst ) const
 IOPar* Reader::getIOPar( const char* subsel ) const
 {
     StreamData sd = mkSD( sExtWellTieSetup() );
-    if ( !sd.usable() ) return false;
+    if ( !sd.usable() ) return 0;
 
     IOPar* iop = gtIOPar( subsel, *sd.istrm );
     sd.close();
@@ -178,7 +178,7 @@ IOPar* Reader::getIOPar( const char* subsel ) const
 IOPar* Reader::gtIOPar( const char* subsel, std::istream& strm ) const
 {
     if ( !rdHdr(strm,sKeyWellTieSetup()) )
-	return false;
+	return 0;
 
     ascistream astrm( strm, false );
     IOPar iop; iop.getFrom( astrm );

@@ -482,7 +482,7 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
 	dpifld_->box()->setValue( dpi );
     }
 
-    res == "";
+    res.setEmpty();
     par.get( sKeyFileType(), res );
 
     int idx = 0;
