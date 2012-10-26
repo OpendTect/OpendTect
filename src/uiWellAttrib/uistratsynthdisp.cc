@@ -495,6 +495,7 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
 
     vwr_->setPack( true, dp->id(), false, !hadpack );
     vwr_->setPack( false, dp->id(), false, !hadpack );
+    vwr_->setView( vwr_->boundingBox() );
 }
 
 
