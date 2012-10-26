@@ -64,12 +64,14 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
     PtrMan<IOObj> oldioobj = IOM().get( ioobj->key() );
     if ( !oldioobj ) return false;
 
+    const bool isro = implReadOnly( ioobj );
     BufferString oldname( oldioobj->name() );
     Seis2DLineSet ls( *ioobj );
     if ( ls.rename(ioobj->name()) && !ls.renameFiles(ioobj->name()) )
 	return false;
 
     PosInfo::POS2DAdmin().renameLineSet( oldname, ioobj->name() );
+    implSetReadOnly( ioobj, isro );
     
     return Translator::implRename( ioobj, newnm, cb );
 }
