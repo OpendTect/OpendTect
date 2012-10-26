@@ -100,6 +100,7 @@ public:
 					TaskRunner* tr);
     static void			thinning(const Array2D<bool>& input,
 		   			 Array2D<bool>& res);
+    static void			skeletonHilditch( Array2D<char>& input);
     static void			computeComponentAngle(
 	    				const Array2D<bool>& base_bina_sect,
 					const Array2D<bool>& upgr_bina_sect,

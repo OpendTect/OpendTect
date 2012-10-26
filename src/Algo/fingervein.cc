@@ -280,11 +280,25 @@ void FingerVein::removeSmallComponents( Array2D<bool>& data, int minfltlength,
 
 void FingerVein::thinning( Array2D<bool>& res )
 {
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, tmp,
+    /*mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, tmp,
 	    Array2DImpl<bool> (res.info()) );
     if ( !tmp ) return;
     tmp->copyFrom( res );
-    FaultOrientation::thinning( *tmp, res );
+    FaultOrientation::thinning( *tmp, res );*/
+    
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<char> >, tmp,
+	    Array2DImpl<char> (res.info()) );
+    if ( !tmp ) return;
+
+    bool* inp = res.getData();
+    char* data = tmp->getData();
+    const int sz = res.info().getTotalSz();
+    for ( int idx=0; idx<sz; idx++ )
+	data[idx] = inp[idx] ? 1 : 0;
+
+    FaultOrientation::skeletonHilditch( *tmp );
+    for ( int idx=0; idx<sz; idx++ )
+	inp[idx] = data[idx]>0;
 }
 
 
@@ -2681,3 +2695,161 @@ bool FaultOrientation::computeMaxCurvature( const Array2D<float>& input,
 
     return true;
 }
+
+
+/*
+void FaultOrientation::prepareSkeleton( unsigned char *ip, unsigned char *jp, 
+    unsigned long width, unsigned long hight )
+{
+    for( unsigned long i=0; i<hight; i++ )
+    {
+	for( unsigned long j=0; j<width; j++)
+	{
+	    if(ip[i*width+j]>0)
+		jp[i*width+j]=1;
+	    else
+		jp[i*width+j]=0;
+	}
+    }
+}*/
+
+void FaultOrientation::skeletonHilditch( Array2D<char>& input )
+{
+    const int width = input.info().getSize(0);
+    const int hight = input.info().getSize(1);
+    const int totalsz = width*hight;
+
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<char> >, icopy,
+	    Array2DImpl<char> (input.info()) );
+    if ( !icopy ) return;
+
+    char* tmp = icopy->getData();
+    char* data = input.getData();
+    for( int i=0; i<totalsz; i++ )
+    {
+	if( data[i]!=0 )
+	{
+	    data[i]=1;
+	    tmp[i]=1;
+	}
+    }
+
+    bool shori;
+    do
+    {
+	shori = false;
+	/*search all input,if pixel value=-1(gived by last circle),
+	  delete the pixel*/
+	for( int i=0; i<totalsz; i++ )
+	{
+	    if( data[i]<0 ) 
+		data[i] = 0;
+	    tmp[i] = data[i];
+	}
+
+	for( int i=1; i<width-1; i++)
+	{
+	    for( int j=1; j<hight-1; j++)
+	    {
+		const int pidx = i*hight+j;
+		if( data[pidx]!=1 ) //not foreground pixel
+		    continue;
+		
+		//pixel position in input
+		int p11 = (i-1)*hight+j-1;//low left
+		int p12 = p11 + 1;//left
+		int p13 = p12 + 1;//high left
+		int p21 = i*hight+j-1;//below
+		int p22 = p21 + 1;//center
+		int p23 = p22 + 1;//above
+		int p31 = (i+1)*hight+j-1;//low right
+		int p32 = p31 + 1;//right
+		int p33 = p32 + 1;//high right
+		
+		//4-neighbourhood is all foreground
+		if( (tmp[p12] && tmp[p21] && tmp[p23] && tmp[p32])!=0 )
+    		    continue;
+
+		//sum of 8-neighbourhood
+		const int nrn = tmp[p11] + tmp[p12] + tmp[p13] + tmp[p21] + 
+		    tmp[p23] + tmp[p31] + tmp[p32] + tmp[p33];
+		//if the sum of 8-neighbourhood <=1,
+		////that is to say it is the noise or the end of contour
+		////delete the center pixel
+
+		if(nrn <= 1)
+		{
+    		    data[p22] = 2;
+		    continue;
+		}
+
+		char n[10];
+		n[4] = data[p11];//low left
+		n[3] = data[p12];//left
+		n[2] = data[p13];//high left
+		n[5] = data[p21];//below
+		n[1] = data[p23];//above
+		n[6] = data[p31];//low right
+		n[7] = data[p32];//right
+		n[8] = data[p33];//high right
+		n[9] = n[1];   //above
+		
+		int count = 0;
+		for( int k=1; k<8; k=k+2 )
+		{
+    		    if( (!n[k]) && (n[k+1] || n[k+2]) )
+			count++;
+		}
+		if( count!=1 )
+		{
+    		    data[p22] = 2;//deleted
+    		    continue;
+		}
+		//left pixel=-1
+		if( data[p12] == -1 )
+		{
+    		    data[p12] = 0;
+    		    n[3] = 0;
+    		    count = 0;
+    		    for( int k=1; k<8; k=k+2)
+    		    {
+			if( (!n[k])&&(n[k+1]||n[k+2]) )
+	    		    count++;
+    		    }
+    		    if( count != 1 )
+    		    {
+			data[p12] = -1;
+			continue;
+    		    }
+    		    data[p12] = -1;
+    		    n[3] = -1;
+		}
+		//below pixel!=-1
+		if( data[p21]!=-1 )
+		{
+    		    data[p22] = -1;
+    		    shori = true;
+    		    continue;
+		}
+
+		data[p21] = 0;
+		n[5] = 0;
+		count = 0;
+		for( int k=1; k<8; k=k+2 )
+		{
+    		    if( (!n[k]) && (n[k+1] || n[k+2]) )
+			count++;
+		}
+
+		if( count == 1 )
+		{
+    		    data[p21] = -1;
+    		    data[p22] = -1;
+    		    shori =true;
+		}
+		else
+    		    data[p21] = -1;
+	    }
+	}	
+    }while( shori );
+}    
