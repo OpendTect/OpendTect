@@ -17,7 +17,7 @@ Swave velocity: Velocity
 Aliases: SVel`Svel
 Color: 0`255`0
 Range: 500`2000`m/s
-DefaultValue: Value`3400
+DefaultValue: Value`1400
 !
 Porosity: Volumetrics
 Aliases: Phi`Por`Phie`PIGN
