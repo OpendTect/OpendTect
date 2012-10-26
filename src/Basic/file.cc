@@ -453,6 +453,28 @@ bool removeDir( const char* dirnm )
 }
 
 
+bool changeDir( const char* dir )
+{
+#ifdef __win__
+    return _chdir( dir );
+#else
+    return chdir( dir );
+#endif
+}
+
+
+bool getCurWorkDir( char* dir, int pathlen )
+{
+#ifdef __win__
+    _getcwd( dir, pathlen );
+    if ( !dir || !*dir )
+	return false;
+    else
+	return true;
+#endif
+}
+
+
 bool makeWritable( const char* fnm, bool yn, bool recursive )
 {
     BufferString cmd;

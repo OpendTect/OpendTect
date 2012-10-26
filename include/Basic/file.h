@@ -49,6 +49,8 @@ namespace File
     mGlobal bool	saveCopy(const char* from,const char* to);
     mGlobal bool	copyDir(const char* from,const char* to);
     mGlobal bool	removeDir(const char*);
+    mGlobal bool	changeDir(const char* path);
+    mGlobal bool	getCurWorkDir(char* path,int pathlen);
 
     mGlobal bool	getContent(const char*,BufferString&);
     mGlobal od_int64	getFileSize(const char*); //!<returns size in bytes

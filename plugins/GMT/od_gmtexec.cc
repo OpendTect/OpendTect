@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID = "$Id: od_gmtexec.cc,v 1.14 2012/03/19 13:24:34 cvsnageswara Exp $";
 
 #include "batchprog.h"
+#include "file.h"
 #include "filepath.h"
 #include "gmtpar.h"
 #include "initgmtplugin.h"
@@ -26,6 +27,11 @@ static const char* rcsID = "$Id: od_gmtexec.cc,v 1.14 2012/03/19 13:24:34 cvsnag
 { \
     strm << msg << std::endl; \
     StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream(); \
+    outputfp.setFileName( ".gmtcommands4" ); \
+    if ( File::exists(outputfp.fullPath()) ) \
+	StreamProvider( outputfp.fullPath() ).remove(); \
+	\
+    File::changeDir( cwd.buf() ); \
     *sd.ostrm << "Failed" << std::endl; \
     sd.close(); \
     finishmsg_ = "Failed to create map"; \
@@ -39,6 +45,12 @@ bool BatchProgram::go( std::ostream& strm )
     GMT::initStdClasses();
     finishmsg_ = "Map created successfully";
     const char* psfilenm = pars().find( sKey::FileName );
+    FilePath outputfp( psfilenm );
+    BufferString cwd;
+    if ( !File::getCurWorkDir( cwd.buf(), 255 ) )
+	mErrStrmRet("Error: Current working directory path length too big")
+
+    File::changeDir( outputfp.pathOnly() );
     if ( !psfilenm || !*psfilenm )
 	mErrStrmRet("Output PS file missing")
 
@@ -90,9 +102,9 @@ bool BatchProgram::go( std::ostream& strm )
     if ( !par || !par->execute(strm, psfilenm) )
 	strm << "Failed to post legends";
 
-    FilePath gmtcommandsfnm( GetBinPlfDir() );
-    gmtcommandsfnm.add( ".gmtcommands4" );
-    StreamProvider( gmtcommandsfnm.fullPath() ).remove();
+    outputfp.setFileName( ".gmtcommands4" );
+    StreamProvider( outputfp.fullPath() ).remove();
+    File::changeDir( cwd.buf() );
     StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream();
     *sd.ostrm << "Finished" << std::endl;
     sd.close();
