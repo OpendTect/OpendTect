@@ -486,7 +486,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 uiODBodyDisplayDataTreeItem::uiODBodyDisplayDataTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
     , depthattribmnuitem_("Z values")
-    , isopatchmnuitem_("Z isopach")  
+    , isopachmnuitem_("Z isopach")  
 {}
 
 
@@ -501,7 +501,7 @@ void uiODBodyDisplayDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool yn = as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt();
 
     mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked, yn );
-    mAddMenuItem( &selattrmnuitem_, &isopatchmnuitem_, !islocked, yn );
+    mAddMenuItem( &selattrmnuitem_, &isopachmnuitem_, !islocked, yn );
 }
 
 
@@ -524,7 +524,7 @@ void uiODBodyDisplayDataTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	mcd->setDepthAsAttrib( attribNr() );
     }
-    else if ( mnuid==isopatchmnuitem_.id )
+    else if ( mnuid==isopachmnuitem_.id )
     {
 	menu->setIsHandled( true );
 	mcd->setIsoPatch( attribNr() );

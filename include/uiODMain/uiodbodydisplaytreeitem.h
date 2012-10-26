@@ -84,7 +84,7 @@ protected:
     BufferString	createDisplayName() const;
     
     MenuItem		depthattribmnuitem_;
-    MenuItem		isopatchmnuitem_;
+    MenuItem		isopachmnuitem_;
 };
 
 
