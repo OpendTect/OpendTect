@@ -484,7 +484,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mids[idx] );
-	FixedString translator = ioobj->translator();
+	const BufferString& translator = ioobj->translator();
 
 	BufferString typestr;
 	if ( translator==polygonEMBodyTranslator::sKeyUserName() )

@@ -57,57 +57,59 @@ mClass(General) IOObj : public NamedObject
 {
 public:
 
-    IOObj*		clone() const;
-    virtual const MultiID& key() const			{ return key_; }
+    IOObj*			clone() const;
+    virtual const MultiID&	key() const			{ return key_; }
 
-    virtual		~IOObj();
-    virtual bool	bad() const			= 0;
-    virtual void	copyFrom(const IOObj*)		= 0;
-    virtual bool	hasConnType( const char* s ) const
-			{ return s && !strcmp(s,connType()); }
+    virtual			~IOObj();
+    virtual bool		bad() const			= 0;
+    virtual void		copyFrom(const IOObj*)		= 0;
+    virtual bool		hasConnType( const char* s ) const
+				{ return s && !strcmp(s,connType()); }
 
-    virtual const char*	connType() const		= 0;
-    virtual Conn*	getConn(Conn::State) const	= 0;
+    virtual const char*		connType() const		= 0;
+    virtual Conn*		getConn(Conn::State) const	= 0;
 
-    virtual const char*	translator() const		{ return transl_; }
-    virtual void	setTranslator( const char* s )	{ transl_ = s; }
-    virtual const char*	group() const			{ return group_; }
-    virtual void	setGroup( const char* s )	{ group_ = s; }
-    virtual const char*	fullUserExpr(bool forread=true) const = 0;
+    virtual const BufferString&	translator() const	       {return transl_;}
+    virtual void		setTranslator( const char* s ) {transl_ = s; }
+    virtual const BufferString&	group() const			{return group_;}
+    virtual void		setGroup( const char* s )	{group_ = s; }
+    virtual const char*		fullUserExpr(bool forread=true) const = 0;
 
-    virtual bool	implExists(bool forread) const	= 0;
-    virtual bool	implReadOnly() const		{ return true; }
-    virtual bool	implRemove() const		{ return false; }
-    virtual bool	implShouldRemove() const	{ return true; }
-    virtual bool	implRename(const char*,const CallBack* cb=0)
+    virtual bool		implExists(bool forread) const	= 0;
+    virtual bool		implReadOnly() const		{ return true; }
+    virtual bool		implRemove() const		{ return false;}
+    virtual bool		implShouldRemove() const	{ return true; }
+    virtual bool		implRename(const char*,const CallBack* cb=0)
     							{ return false; }
-    virtual bool	implSetReadOnly(bool) const	{ return false; }
-    virtual bool	removeQuery() const		{ return false; }
-    virtual void	genDefaultImpl()		{}
+    virtual bool		implSetReadOnly(bool) const	{ return false;}
+    virtual bool		removeQuery() const		{ return false;}
+    virtual void		genDefaultImpl()		{}
 
-    virtual const char*	 dirName() const		{ return dirnm_; }
-    			//!< The directory ame within the tree
-    virtual IOPar&	pars() const			{ return pars_; }
-    			//!< These are the extra parameters: #xxx: yyy in .omf
+    virtual const char*	 	dirName() const		{ return dirnm_; }
+			    	//!< The directory ame within the tree
+    virtual IOPar&		pars() const			{ return pars_;}
+    				//!< These are the extra parameters: #xxx: yyy
+    				//!< in .omf
     
-    static bool		isKey(const char*);
-    			//!< Returns whether given string may be a valid key
-    static bool		isSurveyDefault(const MultiID&);
-    			//!< Checks the 'Default.' entries in SI().pars()
-    void		setSurveyDefault(const char* subsel = 0) const;
-			/*!<\param subsel may be a subselection lower than
-			           the translator group, such as "Velocity".*/
+    static bool			isKey(const char*);
+    				//!< Returns whether given string may be a valid
+    				//!< key
+    static bool			isSurveyDefault(const MultiID&);
+    				//!<Checks the 'Default.' entries in SI().pars()
+    void			setSurveyDefault(const char* subsel = 0) const;
+				/*!<\param subsel may be a subselection lower
+				    than the translator group, such as
+				    "Velocity".*/
 
+    Translator*			createTranslator() const;
+    				//!< returns a subclass of Translator according
+    				//!< to the translator name and group.
+    virtual void		acquireNewKey();
+    				//!< This will give the IOObj a new (free) ID
 
-    Translator*		createTranslator() const;
-    			//!< returns a subclass of Translator according to
-			//!< the translator name and group.
-    virtual void	acquireNewKey();
-    			//!< This will give the IOObj a new (free) ID
-
-    static int		tmpID()		{ return  999999; }
-    inline bool		isTmp() const	{ return key_.leafID() == tmpID(); }
-    bool		isReadDefault() const;
+    static int			tmpID()		{ return  999999; }
+    inline bool			isTmp() const	{return key_.leafID()==tmpID();}
+    bool			isReadDefault() const;
 
 protected:
 
