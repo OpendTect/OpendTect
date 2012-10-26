@@ -40,13 +40,4 @@ ________________________________________________________________________
 # define od_uint64	unsigned __int64
 #endif
 
-
-/* On msvc, an operator[] takes integers only, hence we need to cast using mIdx() */
-#ifdef __msvc__
-# define mIdx(i)	mCast(int,i)
-#else
-# define mIdx(i)	(i)
-#endif
-
-
 #endif
