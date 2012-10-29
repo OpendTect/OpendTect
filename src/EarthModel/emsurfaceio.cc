@@ -293,8 +293,8 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	{
 	    if ( mIsUdf(lineids[idx]) )
 	    {
-		lineids.remove( idx );
-		linenames_.remove( idx );
+		lineids.removeSingle( idx );
+		linenames_.removeSingle( idx );
 		continue;
 	    }
 	    idx++;
@@ -1937,7 +1937,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	if ( colcoords[idx].isDefined() )
 	    break;
 
-	colcoords.remove(idx);
+	colcoords.removeSingle(idx);
     }
 
     if ( !writeInt32(strm,colcoords.size(),colcoords.size()?sTab():sEOL()) )
