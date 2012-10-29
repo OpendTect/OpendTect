@@ -61,7 +61,7 @@ int Coord2ListImpl::add( const Coord& co )
     if ( nrremoved )
     {
 	const int res = removedids_[nrremoved-1];
-	removedids_.remove( nrremoved-1 );
+	removedids_.removeSingle( nrremoved-1 );
 	points_[res] = co;
 	return res;
     }
@@ -134,7 +134,7 @@ int Coord3ListImpl::add( const Coord3& coord3 )
     if ( nrremoved )
     {
 	const int res = removedids_[nrremoved-1];
-	removedids_.remove( nrremoved-1 );
+	removedids_.removeSingle( nrremoved-1 );
 	coords_[res] = coord3;
 	return res;
     }
