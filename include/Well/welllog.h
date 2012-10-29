@@ -82,8 +82,8 @@ protected:
     BufferString	unitmeaslbl_;
     IOPar		pars_;
 
-    void		removeAux( int idx )		{ val_.remove(idx); }
-    void		eraseAux()			{ val_.erase(); }
+    void		removeAux( int idx )	{ val_.removeSingle(idx); }
+    void		eraseAux()		{ val_.erase(); }
     float		gtVal(float,int&) const;
 
 };
