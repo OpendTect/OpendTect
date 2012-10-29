@@ -318,7 +318,7 @@ void ExplPolygonSurface::removeFromGeometries( const IndexedGeometry* ig )
     const int idx = geometries_.indexOf( ig );
 
     if ( idx!=-1 )
-	geometries_.remove( idx, false );
+	geometries_.removeSingle( idx, false );
 
     geometrieslock_.writeUnLock();
 }

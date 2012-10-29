@@ -261,7 +261,7 @@ void ExplicitIndexedShape::removeFromGeometries( const IndexedGeometry* ig )
     geometrieslock_.writeLock();
     const int idx = geometries_.indexOf( ig );
     if ( idx!=-1 )
-	geometries_.remove( idx, false );
+	geometries_.removeSingle( idx, false );
     geometrieslock_.writeUnLock();
 }
 
