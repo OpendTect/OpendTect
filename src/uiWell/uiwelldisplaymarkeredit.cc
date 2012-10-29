@@ -189,7 +189,7 @@ void uiDispEditMarkerDlg::addMoveMarker( int iset, float dah, const char* nm )
     for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
     {
 	if ( !strcmp( nm, tmplist_[idx]->name() ) )
-	    delete tmplist_.remove( idx );
+	    delete tmplist_.removeSingle( idx );
     }
 }
 
@@ -198,7 +198,7 @@ void uiDispEditMarkerDlg::removeMarker( int idset, const char* nm )
 {
     Well::MarkerSet& mrkset = *markerssets_[idset];
     if ( mrkset.isPresent( nm ) ) 
-	delete mrkset.remove( mrkset.indexOf( nm ),true );
+	delete mrkset.removeSingle( mrkset.indexOf( nm ),true );
 }
 
 
@@ -319,7 +319,7 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
     for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
     {
 	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
-	    delete tmplist_.remove( idx );
+	    delete tmplist_.removeSingle( idx );
 	fillMarkerList(0);
 	return true;
     }
@@ -335,7 +335,7 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
 	    Well::MarkerSet& mrkset = *markerssets_[idx];
 	    if ( mrkset.isPresent( mrknm ) )
 	    {
-		delete mrkset.remove( mrkset.indexOf( mrknm ),true );
+		delete mrkset.removeSingle( mrkset.indexOf( mrknm ),true );
 	    }
 	}
 	hasedited_ = true; 
