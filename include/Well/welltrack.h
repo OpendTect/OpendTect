@@ -74,8 +74,8 @@ protected:
     TypeSet<Coord3>	pos_;
     bool		zistime_;
 
-    void		removeAux( int idx )		{ pos_.remove(idx); }
-    void		eraseAux()			{ pos_.erase(); }
+    void		removeAux( int idx )	{ pos_.removeSingle(idx); }
+    void		eraseAux()		{ pos_.erase(); }
 
 };
 
