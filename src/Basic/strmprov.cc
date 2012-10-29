@@ -545,7 +545,7 @@ void StreamProvider::unLoad( const char* key, bool isid )
     {
 	int plid = getPLID( key, isid );
 	if ( plid < 0 ) return;
-	delete plds.remove( plid, false );
+	delete plds.removeSingle( plid, false );
     }
 }
 
