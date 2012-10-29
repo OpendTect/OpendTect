@@ -268,6 +268,7 @@ StepInterval<int> PosInfo::Line2DData::trcNrRange() const
     if ( sz < 1 ) return res;
     res.start = posns_[0].nr_;
     res.stop = posns_[sz-1].nr_;
+    if ( sz == 1 ) return res;
 
     res.step = 0;
     for ( int idx=1; idx<sz; idx++ )
