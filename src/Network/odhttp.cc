@@ -117,8 +117,8 @@ void handleFinishedRequest( int reqid )
 	QFile* qfile = qfiles_[reqidx];
 	if ( qfile )
 	    qfile->close();
-	delete qfiles_.remove( reqidx );
-	requestids_.remove( reqidx );
+	delete qfiles_.removeSingle( reqidx );
+	requestids_.removeSingle( reqidx );
     }
 
     stopEventLoop();

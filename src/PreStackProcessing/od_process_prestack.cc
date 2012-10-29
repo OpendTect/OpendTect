@@ -413,9 +413,9 @@ bool BatchProgram::go( std::ostream& strm )
 		{
 		    if ( bids[idx].inl<=obsoleteline )
 		    {
-			bids.remove( idx ); 
+			bids.removeSingle( idx ); 
 			DPM( DataPackMgr::FlatID() ).release(
-			gathers.remove(idx) );
+			    gathers.removeSingle(idx) );
 		    }
 		}
 	    }
@@ -430,8 +430,9 @@ bool BatchProgram::go( std::ostream& strm )
 	    {
 		if ( bids[idx].crl<=obsoletetrace )
 		{
-		    bids.remove( idx );
-		    DPM( DataPackMgr::FlatID() ).release( gathers.remove(idx) );
+		    bids.removeSingle( idx );
+		    DPM( DataPackMgr::FlatID() ).release(
+			gathers.removeSingle(idx) );
 		}
 	    }
 	}
@@ -443,7 +444,7 @@ bool BatchProgram::go( std::ostream& strm )
     mStrmWithProcID( "Threads closed; Writing finish status" );
 
     for ( int idx=gathers.size()-1;  idx>=0; idx-- )
-	DPM( DataPackMgr::FlatID() ).release( gathers.remove(idx) );
+	DPM( DataPackMgr::FlatID() ).release( gathers.removeSingle(idx) );
 
     if ( !comm )
     {

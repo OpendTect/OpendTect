@@ -202,19 +202,16 @@ void PreStack::EventsAPIMgr::closeReader( int handle )
     if ( events_[idx] )
     {
 	events_[idx]->getEvents( curpos_[idx], false, false )->unRef();
-
-	events_[idx]->unRef();
-	events_.remove( idx );
+	events_.removeSingle( idx )->unRef();
     }
     else if ( velpicks_[idx] )
     {
-	velpicks_[idx]->unRef();
-	velpicks_.remove( idx );
+	velpicks_.removeSingle( idx )->unRef();
     }
 
-    ids_.remove( idx );
-    curpos_.remove( idx );
-    delete locations_.remove( idx );
+    ids_.removeSingle( idx );
+    curpos_.removeSingle( idx );
+    delete locations_.removeSingle( idx );
 }
 
 

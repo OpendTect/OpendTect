@@ -81,8 +81,8 @@ void MuteDef::remove( int idx )
     if ( idx<0 || idx>=size() )
 	return;
 
-    delete fns_.remove( idx );
-    pos_.remove( idx );
+    delete fns_.removeSingle( idx );
+    pos_.removeSingle( idx );
     ischanged_ = true;
 }
 

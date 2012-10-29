@@ -272,10 +272,10 @@ bool EventManager::removeHorizon( int id )
     const int idx = horids_.indexOf( id );
     if ( idx<0 ) return false;
 
-    horids_.remove( idx );
-    horrefs_.remove( idx );
+    horids_.removeSingle( idx );
+    horrefs_.removeSingle( idx );
     if ( emhorizons_[idx] ) emhorizons_[idx]->unRef();
-    emhorizons_.remove( idx );
+    emhorizons_.removeSingle( idx );
 
     RowCol arraypos( -1, -1 );
     while ( events_.next( arraypos, true ) )
@@ -287,7 +287,7 @@ bool EventManager::removeHorizon( int id )
 	    bool ischanged = false;
 	    if ( ge->events_[idy]->horid_ == id )
 	    {
-		delete ge->events_.remove(idy);
+		delete ge->events_.removeSingle(idy);
 		ischanged = ge->ischanged_ = true;
 		idy--;
 	    }
@@ -974,7 +974,7 @@ bool SetEventUndo::removeEvent()
     if ( !events )
 	return false;
 
-    delete events->events_.remove( horidx_ );
+    delete events->events_.removeSingle( horidx_ );
 
     manager_.reportChange( bid_ );
 

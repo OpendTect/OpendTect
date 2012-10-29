@@ -88,8 +88,8 @@ void ODFtp::transferDoneCB( CallBacker* )
 	QFile* qfile = qfiles_[cmdidx];
 	if ( qfile )
 	    qfile->close();
-	delete qfiles_.remove( cmdidx );
-	getids_.remove( cmdidx );
+	delete qfiles_.removeSingle( cmdidx );
+	getids_.removeSingle( cmdidx );
     }
 }
 
