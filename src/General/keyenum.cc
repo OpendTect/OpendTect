@@ -49,19 +49,21 @@ mImplButtonStateFunc( ctrlKeyboardButton, ControlButton );
 mImplButtonStateFunc( altKeyboardButton, AltButton );
 
 
-OD::ButtonState OD::stateOf( const char* nm )
+OD::ButtonState OD::stateOf( const char* nmstr )
 {
-    if ( !nm || !*nm ) return OD::NoButton;
+    FixedString nm( nmstr );
+   
+    if ( nm.isEmpty() ) return OD::NoButton;
 
     for ( int idx=0; nms[idx]; idx++ )
     {
-	if ( !strcmp(nms[idx],nm) )
+	if ( nms[idx]==nm )
 	    return (OD::ButtonState)(transtbl[idx]);
     }
 
     for ( int idx=0; nms[idx]; idx++ )
     {
-	if ( *nms[idx] == *nm )
+	if ( *nms[idx] == *nm.str() )
 	    return (OD::ButtonState)(transtbl[idx]);
     }
 
