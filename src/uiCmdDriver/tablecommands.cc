@@ -1069,15 +1069,15 @@ int TableState::remove( const RowCol& rc, int startidx )
 	    if ( rc.row+step < set_[idx+1].row )
 		set_.insert( idx+1, RowCol(rc.row+step, -step) );
 	    else if ( rc.row+step > set_[idx+1].row )
-		set_.remove( idx+1 );
+		set_.removeSingle( idx+1 );
 
 	    if ( rc.row-step >= set_[idx].row )
 		set_.insert( idx+1, RowCol(rc.row-step, rc.col) );
 	    if ( rc.row-step <= set_[idx].row )
-		set_.remove( idx );
+		set_.removeSingle( idx );
 	}
 	else 
-	    set_.remove( idx );
+	    set_.removeSingle( idx );
     }
 
     return idx;
@@ -1370,8 +1370,8 @@ int TableCmdComposer::writeTableSelect( bool differential, bool virtually )
     {
 	int topmargin = 0;
 	int firstrow = mUdf(int);
-	int lastrow;
-	int blockstate;
+	int lastrow = -1;
+	int blockstate = -1;
 
 	for ( rc0.row=0; rc0.row<=uitable->nrRows(); rc0.row++ )
 	{

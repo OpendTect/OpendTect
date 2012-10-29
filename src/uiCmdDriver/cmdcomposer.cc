@@ -71,7 +71,7 @@ BufferString CmdComposer::createFactoryKey( const Classifier* classifier,
     for ( int idx=classifiers.size()-1; idx>0; idx-- )
     {
 	if ( classifiers[idx]->name()==classifiername )
-	    delete classifiers.remove( idx );
+	    delete classifiers.removeSingle( idx );
     }
 
     BufferString fackey;
@@ -167,7 +167,7 @@ bool CmdComposer::accept( const CmdRecEvent& ev )
 
 	if ( !refnrstack_.isEmpty() && ev.refnr_==refnrstack_[0] )
 	{
-	    refnrstack_.remove( 0 );
+	    refnrstack_.removeSingle( 0 );
 
 	    if ( ev.begin_ )
 		// in case accept(ev) was called tail-recursively
@@ -245,8 +245,8 @@ void CmdComposer::addToEventList( const CmdRecEvent& ev )
 	    return;
     }
 
-    delete eventlist_.remove( sz-2 );
-    delete eventlist_.remove( sz-3 );
+    delete eventlist_.removeSingle( sz-2 );
+    delete eventlist_.removeSingle( sz-3 );
 }
 
 
@@ -263,7 +263,7 @@ void CmdComposer::shrinkEventList( int firstnr, int lastnr )
     for ( int idx=sz-1; idx>=0; idx-- )
     {
 	if ( idx>=firstidx && idx<=lastidx )
-	    delete eventlist_.remove( idx );
+	    delete eventlist_.removeSingle( idx );
     }
 }
 

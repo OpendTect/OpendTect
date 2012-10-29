@@ -322,8 +322,8 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 	{ \
 	    actionlist[*actidxptr]->gotoidx_ = actionlist.size()-1; \
 	    *actidxptr = actionlist.size()-1; \
-	    if ( backward ) actidxstack.remove( 0 ); \
-	    if ( backward ) flowstack.remove( 0 ); \
+	    if ( backward ) actidxstack.removeSingle( 0 ); \
+	    if ( backward ) flowstack.removeSingle( 0 ); \
 	} \
 	if ( !strcmp(#cmd, "Else") ) \
 	    flowstack[0] = ElseTag; \
@@ -983,7 +983,7 @@ bool CmdDriver::tryAction( const char* identname, const char* actstr )
     wcm_->flush( res );
     idm_->set( tryoutstack_[0], tryoutval_ );
     tryoutval_ = 1;
-    tryoutstack_.remove( 0 );
+    tryoutstack_.removeSingle( 0 );
     return res;
 }
 
@@ -1063,7 +1063,7 @@ void CmdDriver::activateDone( CallBacker* activator )
 
     const int idx = activatorlist_.indexOf( activator );
     if ( idx >= 0 )
-	delete activatorlist_.remove( idx );
+	delete activatorlist_.removeSingle( idx );
 
     cmddrvmutex_.unLock();
 }
@@ -1137,7 +1137,7 @@ void CmdDriver::storeModalStatus()
 	const char* wildmodalsig = wildmodalsignatures_[idx]->buf();
 	if ( !curmodalstat_.signatures_.isPresent(wildmodalsig) )
 	{
-	    wildmodalsignatures_.remove( idx );
+	    wildmodalsignatures_.removeSingle( idx );
 	    wildmodalclosed = true;
 	}
     }
@@ -1215,7 +1215,7 @@ void CmdDriver::forceQtToCatchUp()
     for ( int idx=windowlist.size()-1; idx>=0; idx-- )
     {
 	if ( !mMatchCI(windowlist[idx]->name(), controllerTitle()) )
-	    windowlist.remove( idx );
+	    windowlist.removeSingle( idx );
     }
 
     if ( windowlist.isEmpty() )
@@ -1400,7 +1400,7 @@ bool CmdDriver::verifyWinState( const char* newwinstr, WinStateType newwinstate)
 	for ( int idx=windowlist.size()-1; idx>=0; idx-- )
 	{
 	    if ( !switchCurWin(windowlist[idx]) )
-		windowlist.remove( idx );
+		windowlist.removeSingle( idx );
 	}
 	switchCurWin( oldcurwin );
     }
@@ -1559,7 +1559,7 @@ void CmdDriver::moveActionIdx( int nrlines )
 	{
 	    const int sz = actionidx_ - insertidx;
 	    for ( int idx=0; idx<sz; idx++ )
-		delete actions_.remove( insertidx );
+		delete actions_.removeSingle( insertidx );
 
 	    actionidx_ -= sz;
 	    winassertsafe_ = false;

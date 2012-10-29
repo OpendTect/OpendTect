@@ -535,7 +535,7 @@ bool CloseCmd::actCloseCurWin( const char* parstr )
     for ( int idx=subwinnames.size()-1; idx>=0; idx-- ) \
     { \
 	if ( !mSearchKey(winstr).isMatching(*subwinnames[idx]) ) \
-	    subwinnames.remove(idx); \
+	    subwinnames.removeSingle(idx); \
     } \
     mParStrPre( "subwindow", subwinnames, 0, winstr, selnr, "string", true ); \
     wildcardMan().check( mSearchKey(winstr), subwinnames.get(0) );

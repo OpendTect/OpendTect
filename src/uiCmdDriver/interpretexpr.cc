@@ -256,11 +256,11 @@ enum InfixOperator {
 
 #define mRemoveArg( argidx ) \
 { \
-    vals.remove( opidx+argidx ); \
-    breakprefixes.remove( opidx+argidx ); \
-    errmsgs.remove( opidx+argidx ); \
-    ops.remove( opidx ); \
-    opptrs.remove( opidx ); \
+    vals.removeSingle( opidx+argidx ); \
+    breakprefixes.removeSingle( opidx+argidx ); \
+    errmsgs.removeSingle( opidx+argidx ); \
+    ops.removeSingle( opidx ); \
+    opptrs.removeSingle( opidx ); \
 }
 
 #define mIfErrArgCont( argidx ) \

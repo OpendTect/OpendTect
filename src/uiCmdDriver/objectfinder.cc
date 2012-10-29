@@ -310,9 +310,9 @@ bool ObjectFinder::selectNodes( ObjectSet<const uiObject>& nodesfound,
 		    if ( commonancestortag[idy]==curtag &&
 			 commonancestorobj[idy]==curnode )
 		    {
-			nodesfound.remove( idy );
-			commonancestortag.remove( idy );
-			commonancestorobj.remove( idy );
+			nodesfound.removeSingle( idy );
+			commonancestortag.removeSingle( idy );
+			commonancestorobj.removeSingle( idy );
 			if ( idx >= idy )
 			    idx--;
 		    }
@@ -334,7 +334,7 @@ int ObjectFinder::deleteGreys( ObjectSet<const uiObject>& objsfound, bool yn )
 	{
 	    nrgreyfound++;
 	    if ( yn )
-		objsfound.remove( idx );
+		objsfound.removeSingle( idx );
 	}
     }
 
