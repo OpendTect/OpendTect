@@ -494,13 +494,13 @@ void MultiDimStorage<T>::remove( const IDX& indexarr )
 	    return;
 
 	delete lowerdimstorage_[index];
-	lowerdimstorage_.remove( index );
-	positions_.remove( index );
+	lowerdimstorage_.removeSingle( index );
+	positions_.removeSingle( index );
 	return;
     }
 
-    onedimstorage_.remove( index*nrvals_, index*nrvals_+nrvals_-1 );
-    positions_.remove( index );
+    onedimstorage_.removeSingle( index*nrvals_, index*nrvals_+nrvals_-1 );
+    positions_.removeSingle( index );
 }
 
 
@@ -741,9 +741,9 @@ void MultiDimStorage<T>::removeDuplicates()
     {
 	if ( positions_[idx-1]==positions_[idx] )
 	{
-	    positions_.remove( idx );
+	    positions_.removeSingle( idx );
 	    for ( int idy=0; idy<nrvals_; idy++ )
-		onedimstorage_.remove( idx );
+		onedimstorage_.removeSingle( idx );
 
 	    idx--;
 	}
