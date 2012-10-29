@@ -337,7 +337,7 @@ void uiWellMan::logTools( CallBacker* )
 #define mDeleteLogs(idx) \
     if ( !curwds_.validIdx( idx ) ) return;\
     while ( curwds_[idx]->logs().size() ) \
-        delete curwds_[idx]->logs().removeSingle(0);
+        delete curwds_[idx]->logs().remove(0);
 
 void uiWellMan::importLogs( CallBacker* )
 {
