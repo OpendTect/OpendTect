@@ -37,7 +37,7 @@ public:
     virtual bool	insertAtDah(float dah, float val) = 0;
     int			indexOf(float dah) const;	
     virtual void	remove( int idx )
-			{ dah_.remove(idx); removeAux(idx); }
+			{ dah_.removeSingle(idx); removeAux(idx); }
     virtual void	erase()
 			{ dah_.erase(); eraseAux(); }
     inline bool		isEmpty() const			{ return size() == 0; }
