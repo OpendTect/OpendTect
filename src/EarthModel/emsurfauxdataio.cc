@@ -187,8 +187,8 @@ int dgbSurfDataWriter::nextStep()
 	if ( !writeInt64(subid) || !writeFloat(auxvalue) )
 	    mErrRetWrite("Error in writing datavalues")
 
-	subids_.remove( subidindex );
-	values_.remove( subidindex );
+	subids_.removeSingle( subidindex );
+	values_.removeSingle( subidindex );
     }
 
     nrdone_++;
