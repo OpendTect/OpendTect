@@ -189,12 +189,12 @@ void Horizon2DLine::removeCols( const PosInfo::GeomID& geomid, int col1,
 
     if ( colrg.start == col1 )
     {
-	rows_[rowidx]->remove( startidx, stopidx );
+	rows_[rowidx]->removeRange( startidx, stopidx );
 	colsampling_[rowidx].start = col2 + colrg.step;
     }
     else if ( colrg.stop == col2 )
     {
-	rows_[rowidx]->remove( startidx, stopidx );
+	rows_[rowidx]->removeRange( startidx, stopidx );
     }
     else
     {
