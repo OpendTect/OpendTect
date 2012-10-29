@@ -320,11 +320,11 @@ void PosInfo::CubeData::limitTo( const HorSampling& hsin )
 	{
 	    StepInterval<int>& seg = ld->segments_[iseg];
 	    if ( seg.start > hs.stop.crl || seg.stop < hs.start.crl )
-	    { ld->segments_.remove( iseg ); continue; }
+	    { ld->segments_.removeSingle( iseg ); continue; }
 
 	    seg.step = Math::LCMOf( seg.step, hs.step.crl );
 	    if ( !seg.step )
-	    { ld->segments_.remove( iseg ); continue; }
+	    { ld->segments_.removeSingle( iseg ); continue; }
 
 	    if ( seg.start < hs.start.crl )
 	    {
@@ -351,7 +351,7 @@ void PosInfo::CubeData::limitTo( const HorSampling& hsin )
 		seg.stop = newstop;
 	    }
 	    if ( seg.start > seg.stop )
-		ld->segments_.remove( iseg );
+		ld->segments_.removeSingle( iseg );
 	    else nrvalidsegs++;
 	}
 
