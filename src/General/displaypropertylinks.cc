@@ -232,8 +232,8 @@ void DisplayLinkManager::removeDisplayPropertyLink( int id )
     if ( idx<0 )
 	return;
 
-    delete propertylinks_.remove( idx );
-    propertylinkids_.remove( idx );
+    delete propertylinks_.removeSingle( idx );
+    propertylinkids_.removeSingle( idx );
 }
 
 
@@ -269,7 +269,7 @@ void DisplayLinkManager::removeHolder( DisplayPropertyHolder* hldr )
 		link.removeHolder( hldr );
 		if ( !link.isValid() )
 		{
-		    delete propertylinks_.remove( idx );
+		    delete propertylinks_.removeSingle( idx );
 		    break;
 		}
 	    }
