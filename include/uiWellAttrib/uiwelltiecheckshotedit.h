@@ -70,8 +70,8 @@ public:
     protected:
 	TypeSet<float>	val_;
 
-	void 		removeAux(int idx)	    { val_.remove( idx ); }
-	void		eraseAux() 		    { val_.erase(); } 
+	void 		removeAux(int idx)	{ val_.removeSingle( idx ); }
+	void		eraseAux()		{ val_.erase(); } 
     };
 
 protected:
