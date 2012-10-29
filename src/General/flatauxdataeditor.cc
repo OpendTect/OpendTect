@@ -123,15 +123,15 @@ void AuxDataEditor::removeAuxData( int id )
     if ( idx<0 )
 	return;
 
-    ids_.remove( idx );
-    auxdata_.remove( idx );
+    ids_.removeSingle( idx );
+    auxdata_.removeSingle( idx );
     if ( auxdata_.size() == 0 )
 	seldatasetidx_ = -1;
-    allowadd_.remove( idx );
-    allowmove_.remove( idx );
-    allowremove_.remove( idx );
-    doedit_.remove( idx );
-    allowpolysel_.remove( idx );
+    allowadd_.removeSingle( idx );
+    allowmove_.removeSingle( idx );
+    allowremove_.removeSingle( idx );
+    doedit_.removeSingle( idx );
+    allowpolysel_.removeSingle( idx );
 }
 
 
@@ -313,8 +313,8 @@ void AuxDataEditor::removePolygonSelected( int dataid )
 		if ( ids[idy]==curdataid )
 		{
 		    selptidx_ += idxs[idy];
-		    ids.remove( idy );
-		    idxs.remove( idy );
+		    ids.removeSingle( idy );
+		    idxs.removeSingle( idy );
 		}
 	    }
 
@@ -329,8 +329,8 @@ void AuxDataEditor::removePolygonSelected( int dataid )
 	}
 	else
 	{
-	    ids.remove( 0 );
-	    idxs.remove( 0 );
+	    ids.removeSingle( 0 );
+	    idxs.removeSingle( 0 );
 	}
     }
 }
@@ -458,8 +458,8 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	if ( seldatasetidx_<doedit_.size() && doedit_[seldatasetidx_] )
 	{
 	    const int selidx = selptidx_[0];
-	    auxdata_[seldatasetidx_]->poly_.remove( selidx ); 
-	    auxdata_[seldatasetidx_]->markerstyles_.remove( selidx );
+	    auxdata_[seldatasetidx_]->poly_.removeSingle( selidx ); 
+	    auxdata_[seldatasetidx_]->markerstyles_.removeSingle( selidx );
 	    viewer_.handleChange( Viewer::Annot );
 	}
 
@@ -581,7 +581,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 		polygonsel_[polyidx]->poly_ += pt;
 		if ( polygonsel_[polyidx]->poly_.size()>1 )
 		{
-		    polygonsel_[polyidx]->poly_.remove( 1,
+		    polygonsel_[polyidx]->poly_.removeRange( 1,
 			    polygonsel_[polyidx]->poly_.size()-1 );
 		}
 
@@ -911,8 +911,8 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
     {
 	if ( singleseeded_ )
 	{
-	    eventlist_.remove( idx );
-	    mousecoords_.remove( idx );
+	    eventlist_.removeSingle( idx );
+	    mousecoords_.removeSingle( idx );
 	}
 	else
 	    eventlist_[idx]->setButtonState( (OD::ButtonState) butstate );
@@ -962,7 +962,7 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 	mRehandle( mouseeventhandler_, *eventlist_[idx], Press, Pressed );
 	mRehandle( mouseeventhandler_, *eventlist_[idx], Release, Released );
 
-	bendpoints_.remove( 0 );
+	bendpoints_.removeSingle( 0 );
 
 	count++;
 	if ( !intersowing || count>2 )
