@@ -227,7 +227,7 @@ void Grid2D::createParallelLines( const Line2& baseline, double dist,
     { \
 	dimstr##lines_[idx]->limitTo( cs ); \
 	if ( !dimstr##lines_[idx]->isReasonable() ) \
-	    delete dimstr##lines_.remove( idx-- ); \
+	    delete dimstr##lines_.removeSingle( idx-- ); \
     }
 
 void Grid2D::limitTo( const HorSampling& cs )
