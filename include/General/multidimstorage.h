@@ -499,7 +499,7 @@ void MultiDimStorage<T>::remove( const IDX& indexarr )
 	return;
     }
 
-    onedimstorage_.removeSingle( index*nrvals_, index*nrvals_+nrvals_-1 );
+    onedimstorage_.removeRange( index*nrvals_, index*nrvals_+nrvals_-1 );
     positions_.removeSingle( index );
 }
 
