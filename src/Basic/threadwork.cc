@@ -182,11 +182,11 @@ void Threads::WorkThread::doWork( CallBacker* )
 	    else
 	    {
 		task_ = manager_.workload_[idx];
-		manager_.workload_.remove( idx );
+		manager_.workload_.removeSingle( idx );
 		finishedcb_ = manager_.callbacks_[idx];
-		manager_.callbacks_.remove( idx );
+		manager_.callbacks_.removeSingle( idx );
 		queueid_ = manager_.workqueueid_[idx];
-		manager_.workqueueid_.remove( idx );
+		manager_.workqueueid_.removeSingle( idx );
 	    }
 
 	    manager_.workloadcond_.unLock();
@@ -311,11 +311,11 @@ bool Threads::WorkManager::executeQueue( int queueid )
 	    if ( workqueueid_[idx]==queueid )
 	    {
 		task = workload_[idx];
-		workload_.remove( idx );
+		workload_.removeSingle( idx );
 
 		cb = callbacks_[idx];
-		callbacks_.remove( idx );
-		workqueueid_.remove( idx );
+		callbacks_.removeSingle( idx );
+		workqueueid_.removeSingle( idx );
 		break;
 	    }
 	}
@@ -371,10 +371,10 @@ void Threads::WorkManager::emptyQueue( int queueid, bool finishall )
 	    {
 		::Threads::Work& task = workload_[idx];
 		task.destroy();
-		workload_.remove( idx );
+		workload_.removeSingle( idx );
 		
-		workqueueid_.remove( idx );
-		callbacks_.remove( idx );
+		workqueueid_.removeSingle( idx );
+		callbacks_.removeSingle( idx );
 	    }
 	}
 
@@ -396,10 +396,10 @@ void Threads::WorkManager::removeQueue( int queueid, bool finishall )
     Threads::MutexLocker lock(workloadcond_);
 
     queueidx = queueids_.indexOf( queueid );
-    queueworkload_.remove( queueidx );
-    queuetypes_.remove( queueidx );
-    queueids_.remove( queueidx );
-    queueisclosing_.remove( queueidx );
+    queueworkload_.removeSingle( queueidx );
+    queuetypes_.removeSingle( queueidx );
+    queueids_.removeSingle( queueidx );
+    queueisclosing_.removeSingle( queueidx );
 }
 
 
@@ -465,7 +465,8 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	{
 	    if ( nrfreethreads )
 	    {
-		WorkThread* thread = freethreads_.remove( nrfreethreads-1 );
+		WorkThread* thread =
+		    freethreads_.removeSingle( nrfreethreads-1 );
 		queueworkload_[queueidx]++;
 
 		lock.unLock();
@@ -516,9 +517,9 @@ bool Threads::WorkManager::removeWork( const ::Threads::Work& task )
 
     workload_[idx].destroy();
 
-    workqueueid_.remove( idx );
-    workload_.remove( idx );
-    callbacks_.remove( idx );
+    workqueueid_.removeSingle( idx );
+    workload_.removeSingle( idx );
+    callbacks_.removeSingle( idx );
 
     workloadcond_.unLock();
     return true;
