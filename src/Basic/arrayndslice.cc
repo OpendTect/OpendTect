@@ -81,7 +81,7 @@ bool ArrayNDSliceBase::init()
 	    if ( unkdims.size() )
 	    {
 		vardim_[idx] = unkdims[0];
-		unkdims.remove( 0 );
+		unkdims.removeSingle( 0 );
 	    }
 	    else
 		return false;
