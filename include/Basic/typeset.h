@@ -89,8 +89,13 @@ public:
     virtual void		fillWith(const T&);
 
     inline virtual void		erase();
-    inline virtual void		remove(int,bool preserve_order=true);
-    inline virtual void		remove(od_int64 from,od_int64 to);
+    inline virtual void		remove(int idx,bool preserve_order=true)
+    				{ removeSingle( idx, preserve_order ); }
+    inline virtual void		remove(od_int64 from,od_int64 to)
+				{ removeRange( from, to ); }
+    inline virtual void		removeSingle(int,bool preserver_order=true);
+    inline virtual void		removeRange(od_int64 from,od_int64 to);
+    
     inline virtual void		insert(int,const T&);
 
 				//! 3rd party access
@@ -437,7 +442,7 @@ void TypeSet<T>::erase()
 
 
 template <class T>
-inline void TypeSet<T>::remove( int idx, bool kporder )
+inline void TypeSet<T>::removeSingle( int idx, bool kporder )
 {
     if ( kporder )
 	vec_.remove( idx );
@@ -452,7 +457,7 @@ inline void TypeSet<T>::remove( int idx, bool kporder )
 
 
 template <class T> inline
-void TypeSet<T>::remove( od_int64 i1, od_int64 i2 )
+void TypeSet<T>::removeRange( od_int64 i1, od_int64 i2 )
 { vec_.remove( i1, i2 ); }
 
 
