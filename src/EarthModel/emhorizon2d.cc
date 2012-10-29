@@ -177,7 +177,7 @@ void Horizon2DGeometry::removeLine( const PosInfo::GeomID& geomid )
     if ( lidx < 0 )
 	return;
 
-    geomids_.remove( lidx );
+    geomids_.removeSingle( lidx );
     for ( int idx=sections_.size()-1; idx>=0; idx-- )
     {
 	Geometry::Horizon2DLine* section =
