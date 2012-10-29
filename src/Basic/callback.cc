@@ -100,7 +100,7 @@ void CallBackSet::removeWith( CallBacker* cbrm )
     {
 	CallBack& cb = (*this)[idx];
 	if ( cb.cbObj() == cbrm )
-	    { remove( idx ); idx--; }
+	    { removeSingle( idx ); idx--; }
     }
 }
 
@@ -111,7 +111,7 @@ void CallBackSet::removeWith( CallBackFunction cbfn )
     {
 	CallBack& cb = (*this)[idx];
 	if ( cb.cbFn() == cbfn )
-	    { remove( idx ); idx--; }
+	    { removeSingle( idx ); idx--; }
     }
 }
 
@@ -122,7 +122,7 @@ void CallBackSet::removeWith( StaticCallBackFunction cbfn )
     {
 	CallBack& cb = (*this)[idx];
 	if ( cb.scbFn() == cbfn )
-	    { remove( idx ); idx--; }
+	    { removeSingle( idx ); idx--; }
     }
 }
 
