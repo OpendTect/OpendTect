@@ -68,8 +68,8 @@ void PointBasedMathFunction::remove( int idx )
     if ( idx<0 || idx>=size() )
 	return;
 
-    x_.remove( idx );
-    y_.remove( idx );
+    x_.removeSingle( idx );
+    y_.removeSingle( idx );
 }
 
 
