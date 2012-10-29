@@ -173,11 +173,10 @@ void Time2DepthStretcher::removeVolumeOfInterest( int id )
     if ( idx<0 )
 	return;
 
-    delete voidata_[idx];
-    voidata_.remove( idx );
-    voivols_.remove( idx );
-    voiintime_.remove( idx );
-    voiids_.remove( idx );
+    delete voidata_.removeSingle( idx );
+    voivols_.removeSingle( idx );
+    voiintime_.removeSingle( idx );
+    voiids_.removeSingle( idx );
 }
 
 

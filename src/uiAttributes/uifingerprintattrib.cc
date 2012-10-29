@@ -247,11 +247,11 @@ void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
     if ( row2rm<0 || row2rm >= attribflds_.size() )
 	return;
 
-    attribflds_.remove( row2rm );
+    attribflds_.removeSingle( row2rm );
     setAttrSelName( attribflds_ );
 
     TypeSet<int> weights = calcobj_->getWeights();
-    weights.remove( row2rm );
+    weights.removeSingle( row2rm );
 
     calcobj_->setWeights( weights );
 }

@@ -216,12 +216,12 @@ void uiAttribCrossPlot::attrChecked( CallBacker* )
 	const int selitem = selidxs_.indexOf( attrsfld_->currentItem() );
 	if ( selitem >= 0 )
 	{
-	    selidxs_.remove( selitem );
-	    selids_.remove( selitem );
+	    selidxs_.removeSingle( selitem );
+	    selids_.removeSingle( selitem );
 	    for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
 		lnmfld_->setSelected( lidx, false );
 
-	    linenmsset_.remove( selitem );
+	    linenmsset_.removeSingle( selitem );
 	}
     }
 }

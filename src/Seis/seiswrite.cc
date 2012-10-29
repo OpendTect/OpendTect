@@ -482,7 +482,7 @@ bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
 	    {
 		if ( outputs_[idy]->info().binid==bid )
 		{
-		    trcs += outputs_.remove( idy );
+		    trcs += outputs_.removeSingle( idy );
 		    idy--;
 		}
 		else if ( trcs.size() )
@@ -509,7 +509,7 @@ bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
 	}
 
 	if ( idx>=0 )
-	    announcedtraces_.remove( 0, idx );
+	    announcedtraces_.removeRange( 0, idx );
     }
 
     if ( found )
