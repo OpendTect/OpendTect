@@ -79,7 +79,7 @@ inline void blockElasticModel( ElasticModel& mdl, float threshold )
 	if ( fabs( veldiff ) < velthreshold && fabs( dendiff ) < denthreshold )
 	{
 	    mdl[idx-1].thickness_ += mdl[idx].thickness_;
-	    mdl.remove( idx );
+	    mdl.removeSingle( idx );
 	}
     }
 }
