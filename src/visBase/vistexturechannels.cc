@@ -264,11 +264,11 @@ void ChannelInfo::setNrVersions( int nsz )
 	if ( ownsunmappeddata_[nsz] )
 	    delete unmappeddata_[nsz];
 
-	mappeddata_.remove( nsz );
-	unmappeddata_.remove( nsz );
-	ownsmappeddata_.remove( nsz );
-	ownsunmappeddata_.remove( nsz );
-	delete mappers_.remove( nsz );
+	mappeddata_.removeSingle( nsz );
+	unmappeddata_.removeSingle( nsz );
+	ownsmappeddata_.removeSingle( nsz );
+	ownsunmappeddata_.removeSingle( nsz );
+	delete mappers_.removeSingle( nsz );
     }
 
     const ColTab::MapperSetup* templ = mappers_.size()
@@ -766,7 +766,7 @@ void TextureChannels::setNrComponents( int channel, int newsz )
     while ( osgids.size()>newsz )
     {
 	osgtexture_->removeDataLayer( osgids[newsz] );
-	osgids.remove( newsz );
+	osgids.removeSingle( newsz );
     }
 
     channelinfo_[channel]->setOsgIDs( osgids );
