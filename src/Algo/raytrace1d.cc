@@ -108,7 +108,7 @@ void RayTracer1D::setModel( const ElasticModel& lys )
 	ElasticLayer& lay = model_[idx];
 	if ( (mIsUdf(lay.vel_) && mIsUdf(lay.svel_)) 
 		|| ( mIsUdf(lay.den_) && setup().doreflectivity_ ) )
-	    model_.remove( idx );
+	    model_.removeSingle( idx );
     }
 }
 
