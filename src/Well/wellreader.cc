@@ -232,6 +232,9 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 	}
     }
 
+    wd.info().setKbElev( -1. * wd.track().value(0) );
+    wd.info().setReplVeldz( wd.info().getKbElev() - wd.info().surfaceelev );
+
     return true;
 }
 

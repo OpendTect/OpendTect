@@ -135,8 +135,11 @@ bool DataPlayer::doFullSynthetics()
     gen.addModel( aimodel_ );
     gen.setWavelet( &wvlt, OD::UsePtr );
     gen.setOutSampling( disprg_ );
-    IOPar par; 
-    par.set(RayTracer1D::sKeySRDepth(),data_.dahrg_.start,data_.dahrg_.start);
+    IOPar par;
+    const float sourrecz = data_.wd_->info().getReplVeldz() > 0 ?
+			   data_.wd_->info().surfaceelev :
+			   -1. * data_.wd_->info().getKbElev();
+    par.set(RayTracer1D::sKeySRDepth(),sourrecz,sourrecz);
     gen.usePar( par ); 
     gen.setTaskRunner( data_.trunner_ );
     if ( !gen.doRayTracing() )

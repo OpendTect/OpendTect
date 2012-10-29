@@ -58,12 +58,18 @@ public:
     static const char*	sKeycoord();
     static const char*	sKeyelev();
 
+    float		getKbElev() const;
     float 		getReplVel() const;
     float 		getGroundElev() const;
+    float		getReplVeldz() const;
+    void		setKbElev(float);
     void		setReplVel(float);
     void		setGroundElev(float);
+    void		setReplVeldz(float);
+    inline FixedString	getsKeykbelev() { return "Reference datum elevation"; }
     inline FixedString	getsKeyreplvel() { return "Replacement velocity"; }
     inline FixedString	getsKeygroundelev() { return "Ground level elevation"; }
+    inline FixedString	getsKeyreplveldz() { return "Replacement velocity dz"; }
 
 };
 

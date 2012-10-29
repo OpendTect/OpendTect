@@ -34,8 +34,10 @@ const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
 const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
 const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
 
+HiddenParam<Well::Info,float> wellinfokbelevmanager( mUdf(float) );
 HiddenParam<Well::Info,float> wellinforeplvelmanager( mUdf(float) );
 HiddenParam<Well::Info,float> wellinfogroundelevmanager( mUdf(float) );
+HiddenParam<Well::Info,float> wellinforeplveldzmanager( mUdf(float) );
 
 
 int Well::DahObj::indexOf( float dh ) const
@@ -954,7 +956,7 @@ Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 
 
 float Well::D2TModel::getTime( float dh ) const
-{ return mUdf(float); }
+{ return TimeDepthModel::getTime( dah_.arr(), t_.arr(), size(), dh ); }
 
 
 float Well::D2TModel::getTime( float dh, const Track& track ) const
@@ -990,6 +992,12 @@ float Well::D2TModel::getVelocity( float dh ) const
 
 #define mName "Well name"
 
+float Well::Info::getKbElev() const
+{
+    return wellinfokbelevmanager.getParam( this );
+}
+
+
 float Well::Info::getReplVel() const
 {
     return wellinforeplvelmanager.getParam( this );
@@ -1008,9 +1016,27 @@ float Well::Info::getGroundElev() const
 }
 
 
+float Well::Info::getReplVeldz() const
+{
+    return wellinforeplveldzmanager.getParam( this );
+}
+
+
+void Well::Info::setKbElev(float kbelev)
+{
+    wellinfokbelevmanager.setParam(this, kbelev);
+}
+
+
 void Well::Info::setGroundElev(float groundelev)
 {
-    wellinfogroundelevmanager.setParam( this, groundelev );
+    wellinfogroundelevmanager.setParam(this, groundelev );
+}
+
+
+void Well::Info::setReplVeldz(float replveldz)
+{
+    wellinforeplveldzmanager.setParam(this, replveldz);
 }
 
 
@@ -1026,9 +1052,11 @@ void Well::Info::fillPar(IOPar& par) const
     surfacecoord.fill( coord.buf() );
     par.set( sKeycoord(), coord );
 
+    par.set( "Reference datum elevation", getKbElev() );
     par.set( sKeyelev(), surfaceelev );
     par.set( "Replacement velocity", getReplVel() );
     par.set( "Ground level elevation", getGroundElev() );
+    par.set( "Replacement velocity dz", getReplVeldz() );
 }
 
 void Well::Info::usePar(const IOPar& par)
@@ -1043,12 +1071,22 @@ void Well::Info::usePar(const IOPar& par)
     par.get( sKeycoord(), coord );
     surfacecoord.use( coord );
 
+    float tmpkbelev;
+    par.get( "Reference datum elevation", tmpkbelev );
+    setKbElev(tmpkbelev);
+
     par.get( sKeyelev(), surfaceelev );
+
     float tmpreplvel;
     par.get( "Replacement velocity", tmpreplvel );
     setReplVel(tmpreplvel);
+
     float tmpgroundelev;
     par.get( "Ground level elevation", tmpgroundelev );
     setGroundElev(tmpgroundelev);
+
+    float tmpreplveldz;
+    par.get( "Replacement velocity dz", tmpreplveldz );
+    setReplVeldz(tmpreplveldz);
 }
 
