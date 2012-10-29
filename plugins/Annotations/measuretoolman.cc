@@ -170,9 +170,8 @@ void MeasureToolMan::sceneClosed( CallBacker* cb )
 	return;
 
     appl_.applMgr().visServer()->removeObject( displayobjs_[sceneidx], sceneid);
-    displayobjs_[sceneidx]->unRef();
-    displayobjs_.remove( sceneidx );
-    sceneids_.remove( sceneidx );
+    displayobjs_.removeSingle( sceneidx )->unRef();
+    sceneids_.removeSingle( sceneidx );
 }
 
 
