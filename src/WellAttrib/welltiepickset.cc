@@ -64,7 +64,7 @@ void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
 	const int sz = pickset.size();
 	if ( (issynth && (abs(sz+1-seissz) > 1 || lastpicksynth_))
 		|| (!issynth && (abs(sz+1-synthsz) > 1 || !lastpicksynth_)) )
-	    pickset.remove( sz -1 );
+	    pickset.removeSingle( sz -1 );
 	Marker m( trc ? findEvent( *trc, zpos ) : zpos );
 	m.color_ = Color::DgbColor();
 	pickset += m;
@@ -116,14 +116,14 @@ void PickSetMgr::clearLastPicks()
     if ( isSynthSeisSameSize() )
     {
 	if ( lastpicksynth_ )
-	    synthpickset_.remove( synthpickset_.size()-1 );
+	    synthpickset_.removeSingle( synthpickset_.size()-1 );
 	else
-	    seispickset_.remove( seispickset_.size()-1 );
+	    seispickset_.removeSingle( seispickset_.size()-1 );
     }
     else if ( seispickset_.size() > synthpickset_.size() )
-	seispickset_.remove( seispickset_.size()-1 );
+	seispickset_.removeSingle( seispickset_.size()-1 );
     else if ( seispickset_.size() < synthpickset_.size() )
-	synthpickset_.remove( synthpickset_.size()-1 );
+	synthpickset_.removeSingle( synthpickset_.size()-1 );
     lastpicksynth_ = !lastpicksynth_;
 }
 
