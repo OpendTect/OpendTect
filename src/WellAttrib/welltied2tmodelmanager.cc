@@ -68,7 +68,7 @@ Well::D2TModel* D2TModelMgr::d2T()
     for ( int idx=1; idx<d2tm->size(); idx++ )\
     {\
 	if ( mIsZero(d2tm->value(idx)-d2tm->value(idx-1),1e-8) )\
-	    d2tm->remove( idx-1 );\
+	    d2tm->removeSingle( idx-1 );\
     }
 void D2TModelMgr::shiftModel( float shift)
 {
