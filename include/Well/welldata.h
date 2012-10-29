@@ -53,18 +53,22 @@ public:
     BufferString	county;
 
     Coord		surfacecoord;
+    float		kbelev;
     float		surfaceelev;
     float		replvel;
     float		groundelev;
+    float		replveldz;
 
     static const char*	sKeyuwid();
     static const char*	sKeyoper();
     static const char*	sKeystate();
     static const char*	sKeycounty();
     static const char*	sKeycoord();
+    static const char*	sKeykbelev();
     static const char*	sKeyelev();
     static const char*  sKeyreplvel();
     static const char*  sKeygroundelev();
+    static const char*	sKeyreplveldz();
 
 };
 
