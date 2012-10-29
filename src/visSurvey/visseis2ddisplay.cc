@@ -695,10 +695,10 @@ void Seis2DDisplay::addCache()
 void Seis2DDisplay::removeCache( int attrib )
 {
     if ( cache_[attrib] ) cache_[attrib]->unRef();
-    cache_.remove( attrib );
+    cache_.removeSingle( attrib );
 
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
-    datapackids_.remove( attrib );
+    datapackids_.removeSingle( attrib );
 }
 
 
