@@ -154,13 +154,13 @@ void TextureInfo::setNrVersions( int nsz )
 	delete versionhistogram_[nsz];
 	versioncoltab_[nsz]->unRef();
 
-	versionindexdata_.remove(nsz);
-	versionfloatdata_.remove(nsz);
-	ownsfloatdata_.remove(nsz);
-	hastrans_.remove(nsz);
-	ownsindexdata_.remove(nsz);
-	versionhistogram_.remove(nsz);
-	versioncoltab_.remove(nsz);
+	versionindexdata_.removeSingle(nsz);
+	versionfloatdata_.removeSingle(nsz);
+	ownsfloatdata_.removeSingle(nsz);
+	hastrans_.removeSingle(nsz);
+	ownsindexdata_.removeSingle(nsz);
+	versionhistogram_.removeSingle(nsz);
+	versioncoltab_.removeSingle(nsz);
     }
 
     while ( versionindexdata_.size()<nsz )
@@ -606,8 +606,7 @@ void MultiTexture::removeTexture( int idx )
     if ( idx<0 || idx>=textureinfo_.size() )
 	return;
 
-    delete textureinfo_[idx];
-    textureinfo_.remove(idx);
+    delete textureinfo_.removeSingle(idx);
     removeTextureInternal( idx );
 }
 

@@ -171,8 +171,8 @@ bool FunctionSource::unRefFunction( const Function* func )
 
 	if ( remove )
 	{
-	    refcounts_.remove( idx );
-	    functions_.remove( idx );
+	    refcounts_.removeSingle( idx );
+	    functions_.removeSingle( idx );
 	}
     }
 

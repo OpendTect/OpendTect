@@ -66,7 +66,7 @@ void SelectionManager::deSelect( int id, bool lock )
     int idx = selectedids.indexOf( id );
     if ( idx!=-1 )
     {
-	selectedids.remove( idx );
+	selectedids.removeSingle( idx );
 
 	DataObject* dataobj = DM().getObject( id );
 	if ( dataobj )

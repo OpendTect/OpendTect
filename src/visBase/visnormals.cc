@@ -241,7 +241,7 @@ int  Normals::getFreeIdx()
     if ( unusednormals_.size() )
     {
 	const int res = unusednormals_[unusednormals_.size()-1];
-	unusednormals_.remove(unusednormals_.size()-1);
+	unusednormals_.removeSingle(unusednormals_.size()-1);
 	return res;
     }
 

@@ -130,7 +130,7 @@ int DataManager::usePar( const IOPar& par )
 		PtrMan<IOPar> iopar = par.subselect( lefttodo[idx] );
 		if ( !iopar )
 		{
-		    lefttodo.remove( idx );
+		    lefttodo.removeSingle( idx );
 		    idx--;
 		    change = true;
 		    continue;
@@ -138,7 +138,7 @@ int DataManager::usePar( const IOPar& par )
 
 		const char* type = iopar->find( sKey::Type() );
 		RefMan<DataObject> obj = factory().create( type );
-		if ( !obj ) { lefttodo.remove(idx); idx--; continue; }
+		if ( !obj ) { lefttodo.removeSingle(idx); idx--; continue; }
 
 		obj->setID( lefttodo[idx] );
 		const int res = obj->usePar( *iopar );
@@ -158,7 +158,7 @@ int DataManager::usePar( const IOPar& par )
 			    BufferString( toString( lefttodo[idx]), ": ", type);
 		    }
 		    warnings.add( errmsg );
-		    lefttodo.remove(idx);
+		    lefttodo.removeSingle(idx);
 		    idx--;
 		    continue;
 		}
@@ -169,7 +169,7 @@ int DataManager::usePar( const IOPar& par )
 		    createdobj += obj;
 		    obj->ref();
 
-		    lefttodo.remove( idx );
+		    lefttodo.removeSingle( idx );
 		    idx--;
 		    change = true;
 		}

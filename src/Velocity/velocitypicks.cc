@@ -719,9 +719,9 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 
 	if ( mIsUdf(vel) )
 	{
-	    vels.remove(idx);
-	    picks.remove(idx);
-	    bids.remove(idx);
+	    vels.removeSingle(idx);
+	    picks.removeSingle(idx);
+	    bids.removeSingle(idx);
 	    continue;
 	}
 

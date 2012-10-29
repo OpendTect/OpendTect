@@ -315,8 +315,8 @@ void ColTabTextureChannel2RGBA::updateOsgTexture() const
 	    {
 		const osgGeo::ColorSequence* colseq = proc->getColorSequence();
 		const int colseqidx = osgcolsequences_.indexOf( colseq );
-		delete osgcolsequences_.remove( colseqidx );
-		delete osgcolseqarrays_.remove( colseqidx );
+		delete osgcolsequences_.removeSingle( colseqidx );
+		delete osgcolseqarrays_.removeSingle( colseqidx );
 		laytex.removeProcess( proc );
 	    }
 	    else
@@ -351,7 +351,7 @@ void ColTabTextureChannel2RGBA::updateOsgTexture() const
 		    proc->setNewUndefColor( newudfcol/255.0 );
 		}
 		else
-		    layerids.remove( procidx );
+		    layerids.removeSingle( procidx );
 
 		for ( int idx=procidx; idx>channel; idx-- )
 		{
@@ -380,9 +380,9 @@ void ColTabTextureChannel2RGBA::adjustNrChannels() const
 
     while ( coltabs_.size()>nr )
     {
-	delete coltabs_.remove( nr );
-	enabled_.remove( nr );
-	opacity_.remove( nr );
+	delete coltabs_.removeSingle( nr );
+	enabled_.removeSingle( nr );
+	opacity_.removeSingle( nr );
     }
 
     updateOsgTexture();
@@ -417,9 +417,9 @@ void ColTabTextureChannel2RGBA::notifyChannelRemove( int ch )
     if ( ch<0 && ch>=coltabs_.size() )
 	return;
 
-    delete coltabs_.remove( ch );
-    enabled_.remove( ch );
-    opacity_.remove( ch );
+    delete coltabs_.removeSingle( ch );
+    enabled_.removeSingle( ch );
+    opacity_.removeSingle( ch );
 
     update();
 }
@@ -573,7 +573,7 @@ bool ColTabTextureChannel2RGBA::createRGBA( SbImagei32& res ) const
 
     conv->processChannels( channels_->getChannels(), channels_->nrChannels() );
 
-    od_int64 nrpixels;    
+    od_int64 nrpixels = -1;    
     for ( int rgba=0; rgba<4; rgba++ )
     {
 	const SbImagei32& image = conv->getRGBA( rgba );
