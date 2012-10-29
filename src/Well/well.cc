@@ -404,7 +404,7 @@ void Well::Log::removeTopBottomUdfs()
     {
 	if ( !mIsUdf(val_[idx]) )
 	    break;
-	dah_.remove( idx ); val_.remove( idx );
+	dah_.removeSingle( idx ); val_.removeSingle( idx );
     }
 
     if ( defrg.start == 0 )
