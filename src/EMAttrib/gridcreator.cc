@@ -185,15 +185,6 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	    inlines += str.getIValue(idx);
     }
 
-    FixedString inlstr = par.find( sKeyInlPrefix() );
-    for ( int idx=0; idx<inlines.size(); idx++ )
-    {
-	CubeSampling cs = bbox;
-	cs.hrg.start.inl = cs.hrg.stop.inl = inlines[idx];
-	LineKey lk( BufferString(inlstr.str(),inlines[idx]), attribname );
-	add( new Seis2DLineCreator(input,cs,output,lk) );
-    }
-
     TypeSet<int> crosslines;
     par.get( Seis2DGridCreator::sKeyCrlSelType(), mode );
     if ( mode == sKey::Range )
@@ -210,12 +201,27 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	    crosslines += str.getIValue(idx);
     }
 
-    FixedString crlstr = par.find( sKeyCrlPrefix() );
-    for ( int idx=0; idx<crosslines.size(); idx++ )
+    Grid2D grid;
+    grid.set( inlines, crosslines, bbox.hrg );
+    FixedString inlstr = par.find( sKeyInlPrefix() );
+    for ( int idx=0; idx<grid.size(true); idx++ )
     {
 	CubeSampling cs = bbox;
-	cs.hrg.start.crl = cs.hrg.stop.crl = crosslines[idx];
-	LineKey lk( BufferString(crlstr.str(),crosslines[idx]), attribname );
+	const Grid2D::Line* line = grid.getLine( idx, true );
+	cs.hrg.start = line->start_;
+	cs.hrg.stop = line->stop_;
+	LineKey lk( BufferString(inlstr.str(),line->start_.inl), attribname );
+	add( new Seis2DLineCreator(input,cs,output,lk) );
+    }
+
+    FixedString crlstr = par.find( sKeyCrlPrefix() );
+    for ( int idx=0; idx<grid.size(false); idx++ )
+    {
+	CubeSampling cs = bbox;
+	const Grid2D::Line* line = grid.getLine( idx, false );
+	cs.hrg.start = line->start_;
+	cs.hrg.stop = line->stop_;
+	LineKey lk( BufferString(crlstr.str(),line->start_.crl), attribname );
 	add( new Seis2DLineCreator(input,cs,output,lk) );
     }
 

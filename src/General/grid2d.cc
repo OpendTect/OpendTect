@@ -91,14 +91,16 @@ void Grid2D::set( const TypeSet<int>& inls, const TypeSet<int>& crls,
     {
 	const BinID start( inls[idx], hs.start.crl );
 	const BinID stop( inls[idx], hs.stop.crl );
-	dim0lines_ += new Grid2D::Line( start, stop );
+	if ( start != stop )
+	    dim0lines_ += new Grid2D::Line( start, stop );
     }
 
     for ( int idx=0; idx<crls.size(); idx++ )
     {
 	const BinID start( hs.start.inl, crls[idx] );
 	const BinID stop( hs.stop.inl, crls[idx] );
-	dim1lines_ += new Grid2D::Line( start, stop );
+	if ( start != stop )
+	    dim1lines_ += new Grid2D::Line( start, stop );
     }
 }
 
