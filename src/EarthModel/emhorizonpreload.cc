@@ -138,8 +138,8 @@ void HorizonPreLoader::unload( const BufferStringSet& hornames )
 	if ( emobj )
 	    emobj->unRef();
 
-	loadedmids_.remove( selidx );
-	loadednms_.remove( selidx );
+	loadedmids_.removeSingle( selidx );
+	loadednms_.removeSingle( selidx );
     }
 }
 
