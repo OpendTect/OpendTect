@@ -122,7 +122,7 @@ void TopList<VT,AVT>::addValue( VT val, AVT aval )
 	values_.insert( pos, std::pair<VT,AVT>(val,aval) );
 
 	if ( mysize==maxsize_ )
-	    values_.remove(mysize);
+	    values_.removeSingle(mysize);
     }
 }
 #endif
