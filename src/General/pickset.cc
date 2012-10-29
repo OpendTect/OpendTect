@@ -297,12 +297,12 @@ void Pick::SetMgr::set( const MultiID& ky, Set* newset )
     {
 	const int idx = pss_.indexOf( oldset );
 	//Must be removed from list before trigger, otherwise
-	//other users may remove it in calls invoded by the cb.
-	pss_.remove( idx ); 
+	//other users may remove it in calls invoked by the cb.
+	pss_.removeSingle( idx ); 
 	setToBeRemoved.trigger( oldset );
 	delete oldset; 
-	ids_.remove( idx );
-	changed_.remove( idx );
+	ids_.removeSingle( idx );
+	changed_.removeSingle( idx );
 	if ( newset )
 	    add( ky, newset );
     }
