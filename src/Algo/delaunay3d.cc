@@ -1024,9 +1024,9 @@ void DAGTetrahedraTree::legalizeTetrahedras( TypeSet<int>& v0s,
 	const int ti = tis[start];
 	if ( start>10000 )
 	{
-	    v0s.remove( 0, start );
-	    v1s.remove( 0, start );
-	    tis.remove( 0, start );
+	    v0s.removeRange( 0, start );
+	    v1s.removeRange( 0, start );
+	    tis.removeRange( 0, start );
 	    start = 0;
 	}
 	else 
