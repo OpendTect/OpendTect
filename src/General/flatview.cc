@@ -546,7 +546,7 @@ void FlatView::Viewer::removePack( DataPack::ID id )
 
     // Construction necessary because the release could trigger a new removePack
     const bool obs = obs_[idx];
-    ids_.remove( idx ); obs_.remove( idx );
+    ids_.removeSingle( idx ); obs_.removeSingle( idx );
     if ( !obs )
 	dpm_.release( id );
 }
