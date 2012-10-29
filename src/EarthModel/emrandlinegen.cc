@@ -237,11 +237,11 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 		continue;
 	    }
 	    basecoords += fusioncrds[0];
-	    dirflips.remove( 0 );
-	    fusioncrds.remove( 0 );
+	    dirflips.removeSingle( 0 );
+	    fusioncrds.removeSingle( 0 );
 	}
 
-	basecoords.remove( 0, nrbasecoords-1 );
+	basecoords.removeRange( 0, nrbasecoords-1 );
 	delete outrl;
     }
 }
