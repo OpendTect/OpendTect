@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 class IOXProducer : public IOObjProducer
 {
     bool	canMake( const char* typ ) const
-		{ return !strcmp(typ,XConn::sType()); }
+		{ return FixedString(typ)==XConn::sType(); }
     IOObj*	make( const char* nm, const MultiID& ky, bool fd ) const
 		{ return new IOX(nm,ky,fd); }
 };
