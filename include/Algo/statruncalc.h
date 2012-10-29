@@ -639,8 +639,8 @@ RunCalc<T>& RunCalc<T>::removeValue( T val, T wt )
 	    if ( idx < 0 ) break;
 	    if ( medwts_[idx] == wt )
 	    {
-		medvals_.remove( idx );
-		medwts_.remove( idx );
+		medvals_.removeSingle( idx );
+		medwts_.removeSingle( idx );
 		break;
 	    }
 	}
@@ -659,8 +659,8 @@ RunCalc<T>& RunCalc<T>::removeValue( T val, T wt )
 	    clsswt_[setidx] -= wt;
 	    if ( clsswt_[setidx] <= 0 )
 	    {
-		clss_.remove( setidx );
-		clsswt_.remove( setidx );
+		clss_.removeSingle( setidx );
+		clsswt_.removeSingle( setidx );
 	    }
 	}
     }
