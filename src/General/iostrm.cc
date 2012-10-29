@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 class IOStreamProducer : public IOObjProducer
 {
     bool	canMake( const char* typ ) const
-		{ return !strcmp(typ,StreamConn::sType()); }
+		{ return FixedString(typ)==StreamConn::sType(); }
     IOObj*	make( const char* nm, const MultiID& ky, bool fd ) const
 		{ return new IOStream(nm,ky,fd); }
 };
@@ -256,18 +256,18 @@ void IOStream::setFileName( const char* str )
 
 bool IOStream::getFrom( ascistream& stream )
 {
-    const char* kw = stream.keyWord() + 1;
-    if ( !strcmp(kw,"Hostname") )
+    FixedString kw = stream.keyWord() + 1;
+    if ( kw=="Hostname" )
     {
 	hostname = stream.value();
 	stream.next();
     }
-    if ( !strcmp(kw,"Extension") )
+    if ( kw=="Extension" )
     {
 	extension = stream.value();
 	stream.next();
     }
-    if ( !strcmp(kw,"Multi") )
+    if ( kw=="Multi" )
     {
 	FileMultiString fms( stream.value() );
 	fnrs.start = toInt(fms[0]);
@@ -282,9 +282,9 @@ bool IOStream::getFrom( ascistream& stream )
     }
 
     fname = stream.value();
-    if ( !strcmp(kw,"Name") )
+    if ( kw=="Name" )
 	iscomm = false;
-    else if ( !strcmp(kw,"Reader") )
+    else if ( kw=="Reader" )
     {
 	iscomm = true;
 	stream.next();
