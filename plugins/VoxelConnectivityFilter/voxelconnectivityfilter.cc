@@ -293,8 +293,8 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	    const od_int64 curpos = queue[last];
 	    const int curbodyid = queuebodyids[last];
 
-	    queue.remove( last );
-	    queuebodyids.remove( last );
+	    queue.removeSingle( last );
+	    queuebodyids.removeSingle( last );
 
 	    if ( statusarr_[curpos]!=curbodyid )
 	    {
