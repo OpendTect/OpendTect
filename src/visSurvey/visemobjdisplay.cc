@@ -307,7 +307,7 @@ bool EMObjectDisplay::updateFromEM( TaskRunner* tr )
     while ( parposattrshown_.size() )
     {
 	showPosAttrib( parposattrshown_[0], true );
-	parposattrshown_.remove(0);
+	parposattrshown_.removeSingle(0);
     }
 
     hasmoved.trigger();
@@ -359,8 +359,7 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn )
     {
 	posattribs_ -= attr;
 	removeChild(posattribmarkers_[attribindex]->getInventorNode());
-	posattribmarkers_[attribindex]->unRef();
-	posattribmarkers_.remove(attribindex);
+	posattribmarkers_.removeSingle(attribindex)->unRef();
     }
 }
 
