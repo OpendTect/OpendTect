@@ -161,8 +161,8 @@ DataInpSpec& DataInpSpec::setName( const char* nm, int idx )
     const int nmidx = nameidxs_.indexOf( idx );
     if ( nmidx>=0 )
     {
-	nameidxs_.remove( nmidx );
-	names_.remove( nmidx );
+	nameidxs_.removeSingle( nmidx );
+	names_.removeSingle( nmidx );
     }
 
     nameidxs_ += idx; names_.add( nm );
