@@ -539,8 +539,8 @@ void Desc::addInput( const InputSpec& is )
 
 bool Desc::removeInput( int idx )
 {
-    inputspecs_.remove(idx);
-    inputs_.remove(idx);
+    inputspecs_.removeSingle(idx);
+    inputs_.removeSingle(idx);
     return true;
 }
 
