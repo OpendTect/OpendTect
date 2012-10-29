@@ -201,8 +201,8 @@ bool CubicBezierCurve::removePosition( GeomPosID param )
     if ( idx==0 || idx==positions.size()-1 )
 	return unsetPosition(param);
 
-    positions.remove( idx );
-    directions.remove( idx );
+    positions.removeSingle( idx );
+    directions.removeSingle( idx );
 
     TypeSet<GeomPosID> changedpids;
     for ( int idy=idx; idy<positions.size(); idy ++ )
@@ -225,8 +225,8 @@ bool CubicBezierCurve::unsetPosition( GeomPosID param )
     if ( !idx || idx==positions.size()-1)
     {
 	if ( !idx ) firstparam += paramstep;
-	positions.remove(idx);
-	directions.remove(idx);
+	positions.removeSingle(idx);
+	directions.removeSingle(idx);
 	triggerNrPosCh( param );
 	return true;
     }
