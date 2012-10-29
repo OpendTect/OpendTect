@@ -280,7 +280,7 @@ void ColTab::Sequence::removeColor( int idx )
 {
     if ( idx>0 && idx<size()-1 )
     {
-	x_.remove( idx ); r_.remove( idx ); g_.remove( idx ); b_.remove( idx );
+	x_.removeSingle( idx ); r_.removeSingle( idx ); g_.removeSingle( idx ); b_.removeSingle( idx );
 	colorChanged.trigger();
     }
 }
@@ -323,7 +323,7 @@ void ColTab::Sequence::removeTransparencies()
 
 void ColTab::Sequence::removeTransparencyAt( int idx )
 {
-    tr_.remove( idx );
+    tr_.removeSingle( idx );
     transparencyChanged.trigger();
 }
 
@@ -640,7 +640,7 @@ void ColTab::SeqMgr::set( const ColTab::Sequence& seq )
 void ColTab::SeqMgr::remove( int idx )
 {
     if ( idx < 0 || idx > size() ) return;
-    ColTab::Sequence* seq = seqs_.remove( idx );
+    ColTab::Sequence* seq = seqs_.removeSingle( idx );
     seqRemoved.trigger();
     delete seq;
 }
