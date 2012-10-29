@@ -465,8 +465,8 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 	if ( objid >= 0 )
 	    scene->removeObject( objid );
 
-	displayinfo.sceneids_.remove( index );
-	displayinfo.visids_.remove( index );
+	displayinfo.sceneids_.removeSingle( index );
+	displayinfo.visids_.removeSingle( index );
     }
 
     for ( int idy=0; idy<scenestoadd.size(); idy++ )
@@ -546,8 +546,8 @@ void uiVisDataPointSetDisplayMgr::removeDisplay( DispID id )
 			       displayinfo.sceneids_[idy] );
     }
 
-    ids_.remove( idx );
-    delete displayinfos_.remove( idx );
+    ids_.removeSingle( idx );
+    delete displayinfos_.removeSingle( idx );
 }
 
 

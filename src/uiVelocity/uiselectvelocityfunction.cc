@@ -140,8 +140,8 @@ void uiFunctionSel::removePushedCB(CallBacker*)
 
     if ( sel<0 ) return;
 
-    velsources_.remove(sel)->unRef();
-    if ( colorfld_ ) colors_.remove( sel );
+    velsources_.removeSingle(sel)->unRef();
+    if ( colorfld_ ) colors_.removeSingle( sel );
     updateList();
     listChange.trigger();
 }

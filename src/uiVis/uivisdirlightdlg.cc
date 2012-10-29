@@ -289,7 +289,7 @@ void uiDirLightDlg::updateInitInfo()
 		    initinfo_[idx].directlighton_ );
 	}
 
-	initinfo_.remove( idx );
+	initinfo_.removeSingle( idx );
     }    
     
     // append new info for scene(s) added

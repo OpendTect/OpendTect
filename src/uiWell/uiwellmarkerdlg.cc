@@ -122,7 +122,7 @@ int uiMarkerDlg::getNrRows() const
 void uiMarkerDlg::markerRemovedCB( CallBacker* )
 {
     const int currow = table_->currentRow();
-    depths_.remove( currow<0 ? table_->nrRows() : currow );
+    depths_.removeSingle( currow<0 ? table_->nrRows() : currow );
 }
 
 

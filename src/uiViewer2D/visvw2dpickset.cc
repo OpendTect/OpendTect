@@ -111,10 +111,10 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	    continue;
         
 	const int pickidx = picksetidxs_[locidx];
-	picksetidxs_.remove( locidx );
+	picksetidxs_.removeSingle( locidx );
 	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
 				     pickset_, pickidx );
-	pickset_->remove( pickidx );
+	pickset_->removeSingle( pickidx );
 	Pick::Mgr().reportChange( 0, cd );
     }
     

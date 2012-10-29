@@ -186,7 +186,7 @@ void uiWellMan::fillLogsFld()
 	BufferStringSet alllognms;
 	while ( !lognms.isEmpty() )
 	{
-	    BufferString lognm = *lognms.remove(0);
+	    BufferString lognm = *lognms.removeSingle(0);
 	    bool ispresent = true;
 	    for ( int idx=0; idx<currdrs_.size(); idx++ )
 	    {
@@ -337,7 +337,7 @@ void uiWellMan::logTools( CallBacker* )
 #define mDeleteLogs(idx) \
     if ( !curwds_.validIdx( idx ) ) return;\
     while ( curwds_[idx]->logs().size() ) \
-        delete curwds_[idx]->logs().remove(0);
+        delete curwds_[idx]->logs().removeSingle(0);
 
 void uiWellMan::importLogs( CallBacker* )
 {
