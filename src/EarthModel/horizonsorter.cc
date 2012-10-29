@@ -126,13 +126,13 @@ void HorizonSorter::sort()
 		if ( nrbelow > nrabove )
 		{
 		    MultiID mid = sortedids_[idx0];
-		    sortedids_.remove( idx0 );
+		    sortedids_.removeSingle( idx0 );
 		    sortedids_.insert( idx1, mid );
 		}
 		else if ( nrbelow < nrabove )
 		{
 		    MultiID mid = sortedids_[idx1];
-		    sortedids_.remove( idx1 );
+		    sortedids_.removeSingle( idx1 );
 		    sortedids_.insert( idx0, mid );
 		}
 		else
