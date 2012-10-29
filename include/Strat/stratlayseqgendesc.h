@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "multiid.h"
 #include "propertyref.h"
-class IOPar;
+#include "iopar.h"
 
 namespace Strat
 {
@@ -65,6 +65,10 @@ protected:
     MultiID			elasticpropselmid_;
 
     mutable BufferString	errmsg_;
+    static const char*		sKeyWorkBenchParams();
+
+public:
+    IOPar*			getWorkBenchParams();
 
 };
 

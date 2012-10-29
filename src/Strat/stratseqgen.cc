@@ -16,7 +16,7 @@ static const char* rcsID = "$Id$";
 #include "ascstream.h"
 #include "keystrs.h"
 #include "ptrman.h"
-#include "iopar.h"
+#include "hiddenparam.h"
 
 
 #define mFileType "Layer Sequence Generator Description"
@@ -28,6 +28,10 @@ static const char* sKeyElasticPropSelID = "Elastic Property Selection";
 mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
 mDefSimpleTranslators(StratLayerSequenceGenDesc,mFileType,od,Mdl);
 
+HiddenParam<Strat::LayerSequenceGenDesc,IOPar*>    wbmparsmanager( 0 );
+
+const char* Strat::LayerSequenceGenDesc::sKeyWorkBenchParams()
+{ return "Workbench parameters"; }
 
 Strat::LayerModelGenerator::LayerModelGenerator(
 		const Strat::LayerSequenceGenDesc& desc, Strat::LayerModel& lm,
@@ -111,6 +115,8 @@ Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
 
 Strat::LayerSequenceGenDesc::~LayerSequenceGenDesc()
 {
+    delete wbmparsmanager.getParam(this);
+    wbmparsmanager.removeParam(this);
     deepErase( *this );
 }
 
@@ -125,6 +131,13 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
 
     IOPar iop; iop.getFrom(astrm);
     iop.get( sKeyElasticPropSelID, elasticpropselmid_ );
+
+    IOPar* workbenchpars = iop.subselect( sKeyWorkBenchParams() );
+    if ( workbenchpars )
+    {
+	delete wbmparsmanager.getParam(this);
+	wbmparsmanager.setParam( this, workbenchpars );
+    }
 
     while ( !atEndOfSection(astrm.next()) )
     {
@@ -155,6 +168,7 @@ bool Strat::LayerSequenceGenDesc::putTo( std::ostream& strm ) const
 	{ errmsg_ = "Cannot write file header"; return false; }
 
     IOPar iop; iop.set( sKeyElasticPropSelID, elasticpropselmid_ );
+    iop.mergeComp( *wbmparsmanager.getParam( this ), sKeyWorkBenchParams() );
     iop.putTo( astrm );
 
     for ( int idx=0; idx<size(); idx++ )
@@ -291,6 +305,12 @@ int Strat::LayerSequenceGenDesc::indexFromUserIdentification(
     }
 
     return -1;
+}
+
+
+IOPar* Strat::LayerSequenceGenDesc::getWorkBenchParams()
+{
+    return wbmparsmanager.getParam( this );
 }
 
 

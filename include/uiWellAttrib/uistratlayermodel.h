@@ -122,6 +122,14 @@ public:
 //Utility
     SyntheticData*		getCurrentSyntheticData() const;
 
+    // CallBacker: CBCapsule<IOPar>
+    Notifier<uiStratLayerModel>* saveRequiredNotif();
+    Notifier<uiStratLayerModel>* retrieveRequiredNotif();
+
+protected:
+    void			fillDisplayPars(IOPar&) const;
+    void			fillWorkBenchPars(IOPar&) const;
+    bool			useDisplayPars(const IOPar&);
 };
 
 

@@ -43,7 +43,11 @@ protected:
     void	saveCB(CallBacker*)	{ saveReq.trigger(); }
     void	propEdCB(CallBacker*)	{ propEdReq.trigger(); }
     void	genCB(CallBacker*)	{ genReq.trigger(); }
+    static const char*		sKeyNrModels();
 
+public:
+    void	fillPar(IOPar&) const;
+    bool	usePar(const IOPar&);
 };
 
 
@@ -106,6 +110,17 @@ protected:
     void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }
     void	showFlatCB( CallBacker* )	{ flattenChg.trigger(); }
 
+    static const char*		sKeyDisplayedProp();
+    static const char*		sKeyDecimation();
+    static const char*		sKeySelectedLevel();
+    static const char*		sKeySelectedContent();
+    static const char*		sKeyZoomToggle();
+    static const char*		sKeyDispLith();
+    static const char*		sKeyShowFlattened();
+
+public:
+    void	fillPar(IOPar&) const;
+    bool	usePar(const IOPar&);
 };
 
 

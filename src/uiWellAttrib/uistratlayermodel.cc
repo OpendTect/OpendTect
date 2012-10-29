@@ -49,8 +49,27 @@ static const char* rcsID = "$Id$";
 #include "uitaskrunner.h"
 #include "uitoolbutton.h"
 #include "uichecklist.h"
+#include "hiddenparam.h"
 
 mDefineInstanceCreatedNotifierAccess(uiStratLayerModel)
+
+HiddenParam<uiStratLayerModel,Notifier<uiStratLayerModel>* > 
+				savenotifmanager( 0 );
+
+HiddenParam<uiStratLayerModel,Notifier<uiStratLayerModel>* > 
+				retrievenotifmanager( 0 );
+
+
+Notifier<uiStratLayerModel>* uiStratLayerModel::saveRequiredNotif()
+{
+    return savenotifmanager.getParam(this);
+}
+
+
+Notifier<uiStratLayerModel>* uiStratLayerModel::retrieveRequiredNotif()
+{
+    return retrievenotifmanager.getParam(this);
+}
 
 
 const char* uiStratLayerModel::sKeyModeler2Use()
@@ -235,6 +254,13 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , levelChanged(this)				   
     , waveletChanged(this)				   
 {
+    Notifier<uiStratLayerModel>* savenotif =
+	new Notifier<uiStratLayerModel>(this);
+    Notifier<uiStratLayerModel>* retrievenotif =
+	new Notifier<uiStratLayerModel>(this);
+    savenotifmanager.setParam( this, savenotif );
+    retrievenotifmanager.setParam( this, retrievenotif );
+
     setDeleteOnClose( true );
 
     if ( !edtyp || !*edtyp )
@@ -321,6 +347,10 @@ uiStratLayerModel::~uiStratLayerModel()
     delete &lmp_;
     delete descctio_.ioobj; delete &descctio_;
     StratTreeWin().changeLayerModelNumber( false );
+    delete retrievenotifmanager.getParam(this);
+    retrievenotifmanager.removeParam(this);
+    delete savenotifmanager.getParam(this);
+    savenotifmanager.removeParam(this);
 }
 
 
@@ -532,6 +562,10 @@ bool uiStratLayerModel::saveGenDesc() const
     StreamData sd( StreamProvider(fnm).makeOStream() );
     bool rv = false;
     MouseCursorChanger mcch( MouseCursor::Wait );
+
+    if ( desc_.getWorkBenchParams() )
+	fillWorkBenchPars( *desc_.getWorkBenchParams() );
+
     if ( !sd.usable() )
 	uiMSG().error( "Cannot open output file" );
     else if ( !desc_.putTo(*sd.ostrm) )
@@ -570,15 +604,34 @@ bool uiStratLayerModel::openGenDesc()
     if ( !rv )
 	uiMSG().error(desc_.errMsg());
     sd.close();
+
+    //Before calculation
+    if ( !desc_.getWorkBenchParams() ||
+	    !gentools_->usePar( *desc_.getWorkBenchParams() ) )
+	return false;
+
     if ( !rv )
 	return false;
 
     seqdisp_->setNeedSave( false );
     lmp_.setEmpty();
     seqdisp_->descHasChanged();
+
+    CBCapsule<IOPar*> caps( desc_.getWorkBenchParams(),
+	    		    const_cast<uiStratLayerModel*>(this) );
+    if ( const_cast<uiStratLayerModel*>(this)->retrieveRequiredNotif())
+	const_cast<uiStratLayerModel*>(this)->
+		retrieveRequiredNotif()->trigger( &caps);
+
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
     delete elpropsel_; elpropsel_ = 0;
+
+    //Set when everything is in place.
+    if ( !desc_.getWorkBenchParams() || 
+	    !useDisplayPars( *desc_.getWorkBenchParams() ))
+	return false;
+
     setWinTitle();
     return true;
 }
@@ -739,4 +792,32 @@ const Strat::LayerModel& uiStratLayerModel::layerModel() const
 Strat::LayerModel& uiStratLayerModel::layerModel()
 {
     return lmp_.get();
+}
+
+
+bool uiStratLayerModel::useDisplayPars( const IOPar& par )
+{
+    if ( !modtools_->usePar( par ) )
+	return false;
+	    
+    return true;
+}
+
+    
+
+void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
+{
+    par.setEmpty();
+    CBCapsule<IOPar*> caps( &par, const_cast<uiStratLayerModel*>(this) );
+    if ( const_cast<uiStratLayerModel*>(this)->saveRequiredNotif())
+	const_cast<uiStratLayerModel*>(this)->
+		saveRequiredNotif()->trigger( &caps );
+    gentools_->fillPar( par );
+    fillDisplayPars( par );
+}
+
+
+void uiStratLayerModel::fillDisplayPars( IOPar& par ) const
+{
+    modtools_->fillPar( par );
 }
