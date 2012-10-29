@@ -183,7 +183,7 @@ int Coordinates::addPos( const Coord3& pos )
     if ( nrunused )
     {
 	res = unusedcoords_[nrunused-1];
-	unusedcoords_.remove( nrunused-1 );
+	unusedcoords_.removeSingle( nrunused-1 );
     }
     else
     {
@@ -336,7 +336,7 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos )
 
     const int unusedidx = unusedcoords_.indexOf(idx);
     if ( unusedidx!=-1 )
-	unusedcoords_.remove( unusedidx );
+	unusedcoords_.removeSingle( unusedidx );
 }
 
 
@@ -392,7 +392,7 @@ void Coordinates::removeAfter( int idx )
     for ( int idy=0; idy<unusedcoords_.size(); idy++ )
     {
 	if ( unusedcoords_[idy]>idx )
-	    unusedcoords_.remove(idy--);
+	    unusedcoords_.removeSingle(idy--);
     }
 }
 
