@@ -244,7 +244,7 @@ void uiAttribDescSetEd::createGroups()
 
 
 #define mUnsetAuto \
-    SI().getPars().removeSingle( autoidkey ); \
+    SI().getPars().remove( autoidkey ); \
     SI().savePars()
 
 void uiAttribDescSetEd::init()
