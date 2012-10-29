@@ -1393,8 +1393,8 @@ void BendPointVelBlock( TypeSet<float>& dpts, TypeSet<float>& vels,
 
     for ( int idvel=torem.size()-1; idvel>=0; idvel-- )
     {
-	vels.remove( torem[idvel] );
-	dpts.remove( torem[idvel] );
+	vels.removeSingle( torem[idvel] );
+	dpts.removeSingle( torem[idvel] );
     }
     if ( remidxs )
 	*remidxs = torem;
