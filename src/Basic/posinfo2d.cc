@@ -95,7 +95,7 @@ void PosInfo::Line2DData::remove( int nr )
 {
     bool found; int idx = gtIndex( nr, found );
     if ( !found ) return;
-    posns_.remove( idx );
+    posns_.removeSingle( idx );
 }
 
 
@@ -104,7 +104,7 @@ void PosInfo::Line2DData::limitTo( Interval<int> trcrg )
     trcrg.sort();
     for ( int idx=0; idx<posns_.size(); idx++ )
 	if ( posns_[idx].nr_ < trcrg.start || posns_[idx].nr_ > trcrg.stop )
-	    posns_.remove( idx-- );
+	    posns_.removeSingle( idx-- );
 }
 
 
