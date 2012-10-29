@@ -163,13 +163,12 @@ void Horizon2DLine::removeRow( const PosInfo::GeomID& geomid )
     if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
-    delete rows_[rowidx];
-    rows_.remove( rowidx, false );
-    geomids_.remove( rowidx );
-    colsampling_.remove( rowidx, false );
+    delete rows_.removeSingle( rowidx, false );
+    geomids_.removeSingle( rowidx, false );
+    colsampling_.removeSingle( rowidx, false );
     if ( !rowidx )
     {
-	if ( rows_.size() ) firstrow_++; //Inrease only if we still have rows.
+	if ( rows_.size() ) firstrow_++; //Inrcease only if we still have rows.
     }
     else
     {
