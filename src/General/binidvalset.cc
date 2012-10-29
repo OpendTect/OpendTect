@@ -679,11 +679,11 @@ void BinIDValueSet::remove( const Pos& pos )
     if ( pos.j < 0 || pos.j >= crls.size() )
 	return;
 
-    crls.remove( pos.j );
+    crls.removeSingle( pos.j );
     if ( crls.size() )
     {
 	if ( nrvals_ )
-	    getValSet(pos).remove( pos.j*nrvals_, (pos.j+1)*nrvals_ - 1 );
+	    getValSet(pos).removeRange( pos.j*nrvals_, (pos.j+1)*nrvals_ - 1 );
     }
     else
     {
@@ -754,7 +754,7 @@ void BinIDValueSet::removeVal( int validx )
 	TypeSet<float>& vals = getValSet(iinl);
 	TypeSet<int>& crls = getCrlSet(iinl);
 	for ( int icrl=crls.size()-1; icrl>=0; icrl-- )
-	    vals.remove( nrvals_*icrl+validx );
+	    vals.removeSingle( nrvals_*icrl+validx );
     }
     const_cast<int&>(nrvals_)--;
 }
@@ -972,8 +972,8 @@ void BinIDValueSet::remove( const HorSampling& hrg, bool removeinside )
 		isin = crlrg.includes(crl,false) && crlrg.snap( crl )==crl;
 		if ( isin==removeinside )
 		{
-		    crls.remove( idy );
-		    vals.remove( idy*nrvals_, idy*nrvals_+nrvals_-1 );
+		    crls.removeSingle( idy );
+		    vals.removeRange( idy*nrvals_, idy*nrvals_+nrvals_-1 );
 		}
 	    }
 	}
@@ -983,11 +983,9 @@ void BinIDValueSet::remove( const HorSampling& hrg, bool removeinside )
 
 void BinIDValueSet::removeLine( int idx )
 {
-    inls_.remove( idx );
-    delete crlsets_[idx];
-    crlsets_.remove( idx );
-    delete valsets_[idx];
-    valsets_.remove( idx );
+    inls_.removeSingle( idx );
+    delete crlsets_.removeSingle( idx );
+    delete valsets_.removeSingle( idx );
 }
 
 
