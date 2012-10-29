@@ -355,7 +355,7 @@ bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
     TypeSet <RowCol> line;
     makeLine( lastrc, rc, emsurface.geometry().step(), line );
     if ( rc==els[0] )
-	line.remove(line.size()-1);
+	line.removeSingle(line.size()-1);
 
     for ( int idx=0; idx<line.size(); idx++ )
     {
@@ -384,7 +384,7 @@ bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
 	    return false;
     }
 
-    line.remove(0);
+    line.removeSingle(0);
     if ( doit )
 	els.insert( els.size(), line );
     return true;
@@ -438,8 +438,7 @@ void ObjectEditor::emSectionChange(CallBacker* cb)
 
     if ( !ge && editoridx!=-1 )
     {
-	delete geeditors[editoridx];
-	geeditors.remove(editoridx);
+	delete geeditors.removeSingle(editoridx);
 	editpositionchange.trigger();
     }
     else if ( ge && editoridx==-1 )

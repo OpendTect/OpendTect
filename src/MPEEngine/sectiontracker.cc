@@ -137,7 +137,7 @@ void SectionTracker::removeUnSupported( TypeSet<EM::SubID>& subids ) const
 	    {
 		const EM::PosID pid( emobject.id(), sid, subids[idx] );
 		emobject.unSetPos(pid,false);
-		subids.remove(idx);
+		subids.removeSingle(idx);
 		idx--;
 		change = true;
 	    }
@@ -163,7 +163,7 @@ bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
 	    if ( excludedpos.indexOf(subids[idx])!=-1 || 
 		 emobject.unSetPos(pid,addtoundo) )
 	    {
-		subids.remove(idx--);
+		subids.removeSingle(idx--);
 		change = true;
 	    }
 	}

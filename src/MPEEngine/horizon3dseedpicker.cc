@@ -431,7 +431,7 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 	for ( int idx=addedpos.size()-1; idx>=0; idx-- )
 	{
 	    if ( !hor->isDefined(sectionid_,addedpos[idx]) )
-		addedpos.remove(idx);
+		addedpos.removeSingle(idx);
 	}
     }
 

@@ -289,7 +289,7 @@ int AutoTracker::nextStep()
 	    char count = 0;
 	    blacklist_.get( addedpos[idx], count );
 	    blacklist_.set( addedpos[idx], count+1 );
-	    addedpos.remove(idx);
+	    addedpos.removeSingle(idx);
 	}
     }
 

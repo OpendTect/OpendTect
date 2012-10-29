@@ -533,10 +533,9 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     {
 	if ( cacheid <= DataPack::cNoID() )
 	{
-	    attribcache_[idx]->unRef();
-	    attribcachedatapackids_.remove( idx );
-	    attribcache_.remove( idx );
-	    delete attribcachespecs_.remove( idx );
+	    attribcachedatapackids_.removeSingle( idx );
+	    attribcache_.removeSingle( idx )->unRef();
+	    delete attribcachespecs_.removeSingle( idx );
 	}
 	else
 	{
@@ -578,8 +577,8 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	attribcache_[idx]->unRef();
 	if ( !newdata )
 	{
-	    attribcache_.remove( idx );
-	    delete attribcachespecs_.remove( idx );
+	    attribcache_.removeSingle( idx );
+	    delete attribcachespecs_.removeSingle( idx );
 	}
 	else
 	{
@@ -682,7 +681,7 @@ void Engine::updateFlatCubesContainer( const CubeSampling& cs, const int idx,
 
 	flatcubes[idxinquestion]->nrseeds_--;
 	if ( flatcubes[idxinquestion]->nrseeds_ == 0 )
-	    flatcubes.remove( idxinquestion );
+	    flatcubes.removeSingle( idxinquestion );
     }
 }
 
