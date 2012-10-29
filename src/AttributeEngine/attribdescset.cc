@@ -261,9 +261,8 @@ void DescSet::removeDesc( const DescID& id )
     if ( descs_[idx]->descSet()==this )
 	descs_[idx]->setDescSet(0);
 
-    descs_[idx]->unRef();
-    descs_.remove(idx);
-    ids_.remove(idx);
+    descs_.removeSingle(idx)->unRef();
+    ids_.removeSingle(idx);
 }
 
 
@@ -949,7 +948,7 @@ DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
     while ( needednodes.size() )
     {
 	const DescID needednode = needednodes[0];
-	needednodes.remove( 0 );
+	needednodes.removeSingle( 0 );
 	const Desc* dsc = getDesc( needednode );
 	if ( !dsc )
 	{
