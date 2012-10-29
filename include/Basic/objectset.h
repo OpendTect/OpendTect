@@ -68,9 +68,15 @@ public:
     inline virtual T*		pop();
 
     inline virtual void		erase()		{ plainErase(); }
-    virtual inline T*		remove(int,bool preserve_order=true);
+    virtual inline T*		remove(int idx,bool preserve_order=true)
+    				{ return removeSingle( idx, preserve_order ); }
+    				
+    inline virtual void		remove(od_int64 from,od_int64 to)
+    				{ removeRange( from, to ); }
+    
+    virtual inline T*		removeSingle(int,bool preserve_order = true );
     				/*!<\returns the removed pointer. */
-    inline virtual void		remove(od_int64 from,od_int64 to);
+    virtual void		removeRange(od_int64 from,od_int64 to);
 
     inline T*			first();
     inline const T*		first() const;
@@ -396,7 +402,7 @@ T* ObjectSet<T>::pop()
 
 
 template <class T> inline
-T* ObjectSet<T>::remove( int idx, bool kporder )
+T* ObjectSet<T>::removeSingle( int idx, bool kporder )
 {
     T* res = (T*)vec_[idx];
     if ( kporder )
@@ -412,7 +418,8 @@ T* ObjectSet<T>::remove( int idx, bool kporder )
 }
 
 
-template <class T> inline void ObjectSet<T>::remove( od_int64 i1, od_int64 i2 )
+template <class T> inline
+void ObjectSet<T>::removeRange( od_int64 i1, od_int64 i2 )
 { vec_.remove( i1, i2 ); }
 template <class T> inline T* ObjectSet<T>::first()
 { return isEmpty() ? 0 : (*this)[0]; }
