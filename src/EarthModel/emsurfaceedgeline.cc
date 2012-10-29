@@ -99,14 +99,14 @@ int EdgeLineSegment::indexOf( const RowCol& rc, bool forward ) const
 
 void EdgeLineSegment::remove( int p1 )
 {
-    nodes_.remove(p1);
+    nodes_.removeSingle(p1);
     if ( notifier ) notifier->trigger();
 }
 
 
 void EdgeLineSegment::remove( int p1, int p2 )
 {
-    nodes_.remove(p1,p2);
+    nodes_.removeRange(p1,p2);
     if ( notifier ) notifier->trigger();
 }
 
@@ -455,7 +455,7 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	    if ( isNodeOK(rc) && !isByPassed(idy,prev,next) )
 		break;
 
-	    nodes_.remove(idy--);
+	    nodes_.removeSingle(idy--);
 	    change = true;
 	    backward = true;
 	}
@@ -467,7 +467,7 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	    change = true;
 	    if ( !trackWithCache( 0, true, prev, next ) )
 		mReTrackReturn(false);
-	    nodes_.remove(0);
+	    nodes_.removeSingle(0);
 	}
 
 	if ( !prev->isContinuedBy(this) )
@@ -482,7 +482,7 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	    if ( isNodeOK(rc) )
 		break;
 
-	    nodes_.remove(idy--);
+	    nodes_.removeSingle(idy--);
 	    change = true;
 	}
 
@@ -517,7 +517,7 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	{
 	    if ( idx!=size()-1 )
 	    {
-		nodes_.remove( idx+1, size()-1 );
+		nodes_.removeRange( idx+1, size()-1 );
 		change = true;
 	    }
 	    if ( !trackWithCache( idx, true, prev, next ) )
@@ -692,7 +692,7 @@ void EdgeLineSegment::posChangeCB(CallBacker* cb)
      if ( nodeidx==-1 ) return;
 
      if ( !isDefined(rc) )
-	 nodes_.remove(nodeidx);
+	 nodes_.removeSingle(nodeidx);
 
      notifier->trigger();
 }
@@ -826,7 +826,7 @@ bool EdgeLine::isInside( const RowCol& rc, bool undefval ) const
     if ( !iter.isOK() ) return undefval;
 
 
-    int shortestdistsquare, segment, nodeidx;
+    int shortestdistsquare = mUdf(int), segment = mUdf(int),nodeidx =mUdf(int);
     bool first = true;
     do
     {
@@ -941,8 +941,7 @@ bool EdgeLine::setRemoveZeroSegments(bool newstatus)
 
 	    segments[idx]->changeNotifier()->remove(
 		    mCB(this,EdgeLine,sectionChangeCB) );
-	    delete segments[idx];
-	    segments.remove(idx--);
+	    delete segments.removeSingle(idx--);
 	    change = true;
 	}
 
@@ -996,7 +995,7 @@ int EdgeLine::computeArea() const
 	const int removestart = 0;
 	const int removestop = layer1start-1;
 	const int nrtoremove = removestop-removestart+1;
-	if ( nrtoremove>0 ) nodesinside.remove(removestart,removestop);
+	if ( nrtoremove>0 ) nodesinside.removeRange(removestart,removestop);
 
 	layer1start = layer2start-nrtoremove;
 	layer2start = nodesinside.size();
@@ -1294,8 +1293,8 @@ bool EdgeLine::repairLine()
 	TypeSet<RowCol> rcs;
 	::makeLine( forward ? start : stop, forward ? stop : start, step, rcs );
 
-	rcs.remove(0);
-	rcs.remove(rcs.size()-1);
+	rcs.removeSingle(0);
+	rcs.removeSingle(rcs.size()-1);
 
 	if ( rcs.size() )
 	{
@@ -1484,8 +1483,7 @@ void EdgeLine::reduceSegments()
     {
 	if ( !segments[idx]->size() )
 	{
-	    delete segments[idx];
-	    segments.remove(idx--);
+	    delete segments.removeSingle(idx--);
 	}
     }
 
@@ -1928,8 +1926,7 @@ void EdgeLineManager::removeSection( const SectionID& pid )
 {
     const int nr = horizon_.geometry().sectionIndex(pid);
     if ( nr<0 || nr>=linesets.size() ) return;
-    delete linesets[nr];
-    linesets.remove(nr);
+    delete linesets.removeSingle(nr);
     addremovenotify.trigger( pid );
 }
 
