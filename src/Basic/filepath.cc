@@ -441,7 +441,7 @@ void FilePath::compress( int startlvl )
 
 	if ( idx-remoffs >= 0 )
 	{
-	    lvls_.remove( idx-remoffs, idx );
+	    lvls_.removeRange( idx-remoffs, idx );
 	    idx -= remoffs + 1;
 	}
     }
