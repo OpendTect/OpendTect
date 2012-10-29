@@ -91,6 +91,7 @@ public:
     MathProperty*	getProperty(const PropertyRef* pr=0) const;
 
     BufferString	getFormulaUnit() const;
+    void		setFormulaUnit(BufferString);
 };
 
 

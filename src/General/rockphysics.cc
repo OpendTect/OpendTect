@@ -30,6 +30,12 @@ BufferString RockPhysics::Formula::getFormulaUnit() const
 }
 
 
+void RockPhysics::Formula::setFormulaUnit( BufferString fun )
+{
+    myfuparammanager.setParam( this, fun );
+}
+
+
 RockPhysics::Formula* RockPhysics::Formula::get( const IOPar& iop )
 {
     Formula* fm = new Formula( PropertyRef::Other );
