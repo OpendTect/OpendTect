@@ -176,9 +176,9 @@ void Horizon2DDisplay::removeSectionDisplay( const EM::SectionID& sid )
 	points_[idx]->unRef();
     }
 
-    points_.remove( idx );
-    lines_.remove( idx );
-    sids_.remove( idx );
+    points_.removeSingle( idx );
+    lines_.removeSingle( idx );
+    sids_.removeSingle( idx );
 }
 
 
