@@ -146,8 +146,11 @@ bool DataPlayer::doFullSynthetics()
     gen.forceReflTimes( reflrg );
     gen.setWavelet( &wvlt, OD::UsePtr );
     gen.setOutSampling( disprg_ );
-    IOPar par; 
-    par.set(RayTracer1D::sKeySRDepth(),data_.dahrg_.start,data_.dahrg_.start);
+    IOPar par;
+    const float sourrecz = data_.wd_->info().replveldz > 0 ? 
+			   data_.wd_->info().surfaceelev :
+			   -1. * data_.wd_->info().kbelev;
+    par.set(RayTracer1D::sKeySRDepth(),sourrecz,sourrecz);
     gen.usePar( par ); 
     TaskRunner* tr = data_.trunner_;
     if ( ( tr && !tr->execute( gen ) ) || !gen.execute() )
