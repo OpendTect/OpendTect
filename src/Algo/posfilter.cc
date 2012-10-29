@@ -85,7 +85,7 @@ void Pos::Filter2D::addLineID( const PosInfo::GeomID& geomid )
 void Pos::Filter2D::removeLineID( int lidx )
 {
     if ( geomids_.validIdx(lidx) )
-	geomids_.remove( lidx );
+	geomids_.removeSingle( lidx );
 }
 
 
