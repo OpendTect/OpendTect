@@ -288,9 +288,9 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
 
     //Keep the section in mem until everyone is notified
     PtrMan<const Geometry::Element> removedelem = sections_[idx];
-    sections_.remove( idx );
-    sids_.remove( idx );
-    sectionnames_.remove( idx );
+    sections_.removeSingle( idx );
+    sids_.removeSingle( idx );
+    sectionnames_.removeSingle( idx );
 
     if ( addtoundo )
     {
@@ -924,7 +924,7 @@ int SurfaceGeometry::findPos( const CubeSampling& cs,
 	if ( nodebid.inl<cs.hrg.start.inl || nodebid.inl>cs.hrg.stop.inl ||
 	     nodebid.crl<cs.hrg.start.crl || nodebid.crl>cs.hrg.stop.crl )
 	{
-	    posids.remove( idx--, false );
+	    posids.removeSingle( idx--, false );
 	    continue;
 	}
     }

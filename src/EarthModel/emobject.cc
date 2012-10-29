@@ -372,7 +372,7 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
     if ( idy==-1 && yn )
 	posids += pid;
     else if ( idy!=-1 && !yn )
-	posids.remove( idy, false );
+	posids.removeSingle( idy, false );
     else 
 	return;
 

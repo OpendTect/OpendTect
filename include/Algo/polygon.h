@@ -231,7 +231,7 @@ template <class T> inline
 void ODPolygon<T>::remove( int idx )
 {
     if ( poly_.validIdx(idx) )
-	poly_.remove( idx );
+	poly_.removeSingle( idx );
     xrg_.set( mUdf(T), mUdf(T) );
     yrg_.set( mUdf(T), mUdf(T) );
 }
@@ -567,7 +567,8 @@ void ODPolygon<T>::convexHull()
     for ( int idx=size()-1; idx>=0; idx-- )
     {
 	if ( pivot == poly_[idx] )
-	    poly_.remove( idx, false );
+	    //poly_.removeSingle( idx, false );
+	    poly_.removeSingle( idx );
     }
 
     // Angular sort of all pivot-to-point segments
@@ -587,7 +588,7 @@ void ODPolygon<T>::convexHull()
 	    else if ( pivot.sqDistTo(vtx) > pivot.sqDistTo(vty) )
 		poly_[idy] = vtx;
 
-	    poly_.remove( idx );
+	    poly_.removeSingle( idx );
 	    break;
 	}
     }
@@ -603,7 +604,7 @@ void ODPolygon<T>::convexHull()
 	    if ( isRightOfLine(vtz, vty-vtx, vtx) )
 		break;
 
-	    poly_.remove( idx+1 );
+	    poly_.removeSingle( idx+1 );
 	}
     }
 

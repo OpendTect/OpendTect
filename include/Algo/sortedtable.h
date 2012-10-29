@@ -94,7 +94,7 @@ bool  SortedTable<IDT,T>::remove(IDT theid)
 
     if ( pos==-1 ) return false;
 
-    vals_.remove( pos );
+    vals_.removeSingle( pos );
     ids_.remove( pos );
 
     return true;

@@ -531,8 +531,7 @@ void Array2DInterpol::floodFillArrFrom( int seed, const bool* def,
     {
 	const int curseedidx = seeds.size()-1;
 	const int curseed = seeds[curseedidx];
-	seeds.remove( curseedidx, false );
-
+	seeds.removeSingle( curseedidx, false );
 	mGoToNeighbor( curseed-nrcols_ ); //Prev row
 	mGoToNeighbor( curseed+nrcols_ ); //Next row
 
@@ -1148,7 +1147,7 @@ od_int64 InverseDistanceArray2DInterpol::getNextIdx()
 
     //Take the last item from list
     const od_int64 res = todothisstep_[nrleft-1];
-    todothisstep_.remove( nrleft-1 );
+    todothisstep_.removeSingle( nrleft-1 );
     if ( nrsources_.size() )
     {
 	//If nr of node support changed since last pos, update list
@@ -1166,7 +1165,7 @@ od_int64 InverseDistanceArray2DInterpol::getNextIdx()
 	}
 
 	prevsupportsize_ = nrsources_[nrleft-1];
-	nrsources_.remove( nrleft-1 );
+	nrsources_.removeSingle( nrleft-1 );
     }
 
     mRet( res );
