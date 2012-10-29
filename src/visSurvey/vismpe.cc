@@ -1188,7 +1188,7 @@ void MPEDisplay::removeChild( int displayid )
 	    VisualObjectImpl::removeChild( slices_[idx]->getInventorNode() );
 	    slices_[idx]->motion.remove( mCB(this,MPEDisplay,sliceMoving) );
 	    slices_[idx]->unRef();
-	    slices_.remove(idx,false);
+	    slices_.removeSingle(idx,false);
 	    return;
 	}
     }
@@ -1458,7 +1458,7 @@ bool MPEDisplay::removeAttrib( int attrib )
 {
     channels_->removeChannel( attrib );
     as_.set( "", Attrib::SelSpec::cNoAttrib(), false, 0 );
-    userrefs_.remove( attrib );
+    userrefs_.removeSingle( attrib );
     return true;
 }
 

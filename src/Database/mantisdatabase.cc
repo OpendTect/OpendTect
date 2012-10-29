@@ -573,13 +573,13 @@ void SqlDB::MantisDBMgr::addBugTextTableEntryToSet( BugTextTableEntry& tt )
 
 void SqlDB::MantisDBMgr::removeBugTableEntryFromSet( int tableidx )
 { 
-    bugs_.remove( tableidx, true );
+    bugs_.removeSingle( tableidx, true );
 }
 
 
 void SqlDB::MantisDBMgr::removeBugTextTableEntryFromSet( int tableidx )
 {
-    texttables_.remove( tableidx, true );
+    texttables_.removeSingle( tableidx, true );
 }
 
 
