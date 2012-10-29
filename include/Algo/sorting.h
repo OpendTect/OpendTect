@@ -491,13 +491,13 @@ bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
 	    break;
 	}
 
-	const int curstart0 = starts_[0]; starts_.remove( 0 );
-	const int curstart1 = starts_[0]; starts_.remove( 0 );
+	const int curstart0 = starts_[0]; starts_.removeSingle( 0 );
+	const int curstart1 = starts_[0]; starts_.removeSingle( 0 );
 	int curstart2;
 	if ( starts_.size()==1 )
 	{
 	    curstart2 = starts_[0];
-	    starts_.remove( 0 );
+	    starts_.removeSingle( 0 );
 	}
 	else
 	    curstart2 = -1;
