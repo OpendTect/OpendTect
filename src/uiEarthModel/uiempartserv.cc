@@ -1423,7 +1423,7 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
 	    if ( geom ) z = (float) geom->computePosition( Coord(bid.inl,bid.crl) ).z;
 	    if ( mIsUdf(z) )
 	    {
-		ps.remove( idx );
+		ps.removeSingle( idx );
 		continue;
 	    }
 	}

@@ -210,10 +210,10 @@ void uiBodyOperatorDlg::deleteAllChildInfo( uiTreeViewItem* curitem )
 	    pErrMsg("Hmm"); return;
 	}
 
-	listsaved_.remove( idx );
-	listsaved_.remove( idx );
-	listinfo_.remove( idx );
-	listinfo_.remove( idx );
+	listsaved_.removeSingle( idx );
+	listsaved_.removeSingle( idx );
+	listinfo_.removeSingle( idx );
+	listinfo_.removeSingle( idx );
 	return;
     }
 

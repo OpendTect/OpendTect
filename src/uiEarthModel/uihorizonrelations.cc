@@ -80,7 +80,7 @@ void uiHorizonRelationsDlg::readHorizonCB( CallBacker* )
     {
 	PtrMan<IOObj> ioobj = IOM().get( horids_[idx] );
 	if ( !ioobj )
-	    horids_.remove( idx-- );
+	    horids_.removeSingle( idx-- );
 
 	hornames_.add( ioobj->name() );
     }

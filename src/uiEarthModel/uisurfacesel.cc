@@ -70,7 +70,7 @@ void uiSurfaceSel::removeFromList( const TypeSet<MultiID>& ids )
 	    continue;
 
 	listfld_->removeItem( surfidx );
-	mids_.remove( surfidx );
+	mids_.removeSingle( surfidx );
     }
 }
 

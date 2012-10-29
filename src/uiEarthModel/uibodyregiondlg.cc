@@ -628,7 +628,7 @@ void uiBodyRegionDlg::removeSurfaceCB( CallBacker* )
     if ( currow==-1 ) return;
 
     if ( currow<surfacelist_.size() )
-	surfacelist_.remove( currow );
+	surfacelist_.removeSingle( currow );
 
     table_->removeRow( currow );
     removebutton_->setSensitive( surfacelist_.size() );
