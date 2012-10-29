@@ -70,7 +70,7 @@ bool BendPointFinderBase::doWork( od_int64, od_int64, int )
 	    continue;
 
 	const Interval<int> segment = queue_[sz-1];
-	queue_.remove( sz-1 );
+	queue_.removeSingle( sz-1 );
 	lock_.unLock();
 
 	findInSegment( segment.start, segment.stop );
