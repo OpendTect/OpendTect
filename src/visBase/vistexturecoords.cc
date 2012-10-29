@@ -187,7 +187,7 @@ int  TextureCoords::getFreeIdx()
     if ( unusedcoords_.size() )
     {
 	const int res = unusedcoords_[unusedcoords_.size()-1];
-	unusedcoords_.remove(unusedcoords_.size()-1);
+	unusedcoords_.removeSingle(unusedcoords_.size()-1);
 	return res;
     }
 
