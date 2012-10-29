@@ -148,8 +148,8 @@ void MenuItemHolder::itemIsDeletedCB( CallBacker* cb )
 	pErrMsg( "Hugh?" );
     else
     {
-	items_.remove( idx );
-	manageitems_.remove( idx );
+	items_.removeSingle( idx );
+	manageitems_.removeSingle( idx );
     }
 }
 
