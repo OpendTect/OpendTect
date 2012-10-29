@@ -398,7 +398,7 @@ void uiColorTableMan::markerColChgd( CallBacker* )
 void uiColorTableMan::setHistogram( const TypeSet<float>& hist )
 {
     TypeSet<float>& myhist = const_cast<TypeSet<float>&>(hist);
-    myhist.remove( 0 ); myhist.remove( hist.size()-1 );
+    myhist.removeSingle( 0 ); myhist.removeSingle( hist.size()-1 );
     TypeSet<float> x2vals;
     const float step = (float)1/(float)myhist.size();
     for ( int idx=0; idx<myhist.size(); idx++ )

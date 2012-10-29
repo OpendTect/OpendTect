@@ -578,8 +578,8 @@ void uiFunctionDisplay::mouseRelease( CallBacker* )
     if ( !isctrl || selpt_ <= 0 || selpt_ >= xvals_.size()-1
 	 || xvals_.size() < 3 ) return;
 
-    xvals_.remove( selpt_ );
-    yvals_.remove( selpt_ );
+    xvals_.removeSingle( selpt_ );
+    yvals_.removeSingle( selpt_ );
 
     selpt_ = -1;
     pointChanged.trigger();

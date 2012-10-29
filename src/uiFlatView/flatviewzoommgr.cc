@@ -64,7 +64,7 @@ void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom )
 	const Size zoom = zooms_[idx];
 	if ( newzoom.width() > zoom.width() + eps.width()
 	  || newzoom.height() > zoom.height() + eps.height() )
-	    zooms_.remove( idx );
+	    zooms_.removeSingle( idx );
     }
 
     zooms_ += newzoom;

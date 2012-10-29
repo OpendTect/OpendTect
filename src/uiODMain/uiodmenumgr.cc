@@ -172,7 +172,7 @@ void uiODMenuMgr::enableActButton( bool yn )
 { \
     while ( !set.isEmpty() ) \
     { \
-	uiPopupMenu* pmnu = set.remove(0); \
+	uiPopupMenu* pmnu = set.removeSingle(0); \
 	if ( pmnu ) delete pmnu; \
     } \
 }

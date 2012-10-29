@@ -384,7 +384,7 @@ void SelectionGrp::addSelection( const SelectionArea& selarea )
 void SelectionGrp::removeSelection( int idx )
 {
     if ( selareas_.validIdx(idx) )
-	selareas_.remove( idx );
+	selareas_.removeSingle( idx );
 }
 
 

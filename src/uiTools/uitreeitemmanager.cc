@@ -406,9 +406,8 @@ void uiTreeItem::removeChild( uiTreeItem* treeitem )
 
     if ( uitreeviewitem_ )
         uitreeviewitem_->removeItem( treeitem->getItem() );
-    uiTreeItem* child = children_[idx];
-    children_.remove( idx );
-    delete child;
+    
+    delete children_.removeSingle( idx );
     mEnabSelChg( true )
 }
 
@@ -551,8 +550,8 @@ void uiTreeFactorySet::remove( const char* nm )
     removenotifier.trigger( index );
     delete factories_[index];
     factories_.remove( index );
-    placementidxs_.remove( index );
-    pol2ds_.remove( index );
+    placementidxs_.removeSingle( index );
+    pol2ds_.removeSingle( index );
 }
 
 
