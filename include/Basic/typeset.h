@@ -48,7 +48,7 @@ public:
     inline TypeSet<T>&		operator =(const TypeSet<T>&);
 
     inline int			size() const	{ return vec_.size(); }
-    inline virtual int		nrItems() const	{ return size(); }
+    inline virtual od_int64	nrItems() const	{ return size(); }
     inline virtual bool		setSize(int,T val=T());
 				/*!<\param val value assigned to new items */
     inline virtual bool		setCapacity( int sz );
@@ -61,7 +61,7 @@ public:
     inline const T&		first() const;
     inline T&			last();
     inline const T&		last() const;
-    inline virtual bool		validIdx(int) const;
+    inline virtual bool		validIdx(od_int64) const;
     inline virtual int		indexOf(T,bool forward=true,int start=-1) const;
     inline bool			isPresent( const T& t ) const
     						{ return indexOf(t) >= 0; }
@@ -75,7 +75,7 @@ public:
     inline virtual bool		append(const TypeSet<T>&);
     inline bool			add(const T&);
 
-    inline virtual void		swap(int,int);
+    inline virtual void		swap(od_int64,od_int64);
     inline virtual void		reverse();
     virtual inline void		createUnion(const TypeSet<T>&);
 				/*!< Adds items not already there */
@@ -90,7 +90,7 @@ public:
 
     inline virtual void		erase();
     inline virtual void		remove(int,bool preserve_order=true);
-    inline virtual void		remove(int from,int to);
+    inline virtual void		remove(od_int64 from,od_int64 to);
     inline virtual void		insert(int,const T&);
 
 				//! 3rd party access
@@ -101,7 +101,7 @@ public:
 
 protected:
 
-    VectorAccess<T>		vec_;
+    VectorAccess<T,int>		vec_;
 
     inline virtual T*		gtArr() const;
 
@@ -217,7 +217,7 @@ void TypeSet<T>::setAll( T val )
 
 
 template <class T> inline
-void TypeSet<T>::swap( int idx0, int idx1 )
+void TypeSet<T>::swap( od_int64 idx0, od_int64 idx1 )
 {
     if ( !validIdx(idx0) || !validIdx(idx1) )
 	return;
@@ -239,7 +239,7 @@ void TypeSet<T>::reverse()
 
 
 template <class T> inline
-bool TypeSet<T>::validIdx( int idx ) const
+bool TypeSet<T>::validIdx( od_int64 idx ) const
 { return idx>=0 && idx<size(); }
 
 
@@ -452,7 +452,7 @@ inline void TypeSet<T>::remove( int idx, bool kporder )
 
 
 template <class T> inline
-void TypeSet<T>::remove( int i1, int i2 )
+void TypeSet<T>::remove( od_int64 i1, od_int64 i2 )
 { vec_.remove( i1, i2 ); }
 
 

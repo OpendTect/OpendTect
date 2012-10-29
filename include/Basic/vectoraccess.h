@@ -33,72 +33,72 @@ reference to T! This is why there is a 'BoolTypeSet'.
  
  */
 
-template <class T>
+template <class T,class I>
 class VectorAccess
 {
 public:
 
     inline		VectorAccess()			{}
-    inline		VectorAccess( unsigned int n ) : v_(n)	{}
-    inline		VectorAccess( unsigned int n, const T& t )
+    inline		VectorAccess( I n ) : v_(n)	{}
+    inline		VectorAccess( I n, const T& t )
 				: v_(n,t)		{}
     inline		VectorAccess( const VectorAccess& v2 )
 				: v_(v2.v_)		{}
     inline std::vector<T>&	 vec()				{ return v_; }
     inline const std::vector<T>& vec() const			{ return v_; }
 
-    inline T&		operator[]( int idx )		{ return v_[idx]; }
-    inline const T&	operator[]( int idx ) const
+    inline T&		operator[]( I idx )		{ return v_[idx]; }
+    inline const T&	operator[]( I idx ) const
     			{ return (*const_cast<VectorAccess*>(this))[idx]; }
-    inline unsigned int	size() const	{ return (unsigned int) v_.size(); }
-    inline bool		setCapacity( int sz );
+    inline I		size() const	{ return (I) v_.size(); }
+    inline bool		setCapacity( I sz );
     			/*!<Allocates mem for sz, does not change size.*/
     inline void		getCapacity() const		{ return v_.capacity();}
     			/*!<\returns max size without reallocation.*/
-    inline bool		setSize( int sz, T val );
+    inline bool		setSize( I sz, T val );
 
     inline VectorAccess& operator =( const VectorAccess& v2 )
 			{ v_ = v2.v_; return *this; }
     inline bool		push_back( const T& t );
-    inline void		insert( int pos, const T& val )
+    inline void		insert( I pos, const T& val )
 					    { v_.insert(v_.begin() + pos,val); }
     inline void		erase()		    { v_.clear(); }
     inline void		erase( const T& t )
 			{
-			    for ( int idx=size()-1; idx!=-1; idx-- )
+			    for ( I idx=size()-1; idx!=-1; idx-- )
 				{ if ( v_[idx] == t ) { remove(idx); return; } }
 			}
-    inline void		remove( unsigned int idx )
+    inline void		remove( I idx )
 			{
 			    if ( idx < size() )
 				v_.erase( v_.begin() + idx );
 			}
-    inline void		remove( unsigned int i1, unsigned int i2 )
+    inline void		remove( I i1, I i2 )
 			{
 			    if ( i1 == i2 ) { remove( i1 ); return; }
 			    if ( i1 > i2 ) std::swap( i1, i2 );
-			    const unsigned int sz = size();
+			    const I sz = size();
 			    if ( i1 >= sz ) return;
 
 			    if ( i2 >= sz-1 ) i2 = sz-1;
 			    v_.erase( v_.begin()+i1, v_.begin()+i2+1 );
 			}
-    inline void		swap( unsigned int i, unsigned int j )
+    inline void		swap( I i, I j )
 			{ std::swap( v_[i], v_[j] ); }
 
     inline void		fillWith( const T& val )
 			{
-			    const int sz = size();
+			    const I sz = size();
 			    T* arr = sz ? &v_[0] : 0;
-			    for ( int i=sz-1; i>=0; i--,arr++ )
+			    for ( I i=sz-1; i>=0; i--,arr++ )
 				*arr = val;
 			}
 
     void moveAfter( const T& t, const T& aft )
     {
 	if ( t == aft || size() < 2 ) return;
-	int tidx = -1; int aftidx = -1;
-	for ( int idx=size()-1; idx!=-1; idx-- )
+	I tidx = -1; I aftidx = -1;
+	for ( I idx=size()-1; idx!=-1; idx-- )
 	{
 	    if ( v_[idx] == t )
 		{ tidx = idx; if ( aftidx != -1 ) break; }
@@ -107,20 +107,20 @@ public:
 	}
 	if ( tidx == -1 || aftidx == -1 || tidx == aftidx ) return;
 	if ( aftidx > tidx )
-	    for ( int idx=tidx; idx<aftidx; idx++ )
+	    for ( I idx=tidx; idx<aftidx; idx++ )
 		swap( idx, idx+1 );
 	else
-	    for ( int idx=tidx; idx>aftidx+1; idx-- )
+	    for ( I idx=tidx; idx>aftidx+1; idx-- )
 		swap( idx, idx-1 );
     }
 
     void moveToStart( const T& t )
     {
 	if ( size() < 2 ) return;
-	int tidx = -1;
-	for ( int idx=size()-1; idx!=-1; idx-- )
+	I tidx = -1;
+	for ( I idx=size()-1; idx!=-1; idx-- )
 	    if ( v_[idx] == t ) { tidx = idx; break; }
-	for ( int idx=tidx; idx>0; idx-- )
+	for ( I idx=tidx; idx>0; idx-- )
 	    swap( idx, idx-1 );
     }
 
@@ -131,8 +131,8 @@ protected:
 };
 
 
-template<class T> inline
-bool VectorAccess<T>::setCapacity( int sz )
+template<class T,class I> inline
+bool VectorAccess<T,I>::setCapacity( I sz )
 {
     try { v_.reserve(sz); }
     catch ( std::bad_alloc )
@@ -144,8 +144,8 @@ bool VectorAccess<T>::setCapacity( int sz )
 }
 
 
-template<class T> inline
-bool VectorAccess<T>::push_back( const T& t )
+template<class T,class I> inline
+bool VectorAccess<T,I>::push_back( const T& t )
 {
     try { v_.push_back(t); }
     catch ( std::bad_alloc )
@@ -155,8 +155,8 @@ bool VectorAccess<T>::push_back( const T& t )
 }
 
 
-template<class T> inline
-bool VectorAccess<T>::setSize( int sz, T val )
+template<class T,class I> inline
+bool VectorAccess<T,I>::setSize( I sz, T val )
 {
     try { v_.resize(sz,val); }
     catch ( std::bad_alloc )

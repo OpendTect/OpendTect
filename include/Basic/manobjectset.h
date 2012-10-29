@@ -32,7 +32,7 @@ public:
     inline virtual ManagedObjectSet<T>& operator -=( T* ptr );
 
     inline virtual void		erase();
-    inline virtual void		remove(int,int);
+    inline virtual void		remove(od_int64,od_int64);
     inline virtual T*		remove( int idx, bool kporder=true )
 				{ return ObjectSet<T>::remove(idx,kporder); }
 
@@ -97,7 +97,7 @@ void ManagedObjectSet<T>::erase()
 
 
 template <class T> inline
-void ManagedObjectSet<T>::remove( int i1, int i2 )
+void ManagedObjectSet<T>::remove( od_int64 i1, od_int64 i2 )
 {
     for ( int idx=i1; idx<=i2; idx++ )
     {

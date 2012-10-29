@@ -45,9 +45,9 @@ public:
     inline bool			nullAllowed() const	{ return allow0_; }
     inline void			allowNull(bool yn=true);
     inline int			size() const		{ return vec_.size(); }
-    inline virtual int		nrItems() const		{ return size(); }
+    inline virtual od_int64	nrItems() const		{ return size(); }
 
-    inline virtual bool		validIdx(int) const;
+    inline virtual bool		validIdx(od_int64) const;
     inline virtual bool		isPresent(const T*) const;
     inline virtual int		indexOf(const T*) const;
     inline virtual T*		operator[](int);
@@ -59,7 +59,7 @@ public:
     inline virtual void		insertAfter(T* newptr,int);
     inline virtual void		copy(const ObjectSet<T>&);
     inline virtual void		append(const ObjectSet<T>&);
-    inline virtual void		swap(int,int);
+    inline virtual void		swap(od_int64,od_int64);
     inline virtual void		reverse(); 
 
     inline virtual ObjectSet<T>& operator +=(T*);
@@ -70,7 +70,7 @@ public:
     inline virtual void		erase()		{ plainErase(); }
     virtual inline T*		remove(int,bool preserve_order=true);
     				/*!<\returns the removed pointer. */
-    inline virtual void		remove(int from,int to);
+    inline virtual void		remove(od_int64 from,od_int64 to);
 
     inline T*			first();
     inline const T*		first() const;
@@ -80,7 +80,7 @@ public:
 
 protected:
 
-    VectorAccess<void*>		vec_;
+    VectorAccess<void*,int>	vec_;
     bool			allow0_;
 
 public:
@@ -242,7 +242,7 @@ void ObjectSet<T>::allowNull( bool yn )
 
 
 template <class T> inline
-bool ObjectSet<T>::validIdx( int idx ) const
+bool ObjectSet<T>::validIdx( od_int64 idx ) const
 { return idx>=0 && idx<size(); }
 
 
@@ -312,7 +312,7 @@ ObjectSet<T>& ObjectSet<T>::operator -=( T* ptr )
 
 
 template <class T> inline
-void ObjectSet<T>::swap( int idx0, int idx1 )
+void ObjectSet<T>::swap( od_int64 idx0, od_int64 idx1 )
 {
     if ( idx0<0 || idx0>=size() || idx1<0 || idx1>=size() )
 	return;
@@ -412,7 +412,7 @@ T* ObjectSet<T>::remove( int idx, bool kporder )
 }
 
 
-template <class T> inline void ObjectSet<T>::remove( int i1, int i2 )
+template <class T> inline void ObjectSet<T>::remove( od_int64 i1, od_int64 i2 )
 { vec_.remove( i1, i2 ); }
 template <class T> inline T* ObjectSet<T>::first()
 { return isEmpty() ? 0 : (*this)[0]; }

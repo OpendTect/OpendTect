@@ -68,7 +68,7 @@ protected:
 			 */
 
     bool		allowmultiples;
-    VectorAccess<T>	tvec;
+    VectorAccess<T,int>	tvec;
 
 };
 

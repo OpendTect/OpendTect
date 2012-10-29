@@ -23,14 +23,14 @@ mClass(Basic) Set
 {
 public:
 
-    virtual		~Set()			{}
+    virtual		~Set()					{}
 
-    virtual int		nrItems() const		= 0;
+    virtual od_int64	nrItems() const				= 0;
     inline bool		isEmpty() const		{ return nrItems() == 0; }
-    virtual bool	validIdx(int) const	= 0;
-    virtual void	swap(int,int)		= 0;
-    virtual void	erase()			= 0;
-    virtual void	remove(int from,int to)	= 0;
+    virtual bool	validIdx(od_int64) const		= 0;
+    virtual void	swap(od_int64,od_int64)			= 0;
+    virtual void	erase()					= 0;
+    virtual void	remove(od_int64 start,od_int64 stop)	= 0;
 
 };
 
