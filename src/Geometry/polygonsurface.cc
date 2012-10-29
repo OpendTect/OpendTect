@@ -121,10 +121,10 @@ bool PolygonSurface::removePolygon( int polygonnr )
 {
     mGetValidPolygonIdx( polygonidx, polygonnr, 0, false );
 
-    polygons_.remove( polygonidx );
-    polygonnormals_.remove( polygonidx );
-    firstknots_.remove( polygonidx );
-    concavedirs_.remove( polygonidx );
+    polygons_.removeSingle( polygonidx );
+    polygonnormals_.removeSingle( polygonidx );
+    firstknots_.removeSingle( polygonidx );
+    concavedirs_.removeSingle( polygonidx );
 
     triggerNrPosCh( RowCol(polygonidx,PolygonRemove).toInt64() );
     if ( blocksCallBacks() )

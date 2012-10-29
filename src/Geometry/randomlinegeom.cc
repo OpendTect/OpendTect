@@ -47,7 +47,7 @@ void RandomLine::setNodePosition( int idx, const BinID& bid )
 { nodes_[idx] = bid; }
 
 void RandomLine::removeNode( int idx )
-{ nodes_.remove( idx ); nodeRemoved.trigger(); }
+{ nodes_.removeSingle( idx ); nodeRemoved.trigger(); }
 
 void RandomLine::removeNode( const BinID& bid )
 { nodes_ -= bid; nodeRemoved.trigger(); }

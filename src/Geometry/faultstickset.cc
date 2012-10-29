@@ -104,10 +104,10 @@ bool FaultStickSet::removeStick( int sticknr )
 {
     mGetValidStickIdx( stickidx, sticknr, 0, false );
 
-    sticks_.remove( stickidx );
-    editplanenormals_.remove( stickidx );
-    stickstatus_.remove( stickidx );
-    firstcols_.remove( stickidx );
+    sticks_.removeSingle( stickidx );
+    editplanenormals_.removeSingle( stickidx );
+    stickstatus_.removeSingle( stickidx );
+    firstcols_.removeSingle( stickidx );
 
     if ( !stickidx )
 	firstrow_++;
@@ -354,7 +354,7 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
 	for ( int idx=sticknrs.size()-1; idx>=0; idx-- )
 	{
 	    if ( !rowrg.includes(sticknrs[idx],false) )
-		sticknrs.remove( idx );
+		sticknrs.removeSingle( idx );
 	}
     }
 
@@ -362,7 +362,7 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
 	return;
 
     double mindist = MAXDOUBLE;
-    int minidx0, minidx1;
+    int minidx0 = -1, minidx1 = -1;
 
     for ( int idx=0; idx<sticknrs.size()-1; idx++ )
     {

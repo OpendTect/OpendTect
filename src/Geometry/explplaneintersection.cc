@@ -587,9 +587,9 @@ void ExplPlaneIntersection::removePlane( int id )
 {
     const int idx = planeids_.indexOf( id );
 
-    planeids_.remove( idx, false );
-    delete planepts_.remove( idx, false );
-    planenormals_.remove( idx, false );
+    planeids_.removeSingle( idx, false );
+    delete planepts_.removeSingle( idx, false );
+    planenormals_.removeSingle( idx, false );
 
     needsupdate_ = true;
 }

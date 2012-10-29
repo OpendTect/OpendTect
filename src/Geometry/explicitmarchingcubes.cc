@@ -400,11 +400,11 @@ ExplicitMarchingCubesSurface::getAxisScale( int dim ) const
     else if ( coordindices[bsz-1]!=-1 ) \
     { \
 	if ( coordindices[bsz-2]==-1 ) \
-	    coordindices.remove( bsz-1 ); \
+	    coordindices.removeSingle( bsz-1 ); \
 	else if ( coordindices[bsz-3]==-1 ) \
 	{ \
-	    coordindices.remove( bsz-1 ); \
-	    coordindices.remove( bsz-2 ); \
+	    coordindices.removeSingle( bsz-1 ); \
+	    coordindices.removeSingle( bsz-2 ); \
 	} \
 	else \
 	    coordindices += -1; \
