@@ -142,8 +142,7 @@ FaultDisplay::~FaultDisplay()
 
     while ( horintersections_.size() )
     {
-	horintersections_[0]->unRef();
-	horintersections_.remove(0);
+	horintersections_.removeSingle(0)->unRef();
     }
 
     deepErase( horshapes_ );
@@ -168,8 +167,7 @@ FaultDisplay::~FaultDisplay()
     for ( int idx=knotmarkers_.size()-1; idx>=0; idx-- )
     {
 	removeChild( knotmarkers_[idx]->getInventorNode() );
-	knotmarkers_[idx]->unRef();
-	knotmarkers_.remove( idx );
+	knotmarkers_.removeSingle( idx )->unRef();
     }
 
     deepErase( stickintersectpoints_ );
@@ -1149,7 +1147,7 @@ void FaultDisplay::removeCache( int attrib )
 	return;
 
     DPM( DataPackMgr::SurfID() ).release( datapackids_[attrib] );
-    datapackids_.remove( attrib );
+    datapackids_.removeSingle( attrib );
 }
 
 void FaultDisplay::swapCache( int attr0, int attr1 )
@@ -1250,10 +1248,9 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	    continue;
 
 	horintersections_[idx]->turnOn( false );
-	horintersections_[idx]->unRef();
-	horintersections_.remove( idx );
-	delete horshapes_.remove( idx );
-	horintersectids_.remove( idx ); 
+	horintersections_.removeSingle( idx )->unRef();
+	delete horshapes_.removeSingle( idx );
+	horintersectids_.removeSingle( idx ); 
     }
 
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
@@ -1358,8 +1355,8 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 					      normal, positions );
 	    planeids += planeids_[idy];
 
-	    intersectionobjs_.remove( idy );
-	    planeids_.remove( idy );
+	    intersectionobjs_.removeSingle( idy );
+	    planeids_.removeSingle( idy );
 	}
     }
 
@@ -1629,7 +1626,7 @@ bool FaultDisplay::coincidesWithPlane(
 	    Coord3(1,1,mZScale()).dot(
 		    inlcrlsystem_->oneStepTranslation(planenormal) );
 
-	float prevdist;
+	float prevdist=-1;
 	Coord3 prevpos;
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
@@ -1652,7 +1649,7 @@ bool FaultDisplay::coincidesWithPlane(
 		if ( plane->calcDist(interpos) <= 0.5*onestepdist )
 		{
 		    if ( prevdist <= 0.5*onestepdist )
-			intersectpoints.remove( intersectpoints.size()-1 );
+			intersectpoints.removeSingle( intersectpoints.size()-1 );
 
 		    res = res || coincidemode;
 		    intersectpoints += interpos;

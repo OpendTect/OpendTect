@@ -126,8 +126,7 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
     for ( int idx=knotmarkers_.size()-1; idx>=0; idx-- )
     {
 	removeChild( knotmarkers_[idx]->getInventorNode() );
-	knotmarkers_[idx]->unRef();
-	knotmarkers_.remove( idx );
+	knotmarkers_.removeSingle( idx )->unRef();
     }
 
     deepErase( stickintersectpoints_ );
@@ -924,7 +923,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	const float onestepdist = Coord3(1,1,mZScale()).dot(
 	    inlcrlsystem_->oneStepTranslation(plane->getNormal(Coord3::udf())));
 
-	float prevdist;
+	float prevdist = -1;
 	Coord3 prevpos;
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
@@ -948,7 +947,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 		if ( plane->calcDist(interpos) <= 0.5*onestepdist )
 		{
 		    if ( prevdist <= 0.5*onestepdist )
-			intersectpoints.remove( intersectpoints.size()-1 );
+			intersectpoints.removeSingle( intersectpoints.size()-1 );
 
 		    res = res || coincidemode;
 		    intersectpoints += interpos;

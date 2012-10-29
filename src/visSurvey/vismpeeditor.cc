@@ -231,12 +231,11 @@ void MPEEditor::removeDragger( int idx )
     draggers[idx]->motion.remove(mCB(this,MPEEditor,dragMotion));
     draggers[idx]->finished.remove(mCB(this,MPEEditor,dragStop));
     removeChild( draggers[idx]->getInventorNode() );
-    draggers[idx]->unRef();
-    draggersshapesep[idx]->unRef();
-    draggers.remove(idx,false);
-    posids.remove(idx,false);
-    draggersshapesep.remove(idx,false);
-    draggermarkers.remove(idx,false);
+  
+    draggers.removeSingle(idx,false)->unRef();
+    posids.removeSingle(idx,false);
+    draggersshapesep.removeSingle(idx,false)->unRef();
+    draggermarkers.removeSingle(idx,false);
 }
 
 

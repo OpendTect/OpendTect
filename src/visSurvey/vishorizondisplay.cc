@@ -292,15 +292,11 @@ void HorizonDisplay::removeEMStuff()
 
     while ( intersectionlines_.size() )
     {
-	intersectionlines_[0]->unRef();
-	intersectionpointsets_[0]->unRef();
-
-	intersectionlines_.remove(0);
-	intersectionpointsets_.remove(0);
-	intersectionlineids_.remove(0);
+	intersectionpointsets_.removeSingle(0)->unRef();
+	intersectionlineids_.removeSingle(0);
 	if ( zaxistransform_ )
 	    zaxistransform_->removeVolumeOfInterest( intersectionlinevoi_[0] );
-	intersectionlinevoi_.remove(0);
+	intersectionlinevoi_.removeSingle(0);
 
     }
 
@@ -580,16 +576,15 @@ bool HorizonDisplay::removeAttrib( int channel )
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->removeChannel( channel );
 
-    curshiftidx_.remove( channel );
-    userrefs_.remove( channel );
-    enabled_.remove( channel );
-    delete shifts_.remove( channel );
+    curshiftidx_.removeSingle( channel );
+    userrefs_.removeSingle( channel );
+    enabled_.removeSingle( channel );
+    delete shifts_.removeSingle( channel );
     DPM( DataPackMgr::FlatID() ).release( datapackids_[channel] );
-    datapackids_.remove( channel );
-    coltabmappersetups_.remove( channel );
-    coltabsequences_.remove( channel );
-    delete as_[channel];
-    as_.remove( channel );
+    datapackids_.removeSingle( channel );
+    coltabmappersetups_.removeSingle( channel );
+    coltabsequences_.removeSingle( channel );
+    delete as_.removeSingle( channel );
 
     for ( int chan=channel; chan<nrAttribs(); chan++ )
     {
@@ -913,9 +908,8 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
     if ( idx<0 ) return;
 
     removeChild( sections_[idx]->getInventorNode() );
-    sections_[idx]->unRef();
-    sections_.remove( idx );
-    sids_.remove( idx );
+    sections_.removeSingle( idx )->unRef();
+    sids_.removeSingle( idx );
 };
 
 
@@ -1645,21 +1639,19 @@ void HorizonDisplay::updateIntersectionLines(
 	if ( !lineshouldexist[idx] )
 	{
 	    removeChild( intersectionlines_[idx]->getInventorNode() );
-	    intersectionlines_[idx]->unRef();
 	    removeChild( intersectionpointsets_[idx]->getInventorNode() );
-	    intersectionpointsets_[idx]->unRef();
 
-	    lineshouldexist.remove(idx);
-	    intersectionlines_.remove(idx);
-	    intersectionpointsets_.remove(idx);
-	    intersectionlineids_.remove(idx);
+	    lineshouldexist.removeSingle(idx);
+	    intersectionlines_.removeSingle(idx)->unRef();
+	    intersectionpointsets_.removeSingle(idx)->unRef();
+	    intersectionlineids_.removeSingle(idx);
 	    if ( zaxistransform_ )
 	    {
 		zaxistransform_->removeVolumeOfInterest(
 			intersectionlinevoi_[idx] );
 	    }
 
-	    intersectionlinevoi_.remove(idx);
+	    intersectionlinevoi_.removeSingle(idx);
 	    idx--;
 	}
     }

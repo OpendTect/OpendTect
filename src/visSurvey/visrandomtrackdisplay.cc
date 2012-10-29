@@ -338,7 +338,7 @@ bool RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
     {				  // TODO: Make better fix
 	while ( nrKnots()>0 )
 	{
-	    knots_.remove( 0 );
+	    knots_.removeSingle( 0 );
 	    dragger_->removeKnot( 0 );
 	}
 
@@ -380,7 +380,7 @@ void RandomTrackDisplay::removeKnot( int knotidx )
 	return;
     }
 
-    knots_.remove(knotidx);
+    knots_.removeSingle(knotidx);
     triangles_->setLineKnots( knots_ );	
     dragger_->removeKnot( knotidx );
 }
@@ -954,11 +954,10 @@ void RandomTrackDisplay::addCache()
 
 void RandomTrackDisplay::removeCache( int attrib )
 {
-    delete cache_[attrib];
-    cache_.remove( attrib );
+    delete cache_.removeSingle( attrib );
 
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
-    datapackids_.remove( attrib );
+    datapackids_.removeSingle( attrib );
 }
 
 

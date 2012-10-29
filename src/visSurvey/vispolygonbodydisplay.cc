@@ -894,8 +894,8 @@ void PolygonBodyDisplay::otherObjectsMoved(
 	    explicitintersections_->setPlane(planeids_[idy], normal, positions);
 	    planeids += planeids_[idy];
 
-	    intersectionobjs_.remove( idy );
-	    planeids_.remove( idy );
+	    intersectionobjs_.removeSingle( idy );
+	    planeids_.removeSingle( idy );
 	}
     }
 

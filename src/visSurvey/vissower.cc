@@ -370,8 +370,8 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
     {
 	if ( singleseeded_ )
 	{
-	    delete eventlist_.remove( idx );
-	    mousecoords_.remove( idx );
+	    delete eventlist_.removeSingle( idx );
+	    mousecoords_.removeSingle( idx );
 	}
 	else
 	{
@@ -426,7 +426,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 		eventcatcher_->reHandle( *eventlist_[eventidx] );
 	}
 
-	bendpoints_.remove( 0 );
+	bendpoints_.removeSingle( 0 );
 
 	count++;
 	if ( !intersowing || count>2 )

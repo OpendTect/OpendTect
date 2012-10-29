@@ -675,7 +675,7 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	insertpick = locidx >= 0;
 
 	sowinghistory.insert( 0, pos );
-	sowinghistory.remove( 2 );
+	sowinghistory.removeSingle( 2 );
     }
     else
 	sower_->alternateSowingOrder( false );
@@ -717,7 +717,7 @@ void LocationDisplay::removePick( int removeidx )
 
     Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
 				 set_, removeidx );
-    set_->remove( removeidx );
+    set_->removeSingle( removeidx );
     picksetmgr_->reportChange( 0, cd );
     
     if ( needline_ ) createLine();
