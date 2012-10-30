@@ -32,8 +32,9 @@ class DataPointSet;
    DataPointSetDisplayMgr only.
 */
 
-struct DataPointSetDisplayProp
+class DataPointSetDisplayProp
 {
+public:
 				DataPointSetDisplayProp( 
 					const ColTab::Sequence& cs,
 				        const ColTab::MapperSetup& cm,int id)
