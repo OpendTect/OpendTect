@@ -198,7 +198,7 @@ bool  SortedPointers<T>::remove(int id_)
 
     if ( pos==-1 ) return false;
 
-    vals.remove( pos );
+    vals.removeSingle( pos );
     ids.remove( pos );
 
     return true;
