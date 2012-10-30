@@ -1,7 +1,7 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman K Singh
  Date:		July 2008
 ________________________________________________________________________
@@ -46,8 +46,8 @@ bool BatchProgram::go( std::ostream& strm )
     finishmsg_ = "Map created successfully";
     const char* psfilenm = pars().find( sKey::FileName() );
     FilePath outputfp( psfilenm );
-    BufferString cwd;
-    if ( !File::getCurWorkDir( cwd.buf(), 255 ) )
+    const BufferString cwd = File::getCurrentPath();
+    if ( cwd.size() > 255 )
 	mErrStrmRet("Error: Current working directory path length too big")
 
     File::changeDir( outputfp.pathOnly() );

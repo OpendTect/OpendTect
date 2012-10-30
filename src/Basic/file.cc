@@ -446,24 +446,6 @@ bool changeDir( const char* dir )
 }
 
 
-bool getCurWorkDir( char* dir, int pathlen )
-{
-#ifdef __win__
-    _getcwd( dir, pathlen );
-    if ( !dir || !*dir )
-	return false;
-    else
-	return true;
-#else
-    getcwd( dir, pathlen );
-    if ( !dir || !*dir )
-	return false;
-    else
-	return true;
-#endif
-}
-
-
 bool makeWritable( const char* fnm, bool yn, bool recursive )
 {
     BufferString cmd;
@@ -619,7 +601,11 @@ const char* getCurrentPath()
 #ifndef OD_NO_QT
     pathstr = QDir::currentPath().toAscii().constData();
 #else
-    pFreeFnErrMsg(not_implemented_str,"getCurrentPath");
+# ifdef __win__
+    _getcwd( pathstr.buf(), pathstr.minBufSize() );
+# else
+    getcwd( pathstr.buf(), pathstr.minBufSize() );
+# endif
 #endif
     return pathstr.buf();
 }
