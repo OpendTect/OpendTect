@@ -36,8 +36,6 @@ public:
 
     virtual bool	isProvider() const;
 
-    virtual Provider*	clone() const			= 0;
-
     virtual bool	toNextPos()				= 0;
     virtual bool	toNextZ()				= 0;
     virtual Coord	curCoord() const			= 0;
