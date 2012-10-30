@@ -546,13 +546,13 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
 
 	for ( int idx=0; idx<obj->nrVariables(); idx++ )
 	{
-	    const char* str = obj->fullVariableExpression(idx);
+	    FixedString str = obj->fullVariableExpression(idx);
 
 	    bool found=false;
 
 	    for ( int idy=0; idy<nrVariables(); idy++ )
 	    {
-		if ( !strcmp( str, fullVariableExpression(idy) ) )	
+		if ( str==fullVariableExpression(idy) )
 		{
 		    (*variableobj_[idy]) += inp;
 		    (*variablenr_[idy]) += idx;
