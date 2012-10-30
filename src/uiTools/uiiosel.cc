@@ -118,8 +118,7 @@ void uiIOSelect::updateFromEntries()
 	    inp_->addItem( usrnm );
 	else
 	{
-	    delete entries_[idx];
-	    entries_.remove( idx );
+	    entries_.removeSingle( idx );
 	    idx--;
 	}
     }
