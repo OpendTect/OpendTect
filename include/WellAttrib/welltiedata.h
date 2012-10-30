@@ -84,8 +84,15 @@ public:
 					{ return m.zpos_ == zpos_; }
 };
 
-mStruct(WellAttrib) PickData		{ TypeSet<Marker> synthpicks_, seispicks_; };
+    
+mClass(WellAttrib) PickData
+{
+public:
+    TypeSet<Marker>		synthpicks_;
+    TypeSet<Marker>		seispicks_;
+};
 
+    
 mClass(WellAttrib) Data
 {
 public :
