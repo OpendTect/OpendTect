@@ -438,7 +438,8 @@ void uiMultiWellLogSel::update()
 	    wellsfld_->addItem( ioobj->name() );
     }
 
-    wellsfld_->selectAll( true );
+    if ( wellsfld_ )
+	wellsfld_->selectAll( true );
     sort( mrkrs ); setMarkers( mrkrs );
 
     for ( int idx=0; idx<lognms.size(); idx++ )
