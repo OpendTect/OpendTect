@@ -256,14 +256,13 @@ void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
     const char* curnm = tosel->text();
     const int idx = hornms_.indexOf( nm );
     BufferStringSet hornms( hornms_ );
-    BufferString* bs = 0;
-    if ( idx >= 0 ) bs = hornms.remove( idx );
+    
+    if ( idx >= 0 ) hornms.removeSingle( idx );
 
     tosel->setEmpty();
     tosel->addItem( "Select" );
     tosel->addItems( hornms );
     tosel->setCurrentItem( curnm );
-    if ( bs ) delete bs;
 }
 
 
