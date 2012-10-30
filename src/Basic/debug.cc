@@ -68,7 +68,7 @@ static int getMask()
     BufferString envmask = GetEnvVar( "DTECT_DEBUG" );
     const char* buf = envmask.buf();
     themask = toInt( buf );
-    if ( buf[0] == 'y' || buf[0] == 'Y' ) themask = 0xffff;
+    if ( toBool(buf,false) ) themask = 0xffff;
 
     const char* dbglogfnm = GetEnvVar( "DTECT_DEBUG_LOGFILE" );
     if ( dbglogfnm && !themask )
