@@ -207,13 +207,12 @@ void uiCmdDriverMgr::commandLineParsing()
     uiMain::theMain().getCmdLineArgs( cmdline );
     for ( int idx=1; idx<cmdline.size(); idx++ )
     {
-	char* str = cmdline.get(idx).buf();
-	char* ptr = strchr( str, '=' );
+	char* ptr = strchr( cmdline.get(idx).buf(), '=' );
 	if ( !ptr )
 	    continue;
 
 	*ptr++ = '\0';
-	if ( !strcmp(str,"cmd") )
+	if ( cmdline.get(idx) == "cmd" )
 	{
 
 	    BufferString fnm( ptr );
@@ -237,7 +236,7 @@ void uiCmdDriverMgr::commandLineParsing()
 	    addCmdLineScript( fnm );
 	}
 
-	if ( !strcmp(str,"cmdlog") )
+	if ( cmdline.get(idx) == "cmdlog" )
 	    cmdlogname_ = ptr;
     }
 }

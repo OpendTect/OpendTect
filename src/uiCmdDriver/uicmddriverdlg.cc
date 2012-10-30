@@ -350,16 +350,16 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
 
 void uiCmdDriverDlg::selectPauseCB( CallBacker* )
 {
-    BufferString buttext = pausebut_->text();
-    if ( strcmp(buttext,"&Resume") )
-    {
-	pausebut_->setText( "-Interrupting-" );
-	drv_.pause( true );
-    }
-    else
+    FixedString buttext = pausebut_->text();
+    if ( buttext == "&Resume" )
     {
 	pausebut_->setText( "&Pause" );
 	drv_.pause( false );
+    }
+    else
+    {
+	pausebut_->setText( "-Interrupting-" );
+	drv_.pause( true );
     }
 } 
 
@@ -375,8 +375,8 @@ void uiCmdDriverDlg::interactCB( CallBacker* cb )
 	return;
     }
 
-    BufferString buttext = pausebut_->text();
-    if ( !strcmp(buttext,"-Interrupting-") && ispec->dlgtitle_.isEmpty() )
+    FixedString buttext = pausebut_->text();
+    if ( buttext=="-Interrupting-" && ispec->dlgtitle_.isEmpty() )
     {
 	pausebut_->setText( "&Resume" );
 	return;

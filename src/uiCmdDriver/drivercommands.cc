@@ -728,15 +728,15 @@ bool CallCmd::act( const char* parstr )
 	    evalfms += identnm;
 	    if ( actualpar != "_dummyvar" )
 	    {
-		if ( strcmp(formalfms[idx], "_dummyvar") ) 
-		{
-		    mTimeStrm << "LINK: " << formalfms[idx] << "' -> "
-			      << actualpar << std::endl;
-		}
-		else
+		if ( formalfms[idx] == "_dummyvar" ) 
 		{
 		    mParseWarnStrm << "Procedure did not define return "
 			<< "parameter to link: " << actualpar << std::endl;
+		}
+		else
+		{
+		    mTimeStrm << "LINK: " << formalfms[idx] << "' -> "
+			      << actualpar << std::endl;
 		}
 	    }
 	}
@@ -764,7 +764,7 @@ bool ReturnCmd::act( const char* parstr )
     if ( parstr && *parstr )
     {
 	const char* identnm = identifierMan().getValue( "_returnvar" );
-	if ( !identnm || !strcmp(identnm, "_dummyvar") )
+	if ( !identnm || FixedString(identnm)=="_dummyvar" )
 	{
 	    mParseErrStrm << "Procedure did not define parameter to assign " 
 			  << "a return value" << std::endl;

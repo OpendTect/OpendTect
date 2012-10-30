@@ -623,7 +623,7 @@ bool isCmdDriverWindow( const uiMainWin* uimw )
     if ( !uimw )
 	return false;
 
-    if ( !strcmp(uimw->name(), controllerTitle()) )
+    if ( uimw->name() == controllerTitle() )
 	return true;
 
     uiParent* parent = const_cast<uiParent*>( uimw->parent() );

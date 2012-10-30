@@ -566,7 +566,7 @@ protected:
 	StringProcessor strproc( valstr ); \
 	const char* quote = strproc.convertToDouble() ? "" : "\""; \
 	mLogStrm << " -->> " << identnm << (isarg ? "'" : "") \
-		 << (strcmp(identnm,"") ? " = " : "") \
+		 << (FixedString(identnm).isEmpty() ? "" : " = " ) \
 		 << quote << valstr << quote << std::endl; \
     }
 

@@ -109,6 +109,7 @@ static int getNrActiveCmdDrivers( int nrextra )
 const char* CmdDriver::defaultLogFilename()
 { return "odcmdlog.txt"; }
 
+
 CmdDriver::CmdDriver( uiMainWin& aw )
 	: drv_(*this)
 	, applwin_( &aw )
@@ -325,7 +326,7 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 	    if ( backward ) actidxstack.removeSingle( 0 ); \
 	    if ( backward ) flowstack.removeSingle( 0 ); \
 	} \
-	if ( !strcmp(#cmd, "Else") ) \
+	if ( FixedString(#cmd) == "Else" ) \
 	    flowstack[0] = ElseTag; \
     }
 
