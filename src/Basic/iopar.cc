@@ -151,7 +151,7 @@ void IOPar::setEmpty()
 void IOPar::remove( int idx )
 {
     if ( idx >= size() ) return;
-    keys_.remove( idx ); vals_.remove( idx );
+    keys_.removeSingle( idx ); vals_.removeSingle( idx );
 }
 
 
