@@ -1,0 +1,152 @@
+dTect V4.4
+Stratigraphic Levels
+Mon 29 Oct 2012, 19:07:58
+!
+ID: 1
+Name: Top_Recent
+Color: 255`255`127
+!
+ID: 2
+Name: Top_Pleistocene
+Color: 213`213`147
+!
+ID: 3
+Name: Top_Pliocene
+Color: 255`236`160
+!
+ID: 4
+Name: Top_Miocene
+Color: 255`255`0
+!
+ID: 5
+Name: Top_Oligocene
+Color: 238`206`192
+!
+ID: 6
+Name: Top_Eocene
+Color: 255`181`115
+!
+ID: 7
+Name: Top_Paleocene
+Color: 221`179`120
+!
+ID: 8
+Name: Top_Cretaceous
+Color: 157`225`105
+!
+ID: 9
+Name: Top_L.Cretaceous
+Color: 93`134`62
+!
+ID: 10
+Name: Top_Jurassics
+Color: 128`196`255
+!
+ID: 11
+Name: Top_M.Jurassics
+Color: 89`137`177
+!
+ID: 12
+Name: Top_L.Jurassics
+Color: 51`79`102
+!
+ID: 13
+Name: Top_Triassic
+Color: 173`126`255
+!
+ID: 14
+Name: Top_M.Triassic
+Color: 111`81`165
+!
+ID: 15
+Name: Top_L.Triassic
+Color: 42`31`63
+!
+ID: 16
+Name: Top_Permian
+Color: 250`148`130
+!
+ID: 17
+Name: Top_M.Permian
+Color: 157`93`82
+!
+ID: 18
+Name: Top_L.Permian
+Color: 95`56`49
+!
+ID: 19
+Name: Top_Pennsylvanian
+Color: 169`255`227
+!
+ID: 20
+Name: Top_Missisippian
+Color: 102`154`137
+!
+ID: 21
+Name: Top_Devonian
+Color: 244`193`125
+!
+ID: 22
+Name: Top_M.Devonian
+Color: 170`135`87
+!
+ID: 23
+Name: Top_L.Devonian
+Color: 112`88`57
+!
+ID: 24
+Name: Top_Pridoli
+Color: 168`254`226
+!
+ID: 25
+Name: Top_Ludlow
+Color: 146`220`196
+!
+ID: 26
+Name: Top_Wenlock
+Color: 159`200`187
+!
+ID: 27
+Name: Top_Llandovery
+Color: 97`162`127
+!
+ID: 28
+Name: Top_Ordovician
+Color: 0`170`127
+!
+ID: 29
+Name: Top_M.Ordovician
+Color: 0`135`99
+!
+ID: 30
+Name: Top_L.Ordovician
+Color: 0`132`97
+!
+ID: 31
+Name: Top_Cambrian
+Color: 187`234`162
+!
+ID: 32
+Name: Top_S3.Cambrian
+Color: 156`195`135
+!
+ID: 33
+Name: Top_S2.Cambrian
+Color: 125`156`108
+!
+ID: 34
+Name: Top_Ter.Cambrian
+Color: 90`140`83
+!
+ID: 35
+Name: Top_Neo.Proterozoic
+Color: 197`138`255
+!
+ID: 36
+Name: Top_Meso.Proterozoic
+Color: 121`85`157
+!
+ID: 37
+Name: Top_Paleo.Proterozoic
+Color: 161`79`153
+!

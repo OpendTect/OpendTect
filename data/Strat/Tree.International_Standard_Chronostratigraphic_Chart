@@ -1,0 +1,435 @@
+dTect V4.4
+Stratigraphic Tree
+Mon 29 Oct 2012, 19:07:58
+!
+General
+Lithology: Undef`0`N`#ffffff
+Lithology: sand`0`P`#ffd700
+Lithology: shale`1`N`#8b4500
+Lithology: limestone`2`P`#00aaff
+Lithology: dolomite`3`P`#0000ff
+Lithology: halite`4`N`#ff00ff
+Lithology: anhydrite`5`N`#9be8e8
+Contents: Oil`Gas
+Contents.Oil.Appearance: 1`6`#008000
+Contents.Gas.Appearance: 1`6`#ff0000
+!
+Units
+Cenozoic:  
+Cenozoic.Quaternary:  
+Cenozoic.Quaternary.Holocene: 1` 
+Cenozoic.Quaternary.Holocene.Undef: 0` 
+Cenozoic.Quaternary.Pleistocene: 2` 
+Cenozoic.Quaternary.Pleistocene.Undef: 0` 
+Cenozoic.Neogene:  
+Cenozoic.Neogene.Pliocene: 3` 
+Cenozoic.Neogene.Pliocene.Undef: 0` 
+Cenozoic.Neogene.Miocene: 4` 
+Cenozoic.Neogene.Miocene.Undef: 0` 
+Cenozoic.Paleogene:  
+Cenozoic.Paleogene.Oligocene: 5` 
+Cenozoic.Paleogene.Oligocene.Undef: 0` 
+Cenozoic.Paleogene.Eocene: 6` 
+Cenozoic.Paleogene.Eocene.Undef: 0` 
+Cenozoic.Paleogene.Paleocene: 7` 
+Cenozoic.Paleogene.Paleocene.Undef: 0` 
+Mesozoic:  
+Mesozoic.Cretaceous:  
+Mesozoic.Cretaceous.Upper: 8` 
+Mesozoic.Cretaceous.Upper.Undef: 0` 
+Mesozoic.Cretaceous.Lower: 9` 
+Mesozoic.Cretaceous.Lower.Undef: 0` 
+Mesozoic.Jurassics:  
+Mesozoic.Jurassics.Upper: 10` 
+Mesozoic.Jurassics.Upper.Undef: 0` 
+Mesozoic.Jurassics.Middle: 11` 
+Mesozoic.Jurassics.Middle.Undef: 0` 
+Mesozoic.Jurassics.Lower: 12` 
+Mesozoic.Jurassics.Lower.Undef: 0` 
+Mesozoic.Triassic:  
+Mesozoic.Triassic.Upper: 13` 
+Mesozoic.Triassic.Upper.Undef: 0` 
+Mesozoic.Triassic.Middle: 14` 
+Mesozoic.Triassic.Middle.Undef: 0` 
+Mesozoic.Triassic.Lower: 15` 
+Mesozoic.Triassic.Lower.Undef: 0` 
+Paleozoic:  
+Paleozoic.Permian:  
+Paleozoic.Permian.Lopingian: 16` 
+Paleozoic.Permian.Lopingian.Undef: 0` 
+Paleozoic.Permian.Guadalupian: 17` 
+Paleozoic.Permian.Guadalupian.Undef: 0` 
+Paleozoic.Permian.Cisuralian: 18` 
+Paleozoic.Permian.Cisuralian.Undef: 0` 
+Paleozoic.Carboniferous:  
+Paleozoic.Carboniferous.Pennsylvanian: 19` 
+Paleozoic.Carboniferous.Pennsylvanian.Undef: 0` 
+Paleozoic.Carboniferous.Missisippian: 20` 
+Paleozoic.Carboniferous.Missisippian.Undef: 0` 
+Paleozoic.Devonian:  
+Paleozoic.Devonian.Upper: 21` 
+Paleozoic.Devonian.Upper.Undef: 0` 
+Paleozoic.Devonian.Middle: 22` 
+Paleozoic.Devonian.Middle.Undef: 0` 
+Paleozoic.Devonian.Lower: 23` 
+Paleozoic.Devonian.Lower.Undef: 0` 
+Paleozoic.Silurian:  
+Paleozoic.Silurian.Pridoli: 24` 
+Paleozoic.Silurian.Pridoli.Undef: 0` 
+Paleozoic.Silurian.Ludlow: 25` 
+Paleozoic.Silurian.Ludlow.Undef: 0` 
+Paleozoic.Silurian.Wenlock: 26` 
+Paleozoic.Silurian.Wenlock.Undef: 0` 
+Paleozoic.Silurian.Llandovery: 27` 
+Paleozoic.Silurian.Llandovery.Undef: 0` 
+Paleozoic.Ordovician:  
+Paleozoic.Ordovician.Upper: 28` 
+Paleozoic.Ordovician.Upper.Undef: 0` 
+Paleozoic.Ordovician.Middle: 29` 
+Paleozoic.Ordovician.Middle.Undef: 0` 
+Paleozoic.Ordovician.Lower: 30` 
+Paleozoic.Ordovician.Lower.Undef: 0` 
+Paleozoic.Cambrian:  
+Paleozoic.Cambrian.Furongian: 31` 
+Paleozoic.Cambrian.Furongian.Undef: 0` 
+Paleozoic.Cambrian.Series_3: 32` 
+Paleozoic.Cambrian.Series_3.Undef: 0` 
+Paleozoic.Cambrian.Series_2: 33` 
+Paleozoic.Cambrian.Series_2.Undef: 0` 
+Paleozoic.Cambrian.Terreneuvian: 34` 
+Paleozoic.Cambrian.Terreneuvian.Undef: 0` 
+Proterozoic:  
+Proterozoic.Neoproterozoic: 35` 
+Proterozoic.Neoproterozoic.Undef: 0` 
+Proterozoic.Mesoproterozoic: 36` 
+Proterozoic.Mesoproterozoic.Undef: 0` 
+Proterozoic.Paleoproterozoic: 37` 
+Proterozoic.Paleoproterozoic.Undef: 0` 
+!
+Properties for entire tree
+Color: 255`255`255
+Time: 0`2000
+!
+Properties for Cenozoic
+Color: 255`255`0
+Time: 0`66
+!
+Properties for Cenozoic.Quaternary
+Color: 255`251`187
+Time: 0`2.58
+!
+Properties for Cenozoic.Quaternary.Holocene
+Color: 255`254`212
+Time: 0`0.117
+!
+Properties for Cenozoic.Quaternary.Holocene.Undef
+Color: 255`255`255
+!
+Properties for Cenozoic.Quaternary.Pleistocene
+Color: 255`240`178
+Time: 0.117`2.58
+!
+Properties for Cenozoic.Quaternary.Pleistocene.Undef
+Color: 255`255`255
+!
+Properties for Cenozoic.Neogene
+Color: 255`227`87
+Time: 2.58`23.299999
+!
+Properties for Cenozoic.Neogene.Pliocene
+Color: 255`236`160
+Time: 2.58`5.33
+!
+Properties for Cenozoic.Neogene.Pliocene.Undef
+Color: 255`255`255
+!
+Properties for Cenozoic.Neogene.Miocene
+Color: 255`255`0
+Time: 5.33`23.299999
+!
+Properties for Cenozoic.Neogene.Miocene.Undef
+Color: 255`255`255
+!
+Properties for Cenozoic.Paleogene
+Color: 255`170`127
+Time: 23.299999`66
+!
+Properties for Cenozoic.Paleogene.Oligocene
+Color: 238`206`192
+Time: 23.299999`33.900002
+!
+Properties for Cenozoic.Paleogene.Oligocene.Undef
+Color: 255`255`255
+!
+Properties for Cenozoic.Paleogene.Eocene
+Color: 255`181`115
+Time: 33.900002`56
+!
+Properties for Cenozoic.Paleogene.Eocene.Undef
+Color: 255`255`255
+!
+Properties for Cenozoic.Paleogene.Paleocene
+Color: 221`179`120
+Time: 56`66
+!
+Properties for Cenozoic.Paleogene.Paleocene.Undef
+Color: 255`255`255
+!
+Properties for Mesozoic
+Color: 23`186`255
+Time: 66`252.19999
+!
+Properties for Mesozoic.Cretaceous
+Color: 110`170`70
+Time: 66`145
+!
+Properties for Mesozoic.Cretaceous.Upper
+Color: 157`225`105
+Time: 66`100.5
+!
+Properties for Mesozoic.Cretaceous.Upper.Undef
+Color: 255`255`255
+!
+Properties for Mesozoic.Cretaceous.Lower
+Color: 67`126`45
+Time: 100.5`145
+!
+Properties for Mesozoic.Cretaceous.Lower.Undef
+Color: 255`255`255
+!
+Properties for Mesozoic.Jurassics
+Color: 0`170`255
+Time: 145`201.3
+!
+Properties for Mesozoic.Jurassics.Upper
+Color: 128`196`255
+Time: 145`163.5
+!
+Properties for Mesozoic.Jurassics.Upper.Undef
+Color: 255`255`255
+!
+Properties for Mesozoic.Jurassics.Middle
+Color: 60`177`255
+Time: 163.5`174.1
+!
+Properties for Mesozoic.Jurassics.Middle.Undef
+Color: 255`255`255
+!
+Properties for Mesozoic.Jurassics.Lower
+Color: 44`153`255
+Time: 174.1`201.3
+!
+Properties for Mesozoic.Jurassics.Lower.Undef
+Color: 255`255`255
+!
+Properties for Mesozoic.Triassic
+Color: 110`66`255
+Time: 201.3`252.19999
+!
+Properties for Mesozoic.Triassic.Upper
+Color: 173`126`255
+Time: 201.3`235
+!
+Properties for Mesozoic.Triassic.Upper.Undef
+Color: 255`255`255
+!
+Properties for Mesozoic.Triassic.Middle
+Color: 138`114`255
+Time: 235`247.19999
+!
+Properties for Mesozoic.Triassic.Middle.Undef
+Color: 255`255`255
+!
+Properties for Mesozoic.Triassic.Lower
+Color: 123`61`184
+Time: 247.19999`252.19999
+!
+Properties for Mesozoic.Triassic.Lower.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic
+Color: 174`200`183
+Time: 252.19999`541
+!
+Properties for Paleozoic.Permian
+Color: 255`94`62
+Time: 252.19999`298.89999
+!
+Properties for Paleozoic.Permian.Lopingian
+Color: 250`148`130
+Time: 252.19999`259.89999
+!
+Properties for Paleozoic.Permian.Lopingian.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Permian.Guadalupian
+Color: 212`116`109
+Time: 259.89999`273.20001
+!
+Properties for Paleozoic.Permian.Guadalupian.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Permian.Cisuralian
+Color: 220`121`101
+Time: 273.20001`298.89999
+!
+Properties for Paleozoic.Permian.Cisuralian.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Carboniferous
+Color: 135`173`255
+Time: 298.89999`358.89999
+!
+Properties for Paleozoic.Carboniferous.Pennsylvanian
+Color: 171`223`255
+Time: 298.89999`323.20001
+!
+Properties for Paleozoic.Carboniferous.Pennsylvanian.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Carboniferous.Missisippian
+Color: 142`194`179
+Time: 323.20001`358.89999
+!
+Properties for Paleozoic.Carboniferous.Missisippian.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Devonian
+Color: 150`103`57
+Time: 358.89999`419.20001
+!
+Properties for Paleozoic.Devonian.Upper
+Color: 170`135`87
+Time: 358.89999`382.70001
+!
+Properties for Paleozoic.Devonian.Upper.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Devonian.Middle
+Color: 170`104`46
+Time: 382.70001`393.89999
+!
+Properties for Paleozoic.Devonian.Middle.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Devonian.Lower
+Color: 91`51`16
+Time: 393.89999`419.20001
+!
+Properties for Paleozoic.Devonian.Lower.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Silurian
+Color: 182`227`176
+Time: 419.20001`438
+!
+Properties for Paleozoic.Silurian.Pridoli
+Color: 215`255`255
+Time: 419.20001`423
+!
+Properties for Paleozoic.Silurian.Pridoli.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Silurian.Ludlow
+Color: 174`255`232
+Time: 423`427.39999
+!
+Properties for Paleozoic.Silurian.Ludlow.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Silurian.Wenlock
+Color: 125`188`188
+Time: 427.39999`433.39999
+!
+Properties for Paleozoic.Silurian.Wenlock.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Silurian.Llandovery
+Color: 55`83`83
+Time: 433.39999`438
+!
+Properties for Paleozoic.Silurian.Llandovery.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Ordovician
+Color: 0`170`127
+Time: 438`485.39999
+!
+Properties for Paleozoic.Ordovician.Upper
+Color: 78`170`147
+Time: 438`458.39999
+!
+Properties for Paleozoic.Ordovician.Upper.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Ordovician.Middle
+Color: 85`227`192
+Time: 458.39999`470
+!
+Properties for Paleozoic.Ordovician.Middle.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Ordovician.Lower
+Color: 0`170`127
+Time: 470`485.39999
+!
+Properties for Paleozoic.Ordovician.Lower.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Cambrian
+Color: 125`157`108
+Time: 485.39999`541
+!
+Properties for Paleozoic.Cambrian.Furongian
+Color: 203`254`175
+Time: 485.39999`497
+!
+Properties for Paleozoic.Cambrian.Furongian.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Cambrian.Series_3
+Color: 166`208`144
+Time: 497`509
+!
+Properties for Paleozoic.Cambrian.Series_3.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Cambrian.Series_2
+Color: 167`208`144
+Time: 509`521
+!
+Properties for Paleozoic.Cambrian.Series_2.Undef
+Color: 255`255`255
+!
+Properties for Paleozoic.Cambrian.Terreneuvian
+Color: 119`149`103
+Time: 521`541
+!
+Properties for Paleozoic.Cambrian.Terreneuvian.Undef
+Color: 255`255`255
+!
+Properties for Proterozoic
+Color: 161`79`153
+Time: 541`2000
+!
+Properties for Proterozoic.Neoproterozoic
+Color: 255`125`245
+Time: 541`1000
+!
+Properties for Proterozoic.Neoproterozoic.Undef
+Color: 255`255`255
+!
+Properties for Proterozoic.Mesoproterozoic
+Color: 209`102`200
+Time: 1000`1600
+!
+Properties for Proterozoic.Mesoproterozoic.Undef
+Color: 255`255`255
+!
+Properties for Proterozoic.Paleoproterozoic
+Color: 145`71`139
+Time: 1600`2000
+!
+Properties for Proterozoic.Paleoproterozoic.Undef
+Color: 255`255`255
+!
