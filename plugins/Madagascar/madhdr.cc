@@ -143,7 +143,6 @@ int RSFHeader::nrDims() const
 	dimnm += ++dim;
 	found = find( dimnm );
     }
-
     return dim - 1;    
 }
 
@@ -408,14 +407,11 @@ bool TrcHdrStrm::initRead()
     rsfheader_->read(*sd_.istrm);
     trchdrdef_.size_ = rsfheader_->nrVals(1);
 
-    if ( rsfheader_->getDataFormat() == (sKeyNativeFloat || sKeyNativeInt) )
-	trchdrdef_.isbinary_ = true;
-    else
-	trchdrdef_.isbinary_ = false;
+    trchdrdef_.isbinary_ =
+	rsfheader_->getDataFormat() == (sKeyNativeFloat || sKeyNativeInt);
 
     const char* datasrc = rsfheader_->getDataSource();
     sd_ = StreamProvider(datasrc).makeIStream();
-
     return true;
 }
 
@@ -429,12 +425,10 @@ bool TrcHdrStrm::initWrite() const
 TrcHeader* TrcHdrStrm::readNextTrc()
 {
     TrcHeader* trchdr;
-    
     while ( *sd_.istrm )
     {
 	trchdr->read( *sd_.istrm );
     }
-    
     return trchdr;
 }
 
