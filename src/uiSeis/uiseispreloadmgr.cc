@@ -112,7 +112,7 @@ void uiSeisPreLoadMgr::fillList()
 	if ( !ioobj )
 	{
 	    Seis::PreLoader(ky).unLoad();
-	    ids_.remove( idx ); idx--;
+	    ids_.removeSingle( idx ); idx--;
 	    continue;
 	}
 	listfld_->addItem( ioobj->name() );
