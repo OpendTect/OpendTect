@@ -30,13 +30,13 @@ namespace Pos
 
  */
 
-class Provider : public virtual Filter
+mClass(Algo) Provider : public virtual Filter
 {
 public:
 
-    virtual bool	isProvider() const			{ return true; }
+    virtual bool	isProvider() const;
 
-    mGlobal(Algo) virtual Provider*	clone() const			= 0;
+    virtual Provider*	clone() const			= 0;
 
     virtual bool	toNextPos()				= 0;
     virtual bool	toNextZ()				= 0;
@@ -46,10 +46,10 @@ public:
     virtual od_int64	estNrPos() const			= 0;
     virtual int		estNrZPerPos() const			{ return 1; }
 
-    mGlobal(Algo) virtual float	estRatio(const Provider&) const;
-    mGlobal(Algo) virtual void	getCubeSampling(CubeSampling&) const;
+    virtual float	estRatio(const Provider&) const;
+    virtual void	getCubeSampling(CubeSampling&) const;
 
-    mGlobal(Algo) static Provider*	make(const IOPar&,bool is2d);
+    static Provider*	make(const IOPar&,bool is2d);
 };
 
 

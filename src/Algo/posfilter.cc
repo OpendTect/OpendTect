@@ -27,6 +27,7 @@ const char* Pos::SubsampFilter::typeStr() { return sKey::Subsample(); }
 const char* Pos::SubsampFilter::eachStr() { return "Pass each"; }
 
 
+
 Pos::Filter* Pos::Filter::make( const IOPar& iop, bool is2d )
 {
     if ( is2d )
@@ -329,6 +330,10 @@ void Pos::SubsampFilter2D::initClass()
 {
     Pos::Filter2D::factory().addCreator( create, sKey::Subsample() );
 }
+
+
+bool Pos::Provider::isProvider() const
+{ return true; }
 
 
 float Pos::Provider::estRatio( const Pos::Provider& prov ) const
