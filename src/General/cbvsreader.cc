@@ -447,8 +447,7 @@ int CBVSReader::getPosNr( const PosInfo::CubeDataPos& cdp,
 			  bool setcurrent ) const
 {
     int posnr = -1;
-    const BinID reqbid( lds_.binID(cdp) );
-
+    
     if ( lds_.isEmpty() )
 	return posnr;
 
