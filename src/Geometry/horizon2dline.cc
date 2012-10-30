@@ -144,12 +144,12 @@ void Horizon2DLine::syncRow( const PosInfo::GeomID& geomid,
 	if ( Coord((*rows_[rowidx])[colidx]).isDefined() )
 	    break;
 	
-	rows_[rowidx]->remove( colidx );
+	rows_[rowidx]->removeSingle( colidx );
     }
 
     while ( rows_[rowidx]->size() && !Coord((*rows_[rowidx])[0]).isDefined() )
     {
-	rows_[rowidx]->remove( 0 );
+	rows_[rowidx]->removeSingle( 0 );
 	colsampling_[rowidx].start += colsampling_[rowidx].step;
     }
 

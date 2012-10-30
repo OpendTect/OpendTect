@@ -174,7 +174,7 @@ bool PolygonSurface::removeKnot( const RowCol& rc )
     if ( polygons_[polygonidx]->size() <= 1 )
 	return removePolygon( rc.row );
 
-    polygons_[polygonidx]->remove( knotidx );
+    polygons_[polygonidx]->removeSingle( knotidx );
     triggerNrPosCh( RowCol(polygonidx,PolygonChange).toInt64() );
     
     return true;

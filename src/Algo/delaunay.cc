@@ -273,7 +273,7 @@ int DAGTriangleTree::insertPoint( const Coord& coord, int& dupid )
 	mMultiThread( coordlock_.writeLock() );
 
 	if ( coordlist_->size()==ci+1 )
-	    coordlist_->remove( ci );
+	    coordlist_->removeSingle( ci );
 
 	mMultiThread( coordlock_.writeUnLock() );
 	return cNoVertex();

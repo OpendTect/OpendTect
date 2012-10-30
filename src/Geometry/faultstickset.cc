@@ -152,7 +152,7 @@ bool FaultStickSet::removeKnot( const RowCol& rc )
     if ( sticks_[stickidx]->size() <= 1 )
 	return removeStick( rc.row );
 
-    sticks_[stickidx]->remove( knotidx );
+    sticks_[stickidx]->removeSingle( knotidx );
 
     if ( !knotidx )
 	firstcols_[stickidx]++;

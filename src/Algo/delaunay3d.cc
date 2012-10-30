@@ -276,7 +276,7 @@ int DAGTetrahedraTree::insertPoint( const Coord3& coord, int& dupid )
     if ( !insertPoint( ci, dupid ) )
     {
 	if ( coordlist_->size()==ci+1 )
-	    coordlist_->remove( ci );
+	    coordlist_->removeSingle( ci );
 
 	return cNoVertex();
     }
