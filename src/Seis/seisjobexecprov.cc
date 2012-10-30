@@ -129,7 +129,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 		    if ( S2DPOS().getGeometry(geom)
 			 && !geom.isEmpty() )
 		    {
-			nms.remove( idx );
+			nms.removeSingle( idx );
 			idx--;
 		    }
 		}
