@@ -309,11 +309,11 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
 }
 
 
-#define mSavePDF( rettype ) \
+#define mSavePDF( retstatement ) \
 BufferString errmsg; \
 const IOObj* ioobj = outputfld_->ioobj(); \
 if ( !ProbDenFuncTranslator::write(*pdf_,*ioobj,&errmsg) ) \
-{ uiMSG().error(errmsg); return rettype; } \
+{ uiMSG().error(errmsg); retstatement; } \
 pdf_->setName( ioobj->name() );
 
 
@@ -329,7 +329,7 @@ bool uiCreateDPSPDF::createPDF()
 	fillPDF( pdf );
 	
 	pdf_ = pdf.clone();
-	mSavePDF( false );
+	mSavePDF( return false );
     }
     else if ( nrdisp_ == 2 )
     {
@@ -338,7 +338,7 @@ bool uiCreateDPSPDF::createPDF()
 	fillPDF( pdf );
 	
 	pdf_ = pdf.clone();
-	mSavePDF( false );
+	mSavePDF( return false );
     }
     else
     {
@@ -348,7 +348,7 @@ bool uiCreateDPSPDF::createPDF()
 	fillPDF( pdf );
 	
 	pdf_ = pdf.clone();
-	mSavePDF( false );
+	mSavePDF( return false );
     }
 
 
@@ -360,5 +360,5 @@ void uiCreateDPSPDF::viewPDF()
 {
     uiEditProbDenFunc editdlg( this, *pdf_, true );
     editdlg.go();
-    mSavePDF();
+    mSavePDF( return );
 }
