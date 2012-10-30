@@ -45,7 +45,6 @@ uiCalcHorVol::uiCalcHorVol( uiParent* p, const char* dlgtxt )
 
 uiGroup* uiCalcHorVol::mkStdGrp()
 {
-    const CallBack chgcb( mCB(this,uiCalcHorVol,haveChg) );
     const CallBack calccb( mCB(this,uiCalcHorVol,calcReq) );
 
     uiGroup* grp = new uiGroup( this, "uiCalcHorVol group" );

@@ -72,7 +72,7 @@ uiStratSelUnits::~uiStratSelUnits()
     const bool topisok = Strat::UnitRefIter::isValid(topnode_,setup_.pol_); \
     const bool topisrt mUnusedVar = &topnode_.refTree() == &topnode_; \
     const CallBack curchgcb( mCB(this,uiStratSelUnits,curChg) ); \
-    const CallBack selchgcb( mCB(this,uiStratSelUnits,selChg) ); \
+    const CallBack selchgcb mUnusedVar ( mCB(this,uiStratSelUnits,selChg) ); \
     Strat::UnitRefIter it( topnode_, setup_.pol_ )
 
 

@@ -120,7 +120,6 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
 
-    const uiWorldRect oldview( activevwr_->curView() );
     setNewView( centre, newsz );
 }
 

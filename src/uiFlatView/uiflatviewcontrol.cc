@@ -255,7 +255,6 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
 
-    const uiWorldRect oldview( vwrs_[0]->curView() );
     setNewView( centre, newsz );
 }
 

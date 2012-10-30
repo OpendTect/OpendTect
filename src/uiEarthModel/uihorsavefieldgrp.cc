@@ -99,7 +99,7 @@ bool uiHorSaveFieldGrp::needsFullSurveyArray() const
 { return  usefullsurvey_; }
 
 
-#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
+#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return 0; }
 
 EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 {
