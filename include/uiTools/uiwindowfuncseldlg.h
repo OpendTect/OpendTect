@@ -79,7 +79,7 @@ public:
     
     void		addFunction(DrawFunction* f) { functions_ += f; }
     void		clearFunctions(){ deepErase( functions_ ); }
-    void		clearFunction(int idx) {delete functions_.remove(idx);}
+    void		clearFunction(int idx) {delete functions_.removeSingle(idx);}
     void		draw(CallBacker*);
     Interval<float>& 	getFunctionRange() { return funcrg_; }
     void 		setSelItems(TypeSet<int> s) { selitemsidx_ = s; }

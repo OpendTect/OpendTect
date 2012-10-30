@@ -236,7 +236,7 @@ void IsoContourTracer::traceContours( Array3DImpl<float>& crossings,
 		    contours.insertAt( contour, idx );
 
 		    if ( oldnrcontours == nrlargestonly_ )
-			delete contours.remove( oldnrcontours );
+			delete contours.removeSingle( oldnrcontours );
 		}
 	    }
 	}

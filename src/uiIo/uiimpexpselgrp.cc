@@ -100,7 +100,7 @@ bool deleteSelGrpSet( const char* nm )
     if ( sgidx<0 || mIsUdf(sgidx) )
 	return false;
 
-    nms.remove( sgidx );
+    nms.removeSingle( sgidx );
     setSelGrpSetNames( nms );
     return File::remove( FilePath(basefp_,nm).fullPath() );
 }

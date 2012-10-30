@@ -158,7 +158,7 @@ void RelationTree::removeNode( const MultiID& id, bool dowrite )
     for ( int idx=0; idx<parents.size(); idx++ )
     {
 	RelationTree::Node* parentnode = nodes_[parents[idx]];
-	parentnode->children_.remove( parentnode->children_.indexOf(node) );
+	parentnode->children_.removeSingle( parentnode->children_.indexOf(node) );
 	for ( int cdx=0; cdx<node->children_.size(); cdx++ )
 	{
 	    const RelationTree::Node* childnode = node->children_[cdx];
@@ -167,7 +167,7 @@ void RelationTree::removeNode( const MultiID& id, bool dowrite )
 	}
     }
 
-    delete nodes_.remove( index );
+    delete nodes_.removeSingle( index );
     if ( dowrite )
 	write();
 }

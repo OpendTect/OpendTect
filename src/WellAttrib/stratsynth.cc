@@ -278,7 +278,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	ObjectSet<PreStack::Gather> gatherset;
 	while ( tbufs.size() )
 	{
-	    SeisTrcBuf* tbuf = tbufs.remove( 0 );
+	    SeisTrcBuf* tbuf = tbufs.removeSingle( 0 );
 	    PreStack::Gather* gather = new PreStack::Gather();
 	    if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
 		{ delete gather; continue; }
@@ -294,7 +294,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	SeisTrcBuf* dptrcbuf = new SeisTrcBuf( true );
 	while ( tbufs.size() )
 	{
-	    SeisTrcBuf* tbuf = tbufs.remove( 0 );
+	    SeisTrcBuf* tbuf = tbufs.removeSingle( 0 );
 	    SeisTrcPropChg stpc( *tbuf->get( 0 ) );
 	    while ( tbuf->size() > 1 )
 	    {
@@ -317,7 +317,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
 	rm.getD2T( tmpd2ts, true );
 	if ( !tmpd2ts.isEmpty() )
-	    sd->d2tmodels_ += tmpd2ts.remove(0);
+	    sd->d2tmodels_ += tmpd2ts.removeSingle(0);
 	deepErase( tmpd2ts );
     }
 

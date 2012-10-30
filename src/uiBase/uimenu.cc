@@ -481,8 +481,8 @@ void uiMenuItemContainer::removeItem( uiMenuItem* itm )
 	if ( body_->popup() )
 	    body_->popup()->removeAction( body_->qactions_[idx] );
 
-	body_->itms_.remove( idx );
-	body_->qactions_.remove( idx );
+	body_->itms_.removeSingle( idx );
+	body_->qactions_.removeSingle( idx );
 	return;
     }
 }
@@ -498,9 +498,9 @@ void uiMenuItemContainer::removeItem( int id, bool withdelete )
 	if ( body_->popup() )
 	    body_->popup()->removeAction( body_->qactions_[idx] );
 
-	uiMenuItem* itm = body_->itms_.remove( idx );
+	uiMenuItem* itm = body_->itms_.removeSingle( idx );
 	if ( withdelete ) delete itm;
-	body_->qactions_.remove( idx );
+	body_->qactions_.removeSingle( idx );
 	return;
     }
 }

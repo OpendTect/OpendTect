@@ -101,7 +101,7 @@ const Strat::LevelSet& Strat::LVLS()
 void Strat::pushLevelSet( Strat::LevelSet* ls )
 { lvlSetMgr().lss_ += ls; }
 void Strat::popLevelSet()
-{ delete lvlSetMgr().lss_.remove( lvlSetMgr().lss_.size()-1 ); }
+{ delete lvlSetMgr().lss_.removeSingle( lvlSetMgr().lss_.size()-1 ); }
 
 
 void Strat::setLVLS( LevelSet* ls )
@@ -339,7 +339,7 @@ void Strat::LevelSet::remove( Level::ID id )
     if ( idx >=0 )
     {
 	delete lvls_[idx];
-	lvls_.remove( idx );
+	lvls_.removeSingle( idx );
     }
 }
 

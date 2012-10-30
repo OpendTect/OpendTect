@@ -60,7 +60,7 @@ EdgeLineSetDisplay::~EdgeLineSetDisplay()
     {
 	removeChild( polylines[idx]->getInventorNode() );
 	polylines[idx]->unRef();
-	polylines.remove(idx--);
+	polylines.removeSingle(idx--);
     }
 
     deepErase( polylinesegments );
@@ -280,12 +280,12 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
     {
 	removeChild( polylines[idx]->getInventorNode() );
 	polylines[idx]->unRef();
-	polylines.remove( idx );
+	polylines.removeSingle( idx );
 
 	delete polylinesegments[idx];
-	polylinesegments.remove(idx);
+	polylinesegments.removeSingle(idx);
 	delete polylinesegmentpos[idx];
-	polylinesegmentpos.remove(idx);
+	polylinesegmentpos.removeSingle(idx);
     }
 }
 

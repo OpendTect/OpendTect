@@ -377,7 +377,7 @@ FlatView::AuxData* uiFlatViewer::removeAuxData( int idx )
 
     worldgroup_->remove( auxdata_[idx]->getDisplay(), true );
     auxdata_[idx]->removeDisplay();
-    return auxdata_.remove(idx);
+    return auxdata_.removeSingle(idx);
 }
 
 

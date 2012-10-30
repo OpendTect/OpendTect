@@ -308,7 +308,7 @@ bool uiWellLogToolWin::acceptOK( CallBacker* )
 	bool overwrite = overwritefld_->isChecked();
 	for ( int idl=ld.outplogs_.size()-1; idl>=0; idl-- )
 	{
-	    Well::Log* outplog = ld.outplogs_.remove( idl );
+	    Well::Log* outplog = ld.outplogs_.removeSingle( idl );
 	    if ( overwrite )
 	    {
 		const int logidx = ls.indexOf( outplog->name() );

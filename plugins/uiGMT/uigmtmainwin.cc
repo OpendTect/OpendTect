@@ -247,7 +247,7 @@ void uiGMTMainWin::butPush( CallBacker* cb )
     {
 	if ( curidx < 0 ) return;
 	flowfld_->removeItem( curidx );
-	GMTPar* tmppar = pars_.remove( curidx );
+	GMTPar* tmppar = pars_.removeSingle( curidx );
 	delete tmppar;
 	needsave_ = true;
 	if ( curidx >= flowfld_->size() )

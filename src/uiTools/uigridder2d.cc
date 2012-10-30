@@ -34,8 +34,8 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
 
 	if ( !gridder )
 	{
-	    griddernames.remove( idx-- );
-	    gridderusernames.remove( idx-- );
+	    griddernames.removeSingle( idx-- );
+	    gridderusernames.removeSingle( idx-- );
 	    continue;
 	}
 

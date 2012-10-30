@@ -293,7 +293,7 @@ void uiOD2DLineSetTreeItem::createAttrMenu( MenuHandler* menu )
 	else
 	    mResetMenuItem( &removeattritm_ )
 
-	if ( emptyidx >= 0 ) displayedattribs.remove( emptyidx );
+	if ( emptyidx >= 0 ) displayedattribs.removeSingle( emptyidx );
 
 	if ( displayedattribs.size() )
 	{

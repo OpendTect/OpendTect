@@ -61,7 +61,7 @@ void CallBacker::removeListener( CallBacker* cb )
     for ( int idx=attachednotifiers_.size()-1; idx>=0; idx-- )
     {
 	if ( attachednotifiers_[idx]->cber_==cb )
-	    attachednotifiers_.remove( idx );
+	    attachednotifiers_.removeSingle( idx );
     }
 }
 

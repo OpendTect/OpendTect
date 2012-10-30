@@ -315,7 +315,7 @@ void uiAttribPartServer::xplotClosedCB( CallBacker* cb )
     if ( attrxplotset_.isPresent(crossplot) )
     {
 	uiAttribCrossPlot* xplot =
-	    attrxplotset_.remove( attrxplotset_.indexOf(crossplot) );
+	    attrxplotset_.removeSingle( attrxplotset_.indexOf(crossplot) );
 	xplot->windowClosed.remove(
 		mCB(this,uiAttribPartServer,xplotClosedCB) );
 	xplot->setDeleteOnClose( true );
@@ -953,7 +953,7 @@ void uiAttribPartServer::insert2DStoredItems( const BufferStringSet& bfset,
     {
 	while ( lsets2dmnuitem->size() )
 	{
-	    MenuItem* olditm = lsets2dmnuitem->remove(0);
+	    MenuItem* olditm = lsets2dmnuitem->removeSingle(0);
 	    delete olditm;
 	}
     }	    

@@ -417,7 +417,7 @@ bool SeisMSCProvider::doAdvance()
 
 	    if ( tbufs_[0]->isEmpty() )
 	    {
-		delete tbufs_.remove(0);
+		delete tbufs_.removeSingle(0);
 		pivotidx_--; 
 	    }
 	}

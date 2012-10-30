@@ -307,7 +307,7 @@ void uiBuildPROPS::removeReq()
     {
 	const int idx = props_.indexOf( prnm );
 	if ( idx < 0 ) return;
-	delete props_.remove( idx );
+	delete props_.removeSingle( idx );
 	removeItem();
     }
 }
@@ -438,7 +438,7 @@ void uiSelectPropRefs::manPROPS( CallBacker* )
     for ( int idx=0; idx<orgnms.size(); idx++ )
     {
 	if ( !props_.isPresent(prsel_[idx]) )
-	    { structchg_ = true; prsel_.remove( idx ); idx--; }
+	    { structchg_ = true; prsel_.removeSingle( idx ); idx--; }
     }
 
     propfld_->setEmpty();

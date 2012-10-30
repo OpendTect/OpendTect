@@ -55,7 +55,7 @@ bool InputCmd::act( const char* parstr )
     {
 	mDynamicCastGet( const uiComboBox*, uicombo, objsfound[idx] );
 	if ( uicombo && uicombo->isReadOnly() )
-	    objsfound.remove( idx );
+	    objsfound.removeSingle( idx );
     }
 
     mParKeyStrPre( "input field", objsfound, nrgrey, keys, selnr );
@@ -117,7 +117,7 @@ bool GetInputCmd::act( const char* parstr )
     {
 	mDynamicCastGet( const uiComboBox*, uicombo, objsfound[idx] );
 	if ( uicombo && uicombo->isReadOnly() )
-	    objsfound.remove( idx );
+	    objsfound.removeSingle( idx );
     }
 
     mParKeyStrPre( "input field", objsfound, nrgrey, keys, selnr );

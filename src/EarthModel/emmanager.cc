@@ -209,7 +209,7 @@ void EMManager::removeObject( const EMObject* obj )
 {
     const int idx = objects_.indexOf( obj );
     if ( idx<0 ) return;
-    objects_.remove( idx );
+    objects_.removeSingle( idx );
     addRemove.trigger();
 }
 

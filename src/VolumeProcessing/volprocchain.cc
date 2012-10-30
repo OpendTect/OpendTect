@@ -347,7 +347,7 @@ void Chain::swapSteps( int o1, int o2 )
 
 void Chain::removeStep( int idx )
 {
-    delete steps_.remove( idx );
+    delete steps_.removeSingle( idx );
 }
 
 

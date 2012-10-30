@@ -85,7 +85,7 @@ public:
 
     int			size() const		{ return lines_.size(); }
     const ObjectSet<RandomLine>& lines() const	{ return lines_; }
-    void		removeLine( int idx )	{ delete lines_.remove(idx); }
+    void		removeLine( int idx )	{ delete lines_.removeSingle(idx); }
     void		addLine( RandomLine* rl )
     			{ rl->lset_ = this; lines_ += rl; }
     void		limitTo(const CubeSampling&);

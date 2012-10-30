@@ -285,7 +285,7 @@ void SurfaceAuxData::removeSection( const SectionID& sectionid )
     if ( !auxdata_.validIdx( sectionidx ) )
 	return;
 
-    delete auxdata_.remove( sectionidx );
+    delete auxdata_.removeSingle( sectionidx );
 }
 
 

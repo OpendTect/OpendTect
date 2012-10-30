@@ -382,7 +382,7 @@ void uiStratLithoDlg::rmLast( CallBacker* )
     const Strat::Lithology* lith = lithos.get( selfld_->textOfItem(selidx) );
     if ( !lith || lith->isUdf() ) return;
 
-    delete lithos.lithologies().remove( lithos.indexOf( lith->id() ) );
+    delete lithos.lithologies().removeSingle( lithos.indexOf( lith->id() ) );
     lithos.reportAnyChange();
 
     prevlith_ = 0;
@@ -510,7 +510,7 @@ void removeReq()
     if ( selidx < 0 ) return;
 
     anychg_ = true;
-    delete conts.remove( selidx );
+    delete conts.removeSingle( selidx );
     fillList( selidx );
 }
 

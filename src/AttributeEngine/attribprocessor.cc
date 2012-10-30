@@ -286,7 +286,7 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 	if ( !outputs_[idx]->getDesiredVolume(cs) )
 	{
 	    outputs_[idx]->unRef();
-	    outputs_.remove(idx);
+	    outputs_.removeSingle(idx);
 	    idx--;
 	    continue;
 	}

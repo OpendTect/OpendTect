@@ -154,9 +154,9 @@ bool SEGY::HdrCalcSet::set( int heidx, const char* def, BufferString* emsg )
 
 void SEGY::HdrCalcSet::discard( int idx )
 {
-    delete remove( idx );
-    delete exprs_.remove( idx );
-    delete heidxs_.remove( idx );
+    delete removeSingle( idx );
+    delete exprs_.removeSingle( idx );
+    delete heidxs_.removeSingle( idx );
 }
 
 

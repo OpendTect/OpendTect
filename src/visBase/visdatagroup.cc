@@ -162,8 +162,8 @@ void DataObjectGroup::removeObject( int idx )
     group_->removeChild( node );
     if ( osggroup_ ) osggroup_->removeChild( sceneobject->osgNode() );
 
-    nodes_.remove( idx );
-    objects_.remove( idx );
+    nodes_.removeSingle( idx );
+    objects_.removeSingle( idx );
 
     sceneobject->unRef();
     change.trigger();

@@ -68,7 +68,7 @@ const Strat::RefTree& Strat::RT()
 void Strat::pushRefTree( Strat::RefTree* rt )
 { refTreeMgr().rts_ += rt; }
 void Strat::popRefTree()
-{ delete refTreeMgr().rts_.remove( refTreeMgr().rts_.size()-1 ); }
+{ delete refTreeMgr().rts_.removeSingle( refTreeMgr().rts_.size()-1 ); }
 
 
 void Strat::setRT( RefTree* rt )

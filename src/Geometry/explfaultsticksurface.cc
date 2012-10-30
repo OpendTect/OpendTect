@@ -1341,7 +1341,7 @@ void ExplFaultStickSurface::removeStick( int stickidx )
 	return;
 
     removeFromGeometries( sticks_[stickidx] );
-    delete sticks_.remove( stickidx );
+    delete sticks_.removeSingle( stickidx );
     needsupdate_ = true;
 }
 
@@ -1583,13 +1583,13 @@ void ExplFaultStickSurface::removePanel( int panelidx )
     if ( paneltriangles_.validIdx(panelidx) )
     {
 	removeFromGeometries( paneltriangles_[panelidx] );
-	delete paneltriangles_.remove( panelidx );
+	delete paneltriangles_.removeSingle( panelidx );
     }
 
     if ( panellines_.validIdx(panelidx) )
     {
 	removeFromGeometries(  panellines_[panelidx] );
-	delete panellines_.remove( panelidx );
+	delete panellines_.removeSingle( panelidx );
     }
 
     needsupdate_ = true;

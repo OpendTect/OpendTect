@@ -652,7 +652,7 @@ int PropertySet::set( Property* p )
 
 void PropertySet::remove( int idx )
 {
-    delete props_.remove( idx );
+    delete props_.removeSingle( idx );
 }
 
 

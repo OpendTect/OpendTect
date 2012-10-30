@@ -725,7 +725,7 @@ bool uiBasicLayerSequenceGenDesc::laygenRemoveReq()
     const int curidx = curUnitIdx();
     if ( curidx < 0 ) return false;
 
-    delete desc_.remove( curidx );
-    delete disps_.remove( curidx );
+    delete desc_.removeSingle( curidx );
+    delete disps_.removeSingle( curidx );
     return true;
 }

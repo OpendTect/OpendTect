@@ -647,16 +647,16 @@ void PlaneDataDisplay::addCache()
 void PlaneDataDisplay::removeCache( int attrib )
 {
     DPM(DataPackMgr::FlatID()).release( volumecache_[attrib] );
-    volumecache_.remove( attrib );
+    volumecache_.removeSingle( attrib );
 
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
-    rposcache_.remove( attrib );
+    rposcache_.removeSingle( attrib );
 
     const TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
     for ( int idx=dpids.size()-1; idx>=0; idx-- )
 	DPM(DataPackMgr::FlatID()).release( dpids[idx] );
 
-    delete displaycache_.remove( attrib );
+    delete displaycache_.removeSingle( attrib );
     
     for ( int idx=0; idx<displaycache_.size(); idx++ )
 	updateFromDisplayIDs( idx, 0 );

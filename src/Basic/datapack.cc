@@ -251,7 +251,7 @@ void DataPackMgr::release( DataPack::ID dpid )
     idx = packs_.indexOf( pack );
     if ( idx==-1 ) pErrMsg("Double delete detected");
 
-    packs_.remove( idx );
+    packs_.removeSingle( idx );
     lock_.writeUnLock();
     delete pack;
 }

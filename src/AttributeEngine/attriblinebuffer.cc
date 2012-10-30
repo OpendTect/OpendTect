@@ -81,8 +81,8 @@ void DataHolderLineBuffer::removeDataHolder( const BinID& bid )
     if ( traceidx==-1 ) return;
 
     delete (*inlinedata_[lineidx])[traceidx];
-    inlinedata_[lineidx]->remove( traceidx );
-    crossliness_[lineidx]->remove(traceidx);
+    inlinedata_[lineidx]->removeSingle( traceidx );
+    crossliness_[lineidx]->removeSingle(traceidx);
 
     if ( !inlinedata_[lineidx]->size() )
 	removeInline( lineidx );

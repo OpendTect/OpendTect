@@ -52,7 +52,7 @@ LogCubeCreator::~LogCubeCreator()
 void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs )
 {
     while ( !lcds.isEmpty() )
-	logdatas_ += lcds.remove(0);
+	logdatas_ += lcds.removeSingle(0);
 
     nrduplicatetrcs_ = nrdupltrcs;
 }

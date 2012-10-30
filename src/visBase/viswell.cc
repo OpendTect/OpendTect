@@ -508,7 +508,7 @@ void Well::removeLogs()
     {
 	log_[idx]->unrefNoDelete();
 	removeChild( log_[idx]  );
-	log_.remove( idx );
+	log_.removeSingle( idx );
     }
 }
 

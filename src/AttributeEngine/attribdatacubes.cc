@@ -76,7 +76,7 @@ bool DataCubes::addCube( float val, const BinDataDesc* t )
 void DataCubes::removeCube( int idx )
 {
     delete cubes_[idx];
-    cubes_.remove(idx);
+    cubes_.removeSingle(idx);
 }
 
 

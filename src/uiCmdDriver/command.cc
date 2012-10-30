@@ -354,11 +354,11 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 		{
 		    nrgrey++;
 		    if ( greyOutsSkipped() )
-			items.remove( itmidx );
+			items.removeSingle( itmidx );
 		}
 	    }
 	    else
-		items.remove( itmidx );
+		items.removeSingle( itmidx );
 	}
 	FileMultiString tmpstr( pathstr ); tmpstr += itemstr;
 	mParStrPreRet( "menu item", items, nrgrey, tmpstr.unescapedStr(),
@@ -387,7 +387,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 	for ( int idx=items.size()-1; idx>=0; idx-- )
 	{
 	    if ( greyOutsSkipped() && !items[idx]->isEnabled() )
-		items.remove( idx );
+		items.removeSingle( idx );
 	}
 	*curitmidx = items.indexOf( curitem );
     }

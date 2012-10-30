@@ -251,7 +251,7 @@ void SplitTextureSeis2D::updateDisplay( )
 	    SoIndexedTriangleStripSet* tristrip = 0;
 
 	    if ( unusedseparators.size() )
-		sep = unusedseparators.remove( 0 );
+		sep = unusedseparators.removeSingle( 0 );
 	    else
 	    {
 		sep = new SoSeparator;
@@ -338,7 +338,7 @@ void SplitTextureSeis2D::updateDisplay( )
     	separators_ -= unusedseparators[idx]; 
     	removeChild( unusedseparators[idx] );
     	unusedseparators[idx]->unref();
-    	unusedseparators.remove( idx ); 
+    	unusedseparators.removeSingle( idx ); 
     }
 }
 

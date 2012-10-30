@@ -549,7 +549,7 @@ void uiTreeFactorySet::remove( const char* nm )
 
     removenotifier.trigger( index );
     delete factories_[index];
-    factories_.remove( index );
+    factories_.removeSingle( index );
     placementidxs_.removeSingle( index );
     pol2ds_.removeSingle( index );
 }

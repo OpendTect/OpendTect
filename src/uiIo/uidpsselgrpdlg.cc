@@ -155,7 +155,7 @@ void uiDPSSelGrpDlg::remSelGrp( CallBacker* )
 {
     if ( tbl_->nrRows() <= 1 ) return;
 
-    selgrps_.remove( tbl_->currentRow() );
+    selgrps_.removeSingle( tbl_->currentRow() );
     tbl_->removeRow( tbl_->currentRow() );
     
     setCurSelGrp(0);

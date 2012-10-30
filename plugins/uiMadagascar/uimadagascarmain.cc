@@ -194,7 +194,7 @@ void uiMadagascarMain::butPush( CallBacker* cb )
 	if ( curidx < 0 ) return;
 	needsave_ = true;
 	procsfld_->removeItem( curidx );
-	ODMad::Proc* prevproc = procflow_.remove( curidx );
+	ODMad::Proc* prevproc = procflow_.removeSingle( curidx );
 	delete prevproc;
 	if ( curidx >= procsfld_->size() )
 	    curidx--;

@@ -189,8 +189,8 @@ void uiSeisWvltMerge::clearStackedWvlt( uiFuncSelDraw* wd )
 {
     if ( stackedwvlt_ )
     {
-	delete wvltfuncset_.remove( wd->removeLastItem() );
-	wvltset_.remove( wvltset_.size()-1 );
+	delete wvltfuncset_.removeSingle( wd->removeLastItem() );
+	wvltset_.removeSingle( wvltset_.size()-1 );
 	delete stackedwvlt_; stackedwvlt_=0;
     }
 }

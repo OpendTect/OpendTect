@@ -300,7 +300,7 @@ void Texture2Set::removeAll( bool keepfirst )
 	text->getColorTab().autoscalechange.remove( mColTabCB );
         textureswitch->removeChild( text->getInventorNode() );
         text->unRef();
-        textureset.remove( idx );
+        textureset.removeSingle( idx );
     }
 
     if ( keepfirst )

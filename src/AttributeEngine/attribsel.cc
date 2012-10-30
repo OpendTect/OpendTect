@@ -407,7 +407,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 	{
 	    LineKey tmpkey( "", nms.get(idx).buf() );
 	    if ( SeisIOObjInfo(*ioobj).nrComponents(tmpkey) < 2 )
-		nms.remove( idx );
+		nms.removeSingle( idx );
 	}
     }
 }

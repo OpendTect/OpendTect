@@ -224,7 +224,7 @@ PropertyRef::StdType
 
 ElasticPropSelection::ElasticPropSelection()
 {
-    remove(0); // get rid of thickness
+    removeSingle(0); // get rid of thickness
 
     const char** props = ElasticFormula::TypeNames();
     for ( int idx=0; props[idx]; idx++ )

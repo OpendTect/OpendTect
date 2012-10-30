@@ -633,7 +633,7 @@ void Picks::removeHorizon( EM::ObjectID id )
 	    //TODO: Remove all picks on this horizon.
 	    horizons_[idx]->change.remove(
 		    mCB(this,Picks,horizonChangeCB) );
-	    horizons_.remove( idx )->unRef();
+	    horizons_.removeSingle( idx )->unRef();
 	    return;
 	}
     }

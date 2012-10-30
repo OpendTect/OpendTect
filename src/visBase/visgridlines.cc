@@ -51,7 +51,7 @@ GridLines::~GridLines()
     {
 	removeChild( polylineset_[idx]->getInventorNode() );
 	polylineset_[idx]->unRef();
-	polylineset_.remove(idx--);
+	polylineset_.removeSingle(idx--);
     }
 }
 

@@ -213,8 +213,8 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	visserv_->removeObject( psv, sceneid );
 	const int idx = viewers3d_.indexOf( psv );
-	delete posdialogs_.remove( idx );
-	viewers3d_.remove( idx )->unRef();
+	delete posdialogs_.removeSingle( idx );
+	viewers3d_.removeSingle( idx )->unRef();
     }
     else if ( mnuid==proptymenuitem_.id )
     {
@@ -535,7 +535,7 @@ void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
     for ( int idx=0; idx<selgnms.size(); idx++ )
     {
 	if ( allgnms.isPresent( selgnms.get( idx ).buf() ) ) 
-	    allgnms.remove( allgnms.indexOf( selgnms.get( idx ).buf() ) );
+	    allgnms.removeSingle(allgnms.indexOf( selgnms.get( idx ).buf() ) );
     }
 
     selids.erase(); 
@@ -571,7 +571,7 @@ void uiViewer3DMgr::viewer2DClosedCB( CallBacker* cb )
     viewers2d_[idx]->windowClosed.remove(
 	    mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
 
-    viewers2d_.remove( idx );
+    viewers2d_.removeSingle( idx );
 }
 
 
@@ -588,8 +588,8 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 	if ( pdd && (!scene || scene->getFirstIdx( pdd )==-1 ) )
 	{
 	    removeViewWin( dpid );
-	    viewers3d_.remove( idx );
-	    delete posdialogs_.remove( idx );
+	    viewers3d_.removeSingle( idx );
+	    delete posdialogs_.removeSingle( idx );
 	    if ( scene ) visserv_->removeObject( psv, scene->id() );
 	    psv->unRef();
 	    idx--;
@@ -598,8 +598,8 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 	if ( s2d && (!scene || scene->getFirstIdx( s2d )==-1 ) )
 	{
 	    removeViewWin( dpid );
-	    viewers3d_.remove( idx );
-	    delete posdialogs_.remove( idx );
+	    viewers3d_.removeSingle( idx );
+	    delete posdialogs_.removeSingle( idx );
 	    if ( scene ) visserv_->removeObject( psv, scene->id() );
 	    psv->unRef();
 	    idx--;
@@ -613,7 +613,7 @@ void uiViewer3DMgr::removeViewWin( int dpid )
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
 	if ( viewers2d_[idx]->viewer().packID(false) == dpid )
-    	    delete viewers2d_.remove( idx );
+    	    delete viewers2d_.removeSingle( idx );
     }
 }
 

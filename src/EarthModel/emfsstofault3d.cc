@@ -402,7 +402,7 @@ void FSStoFault3DConverter::selectSticks( bool selhorpicked )
 	    		   sticks_[idx]->pickedOnHorizon();
 
 	if ( ishorpicked != selhorpicked )
-	    delete sticks_.remove( idx );
+	    delete sticks_.removeSingle( idx );
     }
     if ( selhorpicked )
 	return;
@@ -465,7 +465,7 @@ void FSStoFault3DConverter::selectSticks( bool selhorpicked )
 	    if ( (stick.pickedOnInl() && inlsteeper==selhorsticks) ||
 		 (stick.pickedOnCrl() && inlsteeper!=selhorsticks) )
 	    {
-		delete sticks_.remove( idx );
+		delete sticks_.removeSingle( idx );
 		continue;
 	    }
 	    if ( mIsUdf(setup_.stickslopethres_) )
@@ -474,7 +474,7 @@ void FSStoFault3DConverter::selectSticks( bool selhorpicked )
 
 	const double slope = stick.slope( setup_.zscale_ );
 	if ( !mIsUdf(slope) && (slope<fabs(slopethres)) != selhorsticks )
-	    delete sticks_.remove( idx );
+	    delete sticks_.removeSingle( idx );
     }
 }
 

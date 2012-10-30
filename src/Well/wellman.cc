@@ -47,7 +47,7 @@ void Well::Man::add( const MultiID& key, Well::Data* wll )
 Well::Data* Well::Man::release( const MultiID& key )
 {
     const int idx = gtByKey( key );
-    return idx < 0 ? 0 : wells_.remove( idx );
+    return idx < 0 ? 0 : wells_.removeSingle( idx );
 }
 
 

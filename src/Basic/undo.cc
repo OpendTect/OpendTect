@@ -131,7 +131,7 @@ void Undo::removeAllAfterCurrentEvent()
 	const int idx = indexOf(event);
 
 	mUpdateUserEndsCount(idx,false);
-	delete events_.remove(idx);
+	delete events_.removeSingle(idx);
     }
 
     changenotifier.trigger();
@@ -286,7 +286,7 @@ void Undo::removeStartToAndIncluding( int eventid )
     while ( firsteventid_<=eventid )
     {
 	mUpdateUserEndsCount(0,false);
-	delete events_.remove(0);
+	delete events_.removeSingle(0);
 	firsteventid_++;
     }
 

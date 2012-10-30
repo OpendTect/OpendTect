@@ -81,7 +81,7 @@ void HorizonPainter::addHorizon( const EM::ObjectID& oid )
     if ( !addPolyLine(oid) )
     {
 	delete horizoninfos_[horizoninfos_.size() - 1];
-	horizoninfos_.remove( horizoninfos_.size() - 1 );
+	horizoninfos_.removeSingle( horizoninfos_.size() - 1 );
 	return;
     }
 
@@ -486,13 +486,13 @@ void HorizonPainter::removePolyLine( int idx )
     if ( isupdating_ )
 	hormarkerlines_.replace( idx, 0 );
     else
-	hormarkerlines_.remove( idx );
+	hormarkerlines_.removeSingle( idx );
 
     delete viewer_.removeAuxData( horsmarkerseeds_[idx] );
     if ( isupdating_ )
 	horsmarkerseeds_.replace( idx, 0 );
     else
-	horsmarkerseeds_.remove( idx );
+	horsmarkerseeds_.removeSingle( idx );
 }
 
 
@@ -512,7 +512,7 @@ void HorizonPainter::removeHorizon( int idx )
     cbdata.name_ = horizoninfos_[idx]->name_;
 
     delete horizoninfos_[idx];
-    horizoninfos_.remove( idx );
+    horizoninfos_.removeSingle( idx );
     viewer_.handleChange( FlatView::Viewer::Annot );
 
     horizonRemoved.trigger( cbdata );

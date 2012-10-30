@@ -654,7 +654,7 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
 	{
 	    if ( !existlogmsg.isEmpty() ) existlogmsg += ", "; 
 	    existlogmsg += lognms.get( idx ); 
-	    lognms.remove( idx );
+	    lognms.removeSingle( idx );
 	}
     }
     if ( !existlogmsg.isEmpty() )

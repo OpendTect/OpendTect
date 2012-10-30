@@ -375,7 +375,7 @@ void uiObjectItemViewInfoBar::addItem( uiObjectItem* infoitm,
 void uiObjectItemViewInfoBar::removeItem( uiObjectItem* itm )
 {
     const int idx = objectitems_.indexOf( itm );
-    if ( idx >= 0 ) coupleditems_.remove( idx );
+    if ( idx >= 0 ) coupleditems_.removeSingle( idx );
     uiObjectItemView::removeItem( itm );
     resetViewArea(0);
 }

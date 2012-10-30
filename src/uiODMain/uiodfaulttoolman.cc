@@ -727,12 +727,12 @@ static void addOutputItem( const char* newitem, BufferStringSet& items )
     for ( int idx=items.size()-1; idx>=0; idx-- )
     {
 	if ( items.get(idx) == newitem )
-	    items.remove( idx );
+	    items.removeSingle( idx );
     }
     items.insertAt( new BufferString(newitem), 0 );
 
     for ( int idx=items.size()-1; idx>=maxnritems; idx-- )
-	items.remove( idx );
+	items.removeSingle( idx );
 }
 
 

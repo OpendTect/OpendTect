@@ -44,7 +44,7 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 uiMultiFlatViewControl::~uiMultiFlatViewControl()
 {
     for ( int idx=zoommgrs_.size()-1; idx>=1; idx-- )
-	delete zoommgrs_.remove( idx );
+	delete zoommgrs_.removeSingle( idx );
 }
 
 

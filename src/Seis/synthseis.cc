@@ -455,7 +455,7 @@ bool RaySynthGenerator::doPrepare( int )
     ObjectSet<RayTracer1D>& rt1ds = rtr.rayTracers();
     for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
     {
-	const RayTracer1D* rt1d = rt1ds.remove(idx);
+	const RayTracer1D* rt1d = rt1ds.removeSingle(idx);
 	RayModel* rm = new RayModel( *rt1d, offsets_.size() );
 	delete rt1d;
 

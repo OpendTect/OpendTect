@@ -679,7 +679,7 @@ bool WindowStack::moveToTopWithoutSync( const uiMainWin* curwin )
     int framecnt = 0;
     while ( true )
     {
-	const uiMainWin* uimw = winstack_.remove( stackidx+framecnt );
+	const uiMainWin* uimw = winstack_.removeSingle( stackidx+framecnt );
 	winstack_.insertAt( uimw, framecnt );
 	if ( !uimw->isModal() )
 	    break;
@@ -699,7 +699,7 @@ void WindowStack::synchronize()
     for ( int idx=winstack_.size()-1; idx>=0; idx-- )
     {
 	if ( windowlist.indexOf(winstack_[idx]) < 0 )
-	    winstack_.remove( idx );
+	    winstack_.removeSingle( idx );
     }
 
     for ( int idx=0; idx<windowlist.size(); idx++ )
@@ -737,7 +737,7 @@ void WindowStack::synchronize()
     for ( int idx=winstack_.size()-1; idx>=0; idx-- )
     {
 	if ( winstack_[idx]->isHidden() )
-	    winstack_.remove( idx );
+	    winstack_.removeSingle( idx );
     }
 }
 

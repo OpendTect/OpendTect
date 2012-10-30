@@ -315,7 +315,7 @@ int ProcessManager::nrProcessors() const
 
 void ProcessManager::removeProcessor( int idx )
 {
-    delete processors_.remove( idx );
+    delete processors_.removeSingle( idx );
     setupChange.trigger();
 }
 

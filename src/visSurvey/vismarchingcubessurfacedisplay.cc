@@ -725,7 +725,7 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	    continue;
 
 	removeChild( intsinfo_[idx]->visshape_->getInventorNode() );	
-	delete intsinfo_.remove( idx );
+	delete intsinfo_.removeSingle( idx );
     }
 
     for ( int idx=0; idx<activeplanes.size(); idx++ )

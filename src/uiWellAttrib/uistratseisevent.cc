@@ -29,7 +29,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
 	levelfld_ = new uiStratLevelSel( this, false, "Reference level" );
 
     BufferStringSet eventnms( VSEvent::TypeNames() );
-    eventnms.remove(0);
+    eventnms.removeSingle(0);
     evfld_ = new uiGenInput( this, "Snap synthetics to event",
 	    			StringListInpSpec(eventnms) );
     evfld_->setWithCheck( true );

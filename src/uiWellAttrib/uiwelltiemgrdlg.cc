@@ -400,7 +400,7 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
     {
 	if ( welltiedlgset_[idx] == win )
 	{
-	    welltiedlgset_.remove(idx);
+	    welltiedlgset_.removeSingle(idx);
 	    WellTie::Writer wtr( 
 		    	Well::IO::getMainFileName( win->Setup().wellid_) );
 	    IOPar par; win->fillPar( par );

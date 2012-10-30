@@ -149,7 +149,7 @@ void SplitTexture2Rectangle::updateFaceSets( )
 	SoSeparator* sep = 0;
 	SoIndexedFaceSet* fs = 0;
 	if ( unusedseparators.size() )
-	    sep = unusedseparators.remove( 0 );
+	    sep = unusedseparators.removeSingle( 0 );
 	else
 	{
 	    sep = new SoSeparator;
@@ -184,7 +184,7 @@ void SplitTexture2Rectangle::updateFaceSets( )
 		SoTextureComposer* sp = 0;
 
 		if ( unusedseparators.size() )
-		    sep = unusedseparators.remove( 0 );
+		    sep = unusedseparators.removeSingle( 0 );
 		else
 		{
 		    sep =new SoSeparator;
@@ -248,7 +248,7 @@ void SplitTexture2Rectangle::updateFaceSets( )
 	separators_ -= unusedseparators[idx];
 	unusedseparators[idx]->unref();
 	removeChild( unusedseparators[idx] );
-	unusedseparators.remove( idx );
+	unusedseparators.removeSingle( idx );
     }
 
     updateCoordinates();

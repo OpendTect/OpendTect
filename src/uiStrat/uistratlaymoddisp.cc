@@ -275,7 +275,7 @@ void uiStratSimpleLayerModelDisp::removeLayers( Strat::LayerSequence& seq,
 {
     if ( !doall )
     {
-	delete seq.layers().remove( layidx );
+	delete seq.layers().removeSingle( layidx );
 	seq.prepareUse();
     }
     else
@@ -291,7 +291,7 @@ void uiStratSimpleLayerModelDisp::removeLayers( Strat::LayerSequence& seq,
 		const Strat::Layer& lay = *ls.layers()[ilay];
 		if ( &lay.unitRef() == &lur )
 		{
-		    delete ls.layers().remove( ilay );
+		    delete ls.layers().removeSingle( ilay );
 		    ilay--; needprep = true;
 		}
 	    }

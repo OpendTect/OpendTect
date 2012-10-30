@@ -149,7 +149,7 @@ void SearchKey::getMatchingWindows( const uiMainWin* applwin,
 			    windowTitle( applwin, windowlist[idx], aliasnr );
 		if ( !alias )
 		{
-		    windowlist.remove( idx );
+		    windowlist.removeSingle( idx );
 		    break;
 		}
 		if ( isMatching(alias) )
@@ -161,7 +161,7 @@ void SearchKey::getMatchingWindows( const uiMainWin* applwin,
 	    }
 	}
 	else
-	    windowlist.remove( idx );
+	    windowlist.removeSingle( idx );
     }
 }
 

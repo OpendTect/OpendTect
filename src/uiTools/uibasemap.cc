@@ -209,7 +209,7 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
     }
 
     view_.scene().removeItem( objects_[index]->itemGrp() );
-    delete objects_.remove( index );
+    delete objects_.removeSingle( index );
 }
 
 

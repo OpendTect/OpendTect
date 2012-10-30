@@ -148,7 +148,7 @@ const uiTreeViewItem* TreeCmd::singleSelected( const uiTreeView& uilview ) const
     for ( int idx=nodesfound.size()-1; idx>=0; idx-- )
     {
 	if ( !nodesfound[idx]->isSelected() )
-	    nodesfound.remove( idx );
+	    nodesfound.removeSingle( idx );
     }
 
     return nodesfound.size()==1 ? nodesfound[0] : 0;

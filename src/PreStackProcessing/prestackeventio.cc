@@ -279,7 +279,7 @@ int EventReader::nextStep()
 
     if ( !res )
     {
-	delete patchreaders_.remove( 0 );
+	delete patchreaders_.removeSingle( 0 );
 	if ( patchreaders_.size() )
 	    return MoreToDo();
         
@@ -675,7 +675,7 @@ int EventWriter::nextStep()
 
     if ( !res )
     {
-	delete patchwriters_.remove( 0 );
+	delete patchwriters_.removeSingle( 0 );
 	if ( patchwriters_.size() )
 	    return MoreToDo();
         
@@ -849,7 +849,7 @@ int EventDuplicator::nextStep()
 	return ErrorOccurred();
     }
 
-    filestocopy_.remove( idx );
+    filestocopy_.removeSingle( idx );
     return MoreToDo();
 }
 

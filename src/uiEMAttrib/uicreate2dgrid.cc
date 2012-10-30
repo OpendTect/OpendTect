@@ -719,8 +719,8 @@ bool uiCreate2DGrid::checkInput() const
     {
 	int lineidx = ovwrlinenms.indexOf( linestoremove.get(0) );
 	if ( lineidx >= 0 )
-	    ovwrlinenms.remove( lineidx );
-	linestoremove.remove( 0 );
+	    ovwrlinenms.removeSingle( lineidx );
+	linestoremove.removeSingle( 0 );
     }
 
 

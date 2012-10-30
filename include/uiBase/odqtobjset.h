@@ -48,8 +48,8 @@ void ODQtObjectSet<OD,QT>::remove( const OD& obj )
     const int idx = odobjs_.indexOf( &obj );
     if ( idx<0 ) return;
 
-    odobjs_.remove( idx );
-    qtobjs_.remove( idx );
+    odobjs_.removeSingle( idx );
+    qtobjs_.removeSingle( idx );
 }
 
 template<class OD,class QT>

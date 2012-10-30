@@ -56,7 +56,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
     seisfld_->attach( alignedBelow, horinfld_ );
 
     BufferStringSet eventnms( VSEvent::TypeNames() );
-    eventnms.remove(0);
+    eventnms.removeSingle(0);
     eventfld_ = new uiGenInput( this, "Event", StringListInpSpec(eventnms) );
     eventfld_->attach( alignedBelow, seisfld_ );
 

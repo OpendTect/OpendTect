@@ -214,7 +214,7 @@ bool FaultStickSetGeometry::removeStick( const SectionID& sid, int sticknr,
 
 	if ( stickinfo_[idx]->sticknr == sticknr )
 	{
-	    delete stickinfo_.remove( idx );
+	    delete stickinfo_.removeSingle( idx );
 	    continue;
 	}
 

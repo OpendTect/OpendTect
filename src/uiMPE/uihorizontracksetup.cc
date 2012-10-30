@@ -700,7 +700,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	{
 	    int size = horadj_->getAmplitudeThresholds().size();
 	    fieldchange = true;
-	    horadj_->getAmplitudeThresholds().remove( idx, size-1 );
+	    horadj_->getAmplitudeThresholds().removeRange( idx, size-1 );
 	}
     }
     else
@@ -755,7 +755,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	{
 	    int size = horadj_->getAllowedVariances().size();
 	    fieldchange = true;
-	    horadj_->getAllowedVariances().remove( idx, size-1 );
+	    horadj_->getAllowedVariances().removeRange( idx, size-1 );
 	}
     }
 

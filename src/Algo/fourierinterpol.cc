@@ -117,7 +117,7 @@ bool FourierInterpol1D::doFinish( bool success )
 
     while ( arrs_.size() > 1 )
     {
-	Array1D<float_complex>& arr = *arrs_.remove(1);
+	Array1D<float_complex>& arr = *arrs_.removeSingle(1);
 	for ( int idx=0; idx<sz_; idx++ )
 	{
 	    float_complex val = arrs_[0]->get( idx );
@@ -213,7 +213,7 @@ bool FourierInterpol2D::doFinish( bool success )
 
     while ( arrs_.size() > 1 )
     {
-	Array2D<float_complex>& arr = *arrs_.remove(1);
+	Array2D<float_complex>& arr = *arrs_.removeSingle(1);
 	for ( int idx=0; idx<szx_; idx++ )
 	{
 	    for ( int idy=0; idy<szy_; idy++ )
@@ -326,7 +326,7 @@ bool FourierInterpol3D::doFinish( bool success )
 
     while ( arrs_.size() > 1 )
     {
-	Array3DImpl<float_complex>& arr = *arrs_.remove(1);
+	Array3DImpl<float_complex>& arr = *arrs_.removeSingle(1);
 	for ( int idx=0; idx<szx_; idx++ )
 	{
 	    for ( int idy=0; idy<szy_; idy++ )

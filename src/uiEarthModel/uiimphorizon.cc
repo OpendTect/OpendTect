@@ -391,7 +391,7 @@ bool uiImportHorizon::doImport()
     if ( isgeom_ )
     {
 	importer.add( horizon->importer(sections,hs) );
-	attrnms.remove( 0 );
+	attrnms.removeSingle( 0 );
 	startidx = 1;
     }
 

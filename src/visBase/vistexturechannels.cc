@@ -304,7 +304,7 @@ void ChannelInfo::setOsgIDs( const TypeSet<int>& osgids )
 
     while ( osgimages_.size()>nr )
     {
-	osg::Image* image = osgimages_.remove( nr );
+	osg::Image* image = osgimages_.removeSingle( nr );
 	if ( image )
 	    image->unref();
     }
@@ -694,7 +694,7 @@ void TextureChannels::removeChannel( int channel )
 	    osgtexture_->removeDataLayer( info->getOsgIDs()[idx] );
     }
 
-    channelinfo_.remove(channel);
+    channelinfo_.removeSingle(channel);
 
     bool oldenable = tc_->enableNotify( false );
     for ( int idy=channel; idy<nrChannels(); idy++ )

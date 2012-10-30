@@ -332,7 +332,7 @@ void PSEventDisplay::otherObjectsMoved(
 
 	    pao = toremove[idy];
 
-	    toremove.remove( idy );
+	    toremove.removeSingle( idy );
 	    break;
 	}
 
@@ -467,7 +467,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    {
 		pao->separator_->removeObject(
 			pao->separator_->getFirstIdx( pao->markers_[idx] ) );
-		pao->markers_.remove( idx );
+		pao->markers_.removeSingle( idx );
 	    }
 	    if ( pao->lines_ )
 		pao->lines_->removeCoordIndexAfter( -1 );
@@ -626,7 +626,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     {
 	pao->separator_->removeObject(
 		pao->separator_->getFirstIdx( pao->markers_[idx] ) );
-	pao->markers_.remove( idx );
+	pao->markers_.removeSingle( idx );
     }
 
     if ( pao->lines_ )

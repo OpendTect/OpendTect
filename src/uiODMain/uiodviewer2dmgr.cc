@@ -145,7 +145,7 @@ void uiODViewer2DMgr::remove2DViewer( int visid )
 	if ( viewers2d_[idx]->visid_ != visid )
 	    continue;
 
-	delete viewers2d_.remove( idx );
+	delete viewers2d_.removeSingle( idx );
 	return;
     }
 }

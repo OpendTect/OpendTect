@@ -163,7 +163,7 @@ void AnnotBufferFiller::eraseGridLines( bool hor )
 	for ( int idx=sz-1; idx>=0; idx-- )
 	{
 	    delete horgdlines_[idx];
-	    horgdlines_.remove(idx);
+	    horgdlines_.removeSingle(idx);
 	}
     }
     else
@@ -172,7 +172,7 @@ void AnnotBufferFiller::eraseGridLines( bool hor )
 	for ( int idx=sz-1; idx>=0; idx-- )
 	{
 	    delete vertgdlines_[idx];
-	    vertgdlines_.remove(idx);
+	    vertgdlines_.removeSingle(idx);
 	}
     }
 }

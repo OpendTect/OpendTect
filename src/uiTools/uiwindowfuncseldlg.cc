@@ -192,7 +192,7 @@ int uiFuncSelDraw::removeLastItem()
 {
     const int curidx = funclistfld_->size()-1;
     funclistfld_->removeItem( curidx );
-    mathfunc_.remove( curidx );
+    mathfunc_.removeSingle( curidx );
     view_->clearFunction( curidx );
     return curidx;
 }
@@ -201,7 +201,7 @@ int uiFuncSelDraw::removeLastItem()
 void uiFuncSelDraw::removeItem( int idx )
 {
     funclistfld_->removeItem( idx );
-    mathfunc_.remove( idx );
+    mathfunc_.removeSingle( idx );
     view_->clearFunction( idx );
 }
 

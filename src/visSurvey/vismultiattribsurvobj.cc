@@ -266,8 +266,8 @@ bool MultiTextureSurveyObject::removeAttrib( int attrib )
 	channels_->removeChannel( attrib );
 
     delete as_[attrib];
-    as_.remove( attrib );
-    userrefs_.remove( attrib );
+    as_.removeSingle( attrib );
+    userrefs_.removeSingle( attrib );
 
     removeCache( attrib );
 

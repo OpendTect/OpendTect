@@ -51,8 +51,8 @@ void uiObjDisposer::doDel( CallBacker* in )
     if ( idxof < 0 ) return; // Huh?
 
     CallBacker* obj = objs_[idxof];
-    objs_.remove( idxof );
-    timers_.remove( idxof );
+    objs_.removeSingle( idxof );
+    timers_.removeSingle( idxof );
 
     delete obj;
     todeltimers += tim;
