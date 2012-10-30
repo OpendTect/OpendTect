@@ -182,6 +182,10 @@ public:
     			//!< see snap() for direction
     void		snapZ(float&,int direction=0) const;
     			//!< see snap() for direction
+    
+    double		seismicReferenceDatum()		 {return seisrefdatum_;}
+			/*!<In depth units (m or ft), positive upward from sealevel. */
+    void		setSeismicReferenceDatum(double d){ seisrefdatum_=d; }
 
     const IOPar&	pars() const			{ return pars_; }
     void		putZDomain(IOPar&) const;
@@ -210,6 +214,8 @@ protected:
     CubeSampling&	cs_;
     CubeSampling&	wcs_;
     IOPar&		pars_;
+    
+    double		seisrefdatum_;
     
     mutable Threads::AtomicPointer<InlCrlSystem>	inlcrlsystem_;
     mutable Threads::AtomicPointer<InlCrlSystem>	winlcrlsystem_;
@@ -278,6 +284,7 @@ public:
     static const char*	sKeyXYInFt();
     static const char*	sKeyDpthInFt(); //!< Not used by SI, just a UI default
     static const char*	sKeySurvDataType();
+    static const char*  sKeySeismicRefDatum();
 
     BufferString	getDirName() const	{ return dirname_; }
 

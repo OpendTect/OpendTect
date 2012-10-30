@@ -39,10 +39,11 @@ const char* SurveyInfo::sKeyCrlRange()	    { return "Cross-line range"; }
 const char* SurveyInfo::sKeyXRange()	    { return "X range"; }
 const char* SurveyInfo::sKeyYRange()	    { return "Y range"; }
 const char* SurveyInfo::sKeyZRange()	    { return "Z range"; }
-const char* SurveyInfo::sKeyWSProjName()    { return "Workstation Project Name"; }
+const char* SurveyInfo::sKeyWSProjName()    {return "Workstation Project Name";}
 const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
 const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
+const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
 
 
 SurveyInfo* SurveyInfo::theinst_ = 0;
@@ -97,6 +98,7 @@ SurveyInfo::SurveyInfo()
     , workRangeChg(this)
     , survdatatype_(Both2DAnd3D)
     , survdatatypeknown_(false)
+    , seisrefdatum_( 0 )
 {
     rdxtr_.b = rdytr_.c = 1;
     set3binids_[2].crl = 0;
@@ -158,6 +160,8 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 	set3coords_[idx] = si.set3coords_[idx];
     }
     cs_ = si.cs_; wcs_ = si.wcs_; pars_ = si.pars_; ll2c_ = si.ll2c_;
+    seisrefdatum_ = si.seisrefdatum_;
+
 
     return *this;
 }
@@ -196,7 +200,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 
     //Scrub away old settings (confusing to users)
     si->getPars().remove("Depth in feet");
-
+    
     si->dirname_ = fpsurvdir.fileName();
     si->datadir_ = fpsurvdir.pathOnly();
     if ( !survdir || si->dirname_.isEmpty() ) return si;
@@ -257,6 +261,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	}
 	else if ( keyw == sKeyXYInFt() )
 	    si->xyinfeet_ = astream.getYN();
+	else if ( keyw == sKeySeismicRefDatum() )
+	    si->seisrefdatum_ = astream.getDValue();
 	else
 	    si->handleLineRead( keyw, astream.value() );
 
@@ -273,7 +279,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	si->comment_ += buf;
     }
     sfio.closeSuccess();
-
+    
     if ( si->wrapUpRead() )
 	si->valid_ = true;
 
@@ -871,6 +877,7 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	astream.put( sKeyLatLongAnchor, buf );
     }
     astream.putYN( sKeyXYInFt(), xyinfeet_ );
+    astream.put( sKeySeismicRefDatum(), seisrefdatum_ );
 }
 
 
