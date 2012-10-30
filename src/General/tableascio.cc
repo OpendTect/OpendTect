@@ -127,7 +127,7 @@ void FileFormatRepository::set( const char* grp, const char* nm,
 {
     const int idx = gtIdx( grp, nm );
     if ( idx >= 0 )
-	{ Entry* entry = entries_[idx]; entries_.remove( idx ); delete entry; }
+	{ delete entries_.removeSingle( idx );  }
     if ( !iop ) return;
 
     if ( iop->find(sKey::Name()) )
