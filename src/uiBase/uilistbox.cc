@@ -77,7 +77,7 @@ public:
 			    if ( !items_.validIdx(idx) )
 				return;
 
-			    items_.remove( idx );
+			    items_.removeSingle( idx );
 			    delete takeItem(idx);
 			}
 
@@ -371,11 +371,12 @@ void uiListBox::setAllowDuplicates( bool yn )
     BufferStringSet allitems; getItems( allitems );
     while ( !allitems.isEmpty() )
     {
-	const char* nm = allitems.remove(0)->buf(); 
+	BufferString nm = allitems[0]->buf();
+	allitems.removeSingle(0);
 	while ( allitems.isPresent( nm ) ) 
 	{
 	    const int itmidx = allitems.indexOf( nm );
-	    allitems.remove( itmidx );
+	    allitems.removeSingle( itmidx );
 	    removeItem( itmidx + 1 );
 	}
     }
