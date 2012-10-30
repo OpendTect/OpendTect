@@ -34,7 +34,10 @@ public:
     inline virtual void		erase();
     inline virtual void		removeRange(od_int64,od_int64);
     inline virtual T*		removeSingle( int idx, bool kporder=true );
-			
+				/*!<Deletes entry and returns 0 */
+    inline virtual T*		removeAndTake(int idx, bool kporder=true );
+				/*!<Does not delete the entry. */
+
     inline void			setEmpty()		{ erase(); }
 
 protected:
@@ -119,6 +122,12 @@ void ManagedObjectSet<T>::removeRange( od_int64 i1, od_int64 i2 )
 	    delete (*this)[idx];
     }
     ObjectSet<T>::removeRange( i1, i2 );
+}
+
+template <class T> inline
+T* ManagedObjectSet<T>::removeAndTake(int idx, bool kporder )
+{
+    return ObjectSet<T>::removeSingle( idx, kporder );
 }
 
 
