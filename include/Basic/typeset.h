@@ -89,10 +89,7 @@ public:
     virtual void		fillWith(const T&);
 
     inline virtual void		erase();
-    inline virtual void		remove(int idx,bool preserve_order=true)
-    				{ removeSingle( idx, preserve_order ); }
-    inline virtual void		remove(od_int64 from,od_int64 to)
-				{ removeRange( from, to ); }
+
     inline virtual void		removeSingle(int,bool preserver_order=true);
     inline virtual void		removeRange(od_int64 from,od_int64 to);
     
@@ -402,7 +399,7 @@ inline void TypeSet<T>::createIntersection( const TypeSet<T>& ts )
     {
 	if ( ts.indexOf((*this)[idx]) != -1 )
 	    continue;
-	remove( idx--, false );
+	removeSingle( idx--, false );
     }
 }
 
@@ -417,7 +414,7 @@ inline void TypeSet<T>::createDifference( const TypeSet<T>& ts, bool kporder )
 	for ( int idy=0; idy<size(); idy++ )
 	{
 	    if ( vec_[idy] == typ )
-		remove( idy--, kporder );
+		removeSingle( idy--, kporder );
 	}
     }
 }
@@ -441,8 +438,8 @@ void TypeSet<T>::erase()
 { vec_.erase(); }
 
 
-template <class T>
-inline void TypeSet<T>::removeSingle( int idx, bool kporder )
+template <class T> inline
+void TypeSet<T>::removeSingle( int idx, bool kporder )
 {
     if ( kporder )
 	vec_.remove( idx );

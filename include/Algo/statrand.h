@@ -84,7 +84,7 @@ inline void Stats::RandGen::subselect( OD::Set& ods, int targetsz )
 	    ods.swap( notselidx, idx );
     }
 
-    ods.remove( targetsz, sz-1 );
+    ods.removeRange( targetsz, sz-1 );
 }
 
 }; // namespace Stats

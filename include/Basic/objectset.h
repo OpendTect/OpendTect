@@ -68,13 +68,8 @@ public:
     inline virtual T*		pop();
 
     inline virtual void		erase()		{ plainErase(); }
-    virtual inline T*		remove(int idx,bool preserve_order=true)
-    				{ return removeSingle( idx, preserve_order ); }
     				
-    inline virtual void		remove(od_int64 from,od_int64 to)
-    				{ removeRange( from, to ); }
-    
-    virtual inline T*		removeSingle(int,bool preserve_order = true );
+    virtual inline T*		removeSingle(int,bool keep_order=true);
     				/*!<\returns the removed pointer. */
     virtual void		removeRange(od_int64 from,od_int64 to);
 
@@ -110,11 +105,11 @@ inline void fn( ObjectSet<T>& os ) \
 
 
 //! empty the ObjectSet deleting all objects pointed to.
-mObjectSetApplyToAllFunc( deepErase, delete os.remove(idx),  )
+mObjectSetApplyToAllFunc( deepErase, delete os.removeSingle(idx),  )
 
 
 //! empty the ObjectSet deleting all objects pointed to.
-mObjectSetApplyToAllFunc( deepEraseArr, delete [] os.remove(idx), )
+mObjectSetApplyToAllFunc( deepEraseArr, delete [] os.removeSingle(idx), )
 
 
 //! append copies of one set's objects to another ObjectSet.
@@ -397,12 +392,12 @@ T* ObjectSet<T>::pop()
 {
     int sz = size();
     if ( !sz ) return 0;
-    return remove( sz-1 );
+    return removeSingle( sz-1 );
 }
 
 
 template <class T> inline
-T* ObjectSet<T>::removeSingle( int idx, bool kporder )
+T* ObjectSet<T>::removeSingle( int idx, bool kporder)
 {
     T* res = (T*)vec_[idx];
     if ( kporder )
