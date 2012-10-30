@@ -617,15 +617,15 @@ bool uiStratLayerModel::openGenDesc()
     lmp_.setEmpty();
     seqdisp_->descHasChanged();
 
+    moddisp_->modelChanged();
+    synthdisp_->modelChanged();
+    delete elpropsel_; elpropsel_ = 0;
+
     CBCapsule<IOPar*> caps( desc_.getWorkBenchParams(),
 	    		    const_cast<uiStratLayerModel*>(this) );
     if ( const_cast<uiStratLayerModel*>(this)->retrieveRequiredNotif())
 	const_cast<uiStratLayerModel*>(this)->
 		retrieveRequiredNotif()->trigger( &caps);
-
-    moddisp_->modelChanged();
-    synthdisp_->modelChanged();
-    delete elpropsel_; elpropsel_ = 0;
 
     //Set when everything is in place.
     if ( !desc_.getWorkBenchParams() || 
