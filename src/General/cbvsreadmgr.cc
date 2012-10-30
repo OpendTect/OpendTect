@@ -148,8 +148,8 @@ int CBVSReadMgr::pruneReaders( const CubeSampling& cs )
 	if ( !localinfo.geom_.includesInline(-1)
 	  && !localinfo.geom_.includesInline(-2) )
 	{
-	    delete readers_.remove( idx );
-	    fnames_.remove( idx );
+	    delete readers_.removeSingle( idx );
+	    fnames_.removeSingle( idx );
 	    idx--;
 	}
     }
