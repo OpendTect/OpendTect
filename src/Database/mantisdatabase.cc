@@ -87,7 +87,7 @@ SqlDB::MantisDBMgr::MantisDBMgr( const ConnectionData* cd, const char* usernm )
     if ( !isopen )
     {
 	errmsg_ = "Unable to open database please check network connection";
-       	errmsg_.add ( " or cosult database administrator" );
+       	errmsg_.add ( " or consult database administrator" );
     }
 
     if ( username_.isEmpty() )
