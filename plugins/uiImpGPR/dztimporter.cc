@@ -43,7 +43,7 @@ bool DZT::FileHeader::getFrom( std::istream& strm, BufferString& emsg )
     // From 54, floats:
     mRdVal(epsr); mRdVal(top); mRdVal(depth);
     // From 66, 1 byte dtype and 31 bytes reserved
-    char buf[32]; strm.read( buf, 32 ); dtype = buf[32];
+    char buf[32]; strm.read( buf, 32 ); dtype = buf[31];
     // From 98, 14 bytes antenna
     strm.read( antname, 14 );
     // From 112, the rest
