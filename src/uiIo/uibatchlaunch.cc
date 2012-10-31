@@ -528,11 +528,7 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
     comm.add( multiprognm_ ).add( " " ).add( procprognm_ )
 	.add( " \"" ).add( fnm ).add( "\"" );
 
-#ifdef __msvc__ 
-    if ( !ExecOSCmd( comm, false ) )
-#else
-    if ( !ExecOSCmd( comm, true ) )
-#endif
+    if ( !ExecOSCmd(comm,true,true) )
 	{ uiMSG().error( "Cannot start multi-machine program" ); return false; }
 
     return true;
