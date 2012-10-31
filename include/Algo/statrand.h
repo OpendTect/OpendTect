@@ -46,7 +46,7 @@ public:
     			//!< Does not preserve order.
     			//!< Afterwards, the 'removed' values occupy
     			//!< the indexes targetsz - maxsz-1
-    void		subselect(OD::Set&,int targetsz);
+    void		subselect(OD::Set&,od_int64 targetsz);
     			//!< Does not preserve order
     			//!< The removed items will really be erased
 
@@ -72,14 +72,14 @@ inline void Stats::RandGen::subselect( T* arr, SzTp sz, SzTp targetsz )
 }
 
 
-inline void Stats::RandGen::subselect( OD::Set& ods, int targetsz )
+inline void Stats::RandGen::subselect( OD::Set& ods, od_int64 targetsz )
 {
-    const int sz = ods.nrItems();
+    const od_int64 sz = ods.nrItems();
     if ( sz <= targetsz ) return;
 
-    for ( int idx=sz-1; idx>=targetsz; idx-- )
+    for ( od_int64 idx=sz-1; idx>=targetsz; idx-- )
     {
-	const int notselidx = getIndex( idx );
+	const od_int64 notselidx = getIndex( idx );
 	if ( notselidx != idx )
 	    ods.swap( notselidx, idx );
     }
