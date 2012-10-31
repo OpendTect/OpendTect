@@ -47,7 +47,7 @@ protected:
 }; // namespace Strat
 
 
-/*!\mainpage Stratigraphy
+/*!\page Strat Stratigraphy
 
 This module supports hierarchical naming of units, with supporting tools like
 lithology selection.

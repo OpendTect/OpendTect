@@ -48,7 +48,7 @@ public:
 };
 
 
-/*!\mainpage Non-Linear Analysis interfaces
+/*!\page NLA Non-Linear Analysis interfaces
 
   In order to accommodate more advanced methods than Attribute evaluation
   only, an interface for non-linear analysis is defined. The current

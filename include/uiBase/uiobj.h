@@ -197,7 +197,7 @@ private:
 #define mUsrEvLongTabletPress		QEvent::Type( QEvent::User + 2 )
 
 
-/*! \mainpage Basic User Interface (uiBase)
+/*! \page uiBase Basic User Interface (uiBase)
 
   \section intro Introduction
 

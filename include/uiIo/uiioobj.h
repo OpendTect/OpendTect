@@ -42,7 +42,7 @@ protected:
 };
 
 
-/*!\mainpage User Interface related to I/O
+/*!\page uiIO User Interface related to I/O
 
   This module contains some basic classes that handle the selection and
   management of an IOObj. An IOObj contains all info necessary to be able

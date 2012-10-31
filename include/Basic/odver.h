@@ -39,7 +39,7 @@ void mGlobal GetSpecificODVersion(const char* typ,BufferString&);
 #endif
 
 
-/*!\mainpage Basic utilities
+/*!\page Basic Basic utilities
   \section Introduction Introduction
 
   This module handles all things that are so basic to all other modules that

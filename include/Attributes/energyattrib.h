@@ -74,7 +74,7 @@ protected:
 }; // namespace Attrib
 
 
-/*!\mainpage Standard Attributes
+/*!\page Attributes Standard Attributes
 
   This module contains the definition of the 'standard' OpendTect attributes.
   Contained are attributes like Energy, Similarity, Volume Statistics, etc.

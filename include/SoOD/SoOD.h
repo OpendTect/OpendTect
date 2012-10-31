@@ -50,7 +50,7 @@ mGlobal static void	getLineWidthBounds( int& min, int& max );
 };
 
 
-/*!\mainpage
+/*!\page SoOD Coin Extensions
 SoOD cointains extensions to OpenInventor that are used to visualize 3D
 objects.
 */

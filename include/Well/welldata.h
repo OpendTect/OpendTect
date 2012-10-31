@@ -141,7 +141,7 @@ protected:
 }; // namespace Well
 
 
-/*!\mainpage Wells
+/*!\page Well Wells
  
  The OpendTect Well object is a single track, logs and markers bearing thing
  with some global data and possibly a Depth vs Time model attached.

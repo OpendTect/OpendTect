@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-/*!\mainpage PreStack Processing
+/*!\page PreStackProcessing PreStack Processing
   Support for processing prestack gathers is done by a
   PreStack::ProcessManager. The PreStack::ProcessManager has a chain of
   PreStack::Processor which are run in sequence.

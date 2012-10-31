@@ -154,7 +154,7 @@ public:
 mGlobal IOMan&	IOM();
 
 
-/*!\mainpage
+/*!\page General General Utilities
   \section Introduction Introduction
 
   This module uses the services from the Basic module and adds services that

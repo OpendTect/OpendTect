@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-/*!\mainpage
+/*!\page uiMPE MPE User Interface
 uiMPE contains user interface for the MPE-engines trackers and editors. The
 class uiMPEPartServer provides tracking services for higher hierarchies 
 (i.e. the application manager).

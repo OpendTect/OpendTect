@@ -153,7 +153,7 @@ protected:
 };
 
 
-/*!\mainpage User Interface Tools
+/*!\page uiTools User Interface Tools
 
   The uiTools module is a collection of tools that are based on the uiBase
   module (and thus on Qt services) but that combine uiBase services without

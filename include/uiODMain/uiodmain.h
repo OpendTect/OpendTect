@@ -121,7 +121,7 @@ public:
 };
 
 
-/*!\mainpage OpendTect Top Level (uiODMain)
+/*!\page uiODMain OpendTect Top Level (uiODMain)
 
   \section Introduction Introduction
 

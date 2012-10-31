@@ -258,7 +258,7 @@ protected:
 };
 
 
-/*!\mainpage Attribute User Interface
+/*!\page uiAttributes Attribute User Interface
 
  The main thing here is handling the attribute set editor. Other
  services of the uiAttribPartServer are selection and volume output.

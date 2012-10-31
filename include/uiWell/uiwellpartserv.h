@@ -109,7 +109,7 @@ public:
     void			doLogTools();
 };
 
-/*!\mainpage Well User Interface
+/*!\page uiWell Well User Interface
 
   Apart from nice visualisation, import and management of well data must be
   done. The uiWellPartServer delivers the services needed.

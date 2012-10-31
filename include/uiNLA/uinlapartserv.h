@@ -129,7 +129,7 @@ protected:
 };
 
 
-/*!\mainpage Non-Linear Analysis User Interface
+/*!\page uiNLA Non-Linear Analysis User Interface
 
   This class was designed in such a way that the existing dGB Neural network
   module could be put in a plugin in an easy way. In that way we kept the

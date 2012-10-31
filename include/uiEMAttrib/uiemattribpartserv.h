@@ -101,7 +101,7 @@ protected:
     void			shiftDlgClosed(CallBacker*);
 };
 
-/*!\mainpage EMAttrib User Interface
+/*!\page uiEMAttrib EarthModel Attributes User Interface
 
   Here you will find all attribute handling regarding EarthModel objects.
   The uiEMAttribPartServer delivers the services needed.
