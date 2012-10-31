@@ -21,7 +21,7 @@ mClass(Algo) HistEqualizer
 {
 public:
     			HistEqualizer(const int nrseg=256);
-    void 		setData(const TypeSet<float>&);
+    void 		setData(const LargeValVec<float>&);
     			//!< use in case of sorted data
     void 		setRawData(const TypeSet<float>&);
     			//!< use in case of unsorted data
@@ -30,7 +30,7 @@ public:
 
 protected:
 
-    TypeSet<float>&	 	datapts_;
+    LargeValVec<float>&	 	datapts_;
     const int		 	nrseg_;
     TypeSet<Interval<float> >*	histeqdatarg_;
 

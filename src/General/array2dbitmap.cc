@@ -51,7 +51,7 @@ Interval<float> A2DBitMapInpData::scale( const Interval<float>& clipratio,
 
 float A2DBitMapInpData::midVal() const
 {
-    const TypeSet<float>& statpts = clipper_.statPts();
+    const LargeValVec<float>& statpts = clipper_.statPts();
     return statpts.size() ? statpts[statpts.size()/2] : mUdf(float);
 }
 

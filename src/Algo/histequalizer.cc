@@ -15,14 +15,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 
 HistEqualizer::HistEqualizer( const int nrseg )
-    : datapts_(*new TypeSet<float>() )
+    : datapts_(*new LargeValVec<float>() )
     , histeqdatarg_(0)
     , nrseg_(nrseg)
 {
 }
 
 
-void HistEqualizer::setData( const TypeSet<float>& datapts ) 
+void HistEqualizer::setData( const LargeValVec<float>& datapts )
 {
     datapts_ = datapts;
     update();
