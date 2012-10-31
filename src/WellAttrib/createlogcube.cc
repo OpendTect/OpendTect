@@ -48,7 +48,7 @@ LogCubeCreator::LogCubeCreator( const Well::Data& wd )
     , nrduplicatetrcs_(0)		 
 {
     extractparams_ = new Well::ExtractParams();
-    extractparams_->setFixedRange( SI().zRange( true ), true );
+    extractparams_->setFixedRange( SI().zRange(true), SI().zDomain().isTime() );
     Well::SimpleTrackSampler wtextr( wd_.track(), wd_.d2TModel() );
     if ( !wtextr.execute() )
 	pErrMsg( "unable to extract position" );
