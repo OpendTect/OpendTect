@@ -386,11 +386,26 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	if ( nlamodel )
 	    descset.usePar( nlamodel->pars(), nlamodel->versionNr() );
 
-	const Desc* desc = nlamodel ? descset.getFirstStored()
-	    			    : clonedset->getFirstStored();
+	Desc* desc = nlamodel ? descset.getFirstStored()
+	    		      : ads.getDesc( todofld->attribID() );
 	if ( desc )
 	{
 	    BufferString storedid = desc->getStoredID();
+	    if ( storedid.isEmpty() )
+	    {
+		BufferString errmsg;
+		RefMan<Attrib::Provider> prov =
+		    Attrib::Provider::create( *desc, errmsg );
+		if ( prov )
+		{
+		    PosInfo::GeomID geomid = prov->getGeomID();
+		    BufferString lsnm = S2DPOS().getLineSet( geomid.lsid_ );
+		    SeisIOObjInfo info( lsnm );
+		    if ( info.ioObj() )
+			storedid = info.ioObj()->key();
+		}
+	    }
+
 	    if ( !storedid.isEmpty() )
 	    {
 		LineKey lk( storedid.buf() );
