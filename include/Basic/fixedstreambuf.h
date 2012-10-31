@@ -85,7 +85,7 @@ virtual streamsize xsgetn( char_type* s, streamsize n )
     if ( toget > memsz && memsz >= 0  )
 	toget = memsz;
 
-    memcpy( s, gptr(), toget );
+    memcpy( s, gptr(), (size_t)toget );
     gbump( (int) toget );
 
     return toget;
@@ -98,8 +98,8 @@ virtual streamsize xsputn( const char_type* s, streamsize n )
     if ( toput > memsz && memsz >= 0  )
 	toput = memsz;
 
-    memcpy( pptr(), s, toput );
-    pbump( (int) toput );
+    memcpy( pptr(), s, (size_t)toput );
+    pbump( (int)toput );
 
     return toput;
 }

@@ -114,7 +114,7 @@ T* ManagedObjectSet<T>::removeSingle( int idx, bool kporder )
 template <class T> inline
 void ManagedObjectSet<T>::removeRange( od_int64 i1, od_int64 i2 )
 {
-    for ( int idx=i1; idx<=i2; idx++ )
+    for ( int idx=(int)i1; idx<=i2; idx++ )
     {
 	if ( isarr_ )
 	    delete [] (*this)[idx];

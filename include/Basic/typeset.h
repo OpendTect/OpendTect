@@ -224,9 +224,9 @@ void TypeSet<T>::swap( od_int64 idx0, od_int64 idx1 )
     if ( !validIdx(idx0) || !validIdx(idx1) )
 	return;
 
-    T tmp = vec_[idx0];
-    vec_[idx0] = vec_[idx1];
-    vec_[idx1] = tmp;
+    T tmp = vec_[(int)idx0];
+    vec_[(int)idx0] = vec_[(int)idx1];
+    vec_[(int)idx1] = tmp;
 }
 
 
@@ -455,7 +455,7 @@ void TypeSet<T>::removeSingle( int idx, bool kporder )
 
 template <class T> inline
 void TypeSet<T>::removeRange( od_int64 i1, od_int64 i2 )
-{ vec_.remove( i1, i2 ); }
+{ vec_.remove( (int)i1, (int)i2 ); }
 
 
 template <class T> inline

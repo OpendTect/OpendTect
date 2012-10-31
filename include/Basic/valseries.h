@@ -554,13 +554,13 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     if ( cursize_==sz )
 	return true;
 
-    od_int64 lefttoalloc = sz;
+    od_uint64 lefttoalloc = sz > 0 ? (od_uint64)sz : 0;
     deepEraseArr( ptrs_ );
 
-    while ( lefttoalloc>0 )
+    while ( lefttoalloc )
     {
-	const od_int64 allocsize = lefttoalloc>=chunksize_
-	    ? chunksize_ : lefttoalloc;
+	const unsigned int allocsize = lefttoalloc>=chunksize_
+	    ? (unsigned int)chunksize_ : (unsigned int)lefttoalloc;
 
 	AT* ptr;
 	mTryAlloc( ptr, AT[allocsize] );
@@ -573,7 +573,10 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 
 	ptrs_ += ptr;
 
-	lefttoalloc -= allocsize;
+	if ( lefttoalloc > allocsize )
+	    lefttoalloc -= allocsize;
+	else
+	    lefttoalloc = 0;
     }
 
     cursize_ = sz;
