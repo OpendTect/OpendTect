@@ -318,7 +318,7 @@ void clss::setNewName() \
     setName( nm ); \
 }
 
-/*!\mainpage Earth Model objects
+/*!\page EarthModel Earth Model objects
 
   Objects like horizons, well tracks and bodies are all earth model objects.
   Such objects can be described in various ways, and the EM way is the

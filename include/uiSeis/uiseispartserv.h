@@ -78,7 +78,7 @@ protected:
 };
 
 
-/*!\mainpage Seismics User Interface
+/*!\page uiSeis Seismics User Interface
 
   Most of the tools in this module enable import and export of seismic
   data into/from the OpendTect data store. The merge and manage tools manipulate

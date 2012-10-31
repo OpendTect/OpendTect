@@ -195,7 +195,7 @@ public:
 };
 
 
-/*!\mainpage Earth Model User Interface
+/*!\page uiEarthModel Earth Model User Interface
 
  The earth model objects are visualised by the visXX classes. The I/O,
  parameters and other data-related issues also require standard user interface

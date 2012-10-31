@@ -31,7 +31,7 @@ protected:
 };
 
 
-/*!\mainpage Where COIN meets Qt
+/*!\page uiCoin Where COIN meets Qt
 
  Qt and COIN are both wonderful packages. Unfortunately, they both want to
  grab the main loop of an application. Fortunately, the COIN people from SIM

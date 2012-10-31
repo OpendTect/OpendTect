@@ -472,7 +472,7 @@ protected:
 };
 
 
-/*!\mainpage Visualisation User Interface
+/*!\page uiVis Visualisation User Interface
 
   This module provides the plain user interface classes necessary to do the
   3D visualisation in the way that the user wants.

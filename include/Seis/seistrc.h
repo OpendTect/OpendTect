@@ -179,7 +179,7 @@ inline ValueSeries<float>* SeisTrcValueSeries::clone() const
 { return new SeisTrcValueSeries( trc_, icomp_ ); }
 
 
-/*!\mainpage Seismics
+/*!\page Seis Seismics
 
 Seismic data is sampled data along a vertical axis. Many 'traces' will usually
 occupy a volume (3D seismics) or separate lines (2D data).

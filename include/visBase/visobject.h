@@ -138,7 +138,7 @@ mLockerClassImpl( VisualWriteLockLocker, VisualObjectImpl,
 };
 
 
-/*!\mainpage Visualisation - Open Inventor-based tools
+/*!\page visBase Visualisation - Open Inventor-based tools
 
   All 3D visualisation in OpendTect is COIN based. COIN is an implementation
   of the OpenInventor interface sepecification. As usual, the external package

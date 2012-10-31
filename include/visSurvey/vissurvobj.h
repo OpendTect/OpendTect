@@ -341,7 +341,7 @@ protected:
 }; // namespace visSurvey
 
 
-/*!\mainpage 3D Visualisation - OpendTect specific
+/*!\page visSurvey 3D Visualisation - OpendTect specific
 
   This module contains front-end classes for displaying 3D objects. Most 
   functions in these classes deal with the geometry or position of the object, 
