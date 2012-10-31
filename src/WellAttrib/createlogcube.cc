@@ -39,7 +39,7 @@ LogCubeCreator::LogCubeCreator( const Well::Data& wd )
     if ( !wtextr.execute() )
 	pErrMsg( "unable to extract position" );
     wtextr.getBIDs( binids_ );
-    extractparams_.setFixedRange( SI().zRange( true ), true );
+    extractparams_.setFixedRange( SI().zRange(true), SI().zDomain().isTime() );
 }
 
 
