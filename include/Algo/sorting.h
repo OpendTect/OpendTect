@@ -21,12 +21,12 @@ ________________________________________________________________________
 #include "thread.h"
 
 
-#define mDoSort(extra_var,extra_action) \
+#define mDoSort(extra_var,extra_action,sztype) \
 { \
     T tmp; extra_var; \
-    for ( int d=sz/2; d>0; d=d/2 ) \
-	for ( int i=d; i<sz; i++ ) \
-	    for ( int j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
+    for ( sztype d=sz/2; d>0; d=d/2 ) \
+	for ( sztype i=d; i<sz; i++ ) \
+	    for ( sztype j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
 	    { \
 		tmp = arr[j]; arr[j] = arr[j+d]; arr[j+d] = tmp; \
 		extra_action; \
@@ -34,22 +34,22 @@ ________________________________________________________________________
 }
 
 /*!> sort quickly (algorithm taken from xv). */
-template <class T>
-inline void sort_array( T* arr, int sz )
-mDoSort(,)
+template <class T,class I>
+inline void sort_array( T* arr, I sz )
+mDoSort(,,I)
 
 /*!> sort and remember where it was before sorting. */
 template <class T, class IT>
-inline void sort_coupled( T* arr, IT* idxs, int sz )
-mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
+inline void sort_coupled( T* arr, IT* idxs, IT sz )
+mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,IT)
 
 #undef mDoSort
-#define mDoSort(extra_var,extra_action) \
+#define mDoSort(extra_var,extra_action,sztype) \
 { \
     extra_var; \
-    for ( int d=sz/2; d>0; d=d/2 ) \
-	for ( int i=d; i<sz; i++ ) \
-	    for ( int j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
+    for ( sztype d=sz/2; d>0; d=d/2 ) \
+	for ( sztype i=d; i<sz; i++ ) \
+	    for ( sztype j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
 	    { \
 		Swap( arr[j], arr[j+d] ); \
 		extra_action; \
@@ -59,12 +59,12 @@ mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
 /*!> sort quickly (algorithm taken from xv). */
 template <class T>
 inline void sort_idxabl( T& arr, int sz )
-mDoSort(,)
+mDoSort(,,int)
 
 /*!> sort and remember where it was before sorting. */
 template <class T, class IT>
 inline void sort_idxabl_coupled( T& arr, IT* idxs, int sz )
-mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
+mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,int)
 #undef mDoSort
 
 
@@ -116,11 +116,11 @@ protected:
 #define FC 1663
 #define NSTACK 50
 
-template <class T> inline
-void partSort( T* arr, int istart, int istop,
-		      int* jstart, int* jstop )
+template <class T,class I> inline
+void partSort( T* arr, I istart, I istop,
+		      I* jstart, I* jstop )
 {
-    int ipivot, ileft, iright;
+    I ipivot, ileft, iright;
     T pivotval, tmp;
     static long int seed = 0L;
 
@@ -161,10 +161,10 @@ void partSort( T* arr, int istart, int istop,
 }
 
 
-template <class T> inline
-void insertionSort( T* arr, int istart, int istop )
+template <class T, class I> inline
+void insertionSort( T* arr, I istart, I istop )
 {
-    int i, j;
+    I i, j;
     T arr_i;
 
     for ( i=istart+1; i<=istop; i++ )
@@ -176,13 +176,13 @@ void insertionSort( T* arr, int istart, int istop )
 }
 
 
-template <class T> inline
-void sortFor( T* arr, int sz, int itarget )
+template <class T,class I> inline
+void sortFor( T* arr, I sz, I itarget )
 /*!> sorts the array until the 'itarget' element has exactly the right
 value. The rest of the array must be considered unsorted after the operation,
 although it will generally be better sorted. */
 {
-    int j, k, p = 0, q = sz-1;
+    I j, k, p = 0, q = sz-1;
 
     while( q - p > NSMALL )
     {
@@ -197,11 +197,11 @@ although it will generally be better sorted. */
 }
 
 
-template <class T> inline
-void quickSort( T* arr, int sz )
+template <class T,class I> inline
+void quickSort( T* arr, I sz )
 /*!> is quicker than sort_array for arrays larger than about 100 values. */
 {
-    int pstack[NSTACK], qstack[NSTACK], j, k, p, q, top=0;
+    I pstack[NSTACK], qstack[NSTACK], j, k, p, q, top=0;
 
     pstack[top] = 0;
     qstack[top++] = sz - 1;
