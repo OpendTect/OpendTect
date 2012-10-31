@@ -39,9 +39,9 @@ inline void sort_array( T* arr, I sz )
 mDoSort(,,I)
 
 /*!> sort and remember where it was before sorting. */
-template <class T, class IT>
-inline void sort_coupled( T* arr, IT* idxs, IT sz )
-mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,IT)
+template <class T, class IT,class I>
+inline void sort_coupled( T* arr, IT* idxs, I sz )
+mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,I)
 
 #undef mDoSort
 #define mDoSort(extra_var,extra_action,sztype) \
