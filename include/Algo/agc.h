@@ -122,7 +122,7 @@ void AGC<T>::computeEnergyMute()
 	 mIsZero(mutefraction_,1e-5) )
 	return;
 
-    const int sample = mNINT32(size_*mutefraction_);
+    const od_int64 sample = mNINT64(size_*mutefraction_);
     if ( sample<0 || sample>=size_ )
 	return;
 
