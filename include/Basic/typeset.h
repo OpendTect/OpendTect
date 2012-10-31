@@ -93,8 +93,8 @@ public:
 				//! 3rd party access
     inline virtual T*		arr()		{ return gtArr(); }
     inline virtual const T*	arr() const	{ return gtArr(); }
-    inline std::vector<T,I>&	vec();
-    inline const std::vector<T,I>& vec() const;
+    inline std::vector<T>&	vec();
+    inline const std::vector<T>& vec() const;
 
 protected:
     
@@ -487,12 +487,12 @@ void TypeSetBase<T,I>::insert( I idx, const T& typ )
 
 
 template <class T, class I> inline
-std::vector<T,I>& TypeSetBase<T,I>::vec()
+std::vector<T>& TypeSetBase<T,I>::vec()
 { return vec_.vec(); }
 
 
 template <class T, class I> inline
-const std::vector<T,I>& TypeSetBase<T,I>::vec() const
+const std::vector<T>& TypeSetBase<T,I>::vec() const
 { return vec_.vec(); }
 
 
