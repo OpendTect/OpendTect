@@ -118,14 +118,14 @@ public:
 	    				 Interval<float>&) const;
     void			reset();
 
-    const TypeSet<float>&	statPts() const { return samples_; }
+    const LargeValVec<float>&	statPts() const { return samples_; }
 
 protected:
 
     int				approxstatsize_;
     float			sampleprob_;
     bool			subselect_;
-    TypeSet<float>		samples_;
+    LargeValVec<float>		samples_;
     Interval<float>		absoluterg_;
 };
 
@@ -139,10 +139,10 @@ public:
     void		reset()			{ count_ = 0; }
 
     void		add(float);
-    void		add(const float*,int);
+    void		add(const float*,od_int64);
     void		finish() const;
 
-    int			nrVals() const;
+    od_int64		nrVals() const;
     const float*	vals() const		{ return vals_; }
 
     void		report(IOPar&) const;

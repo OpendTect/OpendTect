@@ -64,7 +64,7 @@ template <class T>
 class DataClipperDataInserter : public ParallelTask
 {
 public:
-    DataClipperDataInserter( const T& input, int sz, TypeSet<float>& samples,
+    DataClipperDataInserter( const T& input, od_int64 sz, LargeValVec<float>& samples,
 			     Interval<float>& rg, float prob )
         : input_( input )
         , nrvals_( sz )
@@ -108,7 +108,7 @@ public:
 	{
 	    Threads::SpinLockLocker lock( lock_ );
 	   
-	    samples_.append( localsamples );
+	    append( samples_, localsamples );
 	    absoluterg_.include( localrg, false );
 	}
 	
@@ -120,7 +120,7 @@ protected:
     Threads::SpinLock	lock_;
     od_int64		nrsamples_;
     od_int64		nrvals_;
-    TypeSet<float>&	samples_;
+    LargeValVec<float>&	samples_;
     const T&		input_;
     bool		doall_;
     Interval<float>&	absoluterg_;
@@ -354,7 +354,7 @@ DataClipSampler::DataClipSampler( int ns )
 }
 
 
-void DataClipSampler::add( const float* v, int sz )
+void DataClipSampler::add( const float* v, od_int64 sz )
 {
     if ( count_ < maxnrvals_ )
     {
@@ -367,7 +367,7 @@ void DataClipSampler::add( const float* v, int sz )
     const int nr2add = (int)(relwt * sz - .5);
     if ( nr2add < 1 ) return;
 
-    int randint = Stats::randGen().getIndex( mUdf(int) );
+    od_int64 randint = Stats::randGen().getIndex( mUdf(int) );
     for ( int idx=0; idx<nr2add; idx++ )
     {
 	od_int64 vidx = Stats::randGen().getIndexFast( sz, randint );
@@ -400,7 +400,7 @@ void DataClipSampler::doAdd( float val )
     count_++;
 }
 
-int DataClipSampler::nrVals() const
+od_int64 DataClipSampler::nrVals() const
 { return count_ > maxnrvals_ ? maxnrvals_ : count_; }
 
 
@@ -416,12 +416,12 @@ Interval<float> DataClipSampler::getRange( float clip ) const
 {
     if ( !finished_ ) finish();
 
-    const int nv = nrVals();
+    const od_int64 nv = nrVals();
     if ( nv == 0 ) return Interval<float>(0,0);
 
     const float fidx = nv * .5f * clip;
-    int idx0 = mNINT32(fidx);
-    int idx1 = nv - idx0 - 1;
+    od_int64 idx0 = mNINT64(fidx);
+    od_int64 idx1 = nv - idx0 - 1;
     if ( idx0 > idx1 ) Swap( idx0, idx1 );
 
     return Interval<float>( vals_[idx0], vals_[idx1] );
