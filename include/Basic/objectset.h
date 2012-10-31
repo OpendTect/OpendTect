@@ -317,9 +317,9 @@ void ObjectSet<T>::swap( od_int64 idx0, od_int64 idx1 )
 {
     if ( idx0<0 || idx0>=size() || idx1<0 || idx1>=size() )
 	return;
-    void* tmp = vec_[idx0];
-    vec_[idx0] = vec_[idx1];
-    vec_[idx1] = tmp;
+    void* tmp = vec_[(int)idx0];
+    vec_[(int)idx0] = vec_[(int)idx1];
+    vec_[(int)idx1] = tmp;
 }
 
 
@@ -415,7 +415,7 @@ T* ObjectSet<T>::removeSingle( int idx, bool kporder)
 
 template <class T> inline
 void ObjectSet<T>::removeRange( od_int64 i1, od_int64 i2 )
-{ vec_.remove( i1, i2 ); }
+{ vec_.remove( (int)i1, (int)i2 ); }
 template <class T> inline T* ObjectSet<T>::first()
 { return isEmpty() ? 0 : (*this)[0]; }
 template <class T> inline const T* ObjectSet<T>::first() const
