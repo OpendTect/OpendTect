@@ -157,12 +157,12 @@ inline bool operator !=( const TypeSetBase<T,I>& a, const TypeSetBase<T,I>& b )
 
 
 //! append allowing a different type to be merged into set
-template <class T, class I, class S>
-inline bool append( TypeSetBase<T,I>& to, const TypeSetBase<S,I>& from )
+template <class T, class I, class J, class S>
+inline bool append( TypeSetBase<T,I>& to, const TypeSetBase<S,J>& from )
 {
-    const I sz = from.size();
+    const J sz = from.size();
     if ( !to.setCapacity( sz + to.size() ) ) return false;
-    for ( I idx=0; idx<sz; idx++ )
+    for ( J idx=0; idx<sz; idx++ )
 	to += from[idx];
 
     return true;
