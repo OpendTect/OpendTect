@@ -46,15 +46,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace Attrib
 {
-    
+
 EngineMan::EngineMan()
-	: inpattrset_(0)
-	, procattrset_(0)
-	, nlamodel_(0)
-	, cs_(*new CubeSampling)
-	, cache_(0)
-	, udfval_( mUdf(float) )
-	, curattridx_(0)
+    : inpattrset_(0)
+    , procattrset_(0)
+    , nlamodel_(0)
+    , cs_(*new CubeSampling)
+    , cache_(0)
+    , udfval_(mUdf(float))
+    , curattridx_(0)
 {
 }
 
@@ -86,7 +86,7 @@ void EngineMan::getPossibleVolume( DescSet& attribset, CubeSampling& cs,
 
 
 Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset, 
-	      		      const char* linename, BufferString& errmsg )
+			      const char* linename, BufferString& errmsg )
 {
     int outputidx = 0;
     TypeSet<DescID> ids;
@@ -124,27 +124,31 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 
     for ( int idx=1; idx<ids.size(); idx++ )
 	proc->addOutputInterest(idx);
-    
-/*    bool ndestbord;
-    BufferString basekey = IOPar::compKey( "Output",0 );
-    if ( iopar.getYN( IOPar::compKey( basekey,SeisTrc::sKeyExtCubeToSI() ),
-		      ndestbord) )
-	proc->ensureNonDestructiveBorders( ndestbord );*/
-    
-    PtrMan<IOPar> outpar = iopar.subselect(
-	    			IOPar::compKey(sKey::Output(),sKey::Subsel()) );
-    if ( !outpar || !cs_.usePar( *outpar ) )
-    {
-	if ( attribset.is2D() )
-	{                                                                       
-	    cs_.set2DDef();                                                     
 
-	    //trick to avoid survey boundaries and compute full line z range    
-	    cs_.zrg.start = mMIN (0, SI().zRange(false).start);                 
-	    cs_.zrg.stop = 600000; //10 min, very unlikely! (udf(float) fails)  
-	} 
-	else
+    PtrMan<IOPar> outpar =
+	iopar.subselect( IOPar::compKey(sKey::Output(),sKey::Subsel()) );
+    if ( !outpar || !cs_.usePar(*outpar) )
+    {
+	if ( !attribset.is2D() )
 	    cs_.init();
+	else
+	{
+	    cs_.set2DDef(); // doesn't make much sense, but is better than nothing
+
+	    cs_.hrg.start.inl = cs_.hrg.stop.inl = 0;
+	    MultiID lsid;
+	    iopar.get( "Input Line Set", lsid );
+	    PtrMan<IOObj> lsobj = IOM().get( lsid );
+	    if ( lsobj )
+	    {
+		const PosInfo::GeomID& geomid =
+		    S2DPOS().getGeomID( lsobj->name(), linename );
+		PosInfo::Line2DData l2dd;
+		S2DPOS().getGeometry( geomid, l2dd );
+		cs_.hrg.setCrlRange( l2dd.trcNrRange() );
+		cs_.zrg = l2dd.zRange();
+	    }
+	} 
     }
 
     //get attrib name from user reference for backward compatibility with 3.2.2
@@ -227,7 +231,7 @@ void EngineMan::setExecutorName( Executor* ex )
 
 SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars, 
 					    const LineKey& lkey,
-       					    BufferString& errmsg )
+					    BufferString& errmsg )
 {
     const char* typestr = pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
     if ( typestr && !strcmp(typestr,sKey::Cube()) )
@@ -776,12 +780,11 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 
     const LineKey lk( storeddesc->getValParam(
 			StorageProvider::keyStr())->getStringValue(0) );
-
     const MultiID key( lk.lineName() );
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj ) return;
-    const Seis2DLineSet lset(ioobj->fullUserExpr(true));
 
+    const Seis2DLineSet lset( ioobj->fullUserExpr(true) );
     S2DPOS().setCurLineSet( lset.name() );
     PosInfo::LineSet2DData linesetgeom;
     for ( int idx=0; idx<lset.nrLines(); idx++ )
@@ -899,9 +902,9 @@ int nextStep()
 
 
 Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
-       					const Attrib::DescSet& descset,
-       					BufferString& errmsg, int firstcol,
-       					bool needprep )
+					const Attrib::DescSet& descset,
+					BufferString& errmsg, int firstcol,
+					bool needprep )
 {
     if ( needprep && !ensureDPSAndADSPrepared( datapointset, descset, errmsg ) )
 	return 0;
@@ -980,7 +983,7 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
     setExecutorName( proc );
     if ( !proc )
 	mErrRet( errmsg )
-	    
+
     if ( doeval )
     {
 	for ( int idx=1; idx<attrspecs_.size(); idx++ )
@@ -994,9 +997,9 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
 Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
 					  const BinIDValueSet& bidvalset,
 					  SeisTrcBuf& output, float outval,
-       					  Interval<float>* cubezbounds,
-       					  TypeSet<BinID>* trueknotspos,
-       					  TypeSet<BinID>* snappedpos )
+					  Interval<float>* cubezbounds,
+					  TypeSet<BinID>* trueknotspos,
+					  TypeSet<BinID>* snappedpos )
 {
     Processor* proc = getProcessor(errmsg);
     if ( !proc )
@@ -1024,7 +1027,7 @@ Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
 					  const IOPar& pars,
 					  DataPointSet* datapointset,
 					  float outval,
-       					  Interval<float>* cubezbounds )
+					  Interval<float>* cubezbounds )
 {
     PtrMan<IOPar> output = pars.subselect( IOPar::compKey( sKey::Output(),"0") );
     const char* linename = output->find(sKey::LineKey());
@@ -1038,7 +1041,7 @@ Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
 
     LineKey lkey( linename, proc->getAttribUserRef() );
     Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( lkey, datapointset,
-	    						    outval );
+							    outval );
     attrout->doUsePar( pars );
     if ( cubezbounds )
 	attrout->setTrcsBounds( *cubezbounds );
@@ -1056,7 +1059,7 @@ int EngineMan::getNrOutputsToBeProcessed( const Processor& proc ) const
 
 bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 					 const Attrib::DescSet& descset,
-       					 BufferString& errmsg )
+					 BufferString& errmsg )
 {
     BufferStringSet attrrefs;
     descset.fillInAttribColRefs( attrrefs );
