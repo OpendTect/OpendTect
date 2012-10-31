@@ -25,63 +25,58 @@ ________________________________________________________________________
 
 /*!\brief Set of (small) copyable elements
 
-The TypeSet is meant for simple types or small objects that have a copy
+The TypeSetBase is meant for simple types or small objects that have a copy
 constructor. The `-=' function will only remove the first occurrence that
 matches using the `==' operator. The requirement of the presence of that
 operator is actually not that bad: at least you can't forget it.
 
-Do not make TypeSet<bool> (don't worry, it won't compile). Use the BoolTypeSet
+Do not make TypeSetBase<bool> (don't worry, it won't compile). Use the BoolTypeSet
 typedef just after the class definition. See vectoraccess.h for details on why.
 
 */
 
-template <class T>
-class TypeSet : public OD::Set
+template <class T, class I>
+class TypeSetBase : public OD::Set
 {
 public:
+    inline virtual		~TypeSetBase();
+    inline TypeSetBase<T,I>&	operator =(const TypeSetBase<T,I>&);
 
-    inline			TypeSet();
-    inline			TypeSet(int nr,T typ);
-    inline			TypeSet(const T*,int nr);
-    inline			TypeSet(const TypeSet<T>&);
-    inline virtual		~TypeSet();
-    inline TypeSet<T>&		operator =(const TypeSet<T>&);
-
-    inline int			size() const	{ return vec_.size(); }
+    inline I			size() const	{ return vec_.size(); }
     inline virtual od_int64	nrItems() const	{ return size(); }
-    inline virtual bool		setSize(int,T val=T());
+    inline virtual bool		setSize(I,T val=T());
 				/*!<\param val value assigned to new items */
-    inline virtual bool		setCapacity( int sz );
+    inline virtual bool		setCapacity( I sz );
 				/*!<Allocates mem only, no size() change */
     inline void			setAll(T);
 
-    inline T&			operator[](int);
-    inline const T&		operator[](int) const;
+    inline T&			operator[](I);
+    inline const T&		operator[](I) const;
     inline T&			first();
     inline const T&		first() const;
     inline T&			last();
     inline const T&		last() const;
     inline virtual bool		validIdx(od_int64) const;
-    inline virtual int		indexOf(T,bool forward=true,int start=-1) const;
+    inline virtual I		indexOf(T,bool forward=true,I start=-1) const;
     inline bool			isPresent( const T& t ) const
     						{ return indexOf(t) >= 0; }
-    inline int			count(const T&) const;
+    inline I			count(const T&) const;
 
-    inline TypeSet<T>&		operator +=(const T&);
-    inline TypeSet<T>&		operator -=(const T&);
-    inline virtual TypeSet<T>&	copy(const T*,int);
-    inline virtual TypeSet<T>&	copy(const TypeSet<T>&);
-    inline virtual bool		append(const T*,int);
-    inline virtual bool		append(const TypeSet<T>&);
+    inline TypeSetBase<T,I>&		operator +=(const T&);
+    inline TypeSetBase<T,I>&		operator -=(const T&);
+    inline virtual TypeSetBase<T,I>&	copy(const T*,I);
+    inline virtual TypeSetBase<T,I>&	copy(const TypeSetBase<T,I>&);
+    inline virtual bool		append(const T*,I);
+    inline virtual bool		append(const TypeSetBase<T,I>&);
     inline bool			add(const T&);
 
     inline virtual void		swap(od_int64,od_int64);
     inline virtual void		reverse();
-    virtual inline void		createUnion(const TypeSet<T>&);
+    virtual inline void		createUnion(const TypeSetBase<T,I>&);
 				/*!< Adds items not already there */
-    virtual inline void		createIntersection(const TypeSet<T>&);
+    virtual inline void		createIntersection(const TypeSetBase<T,I>&);
 				//!< Only keeps common items
-    virtual inline void		createDifference(const TypeSet<T>&,
+    virtual inline void		createDifference(const TypeSetBase<T,I>&,
 	    				 bool must_preserve_order=false);
 				//!< Removes all items present in other set.
 
@@ -90,23 +85,40 @@ public:
 
     inline virtual void		erase();
 
-    inline virtual void		removeSingle(int,bool preserver_order=true);
+    inline virtual void		removeSingle(I,bool preserver_order=true);
     inline virtual void		removeRange(od_int64 from,od_int64 to);
     
-    inline virtual void		insert(int,const T&);
+    inline virtual void		insert(I,const T&);
 
 				//! 3rd party access
     inline virtual T*		arr()		{ return gtArr(); }
     inline virtual const T*	arr() const	{ return gtArr(); }
-    inline std::vector<T>&	vec();
-    inline const std::vector<T>& vec() const;
+    inline std::vector<T,I>&	vec();
+    inline const std::vector<T,I>& vec() const;
 
 protected:
+    
+    inline			TypeSetBase();
+    inline			TypeSetBase(I nr,T typ);
+    inline			TypeSetBase(const T*,I nr);
+    inline			TypeSetBase(const TypeSetBase<T,I>&);
 
-    VectorAccess<T,int>		vec_;
+    VectorAccess<T,I>		vec_;
 
     inline virtual T*		gtArr() const;
 
+};
+
+
+template <class T>
+class TypeSet : public TypeSetBase<T,int>
+{
+    	typedef int size_type;
+public:
+	TypeSet() : TypeSetBase<T,size_type>() 				{}
+	TypeSet(int nr,T typ) : TypeSetBase<T,size_type>( nr, typ )	{}
+	TypeSet(const T* t,int nr) : TypeSetBase<T,size_type>( t, nr )	{}
+	TypeSet(const TypeSet<T>& t) : TypeSetBase<T,size_type>( t )	{}
 };
 
 //! We need this because STL has a crazy specialisation of the vector<bool>
@@ -115,31 +127,42 @@ typedef TypeSet<BoolTypeSetType> BoolTypeSet;
 //!< This sux, BTW.
 
 
-
 template <class T>
-inline bool operator ==( const TypeSet<T>& a, const TypeSet<T>& b )
+class LargeValVec : public TypeSetBase<T,od_int64>
+{
+	typedef od_int64 size_type;
+public:
+	LargeValVec() : TypeSetBase<T,size_type>() 			{}
+	LargeValVec(int nr,T typ) : TypeSetBase<T,size_type>( nr, typ )	{}
+	LargeValVec(const T* t,int nr) : TypeSetBase<T,size_type>( t, nr ){}
+	LargeValVec(const TypeSet<T>& t) : TypeSetBase<T,size_type>( t ){}
+
+};
+
+template <class T, class I>
+inline bool operator ==( const TypeSetBase<T,I>& a, const TypeSetBase<T,I>& b )
 {
     if ( a.size() != b.size() ) return false;
 
-    const int sz = a.size();
-    for ( int idx=0; idx<sz; idx++ )
+    const I sz = a.size();
+    for ( I idx=0; idx<sz; idx++ )
 	if ( !(a[idx] == b[idx]) ) return false;
 
     return true;
 }
 
-template <class T>
-inline bool operator !=( const TypeSet<T>& a, const TypeSet<T>& b )
+template <class T, class I>
+inline bool operator !=( const TypeSetBase<T,I>& a, const TypeSetBase<T,I>& b )
 { return !(a == b); }
 
 
 //! append allowing a different type to be merged into set
-template <class T,class S>
-inline bool append( TypeSet<T>& to, const TypeSet<S>& from )
+template <class T, class I, class S>
+inline bool append( TypeSetBase<T,I>& to, const TypeSetBase<S,I>& from )
 {
-    const int sz = from.size();
+    const I sz = from.size();
     if ( !to.setCapacity( sz + to.size() ) ) return false;
-    for ( int idx=0; idx<sz; idx++ )
+    for ( I idx=0; idx<sz; idx++ )
 	to += from[idx];
 
     return true;
@@ -148,8 +171,8 @@ inline bool append( TypeSet<T>& to, const TypeSet<S>& from )
 
 //! copy from different possibly different type into set
 //! Note that there is no optimisation for equal size, as in member function.
-template <class T,class S>
-inline void copy( TypeSet<T>& to, const TypeSet<S>& from )
+template <class T, class I,class S>
+inline void copy( TypeSetBase<T,I>& to, const TypeSetBase<S,I>& from )
 {
     if ( &to == &from ) return;
     to.erase();
@@ -157,96 +180,96 @@ inline void copy( TypeSet<T>& to, const TypeSet<S>& from )
 }
 
 
-//! Sort TypeSet. Must have operator > defined for elements
-template <class T>
-inline void sort( TypeSet<T>& ts )
+//! Sort TypeSetBase. Must have operator > defined for elements
+template <class T, class I>
+inline void sort( TypeSetBase<T,I>& ts )
 {
-    T tmp; const int sz = ts.size();
-    for ( int d=sz/2; d>0; d=d/2 )
-	for ( int i=d; i<sz; i++ )
-	    for ( int j=i-d; j>=0 && ts[j]>ts[j+d]; j-=d )
+    T tmp; const I sz = ts.size();
+    for ( I d=sz/2; d>0; d=d/2 )
+	for ( I i=d; i<sz; i++ )
+	    for ( I j=i-d; j>=0 && ts[j]>ts[j+d]; j-=d )
 		{ tmp = ts[j]; ts[j] = ts[j+d]; ts[j+d] = tmp; }
 }
 
 
 // Member function implementations
-template <class T> inline
-TypeSet<T>::TypeSet()
+template <class T, class I> inline
+TypeSetBase<T,I>::TypeSetBase()
 {}
 
 
-template <class T> inline
-TypeSet<T>::TypeSet( int nr, T typ )
+template <class T, class I> inline
+TypeSetBase<T,I>::TypeSetBase( I nr, T typ )
 { setSize( nr, typ ); }
 
 
-template <class T> inline
-TypeSet<T>::TypeSet( const T* tarr, int nr )
+template <class T, class I> inline
+TypeSetBase<T,I>::TypeSetBase( const T* tarr, I nr )
 { append( tarr, nr ); }
 
-template <class T> inline
-TypeSet<T>::TypeSet( const TypeSet<T>& t )
+template <class T, class I> inline
+TypeSetBase<T,I>::TypeSetBase( const TypeSetBase<T,I>& t )
     : OD::Set( t )
 { append( t ); }
 
 
-template <class T> inline
-TypeSet<T>::~TypeSet() {}
+template <class T, class I> inline
+TypeSetBase<T,I>::~TypeSetBase() {}
 
 
-template <class T> inline
-TypeSet<T>& TypeSet<T>::operator =( const TypeSet<T>& ts )
+template <class T, class I> inline
+TypeSetBase<T,I>& TypeSetBase<T,I>::operator =( const TypeSetBase<T,I>& ts )
 { return copy( ts ); }
 
 
-template <class T> inline
-bool TypeSet<T>::setSize( int sz, T val )
+template <class T, class I> inline
+bool TypeSetBase<T,I>::setSize( I sz, T val )
 { return vec_.setSize( sz, val ); }
 
 
-template <class T> inline
-bool TypeSet<T>::setCapacity( int sz )
+template <class T, class I> inline
+bool TypeSetBase<T,I>::setCapacity( I sz )
 { return vec_.setCapacity( sz ); }
 
-template <class T> inline
-void TypeSet<T>::setAll( T val )
+template <class T, class I> inline
+void TypeSetBase<T,I>::setAll( T val )
 {
-    const int sz = size();
+    const I sz = size();
     T* v = arr();
-    for ( int idx=0; idx<sz; idx++ )
+    for ( I idx=0; idx<sz; idx++ )
 	v[idx] = val;
 }
 
 
-template <class T> inline
-void TypeSet<T>::swap( od_int64 idx0, od_int64 idx1 )
+template <class T, class I> inline
+void TypeSetBase<T,I>::swap( od_int64 idx0, od_int64 idx1 )
 {
     if ( !validIdx(idx0) || !validIdx(idx1) )
 	return;
 
-    T tmp = vec_[(int)idx0];
-    vec_[(int)idx0] = vec_[(int)idx1];
-    vec_[(int)idx1] = tmp;
+    T tmp = vec_[(I)idx0];
+    vec_[(I)idx0] = vec_[(I)idx1];
+    vec_[(I)idx1] = tmp;
 }
 
 
-template <class T> inline
-void TypeSet<T>::reverse()
+template <class T, class I> inline
+void TypeSetBase<T,I>::reverse()
 {
-    const int sz = size();
-    const int hsz = sz/2;
-    for ( int idx=0; idx<hsz; idx++ )
+    const I sz = size();
+    const I hsz = sz/2;
+    for ( I idx=0; idx<hsz; idx++ )
 	swap( idx, sz-1-idx );
 }
 
 
-template <class T> inline
-bool TypeSet<T>::validIdx( od_int64 idx ) const
+template <class T, class I> inline
+bool TypeSetBase<T,I>::validIdx( od_int64 idx ) const
 { return idx>=0 && idx<size(); }
 
 
-template <class T> inline
-T& TypeSet<T>::operator[]( int idx )
+template <class T, class I> inline
+T& TypeSetBase<T,I>::operator[]( I idx )
 {
 #ifdef __debug__
     if ( !validIdx(idx) )
@@ -256,8 +279,8 @@ T& TypeSet<T>::operator[]( int idx )
 }
 
 
-template <class T> inline
-const T& TypeSet<T>::operator[]( int idx ) const
+template <class T, class I> inline
+const T& TypeSetBase<T,I>::operator[]( I idx ) const
 {
 #ifdef __debug__
     if ( !validIdx(idx) )
@@ -267,35 +290,35 @@ const T& TypeSet<T>::operator[]( int idx ) const
 }
 
 
-template <class T> inline
-T& TypeSet<T>::first()			{ return vec_[0]; }
+template <class T, class I> inline
+T& TypeSetBase<T,I>::first()			{ return vec_[0]; }
 
-template <class T> inline
-const T& TypeSet<T>::first() const	{ return vec_[0]; }
+template <class T, class I> inline
+const T& TypeSetBase<T,I>::first() const	{ return vec_[0]; }
 
-template <class T> inline
-T& TypeSet<T>::last()			{ return vec_[size()-1]; }
+template <class T, class I> inline
+T& TypeSetBase<T,I>::last()			{ return vec_[size()-1]; }
 
-template <class T> inline
-const T& TypeSet<T>::last() const	{ return vec_[size()-1]; }
+template <class T, class I> inline
+const T& TypeSetBase<T,I>::last() const	{ return vec_[size()-1]; }
 
 
-template <class T> inline
-int TypeSet<T>::indexOf( T typ, bool forward, int start ) const
+template <class T, class I> inline
+I TypeSetBase<T,I>::indexOf( T typ, bool forward, I start ) const
 {
     const T* ptr = arr();
     if ( forward )
     {
-	const int sz = size();
+	const I sz = size();
 	if ( start<0 || start>=sz ) start = 0;
-	for ( int idx=start; idx<sz; idx++ )
+	for ( I idx=start; idx<sz; idx++ )
 	    if ( ptr[idx] == typ ) return idx;
     }
     else
     {
-	const int sz = size();
+	const I sz = size();
 	if ( start<0 || start>=sz ) start = sz-1;
-	for ( int idx=start; idx>=0; idx-- )
+	for ( I idx=start; idx>=0; idx-- )
 	    if ( ptr[idx] == typ ) return idx;
     }
 
@@ -303,13 +326,13 @@ int TypeSet<T>::indexOf( T typ, bool forward, int start ) const
 }
 
 
-template <class T> inline
-int TypeSet<T>::count( const T& typ ) const
+template <class T, class I> inline
+I TypeSetBase<T,I>::count( const T& typ ) const
 {
     const T* ptr = arr();
-    int res = 0;
-    const int sz = size();
-    for ( int idx=0; idx<sz; idx++ )
+    I res = 0;
+    const I sz = size();
+    for ( I idx=0; idx<sz; idx++ )
         if ( ptr[idx] == typ )
             res++;
     
@@ -318,84 +341,84 @@ int TypeSet<T>::count( const T& typ ) const
 
 
 
-template <class T> inline
-TypeSet<T>& TypeSet<T>::operator +=( const T& typ )
+template <class T, class I> inline
+TypeSetBase<T,I>& TypeSetBase<T,I>::operator +=( const T& typ )
 { vec_.push_back( typ ); return *this; }
 
 
-template <class T> inline
-TypeSet<T>& TypeSet<T>::operator -=( const T& typ )
+template <class T, class I> inline
+TypeSetBase<T,I>& TypeSetBase<T,I>::operator -=( const T& typ )
 { vec_.erase( typ ); return *this; }
 
 
-template <class T> inline
-TypeSet<T>& TypeSet<T>::copy( const TypeSet<T>& ts )
+template <class T, class I> inline
+TypeSetBase<T,I>& TypeSetBase<T,I>::copy( const TypeSetBase<T,I>& ts )
 {
     return this == &ts ? *this : copy( ts.arr(), ts.size() );
 }
 
 
-template <class T> inline
-TypeSet<T>& TypeSet<T>::copy( const T* tarr, int sz )
+template <class T, class I> inline
+TypeSetBase<T,I>& TypeSetBase<T,I>::copy( const T* tarr, I sz )
 {
     if ( size() != sz )
 	{ erase(); append(tarr,sz); }
     else
     {
-	for ( int idx=0; idx<sz; idx++ )
+	for ( I idx=0; idx<sz; idx++ )
 	    (*this)[idx] = tarr[idx];
     }
     return *this;
 }
 
 
-template <class T> inline
-bool TypeSet<T>::add( const T& t )
+template <class T, class I> inline
+bool TypeSetBase<T,I>::add( const T& t )
 {
     return vec_.push_back( t );
 }
 
 
-template <class T> inline
-bool TypeSet<T>::append( const TypeSet<T>& ts )
+template <class T, class I> inline
+bool TypeSetBase<T,I>::append( const TypeSetBase<T,I>& ts )
 {
     if ( this != &ts )
 	return append( ts.arr(), ts.size() );
 
-    const TypeSet<T> tscp( ts );
+    const TypeSetBase<T,I> tscp( ts );
     return append( tscp );
 }
 
 
-template <class T> inline
-bool TypeSet<T>::append( const T* tarr, int sz )
+template <class T, class I> inline
+bool TypeSetBase<T,I>::append( const T* tarr, I sz )
 {
     if ( !sz ) return true;
 
     if ( !setCapacity( sz+size() ) )
 	return false;
 
-    for ( int idx=0; idx<sz; idx++ )
+    for ( I idx=0; idx<sz; idx++ )
 	*this += tarr[idx];
 
     return true;
 }
 
 
-template <class T>
-inline void TypeSet<T>::createUnion( const TypeSet<T>& ts )
+template <class T, class I>
+inline void TypeSetBase<T,I>::createUnion( const TypeSetBase<T,I>& ts )
 {
-    const int sz = ts.size();
+    const I sz = ts.size();
     const T* ptr = ts.arr();
-    for ( int idx=0; idx<sz; idx++, ptr++ )
+    for ( I idx=0; idx<sz; idx++, ptr++ )
 	addIfNew( *ptr );
 }
 
 
-template <class T>
-inline void TypeSet<T>::createIntersection( const TypeSet<T>& ts )
+template <class T, class I>
+inline void TypeSetBase<T,I>::createIntersection( const TypeSetBase<T,I>& ts )
 {
-    for ( int idx=0; idx<size(); idx++ )
+    for ( I idx=0; idx<size(); idx++ )
     {
 	if ( ts.indexOf((*this)[idx]) != -1 )
 	    continue;
@@ -404,14 +427,14 @@ inline void TypeSet<T>::createIntersection( const TypeSet<T>& ts )
 }
 
 
-template <class T>
-inline void TypeSet<T>::createDifference( const TypeSet<T>& ts, bool kporder )
+template <class T, class I>
+inline void TypeSetBase<T,I>::createDifference( const TypeSetBase<T,I>& ts, bool kporder )
 {
-    const int sz = ts.size();
-    for ( int idx=0; idx<sz; idx++ )
+    const I sz = ts.size();
+    for ( I idx=0; idx<sz; idx++ )
     {
 	const T typ = ts[idx];
-	for ( int idy=0; idy<size(); idy++ )
+	for ( I idy=0; idy<size(); idy++ )
 	{
 	    if ( vec_[idy] == typ )
 		removeSingle( idy--, kporder );
@@ -420,32 +443,32 @@ inline void TypeSet<T>::createDifference( const TypeSet<T>& ts, bool kporder )
 }
 
 
-template <class T> inline
-bool TypeSet<T>::addIfNew( const T& typ )
+template <class T, class I> inline
+bool TypeSetBase<T,I>::addIfNew( const T& typ )
 {
     if ( indexOf(typ) < 0 ) { *this += typ; return true; }
     return false;
 }
 
 
-template <class T> inline
-void TypeSet<T>::fillWith( const T& t )
+template <class T, class I> inline
+void TypeSetBase<T,I>::fillWith( const T& t )
 { vec_.fillWith(t); }
 
 
-template <class T> inline
-void TypeSet<T>::erase()
+template <class T, class I> inline
+void TypeSetBase<T,I>::erase()
 { vec_.erase(); }
 
 
-template <class T> inline
-void TypeSet<T>::removeSingle( int idx, bool kporder )
+template <class T, class I> inline
+void TypeSetBase<T,I>::removeSingle( I idx, bool kporder )
 {
     if ( kporder )
 	vec_.remove( idx );
     else
     {
-	const int lastidx = size()-1;
+	const I lastidx = size()-1;
 	if ( idx != lastidx )
 	    vec_[idx] = vec_[lastidx];
 	vec_.remove( lastidx );
@@ -453,28 +476,28 @@ void TypeSet<T>::removeSingle( int idx, bool kporder )
 }
 
 
-template <class T> inline
-void TypeSet<T>::removeRange( od_int64 i1, od_int64 i2 )
-{ vec_.remove( (int)i1, (int)i2 ); }
+template <class T, class I> inline
+void TypeSetBase<T,I>::removeRange( od_int64 i1, od_int64 i2 )
+{ vec_.remove( (I)i1, (I)i2 ); }
 
 
-template <class T> inline
-void TypeSet<T>::insert( int idx, const T& typ )
+template <class T, class I> inline
+void TypeSetBase<T,I>::insert( I idx, const T& typ )
 { vec_.insert( idx, typ );}
 
 
-template <class T> inline
-std::vector<T>&	 TypeSet<T>::vec()
+template <class T, class I> inline
+std::vector<T,I>& TypeSetBase<T,I>::vec()
 { return vec_.vec(); }
 
 
-template <class T> inline
-const std::vector<T>& TypeSet<T>::vec() const
+template <class T, class I> inline
+const std::vector<T,I>& TypeSetBase<T,I>::vec() const
 { return vec_.vec(); }
 
 
-template <class T> inline
-T* TypeSet<T>::gtArr() const
+template <class T, class I> inline
+T* TypeSetBase<T,I>::gtArr() const
 { return size() ? const_cast<T*>(&(*this)[0]) : 0; }
 
 
