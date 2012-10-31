@@ -25,7 +25,7 @@ od_int64 ParallelDTetrahedralator::nrIterations() const
 
 bool ParallelDTetrahedralator::doPrepare( int nrthreads )
 {
-    const int nrcoords = nrIterations();
+    const od_int64 nrcoords = nrIterations();
     if ( israndom_ )
 	permutation_.erase();
     else
@@ -47,7 +47,7 @@ bool ParallelDTetrahedralator::doWork( od_int64 start, od_int64 stop,
 				       int threadid )
 {
     TypeSet<int> delayedpts;
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+    for ( int idx=(int) start; idx<=stop && shouldContinue(); idx++ )
     {
 	int dupid;
 	const int insertptid = permutation_.size() ? permutation_[idx] : idx;
@@ -334,7 +334,7 @@ char DAGTetrahedraTree::searchTetrahedra( const Coord3& pt )
     mode = searchTetrahedra( ci, 0, tis, firstface, v0, v1, dupid );
     const int* crds = tetrahedras_[tis[0]].coordindices_;
     
-    char res;
+    char res = cError();
     if ( mode==cError() )
     {
 	pErrMsg("where");
@@ -514,7 +514,7 @@ char DAGTetrahedraTree::locationToTriangle( const Coord3& pt, const Coord3& a,
     double edgesqdist[3];
     closestedgedist = mUdf(float);
     
-    for ( int idx=0; idx<3; idx++ )
+    for ( char idx=0; idx<3; idx++ )
     {
 	const Coord3& v0 = idx==0 ? a : (idx==1 ? b : c);
 	const Coord3& v1 = idx==0 ? b : (idx==1 ? c : a);
@@ -658,7 +658,7 @@ char DAGTetrahedraTree::locationToTetrahedra( const Coord3& checkpt,
 
     double minedgedist;
     face = cNoFace();
-    for ( int idx=0; idx<4; idx++ )
+    for ( char idx=0; idx<4; idx++ )
     {
 	if ( res[idx]!=cIsInside() )
 	    continue;
@@ -678,7 +678,7 @@ char DAGTetrahedraTree::locationToTetrahedra( const Coord3& checkpt,
 	  signeddist[2]<0 && signeddist[3]<0) )
 	return cIsInside();
 
-    for ( int idx=0; idx<4; idx++ )
+    for ( char idx=0; idx<4; idx++ )
     {
 	const double dist = fabs(signeddist[idx]);
 	if ( face==cNoFace() || (!mIsZero(dist,epsilon_) && mindist>dist) )
@@ -934,7 +934,7 @@ void DAGTetrahedraTree::splitTetrahedraOnEdge( int ci, const TypeSet<int>& tis,
 			     tetrahedras_[tis[idx]].coordindices_[2],
        			     tetrahedras_[tis[idx]].coordindices_[3] };
 	unsigned char s0, s1, s2, s3;
-	for( int idy=0; idy<4; idy++ )
+	for ( char idy=0; idy<4; idy++ )
 	{
 	    if ( crds[idy]==sharedv0 )
 		s0 = idy;
