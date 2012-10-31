@@ -110,6 +110,8 @@ Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
     : rt_(rt)
 {
     elasticpropselmid_.setEmpty(); 
+    IOPar* startiopar = new IOPar();
+    wbmparsmanager.setParam( this, startiopar );
 }
 
 
