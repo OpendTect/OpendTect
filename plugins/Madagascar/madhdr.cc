@@ -360,17 +360,8 @@ bool TrcHeader::read( std::istream& istrm )
     	if ( !istrm ) return false;
     	
 	static char buf[mbuflen];
-
-	if ( trchdrdef_.isbinary_ )
-	{
-	    istrm.read( buf, mbuflen );	
-    	    (*this)[idx] = toInt( buf );
-	}
-	else
-	{
-    	    istrm >> buf;
-	    (*this)[idx] = toInt( buf );
-	}
+	trchdrdef_.isbinary_ ? istrm.read( buf, mbuflen ) : istrm >> buf;
+	(*this)[idx] = toInt( buf );
     }
     return true;
 }
@@ -384,10 +375,7 @@ void TrcHeader::write( std::ostream& ostrm ) const
 	const char* buf = toString( (*this)[idx] );
     	//buf = toString( (*this)[idx] );
 
-	if ( trchdrdef_.isbinary_ )
-    	    ostrm.write( buf, mbuflen );
-	else
-    	    ostrm << buf;
+	trchdrdef_.isbinary_ ? ostrm.write( buf, mbuflen ) : ostrm << buf;
     }
 }
 
