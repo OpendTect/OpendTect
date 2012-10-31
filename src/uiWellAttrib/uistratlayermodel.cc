@@ -587,6 +587,8 @@ bool uiStratLayerModel::openGenDesc()
     synthdisp_->modelChanged();
     delete elpropsel_; elpropsel_ = 0;
     
+    gentools_->genReq.trigger();
+
     CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(), 
 	    		    const_cast<uiStratLayerModel*>(this) );
     const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
