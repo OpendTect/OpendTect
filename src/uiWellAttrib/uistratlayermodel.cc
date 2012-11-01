@@ -743,6 +743,8 @@ void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
     lmp_.useed_ = (bool)synthdata;
     synthdisp_->displaySynthetic( synthdata ? synthdata
 	    			: synthdisp_->getCurrentSyntheticData() );
+    levelChanged.trigger();     //no change in fact but a redraw is needed 
+
     moddisp_->modelChanged();
 }
 
