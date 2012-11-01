@@ -85,7 +85,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const int horsz = hors_.size();
     const bool usepolygon = !plg_.isEmpty();
     
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
+    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); 
+						    idx++, addToNrDone(1) )
     {
 	const int inlidx = idx/crlsz;
 	const int crlidx = idx%crlsz;
@@ -242,7 +243,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     }
     const int cornersz = corners.size();
 
-    for ( int idz=start; idz<=stop && shouldContinue(); idz++, addToNrDone(1) )
+    for ( int idz=mCast(int,start); idz<=stop && shouldContinue(); 
+						    idz++, addToNrDone(1) )
     {
 	if ( !idz || idz==lastzidx )
 	    continue;
@@ -416,7 +418,7 @@ void computeHorOuterRange()
 	const Geometry::BinIDSurface* surf = 
 	    hors_[idx]->geometry().sectionGeometry(hors_[idx]->sectionID(0));
 	const Array2D<float>* depth = surf ? surf->getArray() : 0;
-	const int sz = depth ? depth->info().getTotalSz() : 0;
+	const int sz = depth ? mCast( int,depth->info().getTotalSz() ) : 0;
 	if ( !sz ) continue;
 
 	const float* data = depth->getData();
