@@ -215,7 +215,7 @@ bool processKernel( int start, int stop, int thread )
 		int inputpos1 = kernelorigin1+idx1;
 		mFixEdges( 1 );
 
-		const int offset = slice.info().getOffset( idx0, idx1 );
+		const int offset = mCast(int,slice.info().getOffset(idx0,idx1));
 		const float val = input_.get(inputpos0,inputpos1,inputdepth);
 		if ( mIsUdf(val) )
 		    missingdata = true;
@@ -253,7 +253,8 @@ bool processKernel( int start, int stop, int thread )
 		    val = fixedval_;
 		}
 
-		for ( int idx=slice.info().getTotalSz()-1; idx>=0; idx-- )
+		for ( int idx=mCast(int,slice.info().getTotalSz()-1); idx>=0; 
+									idx-- )
 		{
 		    if ( wasudfptr[idx] )
 			sliceptr[idx] = val;
@@ -278,7 +279,7 @@ bool processKernel( int start, int stop, int thread )
 		const int outputpos1 = globalpos1-o1_;
 
 		const int offset =
-		    slice.info().getOffset( kernelpos0, kernelpos1 );
+		   mCast( int, slice.info().getOffset(kernelpos0, kernelpos1) );
 
 		if ( dontfilludf && wasudfptr[offset] )
 		    continue;

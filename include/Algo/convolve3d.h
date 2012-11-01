@@ -161,7 +161,7 @@ bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
     const ValueSeries<T>* ystor_ = y_->getStorage();
     const T* yptr_ = y_->getData();
 
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	const int* zvar = iterator.getPos();
 	T sum = 0;
