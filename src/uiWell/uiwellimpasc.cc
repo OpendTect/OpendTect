@@ -11,6 +11,7 @@ static const char* rcsID = "$Id$";
 
 #include "uiwellimpasc.h"
 
+#include "commondefs.h"
 #include "ctxtioobj.h"
 #include "file.h"
 #include "ioobj.h"
@@ -81,7 +82,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, dataselfld_ );
 
-    const float dispval = wd_.info().surfaceelev;
+    float dispval = wd_.info().surfaceelev;
     if ( !mIsZero(dispval, 0.01) )
 	wd_.info().surfaceelev = dispval;
 
@@ -173,10 +174,10 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 	"Surface coordinate (if different from first coordinate in track file)",
 	PositionInpSpec(possu).setName( "X", 0 ).setName( "Y", 1 ) );
 
-    float dispval = -info.surfaceelev;
+    float dispval = -1. * info.surfaceelev;
     const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
     if ( SI().depthsInFeetByDefault() && !mIsUdf(info.surfaceelev) && zun ) 
-	dispval = zun->userValue( -info.surfaceelev );
+	dispval = zun->userValue( -1. * info.surfaceelev );
     if ( mIsZero(dispval,0.01) ) dispval = 0;
     elevfld = new uiGenInput( this, "Seismic Reference Datum",
 	   			     FloatInpSpec(dispval) );
@@ -186,7 +187,9 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     zinftbox->setChecked( SI().depthsInFeetByDefault() );
 
     dispval = info.getReplVel();
-    if ( mIsUdf(info.getReplVel()) ) dispval = mUdf(float);
+    if ( mIsUdf( info.getReplVel()) ) dispval = mUdf(float);
+    else if ( SI().depthsInFeetByDefault() && !SI().zInFeet() )
+	dispval = mToFeetFactorF * info.getReplVel();
     BufferString str = "Replacement velocity "; str += "(";
     str += UnitOfMeasure::zUnitAnnot( false, true, false );
     str += "/s)";
@@ -236,7 +239,11 @@ bool acceptOK( CallBacker* )
 	    info.surfaceelev = zun->internalValue( info.surfaceelev );
     }
 
-    info.setReplVel(replvelfld->getfValue());
+    if ( SI().depthsInFeetByDefault() && !SI().zInFeet()
+	 && !mIsUdf(replvelfld->getfValue()) )
+	info.setReplVel( replvelfld->getfValue() * mFromFeetFactorF );
+    else
+	info.setReplVel( replvelfld->getfValue() );
 
     if ( *gdelevfld->text() )
     {

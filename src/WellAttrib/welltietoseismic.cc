@@ -26,6 +26,7 @@ static const char* rcsID = "$Id$";
 #include "welltiedata.h"
 #include "welltieunitfactors.h"
 #include "welltieextractdata.h"
+#include "welltrack.h"
 
 
 namespace WellTie
@@ -136,9 +137,11 @@ bool DataPlayer::doFullSynthetics()
     gen.setWavelet( &wvlt, OD::UsePtr );
     gen.setOutSampling( disprg_ );
     IOPar par;
-    const float sourrecz = data_.wd_->info().getReplVeldz() > 0 ?
-			   data_.wd_->info().surfaceelev :
-			   -1. * data_.wd_->info().getKbElev();
+    const float replveldz = -1. * wd_->info().surfaceelev
+			    - wd_->track().getKbElev();
+    const float sourrecz = replveldz > 0 ?
+			   wd_->info().surfaceelev :
+			   -1. * wd_->track().getKbElev();
     par.set(RayTracer1D::sKeySRDepth(),sourrecz,sourrecz);
     gen.usePar( par ); 
     gen.setTaskRunner( data_.trunner_ );
@@ -289,7 +292,10 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
     const int nrsamps = (int)( zrg.width()/step )+1;
 
     if ( nrsamps <= 1 )
+    {
 	errmsg_ = "Invalid time or depth range specified";
+	return false;
+    }
 
     Data::CorrelData& cd = data_.correl_;
     cd.vals_.setSize( nrsamps, 0 ); 

@@ -65,7 +65,7 @@ public:
     bool		alwaysDownward() const;
 
     //Do not use! To be removed shortly
-    void		toTime(const D2TModel&)		{}
+    void		toTime(const D2TModel&);
 
 protected:
 
@@ -78,6 +78,8 @@ protected:
 
 public:
     void		toTime(const D2TModel&, const Track&);
+    float		getKbElev() const		{ return dah_[0]-
+							  value(0); }
 };
 
 

@@ -199,7 +199,10 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 	else if ( astrm.hasKeyword(Well::Info::sKeycoord()) )
 	    wd.info().surfacecoord.use( astrm.value() );
 	else if ( astrm.hasKeyword(Well::Info::sKeyelev()) )
-	    wd.info().surfaceelev = astrm.getFValue();
+	{
+	    const float readsurfelev = astrm.getFValue(); //needed for old files
+	    wd.info().surfaceelev = mIsUdf(readsurfelev ) ? 0  : readsurfelev;
+	}
 	else if ( astrm.hasKeyword(wd.info().getsKeyreplvel()) )
 	{
 	    wd.info().setReplVel(astrm.getFValue());
@@ -231,9 +234,6 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 	    welltrack.setPoint( idx, pos, (float) pos.z );
 	}
     }
-
-    wd.info().setKbElev( -1. * wd.track().value(0) );
-    wd.info().setReplVeldz( wd.info().getKbElev() - wd.info().surfaceelev );
 
     return true;
 }

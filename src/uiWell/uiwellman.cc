@@ -545,7 +545,7 @@ void uiWellMan::mkFileInfo()
 
     if ( !track.isEmpty() )
     {
-	const float rdelev = track.dah(0) - track.value(0);
+	const float rdelev = track.getKbElev();
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
@@ -554,7 +554,7 @@ void uiWellMan::mkFileInfo()
 	    txt += zun ? zun->symbol() : ""; txt += "\n";
 	}
 
-	const float surfelev = -info.surfaceelev;
+	const float surfelev = -1. * info.surfaceelev;
 	if ( !mIsZero(surfelev,1e-4) && !mIsUdf(surfelev) )
 	{
 	    txt += "Seismic Reference Datum (SRD)"; txt += ": ";
@@ -566,7 +566,8 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsUdf(replvel) )
 	{
 	    txt += "Replacement velocity (from KB to SRD)"; txt += ": ";
-	    txt += zun ? zun->userValue(replvel) : replvel;
+	    txt += ( SI().depthsInFeetByDefault() && !SI().zInFeet() ) ?
+		   mToFeetFactorF * replvel : replvel;
 	    txt += UnitOfMeasure::zUnitAnnot( false, true, false );
 	    txt += "/s\n";
 	}

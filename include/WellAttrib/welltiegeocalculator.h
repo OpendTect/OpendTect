@@ -31,11 +31,13 @@ public :
     void		ensureValidD2TModel(Well::D2TModel&,
 	    				const Well::Data&) const;
 
+    			// DO NOT USE this son2TWT, will be removed
     void		son2TWT(Well::Log&,bool straight,float startdah) const;
+    			// DO NOT USE this vel2TWT, will be removed
     void 		vel2TWT(Well::Log&,bool straight,float startdah) const;
     void		son2Vel(Well::Log&,bool yn) const;
     void		d2TModel2Log(const Well::D2TModel&,Well::Log&) const;
-    float		getSRDElevation(const Well::Data&) const;
+    float		getSRDElevation(const Well::Data&) const; //DO NOT USE
 
 //others  
     void		removeSpikes(float* inp,int sz,int gate,int fac) const;
@@ -43,8 +45,13 @@ public :
     void 		deconvolve(const float*,const float*,float*,int) const;
 
 public:
+    			// DO NOT USE ensureValidD2TModel, was added unnecessarily
     void		ensureValidD2TModel(Well::D2TModel&,const Well::Data&,
 					    float replacevel ) const;
+    Well::D2TModel* 	getModelFromVelLog(const Well::Data&,const char* son, 
+					   bool issonic) const;
+    void		son2TWT(Well::Log&,const Well::Track&,bool,float) const;
+    void		vel2TWT(Well::Log&,const Well::Track&,bool,float) const;
 };
 
 }; //namespace WellTie
