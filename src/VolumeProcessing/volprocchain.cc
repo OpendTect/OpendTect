@@ -30,12 +30,12 @@ protected:
 		    const HorSampling hrg( step_.output_->cubeSampling().hrg );
 		    BinID curbid = hrg.start;
 
-		    const int nrinls = start/hrg.nrCrl();
-		    const int nrcrls = start - nrinls*hrg.nrCrl();
+		    const int nrinls = mCast( int, start/hrg.nrCrl() );
+		    const int nrcrls = mCast( int, start - nrinls*hrg.nrCrl() );
 		    curbid.inl += nrinls*hrg.step.inl;
 		    curbid.crl += nrcrls*hrg.step.crl;
 
-		    for ( int idx=start; idx<=stop; idx++ )
+		    for ( int idx=mCast(int,start); idx<=stop; idx++ )
 		    {
 			if ( !step_.computeBinID( curbid, threadid ) )
 			    return false;

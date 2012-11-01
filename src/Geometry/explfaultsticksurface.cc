@@ -57,7 +57,7 @@ int minThreadSize() const { return 100; }
 bool doWork( od_int64 start, od_int64 stop, int )
 {
     const TypeSet<int>& texturecols = explsurf_.texturecolcoords_;
-    for ( int stickpos= start; stickpos<=stop; stickpos++, addToNrDone(1) )
+    for ( int stickpos=mCast(int,start); stickpos<=stop; stickpos++, addToNrDone(1) )
     {
 	int stickidx = -1;
 	int panelidx = -1;
@@ -331,7 +331,7 @@ int minThreadSize() const { return 1; }
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	if ( updatesticksnotpanels_ )
 	{

@@ -135,7 +135,7 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
 	return false;
 
     const od_int64 nrbytes = odhttp_->bytesAvailable();
-    databuf_ = new DataBuffer( nrbytes, 1, true );
+    databuf_ = new DataBuffer( mCast(int,nrbytes), 1, true );
     const char* buffer = odhttp_->readCharBuffer();
     const char* hdptr = strstr( buffer, "<HEAD>" );
     const char* errptr = strstr( buffer, "error" );

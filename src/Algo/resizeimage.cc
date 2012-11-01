@@ -82,9 +82,9 @@ bool ImageResizer::doPrepare(int)
 bool ImageResizer::doWork( od_int64 start, od_int64 stop,int)
 
 {
-    int idx0 = start/outputsize_[1];
-    int idx1 = start%outputsize_[1];
-    int idx = start;
+    od_int64 idx0 = start/outputsize_[1];
+    od_int64 idx1 = start%outputsize_[1];
+    od_int64 idx = start;
     Color colres;
     for ( ; idx<=stop; idx0++ )
     {

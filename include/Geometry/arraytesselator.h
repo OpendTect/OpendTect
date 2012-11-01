@@ -101,8 +101,10 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const int currow = (idx/colsz)*rowrange_.step + rowrange_.start;
-	const int curcol = (idx%colsz)*colrange_.step + colrange_.start;
+	const int currow = mCast( int, (idx/colsz)*rowrange_.step + 
+							    rowrange_.start );
+	const int curcol = mCast( int, (idx%colsz)*colrange_.step + 
+							    colrange_.start );
 	if ( currow > glastrowidx || curcol > glastcolidx )
 	    continue;
 

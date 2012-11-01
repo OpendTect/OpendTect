@@ -101,7 +101,7 @@ void PlaneFrom3DSpaceHoughTransform::setResolution( double dangle,
 
 
 int PlaneFrom3DSpaceHoughTransform::getParamSpaceSize() const
-{ return paramspace_->info().getTotalSz(); }
+{ return mCast(int, paramspace_->info().getTotalSz()); }
 
 
 int PlaneFrom3DSpaceHoughTransform::getNrDistVals() const
@@ -119,7 +119,7 @@ float PlaneFrom3DSpaceHoughTransform::clipRate() const
 void PlaneFrom3DSpaceHoughTransform::setData( const Array3D<float>* data )
 {
     const float* dataptr = data->getData();
-    const int datasize = data->info().getTotalSz();
+    const int datasize = mCast(int, data->info().getTotalSz());
     
     ArrPtrMan<float> datacopy = new float[datasize];
     ArrPtrMan<unsigned int> indexes = new unsigned int[datasize];

@@ -167,7 +167,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	if ( pvel < mVelMin )
 	    pvel = mVelMin;
     }
-    const int layersize = nrIterations();
+    const int layersize = mCast( int, nrIterations() );
 
     for ( int idx=0; idx<layersize; idx++ )
     {
@@ -346,7 +346,7 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     if ( !twt_ || offsetidx<0 || offsetidx>=twt_->info().getSize(1) )
 	return false;
 
-    const int layersize = nrIterations();
+    const int layersize = mCast( int, nrIterations() );
 
     TypeSet<float> times, depths;
     depths += 0;
@@ -372,7 +372,7 @@ bool VrmsRayTracer1D::doPrepare( int nrthreads )
     if ( !RayTracer1D::doPrepare( nrthreads ) )
 	return false;
 
-    const int layersize = nrIterations();
+    const int layersize = mCast( int, nrIterations() );
 
 
     const float sourcedepth = setup().sourcedepth_; 
@@ -441,7 +441,7 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {
     const int offsz = offsets_.size();
 
-    for ( int layer=start; layer<=stop; layer++ )
+    for ( int layer=mCast(int,start); layer<=stop; layer++ )
     {
 	if ( layer < firstlayer_ )
 	    continue;

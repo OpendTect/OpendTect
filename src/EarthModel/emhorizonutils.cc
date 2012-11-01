@@ -273,7 +273,7 @@ void HorizonUtils::getWantedPositions( std::ostream& strm,
 	    bidval.value(1) = ( surface2 && botz>topz ? botz : topz ) 
 			      + extraz.stop;
 	    wantedposbivs.add(bidval);
-	    nrpos = wantedposbivs.totalSize();
+	    nrpos = mCast( int, wantedposbivs.totalSize() );
 	    meanzinter = ( meanzinter*( nrpos -1 ) + lastzinter) / nrpos;
 	    ++pm;
 	}

@@ -41,7 +41,7 @@ public:
 
     inline char		readNewChar() const
 			{
-			    char c = strm_.peek();
+			    char c = mCast( char, strm_.peek() );
 			    strm_.ignore( 1 );
 			    return atEnd() ? '\n' : c;
 			}

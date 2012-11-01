@@ -265,7 +265,7 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
     const StepInterval<float> zrg( zsd.start, zsd.atIndex(zsz-1), zsd.step );
     func->setDesiredZRange( zrg );
 
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {
 	const BinID bid = task_.getNextBid();
 
@@ -342,7 +342,7 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 
     const int zsz = output.getZSz();
     Gridder2D* gridder = gridders_[thread];
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {
 	const BinID bid = task_.getNextBid();
 	const Coord coord = SI().transform( bid );

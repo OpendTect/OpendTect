@@ -68,9 +68,9 @@ bool DelaunayTriangulator::doWork( od_int64 start, od_int64 stop,int threadid )
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const od_int64 scopeidx = permutation_ ? permutation_[idx] : idx;
-	const od_int64 coordid = calcscope_.atIndex( scopeidx, 1 );
+	const od_int64 coordid = calcscope_.atIndex( mCast(int, scopeidx), 1 );
 	int dupid;
-       	if ( !tree_.insertPoint( coordid, dupid ) )
+       	if ( !tree_.insertPoint( mCast(int, coordid), dupid ) )
 	    return false;
 
 	addToNrDone(1);
@@ -1165,9 +1165,9 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 	if ( tmpvertices[idx]<0 )
 	{
 	    if ( usedinit[0]==-1 )
-		usedinit[0] = tmpvertices[idx];
+		usedinit[0] = mCast( char, tmpvertices[idx] );
 	    else
-		usedinit[1] = tmpvertices[idx];
+		usedinit[1] = mCast( char, tmpvertices[idx] );
 	}
     }
 
@@ -1179,7 +1179,7 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 	{
 	    if ( initidx==usedinit[0] ) continue;
 
-	    usedinit[1] = initidx;
+	    usedinit[1] = mCast( char, initidx );
 	    initb = triangles_.getInitCoord( usedinit[1] );
 	    if ( pointInTriangle2D(pt,initcenter_,inita,initb,0) )
 		break;

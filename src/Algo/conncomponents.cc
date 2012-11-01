@@ -40,7 +40,7 @@ const char* message() const	{ return "Computing 2D connected  components"; }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
+    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
     {
 	PtrMan<Array2DSlice<bool> > slice = new Array2DSlice<bool>( input_ );
 	slice->setPos( 2, idx );
@@ -84,7 +84,7 @@ void ConnComponents::compute( TaskRunner* tr )
     label_->setAll(0);
     classifyMarks( *label_ );
 
-    const int sz = input_.info().getTotalSz();
+    const int sz = mCast( int,input_.info().getTotalSz() );
     int* markers = label_->getData();
     components_.erase();
     TypeSet<int> labels;
@@ -206,7 +206,7 @@ void ConnComponents::classifyMarks( Array2D<int>& mark )
 
 void ConnComponents::setMark( Array2D<int>& mark, int source, int newval )
 {
-    const int sz = mark.info().getTotalSz();
+    const int sz = mCast( int, mark.info().getTotalSz() );
     int* vals = mark.getData();
     for ( int idx=0; idx<sz; idx++ )
     {

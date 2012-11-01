@@ -85,7 +85,7 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
     LinScaler cosscale( nyqfreq, 0, maxfreq, M_PI/2 );
 
     const float_complex* stopptr = buffer+size;
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	const ReflectivitySpike& spike = model_[idx];
 	const float time = usenmotime_ ? spike.correctedtime_ : spike.time_ ;

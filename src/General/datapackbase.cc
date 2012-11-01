@@ -80,7 +80,7 @@ public:
 	iter.setPos( startpos );
 	
 	BinID toreach00;
-	const int nriters = stop - start +1;
+	const int nriters = mCast( int, stop-start+1 );
 	for ( od_int64 idx=0; idx<nriters && shouldContinue();
 		idx++, iter.next(), addToNrDone(1) )
 	{

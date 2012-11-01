@@ -179,7 +179,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	if ( bvs.nrVals() != nrvals_ )
 	    { msg_ = "Incompatible sections"; return; }
 
-	totalnr_ += bvs.totalSize();
+	totalnr_ += mCast( int, bvs.totalSize() );
 	EM::SectionID sid = horizon_.geometry().addSection( 0, false );
 
 	Geometry::BinIDSurface* geom = horizon_.geometry().sectionGeometry(sid);

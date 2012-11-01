@@ -83,14 +83,14 @@ protected:
 	const MultiDimStorage<MarchingCubesModel>& models = 
 	    surface_.getSurface()->models_;
 
-	for ( int idx=start; idx<=stop && shouldContinue();
+	for ( int idx=mCast(int,start); idx<=stop && shouldContinue();
 	      idx++, addToNrDone(1) )
 	{
 	    if ( usetable )
 		memcpy( idxs, tableidxs+idx*3, sizeof(int)*3 );
 	    else if ( idx==start )
 	    {
-		if ( !models.getIndex(start,idxs) )
+		if ( !models.getIndex(mCast(int,start),idxs) )
 		    return false;
 	    }
 	    else

@@ -158,7 +158,7 @@ void Pos::TableProvider3D::fillPar( IOPar& iop ) const
 
 void Pos::TableProvider3D::getSummary( BufferString& txt ) const
 {
-    const int sz = bvs_.totalSize();
+    const int sz = mCast( int, bvs_.totalSize() );
     if ( sz < 1 ) return;
     txt += sz; txt += " point"; if ( sz > 1 ) txt += "s";
     BinID start, stop;

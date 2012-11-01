@@ -157,7 +157,7 @@ public:
 	BufferString str;
 	rdposbody_.getPositions()[nrdone_].fill( str.buf(),""," ","" );
 	str += " ";
-	const int idx = rdposbody_.posIDs()[nrdone_];
+	const int idx = mCast( int, rdposbody_.posIDs()[nrdone_] );
 	if ( !idx ) 
 	    str += "0";
 	else

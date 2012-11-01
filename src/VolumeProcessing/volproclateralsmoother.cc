@@ -70,7 +70,7 @@ void reportRowDone(CallBacker*)
 bool doWork( od_int64 start, od_int64 stop, int thread )
 {
     if ( pars_.type_==Stats::Average ) //&& !mIsUdf(pars_.rowdist_) )
-	return processKernel( start, stop, thread );
+	return processKernel( mCast(int,start), mCast(int,stop), thread );
     return processFilter( start, stop, thread );
 }
 
@@ -89,7 +89,7 @@ bool processFilter( od_int64 start, od_int64 stop, int thread )
 
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const int depthindex = i2samples_.start+idx;
+	const int depthindex = mCast( int, i2samples_.start+idx );
 	const int inputdepth = depthindex-i2_;
 	const int outputdepth = depthindex-o2_;
 	inputslice.setPos( 2, inputdepth );
@@ -197,7 +197,7 @@ bool processKernel( int start, int stop, int thread )
     {
 	double sum = 0;
 	od_int64 nrvals = 0;
-	const int depthindex = i2samples_.start+depthidx;
+	const int depthindex = mCast( int, i2samples_.start+depthidx );
 	const int inputdepth = depthindex-i2_;
 	const int outputdepth = depthindex-o2_;
 

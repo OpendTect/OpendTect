@@ -47,7 +47,7 @@ bool doPrepare( int )
 	return false;
 
     bool found = false;
-    const int totalsz = depths->info().getTotalSz();
+    const int totalsz = mCast( int, depths->info().getTotalSz() );
     for ( int idx=0; idx<totalsz; idx++ )
     {
 	if ( mIsUdf(data[idx]) )
@@ -83,7 +83,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
     const StepInterval<int>& surfcrg = surf_.colRange();
     RefMan<const Coord3List> coordlist = shape_.coordList();
 
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {	
     	const IndexedGeometry* inp = shape_.getGeometry()[idx];
 	if ( !inp ) continue;

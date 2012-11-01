@@ -58,7 +58,7 @@ protected:
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )    
 {
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
     { 
  	int p[3];	
 	arr_.info().getArrayPos( idx, p );
@@ -314,7 +314,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
     const int zsz = arr_.info().getSize(2);
     const int planesize = planes_.size();
 
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
+    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
     {
 	const int inlidx = idx / crlsz;
 	const int crlidx = idx % crlsz;

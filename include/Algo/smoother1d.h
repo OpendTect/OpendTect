@@ -185,7 +185,7 @@ bool Smoother1D<T>::doPrepare(int)
 
     if ( firstdefined_!=-1 )
     {
-	for ( int idx=size_-1; idx>=0; idx-- )
+	for ( int idx=mCast(int,size_-1); idx>=0; idx-- )
 	{
 	    if ( !mIsUdf(input_[idx]) )
 	    {
@@ -206,7 +206,7 @@ bool Smoother1D<T>::doWork(od_int64 start,od_int64 stop,int)
     const int windowsize = window_.size();
     const int hwinsize = windowsize/2;
 
-    for ( int outidx=start; outidx<=stop; outidx++, addToNrDone(1) )
+    for ( int outidx=mCast(int,start); outidx<=stop; outidx++, addToNrDone(1) )
     {
 	if ( firstdefined_==-1 || outidx<firstdefined_ || outidx>lastdefined_ )
 	{
@@ -224,7 +224,7 @@ bool Smoother1D<T>::doWork(od_int64 start,od_int64 stop,int)
 	}
 
 	if ( sumstop>=size_ )
-	    sumstop = size_-1;
+	    sumstop = mCast(int,size_-1);
 
 	double sum = 0;
 	double weightsum = 0;

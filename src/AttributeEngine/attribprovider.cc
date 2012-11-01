@@ -63,8 +63,8 @@ od_int64 nrIterations() const { return nrsamples_; }
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
     if ( !res_ ) return true;
-    return provider_.computeData( *res_, relpos_, start+z0_, stop-start+1,
-	    			  threadid );
+    return provider_.computeData( *res_, relpos_, mCast(int,start+z0_), 
+					 mCast(int,stop-start+1), threadid );
 }
 
 
@@ -1322,7 +1322,7 @@ int Provider::getTotalNrPos( bool is2d )
     if ( seldata_ && seldata_->type() == Seis::Table )
     {
 	mDynamicCastGet(const Seis::TableSelData*,tsd,seldata_)
-	return tsd->binidValueSet().totalSize();
+	return mCast( int, tsd->binidValueSet().totalSize() );
     }
     if ( !possiblevolume_ || !desiredvolume_ )
 	return false;

@@ -372,7 +372,7 @@ int Strat::LayModAttribCalc::nextStep()
     if ( seqidx_ >= lm_.size() )
 	return Finished();
 
-    const LayerSequence& seq = lm_.sequence( seqidx_ );
+    const LayerSequence& seq = lm_.sequence( mCast(int,seqidx_) );
     DataPointSet::RowID dpsrid = 0;
     while ( dpsrid < dpssz && dps_.trcNr(dpsrid) != seqidx_ + 1 )
 	dpsrid++;
@@ -390,7 +390,7 @@ int Strat::LayModAttribCalc::nextStep()
 	}
 
 	if ( dpsmodnrcidx_ >= 0 )
-	    dpsvals[ dpsmodnrcidx_ ] = seqidx_ + 1;
+	    dpsvals[ dpsmodnrcidx_ ] = mCast( float, seqidx_ + 1 );
 
 	dpsrid++;
     }

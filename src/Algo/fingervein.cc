@@ -292,7 +292,7 @@ void FingerVein::thinning( Array2D<bool>& res )
 
     bool* inp = res.getData();
     char* data = tmp->getData();
-    const int sz = res.info().getTotalSz();
+    const int sz = mCast( int, res.info().getTotalSz() );
     for ( int idx=0; idx<sz; idx++ )
 	data[idx] = inp[idx] ? 1 : 0;
 

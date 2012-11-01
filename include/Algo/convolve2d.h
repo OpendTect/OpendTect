@@ -214,7 +214,7 @@ bool Convolver2D<T>::doNonFFTWork( od_int64 start, od_int64 stop, int )
     const ValueSeries<T>* ystor_ = y_->getStorage();
     const T* yptr_ = y_->getData();
 
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( od_int64 idx=start; idx<=stop; idx++ )
     {
 	const int* zvar = iterator.getPos();
 	const int firsty0 = correlate_ ? -zvar[0] : zvar[0];

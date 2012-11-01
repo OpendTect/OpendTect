@@ -37,7 +37,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const bool isabove = fd_.setup_.isabove_;
     const int ngate_2 = fd_.setup_.boxlength_;
 
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++,addToNrDone(1) )
+    for ( int idx=mCast(int, start); idx<=stop && shouldContinue(); 
+						idx++,addToNrDone(1) )
     {
 	const int z = idx%fd_.zsz_;
 	const int y = (idx/fd_.zsz_)%fd_.ysz_;
@@ -165,7 +166,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const bool isabove = fd_.setup_.isabove_;
     const int ngate_2 = fd_.setup_.boxlength_;
     
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++,addToNrDone(1) )
+    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); 
+							idx++,addToNrDone(1) )
     {
 	const int x = idx/fd_.ysz_;
 	const int y = idx%fd_.ysz_;
@@ -527,7 +529,7 @@ bool Dip2D::fillGap()
 
 	    /* angle_index = fabs(min_energy)>fabs(max_energy) ? 
 		min_energy_index : max_energy_index;*/
-	    dilation_->set(jt,jtrace,angleset[max_energy_index]);
+	    dilation_->set(jt,jtrace,mCast(float,angleset[max_energy_index]));
 	}
     }
     

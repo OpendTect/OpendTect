@@ -203,8 +203,8 @@ od_int64 Stats::RandGen::getIndexFast( od_int64 sz, od_int64 seed )
 {
     if ( sz < 2 ) return 0;
 
-    const int randidx1 = 1664525u * seed + 1013904223u;
-    const int randidx2 = 1664525u * (seed+0x12341234) + 1013904223u;
+    const int randidx1 = mCast( int, 1664525u * seed + 1013904223u );
+    const int randidx2 = mCast(int, 1664525u * (seed+0x12341234) + 1013904223u); 
     od_int64 randidx = (((od_int64)randidx1)<<32)|((od_int64)randidx2);
     if ( randidx < 0 ) randidx = -randidx;
     return randidx % sz;

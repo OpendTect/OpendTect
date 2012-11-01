@@ -92,7 +92,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
     for ( int idx=0; idx<setup.nrclasses; idx++ )
     {
 	BinIDValueSet& bvs = *bvss[idx];
-	const int totsz = bvs.totalSize();
+	const int totsz = mCast( int, bvs.totalSize() );
 	if ( totsz < setup.nrptsperclss )
 	    addVecs( bvs, setup.nrptsperclss - totsz, setup.noiselvl, rgs );
 	else
@@ -106,7 +106,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 				const Interval<float>* rgs )
 {
-    const int orgsz = bvs.totalSize();
+    const int orgsz = mCast( int, bvs.totalSize() );
     if ( orgsz == 0 ) return;
 
     bvs.allowDuplicateBids( true );

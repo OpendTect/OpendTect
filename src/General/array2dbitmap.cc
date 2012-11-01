@@ -487,7 +487,7 @@ void VDA2DBitMapGenerator::doFill()
 
 bool VDA2DBitMapGenerator::doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	drawStrip( stripstodraw_[idx] );
     }

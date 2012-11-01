@@ -106,14 +106,14 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
     const char* ptr = 0;
     while ( 1 )
     {
-	char c = strm.peek();
+	char c = mCast( char, strm.peek() );
 	while ( c == '\n' ) { strm.ignore( 1 ); c = strm.peek(); }
 	lvl = 0;
 	if ( c == '\t' )
 	{
 	    lvl++;
 	    strm.ignore( 1 );
-	    c = strm.peek();
+	    c = mCast( char, strm.peek() );
 	    if ( c == '\t' ) lvl++;
 	}
 	astream.next();

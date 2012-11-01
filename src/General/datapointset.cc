@@ -584,7 +584,7 @@ float DataPointSet::nrKBytes() const
 {
     const int twointsz = 2 * sizeof(int);
     const float rowsz = sKb2MbFac() * (twointsz + bivSet().nrVals()*sizeof(float));
-    const int nrrows = bivSet().totalSize();
+    const int nrrows = mCast( int, bivSet().totalSize() );
     return nrrows * (rowsz + twointsz);
 }
 

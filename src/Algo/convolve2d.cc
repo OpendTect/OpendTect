@@ -74,7 +74,7 @@ bool Convolver2D<float>::doWork( od_int64 start, od_int64 stop, int threadid )
     if ( start || stop || threadid )
 	return false;
 
-    const int totalsz = x_->info().getTotalSz();
+    const int totalsz = mCast( int, x_->info().getTotalSz() );
 
     mInitFreqDomain( x_, xf_ );
     mInitFreqDomain( y_, yf_ );

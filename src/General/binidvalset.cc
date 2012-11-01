@@ -167,7 +167,7 @@ void BinIDValueSet::randomSubselect( od_int64 maxsz )
 	BinIDValues bidvals;
 	for ( od_int64 idx=0; idx<poss.size(); idx++ )
 	{
-	    get( poss[idx], bidvals );
+	    get( poss[mCast(int,idx)], bidvals );
 	    newbvs.add( bidvals );
 	}
 	*this = newbvs;
@@ -587,7 +587,7 @@ od_int64 nrIterations() const { return cubedata_.size(); }
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	const PosInfo::LineData& line = *cubedata_[idx];
 	const int inl = line.linenr_;

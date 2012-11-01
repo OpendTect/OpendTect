@@ -223,7 +223,7 @@ bool GenericTransformND::setup()
 
 		const od_int64 offset = info_->getOffset( globalarrpos );
 		//Multiply by sampling_ ?
-		offsets += offset;
+		offsets += mCast( int, offset );
 	    } while ( iter.next() );
 
 
@@ -243,7 +243,7 @@ bool GenericTransformND::setup()
 	    //Compute sampling for 1D transform
 	    const od_int64 offset = info_->getOffset( globalarrpos );
 	    const od_int64 nextoffset = info_->getOffset( nextarrpos );
-	    const int sampling = sampling_*(nextoffset-offset);
+	    const int sampling = mCast( int, sampling_*(nextoffset-offset) );
 
 	    Transform1D* trans = createTransform();
 	    trans->setSize( info_->getSize(dim) );

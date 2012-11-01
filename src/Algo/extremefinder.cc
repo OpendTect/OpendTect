@@ -400,7 +400,7 @@ ExtremeFinderND::ExtremeFinderND( const FloatMathFunctionND& func, bool max,
 	float* x = new float[n_];
 	for ( int idy=0; idy<n_; idy++ )
 	{
-	    x[idy] = idy==idx ? 1 : 0;
+	    x[idy] = mCast( float, idy==idx ? 1 : 0 );
 	}
 
 	xi_ += x;

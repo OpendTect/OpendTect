@@ -141,7 +141,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
     if ( !explsurf_.nrPlanes() )
 	return false;
 
-    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	const IndexedGeometry* inputgeom =
 	    explsurf_.getShape()->getGeometry()[idx];

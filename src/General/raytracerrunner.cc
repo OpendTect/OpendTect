@@ -78,7 +78,7 @@ bool RayTracerRunner::doPrepare( int nrthreads )
 
 bool RayTracerRunner::doWork( od_int64 start, od_int64 stop, int thread )
 {
-    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	const ElasticModel& aim = aimodels_[idx];
 	if ( aim.isEmpty() ) 
