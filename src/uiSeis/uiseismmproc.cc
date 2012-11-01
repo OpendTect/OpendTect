@@ -455,8 +455,8 @@ void uiSeisMMProc::updateAliveDisp()
 	= { ">..", ".>.", "..>", "..<", ".<.", "<.." };
     statusBar()->message( dispstrs[ nrcyclesdone % nrdispstrs ], 3 );
 
-    const int totsteps = jobrunner->totalNr();
-    const int nrdone = jobrunner->nrDone();
+    const int totsteps = mCast( int, jobrunner->totalNr() );
+    const int nrdone = mCast( int, jobrunner->nrDone() );
     const bool hastot = totsteps > 0;
     progbar->display( hastot );
     if ( hastot )

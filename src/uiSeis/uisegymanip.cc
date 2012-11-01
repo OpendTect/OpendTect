@@ -635,7 +635,7 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
 	    { totalnr_ = -1; return; }
 	trcrg_ = dlg.getFld(0)->getIInterval();
 	trcrg_.sort();
-	trcrg_.limitTo( Interval<int>(1,totalnr_) );
+	trcrg_.limitTo( Interval<int>(1,mCast(int,totalnr_)) );
     }
     totalnr_ = trcrg_.stop - trcrg_.start + 1;
 

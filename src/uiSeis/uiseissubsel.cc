@@ -138,9 +138,9 @@ int uiSeisSubSel::expectedNrTraces() const
 {
     const Pos::Provider* pp = selfld_->curProvider();
     mDynamicCastGet( const uiSeis2DSubSel*, ss2d, this )                              
-    if ( !pp ) return ss2d ? 0 : SI().sampling(false).hrg.totalNr();
+    if ( !pp ) return ss2d ? 0 : mCast(int, SI().sampling(false).hrg.totalNr());
 
-    return pp->estNrPos();
+    return mCast( int, pp->estNrPos() );
 }
 
 
