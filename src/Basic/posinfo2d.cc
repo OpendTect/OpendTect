@@ -24,6 +24,9 @@ PosInfo::Line2DData::Line2DData( const char* lnm )
 int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
 {
     const int sz = posns_.size();
+    if ( sz==0 )
+        { found = false; return -1; }
+
     int i0 = 0, i1 = sz - 1;
     int nr0 = posns_[i0].nr_; int nr1 = posns_[i1].nr_;
     if ( nr < nr0 )
