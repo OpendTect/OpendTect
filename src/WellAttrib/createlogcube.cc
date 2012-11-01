@@ -95,7 +95,7 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
     if ( SI().zIsTime() && !wd_.haveD2TModel() )
 	mErrRet( "No depth/time model found" );
 
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	if ( !shouldContinue() )
 	    return false;
