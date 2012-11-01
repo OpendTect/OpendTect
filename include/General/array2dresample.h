@@ -232,7 +232,7 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
     int localnrdone = 0;
     od_int64 offset = start*ysize;
     TT* toptr = toptr_ ? toptr_+offset : 0;
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	const float sourcex = xsampling_.atIndex( idx );
 	for ( int idy=0; idy<ysize; idy++ )
