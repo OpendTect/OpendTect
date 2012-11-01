@@ -87,7 +87,7 @@ bool DPSDensityCalcND::doWork( od_int64 start, od_int64 stop, int )
 
 	TypeSet<int> indexs;
 	
-	if ( !getPositions(indexs,rid) ) continue;
+	if ( !getPositions(indexs,mCast(int,rid)) ) continue;
 
 	if ( !setFreqValue(indexs.arr()) ) continue;
     }

@@ -113,7 +113,7 @@ static void getExtrDefCubeSampling( CubeSampling& cs )
     else if ( nrsamps > 10 ) cs.zrg.step *= 5;
     nrsamps = cs.zrg.nrSteps() + 1;
 
-    const int nrextr = cs.hrg.totalNr() * nrsamps;
+    const int nrextr = mCast( int, cs.hrg.totalNr() * nrsamps );
     int blocks = nrextr / 50000;
     float fstepfac = (float) ( Math::Sqrt( (double)blocks ) );
     int stepfac = mNINT32(fstepfac);
