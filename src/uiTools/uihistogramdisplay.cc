@@ -75,7 +75,7 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 	const Array3D<float>* arr3d = cdp ? &cdp->data() : 0;
 	if ( !arr3d ) return false;
 
-	setData( arr3d->getData(), arr3d->info().getTotalSz() );
+	setData( arr3d->getData(), mCast(int,arr3d->info().getTotalSz()) );
     }
     else if ( dmid == DataPackMgr::FlatID() )
     {
@@ -137,7 +137,7 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 
     if ( array->getData() )
     {
-	setData( array->getData(), array->info().getTotalSz() );
+	setData( array->getData(), mCast(int,array->info().getTotalSz()) );
 	return;
     }
 

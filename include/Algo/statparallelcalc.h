@@ -129,7 +129,7 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
     for ( ; start<=stop && mIsUdf(data_[start] ); start++ )
 	/* just skip undefs at start */;
 
-    int idx = start;
+    int idx = mCast( int, start );
     const T* dataptr = data_ + start;
     const T* stopptr = dataptr + (stop-start+1);
 

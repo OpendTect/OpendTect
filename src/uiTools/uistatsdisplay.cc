@@ -126,7 +126,7 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	    if ( !arr3d ) return false;
 
 	    const float* array = arr3d->getData();
-	    rc.setValues( array, arr3d->info().getTotalSz() );
+	    rc.setValues( array, mCast(int,arr3d->info().getTotalSz()) );
 	}
 	else if ( dmid == DataPackMgr::FlatID() )
 	{
@@ -142,7 +142,8 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 		return false;
 
 	    if ( array->getData() )
-		rc.setValues( array->getData(), array->info().getTotalSz() );
+		rc.setValues( array->getData(), 
+				mCast(int,array->info().getTotalSz()) );
 	    else
 	    {
 		const int sz2d0 = array->info().getSize( 0 );

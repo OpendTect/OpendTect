@@ -128,8 +128,8 @@ void uiTaskRunner::updateFields()
     uiStatusBar& sb = *statusBar();
 
     dispinfomutex_.lock();
-    const int totalnr = task_->totalNr();
-    const int nrdone = task_->nrDone();
+    const int totalnr = mCast( int, task_->totalNr() );
+    const int nrdone = mCast( int, task_->nrDone() );
     const BufferString nrdonetext = task_->nrDoneText();
     const BufferString message = task_->message();
 
