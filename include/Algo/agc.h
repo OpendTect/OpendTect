@@ -167,7 +167,7 @@ bool AGC<T>::doWork( od_int64 start, od_int64 stop, int threadidx )
 	computeEnergyMute();
     }
 
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	int nrenergies = 0;
 	float energysum = 0;

@@ -27,7 +27,7 @@ PreStack::AGC::AGC()
 
 bool PreStack::AGC::prepareWork()
 {
-    totalnr_ = inputs_.size()*nrIterations();
+    totalnr_ = mCast( int, inputs_.size()*nrIterations() );
 
     if ( !Processor::prepareWork() )
 	return false;
@@ -91,7 +91,7 @@ bool PreStack::AGC::doWork( od_int64 start, od_int64 stop, int )
     agc.setMuteFraction( mutefraction_ );
     agc.setSampleGate( samplewindow_ );
 
-    const int incr = stop-start+1;
+    const int incr = mCast( int, stop-start+1 );
     for ( int idx=outputs_.size()-1; idx>=0; idx--, addToNrDone(incr) )
     {
 	Gather* output = outputs_[idx];
@@ -107,8 +107,8 @@ bool PreStack::AGC::doWork( od_int64 start, od_int64 stop, int )
 
 	const int lastoffset = input->size( Gather::offsetDim()==0 ) -1;
 
-	const int curstop = mMIN(lastoffset,stop);
-	for ( int offsetidx=start; offsetidx<=curstop; offsetidx++ )
+	const int curstop = mCast( int, mMIN(lastoffset,stop) );
+	for ( int offsetidx=mCast(int,start); offsetidx<=curstop; offsetidx++ )
 	{
 	    inputtrace.setPos( Gather::offsetDim(), offsetidx );
 	    outputtrace.setPos( Gather::offsetDim(), offsetidx );

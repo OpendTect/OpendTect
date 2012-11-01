@@ -264,7 +264,7 @@ void AngleMute::fillPar( IOPar& par ) const
 
 bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 {
-    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	Gather* output = outputs_[idx];
 	const Gather* input = inputs_[idx];
