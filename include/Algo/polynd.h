@@ -201,7 +201,7 @@ T PolynomialND<T>::getValue3D( float p0, float p1, float p2 ) const
 template<class T>
 bool PolynomialND<T>::fit( const ArrayND<T>& input )
 {
-    const int totalsz = input.info().getTotalSz();
+    const int totalsz = mCast( int, input.info().getTotalSz() );
 
     if ( !solver || solver->size() != totalsz )
     {
