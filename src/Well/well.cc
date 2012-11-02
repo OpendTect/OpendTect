@@ -999,7 +999,6 @@ float Well::D2TModel::getTime( float dh, const Track& track ) const
        const float ztop = track.getPos(dah_[idahtop]).z;
        const float zbase= track.getPos(dah_[idahtop+1]).z;
        const float curvel = ( zbase - ztop ) / ( t_[idahtop+1] - t_[idahtop] );
-       float test = t_[idahtop] + ( track.getPos(dh).z - ztop ) / curvel;/////////debug
        return t_[idahtop] + ( track.getPos(dh).z - ztop ) / curvel;
    }
 }
