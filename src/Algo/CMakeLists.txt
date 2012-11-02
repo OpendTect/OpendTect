@@ -24,6 +24,7 @@ SET(OD_MODULE_SOURCES timeser.c
 	    extremefinder.cc
 	    dippca.cc
 	    fftfilter.cc
+	    fingervein.cc
 	    fourier.cc
 	    fourierinterpol.cc
 	    genericnumer.cc
