@@ -134,9 +134,9 @@ ________________________________________________________________________
 #define mExtern( module )		extern mExp( module )
 #define mExternC( module)		extern "C" mExp( module )
 
-#define mExportTemplateInst( mod, clss, inst ) \
-template <class T> class clss; \
-template mExp(mod) class clss<inst>
+
+#define mExportInst( mod, tp, inst )	Extern_##mod tp mExp(mod) inst
+#define mExportTemplClassInst(mod,clss)	mExportInst(mod,template class,clss)
 
 //for Qt
 #ifndef QT_NAMESPACE
