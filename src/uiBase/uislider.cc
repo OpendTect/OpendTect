@@ -252,22 +252,22 @@ float uiSlider::step() const
 void uiSlider::setInterval( const StepInterval<int>& intv )
 { setInterval( intv.start, intv.stop, intv.step ); }
 
-void uiSlider::setInterval( int start, int stop, int step )
+void uiSlider::setInterval( int start, int stop, int stp )
 {
     body_->setRange( start, stop );
-    body_->setSingleStep( step );
-    body_->setPageStep( step );
+    body_->setSingleStep( stp );
+    body_->setPageStep( stp );
 }
 
 
 void uiSlider::setInterval( const StepInterval<float>& intv )
 { setInterval( intv.start, intv.stop, intv.step ); }
 
-void uiSlider::setInterval( float start, float stop, float step )
+void uiSlider::setInterval( float start, float stop, float stp )
 {
     setMinValue( start );
     setMaxValue( stop );
-    setStep( step );
+    setStep( stp );
 }
 
 
