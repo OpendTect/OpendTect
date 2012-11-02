@@ -25,7 +25,7 @@ int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
 {
     const int sz = posns_.size();
     if ( sz==0 )
-        { found = false; return -1; }
+	{ found = false; return -1; }
 
     int i0 = 0, i1 = sz - 1;
     int nr0 = posns_[i0].nr_; int nr1 = posns_[i1].nr_;
@@ -271,6 +271,7 @@ StepInterval<int> PosInfo::Line2DData::trcNrRange() const
     if ( sz < 1 ) return res;
     res.start = posns_[0].nr_;
     res.stop = posns_[sz-1].nr_;
+    if ( sz == 1 ) return res;
 
     res.step = 0;
     for ( int idx=1; idx<sz; idx++ )
