@@ -817,6 +817,32 @@ void WellDisplay::addPick( Coord3 pos )
 }
 
 
+void WellDisplay::addKnownPos()
+{
+    TypeSet<Coord3> wcoords;
+    if ( pseudotrack_ )
+    {
+	for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+	    wcoords += pseudotrack_->pos(idx);
+
+	well_->setTrack( wcoords );
+	needsave_ = true;
+	changed_.trigger();
+    }
+
+    for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+    {
+	visBase::Marker* marker = visBase::Marker::create();
+	group_->insertObject( idx, marker );
+	marker->setDisplayTransformation( transformation_ );
+	marker->setCenterPos( wcoords[idx] );
+        marker->setScreenSize( mPickSz );
+	marker->setType( (MarkerStyle3D::Type)mPickSz );
+	marker->getMaterial()->setColor( lineStyle()->color_ );
+    }
+}
+
+
 void WellDisplay::setDisplayTransformForPicks( const mVisTrans* newtr )
 {
     if ( transformation_==newtr )
@@ -878,13 +904,17 @@ void WellDisplay::setupPicking( bool yn )
 void WellDisplay::showKnownPositions()
 {
     mGetWD(return);
+    const Well::D2TModel* d2t = wd->d2TModel();
+    setName( wd->name() );
+    Well::Track ttrack(wd->track());
+    pseudotrack_ = &(ttrack);
+    if ( zistime_ )
+	pseudotrack_->toTime( *d2t, wd->track() );
 
-    TypeSet<Coord3> trackpos = getTrackPos( wd );
-    if ( trackpos.isEmpty() )
+    if ( pseudotrack_->nrPoints() <= 0 )
 	return;
 
-    for ( int idx=0; idx<trackpos.size(); idx++ )
-	addPick( trackpos[idx] );
+    addKnownPos();
 }
 
 
