@@ -128,7 +128,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , dispeach_(1)
     , fillmdls_(true)
     , uselithcols_(true)
-    , showzoomed_(false)
+    , showzoomed_(true)
     , vrg_(0,1)
     , logblckitms_(*new uiGraphicsItemSet)
     , lvlitms_(*new uiGraphicsItemSet)

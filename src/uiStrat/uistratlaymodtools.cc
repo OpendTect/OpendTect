@@ -153,7 +153,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 			"Show lithology colors when on",
 			mCB(this,uiStratLayModEditTools,dispLithCB) );
     lithtb_->setToggleButton( true );
-    lithtb_->setOn( false );
+    lithtb_->setOn( true );
     lithtb_->attach( leftOf, flattenedtb_ );
     zoomtb_ = new uiToolButton( rightgrp, "toggzooming",
 			"Do not zoom into models when on",
@@ -308,15 +308,15 @@ par.set( key, func )
 
 void uiStratLayModEditTools::fillPar( IOPar& par ) const
 {
-        mGetProp( selProp(), sKeyDisplayedProp() );
-	    par.set( sKeyDecimation(), dispEach() );
+    mGetProp( selProp(), sKeyDisplayedProp() );
+    par.set( sKeyDecimation(), dispEach() );
+    
+    mGetProp( selLevel(), sKeySelectedLevel() );
+    mGetProp( selContent(), sKeySelectedContent() );
 
-	        mGetProp( selLevel(), sKeySelectedLevel() );
-		    mGetProp( selContent(), sKeySelectedContent() );
-		        
-		        par.setYN( sKeyZoomToggle(), dispZoomed() );
-			    par.setYN( sKeyDispLith(), dispLith() );
-			        par.setYN( sKeyShowFlattened(), showFlattened() );
+    par.setYN( sKeyZoomToggle(), dispZoomed() );
+    par.setYN( sKeyDispLith(), dispLith() );
+    par.setYN( sKeyShowFlattened(), showFlattened() );
 }
 
 #define mSetProp( fld, key ) \
