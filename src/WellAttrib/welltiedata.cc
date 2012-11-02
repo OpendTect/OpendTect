@@ -97,8 +97,7 @@ Data::Data( const Setup& wts, Well::Data& w)
     {
 	CubeSampling cs;
 	oinf.getRanges( cs );
-	StepInterval<float>& rg = const_cast< StepInterval<float>& >(timeintv_);
-	rg.step = cs.zrg.step;
+	const_cast<StepInterval<float>&>(this->timeintv_) = cs.zrg;
     }
 
     estimatedwvlt_.setName( "Estimated wavelet" );
