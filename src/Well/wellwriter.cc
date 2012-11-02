@@ -81,7 +81,7 @@ bool Well::Writer::putInfoAndTrack( std::ostream& strm ) const
 	char str[80]; wd.info().surfacecoord.fill( str );
 	astrm.put( Well::Info::sKeycoord(), str );
     }
-    astrm.put( Well::Info::sKeyelev(), wd.info().surfaceelev );
+    astrm.put( Well::Info::sKeySRD(), wd.info().srdelev );
     astrm.put( Well::Info::sKeyreplvel(), wd.info().replvel );
     astrm.put( Well::Info::sKeygroundelev(), wd.info().groundelev );
     astrm.newParagraph();
