@@ -94,9 +94,6 @@ if(UNIX) #Apple an Linux
     set ( CMAKE_C_FLAGS "-Wmissing-declarations -Wunused -Wimplicit-int ${CMAKE_C_FLAGS}" )
     set ( CMAKE_C_FLAGS "-Wimplicit-function-declaration -Wpointer-sign -Wstrict-prototypes ${CMAKE_C_FLAGS}" )
 
-    #Set newline character
-    set ( OD_NEWLINE "\n" )
-
     set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
     set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
 
@@ -148,9 +145,6 @@ if(WIN32)
     endif()
 
     set  ( OD_GUI_SYSTEM "WIN32" )
-
-    #Set newline character
-    set ( OD_NEWLINE "\n\r" )
 endif()
 
 add_definitions( "\"-D__${OD_PLFSUBDIR}__=1\"" )
