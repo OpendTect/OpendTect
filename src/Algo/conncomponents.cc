@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndslice.h"
 #include "executor.h"
 #include "sorting.h"
-//#include "stmatrix.h"
 #include "task.h"
 
 
@@ -40,7 +39,7 @@ const char* message() const	{ return "Computing 2D connected  components"; }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
+    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {
 	PtrMan<Array2DSlice<bool> > slice = new Array2DSlice<bool>( input_ );
 	slice->setPos( 2, idx );
@@ -58,6 +57,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    if ( comp )
 		slicecomp += *comp;
 	}
+
+	addToNrDone(1);
     }
 
     return true;
@@ -221,117 +222,263 @@ int ConnComponents::nrComponents() const
 
 
 const TypeSet<int>* ConnComponents::getComponent( int cidx )
-{ 
+{
     return  cidx<0 || cidx>=nrComponents() ? 0 : 
 	&components_[sortedindex_[cidx]]; 
 }
 
 
-bool ConnComponents::quadraticFit( int cidx, TypeSet<int>& res )
+void ConnComponents::trimCompBranches( TypeSet<int>& comp )
 {
-    /*
-    const TypeSet<int>* comp = getComponent( cidx );
-    if ( !comp )
-	return false;
-
-    if ( !hasTrifurcation(*comp) )
-    {
-	res = *comp;
-	return true;
-    }
-
-    const int nrnodes = comp->size();
-    Matrix a, at, m, inverse;
-    a.rows = a.cols = 3; a.matrix = (double*)malloc(sizeof(double)*9);
-    at.rows = at.cols = 3; at.matrix = (double*)malloc(sizeof(double)*9);
-    m.rows = m.cols = 3; m.matrix = (double*)malloc(sizeof(double)*9);
-    inverse.rows = inverse.cols = 3; 
-    inverse.matrix = (double*)malloc(sizeof(double)*9);
-
-    const int csz = input_.info().getSize(1);
-    float d[3] = {0,0,0};
-    float a11=nrnodes, a12=0, a22=0, a23=0, a33=0;
-    TypeSet<int> rs;
-    for ( int idx=0; idx<nrnodes; idx++ )
-    {
-	int r = (*comp)[idx]/csz;
-	int c = (*comp)[idx]%csz;
-	int r2 = r*r;
-	rs += r;
-
-	a12 += r;
-	a22 += r2;
-	a23 += r*r2;
-	a33 += r2*r2;
-	d[0] += c;
-	d[1] += r*c;
-	d[2] += r2*c;
-    }
-
-    a.matrix[0] = a11;
-    a.matrix[1] = a12;
-    a.matrix[2] = a22;
-    a.matrix[3] = a12;
-    a.matrix[4] = a22;
-    a.matrix[5] = a23;
-    a.matrix[6] = a22;
-    a.matrix[7] = a23;
-    a.matrix[8] = a33;
-    matrix_transpose( &at, a );
-    matrix_multiply( &m, at, a );
-    matrix_inverse( &inverse, m );
-    matrix_multiply( &m, inverse, at );
-    float c0 = m.matrix[0]*d[0]+m.matrix[1]*d[1]+m.matrix[2]*d[2];
-    float c1 = m.matrix[3]*d[0]+m.matrix[4]*d[1]+m.matrix[5]*d[2];
-    float c2 = m.matrix[6]*d[0]+m.matrix[7]*d[1]+m.matrix[8]*d[2];
-
-    res.erase();
-    for ( int idx=0; idx<nrnodes; idx++ )
-    {
-	int c = (int)(c0+c1*rs[idx]+c2*rs[idx]*rs[idx]);
-	if ( c<0 || c>=csz )
-	    continue;
-
-	res += rs[idx]*csz+c;
-    }
-
-    free( a.matrix );
-    free( at.matrix );
-    free( m.matrix );
-    free( inverse.matrix );*/
-    return true;
+    return trimCompBranches( comp, input_.info().getSize(1) );
 }
 
 
-bool ConnComponents::hasTrifurcation( const TypeSet<int>& component )
+void ConnComponents::getCompSticks( TypeSet<int>& comp, int sz1, 
+	int allowgapsz, int minsticksz, TypeSet<TypeSet<int> >& sticks )
 {
-    const int sz = component.size();
-    const int csz = input_.info().getSize(1);
-
-    for ( int idx=0; idx<sz; idx++ )
+    const int compsz = comp.size();
+    if ( compsz<minsticksz || compsz<2 )
+	return;
+    
+    TypeSet<int> inls, crls;
+    TypeSet<TypeSet<int> > inlcs, crlis;
+    for ( int idx=0; idx<compsz; idx++ )
     {
-	int nrdir = 0;
+     	const int inl = comp[idx]/sz1;
+    	const int crl = comp[idx]%sz1;
+	
+	const int iidx = inls.indexOf(inl);
+    	if ( iidx<0 )
+    	{
+	    inls += inl;
+	    TypeSet<int> icrls; 
+	    icrls += crl;
+	    inlcs += icrls;
+	}
+    	else
+	    inlcs[iidx] += crl;
+	
+    	const int cidx = crls.indexOf(crl);
+    	if ( cidx<0 )
+    	{
+    	    crls += crl;
+	    TypeSet<int> cinls; 
+	    cinls += inl;
+	    crlis += cinls;
+	}
+    	else
+	    crlis[cidx] += inl;
+    }
+
+    const bool alonginl = inls.size() >= crls.size();
+    const int sticksz = alonginl ? inls.size() : crls.size();
+    TypeSet<int> ics = alonginl ? inls : crls;
+    const TypeSet<TypeSet<int> >& nbs = alonginl ? inlcs : crlis;
+    TypeSet<int> ids;
+    for ( int k=0; k<sticksz; k++ )
+	ids += k;
+
+    sort_coupled( ics.arr(), ids.arr(), sticksz );
+
+    TypeSet<int> stick;
+    int prevpos = -1, sidx;
+    for ( int i=0; i<sticksz; i++ )
+    {
+	int res = -1;
+	const int count = nbs[ids[i]].size();
+	if ( prevpos<0 )
+	    res = nbs[ids[i]][0];
+	else
+	{
+	    if ( abs(ics[i]-ics[sidx])>allowgapsz )
+		break;
+
+	    if ( count==1 )
+	    {
+		const int diff = nbs[ids[i]][0] - prevpos;
+		if ( abs(diff)<=allowgapsz )
+		    res = nbs[ids[i]][0];
+	    }
+	    else
+	    {
+		int nearestpos = nbs[ids[i]][0];
+		int mindist = abs(nearestpos-prevpos);
+		for ( int k=1; k<count; k++ )
+		{
+		    const int dp = abs(nbs[ids[i]][k]-prevpos);
+		    if ( dp<mindist )
+		    {
+			nearestpos = nbs[ids[i]][k];
+			mindist = dp;
+		    }
+		}
+		if ( mindist<=allowgapsz )
+		    res = nearestpos;
+	    }
+	}
+	
+	if ( res>-1 )
+	{
+	    prevpos = res;
+	    sidx = i;
+	    stick +=  alonginl ? ics[i]*sz1+res : res*sz1+ics[i];
+	}
+	else if ( abs(ics[i]-ics[sidx])>allowgapsz )
+	    break;
+    }
+
+    const int sz = stick.size();
+    for ( int idx=0; idx<sz; idx++ )
+	comp -= stick[idx];
+
+    if ( sz>=minsticksz )
+	sticks += stick;
+
+    getCompSticks( comp, sz1, allowgapsz, minsticksz, sticks );
+}
+
+
+void ConnComponents::trimCompBranches( TypeSet<int>& comp, int dimsz1 )
+{
+    BoolTypeSet toremove;
+    for ( int idx=comp.size()-1; idx>=0; idx-- )
+	toremove += true;
+
+    for ( int idx=comp.size()-1; idx>=0; idx-- )
+    {
+	if ( !toremove[idx] ) 
+	    continue;
+
+	int nbs[4] = { comp[idx]+1, comp[idx]-1, comp[idx]+dimsz1, 
+	    comp[idx]-dimsz1 };
+	for ( int k=0; k<4; k++ )
+	{
+    	    int pidx = comp.indexOf( nbs[k] );
+    	    if ( pidx!=-1 )
+    	    {
+    		toremove[idx] = false;
+    		toremove[pidx] = false;
+    		break;
+    	    } 
+	}
+    }
+
+    for ( int idx=comp.size()-1; idx>=0; idx-- )
+    {
+	if ( toremove[idx] ) 
+	    comp -= comp[idx];
+    }
+
+    const int compsz = comp.size();
+    if ( compsz<4 ) return;
+
+    TypeSet<int> endids;
+    TypeSet<TypeSet<int> > nbs;
+    TypeSet<int> endrows, endcols;
+
+    for ( int idx=0; idx<compsz; idx++ )
+    {
+	const int curid = comp[idx];
+
+	TypeSet<int> conns;
 	for ( int i=-1; i<2; i++ )
 	{
-	    const int gidx = i*csz+component[idx];
 	    for ( int j=-1; j<2; j++ )
 	    {
 		if ( !i && !j )
 		    continue;
 
-		if ( component.indexOf(gidx+j)!=-1 )
-		{
-		    nrdir++;
-		    if ( nrdir>2 )
-			return true;
-		}
+		const int nbid = curid+i+j*dimsz1;
+		if ( comp.indexOf(nbid)!=-1 )
+		    conns += nbid;
+	    }
+	}
+
+	if ( conns.size()<2 )
+	{
+	    endids += idx;
+	    endrows += curid/dimsz1;
+	    endcols += curid%dimsz1;
+	}
+
+	nbs += conns;
+    }
+
+    const int nrends = endids.size();
+    if ( nrends<3 ) return;
+
+    int startidx, stopidx, maxdist=0;
+    for ( int i=0; i<nrends; i++ )
+    {
+	for ( int j=i+1; j<nrends; j++ )
+	{
+	    int rd = endrows[i]-endrows[j];
+	    int cd = endcols[i]-endcols[j];
+	    int sqdist = rd*rd+cd*cd;
+	    if ( sqdist>maxdist )
+	    {
+		startidx = endids[i];
+		stopidx = endids[j];
+		maxdist = sqdist;
 	    }
 	}
     }
 
-    return false;
-}
+    endids -= startidx;
+    endids -= stopidx;
 
+    toremove.erase();
+    for ( int idx=0; idx<comp.size(); idx++ )
+	toremove += false;
+
+    for ( int idx=endids.size()-1; idx>=0; idx-- )
+    {
+	int curidx = endids[idx];
+	toremove[curidx] = true;
+	int previdx = curidx;
+	curidx = comp.indexOf(nbs[previdx][0]);
+	int jointsz = nbs[curidx].size();
+
+	while ( jointsz==2 && !toremove[curidx] )
+	{
+	    toremove[curidx] = true;
+	    const bool isfirst = comp[previdx]==nbs[curidx][0];
+
+	    previdx = curidx;
+	    curidx = comp.indexOf(isfirst ? nbs[curidx][1] : nbs[curidx][0]);
+	    jointsz = nbs[curidx].size();
+	}
+
+	if ( jointsz>2 )
+	{
+	    bool hasvhnb = false;
+	    for ( int idy=0; idy<jointsz; idy++ )
+	    {
+		if ( nbs[curidx][idy]==comp[previdx] )
+		    continue;
+
+		int dist = abs(comp[curidx]-nbs[curidx][idy]);
+		if ( dist==1 || dist==dimsz1 )
+		{
+		    hasvhnb = true;
+		    break;
+		}
+	    }
+
+	    if ( !hasvhnb )
+    		toremove[curidx] = true;
+	}
+    }
+
+    for ( int idx=compsz-1; idx>=0; idx-- )
+    {
+	if ( toremove[idx] ) 
+	    comp -= comp[idx];
+    }
+
+    trimCompBranches( comp, dimsz1 );
+}
 
 
 float ConnComponents::overLapRate( int componentidx )

@@ -40,17 +40,21 @@ public:
     int				nrComponents() const; 
     const TypeSet<int>*		getComponent(int compidx);
     const Array2D<int>*		getLabel() const	{ return label_; }
+    void			trimCompBranches(TypeSet<int>& comp);
+    static void			trimCompBranches(TypeSet<int>& comp,int sz1);
+    static void			getCompSticks(TypeSet<int>& comp,int sz1,
+	    				int allowgapsz, int minsticksz,
+					TypeSet<TypeSet<int> >& sticks);
+    				/*Will change comp, make copy before call this*/
 
-    bool			hasTrifurcation(const TypeSet<int>& component);
     float			overLapRate(int componentidx);
     				/*Minimum rate of all dimensions.*/
 
 protected:
 
-    bool			quadraticFit(int compidx,TypeSet<int>&res);
-    				/*disabled for now*/
     void			classifyMarks(Array2D<int>& mark);
     void			setMark(Array2D<int>& r,int source,int newval);
+
     const Array2D<bool>&	input_;
     Array2D<int>*		label_;
     TypeSet< TypeSet<int> >	components_;
