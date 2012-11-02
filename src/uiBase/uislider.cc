@@ -60,7 +60,7 @@ uiSliderBody::uiSliderBody( uiSlider& hndl, uiParent* p, const char* nm )
 uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool logsc,
 		    bool vert )
     : uiObject(p,nm,mkbody(p,nm))
-    , logscale(logsc)
+    , logscale_(logsc)
     , valueChanged(this)
     , sliderMoved(this)
     , sliderPressed(this)
@@ -120,29 +120,28 @@ void uiSlider::setScale( float fact, float constant )
 
 int uiSlider::sliderValue( float fval ) const
 {
-    if ( logscale )
+    if ( logscale_ )
     {
 	if ( fval <= 0 ) return 0;
 	fval = log10( fval );
     }
 
-    return mNINT32( scaler_->unScale(fval) );
+    return mNINT32( scaler_ ? scaler_->unScale(fval) : fval ); 
 }
 
 
 float uiSlider::userValue( int ival ) const
 {
     double res = scaler_->scale( (double)ival );
-
-    return logscale ? pow( 10, res ) : res;
+    return logscale_ ? pow( 10, res ) : res;
 }
 
 
 void uiSlider::setText( const char* txt )
-{
-    setValue( toFloat(txt) );
-}
+{ setValue( toFloat(txt) ); }
 
+void uiSlider::setValue( int ival )
+{ body_->setValue( ival ); }
 
 void uiSlider::setValue( float fval )
 {
@@ -154,8 +153,8 @@ void uiSlider::setValue( float fval )
 
 const char* uiSlider::text() const
 {
-    result = userValue( body_->value() );
-    return (const char*)result;
+    result_ = userValue( body_->value() );
+    return (const char*)result_;
 }
 
 
@@ -250,11 +249,25 @@ float uiSlider::step() const
 }
 
 
-void uiSlider::setInterval( const StepInterval<float>& intv )
+void uiSlider::setInterval( const StepInterval<int>& intv )
+{ setInterval( intv.start, intv.stop, intv.step ); }
+
+void uiSlider::setInterval( int start, int stop, int step )
 {
-    setMinValue( intv.start );
-    setMaxValue( intv.stop );
-    setStep( intv.step );
+    body_->setRange( start, stop );
+    body_->setSingleStep( step );
+    body_->setPageStep( step );
+}
+
+
+void uiSlider::setInterval( const StepInterval<float>& intv )
+{ setInterval( intv.start, intv.stop, intv.step ); }
+
+void uiSlider::setInterval( float start, float stop, float step )
+{
+    setMinValue( start );
+    setMaxValue( stop );
+    setStep( step );
 }
 
 

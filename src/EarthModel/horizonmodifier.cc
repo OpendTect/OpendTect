@@ -126,7 +126,7 @@ void HorizonModifier::getLines( const EM::Horizon* hor )
     mDynamicCastGet(const EM::Horizon2D*,hor2d,hor)
     if ( !hor2d ) return;
 
-    const int sid = hor2d->sectionID( 0 );
+    const EM::SectionID sid = hor2d->sectionID( 0 );
     for ( int ldx=0; ldx<hor2d->geometry().nrLines(); ldx++ )
     {
 	const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( ldx );

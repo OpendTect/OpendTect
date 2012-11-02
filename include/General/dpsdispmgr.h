@@ -93,7 +93,7 @@ protected:
 };
 
 
-class DataPointSetDisplayMgr : public CallBacker
+mClass(General) DataPointSetDisplayMgr : public CallBacker
 {
 public:
 

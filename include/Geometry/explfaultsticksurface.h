@@ -37,8 +37,8 @@ mClass(Geometry) ExplFaultStickSurface: public Geometry::IndexedShape,
        			      public CallBacker
 {
 public:
-			ExplFaultStickSurface(FaultStickSurface*,float zscale);
-    			~ExplFaultStickSurface();
+			ExplFaultStickSurface(FaultStickSurface*,float zscale=mUdf(float));
+			~ExplFaultStickSurface();
 
     bool		needsUpdate() const 		{ return needsupdate_; }
 

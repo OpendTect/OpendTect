@@ -377,7 +377,7 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 					Interval<PT> pg, VSEvent::Type evtype )
 {
     Interval<PT> curg( pg );
-    VSEvent::Type revtype;
+    VSEvent::Type revtype = VSEvent::Min;
     if ( evtype == VSEvent::Max )
 	revtype = VSEvent::Min;
     else if ( evtype == VSEvent::Min )
@@ -395,11 +395,11 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 	if ( mIsUdf(reqev.pos) ) break;
 
 	posset += reqev.pos;
-	curg.start = reqev.pos + 1e-5;
+	curg.start = reqev.pos + mCast(PT,1e-5);
 	ValueSeriesEvent<VT,PT> revev = find( revtype, curg, 1 );
 	if ( mIsUdf(revev.pos) ) break;
 
-	curg.start = revev.pos + 1e-5;
+	curg.start = revev.pos + mCast(PT,1e-5);
     }
 
     if ( !posset.size() ) return false;

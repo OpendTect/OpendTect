@@ -329,12 +329,11 @@ bool uiMadIOSelDlg::getInp()
     {
 	const Seis::GeomType gt = geomType();
 	if ( !seisSel(gt)->commitInput() )
-	{
 	    mErrRet(Seis::isPS(gt) ? "data store" : "seismics")
-	    if ( !isinp_ && !Seis::is2D(gt) && ctio3d_.ioobj->implExists(false)
+
+	if ( !isinp_ && !Seis::is2D(gt) && ctio3d_.ioobj->implExists(false)
 	       && !uiMSG().askOverwrite("Output cube exists. Overwrite?") )
 		return false;
-	}
     }
 
     return true;

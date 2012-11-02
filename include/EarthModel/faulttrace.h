@@ -75,6 +75,8 @@ public:
     void		computeRange();
     bool                includes(const BinID&) const;
     bool		isOK() const;
+    bool		isOnFault(const BinID&,float z,float threshold) const;
+    			// threshold dist in measured in BinID units
 
 protected:
 
@@ -95,8 +97,7 @@ protected:
 
     Threads::Mutex	mutex_;
 public:
-    bool		isOnFault(const BinID&,float z,float threshold) const;
-    				// threshold dist in measured in BinID units
+
 };
 
 
@@ -169,6 +170,8 @@ public:
     bool		isCrossingFault(const BinID& b1,float z1,
 	    				const BinID& b2,float z2) const;
     bool		getFaultZVals(const BinID&,TypeSet<float>&) const;
+    bool		isOnFault(const BinID&,float z,float threshold) const;
+
     void		clear();
     bool		isEmpty() const;
     const char*		errMsg() const;
@@ -186,10 +189,6 @@ protected:
     TypeSet<MultiID> 			multiids_;
     PosInfo::GeomID			geomid_;
     BufferString			errmsg_;
-public:
-    bool		isOnFault(const BinID&,float z,float threshold) const;
-
 };
 
 #endif
-

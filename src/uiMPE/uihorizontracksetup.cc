@@ -261,9 +261,8 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 
     seedsliderfld_ = new uiSliderExtra( grp,
 	    			uiSliderExtra::Setup("Seed Size").
-				withedit(true),	"Slider Size" );
-    seedsliderfld_->sldr()->setMinValue( 1 );
-    seedsliderfld_->sldr()->setMaxValue( 15 );
+				withedit(true),	"Seed Size" );
+    seedsliderfld_->sldr()->setInterval( 1, 15 );
     seedsliderfld_->sldr()->valueChanged.notify(
 	    		mCB(this,uiHorizonSetupGroup,seedSliderMove));
     seedsliderfld_->attach( alignedBelow, seedtypefld_ );

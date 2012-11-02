@@ -73,7 +73,7 @@ mClass(uiSeis) uiFuncTaperDisp : public uiFunctionDisplay
 {
 public:
 
-    mStruct(uiSeis) Setup : public uiFunctionDisplay::Setup
+    struct Setup : public uiFunctionDisplay::Setup
     {
 			Setup()
 			    : is2sided_(false)

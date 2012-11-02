@@ -37,6 +37,7 @@ public:
     void		setText(const char*);
     const char*		text() const;
 
+    void		setValue(int);
     void		setValue(float);
     int 		getIntValue() const;
     float 		getValue() const;
@@ -48,7 +49,11 @@ public:
     void		setStep(float);
     void		setScale(float fact,float constant);
     float		step() const;
+
+    void		setInterval(const StepInterval<int>&);
+    void		setInterval(int start,int stop,int step=1);
     void		setInterval(const StepInterval<float>&);
+    void		setInterval(float start,float stop,float step);
     void		getInterval(StepInterval<float>&) const;
     void		setLinearScale(double,double);
 
@@ -64,7 +69,7 @@ public:
     void		setInvertedControls(bool);
     bool		hasInvertedControls() const;
 
-    bool		isLogScale()			{ return logscale; }
+    bool		isLogScale()			{ return logscale_; }
 
     Notifier<uiSlider>	valueChanged;
     Notifier<uiSlider>	sliderMoved;
@@ -76,9 +81,9 @@ public:
 
 private:
 
-    mutable BufferString result;
+    mutable BufferString result_;
     LinScaler*		scaler_;
-    bool		logscale;
+    bool		logscale_;
 
     uiSliderBody*	body_;
     uiSliderBody&	mkbody(uiParent*,const char*);

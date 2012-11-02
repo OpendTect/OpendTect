@@ -217,7 +217,8 @@ SbBool SoDepthTabPlaneDragger::setUpConnections(SbBool onoff, SbBool doitalways)
 	inherited::setUpConnections(onoff, doitalways);
     }
 
-    return !( connectionsSetUp = onoff);
+    connectionsSetUp = onoff;
+    return !connectionsSetUp;
 }
 
 

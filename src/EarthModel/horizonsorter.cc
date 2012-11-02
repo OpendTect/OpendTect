@@ -67,7 +67,7 @@ void HorizonSorter::calcBoundingBox()
 	    mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
 	    if ( !hor2d ) continue;
 
-	    const int sid = hor2d->sectionID( 0 );
+	    const EM::SectionID sid = hor2d->sectionID( 0 );
 	    for ( int ldx=0; ldx<hor2d->geometry().nrLines(); ldx++ )
 	    {
 		const Geometry::Horizon2DLine* geom =

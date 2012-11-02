@@ -336,8 +336,7 @@ void callibrateArray( const T* input, int sz,
 	       bool usefactor, T* output,
 	       float* callibrationcurve = 0 )
 {
-    int firstsample, lastsample;
-
+    int firstsample = mUdf(int), lastsample = -mUdf(int);
     PointBasedMathFunction func( PointBasedMathFunction::Linear );
     for ( int idx=0; idx<nrcontrols; idx++ )
     {

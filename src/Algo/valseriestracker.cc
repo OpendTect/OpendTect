@@ -376,7 +376,7 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 	if ( !idx || sim>maxsim )
 	{
 	    maxsim = sim;
-	    res = idx;
+	    res = mCast(float,idx);
 	    nreqsamples = 0;
 	}
 	else if ( sim==maxsim )

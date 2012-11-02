@@ -142,10 +142,10 @@ public:
 ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist, 
 	const TypeSet<char>& sides, const CubeSampling& cs, Array3D<float>& res,
 	const ODPolygon<float>& plg )
-    : res_( res )
-    , cs_( cs )
-    , plg_( plg )	      
-    , bidinplg_( 0 )			      
+    : res_(res)
+    , cs_(cs)
+    , plg_(plg)
+    , bidinplg_(0)
 {
     res_.setAll( 1 );
 
@@ -168,10 +168,10 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	{
 	    mDynamicCastGet( EM::Fault3D*, emflt, emobj );
 	    Geometry::FaultStickSurface* flt = 
-	    emflt ? emflt->geometry().sectionGeometry(0) : 0;
+		emflt ? emflt->geometry().sectionGeometry(0) : 0;
 	    if ( !flt ) continue;
+
 	    emflt->ref();
-	    
 	    Geometry::ExplFaultStickSurface* efs = 
 		new Geometry::ExplFaultStickSurface(0,SI().zScale());
 	    efs->setCoordList( new Coord3ListImpl, new Coord3ListImpl );

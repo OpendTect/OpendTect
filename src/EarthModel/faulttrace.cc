@@ -254,8 +254,8 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     float starttopz=mUdf(float), startbotz=mUdf(float);
     int& startvar = isinl_ ? start.crl : start.inl;
     int step = isinl_ ? SI().crlStep() : SI().inlStep();
-    const int bvssz = bvs.totalSize();
-    for ( int idx=0; idx<bvssz; idx++,startvar += step )
+    const od_int64 bvssz = bvs.totalSize();
+    for ( od_int64 idx=0; idx<bvssz; idx++,startvar += step )
     {
 	BinIDValueSet::Pos pos = bvs.findFirst( start );
 	if ( !pos.valid() )
@@ -608,7 +608,7 @@ bool FaultTraceExtractor::execute()
     EM::SectionID fltsid = fault_->sectionID( 0 );
     mDynamicCastGet(EM::Fault3D*,fault3d,fault_)
     Geometry::IndexedShape* efss = new Geometry::ExplFaultStickSurface(
-		fault3d->geometry().sectionGeometry(fltsid), SI().zDomain().userFactor() );
+		fault3d->geometry().sectionGeometry(fltsid), SI().zScale() );
     efss->setCoordList( new FaultTrace, new FaultTrace, 0 );
     if ( !efss->update(true,0) )
 	return false;

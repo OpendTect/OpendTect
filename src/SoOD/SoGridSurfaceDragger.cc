@@ -154,8 +154,9 @@ SbBool SoGridSurfaceDragger::setUpConnections( SbBool onOff,
 
         SoDragger::setUpConnections( onOff, doItAlways );
     }
-    
-    return !(connectionsSetUp = onOff);
+
+    connectionsSetUp = onOff;
+    return !connectionsSetUp;
 }
 
 
