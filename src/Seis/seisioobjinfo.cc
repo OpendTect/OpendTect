@@ -396,6 +396,7 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 bool SeisIOObjInfo::getRanges( const LineKey& lk, StepInterval<int>& trcrg,
 			       StepInterval<float>& zrg ) const
 {
+    mChk(false);
     PtrMan<Seis2DLineSet> lset = new Seis2DLineSet(ioobj_->fullUserExpr(true));
     if ( lset->nrLines() == 0 )
 	return false;
