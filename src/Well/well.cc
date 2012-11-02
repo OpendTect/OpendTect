@@ -970,7 +970,7 @@ float Well::D2TModel::getTime( float dh, const Track& track ) const
        return TimeDepthModel::getTime( dah_.arr(), t_.arr(), dtsize, dh );
    else
     {
-	float reqdh;
+	float reqdh, dhtop, dhbase;
 	int idahtop = 0;
 	idahtop = IdxAble::getLowIdx(dah_,dtsize,dh);
 	if ( idahtop < 0 )
@@ -983,7 +983,10 @@ float Well::D2TModel::getTime( float dh, const Track& track ) const
 	    {
 		if ( track.pos(idx).z > reqz )
 		{
-		    reqdh = track.dah( idx-1 );
+		    dhtop = track.dah( idx-1 );
+		    dhbase = track.dah( idx );
+		    reqdh = dhtop + ( (dhbase-dhtop)*(reqz-track.pos(idx-1).z)/
+					(track.pos(idx).z-track.pos(idx-1).z) );
 		    idahtop = IdxAble::getLowIdx( dah_, dtsize, reqdh );
 		    break;
 		}
