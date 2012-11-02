@@ -164,7 +164,7 @@ int DZT::Importer::nextStep()
     if ( mStrm.gcount() != trcbytes )
 	return closeAll();
 
-    fh_.fillInfo( trc_.info(), nrdone_ );
+    fh_.fillInfo( trc_.info(), mCast(int,nrdone_) );
     trc_.info().sampling.scale( zfac_ );
 
     for ( int ichan=0; ichan<fh_.nchan; ichan++ )

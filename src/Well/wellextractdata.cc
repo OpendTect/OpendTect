@@ -1069,7 +1069,7 @@ bool Well::LogSampler::doPrepare( int thread )
 
 	dahs += dah;
     }
-    data_ = new Array2DImpl<float>( nrIterations()+1, dahs.size() );
+    data_ = new Array2DImpl<float>( mCast(int,nrIterations()+1), dahs.size() );
 
     for ( int idz=0; idz<dahs.size(); idz++ )
 	data_->set( 0, idz, dahs[idz] );
@@ -1080,7 +1080,7 @@ bool Well::LogSampler::doPrepare( int thread )
 
 bool Well::LogSampler::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	if ( !shouldContinue() )
 	    return false;

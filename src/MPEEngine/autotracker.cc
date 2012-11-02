@@ -196,7 +196,7 @@ public:
 	TypeSet<EM::SubID> newlist;
 	TypeSet<EM::SubID> newsrclist;
 	TypeSet<EM::SubID> removelist;
-	for ( int idx=start; idx<=stop; idx++ )
+	for ( int idx=mCast(int,start); idx<=stop; idx++ )
 	{
 	    char count;
 	    if ( blacklist_.get( list_[idx], count ) && count>7 )

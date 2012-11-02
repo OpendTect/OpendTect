@@ -122,11 +122,11 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
 	if ( packetinfo.cubedata )
 	    totalnr_ = packetinfo.cubedata->totalSizeInside( cs.hrg );
 	else
-	    totalnr_ = cs.hrg.totalNr();
+	    totalnr_ = mCast( int, cs.hrg.totalNr() );
     }
     else
     {
-	totalnr_ = cs.hrg.totalNr();
+	totalnr_ = mCast( int, cs.hrg.totalNr() );
     }
 
     seiswriter_ = new SeisTrcWriter( &out );

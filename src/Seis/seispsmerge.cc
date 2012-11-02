@@ -68,7 +68,7 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
     if ( readers_.isEmpty() )
 	{ msg_ = "No valid inputs specified"; return; }
 
-    totnr_ = sd_ ? sd_->expectedNrTraces() : cs.hrg.totalNr();
+    totnr_ = mCast( int, sd_ ? sd_->expectedNrTraces() : cs.hrg.totalNr() );
     iter_ = new HorSamplingIterator( cs.hrg );
     resampler_ = new SeisResampler( cs );
 

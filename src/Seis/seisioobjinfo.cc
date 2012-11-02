@@ -117,7 +117,7 @@ SeisIOObjInfo::SpaceInfo::SpaceInfo( int ns, int ntr, int bps )
     if ( expectednrsamps < 0 )
 	expectednrsamps = SI().zRange(false).nrSteps() + 1;
     if ( expectednrtrcs < 0 )
-	expectednrtrcs = SI().sampling(false).hrg.totalNr();
+	expectednrtrcs = mCast( int, SI().sampling(false).hrg.totalNr() );
 }
 
 
@@ -156,7 +156,7 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
 	return false;
 
     spinf.expectednrsamps = cs.zrg.nrSteps() + 1;
-    spinf.expectednrtrcs = cs.hrg.totalNr();
+    spinf.expectednrtrcs = mCast( int, cs.hrg.totalNr() );
     getBPS( spinf.maxbytespsamp, -1 );
     return true;
 }

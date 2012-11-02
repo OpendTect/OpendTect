@@ -72,7 +72,7 @@ void BaseHorizon3DExtender::setDirection( const BinIDValue& bdval )
 
 
 int BaseHorizon3DExtender::maxNrPosInExtArea() const
-{ return getExtBoundary().hrg.totalNr(); }
+{ return mCast( int, getExtBoundary().hrg.totalNr() ); }
 
 
 void BaseHorizon3DExtender::preallocExtArea()

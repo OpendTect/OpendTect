@@ -362,7 +362,7 @@ od_int64 MultiTraceSynthGenerator::nrIterations() const
 bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 {
     SynthGenerator& synthgen = *synthgens_[thread];
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	synthgen.setModel( *(*models_)[idx] );
 
@@ -381,7 +381,7 @@ bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 
 	lock_.unLock();
 
-	addToNrDone( synthgen.currentProgress() );
+	addToNrDone( mCast(int,synthgen.currentProgress()) );
     }
     return true;
 }
@@ -493,7 +493,7 @@ bool RaySynthGenerator::doPrepare( int )
 bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 {
     IOPar par; fillPar( par );
-    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	if ( !shouldContinue() )
 	    return false;

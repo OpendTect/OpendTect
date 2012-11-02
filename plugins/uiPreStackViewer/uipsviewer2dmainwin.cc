@@ -156,7 +156,7 @@ void uiViewer2DMainWin::setUpView()
     uiProgressBar pb( &win );
     pb.setPrefWidthInChar( 50 );
     pb.setStretch( 2, 2 );
-    pb.setTotalSteps( cs_.hrg.totalNr() );
+    pb.setTotalSteps( mCast(int,cs_.hrg.totalNr()) );
     win.show();
 
     removeAllGathers();

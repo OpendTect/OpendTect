@@ -139,7 +139,7 @@ void Seis::SelData::usePar( const IOPar& iop )
 
 int Seis::SelData::tracesInSI() const
 {
-    return HorSampling(true).totalNr();
+    return mCast( int, HorSampling(true).totalNr() );
 }
 
 
@@ -495,7 +495,7 @@ int Seis::TableSelData::selRes( const BinID& bid ) const
 
 int Seis::TableSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 {
-    return isall_ ? tracesInSI() : bvs_.totalSize();
+    return mCast( int, isall_ ? tracesInSI() : bvs_.totalSize() );
 }
 
 

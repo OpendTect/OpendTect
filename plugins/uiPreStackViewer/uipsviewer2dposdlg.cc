@@ -90,7 +90,7 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp )
 
     stepfld_ = new uiLabeledSpinBox( this, "step" );
     stepfld_->attach( rightTo, isinl_ || is2d_ ? crl1fld_ : inl1fld_ ); 
-    stepfld_->box()->setInterval( 1, cs_.hrg.totalNr() );
+    stepfld_->box()->setInterval( 1, mCast(int,cs_.hrg.totalNr()) );
 
     uiSeparator* sep = new uiSeparator( this, "pos/nr viewer sep" );
     sep->attach( stretchedBelow, z0fld_ );

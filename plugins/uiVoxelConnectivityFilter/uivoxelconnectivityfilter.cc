@@ -88,7 +88,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     connectivityfld_->attach( ensureBelow, sep );
 
     minbodysizefld_ = new uiGenInput( this, "Keep bodies larger than [voxels]",
-	    IntInpSpec( step->getMinimumBodySize() ) );
+	    IntInpSpec( mCast(int,step->getMinimumBodySize()) ) );
     minbodysizefld_->attach( alignedBelow, connectivityfld_ );
 
     acceptoutputfld_ = new uiGenInput( this, "Kept output",

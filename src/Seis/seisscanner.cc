@@ -146,7 +146,7 @@ void SeisScanner::report( IOPar& iopar ) const
 	iopar.set( "Minimum value", valrg_.start );
 	iopar.set( "Maximum value", valrg_.stop );
 	const float* vals = clipsampler_.vals();
-	const int nrvals = clipsampler_.nrVals();
+	const int nrvals = mCast( int, clipsampler_.nrVals() );
 	iopar.set( "Median value", vals[nrvals/2] );
 	iopar.set( "1/4 value", vals[nrvals/4] );
 	iopar.set( "3/4 value", vals[3*nrvals/4] );
@@ -176,7 +176,7 @@ void SeisScanner::report( IOPar& iopar ) const
 const char* SeisScanner::getClipRgStr( float pct ) const
 {
     const float* vals = clipsampler_.vals();
-    const int nrvals = clipsampler_.nrVals();
+    const int nrvals = mCast( int, clipsampler_.nrVals() );
     const float ratio = nrvals * .005f * pct;
     int idx0 = mNINT32(ratio);
     int idx1 = nrvals - idx0 - 1;

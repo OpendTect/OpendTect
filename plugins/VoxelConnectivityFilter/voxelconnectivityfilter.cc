@@ -228,7 +228,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 
 	if ( nrdone>1000 )
 	{
-	    reportNrDone( nrdone );
+	    reportNrDone( mCast(int,nrdone) );
 	    nrdone = 0;
 	}
 
@@ -345,13 +345,13 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 
 	    if ( nrdone>1000 )
 	    {
-		reportNrDone( nrdone );
+		reportNrDone( mCast(int,nrdone) );
 		nrdone = 0;
 	    }
 	}
     }
 
-    reportNrDone( nrdone );
+    reportNrDone( mCast(int,nrdone) );
     nrdone = 0;
 
     barrier_.waitForAll( true ); //After this nothing more will be added
@@ -515,7 +515,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	}
     }
 
-    reportNrDone( nrdone );
+    reportNrDone( mCast(int,nrdone) );
 
     return true;
 }

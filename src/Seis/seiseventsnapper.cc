@@ -85,7 +85,7 @@ SeisEventSnapper3D::SeisEventSnapper3D( const IOObj& ioobj, BinIDValueSet& bvs,
 
     const Interval<float> zrg = bvs.valRange( 0 );
     mscprov_->setSelData( new Seis::TableSelData(bvs,&gate) );
-    totalnr_ = bvs.totalSize();
+    totalnr_ = mCast( int, bvs.totalSize() );
     nrdone_ = 0;
 }
 
