@@ -20,12 +20,11 @@ ________________________________________________________________________
 namespace ColTab
 {
 
-    mGlobal(General) const char*	    defSeqName();
-    mGlobal(General) Interval<float> defClipRate();
+    mGlobal(General) const char*    defSeqName();
+    mGlobal(General) Interval<float>defClipRate();
     mGlobal(General) float	    defSymMidval();
     mGlobal(General) bool	    defAutoSymmetry();
-    mGlobal(General) void	    setMapperDefaults(Interval<float> cr,float sm,
-	    				      bool autosym,bool histeq=false);
+    mGlobal(General) void	    setMapperDefaults(Interval<float>cr,float sm					,bool autosym,bool histeq=false);
     mGlobal(General) bool	    defHistEq();
 }
 
