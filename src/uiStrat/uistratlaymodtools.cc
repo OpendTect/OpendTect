@@ -153,7 +153,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 			"Show lithology colors when on",
 			mCB(this,uiStratLayModEditTools,dispLithCB) );
     lithtb_->setToggleButton( true );
-    lithtb_->setOn( false );
+    lithtb_->setOn( true );
     lithtb_->attach( leftOf, flattenedtb_ );
     zoomtb_ = new uiToolButton( rightgrp, "toggzooming",
 			"Do not zoom into models when on",
