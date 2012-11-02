@@ -69,7 +69,6 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	, typefld_(0)
 	, extractwvltdlg_(0)
 	, wd_(0)
-	, replacevel_(2000)    	
 {
     setCtrlStyle( DoAndStay );
 

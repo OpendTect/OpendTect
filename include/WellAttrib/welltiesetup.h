@@ -42,7 +42,6 @@ public:
 			    , useexistingd2tm_(true) 
 			    , corrtype_(Automatic)    
 			    , is2d_(false)				 
-			    , replacevel_(2000) 
 			    {}
 
 
@@ -58,7 +57,6 @@ public:
 				    , is2d_(setup.is2d_)
 				    , useexistingd2tm_(setup.useexistingd2tm_)
 				    , corrtype_(setup.corrtype_) 
-				    , replacevel_(setup.replacevel_)
 				    {}	
 		
     MultiID			wellid_;
@@ -72,7 +70,6 @@ public:
     bool                	is2d_;
     bool 			useexistingd2tm_;
     CorrType			corrtype_;
-    float			replacevel_;
     
     void    	      		usePar(const IOPar&);
     void          	 	fillPar(IOPar&) const;

@@ -57,7 +57,6 @@ protected:
     CtxtIOObj&          seisctio3d_;
     bool		savedefaut_;
     bool		is2d_;
-    float		replacevel_;
     ObjectSet<uiTieWin> welltiedlgset_;
     ObjectSet<uiTieWin> welltiedlgsetcpy_;
     uiWellElasticPropSel* logsfld_;
