@@ -127,6 +127,8 @@ void uiTaskRunner::doWork( CallBacker* )
 
 void uiTaskRunner::updateFields()
 {
+    if ( !task_ ) return;
+
     uiStatusBar& sb = *statusBar();
 
     dispinfomutex_.lock();
