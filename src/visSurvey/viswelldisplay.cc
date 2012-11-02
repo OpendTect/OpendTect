@@ -626,16 +626,17 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     float mousez = pos.z; 
     info = "Well: "; 
     info += wd->name();
-    info += ", MD "; 
+    info += ", MD ";
     Well::D2TModel* d2t = wd->d2TModel();
     Well::Track ttrack( wd->track() );
     float dahtop, dahbase, dah = 0;
     int nearestsegment = 0, nrsegment = 0;
     double smallestdis = 0;
-    zistime_ ? ttrack.toTime( *d2t, wd->track() ) : 0;
+    if ( zistime_ )
+	ttrack.toTime( *d2t, wd->track() );
     int zuserfac = zistime_ ? scene_->zDomainInfo().userFactor() : 1;
     pos.z *= zuserfac;
-    for ( int idx=0; idx<(ttrack.nrPoints()-1); idx++ ) 
+    for ( int idx=0; idx<(ttrack.nrPoints()-1); idx++ )
     {
 	Coord3 top = ttrack.pos( idx );
 	Coord3 base = ttrack.pos( idx+1 );
@@ -646,8 +647,8 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 	Line3 line ( top, vector );
 	Line3 reverseline ( base, reversevector );
 	double perpendiculardis = line.distanceToPoint( pos );
-	double paralleldis = std::abs( line.closestPoint(pos) );
-	double paralleldis2 = std::abs( reverseline.closestPoint(pos) );
+	double paralleldis = fabs( line.closestPoint(pos) );
+	double paralleldis2 = fabs( reverseline.closestPoint(pos) );
 	if ( paralleldis <= 1.001 && paralleldis2 <= 1.001 )
 	{
 	    if ( nrsegment == 0 )
@@ -679,7 +680,7 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 	return;
 
     info += zinfeet_ || SI().depthsInFeetByDefault() ? "(ft): " : "(m): ";
-    const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ? 
+    const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ?
 							mToFeetFactor : 1;
     info += toString( mNINT32(dah*zfac) );
 
