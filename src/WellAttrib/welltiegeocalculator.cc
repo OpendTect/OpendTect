@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linear.h"
 #include "genericnumer.h"
 #include "spectrogram.h"
+#include "survinfo.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "welldata.h"
@@ -32,18 +33,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace WellTie
 {
 
-float GeoCalculator::getSRDElevation( const Well::Data& wd ) const
-{
-    const Well::Track& track = wd.track();
-    float rdelev = track.dah( 0 ) - track.value( 0 );
-    if ( mIsUdf( rdelev ) ) rdelev = 0;
-
-    const Well::Info& info = wd.info();
-    float surfelev = mIsUdf( info.surfaceelev ) ? 0 : -info.surfaceelev;
-
-    return fabs( rdelev - surfelev );
-}
-
 
 Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd, 
 					const char* sonlog, bool issonic ) const
@@ -52,12 +41,20 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
     if ( !log ) return 0; 
 
     Well::Log proclog = Well::Log( *log );
+
+    const float replveldz = wd.info().srdelev - wd.track().getKbElev();
+
+    const float startdah = replveldz < 0 ? -1.f * replveldz : 0;
+    const float defvelrepl = !SI().zInFeet() ? 2000 : 8000;
+    const float replvel = mIsUdf(wd.info().replvel) ? defvelrepl :
+       				 wd.info().replvel;
+    const float bulkshift = replveldz > 0 ? 
+			   2.f * replveldz / replvel : 0;
     
-    const float srdel = getSRDElevation( wd );
     if ( issonic )
-	son2TWT( proclog, true, srdel );
+	son2TWT( proclog, wd.track(), true, startdah );
     else
-	vel2TWT( proclog, true, srdel );
+	vel2TWT( proclog, wd.track(), true, startdah );
 
     TypeSet<float> dpt, vals;
     for ( int idx=0; idx<proclog.size(); idx++ )
@@ -65,7 +62,7 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
 	float dah = proclog.dah( idx );
 	if ( mIsUdf( dah ) ) continue;
 	dpt += dah;
-	vals += proclog.getValue( dah, true );
+	vals += proclog.getValue( dah, true ) + bulkshift;
     }
 
     Well::D2TModel* d2tnew = new Well::D2TModel;
@@ -78,37 +75,59 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
 
 
 void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t, 
-					const Well::Data& wd,
-       					float replacevel ) const
+					const Well::Data& wd ) const
 {
     const int sz = d2t.size();
     TypeSet<float> dahs, times;
     mAllocVarLenArr( int, zidxs, sz );
+    const float defvelrepl = !SI().zInFeet() ? 2000 : 8000;
+
+    float replvel = mIsUdf(wd.info().replvel) ? defvelrepl : wd.info().replvel;
+    const float replveldz = wd.info().srdelev - wd.track().getKbElev();
+    const float replvelshift = 2.f * replveldz / replvel;
+    const float srddah = -1.f * replveldz; //dz; should use its dah instead
+    const bool srdbelowkb = replveldz < 0;
+
+    float initialt = mUdf(float);
     for ( int idx=0; idx<sz; idx++ )
     {
 	dahs += d2t.dah( idx ); 
 	times += d2t.value( idx ); 
 	zidxs[idx] = idx;
+	if ( mIsZero( d2t.dah( idx ), 1e-3 ) )
+	    initialt = d2t.value( idx );
+	else if ( mIsZero( d2t.dah( idx ) - srddah, 1e-3 ) )
+	    initialt = 2.f * srddah / replvel;
+	else initialt = replvelshift;
     }
     sort_coupled( times.arr(), mVarLenArr(zidxs), sz );
     d2t.erase();
 
-    const float srdel = getSRDElevation( wd );
-    const float kbtime = 2*srdel/replacevel;
-    d2t.add( 0, -kbtime ); //set KB 
-    d2t.add( srdel, 0 ); // set SRD
-    if ( dahs[zidxs[0]] > srdel && times[zidxs[0]] > 0 )
-	d2t.add( dahs[zidxs[0]], times[zidxs[0]] );
+    d2t.add( 0, replvelshift ); //set KB
+    if ( srdbelowkb )
+	d2t.add( srddah, 0); //set SRD
 
-    for ( int idx=1; idx<sz; idx++ )
+    int idah = -1;
+    const float bulkshift = mIsZero( initialt-replvelshift, 1e-3 ) ? 0 :
+				     initialt-replvelshift;
+    do { idah++; }
+    while ( dahs[zidxs[idah]] <= srddah || dahs[zidxs[idah]]  < 1e-1 ||
+	    times[zidxs[idah]] < 0 );
+    if ( idah >= d2t.size() )
+	idah = 0;
+    if ( dahs[zidxs[idah]] > srddah && dahs[zidxs[idah]] > 1e-1 &&
+	 times[zidxs[idah]] > 0 )
+	d2t.add( dahs[zidxs[idah]], times[zidxs[idah]] + bulkshift );
+
+    for ( int idx=idah+1; idx<sz; idx++ )
     {
-	int idx0 = zidxs[idx-1]; 
+	int idx0 = zidxs[idx-1];
 	int idx1 = zidxs[idx];
 	const float dh = dahs[idx1] - dahs[idx0];
 	const float dt = times[idx1] - times[idx0];
-	if ( dh > 0 && dh > 1e-1 && dahs[idx1] > dahs[0] && dahs[idx0] > srdel
-	    && dt > 0 && dt > 1e-6 && times[idx1] > times[0] && times[idx1] > 0)
-	    d2t.add( dahs[idx1], times[idx1] );
+	if ( dh > 1e-1 && dahs[idx1] > dahs[0] && dahs[idx1] > srddah
+	    && dt > 1e-6 && times[idx1] > times[0] && times[idx1] > 0)
+	    d2t.add( dahs[idx1], times[idx1] + bulkshift );
     }
 }
 
@@ -131,22 +150,24 @@ void GeoCalculator::son2Vel( Well::Log& log, bool straight ) const
 }
 
 
-void GeoCalculator::son2TWT(Well::Log& log, bool straight, float startdah) const
+void GeoCalculator::son2TWT(Well::Log& log, const Well::Track& track,
+			    bool straight, float startdah) const
 {
-    if ( straight ) 
+    if ( straight )
     {
-	son2Vel(log,straight); 
-	vel2TWT(log,straight,startdah); 
+	son2Vel( log, straight );
+	vel2TWT( log, track, straight, startdah );
     }
     else
-    { 
-	vel2TWT( log, straight, startdah ); 
-	son2Vel( log, straight);
+    {
+	vel2TWT( log, track, straight, startdah );
+	son2Vel( log, straight );
     }
 }
 
 
-void GeoCalculator::vel2TWT(Well::Log& log, bool straight, float startdah) const
+void GeoCalculator::vel2TWT(Well::Log& log, const Well::Track& track,
+			    bool straight, float startdah) const
 {
     const int sz = log.size(); 
     if ( sz < 2 ) return;
@@ -172,14 +193,17 @@ void GeoCalculator::vel2TWT(Well::Log& log, bool straight, float startdah) const
 	{
 	    float v = vals[idx];
 	    if ( !v ) continue; 
-	    newval = (float) ( 2*( dpts[idx] - dpts[idx-1] )/(v*velfac) );
+	    newval = (float) ( 2.f * ( track.getPos(dpts[idx]).z -
+		       		       track.getPos(dpts[idx-1]).z )
+		    		       / (v*velfac) );
 	    newval += prevval;
 	    prevval = newval;
 	}
 	else 
 	{
 	    if ( vals[idx] != vals[idx-1] )
-		newval = 2*( dpts[idx] - dpts[idx-1] )
+		newval = 2.f * ( track.getPos(dpts[idx]).z -
+				 track.getPos(dpts[idx-1]).z )
 		    		/ fabs(vals[idx]-vals[idx-1]);
 	}
 	log.addValue( dpts[idx], newval );

@@ -39,7 +39,7 @@ D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Data& data )
 
     Well::D2TModel* d2t = 0;
     WellTie::GeoCalculator gc;
-    d2t = wts.useexistingd2tm_ ? 
+    d2t = wts.useexistingd2tm_ ?
 	wd.d2TModel() : gc.getModelFromVelLog( wd, wts.vellognm_, wts.issonic_);
     if ( !d2t )
 	errmsg_ = "Cannot generate depth/time model. Check your velocity log";
@@ -142,9 +142,8 @@ bool D2TModelMgr::commitToWD()
 
 void D2TModelMgr::ensureValid( Well::D2TModel& d2t )
 {
-    const WellTie::Setup& wts = data_.setup();
     if ( wd_ )
-	calc_.ensureValidD2TModel( d2t, *wd_, wts.replacevel_ );
+	calc_.ensureValidD2TModel( d2t, *wd_ );
 }
 
 

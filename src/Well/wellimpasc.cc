@@ -430,12 +430,11 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	{
 	    if ( !SI().isReasonable(wd.info().surfacecoord) )
 		wd.info().surfacecoord = c;
-	    if ( mIsUdf(wd.info().surfaceelev) )
-		wd.info().surfaceelev = (float) -c.z;
+//		wd.info().SRDelev = 0;  user input required
 
 	    surfcoord.x = wd.info().surfacecoord.x;
 	    surfcoord.y = wd.info().surfacecoord.y;
-	    surfcoord.z = -wd.info().surfaceelev;
+	    surfcoord.z = c.z;
 
 	    prevc = tosurf && c.z >=0 ? surfcoord : c;
 	}
@@ -567,6 +566,7 @@ void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
     Table::TargetInfo* ti = gtDepthTI( withunits );
     ti->add( new Table::TargetInfo::Form( "TVD rel SRD", FloatInpSpec() ) );
     ti->add( new Table::TargetInfo::Form( "TVD rel KB", FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( "TVD rel GL", FloatInpSpec() ) );
     fd->bodyinfos_ += ti;
 
     ti = new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
@@ -689,9 +689,11 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 	if ( mIsUdf(zval) || mIsUdf(tval) )
 	    continue;
 	if ( dpthopt == 2 )
-	    zval += wll.info().surfaceelev;
+	    zval -= wll.info().srdelev;
 	if ( dpthopt == 3 )
-	    zval -= wll.track().dah(0)-wll.track().pos(0).z;
+	    zval -= wll.track().getKbElev();
+	if ( dpthopt == 4 )
+	    zval -= wll.info().groundelev;
 	if ( tmopt == 1 )
 	    tval *= 2;
 

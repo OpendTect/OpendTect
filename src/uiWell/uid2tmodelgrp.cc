@@ -98,11 +98,13 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	
 	d2t.erase();
 	const UnitOfMeasure* zun_ = UnitOfMeasure::surveyDefDepthUnit();
-	float srd = -wd.info().surfaceelev;
-	const float kb  = wd.track().dah(0)-wd.track().pos(0).z;
-	if ( SI().depthsInFeetByDefault() &&
-	     !mIsUdf(wd.info().surfaceelev) && zun_ )
-	    srd = zun_->userValue( -wd.info().surfaceelev );
+	float srd = wd.info().srdelev;
+	float kb  = wd.track().getKbElev();
+	if ( SI().depthsInFeetByDefault() && zun_ )
+	{
+	    srd = zun_->userValue( wd.info().srdelev );
+	    kb  = zun_->userValue( wd.track().getKbElev() );
+	}
 	if ( mIsZero(srd,0.01) ) srd = 0;
 	const float twtvel = velfld_->getfValue() * .5f;
 	const float bulkshift = mIsUdf( wd.info().replvel ) ? 0 : ( kb-srd )*
@@ -125,8 +127,8 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 		idahofminz = idx;
 	    }
 	}
-	d2t.add( wd.track().dah(idahofminz), ( tvdmin+srd ) / twtvel + bulkshift );
-	d2t.add( wd.track().dah(idahofmaxz), ( tvdmax+srd ) / twtvel + bulkshift );
+	d2t.add( wd.track().dah(idahofminz), ( tvdmin+srd )/twtvel+ bulkshift );
+	d2t.add( wd.track().dah(idahofmaxz), ( tvdmax+srd )/twtvel+ bulkshift );
     }
     else
     {

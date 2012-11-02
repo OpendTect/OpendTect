@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltiedata.h"
 #include "welltieunitfactors.h"
 #include "welltieextractdata.h"
+#include "welltrack.h"
 
 
 namespace WellTie
@@ -147,9 +148,10 @@ bool DataPlayer::doFullSynthetics()
     gen.setWavelet( &wvlt, OD::UsePtr );
     gen.setOutSampling( disprg_ );
     IOPar par;
-    const float sourrecz = data_.wd_->info().replveldz > 0 ? 
-			   data_.wd_->info().surfaceelev :
-			   -1. * data_.wd_->info().kbelev;
+    const float replveldz = wd_->info().srdelev - wd_->track().getKbElev();
+    const float sourrecz = replveldz > 0 ? 
+			   -1.f * data_.wd_->info().srdelev :
+			   -1.f * data_.wd_->track().getKbElev();
     par.set(RayTracer1D::sKeySRDepth(),sourrecz,sourrecz);
     gen.usePar( par ); 
     TaskRunner* tr = data_.trunner_;

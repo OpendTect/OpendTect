@@ -85,9 +85,9 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, dataselfld_ );
 
-    float dispval = wd_.info().surfaceelev;
+    float dispval = wd_.info().srdelev;
     if ( !mIsZero(dispval, 0.01) )
-	wd_.info().surfaceelev = dispval;
+	wd_.info().srdelev = dispval;
 
     dispval = wd_.info().replvel;
     if ( !mIsUdf(dispval) )
@@ -186,9 +186,9 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 	"Surface coordinate (if different from first coordinate in track file)",
 	PositionInpSpec(possu).setName( "X", 0 ).setName( "Y", 1 ) );
 
-    float dispval = -info.surfaceelev;
-    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.surfaceelev) && zun_ ) 
-	dispval = zun_->userValue( -info.surfaceelev );
+    float dispval = info.srdelev;
+    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.srdelev) && zun_ ) 
+	dispval = zun_->userValue( info.srdelev );
     if ( mIsZero(dispval,0.01) ) dispval = 0;
     elevfld = new uiGenInput( this, "Seismic Reference Datum",
 	    			     FloatInpSpec(dispval) );
@@ -199,6 +199,8 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 
     dispval = info.replvel;
     if ( mIsUdf(info.replvel) ) dispval = mUdf(float);
+    else if ( SI().depthsInFeetByDefault() && !SI().zInFeet() )
+	dispval = mToFeetFactorF * info.replvel;
     BufferString str = "Replacement velocity "; str += "(";
     str += UnitOfMeasure::zUnitAnnot( false, true, false );
     str += "/s)";
@@ -241,12 +243,16 @@ bool acceptOK( CallBacker* )
 	info.surfacecoord = coordfld->getCoord();
     if ( *elevfld->text() )
     {
-	info.surfaceelev = -elevfld->getfValue();
-	if ( zinftbox->isChecked() && !mIsUdf(info.surfaceelev) && zun_ ) 
-	    info.surfaceelev = zun_->internalValue( info.surfaceelev );
+	info.srdelev = elevfld->getfValue();
+	if ( zinftbox->isChecked() && !mIsUdf(info.srdelev) && zun_ ) 
+	    info.srdelev = zun_->internalValue( info.srdelev );
     }
 
-    info.replvel = replvelfld->getfValue();
+    if ( SI().depthsInFeetByDefault() && !SI().zInFeet()
+	 && !mIsUdf(replvelfld->getfValue()) )
+	info.replvel = replvelfld->getfValue() * mFromFeetFactorF;
+    else
+	info.replvel = replvelfld->getfValue();
 
     if ( *gdelevfld->text() )
     {

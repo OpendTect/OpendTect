@@ -40,7 +40,7 @@ public:
 
 			Info( const char* nm )
 			    : ::NamedObject(nm)
-			    , surfaceelev(0)
+			    , srdelev(0)
 			    , replvel(mUdf(float))
 			    , groundelev(mUdf(float))	{}
 
@@ -53,11 +53,9 @@ public:
     BufferString	county;
 
     Coord		surfacecoord;
-    float		kbelev;
-    float		surfaceelev;
+    float		srdelev;
     float		replvel;
     float		groundelev;
-    float		replveldz;
 
     static const char*	sKeyuwid();
     static const char*	sKeyoper();
@@ -65,10 +63,10 @@ public:
     static const char*	sKeycounty();
     static const char*	sKeycoord();
     static const char*	sKeykbelev();
-    static const char*	sKeyelev();
-    static const char*  sKeyreplvel();
-    static const char*  sKeygroundelev();
-    static const char*	sKeyreplveldz();
+    static const char*	sKeyOldelev();
+    static const char*	sKeySRD();
+    static const char*	sKeyreplvel();
+    static const char*	sKeygroundelev();
 
 };
 

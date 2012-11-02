@@ -254,7 +254,7 @@ bool uiWellTrackDlg::updNow( CallBacker* )
     if ( track_.nrPoints() > 1 )
     {
 	wd_.info().surfacecoord = track_.pos(0);
-	wd_.info().surfaceelev = track_.dah(0);
+	wd_.info().srdelev = track_.dah(0);
 	wd_.trackchanged.trigger();
     }
     else

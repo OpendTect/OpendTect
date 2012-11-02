@@ -33,6 +33,7 @@ public:
 
     const Coord3&	pos( int idx ) const	{ return pos_[idx]; }
     float		value( int idx ) const	{ return (float) pos_[idx].z; }
+    float		getKbElev() const	{ return dah_[0] - value(0); }
     int			nrPoints() const	{ return pos_.size(); }
     bool		zIsTime() const		{ return zistime_; }
 

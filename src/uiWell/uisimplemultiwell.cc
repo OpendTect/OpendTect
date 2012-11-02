@@ -211,7 +211,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     Well::Data wd( wcd.nm_ );
     wd.info().surfacecoord = wcd.coord_;
     wd.info().uwid = wcd.uwi_;
-    wd.info().surfaceelev = -wcd.srd_;
+    wd.info().srdelev = wcd.srd_;
     Interval<float> drg( -wcd.elev_, wcd.td_-wcd.elev_ );
     wd.track().addPoint( wcd.coord_, drg.start, 0 );
     wd.track().addPoint( wcd.coord_, drg.stop, wcd.td_ );

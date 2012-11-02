@@ -29,14 +29,12 @@ public :
 //Well data operations
     Well::D2TModel* 	getModelFromVelLog(const Well::Data&,const char* son, 
 					   bool issonic) const;
-    void		ensureValidD2TModel(Well::D2TModel&,const Well::Data&,
-					    float) const;
+    void		ensureValidD2TModel(Well::D2TModel&,const Well::Data&)const;
 
-    void		son2TWT(Well::Log&,bool straight,float startdah) const;
-    void 		vel2TWT(Well::Log&,bool straight,float startdah) const;
+    void		son2TWT(Well::Log&,const Well::Track&,bool,float) const;
+    void 		vel2TWT(Well::Log&,const Well::Track&,bool,float) const;
     void		son2Vel(Well::Log&,bool yn) const;
     void		d2TModel2Log(const Well::D2TModel&,Well::Log&) const;
-    float		getSRDElevation(const Well::Data&) const;
 
 //others  
     void		removeSpikes(float* inp,int sz,int gate,int fac) const;

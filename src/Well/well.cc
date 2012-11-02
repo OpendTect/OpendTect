@@ -26,10 +26,10 @@ const char* Well::Info::sKeystate()	{ return "State"; }
 const char* Well::Info::sKeycounty()	{ return "County"; }
 const char* Well::Info::sKeycoord()	{ return "Surface coordinate"; }
 const char* Well::Info::sKeykbelev()	{ return "Reference Datum elevation"; }
-const char* Well::Info::sKeyelev()	{ return "Surface elevation"; }
+const char* Well::Info::sKeyOldelev()	{ return "Surface elevation"; }
+const char* Well::Info::sKeySRD()	{ return "Seismic Reference Datum"; }
 const char* Well::Info::sKeyreplvel()	{ return "Replacement velocity"; }
 const char* Well::Info::sKeygroundelev(){ return "Ground level elevation"; }
-const char* Well::Info::sKeyreplveldz()	{ return "Replacement velocity dz"; }
 const char* Well::D2TModel::sKeyTimeWell()	{ return "=Time"; }
 const char* Well::D2TModel::sKeyDataSrc()	{ return "Data source"; }
 const char* Well::Marker::sKeyDah()	{ return "Depth along hole"; }
@@ -999,14 +999,13 @@ void Well::Info::fillPar(IOPar& par) const
     surfacecoord.fill( coord.buf() );
     par.set( sKeycoord(), coord );
 
-    par.set( sKeykbelev(), kbelev );
-    par.set( sKeyelev(), surfaceelev );
+    par.set( sKeySRD(), srdelev );
     par.set( sKeyreplvel(), replvel );
     par.set( sKeygroundelev(), groundelev );
-    par.set( sKeyreplveldz(), replveldz );
 }
 
-void Well::Info::usePar(const IOPar& par)
+
+void Well::Info::usePar( const IOPar& par )
 {
     setName( par[mName] );
     par.get( sKeyuwid(), uwid );
@@ -1018,10 +1017,8 @@ void Well::Info::usePar(const IOPar& par)
     par.get( sKeycoord(), coord );
     surfacecoord.use( coord );
 
-    par.get( sKeykbelev(), kbelev );
-    par.get( sKeyelev(), surfaceelev );
+    par.get( sKeySRD(), srdelev );
     par.get( sKeyreplvel(), replvel );
     par.get( sKeygroundelev(), groundelev );
-    par.get( sKeyreplveldz(), replveldz );
-}
 
+}
