@@ -218,7 +218,7 @@ void uiSeisWvltMerge::makeStackedWvlt()
 	for ( int idx=0; idx<maxwvltsize_; idx++ )
 	{
 	    const int shift = maxwvltsize_%2 ? 1 : 0;
-	    const float coeff = 2*idx-maxwvltsize_ + shift;
+	    const float coeff = mCast( float, 2*idx-maxwvltsize_ + shift );
 	    const float val = func->getValue( coeff*5*SI().zStep());
 	    stackedwvlt_->samples()[idx] += val/selsize; 
 	}

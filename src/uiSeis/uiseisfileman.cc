@@ -193,7 +193,7 @@ void uiSeisFileMan::mkFileInfo()
 		    rg.start = 2 * zrg.start / topvavg.stop;
 		    rg.stop = 2 * zrg.stop / botvavg.start;
 		    rg.step = (rg.stop-rg.start) / zrg.nrSteps();
-		    rg.scale( ZDomain::Time().userFactor() );
+		    rg.scale( mCast( float, ZDomain::Time().userFactor() ) );
 		    txt += "\nTime Range ";
 		    txt += ZDomain::Time().unitStr(true);  
 		}

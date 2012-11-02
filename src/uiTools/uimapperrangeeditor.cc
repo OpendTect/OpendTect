@@ -176,7 +176,8 @@ void uiMapperRangeEditor::drawPixmaps()
     const int datastoppix = xax_->getPix( datarg_.stop );
 
     ioPixmap leftpixmap( startpix_-datastartpix, pmh );
-    leftpixmap.fill( ctseq_->color(ctmapper_->range_.width()>0 ? 0:1) );
+    leftpixmap.fill( ctseq_->color(
+			    mCast(float,ctmapper_->range_.width()>0 ? 0:1)) );
     leftcoltab_->setPixmap( leftpixmap );
     leftcoltab_->setOffset( datastartpix, disph-pmh-1 );
 
@@ -189,7 +190,8 @@ void uiMapperRangeEditor::drawPixmaps()
     centercoltab_->setOffset( startpix_, disph-pmh-1 );
 
     ioPixmap rightpixmap( datastoppix-stoppix_, pmh );
-    rightpixmap.fill( ctseq_->color(ctmapper_->range_.width()>0 ? 1:0) );
+    rightpixmap.fill( ctseq_->color(
+			     mCast(float,ctmapper_->range_.width()>0 ? 1:0)) );
     rightcoltab_->setPixmap( rightpixmap );
     rightcoltab_->setOffset( stoppix_, disph-pmh-1 );
 }

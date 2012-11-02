@@ -95,8 +95,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	     bid.crl==cs_.hrg.start.crl || bid.crl==cs_.hrg.stop.crl )
 	    continue;/*Extended one layer*/
 
-	if ( usepolygon && 
-	     !plg_.isInside(Geom::Point2D<float>(bid.inl,bid.crl),true,0.01) )
+	if ( usepolygon && !plg_.isInside(Geom::Point2D<float>(
+		     mCast(float,bid.inl), mCast(float,bid.crl)), true, 0.01) )
 	    continue;
 
 	for ( int idz=1; idz<zsz-1; idz++ ) /*Extended one layer*/
@@ -149,10 +149,14 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 {
     res_.setAll( 1 );
 
-    c_[0] = Geom::Point2D<float>(cs_.hrg.start.inl, cs_.hrg.start.crl);
-    c_[1] = Geom::Point2D<float>(cs_.hrg.stop.inl, cs_.hrg.start.crl);
-    c_[2] = Geom::Point2D<float>(cs_.hrg.stop.inl, cs_.hrg.stop.crl);
-    c_[3] = Geom::Point2D<float>(cs_.hrg.start.inl, cs_.hrg.stop.crl);
+    c_[0] = Geom::Point2D<float>( mCast(float,cs_.hrg.start.inl), 
+	                          mCast(float,cs_.hrg.start.crl) );
+    c_[1] = Geom::Point2D<float>( mCast(float,cs_.hrg.stop.inl), 
+				  mCast(float,cs_.hrg.start.crl) );
+    c_[2] = Geom::Point2D<float>( mCast(float,cs_.hrg.stop.inl), 
+				  mCast(float,cs_.hrg.stop.crl) );
+    c_[3] = Geom::Point2D<float>( mCast(float,cs_.hrg.start.inl), 
+				  mCast(float,cs_.hrg.stop.crl) );
 
     for ( int idx=0; idx<surflist.size(); idx++ )
     {
@@ -197,7 +201,8 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	    const int inlidx = cs_.hrg.inlIdx(bid.inl);
 	    const int crlidx = cs_.hrg.crlIdx(bid.crl);	    
 	    bidinplg_->set( inlidx, crlidx, plg_.isInside(
-			Geom::Point2D<float>(bid.inl,bid.crl),true,0.01) );
+		    Geom::Point2D<float>( mCast(float,bid.inl),
+					 mCast(float,bid.crl) ),true,0.01 ) );
 	}
     }
 }
@@ -365,7 +370,8 @@ bool inFaultRange( const BinID& pos, int curidx,
 	ids[idx] = idx;
 	BinID bid = SI().transform( crds[idx] );
 	inls[idx] = bid.inl;
-	bidpos += Geom::Point2D<float>(bid.inl,bid.crl);
+	bidpos += Geom::Point2D<float>( mCast(float,bid.inl),
+					mCast(float,bid.crl) );
     }
 
     sort_coupled( mVarLenArr(inls), mVarLenArr(ids), sz );
@@ -405,7 +411,8 @@ bool inFaultRange( const BinID& pos, int curidx,
 	poly.add( c_[3] );
     }
 
-    return poly.isInside(Geom::Point2D<float>(pos.inl,pos.crl),true,0);
+    return poly.isInside(Geom::Point2D<float>( mCast(float,pos.inl),
+						mCast(float,pos.crl)),true,0 );
 }
 
 

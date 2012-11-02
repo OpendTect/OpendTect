@@ -394,7 +394,7 @@ void uiTimeDepthBase::setZRangeCB( CallBacker* )
 	rg = SI().zRange( true );
 
     if ( !t2d_ )
-	rg.scale( ZDomain::Time().userFactor() );
+	rg.scale( mCast(float,ZDomain::Time().userFactor()) );
 
     rangefld_->setValue( rg );
 }

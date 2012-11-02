@@ -191,8 +191,8 @@ void uiGraphicsSceneAxis::update()
 	
 	mGetItem( uiLineItem, line, tickline );
 	
-	Geom::Point2D<float> tickstart( axispos, ticklinestart );
-	Geom::Point2D<float> tickstop( axispos, ticklinestop );
+	Geom::Point2D<float> tickstart( axispos, mCast(float,ticklinestart) );
+	Geom::Point2D<float> tickstop( axispos, mCast(float,ticklinestop) );
 	
 	if ( !isx_ )
 	{
@@ -206,8 +206,8 @@ void uiGraphicsSceneAxis::update()
 	if ( drawgridlines_ )
 	{
 	    mGetItem( uiLineItem, line, gridline );
-	    Geom::Point2D<float> gridstart( axispos, datarg.start );
-	    Geom::Point2D<float> gridstop( axispos, datarg.stop );
+	    Geom::Point2D<float> gridstart(axispos, mCast(float,datarg.start));
+	    Geom::Point2D<float> gridstop( axispos, mCast(float,datarg.stop) );
 	    
 	    if ( !isx_ )
 	    {

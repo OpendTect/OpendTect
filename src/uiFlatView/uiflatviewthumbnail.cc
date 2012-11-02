@@ -80,16 +80,20 @@ void uiFlatViewThumbnail::draw( const uiWorldRect& viewarea )
     mDeclW2UVars( viewarea );
     const uiRect uibr( w2u.transform(br) );
     if ( !bgrectitem_ )
-	bgrectitem_ = scene().addRect( uibr.left(), uibr.top(), uibr.width(),
-				     uibr.height() );
+	bgrectitem_ = scene().addRect( mCast(float,uibr.left()), 
+				       mCast(float,uibr.top()), 
+				       mCast(float,uibr.width()),
+				       mCast(float,uibr.height()) );
     else
 	bgrectitem_->setRect( uibr.left(),uibr.top(),uibr.width(),uibr.height() );
 
     uiRect uiwr;
     getUiRect( feedbackwr_ ? *feedbackwr_ : wr , uiwr );
     if ( !fgrectitem_ )
-	fgrectitem_ = scene().addRect( uiwr.left(), uiwr.top(), uiwr.width(),
-				     uiwr.height() );
+	fgrectitem_ = scene().addRect( mCast(float,uiwr.left()), 
+				       mCast(float,uiwr.top()), 
+				       mCast(float,uiwr.width()),
+				       mCast(float,uiwr.height()) );
     else
 	fgrectitem_->setRect( uiwr.left(), uiwr.top(),
 			      uiwr.width(), uiwr.height() );

@@ -159,7 +159,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	: uiDialog(p,su)
 	, dps_(*const_cast<DataPointSet*>(&dps))
     	, setup_(su)
-    	, zfac_(SI().zDomain().userFactor())
+    	, zfac_(mCast(float,SI().zDomain().userFactor()))
     	, zunitnm_(SI().getZUnitString(false))
 	, tbl_(0)
     	, unsavedchgs_(false)
@@ -233,7 +233,7 @@ int uiDataPointSet::initVars()
 
     mCleanRunCalcs;
 
-    eachrow_ = dps_.nrActive() / setup_.initialmaxnrlines_;
+    eachrow_ = mCast( float, dps_.nrActive() / setup_.initialmaxnrlines_ );
     if ( eachrow_ < 1.0 ) eachrow_ = 1.0;
     percentage_ = (float)100/eachrow_;
 

@@ -166,8 +166,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	    avmachfld->box()->addItem( nm );
 	}
 
-	avmachfld->setPrefWidthInChar( hostnmwdth );
-	avmachfld->setPrefHeightInChar( maxhostdisp );
+	avmachfld->setPrefWidthInChar( mCast(float,hostnmwdth) );
+	avmachfld->setPrefHeightInChar( mCast(float,maxhostdisp) );
     }
 
     uiGroup* usedmachgrp = new uiGroup( machgrp, "Used machine handling" );

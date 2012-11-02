@@ -229,7 +229,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     zlbl += SI().getZUnitString();
     StepInterval<float> survzrg = SI().zRange(false);
     Interval<float> inpzrg( survzrg.start, survzrg.stop );
-    inpzrg.scale( SI().zDomain().userFactor() );
+    inpzrg.scale( mCast(float,SI().zDomain().userFactor()) );
     zfld_ = new uiGenInput( this, zlbl, FloatInpIntervalSpec(inpzrg) );
     if ( geomfld_ ) zfld_->attach( alignedBelow, geomfld_ );
     else zfld_->attach( alignedBelow, linenmfld_ );
@@ -327,7 +327,7 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
     {
 	Interval<float> zrg = zfld_->getFInterval();
 	StepInterval<float> survzrg = SI().zRange(false);
-	survzrg.scale( SI().zDomain().userFactor() );
+	survzrg.scale( mCast(float,SI().zDomain().userFactor()) );
 	if ( !survzrg.includes(zrg.start,false) || !survzrg.includes(zrg.stop,false) )
 		mErrRet( "Please Enter a valid Z Range" );
     }

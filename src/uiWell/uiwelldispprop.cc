@@ -559,7 +559,7 @@ void uiWellLogDispProperties::doGetFromScreen()
     logprops().seqname_ = coltablistfld_->text();
     logprops().iscoltabflipped_ = flipcoltabfld_->isChecked();
     logprops().repeat_ = stylefld_->getBoolValue() ? 1 : repeatfld_->getValue();
-    logprops().repeatovlap_ = ovlapfld_->getValue();
+    logprops().repeatovlap_ = mCast( float, ovlapfld_->getValue() );
     logprops().seiscolor_ = logprops().iswelllog_ ? fillcolorfld_->color() 
 						  : seiscolorfld_->color();
     logprops().name_ = logsfld_->box()->text();

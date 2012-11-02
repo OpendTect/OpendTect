@@ -90,8 +90,8 @@ void uiFunctionDrawer::setFrame()
 		       yax_->getPix( yax_->range().start ) );
     if ( !borderrectitem_ )
 	borderrectitem_ = scene().addRect(
-		borderrect.left(), borderrect.top(), borderrect.width(),
-		borderrect.height() );
+	    mCast(float,borderrect.left()), mCast(float,borderrect.top()), 
+	    mCast(float,borderrect.width()), mCast(float,borderrect.height()) );
     else
 	borderrectitem_->setRect( borderrect.left(), borderrect.top(),
 				  borderrect.width(), borderrect.height() );

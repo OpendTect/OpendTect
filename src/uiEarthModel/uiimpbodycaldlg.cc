@@ -35,7 +35,8 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     {
 	const bool zinft = SI().depthsInFeetByDefault();
 	const char* txt = zinft ? "Velocity (ft/s)" : "Velocity (m/s)";
-	velfld_ = new uiGenInput( this, txt, FloatInpSpec(zinft?10000:3000) );
+	velfld_ = new uiGenInput( this, txt, FloatInpSpec(
+					    mCast(float,zinft?10000:3000)) );
     }
     
     volfld_ = new uiGenInput( this, "Volume" );

@@ -166,7 +166,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 	mErrRet( "Cannot open output file" )
 
     const bool addz = addzfld_->getBoolValue();
-    const float zfac = SI().zDomain().userFactor();
+    const float zfac = mCast( float, SI().zDomain().userFactor() );
     const StepInterval<float> zpos( wvlt->samplePositions() );
     for ( int idx=0; idx<wvlt->size(); idx++ )
     {

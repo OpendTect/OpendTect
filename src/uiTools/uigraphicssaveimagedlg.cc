@@ -28,7 +28,7 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
     : uiSaveImageDlg(p)
     , scene_(scene)
 {
-    screendpi_ = scene->getDPI();
+    screendpi_ = mCast( float, scene->getDPI() );
     createGeomInpFlds( cliboardselfld_ );
     fileinputfld_->attach( alignedBelow, dpifld_ );
 

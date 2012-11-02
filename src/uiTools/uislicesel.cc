@@ -134,7 +134,7 @@ uiSliceScroll( uiSliceSel* ss )
 	, slcsel_(ss)
 	, inauto_(false)
 	, paused_(false)
-	, zfact_(ss->zdominfo_.userFactor())
+	, zfact_(mCast(float,ss->zdominfo_.userFactor()))
 {
     setCtrlStyle( LeaveOnly );
     timer = new Timer( "uiSliceScroll timer" );
@@ -386,7 +386,7 @@ void uiSliceSel::readInput()
     if ( !iscrl_ && crlrg.start == crlrg.stop )
 	crlrg.stop += hs.step.crl;
 
-    const float zfac = zdominfo_.userFactor();
+    const float zfac = mCast( float, zdominfo_.userFactor() );
     Interval<float> zrg;
     zrg.start = z0fld_->box()->getFValue() / zfac;
     zrg.start = maxcs_.zrg.snap( zrg.start );
@@ -427,7 +427,7 @@ void uiSliceSel::updateUI()
     setBoxValues( crl1fld_, maxcrlrg, crlrg.stop );
 
     int nrdec = 0;
-    const float zfac = zdominfo_.userFactor();
+    const float zfac = mCast( float, zdominfo_.userFactor() );
     float step = maxcs_.zrg.step * zfac;
     while ( true )
     {
@@ -519,9 +519,9 @@ void uiSliceSel::fillPar( IOPar& iop )
     cs.hrg.stop.crl = iscrl_ ? crl0fld_->box()->getValue()
 			     : crl1fld_->getValue();
     
-    cs.zrg.start = z0fld_->box()->getValue();
-    cs.zrg.stop = istsl_ ? z0fld_->box()->getValue()
-			 : z1fld_->getValue();
+    cs.zrg.start = mCast( float, z0fld_->box()->getValue() );
+    cs.zrg.stop = mCast( float, istsl_ ? z0fld_->box()->getValue()
+			 : z1fld_->getValue() );
     
     cs.fillPar( iop );
 }

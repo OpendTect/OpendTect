@@ -131,7 +131,7 @@ uiT2DLinConvSelGroup::uiT2DLinConvSelGroup( uiParent* p )
     : uiT2DConvSelGroup(p,"Linear T2D conv sel")
 {
     const float dv = 0;    
-    const float v0 = SI().zInFeet() ? 3000 : 1000;
+    const float v0 = mCast( float, SI().zInFeet() ? 3000 : 1000 );
     
     BufferString text( "V0 " );
     text.add( VelocityDesc::getVelUnit(true) );

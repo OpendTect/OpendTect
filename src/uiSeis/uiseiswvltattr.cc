@@ -126,8 +126,9 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     s.yaxnm_ = "Taper Apmplitude";
 
     timedrawer_ = new uiFuncTaperDisp( this, s );
-    s.leftrg_ = Interval<float> ( 0, s.datasz_/6 );
-    s.rightrg_ = Interval<float> ( s.datasz_-1, s.datasz_ );
+    s.leftrg_ = Interval<float> ( 0, mCast(float,s.datasz_/6) );
+    s.rightrg_ = Interval<float> ( mCast(float,s.datasz_-1), 
+				   mCast(float,s.datasz_) );
     s.is2sided_ = true;
     s.xaxnm_ = istime ? "Frequency (Hz)" : "Wavenumber(/m)";
     s.yaxnm_ = "Gain (dB)";

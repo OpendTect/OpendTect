@@ -544,7 +544,7 @@ void uiFuncTaperDisp::taperChged( CallBacker* cb )
 
 	    window_->setValue( idx,  val );
 	    
-	    xvals += idx;
+	    xvals += mCast( float, idx );
 	}
     }
 

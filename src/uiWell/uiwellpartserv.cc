@@ -329,7 +329,7 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 
     PtrMan<Well::Data> well = new Well::Data( wellname );
     Well::D2TModel* d2t = SI().zIsTime() ? new Well::D2TModel : 0;
-    const float vel = d2t ? 3000 : 1;
+    const float vel = mCast( float, d2t ? 3000 : 1 );
     const Coord3& c0( coords[0] );
     const float minz = (float) c0.z * vel;
     well->track().addPoint( c0, minz, minz );

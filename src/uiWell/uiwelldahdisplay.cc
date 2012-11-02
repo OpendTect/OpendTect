@@ -361,7 +361,8 @@ void uiWellDahDisplay::drawMarkers()
 	MarkerDraw* mrkdraw = new MarkerDraw( mrkr );
 	markerdraws_ += mrkdraw;
 
-	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
+	uiLineItem* li = scene().addItem( new uiLineItem(
+	   mCast(float,x1),mCast(float,y),mCast(float,x2),mCast(float,y),true));
 	const int shapeint = mrkdisp_.shapeint_;
 	const int drawsize = mrkdisp_.size_;
 	LineStyle ls = LineStyle( LineStyle::Dot, drawsize, col );
@@ -411,7 +412,9 @@ void uiWellDahDisplay::drawZPicks()
 	if ( mIsUdf(val) )
 	{
 	    mDefHorLineX1X2Y();
-	    li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
+	    li = scene().addItem( new uiLineItem(
+					mCast(float,x1),mCast(float,y),
+					mCast(float,x2),mCast(float,y),true) );
 	}
 	else
 	{

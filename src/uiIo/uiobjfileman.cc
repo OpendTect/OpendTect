@@ -278,6 +278,6 @@ void uiObjFileMan::setInfo( const char* txt )
 
 void uiObjFileMan::setPrefWidth( int width )
 {
-    selgrp_->setPrefWidthInChar( width );
+    selgrp_->setPrefWidthInChar( mCast(float,width) );
     infofld_->setPrefWidthInChar( width );
 }

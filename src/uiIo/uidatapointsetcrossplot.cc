@@ -260,8 +260,8 @@ void uiDataPointSetCrossPlotter::getRandRowids()
 	Array1D<char>* rowidxs = idx==0 ? yrowidxs_ : y2rowidxs_;
 	const bool highperc = plotperc_ > 50;
 	rowidxs->ArrayND<char>::setAll( highperc ? '1' : '0' );
-	const float nrrowneeded = highperc ? dps_.nrActive() - totalrows
-	    				   : totalrows; 
+	const float nrrowneeded = mCast( float, highperc ? 
+	                           dps_.nrActive() - totalrows : totalrows ); 
 	while ( rowcount < nrrowneeded )
 	{
 	    int randrow = randgen.getIndex( dps_.size() );
@@ -692,7 +692,7 @@ void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
     const int xpos = isy1 ? x_.axis_->pixBefore()
 			  : width() - x_.axis_->pixAfter() - ctsu.sz_.width();
     const int ypos = height() - y_.axis_->pixBefore();
-    coltabitem->setPos( xpos, ypos );
+    coltabitem->setPos( mCast(float,xpos), mCast(float,ypos) );
     ColTab::Sequence ctab = isy1 ? y3ctab_ : y4ctab_;
     coltabitem->setColTabSequence( ctab );
     const ColTab::MapperSetup& mappersetup = isy1 ? y3mapper_.setup_
@@ -1315,7 +1315,7 @@ void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,MarkerStyle2D& mstyle,
 void uiDataPointSetCrossPlotter::setItem( uiGraphicsItem* item, bool isy2,
 	const uiPoint& pt )
 {
-    item->setPos( pt.x, pt.y ); 
+    item->setPos( mCast(float,pt.x), mCast(float,pt.y) ); 
     item->setVisible( isy2 ? doy2_ && isY2Shown() : true ); 
 }
 

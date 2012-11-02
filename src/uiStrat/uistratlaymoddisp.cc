@@ -478,7 +478,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     xax_->updateDevSize(); yax_->updateDevSize();
     if ( !showzoomed_ )
     {
-	xax_->setBounds( Interval<float>(1,lmp_.get().size()+1) );
+	xax_->setBounds( Interval<float>(1,mCast(float,lmp_.get().size()+1)) );
     	mGetDispZrg(dispzrg);
 	yax_->setBounds( Interval<float>(dispzrg.stop,dispzrg.start) );
     }
@@ -515,8 +515,9 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    const int xpix0 = getXPix( iseq, 0 );
 	    const int xpix1 = getXPix( iseq, relx );
 
-	    uiRectItem* it = scene().addRect( xpix0, ypix0,
-		    			xpix1-xpix0+1, ypix1-ypix0+1 );
+	    uiRectItem* it = scene().addRect( 
+		    mCast(float,xpix0), mCast(float,ypix0),
+		    mCast(float,xpix1-xpix0+1), mCast(float,ypix1-ypix0+1) );
 
 	    const Color laycol = lay.dispColor( uselithcols_ );
 	    const bool isannotcont = selectedcontent_
@@ -560,8 +561,10 @@ void uiStratSimpleLayerModelDisp::drawLevels()
 	const int ypix = yax_->getPix( flattened_ ? 0 : zlvl );
 	const int xpix1 = getXPix( iseq, 0 );
 	const int xpix2 = getXPix( iseq, 1 );
-	uiLineItem* it = scene().addItem(
-			new uiLineItem( xpix1, ypix, xpix2, ypix, true ) );
+	uiLineItem* it = scene().addItem( new uiLineItem( 
+				mCast(float,xpix1), mCast(float,ypix), 
+				mCast(float,xpix2), mCast(float,ypix), true ) );
+
 	it->setPenStyle( LineStyle(LineStyle::Solid,2,lvlcol_) );
 	it->setZValue( 1 );
 	lvlitms_ += it;
@@ -581,8 +584,10 @@ void uiStratSimpleLayerModelDisp::drawSelectedSequence()
     const float xpix2 = (float)getXPix( selseqidx_, 1 );
     const int midpix = (int)( xpix1 + ( xpix2 - xpix1 ) /2 );
 
-    uiLineItem* it = scene().addItem(
-		    new uiLineItem( midpix, ypix1, midpix, ypix2, true ) );
+    uiLineItem* it = scene().addItem( new uiLineItem( 
+			    mCast(float,midpix), mCast(float,ypix1), 
+			    mCast(float,midpix), mCast(float,ypix2), true ) );
+
     it->setPenStyle( LineStyle(LineStyle::Dot,2,Color::Black()) );
     it->setZValue( 2 );
     selseqitm_ = it;

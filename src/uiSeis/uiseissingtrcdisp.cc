@@ -56,7 +56,7 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
     if ( wvlt )
     {
 	const int wvltsz = wvlt->size();
-	const float zfac = SI().zDomain().userFactor();
+	const float zfac = mCast( float, SI().zDomain().userFactor() );
 
 	Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
 	FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
@@ -84,7 +84,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
     if ( trc )
     {
 	const int trcsz = trc->size();
-	const float zfac = SI().zDomain().userFactor();
+	const float zfac = mCast( float, SI().zDomain().userFactor() );
 
 	Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, trcsz );
 	FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
@@ -124,7 +124,7 @@ void uiSeisSingleTraceDisplay::removeRefs()
 
 void uiSeisSingleTraceDisplay::addRefZ( float zref )
 {
-    const float zfac = SI().zDomain().userFactor();
+    const float zfac = mCast( float, SI().zDomain().userFactor() );
     if ( SI().zIsTime() ) 
 	zref *= zfac;
 

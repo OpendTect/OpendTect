@@ -31,7 +31,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     : uiPosProvGroup(p,su)
     , ctio1_(*mMkCtxtIOObj(EMHorizon3D))
     , ctio2_(*mMkCtxtIOObj(EMHorizon3D))
-    , zfac_(SI().zDomain().userFactor())
+    , zfac_(mCast(float,SI().zDomain().userFactor()))
     , zstepfld_(0)
     , extrazfld_(0)
 {

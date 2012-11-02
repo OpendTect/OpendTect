@@ -135,7 +135,7 @@ static void writeGF( std::ostream& strm, const BinID& bid, float z,
 		     float val, const Coord& crd, int segid )
 {
     static char buf[mDataGFLineLen+2];
-    const float crl = bid.crl;
+    const float crl = mCast( float, bid.crl );
     const float gfval = (float) ( mIsUdf(val) ? mGFUndefValue : val );
     const float depth = (float) ( mIsUdf(z) ? mGFUndefValue : z );
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",

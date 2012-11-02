@@ -368,7 +368,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    else if ( act == 0 )
 	    { 
 		Stats::Grubbs sgb;
-		const float cutoff_grups = thresholdfld_->box()->getValue();
+		const float cutoff_grups = mCast( float, 
+					    thresholdfld_->box()->getValue() );
 		TypeSet<int> grubbsidxs;
 		mAllocVarLenArr( float, gatevals, gate )
 		for ( int idx=gate/2; idx<sz-gate; idx+=gate  )

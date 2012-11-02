@@ -194,7 +194,7 @@ void uiNorthArrowObject::update()
 	}
     }
 	
-    anglelabel_->setPos( lastx, yarrowtop );
+    anglelabel_->setPos( mCast(float,lastx), mCast(float,yarrowtop) );
     anglelabel_->setText( angtxt );
 }
 

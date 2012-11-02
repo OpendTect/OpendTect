@@ -56,7 +56,8 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     if ( SI().zIsTime() )
     {
 	const char* txt = zinft_ ? "Velocity (ft/s)" : "Velocity (m/s)";
-	velfld_ = new uiGenInput( grp, txt, FloatInpSpec(zinft_?10000:3000) );
+	velfld_ = new uiGenInput( grp, txt, FloatInpSpec(
+					    mCast(float,zinft_?10000:3000)) );
 	velfld_->attach( alignedBelow, optsfld_ );
 	velfld_->valuechanged.notify( calccb );
 	attobj = velfld_->attachObj();

@@ -126,8 +126,10 @@ void uiPolarDiagram::drawSegments()
 	if ( create )
 	{
 	    uiLineItem* li = scene().addItem( 
-		    new uiLineItem( center_.x, center_.y, center_.x+x, 
-				    center_.y+y , true ) );
+		    new uiLineItem( mCast(float,center_.x), 
+				    mCast(float,center_.y), 
+				    mCast(float,center_.x+x), 
+				    mCast(float,center_.y+y) , true ) );
   	    segmentitms_ += li;
 
 	    float usrangle = Angle::convert( 
@@ -145,7 +147,8 @@ void uiPolarDiagram::drawSegments()
 	int hgap = ( x < 0 ) ? -25 : 5;
 	int vgap = ( y < 0 ) ? -25 : 5;
 
-	azimuthtextitms_[idx]->setPos( center_.x+x+hgap, center_.y+y+vgap );
+	azimuthtextitms_[idx]->setPos( mCast(float,center_.x+x+hgap), 
+				       mCast(float,center_.y+y+vgap) );
     }
 
     if ( create )
@@ -166,7 +169,7 @@ void uiPolarDiagram::drawSegments()
 	    center_.x+radius_+5, center_.y-10 ); 
 #endif
     azimuthtextitms_[azimuthtextitms_.size()-1]->setPos( 
-	    center_.x-5, center_.y-radius_-25 );
+	    mCast(float,center_.x-5), mCast(float,center_.y-radius_-25) );
 }
 
 
@@ -212,7 +215,7 @@ void uiPolarDiagram::mouseEventCB( CallBacker* )
    
     // Outermost circle - dip = 0, center - dip = 90 degrees
     dip_ = (float) (radius_ - r) * 90 / radius_;
-    pointeritm_->setPos( ev.x(), ev.y() );
+    pointeritm_->setPos( mCast(float,ev.x()), mCast(float,ev.y()) );
 
     valueChanged.trigger();
 }
@@ -251,7 +254,7 @@ void uiPolarDiagram::updatePointer()
     int x = (int) (r * cos( azimuthrad ));
     int y = (int) (r * sin( azimuthrad ));
     if ( pointeritm_ )
-        pointeritm_->setPos( center_.x+x, center_.y-y );  
+      pointeritm_->setPos( mCast(float,center_.x+x), mCast(float,center_.y-y) );  
         // y-axis direction on the canvas is the opposite of that in geometry
 }
 

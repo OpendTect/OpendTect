@@ -47,7 +47,7 @@ uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
 	    		 "Generate Probability Density Function",
 			 mCB(this,uiProbDenFuncMan,genPush) );
 
-    selgrp_->setPrefWidthInChar( cPrefWidth );
+    selgrp_->setPrefWidthInChar( mCast(float,cPrefWidth) );
     infofld_->setPrefWidthInChar( cPrefWidth );
     selChg( this );
 }

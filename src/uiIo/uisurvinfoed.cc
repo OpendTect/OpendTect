@@ -384,7 +384,7 @@ static void setZValFld( uiGenInput* zfld, int nr, float val, float fac )
     if ( mIsUdf(val) )
 	{ zfld->setText( "", nr ); return; }
 
-    val *= fac; int ival = mNINT32(val); float fival = ival;
+    val *= fac; int ival = mNINT32(val); float fival = mCast(float,ival);
     if ( mIsEqual(val,fival,0.01) )
 	zfld->setValue( ival, nr );
     else
@@ -402,7 +402,7 @@ void uiSurveyInfoEditor::setValues()
     crlfld_->setValue( crlrg );
 
     const StepInterval<float>& zrg = si_.zRange( false );
-    const float zfac = si_.zDomain().userFactor();
+    const float zfac = mCast( float, si_.zDomain().userFactor() );
     setZValFld( zfld_, 0, zrg.start, zfac );
     setZValFld( zfld_, 1, zrg.stop, zfac );
     setZValFld( zfld_, 2, zrg.step, zfac );

@@ -170,9 +170,9 @@ float uiAxisHandler::getVal( int pix ) const
 {
     float relpix;
     if ( isHor() )
-	{ pix -= pixBefore(); relpix = pix; }
+	{ pix -= pixBefore(); relpix = mCast( float, pix ); }
     else
-	{ pix -= pixAfter(); relpix = axsz_-pix; }
+	{ pix -= pixAfter(); relpix = mCast( float, axsz_-pix ); }
     relpix /= axsz_;
 
     if ( setup_.islog_ )
@@ -339,7 +339,8 @@ void uiAxisHandler::drawAxisLine()
 	    		 ? edgepix : height_ - edgepix;
 	if ( !axislineitm_ )
 	    axislineitm_ = scene_->addItem(
-		    new uiLineItem(startpix,pixpos,endpix,pixpos,true) );
+		    new uiLineItem(mCast(float,startpix),mCast(float,pixpos),
+				mCast(float,endpix),mCast(float,pixpos),true) );
 	else
 	    axislineitm_->setLine( startpix, pixpos, endpix, pixpos, true );
 	axislineitm_->setPenStyle( ls );
@@ -354,7 +355,8 @@ void uiAxisHandler::drawAxisLine()
 
 	if ( !axislineitm_ )
 	    axislineitm_ = scene_->addItem(
-		    new uiLineItem(pixpos,startpix,pixpos,endpix,true) );
+		    new uiLineItem(mCast(float,pixpos),mCast(float,startpix),
+			        mCast(float,pixpos),mCast(float,endpix),true) );
 	else
 	    axislineitm_->setLine( pixpos, startpix, pixpos, endpix, true );
 	axislineitm_->setPenStyle( ls );
@@ -563,7 +565,7 @@ void uiAxisHandler::drawName()
 	nameitm_->setText( name() );
 
     Alignment al( Alignment::HCenter, Alignment::VCenter );
-    float namepos = pixToEdge() - ticSz() - calcwdth_;
+    float namepos = mCast( float, pixToEdge() - ticSz() - calcwdth_ );
     uiPoint pt;
     if ( isHor() )
     {
@@ -581,7 +583,7 @@ void uiAxisHandler::drawName()
 	al.set( isleft ? Alignment::Left : Alignment::Left );
 
 	if ( !ynmtxtvertical_ )
-	    nameitm_->setRotation( isleft ? -90 : 90 );
+	    nameitm_->setRotation( mCast( float, isleft ? -90 : 90 ) );
 	ynmtxtvertical_ = true;
     }
     nameitm_->setPos( pt );

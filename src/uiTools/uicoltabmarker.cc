@@ -218,7 +218,7 @@ uiColTabMarkerCanvas::~uiColTabMarkerCanvas()
 
 void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 {
-    scene().setSceneRect( 0, 0, width(), height() );
+    scene().setSceneRect( 0, 0, mCast(float,width()), mCast(float,height()) );
     w2ui_->set( uiRect(0,0,width()-5,height()-5), uiWorldRect(0,255,1,0) );
 
     if ( !markerlineitmgrp_ )

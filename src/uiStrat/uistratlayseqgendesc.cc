@@ -347,13 +347,14 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 	dispnm.add( "[" ).add( disp.gen_->content().name() ).add( "]" );
     disp.nm_->setText( getLimitedDisplayString(dispnm,25,false) );
     midpt.y = (disp.topy_ + disp.boty_) / 2;
-    disp.nm_->setPos( midpt.x, midpt.y-2 );
+    disp.nm_->setPos( mCast(float,midpt.x), mCast(float,midpt.y-2) );
 	    // the 'y-2' makes the text more nicely centered in the box
 
     const uiSize txtsz( disp.nm_->getTextSize() );
     const int radius = txtsz.height()/7;
     disp.lithcol_->setRadius( radius );
-    disp.lithcol_->setPos( midpt.x - txtsz.width()/2 - radius, midpt.y );
+    disp.lithcol_->setPos( mCast(float,midpt.x - txtsz.width()/2 - radius), 
+			   mCast(float,midpt.y) );
 
     leftpt.y = rightpt.y = disp.topy_;
     disp.top_->setLine( leftpt, rightpt );

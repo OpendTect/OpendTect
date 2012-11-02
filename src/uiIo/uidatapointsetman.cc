@@ -37,7 +37,7 @@ uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
     manipgrp->addButton( "mergeseis", "Merge CrossPlot",
 			 mCB(this,uiDataPointSetMan,mergePush) );
 
-    selgrp_->setPrefWidthInChar( cPrefWidth );
+    selgrp_->setPrefWidthInChar( mCast(float,cPrefWidth) );
     infofld_->setPrefWidthInChar( cPrefWidth );
     selChg( this );
 }

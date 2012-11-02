@@ -177,7 +177,7 @@ void uiSeisWvltMan::mkFileInfo()
 
     if ( wvlt )
     {
-	const float zfac = SI().zDomain().userFactor();
+	const float zfac = mCast( float, SI().zDomain().userFactor() );
 
 	BufferString tmp;
 	tmp.add( "Number of samples: " ).add( wvlt->size() ).add( "\n" );

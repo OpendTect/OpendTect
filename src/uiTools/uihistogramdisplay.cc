@@ -187,7 +187,7 @@ void uiHistogramDisplay::updateHistogram()
     const float step = (max - min) / nrclasses_;
     if ( mIsZero(step,1e-6) )
     {
-	histdata[nrclasses_/2] = nrpts;
+	histdata[nrclasses_/2] = mCast( float, nrpts );
 	setHistogram( histdata, Interval<float>(min-1,max+1), nrpts );
 	return;
     }

@@ -53,7 +53,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     polyfld_->attach( alignedBelow, infld_ );
 
     StepInterval<float> sizrg( SI().zRange(true) );
-    sizrg.scale( SI().zDomain().userFactor() );
+    sizrg.scale( mCast(float,SI().zDomain().userFactor()) );
     StepInterval<float> suggestedzrg( sizrg );
     suggestedzrg.step *= 10;
     contzrgfld_ = new uiGenInput( this, "Contour Z range",

@@ -305,7 +305,7 @@ void uiSaveImageDlg::lockChg( CallBacker* )
 void uiSaveImageDlg::dpiChg( CallBacker* )
 {
     setNotifiers( false );
-    screendpi_ = dpifld_->box()->getValue();
+    screendpi_ = mCast( float, dpifld_->box()->getValue() );
     updateSizes();
     setNotifiers( true );
 }
@@ -478,7 +478,7 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
     int dpi;
     if ( par.get(sKeyRes(),dpi) )
     {
-	screendpi_ = dpi;
+	screendpi_ = mCast( float, dpi );
 	dpifld_->box()->setValue( dpi );
     }
 
@@ -510,8 +510,8 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
 
 void uiSaveImageDlg::setSizeInPix( int width, int height )
 {
-    sizepix_.setWidth( width );
-    sizepix_.setHeight( height );
+    sizepix_.setWidth( mCast(float,width) );
+    sizepix_.setHeight( mCast(float,height) );
     sPixels2Inch( sizepix_, sizeinch_, screendpi_ );
     sInch2Cm( sizeinch_, sizecm_ );
     unitChg( 0 );
