@@ -31,7 +31,7 @@ MACRO( OD_CREATE_INIT_HEADER )
 	set ( INITHEADER ${INCLUDEDIR}/${OD_MODULE_NAME_LOWER}mod.h )
 	set ( EXPORTHEADER ${OD_MODULE_NAME_LOWER}export.h )
 	if ( EXISTS ${INCLUDEDIR}/${EXPORTHEADER} )
-	    set ( MODFILEHEADER "#include \"${EXPORTHEADER}\"" )
+	    set ( EXPORTFILEHEADER "#include \"${EXPORTHEADER}\"" )
 	endif()
 
 	foreach ( DEP ${OD_MODULE_DEPS} )

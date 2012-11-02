@@ -13,10 +13,19 @@ ________________________________________________________________________
 
 -*/
 
+#if defined( __win64__ ) || defined ( __win32__ )
+# define do_import_export
+#else
+# ifdef do_import_export
+#  undef do_import_export
+# endif
+#endif
+
 #ifndef dll_export
-# if defined( __win64__ ) || defined ( __win32__ )
+# if defined( do_import_export )
 #  define dll_export	__declspec( dllexport )
 #  define dll_import	__declspec( dllimport )
+#  define dll_extern	extern
 # else
 #  define dll_export
 #  define dll_import
@@ -24,12 +33,30 @@ ________________________________________________________________________
 #endif
 
 #if defined(@OD_MODULE_NAME@_EXPORTS) || defined(@OD_MODULE_NAME_UPPER@_EXPORTS)
-# define Export_@OD_MODULE_NAME@	dll_export
+# define do_export_@OD_MODULE_NAME@
 #else
-# define Export_@OD_MODULE_NAME@	dll_import
+# if defined ( do_export_@OD_MODULE_NAME@ )
+#  undef do_export_@OD_MODULE_NAME@
+# endif
 #endif
 
 
+#if defined( do_export_@OD_MODULE_NAME@ )
+# define Export_@OD_MODULE_NAME@	dll_export
+# define Extern_@OD_MODULE_NAME@
+#else
+# define Export_@OD_MODULE_NAME@	dll_import
+# define Extern_@OD_MODULE_NAME@	dll_extern
+#endif
+
+#if defined ( do_import_export )
+//Temporary allow extern declaration of extern template instantiation
+#pragma warning( push )
+#pragma warning( disable : 4231 )
+@EXPORTFILEHEADER@
+#pragma warning( pop )
 @MODFILEHEADER@
+
+#endif
 
 #endif
