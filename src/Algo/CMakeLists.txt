@@ -23,7 +23,6 @@ SET(OD_MODULE_SOURCES timeser.c
 	    delaunay3d.cc
 	    extremefinder.cc
 	    dippca.cc
-	    fingervein.cc
 	    fftfilter.cc
 	    fourier.cc
 	    fourierinterpol.cc
