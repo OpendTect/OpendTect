@@ -216,9 +216,9 @@ void uiMultiFlatViewControl::parsCB( CallBacker* cb )
 void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 {
     for ( int idx=0; idx<zoomboxes_.size(); idx++ )
-	vwrs_[idx]->removeAuxData( zoomboxes_[idx] );
-    deepErase( zoomboxes_ );
+	delete vwrs_[idx]->removeAuxData( zoomboxes_[idx] );
 
+    zoomboxes_.erase();
     if ( iszoomcoupled_ || !activeVwr() || !drawzoomboxes_ ) 
 	return;
 
