@@ -127,7 +127,7 @@ void Similarity::updateDefaults( Desc& desc )
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
     float roundedzstep = SI().zStep()*SI().zDomain().userFactor();
     if ( roundedzstep > 0 )
-	roundedzstep = (int)( roundedzstep );
+	roundedzstep = floor( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 
@@ -372,7 +372,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    const int idx1 = iscubeext ? pos1s_[pair]
 				       : iscenteredext ? pair+1 : pair*2 +1;
 
-	    float bases0 = firstsample + idx + samplegate.start;
+	    float bases0 = mCast( float,firstsample + idx + samplegate.start );
 	    float bases1 = bases0;
 
 	    if ( !inputdata_[idx0] || !inputdata_[idx1] )
@@ -423,11 +423,13 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 				inputdata_[idx1]->nrsamples_-1 );
 		const bool valids0 = s0>=0 && 
 				     (s0+gatesz)<=inputdata_[idx0]->nrsamples_;
-		if ( !valids0 ) s0 = firstsample + idx + samplegate.start;
+		if ( !valids0 ) s0 = 
+			mCast( float, firstsample + idx + samplegate.start );
 
 		const bool valids1 = s1>=0 && 
 				     (s1+gatesz)<=inputdata_[idx1]->nrsamples_;
-		if ( !valids1 ) s1 = firstsample + idx + samplegate.start;
+		if ( !valids1 ) s1 = 
+			mCast( float, firstsample + idx + samplegate.start );
 
 
 		float simival = similarity( vals0, vals1, s0+extras0,

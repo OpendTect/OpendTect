@@ -310,7 +310,7 @@ void Scaling::getTrendsFromStats( const TypeSet<Interval<int> >& sgates,
 	{
 	    float val = getInputValue( *inputdata_, dataidx_, idx-z0, z0 );
 	    stats += val;
-	    statsidx += idx;
+	    statsidx += mCast(float,idx);
 	    crosssum += val*idx;
 	    nrindexes++;
 	}
@@ -379,18 +379,20 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( !found && samplegates[sgidx].includes(csamp, true ) )
 	    {
 		if ( statstype_ == mStatsTypeDetrend )
-		    scalefactors[sgidx] = trends_[sgidx].valueAtX( csamp );
+		    scalefactors[sgidx] = 
+				trends_[sgidx].valueAtX( mCast(float,csamp) );
 		if ( sgidx+1 < samplegates.size() && 
 		     samplegates[sgidx+1].includes(csamp, true ) )
 		{
 		    if ( statstype_ == mStatsTypeDetrend )
-			scalefactors[sgidx+1] =trends_[sgidx+1].valueAtX(csamp);
+			scalefactors[sgidx+1] =
+			      trends_[sgidx+1].valueAtX( mCast(float,csamp) );
 
 		    scalefactor = interpolator( scalefactors[sgidx], 
-			    			scalefactors[sgidx+1],
-						samplegates[sgidx+1].start,
-						samplegates[sgidx].stop,
-						csamp );
+			    		scalefactors[sgidx+1],
+					mCast(float,samplegates[sgidx+1].start),
+					mCast(float,samplegates[sgidx].stop),
+					mCast(float,csamp) );
 		}
 		else
 		    scalefactor = scalefactors[sgidx];

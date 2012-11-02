@@ -82,15 +82,15 @@ void MatchDelta::findEvents( int z0, int nrsamples ) const
 	    		     z0 + dessamps_.stop + nrsamples - 1 );
     worksamps.limitTo( refintv_ ); worksamps.limitTo( mtchintv_ );
 
-    SamplingData<float> refsd( refintv_.start, 1 );
-    SamplingData<float> mtchsd( mtchintv_.start, 1 );
+    SamplingData<float> refsd( mCast(float,refintv_.start), 1 );
+    SamplingData<float> mtchsd( mCast(float,mtchintv_.start), 1 );
     ValueSeriesEvFinder<float,float> refevf( *refseries_,
 	    refcubedata_->nrsamples_-1, refsd );
     ValueSeriesEvFinder<float,float> mtchevf( *mtchseries_,
 	    mtchcubedata_->nrsamples_-1, mtchsd );
 
-    ValueSeriesEvent<float,float> refev( 0, worksamps.start - 2 );
-    Interval<float> sampsleft( 0, worksamps.stop );
+    ValueSeriesEvent<float,float> refev( 0, mCast(float,worksamps.start-2) );
+    Interval<float> sampsleft( 0, mCast(float,worksamps.stop) );
     while ( true )
     {
 	sampsleft.start = refev.pos + 2;

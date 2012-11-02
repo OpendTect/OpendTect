@@ -951,7 +951,7 @@ int nextStep()
     }
 
     BufferString outstr;
-    const float zfac = SI().zDomain().userFactor();
+    const float zfac = mCast( float, SI().zDomain().userFactor() );
     const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
     for ( int idx=0; idx<posns.size(); idx++ )
     {

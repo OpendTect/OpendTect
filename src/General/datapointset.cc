@@ -531,7 +531,7 @@ void DataPointSet::setGroup( DataPointSet::RowID rid, unsigned short newgrp )
     if ( minimal_ ) return;
     mChkRowID(rid,);
     int grp = getCompacted( -1, newgrp ) ;
-    bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = grp;
+    bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = mCast( float, grp );
 }
 
 
@@ -540,7 +540,8 @@ void DataPointSet::setSelected( DataPointSet::RowID rid, int selgrp )
     if ( minimal_ ) return;
     mChkRowID(rid,);
     short grp = (short)group( rid );
-    bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = getCompacted( selgrp, grp);
+    bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = 
+				  mCast( float, getCompacted( selgrp, grp) );
 }
 
 

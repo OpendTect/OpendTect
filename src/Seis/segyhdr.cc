@@ -442,7 +442,7 @@ void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
     SamplingData<float> sd( sdin );
     mPIEPAdj(Z,sd.start,false); mPIEPAdj(Z,sd.step,false);
 
-    const float zfac = SI().zDomain().userFactor();
+    const float zfac = mCast( float, SI().zDomain().userFactor() );
     float drt = sd.start * zfac;
     short delrt = (short)mNINT32(drt);
     setEntryVal( EntryLagA(), -delrt ); // For HRS and Petrel
@@ -517,7 +517,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     intval = mNINT32( ti.azimuth * 360 / M_PI );
     hdef_.azim_.putValue( buf_, intval );
 
-    const float zfac = SI().zDomain().userFactor();
+    const float zfac = mCast( float, SI().zDomain().userFactor() );
 #define mSetScaledMemb(nm,fac) \
     if ( !mIsUdf(ti.nm) ) \
 	{ intval = mNINT32(ti.nm*fac); hdef_.nm##_.putValue( buf_, intval ); }
@@ -564,7 +564,7 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
     ti.coord.y = entryVal( EntryYcdp() );
     ti.binid.inl = entryVal( EntryInline() );
     ti.binid.crl = entryVal( EntryCrossline() );
-    ti.refnr = entryVal( EntrySP() );
+    ti.refnr = mCast( float, entryVal( EntrySP() ) );
     short scalnr = (short)entryVal( EntrySPscale() );
     if ( scalnr )
     {
@@ -636,9 +636,9 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     ti.binid.crl = hdef_.crl_.getValue(buf_,needswap_);
     mPIEPAdj(BinID,ti.binid,true);
 
-    ti.offset = hdef_.offs_.getValue(buf_,needswap_);
+    ti.offset = mCast( float, hdef_.offs_.getValue(buf_,needswap_) );
     if ( ti.offset < 0 ) ti.offset = -ti.offset;
-    ti.azimuth = hdef_.azim_.getValue(buf_,needswap_);
+    ti.azimuth = mCast( float, hdef_.azim_.getValue(buf_,needswap_) );
     ti.azimuth *= M_PI / 360;
     if ( hdef_.trnr_.bytepos_ >= 0 )
 	ti.nr = hdef_.trnr_.getValue(buf_,needswap_);

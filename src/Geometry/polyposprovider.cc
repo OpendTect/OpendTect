@@ -123,7 +123,8 @@ bool Pos::PolyProvider3D::toNextZ()
 
 bool Pos::PolyProvider3D::includes( const BinID& bid, float z ) const
 {
-    if ( !poly_.isInside(Geom::Point2D<float>(bid.inl,bid.crl),true,mDefEps ) )
+    if ( !poly_.isInside( Geom::Point2D<float>(mCast(float,bid.inl),
+					mCast(float,bid.crl)),true,mDefEps ) )
 	return false;
 
     if ( mIsUdf(z) ) return true;

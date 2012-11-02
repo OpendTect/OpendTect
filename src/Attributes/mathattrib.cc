@@ -291,8 +291,8 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	    switch ( specstable_[specidx].specidx_ )
 	    {
 		case 0 :	val = refstep_; break;
-		case 1 :	val = currentbid_.inl; break;
-		case 2 :	val = currentbid_.crl; break;
+		case 1 :	val = mCast( float, currentbid_.inl ); break;
+		case 2 :	val = mCast( float, currentbid_.crl ); break;
 	    }
 	    mathobj->setVariableValue( specstable_[specidx].fexpvaridx_, val );
 	}

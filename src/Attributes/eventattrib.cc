@@ -204,7 +204,7 @@ void Event::singleEvent( const DataHolder& output, int nrsamples, int z0 ) const
     ValueSeriesEvent<float,float> nextev = vsevfinder.find( zc, sg, 1 );
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float cursample = firstsample + idx;
+	const float cursample = mCast( float, firstsample + idx );
 	if ( cursample < ev.pos )
 	{
 	    if ( outputinterest_[0] ) setOutputValue( output, 0, idx, z0, 0 );

@@ -295,8 +295,8 @@ void Seis::RangeSelData::include( const Seis::SelData& sd )
     if ( cs_.hrg.start.crl > rg.start ) cs_.hrg.start.crl = rg.start;
     if ( cs_.hrg.stop.crl < rg.stop ) cs_.hrg.stop.crl = rg.stop;
     const Interval<float> zrg( sd.zRange() );
-    if ( cs_.zrg.start > rg.start ) cs_.zrg.start = rg.start;
-    if ( cs_.zrg.stop < rg.stop ) cs_.zrg.stop = rg.stop;
+    if ( cs_.zrg.start > rg.start ) cs_.zrg.start = mCast(float,rg.start);
+    if ( cs_.zrg.stop < rg.stop ) cs_.zrg.stop = mCast(float,rg.stop);
 }
 
 
@@ -527,7 +527,8 @@ Seis::PolySelData::PolySelData( const ODPolygon<int>& poly,
     for ( int idx=0; idx<poly.size(); idx++ )
     {
 	const Geom::Point2D<int>& pt = poly.getVertex( idx );
-	polys_[0]->add( Geom::Point2D<float>( pt.x, pt.y ) );
+	polys_[0]->add( Geom::Point2D<float>( 
+				 mCast(float,pt.x), mCast(float,pt.y) ) );
     }
     initZrg( zrg );
 }
@@ -578,10 +579,14 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
 	if ( !rsd ) pErrMsg( "Huh" );
 	ODPolygon<float>* poly = new ODPolygon<float>;
 	const CubeSampling& cs = rsd->cubeSampling();
-	poly->add( Geom::Point2D<float>(cs.hrg.start.inl,cs.hrg.start.crl) );
-	poly->add( Geom::Point2D<float>(cs.hrg.stop.inl,cs.hrg.start.crl) );
-	poly->add( Geom::Point2D<float>(cs.hrg.stop.inl,cs.hrg.stop.crl) );
-	poly->add( Geom::Point2D<float>(cs.hrg.start.inl,cs.hrg.stop.crl) );
+	poly->add( Geom::Point2D<float>(
+		      (float) cs.hrg.start.inl, (float) cs.hrg.start.crl) );
+	poly->add( Geom::Point2D<float>(
+		      (float) cs.hrg.stop.inl, (float) cs.hrg.start.crl) );
+	poly->add( Geom::Point2D<float>(
+	              (float) cs.hrg.stop.inl, (float) cs.hrg.stop.crl) );
+	poly->add( Geom::Point2D<float>(
+		      (float) cs.hrg.start.inl, (float) cs.hrg.stop.crl) );
 	deepErase( polys_ );
 	polys_ += poly;
     }
@@ -727,14 +732,15 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
 	    // PolySelData will add it again on-the-fly. Equality is assumed.
 	    
 	    ODPolygon<float>* rect = new ODPolygon<float>();
-	    Geom::Point2D<float> point( inlrg.start + stepoutreach_.inl,
-		    			crlrg.start + stepoutreach_.crl );
+	    Geom::Point2D<float> point( 
+			mCast(float,inlrg.start + stepoutreach_.inl),
+			mCast(float,crlrg.start + stepoutreach_.crl) );
 	    rect->add( point );
-	    point.y = crlrg.stop - stepoutreach_.crl;
+	    point.y = mCast( float, crlrg.stop - stepoutreach_.crl );
 	    rect->add( point );
-	    point.x = inlrg.stop - stepoutreach_.inl;
+	    point.x = mCast( float, inlrg.stop - stepoutreach_.inl );
 	    rect->add( point );
-	    point.y = crlrg.start + stepoutreach_.crl;
+	    point.y = mCast( float, crlrg.start + stepoutreach_.crl );
 	    rect->add( point );
 
 	    polys_ += rect;
@@ -756,10 +762,10 @@ int Seis::PolySelData::selRes( const BinID& bid ) const
 {
     if ( isall_ ) return 0;
     
-    Interval<float> inlrg( bid.inl, bid.inl);
-    inlrg.widen( stepoutreach_.inl );
-    Interval<float> crlrg( bid.crl, bid.crl);
-    crlrg.widen( stepoutreach_.crl );
+    Interval<float> inlrg( mCast(float,bid.inl), mCast(float,bid.inl) );
+    inlrg.widen( mCast(float,stepoutreach_.inl) );
+    Interval<float> crlrg( mCast(float,bid.crl), mCast(float,bid.crl) );
+    crlrg.widen( mCast(float,stepoutreach_.crl) );
 
     for ( int idx=0; idx<polys_.size(); idx++ )
     {

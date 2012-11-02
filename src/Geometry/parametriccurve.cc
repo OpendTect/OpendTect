@@ -78,12 +78,13 @@ bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 	    if ( sqdist<closestsqdist )
 	    {
 		closestsqdist = sqdist;
-		p = idx;
+		p = mCast( float, idx );
 	    }
 	}
     }
 
-    const Interval<float> limits( prange.start, prange.stop );
+    const Interval<float> limits( mCast(float,prange.start), 
+					    mCast(float,prange.stop) );
     ExtremeFinder1D finder( mfunc, false, 20, eps,
 	    		    Interval<float>(mMAX(p-prange.step,prange.start),
 					    mMIN(p+prange.step,prange.stop) ),
@@ -115,12 +116,13 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
 	    if ( fabs(dist)<closestdist )
 	    {
 		closestdist = dist;
-		p = idx;
+		p = mCast( float, idx );
 	    }
 	}
     }
 
-    const Interval<float> limits( prange.start, prange.stop );
+    const Interval<float> limits( mCast(float,prange.start), 
+						mCast(float,prange.stop) );
     for ( int idx=0; idx<20; idx++ )
     {
 	const Coord3 pos = computePosition(p);

@@ -562,7 +562,7 @@ const SeisTrc* RaySynthGenerator::RayModel::stackedTrc() const
     SeisTrc* trc = new SeisTrc( *outtrcs_[0] );
     SeisTrcPropChg stckr( *trc );
     for ( int idx=1; idx<outtrcs_.size(); idx++ )
-	stckr.stack( *outtrcs_[idx], false, idx );
+	stckr.stack( *outtrcs_[idx], false, mCast(float,idx) );
 
     return trc;
 }

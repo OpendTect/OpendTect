@@ -259,7 +259,7 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
     {
 	SeisTrcPropChg stckr( trc );
 	for ( int idx=1; idx<nrtrcs; idx++ )
-	    stckr.stack( *buf.get(idx), false, idx );
+	    stckr.stack( *buf.get(idx), false, mCast(float,idx) );
     }
 
     ret = buf.remove( 0 );

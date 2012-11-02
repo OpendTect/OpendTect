@@ -40,7 +40,7 @@ void CosineTransform::CosineTransform1D::initcosarray()
 
     int hsz=sz_ /2;
 
-    for ( int i=0; i<=hsz-1; i++ ) cosarray_[hsz+i]=4*i+1;
+    for ( int i=0; i<=hsz-1; i++ ) cosarray_[hsz+i]=mCast( float, 4*i+1 );
 
     for ( int group=1; group<=power_-1; group++ )
     {

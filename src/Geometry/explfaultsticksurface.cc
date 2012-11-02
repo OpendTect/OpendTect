@@ -101,9 +101,11 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    DataPointSet::Pos dpsetpos( pos );
 	    DataPointSet::DataRow datarow( dpsetpos, 1 );
 	    datarow.data_.setSize( dpset_.nrCols(), mUdf(float) );
-	    datarow.data_[i_column_-dpset_.nrFixedCols()] =  knotpos;
-	    datarow.data_[j_column_-dpset_.nrFixedCols()] =  stickpos;
-	    dpsetlock_.lock();
+	    datarow.data_[i_column_-dpset_.nrFixedCols()] =  
+					          mCast( float, knotpos );
+	    datarow.data_[j_column_-dpset_.nrFixedCols()] =  
+						  mCast( float, stickpos );
+	    dpsetlock_.lock(); 
 	    dpset_.addRow( datarow );
 	    dpsetlock_.unLock();
 	}
@@ -1160,7 +1162,7 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 {
     //Refine needed for pos calculation
 
-    const float zscale = SI().zDomain().userFactor();
+    const float zscale = mCast( float, SI().zDomain().userFactor() );
     
     TypeSet<Coord> knots;
     TypeSet<int> knotids;
@@ -1259,8 +1261,8 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 	    DataPointSet::Pos dpsetpos( pos );
 	    DataPointSet::DataRow datarow( dpsetpos, 1 );
 	    datarow.data_.setSize( nrcs, mUdf(float) );
-	    datarow.data_[ic] =  row;
-	    datarow.data_[jc] =  col;
+	    datarow.data_[ic] =  mCast( float, row );
+	    datarow.data_[jc] =  mCast( float, col );
 	    dps.addRow( datarow );
 	}
     }

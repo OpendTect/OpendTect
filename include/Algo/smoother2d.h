@@ -206,11 +206,11 @@ bool Smoother2D<T>::execute()
 
 	for ( int idx0=0; idx0<sz0; idx0++ )
 	{
-	    const float pos0 = idx0>hsz0 ? idx0-sz0 : idx0;
+	    const float pos0 = mCast( float, idx0>hsz0 ? idx0-sz0 : idx0 );
 	    pos[0] = pos0/hwinsz0;
 	    for ( int idx1=0; idx1<sz1; idx1++ )
 	    {
-		const float pos1 = idx1>hsz1 ? idx1-sz1 : idx1;
+		const float pos1 = mCast( float, idx1>hsz1 ? idx1-sz1 : idx1 );
 		pos[1] = pos1/hwinsz1;
 		const float weight = wf->getValue( (float) pos.abs() );
 		window_->set( idx0, idx1, weight );

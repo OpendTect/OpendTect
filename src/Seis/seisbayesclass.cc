@@ -517,7 +517,7 @@ void SeisBayesClass::calcClass()
 	    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
 		probs[ipdf] = outtrcs_.get(ipdf)->get( isamp, icomp );
 	    getClass( probs, winner, conf );
-	    clsstrc.set( isamp, winner, icomp );
+	    clsstrc.set( isamp, mCast(float,winner), icomp );
 	    conftrc.set( isamp, conf, icomp );
 	}
     }

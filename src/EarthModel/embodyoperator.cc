@@ -853,7 +853,7 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     ParallelDTetrahedralator triangulator( dagtree );
     if ( (tr && tr->execute(triangulator)) || triangulator.execute(true) )
     {
-	StepInterval<float> tmpzrg( zrg ); tmpzrg.scale( zscale );
+	StepInterval<float> tmpzrg( zrg ); tmpzrg.scale( mCast(float,zscale) );
 	PtrMan<Expl2ImplBodyExtracter> extract = new
     	    Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, tmpzrg, *arr );
     	if ( (tr && tr->execute( *extract )) || extract->execute() )

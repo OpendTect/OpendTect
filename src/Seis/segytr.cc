@@ -373,7 +373,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	    if ( bp2c_->getIDs().size() < 2 )
 		{ errmsg = "Cannot read coordinate file"; return; }
 	}
-	ti.coord = bp2c_->coordAt( ti.nr );
+	ti.coord = bp2c_->coordAt( mCast(float,ti.nr) );
     }
     
     if ( ti.coord.x > 1e9 || ti.coord.y > 1e9 )
@@ -745,7 +745,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    curoffs_ = -1;
 
 	if ( curoffs_ < 0 )
-	    curoffs_ = offsdef_.start;
+	    curoffs_ = mCast( float, offsdef_.start );
 	else
 	    curoffs_ += offsdef_.step;
 

@@ -171,10 +171,10 @@ void SEGY::HdrCalcSet::apply( void* buf, bool needswap ) const
 	const TypeSet<int>& heidxs = *heidxs_[iexpr];
 	for ( int ivar=0; ivar<heidxs.size(); ivar++ )
 	{
-	    float val = seqnr_;
+	    float val = mCast( float, seqnr_ );
 	    const int heidx = heidxs[ivar];
 	    if ( heidx >= 0 )
-		val = hdef_[heidx]->getValue( buf );
+		val = mCast( float, hdef_[heidx]->getValue( buf ) );
 	    me.setVariableValue( ivar, val );
 	}
 

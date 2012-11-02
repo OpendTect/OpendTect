@@ -508,7 +508,7 @@ ExplPlaneIntersection::ExplPlaneIntersection()
     , intersection_( 0 )
     , shape_( 0 )
     , shapeversion_( -1 )
-    , zscale_( SI().zDomain().userFactor() )
+    , zscale_( mCast( float, SI().zDomain().userFactor() ) )
 { }
 
 

@@ -339,8 +339,8 @@ bool Pos::Provider::isProvider() const
 float Pos::Provider::estRatio( const Pos::Provider& prov ) const
 {
     if ( is2D() )
-	return ( prov.estNrPos()*prov.estNrZPerPos() )/
-	       ( estNrPos() * estNrZPerPos() );
+	return mCast( float, ( prov.estNrPos()*prov.estNrZPerPos() )/
+	       ( estNrPos() * estNrZPerPos() ) );
     else
     {
 	mDynamicCastGet(const Pos::Provider3D*,prov3d,&prov);

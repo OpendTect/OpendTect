@@ -166,7 +166,7 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, SeisTrcInfo::Fld fld,
 	    {
 		if ( dostack )
 		{
-		    float wt = nrrequired; wt /= nrwithprevval - 1;
+		    float wt = mCast(float,nrrequired); wt /= nrwithprevval - 1;
 		    SeisTrcPropChg( *get(idx-1) ).stack(*trc,false,wt);
 		}
 		remove(trc); idx--; delete trc;
@@ -500,7 +500,7 @@ void SeisTrcBufDataPack::getAuxInfo( int itrc, int isamp, IOPar& iop ) const
 
     float z = trc->info().samplePos(isamp);
     if ( SI().zIsTime() ) z *= 1000;
-    int z100 = mNINT32(z*100); z = z100 / 100;
+    int z100 = mNINT32(z*100); z = mCast( float, z100 / 100 );
     iop.set( "Z", z );
 }
 
