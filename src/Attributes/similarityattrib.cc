@@ -21,6 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statruncalc.h"
 #include "survinfo.h"
 
+#include <math.h>
+
 #define mExtensionNone		0
 #define mExtensionRot90		1
 #define mExtensionRot180	2

@@ -18,6 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "valseriesinterpol.h"
 
+#include <math.h>
+
 #define mShapeRectangle		0
 #define mShapeEllipse		1
 #define mShapeOpticalStack	2

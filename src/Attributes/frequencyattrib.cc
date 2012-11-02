@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 #include <stdio.h>
+#include <math.h>
 
 
 namespace Attrib
