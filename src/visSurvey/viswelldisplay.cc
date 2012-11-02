@@ -624,12 +624,59 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     mGetWD(return);
 
     float mousez = pos.z; 
-
-    info = "Well: "; info += wd->name();
+    info = "Well: "; 
+    info += wd->name();
     info += ", MD "; 
+    Well::D2TModel* d2t = wd->d2TModel();
+    Well::Track ttrack( wd->track() );
+    float dahtop, dahbase, dah = 0;
+    int nearestsegment = 0, nrsegment = 0;
+    double smallestdis = 0;
+    zistime_ ? ttrack.toTime( *d2t, wd->track() ) : 0;
+    int zuserfac = zistime_ ? scene_->zDomainInfo().userFactor() : 1;
+    pos.z *= zuserfac;
+    for ( int idx=0; idx<(ttrack.nrPoints()-1); idx++ ) 
+    {
+	Coord3 top = ttrack.pos( idx );
+	Coord3 base = ttrack.pos( idx+1 );
+	top.z *= zuserfac;
+	base.z *= zuserfac;
+	Vector3 vector = base - top;
+	Vector3 reversevector = top - base;
+	Line3 line ( top, vector );
+	Line3 reverseline ( base, reversevector );
+	double perpendiculardis = line.distanceToPoint( pos );
+	double paralleldis = std::abs( line.closestPoint(pos) );
+	double paralleldis2 = std::abs( reverseline.closestPoint(pos) );
+	if ( paralleldis <= 1.001 && paralleldis2 <= 1.001 )
+	{
+	    if ( nrsegment == 0 )
+	    {
+		smallestdis = perpendiculardis;
+		nrsegment++;
+	    }
 
-    const float dah = zistime_ ? wd->d2TModel()->getDah( mousez ) 
-			       : wd->track().getDahForTVD( mousez );
+	    if ( smallestdis >= perpendiculardis )
+	    {
+		smallestdis = perpendiculardis;
+		nearestsegment = idx;
+	    }
+	}
+    }
+
+    dahtop = ttrack.dah( nearestsegment );
+    dahbase = ttrack.dah( nearestsegment+1 );
+    float dahdiff = dahbase - dahtop;
+    double ztop = ttrack.pos(nearestsegment).z;
+    double zbase = ttrack.pos(nearestsegment+1).z;
+    pos.z /= zuserfac;
+    if ( ztop == zbase )
+	dah = dahtop;
+    else
+	dah = dahtop + (dahdiff * ((pos.z - ztop) / (zbase - ztop)));
+
+    if( dah == 0 )
+	return;
 
     info += zinfeet_ || SI().depthsInFeetByDefault() ? "(ft): " : "(m): ";
     const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ? 
