@@ -364,9 +364,25 @@ ElasticPropGuess::ElasticPropGuess( const PropertyRefSelection& pps,
 void ElasticPropGuess::guessQuantity( const PropertyRefSelection& pps, 
 					ElasticFormula::Type tp )
 {
-    for ( int idx=0; idx<pps.size(); idx++ )
-	if ( guessQuantity( *pps[idx], tp ) )
-	    break;
+    if ( tp == ElasticFormula::SVel )
+    {
+	int svelidx = pps.find( "Swave velocity" );
+	int shearsonidx = pps.find( "Shear Sonic" );
+	if ( svelidx>= 0 )
+	    guessQuantity( *pps[svelidx], tp );
+	else if ( shearsonidx >= 0 )
+	    guessQuantity( *pps[shearsonidx], tp );
+	else
+	{
+	    for ( int idx=0; idx<pps.size(); idx++ )
+		if ( guessQuantity( *pps[idx], tp ) )
+		    break;
+	}
+    }
+    else
+	for ( int idx=0; idx<pps.size(); idx++ )
+	    if ( guessQuantity( *pps[idx], tp ) )
+		break;
 }
 
 
@@ -377,13 +393,25 @@ bool ElasticPropGuess::guessQuantity( const PropertyRef& pref,
     if ( !fm.variables().isEmpty() )
 	return false;
 
-    if ( pref.stdType() == ElasticPropertyRef::elasticToStdType( tp ) )
+    if ( pref.stdType() == ElasticPropertyRef::elasticToStdType( tp ) ||
+      	 pref.stdType() == PropertyRef::Son )
     { 
 	if ( tp == ElasticFormula::SVel )
 	{
-	    //TODO check on name as well
-	    if ( pref.aliases().isPresent( "SVel" ) ) 
-		fm.variables().add( pref.name() ); 
+	    if ( pref.aliases().isPresent( "SVel" ) ||
+		 pref.name() == "Swave velocity" )
+		fm.variables().add( pref.name() );
+	    else if ( pref.aliases().isPresent( "DTS" ) ||
+		      pref.name() == "Shear Sonic" )
+	    {
+		TypeSet<ElasticFormula> efs; ElFR().getByType( tp, efs );
+		if ( !efs.isEmpty() )
+		{
+		    const int ownformidx = efs.size()-1;
+		    fm = efs[ownformidx];
+		    fm.variables().add( pref.name() );
+		}
+	    }
 	    else
 	    {
 		TypeSet<ElasticFormula> efs; ElFR().getByType( tp, efs );
