@@ -664,6 +664,9 @@ void uiStratLayerModel::setModelProps()
     for ( int idx=0; idx<conts.size(); idx++ )
 	nms.add( conts[idx]->name() );
     modtools_->setContentNames( nms );
+
+    delete elpropsel_; elpropsel_ = 0;
+    setElasticProps();
 }
 
 
