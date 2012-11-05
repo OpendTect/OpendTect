@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odplugin.h"
 #include "uiodmain.h"
 #include "uipsviewermanager.h"
+#include "uiprestackviewermod.h"
 
 
 mDefODPluginInfo(uiPreStackViewer)

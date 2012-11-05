@@ -9,6 +9,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 #include "uitextureattrib.h"
 #include "odplugin.h"
+#include "uitextureattribmod.h"
 
 
 mDefODPluginInfo(uiTextureAttrib)
