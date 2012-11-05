@@ -1,5 +1,5 @@
-#ifndef seisexport_h
-#define seisexport_h
+#ifndef generalexport_h
+#define generalexport_h
 
 /*+
 ________________________________________________________________________
