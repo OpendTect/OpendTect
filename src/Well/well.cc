@@ -950,23 +950,44 @@ Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 float Well::D2TModel::getTime( float dh, const Track& track ) const
 {
     const int dtsize = size();
-    if ( track.nrPoints() < 2 || dtsize < 2 )
-	return TimeDepthModel::getTime( dah_.arr(), t_.arr(), dtsize, dh );
-    else
+   if ( track.nrPoints() < 2 || dtsize < 2 )
+       return TimeDepthModel::getTime( dah_.arr(), t_.arr(), dtsize, dh );
+   else
     {
+	float reqdh, dhtop, dhbase;
 	int idahtop = 0;
 	idahtop = IdxAble::getLowIdx(dah_,dtsize,dh);
 	if ( idahtop < 0 )
 	    idahtop = 0;
-	else if ( idahtop >= (dtsize-2) )
+
+	if ( track.getPos(dah_[idahtop]).z > track.getPos(dh).z )
+	{
+	    od_int64 reqz = track.getPos( dh ).z;
+	    for ( int idx=0; idx<track.nrPoints(); idx++ )
+	    {
+		if ( track.pos(idx).z > reqz )
+		{
+		    dhtop = track.dah( idx-1 );
+		    dhbase = track.dah( idx );
+		    reqdh = dhtop + ( (dhbase-dhtop)*(reqz-track.pos(idx-1).z)/
+					(track.pos(idx).z-track.pos(idx-1).z) );
+		    idahtop = IdxAble::getLowIdx( dah_, dtsize, reqdh );
+		    break;
+		}
+	    }
+	}
+
+	if ( idahtop < 0 )
+	    idahtop = 0;
+
+	if ( idahtop >= (dtsize-1) )
 	    idahtop = dtsize-2;
 
-	const float ztop = track.getPos(dah_[idahtop]).z;
-	const float zbase= track.getPos(dah_[idahtop+1]).z;
-	const float curvel = ( zbase - ztop ) / ( t_[idahtop+1] - t_[idahtop] );
-
-	return t_[idahtop] + ( track.getPos(dh).z - ztop ) / curvel;
-    }
+       const float ztop = track.getPos(dah_[idahtop]).z;
+       const float zbase= track.getPos(dah_[idahtop+1]).z;
+       const float curvel = ( zbase - ztop ) / ( t_[idahtop+1] - t_[idahtop] );
+       return t_[idahtop] + ( track.getPos(dh).z - ztop ) / curvel;
+   }
 }
 
 
