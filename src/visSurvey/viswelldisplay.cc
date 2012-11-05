@@ -620,22 +620,69 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     val.setEmpty(); info.setEmpty();
     mGetWD(return);
 
-    PtrMan<Well::Track> ttrack = 0;
-    if ( zistime_ && wd->haveD2TModel() )
+    float mousez = pos.z; 
+    info = "Well: "; 
+    info += wd->name();
+    Well::D2TModel* d2t = wd->d2TModel();
+    Well::Track ttrack( wd->track() );
+    float dahtop, dahbase, dah = 0;
+    int nearestsegment = 0, nrsegment = 0;
+    double smallestdis = 0;
+    if ( zistime_ )
+	ttrack.toTime( *d2t, wd->track() );
+    int zuserfac = zistime_ ? scene_->zDomainInfo().userFactor() : 1;
+    pos.z *= zuserfac;
+    for ( int idx=0; idx<(ttrack.nrPoints()-1); idx++ )
     {
-	mTryAlloc( ttrack, Well::Track( wd->track() ) );
-	ttrack->toTime( *wd->d2TModel(), wd->track() );
-    }
-    const Well::Track& track = zistime_ ? *ttrack : wd->track();
+	Coord3 top = ttrack.pos( idx );
+	Coord3 base = ttrack.pos( idx+1 );
+	top.z *= zuserfac;
+	base.z *= zuserfac;
+	Vector3 vector = base - top;
+	Vector3 reversevector = top - base;
+	Line3 line ( top, vector );
+	Line3 reverseline ( base, reversevector );
+	double perpendiculardis = line.distanceToPoint( pos );
+	double paralleldis = fabs( line.closestPoint(pos) );
+	double paralleldis2 = fabs( reverseline.closestPoint(pos) );
+	if ( paralleldis <= 1.001 && paralleldis2 <= 1.001 )
+	{
+	    if ( nrsegment == 0 )
+	    {
+		smallestdis = perpendiculardis;
+		nrsegment++;
+	    }
 
-    info = "Well: "; info += wd->name();
-    info += ", MD "; 
+	    if ( smallestdis >= perpendiculardis )
+	    {
+		smallestdis = perpendiculardis;
+		nearestsegment = idx;
+	    }
+	}
+    }
+
+    dahtop = ttrack.dah( nearestsegment );
+    dahbase = ttrack.dah( nearestsegment+1 );
+    float dahdiff = dahbase - dahtop;
+    double ztop = ttrack.pos(nearestsegment).z;
+    double zbase = ttrack.pos(nearestsegment+1).z;
+    pos.z /= zuserfac;
+    if ( ztop == zbase )
+	dah = dahtop;
+    else
+	dah = dahtop + (dahdiff * ((pos.z - ztop) / (zbase - ztop)));
+
+    if( dah == 0 )
+	return;
 
     info += zinfeet_ || SI().depthsInFeetByDefault() ? "(ft): " : "(m): ";
-    const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ? 
+    const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ?
 							mToFeetFactorF : 1;
-    const float dah = track.nearestDah(pos);
-    info += toString( mNINT32(dah*zfac) );
+    if ( nrsegment != 0 )
+    {
+	info += ", MD ";
+	info += toString( mNINT32(dah*zfac) );
+    }
 
     setLogInfo( info, val, dah, true );
     setLogInfo( info, val, dah, false );
@@ -818,6 +865,32 @@ void WellDisplay::addPick( Coord3 pos )
 }
 
 
+void WellDisplay::addKnownPos()
+{
+    TypeSet<Coord3> wcoords;
+    if ( pseudotrack_ )
+    {
+	for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+	    wcoords += pseudotrack_->pos(idx);
+
+	well_->setTrack( wcoords );
+	needsave_ = true;
+	changed_.trigger();
+    }
+
+    for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+    {
+	visBase::Marker* marker = visBase::Marker::create();
+	group_->insertObject( idx, marker );
+	marker->setDisplayTransformation( transformation_ );
+	marker->setCenterPos( wcoords[idx] );
+        marker->setScreenSize( mPickSz );
+	marker->setType( (MarkerStyle3D::Type)mPickSz );
+	marker->getMaterial()->setColor( lineStyle()->color_ );
+    }
+}
+
+
 void WellDisplay::setDisplayTransformForPicks( const mVisTrans* newtr )
 {
     if ( transformation_==newtr )
@@ -879,13 +952,17 @@ void WellDisplay::setupPicking( bool yn )
 void WellDisplay::showKnownPositions()
 {
     mGetWD(return);
+    const Well::D2TModel* d2t = wd->d2TModel();
+    setName( wd->name() );
+    Well::Track ttrack(wd->track());
+    pseudotrack_ = &(ttrack);
+    if ( zistime_ )
+	pseudotrack_->toTime( *d2t, wd->track() );
 
-    TypeSet<Coord3> trackpos = getTrackPos( wd );
-    if ( trackpos.isEmpty() )
+    if ( pseudotrack_->nrPoints() <= 0 )
 	return;
 
-    for ( int idx=0; idx<trackpos.size(); idx++ )
-	addPick( trackpos[idx] );
+    addKnownPos();
 }
 
 

@@ -115,7 +115,7 @@ public:
     void                        setSceneEventCatcher(visBase::EventCatcher*);
     void 			addPick(Coord3);
     				//only used for user-made wells
-
+    void			addKnownPos();
     void			getMousePosInfo(const visBase::EventInfo& ei,
 	    					IOPar& iop ) const
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
