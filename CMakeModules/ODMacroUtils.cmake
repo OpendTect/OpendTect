@@ -92,11 +92,6 @@ if(OD_USECOIN)
     OD_SETUP_COIN()
 endif()
 
-if( (UNIX OR WIN32)  AND OD_USEZLIB )
-    list(APPEND OD_MODULE_INCLUDESYSPATH ${ZLIB_INCLUDE_DIR} )
-    list(APPEND OD_MODULE_EXTERNAL_LIBS ${ZLIB_LIBRARY} )
-endif()
-
 if(OD_USEOSG)
     OD_SETUP_OSG()
 endif()
@@ -105,6 +100,14 @@ endif()
 if(OD_USEQT)
    OD_SETUP_QT()
 endif(OD_USEQT)
+
+#Must be after QT
+if( (UNIX OR WIN32)  AND OD_USEZLIB )
+    OD_SETUP_ZLIB()
+    list(APPEND OD_MODULE_INCLUDESYSPATH ${ZLIB_INCLUDE_DIR} )
+    list(APPEND OD_MODULE_EXTERNAL_LIBS ${ZLIB_LIBRARY} )
+endif()
+
 
 #Add current module to include-path
 if ( OD_MODULE_HAS_LIBRARY )
