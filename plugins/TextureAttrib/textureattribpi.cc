@@ -9,6 +9,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "textureattrib.h"
 #include "odplugin.h"
+#include "textureattribmod.h"
+
 
 
 mDefODPluginEarlyLoad(TextureAttrib)
