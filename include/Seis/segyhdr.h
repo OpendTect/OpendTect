@@ -96,7 +96,7 @@ public:
     inline void	setEntryVal( int idx, int val )
 		{ return hdrDef()[idx]->putValue(buf_,val); }
 
-    short	format() const		{ return entryVal(EntryFmt()); }
+    short	format() const		{ return (short) entryVal(EntryFmt()); }
     int		nrSamples() const	{ return entryVal(EntryNs()); }
     float	sampleRate(bool isdpth) const;
     bool	isInFeet() const	{ return entryVal(EntryMFeet()) == 2; }
