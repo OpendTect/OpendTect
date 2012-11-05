@@ -620,7 +620,6 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     val.setEmpty(); info.setEmpty();
     mGetWD(return);
 
-    float mousez = pos.z; 
     info = "Well: "; 
     info += wd->name();
     Well::D2TModel* d2t = wd->d2TModel();
@@ -670,7 +669,7 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     if ( ztop == zbase )
 	dah = dahtop;
     else
-	dah = dahtop + (dahdiff * ((pos.z - ztop) / (zbase - ztop)));
+	dah = (float)(dahtop + (dahdiff * ((pos.z - ztop) / (zbase - ztop))));
 
     if( dah == 0 )
 	return;
