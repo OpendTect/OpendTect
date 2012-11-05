@@ -122,8 +122,16 @@ ________________________________________________________________________
 #define mTODOHelpID	"0.0.0"
 #define mNoHelpID	"-"
 
-#define mExp( module )		dll_export
-//#define mExp( module )		Export_##module
+//Experimental
+//#define mDoWindowsImport
+
+#ifndef mDoWindowsImport
+#define mExp( module )			dll_export
+#define mExportInst( mod, tp, inst )
+#else
+#define mExp( module )			Export_##module
+#define mExportInst( mod, tp, inst )	Extern_##mod tp mExp(mod) inst
+#endif
 
 #define mExpClass( module )		class mExp( module )
 #define mExpStruct( module )		struct mExp( module )
@@ -134,8 +142,6 @@ ________________________________________________________________________
 #define mExtern( module )		extern mExp( module )
 #define mExternC( module)		extern "C" mExp( module )
 
-
-#define mExportInst( mod, tp, inst )	Extern_##mod tp mExp(mod) inst
 #define mExportTemplClassInst(mod,clss)	mExportInst(mod,template class,clss)
 
 //for Qt
