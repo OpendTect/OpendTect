@@ -120,9 +120,9 @@ protected:
 };
 
 
-#define mStartDeclCmdClassNoActNoEntry(cmdkey,parentclass) \
+#define mStartDeclCmdClassNoActNoEntry(mod,cmdkey,parentclass) \
 \
-mClass(uiCmdDriver) cmdkey##Cmd : public parentclass \
+mClass(mod) cmdkey##Cmd : public parentclass \
 { \
 public: \
     			cmdkey##Cmd(CmdDriver& cmddrv) \
@@ -132,9 +132,9 @@ public: \
     static const char*	keyWord()			{ return #cmdkey; } \
     virtual const char* name() const			{ return keyWord(); }
 
-#define mStartDeclCmdClassNoAct(cmdkey,parentclass) \
+#define mStartDeclCmdClassNoAct(mod,cmdkey,parentclass) \
 \
-    mStartDeclCmdClassNoActNoEntry(cmdkey,parentclass) \
+    mStartDeclCmdClassNoActNoEntry(mod,cmdkey,parentclass) \
 \
     static Command*	createInstance(CmdDriver& cmddrv) \
 			{ return new cmdkey##Cmd(cmddrv); } \
@@ -142,31 +142,31 @@ public: \
 			{ factory().addCreator( createInstance, \
 					        createFactoryKey(keyWord()) ); }
 
-#define mStartDeclCmdClassNoEntry(cmdkey,parentclass) \
-    mStartDeclCmdClassNoActNoEntry(cmdkey,parentclass) \
+#define mStartDeclCmdClassNoEntry(mod,cmdkey,parentclass) \
+    mStartDeclCmdClassNoActNoEntry(mod,cmdkey,parentclass) \
     virtual bool	act(const char* parstr);
 
-#define mStartDeclCmdClass(cmdkey,parentclass) \
-    mStartDeclCmdClassNoAct(cmdkey,parentclass) \
+#define mStartDeclCmdClass( mod,cmdkey,parentclass) \
+    mStartDeclCmdClassNoAct(mod,cmdkey,parentclass) \
     virtual bool	act(const char* parstr);
 
 #define mEndDeclCmdClass \
 };
 
 
-mStartDeclCmdClassNoActNoEntry( UiObject, Command )
+mStartDeclCmdClassNoActNoEntry( uiCmdDriver, UiObject, Command )
     virtual bool	isOpenQDlgCommand() const	{ return false; }
     virtual bool	isLocalEnvCommand() const	{ return true; }
     virtual bool	isUiObjChangeCommand() const	{ return true; }
 mEndDeclCmdClass
 
-mStartDeclCmdClassNoActNoEntry( UiObjQuestion, Command )
+mStartDeclCmdClassNoActNoEntry( uiCmdDriver,UiObjQuestion, Command )
     virtual bool	isOpenQDlgCommand() const	{ return false; }
     virtual bool	isLocalEnvCommand() const	{ return true; }
     virtual bool	isVisualCommand() const		{ return false; }
 mEndDeclCmdClass
 
-mStartDeclCmdClassNoActNoEntry( Stealth, Command )
+mStartDeclCmdClassNoActNoEntry( uiCmdDriver,Stealth, Command )
     virtual bool	isVisualCommand() const		{ return false; }
 mEndDeclCmdClass
 

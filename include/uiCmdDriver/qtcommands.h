@@ -19,11 +19,11 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mStartDeclCmdClass( ColorOk, Command )		mEndDeclCmdClass
-mStartDeclCmdClass( FileOk, Command )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, ColorOk, Command )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, FileOk, Command )		mEndDeclCmdClass
 
 
-mStartDeclCmdClass( Snapshot, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, Snapshot, StealthCmd )	mEndDeclCmdClass
 
 mClass(uiCmdDriver) SnapshotActivator: public Activator
 {
@@ -37,7 +37,8 @@ protected:
 };
 
 
-mStartDeclComposerClass( QColorDlg,CmdComposer,uiMainWin ) mEndDeclComposerClass
+mStartDeclComposerClass( uiCmdDriver, QColorDlg,CmdComposer,uiMainWin )
+    mEndDeclComposerClass
 
 mClass(uiCmdDriver) SetColorActivator: public Activator
 {
@@ -49,7 +50,8 @@ protected:
     Color	color_;
 };
 
-mStartDeclComposerClass( QFileDlg,CmdComposer,uiMainWin ) mEndDeclComposerClass
+mStartDeclComposerClass( uiCmdDriver, QFileDlg,CmdComposer,uiMainWin )
+    mEndDeclComposerClass
 
 
 }; // namespace CmdDrive

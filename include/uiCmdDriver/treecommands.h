@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mStartDeclCmdClassNoActNoEntry( Tree, UiObjectCmd )
+mStartDeclCmdClassNoActNoEntry( uiCmdDriver,Tree, UiObjectCmd )
 protected:
 
     bool		parTreeSelPre(const uiTreeView&,
@@ -51,34 +51,35 @@ protected:
 };
 
 
-mStartDeclCmdClass( TreeClick, TreeCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( TreeMenu, TreeCmd )			mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, TreeClick, TreeCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, TreeMenu, TreeCmd )		mEndDeclCmdClass
 
-mStartDeclCmdClass( TreeButton, TreeCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( TreeExpand, TreeCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, TreeButton, TreeCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, TreeExpand, TreeCmd )		mEndDeclCmdClass
 
-mStartDeclCmdClassNoActNoEntry( TreeQuestion, TreeCmd )
+mStartDeclCmdClassNoActNoEntry( uiCmdDriver,TreeQuestion, TreeCmd )
     virtual bool	isUiObjChangeCommand() const	{ return false; }
     virtual bool	isVisualCommand() const		{ return false; }
 mEndDeclCmdClass
 
-mStartDeclCmdClass( NrTreeItems, TreeQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( NrTreeCols, TreeQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( IsTreeItemOn, TreeQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( IsTreeItemExpanded, TreeQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( IsTreeButtonOn, TreeQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( CurTreePath, TreeQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( CurTreeCol, TreeQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( CurTreeItem, TreeQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( GetTreeCol, TreeQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( GetTreeItem, TreeQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( GetTreePath, TreeQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( NrTreeMenuItems, TreeQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( IsTreeMenuItemOn, TreeQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( GetTreeMenuItem, TreeQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, NrTreeItems, TreeQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, NrTreeCols, TreeQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, IsTreeItemOn, TreeQuestionCmd )mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, IsTreeItemExpanded, TreeQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, IsTreeButtonOn,TreeQuestionCmd)mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, CurTreePath, TreeQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, CurTreeCol, TreeQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, CurTreeItem, TreeQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetTreeCol, TreeQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetTreeItem, TreeQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetTreePath, TreeQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver,NrTreeMenuItems,TreeQuestionCmd)mEndDeclCmdClass
+mStartDeclCmdClass(uiCmdDriver,IsTreeMenuItemOn,TreeQuestionCmd)mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver,GetTreeMenuItem,TreeQuestionCmd)mEndDeclCmdClass
 
 
-mStartDeclComposerClassWithInit( Tree, CmdComposer, uiTreeView )
+mStartDeclComposerClassWithInit( uiCmdDriver, Tree, CmdComposer, uiTreeView )
 public:
     virtual void		updateInternalState();
 

@@ -22,7 +22,7 @@ namespace CmdDrive
 {
 
 
-mStartDeclCmdClass( Wheel, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( CmdDriver, Wheel, UiObjectCmd )		mEndDeclCmdClass
 
 mClass(CmdDriver) WheelActivator: public Activator
 {
@@ -34,10 +34,10 @@ protected:
     float		actangle_;
 };
 
-mStartDeclCmdClass( GetWheel, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( CmdDriver, GetWheel, UiObjQuestionCmd )	mEndDeclCmdClass
 
 
-mStartDeclComposerClassWithInit( Wheel, CmdComposer, uiThumbWheel )
+mStartDeclComposerClassWithInit( CmdDriver, Wheel, CmdComposer, uiThumbWheel )
 protected:
     float oldvalue_;
 mEndDeclComposerClass 

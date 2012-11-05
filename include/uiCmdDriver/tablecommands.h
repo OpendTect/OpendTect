@@ -22,7 +22,7 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mStartDeclCmdClassNoActNoEntry( Table, UiObjectCmd )
+mStartDeclCmdClassNoActNoEntry( uiCmdDriver,Table, UiObjectCmd )
 protected:
     enum		TableTag { RowTag=0,RowHead,CellTag,ColHead,ColTag };
 
@@ -37,7 +37,7 @@ protected:
 mEndDeclCmdClass
 
 
-mStartDeclCmdClass( TableClick, TableCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, TableClick, TableCmd )	mEndDeclCmdClass
 
 mClass(uiCmdDriver) TableActivator: public Activator
 {
@@ -53,7 +53,7 @@ protected:
 };
 
 
-mStartDeclCmdClass( TableFill, TableCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, TableFill, TableCmd )	mEndDeclCmdClass
 
 mClass(uiCmdDriver) TableFillActivator: public Activator
 {
@@ -68,7 +68,7 @@ protected:
 };
 
 
-mStartDeclCmdClass( TableSelect, TableCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, TableSelect, TableCmd )	mEndDeclCmdClass
 
 mClass(uiCmdDriver) TableSelectActivator: public Activator
 {
@@ -83,28 +83,31 @@ protected:
 };
 
 
-mStartDeclCmdClassNoActNoEntry( TableQuestion, TableCmd )
+mStartDeclCmdClassNoActNoEntry( uiCmdDriver,TableQuestion, TableCmd )
     virtual bool	isUiObjChangeCommand() const	{ return false; }
     virtual bool	isVisualCommand() const		{ return false; }
 mEndDeclCmdClass
 
 
-mStartDeclCmdClass( TableExec, TableQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( TableMenu, TableCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, TableExec, TableQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, TableMenu, TableCmd )		mEndDeclCmdClass
 
 
-mStartDeclCmdClass( NrTableRows, TableQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( NrTableCols, TableQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( IsTableItemOn, TableQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( CurTableRow, TableQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( CurTableCol, TableQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( CurTableItem, TableQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( GetTableRow, TableQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( GetTableCol, TableQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( GetTableItem, TableQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( NrTableMenuItems, TableQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( IsTableMenuItemOn, TableQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( GetTableMenuItem, TableQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, NrTableRows, TableQuestionCmd )mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, NrTableCols, TableQuestionCmd )mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, IsTableItemOn,TableQuestionCmd)mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, CurTableRow, TableQuestionCmd )mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, CurTableCol, TableQuestionCmd )mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, CurTableItem, TableQuestionCmd)mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetTableRow, TableQuestionCmd )mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetTableCol, TableQuestionCmd )mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetTableItem, TableQuestionCmd)mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, NrTableMenuItems, TableQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, IsTableMenuItemOn, TableQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetTableMenuItem, TableQuestionCmd )
+    mEndDeclCmdClass
 
 
 /* Ordered encoded set of table RowCols for which some boolean state
@@ -140,7 +143,7 @@ protected:
 };
 
 
-mStartDeclComposerClassWithInit( Table, CmdComposer, uiTable )
+mStartDeclComposerClassWithInit( uiCmdDriver, Table, CmdComposer, uiTable )
 public:
     virtual void	updateInternalState();
     static void		getExecPrefix(CmdRecEvent&,const RowCol&);

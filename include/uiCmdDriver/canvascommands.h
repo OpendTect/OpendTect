@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mStartDeclCmdClass( CanvasMenu, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, CanvasMenu, UiObjectCmd )	mEndDeclCmdClass
 
 
 mClass(uiCmdDriver) GraphicsViewMenuActivator: public Activator
@@ -37,11 +37,14 @@ protected:
 };
 
 
-mStartDeclCmdClass( NrCanvasMenuItems, UiObjQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( IsCanvasMenuItemOn, UiObjQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( GetCanvasMenuItem, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, NrCanvasMenuItems, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, IsCanvasMenuItemOn, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetCanvasMenuItem, UiObjQuestionCmd )
+    mEndDeclCmdClass
 
-mStartDeclComposerClass( CanvasMenu, CmdComposer, uiGraphicsViewBase )
+mStartDeclComposerClass( uiCmdDriver,CanvasMenu,CmdComposer,uiGraphicsViewBase )
 mEndDeclComposerClass
 
 

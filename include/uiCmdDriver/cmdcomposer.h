@@ -115,9 +115,9 @@ private:
 };
 
 
-#define mStartDeclComposerClassNoAccept(cmdkey,parentclass) \
+#define mStartDeclComposerClassNoAccept(mod,cmdkey,parentclass) \
 \
-mClass(uiCmdDriver) cmdkey##CmdComposer : public parentclass \
+mClass(mod) cmdkey##CmdComposer : public parentclass \
 { \
 public: \
 			cmdkey##CmdComposer(CmdRecorder& cmdrec) \
@@ -127,9 +127,9 @@ public: \
     static const char*	keyWord()			{ return #cmdkey; } \
     virtual const char* name()				{ return keyWord(); } \
 
-#define mStartDeclComposerClass(cmdkey,parentclass,callerclass) \
+#define mStartDeclComposerClass(mod,cmdkey,parentclass,callerclass) \
 \
-    mStartDeclComposerClassNoAccept(cmdkey,parentclass) \
+    mStartDeclComposerClassNoAccept(mod,cmdkey,parentclass) \
     mDeclClassifierClass(callerclass) \
 \
     virtual bool	accept(const CmdRecEvent&); \
@@ -141,8 +141,8 @@ public: \
 			    createFactoryKey(new callerclass##Classifier(), \
 					     keyWord()) ); }
 
-#define mStartDeclComposerClassWithInit(cmdkey,parentclass,callerclass) \
-    mStartDeclComposerClass(cmdkey,parentclass,callerclass) \
+#define mStartDeclComposerClassWithInit(mod,cmdkey,parentclass,callerclass) \
+    mStartDeclComposerClass(mod,cmdkey,parentclass,callerclass) \
     virtual void	init();
 
 #define mEndDeclComposerClass \

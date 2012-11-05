@@ -27,7 +27,7 @@ class uiComboBox;
 namespace CmdDrive
 {
 
-mStartDeclCmdClass( Input, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, Input, UiObjectCmd )		mEndDeclCmdClass
 
 #define mDeclInputActivator( typ, objclass ) \
 \
@@ -53,7 +53,7 @@ mDeclInputActivator( SpinInput, uiSpinBox )
 mDeclInputActivator( ComboInput, uiComboBox )
 
 
-mStartDeclCmdClass( Spin, UiObjectCmd )			mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, Spin, UiObjectCmd )		mEndDeclCmdClass
 
 mClass(uiCmdDriver) SpinActivator: public Activator
 {
@@ -66,7 +66,7 @@ protected:
 };
 
 
-mStartDeclCmdClass( Slider, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, Slider, UiObjectCmd )		mEndDeclCmdClass
 
 mClass(uiCmdDriver) SliderActivator: public Activator
 {
@@ -79,19 +79,20 @@ protected:
 };
 
 
-mStartDeclCmdClass( GetInput, UiObjQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( GetSpin, UiObjQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( GetSlider, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetInput, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetSpin, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetSlider, UiObjQuestionCmd )	mEndDeclCmdClass
 
 
-mStartDeclComposerClass( Slider, CmdComposer, uiSlider ) mEndDeclComposerClass 
+mStartDeclComposerClass( uiCmdDriver, Slider, CmdComposer, uiSlider )
+    mEndDeclComposerClass
 
-mStartDeclComposerClassWithInit( Input, CmdComposer, uiLineEdit )
+mStartDeclComposerClassWithInit( uiCmdDriver, Input, CmdComposer, uiLineEdit )
 protected:
     float textchanged_;
 mEndDeclComposerClass 
 
-mStartDeclComposerClassWithInit( Spin, CmdComposer, uiSpinBox )
+mStartDeclComposerClassWithInit( uiCmdDriver, Spin, CmdComposer, uiSpinBox )
 protected:
     int pendingsteps_;
     float pendinginput_;

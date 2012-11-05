@@ -23,7 +23,7 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mStartDeclCmdClass( Combo, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, Combo, UiObjectCmd )		mEndDeclCmdClass
 
 mClass(uiCmdDriver) ComboActivator: public Activator
 {
@@ -36,9 +36,9 @@ protected:
 };
 
 
-mStartDeclCmdClass( ListButton, UiObjectCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( ListClick, UiObjectCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( ListMenu, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, ListButton, UiObjectCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, ListClick, UiObjectCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, ListMenu, UiObjectCmd )	mEndDeclCmdClass
 
 mClass(uiCmdDriver) ListActivator: public Activator
 {
@@ -53,7 +53,7 @@ protected:
     BufferStringSet	actclicktags_;
 };
 
-mStartDeclCmdClass( ListSelect, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, ListSelect, UiObjectCmd )	mEndDeclCmdClass
 
 mClass(uiCmdDriver) ListSelectActivator: public Activator
 {
@@ -67,28 +67,40 @@ protected:
 };
 
 
-mStartDeclCmdClass( GetComboItem, UiObjQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( CurComboItem, UiObjQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( NrComboItems, UiObjQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( IsComboItemOn, UiObjQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetComboItem, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, CurComboItem, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, NrComboItems, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, IsComboItemOn, UiObjQuestionCmd )
+    mEndDeclCmdClass
 
-mStartDeclCmdClass( NrListItems, UiObjQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( IsListItemOn, UiObjQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( IsListButtonOn, UiObjQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( CurListItem, UiObjQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( GetListItem, UiObjQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( NrListMenuItems, UiObjQuestionCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( IsListMenuItemOn, UiObjQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( GetListMenuItem, UiObjQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, NrListItems, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, IsListItemOn, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, IsListButtonOn, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, CurListItem, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetListItem, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, NrListMenuItems, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, IsListMenuItemOn, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetListMenuItem, UiObjQuestionCmd )
+    mEndDeclCmdClass
 
 
-mStartDeclComposerClassWithInit( Combo, CmdComposer, uiComboBox )
+mStartDeclComposerClassWithInit( uiCmdDriver, Combo, CmdComposer, uiComboBox )
 protected:
     bool		itemedited_;
     BufferString	edittext_;
 mEndDeclComposerClass
 
-mStartDeclComposerClassWithInit( List, CmdComposer, uiListBox )
+mStartDeclComposerClassWithInit( uiCmdDriver, List, CmdComposer, uiListBox )
 public:
     virtual void	updateInternalState();
 

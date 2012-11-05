@@ -25,7 +25,7 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mStartDeclCmdClass( Menu, UiObjectCmd )
+mStartDeclCmdClass( uiCmdDriver, Menu, UiObjectCmd )
     bool        isLocalEnvCommand() const       	{ return false; }    
 mEndDeclCmdClass
 
@@ -40,7 +40,7 @@ protected:
 };
 
 
-mStartDeclCmdClass( Button, UiObjectCmd )
+mStartDeclCmdClass( uiCmdDriver, Button, UiObjectCmd )
     bool        isOpenQDlgCommand() const       	{ return true; }
 
 protected:
@@ -58,7 +58,7 @@ protected:
 };
 
 
-mStartDeclCmdClass( Close, Command )
+mStartDeclCmdClass( uiCmdDriver, Close, Command )
 protected:
     bool	actCloseCurWin(const char* parstr);
 mEndDeclCmdClass
@@ -74,7 +74,7 @@ protected:
 };
 
 
-mStartDeclCmdClass( Show, Command )
+mStartDeclCmdClass( uiCmdDriver, Show, Command )
     bool        isOpenQDlgCommand() const       	{ return false; }
 
 protected:
@@ -106,7 +106,7 @@ protected:
 };
 
 
-mStartDeclCmdClass( Tab, UiObjectCmd )			mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, Tab, UiObjectCmd )		mEndDeclCmdClass
 
 mClass(uiCmdDriver) TabActivator : public Activator
 {
@@ -120,61 +120,69 @@ protected:
 };
 
 
-mStartDeclCmdClass( ButtonMenu, UiObjectCmd )		mEndDeclCmdClass
-mStartDeclCmdClassNoEntry( OkCancel, Command )		mEndDeclCmdClass
-mStartDeclCmdClassNoAct( Ok, OkCancelCmd )		mEndDeclCmdClass
-mStartDeclCmdClassNoAct( Cancel, OkCancelCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, ButtonMenu, UiObjectCmd )	mEndDeclCmdClass
+mStartDeclCmdClassNoEntry( uiCmdDriver,OkCancel, Command )	mEndDeclCmdClass
+mStartDeclCmdClassNoAct( uiCmdDriver,Ok, OkCancelCmd )		mEndDeclCmdClass
+mStartDeclCmdClassNoAct( uiCmdDriver,Cancel, OkCancelCmd )	mEndDeclCmdClass
 
 
 
-mStartDeclCmdClass( NrMenuItems, UiObjQuestionCmd )
+mStartDeclCmdClass( uiCmdDriver, NrMenuItems, UiObjQuestionCmd )
     bool        isLocalEnvCommand() const               { return false; }
 mEndDeclCmdClass
 
-mStartDeclCmdClass( IsMenuItemOn, UiObjQuestionCmd )
+mStartDeclCmdClass( uiCmdDriver, IsMenuItemOn, UiObjQuestionCmd )
     bool        isLocalEnvCommand() const               { return false; }
 mEndDeclCmdClass
 
-mStartDeclCmdClass( GetMenuItem, UiObjQuestionCmd )
+mStartDeclCmdClass( uiCmdDriver, GetMenuItem, UiObjQuestionCmd )
     bool        isLocalEnvCommand() const               { return false; }
 mEndDeclCmdClass
 
-mStartDeclCmdClass( IsButtonOn, UiObjQuestionCmd )		
+mStartDeclCmdClass( uiCmdDriver, IsButtonOn, UiObjQuestionCmd )		
     bool        isOpenQDlgCommand() const       	{ return true; }
 protected:
     bool	actQDlgButton(const char* parstr);
 mEndDeclCmdClass
 
-mStartDeclCmdClass( GetButton, UiObjQuestionCmd )		
+mStartDeclCmdClass( uiCmdDriver, GetButton, UiObjQuestionCmd )		
     bool        isOpenQDlgCommand() const       	{ return true; }
 protected:
     bool	actQDlgButton(const char* parstr);
 mEndDeclCmdClass
 
-mStartDeclCmdClass( NrButtonMenuItems, UiObjQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( IsButtonMenuItemOn, UiObjQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( GetButtonMenuItem, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, NrButtonMenuItems, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, IsButtonMenuItemOn, UiObjQuestionCmd )
+    mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetButtonMenuItem, UiObjQuestionCmd )
+    mEndDeclCmdClass
 
-mStartDeclCmdClass( NrTabs, UiObjQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( CurTab, UiObjQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( IsTabOn, UiObjQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( GetTab, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, NrTabs, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, CurTab, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, IsTabOn, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetTab, UiObjQuestionCmd )	mEndDeclCmdClass
 
 
-mStartDeclCmdClass( IsShown, UiObjQuestionCmd )
+mStartDeclCmdClass( uiCmdDriver, IsShown, UiObjQuestionCmd )
     bool        isLocalEnvCommand() const               { return false; }
 protected:
     bool	actIsCurWinShown(const char* parstr);
 mEndDeclCmdClass
 
 
-mStartDeclComposerClass( Menu, CmdComposer, uiMenuItem )  mEndDeclComposerClass
-mStartDeclComposerClass( Button, CmdComposer, uiButton )  mEndDeclComposerClass
-mStartDeclComposerClass( Close, CmdComposer, uiMainWin )  mEndDeclComposerClass
-mStartDeclComposerClass( MdiArea,CmdComposer,uiMdiArea )  mEndDeclComposerClass
-mStartDeclComposerClass( Tab, CmdComposer, uiTabBar )	  mEndDeclComposerClass
+mStartDeclComposerClass( uiCmdDriver, Menu, CmdComposer, uiMenuItem )
+    mEndDeclComposerClass
+mStartDeclComposerClass( uiCmdDriver, Button, CmdComposer, uiButton )
+    mEndDeclComposerClass
+mStartDeclComposerClass( uiCmdDriver, Close, CmdComposer, uiMainWin )
+    mEndDeclComposerClass
+mStartDeclComposerClass( uiCmdDriver, MdiArea,CmdComposer,uiMdiArea )
+    mEndDeclComposerClass
+mStartDeclComposerClass( uiCmdDriver, Tab, CmdComposer, uiTabBar )
+    mEndDeclComposerClass
 
-mStartDeclComposerClass( QMsgBoxBut, CmdComposer, uiMainWin )
+mStartDeclComposerClass( uiCmdDriver, QMsgBoxBut, CmdComposer, uiMainWin )
 mEndDeclComposerClass
 
 
