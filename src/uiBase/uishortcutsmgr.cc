@@ -121,12 +121,14 @@ const char* uiKeyDesc::keyStr() const
     if ( key_ >= mQtbasefor0 && key_ < mQtbasefor0 + 10 )
 	return strs[ key_ - mQtbasefor0 ];
 
-    for ( int idx=26; ; idx++ )
+    int idx = 26;
+    for ( ; ; idx++ )
     {
 	if ( speckeystransbl[idx-26] == key_ )
-	    return strs[idx];
+	    break;
     }
-    return 0;
+    
+    return strs[idx];
 }
 
 
