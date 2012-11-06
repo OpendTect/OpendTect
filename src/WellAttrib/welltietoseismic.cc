@@ -289,7 +289,8 @@ void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
 bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )  
 {
     const float step = disprg_.step;
-    const int nrsamps = (int)( zrg.width()/step )+1;
+    const int nrsamps = mNINT32( zrg.width()/step )+1;
+    const int istart = mNINT32( zrg.start/step );
 
     if ( nrsamps <= 1 )
     {
@@ -303,13 +304,11 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
     mDeclareAndTryAlloc( float*, seisarr, float[nrsamps] );
     mDeclareAndTryAlloc( float*, syntharr, float[nrsamps] );
 
-#define mGetIdx data_.timeintv_.getIndex( zrg.atIndex( idx, step ) ) 
     for ( int idx=0; idx<nrsamps; idx++ )
     {
-	syntharr[idx] = data_.synthtrc_.size() > mGetIdx ?
-	    			data_.synthtrc_.get( mGetIdx, 0 ) : 0;
-	seisarr[idx] = data_.seistrc_.size() > mGetIdx ?
-	    			data_.seistrc_.get( mGetIdx, 0 ) : 0;
+	if ( idx+istart >= data_.synthtrc_.size() ) break;
+	syntharr[idx] = data_.synthtrc_.get( idx + istart, 0 );
+	seisarr[idx] =  data_.seistrc_.get( idx + istart, 0 );
     }
     GeoCalculator gc;
     cd.coeff_ = gc.crossCorr( seisarr, syntharr, cd.vals_.arr(), nrsamps );
