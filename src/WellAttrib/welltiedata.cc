@@ -97,7 +97,17 @@ Data::Data( const Setup& wts, Well::Data& w)
     {
 	CubeSampling cs;
 	oinf.getRanges( cs );
-	const_cast<StepInterval<float>&>(this->timeintv_) = cs.zrg;
+	StepInterval<float> welltieint;
+	welltieint.start = 0.f; //DO not change, required for the ray-tracer
+	welltieint.step = cs.zrg.step;
+	welltieint.stop = cs.zrg.stop;
+	const int nrtrackpts = w.track().nrPoints();
+	const float td = w.track().dah(nrtrackpts-1);
+	float tdtime = w.d2TModel()->getTime( td, w.track() );
+	tdtime =  (float) mNINT32(tdtime/welltieint.step) * welltieint.step;
+	if ( tdtime > welltieint.stop )
+	    welltieint.stop = tdtime;
+	const_cast<StepInterval<float>&>(this->timeintv_) = welltieint;
     }
 
     estimatedwvlt_.setName( "Estimated wavelet" );
