@@ -110,7 +110,7 @@ void theCB( CallBacker* cb )
 	if ( defmodnr < 0 )
 	    modnm.setEmpty();
 	else
-	    givechoice = *fms[1] != 'A';
+	    givechoice = fms.size()>1 && *fms[1] != 'A';
     }
 
     if ( givechoice )
