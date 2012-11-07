@@ -18,7 +18,7 @@ mFDQtclass(QObject);
 mFDQtclass(QEvent);
 
 class uiEventFilterImpl;
-class uiObject;
+class uiBaseObject;
 /*!\ The base class for most UI elements. */
 
 mClass(uiBase) uiEventFilter : public CallBacker
@@ -76,15 +76,13 @@ public:
     void			setBlockEvent(bool yn);
     bool			getBlockEvent() const;
 
-    void			attachFilter(uiObject*);
-    void			detachFilter();
+    void			attachToQObj(QObject*);
+    void			attach(uiBaseObject*);
+    void			detach();
     
 protected:
     
-    void			objRemovedCB(CallBacker*);
-
     uiEventFilterImpl*		impl_;
-    uiObject*			obj_;
 };
 
 

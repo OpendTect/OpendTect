@@ -21,7 +21,6 @@ class uiEventFilterImpl : public QObject
 public:
 					uiEventFilterImpl( uiEventFilter& uif )
 					    : uif_( uif )
-					    , qobj_( 0 )
 					{}
     
     bool 				eventFilter(QObject*, QEvent*);
@@ -33,23 +32,38 @@ public:
     bool				blockevent_;
     
     TypeSet<QEvent::Type>		eventtypes_;
-    const QObject*			qobj_;
+    
+    void				attachFilter(QObject* obj)
+    {
+	if ( qobj_ )
+	    return;
+	
+	qobj_ = obj;
+	obj->installEventFilter( this );
+    }
+    void				detachFilter()
+    {
+	QSharedPointer<QObject> ptr = qobj_.toStrongRef();
+	if ( ptr )
+	    ptr->removeEventFilter( this );
+	qobj_.clear();
+    }
     
 protected:
-    uiEventFilter& uif_;
+    QWeakPointer<QObject>		qobj_;
+    uiEventFilter& 			uif_;
 };
 
 
 uiEventFilter::uiEventFilter()
     : eventhappened( this )
     , impl_( new uiEventFilterImpl(*this) )
-    , obj_( 0 )
 {}
 
 
 uiEventFilter::~uiEventFilter()
 {
-    detachFilter();
+    detach();
     delete impl_;
 }
 
@@ -84,39 +98,34 @@ const QEvent* uiEventFilter::getCurrentEvent() const
 }
 
 
-void uiEventFilter::attachFilter( uiObject* obj)
+void uiEventFilter::attach( uiBaseObject* obj)
 {
-    if ( !obj->qwidget() )
+    if ( !obj->getWidget() )
 	return;
     
-    attachCB(obj->tobeDeleted, mCB(this,uiEventFilter,objRemovedCB));
-    impl_->qobj_ = obj->qwidget();
-    obj->qwidget()->installEventFilter( impl_ );
-    
-    obj_ = obj;
+    attachToQObj( obj->getWidget() );
 }
 
 
-void uiEventFilter::detachFilter()
+void uiEventFilter::attachToQObj(QObject* qobj )
 {
-    if ( !obj_ )
-	return;
-    
-    obj_->qwidget()->removeEventFilter( impl_ );
-    obj_ = 0;
-    impl_->qobj_ = 0;
+    impl_->attachFilter( qobj );
 }
 
 
-void uiEventFilter::objRemovedCB(CallBacker* )
+void uiEventFilter::detach()
 {
-    detachFilter();
+    impl_->detachFilter();
 }
+
 
 
 bool uiEventFilterImpl::eventFilter(QObject* obj, QEvent* ev )
 {
-    if ( qobj_ && qobj_!=obj )
+    if ( qobj_.isNull() )
+	return false;
+    
+    if ( qobj_.data()!=obj )
 	return false;
     
     if ( !eventtypes_.isPresent( ev->type() ) )
