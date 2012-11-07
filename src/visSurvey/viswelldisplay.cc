@@ -623,10 +623,8 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     val.setEmpty(); info.setEmpty();
     mGetWD(return);
 
-    float mousez = pos.z; 
     info = "Well: "; 
     info += wd->name();
-    info += ", MD ";
     Well::D2TModel* d2t = wd->d2TModel();
     Well::Track ttrack( wd->track() );
     float dahtop, dahbase, dah = 0;
@@ -682,7 +680,11 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     info += zinfeet_ || SI().depthsInFeetByDefault() ? "(ft): " : "(m): ";
     const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ?
 							mToFeetFactor : 1;
-    info += toString( mNINT32(dah*zfac) );
+    if ( nrsegment != 0 )
+    {
+	info += ", MD ";
+	info += toString( mNINT32(dah*zfac) );
+    }
 
     setLogInfo( info, val, dah, true );
     setLogInfo( info, val, dah, false );
