@@ -39,7 +39,8 @@ public:
 	if ( qobj_ )
 	    return;
 	
-	qobj_ = obj;
+	QSharedPointer<QObject> newobj( obj );
+	qobj_ = newobj;
 	obj->installEventFilter( this );
     }
     void				detachFilter()
@@ -126,7 +127,9 @@ bool uiEventFilterImpl::eventFilter(QObject* obj, QEvent* ev )
     if ( qobj_.isNull() )
 	return false;
     
-    if ( qobj_.data()!=obj )
+    QSharedPointer<QObject> objptr( qobj_ );
+    
+    if ( objptr.data()!=obj )
 	return false;
     
     if ( !eventtypes_.isPresent( ev->type() ) )
