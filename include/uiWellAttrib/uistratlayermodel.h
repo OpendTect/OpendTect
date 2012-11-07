@@ -130,6 +130,7 @@ protected:
     void			fillDisplayPars(IOPar&) const;
     void			fillWorkBenchPars(IOPar&) const;
     bool			useDisplayPars(const IOPar&);
+    void                        helpCB(CallBacker*);
 };
 
 
