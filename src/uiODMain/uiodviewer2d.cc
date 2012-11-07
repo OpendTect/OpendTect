@@ -75,8 +75,11 @@ uiODViewer2D::~uiODViewer2D()
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
 
-    delete treetp_;
-    delete datamgr_;
+    if ( viewwin_ )
+    {
+	delete treetp_;
+	delete datamgr_;
+    }
 
     deepErase( auxdataeditors_ );
     delete viewwin();
