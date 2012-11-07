@@ -110,6 +110,7 @@ protected:
     void			modSelChg(CallBacker*);
     void			genModels(CallBacker*);
     void			xPlotReq(CallBacker*);
+    void			helpCB(CallBacker*);
 
     void			setWinTitle();
     void			setModelProps();

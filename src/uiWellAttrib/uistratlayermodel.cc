@@ -274,6 +274,11 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     modtools_->attach( ensureBelow, moddisp_ );
     gentools_->attach( ensureBelow, seqdisp_->outerObj() );
 
+    uiToolBar* helptb = new uiToolBar( this, "Help toolbar", uiToolBar::Right );
+    uiToolButtonSetup htbsu( "contexthelp", "Help",
+	    		     mCB(this,uiStratLayerModel,helpCB) );
+    helptb->addButton( htbsu );
+
     uiSplitter* hspl;
     if ( !seqdisp_->separateDisplay() )
     {
@@ -788,4 +793,10 @@ void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
 void uiStratLayerModel::fillDisplayPars( IOPar& par ) const
 {
     modtools_->fillPar( par );
+}
+
+
+void uiStratLayerModel::helpCB( CallBacker* )                                       
+{                                                                                      
+    uiMainWin::provideHelp( "110.2.0" );
 }
