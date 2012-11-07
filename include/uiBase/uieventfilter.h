@@ -33,7 +33,7 @@ public:
 	ApplicationDeactivate, ApplicationFontChange,
 	ApplicationLayoutDirectionChange, ApplicationPaletteChange,
 	ApplicationWindowIconChange, ChildAdded, 
-	ChildPolished, ChildRemoved, Clipboard, Close, CloseSoftwareInputPanel,
+	ChildPolished, ChildRemoved, Clipboard, Close, 
 	ContentsRectChange, ContextMenu, CursorChange, DeferredDelete,
 	DragEnter, DragLeave, DragMove, Drop, EnabledChange, Enter,
 	EnterWhatsThisMode, FileOpen, FocusIn, FocusOut,
@@ -53,17 +53,16 @@ public:
 	ModifiedChange, MouseButtonDblClick, MouseButtonPress,
 	MouseButtonRelease, MouseMove, MouseTrackingChange, Move, Paint,
 	PaletteChange, ParentAboutToChange, ParentChange, Polish,
-	PolishRequest, QueryWhatsThis, RequestSoftwareInputPanel, Resize,
+	PolishRequest, QueryWhatsThis, Resize,
 	Shortcut, ShortcutOverride, Show, ShowToParent, SockAct,
-	StateMachineSignal, StateMachineWrapped, StatusTip, StyleChange,
+	StatusTip, StyleChange,
 	TabletMove, TabletPress, TabletRelease, OkRequest,
 	TabletEnterProximity, TabletLeaveProximity, Timer, ToolBarChange,
 	ToolTip, ToolTipChange, UngrabKeyboard, UngrabMouse, UpdateLater,
 	UpdateRequest, WhatsThis, WhatsThisClicked, Wheel, WinEventAct,
 	WindowActivate, WindowBlocked, WindowDeactivate, WindowIconChange,
 	WindowStateChange, WindowTitleChange, WindowUnblocked, ZOrderChange,
-	KeyboardLayoutChange, DynamicPropertyChange, TouchBegin, TouchUpdate,
-	TouchEnd, WinIdChange, Gesture, GestureOverride };
+	KeyboardLayoutChange, DynamicPropertyChange };
 
     void			addEventType(EventType);
     void			removeEventType(EventType);
