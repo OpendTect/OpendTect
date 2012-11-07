@@ -268,18 +268,28 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     if ( am_.appl_.isRestoringSession() ) return;
 
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
-    if ( !as || as->id().asInt()<0 ) return;
+    if ( !as || as->id().asInt() < 0 ) return;
 
-    ColTab::Sequence seq( ColTab::defSeqName() );
-    ColTab::MapperSetup mapper;
     PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
+
+    ColTab::Sequence seq( ioobj ? 0 : ColTab::defSeqName() );
+    const ColTab::Sequence* ctseq = !ioobj ?
+		0 : am_.visserv_->getColTabSequence( visid, attrib );
+    if ( ctseq ) seq = *ctseq;
+
+    ColTab::MapperSetup mapper;
+    const ColTab::MapperSetup* ctmap =
+			am_.visserv_->getColTabMapperSetup( visid, attrib );
+
+    if ( !ioobj && ( ctmap && ctmap->type_ == ColTab::MapperSetup::Auto ) )
+	return;
 
     if ( ioobj )
     {
     	FilePath fp( ioobj->fullUserExpr(true) );
     	if ( as->is2D() && !set2DDataFileName(visid,as,*ioobj,fp) )
     	    return;
-	
+
     	fp.setExtension( "par" );
     	IOPar iop;
     	if ( iop.read( fp.fullPath(), sKey::Pars()) && !iop.isEmpty() )
@@ -287,9 +297,9 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     	    const char* ctname = iop.find( sKey::Name() );
     	    seq = ColTab::Sequence( ctname );
     	    mapper.usePar( iop );
-    	}
+    	}    
     }
-
+    
     am_.visserv_->setColTabMapperSetup( visid, attrib, mapper );
     am_.visserv_->setColTabSequence( visid, attrib, seq );
     am_.appl_.colTabEd().colTab()->setMapperSetup( &mapper );
