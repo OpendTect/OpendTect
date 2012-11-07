@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id: uiobj.cc 26529 2012-09-30 11:26:40Z na
 #include "uiobj.h"
 #include <QEvent>
 #include <QWidget>
+#include <QWeakPointer>
 
 mUseQtnamespace
 
