@@ -39,6 +39,7 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uidate.cc
 		uidial.cc
 		uidockwin.cc
+		uieventfilter.cc
 		uifiledlg.cc
 		uifont.cc
 		uigroup.cc
