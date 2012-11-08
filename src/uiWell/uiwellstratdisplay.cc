@@ -61,7 +61,7 @@ void uiWellStratDisplay::draw()
 	for ( int idun=0; idun<data_.nrUnits( idcol ); idun++ )
 	{
 	    StratDispData::Unit& unit = *data_.getUnit( idcol, idun );
-	    unit.color_.setTransparency( transparency_ );
+	    unit.color_.setTransparency( mCast(char,transparency_) );
 	}
     }
     

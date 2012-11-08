@@ -35,7 +35,7 @@ uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
 void uiAttribTransDlg::changeCB( CallBacker* )
 {
     const int val = 255*slider_->sldr()->getIntValue()/100;
-    so_.setAttribTransparency( attrib_, val );
+    so_.setAttribTransparency( attrib_, mCast(unsigned char,val) );
 }
 
 

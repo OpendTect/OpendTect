@@ -151,7 +151,7 @@ bool Horizon2DDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     pl->ref();
     pl->setDisplayTransformation( transformation_ );
     pl->setMaterial( 0 );
-    pl->setRadius( drawstyle_->lineStyle().width_/2 );
+    pl->setRadius( mCast(float,drawstyle_->lineStyle().width_/2) );
     addChild( pl->getInventorNode() );
     lines_ += pl;
     points_ += 0;

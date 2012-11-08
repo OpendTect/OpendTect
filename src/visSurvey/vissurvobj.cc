@@ -278,7 +278,7 @@ int SurveyObject::useSOPar( const IOPar& par )
 
 	unsigned int trans = 0;
 	attribpar->get( sKeyTextTrans(), trans );
-	setAttribTransparency( attribnr, trans );
+	setAttribTransparency( attribnr, mCast(unsigned char,trans) );
     }
 
     return 1;

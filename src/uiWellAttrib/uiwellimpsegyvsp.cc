@@ -248,7 +248,7 @@ static void setInpSamp( uiGenInput* fld, SamplingData<float>& sd, float fac )
 void uiWellImportSEGYVSP::use( const SeisTrc& trc )
 {
     dispinpsamp_ = trc.info().sampling;
-    setInpSamp( inpsampfld_, dispinpsamp_, isdpth_ ? 1 : 1000 );
+    setInpSamp( inpsampfld_, dispinpsamp_, mCast(float,isdpth_ ? 1 : 1000) );
     if ( isdpth_ )
     {
 	outzrgfld_->setValue( dispinpsamp_.start, 0 );

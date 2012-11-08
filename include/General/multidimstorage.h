@@ -410,7 +410,7 @@ bool MultiDimStorage<T>::add( const V& vals, const POS& posarr,
 			      IDX* indexarr )
 {
     const int dim = nrdims_-1;
-    const int pos = posarr[dim];
+    const int pos = mCast( int, posarr[dim] );
     int index = findFirstPos( pos );
 
     const bool match = positions_.validIdx(index) && positions_[index]==pos;

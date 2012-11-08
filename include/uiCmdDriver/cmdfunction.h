@@ -66,7 +66,7 @@ public: \
     			    : parentclass(cmddrv) \
     			{ \
 			    name_ = keyWord(); \
-			    *name_.buf() = tolower( *name_.buf() ); \
+			    *name_.buf() = mCast(char,tolower(*name_.buf())); \
 			} \
 \
     static const char*	keyWord()			{ return #funkey; } \

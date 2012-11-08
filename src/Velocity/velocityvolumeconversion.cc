@@ -291,7 +291,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
     delete reader_;
     reader_ = 0;
 
-    return res;
+    return mCast( char, res );
 }
 
 

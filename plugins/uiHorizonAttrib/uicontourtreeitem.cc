@@ -70,7 +70,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 
     if ( iszval_ )
     {
-	zfac_ = scene->zDomainInfo().userFactor();
+	zfac_ = mCast( float, scene->zDomainInfo().userFactor() );
 	rg_.scale( zfac_ );
 	contourintv_.scale( zfac_ );
     }
@@ -544,7 +544,7 @@ void uiContourTreeItem::createContours()
 
     mDynamicCastGet(visSurvey::Scene*,scene, visserv->getObject(sceneID()));
     const ZAxisTransform* transform = scene ? scene->getZAxisTransform() : 0;
-    const float fac = scene->zDomainInfo().userFactor();
+    const float fac = mCast( float, scene->zDomainInfo().userFactor() );
     while ( contourval < maxcontourval+mDefEps )
     {
 	ManagedObjectSet<ODPolygon<float> > isocontours( false );

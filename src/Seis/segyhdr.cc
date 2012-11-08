@@ -595,7 +595,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	getRev1Flds( ti );
 
     const float zfac = 1.0f / SI().zDomain().userFactor();
-    short delrt = entryVal( EntryDelRt() );
+    short delrt = mCast( short, entryVal( EntryDelRt() ) );
     if ( delrt == 0 )
     {
 	delrt = - (short)entryVal( EntryLagA() ); // HRS and Petrel
@@ -671,7 +671,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 double SEGY::TrcHeader::getCoordScale( float extcoordsc ) const
 {
     if ( !mIsUdf(extcoordsc) ) return extcoordsc;
-    const short scalco = entryVal( EntryScalco() );
+    const short scalco = mCast( short, entryVal( EntryScalco() ) );
     return scalco ? (scalco > 0 ? scalco : -1./scalco) : 1;
 }
 

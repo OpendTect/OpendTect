@@ -241,7 +241,7 @@ bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
 	    const DataHolder* data = inputdata_[trcidx];
 	    for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
 	    {
-		float sampleidx = idx + zidx;
+		float sampleidx = mCast( float, idx + zidx );
 		if ( serie )
 		    sampleidx += serie->value(z0+idx-steeringdata_->z0_);
 

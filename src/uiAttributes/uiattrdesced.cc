@@ -256,7 +256,7 @@ BufferString uiAttrDescEd::zDepLabel( const char* pre, const char* post ) const
     BufferString lbl;
     char zstr[6]; strcpy( zstr, zIsTime() ? "Time" : "Depth" );
     if ( pre )
-	{ lbl += pre; lbl += " "; zstr[0] = tolower( zstr[0] ); }
+	{ lbl += pre; lbl += " "; zstr[0] = mCast( char, tolower( zstr[0] ) ); }
 
     lbl += zstr;
     if ( post )

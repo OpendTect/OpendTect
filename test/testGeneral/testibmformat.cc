@@ -55,7 +55,7 @@ public:
             if ( !(idx%1000000) && !shouldContinue() )
                 return false;
 
-	    if ( !testFloatIndex( idx, mUdf(float) ) )
+	    if ( !testFloatIndex( mCast(int,idx), mUdf(float) ) )
 		return false;
         }
         

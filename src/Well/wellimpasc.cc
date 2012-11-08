@@ -648,7 +648,7 @@ static bool getTVDD2TModel( Well::D2TModel& d2t,
 	}
 
 	prevt += ( targetz - prevz ) / curvel;
-	prevz  = trck.pos(idah).z;
+	prevz  = mCast( float, trck.pos(idah).z );
 	if ( targetz > trck.pos(idahmaxz).z )
 	    idahmaxz = idah;
     }

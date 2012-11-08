@@ -145,7 +145,7 @@ visBase::VisualObject* PickSetDisplay::createLocation() const
 {
     visBase::Marker* marker = visBase::Marker::create();
     marker->setType( (MarkerStyle3D::Type) set_->disp_.markertype_ );
-    marker->setScreenSize( set_->disp_.pixsize_ );
+    marker->setScreenSize( mCast(float,set_->disp_.pixsize_) );
     marker->setMaterial( 0 );
     if ( scene_ )
 	marker->setZStretch( scene_->getZStretch()*scene_->getZScale()/2 );
@@ -214,7 +214,7 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 		mDynamicCastGet(visBase::Marker*,marker,
 				group_->getObject(idx));
 		if ( marker )
-		    marker->setScreenSize( set_->disp_.pixsize_ );
+		    marker->setScreenSize( mCast(float,set_->disp_.pixsize_) );
 	    }
 	}
 

@@ -103,7 +103,7 @@ static float getDefaultStep( float width )
 
 static void getDefaultHorSampling( int& start, int& stop, int& step )
 {
-    const float width = stop - start;
+    const float width = mCast( float, stop - start );
     step = mNINT32( getDefaultStep(width) );
 
     start = step * (int)( ceil( (float)start/(float)step ) );
@@ -129,7 +129,7 @@ void uiGridLinesDlg::setParameters()
     if ( hasgl )
     {
 	cs = pdd_->gridlines()->getGridCubeSampling();
-	cs.zrg.scale( SI().zDomain().userFactor() );
+	cs.zrg.scale( mCast(float,SI().zDomain().userFactor()) );
     }
     else
     {

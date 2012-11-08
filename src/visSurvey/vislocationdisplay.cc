@@ -159,7 +159,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	{
 	    Pick::Location loc = (*set_)[pidx];
 	    BinID bid = SI().transform( loc.pos );
-	    const float zval = loc.pos.z;
+	    const float zval = mCast( float, loc.pos.z );
 	    cs.hrg.include( bid );
 	    cs.zrg.include( zval, false );
 	}

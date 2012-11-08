@@ -163,7 +163,7 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 	    if ( vertstyle==mSinus )
 		effect = (float) sin( effect*M_PI_2 );
 	    else if ( vertstyle==mBox )
-		effect = effect ? 1 : 0;
+		effect = mCast( float, effect ? 1 : 0 );
 	    
 	    const RowCol currc =  rc + step*RowCol(ridx,cidx);
 	    if ( horizon->isDefined(sectionid,currc.toInt64()) )

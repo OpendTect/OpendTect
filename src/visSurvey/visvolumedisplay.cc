@@ -460,9 +460,12 @@ int VolumeDisplay::volRenID() const
     
 void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 {
-    const Interval<float> xintv( cs.hrg.start.inl, cs.hrg.stop.inl );
-    const Interval<float> yintv( cs.hrg.start.crl, cs.hrg.stop.crl );
+    const Interval<float> xintv( mCast(float,cs.hrg.start.inl), 
+				    mCast(float,cs.hrg.stop.inl) );
+    const Interval<float> yintv( mCast(float,cs.hrg.start.crl), 
+				    mCast(float,cs.hrg.stop.crl) );
     const Interval<float> zintv( cs.zrg.start, cs.zrg.stop );
+
     voltrans_->setTranslation( 
 	    	Coord3(xintv.center(),yintv.center(),zintv.center()) );
     voltrans_->setRotation( Coord3( 0, 1, 0 ), M_PI_2 );
@@ -658,8 +661,8 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
     {
 	isosurfaces_[idx]->getSurface()->removeAll(); 
 	isosurfaces_[idx]->setBoxBoundary(
-		cache_->cubeSampling().hrg.inlRange().stop,
-		cache_->cubeSampling().hrg.crlRange().stop,
+		mCast(float,cache_->cubeSampling().hrg.inlRange().stop),
+		mCast(float,cache_->cubeSampling().hrg.crlRange().stop),
 		cache_->cubeSampling().zrg.stop );
 	isosurfaces_[idx]->setScales(
 		cache_->inlsampling_, cache_->crlsampling_,
@@ -752,12 +755,12 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     if ( dim == 2 )
     {
 	slicepos += (float) voltrans_->getTranslation()[0];
-	pos = SI().inlRange(true).snap(slicepos);
+	pos = mCast( float, SI().inlRange(true).snap(slicepos) );
     }
     else if ( dim == 1 )
     {
 	slicepos += (float) voltrans_->getTranslation()[1];
-	pos = SI().crlRange(true).snap(slicepos);
+	pos = mCast( float, SI().crlRange(true).snap(slicepos) );
     }
     else
     {
@@ -1361,12 +1364,12 @@ int VolumeDisplay::usePar( const IOPar& par )
 	    str = sKeySurfMode(); str += idx;
 	    int smode;
 	    par.get( str, smode );
-	    isosurfsettings_[idx].mode_ = smode;
+	    isosurfsettings_[idx].mode_ = mCast( char, smode );
 	    
 	    str = sKeySeedsAboveIsov(); str += idx;
 	    int aboveisov;
 	    par.get( str, aboveisov );
-	    isosurfsettings_[idx].seedsaboveisoval_ = aboveisov;
+	    isosurfsettings_[idx].seedsaboveisoval_ = mCast( char, aboveisov );
     
 	    str = sKeySeedsMid(); str += idx;
 	    MultiID mid;

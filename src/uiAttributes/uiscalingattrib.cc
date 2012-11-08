@@ -271,7 +271,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	int stop = table->getIntValue( RowCol(idx,stopcol) );
 	if ( mIsUdf(start) && mIsUdf(stop) ) continue;
 	
-	tgs += ZGate( start, stop );
+	tgs += ZGate( mCast(float,start), mCast(float,stop) );
 
 	if ( statsfld->getIntValue() == 3 )
 	{

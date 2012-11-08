@@ -118,12 +118,14 @@ RandomTrackDisplay::RandomTrackDisplay()
     addChild( markergrp_->getInventorNode() );
 
     const StepInterval<float>& survinterval = SI().zRange(true);
-    const StepInterval<float> inlrange( SI().sampling(true).hrg.start.inl,
-	    				SI().sampling(true).hrg.stop.inl,
-					SI().inlStep() );
-    const StepInterval<float> crlrange( SI().sampling(true).hrg.start.crl,
-	    				SI().sampling(true).hrg.stop.crl,
-	    				SI().crlStep() );
+    const StepInterval<float> inlrange( 
+			    mCast(float,SI().sampling(true).hrg.start.inl),
+	    		    mCast(float,SI().sampling(true).hrg.stop.inl),
+			    mCast(float,SI().inlStep()) );
+    const StepInterval<float> crlrange( 
+			    mCast(float,SI().sampling(true).hrg.start.crl),
+	    		    mCast(float,SI().sampling(true).hrg.stop.crl),
+	    		    mCast(float,SI().crlStep()) );
 
     const BinID start( mNINT32(inlrange.center()), mNINT32(crlrange.start) );
     const BinID stop(start.inl, mNINT32(crlrange.stop) );

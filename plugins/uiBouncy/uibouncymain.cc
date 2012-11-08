@@ -39,7 +39,6 @@ bool uiBouncyMain::acceptOK( CallBacker* )
     if ( strcmp( namefld_->text(), "") == 0 ) 
     {
 	mErrRet( "Enter your name!" );
-	return false;
     }
     else if ( !(*bsdlg_)->isOK() )
 	return false;

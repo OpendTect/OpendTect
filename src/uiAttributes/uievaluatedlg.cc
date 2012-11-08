@@ -388,7 +388,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 
     if ( enabstore_ ) storefld->setSensitive( true );
     sliderfld->setSensitive( true );
-    sliderfld->sldr()->setMaxValue( nrsteps-1 );
+    sliderfld->sldr()->setMaxValue( mCast(float,nrsteps-1) );
     sliderfld->sldr()->setTickStep( 1 );
     sliderMove(0);
 }

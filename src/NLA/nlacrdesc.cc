@@ -187,7 +187,7 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	    if ( addcols )
 	    {
 		for ( int iout=0; iout<nrout; iout++ )
-		    outdr.data_ += iout == idps ? 1 : 0;
+		    outdr.data_ += mCast( float, iout == idps ? 1 : 0 );
 	    }
 
 	    const bool istest = extractrand ? Stats::randGen().get() < tstratio

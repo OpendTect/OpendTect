@@ -414,7 +414,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 
     SEGY::BinHeader binhead;
     binhead.setForWrite();
-    binhead.setFormat( filepars_.fmt_ < 2 ? 1 : filepars_.fmt_ );
+    binhead.setFormat( mCast(short,filepars_.fmt_ < 2 ? 1 : filepars_.fmt_) );
     filepars_.fmt_ = binhead.format();
     binhead.setEntryVal( SEGY::BinHeader::EntryLino(), pinfo.nr );
     static int jobid = 0;
@@ -449,7 +449,7 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
     if ( othdomain_ )
 	sdtoput.step *= SI().zIsTime() ? 0.001f : 1000;
 
-    trchead_.putSampling( sdtoput, nstoput );
+    trchead_.putSampling( sdtoput, mCast(unsigned short,nstoput) );
 }
 
 

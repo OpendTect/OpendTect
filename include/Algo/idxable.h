@@ -353,7 +353,7 @@ void callibrateArray( const T* input, int sz,
 	    ? controlpts[idx]/input[sample]
 	    : controlpts[idx]-input[sample];
 
-	func.add( sample, value );
+	func.add( mCast(float,sample), value );
     }
 
     if ( !func.size()  )
@@ -370,7 +370,7 @@ void callibrateArray( const T* input, int sz,
 	else if ( idx>=lastsample )
 	   callibration = func.yVals()[func.size()-1];
 	else
-	   callibration = func.getValue( idx );
+	   callibration = func.getValue( mCast(float,idx) );
 
 	output[idx] = usefactor
 	    ? input[idx]*callibration 

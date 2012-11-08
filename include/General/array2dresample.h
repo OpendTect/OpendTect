@@ -198,8 +198,9 @@ void Array2DReSampler<T,TT>::updateScale(
     const int xsize = toinfo_.getSize( mXDim );
     const int ysize = toinfo_.getSize( mYDim );
 
-    Geom::PosRectangle<float> rectinfrom( 0, 0, from_->info().getSize(mXDim)-1,
-					        from_->info().getSize(mYDim)-1);
+    Geom::PosRectangle<float> rectinfrom( 0, 0, 
+				mCast(float,from_->info().getSize(mXDim)-1),
+				mCast(float,from_->info().getSize(mYDim)-1) );
 
     if ( rectinfromptr )
     {

@@ -166,7 +166,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     HorSamplingIterator iter( sd.rg );
     BinID bid;
     EM::SectionID sid = hor->sectionID( 0 );
-    const float fac = SI().zDomain().userFactor();
+    const float fac = mCast( float, SI().zDomain().userFactor() );
     const int dataidx = isz ? -1 : hor->auxdata.auxDataIndex( attribnm.str() );
     while ( iter.next(bid) )
     {
@@ -283,8 +283,8 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
 	}
     }
 
-    const Color bgcol = seq.color( doflip ? 1 : 0 );
-    const Color fgcol = seq.color( doflip ? 0 : 1 );
+    const Color bgcol = seq.color( mCast(float,doflip ? 1 : 0) );
+    const Color fgcol = seq.color( mCast(float,doflip ? 0 : 1) );
     *sd.ostrm << "B" << "\t";  mPrintCol( bgcol, std::endl );
     *sd.ostrm << "F" << "\t";  mPrintCol( fgcol, std::endl );
     sd.close();

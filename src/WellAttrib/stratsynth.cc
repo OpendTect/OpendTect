@@ -353,7 +353,7 @@ void StratSynth::generateOtherQuantities( PostStackSyntheticData& sd,
 	    TypeSet<float> vals; 
 	    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
 	    {
-		const float time = zrg.atIndex( idz );
+		const float time = mCast( float, zrg.atIndex(idz) );
 		const float dpt = t2d.getDepth( time );
 
 		const Strat::Layer* lay = 0;

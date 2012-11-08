@@ -172,7 +172,7 @@ void uiTieView::setLogsParams()
 	data.zistime_ = params_.iszintime_;
 	logsdisp_[idx]->setData( data );
     }
-    const float zfac = SI().zDomain().userFactor();
+    const float zfac = mCast( float, SI().zDomain().userFactor() );
     Interval<float> zrg( zrange_.start*zfac, zrange_.stop*zfac );
     setLogsRanges( zrg );
 }
@@ -200,7 +200,7 @@ void uiTieView::drawTraces()
 	SeisTrc* trc = new SeisTrc;
 	trc->copyDataFrom( issynth ? data_.synthtrc_ : data_.seistrc_ );
 	trc->info().sampling = data_.seistrc_.info().sampling;
-	trc->info().sampling.scale( SI().zDomain().userFactor() );
+	trc->info().sampling.scale( mCast(float,SI().zDomain().userFactor()) );
 	trcbuf_.add( trc );
 	bool udf = idx == 0 || idx == midtrc || idx == midtrc+1 || idx>nrtrcs-2;
 	if ( udf ) 
@@ -437,7 +437,7 @@ void uiCrossCorrView::set( const Data::CorrelData& cd )
     vals_.erase();
     for ( int idx=0; idx<cd.vals_.size(); idx++ )
 	vals_ += cd.vals_[idx];
-    lag_ = cd.lag_;
+    lag_ = mCast( float, cd.lag_ );
     coeff_ = (float) cd.coeff_;
 }
 

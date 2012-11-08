@@ -567,10 +567,10 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
     	const Coord3 center( (startpos+stoppos)/2, (zrg_.start+zrg_.stop)/2 );
     	planedragger_->setCenter( center );
 
-        Interval<float> xlim( SI().inlRange( true ).start,
-			      SI().inlRange( true ).stop );
-        Interval<float> ylim( SI().crlRange( true ).start,
-			      SI().crlRange( true ).stop );
+        Interval<float> xlim( mCast( float, SI().inlRange( true ).start ),
+			      mCast( float, SI().inlRange( true ).stop ) );
+        Interval<float> ylim( mCast( float, SI().crlRange( true ).start ),
+			      mCast( float, SI().crlRange( true ).stop ) );
 #define mBigNumber 1e15
 	
 	if ( isinline )

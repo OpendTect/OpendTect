@@ -87,7 +87,7 @@ void uiGMTSymbolPars::fillShapes()
 	    BufferString shapekey = ODGMT::ShapeNames()[idx];
 	    if ( shapekey.isEmpty() ) break;
 
-	    shapekey.buf()[0] = tolower( shapekey.buf()[0] );
+	    shapekey.buf()[0] = mCast( char, tolower( shapekey.buf()[0] ) );
 	    shapefld_->insertItem( ioPixmap(shapekey), "", idx );
 	}
     }

@@ -229,7 +229,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
     const StepInterval<double> xrg = vwr_->getDataPackRange(true);
     const StepInterval<double> zrg = vwr_->getDataPackRange(false);
 
-    const float offset = xrg.start;
+    const float offset = mCast( float, xrg.start );
     if ( !xrg.includes( selectedtrace_ + offset, true ) )
 	return;
 
@@ -466,7 +466,7 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
 
-    const float offset = offsetposfld_->getValue();
+    const float offset = mCast( float, offsetposfld_->getValue() );
     const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, 0 ) 
 				   : &postsd->postStackPack().trcBuf();
 
@@ -547,7 +547,7 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* )
 	tb->addObject( modelposfld_->mainObject() );
 	modelposfld_->positionChg.notify( 
 		mCB(this,uiStratSynthDisp,modelPosChged) );
-	StepInterval<float> ls(  1, layerModel().size(), 1 );
+	StepInterval<float> ls(  1, mCast(float,layerModel().size()), 1 );
 	modelposfld_->setLimitSampling( ls );
 
 	prestackwin_->setInitialSize( 300, 500 );

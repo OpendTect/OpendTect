@@ -400,7 +400,7 @@ int SEGY::HdrDef::idxOfBytePos( SEGY::HdrEntry::BytePos bp,
 	else if ( he.bytepos_ > bp )
 	{
 	    if ( idx )
-		offs = bp - (*this)[idx-1]->bytepos_;
+		offs = mCast( unsigned char, bp - (*this)[idx-1]->bytepos_ );
 	    return idx;
 	}
     }

@@ -218,7 +218,7 @@ bool MarchingCubesModel::operator==( const MarchingCubesModel& mc ) const
 	if ( axispos<0 ) axispos=0; \
 	else if ( axispos>cMaxAxisPos ) \
 	    axispos = cMaxAxisPos; \
-	axispos_[axis] = axispos; \
+	axispos_[axis] = mCast( unsigned char, axispos ); \
     } \
     else \
 	axispos_[axis] = cUdfAxisPos; \
@@ -346,11 +346,11 @@ bool MarchingCubesModel::readFrom( std::istream& strm, bool binary )
     else
     {
 	int res;
-	strm >> res; model_ = res;
-	strm >> res; submodel_ = res;
-	strm >> res; axispos_[mX] = res;
-	strm >> res; axispos_[mY] = res;
-	strm >> res; axispos_[mZ] = res;
+	strm >> res; model_ = mCast( unsigned char, res );
+	strm >> res; submodel_ = mCast( unsigned char, res );
+	strm >> res; axispos_[mX] = mCast( unsigned char, res );
+	strm >> res; axispos_[mY] = mCast( unsigned char, res );
+	strm >> res; axispos_[mZ] = mCast( unsigned char, res );
     }
 
     return strm;

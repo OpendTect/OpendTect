@@ -86,7 +86,7 @@ void Texture::updateDefaults( Desc& desc )
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
     float roundedzstep = SI().zStep()*SI().showZ2UserFactor();
     if ( roundedzstep > 0 )
-	roundedzstep = (int)( roundedzstep );
+	roundedzstep = floor ( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 
@@ -105,7 +105,7 @@ Texture::Texture( Desc& desc )
     }
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1./SI().showZ2UserFactor() );
+    gate_.scale( 1.f/SI().showZ2UserFactor() );
     mGetEnum( action_, actionStr() );
     mGetBinID( stepout_, stepoutStr() );
     mGetBool ( matrix_, glcmsizeStr() );
@@ -180,7 +180,7 @@ int Texture::scaleVal( float val ) const
     if ( val <= 0 ) 
 	val = 0 ;
     else if ( val > glcmsize_ - 1 )
-	val = glcmsize_ -1 ;
+	val = mCast( float, glcmsize_ -1 );
     return (int)val;
 }
 
@@ -254,7 +254,7 @@ void Texture::prepareForComputeData()
     sampgate_.start = mNINT32(gate_.start/refstep_);
     sampgate_.stop = mNINT32(gate_.stop/refstep_);
     const float biggestdist = mMAX (SI().inlDistance(), SI().crlDistance() );
-    const float safeextrasamp = biggestdist * mMAXDIP / refstep_;
+    const float safeextrasamp = mCast(float, biggestdist * mMAXDIP / refstep_);
     dessampgate_ = Interval<int>( mNINT32(sampgate_.start-safeextrasamp),
 				  mNINT32(sampgate_.stop+safeextrasamp) );
 }	
@@ -307,7 +307,7 @@ bool Texture::computeData( const DataHolder& output, const BinID& relpos,
 		for (int n=0; n<glcmsize_; n++)
 		{
 		    normprob = glcm.get( n, m )/(float)(2*glcmcount);
-		    textmeasure += normprob/(1.0+((n - m)*(n - m))); 
+		    textmeasure += normprob/(1.0f+((n - m)*(n - m))); 
 		}
 	    }
 	}

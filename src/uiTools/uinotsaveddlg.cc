@@ -46,7 +46,7 @@ public:
 	BufferString action( actiontype );
 	if ( !withcancel ) setCancelText( 0 );
 
-	*action.buf() = toupper( *action.buf() );
+	*action.buf() = mCast( char, toupper( *action.buf() ) );
 	const BufferString txt( action.buf(), " now" );
 	setOkText( txt.buf() );
 

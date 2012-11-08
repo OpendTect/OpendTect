@@ -220,11 +220,11 @@ void VW2DPickSet::drawAll()
 
     const uiWorldRect& curvw = viewer_.curView();
     const float zdiff = (float) curvw.height();
-    const float nrzpixels = viewer_.getViewRect().vNrPics();
+    const float nrzpixels = mCast( float, viewer_.getViewRect().vNrPics() );
     const float zfac = nrzpixels / zdiff;
     const float xdiff = (float) ( curvw.width() *
 	( oninl ? SI().crlDistance() : SI().inlDistance() ) );
-    const float nrxpixels = viewer_.getViewRect().hNrPics();
+    const float nrxpixels = mCast( float, viewer_.getViewRect().hNrPics() );
     const float xfac = nrxpixels / xdiff;
 
     picks_->poly_.erase();

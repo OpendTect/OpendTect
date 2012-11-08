@@ -497,7 +497,7 @@ void ExprInterpreter::setBreakPrefix( const char* endptr,
 				      BufferString& breakprefix ) const
 {
     breakprefix.setEmpty();
-    const int sz = endptr - exprstr_; 
+    const int sz = mCast( int, endptr - exprstr_ ); 
     if ( sz > 0 )
     {
 	breakprefix.setBufSize( sz+1 );

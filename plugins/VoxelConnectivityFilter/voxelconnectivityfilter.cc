@@ -464,7 +464,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 #define mOutputLoopStart \
         if ( nrdone>10000 ) \
 	{ \
-    	    reportNrDone( nrdone ); \
+    	    reportNrDone( mCast(int,nrdone) ); \
 	    nrdone = 0; \
 	} \
 	int bodynr = statusarr_[idx]; \
@@ -486,7 +486,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	for ( od_int64 idx=start; idx<=stop; idx++ )
 	{
 	    mOutputLoopStart;
-	    outputvs->setValue( idx, bodyranking_[bodynr] );
+	    outputvs->setValue( idx, mCast(float,bodyranking_[bodynr]) );
         }
     }
     else if ( acceptoutput==VoxelConnectivityFilter::BodySize )

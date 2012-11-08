@@ -45,7 +45,7 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
     const float replveldz = wd.info().srdelev - wd.track().getKbElev();
 
     const float startdah = replveldz < 0 ? -1.f * replveldz : 0;
-    const float defvelrepl = !SI().zInFeet() ? 2000 : 8000;
+    const float defvelrepl = mCast( float, !SI().zInFeet() ? 2000 : 8000 );
     const float replvel = mIsUdf(wd.info().replvel) ? defvelrepl :
        				 wd.info().replvel;
     const float bulkshift = replveldz > 0 ? 
@@ -80,7 +80,7 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
     const int sz = d2t.size();
     TypeSet<float> dahs, times;
     mAllocVarLenArr( int, zidxs, sz );
-    const float defvelrepl = !SI().zInFeet() ? 2000 : 8000;
+    const float defvelrepl = mCast( float, !SI().zInFeet() ? 2000 : 8000 );
 
     float replvel = mIsUdf(wd.info().replvel) ? defvelrepl : wd.info().replvel;
     const float replveldz = wd.info().srdelev - wd.track().getKbElev();

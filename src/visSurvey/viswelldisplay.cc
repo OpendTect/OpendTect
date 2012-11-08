@@ -548,7 +548,7 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
     well_->setLogLineDisplayed( lp.size_ > 0, lognr );
 
     setLogColor( lp.col_, lognr );
-    setLogLineWidth( lp.size_, lognr );
+    setLogLineWidth( mCast(float,lp.size_), lognr );
     setLogWidth( lp.logwidth_, lognr );
 
     if ( lp.cliprate_ && lp.logidx_ >= 0 )

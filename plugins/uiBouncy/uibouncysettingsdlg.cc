@@ -138,7 +138,6 @@ bool uiBouncySettingsDlg::isOK()
     if ( ( radiusfld_->isUndef( 0 ) ) || ( !binIDOK() ) )
     {
 	mErrRet( "Error in input. Try again!" );
-	return false;
     }
     else 
 	return true;

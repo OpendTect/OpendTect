@@ -654,8 +654,10 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 void MPEDisplay::updateBoxSpace()
 {
     const HorSampling& hs = SI().sampling(true).hrg;
-    const Interval<float> survinlrg( hs.start.inl, hs.stop.inl );
-    const Interval<float> survcrlrg( hs.start.crl, hs.stop.crl );
+    const Interval<float> survinlrg( mCast(float,hs.start.inl), 
+					mCast(float,hs.stop.inl) );
+    const Interval<float> survcrlrg( mCast(float,hs.start.crl), 
+					mCast(float,hs.stop.crl) );
     const Interval<float> survzrg( SI().zRange(true).start,
 	    			   SI().zRange(true).stop );
 
@@ -804,8 +806,10 @@ void MPEDisplay::alignSliceToSurvey( visBase::OrthogonalSlice& slice )
 
 void MPEDisplay::setCubeSampling( const CubeSampling& cs )
 {
-    const Interval<float> xintv( cs.hrg.start.inl, cs.hrg.stop.inl );
-    const Interval<float> yintv( cs.hrg.start.crl, cs.hrg.stop.crl );
+    const Interval<float> xintv( mCast(float,cs.hrg.start.inl), 
+				    mCast(float,cs.hrg.stop.inl) );
+    const Interval<float> yintv( mCast(float,cs.hrg.start.crl), 
+				    mCast(float,cs.hrg.stop.crl) );
     const Interval<float> zintv( cs.zrg.start, cs.zrg.stop );
     voltrans_->setTranslation(
 	    Coord3(xintv.center(),yintv.center(),zintv.center()) );
@@ -1118,12 +1122,12 @@ float MPEDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     if ( dim == 2 )
     {
 	slicepos += (float) voltrans_->getTranslation()[0];
-	pos = SI().inlRange(true).snap(slicepos);
+	pos = mCast( float, SI().inlRange(true).snap(slicepos) );
     }
     else if ( dim == 1 )
     {
 	slicepos += (float) voltrans_->getTranslation()[1];
-	pos = SI().crlRange(true).snap(slicepos);
+	pos = mCast( float, SI().crlRange(true).snap(slicepos) );
     }
     else
     {

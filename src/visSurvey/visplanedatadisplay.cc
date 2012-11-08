@@ -288,13 +288,15 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 	return;
 
     CubeSampling survey = scene_->getCubeSampling();
-    const Interval<float> inlrg( survey.hrg.start.inl, survey.hrg.stop.inl );
-    const Interval<float> crlrg( survey.hrg.start.crl, survey.hrg.stop.crl );
+    const Interval<float> inlrg( mCast(float,survey.hrg.start.inl), 
+				    mCast(float,survey.hrg.stop.inl) );
+    const Interval<float> crlrg( mCast(float,survey.hrg.start.crl), 
+				    mCast(float,survey.hrg.stop.crl) );
 
     dragger_->setSpaceLimits( inlrg, crlrg, survey.zrg );
     dragger_->setWidthLimits(
-	    Interval<float>( 4*survey.hrg.step.inl, mUdf(float) ),
-	    Interval<float>( 4*survey.hrg.step.crl, mUdf(float) ),
+	    Interval<float>( mCast(float,4*survey.hrg.step.inl), mUdf(float) ),
+	    Interval<float>( mCast(float,4*survey.hrg.step.crl), mUdf(float) ),
 	    Interval<float>( 4*survey.zrg.step, mUdf(float) ) );
 
     CubeSampling newpos = getCubeSampling(false,true);
@@ -328,8 +330,10 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
 {
     CubeSampling res( cs );
-    const Interval<float> inlrg( res.hrg.start.inl, res.hrg.stop.inl );
-    const Interval<float> crlrg( res.hrg.start.crl, res.hrg.stop.crl );
+    const Interval<float> inlrg( mCast(float,res.hrg.start.inl), 
+				    mCast(float,res.hrg.stop.inl) );
+    const Interval<float> crlrg( mCast(float,res.hrg.start.crl), 
+				    mCast(float,res.hrg.stop.crl) );
     const Interval<float> zrg( res.zrg );
 
     res.hrg.snapToSurvey();

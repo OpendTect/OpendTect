@@ -307,7 +307,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
 
     if ( isz )
     {
-	rg.scale( SI().zDomain().userFactor() );
+	rg.scale( mCast(float,SI().zDomain().userFactor()) );
 	const float samp = SI().zStep() * SI().zDomain().userFactor();
 	rg.start = samp * mNINT32(rg.start/samp);
 	rg.stop = samp * mNINT32(rg.stop/samp);

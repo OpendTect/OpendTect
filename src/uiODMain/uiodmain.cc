@@ -605,7 +605,7 @@ void uiODMain::memTimerCB( CallBacker* )
 
     BufferString txt( "[mem] " );
     const bool ingb = tot > 1070000000;
-    const float fac = ingb ? 1073741824 : 1048576;
+    const float fac = mCast( float, ingb ? 1073741824 : 1048576 );
     tot /= fac; av /=fac;
     int itot = mNINT32(tot*10); int iav = mNINT32(av*10);
     txt			.add( iav/10 ).add( "." ).add( iav%10 )
