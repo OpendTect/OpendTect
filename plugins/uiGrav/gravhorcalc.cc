@@ -58,9 +58,9 @@ int Grav::HorCalc::doLoadStep()
     {
 	// ztransf_ = ZATF().create( xxx );
 	msg_ = "TODO";
-	return ErrorOccurred();
-
 	nrdone_ = 0;
+	return ErrorOccurred();
+	
     }
     return MoreToDo();
 }
