@@ -156,7 +156,6 @@ int uiODDataTreeItem::sceneID() const
 }
 
 
-
 int uiODDataTreeItem::displayID() const
 {
     mDynamicCastGet( uiODDisplayTreeItem*, odti, parent_ );
@@ -193,7 +192,7 @@ bool uiODDataTreeItem::showSubMenu()
 	menu_->handlenotifier.notify( mCB(this,uiODDataTreeItem,handleMenuCB) );
     }
 
-    return menu_->executeMenu(uiMenuHandler::fromTree());
+    return menu_->executeMenu( uiMenuHandler::fromTree() );
 }
 
 

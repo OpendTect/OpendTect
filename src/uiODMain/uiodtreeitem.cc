@@ -12,16 +12,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
 
-#include "uimenu.h"
-#include "uiodapplmgr.h"
-#include "uivispartserv.h"
-
 #include "settings.h"
-#include "uimsg.h"
-#include "uiodscenemgr.h"
 #include "ui3dviewer.h"
+#include "uimenu.h"
+#include "uimenuhandler.h"
+#include "uimsg.h"
+#include "uiodapplmgr.h"
+#include "uiodscenemgr.h"
 #include "uiscenepropdlg.h"
 #include "uitreeview.h"
+#include "uivispartserv.h"
 #include "vissurvscene.h"
 
 
@@ -231,10 +231,110 @@ void uiODTreeTop::removeFactoryCB( CallBacker* cb )
 }
 
 
+// uiODSceneTreeItem
+
 uiODSceneTreeItem::uiODSceneTreeItem( const char* nm, int id )
-	: uiODTreeItem( nm )
-	, displayid_( id )
+    : uiODTreeItem(nm)
+    , displayid_(id)
+    , menu_(0)
+    , propitem_("&Properties ...")
+    , imageitem_("&Top/Bottom image ...")
+    , coltabitem_("&Scene color table ...")
+    , dumpivitem_("&Export scene ...")
 {
+    propitem_.iconfnm = "disppars";
+}
+
+
+uiODSceneTreeItem::~uiODSceneTreeItem()
+{
+    if ( menu_ )
+    {
+	menu_->createnotifier.remove( mCB(this,uiODSceneTreeItem,createMenuCB) );
+	menu_->handlenotifier.remove( mCB(this,uiODSceneTreeItem,handleMenuCB) );
+	menu_->unRef();
+    }
+
+    MenuHandler* tb = applMgr()->visServer()->getToolBarHandler();
+    if ( tb )
+    {
+	tb->createnotifier.remove( mCB(this,uiODSceneTreeItem,addToToolBarCB) );
+	tb->handlenotifier.remove( mCB(this,uiODSceneTreeItem,handleMenuCB) );
+    }
+}
+
+
+bool uiODSceneTreeItem::init()
+{
+    if ( !menu_ )
+    {
+	menu_ = new uiMenuHandler( getUiParent(), -1 );
+	menu_->ref();
+	menu_->createnotifier.notify( mCB(this,uiODSceneTreeItem,createMenuCB) );
+	menu_->handlenotifier.notify( mCB(this,uiODSceneTreeItem,handleMenuCB) );
+    }
+
+    MenuHandler* tb = applMgr()->visServer()->getToolBarHandler();
+    if ( tb )
+    {
+	tb->createnotifier.notify( mCB(this,uiODSceneTreeItem,addToToolBarCB) );
+	tb->handlenotifier.notify( mCB(this,uiODSceneTreeItem,handleMenuCB) );
+    }
+
+    return uiODTreeItem::init();
+}
+
+
+void uiODSceneTreeItem::createMenuCB( CallBacker* cb )
+{
+    mDynamicCastGet(MenuHandler*,menu,cb);
+    createMenu( menu, false );
+}
+
+
+void uiODSceneTreeItem::addToToolBarCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
+    if ( !tb || tb->menuID() != displayid_ || !isSelected() )
+	return;
+
+    createMenu( tb, true );
+}
+
+
+void uiODSceneTreeItem::createMenu( MenuHandler* menu, bool istb )
+{
+    mAddMenuOrTBItem( istb, menu, menu, &propitem_, true, false );
+    mAddMenuOrTBItem( istb, 0, menu, &imageitem_, true, false );
+    mAddMenuOrTBItem( istb, 0, menu, &coltabitem_, true, false );
+    bool enabdump = true;
+    Settings::common().getYN(
+		IOPar::compKey("dTect","Dump OI Menu"), enabdump );
+    mAddMenuOrTBItem( istb, 0, menu, &dumpivitem_, enabdump, false );
+}
+
+
+void uiODSceneTreeItem::handleMenuCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
+    mDynamicCastGet(MenuHandler*,menu,caller);
+    if ( mnuid==-1 || menu->isHandled() )
+	return;
+
+    uiVisPartServer* visserv = applMgr()->visServer();
+    if ( mnuid==propitem_.id )
+    {
+	ObjectSet<ui3DViewer> viewers;
+	ODMainWin()->sceneMgr().getSoViewers( viewers );
+	uiScenePropertyDlg dlg( getUiParent(), viewers, viewers.indexOf(viewer()) );
+	dlg.go();
+    }
+    else if ( mnuid==imageitem_.id )
+	visserv->setTopBotImg( displayid_ );
+    else if ( mnuid==coltabitem_.id )
+	visserv->manageSceneColorbar( displayid_ );
+    else if( mnuid==dumpivitem_.id )
+	visserv->writeSceneToFile( displayid_, "Export scene as ..." );
 }
 
 
@@ -246,42 +346,8 @@ void uiODSceneTreeItem::updateColumnText( int col )
     uiTreeItem::updateColumnText( col );
 }
 
-#define mProperties	0
-#define mTopBotImg	1
-#define mDumpIV		2
-#define mScnColBar	3
-
 
 bool uiODSceneTreeItem::showSubMenu()
 {
-    uiPopupMenu mnu( getUiParent(), "Action" );
-
-    uiMenuItem* anntxt = new uiMenuItem( "&Properties ..." );
-    mnu.insertItem( anntxt, mProperties );
-    mnu.insertItem( new uiMenuItem("&Top/Bottom image ..."), mTopBotImg );
-    mnu.insertItem( new uiMenuItem("&Scene Color Bar Properties ..."), mScnColBar );
-
-    bool yn = false;
-    Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), yn );
-    if ( yn )
-	mnu.insertItem( new uiMenuItem("&Export scene ..."), mDumpIV );
-
-    uiVisPartServer* visserv = applMgr()->visServer();
-    const int mnuid=mnu.exec();
-    if ( mnuid==mProperties )
-    {
-	ObjectSet<ui3DViewer> viewers;
-	ODMainWin()->sceneMgr().getSoViewers( viewers );
-	uiScenePropertyDlg dlg( getUiParent(), viewers, 
-			viewers.indexOf( viewer() ) );
-	dlg.go();
-    }
-    else if ( mnuid==mTopBotImg )
-	visserv->setTopBotImg( displayid_ );
-    else if ( mnuid== mScnColBar )
-	visserv->manageSceneColorbar( displayid_ );
-    else if( mnuid==mDumpIV )
-	visserv->writeSceneToFile( displayid_, "Export scene as ..." );
-
-    return true;
+    return menu_->executeMenu( uiMenuHandler::fromTree() );
 }
