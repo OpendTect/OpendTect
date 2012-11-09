@@ -337,7 +337,9 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
     const Well::D2TModel* d2t = wd->d2TModel();
     setName( wd->name() );
 
-    if ( wd->track().size() < 1 );
+    if ( wd->track().size() < 1 )
+	return;
+    
     PtrMan<Well::Track> ttrack = 0;
     if ( zistime_ )
     {
