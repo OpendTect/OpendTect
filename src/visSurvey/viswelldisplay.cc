@@ -272,7 +272,8 @@ void WellDisplay::fullRedraw( CallBacker* )
 
     const bool waslogconstsize = well_->logConstantSize();
 
-    TypeSet<Coord3> trackpos = getTrackPos( wd );
+    TypeSet<Coord3> trackpos;
+    getTrackPos( wd, trackpos );
     if ( trackpos.isEmpty() ) return;
 
     visBase::Well::TrackParams tp;
@@ -329,13 +330,14 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 }
 
 
-TypeSet<Coord3> WellDisplay::getTrackPos( const Well::Data* wd )
+void WellDisplay::getTrackPos( const Well::Data* wd,
+			       TypeSet<Coord3>& trackpos )
 {
-    TypeSet<Coord3> trackpos;
+    trackpos.erase();
     const Well::D2TModel* d2t = wd->d2TModel();
     setName( wd->name() );
 
-    if ( wd->track().size() < 1 ) return trackpos;
+    if ( wd->track().size() < 1 );
     PtrMan<Well::Track> ttrack = 0;
     if ( zistime_ )
     {
@@ -352,8 +354,6 @@ TypeSet<Coord3> WellDisplay::getTrackPos( const Well::Data* wd )
 	if ( !mIsUdf(pt.z) )
 	    trackpos += pt;
     }
-
-    return trackpos;
 }
 
 
