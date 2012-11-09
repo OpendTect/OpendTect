@@ -165,8 +165,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 
 	zoomslider_ = new uiSliderExtra( &appl_, "Zoom", "Zoom Slider" );
 	zoomslider_->sldr()->valueChanged.notify( mWSMCB(zoomChanged) );
-	zoomslider_->sldr()->setMinValue( mCast(float,cMinZoom) );
-	zoomslider_->sldr()->setMaxValue( mCast(float,cMaxZoom) );
+	zoomslider_->sldr()->setInterval( cMinZoom, cMaxZoom );
 	zoomslider_->setStretch( 0, 0 );
 	zoomslider_->attach( rightAlignedBelow, mdiarea_ );
 
@@ -488,8 +487,8 @@ void uiODSceneMgr::updateStatusBar()
 	msg += "   (";
 	msg += mNINT32(xytpos.x); msg += ", ";
 	msg += mNINT32(xytpos.y); msg += ", ";
-//	msg += SI().zIsTime() ? mNINT32(xytpos.z * 1000) : xytpos.z;
-	const float zfact = mCast( float, visServ().zFactor() );
+
+	const float zfact = mCast(float,visServ().zFactor());
 	float zval = (float) (zfact * xytpos.z);
 	if ( zfact>100 || zval>10 ) zval = mNINT32(zval);
 	msg += zval; msg += ")";
@@ -681,7 +680,7 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
 void uiODSceneMgr::soloMode( CallBacker* )
 {
     TypeSet< TypeSet<int> > dispids;
-    int selectedid;
+    int selectedid = -1;
     const bool issolomodeon = menuMgr().isSoloModeOn();
     for ( int idx=0; idx<scenes_.size(); idx++ )
 	dispids += scenes_[idx]->itemmanager_->getDisplayIds( selectedid,  

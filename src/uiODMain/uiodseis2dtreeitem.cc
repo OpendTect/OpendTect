@@ -388,7 +388,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	selcomps.erase();
 	menu->setIsHandled( true );
-	const char itmidx = mCast( char, storeditm_.itemIndex( mnuid ) );
+	const int itmidx = storeditm_.itemIndex( mnuid );
 	const char* attribnm = storeditm_.getItem(itmidx)->text;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
@@ -400,7 +400,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	selcomps.erase();
 	menu->setIsHandled( true );
-	const char itmidx = mCast( char, steeringitm_.itemIndex( mnuid ) );
+	const int itmidx = steeringitm_.itemIndex( mnuid );
 	const char* attribnm = steeringitm_.getItem(itmidx)->text;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{

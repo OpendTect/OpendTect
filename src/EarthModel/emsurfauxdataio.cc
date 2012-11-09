@@ -380,7 +380,7 @@ int dgbSurfDataReader::nextStep()
 	    if ( !readInt(cp) || !readInt(valsleftonsection_) )
 		mErrRetRead( "Error in reading data information" )
 
-	    currentsection_ = cp;
+	    currentsection_ = mCast(EM::SectionID,cp);
 	    totalnr_ = 100;
 	    chunksize_ = valsleftonsection_/totalnr_+1;
 	    if ( chunksize_ < 100 )
