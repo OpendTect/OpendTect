@@ -2,12 +2,12 @@
 <!--
   - CopyRight:	(C) dGB Earth Sciences
   - Author:	A.H. Bril
-  - Date:	June 2007
-  - Contents:	OpendTect hardware requirements
-  - RCS:	$Id: system_requirements.html,v 1.15 2012/06/28 10:10:00 cvsbert Exp $
+  - Date:	June 2007 / June 2012
+  - Contents:	OpendTect system requirements
+  - RCS:	$Id: system_requirements.html 27385 2012-11-12 21:52:08Z nanne.hemstra@dgbes.com $
  -->
 
-<body bgcolor="#eeeeee"><title>OpendTect Hardware and OS requirements</title>
+<body bgcolor="#eeeeee"><title>OpendTect System requirements</title>
 <div align='right' id="google_translate_element"></div><script> function googleTranslateElementInit() { new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element'); } </script><script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <center><br>
@@ -16,14 +16,14 @@
 || <a href=#recommendations>Recommendations</a>
 </center><br>
 
-<h1>OpendTect Hardware and OS requirements</h1><br><br>
+<h1>OpendTect system requirements</h1><br><br>
 
 <a name=summary><h2>[Summary] Supported platforms</h2></a>
 
 OpendTect needs good hardware with up-to-date drivers - especially for 3D graphics. You can run on:
 
 <ol>
-<li><a href="http://www.intel.com">Intel</a>/<a href="http://www.amd.com">AMD</a> under Linux (32 or 64 bits) or MS Windows (2000, XP, Vista, 7 - 32 or 64 bits)
+<li><a href="http://www.intel.com">Intel</a>/<a href="http://www.amd.com">AMD</a> under Linux (32 or 64 bits) or MS Windows (2000, XP, Vista, 7, 8 - 32 or 64 bits)
 <li><a href="http://www.apple.com/dotmac">Mac</a>/Intel under OS X (10.5) and up
 </ol>
 <br>
@@ -51,7 +51,7 @@ the system almost stops.
 
 There are two settings for the user to cope with this:
 <ul>
-<li>Do you want shading if the card reports that it is capabale of it?
+<li>Do you want shading if the card reports that it is capable of it?
 <li>If so, do you also want it for volume rendering?
 </ul>
 Some cards (Like some ATI cards) support shading well but things go bad for
@@ -94,10 +94,7 @@ A modern Linux distribution is required. <b>Minimum</b>:
 <li><a href="http://www.novell.com/linux">SuSE</a> or <a href="http://opensuse.org">OpenSuSE</a> 10.0
 <li><a href="http://www.redhat.com">Red Hat</a> Enterprise 4 (or the free <a href="http://www.centos.org">CentOS</a> counterpart)
 </ul>
-Linux distributions should be LSB compliant. You can check this using the command <code>lsb_release</code>. This is particularly stringent for commercial plugins using the FlexNet system. Info on installing license files for commercial plugins can be found at:
-http://opendtect.org/lic/flexlm_installation_guide.html
-background at:
-http://opendtect.org/lic/flexlm_explained.html
+Linux distributions should be LSB compliant. You can check this using the command <code>lsb_release</code>. This is particularly stringent for commercial plugins using the FlexNet system. There is documentation on <a href="http://opendtect.org/lic/doc/flexnet_installation_guide.html">installing license files for commercial plugins</a>, and there is a page with <a href="http://opendtect.org/lic/doc/flexnet_explained.html">background information</a>. 
 <p>
 For both SuSE and Red Hat-based distributions 32 or 64 bits releases are
 available. OpendTect is known to work under <a href="http://www.debian.org">Debian</a>, <a href="http://www.ubuntu.com">Ubuntu</a> and other distributions, as well as earlier versions of the main distributions, too. <a href="http://fedoraproject.org">Fedora</a> usage is not recommended - although it may work it's the only distro that regularly fails to work in combination with OpendTect. This is probably because the graphics vendors do not support it well in terms of drivers.
@@ -108,7 +105,7 @@ available. OpendTect is known to work under <a href="http://www.debian.org">Debi
 Minimum is Mac OS X (10.5) - thus Mac/Intel. Mac/PowerPC support is not available. A 3-button mouse is highly recomended.
 
 <a name=win><h3>MS Windows</h3></a>
-Windows 2000, XP, Vista and 7 are supported and both 32 and 64 bits releases are available.
+Windows 2000, XP, Vista, 7 and 8 are supported and both 32 and 64 bits releases are available.
 
 <br><a name=recommendations><h2>Recommendations</h2></a>
 
