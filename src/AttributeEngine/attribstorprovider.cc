@@ -15,6 +15,7 @@ static const char* rcsID = "$Id$";
 #include "attriblinebuffer.h"
 #include "attribdataholder.h"
 #include "attribdatacubes.h"
+#include "commondefs.h"
 #include "datainpspec.h"
 #include "datapack.h"
 #include "ioman.h"
@@ -40,6 +41,8 @@ static const char* rcsID = "$Id$";
 #include "threadwork.h"
 #include "task.h"
 #include <math.h>
+
+#include "attribsteering.h"               //tmp fix for od4.4
 
 
 namespace Attrib
@@ -938,5 +941,31 @@ void StorageProvider::getCompNamesFakeToKeepHeadersOK(
     updateDescAndGetCompNms( desc_, &nms );
 }
 
+
+float StorageProvider::customizedCrlDist() const
+{                                
+    if ( getDesc().is2D() && mscprov_ )
+    {                                                                           
+	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
+	const BufferString attrnm = lk.attrName();
+	const MultiID key( lk.lineName() );
+	PtrMan<IOObj> ioobj = IOM().get( key );
+	SeisTrcReader rdr( ioobj );
+	if ( rdr.ioObj() && rdr.lineSet() )
+	{
+	    BufferStringSet steernms;
+	    rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering );
+	    const bool issteering = steernms.indexOf( attrnm ) >= 0;
+	    if ( issteering )
+	    {
+		const SeisTrc* trc = mscprov_->get(0,0);
+		if ( trc && mIsEqual(trc->info().pick, 0, 1e-3) )
+		    return mStd2DTrcSpacing;
+	    }
+	}
+    }                                                                           
+
+    return crldist();                                                           
+}
 
 }; // namespace Attrib

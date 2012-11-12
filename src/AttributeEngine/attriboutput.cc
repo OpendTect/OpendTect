@@ -34,6 +34,7 @@ static const char* rcsID = "$Id$";
 #include "separstr.h"
 #include "survinfo.h"
 
+#include "attribsteering.h"		//tmp fix for od4.4
 
 namespace Attrib
 {
@@ -519,6 +520,22 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 		float val = trc_->get( idx, icomp );
 		val = scaler_->scale( val );
 		trc_->set( idx, val, icomp );
+	    }
+	}
+    }
+
+    //tmp fix for od4.4: use arbitrary mStd2DTrcSpacing for steering 2D
+    //instead of ( usually huge) bin size entered by user
+    if ( writer_->is2D() && isDataType(sKey::Steering) )
+    {
+	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
+	{
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		float val = trc_->get( idx, icomp );
+		val = val * SI().crlDistance() / mStd2DTrcSpacing;
+		trc_->set( idx, val, icomp );
+		trc_->info().pick = 0;
 	    }
 	}
     }

@@ -95,6 +95,9 @@ protected:
 
 public:
     void		getCompNamesFakeToKeepHeadersOK(BufferStringSet&) const;
+
+protected:
+    virtual float	customizedCrlDist() const;
 };
 
 }; // namespace Attrib

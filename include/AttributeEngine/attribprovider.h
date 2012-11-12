@@ -367,6 +367,9 @@ public:
     MyMainHackingClass*		getMyMainHackingClass() const;
     void			setMyMainHackingClass(MyMainHackingClass*);
     PosInfo::GeomID		getGeomID() const;
+
+protected:
+    virtual float		customizedCrlDist() const;
 };
 
 

@@ -1433,6 +1433,15 @@ float Provider::crldist() const
 }
 
 
+float Provider::customizedCrlDist() const
+{
+    if ( inputs_.size() && inputs_[0] && inputs_[0]->getDesc().isStored() )
+	return inputs_[0]->customizedCrlDist();
+
+    return crldist();
+}
+
+
 const char* Provider::errMsg() const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )

@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "position.h"
 #include "seistype.h"
 //#include "commondefs.h"
+
+#define mStd2DTrcSpacing 12.5			//tmp fix for od4.4
+
 namespace Attrib
 {
 
