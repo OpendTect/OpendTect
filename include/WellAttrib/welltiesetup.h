@@ -105,7 +105,7 @@ public:
     bool          	        putIOPar(const IOPar&,const char*) const; 
 protected:
 
-    bool          	        ptIOPar(const IOPar&,const char*,
+    bool          	        putIOPar(const IOPar&,const char*,
 	    					std::ostream&) const; 
     bool                	wrHdr(std::ostream&,const char*) const;
 };
@@ -121,7 +121,7 @@ public:
     IOPar* 			getIOPar(const char*) const;
 
 protected:
-    IOPar* 			gtIOPar(const char*,std::istream&) const;	
+    IOPar* 			getIOPar(const char*,std::istream&) const;	
 };
 
 }; //namespace WellTie

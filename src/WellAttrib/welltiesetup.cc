@@ -38,8 +38,8 @@ void Setup::usePar( const IOPar& iop )
 {
     iop.get( sKeySeisID, seisid_ );
     iop.get( sKeySeisLine,linekey_ );
-    iop.get( sKeyVelLogName, denlognm_ );
-    iop.get( sKeyDensLogName, vellognm_ );
+    iop.get( sKeyVelLogName, vellognm_ );
+    iop.get( sKeyDensLogName, denlognm_ );
     iop.get( sKeyWavltID, wvltid_ );
     iop.getYN( sKeyIsSonic, issonic_ );
     iop.getYN( sKeyUseExistingD2T(), useexistingd2tm_ );
@@ -51,8 +51,8 @@ void Setup::fillPar( IOPar& iop ) const
 {
     iop.set( sKeySeisID, seisid_ );
     iop.set( sKeySeisLine, linekey_ );
-    iop.set( sKeyVelLogName, denlognm_ );
-    iop.set( sKeyDensLogName, vellognm_ );
+    iop.set( sKeyVelLogName, vellognm_ );
+    iop.set( sKeyDensLogName, denlognm_ );
     iop.set( sKeyWavltID, wvltid_ );
     iop.setYN( sKeyIsSonic, issonic_ );
     iop.setYN( sKeyUseExistingD2T(), useexistingd2tm_ );
@@ -116,14 +116,14 @@ bool Writer::putIOPar( const IOPar& iop, const char* subsel ) const
     StreamData sd = mkSD( sExtWellTieSetup() );
     if ( !sd.usable() ) return false;
 
-    const bool isok = ptIOPar( *filepar, subsel, *sd.ostrm );
+    const bool isok = putIOPar( *filepar, subsel, *sd.ostrm );
     sd.close();
     delete filepar;
     return isok;
 }
 
 
-bool Writer::ptIOPar(const IOPar& iop,const char* subs,std::ostream& strm) const
+bool Writer::putIOPar(const IOPar& iop,const char* subs,std::ostream& strm) const
 {
     if ( !wrHdr(strm,sKeyWellTieSetup()) ) return false;
 
@@ -166,13 +166,13 @@ IOPar* Reader::getIOPar( const char* subsel ) const
     StreamData sd = mkSD( sExtWellTieSetup() );
     if ( !sd.usable() ) return 0;
 
-    IOPar* iop = gtIOPar( subsel, *sd.istrm );
+    IOPar* iop = getIOPar( subsel, *sd.istrm );
     sd.close();
     return iop;
 }
 
 
-IOPar* Reader::gtIOPar( const char* subsel, std::istream& strm ) const
+IOPar* Reader::getIOPar( const char* subsel, std::istream& strm ) const
 {
     if ( !rdHdr(strm,sKeyWellTieSetup()) )
 	return 0;

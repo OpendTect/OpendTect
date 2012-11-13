@@ -175,43 +175,39 @@ void uiWellPropSel::initFlds()
 
 void uiWellPropSel::setLogs( const Well::LogSet& logs  )
 {
-    BufferStringSet lognms;
-    for ( int idx=0; idx<logs.size(); idx++ )
-	lognms.add( logs.getLog(idx).name() );
-
-    BufferStringSet allnms;
-    allnms.add( sKeyPlsSel() );
-    allnms.add( lognms, true );
-
-    for ( int idx=0; idx<propflds_.size(); idx++ )
+    for ( int iprop=0; iprop<propflds_.size(); iprop++ )
     {
-	propflds_[idx]->setNames( allnms );
-	bool found = false;
-	const PropertyRef& propref = propflds_[idx]->propRef();
-	const PropertyRef* altpropref = propflds_[idx]->altPropRef();
+	BufferStringSet lognms;
+	lognms.add( sKeyPlsSel() );
+
+	TypeSet<int> propidx;
+	TypeSet<int> isaltpropref;
 	for ( int idlog=0; idlog<logs.size(); idlog++ )
 	{
+	    const PropertyRef& propref = propflds_[iprop]->propRef();
+	    const PropertyRef* altpropref = propflds_[iprop]->altPropRef();
 	    const char* uomlbl = logs.getLog( idlog ).unitMeasLabel();
 	    const UnitOfMeasure* um = UnitOfMeasure::getGuessed( uomlbl );
-	    if ( um && propref.stdType() == um->propType() )
+	    if ( ( um && ( propref.stdType() == um->propType() ) ) || !um )
 	    {
-		propflds_[idx]->set( lognms[idlog]->buf(), false, um );
-		found = true; break;
+		lognms.add( logs.getLog(idlog).name() );
+		propidx += idlog;
+		isaltpropref += 0;
 	    }
-	}
-	if ( !found && altpropref )
-	{
-	    for ( int idlog=0; idlog<logs.size(); idlog++ )
-	    {
-		const char* uomlbl = logs.getLog( idlog ).unitMeasLabel();
-		const UnitOfMeasure* um = UnitOfMeasure::getGuessed( uomlbl );
-		if ( um && altpropref->stdType() == um->propType())
+	    else if ( um && altpropref )
+		if ( altpropref->stdType() == um->propType() )
 		{
-		    propflds_[idx]->set( lognms[idlog]->buf(), true, um );
-		    break;
+		    lognms.add( logs.getLog(idlog).name() );
+		    propidx += idlog;
+		    isaltpropref += 1;
 		}
-	    }
 	}
+
+	propflds_[iprop]->setNames( lognms );
+	const int logidx = propidx[0]; //returning first found
+	const char* uomlbl = logs.getLog( logidx ).unitMeasLabel();
+	const UnitOfMeasure* um = UnitOfMeasure::getGuessed( uomlbl );
+	propflds_[iprop]->set( logs.getLog(logidx).name(), isaltpropref[0], um );
     }
 }
 
@@ -265,7 +261,7 @@ bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs,
 }
 
 
-uiWellPropSelWithCreate::uiWellPropSelWithCreate( uiParent* p, 
+uiWellPropSelWithCreate::uiWellPropSelWithCreate( uiParent* p,
 				const PropertyRefSelection& prs )
     : uiWellPropSel(p,prs)
     , logscreated(this) 
@@ -273,7 +269,7 @@ uiWellPropSelWithCreate::uiWellPropSelWithCreate( uiParent* p,
     for ( int idx=0; idx<propflds_.size(); idx ++ )
     {
 	uiPushButton* createbut = new uiPushButton( this, "&Create", false );
-	createbut->activated.notify( 
+	createbut->activated.notify(
 		mCB(this,uiWellPropSelWithCreate,createLogPushed) );
 	if ( idx )
 	{
