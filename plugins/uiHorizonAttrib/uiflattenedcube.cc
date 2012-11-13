@@ -64,7 +64,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     pp_.getZRange( horzrg_ );
     MouseCursorManager::restoreOverride();
     defzval_ = horzrg_.center() * SI().zDomain().userFactor();
-    defzval_ = mNINT32(defzval_);
+    defzval_ = (float) mNINT32(defzval_);
     zvalfld_ = new uiGenInput( this, txt, FloatInpSpec(defzval_) );
     zvalfld_->attach( alignedBelow, seisselin_ );
 
