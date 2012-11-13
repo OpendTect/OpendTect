@@ -160,6 +160,12 @@ MultiTextureSurveyObject::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 }
 
 
+visBase::TextureChannel2RGBA* MultiTextureSurveyObject::getChannels2RGBA()
+{
+    return channels_ ? channels_->getChannels2RGBA() : 0;
+}
+
+
 void MultiTextureSurveyObject::updateMainSwitch()
 {
     bool newstatus = onoffstatus_;

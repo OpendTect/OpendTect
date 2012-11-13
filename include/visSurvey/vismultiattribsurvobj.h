@@ -48,6 +48,7 @@ public:
     int				getResolution() const;
 
     bool			setChannels2RGBA(visBase::TextureChannel2RGBA*);
+    visBase::TextureChannel2RGBA* getChannels2RGBA();
     visBase::TextureChannels*	getChannels() const { return channels_; }
 
     bool			canHaveMultipleAttribs() const;
