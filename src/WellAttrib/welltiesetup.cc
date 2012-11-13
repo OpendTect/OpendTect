@@ -40,11 +40,10 @@ void Setup::usePar( const IOPar& iop )
 {
     iop.get( sKeySeisID, seisid_ );
     iop.get( sKeySeisLine,linekey_ );
-    iop.get( sKeyVelLogName, denlognm_ );
-    iop.get( sKeyDensLogName, vellognm_ );
+    iop.get( sKeyVelLogName, vellognm_ );
+    iop.get( sKeyDensLogName, denlognm_ );
     iop.get( sKeyWavltID, wvltid_ );
     iop.getYN( sKeyIsSonic, issonic_ );
-    iop.get( sKeyReplacementVel, replacevel_ );
     iop.getYN( sKeyUseExistingD2T(), useexistingd2tm_ );
     parseEnumCorrType( sKeyCSCorrType(), corrtype_ );
 }
@@ -54,11 +53,10 @@ void Setup::fillPar( IOPar& iop ) const
 {
     iop.set( sKeySeisID, seisid_ );
     iop.set( sKeySeisLine, linekey_ );
-    iop.set( sKeyVelLogName, denlognm_ );
-    iop.set( sKeyDensLogName, vellognm_ );
+    iop.set( sKeyVelLogName, vellognm_ );
+    iop.set( sKeyDensLogName, denlognm_ );
     iop.set( sKeyWavltID, wvltid_ );
     iop.setYN( sKeyIsSonic, issonic_ );
-    iop.set( sKeyReplacementVel, replacevel_ );
     iop.setYN( sKeyUseExistingD2T(), useexistingd2tm_ );
     iop.set( sKeyCSCorrType(), getCorrTypeString( corrtype_ ) );
 }
