@@ -76,7 +76,7 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
 
 bool uiTextureAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Texture::attribName()) )
+    if ( desc.attribName()!=Texture::attribName() )
 	return false;
 
     mIfGetFloatInterval( Texture::gateStr(), 
