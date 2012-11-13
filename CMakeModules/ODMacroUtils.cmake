@@ -452,7 +452,7 @@ endmacro()
 
 macro ( OD_ADD_LINEEND_TEST )
     if ( NOT DEFINED WIN32 )
-	set( CMD "${CMAKE_SOURCE_DIR}/dtect/FindDosEOL.sh" )
+	set( CMD "${OpendTect_DIR}/dtect/FindDosEOL.sh" )
 	list( APPEND CMD "${OD_SOURCELIST_FILE}" )
 	add_test( LineEndTest ${CMD} )
     endif()
