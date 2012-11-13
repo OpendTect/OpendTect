@@ -356,8 +356,8 @@ void DescSet::fillPar( IOPar& par ) const
 
 void DescSet::handleStorageOldFormat( IOPar& descpar )
 {
-    const char* typestr = descpar.find( "Type" );
-    if ( !typestr || strcmp(typestr,"Stored") )
+    FixedString typestr = descpar.find( "Type" );
+    if ( typestr.isEmpty() || typestr!="Stored" )
 	return;
 
     const char* olddef = descpar.find( definitionStr() );
@@ -513,8 +513,8 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     bool selectout = descpar.get("Selected Attrib",selout);
     if ( dsc->isStored() )
     {
-	const char* type = descpar.find( sKey::DataType() );
-	if ( type && !strcmp( type, "Dip" ) )
+	FixedString type = descpar.find( sKey::DataType() );
+	if ( type=="Dip" )
 	    dsc->setNrOutputs( Seis::Dip, 2 );
 	else
 	    dsc->changeOutputDataType( selout, Seis::dataTypeOf(type) );
@@ -574,13 +574,14 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	    dsc.setInput( input, inpdesc );
 	}
 
-	if ( !strcmp( dsc.attribName(), "Reference" ) )
+	if ( dsc.attribName()=="Reference" )
 	    handleReferenceInput( &dsc );
 	
 	if ( dsc.isSatisfied() == Desc::Error )
 	{
-	    BufferString err;                                                   
-	    if ( !strcmp( dsc.errMsg(), "Parameter 'id' is not correct") &&    
+	    BufferString err;
+	    FixedString dscerr = dsc.errMsg();
+	    if ( dscerr=="Parameter 'id' is not correct" &&
 		 dsc.isStored() )                                              
 	    {                                                                   
 		err = "Impossible to find stored data '";             
@@ -709,7 +710,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	    {
 		BufferString inputstr = IOPar::compKey( "Input", idx );
-		if ( !strcmp(descpar->find(inputstr),"-1") )
+		if ( descpar->find(inputstr)=="-1" )
 		{
 		    const char* newkey =
 			IOPar::compKey(toString(id),inputstr);
@@ -838,9 +839,10 @@ DescID DescSet::getFreeID() const
 }
 
 
-DescID DescSet::getStoredID( const char* lk, int selout, bool create,
+DescID DescSet::getStoredID( const char* lkstr, int selout, bool create,
 			     bool blindcomp, const char* blindcompnm )
 {
+    FixedString lk( lkstr );
     TypeSet<int> outsreadyforthislk;
     TypeSet<DescID> outsreadyids;
     for ( int idx=0; idx<descs_.size(); idx++ )
@@ -851,7 +853,7 @@ DescID DescSet::getStoredID( const char* lk, int selout, bool create,
 	    continue;
 
 	const ValParam& keypar = *dsc.getValParam( StorageProvider::keyStr() );
-	if ( !strcmp(lk,keypar.getStringValue()) )
+	if ( lk==keypar.getStringValue() )
 	{
 	    if ( selout>=0 ) return dsc.id();
 	    outsreadyforthislk += dsc.selectedOutput();
@@ -867,7 +869,7 @@ DescID DescSet::getStoredID( const char* lk, int selout, bool create,
 					    blindcompnm ? blindcompnm :"") );
 
     const int out0idx = outsreadyforthislk.indexOf( 0 );
-    BufferStringSet bss; SeisIOObjInfo::getCompNames( lk, bss );
+    BufferStringSet bss; SeisIOObjInfo::getCompNames( lk.str(), bss );
     const int nrcomps = bss.size();
     if ( nrcomps < 2 )
 	return out0idx != -1 ? outsreadyids[out0idx] 
