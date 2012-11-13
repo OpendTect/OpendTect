@@ -149,7 +149,8 @@ Coord Coordinates::getLocalTranslation() const
 
 
 #define mArrSize \
-    (doOsg() ? mGetOsgVec3Arr(osgcoords_)->size() : coords_->point.getNum())
+    (doOsg() ? (int) mGetOsgVec3Arr(osgcoords_)->size() \
+	     : (int) coords_->point.getNum())
 
 int Coordinates::size(bool includedeleted) const
 {
