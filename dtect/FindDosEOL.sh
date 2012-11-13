@@ -1,6 +1,6 @@
 #!/bin/sh
 
-files=`cat $1 | xargs grep -l $'\r\n'`
+files=`cat $1 | xargs grep -l $'\r'`
 OUT=$?
 if [ $OUT -eq 0 ];then
    echo "No DOS EOL found!"
