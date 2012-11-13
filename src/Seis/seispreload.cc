@@ -79,8 +79,8 @@ void Seis::PreLoader::getLineKeys( BufferStringSet& lks ) const
     PtrMan<IOObj> ioobj = getIOObj(); \
     if ( !ioobj ) \
 	return false; \
-    if ( !is2dln && strcmp(ioobj->translator(), \
-		CBVSSeisTrcTranslator::translKey()) ) \
+    if ( !is2dln && ioobj->translator()!= \
+		CBVSSeisTrcTranslator::translKey() ) \
 	{ errmsg_ = "Cannot pre-load other than CBVS data"; return false; } \
     TaskRunner& trunnr mUnusedVar = getTr()
 
