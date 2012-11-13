@@ -196,7 +196,7 @@ bool DataPlayer::doFastSynthetics()
 
 bool DataPlayer::extractSeismics()
 {
-    Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true, true);
+    Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true, false );
     wtextr.setSampling( disprg_ );
     data_.trunner_->execute( wtextr ); 
 
