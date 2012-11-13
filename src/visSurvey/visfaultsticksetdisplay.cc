@@ -863,8 +863,10 @@ void FaultStickSetDisplay::otherObjectsMoved(
 
 bool FaultStickSetDisplay::coincidesWith2DLine(
 			const Geometry::FaultStickSet& fss, int sticknr,
-			const MultiID& pickedmid, const char* pickednm ) const
+			const MultiID& pickedmid, const char* pickednmptr) const
 {
+    FixedString pickednm = pickednmptr;
+    
     RowCol rc( sticknr, 0 );
     const StepInterval<int> rowrg = fss.rowRange();
     if ( !scene_ || !rowrg.includes(sticknr,false) ||
@@ -876,7 +878,7 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	visBase::DataObject* dataobj = scene_->getObject( idx );
 	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
 	if ( !s2dd || !s2dd->isOn() || pickedmid!=s2dd->lineSetID() ||
-	     !pickednm || strcmp(pickednm,s2dd->getLineName()) )
+	     pickednm.isEmpty() || pickednm!=s2dd->getLineName() )
 	    continue;
 
 	const float onestepdist = Coord3(1,1,mZScale()).dot(
