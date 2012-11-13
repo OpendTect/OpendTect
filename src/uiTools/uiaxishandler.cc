@@ -206,6 +206,19 @@ int uiAxisHandler::getPix( float pos ) const
 }
 
 
+int uiAxisHandler::getPix( double pos ) const
+{
+    return getRelPosPix( getRelPos( (float) pos) );
+}
+
+
+int uiAxisHandler::getPix( int pos ) const
+{
+    return getRelPosPix( getRelPos( (float) pos) );
+}
+
+
+
 int uiAxisHandler::pixToEdge( bool withborder ) const
 {
     int ret = withborder ? setup_.border_.get(setup_.side_) : 0;

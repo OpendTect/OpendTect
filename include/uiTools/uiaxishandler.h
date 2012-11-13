@@ -109,6 +109,8 @@ public:
     float		getVal(int pix) const;
     float		getRelPos(float absval) const;
     int			getPix(float absval) const;
+    int			getPix(double abvsval) const;
+    int			getPix(int) const;
     int			getRelPosPix(float relpos) const;
 
     void		plotAxis(); //!< draws gridlines if appropriate
