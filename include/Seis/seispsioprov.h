@@ -63,7 +63,7 @@ public:
     virtual SeisPSWriter*	make2DWriter(const char*,const char* lnm) const
 				{ return 0; }
 
-    const char*			type() const		{ return type_.buf(); }
+    FixedString			type() const		{ return type_.buf(); }
     virtual bool		getLineNames(const char*,BufferStringSet&) const
     				{ return false; }
 

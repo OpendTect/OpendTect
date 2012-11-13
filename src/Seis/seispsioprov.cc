@@ -42,7 +42,7 @@ const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
     else if ( !t )		return provs_[0];
 
     for ( int idx=0; idx<provs_.size(); idx++ )
-	if ( !strcmp(t,provs_[idx]->type()) )
+	if ( provs_[idx]->type()==t )
 	    return provs_[idx];
 
     return 0;
