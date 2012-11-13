@@ -65,7 +65,7 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
 
     ascistream astream( ((StreamConn&)conn).iStream() );
     const float versionnr = toFloat( astream.version() );
-    if ( strcmp(astream.fileType(),mTranslGroupName(AttribDescSet)) )
+    if ( astream.fileType()!=mTranslGroupName(AttribDescSet) )
 	return "File has wrong file type";
 
     IOPar iopar( astream );
