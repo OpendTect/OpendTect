@@ -675,7 +675,7 @@ Param* Desc::findParam( const char* key )
 {
     for ( int idx=0; idx<params_.size(); idx++ )
     {
-	if ( !strcmp(params_[idx]->getKey(),key) )
+	if ( params_[idx]->getKey()==key )
 	    return params_[idx];
     }
 
@@ -685,7 +685,7 @@ Param* Desc::findParam( const char* key )
 
 bool Desc::isStored() const
 {
-    return !strcmp( attribName(), StorageProvider::attribName() );
+    return attribName()==StorageProvider::attribName();
 }
 
 
@@ -736,8 +736,7 @@ bool Desc::isIdentifiedBy( const char* str ) const
 	    return false;
 
 	const bool is2ddefstr = 
-	    parstr == lk.lineName() &&
-	    	      !strcmp(lk.attrName().buf(),LineKey::sKeyDefAttrib());
+	    parstr == lk.lineName() && lk.attrName()==LineKey::sKeyDefAttrib();
 	if ( parstr == str || is2ddefstr )
 	    return true;
     }
