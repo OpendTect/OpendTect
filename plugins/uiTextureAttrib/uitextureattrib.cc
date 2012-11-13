@@ -105,7 +105,7 @@ bool uiTextureAttrib::setInput( const Desc& desc )
 
 bool uiTextureAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Texture::attribName()) )
+    if ( desc.attribName()!=Texture::attribName() )
 	return false;
     
     const float globalmin = globalminfld_->getfValue();

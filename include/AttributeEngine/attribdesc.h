@@ -88,7 +88,7 @@ public:
 				     DescStatusUpdater updater=0,
 				     DescDefaultsUpdater defupdater=0);
 
-    const char*			attribName() const;
+    const BufferString&		attribName() const;
 
     void			setDescSet(DescSet*);
     DescSet*			descSet() const;

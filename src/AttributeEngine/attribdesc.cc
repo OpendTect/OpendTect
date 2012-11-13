@@ -119,7 +119,7 @@ Desc::~Desc()
 }
 
 
-const char* Desc::attribName() const		{ return attribname_; }
+const BufferString& Desc::attribName() const		{ return attribname_; }
 
 void Desc::setDescSet( DescSet* nds )
 {
