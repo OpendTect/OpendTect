@@ -78,7 +78,7 @@ Color getColor( float val ) const
     mapper.setup_ = coltabmappersu_;
     const float pos = mapper.position( val );
     Color col = coltab_.color( pos );
-    col.setTransparency( mNINT32(coltab_.transparencyAt(pos)) );
+    col.setTransparency( (unsigned char) mNINT32(coltab_.transparencyAt(pos)) );
     return col;
 }    
 
