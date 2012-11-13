@@ -46,7 +46,7 @@ IOStream::~IOStream()
 }
 
 
-const char* IOStream::connType() const
+FixedString IOStream::connType() const
 {
     return StreamConn::sType();
 }

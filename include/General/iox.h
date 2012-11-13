@@ -34,7 +34,7 @@ public:
     bool		implExists(bool) const;
     bool		implShouldRemove() const	{ return false; }
 
-    const char*		connType() const;
+    FixedString		connType() const;
     Conn*		getConn(Conn::State) const;
     IOObj*		getIOObj() const;
 

@@ -13,7 +13,7 @@ ________________________________________________________________________
 */
  
 #include "ioobj.h"
-
+#include "keystrs.h"
 
 mClass( General )  IOSubDir : public IOObj
 {
@@ -35,7 +35,7 @@ public:
     bool        implSetReadOnly(bool) const { return false; }
     bool	removeQuery() const	{ return true; }
 
-    const char*	connType() const	{ return ""; }
+    FixedString	connType() const	{ return sKey::EmptyString(); }
     Conn*	getConn( Conn::State s ) const { return 0; }
 
     void	genDefaultImpl()	{}

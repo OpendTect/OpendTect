@@ -42,7 +42,7 @@ void IOX::setOwnKey( const MultiID& ky )
 }
 
 
-const char* IOX::connType() const
+FixedString IOX::connType() const
 {
     return XConn::sType();
 }

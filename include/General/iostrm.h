@@ -37,7 +37,7 @@ public:
 	    				bool fillwildcard=true) const;
     void		genDefaultImpl()		{ genFileName(); }
 
-    const char*		connType() const;
+    FixedString		connType() const;
     Conn*		getConn(Conn::State) const;
 
     bool		implExists(bool forread) const;

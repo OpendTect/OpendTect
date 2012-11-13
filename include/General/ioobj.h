@@ -64,9 +64,9 @@ public:
     virtual bool		bad() const			= 0;
     virtual void		copyFrom(const IOObj*)		= 0;
     virtual bool		hasConnType( const char* s ) const
-				{ return s && !strcmp(s,connType()); }
+				{ return s && s==connType(); }
 
-    virtual const char*		connType() const		= 0;
+    virtual FixedString		connType() const		= 0;
     virtual Conn*		getConn(Conn::State) const	= 0;
 
     virtual const BufferString&	translator() const	       {return transl_;}
