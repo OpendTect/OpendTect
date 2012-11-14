@@ -16,7 +16,6 @@ SET(OD_MODULE_SOURCES timeser.c
 	    bodyvolumecalc.cc
 	    conncomponents.cc
 	    convolve2d.cc
-	    costrans.cc
 	    curvature.cc
 	    dataclipper.cc
 	    delaunay.cc
