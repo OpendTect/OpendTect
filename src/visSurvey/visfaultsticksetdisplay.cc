@@ -282,7 +282,7 @@ void FaultStickSetDisplay::updateEditPids()
 
     for ( int sidx=0; !stickselectmode_ && sidx<emfss_->nrSections(); sidx++ )
     {
-	int sid = emfss_->sectionID( sidx );
+	EM::SectionID sid = emfss_->sectionID( sidx );
 	mDynamicCastGet( const Geometry::FaultStickSet*, fss,
 			 emfss_->sectionGeometry( sid ) );
 	if ( fss->isEmpty() )
@@ -317,10 +317,9 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
     poly->removeCoordIndexAfter(-1);
     poly->getCoordinates()->removeAfter(-1);
     int cii = 0;
-
     for ( int sidx=0; sidx<emfss_->nrSections(); sidx++ )
     {
-	int sid = emfss_->sectionID( sidx );
+	EM::SectionID sid = emfss_->sectionID( sidx );
 	mDynamicCastGet( const Geometry::FaultStickSet*, fss,
 			 emfss_->sectionGeometry( sid ) );
 	if ( fss->isEmpty() )
@@ -646,7 +645,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 		    hordisp ? Coord3(0,0,1) :
 		    Coord3(s2dd->getNormal(s2dd->getNearestTraceNr(pos)),0) );
 
-	const int sid = emfss_->sectionID(0);
+	const EM::SectionID sid = emfss_->sectionID(0);
 	Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
 
 	const int insertsticknr = 
@@ -730,7 +729,7 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
 	    for ( int sipidx=0; sipidx<stickintersectpoints_.size(); sipidx++ )
 	    {
 		const StickIntersectPoint* sip = stickintersectpoints_[sipidx];
-		mMatchMarker( sip->sid_, sip->sticknr_,
+		mMatchMarker( (EM::SectionID)sip->sid_, sip->sticknr_,
 			      marker->centerPos(), sip->pos_ );
 	    }
 
@@ -773,7 +772,7 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange && emfss_ )
     {
-	const int sid = cbdata.pid0.sectionID();
+	const EM::SectionID sid = cbdata.pid0.sectionID();
 	RowCol rc = cbdata.pid0.getRowCol();
 
 	const MultiID* mid = emfss_->geometry().pickedMultiID( sid, rc.row );
@@ -881,7 +880,7 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	     pickednm.isEmpty() || pickednm!=s2dd->getLineName() )
 	    continue;
 
-	const float onestepdist = Coord3(1,1,mZScale()).dot(
+	const float onestepdist = (float) Coord3(1,1,mZScale()).dot(
 		inlcrlsystem_->oneStepTranslation(Coord3(0,0,1)) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
@@ -922,7 +921,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 
 	const bool coincidemode = fabs(vec1.dot(vec2)) > 0.5;
 
-	const float onestepdist = Coord3(1,1,mZScale()).dot(
+	const float onestepdist = (float) Coord3(1,1,mZScale()).dot(
 	    inlcrlsystem_->oneStepTranslation(plane->getNormal(Coord3::udf())));
 
 	float prevdist = -1;
@@ -974,7 +973,7 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 
     for ( int sidx=0; sidx<emfss_->nrSections(); sidx++ )
     {
-	int sid = emfss_->sectionID( sidx );
+	EM::SectionID sid = emfss_->sectionID( sidx );
 	mDynamicCastGet( Geometry::FaultStickSet*, fss,
 			 emfss_->sectionGeometry( sid ) );
 	if ( fss->isEmpty() )
@@ -1107,7 +1106,8 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
     {
 	const StickIntersectPoint* sip = stickintersectpoints_[idx];
 	Geometry::FaultStickSet* fss =
-			    emfss_->geometry().sectionGeometry( sip->sid_ );
+			    emfss_->geometry().sectionGeometry(
+						    (EM::SectionID)sip->sid_ );
 
 	if ( !fss || fss->isStickSelected(sip->sticknr_)!=ctrldown_ )
 	    continue;
@@ -1173,7 +1173,8 @@ void FaultStickSetDisplay::updateKnotMarkers()
     {
 	const StickIntersectPoint* sip = stickintersectpoints_[idx];
 	Geometry::FaultStickSet* fss =
-			    emfss_->geometry().sectionGeometry( sip->sid_ );
+			    emfss_->geometry().sectionGeometry(
+						    (EM::SectionID)sip->sid_ );
 	if ( !fss ) continue;
 
 	int groupidx = 0;
@@ -1195,7 +1196,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 	if ( pid.objectID() == -1 )
 	    break;
 
-	const int sid = pid.sectionID();
+	const EM::SectionID sid = pid.sectionID();
 	const int sticknr = pid.getRowCol().row;
 	Geometry::FaultStickSet* fss = emfss_->geometry().sectionGeometry(sid);
 	if ( !fss || fss->isStickHidden(sticknr) )
