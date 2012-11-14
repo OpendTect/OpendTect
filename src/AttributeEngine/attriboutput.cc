@@ -16,6 +16,7 @@ static const char* rcsID = "$Id$";
 #include "binidvalset.h"
 #include "convmemvalseries.h"
 #include "datapointset.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -57,6 +58,7 @@ const char* LocationOutput::locationkey()	{ return "Locations"; }
 const char* LocationOutput::attribkey()		{ return sKey::Attribute; }
 const char* LocationOutput::surfidkey()		{ return "Surface.ID"; }
 
+HiddenParam<Output,BufferString> mainattrparmgr( "" );
 
 Output::Output()
     : seldata_(new Seis::RangeSelData(true))
@@ -68,6 +70,12 @@ Output::Output()
 Output::~Output()
 {
     delete seldata_;
+}
+
+
+void Output::setMainAttrName( const BufferString& manm )
+{
+    mainattrparmgr.setParam( this, manm );
 }
 
 
@@ -528,6 +536,10 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
     //instead of ( usually huge) bin size entered by user
     if ( writer_->is2D() && isDataType(sKey::Steering) )
     {
+	trc_->info().pick = 0;
+	if ( mainattrparmgr.getParam(this) == BufferString("VolumeStatistics") )
+	   return;
+
 	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
 	{
 	    for ( int idx=0; idx<sz; idx++ )
@@ -535,7 +547,6 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 		float val = trc_->get( idx, icomp );
 		val = val * SI().crlDistance() / mStd2DTrcSpacing;
 		trc_->set( idx, val, icomp );
-		trc_->info().pick = 0;
 	    }
 	}
     }

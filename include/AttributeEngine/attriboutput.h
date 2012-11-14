@@ -83,6 +83,7 @@ protected:
 
 public:
     virtual bool                finishWrite()           { return false; }
+    void			setMainAttrName(const BufferString&);
 };
 
 

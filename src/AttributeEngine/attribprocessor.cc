@@ -266,6 +266,23 @@ void Processor::init()
     else
 	provider_->prepareForComputeData();
 
+    //tmp fix for od4.4: we need the name of the main Attribute
+    BufferString mainattrnm = provider_->getDesc().attribName();
+    if ( mainattrnm == "Evaluate" && provider_->getInputs().size()
+      				  && provider_->getInputs()[0] )
+    {
+	Provider* inputprov = provider_->getInputs()[0];
+	mainattrnm = inputprov->getDesc().attribName();
+	if ( mainattrnm == "VolumeStatistics"
+		&& inputprov->getInputs().size()
+		&& inputprov->getInputs()[0]
+		&& !inputprov->getInputs()[0]->getDesc().isStored())
+	    mainattrnm = inputprov->getInputs()[0]->getDesc().attribName();
+    }
+
+    for ( int idx=0; idx<outputs_.size(); idx++ )
+	outputs_[idx]->setMainAttrName( mainattrnm );
+
     isinited_ = true;
 }
 
