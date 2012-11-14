@@ -24,14 +24,4 @@ ________________________________________________________________________
 # endif
 #endif
 
-
-#ifdef __cpp__
-extern "C" {
-#endif
-    void		forkProcess();
-    			/*!< Doesn't do anything on M$ Windows */
-#ifdef __cpp__
-}
-#endif
-
 #endif
