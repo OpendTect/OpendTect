@@ -33,7 +33,7 @@ set ( OD_EXEC_OUTPUT_PATH "${OD_BINARY_BASEDIR}/${OD_EXEC_OUTPUT_RELPATH}" )
 set ( OD_EXEC_INSTALL_PATH "${OD_EXEC_OUTPUT_RELPATH}" )
 
 set ( OD_MAIN_EXEC od_main )
-set ( OD_ATTRIB_EXECS od_process_attrib od_process_attrib_em )
+set ( OD_ATTRIB_EXECS od_process_attrib od_process_attrib_em od_stratamp )
 set ( OD_VOLUME_EXECS od_process_volume )
 set ( OD_PRESTACK_EXECS od_process_prestack )
 set ( OD_ZAXISTRANSFORM_EXECS od_process_time2depth )
