@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uibasemod.h"
 #include "callback.h"
 
 mFDQtclass(QObject);
