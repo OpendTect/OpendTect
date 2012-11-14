@@ -262,7 +262,7 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
     for ( int idx=0; idx<wvltsize_; idx++ )
 	temp.set( idx, acarr.get( startidx+idx ) );
 
-    removeBias( &temp );
+    removeBias<float,float>( &temp );
     normalisation( temp );
    
     Array1DImpl<float_complex> freqdomsignal( wvltsize_ );

@@ -61,7 +61,7 @@ const char* StringProcessor::parseBracketed( BufferString& unbracketedstr,
 	stop++;
     }
 
-    unbracketedstr.setBufSize( stop - start + 1 );
+    unbracketedstr.setBufSize( mCast(unsigned int, stop - start + 1) );
     char* ptrbuf = unbracketedstr.buf();
     while ( start != stop )
 	*ptrbuf++ = *start++;

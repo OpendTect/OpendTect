@@ -179,7 +179,9 @@ void FaultAdjuster::getTargetPositions( EM::SubID target, const EM::SubID* src,
 	const Geometry::ParametricSurface* psurf = 0;
 	    				//fault_.geometry().sectionGeometry(0);
 	if ( !psurf ) return;
-	Geometry::ParametricCurve* pcurv = psurf->createRowCurve( rc.row );
+	Geometry::ParametricCurve* pcurv = 
+				psurf->createRowCurve( mCast(float,rc.row) );
+
 	mDynamicCastGet(Geometry::CubicBezierCurve*,bcurv,pcurv)
 	if ( !bcurv ) return;
 

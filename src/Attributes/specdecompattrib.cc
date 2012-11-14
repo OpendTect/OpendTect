@@ -259,7 +259,7 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 	    samp++;
 	}
 
-	removeBias( &signal );
+	removeBias<float_complex,float>( &signal );
 	window_->apply( &signal );
 
 	const int diff = (int)(fftsz_ - sz_)/2;

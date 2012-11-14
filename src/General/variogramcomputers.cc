@@ -319,7 +319,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    depth_out += (double)(step/zstep);
 	}
 
-	removeBias( &interpolatedvals, &interpolatedvals, false );
+	removeBias<double,float>( &interpolatedvals, &interpolatedvals, false );
 	variogramvals_->set( nrcontribwells, 0, 0 );
 	axes_->set( nrcontribwells, 0, 0);
 	variogramnms_->add(grpnames.get( igroup-1 ));

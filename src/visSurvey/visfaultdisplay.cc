@@ -1492,7 +1492,7 @@ void FaultDisplay::updateEditorMarkers()
 	if ( pid.objectID() == -1 )
 	    break;
 
-	const int sid = pid.sectionID();
+	const EM::SectionID sid = pid.sectionID();
 	const int sticknr = pid.getRowCol().row;
 	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
 	viseditor_->turnOnMarker( pid, !fs->isStickHidden(sticknr) );
@@ -1551,7 +1551,7 @@ void FaultDisplay::updateKnotMarkers()
 	if ( pid.objectID() == -1 )
 	    break;
 
-	const int sid = pid.sectionID();
+	const EM::SectionID sid = pid.sectionID();
 	const int sticknr = pid.getRowCol().row;
 	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
 	if ( !fs || fs->isStickHidden(sticknr) )
@@ -1674,7 +1674,7 @@ void FaultDisplay::updateStickHiding()
 
     for ( int sidx=0; sidx<emfault_->nrSections(); sidx++ )
     {
-	int sid = emfault_->sectionID( sidx );
+	EM::SectionID sid = emfault_->sectionID( sidx );
 	mDynamicCastGet( Geometry::FaultStickSurface*, fss,
 			 emfault_->sectionGeometry( sid ) );
 	if ( !fss || fss->isEmpty() )

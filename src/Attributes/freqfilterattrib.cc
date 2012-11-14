@@ -358,7 +358,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	avg /= ( nrsamp-undefvalidxs.size() );
     for ( int idx=0; idx<undefvalidxs.size(); idx++ )
 	signal_.set( undefvalidxs[idx], avg );
-    removeBias( &signal_ );
+    removeBias<float_complex,float>( &signal_ );
     for ( int idy=0; idy<nrsamp; idy++ )
 	timedomain_.set( sz+idy, signal_.get(idy) );
 

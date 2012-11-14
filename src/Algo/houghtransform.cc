@@ -210,8 +210,9 @@ int PlaneFrom3DSpaceHoughTransform::getNrPointsAfterClip() const
 void PlaneFrom3DSpaceHoughTransform::incParamPos( int normalidx, double dist)
 {
     const int distid = mNINT32( dist/deltadist_ );
-    unsigned int memoffset = reinterpret_cast<const Array2DInfo&>
-			    (paramspace_->info()).getOffset(normalidx,distid);
+    unsigned int memoffset = mCast( unsigned int, 
+			    reinterpret_cast<const Array2DInfo&>
+			    (paramspace_->info()).getOffset(normalidx,distid) );
     unsigned int* dataptr = paramspace_->getData();
 
     paramspacemutex_.lock();

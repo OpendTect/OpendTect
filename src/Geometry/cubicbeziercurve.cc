@@ -151,7 +151,7 @@ bool CubicBezierCurve::setPosition( GeomPosID param, const Coord3& np )
     {
 	positions.insert( 0, np );
 	directions.insert( 0, Coord3::udf() );
-	firstparam = param;
+	firstparam = mCast( int, param );
 	triggerNrPosCh( param );
     }
     else if ( idx==positions.size() )

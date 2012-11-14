@@ -59,20 +59,20 @@ ArrayND. User can choose to remove only the average or an eventual linear trend.
 
 
 #define mComputeTrendAandB( sz ) \
-	const T aval = ( (T)sz * crosssum - sum * (T)sumindexes ) / \
-		       ( (T)sz * (T)sumsqidx - (T)sumindexes * (T)sumindexes );\
-	const T bval = ( sum * (T)sumsqidx - (T)sumindexes * crosssum ) / \
-		       ( (T)sz * (T)sumsqidx - (T)sumindexes * (T)sumindexes );
+	const T aval = ( (TT)sz * crosssum - sum * (TT)sumindexes ) / \
+		       ( (TT)sz * (TT)sumsqidx - (TT)sumindexes * (TT)sumindexes );\
+	const T bval = ( sum * (TT)sumsqidx - (TT)sumindexes * crosssum ) / \
+		       ( (TT)sz * (TT)sumsqidx - (TT)sumindexes * (TT)sumindexes );
 
-template <class T>
+template <class T, class TT >
 inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 {
     ArrayND<T>* out = out_ ? out_ : in; 
 
     T avg = 0;
     T sum = 0;
-    int sumindexes = 0;
-    int sumsqidx = 0;
+    TT sumindexes = 0;
+    TT sumsqidx = 0;
     T crosssum = 0;
 
     if ( out_ && in->info() != out_->info() ) return false;
@@ -89,15 +89,15 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 	    sum += inpptr[idx];
 	    sumindexes += idx;
 	    sumsqidx += idx * idx;
-	    crosssum += inpptr[idx] * (T)idx;
+	    crosssum += inpptr[idx] * (TT)idx;
 	} 
 
-	avg = sum / (T)sz;
+	avg = sum / (TT)sz;
 	mComputeTrendAandB(sz)
 
 	for ( int idx=0; idx<sz; idx++ )
 	    outptr[idx] = onlyavg ? inpptr[idx] - avg
-				  : inpptr[idx] - (aval*(T)idx+bval);
+				  : inpptr[idx] - (aval*(TT)idx+bval);
     }
     else
     {
@@ -110,20 +110,20 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 	    sum += value;
 	    sumindexes += index;
 	    sumsqidx += index * index;
-	    crosssum += value * (T)index;
+	    crosssum += value * (TT)index;
 	    index++;
 	} while ( iter.next() );
 
 	iter.reset();
 	index = 0;
-	avg = sum / (T)sz;
+	avg = sum / (TT)sz;
 	mComputeTrendAandB(index)
 
 	do
 	{
 	    const T outval = 
 		onlyavg ? in->getND( iter.getPos() ) - avg
-		        : in->getND( iter.getPos() ) - avg-(aval*(T)index+bval);
+		        : in->getND( iter.getPos() ) - avg-(aval*(TT)index+bval);
 	    out->setND(iter.getPos(), outval );
 	    index++;
 	} while ( iter.next() );

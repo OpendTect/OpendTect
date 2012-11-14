@@ -494,7 +494,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	for ( od_int64 idx=start; idx<=stop; idx++ )
 	{
 	    mOutputLoopStart;
-	    outputvs->setValue( idx, bodysizes_[bodynr] );
+	    outputvs->setValue( idx, mCast(float,bodysizes_[bodynr]) );
         }
     }
     else if ( acceptoutput==VoxelConnectivityFilter::Value )

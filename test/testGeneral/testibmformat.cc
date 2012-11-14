@@ -110,6 +110,6 @@ int main( int narg, char** argv )
     return 0;
 
     //Optional, run entire number-space.
-    IbmFormatTester tester;
-    return tester.execute() ? 0 : 1;
+    //IbmFormatTester tester;
+    //return tester.execute() ? 0 : 1;
 }

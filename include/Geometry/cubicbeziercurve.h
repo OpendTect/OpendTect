@@ -55,7 +55,7 @@ public:
 
 protected:
     int		getIndex( GeomPosID param ) const
-    		{ return (param-firstparam)/paramstep; }
+    		{ return mCast(int,(param-firstparam)/paramstep); }
 
     Coord3	computeTangent( GeomPosID ) const;
 

@@ -260,8 +260,8 @@ void GeoCalculator::deconvolve( const float* inp, const float* filter,
     Array1DImpl<float> filtervals( inpsz );
     memcpy(inputvals.getData(),inp,inpsz*sizeof(float));
     memcpy(filtervals.getData(),filter,inpsz*sizeof(float));
-    window.apply( &inputvals );		removeBias( &inputvals );
-    window.apply( &filtervals );	removeBias( &filtervals );
+    window.apply( &inputvals );		removeBias<float,float>( &inputvals );
+    window.apply( &filtervals );	removeBias<float,float>( &filtervals );
 
     Array1DImpl<float_complex> cinputvals( inpsz );
     Array1DImpl<float_complex> cfiltervals( inpsz );

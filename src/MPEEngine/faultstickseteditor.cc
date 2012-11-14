@@ -302,7 +302,8 @@ bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
     if ( !emfss || !mousepos.isDefined() )
 	return false;
 
-    int selsid, selsticknr;
+    EM::SectionID selsid;
+    int selsticknr;
     float minlinedist = mUdf(float);
 
     for ( int sectionidx=emfss->nrSections()-1; sectionidx>=0; sectionidx--)

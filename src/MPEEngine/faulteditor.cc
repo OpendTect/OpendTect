@@ -406,7 +406,8 @@ bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
 float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
 			const Coord3& mousepos, const Coord3* posnormal ) const
 {
-    int selsid, selstick;
+    EM::SectionID selsid; 
+    int selstick;
     float mindist = mUdf(float);
 
     for ( int sectionidx=emObject().nrSections()-1; sectionidx>=0; sectionidx--)
@@ -452,7 +453,8 @@ float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
 bool FaultEditor::getInsertStick( int& stick, EM::SectionID& sid,
 		      const Coord3& mousepos, const Coord3* posnormal ) const
 {
-    int selsid, selstick;
+    EM::SectionID selsid; 
+    int selstick;
     float mindist = mUdf(float);
     Coord3 normal = Coord3::udf();
 
