@@ -298,8 +298,9 @@ BufferString
 
 
 BufferString
-    SurfaceAuxData::getFileName( const char* fulluserexp, const char* attrnm )
+    SurfaceAuxData::getFileName( const char* fulluserexp, const char* attrnmptr)
 {
+    FixedString attrnm( attrnmptr );
     const BufferString basefnm( fulluserexp );
     BufferString fnm; int gap = 0;
     for ( int idx=0; ; idx++ )
@@ -311,7 +312,7 @@ BufferString
 	    { gap++; continue; }
 
 	EM::dgbSurfDataReader rdr( fnm.buf() );
-	if ( !strcmp(rdr.dataName(),attrnm) )
+	if ( rdr.dataName()==attrnm )
 	    break;
     }
 
