@@ -52,11 +52,11 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars ) const
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += ";\t";
 
-    const char* vdstr = pars.find( "Variable density data" );
-    const char* wvastr = pars.find( "Wiggle/VA data" );
-    const char* vdvalstr = pars.find( "VD Value" );
-    const char* wvavalstr = pars.find( "WVA Value" );
-    const bool issame = vdstr && wvastr && !strcmp(vdstr,wvastr);
+    FixedString vdstr = pars.find( "Variable density data" );
+    FixedString wvastr = pars.find( "Wiggle/VA data" );
+    FixedString vdvalstr = pars.find( "VD Value" );
+    FixedString wvavalstr = pars.find( "WVA Value" );
+    const bool issame = vdstr && wvastr && vdstr==wvastr;
     if ( vdvalstr )
     {
 	mAddSep();
@@ -77,11 +77,11 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars ) const
 	mesg += " ("; mesg += wvastr; mesg += ")";
     }
 
-    const char* valstr = pars.find( sKey::Offset() );
+    FixedString valstr = pars.find( sKey::Offset() );
     if ( valstr && *valstr )
 	{ mAddSep(); mesg += "Offs="; mesg += valstr; }
     valstr = pars.find( sKey::Azimuth() );
-    if ( valstr && *valstr && strcmp(valstr,"0") )
+    if ( valstr && valstr!="0" )
 	{ mAddSep(); mesg += "Azim="; mesg += valstr; }
 
     valstr = pars.find( "Z" );
