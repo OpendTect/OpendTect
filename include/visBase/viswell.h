@@ -86,8 +86,6 @@ public:
 				{}
 	int			shapeint_; 
 	int			cylinderheight_; 
-	bool 			issinglecol_; 
-	bool 			issamenmcol_; 
 	FontData		font_;
 	Color			namecol_;			
 	Coord3* 		pos_;
