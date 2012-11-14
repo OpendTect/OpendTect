@@ -48,7 +48,7 @@ public:
 			{
 			    if ( *s == 'W' ) return Words;
 			    if ( *s == 'Q' ) return QWord;
-			    if ( !strcmp("FileRead",s) )
+			    if ( FixedString(s)=="FileRead" )
 				return FileRead;
 			    else
 				return FileWrite;

@@ -234,7 +234,7 @@ SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 					    BufferString& errmsg )
 {
     const char* typestr = pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
-    if ( typestr && !strcmp(typestr,sKey::Cube()) )
+    if ( typestr==sKey::Cube() )
     {
 	SeisTrcStorOutput* outp = new SeisTrcStorOutput( cs_, lkey );
 	outp->setGeometry(cs_);
@@ -1075,7 +1075,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    for ( int ids=0; ids<attrrefs.size(); ids++ )
 	    {
 		FileMultiString fms( attrrefs.get(ids) );
-		if ( !strcmp(fms[0],nmstr) )
+		if ( fms[0]==nmstr )
 		    { refidx = ids; break; }
 	    }
 	    

@@ -482,7 +482,7 @@ void HorizonDisplay::selectTexture( int channel, int textureidx )
 	 userrefs_[channel]->isEmpty() )
 	return;
 
-    if ( !strcmp("Section ID",userrefs_[channel]->get(0)) )
+    if ( userrefs_[channel]->get(0)=="Section ID" )
 	textureidx++;
 
     BufferString usrref = userrefs_[channel]->validIdx(textureidx) ?
@@ -731,8 +731,7 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     setRandomPosData( channel, positions, tr );
     const BinIDValueSet* cache =
 	sections_.isEmpty() ? 0 : sections_[0]->getCache( channel );
-    const bool isz = attrnms->size()>=1 &&
-		     !strcmp(attrnms->get(0).buf(),"Depth");
+    const bool isz = attrnms->size()>=1 && attrnms->get(0)=="Depth";
 
     StepInterval<int> dispinlrg = sections_[0]->displayedRowRange();
     StepInterval<int> dispcrlrg = sections_[0]->displayedColRange();

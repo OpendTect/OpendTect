@@ -83,8 +83,9 @@ void SqlDB::BugTextTableEntry::setReporter( BufferString& reporter )
 }
 
 
-void SqlDB::BugTextTableEntry::addToHistory( const char* fldnm )
+void SqlDB::BugTextTableEntry::addToHistory( const char* fldnmptr )
 {
+    FixedString fldnm( fldnmptr );
     for ( int idx=0; idx<btthistoryset_.size(); idx++ )
     {
 	BufferString fieldnm = btthistoryset_[idx]->fieldnm_;
@@ -93,9 +94,9 @@ void SqlDB::BugTextTableEntry::addToHistory( const char* fldnm )
     }
 
     BugHistoryTableEntry* history = new BugHistoryTableEntry();
-    if ( strcmp(fldnm, "description") == 0 )
+    if ( fldnm=="description" )
 	history->type_ = 6;
-    else if ( strcmp(fldnm, "steps_to_reproduce" ) == 0 )
+    else if ( fldnm=="steps_to_reproduce" )
 	history->type_ = 8;
     else 
     {
@@ -195,7 +196,7 @@ void SqlDB::BugTableEntry::addToHistory( const char* fldnm, const char* oldval,
     for ( int idx=0; idx<historyset_.size(); idx++ )
     {
 	BufferString fieldnm = historyset_[idx]->fieldnm_;
-	if ( strcmp(fldnm,fieldnm.buf()) == 0 )
+	if ( fldnm==fieldnm )
 	{
 	    historyset_[idx]->newvalue_ = newval;
 	    isexisted = true;
