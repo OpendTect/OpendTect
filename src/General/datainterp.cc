@@ -568,16 +568,16 @@ mDefDIPSIbm(od_int64,S2,Short)
 mDefDIPSIbm(od_int64,S4,Int)
 
 
-#define mDefDIPFIbm(inptyp,typ,fntyp) \
+#define mDefDIPFIbm(inptyp) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##Ibm(void* buf,od_int64 nr,\
+void DataInterpreter<inptyp>::putFIbm(void* buf,od_int64 nr,\
 						 inptyp f) const \
-{ IbmFormat::put##fntyp( f, ((T##typ*)buf)+nr ); }
+{ IbmFormat::putFloat( (float) f, ((TF*)buf)+nr ); }
 
-mDefDIPFIbm(float,F,Float)
-mDefDIPFIbm(double,F,Float)
-mDefDIPFIbm(int,F,Float)
-mDefDIPFIbm(od_int64,F,Float)
+mDefDIPFIbm(float)
+mDefDIPFIbm(double)
+mDefDIPFIbm(int)
+mDefDIPFIbm(od_int64)
 
 
 #define mDefDIPSIbmswp(inptyp,typ,fntyp) \
@@ -600,19 +600,19 @@ mDefDIPSIbmswp(od_int64,S2,Short)
 mDefDIPSIbmswp(od_int64,S4,Int)
 
 
-#define mDefDIPFIbmswp(inptyp,typ,fntyp) \
+#define mDefDIPFIbmswp(inptyp) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##Ibm##swp(void* buf,od_int64 nr,\
+void DataInterpreter<inptyp>::putFIbmswp(void* buf,od_int64 nr,\
 						 inptyp f) \
 const { \
-    IbmFormat::put##fntyp( f, ((T##typ*)buf)+nr ); \
-    SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+    IbmFormat::putFloat( (float) f, ((TF*)buf)+nr ); \
+    SwapBytes( ((TF*)buf)+nr, sizeof(TF) ); \
 }
 
-mDefDIPFIbmswp(float,F,Float)
-mDefDIPFIbmswp(double,F,Float)
-mDefDIPFIbmswp(int,F,Float)
-mDefDIPFIbmswp(od_int64,F,Float)
+mDefDIPFIbmswp(float)
+mDefDIPFIbmswp(double)
+mDefDIPFIbmswp(int)
+mDefDIPFIbmswp(od_int64)
 
 
 #define mTheType float
