@@ -48,7 +48,7 @@ class StreamData;
 */
 
 
-mClass(Batch) BatchProgram : public NamedObject
+class BatchProgram : public NamedObject
 {
     mGlobal(Batch) friend	BatchProgram& BP();
 public:
@@ -71,17 +71,17 @@ public:
     int			realArgsStartAt() const	{ return argshift; }
     BufferStringSet&	cmdLineOpts()		{ return opts; }
 
-    IOObj*		getIOObjFromPars(const char* keybase,bool mknew,
+    mExp(Batch) IOObj*	getIOObjFromPars(const char* keybase,bool mknew,
 					 const IOObjContext& ctxt,
 					 bool msgiffail=true) const;
 
 			//! pause requested (via socket) by master?
-    bool		pauseRequested() const;
+    mExp(Batch) bool	pauseRequested() const;
 
-    bool		errorMsg( const char* msg, bool cc_stderr=false);
-    bool		infoMsg( const char* msg, bool cc_stdout=false);
+    mExp(Batch) bool	errorMsg( const char* msg, bool cc_stderr=false);
+    mExp(Batch) bool	infoMsg( const char* msg, bool cc_stdout=false);
 
-    static void		deleteInstance();
+    mExp(Batch) static void	deleteInstance();
 
 protected:
 
@@ -92,7 +92,7 @@ protected:
 			BatchProgram();
 			~BatchProgram();
 
-    void		init(int*,char**);
+    mExp(Batch) void	init(int*,char**);
     static BatchProgram* inst_;
 
     int*		pargc;
@@ -108,9 +108,9 @@ protected:
     BufferStringSet	requests_;
     BufferString	finishmsg_;
 
-    bool		initOutput();
-    void		progKilled(CallBacker*);
-    void		killNotify( bool yn );
+    mExp(Batch) bool	initOutput();
+    mExp(Batch) void	progKilled(CallBacker*);
+    mExp(Batch) void	killNotify( bool yn );
 
     JobCommunic*	mmComm()		{ return comm; }
     int 		jobId()			{ return jobid; }
