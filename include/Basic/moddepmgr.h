@@ -62,7 +62,7 @@ protected:
 mGlobal(Basic) const ModDepMgr& ModDeps();
 
 #define mDefModInitFn(nm) \
-    mExternC(Basic) void od_##nm##_initStdClasses(); \
+mExternC(nm) void od_##nm##_initStdClasses(); \
 extern "C" void od_##nm##_initStdClasses()
 
 
