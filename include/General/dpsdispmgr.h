@@ -93,7 +93,7 @@ protected:
 };
 
 
-mClass(General) DataPointSetDisplayMgr : public CallBacker
+class DataPointSetDisplayMgr : public CallBacker
 {
 public:
 
@@ -135,6 +135,7 @@ protected:
     TypeSet<int>		availableviewers_;
     DataPointSetDisplayProp*	dispprop_;
 };
+
 	    				   
 #endif
 
