@@ -38,7 +38,7 @@ mClass(EarthModel) mcEMBodyTranslator : public Translator
 public:
     			mDefEmptyTranslatorBaseConstructor( mcEMBody );
     const char*		defExtension() const	{ return "mc"; }
-    static const char*  sKeyUserName()		{ return "MCBody"; }
+    static FixedString  sKeyUserName()		{ return "MCBody"; }
 };
 
 
@@ -49,7 +49,7 @@ public:
 			~polygonEMBodyTranslator();
 
     const char*		defExtension() const	{ return "plg"; }
-    static const char*  sKeyUserName()		{ return "PolygonBody"; }
+    static FixedString  sKeyUserName()		{ return "PolygonBody"; }
     static const IOObjContext&	getIOObjContext();
 
     Executor*		reader(const IOObj&,EM::PolygonBody&);
@@ -68,7 +68,7 @@ mClass(EarthModel) randposEMBodyTranslator : public Translator
 public:
     			mDefEmptyTranslatorBaseConstructor( randposEMBody );
     const char*		defExtension() const	{ return "rdpos"; }
-    static const char*	sKeyUserName()		{ return "RandomPosBody"; }
+    static FixedString	sKeyUserName()		{ return "RandomPosBody"; }
 };
 
 
