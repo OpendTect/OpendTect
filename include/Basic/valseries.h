@@ -370,7 +370,7 @@ RT ArrayValueSeries<RT,AT>::value( od_int64 idx ) const
     }
 #endif
 
-    return ptr_[idx];
+    return (RT) ptr_[idx];
 }
 
 
