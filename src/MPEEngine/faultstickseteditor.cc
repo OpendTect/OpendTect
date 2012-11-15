@@ -303,7 +303,7 @@ bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
 	return false;
 
     EM::SectionID selsid;
-    int selsticknr;
+    int selsticknr = mUdf(int);
     float minlinedist = mUdf(float);
 
     for ( int sectionidx=emfss->nrSections()-1; sectionidx>=0; sectionidx--)
@@ -364,7 +364,7 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 
     TypeSet<int> definedknots;
     int nearestknotidx = -1;
-    float minsqdist;
+    float minsqdist = mUdf(float);
     for ( int knotidx=0; knotidx<nrknots; knotidx++ )
     {
 	const RowCol rc( sticknr, colrange.atIndex(knotidx));

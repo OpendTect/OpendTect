@@ -341,7 +341,7 @@ bool IOStream::putTo( ascostream& stream ) const
 	return true;
     }
 
-    return false;
+    //return false;
 }
 
 

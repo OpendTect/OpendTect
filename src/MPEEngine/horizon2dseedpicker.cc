@@ -167,7 +167,7 @@ bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 	return false;
 
     float maxdist = mUdf(float);
-    int closestcol;
+    int closestcol = 0;
     int col = 0;
     for ( col=colrg.start; col<=colrg.stop; col+=colrg.step )
     {

@@ -40,8 +40,8 @@ void PosID::fillPar( IOPar& par ) const
 
 bool PosID::usePar( const IOPar& par )
 {
-    int tmpsection;
-    SubID tmpsubid;
+    int tmpsection = mUdf(int);
+    SubID tmpsubid = mUdf(od_int64);
     const bool res = par.get( emobjStr(), emobjid_ ) &&
 		     par.get( sectionStr(), tmpsection ) &&
 		     par.get( subidStr(), tmpsubid );

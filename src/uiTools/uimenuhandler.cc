@@ -88,7 +88,7 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 
     while ( true )
     {
-	int lowest;
+	int lowest = mUdf(int);
 	int lowestitem = -1;
 	for ( int idx=0; idx<validsubitms.size(); idx++ )
 	{

@@ -389,7 +389,7 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
     
     auxpars_ = pars.subselect("Aux");
     return doInit();
-    return true;
+    //return true;
 }//warning, only a small part of the old taken, see if some more is required
 
 

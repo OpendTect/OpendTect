@@ -55,7 +55,7 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
     if ( A.info().getSize(0) != A.info().getSize(1) )
 	return;
 
-    int imax;
+    int imax = mUdf(int);
 
     TypeSet<T> vv( n, 0 );
 

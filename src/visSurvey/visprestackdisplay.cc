@@ -453,7 +453,7 @@ int PreStackDisplay::getNearTraceNr( int trcnr ) const
     if ( posnrs.isEmpty() )
 	return -1;
 
-    int mindist=-1, residx;
+    int mindist=-1, residx=mUdf(int);
     for ( int idx=0; idx<posnrs.size(); idx++ )
     {
 	const int dist = abs( posnrs[idx].nr_ - trcnr );
@@ -934,11 +934,11 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 	pos = Coord3( SI().transform( bid_ ), pos.z );
     }
 
-    int offsetsample;
+    int offsetsample = 0;
     double traceoffset;
     if ( posdata.isIrregular() )
     {
-	float mindist;
+	float mindist = 0;
 	for ( int idx=0; idx<posdata.nrPts(true); idx++ )
 	{
 	    const float dist = (float) fabs( posdata.position(true,idx)-offset );

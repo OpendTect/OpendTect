@@ -174,7 +174,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
     else
 	hormarkerlines_ += sectionmarkerlines;
 
-    for ( int ids=0; ids<hor->nrSections(); ids++ )
+    for ( EM::SectionID ids=0; ids<hor->nrSections(); ids++ )
     {
 	SectionMarkerLine* markerlines = new SectionMarkerLine;
 	(*sectionmarkerlines) += markerlines;

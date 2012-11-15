@@ -60,7 +60,9 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
     float val1, val2;
     double sqdist = 0, sq1 = 0, sq2 = 0;
 
-    double meana,stddeva,meanb,stddevb;
+    double meana = mUdf(double), stddeva = mUdf(double);
+    double meanb = mUdf(double), stddevb = mUdf(double);
+
     if ( normalize )
     {
 	if ( sz==1 ) normalize = false;

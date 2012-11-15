@@ -694,7 +694,7 @@ bool MadStream::writeTraces( bool writetofile )
     if ( is2d_ )
 	return write2DTraces( writetofile );
 
-    int inlstart=0, crlstart=1, inlstep=1, crlstep=1, nrinl=1, nrcrl, nrsamps;
+    int inlstart=0, crlstart=1, inlstep=1, crlstep=1, nrinl=1, nrcrl=1, nrsamps;
     int nrtrcsperbinid=1, nrbinids=0;
     SamplingData<float> offsetsd( 0, 1 );
     SamplingData<float> sd;

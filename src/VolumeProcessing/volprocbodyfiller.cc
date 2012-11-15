@@ -141,7 +141,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     const int inputzsz = useinput && input_
 	? input_->getCube(0).info().getSize(2) : 0;
  
-    int bodyinlidx, bodycrlidx;
+    int bodyinlidx = mUdf(int), bodycrlidx = mUdf(int);
     bool alloutside;
     Interval<double> plgzrg( mUdf(double), mUdf(double) );
     if ( flatbody )

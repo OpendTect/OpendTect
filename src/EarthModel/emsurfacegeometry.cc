@@ -104,7 +104,7 @@ void SurfaceSectionUndoEvent::fillPar( IOPar& iopar ) const
 
 bool SurfaceSectionUndoEvent::usePar( const IOPar& iopar )
 {
-    int tmpsection;
+    int tmpsection = mUdf(int);
     bool res = iopar.getYN( addKey(), add_ ) && iopar.get( objKey(), object_ )
 	    && iopar.get( sectionKey(), tmpsection );
     if ( res )

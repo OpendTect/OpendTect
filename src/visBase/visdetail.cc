@@ -30,8 +30,8 @@ int FaceDetail::getClosestIdx( const Coordinates* coordinates,
 	    
     const SoPointDetail* pointdetail = facedetail->getPoint(0);
 
-    float mindist;
-    int closestidx;
+    float mindist = mUdf(float);
+    int closestidx = mUdf(int);
     for ( int idx=0; idx<nrpoints; idx++ )
     {
         const int coordidx = pointdetail[idx].getCoordinateIndex();

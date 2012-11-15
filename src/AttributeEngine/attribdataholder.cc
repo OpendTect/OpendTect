@@ -195,8 +195,8 @@ CubeSampling Data2DHolder::getCubeSampling() const
 
     StepInterval<int> trcrange;
     Interval<int> zrange;
-    int prevtrcnr;
-    float zstep;
+    int prevtrcnr = mUdf(int);
+    float zstep = mUdf(float);
 
     for ( int idx=0; idx<trcinfoset_.size(); idx++ )
     {

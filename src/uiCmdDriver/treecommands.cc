@@ -797,7 +797,7 @@ static bool findTreePath( const uiTreeView& uilview,
 			  const uiTreeViewItem* root=0 )
 {
     bool itemfound = false;
-    const uiTreeViewItem* curitem;
+    const uiTreeViewItem* curitem=0;
     FileMultiString pathtail;
 
     const int nritems = root ? root->nrChildren() : uilview.nrItems();

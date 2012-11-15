@@ -605,8 +605,8 @@ bool ComboCmdComposer::accept( const CmdRecEvent& ev )
     if ( ignoreflag_ || quitflag_ )
 	return accepted;
 
-    char* msgnext; char* msgnexxt;
-    int oldnritems; int oldcuritem;
+    char* msgnext=""; char* msgnexxt="";
+    int oldnritems = mUdf(int); int oldcuritem = mUdf(int);
 
     if ( accepted )
     {
@@ -765,8 +765,8 @@ int ListCmdComposer::writeListSelect( bool differential, bool virtually )
     mGetListBox( uilist, -1 );
     int nrlistselects = 0;
     int firstidx = mUdf(int);
-    int lastidx;
-    int blockstate;
+    int lastidx = mUdf(int);
+    int blockstate = mUdf(int);
 
     for ( int idx=0; idx<=uilist->size(); idx++ )
     {

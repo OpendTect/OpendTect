@@ -93,7 +93,7 @@ ProbDenFunc* odProbDenFuncTranslator::read( std::istream& strm )
     if ( type.isEmpty() )
 	return 0;
 
-    ProbDenFunc* pdf;
+    ProbDenFunc* pdf = 0;
     if ( type == Sampled1DProbDenFunc::typeStr() )
 	pdf = new Sampled1DProbDenFunc( Array1DImpl<float>(-1) );
     else if ( type == Sampled2DProbDenFunc::typeStr() )

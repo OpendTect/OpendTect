@@ -677,7 +677,7 @@ int ExplFaultStickSurface::textureColSz( const int panelidx )
 	const bool v2onstick0 = knots0.indexOf(v2)!=-1;
 
 	const bool lineonstick0 = (v0onstick0+v1onstick0+v2onstick0)>1;
-	int checkpt,lp0,lp1;
+	int checkpt=mUdf(int),lp0=mUdf(int),lp1=mUdf(int);
 	if ( lineonstick0 )
 	{
 	    if ( !v0onstick0 )
@@ -750,7 +750,7 @@ bool ExplFaultStickSurface::updateTextureSize()
     if ( sticks_.size()<2 )
 	return false;
 
-    int texturerowsz;
+    int texturerowsz = mUdf(int);
     ObjectSet< TypeSet<int> > sticksegments;
     for ( int stickidx=0; stickidx<sticks_.size(); stickidx++ )
     {
@@ -933,7 +933,7 @@ void ExplFaultStickSurface::updateStickShifting()
 	    break;
 
 	int shift = 0;
-	int shiftstick;
+	int shiftstick = mUdf(int);
 	if ( largestprevshiftidx==-1 || (largestnextshiftidx != -1 &&
 	     largestnextshiftdiff>largestprevshiftdiff) )
 	{
@@ -1514,7 +1514,7 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 
     while ( true )
     {
-	float minsqdist;
+	float minsqdist = mUdf(float);
 	int minl=-1, minr;
 	for ( int idx=0; idx<lsize; idx++ )
 	{

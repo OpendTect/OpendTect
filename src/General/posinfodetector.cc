@@ -388,7 +388,7 @@ void PosInfo::Detector::getBinIDRanges()
 {
     Interval<int> inlrg( firstcbo_.binid_.inl, firstcbo_.binid_.inl );
     Interval<int> crlrg( firstcbo_.binid_.crl, firstcbo_.binid_.crl );
-    int lnstep, trcstep;
+    int lnstep=mUdf(int), trcstep=mUdf(int);
     for ( int iln=0; iln<lds_.size(); iln++ )
     {
 	const LineData& ld = *lds_[iln];

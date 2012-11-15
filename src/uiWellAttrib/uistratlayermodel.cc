@@ -244,7 +244,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     if ( !seqdisp_ )
 	seqdisp_ = new uiBasicLayerSequenceGenDesc( gengrp, desc_ );
 
-    uiGroup* topgrp; uiGroup* botgrp; uiGroup* rightgrp;
+    uiGroup* topgrp; uiGroup* botgrp; uiGroup* rightgrp=0;
     if ( seqdisp_->separateDisplay() )
     {
 	rightgrp = new uiGroup( this, "Right group" );

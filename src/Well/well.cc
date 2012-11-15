@@ -310,7 +310,7 @@ float Well::Log::getValue( float dh, bool noudfs ) const
     if ( !noudfs || !mIsUdf(ret) )
 	return ret;
 
-    float dah1, val1, dah2, val2;
+    float dah1=mUdf(float),val1=mUdf(float),dah2=mUdf(float),val2=mUdf(float);
     bool found1 = false, found2 = false;
     if ( idx1 > 0 )
     {

@@ -282,7 +282,7 @@ void ConnComponents::getCompSticks( TypeSet<int>& comp, int sz1,
     sort_coupled( ics.arr(), ids.arr(), sticksz );
 
     TypeSet<int> stick;
-    int prevpos = -1, sidx;
+    int prevpos = -1, sidx = mUdf(int);
     for ( int i=0; i<sticksz; i++ )
     {
 	int res = -1;

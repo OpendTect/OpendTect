@@ -472,7 +472,7 @@ Repos::Source Strat::LevelSet::readOldRepos()
 {
     Repos::FileProvider rfp( "StratUnits" );
     BufferString bestfile;
-    Repos::Source rsrc;
+    Repos::Source rsrc = Repos::Temp;
     while ( rfp.next() )
     {
 	const BufferString fnm( rfp.fileName() );

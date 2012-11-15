@@ -213,8 +213,8 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
     if ( !mousepos.isDefined() )
 	return mUdf(float);
 
-    int selsectionidx = -1, selpolygon;
-    float mindist;
+    int selsectionidx = -1, selpolygon = mUdf(int);
+    float mindist = mUdf(float);
 
     for ( int sectionidx=emObject().nrSections()-1; sectionidx>=0; sectionidx--)
     {
@@ -378,7 +378,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
     TypeSet<int> knots;
     int nearknotidx = -1;
     Coord3 nearpos;
-    float minsqptdist;
+    float minsqptdist = mUdf(float);
     for ( int knotidx=0; knotidx<colrange.nrSteps()+1; knotidx++ )
     {
 	const Coord3 pt = 
@@ -418,7 +418,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
     }
 
     double minsqedgedist = -1;
-    int nearedgeidx;
+    int nearedgeidx = mUdf(int);
     Coord3 v0, v1;
     for ( int knotidx=0; knotidx<knots.size(); knotidx++ )
     {

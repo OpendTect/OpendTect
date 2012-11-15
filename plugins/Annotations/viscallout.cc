@@ -478,8 +478,8 @@ void Callout::updateArrow()
 	if ( !mIsZero( pickpos.z, 1e-3) || !xrange.includes(pickpos.x,false) ||
 	     !yrange.includes(pickpos.y,false) )
 	{
-	    float minsqdist;
-	    int startidx;
+	    float minsqdist = mUdf(float);
+	    int startidx = mUdf(int);
 
 	    for ( int idx=0; idx<12; idx++ )
 	    {

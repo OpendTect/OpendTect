@@ -198,7 +198,7 @@ bool DataClipper::calculateRange( float* vals, od_int64 nrvals,
     }
     else
     {
-	float min, max;
+	float min=mUdf(float), max=mUdf(float);
 	bool isset = false;
 	for ( od_int64 idx=0; idx<nrvals; idx++ )
 	{

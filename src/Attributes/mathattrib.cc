@@ -287,7 +287,7 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	
 	for ( int specidx=0; specidx<nrspecvars; specidx++ )
 	{
-	    float val;
+	    float val = mUdf(float);
 	    switch ( specstable_[specidx].specidx_ )
 	    {
 		case 0 :	val = refstep_; break;

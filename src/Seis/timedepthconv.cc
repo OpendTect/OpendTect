@@ -382,7 +382,7 @@ void Time2DepthStretcher::transform(const BinID& bid,
 {
     const Interval<float> resrg = sd.interval(sz);
     int bestidx = -1;
-    float largestwidth;
+    float largestwidth = mUdf(float);
     for ( int idx=0; idx<voivols_.size(); idx++ )
     {
 	if ( !voidata_[idx] )
@@ -452,7 +452,7 @@ void Time2DepthStretcher::transformBack(const BinID& bid,
 {
     const Interval<float> resrg = sd.interval(sz);
     int bestidx = -1;
-    float largestwidth;
+    float largestwidth = mUdf(float);
     for ( int idx=0; idx<voivols_.size(); idx++ )
     {
 	if ( !voidata_[idx] )

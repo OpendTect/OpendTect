@@ -244,7 +244,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	if ( fromcrlidx<0 || fromcrlidx>=cs.nrCrl() )
 	    return false;
 
-	od_int64 fromoffset;
+	od_int64 fromoffset = mUdf(od_int64);
 	if ( !attrdata_->is2D() )
 	    fromoffset = attrdata_->get3DData()->getCube(0).info().getOffset(
 						frominlidx, fromcrlidx, 0 );

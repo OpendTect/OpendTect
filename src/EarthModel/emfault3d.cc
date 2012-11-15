@@ -380,7 +380,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 
     bool oninl = false; bool oncrl = false; bool ontms = false;
 
-    double firstz; 
+    double firstz = mUdf(double); 
     BinID firstbid;
 
     ObjectSet<FaultStick> sticks;

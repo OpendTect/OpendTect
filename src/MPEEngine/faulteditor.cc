@@ -407,7 +407,7 @@ float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
 			const Coord3& mousepos, const Coord3* posnormal ) const
 {
     EM::SectionID selsid; 
-    int selstick;
+    int selstick = mUdf(int);
     float mindist = mUdf(float);
 
     for ( int sectionidx=emObject().nrSections()-1; sectionidx>=0; sectionidx--)
@@ -454,7 +454,7 @@ bool FaultEditor::getInsertStick( int& stick, EM::SectionID& sid,
 		      const Coord3& mousepos, const Coord3* posnormal ) const
 {
     EM::SectionID selsid; 
-    int selstick;
+    int selstick = mUdf(int);
     float mindist = mUdf(float);
     Coord3 normal = Coord3::udf();
 
@@ -522,7 +522,7 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 
     TypeSet<int> definedknots;
     int nearestknotidx = -1;
-    float minsqdist;
+    float minsqdist = mUdf(float);
     for ( int knotidx=0; knotidx<nrknots; knotidx++ )
     {
 	const RowCol rc( stick, colrange.atIndex(knotidx));

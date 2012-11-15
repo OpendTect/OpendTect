@@ -61,7 +61,7 @@ void SurfaceConnectLine::fillPar(IOPar& par) const
 
 bool SurfaceConnectLine::usePar(const IOPar& par)
 {
-    int dummy;
+    int dummy = mUdf(int);
     const bool res = EdgeLineSegment::usePar(par) &&
 		     par.get(connectingsectionstr,dummy);
     if ( res ) connectingsection = dummy;

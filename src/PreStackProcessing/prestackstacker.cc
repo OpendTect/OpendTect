@@ -86,7 +86,7 @@ bool Stack::doWork( od_int64 start, od_int64 stop, int )
 	    const int nroffsets =
 		input->data().info().getSize(Gather::offsetDim());
 	    int nrvals = 0;
-	    float stack;
+	    float stack = mUdf(float);
 	    for ( int ioff=0; ioff<nroffsets; ioff++ )
 	    {
 		const float offset = input->getOffset(ioff);
