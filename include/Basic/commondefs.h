@@ -122,8 +122,8 @@ ________________________________________________________________________
 #define mTODOHelpID	"0.0.0"
 #define mNoHelpID	"-"
 
-//Experimental
-//#define mDoWindowsImport
+//Comment out mDoWindowsImport to turn off import/export on windows.
+#define mDoWindowsImport
 
 #ifndef mDoWindowsImport
 #define mExp( module )			dll_export
