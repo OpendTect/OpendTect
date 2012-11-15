@@ -16,14 +16,14 @@ execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory ${PSD}/plugins/${OD_
 		 				${PSD}/inst/${OD_PLFSUBDIR} )
 execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory ${PSD}/data/icons.Classic
 		 				${PSD}/inst/icons.Classic )
-execute_process( COMMAND ${CMAKE_COMMAND} -E remove_directory ${PSD}/inst/icons.Classic/CVS )
+execute_process( COMMAND ${CMAKE_COMMAND} -E remove_directory ${PSD}/inst/icons.Classic/.svn )
 execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory ${PSD}/data/icons.Default
 		 				${PSD}/inst/icons.Default )
-execute_process( COMMAND ${CMAKE_COMMAND} -E remove_directory ${PSD}/inst/icons.Default/CVS )
+execute_process( COMMAND ${CMAKE_COMMAND} -E remove_directory ${PSD}/inst/icons.Default/.svn )
 
 execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory ${PSD}/relbase
 		 				${PSD}/inst/relbase )
-execute_process( COMMAND ${CMAKE_COMMAND} -E remove_directory ${PSD}/inst/relbase/CVS )
+execute_process( COMMAND ${CMAKE_COMMAND} -E remove_directory ${PSD}/inst/relbase/.svn )
 
 #installing thirdparty libs
 IF( NOT EXISTS ${PSD}/inst/externallibs )

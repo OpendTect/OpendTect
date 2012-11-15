@@ -6,20 +6,23 @@
 
 #TODO Get version name from keyboard. 
 
-SET( BASEPACKAGES basedatadefs )
-SET( PACKAGELIST basedefs dgbccbdefs dgbdsdefs dgbhcdefs dgbnndefs dgbssisdefs dgbstratdefs dgbvmbdefs dgbwcpdefs odgmtdefs odgprdefs odmadagascardefs ) 
+SET( BASEPACKAGES basedatadefs dgbbasedatadefs)
+SET( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs dgbnndefs dgbssisdefs dgbstratdefs dgbvmbdefs dgbwcpdefs odgmtdefs odgprdefs odmadagascardefs ) 
 
+INCLUDE( CMakeModules/packagescripts/extlibs.cmake )
+INCLUDE( CMakeModules/packagescripts/ODInstallReleaseStuff.cmake )
 INCLUDE( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
 foreach ( BASEPACKAGE ${BASEPACKAGES} )
-    INCLUDE(CMakeModules/packagescripts/${BASEPACKAGE}.cmake)
+    INCLUDE( ${PSD}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake)
     init_destinationdir( ${PACK} )
     create_basepackages( ${PACK} )
 endforeach()
+RETURN()
 
 foreach ( PACKAGE ${PACKAGELIST} )
+    MESSAGE( "Preparing ${PACKAGE}" )
     INCLUDE(CMakeModules/packagescripts/${PACKAGE}.cmake)
-#    INCLUDE( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
     IF( NOT DEFINED OpendTect_VERSION_MAJOR )
 	MESSAGE( FATAL_ERROR "OpendTect_VERSION_MAJOR not defined" )
     ENDIF()
@@ -32,11 +35,6 @@ foreach ( PACKAGE ${PACKAGELIST} )
 	MESSAGE( FATAL_ERROR "${PSD}/inst is not existed. Do make install. " )
     ENDIF()
 
-#    SET( REL_DIR "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
-    IF( APPLE )
-	SET( REL_DIR "OpendTect${OpendTect_VERSION_MAJOR.${OpendTect_VERSION_MINOR}}.app" )
-    ENDIF( APPLE )
-    
     init_destinationdir( ${PACK} )
     create_package( ${PACK} )
 endforeach()

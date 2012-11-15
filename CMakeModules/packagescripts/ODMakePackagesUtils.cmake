@@ -15,6 +15,7 @@ macro ( create_package PACKAGE_NAME )
         SET( LIBLIST ${LIBLIST};${PLUGINS} )
     ENDIF()
 
+    MESSAGE( "Copying ${OD_PLFSUBDIR} libraries" )
     FOREACH ( FILE ${LIBLIST} )
 	IF( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
 		SET(LIB "lib${FILE}.so")
@@ -28,30 +29,37 @@ macro ( create_package PACKAGE_NAME )
 		SET( LIB "${FILE}.dll" )
 	ENDIF()
 
-	MESSAGE( "modified file name:${LIB}" )
-	MESSAGE( "modified :${PSD}" )
-	FILE( INSTALL DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
-		      TYPE FILE FILES ${PSD}/inst/bin/${OD_PLFSUBDIR}/${LIB} )
-
-	FILE( GLOB ALOFILES ${PSD}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
-	FOREACH( ALOFILE ${ALOFILES} )
-	    FILE( INSTALL DESTINATION ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR}
-			  TYPE FILE FILES ${ALOFILE} )
-	ENDFOREACH()
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${PSD}/inst/bin/${OD_PLFSUBDIR}/${LIB} 
+			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+       FILE( GLOB ALOFILES ${PSD}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
+       FOREACH( ALOFILE ${ALOFILES} )
+	   execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${ALOFILE}
+				    ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
+       ENDFOREACH()
 
     ENDFOREACH()
+
+    IF( ${PACKAGE_NAME} STREQUAL "dgbbase" )
+        SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E
+			 copy_directory ${PSD}/../${dgbdir}/bin/${OD_PLFSUBDIR}/lm
+			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
+    ENDIF()
 
     IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
 	SET( EXECLIST "${EXECLIST};${WINEXECLIST}" )
     ENDIF()
 
+    MESSAGE( "Copying ${OD_PLFSUBDIR} executables" )
     FOREACH( EXE ${EXECLIST} )
 	IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
 		set( EXE "${EXE}.exe" )
 	ENDIF()
 
-	FILE( INSTALL DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
-		      TYPE FILE FILES ${PSD}/inst/bin/${OD_PLFSUBDIR}/${EXE} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${PSD}/inst/bin/${OD_PLFSUBDIR}/${EXE} 
+			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
     ENDFOREACH()
 
     IF( ${PACKAGE_NAME} STREQUAL "base" )
@@ -75,49 +83,13 @@ endmacro( create_package )
 
 
 macro( copy_thirdpartylibs )
-    IF( NOT DEFINED QTDIR )
-       MESSAGE( "FATAL_ERROR QTDIR is not defined" )
-    ENDIF()
-
-    IF( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
-        SET( QTLIBS ${LUXQTLIBS} )
-        SET( COINLIBS ${LUXCOINLIBS} )
-        SET( OSGLIBS ${LUXOSGLIBS} )
-    ELSEIF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
-        SET( QTLIBS ${WINQTLIBS} )
-        SET( COINLIBS ${WINCOINLIBS} )
-        SET( OSGLIBS ${WINOSGLIBS} )
-    ELSE()
-        SET( QTLIBS ${MACQTLIBS} )
-        SET( COINLIBS ${MACCOINLIBS} )
-        SET( OSGLIBS ${MACOSGLIBS} )
-    ENDIF()
-
     MESSAGE( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
-    FOREACH( QTLIB ${QTLIBS} )
-	FILE( GLOB QLIBS ${QTDIR}/lib/${QTLIB}*.[0-9] )
-        FOREACH( QLIB ${QLIBS} )
-            FILE( INSTALL DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
-	                  TYPE FILE FILES ${QLIB} )
-        ENDFOREACH()
+    FILE( GLOB LIBS ${PSD}/inst/externallibs/* )
+    FOREACH( LIB ${LIBS} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB}
+			  ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
     ENDFOREACH()
 
-    FOREACH( COINLIB ${COINLIBS} )
-        MESSAGE( "coin : ${COINDIR}" )
-        MESSAGE( "coin libs: ${COINLIB}" )
-	FILE( GLOB CLIBS ${COINDIR}/lib/${COINLIB}* )
-        MESSAGE( "coin libs: ${CLIB}" )
-        FOREACH( CLIB ${CLIBS} )
-            FILE( INSTALL DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
-	                  TYPE FILE FILES ${CLIB} )
-        ENDFOREACH()
-    ENDFOREACH()
-
-    FOREACH( OSGLIB ${OSGLIBS} )
-        FILE( INSTALL DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
-	              TYPE FILE FILES ${OSG_DIR}/lib/${OSGLIB} )
-    ENDFOREACH()
-    
 endmacro( copy_thirdpartylibs )
 
 
@@ -127,12 +99,13 @@ macro( create_basepackages )
 		        ${DESTINATION_DIR}/doc )
    FOREACH( LIBS ${LIBLIST} )
 	FILE( GLOB DATAFILES ${PSD}/data/${LIBS} )
-        MESSAGE( "datafiles: ${DATAFILES}" )
+#        MESSAGE( "datafiles: ${DATAFILES}" )
         FOREACH( DATA ${DATAFILES} )
 	      MESSAGE( "datafile: ${DATA}" )
+#TODO if possible copy files instead of INSTALL
 	      FILE( INSTALL DESTINATION ${DESTINATION_DIR}/data
 			    TYPE DIRECTORY FILES ${DATA}
-			    REGEX "CVS" EXCLUDE )
+			    REGEX ".svn" EXCLUDE )
         ENDFOREACH()
    ENDFOREACH()
 
@@ -158,6 +131,9 @@ macro( init_destinationdir  PACKAGE_NAME )
     IF( ${PACKAGE_NAME} STREQUAL "basedata" )
         SET( PACKAGE_FILENAME "basedata.zip" )
     ENDIF()
+    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
+        SET( PACKAGE_FILENAME "dgbbasedata.zip" )
+    ENDIF()
 
     IF( NOT EXISTS ${PSD}/packages )
         FILE( MAKE_DIRECTORY ${PSD}/packages )
@@ -165,8 +141,11 @@ macro( init_destinationdir  PACKAGE_NAME )
 
     SET( PACKAGE_DIR ${PSD}/packages )
     SET( REL_DIR "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+    IF( APPLE )
+	SET( REL_DIR "OpendTect${OpendTect_VERSION_MAJOR.${OpendTect_VERSION_MINOR}}.app" )
+    ENDIF()
+
     SET( DESTINATION_DIR "${PACKAGE_DIR}/${REL_DIR}" )
-    MESSAGE("Destdir:${DESTINATION_DIR}")
     MESSAGE("Reldir:${REL_DIR}")
     IF( EXISTS ${DESTINATION_DIR} )
 	FILE ( REMOVE_RECURSE ${DESTINATION_DIR} )
@@ -180,6 +159,9 @@ macro( init_destinationdir  PACKAGE_NAME )
 
     IF( ${PACKAGE_NAME} STREQUAL "basedata" )
         SET( VER_FILENAME "basedata" )
+    ENDIF()
+    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
+        SET( VER_FILENAME "dgbbasedata" )
     ENDIF()
 
     FILE( WRITE ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
