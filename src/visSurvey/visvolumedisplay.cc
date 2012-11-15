@@ -1328,11 +1328,11 @@ int VolumeDisplay::usePar( const IOPar& par )
 	slices_ += os;
 	addChild( os->getInventorNode() );
 	// set correct dimensions ...
-	if ( !strcmp(os->name(),sKeyInline()) )
+	if ( os->name()==sKeyInline() )
 	    os->setDim( cInLine() );
-	else if ( !strcmp(os->name(),sKeyCrossLine()) )
+	else if ( os->name()==sKeyCrossLine() )
 	    os->setDim( cCrossLine() );
-	else if ( !strcmp(os->name(),sKeyTime()) )
+	else if ( os->name()==sKeyTime() )
 	    os->setDim( cTimeSlice() );
     }
 

@@ -51,7 +51,7 @@ bool DataObject::isTraversalEnabled( TraversalType tt ) const
 }
 
 
-const char* DataObject::name() const
+FixedString DataObject::name() const
 {
     return !name_ || name_->isEmpty() ? 0 : name_->buf();
 }

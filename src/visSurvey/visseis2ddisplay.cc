@@ -132,7 +132,7 @@ void Seis2DDisplay::setLineInfo( const MultiID& lid, const char* lnm )
 
 
 const char* Seis2DDisplay::getLineName() const
-{ return geomid_.isOK() ? S2DPOS().getLineName( geomid_.lineid_ ) : name(); }
+{ return geomid_.isOK() ? S2DPOS().getLineName( geomid_.lineid_ ) : name().str(); }
 
 
 PosInfo::GeomID Seis2DDisplay::getGeomID() const

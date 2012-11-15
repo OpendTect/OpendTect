@@ -130,7 +130,7 @@ void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
     //if Subsel Type == None : init rg with SI()
     BufferString typestr;
     inpiopar_.get( mGetSubselKey(Type), typestr );
-    if ( !strcmp( typestr, sKey::None() ) )
+    if ( typestr==sKey::None() )
 	rg = SI().inlRange(true);
 				
     rg.sort();

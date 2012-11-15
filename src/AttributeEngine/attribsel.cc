@@ -150,7 +150,7 @@ void SelSpec::setIDFromRef( const DescSet& ds )
     if ( Desc::getAttribName( defstring_.buf(), attribname ) )
     {
 	if ( ds.getDesc(id_) && 
-	     strcmp( attribname, ds.getDesc(id_)->attribName() ) )
+	     attribname!=ds.getDesc(id_)->attribName() )
 	    id_ = ds.getID( defstring_, ds.containsStoredDescOnly() );
     }
     const Desc* desc = ds.getDesc( id_ );
@@ -256,7 +256,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	    const Desc* desc = attrset->getDesc( descid );
 	    const BufferString usrref( desc->userRef() );
 	    if ( !desc || usrref.isEmpty()
-	      || !strcmp(desc->attribName(),StorageProvider::attribName())
+	      || desc->attribName()==StorageProvider::attribName()
 	      || attrset->getID(*desc) == ignoreid || desc->isHidden() )
 		continue;
 
@@ -305,9 +305,9 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	if ( !ZDomain::isSI(ioobj.pars()) )
 	    continue;
 
-	const char* res = ioobj.pars().find( sKey::Type() );
-	if ( res && ( (!steerdata && !strcmp(res,sKey::Steering()) )
-	         || ( steerdata && strcmp(res,sKey::Steering()) ) ) )
+	FixedString res = ioobj.pars().find( sKey::Type() );
+	if ( res && ( (!steerdata && res==sKey::Steering() )
+	         || ( steerdata && res!=sKey::Steering() ) ) )
 	    continue;
 
 	if ( !res && steerdata && !is2d ) continue;

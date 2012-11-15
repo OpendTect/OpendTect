@@ -69,7 +69,7 @@ public:
     int				id() const		{ return id_; }
     void			setID(int nid);
 
-    const char*			name() const;
+    FixedString			name() const;
     virtual void		setName(const char*);
 
     osg::Node*			osgNode()		{return gtOsgNode();}
