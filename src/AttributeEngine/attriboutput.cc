@@ -248,7 +248,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	{
 	    mDynamicCastGet( ConvMemValueSeries<float>*, deststor,
 		    	     datacubes_->getCube(desout).getStorage() );
-	    const char elemsz = cmvs->dataDesc().nrBytes();
+	    const char elemsz = mCast(char,cmvs->dataDesc().nrBytes());
 
 	    const od_int64 destoffset = transrg.start-datacubes_->z0_ +
 		datacubes_->getCube(desout).info().getOffset(inlidx,crlidx,0);
@@ -263,9 +263,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 
 
 const DataCubes* DataCubesOutput::getDataCubes() const
-{
-    return datacubes_;
-}
+{ return datacubes_; }
 
 
 DataCubes* DataCubesOutput::getDataCubes( float refstep )
@@ -389,7 +387,6 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
     
     auxpars_ = pars.subselect("Aux");
     return doInit();
-    //return true;
 }//warning, only a small part of the old taken, see if some more is required
 
 

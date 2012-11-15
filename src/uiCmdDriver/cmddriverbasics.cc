@@ -20,12 +20,14 @@ namespace CmdDrive
 {
 
 
-#define mReturnIfReadOnly( retval ) \
+#define mReturnRetIfReadOnly( retval ) \
     if ( !bufstr_ ) \
     { \
 	pErrMsg( "StringProcessor: Attempt to write read-only string" ); \
 	return retval; \
     }
+
+#define mReturnIfReadOnly()	mReturnRetIfReadOnly(;)
 
 const char* StringProcessor::parseDQuoted( BufferString& unquotedstr ) const
 {
@@ -98,7 +100,7 @@ int StringProcessor::nrDQuotes() const
 
 int StringProcessor::removeNumAppendix() 
 {
-    mReturnIfReadOnly( 0 );
+    mReturnRetIfReadOnly( 0 );
 
     char* wicketptr = bufstr_->buf() + bufstr_->size();
 
@@ -125,7 +127,7 @@ int StringProcessor::removeNumAppendix()
 
 bool StringProcessor::removeTokenAppendix( char token )
 {
-    mReturnIfReadOnly( 0 );
+    mReturnRetIfReadOnly( 0 );
 
     char* tokenptr = bufstr_->buf() + bufstr_->size() - 1;
 
@@ -570,7 +572,7 @@ void StringProcessor::cleanUp()
 char StringProcessor::stripOuterBrackets( const char* beginsymbols,
 					  const char* endsymbols )
 {
-    mReturnIfReadOnly( '\0' );
+    mReturnRetIfReadOnly( '\0' );
 
     BufferString bufcopy = bufstr_->buf();
     char* firstptr = bufcopy.buf();
