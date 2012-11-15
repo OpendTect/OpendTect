@@ -654,10 +654,11 @@ bool Seis2DLineSet::getRanges( int ipar, StepInterval<int>& sii,
 
 
 void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
-       					    const char* datatyp,
+       					    const char* datatypptr,
 					    bool allowcnstabsent, 
 					    bool incl ) const
 {
+    FixedString datatyp( datatypptr );
     nms.erase();
     const int sz = nrLines();
     for ( int idx=0; idx<sz; idx++ )
@@ -670,18 +671,18 @@ void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
 	    {
 		if ( allowcnstabsent )	
 		{
-		    if ( strcmp(datatyp,attribute(idx)) )
+		    if ( datatyp!=attribute(idx) )
 			nms.addIfNew( attribute(idx) );
 		}
 		else
 		{
-		    if ( !strcmp(datatyp,attribute(idx)) )
+		    if ( datatyp==attribute(idx) )
 			nms.addIfNew( attribute(idx) );
 		}
 	    }
 	    else
 	    {
-		if ( !strcmp(datatyp,founddatatype) && incl )
+		if ( datatyp==founddatatype && incl )
 		    nms.addIfNew( attribute(idx) );
 	    }
 	}
@@ -693,12 +694,14 @@ void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
 }
 
 
-void Seis2DLineSet::getZDomainAttrib( BufferStringSet& nms, const char* linenm,
+void Seis2DLineSet::getZDomainAttrib( BufferStringSet& nms,
+				      const char* linenmptr,
 				      const char* zdomainstr )
 {
+    FixedString linenm = linenmptr;
     for ( int idx=0; idx<nrLines(); idx++ )
     {
-	if ( !strcmp(linenm,lineName(idx)) )
+	if ( linenm==lineName(idx) )
 	{
 	    BufferString ztype = zDomainKey( idx );
 	    if ( zdomainstr && ztype!=zdomainstr )
