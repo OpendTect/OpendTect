@@ -77,7 +77,8 @@ bool EdgeLineSegment::shouldHorizonTrack(int,const RowCol& trackdir) const
 
 bool EdgeLineSegment::haveIdenticalSettings( const EdgeLineSegment& seg ) const
 {
-    return !strcmp(typeid(*this).name(),typeid(seg).name()) &&
+    FixedString myname( typeid(*this).name() );
+    return myname==typeid(seg).name() &&
 	   internalIdenticalSettings(seg);
 }
 
@@ -661,7 +662,7 @@ EdgeLineSegment* EM::EdgeLineSegment::factory( const IOPar& par,
 
     for ( int idx=0; idx<factories().size(); idx++ )
     {
-	if ( strcmp( factories()[idx]->name, name.buf() ) )
+	if ( name!=factories()[idx]->name )
 	    continue;
 
 	EdgeLineSegment* els = factories()[idx]->func( surf, sect );

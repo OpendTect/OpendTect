@@ -497,7 +497,7 @@ int Well::MarkerSet::indexOf( const char* mname ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( !strcmp(mname,(*this)[idx]->name()) )
+	if ( (*this)[idx]->name()==mname )
 	    return idx;
     }
     return -1;

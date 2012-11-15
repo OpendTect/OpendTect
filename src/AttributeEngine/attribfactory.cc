@@ -71,7 +71,7 @@ int ProviderFactory::indexOf( const char* nm ) const
 {
     for ( int idx=0; idx<descs_.size(); idx++ )
     {
-	if ( !strcmp( descs_[idx]->attribName(), nm ) )
+	if ( descs_[idx]->attribName()==nm )
 	    return idx;
     }
 
