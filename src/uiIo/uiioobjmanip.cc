@@ -257,7 +257,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 	    fp.setFileName( deffp.fileName() );
 	    chiostrm.setFileName( fp.fullPath() );
 
-	    const bool newfnm = strcmp(chiostrm.fileName(),iostrm->fileName());
+	    const bool newfnm = chiostrm.fileName()!=iostrm->fileName();
 	    if ( newfnm && !doReloc(tr,*iostrm,chiostrm) )
 	    {
 		if ( strchr(newnm.buf(),'/') || strchr(newnm.buf(),'\\') )

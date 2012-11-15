@@ -29,7 +29,7 @@ public:
 				 bool =false);
     virtual		~IOStream();
     bool		bad() const;
-    bool		isCommand() const		{ return iscomm; }
+    bool		isCommand() const		{ return iscomm_; }
 
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool forread=true) const;
@@ -48,69 +48,69 @@ public:
     bool		implRename(const char*,const CallBack* cb=0);
 
     bool		multiConn() const
-			{ return isMulti() && curfnr <= fnrs.stop; }
+			{ return isMulti() && curfnr_ <= fnrs_.stop; }
     int			connNr() const
-			{ return curfnr; }
+			{ return curfnr_; }
     bool		toNextConnNr()
-			{ curfnr += fnrs.step; return validNr(); }
+			{ curfnr_ += fnrs_.step; return validNr(); }
     int			lastConnNr() const
-			{ return fnrs.stop; }
+			{ return fnrs_.stop; }
     int			nextConnNr() const
-			{ return curfnr+fnrs.step; }
+			{ return curfnr_+fnrs_.step; }
     void		resetConnNr()
-			{ curfnr = fnrs.start; }
+			{ curfnr_ = fnrs_.start; }
     void		setConnNr( int nr )
-			{ curfnr = nr; }
+			{ curfnr_ = nr; }
 
-    const char*		hostName() const		{ return hostname; }
-    void		setHostName( const char* hn )	{ hostname = hn; }
-    const char*		fileName() const		{ return fname; }
+    const char*		hostName() const		{ return hostname_; }
+    void		setHostName( const char* hn )	{ hostname_ = hn; }
+    FixedString		fileName() const		{ return fname_.buf(); }
     const char*		subDirName() const		{ return dirName(); }
     const char*		fullDirName() const;
     void		setFileName(const char*);
-    void		setExt( const char* ext )	{ extension = ext; }
+    void		setExt( const char* ext )	{ extension_ = ext; }
     void		genFileName();
 
-    const char*		reader() const			{ return fname; }
+    const char*		reader() const			{ return fname_; }
     const char*		writer() const
-			{ return writecmd ? (const char*)(*writecmd) : 0; }
+			{ return writecmd_ ? (const char*)(*writecmd_) : 0; }
     void		setReader(const char*);
     void		setWriter(const char*);
 
-    int			zeroPadding() const		{ return padzeros; }
-    void		setZeroPadding( int zp )	{ padzeros = zp; }
-    StepInterval<int>&	fileNumbers()			{ return fnrs; }
-    const StepInterval<int>& fileNumbers() const	{ return fnrs; }
+    int			zeroPadding() const		{ return padzeros_; }
+    void		setZeroPadding( int zp )	{ padzeros_ = zp; }
+    StepInterval<int>&	fileNumbers()			{ return fnrs_; }
+    const StepInterval<int>& fileNumbers() const	{ return fnrs_; }
 
     StreamProvider*	streamProvider(bool,bool fillwc=true) const;
     bool		isMulti() const
-			{ return fnrs.start != fnrs.stop; }
+			{ return fnrs_.start != fnrs_.stop; }
 
 protected:
 
     bool		getFrom(ascistream&);
     bool		putTo(ascostream&) const;
 
-    BufferString	hostname;
-    int			nrfiles;
-    FileNameString	fname;
+    BufferString	hostname_;
+    int			nrfiles_;
+    FileNameString	fname_;
 
-    BufferString	extension;
-    FileNameString*	readcmd;
-    FileNameString*	writecmd;
-    bool		iscomm;
-    int			padzeros;
-    StepInterval<int>	fnrs;
-    int			curfnr;
-    int			nrretries;
-    int			retrydelay;
+    BufferString	extension_;
+    FileNameString*	readcmd_;
+    FileNameString*	writecmd_;
+    bool		iscomm_;
+    int			padzeros_;
+    StepInterval<int>	fnrs_;
+    int			curfnr_;
+    int			nrretries_;
+    int			retrydelay_;
 
     void		getDev(ascistream&);
     bool		validNr() const
-			{ return curfnr*fnrs.step <= fnrs.stop*fnrs.step; }
+			{ return curfnr_*fnrs_.step <= fnrs_.stop*fnrs_.step; }
     bool		implDo(bool,bool) const;
 
-    static int		prodid; //!< for factory implementation
+    static int		prodid_; //!< for factory implementation
 };
 
 
