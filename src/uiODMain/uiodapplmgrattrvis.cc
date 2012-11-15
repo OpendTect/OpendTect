@@ -278,11 +278,9 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     if ( ctseq ) seq = *ctseq;
 
     ColTab::MapperSetup mapper;
-    const ColTab::MapperSetup* ctmap =
-			am_.visserv_->getColTabMapperSetup( visid, attrib );
-
-    if ( !ioobj && ( ctmap && ctmap->type_ == ColTab::MapperSetup::Auto ) )
-	return;
+    const ColTab::MapperSetup* ctmap = !ioobj ?
+		0 : am_.visserv_->getColTabMapperSetup( visid, attrib );
+    if ( ctmap ) mapper = *ctmap;
 
     if ( ioobj )
     {
