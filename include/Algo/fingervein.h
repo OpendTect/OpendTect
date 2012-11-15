@@ -44,10 +44,10 @@ public:
     				{ return validconncomps_; }
     const TypeSet<int>& 	nrConnComponents() const { return nrcomps_; }
     const TypeSet<int>& 	compIndices() const  	 { return compids_; }
+    void			thinning(Array2D<bool>& res,bool skeleton=true);
 
 protected:
 
-    void			thinning(Array2D<bool>& res);
     void			removeSmallComponents(Array2D<bool>&,
 	    				int minfltlength,float overlaprate,
 					bool savecomps=true);

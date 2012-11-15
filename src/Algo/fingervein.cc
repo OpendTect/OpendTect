@@ -50,7 +50,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	                Array2DImpl<bool> (isz,csz) );
     const bool is_t_slic = true;
 
-    for ( int idz=(int) start; idz<=stop && shouldContinue(); idz++, addToNrDone(1) )
+    for ( od_int64 idz= start; idz<=stop && shouldContinue(); idz++ )
     {
 	for ( int idx=0; idx<isz; idx++ )
 	{
@@ -66,6 +66,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    for ( int idy=0; idy<csz; idy++ )
 		output_.set( idx, idy, idz, vein_bina->get(idx,idy) );
 	}	
+
+	addToNrDone(1);
     }
 
     return true;
@@ -112,7 +114,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_sect,
 	    Array2DImpl<float> (isz,csz) );
 
-    for ( int idz=(int) start; idz<=stop && shouldContinue(); idz++,addToNrDone(1) )
+    for ( od_int64 idz= start; idz<=stop && shouldContinue(); idz++ )
     {
 	for ( int idx=0; idx<isz; idx++ )
 	{
@@ -133,6 +135,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		azimuth_pca_.set( idx, idy, idz, azimuth_sect->get(idx,idy) );
 	    }
 	}
+
+	addToNrDone(1);
     }
     return true;
 }
@@ -278,27 +282,32 @@ void FingerVein::removeSmallComponents( Array2D<bool>& data, int minfltlength,
 }
 
 
-void FingerVein::thinning( Array2D<bool>& res )
+void FingerVein::thinning( Array2D<bool>& res, bool useskeleton )
 {
-    /*mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, tmp,
-	    Array2DImpl<bool> (res.info()) );
-    if ( !tmp ) return;
-    tmp->copyFrom( res );
-    FaultOrientation::thinning( *tmp, res );*/
-    
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<char> >, tmp,
-	    Array2DImpl<char> (res.info()) );
-    if ( !tmp ) return;
+    if ( useskeleton )
+    {    
+	mDeclareAndTryAlloc( PtrMan<Array2DImpl<char> >, tmp,
+		Array2DImpl<char> (res.info()) );
+	if ( !tmp ) return;
 
-    bool* inp = res.getData();
-    char* data = tmp->getData();
-    const int sz = mCast( int, res.info().getTotalSz() );
-    for ( int idx=0; idx<sz; idx++ )
-	data[idx] = inp[idx] ? 1 : 0;
+	bool* inp = res.getData();
+	char* data = tmp->getData();
+	const int sz = mCast( int, res.info().getTotalSz() );
+	for ( int idx=0; idx<sz; idx++ )
+	    data[idx] = inp[idx] ? 1 : 0;
 
-    FaultOrientation::skeletonHilditch( *tmp );
-    for ( int idx=0; idx<sz; idx++ )
-	inp[idx] = data[idx]>0;
+	FaultOrientation::skeletonHilditch( *tmp );
+	for ( int idx=0; idx<sz; idx++ )
+	    inp[idx] = data[idx]>0;
+    }
+    else
+    {
+	mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, tmp,
+		Array2DImpl<bool> (res.info()) );
+	if ( !tmp ) return;
+	tmp->copyFrom( res );
+	FaultOrientation::thinning( *tmp, res );
+    }
 }
 
 
