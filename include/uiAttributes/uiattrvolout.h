@@ -36,27 +36,27 @@ public:
 				     const NLAModel* n=0,MultiID i=0);
 			~uiAttrVolOut();
 
-    const IOPar&	subSelPar() const		{ return subselpar; }
-    const Attrib::CurrentSel& outputSelection() const	{ return sel; }
+    const IOPar&	subSelPar() const		{ return subselpar_; }
+    const Attrib::CurrentSel& outputSelection() const	{ return sel_; }
 
     static const char*  sKeyMaxCrlRg();
     static const char*  sKeyMaxInlRg();
 
 protected:
 
-    CtxtIOObj&		ctio;
-    Attrib::CurrentSel&	sel;
-    IOPar&		subselpar;
-    Attrib::DescSet& 	ads;
-    MultiID		nlaid;
-    const NLAModel*	nlamodel;
+    CtxtIOObj&		ctio_;
+    Attrib::CurrentSel&	sel_;
+    IOPar&		subselpar_;
+    Attrib::DescSet& 	ads_;
+    MultiID		nlaid_;
+    const NLAModel*	nlamodel_;
 
-    uiAttrSel*		todofld;
-    uiSeisTransfer*	transffld;
-    uiSeisSel*		objfld;
+    uiAttrSel*		todofld_;
+    uiSeisTransfer*	transffld_;
+    uiSeisSel*		objfld_;
 
-    TypeSet<int>	seloutputs;
-    BufferStringSet	seloutnms;
+    TypeSet<int>	seloutputs_;
+    BufferStringSet	seloutnms_;
 
     bool		prepareProcessing();
     bool		fillPar(IOPar&);

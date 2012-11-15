@@ -56,12 +56,12 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 			    const NLAModel* n, MultiID id )
 	: uiFullBatchDialog(p,Setup("Process"))
-	, ctio(mkCtxtIOObj(ad))
-    	, subselpar(*new IOPar)
-    	, sel(*new CurrentSel)
-	, ads(const_cast<DescSet&>(ad))
-	, nlamodel(n)
-	, nlaid(id)
+	, ctio_(mkCtxtIOObj(ad))
+    	, subselpar_(*new IOPar)
+    	, sel_(*new CurrentSel)
+	, ads_(const_cast<DescSet&>(ad))
+	, nlamodel_(n)
+	, nlaid_(id)
 {
     setHelpID( "101.2.0" );
 
@@ -69,26 +69,26 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     setCaption( is2d ? "Create LineSet Attribute":"Create Volume Attribute");
 
     uiAttrSelData attrdata( ad, false );
-    attrdata.nlamodel_ = nlamodel;
-    todofld = new uiAttrSel( uppgrp_, "Quantity to output", attrdata );
-    todofld->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
+    attrdata.nlamodel_ = nlamodel_;
+    todofld_ = new uiAttrSel( uppgrp_, "Quantity to output", attrdata );
+    todofld_->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
 
-    transffld = new uiSeisTransfer( uppgrp_, uiSeisTransfer::Setup(is2d,false)
+    transffld_ = new uiSeisTransfer( uppgrp_, uiSeisTransfer::Setup(is2d,false)
 	    	.fornewentry(!is2d).withstep(false).multiline(true) );
-    transffld->attach( alignedBelow, todofld );
-    if ( transffld->selFld2D() )
-	transffld->selFld2D()->singLineSel.notify(
+    transffld_->attach( alignedBelow, todofld_ );
+    if ( transffld_->selFld2D() )
+	transffld_->selFld2D()->singLineSel.notify(
 				mCB(this,uiAttrVolOut,singLineSel) );
 
-    ctio.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
+    ctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     uiSeisSel::Setup su( is2d, false );
     su.selattr( true ).allowlinesetsel( false );
     
-    objfld = new uiSeisSel( uppgrp_, ctio, su );
-    objfld->attach( alignedBelow, transffld );
-    objfld->setConfirmOverwrite( !is2d );
+    objfld_ = new uiSeisSel( uppgrp_, ctio_, su );
+    objfld_->attach( alignedBelow, transffld_ );
+    objfld_->setConfirmOverwrite( !is2d );
 
-    uppgrp_->setHAlignObj( transffld );
+    uppgrp_->setHAlignObj( transffld_ );
 
     addStdFields( false, false, !is2d );
     if ( is2d && singmachfld_ ) singmachfld_->setSensitive( false );
@@ -97,10 +97,10 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 
 uiAttrVolOut::~uiAttrVolOut()
 {
-    delete ctio.ioobj;
-    delete &ctio;
-    delete &sel;
-    delete &subselpar;
+    delete ctio_.ioobj;
+    delete &ctio_;
+    delete &sel_;
+    delete &subselpar_;
 }
 
 
@@ -112,28 +112,28 @@ CtxtIOObj& uiAttrVolOut::mkCtxtIOObj( const Attrib::DescSet& ad )
 
 void uiAttrVolOut::singLineSel( CallBacker* )
 {
-    if ( !transffld->selFld2D() ) return;
+    if ( !transffld_->selFld2D() ) return;
 
-    setMode( transffld->selFld2D()->isSingLine() ? Single : Multi );
+    setMode( transffld_->selFld2D()->isSingLine() ? Single : Multi );
 }
 
 
-#define mSetObjFld(s) { objfld->setInputText( s ); objfld->processInput(); }
+#define mSetObjFld(s) { objfld_->setInputText( s ); objfld_->processInput(); }
 
 void uiAttrVolOut::attrSel( CallBacker* )
 {
     CubeSampling cs;
-    const bool is2d = todofld->is2D();
-    if ( todofld->getRanges(cs) )
-	transffld->selfld->setInput( cs );
+    const bool is2d = todofld_->is2D();
+    if ( todofld_->getRanges(cs) )
+	transffld_->selfld->setInput( cs );
 
-    Attrib::Desc* desc = ads.getDesc( todofld->attribID() );
+    Attrib::Desc* desc = ads_.getDesc( todofld_->attribID() );
     if ( !desc )
     {
 	mSetObjFld("")
 	if ( is2d )	//it could be 2D neural network
 	{
-	    Desc* firststoreddsc = ads.getFirstStored();
+	    Desc* firststoreddsc = ads_.getFirstStored();
 	    if ( firststoreddsc )
 	    {
 		const LineKey lk( firststoreddsc->getValParam(
@@ -141,20 +141,20 @@ void uiAttrVolOut::attrSel( CallBacker* )
 		BufferString linenm = lk.lineName();
 		if ( !linenm.isEmpty() && *linenm.buf() != '#' )
 		    mSetObjFld( LineKey(IOM().nameOf( linenm.buf() ),
-				todofld->getInput()) )
+				todofld_->getInput()) )
 
 		PtrMan<IOObj> ioobj =
 			IOM().get( MultiID(firststoreddsc->getStoredID(true)) );
 		if ( ioobj )
-		    transffld->setInput( *ioobj );
+		    transffld_->setInput( *ioobj );
 	    }
 	}
     }
     else if ( !is2d )
-	mSetObjFld( desc->isStored() ? "" : todofld->getInput() )
+	mSetObjFld( desc->isStored() ? "" : todofld_->getInput() )
     else
     {
-        BufferString attrnm( todofld->getAttrName() );
+        BufferString attrnm( todofld_->getAttrName() );
 
 	BufferString errmsg;
 	RefMan<Attrib::Provider> prov =
@@ -173,32 +173,32 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	else
 	{
 	    if ( desc->isStored() )
-		mSetObjFld( LineKey(todofld->getInput()) )
+		mSetObjFld( LineKey(todofld_->getInput()) )
 	    else
 		mSetObjFld( LineKey(ioobj->name(),attrnm) )
-	    transffld->setInput( *ioobj );
+	    transffld_->setInput( *ioobj );
 	}
     }
 
-    setParFileNmDef( todofld->getInput() );
+    setParFileNmDef( todofld_->getInput() );
     singLineSel(0);
 }
 
 
 bool uiAttrVolOut::prepareProcessing()
 {
-    if ( !objfld->commitInput() || !ctio.ioobj )
+    if ( !objfld_->commitInput() || !ctio_.ioobj )
     {
-	if ( objfld->isEmpty() )
+	if ( objfld_->isEmpty() )
 	    uiMSG().error( "Please enter an output Seismic data set name" );
 	return false;
     }
-    else if ( !todofld->checkOutput(*ctio.ioobj) )
+    else if ( !todofld_->checkOutput(*ctio_.ioobj) )
 	return false;
 
-    if ( todofld->is2D() )
+    if ( todofld_->is2D() )
     {
-	const char* outputnm = objfld->getInput();
+	const char* outputnm = objfld_->getInput();
 	BufferString attrnm = LineKey( outputnm ).attrName();
 	if ( attrnm.isEmpty() || attrnm == LineKey::sKeyDefAttrib() )
 	{
@@ -212,11 +212,11 @@ bool uiAttrVolOut::prepareProcessing()
 	if ( attrnm.isEmpty() )
 	    attrnm = LineKey::sKeyDefAttrib();
 
-	SeisIOObjInfo info( ctio.ioobj );
+	SeisIOObjInfo info( ctio_.ioobj );
 	BufferStringSet lnms;
 	info.getLineNamesWithAttrib( attrnm.buf(), lnms );
-	const bool singline = transffld->selFld2D()->isSingLine();
-	const char* lnm = singline ? transffld->selFld2D()->selectedLine() : 0;
+	const bool singline = transffld_->selFld2D()->isSingLine();
+	const char* lnm = singline ? transffld_->selFld2D()->selectedLine() : 0;
 	if ( (!singline && lnms.size()) || (singline && lnms.indexOf(lnm) >=0) )
 	{
 	    const bool rv = uiMSG().askGoOn( "Output attribute already exists.",
@@ -225,22 +225,22 @@ bool uiAttrVolOut::prepareProcessing()
 	}
     }
 
-    sel.ioobjkey_ = ctio.ioobj->key();
-    sel.attrid_ = todofld->attribID();
-    sel.outputnr_ = todofld->outputNr();
-    if ( sel.outputnr_ < 0 && !sel.attrid_.isValid() )
+    sel_.ioobjkey_ = ctio_.ioobj->key();
+    sel_.attrid_ = todofld_->attribID();
+    sel_.outputnr_ = todofld_->outputNr();
+    if ( sel_.outputnr_ < 0 && !sel_.attrid_.isValid() )
     {
 	uiMSG().error( "Please select the output quantity" );
 	return false;
     }
 
-    if ( todofld->is3D() )
+    if ( todofld_->is3D() )
     {
-	ctio.ioobj->pars().set( sKey::Type(), sKey::Attribute() );
-	IOM().commitChanges( *ctio.ioobj );
+	ctio_.ioobj->pars().set( sKey::Type(), sKey::Attribute() );
+	IOM().commitChanges( *ctio_.ioobj );
     }
 
-    Desc* seldesc = ads.getDesc( todofld->attribID() );
+    Desc* seldesc = ads_.getDesc( todofld_->attribID() );
     if ( seldesc )
     {
 	uiMultOutSel multoutdlg( this, *seldesc );
@@ -248,47 +248,47 @@ bool uiAttrVolOut::prepareProcessing()
 	{
 	    if ( multoutdlg.go() )
 	    {
-		seloutputs.erase();
-		multoutdlg.getSelectedOutputs( seloutputs );
-		multoutdlg.getSelectedOutNames( seloutnms );
+		seloutputs_.erase();
+		multoutdlg.getSelectedOutputs( seloutputs_ );
+		multoutdlg.getSelectedOutNames( seloutnms_ );
 	    }
 	    else
 		return false;
 	}
     }
 
-    uiSeisIOObjInfo ioobjinfo( *ctio.ioobj, true );
-    SeisIOObjInfo::SpaceInfo spi( transffld->spaceInfo() );
-    subselpar.setEmpty();
-    transffld->selfld->fillPar( subselpar );
-    subselpar.set( "Estimated MBs", ioobjinfo.expectedMBs(spi) );
+    uiSeisIOObjInfo ioobjinfo( *ctio_.ioobj, true );
+    SeisIOObjInfo::SpaceInfo spi( transffld_->spaceInfo() );
+    subselpar_.setEmpty();
+    transffld_->selfld->fillPar( subselpar_ );
+    subselpar_.set( "Estimated MBs", ioobjinfo.expectedMBs(spi) );
     return ioobjinfo.checkSpaceLeft(spi);
 }
 
 
 bool uiAttrVolOut::fillPar( IOPar& iop )
 {
-    DescID nlamodelid(-1, false);
-    if ( nlamodel && todofld->outputNr() >= 0 )
+    DescID nlamodel_id(-1, false);
+    if ( nlamodel_ && todofld_->outputNr() >= 0 )
     {
-	if ( !nlaid || !(*nlaid) )
+	if ( !nlaid_ || !(*nlaid_) )
 	{ 
 	    uiMSG().message( "NN needs to be stored before creating volume" ); 
 	    return false; 
 	}
-	addNLA( nlamodelid );
+	addNLA( nlamodel_id );
     }
-    const DescID targetid = nlamodelid.isValid() ? nlamodelid
-						 : todofld->attribID();
+    const DescID targetid = nlamodel_id.isValid() ? nlamodel_id
+						 : todofld_->attribID();
     IOPar attrpar( "Attribute Descriptions" );
-    DescSet* clonedset = ads.optimizeClone( targetid );
+    DescSet* clonedset = ads_.optimizeClone( targetid );
     if ( !clonedset )
 	return false;
 
-    const int nrseloutputs = seloutputs.size() ? seloutputs.size() : 1;
+    const int nrseloutputs = seloutputs_.size() ? seloutputs_.size() : 1;
     TypeSet<DescID> outdescids;
-    if ( seloutputs.size() )
-	clonedset->createAndAddMultOutDescs( targetid, seloutputs, seloutnms,
+    if ( seloutputs_.size() )
+	clonedset->createAndAddMultOutDescs( targetid, seloutputs_, seloutnms_,
 					     outdescids );
 
     clonedset->fillPar( attrpar );
@@ -307,7 +307,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 
     iop.set( IOPar::compKey(attribkey,DescSet::highestIDStr()), nrseloutputs );
 
-    if ( seloutputs.size() )
+    if ( seloutputs_.size() )
     {
 	if ( nrseloutputs != outdescids.size() ) return false;
 	for ( int idx=0; idx<nrseloutputs; idx++ )
@@ -317,24 +317,24 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	iop.set( IOPar::compKey(attribkey,0), targetid.asInt() );
 
     BufferString outseisid;
-    outseisid += ctio.ioobj->key();
-    if ( todofld->is2D() )
+    outseisid += ctio_.ioobj->key();
+    if ( todofld_->is2D() )
     {
 	outseisid += "|";
-	outseisid += objfld->attrNm();
+	outseisid += objfld_->attrNm();
     }
 
     iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey()), outseisid );
 
-    transffld->scfmtfld->updateIOObj( ctio.ioobj );
+    transffld_->scfmtfld->updateIOObj( ctio_.ioobj );
     iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI()),
-	       transffld->scfmtfld->extendTrcToSI() );
+	       transffld_->scfmtfld->extendTrcToSI() );
 
     IOPar tmpiop;
     CubeSampling cs;
-    transffld->selfld->fillPar( tmpiop );
+    transffld_->selfld->fillPar( tmpiop );
     BufferString typestr;
-    //Subselection type and geometry will have an extra level key: 'Subsel
+    //Subselectio_n type and geometry will have an extra level key: 'Subsel
     if ( tmpiop.get( sKey::Type(), typestr ) )
 	tmpiop.removeWithKey( sKey::Type() );
     
@@ -347,12 +347,12 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     bool usecs = strcmp( typestr.buf(), "None" );
     if ( usecs )
     {
-	cs.usePar( subselpar );
+	cs.usePar( subselpar_ );
 	if ( !cs.hrg.isEmpty() )
 	    cs.fillPar( tmpiop );
 	else
 	{
-	    CubeSampling curcs; todofld->getRanges( curcs );
+	    CubeSampling curcs; todofld_->getRanges( curcs );
 	    curcs.fillPar( tmpiop );
 	}
     }
@@ -360,34 +360,34 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     const BufferString subkey = IOPar::compKey( sKey::Output(), sKey::Subsel() );
     iop.mergeComp( tmpiop, subkey );
 
-    CubeSampling::removeInfo( subselpar );
-    subselpar.removeWithKey( sKey::Type() );
-    iop.mergeComp( subselpar, sKey::Output() );
+    CubeSampling::removeInfo( subselpar_ );
+    subselpar_.removeWithKey( sKey::Type() );
+    iop.mergeComp( subselpar_, sKey::Output() );
 
-    Scaler* sc = transffld->scfmtfld->getScaler();
+    Scaler* sc = transffld_->scfmtfld->getScaler();
     if ( sc )
     {
 	iop.set( IOPar::compKey(keybase,Output::scalekey()), sc->toString() );
 	delete sc;
     }
 
-    BufferString attrnm = todofld->getAttrName();
-    if ( todofld->is2D() )
+    BufferString attrnm = todofld_->getAttrName();
+    if ( todofld_->is2D() )
     {
-	const char* outputnm = objfld->getInput();
+	const char* outputnm = objfld_->getInput();
 	attrnm = LineKey( outputnm ).attrName();
     }
     iop.set( sKey::Target(), attrnm.buf() );
     BufferString linename;
-    if ( todofld->is2D() )
+    if ( todofld_->is2D() )
     {
 	MultiID ky;
 	DescSet descset(true);
-	if ( nlamodel )
-	    descset.usePar( nlamodel->pars(), nlamodel->versionNr() );
+	if ( nlamodel_ )
+	    descset.usePar( nlamodel_->pars(), nlamodel_->versionNr() );
 
-	Desc* desc = nlamodel ? descset.getFirstStored()
-	    		      : ads.getDesc( todofld->attribID() );
+	Desc* desc = nlamodel_ ? descset.getFirstStored()
+	    		      : ads_.getDesc( todofld_->attribID() );
 	if ( desc )
 	{
 	    BufferString storedid = desc->getStoredID();
@@ -427,7 +427,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     }
     delete clonedset;
 
-    FilePath fp( ctio.ioobj->fullUserExpr() );
+    FilePath fp( ctio_.ioobj->fullUserExpr() );
     fp.setExtension( "proc" );
     iop.write( fp.fullPath(), sKey::Pars() );
     return true;
@@ -437,11 +437,11 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 void uiAttrVolOut::addNLA( DescID& id )
 {
     BufferString defstr("NN specification=");
-    defstr += nlaid;
+    defstr += nlaid_;
 
     BufferString errmsg;
-    EngineMan::addNLADesc( defstr, id, ads, todofld->outputNr(), 
-			   nlamodel, errmsg );
+    EngineMan::addNLADesc( defstr, id, ads_, todofld_->outputNr(), 
+			   nlamodel_, errmsg );
 
     if ( errmsg.size() )
         uiMSG().error( errmsg );
