@@ -15,9 +15,12 @@ ________________________________________________________________________
 
 
 #ifdef __cpp__
+#  include "mathfunc.h"
 
-#include "mathfunc.h"
+# ifdef mDoWindowsImport
 Extern_Algo template class mExp(Algo) MathFunction<float,float>;
+# endif
+
 #endif
 
 #endif
