@@ -14,10 +14,9 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uiattrdesced.h"
-#include "uigroup.h"
 
-namespace Attrib { class Desc; };
-class StringListInpSpec;
+namespace Attrib { class Desc; }
+
 class uiGenInput;
 class uiAttrSel;
 class uiCheckBox;
@@ -50,9 +49,8 @@ protected:
     uiGenInput*		stackdirfld_;
 
     void		stackstepChg(CallBacker*);
-     void		stepoutChg(CallBacker*);
+    void		stepoutChg(CallBacker*);
     void		shapeChg(CallBacker*);
-    void		steerTypeSel(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
@@ -65,6 +63,4 @@ protected:
     			mDeclReqAttribUIFns
 };
 
-
 #endif
-
