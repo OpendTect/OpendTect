@@ -122,9 +122,10 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     Provider* newprov = PF().create( desc );
     if ( !newprov )
     {
-	if ( desc.errMsg() )
+	FixedString errmsg = desc.errMsg();
+	if ( errmsg )
 	{
-	    if ( !strcmp( desc.errMsg(), "Parameter 'id' is not correct") &&
+	    if ( errmsg=="Parameter 'id' is not correct" &&
 		 desc.isStored() )
 	    {
 		errstr = "Impossible to find stored data '";          

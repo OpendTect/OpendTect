@@ -1040,8 +1040,9 @@ Color Seis2DDisplay::getAnnotColor() const
 
 
 Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
-						const char* linenm )
+						const char* linenmptr )
 {
+    FixedString linenm = linenmptr;
     TypeSet<int> ids;
     visBase::DM().getIds( typeid(visSurvey::Seis2DDisplay), ids );
 
@@ -1050,7 +1051,7 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
 	DataObject* dataobj = visBase::DM().getObject( ids[idx] );
 	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
 	if (s2dd && lineset==s2dd->lineSetID() && linenm &&
-	    !strcmp(linenm,s2dd->getLineName()) )
+	    linenm==s2dd->getLineName() )
 	    return s2dd;
     }
 

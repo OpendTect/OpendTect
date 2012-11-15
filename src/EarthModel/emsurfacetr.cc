@@ -131,7 +131,7 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
 
 
 #define mImplStart(fn) \
-    if ( !ioobj || strcmp(ioobj->translator(),"dGB") ) return false; \
+    if ( !ioobj || ioobj->translator()!="dGB" ) return false; \
     const BufferString basefnm( ioobj->fullUserExpr(true) ); \
     StreamProvider sp( basefnm.buf() ); \
     FilePath basefp( basefnm ); \

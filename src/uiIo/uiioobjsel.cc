@@ -782,7 +782,7 @@ void uiIOObjSel::obtainIOObj()
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
 	if ( ( inp == itemusrnm || lk == itemusrnm ) && workctio_.ioobj 
-			      && !strcmp(workctio_.ioobj->name(), inp.buf()) )
+			      && workctio_.ioobj->name()==inp.buf() )
 	    return;
     }
 
