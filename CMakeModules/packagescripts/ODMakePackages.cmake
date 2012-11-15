@@ -18,7 +18,6 @@ foreach ( BASEPACKAGE ${BASEPACKAGES} )
     init_destinationdir( ${PACK} )
     create_basepackages( ${PACK} )
 endforeach()
-RETURN()
 
 foreach ( PACKAGE ${PACKAGELIST} )
     MESSAGE( "Preparing ${PACKAGE}" )
