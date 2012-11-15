@@ -47,7 +47,8 @@ public:
     inline std::vector<T>&	 vec()				{ return v_; }
     inline const std::vector<T>& vec() const			{ return v_; }
 
-    inline T&		operator[]( I idx )		{ return v_[idx]; }
+    inline T&		operator[]( I idx )
+			{ return v_[(typename std::vector<T>::size_type)idx]; }
     inline const T&	operator[]( I idx ) const
     			{ return (*const_cast<VectorAccess*>(this))[idx]; }
     inline I		size() const	{ return (I) v_.size(); }
