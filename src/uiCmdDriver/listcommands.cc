@@ -605,7 +605,7 @@ bool ComboCmdComposer::accept( const CmdRecEvent& ev )
     if ( ignoreflag_ || quitflag_ )
 	return accepted;
 
-    char* msgnext=""; char* msgnexxt="";
+    char* msgnext; char* msgnexxt;
     int oldnritems = mUdf(int); int oldcuritem = mUdf(int);
 
     if ( accepted )
