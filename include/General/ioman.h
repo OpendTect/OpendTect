@@ -54,6 +54,7 @@ public:
     const MultiID&	key() const;		//!< of current IODir
     const char*		curDirName() const;	//!< OS dir name
     const char*		rootDir() const		{ return rootdir_; }
+    bool		isKey(const char* keystr) const;
     const char*		nameOf(const char* keystr) const;
     			//!< if keystr is not an IOObj key, will return keystr
 

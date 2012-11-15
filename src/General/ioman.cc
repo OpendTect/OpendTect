@@ -493,6 +493,26 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 }
 
 
+bool IOMan::isKey( const char* ky ) const
+{
+    if ( !ky || !*ky || !isdigit(*ky) ) return false;
+
+    bool digitseen = false;
+    while ( *ky )
+    {
+	if ( isdigit(*ky) )
+	    digitseen = true;
+	else if ( *ky == '|' )
+	    return digitseen;
+	else if ( *ky != '.' )
+	    return false;
+	ky++;
+    }
+
+    return true;
+}
+
+
 const char* IOMan::nameOf( const char* id ) const
 {
     static StaticStringManager stm;

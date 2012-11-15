@@ -193,29 +193,11 @@ IOObj* IOObj::clone() const
 
 
 void IOObj::acquireNewKey()
-{
-    key_ = IOM().dirPtr()->newKey();
-}
+{ key_ = IOM().dirPtr()->newKey(); }
 
 
 bool IOObj::isKey( const char* ky )
-{
-    if ( !ky || !*ky || !isdigit(*ky) ) return false;
-
-    bool digitseen = false;
-    while ( *ky )
-    {
-	if ( isdigit(*ky) )
-	    digitseen = true;
-	else if ( *ky == '|' )
-	    return digitseen;
-	else if ( *ky != '.' )
-	    return false;
-	ky++;
-    }
-
-    return true;
-}
+{ return IOM().isKey(ky); }
 
 
 bool IOObj::put( ascostream& astream ) const
