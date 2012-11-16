@@ -22,7 +22,7 @@ mDefSimpleTranslatorioContext(Well,WllInf)
 
 
 #define mImplStart(fn) \
-    if ( !ioobj || strcmp(ioobj->translator(),"dGB") ) return false; \
+    if ( !ioobj || ioobj->translator()!="dGB" ) return false; \
     mDynamicCastGet(const IOStream*,iostrm,ioobj) \
     if ( !iostrm ) return false; \
 \
