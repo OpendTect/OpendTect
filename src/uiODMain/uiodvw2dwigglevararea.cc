@@ -187,7 +187,7 @@ void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp);
 
     const Attrib::SelSpec& as = viewer2D()->selSpec( true );
-    MenuItem* subitem;
+    MenuItem* subitem = 0;
     applMgr()->attrServer()->resetMenuItems();
     if ( dp3d || dprdm )
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);

@@ -368,7 +368,7 @@ SEGY::HdrDef::HdrDef( bool binhead )
     {
 	HdrEntry& entry = const_cast<HdrEntry&>( *(*this)[idx] );
 	entry.bytepos_ = bytnr;
-	bytnr += entry.byteSize();
+	bytnr += mCast( SEGY::HdrEntry::BytePos, entry.byteSize() );
     }
 }
 

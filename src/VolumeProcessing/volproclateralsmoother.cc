@@ -436,7 +436,7 @@ Task* LateralSmoother::createTask()
 	    inlsamples, crlsamples, zrg_,
 	    pars_, mirroredges_, interpolateundefs_, fixedvalue_ );
 
-    return 0;
+    //return 0;
 }
 
 

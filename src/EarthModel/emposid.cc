@@ -47,7 +47,7 @@ bool PosID::usePar( const IOPar& par )
 		     par.get( subidStr(), tmpsubid );
     if ( res )
     {
-	sectionid_ = tmpsection;
+	sectionid_ = mCast( EM::SectionID, tmpsection );
 	subid_ = tmpsubid;
     }
 

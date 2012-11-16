@@ -243,7 +243,7 @@ BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
 	    return fnm;
     }
 
-    return 0;
+    //return 0;
 }
 
 

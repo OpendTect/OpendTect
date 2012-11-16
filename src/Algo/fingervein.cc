@@ -50,7 +50,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	                Array2DImpl<bool> (isz,csz) );
     const bool is_t_slic = true;
 
-    for ( od_int64 idz= start; idz<=stop && shouldContinue(); idz++ )
+    for ( int idz= mCast(int,start); idz<=stop && shouldContinue(); idz++ )
     {
 	for ( int idx=0; idx<isz; idx++ )
 	{
@@ -114,7 +114,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_sect,
 	    Array2DImpl<float> (isz,csz) );
 
-    for ( od_int64 idz= start; idz<=stop && shouldContinue(); idz++ )
+    for ( int idz= mCast(int,start); idz<=stop && shouldContinue(); idz++ )
     {
 	for ( int idx=0; idx<isz; idx++ )
 	{

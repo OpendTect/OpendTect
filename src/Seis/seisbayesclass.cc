@@ -529,7 +529,7 @@ void SeisBayesClass::getClass( const TypeSet<float>& probs, int& winner,
 {
     // users don't like class '0', so we add '1' to winner
     if ( probs.size() < 2 )
-	{ conf = winner = 1; return; }
+	{ conf = (float) (winner = 1); return; }
 
     winner = 0; float winnerval = probs[0];
     for ( int idx=1; idx<probs.size(); idx++ )

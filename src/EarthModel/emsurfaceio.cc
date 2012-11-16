@@ -1988,7 +1988,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 		const int index = mIsUdf(pos.z)
 		    ? 0xFFFF : sd.nearestIndex(pos.z);
 
-		if ( !writeInt16( strm, index, 
+		if ( !writeInt16( strm, mCast(unsigned short,index), 
 			          idx!=colcoords.size()-1 ? sEOLTab() : sEOL()))
 		{
 		    msg_ = sMsgWriteError();

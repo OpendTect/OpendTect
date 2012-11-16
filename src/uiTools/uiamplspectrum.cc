@@ -252,7 +252,7 @@ void uiAmplSpectrum::putDispData()
 
     float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ );
     if ( SI().zIsTime() )
-	maxfreq = mNINT32( maxfreq );
+	maxfreq = mCast( float, mNINT32( maxfreq ) );
     posrange_.set( 0, maxfreq );
     rangefld_->setValue( posrange_ );
     stepfld_->box()->setInterval( posrange_.start, posrange_.stop, 

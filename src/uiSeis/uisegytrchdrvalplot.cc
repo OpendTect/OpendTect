@@ -119,8 +119,8 @@ void uiSEGYTrcHdrValPlot::getBendPoints( const float* inp, int sz )
 	}
 
 	const Coord& coord = coords[ bpf.bendPoints()[idx] ];
-	xvals_ += mNINT32(coord.x);
-	yvals_ += mNINT32(coord.y);
+	xvals_ += mCast( float, mNINT32(coord.x) );
+	yvals_ += mCast( float, mNINT32(coord.y) );
 
 	previdx = idx;
     }

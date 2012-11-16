@@ -195,7 +195,7 @@ static const char* winname = "CosTaper";
 #define mGetData() isminactive_ ? td1_ : td2_;
 #define mGetDrawerData() isminactive_ ? drawer_->leftTaperData()\
 				      : drawer_->rightTaperData();
-#define mMaxRg Interval<float>( td2_.refrg_.start+0.05f, datasz_ )
+#define mMaxRg Interval<float>( td2_.refrg_.start+0.05f, (float) datasz_ )
 #define mMinRg Interval<float>( 0.05f, td1_.refrg_.stop )
 #define mCheckLimitRanges()\
     td1_.rg_.limitTo( mMinRg ); 	td2_.rg_.limitTo( mMaxRg );\
@@ -324,7 +324,7 @@ void uiFreqTaperGrp::taperChged( CallBacker* cb )
 {\
     int ifr = mNINT32( val  );\
     if ( mIsZero(val-ifr,1e-2) )\
-	val = ifr;\
+	val = mCast(float,ifr);\
 }
 #define setTo1Decimal(val)\
 {\

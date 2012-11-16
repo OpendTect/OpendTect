@@ -82,7 +82,7 @@ bool DPSDensityCalcND::doWork( od_int64 start, od_int64 stop, int )
     for ( od_int64 rid=start; rid<=stop; rid++ )
     {
 	nrdone_++;
-	if ( dps_.isInactive(rid) )
+	if ( dps_.isInactive(mCast(DataPointSet::RowID,rid)) )
 	    continue;
 
 	TypeSet<int> indexs;

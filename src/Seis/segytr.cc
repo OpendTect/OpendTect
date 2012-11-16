@@ -203,8 +203,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     insd.step = pinfo.zrg.step;
     innrsamples = binhead_.nrSamples();
 
-    estnrtrcs_ = (endstrmpos - (std::streampos)3600)
-		/ (240 + dataBytes() * innrsamples);
+    estnrtrcs_ = mCast( int, (endstrmpos - (std::streampos)3600)
+		/ (240 + dataBytes() * innrsamples) );
     return true;
 }
 

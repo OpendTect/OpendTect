@@ -410,7 +410,7 @@ static bool findMenuPath( const uiMenuItemContainer& mnu,
 			  FileMultiString& menupath, bool& casedep )
 {
     bool itemfound = false;
-    const uiMenuItem* curitem;
+    const uiMenuItem* curitem = 0;
     FileMultiString pathtail;
 
     for ( int idx=0; idx<mnu.items().size(); idx++ )

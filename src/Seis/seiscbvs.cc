@@ -563,7 +563,7 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 	    rv = false;
     }
 
-    return rv;
+    //return rv;
 }
 
 
@@ -580,5 +580,5 @@ bool CBVSSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 	    rv = false;
     }
 
-    return rv;
+    //return rv;
 }

@@ -219,7 +219,7 @@ bool Smoother2D<T>::execute()
 	}
 
 	if ( weightsum>1 )
-	    mPointerOperation( float, window_->getData(), /= weightsum,
+	    mPointerOperation( float, window_->getData(), /= (float)weightsum,
 		        window_->info().getTotalSz(), ++ );
 
 	convolver_.setY( *window_, false );

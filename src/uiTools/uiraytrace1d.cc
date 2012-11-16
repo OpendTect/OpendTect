@@ -245,7 +245,7 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
     {
 	offsetrg.start = mCast( float, offsetfld_->getIInterval().start );
 	offsetrg.stop = mCast( float, offsetfld_->getIInterval().stop );
-	offsetrg.step = (int)offsetstepfld_->getfValue();
+	offsetrg.step = mCast( float, (int)offsetstepfld_->getfValue() );
     }
     TypeSet<float> offsets; 
     for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )

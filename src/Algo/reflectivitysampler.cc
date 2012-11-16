@@ -80,7 +80,7 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
 
     const float df = Fourier::CC::getDf( outsampling_.step, size );
     const float nyqfreq = Fourier::CC::getNyqvist( outsampling_.step );
-    const float tapersz = (int)( size/10 );
+    const float tapersz = mCast( float, (int)( size/10 ) );
     const float maxfreq = nyqfreq + tapersz*df;
     LinScaler cosscale( nyqfreq, 0, maxfreq, M_PI/2 );
 

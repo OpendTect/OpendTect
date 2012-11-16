@@ -101,7 +101,8 @@ void setNrBins( int nrbinx, int nrbiny )
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( od_int64 rid=start; rid<=stop; rid++ )
+    for ( DataPointSet::RowID rid=mCast(DataPointSet::RowID, start); 
+							rid<=stop; rid++ )
     {
 	nrdone_++;
 	if ( dps_.isInactive(rid) || (curgrp_>0 && dps_.group(rid)!=curgrp_) )

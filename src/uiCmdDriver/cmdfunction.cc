@@ -158,7 +158,7 @@ const WildcardManager& Function::wildcardMan() const
 
 #define mGetIntArg( idx, num, args, res ) \
 \
-    int num; \
+    int num = mUdf(int); \
     if ( idx<args.size() && \
 	 !StringProcessor(args.get(idx)).convertToInt(&num) ) \
     { \

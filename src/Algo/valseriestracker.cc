@@ -252,13 +252,13 @@ bool EventTracker::track()
 
     const Interval<int> permsamplerange( mNINT32(permrange_.start/rangestep_),
 				       mNINT32(permrange_.stop/rangestep_) );
-    float upsample=mUdf(float), upsim=mUdf(float); bool upflatstart;
+    float upsample=mUdf(float), upsim=mUdf(float); bool upflatstart=false;
     const bool findup = permsamplerange.start<=0
 	? findMaxSimilarity( -permsamplerange.start, -1, 1,
 			     upsample, upsim, upflatstart )
 	: false;
 
-    float dnsample=mUdf(float), dnsim=mUdf(float); bool dnflatstart;
+    float dnsample=mUdf(float), dnsim=mUdf(float); bool dnflatstart=false;
     const bool finddn = permsamplerange.stop>=0
 	? findMaxSimilarity( permsamplerange.stop, 1, 1, dnsample,dnsim,dnflatstart)
 	: false;
