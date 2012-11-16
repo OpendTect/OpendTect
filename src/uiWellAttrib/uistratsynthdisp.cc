@@ -903,7 +903,7 @@ void uiSynthGenDlg::getFromScreen()
 	RayTracer1D::setIOParsToZeroOffset( sd_.raypars_ );
 
     sd_.raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), 
-				    nmobox_->isChecked() || isps );
+				    nmobox_->isChecked() || !isps );
     sd_.isps_ = isps; 
     sd_.name_ = namefld_->text();
 }
