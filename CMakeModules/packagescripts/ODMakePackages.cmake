@@ -20,8 +20,8 @@ foreach ( BASEPACKAGE ${BASEPACKAGES} )
 endforeach()
 
 foreach ( PACKAGE ${PACKAGELIST} )
-    MESSAGE( "Preparing ${PACKAGE}" )
     INCLUDE(CMakeModules/packagescripts/${PACKAGE}.cmake)
+    MESSAGE( "Preparing package ${PACK}.zip ......" )
     IF( NOT DEFINED OpendTect_VERSION_MAJOR )
 	MESSAGE( FATAL_ERROR "OpendTect_VERSION_MAJOR not defined" )
     ENDIF()
@@ -32,6 +32,13 @@ foreach ( PACKAGE ${PACKAGELIST} )
 
     IF( NOT EXISTS ${PSD}/inst )
 	MESSAGE( FATAL_ERROR "${PSD}/inst is not existed. Do make install. " )
+    ENDIF()
+
+    IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
+	IF( NOT EXISTS "${PSD}/bin/win/zip.exe" )
+	    MESSAGE( FATAL_ERROR "${PSD}/bin/win/zip.exe is not existed.
+		     Unable to create packages.Please do an update" )
+	ENDIF()
     ENDIF()
 
     init_destinationdir( ${PACK} )
