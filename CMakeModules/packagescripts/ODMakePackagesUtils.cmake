@@ -31,7 +31,7 @@ macro ( create_package PACKAGE_NAME )
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${PSD}/inst/bin/${OD_PLFSUBDIR}/${LIB} 
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} --color="GREEN")
+			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR})
        FILE( GLOB ALOFILES ${PSD}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
        FOREACH( ALOFILE ${ALOFILES} )
 	   execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${ALOFILE}
