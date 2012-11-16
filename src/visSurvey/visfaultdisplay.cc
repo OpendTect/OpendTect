@@ -1580,9 +1580,9 @@ bool FaultDisplay::coincidesWith2DLine( const Geometry::FaultStickSurface& fss,
 	if ( !s2dd || !s2dd->isOn() )
 	    continue;
 
-	const float onestepdist =
-	    Coord3(1,1,mZScale()).dot(
-		    inlcrlsystem_->oneStepTranslation(Coord3(0,0,1)) );
+	const float onestepdist = 
+	    mCast( float, Coord3(1,1,mZScale()).dot(
+		    inlcrlsystem_->oneStepTranslation(Coord3(0,0,1)) ) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
@@ -1623,8 +1623,8 @@ bool FaultDisplay::coincidesWithPlane(
 
 	const Coord3 planenormal = plane->getNormal( Coord3::udf() );
 	const float onestepdist = 
-	    Coord3(1,1,mZScale()).dot(
-		    inlcrlsystem_->oneStepTranslation(planenormal) );
+	    mCast( float, Coord3(1,1,mZScale()).dot(
+		    inlcrlsystem_->oneStepTranslation(planenormal) ) );
 
 	float prevdist=-1;
 	Coord3 prevpos;

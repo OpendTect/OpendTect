@@ -695,7 +695,8 @@ bool acceptOK( CallBacker* )
     pos.z_ = zinpfld_->getfValue();
     
     datarow_ =
-	DataPointSet::DataRow( pos, !grpfld_ ? 1 : grpfld_->currentItem() +1 );
+	DataPointSet::DataRow( pos, mCast( unsigned short, 
+				 !grpfld_ ? 1 : grpfld_->currentItem() +1 ) );
     return true;
 }
 

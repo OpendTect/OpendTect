@@ -402,7 +402,7 @@ ProbDenFunc* uiProbDenFuncGen::calcPDF3D() const
 float uiProbDenFuncGen::calcGaussian1D( float x ) const
 {
     float res = exp( - ( pow(x-mus_[0],2) / (2*pow(sigmas_[0],2)) ) )
-		/ ( sqrt(2*3.14)*pow (sigmas_[0],2) );
+		/ ( sqrt(2*3.14f)*pow (sigmas_[0],2) );
     return res;   
 }
 
@@ -411,7 +411,7 @@ float uiProbDenFuncGen::calcGaussian2D( float x, float y ) const
 {
     float ang01 = 0;
     if ( !dir01fld_->isUndef() )
-	ang01 = dir01fld_->getfValue()*3.14/180;
+	ang01 = dir01fld_->getfValue()*3.14f/180;
 
     float val1 = (  ((cos(ang01)*cos(ang01))/ (2*sigmas_[0]*sigmas_[0])) +
                 ((sin(ang01)*sin(ang01))/(2*sigmas_[1]*sigmas_[1])) );

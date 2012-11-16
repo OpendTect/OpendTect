@@ -147,7 +147,7 @@ const WildcardManager& Function::wildcardMan() const
 
 #define mGetNumArg( idx, num, args, res ) \
 \
-    double num; \
+    double num = mUdf(double); \
     if ( idx<args.size() && \
 	 !StringProcessor(args.get(idx)).convertToDouble(&num) ) \
     { \

@@ -113,7 +113,7 @@ bool SurfaceSectionUndoEvent::usePar( const IOPar& iopar )
 	    res = iopar.get( nameKey(), name_ );
 
 	if ( res )
-	    sid_ = tmpsection;
+	    sid_ = mCast( EM::SectionID, tmpsection );
     }
 
     return res;

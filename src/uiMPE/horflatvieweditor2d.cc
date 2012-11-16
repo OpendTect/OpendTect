@@ -634,8 +634,8 @@ void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
 	bid.inl = hor2d->geometry().lineIndex( linenm_ );
 
 	int posidx = horpainter_->getDistances().indexOf(
-				    getAuxData(selectedids[ids])->
-				    poly_[selectedidxs[ids]].x );
+				mCast( float, getAuxData(selectedids[ids])->
+				poly_[selectedidxs[ids]].x ) );
 	bid.crl = horpainter_->getTrcNos()[posidx];
 
 	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );

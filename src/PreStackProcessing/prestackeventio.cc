@@ -1246,8 +1246,8 @@ int EventPatchReader::nextStep()
 
 	Event* pse = new Event( nrpicks, true );
 
-	pse->horid_ = readInt32( strm );
-	pse->quality_ = readUInt8( strm );
+	pse->horid_ = mCast( short, readInt32( strm ) );
+	pse->quality_ = mCast( unsigned char, readUInt8( strm ) );
 	if ( readeventtype_ )
 	{
 	    const int eventtype = readUInt8( strm );
@@ -1264,7 +1264,7 @@ int EventPatchReader::nextStep()
 	for ( int idy=0; idy<nrpicks; idy++ )
 	{
 	    pse->pick_[idy] = readFloat( strm );
-	    pse->pickquality_[idy] = readUInt8( strm );
+	    pse->pickquality_[idy] = mCast( unsigned char, readUInt8( strm ) );
 	    pse->offsetazimuth_[idy].setFrom( readInt32( strm ) );
 	}
 

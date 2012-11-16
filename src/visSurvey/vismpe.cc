@@ -1132,7 +1132,7 @@ float MPEDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     else
     {
 	slicepos += (float) voltrans_->getTranslation()[2];
-	pos = mNINT32(slicepos*1000);
+	pos = mCast( float, mNINT32(slicepos*1000) );
     }
 
     return pos;

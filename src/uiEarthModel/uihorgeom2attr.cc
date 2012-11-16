@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 	msfld_->attach( alignedBelow, att ); \
     }
 #define mGetZFac(valifms) \
-    const float zfac = msfld_ && msfld_->getBoolValue() ? valifms : 1
+    const float zfac = (float) (msfld_ && msfld_->getBoolValue() ? valifms : 1)
 
 
 uiHorGeom2Attr::uiHorGeom2Attr( uiParent* p, EM::Horizon3D& hor )

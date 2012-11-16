@@ -113,7 +113,7 @@ unsigned short DataPointSet::DataRow::group() const
 void DataPointSet::DataRow::setGroup( unsigned short newgrp )
 {
     grp_ = grp_ >= 0 ? newgrp : -newgrp;
-    grp_ = getCompacted( -1, newgrp ) ;
+    grp_ = mCast( short, getCompacted( -1, newgrp ) );
 }
 
 

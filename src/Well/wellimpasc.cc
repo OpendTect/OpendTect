@@ -597,9 +597,10 @@ static bool getTVDD2TModel( Well::D2TModel& d2t,
     float curvel = ( zvals[iz+1] - zvals[iz] ) / ( tvals[iz+1] - tvals[iz] );
 
     mds += trck.dah(0);
-    ts  += tvals[iz] + ( trck.pos(0).z - zvals[iz] ) / curvel;
-    float prevz = trck.pos(0).z;
-    float prevt = tvals[iz] + ( trck.pos(0).z - zvals[iz] ) / curvel;
+    ts  += tvals[iz] + mCast( float, ( trck.pos(0).z - zvals[iz] ) / curvel );
+    float prevz = mCast( float, trck.pos(0).z );
+    float prevt = mCast( float, 
+			tvals[iz] + ( trck.pos(0).z - zvals[iz] ) / curvel );
 
     int idahmaxz = 0;
     bool isdescending = false;
@@ -607,7 +608,7 @@ static bool getTVDD2TModel( Well::D2TModel& d2t,
 
     for ( int idah=1; idah<trck.size(); idah++ )
     {
-	const float targetz = trck.pos(idah).z;
+	const float targetz = mCast( float, trck.pos(idah).z );
 	isdescending = trck.pos(idah).z > trck.pos(idah-1).z;
 
 	if ( isdescending && iz+1 < zvals.size() )
@@ -620,8 +621,10 @@ static bool getTVDD2TModel( Well::D2TModel& d2t,
 		    iz++;
 		    if ( (iz-1) == nbdtptsadded )
 		    {
-			const float relpos = ( zvals[iz] - trck.pos(idah-1).z ) /
-			    		     ( targetz - trck.pos(idah-1).z );
+			const float relpos = mCast( float, 
+					 ( zvals[iz] - trck.pos(idah-1).z ) /
+			    		 ( targetz - trck.pos(idah-1).z ) );
+
 			mds += relpos*trck.dah(idah) + (1-relpos)*trck.dah(idah-1);
 			ts  += prevt + ( zvals[iz] - prevz ) / curvel;
 			nbdtptsadded++;
@@ -656,7 +659,8 @@ static bool getTVDD2TModel( Well::D2TModel& d2t,
     if ( isdescending ) iz--;
 
     mds += trck.dah(idahmaxz);
-    ts  += tvals[iz] + ( trck.pos(idahmaxz).z - zvals[iz] ) / curvel;
+    ts  += tvals[iz] + mCast( float, 
+			      ( trck.pos(idahmaxz).z - zvals[iz] ) / curvel );
 
     const int sz = mds.size();
     mAllocVarLenIdxArr( int, idxs, sz );

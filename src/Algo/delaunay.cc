@@ -357,16 +357,12 @@ bool DAGTriangleTree::insertPoint( int ci, int& dupid )
     }
     else if ( res==cIsDuplicate() )
 	return true;
-    else  
-    {
-	BufferString msg = "\nInsert point ";
-	msg += ci;
-	msg += " failed!";
-	pErrMsg( msg );
-	return false;
-    }
 
-    return true;
+    BufferString msg = "\nInsert point ";
+    msg += ci;
+    msg += " failed!";
+    pErrMsg( msg );
+    return false;
 }
 
 

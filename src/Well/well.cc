@@ -824,7 +824,7 @@ float Well::Track::nearestDah( const Coord3& posin ) const
 
     if ( dah_.size() < 2 ) return dah_[1];
 
-    const float zfac = zistime_ ? 2000 : 1;
+    const float zfac = mCast( float, zistime_ ? 2000 : 1 );
     Coord3 reqpos( posin ); reqpos.z *= zfac;
     Coord3 curpos( getPos( dah_[0] ) ); curpos.z *= zfac;
     double sqneardist = curpos.sqDistTo( reqpos );
@@ -962,15 +962,17 @@ float Well::D2TModel::getTime( float dh, const Track& track ) const
 
 	if ( track.getPos(dah_[idahtop]).z > track.getPos(dh).z )
 	{
-	    od_int64 reqz = track.getPos( dh ).z;
+	    od_int64 reqz = mCast( od_int64, track.getPos( dh ).z );
 	    for ( int idx=0; idx<track.nrPoints(); idx++ )
 	    {
 		if ( track.pos(idx).z > reqz )
 		{
 		    dhtop = track.dah( idx-1 );
 		    dhbase = track.dah( idx );
-		    reqdh = dhtop + ( (dhbase-dhtop)*(reqz-track.pos(idx-1).z)/
-					(track.pos(idx).z-track.pos(idx-1).z) );
+		    reqdh = dhtop + mCast( float, 
+				    ( (dhbase-dhtop)*(reqz-track.pos(idx-1).z)/
+				    (track.pos(idx).z-track.pos(idx-1).z) ) );
+
 		    idahtop = IdxAble::getLowIdx( dah_, dtsize, reqdh );
 		    break;
 		}
@@ -983,8 +985,8 @@ float Well::D2TModel::getTime( float dh, const Track& track ) const
 	if ( idahtop >= (dtsize-1) )
 	    idahtop = dtsize-2;
 
-       const float ztop = track.getPos(dah_[idahtop]).z;
-       const float zbase= track.getPos(dah_[idahtop+1]).z;
+       const float ztop = mCast( float, track.getPos(dah_[idahtop]).z );
+       const float zbase= mCast( float, track.getPos(dah_[idahtop+1]).z );
        const float curvel = ( zbase - ztop ) / ( t_[idahtop+1] - t_[idahtop] );
        return t_[idahtop] + ( track.getPos(dh).z - ztop ) / curvel;
    }

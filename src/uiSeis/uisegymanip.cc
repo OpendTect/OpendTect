@@ -666,7 +666,7 @@ int nextStep()
     fm_.calcset_.apply( buf_, fm_.binhdr_.isSwapped() );
 
     for ( int idx=0; idx<sel_.size(); idx++ )
-	*data_[idx] += hdef_[ sel_[idx] ]->getValue( buf_, needswap_ );
+	*data_[idx] += mCast(float,hdef_[sel_[idx]]->getValue(buf_,needswap_));
 
     nrdone_++;
     return nrdone_ < totalnr_ ? MoreToDo() : Finished();

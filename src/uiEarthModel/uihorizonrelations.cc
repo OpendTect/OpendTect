@@ -173,7 +173,7 @@ bool acceptOK( CallBacker* )
 		EM::EMM().getObjectID( topisstatic ? mid2_ : mid1_ );
     EM::EMObject* emobj = EM::EMM().getObject( objid );
     MultiID outmid;
-    EM::EMObject* outemobj;
+    EM::EMObject* outemobj = 0;
     
     if ( saveas )
     {

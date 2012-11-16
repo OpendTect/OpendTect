@@ -182,7 +182,8 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr,
 
      TypeSet<Coord3> pts;
      for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
-	 surf->getCubicBezierCurve( plg, pts, SI().zDomain().userFactor() );
+	 surf->getCubicBezierCurve( plg, pts, 
+				    mCast(float,SI().zDomain().userFactor()) );
    
      BodyOperator bodyopt;
      return bodyopt.createImplicitBody( pts, tr ); 
@@ -524,7 +525,7 @@ void PolygonBodyGeometry::fillPar( IOPar& par ) const
 {
     for ( int idx=0; idx<nrSections(); idx++ )
     {
-	int sid = sectionID( idx );
+	EM::SectionID sid = sectionID( idx );
 	const Geometry::PolygonSurface* pol = sectionGeometry( sid );
 	if ( !pol ) continue;
 
@@ -546,7 +547,7 @@ bool PolygonBodyGeometry::usePar( const IOPar& par )
 {
     for ( int idx=0; idx<nrSections(); idx++ )
     {
-	int sid = sectionID( idx );
+	EM::SectionID sid = sectionID( idx );
 	Geometry::PolygonSurface* pol = sectionGeometry( sid );
 	if ( !pol ) return false;
 

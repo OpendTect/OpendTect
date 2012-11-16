@@ -490,7 +490,7 @@ void uiODSceneMgr::updateStatusBar()
 
 	const float zfact = mCast(float,visServ().zFactor());
 	float zval = (float) (zfact * xytpos.z);
-	if ( zfact>100 || zval>10 ) zval = mNINT32(zval);
+	if ( zfact>100 || zval>10 ) zval = mCast( float, mNINT32(zval) );
 	msg += zval; msg += ")";
     }
 

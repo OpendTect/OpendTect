@@ -1356,7 +1356,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	visBase::Marker* marker = visBase::Marker::create(); \
 	marker->setDisplayTransformation(transformation_); \
 	marker->setMaterial( 0 ); \
-	marker->setScreenSize( lineStyle()->width_ ); \
+	marker->setScreenSize( mCast(float,lineStyle()->width_) ); \
 	marker->setType( MarkerStyle3D::Sphere ); \
 	marker->setCenterPos( curline[0] ); \
 	points->addObject( marker ); \

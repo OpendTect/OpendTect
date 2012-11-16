@@ -585,7 +585,7 @@ const char* uiSGSel::selGrpFileNm()
 	BufferString cleannm( inpfld_->text() );
 	cleanupString( cleannm.buf(), false, false, false );
 	return FilePath(SGM().basePath(),cleannm).fullPath();
-	selgrpfilenm_ = FilePath(SGM().basePath(),cleannm).fullPath();
+	//selgrpfilenm_ = FilePath(SGM().basePath(),cleannm).fullPath();
     }
 
     return selgrpfilenm_.buf();

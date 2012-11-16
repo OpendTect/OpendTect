@@ -217,7 +217,7 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size, bool is2d )
 		    const float nv =
 			( shapetype==mShapeSphere && 
 			  limit2<inl*inl+crl*crl+tidx*tidx )
-			? 0. : value;
+			? 0.f : value;
 		    kernel_[pos++] = nv;
 		    sum_ += nv;
 		}

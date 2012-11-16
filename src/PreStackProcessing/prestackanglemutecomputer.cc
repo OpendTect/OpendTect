@@ -82,7 +82,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 
     RayTracerRunner* rtrunner = rtrunners_[thread];
     BinID curbid;
-    for ( int pidx=start; pidx<=stop && shouldContinue(); pidx++ )
+    for ( od_int64 pidx=start; pidx<=stop && shouldContinue(); pidx++ )
     {
 	curbid = hrg.atIndex( pidx );
 	TypeSet<ElasticLayer> layers; SamplingData<float> sd;

@@ -149,7 +149,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     timedrawer_->setFunction( *wvltvals_, timerange_ );
     
     float maxfreq = 0.5f/zstep;
-    if ( SI().zIsTime() ) maxfreq = mNINT32( maxfreq );
+    if ( SI().zIsTime() ) maxfreq = mCast( float, mNINT32( maxfreq ) );
     freqrange_.set( 0, maxfreq );
     
     FreqTaperSetup ftsu; ftsu.hasmin_ = true, 
@@ -265,7 +265,7 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 {
     timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop );
     float maxfreq = 0.5f/wvlt.sampleRate();
-    if ( SI().zIsTime() ) maxfreq = mNINT32( maxfreq );
+    if ( SI().zIsTime() ) maxfreq = mCast( float, mNINT32( maxfreq ) );
     freqrange_.set( 0, maxfreq );
 
     for ( int iattr=0; iattr<3; iattr++ )

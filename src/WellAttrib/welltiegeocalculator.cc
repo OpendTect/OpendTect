@@ -202,9 +202,9 @@ void GeoCalculator::vel2TWT(Well::Log& log, const Well::Track& track,
 	else 
 	{
 	    if ( vals[idx] != vals[idx-1] )
-		newval = 2.f * ( track.getPos(dpts[idx]).z -
+		newval = mCast( float, 2.f * ( track.getPos(dpts[idx]).z -
 				 track.getPos(dpts[idx-1]).z )
-		    		/ fabs(vals[idx]-vals[idx-1]);
+		    		/ fabs(vals[idx]-vals[idx-1]) );
 	}
 	log.addValue( dpts[idx], newval );
     }

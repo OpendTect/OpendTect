@@ -258,7 +258,7 @@ protected:
     struct StickIntersectPoint
     {
 	Coord3				pos_;
-	int				sid_;
+	EM::SectionID		sid_;
 	int				sticknr_;
     };
 

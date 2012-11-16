@@ -329,7 +329,7 @@ void uiFreqTaperGrp::taperChged( CallBacker* cb )
 #define setTo1Decimal(val)\
 {\
     val*=10;\
-    val = (int)val;\
+    val = mCast( float, (int)val );\
     val = (float)val/10;\
 }
 void uiFreqTaperGrp::putToScreen( CallBacker* )

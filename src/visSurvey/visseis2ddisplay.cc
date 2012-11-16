@@ -356,7 +356,7 @@ void Seis2DDisplay::setData( int attrib,
     slice2d.setDimMap( 0, 1 );
     slice2d.setDimMap( 1, 2 );
 
-    int sz0, sz1;
+    int sz0=mUdf(int), sz1=mUdf(int);
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 

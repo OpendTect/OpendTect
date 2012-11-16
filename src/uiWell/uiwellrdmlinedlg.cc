@@ -372,7 +372,7 @@ void uiWell2RandomLineDlg::createFields()
     BufferString txt( "Extend outward (" );
     txt += SI().xyInFeet() ? "ft)" : "m)";
     float defdist = 100 * SI().inlDistance();
-    extendfld_ = new uiGenInput( this, txt, FloatInpSpec(mNINT32(defdist)) );
+    extendfld_ = new uiGenInput(this,txt,FloatInpSpec((float)mNINT32(defdist)));
     extendfld_->setWithCheck( true );
     extendfld_->setChecked( true );
 

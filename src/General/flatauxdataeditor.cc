@@ -618,7 +618,7 @@ void AuxDataEditor::findSelection( const Geom::Point2D<int>& pt,
     if ( selptidxlist )
 	selptidxlist->erase();
 
-    int minsqdist;
+    int minsqdist = mUdf(int);
     for ( int idx=0; idx<auxdata_.size(); idx++ )
     {
 	if ( !auxdata_[idx] )

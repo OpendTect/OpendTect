@@ -524,7 +524,8 @@ void Pos::EMSurface2DProvider3D::mkDPS( const EM::Surface& s,
 	    const BinID bid2d = posid.getRowCol();
 	    DataPointSet::Pos pos( surf.getPos(posid) );
 	    pos.nr_ = bid2d.crl;
-	    dps.addRow( DataPointSet::DataRow(pos,bid2d.inl) );
+	    dps.addRow( DataPointSet::DataRow(
+				pos, mCast(unsigned short,bid2d.inl)) );
 	}
     }
 }
