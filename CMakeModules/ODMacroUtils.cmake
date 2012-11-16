@@ -348,7 +348,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} )
 	    ${TEST_NAME}
 	    ${OD_EXEC_DEP_LIBS}
 	    ${OD_RUNTIMELIBS} )
-    add_test( ${TEST_NAME} ${OD_EXEC_OUTPUT_PATH}/${TEST_NAME} )
+    add_test( NAME ${TEST_NAME} WORKING_DIRECTORY ${OD_EXEC_OUTPUT_PATH} COMMAND ${TEST_NAME} )
     set_property( TEST ${TEST_NAME} PROPERTY ${OD_MODULE_TEST_LABEL} )
 endforeach()
 
