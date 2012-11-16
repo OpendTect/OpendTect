@@ -278,7 +278,7 @@ public: \
     static void			initClass(); \
     static EMObject*		create(EM::EMManager&); \
     static clss*		create(const char* nm); \
-    static const char*		typeStr(); \
+    static FixedString		typeStr(); \
     const char*			getTypeStr() const; \
     void			setNewName(); \
 protected: \
@@ -309,7 +309,7 @@ clss* clss::create( const char* nm ) \
     return newobj; \
 } \
 \
-const char* clss::typeStr() { return typenm; } \
+FixedString clss::typeStr() { return typenm; } \
 const char* clss::getTypeStr() const { return typeStr(); } \
 void clss::setNewName() \
 {\

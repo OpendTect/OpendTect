@@ -434,7 +434,7 @@ bool SeisTrcStorOutput::isDataType( const char* reqdatatype) const
 {
     BufferString datatypeinques;
 
-    if ( !strcmp(reqdatatype, sKey::Steering()) )
+    if ( reqdatatype==sKey::Steering() )
 	datatypeinques += "Dip";
     else
 	datatypeinques += reqdatatype;

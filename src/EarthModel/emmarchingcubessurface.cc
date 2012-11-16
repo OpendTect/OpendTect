@@ -233,7 +233,7 @@ EMObject* MarchingCubesSurface::create( EMManager& emm ) \
 }
 
 
-const char* MarchingCubesSurface::typeStr()
+FixedString MarchingCubesSurface::typeStr()
 { return mcEMBodyTranslator::sKeyUserName(); }
 
 

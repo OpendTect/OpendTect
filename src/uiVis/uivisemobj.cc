@@ -419,7 +419,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     //visSurvey::Scene* scene = hordisp ? hordisp->getScene() : 0;
     //const bool hastransform = scene && scene->getZAxisTransform();
     //const bool enabmenu =
-	//!strcmp(getObjectType(displayid_),EM::Horizon3D::typeStr())
+	//getObjectType(displayid_)==EM::Horizon3D::typeStr()
 	//&& !visserv_->isLocked(displayid_) && !hastransform;
 
     seedsmenuitem_.removeItems();

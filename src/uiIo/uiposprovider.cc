@@ -287,7 +287,7 @@ void uiPosProvSel::mkNewProv( bool updsumm )
 
 void uiPosProvSel::setInput( const CubeSampling& cs, bool chgtyp )
 {
-    if ( chgtyp || (prov_ && !strcmp(prov_->type(),sKey::Range())) )
+    if ( chgtyp || (prov_ && prov_->type()==sKey::Range()) )
     {
 	cs_ = cs;
 	setProvFromCS();

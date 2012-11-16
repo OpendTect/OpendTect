@@ -501,7 +501,7 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 
 
 #define mImplStart(fn) \
-    if ( !ioobj || strcmp(ioobj->translator(),"CBVS") ) return false; \
+    if ( !ioobj || ioobj->translator()!="CBVS" ) return false; \
     mDynamicCastGet(const IOStream*,iostrm,ioobj) \
     if ( !iostrm ) return false; \
     if ( iostrm->isMulti() ) \
