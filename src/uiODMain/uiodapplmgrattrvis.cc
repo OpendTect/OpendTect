@@ -272,9 +272,9 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 
     PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
 
-    ColTab::Sequence seq( ioobj ? 0 : ColTab::defSeqName() );
-    const ColTab::Sequence* ctseq = !ioobj ?
-		0 : am_.visserv_->getColTabSequence( visid, attrib );
+    ColTab::Sequence seq( 0 );
+    const ColTab::Sequence* ctseq =
+		am_.visserv_->getColTabSequence( visid, attrib );
     if ( ctseq ) seq = *ctseq;
 
     ColTab::MapperSetup mapper;
