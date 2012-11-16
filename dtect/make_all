@@ -6,6 +6,11 @@ set doupd=yes
 set dodoc=no
 set nrcpus=1
 set stoponerr=no
+set cmake_exec=cmake
+
+if ( $?CMAKE ) then
+    set cmake_exec=${CMAKE}
+endif
 
 if ( $?OD_PMAKE_NR_PROCESSORS ) then
 	set nrcpus=$OD_PMAKE_NR_PROCESSORS
@@ -92,12 +97,12 @@ if ( $shallow == no ) then
 endif
 
 if ( ! -e CMakeCache.txt ) then
-    cmake .
+    ${cmake_exec} .
 endif
 make $flags
 cd ../$dgbdir
 if ( ! -e CMakeCache.txt ) then
-    cmake .
+    ${cmake_exec} .
 endif
 make $flags
 cdw
