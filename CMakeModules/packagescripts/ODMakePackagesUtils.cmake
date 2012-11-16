@@ -70,9 +70,18 @@ macro ( create_package PACKAGE_NAME )
 	FILE( REMOVE_RECURSE ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
     ENDIF()
 
-    execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
-		       	     WORKING_DIRECTORY ${PACKAGE_DIR}
-			     RESULT_VARIABLE STATUS )
+    IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
+	MESSAGE( "Using ${OD_PLFSUBDIR} zip command" )
+	execute_process( COMMAND ${PSD}/bin/win/zip -r -q "${PACKAGE_FILENAME}" ${REL_DIR} 
+				 WORKING_DIRECTORY ${PACKAGE_DIR}
+				 RESULT_VARIABLE STATUS )
+    ELSE()
+	MESSAGE( "Using ${OD_PLFSUBDIR} zip command" )
+	execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
+				 WORKING_DIRECTORY ${PACKAGE_DIR}
+				 RESULT_VARIABLE STATUS )
+    ENDIF()
+
     IF( NOT ${STATUS} EQUAL "0" )
 	MESSAGE( FATAL_ERROR "Could not zip file ${PACKAGE_FILENAME}" )
     ENDIF()
@@ -93,25 +102,39 @@ macro( copy_thirdpartylibs )
 endmacro( copy_thirdpartylibs )
 
 
-macro( create_basepackages )
+macro( create_basepackages PACKAGE_NAME )
    MESSAGE( "destdir:${DESTINATION_DIR}" )
    FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/data
 		        ${DESTINATION_DIR}/doc )
-   FOREACH( LIBS ${LIBLIST} )
-	FILE( GLOB DATAFILES ${PSD}/data/${LIBS} )
-#        MESSAGE( "datafiles: ${DATAFILES}" )
-        FOREACH( DATA ${DATAFILES} )
-	      MESSAGE( "datafile: ${DATA}" )
-#TODO if possible copy files instead of INSTALL
-	      FILE( INSTALL DESTINATION ${DESTINATION_DIR}/data
-			    TYPE DIRECTORY FILES ${DATA}
-			    REGEX ".svn" EXCLUDE )
-        ENDFOREACH()
-   ENDFOREACH()
+   IF( ${PACKAGE_NAME} STREQUAL "basedata" ) 
+       FOREACH( LIBS ${LIBLIST} )
+	    FILE( GLOB DATAFILES ${PSD}/data/${LIBS} )
+	    FOREACH( DATA ${DATAFILES} )
+		  MESSAGE( "datafile: ${DATA}" )
+    #TODO if possible copy files instead of INSTALL
+		  FILE( INSTALL DESTINATION ${DESTINATION_DIR}/data
+				TYPE DIRECTORY FILES ${DATA}
+				REGEX ".svn" EXCLUDE )
+	    ENDFOREACH()
+       ENDFOREACH()
+   ENDIF()
+   IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${PSD}/inst/data
+			 ${DESTINATION_DIR}/data )
+   ENDIF()
 
-   execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
-		       	    WORKING_DIRECTORY ${PACKAGE_DIR}
-			    RESULT_VARIABLE STATUS )
+    IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
+	MESSAGE( "Using ${OD_PLFSUBDIR} zip command" )
+	execute_process( COMMAND ${PSD}/bin/win/zip -r -q "${PACKAGE_FILENAME}" ${REL_DIR} 
+				 WORKING_DIRECTORY ${PACKAGE_DIR}
+				 RESULT_VARIABLE STATUS )
+    ELSE()
+	MESSAGE( "Using ${OD_PLFSUBDIR} zip command" )
+	execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
+				 WORKING_DIRECTORY ${PACKAGE_DIR}
+				 RESULT_VARIABLE STATUS )
+    ENDIF()
 
    IF( NOT ${STATUS} EQUAL "0" )
 	MESSAGE( FATAL_ERROR "Could not zip file ${PACKAGE_FILENAME}" )
