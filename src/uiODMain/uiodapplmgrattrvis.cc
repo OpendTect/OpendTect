@@ -277,11 +277,12 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 		am_.visserv_->getColTabSequence( visid, attrib );
     if ( ctseq ) seq = *ctseq;
 
-    ColTab::MapperSetup mapper;
+    ColTab::MapperSetup mapper, mapper1;
     const ColTab::MapperSetup* ctmap = !ioobj ?
 		0 : am_.visserv_->getColTabMapperSetup( visid, attrib );
     if ( ctmap ) mapper = *ctmap;
 
+    IOPar iop;
     if ( ioobj )
     {
     	FilePath fp( ioobj->fullUserExpr(true) );
@@ -289,7 +290,6 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     	    return;
 
     	fp.setExtension( "par" );
-    	IOPar iop;
     	if ( iop.read( fp.fullPath(), sKey::Pars()) && !iop.isEmpty() )
     	{
     	    const char* ctname = iop.find( sKey::Name() );
@@ -297,10 +297,11 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     	    mapper.usePar( iop );
     	}    
     }
-    
-    am_.visserv_->setColTabMapperSetup( visid, attrib, mapper );
+    const bool isempt = iop.isEmpty();    
+
+    am_.visserv_->setColTabMapperSetup( visid, attrib, !isempt? mapper:mapper1);
     am_.visserv_->setColTabSequence( visid, attrib, seq );
-    am_.appl_.colTabEd().colTab()->setMapperSetup( &mapper );
+    am_.appl_.colTabEd().colTab()->setMapperSetup( !isempt ? &mapper:&mapper1 );
     am_.appl_.colTabEd().colTab()->setSequence( &seq, true );
     updateColorTable( visid, attrib );
 }
