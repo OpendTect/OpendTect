@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 float_complex Math::Sqrt( const float_complex& s )
 {
     return sqrt ( s ); //A bit silly bu the space before the parantesis
-		       //makes it avoid the sqrt( test.
+		       //makes it avoid the sqrt test.
 }
 
 
