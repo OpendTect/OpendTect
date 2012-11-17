@@ -438,7 +438,7 @@ endmacro()
 
 macro ( OD_ADD_KEYWORD_TEST KW NM )
     if ( NOT DEFINED WIN32 )
-	set( CMD "${CMAKE_SOURCE_DIR}/dtect/FindKeyword" )
+	set( CMD "${OpendTect_DIR}/dtect/FindKeyword" )
 	list( APPEND CMD "--keyword" "${KW}" "--listfile" "${OD_SOURCELIST_FILE}" )
 	set ( EXCEPTIONFILE ${CMAKE_SOURCE_DIR}/CMakeModules/exceptions/${KW}_exceptions )
 	if ( EXISTS ${EXCEPTIONFILE} )
