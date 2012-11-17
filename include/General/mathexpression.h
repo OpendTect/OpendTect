@@ -91,7 +91,7 @@ or |abs|
 
 A mathematical function can be either:
 
-sin(), cos(), tan(), ln(), log(), exp() or sqrt().
+sin(), cos(), tan(), ln(), log(), exp() or sqrt ().
 
 If the parser returns null, it couldn't parse the expression.
 Then, errmsg_ should contain info.
