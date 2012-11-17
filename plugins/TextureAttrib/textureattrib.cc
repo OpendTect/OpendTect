@@ -324,7 +324,7 @@ bool Texture::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	    if (action_ == 4)
 	    {
-		textmeasure = sqrt(textmeasure);
+		textmeasure = Math::Sqrt(textmeasure);
 	    }
 	}
 
@@ -370,7 +370,7 @@ bool Texture::computeData( const DataHolder& output, const BinID& relpos,
 
 	    if (action_ == 8)
 	    {
-		textmeasure = sqrt(textmeasure);
+		textmeasure = Math::Sqrt(textmeasure);
 	    }
 	}
 

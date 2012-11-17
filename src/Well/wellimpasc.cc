@@ -449,7 +449,7 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 		const float hdist = (float)Coord(c).distTo( Coord(prevc) );
 		c.z = prevc.z;
 		if ( d > hdist )
-		    c.z += sqrt( d*d - hdist*hdist );
+		    c.z += Math::Sqrt( d*d - hdist*hdist );
 	    }
 	    dah = newdah;
 	}

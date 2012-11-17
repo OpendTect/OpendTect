@@ -53,9 +53,9 @@ bool WellT2DTransform::calcDepths()
 	const float dah2 = wllmodel->getDah( nexttime );
 	const Coord3 nextcrd = track.getPos( dah2 );
 	const float hyp = dah2 - dah1;
-	const float dist = (float) sqrt( ((prevcrd.x-nextcrd.x)*(prevcrd.x-nextcrd.x)) +
+	const float dist = (float) Math::Sqrt( ((prevcrd.x-nextcrd.x)*(prevcrd.x-nextcrd.x)) +
 			   ((prevcrd.y-nextcrd.y)*(prevcrd.y-nextcrd.y)) ); 
-	vertdepth += sqrt( (hyp*hyp) - (dist*dist) );
+	vertdepth += Math::Sqrt( (hyp*hyp) - (dist*dist) );
 	depths_ += vertdepth;
     }
     

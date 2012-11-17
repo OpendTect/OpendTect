@@ -94,7 +94,7 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 	    if ( icomp == 0 )
 		dx *= SI().crlDistance();
 	    else if ( icomp == 1 )
-		dx *= sqrt(SI().inlDistance()*SI().inlDistance()+
+		dx *= Math::Sqrt(SI().inlDistance()*SI().inlDistance()+
 		    SI().crlDistance()*SI().crlDistance());
 	    else if ( icomp == 2)
 		dx *= SI().inlDistance();

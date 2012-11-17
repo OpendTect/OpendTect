@@ -131,7 +131,7 @@ Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
     const double term = 1 + nx2/ny2;
     const double dx2 = l2 / term;
     const double dy2 = l2 - dx2;
-    Coord3 pos = loc.pos + Coord3( sqrt(dx2), sqrt(dy2), 0 );
+    Coord3 pos = loc.pos + Coord3( Math::Sqrt(dx2), Math::Sqrt(dy2), 0 );
     return pos;
 }
 

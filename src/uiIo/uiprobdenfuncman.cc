@@ -398,11 +398,12 @@ ProbDenFunc* uiProbDenFuncGen::calcPDF3D() const
     return pdf;
 }
 
+const float sqrt2pi = Math::Sqrt(2*M_PIf);
 
 float uiProbDenFuncGen::calcGaussian1D( float x ) const
 {
     float res = exp( - ( pow(x-mus_[0],2) / (2*pow(sigmas_[0],2)) ) )
-		/ ( sqrt(2*3.14f)*pow (sigmas_[0],2) );
+		/ ( sqrt2pi*pow (sigmas_[0],2) );
     return res;   
 }
 

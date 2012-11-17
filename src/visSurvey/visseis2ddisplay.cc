@@ -880,9 +880,9 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    continue;
 	}
 
-	const float dista = sqrt( dist2a );
-	const float distb = sqrt( dist2b );
-	const float distc = sqrt( dist2c );
+	const float dista = Math::Sqrt( dist2a );
+	const float distb = Math::Sqrt( dist2b );
+	const float distc = Math::Sqrt( dist2c );
 	const float sp = (dista + distb + distc) / 2;
 	const float height2 = 4*sp*(sp-dista)*(sp-distb)*(sp-distc) / dist2c;
 
@@ -891,10 +891,10 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    mindist2 = height2;
 	    trcnr1st = posns[aidx].nr_;
 	    trcnr2nd = posns[bidx].nr_;
-	    frac = sqrt( dist2a - height2 ) / distc;
+	    frac = Math::Sqrt( dist2a - height2 ) / distc;
 	}
     }
-    return mindist2!=MAXFLOAT ? sqrt(mindist2) : -1.0f;
+    return mindist2!=MAXFLOAT ? Math::Sqrt(mindist2) : -1.0f;
 }
 
 

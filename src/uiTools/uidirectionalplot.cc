@@ -209,7 +209,7 @@ void uiDirectionalPlot::drawGrid()
 
 void uiDirectionalPlot::drawScale()
 {
-    static const float sqrt2 = (float) ( sqrt( 2.0 ) );
+    static const float sqrt2 = M_SQRT2f;
     const uiPoint startpt( usrUIPos(radius_*1.1f,135) );
     const uiPoint endpt( usrUIPos(radius_*(sqrt2-0.1f),135) );
     if ( !scalelineitm_ )

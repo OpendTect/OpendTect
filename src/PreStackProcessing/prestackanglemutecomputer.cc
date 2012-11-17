@@ -130,7 +130,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	    const float lastzpos = sd.start + sd.step*(nrlayers-1);
 	    const float lastsinangle = 
 		rtrunner->rayTracers()[0]->getSinAngle(nrlayers-1,lastioff);
-	    const float cosangle = sqrt(1-lastsinangle*lastsinangle);
+	    const float cosangle = Math::Sqrt(1-lastsinangle*lastsinangle);
 	    const float doff = thk*lastsinangle/cosangle;
 	    mutefunc->add( lastzpos, offsets[lastioff]+doff );
 	}

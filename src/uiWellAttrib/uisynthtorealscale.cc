@@ -313,7 +313,7 @@ float uiSynthToRealScale::getTrcValue( const SeisTrc& trc, float reftm ) const
 	if ( calcrms ) val *= val;
 	sumsq += val;
     }
-    return calcrms ? sqrt( sumsq / nrtms ) : sumsq;
+    return calcrms ? Math::Sqrt( sumsq / nrtms ) : sumsq;
 }
 
 

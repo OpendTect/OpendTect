@@ -825,7 +825,7 @@ void uiArrowItem::update()
 
     float diffx = headpos_.x-tailpos_.x;
     float diffy = headpos_.y-tailpos_.y;
-    const float arrsz = sqrt( diffx*diffx + diffy*diffy );
+    const float arrsz = Math::Sqrt( diffx*diffx + diffy*diffy );
     setArrowSize( mNINT32(arrsz) );
     setPos( headpos_ );
     const uiPoint relvec( mNINT32(diffx), mNINT32(diffy) );

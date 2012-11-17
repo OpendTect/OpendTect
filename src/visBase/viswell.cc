@@ -532,7 +532,7 @@ float Well::constantLogSizeFactor() const
 {
     const int inlnr = SI().inlRange( true ).nrSteps();
     const int crlnr = SI().crlRange( true ).nrSteps();
-    const float survfac = sqrt( (float)(crlnr*crlnr + inlnr*inlnr) );
+    const float survfac = Math::Sqrt( (float)(crlnr*crlnr + inlnr*inlnr) );
     return survfac * 43; //hack 43 best factor based on F3_Demo
 }
 

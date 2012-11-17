@@ -532,7 +532,7 @@ void computePts( bool isy2 )
 
     if ( count != 0 )
     {
-	rmserr = sqrt(rmserr/(float)count);
+	rmserr = Math::Sqrt(rmserr/(float)count);
     	isy2 ? rmsfld1_->setValue( rmserr ) : rmsfld_->setValue( rmserr );
     	( isy2 ? plotter_.y2rmserr_ : plotter_.y1rmserr_ ) = rmserr;
     }

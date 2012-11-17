@@ -307,7 +307,7 @@ bool WaveletExtractor::finish( int nrusedtrcs )
     float * stackedarr = wvlt_.samples();
     stackedarr[0] = 0;
     for ( int i=1; i<wvltsize_; i++ )
-	stackedarr[i] = sqrt( stackedarr[i] / nrusedtrcs );
+	stackedarr[i] = Math::Sqrt( stackedarr[i] / nrusedtrcs );
 
     if ( !doWaveletIFFT() || !rotateWavelet() || !taperWavelet() )
     { msg_ = "Failed to generate wavelet"; return false; }

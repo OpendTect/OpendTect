@@ -937,7 +937,7 @@ float StorageProvider::getMaxDistBetwTrcs() const
 	}
     }
 
-    return maxdistsq < 1e-3 ? mUdf(float) : (float)sqrt(maxdistsq);
+    return maxdistsq < 1e-3 ? mUdf(float) : (float)Math::Sqrt(maxdistsq);
 }
 
 

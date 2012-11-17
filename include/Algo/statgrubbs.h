@@ -65,7 +65,7 @@ inline T Stats::Grubbs::getMax( T* arr, SzTp sz, SzTp& idxof )
 	const T delta = avg - arr[idx];
 	sum += delta * delta;
     }
-    const T stdev = sqrt( sum / nonudfsz );
+    const T stdev = Math::Sqrt( sum / nonudfsz );
 
     const T diffmin = avg - minval;
     const T diffmax = maxval - avg;

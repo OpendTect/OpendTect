@@ -206,7 +206,7 @@ void uiPolarDiagram::mouseEventCB( CallBacker* )
     if ( relpos.x == 0 && relpos.y == 0 ) return;
 
     // Formula: x = r cos(azimuth)
-    float r = (float) sqrt( (float)(relpos.x*relpos.x + relpos.y*relpos.y) );
+    float r = (float) Math::Sqrt( (float)(relpos.x*relpos.x + relpos.y*relpos.y) );
     if ( r > radius_ ) return;
     float azimuthrad = acos( relpos.x/r );
     if ( relpos.y > 0 )

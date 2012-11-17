@@ -48,8 +48,8 @@ double Grav::Block::calcValue( const Coord3& pos, double rho ) const
 double Grav::Block::prim( double x, double y, double z ) const
 {
     const double dsqr = y*y + z*z;
-    const double d = sqrt( dsqr );
-    const double r = sqrt( x*x + dsqr );
+    const double d = Math::Sqrt( dsqr );
+    const double r = Math::Sqrt( x*x + dsqr );
     const double v1 = x * log( y + r ) + y * log( x + r );
     const double v2 = z * Math::ASin( (dsqr + y*r) / (d * (y + r)) );
 

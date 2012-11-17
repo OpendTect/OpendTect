@@ -434,11 +434,11 @@ void uiWell2RandomLineDlg::extendLine( TypeSet<Coord>& coords )
 	coords.erase();
 	const Coord d0( oldcrds[1].x - oldcrds[0].x,
 			oldcrds[1].y - oldcrds[0].y );
-	float p = (float) sqrt( extradist * extradist / d0.sqAbs() );
+	float p = (float) Math::Sqrt( extradist * extradist / d0.sqAbs() );
 	const Coord newc0( oldcrds[0].x - p * d0.x, oldcrds[0].y - p * d0.y );
 	const Coord d1( oldcrds[nrcoords-1].x - oldcrds[nrcoords-2].x,
 			oldcrds[nrcoords-1].y - oldcrds[nrcoords-2].y );
-	p = (float) sqrt( extradist * extradist / d1.sqAbs() );
+	p = (float) Math::Sqrt( extradist * extradist / d1.sqAbs() );
 	const Coord newc1( oldcrds[nrcoords-1].x + p * d1.x,
 			   oldcrds[nrcoords-1].y + p * d1.y );
 

@@ -887,7 +887,7 @@ void LinearT2DTransform::transformBack( const BinID& bid,
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float depth = sd.start + idx*sd.step;
-	const float val = sqrt( startvel_*startvel_ + 2*dv_*depth );
+	const float val = Math::Sqrt( startvel_*startvel_ + 2*dv_*depth );
 	res[idx] = (val - startvel_) / (dv_);
     }
 }
@@ -953,7 +953,7 @@ void LinearD2TTransform::transform( const BinID& bid,
 	    continue;
 	}
 
-	const float val = sqrt( startvel_*startvel_ + 2*dv_*depth );
+	const float val = Math::Sqrt( startvel_*startvel_ + 2*dv_*depth );
 	res[idx] = (val - startvel_) / (dv_);
     }
 }

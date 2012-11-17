@@ -276,7 +276,7 @@ static double pointToSegmentDist( const Coord3& point,
 	return d02;
 
     double sp = 0.5 *( d01+d02+d12 );
-    double area = sqrt( sp*(sp-d01)*(sp-d02)*(sp-d12) );  
+    double area = Math::Sqrt( sp*(sp-d01)*(sp-d02)*(sp-d12) );  
     return 2.0*area/d12;
 }
 

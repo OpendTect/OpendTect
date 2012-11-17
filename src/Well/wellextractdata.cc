@@ -848,7 +848,7 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 	float val = 0;
 	for ( int idx=0; idx<sz; idx++ )
 	    val += vals[idx] * vals[idx];
-	return sqrt( val / sz );
+	return Math::Sqrt( val / sz );
     }
     else if ( samppol == Stats::UseMostFreq )
     {
