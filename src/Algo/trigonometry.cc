@@ -381,7 +381,7 @@ double Line2::distanceTo( const Line2& line ) const
 	return mUdf(double);
 
     const double intcptdiff = fabs( yintcpt_ - line.yintcpt_ );
-    return intcptdiff / sqrt( 1 + slope_ * slope_ );
+    return intcptdiff / Math::Sqrt( 1 + slope_ * slope_ );
 }
 
 
@@ -398,7 +398,7 @@ bool Line2::getParallelLine( Line2& line, double dist ) const
     }
     else
     {
-	double constterm = dist * sqrt( 1 + slope_ * slope_ );
+	double constterm = dist * Math::Sqrt( 1 + slope_ * slope_ );
 	line.yintcpt_ = yintcpt_ + constterm;
     }
 
@@ -533,7 +533,8 @@ bool Line3::intersectWith( const Plane3& b, double& t ) const
     const double dist0 = b.A_*x0_ + b.B_*y0_ + b.C_*z0_ + b.D_;
     if ( mIsZero(denominator,mDefEps) )
     {
-	if ( mIsZero(dist0/sqrt(b.A_*b.A_+b.B_*b.B_+b.C_*b.C_),mDefEps) )
+	const double test = dist0/Math::Sqrt(b.A_*b.A_+b.B_*b.B_+b.C_*b.C_);
+	if ( mIsZero( test, mDefEps) )
 	{
 	    t = 0;
 	    return true;

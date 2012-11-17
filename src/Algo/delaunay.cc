@@ -204,6 +204,7 @@ bool DAGTriangleTree::setCoordList( TypeSet<Coord>* coordlist,
     return setBBox( xrg, yrg );
 }
 
+const double sq3 = Math::Sqrt( 3.0 );
 
 bool DAGTriangleTree::setBBox( const Interval<double>& xrg,
 			       const Interval<double>& yrg)
@@ -215,11 +216,11 @@ bool DAGTriangleTree::setBBox( const Interval<double>& xrg,
 	return false;
 
     const Coord center( xrg.center(), yrg.center() );
-    double radius = sqrt( xlength*xlength+ylength*ylength )/2;
+    double radius = Math::Sqrt( xlength*xlength+ylength*ylength )/2;
     radius += mDefEps;	// assures no point can be on edge of initial triangle
 
-    initialcoords_[0] = Coord( center.x-radius*sqrt(3.0), center.y-radius );
-    initialcoords_[1] = Coord( center.x+radius*sqrt(3.0), center.y-radius );
+    initialcoords_[0] = Coord( center.x-radius*sq3, center.y-radius );
+    initialcoords_[1] = Coord( center.x+radius*sq3, center.y-radius );
     initialcoords_[2] = Coord( center.x, center.y+2*radius );
 
     DAGTriangle initnode;

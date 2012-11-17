@@ -288,7 +288,7 @@ bool LineFrom2DSpaceHoughTransform::compute()
 
     const int rsz = input_.info().getSize(0);
     const int csz = input_.info().getSize(1);
-    const float maxrho = (float) sqrt((double)(rsz*rsz+csz*csz));
+    const float maxrho = (float) Math::Sqrt((double)(rsz*rsz+csz*csz));
     
     TypeSet<float> sintable, costable;
     const float factor = 2*M_PI/(float)(mThetaSize);
@@ -490,7 +490,7 @@ bool LineFrom2DSpaceHoughTransform::setLineFlag(float radius, float theta)
 
     const int rsz = input_.info().getSize(0);
     const int csz = input_.info().getSize(1);
-    const float maxrho = sqrt((double)((rsz-1)*(rsz-1)+(csz-1)*(csz-1)));
+    const float maxrho = Math::Sqrt((double)((rsz-1)*(rsz-1)+(csz-1)*(csz-1)));
     
     TypeSet<float> sintable, costable;
     const float factor = M_PI/(float)(mThetaSize-1);

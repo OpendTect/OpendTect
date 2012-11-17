@@ -171,6 +171,7 @@ bool DAGTetrahedraTree::setCoordList( const TypeSet<Coord3>& coordlist,
     return true;
 }
 
+const double sq6 = Math::Sqrt( 6. );
 
 bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg, 
 	const Interval<double>& yrg, const Interval<double>& zrg )
@@ -211,8 +212,7 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 	Math::Sqrt( xlength*xlength+ylength*ylength+zlength*zlength );
     epsilon_ = k*(1e-5);
 
-    const double sq2 = sqrt( 2. );
-    const double sq6 = sqrt( 6. );
+    const double sq2 = M_SQRT2;
     initialcoords_[0] = center_ + Coord3( 0, 0, 6*k );
     initialcoords_[1] = center_ + Coord3( 0, 6*sq2*k, -6*k );
     initialcoords_[2] = center_ + Coord3( -3*sq6*k, -3*sq2*k, -6*k );
@@ -236,8 +236,7 @@ void DAGTetrahedraTree::setInitSizeFactor( float newfactor )
 
     if ( initialcoords_[0].isDefined() )
     {
-	const double sq2 = sqrt( 2. );
-	const double sq6 = sqrt( 6. );
+	const double sq2 = M_SQRT2;
 	double k = (initialcoords_[0].z-center_.z)/6;
 	k = k * newfactor/initsizefactor_;
 	initialcoords_[0] = center_ + Coord3( 0, 0, 6*k );

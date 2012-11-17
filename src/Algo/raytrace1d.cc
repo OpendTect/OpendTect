@@ -158,11 +158,13 @@ bool RayTracer1D::doPrepare( int nrthreads )
 
 	if ( mIsUdf( pvel ) && !mIsUdf( svel ) )
 	{
-	    pvel = p2safac ? sqrt( (svel*svel-p2sbfac)/p2safac ) : mUdf(float);
+	    pvel = p2safac
+	        ? Math::Sqrt( (svel*svel-p2sbfac)/p2safac )
+	        : mUdf(float);
 	}
 	else if ( mIsUdf( svel ) && !mIsUdf( pvel ) )
 	{
-	    svel = sqrt( p2safac*pvel*pvel + p2sbfac );
+	    svel = Math::Sqrt( p2safac*pvel*pvel + p2sbfac );
 	}
 	if ( pvel < mVelMin )
 	    pvel = mVelMin;
@@ -430,7 +432,7 @@ bool VrmsRayTracer1D::doPrepare( int nrthreads )
 
 	const float vrmssum = dvrmssum + uvrmssum;
 	const float twt = unmotime + dnmotime;
-	velmax_[idx] = sqrt( vrmssum / twt );
+	velmax_[idx] = Math::Sqrt( vrmssum / twt );
 	twt_->set( idx, 0, twt );
     }
     return true;
@@ -473,7 +475,7 @@ bool VrmsRayTracer1D::compute( int layer, int offsetidx, float rayparam )
     const float tnmo = twt_->get( layer, 0 );
     const float vrms = velmax_[layer];
     const float off = offsets_[offsetidx];
-    const float twt = vrms ? sqrt(off*off/(vrms*vrms) + tnmo*tnmo) : tnmo;
+    const float twt = vrms ? Math::Sqrt(off*off/(vrms*vrms) + tnmo*tnmo) : tnmo;
 
     twt_->set( layer, offsetidx, twt );
 

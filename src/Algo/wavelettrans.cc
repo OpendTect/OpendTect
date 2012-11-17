@@ -633,11 +633,11 @@ float CWT::getScale( int nrsamples, float dt, float freq ) const
 
     float omega0 = 5;
     if ( wt_ == Gaussian )
-	omega0 = sqrt(2.f);
+	omega0 =  M_SQRT2f;
     else if ( wt_ == Morlet )
 	omega0 = 5;
     else if ( wt_ == MexicanHat )
-	omega0 = sqrt(2.f);
+	omega0 = M_SQRT2f;
 
     return (float) ( freqidx * (2*M_PI) / omega0 );
 }

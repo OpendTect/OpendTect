@@ -129,7 +129,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	if ( eratio<0.5 )
 	    continue;
 
-	const float edenominator = sqrt(eigenvec0[0]*eigenvec0[0]+
+	const float edenominator = Math::Sqrt(eigenvec0[0]*eigenvec0[0]+
 		eigenvec0[1]*eigenvec0[1]);
 	const float absdip = (float)(atan(edenominator/eigenvec0[2])*mRad2Angle); 
 	const float inldip = eigenvec0[0]*fd_.xdist_/(fd_.zdist_*eigenvec0[2]);
@@ -406,7 +406,8 @@ bool Dip2D::fillGap()
 		    for ( int kt=jt_left; kt<=jt_right; kt++ )
 		    {
 			//calculate the distance between point and the line
-			float denominator = sqrt(a_term*a_term+b_term*b_term);
+			float denominator =
+			    Math::Sqrt(a_term*a_term+b_term*b_term);
 			float numerator = fabs(a_term*ktrace+b_term*kt+c_term);
 			float distance = numerator/denominator;
 			

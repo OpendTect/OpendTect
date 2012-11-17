@@ -8,6 +8,8 @@
 #include "zoeppritzcoeff.h"
 #include "ailayer.h"
 
+#include "math2.h"
+
 
 ZoeppritzCoeff::ZoeppritzCoeff()
     : pdn_pdn_( 0, 0 )
@@ -57,11 +59,11 @@ void ZoeppritzCoeff::setInterface( float p, const ElasticLayer& el1,
 	      el2.den_ * 2 * l2s2 * p2;	
     float_complex d = 2 * (el2.den_ * l2s2 - el1.den_ * l1s2);
 
-    float_complex pzi1 = sqrt( float_complex( 1.f/l1p2 - p2, 0) );
-    float_complex pzi2 = sqrt( float_complex( 1.f/l2p2 - p2, 0) );
+    float_complex pzi1 = Math::Sqrt( float_complex( 1.f/l1p2 - p2, 0) );
+    float_complex pzi2 = Math::Sqrt( float_complex( 1.f/l2p2 - p2, 0) );
 
-    float_complex pzj1 = sqrt( float_complex( 1.f/l1s2 - p2, 0) );
-    float_complex pzj2 = sqrt( float_complex( 1.f/l2s2 - p2, 0) );
+    float_complex pzj1 = Math::Sqrt( float_complex( 1.f/l1s2 - p2, 0) );
+    float_complex pzj2 = Math::Sqrt( float_complex( 1.f/l2s2 - p2, 0) );
 
     float_complex ee = b * pzi1 + c * pzi2;
     float_complex ff = b * pzj1 + c * pzj2;
