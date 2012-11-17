@@ -35,7 +35,7 @@ Outputs:
 1		Square root of the energy
 2		Ln of the energy
 
-if Gradient is selected outputs will be : grad(Energy), grad(sqrt(Energy)), ...
+if Gradient is selected outputs will be : grad(Energy), grad(SQRT(Energy)), ...
 */
     
 
