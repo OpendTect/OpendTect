@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "gendefs.h"
+#include <complex>
 
 /* Functions with some extra facilities added to math.h
 
@@ -23,6 +24,8 @@ ________________________________________________________________________
    At the end, there is also an all-integer x to the power y.
 
  */
+
+typedef std::complex<float> float_complex;
 
 namespace Math
 {
@@ -52,6 +55,7 @@ mGlobal(Basic) float Log10(float);
 mGlobal(Basic) float Sqrt(float);
                 /*!<Checks the input range before calling sqrt, if negative
 		    value is given, zero is returned. */
+mGlobal(Basic) float_complex Sqrt(const float_complex&);
 mGlobal(Basic) float Exp(float);
                 /*!<Checks the input range before calling exp, if too large
 		    value is given, mUdf(float) is returned. */
