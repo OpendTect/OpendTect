@@ -47,9 +47,9 @@ mDefODPluginInfo(uiHorizonAttrib)
 	"dGB - Nanne Hemstra",
 	"=od",
 	"The 'Horizon' Attribute allows getting values from horizons.\n"
-    	"Not to be confused with calculating attributes on horizons.\n"
-        "It can even be useful to apply the 'Horizon' attribute on horizons.\n"
-        "Also, the Stratal Amplitude is provided by this plugin,\n"
+	"Not to be confused with calculating attributes on horizons.\n"
+	"It can even be useful to apply the 'Horizon' attribute on horizons.\n"
+	"Also, the Stratal Amplitude is provided by this plugin,\n"
 	"and the writing of flattened cubes" };
     return &retpi;
 }
@@ -84,13 +84,13 @@ public:
 
 uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 	: appl_(a)
-    	, flattenmnuitemhndlr_(
+	, flattenmnuitemhndlr_(
 		mMkPars("Write &Flattened cube ...",doFlattened),"Workflows")
-    	, isopachmnuitemhndlr_(
+	, isopachmnuitemhndlr_(
 		mMkPars("Calculate &Isopach ...",doIsopach),"Workflows")
 	, contourmnuitemhndlr_(
 		mMkPars("&Contour Display",doContours),"Add",995)
-    	, horvolmnuitemhndlr_(
+	, horvolmnuitemhndlr_(
 		mMkPars("Calculate &Volume ...",calcHorVol),"Workflows")
 	, polyvolmnuitemhndlr_(visSurvey::PickSetDisplay::getStaticClassName(),
 		*a->applMgr().visServer(),"Calculate &Volume ...",
@@ -161,11 +161,11 @@ void uiHorAttribPIMgr::doIsopach( CallBacker* )
 
     const int attrid = visserv->addAttrib( displayid );
     Attrib::SelSpec selspec( dlg.attrName(), Attrib::SelSpec::cOtherAttrib(),
-	    		     false, 0 );
+			     false, 0 );
     visserv->setSelSpec( displayid, attrid, selspec );
     visserv->createAndDispDataPack( displayid, attrid, &dlg.getDPS() );
     uiODAttribTreeItem* itm = new uiODEarthModelSurfaceDataTreeItem(
-	    	hd->getObjectID(), 0, typeid(*parent).name() );
+		hd->getObjectID(), 0, typeid(*parent).name() );
     parent->addChild( itm, false );
     parent->updateColumnText( uiODSceneMgr::cNameColumn() );
     parent->updateColumnText( uiODSceneMgr::cColorColumn() );
@@ -191,10 +191,10 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
     PtrMan<IOObj> emioobj = IOM().get( mid );
     EM::IOObjInfo eminfo( mid );
     BufferStringSet attrnms;
-    attrnms.add( "ZValue" );
+    attrnms.add( uiContourTreeItem::sKeyZValue() );
     eminfo.getAttribNames( attrnms );
     uiLabeledListBox* llb =
-	new uiLabeledListBox( this, attrnms, emioobj->name(), 
+	new uiLabeledListBox( this, attrnms, emioobj ? emioobj->name() : "", 
 			      false, uiLabeledListBox::AboveMid );
     attrlb_ = llb->box();
 }
@@ -241,11 +241,12 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
 
     const int attrib = visserv->addAttrib( displayid );
     Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cAttribNotSel(),
-	    		  false, 0 );
+			  false, 0 );
     spec.setDefString( uiContourTreeItem::sKeyContourDefString() );
     visserv->setSelSpec( displayid, attrib, spec );
 
-    uiContourTreeItem* newitem = new uiContourTreeItem(typeid(*parent).name() );
+    uiContourTreeItem* newitem =
+	new uiContourTreeItem( typeid(*parent).name() );
     newitem->setAttribName( dlg.getAttribName() );
     parent->addChild( newitem, false );
     parent->updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -257,7 +258,7 @@ void uiHorAttribPIMgr::calcPolyVol( CallBacker* )
     const int displayid = polyvolmnuitemhndlr_.getDisplayID();
     uiVisPartServer* visserv = appl_->applMgr().visServer();
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-	    	    visserv->getObject(displayid))
+		    visserv->getObject(displayid))
     if ( !psd || !psd->getSet() )
 	{ pErrMsg("Can't get PickSetDisplay"); return; }
 
