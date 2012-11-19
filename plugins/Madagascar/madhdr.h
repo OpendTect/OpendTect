@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "maddefs.h"
 #include "iopar.h"
 #include "typeset.h"
 #include "seisinfo.h"
