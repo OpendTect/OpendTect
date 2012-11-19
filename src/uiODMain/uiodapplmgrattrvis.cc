@@ -299,7 +299,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     }
     const bool isempt = iop.isEmpty();    
 
-    am_.visserv_->setColTabMapperSetup( visid, attrib, !isempt? mapper:mapper1);
+    am_.visserv_->setColTabMapperSetup( visid, attrib,!isempt? mapper:mapper1 );
     am_.visserv_->setColTabSequence( visid, attrib, seq );
     am_.appl_.colTabEd().colTab()->setMapperSetup( !isempt ? &mapper:&mapper1 );
     am_.appl_.colTabEd().colTab()->setSequence( &seq, true );
