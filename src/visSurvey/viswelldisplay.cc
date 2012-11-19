@@ -446,25 +446,26 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     const int logsz = wl.size();
 
     const Well::Track& track = wd->track();
-    const Interval<float>& range = isfilled ? lp.fillrange_ : lp.range_;
-
-    float minval, maxval; minval = maxval =  mUdf( float );
+    float minval=mUdf(float), maxval=-mUdf(float);
     TypeSet<Coord3Value> crdvals;
     for ( int idx=0; idx<logsz; idx++ )
     {
 	const float dah = wl.dah(idx);
-	const float val = wl.value(idx);
+	float val = wl.value(idx);
 
-	if ( mIsUdf( val ) || !range.includes( val, true ) )
+	if ( mIsUdf(val) )
 	    continue;
+
+	if ( !isfilled )
+	    val = lp.range_.limitValue( val );
 
 	Coord3 pos = track.getPos( dah );
 	if ( !pos.x && !pos.y && !pos.z ) 
 	    continue;
 
-	if ( mIsUdf( minval ) || val < minval )
+	if ( val < minval )
 	    minval = val;
-	if ( mIsUdf( maxval ) || val > maxval )
+	if ( val > maxval )
 	    maxval = val;
 
 	if ( zistime_ )
@@ -708,7 +709,7 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 				float dah, bool isleft ) const
 {
     mGetWD(return);
-    const Well::DisplayProperties& disp = wd->displayProperties();
+
     const int lognr = isleft ? 1 : 2;
     BufferString lognm( mGetLogPar( lognr , name_ ) );
     if ( !lognm.isEmpty() && !lognm.isEqual("None") && !lognm.isEqual("none") )
