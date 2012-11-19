@@ -126,7 +126,7 @@ public:
 class BoolTypeSetType
 {
 public:
-   BoolTypeSetType(bool v) : val_( v ){}
+   BoolTypeSetType(bool v=false) : val_( v ){}
        operator bool () const { return (bool) val_; }
     bool  operator=(bool v) { val_ = v; return v; }
 protected:
