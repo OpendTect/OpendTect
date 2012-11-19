@@ -60,7 +60,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createInpFld( is2d );
 
-    gatefld_ = new uiGenInput( this, gateLabel(), 
+    gatefld_ = new uiGenInput( this, gateLabel(),
 	    		       FloatInpIntervalSpec().setName("Z start",0)
 						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
@@ -70,7 +70,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 			    mCB(this,uiVolumeStatisticsAttrib,shapeChg));
     shapefld_->attach( alignedBelow, gatefld_ );
     shapefld_->display( !is2d_ );
-    
+
     stepoutfld_ = new uiStepOutSel( this, is2d );
     stepoutfld_->setFieldNames( "Inl Stepout", "Crl Stepout" );
     stepoutfld_->valueChanged.notify(
@@ -81,13 +81,11 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     nrtrcsfld_->box()->setMinValue( 1 );
     nrtrcsfld_->attach( alignedBelow, stepoutfld_ );
 
-    outpfld_ = new uiGenInput( this, "Output statistic", 
+    outpfld_ = new uiGenInput( this, "Output statistic",
 			       StringListInpSpec(outpstrs) );
     outpfld_->attach( alignedBelow, nrtrcsfld_ );
 
     steerfld_ = new uiSteeringSel( this, 0, is2d );
-    steerfld_->steertypeSelected_.notify(
-	    		mCB(this,uiVolumeStatisticsAttrib,steerTypeSel) );
     steerfld_->attach( alignedBelow, outpfld_ );
 
     edgeeffectfld_ = new uiCheckBox( this, "Allow edge effects" );
@@ -100,7 +98,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     optstackstepfld_->attach( alignedBelow, shapefld_ );
 
     stackdirfld_ = new uiGenInput( this, "Direction",
-			       BoolInpSpec( true, "Perpendicular", "Line"));
+			       BoolInpSpec(true,"Perpendicular","Line") );
     stackdirfld_->attach( rightTo,optstackstepfld_ );
 
     setHAlignObj( inpfld_ );
@@ -200,7 +198,6 @@ bool uiVolumeStatisticsAttrib::getInput( Desc& desc )
     inpfld_->processInput();
     fillInp( inpfld_, desc, 0 );
     fillInp( steerfld_, desc, 1 );
-
     return true;
 }
 
@@ -221,16 +218,5 @@ void uiVolumeStatisticsAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 
 void uiVolumeStatisticsAttrib::steerTypeSel( CallBacker* )
 {
-    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )              
-    {                                                                           
-	const char* steertxt = steerfld_->text();                               
-	if ( steertxt )                                                         
-	{                                                                       
-	    LineKey inp( inpfld_->getInput() );                                 
-	    LineKey steer( steertxt );                                          
-	    if ( strcmp( inp.lineName(), steer.lineName() ) )                   
-		steerfld_->clearInpField();                                     
-	}                                                                       
-    }
 }
 

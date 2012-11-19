@@ -33,7 +33,7 @@ struct Seis2DLineSetCache
     BufferString	fname_;
     BufferString	typestr_;
     ObjectSet<IOPar>	pars_;
-}; 
+};
 
 static Seis2DLineSetCache cache;
 
@@ -651,10 +651,11 @@ bool Seis2DLineSet::getRanges( int ipar, StepInterval<int>& sii,
 
 
 void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
-       					    const char* datatyp,
+       					    const char* datatypptr,
 					    bool allowcnstabsent, 
 					    bool incl ) const
 {
+    FixedString datatyp( datatypptr );
     nms.erase();
     const int sz = nrLines();
     for ( int idx=0; idx<sz; idx++ )
@@ -667,18 +668,18 @@ void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
 	    {
 		if ( allowcnstabsent )	
 		{
-		    if ( strcmp(datatyp,attribute(idx)) )
+		    if ( datatyp!=attribute(idx) )
 			nms.addIfNew( attribute(idx) );
 		}
 		else
 		{
-		    if ( !strcmp(datatyp,attribute(idx)) )
+		    if ( datatyp==attribute(idx) )
 			nms.addIfNew( attribute(idx) );
 		}
 	    }
 	    else
 	    {
-		if ( !strcmp(datatyp,founddatatype) && incl )
+		if ( datatyp==founddatatype && incl )
 		    nms.addIfNew( attribute(idx) );
 	    }
 	}
@@ -690,12 +691,14 @@ void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
 }
 
 
-void Seis2DLineSet::getZDomainAttrib( BufferStringSet& nms, const char* linenm,
+void Seis2DLineSet::getZDomainAttrib( BufferStringSet& nms,
+				      const char* linenmptr,
 				      const char* zdomainstr )
 {
+    FixedString linenm = linenmptr;
     for ( int idx=0; idx<nrLines(); idx++ )
     {
-	if ( !strcmp(linenm,lineName(idx)) )
+	if ( linenm==lineName(idx) )
 	{
 	    BufferString ztype = zDomainKey( idx );
 	    if ( zdomainstr && ztype!=zdomainstr )
@@ -816,14 +819,15 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs, int lnr ) const
 
 bool Seis2DLineSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
 {
-    PosInfo::Line2DData geom;
-    if ( getGeometry(ipar,geom) )
+    S2DPOS().setCurLineSet( name() );
+    PosInfo::Line2DData geom( lineName(ipar) );
+    if ( !S2DPOS().getGeometry(geom) )
+	return false;
+
+    for ( int idx=0; idx<geom.positions().size(); idx++ )
     {
-	for ( int idx=0; idx<geom.positions().size(); idx++ )
-	{
-	    if ( bivs.includes( SI().transform(geom.positions()[idx].coord_) ) )
-		return true;
-	}
+	if ( bivs.includes( SI().transform(geom.positions()[idx].coord_) ) )
+	    return true;
     }
 
     return false;

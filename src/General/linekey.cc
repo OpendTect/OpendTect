@@ -7,11 +7,11 @@
 static const char* rcsID = "$Id$";
 
 #include "linekey.h"
-#include "iopar.h"
-#include "ioobj.h"
-#include "ptrman.h"
 #include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
 #include "keystrs.h"
+#include "surv2dgeom.h"
 
 
 LineKey::LineKey( const char* lnm, const char* attrnm )
@@ -87,28 +87,24 @@ bool LineKey::usePar( const IOPar& iop, bool iopnm )
 BufferString LineKey::defKey2DispName( const char* defkey, const char* ioobjnm,
 					bool embed )
 {
-    BufferString ret;
     if ( !IOObj::isKey(defkey) )
-	ret = defkey;
+	return BufferString( defkey );
+
+    const BufferString keynm = IOM().nameOf( defkey );
+    const BufferString retnm = ioobjnm && *ioobjnm ? ioobjnm : keynm.buf();
+
+    const bool is2d = S2DPOS().hasLineSet( retnm );
+    BufferString ret = embed ? "[" : "";
+    if ( !is2d )
+	ret.add( retnm );
     else
     {
 	LineKey lk( defkey );
-	ret = embed ? "[" : "";
-	if ( ioobjnm && *ioobjnm )
-	    lk.setLineName( ioobjnm );
-	else
-	{
-	    PtrMan<IOObj> ioobj = IOM().get( MultiID(defkey) );
-	    if ( ioobj )
-		lk.setLineName( ioobj->name() );
-	    else
-	    {
-		BufferString nm( "<" ); nm += lk.lineName(); nm += ">";
-		lk.setLineName( nm );
-	    }
-	}
-	ret += lk;
-	if ( embed ) ret += "]";
+	lk.setLineName( retnm );
+	ret.add( lk );
     }
+
+    if ( embed ) ret += "]";
+
     return ret;
 }
