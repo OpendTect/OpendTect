@@ -64,11 +64,8 @@ static bool haveColNmMatch( BufferString& colnm, const char* inpnodenm )
     if ( colnm == nodenm )
 	return true;
 
-    if ( IOObj::isKey(colnm.buf()) )
-	colnm = IOM().nameOf( colnm.buf() );
-    if ( IOObj::isKey(nodenm.buf()) )
-	nodenm = IOM().nameOf( nodenm.buf() );
-
+    colnm = LineKey::defKey2DispName( colnm.buf(), 0, false );
+    nodenm = LineKey::defKey2DispName( nodenm.buf(), 0, false );
     return colnm == nodenm;
 }
 
