@@ -49,6 +49,7 @@ public:
 				{ attrnm_ = attrnm; }
 
     static const char*		sKeyContourDefString();
+    static const char*		sKeyZValue();
 
 protected:
 
@@ -59,6 +60,7 @@ protected:
     void			removeAll();
     void			removeLabels();
     void			checkCB(CallBacker*);
+    void			intvChangeCB(CallBacker*);
     void			propChangeCB(CallBacker*);
     void			visClosingCB(CallBacker*);
     void			createMenu(MenuHandler*,bool istb);
@@ -68,6 +70,7 @@ protected:
     bool			computeContours(const Array2D<float>&,
 	    					const StepInterval<int>&,
 						const StepInterval<int>&);
+    void			updateContours(const StepInterval<float>&);
     Array2D<float>*		getDataSet(visSurvey::HorizonDisplay*);
     void			updateColumnText(int);
     void			createLines();
