@@ -102,7 +102,7 @@ public:
         KeyMap::iterator itr = mKeyMap.find(event->key());
         if (itr == mKeyMap.end())
         {
-            return int(*(event->text().toAscii().data()));
+            return int(*(event->text().toLatin1().data()));
         }
         else
             return itr->second;
@@ -360,7 +360,7 @@ void OsgIndirectViewWidget<T>::keyReleaseEvent( QKeyEvent* qke )
 {
     setKeyboardModifiers( qke );
     gw_->getEventQueue()->keyRelease(
-	(osgGA::GUIEventAdapter::KeySymbol) *(qke->text().toAscii().data()) );
+	(osgGA::GUIEventAdapter::KeySymbol) *(qke->text().toLatin1().data()) );
 
     // this passes the event to the regular Qt key event processing,
     // among others, it closes popup windows on ESC and forwards the event to
