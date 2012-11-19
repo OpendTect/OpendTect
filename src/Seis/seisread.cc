@@ -487,7 +487,7 @@ bool SeisTrcReader::ensureCurLineAttribOK( const BufferString& attrnm )
     const int nrlines = lset_->nrLines();
     while ( curlineidx < nrlines )
     {
-	if ( lset_->lineKey(curlineidx).attrName() == attrnm )
+	if ( attrnm == lset_->attribute(curlineidx) )
 	    break;
 	curlineidx++;
     }
@@ -785,42 +785,42 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 
     for ( int iiter=0; iiter<2; iiter++ ) // iiter == 0 is initialisation
     {
-    
-    S2DPOS().setCurLineSet( lset_->name() );
-    for ( int iln=0; iln<lset_->nrLines(); iln++ )
-    {
-	if ( seldata_ && !seldata_->lineKey().isEmpty()
-	  && seldata_->lineKey() != lset_->lineKey(iln) )
-	    continue;
-
-	LineKey lk = seldata_ ? seldata_->lineKey() :  lset_->lineKey( iln );
-	PosInfo::Line2DData l2dd( lk.lineName() );
-	if ( !S2DPOS().getGeometry(l2dd) )
-	    continue;
-	const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
-	if ( posns.size() < 2 )
-	    continue;
-
-	if ( iiter == 0 )
+	S2DPOS().setCurLineSet( lset_->name() );
+	for ( int iln=0; iln<lset_->nrLines(); iln++ )
 	{
-	    if ( initBounds2D(l2dd,*b2d) )
-		break;
-	    else
+	    if ( seldata_ && !seldata_->lineKey().isEmpty()
+	      && seldata_->lineKey() != lset_->lineKey(iln) )
 		continue;
-	}
 
-	for ( int idx=0; idx<posns.size(); idx++ )
-	{
-	    const int nr = posns[idx].nr_;
-	    if ( b2d->nrrg_.start > nr ) b2d->nrrg_.start = nr;
-	    else if ( b2d->nrrg_.stop < nr ) b2d->nrrg_.stop = nr;
-	    const Coord c( posns[idx].coord_ );
-	    if ( b2d->mincoord_.x > c.x ) b2d->mincoord_.x = c.x;
-	    else if ( b2d->maxcoord_.x < c.x ) b2d->maxcoord_.x = c.x;
-	    if ( b2d->mincoord_.y > c.y ) b2d->mincoord_.y = c.y;
-	    else if ( b2d->maxcoord_.y < c.y ) b2d->maxcoord_.y = c.y;
-	} // each position
-    } // each line
+	    LineKey lk = seldata_ ? seldata_->lineKey() : lset_->lineKey( iln );
+	    PosInfo::Line2DData l2dd( lk.lineName() );
+	    if ( !S2DPOS().getGeometry(l2dd) )
+		continue;
+
+	    const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
+	    if ( posns.size() < 2 )
+		continue;
+
+	    if ( iiter == 0 )
+	    {
+		if ( initBounds2D(l2dd,*b2d) )
+		    break;
+		else
+		    continue;
+	    }
+
+	    for ( int idx=0; idx<posns.size(); idx++ )
+	    {
+		const int nr = posns[idx].nr_;
+		if ( b2d->nrrg_.start > nr ) b2d->nrrg_.start = nr;
+		else if ( b2d->nrrg_.stop < nr ) b2d->nrrg_.stop = nr;
+		const Coord c( posns[idx].coord_ );
+		if ( b2d->mincoord_.x > c.x ) b2d->mincoord_.x = c.x;
+		else if ( b2d->maxcoord_.x < c.x ) b2d->maxcoord_.x = c.x;
+		if ( b2d->mincoord_.y > c.y ) b2d->mincoord_.y = c.y;
+		else if ( b2d->maxcoord_.y < c.y ) b2d->maxcoord_.y = c.y;
+	    } // each position
+	} // each line
     } // iiter = 0 or 1
 
     return b2d;
