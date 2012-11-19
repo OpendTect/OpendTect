@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id: uiobj.cc 26529 2012-09-30 11:26:40Z na
 
 #include "uieventfilter.h"
 #include "uiobj.h"
+
 #include <QEvent>
 #include <QWidget>
 #include <QWeakPointer>
@@ -23,38 +24,25 @@ public:
 					uiEventFilterImpl( uiEventFilter& uif )
 					    : uif_( uif )
 					{}
-    
-    bool 				eventFilter(QObject*, QEvent*);
+
+    bool 				eventFilter(QObject*,QEvent*);
     static uiEventFilter::EventType	translate(QEvent::Type);
     static QEvent::Type			translate(uiEventFilter::EventType);
-    
+
     					//Set at the events
     const QEvent*			currentevent_;
     bool				blockevent_;
-    
+
     TypeSet<QEvent::Type>		eventtypes_;
-    
-    void				attachFilter(QObject* obj)
-    {
-	if ( qobj_ )
-	    return;
-	
-	QSharedPointer<QObject> newobj( obj );
-	qobj_ = newobj;
-	obj->installEventFilter( this );
-    }
-    void				detachFilter()
-    {
-	QSharedPointer<QObject> ptr = qobj_.toStrongRef();
-	if ( ptr )
-	    ptr->removeEventFilter( this );
-	qobj_.clear();
-    }
-    
+
+    void				attachFilter(QObject*);
+    void				detachFilter();
+
 protected:
     QWeakPointer<QObject>		qobj_;
     uiEventFilter& 			uif_;
 };
+
 
 
 uiEventFilter::uiEventFilter()
@@ -76,7 +64,7 @@ void uiEventFilter::addEventType( uiEventFilter::EventType tp )
 }
 
 
-void uiEventFilter::removeEventType(uiEventFilter::EventType tp )
+void uiEventFilter::removeEventType( uiEventFilter::EventType tp )
 {
     impl_->eventtypes_ -= uiEventFilterImpl::translate( tp );
 }
@@ -95,16 +83,14 @@ bool uiEventFilter::getBlockEvent() const
 
 
 const QEvent* uiEventFilter::getCurrentEvent() const
-{
-    return impl_->currentevent_;
-}
+{ return impl_->currentevent_; }
 
 
-void uiEventFilter::attach( uiBaseObject* obj)
+void uiEventFilter::attach( uiBaseObject* obj )
 {
     if ( !obj->getWidget() )
 	return;
-    
+
     attachToQObj( obj->getWidget() );
 }
 
@@ -121,25 +107,42 @@ void uiEventFilter::detach()
 }
 
 
+// uiEventFilterImpl
+void uiEventFilterImpl::attachFilter( QObject* obj )
+{
+    if ( qobj_ ) return;
 
-bool uiEventFilterImpl::eventFilter(QObject* obj, QEvent* ev )
+    QSharedPointer<QObject> newobj( obj );
+    qobj_ = newobj;
+    obj->installEventFilter( this );
+}
+
+
+void uiEventFilterImpl::detachFilter()
+{
+    QSharedPointer<QObject> ptr = qobj_.toStrongRef();
+    if ( ptr ) ptr->removeEventFilter( this );
+    qobj_.clear();
+}
+
+
+bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 {
     if ( qobj_.isNull() )
 	return false;
-    
+
     QSharedPointer<QObject> objptr( qobj_ );
-    
     if ( objptr.data()!=obj )
 	return false;
-    
+
     if ( !eventtypes_.isPresent( ev->type() ) )
 	return false;
-	
+
     blockevent_ = false;
     currentevent_ = ev;
-    
+
     uif_.eventhappened.trigger();
-    
+
     currentevent_ = 0;
     return blockevent_;
 }
@@ -287,6 +290,7 @@ QEvent::Type uiEventFilterImpl::translate( uiEventFilter::EventType tp )
 {
     mImpTransform( uiEventFilter, QEvent );
 }
+
 
 uiEventFilter::EventType uiEventFilterImpl::translate( QEvent::Type tp )
 {
