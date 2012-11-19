@@ -4,7 +4,7 @@
  * DATE     : Sep 2012
 -*/
 
-static const char* rcsID mUsedVar = "$Id: ui2dmultilinesel.cc,v 1.24 2012/09/12 10:59:03 cvsraman Exp $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "ui2dmultilinesel.h"
 
