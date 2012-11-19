@@ -183,10 +183,11 @@ void Engine::updateSeedOnlyPropagation( bool yn )
 	EM::ObjectID oid = trackers_[idx]->objectID();
 	EM::EMObject* emobj = EM::EMM().getObject( oid );
 
-	for ( int stidx=0; stidx<emobj->nrSections(); stidx++ )
+	for ( int sidx=0; sidx<emobj->nrSections(); sidx++ )
 	{
+	    EM::SectionID sid = emobj->sectionID( sidx );
 	    SectionTracker* sectiontracker = 
-			trackers_[idx]->getSectionTracker( stidx, true );
+			trackers_[idx]->getSectionTracker( sid, true );
 	    sectiontracker->setSeedOnlyPropagation( yn );
 	}
     }
