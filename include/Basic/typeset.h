@@ -122,7 +122,17 @@ public:
 };
 
 //! We need this because STL has a crazy specialisation of the vector<bool>
-typedef char BoolTypeSetType;
+
+class BoolTypeSetType
+{
+public:
+   BoolTypeSetType(bool v) : val_( v ){}
+       operator bool () const { return (bool) val_; }
+    bool  operator=(bool v) { val_ = v; return v; }
+protected:
+    char  val_;
+};
+
 typedef TypeSet<BoolTypeSetType> BoolTypeSet;
 //!< This sux, BTW.
 

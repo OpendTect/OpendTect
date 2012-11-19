@@ -54,8 +54,8 @@ protected:
     static DescSetsHolder*	dsholder_;
 
 private:
-    friend DescSetsHolder&	eDSHolder();	//editable DescSetsHolder
-    friend const DescSetsHolder&	DSHolder();
+    friend mExp(AttributeEngine) DescSetsHolder&	eDSHolder();	//editable DescSetsHolder
+    friend mExp(AttributeEngine) const DescSetsHolder&	DSHolder();
 
 public:
     

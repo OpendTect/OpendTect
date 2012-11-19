@@ -142,7 +142,7 @@ bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetFloatInterval( GapDecon::gateStr(), gate, gatefld_->setValue(gate) )
     mIfGetInt( GapDecon::lagsizeStr(), lagsz, lagfld_->setValue(lagsz) )
     mIfGetInt( GapDecon::gapsizeStr(), gapsz, gapfld_->setValue(gapsz) )
-    int stout;
+    int stout = mUdf(int);
     mIfGetInt( GapDecon::stepoutStr(), stepout, 
 	       stepoutfld_->box()->setValue(stepout); stout = stepout; )
     wantmixfld_->setValue( stout>0 );
