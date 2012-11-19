@@ -265,36 +265,38 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
     if ( !as || as->id().asInt()<0 ) return;
 
+    PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
+
     ColTab::Sequence seq( 0 );
     const ColTab::Sequence* ctseq =
 		am_.visserv_->getColTabSequence( visid, attrib );
     if ( ctseq ) seq = *ctseq;
 
-    ColTab::MapperSetup mapper;
-    const ColTab::MapperSetup* ctmap =
-		am_.visserv_->getColTabMapperSetup( visid, attrib );
+    ColTab::MapperSetup mapper, mapper1;
+    const ColTab::MapperSetup* ctmap = !ioobj ?
+		0 : am_.visserv_->getColTabMapperSetup( visid, attrib );
     if ( ctmap ) mapper = *ctmap;
 
-    PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
-    if ( !ioobj )
-	return;
-
-    FilePath fp( ioobj->fullUserExpr(true) );
-    if ( as->is2D() )
-	mGet2DDataFile
-
-    fp.setExtension( "par" );
     IOPar iop;
-    if ( iop.read( fp.fullPath(), sKey::Pars) && !iop.isEmpty() )
+    if ( ioobj )
     {
-	const char* ctname = iop.find( sKey::Name );
-	seq = ColTab::Sequence( ctname );
-	mapper.usePar( iop );
+	FilePath fp( ioobj->fullUserExpr(true) );
+    	if ( as->is2D() )
+    	    mGet2DDataFile
+		
+	fp.setExtension( "par" );
+    	if ( iop.read( fp.fullPath(), sKey::Pars) && !iop.isEmpty() )
+    	{
+    	    const char* ctname = iop.find( sKey::Name );
+    	    seq = ColTab::Sequence( ctname );
+    	    mapper.usePar( iop );
+    	}
     }
+    const bool isempt = iop.isEmpty();
 
-    am_.visserv_->setColTabMapperSetup( visid, attrib, mapper );
+    am_.visserv_->setColTabMapperSetup( visid, attrib,!isempt? mapper:mapper1 );
     am_.visserv_->setColTabSequence( visid, attrib, seq );
-    am_.appl_.colTabEd().colTab()->setMapperSetup( &mapper );
+    am_.appl_.colTabEd().colTab()->setMapperSetup( !isempt ? &mapper:&mapper1 );
     am_.appl_.colTabEd().colTab()->setSequence( &seq, true );
     updateColorTable( visid, attrib );
 }
