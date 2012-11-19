@@ -89,7 +89,7 @@ void requestFinished( int id, bool error )
     receiver_->requestid_ = id;
     receiver_->error_ = error;
     if ( error )
-	receiver_->setMessage( sender_->errorString().toAscii().data() );
+	receiver_->setMessage( sender_->errorString().toLatin1().data() );
 
     receiver_->requestFinished.trigger( *receiver_ );
 }
@@ -98,7 +98,7 @@ void requestFinished( int id, bool error )
 void done( bool error )
 {
     receiver_->error_ = error;
-    receiver_->message_ = error ? sender_->errorString().toAscii().data()
+    receiver_->message_ = error ? sender_->errorString().toLatin1().data()
 				: "Sucessfully finished";
     receiver_->done.trigger( *receiver_ );
 }

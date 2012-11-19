@@ -116,7 +116,7 @@ bool SqlDB::Access::isOpen() const
 
 BufferString SqlDB::Access::errMsg() const
 {
-    BufferString err( qdb_->lastError().text().toAscii().data() );
+    BufferString err( qdb_->lastError().text().toLatin1().data() );
     removeTrailingBlanks( err.buf() );
     return err;
 }

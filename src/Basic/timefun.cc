@@ -63,7 +63,7 @@ const char* getDateTimeString( const char* fmt, bool local )
     BufferString& datetimestr = stm.getString();
     QDateTime qdt = QDateTime::currentDateTime();
     if ( !local ) qdt = qdt.toUTC();
-    datetimestr = qdt.toString( fmt ).toAscii().constData();
+    datetimestr = qdt.toString( fmt ).toLatin1().constData();
     return datetimestr.buf();
 }
 

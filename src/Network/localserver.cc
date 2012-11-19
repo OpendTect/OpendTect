@@ -43,7 +43,7 @@ void LocalServer::close()
 
 const char* LocalServer::errorMsg() const
 {
-    errmsg_ = qlocalserver_->errorString().toAscii().constData();
+    errmsg_ = qlocalserver_->errorString().toLatin1().constData();
     return errmsg_.buf();
 }
 

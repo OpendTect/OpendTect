@@ -367,7 +367,7 @@ const char* uiTreeView::columnText( int col ) const
 {
     if ( col < 0  ) return "";
     QString qlabel = body_->headerItem()->text( col );
-    return qlabel.toAscii().data();
+    return qlabel.toLatin1().data();
 }
 
 

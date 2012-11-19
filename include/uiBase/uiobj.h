@@ -188,7 +188,7 @@ private:
 
 
 #define mQStringToConstChar( str ) \
-    str.toAscii().constData()
+    str.toLatin1().constData()
 
 
 #define mTemplTypeDef(fromclass,templ_arg,toclass) \

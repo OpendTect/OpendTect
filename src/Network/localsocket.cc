@@ -34,7 +34,7 @@ LocalSocket::~LocalSocket()
 
 const char* LocalSocket::errorMsg() const
 {
-    errmsg_ = qlocalsocket_->errorString().toAscii().constData();
+    errmsg_ = qlocalsocket_->errorString().toLatin1().constData();
     return errmsg_.buf();
 }
 

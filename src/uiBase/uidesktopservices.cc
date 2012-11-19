@@ -42,7 +42,7 @@ bool uiDesktopServices::openUrl( const char* url )
     if ( DBG::isOn(DBG_IO) )
     {
 	BufferString msg( "Open url: " );
-	msg += qurl.toString().toAscii().data();
+	msg += qurl.toString().toLatin1().data();
 	DBG::message( msg );
     }
     return QDesktopServices::openUrl( qurl );

@@ -267,7 +267,7 @@ static BufferString getCleanName( const char* nm )
 {
     QString qstr( nm );
     qstr.remove( QChar('&') );
-    return BufferString( qstr.toAscii().data() );
+    return BufferString( qstr.toLatin1().data() );
 }
 
 

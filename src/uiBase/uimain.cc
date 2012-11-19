@@ -447,7 +447,7 @@ void uiMain::getCmdLineArgs( BufferStringSet& args ) const
 {
     mQtclass(QStringList) qargs = app_->arguments();
     for ( int idx=0; idx<qargs.count(); idx++ )
-	args.add( qargs.at(idx).toAscii() );
+	args.add( qargs.at(idx).toLatin1() );
 }
 
 

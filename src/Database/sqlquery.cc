@@ -101,7 +101,7 @@ bool SqlDB::Query::next() const
 
 BufferString SqlDB::Query::data( int colid ) const
 {
-    return BufferString( qsqlquery_->value(colid).toString().toAscii().data() );
+    return BufferString( qsqlquery_->value(colid).toString().toLatin1().data());
 }
 
 
@@ -122,7 +122,7 @@ mDefQueryNumbFn(bool,isTrue,toBool)
 
 BufferString SqlDB::Query::errMsg() const
 {
-    return BufferString( qsqlquery_->lastError().text().toAscii().data() );
+    return BufferString( qsqlquery_->lastError().text().toLatin1().data() );
 }
 
 

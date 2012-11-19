@@ -543,7 +543,7 @@ const char* uiTable::text( const RowCol& rc ) const
 
     static BufferString rettxt;
     QTableWidgetItem* itm = body_->item( rc.row, rc.col );
-    rettxt = itm ? itm->text().toAscii().data() : "";
+    rettxt = itm ? itm->text().toLatin1().data() : "";
     return rettxt;
 }
 
@@ -820,7 +820,7 @@ const char* uiTable::rowLabel( int row ) const
     if ( !itm )
 	return 0;
 
-    ret = itm->text().toAscii().data();
+    ret = itm->text().toLatin1().data();
     return ret;
 }
 
@@ -868,7 +868,7 @@ const char* uiTable::columnLabel( int col ) const
     if ( !itm )
 	return 0;
 
-    ret = itm->text().toAscii().data();
+    ret = itm->text().toLatin1().data();
     return ret;
 }
 

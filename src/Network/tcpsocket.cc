@@ -48,7 +48,7 @@ TcpSocket::~TcpSocket()
 
 const char* TcpSocket::errorMsg() const
 {
-    errmsg_ = qtcpsocket_->errorString().toAscii().constData();
+    errmsg_ = qtcpsocket_->errorString().toLatin1().constData();
     return errmsg_.buf();
 }
 

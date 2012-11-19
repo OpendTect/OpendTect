@@ -597,7 +597,7 @@ bool uiListBox::isPresent( const char* txt ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	BufferString itmtxt( body_->item(idx)->text().toAscii().data() );
+	BufferString itmtxt( body_->item(idx)->text().toLatin1().data() );
 	char* ptr = itmtxt.buf();
 	mSkipBlanks( ptr );
 	if ( !strcmp(txt,ptr) ) return true;
@@ -611,7 +611,7 @@ const char* uiListBox::textOfItem( int idx ) const
     if ( !validIndex(idx) )
 	return "";
 
-    rettxt = (const char*)body_->item(idx)->text().toAscii();
+    rettxt = (const char*)body_->item(idx)->text().toLatin1();
     if ( rettxt[0] != *startmark )
 	return rettxt;
 
@@ -626,7 +626,7 @@ const char* uiListBox::textOfItem( int idx ) const
 
 bool uiListBox::isMarked( int idx ) const
 {
-    rettxt = (const char*)body_->item(idx)->text().toAscii();
+    rettxt = (const char*)body_->item(idx)->text().toLatin1();
     return rettxt.buf()[0] == *startmark
 	&& rettxt.buf()[rettxt.size()-1] == *endmark;
 }

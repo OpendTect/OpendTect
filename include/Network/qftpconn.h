@@ -59,7 +59,7 @@ void commandFinished( int id, bool error )
     if ( error )
     {
 	receiver_->commandFinished.trigger( *receiver_ );
-	receiver_->setMessage( sender_->errorString().toAscii().data() );
+	receiver_->setMessage( sender_->errorString().toLatin1().data() );
 	return;
     }
 
@@ -141,13 +141,13 @@ void stateChanged( int state )
 void listInfo( const QUrlInfo& info )
 {
     if ( info.isFile() )
-	receiver_->files_.add( info.name().toAscii().data() );
+	receiver_->files_.add( info.name().toLatin1().data() );
 }
 
 void done( bool error )
 {
     receiver_->error_ = error;
-    receiver_->message_ = error ? sender_->errorString().toAscii().data()
+    receiver_->message_ = error ? sender_->errorString().toLatin1().data()
 				: "Sucessfully finished";
     receiver_->done.trigger( *receiver_ );
 }

@@ -146,7 +146,7 @@ char uiKeyDesc::asciiChar() const
 
     QKeyEvent qke( QEvent::KeyPress, key_, (Qt::KeyboardModifiers)state_ );
     QString txt = qke.text();
-    return !txt.isEmpty() ? txt[0].toAscii() : 0;
+    return !txt.isEmpty() ? txt[0].toLatin1() : 0;
 }
 
 

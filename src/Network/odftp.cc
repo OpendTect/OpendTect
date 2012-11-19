@@ -125,7 +125,7 @@ od_int64 ODFtp::bytesAvailable() const
 BufferString ODFtp::readBuffer() const
 {
     QString result = qftp_->readAll();
-    return result.toAscii().data();
+    return result.toLatin1().data();
 }
 
 

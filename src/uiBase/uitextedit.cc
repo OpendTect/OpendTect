@@ -415,7 +415,7 @@ void uiTextBrowser::setHtmlText( const char* txt )
 void uiTextBrowser::getHtmlText( BufferString& res ) const
 {
     const QString str = body_->toHtml();
-    res = str.toAscii().data();
+    res = str.toLatin1().data();
 }
 
 
@@ -433,7 +433,7 @@ const char* uiTextBrowser::source() const
 	return textsrc_;
 
 
-    result_ = body_->source().path().toAscii().data();
+    result_ = body_->source().path().toLatin1().data();
     return result_.buf();
 }
 

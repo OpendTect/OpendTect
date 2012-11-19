@@ -63,7 +63,7 @@ void TcpServer::close()
 
 const char* TcpServer::errorMsg() const
 {
-    errmsg_ = qtcpserver_->errorString().toAscii().constData();
+    errmsg_ = qtcpserver_->errorString().toLatin1().constData();
     return errmsg_.buf();
 }
 

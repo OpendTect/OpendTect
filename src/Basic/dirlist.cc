@@ -48,7 +48,7 @@ void DirList::update()
     
     for ( int idx=0; idx<qlist.size(); idx++ )
     {	
-	BufferString dirnm = qlist[idx].toAscii().constData();
+	BufferString dirnm = qlist[idx].toLatin1().constData();
 #ifdef __win__
 	int sz = dirnm.size() - 4;
 	if ( strstr( dirnm.buf(), ".lnk" ) )

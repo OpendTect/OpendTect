@@ -754,11 +754,11 @@ bool i_LayoutMngr::attach( constraintType type, QWidget& current,
     }
 
     BufferString msg( NamedObject::name() ); msg += ": Cannot attach '";
-    msg += current.objectName().toAscii().constData(); msg += "'";
+    msg += current.objectName().toLatin1().constData(); msg += "'";
     if ( needother )
     {
 	msg += " and '";
-	msg += other->objectName().toAscii().constData(); msg += "'";
+	msg += other->objectName().toLatin1().constData(); msg += "'";
     }
 
     msg += " - constraint: "; msg += (int)type;

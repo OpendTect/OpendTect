@@ -72,13 +72,13 @@ private slots:
 
     void 		highlighted( const QString& lnk )
 			{ 
-			    receiver_->lastlink_ = lnk.toAscii().data();
+			    receiver_->lastlink_ = lnk.toLatin1().data();
 			    receiver_->linkHighlighted.trigger(*receiver_); 
 			}
 
     void		anchorClicked( const QUrl& lnk )
 			{
-			    receiver_->lastlink_ = lnk.toString().toAscii().data();
+			    receiver_->lastlink_ = lnk.toString().toLatin1().data();
 			    receiver_->linkClicked.trigger(*receiver_);
 			}
 };
