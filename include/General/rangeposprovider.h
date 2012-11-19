@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "posprovider.h"
 
-
 namespace Pos
 {
 
@@ -115,7 +114,6 @@ public:
 
 protected:
 
-    TypeSet<PosInfo::GeomID>	geomids_;
     TypeSet< StepInterval<int> > trcrgs_;
     TypeSet< StepInterval<float> > zrgs_;
     int			curtrcidx_;
@@ -128,7 +126,6 @@ public:
     static Provider2D*	create()	{ return new RangeProvider2D; }
 
 };
-
 
 } // namespace
 
