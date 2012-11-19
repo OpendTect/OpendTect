@@ -20,7 +20,7 @@ using namespace ODMad;
 
 static const char* sKeyRSFEndOfHeader = "\014\014\004";
 static const char* sKeyIn = "in";
-//static const char* sKeyStdIn = "\"stdin\"";
+static const char* sKeyStdIn = "\"stdin\"";
 static const char* sKeyDataFormat = "data_format";
 static const char* sKeyNativeInt = "\"native_int\"";
 //static const char* sKeyAsciiInt = "\"ascii_int\"";
@@ -399,7 +399,8 @@ bool TrcHdrStrm::initRead()
 	rsfheader_->getDataFormat() == (sKeyNativeFloat || sKeyNativeInt);
 
     const char* datasrc = rsfheader_->getDataSource();
-    sd_ = StreamProvider(datasrc).makeIStream();
+    if ( datasrc != sKeyStdIn )
+    	sd_ = StreamProvider(datasrc).makeIStream();
     return true;
 }
 
