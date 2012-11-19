@@ -268,7 +268,11 @@ bool mQtclass(QtTabletEventFilter)::eventFilter( mQtclass(QObject*) obj,
 }
 
 
-void myMessageOutput( mQtclass(QtMsgType) type, const char *msg );
+#if QT_VERSION >= 0x050000
+void myMessageOutput( QtMsgType, const QMessageLogContext &, const QString&);
+#else
+void myMessageOutput( QtMsgType type, const char *msg );
+#endif
 
 
 const uiFont* uiMain::font_ = 0;
@@ -322,7 +326,9 @@ uiMain::uiMain( int& argc, char **argv )
 
     initQApplication();
     init( 0, argc, argv );
-    app_->setWindowIcon( mQtclass(QIcon)(XpmIconData) );
+    
+    QPixmap pixmap( XpmIconData );
+    app_->setWindowIcon( QIcon( pixmap ) );
 }
 
 
@@ -395,8 +401,12 @@ void uiMain::init( mQtclass(QApplication*) qap, int& argc, char **argv )
 
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "... done." );
-
+    
+#if QT_VERSION >= 0x050000
+    qInstallMessageHandler( myMessageOutput );
+#else
     qInstallMsgHandler( myMessageOutput );
+#endif
 
     mQtclass(QStyle*) styl = getStyleFromSettings();
 #ifdef __win__
@@ -551,20 +561,27 @@ void uiMain::processEvents( int msec )
 { if ( app_ ) app_->processEvents( mQtclass(QEventLoop)::AllEvents, msec ); }
 
 
-void myMessageOutput( mQtclass(QtMsgType) type, const char *msg )
+#if QT_VERSION >= 0x050000
+void myMessageOutput( QtMsgType type, const QMessageLogContext &,
+		     const QString& msg)
+#define mMsg msg.toLatin1().constData()
+#else
+void myMessageOutput( QtMsgType type, const char *msg )
+#define mMsg msg
+#endif
 {
     switch ( type ) {
 	case mQtclass(QtDebugMsg):
-	    ErrMsg( msg, true );
+	    ErrMsg( mMsg, true );
 	    break;
 	case mQtclass(QtWarningMsg):
-	    ErrMsg( msg, true );
+	    ErrMsg( mMsg, true );
 	    break;
 	case mQtclass(QtFatalMsg):
-	    ErrMsg( msg );
+	    ErrMsg( mMsg );
 	    break;
 	case mQtclass(QtCriticalMsg):
-	    ErrMsg( msg );
+	    ErrMsg( mMsg );
 	    break;
 	default:
 	    break;
