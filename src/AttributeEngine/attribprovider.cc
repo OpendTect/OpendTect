@@ -1369,7 +1369,7 @@ void Provider::setRefStep( float step )
 }
 
 
-void Provider::setCurLineKey( const char* linename )
+void Provider::setCurLineName( const char* linename )
 {
     BufferString attrname;
     if ( !desc_.isStored() )
@@ -1386,7 +1386,7 @@ void Provider::setCurLineKey( const char* linename )
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {   
 	if ( !inputs_[idx] ) continue;
-	inputs_[idx]->setCurLineKey( curlinekey_.lineName() );
+	inputs_[idx]->setCurLineName( curlinekey_.lineName() );
     }
 }
 

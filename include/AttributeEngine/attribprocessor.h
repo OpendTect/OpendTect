@@ -31,11 +31,13 @@ class Provider;
 mClass(AttributeEngine) Processor : public Executor
 {
 public:
-    				Processor(Desc&,const char*,BufferString&);
-    				~Processor();
+				Processor(Desc&,const char* linenm,
+					  BufferString&);
+				~Processor();
 
     virtual bool		isOK() const;
     void			addOutput(Output*);
+    void			setLineName(const char*);
 
     int				nextStep();
     void			init();

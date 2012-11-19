@@ -43,7 +43,7 @@ Processor::Processor( Desc& desc , const char* lk, BufferString& err )
 
     is2d_ = desc_.is2D();
     if ( is2d_ )
-	provider_->setCurLineKey( lk );
+	provider_->setCurLineName( lk );
 }
 
 
@@ -64,6 +64,13 @@ void Processor::addOutput( Output* output )
     if ( !output ) return;
     output->ref();
     outputs_ += output;
+}
+
+
+void Processor::setLineName( const char* lnm )
+{
+    if ( provider_ && is2d_ )
+	provider_->setCurLineName( lnm );
 }
 
 
@@ -176,7 +183,15 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     if ( !curtrcinfo )
     {
 	mytrcinfo.binid = curbid;
-	if ( is2d_ ) mytrcinfo.nr = curbid.crl;
+	if ( is2d_ )
+	{
+	    mytrcinfo.nr = curbid.crl;
+	    const PosInfo::GeomID geomid = provider_->getGeomID();
+	    PosInfo::Line2DData l2dd; PosInfo::Line2DPos pos2d;
+	    if ( S2DPOS().getGeometry(geomid,l2dd) &&
+		 l2dd.getPos(curbid.crl,pos2d) )
+		mytrcinfo.coord = pos2d.coord_;
+	}
 
 	curtrcinfo = &mytrcinfo;
     }

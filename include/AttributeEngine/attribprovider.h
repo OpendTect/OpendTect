@@ -84,7 +84,7 @@ public:
     const CubeSampling*		getDesiredVolume() const
 				{ return desiredvolume_; }
     void			resetDesiredVolume(); 
-    void                        setPossibleVolume( const CubeSampling& );
+    void                        setPossibleVolume(const CubeSampling&);
     				/*!< The possible volume is the volume that can
 				  really be computed taking care of all margins
 				  and stepouts*/
@@ -92,7 +92,7 @@ public:
     const CubeSampling*		getPossibleVolume() const
     				{ return possiblevolume_; }
     int				getTotalNrPos(bool);
-    void			setCurLineKey( const char* linename ); 
+    void			setCurLineName(const char*); 
     virtual void		adjust2DLineStoredVolume();
     virtual PosInfo::GeomID	getGeomID() const;
     
