@@ -567,6 +567,7 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
     intvunfld = new uiGenInput( this, "", mft );
     intvunfld->attach( rightOf, intvfld );
+    intvunfld->display( false );
 
     unitlbl = new uiLabel( this, "XXXX" );
     unitlbl->attach( rightOf, intvfld );
@@ -607,15 +608,17 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     intvunfld->display( false );
 
     udffld->setValue( lfi.undefval );
+
+    Interval<float> usrzrg = lfi.zrg;
     if ( isft )
     {
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	if ( !mIsUdf(lfi.zrg.start) && zun ) 
-	    zun->userValue( lfi.zrg.start );
+	    usrzrg.start = zun->userValue( lfi.zrg.start );
 	if ( !mIsUdf(lfi.zrg.stop) && zun ) 
-	    zun->userValue( lfi.zrg.stop );
+	    usrzrg.stop = zun->userValue( lfi.zrg.stop );
     }
-    intvfld->setValue( lfi.zrg );
+    intvfld->setValue( usrzrg );
 }
 
 
@@ -625,16 +628,18 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     Well::LASImporter::FileInfo lfi;
 
     lfi.undefval = udffld->getfValue();
-    lfi.zrg.setFrom( intvfld->getFInterval() );
+
+    Interval<float> usrzrg = intvfld->getFInterval();
     const bool zinft = !intvunfld->getBoolValue();
     if ( zinft )
     {
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
-	if ( !mIsUdf(lfi.zrg.start) && zun ) 
-	    zun->internalValue( lfi.zrg.start );
-	if ( !mIsUdf(lfi.zrg.stop) && zun ) 
-	    zun->internalValue( lfi.zrg.stop );
+	if ( !mIsUdf(usrzrg.start) && zun ) 
+	    usrzrg.start = zun->internalValue( usrzrg.start );
+	if ( !mIsUdf(usrzrg.stop) && zun ) 
+	    usrzrg.stop = zun->internalValue( usrzrg.stop );
     }
+    lfi.zrg.setFrom( usrzrg );
 
     const char* lasfnm = lasfld->text();
     if ( !lasfnm || !*lasfnm ) 
