@@ -444,25 +444,26 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     const int logsz = wl.size();
 
     const Well::Track& track = wd->track();
-    const Interval<float>& range = isfilled ? lp.fillrange_ : lp.range_;
-
-    float minval, maxval; minval = maxval =  mUdf( float );
+    float minval=mUdf(float), maxval=-mUdf(float);
     TypeSet<Coord3Value> crdvals;
     for ( int idx=0; idx<logsz; idx++ )
     {
 	const float dah = wl.dah(idx);
-	const float val = wl.value(idx);
+	float val = wl.value(idx);
 
-	if ( mIsUdf( val ) || !range.includes( val, true ) )
+	if ( mIsUdf(val) )
 	    continue;
+
+	if ( !isfilled )
+	    val = lp.range_.limitValue( val );
 
 	Coord3 pos = track.getPos( dah );
 	if ( !pos.x && !pos.y && !pos.z ) 
 	    continue;
 
-	if ( mIsUdf( minval ) || val < minval )
+	if ( val < minval )
 	    minval = val;
-	if ( mIsUdf( maxval ) || val > maxval )
+	if ( val > maxval )
 	    maxval = val;
 
 	if ( zistime_ )
