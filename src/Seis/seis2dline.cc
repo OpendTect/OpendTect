@@ -822,14 +822,15 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs, int lnr ) const
 
 bool Seis2DLineSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
 {
-    PosInfo::Line2DData geom;
-    if ( getGeometry(ipar,geom) )
+    S2DPOS().setCurLineSet( name() );
+    PosInfo::Line2DData geom( lineName(ipar) );
+    if ( !S2DPOS().getGeometry(geom) )
+	return false;
+
+    for ( int idx=0; idx<geom.positions().size(); idx++ )
     {
-	for ( int idx=0; idx<geom.positions().size(); idx++ )
-	{
-	    if ( bivs.includes( SI().transform(geom.positions()[idx].coord_) ) )
-		return true;
-	}
+	if ( bivs.includes( SI().transform(geom.positions()[idx].coord_) ) )
+	    return true;
     }
 
     return false;
