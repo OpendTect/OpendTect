@@ -41,6 +41,8 @@ protected:
     uiCheckBox*         udfbox_;                                                
     Well::Log*          convertedlog_;                                          
     bool                lognmsettodef_;
+
+    void		inputSel(CallBacker*);
 };
 
 #endif

@@ -36,6 +36,8 @@ uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
     , wls_(&p->wls_)
     , convertedlog_(0)
 {
+    inpfld_->box()->selectionChanged.notify( 
+				    mCB( this,uiWellLogCalcInpData,inputSel ) );
     inpfld_->box()->selectionChanged.notify( mCB(p,uiWellLogCalc,inpSel) );
 
     udfbox_ = new uiCheckBox( this, "Fill empty sections" );
@@ -66,6 +68,7 @@ void uiWellLogCalcInpData::use( const MathExpression* expr )
     const int nearidx = posinpnms_.nearestMatch( varnm );
     if ( nearidx >= 0 )
 	inpfld_->box()->setCurrentItem( nearidx );
+    inputSel(0);
 }
 
 
@@ -111,3 +114,20 @@ bool uiWellLogCalcInpData::getInp( uiWellLogCalc::InpData& inpdata )
 }
 
 
+void uiWellLogCalcInpData::inputSel( CallBacker* )
+{
+    if ( !unfld_ ) return;
+
+    const char* logunitnm = getLog() ? getLog()->unitMeasLabel() : 0;
+    const UnitOfMeasure* logun = UoMR().get( logunitnm );
+    if ( !logun ) return;
+    ObjectSet<const UnitOfMeasure> possibleunits;
+    UoMR().getRelevant( logun->propType(), possibleunits );
+    const char* curtxt = unfld_->box()->text();
+    unfld_->box()->setEmpty();
+    unfld_->box()->addItem( "-" );
+    for ( int idx=0; idx<possibleunits.size(); idx++ )
+	unfld_->box()->addItem( possibleunits[idx]->name() );
+
+    unfld_->box()->setText( curtxt );
+}
