@@ -75,7 +75,7 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 	    return;
 	}
 
-	vv[i]=1.0/big;
+	vv[i]=1.0f/big;
     }
 
     for ( int j=0; j<n; j++)
@@ -130,7 +130,7 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 
 	if ( j != n-1 )
 	{
-	    T dum=1.0/(croutsmatrix.get(j,j));
+	    T dum=1.0f/(croutsmatrix.get(j,j));
 
 	    for ( int i=j+1; i<n; i++ )
 		croutsmatrix.set(i,j,dum * croutsmatrix.get(i,j));

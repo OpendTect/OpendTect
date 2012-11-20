@@ -826,8 +826,8 @@ bool MultiDimStorage<T>::sort( TypeSet<IDXS>& indices ) const
     sort_coupled( sortkeys.arr(), idxs.arr(), idxs.size() );
 
     TypeSet<IDXS> copy = indices;
-    for ( int idx=idxs.size()-1; idx>=0; idx-- )
-	indices[idx] = copy[idxs[idx]];
+    for ( int idx=mCast(int,idxs.size()-1); idx>=0; idx-- )
+	indices[idx] = copy[(int)idxs[idx]];
 
     return true;
 }
