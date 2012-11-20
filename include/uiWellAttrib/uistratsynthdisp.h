@@ -30,6 +30,7 @@ class uiGenInput;
 class uiCheckBox;
 class uiFlatViewer;
 class uiRayTracerSel;
+class uiListBox;
 class uiLabeledComboBox;
 class uiFlatViewMainWin;
 class uiMultiFlatViewControl;
@@ -144,6 +145,8 @@ protected:
     void		viewPreStackPush(CallBacker*);
     void		wvltChg(CallBacker*);
     void		zoomChg(CallBacker*);
+    void		syntheticRemoved(CallBacker*);
+    void		syntheticChanged(CallBacker*);
 
 };
 
@@ -194,12 +197,16 @@ protected:
 mClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
 {
 public:
-				uiSynthGenDlg(uiParent*,SynthGenParams&);
+				uiSynthGenDlg(uiParent*,StratSynth&);
 
     void			getFromScreen();
     void			putToScreen();
+    void			updateSynthNames();
+    void			updateWaveletName();
 
     Notifier<uiSynthGenDlg>	genNewReq;
+    CNotifier<uiSynthGenDlg,BufferString> synthRemoved;
+    CNotifier<uiSynthGenDlg,BufferString> synthChanged;
 
 protected:
 
@@ -212,12 +219,17 @@ protected:
     uiPushButton*		applybut_;
     uiPushButton*		revertbut_;
     uiPushButton*		savebut_;
-    SynthGenParams&		sd_;
+    uiListBox*			synthnmlb_;
+    StratSynth&			stratsynth_;
 
 
     void			typeChg(CallBacker*);
     bool			genNewCB(CallBacker*);
     bool			acceptOK(CallBacker*);
+    void			removeSyntheticsCB(CallBacker*);
+    void			changeSyntheticsCB(CallBacker*);
+    void			offsetChanged(CallBacker*);
+    void			nameChanged(CallBacker*);
 
 };
 

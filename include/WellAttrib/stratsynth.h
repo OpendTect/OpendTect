@@ -154,6 +154,7 @@ public:
 
     int				nrSynthetics() const; 
     SyntheticData*		addSynthetic(); 
+    bool			removeSynthetic(const char*);
     SyntheticData*		replaceSynthetic(int id);
     SyntheticData*		addDefaultSynthetic(); 
     SyntheticData* 		getSynthetic(const char* nm);
