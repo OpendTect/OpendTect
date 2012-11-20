@@ -22,6 +22,7 @@ class SurfaceInfo;
 class uiCheckBox;
 class uiComboBox;
 class uiFileInput;
+class uiGenInput;
 class uiListBox;
 class uiPushButton;
 class uiTableImpDataSel;
@@ -45,6 +46,7 @@ protected:
     uiListBox*		horselfld_;
     uiTableImpDataSel*  dataselfld_;
     uiCheckBox*         displayfld_;
+    uiGenInput*		udftreatfld_;
 
     virtual bool	acceptOK(CallBacker*);
     void                descChg(CallBacker*);

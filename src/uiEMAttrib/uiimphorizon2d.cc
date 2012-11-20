@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseispartserv.h"
+#include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 
@@ -40,13 +41,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
+enum UndefTreat		{ Skip, Adopt, Interpolate };
+
+
 class Horizon2DImporter : public Executor
 {
 public:
 
-Horizon2DImporter( const BufferStringSet& lnms,
-		   ObjectSet<EM::Horizon2D>& hors,
-		   const MultiID& setid, const BinIDValueSet* valset )
+Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
+		   const MultiID& setid, const BinIDValueSet* valset,
+		   UndefTreat udftreat )
     : Executor("2D Horizon Importer")
     , linenames_(lnms)
     , hors_(hors)
@@ -54,6 +58,7 @@ Horizon2DImporter( const BufferStringSet& lnms,
     , bvalset_(valset)
     , prevlineidx_(-1)
     , nrdone_(0)
+    , udftreat_(udftreat)
 {
     const char* lsnm = IOM().get( setid )->name();
     for ( int lineidx=0; lineidx<lnms.size(); lineidx++ )
@@ -92,7 +97,9 @@ int nextStep()
     if ( bid.inl != prevlineidx_ )
     {
 	prevlineidx_ = bid.inl;
-	prevtrcnr_ = -1;
+	prevtrcnrs_ = TypeSet<int>( nrvals, -1);
+	prevtrcvals_ = TypeSet<float>( nrvals, mUdf(float) );
+
 	linegeom_.setEmpty();
 	PtrMan<IOObj> lsobj = IOM().get( setid_ );
 	if ( !lsobj ) return Executor::ErrorOccurred();
@@ -115,39 +122,38 @@ int nextStep()
 	}
     }
 
-    curtrcnr_ = bid.crl;
-    mAllocVarLenArr( float, prevvals, nrvals )
-    BinID prevbid;
-    bool dointerpol = false;
-    if ( prevtrcnr_ >= 0 && abs(curtrcnr_-prevtrcnr_) > 1 )
-    {
-	dointerpol = true;
-	for ( int idx=0; idx<nrvals; idx++ )
-	    prevvals[idx] = mUdf(float);
-
-	BinIDValueSet::Pos prevpos = pos_;
-	bvalset_->prev( prevpos );
-	bvalset_->get( prevpos, prevbid, prevvals );
-    }
-
-    Coord coord( 0, 0 );
+    const int curtrcnr = bid.crl;
     for ( int validx=0; validx<nrvals; validx++ )
     {
-	if ( validx >= hors_.size() || !hors_[validx] )
+	if ( validx>=hors_.size() || !geomid.isOK() )
 	    break;
 
-	const float val = vals[validx];
-	if ( mIsUdf(val) || !geomid.isOK() )
+	if ( !hors_[validx] )
 	    continue;
 
-	EM::SectionID sid = hors_[validx]->sectionID(0);
-	hors_[validx]->setPos( sid, geomid, curtrcnr_,val, false );
-	if ( dointerpol && !mIsUdf(prevvals[validx]) )
-	    interpolateAndSetVals( validx, geomid, curtrcnr_,
-		    		   prevtrcnr_, val, prevvals[validx] );
+	const float curval = vals[validx];
+	if ( mIsUdf(curval) && udftreat_==Skip )
+	    continue;
+
+	const EM::SectionID sid = hors_[validx]->sectionID(0);
+	hors_[validx]->setPos( sid, geomid, curtrcnr, curval, false );
+
+	if ( mIsUdf(curval) )
+	    continue;
+
+	const int prevtrcnr = prevtrcnrs_[validx];
+
+	if ( udftreat_==Interpolate && prevtrcnr>=0
+				    && abs(curtrcnr-prevtrcnr)>1 )
+	{
+	    interpolateAndSetVals( validx, geomid, curtrcnr, prevtrcnr,
+				   curval, prevtrcvals_[validx] );
+	}
+
+	prevtrcnrs_[validx] = curtrcnr;
+	prevtrcvals_[validx] = curval;
     }
 
-    prevtrcnr_ = curtrcnr_;
     nrdone_++;
     return Executor::MoreToDo();
 }
@@ -192,10 +198,11 @@ protected:
     TypeSet<PosInfo::GeomID>	geomidset_;
     PosInfo::Line2DData		linegeom_;
     int				nrdone_;
-    int				prevtrcnr_;
-    int				curtrcnr_;
+    TypeSet<int>		prevtrcnrs_;
+    TypeSet<float>		prevtrcvals_;
     int				prevlineidx_;
     BinIDValueSet::Pos		pos_;
+    UndefTreat			udftreat_;
 };
 
 
@@ -246,7 +253,17 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 
     scanbut_ = new uiPushButton( this, "Scan Input Files",
 	    			 mCB(this,uiImportHorizon2D,scanPush), false );
-    scanbut_->attach( alignedBelow, dataselfld_);
+    scanbut_->attach( alignedBelow, dataselfld_ );
+
+    uiSeparator* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, scanbut_ );
+
+    BufferStringSet udftreatments;
+    udftreatments.add( "Skip" ).add( "Adopt" ).add( "Interpolate" );
+    udftreatfld_ = new uiGenInput( this, "Undefined values",
+				   StringListInpSpec(udftreatments) );
+    udftreatfld_->attach( alignedBelow, scanbut_ );
+    udftreatfld_->attach( ensureBelow, sep );
 
     postFinalise().notify( mCB(this,uiImportHorizon2D,formatSel) );
 }
@@ -348,8 +365,17 @@ bool uiImportHorizon2D::doDisplay() const
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return 0; }
-#define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s) }
+#define mUnrefAndDeburstRet( retval ) \
+{ \
+    for ( int horidx=0; horidx<horizons.size(); horidx++ ) \
+    { \
+	if ( horizons[horidx]->hasBurstAlert() ) \
+	    horizons[horidx]->setBurstAlert( false ); \
+\
+	horizons[horidx]->unRef(); \
+    } \
+    return retval; \
+}
 
 bool uiImportHorizon2D::doImport()
 {
@@ -376,8 +402,13 @@ bool uiImportHorizon2D::doImport()
     {
 	BufferString nm = hornms.get( idx );
 	PtrMan<IOObj> ioobj = IOM().getLocal( nm );
+	EM::ObjectID id = em.getObjectID( ioobj->key() );
+	EM::EMObject* emobj = em.getObject(id);
+	if ( emobj )
+	    emobj->setBurstAlert( true );
+
 	PtrMan<Executor> exec = ioobj ? em.objectLoader( ioobj->key() ) : 0;
-	EM::ObjectID id = -1;
+
 	if ( !ioobj || !exec || !exec->execute() )
 	{
 	    id = em.createObject( EM::Horizon2D::typeStr(), nm );
@@ -386,6 +417,7 @@ bool uiImportHorizon2D::doImport()
 		hor->setMultiID( ioobj->key() );
 
 	    hor->ref();
+	    hor->setBurstAlert( true );
 	    horizons += hor;
 	    continue;
 	}
@@ -393,7 +425,10 @@ bool uiImportHorizon2D::doImport()
 	id = em.getObjectID(ioobj->key());
 	mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
 	if ( !hor )
-	    mErrRet("Could not load horizon") 
+	{
+	    uiMSG().error( "Could not load horizon" );
+	    mUnrefAndDeburstRet( false );
+	}
 
 	for ( int ldx=0; ldx<linenms.size(); ldx++ )
 	{
@@ -407,29 +442,31 @@ bool uiImportHorizon2D::doImport()
 	    msg += linenm;
 	    msg += ". Overwrite?";
 	    if ( !uiMSG().askOverwrite(msg) )
-		return false;
+		mUnrefAndDeburstRet( false );
 	}
 
 	hor->ref();
 	horizons += hor;
+	if ( !hor->hasBurstAlert() )
+	    hor->setBurstAlert( true );
     }
 
     const char* setnm = linesetfld_->text();
     const int setidx = linesetnms_.indexOf( setnm );
     PtrMan<Horizon2DImporter> exec =
-	new Horizon2DImporter( linenms, horizons, setids_[setidx], valset );
+	    new Horizon2DImporter( linenms, horizons, setids_[setidx], valset,
+				   (UndefTreat) udftreatfld_->getIntValue() );
     uiTaskRunner impdlg( this );
     if ( !impdlg.execute(*exec) )
-	return false;
+	mUnrefAndDeburstRet( false );
 
     for ( int idx=0; idx<horizons.size(); idx++ )
     {
 	PtrMan<Executor> saver = horizons[idx]->saver();
 	saver->execute();
-	horizons[idx]->unRef();
     }
 	    					
-    return true;
+    mUnrefAndDeburstRet( true );
 }
 
 
@@ -444,6 +481,8 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
     return false;
 }
 
+
+#define mErrRet(s) { uiMSG().error(s); return 0; }
 
 bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
 {
@@ -480,5 +519,3 @@ bool uiImportHorizon2D::checkInpFlds()
 
     return true;
 }
-
-
