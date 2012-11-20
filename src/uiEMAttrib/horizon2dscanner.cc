@@ -249,7 +249,6 @@ int Horizon2DScanner::nextStep()
 
     int validx = 0;
     const int nrvals = data.size();
-    int nrvalidvals = 0;
     Interval<float> validzrg( linegeom_.zRange().start,
 			      linegeom_.zRange().stop );
     validzrg.widen( validzrg.width() );
@@ -263,20 +262,14 @@ int Horizon2DScanner::nextStep()
 	if ( mIsUdf(val) || !validzrg.includes(val,false) )
 	    data[validx] = mUdf(float);
 	else
-	{
-	    nrvalidvals++;
 	    valranges_[validx].include( val, false );
-	}
 
 	validx++;
     }
     
-    if ( nrvalidvals )
-    {
-	const int lineidx = validnms_.indexOf( linenm );
-	const BinID bid( lineidx, pos.nr_ );
-	bvalset_->add( bid, data.arr() );
-    }
+    const int lineidx = validnms_.indexOf( linenm );
+    const BinID bid( lineidx, pos.nr_ );
+    bvalset_->add( bid, data.arr() );
 
     return Executor::MoreToDo();
 }
