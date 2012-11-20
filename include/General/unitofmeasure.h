@@ -61,10 +61,10 @@ public:
 
     template <class T>
     T			getSIValue( T inp ) const
-    						{ return ( T ) scaler_.scale(inp); }
+			{ return ( T ) scaler_.scale(inp); }
     template <class T>
     T			getUserValueFromSI( T inp ) const
-						{ return ( T ) scaler_.unScale(inp); }
+			{ return ( T ) scaler_.unScale(inp); }
     template <class T>
     T			internalValue(T inp) const;
     template <class T>
