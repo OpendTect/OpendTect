@@ -412,7 +412,7 @@ bool TrcHdrStrm::initWrite() const
 
 TrcHeader* TrcHdrStrm::readNextTrc()
 {
-    TrcHeader* trchdr;
+    TrcHeader* trchdr = new TrcHeader( is2d_, trchdrdef_ );
     while ( *sd_.istrm )
     {
 	trchdr->read( *sd_.istrm );
