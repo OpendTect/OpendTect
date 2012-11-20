@@ -13,10 +13,11 @@ ________________________________________________________________________
 
 -*/
 
+#include "callback.h"
 #include "raytrace1d.h"
 #include "uigroup.h"
+#include "uigeninput.h"
 
-class uiGenInput;
 class uiLabeledComboBox;
 
 
@@ -63,6 +64,7 @@ protected:
 public:
     void		displayOffsetFlds(bool yn); 
     void		setOffsetRange(StepInterval<float>);
+    Notifier<uiGenInput>& offsetChanged();
 };
 
 
@@ -98,6 +100,8 @@ protected:
 public:
     uiRayTracer1D*	current();
     const uiRayTracer1D* current() const;
+    void		offsChangedCB(CallBacker*);
+    Notifier<uiRayTracerSel>* offsetChanged();
 };
 
 

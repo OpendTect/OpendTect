@@ -202,6 +202,8 @@ protected:
     SynthGenParams		genparams_;
     void			generateOtherQuantities(PostStackSyntheticData&,
 					const Strat::LayerModel&);
+public:
+    bool			removeSynthetic(const char*);
 
 public:
 
