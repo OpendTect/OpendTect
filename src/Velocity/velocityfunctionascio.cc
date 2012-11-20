@@ -78,12 +78,12 @@ int FunctionAscIO::nextStep()
     const bool isxy = isXY();
     float farr[3];
 
-    const int oldpos = strm_.tellg();
+    const std::streamoff oldpos = strm_.tellg();
     const int ret = getNextBodyVals( strm_ );
     if ( ret < 0 ) return ErrorOccurred();
     if ( ret == 0) return Finished();
 
-    const int newpos = strm_.tellg();
+    const std::streamoff newpos = strm_.tellg();
     nrdone_ += newpos-oldpos;
 
     if ( first_ )

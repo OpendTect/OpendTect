@@ -681,7 +681,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     {
 	mDynamicCastGet(uiComboBox*, selbox, 
 		table_->getCellObject(RowCol(idx,cSideCol)) );    
-    	sides += selbox->currentItem();
+    	sides += mCast(char,selbox->currentItem());
 	
 	if ( !hasfaults )
 	{

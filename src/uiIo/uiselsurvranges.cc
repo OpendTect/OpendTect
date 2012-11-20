@@ -60,7 +60,7 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
     const float zfac = mCast( float, zddef_.userFactor() );
     const StepInterval<float>& sizrg( SI().zRange(false) );
 
-    StepInterval<float> limitrg( -cUnLim, cUnLim, 1 );
+    StepInterval<float> limitrg( -mCast(float,cUnLim), mCast(float,cUnLim), 1 );
     if ( inplimitrg )
 	limitrg = *inplimitrg;
     if ( !othdom_ && limitrg.step > sizrg.step )

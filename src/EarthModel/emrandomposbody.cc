@@ -312,7 +312,7 @@ bool RandomPosBody::setPos( const SectionID& sid, const SubID& sub,
     if ( posidx==-1 && sub==ids_.size() )
 	return addPos( pos );
     else
-	locations_[sub] = pos;
+	locations_[mCast(int,sub)] = pos;
 
     return true;
 }

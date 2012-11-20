@@ -1502,7 +1502,7 @@ int EventPatchWriter::nextStep()
 	ascostream astream( strm );
 	astream.putHeader( EventReader::sFileType() );
 	par.putTo( astream );
-	fileheaderoffset_ = strm.tellp();
+	fileheaderoffset_ = mCast(int,strm.tellp());
 	if ( !fileheader_.toStream( strm, binary_ ) )
 	{
 	    errmsg_ = "Cannot write file header to stream ";
@@ -1527,9 +1527,9 @@ int EventPatchWriter::nextStep()
 	return Finished();
     }
 
-    int curoffset = strm.tellp();
+    std::streamoff curoffset = strm.tellp();
     const BinID bid = fileheader_.getBinID( headeridx_ );
-    fileheader_.setOffset( headeridx_, curoffset );
+    fileheader_.setOffset( headeridx_, mCast(int,curoffset) );
 
     RefMan<EventSet> pses = eventmanager_.getEvents( bid, false, false);
 

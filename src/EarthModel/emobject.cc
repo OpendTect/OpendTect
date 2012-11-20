@@ -649,9 +649,10 @@ bool EMObject::usePar( const IOPar& par )
 	const int minsz = mMIN( sections.size(), subids.size() );
 	for ( int idy=0; idy<minsz; idy++ )
 	{
-	    if ( !isDefined(sections[idy],subids[idy]) )
+	    if ( !isDefined(mCast(EM::SectionID,sections[idy]),subids[idy]) )
 		continue;
-	    const PosID pid = PosID( id(), sections[idy], subids[idy] );
+	    const PosID pid = PosID( id(),
+		mCast(EM::SectionID,sections[idy]), subids[idy] );
 	    setPosAttrib( pid, attrib, true, false );
 	}
 

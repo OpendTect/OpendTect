@@ -1741,7 +1741,7 @@ bool EdgeLineSet::findLines( EdgeLineCreationFunc func )
 	for ( int col=colrange.start; col<=colrange.stop;col+=colrange.step)
 	{
 	    const RowCol rc( row, col );
-	    const PosID pid(horizon_.id(),rc.toInt64() );
+	    const PosID pid(horizon_.id(),mCast(EM::SectionID,rc.toInt64()) );
 
 	    TypeSet<PosID> linkedpos;
 	    horizon_.geometry().getLinkedPos( pid, linkedpos );

@@ -24,7 +24,7 @@ namespace CmdDrive
 {
 
 #define mAddCharToBufStr( bufstr, chr ) \
-{ char str[2]; str[0] = chr; str[1] = '\0'; bufstr += str; }
+{ char str[2]; str[0] = mCast(char,chr); str[1] = '\0'; bufstr += str; }
 
 #define mSepStrSize(fms) ( fms.isEmpty() ? 1 : fms.size() )
 

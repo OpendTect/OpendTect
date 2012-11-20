@@ -64,14 +64,9 @@ float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
 	return eventposbelow;
     else if ( mIsUdf(eventposbelow) )
 	return eventposabove;
-    else
-    {
-	const float diffabove = tarz - eventposabove;
-	const float diffbelow = eventposbelow - tarz;
-	return diffabove < diffbelow ? eventposabove : eventposbelow;
-    }
-
-    return tarz;
+   const float diffabove = tarz - eventposabove;
+   const float diffbelow = eventposbelow - tarz;
+   return diffabove < diffbelow ? eventposabove : eventposbelow;
 }
 
 

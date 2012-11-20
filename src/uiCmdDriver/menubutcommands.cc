@@ -223,7 +223,7 @@ bool GetButtonMenuItemCmd::act( const char* parstr )
     nrmatches += key.isMatching("Maximize"); \
     nrmatches += key.isMatching("Restore Down") || key.isMatching("Restore"); \
 \
-    if ( objsfound.isEmpty() && !nrgrey && nrmatches==true ) \
+    if ( objsfound.isEmpty() && !nrgrey && nrmatches!=0 ) \
     { \
 	if ( key.isMatching("Menu") ) \
 	    mTitleBarButWarn( "Menu", true, 0 ); \

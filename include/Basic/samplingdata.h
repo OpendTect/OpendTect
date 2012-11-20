@@ -63,14 +63,14 @@ SamplingData<T>::SamplingData( T x0, T y0, T x1, T y1 )
 template <class T> 
 template <class FT> inline
 SamplingData<T>::SamplingData( const SamplingData<FT>& sd )
-    : start( sd.start ), step( sd.step )
+    : start( mCast(T,sd.start) ), step( mCast(T,sd.step) )
 {}
 
 
 template <class T>
 template <class FT> inline
 SamplingData<T>::SamplingData( const StepInterval<FT>& intv )
-    : start(intv.start), step(intv.step)
+    : start(mCast(T,intv.start)), step(mCast(T,intv.step))
 {}
 
 

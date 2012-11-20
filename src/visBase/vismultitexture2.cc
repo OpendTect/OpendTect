@@ -656,7 +656,7 @@ void MultiTexture2::updateShadingVars()
     numlayers_->value.setValue( nrtextures );
 
     int firstlayer = -1;
-    bool firstlayerhastrans;
+    bool firstlayerhastrans = false;
 
     for ( int idx=nrtextures-1; idx>=0; idx-- )
     {

@@ -100,7 +100,7 @@ bool AGC<T>::doPrepare( int nrthreads )
 	 (output_->reSizeable() && !output_->setSize(size_)) )
 	return false;
 
-    energies_.setSize( size_, mUdf(T) );
+    energies_.setSize( mCast(int,size_), mUdf(T) );
 
     if ( nrthreads )
     {

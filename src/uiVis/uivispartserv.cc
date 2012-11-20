@@ -1566,7 +1566,7 @@ uiVisPartServer::getScene( int sceneid ) prepostfix \
     return 0; \
 }
 
-mGetScene( );
+mGetScene();
 mGetScene( const ); 
 
 
