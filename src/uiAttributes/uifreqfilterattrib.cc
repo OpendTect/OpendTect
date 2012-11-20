@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uifreqfilter.h"
 #include "uigeninput.h"
-#include "uispinbox.h"
 #include "uiwindowfunctionsel.h"
 #include "uifreqtaper.h"
 
@@ -47,8 +46,8 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     freqfld->parchanged.notify(mCB(this,uiFreqFilterAttrib,updateTaperFreqs));
     freqfld->attach( alignedBelow, isfftfld );
 
-    polesfld = new uiLabeledSpinBox( this, "Nr of poles" );
-    polesfld->box()->setMinValue( 2 );
+    polesfld = new uiGenInput( this, "Nr of poles",
+		IntInpSpec(2).setLimits(Interval<int>(2,99)) );
     polesfld->attach( ensureBelow, freqfld );
     polesfld->attach( alignedBelow, isfftfld );
 
@@ -162,7 +161,7 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
     mIfGetFloat( FreqFilter::maxfreqStr(), maxfreq,
 	    	 freqfld->setMaxFreq(maxfreq) );
     mIfGetInt( FreqFilter::nrpolesStr(), nrpoles,
-	       polesfld->box()->setValue(nrpoles) )
+	       polesfld->setValue(nrpoles) )
 
     mIfGetString( FreqFilter::windowStr(), window,
 			    winflds[0]->setWindowName(window) );
@@ -207,12 +206,12 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     mSetEnum( FreqFilter::filtertypeStr(), freqfld->filterType() );
     mSetFloat( FreqFilter::minfreqStr(), freqrg.start );
     mSetFloat( FreqFilter::maxfreqStr(), freqrg.stop );
-    mSetInt( FreqFilter::nrpolesStr(), polesfld->box()->getValue() );
+    mSetInt( FreqFilter::nrpolesStr(), polesfld->getIntValue() );
     mSetString( FreqFilter::windowStr(), winflds[0]->windowName() );
     mSetString( FreqFilter::fwindowStr(), winflds[1]->windowName() );
 
     const float resvar =
-		float( mNINT32((1-winflds[0]->windowParamValue())*1000) )/1000.0f;
+	float( mNINT32((1-winflds[0]->windowParamValue())*1000) )/1000.0f;
     mSetFloat( FreqFilter::paramvalStr(), resvar );
     mDynamicCastGet( uiFreqTaperSel*, taper, winflds[1] );
     if ( taper ) 

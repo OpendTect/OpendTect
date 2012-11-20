@@ -22,7 +22,6 @@ class uiFreqFilterSelFreq;
 class uiImagAttrSel;
 class uiGenInput;
 class uiCheckBox;
-class uiLabeledSpinBox;
 
 /*! \brief ** Attribute description editor */
 
@@ -39,7 +38,7 @@ protected:
     uiImagAttrSel*      inpfld;
     uiGenInput*         isfftfld;
     uiFreqFilterSelFreq* freqfld;
-    uiLabeledSpinBox*	polesfld;
+    uiGenInput*		polesfld;
     uiCheckBox*		freqwinselfld;
     ObjectSet<uiWindowFunctionSel> winflds;
     uiWindowFunctionSel::Setup* viewsetup_;
