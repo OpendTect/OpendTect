@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uigroup.h"
+#include "uispinbox.h"
 #include "userinputobj.h"
 class uiCheckBox;
 class uiRadioButton;
@@ -150,5 +151,28 @@ protected:
     uiRadioButton*	rb2;
 };
 
+
+class uiGenInputIntFld : public UserInputObjImpl<int>, public uiSpinBox
+{
+public:
+			uiGenInputIntFld(uiParent*,int val=0,
+					 const char* nm="Int Input");
+			uiGenInputIntFld(uiParent*,const DataInpSpec&,
+					 const char* nm="Int Input");
+    virtual void	setReadOnly(bool);
+    virtual bool	isReadOnly() const;
+
+    virtual bool	update_(const DataInpSpec&);
+    virtual void	setToolTip(const char*);
+
+protected:
+
+    virtual int		getvalue_() const;
+    virtual void	setvalue_(int);
+
+    virtual bool	notifyValueChanging_(const CallBack&);
+    virtual bool	notifyValueChanged_(const CallBack&);
+    virtual bool	notifyUpdateRequested_(const CallBack&);
+};
 
 #endif

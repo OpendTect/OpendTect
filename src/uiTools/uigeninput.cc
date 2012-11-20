@@ -73,7 +73,6 @@ protected:
 
 typedef uiSimpleInputFld<uiLineEdit>	uiTextInputFld;
 
-
 class uiFileInputFld : public uiSimpleInputFld<uiLineEdit>
 {
 public:
@@ -344,8 +343,10 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 	if ( !dis.name(2) && nm && *nm )
 	    step->setName( BufferString(nm," step").buf() );
 
-	step->notifyValueChanging( mCB(this,uiGenInputInputFld,valChangingNotify) );
-	step->notifyValueChanged( mCB(this,uiGenInputInputFld,valChangedNotify) );
+	step->notifyValueChanging(
+		mCB(this,uiGenInputInputFld,valChangingNotify) );
+	step->notifyValueChanged(
+		mCB(this,uiGenInputInputFld,valChangedNotify) );
 	step->setReadOnly( false );
 
 	lbl = new uiLabel(&intvalGrp, "Step" );
@@ -417,6 +418,8 @@ protected:
     uiComboBox&		cbb;
 };
 
+typedef uiSimpleInputFld<uiGenInputIntFld>	uiIntInputFld;
+
 /*!
 
 creates a new InpFld and attaches it rightTo the last one already present in
@@ -457,7 +460,6 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	{
 	    switch( desc.type().rep() )
 	    {
-
 	    case DataType::intTp:
 		fld = new uiIntervalInpFld<int>( this, desc, name() ); 
 	    break;
@@ -473,6 +475,8 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	}
 	else if ( desc.type().form() == DataType::position )
 	    fld = new uiPositionInpFld( this, desc, name() ); 
+	else if ( desc.type() == DataType::intTp )
+	    fld = new uiIntInputFld( this, desc, name() );
 	else
 	    fld = new uiTextInputFld( this, desc ); 
     }
