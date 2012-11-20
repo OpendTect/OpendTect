@@ -194,9 +194,9 @@ endmacro( init_destinationdir )
 
 macro( od_sign_maclibs )
     IF( APPLE )
+	MESSAGE( "Signing mac libs..." )
 	SET ( SIGN_ID "Developer ID Application: DGB-Earth Sciences B. V." )
 	FILE( GLOB FILES ${PSD}/inst/bin/mac/* )
-	MESSAGE( "files to sign: ${FILES}" )
 	FOREACH( FIL ${FILES} )
 	    execute_process( COMMAND  codesign -f -s ${SIGN_ID} ${FIL}
 			     RESULT_VARIABLE STATUS )
@@ -205,6 +205,7 @@ macro( od_sign_maclibs )
 	    ENDIF()
 	ENDFOREACH()
     ENDIF()
+    MESSAGE( "Done" )
 endmacro( od_sign_maclibs )
 
 macro( upload_packages  PACKAGE_NAME )
