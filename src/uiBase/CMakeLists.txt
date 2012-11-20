@@ -5,9 +5,9 @@
 #	RCS :		$Id: CMakeLists.txt,v 1.7 2012-09-07 22:08:04 cvsnanne Exp $
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS General)
-SET(OD_USEQT Gui)
-SET(QT_MOC_HEADERS i_qaction.h
+set(OD_MODULE_DEPS General)
+set(OD_USEQT Widgets)
+set(QT_MOC_HEADERS i_qaction.h
 		i_qbutton.h
 		i_qcombobox.h
 		i_qdial.h
