@@ -174,7 +174,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
     else
 	hormarkerlines_ += sectionmarkerlines;
 
-    for ( EM::SectionID ids=0; ids<hor->nrSections(); ids++ )
+    for ( int ids=0; ids<hor->nrSections(); ids++ )
     {
 	SectionMarkerLine* markerlines = new SectionMarkerLine;
 	(*sectionmarkerlines) += markerlines;
@@ -184,7 +184,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 	int markerlinecount = 0;
 	FlatView::AuxData* auxdata = 0;
 
-	EM::SectionID sid( ids );
+	EM::SectionID sid = hor->sectionID( ids );
 	HorSamplingIterator iter( cs_.hrg );
 	BinID bid;
 	while( iter.next(bid) )

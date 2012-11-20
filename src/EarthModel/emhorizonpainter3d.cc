@@ -90,9 +90,9 @@ bool HorizonPainter3D::addPolyLine()
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d ) return false;
     
-    for ( EM::SectionID ids=0; ids<hor3d->nrSections(); ids++ )
+    for ( int ids=0; ids<hor3d->nrSections(); ids++ )
     {
-	EM::SectionID sid( ids );
+	EM::SectionID sid = hor3d->sectionID( ids );
 	SectionMarker3DLine* secmarkerln = new SectionMarker3DLine;
 	markerline_ += secmarkerln;
 	FlatView::AuxData* seedauxdata = viewer_.createAuxData( 0 );

@@ -81,9 +81,9 @@ bool HorizonPainter2D::addPolyLine()
     mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
     if ( !hor2d ) return false;
 
-    for ( EM::SectionID ids=0; ids<hor2d->nrSections(); ids++ )
+    for ( int ids=0; ids<hor2d->nrSections(); ids++ )
     {
-	EM::SectionID sid( ids );
+	EM::SectionID sid = hor2d->sectionID( ids );
 
 	SectionMarker2DLine* secmarkerln = new SectionMarker2DLine;
 	markerline_ += secmarkerln;
