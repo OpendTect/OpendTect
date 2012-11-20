@@ -25,6 +25,7 @@ dTect.Use VolRen shading:		No
 dTect.Select Plugins:			Yes
 dTect.Seed dragging.Bend threshold:	2
 dTect.Use startup session:		Yes
+dTect.Nr Processors:			0
 MultiMachine.Nr inline per job:		3
 Company:			
 Font.def.Control:			Helvetica`8`Normal`No
