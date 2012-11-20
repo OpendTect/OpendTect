@@ -298,7 +298,7 @@ mExternC(Basic) double GetEnvVarDVal( const char* env, double defltval )
 
 mExternC(Basic) int SetEnvVar( const char* env, const char* val )
 {
-    char* buf = "";
+    char* buf = (char*)"";
     if ( !env || !*env ) return mC_False;
     if ( !val ) val = "";
 
