@@ -415,6 +415,9 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
 
 void uiVisPartServer::removeObject( visBase::DataObject* dobj, int sceneid )
 {
+    if ( !dobj )
+	return;
+
     removeObject( dobj->id(), sceneid );
     objectaddedremoved.trigger();
 }
