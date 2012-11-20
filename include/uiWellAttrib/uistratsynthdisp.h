@@ -133,6 +133,8 @@ protected:
     void		viewPreStackPush(CallBacker*);
     void		wvltChg(CallBacker*);
     void		zoomChg(CallBacker*);
+    void		syntheticRemoved(CallBacker*);
+    void		syntheticChanged(CallBacker*);
 
     uiSynthGenDlg*	synthgendlg_;
     uiGroup*		prestackgrp_;
@@ -157,6 +159,8 @@ public:
     void 		setSelectedTrace(int);
     SyntheticData*	getCurrentSyntheticData() const;
     uiMultiFlatViewControl* control() 	{ return control_; }
+protected:
+    void		setSynthNames();
 
 };
 
@@ -226,6 +230,13 @@ protected:
     void			typeChg(CallBacker*);
     bool			genNewCB(CallBacker*);
     bool			acceptOK(CallBacker*);
+    void			removeSyntheticsCB(CallBacker*);
+    void			nameToBeChged(CallBacker*);
+    void			nameChanged(CallBacker*);
+    void			changeSyntheticsCB(CallBacker*);
+public:
+    void			setSynthList(const BufferStringSet&);
+    void			setWaveletName(const char*);
 };
 
 

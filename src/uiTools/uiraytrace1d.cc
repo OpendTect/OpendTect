@@ -8,15 +8,16 @@ static const char* rcsID = "$Id$";
 
 #include "uiraytrace1d.h"
 
+#include "hiddenparam.h"
 #include "survinfo.h"
 #include "uicombobox.h"
-#include "uigeninput.h"
 #include "uiseparator.h"
 
 
 mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&, 
 			uiRayTracer1D::factory );
 
+static HiddenParam<uiRayTracerSel,Notifier<uiRayTracerSel>* > offschgednotset( 0 );
 
 uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s ) 
     : uiGroup( p, "Ray Tracer Selector" )
@@ -25,6 +26,9 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     const BufferStringSet& usernms = uiRayTracer1D::factory().getNames( true );
     const BufferStringSet& facnms = uiRayTracer1D::factory().getNames( false );
 
+    Notifier<uiRayTracerSel>* offschgednotify =
+	new Notifier<uiRayTracerSel>( this );
+    offschgednotset.setParam( this, offschgednotify );
     if ( facnms.size() > 1 )
     {
 	raytracerselfld_ = new uiLabeledComboBox( this, "Select RayTracer" );
@@ -43,6 +47,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	if ( grp )
 	{
 	    grps_ += grp;
+	    grp->offsetChanged().notify(mCB(this,uiRayTracerSel,offsChangedCB));
 	    if ( raytracerselfld_ ) 
 	    {
 		raytracerselfld_->box()->addItem( usernm );
@@ -56,6 +61,18 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	setHAlignObj( grps_[0] );
 
     selRayTraceCB( 0 );
+}
+
+
+void uiRayTracerSel::offsChangedCB( CallBacker* )
+{
+    offschgednotset.getParam(this)->trigger();
+}
+
+
+Notifier<uiRayTracerSel>* uiRayTracerSel::offsetChanged()
+{
+    return offschgednotset.getParam(this);
 }
 
 
@@ -172,6 +189,10 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 
     setHAlignObj( lastfld_ );
 }
+
+
+Notifier<uiGenInput>& uiRayTracer1D::offsetChanged()
+{ return offsetfld_->valuechanged; }
 
 
 bool uiRayTracer1D::usePar( const IOPar& par )

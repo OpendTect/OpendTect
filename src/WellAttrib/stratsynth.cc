@@ -103,6 +103,21 @@ void StratSynth::clearSynthetics()
     act;\
 }
 
+bool StratSynth::removeSynthetic( const char* nm )
+{
+    for ( int idx=0; idx<synthetics_.size(); idx++ )
+    {
+	if ( synthetics_[idx]->name() == nm )
+	{
+	    synthetics_.remove( idx );
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
 SyntheticData* StratSynth::addSynthetic()
 {
     SyntheticData* sd = generateSD( lm_,tr_ );
@@ -120,7 +135,10 @@ SyntheticData* StratSynth::replaceSynthetic( int id )
     const int sdidx = synthetics_.indexOf( sd );
     sd = generateSD( lm_, tr_ );
     if ( sd )
+    {
+	sd->setName( synthetics_[sdidx]->name() );
 	delete synthetics_.replace( sdidx, sd );
+    }
 
     return sd;
 }
