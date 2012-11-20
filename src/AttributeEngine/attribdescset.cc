@@ -80,16 +80,21 @@ bool DescSet::hasStoredInMem() const
 }
 
 
+#define mGetPar(key) \
+    defpars->find(SeisTrcTranslatorGroup::key())
+
 DescID DescSet::ensureDefStoredPresent() const
 {
     BufferString idstr; DescID retid;
 
-    if ( is2d_ )
-	idstr =
-	    LineKey( SI().pars().find(SeisTrcTranslatorGroup::sKeyDefault2D()),
-		SI().pars().find(SeisTrcTranslatorGroup::sKeyDefaultAttrib()));
-    else
-	idstr = SI().pars().find( SeisTrcTranslatorGroup::sKeyDefault3D() );
+    PtrMan<IOPar> defpars = SI().pars().subselect( sKey::Default() );
+    if ( defpars )
+    {
+	if ( is2d_ )
+	    idstr = LineKey(mGetPar(sKeyDefault2D),mGetPar(sKeyDefaultAttrib));
+	else
+	    idstr = mGetPar( sKeyDefault3D );
+    }
 
     if ( defidstr_ == idstr && defattribid_ != DescID::undef() )
 	return defattribid_;
