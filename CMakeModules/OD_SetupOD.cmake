@@ -13,6 +13,7 @@ SET( INCLUDES
     ODAloFile
     ODInitheader
     ODDoxygen
+    ODPackages
 )
 
 FOREACH( INC ${INCLUDES} )
