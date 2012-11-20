@@ -126,7 +126,8 @@ macro( create_basepackages PACKAGE_NAME )
 
     IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
 	MESSAGE( "Using ${OD_PLFSUBDIR} zip command" )
-	execute_process( COMMAND ${PSD}/bin/win/zip -r -q "${PACKAGE_FILENAME}" ${REL_DIR} 
+	execute_process( COMMAND ${PSD}/bin/win/zip -r -q
+					   "${PACKAGE_FILENAME}" ${REL_DIR} 
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS )
     ELSE()
@@ -190,6 +191,33 @@ macro( init_destinationdir  PACKAGE_NAME )
 
     FILE( WRITE ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
 endmacro( init_destinationdir )
+
+macro( od_sign_maclibs )
+    IF( APPLE )
+	SET ( SIGN_ID "Developer ID Application: DGB-Earth Sciences B. V." )
+	FILE( GLOB FILES ${PSD}/inst/bin/mac/* )
+	MESSAGE( "files to sign: ${FILES}" )
+	FOREACH( FIL ${FILES} )
+	    execute_process( COMMAND  codesign -f -s ${SIGN_ID} ${FIL}
+			     RESULT_VARIABLE STATUS )
+	    IF( NOT STATUS EQUAL "0" )
+		message("Failed")
+	    ENDIF()
+	ENDFOREACH()
+    ENDIF()
+endmacro( od_sign_maclibs )
+
+macro( upload_packages  PACKAGE_NAME )
+    SET( url "ftp://ftp.opendtect.org/pub/tmp" )
+    FILE( UPLOAD "${PSD}/test.txt" ${url}
+	  STATUS var
+	  LOG log
+	  SHOW_PROGRESS)
+    MESSAGE( "status is:  ${var}" )
+    IF( NOT var EQUAL "0" )
+        MESSAGE( ".........Upload Failed.........")
+    ENDIF()
+endmacro( upload_packages )
 
 #--------------------------------------------------------------
 #Remove this macro

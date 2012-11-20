@@ -13,6 +13,10 @@ INCLUDE( CMakeModules/packagescripts/extlibs.cmake )
 INCLUDE( CMakeModules/packagescripts/ODInstallReleaseStuff.cmake )
 INCLUDE( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
+IF( APPLE )
+    od_sign_maclibs()
+ENDIF()
+
 foreach ( BASEPACKAGE ${BASEPACKAGES} )
     INCLUDE( ${PSD}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake)
     init_destinationdir( ${PACK} )

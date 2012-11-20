@@ -25,6 +25,10 @@ execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory ${PSD}/relbase
 		 				${PSD}/inst/relbase )
 execute_process( COMMAND ${CMAKE_COMMAND} -E remove_directory ${PSD}/inst/relbase/.svn )
 
+SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${PSD}/../${dgbdir}/data/SequenceModels
+		 				${PSD}/inst/data )
+
 #installing thirdparty libs
 IF( NOT EXISTS ${PSD}/inst/externallibs )
     FILE( MAKE_DIRECTORY ${PSD}/inst/externallibs )
