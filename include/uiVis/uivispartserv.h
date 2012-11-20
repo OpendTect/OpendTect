@@ -96,6 +96,7 @@ public:
     NotifierAccess&	nrScenesChange() { return nrsceneschange_; }
     bool		clickablesInScene(const char* trackertype, 
 					  int sceneid) const;
+    const ObjectSet<visSurvey::Scene>& getAllScenes() const { return scenes_; }
 
     void		getChildIds(int id,TypeSet<int>&) const;
 			/*!< Gets a scenes' children or a volumes' parts
