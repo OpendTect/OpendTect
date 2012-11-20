@@ -283,7 +283,6 @@ TrcHeader::TrcHeader( bool is2d, const TrcHdrDef& def )
 {
 }
 
-
 #define mGetFld( fld, val ) \
     if ( (*this)[trchdrdef_.StdIdx##fld()] ) val = \
 		(*this)[trchdrdef_.StdIdx##fld()]
@@ -318,7 +317,7 @@ bool TrcHeader::fillTrcInfo( SeisTrcInfo& ti ) const
 
 
 #define mPutFld( val, fld ) \
-        if ( val ) (*this)[trchdrdef_.StdIdx##fld()] = val
+        if ( val ) (*this)[trchdrdef_.StdIdx##fld()] = (int)val
 bool TrcHeader::useTrcInfo( const SeisTrcInfo& ti )
 {
     mPutFld( ti.coord.x, Xcdp );
@@ -338,14 +337,14 @@ bool TrcHeader::useTrcInfo( const SeisTrcInfo& ti )
     if ( xyscale )
     {
 	(*this)[trchdrdef_.StdIdxXcdp()] = (*this)[trchdrdef_.StdIdxXcdp()]
-	    * (xyscale > 0 ? 1./xyscale : -xyscale);
+	    * (xyscale > 0 ? (int)1./xyscale : -(int)xyscale);
 
 	(*this)[trchdrdef_.StdIdxYcdp()] = (*this)[trchdrdef_.StdIdxYcdp()]
-	    * (xyscale > 0 ? 1./xyscale : -xyscale);
+	    * (xyscale > 0 ? (int)1./xyscale : -(int)xyscale);
     }
     if ( spscale )
 	(*this)[trchdrdef_.StdIdxSP()] = (*this)[trchdrdef_.StdIdxSP()]
-	    * (spscale > 0 ? 1./spscale : -spscale);
+	    * (spscale > 0 ? (int)1./spscale : -(int)spscale);
 
     return true;
 }
