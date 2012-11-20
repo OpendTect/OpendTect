@@ -22,6 +22,7 @@ mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&,
 uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s ) 
     : uiGroup( p, "Ray Tracer Selector" )
     , raytracerselfld_(0)
+    , offsetChanged(this)
 {
     const BufferStringSet& usernms = uiRayTracer1D::factory().getNames( true );
     const BufferStringSet& facnms = uiRayTracer1D::factory().getNames( false );
@@ -44,6 +45,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	if ( grp )
 	{
 	    grps_ += grp;
+	    grp->offsetChanged().notify(mCB(this,uiRayTracerSel,offsChangedCB));
 	    if ( raytracerselfld_ ) 
 	    {
 		raytracerselfld_->box()->addItem( usernm );
@@ -57,6 +59,12 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	setHAlignObj( grps_[0] );
 
     selRayTraceCB( 0 );
+}
+
+
+void uiRayTracerSel::offsChangedCB( CallBacker* )
+{
+    offsetChanged.trigger();
 }
 
 
@@ -178,6 +186,10 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 
     setHAlignObj( lastfld_ );
 }
+
+
+Notifier<uiGenInput>& uiRayTracer1D::offsetChanged()
+{ return offsetfld_->valuechanged; }
 
 
 bool uiRayTracer1D::usePar( const IOPar& par )

@@ -51,6 +51,7 @@ public:
 
     void		displayOffsetFlds(bool yn); 
     void		setOffsetRange(StepInterval<float>);
+    Notifier<uiGenInput>& offsetChanged();
 
 protected:
 			uiRayTracer1D(uiParent*,const Setup&);
@@ -92,6 +93,7 @@ public:
 
     uiRayTracer1D*	current();
     const uiRayTracer1D* current() const;
+    Notifier<uiRayTracerSel> offsetChanged;
 
 protected:
 
@@ -100,6 +102,7 @@ protected:
     ObjectSet<uiRayTracer1D> grps_;
 
     void		selRayTraceCB(CallBacker*);
+    void		offsChangedCB(CallBacker*);
 };
 
 
