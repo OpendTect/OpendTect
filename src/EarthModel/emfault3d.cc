@@ -440,7 +440,8 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	}
 
 	sticks[ sticks.size()-1 ]->crds_ += crd;
-	sticks[ sticks.size()-1 ]->lnm_ += lnm;
+	if ( !lnm.isEmpty() )
+	    sticks[ sticks.size()-1 ]->lnm_ = lnm;
     }
 
     // Index-based stick sort
