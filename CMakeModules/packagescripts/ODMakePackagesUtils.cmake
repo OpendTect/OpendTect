@@ -64,6 +64,18 @@ macro ( create_package PACKAGE_NAME )
 
     IF( ${PACKAGE_NAME} STREQUAL "base" )
 	# install SPECFILES files (from relbase/)
+	FOREACH( SPECFILE ${SPECFILES} )
+	     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			      ${PSD}/inst/relbase/${SPECFILE}
+			      ${DESTINATION_DIR} )
+	ENDFOREACH()
+	FOREACH( FILES ${ODSCRIPTS} )
+	     FILE( GLOB SCRIPTS ${PSD}/bin/${FILES} )
+	     FOREACH( SCRIPT ${SCRIPTS} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${SCRIPT}
+					 ${DESTINATION_DIR}/bin )
+	     ENDFOREACH()
+	ENDFOREACH()
     ENDIF()
 
     IF( EXISTS ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
@@ -148,9 +160,6 @@ macro( init_destinationdir  PACKAGE_NAME )
 #    SET ( FILELIST ${${PACKAGE_NAME_UPPER}_FILELIST} )
 
     SET ( PACKAGE_FILENAME ${PACKAGE_NAME} )
-#    IF( APPLE OR ${PACKAGE_NAME_UPPER}_PLFDEP )
-#	SET ( PACKAGE_FILENAME "${PACKAGE_FILENAME}_${OD_PLFSUBDIR}" )
-#    ENDIF()
     SET( PACKAGE_FILENAME "${PACKAGE_FILENAME}_${OD_PLFSUBDIR}.zip" )
     IF( ${PACKAGE_NAME} STREQUAL "basedata" )
         SET( PACKAGE_FILENAME "basedata.zip" )
@@ -166,7 +175,8 @@ macro( init_destinationdir  PACKAGE_NAME )
     SET( PACKAGE_DIR ${PSD}/packages )
     SET( REL_DIR "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
     IF( APPLE )
-	SET( REL_DIR "OpendTect${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.app" )
+	SET( REL_DIR "OpendTect${OpendTect_VERSION_MAJOR}
+		      .${OpendTect_VERSION_MINOR}.app" )
         MESSAGE( "APPLE: reldiris ... ${REL_DIR}" )
     ENDIF()
 
