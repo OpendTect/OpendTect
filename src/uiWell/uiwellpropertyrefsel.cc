@@ -139,7 +139,7 @@ const PropertyRef& uiPropSelFromList::propRef() const
 
 uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
     : uiGroup(p," property selection from well logs")
-    , proprefsel_(prs) 
+    , proprefsel_(prs)
 {
     initFlds();
 }
@@ -229,33 +229,25 @@ bool uiWellPropSel::isOK() const
 
 bool uiWellPropSel::setLog( const PropertyRef::StdType tp, 
 				const char* nm, bool usealt,
-				const UnitOfMeasure* uom )
+				const UnitOfMeasure* uom, int idx )
 {
-    for ( int idx=0; idx<propflds_.size(); idx++ )
-    {
-	if ( propflds_[idx]->propRef().hasType( tp ) )
-	    propflds_[idx]->set( nm, usealt, uom );
-    }
+    if ( propflds_[idx]->propRef().hasType( tp ) )
+	propflds_[idx]->set( nm, usealt, uom );
     return false;
 }
 
 
 bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs, 
-			bool& check, BufferString& uom ) const
+			bool& check, BufferString& uom, int idx ) const
 {
-    for ( int idx=0; idx<propflds_.size(); idx++ )
+    check = propflds_[idx]->isUseAlternate();
+    const PropertyRef* alternatepr = check ? propflds_[idx]->altPropRef() : 0;
+    if ( propflds_[idx]->propRef().hasType(tp)
+	    || (alternatepr && alternatepr->hasType(tp)) ) 
     {
-	const bool usealternate = propflds_[idx]->isUseAlternate();
-	const PropertyRef* alternatepr = usealternate ? 
-			 propflds_[idx]->altPropRef() : 0;
-	if ( propflds_[idx]->propRef().hasType(tp) 
-			|| (alternatepr && alternatepr->hasType(tp)) ) 
-	{
-	    bs = propflds_[idx]->text();
-	    check = usealternate;
-	    uom = propflds_[idx]->uom() ? propflds_[idx]->uom()->symbol() : ""; 
-	    return true;
-	}
+	bs = propflds_[idx]->text();
+	uom = propflds_[idx]->uom() ? propflds_[idx]->uom()->symbol() : ""; 
+	return true;
     }
     return false;
 }
@@ -332,7 +324,7 @@ bool uiWellElasticPropSel::setDenLog( const char* nm, const UnitOfMeasure* uom )
     const PropertyRef::StdType tp = 
 	ElasticPropertyRef::elasticToStdType(ElasticFormula::Den);
 
-    return setLog( tp, nm, false, uom );
+    return setLog( tp, nm, false, uom, 0 );
 }
 
 
@@ -342,7 +334,7 @@ bool uiWellElasticPropSel::setVelLog( const char* nm, const UnitOfMeasure* uom,
     const PropertyRef::StdType tp = 
 	ElasticPropertyRef::elasticToStdType(ElasticFormula::PVel);
 
-    return setLog( tp, nm, rev, uom );
+    return setLog( tp, nm, rev, uom, 1 );
 }
 
 
@@ -351,7 +343,7 @@ bool uiWellElasticPropSel::getDenLog( BufferString& nm, BufferString& uom) const
     const PropertyRef::StdType tp =
 	        ElasticPropertyRef::elasticToStdType(ElasticFormula::Den);
     bool dummy;
-    return getLog( tp, nm, dummy, uom );
+    return getLog( tp, nm, dummy, uom, 0 );
 }
 
 
@@ -360,6 +352,6 @@ bool uiWellElasticPropSel::getVelLog( BufferString& nm, BufferString& um,
 {
     const PropertyRef::StdType tp =
 		ElasticPropertyRef::elasticToStdType(ElasticFormula::PVel);
-    return getLog( tp, nm, isrev, um );
+    return getLog( tp, nm, isrev, um, 1 );
 }
 

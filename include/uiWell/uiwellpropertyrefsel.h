@@ -11,11 +11,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "multiid.h"
 #include "propertyref.h"
 #include "welllogset.h"
 #include "uigroup.h"
+#include "uiwellmod.h"
 
 class ElasticPropSelection;
 class PropertyRef;
@@ -75,13 +75,12 @@ public:
 
     void		setLogs(const Well::LogSet&);
 
-			//return true if succeded (std type found)
     bool		setLog(const PropertyRef::StdType,const char*,
-	    			bool check,const UnitOfMeasure*);
+	    			bool check,const UnitOfMeasure*, int idx);
     bool		getLog(const PropertyRef::StdType,BufferString&,
-	    			bool&,BufferString& uom) const;
+	    			bool&,BufferString& uom, int idx) const;
 
-    virtual bool	isOK() const; 
+    virtual bool	isOK() const;
 
 protected:
     void				initFlds();
