@@ -7,6 +7,6 @@
 
 #//TODO Modify script to work on all platforms.
 SET( LIBLIST HorizonCube uiHorizonCube uiHorizonCubeSlider )
-SET( EXECLIST od_convert_chronostrat od_filter_horizoncube od_hc2steer od_process_horizoncube od_trim_hor_atfaults )
-#SET( PACKAGE_DIR "/dsk/d21/nageswara/dev/buildtest/lux64" )
+SET( EXECLIST od_convert_chronostrat od_filter_horizoncube od_hc2steer od_process_horizoncube
+	      od_trim_hor_atfaults od_grid_horizoncube )
 SET( PACK "dgbhc" )
