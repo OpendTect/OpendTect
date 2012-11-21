@@ -352,7 +352,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} )
         set ( TEST_COMMAND "${OpendTect_DIR}/dtect/run_test.cmd" )
         set ( TEST_ARGS --command ${TEST_NAME}.exe
 			--wdir ${CMAKE_BINARY_DIR}
-			--config Debug --pfl ${OD_PLFSUBDIR}
+			--config Debug --plf ${OD_PLFSUBDIR}
 			--qtdir ${QTDIR} )
     else()
         set ( TEST_COMMAND "${OD_EXEC_OUTPUT_PATH}/${TEST_NAME}" )
