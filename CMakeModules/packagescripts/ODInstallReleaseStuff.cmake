@@ -73,8 +73,8 @@ MESSAGE( "Installing coin libs done." )
 
 MESSAGE( "Installing osg  libs..." )
 FOREACH( OSGLIB ${OSGLIBS} )
-    FILE( INSTALL DESTINATION ${EXTDIR}
-		  TYPE FILE FILES ${OSG_DIR}/lib/${OSGLIB} )
+     execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${OSG_DIR}/lib/${OSGLIB}
+							${EXTDIR} )
 ENDFOREACH()
 MESSAGE( "Installing osg libs done." )
 MESSAGE( "Release stuff installed successfully." )
