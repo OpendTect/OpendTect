@@ -6,7 +6,8 @@
 
 macro ( create_package PACKAGE_NAME )
     FILE( MAKE_DIRECTORY ${DESTINATION_DIR} ${DESTINATION_DIR}/bin
-		         ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+		         ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
+		         ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
     FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/plugins
 			  ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
 
@@ -30,8 +31,8 @@ macro ( create_package PACKAGE_NAME )
 	ENDIF()
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${PSD}/inst/bin/${OD_PLFSUBDIR}/${LIB} 
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR})
+			 ${PSD}/inst/bin/${OD_PLFSUBDIR}/Release/${LIB} 
+			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release)
        FILE( GLOB ALOFILES ${PSD}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
        FOREACH( ALOFILE ${ALOFILES} )
 	   execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${ALOFILE}
@@ -44,7 +45,7 @@ macro ( create_package PACKAGE_NAME )
         SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E
 			 copy_directory ${PSD}/../${dgbdir}/bin/${OD_PLFSUBDIR}/lm
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
+			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release/lm.dgb )
     ENDIF()
 
     IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
@@ -58,12 +59,25 @@ macro ( create_package PACKAGE_NAME )
 	ENDIF()
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${PSD}/inst/bin/${OD_PLFSUBDIR}/${EXE} 
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+			 ${PSD}/inst/bin/${OD_PLFSUBDIR}/Release/${EXE} 
+			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
     ENDFOREACH()
 
     IF( ${PACKAGE_NAME} STREQUAL "base" )
 	# install SPECFILES files (from relbase/)
+	FOREACH( SPECFILE ${SPECFILES} )
+	      execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			       ${PSD}/inst/relbase/${SPECFILE}
+			       ${DESTINATION_DIR} )
+	ENDFOREACH()
+        FOREACH( FILES ${ODSCRIPTS} )
+	    FILE( GLOB SCRIPTS ${PSD}/bin/${FILES} )
+	    FOREACH( SCRIPT ${SCRIPTS} )
+	       execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${SCRIPT}
+					${DESTINATION_DIR}/bin )
+	    ENDFOREACH()
+        ENDFOREACH()
+
     ENDIF()
 
     IF( EXISTS ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
@@ -96,7 +110,7 @@ macro( copy_thirdpartylibs )
     FILE( GLOB LIBS ${PSD}/inst/externallibs/* )
     FOREACH( LIB ${LIBS} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB}
-			  ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+			  ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
     ENDFOREACH()
 
 endmacro( copy_thirdpartylibs )
@@ -117,8 +131,7 @@ macro( create_basepackages PACKAGE_NAME )
 				REGEX ".svn" EXCLUDE )
 	    ENDFOREACH()
        ENDFOREACH()
-   ENDIF()
-   IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
+   ELSE( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${PSD}/inst/data
 			 ${DESTINATION_DIR}/data )
@@ -148,9 +161,6 @@ macro( init_destinationdir  PACKAGE_NAME )
 #    SET ( FILELIST ${${PACKAGE_NAME_UPPER}_FILELIST} )
 
     SET ( PACKAGE_FILENAME ${PACKAGE_NAME} )
-#    IF( APPLE OR ${PACKAGE_NAME_UPPER}_PLFDEP )
-#	SET ( PACKAGE_FILENAME "${PACKAGE_FILENAME}_${OD_PLFSUBDIR}" )
-#    ENDIF()
     SET( PACKAGE_FILENAME "${PACKAGE_FILENAME}_${OD_PLFSUBDIR}.zip" )
     IF( ${PACKAGE_NAME} STREQUAL "basedata" )
         SET( PACKAGE_FILENAME "basedata.zip" )
@@ -166,7 +176,8 @@ macro( init_destinationdir  PACKAGE_NAME )
     SET( PACKAGE_DIR ${PSD}/packages )
     SET( REL_DIR "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
     IF( APPLE )
-	SET( REL_DIR "OpendTect${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.app" )
+	SET( REL_DIR "OpendTect${OpendTect_VERSION_MAJOR}
+		      .${OpendTect_VERSION_MINOR}.app" )
         MESSAGE( "APPLE: reldiris ... ${REL_DIR}" )
     ENDIF()
 
