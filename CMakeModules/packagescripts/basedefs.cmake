@@ -11,7 +11,7 @@ SET( LIBLIST Algo AttributeEngine Attributes Basic Batch Database EarthModel Gen
 	     PreStackProcessing EMAttrib SoOD Well WellAttrib uiAttributes uiBase uiCoin
 	     uiEarthModel uiEMAttrib uiFlatView uiIo uiMPE uiNLA uiODMain uiSeis uiStrat
 	     uiTools uiPreStackProcessing uiVelocity uiViewer2D uiVis uiVolumeProcessing
-	     uiWell uiWellAttrib uiSysAdm Usage visBase visSurvey )
+	     uiWell uiWellAttrib uiSysAdm Usage visBase visSurvey uiCmdDriver)
 
 SET( EXECLIST od_cbvs_browse od_glxinfo od_ivfileviewer lmhostid 
 	      od_main od_sysadmmain od_process_attrib od_process_attrib_em
@@ -28,22 +28,7 @@ SET( PLUGINS HorizonAttrib GapDecon VoxelConnectivityFilter
 #Only for windows base package
 SET( WINEXECLIST od_start_dtect od_main_console unzip )
 SET( SPECFILES .exec_prog .init_dtect .init_dtect_user install .lic_inst_common
-	       .lic_start_common mk_datadir .setappl.sh .start_dtect setup.od *.txt )
-
-#Third party libraries
-SET( LUXQTLIBS libQtCore.so.4 libQtGui.so.4 libQtOpenGL.so.4 libQtSql.so.4 libQtXml.so.4
-	       libQtNetwork.so.4 libQt3Support.so.4 )
-#SET( LUXCOINLIBS libCoin.so.6? libSoQt.so.2? libsimage.so.2? )
-SET( LUXCOINLIBS libCoin.so.6 libSoQt.so.2 libsimage.so.2 )
-SET( LUXOSGLIBS "" )
-
-SET( MACQTLIBS libQtCore.4.dylib libQtGui.4.dylib libQtOpenGL.4.dylib libQtSql.4.dylib
-	       libQtXml.4.dylib libQtNetwork.4.dylib libQt3Support.4.dylib )
-SET( MACCOINLIBS libCoin.6?.dylib libsimage.2?.dylib libSoQt.2?.dylib libSimVoleon.4?.dylib )
-SET( MACOSGLIBS "" )
-
-SET( WINQTLIBS "" )
-SET( WINCOINLIBS "" )
-SET( WINOSGLIBS "" )
-
+	       .lic_start_common mk_datadir .setappl.sh .start_dtect setup.od )
+#	       .lic_start_common mk_datadir .setappl.sh .start_dtect setup.od *.txt )
+SET( ODSCRIPTS od_* mksethdir mac_term macterm.in )
 SET( PACK "base" )
