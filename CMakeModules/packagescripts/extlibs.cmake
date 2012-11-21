@@ -19,7 +19,9 @@ SET( LUXOSGLIBS "" )
 
 SET( MACQTLIBS libQtCore.4.dylib libQtGui.4.dylib libQtOpenGL.4.dylib libQtSql.4.dylib
 	       libQtXml.4.dylib libQtNetwork.4.dylib libQt3Support.4.dylib )
-SET( MACCOINLIBS libCoin.6?.dylib libsimage.2?.dylib libSoQt.2?.dylib libSimVoleon.4?.dylib )
+#TODO Check coin libs
+SET( MACCOINLIBS libCoin.6?.dylib libsimage.2?.dylib libSoQt.2?.dylib
+		 libSimVoleon.4?.dylib )
 SET( MACOSGLIBS "" )
 
 SET( WINQTLIBS "" )
