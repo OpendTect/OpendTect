@@ -348,7 +348,13 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} )
 	    ${TEST_NAME}
 	    ${OD_EXEC_DEP_LIBS}
 	    ${OD_RUNTIMELIBS} )
-    add_test( NAME ${TEST_NAME} WORKING_DIRECTORY ${OD_EXEC_OUTPUT_PATH} COMMAND ${TEST_NAME} )
+    if ( WIN32 )
+        set ( TEST_COMMAND "${OpendTect_DIR}/dtect/run_test.cmd --command ${TEST_NAME}.exe --wdir ${CMAKE_BINARY_DIR} --config Debug --pfl ${PLFSUBDIR}" )
+    else()
+        set ( TEST_COMMAND "${OD_EXEC_OUTPUT_PATH}/${TEST_NAME}" )
+    endif()
+
+    add_test( NAME ${TEST_NAME} WORKING_DIRECTORY ${OD_EXEC_OUTPUT_PATH} COMMAND ${TEST_COMMAND} )
     set_property( TEST ${TEST_NAME} PROPERTY ${OD_MODULE_TEST_LABEL} )
 endforeach()
 
