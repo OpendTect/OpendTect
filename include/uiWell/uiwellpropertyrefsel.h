@@ -75,11 +75,16 @@ public:
 
     void		setLogs(const Well::LogSet&);
 
-			//return true if succeded (std type found)
+			//do NOT use, will be removed shortly
     bool		setLog(const PropertyRef::StdType,const char*,
 	    			bool check,const UnitOfMeasure*);
+    bool		setLog(const PropertyRef::StdType,const char*,
+	    			bool check,const UnitOfMeasure*, int idx);
+    			//do NOT use, will be removed shortly
     bool		getLog(const PropertyRef::StdType,BufferString&,
 	    			bool&,BufferString& uom) const;
+    bool		getLog(const PropertyRef::StdType,BufferString&,
+	    			bool&,BufferString& uom, int idx) const;
 
     virtual bool	isOK() const;
 
