@@ -51,6 +51,10 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	if ( !silent_ )
 	{
 	    BufferString mess = "Could not remove data file(s).\n";
+	    FilePath cursurvfp( IOM().rootDir() );
+	    FilePath orgfp( ioobj_.fullUserExpr(true) ); orgfp.makeCanonical();
+	    if ( !orgfp.isSubDirOf(cursurvfp) )
+		mess += "File(s) not in current survey.\n";
 	    mess += "Remove entry from list anyway?";
 	    if ( !uiMSG().askRemove(mess) )
 		return false;

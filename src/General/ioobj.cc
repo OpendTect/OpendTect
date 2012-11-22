@@ -296,6 +296,10 @@ bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 bool fullImplRemove( const IOObj& ioobj )
 {
     if ( ioobj.isSubdir() ) return false;
+    FilePath cursurvfp( IOM().rootDir() );
+    FilePath orgfp( ioobj.fullUserExpr(true) ); orgfp.makeCanonical();
+    if ( !orgfp.isSubDirOf(cursurvfp) )
+	return false;
     PtrMan<Translator> tr = ioobj.getTranslator();
     return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
 }
