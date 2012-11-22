@@ -263,6 +263,14 @@ bool IOObj::isSurveyDefault( const MultiID& ky )
 }
 
 
+bool IOObj::isInCurrentSurvey() const
+{
+    FilePath cursurvfp( IOM().rootDir() );
+    FilePath orgfp( fullUserExpr(true) ); orgfp.makeCanonical();
+    return orgfp.isSubDirOf(cursurvfp);
+}
+
+
 bool areEqual( const IOObj* o1, const IOObj* o2 )
 {
     if ( !o1 && !o2 ) return true;
@@ -289,7 +297,8 @@ bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 
 bool fullImplRemove( const IOObj& ioobj )
 {
-    if ( ioobj.isSubdir() ) return false;
+    if ( ioobj.isSubdir() || !ioobj.isInCurrentSurvey() ) return false;
+    
     PtrMan<Translator> tr = ioobj.createTranslator();
     return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
 }

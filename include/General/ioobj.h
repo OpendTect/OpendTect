@@ -110,6 +110,7 @@ public:
     static int			tmpID()		{ return  999999; }
     inline bool			isTmp() const	{return key_.leafID()==tmpID();}
     bool			isReadDefault() const;
+    bool			isInCurrentSurvey() const;
 
 protected:
 

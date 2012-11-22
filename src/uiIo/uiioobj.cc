@@ -51,6 +51,8 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	if ( !silent_ )
 	{
 	    BufferString mess = "Could not remove data file(s).\n";
+	    if ( !ioobj_.isInCurrentSurvey() )
+		mess += "File(s) not in current survey.\n";
 	    mess += "Remove entry from list anyway?";
 	    if ( !uiMSG().askRemove(mess) )
 		return false;
