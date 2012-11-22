@@ -100,6 +100,13 @@ uiExportFault::~uiExportFault()
 }
 
 
+static int stickNr( EM::EMObject* emobj, EM::SectionID sid, int stickidx )
+{
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    return fss->rowRange().atIndex( stickidx );
+}
+
+
 static int nrSticks( EM::EMObject* emobj, EM::SectionID sid )
 {
     mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
@@ -194,13 +201,17 @@ bool uiExportFault::writeAscii()
 
 	    if ( fss )
 	    {
+		const int sticknr = stickNr( emobj.ptr(), sectionid, stickidx );
+
     		bool pickedon2d =
-		    fss->geometry().pickedOn2DLine( sectionid, stickidx );
+		    fss->geometry().pickedOn2DLine( sectionid, sticknr );
 		if ( pickedon2d && linenmfld_->isChecked() )
 		{
 		    const char* linenm =
-			fss->geometry().pickedName( sectionid, stickidx );
-		    *sdo.ostrm << '\t' << linenm;
+			fss->geometry().pickedName( sectionid, sticknr );
+
+		    if ( linenm )
+			*sdo.ostrm << '\t' << linenm;
 		}
 	    }
 
