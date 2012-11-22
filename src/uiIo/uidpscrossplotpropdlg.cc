@@ -360,8 +360,8 @@ void parseExp( CallBacker* cb )
     BufferString& mathexpr = isy1 ? mathexprstring_ : mathexprstring1_;
     mathexpr = isy1 ? inpfld_->text() : inpfld1_->text();
     MathExpressionParser mep( mathexpr );
-    MathExpression* mathobj = mep.parse();
-    isy1 ? mathobj_ = mathobj : mathobj1_ = mathobj;
+    MathExpression* mathobj = mathexpr.isEmpty() ? 0 : mep.parse();
+    ( isy1 ? mathobj_ : mathobj1_ ) = mathobj;
     if ( !mathobj )
     {
 	if ( mep.errMsg() ) uiMSG().error( mep.errMsg() );
@@ -455,7 +455,8 @@ void setPolyLines( CallBacker* cb )
 void drawPolyLines()
 {
     uiDataPointSetCrossPlotter::AxisData& yax = plotter_.axisData(1);
-    const bool& yrgchgd = ( yrgchgd_ = !( yax.axis_->range() == yaxrg_ ) );
+    const bool& yrgchgd =
+	( yrgchgd_ = ( yax.axis_->range() != yaxrg_ ) && !yax.needautoscale_ );
     const bool shwy1 = ( shwy1userdefpolyline_->isChecked() &&
 	    !mathexprstring_.isEmpty() && !(mathobj_->nrVariables()>1) );
 
@@ -474,7 +475,8 @@ void drawPolyLines()
     if ( hasy2_ )
     {
 	uiDataPointSetCrossPlotter::AxisData& y2ax = plotter_.axisData(2);
-	const bool& y2rgchgd = ( y2rgchgd_= !(y2ax.axis_->range()==y2axrg_) );
+	const bool& y2rgchgd =
+	    y2rgchgd_= (y2ax.axis_->range() != y2axrg_) && !y2ax.needautoscale_;
 	const bool shwy2 = ( shwy2userdefpolyline_->isChecked() &&
 		!mathexprstring1_.isEmpty() && !(mathobj1_->nrVariables()>1) );
 
