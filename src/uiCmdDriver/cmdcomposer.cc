@@ -239,7 +239,8 @@ void CmdComposer::addToEventList( const CmdRecEvent& ev )
 
     for ( int idx=sz-2; idx>=sz-5; idx-- )
     {
-	if ( eventlist_[idx]->begin_ != ((sz-idx)%2) )
+	bool isbegin = ((sz-idx)%2)==1;
+	if ( eventlist_[idx]->begin_ != isbegin )
 	    return;
 	if ( burstevnameidx != eventNameIdx(bursteventnames_,*eventlist_[idx]) )
 	    return;

@@ -69,7 +69,8 @@ int main( int argc, char ** argv )
 	forkProcess();
 
     su.fs_.fname_ = argv[argidx];
-    replaceCharacter( su.fs_.fname_.buf(), (char)128, ' ' );
+    //replaceCharacter( su.fs_.fname_.buf(), (char)128, ' ' ); 
+    //ToDo : Is it Needed. 'char' takes values upto 127 ?
     replaceString( su.fs_.fname_.buf(), "+x+", "*" );
 
     uiMain app( argc, argv );

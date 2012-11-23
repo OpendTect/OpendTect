@@ -258,10 +258,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	}
     break;
     mCase(Strat):
-	switch ( at )
-	{
-	default:	StratTWin().popUp();	break;
-	}
+	StratTWin().popUp();
     break;
     mCase(PDF):
         if ( at == uiODApplMgr::Imp )

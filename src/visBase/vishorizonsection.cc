@@ -1584,7 +1584,7 @@ void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
 	else
 	    task.execute();
     
-	mApplyTesselation();
+	mApplyTesselation(;);
     }
 
     for ( int idx=0; idx<tilesz; idx++ )

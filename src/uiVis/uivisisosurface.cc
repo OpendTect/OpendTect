@@ -165,12 +165,13 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
 	{
 	    if ( fullmode )
 	    {
-		if ( fullmode==vd_->isFullMode(isosurfacedisplay_) )
+		if ( vd_->isFullMode(isosurfacedisplay_) == 1 )
     		    return;
 	    }
 	    else if ( !vd_->isFullMode(isosurfacedisplay_) )
 	    {
-		if ( aboveisoval==vd_->seedAboveIsovalue(isosurfacedisplay_) &&
+		bool isseedabv = vd_->seedAboveIsovalue(isosurfacedisplay_)==1;
+		if ( aboveisoval==isseedabv &&
 		     mid==vd_->getSeedsID(isosurfacedisplay_) )
 		    return;
 	    }

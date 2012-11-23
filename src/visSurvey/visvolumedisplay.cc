@@ -554,7 +554,7 @@ void VolumeDisplay::setFullMode( const mVisMCSurf* mcd, bool full )
     if ( idx<0 )
 	return;
     
-    isosurfsettings_[idx].mode_ = full;
+    isosurfsettings_[idx].mode_ = full ? 1 : 0;
 }
 
 

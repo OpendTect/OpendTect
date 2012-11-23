@@ -463,8 +463,8 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
     removeTrailingBlanks( newnm );
     if ( checkuref && !validName(newnm) ) return 0;
 
-    uiAttrDescEd* curde = 0;
-    if ( !(curde = curDescEd()) )
+    uiAttrDescEd* curde = curDescEd();
+    if ( !curde )
 	mErrRetNull( "Cannot add without a valid attribute type" )
 
     BufferString attribname = curde->attribName();
