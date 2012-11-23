@@ -123,7 +123,8 @@ if(WIN32)
     #add_definitions( /wd4701 ) # local variable used without being initialized
     add_definitions( /wd4800 ) # forcing value to bool 'true' or 'false' (performance warning)
     add_definitions( /wd4251 ) # 'identifier' : dll-interface
-    #add_definitions( /wd4275 ) # 'identifier' : dll-interface
+    add_definitions( /wd4275 ) # 'identifier' : dll-interface
+    add_definitions( /wd4273 ) # inconsistent dll linkage
     add_definitions( /wd4996 ) # function': was declared deprecated
     add_definitions( /wd4101 ) # The local variable is never used (disable only for Windows)
     add_definitions( /wd4267 ) # conversion from 'size_t' to 'type', possible loss of data
