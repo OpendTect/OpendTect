@@ -54,6 +54,7 @@ public:
     const PropertyRef*  altPropRef() const { return altpropref_; }
 
     uiComboBox*   	typeFld() const         { return typefld_; }
+    Notifier<uiPropSelFromList>	comboChg_;
 
 protected:
     const PropertyRef&  propref_;
@@ -64,6 +65,7 @@ protected:
     uiUnitSel*          unfld_;
     uiCheckBox*         checkboxfld_;
 
+    void		updateSelCB(CallBacker*);
     void                switchPropCB(CallBacker*);
 };
 
@@ -78,15 +80,19 @@ public:
     bool		setLog(const PropertyRef::StdType,const char*,
 	    			bool check,const UnitOfMeasure*, int idx);
     bool		getLog(const PropertyRef::StdType,BufferString&,
-	    			bool&,BufferString& uom, int idx) const;
+	    			bool&, BufferString& uom, int idx) const;
 
     virtual bool	isOK() const;
+    void		setWellID(const MultiID& wid) { wellid_ = wid; }
+
+    MultiID		wellid_;
 
 protected:
     void				initFlds();
 
     const PropertyRefSelection&  	proprefsel_;
     ObjectSet<uiPropSelFromList> 	propflds_;
+    void		updateSelCB(CallBacker*);
 
     static const char*			sKeyPlsSel() { return "Please select"; }
 };
@@ -97,9 +103,6 @@ mClass(uiWell) uiWellPropSelWithCreate : public uiWellPropSel
 public:
 			uiWellPropSelWithCreate(uiParent*,
 				const PropertyRefSelection&);
-
-    void		setWellID(const MultiID& wid) { wellid_ = wid; }
-    MultiID		wellid_;
 
     Notifier<uiWellPropSel> logscreated; 
 
