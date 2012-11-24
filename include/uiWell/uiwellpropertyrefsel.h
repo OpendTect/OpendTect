@@ -63,6 +63,14 @@ protected:
     uiCheckBox*         checkboxfld_;
 
     void                switchPropCB(CallBacker*);
+
+public:
+    Notifier<uiPropSelFromList>*	comboChg();
+    uiLabel*		getLabel() const	{ return typelbl_; }
+
+
+protected:
+    void		updateSelCB(CallBacker*);
 };
 
 
@@ -95,6 +103,14 @@ protected:
     ObjectSet<uiPropSelFromList> 	propflds_;
 
     static const char*			sKeyPlsSel() { return "Please select"; }
+
+public:
+    void		setWellIDMain(const MultiID& wid);
+    MultiID		getWellIDMain();
+    uiPropSelFromList*	getPropSelFromListByName(const BufferString&);
+
+protected:
+    void		updateSelCB(CallBacker*);
 };
 
 
