@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id: uiobj.cc 26529 2012-09-30 11:26:40Z na
 
 #include "uieventfilter.h"
 #include "uiobj.h"
+#include "qptr.h"
 
 #include <QEvent>
 #include <QWidget>
@@ -39,7 +40,7 @@ public:
     void				detachFilter();
 
 protected:
-    QWeakPointer<QObject>		qobj_;
+    QObjPtr				qobj_;
     uiEventFilter& 			uif_;
 };
 
@@ -112,27 +113,28 @@ void uiEventFilterImpl::attachFilter( QObject* obj )
 {
     if ( qobj_ ) return;
 
-    QSharedPointer<QObject> newobj( obj );
-    qobj_ = newobj;
-    obj->installEventFilter( this );
+    qobj_ = obj;
+    qobj_->installEventFilter( this );
 }
 
 
 void uiEventFilterImpl::detachFilter()
 {
-    QSharedPointer<QObject> ptr = qobj_.toStrongRef();
-    if ( ptr ) ptr->removeEventFilter( this );
-    qobj_.clear();
+    Threads::MutexLocker lock( qobj_.mutex() );
+    
+    if ( qobj_ ) qobj_->removeEventFilter( this );
+    qobj_ = 0;
 }
 
 
 bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 {
-    if ( qobj_.isNull() )
+    Threads::MutexLocker lock( qobj_.mutex() );
+
+    if ( qobj_ )
 	return false;
 
-    QSharedPointer<QObject> objptr( qobj_ );
-    if ( objptr.data()!=obj )
+    if ( qobj_!=obj )
 	return false;
 
     if ( !eventtypes_.isPresent( ev->type() ) )
