@@ -1554,23 +1554,24 @@ void uiVisPartServer::toggleBlockDataLoad() const
 }
 
 
-#define mGetScene( prepostfix ) \
-prepostfix visSurvey::Scene* \
-uiVisPartServer::getScene( int sceneid ) prepostfix \
-{ \
-    for ( int idx=0; idx<scenes_.size(); idx++ ) \
-    { \
-	if ( scenes_[idx]->id()==sceneid ) \
-	{ \
+visSurvey::Scene* uiVisPartServer::getScene( int sceneid )
+{
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	if ( scenes_[idx]->id()==sceneid )
+	{
 	    return scenes_[idx]; \
-	} \
-    } \
- \
-    return 0; \
+	}
+    }
+
+    return 0;
 }
 
-mGetScene();
-mGetScene( const ); 
+
+const visSurvey::Scene* uiVisPartServer::getScene( int sceneid ) const
+{
+    return const_cast<uiVisPartServer*>(this)->getScene( sceneid );
+}
 
 
 void uiVisPartServer::removeObject( int id, int sceneid )
