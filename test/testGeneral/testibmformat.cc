@@ -104,7 +104,7 @@ int main( int narg, char** argv )
     mTestVal( unsigned short, UnsignedShort, 0x010101FF, 65281 );
 
     //Test two known problem-spots
-    if ( !testFloatIndex( 0, 0) || !
+    if ( !testFloatIndex( 0, 0) ||
 	 !testFloatIndex( 152776, -1409417216.000000f ) )
 	return 1;
 
