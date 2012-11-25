@@ -14,6 +14,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 int main( int narg, char** argv )
 {
+    SetProgramArgs( narg, argv );
+
     const int svnversion = GetSubversionRevision();
     const char* svnurl = GetSubversionUrl();
 
