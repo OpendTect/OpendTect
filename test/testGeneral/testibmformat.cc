@@ -56,7 +56,7 @@ public:
                 return false;
 
 	    if ( !testFloatIndex( mCast(int,idx), mUdf(float) ) )
-		return false;
+	    { return false; }
         }
         
         return true;
@@ -88,6 +88,7 @@ public:
     
 int main( int narg, char** argv )
 {
+    SetProgramArgs( narg, argv );
 #define mComp( v1, v2 ) ( v1==v2 )
     int buf;
     int resbuf;
@@ -103,8 +104,8 @@ int main( int narg, char** argv )
     mTestVal( unsigned short, UnsignedShort, 0x010101FF, 65281 );
 
     //Test two known problem-spots
-    if ( !testFloatIndex( 291, 4.7019774e-38) ||
-	 !testFloatIndex( -2147390723, -3.40282347e+38 ) )
+    if ( !testFloatIndex( 0, 0) || !
+	 !testFloatIndex( 152776, -1409417216.000000f ) )
 	return 1;
 
     return 0;
