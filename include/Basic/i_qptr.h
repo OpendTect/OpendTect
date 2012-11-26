@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class i_QPtrImpl : public QObject, public CallBacker
+class Export_Basic i_QPtrImpl : public QObject, public CallBacker
 {
     Q_OBJECT
 
@@ -46,32 +46,9 @@ public:
     Threads::Mutex&	mutex()				{ return lock_; }
 
     
-    void		set(QObject* qo )
-			{
-			    if ( sender_ ) sender_->disconnect( this );
-			    
-			    sender_ = qo;
-			    if ( sender_ )
-			    {
-				connect( sender_,
-				    SIGNAL(destroyed(QObject*)),
-				    this, SLOT(destroyed(QObject*)) );
-			    }
-			}
-
-			i_QPtrImpl( QObject* sndr = 0 )
-			    : sender_(0)
-			    , notifier_(this)
-			{
-			    Threads::MutexLocker lock( lock_ );
-			    set( sndr );
-			}
-
-			~i_QPtrImpl()
-			{
-			    Threads::MutexLocker lock( lock_ );
-			    set( 0 );
-			}
+    void		set(QObject* qo);
+			i_QPtrImpl( QObject* sndr = 0 );
+			~i_QPtrImpl();
 
 private:
 

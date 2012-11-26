@@ -54,3 +54,30 @@ NotifierAccess& QObjPtr::deleteNotifier()
 {
     return impl_->notifier_;
 }
+
+void i_QPtrImpl::set(QObject* qo )
+{
+    if ( sender_ ) sender_->disconnect( this );
+
+    sender_ = qo;
+    if ( sender_ )
+    {
+	connect( sender_, SIGNAL(destroyed(QObject*)),
+		 this, SLOT(destroyed(QObject*)) );
+    }
+}
+
+i_QPtrImpl::i_QPtrImpl( QObject* sndr )
+    : sender_(0)
+    , notifier_(this)
+{
+    Threads::MutexLocker lock( lock_ );
+    set( sndr );
+}
+
+i_QPtrImpl::~i_QPtrImpl()
+{
+    Threads::MutexLocker lock( lock_ );
+    set( 0 );
+}
+
