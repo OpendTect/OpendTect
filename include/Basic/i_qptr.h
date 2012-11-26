@@ -30,51 +30,61 @@ class i_QPtrImpl : public QObject, public CallBacker
 
 public:
 
-    Notifier<i_QPtrImpl>	notifier_;
-    Threads::Mutex		lock_;
+    Notifier<i_QPtrImpl> notifier_;
+    Threads::Mutex	lock_;
 
-    QObject*			ptr() { return sender_; }
-    const QObject*		ptr() const { return sender_; }
+    QObject*		ptr()				{ return sender_; }
+    const QObject*	ptr() const			{ return sender_; }
     
-    void			set(QObject* qo )
-				{
-				    Threads::MutexLocker lock( lock_ );
-				    
-				    if ( sender_ ) sender_->disconnect( this );
-				    
-				    sender_ = qo;
-				    if ( sender_ )
-				    {
-					connect( sender_,
-					    SIGNAL(destroyed(QObject*)),
-					    this, SLOT(destroyed(QObject*)) );
-				    }
-				}
+    
+			operator QObject*()		{ return sender_; }
+			operator const QObject*() const	{ return sender_; }
+    QObject*		operator->()			{ return sender_; }
+    QObject*		operator->() const		{ return sender_; }
+    QObject*		operator=(QObject* qo)		{ set( qo ); return qo;}
+    
+    Threads::Mutex&	mutex()				{ return lock_; }
 
-				i_QPtrImpl( QObject* sndr )
-				    : sender_(0)
-				    , notifier_(this)
-				{
-				    set( sndr );
-				}
     
-				~i_QPtrImpl()
-				{
-				    set( 0 );
-				}
+    void		set(QObject* qo )
+			{
+			    if ( sender_ ) sender_->disconnect( this );
+			    
+			    sender_ = qo;
+			    if ( sender_ )
+			    {
+				connect( sender_,
+				    SIGNAL(destroyed(QObject*)),
+				    this, SLOT(destroyed(QObject*)) );
+			    }
+			}
+
+			i_QPtrImpl( QObject* sndr = 0 )
+			    : sender_(0)
+			    , notifier_(this)
+			{
+			    Threads::MutexLocker lock( lock_ );
+			    set( sndr );
+			}
+
+			~i_QPtrImpl()
+			{
+			    Threads::MutexLocker lock( lock_ );
+			    set( 0 );
+			}
 
 private:
 
-    QObject*  	sender_;
+    QObject*		sender_;
 
 private slots:
 
-    void			destroyed( QObject* )
-				{
-				    notifier_.trigger();
-				    Threads::MutexLocker lock( lock_ );
-				    sender_ = 0;
-				}
+    void		destroyed( QObject* )
+			{
+			    notifier_.trigger();
+			    Threads::MutexLocker lock( lock_ );
+			    sender_ = 0;
+			}
 
 };
 

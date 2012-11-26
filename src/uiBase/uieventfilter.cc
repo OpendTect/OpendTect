@@ -7,15 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: uiobj.cc 26529 2012-09-30 11:26:40Z nageswara.rao@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uieventfilter.h"
 #include "uiobj.h"
-#include "qptr.h"
+#include "i_qptr.h"
 
 #include <QEvent>
 #include <QWidget>
-#include <QWeakPointer>
 
 mUseQtnamespace
 
@@ -40,7 +39,7 @@ public:
     void				detachFilter();
 
 protected:
-    QObjPtr				qobj_;
+    i_QPtrImpl				qobj_;
     uiEventFilter& 			uif_;
 };
 
@@ -120,7 +119,7 @@ void uiEventFilterImpl::attachFilter( QObject* obj )
 
 void uiEventFilterImpl::detachFilter()
 {
-    Threads::MutexLocker lock( qobj_.mutex() );
+    Threads::MutexLocker lock( qobj_.lock_ );
     
     if ( qobj_ ) qobj_->removeEventFilter( this );
     qobj_ = 0;
@@ -129,7 +128,7 @@ void uiEventFilterImpl::detachFilter()
 
 bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 {
-    Threads::MutexLocker lock( qobj_.mutex() );
+    Threads::MutexLocker lock( qobj_.lock_ );
 
     if ( qobj_ )
 	return false;
