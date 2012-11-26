@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-if ( CMAKE_GENERATOR STREQUAL "Unix Makefiles" )
+if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR (CMAKE_GENERATOR STREQUAL "Ninja") )
     if ( CMAKE_BUILD_TYPE STREQUAL "" )
 	set ( DEBUGENV $ENV{DEBUG} )
 	if ( DEBUGENV AND
