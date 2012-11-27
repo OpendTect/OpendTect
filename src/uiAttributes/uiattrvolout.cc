@@ -115,9 +115,7 @@ void uiAttrVolOut::singLineSel( CallBacker* )
 {
     if ( !transffld->selFld2D() ) return;
 
-    if ( singmachfld_ )
-	singmachfld_->setValue( transffld->selFld2D()->isSingLine() );
-    singTogg( 0 );
+    setMode( transffld->selFld2D()->isSingLine() ? Single : Multi );
 }
 
 
