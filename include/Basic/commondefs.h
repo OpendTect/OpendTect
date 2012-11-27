@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "plfdefs.h"
 
+#define mCast(tp,v)		((tp)(v))
 #define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
 #define mRounded(typ,x)		( (typ)((x)>0 ? (x)+.5 : (x)-.5) )
 #define mNINT(x)		mRounded(int,x)
