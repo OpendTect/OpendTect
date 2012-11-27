@@ -51,6 +51,7 @@ protected:
     void		removeAttrib(CallBacker*);
     void		renameAttrib(CallBacker*);
     void		extrFrom3D(CallBacker*);
+    void		makeDefault(CallBacker*);
 
     uiListBox*		linefld_;
     uiListBox*		attrfld_;

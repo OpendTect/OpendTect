@@ -45,8 +45,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeis2DFileMan)
 
 
 uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
-    : uiDialog(p,uiDialog::Setup("Seismic line data management",
-				 "Manage 2D seismic lines",
+    : uiDialog(p,uiDialog::Setup("Manage 2D Seismic Lines",mNoDlgTitle,
 				 "103.1.3"))
     , issidomain(ZDomain::isSI( ioobj.pars() ))
     , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))
@@ -86,6 +85,8 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 	    		mCB(this,uiSeis2DFileMan,removeAttrib) );
     browsebut_ = attrgrp_->addButton( "browseseis.png", "Browse/edit this line",
 	    	       mCB(this,uiSeis2DFileMan,browsePush) );
+    attrgrp_->addButton( "makedefault.png",
+	    "Set as default", mCB(this,uiSeis2DFileMan,makeDefault) );
     attrgrp_->attach( rightOf, attrfld_ );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom" );
@@ -249,8 +250,19 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
 void uiSeis2DFileMan::browsePush( CallBacker* )
 {
     if ( !objinfo_ || !objinfo_->ioObj() ) return;
+
     const LineKey lk( linefld_->getText(), attrfld_->getText());
     uiSeisBrowser::doBrowse( this, *objinfo_->ioObj(), true, &lk );
+}
+
+
+void uiSeis2DFileMan::makeDefault( CallBacker* )
+{
+    if ( !objinfo_ || !objinfo_->ioObj() ) return;
+
+    BufferString attrnm = attrfld_->getText();
+    SI().getPars().set( sKey::DefAttribute, attrnm );
+    SI().savePars();
 }
 
 
@@ -523,8 +535,8 @@ uiSeis2DExtractFrom3D( uiParent* p, const uiSeisIOObjInfo& objinf,
 	    		BoolInpSpec(true,"All lines", "Selected line(s)") );
     IOObjContext ctxt = uiSeisSel::ioContext(Seis::Vol,true);
     ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
-    cubefld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
-	    			uiSeisSel::Setup(Seis::Vol) );
+
+    cubefld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
     cubefld_->attach( alignedBelow, alllnsfld_ );
     cubefld_->selectionDone.notify( mCB(this,uiSeis2DExtractFrom3D,cubeSel) );
     attrnmfld_ = new uiGenInput( this, "Store as attribute" );
