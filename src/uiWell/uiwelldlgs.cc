@@ -21,7 +21,6 @@ static const char* rcsID = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "unitofmeasure.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 #include "uiwellpartserv.h"
@@ -38,6 +37,7 @@ static const char* rcsID = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "unitofmeasure.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellimpasc.h"
@@ -516,7 +516,7 @@ void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 
 	sval = tbl_->text( RowCol(idx,1) );
 	if ( !sval || !*sval ) continue;
-	float tm = toFloat(sval) * 0.001;
+	float tm = toFloat(sval) * 0.001f;
 	d2t.add( dah, tm );
     }
 }
@@ -565,6 +565,7 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
     intvunfld = new uiGenInput( this, "", mft );
     intvunfld->attach( rightOf, intvfld );
+    intvunfld->display( false );
 
     unitlbl = new uiLabel( this, "XXXX" );
     unitlbl->attach( rightOf, intvfld );
@@ -605,15 +606,17 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     intvunfld->display( false );
 
     udffld->setValue( lfi.undefval );
+
+    Interval<float> usrzrg = lfi.zrg;
     if ( isft )
     {
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	if ( !mIsUdf(lfi.zrg.start) && zun ) 
-	    zun->userValue( lfi.zrg.start );
+	    usrzrg.start = zun->userValue( lfi.zrg.start );
 	if ( !mIsUdf(lfi.zrg.stop) && zun ) 
-	    zun->userValue( lfi.zrg.stop );
+	    usrzrg.stop = zun->userValue( lfi.zrg.stop );
     }
-    intvfld->setValue( lfi.zrg );
+    intvfld->setValue( usrzrg );
 }
 
 
@@ -623,16 +626,18 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     Well::LASImporter::FileInfo lfi;
 
     lfi.undefval = udffld->getfValue();
-    lfi.zrg.setFrom( intvfld->getFInterval() );
+
+    Interval<float> usrzrg = intvfld->getFInterval();
     const bool zinft = !intvunfld->getBoolValue();
     if ( zinft )
     {
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
-	if ( !mIsUdf(lfi.zrg.start) && zun ) 
-	    zun->internalValue( lfi.zrg.start );
-	if ( !mIsUdf(lfi.zrg.stop) && zun ) 
-	    zun->internalValue( lfi.zrg.stop );
+	if ( !mIsUdf(usrzrg.start) && zun ) 
+	    usrzrg.start = zun->internalValue( usrzrg.start );
+	if ( !mIsUdf(usrzrg.stop) && zun ) 
+	    usrzrg.stop = zun->internalValue( usrzrg.stop );
     }
+    lfi.zrg.setFrom( usrzrg );
 
     const char* lasfnm = lasfld->text();
     if ( !lasfnm || !*lasfnm ) 
@@ -707,18 +712,18 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zunitgrp_->attach( alignedBelow, typefld_ );
     uiLabel* zlbl = new uiLabel( this, "Output Z-unit" );
     zlbl->attach( leftOf, zunitgrp_ );
-    uiRadioButton* meterbut = new uiRadioButton( zunitgrp_, "meter" );
-    uiRadioButton* feetbut = new uiRadioButton( zunitgrp_, "feet" );
+    new uiRadioButton( zunitgrp_, "meter" );
+    new uiRadioButton( zunitgrp_, "feet" );
     bool have2dtmodel = true;
     for ( int idwell=0; idwell<wds_.size(); idwell++ )
     {
 	if ( !wds_[idwell]->haveD2TModel() ) 
-	    { have2dtmodel = false; break; }
+	{ have2dtmodel = false; break; }
     }
     if ( SI().zIsTime() && have2dtmodel)
     {
-	uiRadioButton* secbut = new uiRadioButton( zunitgrp_, "sec" );
-	uiRadioButton* msecbut = new uiRadioButton( zunitgrp_, "msec" );
+	new uiRadioButton( zunitgrp_, "sec" );
+	new uiRadioButton( zunitgrp_, "msec" );
     }
     zunitgrp_->selectButton( zinft );
 
