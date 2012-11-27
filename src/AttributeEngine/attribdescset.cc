@@ -84,8 +84,22 @@ DescID DescSet::ensureDefStoredPresent() const
     BufferString idstr; DescID retid;
 
     if ( is2d_ )
-	idstr = LineKey( SI().pars().find(sKey::DefLineSet),
-			 SI().pars().find(sKey::DefAttribute) );
+    {
+	const FixedString lsid = SI().pars().find( sKey::DefLineSet );
+	PtrMan<IOObj> lsobj = IOM().get( MultiID(lsid) );
+	BufferString attrnm = SI().pars().find( sKey::DefAttribute ).str();
+	if ( lsobj && attrnm.isEmpty() )
+	{
+	    SeisIOObjInfo seisinfo( lsobj );
+	    BufferStringSet attrnms;
+	    SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
+	    seisinfo.getAttribNames( attrnms, o2d );
+	    if ( !attrnms.isEmpty() )
+		attrnm = attrnms.get(0);
+	}
+
+	idstr = LineKey( lsid, attrnm );
+    }
     else
 	idstr = SI().pars().find( sKey::DefCube );
 
