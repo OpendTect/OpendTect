@@ -91,7 +91,22 @@ DescID DescSet::ensureDefStoredPresent() const
     if ( defpars )
     {
 	if ( is2d_ )
-	    idstr = LineKey(mGetPar(sKeyDefault2D),mGetPar(sKeyDefaultAttrib));
+	{
+	    const FixedString lsid = mGetPar( sKeyDefault2D );
+	    PtrMan<IOObj> lsobj = IOM().get( MultiID(lsid) );
+	    BufferString attrnm = mGetPar( sKeyDefaultAttrib );
+	    if ( lsobj && attrnm.isEmpty() )
+	    {
+		SeisIOObjInfo seisinfo( lsobj );
+		BufferStringSet attrnms;
+		SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
+		seisinfo.getAttribNames( attrnms, o2d );
+		if ( !attrnms.isEmpty() )
+		    attrnm = attrnms.get(0);
+	    }
+
+	    idstr = LineKey( lsid, attrnm );
+	}
 	else
 	    idstr = mGetPar( sKeyDefault3D );
     }
