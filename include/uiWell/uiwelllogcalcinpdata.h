@@ -43,6 +43,9 @@ protected:
     bool                lognmsettodef_;
 
     void		inputSel(CallBacker*);
+
+public:
+    void                        restrictLogChoice(const PropertyRef::StdType&);
 };
 
 #endif

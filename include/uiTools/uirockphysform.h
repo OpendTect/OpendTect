@@ -64,6 +64,7 @@ protected:
 public:
     bool		getFormulaInfo(BufferString&,BufferString&,
 	    				BufferString&,BufferStringSet&,
+						TypeSet<PropertyRef::StdType>&,
 				       	bool usecstvals=true) const;
 };
 

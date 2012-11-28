@@ -73,6 +73,9 @@ protected:
 	    				  bool) const;
     void			addDefInpUnit() const;
 
+public:
+    PropertyRef::StdType	inputType(int) const;
+
 };
 
 

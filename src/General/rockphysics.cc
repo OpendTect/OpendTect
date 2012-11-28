@@ -98,7 +98,7 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
 	if ( !nm.isEmpty() )
 	{
 	    const PropType typ =
-			PropertyRef::parseEnumStdType( iop.find(sKey::Type) );
+			PropertyRef::parseEnumStdType( subpar->find(sKey::Type) );
 	    VarDef* vd = new VarDef( nm, typ );
 	    subpar->get( sKey::Unit, vd->unit_ );
 	    subpar->get( sKey::Desc, vd->desc_ );
@@ -179,7 +179,7 @@ bool RockPhysics::Formula::setDef( const char* str )
 
     const int nrvars = mp->nrInputs();
     for ( int idx=0; idx<nrvars; idx++ )
-	vardefs_ += new VarDef( mp->inputName(idx), PropertyRef::Other );
+	vardefs_ += new VarDef( mp->inputName(idx), mp->inputType(idx) );
     const int nrconsts = mp->nrConsts();
     for ( int idx=0; idx<nrconsts; idx++ )
 	constdefs_ += new ConstDef( BufferString("c",idx) );

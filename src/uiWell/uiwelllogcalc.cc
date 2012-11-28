@@ -43,6 +43,9 @@ static const BufferStringSet specvars( specvararr );
 
 HiddenParam<uiWellLogCalc,uiLabeledComboBox*>    fufldmanager( 0 );
 
+HiddenParam<uiWellLogCalc,TypeSet<PropertyRef::StdType>* > 
+			inputtypesparam( new TypeSet<PropertyRef::StdType> );
+
 static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 {
     const int sz = wllids.size();
@@ -145,6 +148,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
 uiWellLogCalc::~uiWellLogCalc()
 {
     delete expr_;
+    inputtypesparam.removeParam(this);
 }
 
 
@@ -189,11 +193,11 @@ bool acceptOK( CallBacker* )
 
 
 bool getFormulaInfo( BufferString& cleanformula, BufferString& formulaunit,
-		     BufferString& outputunit,
-		     BufferStringSet& varsunits ) const
+		     BufferString& outputunit, BufferStringSet& varsunits,
+		     TypeSet<PropertyRef::StdType>& varstypes ) const
 {
-    return formgrp_->getFormulaInfo( cleanformula, formulaunit, outputunit,
-	    			     varsunits, true);
+    return formgrp_->getFormulaInfo( cleanformula, formulaunit,
+	    			     outputunit, varsunits, varstypes, true );
 }
 
     uiRockPhysForm*	formgrp_;
@@ -207,9 +211,11 @@ void uiWellLogCalc::rockPhysReq( CallBacker* )
     BufferString formula;
     BufferString formulaunit;
     BufferString outunit;
-    if ( dlg.go() && 
-	 dlg.getFormulaInfo( formula, formulaunit, outunit, inputunits_ ) )
+    TypeSet<PropertyRef::StdType>* tmptypes = inputtypesparam.getParam(this);
+    if ( dlg.go() && dlg.getFormulaInfo( formula, formulaunit,
+					 outunit, inputunits_, *tmptypes ) )
     {
+	inputtypesparam.setParam( this, tmptypes );
 	formfld_->setText( formula.buf() );
 	BufferString formunstr = formulaunit.isEmpty() && !outunit.isEmpty() ? 
 				    outunit : formulaunit;
@@ -241,17 +247,23 @@ void uiWellLogCalc::formSet( CallBacker*  c )
     int truevaridx = 0;	//should always be ==idx if inputunits_.size, safety.
     for ( int idx=0; idx<inpdataflds_.size(); idx++ )
     {
+	const bool isinpcst = inpdataflds_[idx]->isCst();
+	TypeSet<PropertyRef::StdType>* inptypes =inputtypesparam.getParam(this);
+	if ( inptypes->size()>truevaridx && !isinpcst )
+	    inpdataflds_[idx]->restrictLogChoice( (*inptypes)[truevaridx] );
 	inpdataflds_[idx]->use( expr_ );
-	if ( inputunits_.size()>truevaridx && !inpdataflds_[idx]->isCst() )
+	if ( inputunits_.size()>truevaridx && !isinpcst )
 	{
 	    inpdataflds_[idx]->setUnit( inputunits_.get(truevaridx).buf() );
 	    truevaridx++;
 	}
     }
-
-    inpSel( 0 );
+   
     if ( c )
 	fufldmanager.getParam(this)->display( true );
+
+	inpSel( 0 );
+
 }
 
 
@@ -529,4 +541,29 @@ const char* uiWellLogCalc::getOutputLogName() const
 }
 
 
-
+void uiWellLogCalc::getSuitableLogs( const Well::LogSet& logs,
+				     BufferStringSet& lognms,
+				     TypeSet<int>& propidx,
+				     TypeSet<int>& isaltpropref,
+       				     const PropertyRef& propref,
+				     const PropertyRef* altpropref )
+{
+    for ( int idlog=0; idlog<logs.size(); idlog++ )                         
+    {                                                                       
+	const char* uomlbl = logs.getLog( idlog ).unitMeasLabel();          
+	const UnitOfMeasure* um = UnitOfMeasure::getGuessed( uomlbl );      
+	if ( ( um && ( propref.stdType() == um->propType() ) ) || !um )     
+	{                                                                   
+	    lognms.add( logs.getLog(idlog).name() );                        
+	    propidx += idlog;                                               
+	    isaltpropref += 0;                                              
+	}                                                                   
+	else if ( um && altpropref )                                        
+	    if ( altpropref->stdType() == um->propType() )                  
+	    {                                                               
+		lognms.add( logs.getLog(idlog).name() );                    
+		propidx += idlog;                                           
+		isaltpropref += 1;                                          
+	    }                                                               
+    }
+}

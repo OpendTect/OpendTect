@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "multiid.h"
+#include "propertyref.h"
 
 class uiGenInput;
 class uiCheckBox;
@@ -95,6 +96,12 @@ protected:
 public:
     void                        setOutputLogName(const char* nm);
     const char*                 getOutputLogName() const;
+	static void			getSuitableLogs(const Well::LogSet&,
+	                                        BufferStringSet& lognms,
+						TypeSet<int>& propidx,
+						TypeSet<int>& isaltpropref,
+						const PropertyRef& propref,
+						const PropertyRef* altpropref);
 
 };
 

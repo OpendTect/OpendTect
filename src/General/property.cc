@@ -234,6 +234,15 @@ const char* MathProperty::inputName( int idx ) const
 }
 
 
+PropertyRef::StdType MathProperty::inputType( int idx ) const
+{
+    const Property* inp = inps_[idx];
+    if ( !inp ) return PropertyRef::Other;
+
+    return inp->ref().stdType();
+}
+
+
 const char* MathProperty::constName( int idx ) const
 {
     return getVarName( expr_, idx, false );
