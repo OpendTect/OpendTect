@@ -92,6 +92,13 @@ void RayTracer1D::fillPar( IOPar& par ) const
 }
 
 
+void RayTracer1D::setIOParsToZeroOffset( IOPar& par )
+{
+    TypeSet<float> emptyset; emptyset += 0;
+    par.set( RayTracer1D::sKeyOffset(), emptyset );
+}
+
+
 void RayTracer1D::setModel( const ElasticModel& lys )
 {
     model_ = lys; 

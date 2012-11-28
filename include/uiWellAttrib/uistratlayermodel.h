@@ -131,6 +131,10 @@ protected:
     void			fillWorkBenchPars(IOPar&) const;
     bool			useDisplayPars(const IOPar&);
     void                        helpCB(CallBacker*);
+    void			infoChanged(CallBacker*);
+public:
+    bool			useSyntheticsPars(const IOPar&);
+    void			fillSyntheticsPars(IOPar&) const;
 };
 
 

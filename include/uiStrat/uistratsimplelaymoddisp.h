@@ -80,6 +80,7 @@ protected:
     void		removeLayers(Strat::LayerSequence&,int,bool);
     void		forceRedispAll(bool modeledited=false);
 
+    void		mouseMoved(CallBacker*);
 };
 
 

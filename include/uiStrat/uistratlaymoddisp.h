@@ -70,6 +70,7 @@ public:
     void		setFRPars( const IOPar& pars )	{ frpars_ = pars; }
     float		getLayerPropValue(const Strat::Layer&,
 					    const PropertyRef*,int) const;
+    CNotifier<uiStratLayerModelDisp,IOPar>& infoChanged();
 
 };
 

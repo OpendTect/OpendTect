@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uimenu.h"
 #include "uiaxishandler.h"
+#include "hiddenparam.h"
 #include "stratlevel.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
@@ -34,6 +35,8 @@ static const char* rcsID mUsedVar = "$Id$";
     if ( SI().depthsInFeet() ) \
 	var.scale( mToFeetFactorF )
 
+static HiddenParam< uiStratLayerModelDisp,
+    		    CNotifier<uiStratLayerModelDisp,IOPar>* > infonotify( 0 );
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 					  const Strat::LayerModelProvider& lmp )
@@ -50,6 +53,9 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , rangeChanged(this)   
     , modelEdited(this)   
 {
+    CNotifier<uiStratLayerModelDisp,IOPar>* infochanged =
+	new CNotifier<uiStratLayerModelDisp,IOPar>( this );
+    infonotify.setParam( this, infochanged );
 }
 
 
@@ -119,6 +125,10 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 }
 
 
+CNotifier<uiStratLayerModelDisp,IOPar>& uiStratLayerModelDisp::infoChanged()
+{ return *infonotify.getParam( this ); }
+
+
 uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 		uiStratLayModEditTools& t, const Strat::LayerModelProvider& l )
     : uiStratLayerModelDisp(t,l)
@@ -143,6 +153,8 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 			mCB(this,uiStratSimpleLayerModelDisp,usrClicked) );
     gv_->getMouseEventHandler().doubleClick.notify(
 			mCB(this,uiStratSimpleLayerModelDisp,doubleClicked) );
+    gv_->getMouseEventHandler().movement.notify(
+			mCB(this,uiStratSimpleLayerModelDisp,mouseMoved) );
 
     const uiBorder border( 10 );
     uiAxisHandler::Setup xahsu( uiRect::Top );
@@ -202,6 +214,17 @@ int uiStratSimpleLayerModelDisp::getClickedModelNr() const
     if ( selidx < 0 || selidx >= lmp_.get().size() )
 	selidx = -1;
     return selidx;
+}
+
+
+void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
+{
+    IOPar statusbarmsg;
+    statusbarmsg.set( "Model Number", getClickedModelNr() );
+    const MouseEvent& mev = gv_->getMouseEventHandler().event();
+    const float depth = yax_->getVal( mev.pos().y );
+    statusbarmsg.set( "Depth", depth );
+    infoChanged().trigger( statusbarmsg, this );
 }
 
 
@@ -586,3 +609,4 @@ void uiStratSimpleLayerModelDisp::drawSelectedSequence()
     it->setZValue( 2 );
     selseqitm_ = it;
 }
+

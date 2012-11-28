@@ -40,7 +40,12 @@ mStruct SynthGenParams
     BufferString        wvltnm_;
 
     //gen name from wvlt and raypars
-    const char*         genName() const;
+    const char*		genName() const;
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+bool operator==( const SynthGenParams& gp )
+{ return isps_==gp.isps_ && wvltnm_==gp.wvltnm_ && raypars_==gp.raypars_; }
+
 };
 
 
@@ -64,11 +69,11 @@ public:
 
     DataPack::FullID			datapackid_;
 
-    int                                 id_;
-    virtual bool                        isPS() const            = 0;
-    virtual bool                        hasOffset() const       = 0;
-    void                                useGenParams(const SynthGenParams&);
-    void                                fillGenParams(SynthGenParams&) const;
+    int					id_;
+    virtual bool			isPS() const 		= 0;
+    virtual bool			hasOffset() const 	= 0;
+
+    void				fillGenParams(SynthGenParams&) const;
 
 protected:
 					SyntheticData(const SynthGenParams&,
@@ -80,6 +85,11 @@ protected:
     void                                removePack();
 
     DataPack&		                datapack_;
+public:
+    void				useGenParams(const SynthGenParams&);
+    const char*				waveletName() const { return wvltnm_; }
+    void				setWavelet( const char* wvltnm )
+					{ wvltnm_ = wvltnm; }
 };
 
 
@@ -203,10 +213,6 @@ protected:
     void			generateOtherQuantities(PostStackSyntheticData&,
 					const Strat::LayerModel&);
 public:
-    bool			removeSynthetic(const char*);
-
-public:
-
     void                        setTaskRunner(TaskRunner* tr) { tr_ = tr; }
 
     SynthGenParams&		genParams()  	{ return genparams_; }
@@ -217,12 +223,15 @@ public:
     SyntheticData* 		getSynthetic(const char* nm);
     SyntheticData* 		getSyntheticByIdx(int idx);
 
-protected:
-
-public:
     SyntheticData* 		getSynthetic(const PropertyRef&);
     void			flattenTraces(SeisTrcBuf&) const;
     void			decimateTraces(SeisTrcBuf&,int fac) const;
+    bool			removeSynthetic(const char*);
+    SyntheticData*		addSynthetic(const SynthGenParams&); 
+protected:
+    SyntheticData* 		generateSD(const Strat::LayerModel&,
+	    				   const SynthGenParams&,
+					   TaskRunner*);
 };
 
 #endif

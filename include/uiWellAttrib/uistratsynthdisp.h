@@ -159,6 +159,9 @@ public:
     void 		setSelectedTrace(int);
     SyntheticData*	getCurrentSyntheticData() const;
     uiMultiFlatViewControl* control() 	{ return control_; }
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+    void		setCurrentWavelet();
 protected:
     void		setSynthNames();
 
@@ -186,6 +189,8 @@ protected:
     void		nextCB(CallBacker*);
 
     StepInterval<float>	limitsampling_;
+public:
+    void		setValue(int);
 };
 
 
@@ -234,6 +239,7 @@ protected:
     void			nameToBeChged(CallBacker*);
     void			nameChanged(CallBacker*);
     void			changeSyntheticsCB(CallBacker*);
+    void			wvltToBeChanged(CallBacker*);
 public:
     void			setSynthList(const BufferStringSet&);
     void			setWaveletName(const char*);

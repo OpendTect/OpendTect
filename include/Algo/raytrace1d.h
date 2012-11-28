@@ -109,6 +109,12 @@ protected:
     Array2DImpl<float>*		sini_;
     Array2DImpl<float>*		twt_;
     Array2DImpl<float_complex>* reflectivity_;
+
+public:
+    static const char*  sKeyVelBlock()     { return "Block velocities"; }
+    static const char*  sKeyVelBlockVal()  { return "Block threshold"; }
+
+    static void		setIOParsToZeroOffset(IOPar& iop);
 };
 
 

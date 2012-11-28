@@ -46,6 +46,7 @@ static const char* rcsID = "$Id$";
 #include "uistratsynthcrossplot.h"
 #include "uistratlaymodtools.h"
 #include "uistrattreewin.h"
+#include "uistatusbar.h"
 #include "uitaskrunner.h"
 #include "uitoolbutton.h"
 #include "uichecklist.h"
@@ -244,7 +245,7 @@ void copyToEdited()
 };
 
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
-    : uiMainWin(p,"",0,false)
+    : uiMainWin(p,"",1,false)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , elpropsel_(0)				   
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
@@ -334,9 +335,13 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     synthdisp_->modSelChanged.notify( mCB(this,uiStratLayerModel,modSelChg) );
     synthdisp_->layerPropSelNeeded.notify(
 			    mCB(this,uiStratLayerModel,selElasticPropsCB) );
+    synthdisp_->control()->infoChanged.notify(
+	    mCB(this,uiStratLayerModel,infoChanged) );
     moddisp_->genNewModelNeeded.notify( mCB(this,uiStratLayerModel,genModels) );
     moddisp_->rangeChanged.notify( 
 			    mCB(this,uiStratLayerModel,modDispRangeChanged));
+    moddisp_->infoChanged().notify( 
+			    mCB(this,uiStratLayerModel,infoChanged));
     moddisp_->sequenceSelected.notify( mCB(this,uiStratLayerModel,seqSel) );
     moddisp_->modelEdited.notify( mCB(this,uiStratLayerModel,modEd) );
 
@@ -638,7 +643,8 @@ bool uiStratLayerModel::openGenDesc()
     if ( !desc_.getWorkBenchParams() || 
 	    !useDisplayPars( *desc_.getWorkBenchParams() ))
 	return false;
-
+    useSyntheticsPars( *desc_.getWorkBenchParams() );
+    
     setWinTitle();
     return true;
 }
@@ -826,6 +832,19 @@ void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
 		saveRequiredNotif()->trigger( &caps );
     gentools_->fillPar( par );
     fillDisplayPars( par );
+    fillSyntheticsPars( par );
+}
+
+
+bool uiStratLayerModel::useSyntheticsPars( const IOPar& par ) 
+{
+    return synthdisp_->usePar( par );
+}
+
+
+void uiStratLayerModel::fillSyntheticsPars( IOPar& par ) const
+{
+    synthdisp_->fillPar( par );
 }
 
 
@@ -835,7 +854,113 @@ void uiStratLayerModel::fillDisplayPars( IOPar& par ) const
 }
 
 
-void uiStratLayerModel::helpCB( CallBacker* )                                          
-{                                                                                      
-    uiMainWin::provideHelp( "110.2.0" );                                               
+void uiStratLayerModel::helpCB( CallBacker* )
+{
+    uiMainWin::provideHelp( "110.2.0" );
 }
+
+
+static void makeInfoMsg( BufferString& mesg, IOPar& pars ) 
+{
+    int nrinfos = 0;
+#define mAddSep() if ( nrinfos++ ) mesg += ";\t";
+
+    const char* vdstr = pars.find( "Variable density data" );
+    const char* wvastr = pars.find( "Wiggle/VA data" );
+    const char* vdvalstr = pars.find( "VD Value" );
+    const char* wvavalstr = pars.find( "WVA Value" );
+    const bool issame = vdstr && wvastr && !strcmp(vdstr,wvastr);
+    if ( vdvalstr )
+    {
+	mAddSep();
+	if ( issame )
+	    { if ( !vdstr || !*vdstr ) vdstr = wvastr; }
+	else
+	    { if ( !vdstr || !*vdstr ) vdstr = "VD Val"; }
+	float val = *vdvalstr ? toFloat( vdvalstr ) : mUdf(float);
+	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr;
+	mesg += " ("; mesg += vdstr; mesg += ")";
+    }
+    if ( wvavalstr && !issame )
+    {
+	mAddSep();
+	float val = *wvavalstr ? toFloat( wvavalstr ) : mUdf(float);
+	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr;
+	if ( !wvastr || !*wvastr ) wvastr = "WVA Val";
+	mesg += " ("; mesg += wvastr; mesg += ")";
+    }
+
+    const char* valstr = pars.find( sKey::Offset );
+    if ( valstr && *valstr )
+	{ mAddSep(); mesg += "Offs="; mesg += valstr; }
+    valstr = pars.find( sKey::Azimuth );
+    if ( valstr && *valstr && strcmp(valstr,"0") )
+	{ mAddSep(); mesg += "Azim="; mesg += valstr; }
+
+    valstr = pars.find( "Z" );
+    if ( valstr && *valstr )
+	{ mAddSep(); mesg += "Z="; mesg += valstr; }
+    valstr = pars.find( sKey::Position );
+    if ( valstr && *valstr )
+	{ mAddSep(); mesg += "Pos="; mesg += valstr; }
+    else
+    {
+    	valstr = pars.find( "X" );
+	if ( !valstr ) valstr = pars.find( "X-coordinate" );
+	if ( valstr && *valstr )
+	    { mAddSep(); mesg += "X="; mesg += valstr; }
+	valstr = pars.find( "Y" );
+	if ( !valstr ) valstr = pars.find( "Y-coordinate" );
+	if ( valstr && *valstr )
+	    { mAddSep(); mesg += "Y="; mesg += valstr; }
+
+	valstr = pars.find( sKey::TraceNr );
+	if ( valstr && *valstr )
+	{
+	    mAddSep(); mesg += "TrcNr="; mesg += valstr;
+	    valstr = pars.find( "Reference position" );
+	    if ( valstr && *valstr )
+		{ mAddSep(); mesg += "Ref/SP="; mesg += valstr; }
+	    valstr = pars.find( "Z-Coord" );
+	    if ( valstr && *valstr )
+		{ mAddSep(); mesg += "Z="; mesg += valstr; }
+	}
+	else
+	{
+	    valstr = pars.find( "Inline" );
+	    if ( !valstr ) valstr = pars.find( "In-line" );
+	    if ( valstr && *valstr )
+		{ mAddSep(); mesg += "Inline="; mesg += valstr; }
+	    valstr = pars.find( "Crossline" );
+	    if ( !valstr ) valstr = pars.find( "Cross-line" );
+	    if ( valstr && *valstr )
+		{ mAddSep(); mesg += "Crossline="; mesg += valstr; }
+	}
+    }
+}
+
+
+
+void uiStratLayerModel::infoChanged( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller(IOPar,pars,caller,cb);
+    mDynamicCastGet(uiStratLayerModelDisp*,moddisp,caller);
+    if ( !moddisp )
+    {
+	BufferString mesg;
+	makeInfoMsg( mesg, pars );
+	statusBar()->message( mesg.buf() );
+    }
+    else
+    {
+	BufferString msg;
+	for ( int idx=0; idx<pars.size(); idx++ )
+	{
+	    msg += pars.getKey( idx );
+	    msg +=": ";
+	    msg += pars.getValue( idx );
+	    msg += "\t";
+	}
+	statusBar()->message( msg.buf() );
+    }
+} 

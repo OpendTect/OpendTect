@@ -225,17 +225,17 @@ uiWorldRect uiFlatViewControl::getZoomOrPanRect( Geom::Point2D<double> centre,
 
 void uiFlatViewControl::flip( bool hor )
 {
-    const uiWorldRect cv( vwrs_[0]->curView() );
-    const uiWorldRect newview(	hor ? cv.right()  : cv.left(),
-				hor ? cv.top()    : cv.bottom(),
-				hor ? cv.left()   : cv.right(),
-				hor ? cv.bottom() : cv.top() );
-
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
+        for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	FlatView::Annotation::AxisData& ad
 			    = hor ? vwrs_[idx]->appearance().annot_.x1_
 				  : vwrs_[idx]->appearance().annot_.x2_;
+	const uiWorldRect cv( vwrs_[idx]->curView() );
+	const uiWorldRect newview(	hor ? cv.right()  : cv.left(),
+				    hor ? cv.top()    : cv.bottom(),
+				    hor ? cv.left()   : cv.right(),
+				    hor ? cv.bottom() : cv.top() );
+
 	ad.reversed_ = !ad.reversed_;
 	vwrs_[idx]->setView( newview );
     }
