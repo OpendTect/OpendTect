@@ -1,0 +1,91 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# (C) dGB Beheer B.V.
+# OpenTect license manager daemon startup script
+# $Id: .lic_start_common,v 1.1 2010-04-06 08:33:09 relman Exp $
+#_______________________________________________________________________________
+
+#
+# You may want to change the following directory.
+# It is the directory where the logfiles will be placed.
+# The default is the root of the installation directory.
+#
+
+set logdir=$DTECT_APPL
+
+#
+# End setup
+#
+
+#
+# Checks
+#
+
+if ( ! $?target_name ) then
+	echo "$0 can be only called after setting the 'target_name' variable."
+	exit 1
+endif
+if ( ! $?flexlm_dir ) then
+	echo "$0 can be only called after setting the 'flexlm_dir' variable."
+	exit 1
+endif
+
+if ( "$1" == "--help" ) then
+	echo "This script starts or stops a license manager daemon for $target_name"
+	echo "It takes one optional argument, 'stop'."
+	echo "If no arguments specified, 'start' will be assumed."
+	exit 0
+endif
+
+#Check that plugin maker has not made an absolute path
+set FLEXLMINST=${DTECT_APPL}/${flexlm_dir}
+if ( ! -d ${FLEXLMINST} ) then
+    if ( -d ${flexlm_dir} ) then
+        set FLEXLMINST = ${flexlm_dir}
+    else
+        echo "Cannot find flexlm directory"
+        exit 0
+    endif
+endif
+
+
+#
+# Start/stop
+#
+
+set do_start=yes
+if ( "$1" == stop ) set do_start=no
+
+setenv LM_LICENSE_FILE $DTECT_APPL/license.$target_name.dat
+if ( ! -r $LM_LICENSE_FILE ) then
+
+	echo "Cannot find $LM_LICENSE_FILE - quitting now."
+	exit 1
+
+endif
+
+set nrl=`grep SERVER $LM_LICENSE_FILE | wc -l`
+if ( $nrl == 0 ) then
+
+	echo "$LM_LICENSE_FILE contains not SERVER lines."
+	echo "No need to start a daemon."
+	exit 0
+
+endif
+
+if ( $do_start == yes ) then
+
+    echo "Executing: $FLEXLMINST/lmgrd -l $logdir/license.$target_name.log"
+    if ( $HDIR == lux ) then
+    	echo "  (error messages like 'Incorrectly built binary ...' can safely be ignored)."
+    endif
+    $FLEXLMINST/lmgrd -l $logdir/license.$target_name.log
+    echo ""
+    echo "Please view license.$target_name.log if you want to see whether startup succeeded."
+
+else
+
+    $FLEXLMINST/lmdown
+
+endif

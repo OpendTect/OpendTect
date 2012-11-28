@@ -1,0 +1,58 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# (C) dGB Beheer B.V.
+# $Id: mk_datadir,v 1.2 2010-06-01 03:17:22 relman Exp $
+#
+# d-Tect data directory creator
+#_______________________________________________________________________________
+
+if ( $#argv < 1 || "$1" == "--help" ) then
+	echo "Usage : $0 name_of_new_OpendTect_project_data_directory"
+	exit 0
+endif
+
+set rel=4.0
+set dir="$1"
+set omf="$dir/.omf"
+
+if ( -e $dir ) then
+	echo ""
+	echo "Warning: $dir exists. This should not be a problem though."
+	echo ""
+else
+	mkdir $dir
+endif
+if ( ! -e $dir ) then
+	echo ""
+	echo "Cannot create $dir . Please check permissions."
+	echo ""
+	exit 1
+endif
+if ( ! -d $dir ) then
+	echo "But it is not a directory\! Please remove or rename."
+	echo ""
+	exit 1
+endif
+if ( ! -w $dir ) then
+	echo ""
+	echo "$dir is not writable and cannot be used."
+	echo ""
+	exit 1
+endif
+
+echo "dTect V$rel"		> $omf
+echo "Object Management file"	>> $omf
+echo `date`			>> $omf
+echo "\!"			>> $omf
+echo "ID: -1"			>> $omf
+echo "\!"			>> $omf
+echo "Appl dir: 1"		>> $omf
+echo 'Appl: dGB`Stream'		>> $omf
+echo 'QQQName: appl' | sed 's/QQQ/$/'	>> $omf
+echo "\!"			>> $omf
+
+setenv DTECT_DATA `cd $dir;dirs -l`
+echo ""
+echo "You can now use this directory as OpendTect data directory."
+echo ""

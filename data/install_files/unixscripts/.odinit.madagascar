@@ -1,0 +1,21 @@
+#!/bin/csh -f
+#
+# MADAGASCAR environment
+#
+
+echo -n "Setting up Madagascar environment ... "
+
+if ( $?RSFROOT ) then
+    echo "RSFROOT already set. To use build-in Madagascar, unset RSFROOT"
+    exit
+endif
+
+setenv RSFROOT __INST_DIR__/Madagascar/${binsubdir}
+if ( ! -d ${RSFROOT} ) then
+    echo "Madagascar installation directory not found"
+    exit
+endif
+
+setenv PATH ${PATH}:${RSFROOT}/bin
+
+echo "Madagascar setup done"

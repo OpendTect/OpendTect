@@ -1,0 +1,91 @@
+#_______________________________________________________________________________
+#
+# (C) dGB Beheer B.V.
+# License installer common source script
+# $Id: .lic_inst_common,v 1.1 2010-04-06 08:33:09 relman Exp $
+#_______________________________________________________________________________
+
+if ( ! $?target_name ) then
+	echo "$0 can be only called after setting the 'target_name' variable."
+	exit 1
+endif
+if ( ! $?flexlm_dir ) then
+	echo "$0 can be only called after setting the 'flexlm_dir' variable."
+	exit 1
+endif
+
+if ( "$1" == "--help" ) then
+	echo "This script installs a license file"
+	echo "You can specify one optional argument: the file name"
+	exit 0
+endif
+
+umask 022
+set get_answer='echo -n ">> ";set answer=$<;echo ""'
+
+#_______________________________________________________________________________
+# Get location of new license file
+#
+
+set target_file=$DTECT_APPL/license.$target_name.dat
+
+try_again:
+
+if ( $#argv > 0 ) then
+	set lic_input="$1"
+	shift
+else
+	echo ""
+	echo "Name of the file where you saved the new license info? "
+	eval $get_answer
+	set lic_input=$answer
+endif
+
+if ( "$lic_input" == "" || ! -r "$lic_input" ) then
+	echo "Cannot find file: $lic_input"
+	goto try_again
+endif
+
+cp $lic_input /tmp/lic_$$.dat
+set lic_input=/tmp/lic_$$.dat
+
+#_______________________________________________________________________________
+# Create new license file
+#
+
+setenv LM_LICENSE_FILE $DTECT_APPL/license.$target_name.dat
+set lic_dir_sed=`echo $DTECT_APPL/$flexlm_dir | sed 's/\//\\\//g'`
+set nrlines=`grep full_path_to $lic_input|wc -l`
+if ( `grep full_path_to $lic_input|wc -l` > 0 ) then
+	# Easy: fresh license file
+	sed "s/full_path_to/$lic_dir_sed/" $lic_input >! $LM_LICENSE_FILE
+else
+	# This is more 'dangerous', works only if VENDOR line is well behaved
+	set daemonnm=`grep '^VENDOR' $lic_input|awk '{print $2}'|tail -1`
+	if ( "$daemonnm" == "" ) then
+		cp $lic_input $LM_LICENSE_FILE
+	else
+		sed "s/^VENDOR.*/VENDOR $daemonnm $lic_dir_sed\/$daemonnm/" $lic_input >! $LM_LICENSE_FILE
+	endif
+endif
+
+rm -f $lic_input
+
+if ( ! -r $LM_LICENSE_FILE ) then
+	echo "License file not created."
+	if ( ! -w $DTECT_APPL ) echo "	because $DTECT_APPL is not writable."
+	exit 3
+endif
+
+
+#_______________________________________________________________________________
+# Provide info on next step
+#
+
+set nrlines=`grep -c SERVER $LM_LICENSE_FILE`
+if ( $nrlines < 1 ) then
+	echo "This license needs no daemon to be started."
+else
+	echo "This license requires the license manager daemon to be started."
+	echo "You may want to use the start.$target_name.lmgrd script for this purpose."
+endif
