@@ -1,0 +1,8 @@
+#!/bin/csh -f
+#
+# GMT setup
+# $Id: setup.od.gmt,v 1.2 2012/07/27 09:11:36 relman Exp $
+#
+
+sed -e "s/__INST_DIR__/$replaceinstdir/" .odinit.gmt > odinit.gmt
+chmod +x odinit.gmt
