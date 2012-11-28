@@ -352,7 +352,6 @@ bool uiTieWinMGRDlg::initSetup()
 
     Well::Data* loadedwd =  Well::MGR().get( wtsetup_.wellid_, false );
     if ( !loadedwd ) loadedwd = wd_;
-    WellTie::UnitFactors units;
 
     uiPropSelFromList* psflden = logsfld_->getPropSelFromListByName("Density");
     if ( !psflden ) return false;
