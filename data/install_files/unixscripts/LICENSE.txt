@@ -1,0 +1,16 @@
+Copyright (C) 2002-2011 dGB Beheer B.V. All rights reserved.
+
+This software is part of OpendTect and may be used either under the terms of:
+
+1. The GNU General Public License version 3 or higher, as published by
+the Free Software Foundation, or
+2. The OpendTect Commercial License version 1 or higher, as published by
+dGB Beheer B.V., or
+3. The OpendTect Academic License version 1 or higher, as published by
+dGB Beheer B.V.
+
+For help to determine which license to use, please visit
+http://www.opendtect.org/licensing.html .
+
+This software is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
