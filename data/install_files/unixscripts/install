@@ -1,0 +1,163 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# (C) dGB Beheer B.V.
+# $Id: install,v 1.2 2012/03/06 05:54:15 relman Exp $
+#
+# Installs the OpendTect application and optional extra software
+#_______________________________________________________________________________
+
+if ( ! -e ./mk_datadir ) then
+    echo "Please run the install script from the OpendTect installation directory"
+    exit 1
+endif
+
+if ( $1 == "--help" ) then
+    echo "This script sets up OpendTect in the current directory."
+    echo "Use -q for non-interactive mode"
+    exit 0
+else if ( $1 == "-q" || $1 == "-Q" ) then
+    set quietmode = "true"
+endif
+
+if ( ! $?quietmode && ! $?license_shown ) then
+ if ( "$1" == "ext" ) then
+    echo ""
+    echo "OpendTect installation started ..."
+    echo ""
+    echo "The OpendTect license agreement can be found on the web site: "
+    echo "-> http://opendtect.org/rel/LICENSE.txt"
+    echo ""
+    echo -n "Do you accept that agreement [y/n]? "
+    set inp=$<
+    if ( "$inp" != 'y' && "$inp" != 'Y' ) then
+	exit 1
+    endif
+ endif
+endif
+
+set oddir=`pwd`
+
+echo ""
+
+if ( ! $?quietmode ) then
+ echo -n "Do you have a previous release of OpendTect installed [y/n]? "
+ set ans=$<
+ if ( "$ans" == "y" || "$ans" == "Y" ) then
+
+    try_again:
+	echo ""
+	echo "Please enter the directory of this previous release: "
+	echo -n ">> "
+	set ans=$<
+	if ( "$ans" == "" || ! -d "$ans" ) then
+		echo "$ans is not an existing directory ..."
+		goto try_again
+	endif
+	set olddir=`cd $ans;pwd`
+	cd $oddir
+
+	echo -n "Copying "
+	if ( -r $olddir/data/BatchHosts ) then
+		echo -n "BatchHosts "
+		cp -ip $olddir/data/BatchHosts data/BatchHosts
+	endif
+	if ( -r $olddir/data/WorkStationLink ) then
+		echo -n "WorkStationLink "
+		cp -ip $olddir/data/WorkStationLink data/WorkStationLink
+	endif
+	if ( -r $olddir/data/ColTabs ) then
+		set nrlines=`wc -l $olddir/data/ColTabs|awk '{print $1}'`
+		set newnrlines=`wc -l data/ColTabs|awk '{print $1}'`
+		if ( $nrlines > $newnrlines ) then
+			echo -n "ColTabs "
+			mv data/ColTabs data/ColTabs.rel
+			cp -p $olddir/data/ColTabs data/ColTabs
+		endif
+	endif
+	if ( -r $olddir/data/MouseControls ) then
+		set nrlines=`wc -l $olddir/data/MouseControls|awk '{print $1}'`
+		if ( $nrlines != 26 ) then
+			echo -n "MouseControls "
+			mv data/MouseControls data/MouseControls.rel
+			cp -p $olddir/data/MouseControls data/MouseControls
+		endif
+	endif
+	if ( -r $olddir/data/EnvVars ) then
+	    mv data/EnvVars data/EnvVars.rel
+	    cp -p $olddir/data/EnvVars data/EnvVars
+	endif
+	if ( -r $olddir/bin/init_dtect ) then
+		setenv DTECT_DATA `grep 'setenv DTECT_DATA /' $olddir/bin/init_dtect | awk '{print $3}'`
+		if ( "$DTECT_DATA" == "" ) then
+		    setenv DTECT_DATA `grep 'setenv dGB_DATA /' $olddir/bin/init_dtect | awk '{print $3}'`
+		endif
+		if ( "$DTECT_DATA" == "" ) then
+			unsetenv DTECT_DATA
+		endif
+	endif
+	set lic_fils=$olddir/license.*.dat
+	if ( "$lic_fils" != "" && "$lic_fils" != "$olddir/license.*.dat" ) then
+	    foreach fil ( $lic_fils )
+		echo -n "$fil:t "
+		cp $fil .
+	    end
+	endif
+	echo ""
+ endif
+endif
+
+#
+# Call the OpendTect setup script
+#
+
+cd $oddir
+chmod +x ./setup.od
+./setup.od
+
+cd $oddir
+if ( ! -r bin/init_dtect ) then
+    exit 1
+endif
+
+source bin/init_dtect >&! /dev/null
+
+if ( $?quietmode ) then
+    echo "OpendTect is now installed in the $oddir directory"
+    echo ""
+    echo "* The application can be started using the start_dtect script."
+    echo -n "* Some plugins and packages may need FlexLM license management."
+    echo " for which you could use the 'install.*.license' and 'start.*.lmgrd' scripts."
+    if ( $?DTECT_DATA ) then
+	if ( -d "$DTECT_DATA" ) then
+	    echo ""
+	    echo -n "* You may have to set user ownership and/or permissions on"
+	    echo " $DTECT_DATA."
+	endif
+    endif
+    echo ""
+    echo -n "* Having good graphics hardware and recently updated drivers is ESSENTIAL."
+    echo " See also http://opendtect.org/rel/hardware_requirements.html"
+    exit 0
+endif
+
+
+echo ""
+echo "-------------"
+echo ""
+echo "OpendTect is now installed in the $oddir directory"
+echo ""
+echo "* The application can be started using the start_dtect script."
+echo "* Some plugins and packages may need FlexLM license management."
+echo "  for which you could use the 'install.*.license' and 'start.*.lmgrd' scripts."
+if ( $?DTECT_DATA ) then
+    if ( -d "$DTECT_DATA" ) then
+	echo ""
+	echo "* You may have to set user ownership and/or permissions on"
+	echo "  $DTECT_DATA."
+    endif
+endif
+echo ""
+echo "* Having good graphics hardware and recently updated drivers is ESSENTIAL."
+echo "  See also http://opendtect.org/rel/hardware_requirements.html"
+echo ""
