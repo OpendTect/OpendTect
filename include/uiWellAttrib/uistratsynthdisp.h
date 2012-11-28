@@ -91,6 +91,9 @@ public:
 
     uiMultiFlatViewControl* control() 	{ return control_; }
 
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
 protected:
 
     int			longestaimdl_;
@@ -124,6 +127,7 @@ protected:
     uiFlatViewMainWin*	prestackwin_;
 
     void		setCurrentSynthetic();
+    void		setCurrentWavelet();
     void		cleanSynthetics();
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
@@ -159,6 +163,7 @@ public:
     Notifier<uiSynthSlicePos>	positionChg;
     void		setLimitSampling(StepInterval<float>);
     int			getValue() const;
+    void		setValue(int) const;
 
 protected:
     uiLabel* 		label_;
@@ -210,6 +215,7 @@ public:
 
 protected:
 
+    uiSeisWaveletSel*		wvltfld_;
     uiGenInput*			typefld_;
     uiGenInput*  		namefld_;
     uiCheckBox*			nmobox_;
@@ -228,8 +234,9 @@ protected:
     bool			acceptOK(CallBacker*);
     void			removeSyntheticsCB(CallBacker*);
     void			changeSyntheticsCB(CallBacker*);
-    void			offsetChanged(CallBacker*);
+    void			parsChanged(CallBacker*);
     void			nameChanged(CallBacker*);
+    bool			rejectOK(CallBacker*);
 
 };
 

@@ -49,6 +49,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , genNewModelNeeded(this)
     , rangeChanged(this)   
     , modelEdited(this)   
+    , infoChanged(this)   
 {
 }
 
@@ -143,6 +144,8 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 			mCB(this,uiStratSimpleLayerModelDisp,usrClicked) );
     gv_->getMouseEventHandler().doubleClick.notify(
 			mCB(this,uiStratSimpleLayerModelDisp,doubleClicked) );
+    gv_->getMouseEventHandler().movement.notify(
+			mCB(this,uiStratSimpleLayerModelDisp,mouseMoved) );
 
     const uiBorder border( 10 );
     uiAxisHandler::Setup xahsu( uiRect::Top );
@@ -202,6 +205,17 @@ int uiStratSimpleLayerModelDisp::getClickedModelNr() const
     if ( selidx < 0 || selidx >= lmp_.get().size() )
 	selidx = -1;
     return selidx;
+}
+
+
+void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
+{
+    IOPar statusbarmsg;
+    statusbarmsg.set( "Model Number", getClickedModelNr() );
+    const MouseEvent& mev = gv_->getMouseEventHandler().event();
+    const float depth = yax_->getVal( mev.pos().y );
+    statusbarmsg.set( "Depth", depth );
+    infoChanged.trigger( statusbarmsg, this );
 }
 
 

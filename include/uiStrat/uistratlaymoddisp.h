@@ -54,6 +54,7 @@ public:
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
     Notifier<uiStratLayerModelDisp> rangeChanged;
     Notifier<uiStratLayerModelDisp> modelEdited;
+    CNotifier<uiStratLayerModelDisp,IOPar> infoChanged;
 
 protected:
 

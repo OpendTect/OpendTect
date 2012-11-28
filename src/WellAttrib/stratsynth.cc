@@ -29,7 +29,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timeser.h"
 #include "wavelet.h"
 
-
+static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
+static const char* sKeyWaveLetName()		{ return "Wavelet Name"; }
+static const char* sKeyRayPar() 		{ return "Ray Parameter"; } 
 
 SynthGenParams::SynthGenParams()
     : isps_(false)
@@ -41,6 +43,27 @@ SynthGenParams::SynthGenParams()
     RayTracer1D::setIOParsToZeroOffset( raypars_ );
     raypars_.setYN( RayTracer1D::sKeyVelBlock(), true );
     raypars_.set( RayTracer1D::sKeyVelBlockVal(), 20 );
+}
+
+
+void SynthGenParams::fillPar( IOPar& par ) const
+{
+    par.set( sKey::Name(), name_ );
+    par.setYN( sKeyIsPreStack(), isps_ );
+    par.set( sKeyWaveLetName(), wvltnm_ );
+    IOPar raypar;
+    raypar.mergeComp( raypars_, sKeyRayPar() );
+    par.merge( raypar );
+}
+
+
+void SynthGenParams::usePar( const IOPar& par ) 
+{
+    par.get( sKey::Name(), name_ );
+    par.getYN( sKeyIsPreStack(), isps_ );
+    par.get( sKeyWaveLetName(), wvltnm_ );
+    IOPar raypar;
+    raypars_ = *par.subselect( sKeyRayPar() );
 }
 
 
@@ -128,6 +151,16 @@ SyntheticData* StratSynth::addSynthetic()
 	synthetics_ += sd;
     return sd;
 }
+
+
+SyntheticData* StratSynth::addSynthetic( const SynthGenParams& synthgen )
+{
+    SyntheticData* sd = generateSD( lm_, synthgen, tr_ );
+    if ( sd )
+	synthetics_ += sd;
+    return sd;
+}
+
 
 
 SyntheticData* StratSynth::replaceSynthetic( int id )
@@ -226,7 +259,13 @@ bool StratSynth::generate( const Strat::LayerModel& lm, SeisTrcBuf& trcbuf )
 }
 
 
-SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm, 
+SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
+				       TaskRunner* tr )
+{ return generateSD( lm, genparams_, tr ); }
+
+
+SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
+				       const SynthGenParams& synthgenpar,
 				       TaskRunner* tr )
 {
     errmsg_.setEmpty(); 
@@ -236,7 +275,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 
     Seis::RaySynthGenerator synthgen;
     synthgen.setWavelet( wvlt_, OD::UsePtr );
-    const IOPar& raypars = genparams_.raypars_;
+    const IOPar& raypars = synthgenpar.raypars_;
     synthgen.usePar( raypars );
 
     const int nraimdls = lm.size();
@@ -291,7 +330,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
     }
 
     SyntheticData* sd = 0;
-    if ( genparams_.isps_ )
+    if ( synthgenpar.isps_ )
     {
 	ObjectSet<PreStack::Gather> gatherset;
 	while ( tbufs.size() )
@@ -304,8 +343,8 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	    gatherset += gather;
 	}
 	PreStack::GatherSetDataPack* dp = 
-		new PreStack::GatherSetDataPack( genparams_.name_, gatherset );
-	sd = new PreStackSyntheticData( genparams_, *dp );
+		new PreStack::GatherSetDataPack( synthgenpar.name_, gatherset );
+	sd = new PreStackSyntheticData( synthgenpar, *dp );
     }
     else
     {
@@ -323,8 +362,8 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	    dptrcbuf->add( *tbuf );
 	}
 	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( *dptrcbuf, Seis::Line,
-				   SeisTrcInfo::TrcNr, genparams_.name_ );	
-	sd = new PostStackSyntheticData( genparams_, *dp );
+				   SeisTrcInfo::TrcNr, synthgenpar.name_ );	
+	sd = new PostStackSyntheticData( synthgenpar, *dp );
     }
 
     sd->id_ = ++lastsyntheticid_;

@@ -107,9 +107,19 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     DataPointSet* dps = seisattrs.createDataPointSet(Attrib::DescSetup(),false);
     if ( !dps )
 	{ uiMSG().error(seisattrs.errMsg()); return 0; }
-    dps->dataSet().insert( dps->nrFixedCols(),new DataColDef(sKey::Depth()) );
-    dps->dataSet().insert( dps->nrFixedCols()+1,
-	    	new DataColDef(Strat::LayModAttribCalc::sKeyModelIdx()) );
+    if ( dps->nrCols() )
+    {
+	dps->dataSet().insert( dps->nrFixedCols(),new DataColDef("Depth") );
+	dps->dataSet().insert( dps->nrFixedCols()+1,
+		    new DataColDef(Strat::LayModAttribCalc::sKeyModelIdx()) );
+    }
+    else
+    {
+	dps->dataSet().add( new DataColDef("Depth") );
+	dps->dataSet().add( 
+		    new DataColDef(Strat::LayModAttribCalc::sKeyModelIdx()) );
+    }
+
     for ( int iattr=0; iattr<seqattrs.size(); iattr++ )
 	dps->dataSet().add(
 		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr)) );

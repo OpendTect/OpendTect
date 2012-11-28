@@ -115,6 +115,7 @@ protected:
     void			setWinTitle();
     void			setModelProps();
     void			setElasticProps();
+    void			infoChanged(CallBacker*);
     void			selElasticPropsCB(CallBacker*);
     bool			selElasticProps(ElasticPropSelection&);
     void			openGenDescCB(CallBacker*) { openGenDesc(); }
@@ -128,7 +129,9 @@ protected:
     
     void			fillDisplayPars(IOPar&) const;
     void			fillWorkBenchPars(IOPar&) const;
+    void			fillSyntheticsPars(IOPar&) const;
     bool			useDisplayPars(const IOPar&);
+    bool			useSyntheticsPars(const IOPar&);
 
 public:
 

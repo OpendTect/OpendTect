@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselsimple.h"
 #include "uisplitter.h"
 #include "uiflatviewer.h"
+#include "uiflatviewwin.h"
 #include "uiflatviewstdcontrol.h"
 #include "uimultiflatviewcontrol.h"
 #include "uistratbasiclayseqgendesc.h"
@@ -47,6 +48,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistratsynthcrossplot.h"
 #include "uistratlaymodtools.h"
 #include "uistrattreewin.h"
+#include "uistatusbar.h"
 #include "uitaskrunner.h"
 #include "uitoolbutton.h"
 #include "uichecklist.h"
@@ -221,7 +223,7 @@ void copyToEdited()
 };
 
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
-    : uiMainWin(p,"",0,false)
+    : uiMainWin(p,"",1,false)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , elpropsel_(0)				   
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
@@ -306,9 +308,13 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     synthdisp_->modSelChanged.notify( mCB(this,uiStratLayerModel,modSelChg) );
     synthdisp_->layerPropSelNeeded.notify(
 			    mCB(this,uiStratLayerModel,selElasticPropsCB) );
+    synthdisp_->control()->infoChanged.notify(
+	    mCB(this,uiStratLayerModel,infoChanged) );
     moddisp_->genNewModelNeeded.notify( mCB(this,uiStratLayerModel,genModels) );
     moddisp_->rangeChanged.notify( 
 			    mCB(this,uiStratLayerModel,modDispRangeChanged));
+    moddisp_->infoChanged.notify( 
+			    mCB(this,uiStratLayerModel,infoChanged));
     moddisp_->sequenceSelected.notify( mCB(this,uiStratLayerModel,seqSel) );
     moddisp_->modelEdited.notify( mCB(this,uiStratLayerModel,modEd) );
 
@@ -588,19 +594,19 @@ bool uiStratLayerModel::openGenDesc()
     lmp_.setEmpty();
     seqdisp_->descHasChanged();
 
-    moddisp_->modelChanged();
-    synthdisp_->modelChanged();
     delete elpropsel_; elpropsel_ = 0;
     
     gentools_->genReq.trigger();
-
     CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(), 
 	    		    const_cast<uiStratLayerModel*>(this) );
     const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
 
     //Set when everything is in place.
+    moddisp_->modelChanged();
+    synthdisp_->modelChanged();
     if ( !useDisplayPars( desc_.getWorkBenchParams() ))
 	return false;
+    useSyntheticsPars( desc_.getWorkBenchParams() );
     
     setWinTitle();
     return true;
@@ -787,6 +793,19 @@ void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
     const_cast<uiStratLayerModel*>(this)->saveRequired.trigger( &caps );
     gentools_->fillPar( par );
     fillDisplayPars( par );
+    fillSyntheticsPars( par );
+}
+
+
+bool uiStratLayerModel::useSyntheticsPars( const IOPar& par ) 
+{
+    return synthdisp_->usePar( par );
+}
+
+
+void uiStratLayerModel::fillSyntheticsPars( IOPar& par ) const
+{
+    synthdisp_->fillPar( par );
 }
 
 
@@ -796,7 +815,30 @@ void uiStratLayerModel::fillDisplayPars( IOPar& par ) const
 }
 
 
-void uiStratLayerModel::helpCB( CallBacker* )                                       
-{                                                                                      
-    uiMainWin::provideHelp( "110.2.0" );
-}
+void uiStratLayerModel::helpCB( CallBacker* )
+{ uiMainWin::provideHelp( "110.2.0" ); }
+
+
+void uiStratLayerModel::infoChanged( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller(IOPar,pars,caller,cb);
+    mDynamicCastGet(uiStratLayerModelDisp*,moddisp,caller);
+    if ( !moddisp )
+    {
+	BufferString mesg;
+	uiFlatViewWin::makeInfoMsg( mesg, pars );
+	statusBar()->message( mesg.buf() );
+    }
+    else
+    {
+	BufferString msg;
+	for ( int idx=0; idx<pars.size(); idx++ )
+	{
+	    msg += pars.getKey( idx );
+	    msg +=": ";
+	    msg += pars.getValue( idx );
+	    msg += "\t";
+	}
+	statusBar()->message( msg.buf() );
+    }
+} 

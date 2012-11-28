@@ -66,6 +66,7 @@ protected:
     void		eraseAll();
     void		reDrawCB(CallBacker*);
     void		usrClicked(CallBacker*);
+    void		mouseMoved(CallBacker*);
     void		doubleClicked(CallBacker*);
     void		colsToggled(CallBacker*);
     void		showZoomedToggled(CallBacker*);
