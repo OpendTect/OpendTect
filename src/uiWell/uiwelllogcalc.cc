@@ -185,10 +185,11 @@ bool acceptOK( CallBacker* )
 
 
 bool getFormulaInfo( BufferString& cleanformula, BufferString& formulaunit,
-		     BufferString& outputunit, BufferStringSet& varsunits) const
+		     BufferString& outputunit, BufferStringSet& varsunits,
+		     TypeSet<PropertyRef::StdType>& varstypes ) const
 {
     return formgrp_->getFormulaInfo( cleanformula, formulaunit,
-	    			     outputunit, varsunits, true );
+	    			     outputunit, varsunits, varstypes, true );
 }
 
     uiRockPhysForm*	formgrp_;
@@ -202,8 +203,8 @@ void uiWellLogCalc::rockPhysReq( CallBacker* )
     BufferString formula;
     BufferString formulaunit;
     BufferString outunit;
-    if ( dlg.go() &&
-	    dlg.getFormulaInfo( formula, formulaunit, outunit, inputunits_ ) )
+    if ( dlg.go() && dlg.getFormulaInfo( formula, formulaunit, outunit, 
+					 inputunits_, inputtypes_ ) )
     {
 	formfld_->setText( formula.buf() );
 	BufferString formunstr = formulaunit.isEmpty() && !outunit.isEmpty() ? 
@@ -236,8 +237,11 @@ void uiWellLogCalc::formSet( CallBacker* c )
     int truevaridx = 0;	//should always be ==idx if inputunits_.size, safety.
     for ( int idx=0; idx<inpdataflds_.size(); idx++ )
     {
+	const bool isinpcst = inpdataflds_[idx]->isCst();
+	if ( inputtypes_.size()>truevaridx && !isinpcst )
+	    inpdataflds_[idx]->restrictLogChoice( inputtypes_[truevaridx] );
 	inpdataflds_[idx]->use( expr_ );
-	if ( inputunits_.size()>truevaridx && !inpdataflds_[idx]->isCst() )
+	if ( inputunits_.size()>truevaridx && !isinpcst )
 	{
 	    inpdataflds_[idx]->setUnit( inputunits_.get(truevaridx).buf() );
 	    truevaridx++;
@@ -520,4 +524,32 @@ void uiWellLogCalc::setOutputLogName( const char* nm )
 const char* uiWellLogCalc::getOutputLogName() const
 {
     return nmfld_->text();
+}
+
+
+void uiWellLogCalc::getSuitableLogs( const Well::LogSet& logs,
+				     BufferStringSet& lognms,
+				     TypeSet<int>& propidx,
+				     TypeSet<int>& isaltpropref,
+       				     const PropertyRef& propref,
+				     const PropertyRef* altpropref )
+{
+    for ( int idlog=0; idlog<logs.size(); idlog++ )                         
+    {                                                                       
+	const char* uomlbl = logs.getLog( idlog ).unitMeasLabel();          
+	const UnitOfMeasure* um = UnitOfMeasure::getGuessed( uomlbl );      
+	if ( ( um && ( propref.stdType() == um->propType() ) ) || !um )     
+	{                                                                   
+	    lognms.add( logs.getLog(idlog).name() );                        
+	    propidx += idlog;                                               
+	    isaltpropref += 0;                                              
+	}                                                                   
+	else if ( um && altpropref )                                        
+	    if ( altpropref->stdType() == um->propType() )                  
+	    {                                                               
+		lognms.add( logs.getLog(idlog).name() );                    
+		propidx += idlog;                                           
+		isaltpropref += 1;                                          
+	    }                                                               
+    }
 }

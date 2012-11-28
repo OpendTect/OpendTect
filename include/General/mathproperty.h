@@ -37,6 +37,7 @@ public:
 
     int			nrInputs() const;
     const char*		inputName(int) const;
+    PropertyRef::StdType inputType(int) const;
     const UnitOfMeasure* inputUnit(int) const;
     void		setInputUnit(int idx,const UnitOfMeasure*);
     int			nrConsts() const;

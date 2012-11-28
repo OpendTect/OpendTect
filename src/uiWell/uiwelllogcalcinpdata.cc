@@ -68,6 +68,7 @@ void uiWellLogCalcInpData::use( const MathExpression* expr )
     const int nearidx = posinpnms_.nearestMatch( varnm );
     if ( nearidx >= 0 )
 	inpfld_->box()->setCurrentItem( nearidx );
+
     inputSel(0);
 }
 
@@ -130,4 +131,20 @@ void uiWellLogCalcInpData::inputSel( CallBacker* )
 	unfld_->box()->addItem( possibleunits[idx]->name() );
 
     unfld_->box()->setText( curtxt );
+}
+
+
+void uiWellLogCalcInpData::restrictLogChoice( const PropertyRef::StdType& type )
+{
+    if ( !wls_ ) return;
+    PropertyRef property( "dummy", type );
+    BufferStringSet lognms;
+    TypeSet<int> propidx;                                                   
+    TypeSet<int> isaltpropref;
+    uiWellLogCalc::getSuitableLogs( *wls_, lognms, propidx, isaltpropref,
+	    			    property, 0 );
+    const_cast<BufferStringSet&>(posinpnms_) = lognms;
+    inpfld_->box()->setEmpty();
+    inpfld_->box()->addItems( lognms );
+    inpfld_->box()->addItem( "Constant" );
 }

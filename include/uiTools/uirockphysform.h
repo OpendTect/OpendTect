@@ -38,6 +38,7 @@ public:
 
     bool		getFormulaInfo(BufferString&,BufferString&,
 				       BufferString&,BufferStringSet&,
+				       TypeSet<PropertyRef::StdType>&,
 				       bool) const;
     BufferString	getText(bool usecstevals) const;
     const char*		errMsg() const		{ return errmsg_.buf(); }

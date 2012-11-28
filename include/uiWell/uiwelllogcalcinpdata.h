@@ -33,6 +33,7 @@ public:
     virtual void		use(const MathExpression*);
     const Well::Log*		getLog();
     bool			getInp(uiWellLogCalc::InpData&);
+    void                        restrictLogChoice(const PropertyRef::StdType&);
 
     const Well::LogSet* wls_;                                                   
 

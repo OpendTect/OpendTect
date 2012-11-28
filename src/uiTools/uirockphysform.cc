@@ -199,7 +199,9 @@ BufferString uiRockPhysForm::getText( bool usecstvals ) const
     BufferString formulaunit;
     BufferString outunit;
     BufferStringSet varsunits;
-    if ( getFormulaInfo( formula, formulaunit, outunit, varsunits, usecstvals ))
+    TypeSet<PropertyRef::StdType> varstypes;
+    if ( getFormulaInfo( formula, formulaunit, outunit, varsunits, 
+			 varstypes, usecstvals ) )
 	return formula;
 
     return 0;
@@ -210,8 +212,11 @@ bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
 				     BufferString& formulaunit,
 				     BufferString& outputunit,
 				     BufferStringSet& varsunits,
+				     TypeSet<PropertyRef::StdType>& varstypes,
 				     bool usecstvals ) const
 {
+    varsunits.setEmpty();
+    varstypes.erase();
     char* txt = const_cast<char*>(nmfld_->text());
     if ( !txt || !*txt )
     {
@@ -238,6 +243,7 @@ bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
 	replaceString( ret.buf(), mp->inputName( idx ), cleanvarnm );
 
 	varsunits += new BufferString( fm->vardefs_[idx]->unit_ );
+	varstypes += fm->vardefs_[idx]->type_;
     }
     for ( int idx=0; idx<mp->nrConsts(); idx++ )
     {
