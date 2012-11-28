@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
- 
 #include "basicmod.h"
 #include "namedobj.h"
 #include "ranges.h"
@@ -22,6 +21,7 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "thread.h"
 #include "cubesampling.h"
+#include "survgeom.h"
 
 class ascostream;
 class IOPar;
@@ -31,8 +31,8 @@ class LatLong2Coord;
 /*!Scaled down survey geometry for an inl/crl geometry . */
 
 
-mClass(Basic) InlCrlSystem
-{ mRefCountImplNoDestructor( InlCrlSystem );
+mClass(Basic) InlCrlSystem : public Survey::Geometry
+{
 public:
     friend		class SurveyInfo;
     
@@ -54,6 +54,14 @@ public:
     
     float		zStep() const 		{ return cs_.zrg.step; }
     
+    Coord		toCoord(int line, int tracenr) const
+			{ return transform( BinID(line,tracenr)); }
+    
+    TraceID		nearestTrace(const Coord& crd,float*) const
+			{ return TraceID(transform( crd ) ); }
+    bool		includes(int line, int tracenr) const
+			{ return cs_.hrg.includes(BinID(line,tracenr)); }
+
     Coord		transform(const BinID&) const;
     BinID		transform(const Coord&) const;
     const RCol2Coord&	binID2Coord() const	{ return b2c_; }
@@ -108,6 +116,7 @@ public:
     bool		has3D() const;
     
     RefMan<InlCrlSystem> get3DGeometry(bool work) const;
+    Survey::GeometryManager& geomManager()	{ return geometryman_; }
 
     StepInterval<int>	inlRange(bool work) const;
     StepInterval<int>	crlRange(bool work) const;
@@ -219,6 +228,8 @@ protected:
     
     mutable Threads::AtomicPointer<InlCrlSystem>	inlcrlsystem_;
     mutable Threads::AtomicPointer<InlCrlSystem>	winlcrlsystem_;
+    
+    Survey::GeometryManager geometryman_;
 
     RCol2Coord		b2c_;
     LatLong2Coord&	ll2c_;

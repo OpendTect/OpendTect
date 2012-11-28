@@ -62,6 +62,7 @@ SET(OD_MODULE_SOURCES genc.cc oddirs.cc
 	    string2.cc
 	    strmoper.cc
 	    strmprov.cc
+	    survgeom.cc
 	    survinfo.cc
 	    surv2dgeom.cc
 	    task.cc
