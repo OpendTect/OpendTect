@@ -230,18 +230,22 @@ public:
 				TraceID(const BinID& bid)
 				    : geomid_(-1)
 				    , line_(bid.inl)
-				    , tracenr_(bid.crl) {}
+				    , trcnr_(bid.crl) {}
 				TraceID(int geomid, int line, int trcnr)
 				    : geomid_(geomid)
 				    , line_(line)
-				    , tracenr_(trcnr)
+				    , trcnr_(trcnr)
 				{}
+    
+    static const TraceID&	udf();
+    
+    bool			isUdf() const { return trcnr_<0; }
 
     int				geomid_;
 				/*!<-1 refers to the default 3d survey setup
 				    any positive value refers to the geometry.*/
     int				line_;
-    int				tracenr_;
+    int				trcnr_;
 };
 
 
