@@ -322,7 +322,7 @@ void uiTextureAttrib::setMinMaxVal( const SeisTrcBuf& bufs )
 
     for ( int trcnr=0; trcnr<bufs.size(); trcnr++ )
     {
-	const SeisTrc* seisttrc = bufs.get( trcnr );
+	seisttrc = bufs.get( trcnr );
 	for ( int sampnr=0; sampnr<nrsamples; sampnr++ )
 	{
 	    float val = seisttrc->get( sampnr, 0 );
