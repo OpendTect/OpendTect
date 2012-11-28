@@ -273,7 +273,7 @@ bool uiTieWinMGRDlg::getDefaults()
     {
 	Well::Log* den = wd_->logs().getLog( wtsetup_.denlognm_ );
 	const PropertyRef::StdType tp = PropertyRef::Den;
-	bool dummy;
+	bool dummy = false;
 	if ( !den ) mErrRet( "No valid density log selected" );
 	if ( !units.getDenFactor( *den ) )
 	    logsfld_->setLog( tp, wtsetup_.denlognm_, dummy, 0, 0 );
