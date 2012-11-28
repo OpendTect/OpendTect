@@ -22,6 +22,26 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "uimsg.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
+#include "seistrc.h"
+
+#include "attribengman.h"
+#include "attribdescset.h"
+#include "attribprocessor.h"
+#include "attribfactory.h"
+#include "binidvalset.h"
+#include "cubesampling.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "linekey.h"
+#include "seisbuf.h"
+#include "seisioobjinfo.h"
+#include "volstatsattrib.h"
+
+#include "uibutton.h"
+#include "uicombobox.h"
+#include "uiselsurvranges.h"
+#include "uitable.h"
+#include "uitaskrunner.h"
 
 using namespace Attrib;
 
@@ -70,6 +90,10 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
 		    FloatInpSpec() );
     globalmaxfld_->setElemSzPol(uiObject::Small);
     globalmaxfld_->attach( rightOf, globalminfld_ );
+    
+    analysebut_ = new uiPushButton( this, "Analyse",
+				 mCB(this, uiTextureAttrib, analyseCB), false );
+    analysebut_->attach( rightOf, globalmaxfld_ );
     setHAlignObj( inpfld_ );
 }
 
@@ -145,4 +169,173 @@ void uiTextureAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr(), Texture::gateStr() );
     params += EvalParam( stepoutstr(), Texture::stepoutStr() );
+}
+
+
+class uiSelectPositionDlg : public uiDialog
+{
+public:
+uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
+    : uiDialog(p,uiDialog::Setup("Select data","For analysis",mNoHelpID)) 
+    , attribnm_(anm)
+    , linesfld_(0)
+    , subvolfld_(0)
+{
+    nrtrcfld_ = new uiGenInput( this, "Nr of Traces for Examination",
+	    			IntInpSpec(50) );
+    
+    if ( is2d )
+    {
+	SeisIOObjInfo objinfo( mid );
+	BufferStringSet linenames;
+	objinfo.getLineNamesWithAttrib( attribnm_, linenames );
+	linesfld_ = new uiLabeledComboBox( this, "Analyisis on line:" );
+	for ( int idx=0; idx<linenames.size(); idx++ )
+	    linesfld_->box()->addItem( linenames.get(idx) );
+	
+	linesfld_->attach( alignedBelow, nrtrcfld_ );
+    }
+    else
+    {
+	subvolfld_ = new uiSelSubvol( this, false );
+	subvolfld_->attach( alignedBelow, nrtrcfld_ );
+    }
+}
+
+int nrTrcs()
+{ return nrtrcfld_->getIntValue(); }
+
+LineKey lineKey() const
+{ return LineKey( linesfld_->box()->text(), attribnm_ ); }
+
+CubeSampling subVol() const
+{
+    CubeSampling cs;
+    if ( subvolfld_ )
+	cs = subvolfld_->getSampling();
+    return cs;
+}
+
+
+protected:
+
+    BufferString	attribnm_;
+    
+    uiGenInput*		nrtrcfld_;
+    uiSelSubvol*	subvolfld_;
+    uiLabeledComboBox*	linesfld_;
+};
+
+
+void uiTextureAttrib::analyseCB( CallBacker* ) 
+{
+    Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
+    if ( !inpdesc )
+	return;
+
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(inpdesc->getStoredID()) );
+    if ( !ioobj )
+	return uiMSG().error( "Select a valid input" );
+
+    SeisIOObjInfo seisinfo( ioobj );
+    CubeSampling cs;
+
+    uiSelectPositionDlg subseldlg( this, ioobj->key(), seisinfo.is2D(),
+					    inpdesc->attribName() );
+    subseldlg.go();
+
+    if ( seisinfo.is2D() )
+    {
+	StepInterval<int> trcrg;
+	StepInterval<float> zrg;
+	seisinfo.getRanges( subseldlg.lineKey(), trcrg, zrg );
+	cs.hrg.setCrlRange( trcrg );
+	cs.hrg.setInlRange( Interval<int>(0,0) );
+	cs.zrg = zrg;
+    }
+
+    else
+    {
+	cs = subseldlg.subVol();
+	seisinfo.getRanges( cs );
+    }
+
+    const int nrtrcs = subseldlg.nrTrcs();
+    readSampAttrib( cs, nrtrcs );
+}
+
+
+
+void uiTextureAttrib::readSampAttrib( CubeSampling& cs, int nrtrcs )
+{
+    Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
+
+    PtrMan<Attrib::DescSet> descset = ads_->optimizeClone( inpfld_->attribID() );
+    if ( !descset )
+	return;
+
+    Attrib::DescID attribid = descset->addDesc( inpdesc );
+
+    TypeSet<SelSpec> attribspecs;
+    SelSpec sp( 0, attribid );
+    sp.set( *inpdesc );
+    attribspecs += sp;
+
+    PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
+
+    aem->setAttribSet( descset );
+    aem->setAttribSpecs( attribspecs );
+    aem->setCubeSampling( cs );
+
+    TypeSet<BinID> bidset;
+    cs.hrg.getRandomSet( nrtrcs, bidset );
+    BinIDValueSet bidvals( 0, false );
+    for ( int idx=0; idx<bidset.size(); idx++ )
+       bidvals.add( bidset[idx] );
+
+    BufferString errmsg;
+    SeisTrcBuf bufs( true );
+    Interval<float> zrg( cs.zrg );
+    PtrMan<Processor> proc =
+	aem->createTrcSelOutput( errmsg, bidvals, bufs, 0, &zrg );
+
+    if ( !proc )
+    {
+	uiMSG().error( errmsg );
+	return;
+    }
+
+    uiTaskRunner dlg( this );
+    if ( !dlg.execute(*proc) )
+	return; 
+
+    setMinMaxVal( bufs );
+}
+
+
+void uiTextureAttrib::setMinMaxVal( const SeisTrcBuf& bufs )
+{
+    const SeisTrc* seisttrc = bufs.get( 0 );
+    const int nrsamples = bufs.get(0)->size();
+    float minval = seisttrc->get( 0, 0 );
+    float maxval = minval;
+
+    for ( int trcnr=0; trcnr<bufs.size(); trcnr++ )
+    {
+	const SeisTrc* seisttrc = bufs.get( trcnr );
+	for ( int sampnr=0; sampnr<nrsamples; sampnr++ )
+	{
+	    float val = seisttrc->get( sampnr, 0 );
+	    if ( !mIsUdf(val) )
+	    {
+		if ( val<minval)
+		    minval=val;
+		else if ( val>maxval )
+		    maxval=val;
+	    }
+	}
+    }
+
+    globalminfld_->setValue(minval);
+    globalmaxfld_->setValue(maxval);
 }

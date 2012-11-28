@@ -20,6 +20,9 @@ class uiGenInput;
 class uiLabel;
 class uiSteeringSel;
 class uiStepOutSel;
+class uiPushButton;
+class SeisTrcBuf;
+class CubeSampling;
 
 
 class uiTextureAttrib : public uiAttrDescEd
@@ -39,10 +42,14 @@ protected:
     uiGenInput*		glcmsizefld_;
     uiGenInput*		globalminfld_;
     uiGenInput*		globalmaxfld_;
+    uiPushButton*	analysebut_;
 
     void		actionSel(CallBacker*);
     void		steerTypeSel(CallBacker*);
     void		scalingSel(CallBacker*);
+    void		analyseCB(CallBacker*);
+    void		readSampAttrib(CubeSampling&,int);
+    void		setMinMaxVal(const SeisTrcBuf&);
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
     bool		getParameters(Attrib::Desc&);
