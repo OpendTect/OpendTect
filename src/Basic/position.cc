@@ -274,3 +274,10 @@ void BinIDValues::setVals( const float* vs )
 {
     if ( sz ) memcpy( vals, vs, sz * sizeof(float) );
 }
+
+
+const TraceID& TraceID::udf()
+{
+    static TraceID trcid( -1, -1, -1 );
+    return trcid;
+}
