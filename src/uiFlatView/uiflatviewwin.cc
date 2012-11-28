@@ -47,7 +47,7 @@ void uiFlatViewWin::setDarkBG( bool yn )
 }
 
 
-void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars ) const
+void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars ) 
 {
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += ";\t";

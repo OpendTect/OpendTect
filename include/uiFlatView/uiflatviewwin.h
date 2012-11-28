@@ -49,12 +49,12 @@ public:
     virtual void	setInitialSize(int w,int h);
     virtual void	fillPar(IOPar&) const		{}
     virtual void	usePar(const IOPar&) 		{}
+    static void		makeInfoMsg(BufferString&,IOPar&);
 
 protected:
 
     ObjectSet<uiFlatViewer>	vwrs_;
 
-    void			makeInfoMsg(BufferString&,IOPar&) const;
     void			createViewers(int);
     void			cleanUp();
 
