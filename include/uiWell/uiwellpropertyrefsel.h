@@ -54,6 +54,7 @@ public:
     const PropertyRef*  altPropRef() const { return altpropref_; }
 
     uiComboBox*   	typeFld() const         { return typefld_; }
+    uiLabel*		getLabel() const	{ return typelbl_; }
     Notifier<uiPropSelFromList>	comboChg_;
 
 protected:
@@ -82,6 +83,7 @@ public:
     bool		getLog(const PropertyRef::StdType,BufferString&,
 	    			bool&, BufferString& uom, int idx) const;
 
+    uiPropSelFromList*	getPropSelFromListByName(const BufferString&);
     virtual bool	isOK() const;
     void		setWellID(const MultiID& wid) { wellid_ = wid; }
 

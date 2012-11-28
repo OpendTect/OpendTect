@@ -112,7 +112,6 @@ void uiPropSelFromList::set( const char* txt, bool alt, const UnitOfMeasure* um)
 	const UnitOfMeasure* emptyuom = 0;
 	setUOM( *emptyuom );
     }
-
 }
 
 
@@ -333,6 +332,23 @@ bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs,
 }
 
 
+uiPropSelFromList*  uiWellPropSel::getPropSelFromListByName(
+						const BufferString& bfs )
+{
+    for ( int idx=0; idx<propflds_.size(); idx++ )
+    {
+	if ( propflds_[idx] && propflds_[idx]->getLabel() )
+	{
+	    BufferString lblnm = BufferString(
+		    			propflds_[idx]->getLabel()->text() );
+	    if ( lblnm == bfs )
+		return propflds_[idx];
+	}
+    }
+    return 0;
+}
+
+
 uiWellPropSelWithCreate::uiWellPropSelWithCreate( uiParent* p,
 				const PropertyRefSelection& prs )
     : uiWellPropSel(p,prs)
@@ -383,7 +399,6 @@ void uiWellPropSelWithCreate::createLogPushed( CallBacker* cb )
 	propflds_[idxofbut]->setCurrent( dlg.getOutputLogName() );
     }
 } 
-
 
 
 uiWellElasticPropSel::uiWellElasticPropSel( uiParent* p, bool withswaves )
