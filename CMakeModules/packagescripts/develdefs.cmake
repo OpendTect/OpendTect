@@ -6,20 +6,15 @@
 #RCS:           $Id$
 
 #OpenDtect libraries
-SET( INCLIBLIST Algo AttributeEngine Attributes Basic Batch Database EarthModel General
-	        Geometry MMProc MPEEngine Network NLA Seis Strat Velocity VolumeProcessing
-	        PreStackProcessing EMAttrib SoOD Well WellAttrib uiAttributes uiBase
-		uiCoin uiEarthModel uiEMAttrib uiFlatView uiIo uiMPE uiNLA uiODMain
-		uiSeis uiStrat uiTools uiPreStackProcessing uiVelocity uiViewer2D
-		uiVis uiVolumeProcessing uiWell uiWellAttrib uiSysAdm Usage visBase
-		visSurvey uiCmdDriver )
-SET( SRCLIBLIST Algo AttributeEngine Attributes Basic Database EarthModel General
-	        Geometry MMProc MPEEngine Network NLA Prog Seis Strat Velocity
-		VolumeProcessing PreStackProcessing EMAttrib SoOD Well WellAttrib
-		uiAttributes uiBase uiCoin uiEarthModel uiEMAttrib uiFlatView uiIo
-		uiMPE uiNLA uiODMain uiSeis uiStrat uiTools uiPreStackProcessing
-		uiVelocity uiViewer2D uiVis uiVolumeProcessing uiWell uiWellAttrib
-		uiSysAdm Usage visBase visSurvey uiCmdDriver )
+SET( LIBLIST AttributeEngine Algo Attributes Basic Database EarthModel General
+	     Geometry MMProc MPEEngine Network NLA Seis Strat Velocity VolumeProcessing
+	     PreStackProcessing EMAttrib SoOD Well WellAttrib uiAttributes uiBase
+	     uiCoin uiEarthModel uiEMAttrib uiFlatView uiIo uiMPE uiNLA uiODMain
+	     uiSeis uiStrat uiTools uiPreStackProcessing uiVelocity uiViewer2D
+	     uiVis uiVolumeProcessing uiWell uiWellAttrib uiSysAdm Usage visBase
+	     visSurvey uiCmdDriver )
+SET( INCLIBLIST ${LIBLIST} Prog )
+SET( SRCLIBLIST ${LIBLIST} Batch )
 
 SET( EXECLIST od_cbvs_browse od_glxinfo od_ivfileviewer lmhostid 
 	      od_main od_sysadmmain od_process_attrib od_process_attrib_em
