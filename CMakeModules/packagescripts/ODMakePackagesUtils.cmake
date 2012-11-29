@@ -30,8 +30,8 @@ macro ( create_package PACKAGE_NAME )
 	ENDIF()
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${PSD}/inst/bin/${OD_PLFSUBDIR}/${LIB} 
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR})
+			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${LIB} 
+			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
        FILE( GLOB ALOFILES ${PSD}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
        FOREACH( ALOFILE ${ALOFILES} )
 	   execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${ALOFILE}
@@ -58,7 +58,7 @@ macro ( create_package PACKAGE_NAME )
 	ENDIF()
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${PSD}/inst/bin/${OD_PLFSUBDIR}/${EXE} 
+			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${EXE} 
 			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
     ENDFOREACH()
 
@@ -66,7 +66,7 @@ macro ( create_package PACKAGE_NAME )
 	# install SPECFILES files (from relbase/)
 	FOREACH( SPECFILE ${SPECFILES} )
 	     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			      ${PSD}/inst/relbase/${SPECFILE}
+			      ${CMAKE_INSTALL_PREFIX}/${SPECFILE}
 			      ${DESTINATION_DIR} )
 	ENDFOREACH()
 	FOREACH( FILES ${ODSCRIPTS} )
@@ -76,10 +76,6 @@ macro ( create_package PACKAGE_NAME )
 					 ${DESTINATION_DIR}/bin )
 	     ENDFOREACH()
 	ENDFOREACH()
-    ENDIF()
-
-    IF( EXISTS ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
-	FILE( REMOVE_RECURSE ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
     ENDIF()
 
     IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
@@ -105,7 +101,7 @@ endmacro( create_package )
 
 macro( copy_thirdpartylibs )
     MESSAGE( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
-    FILE( GLOB LIBS ${PSD}/inst/externallibs/* )
+    FILE( GLOB LIBS ${CMAKE_INSTALL_PREFIX}/externallibs/* )
     FOREACH( LIB ${LIBS} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB}
 			  ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
@@ -115,15 +111,14 @@ endmacro( copy_thirdpartylibs )
 
 
 macro( create_basepackages PACKAGE_NAME )
-   MESSAGE( "destdir:${DESTINATION_DIR}" )
    FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/data
 		        ${DESTINATION_DIR}/doc )
-   IF( ${PACKAGE_NAME} STREQUAL "basedata" ) 
+   IF( ${PACKAGE_NAME} STREQUAL "basedata" )
        FOREACH( LIBS ${LIBLIST} )
-	    FILE( GLOB DATAFILES ${PSD}/data/${LIBS} )
+	    FILE( GLOB DATAFILES ${CMAKE_INSTALL_PREFIX}/data/${LIBS} )
 	    FOREACH( DATA ${DATAFILES} )
-		  MESSAGE( "datafile: ${DATA}" )
     #TODO if possible copy files instead of INSTALL
+    #change file permissions if needed on windows
 		  FILE( INSTALL DESTINATION ${DESTINATION_DIR}/data
 				TYPE DIRECTORY FILES ${DATA}
 				REGEX ".svn" EXCLUDE )
@@ -131,9 +126,10 @@ macro( create_basepackages PACKAGE_NAME )
        ENDFOREACH()
    ENDIF()
    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${PSD}/inst/data
-			 ${DESTINATION_DIR}/data )
+#	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+#TODO copy from inst directory instead of PSD
+#			 ${CMAKE_INSTALL_PREFIX}/data
+#			 ${DESTINATION_DIR}/data )
    ENDIF()
 
     IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
@@ -156,7 +152,7 @@ endmacro( create_basepackages )
 
 
 macro( init_destinationdir  PACKAGE_NAME )
-    STRING ( TOUPPER ${PACKAGE_NAME} PACKAGE_NAME_UPPER )
+#    STRING ( TOUPPER ${PACKAGE_NAME} PACKAGE_NAME_UPPER )
 #    SET ( FILELIST ${${PACKAGE_NAME_UPPER}_FILELIST} )
 
     SET ( PACKAGE_FILENAME ${PACKAGE_NAME} )
@@ -173,6 +169,9 @@ macro( init_destinationdir  PACKAGE_NAME )
     ENDIF()
 
     SET( PACKAGE_DIR ${PSD}/packages )
+    IF( EXISTS ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
+	FILE( REMOVE_RECURSE ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
+    ENDIF()
     SET( REL_DIR "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
     IF( APPLE )
 	SET( REL_DIR "OpendTect${OpendTect_VERSION_MAJOR}
@@ -181,7 +180,6 @@ macro( init_destinationdir  PACKAGE_NAME )
     ENDIF()
 
     SET( DESTINATION_DIR "${PACKAGE_DIR}/${REL_DIR}" )
-    MESSAGE("Reldir:${REL_DIR}")
     IF( EXISTS ${DESTINATION_DIR} )
 	FILE ( REMOVE_RECURSE ${DESTINATION_DIR} )
     ENDIF()
@@ -202,11 +200,41 @@ macro( init_destinationdir  PACKAGE_NAME )
     FILE( WRITE ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
 endmacro( init_destinationdir )
 
+
+macro( create_develpackages )
+    FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${PSD}/CMakeLists.txt ${DESTINATION_DIR} )
+    FOREACH( DIR CMakeModules include src plugins spec )
+	Message( "Copying ${DIR} files" )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${CMAKE_INSTALL_PREFIX}/${DIR}
+			 ${DESTINATION_DIR}/${DIR} )
+    ENDFOREACH()
+    Message( "Copying Pmake stuff" )
+    FOREACH( DIR ${PMAKESTUFF} )
+	IF( IS_DIRECTORY "${PSD}/Pmake/${DIR}" )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${PSD}/Pmake/${DIR} ${DESTINATION_DIR}/Pmake/${DIR} )
+	ELSE()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${PSD}/Pmake/${DIR} ${DESTINATION_DIR}/Pmake/${DIR} )
+	ENDIF()
+#//TODO File permissions are chaged after install. We need to copy as it is. 
+#But '-E copy/copy_directory'option is working.
+    ENDFOREACH()
+
+    execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
+			     WORKING_DIRECTORY ${PACKAGE_DIR}
+			     RESULT_VARIABLE STATUS )
+endmacro( create_develpackages )
+
+
 macro( od_sign_maclibs )
     IF( APPLE )
 	MESSAGE( "Signing mac libs..." )
 	SET ( SIGN_ID "Developer ID Application: DGB-Earth Sciences B. V." )
-	FILE( GLOB FILES ${PSD}/inst/bin/mac/* )
+	FILE( GLOB FILES ${CMAKE_INSTALL_PREFIX}/bin/mac/* )
 	FOREACH( FIL ${FILES} )
 	    execute_process( COMMAND  codesign -f -s ${SIGN_ID} ${FIL}
 			     RESULT_VARIABLE STATUS )

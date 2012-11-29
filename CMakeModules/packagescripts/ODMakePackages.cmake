@@ -7,7 +7,9 @@
 #TODO Get version name from keyboard. 
 
 SET( BASEPACKAGES basedatadefs dgbbasedatadefs)
-SET( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs dgbnndefs dgbssisdefs dgbstratdefs dgbvmbdefs dgbwcpdefs odgmtdefs odgprdefs odmadagascardefs ) 
+SET( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs
+		 dgbnndefs dgbssisdefs dgbstratdefs dgbvmbdefs dgbwcpdefs
+		 odgmtdefs odgprdefs odmadagascardefs develdefs ) 
 
 INCLUDE( CMakeModules/packagescripts/extlibs.cmake )
 INCLUDE( CMakeModules/packagescripts/ODInstallReleaseStuff.cmake )
@@ -34,8 +36,8 @@ foreach ( PACKAGE ${PACKAGELIST} )
 	MESSAGE( FATAL_ERROR "OD_PLFSUBDIR not defined" )
     ENDIF()
 
-    IF( NOT EXISTS ${PSD}/inst )
-	MESSAGE( FATAL_ERROR "${PSD}/inst is not existed. Do make install. " )
+    IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
+	MESSAGE( FATAL_ERROR "CMAKE_INSTALL_PREFIX is not Defined. " )
     ENDIF()
 
     IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
@@ -46,6 +48,10 @@ foreach ( PACKAGE ${PACKAGELIST} )
     ENDIF()
 
     init_destinationdir( ${PACK} )
-    create_package( ${PACK} )
+    IF( ${PACK} STREQUAL "devel" )
+        create_develpackages()
+    ELSE()
+	create_package( ${PACK} )
+    ENDIF()
 endforeach()
 MESSAGE( "\n Created packages are available under ${PSD}/packages" )
