@@ -5,7 +5,7 @@
 #	RCS :		$Id: ODQtUtils.cmake,v 1.14 2012/04/26 06:32:04 cvskris Exp $
 #_______________________________________________________________________________
 
-MACRO(OD_SETUP_QT)
+macro( OD_INIT_QT )
     IF ( (NOT DEFINED QTDIR) OR QTDIR STREQUAL "" )
 	SET(OD_QTDIR_ENV $ENV{OD_QTDIR})
 	SET(QTDIR_ENV $ENV{QTDIR})
@@ -30,9 +30,15 @@ MACRO(OD_SETUP_QT)
     SET ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
 
     FIND_PACKAGE(Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
-
+    #Install
+    SET( ARGS ${QT_QTOPENGL_LIBRARY_RELEASE}
+	 DESTINATION bin/${OD_PLFSUBDIR}/Release )
+    OD_INSTALL_LIB ( ${ARGS} )
     include(${QT_USE_FILE})
+endmacro()
 
+
+MACRO(OD_SETUP_QT)
     FOREACH( QTMOD ${OD_USEQT} )
 
 	IF(${QTMOD} MATCHES "Core" )
