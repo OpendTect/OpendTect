@@ -56,3 +56,23 @@ MACRO ( OD_ADD_OPTIONAL_MODULES )
     ENDFOREACH()
 ENDMACRO()
 
+macro ( OD_INSTALL_LIB ${ARGV} )
+    set ( NEXT_ARG_IS_DEST )
+    foreach ( ARG ${ARGS} )
+	if ( ${ARG} STREQUAL "DESTINATION" )
+	    set ( NEXT_ARG_IS_DEST 1 )
+	else()
+	    if ( NEXT_ARG_IS_DEST )
+		set ( DST ${ARG} )
+		set ( NEXT_ARG_IS_DEST )         
+	    else()
+		get_filename_component( FULLPATH ${ARG} REALPATH )
+		list ( APPEND SOURCES ${FULLPATH} )
+	    endif()
+	endif()
+    endforeach()
+    INSTALL ( PROGRAMS ${SOURCES}
+		DESTINATION ${DST}
+		PERMISSIONS OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE
+			    OWNER_READ GROUP_READ WORLD_READ)
+endmacro()
