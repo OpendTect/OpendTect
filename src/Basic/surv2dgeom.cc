@@ -148,13 +148,61 @@ void PosInfo::Survey2D::readIdxFiles()
 }
 
 
+struct IdxFileData
+{
+    BufferString	filename_;
+    od_int64		timestamp_;
+    IOPar		iopar_;
+};
+
+static ObjectSet<IdxFileData> idxfilecache;
+static Threads::ReadWriteLock idxfilecachelock;
+
+static int getIdxFileCacheIdx( const char* fnm )
+{
+    for ( int idx=idxfilecache.size()-1; idx>=0; idx-- )
+    {
+	if ( idxfilecache[idx]->filename_ == fnm )
+	    return idx;
+    }
+    return -1;
+}
+
+
 void PosInfo::Survey2D::readIdxFile( const char* fnm, IOPar& iop )
 {
+    idxfilecachelock.readLock();
+
+    int idx = getIdxFileCacheIdx( fnm );
+    if ( idx>=0 && File::getTimeInSeconds(fnm)<=idxfilecache[idx]->timestamp_ )
+    {
+	iop = idxfilecache[idx]->iopar_;
+	idxfilecachelock.readUnLock();
+	return;
+    }
+
+    idxfilecachelock.readUnLock();
+
     iop.setEmpty();
     SafeFileIO sfio( fnm, true );
     if ( !sfio.open(true) ) return;
     ascistream astrm( sfio.istrm() );
     iop.getFrom( astrm );
+
+    idxfilecachelock.writeLock();
+
+    idx = getIdxFileCacheIdx( fnm );
+    if ( idx >= 0 )
+	delete idxfilecache.remove( idx );
+
+    IdxFileData* idxfiledata = new IdxFileData();
+    idxfiledata->filename_ = fnm;
+    idxfiledata->timestamp_ = File::getTimeInSeconds( fnm );
+    idxfiledata->iopar_ = iop;
+    idxfilecache += idxfiledata;
+
+    idxfilecachelock.writeUnLock();
+
     sfio.closeSuccess();
 }
 
@@ -171,7 +219,17 @@ void PosInfo::Survey2D::writeIdxFile( bool lines ) const
     astrm.putHeader("File Name Table");
     (lines ? lineindex_ : lsindex_).putTo( astrm );
     if ( sfio.ostrm().good() )
+    {
+	idxfilecachelock.writeLock();
+
+	int idx = getIdxFileCacheIdx( fp.fullPath() );
+	if ( idx >= 0 )
+	    idxfilecache[idx]->timestamp_ = -1;
+
+	idxfilecachelock.writeUnLock();
+
 	sfio.closeSuccess();
+    }
     else
     {
 	sfio.closeFail();
@@ -713,7 +771,7 @@ void PosInfo::Survey2D::removeLineSet( const char* lsnm )
     if ( File::exists(dirnm) )
 	File::removeDir(dirnm);
     lsindex_.remove( lsidx );
-	writeIdxFile( false );
+    writeIdxFile( false );
     if ( !iscurls ) return;
 
     if ( lsindex_.size() > 1 ) 
