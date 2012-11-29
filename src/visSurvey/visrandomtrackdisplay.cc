@@ -725,7 +725,14 @@ bool RandomTrackDisplay::isManipulated() const
  
 void RandomTrackDisplay::acceptManipulation()
 {
-    setDepthInterval( dragger_->getDepthRange() );
+    if ( !datatransform_ )
+    	setDepthInterval( dragger_->getDepthRange() );
+    else
+    {
+	triangles_->setDepthRange( dragger_->getDepthRange() );
+	moving_.trigger();
+    }
+
     for ( int idx=0; idx<nrKnots(); idx++ )
     {
 	const Coord crd = dragger_->getKnot(idx);
