@@ -10,6 +10,7 @@ set ( YEAR 2012 )
 configure_file( ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/license_devel.txt ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in )
 
 macro( add_licensetext DIRNAME DIRPATH )
+    MESSAGE( "Installing ${DIRPATH} " )
     FILE( GLOB FILES ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/* )
     foreach( FIL ${FILES} )
 	FILE( READ ${FIL} temp )
