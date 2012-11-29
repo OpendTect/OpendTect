@@ -111,14 +111,6 @@ uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
 
 bool uiODRandomLineParentTreeItem::showSubMenu()
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,
-	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-    if ( scene && scene->getZAxisTransform() )
-    {
-	uiMSG().message( "Cannot add Random lines to this scene (yet)" );
-	return false;
-    }
-
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Add &Empty"), 0 );
     mnu.insertItem( new uiMenuItem("Add &Stored ..."), 7 );
