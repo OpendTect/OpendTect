@@ -630,7 +630,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	    else 
 	    {
 		SamplingData<float> sd(zrg.start, step );
-		float res[nrsamp];
+		mAllocVarLenArr( float, res, nrsamp );
 		datatransform_->transformBack( bid, sd, nrsamp, res );
 		for ( int ids=0; ids<nrsamp; ids++ )
 		{
