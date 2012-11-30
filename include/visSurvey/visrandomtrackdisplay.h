@@ -151,6 +151,9 @@ public:
     void			setPolyLineMode(bool mode ); 
     bool			createFromPolyLine();
     void			setColor(Color);
+
+    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
+    const ZAxisTransform*	getZAxisTransform() const;
 				
 protected:
 				~RandomTrackDisplay();
@@ -181,6 +184,8 @@ protected:
 					       const Coord3& pos) const;
     void			setPickPos(const Coord3& pos);
     void			removePickPos( const TypeSet<int>& );
+    void			dataTransformCB(CallBacker*);
+    void			updateRanges(bool,bool);
 
     visBase::SplitTextureRandomLine* triangles_;
     visBase::RandomTrackDragger* dragger_;
