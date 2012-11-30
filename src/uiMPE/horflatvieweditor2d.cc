@@ -583,7 +583,7 @@ bool HorizonFlatViewEditor2D::getPosID( const Coord3& crd,
     if ( !linesetgeom.getLineData( linenm_ ) )
 	return false;
 
-    linesetgeom.getLineData( linenm_ )->getPos( crd, pos, mUdf(double) );
+    linesetgeom.getLineData( linenm_ )->getPos( crd, pos, mUdf(float) );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj);
 
     if ( !hor2d ) return false;

@@ -79,7 +79,9 @@ public:
 	    			   const Interval<int>& trcnrrg) const;
 
     bool		getPos(const Coord& crd,Line2DPos& l2p,
-	    		       double threshold_distance) const;
+	    		       float* dist=0) const;
+    bool		getPos(const Coord& crd,Line2DPos& l2p,
+	    		       float threshold_distance) const;
     bool		getPos(int trcnr,Line2DPos&) const;
 
     void                dump(std::ostream&,bool pretty=true) const;

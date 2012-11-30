@@ -120,8 +120,7 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 	    return;
 
 	PosInfo::Line2DPos l2dpos;
-	const float dist = SI().crlDistance();
-	if ( !line2d.getPos( crd,  l2dpos, dist*dist ) )
+	if ( !line2d.getPos( crd, l2dpos, SI().crlDistance() ) )
 	{
 	    BufferString msg( "Please pick trace on line:",
 		    	      linesfld_->box()->text() );

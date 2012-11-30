@@ -54,6 +54,9 @@ int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
 
 int PosInfo::Line2DData::gtIndex( const Coord& coord, double* sqdist ) const
 {
+	if ( posns_.isEmpty() )
+		return -1;
+
 #   define mSqDist(idx) posns_[idx].coord_.sqDistTo( coord )
 
     int i0 = 0, i1 = posns_.size()-1;
@@ -130,17 +133,25 @@ int PosInfo::Line2DData::nearestIdx( const Coord& pos,
     return sqd0 < sqd1 ? nrrg.start : nrrg.stop;
 }
 
-
 bool PosInfo::Line2DData::getPos( const Coord& coord,
-				  PosInfo::Line2DPos& pos, double thr ) const
+				  PosInfo::Line2DPos& pos, float* dist ) const
 {
     double sqdist;
     const int idx = gtIndex( coord, &sqdist );
-    if ( !mIsUdf(thr) && thr*thr < sqdist )
-	return false;
+    if ( idx < 0 )
+	    return false;
 
     pos = posns_[idx];
+    if ( dist ) *dist = (float) Math::Sqrt( sqdist );
     return true;
+}
+
+
+bool PosInfo::Line2DData::getPos( const Coord& coord,
+				  PosInfo::Line2DPos& pos, float maxdist ) const
+{
+    float dist;
+    return getPos(coord,pos,&dist) && dist < maxdist;
 }
 
 
