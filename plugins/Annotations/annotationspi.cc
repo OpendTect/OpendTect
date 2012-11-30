@@ -27,7 +27,7 @@ mDefODPluginInfo(Annotations)
 {
     static PluginInfo retpii = {
 	"Annotations",
-	"dGB (Nanne Hemstra)",
+	"dGB Earth Sciences (Nanne)",
 	"=od",
 	"Annotation display utilities."
 	    "\nThis delivers the 'Annotations' item in the tree." };

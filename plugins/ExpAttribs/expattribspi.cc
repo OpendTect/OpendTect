@@ -21,8 +21,8 @@ mDefODPluginEarlyLoad(ExpAttribs)
 mDefODPluginInfo(ExpAttribs)
 {
     static PluginInfo retpi = {
-	"Experimental Attributes (Non-UI)",
-	"dGB (Nanne)",
+	"Experimental Attributes (Base)",
+	"dGB Earth Sciences (Nanne)",
 	"=od",
     	"" };
     return &retpi;
