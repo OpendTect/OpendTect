@@ -396,7 +396,6 @@ void uiStratSimpleLayerModelDisp::updZoomBox()
 
 void uiStratSimpleLayerModelDisp::modelChanged()
 {
-    zoomwr_ = uiWorldRect(mUdf(double),0,0,0);
     forceRedispAll();
 }
 

@@ -239,7 +239,7 @@ protected:
     void			nameToBeChged(CallBacker*);
     void			nameChanged(CallBacker*);
     void			changeSyntheticsCB(CallBacker*);
-    void			wvltToBeChanged(CallBacker*);
+    void			wvltChanged(CallBacker*);
 public:
     void			setSynthList(const BufferStringSet&);
     void			setWaveletName(const char*);

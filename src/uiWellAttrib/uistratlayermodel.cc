@@ -628,6 +628,7 @@ bool uiStratLayerModel::openGenDesc()
     seqdisp_->descHasChanged();
 
     moddisp_->modelChanged();
+    moddisp_->setZoomBox( uiWorldRect(mUdf(double),0,0,0) );
     synthdisp_->modelChanged();
     delete elpropsel_; elpropsel_ = 0;
 
@@ -643,8 +644,8 @@ bool uiStratLayerModel::openGenDesc()
     if ( !desc_.getWorkBenchParams() || 
 	    !useDisplayPars( *desc_.getWorkBenchParams() ))
 	return false;
-    useSyntheticsPars( *desc_.getWorkBenchParams() );
     
+    useSyntheticsPars( *desc_.getWorkBenchParams() );
     setWinTitle();
     return true;
 }
@@ -754,6 +755,7 @@ bool uiStratLayerModel::closeOK()
 
 void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
 {
+    MouseCursorChanger cursor( MouseCursor::Wait );
     lmp_.useed_ = (bool)synthdata;
     synthdisp_->displaySynthetic( synthdata ? synthdata
 	    			: synthdisp_->getCurrentSyntheticData() );

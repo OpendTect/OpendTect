@@ -48,6 +48,7 @@ static const char* rcsID = "$Id$";
 
 static const int cMarkerSize = 6;
 
+static const char* sKeySnapLevel()	{ return "Snap Level"; }
 static const char* sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
 static const char* sKeySyntheticNr()	{ return "Synthetics Nr"; }
 static const char* sKeySynthetics()	{ return "Synthetics"; }
@@ -57,7 +58,6 @@ mDefineInstanceCreatedNotifierAccess(uiStratSynthDisp)
 static HiddenParam<uiSynthGenDlg,uiLabeledListBox*> synthlistllb( 0 );
 static HiddenParam<uiSynthGenDlg, CNotifier<uiSynthGenDlg,BufferString>* > remsynthnotset( 0 );
 static HiddenParam<uiSynthGenDlg, CNotifier<uiSynthGenDlg,BufferString>* > synthchgednotset( 0 );
-static HiddenParam<uiSynthGenDlg, CNotifier<uiSynthGenDlg,BufferString>* > wvltchgednotset( 0 );
 static HiddenParam<uiSynthGenDlg,uiSeisWaveletSel*> wvltselfldset( 0 );
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
@@ -170,14 +170,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
 uiStratSynthDisp::~uiStratSynthDisp()
 {
-    CNotifier<uiSynthGenDlg,BufferString>* notify =
-	remsynthnotset.getParam( synthgendlg_ );
-    if ( notify )
-	notify->remove( mCB(this,uiStratSynthDisp,syntheticRemoved) );
-    CNotifier<uiSynthGenDlg,BufferString>* synchgnotify =
-	synthchgednotset.getParam( synthgendlg_ );
-    if ( synchgnotify )
-	synchgnotify->remove( mCB(this,uiStratSynthDisp,syntheticChanged) );
     delete &stratsynth_;
 }
 
@@ -396,14 +388,6 @@ void uiStratSynthDisp::setCurrentWavelet()
 
 void uiStratSynthDisp::wvltChg( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller(BufferString,wvltnm,caller,cb);
-    mDynamicCastGet(uiSynthGenDlg*,synthdlg,caller);
-    if ( synthdlg )
-    {
-	wvltfld_->setInput( wvltnm );
-	stratsynth_.setWavelet( wvltfld_->getWavelet() );
-    }
-
     setCurrentWavelet();
     syntheticDataParChged( 0 );
 }
@@ -520,6 +504,7 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
 {
     const bool hadpack = vwr_->pack( true ) || vwr_->pack( false ); 
 
+    vwr_->clearAllPacks();
     vwr_->removeAllAuxData( true );
 
     if ( !sd ) return;
@@ -557,6 +542,11 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
 	    { maxaimodelsz = (*d2tmodels_)[idx]->size(); longestaimdl_ = idx; }
     }
 
+    ColTab::MapperSetup& mapper = vwr_->appearance().ddpars_.vd_.mappersetup_;
+    mapper.cliprate_ = Interval<float>(0.0,0.0);
+    mapper.autosym0_ = true;
+    mapper.symmidval_ = 0.0;
+
     vwr_->setPack( true, dp->id(), false, !hadpack );
     vwr_->setPack( false, dp->id(), false, !hadpack );
 }
@@ -578,7 +568,9 @@ void uiStratSynthDisp::displayPreStackDirSynthetic( const SyntheticData* sd )
 
     PreStack::Gather* gdp = new PreStack::Gather(*gsetdp->getGathers()[midx-1]);
     DPM(DataPackMgr::FlatID()).add( gdp );
+    gdp->setName( sd->name() );
 
+    vwr.clearAllPacks();
     vwr.removeAllAuxData( true );
     vwr.setPack( false, gdp->id(), false ); 
     vwr.setPack( true, gdp->id(), false ); 
@@ -622,7 +614,7 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* )
 	app.annot_.x1_.showAll( true );
 	app.annot_.x2_.showAll( true );
 	app.annot_.x2_.name_ = "TWT (s)";
-	app.ddpars_.show( false, true );
+	app.ddpars_.show( true, true );
     }
     displayPreStackDirSynthetic( currentsynthetic_ );
 }
@@ -631,6 +623,7 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* )
 void uiStratSynthDisp::setCurrentSynthetic()
 {
     SyntheticData* sd = 0;
+    currentsynthetic_ = 0;
     if ( stratsynth_.nrSynthetics() == 0 )
     {
 	sd = stratsynth_.addDefaultSynthetic();
@@ -689,6 +682,7 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 	currentsynthetic_->fillGenParams( stratsynth_.genParams() );
     }
 
+    doModelChange();
     if ( synthgendlg_)
 	synthgendlg_->putToScreen();
 }
@@ -726,8 +720,6 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 		mCB(this,uiStratSynthDisp,syntheticRemoved) );
 	synthchgednotset.getParam(synthgendlg_)->notify(
 		mCB(this,uiStratSynthDisp,syntheticChanged) );
-	wvltchgednotset.getParam(synthgendlg_)->notify(
-		mCB(this,uiStratSynthDisp,wvltChg) );
 	synthgendlg_->genNewReq.notify(
 			    mCB(this,uiStratSynthDisp,genNewSynthetic) );
     }
@@ -860,6 +852,8 @@ void uiStratSynthDisp::setSynthNames()
 	synthnms.add( sd->name() );
     }
 
+    if ( currentsynthetic_ )
+	datalist_->box()->setCurrentItem( currentsynthetic_->name() );
     synthgendlg_->setSynthList( synthnms );
 }
 
@@ -867,6 +861,7 @@ void uiStratSynthDisp::setSynthNames()
 void uiStratSynthDisp::fillPar( IOPar& par ) const
 {
     IOPar stratsynthpar;
+    stratsynthpar.set( sKeySnapLevel(), levelsnapselfld_->box()->currentItem());
     int nr_nonproprefsynths = 0;
     for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx++ )
     {
@@ -887,10 +882,13 @@ void uiStratSynthDisp::fillPar( IOPar& par ) const
     par.mergeComp( stratsynthpar, sKeySynthetics() );
 }
 
+
 bool uiStratSynthDisp::usePar( const IOPar& par ) 
 {
     PtrMan<IOPar> stratsynthpar = par.subselect( sKeySynthetics() );
     if ( !stratsynthpar ) return false;
+    int snaplvl = 0;
+    stratsynthpar->get( sKeySnapLevel(), snaplvl );
 
     int nrsynths;
     stratsynthpar->get( sKeyNrSynthetics(), nrsynths );
@@ -913,6 +911,8 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
     setCurrentSynthetic();
     displaySynthetic( currentsynthetic_ );
+    levelsnapselfld_->box()->setCurrentItem( snaplvl );
+    levelSnapChanged(0 );
 
     return true;
 }
@@ -1004,9 +1004,6 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, SynthGenParams& gp)
     CNotifier<uiSynthGenDlg,BufferString>* synthchgnot =
 	new CNotifier<uiSynthGenDlg,BufferString>(this);
     synthchgednotset.setParam( this, synthchgnot );
-    CNotifier<uiSynthGenDlg,BufferString>* wvltchg =
-	new CNotifier<uiSynthGenDlg,BufferString>(this);
-    wvltchgednotset.setParam( this, wvltchg);
     setCtrlStyle( DoAndStay );
 
     setOkText( "Apply" );
@@ -1017,10 +1014,10 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, SynthGenParams& gp)
     llb->box()->selectionChanged.notify(
 	    mCB(this,uiSynthGenDlg,changeSyntheticsCB) );
     synthlistllb.setParam( this, llb );
-    uiToolButton* rembut =
-	new uiToolButton( syntlistgrp, "trashcan", "Remove Synthetics",
-			  mCB(this,uiSynthGenDlg,removeSyntheticsCB) );
-    rembut->attach( centeredRightOf, llb );
+    uiPushButton* rembut =
+	new uiPushButton( syntlistgrp, "Remove Synthetics",
+			  mCB(this,uiSynthGenDlg,removeSyntheticsCB), true );
+    rembut->attach( alignedBelow, llb );
 
     uiSeparator* versep = new uiSeparator( this );
     versep->attach( rightTo, syntlistgrp );
@@ -1030,7 +1027,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, SynthGenParams& gp)
     CallBack cb( mCB(this,uiSynthGenDlg,typeChg) );
     uiSeisWaveletSel* wvltfld = new uiSeisWaveletSel( pargrp );
     wvltselfldset.setParam( this, wvltfld );
-    wvltfld->newSelection.notify( mCB(this,uiSynthGenDlg,wvltToBeChanged) );
+    wvltfld->newSelection.notify( mCB(this,uiSynthGenDlg,wvltChanged) );
     typefld_ = new uiGenInput( pargrp, "Type",
 			BoolInpSpec(true,"Post-Stack","Pre-Stack") );
     typefld_->attach( alignedBelow, wvltfld );
@@ -1091,13 +1088,10 @@ void uiSynthGenDlg::nameChanged( CallBacker* )
 }
 
 
-void uiSynthGenDlg::wvltToBeChanged( CallBacker* )
+void uiSynthGenDlg::wvltChanged( CallBacker* )
 {
     getFromScreen();
     namefld_->setText( sd_.genName() );
-
-    BufferString wvltname( wvltselfldset.getParam(this)->getName() );
-    wvltchgednotset.getParam(this)->trigger( wvltname );
 }
 
 
