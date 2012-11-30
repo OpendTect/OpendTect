@@ -16,7 +16,9 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "posinfo2d.h"
 #include "separstr.h"
+#include "survgeom.h"
 #include "thread.h"
+
 class IOPar;
 class FilePath;
 class BufferStringSet;
@@ -142,6 +144,35 @@ mGlobal(Basic) Survey2D& POS2DAdmin();
 inline mGlobal(Basic) const PosInfo::Survey2D& S2DPOS()
 { return const_cast<PosInfo::Survey2D&>( PosInfo::POS2DAdmin() ); }
 
+
+
+//New Stuff post 4.4 that will replace the old stuff in due course
+
+/*!\brief Geometry of a 2D Line.*/
+
+namespace Survey
+{
+
+mClass(Basic) Geometry2D : public Geometry
+{
+public:
+                   		Geometry2D();
+                    		~Geometry2D();
+
+    virtual Coord		toCoord(int line, int tracenr) const;
+    virtual TraceID		nearestTrace(const Coord&,float* dist) const;
+
+    virtual bool		includes(int line, int tracenr)	const;
+
+    PosInfo::Line2DData&	data()			{ return data_; }
+    const PosInfo::Line2DData	data() const		{ return data_; }
+
+protected:
+
+    PosInfo::Line2DData&	data_;
+};
+
+} // namespace Survey
 
 #endif
 

@@ -884,3 +884,38 @@ BufferString PosInfo::Survey2D::getIdxTimeStamp( const char* lsnm ) const
     BufferString timestamp( File::timeLastModified(fp.fullPath()) );
     return timestamp;
 }
+
+
+// New Stuff
+
+Survey::Geometry2D::Geometry2D()
+    : data_(*new PosInfo::Line2DData)
+{
+}
+
+Survey::Geometry2D::~Geometry2D()
+{ delete &data_; }
+
+
+Coord Survey::Geometry2D::toCoord( int line, int trcnr ) const
+{
+    PosInfo::Line2DPos pos;
+    return data_.getPos(trcnr,pos) ? pos.coord_ : Coord::udf();
+}
+
+
+TraceID Survey::Geometry2D::nearestTrace( const Coord& crd, float* dist ) const
+{
+    PosInfo::Line2DPos pos;
+    return data_.getPos(crd,pos,dist) ? TraceID( geomid_, geomid_, pos.nr_) 
+				      : TraceID::udf();
+
+}
+
+
+bool Survey::Geometry2D::includes( int line, int tracenr ) const
+{ return data_.indexOf(tracenr) >= 0; }
+
+
+
+
