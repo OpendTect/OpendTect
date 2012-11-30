@@ -140,9 +140,6 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 	return;
     }
 
-    const bool havenlaouts = attrinf_->nlaoutnms_.size();
-    const bool haveattribs = attrinf_->attrnms_.size();
-
     BufferString nm( "Select " ); nm += seltxt;
     setName( nm );
     setCaption( "Select" );
@@ -193,6 +190,7 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 	}
     }
 
+    const bool havenlaouts = attrinf_->nlaoutnms_.size();
     if ( storcur == -1 )		storcur = 0;
     if ( attrcur == -1 )		attrcur = attrinf_->attrnms_.size()-1;
     if ( nlacur == -1 && havenlaouts )	nlacur = 0;
@@ -272,7 +270,6 @@ void uiAttrSelDlg::createSelectionFields()
 {
     const bool havenlaouts = attrinf_->nlaoutnms_.size();
     const bool haveattribs = attrinf_->attrnms_.size();
-    const bool havestored = attrinf_->ioobjnms_.size();
 
     storoutfld_ = new uiListBox( this, attrinf_->ioobjnms_ );
     storoutfld_->setHSzPol( uiObject::Wide );
@@ -317,8 +314,10 @@ void uiAttrSelDlg::createSelectionFields()
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
 	zdomoutfld_ = new uiListBox( this, nms );
 	zdomoutfld_->setHSzPol( uiObject::Wide );
+	zdomoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
 	zdomoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	zdomoutfld_->attach( rightOf, selgrp_ );
+	zdomoutfld_->attach( heightSameAs, storoutfld_ );
     }
 }
 
@@ -341,16 +340,6 @@ void uiAttrSelDlg::selDone( CallBacker* c )
 {
     if ( !selgrp_ ) return;
 
-    mDynamicCastGet(uiRadioButton*,but,c);
-   
-    bool dosrc, docalc, donla; 
-    if ( but == storfld_ )
-    { dosrc = true; docalc = donla = false; }
-    else if ( but == attrfld_ )
-    { docalc = true; dosrc = donla = false; }
-    else if ( but == nlafld_ )
-    { donla = true; docalc = dosrc = false; }
-
     const int seltyp = selType();
     if ( attroutfld_ ) attroutfld_->display( seltyp == 2 );
     if ( nlaoutfld_ ) nlaoutfld_->display( seltyp == 3 );
@@ -363,8 +352,9 @@ void uiAttrSelDlg::selDone( CallBacker* c )
 	    steeroutfld_->display( seltyp==1 );
     }
 
-    filtfld_->display( seltyp < 2 );
-    compfld_->display( seltyp < 2 );
+    const bool isstoreddata = seltyp==0 ||seltyp==1 || seltyp==4;
+    filtfld_->display( isstoreddata );
+    compfld_->display( isstoreddata );
 
     cubeSel(0);
 }
@@ -389,26 +379,29 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     if ( !storoutfld_ ) return;
 
     const int seltyp = selType();
-    if ( seltyp>1 )
+    if ( seltyp==2 || seltyp==3 )
     {
 	attr2dfld_->display( false );
 	return;
     }
 
-    int selidx = storoutfld_ ? storoutfld_->currentItem() : -1;
-    bool is2d = false;
     BufferString ioobjkey;
     if ( seltyp==0 )
-    {
 	ioobjkey = attrinf_->ioobjids_.get( storoutfld_->currentItem() );
-	is2d = SelInfo::is2D( ioobjkey.buf() );
-    }
     else if ( seltyp==1 )
-    {
 	ioobjkey = attrinf_->steerids_.get( steeroutfld_->currentItem() );
-	is2d = SelInfo::is2D( ioobjkey.buf() );
+    else if ( seltyp==4 )
+    {
+	const int selidx = zdomoutfld_->currentItem();
+	BufferStringSet nms;
+	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
+	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
+	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx) );
+	if ( ioobj ) ioobjkey = ioobj->key();
     }
 
+    const bool is2d = ioobjkey.isEmpty()
+	? false : SelInfo::is2D( ioobjkey.buf() );
     attr2dfld_->display( is2d );
     filtfld_->display( !is2d );
     if ( is2d )
@@ -671,7 +664,6 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 
     const DescID attrid( toInt(bs[0]), toBool(bs[1],true) );
     const int outnr = toInt( bs[2] );
-    const int compnr = bs.size() == 4 ? toInt( bs[3] ) : -1;
     if ( !attrid.isValid() )
     {
 	if ( !attrdata_.nlamodel_ || outnr < 0 )
@@ -870,31 +862,7 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 	return false;
     }
 
-    //TODO this is pretty difficult to get right
-    if ( !attrdata_.attribid_.isValid() )
-	return true;
-
-    const Desc& ad = *attrdata_.attrSet().getDesc( attrdata_.attribid_ );
-    bool isdep = false;
-/*
-    if ( !is2D() )
-	isdep = ad.isDependentOn(ioobj,0);
-    else
-    {
-	// .. and this too
-	if ( ad.isStored() )
-	{
-	    LineKey lk( ad.defStr() );
-	    isdep = ioobj.key() == lk.lineName();
-	}
-    }
-    if ( isdep )
-    {
-	uiMSG().error( "Cannot output to an input" );
-	return false;
-    }
-*/
-
+    //TODO check cyclic dependencies and bad stored IDs
     return true;
 }
 
