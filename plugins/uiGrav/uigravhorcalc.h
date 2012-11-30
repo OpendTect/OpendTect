@@ -4,10 +4,12 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Apr 2010
+ * SVN      : $Id$
 -*/
 
 #include "uidialog.h"
 #include "emposid.h"
+
 class IOObj;
 class uiGenInput;
 class uiIOObjSel;
