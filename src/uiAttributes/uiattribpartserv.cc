@@ -1329,6 +1329,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	{
 	    attribid = eDSHolder().getDescSet( false, true )
 					->getStoredID( ioobj->key() );
+	    idlkey = LineKey( ioobj->key() );
 	    isstored = true;
 	}
     }

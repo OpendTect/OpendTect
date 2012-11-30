@@ -315,8 +315,10 @@ void uiAttrSelDlg::createSelectionFields()
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
 	zdomoutfld_ = new uiListBox( this, nms );
 	zdomoutfld_->setHSzPol( uiObject::Wide );
+	zdomoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
 	zdomoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	zdomoutfld_->attach( rightOf, selgrp_ );
+	zdomoutfld_->attach( heightSameAs, storoutfld_ );
     }
 }
 
@@ -351,8 +353,9 @@ void uiAttrSelDlg::selDone( CallBacker* c )
 	    steeroutfld_->display( seltyp==1 );
     }
 
-    filtfld_->display( seltyp < 2 );
-    compfld_->display( seltyp < 2 );
+    const bool isstoreddata = seltyp==0 ||seltyp==1 || seltyp==4;
+    filtfld_->display( isstoreddata );
+    compfld_->display( isstoreddata );
 
     cubeSel(0);
 }
@@ -377,25 +380,29 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     if ( !storoutfld_ ) return;
 
     const int seltyp = selType();
-    if ( seltyp>1 )
+    if ( seltyp==2 || seltyp==3 )
     {
 	attr2dfld_->display( false );
 	return;
     }
 
-    bool is2d = false;
     BufferString ioobjkey;
     if ( seltyp==0 )
-    {
 	ioobjkey = attrinf_->ioobjids_.get( storoutfld_->currentItem() );
-	is2d = SelInfo::is2D( ioobjkey.buf() );
-    }
     else if ( seltyp==1 )
-    {
 	ioobjkey = attrinf_->steerids_.get( steeroutfld_->currentItem() );
-	is2d = SelInfo::is2D( ioobjkey.buf() );
+    else if ( seltyp==4 )
+    {
+	const int selidx = zdomoutfld_->currentItem();
+	BufferStringSet nms;
+	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
+	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
+	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx) );
+	if ( ioobj ) ioobjkey = ioobj->key();
     }
 
+    const bool is2d = ioobjkey.isEmpty()
+	? false : SelInfo::is2D( ioobjkey.buf() );
     attr2dfld_->display( is2d );
     filtfld_->display( !is2d );
     if ( is2d )
