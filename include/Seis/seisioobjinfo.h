@@ -84,7 +84,7 @@ public:
 	const BinIDValueSet*	bvs_;
 	BufferString		zdomky_;	//!< default=empty=only SI()'s
 				//!< Will be matched as GlobExpr
-	int			steerpol_;	//!< 0=only, 1=none, 2=both
+	int			steerpol_;	//!< 0=none, 1=only, 2=both
 				//!< Casts into uiSeisSel::Setup::SteerPol
     };
 
