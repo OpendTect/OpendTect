@@ -90,7 +90,7 @@ bool uiWellLogCalcInpData::getInp( uiWellLogCalc::InpData& inpdata )
     inpdata.noudf_ = udfbox_->isChecked();
     inpdata.wl_ = getLog();
     const char* logunitnm = inpdata.wl_->unitMeasLabel();
-    const UnitOfMeasure* logun = UoMR().get( logunitnm );
+    const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
     const UnitOfMeasure* convertun = getUnit();
     if ( !logun || !convertun )
 	return inpdata.wl_;		//TODO: would we want to stop?
@@ -120,7 +120,7 @@ void uiWellLogCalcInpData::inputSel( CallBacker* )
     if ( !unfld_ ) return;
 
     const char* logunitnm = getLog() ? getLog()->unitMeasLabel() : 0;
-    const UnitOfMeasure* logun = UoMR().get( logunitnm );
+    const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
     if ( !logun ) return;
     ObjectSet<const UnitOfMeasure> possibleunits;
     UoMR().getRelevant( logun->propType(), possibleunits );

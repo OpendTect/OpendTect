@@ -279,7 +279,7 @@ bool uiTieWinMGRDlg::getDefaults()
 	{
 	    BufferString denuom = den->unitMeasLabel();
 	    logsfld_->setLog( tp, wtsetup_.denlognm_, dummy,
-		    	      UoMR().get(denuom), 0 );
+		    	      UnitOfMeasure::getGuessed(denuom), 0 );
 	}
     }
 
@@ -294,7 +294,7 @@ bool uiTieWinMGRDlg::getDefaults()
 	{
 	    BufferString veluom = vp->unitMeasLabel();
 	    logsfld_->setLog( tp, wtsetup_.vellognm_, wtsetup_.issonic_,
-		    	      UoMR().get(veluom), 1 );
+		    	      UnitOfMeasure::getGuessed(veluom), 1 );
 	}
     }
 
