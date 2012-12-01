@@ -73,7 +73,6 @@ uiPropSelFromList::uiPropSelFromList( uiParent* p, const PropertyRef& pr,
 uiPropSelFromList::~uiPropSelFromList()
 {
     delete altpropref_;
-    combochgmanager.removeParam(this);
 }
 
 
@@ -114,7 +113,12 @@ void uiPropSelFromList::setUOM( const UnitOfMeasure& um )
     if ( &um == 0 )
 	unfld_->setUnit( "-" );
     else
-	unfld_->setUnit( um.symbol() );
+    {
+	if ( um.symbol() != '\0' )
+	    unfld_->setUnit( um.symbol() );
+	else
+	    unfld_->setUnit( um.name() );
+    }
 }
 
 
@@ -122,7 +126,7 @@ void uiPropSelFromList::set( const char* txt, bool alt, const UnitOfMeasure* um)
 {
     setCurrent( txt ); setUseAlternate( alt );
     if ( um )
-       setUOM( *um );
+	setUOM( *um );
     else
     {
 	const UnitOfMeasure* emptyuom = 0;
@@ -235,7 +239,7 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
 
     const Well::Log* log = wd->logs().getLog( fld->text() );
     const char* logunitnm = log ? log->unitMeasLabel() : 0;
-    const UnitOfMeasure* logun = UoMR().get( logunitnm );
+    const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
     if ( !logun )
     {
 	const UnitOfMeasure* emptyuom = 0;
@@ -370,9 +374,18 @@ bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs,
 	    || (alternatepr && alternatepr->hasType(tp)) ) 
     {
 	bs = propflds_[idx]->text();
-	uom = propflds_[idx]->uom() ? propflds_[idx]->uom()->symbol() : "";
+	if ( propflds_[idx]->uom() )
+	{
+	    if ( *propflds_[idx]->uom()->symbol() != '\0' )
+		uom = propflds_[idx]->uom()->symbol();
+	    else
+		uom = propflds_[idx]->uom()->name();
+	}
+	else
+	    uom.setEmpty();
 	return true;
     }
+
     return false;
 }
 
@@ -387,9 +400,10 @@ uiPropSelFromList*  uiWellPropSel::getPropSelFromListByName(
 	    BufferString lblnm = BufferString(
 		    			propflds_[idx]->getLabel()->text() );
 	    if ( lblnm == bfs )
-	       return propflds_[idx];
+		return propflds_[idx];
 	}
     }
+
     return 0;
 }
 

@@ -1004,7 +1004,13 @@ bool uiWellLogUOMDlg::acceptOK( CallBacker* )
 	curlogunit.setEmpty();
 
     const UnitOfMeasure* newuom = UnitOfMeasure::getGuessed( uiunit );
-    if ( newuom ) curlogunit = newuom->symbol();
+    if ( newuom )
+    {
+	if ( *newuom->symbol() != '\0' )
+	    curlogunit = newuom->symbol();
+	else if ( *newuom->name() != '\0' )
+	    curlogunit = newuom->name();
+    }
 
     log_.setUnitMeasLabel( curlogunit );
 
