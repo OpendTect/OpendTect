@@ -130,7 +130,7 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 {
     Threads::MutexLocker lock( qobj_.lock_ );
 
-    if ( qobj_ )
+    if ( !qobj_ )
 	return false;
 
     if ( qobj_!=obj )
