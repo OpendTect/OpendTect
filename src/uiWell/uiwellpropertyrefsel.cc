@@ -98,7 +98,12 @@ void uiPropSelFromList::setUOM( const UnitOfMeasure& um )
     if ( &um == 0 )
 	unfld_->setUnit( "-" );
     else
-	unfld_->setUnit( um.symbol() );
+    {
+	if ( um.symbol() != '\0' )
+	    unfld_->setUnit( um.symbol() );
+	else
+	    unfld_->setUnit( um.name() );
+    }
 }
 
 
@@ -204,7 +209,7 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
 
     const Well::Log* log = wd->logs().getLog( fld->text() );
     const char* logunitnm = log ? log->unitMeasLabel() : 0;
-    const UnitOfMeasure* logun = UoMR().get( logunitnm );
+    const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
     if ( !logun )
     {
 	const UnitOfMeasure* emptyuom = 0;
@@ -325,9 +330,18 @@ bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs,
 	    || (alternatepr && alternatepr->hasType(tp)) ) 
     {
 	bs = propflds_[idx]->text();
-	uom = propflds_[idx]->uom() ? propflds_[idx]->uom()->symbol() : "";
+	if ( propflds_[idx]->uom() )
+	{
+	    if ( *propflds_[idx]->uom()->symbol() != '\0' )
+		uom = propflds_[idx]->uom()->symbol();
+	    else
+		uom = propflds_[idx]->uom()->name();
+	}
+	else
+	    uom.setEmpty();
 	return true;
     }
+
     return false;
 }
 
@@ -345,6 +359,7 @@ uiPropSelFromList*  uiWellPropSel::getPropSelFromListByName(
 		return propflds_[idx];
 	}
     }
+
     return 0;
 }
 
@@ -413,40 +428,4 @@ uiWellElasticPropSel::~uiWellElasticPropSel()
     delete &proprefsel_;
 }
 
-
-bool uiWellElasticPropSel::setDenLog( const char* nm, const UnitOfMeasure* uom )
-{
-    const PropertyRef::StdType tp = 
-	ElasticPropertyRef::elasticToStdType(ElasticFormula::Den);
-
-    return setLog( tp, nm, false, uom, 0 );
-}
-
-
-bool uiWellElasticPropSel::setVelLog( const char* nm, const UnitOfMeasure* uom,
-				    bool rev )
-{
-    const PropertyRef::StdType tp = 
-	ElasticPropertyRef::elasticToStdType(ElasticFormula::PVel);
-
-    return setLog( tp, nm, rev, uom, 1 );
-}
-
-
-bool uiWellElasticPropSel::getDenLog( BufferString& nm, BufferString& uom) const
-{
-    const PropertyRef::StdType tp =
-	        ElasticPropertyRef::elasticToStdType(ElasticFormula::Den);
-    bool dummy;
-    return getLog( tp, nm, dummy, uom, 0 );
-}
-
-
-bool uiWellElasticPropSel::getVelLog( BufferString& nm, BufferString& um,
-					bool& isrev ) const
-{
-    const PropertyRef::StdType tp =
-		ElasticPropertyRef::elasticToStdType(ElasticFormula::PVel);
-    return getLog( tp, nm, isrev, um, 1 );
-}
 
