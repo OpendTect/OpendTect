@@ -121,12 +121,6 @@ public:
 			uiWellElasticPropSel(uiParent*,bool withswaves=false);
 			~uiWellElasticPropSel();
 
-    bool		setDenLog(const char*,const UnitOfMeasure*);
-    bool		getDenLog(BufferString&,BufferString& uom) const;
-
-    bool		setVelLog(const char*,const UnitOfMeasure*,bool);
-    bool		getVelLog(BufferString&,BufferString& uom,
-	    			bool& isrev)const;
 };
 
 
