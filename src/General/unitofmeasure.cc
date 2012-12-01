@@ -250,6 +250,13 @@ const UnitOfMeasure* UnitOfMeasureRepository::findBest(
 {
     if ( !nm || !*nm ) return 0;
 
+    if ( matchStringCI( "FRAC", nm ) || matchStringCI( "DEC", nm ) ||
+	 matchStringCI( "UNITLESS", nm ) )
+	nm = "Fraction";
+
+    if ( matchStringCI( "RAT", nm ) )
+	nm = "Ratio";
+
     for ( int idx=0; idx<uns.size(); idx++ )
     {
 	if ( caseInsensitiveEqual(uns[idx]->name().buf(),nm,0) )
@@ -260,6 +267,7 @@ const UnitOfMeasure* UnitOfMeasureRepository::findBest(
 	if ( caseInsensitiveEqual(uns[idx]->symbol(),nm,0) )
 	    return uns[idx];
     }
+
     return 0;
 }
 
