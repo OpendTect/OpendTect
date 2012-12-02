@@ -791,23 +791,23 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
 	{ pErrMsg("getDahForTVD called for time well");
 	    return haveprevdah ? prevdah : dah_[0]; }
 
-    static const float eps = 1e-4;
+    static const float eps = 1e-3; // do not use lower for float
     if ( sz == 1 )
 	return mIsEqual(z,pos_[0].z,eps) ? dah_[0] : mUdf(float);
-    if ( z < dah_[0]-eps )
-	return mUdf(float);
+    if ( z < value(0)-eps )
+	return value(0);
 
 #define mZInRg() \
     (zrg.start-eps < z  && zrg.stop+eps  > z) \
  || (zrg.stop-eps  < z  && zrg.start+eps > z)
 
-    Interval<float> zrg( pos_[0].z, 0 );
+    Interval<float> zrg( value(0), 0 );
     int idxafter = -1;
     for ( int idx=1; idx<pos_.size(); idx++ )
     {
 	if ( !haveprevdah || prevdah+eps < dah_[idx] )
 	{
-	    zrg.stop = pos_[idx].z;
+	    zrg.stop = value(idx);
 	    if ( mZInRg() )
 		{ idxafter = idx; break; }
 	}
@@ -817,8 +817,10 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
 	return mUdf(float);
 
     const int idx1 = idxafter - 1; const int idx2 = idxafter;
-    const float z1 = (float) pos_[idx1].z; const float z2 = (float) pos_[idx2].z;
-    const float dah1 = dah_[idx1]; const float dah2 = dah_[idx2];
+    const float z1 = (float) value(idx1);
+    const float z2 = (float) value(idx2);
+    const float dah1 = dah_[idx1];
+    const float dah2 = dah_[idx2];
     const float zdiff = z2 - z1;
     return mIsZero(zdiff,eps) ? dah2 : ((z-z1) * dah2 + (z2-z) * dah1) / zdiff;
 }
