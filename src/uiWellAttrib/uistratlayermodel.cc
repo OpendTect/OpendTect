@@ -737,7 +737,10 @@ void uiStratLayerModel::setElasticProps()
     {
 	elpropsel_ = ElasticPropSelection::get( desc_.elasticPropSel() );
 	if ( !elpropsel_ )
+	{
+	    elpropsel_ = new ElasticPropSelection;
 	    ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
+	}
     }
 
     BufferString errmsg;
