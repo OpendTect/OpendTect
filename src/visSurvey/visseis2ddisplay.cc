@@ -350,11 +350,6 @@ void Seis2DDisplay::setData( int attrib,
     }
 
     const SamplingData<float>& sd = data2dh.trcinfoset_[0]->sampling;
-
-    StepInterval<float> arrayzrg;
-    arrayzrg.setFrom( getZRange(!datatransform_,attrib) );
-    arrayzrg.step = sd.step;
-    const int arrzsz = mNINT32( arrayzrg.nrfSteps() )+1;
     const int nrseries = data2dh.dataset_->info().getSize( 0 );
 
     channels_->setNrVersions( attrib, nrseries );
@@ -364,11 +359,7 @@ void Seis2DDisplay::setData( int attrib,
     slice2d.setDimMap( 1, 2 );
 
     int sz0, sz1;
-
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-
-    const int nrdisplaytraces = trcdisplayinfo_.rg.width()+1;
-    const int nrdisplaysamples = trcdisplayinfo_.zrg.nrSteps()+1;
 
     for ( int seriesidx=0; seriesidx<nrseries; seriesidx++ )
     {
@@ -381,8 +372,14 @@ void Seis2DDisplay::setData( int attrib,
 	if ( alreadytransformed || !datatransform_ )
 	{
 	    const int nrsamples = slice2d.info().getSize(1);
-	    if ( slice2d.info().getSize(0)!=nrdisplaytraces || 
-		 nrsamples!=nrdisplaysamples )
+	    const int nrdisplaytraces = trcdisplayinfo_.rg.width()+1;
+	    const int nrdisplaysamples = trcdisplayinfo_.zrg.nrSteps()+1;
+	    if ( slice2d.info().getSize(0)==nrdisplaytraces && 
+		 nrsamples==nrdisplaysamples )
+	    {
+		usedarr = &slice2d;
+	    }
+	    else
 	    {
 		mTryAlloc( tmparr, 
 		    Array2DImpl<float>( nrdisplaytraces, nrdisplaysamples) );
@@ -429,61 +426,59 @@ void Seis2DDisplay::setData( int attrib,
 		    }
 		}
 	    }
-	    else
-	    {
-		usedarr = &slice2d;
-	    }
 	}
 	else
 	{
 	    CubeSampling cs;
 	    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
-	    cs.hrg.start.crl = trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start];
-	    cs.hrg.stop.crl = trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop];
+	    cs.hrg.start.crl = 
+		trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start];
+	    cs.hrg.stop.crl = 
+		trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop];
 	    cs.hrg.step.crl = 1;
 	    assign( cs.zrg, trcdisplayinfo_.zrg );
 	    // use survey step here?
 	    if ( voiidx_ < 0 )
 		voiidx_ = datatransform_->addVolumeOfInterest2D(
-						getLineName(), cs, true );
+			getLineName(), cs, true );
 	    else
 		datatransform_->setVolumeOfInterest2D( voiidx_, getLineName(),
-						     cs, true );
+			cs, true );
 	    datatransform_->loadDataIfMissing( voiidx_ );
 
 	    ZAxisTransformSampler outpsampler( *datatransform_, true,
 		SamplingData<double>(cs.zrg.start,cs.zrg.step), true );
 	    outpsampler.setLineName( getLineName() );
-	    mTryAlloc( tmparr, 
-		    Array2DImpl<float>( trcdisplayinfo_.size, cs.nrZ() ) );
+
+	    const int zsz = cs.nrZ();
+	    mTryAlloc( tmparr, Array2DImpl<float>(trcdisplayinfo_.size,zsz) );
 	    usedarr = tmparr;
-	    const float firstz = sd.start;
-	    const int z0idx = arrayzrg.nearestIndex( firstz );
-	    const int startidx = trcdisplayinfo_.rg.start;
+
 
 	    for ( int crlidx=0; crlidx<trcdisplayinfo_.size; crlidx++ )
 	    {
+		const int startidx = trcdisplayinfo_.rg.start+crlidx;
 	        Array1DSlice<float> traceslice( slice2d );    
 		traceslice.setDimMap( 0, 1 );
-		traceslice.setPos( 0, crlidx+startidx );
+		traceslice.setPos( 0, startidx );
 		if ( !traceslice.init() )
 		{
 		    pErrMsg( "Error reading array for Z-axis transformation." );
 		    continue; 
 		}
 
-		outpsampler.setTrcNr( 
-			trcdisplayinfo_.alltrcnrs[crlidx+startidx] );
-		outpsampler.computeCache( Interval<int>(0,cs.nrZ()-1) );
+		outpsampler.setTrcNr( trcdisplayinfo_.alltrcnrs[startidx] );
+		outpsampler.computeCache( Interval<int>(0,zsz-1) );
 
 		SampledFunctionImpl<float,ValueSeries<float> >
-		    inputfunc( traceslice, arrzsz, firstz, sd.step );
+		    inputfunc( traceslice, slice2d.info().getSize(1),
+			    sd.start, sd.step );
 		inputfunc.setHasUdfs( true );
 		inputfunc.setInterpolate( textureInterpolationEnabled() );
 
 		float* outputptr = tmparr->getData() +
-				   tmparr->info().getOffset( crlidx, z0idx );	
-		reSample( inputfunc, outpsampler, outputptr, cs.nrZ() );
+				   tmparr->info().getOffset( crlidx, 0 );	
+		reSample( inputfunc, outpsampler, outputptr, zsz );
 	    }
 	}
 
@@ -500,7 +495,8 @@ void Seis2DDisplay::setData( int attrib,
 		sz1 = usedarr->info().getSize(1);
 	}
 
-	ValueSeries<float>* stor = !resolution_ && !tmparr ? usedarr->getStorage() : 0;
+	ValueSeries<float>* stor = 
+	    !resolution_ && !tmparr ? usedarr->getStorage() : 0;
 	bool ownsstor = false;
 
 	//We are only interested in the global, permanent storage
