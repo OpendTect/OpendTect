@@ -391,7 +391,7 @@ TrcHdrStrm::TrcHdrStrm( bool is2d, bool read, const char* fnm, TrcHdrDef& def )
 
 bool TrcHdrStrm::initRead()
 {
-    rsfheader_->read(*sd_.istrm);
+    if ( !rsfheader_->read(*sd_.istrm) ) return false;
     trchdrdef_.size_ = rsfheader_->nrVals(1);
 
     trchdrdef_.isbinary_ =
