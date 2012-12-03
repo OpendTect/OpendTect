@@ -457,16 +457,16 @@ void Seis2DDisplay::setData( int attrib,
 
 	    for ( int crlidx=0; crlidx<trcdisplayinfo_.size; crlidx++ )
 	    {
-		const int startidx = trcdisplayinfo_.rg.start+crlidx;
 	        Array1DSlice<float> traceslice( slice2d );    
 		traceslice.setDimMap( 0, 1 );
-		traceslice.setPos( 0, startidx );
+		traceslice.setPos( 0, crlidx );
 		if ( !traceslice.init() )
 		{
 		    pErrMsg( "Error reading array for Z-axis transformation." );
 		    continue; 
 		}
 
+		const int startidx = trcdisplayinfo_.rg.start+crlidx;
 		outpsampler.setTrcNr( trcdisplayinfo_.alltrcnrs[startidx] );
 		outpsampler.computeCache( Interval<int>(0,zsz-1) );
 
