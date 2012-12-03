@@ -46,7 +46,6 @@ const char* TrcHdrDef::sKeySPScale = "Scale Factor of Shotpoint";
 
 
 int TrcHdrDef::StdSize()		{ return 91; }
-
 int TrcHdrDef::StdIdxTrcNr()		{ return 5; }
 int TrcHdrDef::StdIdxOffset()		{ return 11; }
 int TrcHdrDef::StdIdxScalco()		{ return 20; }
@@ -283,34 +282,35 @@ TrcHeader::TrcHeader( bool is2d, const TrcHdrDef& def )
 {
 }
 
-#define mGetFld( fld, val ) \
+#define mGetIntFld( fld, val ) \
     if ( (*this)[trchdrdef_.StdIdx##fld()] ) val = \
 		(*this)[trchdrdef_.StdIdx##fld()]
 bool TrcHeader::fillTrcInfo( SeisTrcInfo& ti ) const
 {
-    mGetFld( Xcdp, ti.coord.x );
-    mGetFld( Ycdp, ti.coord.y );
-    mGetFld( Inline, ti.binid.inl );
-    mGetFld( Crossline, ti.binid.crl );
-    mGetFld( TrcNr, ti.nr );
-    mGetFld( Offset, ti.offset );
-    mGetFld( SP, ti.refnr );
+    mGetIntFld( Inline, ti.binid.inl );
+    mGetIntFld( Crossline, ti.binid.crl );
+    mGetIntFld( TrcNr, ti.nr );
 
-    mGetFld( DelRt, ti.sampling.start );
+    getFld( trchdrdef_.StdIdxXcdp(), ti.coord.x );
+    getFld( trchdrdef_.StdIdxYcdp(), ti.coord.y );
+    getFld( trchdrdef_.StdIdxOffset(), ti.offset );
+    getFld( trchdrdef_.StdIdxSP(), ti.refnr );
+    getFld( trchdrdef_.StdIdxDelRt(), ti.sampling.start );
     //mPIEPAdj(Z,ti.sampling.step,false);
-    mGetFld( Dt, ti.sampling.step );
+    getFld( trchdrdef_.StdIdxDt(), ti.sampling.step );
 
-    int xyscale = 0, spscale = 0;
-    mGetFld( Scalco, xyscale );
-    mGetFld( SPScale, spscale );
-    
+    double xyscale = 0.0;
+    getFld( trchdrdef_.StdIdxScalco(), xyscale );
+    float spscale = 0.0f;
+    getFld( trchdrdef_.StdIdxSPScale(), spscale );
+
     if ( xyscale )
     {
-	ti.coord.x = ti.coord.x * (xyscale > 0 ? xyscale : -1./xyscale);
-	ti.coord.y = ti.coord.y * (xyscale > 0 ? xyscale : -1./xyscale);
+	ti.coord.x = ti.coord.x * (xyscale > 0 ? xyscale : -1.0/xyscale);
+	ti.coord.y = ti.coord.y * (xyscale > 0 ? xyscale : -1.0/xyscale);
     }
     if ( spscale )
-	ti.refnr = ti.refnr * (spscale > 0 ? spscale : -1./spscale);
+	ti.refnr = ti.refnr * (spscale > 0 ? spscale : -1.0f/spscale);
 
     return true;
 }
@@ -337,14 +337,14 @@ bool TrcHeader::useTrcInfo( const SeisTrcInfo& ti )
     if ( xyscale )
     {
 	(*this)[trchdrdef_.StdIdxXcdp()] = (*this)[trchdrdef_.StdIdxXcdp()]
-	    * (xyscale > 0 ? (int)1./xyscale : -(int)xyscale);
+	    * (xyscale > 0 ? (int)1/xyscale : -(int)xyscale);
 
 	(*this)[trchdrdef_.StdIdxYcdp()] = (*this)[trchdrdef_.StdIdxYcdp()]
-	    * (xyscale > 0 ? (int)1./xyscale : -(int)xyscale);
+	    * (xyscale > 0 ? (int)1/xyscale : -(int)xyscale);
     }
     if ( spscale )
 	(*this)[trchdrdef_.StdIdxSP()] = (*this)[trchdrdef_.StdIdxSP()]
-	    * (spscale > 0 ? (int)1./spscale : -(int)spscale);
+	    * (spscale > 0 ? (int)1/spscale : -(int)spscale);
 
     return true;
 }
