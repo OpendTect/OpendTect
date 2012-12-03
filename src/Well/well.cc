@@ -794,8 +794,8 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
     static const float eps = 1e-3; // do not use lower for float
     if ( sz == 1 )
 	return mIsEqual(z,pos_[0].z,eps) ? dah_[0] : mUdf(float);
-    if ( z < value(0)-eps )
-	return value(0);
+    if ( z < value(0)-eps || z > value( sz-1 )+eps )
+	return mUdf(float);
 
 #define mZInRg() \
     (zrg.start-eps < z  && zrg.stop+eps  > z) \
@@ -972,7 +972,7 @@ float Well::D2TModel::getTime( float dh, const Track& track ) const
        return TimeDepthModel::getTime( dah_.arr(), t_.arr(), dtsize, dh );
    else
     {
-	float reqdh, dhtop, dhbase;
+	double reqdh, dhtop, dhbase;
 	int idahtop = 0;
 	idahtop = IdxAble::getLowIdx(dah_,dtsize,dh);
 	if ( idahtop < 0 )
@@ -980,13 +980,13 @@ float Well::D2TModel::getTime( float dh, const Track& track ) const
 
 	if ( track.getPos(dah_[idahtop]).z > track.getPos(dh).z )
 	{
-	    od_int64 reqz = track.getPos( dh ).z;
+	    double reqz = track.getPos( dh ).z;
 	    for ( int idx=0; idx<track.nrPoints(); idx++ )
 	    {
 		if ( track.pos(idx).z > reqz )
 		{
-		    dhtop = track.dah( idx-1 );
-		    dhbase = track.dah( idx );
+		    dhtop = (double)track.dah( idx-1 );
+		    dhbase = (double)track.dah( idx );
 		    reqdh = dhtop + ( (dhbase-dhtop)*(reqz-track.pos(idx-1).z)/
 					(track.pos(idx).z-track.pos(idx-1).z) );
 		    idahtop = IdxAble::getLowIdx( dah_, dtsize, reqdh );
@@ -1001,10 +1001,11 @@ float Well::D2TModel::getTime( float dh, const Track& track ) const
 	if ( idahtop >= (dtsize-1) )
 	    idahtop = dtsize-2;
 
-       const float ztop = track.getPos(dah_[idahtop]).z;
-       const float zbase= track.getPos(dah_[idahtop+1]).z;
-       const float curvel = ( zbase - ztop ) / ( t_[idahtop+1] - t_[idahtop] );
-       return t_[idahtop] + ( track.getPos(dh).z - ztop ) / curvel;
+       const double ztop = track.getPos(dah_[idahtop]).z;
+       const double zbase= track.getPos(dah_[idahtop+1]).z;
+       const double curvel = ( zbase - ztop ) /
+	  	     (double)( t_[idahtop+1] - t_[idahtop] );
+       return t_[idahtop] + (float)( ( track.getPos(dh).z - ztop ) / curvel );
    }
 }
 

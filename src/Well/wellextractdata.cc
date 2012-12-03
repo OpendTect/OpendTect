@@ -980,7 +980,14 @@ bool Well::LogSampler::doPrepare( int thread )
 	    zstep_ = 2000 * zstep_;
     }
     if ( mIsUdf(zrg_.start) || mIsUdf(zstep_) )
-	{errmsg_ ="No valid range specified"; return false;}
+	{errmsg_ = "No valid range specified"; return false;}
+
+    if ( zrg_.start < wd_.track().value(0) )
+	{errmsg_ = "Cannot extract data above well head"; return false;}
+
+    const int ns = wd_.track().size();
+    if ( zrg_.stop > wd_.track().value( ns-1 ) )
+	{errmsg_ = "Cannot extract data below TD"; return false;}
 
     const Well::D2TModel* d2t = wd_.d2TModel();
     if ( ( extrintime_ || zrgisintime_ ) && !d2t )
@@ -994,11 +1001,15 @@ bool Well::LogSampler::doPrepare( int thread )
     const float dahstop = wd_.track().getDahForTVD( zrg_.stop, mUdf(float) );
     dahrg.start = zrgisintime_ ? d2t->getDah(zrg_.start) : dahstart;
     dahrg.stop = zrgisintime_ ? d2t->getDah(zrg_.stop) : dahstop;
+
+    if ( mIsUdf(dahrg.start) || mIsUdf(dahrg.stop) )
+	{errmsg_ = "Could not determine extraction boundaries"; return false;}
+
     float dah = dahrg.start;
     float time = mUdf(float);
     if ( extrintime_ )
     {
-	time = zrgisintime_ ? wd_.track().getDahForTVD(zrg_.start) :
+	time = zrgisintime_ ? wd_.track().getDahForTVD(zrg_.start,mUdf(float)) :
 	   		      d2t->getTime( dah, wd_.track() );
 	time -= zstep_;
     }
