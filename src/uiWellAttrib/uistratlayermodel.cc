@@ -542,6 +542,8 @@ bool uiStratLayerModel::selElasticProps( ElasticPropSelection& elsel )
 	    desc_.setElasticPropSel( dlg.storedKey() );
 	    seqdisp_->setNeedSave( true );
 	}
+
+	elsel.fillPar( *desc_.getWorkBenchParams() );
 	return true;
     }
     return false;
@@ -632,6 +634,8 @@ bool uiStratLayerModel::openGenDesc()
     synthdisp_->modelChanged();
     delete elpropsel_; elpropsel_ = 0;
 
+    /*if ( elpropsel_ )
+	elpropsel_->usePar( *desc_.getWorkBenchParams() );*/
     gentools_->genReq.trigger();
 
     CBCapsule<IOPar*> caps( desc_.getWorkBenchParams(),
@@ -715,19 +719,25 @@ void uiStratLayerModel::setModelProps()
     modtools_->setContentNames( nms );
 
     delete elpropsel_; elpropsel_ = 0;
-    setElasticProps();
 }
 
 
 void uiStratLayerModel::setElasticProps()
 {
     if ( !elpropsel_ )
-	elpropsel_ = ElasticPropSelection::get( desc_.elasticPropSel() );
+    {
+	if ( desc_.getWorkBenchParams()->subselect("Elastic") )
+	{
+	    elpropsel_ = new ElasticPropSelection;
+	    elpropsel_->usePar( *desc_.getWorkBenchParams() );
+	}
+    }
 
     if ( !elpropsel_ )
     {
-	elpropsel_ = new ElasticPropSelection;
-	ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
+	elpropsel_ = ElasticPropSelection::get( desc_.elasticPropSel() );
+	if ( !elpropsel_ )
+	    ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
     }
 
     BufferString errmsg;
@@ -833,6 +843,8 @@ void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
 	const_cast<uiStratLayerModel*>(this)->
 		saveRequiredNotif()->trigger( &caps );
     gentools_->fillPar( par );
+    if ( elpropsel_ )
+	elpropsel_->fillPar( par );
     fillDisplayPars( par );
     fillSyntheticsPars( par );
 }

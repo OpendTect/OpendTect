@@ -30,6 +30,8 @@ static const char* rcsID = "$Id$";
 #define mFileType "Elastic Property Selection"
 
 
+static const char* sKeyElasticsSize 	= "Nr of Elastic Properties";
+static const char* sKeyElastic 		= "Elastic";
 static const char* sKeyFormulaName 	= "Name of formula";
 static const char* sKeyMathExpr 	= "Mathematic Expression";
 static const char* sKeySelVars 		= "Selected properties";
@@ -559,3 +561,35 @@ bool ElasticPropSelection::put( const IOObj* ioobj ) const
 }
 
 
+void ElasticPropSelection::fillPar( IOPar& par ) const
+{
+    par.set( sKeyElasticsSize, elasticprops_.size() );
+    for ( int idx=0; idx<elasticprops_.size(); idx++ )
+    {
+	IOPar elasticproprefpar;
+	elasticproprefpar.set( sKey::Name, elasticprops_[idx].name() );
+	elasticprops_[idx].formula().fillPar( elasticproprefpar );
+	par.mergeComp(elasticproprefpar, IOPar::compKey(sKeyElastic,idx));
+    }
+}
+
+
+void ElasticPropSelection::usePar( const IOPar& par )
+{
+    int elasticsz = 0;
+    par.get( sKeyElasticsSize, elasticsz );
+    if ( !elasticsz ) return;
+
+    elasticprops_.erase();
+    for ( int idx=0; idx<elasticsz; idx++ )
+    {
+	PtrMan<IOPar> elasticproprefpar =
+	    par.subselect( IOPar::compKey(sKeyElastic,idx) );
+	if ( !elasticproprefpar ) continue;
+	BufferString elasticnm;
+	elasticproprefpar->get( sKey::Name, elasticnm );
+	ElasticFormula formulae( 0, 0, ElasticFormula::Type(idx) );
+	formulae.usePar( *elasticproprefpar );
+	elasticprops_ += ElasticPropertyRef( elasticnm, formulae );
+    }
+}
