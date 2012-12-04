@@ -64,6 +64,7 @@ SET( OD_PLUGINS
 	HorizonAttrib
 	Madagascar
 	MadagascarAttribs
+	TextureAttrib
 	Tut
 	VoxelConnectivityFilter
 	uiBouncy
@@ -75,6 +76,7 @@ SET( OD_PLUGINS
 	uiHorizonAttrib
 	uiImpGPR
 	uiMadagascar
+	uiTextureAttrib
         uiTut
 	uiTutMadagascar
 	uiMadagascarAttribs
