@@ -51,8 +51,9 @@ endif
 
 shift 
 
-(svn proplist ${filename} > ${tmpfile} ) >& /dev/null
+svn info ${filename} >& /dev/null
 if ( ${status} == 0 ) then
+    (svn proplist ${filename} > ${tmpfile} ) >& /dev/null
     cat ${tmpfile} | grep -q eol-style
     if ( ${status} == 1 ) then
 	echo File ${filename} misses eol-style.
