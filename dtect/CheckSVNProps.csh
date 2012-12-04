@@ -39,31 +39,32 @@ if ( "${listfile}" != "" ) then
 endif
 
 set tmpfile=/dev/shm/cksvnprop.$$
+set tmperrfile=/dev/shm/cksvnprop_err.$$
 
 nextfile:
 
 set filename = ${1}
 
 if ( "${filename}" == "" ) then
-    rm -rf ${tmpfile}
+    rm -rf ${tmpfile} ${tmperrfile}
     exit 0
 endif
 
 shift 
 
-svn info ${filename} >& /dev/null
-if ( ${status} == 0 ) then
-    (svn proplist ${filename} > ${tmpfile} ) >& /dev/null
+(svn proplist ${filename} > ${tmpfile} ) >& ${tmperrfile}
+set errsize=`stat -c %s ${tmperrfile}`
+if ( ${errsize} == 0 ) then
     cat ${tmpfile} | grep -q eol-style
     if ( ${status} == 1 ) then
 	echo File ${filename} misses eol-style.
-	rm -rf ${tmpfile}
+	rm -rf ${tmpfile} ${tmperrfile}
 	exit 1
     endif
     cat ${tmpfile} | grep -q keyword
     if ( ${status} == 1 ) then
 	echo File ${filename} misses keyword.
-	rm -rf ${tmpfile}
+	rm -rf ${tmpfile} ${tmperrfile}
 	exit 1
     endif
 endif
