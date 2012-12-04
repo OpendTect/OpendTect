@@ -172,10 +172,10 @@ void uiTextureAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 }
 
 
-class uiSelectPositionDlg : public uiDialog
+class uiSubSelForAnalysis : public uiDialog
 {
 public:
-uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
+uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
     : uiDialog(p,uiDialog::Setup("Select data","For analysis",mNoHelpID)) 
     , attribnm_(anm)
     , linesfld_(0)
@@ -227,21 +227,23 @@ protected:
 };
 
 
-void uiTextureAttrib::analyseCB( CallBacker* ) 
+void uiTextureAttrib::analyseCB( CallBacker* )
 {
     Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !inpdesc )
 	return;
 
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(inpdesc->getStoredID()) );
+    LineKey lk( inpdesc->getStoredID(true) );
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
+
     if ( !ioobj )
 	return uiMSG().error( "Select a valid input" );
 
     SeisIOObjInfo seisinfo( ioobj );
     CubeSampling cs;
-
-    uiSelectPositionDlg subseldlg( this, ioobj->key(), seisinfo.is2D(),
-					    inpdesc->attribName() );
+   
+    uiSubSelForAnalysis subseldlg( this, ioobj->key(), seisinfo.is2D(),
+	    			   lk.attrName() );
     subseldlg.go();
 
     if ( seisinfo.is2D() )
@@ -252,8 +254,8 @@ void uiTextureAttrib::analyseCB( CallBacker* )
 	cs.hrg.setCrlRange( trcrg );
 	cs.hrg.setInlRange( Interval<int>(0,0) );
 	cs.zrg = zrg;
+	lk = subseldlg.lineKey();
     }
-
     else
     {
 	cs = subseldlg.subVol();
@@ -261,37 +263,44 @@ void uiTextureAttrib::analyseCB( CallBacker* )
     }
 
     const int nrtrcs = subseldlg.nrTrcs();
-    readSampAttrib( cs, nrtrcs );
+    if ( nrtrcs <= 0 )
+	return uiMSG().error( "Select proper number of traces" );
+
+    readSampAttrib( cs, nrtrcs, lk );
 }
 
 
-
-void uiTextureAttrib::readSampAttrib( CubeSampling& cs, int nrtrcs )
-{
+void uiTextureAttrib::readSampAttrib(CubeSampling& cs, int nrtrcs, LineKey& lk)
+    {
     Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
-
-    PtrMan<Attrib::DescSet> descset = ads_->optimizeClone( inpfld_->attribID() );
-    if ( !descset )
+    if ( !inpdesc )
 	return;
 
-    Attrib::DescID attribid = descset->addDesc( inpdesc );
+    PtrMan<Attrib::DescSet> descset = ads_->optimizeClone(inpfld_->attribID());
+    if ( !descset )
+	return;
+   
+    Attrib::DescID attribid = descset->addDesc(inpdesc );
+
+    PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
 
     TypeSet<SelSpec> attribspecs;
     SelSpec sp( 0, attribid );
     sp.set( *inpdesc );
     attribspecs += sp;
 
-    PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
-
     aem->setAttribSet( descset );
     aem->setAttribSpecs( attribspecs );
+    if ( inpdesc->is2D() )
+	aem->setLineKey( lk );
     aem->setCubeSampling( cs );
 
     TypeSet<BinID> bidset;
     cs.hrg.getRandomSet( nrtrcs, bidset );
+
     BinIDValueSet bidvals( 0, false );
     for ( int idx=0; idx<bidset.size(); idx++ )
-       bidvals.add( bidset[idx] );
+	bidvals.add( bidset[idx] );
 
     BufferString errmsg;
     SeisTrcBuf bufs( true );
@@ -307,7 +316,7 @@ void uiTextureAttrib::readSampAttrib( CubeSampling& cs, int nrtrcs )
 
     uiTaskRunner dlg( this );
     if ( !dlg.execute(*proc) )
-	return; 
+	return;
 
     setMinMaxVal( bufs );
 }
@@ -328,7 +337,7 @@ void uiTextureAttrib::setMinMaxVal( const SeisTrcBuf& bufs )
 	    float val = seisttrc->get( sampnr, 0 );
 	    if ( !mIsUdf(val) )
 	    {
-		if ( val<minval)
+		if ( val<minval )
 		    minval=val;
 		else if ( val>maxval )
 		    maxval=val;
@@ -339,3 +348,4 @@ void uiTextureAttrib::setMinMaxVal( const SeisTrcBuf& bufs )
     globalminfld_->setValue(minval);
     globalmaxfld_->setValue(maxval);
 }
+
