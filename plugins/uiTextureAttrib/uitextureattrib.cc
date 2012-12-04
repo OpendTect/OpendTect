@@ -83,10 +83,10 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
     glcmsizefld_ = new uiGenInput( this, "GLCM size",
 		    BoolInpSpec(true,"16x16","32x32") );
     glcmsizefld_->attach( alignedBelow, actionfld_ );
-    globalminfld_ = new uiGenInput( this, "Input Data Minimum", FloatInpSpec() );
+    globalminfld_ = new uiGenInput( this, "Input Data Range", FloatInpSpec() );
     globalminfld_->setElemSzPol(uiObject::Small);
     globalminfld_->attach( alignedBelow, glcmsizefld_ );
-    globalmaxfld_ = new uiGenInput( this, "Maximum",
+    globalmaxfld_ = new uiGenInput( this, "",
 		    FloatInpSpec() );
     globalmaxfld_->setElemSzPol(uiObject::Small);
     globalmaxfld_->attach( rightOf, globalminfld_ );
