@@ -234,7 +234,7 @@ bool SeisMSCProvider::startWork()
 	{
 	    so.inl = 0;
 	    doextend = doextend && newseldata->type() == Seis::Range;
-	    if ( so.crl && newseldata->type() == Seis::Table )
+	    if ( newseldata->type() == Seis::Table )
 		newseldata->setIsAll( true );
 	}
 
