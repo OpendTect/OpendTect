@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Nov 2012
- RCS:           $Id: uiobj.h 26297 2012-09-21 00:16:36Z nanne.hemstra@dgbes.com $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/
