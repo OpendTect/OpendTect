@@ -466,3 +466,12 @@ macro ( OD_ADD_LINEEND_TEST )
     endif()
 endmacro()
 
+
+macro ( OD_ADD_SVNPROP_TEST )
+    if ( NOT DEFINED WIN32 )
+	set( CMD "${OpendTect_DIR}/dtect/CheckSVNProps.csh" )
+	list( APPEND CMD "--listfile" "${OD_SOURCELIST_FILE}" )
+	add_test( SVNPropertyTest ${CMD} )
+    endif()
+endmacro()
+
