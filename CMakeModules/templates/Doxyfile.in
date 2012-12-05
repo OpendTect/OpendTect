@@ -669,7 +669,7 @@ INCLUDE_FILE_PATTERNS  =
 # omitted =1 is assumed.
 
 PREDEFINED	       = __doxygen__= \
-    "mClass=class"\
+    "mClass(mod)=class"\
     "mStruct=struct"\
     "mProtected=protected"\
     "mPolyRet(base,clss)= clss"\
