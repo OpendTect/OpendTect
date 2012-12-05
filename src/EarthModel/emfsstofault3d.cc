@@ -159,9 +159,12 @@ bool FSStoFault3DConverter::convert()
 }
 
 
-#define mAddStickPoese() \
+#define mAddStickPoses() \
     for ( int k=0; k<=lastidx; k++ ) \
-	sticks_[idy]->crds_ += stickposes[k]; \
+    { \
+ 	if ( sticks_[idy]->crds_.indexOf(stickposes[k])==-1 ) \
+	    sticks_[idy]->crds_ += stickposes[k]; \
+    } \
     found = true; \
     break
 
@@ -238,7 +241,7 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 	    {
 		if ( pickedplane[idy]==mOnInline && inlcrl[idy]==inlrg.start )
 		{
-		    mAddStickPoese();
+		    mAddStickPoses();
 		}
 	    }
 	}
@@ -248,7 +251,7 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 	    {
 		if ( pickedplane[idy]==mOnCrlline && inlcrl[idy]==crlrg.start )
 		{
-		    mAddStickPoese();
+		    mAddStickPoses();
 		}
 	    }
 	}
@@ -259,7 +262,7 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 		if ( pickedplane[idy]==mOnZSlice &&
 		     mIsEqual(zs[idy],zrg.stop,zepsilon) )
 		{
-		    mAddStickPoese();
+		    mAddStickPoses();
 		}
 	    }
 	}
@@ -288,7 +291,7 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 		    
 		    if ( dist<epsilon )
 		    {
-			mAddStickPoese();
+			mAddStickPoses();
 		    }
 		}
 	    }
