@@ -35,8 +35,15 @@ void mGlobal(Basic) GetSpecificODVersion(const char* typ,BufferString&);
 #endif
 
 
-/*!\mainpage Basic utilities
-  \section Introduction Introduction
+/*!
+\mainpage
+This is the OpendTect class documentation, automatically generated from our
+source code.
+*/
+
+/*!
+\defgroup Basic
+\section Introduction
 
   This module handles all things that are so basic to all other modules that
   they can be seen as a layer of common services to the entire system. One of

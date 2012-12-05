@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-//! \defgroup Algo Algo
+//! \defgroup Algo
 
 #include "algomod.h"
 #include "enums.h"

@@ -38,6 +38,12 @@ namespace EM
 {
 class EMManager;
 
+/*!
+\class EMObjectCallbackData
+\ingroup EarthModel
+\brief
+*/
+
 mClass(EarthModel) EMObjectCallbackData
 {
 public:
@@ -59,10 +65,12 @@ public:
 };
 
 
-/*! Iterator that iterates a number of positions (normally all) on an EMObject.
+/*!
+\class EMObjectIterator
+\ingroup EarthModel
+\brief Iterator that iterates a number of positions (normally all) on an EMObject.
 The object is created by EMObject::createIterator, and the next() function is
 called until no more positions can be found. */
-
 
 mClass(EarthModel) EMObjectIterator
 {
@@ -76,6 +84,12 @@ public:
     virtual EM::PosID	goTo(od_int64)		{ return EM::PosID(-1,-1,-1); }
 };
 
+
+/*!
+\class PosAttrib
+\ingroup EarthModel
+\brief
+*/
 
 mClass(EarthModel) PosAttrib
 {
@@ -95,8 +109,11 @@ public:
 };
 
 
-
-/*!\brief Earth Model Object */
+/*!
+\class EMObject
+\ingroup EarthModel
+\brief Base class for all EarthModel Objects
+*/
 
 mClass(EarthModel) EMObject : public CallBacker
 {
@@ -269,8 +286,7 @@ protected:
     static const char*		markerstylestr();
 };
 
-
-}; // Namespace
+} // namespace EM
 
 #define mDefineEMObjFuncs( clss ) \
 public: \
@@ -319,7 +335,7 @@ void clss::setNewName() \
     setName( nm ); \
 }
 
-/*!\mainpage Earth Model objects
+/*!\defgroup EarthModel
 
   Objects like horizons, well tracks and bodies are all earth model objects.
   Such objects can be described in various ways, and the EM way is the

@@ -12,11 +12,11 @@ ________________________________________________________________________
 
 -*/
 
-/*!\mainpage
+/*!
+\defgroup MPEEngine
 MPE stands for Model, Predict, Edit and is where all tracking and editing
 functions are located. The functionality is managed by the MPEEngine, and
 a static inistanciation of that can be retrieved by MPE::engine().
-
 */
 
 #include "mpeenginemod.h"
@@ -291,10 +291,6 @@ protected:
 
 mGlobal(MPEEngine) Engine&	engine();
 
-
-};
+} // namespace MPE
 
 #endif
-
-
-

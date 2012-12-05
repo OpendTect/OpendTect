@@ -20,7 +20,9 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-/*!\brief "Energy Attribute"
+/*!
+\ingroup Attributes
+\brief "Energy Attribute"
 
 Energy gate= dograd=
 
@@ -72,10 +74,10 @@ protected:
     const DataHolder*	inputdata_;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 
-/*!\mainpage Standard Attributes
+/*!\defgroup Attributes
 
   This module contains the definition of the 'standard' OpendTect attributes.
   Contained are attributes like Energy, Similarity, Volume Statistics, etc.

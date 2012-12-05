@@ -39,8 +39,11 @@ class EMObject;
 class SurfaceIOData;
 class SurfaceIODataSelection;
 
-
-/*!\brief Manages the loaded/half loaded EM objects in OpendTect. */
+/*!
+\class EMManager
+\ingroup EarthModel
+\brief Manages the loaded/half loaded EM objects in OpendTect.
+*/
 
 mClass(EarthModel) EMManager : public CallBacker
 {
@@ -124,8 +127,6 @@ mDefineFactory1Param( EarthModel, EMObject, EMManager&, EMOF );
 
 mGlobal(EarthModel) EMManager& EMM();
 
-}; // Namespace
-
+} // namespace EM
 
 #endif
-

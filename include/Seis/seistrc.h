@@ -22,12 +22,13 @@ ________________________________________________________________________
 class TcpSocket;
 template <class T> class ValueSeriesInterpolator;
 
-/*!\brief Seismic traces
-
+/*!
+\class SeisTrc
+\ingroup Seis
+\brief Seismic traces
 A seismic trace is composed of trace info and trace data. The trace data
 consists of one or more components. These are represented by a set of buffers,
 interpreted by DataInterpreters.
-
 */
 
 mClass(Seis) SeisTrc
@@ -180,7 +181,8 @@ inline ValueSeries<float>* SeisTrcValueSeries::clone() const
 { return new SeisTrcValueSeries( trc_, icomp_ ); }
 
 
-/*!\mainpage Seismics
+/*!
+\defgroup Seis
 
 Seismic data is sampled data along a vertical axis. Many 'traces' will usually
 occupy a volume (3D seismics) or separate lines (2D data).

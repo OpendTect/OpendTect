@@ -13,7 +13,8 @@ ________________________________________________________________________
 
 -*/
 
-/*!\mainpage PreStack Processing
+/*!
+\defgroup PreStackProcessing
   Support for processing prestack gathers is done by a
   PreStack::ProcessManager. The PreStack::ProcessManager has a chain of
   PreStack::Processor which are run in sequence.
@@ -69,8 +70,13 @@ namespace PreStack
 
 class Gather;
 
-/*!Processes prestackdata at one cdp location. The algorithm is implemented
-   in subclasses, and can be created by the PreStack::PF() factory. */
+/*!
+\class Processor
+\ingroup PreStackProcessing
+\brief Processes prestackdata at one cdp location.
+The algorithm is implemented in subclasses, and can be created by the
+PreStack::PF() factory.
+*/
 
 mClass(PreStackProcessing) Processor : public ParallelTask
 {

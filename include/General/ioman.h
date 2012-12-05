@@ -24,8 +24,11 @@ class CtxtIOObj;
 class Translator;
 class IOObjContext;
 
-/*!\brief manages the 'Meta-'data store for the IOObj's. This info
-is read from the .omf files.
+/*!
+\class IOMan
+\ingroup General
+\brief manages the 'Meta-'data store for the IOObj's.
+This info is read from the .omf files.
 
 There will be one IOMan available through the global function IOM(). Creating
 more instances is probably not a good idea.
@@ -156,16 +159,16 @@ public:
 mGlobal(General) IOMan&	IOM();
 
 
-/*!\mainpage
-  \section Introduction Introduction
+/*!
+\defgroup General
+\section Introduction Introduction
 
-  This module uses the services from the Basic module and adds services that
-  are (in general) more or less OpendTect specific. Just like the Basic module
-  the services are used by all other modules.
+This module uses the services from the Basic module and adds services that
+are (in general) more or less OpendTect specific. Just like the Basic module
+the services are used by all other modules.
 
-
-  \section Content Content
-  Some of the groups of services are:
+\section Content Content
+Some of the groups of services are:
 
 <ul>
  <li>I/O management system
