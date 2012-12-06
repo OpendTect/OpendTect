@@ -63,8 +63,8 @@ protected:
 };
 
 
-/*! \brief \
- Calculate azimuth and dip for 3D data.\
+/*! \brief
+ Calculate azimuth and dip for 3D data.
 */
 
 mClass(Algo) FaultOrientation
