@@ -10,8 +10,9 @@ install ( DIRECTORY CMakeModules DESTINATION .
 	  PATTERN ".svn" EXCLUDE )
 
 #Install plugin example
-install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Programmer/pluginexample DESTINATION doc/Programmer
-	 PATTERN ".svn" EXCLUDE )
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Programmer/pluginexample
+	 	   DESTINATION doc/Programmer
+	 	   PATTERN ".svn" EXCLUDE )
 
 #Install batchprogram example
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Programmer/batchprogexample
@@ -43,9 +44,18 @@ if ( APPLE )
    #Put in Info.plist
 endif( APPLE )
 
-if ( WIN32 )
-#install runtime libraries
-endif ( WIN32 )
+IF( ${OD_PLFSUBDIR} STREQUAL "win32" )
+    SET( MSVCPATH "C:/Program\ Files/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x86/Microsoft.VC100.CRT" )
+ELSEIF( ${OD_PLFSUBDIR} STREQUAL "win64" )
+    SET( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x64/Microsoft.VC100.CRT" )
+ENDIF()
+
+IF( EXISTS ${MSVCPATH} )
+        FILE( GLOB MSVCDLLS ${MSVCPATH}/*.dll )
+        FOREACH( DLL ${MSVCDLLS} )
+	    INSTALL( FILES ${DLL} DESTINATION bin/${OD_PLFSUBDIR}/Release )
+        ENDFOREACH()
+ENDIF()
 
 add_custom_target( sources ${CMAKE_COMMAND}
 	-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
