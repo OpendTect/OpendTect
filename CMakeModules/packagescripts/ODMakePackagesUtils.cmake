@@ -101,7 +101,7 @@ endmacro( create_package )
 
 macro( copy_thirdpartylibs )
     MESSAGE( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
-    FILE( GLOB LIBS ${CMAKE_INSTALL_PREFIX}/externallibs/* )
+    FILE( GLOB LIBS ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/* )
     FOREACH( LIB ${LIBS} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB}
 			  ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
