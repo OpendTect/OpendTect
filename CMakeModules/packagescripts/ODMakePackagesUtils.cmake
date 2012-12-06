@@ -111,8 +111,6 @@ endmacro( copy_thirdpartylibs )
 
 
 macro( create_basepackages PACKAGE_NAME )
-   FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/data
-		        ${DESTINATION_DIR}/doc )
    IF( ${PACKAGE_NAME} STREQUAL "basedata" )
        FOREACH( LIBS ${LIBLIST} )
 	    FILE( GLOB DATAFILES ${CMAKE_INSTALL_PREFIX}/data/${LIBS} )
@@ -126,10 +124,17 @@ macro( create_basepackages PACKAGE_NAME )
        ENDFOREACH()
    ENDIF()
    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
-#	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-#TODO copy from inst directory instead of PSD
-#			 ${CMAKE_INSTALL_PREFIX}/data
-#			 ${DESTINATION_DIR}/data )
+       FOREACH( LIB ${LIBLIST} )
+	  IF( IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/data/${LIB}" )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${CMAKE_INSTALL_PREFIX}/data/${LIB}
+			     ${DESTINATION_DIR}/data/${LIB} )
+	  ELSE()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${CMAKE_INSTALL_PREFIX}/data/${LIB}
+			     ${DESTINATION_DIR}/data/${LIB} )
+	  ENDIF()
+       ENDFOREACH()
    ENDIF()
 
     IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
