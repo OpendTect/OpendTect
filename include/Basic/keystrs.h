@@ -59,6 +59,7 @@ namespace sKey
     inline FixedString Line()		{ return "Line"; }
     inline FixedString LineKey()	{ return "Line key"; }
     inline FixedString LineName()	{ return "Line name"; }
+    inline FixedString LineNames()	{ return "Line names"; }
     inline FixedString Log()		{ return "Log"; }
     inline FixedString LogFile()	{ return "Log file"; }
     inline FixedString Name()		{ return "Name"; }
