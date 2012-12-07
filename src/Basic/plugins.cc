@@ -229,6 +229,12 @@ void PluginManager::getDefDirs()
     fp.add( "debug" );
 # endif
 #endif
+    
+#ifdef __mac__
+# ifdef __debug__
+    fp.add( "Debug" );
+# endif
+#endif
 
     applibdir_ = fp.fullPath();
 
