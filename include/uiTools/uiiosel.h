@@ -22,7 +22,10 @@ class uiComboBox;
 class uiPushButton;
 
 
-/*! \brief UI element for selection of data objects */
+/*!
+\ingroup uiTools
+\brief UI element for selection of data objects
+*/
 
 mClass(uiTools) uiIOSelect : public uiGroup
 {
@@ -154,7 +157,9 @@ protected:
 };
 
 
-/*!\mainpage User Interface Tools
+/*!
+\defgroup uiTools uiTools
+User Interface Tools
 
   The uiTools module is a collection of tools that are based on the uiBase
   module (and thus on Qt services) but that combine uiBase services without

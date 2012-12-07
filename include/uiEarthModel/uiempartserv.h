@@ -41,7 +41,10 @@ template <class T> class Interval;
 
 namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; };
 
-/*! \brief Earth Model UI Part Server */
+/*!
+\ingroup uiEarthModel
+\brief Earth Model UI Part Server
+*/
 
 mClass(uiEarthModel) uiEMPartServer : public uiApplPartServer
 {
@@ -190,16 +193,6 @@ protected:
 
     static const char*  sKeySectionID() { return "Section ID"; }
 };
-
-
-/*!\mainpage Earth Model User Interface
-
- The earth model objects are visualised by the visXX classes. The I/O,
- parameters and other data-related issues also require standard user interface
- elements. The classes in this module provide these services via the
- uiEMPartServer interface.
-
-*/
 
 #endif
 

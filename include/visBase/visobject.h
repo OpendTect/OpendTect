@@ -31,7 +31,10 @@ class Material;
 class Transformation;
 class EventCatcher;
 
-/*!\brief Base class for all objects that are visual on the scene. */
+/*!
+\ingroup visBase
+\brief Base class for all objects that are visual on the scene.
+*/
 
 mClass(visBase) VisualObject : public DataObject
 {
@@ -147,7 +150,8 @@ mLockerClassImpl( visBase, VisualWriteLockLocker, VisualObjectImpl,
 };
 
 
-/*!\mainpage Visualisation - Open Inventor-based tools
+/*!\defgroup visBase visBase
+  Visualisation - Open Inventor-based tools
 
   All 3D visualisation in OpendTect is COIN based. COIN is an implementation
   of the OpenInventor interface sepecification. As usual, the external package

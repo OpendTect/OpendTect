@@ -11,8 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-//! \defgroup Algo
-
 #include "algomod.h"
 #include "enums.h"
 #include "factory.h"
@@ -28,12 +26,12 @@ class TaskRunner;
 
 namespace ZDomain { class Def; class Info; }
 
-/*! \class ZAxisTransform
-    \ingroup Algo
-    \brief The ZAxisTransform class
-    is the base class for z stretching in different ways.
-    The z-stretch may be dependent on the location (binid).
-    The various transforms can be retrieved from factory ZATF().
+/*!
+\ingroup Algo
+\brief Base class for z-axis transforms
+  ZAxisTransform is the base class for z stretching in different ways.
+  The z-stretch may be dependent on the location (binid).
+  The various transforms can be retrieved from factory ZATF().
 */
 
 mClass(Algo) ZAxisTransform
@@ -123,9 +121,9 @@ protected:
 };
 
 
-/*! \class ZAxisTransformSampler
-    \ingroup Algo
-    \brief The ZAxisTransformSampler class ...
+/*!
+\ingroup Algo
+\brief Samples Z-axis transformed data
 */
 
 mClass(Algo) ZAxisTransformSampler

@@ -12,13 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-/*!
-\defgroup MPEEngine
-MPE stands for Model, Predict, Edit and is where all tracking and editing
-functions are located. The functionality is managed by the MPEEngine, and
-a static inistanciation of that can be retrieved by MPE::engine().
-*/
-
 #include "mpeenginemod.h"
 #include "mpeenginemod.h"
 #include "attribdataholder.h"
@@ -50,12 +43,21 @@ class EMTracker;
 class TrackPlane;
 class ObjectEditor;
 
+/*!
+\ingroup MPEEngine
+*/
+
 mClass(MPEEngine) AbstDataHolder : public CallBacker
 {
 mRefCountImplNoDestructor(AbstDataHolder);
 public:
 			AbstDataHolder(){}
 };
+
+
+/*!
+\ingroup MPEEngine
+*/
 
 mClass(MPEEngine) DataHolder : public AbstDataHolder
 {
@@ -112,6 +114,11 @@ private:
 				d2dhdata_->unRef();
 			}
 };
+
+
+/*!
+\ingroup MPEEngine
+*/
 
 mClass(MPEEngine) Engine : public CallBacker
 {

@@ -32,7 +32,10 @@ class D2TModel;
 class DisplayProperties;
 
 
-/*!\brief Infomation about a certain well */
+/*!
+\ingroup Well
+\brief Infomation about a certain well
+*/
 
 mClass(Well) Info : public ::NamedObject
 {
@@ -71,7 +74,9 @@ public:
 };
 
 
-/*!\brief The holder of all data concerning a certain well.
+/*!
+\ingroup Well
+\brief The holder of all data concerning a certain well.
  
  Note that a well is not a POSC well in the sense that it describes the
  data for one well bore. Thus, a well has a single track.
@@ -140,10 +145,11 @@ protected:
     DisplayProperties&	disp3d_;
 };
 
-}; // namespace Well
+} // namespace Well
 
 
-/*!\mainpage Wells
+/*!
+\defgroup Well
  
  The OpendTect Well object is a single track, logs and markers bearing thing
  with some global data and possibly a Depth vs Time model attached.
@@ -162,7 +168,6 @@ protected:
  concepts should find this module's object model fairly intuitive.
 
 */
-
 
 #endif
 

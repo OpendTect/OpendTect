@@ -13,47 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-/*!
-\defgroup PreStackProcessing
-  Support for processing prestack gathers is done by a
-  PreStack::ProcessManager. The PreStack::ProcessManager has a chain of
-  PreStack::Processor which are run in sequence.
-
-  Example:
-  \code
-  PreStack::ProcessManager processmanager;
-  PreStack::AGC* agc = new PreStack::AGC;
-  agc->setWindow( Interval<float>( -120, 120 ) );
-  processmanager.addProcessor( agc );
-
-  processmanager.reset();
-  //Not really necessary since the manager has not been used before
-
-  const BinID stepout = processmanager.getInputStepout();
-  BinID relbid;
-  for ( relbid.inl=-stepout.inl; relbid.inl<=stepout.inl; relbid.inl++ )
-  {
-      for ( relbid.crl=-stepout.crl; relbid.crl<=stepout.crl; relbid.crl++ )
-      {
-          if ( !processor.wantsInput(relbid) )
-	      continue;
-
-	  const BinID inputbid( relbid*BinID(SI().inlStep(),SI().crlStep()) );
-
-	  const DataPack::ID dpid = getDataPackFromSomewhere( inputbid );
-	  if ( dpid==DataPack::cNoID() )
-	      return error;
-
-	  processmanager.setInput( relbid, dpid );
-      }
-  }
-
-  if ( !processmanager.process() )
-      return error;
-
-  DataPack::ID result = processmanager.getOutput();
-\endcode
-*/
 #include "prestackprocessingmod.h"
 #include "bufstringset.h"
 #include "datapack.h"
@@ -71,7 +30,6 @@ namespace PreStack
 class Gather;
 
 /*!
-\class Processor
 \ingroup PreStackProcessing
 \brief Processes prestackdata at one cdp location.
 The algorithm is implemented in subclasses, and can be created by the
@@ -131,8 +89,49 @@ protected:
 };
 
 
-/*!Orgainizes a number of PreStack::Processors into a chain which
-   can be processed. */
+/*!
+\brief Orgainizes a number of PreStack::Processors into a chain which
+   can be processed.
+
+  Support for processing prestack gathers is done by a
+  PreStack::ProcessManager. The PreStack::ProcessManager has a chain of
+  PreStack::Processor which are run in sequence.
+
+  Example:
+\code
+  PreStack::ProcessManager processmanager;
+  PreStack::AGC* agc = new PreStack::AGC;
+  agc->setWindow( Interval<float>( -120, 120 ) );
+  processmanager.addProcessor( agc );
+
+  processmanager.reset();
+  //Not really necessary since the manager has not been used before
+
+  const BinID stepout = processmanager.getInputStepout();
+  BinID relbid;
+  for ( relbid.inl=-stepout.inl; relbid.inl<=stepout.inl; relbid.inl++ )
+  {
+      for ( relbid.crl=-stepout.crl; relbid.crl<=stepout.crl; relbid.crl++ )
+      {
+          if ( !processor.wantsInput(relbid) )
+	      continue;
+
+	  const BinID inputbid( relbid*BinID(SI().inlStep(),SI().crlStep()) );
+
+	  const DataPack::ID dpid = getDataPackFromSomewhere( inputbid );
+	  if ( dpid==DataPack::cNoID() )
+	      return error;
+
+	  processmanager.setInput( relbid, dpid );
+      }
+  }
+
+  if ( !processmanager.process() )
+      return error;
+
+  DataPack::ID result = processmanager.getOutput();
+\endcode
+*/
 
 mClass(PreStackProcessing) ProcessManager : public CallBacker
 {
@@ -218,8 +217,7 @@ protected:
 }
 
 
-}; //namespace
-
+} // namespace PreStackProcessing
 
 #endif
 

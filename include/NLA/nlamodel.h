@@ -14,13 +14,15 @@ ________________________________________________________________________
 
 #include "nlamod.h"
 #include "gendefs.h"
+
 class IOPar;
 class NLADesign;
 class BufferString;
 
-
-/*\brief Minimum Interface for NLA models */
-
+/*!
+\ingroup NLA
+\brief Minimum Interface for NLA models
+*/
 
 class NLAModel
 {
@@ -47,21 +49,6 @@ public:
 					    		 : "Neural Network"; }
 
 };
-
-
-/*!\mainpage Non-Linear Analysis interfaces
-
-  In order to accommodate more advanced methods than Attribute evaluation
-  only, an interface for non-linear analysis is defined. The current
-  implementation in the dGB plugins use Neural networks to accomplish
-  a training-applying scheme using Neural Networks.
-
-  If you want to make your own NLA module, make it comply this interface
-  and provide a user interface via the uiNLA interface. Then use the
-  setNlaServer() method on the uiODApplMgr to make your UI active.
-
-*/
-
 
 #endif
 

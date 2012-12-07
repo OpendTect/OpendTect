@@ -52,7 +52,10 @@ namespace ColTab    { class Sequence; class MapperSetup; }
 namespace ZDomain   { class Info; }
 
 
-/*! \brief The Visualisation Part Server */
+/*!
+\ingroup uiVis
+\brief The Visualisation Part Server
+*/
 
 mClass(uiVis) uiVisPartServer : public uiApplPartServer
 {
@@ -473,21 +476,6 @@ protected:
 };
 
 
-/*!\mainpage Visualisation User Interface
-
-  This module provides the plain user interface classes necessary to do the
-  3D visualisation in the way that the user wants.
-
-  Main task of this server is adding and removing scene objects and 
-  transfer of data to be displayed. All supported scene objects are inheriting
-  visSurvey::SurveyObject.
-
-  A lot of user interaction is done via popupmenus, and all objects share
-  one uiMenuHandler that is accessed via getMenuHandler. To add items or
-  manipulate the menus, please refer to the uiMenuHandler documentation.
-*/
-
-
 class uiVisModeMgr 
 {
 public:
@@ -500,6 +488,23 @@ protected:
 
 	uiVisPartServer&	visserv;	
 };
+
+
+/*!
+\defgroup uiVis uiVis
+Visualisation User Interface
+
+This module provides the plain user interface classes necessary to do the
+3D visualisation in the way that the user wants.
+
+Main task of this server is adding and removing scene objects and 
+transfer of data to be displayed. All supported scene objects are inheriting
+visSurvey::SurveyObject.
+
+A lot of user interaction is done via popupmenus, and all objects share
+one uiMenuHandler that is accessed via getMenuHandler. To add items or
+manipulate the menus, please refer to the uiMenuHandler documentation.
+*/
 
 #endif
 

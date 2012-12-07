@@ -25,12 +25,14 @@ class PosVecDataSet;
 class NLACreationDesc;
 
 
-/*! \brief Service provider for application level - Non-Linear Analysis
+/*!
+\ingroup uiNLA
+\brief Service provider for application level - Non-Linear Analysis
 
 Will pop up the an NLA manage window on go(). If go() returns true, the user
 will expect that go() to be called again.
 
- */
+*/
 
 mClass(uiNLA) uiNLAPartServer : public uiApplPartServer
 {
@@ -129,8 +131,10 @@ protected:
 
 };
 
+/*!
+\defgroup uiNLA uiNLA
 
-/*!\mainpage Non-Linear Analysis User Interface
+  Non-Linear Analysis User Interface
 
   This class was designed in such a way that the existing dGB Neural network
   module could be put in a plugin in an easy way. In that way we kept the
@@ -141,8 +145,6 @@ protected:
   We tried to keep the interface as general as possible, though. So it's very
   well possible and feasible to make your own special analysis module.
 
-  */
-
+*/
 
 #endif
-

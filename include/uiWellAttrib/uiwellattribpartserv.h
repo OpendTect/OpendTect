@@ -24,7 +24,10 @@ class uiWellAttribCrossPlot;
 namespace Attrib { class DescSet; }
 namespace WellTie { class uiTieWinMGRDlg; }
 
-/*! \brief Part Server for Wells */
+/*!
+\ingroup uiWellAttrib
+\brief Part Server for Wellsi
+*/
 
 mClass(uiWellAttrib) uiWellAttribPartServer : public uiApplPartServer
 {
@@ -63,10 +66,11 @@ protected:
     void                        surveyChangedCB(CallBacker*);
 };
 
-/*!\mainpage WellAttrib User Interface
+/*!\defgroup uiWellAttrib uiWellAttrib
+WellAttrib User Interface
 
-  Here you will find all attribute handling regarding wells.
-  The uiAttribWellPartServer delivers the services needed.
+Here you will find all attribute handling regarding wells.
+The uiAttribWellPartServer delivers the services needed.
 
 */
 

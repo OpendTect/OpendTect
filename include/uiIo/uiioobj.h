@@ -18,8 +18,11 @@ class IOObj;
 class CtxtIOObj;
 
 
-/*! \brief Dialog letting the user select an object.
-           It returns an IOObj* after successful go(). */
+/*!
+\ingroup uiIo
+\brief Dialog letting the user select an object.
+It returns an IOObj* after successful go().
+*/
 
 mClass(uiIo) uiIOObj
 {
@@ -43,7 +46,9 @@ protected:
 };
 
 
-/*!\mainpage User Interface related to I/O
+/*!
+\defgroup uiIo uiIo
+  User Interface related to I/O
 
   This module contains some basic classes that handle the selection and
   management of an IOObj. An IOObj contains all info necessary to be able

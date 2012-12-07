@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "soodbasic.h"
 
 /*!
-\class SoOD
 \ingroup SoOD
 \brief A function that initiases the OpendTect Inventor classes. */
 
@@ -52,13 +51,6 @@ mSoODGlobal static void	getLineWidthBounds( int& min, int& max );
 			 * OpenGL-dependent. */
 
 };
-
-
-/*!
-\defgroup SoOD
-SoOD contains extensions to OpenInventor that are used to visualize 3D
-objects.
-*/
 
 #endif
 

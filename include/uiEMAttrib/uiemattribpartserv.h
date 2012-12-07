@@ -28,7 +28,10 @@ class NLAModel;
 class TaskRunner;
 class uiHorizonShiftDialog;
 
-/*! \brief Part Server for Attribute handling on EarthModel objects */
+/*!
+\ingroup uiEMAttrib
+\brief Part Server for Attribute handling on EarthModel objects
+*/
 
 mClass(uiEMAttrib) uiEMAttribPartServer : public uiApplPartServer
 {
@@ -102,13 +105,14 @@ protected:
     void			shiftDlgClosed(CallBacker*);
 };
 
-/*!\mainpage EMAttrib User Interface
+/*!
+\defgroup uiEMAttrib uiEMAttrib
+EMAttrib User Interface
 
-  Here you will find all attribute handling regarding EarthModel objects.
-  The uiEMAttribPartServer delivers the services needed.
+Here you will find all attribute handling regarding EarthModel objects.
+The uiEMAttribPartServer delivers the services needed.
 
 */
-
 
 #endif
 

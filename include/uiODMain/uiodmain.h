@@ -34,7 +34,10 @@ mGlobal(uiODMain) uiODMain* ODMainWin();
 //!< Top-level access for plugins
 
 
-/*!\brief OpendTect application top level object */
+/*!
+\ingroup uiODMain
+\brief OpendTect application top level object
+*/
 
 mClass(uiODMain) uiODMain : public uiMainWin
 {
@@ -122,9 +125,11 @@ public:
 };
 
 
-/*!\mainpage OpendTect Top Level (uiODMain)
+/*!
+\defgroup uiODMain uiODMain
+\section OpendTect OpendTect Top Level
 
-  \section Introduction Introduction
+\section Introduction
 
   'Real systems have no top' (Betrand Meyer). What he meant is that real
   sytems cannot be characterised by a single function which can be split up

@@ -50,7 +50,9 @@ namespace Attrib  { class SelSpec; class DataCubes; }
 namespace visSurvey
 {
 
-/*!\brief Base class for all 'Display' objects
+/*!
+\ingroup visSurvey
+\brief Base class for all 'Display' objects
 */
 
 mClass(visSurvey) SurveyObject
@@ -332,22 +334,18 @@ protected:
     BufferString		survname_; //Only from IOPar
 };
 
+} // namespace visSurvey
 
-}; // namespace visSurvey
 
-
-/*!\mainpage 3D Visualisation - OpendTect specific
+/*!
+\defgroup visSurvey visSurvey
+  3D Visualisation - OpendTect specific
 
   This module contains front-end classes for displaying 3D objects. Most 
   functions in these classes deal with the geometry or position of the object, 
   as well as handling new data and information about the attribute 
   displayed.
-
-
-
 */
 
-
 #endif
-
 

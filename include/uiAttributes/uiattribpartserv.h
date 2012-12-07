@@ -58,7 +58,10 @@ template <class T> class Interval;
 template <class T> class Array3D;
 
 
-/*! \brief Service provider for application level - Attributes */
+/*!
+\ingroup uiAttributes
+\brief Service provider for application level - Attributes
+*/
 
 mClass(uiAttributes) uiAttribPartServer : public uiApplPartServer
 {
@@ -259,35 +262,6 @@ protected:
 
     ColTab::MapperSetup*	evalmapperbackup_;
 };
-
-
-/*!\mainpage Attribute User Interface
-
- The main thing here is handling the attribute set editor. Other
- services of the uiAttribPartServer are selection and volume output.
-
- The Attribute set editor is a pretty complex piece of user interface. The left
- and top part of the window are fixed. They handle the 'common' things in
- attribute set editing. The right part is defined via the uiAttribFactory .
-
- The problem that was facing us was that we needed a user interface that could
- be dynamically extended. Further more,much of the needed functionality is
- common to all attributes. Thus, we defined:
-
- - A base class for all attribute editors (uiAttrDescEd)
- - A factory of uiAttrDescEdCreater, creating uiAttrDescEd instances from
-   the name of the attribute
-
- The uiAttrDescEd itself already has a lot of implemented functionality,
- leaving only things specific for that particular attribute to be defined.
- Once such a subclass is fully defined, a uiAttrDescEdCreater instance must be
- added to the factory to make it active.
-
- To see how such a new attribute can be created aswell as a user interface for
- it, take a look at the uiTut seismic 'attribute style' example.
-
-*/
-
 
 #endif
 
