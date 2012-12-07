@@ -1,0 +1,66 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Nanne Hemstra
+ Date:		September 2012
+ SVN:		$Id$
+________________________________________________________________________
+
+-*/
+
+
+/*!
+\defgroup General General
+\section Introduction Introduction
+
+This module uses the services from the Basic module and adds services that
+are (in general) more or less OpendTect specific. Just like the Basic module
+the services are used by all other modules.
+
+\section Content Content
+Some of the groups of services are:
+
+<ul>
+ <li>I/O management system
+  <ul>
+   <li>ioman.h : the IOM() object of the IOMan class provides a lookup of
+       objects in the data store
+   <li>ioobj.h : Subclasses of IOObj hold all data necessary to access a stored
+       object.
+   <li>iostrm.h : IOStream is the most common subclass of IOObj because
+       OpendTect stores its data in files.
+   <li>ctxtioobj.h : The context of an IOObj selection: what type of object,
+       is it for read or write, should the user be able to create a new entry,
+       etc.
+  </ul>
+ <li>Translators
+  <ul>
+   <li>transl.h : Translators are the objects that know file and database
+       formats. All normal data will be put into and written from in-memory
+       objects via subclasses of Translator.
+  </ul>
+ <li>ArrayND utils
+  <ul>
+   <li>array2dxxx.h : 2-D arrays have a couple of specific things inmplemented
+   <li>arrayndxxx.h : slices, subselection and other utilities
+  </ul>
+ <li>CBVS
+  <ul>
+   <li>cbvsreadmgr.h : reads the 'Common Basic Volume Storage' format
+   <li>cbvswritemgr.h : writes CBSV format.
+  </ul>
+ <li>Tables
+  <ul>
+   <li>tabledef.h : Specifying the information content of tabular data
+   <li>tableascio.h : Utiltities to read/write table-formatted data
+   <li>tableconv.h : Utilities for converting table data
+  </ul>
+ <li>Properties and units
+  <ul>
+   <li>property.h : handling properties like Density, Velocity, ...
+   <li>uniofmeasure.h : handling units of measure
+  </ul>
+</ul>
+*/
+

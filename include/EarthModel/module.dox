@@ -1,0 +1,33 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Nanne Hemstra
+ Date:		September 2012
+ SVN:		$Id$
+________________________________________________________________________
+
+-*/
+
+
+/*!
+\defgroup EarthModel EarthModel
+\section Introduction Introduction
+  Objects like horizons, faults and bodies are all earth model objects.
+  Such objects can be described in various ways, and the EM way is the
+  way we have chosen for OpendTect.
+
+  A big part of this module deals with surfaces of some kind. Horizons, faults,
+  and sets of (fault-)sticks each have their own peculiarities.
+
+
+\section Content Content
+  Most interesting classes:
+
+  - EM::EMObject, base class for the EarthModel objects
+  - EM::EMManager, responsible for the loading and deleting of the objects
+
+  Earth models have the nasty habit of changing over time. Therefore, edit
+  history matters are handled by the Undo objects.
+
+*/

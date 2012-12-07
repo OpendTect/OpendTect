@@ -1,0 +1,30 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Nanne Hemstra
+ Date:		September 2012
+ SVN:		$Id$
+________________________________________________________________________
+
+-*/
+
+
+/*!
+\defgroup NLA NLA
+\section Introduction Introduction
+
+This module handles the Non-Linear Analysis (NLA) interfaces in OpendTect.
+In order to accommodate more advanced methods than Attribute evaluation
+only, an interface for non-linear analysis is defined. The current
+implementation in the dGB plugins use Neural Networks to accomplish
+a training-applying scheme using Neural Networks.
+
+If you want to make your own NLA module, make it comply this interface
+and provide a user interface via the uiNLA interface. Then use the
+setNlaServer() method on the uiODApplMgr to make your UI active.
+
+\section Content Content
+
+*/
+
