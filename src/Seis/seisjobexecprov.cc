@@ -107,12 +107,17 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
     if ( !ioobjkey ) ioobjkey = iopar_.find( "Input Seismics.ID" );
 
     BufferStringSet nms;
+    iopar_.get( sKey::LineNames(), nms );
     IOObj* ioobj = IOM().get( ioobjkey );
     if ( ioobj && SeisTrcTranslator::is2D(*ioobj) )
     {
 	Seis2DLineSet* inpls = new Seis2DLineSet( ioobj->fullUserExpr(true) );
-	for ( int idx=0; idx<inpls->nrLines(); idx++ )
-	    nms.addIfNew( inpls->lineName(idx) );
+	if ( nms.isEmpty() )
+	{
+	    for ( int idx=0; idx<inpls->nrLines(); idx++ )
+		nms.addIfNew( inpls->lineName(idx) );
+	}
+
 	FixedString attrnm = iopar_.find( sKey::Target() );
 
 	if ( isrestart )

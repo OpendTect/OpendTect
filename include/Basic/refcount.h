@@ -57,7 +57,7 @@ deepUnRefNoDelete(set);
 deepRef( set );
 deepUnRef(set);
 
-\code
+\endcode
 
 A pointer management is handled by the class RefMan, which has the same usage as
 PtrMan.
