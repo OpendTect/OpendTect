@@ -216,13 +216,13 @@ inline  bool PolygonTriangulate( const TypeSet<Coord>& knots,TypeSet<int>& res )
       return false;
 
     /* Make sure it is a counter-clockwise polygon in cci */
-    float area=0;
+    double area=0;
     for( int p=nrknots-1, q=0; q<nrknots; p=q++ )
       area += (knots[p].x*knots[q].y - knots[q].x*knots[p].y);
     area *= 0.5;
 
     TypeSet<int> cci;
-    if ( 0.0f<area )
+    if ( 0<area )
     {
     	for ( int idx=0; idx<nrknots; idx++ ) 
 	    cci += idx;
