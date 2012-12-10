@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visrandompos2body.h"
 
+#include "delaunay.h"
 #include "delaunay3d.h"
 #include "survinfo.h"
 #include "viscoord.h"
@@ -82,24 +83,74 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 
     TypeSet<Coord3> picks;
     const float zscale = SI().zDomain().userFactor();
+    bool oninline = true, oncrossline = true, onzslice = true;
+    int inl=-1, crl=-1;
+    float z;
+    const float zeps = SI().zStep()/2.0;
+    TypeSet<BinID> bids;
+
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	triset_->getCoordinates()->setPos( idx, pts[idx] );
 	picks += Coord3(pts[idx].coord(), pts[idx].z*zscale);
+
+	BinID bid = SI().transform( pts[idx] );
+	bids += bid;
+	if ( idx==0 )
+	{
+	    inl = bid.inl;
+	    crl = bid.crl;
+	    z = pts[idx].z;
+	}
+	else
+	{
+	    if ( oninline && inl!=bid.inl )
+		oninline = false;
+
+	    if ( oncrossline && crl!=bid.crl )
+		oncrossline = false;
+
+	    if ( onzslice && !mIsEqual(z,pts[idx].z,zeps) )
+		onzslice = false;
+	}
     }
 
     triset_->getCoordinates()->removeAfter( pts.size()-1 );
 
-    DAGTetrahedraTree tree;
-    tree.setCoordList( picks, false );
-    
-    ParallelDTetrahedralator pdtri( tree );
-    if ( !pdtri.execute(true) )
-	return false;
-
     TypeSet<int> result;
-    if ( !tree.getSurfaceTriangles(result) )
-	return false;
+    if ( !oninline && !oncrossline && !onzslice )
+    {
+	DAGTetrahedraTree tree;
+	tree.setCoordList( picks, false );
+	
+	ParallelDTetrahedralator pdtri( tree );
+	if ( !pdtri.execute(true) )
+	    return false;
+
+	if ( !tree.getSurfaceTriangles(result) )
+	    return false;
+    }
+    else
+    {
+	TypeSet<Coord> knots;
+	if ( onzslice )
+	{
+	    for ( int idx=0; idx<pts.size(); idx++ )
+		knots += pts[idx].coord();
+	}
+	else if ( oninline )
+	{
+	    for ( int idx=0; idx<pts.size(); idx++ )
+		knots += Coord(picks[idx].y,picks[idx].z);
+	}
+	else
+	{
+	    for ( int idx=0; idx<pts.size(); idx++ )
+		knots += Coord(picks[idx].x,picks[idx].z);
+	}
+
+	PolygonTriangulate( knots, result );
+    }
 
     int cii = 0;
     for ( int idx=0; idx<result.size()/3; idx++ )
