@@ -13,6 +13,7 @@ static const char* rcsID = "$Id$";
 
 #include "delaunay3d.h"
 #include "survinfo.h"
+#include "trigonometry.h"
 #include "viscoord.h"
 #include "vistransform.h"
 #include "vistristripset.h"
@@ -82,24 +83,72 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 
     TypeSet<Coord3> picks;
     const float zscale = SI().zFactor();
+    bool oninline = true, oncrossline = true, onzslice = true;
+    int inl=-1, crl=-1;
+    float z=-1;
+    const float zeps = SI().zStep()/2.0;
+
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	triset_->getCoordinates()->setPos( idx, pts[idx] );
 	picks += Coord3(pts[idx].coord(), pts[idx].z*zscale);
+
+	const BinID bid = SI().transform( pts[idx] );
+	if ( idx==0 )
+	{
+	    inl = bid.inl;
+	    crl = bid.crl;
+	    z = pts[idx].z;
+	}
+	else
+	{
+	    if ( oninline && inl!=bid.inl )
+		oninline = false;
+	    
+	    if ( oncrossline && crl!=bid.crl )
+		oncrossline = false;
+	    
+	    if ( onzslice && !mIsEqual(z,pts[idx].z,zeps) )
+		onzslice = false;
+	}
     }
 
     triset_->getCoordinates()->removeAfter( pts.size()-1 );
 
-    DAGTetrahedraTree tree;
-    tree.setCoordList( picks, false );
-    
-    ParallelDTetrahedralator pdtri( tree );
-    if ( !pdtri.execute(true) )
-	return false;
-
     TypeSet<int> result;
-    if ( !tree.getSurfaceTriangles(result) )
-	return false;
+    if ( !oninline && !oncrossline && !onzslice )
+    {
+     	DAGTetrahedraTree tree;
+    	tree.setCoordList( picks, false );
+    	
+    	ParallelDTetrahedralator pdtri( tree );
+    	if ( !pdtri.execute(true) )
+    	    return false;
+    
+	if ( !tree.getSurfaceTriangles(result) )
+    	    return false;
+    }
+    else
+    {
+	TypeSet<Coord> knots;
+	if ( onzslice )
+	{
+	    for ( int idx=0; idx<pts.size(); idx++ )
+		knots += pts[idx].coord();
+	}
+	else if ( oninline )
+	{
+	    for ( int idx=0; idx<pts.size(); idx++ )
+		knots += Coord(picks[idx].y,picks[idx].z);
+	}
+	else
+	{
+	    for ( int idx=0; idx<pts.size(); idx++ )
+		knots += Coord(picks[idx].x,picks[idx].z);
+	}
+
+	polygonTriangulate( knots, result );
+    }
 
     int cii = 0;
     for ( int idx=0; idx<result.size()/3; idx++ )
@@ -132,6 +181,77 @@ void RandomPos2Body::setDisplayTransformation( const mVisTrans*  nt )
 
 const mVisTrans* RandomPos2Body::getDisplayTransformation() const
 { return transformation_; }
+
+
+void RandomPos2Body::polygonTriangulate( const TypeSet<Coord>& knots,
+					 TypeSet<int>& res )
+{
+    const int nrknots = knots.size();
+    if ( nrknots < 3 ) return;
+
+    double area=0;
+    for( int idx=nrknots-1, idy=0; idy<nrknots; idx=idy++ )
+	area += (knots[idx].x*knots[idy].y - knots[idy].x*knots[idx].y);
+    area *= 0.5;
+    
+    TypeSet<int> ci;
+    if ( 0<area )
+    {
+	for ( int idx=0; idx<nrknots; idx++ )
+	    ci += idx;
+    }
+    else
+    {
+	for( int idx=0; idx<nrknots; idx++ )
+	    ci += (nrknots-1-idx);
+    }
+    
+    int cursize = nrknots;
+    int errcheck = 2*cursize;
+    
+    for( int idx=cursize-1; cursize>2; )
+    {
+	if ( 0 >= (errcheck--) )
+	    return;
+	
+	const int idx0 = cursize<=idx ? 0 : idx;
+	idx = cursize<=idx0+1 ? 0 : idx0+1;
+	const int idx1 = cursize<=idx+1 ? 0 : idx+1;
+	
+	const Coord& pos0 = knots[ci[idx0]];
+	const Coord& pos = knots[ci[idx]];
+	const Coord& pos1 = knots[ci[idx1]];
+	if ( (((pos.x-pos0.x)*(pos1.y-pos0.y)) -
+	      ((pos.y-pos0.y)*(pos1.x-pos0.x)))<0 )
+	    continue;
+	
+	bool isvalid = true;
+	for ( int idy=0; idy<cursize; idy++ )
+	{
+	    if( (idy==idx0) || (idy==idx) || (idy==idx1) )
+		continue;
+	    
+	    if ( pointInTriangle2D(knots[ci[idy]],pos0,pos,pos1,0.0) )
+	    {
+		isvalid = false;
+		break;
+	    }
+	}
+
+	if ( isvalid )
+	{
+	    res += ci[idx0];
+	    res += ci[idx];
+	    res += ci[idx1];
+	    
+	    for( int i=idx, j=idx+1; j<cursize; i++, j++ )
+		ci[i] = ci[j];
+	    
+	    cursize--;
+	    errcheck = 2*cursize;
+	}
+    }
+}
 
 
 }; // namespace visBase

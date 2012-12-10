@@ -52,6 +52,9 @@ public:
 
 protected:
     				~RandomPos2Body();
+    void			polygonTriangulate(const TypeSet<Coord>& knots,
+					TypeSet<int>& res);
+
 
     TypeSet<Coord3>		picks_;			
     TriangleStripSet*		triset_;
