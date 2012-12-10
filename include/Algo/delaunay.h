@@ -215,51 +215,52 @@ inline  bool PolygonTriangulate( const TypeSet<Coord>& knots,TypeSet<int>& res )
     if ( nrknots < 3 ) 
       return false;
 
-    /* Make sure it is a counter-clockwise polygon in cci */
+    /* Make sure it is a counter-clockwise polygon in ci */
     double area=0;
-    for( int p=nrknots-1, q=0; q<nrknots; p=q++ )
-      area += (knots[p].x*knots[q].y - knots[q].x*knots[p].y);
+    for( int idx=nrknots-1, idy=0; idy<nrknots; idx=idy++ )
+      area += (knots[idx].x*knots[idy].y - knots[idy].x*knots[idx].y);
     area *= 0.5;
 
-    TypeSet<int> cci;
+    TypeSet<int> ci;
     if ( 0<area )
     {
     	for ( int idx=0; idx<nrknots; idx++ ) 
-	    cci += idx;
+	    ci += idx;
     }
     else
     {
     	for( int idx=0; idx<nrknots; idx++ ) 
-	    cci += (nrknots-1-idx);
+	    ci += (nrknots-1-idx);
     }
 
-    /*Triangulate: three consecutive vertices in current polygon (ai,bi,ci),
+    /*Triangulate: three consecutive vertices (idx0,idx,idx1) in polygon,
       remove cursize-2 Vertices, creating 1 triangle every time */
     int cursize = nrknots;
     int errcheck = 2*cursize; 
 
-    for( int bi=cursize-1; cursize>2; )
+    for( int idx=cursize-1; cursize>2; )
     {
 	if ( 0 >= (errcheck--) )
   	    return false;
 
-	const int ai = cursize<=bi ? 0 : bi; 
-	bi = cursize<=ai+1 ? 0 : ai+1;
-	const int ci = cursize<=bi+1 ? 0 : bi+1;
+	const int idx0 = cursize<=idx ? 0 : idx; 
+	idx = cursize<=idx0+1 ? 0 : idx0+1;
+	const int idx1 = cursize<=idx+1 ? 0 : idx+1;
 
-	const Coord& A = knots[cci[ai]];
-    	const Coord& B = knots[cci[bi]];
-    	const Coord& C = knots[cci[ci]];
-    	if ( (((B.x-A.x)*(C.y-A.y)) - ((B.y-A.y)*(C.x-A.x)))<0 ) 
+	const Coord& pos0 = knots[ci[idx0]];
+    	const Coord& pos = knots[ci[idx]];
+    	const Coord& pos1 = knots[ci[idx1]];
+    	if ( (((pos.x-pos0.x)*(pos1.y-pos0.y)) - 
+	      ((pos.y-pos0.y)*(pos1.x-pos0.x)))<0 ) 
       	    continue;
 
 	bool isvalid = true;
-    	for (int p=0;p<cursize;p++)
+    	for ( int idy=0; idy<cursize; idy++ )
     	{
-	    if( (p == ai) || (p == bi) || (p == ci) ) 
+	    if( (idy==idx0) || (idy==idx) || (idy==idx1) ) 
 		continue;
 	    
-	    if ( pointInTriangle2D(knots[cci[p]],A,B,C,0.0) ) 
+	    if ( pointInTriangle2D(knots[ci[idy]],pos0,pos,pos1,0.0) ) 
 	    {
 		isvalid = false;
 		break;
@@ -268,13 +269,13 @@ inline  bool PolygonTriangulate( const TypeSet<Coord>& knots,TypeSet<int>& res )
 
 	if ( isvalid )
 	{
-	  res += cci[ai];
-	  res += cci[bi];
-	  res += cci[ci];
+	  res += ci[idx0];
+	  res += ci[idx];
+	  res += ci[idx1];
 
-	  /* remove bi from remaining polygon */
-	  for( int s=bi, t=bi+1; t<cursize; s++, t++ ) 
-	      cci[s] = cci[t]; 
+	  /* remove idx from remaining polygon */
+	  for( int i=idx, j=idx+1; j<cursize; i++, j++ ) 
+	      ci[i] = ci[j]; 
 	  
 	  cursize--;
 	  errcheck = 2*cursize;
