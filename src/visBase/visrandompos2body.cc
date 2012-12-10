@@ -85,7 +85,7 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
     const float zscale = SI().zDomain().userFactor();
     bool oninline = true, oncrossline = true, onzslice = true;
     int inl=-1, crl=-1;
-    float z;
+    float z=-1;
     const float zeps = SI().zStep()/2.0;
     TypeSet<BinID> bids;
 
