@@ -87,7 +87,6 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
     int inl=-1, crl=-1;
     float z=-1;
     const float zeps = SI().zStep()/2.0;
-    TypeSet<BinID> bids;
 
     for ( int idx=0; idx<pts.size(); idx++ )
     {
@@ -95,7 +94,6 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 	picks += Coord3(pts[idx].coord(), pts[idx].z*zscale);
 
 	BinID bid = SI().transform( pts[idx] );
-	bids += bid;
 	if ( idx==0 )
 	{
 	    inl = bid.inl;
