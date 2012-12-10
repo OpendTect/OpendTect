@@ -11,13 +11,14 @@ ________________________________________________________________________
 
 
 /*!
-\defgroup uiEMAttrib uiEMAttrib
-\section Introduction Introduction
-EMAttrib User Interface
+\defgroup uiWellAttrib uiWellAttrib
+\section Introduction Introduction WellAttrib User Interface
 
-Here you will find all attribute handling regarding EarthModel objects.
-The uiEMAttribPartServer delivers the services needed.
+Here you will find all attribute handling regarding wells.
 
 \section Content Content
 
+The uiAttribWellPartServer delivers the services needed.
+
 */
+

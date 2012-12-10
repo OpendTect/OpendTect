@@ -149,35 +149,5 @@ mLockerClassImpl( visBase, VisualWriteLockLocker, VisualObjectImpl,
 		  writeLock(), writeUnLock(), tryWriteLock() )
 };
 
-
-/*!\defgroup visBase visBase
-  Visualisation - Open Inventor-based tools
-
-  All 3D visualisation in OpendTect is COIN based. COIN is an implementation
-  of the OpenInventor interface sepecification. As usual, the external package
-  (i.e. COIN) is not visible to any object outside this module.
-  This module can be seen as a layer on top of the COIN library. Compliant with
-  the 'DIF' principle (Don't implement the future), the layer only contains
-  those tools that are really used in OpendTect.
-
-  The function initODInventorClasses() initialises our own 
-  Inventor classes, which are in fact extensions of the COIN library. 
-  These classes can be found is SoOD. The 'vis' classes in this module are 
-  used in the rest of OpendTect. 
-
-  In the 3D visualisation world you'll see that it is almost unavoidable that
-  all objects will be managed by a centralised manager. That is
-  DataManager. 
-
-  The main classes for displaying scene objects are:
-  - TextureRect, for inlines, crosslines and timeslices.
-  - RandomTrack, for random lines.
-  - CubeView, for the volume viewer.
-  - Marker, for picks.
-  - HorizonSection, for Horizons.
-  - Well, for wells.
-
-*/
-
 #endif
 

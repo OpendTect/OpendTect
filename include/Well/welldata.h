@@ -147,27 +147,5 @@ protected:
 
 } // namespace Well
 
-
-/*!
-\defgroup Well
- 
- The OpendTect Well object is a single track, logs and markers bearing thing
- with some global data and possibly a Depth vs Time model attached.
- Therefore, it is not a POSC well in the sense that it describes the
- data for one well bore only. This may mean duplication when more well
- tracks share an upper part.
-
- The well track is a 3D line-segment geometry. The traditional description of
- the Z value in true vertical depth (TVD) breaks down miserably when
- horizontal well tracks (and worse) come into play. A much better single
- coordinate to describe the position in a well is the depth-along-hole (or
- more correctly distance-along-hole). This is why everything in this module
- is related to the DAH, not TVD. There are facilities to work with TVD, though.
-
- Further it seems to me that anyone familiar with wells, logs and that kind of
- concepts should find this module's object model fairly intuitive.
-
-*/
-
 #endif
 

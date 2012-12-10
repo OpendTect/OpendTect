@@ -11,12 +11,8 @@ ________________________________________________________________________
 
 
 /*!
-\defgroup uiEMAttrib uiEMAttrib
+\defgroup Usage Usage
 \section Introduction Introduction
-EMAttrib User Interface
-
-Here you will find all attribute handling regarding EarthModel objects.
-The uiEMAttribPartServer delivers the services needed.
 
 \section Content Content
 

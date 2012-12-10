@@ -66,14 +66,5 @@ protected:
     void                        surveyChangedCB(CallBacker*);
 };
 
-/*!\defgroup uiWellAttrib uiWellAttrib
-WellAttrib User Interface
-
-Here you will find all attribute handling regarding wells.
-The uiAttribWellPartServer delivers the services needed.
-
-*/
-
-
 #endif
 

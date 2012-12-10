@@ -115,13 +115,5 @@ protected:
     void			simpImp(CallBacker*);
 };
 
-/*!
-\defgroup uiWell uiWell
-Well User Interface
-
-Apart from nice visualisation, import and management of well data must be
-done. The uiWellPartServer delivers the services needed.
-*/
-
 #endif
 
