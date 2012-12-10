@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "task.h"
 #include "thread.h"
+#include "trigonometry.h"
 
 /*!Reference: "Parallel Incremental Delaunay Triangulation", by Kohout J.2005.
    For the triangulation, it will skip undefined or duplicated points, all the 
@@ -204,6 +205,84 @@ protected:
     TypeSet<int>		perimeter_;
     TypeSet<double>		perimeterazimuth_;
 };
+
+
+/*Simple polyon triangulation, does not work if you have holes inside it. 
+  return each triangle with three indicies in order. */
+inline  bool PolygonTriangulate( const TypeSet<Coord>& knots,TypeSet<int>& res )
+{
+    const int nrknots = knots.size();
+    if ( nrknots < 3 ) 
+      return false;
+
+    /* Make sure it is a counter-clockwise polygon in cci */
+    float area=0;
+    for( int p=nrknots-1, q=0; q<nrknots; p=q++ )
+      area += (knots[p].x*knots[q].y - knots[q].x*knots[p].y);
+    area *= 0.5;
+
+    TypeSet<int> cci;
+    if ( 0.0f<area )
+    {
+    	for ( int idx=0; idx<nrknots; idx++ ) 
+	    cci += idx;
+    }
+    else
+    {
+    	for( int idx=0; idx<nrknots; idx++ ) 
+	    cci += (nrknots-1-idx);
+    }
+
+    /*Triangulate: three consecutive vertices in current polygon (ai,bi,ci),
+      remove cursize-2 Vertices, creating 1 triangle every time */
+    int cursize = nrknots;
+    int errcheck = 2*cursize; 
+
+    for( int bi=cursize-1; cursize>2; )
+    {
+	if ( 0 >= (errcheck--) )
+  	    return false;
+
+	const int ai = cursize<=bi ? 0 : bi; 
+	bi = cursize<=ai+1 ? 0 : ai+1;
+	const int ci = cursize<=bi+1 ? 0 : bi+1;
+
+	const Coord& A = knots[cci[ai]];
+    	const Coord& B = knots[cci[bi]];
+    	const Coord& C = knots[cci[ci]];
+    	if ( (((B.x-A.x)*(C.y-A.y)) - ((B.y-A.y)*(C.x-A.x)))<0 ) 
+      	    continue;
+
+	bool isvalid = true;
+    	for (int p=0;p<cursize;p++)
+    	{
+	    if( (p == ai) || (p == bi) || (p == ci) ) 
+		continue;
+	    
+	    if ( pointInTriangle2D(knots[cci[p]],A,B,C,0.0) ) 
+	    {
+		isvalid = false;
+		break;
+	    }
+    	}
+
+	if ( isvalid )
+	{
+	  res += cci[ai];
+	  res += cci[bi];
+	  res += cci[ci];
+
+	  /* remove bi from remaining polygon */
+	  for( int s=bi, t=bi+1; t<cursize; s++, t++ ) 
+	      cci[s] = cci[t]; 
+	  
+	  cursize--;
+	  errcheck = 2*cursize;
+	}
+    }
+
+    return true;
+}
 
 #endif
 
