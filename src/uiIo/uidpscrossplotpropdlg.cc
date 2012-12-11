@@ -357,6 +357,7 @@ void parseExp( CallBacker* cb )
     mDynamicCastGet(uiGenInput*,yinp,cb);
     mDynamicCastGet(uiCheckBox*,ycb,cb);
     if ( !yinp && !ycb ) return;
+    if ( ycb && !ycb->isChecked() ) return;
 
     const bool isy1 =
 	(yinp && yinp==inpfld_) || (ycb && ycb==shwy1userdefpolyline_);
@@ -364,8 +365,6 @@ void parseExp( CallBacker* cb )
     mathexpr = isy1 ? inpfld_->text() : inpfld1_->text();
     MathExpressionParser mep( mathexpr );
     MathExpression* mathobj = mathexpr.isEmpty() ? 0 : mep.parse();
-    uiCheckBox* chkbox = isy1 ? shwy1userdefpolyline_ : shwy2userdefpolyline_;
-    if ( ycb && !chkbox->isChecked() ) return;
     ( isy1 ? mathobj_ : mathobj1_ ) = mathobj;
 
     if ( !mathobj )
@@ -373,7 +372,7 @@ void parseExp( CallBacker* cb )
 	if ( mep.errMsg() )
 	{
 	    uiMSG().error( mep.errMsg() );
-	    chkbox->setChecked( false );
+	    ycb->setChecked( false );
 	}
 	return;
     }
@@ -383,7 +382,7 @@ void parseExp( CallBacker* cb )
 	msg_ = "Expression of curve Y";
 	msg_ += isy1 ? "1" : "2";
 	msg_ += " contains more than one variable.";
-	uiMSG().error( msg() );	chkbox->setChecked( false );
+	uiMSG().error( msg() );	ycb->setChecked( false );
 	return;
     }
 }
