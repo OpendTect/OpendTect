@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "errh.h"
 #include "ptrman.h"
 
+
 template <class T> class Interval;
 
 /* Base class for Interval. Has no virtual functions and can hence
@@ -55,7 +56,9 @@ public:
     inline float		getfIndex(const X&,const T& step) const;
     template <class X>
     inline int			nearestIndex(const X& x,const T& step) const;
-    
+    template <class X>
+    inline int			indexOnOrAfter(X x,const T& step,
+					       float eps=1e-5) const;
     template <class X>
     inline void			limitTo( const BasicInterval<X>& i )
 				{ start = i.limitValue(start);
@@ -155,6 +158,9 @@ public:
     inline T		atIndex(int) const;
     template <class X>
     inline int		getIndex(const X&) const;
+    template <class X> inline
+    int			indexOnOrAfter( X x, float eps ) const;
+
     template <class X>
     inline float	getfIndex(const X&) const;
     template <class X>
@@ -214,6 +220,9 @@ protected:
     bool		isset;
 
 };
+
+
+#include "samplingdata.h"
 
 
 template <class T> template <class X> inline
@@ -352,13 +361,15 @@ BasicInterval<T>::operator=( const BasicInterval<T>& intv )
 template <class T> template <class X> inline
 int BasicInterval<T>::nearestIndex( const X& x, const T& step ) const
 {
-    int nr = getIndex(x,step);
-    const T atindex = atIndex(nr,step);
-    const float reldiff = (float)((x-atindex)/step);
+    return SamplingData<T>( start, step ).nearestIndex( x );
+}
 
-    if ( reldiff>=0.5f ) return nr+1;
-    else if ( reldiff<=-0.5f ) return nr-1;
-    return nr;
+
+template <class T>
+template <class X> inline
+int BasicInterval<T>::indexOnOrAfter( X x, const T& step, float eps ) const
+{
+    return SamplingData<T>( start, step ).indexOnOrAfter( x, eps );
 }
 
 
@@ -519,7 +530,7 @@ int BasicInterval<T>::getIndex( const X& t, const T& step ) const
 
 template <class T> template <class X> inline
 float BasicInterval<T>::getfIndex( const X& t, const T& step ) const
-{ return (float)(( t  - start ) / step); }
+{ return SamplingData<T>( start, step ).getfIndex( t ); }
 
 
 template <class T> template <class X> inline
@@ -648,6 +659,13 @@ int StepInterval<T>::getIndex( const X& t ) const
 template <class T> template <class X> inline
 float StepInterval<T>::getfIndex( const X& t ) const
 { return Interval<T>::getfIndex( t, step ); }
+
+
+template <class T> template <class X> inline
+int StepInterval<T>::indexOnOrAfter( X x, float eps ) const
+{
+    return Interval<T>::indexOnOrAfter( x, step, eps );
+}
 
 
 template <class T> template <class X> inline
