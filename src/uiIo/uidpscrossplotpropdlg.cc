@@ -243,6 +243,10 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     , hasy2_(plotter_.axisHandler(2))
     , yaxrg_((plotter_.axisData(1)).axis_->range())
     , y2axrg_((plotter_.axisData(hasy2_? 2:1)).axis_->range())
+    , yclipratio_(plotter_.autoScalePars(1).clipratio_)
+    , y2clipratio_(plotter_.autoScalePars(hasy2_? 2:1).clipratio_)
+    , yautoscale_(plotter_.autoScalePars(1).doautoscale_)
+    , y2autoscale_(plotter_.autoScalePars(hasy2_? 2:1).doautoscale_)
     , shwy1userdefpolyline_(0)
     , shwy2userdefpolyline_(0)
     , mathobj_(0)
@@ -276,7 +280,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 	inpfld1_ = new uiGenInput( this, "Equation Y2=" );
 	inpfld1_->setElemSzPol( uiObject::Wide );
 	inpfld1_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExp) );
-	inpfld1_->valuechanging.notify( mCB(this,uiDPSUserDefTab,checkMathExpr) );
+	inpfld1_->valuechanging.notify(mCB(this,uiDPSUserDefTab,checkMathExpr));
 	inpfld1_->attach( alignedBelow, shwy1userdefpolyline_ );        
 
 	rmsfld1_ = new uiGenInput( this, "rms error" );
@@ -352,8 +356,7 @@ void parseExp( CallBacker* cb )
 {
     mDynamicCastGet(uiGenInput*,yinp,cb);
     mDynamicCastGet(uiCheckBox*,ycb,cb);
-    if ( !yinp && !ycb )
-	return;
+    if ( !yinp && !ycb ) return;
 
     const bool isy1 =
 	(yinp && yinp==inpfld_) || (ycb && ycb==shwy1userdefpolyline_);
@@ -361,10 +364,17 @@ void parseExp( CallBacker* cb )
     mathexpr = isy1 ? inpfld_->text() : inpfld1_->text();
     MathExpressionParser mep( mathexpr );
     MathExpression* mathobj = mathexpr.isEmpty() ? 0 : mep.parse();
+    uiCheckBox* chkbox = isy1 ? shwy1userdefpolyline_ : shwy2userdefpolyline_;
+    if ( ycb && !chkbox->isChecked() ) return;
     ( isy1 ? mathobj_ : mathobj1_ ) = mathobj;
+
     if ( !mathobj )
     {
-	if ( mep.errMsg() ) uiMSG().error( mep.errMsg() );
+	if ( mep.errMsg() )
+	{
+	    uiMSG().error( mep.errMsg() );
+	    chkbox->setChecked( false );
+	}
 	return;
     }
 
@@ -373,7 +383,7 @@ void parseExp( CallBacker* cb )
 	msg_ = "Expression of curve Y";
 	msg_ += isy1 ? "1" : "2";
 	msg_ += " contains more than one variable.";
-	uiMSG().error( msg() );
+	uiMSG().error( msg() );	chkbox->setChecked( false );
 	return;
     }
 }
@@ -455,14 +465,25 @@ void setPolyLines( CallBacker* cb )
 void drawPolyLines()
 {
     uiDataPointSetCrossPlotter::AxisData& yax = plotter_.axisData(1);
-    const bool& yrgchgd =
-	( yrgchgd_ = ( yax.axis_->range() != yaxrg_ ) && !yax.needautoscale_ );
-    const bool shwy1 = ( shwy1userdefpolyline_->isChecked() &&
-	    !mathexprstring_.isEmpty() && !(mathobj_->nrVariables()>1) );
+    const bool yclipratiochgd =
+	!mIsEqual( yax.autoscalepars_.clipratio_, yclipratio_, 1e-6 );
+    const bool yrgchgd = ( yax.axis_->range() != yaxrg_ )
+				&& !yax.autoscalepars_.doautoscale_;
+    const bool yautoscalechgd = (yautoscale_!= yax.autoscalepars_.doautoscale_);
 
-    if ( shwy1 && ( exp1chgd_ || yrgchgd ) )
+    const bool shwy1 = shwy1userdefpolyline_->isChecked();
+    const bool computey1again =	( yrgchgd || yclipratiochgd || yautoscalechgd );
+
+    if ( shwy1 && ( exp1chgd_ || computey1again ) )
     {
-    	yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = !yrgchgd;
+	if ( exp1chgd_ )
+	{
+	    yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = true;
+	    yax.autoscalepars_.clipratio_ = 0.0f;
+	}
+	else
+	    yax.needautoscale_ = yax.autoscalepars_.doautoscale_;
+
 	computePts( false );
 	exp1chgd_ = false;
     }
@@ -475,14 +496,27 @@ void drawPolyLines()
     if ( hasy2_ )
     {
 	uiDataPointSetCrossPlotter::AxisData& y2ax = plotter_.axisData(2);
-	const bool& y2rgchgd =
-	    y2rgchgd_= (y2ax.axis_->range() != y2axrg_) && !y2ax.needautoscale_;
-	const bool shwy2 = ( shwy2userdefpolyline_->isChecked() &&
-		!mathexprstring1_.isEmpty() && !(mathobj1_->nrVariables()>1) );
+	const bool y2clipratiochgd =
+  	    !mIsEqual( y2ax.autoscalepars_.clipratio_, y2clipratio_, 1e-6 );
+	const bool y2rgchgd = ( y2ax.axis_->range() != y2axrg_ )
+	    				&& !y2ax.autoscalepars_.doautoscale_;
+	const bool y2autoscalechgd =
+	    ( y2autoscale_ != y2ax.autoscalepars_.doautoscale_ );
 
-    	if ( shwy2 && ( exp2chgd_ || y2rgchgd ) )
+	const bool shwy2 = shwy2userdefpolyline_->isChecked();
+	const bool computey2again =
+	    ( y2rgchgd || y2clipratiochgd || y2autoscalechgd );
+
+    	if ( shwy2 && ( exp2chgd_ || computey2again ) )
     	{
-	    y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = !y2rgchgd;
+	    if ( exp2chgd_ )
+	    {
+		y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = true;
+		y2ax.autoscalepars_.clipratio_ = 0.0f;
+	    }
+	    else
+		y2ax.needautoscale_ = y2ax.autoscalepars_.doautoscale_;
+
 	    computePts( true );
 	    exp2chgd_ = false;
 	}
@@ -498,10 +532,68 @@ void drawPolyLines()
 void computePts( bool isy2 )
 {
     TypeSet<uiWorldPoint> pts;
-    TypeSet<uiWorldPoint> validpts; 
     uiDataPointSetCrossPlotter::AxisData& horz = plotter_.axisData(0);
     uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(isy2 ? 2:1);
 
+    const bool computermserr = isy2 ? exp2chgd_ : exp1chgd_;
+    if ( computermserr ) getRmsError( isy2 );
+
+    StepInterval<float> curvyvalrg( mUdf(float), -mUdf(float),
+	    vert.axis_->range().step );
+    MathExpression* mathobj = isy2 ? mathobj1_ : mathobj_;
+    Interval<float> xrge = horz.rg_;
+    const float step = fabs( ( xrge.stop - xrge.start )/999.0f );
+
+    for ( int idx = 0; idx < 1000; idx++ )
+    {
+	float curvxval = xrge.start + ((float)idx)*step;
+	mathobj->setVariableValue( 0, curvxval );	
+	float curvyval = mathobj->getValue();
+	if ( mIsUdf(curvxval) || mIsUdf(curvyval) ) continue;
+
+	curvyvalrg.include( curvyval, false );
+	pts += uiWorldPoint( curvxval, curvyval );
+    }
+    
+    if ( pts.size() == 0 )
+    {
+	msg_ = "Sorry! Y";
+	msg_ += isy2 ? 2 : 1;
+        msg_ += " cannot be plotted.";
+	uiMSG().error( msg() );
+	return;
+    }
+
+    const bool shouldask = isy2 ? exp2chgd_ : exp1chgd_;
+    if ( !vert.axis_->range().includes(curvyvalrg) )
+    {
+	msg_ = "Curve for Y";
+	msg_ += isy2 ? 2 : 1;
+	msg_ += " goes beyond the default range. ";
+	msg_ += "Do you want to rescale to see the complete curve?";
+
+	if ( shouldask && uiMSG().askGoOn(msg_) )
+	{
+	    curvyvalrg.include( vert.axis_->range(), false );
+	    curvyvalrg.step = (curvyvalrg.stop - curvyvalrg.start)/4.0f;
+	    vert.autoscalepars_.doautoscale_ = vert.needautoscale_ = false;
+	    vert.axis_->setBounds( curvyvalrg );
+	}
+    }
+    plotter_.setUserDefPolyLine( pts,isy2 );
+
+    ( isy2 ? y2axrg_ : yaxrg_ ) = vert.axis_->range();
+    ( isy2 ? y2autoscale_ : yautoscale_ ) = vert.autoscalepars_.doautoscale_;
+    ( isy2 ? y2clipratio_ : yclipratio_ ) = vert.autoscalepars_.clipratio_;
+}
+
+
+void getRmsError( bool isy2 )
+{
+    uiDataPointSetCrossPlotter::AxisData& horz = plotter_.axisData(0);
+    uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(isy2 ? 2:1);
+
+    MathExpression* mathobj = isy2 ? mathobj1_ : mathobj_;
     const BinIDValueSet& bvs = dps_.bivSet();
     BinIDValueSet::Pos pos;
     float rmserr = 0;
@@ -512,97 +604,30 @@ void computePts( bool isy2 )
 	TypeSet<float> vals;
 	bvs.get( pos, curbid, vals );
 	DataPointSet::RowID rid = dps_.getRowID( pos );
-
+	
 	const float xval = plotter_.getVal( horz.colid_, rid );
-	const float yval = plotter_.getVal( vert.colid_, rid );
-		
-	if ( mIsUdf(xval) || mIsUdf(yval) )
-	    continue;
+	const float yval = plotter_.getVal( vert.colid_, rid );	
+	if ( mIsUdf(xval) || mIsUdf(yval) ) continue;
 
-	if ( isy2 )
-	    mathobj1_->setVariableValue( 0, xval );
-	else
-	    mathobj_->setVariableValue( 0, xval );
-
-	float expyval = isy2 ? mathobj1_->getValue() : mathobj_->getValue();
-
+	mathobj->setVariableValue( 0, xval );	
+	float expyval = mathobj->getValue();	
 	if ( mIsUdf(expyval) ) continue;
-
-	rmserr += ( expyval - yval )*( expyval - yval );	
+	
+	rmserr += ( expyval - yval )*( expyval - yval );
 	count += 1;
     }
-
+    
     if ( count != 0 )
     {
 	rmserr = Math::Sqrt(rmserr/(float)count);
-    	isy2 ? rmsfld1_->setValue( rmserr ) : rmsfld_->setValue( rmserr );
-    	( isy2 ? plotter_.y2rmserr_ : plotter_.y1rmserr_ ) = rmserr;
+	isy2 ? rmsfld1_->setValue( rmserr ) : rmsfld_->setValue( rmserr );
+	( isy2 ? plotter_.y2rmserr_ : plotter_.y1rmserr_ ) = rmserr;
     }
     else
     {
-	isy2 ? rmsfld1_->setText(0) : rmsfld_->setText(0);     	
+	isy2 ? rmsfld1_->setText(0) : rmsfld_->setText(0);
 	isy2 ? plotter_.y2rmserr_.setEmpty() : plotter_.y1rmserr_.setEmpty();
     }
-
-    StepInterval<float> curvyvalrg( mUdf(float), -mUdf(float),
-	    vert.axis_->range().step );
-    Interval<float> xrge = horz.rg_;
-    const float step = fabs( ( xrge.stop - xrge.start )/999.0f );
-
-    for ( int idx = 0; idx < 1000; idx++ )
-    {
-	float curvxval = xrge.start + ((float)idx)*step;
-
-	if ( isy2 )
-	    mathobj1_->setVariableValue( 0, curvxval );
-	else
-	    mathobj_->setVariableValue( 0, curvxval );
-	
-	float curvyval = isy2 ? mathobj1_->getValue() : mathobj_->getValue();
-
-	if ( mIsUdf(curvxval) || mIsUdf(curvyval) )
-	    continue;
-
-	if ( vert.axis_->range().includes(curvyval,false) )
-	    validpts += uiWorldPoint( curvxval, curvyval );
-	
-	curvyvalrg.include( curvyval, false );
-	pts += uiWorldPoint( curvxval, curvyval );
-    }
-    
-    if ( pts.size()==0 )
-    {
-	msg_ = "Sorry! Y";
-	msg_ += isy2 ? 2 : 1;
-        msg_ += " cannot be plotted.";
-	uiMSG().error( msg() );
-	return;
-    }
-
-    const bool& vertrgchgd = isy2 ? y2rgchgd_ : yrgchgd_;
-
-    if ( !vert.axis_->range().includes(curvyvalrg) )
-    {
-	msg_ = "Curve for Y";
-	msg_ += isy2 ? 2 : 1;
-	msg_ += " goes beyond the default range. ";
-	msg_ += "Do you want to rescale to see the complete curve?";
-
-	if ( !vertrgchgd && uiMSG().askGoOn(msg_) )
-	{
-	    curvyvalrg.include( vert.axis_->range(), false );
-	    curvyvalrg.step = (curvyvalrg.stop - curvyvalrg.start)/4.0f;
-	    vert.autoscalepars_.doautoscale_ = vert.needautoscale_ = false;
-	    vert.axis_->setBounds( curvyvalrg );
-	    plotter_.setUserDefPolyLine( pts,isy2 );
-	}
-	else
-	    plotter_.setUserDefPolyLine( validpts,isy2 );
-    }
-    else
-	plotter_.setUserDefPolyLine( pts,isy2 );
-
-    ( isy2 ? y2axrg_ : yaxrg_ ) = vert.axis_->range();
 }
 
 
@@ -610,14 +635,9 @@ void setFlds( CallBacker* )
 {
     if ( drawlinefld_->isChecked() )
     {
-	if ( selaxisfld_ && !selaxisfld_->getBoolValue() )
-	{
-	    inpfld1_->setText( plotter_.userdefy2str_ );
-	}
-	else
-	{
-	    inpfld_->setText( plotter_.userdefy1str_ );
-	}
+	const bool drawy2 = selaxisfld_ && !selaxisfld_->getBoolValue();
+	drawy2 ? inpfld1_->setText( plotter_.userdefy2str_ )
+	    		: inpfld_->setText( plotter_.userdefy1str_ );
     }
 }
 
@@ -664,8 +684,8 @@ bool acceptOK()
     bool		 		hasy2_;
     bool				exp1chgd_;
     bool				exp2chgd_;
-    bool				yrgchgd_;
-    bool				y2rgchgd_;
+    bool				yautoscale_;
+    bool				y2autoscale_;
     int  				dragmode_;
     uiGenInput*                         inpfld_;
     uiGenInput*                         inpfld1_;
@@ -681,6 +701,8 @@ bool acceptOK()
     MathExpression*			mathobj1_;
     StepInterval<float>			yaxrg_;
     StepInterval<float>			y2axrg_;
+    float				yclipratio_;
+    float				y2clipratio_;
     const char*	                 	msg() const  { return msg_.str(); }
     mutable BufferString        	msg_;
 };
