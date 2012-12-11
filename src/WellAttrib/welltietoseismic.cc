@@ -176,8 +176,7 @@ bool DataPlayer::doFastSynthetics()
     const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
 						  : data_.estimatedwvlt_;
     Seis::SynthGenerator gen;
-    gen.setDoResample( false );
-    gen.setConvolDomain( false );
+    gen.enableFourierDomain( false );
     gen.setModel( refmodel_ );
     gen.setWavelet( &wvlt, OD::UsePtr );
     gen.setOutSampling( disprg_ );
