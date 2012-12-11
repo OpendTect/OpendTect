@@ -481,7 +481,7 @@ void drawPolyLines()
 	    yax.autoscalepars_.clipratio_ = 0.0f;
 	}
 	else
-	    yax.needautoscale_ = yax.autoscalepars_.doautoscale_;
+	    yax.needautoscale_ = false;
 
 	computePts( false );
 	exp1chgd_ = false;
@@ -514,7 +514,7 @@ void drawPolyLines()
 		y2ax.autoscalepars_.clipratio_ = 0.0f;
 	    }
 	    else
-		y2ax.needautoscale_ = y2ax.autoscalepars_.doautoscale_;
+		y2ax.needautoscale_ = false;
 
 	    computePts( true );
 	    exp2chgd_ = false;
