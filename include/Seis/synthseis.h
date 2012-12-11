@@ -50,32 +50,41 @@ mClass(Seis) SynthGenBase
 {
 public:
 
-    virtual bool		setWavelet(const Wavelet*,OD::PtrPolicy pol);
-    virtual bool		setOutSampling(const StepInterval<float>&);
+    virtual bool	setWavelet(const Wavelet*,OD::PtrPolicy pol);
+    virtual bool	setOutSampling(const StepInterval<float>&);
+    
+    void		setMuteLength(float n)	{ mutelength_ = n; }
+    float		getMuteLength() const	{ return mutelength_; }
+    
+    void		setStretchLimit(float n){ stretchlimit_ = n; }
+    float		getStretchLimit() const;
 
-    virtual void 		setConvolDomain(bool fourier) 
-    				{ isfourier_ = fourier; }
+    virtual void	enableFourierDomain(bool fourier)
+    			{ isfourier_ = fourier; }
 
-    void			setTaskRunner(TaskRunner* tr) { tr_ = tr; }
+    void		setTaskRunner(TaskRunner* tr) { tr_ = tr; }
 
-    const char*			errMsg() const	
-    				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
+    const char*		errMsg() const
+    			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
 
-    static const char*		sKeyFourier() 	{ return "Convolution Domain"; }
-    static const char* 		sKeyNMO() 	{ return "Use NMO"; }
-    static const char*  	sKeyInternal()  { return "Internal Multiples"; }
-    static const char*  	sKeySurfRefl()  
-    					{ return "Surface Reflection coef"; }
+    static const char*	sKeyFourier() 	{ return "Convolution Domain"; }
+    static const char* 	sKeyNMO() 	{ return "Use NMO"; }
+    static const char*  sKeyInternal()  { return "Internal Multiples"; }
+    static const char*  sKeySurfRefl() 	{ return "Surface Reflection coef"; }
+    static const char*	sKeyMuteLength(){ return "Mute length"; }
+    static const char*	sKeyStretchLimit(){ return "Stretch limit"; }
 
 protected:
     				SynthGenBase();
     				~SynthGenBase();
 
     bool			isfourier_;
-    bool			usenmotimes_;
+    bool			applynmo_;
+    float			stretchlimit_;
+    float			mutelength_;
     bool			waveletismine_;
     const Wavelet*		wavelet_;
     StepInterval<float>		outputsampling_;
@@ -96,45 +105,50 @@ public:
 
     static SynthGenerator*	create(bool advanced);
 
-    				SynthGenerator();
-    				~SynthGenerator();
+    			SynthGenerator();
+    			~SynthGenerator();
 
-    virtual bool		setWavelet(const Wavelet*,OD::PtrPolicy pol);
-    virtual bool		setOutSampling(const StepInterval<float>&);
-    bool			setModel(const ReflectivityModel&);
+    virtual bool	setWavelet(const Wavelet*,OD::PtrPolicy pol);
+    virtual bool	setOutSampling(const StepInterval<float>&);
+    bool		setModel(const ReflectivityModel&);
 
-    bool                        doPrepare();
-    bool			doWork();
-    const SeisTrc&		result() const		{ return outtrc_; }
-    SeisTrc&			result() 		{ return outtrc_; }
+    bool		doWork();
+    
+    const SeisTrc&	result() const		{ return outtrc_; }
+    SeisTrc&		result() 		{ return outtrc_; }
 
-    void 			getSampledReflectivities(TypeSet<float>&) const;
-    virtual void 		setConvolDomain(bool fourier);
+    void 		getSampledReflectivities(TypeSet<float>&) const;
+    
+    od_int64            currentProgress() const { return progress_; }
 
 protected:
+    void		computeSampledReflectivities(
+			    TypeSet<float>&, TypeSet<float_complex>* = 0) const;
+    
+    int			nextStep();
 
-    bool 			computeTrace(float* result); 
-    bool 			doTimeConvolve(float* result); 
-    bool 			doFFTConvolve(float* result);
-    virtual bool		computeReflectivities();
+    bool 		computeTrace(SeisTrc& result) const;
+    bool 		doTimeConvolve(ValueSeries<float>&,int sz) const;
+    bool 		doFFTConvolve(ValueSeries<float>&,int sz) const;
+    bool		doNMOStretch(const ValueSeries<float>&, int insz,
+				     ValueSeries<float>& out, int outsz) const;
+    virtual bool	computeReflectivities();
 
     const ReflectivityModel*	refmodel_;
 
-    Fourier::CC*                fft_;
-    int				fftsz_;
-    float_complex*		freqwavelet_;
-    bool			needprepare_;	
-    TypeSet<float_complex>	cresamprefl_;
+    TypeSet<float_complex>	freqwavelet_;
+    
+    TypeSet<float>		reflectivities_;
+    TypeSet<float_complex>	creflectivities_;
+    TypeSet<float_complex>	freqreflectivities_;
+    
+    int				convolvesize_;
+    
     SeisTrc&			outtrc_;
 
     bool			doresample_;
 
     od_int64                    progress_;
-
-
-public:
-    void			setDoResample(bool yn) 	{ doresample_ = yn; }
-    od_int64                    currentProgress() const { return progress_; }
 };
 
 
