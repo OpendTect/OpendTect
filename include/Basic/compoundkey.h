@@ -57,8 +57,6 @@ public:
     CompoundKey		upLevel() const;
     bool		isUpLevelOf(const CompoundKey&) const;
 
-    virtual bool	matchGE(const char*) const;
-
 protected:
 
     BufferString	id_;

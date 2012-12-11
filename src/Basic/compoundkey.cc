@@ -105,12 +105,6 @@ bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 }
 
 
-bool CompoundKey::matchGE( const char* cre ) const
-{
-    return GlobExpr(id_).matches(cre);
-}
-
-
 int MultiID::leafID() const
 {
     const char* ptr = strrchr( id_, '.' );
