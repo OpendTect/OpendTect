@@ -59,7 +59,7 @@ mClass(General) IOObjContext : public NamedObject
 public:
 
     enum StdSelType	{ Seis=0, Surf, Loc, Feat, WllInf, NLA, Misc, Attr, Mdl,
-			  None };
+			  Geom, None };
 			DeclareEnumUtils(StdSelType)
 
 			IOObjContext(const TranslatorGroup*,

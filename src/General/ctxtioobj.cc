@@ -31,6 +31,7 @@ DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
 	"Miscellaneous data",
 	"Attribute definitions",
 	"Model data",
+	"Survey Geometries",
 	"None",
 	0
 
@@ -46,11 +47,12 @@ static const IOObjContext::StdDirData stddirdata[] = {
 	{ "100070", "Misc", IOObjContext::StdSelTypeNames()[6] },
 	{ "100080", "Attribs", IOObjContext::StdSelTypeNames()[7] },
 	{ "100090", "Models", IOObjContext::StdSelTypeNames()[8] },
-	{ "", "None", IOObjContext::StdSelTypeNames()[9] },
+	{ "100100", "Geometry", IOObjContext::StdSelTypeNames()[9] },
+	{ "", "None", IOObjContext::StdSelTypeNames()[10] },
 	{ 0, 0, 0 }
 };
 
-int IOObjContext::totalNrStdDirs() { return 9; }
+int IOObjContext::totalNrStdDirs() { return 10; }
 const IOObjContext::StdDirData* IOObjContext::getStdDirData(
 	IOObjContext::StdSelType sst )
 { return stddirdata + (int)sst; }
