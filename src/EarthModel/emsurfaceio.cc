@@ -791,7 +791,8 @@ int dgbSurfaceReader::nextStep()
 	    BufferString idstr;
 	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
 	    PosInfo::GeomID geomid; geomid.fromString( idstr );
-	    lines.add( S2DPOS().getLineName(geomid.lineid_) );
+	    lines.add( S2DPOS().hasLine(geomid.lineid_,geomid.lsid_) ?
+		S2DPOS().getLineName(geomid.lineid_) : sKeyUndefLine() );
 	}
     }
 
