@@ -215,6 +215,9 @@ void uiSurfaceMan::mergeBodyCB( CallBacker* )
 
 void uiSurfaceMan::calVolCB( CallBacker* )
 {
+    if ( !curioobj_ )
+	return;
+
     RefMan<EM::EMObject> emo = 
 	EM::EMM().loadIfNotFullyLoaded( curioobj_->key(), 0 );
     mDynamicCastGet( EM::Body*, emb, emo.ptr() );
