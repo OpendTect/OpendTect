@@ -39,13 +39,13 @@ Mesozoic.Cretaceous.Upper: 8`
 Mesozoic.Cretaceous.Upper.Undef: 0` 
 Mesozoic.Cretaceous.Lower: 9` 
 Mesozoic.Cretaceous.Lower.Undef: 0` 
-Mesozoic.Jurassics:  
-Mesozoic.Jurassics.Upper: 10` 
-Mesozoic.Jurassics.Upper.Undef: 0` 
-Mesozoic.Jurassics.Middle: 11` 
-Mesozoic.Jurassics.Middle.Undef: 0` 
-Mesozoic.Jurassics.Lower: 12` 
-Mesozoic.Jurassics.Lower.Undef: 0` 
+Mesozoic.Jurassic:  
+Mesozoic.Jurassic.Upper: 10` 
+Mesozoic.Jurassic.Upper.Undef: 0` 
+Mesozoic.Jurassic.Middle: 11` 
+Mesozoic.Jurassic.Middle.Undef: 0` 
+Mesozoic.Jurassic.Lower: 12` 
+Mesozoic.Jurassic.Lower.Undef: 0` 
 Mesozoic.Triassic:  
 Mesozoic.Triassic.Upper: 13` 
 Mesozoic.Triassic.Upper.Undef: 0` 
@@ -197,29 +197,29 @@ Time: 100.5`145
 Properties for Mesozoic.Cretaceous.Lower.Undef
 Color: 255`255`255
 !
-Properties for Mesozoic.Jurassics
+Properties for Mesozoic.Jurassic
 Color: 0`170`255
 Time: 145`201.3
 !
-Properties for Mesozoic.Jurassics.Upper
+Properties for Mesozoic.Jurassic.Upper
 Color: 128`196`255
 Time: 145`163.5
 !
-Properties for Mesozoic.Jurassics.Upper.Undef
+Properties for Mesozoic.Jurassic.Upper.Undef
 Color: 255`255`255
 !
-Properties for Mesozoic.Jurassics.Middle
+Properties for Mesozoic.Jurassic.Middle
 Color: 60`177`255
 Time: 163.5`174.1
 !
-Properties for Mesozoic.Jurassics.Middle.Undef
+Properties for Mesozoic.Jurassic.Middle.Undef
 Color: 255`255`255
 !
-Properties for Mesozoic.Jurassics.Lower
+Properties for Mesozoic.Jurassic.Lower
 Color: 44`153`255
 Time: 174.1`201.3
 !
-Properties for Mesozoic.Jurassics.Lower.Undef
+Properties for Mesozoic.Jurassic.Lower.Undef
 Color: 255`255`255
 !
 Properties for Mesozoic.Triassic
