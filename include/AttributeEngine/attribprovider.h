@@ -366,7 +366,10 @@ protected:
 public:
     MyMainHackingClass*		getMyMainHackingClass() const;
     void			setMyMainHackingClass(MyMainHackingClass*);
+
     PosInfo::GeomID		getGeomID() const;
+    void			setLineSet(const char*);
+    BufferString 		getLineSet() const;
 
 protected:
     virtual float		customizedCrlDist() const;

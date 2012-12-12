@@ -223,6 +223,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 	if ( !lset )
 	    mErrRet( "2D seismic data/No line set found" );
 
+	setLineSet( lset->name() );
 	int lineidx = lset->indexOf( lk.buf() );
 	if ( lineidx == -1 )
 	{

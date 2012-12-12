@@ -28,7 +28,6 @@ static const char* rcsID = "$Id$";
 #include "convmemvalseries.h"
 #include "binidvalset.h"
 
-
 namespace Attrib
 {
 
@@ -82,7 +81,8 @@ protected:
 };
 
 
-HiddenParam<Provider,MyMainHackingClass*>    mymainhackingclassmanager( 0 );
+HiddenParam<Provider,MyMainHackingClass*>	mymainhackingclassmanager( 0 );
+HiddenParam<Provider,BufferString>		linesetname_("");
 
 Provider* Provider::create( Desc& desc, BufferString& errstr )
 {
@@ -229,6 +229,7 @@ Provider::Provider( Desc& nd )
 	inputs_ += 0;
 
     mymainhackingclassmanager.setParam( this, 0 );
+    linesetname_.setParam( this, "" );
 }
 
 
@@ -1673,13 +1674,40 @@ float Provider::dipFactor() const
 { return zIsTime() ? 1e6: 1e3; }
 
 
-PosInfo::GeomID Provider::getGeomID() const
+void Provider::setLineSet( const char* nm )
+{ linesetname_.setParam( this, nm ); }
+
+BufferString Provider::getLineSet() const
 {
-    PosInfo::GeomID geomid;
+    BufferString lsetnm = linesetname_.getParam( this );
+    if ( !lsetnm.isEmpty() )
+	return lsetnm;
+
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
 	if ( !inputs_[idx] )
-	continue;
+	    continue;
+
+	lsetnm = inputs_[idx]->getLineSet();
+	if ( !lsetnm.isEmpty() )
+	    return lsetnm;
+    }
+
+    return 0;
+}
+
+
+PosInfo::GeomID Provider::getGeomID() const
+{
+    PosInfo::GeomID geomid = S2DPOS().getGeomID(
+		linesetname_.getParam(this), curlinekey_.lineName() );
+    if ( geomid.isOK() )
+	return geomid;
+
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+    {
+	if ( !inputs_[idx] )
+	    continue;
 
 	geomid = inputs_[idx]->getGeomID();
 	if ( geomid.lsid_ >= 0 )
