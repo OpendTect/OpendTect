@@ -365,6 +365,7 @@ void parseExp( CallBacker* cb )
     mathexpr = isy1 ? inpfld_->text() : inpfld1_->text();
     MathExpressionParser mep( mathexpr );
     MathExpression* mathobj = mathexpr.isEmpty() ? 0 : mep.parse();
+    uiCheckBox* chkbox = isy1 ? shwy1userdefpolyline_ : shwy2userdefpolyline_;
     ( isy1 ? mathobj_ : mathobj1_ ) = mathobj;
 
     if ( !mathobj )
@@ -372,7 +373,7 @@ void parseExp( CallBacker* cb )
 	if ( mep.errMsg() )
 	{
 	    uiMSG().error( mep.errMsg() );
-	    ycb->setChecked( false );
+	    chkbox->setChecked( false );
 	}
 	return;
     }
@@ -382,7 +383,7 @@ void parseExp( CallBacker* cb )
 	msg_ = "Expression of curve Y";
 	msg_ += isy1 ? "1" : "2";
 	msg_ += " contains more than one variable.";
-	uiMSG().error( msg() );	ycb->setChecked( false );
+	uiMSG().error( msg() );	chkbox->setChecked( false );
 	return;
     }
 }
