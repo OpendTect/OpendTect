@@ -47,13 +47,15 @@ macro ( create_package PACKAGE_NAME )
 			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
     ENDIF()
 
-    IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
-	SET( EXECLIST "${EXECLIST};${WINEXECLIST}" )
+    IF( WIN32 )
+	IF( ${PACKAGE_NAME} STREQUAL "base" )
+		SET( EXECLIST "${EXECLIST};${WINEXECLIST}" )
+	ENDIF()
     ENDIF()
 
     MESSAGE( "Copying ${OD_PLFSUBDIR} executables" )
     FOREACH( EXE ${EXECLIST} )
-	IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
+	IF( WIN32 )
 		set( EXE "${EXE}.exe" )
 	ENDIF()
 
@@ -78,7 +80,7 @@ macro ( create_package PACKAGE_NAME )
 	ENDFOREACH()
     ENDIF()
 
-    IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
+    IF( WIN32 )
 	MESSAGE( "Using ${OD_PLFSUBDIR} zip command" )
 	execute_process( COMMAND ${PSD}/bin/win/zip -r -q "${PACKAGE_FILENAME}" ${REL_DIR} 
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
@@ -137,7 +139,7 @@ macro( create_basepackages PACKAGE_NAME )
        ENDFOREACH()
    ENDIF()
 
-    IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
+    IF( WIN32 )
 	MESSAGE( "Using ${OD_PLFSUBDIR} zip command" )
 	execute_process( COMMAND ${PSD}/bin/win/zip -r -q
 					   "${PACKAGE_FILENAME}" ${REL_DIR} 
