@@ -54,7 +54,7 @@ IF( WIN32 )
     ENDIF()
 ENDIF()
 
-install ( FILES ${QJPEG} DESTINATION imageformats )
+install ( PROGRAMS ${QJPEG} DESTINATION imageformats )
 IF( EXISTS ${MSVCPATH} )
         FILE( GLOB MSVCDLLS ${MSVCPATH}/*.dll )
         FOREACH( DLL ${MSVCDLLS} )
