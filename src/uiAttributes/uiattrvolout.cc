@@ -163,13 +163,8 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	PtrMan<IOObj> ioobj = 0;
 	if ( prov )
 	{
-	    /* TODO Nanne: Implement 'prov->getGeomID()'
-	    PosInfo::GeomID geomid = prov->getGeomID();
-	    BufferString lsnm = S2DPOS().getLineSet( geomid.lsid_ );
-	    SeisIOObjInfo info( lsnm );
-	    ioobj = info.ioObj()->clone();
-	    */
-	    ioobj = IOM().get( MultiID(desc->getStoredID(true)) );
+	    SeisIOObjInfo info( prov->getLineSet() );
+	    ioobj = info.ioObj() ? info.ioObj()->clone() : 0;
 	}
 
 	if ( !ioobj )
@@ -389,11 +384,24 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	if ( nlamodel )
 	    descset.usePar( nlamodel->pars(), nlamodel->versionNr() );
 
-	const Desc* desc = nlamodel ? descset.getFirstStored()
-	    			    : clonedset->getFirstStored();
+	Desc* desc = nlamodel ? descset.getFirstStored()
+			      : ads.getDesc( todofld->attribID() );
 	if ( desc )
 	{
 	    BufferString storedid = desc->getStoredID();
+	    if ( storedid.isEmpty() )
+	    {
+		BufferString errmsg;
+		RefMan<Attrib::Provider> prov =
+		    Attrib::Provider::create( *desc, errmsg );
+		if ( prov )
+		{
+		    SeisIOObjInfo info( prov->getLineSet() );
+		    if ( info.ioObj() )
+			storedid = info.ioObj()->key();
+		}
+	    }
+
 	    if ( !storedid.isEmpty() )
 	    {
 		LineKey lk( storedid.buf() );
@@ -413,8 +421,10 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     if ( usecs )
     {
 	EngineMan::getPossibleVolume( *clonedset, cs, linename, targetid );
-	iop.set(sKeyMaxInlRg(),cs.hrg.start.inl,cs.hrg.stop.inl,cs.hrg.step.inl);
-	iop.set(sKeyMaxCrlRg(),cs.hrg.start.crl,cs.hrg.stop.crl,cs.hrg.step.crl);
+	iop.set( sKeyMaxInlRg(),
+		 cs.hrg.start.inl, cs.hrg.stop.inl, cs.hrg.step.inl );
+	iop.set( sKeyMaxCrlRg(),
+		 cs.hrg.start.crl, cs.hrg.stop.crl, cs.hrg.step.crl );
     }
     delete clonedset;
 
