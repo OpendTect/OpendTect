@@ -22,6 +22,7 @@ static const char* rcsID = "$Id$";
 bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 {
     bool dorm = true;
+    bool isoutside = false;
     if ( !silent_ )
     {
 	BufferString mess = "Remove ";
@@ -31,6 +32,11 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	{
 	    mess += ioobj_.fullUserExpr(true);
 	    mess += "'?";
+	    FilePath cursurvfp( IOM().rootDir() );
+	    FilePath orgfp( ioobj_.fullUserExpr(true) ); orgfp.makeCanonical();
+	    isoutside = !orgfp.isSubDirOf(cursurvfp);
+	    mess += isoutside ? "\nFile not in current survey.\n"
+				"Specify what you would like to remove" : "";
 	}
 	else
 	{
@@ -38,7 +44,17 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	    mess += FilePath(fullexpr).fileName();
 	    mess += "'\n- and everything in it! - ?";
 	}
-	if ( !uiMSG().askRemove(mess) )
+
+        if ( isoutside )
+	{
+	    const int resp = uiMSG().question( mess, "Remove file", 
+						     "Remove link", "Cancel",
+						     "Remove data" );
+	    if ( resp < 0 )
+		return false;
+	    dorm = resp;
+	}
+	else if ( !uiMSG().askRemove(mess) )
 	{
 	    if ( mustrm )
 		return false;
@@ -51,10 +67,6 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	if ( !silent_ )
 	{
 	    BufferString mess = "Could not remove data file(s).\n";
-	    FilePath cursurvfp( IOM().rootDir() );
-	    FilePath orgfp( ioobj_.fullUserExpr(true) ); orgfp.makeCanonical();
-	    if ( !orgfp.isSubDirOf(cursurvfp) )
-		mess += "File(s) not in current survey.\n";
 	    mess += "Remove entry from list anyway?";
 	    if ( !uiMSG().askRemove(mess) )
 		return false;
