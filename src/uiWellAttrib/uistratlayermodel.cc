@@ -244,6 +244,53 @@ void copyToEdited()
 
 };
 
+class uiStratSyntheticsProvider
+{
+public:
+
+uiStratSyntheticsProvider( uiStratSynthDisp* synthdisp )
+    : useed_(false)
+    , synthdisp_(synthdisp)
+    , edstratsynth_(0)    	{}
+
+const ObjectSet<SyntheticData>* getSynthetics() const
+{
+    return useed_ ? edstratsynth_ ? &edstratsynth_->synthetics() : 0
+		  : synthdisp_ ? &synthdisp_->getSynthetics() : 0;
+}
+
+
+SyntheticData* getCurrentSyntheticData() const
+{
+    if ( useed_ )
+    {
+	const char* cursynthnm = 0;
+	if ( synthdisp_ )
+	{
+	    SyntheticData* nonedsynth = synthdisp_->getCurrentSyntheticData();
+	    if ( nonedsynth )
+		cursynthnm = nonedsynth->name();
+	}
+
+	const int synthidx = edstratsynth_ ? edstratsynth_->nrSynthetics()-1 : 0;
+	return edstratsynth_ ? cursynthnm ? edstratsynth_->getSynthetic( cursynthnm )
+	   				  : edstratsynth_->getSyntheticByIdx( synthidx)
+			     : 0; 
+    }
+
+    return synthdisp_ ? synthdisp_->getCurrentSyntheticData() : 0;
+
+}
+
+    uiStratSynthDisp*           synthdisp_;
+    StratSynth*			edstratsynth_;
+    bool			useed_;
+};
+
+
+HiddenParam<uiStratLayerModel,uiStratSyntheticsProvider* > synthprovmanager( 0 );
+
+
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     : uiMainWin(p,"",1,false)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
@@ -299,6 +346,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
     if ( vwr ) synthdisp_->addViewerToControl( *vwr );
+
+    synthprovmanager.setParam( this, new uiStratSyntheticsProvider( synthdisp_ ) );
 
     modtools_->attach( ensureBelow, moddisp_ );
     gentools_->attach( ensureBelow, seqdisp_->outerObj() );
@@ -361,6 +410,8 @@ uiStratLayerModel::~uiStratLayerModel()
     retrievenotifmanager.removeParam(this);
     delete savenotifmanager.getParam(this);
     savenotifmanager.removeParam(this);
+    delete synthprovmanager.getParam(this);
+    synthprovmanager.removeParam(this);
 }
 
 
@@ -491,7 +542,11 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
     if ( !checkUnscaledWavelet() )
 	return;
 
-    uiStratSynthCrossplot dlg( this, layerModel(), synthdisp_->getSynthetics());
+    if ( !synthprovmanager.getParam(this) || 
+	    !synthprovmanager.getParam(this)->getSynthetics() ) return;
+
+    uiStratSynthCrossplot dlg( this, layerModel(), 
+	    		       *(synthprovmanager.getParam(this)->getSynthetics()) );
     if ( dlg.errMsg() )
 	{ uiMSG().error( dlg.errMsg() ); return; } 
     const char* lvlnm = modtools_->selLevel();
@@ -765,22 +820,40 @@ bool uiStratLayerModel::closeOK()
     return saveGenDescIfNecessary();
 }
 
-
+//Will be removed shortly, do not use (headers compatibility)
 void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
 {
-    MouseCursorChanger cursor( MouseCursor::Wait );
-    lmp_.useed_ = (bool)synthdata;
-    synthdisp_->displaySynthetic( synthdata ? synthdata
-	    			: synthdisp_->getCurrentSyntheticData() );
-    levelChg( 0 );	     //no change in fact but a redraw is needed 
+}
+
+
+void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged )
+{
+	MouseCursorChanger cursor( MouseCursor::Wait );
+    lmp_.useed_ = usefr;
+    if ( !synthprovmanager.getParam(this) ) return;
+    synthprovmanager.getParam(this)->useed_ = usefr;
+    if ( parschanged )
+    {
+	if ( synthprovmanager.getParam(this)->edstratsynth_ )
+	    delete synthprovmanager.getParam(this)->edstratsynth_;
+
+	synthprovmanager.getParam(this)->edstratsynth_ = new StratSynth( lmp_.modled_);
+	synthprovmanager.getParam(this)->edstratsynth_->setWavelet( wavelet() );
+	synthprovmanager.getParam(this)->edstratsynth_->addDefaultSynthetic();
+    }
+
+    synthdisp_->displaySynthetic( 
+	    		synthprovmanager.getParam(this)->getCurrentSyntheticData() );
+    levelChg( 0 );		//no change in fact but a redraw is needed
 
     moddisp_->modelChanged();
 }
 
 
 SyntheticData* uiStratLayerModel::getCurrentSyntheticData() const
-{                                                                                 
-    return synthdisp_->getCurrentSyntheticData();
+{
+    return synthprovmanager.getParam(this)
+	    ?  synthprovmanager.getParam(this)->getCurrentSyntheticData() : 0;
 }
 
 

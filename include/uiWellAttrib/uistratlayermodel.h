@@ -135,6 +135,7 @@ protected:
 public:
     bool			useSyntheticsPars(const IOPar&);
     void			fillSyntheticsPars(IOPar&) const;
+	void			displayFRResult(bool usefr,bool parschanged);
 };
 
 
