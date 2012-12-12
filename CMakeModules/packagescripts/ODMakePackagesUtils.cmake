@@ -251,17 +251,18 @@ macro( od_sign_maclibs )
     MESSAGE( "Done" )
 endmacro( od_sign_maclibs )
 
-macro( upload_packages  PACKAGE_NAME )
-    SET( url "ftp://ftp.opendtect.org/pub/tmp" )
-    FILE( UPLOAD "${PSD}/test.txt" ${url}
+macro( download_packages  )
+message( "downloading doc pkgs" )
+    SET( url  "http://intranet/documentations/rel/dgbdoc.zip" )
+    FILE( DOWNLOAD ${url} "${CMAKE_INSTALL_PREFIX}/packages/dgbdoc.zip"
 	  STATUS var
 	  LOG log
 	  SHOW_PROGRESS)
     MESSAGE( "status is:  ${var}" )
     IF( NOT var EQUAL "0" )
-        MESSAGE( ".........Upload Failed.........")
+        MESSAGE( ".........Download Failed.........")
     ENDIF()
-endmacro( upload_packages )
+endmacro( download_packages )
 
 #--------------------------------------------------------------
 #Remove this macro
