@@ -31,6 +31,7 @@ class uiLayerSequenceGenDesc;
 class uiStratGenDescTools;
 class uiStratLayModEditTools;
 class uiStratLayerModelLMProvider;
+class uiStratSyntheticsProvider;
 namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
 
 
@@ -76,7 +77,7 @@ public:
     static void			doLayerModel(const char* modnm);
 
     uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
-    void			displayFRResult( SyntheticData* );
+    void			displayFRResult(bool usefr,bool parschanged);
     void			prepareFluidRepl();
 
     //Utility
@@ -96,6 +97,7 @@ protected:
 
     Strat::LayerSequenceGenDesc& desc_;
     uiStratLayerModelLMProvider& lmp_;
+    uiStratSyntheticsProvider& 	synthp_;
     CtxtIOObj&			descctio_;
     ElasticPropSelection*	elpropsel_;
 

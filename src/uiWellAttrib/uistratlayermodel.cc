@@ -222,6 +222,49 @@ void copyToEdited()
 
 };
 
+class uiStratSyntheticsProvider
+{
+public:
+
+uiStratSyntheticsProvider()
+    : useed_(false)
+    , edstratsynth_(0)		{}
+
+const ObjectSet<SyntheticData>* getSynthetics() const
+{
+    return useed_ ? edstratsynth_ ? &edstratsynth_->synthetics() : 0
+		  : synthdisp_ ? &synthdisp_->getSynthetics() : 0;
+}
+
+
+SyntheticData* getCurrentSyntheticData() const
+{
+    if ( useed_ )
+    {
+	const char* cursynthnm = 0;
+	if ( synthdisp_ )
+	{
+	    SyntheticData* nonedsynth = synthdisp_->getCurrentSyntheticData();
+	    if ( nonedsynth )
+		cursynthnm = nonedsynth->name();
+	}
+
+	const int synthidx = edstratsynth_ ? edstratsynth_->nrSynthetics()-1 : 0;
+	return edstratsynth_ ? cursynthnm ? edstratsynth_->getSynthetic( cursynthnm )
+	   				  : edstratsynth_->getSyntheticByIdx( synthidx)
+			     : 0; 
+    }
+
+    return synthdisp_ ? synthdisp_->getCurrentSyntheticData() : 0;
+
+}
+
+    uiStratSynthDisp*           synthdisp_;
+    StratSynth*			edstratsynth_;
+    bool			useed_;
+};
+
+
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     : uiMainWin(p,"",1,false)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
@@ -229,6 +272,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
     , analtb_(0)
     , lmp_(*new uiStratLayerModelLMProvider)
+    , synthp_(*new uiStratSyntheticsProvider)
     , newModels(this)				   
     , levelChanged(this)				   
     , waveletChanged(this)
@@ -272,6 +316,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
     if ( vwr ) synthdisp_->addViewerToControl( *vwr );
+
+    synthp_.synthdisp_ = synthdisp_;
 
     modtools_->attach( ensureBelow, moddisp_ );
     gentools_->attach( ensureBelow, seqdisp_->outerObj() );
@@ -328,6 +374,7 @@ uiStratLayerModel::~uiStratLayerModel()
 {
     delete &desc_;
     delete &lmp_;
+    delete &synthp_;
     delete descctio_.ioobj; delete &descctio_;
     StratTreeWin().changeLayerModelNumber( false );
 }
@@ -460,7 +507,9 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
     if ( !checkUnscaledWavelet() )
 	return;
 
-    uiStratSynthCrossplot dlg( this, layerModel(), synthdisp_->getSynthetics());
+    if ( !synthp_.getSynthetics() ) return;
+
+    uiStratSynthCrossplot dlg( this, layerModel(), *synthp_.getSynthetics() );
     if ( dlg.errMsg() )
 	{ uiMSG().error( dlg.errMsg() ); return; } 
     const char* lvlnm = modtools_->selLevel();
@@ -604,6 +653,7 @@ bool uiStratLayerModel::openGenDesc()
     //Set when everything is in place.
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
+
     if ( !useDisplayPars( desc_.getWorkBenchParams() ))
 	return false;
     useSyntheticsPars( desc_.getWorkBenchParams() );
@@ -715,11 +765,21 @@ bool uiStratLayerModel::closeOK()
 }
 
 
-void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
+void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged )
 {
-    lmp_.useed_ = (bool)synthdata;
-    synthdisp_->displaySynthetic( synthdata ? synthdata
-				    : synthdisp_->getCurrentSyntheticData() );
+    lmp_.useed_ = usefr;
+    synthp_.useed_ = usefr;
+    if ( parschanged )
+    {
+	if ( synthp_.edstratsynth_ )
+	    delete synthp_.edstratsynth_;
+
+	synthp_.edstratsynth_ = new StratSynth( lmp_.modled_ );
+	synthp_.edstratsynth_->setWavelet( wavelet() );
+	synthp_.edstratsynth_->addDefaultSynthetic();
+    }
+
+    synthdisp_->displaySynthetic( synthp_.getCurrentSyntheticData() );
     levelChg( 0 );		//no change in fact but a redraw is needed
 
     moddisp_->modelChanged();
@@ -728,7 +788,7 @@ void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
 
 SyntheticData* uiStratLayerModel::getCurrentSyntheticData() const
 {
-    return synthdisp_->getCurrentSyntheticData();
+    return synthp_.getCurrentSyntheticData();
 }
 
 
