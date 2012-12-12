@@ -46,15 +46,15 @@ static const char* rcsID = "$Id$";
 
 namespace Attrib
 {
-    
+
 EngineMan::EngineMan()
-	: inpattrset_(0)
-	, procattrset_(0)
-	, nlamodel_(0)
-	, cs_(*new CubeSampling)
-	, cache_(0)
-	, udfval_( mUdf(float) )
-	, curattridx_(0)
+    : inpattrset_(0)
+    , procattrset_(0)
+    , nlamodel_(0)
+    , cs_(*new CubeSampling)
+    , cache_(0)
+    , udfval_(mUdf(float))
+    , curattridx_(0)
 {
 }
 
@@ -124,27 +124,31 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 
     for ( int idx=1; idx<ids.size(); idx++ )
 	proc->addOutputInterest(idx);
-    
-/*    bool ndestbord;
-    BufferString basekey = IOPar::compKey( "Output",0 );
-    if ( iopar.getYN( IOPar::compKey( basekey,SeisTrc::sKeyExtCubeToSI() ),
-		      ndestbord) )
-	proc->ensureNonDestructiveBorders( ndestbord );*/
-    
-    PtrMan<IOPar> outpar = iopar.subselect(
-	    			IOPar::compKey(sKey::Output,sKey::Subsel) );
-    if ( !outpar || !cs_.usePar( *outpar ) )
-    {
-	if ( attribset.is2D() )
-	{                                                                       
-	    cs_.set2DDef();                                                     
 
-	    //trick to avoid survey boundaries and compute full line z range    
-	    cs_.zrg.start = mMIN (0, SI().zRange(false).start);                 
-	    cs_.zrg.stop = 600000; //10 min, very unlikely! (udf(float) fails)  
-	} 
-	else
+    PtrMan<IOPar> outpar =
+	iopar.subselect( IOPar::compKey(sKey::Output,sKey::Subsel) );
+    if ( !outpar || !cs_.usePar(*outpar) )
+    {
+	if ( !attribset.is2D() )
 	    cs_.init();
+	else
+	{
+	    cs_.set2DDef(); // doesn't make much sense, but is better than nothing
+
+	    cs_.hrg.start.inl = cs_.hrg.stop.inl = 0;
+	    MultiID lsid;
+	    iopar.get( "Input Line Set", lsid );
+	    PtrMan<IOObj> lsobj = IOM().get( lsid );
+	    if ( lsobj )
+	    {
+		const PosInfo::GeomID& geomid =
+		    S2DPOS().getGeomID( lsobj->name(), linename );
+		PosInfo::Line2DData l2dd;
+		S2DPOS().getGeometry( geomid, l2dd );
+		cs_.hrg.setCrlRange( l2dd.trcNrRange() );
+		cs_.zrg = l2dd.zRange();
+	    }
+	} 
     }
 
     //get attrib name from user reference for backward compatibility with 3.2.2
