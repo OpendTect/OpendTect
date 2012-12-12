@@ -11,9 +11,10 @@ SET( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs
 		 dgbnndefs dgbssisdefs dgbstratdefs dgbvmbdefs dgbwcpdefs
 		 odgmtdefs odgprdefs odmadagascardefs develdefs ) 
 
-INCLUDE( CMakeModules/packagescripts/extlibs.cmake )
-INCLUDE( CMakeModules/packagescripts/ODInstallReleaseStuff.cmake )
 INCLUDE( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
+
+#//todo download documentation
+#download_packages()
 
 IF( APPLE )
     od_sign_maclibs()
