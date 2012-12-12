@@ -532,8 +532,13 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	}
     }
 
+/*
     //tmp fix for od4.4: use arbitrary mStd2DTrcSpacing for steering 2D
     //instead of ( usually huge) bin size entered by user
+    //
+    // You cannot use isDataType here. It does not return the current datatype,
+    // but only tells you whether the input string is a valid datatype.
+    // 
     if ( writer_ && writer_->is2D() && isDataType(sKey::Steering) )
     {
 	trc_->info().pick = 0;
@@ -550,6 +555,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	    }
 	}
     }
+*/
 }
 
 
