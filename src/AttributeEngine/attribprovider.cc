@@ -1699,7 +1699,11 @@ BufferString Provider::getLineSet() const
 
 PosInfo::GeomID Provider::getGeomID() const
 {
-    PosInfo::GeomID geomid = S2DPOS().getGeomID(
+    PosInfo::GeomID geomid;
+    if ( linesetname_.getParam(this).isEmpty() )
+	return geomid;
+
+    geomid = S2DPOS().getGeomID(
 		linesetname_.getParam(this), curlinekey_.lineName() );
     if ( geomid.isOK() )
 	return geomid;

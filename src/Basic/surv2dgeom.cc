@@ -358,7 +358,7 @@ const char* PosInfo::Survey2D::getLineName( int lineid ) const
 
 bool PosInfo::Survey2D::hasLine( const char* lnm, const char* lsnm ) const
 {
-    if ( !lsnm || !strcmp(lsnm_.buf(),lsnm) )
+    if ( (!lsnm || !strcmp(lsnm_.buf(),lsnm)) && !lineindex_.isEmpty() )
 	return lineindex_.hasKey( lnm );
 
     BufferStringSet nms; getLines( nms, lsnm );
@@ -812,6 +812,10 @@ void PosInfo::Survey2D::renameLineSet( const char* oldlsnm, const char* newlsnm)
 PosInfo::GeomID PosInfo::Survey2D::getGeomID( const char* linesetnm,
 					      const char* linenm ) const
 {
+    FixedString lsnm = linesetnm;
+    if ( lsnm.isEmpty() )
+	return GeomID();
+
     if ( lsnm_ != linesetnm )
 	setCurLineSet( linesetnm );
     PosInfo::GeomID geomid( getLineSetID(linesetnm), getLineID(linenm) );
