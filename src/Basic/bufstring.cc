@@ -265,12 +265,7 @@ bool BufferString::operator <( const char* s ) const
 
 const BufferString& BufferString::empty()
 {
-    static BufferString* ret = 0;
-    if ( !ret )
-    {
-	ret = new BufferString( "0" );
-	*ret->buf_ = '\0';
-    }
+    static PtrMan<BufferString> ret = new BufferString( 1, true );
     return *ret;
 }
 
