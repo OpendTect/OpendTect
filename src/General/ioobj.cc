@@ -297,7 +297,7 @@ bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 
 bool fullImplRemove( const IOObj& ioobj )
 {
-    if ( ioobj.isSubdir() || !ioobj.isInCurrentSurvey() ) return false;
+    if ( ioobj.isSubdir() ) return false;
     
     PtrMan<Translator> tr = ioobj.createTranslator();
     return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
