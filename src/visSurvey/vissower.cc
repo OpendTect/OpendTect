@@ -188,10 +188,13 @@ void Sower::stopSowing()
 
 void Sower::calibrateEventInfo( visBase::EventInfo& eventinfo )
 {
+    if ( mode_==Idle || !transformation_ )
+	return;
+
     visBase::DataObject* dataobj = visBase::DM().getObject( underlyingobjid_ );
     mDynamicCastGet( PlaneDataDisplay*, pdd, dataobj );
     Scene* scene = STM().currentScene();
-    if ( !pdd || !scene || !transformation_ )
+    if ( !pdd || !scene )
 	return;
 
     CubeSampling cs = pdd->getCubeSampling( false, false );
