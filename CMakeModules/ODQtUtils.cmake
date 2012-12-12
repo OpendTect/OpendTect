@@ -37,8 +37,8 @@ macro( OD_INIT_QT )
 		  ${QT_QTGUI_LIBRARY_RELEASE} ${QT_QTXML_LIBRARY_RELEASE} )
     ELSEIF( WIN32 )
 	SET( ARGS ${QTDIR}/bin/QtOpenGL4.dll ${QTDIR}/bin/QtCore4.dll
-		  ${QTDIR}/bin/QtNetwork4.dll ${QTDIR}/bin/QtSqld4.dll
-		  ${QTDIR}/bin/QtGuid4.dll ${QTDIR}/bin/QtXml4.dll )
+		  ${QTDIR}/bin/QtNetwork4.dll ${QTDIR}/bin/QtSql4.dll
+		  ${QTDIR}/bin/QtGui4.dll ${QTDIR}/bin/QtXml4.dll )
     ENDIF()
     SET( ARGS ${ARGS} DESTINATION bin/${OD_PLFSUBDIR}/Release )
     OD_INSTALL_LIB ( ${ARGS} )
