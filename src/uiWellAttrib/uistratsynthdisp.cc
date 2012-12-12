@@ -619,6 +619,8 @@ void uiStratSynthDisp::setCurrentSynthetic()
 	sd = stratsynth_.getSynthetic( datalist_->box()->text() );
 
     currentsynthetic_ = sd;
+    if ( !currentsynthetic_ ) return;
+
     NotifyStopper notstop( wvltfld_->newSelection );
     wvltfld_->setInput( currentsynthetic_->waveletName() );
     stratsynth_.setWavelet( wvltfld_->getWavelet() );
