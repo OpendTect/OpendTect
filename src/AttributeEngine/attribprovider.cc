@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscubeprov.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
+#include "statruncalc.h"
 #include "survinfo.h"
 #include "task.h"
 #include "valseriesinterpol.h"
@@ -1615,16 +1616,54 @@ void Provider::getCompNames( BufferStringSet& nms ) const
 }
 
 
-float Provider::getMaxDistBetwTrcs() const
+float Provider::getMaxDistBetwTrcs( const char* linenm ) const
+{
+    return getDistBetwTrcs( true, linenm );
+}
+
+
+void Provider::compDistBetwTrcsStats( TypeSet< LineTrcDistStats >& ltds ) const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )
 	{
-	    float tmp = inputs_[idx]->getMaxDistBetwTrcs();
-	    if ( !mIsUdf(tmp) ) return tmp;
+	    inputs_[idx]->compDistBetwTrcsStats( ltds );
+	    if ( ltds.size() ) 
+		return;
 	}
+}
 
-    return mUdf(float);
+
+void Provider::compAndSpreadDistBetwTrcsStats()
+{
+    compDistBetwTrcsStats( trcdiststatsperlines_ );
+
+    for ( int idx=0; idx<allexistingprov_.size(); idx++ )
+	const_cast<Provider*>(allexistingprov_[idx])->trcdiststatsperlines_ 
+	    					= trcdiststatsperlines_;
+}
+
+
+float Provider::getDistBetwTrcs( bool ismax, const char* linenm ) const
+{
+    Stats::CalcSetup rcsetup;
+    if ( ismax )
+	rcsetup.require( Stats::Max );
+    else
+	rcsetup.require( Stats::Median );
+
+    Stats::RunCalc<float> stats( rcsetup );
+    for ( int idx=0; idx<trcdiststatsperlines_.size(); idx++ )
+    {
+	if ( BufferString(linenm) == trcdiststatsperlines_[idx].linename_ )
+	    return ismax ? trcdiststatsperlines_[idx].maxdist_
+			 : trcdiststatsperlines_[idx].mediandist_;
+	else
+	    stats += ismax ? trcdiststatsperlines_[idx].maxdist_
+			   : trcdiststatsperlines_[idx].mediandist_;
+    }
+
+    return ismax ? stats.max() : stats.median();
 }
 
 
@@ -1699,6 +1738,22 @@ float Provider::dipFactor() const
 { return zIsTime() ? 1e6f: 1e3f; }
 
 
+bool Provider::useInterTrcDist() const
+{
+    if ( inputs_.size() && inputs_[0] && inputs_[0]->getDesc().isStored() )
+	return inputs_[0]->useInterTrcDist();
+
+    return false;
+}
+
+
+float Provider::getApplicableCrlDist( bool dependoninput ) const
+{
+    if ( getDesc().is2D() && ( !dependoninput || useInterTrcDist() ) )
+	return getDistBetwTrcs( false, curlinekey_.lineName() );
+
+    return crldist();
+}
 
 
 }; // namespace Attrib

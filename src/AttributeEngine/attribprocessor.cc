@@ -248,6 +248,7 @@ void Processor::init()
     if ( is2d_ )
     {
 	provider_->adjust2DLineStoredVolume();
+	provider_->compAndSpreadDistBetwTrcsStats();
 	mDynamicCastGet( Trc2DVarZStorOutput*, trcvarzoutp, outputs_[0] );
 	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
 	if ( trcvarzoutp || taboutp )
@@ -256,6 +257,7 @@ void Processor::init()
 	    if ( trcvarzoutp ) trcvarzoutp->setMaxDistBetwTrcs( maxdist );
 	    if ( taboutp ) taboutp->setMaxDistBetwTrcs( maxdist );
 	}
+
     }
     computeAndSetRefZStep();
     provider_->prepPriorToBoundsCalc();    

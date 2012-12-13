@@ -518,6 +518,12 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	    }
 	}
     }
+
+    //Experimental way to recognise new steering data computed using
+    //inter-trace distance instead of bin size
+
+    if ( writer_ && writer_->is2D() && isDataType(sKey::Steering()) )
+	trc_->info().pick = 0;
 }
 
 

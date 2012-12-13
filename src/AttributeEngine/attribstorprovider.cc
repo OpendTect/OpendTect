@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisselectionimpl.h"
 #include "seistrctr.h"
 #include "simpnumer.h"
+#include "statruncalc.h"
 #include "survinfo.h"
 #include "surv2dgeom.h"
 #include "threadwork.h"
@@ -899,19 +900,20 @@ void StorageProvider::checkClassType( const SeisTrc* trc,
 }
 
 
-float StorageProvider::getMaxDistBetwTrcs() const
+void StorageProvider::compDistBetwTrcsStats(
+				TypeSet< LineTrcDistStats >& ltds ) const
 {
-    if ( !mscprov_ ) return mUdf(float);
+    if ( !mscprov_ ) return;
 
     const SeisTrcReader& reader = mscprov_->reader();
-    if ( !reader.is2D() ) return mUdf(float);
+    if ( !reader.is2D() ) return;
 
     const Seis2DLineSet* lset = reader.lineSet();
-    if ( !lset )
-	return mUdf(float);
+    if ( !lset ) return;
 
     S2DPOS().setCurLineSet( lset->name() );
     PosInfo::LineSet2DData ls2ddata;
+    BufferStringSet linenms;
     for ( int idx=0; idx<lset->nrLines(); idx++ )
     {
 	PosInfo::Line2DData& linegeom = ls2ddata.addLine(lset->lineName(idx));
@@ -919,31 +921,66 @@ float StorageProvider::getMaxDistBetwTrcs() const
 	if ( linegeom.positions().isEmpty() )
 	{
 	    ls2ddata.removeLine( lset->lineName(idx) );
-	    return mUdf(float);
+	    return;
 	}
+	else
+	    linenms.add( lset->lineName( idx ) );
     }
 
-    double maxdistsq = 0;
+    Stats::CalcSetup rcsetup;
+    rcsetup.require( Stats::Max );
+    rcsetup.require( Stats::Median );
     for ( int lidx=0; lidx<ls2ddata.nrLines(); lidx++ )
     {
+	Stats::RunCalc<float> stats( rcsetup );
 	const TypeSet<PosInfo::Line2DPos>& posns
 	    			= ls2ddata.lineData(lidx).positions();
 	for ( int pidx=1; pidx<posns.size(); pidx++ )
 	{
 	    const double distsq =
 		posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
-	    if ( distsq > maxdistsq )
-		maxdistsq = distsq;
-	}
-    }
 
-    return maxdistsq < 1e-3 ? mUdf(float) : (float)Math::Sqrt(maxdistsq);
+	    stats += (float)Math::Sqrt(distsq);
+	}
+
+	LineTrcDistStats ltrcdiststats( linenms.get( lidx ), stats.median(),
+					stats.max() );
+
+	ltds += ltrcdiststats;
+    }
 }
 
 
 void StorageProvider::getCompNames( BufferStringSet& nms ) const
 {
     updateDescAndGetCompNms( desc_, &nms );
+}
+
+
+bool StorageProvider::useInterTrcDist() const
+{
+    if ( getDesc().is2D() && mscprov_ )
+    {                                                                           
+	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
+	const BufferString attrnm = lk.attrName();
+	const MultiID key( lk.lineName() );
+	PtrMan<IOObj> ioobj = IOM().get( key );
+	SeisTrcReader rdr( ioobj );
+	if ( rdr.ioObj() && rdr.lineSet() )
+	{
+	    BufferStringSet steernms;
+	    rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering() );
+	    const bool issteering = steernms.indexOf( attrnm ) >= 0;
+	    if ( issteering )
+	    {
+		const SeisTrc* trc = mscprov_->get(0,0);
+		if ( trc && mIsEqual(trc->info().pick, 0, 1e-3) )
+		    return true;
+	    }
+	}
+    }                                                                           
+
+    return false; 
 }
 
 }; // namespace Attrib
