@@ -31,6 +31,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 
+static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
+
 mCreateFactoryEntry( visBase::Marker );
 
 namespace visBase
@@ -296,8 +298,8 @@ void Marker::setDip( float inldip, float crldip )
     inldip_ = inldip;
     crldip_ = crldip;
     
-    const float inldepth = (inldip/1000000) * zstretch_;
-    const float crldepth = (crldip/1000000) * zstretch_;
+    const float inldepth = (inldip*cDipFactor()) * zstretch_;
+    const float crldepth = (crldip*cDipFactor()) * zstretch_;
     const float inlangle = atan( 2 * (SI().isClockWise() ? -inldepth : inldepth) );
     const float crlangle = atan( 2 * crldepth ); 
 
