@@ -1356,7 +1356,8 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 		    break;
 		}
 		else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 &&
-		    ( mIsUdf(distpicktrc_[idx+1]) || distn<distpicktrc_[idx+1]))
+		    ( mIsUdf(distpicktrc_[idx+1]) ||
+		      distnp1<distpicktrc_[idx+1]))
 		{
 		    rid = idx+1;
 		    const_cast<TableOutput*>(this)->distpicktrc_[idx+1]=distnp1;
