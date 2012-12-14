@@ -13,7 +13,9 @@ ________________________________________________________________________
 /*!
 \defgroup uiODMain uiODMain
 
-\section Introduction Introduction OpendTect Top Level
+OpendTect Top Level
+
+\section Introduction Introduction
 
   'Real systems have no top' (Betrand Meyer). What he meant is that real
   sytems cannot be characterised by a single function which can be split up
