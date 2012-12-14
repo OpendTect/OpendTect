@@ -32,21 +32,19 @@ class A2DIntExtenExecutor;
 
 Parameters:
 
-1) searchradius - 
+1. searchradius - 
 		sets the search radius. Should have the same unit as
 		given in setRowStep and getColStep.
 		If undefined, all defined nodes will be used, and no other
 		settings will be used.
-
-2) stepsize/nrsteps - 
+2. stepsize/nrsteps - 
 		sets how many nodes that will be done in each step. Each step 
 		will only use points defined in previous steps (not really true
 		as shortcuts are made). In general, larger steps gives faster
 		interpolation, but lower quality. If stepsize is 10, and nrsteps
 		is 10, a border of maximum 100 nodes will be interpolated around
 		the defined positions.
-
-3) cornersfirst - 
+3. cornersfirst - 
 		if true, algorithm will only interpolate nodes that has the 
 		same number of support (i.e. neigbors) within +-stepsize, before
 		reevaluating which nodes to do next. Enabling cornersfirst will
