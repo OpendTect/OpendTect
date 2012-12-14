@@ -66,8 +66,11 @@ macro ( OD_INSTALL_LIB ${ARGV} )
 		set ( DST ${ARG} )
 		set ( NEXT_ARG_IS_DEST )         
 	    else()
-		get_filename_component( FULLPATH ${ARG} REALPATH )
-		list ( APPEND SOURCES ${FULLPATH} )
+##TODO remove commented lines once finalised.
+#		get_filename_component( FULLPATH ${ARG} REALPATH )
+#		list ( APPEND SOURCES ${FULLPATH} )
+		list ( APPEND SOURCES ${ARG} )
+		
 	    endif()
 	endif()
     endforeach()
