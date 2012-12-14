@@ -255,7 +255,8 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     int& startvar = isinl_ ? start.crl : start.inl;
     int step = isinl_ ? SI().crlStep() : SI().inlStep();
     const od_int64 bvssz = bvs.totalSize();
-    for ( od_int64 idx=0; idx<bvssz; idx++,startvar += step )
+    od_int64 idx = 0;
+    for ( idx=0; idx<bvssz; idx++,startvar += step )
     {
 	BinIDValueSet::Pos pos = bvs.findFirst( start );
 	if ( !pos.valid() )
@@ -267,6 +268,9 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 	    break;
     }
 
+    if ( idx == bvssz )
+	return false;
+
     BinID stop( isinl_ ? nr_ : trcrange_.stop,
 	    	isinl_ ? trcrange_.stop : nr_ );
     int& stopvar = isinl_ ? stop.crl : stop.inl;
@@ -276,7 +280,7 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     BinID stoptopbid, stopbotbid, prevstoptopbid, prevstopbotbid;
     bool foundtop = false, foundbot = false;
     bool tophasisect = false, bothasisect = false;
-    for ( int idx=0; idx<bvssz; idx++,stopvar += step )
+    for ( idx=0; idx<bvssz; idx++,stopvar += step )
     {
 	if ( foundtop && foundbot )
 	    break;
@@ -334,20 +338,21 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     if ( !bothasisect && !mIsUdf(zrange_.stop) )
 	prevstopbotz = stopbotz = zrange_.stop;
 
-    if ( trcnrs_.size() )
-    {
-	if ( tophasisect && !handleUntrimmed(bvs,ztop,stoptopbid,
-		    			     prevstoptopbid,true) )
-	    return false;
-	if ( bothasisect && !handleUntrimmed(bvs,zbot,stopbotbid,
-		    			     prevstopbotbid,false) )
-	    return false;
-
-	return true;
-    }
-
     ztop.set( stoptopz, prevstoptopz );
     zbot.set( stopbotz, prevstopbotz );
+    if ( trcnrs_.size() ) // that is 2D.
+    {
+	BinID stepbid( isinl_ ? 0 : step, isinl_ ? step : 0 );
+	bool isuntrimmed = (stoptopbid - prevstoptopbid) == stepbid;
+	if ( tophasisect && isuntrimmed && !handleUntrimmed(bvs,ztop,stoptopbid,
+		    			     		  prevstoptopbid,true) )
+	    return false;
+	isuntrimmed = (stopbotbid - prevstopbotbid) == stepbid;
+	if ( bothasisect && isuntrimmed && !handleUntrimmed(bvs,zbot,stopbotbid,
+		    			     		 prevstopbotbid,false) )
+	    return false;
+    }
+
     return true;
 }
 
