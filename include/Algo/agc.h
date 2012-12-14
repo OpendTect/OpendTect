@@ -17,7 +17,10 @@ ________________________________________________________________________
 #include "thread.h"
 #include "valseries.h"
 
-/*!Computes an AGC over a ValueSeries. */
+/*!
+  \ingroup Algo
+  \brief Computes an AGC over a ValueSeries.
+*/
 
 template <class T>
 class AGC : public ParallelTask

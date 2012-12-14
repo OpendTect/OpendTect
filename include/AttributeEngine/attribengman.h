@@ -39,7 +39,10 @@ class DataCubes;
 class Processor;
 class Data2DHolder;
 
-/*!\brief The Attribute engine Manager. */
+/*!
+  \ingroup AttributeEngine
+  \brief The attribute engine manager.
+*/
 
 mClass(AttributeEngine) EngineMan
 {

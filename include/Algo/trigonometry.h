@@ -265,11 +265,13 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>&, bool normalize,
 			      bool checkforundefs );
 
 
-/*!\brief Quaternion is an extension to complex numbers
-
- A Quaternion is represented by the equation:<br>
- q = s + xi + yj + zk <br>
- where: i*i = j*j = k*k = -1.
+/*!
+  \ingroup Algo
+  \brief Quaternion is an extension to complex numbers.
+  
+  A Quaternion is represented by the equation:<br>
+  q = s + xi + yj + zk <br>
+  where: i*i = j*j = k*k = -1.
 */
 
 mClass(Algo) Quaternion
@@ -297,8 +299,11 @@ public:
 };
 
 
-/*!\brief A Line2 is a line on XY-plane, and it is defined in slope-intercept
-    form y = slope*x + y-intercept; for making operations easier. */
+/*!
+  \ingroup Algo
+  \brief A Line2 is a line on XY-plane, and it is defined in slope-intercept
+  form y = slope*x + y-intercept; for making operations easier.
+*/
 
 mClass(Algo) Line2
 {
@@ -335,16 +340,17 @@ public:
     Coord		stop_;			/*!<For line-segments only */
 };
 
-/*!\brief
 
-A Line3 is a line in space, with the equations:
-
-x = x0 + alpha*t
-y = y0 + beta*t
-z = z0 + gamma*t
-
+/*!
+  \ingroup Algo
+  \brief
+  
+  A Line3 is a line in space, with the equations:
+  
+  x = x0 + alpha*t
+  y = y0 + beta*t
+  z = z0 + gamma*t
 */
-
 
 mClass(Algo) Line3
 {
@@ -384,15 +390,11 @@ public:
     double		gamma_;
 };
 
-/*!\brief
 
-A Plane3 is a plane in space, with the equation:
-
-Ax + By + Cz + D = 0
-
+/*!
+  \ingroup Algo
+  \brief A Plane3 is a plane in space, with the equation: Ax + By + Cz + D = 0
 */
-
-
 
 mClass(Algo) Plane3
 {
@@ -448,9 +450,11 @@ public:
 };
 
 
-/*!Defines a 2D coordinate system on a 3D plane, and transforms between the
-   3D space and the coordiante system. */
-
+/*!
+  \ingroup Algo
+  \brief Defines a 2D coordinate system on a 3D plane and transforms between the
+   3D space and the coordinate system.
+*/
 
 mClass(Algo) Plane3CoordSystem
 {
@@ -486,7 +490,9 @@ protected:
 };
 
 
-/*!\brief Represents a point in spherical coordinates
+/*!
+  \ingroup Algo
+  \brief Represents a point in spherical coordinates.
   The angle phi lies in the horizontal plane, theta in the vertical plane.
 */
 

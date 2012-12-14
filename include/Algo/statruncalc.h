@@ -24,15 +24,15 @@ namespace Stats
 {
 
 
-/*!\brief setup for the Stats::RunCalc and Stats::ParallelCalc objects
-
+/*!
+  \ingroup Algo
+  \brief Setup for the Stats::RunCalc and Stats::ParallelCalc objects.
+  
   medianEvenHandling() is tied to OD_EVEN_MEDIAN_AVERAGE, OD_EVEN_MEDIAN_LOWMID,
   and settings dTect.Even Median.Average and dTect.Even Median.LowMid.
   When medianing over an even number of points, either take the low mid (<0),
   hi mid (>0), or avg the two middles. By default, hi mid is used.
- 
- */
-
+*/
 
 mClass(Algo) CalcSetup
 { 
@@ -77,23 +77,24 @@ protected:
 };
 
 
-/*!\brief base class to calculate mean, min, max, etc.. can be used either 
-as running values (Stats::RunCalc) or in parallel (Stats::ParallelCalc).
-
-The mostFrequent assumes the data contains integer classes. Then the class
-that is found most often will be the output. Weighting, again, assumes integer
-values. Beware that if you pass data that is not really class-data, the
-memory consumption can become large (and the result will be rather
-uninteresting).
-
-The variance won't take the decreasing degrees of freedom into consideration
-when weights are provided.
-
-The object is ready to use with int, float and double types. If other types
-are needed, you may need to specialise an isZero function for each new type.
+/*!
+  \ingroup Algo
+  \brief Base class to calculate mean, min, max, etc.. can be used either 
+  as running values (Stats::RunCalc) or in parallel (Stats::ParallelCalc).
+  
+  The mostFrequent assumes the data contains integer classes. Then the class
+  that is found most often will be the output. Weighting, again, assumes integer
+  values. Beware that if you pass data that is not really class-data, the
+  memory consumption can become large (and the result will be rather
+  uninteresting).
+  
+  The variance won't take the decreasing degrees of freedom into consideration
+  when weights are provided.
+  
+  The object is ready to use with int, float and double types. If other types
+  are needed, you may need to specialise an isZero function for each new type.
 
 -*/
-
 
 template <class T>
 class BaseCalc
@@ -175,17 +176,17 @@ bool BaseCalc<T>::isZero( const T& val ) const
 { return !val; }
 
 
-/*!\brief calculates mean, min, max, etc. as running values.
-
-The idea is that you simply add values and ask for a stat whenever needed.
-The clear() method resets the object and makes it able to work with new data.
-
-Adding values can be doing with weight (addValue) or without (operator +=).
-You can remove a value; for Min or Max this has no effect as this would
-require buffering all data.
-
+/*!
+  \ingroup Algo
+  \brief Calculates mean, min, max etc., as running values.
+  
+  The idea is that you simply add values and ask for a stat whenever needed.
+  The clear() method resets the object and makes it able to work with new data.
+  
+  Adding values can be doing with weight (addValue) or without (operator +=).
+  You can remove a value; for Min or Max this has no effect as this would
+  require buffering all data.
 -*/
-
 
 template <class T>
 class RunCalc : public BaseCalc<T>
@@ -224,13 +225,13 @@ protected:
 
 
 
-/*!\brief RunCalc manager which buffers a part of the data.
+/*!
+  \ingroup Algo
+  \brief RunCalc manager which buffers a part of the data.
  
   Allows calculating running stats on a window only. Once the window is full,
   WindowedCalc will replace the first value added (fifo).
- 
- */
-
+*/
 
 template <class T>
 class WindowedCalc

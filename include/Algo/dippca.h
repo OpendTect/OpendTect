@@ -26,13 +26,16 @@ class Dip2DCalculator;
 class Dip3DCalculator;
 class TaskRunner;
 
-/*Calculate Dip/Azimuth use the method of PCA. Example of use:
+/*!
+  \ingroup Algo
+  \brief Base class to calculate Dip/Azimuth using the method of PCA.
+  
+  Example of use:
 
   Dip3D d3d( your data )
   d3d.setSetup( your setup )
   d3d.compute();
- */
-
+*/
 
 mClass(Algo) DipPCA
 {
@@ -61,6 +64,10 @@ protected:
 };
 
 
+/*!
+  \ingroup Algo
+  \brief To calculate Dip/Azimuth for 2D datasets using the method of PCA.
+*/
 
 mClass(Algo) Dip2D : public DipPCA
 {
@@ -94,6 +101,11 @@ protected:
     const float			ydist_;
 };
 
+
+/*!
+  \ingroup Algo
+  \brief To calculate Dip/Azimuth for 3D datasets using the method of PCA.
+*/
 
 mClass(Algo) Dip3D : public DipPCA
 {

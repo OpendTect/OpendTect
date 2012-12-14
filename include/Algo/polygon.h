@@ -18,7 +18,10 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include <math.h>
 
-/*!\brief (Closed) sequence of connected 2-D coordinates */
+/*!
+  \ingroup Algo
+  \brief (Closed) sequence of connected 2-D coordinates.
+*/
 
 template <class T>
 class ODPolygon

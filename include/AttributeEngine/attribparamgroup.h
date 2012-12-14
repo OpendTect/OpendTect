@@ -11,25 +11,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 */
 
-/*!\brief Attrib::Param that contains many (a set) Attrib::Param of one kind.
-
- It's made for parameters where you don't know how many are required. 
- An example can be positions, where the number of positions are unknown at 
- the beginning of parsing.
-
-The Attrib::ParamGroup have a prefix and constructs parameter names on the form
-prefix + figure:
-
-pos0, pos1, ..., posN.
-
-The Attrib::ParamGroup is constructed by:
-Attrib::ParamGroup( int startsz, const char* prefix, const PT& templ ),
-
-where startsz is the number of instances at the beginning, templ is a
-a template for the parameters that should be constructed.
-
--*/
-
 #include "attribparam.h"
 #include "datainpspec.h"
 #include "bufstringset.h"
@@ -37,6 +18,26 @@ a template for the parameters that should be constructed.
 
 namespace Attrib
 {
+
+/*!
+  \ingroup AttributeEngine
+  \brief Attrib::Param that contains many (a set) Attrib::Param of one kind.
+  
+  It's made for parameters where you don't know how many are required. 
+  An example can be positions, where the number of positions are unknown at 
+  the beginning of parsing.
+  
+  The Attrib::ParamGroup have a prefix and constructs parameter names on the
+  form  prefix + figure:
+  
+  pos0, pos1, ..., posN.
+  
+  The Attrib::ParamGroup is constructed by:
+  Attrib::ParamGroup( int startsz, const char* prefix, const PT& templ ),
+  
+  where startsz is the number of instances at the beginning, templ is a
+  a template for the parameters that should be constructed. 
+-*/
 
 template <class PT>
 class ParamGroup : public Param

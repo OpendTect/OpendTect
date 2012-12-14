@@ -15,11 +15,14 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "ranges.h"
 
-/*!\brief Fits values into a pre-defined range.
+/*!
+  \ingroup Algo
+  \brief Fits values into a pre-defined range.
  
   The Squeezer has 2 ranges:
   * The limits
   * The 'untouched' limits
+
   No data will go outside the limits. If you only want a one-sided squeeze,
   pass an undefined value (not a very large number!).
   For good squeezing, you have to give the squeezer some 'work space'. You
@@ -35,8 +38,7 @@ ________________________________________________________________________
 
   By default, the Squeezer will behave like a 'Clipper'. You have to use
   setUntouchedRange() to get proper squeezing behaviour.
- 
- */
+*/
 
 template <class T>
 class DataSqueezer

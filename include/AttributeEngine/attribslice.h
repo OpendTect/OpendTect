@@ -17,15 +17,17 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "refcount.h"
 
-/*!\brief Slice containing attribute values.
- 
-  The sliceidx determines the position of the slice in the requested cube,
-  see AttribSliceSet for details.
- 
- */
-
 namespace Attrib
 {
+
+/*!
+  \ingroup AttributeEngine
+  \brief Slice containing attribute values.
+  
+  The sliceidx determines the position of the slice in the requested cube,
+  see AttribSliceSet for details.    
+*/
+
 
 mClass(AttributeEngine) Slice : public Array2DImpl<float>
 { mRefCountImplNoDestructor(Slice);
@@ -42,14 +44,15 @@ protected:
 };
 
 
-/*!\brief Set of attrib slices.
-
- The two array2d directions shall be filled following the CubeSampling
- convention. The slices will be in order of increasing inl, crl or Z.
- 
- Slices can be null!
- 
- */
+/*!
+  \ingroup AttributeEngine
+  \brief Set of attrib slices.
+  
+  The two array2d directions shall be filled following the CubeSampling
+  convention. The slices will be in order of increasing inl, crl or Z.
+  
+  Slices can be null!
+*/
 
 mClass(AttributeEngine) SliceSet : public ObjectSet<Slice>
 { mRefCountImpl(SliceSet);

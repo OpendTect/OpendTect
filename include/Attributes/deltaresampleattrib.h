@@ -15,10 +15,13 @@ ________________________________________________________________________
 #include "attribprovider.h"
 template <class T> class ValueSeries;
 
-/*!\brief Resamples the trace at shifted locations.  */
-
 namespace Attrib
 {
+
+/*!
+  \ingroup Attributes
+  \brief Resamples the trace at shifted locations.
+*/
 
 class DeltaResample : public Provider
 {

@@ -17,17 +17,18 @@ ________________________________________________________________________
 #include "task.h"
 #include "statruncalc.h"
 
-/*!\brief Stats computation running in parallel. 
-
-The difference with the running values (Stats::RunCalc) is that you have to 
-pass the entire data array prior to the execution. 
-
-It also works with optional weights.
--!*/
-
-
 namespace Stats
 {
+
+/*!
+  \ingroup Algo
+  \brief Stats computation running in parallel. 
+  
+  The difference with the running values (Stats::RunCalc) is that you have to 
+  pass the entire data array prior to the execution. 
+  
+  It also works with optional weights.
+*/
 
 template <class T>
 class ParallelCalc : public ParallelTask, public BaseCalc<T>

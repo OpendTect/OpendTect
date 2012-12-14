@@ -12,13 +12,16 @@ ________________________________________________________________________
 
 -*/
 
-/*!\brief Acoustic Impedance layer.  */
-
 #include "basicmod.h"
 #include "commondefs.h"
 #include "math.h"
 #include "sets.h"
 
+
+/*!
+  \ingroup Basic
+  \brief Acoustic Impedance layer.
+*/
 
 class AILayer
 {
@@ -34,8 +37,6 @@ public:
 };
 
 
-/*!\brief A table of elastic prop layers */
-
 typedef TypeSet<AILayer> AIModel;
 
 inline float getLayerDepth( const AIModel& mod, int layer ) 
@@ -47,6 +48,11 @@ inline float getLayerDepth( const AIModel& mod, int layer )
     return depth;
 }
 
+
+/*!
+  \ingroup Basic
+  \brief A table of elastic prop layers.
+*/
 
 class ElasticLayer : public AILayer
 {

@@ -15,7 +15,10 @@ ________________________________________________________________________
 #include "dataclipper.h"
 #include "thread.h"
 
-//!Finds all local maximas/minimas in an ArrayND
+/*!
+  \ingroup Algo
+  \brief Finds all local maximas/minimas in an ArrayND.
+*/
 
 template <class T>
 class SampledExtremeFinderND : public ParallelTask

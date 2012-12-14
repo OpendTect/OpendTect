@@ -19,6 +19,11 @@ ________________________________________________________________________
 namespace Stats
 {
 
+/*!
+  \ingroup Algo
+  \brief Part of a data sector. 
+*/
+
 class SectorPartData
 {
 public:
@@ -38,15 +43,16 @@ public:
 typedef TypeSet<SectorPartData> SectorData;
 
 
-/*!\brief A circle of data.
+/*!
+  \ingroup Algo
+  \brief A circle of data.
  
   The circle is subdivided in sectors, which are subdivided in sector parts.
   The relative 'pos_' from the sector part can be scaled with usrposrg_ to get
   user positions.
 
   Angles are implicit: we always expect 360 degrees of data.
-
- */
+*/
 
 class DirectionalData : public ManagedObjectSet<SectorData>
 {

@@ -21,14 +21,16 @@ class BufferStringSet;
 namespace Attrib
 {
 
-/*! A parameter that is used by an attribute.
-
-Each attribute has a definition string that defines how the attribute is
-computed. The definition string has the format:
-
-AttribNameWithoutSpaces param1=value1 param2=value2,value3
-
-The parameter thus has a key (e.g. param1) and one or more associated values.
+/*!
+  \ingroup AttributeEngine
+  \brief A parameter that is used by an attribute.
+  
+  Each attribute has a definition string that defines how the attribute is
+  computed. The definition string has the format:
+  
+  AttribNameWithoutSpaces param1=value1 param2=value2,value3
+  
+  The parameter thus has a key (e.g. param1) and one or more associated values.
 */
 
 mClass(AttributeEngine) Param
@@ -84,6 +86,11 @@ protected:
     virtual bool		isEqual(const Param&) const	= 0;
 };
 
+
+/*!
+  \ingroup AttributeEngine
+  \brief Attribute Value Parameter
+*/
 
 mClass(AttributeEngine) ValParam : public Param
 {

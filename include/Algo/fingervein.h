@@ -21,8 +21,9 @@ template <class T> class Array3D;
 
 class TaskRunner;
 
-/*!\brief
- Get a flag output for faults based on 2D input attribute data.
+/*!
+  \ingroup Algo
+  \brief Get a flag output for faults based on 2D input attribute data.
 */
 
 mClass(Algo) FingerVein
@@ -63,8 +64,9 @@ protected:
 };
 
 
-/*! \brief
- Calculate azimuth and dip for 3D data.
+/*!
+  \ingroup Algo
+  \brief Calculate azimuth and dip for 3D data.
 */
 
 mClass(Algo) FaultOrientation

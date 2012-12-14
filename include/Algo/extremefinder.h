@@ -18,10 +18,12 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "mathfunc.h"
 
-/*!\brief Finds extreme values in FloatMathFunctions
 
-Implementation of Brent's Method in one dimension.
+/*!
+  \ingroup Algo
+  \brief Finds extreme values in FloatMathFunctions.
 
+  Implementation of Brent's Method in one dimension.
 */
 
 mClass(Algo) ExtremeFinder1D : public SequentialTask
@@ -93,6 +95,11 @@ protected:
 };
 
 
+/*!
+  \ingroup Algo
+  \brief Bisection Extreme Finder
+*/
+
 mClass(Algo) BisectionExtremeFinder1D : public SequentialTask
 {
 public:
@@ -163,11 +170,11 @@ protected:
 };
 
 
-/*!\brief Finds the nearest local extreme position in ND's
-
-Implementation of Powell's Quadratically Convergent Method
-
-\note The implementation is not tested (yet) 030512.
+/*!
+  \ingroup Algo
+  \brief Finds the nearest local extreme position in ND's.  
+  Implementation of Powell's Quadratically Convergent Method
+  \note The implementation is not tested (yet) 030512.
 */
 
 mClass(Algo) ExtremeFinderND : public SequentialTask

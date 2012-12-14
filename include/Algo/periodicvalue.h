@@ -31,12 +31,10 @@ inline T dePeriodize( T val, T period )
     return n ? val - n * period : val; 
 }
 
-/*!>
-  \brief
-  PeriodicValue handles periodic data through mathematical operations.
+/*!
+  \ingroup Algo
+  \brief PeriodicValue handles periodic data through mathematical operations.
 */
-
-
 template <class T,int P>
 class PeriodicValue
 {

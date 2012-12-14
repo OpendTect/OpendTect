@@ -23,51 +23,52 @@ template <class T> class Array2D;
 class SequentialTask;
 class PCACovarianceCalculator;
 
-/*!\brief
-Performs Pricipal Component Analysis on samples with N variables.
-
-Example of usage:\code
-   //The samples will have three variables
-   PCA pca( 3 );		
-
-   //Samples can be added by any object that has a readable [] operator
-   const float sample0[] = { 0, 1, 2 };
-   pca.addSample( sample0 );
-
-   const float sample1[] = { 4.343, 9.8, 2.72 };
-   pca.addSample( sample1 );
-
-   const float sample2[] = { 23.15, 210, -15 };
-   pca.addSample( sample2 );
-
-   const float sample3[] = { -0.36, 0.68, 3 };
-   pca.addSample( sample3 );
-
-   const float sample4[] = { 4.4, 9,6, 11 };
-   pca.addSample( sample4 );
-
-   TypeSet<float> sample5; sample5 += 34.1; sample5 += 8.37; sample5 += -44;
-   pca.addSample( sample5 ); 
-
-   pca.calculate();
-
-
-   //Any object that has a writable [] operator can be used to fetch
-   //the resulting vectors:
-   TypeSet<float> eigenvec0(3,0);
-   float eigenval0 = pca.getEigenValue(0);
-   pca.getEigenVector( 0, eigenvec0 );
-
-   float[3] eigenvec1;
-   float eigenval1 = pca.getEigenValue(1);
-   pca.getEigenVector( 1, eigenvec1 );
-
-   float[3] eigenvec2;
-   float eigenval2 = pca.getEigenValue(2);
-   pca.getEigenVector( 2, eigenvec2 );
-\endcode
-
-
+/*!
+  \ingroup Algo
+  \brief
+  Performs Pricipal Component Analysis on samples with N variables.
+  
+  Example of usage:
+  \code
+  //The samples will have three variables
+  PCA pca( 3 );		
+  
+  //Samples can be added by any object that has a readable [] operator
+  const float sample0[] = { 0, 1, 2 };
+  pca.addSample( sample0 );
+  
+  const float sample1[] = { 4.343, 9.8, 2.72 };
+  pca.addSample( sample1 );
+  
+  const float sample2[] = { 23.15, 210, -15 };
+  pca.addSample( sample2 );
+  
+  const float sample3[] = { -0.36, 0.68, 3 };
+  pca.addSample( sample3 );
+  
+  const float sample4[] = { 4.4, 9,6, 11 };
+  pca.addSample( sample4 );
+  
+  TypeSet<float> sample5; sample5 += 34.1; sample5 += 8.37; sample5 += -44;
+  pca.addSample( sample5 ); 
+  
+  pca.calculate();
+  
+  
+  //Any object that has a writable [] operator can be used to fetch
+  //the resulting vectors:
+  TypeSet<float> eigenvec0(3,0);
+  float eigenval0 = pca.getEigenValue(0);
+  pca.getEigenVector( 0, eigenvec0 );
+  
+  float[3] eigenvec1;
+  float eigenval1 = pca.getEigenValue(1);
+  pca.getEigenVector( 1, eigenvec1 );
+  
+  float[3] eigenvec2;
+  float eigenval2 = pca.getEigenValue(2);
+  pca.getEigenVector( 2, eigenvec2 );
+  \endcode
 */
 
 mClass(Algo) PCA

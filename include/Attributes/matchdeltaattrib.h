@@ -15,13 +15,14 @@ ________________________________________________________________________
 #include "attribprovider.h"
 template <class T> class ValueSeries;
 
-/*!\brief Computes the match delta between two cubes.
-
-  Ties Max events to each other.
-*/
-
 namespace Attrib
 {
+
+/*!
+  \ingroup Attributes
+  \brief Computes the match delta between two cubes.
+  Ties Max events to each other.
+*/
 
 class MatchDelta : public Provider
 {

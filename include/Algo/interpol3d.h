@@ -18,8 +18,9 @@ ________________________________________________________________________
 namespace Interpolate
 {
 
-/*!>
- Linear 3D interpolation.
+/*!
+  \ingroup Algo
+  \brief Linear 3D interpolation.
 */
 
 template <class T>
@@ -73,6 +74,11 @@ inline T linearReg3D( T v000, T v100, T v010, T v110,
 		.apply( x, y, z );
 }
 
+
+/*!
+  \ingroup Algo
+  \brief Linear 3D interpolation with standard undef handling.
+*/
 
 template <class T>
 class LinearReg3DWithUdf
@@ -193,11 +199,13 @@ inline T linearReg3DWithUdf( T v000, T v100, T v010, T v110,
 
 
 
-/*!<\brief Interpolate 3D regularly sampled, using a 3rd order surface.
-
+/*!
+  \ingroup Algo
+  \brief Interpolate 3D regularly sampled, using a 3rd order surface.
+  
   Current implementation takes the average of the outer squares.
   In the parameter passing, the z is the fastest dimension.
-<pre>
+  <pre>
 
        ..    ..       Z  Y-dir
   ..  ....  ....  ..  ^ /
@@ -205,10 +213,10 @@ inline T linearReg3DWithUdf( T v000, T v100, T v010, T v110,
        ..    ..
 
   ^- From here to -^
-x=-1   0      1     2
-
-</pre>
- */
+  x=-1   0      1     2
+  
+  </pre>
+*/
 
 template <class T>
 class PolyReg3D

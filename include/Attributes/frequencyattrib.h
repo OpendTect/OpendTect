@@ -22,11 +22,23 @@ ________________________________________________________________________
 
 #include <complex>
 
-/*!\brief Frequency Attribute
 
+class ArrayNDWindow;
+class BinID;
+template<class T> class Array1DImpl;
+
+namespace Attrib
+{
+
+class DataHolder;
+
+/*!
+  \ingroup Attributes
+  \brief Frequency Attribute
+  
   Frequency gate=[-4,4] [normalize=No] [window=CosTaper5] [dumptofile=No]
 
-  Calculates a number of attributes (se below) from the frequency domain
+  Calculates a number of attributes (see below) from the frequency domain
   in a gate. The gate can be windowed with the window specified in
   the window parameter prior to the Fourier Transform. If normalize is enabled,
   the frequency spectra is normalized with regard to its area. This will make
@@ -37,32 +49,20 @@ ________________________________________________________________________
   (i.e. with volume output) you will end up with a file of several Gb. The
   file is stored as /tmp/frequency.dump
   
-Input:
-0       Real data
-1       Imag data
+  Input:
+  0       Real data
+  1       Imag data
 
-Output:
-0       Dominant frequency (DFQ)
-1       Average frequency  (AFQ)
-2       Median frequency (MFQ)
-3       Average frequency Squared (AFS)
-4       Maximum spectral amplitude (MSA)
-5       Spectral Area beyond dominant frequency (SADF)
-6       Frequency Slope Fall (FSF)
-7       Absorption Quality Factor (AQF)
-
+  Output:
+  0       Dominant frequency (DFQ)
+  1       Average frequency  (AFQ)
+  2       Median frequency (MFQ)
+  3       Average frequency Squared (AFS)
+  4       Maximum spectral amplitude (MSA)
+  5       Spectral Area beyond dominant frequency (SADF)
+  6       Frequency Slope Fall (FSF)
+  7       Absorption Quality Factor (AQF)
 */
-
-
-class ArrayNDWindow;
-class BinID;
-template<class T> class Array1DImpl;
-
-
-namespace Attrib
-{
-
-class DataHolder;
 
 mClass(Attributes) Frequency : public Provider
 {

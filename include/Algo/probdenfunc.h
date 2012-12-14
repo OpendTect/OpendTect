@@ -21,13 +21,14 @@ template <class T> class TypeSet;
 class IOPar;
 
 
-/* Probability Density Function
-
-   The values may not be normalized; if you need them to be: multiply with
-   'normFac()'. What you are getting can for example be the values from a
-   histogram. All we require is that the value() implementation always returns
-   positive values.
-
+/*!
+  \ingroup Algo
+  \brief Base class for Probability Density Functions.
+  
+  The values may not be normalized; if you need them to be: multiply with
+  'normFac()'. What you are getting can for example be the values from a
+  histogram. All we require is that the value() implementation always returns
+  positive values.
 */
 
 mClass(Algo) ProbDenFunc : public NamedObject
@@ -71,6 +72,10 @@ protected:
 };
 
 
+/*!
+  \ingroup Algo
+  \brief Probability Density Function for one dimensional datasets.
+*/
 mClass(Algo) ProbDenFunc1D : public ProbDenFunc
 {
 public:
@@ -113,6 +118,10 @@ protected:
 };
 
 
+/*!
+  \ingroup Algo
+  \brief Probability Density Function for two dimensional datasets.
+*/
 mClass(Algo) ProbDenFunc2D : public ProbDenFunc
 {
 public:

@@ -15,9 +15,11 @@ ________________________________________________________________________
 #include "geometry.h"
 #include <math.h>
 
-/*!Clips a line between two points by a rectangle. The line may be completely
-   outside, completely inside or partially inside. If partially inside, new
-   endpoints are calculated.
+/*!
+  \ingroup Algo
+  \brief Clips a line between two points by a rectangle. The line may be
+  completely outside, completely inside or partially inside. If partially
+  inside, new endpoints are calculated.
 */
 
 template <class T>

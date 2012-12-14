@@ -19,9 +19,12 @@ ________________________________________________________________________
 
 class IOPar;
 
-/*!Base class for window functions. The inheriting classes will give a value
-   between 0 and 1 in the interval -1 to 1. Outside that interval, the result
-   is zero. */
+/*!
+  \ingroup Algo
+  \brief Base class for window functions. The inheriting classes will give a
+  value between 0 and 1 in the interval -1 to 1. Outside that interval, the
+  result is zero.
+*/
 
 mClass(Algo) WindowFunction : public FloatMathFunction
 {
@@ -65,6 +68,10 @@ mDeclWFSimpleClass(Bartlett)
 mDeclWFSimpleClass(FlatTop)
 
 
+/*!
+  \ingroup ALgo
+  \brief Tapered Cosine Window Function.
+*/
 mClass(Algo) CosTaperWindow : public WindowFunction
 {
 public:

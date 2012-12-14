@@ -27,21 +27,23 @@ class Plane3;
 class Coord3;
 namespace Threads { class Mutex; };
 
-/*!\brief
-Finds planes in Array3D<float>'s regions with high values. All positions
-in the array above a threshold (defined by cliprate) is used to find the planes.
+/*!
+  \ingroup Algo
+  \brief Finds planes in Array3D<float>'s regions with high values. All
+  positions in the array above a threshold (defined by cliprate) is used to
+  find the planes.
+  
+  The planes are defined with three parameters: dip (0-90), azi(0-360) and the
+  normal's distance to origo. Depending on your application, you might need
+  different resolution, which is set with setParamSpaceSize.
 
-The planes are defined with three parameters: dip (0-90), azi(0-360) and the
-normal's distance to origo. Depending on your application, you might need
-different resolution, which is set with setParamSpaceSize.
-
-Usage:
-1) Create
-2) Set setParamSpaceSize, cliprate and data
-3) Get the tasks and run them
-4) call sortParamSpace
-5) get your planes and their scores.
-
+  Usage:
+  1) Create
+  2) Set setParamSpaceSize, cliprate and data
+  3) Get the tasks and run them
+  4) call sortParamSpace
+  5) get your planes and their scores.
+  
 */
 
 mClass(Algo) PlaneFrom3DSpaceHoughTransform
@@ -107,6 +109,11 @@ protected:
     Threads::Mutex&		paramspacemutex_;
 };
 
+
+/*!
+  \ingroup Algo
+  \brief Finds lines in Array2D<float>'s regions with high values.
+*/
 
 mClass(Algo) LineFrom2DSpaceHoughTransform
 {

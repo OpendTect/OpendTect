@@ -16,7 +16,12 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "arrayndimpl.h"
 
-/*!\brief Dip filtering Attribute
+namespace Attrib
+{
+
+/*!
+\ingroup Attributes
+\brief Dip filtering Attribute
 
 DipFilter size= minvel= maxvel= type=LowPass|HighPass|BandPass
     filterazi=Y/N minazi= maxazi= taperlen=
@@ -70,9 +75,6 @@ Inputs:
 0       Signal to be filtered.
 
 */
-
-namespace Attrib
-{
 
 mClass(Attributes) DipFilter : public Provider
 {

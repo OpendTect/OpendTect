@@ -22,7 +22,10 @@ ________________________________________________________________________
 namespace Pos
 {
 
-/*!\brief Set of Filters. Owns the Filters. */
+/*!
+  \ingroup Algo
+  \brief Set of Filters. Owns the Filters.
+*/
 
 mClass(Algo) FilterSet : public virtual Filter
 {
@@ -72,7 +75,10 @@ protected:
     virtual bool	includes( const Coord& c, float z=1e30 ) const \
 			{ return FilterSet::includes(c,z); } \
 
-
+/*!
+  \ingroup Algo
+  \brief
+*/
 mClass(Algo) FilterSet3D : public FilterSet
 		  , public Filter3D
 {
@@ -86,6 +92,10 @@ public:
 };
 
 
+/*!
+  \ingroup Algo
+  \brief
+*/
 mClass(Algo) FilterSet2D : public FilterSet
 		  , public Filter2D
 {

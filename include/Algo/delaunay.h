@@ -20,7 +20,13 @@ ________________________________________________________________________
 #include "thread.h"
 #include "trigonometry.h"
 
-/*!Reference: "Parallel Incremental Delaunay Triangulation", by Kohout J.2005.
+
+#define mDAGTriangleForceSingleThread
+/*!
+  \ingroup Algo
+  \brief Reference: "Parallel Incremental Delaunay Triangulation", by
+   Kohout J.2005.
+
    For the triangulation, it will skip undefined or duplicated points, all the 
    points should be in random order. We use Kohout's pessimistic method to
    triangulate. The problem is that the pessimistic method only give a 10% speed
@@ -28,7 +34,6 @@ ________________________________________________________________________
    disabled with a macro.
 */
 
-#define mDAGTriangleForceSingleThread
 mClass(Algo) DAGTriangleTree
 {
 public:
@@ -139,7 +144,11 @@ protected:
 };
 
 
-/*!<The parallel triangulation works for only one processor now.*/
+/*!
+  \ingroup Algo
+  \brief The parallel triangulation works for only one processor now.
+*/
+
 mClass(Algo) DelaunayTriangulator : public ParallelTask
 {
 public:
@@ -170,10 +179,14 @@ protected:
 };
 
 
-/*For a given triangulated geometry(set of points), interpolating any point 
-  located in or nearby the goemetry. If the point is located outside of the 
-  boundary of the geometry, we compare azimuth to find related points and then
-  apply inverse distance to calculate weights. */
+/*!
+  \ingroup Algo
+  \brief For a given triangulated geometry(set of points), interpolating any
+  point located in or nearby the goemetry. If the point is located outside of
+  the boundary of the geometry, we compare azimuth to find related points and
+  then apply inverse distance to calculate weights.
+*/
+
 mClass(Algo) Triangle2DInterpolator
 {
 public:

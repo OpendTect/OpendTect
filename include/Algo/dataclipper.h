@@ -20,58 +20,57 @@ class IOPar;
 template <class T> class ValueSeries;
 template <class T> class ArrayND;
 
-/*!\brief
-
-A DataClipper gets a bunch of data and determines at what value to clip
-if a certain clippercentag is desired.
-
-For simple cases, where no subselection is needed (i.e. the stats will be
-performed on all values, and only one dataset is used) the static function
-calculateRange is good enough:
-
-\code
-    TypeSet<float> mydata;
-    Interval<float> range;
-    DataClipper::calculateRange( mydata.arr(), mydata.size(), 0.05, 0.05,
-    				 range );
-\endcode
-
-If there are more than one dataset, or if a subselection is wanted, the class
-is used as follows:
-
--# Create object
--# If subselection is wanted, set total nr of samples and statsize with
-   setApproxNrValues
--# Add all your sources putData
--# If you only want a fixed range, call calculateRange.
--# If you want to come back an get multiple ranges, call fullSort. After
-   fullSort, the getRange functions can be called, any number of times.
--# To prepare the object for a new set of data, call reset.
-
-Example
-\code
-    Array3D<float> somedata;
-    TypeSet<float> moredata;
-    float	   otherdata;
-
-    DataClipper clipper;
-    setApproxNrValues( somedata.info().getTotalSz()+moredata.size()+1, 2000 );
-    clipper.putData( somedata );
-    clipper.putData( moredata.arr(), moredata.size() );
-    clipper.putData( otherdata );
-
-    clipper.fullSort();
-   
-    Interval<float> clip99;
-    Interval<float> clip95;
-    Interval<float> clip90;
-    clipper.getRange( 0.01, clip99 );
-    clipper.getRange( 0.05, clip95 );
-    clipper.getRange( 0.10, clip90 );
-\endcode
-
+/*!
+  \ingroup Algo
+  \brief A DataClipper gets a bunch of data and determines at what value to
+  clip if a certain clippercentag is desired.
+  
+  For simple cases, where no subselection is needed (i.e. the stats will be
+  performed on all values, and only one dataset is used) the static function
+  calculateRange is good enough:
+  
+  \code
+  TypeSet<float> mydata;
+  Interval<float> range;
+  DataClipper::calculateRange( mydata.arr(), mydata.size(), 0.05, 0.05,
+  range );
+  \endcode
+  
+  If there are more than one dataset, or if a subselection is wanted, the class
+  is used as follows:
+  
+  -# Create object
+  -# If subselection is wanted, set total nr of samples and statsize with
+  setApproxNrValues
+  -# Add all your sources putData
+  -# If you only want a fixed range, call calculateRange.
+  -# If you want to come back an get multiple ranges, call fullSort. After
+  fullSort, the getRange functions can be called, any number of times.
+  -# To prepare the object for a new set of data, call reset.
+  
+  Example
+  \code
+  Array3D<float> somedata;
+  TypeSet<float> moredata;
+  float	   otherdata;
+  
+  DataClipper clipper;
+  setApproxNrValues( somedata.info().getTotalSz()+moredata.size()+1, 2000 );
+  clipper.putData( somedata );
+  clipper.putData( moredata.arr(), moredata.size() );
+  clipper.putData( otherdata );
+  
+  clipper.fullSort();
+  
+  Interval<float> clip99;
+  Interval<float> clip95;
+  Interval<float> clip90;
+  clipper.getRange( 0.01, clip99 );
+  clipper.getRange( 0.05, clip95 );
+  clipper.getRange( 0.10, clip90 );
+  \endcode
+  
 */
-
 
 mClass(Algo) DataClipper
 {
@@ -129,6 +128,11 @@ protected:
     Interval<float>		absoluterg_;
 };
 
+
+/*!
+  \ingroup Algo
+  \brief Data clipping sampler.
+*/
 
 mClass(Algo) DataClipSampler
 {

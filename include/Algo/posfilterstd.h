@@ -20,7 +20,10 @@ ________________________________________________________________________
 namespace Pos
 {
 
-/*!\brief Passes a percentage of the positions */
+/*!
+  \ingroup Algo
+  \brief Passes a percentage of the positions.
+*/
 
 mClass(Algo) RandomFilter : public virtual Filter
 {
@@ -72,7 +75,10 @@ static Filter2D* create()	{ return new clssnm##Filter2D; } \
 mSimpPosFilterDefFnsBase
 
 
-/*!\brief Passes a percentage of the positions (3D) */
+/*!
+  \ingroup Algo
+  \brief Passes a percentage of the positions (3D).
+*/
 
 mClass(Algo) RandomFilter3D : public Filter3D
 		     , public RandomFilter
@@ -84,7 +90,10 @@ public:
 };
 
 
-/*!\brief Passes a percentage of the positions (2D) */
+/*!
+  \ingroup Algo
+  \brief Passes a percentage of the positions (2D).
+*/
 
 mClass(Algo) RandomFilter2D : public Filter2D
 		     , public RandomFilter
@@ -95,7 +104,10 @@ public:
 
 };
 
-/*!\brief Passes each nth position */
+/*!
+  \ingroup Algo
+  \brief Passes each nth position.
+*/
 
 mClass(Algo) SubsampFilter : public virtual Filter
 {
@@ -126,7 +138,10 @@ protected:
 };
 
 
-/*!\brief Passes each nth position (3D) */
+/*!
+  \ingroup Algo
+  \brief Passes each nth position (3D).
+*/
 
 mClass(Algo) SubsampFilter3D : public Filter3D
 		      , public SubsampFilter
@@ -138,7 +153,10 @@ public:
 };
 
 
-/*!\brief Passes each nth position (2D) */
+/*!
+  \ingroup Algo
+  \brief Passes each nth position (2D).
+*/
 
 mClass(Algo) SubsampFilter2D : public Filter2D
 		      , public SubsampFilter

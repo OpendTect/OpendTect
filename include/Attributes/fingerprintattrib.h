@@ -15,27 +15,29 @@ ________________________________________________________________________
 #include "attributesmod.h"
 #include "attribprovider.h"
 
-/*!\brief FingerPrint Attribute
-
-FingerPrint vector= nrattrib= 
-
-Calculates the match with a definite vector.
-
-Input:
-0		Data 0
-1		Data 1
-.		.
-.		.
-nrattrib-1	Data nrattrib-1
-
-
-Output:
-0       Match
-
-*/
-
 namespace Attrib
 {
+
+/*!
+  \ingroup Attributes
+  \brief FingerPrint Attribute
+  
+  FingerPrint vector= nrattrib= 
+  
+  Calculates the match with a definite vector.
+  
+  Input:
+  0		Data 0
+  1		Data 1
+  .		.
+  .		.
+  nrattrib-1	Data nrattrib-1
+  
+  
+  Output:
+  0       Match
+  
+*/
 
 mClass(Attributes) FingerPrint : public Provider
 {

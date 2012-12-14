@@ -25,6 +25,10 @@ template <class T> class Array2DImpl;
 class IOPar;
 class TimeDepthModel;
 
+/*!
+  \ingroup Algo
+  \brief
+*/
 mClass(Algo) RayTracer1D : public ParallelTask
 { 
 public:

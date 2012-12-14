@@ -26,20 +26,21 @@ namespace Attrib
 {
 class DataCubes;
 
-    /*!\brief Holds the data used in the attribute data
-
-      Basically, this is a set of ValueSeries<float> objects, the size of
-      each of these, and the start Z in the AE Z-Axis definition:
-      N = N times the Z step. z0_ is therefore the amount of steps away from 0.
-
-      The AE will work with any type of ValueSeries<float>. Internally,
-      ArrayValueSeries<float,float> objects are always allocated.
-
-      The class variable extrazfromsamppos_ is to keep track of an eventual 
-      exact position which would not be exactly on a sample ( in the case of 
-      horizons, picksets... )
-
-      */
+/*!
+  \ingroup AttributeEngine
+  \brief Holds the attribute data.
+  
+  Basically, this is a set of ValueSeries<float> objects, the size of
+  each of these, and the start Z in the AE Z-Axis definition:
+  N = N times the Z step. z0_ is therefore the amount of steps away from 0.
+  
+  The AE will work with any type of ValueSeries<float>. Internally,
+  ArrayValueSeries<float,float> objects are always allocated.
+  
+  The class variable extrazfromsamppos_ is to keep track of an eventual 
+  exact position which would not be exactly on a sample ( in the case of 
+  horizons, picksets... )  
+*/
 
 mClass(AttributeEngine) DataHolder
 {
@@ -65,10 +66,10 @@ public:
     int			z0_;	//!< See class comments
     int			nrsamples_;
     float		extrazfromsamppos_;	//!< See class comments
-    TypeSet<int>	classstatus_;	//each serie can have a different status
-	    			 	// -1 Unknown
-    					//  0 Interpolate
-    					//  1 Classification
+    TypeSet<int>	classstatus_;  //each series can have a different status
+				       // -1 Unknown
+				       //  0 Interpolate
+				       //  1 Classification
 
 protected:
 
@@ -79,7 +80,10 @@ protected:
 };
 
 
-/*!Class that holds 2d data seismic or attribute data. */
+/*!
+  \ingroup AttributeEngine
+  \brief Class that holds 2d seismic data or attribute data.
+*/
 
 mClass(AttributeEngine) Data2DHolder
 { mRefCountImpl(Data2DHolder);
@@ -99,6 +103,12 @@ public:
     inline bool			isEmpty() const	{ return size() == 0; }
 
 };
+
+
+/*!
+  \ingroup AttributeEngine
+  \brief Class that holds 2d seismic data or attribute data in an array.
+*/
 
 mClass(AttributeEngine) Data2DArray
 { mRefCountImpl(Data2DArray);

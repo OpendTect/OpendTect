@@ -22,6 +22,11 @@ namespace Attrib
 
 class DescSet;
 
+/*!
+  \ingroup AttributeEngine
+  \brief Manages attribute description set. 
+*/
+
 mClass(AttributeEngine) DescSetMan
 {
 public:

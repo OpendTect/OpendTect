@@ -18,8 +18,10 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "windowfunction.h"
 
-/*!Smothes a 2d signal with an an operator. */
-
+/*!
+  \ingroup Algo
+  \brief Smoothes a 2d signal with an operator.
+*/
 
 template <class T>
 class Smoother2D : public Task

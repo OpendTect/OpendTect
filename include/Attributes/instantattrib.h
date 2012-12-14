@@ -25,6 +25,11 @@ ________________________________________________________________________
 namespace Attrib
 {
 
+/*!
+  \ingroup Attributes
+  \brief Instantaneous Attribute
+*/
+
 mClass(Attributes) Instantaneous : public Provider
 {
 public:

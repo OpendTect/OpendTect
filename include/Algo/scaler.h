@@ -23,11 +23,12 @@ ________________________________________________________________________
 #define sAsymptScaler	"Asymptotic"
 
 
-/*!\brief Scaling of floating point numbers.
-
-Scaler is an interface for scaling and scaling back numbers. Also, string I/O
-is defined, aswell as a factory (Scaler::get).
-
+/*!
+  \ingroup Algo
+  \brief Scaling of floating point numbers.
+  
+  Scaler is an interface for scaling and scaling back numbers. Also, string I/O
+  is defined, as well as a factory (Scaler::get).
 */
 
 mClass(Algo) Scaler
@@ -48,7 +49,9 @@ public:
 };
 
 
-/*!\brief Linear scaling
+/*!
+  \ingroup Algo
+  \brief Linear scaling
 */
 
 mClass(Algo) LinScaler : public Scaler
@@ -88,7 +91,9 @@ inline bool LinScaler::isEmpty() const
 }
 
 
-/*!\brief Logarithmic scaling, base e or ten.
+/*!
+  \ingroup Algo
+  \brief Logarithmic scaling, base e or ten.
 */
 
 mClass(Algo) LogScaler : public Scaler
@@ -113,7 +118,9 @@ public:
 };
 
 
-/*!\brief Exponential scaling, base e or ten.
+/*!
+  \ingroup Algo
+  \brief Exponential scaling, base e or ten.
 */
 
 mClass(Algo) ExpScaler : public Scaler
@@ -139,16 +146,17 @@ public:
 };
 
 
-/*!\brief Asymptotic or 'Squeeze' scaling, with a linear (main) part.
-
-This scaler scales between -1 and 1. Between center()-width()
-and center()+width() this will happen linearly. The value at width() will be
-linedge(). Therefore, linedge should be set to a value near 1, like the
-default 0.95.
-Outside the width() boundaries, a 1 / (1 + x^2) function will make
-sure the output will be between -1 and 1. Thus, this scaler acts as a
-reversible squeeze function, with a non-deforming (linear), fast central part.
-
+/*!
+  \ingroup Algo
+  \brief Asymptotic or 'Squeeze' scaling, with a linear (main) part.
+  
+  This scaler scales between -1 and 1. Between center()-width()
+  and center()+width() this will happen linearly. The value at width() will be
+  linedge(). Therefore, linedge should be set to a value near 1, like the
+  default 0.95.
+  Outside the width() boundaries, a 1 / (1 + x^2) function will make
+  sure the output will be between -1 and 1. Thus, this scaler acts as a
+  reversible squeeze function, with a non-deforming (linear), fast central part.
 */
 
 mClass(Algo) AsymptScaler : public Scaler

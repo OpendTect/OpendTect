@@ -27,6 +27,11 @@ class MathExpression;
 namespace Attrib
 {
 
+/*!
+  \ingroup Attributes
+  \brief Math Attribute
+*/
+
 mClass(Attributes) Math : public Provider
 {
 public:

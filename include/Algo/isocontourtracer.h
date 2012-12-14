@@ -18,7 +18,10 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "polygon.h"
 
-/*!\brief Tracing the z-level contour of a 2D scalar field. */
+/*!
+  \ingroup Algo
+  \brief Tracing the z-level contour of a 2D scalar field.
+*/
 
 mClass(Algo) IsoContourTracer
 {

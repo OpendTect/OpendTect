@@ -19,6 +19,11 @@ ________________________________________________________________________
 #define mArrNDChunkSz 1024
 
 
+/*!
+  \ingroup Basic
+  \brief ArrayND I/O from/to a file.
+*/
+
 template <class T>
 class ArrayNDFileStor : public ValueSeries<T>
 {

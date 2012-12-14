@@ -15,10 +15,13 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "general.h"
 
-/*!Class to calculate curvature from 9 regularly sampled points. Equations are
-   derived from "Wood, J.D. (1996) The geomorphological characterisation of
-   digital elevation models PhD Thesis, University of Leicester, UK,
-   http://www.soi.city.ac.uk/~jwo/phd"
+/*!
+  \ingroup Algo
+  \brief Class to calculate curvature from 9 regularly sampled points.
+
+  Equations are derived from "Wood, J.D. (1996) The geomorphological
+  characterisation of digital elevation models PhD Thesis, University of
+  Leicester, UK, http://www.soi.city.ac.uk/~jwo/phd"
 */
 
 mClass(Algo) Curvature

@@ -18,6 +18,11 @@ ________________________________________________________________________
 class Conn;
 namespace Attrib { class DescSet; }
 
+/*!
+  \ingroup AttributeEngine
+  \brief Translator group for I/O of DescSet.
+*/
+
 mClass(AttributeEngine) AttribDescSetTranslatorGroup : public TranslatorGroup
 {			  isTranslatorGroup(AttribDescSet)
 public:
@@ -26,6 +31,11 @@ public:
     virtual const char*	defExtension() const		{ return "attr"; }
 };
 
+
+/*!
+  \ingroup AttributeEngine
+  \brief Base Translator class for I/O of DescSet.
+*/
 
 mClass(AttributeEngine) AttribDescSetTranslator : public Translator
 {
@@ -46,7 +56,10 @@ public:
 };
 
 
-
+/*!
+  \ingroup AttributeEngine
+  \brief Actual Translator class for I/O of DescSet.
+*/
 mClass(AttributeEngine) dgbAttribDescSetTranslator : public AttribDescSetTranslator
 {			     isTranslator(dgb,AttribDescSet)
 public:

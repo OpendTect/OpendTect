@@ -29,8 +29,9 @@ namespace Attrib
 class Desc;
 class DescSet;
 
-/*!\brief
-  Specifies an attribute selection (ID or output number of NN).
+/*!
+  \ingroup AttributeEngine
+  \brief Specifies an attribute selection (ID or output number of NN).
 
   When attrib sets and NLAs change, the IDs may be no longer valid. Thus, the
   user reference is stored, so you can try to get a valid ID in that situation.
@@ -121,7 +122,10 @@ protected:
 };
 
 
-/*!\brief specifies current attribute choices (ID or output nr of NLA model). */
+/*
+   \ingroup AttributeEngine
+   \brief Specifies current attribute choices (ID or output nr of NLA model).
+*/
 
 mClass(AttributeEngine) CurrentSel
 {
@@ -136,7 +140,10 @@ public:
 };
 
 
-/*!\brief supplies lists of available attribute input */
+/*!
+  \ingroup AttributeEngine
+  \brief Supplies lists of available attribute input.
+*/
 
 mClass(AttributeEngine) SelInfo
 {

@@ -24,9 +24,11 @@ template <class T> class Array3DImpl;
 namespace Attrib
 {
 
-/*!\brief A class for holding cubes with attribute data. All the cubes have
-the same sampling and size.
- */
+/*!
+  \ingroup AttributeEngine
+  \brief A class for holding cubes with attribute data. All the cubes have
+  the same sampling and size.
+*/
 
 mClass(AttributeEngine) DataCubes
 { mRefCountImpl(DataCubes);

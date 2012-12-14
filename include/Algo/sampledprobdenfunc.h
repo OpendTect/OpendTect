@@ -21,10 +21,11 @@ ________________________________________________________________________
 
 class IOPar;
 
-/*!\brief PDF based on ArrayND implementation.
-
+/*!
+  \ingroup Algo
+  \brief PDF based on ArrayND implementation.
+  
   This interface should allow read/write generalized from disk.
-
 */
 
 mClass(Algo) ArrayNDProbDenFunc
@@ -94,6 +95,11 @@ protected:
     virtual void		prepareRandDrawing() const { prepRndDrw(); }
 
 
+/*!
+  \ingroup Algo
+  \brief One dimensional PDF based on binned data.
+*/
+
 mClass(Algo) Sampled1DProbDenFunc : public ProbDenFunc1D
 			    , public ArrayNDProbDenFunc
 {
@@ -128,6 +134,11 @@ protected:
 
 };
 
+
+/*!
+  \ingroup Algo
+  \brief Two dimensional PDF based on binned data.
+*/
 
 mClass(Algo) Sampled2DProbDenFunc : public ProbDenFunc2D
 			    , public ArrayNDProbDenFunc
@@ -165,12 +176,12 @@ protected:
 };
 
 
-/*!\brief Multi-dimensional PDF based on binned data.
-
+/*!
+  \ingroup Algo
+  \brief Multi-dimensional PDF based on binned data.
+  
   If the 'dimnms_' are not filled, 'Dim0', 'Dim1' ... etc. will be returned.
-
- */
-
+*/
 
 mClass(Algo) SampledNDProbDenFunc : public ProbDenFunc
 			    , public ArrayNDProbDenFunc

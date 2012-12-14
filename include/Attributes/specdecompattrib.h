@@ -17,9 +17,15 @@ ________________________________________________________________________
 #include "wavelettrans.h"
 #include "fourier.h"
 
+namespace Attrib
+{
 
-/*!\brief Spectral Decomposition Attribute
+class DataHolder;
 
+/*!
+\ingroup Attributes
+\brief Spectral Decomposition Attribute
+  
 SpecDecomp gate=[-12,12] window=[Box]|Hamming|Hanning|Barlett|Blackman|CosTaper5
 
 Calculates the frequency spectrum of a trace
@@ -36,11 +42,6 @@ Output:
 N
 
 */
-
-namespace Attrib
-{
-
-class DataHolder;
 
 mClass(Attributes) SpecDecomp : public Provider
 {

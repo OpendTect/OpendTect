@@ -28,6 +28,11 @@ class Desc;
 class Output;
 class Provider;
 
+/*!
+  \ingroup AttributeEngine
+  \brief Attribute Processor
+*/
+
 mClass(AttributeEngine) Processor : public Executor
 {
 public:

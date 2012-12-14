@@ -20,12 +20,14 @@ ________________________________________________________________________
 #include "fourier.h"
 #include "ranges.h"
 
-/*!\brief
-WaveletTransform is a ND wavelet transform.
-\par
-Specify wavelet at creation, and use in the same way as any TransformND.
-The algorithm is based on the one from NumericalRecipies, and additional 
-kernel support comes from the Matlab library "WaveLab" (Stanford University).
+/*!
+  \ingroup Algo
+  \brief
+  WaveletTransform is a ND wavelet transform.
+  \par
+  Specify wavelet at creation, and use in the same way as any TransformND.
+  The algorithm is based on the one from NumericalRecipies, and additional 
+  kernel support comes from the Matlab library "WaveLab" (Stanford University).
 */
 
 mClass(Algo) WaveletTransform
@@ -78,6 +80,10 @@ public:
     static bool		isCplx( WaveletType );
 };
 
+/*!
+  \ingroup Algo
+  \brief Discrete Wavelet Transform
+*/
 
 mClass(Algo) DWT : public GenericTransformND
 {
@@ -121,6 +127,11 @@ protected:
     WaveletTransform::WaveletType	wt_;
 };
 
+
+/*!
+  \ingroup Algo
+  \brief Continuous Wavelet Transform
+*/
 
 mClass(Algo) CWT 
 {

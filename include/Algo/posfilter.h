@@ -26,7 +26,9 @@ namespace Pos
 {
 class Provider;
 
-/*!\brief decideds whether a given position should be included
+/*!
+  \ingroup Algo
+  \brief Decides whether a given position should be included.
 
   Some Filters require initialization. There are two levels of initialization:
 
@@ -38,9 +40,8 @@ class Provider;
 
   Filter2D and Filter3D have factories. Providers too. Standard providers
   are not added to the Filter factory. Non-standard should in general be added
-  to both.
- 
- */
+  to both. 
+*/
 
 mClass(Algo) Filter
 {
@@ -72,7 +73,10 @@ public:
 };
 
 
-/*!\brief provides a filter related to 3D data */
+/*!
+  \ingroup Algo
+  \brief Provides a filter related to 3D data.
+*/
 
 mClass(Algo) Filter3D : public virtual Filter
 {
@@ -89,7 +93,10 @@ public:
 };
 
 
-/*!\brief provides a filter related to 2D seismic data */
+/*!
+  \ingroup Algo
+  \brief Provides a filter related to 2D seismic data.
+*/
 
 mClass(Algo) Filter2D : public virtual Filter
 {

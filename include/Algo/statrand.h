@@ -18,6 +18,11 @@ ________________________________________________________________________
 namespace Stats
 {
 
+/*!
+  \ingroup Algo
+  \brief Random Generator
+*/
+
 mClass(Algo) RandGen
 {
 public:

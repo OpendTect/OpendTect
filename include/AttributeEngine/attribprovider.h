@@ -41,7 +41,10 @@ class DataHolderLineBuffer;
 class Desc;
 class ProviderTask;
 
-/*!\brief provides the actual output to ... */
+/*!
+  \ingroup AttributeEngine
+  \brief Provides the actual output to ...
+*/
 
 mClass(AttributeEngine) Provider
 {				mRefCountImpl(Provider);

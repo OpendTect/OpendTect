@@ -18,7 +18,12 @@ ________________________________________________________________________
 #include "valseriesinterpol.h"
 #include "mathfunc.h"
 
-/*!\brief Similarity Attribute
+namespace Attrib
+{
+    
+/*!
+\ingroup Attributes
+\brief Similarity Attribute
 
 Similarity gate= pos0= pos1= stepout=1,1 extension=[0|90|180|Cube|Cross|AllDir|Diagonal] steering=[Yes|No]
 
@@ -56,9 +61,6 @@ and if dip-browser chosen:
 => in this case the extension Cross is forced
 
 */
-
-namespace Attrib
-{
 
 mClass(Attributes) Similarity : public Provider
 {

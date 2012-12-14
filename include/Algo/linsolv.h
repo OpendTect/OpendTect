@@ -10,9 +10,6 @@ ________________________________________________________________________
  RCS:           $Id$
 ________________________________________________________________________
 
-LinSolver - Solves linear systems of equations on the form A*x=B. A is
-a matrix of the size N*N, x is a column vector of the size N and B is a column
-vector of the size N.
 @$
 */
 
@@ -22,6 +19,12 @@ vector of the size N.
 #include "sets.h"
 #define TINY 1.0e-20
 
+/*!
+  \ingroup Algo
+  \brief LinSolver - Solves linear systems of equations on the form A*x=B. A is
+  a matrix of the size N*N, x is a column vector of the size N and B is a column
+  vector of the size N.
+*/
 template <class T>
 class LinSolver
 {

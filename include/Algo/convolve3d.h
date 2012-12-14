@@ -17,8 +17,10 @@ ________________________________________________________________________
 #include "task.h"
 #include "math2.h"
 
-/*!Convolves (or correlates) two 3D signals. */
-
+/*!
+  \ingroup Algo
+  \brief Convolves (or correlates) two 3D signals.
+*/
 
 template <class T>
 class Convolver3D : public ParallelTask

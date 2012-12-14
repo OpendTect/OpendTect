@@ -68,10 +68,13 @@ mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,int)
 #undef mDoSort
 
 
-/*!Sorting in parallel. Code is still experimental. The basic principle is:
-1. Divide samples into subsets.
-2. Sort subsets in parallel
-3. Merge pairs of subsets iteratively until there are only one subset left.
+/*!
+  \ingroup Algo
+  \brief Sorting in parallel. Code is still experimental.
+  The basic principle is:
+  1. Divide samples into subsets.
+  2. Sort subsets in parallel.
+  3. Merge pairs of subsets iteratively until there are only one subset left.
 */
 
 template <class T>

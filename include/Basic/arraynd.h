@@ -9,14 +9,6 @@ ________________________________________________________________________
  RCS:		$Id$
 ________________________________________________________________________
 
-An ArrayND is an array with a given number of dimensions and a size. The
-ArrayND can be accessed via set() and get().
-
-The ArrayND can give away a pointer to it's storage, but there is no
-guarantee that it will. If no pointer is given, the user can copy the
-ArrayND by constructing an ArrayNDImpl with the original array as an argument
-to the constructor.
-
 */
 
 #include "basicmod.h"
@@ -30,6 +22,17 @@ to the constructor.
 #define mPolyArray1DInfoTp mPolyRet(ArrayNDInfo,Array1DInfo)
 #define mPolyArray2DInfoTp mPolyRet(ArrayNDInfo,Array2DInfo)
 #define mPolyArray3DInfoTp mPolyRet(ArrayNDInfo,Array3DInfo)
+
+/*!
+  \ingroup Basic
+  \brief An ArrayND is an array with a given number of dimensions and a size.
+  The ArrayND can be accessed via set() and get().
+  
+  The ArrayND can give away a pointer to its storage, but there is no
+  guarantee that it will. If no pointer is given, the user can copy the
+  ArrayND by constructing an ArrayNDImpl with the original array as an argument
+  to the constructor.
+*/
 
 template <class T>
 class ArrayND 
@@ -95,6 +98,11 @@ protected:
 };
 
 
+/*!
+  \ingroup Basic
+  \brief Array1D ( Subclass of ArrayND ) is a one dimensional array.
+*/
+
 template <class T>
 class Array1D : public ArrayND<T>
 	      , public ValueSeries<T>
@@ -119,6 +127,11 @@ public:
 };
 
 
+/*!
+  \ingroup Basic
+  \brief Array2D ( Subclass of ArrayND ) is a two dimensional array.
+*/
+
 template <class T>
 class Array2D : public ArrayND<T>
 {
@@ -133,6 +146,11 @@ public:
     virtual const Array2DInfo&	info() const = 0;
 };
 
+
+/*!
+  \ingroup Basic
+  \brief Array3D ( Subclass of ArrayND ) is a three dimensional array.
+*/
 
 template <class T> class Array3D : public ArrayND<T>
 {
@@ -149,11 +167,13 @@ public:
 };
 
 
-/*!\brief iterates through all samples in an ArrayND.
-
-   ArrayNDIter will be on the first position when initiated, and move to
-   the second at the fist call to next(). next() will return false when
-   no more positions are avaliable.
+/*!
+  \ingroup Basic
+  \brief Iterates through all samples in an ArrayND.
+  
+  ArrayNDIter will be on the first position when initiated, and move to
+  the second at the first call to next(). next() will return false when
+  no more positions are available.
 */
 
 mClass(Basic) ArrayNDIter
@@ -181,8 +201,11 @@ protected:
 #define mArrayNDVSAdapterNrDim 20
 
 
-/*! Adapter that makes any ArrayND to a (slow) value series. Try using 
-    other methods (like getting the storage) as this is slow. */
+/*!
+  \ingroup Basic
+  \brief Adapter that makes any ArrayND to a (slow) value series. Try using 
+  other methods (like getting the storage) as this is slow.
+*/
 
 template <class T>
 class ArrayNDValseriesAdapter : public ValueSeries<T>
@@ -235,7 +258,10 @@ template <class T> inline void ArrayNDIter::setPos( const T& idxable )
 }
 
 
-/*! Converter classes from one type to another. */
+/*!
+  \ingroup Basic
+  \brief Converter classes from one type to another.
+*/
 
 #define mDefArrayNDConverter(nd) \
 template <class T, class TT> \
@@ -361,6 +387,10 @@ void ArrayND<T>::setAll( const T& val )
     } while ( iterator.next() );
 }
 
+/*!
+  \ingroup Basic
+  \brief Gets a one dimensional array from an ArrayND.
+*/
 
 template <class T>
 class ArrayNDGetAll : public ParallelTask

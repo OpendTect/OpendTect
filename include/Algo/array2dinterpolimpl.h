@@ -26,14 +26,19 @@ class Triangle2DInterpolator;
 class A2DIntExtenExecutor;
 
 
-/*!Class that interpolates 2D arrays with inverse distance.
+/*!
+  \ingroup Algo
+  \brief Interpolates 2D arrays using inverse distance method.
 
 Parameters:
-searchradius	sets the search radius. Should have the same unit as
+
+1) searchradius - 
+		sets the search radius. Should have the same unit as
 		given in setRowStep and getColStep.
 		If undefined, all defined nodes will be used, and no other
 		settings will be used.
-stepsize/nrsteps
+
+2) stepsize/nrsteps - 
 		sets how many nodes that will be done in each step. Each step 
 		will only use points defined in previous steps (not really true
 		as shortcuts are made). In general, larger steps gives faster
@@ -41,7 +46,8 @@ stepsize/nrsteps
 		is 10, a border of maximum 100 nodes will be interpolated around
 		the defined positions.
 
-cornersfirst	if true, algorithm will only interpolate nodes that has the 
+3) cornersfirst - 
+		if true, algorithm will only interpolate nodes that has the 
 		same number of support (i.e. neigbors) within +-stepsize, before
 		reevaluating which nodes to do next. Enabling cornersfirst will
 		give high quality output at the expense of speed.
@@ -122,6 +128,10 @@ protected:
     TypeSet<od_int64>		nrsources_;	//linked to todothisstep or zero
 };
 
+/*!
+    \ingroup Algo
+    \brief Uses triangulation method to interpolate two dimensional arrays.
+*/
 
 mClass(Algo) TriangulationArray2DInterpol : public Array2DInterpol
 {
@@ -174,7 +184,11 @@ protected:
 };
 
 
-//Extension
+/*!
+  \ingroup Algo
+  \brief An extension of array 2D interpolator.
+*/
+
 mClass(Algo) Array2DInterpolExtension : public Array2DInterpol
 {
 public:

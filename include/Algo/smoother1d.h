@@ -20,8 +20,10 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "windowfunction.h"
 
-/*!Smothes a 1d signal with an an operator. */
-
+/*!
+  \ingroup Algo
+  \brief Smoothes a 1d signal with an operator.
+*/
 
 template <class T>
 class Smoother1D : public ParallelTask

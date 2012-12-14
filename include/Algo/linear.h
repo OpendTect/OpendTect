@@ -18,7 +18,10 @@ ________________________________________________________________________
 namespace Geom { template <class T> class Point2D; }
 
 
-/*!\brief steepness and intercept. */
+/*!
+  \ingroup Algo
+  \brief Steepness and intercept.
+*/
 
 template <class T>
 class LineParameters : public MathFunction<T,T>
@@ -42,7 +45,10 @@ public:
 typedef LineParameters<float> LinePars;
 
 
-/*!\brief steepnesses and intercept. */
+/*!
+  \ingroup Algo
+  \brief Steepnesses and intercept.
+*/
 
 template <class T>
 class PlaneParameters : public MathXYFunction<T,T>
@@ -63,7 +69,10 @@ public:
 typedef PlaneParameters<float> PlanePars;
 
 
-/*!\brief linear stats in 2D. */
+/*!
+  \ingroup Algo
+  \brief linear stats in 2D.
+*/
 
 mClass(Algo) LinStats2D
 {
@@ -79,7 +88,10 @@ public:
 };
 
 
-/*!\brief linear stats in 3D. */
+/*!
+  \ingroup Algo
+  \brief linear stats in 3D.
+*/
 
 mClass(Algo) LinStats3D
 {

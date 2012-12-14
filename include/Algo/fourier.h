@@ -23,8 +23,10 @@ namespace Fourier
 
 class FFTCC1D;
 
-/*!\brief Does Fourier Transforms of any size */
-
+/*!
+  \ingroup Algo
+  \brief Does Fourier Transforms of any size.
+*/
 
 mClass(Algo) CC : public GenericTransformND
 {
@@ -93,7 +95,11 @@ protected:
 };
 
 
-/*!Computes FFT for any size of data. */
+/*!
+  \ingroup Algo
+  \brief Computes FFT for any size of data.
+*/
+
 mClass(Algo) FFTCC1D
 {
 public:

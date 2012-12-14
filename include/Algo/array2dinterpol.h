@@ -22,6 +22,10 @@ ________________________________________________________________________
 template <class T> class Array2D;
 namespace Stats { class CalcSetup; }
 
+/*!
+  \ingroup Algo
+  \brief Base class for two dimensional array interpolators.
+*/
 
 mClass(Algo) Array2DInterpol : public ParallelTask
 {

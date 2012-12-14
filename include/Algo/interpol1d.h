@@ -131,13 +131,14 @@ inline T polyReg1D( T vm1, T v0, T v1, T v2, float x )
 }
 
 
-/*!<\brief PolyReg1D which smoothly handles undefined values
+/*!
+  \ingroup Algo
+  \brief PolyReg1D which smoothly handles undefined values
 
   Note that this class _requires_ x to be between 0 and 1 for correct undef
   handling. Correct means: if the nearest sample is undefined, return
   undefined. Otherwise always return a value.
-
-  */
+*/
 
 template <class T>
 class PolyReg1DWithUdf

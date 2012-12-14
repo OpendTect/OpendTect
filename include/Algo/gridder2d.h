@@ -24,7 +24,10 @@ class IOPar;
 class DAGTriangleTree;
 class Triangle2DInterpolator;
 
-/*! Generic interface for 2D gridding. */
+/*!
+  \ingroup Algo
+  \brief Generic interface for 2D gridding.
+*/
 
 mClass(Algo) Gridder2D
 {
@@ -103,6 +106,11 @@ protected:
 };
 
 
+/*!
+  \ingroup Algo
+  \brief Uses inverse distance method for 2D gridding.
+*/
+
 mClass(Algo) InverseDistanceGridder2D : public Gridder2D 
 {
 public:
@@ -135,8 +143,11 @@ protected:
 };
 
 
-/*!Uses Delaunay triangulation to find a points neighbors and does inverse
-   distance between the neighbors. */
+/*!
+  \ingroup Algo
+  \brief Uses Delaunay triangulation to find a points neighbors and does
+  inverse distance between the neighbors.
+*/
 
 mClass(Algo) TriangulatedGridder2D: public Gridder2D
 {

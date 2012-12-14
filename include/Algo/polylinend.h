@@ -17,8 +17,11 @@ ________________________________________________________________________
 #include "typeset.h"
 
 
-/*!\brief (Closed) sequence(s) of connected n-D coordinates.
-          Undefined coordinates separate consecutive sequences. */
+/*!
+  \ingroup Algo
+  \brief (Closed) sequence(s) of connected n-D coordinates.
+  Undefined coordinates separate consecutive sequences.
+*/
 
 template <class T>
 class PolyLineND : public TypeSet<T>

@@ -18,20 +18,21 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-/*!\brief Event attribute
+/*!
+  \ingroup Attributes
+  \brief Event attribute
   
-EventAttrib  singleevent = 
-	     eventtype = extremum, max, min, zerocrossing...
-	     tonext = 
-	     gate =
-	     outamp = 
-
-Calculates properties of events ( peakedness, steepness, asymmetry)
-Calculates the distance between the sample and the next or previous eventtype
-Calculates the distance between the sample and the sample of max or min 
-amplitude withing a time gate.
-Can optionally return the amplitude value at event exact position
-
+  EventAttrib  singleevent = 
+	       eventtype = extremum, max, min, zerocrossing...
+  	       tonext = 
+  	       gate =
+  	       outamp = 
+	       
+  Calculates properties of events ( peakedness, steepness, asymmetry)
+  Calculates the distance between the sample and the next or previous eventtype
+  Calculates the distance between the sample and the sample of max or min 
+  amplitude withing a time gate.
+  Can optionally return the amplitude value at event exact position.
 */
 
 mClass(Attributes) Event : public Provider

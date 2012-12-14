@@ -27,21 +27,25 @@ namespace PreStack { class ProcessManager; class Gather; }
 namespace Attrib
 {
 
-/*!\brief "Pre-Stack Attribute"
+/*!
+  \ingroup Attributes
+  \brief "Pre-Stack Attribute"
+  
+  PreStack calctype= axistype= lsqtype= offsaxis= valaxis= useazim= comp=
+  aperture= preprocessor=
+  
+  Outputs a standard attribute from pre-stack data.
+  
+  Input:
+  0		Pre-Stack Data
+  
+  Output:
+  0		Attribute
 
-PreStack calctype= axistype= lsqtype= offsaxis= valaxis= useazim= comp= aperture= preprocessor=
-
-Outputs a standard attribute from pre-stack data.
-
-Input:
-0		Pre-Stack Data
-
-Output:
-0		Attribute
+  Classname should really be PreStack, but the compiler complains and mixes up
+  with PreStack namespace.
 */
     
-//Classname should really be PreStack, but compiler complains and mixes up
-//with PreStack namespace.
 mClass(Attributes) PSAttrib : public Provider
 {
 public:

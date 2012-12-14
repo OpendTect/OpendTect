@@ -27,7 +27,10 @@ ________________________________________________________________________
 namespace Fourier { class CC; }
 typedef std::complex<float> float_complex;
 
-/*!Convolves (or correlates) two 2D signals. */
+/*!
+  \ingroup Algo
+  \brief Convolves (or correlates) two 2D signals.
+*/
 
 template <class T>
 mAlgoClass Convolver2D : public ParallelTask

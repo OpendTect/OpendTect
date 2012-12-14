@@ -32,6 +32,10 @@ class ValParam;
 typedef void(*DescStatusUpdater)(Desc&);
 typedef void(*DescDefaultsUpdater)(Desc&);
 
+/*!
+  \ingroup AttributeEngine
+  \brief Setup class for Attrib::Desc.
+*/
 mClass(AttributeEngine) DescSetup
 {
     public:
@@ -48,6 +52,10 @@ mClass(AttributeEngine) DescSetup
 };
 
 
+/*!
+  \ingroup AttributeEngine
+  \brief Specification of input data of an attribute.
+*/
 mClass(AttributeEngine) InputSpec
 {
 public:
@@ -66,16 +74,18 @@ public:
 };
 
 
-/*!Description of an attribute in an Attrib::DescSet. Each attribute has
-   a name (e.g. "Similarity"), a user reference (e.g. "My similarity"), and at
-   least one output. In addition, it may have parameters and inputs. If it has
-   multiple outputs, only one of the outputs are selected.
-
-   The attrib name, the parameters and the selected output number together form
-   a definition string that define what the attribute calculates.
-
-   Each Desc has DescID that is unique within it's DescSet.
- */
+/*!
+  \ingroup AttributeEngine
+  \brief Description of an attribute in an Attrib::DescSet. Each attribute has
+  a name (e.g. "Similarity"), a user reference (e.g. "My similarity"), and at
+  least one output. In addition, it may have parameters and inputs. If it has
+  multiple outputs, only one of the outputs are selected.
+  
+  The attrib name, the parameters and the selected output number together form
+  a definition string that defines what the attribute calculates.
+  
+  Each Desc has DescID that is unique within it's DescSet.
+*/
 
 mClass(AttributeEngine) Desc
 { mRefCountImpl(Desc);

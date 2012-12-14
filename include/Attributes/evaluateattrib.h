@@ -17,17 +17,17 @@ ________________________________________________________________________
 #include "attribprovider.h"
 
 
-/*!\brief Evaluate Attribute
-
-Attribute built for convenience purpose; only there to allow the computation of
-a set of attributes in one go;
-
-*/
-    
-
 namespace Attrib
 {
 
+/*!
+  \ingroup Attributes
+  \brief Evaluate Attribute
+  
+  Attribute built for convenience purpose; only there to allow the computation
+  of a set of attributes in one go;
+*/
+    
 mClass(Attributes) Evaluate: public Provider
 {
 public:

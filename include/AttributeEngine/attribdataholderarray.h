@@ -21,6 +21,10 @@ namespace Attrib
 
 class DataHolder;
 
+/*!
+  \ingroup AttributeEngine
+  \brief An array of attribute data holders.
+*/
 mClass(AttributeEngine) DataHolderArray : public Array3D<float>
 {
 public:

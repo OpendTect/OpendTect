@@ -18,8 +18,11 @@ ________________________________________________________________________
 class IOPar;
 template <class T> class ValueSeries;
 
-/*!Base class for a tracker that tracks something (e.g. min, max, a certain
-   value)++ from one ValueSeries<float> to another. */
+/*!
+  \ingroup Algo
+  \brief Base class for a tracker that tracks something (e.g. min, max,
+  a certain value)++ from one ValueSeries<float> to another.
+*/
 
 mClass(Algo) ValSeriesTracker
 {
@@ -55,8 +58,10 @@ protected:
 };
 
 
-/*!Tracker that tracks Min/Max & Zero crossings between valueseries. */
-
+/*!
+  \ingroup Algo
+  \brief Tracker that tracks Min/Max & Zero crossings between valueseries.
+*/
 
 mClass(Algo) EventTracker : public ValSeriesTracker
 {
@@ -149,6 +154,7 @@ public:
 
     void			fillPar(IOPar& par) const;
     bool			usePar(const IOPar& par);
+
 protected:
 
     ValueSeriesEvent<float,float>

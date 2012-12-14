@@ -16,12 +16,13 @@ ________________________________________________________________________
 #include "fourier.h"
 
 
-/*!\brief
-Spectrogram calculates the spectrogram of a N-dimensional signal. The
-spectrogram is the square of the absolute values of the FourierTransform,
-and is the 'traditional' way to view a signal's frequency distribution.
-
-Spectrogram is not reversible.
+/*!
+  \ingroup Algo
+  \brief Spectrogram calculates the spectrogram of a N-dimensional signal.
+  The spectrogram is the square of the absolute values of the FourierTransform,
+  and is the 'traditional' way to view a signal's frequency distribution.
+  
+  Spectrogram is not reversible.
 */
 
 mClass(Algo) Spectrogram 

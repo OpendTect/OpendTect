@@ -22,10 +22,12 @@ ________________________________________________________________________
 template <class T> class ValueSeries;
 
 
-/*!Converts between time, depth and velocity given a model. The velocity model
-   can be either RMO-velocities in time, or interval velocity in either depth or
-   time. */
-
+/*!
+  \ingroup Algo
+  \brief Converts between time, depth and velocity given a model. The velocity
+  model can be either RMO-velocities in time, or interval velocity in either
+  depth or time.
+*/
 
 mClass(Algo) TimeDepthModel
 {
@@ -68,6 +70,10 @@ protected:
 };
 
 
+/*!
+  \ingroup Algo
+  \brief Converts between time and depth given a model.
+*/
 
 mClass(Algo) TimeDepthConverter : public TimeDepthModel
 {
@@ -119,7 +125,11 @@ protected:
 };
 
 
-/*!Base class for computing a moveout curve. */
+/*!
+  \ingroup Algo
+  \brief Base class for computing a moveout curve.
+*/
+
 mClass(Algo) MoveoutComputer
 {
 public:
@@ -141,7 +151,10 @@ public:
 };
 
 
-/*Computes moveout in depth from RMO at a certain reference offset */
+/*!
+  \ingroup Algo
+  \brief Computes moveout in depth from RMO at a certain reference offset.
+*/
 
 mClass(Algo) RMOComputer : public MoveoutComputer
 {
@@ -164,8 +177,11 @@ public:
 };
 
 
-/*! Computes moveout with anisotropy, according to the equation
-by Alkhalifah and Tsvankin 1995. */
+/*!
+  \ingroup Algo
+  \brief Computes moveout with anisotropy, according to the equation
+  by Alkhalifah and Tsvankin 1995.
+*/
 
 mClass(Algo) NormalMoveout : public MoveoutComputer
 {
@@ -193,7 +209,10 @@ public:
 
 mGlobal(Algo) bool computeDix(const float* Vrms, float t0, float v0, const float* t,
 			int nrlayers, float* Vint);
-
+/*!
+  \ingroup Algo
+  \brief Rms velocity to interval velocity conversion.
+*/
 mClass(Algo) Vrms2Vint
 {
 public:
@@ -203,6 +222,10 @@ public:
 	    			const float* t, int nrlayers, float* Vint) = 0;
 };
 
+/*!
+  \ingroup Algo
+  \brief Rms velocity to interval velocity conversion using the Dix formula.
+*/
 mClass(Algo) DixConversion : public Vrms2Vint
 {
 public:

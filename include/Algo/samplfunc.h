@@ -15,9 +15,11 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "periodicvalue.h"
 
-/*!\brief make any sampled series comply with MathFunction.
-If the sampled values are periodic (i.e. phase), set the periodic flag and let
-period() return the period ( i.e. 2*pi for phase ).
+/*!
+  \ingroup Algo
+  \brief make any sampled series comply with MathFunction.
+  If the sampled values are periodic (i.e. phase), set the periodic flag and
+  let period() return the period ( i.e. 2*pi for phase ).
 */
 
 template <class RT,class T>
@@ -84,7 +86,10 @@ protected:
 };
 
 
-/*!\brief implementation for array-type of SampledFunction */
+/*!
+  \ingroup Algo
+  \brief Implementation for array-type of SampledFunction.
+*/
 
 template <class RT, class T>
 class SampledFunctionImpl : public SampledFunction<RT,T>

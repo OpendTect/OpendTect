@@ -18,15 +18,16 @@ ________________________________________________________________________
 #include <iosfwd>
 
 
-/*! Inter/Extra-polate bendpoints to get the coordinates.
+/*!
+  \ingroup Algo
+  \brief Inter/Extra-polate bendpoints to get the coordinates.
 
   Input is a set of coordinates and optionally ID numbers (if you don't pass
   IDs they will be generated 0, 1, ....). Then you can give an ID (usually in
   between the bend point IDs) and get the interpolated coordinate.
 
   The bend points will be sorted on ID.
-
- */
+*/
 
 mClass(Algo) BendPoints2Coords
 {

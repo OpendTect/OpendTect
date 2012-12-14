@@ -26,6 +26,11 @@ namespace Attrib
 class EngineMan;
 class DescSet;
 
+/*!
+  \ingroup AttributeEngine
+  \brief Positionvector output generator for attributes.
+*/
+
 mClass(AttributeEngine) PosVecOutputGen : public Executor
 {
 public:

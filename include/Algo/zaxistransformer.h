@@ -20,11 +20,12 @@ class ZAxisTransform;
 
 template <class T> class Array3D;
 
-/*!Transforms an Array3D with a zaxistransform. It is assumed that the first
-   dimension in the array is inline, the second is crossline and that the third
-   is z.
+/*!
+  \ingroup Algo
+  \brief Transforms an Array3D with a zaxistransform. It is assumed that the
+  first dimension in the array is inline, the second is crossline and that the
+  third is z.
 */
-
 
 mClass(Algo) ZAxisTransformer : public ParallelTask
 {

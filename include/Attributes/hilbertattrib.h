@@ -18,11 +18,10 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-/*!\brief Hilbert attribute.
-
-  Calculates Hilbert transform
+/*!
+  \ingroup Attributes
+  \brief Calculates Hilbert transform.
 */
-
 
 mClass(Attributes) Hilbert : public Provider
 {
