@@ -159,6 +159,8 @@ public:
                    		Geometry2D();
                     		~Geometry2D();
 
+    Coord			toCoord(const TraceID& tid) const
+				{ return toCoord( tid.line_, tid.trcnr_); }
     virtual Coord		toCoord(int line, int tracenr) const;
     virtual TraceID		nearestTrace(const Coord&,float* dist) const;
 

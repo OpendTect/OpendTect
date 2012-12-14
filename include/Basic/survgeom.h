@@ -27,7 +27,7 @@ mClass(Basic) Geometry
 public:
     int			getGeomID() const { return geomid_; }
     void		setGeomID(int id) { geomid_ = id; }
-    Coord		toCoord(const TraceID& tid) const 
+    virtual Coord	toCoord(const TraceID& tid) const
 			{ return toCoord( tid.line_, tid.trcnr_ ); }
     virtual Coord	toCoord(int line, int tracenr) const		= 0;
     virtual TraceID	nearestTrace(const Coord&,float* distance) const= 0;
@@ -53,7 +53,7 @@ public:
     const Geometry*	getGeomety(int geomid) const;
     const Geometry*	getGeomety(const MultiID&) const;
     
-    Coord		transform(const TraceID&) const;
+    Coord		toCoord(const TraceID&) const;
     
     static int		cDefault3DGeom() { return -1; }
 

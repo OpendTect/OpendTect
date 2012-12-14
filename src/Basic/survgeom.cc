@@ -61,7 +61,7 @@ const Geometry* GeometryManager::getGeomety(const MultiID&) const
 }
 
 
-Coord GeometryManager::transform( const TraceID& tid ) const
+Coord GeometryManager::toCoord( const TraceID& tid ) const
 {
     RefMan<const Geometry> geom = getGeomety( tid.geomid_ );
     return geom ? geom->toCoord( tid.line_, tid.trcnr_ ) : Coord::udf();

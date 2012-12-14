@@ -54,6 +54,8 @@ public:
     
     float		zStep() const 		{ return cs_.zrg.step; }
     
+    Coord		toCoord(const TraceID& tid) const
+			{ return toCoord( tid.line_, tid.trcnr_ ); }
     Coord		toCoord(int line, int tracenr) const
 			{ return transform( BinID(line,tracenr)); }
     
@@ -115,8 +117,10 @@ public:
     bool		has2D() const;
     bool		has3D() const;
     
-    RefMan<InlCrlSystem> get3DGeometry(bool work) const;
-    Survey::GeometryManager& geomManager()	{ return geometryman_; }
+    RefMan<InlCrlSystem> 		get3DGeometry(bool work) const;
+    Survey::GeometryManager&		geomManager()	{ return geometryman_; }
+    const Survey::GeometryManager&	geomManager() const
+    					{ return geometryman_; }
 
     StepInterval<int>	inlRange(bool work) const;
     StepInterval<int>	crlRange(bool work) const;

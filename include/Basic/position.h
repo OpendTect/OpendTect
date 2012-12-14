@@ -228,7 +228,7 @@ class TraceID
 {
 public:
 				TraceID(const BinID& bid)
-				    : geomid_(-1)
+				    : geomid_( std3DGeomID() )
 				    , line_(bid.inl)
 				    , trcnr_(bid.crl) {}
 				TraceID(int geomid, int line, int trcnr)
@@ -237,10 +237,12 @@ public:
 				    , trcnr_(trcnr)
 				{}
     
+    static int			std3DGeomID();
+    
     static const TraceID&	udf();
     
     bool			isUdf() const { return trcnr_<0; }
-
+    
     int				geomid_;
 				/*!<-1 refers to the default 3d survey setup
 				    any positive value refers to the geometry.*/
