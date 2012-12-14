@@ -7,25 +7,26 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "ioman.h"
-#include "iodir.h"
-#include "iosubdir.h"
-#include "oddirs.h"
-#include "iopar.h"
-#include "iostrm.h"
-#include "transl.h"
+
+#include "ascstream.h"
+#include "envvars.h"
 #include "ctxtioobj.h"
+#include "errh.h"
 #include "file.h"
 #include "filepath.h"
-#include "errh.h"
-#include "strmprov.h"
-#include "survinfo.h"
-#include "survinfo.h"
-#include "ascstream.h"
-#include "timefun.h"
+#include "iodir.h"
+#include "iopar.h"
+#include "iostrm.h"
+#include "iosubdir.h"
 #include "oddatadirmanip.h"
-#include "envvars.h"
+#include "oddirs.h"
+#include "separstr.h"
 #include "settings.h"
 #include "staticstring.h"
+#include "strmprov.h"
+#include "survinfo.h"
+#include "timefun.h"
+#include "transl.h"
 
 #include <stdlib.h>
 
@@ -630,6 +631,11 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	delete tmptr;
 
 	ioobj = iostrm;
+	const char* odusrnm = GetSoftwareUser();
+	FileMultiString fms; fms.add( GetUserNm() );
+	if ( odusrnm ) fms.add( odusrnm );
+	ioobj->pars().set( sKey::User(), fms.buf() );
+
 	ioobj->pars().merge( ctio.ctxt.toselect.require_ );
 	dirPtr()->addObj( (IOObj*)ioobj );
     }

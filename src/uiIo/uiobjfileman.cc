@@ -265,7 +265,10 @@ BufferString uiObjFileMan::getFileInfo()
 	delete conn;
     }
 
-    txt += "Object ID: "; txt += curioobj_->key(); txt += "\n";
+    BufferString usrnm; curioobj_->pars().get( sKey::User(), usrnm );
+    if ( !usrnm.isEmpty() )
+	txt.add( "User: " ).add( usrnm ).add( "\n" );
+    txt.add( "Object ID: " ).add( curioobj_->key() ).add( "\n" );
     return txt;
 }
 
