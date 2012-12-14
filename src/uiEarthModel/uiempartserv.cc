@@ -52,6 +52,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiarray2dchg.h"
 #include "uiarray2dinterpol.h"
+#include "uibulkhorizonimp.h"
 #include "uichangesurfacedlg.h"
 #include "uiempreloaddlg.h"
 #include "uiexpfault.h"
@@ -157,8 +158,14 @@ bool uiEMPartServer::import3DHorAttr()
 }
 
 
-bool uiEMPartServer::import3DHorGeom()
+bool uiEMPartServer::import3DHorGeom( bool bulk )
 {
+    if ( bulk )
+    {
+	uiBulkHorizonImport dlg( parent() );
+	return dlg.go();
+    }
+
     if ( imphorgeomdlg_ )
 	imphorgeomdlg_->raise();
     else

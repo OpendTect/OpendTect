@@ -143,6 +143,8 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.emserv_->import3DHorAttr();
 	    else if ( opt == 2 )
 		am_.emattrserv_->import2DHorizon();
+	    else if ( opt == 3 )
+		am_.emserv_->import3DHorGeom( true );
 	    break;
 	mCase(Exp):
 	    if ( opt == 0 )

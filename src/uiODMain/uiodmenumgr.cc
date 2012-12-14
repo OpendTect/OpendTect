@@ -264,6 +264,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( imphorasc, "&Geometry 3D ...", mImpHorAsciiMnuItm );
     mInsertItem( imphorasc, "&Attributes 3D ...", mImpHorAsciiAttribMnuItm );
     mInsertItem( imphorasc, "&Geometry 2D ...", mImpHor2DAsciiMnuItm );
+    mInsertItem( imphorasc, "&Bulk 3D ...", mImpBulkHorAsciiMnuIm );
     imphor->insertItem( imphorasc );
 
     mInsertItem( impfault, "&Ascii 3D ...", mImpFaultMnuItm );
@@ -988,6 +989,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpHorAsciiMnuItm:		mDoOp(Imp,Hor,0); break;
     case mImpHorAsciiAttribMnuItm:	mDoOp(Imp,Hor,1); break;
     case mImpHor2DAsciiMnuItm:		mDoOp(Imp,Hor,2); break;
+    case mImpBulkHorAsciiMnuIm:		mDoOp(Imp,Hor,3); break;
     case mExpHorAscii3DMnuItm:		mDoOp(Exp,Hor,0); break;
     case mExpHorAscii2DMnuItm:		mDoOp(Exp,Hor,1); break;
     case mExpFltAsciiMnuItm:		mDoOp(Exp,Flt,0); break;

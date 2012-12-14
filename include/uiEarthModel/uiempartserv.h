@@ -55,7 +55,7 @@ public:
     const char*		name() const			{ return "EarthModel"; }
 
 			// Services
-    bool		import3DHorGeom();
+    bool		import3DHorGeom(bool bulk=false);
     bool		import3DHorAttr();
     bool		export3DHorizon();
     bool		export2DHorizon();
