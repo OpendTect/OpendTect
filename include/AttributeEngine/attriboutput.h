@@ -173,7 +173,6 @@ public:
     void			setOutpNames( const BufferStringSet& nms )
 				{ outpnames_ = nms; }
 
-    bool 			isDataType(const char*) const;
     const char*			errMsg() const	{ return errmsg_.str(); }
 
     static const char*		seisidkey();

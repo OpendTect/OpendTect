@@ -153,7 +153,7 @@ TypeSet< Interval<int> > DataCubesOutput::getLocalZRanges( const BinID&,
 				mNINT32( desiredvolume_.zrg.stop / zstep ) );
 	const_cast<DataCubesOutput*>(this)->sampleinterval_ += interval;
     }
-    return sampleinterval_; 
+    return sampleinterval_;
 }
 
 
@@ -182,7 +182,7 @@ void DataCubesOutput::adjustInlCrlStep( const CubeSampling& cs )
 	zsz = mNINT32( ( dcsampling_.zrg.stop - dcsampling_.zrg.start )\
 	      /refstep + 1 );
 
-void DataCubesOutput::collectData( const DataHolder& data, float refstep, 
+void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 				  const SeisTrcInfo& info )
 {
     if ( !datacubes_ )
@@ -190,7 +190,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 
     if ( !datacubes_->includes(info.binid) )
 	return;
-		
+
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
 	if ( desout<datacubes_->nrCubes() )
@@ -208,7 +208,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	    datacubes_->addCube(mUdf(float));
     }
 
-    int zsz; 
+    int zsz;
     mGetZSz();
 
     const Interval<int> inputrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
@@ -350,11 +350,24 @@ SeisTrcStorOutput::~SeisTrcStorOutput()
 }
 
 
+static bool isDataType( const char* reqtp )
+{
+    BufferString reqdatatype = reqtp;
+    if ( reqdatatype == sKey::Steering() )
+	reqdatatype += "Dip";
+
+    const BufferStringSet alldatatypes( Seis::dataTypeNames() );
+    return alldatatypes.isPresent( reqdatatype.buf() );
+}
+
+
 bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 {
     errmsg_ = "";
     PtrMan<IOPar> outppar = pars.subselect( IOPar::compKey(sKey::Output(),0) );
-    if ( !outppar ) outppar = pars.subselect( IOPar::compKey(sKey::Output(),1) );
+    if ( !outppar )
+	outppar = pars.subselect( IOPar::compKey(sKey::Output(),1) );
+
     if ( !outppar )
     {
         errmsg_ = "Could not find Output keyword in parameter file";
@@ -384,7 +397,7 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 	if ( scaler_->isEmpty() )
 	    { delete scaler_; scaler_ = 0; }
     }
-    
+
     auxpars_ = pars.subselect("Aux");
     return doInit();
 }//warning, only a small part of the old taken, see if some more is required
@@ -408,7 +421,7 @@ bool SeisTrcStorOutput::doInit()
 
 	if ( is2d_ && !datatype_.isEmpty() )
 	    writer_->setDataType( datatype_.buf() );
-	    
+
 
 	if ( auxpars_ )
 	{
@@ -430,23 +443,6 @@ bool SeisTrcStorOutput::doInit()
 }
 
 
-bool SeisTrcStorOutput::isDataType( const char* reqdatatype) const
-{
-    BufferString datatypeinques;
-
-    if ( reqdatatype==sKey::Steering() )
-	datatypeinques += "Dip";
-    else
-	datatypeinques += reqdatatype;
-
-    BufferStringSet datatypes( Seis::dataTypeNames() );
-
-    if ( datatypes.indexOf(datatypeinques.buf()) < 0 )
-	return false;
-
-    return true;
-}
-
 
 class COLineKeyProvider : public LineKeyProvider
 {
@@ -466,7 +462,7 @@ LineKey lineKey() const
 };
 
 
-void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep, 
+void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 				     const SeisTrcInfo& info )
 {
     int nrcomp = data.nrSeries();
@@ -488,7 +484,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
     else if ( trc_->info().binid != info.binid )
     {
 	errmsg_ = "merge components of two different traces!";
-	return;	    
+	return;
     }
     else
     {
@@ -502,10 +498,10 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    float val = data.series(desoutputs_[comp])->value(idx);
-	    trc_->set(idx, val, comp);
+	    trc_->set( idx, val, comp );
 	}
     }
-    
+
     if ( scaler_ )
     {
 	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
@@ -538,7 +534,7 @@ void SeisTrcStorOutput::writeTrc()
 	tmptrc = trc_->getExtendedTo( SI().zRange(true), true );
 	usetrc = tmptrc;
     }
-    
+
     if ( !storinited_ )
     {
 	SeisTrcTranslator* transl = 0;
@@ -547,7 +543,7 @@ void SeisTrcStorOutput::writeTrc()
 	    if ( IOObj::isKey(attribname_) )
 		attribname_ = IOM().nameOf(attribname_);
 
-	    writer_->setLineKeyProvider( 
+	    writer_->setLineKeyProvider(
 		new COLineKeyProvider( attribname_, curLineKey().lineName()) );
 	}
 	else
@@ -576,13 +572,13 @@ void SeisTrcStorOutput::writeTrc()
 	    ObjectSet<SeisTrcTranslator::TargetComponentData>& cis
 		             = transl->componentInfo();
 	    for ( int idx=0; idx<cis.size(); idx++ )
-		cis[idx]->datatype = outptypes_.size() ? outptypes_[idx] : 
+		cis[idx]->datatype = outptypes_.size() ? outptypes_[idx] :
 		    					Seis::UnknowData;
 	}
 
 	storinited_ = true;
     }
-    
+
     if ( !writer_->put(*usetrc) )
 	{ errmsg_ = writer_->errMsg(); }
 
@@ -591,14 +587,14 @@ void SeisTrcStorOutput::writeTrc()
 }
 
 
-TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRanges( 
+TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRanges(
 						    const BinID& bid,
 						    float zstep,
 						    TypeSet<float>& ) const
 {
     if ( sampleinterval_.size() == 0 )
     {
-	Interval<int> interval( mNINT32(desiredvolume_.zrg.start/zstep), 
+	Interval<int> interval( mNINT32(desiredvolume_.zrg.start/zstep),
 				mNINT32(desiredvolume_.zrg.stop/zstep) );
 	const_cast<SeisTrcStorOutput*>(this)->sampleinterval_ += interval;
     }
@@ -640,8 +636,8 @@ TwoDOutput::~TwoDOutput()
 bool TwoDOutput::wantsOutput( const BinID& bid ) const
 {
     return seldata_->crlRange().includes(bid.crl,true);
-} 
- 
+}
+
 
 void TwoDOutput::setGeometry( const Interval<int>& trg,
 			      const Interval<float>& zrg )
@@ -752,7 +748,7 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
 	const int highz = lowz + 1;
 	bool isfulldataok = datarg.includes(lowz-1,false) &&
 	    		    datarg.includes(highz+1,false);
-	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz,false) 
+	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz,false)
 			      && datarg.includes(highz,false);
 	if ( isfulldataok || canusepartdata )
 	    computeAndSetVals( data, refstep, vals );
@@ -788,7 +784,7 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
 {
     //TODO not 100% optimized, case of picksets for instance->find better algo
     TypeSet< Interval<int> > sampleinterval;
-    
+
     BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
     while ( pos.valid() )
     {
@@ -804,7 +800,7 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
 	bool intvadded = sampleinterval.addIfNew( interval );
 	if ( intvadded )
 	    exactz += vals[0];
-	
+
 	bidvalset_.next( pos );
 	if ( bid != bidvalset_.getBinID(pos) )
 	    break;
@@ -818,7 +814,7 @@ bool LocationOutput::areBIDDuplicated() const
 {
     BinIDValueSet tmpset(bidvalset_);
     tmpset.allowDuplicateBids(false);
-    
+
     return tmpset.totalSize()<bidvalset_.totalSize();
 }
 
@@ -852,7 +848,7 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
 	bidvalset.next( pos );
 	sd.binidValueSet().add( bidvalset.getBinID(pos), zmin );
 	sd.binidValueSet().add( bidvalset.getBinID(pos), zmax );
-	
+
 	stdtrcsz_ = zmax - zmin;
 	stdstarttime_ = zmin;
     }
@@ -898,9 +894,9 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 	{
 	    if ( idx < startidx || idx>=startidx+data.nrsamples_ )
 		trc->set( idx, outval_, comp );
-	    else  
+	    else
 	    {
-		const float val = 
+		const float val =
 		    data.series(desoutputs_[comp])->value(idx-startidx);
 		trc->set( idx, val, comp );
 	    }
@@ -962,11 +958,11 @@ TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
 
     for ( int idx=0; idx<values.size()/2; idx+=2 )
     {
-	Interval<int> interval( mNINT32(values[idx]/zstep), 
+	Interval<int> interval( mNINT32(values[idx]/zstep),
 				mNINT32(values[idx+1]/zstep) );
 	sampleinterval += interval;
     }
- 
+
     return sampleinterval;
 }
 
@@ -1030,11 +1026,11 @@ bool Trc2DVarZStorOutput::doInit()
 	writer_ = new SeisTrcWriter( ioseisout );
 	if ( !writer_->is2D() )
 	{
-	    errmsg_ = "Seismic data with ID: "; errmsg_ += storid_; 
+	    errmsg_ = "Seismic data with ID: "; errmsg_ += storid_;
 	    errmsg_ +="is not 2D\nCannot create 2D output.";
 	    return false;
 	}
-	
+
 	if ( auxpars_ )
 	{
 	    writer_->lineAuxPars().merge( *auxpars_ );
@@ -1049,7 +1045,7 @@ bool Trc2DVarZStorOutput::doInit()
 }
 
 
-void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep, 
+void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
 				     const SeisTrcInfo& info )
 {
     int nrcomp = data.nrSeries();
@@ -1074,7 +1070,7 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
     else if ( trc_->info().binid != info.binid )
     {
 	errmsg_ = "merge components of two different traces!";
-	return;	    
+	return;
     }
     else
     {
@@ -1096,7 +1092,7 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
 	    }
 	}
     }
-    
+
     if ( scaler_ )
     {
 	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
@@ -1112,7 +1108,7 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
 }
 
 
-TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges( 
+TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 						    const Coord& coord,
 						    float zstep,
 						    TypeSet<float>& ) const
@@ -1166,7 +1162,7 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 bool Trc2DVarZStorOutput::wantsOutput( const Coord& coord ) const
 {
     //TODO : for some reason horizon coords in 2D are now rounded, check why
-    Coord roundedcoord( (int)coord.x, (int)coord.y ); 
+    Coord roundedcoord( (int)coord.x, (int)coord.y );
     return poszvalues_->findFirst( roundedcoord ) > -1;
 }
 
@@ -1202,8 +1198,8 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 	//TODO remove when datapointset is snaped
 	for ( int idx=0; idx<datapointset_.size()-1; idx++ )
 	{
-	    if ( coord > datapointset_.coord( idx )
-		 && coord < datapointset_.coord( idx+1 ) )
+	    if ( coord > datapointset_.coord(idx) &&
+		 coord < datapointset_.coord(idx+1) )
 	    {
 		const double distn = coord.distTo( datapointset_.coord(idx) );
 		const double distnp1 = coord.distTo(datapointset_.coord(idx+1));
@@ -1232,7 +1228,7 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
     for ( int idx=rid; idx<datapointset_.size(); idx++ )
     {
 	if ( info.binid != datapointset_.binID(idx) ) break;
-	
+
 	const float zval = datapointset_.z(idx);
 	float* vals = datapointset_.getValues( idx );
 	int lowz;
@@ -1240,7 +1236,7 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 	const int highz = lowz + 1;
 	bool isfulldataok = datarg.includes(lowz-1,false) &&
 	    		    datarg.includes(highz+1,false);
-	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz,false) 
+	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz,false)
 			      && datarg.includes(highz,false);
 	if ( isfulldataok || canusepartdata )
 	    computeAndSetVals( data, refstep, zval, vals );
@@ -1283,7 +1279,7 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 						TypeSet<float>& exactz ) const
 {
     TypeSet< Interval<int> > sampleinterval;
-    
+
     const BinIDValueSet& bvs = datapointset_.bivSet();
     BinIDValueSet::Pos pos = bvs.findFirst( bid );
 
@@ -1303,16 +1299,14 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 						const Coord& coord, float zstep,
 						TypeSet<float>& exactz) const
 {
-    TypeSet< Interval<int> > sampleinterval;
-    
+    TableOutput* myself = const_cast<TableOutput*>(this);
     DataPointSet::RowID rid = datapointset_.findFirst( coord );
-
     if ( rid< 0 )
     {
 	for ( int idx=0; idx<datapointset_.size()-1; idx++ )
 	{
-	    if ( coord > datapointset_.coord( idx )
-		 && coord < datapointset_.coord( idx+1 ) )
+	    if ( coord > datapointset_.coord(idx) &&
+		 coord < datapointset_.coord(idx+1) )
 	    {
 		const double distn = coord.distTo( datapointset_.coord(idx) );
 		const double distnp1 = coord.distTo(datapointset_.coord(idx+1));
@@ -1320,14 +1314,14 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 		    ( mIsUdf(distpicktrc_[idx]) || distn<distpicktrc_[idx]) )
 		{
 		    rid = idx;
-		    const_cast<TableOutput*>(this)->distpicktrc_[idx] = (float) distn;
+		    myself->distpicktrc_[idx] = mCast(float,distn);
 		    break;
 		}
 		else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 &&
-		    ( mIsUdf(distpicktrc_[idx+1]) || distn<distpicktrc_[idx+1]))
+		  (mIsUdf(distpicktrc_[idx+1]) || distnp1<distpicktrc_[idx+1]) )
 		{
 		    rid = idx+1;
-		    const_cast<TableOutput*>(this)->distpicktrc_[idx+1] = (float) distnp1;
+		    myself->distpicktrc_[idx+1] = mCast(float,distnp1);
 		    break;
 		}
 	    }
@@ -1336,9 +1330,10 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     else
     {
 	const double dist = coord.distTo(datapointset_.coord(rid));
-	const_cast<TableOutput*>(this)->distpicktrc_[rid] = (float) dist;
+	myself->distpicktrc_[rid] = mCast(float,dist);
     }
 
+    TypeSet< Interval<int> > sampleinterval;
     if ( rid< 0 ) return sampleinterval;
 
     Coord truecoord = datapointset_.coord( rid );
