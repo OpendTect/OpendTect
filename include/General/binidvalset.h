@@ -159,6 +159,7 @@ public:
     			// Convenience stuff
     Pos			add(const BinIDValue&);
     Pos			add(const BinID&,float);
+    Pos			add(const BinID&,double);
     Pos			add(const BinID&,float,float);
     Pos			add(const BinID&,const TypeSet<float>&);
     void		add(const PosInfo::CubeData&);

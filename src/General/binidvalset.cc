@@ -995,6 +995,10 @@ BinIDValueSet::Pos BinIDValueSet::add( const BinIDValue& biv )
 }
 
 
+BinIDValueSet::Pos BinIDValueSet::add( const BinID& bid, double v )
+{ return add( bid, mCast(float,v) ); }
+
+
 BinIDValueSet::Pos BinIDValueSet::add( const BinID& bid, float v )
 {
     if ( nrvals_ < 2 )
