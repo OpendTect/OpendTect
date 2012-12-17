@@ -1839,7 +1839,8 @@ bool FaultOrientation::compute2DVeinBinary( const Array2D<float>& input,
     od_int64 firstnonzero = 0;
     while ( firstnonzero<datasz && vein_score_vector_sort[firstnonzero]<0.0001 )
 	firstnonzero++;
-    const od_int64 thresholdidx = firstnonzero-1+perc*(datasz-firstnonzero+1);
+    const od_int64 thresholdidx = 
+	(od_int64)(firstnonzero-1+perc*(datasz-firstnonzero+1));
     const float vein_score_threshold = vein_score_vector_sort[thresholdidx];
     
     const float* inputarr = input.getData();
