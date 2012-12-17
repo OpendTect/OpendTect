@@ -471,6 +471,8 @@ bool uiFlatViewer::mkBitmaps( uiPoint& offs )
     uiRGBArray& rgbarr = canvas_.rgbArray();
     const uiSize uisz( rgbarr.getSize(true), rgbarr.getSize(false) );
     const Geom::Size2D<double> wrsz = wr_.size();
+    if ( !wrsz.width() || !wrsz.height() )
+	return false;
 
     // Worldrect per pixel. Must be preserved.
     const double xratio = wrsz.width() / uisz.width();
