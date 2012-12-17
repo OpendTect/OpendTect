@@ -32,7 +32,7 @@ VeinSliceCalculator( const Array3D<float>& input, float threshold, bool above,
     , isabove_(above)
     , minfaultlength_(minfltlength)  
     , sigma_(sigma)
-    , percent_(percent)
+    , scorerate_(percent)
     , output_(output)
 {}
 
@@ -59,7 +59,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	}
 
 	FaultOrientation::compute2DVeinBinary( *attr, threshold_, isabove_,
-		minfaultlength_, sigma_, percent_, is_t_slic, *vein_bina, 0 );
+		minfaultlength_, sigma_, scorerate_, is_t_slic, *vein_bina, 0 );
 	
 	for ( int idx=0; idx<isz; idx++ )
 	{
@@ -78,7 +78,7 @@ Array3D<bool>&		output_;
 float			threshold_;
 bool			isabove_;
 int 			sigma_; 
-float			percent_;
+float			scorerate_;
 int			minfaultlength_;
 };
 
@@ -183,16 +183,6 @@ bool FingerVein::compute( bool domerge, bool dothinning,
     const float score_threshold = arr[0]<arr[datasz-1] ? 
 	arr[thresholdidx] : arr[datasz-1-thresholdidx] ;
     
-    /*Stats::CalcSetup scs;
-    scs.require(Stats::Median);
-    Stats::RunCalc<float> rc( scs );
-    for ( od_int64 idx=0; idx<datasz; idx++ )
-    {
-	if ( !mIsUdf(arr[idx]) && arr[idx]>0 )
-	    rc.addValue( arr[idx]);
-    }
-    const float md_score = rc.median(); //use for added condition, not now*/
-
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, score_binary,
 	    Array2DImpl<bool> (input_.info()) );
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, input_hard_threshold,
@@ -230,7 +220,6 @@ bool FingerVein::compute( bool domerge, bool dothinning,
     for ( od_int64 idx=0; idx<datasz; idx++ )
     {
 	if ( domerge && !scorebinarydata[idx] && thinedinputarr[idx] ) 
-	    //&& scoredata[idx]>md_score )
 	    mergedata[idx] = 1;
 	else
 	    mergedata[idx] = scorebinarydata[idx];
@@ -319,7 +308,7 @@ FaultOrientation::FaultOrientation()
     , isfltabove_(false)  
     , minfaultlength_(10)
     , sigma_(3)
-    , percent_(0.94)
+    , scorerate_(0.94)
     , azimuth_stable_(0)
     , dip_stable_(0)
     , conf_low_(0)
@@ -352,7 +341,7 @@ void FaultOrientation::setParameters( int sigma, float vein_percentage )
     if ( vein_percentage<0 || vein_percentage>1 )
 	return;
 
-    percent_ = vein_percentage;
+    scorerate_ = vein_percentage;
 }
 
 
@@ -459,7 +448,7 @@ bool FaultOrientation::compute2D( const Array3D<float>& input, TaskRunner* tr )
 	}
     }
     compute2DVeinBinary( *attr_sect, threshold_, isfltabove_, minfaultlength_, 
-	    sigma_, percent_, is_t_slic, *vein_bina, tr );
+	    sigma_, scorerate_, is_t_slic, *vein_bina, tr );
     
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, azimuth_pca_stab,
 	    Array2DImpl<float> (xsz,ysz) );
@@ -1637,7 +1626,7 @@ void FaultOrientation::computeVerticalVeinSlice( const Array3D<float>& input,
 	}
 	    
 	compute2DVeinBinary( *attr_sect0, threshold_, isfltabove_, 
-		minfaultlength_, sigma_, percent_, is_t_slic, 
+		minfaultlength_, sigma_, scorerate_, is_t_slic, 
 		*vein_bina_sect0, 0 );
 	
 	for ( int idx=0; idx<isz; idx++ )
@@ -1661,7 +1650,7 @@ void FaultOrientation::computeVerticalVeinSlice( const Array3D<float>& input,
 	}
 	    
 	compute2DVeinBinary( *attr_sect90, threshold_, isfltabove_,
-		minfaultlength_, sigma_, percent_, is_t_slic, 
+		minfaultlength_, sigma_, scorerate_, is_t_slic, 
 		*vein_bina_sect90, 0 );
 	
 	for ( int idy=0; idy<csz; idy++ )
@@ -1733,7 +1722,7 @@ void FaultOrientation::computeVerticalVeinSlice( const Array3D<float>& input,
 	}
      
 	compute2DVeinBinary( *attr_sect, threshold_, isfltabove_,
-		minfaultlength_, sigma_, percent_, is_t_slic, 
+		minfaultlength_, sigma_, scorerate_, is_t_slic, 
 		*vein_bina_sect, 0 );
     	for ( int idx=0; idx<nwidth_sect; idx++ )
     	{
@@ -1806,7 +1795,7 @@ void FaultOrientation::computeVerticalVeinSlice( const Array3D<float>& input,
 	}
      
 	compute2DVeinBinary( *attr_sect, threshold_, isfltabove_, 
-		minfaultlength_, sigma_, percent_, is_t_slic, 
+		minfaultlength_, sigma_, scorerate_, is_t_slic, 
 		*vein_bina_sect, 0 );
     	for ( int idx=0; idx<nwidth_sect; idx++ )
     	{
@@ -1824,7 +1813,7 @@ bool FaultOrientation::computeVeinSlices( const Array3D<float>& input,
 	Array3D<bool>& output, TaskRunner* tr )
 {
     VeinSliceCalculator vsc( input, threshold_, isfltabove_, minfaultlength_,
-	    sigma_, percent_, output );
+	    sigma_, scorerate_, output );
     return tr ? tr->execute(vsc) : vsc.execute();
 }
 
@@ -1847,8 +1836,10 @@ bool FaultOrientation::compute2DVeinBinary( const Array2D<float>& input,
     float* vein_score_vector_sort = tmparr->getData();
     const int datasz = (int) input.info().getTotalSz();
     sort_array(vein_score_vector_sort,datasz);
-
-    const od_int64 thresholdidx = (od_int64)(perc*datasz);
+    od_int64 firstnonzero = 0;
+    while ( firstnonzero<datasz && vein_score_vector_sort[firstnonzero]<0.0001 )
+	firstnonzero++;
+    const od_int64 thresholdidx = firstnonzero-1+perc*(datasz-firstnonzero+1);
     const float vein_score_threshold = vein_score_vector_sort[thresholdidx];
     
     const float* inputarr = input.getData();
