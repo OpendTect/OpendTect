@@ -53,7 +53,7 @@ MACRO(OD_SETUP_COIN)
 
     LIST(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_COIN_LIBS} )
 
-IF( UNIX  OR APPLE )
+IF( UNIX )
 ##TODO remove commented lines once finalised.
 #    LIST( APPEND CLIBS ${SOQTLIB} ${SIMAGELIB} )
     FOREACH( CLIB ${COINLIB} ${SOQTLIB} ${SIMAGELIB} )
@@ -65,9 +65,13 @@ IF( UNIX  OR APPLE )
     ENDFOREACH()
 ENDIF()
 
-#IF( UNIX  OR APPLE )
-#    LIST( APPEND CLIBS ${COINLIB} ${SOQTLIB} ${SIMAGELIB} )
-#ENDIF()
+IF( APPLE )
+    FOREACH( CLIB ${COINLIB} ${SOQTLIB} ${SIMAGELIB} )
+	get_filename_component( FILENAME ${CLIB} REALPATH )
+	LIST( APPEND CLIBS ${FILENAME} )
+    ENDFOREACH()
+ENDIF()
+
 IF( WIN32 )
     LIST( APPEND CLIBS ${COINDIR}/bin/coin3.dll ${COINDIR}/bin/soqt1.dll
 		   ${COINDIR}/bin/simvoleon2.dll ${COINDIR}/bin/simage1.dll )
