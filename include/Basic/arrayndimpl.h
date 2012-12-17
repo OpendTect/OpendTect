@@ -177,6 +177,11 @@ protected:
     , stor_(0) \
     , ptr_(0) \
 { \
+    if ( !info().isOK() ) \
+    { \
+	pErrMsg( "Invalid size" ); \
+	return; \
+    } \
     setStorageNoResize( (ValueSeries<T>*)new MultiArrayValueSeries<T,T>( \
 					info().getTotalSz())); \
 }
@@ -194,6 +199,11 @@ clss<T>::clss( const from<T>& templ ) \
 	: 0; \
     if ( !newstor || !setStorageNoResize( newstor ) )  \
     { \
+	if ( !info().isOK() ) \
+	{ \
+	    pErrMsg( "Invalid size" ); \
+	    return; \
+	} \
 	setStorageNoResize( \
 		new MultiArrayValueSeries<T,T>(info().getTotalSz()) ); \
 	copyFrom( templ ); \
@@ -465,6 +475,11 @@ clss<T>::clss( const from<T>& templ ) \
     , stor_(0) \
     , ptr_(0) \
 { \
+    if ( !info().isOK() ) \
+    { \
+	pErrMsg( "Invalid size" ); \
+	return; \
+    } \
     setStorage( new MultiArrayValueSeries<T,T>(in_->getTotalSz()) ); \
     copyFrom( templ ); \
 }
