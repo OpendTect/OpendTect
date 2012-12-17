@@ -18,6 +18,18 @@ od_uint64 ArrayNDInfo::getTotalSz() const
 { return calcTotalSz(); }
 
 
+bool ArrayNDInfo::isOK() const
+{
+    for ( int idx=getNDim()-1; idx>=0; idx-- )
+    {
+	if ( getSize(idx)<0 )
+	    return false;
+    }
+    
+    return true;
+}
+
+
 od_uint64 ArrayNDInfo::getOffset( const int* pos ) const
 {
     const int ndim = getNDim();

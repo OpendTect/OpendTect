@@ -29,7 +29,7 @@ public:
     virtual int		getSize(int dim) const				= 0;
     virtual bool	setSize(int dim,int sz);
     
-    inline bool		isOK() const;
+    bool		isOK() const;
  
     virtual od_uint64	getTotalSz() const;
     virtual od_uint64	getOffset(const int*) const;
@@ -203,18 +203,6 @@ protected:
 
     od_uint64		cachedtotalsz_;
 };
-
-
-inline bool ArrayNDInfo::isOK() const
-{
-    for ( int idx=getNDim()-1; idx>=0; idx-- )
-    {
-	if ( getSize(idx)<0 )
-	    return false;
-    }
-    
-    return true;
-}
 
 
 inline int Array1DInfoImpl::getSize( int dim ) const
