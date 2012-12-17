@@ -29,6 +29,8 @@ public:
     virtual int		getNDim() const					= 0;
     virtual int		getSize(int dim) const				= 0;
     virtual bool	setSize(int dim,int sz);
+    
+    virtual bool	isOK() const;
  
     virtual od_uint64	getTotalSz() const;
     virtual od_uint64	getOffset(const int*) const;
@@ -125,7 +127,8 @@ public:
 
     inline int		getSize(int dim) const; 
     bool		setSize(int dim,int nsz);
-    od_uint64		getTotalSz() const { return sz_; }
+    bool		isOK() const			{ return sz_>=0; }
+    od_uint64		getTotalSz() const		{ return sz_; }
 
 protected:
 
@@ -144,8 +147,9 @@ public:
 
     inline int		getSize(int dim) const;
     bool		setSize(int dim,int nsz);
+    bool		isOK() const		{ return sz0_>=0 && sz1_>=0; }
 
-    od_uint64		getTotalSz() const { return cachedtotalsz_; }
+    od_uint64		getTotalSz() const	{ return cachedtotalsz_; }
     
 protected:
 
@@ -166,6 +170,7 @@ public:
 
     inline int		getSize(int dim) const; 
     bool                setSize(int dim,int nsz);
+    bool		isOK() const { return sz0_>=0 && sz1_>=0 && sz2_>=0; }
     od_uint64		getTotalSz() const { return cachedtotalsz_; }
 
 protected:
