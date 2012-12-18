@@ -70,7 +70,7 @@ Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     : Executor("Well information extraction")
     , domrkrs_(domarkers)
     , dologs_(dologs)
-    , dotracks_(dotracks)     
+    , dotracks_(dotracks)
     , curidx_(0)
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
@@ -513,6 +513,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
     dahrg.stop = zrgistime ? d2t->getDah( zrg_.stop ) : zrg_.stop;
 
     float zpos = dahrg.start;
+
     if ( extractintime )
     {
 	zpos = zrgistime ? zrg_.start : d2t->getTime( zpos, wd.track() );
@@ -523,7 +524,8 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
     BinIDValue biv; 
     BinIDValue prevbiv; mSetUdf(prevbiv.binid.inl);
 
-    dahrg.start -= mLocalEps;	dahrg.stop  += mLocalEps;
+    dahrg.start -= mLocalEps;
+    dahrg.stop  += mLocalEps;
     while ( true )
     {
 	zpos += zincr;
@@ -1056,35 +1058,55 @@ bool Well::LogSampler::doPrepare( int thread )
     if ( mIsUdf(dahrg.start) || mIsUdf(dahrg.stop) )
 	{errmsg_ = "Could not determine extraction boundaries"; return false;}
 
-    float dah = dahrg.start;
-    float time = mUdf(float);
+    dahrg.start -= mLocalEps;
+    dahrg.stop  += mLocalEps;
+
+    int nrpts = 0;
+    float curz = mUdf(float);
     if ( extrintime_ )
     {
-	time = zrgisintime_ ? track_.getDahForTVD( zrg_.start, mUdf(float) ) :
-	   		      d2t_->getTime( dah, track_ );
-	time -= zstep_;
+	if ( zrgisintime_ )
+	{
+	    curz = zrg_.start;
+	    nrpts = mCast( int, zrg_.width() / zstep_ ) + 1;
+	}
+	else
+	{
+	    curz = d2t_->getTime( dahrg.start, track_ );
+	    const float lastz = d2t_->getTime( dahrg.stop, track_ );
+	    nrpts = mCast( int, ( lastz - curz ) / zstep_ ) + 1;
+	}
     }
     else
-	dah -= zstep_;
+    {
+	if ( zrgisintime_ )
+	{
+	    curz = dahrg.start;
+	    nrpts = mCast( int, dahrg.width() / zstep_ ) + 1;
+	}
+	else
+	{
+	    curz = zrg_.start;
+	    nrpts = mCast( int, zrg_.width() / zstep_ ) + 1;
+	}
+    }
 
-    dahrg.start -= mLocalEps;	dahrg.stop  += mLocalEps;
-    while ( true )
+    float dah = mUdf(float);
+    for ( int idx=0; idx<=nrpts; idx++ )
     {
 	if ( extrintime_ )
 	{
-	    time += zstep_;
-	    dah = d2t_->getDah( time ); 
+	    dah = d2t_->getDah( curz );
 	}
 	else
-	    dah += zstep_;
-
-	if ( mIsUdf(dah) || !dahrg.includes( dah, true ) )
-	    break;
-
+	{
+	    dah = track_.getDahForTVD( curz, mUdf(float) );
+	}
+	curz += zstep_;
 	dahs += dah;
     }
-    data_ = new Array2DImpl<float>( mCast(int,nrIterations()+1), dahs.size() );
 
+    data_ = new Array2DImpl<float>( mCast(int,nrIterations()+1), dahs.size() );
     for ( int idz=0; idz<dahs.size(); idz++ )
 	data_->set( 0, idz, dahs[idz] );
 
