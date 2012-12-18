@@ -1005,38 +1005,56 @@ bool Well::LogSampler::doPrepare( int thread )
     if ( mIsUdf(dahrg.start) || mIsUdf(dahrg.stop) )
 	{errmsg_ = "Could not determine extraction boundaries"; return false;}
 
-    float dah = dahrg.start;
-    float time = mUdf(float);
-    if ( extrintime_ )
-    {
-	time = zrgisintime_ ? wd_.track().getDahForTVD(zrg_.start,mUdf(float)) :
-	   		      d2t->getTime( dah, wd_.track() );
-	time -= zstep_;
-    }
-    else
-	dah -= zstep_;
-
 #define mLocalEps 1e-1;
     dahrg.start -= mLocalEps;
     dahrg.stop  += mLocalEps;
 
-    while ( true )
+    int nrpts = 0;
+    float curz = mUdf(float);
+    if ( extrintime_ )
+    {
+	if ( zrgisintime_ )
+	{
+	    curz = zrg_.start;
+	    nrpts = int( zrg_.width() / zstep_ ) + 1;
+	}
+	else
+	{
+	    curz = d2t->getTime( dahrg.start, wd_.track() );
+	    const float lastz = d2t->getTime( dahrg.stop, wd_.track() );
+	    nrpts = int( ( lastz - curz ) / zstep_ ) + 1;
+	}
+    }
+    else
+    {
+	if ( zrgisintime_ )
+	{
+	    curz = dahrg.start;
+	    nrpts = int( dahrg.width() / zstep_ ) + 1;
+	}   
+	else
+	{
+	    curz = zrg_.start;
+	    nrpts = int( zrg_.width() / zstep_ ) + 1;
+	}
+    }
+
+    float dah = mUdf(float);
+    for ( int idx=0; idx<=nrpts; idx++ )
     {
 	if ( extrintime_ )
 	{
-	    time += zstep_;
-	    dah = d2t->getDah( time ); 
+	    dah = d2t->getDah( curz );
 	}
 	else
-	    dah += zstep_;
-
-	if ( mIsUdf(dah) || !dahrg.includes( dah, true ) )
-	    break;
-
+	{
+	    dah = wd_.track().getDahForTVD( curz, mUdf(float) );
+	}
+	curz += zstep_;
 	dahs += dah;
     }
-    data_ = new Array2DImpl<float>( nrIterations()+1, dahs.size() );
 
+    data_ = new Array2DImpl<float>( nrIterations()+1, dahs.size() );
     for ( int idz=0; idz<dahs.size(); idz++ )
 	data_->set( 0, idz, dahs[idz] );
 
