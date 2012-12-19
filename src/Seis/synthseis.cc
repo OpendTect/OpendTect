@@ -327,17 +327,20 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
     PointBasedMathFunction stretchfunc( PointBasedMathFunction::Linear,
 				       PointBasedMathFunction::ExtraPolGradient);
     
-    for ( int idx=1; idx<refmodel_->size(); idx++ )
+    for ( int idx=0; idx<refmodel_->size(); idx++ )
     {
 	const ReflectivitySpike& spike = (*refmodel_)[idx];
 	
-	//check for crossing events
-	const ReflectivitySpike& spikeabove = (*refmodel_)[idx-1];
-	if ( spike.time_<spikeabove.time_ )
+	if ( idx>0 )
 	{
-	    mutelevel = mMAX(spike.correctedtime_, mutelevel );
-	}
-
+	    //check for crossing events
+	    const ReflectivitySpike& spikeabove = (*refmodel_)[idx-1];
+	    if ( spike.time_<spikeabove.time_ )
+	    {
+		mutelevel = mMAX(spike.correctedtime_, mutelevel );
+	    }
+    	}
+    
 	stretchfunc.add( spike.correctedtime_, spike.time_ );
     }
     
