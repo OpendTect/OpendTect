@@ -29,7 +29,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 
     if ( facnms.size() > 1 )
     {
-	raytracerselfld_ = new uiLabeledComboBox( this, "Select RayTracer" );
+	raytracerselfld_ = new uiLabeledComboBox( this, "Ray-Tracer" );
 	raytracerselfld_->box()->selectionChanged.notify( 
 				mCB( this, uiRayTracerSel, selRayTraceCB) );
 
@@ -55,6 +55,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	    }
 	}
     }
+    
     if ( !grps_.isEmpty() )
 	setHAlignObj( grps_[0] );
 
