@@ -69,6 +69,9 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
+    
+    static float	cStdMuteLength() { return 0.02f; }
+    static float	cStdStretchLimit() { return 0.2f; }
 
     static const char*	sKeyFourier() 	{ return "Convolution Domain"; }
     static const char* 	sKeyNMO() 	{ return "Use NMO"; }
