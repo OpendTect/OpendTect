@@ -370,7 +370,9 @@ interp.execute();
 mClass TaskRunner
 {
 public:
-
+    static bool		execute(TaskRunner* tr, Task& );
+    			//!<Taskrunner may be zero
+    
 			TaskRunner() : execres_(false)	{}
     virtual 		~TaskRunner()			{}
 
@@ -381,7 +383,6 @@ public:
 protected:
 
     bool		execres_;
-
 };
 
 #endif
