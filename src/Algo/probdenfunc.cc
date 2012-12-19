@@ -319,6 +319,12 @@ float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
 
 
 // 1D
+Sampled1DProbDenFunc::Sampled1DProbDenFunc()
+    : ProbDenFunc1D("")
+    , sd_(0,1)
+    , bins_( 0 )
+{}
+
 
 Sampled1DProbDenFunc::Sampled1DProbDenFunc( const Array1D<float>& a1d )
     : ProbDenFunc1D("")
@@ -454,6 +460,13 @@ bool Sampled1DProbDenFunc::obtain( std::istream& strm, bool binary )
 
 // 2D
 
+Sampled2DProbDenFunc::Sampled2DProbDenFunc()
+    : ProbDenFunc2D("","")
+    , sd0_(0,1)
+    , sd1_(0,1)
+    , bins_( 0, 0 )
+{}
+
 Sampled2DProbDenFunc::Sampled2DProbDenFunc( const Array2D<float>& a2d )
     : ProbDenFunc2D("","")
     , sd0_(0,1)
@@ -570,6 +583,17 @@ bool Sampled2DProbDenFunc::obtain( std::istream& strm, bool binary )
 
 
 // ND
+
+SampledNDProbDenFunc::SampledNDProbDenFunc( int nrdims )
+    : bins_( ArrayNDInfoImpl(nrdims) )
+{
+    for ( int idx=0; idx<nrdims; idx++ )
+    {
+	sds_ += SamplingData<float>(0,1);
+	dimnms_.add( BufferString("Dim ",idx) );
+    }
+}
+
 
 SampledNDProbDenFunc::SampledNDProbDenFunc( const ArrayND<float>& arr )
     : bins_(arr)

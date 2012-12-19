@@ -105,6 +105,7 @@ mClass(Algo) Sampled1DProbDenFunc : public ProbDenFunc1D
 {
 public:
 
+			Sampled1DProbDenFunc();
     			Sampled1DProbDenFunc(const Array1D<float>&);
     			Sampled1DProbDenFunc(const TypeSet<float>&);
     			Sampled1DProbDenFunc(const float*,int);
@@ -145,6 +146,7 @@ mClass(Algo) Sampled2DProbDenFunc : public ProbDenFunc2D
 {
 public:
 
+			Sampled2DProbDenFunc();
     			Sampled2DProbDenFunc(const Array2D<float>&);
     			Sampled2DProbDenFunc(const Sampled2DProbDenFunc&);
     Sampled2DProbDenFunc& operator =(const Sampled2DProbDenFunc&);
@@ -188,6 +190,7 @@ mClass(Algo) SampledNDProbDenFunc : public ProbDenFunc
 {
 public:
 
+			SampledNDProbDenFunc(int nrdims);
     			SampledNDProbDenFunc(const ArrayND<float>&);
     			SampledNDProbDenFunc(const SampledNDProbDenFunc&);
     SampledNDProbDenFunc& operator =(const SampledNDProbDenFunc&);
