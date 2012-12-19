@@ -300,7 +300,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	mErrRet( "Model has only one layer, please add an other layer.", 
 		return 0; );
 
-    if ( (tr && !tr->execute( synthgen ) ) || !synthgen.execute() )
+    if ( !TaskRunner::execute( tr, synthgen) )
     {
 	const char* errmsg = synthgen.errMsg();
 	mErrRet( errmsg ? errmsg : "", return 0 ) ;
