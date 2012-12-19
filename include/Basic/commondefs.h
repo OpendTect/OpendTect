@@ -105,6 +105,8 @@ ________________________________________________________________________
 #define mToFeetFactorD		3.28083989501312336
 #define mToSqMileFactor		0.3861 			//km^2 to mile^2
 #define mMileToFeetFactor	5280
+#define mToPercent(f)		(mIsUdf(f) ? f : f*100)
+#define mFromPercent(p)		(mIsUdf(p) ? p : p*0.01)
 
 
 #ifdef __msvc__
