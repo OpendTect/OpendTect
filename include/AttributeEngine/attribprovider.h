@@ -51,6 +51,27 @@ mClass Provider
 
 public:
 
+    struct LineTrcDistStats
+    {
+				LineTrcDistStats( BufferString linename,
+						  float mediandist,
+						  float maxdist )
+				    : linename_(linename)
+				    , mediandist_(mediandist)
+				    , maxdist_( maxdist )		{};
+
+	bool			operator ==( LineTrcDistStats ltds ) const
+	    			{ 
+				    return ltds.linename_ == linename_
+					&& ltds.mediandist_ == mediandist_
+					&& ltds.maxdist_ == maxdist_;
+				}
+
+	BufferString		linename_;
+	float			mediandist_;
+	float			maxdist_;
+    };
+
     static Provider*		create(Desc&,BufferString&);
 				/*!< Also creates all inputs, the input's
 				     inputs, and so on */
@@ -371,8 +392,16 @@ public:
     void			setLineSet(const char*);
     BufferString 		getLineSet() const;
 
-protected:
-    virtual float		customizedCrlDist() const;
+    void		compDistBetwTrcsStats(
+	    				TypeSet< LineTrcDistStats >&);
+    void			compAndSpreadDistBetwTrcsStats();
+    float			getMaxDistBetwTrcs(const char* linenm) const;
+    float			getDistBetwTrcs(bool,
+	    					const char* linenm =0) const;
+    float			getApplicableCrlDist(bool) const;
+    bool		useInterTrcDist() const;
+    TypeSet< LineTrcDistStats > getLineTrcDistStatsSet() const;
+    void		setLineTrcDistStatsSet(TypeSet<LineTrcDistStats>*);
 };
 
 

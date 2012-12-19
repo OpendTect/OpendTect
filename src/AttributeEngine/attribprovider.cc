@@ -20,9 +20,16 @@ static const char* rcsID = "$Id$";
 #include "task.h"
 #include "cubesampling.h"
 #include "errh.h"
+#include "ioobj.h"
+#include "ioman.h"
+#include "linesetposinfo.h"
+#include "seis2dline.h"
 #include "seiscubeprov.h"
 #include "seisinfo.h"
+#include "seistrc.h"
+#include "seisread.h"
 #include "seisselectionimpl.h"
+#include "statruncalc.h"
 #include "survinfo.h"
 #include "valseriesinterpol.h"
 #include "convmemvalseries.h"
@@ -83,6 +90,8 @@ protected:
 
 HiddenParam<Provider,MyMainHackingClass*>	mymainhackingclassmanager( 0 );
 HiddenParam<Provider,BufferString>		linesetname_("");
+HiddenParam<Provider,TypeSet<Attrib::Provider::LineTrcDistStats>* > 
+							trcdiststatsperlines(0);
 
 Provider* Provider::create( Desc& desc, BufferString& errstr )
 {
@@ -229,6 +238,9 @@ Provider::Provider( Desc& nd )
 	inputs_ += 0;
 
     mymainhackingclassmanager.setParam( this, 0 );
+/*
+    TypeSet<Attrib::Provider::LineTrcDistStats> ltdsset;
+    trcdiststatsperlines.setParam( this, &ltdsset );*/
     linesetname_.setParam( this, "" );
 }
 
@@ -253,6 +265,12 @@ Provider::~Provider()
 	delete mymainhackingclassmanager.getParam( this );
 
     mymainhackingclassmanager.removeParam(this);
+
+/*    if ( trcdiststatsperlines.getParam(this) )
+	delete trcdiststatsperlines.getParam( this );*/
+
+    trcdiststatsperlines.removeParam(this);
+
 }
 
 
@@ -367,7 +385,8 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
 	    desiredvolume_->hrg.start.crl =
 		desiredvolume_->hrg.start.crl < ndv.hrg.start.crl ?
 		desiredvolume_->hrg.start.crl : ndv.hrg.start.crl;
-	    desiredvolume_->zrg.start = desiredvolume_->zrg.start < ndv.zrg.start?
+	    desiredvolume_->zrg.start =
+		desiredvolume_->zrg.start < ndv.zrg.start?
 		desiredvolume_->zrg.start : ndv.zrg.start;
 	    desiredvolume_->zrg.stop = desiredvolume_->zrg.stop > ndv.zrg.stop ?
 		desiredvolume_->zrg.stop : ndv.zrg.stop;
@@ -382,7 +401,8 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
 	{
 	    if ( outputinterest_[idy]<1 ) continue;
 
-	    bool isstored = inputs_[idx] ? inputs_[idx]->desc_.isStored() : false;
+	    bool isstored = inputs_[idx] ? inputs_[idx]->desc_.isStored()
+					 : false;
 	    if ( computeDesInputCube( idx, idy, inputcs, !isstored ) )
 		inputs_[idx]->setDesiredVolume( inputcs );
 	}
@@ -1248,7 +1268,8 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
 
     Interval<int> zrgsamp(0,0);
     mUseMargins(int,Samp,samp)
-    zrg.include(Interval<float>( zrgsamp.start*refstep_, zrgsamp.stop*refstep_ ));
+    zrg.include( Interval<float>( zrgsamp.start*refstep_,
+				  zrgsamp.stop*refstep_ ) );
     
     res.zrg.start += zrg.start;
     res.zrg.stop += zrg.stop;
@@ -1434,15 +1455,6 @@ float Provider::crldist() const
 }
 
 
-float Provider::customizedCrlDist() const
-{
-    if ( inputs_.size() && inputs_[0] && inputs_[0]->getDesc().isStored() )
-	return inputs_[0]->customizedCrlDist();
-
-    return crldist();
-}
-
-
 const char* Provider::errMsg() const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
@@ -1594,6 +1606,7 @@ void Provider::getCompNames( BufferStringSet& nms ) const
 
 float Provider::getMaxDistBetwTrcs() const
 {
+    //tmp keep old implementation for 4.4.0e
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )
 	{
@@ -1602,6 +1615,117 @@ float Provider::getMaxDistBetwTrcs() const
 	}
 
     return mUdf(float);
+}
+
+
+float Provider::getMaxDistBetwTrcs( const char* linenm ) const
+{
+    return getDistBetwTrcs( true, linenm );
+}
+
+
+void Provider::compDistBetwTrcsStats( TypeSet< LineTrcDistStats >& ltds )
+{
+    mDynamicCastGet( Attrib::StorageProvider*, storprov, this );
+    if ( storprov )
+    {
+	if ( !storprov->getMSCProv() ) return;
+
+	const SeisTrcReader& reader = storprov->getMSCProv()->reader();
+	if ( !reader.is2D() ) return;
+
+	const Seis2DLineSet* lset = reader.lineSet();
+	if ( !lset ) return;
+
+	S2DPOS().setCurLineSet( lset->name() );
+	PosInfo::LineSet2DData ls2ddata;
+	BufferStringSet linenms;
+	for ( int idx=0; idx<lset->nrLines(); idx++ )
+	{
+	    PosInfo::Line2DData& linegeom =
+					ls2ddata.addLine(lset->lineName(idx));
+	    S2DPOS().getGeometry( linegeom );
+	    if ( linegeom.positions().isEmpty() )
+	    {
+		ls2ddata.removeLine( lset->lineName(idx) );
+		return;
+	    }
+	    else
+		linenms.add( lset->lineName( idx ) );
+	}
+
+	Stats::CalcSetup rcsetup;
+	rcsetup.require( Stats::Max );
+	rcsetup.require( Stats::Median );
+	for ( int lidx=0; lidx<ls2ddata.nrLines(); lidx++ )
+	{
+	    Stats::RunCalc<float> stats( rcsetup );
+	    const TypeSet<PosInfo::Line2DPos>& posns
+					= ls2ddata.lineData(lidx).positions();
+	    for ( int pidx=1; pidx<posns.size(); pidx++ )
+	    {
+		const double distsq =
+			    posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
+
+		stats += (float)Math::Sqrt(distsq);
+	    }
+
+	    LineTrcDistStats ltrcdiststats( linenms.get( lidx ), stats.median(),
+					    stats.max() );
+
+	    ltds += ltrcdiststats;
+	}
+	return;
+    }
+
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	if ( inputs_[idx] )
+	{
+	    inputs_[idx]->compDistBetwTrcsStats( ltds );
+	    if ( ltds.size() ) 
+		return;
+	}
+}
+
+
+void Provider::compAndSpreadDistBetwTrcsStats()
+{
+    TypeSet<LineTrcDistStats>* ltdiststatsset =
+					trcdiststatsperlines.getParam(this);
+    if ( !ltdiststatsset ) return;
+
+    compDistBetwTrcsStats( *ltdiststatsset );
+    setLineTrcDistStatsSet( ltdiststatsset );
+
+    for ( int idx=0; idx<allexistingprov_.size(); idx++ )
+    {
+	const_cast<Provider*>(allexistingprov_[idx])->setLineTrcDistStatsSet(
+					trcdiststatsperlines.getParam(this) );
+    }
+}
+
+
+float Provider::getDistBetwTrcs( bool ismax, const char* linenm ) const
+{
+    Stats::CalcSetup rcsetup;
+    if ( ismax )
+	rcsetup.require( Stats::Max );
+    else
+	rcsetup.require( Stats::Median );
+
+    Stats::RunCalc<float> stats( rcsetup );
+    TypeSet<LineTrcDistStats> linetrcdiststats = getLineTrcDistStatsSet();
+    for ( int idx=0; idx<linetrcdiststats.size(); idx++ )
+    {
+	if ( BufferString(linenm) == linetrcdiststats[idx].linename_ )
+	    return ismax ? linetrcdiststats[idx].maxdist_
+			 : linetrcdiststats[idx].mediandist_;
+	else
+	    stats += ismax ? linetrcdiststats[idx].maxdist_
+			   : linetrcdiststats[idx].mediandist_;
+    }
+
+    return ismax ? stats.max() : stats.median();
 }
 
 
@@ -1722,6 +1846,54 @@ PosInfo::GeomID Provider::getGeomID() const
 }
 
 
+bool Provider::useInterTrcDist() const
+{
+    mDynamicCastGet( Attrib::StorageProvider*,
+	    	     storprov, const_cast<Attrib::Provider*>(this) );
+    if ( storprov )
+    {
+	if ( getDesc().is2D() && storprov->getMSCProv() )
+	{                                                                           
+	    const LineKey lk( desc_.getValParam(
+				storprov->keyStr())->getStringValue(0) );
+	    const BufferString attrnm = lk.attrName();
+	    const MultiID key( lk.lineName() );
+	    PtrMan<IOObj> ioobj = IOM().get( key );
+	    SeisTrcReader rdr( ioobj );
+	    if ( rdr.ioObj() && rdr.lineSet() )
+	    {
+		BufferStringSet steernms;
+		rdr.lineSet()->getAvailableAttributes( steernms,
+						       sKey::Steering );
+		const bool issteering = steernms.indexOf( attrnm ) >= 0;
+		if ( issteering )
+		{
+		    const SeisTrc* trc = storprov->getMSCProv()->get(0,0);
+		    if ( trc && mIsEqual(trc->info().pick, 0, 1e-3) )
+			return true;
+		}
+	    }
+	}                                                                           
+
+	return false;
+    }
+
+    if ( inputs_.size() && inputs_[0] && inputs_[0]->getDesc().isStored() )
+	return inputs_[0]->useInterTrcDist();
+
+    return false;
+}
+
+
+float Provider::getApplicableCrlDist( bool dependoninput ) const
+{
+/*    if ( getDesc().is2D() && ( !dependoninput || useInterTrcDist() ) )
+	return getDistBetwTrcs( false, curlinekey_.lineName() );
+*/		//tmp disabled for patch 4.4.0e
+    return crldist();
+}
+
+
 MyMainHackingClass* Provider::getMyMainHackingClass() const
 {
     return mymainhackingclassmanager.getParam( this );
@@ -1732,5 +1904,30 @@ void Provider::setMyMainHackingClass( MyMainHackingClass* mmhc )
 {
     mymainhackingclassmanager.setParam( this, mmhc );
 }
+
+
+TypeSet< Attrib::Provider::LineTrcDistStats > 
+	Provider::getLineTrcDistStatsSet() const
+{
+    if ( trcdiststatsperlines.getParam(this) )
+	const_cast<Provider*>(this)->setLineTrcDistStatsSet( 
+					new TypeSet<LineTrcDistStats>() );
+
+    return *trcdiststatsperlines.getParam(this);
+}
+
+
+void Provider::setLineTrcDistStatsSet(
+			TypeSet<Attrib::Provider::LineTrcDistStats>* set )
+{
+    if ( trcdiststatsperlines.getParam(this) )
+	delete trcdiststatsperlines.getParam(this);
+
+    TypeSet<Attrib::Provider::LineTrcDistStats>* newset = set ?
+		  new TypeSet<Attrib::Provider::LineTrcDistStats>( *set )
+		: new TypeSet<Attrib::Provider::LineTrcDistStats>();
+    trcdiststatsperlines.setParam( this, set );
+}
+
 
 }; // namespace Attrib

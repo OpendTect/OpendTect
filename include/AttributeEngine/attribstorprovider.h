@@ -95,9 +95,8 @@ protected:
 
 public:
     void		getCompNamesFakeToKeepHeadersOK(BufferStringSet&) const;
+    SeisMSCProvider*	getMSCProv() const;
 
-protected:
-    virtual float	customizedCrlDist() const;
 };
 
 }; // namespace Attrib

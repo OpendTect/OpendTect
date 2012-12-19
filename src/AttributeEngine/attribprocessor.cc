@@ -241,6 +241,7 @@ void Processor::init()
     if ( is2d_ )
     {
 	provider_->adjust2DLineStoredVolume();
+//	provider_->compAndSpreadDistBetwTrcsStats(); //4.4.0e
 	mDynamicCastGet( Trc2DVarZStorOutput*, trcvarzoutp, outputs_[0] );
 	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
 	if ( trcvarzoutp || taboutp )
@@ -273,23 +274,6 @@ void Processor::init()
     	useshortcuts_ = true;
     else
 	provider_->prepareForComputeData();
-
-    //tmp fix for od4.4: we need the name of the main Attribute
-    BufferString mainattrnm = provider_->getDesc().attribName();
-    if ( mainattrnm == "Evaluate" && provider_->getInputs().size()
-      				  && provider_->getInputs()[0] )
-    {
-	Provider* inputprov = provider_->getInputs()[0];
-	mainattrnm = inputprov->getDesc().attribName();
-	if ( mainattrnm == "VolumeStatistics"
-		&& inputprov->getInputs().size()
-		&& inputprov->getInputs()[0]
-		&& !inputprov->getInputs()[0]->getDesc().isStored())
-	    mainattrnm = inputprov->getInputs()[0]->getDesc().attribName();
-    }
-
-    for ( int idx=0; idx<outputs_.size(); idx++ )
-	outputs_[idx]->setMainAttrName( mainattrnm );
 
     isinited_ = true;
 }

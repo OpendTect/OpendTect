@@ -35,7 +35,6 @@ static const char* rcsID = "$Id$";
 #include "separstr.h"
 #include "survinfo.h"
 
-#include "attribsteering.h"		//tmp fix for od4.4
 
 namespace Attrib
 {
@@ -58,7 +57,6 @@ const char* LocationOutput::locationkey()	{ return "Locations"; }
 const char* LocationOutput::attribkey()		{ return sKey::Attribute; }
 const char* LocationOutput::surfidkey()		{ return "Surface.ID"; }
 
-HiddenParam<Output,BufferString> mainattrparmgr( "" );
 
 Output::Output()
     : seldata_(new Seis::RangeSelData(true))
@@ -70,12 +68,6 @@ Output::Output()
 Output::~Output()
 {
     delete seldata_;
-}
-
-
-void Output::setMainAttrName( const BufferString& manm )
-{
-    mainattrparmgr.setParam( this, manm );
 }
 
 
@@ -532,30 +524,12 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	}
     }
 
+    //Experimental way to recognise new steering data computed using
+    //inter-trace distance instead of bin size
 /*
-    //tmp fix for od4.4: use arbitrary mStd2DTrcSpacing for steering 2D
-    //instead of ( usually huge) bin size entered by user
-    //
-    // You cannot use isDataType here. It does not return the current datatype,
-    // but only tells you whether the input string is a valid datatype.
-    // 
+    //DO NOT USE isDataType!!!
     if ( writer_ && writer_->is2D() && isDataType(sKey::Steering) )
-    {
-	trc_->info().pick = 0;
-	if ( mainattrparmgr.getParam(this) == BufferString("VolumeStatistics") )
-	   return;
-
-	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
-	{
-	    for ( int idx=0; idx<sz; idx++ )
-	    {
-		float val = trc_->get( idx, icomp );
-		val = val * SI().crlDistance() / mStd2DTrcSpacing;
-		trc_->set( idx, val, icomp );
-	    }
-	}
-    }
-*/
+	trc_->info().pick = 0;*/    //TODO re-examine situation after 4.4.0e
 }
 
 
