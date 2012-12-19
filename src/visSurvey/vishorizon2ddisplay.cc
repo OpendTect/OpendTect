@@ -13,6 +13,7 @@ static const char* rcsID = "$Id$";
 
 #include "bendpointfinder.h"
 #include "emhorizon2d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -205,7 +206,7 @@ public:
 Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
 		const Horizon2DDisplay::LineRanges* lr,
 		visBase::IndexedShape* shape, visBase::PointSet* points,
-       		ZAxisTransform*& zaxt )
+       		const ZAxisTransform* zaxt, const BufferStringSet& linenames )
     : surf_( rcs )
     , lines_( shape )
     , points_( points )
@@ -214,6 +215,7 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
     , linecii_( 0 )
     , scale_( 1, 1, SI().zScale() )
     , zaxt_( zaxt )
+    , linenames_(linenames)
 {
     eps_ = mMIN(SI().inlDistance(),SI().crlDistance());
     eps_ = mMIN(eps_,SI().zRange(true).step*scale_.z )/4;
@@ -265,18 +267,15 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	if ( mIsUdf(rc.row) )
 	    break;
 
+	const char* linenm = linenames_.get( rowrg_.getIndex(rc.row) );
 	TypeSet<Coord3> positions;
 	const StepInterval<int> colrg = surf_->colRange( rc.row );
 
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
 	{
 	    Coord3 pos = surf_->getKnot( rc );
-
 	    if ( zaxt_ )
-	    {
-		const BinIDValue bidval( rc.row, rc.col, pos.z );
-		pos.z = zaxt_->transform( bidval );
-	    }
+		pos.z = zaxt_->transform2D( linenm, rc.col, mCast(float,pos.z));
 
 	    // Skip if survey coordinates not available
 	    if ( !Coord(pos).isDefined() )
@@ -349,7 +348,8 @@ protected:
     const Horizon2DDisplay::LineRanges*	lineranges_;
     visBase::IndexedShape*		lines_;
     visBase::PointSet*			points_;
-    ZAxisTransform*			zaxt_;
+    const ZAxisTransform*		zaxt_;
+    const BufferStringSet&		linenames_;
     Threads::Mutex			lock_;
     int					nrthreads_;
 
@@ -384,7 +384,12 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	addChild( ps->getInventorNode() );
     }
 
-    Horizon2DDisplayUpdater updater( rcs, lineranges, pl, ps, zaxistransform_ );
+    BufferStringSet linenames;
+    EM::IOObjInfo info( emobject_->multiID() );
+    info.getLineNames( linenames );
+
+    Horizon2DDisplayUpdater updater( rcs, lineranges, pl, ps,
+				     zaxistransform_, linenames );
     updater.execute();
 }
 
@@ -517,7 +522,6 @@ bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
 
 bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
-    const bool haddatatransform = zaxistransform_;
     CallBack cb = mCB(this,Horizon2DDisplay,zAxisTransformChg);
     if ( zaxistransform_ )
     {
