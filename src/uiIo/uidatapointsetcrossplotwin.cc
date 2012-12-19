@@ -226,6 +226,22 @@ void uiDataPointSetCrossPlotWin::setPercDisp( float perc )
 }
 
 
+void uiDataPointSetCrossPlotWin::handleAxisChg( uiDataPointSet::TColID xcol,
+		uiDataPointSet::TColID ycol, uiDataPointSet::TColID y2col )
+{
+    plotter().setCols( uiPointSet().dColID(xcol),
+	    	uiPointSet().dColID(ycol), uiPointSet().dColID(y2col) );
+    setButtonStatus();
+
+    if ( propdlg_ && propdlg_->poppedUp() )
+    {
+    	delete propdlg_;
+    	propdlg_ = 0;
+    	editProps( 0 );
+    }
+}
+
+
 void uiDataPointSetCrossPlotWin::setDensityPlot( CallBacker* cb )
 {
     const bool ison = disptb_.isOn( densityplottbid_ );
@@ -610,9 +626,12 @@ void uiDataPointSetCrossPlotWin::overlayAttrCB( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::editProps( CallBacker* )
 {
-    propdlg_ = new uiDataPointSetCrossPlotterPropDlg( &plotter_ );
+    if ( !plotter_.axisData(0).axis_ || !plotter_.axisData(1).axis_ ) return;
 
-    propdlg_->go();
+    if ( !propdlg_ )
+    	propdlg_ = new uiDataPointSetCrossPlotterPropDlg( &plotter_ );
+
+    propdlg_->show();
 }
 
 

@@ -42,6 +42,8 @@ public:
     void 			setSelComboSensitive(bool);
     void			setButtonStatus()	{ setSelectable(0); }
     void			setPercDisp(float);
+    void			handleAxisChg(uiDataPointSet::TColID,
+	    			 uiDataPointSet::TColID,uiDataPointSet::TColID);
     void			setGrpColors();
 
 protected:

@@ -426,9 +426,7 @@ void uiDataPointSet::handleAxisColChg()
     updColNames();
     if ( xplotwin_ )
     {
-	xplotwin_->plotter().setCols( dColID(xcol_), dColID(ycol_),
-				      dColID(y2col_) );
-	xplotwin_->setButtonStatus();
+	xplotwin_->handleAxisChg( xcol_, ycol_, y2col_ );
     }
 
     if ( ycol_ >= 0 && statswin_ )

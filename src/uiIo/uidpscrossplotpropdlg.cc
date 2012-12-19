@@ -611,7 +611,7 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 	, plotter_(*p)
     	, bdroptab_(0)
 {
-    setDeleteOnClose( true );
+    setDeleteOnClose( false );
     scaletab_ = new uiDPSCPScalingTab( this );
     addGroup( scaletab_ );
     statstab_ = new uiDPSCPStatsTab( this );
