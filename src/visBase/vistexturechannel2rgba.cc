@@ -252,6 +252,13 @@ bool TextureChannel2RGBA::canUseShading() const
 	   SoOD::supportsVertexShading()==1;
 }
 
+    
+void TextureChannel2RGBA::getChannelName( int idx, BufferString& res ) const
+{
+    res = "Layer ";
+    res += idx+1;
+}
+
 
 bool ColTabTextureChannel2RGBA::canUseShading() const
 {
@@ -1059,7 +1066,6 @@ const char* ColTabTextureChannel2RGBA::sVertexShaderProgram()
 "    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
 "}\n";
 }
-
 
 
 

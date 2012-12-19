@@ -283,6 +283,22 @@ int SurveyObject::useSOPar( const IOPar& par )
 
     return 1;
 }
+    
+    
+const visBase::TextureChannel2RGBA* visSurvey::SurveyObject::getChannels2RGBA() const
+{
+    return const_cast<visSurvey::SurveyObject*>(this)->getChannels2RGBA();
+}
+    
+    
+void visSurvey::SurveyObject::getChannelName( int idx, BufferString& res ) const
+{
+    const visBase::TextureChannel2RGBA* tc2rgba = getChannels2RGBA();
+    if ( !tc2rgba )
+	return;
+    
+    tc2rgba->getChannelName( idx,  res );
+}
 
 }; // namespace visSurvey
 

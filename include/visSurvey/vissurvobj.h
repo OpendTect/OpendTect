@@ -157,6 +157,7 @@ public:
     virtual void		setResolution(int,TaskRunner*)	{}
 
     virtual visBase::TextureChannel2RGBA* getChannels2RGBA()	{ return 0; }
+    const visBase::TextureChannel2RGBA*   getChannels2RGBA() const;
     virtual bool		setChannels2RGBA(visBase::TextureChannel2RGBA*)
 				{ return false; }
 
@@ -190,6 +191,8 @@ public:
     virtual unsigned char	getAttribTransparency(int) const { return 0; }
     virtual const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
 	    						   int version=0) const;
+    void			getChannelName(int,BufferString&) const;
+    				//!<\Returns "Layer 0", or "Red", "Green" ...
     virtual void		setColTabMapperSetup(int,
 				     const ColTab::MapperSetup&,TaskRunner*);
     virtual const ColTab::Sequence* getColTabSequence(int) const { return 0; }

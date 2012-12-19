@@ -73,6 +73,7 @@ public:
     virtual bool		usesShading() const		= 0;
     virtual int			maxNrChannels() const		= 0;
     virtual int			minNrChannels() const		{ return 1; }
+    virtual void		getChannelName(int,BufferString&) const;
 
 protected:
     			TextureChannel2RGBA();
