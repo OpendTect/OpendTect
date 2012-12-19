@@ -77,7 +77,7 @@ public:
     static void			doLayerModel(const char* modnm);
 
     uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
-    void			displayFRResult(bool usefr,bool parschanged);
+    void			displayFRResult(bool usefr,bool parschanged,bool fwd);
     void			prepareFluidRepl();
 
     //Utility
@@ -100,6 +100,7 @@ protected:
     uiStratSyntheticsProvider& 	synthp_;
     CtxtIOObj&			descctio_;
     ElasticPropSelection*	elpropsel_;
+    bool			mostlyfilledwithbrine_;
 
     void			initWin(CallBacker*);
     void			dispEachChg(CallBacker*);

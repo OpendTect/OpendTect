@@ -765,10 +765,11 @@ bool uiStratLayerModel::closeOK()
 }
 
 
-void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged )
+void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd )
 {
     lmp_.useed_ = usefr;
     synthp_.useed_ = usefr;
+    mostlyfilledwithbrine_ = !fwd;
     if ( parschanged )
     {
 	if ( synthp_.edstratsynth_ )
