@@ -240,12 +240,13 @@ protected:
     void		addToNrDone(int increment);
     			/*!<Call this from within your thread to say
 			    that you have done something. */
-
-
+    
+    void		resetNrDone();
     void		reportNrDone(int nrdone);
     			//Legacy, don't use in new code. Use addToNrDone
-private:
 
+    
+private:
     virtual bool	doWork(od_int64 start,od_int64 stop,int threadid) = 0;
     			/*!<The functions that does the job. The function
 			    will be called with all intervals from 0 to 
