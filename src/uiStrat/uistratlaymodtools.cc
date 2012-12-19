@@ -65,7 +65,8 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     const CallBack gocb( mCB(this,uiStratGenDescTools,genCB) );
-    nrmodlsfld_ = new uiGenInput( rightgrp, "", IntInpSpec(25) );
+    nrmodlsfld_ = new uiGenInput( rightgrp, "",
+	    			  IntInpSpec(25).setLimits(Interval<int>(1,10000)) );
     nrmodlsfld_->setElemSzPol( uiObject::Small );
     nrmodlsfld_->setStretch( 0, 0 );
     nrmodlsfld_->setToolTip( "Number of models to generate", 0 );
