@@ -626,7 +626,7 @@ void uiDataPointSetCrossPlotWin::overlayAttrCB( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::editProps( CallBacker* )
 {
-    if ( !plotter_.axisData(0).axis_ || !plotter_.axisData(1).axis_ ) return;
+    if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
 
     if ( !propdlg_ )
     	propdlg_ = new uiDataPointSetCrossPlotterPropDlg( &plotter_ );
