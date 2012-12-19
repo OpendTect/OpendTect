@@ -176,6 +176,11 @@ public:
     void		setRandomPosData(int visid, int attrib,
 					 const DataPointSet*);
 
+    bool		hasMaterial(int id) const;
+    void		setMaterial(int id);
+    bool		hasColor(int id) const;
+    void		setColor(int id,const Color&);
+
     bool		blockMouseSelection(bool yn);
 			/*!<\returns Previous status. */
 
@@ -400,11 +405,6 @@ protected:
     bool			isManipulated(int id) const;
     void			acceptManipulation(int id);
     bool			resetManipulation(int id);
-
-    bool			hasMaterial(int id) const;
-    bool			setMaterial(int id);
-
-    bool			hasColor(int id) const;
 
     void			setUpConnections(int id);
     				/*!< Should set all cbs for the object */

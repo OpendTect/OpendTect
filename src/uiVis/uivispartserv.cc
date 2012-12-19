@@ -1694,17 +1694,29 @@ bool uiVisPartServer::hasMaterial( int id ) const
 }
 
 
-bool uiVisPartServer::setMaterial( int id )
+void uiVisPartServer::setMaterial( int id )
 {
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
-    if ( !hasMaterial(id) || !vo ) return false;
+    if ( !hasMaterial(id) || !vo ) return;
 
     uiPropertiesDlg* dlg = new uiPropertiesDlg( appserv().parent(),
 	    dynamic_cast<visSurvey::SurveyObject*>(vo) );
     dlg->setDeleteOnClose( true );
     dlg->go();
-    
-    return true;
+}
+
+
+bool uiVisPartServer::hasColor( int id ) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    return so && so->hasColor();
+}
+
+
+void uiVisPartServer::setColor( int id, const Color& col )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    if ( so ) so->setColor( col );
 }
 
 
