@@ -60,6 +60,8 @@ HiddenParam<uiStratLayerModel,Notifier<uiStratLayerModel>* >
 HiddenParam<uiStratLayerModel,Notifier<uiStratLayerModel>* > 
 				retrievenotifmanager( 0 );
 
+HiddenParam<uiStratLayerModel,const char* > mostlyfilledwithbrineparmanager( "false" );
+
 
 Notifier<uiStratLayerModel>* uiStratLayerModel::saveRequiredNotif()
 {
@@ -826,12 +828,13 @@ void uiStratLayerModel::displayFRResult( SyntheticData* synthdata )
 }
 
 
-void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged )
+void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd )
 {
 	MouseCursorChanger cursor( MouseCursor::Wait );
     lmp_.useed_ = usefr;
     if ( !synthprovmanager.getParam(this) ) return;
     synthprovmanager.getParam(this)->useed_ = usefr;
+    mostlyfilledwithbrineparmanager.setParam( this, fwd ? "false" : "true" );
     if ( parschanged )
     {
 	if ( synthprovmanager.getParam(this)->edstratsynth_ )
