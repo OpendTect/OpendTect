@@ -289,10 +289,6 @@ void ParallelTask::setProgressMeter( ProgressMeter* pm )
 }
 
 
-void ParallelTask::reportNrDone( int nr )
-{ addToNrDone( nr ); }
-
-
 void ParallelTask::addToNrDone( int nr )
 {
     if ( !nrdone_.setIfEqual( nr, -1 ) )
@@ -305,6 +301,14 @@ void ParallelTask::addToNrDone( int nr )
 	progressmeter_->setMessage( message() );
 	progressmeter_->setNrDone( nrDone() );
     }
+}
+
+
+void ParallelTask::resetNrDone()
+{
+    nrdone_ = -1;
+    if ( progressmeter_ )
+	progressmeter_->setNrDone( -1 );
 }
 
 
