@@ -11,7 +11,10 @@ configure_file( ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/license_devel
 
 macro( add_licensetext DIRNAME DIRPATH )
     MESSAGE( "Installing ${DIRPATH}/${DIRNAME} " )
-    FILE( GLOB FILES ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/* )
+    FILE( GLOB HFILES ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/*.h )
+    FILE( GLOB SFILES ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/*.cc )
+    SET( FILES ${HFILES} ${SFILES} )
+
     foreach( FIL ${FILES} )
 	FILE( READ ${FIL} temp )
 	FILE( WRITE ${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/tempfile
@@ -39,13 +42,31 @@ endforeach()
 foreach( PLUGINDIR ${PLUGINS} )
     add_licensetext( "${PLUGINDIR}" "plugins" )
 endforeach()
+
 foreach( SPECDIR ${SPECSOURCES} )
     add_licensetext( "${SPECDIR}" "spec" )
 endforeach()
 
 IF( WIN32 )
    FOREACH( WLIB ${SRCLIBLIST} )
-	FILE( GLOB LIBS ${WLIB}.* )
-	install ( FILES $LIBS DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug )
+	FILE( GLOB LIBS
+		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.lib
+		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.dll
+		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.pdb )
+       SET( DST "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug" )
+       FOREACH( LIB ${LIBS} )
+		get_filename_component( FILENAME ${LIB} NAME )
+		configure_file( ${LIB} ${DST}/${FILENAME} )
+       ENDFOREACH()
+   ENDFOREACH()
+   FOREACH( WLIB ${EXECLIST} )
+	FILE( GLOB LIBS
+		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.exe
+		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.pdb )
+       SET( DST "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug" )
+       FOREACH( LIB ${LIBS} )
+		get_filename_component( FILENAME ${LIB} NAME )
+		configure_file( ${LIB} ${DST}/${FILENAME} )
+       ENDFOREACH()
    ENDFOREACH()
 ENDIF()
