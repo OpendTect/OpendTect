@@ -37,8 +37,8 @@ mImplFactory( SynthGenerator, SynthGenerator::factory );
 SynthGenBase::SynthGenBase()
     : wavelet_(0)
     , isfourier_(true)
-    , stretchlimit_( 0.2f ) //20%
-    , mutelength_( 0.020 )  //20ms
+    , stretchlimit_( cStdStretchLimit() ) //20%
+    , mutelength_( cStdMuteLength() )  //20ms
     , waveletismine_(false)
     , applynmo_(false)
     , outputsampling_(mUdf(float),mUdf(float),mUdf(float))
@@ -328,48 +328,45 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
     PointBasedMathFunction stretchfunc( PointBasedMathFunction::Linear,
 				       PointBasedMathFunction::ExtraPolGradient);
     
-    for ( int idx=0; idx<refmodel_->size(); idx++ )
+    for ( int idx=1; idx<refmodel_->size(); idx++ )
     {
 	const ReflectivitySpike& spike = (*refmodel_)[idx];
 	
-	if ( spike.correctedtime_<=0 )
-	    continue;
-	
-	const float stretch = (spike.time_/spike.correctedtime_)-1;
-	if ( stretch>stretchlimit_ )
-	    mutelevel = mMAX(spike.correctedtime_,mutelevel );
-	
-	if ( idx )
+	//check for crossing events
+	const ReflectivitySpike& spikeabove = (*refmodel_)[idx-1];
+	if ( spike.time_<spikeabove.time_ )
 	{
-	    //check for crossing events
-	    const ReflectivitySpike& spikeabove = (*refmodel_)[idx-1];
-	    if ( spike.time_<spikeabove.time_ )
-	    {
-		mutelevel = mMAX(spike.correctedtime_, mutelevel );
-	    }
+	    mutelevel = mMAX(spike.correctedtime_, mutelevel );
 	}
-	
+
 	stretchfunc.add( spike.correctedtime_, spike.time_ );
     }
     
     out.setAll( 0 );
-    const int firstsample = 0; //couttrc_.info().sampling.indexOnOrAfter( mutelevel );
+    outtrc_.info().sampling.indexOnOrAfter( mutelevel );
     
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( input,
 	    insz, outputsampling_.start,
 	    outputsampling_.step );
 				
-    for ( int idx=firstsample; idx<outsz; idx++ )
+    for ( int idx=0; idx<outsz; idx++ )
     {
 	const float corrtime = outtrc_.info().sampling.atIndex( idx );
 	const float uncorrtime = stretchfunc.getValue( corrtime );
+	
+	const float stretch = corrtime>0
+	    ? uncorrtime/corrtime -1
+	    : 0;
+	
+	if ( stretch>stretchlimit_ )
+	    mutelevel = mMAX( corrtime, mutelevel );
 	
 	const float outval = samplfunc.getValue( uncorrtime );
 	out.setValue( idx, mIsUdf(outval) ? 0 : outval );
     }
 
     
-    if ( false && mutelevel>outputsampling_.start )
+    if ( mutelevel>outputsampling_.start )
     {
 	Muter muter( mutelength_/outputsampling_.step, false );
 	muter.mute( out, outtrc_.size(),
