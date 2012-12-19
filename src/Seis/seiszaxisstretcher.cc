@@ -440,7 +440,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	if ( !sequentialwriter_->submitTrace( outtrc, true ) )
 	    return false;
 
-	reportNrDone( 1 );
+	addToNrDone( 1 );
     }
 
     return true;
