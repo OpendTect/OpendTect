@@ -73,9 +73,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , synthgendlg_(0)
     , prestackwin_(0)		      
     , currentsynthetic_(0)
+    , taskrunner_( new uiTaskRunner(this) )
 {
-    //uiTaskRunner* tr = new uiTaskRunner( this );
-    //stratsynth_.setTaskRunner( tr );
+    stratsynth_.setTaskRunner( taskrunner_ );
 
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );
@@ -1010,17 +1010,13 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 				      FloatInpSpec() );
     mutelenfld_->attach( alignedBelow, stretchmutelimitfld_ );
 
-    uiSeparator* sep2 = new uiSeparator( pargrp, "action separator" );
-    sep2->attach( stretchedBelow, mutelenfld_ );
-
     namefld_ = new uiGenInput( pargrp, "Name" );
-    namefld_ ->attach( centeredBelow, rtsel_ );
-    namefld_ ->attach( ensureBelow, sep2 );
+    namefld_ ->attach( alignedBelow, mutelenfld_ );
     namefld_->valuechanged.notify( mCB(this,uiSynthGenDlg,nameChanged) );
 
-    gennewbut_ = new uiPushButton( pargrp, "Add New Synthetic", true );
+    gennewbut_ = new uiPushButton( pargrp, "&Add as new", true );
     gennewbut_->activated.notify( mCB(this,uiSynthGenDlg,genNewCB) );
-    gennewbut_->attach( rightOf, namefld_ );
+    gennewbut_->attach( alignedBelow, namefld_ );
 
     putToScreen();
     typeChg(0);
@@ -1224,7 +1220,7 @@ bool uiSynthGenDlg::genNewCB( CallBacker* )
     {
 	BufferString msg( "Synthectic data of name '" );
 	msg += stratsynth_.genParams().name_;
-	msg += "'already present. Please choose a different name";
+	msg += "' is already present. Please choose a different name";
 	uiMSG().error( msg );
 	return false;
     }

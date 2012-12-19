@@ -42,7 +42,6 @@ SynthGenBase::SynthGenBase()
     , waveletismine_(false)
     , applynmo_(false)
     , outputsampling_(mUdf(float),mUdf(float),mUdf(float))
-    , tr_(0)
     , dointernalmultiples_(false)
     , surfreflcoeff_(1)
 {}
@@ -572,6 +571,7 @@ void MultiTraceSynthGenerator::getSampledReflectivities(
 RaySynthGenerator::RaySynthGenerator()
     : raysampling_(0,0)
     , forcerefltimes_(false)
+    , rtr_( 0 )
 {}
 
 
@@ -609,8 +609,11 @@ bool RaySynthGenerator::doPrepare( int )
     //TODO Put this in the doWork this by looking for the 0 offset longest time,
     //run the corresponding RayTracer, get raysamling and put the rest in doWork
     RayTracerRunner rtr( aimodels_, raysetup_ );
-    if ( ( tr_ && !tr_->execute( rtr ) ) || !rtr.execute() ) 
-	mErrRet( rtr.errMsg(), false )
+    rtr_ = &rtr;
+    message_ = "Raytracing";
+    if ( !rtr.execute() ) 
+	mErrRet( rtr.errMsg(), false );
+    rtr_ = 0;
 
     ObjectSet<RayTracer1D>& rt1ds = rtr.rayTracers();
     for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
@@ -631,6 +634,7 @@ bool RaySynthGenerator::doPrepare( int )
 	if ( forcerefltimes_ )
 	    rm->forceReflTimes( forcedrefltimes_ );
     }
+    
     if ( !raysampling_.width() )
 	mErrRet( "no valid time generated from raytracing", false );
 
@@ -645,6 +649,8 @@ bool RaySynthGenerator::doPrepare( int )
 	mErrRet( "Time range can not be smaller than wavelet", false )
     if ( outputsampling_.nrSteps() < 1 )
 	mErrRet( "Time interval is empty", false );
+    
+    message_ = "Generating synthethics";
 
     return true;
 }
@@ -663,13 +669,12 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 
 	rm.sampledrefs_.erase();
 	MultiTraceSynthGenerator multitracegen;
-	multitracegen.setTaskRunner( tr_ );
 	multitracegen.setModels( rm.refmodels_ );
 	multitracegen.setWavelet( wavelet_, OD::UsePtr );
 	multitracegen.setOutSampling( outputsampling_ );
 	multitracegen.usePar( par );
 
-	if ( (tr_ && !tr_->execute(multitracegen)) || !multitracegen.execute() )
+	if ( !multitracegen.execute() )
 	    mErrRet( multitracegen.errMsg(), false )
 
 	multitracegen.getResult( rm.outtrcs_ );
@@ -687,7 +692,20 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 	    multitracegen.getSampledReflectivities( rm.sampledrefs_ );
 	}
     }
+    
     return true;
+}
+
+
+od_int64 RaySynthGenerator::totalNr() const
+{
+    return rtr_ ? rtr_->totalNr() : nrIterations();
+}
+
+
+od_int64 RaySynthGenerator::nrDone() const
+{
+    return rtr_ ? rtr_->nrDone() : ParallelTask::nrDone();
 }
 
 

@@ -125,6 +125,7 @@ protected:
     uiSynthSlicePos*	offsetposfld_;
     uiSynthSlicePos*	modelposfld_;
     uiFlatViewMainWin*	prestackwin_;
+    PtrMan<TaskRunner>	taskrunner_;
 
     void		setCurrentSynthetic();
     void		setCurrentWavelet();

@@ -27,6 +27,7 @@ class RayTracer1D;
 class SeisTrc;
 class TimeDepthModel;
 class TaskRunner;
+class RayTracerRunner;
 class Wavelet;
 
 typedef std::complex<float> float_complex;
@@ -62,8 +63,6 @@ public:
     virtual void	enableFourierDomain(bool fourier)
     			{ isfourier_ = fourier; }
 
-    void		setTaskRunner(TaskRunner* tr) { tr_ = tr; }
-
     const char*		errMsg() const
     			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
@@ -93,8 +92,6 @@ protected:
     StepInterval<float>		outputsampling_;
     bool 	                dointernalmultiples_;
     float       	        surfreflcoeff_;
-
-    TaskRunner* 		tr_;
 
     BufferString		errmsg_;
 };
@@ -170,7 +167,7 @@ public:
     const char*                 message() const 
     					{ return "Generating synthetics..."; }
 
-    od_int64                    totalNr() const         { return totalnr_; }
+    od_int64                    totalNr() const	{ return totalnr_; }
 
 protected:
 
@@ -193,13 +190,15 @@ mClass(Seis) RaySynthGenerator : public ParallelTask, public SynthGenBase
 public:
 			RaySynthGenerator();
 			~RaySynthGenerator();
+    
+    void		reset() { resetNrDone(); message_ = ""; }
 
     //input
     void		addModel(const ElasticModel&);
     void		fillPar(IOPar& raypars) const;
     bool		usePar(const IOPar& raypars);
 
-    const char*         message() const { return "Generating synthetics..."; }
+    const char*         message() const { return message_; }
 
     mStruct(Seis) RayModel
     {
@@ -232,10 +231,15 @@ public:
     const Interval<float>&	raySampling() const { return raysampling_; }
 
 protected:
+    RayTracerRunner*		rtr_;
     od_int64            	nrIterations() const;
+    od_int64			nrDone() const;
+    const char*			nrDoneText() const { return "Models done"; }
+    od_int64			totalNr() const;
     bool                        doPrepare(int);
     bool        		doWork(od_int64,od_int64,int);
 
+    BufferString		message_;
     TypeSet<ElasticModel>	aimodels_;
     TypeSet<float>		offsets_;
     Interval<float>		raysampling_;
