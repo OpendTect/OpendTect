@@ -214,7 +214,8 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 
     MemSetter<bool> setter( shouldinterpol, filltype_!=ConvexHull,
 	    		    nrcells_ );
-    tr ? tr->execute(setter) : setter.execute();
+    
+    TaskRunner::execute( tr, setter );
 
     if ( filltype_==ConvexHull )
     {
