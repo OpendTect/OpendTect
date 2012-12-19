@@ -435,3 +435,13 @@ od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
     return nextstart-start;
 }
 
+
+
+bool TaskRunner::execute( TaskRunner* tr, Task& task )
+{
+    if ( tr )
+	return tr->execute( task );
+    
+    return task.execute();
+}
+
