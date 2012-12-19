@@ -95,9 +95,9 @@ ProbDenFunc* odProbDenFuncTranslator::read( std::istream& strm )
 
     ProbDenFunc* pdf = 0;
     if ( type == Sampled1DProbDenFunc::typeStr() )
-	pdf = new Sampled1DProbDenFunc( Array1DImpl<float>(-1) );
+	pdf = new Sampled1DProbDenFunc();
     else if ( type == Sampled2DProbDenFunc::typeStr() )
-	pdf = new Sampled2DProbDenFunc( Array2DImpl<float>(-1,-1) );
+	pdf = new Sampled2DProbDenFunc();
     else if ( type == SampledNDProbDenFunc::typeStr() )
 	pdf = new SampledNDProbDenFunc();
 
