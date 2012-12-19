@@ -51,7 +51,7 @@ static const char* sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
 static const char* sKeySyntheticNr()	{ return "Synthetics Nr"; }
 static const char* sKeySynthetics()	{ return "Synthetics"; }
 
-mDefineInstanceCreatedNotifierAccess(uiStratSynthDisp)
+//mDefineInstanceCreatedNotifierAccess(uiStratSynthDisp)
 
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
@@ -74,8 +74,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , prestackwin_(0)		      
     , currentsynthetic_(0)
 {
-    uiTaskRunner* tr = new uiTaskRunner( this );
-    stratsynth_.setTaskRunner( tr );
+    //uiTaskRunner* tr = new uiTaskRunner( this );
+    //stratsynth_.setTaskRunner( tr );
 
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );
@@ -159,7 +159,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 
     offsetChged(0);
 
-    mTriggerInstanceCreatedNotifier();
+    //mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -976,33 +976,42 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     uiGroup* pargrp = new uiGroup( this, "Parameter Group" );
     pargrp->attach( rightTo, versep );
     CallBack cb( mCB(this,uiSynthGenDlg,typeChg) );
-    wvltfld_ = new uiSeisWaveletSel( pargrp );
-    wvltfld_->newSelection.notify( mCB(this,uiSynthGenDlg,parsChanged) );
-    typefld_ = new uiGenInput( pargrp, "Type",
+    typefld_ = new uiGenInput( pargrp, "Synthethic type",
 			BoolInpSpec(true,"Post-Stack","Pre-Stack") );
-    typefld_->attach( alignedBelow, wvltfld_ );
     typefld_->valuechanged.notify( cb );
 
     stackfld_ = new uiCheckBox( pargrp, "Stack from Pre-Stack" );
     stackfld_->activated.notify( cb );
     stackfld_->attach( rightOf, typefld_ );
 
-    uiSeparator* sep = new uiSeparator( pargrp, "Name separator" );
-    sep->attach( stretchedBelow, typefld_ );
-
     uiRayTracer1D::Setup rsu; rsu.dooffsets_ = true;
     rtsel_ = new uiRayTracerSel( pargrp, rsu );
     rtsel_->usePar( stratsynth_.genParams().raypars_ ); 
-    rtsel_->attach( centeredBelow, typefld_ );
-    rtsel_->attach( ensureBelow, sep );
+    rtsel_->attach( alignedBelow, typefld_ );
     rtsel_->offsetChanged.notify( mCB(this,uiSynthGenDlg,parsChanged) );
 
-    nmobox_ = new uiCheckBox( pargrp, "Apply NMO corrections" );
-    nmobox_->setChecked( true );
-    nmobox_->attach( alignedBelow, rtsel_ );
+    
+    
+    wvltfld_ = new uiSeisWaveletSel( pargrp );
+    wvltfld_->newSelection.notify( mCB(this,uiSynthGenDlg,parsChanged) );
+    wvltfld_->attach( alignedBelow, rtsel_ );
+    wvltfld_->setFrame( false );
+    
+    nmofld_ = new uiGenInput( pargrp, "Apply NMO corrections",
+			     BoolInpSpec(true) );
+    mAttachCB( nmofld_->valuechanged, uiSynthGenDlg, typeChg);
+    nmofld_->attach( alignedBelow, wvltfld_ );
+    
+    stretchmutelimitfld_ = new uiGenInput(pargrp, "Stretch mute (%)",
+					  FloatInpSpec() );
+    stretchmutelimitfld_->attach( alignedBelow, nmofld_ );
+    
+    mutelenfld_ = new uiGenInput( pargrp, "Mute taper-length (ms)",
+				      FloatInpSpec() );
+    mutelenfld_->attach( alignedBelow, stretchmutelimitfld_ );
 
     uiSeparator* sep2 = new uiSeparator( pargrp, "action separator" );
-    sep2->attach( stretchedBelow, nmobox_ );
+    sep2->attach( stretchedBelow, mutelenfld_ );
 
     namefld_ = new uiGenInput( pargrp, "Name" );
     namefld_ ->attach( centeredBelow, rtsel_ );
@@ -1013,9 +1022,9 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     gennewbut_->activated.notify( mCB(this,uiSynthGenDlg,genNewCB) );
     gennewbut_->attach( rightOf, namefld_ );
 
+    putToScreen();
     typeChg(0);
     updateSynthNames();
-    putToScreen();
 }
 
 
@@ -1054,7 +1063,9 @@ void uiSynthGenDlg::nameChanged( CallBacker* )
 void uiSynthGenDlg::parsChanged( CallBacker* )
 {
     getFromScreen();
-    namefld_->setText( stratsynth_.genParams().genName() );
+    BufferString nm;
+    stratsynth_.genParams().createName( nm );
+    namefld_->setText( nm );
 }
 
 
@@ -1069,14 +1080,26 @@ void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 }
 
 
-void uiSynthGenDlg::typeChg( CallBacker* )
+void uiSynthGenDlg::updateFieldSensitivity()
 {
     const bool isps = !typefld_->getBoolValue();
     stackfld_->display( !isps );
-    nmobox_->display( isps );
+    nmofld_->display( isps );
     const bool needranges = isps || stackfld_->isChecked();
     rtsel_->current()->displayOffsetFlds( needranges );
     rtsel_->current()->setOffsetRange( uiRayTracer1D::Setup().offsetrg_ );
+    
+    bool showmute = true;
+    if ( isps && !nmofld_->getBoolValue() )
+	showmute = false;
+    mutelenfld_->display( showmute );
+    stretchmutelimitfld_->display( showmute );
+}
+
+
+void uiSynthGenDlg::typeChg( CallBacker* )
+{
+    updateFieldSensitivity();
     parsChanged( 0 );
 }
 
@@ -1090,13 +1113,28 @@ void uiSynthGenDlg::putToScreen()
     const bool isps = stratsynth_.genParams().isps_;
     TypeSet<float> offsets;
     stratsynth_.genParams().raypars_.get( RayTracer1D::sKeyOffset(), offsets );
-    stackfld_->display( !isps );
+        
+    NotifyStopper stop( stackfld_->activated );
     stackfld_->setChecked( !isps && offsets.size()==1 );
-    nmobox_->display( isps );
+    
+    bool donmo = true;
+    stratsynth_.genParams().raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), donmo );
+    nmofld_->setValue( donmo );
+    
+    float mutelen = Seis::SynthGenBase::cStdMuteLength();
+    stratsynth_.genParams().raypars_.get(
+				Seis::SynthGenBase::sKeyMuteLength(), mutelen );
+    mutelenfld_->setValue( mIsUdf(mutelen) ? mutelen : mutelen * ZDomain::Time().userFactor() );
+    
+    float stretchlimit = Seis::SynthGenBase::cStdStretchLimit();
+    stratsynth_.genParams().raypars_.get(
+			Seis::SynthGenBase::sKeyStretchLimit(), stretchlimit );
+    stretchmutelimitfld_->setValue( mToPercent( stretchlimit ) );
 
     const bool needranges = isps || offsets.size()>1;
     rtsel_->current()->displayOffsetFlds( needranges );
     rtsel_->usePar( stratsynth_.genParams().raypars_ );
+    updateFieldSensitivity();
 }
 
 
@@ -1112,15 +1150,23 @@ void uiSynthGenDlg::getFromScreen()
     stratsynth_.genParams().wvltnm_ = wvltfld_->getName();
     stratsynth_.setWavelet( wvltfld_->getWavelet() );
     stratsynth_.genParams().raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), 
-				    nmobox_->isChecked() || !isps );
+				    nmofld_->getBoolValue() || !isps );
     stratsynth_.genParams().isps_ = isps; 
     stratsynth_.genParams().name_ = namefld_->text();
+    
+    stratsynth_.genParams().raypars_.set( Seis::SynthGenBase::sKeyMuteLength(),
+		     mutelenfld_->getfValue() / ZDomain::Time().userFactor() );
+    stratsynth_.genParams().raypars_.set(Seis::SynthGenBase::sKeyStretchLimit(),
+			     mFromPercent( stretchmutelimitfld_->getfValue()) );
 }
+
 
 void uiSynthGenDlg::updateWaveletName() 
 {
     wvltfld_->setInput( stratsynth_.genParams().wvltnm_ );
-    namefld_->setText( stratsynth_.genParams().genName() );
+    BufferString nm;
+    stratsynth_.genParams().createName( nm );
+    namefld_->setText( nm );
 }
 
 
@@ -1129,6 +1175,15 @@ bool uiSynthGenDlg::acceptOK( CallBacker* )
     const char* nm = namefld_->text(); 
     if ( !nm )
 	mErrRet("Please specify a valid name",return false);
+    
+    if ( mIsUdf(mutelenfld_->getfValue() ) || mutelenfld_->getfValue()<0 )
+	mErrRet( "The mutelength must be more than zero.", return false );
+    
+    if ( mIsUdf(stretchmutelimitfld_->getfValue()) ||
+	 stretchmutelimitfld_->getfValue()<0 )
+    {
+	mErrRet( "The stretch mute must be more than 0%", return false );
+    }
 
     getFromScreen();
     BufferString synthname( synthnmlb_->getText() );

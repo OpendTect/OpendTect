@@ -43,8 +43,10 @@ mStruct(WellAttrib) SynthGenParams
     IOPar		raypars_;
     BufferString	wvltnm_;
 
-    //gen name from wvlt and raypars
-    const char*		genName() const;
+    
+    void		createName(BufferString&) const;
+    			//!<Create name from wvlt and raypars
+    
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 bool operator==( const SynthGenParams& gp )

@@ -81,7 +81,7 @@ public:
     Notifier<uiStratSynthDisp>	layerPropSelNeeded;
     Notifier<uiStratSynthDisp>	modSelChanged;
 
-    mDeclInstanceCreatedNotifierAccess(uiStratSynthDisp);
+    //mDeclInstanceCreatedNotifierAccess(uiStratSynthDisp);
     void		addTool(const uiToolButtonSetup&);
     void		addViewerToControl(uiFlatViewer&);
 
@@ -214,11 +214,14 @@ public:
     CNotifier<uiSynthGenDlg,BufferString> synthChanged;
 
 protected:
+    void			updateFieldSensitivity();
 
     uiSeisWaveletSel*		wvltfld_;
     uiGenInput*			typefld_;
     uiGenInput*  		namefld_;
-    uiCheckBox*			nmobox_;
+    uiGenInput*			nmofld_;
+    uiGenInput*			stretchmutelimitfld_;
+    uiGenInput*			mutelenfld_;
     uiCheckBox*			stackfld_;
     uiRayTracerSel*		rtsel_;
     uiPushButton*		gennewbut_;

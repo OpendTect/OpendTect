@@ -67,9 +67,9 @@ void SynthGenParams::usePar( const IOPar& par )
 }
 
 
-const char* SynthGenParams::genName() const
+void SynthGenParams::createName( BufferString& nm ) const
 {
-    BufferString nm( wvltnm_ );
+    nm = wvltnm_;
     TypeSet<float> offset; 
     raypars_.get( RayTracer1D::sKeyOffset(), offset );
     const int offsz = offset.size();
@@ -81,9 +81,6 @@ const char* SynthGenParams::genName() const
 	if ( offsz > 1 )
 	    nm += "-"; nm += offset[offsz-1];
     }
-
-    BufferString* newnm = new BufferString( nm );
-    return newnm->buf();
 }
 
 
@@ -182,7 +179,7 @@ SyntheticData* StratSynth::replaceSynthetic( int id )
 
 SyntheticData* StratSynth::addDefaultSynthetic()
 {
-    genparams_.name_ = genparams_.genName();
+    genparams_.createName( genparams_.name_ );
     SyntheticData* sd = addSynthetic();
 
     mDynamicCastGet(PostStackSyntheticData*,psd,sd);
