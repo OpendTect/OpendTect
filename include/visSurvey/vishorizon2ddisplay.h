@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-
 #include "vissurveymod.h"
 #include "emposid.h"
 #include "multiid.h"
@@ -48,7 +47,7 @@ public:
     TypeSet<EM::SectionID>	getSectionIDs() const{ return sids_; }
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    //const ZAxisTransform*	getZAxisTransform() const;
+
     const visBase::PointSet*	getPointSet(const EM::SectionID&) const;
     const visBase::IndexedPolyLine3D* getLine(const EM::SectionID&) const;
     void			doOtherObjectsMoved(
@@ -83,7 +82,6 @@ protected:
 	    				const ObjectSet<const Seis2DDisplay>&);
 
     void			zAxisTransformChg(CallBacker*);
-    //ZAxisTransform*		zaxistransform_;
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
