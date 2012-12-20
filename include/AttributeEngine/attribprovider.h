@@ -51,7 +51,7 @@ mClass Provider
 
 public:
 
-    struct LineTrcDistStats
+    mStruct LineTrcDistStats
     {
 				LineTrcDistStats( BufferString linename,
 						  float mediandist,
