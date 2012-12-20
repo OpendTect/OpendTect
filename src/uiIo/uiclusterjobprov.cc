@@ -288,7 +288,7 @@ bool uiClusterJobProv::createJobScripts( const char* scriptdir )
 
     ClusterJobCreator exec( *jobprov_, scriptdir, prognm_ );
     uiTaskRunner dlg( this );
-    return dlg.execute( exec );
+    return TaskRunner::execute( &dlg, exec);
 }
 
 

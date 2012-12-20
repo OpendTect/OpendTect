@@ -80,7 +80,7 @@ bool uiEventExport::acceptOK( CallBacker* )
     EventExporter exporter( strm, *events );
     exporter.setHRange( hrg );
     uiTaskRunner runner( this );
-    if ( !runner.execute( exporter ) )
+    if ( !TaskRunner::execute( &runner, exporter ) )
     {
 	uiMSG().error("Could not export prestack events");
 	return false;

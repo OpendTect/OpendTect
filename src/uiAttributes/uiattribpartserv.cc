@@ -675,7 +675,7 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	if ( !hideprogress )
 	{
 	    uiTaskRunner taskrunner( parent() );
-	    success = taskrunner.execute( *process );
+	    success = TaskRunner::execute( &taskrunner, *process );
 	}
 	else
 	{
@@ -729,7 +729,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 	{ uiMSG().error(errmsg); return false; }
 
     uiTaskRunner taskrunner( parent() );
-    if ( !taskrunner.execute(*process) ) return false;
+    if ( !TaskRunner::execute( &taskrunner, *process ) ) return false;
 
     posvals.setName( targetspecs_[0].userRef() );
     return true;
@@ -754,7 +754,7 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 
     bool res = true;
     uiTaskRunner taskrunner( parent() );
-    res = taskrunner.execute( execgrp );
+    res = TaskRunner::execute( &taskrunner, execgrp );
 
     deepErase( aems );
     return res;
@@ -800,7 +800,7 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 	{ uiMSG().error(errmsg); return false; }
 
     uiTaskRunner taskrunner( parent() );
-    if ( !taskrunner.execute(*process) ) return false;
+    if ( !TaskRunner::execute( &taskrunner, *process ) ) return false;
 
     return true;
 }
@@ -819,7 +819,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     if ( !process )
 	{ uiMSG().error(errmsg); return -1; }
 
-    if ( !tr.execute(*process) )
+    if ( !TaskRunner::execute( &tr, *process ) )
 	return -1;
 
     int component = 0;
@@ -889,7 +889,7 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
 	Executor* tabextr = aem.getTableExtractor( dps, *ads, err );
 	if ( !tabextr ) { pErrMsg(err); return 0; }
 
-	if ( taskrunner.execute(*tabextr) )
+	if ( TaskRunner::execute( &taskrunner, *tabextr ) )
 	    somesuccess = true;
 	else
 	    somefail = true;

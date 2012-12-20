@@ -103,7 +103,7 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	       			SI().zIsTime() );
 	if ( !ex ) return;
 	uiTaskRunner uiex( appserv().parent() );
-	if ( !uiex.execute(*ex) )
+	if ( !TaskRunner::execute( &uiex, *ex ) )
 	    deepErase( dpss );
     }
 
@@ -261,7 +261,7 @@ bool uiNLAPartServer::extractDirectData( ObjectSet<DataPointSet>& dpss )
     Well::LogDataExtracter lde( crdesc.outids, dpss, SI().zIsTime() );
     lde.usePar( crdesc.pars );
     uiTaskRunner uiex( appserv().parent() );
-    return uiex.execute(lde);
+    return TaskRunner::execute( &uiex, lde );
 }
 
 

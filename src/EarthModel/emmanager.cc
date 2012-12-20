@@ -319,7 +319,7 @@ EMObject* EMManager::loadIfNotFullyLoaded( const MultiID& mid,
 	if ( !exec )
 	    return 0;
 
-	if ( !(taskrunner ? taskrunner->execute(*exec) : exec->execute()) )
+	if ( !TaskRunner::execute( taskrunner, *exec ) )
 	    return 0;
 
 	emid = EM::EMM().getObjectID( mid );

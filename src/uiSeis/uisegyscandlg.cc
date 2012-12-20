@@ -209,7 +209,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
     }
 
     uiTaskRunner tr( parent_ );
-    bool rv = tr.execute(*exec);
+    bool rv = TaskRunner::execute( &tr, *exec );
     if ( !rv )
     {
 	if ( outfld_ )

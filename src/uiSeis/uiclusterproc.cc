@@ -203,7 +203,7 @@ bool submitJobs( TaskRunner* tr )
 	return false;
 
     ClusterJobSubmitter jobsubmitter( jobs_, submitcmd.str() );
-    if ( !tr->execute(jobsubmitter) )
+    if ( !TaskRunner::execute( tr, jobsubmitter ) )
 	return false;
 
     return true;
@@ -317,7 +317,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tr,
     if ( !exec )
 	return false;
 
-    if ( !tr->execute(*exec) )
+    if ( !TaskRunner::execute( tr, *exec ) )
 	mErrRet("Failed to merge output data")
     else
 	msg = "Finished merging output data";

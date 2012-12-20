@@ -142,7 +142,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
 	   
 	    uiTaskRunner dlg( this );
-	    if ( !dlg.execute(snapper) )
+	    if ( !TaskRunner::execute( &dlg, snapper ) )
 		return false;
 
 	    hor3d->setBurstAlert( true );
@@ -175,7 +175,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 						     rg) );
 	   
 	    uiTaskRunner dlg( this );
-	    if ( !dlg.execute(snapper) )
+	    if ( !TaskRunner::execute( &dlg, snapper ) )
 		return false;
 	}
 

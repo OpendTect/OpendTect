@@ -277,7 +277,7 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 	    					  dostack, sd );
     exec->setName( "Merge Pre-Stack Data Stores" );
     uiTaskRunner dlg( this );
-    return dlg.execute( *exec );
+    return TaskRunner::execute( &dlg, *exec );
 }
 
 
@@ -361,5 +361,5 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
     exec->setOffsetRange( offsrgfld_->getfValue(0), offsrgfld_->getfValue(1) );
     exec->setName( "Copy Pre-Stack Data Store" );
     uiTaskRunner dlg( this );
-    return dlg.execute( *exec );
+    return TaskRunner::execute( &dlg, *exec );
 }

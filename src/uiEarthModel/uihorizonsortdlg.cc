@@ -109,7 +109,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 	}
 
 	horreader = EM::EMM().objectLoader( loadids );
-	if ( horreader && !taskrunner.execute(*horreader) )
+	if ( horreader && !TaskRunner::execute( &taskrunner, *horreader ) )
 	    return false;
     }
 
@@ -135,7 +135,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
     else
     {
 	horsorter = new HorizonSorter( horids, is2d_ );
-	if ( !taskrunner.execute(*horsorter) ) return false;
+	if ( !TaskRunner::execute( &taskrunner, *horsorter ) ) return false;
 
 	horsorter->getSortedList( horids_ );
 	updateRelationTree( horids_ );

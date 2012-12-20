@@ -192,5 +192,5 @@ bool uiResortSEGYDlg::acceptOK( CallBacker* )
     if ( pprov )
 	sr.setFilter( *pprov );
     uiTaskRunner tr( this );
-    return tr.execute( sr );
+    return TaskRunner::execute( &tr, sr );
 }

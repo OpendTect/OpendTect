@@ -63,11 +63,11 @@ bool uiEventImport::acceptOK( CallBacker* )
     mgr->setStorageID( outputfld_->key(), false );
     EventImporter importer( filefld_->fileName(), fd_, *mgr );
     uiTaskRunner tr( this );
-    if ( !tr.execute(importer) )
+    if ( !TaskRunner::execute( &tr, importer ) )
 	return false;
 
     EventWriter writer( outputfld_->getIOObj(), *mgr );
-    return tr.execute( writer );
+    return TaskRunner::execute( &tr, writer );
 }
 
 }; //namespace

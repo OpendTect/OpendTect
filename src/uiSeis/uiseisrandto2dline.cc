@@ -145,7 +145,7 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
 	    		   *basegrp_->getOutputIOObj(),
 	    		   lk, trcnrstart, *rdl );
     uiTaskRunner dlg( this );
-    if ( !dlg.execute(exec) )
+    if ( !TaskRunner::execute( &dlg, exec ) )
 	return false;
     
     if ( !SI().has2D() )

@@ -534,5 +534,5 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 
     SeisIOSimple sios( data(), isimp_ );
     uiTaskRunner dlg( this );
-    return dlg.execute( sios ) && !ismulticomp;
+    return TaskRunner::execute( &dlg, sios ) && !ismulticomp;
 }

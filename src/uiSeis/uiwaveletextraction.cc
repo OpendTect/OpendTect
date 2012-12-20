@@ -364,7 +364,7 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
     extractor->setPhase( phase );
 
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(*extractor) )
+    if ( !TaskRunner::execute( &taskrunner, *extractor ) )
 	return false;
 
     Wavelet storewvlt = extractor->getWavelet();

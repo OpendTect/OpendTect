@@ -257,7 +257,7 @@ bool acceptOK( CallBacker* )
     scanner_->setRichInfo( true );
     scanner_->setMaxNrtraces( nrtrcs );
     uiTaskRunner uitr( this );
-    uitr.execute( *scanner_ );
+    TaskRunner::execute( &uitr, *scanner_ );
     res_ = true;
     if ( scanner_->fileDataSet().isEmpty() )
     {

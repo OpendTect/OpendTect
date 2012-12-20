@@ -155,7 +155,7 @@ bool DataPlayer::doFullSynthetics()
     par.set(RayTracer1D::sKeySRDepth(),sourrecz,sourrecz);
     gen.usePar( par ); 
     TaskRunner* tr = data_.trunner_;
-    if ( ( tr && !tr->execute( gen ) ) || !gen.execute() )
+    if ( !TaskRunner::execute( tr, gen ) )
 	mErrRet( gen.errMsg() )
 
     Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
@@ -194,7 +194,7 @@ bool DataPlayer::extractSeismics()
 {
     Well::SimpleTrackSampler wtextr( wd_->track(), d2t_, true, false);
     wtextr.setSampling( disprg_ );
-    data_.trunner_->execute( wtextr ); 
+    TaskRunner::execute( data_.trunner_, wtextr );
 
     const IOObj& ioobj = *IOM().get( seisid_ );
     IOObj* seisobj = ioobj.clone();
@@ -206,7 +206,7 @@ bool DataPlayer::extractSeismics()
     seisextr.setBIDValues( bids );
     seisextr.setInterval( disprg_ );
 
-    const bool success = data_.trunner_->execute( seisextr );
+    const bool success = TaskRunner::execute( data_.trunner_, seisextr );
     data_.seistrc_ = SeisTrc( seisextr.result() );
     BufferString msg;
     if ( !success )

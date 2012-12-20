@@ -96,7 +96,7 @@ bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
 
     PtrMan<Executor> saver = hor_.auxdata.auxDataSaver( auxidx, true );
     uiTaskRunner tr( this );
-    return tr.execute( *saver );
+    return TaskRunner::execute( &tr, *saver );
 }
 
 
@@ -207,5 +207,5 @@ bool uiHorAttr2Geom::acceptOK( CallBacker* cb )
 
     uiHorAttr2GeomExec exec( hor_, dps_, colid_, zfac, isdelta );
     uiTaskRunner tr( this );
-    return tr.execute( exec );
+    return TaskRunner::execute( &tr, exec );
 }

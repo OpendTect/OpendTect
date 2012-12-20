@@ -101,7 +101,7 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
 	uiMSG().error( seis2dto3d_.errMsg() );
 
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute( seis2dto3d_ ) )
+    if ( !TaskRunner::execute( &taskrunner, seis2dto3d_ ) )
 	return seis2dto3d_.errMsg();
 
     return true;

@@ -467,7 +467,7 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
     { 
     	MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
 		inlrg.start, crlrg.start, zrg.start, !smooth );
-	const bool execres = t ? t->execute(m2i) : m2i.execute();
+	const bool execres = TaskRunner::execute( t, m2i );
     	if ( !execres )
     	{
     	    delete res;

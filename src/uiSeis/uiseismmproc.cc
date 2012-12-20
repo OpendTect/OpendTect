@@ -813,7 +813,7 @@ bool uiSeisMMProc::wrapUp( bool force )
     if ( exec )
     {
 	uiTaskRunner uitr( this );
-	const bool res = uitr.execute( *exec );
+	const bool res = TaskRunner::execute( &uitr, *exec );
 	delete exec;
 	if ( !res )
 	    return false;

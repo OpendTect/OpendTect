@@ -514,7 +514,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
     }
 
     uiTaskRunner execdlg( parent() );
-    if ( !execdlg.execute(loaders) )
+    if ( !TaskRunner::execute( &execdlg, loaders ) )
     {
 	deepUnRef( objs );
 	return;
@@ -569,7 +569,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     if ( exec )
     {
     	uiTaskRunner execdlg( parent() );
-    	if ( !execdlg.execute(*exec) )
+    	if ( !TaskRunner::execute( &execdlg, *exec ) )
     	    deepUnRef( objs );
     }
 
@@ -598,7 +598,7 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
     uiTaskRunner exdlg( parent() );
-    return exdlg.execute( exgrp );
+    return TaskRunner::execute( &exdlg, exgrp );
 }
 
 
@@ -662,7 +662,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
     uiTaskRunner exdlg( parent() );
-    return exdlg.execute( exgrp );
+    return TaskRunner::execute( &exdlg, exgrp );
 }
 
 
@@ -745,7 +745,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 
     storagekey = key;
     uiTaskRunner exdlg( parent() );
-    return exdlg.execute( *exec );
+    return TaskRunner::execute( &exdlg, *exec );
 }
 
 
@@ -783,7 +783,7 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id,
 	    return false;
 	}
 
-	return exdlg.execute( *saver );
+	return TaskRunner::execute( &exdlg, *saver );
     }
     else if ( flt3d )
     {
@@ -797,7 +797,7 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id,
     	    return false;
 	}
 
-	return exdlg.execute( *saver );
+	return TaskRunner::execute( &exdlg, *saver );
     }
 
     return true;
@@ -1117,7 +1117,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	changer = filter;
     }
 
-    if ( !execdlg.execute(*changer) )
+    if ( !TaskRunner::execute( &execdlg, *changer ) )
 	return false;
 
     mDynamicCastGet(const Array2DInterpol*,interp,changer.ptr())
@@ -1182,7 +1182,7 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
     EM::EMObject* obj = em_.getObject( em_.getObjectID(mid) );
     obj->ref();
     uiTaskRunner exdlg( parent() );
-    if ( !exdlg.execute(*exec) )
+    if ( !TaskRunner::execute( &exdlg, *exec ) )
     {
 	obj->unRef();
 	return false;

@@ -212,7 +212,7 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	    ErrMsg( msg ); continue;
 	}
 
-	if ( !tr.execute(*interpolator) )
+	if ( !TaskRunner::execute( &tr, *interpolator ) )
 	{
 	    BufferString msg( "Cannot interpolate section " );
 	    msg += sid;
@@ -262,7 +262,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
 	for ( int idx=0; idx<arr1d.size(); idx++ )
 	    execgrp.add( interpol1dsel_->getResult(idx) );
 
-	if ( !tr.execute( execgrp ) )
+	if ( !TaskRunner::execute( &tr, execgrp ) )
 	{
 	    BufferString msg( "Cannot interpolate section " );
 	    msg += sid;

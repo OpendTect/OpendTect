@@ -391,11 +391,7 @@ void ColTab::Mapper::update( bool full, TaskRunner* tr )
 	if ( setup_.autosym0_ )
 	{
 	    SymmetryCalc symmcalc( *vs_, vssz_ );
-	    if ( tr )
-		tr->execute( symmcalc );
-	    else
-		symmcalc.execute();
-
+	    TaskRunner::execute( tr, symmcalc );
 	    setup_.symmidval_ = symmcalc.isSymmAroundZero() ? 0 : mUdf(float);
 	}
     }

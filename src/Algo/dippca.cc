@@ -332,7 +332,7 @@ bool Dip2D::compute( TaskRunner* tr )
 	return false;
 
     Dip2DCalculator fdc( *this );
-    if ( (tr && !tr->execute(fdc)) || (!tr && !fdc.execute() ) )
+    if ( !TaskRunner::execute( tr, fdc ) )
 	return false;
 
     return fillGap();
@@ -711,7 +711,7 @@ bool Dip3D::compute( TaskRunner* tr )
 	return false;
 
     Dip3DCalculator fdc( *this );
-    return tr ? tr->execute(fdc) : fdc.execute();
+    return TaskRunner::execute( tr, fdc );
 }
 
 

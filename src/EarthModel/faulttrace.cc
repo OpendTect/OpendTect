@@ -933,7 +933,7 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 	if ( EM::EMM().getObjectID(faultids[idx]) < 0 )
 	    loadergrp.add( EM::EMM().objectLoader(faultids[idx],&sel) );
 
-    const int res = tr ? tr->execute( loadergrp ) : loadergrp.execute();
+    const int res = TaskRunner::execute( tr, loadergrp );
     if ( !res )
 	mErrRet("Failed to read the faults from disc")
 
@@ -959,7 +959,7 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 	execgrp.add( new FaultTraceCalc(flt,hs,*trcs) );
     }
 
-    const bool ret = tr ? tr->execute(execgrp) : execgrp.execute();
+    const bool ret = TaskRunner::execute( tr, execgrp );
     if ( !ret )
 	mErrRet("Failed to extract Fault traces")
 

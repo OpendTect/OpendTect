@@ -382,7 +382,7 @@ int nextStep()
 
 bool go( TaskRunner& tr )
 {
-    return tr.execute( *this );
+    return TaskRunner::execute( &tr, *this );
 }
 
 bool isOK() const
@@ -534,7 +534,7 @@ bool StreamProvider::preLoad( const BufferStringSet& fnms, TaskRunner& tr,
     if ( fnms.isEmpty() ) return true;
 
     StreamProviderDataPreLoader exec( fnms, id );
-    return tr.execute( exec );
+    return TaskRunner::execute( &tr, exec );
 }
 
 

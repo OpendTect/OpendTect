@@ -315,7 +315,7 @@ void uiTextureAttrib::readSampAttrib(CubeSampling& cs, int nrtrcs, LineKey& lk)
     }
 
     uiTaskRunner dlg( this );
-    if ( !dlg.execute(*proc) )
+    if ( !TaskRunner::execute( &dlg, *proc ) )
 	return;
 
     setMinMaxVal( bufs );

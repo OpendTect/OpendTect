@@ -700,7 +700,7 @@ void uiSEGYFileManip::plotReq( CallBacker* cb )
     if ( de.totalnr_ < 0 )
 	return;
     uiTaskRunner tr( this );
-    tr.execute( de );
+    TaskRunner::execute( &tr, de );
     if ( de.data_[0]->size() < 2 )
 	return;
 
@@ -763,7 +763,7 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
     Executor* exec = calcset_.getApplier( strm(), *sdout.ostrm, bptrc,
 	   				  &binhdr_, &txthdr_ );
     uiTaskRunner tr( this );
-    const bool rv = tr.execute( *exec );
+    const bool rv = TaskRunner::execute( &tr, *exec );
     sdout.close(); delete exec;
 
     if ( rv )

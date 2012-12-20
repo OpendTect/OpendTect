@@ -323,7 +323,7 @@ bool uiSetPickDirs::extractDipOrAngl( DataPointSet& locations )
     if ( !errmsg.isEmpty() ) mErrRet(errmsg)
 
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(*tabextr) )
+    if ( !TaskRunner::execute( &taskrunner, *tabextr ) )
 	return false;
 
     return true;

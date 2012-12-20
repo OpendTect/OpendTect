@@ -203,8 +203,8 @@ bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
     }
 
     exec->setName( "Attributes from Traces" );                       
-    uiTaskRunner dlg( this );                                                   
-    dlg.execute(*exec);
+    uiTaskRunner dlg( this );
+    TaskRunner::execute( &dlg, *exec );
     return true;
 }
 
@@ -217,7 +217,7 @@ bool uiStratSynthCrossplot::extractLayerAttribs( DataPointSet& dps,
 
     Strat::LayModAttribCalc lmac( lm_, seqattrs, dps );
     uiTaskRunner tr( this );
-    return tr.execute( lmac );
+    return TaskRunner::execute( &tr, lmac );
 }
 
 

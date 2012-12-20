@@ -541,10 +541,7 @@ void Seis2DDisplay::setData( int attrib,
 		Array2DReSampler<float,float> 
 			resampler( sourcearr2d, *stor, sz0, sz1, true );
 		resampler.setInterpolate( true );
-		if ( tr )
-		    tr->execute( resampler );
-		else
-		    resampler.execute();
+		TaskRunner::execute( tr, resampler );
 	    }
 	}
 

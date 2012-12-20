@@ -368,7 +368,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     MouseCursorManager::restoreOverride();
     if ( !errmsg.isEmpty() ) mErrRet(errmsg)
 	    
-    if ( !tr.execute(*tabextr) )
+    if ( !TaskRunner::execute( &tr, *tabextr ) )
     {
 	mDPM.release( dps->id() );
 	return false;

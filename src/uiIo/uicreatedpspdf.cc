@@ -278,7 +278,7 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 
     DPSDensityCalcND denscalc( dps_, axisparams,pdf.getData());
     uiTaskRunner tr( this );
-    tr.execute( denscalc );
+    TaskRunner::execute( &tr, denscalc );
 }
 
 

@@ -244,7 +244,7 @@ bool uiIsopachMakerDlg::doWork()
 	ipmaker.setUnits( isinmsec );
     }
 
-    bool rv = tr.execute( ipmaker );
+    bool rv = TaskRunner::execute( &tr, ipmaker );
     h1->unRef(); h2->unRef();
     return rv;
 }

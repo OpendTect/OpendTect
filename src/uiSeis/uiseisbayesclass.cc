@@ -632,7 +632,7 @@ void uiSeisBayesClass::outputDone( CallBacker* )
 
     SeisBayesClass exec( pars_ );
     uiTaskRunner tr( outdlg_ );
-    const bool isok = tr.execute( exec );
+    const bool isok = TaskRunner::execute( &tr, exec );
 
     mSetState( isok ? cFinished() : mOutput );
 }

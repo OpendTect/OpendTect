@@ -114,7 +114,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     uiTaskRunner tr( this );
     //Takes over interpolator
     EM::Hor2DTo3D converter( hor2d_, interpolator, *hor3d_, &tr );
-    bool rv = tr.execute( converter );
+    bool rv = TaskRunner::execute( &tr, converter );
 
 #undef mErrRet
     if ( !rv ) return false;
@@ -123,7 +123,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     if ( !exec )
 	return false;
 
-    rv = tr.execute( *exec );
+    rv = TaskRunner::execute( &tr, *exec );
     if ( rv )
 	selid_ = ioobj->key();
     return rv;

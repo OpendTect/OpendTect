@@ -337,7 +337,7 @@ bool uiGMTContourGrp::loadHor()
 	    return false;
 
 	uiTaskRunner dlg( this );
-	if ( !dlg.execute(*exec) )
+	if ( !TaskRunner::execute( &dlg, *exec ) )
 	    return false;
 
 	id = EM::EMM().getObjectID( ioobj->key() );

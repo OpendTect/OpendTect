@@ -281,12 +281,12 @@ bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tr )
 
     ExplicitMarchingCubesSurfaceUpdater updater( *this, true );
 
-    if ( tr ? !tr->execute( updater ) : !updater.execute() )
+    if ( !TaskRunner::execute( tr, updater ) )
 	return false;
 
     updater.setUpdateCoords( false );
 
-    if ( tr ? tr->execute( updater ) : updater.execute() )
+    if ( TaskRunner::execute( tr, updater ) )
     {
 	mRemoveBucketRanges;
 	lastversionupdate_ = getVersion();
@@ -315,12 +315,12 @@ bool ExplicitMarchingCubesSurface::update(
     ExplicitMarchingCubesSurfaceUpdater updater( *this, true );
     updater.setLimits( xrg, yrg, zrg ); 
 
-    if ( tr ? !tr->execute( updater ) : !updater.execute() )
+    if ( !TaskRunner::execute( tr, updater ) )
 	return false;
 
     updater.setUpdateCoords( false );
 
-    return tr ? tr->execute( updater ) : updater.execute();
+    return TaskRunner::execute( tr, updater );
 }
 
 

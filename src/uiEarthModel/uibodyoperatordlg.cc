@@ -332,7 +332,7 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
 	    mRetErr("Writing body to disk failed, no permision?")
     }
 
-    taskrunner.execute( *exec );
+    TaskRunner::execute( &taskrunner, *exec );
     
     BufferString msg = "The body ";
     msg += outputfld_->getInput();

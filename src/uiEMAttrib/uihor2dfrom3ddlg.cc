@@ -74,7 +74,7 @@ bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
 	emobj->setMultiID( mid );
 	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
 	uiTaskRunner taskrunner( this );
-	if ( !taskrunner.execute(*loader) )
+	if ( !TaskRunner::execute( &taskrunner, *loader ) )
 	    return false;
     }
 
@@ -88,7 +88,7 @@ bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
     
     PtrMan<Executor> saver = horizon2d->saver();
     uiTaskRunner writedlg( this );
-    writedlg.execute( *saver );
+    TaskRunner::execute( &writedlg, *saver );
 
     EM::EMObjectCallbackData cbdata;
     cbdata.event = EM::EMObjectCallbackData::PositionChange;
@@ -139,7 +139,7 @@ void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
     creator.init( sellinenames, linesetinpsel_->ioObj()->name() );
 
     uiTaskRunner tr( this );
-    tr.execute( creator );
+    TaskRunner::execute( &tr, creator );
 }
 
 

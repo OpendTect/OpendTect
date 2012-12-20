@@ -313,7 +313,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
     if ( !loader ) mErrRet("Cannot read surface")
 
     uiTaskRunner tr( this );
-    if ( !tr.execute(*loader) ) return false;
+    if ( !TaskRunner::execute( &tr, *loader ) ) return false;
 
     uiPosSubSel* pss = inpfld->getPosSubSel();
     Pos::Filter* pf = pss ? pss->curProvider() : 0;
@@ -336,7 +336,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
     PtrMan<Executor> saver = surface->geometry().saver( &outsdsel, &mid );
     if ( !saver ) mErrRet("Cannot save surface")
 
-    if ( !tr.execute(*saver) ) return false;
+    if ( !TaskRunner::execute( &tr, *saver ) ) return false;
 
     const BufferString oldsetupname = EM::Surface::getSetupFileName( *ioobj );
     const BufferString newsetupname = EM::Surface::getSetupFileName( *newioobj);

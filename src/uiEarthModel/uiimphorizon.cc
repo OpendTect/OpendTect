@@ -267,7 +267,7 @@ bool uiImportHorizon::doScan()
 
     scanner_ = new HorizonScanner( filenms, fd_, isgeom_ );
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute( *scanner_ ) )
+    if ( !TaskRunner::execute( &taskrunner, *scanner_ ) )
 	return false;
 
     const StepInterval<int> nilnrg = scanner_->inlRg();
@@ -340,7 +340,7 @@ void uiImportHorizon::stratLvlChg( CallBacker* )
 	horizon->unRef(); \
 	return false; \
     } \
-    rv = taskrunner.execute( *exec ); \
+    rv = TaskRunner::execute( &taskrunner, *exec ); \
     delete exec; 
 
 bool uiImportHorizon::doImport()
@@ -399,7 +399,7 @@ bool uiImportHorizon::doImport()
 	importer.add( horizon->auxDataImporter(sections,attrnms,startidx,hs) );
 
     uiTaskRunner taskrunner( this );
-    const bool success = taskrunner.execute( importer );
+    const bool success = TaskRunner::execute( &taskrunner, importer );
     if ( !success )
 	mErrRetUnRef("Cannot import horizon")
 
@@ -518,7 +518,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	if ( !interpol_->setArray( arr, &taskrunner ) )
 	    return false;
 
-	if ( !taskrunner.execute(*interpol_) )
+	if ( !TaskRunner::execute( &taskrunner, *interpol_ ) )
 	    return false;
 
 	for ( int inl=0; inl<hs.nrInl(); inl++ )
@@ -572,7 +572,7 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     if ( !loader ) mErrRet( "Cannot load horizon");
 
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(*loader) )
+    if ( !TaskRunner::execute( &taskrunner, *loader ) )
 	return 0;
 
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)

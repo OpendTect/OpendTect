@@ -160,11 +160,11 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
 	detector.getHorSampling( hs );
 	ObjectSet<BinIDValueSet> curdata; curdata += bidvs;
 	PtrMan<Executor> importer = hor3d->importer( curdata, hs );
-	if ( !importer || !dlg.execute(*importer) )
+	if ( !importer || !TaskRunner::execute( &dlg, *importer ) )
 	    continue;
 
 	PtrMan<Executor> saver = hor3d->saver();
-	if ( !saver || !dlg.execute(*saver) )
+	if ( !saver || !TaskRunner::execute( &dlg, *saver ) )
 	    continue;
     }
 

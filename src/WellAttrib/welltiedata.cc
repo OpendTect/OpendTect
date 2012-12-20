@@ -187,7 +187,7 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	    PtrMan<Executor> exec = em.objectLoader( horids[idx] );
 	    if ( exec )
 	    {
-		if ( tr.execute( *exec ) )
+		if ( TaskRunner::execute( &tr, *exec ) )
 		    success = true;
 	    }
 	    if ( success )

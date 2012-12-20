@@ -1284,8 +1284,7 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 
     HorizonSectionTilePosSetup task( fullupdatetiles, *geometry_, rrg, crg, 
 	    zaxistransform_, mNrCoordsPerTileSide, mLowestResIdx );
-    if ( tr ) tr->execute( task );
-    else task.execute();
+    TaskRunner::execute( tr, task );
 
     //Only for fixed resolutions, which won't be tesselated at render.
     if ( oldupdatetiles.size() )
@@ -1342,8 +1341,7 @@ void HorizonSection::resetAllTiles( TaskRunner* tr )
     
     HorizonSectionTilePosSetup task( fullupdatetiles, *geometry_, rrg, crg, 
 	    zaxistransform_, mNrCoordsPerTileSide, mLowestResIdx );
-    if ( tr ) tr->execute( task );
-    else task.execute();
+    TaskRunner::execute( tr, task );
     
     tesselationlock_ = false;
     shapehints_->touch(); 
@@ -1579,11 +1577,7 @@ void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
 	    return;
 
 	HorizonTileRenderPreparer task( *this, state, desiredresolution_ );
-	if ( tr )
-	    tr->execute(task);
-	else
-	    task.execute();
-    
+	TaskRunner::execute( tr, task );
 	mApplyTesselation(;);
     }
 

@@ -469,7 +469,7 @@ void uiSynthToRealScale::updRealStats()
 	mErrRet( "Error opening input seismic data" );
 
     uiSynthToRealScaleRealStatCollector coll( *this, rdr );
-    if ( !tr.execute(coll) )
+    if ( !TaskRunner::execute( &tr, coll ) )
 	return;
 
     uiHistogramDisplay& histfld = *realstatsfld_->dispfld_;

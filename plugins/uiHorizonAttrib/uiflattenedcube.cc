@@ -202,5 +202,5 @@ bool uiWriteFlattenedCube::doWork( float zval )
     uiWriteFlattenedCubeMaker cm( rdr, wrr, pp_, horzrg_, zval );
     uiTaskRunner tr( this );
     MouseCursorManager::restoreOverride();
-    return tr.execute( cm );
+    return TaskRunner::execute( &tr, cm );
 }

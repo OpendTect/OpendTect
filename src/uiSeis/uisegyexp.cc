@@ -492,7 +492,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     }
 
     uiTaskRunner dlg( this );
-    rv = dlg.execute( *exec );
+    rv = TaskRunner::execute( &dlg, *exec );
     execptrman.erase();
 
     if ( tmpioobj )

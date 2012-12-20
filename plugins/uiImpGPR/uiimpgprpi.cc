@@ -147,7 +147,7 @@ bool acceptOK( CallBacker* )
     importer.zfac_ = zfacfld_->getfValue();
 
     uiTaskRunner tr( this );
-    return tr.execute( importer );
+    return TaskRunner::execute( &tr, importer );
 }
 
     uiFileInput*	inpfld_;

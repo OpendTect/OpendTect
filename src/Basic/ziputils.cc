@@ -155,7 +155,7 @@ bool ZipUtils::makeZip( const char* zipfnm, const BufferStringSet& src,
 	mErrRet
 
     Zipper exec( ziphdler_ );
-    if ( !(tr ? tr->execute(exec) : exec.execute()) )
+    if ( !(TaskRunner::execute( tr, exec )) )
 	mErrRet
 
     return true;
@@ -172,7 +172,7 @@ bool ZipUtils::appendToArchive( const char* srcfnm, const char* fnm,
 	mErrRet
 
     Zipper exec( ziphdler_ );
-    if ( !(tr ? tr->execute( exec ) : exec.execute()) )
+    if ( !(TaskRunner::execute( tr, exec )) )
 	mErrRet
 
     return true;
@@ -251,7 +251,7 @@ bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
 	mErrRet
 
     UnZipper exec( ziphdler_ );
-    if ( !(tr ? tr->execute( exec ) : exec.execute()) )
+    if ( !(TaskRunner::execute( tr, exec )) )
 	mErrRet
 
     return true;

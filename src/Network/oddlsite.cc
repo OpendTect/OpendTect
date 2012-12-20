@@ -110,7 +110,7 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
 	odhttp_->get( getFileName(relfnm), outfnm );
 	HttpTask task( *odhttp_ );
 	task.setName( nicename );
-	if ( !(tr ? tr->execute( task ) : task.execute() ) )
+	if ( !TaskRunner::execute( tr, task ) )
 	{
 	    errmsg_ = task.message();
 	    if ( odhttp_->isForcedAbort() )
@@ -280,13 +280,14 @@ bool ODDLSite::getFiles( const BufferStringSet& fnms, const char* outputdir,
     errmsg_.setEmpty();
 
     ODDLSiteMultiFileGetter mfg( *this, fnms, outputdir );
-    if ( !tr.execute(mfg) )
+    if ( !TaskRunner::execute( &tr, mfg ) )
     {
 	errmsg_ = mfg.curidx_ < 0 ? mfg.msg_.buf() : "";
 	return false;
     }
 
-    const bool res = mfg.httptask_ ? tr.execute( *mfg.httptask_ ) : true;
+    const bool res = mfg.httptask_ ?
+	TaskRunner::execute( &tr, *mfg.httptask_ ) : true;
     if ( !res && !mfg.httptask_->userStop() )
 	errmsg_ = mfg.httptask_->message();
 

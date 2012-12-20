@@ -138,7 +138,7 @@ bool uiChangeHorizonDlg::doProcessing3D()
 	if ( !worker ) return false;
 
 	uiTaskRunner dlg( this );
-	if ( !dlg.execute(*worker) )
+	if ( !TaskRunner::execute( &dlg, *worker ) )
 	    return false;
 
 	if ( !usedhor3d )

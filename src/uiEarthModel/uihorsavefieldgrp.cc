@@ -114,7 +114,7 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 	    mErrRet( "Could not read horizon." );
 
 	uiTaskRunner dlg( this );
-	if ( !dlg.execute(*reader) )
+	if ( !TaskRunner::execute( &dlg, *reader ) )
 	{
 	    delete reader;
 	    mErrRet( "Could not read horizon." );
@@ -142,7 +142,7 @@ bool uiHorSaveFieldGrp::saveHorizon()
     if ( !exec ) mErrRet( "Cannot save horizon" );
 
     uiTaskRunner dlg( this );
-    return dlg.execute( *exec );
+    return TaskRunner::execute( &dlg, *exec );
 }
 
 
@@ -195,7 +195,7 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 
     uiTaskRunner tr( this );
     PtrMan<Executor> loader = newhorizon_->geometry().loader( &sdsel );
-    if ( !loader || !tr.execute(*loader) ) 
+    if ( !loader || !TaskRunner::execute( &tr, *loader ) )
 	mErrRet( "New horizon data loading failed" );
 
     newhorizon_->setMultiID( outputfld_->ioobj()->key() );

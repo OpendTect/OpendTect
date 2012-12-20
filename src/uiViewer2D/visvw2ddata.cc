@@ -88,7 +88,7 @@ bool Vw2DEMDataObject::usePar( const IOPar& par )
     EM::SurfaceIODataSelection sel( sd );
     Executor* exec = EM::EMM().objectLoader( mid, &sel);
     TaskRunner exectr;
-    if ( exec && exectr.execute(*exec) )
+    if ( exec && TaskRunner::execute( &exectr, *exec ) )
     {
 	emid_ = EM::EMM().getObjectID( mid );
 	setEditors();

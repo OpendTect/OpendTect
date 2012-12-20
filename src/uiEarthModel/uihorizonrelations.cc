@@ -232,7 +232,7 @@ bool acceptOK( CallBacker* )
     if ( !exec ) mErrRet("Cannot save horizon")
 
     uiTaskRunner taskrunner( this );
-    return taskrunner.execute( *exec );
+    return TaskRunner::execute( &taskrunner, *exec );
 }
 
 protected:
@@ -256,7 +256,7 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
     HorizonSorter sorter( horids_,is2d_ );
     sorter.setName( "Check crossings" );
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(sorter) ) return;
+    if ( !TaskRunner::execute( &taskrunner, sorter ) ) return;
     MouseCursorManager::restoreOverride();
 
     int count = 0;

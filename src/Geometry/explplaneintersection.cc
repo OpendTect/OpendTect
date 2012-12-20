@@ -635,7 +635,7 @@ bool ExplPlaneIntersection::update( bool forceall, TaskRunner* tr )
 
     PtrMan<Task> updater = new ExplPlaneIntersectionExtractor( *this );
 
-    if ( (tr && !tr->execute( *updater ) ) || (!tr && !updater->execute()) )
+    if ( !TaskRunner::execute( tr, *updater ) )
 	return false;
 
     shapeversion_ = shape_->getVersion();

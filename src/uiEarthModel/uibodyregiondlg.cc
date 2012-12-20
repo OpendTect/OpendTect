@@ -711,14 +711,14 @@ bool uiBodyRegionDlg::createImplicitBody()
 	ImplicitBodyRegionExtractor ext( surfacelist_, sides, cs, *arr, 
      		plgp ? plgp->polygon() : dummy );
     
-	if ( !taskrunner.execute(ext) )
+	if ( !TaskRunner::execute( &taskrunner, ext ) )
     	    mRetErr("Extracting body region failed.")
     }
     else
     {
 	BodyExtractorFromHorizons ext( surfacelist_, sides, cs, *arr, 
      		plgp ? plgp->polygon() : dummy );
-	if ( !taskrunner.execute(ext) )
+	if ( !TaskRunner::execute( &taskrunner, ext ) )
     	    mRetErr("Extracting body from horizons failed.")
     }
 
@@ -749,7 +749,7 @@ bool uiBodyRegionDlg::createImplicitBody()
 	    mRetErr( "Writing body to disk failed, no permision?" ) 
     } 
 
-    if ( !taskrunner.execute(*exec) )
+    if ( !TaskRunner::execute( &taskrunner, *exec ) )
 	mRetErr("Saving body failed");
 
     return true;

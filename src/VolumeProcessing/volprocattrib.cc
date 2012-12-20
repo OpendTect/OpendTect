@@ -121,7 +121,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
 	return DataPack::cNoID();
     }
 
-    if ( (tr && !tr->execute(executor)) || (!tr && !executor.execute() ) )
+    if ( !TaskRunner::execute( tr, executor ) )
     {
 	if ( executor.errMsg() )
 	    errmsg_ = executor.errMsg();

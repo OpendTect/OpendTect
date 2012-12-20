@@ -1282,7 +1282,7 @@ bool FaultOrientation::computeAzimuthPCA( const Array3D<bool>& conf_base,
 {
     AzimuthPcaCalculator apc( conf_base, conf_upgr, elem_leng, null_val,
 	    azimuth_pca );
-    return tr ? tr->execute( apc ) : apc.execute();
+    return TaskRunner::execute( tr, apc );
 }
 
 
@@ -1814,7 +1814,7 @@ bool FaultOrientation::computeVeinSlices( const Array3D<float>& input,
 {
     VeinSliceCalculator vsc( input, threshold_, isfltabove_, minfaultlength_,
 	    sigma_, scorerate_, output );
-    return tr ? tr->execute(vsc) : vsc.execute();
+    return TaskRunner::execute( tr, vsc );
 }
 
 
@@ -2110,7 +2110,7 @@ bool FaultOrientation::computeMaxCurvature( const Array2D<float>& input,
     conv2.setZ( *ftmp );
 
     conv2.setY( *hx, false );
-    bool isdone = tr ? tr->execute(conv2) : conv2.execute();
+    bool isdone = TaskRunner::execute( tr, conv2 );
     if ( !isdone )
 	return false;
     for (int i=0; i<inputsz0; i++ )
@@ -2120,7 +2120,7 @@ bool FaultOrientation::computeMaxCurvature( const Array2D<float>& input,
     }
 
     conv2.setY( *hy, false );
-    isdone = tr ? tr->execute(conv2) : conv2.execute();
+    isdone = TaskRunner::execute( tr, conv2 );
     if ( !isdone )
 	return false;
     for (int i=0; i<inputsz0; i++ )
@@ -2130,7 +2130,7 @@ bool FaultOrientation::computeMaxCurvature( const Array2D<float>& input,
     }
 
     conv2.setY( *hxx, false );
-    isdone = tr ? tr->execute(conv2) : conv2.execute();
+    isdone = TaskRunner::execute( tr, conv2 );
     if ( !isdone )
 	return false;
     for (int i=0; i<inputsz0; i++ )
@@ -2140,7 +2140,7 @@ bool FaultOrientation::computeMaxCurvature( const Array2D<float>& input,
     }
 
     conv2.setY( *hxy, false );
-    isdone = tr ? tr->execute(conv2) : conv2.execute();
+    isdone = TaskRunner::execute( tr, conv2 );
     if ( !isdone )
 	return false;
     for (int i=0; i<inputsz0; i++ )
@@ -2150,7 +2150,7 @@ bool FaultOrientation::computeMaxCurvature( const Array2D<float>& input,
     }
 
     conv2.setY( *hyy, false );
-    isdone = tr ? tr->execute(conv2) : conv2.execute();
+    isdone = TaskRunner::execute( tr, conv2 );
     if ( !isdone )
 	return false;
     for (int i=0; i<inputsz0; i++ )

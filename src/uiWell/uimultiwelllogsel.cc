@@ -414,7 +414,7 @@ void uiMultiWellLogSel::update()
 
     Well::InfoCollector wic;
     uiTaskRunner tr( this );
-    if ( !tr.execute(wic) ) return;
+    if ( !TaskRunner::execute( &tr, wic ) ) return;
 
     BufferStringSet markernms;
     BufferStringSet lognms;

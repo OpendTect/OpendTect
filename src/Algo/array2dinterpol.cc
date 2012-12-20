@@ -1353,7 +1353,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
     DelaunayTriangulator triangulator( *triangulation_ );
     triangulator.dataIsRandom( false );
 
-    if ( (tr && !tr->execute(triangulator)) || !triangulator.execute() )
+    if ( !TaskRunner::execute( tr, triangulator ) )
 	return false;
     
     if ( triangleinterpolator_ )

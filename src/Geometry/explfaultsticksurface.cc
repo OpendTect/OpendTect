@@ -477,13 +477,13 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
     PtrMan<ExplFaultStickSurfaceUpdater> updater =
 	new ExplFaultStickSurfaceUpdater( *this, true );
 
-    if ( (tr && !tr->execute( *updater ) ) || !updater->execute() )
+    if ( !TaskRunner::execute( tr, *updater ) )
 	return false;
 
     //Now do panels
     updater = new ExplFaultStickSurfaceUpdater( *this, false );
 
-    if ( (tr && !tr->execute( *updater ) ) || !updater->execute() )
+    if ( !TaskRunner::execute( tr, *updater ) )
 	return false;
 
     needsupdate_ = false;
@@ -1149,7 +1149,7 @@ bool ExplFaultStickSurface::getTexturePositions( DataPointSet& dpset,
 	
     	PtrMan<ExplFaultStickTexturePositionExtracter> extractor =
     	    new ExplFaultStickTexturePositionExtracter( *this, dpset );
-    	return tr ? tr->execute( *extractor ) : extractor->execute();
+    	return TaskRunner::execute( tr, *extractor );
     }
     else
     {

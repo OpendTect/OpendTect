@@ -319,7 +319,7 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
     ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz,
 	mNrColors-2, *datacache_, indexcache_ );
 
-    if ( (tr&&!tr->execute( indexer ) ) || !indexer.execute() )
+    if ( !TaskRunner::execute( tr, indexer ) )
 	return;
 
     int max = 0;

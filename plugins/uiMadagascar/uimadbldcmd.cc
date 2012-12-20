@@ -163,7 +163,7 @@ uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p )
     {
 	Executor* ex = ODMad::PI().getScanner();
 	uiTaskRunner dlg( this );
-	allok = dlg.execute(*ex) && ODMad::PI().defs().size() > 0;
+	allok = TaskRunner::execute(&dlg,*ex) && ODMad::PI().defs().size() > 0;
 	delete ex;
     }
 

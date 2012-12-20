@@ -888,8 +888,7 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 		cdp->cube().cubeSampling() );
 	datatransformer->setOutputRange( getCubeSampling(true,true,0) );
 		
-	if ( (tr && tr->execute(*datatransformer)) ||
-             !datatransformer->execute() )
+	if ( TaskRunner::execute( tr, *datatransformer ) )
 	{
 	    pErrMsg( "Transform failed" );
 	    return false;

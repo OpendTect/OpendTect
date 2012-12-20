@@ -195,7 +195,7 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
 
     SeisTrcBuf tbuf(true);
     SeisBufReader br( rdr, tbuf );
-    if ( !tr.execute(br) )
+    if ( !TaskRunner::execute( &tr, br ) )
 	return false;
 
     const int icomp = 0; // ignore other components for now

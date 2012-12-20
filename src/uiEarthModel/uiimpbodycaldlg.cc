@@ -78,7 +78,7 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
     uiTaskRunner tr(this);
     BodyVolumeCalculator bc( impbody_->cs_, *impbody_->arr_, 
 	    impbody_->threshold_, vel );
-    tr.execute(bc);
+    TaskRunner::execute( &tr, bc );
 
     BufferString txt;
     txt += bc.getVolume();

@@ -695,7 +695,7 @@ void uiStratLayerModel::genModels( CallBacker* )
 
     uiTaskRunner tr( this );
     Strat::LayerModelGenerator ex( desc_, lmp_.get(), nrmods );
-    tr.execute( ex );
+    TaskRunner::execute( &tr, ex );
 
     setModelProps();
     setElasticProps();

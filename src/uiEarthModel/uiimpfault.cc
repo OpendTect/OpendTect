@@ -211,7 +211,7 @@ bool uiImportFault::handleLMKAscii()
 	mErrRet( "Cannot import fault" );
 
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(*exec) )
+    if ( !TaskRunner::execute( &taskrunner, *exec ) )
 	mErrRet( taskrunner.lastMsg() );
 
     if ( saveButtonChecked() )

@@ -840,7 +840,7 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     
     TypeSet<Coord3> pts = bodypts;
     const int zscale = SI().zDomain().userFactor();
-    if ( zscale!=1 )
+    if ( zscale != 1 )
     {
     	for ( int idx=0; idx<bodypts.size(); idx++ )
     	    pts[idx].z *= zscale;
@@ -851,12 +851,12 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	return 0;
     
     ParallelDTetrahedralator triangulator( dagtree );
-    if ( (tr && tr->execute(triangulator)) || triangulator.execute(true) )
+    if ( TaskRunner::execute( tr, triangulator ) )
     {
 	StepInterval<float> tmpzrg( zrg ); tmpzrg.scale( mCast(float,zscale) );
 	PtrMan<Expl2ImplBodyExtracter> extract = new
     	    Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, tmpzrg, *arr );
-    	if ( (tr && tr->execute( *extract )) || extract->execute() )
+    	if ( TaskRunner::execute( tr, *extract ) )
 	{
 	    res->arr_ = arr;
 	    res->threshold_ = 0;

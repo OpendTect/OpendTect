@@ -324,7 +324,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
 
     TimeDepthDataLoader loader( *arr, *velreader_, readcs, veldesc_,
 	    SamplingData<double>(voi.zrg), velintime_, voiintime_[idx] );
-    if ( (tr && !tr->execute( loader ) ) || !loader.execute() )
+    if ( !TaskRunner::execute( tr, loader ) )
 	return false;
 
     return true;

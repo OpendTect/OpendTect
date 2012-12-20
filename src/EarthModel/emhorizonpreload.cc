@@ -99,7 +99,7 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
     if ( nrproblems > 0 )
 	errmsg_.add( "\n" ).add( msg2 );
 
-    if ( execgrp->nrExecutors()!=0 && !tr->execute(*execgrp) )
+    if ( execgrp->nrExecutors()!=0 &&  !TaskRunner::execute( tr, *execgrp) )
 	return false;
 
     for ( int idx=0; idx<emobjects.size(); idx++ )

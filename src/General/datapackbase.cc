@@ -307,10 +307,7 @@ void MapDataPack::setRange( StepInterval<double> dim0rg,
 void MapDataPack::initXYRotArray( TaskRunner* tr )
 {
     MapDataPackXYRotater rotator( *this );
-    if ( tr )
-	tr->execute( rotator );
-    else
-    	rotator.execute();
+    TaskRunner::execute( tr, rotator );
 }
 
 

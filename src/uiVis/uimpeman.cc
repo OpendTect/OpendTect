@@ -1109,7 +1109,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
     {
 	const int currentevent = EM::EMM().undo().currentEventID();
 	uiTaskRunner uitr( toolbar );
-	if ( !uitr.execute(*exec) )
+	if ( !TaskRunner::execute( &uitr, *exec ) )
 	{
 	    if ( engine().errMsg() )
 		uiMSG().error( engine().errMsg() );

@@ -135,7 +135,7 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     import_->setPars( interpol_, cellsz, cs );
     import_->setOutput( *outctio_.ioobj );
     uiTaskRunner tr( this );
-    return tr.execute( *import_ );
+    return TaskRunner::execute( &tr, *import_ );
 }
 
 

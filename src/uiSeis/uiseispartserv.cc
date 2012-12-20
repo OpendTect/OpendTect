@@ -294,7 +294,7 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
     lineset.getCubeSampling( cs, lidx );
     PtrMan<Executor> exec = lineset.lineFetcher( lidx, buf );
     uiTaskRunner dlg( appserv().parent() );
-    return dlg.execute( *exec );
+    return TaskRunner::execute( &dlg, *exec );
 }
 
 

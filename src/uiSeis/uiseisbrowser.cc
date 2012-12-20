@@ -727,7 +727,7 @@ bool uiSeisBrowser::storeChgdData()
     PtrMan<uiSeisBrowseWriter> wrtr =
 	new uiSeisBrowseWriter( setup_, tbufchgdtrcs_, is2D() );
     uiTaskRunner dlg( this );
-    return dlg.execute( *wrtr );
+    return TaskRunner::execute( &dlg, *wrtr );
 }
 
 

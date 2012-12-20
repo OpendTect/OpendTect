@@ -168,7 +168,7 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
     wts.mkdahcol_ = true;
     wts.params_ = welllogselfld_->params();
     uiTaskRunner tr( this );
-    if ( !tr.execute(wts) )
+    if ( !TaskRunner::execute( &tr, wts ) )
 	return false;
     if ( dpss.isEmpty() )
 	mErrRet("No wells found")
@@ -193,7 +193,7 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
 	Well::LogDataExtracter wlde( ioobjids, dpss, SI().zIsTime() );
 	wlde.lognm_ = lognms.get(idx);
 	wlde.samppol_ = welllogselfld_->params().samppol_; 
-	if ( !tr.execute(wlde) )
+	if ( !TaskRunner::execute( &tr, wlde ) )
 	    return false;
     }
 
@@ -214,7 +214,7 @@ bool uiWellLogExtractGrp::extractAttribData( DataPointSet& dps, int c1 )
     if ( !errmsg.isEmpty() )
 	mErrRet(errmsg)
     uiTaskRunner tr( this );
-    return tr.execute( *tabextr );
+    return TaskRunner::execute( &tr, *tabextr );
 }
 
 

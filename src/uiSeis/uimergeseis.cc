@@ -83,7 +83,7 @@ bool uiMergeSeis::acceptOK( CallBacker* )
     SeisMerger mrgr( inpars, outpar, false );
     mrgr.stacktrcs_ = stackfld_->getBoolValue();
     uiTaskRunner dlg( this );
-    return dlg.execute( mrgr );
+    return TaskRunner::execute( &dlg, mrgr );
 }
 
 

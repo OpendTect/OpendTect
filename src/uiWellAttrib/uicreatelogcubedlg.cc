@@ -121,7 +121,7 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 
 	lcr.setInput( logdatas, nrtrcs, extractparams ); 
 	uiTaskRunner* tr = new uiTaskRunner( this );
-	if ( !tr->execute( lcr ) || lcr.errMsg() )
+	if ( !TaskRunner::execute( tr, lcr ) || lcr.errMsg() )
 	    mErrRet( lcr.errMsg(), return false );
     }
     return false;

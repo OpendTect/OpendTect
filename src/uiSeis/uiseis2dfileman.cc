@@ -465,7 +465,7 @@ bool acceptOK( CallBacker* )
     }
 
     uiTaskRunner tr( this );
-    tr.execute( lmrgr );
+    TaskRunner::execute( &tr, lmrgr );
     // return tr.execute( lmrgr );
     return false;
 }
@@ -572,7 +572,7 @@ bool acceptOK( CallBacker* )
     SeisCube2LineDataExtracter extr( *ioobj, *objinf_.ioObj(), attrnm,
 	    			     lnms.isEmpty() ? 0 : &lnms );
     uiTaskRunner tr( this );
-    return tr.execute( extr );
+    return TaskRunner::execute( &tr, extr );
 }
 
     const uiSeisIOObjInfo&	objinf_;

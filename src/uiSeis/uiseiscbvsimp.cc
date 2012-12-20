@@ -371,9 +371,8 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     }
 
     uiTaskRunner dlg( this );
-    const bool rv mUnusedVar = dlg.execute(*stp) && !ioobjinfo.is2D() &&
-		    ioobjinfo.provideUserInfo();
-
+    const bool rv mUnusedVar = TaskRunner::execute( &dlg, *stp ) &&
+			!ioobjinfo.is2D() && ioobjinfo.provideUserInfo();
     rmTmpIOObj();
     return false;
 }
@@ -593,9 +592,10 @@ bool uiSeisCopyLineSet::acceptOK( CallBacker* )
     if ( scaler )
 	par.set( sKey::Scale(), scaler->toString() );
 
-    par.set( IOPar::compKey(sKey::Output(),sKey::Attribute()), outpfld_->attrNm() );
+    par.set( IOPar::compKey( sKey::Output(), sKey::Attribute() ),
+	    				outpfld_->attrNm() );
     Seis2DCopier exec( inpfld_->getIOObj(), outpfld_->ioobj(true), par );
     uiTaskRunner dlg( this );
 
-    return dlg.execute( exec );
+    return TaskRunner::execute( &dlg, exec );
 }

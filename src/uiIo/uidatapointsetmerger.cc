@@ -421,7 +421,7 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
     
     DPSMerger merger( dpsmrfprop ); 
     merger.addNewCols( newcolnms );
-    tr.execute( merger );
+    TaskRunner::execute( &tr, merger );
 
     BufferString errmsg;
     const bool ret =

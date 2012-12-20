@@ -498,7 +498,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     }
 
     uiTaskRunner dlg( parent_ );
-    if ( !dlg.execute(*proc) )
+    if ( !TaskRunner::execute( &dlg, *proc ) )
 	return;
 
     uiGainAnalysisDlg analdlg( this, bufs, zvals_, scalefactors_);

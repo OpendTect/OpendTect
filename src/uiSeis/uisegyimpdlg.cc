@@ -337,7 +337,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     }
 
     uiTaskRunner dlg( this );
-    rv = dlg.execute( *imp );
+    rv = TaskRunner::execute( &dlg, *imp );
     BufferStringSet warns;
     if ( imp && imp->nrSkipped() > 0 )
 	warns += new BufferString("During import, ", imp->nrSkipped(),

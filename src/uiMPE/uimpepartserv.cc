@@ -929,7 +929,7 @@ void uiMPEPartServer::loadEMObjectCB(CallBacker*)
 
     emobj->ref();
     uiTaskRunner uiexec( appserv().parent() );
-    const bool keepobj = uiexec.execute( *exec );	
+    const bool keepobj = TaskRunner::execute( &uiexec, *exec );
     exec.erase();
     if ( keepobj )
 	emobj->unRefNoDelete();

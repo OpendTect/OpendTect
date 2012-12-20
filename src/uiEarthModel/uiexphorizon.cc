@@ -238,7 +238,7 @@ bool uiExportHorizon::writeAscii()
     if ( !loader ) mErrRet("Cannot read horizon")
 
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(*loader) ) return false;
+    if ( !TaskRunner::execute( &taskrunner, *loader ) ) return false;
 
     infld_->getSelection( sels );
     if ( dogf && sels.selvalues.size() > 1 &&
@@ -252,7 +252,7 @@ bool uiExportHorizon::writeAscii()
 	for ( int idx=0; idx<sels.selvalues.size(); idx++ )
 	    exgrp.add( hor->auxdata.auxDataLoader(sels.selvalues[idx]) );
 
-	if ( !taskrunner.execute(exgrp) ) return false;
+	if ( !TaskRunner::execute( &taskrunner, exgrp ) ) return false;
     }
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );

@@ -175,7 +175,7 @@ bool uiVelocityDescDlg::scanAvgVel( const IOObj& ioobj,
 {
     VelocityModelScanner scanner( ioobj, desc );
     uiTaskRunner tr( this );
-    if ( !tr.execute(scanner) )
+    if ( !TaskRunner::execute( &tr, scanner ) )
 	return false;
      
     toprange_ = scanner.getTopVAvg(); 

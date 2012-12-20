@@ -386,7 +386,7 @@ bool MarchingCubesSurface::setVolumeData( int xorigin, int yorigin, int zorigin,
 
     Implicit2MarchingCubes converter( xorigin, yorigin, zorigin, arr, threshold,
 	    			      *this );
-    const bool res = tr ? tr->execute( converter ) : converter.execute();
+    const bool res = TaskRunner::execute( tr, converter );
 
     if ( wasempty )
 	allchanged_ = true;

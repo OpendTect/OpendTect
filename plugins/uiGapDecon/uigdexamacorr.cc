@@ -74,7 +74,7 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
 
     proc->setName( "Compute autocorrelation values" );
     uiTaskRunner dlg( parent_ );
-    if ( !dlg.execute(*proc) )
+    if ( !TaskRunner::execute( &dlg, *proc ) )
 	return false;
 
     dset_->is2D() ? createFD2DDataPack( isqc, *d2dh )

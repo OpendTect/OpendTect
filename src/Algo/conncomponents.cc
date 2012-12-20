@@ -528,7 +528,7 @@ const ObjectSet<ConnComponents3D::VPos>* ConnComponents3D::getComponent( int ci)
 void ConnComponents3D::compute( TaskRunner* tr )
 {
     CC2DExtracor cc( input_ );
-    bool extraced = tr ? tr->execute( cc ) : cc.execute();
+    bool extraced = TaskRunner::execute( tr, cc );
     if ( !extraced )
 	return;
 

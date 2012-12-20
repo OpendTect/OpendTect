@@ -126,6 +126,6 @@ bool AttribLogExtractor::extractData( Attrib::EngineMan& aem, TaskRunner* tr )
 	    aem.createLocationOutput( errmsg, bivsset );
     if ( !process ) 
 	return false;
-    return tr ? tr->execute( *process ) : process->execute();
+    return TaskRunner::execute( tr, *process );
 }
 

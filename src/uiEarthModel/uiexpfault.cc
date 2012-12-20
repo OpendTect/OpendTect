@@ -151,7 +151,7 @@ bool uiExportFault::writeAscii()
     if ( !loader ) mErrRet("Cannot read fault")
 
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(*loader) ) return false;
+    if ( !TaskRunner::execute( &taskrunner, *loader ) ) return false;
 
     const BufferString fname = outfld_->fileName();
     StreamData sdo = StreamProvider( fname ).makeOStream();

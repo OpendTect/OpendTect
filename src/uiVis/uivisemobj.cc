@@ -115,7 +115,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	    emid = EM::EMM().getObjectID( mid );
 	    EM::EMObject* emobject = EM::EMM().getObject( emid );
 	    emobject->ref();
-	    if ( !dlg.execute(*exec) )
+	    if ( !TaskRunner::execute( &dlg, *exec ) )
 	    {
 		emid = -1;
 		emobject->unRef();

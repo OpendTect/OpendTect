@@ -202,7 +202,7 @@ bool calcFingParsObject::computeValsAndRanges()
 
     proc->setName( "Compute reference values" );
     uiTaskRunner taskrunner( parent_ );
-    if ( !taskrunner.execute(*proc) )
+    if ( !TaskRunner::execute( &taskrunner, *proc ) )
 	return false;
 
     extractAndSaveValsAndRanges();
