@@ -25,34 +25,35 @@ using namespace Survey;
 class GeomFileReader : public ::ParallelTask
 {
 public:
-GeomFileReader(od_int64 sz,const ObjectSet<IOObj>& objs,
-				 ObjectSet<Geometry>& geometries)
-: sz_(sz)
-, objs_(objs)
-, geometries_(geometries)	{}
+GeomFileReader( const ObjectSet<IOObj>& objs, ObjectSet<Geometry>& geometries )
+    : objs_(objs)
+    , geometries_(geometries)
+{}
 
+    
 od_int64 nrIterations() const 
-{return sz_;}
+{ return objs_.size(); }
 
+    
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    BufferString srcfile;
     StreamData isd;
-    for ( od_int64 idx=start; idx<=stop; idx++ )
+    for ( int idx=(int) start; idx<=stop; idx++ )
     {
-	srcfile = objs_[(int)idx]->fullUserExpr();
+	const IOObj* ioobj = objs_[idx];
+	const BufferString srcfile = ioobj->fullUserExpr();
         isd = StreamProvider( srcfile ).makeIStream();
         if( !isd.usable() )
 	    return false;
 
-	if (objs_[(int)idx]->translator()==dgb2DSurvGeomTranslator::translKey())
+	if ( ioobj->translator()==dgb2DSurvGeomTranslator::translKey())
 	{
-	    if ( !(((Geometry2D*)geometries_[(int)idx])->data().read
-							(*(isd.istrm),false)) )
+	    Geometry2D* geom = (Geometry2D*) geometries_[idx];
+	    if ( !geom->data().read(*(isd.istrm),false) )
 		return false;
 
 	    isd.close();
-	    geometries_[(int)idx]->setGeomID( objs_[(int)idx]->key().ID(1) );
+	    geom->setGeomID( ioobj->key().ID(1) );
 	}
 	else
 	{
@@ -66,9 +67,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 protected:
 
-od_int64		    sz_;
-const ObjectSet<IOObj>&	    objs_;
-ObjectSet<Geometry>&	    geometries_;
+    const ObjectSet<IOObj>&	objs_;
+    ObjectSet<Geometry>&	geometries_;
 };
 
 
@@ -93,9 +93,12 @@ bool GeometryWriter2D::write( Geometry* geom )
     geom2d->setGeomID( cioob.ioobj->key().ID(1) );
     BufferString destfile = IOM().get( mid )->fullUserExpr();
     StreamData osd = StreamProvider( destfile ).makeOStream();
+    
     if ( osd.usable() )
+    {
 	if ( !(geom2d->data().write(*(osd.ostrm),false,true)) )
 	    return false;
+    }
 
     osd.close();
     return true;
@@ -122,7 +125,7 @@ bool GeometryReader2D::read( ObjectSet<Geometry>& geometries )
 	{}//TODO 3D to be implemented
     }
 
-    GeomFileReader gfr( objs.size(), objs, geometries );
+    GeomFileReader gfr( objs, geometries );
     if ( !gfr.execute() )
 	return false;
 
