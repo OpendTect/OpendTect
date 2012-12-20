@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace Survey;
 
 
-class GeomFileReader : public ParallelTask
+class GeomFileReader : public ::ParallelTask
 {
 public:
 GeomFileReader(od_int64 sz,const ObjectSet<IOObj>& objs,
