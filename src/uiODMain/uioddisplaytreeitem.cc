@@ -304,15 +304,20 @@ void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 	return;
     }
 
-    if ( visserv_->hasAttrib(displayid_) &&
-	 visserv_->canHaveMultipleAttribs(displayid_) )
+    const bool hasmultiattribs = visserv_->hasAttrib(displayid_) &&
+				 visserv_->canHaveMultipleAttribs(displayid_);
+    if ( visserv_->hasMaterial(displayid_) || hasmultiattribs )
+    {
+        mAddMenuItem( menu, &displaymnuitem_, true, false );
+        displaymnuitem_.removeItems();
+    }
+
+    if ( hasmultiattribs )
     {
 	mAddMenuItem( menu, &addmnuitem_, true, false );
 	mAddMenuItem( &addmnuitem_, &addattribmnuitem_,
 		      !visserv_->isLocked(displayid_) &&
 		      visserv_->canAddAttrib(displayid_), false );
-	mAddMenuItem( menu, &displaymnuitem_, true, false );
-	displaymnuitem_.removeItems();
 	mAddMenuItem( &displaymnuitem_, &histogrammnuitem_, true, false );
 	mAddMenuItem( &addmnuitem_, &addvolprocmnuitem_,
 		      !visserv_->isLocked(displayid_) &&
