@@ -18,6 +18,7 @@ SET(OD_MODULE_SOURCES
 		prestackgather.cc
 		prestackprocessor.cc
 		prestackprocessortransl.cc
+		prestackanglecomputer.cc
 		prestackanglemute.cc
 		prestackanglemutecomputer.cc
 		prestackmute.cc
