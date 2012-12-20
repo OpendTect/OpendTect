@@ -97,6 +97,8 @@ protected:
     
     bool		askContinueAndSaveIfNeeded(bool withcancel);
 
+    MenuItem		algomnuitem_;
+    MenuItem		workflowsmnuitem_;
     MenuItem		derive3dhormnuitem_;
     MenuItem		snapeventmnuitem_;
     MenuItem		interpolatemnuitem_;
