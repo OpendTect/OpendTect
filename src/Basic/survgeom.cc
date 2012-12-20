@@ -10,9 +10,16 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "survgeom.h"
+
+#include "surv2dgeom.h"
 #include "survinfo.h"
 
 using namespace Survey;
+
+
+mImplFactory(GeometryReader,GeometryReader::factory);
+mImplFactory(GeometryWriter,GeometryWriter::factory);
+
 
 Geometry::Geometry()
     : geomid_( -2 )
@@ -72,6 +79,31 @@ void GeometryManager::addGeometry(Survey::Geometry* g)
 {
     g->ref();
     geometries_ += g;
+}
+
+
+bool GeometryManager::write()
+{
+    GeometryWriter* geomwriter =GeometryWriter::factory().create("2D Writer");
+    BufferStringSet lsname;
+    S2DPOS().getLineSets( lsname );
+    for ( int idx=0; idx<lsname.size(); idx++ )
+    {
+	BufferStringSet lname;
+	S2DPOS().getLines( lname, lsname.get(idx).buf() );
+	for ( int idx2=0; idx2<lname.size(); idx2++ )
+	{
+	    Geometry2D geom2d;
+	    geom2d.data().setLineName( lname.get(idx2) );
+	    S2DPOS().getGeometry(geom2d.data());
+	    BufferString newlnm = lsname.get(idx);
+	    newlnm.add( "_" );
+	    newlnm.add( lname.get(idx2) );
+	    geom2d.data().setLineName( newlnm );
+	    geomwriter->write( &geom2d );
+	}
+    }
+    return true;
 }
 
 

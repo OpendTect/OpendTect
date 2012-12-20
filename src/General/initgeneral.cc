@@ -16,6 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "elasticpropseltransl.h"
 #include "preloads.h"
 #include "helpview.h"
+#include "geometryio.h"
+#include "survgeometrytransl.h"
 
 mDefModInitFn(General)
 {
@@ -36,6 +38,11 @@ mDefModInitFn(General)
     ValueProperty::initClass();
     RangeProperty::initClass();
     MathProperty::initClass();
+
+    Survey::GeometryWriter2D::initClass();
+    Survey::GeometryWriter3D::initClass();
+    Survey::SurvGeomTranslatorGroup::initClass();
+    Survey::dgb2DSurvGeomTranslator::initClass();
 
     Currency::repository_ += new Currency( "EUR", 100 );
     Currency::repository_ += new Currency( "USD", 100 );

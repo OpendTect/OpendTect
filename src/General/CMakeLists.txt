@@ -27,6 +27,7 @@ SET ( OD_MODULE_SOURCES arrayndutils.cc
 	    flatauxdataeditor.cc
 	    flatview.cc
 	    geom2dascio.cc
+		geometryio.cc
 	    googlexmlwriter.cc
 	    grid2d.cc
 	    helpview.cc
@@ -58,6 +59,7 @@ SET ( OD_MODULE_SOURCES arrayndutils.cc
 	    raytracerrunner.cc
 	    rockphysics.cc
 	    stratlevel.cc
+		survgeometrytransl.cc
 	    tableascio.cc
 	    tableconv.cc
 	    transl.cc
