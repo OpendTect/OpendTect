@@ -53,7 +53,7 @@ mClass(AttributeEngine) Provider
 
 public:
 
-    struct LineTrcDistStats
+    mStruct(AttributeEngine) LineTrcDistStats
     {
 				LineTrcDistStats( BufferString linename,
 						  float mediandist,
