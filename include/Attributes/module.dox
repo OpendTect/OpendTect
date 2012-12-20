@@ -26,5 +26,9 @@ ________________________________________________________________________
   attribute implementation.
 
 \section Content Content
+
+
+\namespace Attrib
+\brief OpendTect attributes
 */
 

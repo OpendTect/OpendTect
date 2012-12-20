@@ -10,7 +10,7 @@ ________________________________________________________________________
 -*/
 
 /*!
-\defgroup Basic
+\defgroup Basic Basic
 \section Introduction
 
   This module handles all things that are so basic to all other modules that

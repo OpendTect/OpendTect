@@ -192,7 +192,7 @@ public:
     virtual const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
 	    						   int version=0) const;
     void			getChannelName(int,BufferString&) const;
-    				//!<\Returns "Layer 0", or "Red", "Green" ...
+    				//!<\returns "Layer 0", or "Red", "Green" ...
     virtual void		setColTabMapperSetup(int,
 				     const ColTab::MapperSetup&,TaskRunner*);
     virtual const ColTab::Sequence* getColTabSequence(int) const { return 0; }

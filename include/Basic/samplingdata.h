@@ -36,7 +36,7 @@ public:
     template <class FT> inline int	nearestIndex(FT) const;
     template <class FT> inline int	indexOnOrAfter(FT,
 						    float eps=mDefEps ) const;
-    					//!\var eps is in number of samples.
+    					//!\param eps is in number of samples.
     template <class IT> inline T	atIndex(IT) const;
     template <class FT> inline T	snap(FT) const;
 

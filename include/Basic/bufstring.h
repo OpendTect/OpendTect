@@ -19,7 +19,9 @@ ________________________________________________________________________
 
 class FixedString;
 
-/*!\brief String with variable length but guaranteed minimum buffer size.
+/*!
+\ingroup Basic
+\brief String with variable length but guaranteed minimum buffer size.
 
 The minimum buffer size makes life easier in worlds where strcpy etc. rule.
 Overhead is 4 extra bytes for variable length and 4 bytes for minimum length.
@@ -30,7 +32,9 @@ Don't try to add constructors with a single basic type - this leads to nasty
 hidden bugs because the compiler will try to convert all kinds of things into
 BufferStrings. If you just need a string from an int, float, ..., just
 use str = toString( var ). If you need the BufferString later, use:
+\code
 BufferString istr( "", intvar );
+\endcode
 
 */
 
