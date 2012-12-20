@@ -552,4 +552,12 @@ void uiWellLogCalc::getSuitableLogs( const Well::LogSet& logs,
 		isaltpropref += 1;                                          
 	    }                                                               
     }
+    if ( propidx.size() == 0 )
+    {
+	for ( int idlog=0; idlog<logs.size(); idlog++ )
+	{
+	    propidx += idlog;
+	    isaltpropref += 0;
+	}
+    }
 }
