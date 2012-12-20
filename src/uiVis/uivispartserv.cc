@@ -398,7 +398,9 @@ visBase::DataObject* uiVisPartServer::getObject( int id ) const
 void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
 				 bool saveinsessions  )
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
+    mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid));
+    if ( !scene ) return;
+
     scene->addObject( dobj );
     objectaddedremoved.trigger();
     dobj->doSaveInSessions( saveinsessions );
