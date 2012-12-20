@@ -26,6 +26,7 @@ namespace Survey
 mClass(Basic) Geometry
 { mRefCountImpl(Geometry);
 public:
+    virtual bool	is3D() const					= 0;
     int			getGeomID() const { return geomid_; }
     void		setGeomID(int id) { geomid_ = id; }
     virtual Coord	toCoord(const TraceID& tid) const

@@ -40,7 +40,7 @@ public:
 			    : name_( nm )
     			    , zdomain_( zd )
 			{}
-    
+    bool		is3D() const		{ return true; }
     const BufferString&	name() const		{ return name_; }
     			    
     float		zScale() const 		{ return zscale_; }

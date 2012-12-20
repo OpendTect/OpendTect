@@ -166,6 +166,7 @@ public:
 
     virtual bool		includes(int line, int tracenr)	const;
 
+    bool			is3D() const		{ return false; }
     PosInfo::Line2DData&	data()			{ return data_; }
     const PosInfo::Line2DData	data() const		{ return data_; }
 
