@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeometrytransl.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "task.h"
 
 using namespace Survey;
 
