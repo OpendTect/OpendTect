@@ -19,8 +19,8 @@ namespace Attrib
 {
 
 /*!
-  \ingroup Attributes
-  \brief Calculates Hilbert transform.
+\ingroup Attributes
+\brief Calculates %Hilbert transform.
 */
 
 mClass(Attributes) Hilbert : public Provider

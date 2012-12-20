@@ -19,8 +19,8 @@ namespace Attrib
 {
 
 /*!
-  \ingroup Attributes
-  \brief Event attribute
+\ingroup Attributes
+\brief %Event attribute
   
   EventAttrib  singleevent = 
 	       eventtype = extremum, max, min, zerocrossing...

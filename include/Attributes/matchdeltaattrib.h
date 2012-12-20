@@ -19,8 +19,8 @@ namespace Attrib
 {
 
 /*!
-  \ingroup Attributes
-  \brief Computes the match delta between two cubes.
+\ingroup Attributes
+\brief Computes the match delta between two cubes.
   Ties Max events to each other.
 */
 

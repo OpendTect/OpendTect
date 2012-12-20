@@ -24,9 +24,10 @@ namespace Attrib
 {
 
 /*!
-  \ingroup Attributes
-  \brief Frequency filtering attribute.
+\ingroup Attributes
+\brief %Frequency filtering attribute.
 
+<pre>
   FreqFilter type=LowPass,HighPass,BandPass minfreq= maxfreq= nrpoles=
              isfftfilter= window=
 
@@ -36,6 +37,7 @@ namespace Attrib
   Output:                                 ||
   0       Frequency filtered data         ||0     Frequency filtered data
             (Butterworth Filter)          ||           (FFT Filter)
+</pre>
 */
 
 mClass(Attributes) FreqFilter: public Provider

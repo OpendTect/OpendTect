@@ -24,19 +24,21 @@ namespace Attrib
 class DataHolder;
 
 /*!
-  \ingroup Attributes
-  \brief Calculates coherency.
-  
-  Coherency type= gate= [maxdip=250] [ddip=10]
+\ingroup Attributes
+\brief Calculates %coherency.
+
+<pre>
+  %Coherency type= gate= [maxdip=250] [ddip=10]
   
   Input:
   0       Data
   
-  Output: 3D                      2D
+  %Output: 3D                      2D
   0       Coherency               Coherency
   1       Inline dip              Trace dip
   2       Crossline dip
--*/
+</pre>
+*/
 
 mClass(Attributes) Coherency : public Provider
 {

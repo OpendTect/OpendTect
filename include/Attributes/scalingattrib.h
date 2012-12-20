@@ -20,19 +20,20 @@ namespace Attrib
 {
 
 /*!
-  \ingroup Attributes
-  \brief Scaling Attribute
-  
-  Scaling gate =
-  
+\ingroup Attributes
+\brief %Scaling Attribute
   Calculates the squared sum of the gate's samples divided by the number of
   samples in the gate.
-  
+
+<pre>
+  %Scaling gate =
+
   Input:
   0               Data
-  
+ 
   Outputs:
   0               The scaled trace
+</pre>
 */
 
 mClass(Attributes) Scaling: public Provider

@@ -12,13 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-/*! \brief
-#### Short description
-\par
-#### Detailed description.
-
-*/
-
 #include "attributesmod.h"
 #include "attribprovider.h"
 
@@ -26,8 +19,8 @@ namespace Attrib
 {
 
 /*!
-  \ingroup Attributes
-  \brief Instantaneous Attribute
+\ingroup Attributes
+\brief %Instantaneous Attribute
 */
 
 mClass(Attributes) Instantaneous : public Provider

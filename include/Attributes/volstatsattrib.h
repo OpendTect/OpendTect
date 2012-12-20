@@ -19,8 +19,8 @@ namespace Attrib
 {
 
 /*!
-  \ingroup Attributes
-  \brief Base class for Volume Statistics Attribute.
+\ingroup Attributes
+\brief Base class for Volume Statistics Attribute.
 */
 
 mClass(Attributes) VolStatsBase : public Provider
@@ -80,12 +80,9 @@ protected:
 
 
 /*!
-  \ingroup Attributes
-  \brief Volume Statistics Attribute
-  
-  VolumeStatistics stepout=1,1 shape=Rectangle|Ellipse|OpticalStack gate=[0,0]
-  		   steering=
-  
+\ingroup Attributes
+\brief Volume Statistics Attribute
+
   VolumeStatistics collects all samples within the timegate from all traces
   within the stepout.
   
@@ -93,7 +90,10 @@ protected:
   
   If the OpticalStack shape is chosen, the positions used are defined by a step 
   and a direction: the line direction or its normal.
-  
+ 
+<pre> 
+  VolumeStatistics stepout=1,1 shape=Rectangle|Ellipse|OpticalStack gate=[0,0]
+  		   steering=
   Inputs:
   0-(nrvolumes-1)         The data
   nrvolumes  -            Steerings (only if steering is enabled)
@@ -109,6 +109,7 @@ protected:
   7       Most Frequent
   8       RMS
   9       Extreme  
+</pre> 
 */
 
 mClass(Attributes) VolStats : public VolStatsBase

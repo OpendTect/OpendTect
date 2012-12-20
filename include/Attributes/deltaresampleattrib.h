@@ -19,8 +19,8 @@ namespace Attrib
 {
 
 /*!
-  \ingroup Attributes
-  \brief Resamples the trace at shifted locations.
+\ingroup Attributes
+\brief Resamples the trace at shifted locations.
 */
 
 class DeltaResample : public Provider

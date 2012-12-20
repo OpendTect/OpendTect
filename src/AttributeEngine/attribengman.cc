@@ -233,7 +233,8 @@ SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 					    const LineKey& lkey,
 					    BufferString& errmsg )
 {
-    const char* typestr = pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
+    const FixedString typestr =
+		pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
     if ( typestr==sKey::Cube() )
     {
 	SeisTrcStorOutput* outp = new SeisTrcStorOutput( cs_, lkey );

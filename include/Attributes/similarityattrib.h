@@ -23,15 +23,16 @@ namespace Attrib
     
 /*!
 \ingroup Attributes
-\brief Similarity Attribute
-
-Similarity gate= pos0= pos1= stepout=1,1 extension=[0|90|180|Cube|Cross|AllDir|Diagonal] steering=[Yes|No]
+\brief %Similarity Attribute
 
 Calculates the gates' distance between each other in hyperspace normalized
 to the gates' lengths.
 
 If steering is enabled, it is up to the user to make sure that the steering
 goes to the same position as pos0 and pos1 respectively.
+
+<pre>
+%Similarity gate= pos0= pos1= stepout=1,1 extension=[0|90|180|Cube|Cross|AllDir|Diagonal] steering=[Yes|No]
 
 Input:
 0	Data
@@ -59,7 +60,7 @@ and if dip-browser chosen:
 5	Coherency-like Inline dip (Trace dip in 2D)
 6	Coherency-like Crossline dip
 => in this case the extension Cross is forced
-
+</pre>
 */
 
 mClass(Attributes) Similarity : public Provider

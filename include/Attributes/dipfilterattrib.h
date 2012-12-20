@@ -23,57 +23,58 @@ namespace Attrib
 \ingroup Attributes
 \brief Dip filtering Attribute
 
-DipFilter size= minvel= maxvel= type=LowPass|HighPass|BandPass
-    filterazi=Y/N minazi= maxazi= taperlen=
+  %DipFilter convolves a signal with the on the command-line specified signal.
 
-DipFilter convolves a signal with the on the command-line specified signal.
+  minvel/maxvel is the cutoff velocity (m/s) or dip (degrees), depending
+  on the z-range unit.
 
-minvel/maxvel is the cutoff velocity (m/s) or dip (degrees), depending
-on the z-range unit.
+  Azimuth is given in degrees from the inline, in the direction
+  of increasing crossline-numbers.
 
-Azimuth is given in degrees from the inline, in the direction
-of increasing crossline-numbers.
+  %Taper is given as percentage. Tapering is done differently for the three
+  different filtertype.
+  Bandpass tapers at the upper and lower taperlen/2 parts of t the interval.
+  Lowpass tapers from the maxvel down to 100-taperlen of the maxvel.
+  Highpass tapers from minvel to 100+taperlen of minvel
 
-Taper is given as percentage. Tapering is done differently for the three
-different filtertype.
-Bandpass tapers at the upper and lower taperlen/2 parts of t the interval.
-Lowpass tapers from the maxvel down to 100-taperlen of the maxvel.
-Highpass tapers from minvel to 100+taperlen of minvel
+  The azimuthrange is tapered in the same way as bandpass.
 
-The azimuthrange is tapered in the same way as bandpass.
+<pre>
+%DipFilter size= minvel= maxvel= type=LowPass|HighPass|BandPass
+	   filterazi=Y/N minazi= maxazi= taperlen=
 
 type = HighPass
-          *     * minvel > 0
-	  **   **
-	  *** ***
-	  *******
-	  *** ***
-	  **   **
-	  *     *
+          x     x minvel > 0
+	  xx   xx
+	  xxx xxx
+	  xxxxxxx
+	  xxx xxx
+	  xx   xx
+	  x     x
 
 type = LowPass
-          ******* maxvel > 0
-           *****
-            ***
-             *
-            ***
-           *****
-          *******
+          xxxxxxx maxvel > 0
+           xxxxx
+            xxx
+             x
+            xxx
+           xxxxx
+          xxxxxxx
 								
 type = BandPass
-             *       *  minvel
-            ***     ***
-            ****   **** maxvel > 0
-              *** ***
-                 *
-              *** ***
-            ****   ****
-            ***     ***
-             *       *
+             x       x  minvel
+            xxx     xxx
+            xxxx   xxxx maxvel > 0
+              xxx xxx
+                 x
+              xxx xxx
+            xxxx   xxxx
+            xxx     xxx
+             x       x
 
 Inputs:
 0       Signal to be filtered.
-
+</pre>
 */
 
 mClass(Attributes) DipFilter : public Provider

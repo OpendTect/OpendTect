@@ -19,12 +19,13 @@ namespace Attrib
 {
 
 /*!
-  \ingroup Attributes
-  \brief FingerPrint Attribute
-  
+\ingroup Attributes
+\brief %FingerPrint Attribute
+  Calculates the match with a definite vector.
+ 
+<pre>
   FingerPrint vector= nrattrib= 
   
-  Calculates the match with a definite vector.
   
   Input:
   0		Data 0
@@ -36,7 +37,7 @@ namespace Attrib
   
   Output:
   0       Match
-  
+</pre>
 */
 
 mClass(Attributes) FingerPrint : public Provider

@@ -21,8 +21,8 @@ namespace Attrib
 {
 
 /*!
-  \ingroup Attributes
-  \brief Evaluate Attribute
+\ingroup Attributes
+\brief %Evaluate Attribute
   
   Attribute built for convenience purpose; only there to allow the computation
   of a set of attributes in one go;

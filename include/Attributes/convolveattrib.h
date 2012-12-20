@@ -22,12 +22,13 @@ namespace Attrib
 {
 
 /*!
-  \ingroup Attributes
-  \brief Convolution Attribute.
-  
+\ingroup Attributes
+\brief Convolution Attribute.
+
+  %Convolve convolves a signal with the on the command-line specified signal.
+
+<pre>  
   Convolve [kernel=LowPass|Laplacian|Prewitt] [shape=Sphere] [size=3]
-  
-  Convolve convolves a signal with the on the command-line specified signal.
   
   Kernel:         Uses Shape      Uses Size       Desc
   
@@ -47,6 +48,7 @@ namespace Attrib
   .
   .
   N       Subkernel N  
+</pre>
 */
 
 mClass(Attributes) Convolve : public Provider

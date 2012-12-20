@@ -25,10 +25,12 @@ class DataHolder;
 /*!
 \ingroup Attributes
 \brief Spectral Decomposition Attribute
-  
-SpecDecomp gate=[-12,12] window=[Box]|Hamming|Hanning|Barlett|Blackman|CosTaper5
 
 Calculates the frequency spectrum of a trace
+
+<pre>
+SpecDecomp gate=[-12,12] window=[Box]|Hamming|Hanning|Barlett|Blackman|CosTaper5
+
 Input:
 0       Real data
 1       Imag data
@@ -40,7 +42,7 @@ Output:
 |       etc
 |       etc
 N
-
+</pre>
 */
 
 mClass(Attributes) SpecDecomp : public Provider
