@@ -204,7 +204,7 @@ uiTreeItem*
     if ( !objtype ) return 0;
 
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
-          ODMainWin()->applMgr().visServer()->getObject(visid));
+	ODMainWin()->applMgr().visServer()->getObject(visid));
     if ( hd )
     {
 	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
@@ -678,8 +678,10 @@ uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( int id, bool )
 
 void uiODHorizon2DTreeItem::initMenuItems()
 {
+    algomnuitem_.text = "&Tools";
+    workflowsmnuitem_.text = "Workflows";
     derive3dhormnuitem_.text = "Derive &3D horizon ...";
-    snapeventmnuitem_.text = "Snap to &event ...";
+    snapeventmnuitem_.text = "Snapping ...";
     interpolatemnuitem_.text = "&Interpolate ...";
 }
 
@@ -719,13 +721,17 @@ void uiODHorizon2DTreeItem::createMenu( MenuHandler* menu, bool istb )
     }
     else
     {
-	const bool isempty = applMgr()->EMServer()->isEmpty(emid_);
-	mAddMenuItem( menu, &derive3dhormnuitem_, !isempty, false );
-	mAddMenuItem( menu, &createflatscenemnuitem_, !isempty, false );
-	mAddMenuItem( menu, &snapeventmnuitem_, !isempty, false );
-	mAddMenuItem( menu, &interpolatemnuitem_, !isempty, false );
+	const bool islocked = visserv_->isLocked( displayID() );
+	const bool isempty = applMgr()->EMServer()->isEmpty( emid_ );
+	const bool enab = !islocked && !isempty;
+	mAddMenuItem( menu, &algomnuitem_, true, false );
+	mAddMenuItem( &algomnuitem_, &snapeventmnuitem_, enab, false );
+	mAddMenuItem( &algomnuitem_, &interpolatemnuitem_, enab, false );
+
+	mAddMenuItem( menu, &workflowsmnuitem_, true, false );
+	mAddMenuItem( &workflowsmnuitem_, &derive3dhormnuitem_, enab, false );
+	mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_, enab,false);
     }
-	
 }
 
 
