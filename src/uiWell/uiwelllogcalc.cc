@@ -549,21 +549,29 @@ void uiWellLogCalc::getSuitableLogs( const Well::LogSet& logs,
 				     const PropertyRef* altpropref )
 {
     for ( int idlog=0; idlog<logs.size(); idlog++ )                         
-    {                                                                       
-	const char* uomlbl = logs.getLog( idlog ).unitMeasLabel();          
-	const UnitOfMeasure* um = UnitOfMeasure::getGuessed( uomlbl );      
+    {
+	const char* uomlbl = logs.getLog( idlog ).unitMeasLabel();
+	const UnitOfMeasure* um = UnitOfMeasure::getGuessed( uomlbl );
 	if ( ( um && ( propref.stdType() == um->propType() ) ) || !um )     
-	{                                                                   
-	    lognms.add( logs.getLog(idlog).name() );                        
-	    propidx += idlog;                                               
-	    isaltpropref += 0;                                              
-	}                                                                   
-	else if ( um && altpropref )                                        
-	    if ( altpropref->stdType() == um->propType() )                  
-	    {                                                               
+	{
+	    lognms.add( logs.getLog(idlog).name() );
+	    propidx += idlog;
+	    isaltpropref += 0;
+	}
+	else if ( um && altpropref )
+	    if ( altpropref->stdType() == um->propType() )
+	    {
 		lognms.add( logs.getLog(idlog).name() );                    
 		propidx += idlog;                                           
 		isaltpropref += 1;                                          
 	    }                                                               
+    }
+    if ( propidx.size() == 0 )
+    {
+	for ( int idlog=0; idlog<logs.size(); idlog++ )
+	{
+	    propidx += idlog;
+	    isaltpropref += 0;
+	}
     }
 }
