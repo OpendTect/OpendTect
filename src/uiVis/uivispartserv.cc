@@ -597,6 +597,16 @@ int uiVisPartServer::getNrAttribs( int id ) const
 }
 
 
+void uiVisPartServer::getAttribPosName(int id, int attrib,
+				       BufferString& res ) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( !so ) return;
+    
+    return so->getChannelName( attrib, res );
+}
+
+
 bool uiVisPartServer::swapAttribs( int id, int attrib0, int attrib1 )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));

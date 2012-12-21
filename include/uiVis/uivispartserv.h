@@ -131,6 +131,8 @@ public:
     int			addAttrib(int id);
     void		removeAttrib(int id,int attrib);
     int			getNrAttribs(int id) const;
+    void		getAttribPosName(int id,int attrib,BufferString&) const;
+    			//!<Gets the name of the attrib position
     bool		swapAttribs(int id,int attrib0,int attrib1);
     void		showAttribTransparencyDlg(int id,int attrib);
     unsigned char	getAttribTransparency(int id,int attrib) const;
