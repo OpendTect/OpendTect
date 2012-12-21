@@ -334,10 +334,11 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
 	return true;
     
     float mutelevel = outputsampling_.start;
-
-    PointBasedMathFunction stretchfunc( PointBasedMathFunction::Linear,
-				   PointBasedMathFunction::ExtraPolGradient);
+    float firsttime = mUdf(float);
     
+    PointBasedMathFunction stretchfunc( PointBasedMathFunction::Linear,
+				       PointBasedMathFunction::ExtraPolGradient);
+
     for ( int idx=0; idx<refmodel_->size(); idx++ )
     {
 	const ReflectivitySpike& spike = (*refmodel_)[idx];
@@ -352,8 +353,12 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
 	    }
     	}
     
+	firsttime = mMIN( firsttime, spike.correctedtime_ );
 	stretchfunc.add( spike.correctedtime_, spike.time_ );
     }
+    
+    if ( firsttime>0 )
+	stretchfunc.add( 0, 0 );
     
     outtrc_.info().sampling.indexOnOrAfter( mutelevel );
     
@@ -388,7 +393,6 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
     
     return true;
 }
-
 
 bool SynthGenerator::computeReflectivities()
 {
