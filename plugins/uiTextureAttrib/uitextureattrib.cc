@@ -271,7 +271,7 @@ void uiTextureAttrib::analyseCB( CallBacker* )
 
 
 void uiTextureAttrib::readSampAttrib(CubeSampling& cs, int nrtrcs, LineKey& lk)
-    {
+{
     Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !inpdesc )
 	return;
@@ -279,18 +279,14 @@ void uiTextureAttrib::readSampAttrib(CubeSampling& cs, int nrtrcs, LineKey& lk)
     PtrMan<Attrib::DescSet> descset = ads_->optimizeClone(inpfld_->attribID());
     if ( !descset )
 	return;
-   
-    Attrib::DescID attribid = descset->addDesc(inpdesc );
 
     PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
 
-    TypeSet<SelSpec> attribspecs;
-    SelSpec sp( 0, attribid );
+    SelSpec sp( 0 );
     sp.set( *inpdesc );
-    attribspecs += sp;
 
     aem->setAttribSet( descset );
-    aem->setAttribSpecs( attribspecs );
+    aem->setAttribSpec( sp );
     if ( inpdesc->is2D() )
 	aem->setLineKey( lk );
     aem->setCubeSampling( cs );
@@ -348,4 +344,6 @@ void uiTextureAttrib::setMinMaxVal( const SeisTrcBuf& bufs )
     globalminfld_->setValue(minval);
     globalmaxfld_->setValue(maxval);
 }
+
+
 
