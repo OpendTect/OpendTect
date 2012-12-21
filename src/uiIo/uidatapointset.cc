@@ -463,7 +463,7 @@ void uiDataPointSet::selYCol( CallBacker* )
     Settings& setts = Settings::common();
     setts.get( sKeyMinDPPts(), minptsfordensity );
 
-    if ( minptsfordensity <= 0 )
+    if ( minptsfordensity <= 0 || mIsUdf(minptsfordensity) )
     {
 	setts.set( sKeyMinDPPts(), cMinPtsForDensity );	setts.write();
 	minptsfordensity = cMinPtsForDensity;
