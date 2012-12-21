@@ -240,9 +240,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     xyinftfld_->attach( rightTo, applybut );
     xyinftfld_->attach( rightBorder );
     xyinftfld_->activated.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
-    zinftfld_ = new uiCheckBox( this, "Display depths in feet" );
-    zinftfld_->attach( leftTo, applybut );
-    zinftfld_->attach( leftBorder );
 
     postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
 }
@@ -309,6 +306,10 @@ void uiSurveyInfoEditor::mkRangeGrp()
     zunitfld_->attach( rightOf, zfld_ );
     zunitfld_->setHSzPol( uiObject::Small );
     zunitfld_->selectionChanged.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
+
+    zdisplayfld_ = new uiGenInput( rangegrp_, "Display depths in",
+                                   BoolInpSpec(false,"meter","feet") );
+    zdisplayfld_->attach( alignedBelow, zfld_ );
 
     rangegrp_->setHAlignObj( inlfld_ );
 }
@@ -435,7 +436,7 @@ void uiSurveyInfoEditor::setValues()
     }
 
     xyinftfld_->setChecked( si_.xyInFeet() );
-    zinftfld_->setChecked( si_.depthsInFeetByDefault() );
+    zdisplayfld_->setValue( !si_.depthsInFeetByDefault() );
     updZUnit( 0 );
 }
 
@@ -534,7 +535,7 @@ bool uiSurveyInfoEditor::doApply()
     si_.setXYInFeet( xyinft );
     const bool zdepthft = zunitfld_->currentItem() == 2;
     const_cast<IOPar&>(si_.pars()).setYN( SurveyInfo::sKeyDpthInFt(),
-	    xyinft || zdepthft || zinftfld_->isChecked() );
+            xyinft || zdepthft || !zdisplayfld_->getBoolValue() );
 
     if ( !mUseAdvanced() )
     {
@@ -809,7 +810,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     const bool xyinft = xyinftfld_->isChecked();
     si_.setXYInFeet( xyinft );
     const_cast<IOPar&>(si_.pars()).setYN( SurveyInfo::sKeyDpthInFt(),
-	    		xyinft || zinftfld_->isChecked() );
+                        xyinft || !zdisplayfld_->getBoolValue() );
 
     si_.setWSProjName( SI().getWSProjName() );
     si_.setWSPwd( SI().getWSPwd() );
@@ -886,15 +887,15 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
 }
 
 
-void uiSurveyInfoEditor::updZUnit( CallBacker* )
+void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
 {
     const bool xyinft = xyinftfld_->isChecked();
-    zinftfld_->setSensitive( !xyinft );
-    zinftfld_->display( zunitfld_->currentItem() == 0 );
+    zdisplayfld_->setSensitive( zunitfld_->currentItem()==0 && !xyinft );
 
-    if ( xyinft )
+    if ( cb==xyinftfld_ || cb==zunitfld_ )
     {
-	NotifyStopper ns( zinftfld_->activated );
-	zinftfld_->setChecked( true );
+        const bool dispzinft = xyinft || zunitfld_->currentItem()==2;
+        NotifyStopper ns( zdisplayfld_->valuechanged );
+        zdisplayfld_->setValue( !dispzinft );
     }
 }

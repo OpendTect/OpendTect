@@ -86,7 +86,7 @@ protected:
     uiComboBox*		sipfld_;
     uiCheckBox*		overrulefld_;
     uiCheckBox*		xyinftfld_;
-    uiCheckBox*		zinftfld_;
+    uiGenInput*		zdisplayfld_;
 
     bool		dirnamechanged;
     void		mkSIPFld(uiObject*);
