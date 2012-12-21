@@ -115,6 +115,10 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( id, attrib );
     if ( !as ) return false;
 
+    if ( as->id()==Attrib::SelSpec::cAttribNotSel() &&
+	!am_.visserv_->isAttribEnabled( id, attrib ) )
+	return false;
+    
     const ZDomain::Info* zdinf =
 	am_.visserv_->zDomainInfo( am_.visserv_->getSceneID(id) );
     const bool issi = !zdinf || zdinf->def_.isSI();
