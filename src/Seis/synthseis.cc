@@ -187,8 +187,7 @@ int SynthGenerator::nextStep()
     if ( !wavelet_ )
 	mErrRet( "No wavelet found", SequentialTask::ErrorOccurred() );
     
-    if ( !refmodel_ )
-	mErrRet( "No reflectivity model found",
+    if ( !refmodel_ ) mErrRet( "No reflectivity model found",
 		SequentialTask::ErrorOccurred() );
     
     if ( outputsampling_.nrSteps() < 2 )
@@ -211,7 +210,14 @@ int SynthGenerator::nextStep()
 	    float maxtime = 0;
 	    for ( int idx=0; idx<refmodel_->size(); idx++)
 	    {
-		float time = (*refmodel_)[idx].time_;
+		const ReflectivitySpike& spike = (*refmodel_)[idx];
+		const float time = spike.time_;
+		if ( mIsUdf(time) )
+		{
+		    pErrMsg("Undefined time detected");
+		    continue;
+		}
+
 		maxtime = mMAX( time, maxtime );
 	    }
 	    
@@ -322,10 +328,15 @@ bool SynthGenerator::computeTrace( SeisTrc& res ) const
 bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
 				  ValueSeries<float>& out, int outsz ) const
 {
-    float mutelevel = outputsampling_.start;
+    out.setAll( 0 );
+
+    if ( !refmodel_->size() )
+	return true;
     
+    float mutelevel = outputsampling_.start;
+
     PointBasedMathFunction stretchfunc( PointBasedMathFunction::Linear,
-				       PointBasedMathFunction::ExtraPolGradient);
+				   PointBasedMathFunction::ExtraPolGradient);
     
     for ( int idx=0; idx<refmodel_->size(); idx++ )
     {
@@ -344,7 +355,6 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
 	stretchfunc.add( spike.correctedtime_, spike.time_ );
     }
     
-    out.setAll( 0 );
     outtrc_.info().sampling.indexOnOrAfter( mutelevel );
     
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( input,
@@ -378,6 +388,7 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
     
     return true;
 }
+
 
 bool SynthGenerator::computeReflectivities()
 {
@@ -718,10 +729,19 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
     for ( int idx=0; idx<nroffsets; idx++ )
     {
 	ReflectivityModel* refmodel = new ReflectivityModel(); 
-	refmodels_ += refmodel;
 	rt1d.getReflectivity( idx, *refmodel );
+
 	TimeDepthModel* t2dm = new TimeDepthModel();
 	rt1d.getTWT( idx, *t2dm );
+
+	for ( int idy=refmodel->size()-1; idy>=0; idy-- )
+	{
+	    const ReflectivitySpike& spike = (*refmodel)[idy];
+	    if ( mIsUdf(spike.reflectivity_) )
+		refmodel->removeSingle( idy );
+	}
+
+	refmodels_ += refmodel;
 	t2dmodels_ += t2dm;
     }
 }
