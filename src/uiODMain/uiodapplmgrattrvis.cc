@@ -114,13 +114,20 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
     if ( id < 0 ) return false;
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( id, attrib );
     if ( !as ) return false;
-
+    
+    if ( as->id()==Attrib::SelSpec::cAttribNotSel() &&
+	 !am_.visserv_->isAttribEnabled( id, attrib ) )
+	return false;
+    
+    BufferString attribposname;
+    am_.visserv_->getAttribPosName( id, attrib, attribposname );
+    
     const ZDomain::Info* zdinf =
 	am_.visserv_->zDomainInfo( am_.visserv_->getSceneID(id) );
     const bool issi = !zdinf || zdinf->def_.isSI();
     Attrib::SelSpec myas( *as );
     const bool selok = am_.attrserv_->selectAttrib( myas, issi ? 0 : zdinf,
-	    					    myas.is2D() );
+	    					    myas.is2D(), attribposname);
     if ( selok )
 	am_.visserv_->setSelSpec( id, attrib, myas );
     return selok;
