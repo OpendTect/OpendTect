@@ -65,6 +65,8 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     linegrp_ = new uiManipButGrp( lllb );
     linegrp_->addButton( uiManipButGrp::Rename, "Rename line",
 			mCB(this,uiSeis2DFileMan,renameLine) );
+    linegrp_->addButton( uiManipButGrp::Remove, "Remove line",
+	    		mCB(this,uiSeis2DFileMan,removeLine) );
     linegrp_->addButton( "mergelines", "Merge lines",
 			mCB(this,uiSeis2DFileMan,mergeLines) );
     if ( SI().has3D() )
@@ -269,6 +271,30 @@ void uiSeis2DFileMan::makeDefault( CallBacker* )
 		SeisTrcTranslatorGroup::sKeyDefaultAttrib());
     SI().getPars().set( key, attrnm );
     SI().savePars();
+}
+
+
+void uiSeis2DFileMan::removeLine( CallBacker* )
+{
+    BufferStringSet sellines;
+    linefld_->getSelectedItems( sellines );
+    if ( sellines.isEmpty() ||
+	!uiMSG().askRemove("All selected lines and associated attributes "
+	    "will be removed. Do you want to continue?") )
+	return;
+
+    for ( int idx=0; idx<sellines.size(); idx++ )
+    {
+	const char* linenm = sellines.get(idx);
+	SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
+	BufferStringSet attrnms;
+	objinfo_->ioObjInfo().getAttribNamesForLine( linenm, attrnms, opts2d );
+	for ( int ida=0; ida<attrnms.size(); ida++ )
+	{
+	    LineKey linekey( linenm, attrnms.get(ida) );
+	    lineset_->remove( linekey );
+	}
+    }
 }
 
 

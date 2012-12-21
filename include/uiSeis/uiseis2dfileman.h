@@ -48,6 +48,7 @@ protected:
     void		attribSel(CallBacker*);
     void		browsePush(CallBacker*);
     void		renameLine(CallBacker*);
+    void		removeLine(CallBacker*);
     void		mergeLines(CallBacker*);
     void		removeAttrib(CallBacker*);
     void		renameAttrib(CallBacker*);
