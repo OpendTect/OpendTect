@@ -39,6 +39,7 @@ public:
     bool			usesShading() const	{ return false; }
     int				maxNrChannels() const	{ return 4; }
     int				minNrChannels() const	{ return 4; }
+    void			getChannelName(int,BufferString&) const;
 
     bool			createRGBA(SbImagei32&) const;
 
