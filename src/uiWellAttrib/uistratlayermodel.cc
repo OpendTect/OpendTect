@@ -834,7 +834,10 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd 
     lmp_.useed_ = usefr;
     if ( !synthprovmanager.getParam(this) ) return;
     synthprovmanager.getParam(this)->useed_ = usefr;
-    mostlyfilledwithbrineparmanager.setParam( this, fwd ? "false" : "true" );
+    bool mostfillwbrine = !fwd;
+    if ( !usefr )                                                                      
+	mostfillwbrine = !mostfillwbrine; 
+    mostlyfilledwithbrineparmanager.setParam( this, mostfillwbrine ? "true" :"false" );
     if ( parschanged )
     {
 	if ( synthprovmanager.getParam(this)->edstratsynth_ )
