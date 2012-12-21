@@ -354,7 +354,8 @@ const NLAModel* uiAttribPartServer::getNLAModel( bool is2d ) const
 
 
 bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
-				       const ZDomain::Info* zdominfo, bool is2d)
+				       const ZDomain::Info* zdominfo, bool is2d,
+				       const char* seltxt )
 {
     DescSetMan* adsman = eDSHolder().getDescSetMan( is2d );
     if ( !adsman->descSet() )
@@ -386,7 +387,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
     }
     else
     {
-	uiAttrSelDlg::Setup setup( "View Data" );
+	uiAttrSelDlg::Setup setup( seltxt );
 	setup.showsteeringdata(true);
 	uiAttrSelDlg dlg( parent(), attrdata, setup );
 	if ( !dlg.go() )

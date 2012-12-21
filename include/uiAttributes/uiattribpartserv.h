@@ -105,7 +105,7 @@ public:
     void		setAttrsNeedUpdt()		{ attrsneedupdt_ =true;}
 
     bool		selectAttrib(Attrib::SelSpec&,const ZDomain::Info*,
-	    			     bool is2d);
+	    			     bool is2d, const char* seltxt="View Data");
     bool		setPickSetDirs(Pick::Set&,const NLAModel*,float vel);
     void		outputVol(MultiID&,bool);
     bool		replaceSet(const IOPar&,bool,float);
