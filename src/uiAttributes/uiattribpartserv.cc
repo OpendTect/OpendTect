@@ -1506,10 +1506,14 @@ IOObj* uiAttribPartServer::getIOObj( const Attrib::SelSpec& as ) const
     if ( as.isNLA() ) return 0;
 
     const Attrib::DescSet* attrset = DSHolder().getDescSet( as.is2D(), true );
-    if ( !attrset ) return 0;
-
-    const Attrib::Desc* desc = attrset->getDesc( as.id() );
-    if ( !desc ) return 0;
+    const Attrib::Desc* desc = attrset ? attrset->getDesc( as.id() ) : 0;
+    if ( !desc )
+    {
+        attrset = DSHolder().getDescSet( as.is2D(), false );
+        desc = attrset ? attrset->getDesc( as.id() ) : 0;
+        if ( !desc )
+            return 0;
+    }
 
     BufferString storedid = desc->getStoredID();
     if ( !desc->isStored() || storedid.isEmpty() ) return 0;
