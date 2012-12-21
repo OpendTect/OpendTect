@@ -491,7 +491,7 @@ void uiODMenuMgr::fillAnalMenu()
     analmnu_->insertItem( crsplot );
 
     uiPopupMenu* wellmnu = new uiPopupMenu( &appl_, "&Wells", "well" );
-    wellmnu->insertItem( new uiMenuItem( "&Log Tools ...", 
+    wellmnu->insertItem( new uiMenuItem( "&Edit logs ...", 
 	    mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
     if (  SI().zIsTime() )
 	wellmnu->insertItem( new uiMenuItem( "&Tie Well to Seismic ...",
