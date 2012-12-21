@@ -463,6 +463,12 @@ void uiDataPointSet::selYCol( CallBacker* )
     Settings& setts = Settings::common();
     setts.get( sKeyMinDPPts(), minptsfordensity );
 
+    if ( minptsfordensity <= 0 )
+    {
+	setts.set( sKeyMinDPPts(), cMinPtsForDensity );	setts.write();
+	minptsfordensity = cMinPtsForDensity;
+    }
+
     if ( ycol_ == -1 )
     {
 	ycol_ = tid;

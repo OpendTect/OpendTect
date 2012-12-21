@@ -578,6 +578,14 @@ void hCellNrChanged( CallBacker* )
 bool acceptOK()
 {
     minptsfordensity_ = minptinpfld_->getIntValue();
+
+    if ( minptsfordensity_ <= 0 )
+    {
+	uiMSG().error( "Minimum points for density plot "
+			"should be greater than zero." );
+	return false;
+    }
+
     if ( cellsizefld_->getIntValue() <= 0 )
     {
 	uiMSG().error( "Cannot have a cellsize less than 1" );
