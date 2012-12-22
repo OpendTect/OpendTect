@@ -18,11 +18,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mCreateFactoryEntry( visBase::RGBATextureChannel2RGBA );
 
-using namespace visBase;
-
+namespace visBase
+{
 
 ArrPtrMan<ColTab::Sequence> RGBATextureChannel2RGBA::sequences_ = 0;
-
 
 RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
     : converter_( new SoRGBATextureChannel2RGBA )
@@ -115,4 +114,4 @@ void RGBATextureChannel2RGBA::getChannelName( int channel,
 	res += " layer";
 }
     
-
+} // namespace visBase
