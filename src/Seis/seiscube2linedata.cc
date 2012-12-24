@@ -98,7 +98,11 @@ int SeisCube2LineDataExtracter::nextStep()
 	{
 	    delete fetcher_; fetcher_ = 0;
 	    lidx_++;
-	    return MoreToDo();
+	    
+	    if ( getNextFetcher() )
+		return MoreToDo();
+	    
+	    return Finished();
 	}
 	else
 	{
