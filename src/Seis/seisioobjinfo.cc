@@ -576,11 +576,11 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
 	    }
 	    else
 	    {
-		ret = lg->tr ? lg->tr->componentInfo().size() : 0;
+		ret = lg->tr_ ? lg->tr_->componentInfo().size() : 0;
 		if ( nms )
 		{
 		    for ( int icomp=0; icomp<ret; icomp++ )
-			nms->add( lg->tr->componentInfo()[icomp]->name() );
+			nms->add( lg->tr_->componentInfo()[icomp]->name() );
 		}
 	    }
 	}

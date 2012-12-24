@@ -562,8 +562,8 @@ void SeisTrcStorOutput::writeTrc()
 	    {
 		mDynamicCastGet( SeisCBVS2DLinePutter*, lp,
 				 writer_->linePutter() )
-		if ( lp && lp->tr )
-		    lp->tr->setComponentNames( outpnames_ );
+		if ( lp && lp->tr_ )
+		    lp->tr_->setComponentNames( outpnames_ );
 	    }
 	}
 

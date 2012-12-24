@@ -30,21 +30,21 @@ public:
     void		addTrc(SeisTrc*);
     int			nextStep();
 
-    const char*		message() const		{ return msg; }
+    const char*		message() const		{ return msg_; }
     const char*		nrDoneText() const	{ return "Traces read"; }
-    od_int64		nrDone() const		{ return curnr; }
-    od_int64		totalNr() const		{ return totnr; }
+    od_int64		nrDone() const		{ return curnr_; }
+    od_int64		totalNr() const		{ return totnr_; }
 
-    int			curnr;
-    int			totnr;
-    SeisTrcBuf&		tbuf;
-    BufferString	fname;
-    BufferString	msg;
-    CBVSSeisTrcTranslator* tr;
-    Seis::SelData*	seldata;
-    int			trcstep;
-    const int		linenr;
-    const int		trcsperstep;
+    int				curnr_;
+    int				totnr_;
+    SeisTrcBuf&			tbuf_;
+    BufferString		fname_;
+    BufferString		msg_;
+    CBVSSeisTrcTranslator*	tr_;
+    Seis::SelData*		seldata_;
+    int				trcstep_;
+    const int			linenr_;
+    const int			trcsperstep_;
 
 };
 

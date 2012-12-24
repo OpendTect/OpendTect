@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 
 
-int SeisCBVS2DLineIOProvider::factid
+int SeisCBVS2DLineIOProvider::factid_
 	= (S2DLIOPs() += new SeisCBVS2DLineIOProvider).size() - 1;
 
 
@@ -124,90 +124,91 @@ void SeisCBVS2DLineIOProvider::removeImpl( const IOPar& iop ) const
 
 
 #undef mErrRet
-#define mErrRet(s) { msg = s; return -1; }
+#define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
 
 SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
 					    int ntps, const Seis::SelData& sd )
     	: Executor("Load 2D line")
-	, tbuf(b)
-	, curnr(0)
-	, totnr(0)
-	, fname(fnm)
-	, msg("Reading traces")
-	, seldata(0)
-	, trcstep(1)
-	, linenr(CBVSIOMgr::getFileNr(fnm))
-	, trcsperstep(ntps)
+	, tbuf_(b)
+	, curnr_(0)
+	, totnr_(0)
+	, fname_(fnm)
+	, msg_("Reading traces")
+	, seldata_(0)
+	, trcstep_(1)
+	, linenr_(CBVSIOMgr::getFileNr(fnm))
+	, trcsperstep_(ntps)
 {
-    tr = gtTransl( fname, false, &msg );
-    if ( !tr ) return;
+    tr_ = gtTransl( fname_, false, &msg_ );
+    if ( !tr_ ) return;
 
     if ( !sd.isAll() && sd.type() == Seis::Range )
     {
-	seldata = sd.clone();
-	tr->setSelData( seldata );
+	seldata_ = sd.clone();
+	tr_->setSelData( seldata_ );
     }
+    
+    totnr_ = tr_->packetInfo().crlrg.nrSteps() + 1;
 }
 
 
 SeisCBVS2DLineGetter::~SeisCBVS2DLineGetter()
 {
-    delete tr;
-    delete seldata;
+    delete tr_;
+    delete seldata_;
 }
 
 
 void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
 {
     const int tnr = trc->info().binid.crl;
-    if ( !isEmpty(seldata) )
+    if ( !isEmpty(seldata_) )
     {
-	if ( seldata->type() == Seis::Range )
+	if ( seldata_->type() == Seis::Range )
 	{
-	    const BinID bid( seldata->inlRange().start, tnr );
-	    if ( !seldata->isOK(bid) )
+	    const BinID bid( seldata_->inlRange().start, tnr );
+	    if ( !seldata_->isOK(bid) )
 		{ delete trc; return; }
 	}
     }
 
     trc->info().nr = tnr;
     trc->info().binid = SI().transform( trc->info().coord );
-    tbuf.add( trc );
+    tbuf_.add( trc );
 }
 
 
 int SeisCBVS2DLineGetter::nextStep()
 {
-    if ( !tr ) return -1;
+    if ( !tr_ ) return -1;
 
-    if ( curnr == 0 )
+    if ( curnr_ == 0 )
     {
-	totnr = tr->packetInfo().crlrg.nrSteps() + 1;
-	if ( !isEmpty(seldata) )
+	if ( !isEmpty(seldata_) )
 	{
-	    const BinID tstepbid( 1, trcstep );
-	    const int nrsel = seldata->expectedNrTraces( true, &tstepbid );
-	    if ( nrsel < totnr ) totnr = nrsel;
+	    const BinID tstepbid( 1, trcstep_ );
+	    const int nrsel = seldata_->expectedNrTraces( true, &tstepbid );
+	    if ( nrsel < totnr_ ) totnr_ = nrsel;
 	}
     }
 
-    int lastnr = curnr + trcsperstep;
-    for ( ; curnr<lastnr; curnr++ )
+    int lastnr = curnr_ + trcsperstep_;
+    for ( ; curnr_<lastnr; curnr_++ )
     {
 	SeisTrc* trc = new SeisTrc;
-	if ( !tr->read(*trc) )
+	if ( !tr_->read(*trc) )
 	{
 	    delete trc;
-	    const char* emsg = tr->errMsg();
+	    const char* emsg = tr_->errMsg();
 	    if ( emsg && *emsg )
 		mErrRet(emsg)
 	    return 0;
 	}
 	addTrc( trc );
 
-	for ( int idx=1; idx<trcstep; idx++ )
+	for ( int idx=1; idx<trcstep_; idx++ )
 	{
-	    if ( !tr->skip() )
+	    if ( !tr_->skip() )
 		return 0;
 	}
     }
@@ -328,47 +329,47 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 //-------------------SeisCBVS2DLinePutter-----------------
 
 SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const char* fnm, const IOPar& iop )
-    	: nrwr(0)
-	, fname(gtFileName(fnm))
-	, tr(CBVSSeisTrcTranslator::getInstance())
-	, preseldt(DataCharacteristics::Auto)
+    	: nrwr_(0)
+	, fname_(gtFileName(fnm))
+	, tr_(CBVSSeisTrcTranslator::getInstance())
+	, preseldt_(DataCharacteristics::Auto)
 {
-    tr->set2D( true );
-    bid.inl = CBVSIOMgr::getFileNr( fnm );
+    tr_->set2D( true );
+    bid_.inl = CBVSIOMgr::getFileNr( fnm );
     DataCharacteristics::parseEnumUserType(
-	    iop.find(sKey::DataStorage()), preseldt );
+	    iop.find(sKey::DataStorage()), preseldt_ );
 }
 
 
 SeisCBVS2DLinePutter::~SeisCBVS2DLinePutter()
 {
-    delete tr;
+    delete tr_;
 }
 
 
 bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 {
     SeisTrcInfo& info = const_cast<SeisTrcInfo&>( trc.info() );
-    bid.crl = info.nr;
+    bid_.crl = info.nr;
     const BinID oldbid = info.binid;
-    info.binid = bid;
+    info.binid = bid_;
 
-    if ( nrwr == 0 )
+    if ( nrwr_ == 0 )
     {
-	tr->setIs2D( true );
-	bool res = tr->initWrite(new StreamConn(fname.buf(),Conn::Write),trc);
+	tr_->setIs2D( true );
+	bool res = tr_->initWrite(new StreamConn(fname_.buf(),Conn::Write),trc);
 	if ( !res )
 	{
 	    info.binid = oldbid;
 	    errmsg_ = "Cannot open 2D line file:\n";
-	    errmsg_ += tr->errMsg();
+	    errmsg_ += tr_->errMsg();
 	    return false;
 	}
-	if ( preseldt != DataCharacteristics::Auto )
+	if ( preseldt_ != DataCharacteristics::Auto )
 	{
 	    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
-				= tr->componentInfo();
-	    DataCharacteristics dc( preseldt );
+				= tr_->componentInfo();
+	    DataCharacteristics dc( preseldt_ );
 	    for ( int idx=0; idx<ci.size(); idx++ )
 	    {
 		SeisTrcTranslator::TargetComponentData& cd = *ci[idx];
@@ -377,17 +378,17 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 	}
     }
 
-    tr->setIs2D( true );
-    bool res = tr->write(trc);
+    tr_->setIs2D( true );
+    bool res = tr_->write(trc);
     info.binid = oldbid;
     if ( res )
-	nrwr++;
+	nrwr_++;
     else
     {
-	errmsg_ = "Cannot write "; errmsg_ += nrwr + 1;
-	errmsg_ += getRankPostFix( nrwr + 1 );
+	errmsg_ = "Cannot write "; errmsg_ += nrwr_ + 1;
+	errmsg_ += getRankPostFix( nrwr_ + 1 );
 	errmsg_ += " trace to 2D line file:\n";
-	errmsg_ += tr->errMsg();
+	errmsg_ += tr_->errMsg();
 	return false;
     }
     return true;
@@ -395,10 +396,10 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 
 bool SeisCBVS2DLinePutter::close()
 {
-    if ( !tr ) return true;
-    tr->setIs2D( true );
-    bool ret = tr->close();
-    if ( ret ) errmsg_ = tr->errMsg();
+    if ( !tr_ ) return true;
+    tr_->setIs2D( true );
+    bool ret = tr_->close();
+    if ( ret ) errmsg_ = tr_->errMsg();
     return ret; 
 }
 

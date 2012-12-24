@@ -44,7 +44,7 @@ public:
 
 private:
 
-    static int		factid;
+    static int		factid_;
 
 public:
 
@@ -61,16 +61,16 @@ public:
 			~SeisCBVS2DLinePutter();
 
     const char*		errMsg() const      		{ return errmsg_.str();}
-    int			nrWritten() const		{ return nrwr; }
+    int			nrWritten() const		{ return nrwr_; }
     bool		put(const SeisTrc&);
     bool		close();
 
-    int                 nrwr;
-    BufferString        fname;
-    BufferString        errmsg_;
-    CBVSSeisTrcTranslator* tr;
-    BinID               bid;
-    DataCharacteristics::UserType preseldt;
+    int                 		nrwr_;
+    BufferString        		fname_;
+    BufferString        		errmsg_;
+    CBVSSeisTrcTranslator*		tr_;
+    BinID               		bid_;
+    DataCharacteristics::UserType	preseldt_;
 
 };
 
