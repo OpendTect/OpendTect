@@ -225,11 +225,9 @@ void Texture::fillGlcmMatrix( int sampleidx, int z0, int nrsamples,
 int Texture::computeGlcmMatrix( int idx, int z0, int nrsamples,
 				Array2D<int>& glcm ) const
 {
-    int refpixpos, neighpixpos, glcmcount = 0;
-
+    int glcmcount = 0;
     const int inlsz = stepout_.inl *2 +1;
     const int crlsz = stepout_.crl *2 +1;
-	
     for ( int idi=0; idi<inlsz; idi++ )
     {
 	for ( int idc=0; idc<crlsz-1; idc++ )
