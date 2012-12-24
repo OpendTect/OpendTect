@@ -25,10 +25,12 @@ template <class T> class Array2DImpl;
 class IOPar;
 class TimeDepthModel;
 
+
 /*!
-  \ingroup Algo
-  \brief
+\ingroup Algo
+\brief Ray tracer in 1D.
 */
+
 mClass(Algo) RayTracer1D : public ParallelTask
 { 
 public:
@@ -121,6 +123,10 @@ protected:
 };
 
 
+/*!
+\ingroup Algo
+\brief Ray tracer in 1D based on Vrms.
+*/
 
 mClass(Algo) VrmsRayTracer1D : public RayTracer1D
 { 

@@ -18,12 +18,12 @@ ________________________________________________________________________
 #include <simpnumer.h>
 
 /*!
-  \ingroup Algo
-  \brief PolynomialND is a N-dimensional polynomial with arbitary orders in each
-  dimension. It can be fitted any ArrayND. To access the polynomial's data
-  use getValue. getValue3D is optimized for third order, tree-dimensional
-  cases.
+\ingroup Algo
+\brief PolynomialND is a N-dimensional polynomial with arbitary orders in each
+dimension. It can be fitted any ArrayND. To access the polynomial's data
+use getValue. getValue3D is optimized for third order, tree-dimensional cases.
 */
+
 template <class T>
 class PolynomialND
 {

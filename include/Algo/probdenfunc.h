@@ -22,8 +22,8 @@ class IOPar;
 
 
 /*!
-  \ingroup Algo
-  \brief Base class for Probability Density Functions.
+\ingroup Algo
+\brief Base class for Probability Density Functions.
   
   The values may not be normalized; if you need them to be: multiply with
   'normFac()'. What you are getting can for example be the values from a
@@ -73,9 +73,10 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Probability Density Function for one dimensional datasets.
+\ingroup Algo
+\brief Probability Density Function for one dimensional datasets.
 */
+
 mClass(Algo) ProbDenFunc1D : public ProbDenFunc
 {
 public:
@@ -119,9 +120,10 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Probability Density Function for two dimensional datasets.
+\ingroup Algo
+\brief Probability Density Function for two dimensional datasets.
 */
+
 mClass(Algo) ProbDenFunc2D : public ProbDenFunc
 {
 public:

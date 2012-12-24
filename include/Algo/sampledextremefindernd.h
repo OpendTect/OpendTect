@@ -16,8 +16,8 @@ ________________________________________________________________________
 #include "thread.h"
 
 /*!
-  \ingroup Algo
-  \brief Finds all local maximas/minimas in an ArrayND.
+\ingroup Algo
+\brief Finds all local maximas/minimas in an ArrayND.
 */
 
 template <class T>

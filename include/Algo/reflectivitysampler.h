@@ -20,10 +20,11 @@ ________________________________________________________________________
 namespace Fourier { class CC; };
 
 /*!
-  \ingroup Algo
-  \brief Takes a ReflectivityModel and samples it in either frequency or
-  time domain.
+\ingroup Algo
+\brief Takes a ReflectivityModel and samples it in either frequency or
+time domain.
 */
+
 mClass(Algo) ReflectivitySampler : public ParallelTask
 {
 public:

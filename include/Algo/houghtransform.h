@@ -28,10 +28,10 @@ class Coord3;
 namespace Threads { class Mutex; };
 
 /*!
-  \ingroup Algo
-  \brief Finds planes in Array3D<float>'s regions with high values. All
-  positions in the array above a threshold (defined by cliprate) is used to
-  find the planes.
+\ingroup Algo
+\brief Finds planes in Array3D<float>'s regions with high values. All
+positions in the array above a threshold (defined by cliprate) are used to
+find the planes.
   
   The planes are defined with three parameters: dip (0-90), azi(0-360) and the
   normal's distance to origo. Depending on your application, you might need
@@ -111,8 +111,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Finds lines in Array2D<float>'s regions with high values.
+\ingroup Algo
+\brief Finds lines in Array2D<float>'s regions with high values.
 */
 
 mClass(Algo) LineFrom2DSpaceHoughTransform

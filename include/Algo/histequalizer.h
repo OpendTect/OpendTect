@@ -18,8 +18,8 @@ template <class T> class TypeSet;
 
 
 /*!
-  \ingroup Algo
-  \brief Class to do histogram equalization of datasets.
+\ingroup Algo
+\brief Class to do histogram equalization of datasets.
 */
 
 mClass(Algo) HistEqualizer

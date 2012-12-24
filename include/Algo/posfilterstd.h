@@ -21,8 +21,8 @@ namespace Pos
 {
 
 /*!
-  \ingroup Algo
-  \brief Passes a percentage of the positions.
+\ingroup Algo
+\brief Passes a percentage of the positions.
 */
 
 mClass(Algo) RandomFilter : public virtual Filter
@@ -76,8 +76,8 @@ mSimpPosFilterDefFnsBase
 
 
 /*!
-  \ingroup Algo
-  \brief Passes a percentage of the positions (3D).
+\ingroup Algo
+\brief Passes a percentage of the positions (3D).
 */
 
 mClass(Algo) RandomFilter3D : public Filter3D
@@ -91,8 +91,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief Passes a percentage of the positions (2D).
+\ingroup Algo
+\brief Passes a percentage of the positions (2D).
 */
 
 mClass(Algo) RandomFilter2D : public Filter2D
@@ -104,9 +104,10 @@ public:
 
 };
 
+
 /*!
-  \ingroup Algo
-  \brief Passes each nth position.
+\ingroup Algo
+\brief Passes each nth position.
 */
 
 mClass(Algo) SubsampFilter : public virtual Filter
@@ -139,8 +140,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Passes each nth position (3D).
+\ingroup Algo
+\brief Passes each nth position (3D).
 */
 
 mClass(Algo) SubsampFilter3D : public Filter3D
@@ -154,8 +155,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief Passes each nth position (2D).
+\ingroup Algo
+\brief Passes each nth position (2D).
 */
 
 mClass(Algo) SubsampFilter2D : public Filter2D

@@ -27,8 +27,8 @@ template <class T> class LineParameters;
 
 
 /*!
-  \ingroup Algo
-  \brief Multidimensional Mathematical function.
+\ingroup Algo
+\brief Multidimensional Mathematical function.
   
   A MathFunctionND must deliver a value at any position: F(x*).
   The positioning may need a different precision than the outcome, hence
@@ -59,8 +59,8 @@ typedef MathFunctionND<float,float> FloatMathFunctionND;
 
 
 /*!
-  \ingroup Algo
-  \brief Mathematical function
+\ingroup Algo
+\brief Mathematical function
   
   A MathFunction must deliver a value at any position: F(x).
   The positioning may need a different precision than the outcome, hence
@@ -83,8 +83,8 @@ typedef MathFunction<float,float> FloatMathFunction;
 
 
 /*!
-  \ingroup Algo
-  \brief Makes a MathFunction indexable through an operator[].
+\ingroup Algo
+\brief Makes a MathFunction indexable through an operator[].
 */
 
 template <class RT,class PT>
@@ -107,8 +107,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief A Math Function as in F(x,y).
+\ingroup Algo
+\brief A Math Function as in F(x,y).
 */
 
 template <class RT,class PT>
@@ -126,8 +126,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief A Math Function as in F(x,y,z).
+\ingroup Algo
+\brief A Math Function as in F(x,y,z).
 */
 template <class RT,class PT>
 class MathXYZFunction : public MathFunctionND<RT,PT>
@@ -145,8 +145,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief MathFunction based on bend points
+\ingroup Algo
+\brief MathFunction based on bend points
   
   The object maintains sorted positions (in X), so you cannot bluntly stuff
   X and Y in. You cannot change or remove positions; instead make a copy.
@@ -203,9 +203,9 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief A MathFunction that cuts through another mathfunction with
-  higher number of dimensions.
+\ingroup Algo
+\brief A MathFunction that cuts through another mathfunction with
+higher number of dimensions.
   
   A starting point (P) and a vector (N) is used to project a line through
   a MathFunctionND (func). The value returned is:
@@ -245,8 +245,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief A class for 2nd order polynomials of the form: a x^2 + b x + c
+\ingroup Algo
+\brief A class for 2nd order polynomials of the form: a x^2 + b x + c
 */
 
 mClass(Algo) SecondOrderPoly : public FloatMathFunction
@@ -315,8 +315,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief A class for 3rd order polynomials on the form: a x^3 + b x^2 + c x + d
+\ingroup Algo
+\brief A class for 3rd order polynomials on the form: a x^3 + b x^2 + c x + d
 */
 
 mClass(Algo) ThirdOrderPoly : public FloatMathFunction

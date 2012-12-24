@@ -23,8 +23,8 @@ namespace Pos
 {
 
 /*!
-  \ingroup Algo
-  \brief Provides a series of positions; can also be used for subselection.
+\ingroup Algo
+\brief Provides a series of positions; can also be used for subselection.
   
   toNextPos() will ignore any Z settings and go to the first Z on the next 
   position. toNextZ() is the normal 'iterator increment'. After initialization,
@@ -53,8 +53,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief Provides a subselection for 3D surveys.
+\ingroup Algo
+\brief Provides a subselection for 3D surveys.
 */
 
 mClass(Algo) Provider3D : public Filter3D
@@ -80,8 +80,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief Provides a subselection for 2D surveys - requires the line name(s).
+\ingroup Algo
+\brief Provides a subselection for 2D surveys - requires the line name(s).
 */
 
 mClass(Algo) Provider2D : public Filter2D

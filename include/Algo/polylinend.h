@@ -18,9 +18,9 @@ ________________________________________________________________________
 
 
 /*!
-  \ingroup Algo
-  \brief (Closed) sequence(s) of connected n-D coordinates.
-  Undefined coordinates separate consecutive sequences.
+\ingroup Algo
+\brief (Closed) sequence(s) of connected n-D coordinates.
+Undefined coordinates separate consecutive sequences.
 */
 
 template <class T>
@@ -77,7 +77,9 @@ int PolyLineND<T>::nextIdx( int idx ) const
 }
 
 
-/* Point-to-segment distance:
+/*!
+\ingroup Algo
+\brief Point-to-segment distance:
 
 	     . pt
 	    /|\

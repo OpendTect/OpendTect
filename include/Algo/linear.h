@@ -19,8 +19,8 @@ namespace Geom { template <class T> class Point2D; }
 
 
 /*!
-  \ingroup Algo
-  \brief Steepness and intercept.
+\ingroup Algo
+\brief Steepness and intercept.
 */
 
 template <class T>
@@ -46,8 +46,8 @@ typedef LineParameters<float> LinePars;
 
 
 /*!
-  \ingroup Algo
-  \brief Steepnesses and intercept.
+\ingroup Algo
+\brief Steepnesses and intercept.
 */
 
 template <class T>
@@ -70,8 +70,8 @@ typedef PlaneParameters<float> PlanePars;
 
 
 /*!
-  \ingroup Algo
-  \brief linear stats in 2D.
+\ingroup Algo
+\brief linear stats in 2D.
 */
 
 mClass(Algo) LinStats2D
@@ -89,8 +89,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief linear stats in 3D.
+\ingroup Algo
+\brief linear stats in 3D.
 */
 
 mClass(Algo) LinStats3D

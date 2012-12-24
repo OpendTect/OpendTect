@@ -18,8 +18,8 @@ namespace OD { class RGBImage; };
 
 
 /*!
-  \ingroup Algo
-  \brief Resizes Image.
+\ingroup Algo
+\brief Resizes Image.
 */
 
 class ImageResizer : public ParallelTask
