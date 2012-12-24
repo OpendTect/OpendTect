@@ -566,7 +566,14 @@ bool acceptOK( CallBacker* )
     SeisCube2LineDataExtracter extr( *ioobj, *objinf_.ioObj(), attrnm,
 	    			     lnms.isEmpty() ? 0 : &lnms );
     uiTaskRunner tr( this );
-    return tr.execute( extr );
+  
+    if ( !TaskRunner::execute( &tr, extr ) )
+    {
+	uiMSG().error( extr.message() );
+	return false;
+    }
+
+    return true;
 }
 
     const uiSeisIOObjInfo&	objinf_;
