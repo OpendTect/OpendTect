@@ -22,8 +22,8 @@ ________________________________________________________________________
 namespace Fourier { class CC; };
 
 /*!
-  \ingroup Algo
-  \brief Base class for fourier interpolation.
+\ingroup Algo
+\brief Base class for fourier interpolation.
 */
 
 mClass(Algo) FourierInterpolBase
@@ -40,8 +40,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Fourier interpolation for 1D datasets.
+\ingroup Algo
+\brief Fourier interpolation for 1D datasets.
 */
 
 mClass(Algo) FourierInterpol1D : public ParallelTask, public FourierInterpolBase
@@ -85,8 +85,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Fourier interpolation for 2D datasets.
+\ingroup Algo
+\brief Fourier interpolation for 2D datasets.
 */
 
 mClass(Algo) FourierInterpol2D : public ParallelTask, public FourierInterpolBase
@@ -131,8 +131,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Fourier interpolation for 3D datasets.
+\ingroup Algo
+\brief Fourier interpolation for 3D datasets.
 */
 
 mClass(Algo) FourierInterpol3D : public ParallelTask, public FourierInterpolBase

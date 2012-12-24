@@ -21,9 +21,9 @@ template <class T> class ValueSeries;
 template <class T> class ArrayND;
 
 /*!
-  \ingroup Algo
-  \brief A DataClipper gets a bunch of data and determines at what value to
-  clip if a certain clippercentag is desired.
+\ingroup Algo
+\brief A DataClipper gets a bunch of data and determines at what value to
+clip if a certain clip percentage is desired.
   
   For simple cases, where no subselection is needed (i.e. the stats will be
   performed on all values, and only one dataset is used) the static function
@@ -130,8 +130,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Data clipping sampler.
+\ingroup Algo
+\brief Data clipping sampler.
 */
 
 mClass(Algo) DataClipSampler

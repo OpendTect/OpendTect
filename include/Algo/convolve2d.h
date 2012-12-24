@@ -28,8 +28,8 @@ namespace Fourier { class CC; }
 typedef std::complex<float> float_complex;
 
 /*!
-  \ingroup Algo
-  \brief Convolves (or correlates) two 2D signals.
+\ingroup Algo
+\brief Convolves (or correlates) two 2D signals.
 */
 
 template <class T>

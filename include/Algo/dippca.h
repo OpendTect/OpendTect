@@ -26,9 +26,10 @@ class Dip2DCalculator;
 class Dip3DCalculator;
 class TaskRunner;
 
+
 /*!
-  \ingroup Algo
-  \brief Base class to calculate Dip/Azimuth using the method of PCA.
+\ingroup Algo
+\brief Base class to calculate Dip/Azimuth using the method of PCA.
   
   Example of use:
 
@@ -65,8 +66,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief To calculate Dip/Azimuth for 2D datasets using the method of PCA.
+\ingroup Algo
+\brief To calculate Dip/Azimuth for 2D datasets using the method of PCA.
 */
 
 mClass(Algo) Dip2D : public DipPCA
@@ -103,8 +104,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief To calculate Dip/Azimuth for 3D datasets using the method of PCA.
+\ingroup Algo
+\brief To calculate Dip/Azimuth for 3D datasets using the method of PCA.
 */
 
 mClass(Algo) Dip3D : public DipPCA

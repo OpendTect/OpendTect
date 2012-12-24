@@ -18,9 +18,9 @@ ________________________________________________________________________
 #include "task.h"
 
 /*!
-  \ingroup Algo
-  \brief Delaunay triangulation for 3D points. Should make sure all the points
-  are defined.
+\ingroup Algo
+\brief Delaunay triangulation for 3D points. Should make sure all the points
+are defined.
 */
 
 mClass(Algo) DAGTetrahedraTree
@@ -148,8 +148,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Delaunay triangulation for 3D points.
+\ingroup Algo
+\brief Delaunay triangulation for 3D points.
 */
 
 mClass(Algo) ParallelDTetrahedralator : public ParallelTask

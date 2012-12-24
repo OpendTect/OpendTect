@@ -18,8 +18,8 @@ ________________________________________________________________________
 #include "valseries.h"
 
 /*!
-  \ingroup Algo
-  \brief Computes an AGC over a ValueSeries.
+\ingroup Algo
+\brief Computes an AGC over a ValueSeries.
 */
 
 template <class T>

@@ -20,8 +20,8 @@ ________________________________________________________________________
 
 
 /*!
-  \ingroup Algo
-  \brief Helps making nice axes for graphs.
+\ingroup Algo
+\brief Helps making nice axes for graphs.
 */
 
 template <class T>

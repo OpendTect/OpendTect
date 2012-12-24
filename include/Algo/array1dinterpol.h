@@ -18,9 +18,10 @@ ________________________________________________________________________
 
 template <class T> class Array1D;
 
+
 /*!
-  \ingroup Algo
-  \brief Base class for one dimensional array interpolators.
+\ingroup Algo
+\brief Base class for one dimensional array interpolators.
 */
 
 mClass(Algo) Array1DInterpol : public Executor
@@ -47,9 +48,10 @@ protected:
 
 };
 
+
 /*!
-  \ingroup Algo
-  \brief Does linear interpolation of one dimensional arrays.
+\ingroup Algo
+\brief Does linear interpolation of one dimensional arrays.
 */
 
 mClass(Algo) LinearArray1DInterpol : public Array1DInterpol
@@ -60,9 +62,10 @@ protected:
     int				nextStep();
 };
 
+
 /*!
-  \ingroup Algo
-  \brief Uses a 3rd degree polynomial for interpolation of one dimensional arrays.
+\ingroup Algo
+\brief Uses a 3rd degree polynomial for interpolation of one dimensional arrays.
 */
 
 mClass(Algo) PolyArray1DInterpol : public Array1DInterpol

@@ -20,9 +20,9 @@ ________________________________________________________________________
 
 
 /*!
-  \ingroup Algo
-  \brief Base class that does the majority of the work finding bendpoints.
-  Adaptions to different data-types are done in subclasses.
+\ingroup Algo
+\brief Base class that does the majority of the work finding bendpoints.
+Adaptions to different data-types are done in subclasses.
 */
 
 mClass(Algo) BendPointFinderBase : public ParallelTask
@@ -58,8 +58,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Used to find bendpoints in two dimensional datasets.
+\ingroup Algo
+\brief Used to find bendpoints in two dimensional datasets.
 */
 
 mClass(Algo) BendPointFinder2D : public BendPointFinderBase
@@ -75,8 +75,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Used to find bendpoints in three dimensional datasets.
+\ingroup Algo
+\brief Used to find bendpoints in three dimensional datasets.
 */
 
 mClass(Algo) BendPointFinder3D : public BendPointFinderBase

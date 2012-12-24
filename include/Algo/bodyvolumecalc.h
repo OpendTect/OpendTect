@@ -20,9 +20,10 @@ class CubeSampling;
 template <class T> class Array3D;
 namespace Threads { class Mutex; }
 
+
 /*!
-  \ingroup Algo
-  \brief Volume estimate for implicit body in meter.
+\ingroup Algo
+\brief Volume estimate for implicit body in meter.
 */
 
 mClass(Algo) BodyVolumeCalculator: public ParallelTask

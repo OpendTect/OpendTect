@@ -20,8 +20,8 @@ ________________________________________________________________________
 
 
 /*!
-  \ingroup Algo
-  \brief Finds extreme values in FloatMathFunctions.
+\ingroup Algo
+\brief Finds extreme values in FloatMathFunctions.
 
   Implementation of Brent's Method in one dimension.
 */
@@ -96,8 +96,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Bisection Extreme Finder
+\ingroup Algo
+\brief Bisection Extreme Finder
 */
 
 mClass(Algo) BisectionExtremeFinder1D : public SequentialTask
@@ -171,10 +171,10 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Finds the nearest local extreme position in ND's.  
-  Implementation of Powell's Quadratically Convergent Method
-  \note The implementation is not tested (yet) 030512.
+\ingroup Algo
+\brief Finds the nearest local extreme position in ND's.  
+Implementation of Powell's Quadratically Convergent Method
+\note The implementation is not tested (yet) 030512.
 */
 
 mClass(Algo) ExtremeFinderND : public SequentialTask

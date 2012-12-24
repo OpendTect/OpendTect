@@ -19,8 +19,8 @@ ________________________________________________________________________
 
 
 /*!
-  \ingroup Algo
-  \brief Inter/Extra-polate bendpoints to get the coordinates.
+\ingroup Algo
+\brief Inter/Extra-polate bendpoints to get the coordinates.
 
   Input is a set of coordinates and optionally ID numbers (if you don't pass
   IDs they will be generated 0, 1, ....). Then you can give an ID (usually in
