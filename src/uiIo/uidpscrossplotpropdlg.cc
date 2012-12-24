@@ -581,8 +581,8 @@ bool acceptOK()
 
     if ( minptsfordensity_ <= 0 )
     {
-	uiMSG().error( "Minimum points for density plot "
-			"should be greater than zero." );
+	uiMSG().error( "Minimum points for density plot should "
+			"be an integer greater than zero." );
 	return false;
     }
 
