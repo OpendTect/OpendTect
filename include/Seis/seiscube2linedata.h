@@ -37,7 +37,7 @@ public:
     const char*	message() const		{ return msg_; }
     const char*	nrDoneText() const	{ return "Traces written"; }
     od_int64	nrDone() const		{ return nrdone_; }
-    od_int64	totalNr() const		{ return -1; }
+    od_int64	totalNr() const		{ return totalnr_; }
 
     int		nextStep();
 
@@ -50,14 +50,16 @@ protected:
     const BufferString	attrnm_;
     BufferString	msg_;
     BufferStringSet	lnms_;
-    Executor*		fetcher_;
-    int			lidx_;
+    
+    ObjectSet<Executor>	fetchers_; //linked with usedlinenames_
+    BufferStringSet	usedlinenames_;
+    
     od_int64		nrdone_;
+    od_int64		totalnr_;
     Cube2LineDataLineKeyProvider* c2ldlkp_;
-    BufferStringSet	lineshandled_;
 
     void		closeDown();
-    bool		getNextFetcher();
+    bool		getFetchers();
     int			handleTrace();
 
     friend class	Cube2LineDataLineKeyProvider;

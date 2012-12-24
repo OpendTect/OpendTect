@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiscube2linedata.h"
+#include "keystrs.h"
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seis2dline.h"
@@ -25,8 +26,9 @@ Cube2LineDataLineKeyProvider( SeisCube2LineDataExtracter& lde ) : lde_(lde) {}
 
 LineKey lineKey() const
 {
-    return LineKey( lde_.lidx_ >= 0 && lde_.lidx_ < lde_.ls_.nrLines() ?
-	    	    lde_.ls_.lineName(lde_.lidx_) : "", lde_.attrnm_ );
+    return LineKey( lde_.usedlinenames_.isEmpty() ?
+		    sKey::EmptyString().str() : lde_.usedlinenames_[0]->str(),
+		    lde_.attrnm_ );
 }
 
     SeisCube2LineDataExtracter&	lde_;
@@ -43,24 +45,11 @@ SeisCube2LineDataExtracter::SeisCube2LineDataExtracter(
     , rdr_(*new SeisTrcReader(&cubein))
     , ls_(*new Seis2DLineSet(lsout))
     , wrr_(*new SeisTrcWriter(&lsout))
-    , fetcher_(0)
     , nrdone_(0)
-    , lidx_(-1)
+    , totalnr_( 0 )
     , c2ldlkp_(0)
 {
     if ( lnms ) lnms_ = *lnms;
-
-    if ( !rdr_.prepareWork() )
-	msg_ = rdr_.errMsg();
-    else if ( ls_.nrLines() < 1 )
-	msg_ = "Empty or invalid Line Set";
-    else
-    {
-	c2ldlkp_ = new Cube2LineDataLineKeyProvider( *this );
-	wrr_.setLineKeyProvider( c2ldlkp_ );
-	lidx_ = 0;
-	msg_ = "Handling traces";
-    }
 }
 
 
@@ -75,7 +64,8 @@ void SeisCube2LineDataExtracter::closeDown()
 {
     tbuf_.deepErase();
     rdr_.close(); wrr_.close();
-    delete fetcher_; fetcher_ = 0;
+    deepErase( fetchers_ );
+    usedlinenames_.erase();
     delete c2ldlkp_; c2ldlkp_ = 0;
     wrr_.setLineKeyProvider(0);
 }
@@ -83,51 +73,65 @@ void SeisCube2LineDataExtracter::closeDown()
 
 int SeisCube2LineDataExtracter::nextStep()
 {
-    if ( lidx_ < 0 )
-	return ErrorOccurred();
-    else if ( lidx_ >= ls_.nrLines() )
-	{ closeDown(); return Finished(); }
-    else if ( !fetcher_ )
-	return getNextFetcher() ? MoreToDo() : ErrorOccurred();
+    if ( fetchers_.isEmpty() )
+    {
+	if ( !rdr_.prepareWork() )
+	    msg_ = rdr_.errMsg();
+	else if ( ls_.nrLines() < 1 )
+	    msg_ = "Empty or invalid Line Set";
+	else
+	{
+	    c2ldlkp_ = new Cube2LineDataLineKeyProvider( *this );
+	    wrr_.setLineKeyProvider( c2ldlkp_ );
+	    msg_ = "Handling traces";
+	}
 
-    int res = fetcher_->doStep();
+	return getFetchers()
+	    ? MoreToDo()
+	    : ErrorOccurred();
+    }
+
+    int res = fetchers_[0]->doStep();
     if ( res != 1 )
     {
 	if ( res > 1 )
 	    return res;
 	else if ( res == 0 )
 	{
-	    delete fetcher_; fetcher_ = 0;
-	    lidx_++;
-	    return MoreToDo();
+	    delete fetchers_.removeSingle( 0 );
+	    usedlinenames_.removeSingle( 0 );
+	    return fetchers_.isEmpty() ? Finished() : MoreToDo();
 	}
 	else
 	{
-	    msg_ = fetcher_->message();
+	    msg_ = fetchers_[0]->message();
 	    return ErrorOccurred();
 	}
     }
 
     res = handleTrace();
-    msg_ = fetcher_->message();
+    msg_ = fetchers_[0]->message();
     return res;
 }
 
 
-bool SeisCube2LineDataExtracter::getNextFetcher()
+bool SeisCube2LineDataExtracter::getFetchers()
 {
-    for ( ; lidx_<ls_.nrLines(); lidx_++ )
+    totalnr_ = 0;
+    usedlinenames_.erase();
+    
+    for ( int lidx=0; lidx<ls_.nrLines(); lidx++ )
     {
-	const BufferString lnm = ls_.lineName( lidx_ );
-	if ( lineshandled_.isPresent( lnm ) )
+	const BufferString lnm = ls_.lineName( lidx );
+	if ( usedlinenames_.isPresent( lnm ) )
 	    continue;
 	if ( !lnms_.isEmpty() && !lnms_.isPresent(lnm) )
 	    continue;
 
 	int inplidx = -1;
 	const LineKey deflk( lnm );
-	if ( ls_.lineKey(lidx_) == deflk )
-	    inplidx = lidx_;
+	if ( ls_.lineKey(lidx) == deflk )
+	    inplidx = lidx;
 	else
 	{
 	    for ( int iln=0; iln<ls_.nrLines(); iln++ )
@@ -137,14 +141,18 @@ bool SeisCube2LineDataExtracter::getNextFetcher()
 	    }
 	}
 	if ( inplidx < 0 )
-	    inplidx = lidx_;
+	    inplidx = lidx;
 
-	fetcher_ = ls_.lineFetcher( inplidx, tbuf_, 1 );
-	lineshandled_.add( lnm );
-	return true;
+	Executor* fetcher = ls_.lineFetcher( inplidx, tbuf_, 1 );
+	if ( fetcher )
+	{
+	    totalnr_ += fetcher->totalNr();
+	    fetchers_ += fetcher;
+	    usedlinenames_.add( lnm );
+	}
     }
 
-    return false;
+    return !fetchers_.isEmpty();
 }
 
 
