@@ -191,31 +191,39 @@ bool Texture::allowParallelComputation () const
 }
 
 
-#define mFillGlmcMatrix( posidx1, posidx2 ) \
-    if ( !inpdata_[posidx1] || !inpdata_[posidx2]) continue; \
+void Texture::fillGlcmMatrix( int sampleidx, int z0, int nrsamples,
+			      int posidx1, int posidx2, int& glcmcount,
+			      Array2D<int>& glcm ) const
+{
+    if ( !inpdata_[posidx1] || !inpdata_[posidx2])
+	return;
+
     const float shift = steeringdata_ ? \
-	getInputValue( *steeringdata_,posidx1, idx, z0 ) : 0; \
-    const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT32(shift) ); \
-    if ( sampidx < 0 || sampidx >= nrsamples ) continue; \
-    for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++ ) \
-    { \
-	const float val = getInputValue( *inpdata_[posidx1], \
-	    dataidx_, sampidx+isamp, z0 ); \
-	const float val1 = getInputValue( *inpdata_[posidx2], \
-	    dataidx_, sampidx+isamp, z0 ); \
-	refpixpos = scaleVal(val); \
-	neighpixpos = scaleVal(val1); \
-	glcm.set( refpixpos, neighpixpos, \
-		  glcm.get( refpixpos, neighpixpos ) +1 ); \
-	glcm.set( neighpixpos, refpixpos, \
-		  glcm.get( neighpixpos, refpixpos ) +1 ); \
-	glcmcount++; \
+	getInputValue( *steeringdata_,posidx1, sampleidx, z0 ) : 0;
+    const int shiftedidx = sampleidx + ( mIsUdf(shift) ? 0 : mNINT32(shift) );
+    if ( shiftedidx < 0 || shiftedidx >= nrsamples )
+	return;
+
+    int refpixpos, neighpixpos = 0;
+    for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++ )
+    {
+	const float val = getInputValue( *inpdata_[posidx1],
+	    dataidx_, shiftedidx+isamp, z0 );
+	const float val1 = getInputValue( *inpdata_[posidx2],
+	    dataidx_, shiftedidx+isamp, z0 );
+	refpixpos = scaleVal( val );
+	neighpixpos = scaleVal( val1 );
+	glcm.set( refpixpos, neighpixpos,
+		  glcm.get(refpixpos,neighpixpos) + 1 );
+	glcm.set( neighpixpos, refpixpos,
+		  glcm.get(neighpixpos,refpixpos) + 1 );
+	glcmcount++;
     }
+}
 
 // Compute unnormalized GLCM Matrix
-int Texture::computeGlcmMatrix( const BinID& relpos,
-		    int idx, int z0, int nrsamples,
-		    int threadid, Array2D<int>& glcm ) const
+int Texture::computeGlcmMatrix( int idx, int z0, int nrsamples,
+				Array2D<int>& glcm ) const
 {
     int refpixpos, neighpixpos, glcmcount = 0;
 
@@ -228,7 +236,8 @@ int Texture::computeGlcmMatrix( const BinID& relpos,
 	{
 	    int posidxcrl1 = idi*crlsz + idc;
 	    int posidxcrl2 = posidxcrl1 + 1;
-	    mFillGlmcMatrix( posidxcrl1, posidxcrl2 );
+	    fillGlcmMatrix( idx, z0, nrsamples, posidxcrl1, posidxcrl2,
+			    glcmcount, glcm );
 	}
     }
 
@@ -238,7 +247,8 @@ int Texture::computeGlcmMatrix( const BinID& relpos,
 	{
 	    int posidxinl1 = idi*crlsz + idc;
 	    int posidxinl2 = posidxinl1 + crlsz;
-	    mFillGlmcMatrix( posidxinl1, posidxinl2 );
+	    fillGlcmMatrix( idx, z0, nrsamples, posidxinl1, posidxinl2,
+			    glcmcount, glcm );
 	}
     }
 
@@ -270,11 +280,8 @@ bool Texture::computeData( const DataHolder& output, const BinID& relpos,
 	float normprob=0, textmeasure=0, glcmmean=0, glcmvar=0;
 	glcm.setAll(0);
 
-	const int glcmcount = computeGlcmMatrix( relpos, idx, z0, nrsamples,
-						 threadid, glcm ); 	
+	const int glcmcount = computeGlcmMatrix( idx, z0, nrsamples, glcm );
 
-	/* Texture Attribute definitions
-	from http://www.fp.ucalgary.ca/mhallbey/equations.htm */
 
 	if (action_== 0 ) /* 0=Contrast */
 	{
@@ -398,9 +405,7 @@ bool Texture::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 
-const Interval<int>* Texture::desZSampMargin(int,int) const
-{
-    return 0;
-}
+const Interval<int>* Texture::desZSampMargin( int inp, int outp ) const
+{ return inp==0 ? &dessampgate_ : 0; }
 
 } // namespace Attrib

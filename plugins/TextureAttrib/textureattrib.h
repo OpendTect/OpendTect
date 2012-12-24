@@ -16,15 +16,19 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "arraynd.h"
 
-/*!\Texture Attribute
+/*!
+\brief %Texture Attribute
+Texture Attribute definitions from
+http://www.fp.ucalgary.ca/mhallbey/equations.htm
 
+<pre>
 Input:
 0               Data
 
 Outputs:
 0               Texture attributes
+</pre>
 */
-    
 
 namespace Attrib
 {
@@ -90,11 +94,13 @@ protected:
     ObjectSet<const DataHolder> inpdata_;
     int			dataidx_;
     const DataHolder*   steeringdata_;
-    int			computeGlcmMatrix(const BinID& relpos,
-			    int idx, int z0, int nrsamples, int threadid, 
-			    Array2D<int>&) const;
+    int			computeGlcmMatrix(int idx,int z0,int nrsamples,
+					  Array2D<int>&) const;
+    void		fillGlcmMatrix(int sampleidx,int z0,int nrsamples,
+				       int posidx1,int posidx2,int& glcmcount,
+				       Array2D<int>& glcm) const;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 #endif
