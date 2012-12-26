@@ -16,8 +16,8 @@ ________________________________________________________________________
 #include "ranges.h"
 
 /*!
-  \ingroup Algo
-  \brief Fits values into a pre-defined range.
+\ingroup Algo
+\brief Fits values into a pre-defined range.
  
   The Squeezer has 2 ranges:
   * The limits

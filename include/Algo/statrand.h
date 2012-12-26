@@ -19,8 +19,8 @@ namespace Stats
 {
 
 /*!
-  \ingroup Algo
-  \brief Random Generator
+\ingroup Algo
+\brief Random Generator
 */
 
 mClass(Algo) RandGen

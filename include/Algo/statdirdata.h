@@ -20,8 +20,8 @@ namespace Stats
 {
 
 /*!
-  \ingroup Algo
-  \brief Part of a data sector. 
+\ingroup Algo
+\brief Part of a data sector. 
 */
 
 class SectorPartData
@@ -44,8 +44,8 @@ typedef TypeSet<SectorPartData> SectorData;
 
 
 /*!
-  \ingroup Algo
-  \brief A circle of data.
+\ingroup Algo
+\brief A circle of data.
  
   The circle is subdivided in sectors, which are subdivided in sector parts.
   The relative 'pos_' from the sector part can be scaled with usrposrg_ to get

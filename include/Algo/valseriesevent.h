@@ -30,8 +30,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief Event in value series.
+\ingroup Algo
+\brief Event in value series.
   
   Template args are: Value Type, Position Type.
   Usually float,float
@@ -52,8 +52,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief Event finder in gate.
+\ingroup Algo
+\brief Event finder in gate.
 
   The gate is absolute. The finder will start at the 'start' and stop at the
   'stop'. This is important because the event finding has a direction! Thus,

@@ -21,9 +21,9 @@ ________________________________________________________________________
 #include "ranges.h"
 
 /*!
-  \ingroup Algo
-  \brief
-  WaveletTransform is a ND wavelet transform.
+\ingroup Algo
+\brief WaveletTransform is a ND wavelet transform.
+
   \par
   Specify wavelet at creation, and use in the same way as any TransformND.
   The algorithm is based on the one from NumericalRecipies, and additional 
@@ -80,9 +80,10 @@ public:
     static bool		isCplx( WaveletType );
 };
 
+
 /*!
-  \ingroup Algo
-  \brief Discrete Wavelet Transform
+\ingroup Algo
+\brief Discrete Wavelet Transform
 */
 
 mClass(Algo) DWT : public GenericTransformND
@@ -129,8 +130,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Continuous Wavelet Transform
+\ingroup Algo
+\brief Continuous Wavelet Transform
 */
 
 mClass(Algo) CWT 

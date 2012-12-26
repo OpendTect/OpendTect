@@ -25,8 +25,8 @@ namespace Stats
 
 
 /*!
-  \ingroup Algo
-  \brief Setup for the Stats::RunCalc and Stats::ParallelCalc objects.
+\ingroup Algo
+\brief Setup for the Stats::RunCalc and Stats::ParallelCalc objects.
   
   medianEvenHandling() is tied to OD_EVEN_MEDIAN_AVERAGE, OD_EVEN_MEDIAN_LOWMID,
   and settings dTect.Even Median.Average and dTect.Even Median.LowMid.
@@ -78,9 +78,9 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Base class to calculate mean, min, max, etc.. can be used either 
-  as running values (Stats::RunCalc) or in parallel (Stats::ParallelCalc).
+\ingroup Algo
+\brief Base class to calculate mean, min, max, etc.. can be used either as
+running values (Stats::RunCalc) or in parallel (Stats::ParallelCalc).
   
   The mostFrequent assumes the data contains integer classes. Then the class
   that is found most often will be the output. Weighting, again, assumes integer
@@ -177,8 +177,8 @@ bool BaseCalc<T>::isZero( const T& val ) const
 
 
 /*!
-  \ingroup Algo
-  \brief Calculates mean, min, max etc., as running values.
+\ingroup Algo
+\brief Calculates mean, min, max etc., as running values.
   
   The idea is that you simply add values and ask for a stat whenever needed.
   The clear() method resets the object and makes it able to work with new data.
@@ -226,8 +226,8 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief RunCalc manager which buffers a part of the data.
+\ingroup Algo
+\brief RunCalc manager which buffers a part of the data.
  
   Allows calculating running stats on a window only. Once the window is full,
   WindowedCalc will replace the first value added (fifo).

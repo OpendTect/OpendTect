@@ -18,9 +18,8 @@ ________________________________________________________________________
 
 
 /*!
-  \ingroup Algo
-  \brief A SortedTable keeps track of ids and their corresponding values. Each
-  id can only be present once.
+\ingroup Algo
+\brief A SortedTable keeps track of ids and their corresponding values. Each id can only be present once.
 */
 
 template <class IDT, class T>
@@ -102,9 +101,9 @@ bool  SortedTable<IDT,T>::remove(IDT theid)
 
 
 /*!
-  \ingroup Algo
-  \brief A SortedPointers keeps track of ids and their corresponding pointer.
-  Each id can only be present once.
+\ingroup Algo
+\brief A SortedPointers keeps track of ids and their corresponding pointer.
+Each id can only be present once.
 */
 
 template <class T>

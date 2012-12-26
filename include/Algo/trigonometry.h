@@ -266,8 +266,8 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>&, bool normalize,
 
 
 /*!
-  \ingroup Algo
-  \brief Quaternion is an extension to complex numbers.
+\ingroup Algo
+\brief Quaternion is an extension to complex numbers.
   
   A Quaternion is represented by the equation:<br>
   q = s + xi + yj + zk <br>
@@ -300,9 +300,9 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief A Line2 is a line on XY-plane, and it is defined in slope-intercept
-  form y = slope*x + y-intercept; for making operations easier.
+\ingroup Algo
+\brief A Line2 is a line on XY-plane, and it is defined in slope-intercept
+form y = slope*x + y-intercept; for making operations easier.
 */
 
 mClass(Algo) Line2
@@ -342,10 +342,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief
-  
-  A Line3 is a line in space, with the equations:
+\ingroup Algo
+\brief A Line3 is a line in space, with the following equations:
   
   x = x0 + alpha*t
   y = y0 + beta*t
@@ -392,8 +390,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief A Plane3 is a plane in space, with the equation: Ax + By + Cz + D = 0
+\ingroup Algo
+\brief A Plane3 is a plane in space, with the equation: Ax + By + Cz + D = 0
 */
 
 mClass(Algo) Plane3
@@ -451,9 +449,9 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief Defines a 2D coordinate system on a 3D plane and transforms between the
-   3D space and the coordinate system.
+\ingroup Algo
+\brief Defines a 2D coordinate system on a 3D plane and transforms between the
+3D space and the coordinate system.
 */
 
 mClass(Algo) Plane3CoordSystem
@@ -491,9 +489,9 @@ protected:
 
 
 /*!
-  \ingroup Algo
-  \brief Represents a point in spherical coordinates.
-  The angle phi lies in the horizontal plane, theta in the vertical plane.
+\ingroup Algo
+\brief Represents a point in spherical coordinates.
+The angle phi lies in the horizontal plane, theta in the vertical plane.
 */
 
 mClass(Algo) Sphere

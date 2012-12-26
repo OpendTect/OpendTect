@@ -19,8 +19,8 @@ ________________________________________________________________________
 #include "windowfunction.h"
 
 /*!
-  \ingroup Algo
-  \brief Smoothes a 3d signal with an operator.
+\ingroup Algo
+\brief Smoothes a 3d signal with an operator.
 */
 
 template <class T>

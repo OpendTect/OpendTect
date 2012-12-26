@@ -28,7 +28,8 @@ namespace ZDomain { class Def; class Info; }
 
 /*!
 \ingroup Algo
-\brief Base class for z-axis transforms
+\brief Base class for z-axis transforms.
+
   ZAxisTransform is the base class for z stretching in different ways.
   The z-stretch may be dependent on the location (binid).
   The various transforms can be retrieved from factory ZATF().

@@ -18,9 +18,10 @@ ________________________________________________________________________
 class ElasticLayer;
 
 /*!
-  \ingroup Algo
-  \brief Zoeppritz Coefficients.
+\ingroup Algo
+\brief Zoeppritz Coefficients.
 */
+
 mClass(Algo) ZoeppritzCoeff 
 {
 public:

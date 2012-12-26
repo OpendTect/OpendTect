@@ -24,8 +24,8 @@ ________________________________________________________________________
 
 
 /*!
-  \ingroup Algo
-  \brief Scaling of floating point numbers.
+\ingroup Algo
+\brief Scaling of floating point numbers.
   
   Scaler is an interface for scaling and scaling back numbers. Also, string I/O
   is defined, as well as a factory (Scaler::get).
@@ -50,8 +50,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief Linear scaling
+\ingroup Algo
+\brief Linear scaling
 */
 
 mClass(Algo) LinScaler : public Scaler
@@ -92,8 +92,8 @@ inline bool LinScaler::isEmpty() const
 
 
 /*!
-  \ingroup Algo
-  \brief Logarithmic scaling, base e or ten.
+\ingroup Algo
+\brief Logarithmic scaling, base e or ten.
 */
 
 mClass(Algo) LogScaler : public Scaler
@@ -119,8 +119,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief Exponential scaling, base e or ten.
+\ingroup Algo
+\brief Exponential scaling, base e or ten.
 */
 
 mClass(Algo) ExpScaler : public Scaler
@@ -147,8 +147,8 @@ public:
 
 
 /*!
-  \ingroup Algo
-  \brief Asymptotic or 'Squeeze' scaling, with a linear (main) part.
+\ingroup Algo
+\brief Asymptotic or 'Squeeze' scaling, with a linear (main) part.
   
   This scaler scales between -1 and 1. Between center()-width()
   and center()+width() this will happen linearly. The value at width() will be
