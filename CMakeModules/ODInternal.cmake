@@ -45,6 +45,7 @@ if ( APPLE )
 endif( APPLE )
 
 SET( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
+SET( LMHOSTID lmhostid)
 IF( WIN32 )
     install ( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/win/unzip.exe DESTINATION
 	      ${CMAKE_INSTALL_PREFIX}/${OD_EXEC_OUTPUT_RELPATH} )
@@ -55,9 +56,12 @@ IF( WIN32 )
     ELSEIF( ${OD_PLFSUBDIR} STREQUAL "win64" )
 	SET( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x64/Microsoft.VC100.CRT" )
     ENDIF()
+    SET( LMHOSTID "lmhostid.exe" )
 ENDIF()
 
 install ( PROGRAMS ${QJPEG} DESTINATION imageformats )
+install ( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
+	    DESTINATION ${CMAKE_INSTALL_PREFIX}/${OD_EXEC_OUTPUT_RELPATH} )
 IF( EXISTS ${MSVCPATH} )
         FILE( GLOB MSVCDLLS ${MSVCPATH}/*.dll )
         FOREACH( DLL ${MSVCDLLS} )
