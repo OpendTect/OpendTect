@@ -52,6 +52,7 @@ static const char* rcsID = "$Id$";
 #include "uichecklist.h"
 #include "hiddenparam.h"
 
+static const char* sKeyElasticProp = "Elastic Properties";
 mDefineInstanceCreatedNotifierAccess(uiStratLayerModel)
 
 HiddenParam<uiStratLayerModel,Notifier<uiStratLayerModel>* > 
@@ -661,6 +662,7 @@ bool uiStratLayerModel::openGenDesc()
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
     descctio_.setObj( dlg.ioObj()->clone() );
+    delete elpropsel_; elpropsel_ = 0;
 
     const BufferString fnm( descctio_.ioobj->fullUserExpr(true) );
     StreamData sd( StreamProvider(fnm).makeIStream() );
@@ -689,11 +691,10 @@ bool uiStratLayerModel::openGenDesc()
     moddisp_->modelChanged();
     moddisp_->setZoomBox( uiWorldRect(mUdf(double),0,0,0) );
     synthdisp_->modelChanged();
-    delete elpropsel_; elpropsel_ = 0;
 
     /*if ( elpropsel_ )
 	elpropsel_->usePar( *desc_.getWorkBenchParams() );*/
-    gentools_->genReq.trigger();
+    //gentools_->genReq.trigger();
 
     CBCapsule<IOPar*> caps( desc_.getWorkBenchParams(),
 	    		    const_cast<uiStratLayerModel*>(this) );
@@ -783,10 +784,12 @@ void uiStratLayerModel::setElasticProps()
 {
     if ( !elpropsel_ )
     {
-	if ( desc_.getWorkBenchParams()->subselect("Elastic") )
+	PtrMan<IOPar> elasticpar =
+	    desc_.getWorkBenchParams()->subselect( sKeyElasticProp );
+	if ( elasticpar )
 	{
 	    elpropsel_ = new ElasticPropSelection;
-	    elpropsel_->usePar( *desc_.getWorkBenchParams() );
+	    elpropsel_->usePar( *elasticpar );
 	}
     }
 
@@ -926,7 +929,12 @@ void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
 		saveRequiredNotif()->trigger( &caps );
     gentools_->fillPar( par );
     if ( elpropsel_ )
-	elpropsel_->fillPar( par );
+    {
+	IOPar elasticpar;
+	elpropsel_->fillPar( elasticpar );
+	par.mergeComp( elasticpar, sKeyElasticProp );
+    }
+
     fillDisplayPars( par );
     fillSyntheticsPars( par );
 }
