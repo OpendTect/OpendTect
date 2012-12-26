@@ -275,7 +275,7 @@ bool Texture::computeData( const DataHolder& output, const BinID& relpos,
 	    for ( int n=0; n<glcmsize_; n++ )
 	    {
 		normprob = glcm.get( n, m )/(float)(2*glcmcount);
-		const float n_m = n - m;
+		const int n_m = n - m;
 		// 0=Contrast
 		if ( isOutputEnabled(0) )
 		    con += normprob*n_m*n_m;
