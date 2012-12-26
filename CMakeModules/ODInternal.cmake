@@ -46,6 +46,8 @@ endif( APPLE )
 
 SET( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
 IF( WIN32 )
+    install ( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/win/unzip.exe DESTINATION
+	      ${CMAKE_INSTALL_PREFIX}/${OD_EXEC_OUTPUT_RELPATH} )
     SET( QJPEG ${QTDIR}/plugins/imageformats/qjpeg4.dll )
     IF( ${OD_PLFSUBDIR} STREQUAL "win32" )
 #	SET( MSVCPATH "C:/Program\ Files/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x86/Microsoft.VC100.CRT" )
