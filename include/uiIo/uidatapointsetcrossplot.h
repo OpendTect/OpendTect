@@ -175,6 +175,9 @@ public:
     BufferString&		y1rmserr_;
     BufferString&		y2rmserr_;
 
+    bool			y1clipping_;
+    bool			y2clipping_;
+
     void			setMathObj(MathExpression*);
     void			setMathObjStr(const BufferString& str )
 				{ mathobjstr_ = str; }
@@ -288,8 +291,6 @@ protected:
     uiGraphicsItemGroup*	selrectitems_;
     uiGraphicsItemGroup*	selpolyitems_;
     uiLineItem*			regrlineitm_;
-    uiLineItem*			y1userdeflineitm_;
-    uiLineItem*			y2userdeflineitm_;
     uiPolyLineItem*		y1userdefpolylineitm_;
     uiPolyLineItem*		y2userdefpolylineitm_;
     uiColTabItem*		y1overlayctitem_;

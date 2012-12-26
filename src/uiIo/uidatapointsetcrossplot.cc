@@ -90,8 +90,6 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , selectionpolygonitem_(0)
     , selectionrectitem_(0)
     , regrlineitm_(0)
-    , y1userdeflineitm_(0)
-    , y2userdeflineitm_(0)
     , y1userdefpolylineitm_(0)
     , y2userdefpolylineitm_(0)
     , selyitems_(0)
@@ -114,6 +112,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , drawuserdefline_(false)
     , drawy1userdefpolyline_(false)
     , drawy2userdefpolyline_(false)
+    , y1clipping_(true)
+    , y2clipping_(true)
     , drawy2_(false)
     , timer_(*new Timer())
     , trmsg_("Calculating Density" )
@@ -433,28 +433,15 @@ void uiDataPointSetCrossPlotter::setUserDefPolyLine(
 
 void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
 {
-    TypeSet<uiPoint> pixpts;
-
-    if ( !isy1 )
-    {
-	if ( !y2userdefpolylineitm_ )
-
-	{
-	    y2userdefpolylineitm_ = new uiPolyLineItem();
-	    scene().addItem( y2userdefpolylineitm_ );
-	}
-    }
-    else
-    {
-	if ( !y1userdefpolylineitm_ )
-	{
-	    y1userdefpolylineitm_ = new uiPolyLineItem();
-	    scene().addItem( y1userdefpolylineitm_ );
-	}
-    }
-
-    uiPolyLineItem* curpolylineitem =
+    uiPolyLineItem*& curpolylineitem =
 	!isy1 ? y2userdefpolylineitm_ : y1userdefpolylineitm_;
+
+    if ( !curpolylineitem )	
+    {
+	curpolylineitem = new uiPolyLineItem();
+	scene().addItem( curpolylineitem );
+    }
+
     const bool dodrw = isy1 ? drawy1userdefpolyline_ : drawy2userdefpolyline_;
     if ( !dodrw )
     {
@@ -464,10 +451,12 @@ void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
 
     const TypeSet<uiWorldPoint>& pts = !isy1 ? y2userdefpts_ : y1userdefpts_;
     AxisData& vert = !isy1 ? y2_ : y_;
-
+    if ( !x_.axis_ || !vert.axis_ ) return;
+    
     const int size = pts.size();
-    if ( !size ) return;
-
+    if ( !size ) return;    
+    
+    TypeSet<uiPoint> pixpts;
     for ( int pixvar = 0; pixvar < size; pixvar++ )
     {
 	uiWorldPoint pt = pts[pixvar];
@@ -610,8 +599,7 @@ void uiDataPointSetCrossPlotter::mouseMove( CallBacker* )
 	return;
     }
 
-    if ( !selectable_ || !mousepressed_ )
-	return;
+    if ( !selectable_ || !mousepressed_ ) return;
 
     if ( !rectangleselection_ )
     {
@@ -1178,6 +1166,7 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     const bool isprevy = y_.colid_ == y;
     const bool isprevy2 = y2_.colid_ == y2;
     x_.setCol( x ); y_.setCol( y ); y2_.setCol( y2 );
+
     if ( y_.axis_ )
     {
 	y_.axis_->setBegin( x_.axis_ );
@@ -1193,6 +1182,21 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     }
     else if ( x_.axis_ )
 	x_.axis_->setEnd( 0 );
+
+    if ( !isprevx || !isprevy )
+    {
+	if ( y1userdefpolylineitm_ && !y_.axis_ )
+	    y1userdefpolylineitm_->setVisible( false );
+
+	userdefy1str_.setEmpty(); y1rmserr_.setEmpty();
+	setup().showy1userdefpolyline_ = drawy1userdefpolyline_ = false;
+    }
+
+    if ( !isprevx || !isprevy2 )
+    {
+	userdefy2str_.setEmpty(); y2rmserr_.setEmpty();
+	setup().showy2userdefpolyline_ = drawy2userdefpolyline_ = false;
+    }
 
     if ( !isprevx )
 	x_.needautoscale_ = x_.autoscalepars_.doautoscale_ = true;
@@ -1613,7 +1617,7 @@ int uiDataPointSetCrossPlotter::calcDensity( Array2D<float>* data, bool chgdps,
 
     densitycalc.setAreaType( areatype );
     uiTaskRunner tr( parent() );
-    tr.execute( densitycalc );
+    TaskRunner::execute( &tr, densitycalc );
 
     usedxpixrg_ = densitycalc.usedXPixRg();
     selrowcols_ = densitycalc.selRCs();
