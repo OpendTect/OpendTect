@@ -1105,6 +1105,7 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     const bool isprevy = y_.colid_ == y;
     const bool isprevy2 = y2_.colid_ == y2;
     x_.setCol( x ); y_.setCol( y ); y2_.setCol( y2 );
+    
     if ( y_.axis_ )
     {
 	y_.axis_->setBegin( x_.axis_ );
@@ -1120,6 +1121,18 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     }
     else if ( x_.axis_ )
 	x_.axis_->setEnd( 0 );
+
+    if ( !isprevx || !isprevy )
+    {
+	userdefy1lp_.a0 = 0.0f; userdefy1lp_.ax = 0.0f;
+	setup().showy1userdefline_ = false;
+    }
+
+    if ( !isprevx || !isprevy2 )
+    {
+	userdefy2lp_.a0 = 0.0f; userdefy2lp_.ax = 0.0f;
+	setup().showy2userdefline_ = false;
+    }
 
     if ( !isprevx )
 	x_.needautoscale_ = x_.autoscalepars_.doautoscale_ = true;
