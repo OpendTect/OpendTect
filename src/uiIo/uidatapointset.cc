@@ -505,9 +505,7 @@ void uiDataPointSet::handleAxisColChg()
     updColNames();
     if ( xplotwin_ )
     {
-	xplotwin_->plotter().setCols( dColID(xcol_), dColID(ycol_),
-				      dColID(y2col_) );
-	xplotwin_->setButtonStatus();
+	xplotwin_->handleAxisChg( xcol_, ycol_, y2col_ );
     }
 
     if ( ycol_ >= 0 && statswin_ )
@@ -543,6 +541,12 @@ void uiDataPointSet::selYCol( CallBacker* )
     int minptsfordensity = cMinPtsForDensity;
     Settings& setts = Settings::common();
     setts.get( sKeyMinDPPts(), minptsfordensity );
+
+    if ( minptsfordensity <= 0 || mIsUdf(minptsfordensity) )
+    {
+	setts.set( sKeyMinDPPts(), cMinPtsForDensity ); setts.write();
+	minptsfordensity = cMinPtsForDensity;
+    }
 
     if ( ycol_ == -1 )
     {
