@@ -303,7 +303,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , lmp_(*new uiStratLayerModelLMProvider)
     , newModels(this)				   
     , levelChanged(this)				   
-    , waveletChanged(this)				   
+    , waveletChanged(this)
 {
     Notifier<uiStratLayerModel>* savenotif =
 	new Notifier<uiStratLayerModel>(this);
@@ -574,7 +574,6 @@ void uiStratLayerModel::modDispRangeChanged( CallBacker* )
 }
 
 
-
 void uiStratLayerModel::manPropsCB( CallBacker* )
 {
     seqdisp_->selProps();
@@ -688,13 +687,7 @@ bool uiStratLayerModel::openGenDesc()
     lmp_.setEmpty();
     seqdisp_->descHasChanged();
 
-    moddisp_->modelChanged();
-    moddisp_->setZoomBox( uiWorldRect(mUdf(double),0,0,0) );
-    synthdisp_->modelChanged();
-
-    /*if ( elpropsel_ )
-	elpropsel_->usePar( *desc_.getWorkBenchParams() );*/
-    //gentools_->genReq.trigger();
+    delete elpropsel_; elpropsel_ = 0;
 
     CBCapsule<IOPar*> caps( desc_.getWorkBenchParams(),
 	    		    const_cast<uiStratLayerModel*>(this) );
@@ -702,7 +695,18 @@ bool uiStratLayerModel::openGenDesc()
 	const_cast<uiStratLayerModel*>(this)->
 		retrieveRequiredNotif()->trigger( &caps);
 
-    //Set when everything is in place.
+    BufferString edtyp;
+    descctio_.ctxt.toselect.require_.get( sKey::Type, edtyp );
+    BufferString profilestr( "Profile" );
+    if ( !profilestr.isStartOf(edtyp) )
+    {
+	gentools_->genReq.trigger();
+	//Set when everything is in place.
+	moddisp_->modelChanged();
+	moddisp_->setZoomBox( uiWorldRect(mUdf(double),0,0,0) );
+	synthdisp_->modelChanged();
+    }
+
     if ( !desc_.getWorkBenchParams() || 
 	    !useDisplayPars( *desc_.getWorkBenchParams() ))
 	return false;
