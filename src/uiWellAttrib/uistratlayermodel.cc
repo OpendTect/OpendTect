@@ -149,9 +149,6 @@ void doLayerModel( uiParent* p, const char* modnm )
 }
 
 
-
-
-
 void addToTreeWin()
 {
     uiToolButtonSetup* su = new uiToolButtonSetup( "stratlayermodeling",
@@ -645,19 +642,25 @@ bool uiStratLayerModel::openGenDesc()
 
     delete elpropsel_; elpropsel_ = 0;
     
-    gentools_->genReq.trigger();
-    CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(), 
+    CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(),
 	    		    const_cast<uiStratLayerModel*>(this) );
     const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
 
-    //Set when everything is in place.
-    moddisp_->modelChanged();
-    synthdisp_->modelChanged();
+    BufferString edtyp;
+    descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
+    BufferString profilestr( "Profile" );
+    if ( !profilestr.isStartOf(edtyp) )
+    {
+	gentools_->genReq.trigger();
+	//Set when everything is in place.
+	moddisp_->modelChanged();
+	synthdisp_->modelChanged();
+    }
 
     if ( !useDisplayPars( desc_.getWorkBenchParams() ))
 	return false;
+
     useSyntheticsPars( desc_.getWorkBenchParams() );
-    
     setWinTitle();
     return true;
 }
