@@ -1,0 +1,19 @@
+#!/bin/csh -f
+#
+# OpendTect environment initialisation: dGB plugin package
+#
+
+#
+# FlexLM
+#
+
+set licfil="${DTECT_APPL}/license.dgb.dat"
+if ( -r $licfil ) then
+
+    if ( $?LM_LICENSE_FILE ) then
+	setenv LM_LICENSE_FILE "${LM_LICENSE_FILE}:${licfil}"
+    else
+	setenv LM_LICENSE_FILE "${licfil}"
+    endif
+
+endif

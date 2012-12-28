@@ -1,0 +1,13 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# OpenTect dGB module license file installer
+# $Id: .install.dgb.license,v 1.1 2010-04-06 08:33:09 relman Exp $
+#_______________________________________________________________________________
+
+
+source __INST_DIR__/bin/init_dtect >&! /dev/null
+
+source $DTECT_APPL/.dgb.lmgrd.vars
+
+__INST_DIR__/.lic_inst_common $*

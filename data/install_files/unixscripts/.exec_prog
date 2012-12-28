@@ -1,0 +1,14 @@
+#!/bin/csh
+#_______________________________________________________________________________
+#
+# OpenTect: execution of batch programs on the command line.
+# $Id: .exec_prog,v 1.1 2010-04-06 08:33:09 relman Exp $
+#_______________________________________________________________________________
+
+if ( ! $?CSHCMD ) then
+    setenv CSHCMD ""
+endif
+
+source __INST_DIR__/bin/init_dtect >&! /dev/null
+
+$CSHCMD __INST_DIR__/bin/od_exec $*

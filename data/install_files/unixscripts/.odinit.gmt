@@ -1,0 +1,30 @@
+#!/bin/csh -f
+#
+# GMT environment
+#
+
+echo -n "Setting up GMT environment ... "
+
+if ( $?GMTROOT ) then
+    echo "GMTROOT is already set. To use build-in GMT, unset GMTROOT"
+    echo "and make sure GMT is not in your path"
+    exit
+endif
+
+if ( $?NETCDFHOME ) then
+    echo "NETCDFHOME is already set. To use build-in GMT, unset NETCDFHOME"
+    echo "and make sure GMT is not in your path"
+    exit
+endif
+
+setenv GMTROOT __INST_DIR__/GMT/${binsubdir}
+if ( ! -d ${GMTROOT} ) then
+    echo "GMT installation directory not found"
+    exit
+endif
+
+setenv PATH ${PATH}:${GMTROOT}/bin
+setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${GMTROOT}/lib
+setenv GMT_SHAREDIR ${GMTROOT}/share
+
+echo "GMT setup done"

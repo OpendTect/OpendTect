@@ -1,0 +1,201 @@
+OpendTect V4.4: installation notes.
+
+
+First of all, you can find a sysadm manual for OpendTect on the web site
+(http://opendtect.org) and in the distribution at:
+doc/SysAdm/base/index.html
+
+Below you'll find the 'bare' installation instructions for Linux, MS Windows
+and Mac.
+
+
+---
+
+All installations:
+
+As of 3.x version OpendTect will attempt to use 'shading' - this means that some
+calculations are done on the graphics card. Unfortunately, not all cards
+behave properly. Very old cards will be no problem because they report that
+shading is not supported. Very new cards usually support it correctly (e.g. the
+nVidia 6000 series). Some cards of about 1-2 years old do give problems. These
+report that they support shading, but they support only part or so badly that
+the system almost stops.
+
+There are two settings for the user to cope with this:
+* Do you want shading if the card reports that it is capable of it?
+* If so, do you also want it for volume rendering?
+Some cards (Like some ATI cards) support shading well but things go bad for
+volume rendering.
+
+The default is:
+* Yes, use it if the card says it supports shading
+* No, do not use it for volume rendering even if the card says it supports shading
+
+Thus:
+* If users get colorless inlines, time slices etc, they need to try disabling
+shading usage
+* If users want to try improved volume rendering, they can try enabling that.
+
+The access to these options is in the menu 'Utilities-Settings-Look&Feel'.
+
+
+Info on installing license files for commercial plugins can be found at:
+http://opendtect.org/lic/doc/flexnet_installation_guide.html
+background at:
+http://opendtect.org/lic/doc/flexnet_explained.html
+
+
+---
+
+Linux Installation instructions:
+
+
+>> OpendTect need not be installed by 'root' (exception see note on SELinux). In
+fact we recommend to use an 'application manager' account. In any case, use the
+same user account for all application management actions. <<
+
+
+Upgrades:
+If you have a previous version of OpendTect installed, there are two
+possibilities:
+1) The version has the same release number (i.e. 4.x.y, eg 4.2.0).
+   Download the packages you need to upgrade, and use the inst_pkgs.od
+   script (use 'chmod +x inst_pkgs.od' if necessary) to install the packages.
+2) The release number is different.
+   Use the procedure for a new installation; you will get the chance to
+   copy settings from the old installation. License files must
+   always be installed afterwards; copying and re-starting is too tricky
+   to do automatically.
+
+New installations:
+Download the packages you need, and the 'install.od' script (note that
+depending on your browser you may need to right-click and choose 'save-as'),
+and put all in the same directory. Run the install.od script
+(use 'chmod +x install.od' or enter 'csh install.od').
+When you download and save the script on Windows, but want to execute the
+script on a UNIX machine, make sure the file is a real UNIX text file. If
+necessary, run:
+dos2unix install.od; chmod +x install.od
+If the text is DOS text, errors like "'': command not found" will be the result.
+
+After this, there should be an opendtect-4.x.y directory at the location you
+selected. That directory contains OpendTect; scripts are present in that
+directory to start OpendTect, batch programs, create data directories and more.
+
+If all fails, unzip and untar the packages yourself and install the software
+like:
+cd opendtect-4.x.y
+./install
+
+Then:
+
+1) If you haven't got a $DTECT_DATA directory yet, make sure of that now,
+   use the 'mk_datadir' script to create such a directory. The resulting
+   directory needs to have the right permissions for all users.
+
+2) If one or more parts need FlexNET licensing, you may want to use the
+   install.*.license scripts to import these files. If any of those is a
+   floating license, you'll also need to bring up the license manager
+   daemon. If you do not have your own procedures to start the daemons,
+   you may want to use the start.*.lmgrd.cripts to do that.
+   If you do have your own FlexNET management procedures (e.g. FlexAdmin), you
+   have to make sure that a file 'license.*.dat' is present in the application
+   directory containing the necessary license.
+
+3) Now, the start_dtect script should bring up OpendTect.
+
+Note: Red Hat 3: This distro is no longer supported as from version
+4.0. On ftp.opendtect.org/pub/RH3_64 there is still a version for 3.2.
+
+Note {Linux/SELinux]: Some distros have SELinux enabled by default. Disable or
+administer the OpendTect executables and shared libs, like in:
+chcon -t texrel_shlib_t `find . -name \*.so -print`
+
+Note [ArkCls workstation link]: To be able to use the data link, you should
+start OpendTect in a window prepared for running SeisWorks or GeoFrame. And,
+of course, you'll need a valid license for the arkcls part itself.
+The system administrator's manual contains information on these issues.
+
+Development: for developing OpendTect plugins, you'll need to make sure the
+following tools are installed:
+* CMake (from cmake.org)
+* [Linux/Mac]: GNU gcc 4.1.x or higher, including g++
+* [M$ Windows]: Visual studio 2010 or higher.
+
+---
+
+MS Windows Installation instructions:
+
+>> OpendTect is well prepared for separation of installation/Administrator and
+usage accounts. We recommend to install as Administrator and use under a
+non-privileged account. <<
+
+
+OpendTect has an installer that will update your installation if necessary.
+Virtually all settings will be in user areas, so no precious data should be
+lost in this way.
+
+Download the self-extracting executable and follow the instructions.
+License management issues for commercial plugins may require extra actions.
+
+Non English characters or accented characters are usually not recognized by
+OpendTect. Make sure the OpendTect survey directory does not contain any
+special characters, use simple English names like "C:\Surveys" or "C:\ODData"
+instead. The Windows user/login name should also not contain these special
+characters if they already contain special characters, use the evironment
+variable DTECT_WINHOME and set a simple English name as value, like C:\ODHome.
+
+Development: If you want to develop OpendTect plugins, you have to use Visual
+Studio.
+
+
+---
+
+Mac OS/X Installation instructions:
+
+Note: It seems that StuffIt may be unable to correctly unpack the
+mac packages. The advice is to use Safari.
+
+On Mac OS/X, you get a tar-gzipped Application Bundle. this .tar.gz contains an
+OS/X bundle "opendtect.app", which contains 2 directories under the surface.
+A directory "opendtect-4.x.y" containing the exact same contents as on any UNIX
+OS and a directory "Contents" containing symbolic links at the places Mac OS/X
+expects them into the UNIX tree. Therefore, most of UNIX instructions are also
+applicable to Mac OS/X.
+
+The application bundle contains not only the basic executables but
+also the documentation and a demo survey. However, in order to install plugins, 
+perform multi-machine batch processing or setup Workstation Access, you will
+still have to go down to the UNIX style configuration of manually editing
+some text files or run some scripts from a terminal window.
+
+In that case, everything should otherwise be the same as with any other UNIX OS,
+with that difference that the environment variable "DTECT_APPL" is basically 
+equal to "<your path>/opendtect.app/opendtect-3.x" and that "DTECT_DATA" 
+does not have to be set; it is normally set from the application and will
+then be stored in your ~/.od/settings file.
+
+Support for any OS/X version lower then 10.5 is not available.
+
+
+---
+
+The Madagascar plugin will NOT install Madagascar. Madagascar must be
+installed separately. Please go to http://rsf.sourceforge.net . After
+installation, check that the text-only documentation is installed.
+If not, you need to issue the command:
+$RSFROOT/bin/sfdoc -t $RSFROOT/doc/txt
+
+
+---
+
+If you have any questions, please do any of the following:
+- Consult the FAQ on http://www.opendtect.org or your plugin vendor.
+- Read the system manager's manual(s).
+- Contact support@opendtect.org or the support of your plugin vendor.
+- Contact dGB by phone: +31 53 4315155
+
+
+Bert Bril - dGB
+
+[$Id$]
