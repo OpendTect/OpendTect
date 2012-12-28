@@ -1,0 +1,7 @@
+#!/bin/csh -f
+#
+# MADAGASCAR setup
+# $Id: setup.od.madagascar,v 1.2 2012/07/27 09:11:36 relman Exp $
+#
+sed -e "s/__INST_DIR__/$replaceinstdir/" .odinit.madagascar > odinit.madagascar
+chmod +x odinit.madagascar
