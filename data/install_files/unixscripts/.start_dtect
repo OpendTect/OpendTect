@@ -1,0 +1,144 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# (C) dGB Beheer B.V.
+# OpenTect startup script
+# $Id: .start_dtect,v 1.10 2012/07/30 14:12:30 kristofer Exp $
+#_______________________________________________________________________________
+
+if ( ! $?CSHCMD ) then
+    setenv CSHCMD ""
+endif
+
+source "__INST_DIR__/bin/init_dtect"
+source "__INST_DIR__/bin/init_dtect_user"
+
+if ( $status == 0 ) then
+
+    if ( $?DTECT_DATA ) then
+	if ( ! -d "$DTECT_DATA" ) then
+	    echo "Warning: the pre-set DTECT_DATA is not valid"
+	    unsetenv DTECT_DATA
+	endif
+    endif
+    if ( $?DTECT_DATA ) then
+	set startdir="$DTECT_DATA" 
+    else
+	set startdir="$HOME"
+    endif
+
+    set odrundir=/tmp/od_run.$$
+    set nocoredbg=`which gdb |& grep 'not found' | wc -l`
+    if ( $nocoredbg == 0 ) set nocoredbg=`which gdb |& grep 'no ' | wc -l`
+    if ( $nocoredbg == 0 ) then
+	if ( -e $odrundir ) then
+	    rm -rf $odrundir
+	endif
+	mkdir $odrundir
+	set startdir=$odrundir
+	limit coredumpsize unlimited
+    endif
+
+    cd "$startdir"
+
+    if ( $?DTECT_DEBUG && $?DTECT_WINHOME && $?DTECT_WINSETTINGS ) then
+	env | grep DTECT_WINHOME=
+	env | grep DTECT_WINSETTINGS=
+    endif
+    if ( $?DTECT_DEBUG && $?DTECT_HOME && $?DTECT_SETTINGS ) then
+	echo "DTECT_HOME: $DTECT_HOME"
+	echo "DTECT_SETTINGS: $DTECT_SETTINGS"
+    endif
+
+    set hona=`hostname`
+    if ( $?DTECT_USAGE_LOGFILE ) then
+	set date=`date`
+	echo "[START:$date] $USER on $hona" >> $DTECT_USAGE_LOGFILE
+    endif
+
+    set chkupdate = "no"
+    if ( -e $DTECT_APPL/../Installer/run_installer ) then
+        set chkupdate = "yes"
+    endif
+    if ( $?OD_INSTALLER_POLICY ) then
+	if ( $OD_INSTALLER_POLICY == "None" ) then
+	    set chkupdate = "no"
+	endif
+    endif
+
+    if ( $chkupdate == "yes" ) then
+	set curdir=`pwd`
+	cd $DTECT_APPL/../Installer
+	$CSHCMD $DTECT_APPL/../Installer/run_installer --updcheck_startup --instdir $DTECT_APPL
+	cd ${curdir}
+    endif
+    
+    set mainapp=od_main
+    if ( ! -e ${bindir}/$mainapp ) then
+	set mainapp=odmain
+    endif
+
+    if ( $?DTECT_START_DEBUGGER ) then
+	echo "Original cmd: $CSHCMD $DTECT_APPL/bin/od_exec $mainapp $*"
+	$DTECT_START_DEBUGGER ${bindir}/$mainapp
+    else
+	$CSHCMD "$DTECT_APPL/bin/od_exec" $mainapp $*
+    endif
+
+    if ( $nocoredbg == 0 ) then
+
+	unsetenv DTECT_FORCE_IMMEDIATE_CRASH
+
+	set corefile=core
+	if ( ! -e $corefile ) then
+	    set nonomatch=true
+	    set corefile=core.*
+	    if ( $corefile == "core.*" ) then
+		set corefile=""
+	    endif
+	endif
+
+	set sendapp="${bindir}/od_uiReportIssue"
+	if ( ("$corefile" != "") && ( -e "${sendapp}") ) then
+	 
+	    set cmdfil="$odrundir/gdb.$$"
+
+	    set outfil="/tmp/od_crash_analysis_$$.txt"
+	    set execfile="${bindir}/$mainapp"
+
+	    echo "echo \n-> Threads:\n" > $cmdfil
+	    echo "info thread" >> $cmdfil
+	    echo "echo \n-> Stack:\n" >> $cmdfil
+	    echo "where" >> $cmdfil
+	    echo "quit" >> $cmdfil
+	    echo "yes" >> $cmdfil
+
+	    if ( -e "$outfil" ) rm -f "$outfil"
+	    if ( -e $DTECT_APPL/relinfo/ver.base_${binsubdir}.txt ) then
+		cp $DTECT_APPL/relinfo/ver.base_${binsubdir}.txt "$outfil"
+	    else
+		cp $DTECT_APPL/.rel.od.$binsubdir "$outfil"
+	    endif
+	    echo "" >> "$outfil"
+	    gdb --command="$cmdfil" "$execfile" "$corefile" >>&! "$outfil"
+	    "${sendapp}" "${outfil}"
+	    rm -f $cmdfil
+	endif
+
+
+    endif
+
+    if ( -e $odrundir ) then
+	rm -rf $odrundir
+    endif
+
+    if ( $?DTECT_USAGE_LOGFILE ) then
+	set date=`date`
+	echo "[STOP:$date] $USER on $hona" >> $DTECT_USAGE_LOGFILE
+    endif
+
+else
+
+    exit 1
+
+endif

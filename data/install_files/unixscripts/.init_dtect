@@ -1,0 +1,77 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# (C) dGB Beheer B.V.
+# OpenTect environment initialisation script
+# $Id: .init_dtect,v 1.7 2012/07/27 09:10:29 relman Exp $
+#_______________________________________________________________________________
+
+#-----------------------------------------------------
+# Filled by 'install'
+
+if ( ! $?DTECT_APPL ) then
+    setenv DTECT_APPL "__INST_DIR__"
+endif
+
+if ( ! $?DTECT_DATA ) then
+    if ( $?dGB_DATA ) then
+	setenv DTECT_DATA "$dGB_DATA"
+    else
+	setenv DTECT_DATA "__DATA_DIR__"
+    endif
+endif
+
+if ( "$DTECT_DATA" == "__none__" ) then
+    unsetenv DTECT_DATA
+endif
+
+#-----------------------------------------------------
+# General initialisation
+
+eval `"$DTECT_APPL/bin/mksethdir"`
+
+setenv LANG C
+
+#-----------------------------------------------------
+# PATH variables
+
+set bindir="${DTECT_APPL}/bin/${binsubdir}/Release"
+set binpath="${bindir}:${DTECT_APPL}/bin"
+
+setenv PATH "${binpath}:${PATH}"
+
+if ( $HDIR == mac ) then
+
+    if ( $?DYLD_LIBRARY_PATH ) then
+	setenv DYLD_LIBRARY_PATH "${bindir}:${DYLD_LIBRARY_PATH}"
+    else
+	setenv DYLD_LIBRARY_PATH "${bindir}:/lib:/usr/lib"
+    endif
+
+else
+
+    if ( $?LD_LIBRARY_PATH ) then
+	setenv LD_LIBRARY_PATH "${bindir}:${LD_LIBRARY_PATH}"
+    else if ( -d /usr/lib64 ) then
+	setenv LD_LIBRARY_PATH "${bindir}:/lib:/usr/lib64:/usr/lib"
+    else
+	setenv LD_LIBRARY_PATH "${bindir}:/lib:/usr/lib"
+    endif
+
+    # kludge for Fedora 8
+    setenv LIBXCB_ALLOW_SLOPPY_LOCK 1
+
+endif
+
+
+#-----------------------------------------------------
+# Extra initialisations
+
+set nonomatch=yes
+
+cd "$DTECT_APPL"
+
+foreach fil ( odinit.* )
+    if ( -r "$fil" ) source "$fil"
+end
+
