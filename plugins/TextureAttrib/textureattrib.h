@@ -16,15 +16,19 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "arraynd.h"
 
-/*!\Texture Attribute
+/*!
+\brief %Texture Attribute
+Texture Attribute definitions from
+http://www.fp.ucalgary.ca/mhallbey/equations.htm
 
+<pre>
 Input:
 0               Data
 
 Outputs:
 0               Texture attributes
+</pre>
 */
-    
 
 namespace Attrib
 {
@@ -34,8 +38,8 @@ class Texture : public Provider
 public:
     static void		initClass();
 			Texture(Desc&);
+
     static const char*	attribName()		{ return "Texture"; }
-    static const char*	actionStr()		{ return "action"; }
     static const char*  steeringStr()   	{ return "steering"; }
     static const char*  stepoutStr()      	{ return "stepout"; }
     static const char*  gateStr()		{ return "gate"; }
@@ -65,14 +69,11 @@ protected:
     int			scaleVal(float) const;
     void		setFactorShift(float,float);
 
-    int			action_;
     int			glcmsize_;
-
     float		scalingfactor_;
     float		scalingshift_;
     float		globalmin_;
     float		globalmax_;
-    bool		matrix_;
 
     Interval<int>	sampgate_;
     Interval<float>	gate_;
@@ -83,6 +84,7 @@ protected:
     {
 	TypeSet<int>	steeridx_;
 	TypeSet<BinID>	pos_;
+	TypeSet<int>	posidx_;
     };
 
     PosAndSteeridx	posandsteeridx_;
@@ -90,11 +92,14 @@ protected:
     ObjectSet<const DataHolder> inpdata_;
     int			dataidx_;
     const DataHolder*   steeringdata_;
-    int			computeGlcmMatrix(const BinID& relpos,
-			    int idx, int z0, int nrsamples, int threadid, 
-			    Array2D<int>&) const;
+    int			computeGLCM(int idx,int z0,int nrsamples,
+				    Array2D<int>&) const;
+    void		fillGLCM(int sampleidx,int z0,int nrsamples,
+				 int posidx1,int posidx2,int& glcmcount,
+				 Array2D<int>& glcm) const;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 #endif
+

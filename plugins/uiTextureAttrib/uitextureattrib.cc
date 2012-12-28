@@ -69,10 +69,12 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
 
     gatefld_ = new uiGenInput( this, gateLabel(),
 		FloatInpIntervalSpec().setName("Z start",0)
-		    .setName("Z stop",1) );
+				      .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
+
     steerfld_ = new uiSteeringSel( this, 0, is2d, false );
     steerfld_->attach( alignedBelow, gatefld_ );
+
     stepoutfld_ = new uiStepOutSel( this, is2d );
     stepoutfld_->setFieldNames( "Stepout Inl", "Stepout Crl" );
     stepoutfld_->attach( alignedBelow, steerfld_ );
@@ -80,14 +82,15 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
     actionfld_ = new uiGenInput( this, "Output", 
 		    StringListInpSpec(actionstr) );
     actionfld_->attach( alignedBelow, stepoutfld_ );
+
     glcmsizefld_ = new uiGenInput( this, "GLCM size",
 		    BoolInpSpec(true,"16x16","32x32") );
     glcmsizefld_->attach( alignedBelow, actionfld_ );
+
     globalminfld_ = new uiGenInput( this, "Input Data Range", FloatInpSpec() );
     globalminfld_->setElemSzPol(uiObject::Small);
     globalminfld_->attach( alignedBelow, glcmsizefld_ );
-    globalmaxfld_ = new uiGenInput( this, "",
-		    FloatInpSpec() );
+    globalmaxfld_ = new uiGenInput( this, "", FloatInpSpec() );
     globalmaxfld_->setElemSzPol(uiObject::Small);
     globalmaxfld_->attach( rightOf, globalminfld_ );
 
@@ -110,12 +113,10 @@ bool uiTextureAttrib::setParameters( const Desc& desc )
 		globalminfld_->setValue(globalmin) );
     mIfGetFloat( Texture::globalmaxStr(), globalmax,
 		globalmaxfld_->setValue(globalmax) );
-    mIfGetEnum( Texture::actionStr(), action,
-		actionfld_->setValue(action) );
     mIfGetBinID( Texture::stepoutStr(), stepout,
 		stepoutfld_->setBinID(stepout) );
-    mIfGetBool( Texture::glcmsizeStr(), glcmsize,
-		glcmsizefld_->setValue(glcmsize) );
+    mIfGetInt( Texture::glcmsizeStr(), glcmsize,
+	       glcmsizefld_->setValue(glcmsize==16) );
 
     return true;
 }
@@ -124,6 +125,13 @@ bool uiTextureAttrib::setInput( const Desc& desc )
 {
     putInp( inpfld_, desc, 0 );
     putInp( steerfld_, desc, 1 );
+    return true;
+}
+
+
+bool uiTextureAttrib::setOutput( const Desc& desc )
+{
+    actionfld_->setValue( desc.selectedOutput() );
     return true;
 }
 
@@ -149,16 +157,15 @@ bool uiTextureAttrib::getParameters( Desc& desc )
     mSetFloat( Texture::globalminStr(), globalmin );
     mSetFloat( Texture::globalmaxStr(), globalmax );
   
-    bool dosteer = false;
-    mSetEnum( Texture::actionStr(), actionfld_->getIntValue() );
     BinID stepout( stepoutfld_->getBinID() );
     mSetBinID( Texture::stepoutStr(), stepout );
-    dosteer = steerfld_->willSteer();
+    const bool dosteer = steerfld_->willSteer();
     mSetBool( Texture::steeringStr(), dosteer );
-    mSetBool( Texture::glcmsizeStr(), glcmsizefld_->getBoolValue() );
+    mSetInt( Texture::glcmsizeStr(), glcmsizefld_->getBoolValue() ? 16 : 32 );
 
     return true;
 }
+
 
 bool uiTextureAttrib::getInput( Desc& desc )
 {
@@ -167,10 +174,21 @@ bool uiTextureAttrib::getInput( Desc& desc )
     return true;
 }
 
+
+bool uiTextureAttrib::getOutput( Desc& desc )
+{
+    fillOutput( desc, actionfld_->getIntValue() );
+    return true;
+}
+
+
 void uiTextureAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr(), Texture::gateStr() );
     params += EvalParam( stepoutstr(), Texture::stepoutStr() );
+
+    EvalParam ep( "Output" ); ep.evaloutput_ = true;
+    params += ep;
 }
 
 
