@@ -243,6 +243,7 @@ protected:
 public:
     void			setSynthList(const BufferStringSet&);
     void			setWaveletName(const char*);
+    void			setCurSynthetic(const char*);
 };
 
 

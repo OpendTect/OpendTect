@@ -834,7 +834,6 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
     if ( sd )
     {
 	updateSyntheticList();
-	datalist_->box()->setCurrentItem( datalist_->box()->size()-1 );
 	synthgendlg_->putToScreen();
 	setSynthNames();
     }
@@ -854,9 +853,13 @@ void uiStratSynthDisp::setSynthNames()
 	synthnms.add( sd->name() );
     }
 
-    if ( currentsynthetic_ )
-	datalist_->box()->setCurrentItem( currentsynthetic_->name() );
     synthgendlg_->setSynthList( synthnms );
+    
+    if ( currentsynthetic_ )
+    {
+	datalist_->box()->setCurrentItem( currentsynthetic_->name() );
+	synthgendlg_->setCurSynthetic( currentsynthetic_->name() );
+    }
 }
 
 
@@ -1061,7 +1064,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, SynthGenParams& gp)
     namefld_ ->attach( ensureBelow, sep2 );
     namefld_->valuechanged.notify( mCB(this,uiSynthGenDlg,nameChanged) );
 
-    gennewbut_ = new uiPushButton( pargrp, "Add New Synthetic", true );
+    gennewbut_ = new uiPushButton( pargrp, "Add as new", true );
     gennewbut_->activated.notify( mCB(this,uiSynthGenDlg,genNewCB) );
     gennewbut_->attach( rightOf, namefld_ );
 
@@ -1074,6 +1077,15 @@ void uiSynthGenDlg::setSynthList( const BufferStringSet& syntlist )
 {
     synthlistllb.getParam(this)->box()->setEmpty();
     synthlistllb.getParam(this)->box()->addItems( syntlist );;
+}
+
+
+void uiSynthGenDlg::setCurSynthetic( const char* synthnm )
+{
+    if ( !synthnm ) return;
+    synthlistllb.getParam(this)->box()->setCurrentItem( synthnm );
+    const int curitm = synthlistllb.getParam(this)->box()->currentItem();
+    synthlistllb.getParam(this)->box()->setSelected( curitm, true ); 
 }
 
 
@@ -1146,11 +1158,12 @@ void uiSynthGenDlg::putToScreen()
     TypeSet<float> offsets;
     sd_.raypars_.get( RayTracer1D::sKeyOffset(), offsets );
     stackbox_->display( !isps );
-    stackbox_->setChecked( !isps && offsets.size()==1 );
+    stackbox_->setChecked( !isps && offsets.size()>1 );
+    const bool needranges = isps || stackbox_->isChecked();
     nmobox_->display( isps );
 
-    const bool needranges = isps || offsets.size()>1;
     rtsel_->current()->displayOffsetFlds( needranges );
+    rtsel_->current()->setOffsetRange( uiRayTracer1D::Setup().offsetrg_ );
     rtsel_->usePar( sd_.raypars_ );
 }
 
