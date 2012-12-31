@@ -153,7 +153,8 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 
     for ( int idx=0; idx<lm.propertyRefs().size(); idx++ )
     {
-	if ( lm.propertyRefs()[idx] == &attr_.prop_ )
+	if ( lm.propertyRefs()[idx] && 
+		lm.propertyRefs()[idx]->name() == attr_.prop_.name() )
 	    { validx_ = idx; break; }
     }
     if ( validx_ < 0 )
