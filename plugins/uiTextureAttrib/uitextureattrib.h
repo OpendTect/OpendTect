@@ -25,11 +25,10 @@ class SeisTrcBuf;
 class CubeSampling;
 class LineKey;
 
-
 class uiTextureAttrib : public uiAttrDescEd
 {
 public:
-			uiTextureAttrib(uiParent*,bool);
+                        uiTextureAttrib(uiParent*,bool);
     void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
@@ -42,11 +41,11 @@ protected:
     uiGenInput*		glcmsizefld_;
     uiGenInput*		globalminfld_;
     uiGenInput*		globalmaxfld_;
-    uiPushButton*	analysebut_;
 
     void		analyseCB(CallBacker*); 
-    void		readSampAttrib(CubeSampling&,int,LineKey&);
-    void		setMinMaxVal(const SeisTrcBuf&);
+    bool		readInpAttrib(SeisTrcBuf&,const CubeSampling&,int,
+				      const LineKey&) const;
+    void		calcAndSetMinMaxVal(const SeisTrcBuf&);
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
@@ -58,3 +57,4 @@ protected:
 };
 
 #endif
+
