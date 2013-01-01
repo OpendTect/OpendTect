@@ -219,7 +219,7 @@ uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
     }
 }
 
-const int nrTrcs()
+int nrTrcs()
 { return nrtrcfld_->getIntValue(); }
 
 LineKey lineKey() const
