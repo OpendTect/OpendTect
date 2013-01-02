@@ -135,6 +135,7 @@ protected:
     void			fillSyntheticsPars(IOPar&) const;
     bool			useDisplayPars(const IOPar&);
     bool			useSyntheticsPars(const IOPar&);
+    bool			exportLayerModelGDI(BufferString) const;
 
 public:
 
