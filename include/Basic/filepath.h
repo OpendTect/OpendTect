@@ -96,6 +96,13 @@ protected:
     void		addPart(const char*);
     void		compress(int sl=0);
     void		trueDirIfLink();
+
+public:
+
+    FilePath&		setWithLink(const char* fullinp);
+    FilePath&		addWithLink(const char*);	
+    void		addPartWithLink(const char*);
+    void		setPathWithLink(const char*);
 };
 
 
