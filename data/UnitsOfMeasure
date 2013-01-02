@@ -41,7 +41,9 @@ Degrees Fahrenheit: Temperature`deg.F`0.5555555`255.3722222222222222
 Kelvin: Temperature`K`1
 Pascal: Pressure`Pa`1
 KiloPascal: Pressure`kPa`1e3
-GigaPascal: Pressure`GPa`1e6
+MegaPascal: Pressure`MPa`1e6
+GigaPascal: Pressure`GPa`1e9
+Atmosphere: Pressure`atm`101325.01
 Bar: Pressure`bar`1e5
 Psi: Pressure`psi`6894.7573
 Ratio: Anisotropy``1
