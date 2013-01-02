@@ -53,6 +53,7 @@ public:
     bool		isLeaf() const		{ return type()==Leaf; }
     bool		isLeaved() const	{ return type()==Leaved; }
     CompoundKey		fullCode() const;
+    CompoundKey		parentCode() const;
 
     virtual const BufferString&	code() const	= 0;
     virtual void	setCode(const char*)	{}

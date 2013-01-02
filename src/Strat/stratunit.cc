@@ -113,6 +113,17 @@ CompoundKey Strat::UnitRef::fullCode() const
 }
 
 
+CompoundKey Strat::UnitRef::parentCode() const
+{
+    CompoundKey kc;
+
+    for ( int idx=treeDepth()-1; idx>=0; idx-- )
+	kc += upNode( idx )->code();
+
+    return kc;
+}
+
+
 bool Strat::UnitRef::isBelow( const Strat::UnitRef* un ) const
 {
     if ( !un || !upnode_ || un->isLeaf() )
