@@ -113,6 +113,17 @@ CompoundKey Strat::UnitRef::fullCode() const
 }
 
 
+CompoundKey Strat::UnitRef::parentCode() const
+{
+    CompoundKey kc;
+
+    for ( int idx=treeDepth()-1; idx>=0; idx-- )
+	kc += upNode( idx )->code();
+
+    return kc;
+}
+
+
 bool Strat::UnitRef::isBelow( const Strat::UnitRef* un ) const
 {
     if ( !un || !upnode_ || un->isLeaf() )
@@ -291,7 +302,7 @@ bool Strat::NodeUnitRef::insert( UnitRef* un, int posidx )
 Strat::UnitRef* Strat::NodeUnitRef::replace( int unidx, Strat::UnitRef* un )
 {
     if ( !un || hasLeaves() != un->isLeaf() )
-	return false;
+	return 0;
 
     UnitRef* oldun = refs_.replace( unidx, un );
     refTree().reportAdd( un );

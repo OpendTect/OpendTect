@@ -106,6 +106,7 @@ public:
 
     static const char*	sKeyPropsFor()		{ return "Properties for "; }
     static const char*	sKeyTreeProps()		{ return "entire tree"; }
+    CompoundKey		parentCode() const;
 
 };
 
