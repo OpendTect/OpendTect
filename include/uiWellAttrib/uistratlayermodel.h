@@ -130,12 +130,14 @@ protected:
     void			fillDisplayPars(IOPar&) const;
     void			fillWorkBenchPars(IOPar&) const;
     bool			useDisplayPars(const IOPar&);
-    void                        helpCB(CallBacker*);
+    void			helpCB(CallBacker*);
     void			infoChanged(CallBacker*);
+    bool			exportLayerModelGDI(BufferString) const;
 public:
     bool			useSyntheticsPars(const IOPar&);
     void			fillSyntheticsPars(IOPar&) const;
-	void			displayFRResult(bool usefr,bool parschanged,bool fwd);
+    void			displayFRResult(bool usefr,bool parschanged,
+	    					bool fwd);
 };
 
 
