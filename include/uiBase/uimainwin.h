@@ -173,7 +173,9 @@ public:
 			     quality = 0...100: small compressed to large
 			     uncompressed file, quality=-1: use default    */
 
-    void		activateInGUIThread(const CallBack&,bool busywait=true);
+    void		activateInGUIThread(const CallBack&,
+	    				    bool busywait=true);
+    void		saveImage(const char* fnm,int w,int h,int res);
     Notifier<uiMainWin> activatedone;
     Notifier<uiMainWin> ctrlCPressed;
 

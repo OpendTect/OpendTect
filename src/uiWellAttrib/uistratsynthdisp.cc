@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseiswvltsel.h"
 #include "uisynthtorealscale.h"
 #include "uicombobox.h"
+#include "uigraphicsview.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uimultiflatviewcontrol.h"
@@ -137,6 +138,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     cleanSynthetics();
 
     vwr_ = new uiFlatViewer( this );
+    vwr_->rgbCanvas().disableImageSave();
     vwr_->setExtraBorders( uiRect( 0, 0 , 0, 0 ) );
     vwr_->setInitialSize( uiSize(600,250) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );

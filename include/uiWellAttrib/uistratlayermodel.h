@@ -127,6 +127,7 @@ protected:
     bool			saveGenDesc() const;
     bool			saveGenDescIfNecessary() const;
     void			manPropsCB(CallBacker*);
+    void			snapshotCB(CallBacker*);
 
     bool			closeOK();
     

@@ -1223,6 +1223,22 @@ void uiMainWin::copyToClipBoard( CallBacker* )
 }
 
 
+void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
+{
+    QString fname( fnm );
+    
+    const WId desktopwinid = QApplication::desktop()->winId();
+    const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
+    QWidget* qwin = qWidget();//qApp->activeModalWidget();
+    if ( !qwin )
+	qwin = body_;
+
+    QPixmap snapshot = desktopsnapshot.copy(qwin->x(),qwin->y(),width,height);
+    QImage image = snapshot.toImage();
+    image.setDotsPerMeterX( (int)(res/0.0254) );
+    image.setDotsPerMeterY( (int)(res/0.0254) );
+    image.save( fname );
+}
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
 

@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "ioobj.h"
 #include "ioman.h"
+#include "pixmap.h"
 #include "strmprov.h"
 #include "settings.h"
 #include "separstr.h"
@@ -33,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uielasticpropsel.h"
 #include "uiobjdisposer.h"
 #include "uiioobjsel.h"
+#include "uifileinput.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
@@ -45,6 +47,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewwin.h"
 #include "uiflatviewstdcontrol.h"
 #include "uimultiflatviewcontrol.h"
+#include "uisaveimagedlg.h"
+#include "uispinbox.h"
 #include "uistratbasiclayseqgendesc.h"
 #include "uistratsimplelaymoddisp.h"
 #include "uistratsynthdisp.h"
@@ -313,6 +317,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     analtb_ = new uiToolBar( this, "Analysis toolbar", uiToolBar::Right );
     uiToolButtonSetup tbsu( "xplot", "Attributes vs model properties",
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
+    synthdisp_->control()->getToolBar(0)->addButton(
+	    "snapshot", "Get snapshot", mCB(this,uiStratLayerModel,snapshotCB));
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
     if ( vwr ) synthdisp_->addViewerToControl( *vwr );
@@ -377,6 +383,72 @@ uiStratLayerModel::~uiStratLayerModel()
     delete &synthp_;
     delete descctio_.ioobj; delete &descctio_;
     StratTreeWin().changeLayerModelNumber( false );
+}
+
+
+class uiStratLayModelSnapshotDlg : public uiSaveImageDlg
+{
+public:
+uiStratLayModelSnapshotDlg( uiParent* p )
+    : uiSaveImageDlg(p)
+{
+    screendpi_ = 90;
+    createGeomInpFlds( cliboardselfld_ );
+    dpifld_->box()->setValue( screendpi_ );
+    setFldVals( 0 );
+}
+
+protected:
+
+void setFldVals( CallBacker* )
+{
+    mDynamicCastGet(uiMainWin*,mw,parent());
+    if ( mw )
+    {
+	const int w = mw->geometry().width();
+	const int h = mw->geometry().height();
+	setSizeInPix( w, h );
+    }
+}
+
+
+void getSupportedFormats( const char** imagefrmt, const char** frmtdesc,
+			  BufferString& filters )
+{
+    BufferStringSet supportedformats;
+    supportedImageFormats( supportedformats );
+    int idy = 0;
+    while ( imagefrmt[idy] )
+    {
+	const int idx = supportedformats.indexOf( imagefrmt[idy] );
+	if ( idx>=0 )
+	{
+	    if ( !filters.isEmpty() ) filters += ";;";
+	    filters += frmtdesc[idy];
+	}
+	idy++;
+    }
+
+    filters_ = filters;
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    mDynamicCastGet(uiMainWin*,mw,parent());
+    if ( !mw ) return false;
+    mw->saveImage( fileinputfld_->fileName(), (int)sizepix_.width(),
+	    	   (int)sizepix_.height(),dpifld_->box()->getValue());
+    return true;
+}
+
+};
+
+
+void uiStratLayerModel::snapshotCB( CallBacker* )
+{
+    uiStratLayModelSnapshotDlg snapshotdlg( this );
+    snapshotdlg.go();
 }
 
 
