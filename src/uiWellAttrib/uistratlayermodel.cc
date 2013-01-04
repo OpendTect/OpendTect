@@ -559,6 +559,8 @@ bool uiStratLayerModel::selElasticProps( ElasticPropSelection& elsel )
 	    desc_.setElasticPropSel( dlg.storedKey() );
 	    seqdisp_->setNeedSave( true );
 	}
+
+	elsel.fillPar( desc_.getWorkBenchParams() );
 	return true;
     }
     return false;
@@ -625,6 +627,7 @@ bool uiStratLayerModel::openGenDesc()
     if ( !sd.usable() )
 	{ uiMSG().error( "Cannot open input file" ); return false; }
 
+    delete elpropsel_; elpropsel_ = 0;
     desc_.erase();
     MouseCursorChanger mcch( MouseCursor::Wait );
     bool rv = desc_.getFrom( *sd.istrm );
@@ -649,6 +652,7 @@ bool uiStratLayerModel::openGenDesc()
 	    		    const_cast<uiStratLayerModel*>(this) );
     const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
 
+    moddisp_->setZoomBox( uiWorldRect(mUdf(double),0,0,0) );
     BufferString edtyp;
     descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
     BufferString profilestr( "Profile" );
@@ -717,6 +721,7 @@ void uiStratLayerModel::genModels( CallBacker* )
 
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
+    useSyntheticsPars( desc_.getWorkBenchParams() );
     levelChg( 0 );
     newModels.trigger();
 
@@ -740,21 +745,29 @@ void uiStratLayerModel::setModelProps()
     for ( int idx=0; idx<conts.size(); idx++ )
 	nms.add( conts[idx]->name() );
     modtools_->setContentNames( nms );
-
-    delete elpropsel_; elpropsel_ = 0;
-    setElasticProps();
 }
 
 
 void uiStratLayerModel::setElasticProps()
 {
     if ( !elpropsel_ )
-	elpropsel_ = ElasticPropSelection::get( desc_.elasticPropSel() );
+    {
+	elpropsel_ = new ElasticPropSelection;
+	if ( !elpropsel_->usePar(desc_.getWorkBenchParams()) )
+	{
+	    delete elpropsel_;
+	    elpropsel_ = 0;
+	}
+    }
 
     if ( !elpropsel_ )
     {
-	elpropsel_ = new ElasticPropSelection;
-	ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
+	elpropsel_ = ElasticPropSelection::get( desc_.elasticPropSel() );
+	if ( !elpropsel_ )
+	{
+	    elpropsel_ = new ElasticPropSelection;
+	    ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
+	}
     }
 
     BufferString errmsg;
@@ -870,6 +883,8 @@ void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
     CBCapsule<IOPar*> caps( &par, const_cast<uiStratLayerModel*>(this) );
     const_cast<uiStratLayerModel*>(this)->saveRequired.trigger( &caps );
     gentools_->fillPar( par );
+    if ( elpropsel_ )
+	elpropsel_->fillPar( par );
     fillDisplayPars( par );
     fillSyntheticsPars( par );
 }

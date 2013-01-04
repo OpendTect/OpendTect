@@ -43,7 +43,7 @@ public:
     bool			isValidInput(BufferString* errmsg=0) const;
 
     void			fillPar(IOPar&) const;
-    void			usePar(const IOPar&);
+    bool			usePar(const IOPar&);
 
 protected:
     ElasticPropertyRef&		gt(ElasticFormula::Type) const;

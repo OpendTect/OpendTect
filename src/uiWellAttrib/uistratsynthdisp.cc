@@ -47,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const int cMarkerSize = 6;
 
+static const char* sKeySnapLevel()	{ return "Snap Level"; }
 static const char* sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
 static const char* sKeySyntheticNr()	{ return "Synthetics Nr"; }
 static const char* sKeySynthetics()	{ return "Synthetics"; }
@@ -289,6 +290,7 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
     {
 	doModelChange();
 	vwr_->setView( vwr_->boundingBox() );
+	control_->zoomMgr().toStart();
     }
 }
 
@@ -449,6 +451,16 @@ void uiStratSynthDisp::zoomChg( CallBacker* )
 }
 
 
+float uiStratSynthDisp::centralTrcShift() const
+{
+    if ( !dispflattened_ ) return 0.0;
+    const int centrcidx = mNINT32( vwr_->curView().centre().x );
+    const SeisTrc* centtrc = postStackTraces().get( centrcidx );
+    if ( !centtrc ) return 0.0f;
+    return centtrc->info().pick;
+}
+
+
 const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 {
     static uiWorldRect wr; wr = vwr_->curView();
@@ -459,8 +471,11 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 	    mdlidx = d2tmodels_->size()-1;
 
 	const TimeDepthModel& d2t = *(*d2tmodels_)[mdlidx];
-	wr.setTop( d2t.getDepth( (float)wr.top() ) );
-	wr.setBottom( d2t.getDepth( (float)wr.bottom() ) );
+	const float flattenedshift = centralTrcShift();
+	wr.setTop( d2t.getDepth((float)wr.top()+flattenedshift)-
+		   d2t.getDepth(flattenedshift) );
+	wr.setBottom( d2t.getDepth((float)wr.bottom()+flattenedshift) -
+		      d2t.getDepth(flattenedshift) );
     }
     return wr;
 }
@@ -537,6 +552,11 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
 	    { maxaimodelsz = (*d2tmodels_)[idx]->size(); longestaimdl_ = idx; }
     }
 
+    ColTab::MapperSetup& mapper = vwr_->appearance().ddpars_.vd_.mappersetup_;
+    mapper.cliprate_ = Interval<float>(0.0,0.0);
+    mapper.autosym0_ = true;
+    mapper.symmidval_ = 0.0;
+
     vwr_->setPack( true, dp->id(), false, !hadpack );
     vwr_->setPack( false, dp->id(), false, !hadpack );
 }
@@ -558,7 +578,9 @@ void uiStratSynthDisp::displayPreStackDirSynthetic( const SyntheticData* sd )
 
     PreStack::Gather* gdp = new PreStack::Gather(*gsetdp->getGathers()[midx-1]);
     DPM(DataPackMgr::FlatID()).add( gdp );
+    gdp->setName( sd->name() );
 
+    vwr.clearAllPacks();
     vwr.removeAllAuxData( true );
 
     vwr.setPack( false, gdp->id(), false ); 
@@ -585,6 +607,7 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* )
 	uiFlatViewStdControl* ctrl = new uiFlatViewStdControl( 
 					prestackwin_->viewer(), fvsu );
 	uiToolBar* tb = ctrl->toolBar();
+	prestackwin_->addControl( ctrl );
 	modelposfld_ = new uiSynthSlicePos( tb, "Model" );
 	tb->addObject( modelposfld_->mainObject() );
 	modelposfld_->positionChg.notify( 
@@ -600,7 +623,7 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* )
 	app.annot_.x1_.showAll( true );
 	app.annot_.x2_.showAll( true );
 	app.annot_.x2_.name_ = "TWT (s)";
-	app.ddpars_.show( false, true );
+	app.ddpars_.show( true, true );
 	prestackwin_->start();
     }
     displayPreStackDirSynthetic( currentsynthetic_ );
@@ -668,8 +691,8 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 	currentsynthetic_->fillGenParams( stratsynth_.genParams() );
     }
 
-    if ( synthgendlg_)
-	synthgendlg_->putToScreen();
+    /* TODO remove if ( synthgendlg_)
+	synthgendlg_->putToScreen();*/
 }
 
 
@@ -756,11 +779,12 @@ const ObjectSet<const TimeDepthModel>* uiStratSynthDisp::d2TModels() const
 { return d2tmodels_; }
 
 
-void uiStratSynthDisp::syntheticDataParChged( CallBacker* )
+void uiStratSynthDisp::syntheticDataParChged( CallBacker* cb )
 {
     if ( !currentsynthetic_ ) return;
     
-    stratsynth_.replaceSynthetic( currentsynthetic_->id_ );
+    if ( !cb || (synthgendlg_ && synthgendlg_->isCurSynthChanged()) )
+	stratsynth_.replaceSynthetic( currentsynthetic_->id_ );
     doModelChange();
 }
 
@@ -828,6 +852,7 @@ SyntheticData* uiStratSynthDisp::getCurrentSyntheticData() const
 void uiStratSynthDisp::fillPar( IOPar& par ) const
 {
     IOPar stratsynthpar;
+    stratsynthpar.set( sKeySnapLevel(), levelsnapselfld_->box()->currentItem());
     int nr_nonproprefsynths = 0;
     for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx++ )
     {
@@ -854,6 +879,8 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     PtrMan<IOPar> stratsynthpar = par.subselect( sKeySynthetics() );
     if ( !stratsynthpar ) return false;
 
+    int snaplvl = 0;
+    stratsynthpar->get( sKeySnapLevel(), snaplvl );
 
     int nrsynths;
     stratsynthpar->get( sKeyNrSynthetics(), nrsynths );
@@ -873,6 +900,11 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
 	datalist_->box()->addItem( sd->name() );
     }
+
+    setCurrentSynthetic();
+    displaySynthetic( currentsynthetic_ );
+    levelsnapselfld_->box()->setCurrentItem( snaplvl );
+    levelSnapChanged(0 );
 
     return true;
 }
@@ -1018,9 +1050,10 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     gennewbut_->activated.notify( mCB(this,uiSynthGenDlg,genNewCB) );
     gennewbut_->attach( alignedBelow, namefld_ );
 
-    putToScreen();
-    typeChg(0);
     updateSynthNames();
+    synthnmlb_->setSelected( 0, true );
+    typeChg(0);
+    putToScreen();
 }
 
 
@@ -1036,8 +1069,6 @@ void uiSynthGenDlg::updateSynthNames()
 	if ( prsd ) continue;
 	synthnmlb_->addItem( sd->name() );
     }
-
-    synthnmlb_->setSelected( synthnmlb_->size()-1 );
 }
 
 
@@ -1111,16 +1142,17 @@ void uiSynthGenDlg::putToScreen()
     stratsynth_.genParams().raypars_.get( RayTracer1D::sKeyOffset(), offsets );
         
     NotifyStopper stop( stackfld_->activated );
-    stackfld_->setChecked( !isps && offsets.size()==1 );
+    stackfld_->setChecked( !isps && offsets.size()>1 );
     
     bool donmo = true;
-    stratsynth_.genParams().raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), donmo );
+    stratsynth_.genParams().raypars_.getYN(Seis::SynthGenBase::sKeyNMO(),donmo);
     nmofld_->setValue( donmo );
     
     float mutelen = Seis::SynthGenBase::cStdMuteLength();
     stratsynth_.genParams().raypars_.get(
 				Seis::SynthGenBase::sKeyMuteLength(), mutelen );
-    mutelenfld_->setValue( mIsUdf(mutelen) ? mutelen : mutelen * ZDomain::Time().userFactor() );
+    mutelenfld_->setValue(
+	    mIsUdf(mutelen) ? mutelen : mutelen * ZDomain::Time().userFactor());
     
     float stretchlimit = Seis::SynthGenBase::cStdStretchLimit();
     stratsynth_.genParams().raypars_.get(
@@ -1185,7 +1217,19 @@ bool uiSynthGenDlg::acceptOK( CallBacker* )
     BufferString synthname( synthnmlb_->getText() );
     synthChanged.trigger( synthname );
     
-    return false;
+    return true;
+}
+
+
+bool uiSynthGenDlg::isCurSynthChanged() const
+{
+    const int selidx = synthnmlb_->nextSelected(-1);
+    BufferString selstr = synthnmlb_->textOfItem( selidx );
+    SyntheticData* sd = stratsynth_.getSynthetic( selstr );
+    if ( !sd ) return true;
+    SynthGenParams genparams;
+    sd->fillGenParams( genparams );
+    return !(genparams == stratsynth_.genParams());
 }
 
 
@@ -1196,16 +1240,10 @@ bool uiSynthGenDlg::rejectOK( CallBacker* )
 	mErrRet("Please specify a valid name",return false);
 
     getFromScreen();
-    SyntheticData* sd = stratsynth_.getSynthetic( synthnmlb_->getText() );
-    if ( !sd ) return true;
-    SynthGenParams genparams;
-    sd->fillGenParams( genparams );
-    if ( genparams == stratsynth_.genParams() )
+    if ( !isCurSynthChanged() )
 	return true;
-    BufferString msg( "'" );
-    msg += sd->name();
-    msg += "' has been changed. Do you want to Apply the changes?";
-
+    BufferString msg( "Selected synthetic has been changed. "
+	    	      "Do you want to Apply the changes?" );
     if ( uiMSG().askGoOn(msg,"Apply","Do not Apply") )
 	acceptOK( 0 );
 

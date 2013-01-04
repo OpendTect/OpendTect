@@ -71,6 +71,7 @@ void uiStratLayerModelDisp::setFlattened( bool yn )
     if ( flattened_ != yn )
     {
 	flattened_ = yn;
+	setZoomBox(uiWorldRect(mUdf(double),0,0,0));
 	modelChanged();
     }
 }
@@ -388,7 +389,6 @@ void uiStratSimpleLayerModelDisp::updZoomBox()
 
 void uiStratSimpleLayerModelDisp::modelChanged()
 {
-    zoomwr_ = uiWorldRect(mUdf(double),0,0,0);
     forceRedispAll();
 }
 
@@ -503,6 +503,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	yax_->setBounds( Interval<float>((float)zoomwr_.top(),
 						(float)zoomwr_.bottom()) );
     }
+
     yax_->plotAxis(); xax_->plotAxis();
     const float vwdth = vrg_.width();
     float zfac = 1; mGetDispZ( zfac );

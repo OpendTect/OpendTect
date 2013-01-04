@@ -88,6 +88,7 @@ public:
     void		modelChanged();
     bool		haveUserScaleWavelet();
     void		displaySynthetic(const SyntheticData*);
+    float		centralTrcShift() const;
 
     uiMultiFlatViewControl* control() 	{ return control_; }
 
@@ -209,6 +210,7 @@ public:
     void			putToScreen();
     void			updateSynthNames();
     void			updateWaveletName();
+    bool			isCurSynthChanged() const;
 
     Notifier<uiSynthGenDlg>	genNewReq;
     CNotifier<uiSynthGenDlg,BufferString> synthRemoved;
