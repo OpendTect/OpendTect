@@ -33,19 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 static const char* sPluginDir = "plugins";
-#ifndef __cmake__
-
-#ifndef __win__
-    static const char* sPluginBinDir = sPluginDir;
-#else
-    static const char* sPluginBinDir = "bin";
-#endif
-
-#else
-
-    static const char* sPluginBinDir = "bin";
-
-#endif
+static const char* sPluginBinDir = "bin";
 
 static const char* sKeyNoDispName = "??";
 
@@ -213,33 +201,25 @@ static const char* getFnName( const char* libnm, const char* fnbeg,
 
 void PluginManager::getDefDirs()
 {
-    bool fromenv = false;
     BufferString dnm = GetEnvVar( "OD_APPL_PLUGIN_DIR" );
     if ( dnm.isEmpty() )
 	dnm = GetSoftwareDir(0);
-    else
-	fromenv = true;
 
     FilePath fp( dnm );
     appdir_ = fp.fullPath();
-    if ( !fromenv )
-	fp.add( sPluginBinDir );
+    fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
     fp.add( GetBinSubDir() );
 
     applibdir_ = fp.fullPath();
 
-    fromenv = false;
     dnm = GetEnvVar( "OD_USER_PLUGIN_DIR" );
     if ( dnm.isEmpty() )
 	dnm = GetSettingsDir();
-    else
-	fromenv = true;
 
     fp.set( dnm );
     userdir_ = fp.fullPath();
-    if ( !fromenv )
-	fp.add( sPluginBinDir );
+    fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
     fp.add( GetBinSubDir() );
     userlibdir_ = fp.fullPath();
@@ -288,11 +268,6 @@ const char* PluginManager::getFileName( const PluginManager::Data& data ) const
     else
 	ret = FilePath(
 		data.autosource_ == Data::AppDir ?  applibdir_ : userlibdir_,
-#ifndef __cmake__
-#ifndef __win__
-		"libs",
-#endif
-#endif
 		data.name_ ).fullPath();
     return ret.buf();
 }
