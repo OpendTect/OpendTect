@@ -255,6 +255,10 @@ Provider::~Provider()
 }
 
 
+bool Provider::is2D() const
+{ return getDesc().descSet() ? getDesc().descSet()->is2D() : getDesc().is2D(); }
+
+
 bool Provider::isOK() const
 {
     return errmsg_.isEmpty(); /* Huh? &parser && parser.isOK(); */
@@ -408,12 +412,11 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
     CubeSampling tmpres = res;
     if ( inputs_.size()==0 )
     {
-	const bool is2d = getDesc().descSet()->is2D();
-	if ( !is2d ) res.init(true);
+	if ( !is2D() ) res.init(true);
 	if ( !possiblevolume_ )
 	    possiblevolume_ = new CubeSampling;
 
-	if ( is2d ) *possiblevolume_ = res;
+	if ( is2D() ) *possiblevolume_ = res;
 	return true;
     }
 
@@ -527,7 +530,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
     
     bool docheck = pos == BinID(-1,-1);
     
-    if ( getDesc().descSet()->is2D() )
+    if ( is2D() )
 	prevtrcnr_ = currentbid_.crl;
 
     bool needmove = false;
@@ -592,8 +595,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	{
 	    if ( currentbid_.inl == -1 && currentbid_.crl == -1 )
 	    {
-		const bool is2d = getDesc().descSet()->is2D();
-		currentbid_.inl = is2d ? 0 : desiredvolume_->hrg.start.inl;
+		currentbid_.inl = is2D() ? 0 : desiredvolume_->hrg.start.inl;
 		currentbid_.crl = desiredvolume_->hrg.start.crl;
 	    }
 	    else
@@ -675,7 +677,7 @@ void Provider::computeNewStartPos( BinID& newstart )
 	}
 	else
 	{
-	    if ( desc_.descSet()->is2D() )
+	    if ( is2D() )
 		newstart = newstart.crl<inputbid.crl ? inputbid : newstart; 
 	    else
 	    {
@@ -697,15 +699,16 @@ int Provider::alignInputs( ObjectSet<Provider>& movinginputs )
 
     bool inp1_is_on_newline = false;
     bool inp2_is_on_newline = false;
-    const bool is2d = getDesc().descSet()->is2D();
     for ( int inp1=0; inp1<movinginputs.size()-1; inp1++ )
     {
-	if ( is2d ) inp1_is_on_newline = movinginputs[inp1]->isNew2DLine();
+	if ( is2D() )
+	    inp1_is_on_newline = movinginputs[inp1]->isNew2DLine();
 
 	for ( int inp2=inp1+1; inp2<movinginputs.size(); inp2++ )
 	{
 	    bool inp1moved = false;
-	    if ( is2d ) inp2_is_on_newline = movinginputs[inp2]->isNew2DLine();
+	    if ( is2D() )
+		inp2_is_on_newline = movinginputs[inp2]->isNew2DLine();
 
 	    int res = comparePosAndAlign(movinginputs[inp1], inp1_is_on_newline,
 		      	    		 movinginputs[inp2], inp2_is_on_newline,
@@ -746,7 +749,7 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 	    const BinID inp2pos = input2->getCurrentPosition();
 	    if ( inp1pos == inp2pos )
 		compres = 0;
-	    else if ( !desc_.is2D() )
+	    else if ( !is2D() )
 	    {
 		if ( inp1pos.inl != inp2pos.inl )
 		    compres = inp1pos.inl > inp2pos.inl ? 1 : -1;
@@ -1450,20 +1453,21 @@ float Provider::getRefStep() const
 
 
 bool Provider::zIsTime() const 
+{ return SI().zIsTime(); }
+
+float Provider::inlDist() const
+{ return SI().inlDistance(); }
+
+float Provider::crlDist() const
+{ return SI().crlDistance(); }
+
+float Provider::lineDist() const
+{ return SI().inlDistance(); }
+
+float Provider::trcDist() const
 {
-    return SI().zIsTime();
-}
-
-
-float Provider::inldist() const
-{
-    return SI().inlDistance();
-}
-
-
-float Provider::crldist() const
-{
-    return SI().crlDistance();
+    return is2D() && useInterTrcDist() ?
+	getDistBetwTrcs( false, curlinekey_.lineName() ) : SI().crlDistance();
 }
 
 
@@ -1749,11 +1753,11 @@ bool Provider::useInterTrcDist() const
 
 float Provider::getApplicableCrlDist( bool dependoninput ) const
 {
-    if ( getDesc().is2D() && ( !dependoninput || useInterTrcDist() ) )
+    if ( is2D() && ( !dependoninput || useInterTrcDist() ) )
 	return getDistBetwTrcs( false, curlinekey_.lineName() );
 
-    return crldist();
+    return crlDist();
 }
 
 
-}; // namespace Attrib
+} // namespace Attrib

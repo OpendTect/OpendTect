@@ -110,7 +110,7 @@ Position::Position( Desc& desc )
     outdata_ = new Array2DImpl<const DataHolder*>( stepout_.inl*2+1,
 						   stepout_.crl*2+1 );
 
-    const float maxso = mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() );
+    const float maxso = mMAX( stepout_.inl*inlDist(), stepout_.crl*crlDist() );
     const float maxsecdip = maxSecureDip();
     desgate_ = Interval<float>( gate_.start-maxso*maxsecdip, 
 	    			gate_.stop+maxso*maxsecdip );

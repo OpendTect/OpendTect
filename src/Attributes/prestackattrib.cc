@@ -207,7 +207,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	for ( int idx=0; idx<gatherset_.size(); idx++ )  
 	{                                       
 	    //TODO full support for 2d : idx is not really my nymber of traces
-	    if ( desc_.is2D() )
+	    if ( is2D() )
 	    {
 		if ( idx == bid.crl )
 		   curgather = const_cast<PreStack::Gather*> (gatherset_[idx]);
@@ -268,7 +268,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 	    mErrRet("Cannot find pre-stack data store ",psid_,
 		    " in object manager")
 
-	if ( desc_.is2D() )
+	if ( is2D() )
 	    psrdr_ = SPSIOPF().get2DReader( *psioobj_,
 		    			    curlinekey_.lineName().buf() );
 	else

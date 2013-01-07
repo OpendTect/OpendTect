@@ -258,7 +258,7 @@ VolStats::VolStats( Desc& ds )
 
     if ( dosteer_ )
     {
-	float maxso = mMAX(stepout_.inl*inldist(), stepout_.crl*crldist());
+	float maxso = mMAX(stepout_.inl*inlDist(), stepout_.crl*crlDist());
 	const float maxsecdip = maxSecureDip();
 	desgate_.start = gate_.start - maxso*maxsecdip;
 	desgate_.stop = gate_.stop + maxso*maxsecdip;

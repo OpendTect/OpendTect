@@ -76,7 +76,7 @@ void Shift::init()
 
     if ( dosteer_ )
     {
-	float maxso = mMAX(stepout_.inl*inldist(),stepout_.crl*crldist());
+	float maxso = mMAX(stepout_.inl*inlDist(),stepout_.crl*crlDist());
 	const float maxsecdip = maxSecureDip();
 	desinterval_ = Interval<float>( -maxso*maxsecdip, maxso*maxsecdip );
 	steeridx_ = getSteeringIndex( pos_ );

@@ -130,7 +130,7 @@ Semblance::Semblance( Desc& desc )
     getTrcPos();
 
     const float maxdist = dosteer_ ? 
-	mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) : 0;
+	mMAX( stepout_.inl*inlDist(), stepout_.crl*crlDist() ) : 0;
     
     const float maxsecdip = maxSecureDip();
     desgate_ = Interval<float>( gate_.start-maxdist*maxsecdip, 

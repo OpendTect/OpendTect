@@ -165,10 +165,10 @@ DipFilter::DipFilter( Desc& ds )
     mGetFloat( taperlen_, taperlenStr() );
     taperlen_ = taperlen_/100;
 
-    kernel_.setSize( desc_.is2D() ? 1 : size_, size_, size_ );
+    kernel_.setSize( is2D() ? 1 : size_, size_, size_ );
     valrange_ = Interval<float>(minvel_,maxvel_);
     valrange_.sort();
-    stepout_ = desc_.is2D() ? BinID( 0, hsz ) : BinID( hsz, hsz );
+    stepout_ = is2D() ? BinID( 0, hsz ) : BinID( hsz, hsz );
     zmargin_ = Interval<int>( -hsz, hsz );
 }
 
@@ -187,18 +187,17 @@ bool DipFilter::initKernel()
 	return false;
     }
 
-    const bool is2d = desc_.is2D();
     const int hsz = size_/2;
-    const int hszinl = is2d ? 0 : hsz;
+    const int hszinl = is2D() ? 0 : hsz;
 
     for ( int kii=-hszinl; kii<=hszinl; kii++ )
     {
-	const float ki = kii * inldist();
+	const float ki = kii * inlDist();
 	const float ki2 = ki*ki;
 
 	for ( int kci=-hsz; kci<=hsz; kci++ )
 	{
-	    const float kc = kci * crldist();
+	    const float kc = kci * crlDist();
 	    const float kc2 = kc*kc;
 
 	    const float spatialdist = Math::Sqrt(ki2+kc2);
@@ -352,7 +351,7 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
     if ( outputinterest_.isEmpty() ) return false;
 
     const int hsz = size_/2;
-    const int sizeinl = desc_.is2D() ? 1 : size_;
+    const int sizeinl = is2D() ? 1 : size_;
     for ( int idx=0; idx<nrsamples; idx++)
     {
 	int dhoff = 0;

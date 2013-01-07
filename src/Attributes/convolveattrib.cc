@@ -301,7 +301,7 @@ Convolve::Convolve( Desc& ds )
 	return;
     }
 
-    kernel_ = new Kernel( kerneltype_, shape_ , size_, desc_.is2D() );
+    kernel_ = new Kernel( kerneltype_, shape_ , size_, is2D() );
     stepout_ = kernel_->getStepout();
 }
 

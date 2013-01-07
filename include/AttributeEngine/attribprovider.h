@@ -63,7 +63,7 @@ public:
 				    , maxdist_( maxdist )		{};
 
 	bool			operator ==( LineTrcDistStats ltds ) const
-	    			{ 
+	    			{
 				    return ltds.linename_ == linename_
 					&& ltds.mediandist_ == mediandist_
 					&& ltds.maxdist_ == maxdist_;
@@ -78,10 +78,11 @@ public:
 				/*!< Also creates all inputs, the input's
 				     inputs, and so on */
     virtual bool		isOK() const;
+    bool			is2D() const;
 
     const Desc&			getDesc() const;
     Desc&			getDesc();
-    const DataHolder*		getData(const BinID& relpos=BinID(0,0), 
+    const DataHolder*		getData(const BinID& relpos=BinID(0,0),
 	    				int idx=0);
     const DataHolder*		getDataDontCompute(const BinID& relpos) const;
 
@@ -106,7 +107,7 @@ public:
 				  required by the user*/
     const CubeSampling*		getDesiredVolume() const
 				{ return desiredvolume_; }
-    void			resetDesiredVolume(); 
+    void			resetDesiredVolume();
     void                        setPossibleVolume(const CubeSampling&);
     				/*!< The possible volume is the volume that can
 				  really be computed taking care of all margins
@@ -115,13 +116,13 @@ public:
     const CubeSampling*		getPossibleVolume() const
     				{ return possiblevolume_; }
     int				getTotalNrPos(bool);
-    void			setCurLineName(const char*); 
+    void			setCurLineName(const char*);
     virtual void		adjust2DLineStoredVolume();
     virtual PosInfo::GeomID	getGeomID() const;
     virtual void		compDistBetwTrcsStats(
 	    				TypeSet< LineTrcDistStats >&) const;
     void			compAndSpreadDistBetwTrcsStats();
-    
+
     virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
 	    					bool firstcheck = false);
     				/*!<\retval -1	something went wrong
@@ -130,7 +131,7 @@ public:
 				*/
     void			computeNewStartPos(BinID&);
     int				alignInputs(ObjectSet<Provider>&);
-    int 			comparePosAndAlign(Provider*,bool,Provider*, 
+    int 			comparePosAndAlign(Provider*,bool,Provider*,
 	    					   bool,bool);
     void			resetMoved();
     void                        resetZIntervals();
@@ -152,14 +153,14 @@ public:
     void                        setExtraZ(const Interval<float>&);
     void			setNeedInterpol(bool);
     void			setExactZ(const TypeSet<float>&);
-    
+
     void			computeRefStep();
     				/*!<If an attribute uses as inputs stored cubes
-				with a different z step the smallest one will 
+				with a different z step the smallest one will
 				be taken as reference step*/
     void			setRefStep(float step);
-    float                       getRefStep() const; 
-    
+    float                       getRefStep() const;
+
     virtual BinID		getStepoutStep() const;
     float			getMaxDistBetwTrcs(const char* linenm =0) const;
     float			getDistBetwTrcs(bool,
@@ -172,11 +173,11 @@ public:
     virtual void		prepSteeringForStepout(const BinID&)	{}
 
     virtual bool		prepPriorToOutputSetup();
-    				/*!< returns whether the outputs plan acquired 
+    				/*!< returns whether the outputs plan acquired
 				  from the parameter file has to be overruled */
     virtual void		prepPriorToBoundsCalc();
-    				/*!< Z refstep is known now, 
-				  this is meant to be used before possible- 
+    				/*!< Z refstep is known now,
+				  this is meant to be used before possible-
 				  and desired- volumes are computed*/
     virtual void		prepareForComputeData();
     				/*!< Everything is known now. */
@@ -200,22 +201,22 @@ protected:
 
 				Provider(Desc&);
     virtual bool		checkInpAndParsAtStart();
-    				/*!< Should be used for check _after_ inputs 
-				  are set, for extra checks at other time 
+    				/*!< Should be used for check _after_ inputs
+				  are set, for extra checks at other time
 				  use isOK()*/
 
     virtual SeisMSCProvider*	getMSCProvider(bool&) const;
-    static Provider*		internalCreate(Desc&,ObjectSet<Provider>&, 
+    static Provider*		internalCreate(Desc&,ObjectSet<Provider>&,
 					       bool& issame,BufferString&);
     				/*!< Creates the provider needed and all its
 				  input providers*/
 
     virtual bool		getInputOutput(int input,TypeSet<int>&) const;
     				/*!<Specifies the outputs needed for calculation
-				among all those provided by the input data; 
+				among all those provided by the input data;
 				very usefull when steering used as input data*/
     virtual bool		getInputData(const BinID& relpos,int idx);
-    				/*!<Gets all imput data, 
+    				/*!<Gets all imput data,
 				including data for which a stepout is required*/
     virtual bool		preProcCommonToAllThreads(const DataHolder& out,
 	    						  const BinID& relpos)
@@ -230,13 +231,13 @@ protected:
 					    int t0,int nrsamples,
 					    int threadidx) const	= 0;
     				/*!<The system will use the algorithm specified
-				in this function to compute the attribute's 
-				outputs. The results will be stored as 
+				in this function to compute the attribute's
+				outputs. The results will be stored as
 				different series in the DataHolder output.
 				 \param threadid thread identifier that may
 				  be handy when using multiple threads. */
     int				getDataIndex(int input) const;
-    				/*!<Gets the index of the serie needed in the 
+    				/*!<Gets the index of the serie needed in the
 				input DataHolder*/
     void			fillInputRangesArray(
 					    Array2DImpl< BasicInterval<int> >&,
@@ -264,12 +265,12 @@ protected:
 						    CubeSampling&,
 						    bool usestepout=true) const;
     				/*!<The system uses the margin and stepout
-				requirements to compute the ideal desired 
+				requirements to compute the ideal desired
 				volume for each input*/
 
     void			setUsedMultTimes();
     				/*!<The same provider can be used multiple times
-				which allows the attribute to be computed 
+				which allows the attribute to be computed
 				only once*/
     bool			isUsedMultTimes()  { return isusedmulttimes_; }
     bool			isNew2DLine() const
@@ -361,8 +362,10 @@ protected:
     bool                        zIsTime() const;
     float			zFactor() const;
     float			dipFactor() const;
-    float			inldist() const; 
-    float			crldist() const;
+    float			inlDist() const;
+    float			crlDist() const;
+    float			lineDist() const;
+    float			trcDist() const;
     float			maxSecureDip() const
 				{ return (float) (zIsTime() ? mMAXDIPSECURE
 						   : mMAXDIPSECUREDEPTH); }

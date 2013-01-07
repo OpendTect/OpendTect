@@ -194,7 +194,7 @@ Similarity::Similarity( Desc& desc )
     getTrcPos();
 
     float maxdist = dosteer_ || dobrowsedip_ ? 
-		mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) : 0;
+		mMAX( stepout_.inl*inlDist(), stepout_.crl*crlDist() ) : 0;
     if ( dobrowsedip_ )		//approx: dip from trc to trc, not central ref
 	maxdist *= 2;
     
@@ -206,7 +206,7 @@ Similarity::Similarity( Desc& desc )
 
 bool Similarity::getTrcPos()
 {
-    const bool is2d = desc_.is2D();
+    const bool is2d = is2D();
     trcpos_.erase();
     if ( extension_==mExtensionCube )
     {
@@ -343,7 +343,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
     else if ( isalldirext )
 	nrpairs = 8;
     else if ( isperpendicularext )
-	nrpairs = desc_.is2D() ? 2 : 4;
+	nrpairs = is2D() ? 2 : 4;
     else
 	nrpairs = inputdata_.size()/2;
 
@@ -383,8 +383,8 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    float dist = 0;
 	    if ( dobrowsedip_ )
 	    {
-		float di = abs(trcpos_[idx1].inl - trcpos_[idx0].inl)*inldist();
-		float dc = abs(trcpos_[idx1].crl - trcpos_[idx0].crl)*crldist();
+		float di = abs(trcpos_[idx1].inl - trcpos_[idx0].inl)*inlDist();
+		float dc = abs(trcpos_[idx1].crl - trcpos_[idx0].crl)*crlDist();
 		dist = Math::Sqrt( di*di + dc*dc );
 	    }
 
@@ -457,10 +457,10 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( dobrowsedip_ )
 	    {
 		const bool hasoutput = outputinterest_[5] ||
-			(!desc_.is2D() && outputinterest_[6]);
+			(!is2D() && outputinterest_[6]);
 		if ( hasoutput )
 		{ 
-		    if ( !pair || pair==2 || desc_.is2D() )
+		    if ( !pair || pair==2 || is2D() )
 			crldip = pair ? (crldip + dipatmax)/2 : dipatmax;
 		    else
 			inldip = pair==1 ? (inldip + dipatmax)/2 : dipatmax;
@@ -489,9 +489,9 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    {
 		if ( outputinterest_[5] )
 		    setOutputValue( output, 5, idx, z0,
-				    desc_.is2D() ? crldip*dipFactor()
+				    is2D() ? crldip*dipFactor()
 						 : inldip*dipFactor() );
-		if ( !desc_.is2D() && outputinterest_[6] )
+		if ( !is2D() && outputinterest_[6] )
 		    setOutputValue( output, 6, idx, z0, crldip*dipFactor() );
 	    }
 	}

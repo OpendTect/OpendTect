@@ -47,7 +47,7 @@ Reference::Reference( Desc& ds )
 {
     if ( !isOK() ) return;
     
-    is2d_ = ds.descSet() ? ds.descSet()->is2D() : false;
+    is2d_ = is2D();
 }
 
 
