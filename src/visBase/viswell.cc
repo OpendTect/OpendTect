@@ -20,6 +20,8 @@ static const char* rcsID = "$Id$";
 #include "vistransform.h"
 
 #include "coltabsequence.h"
+#include "cubesampling.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "ranges.h"
 #include "scaler.h"
@@ -52,6 +54,7 @@ const char* Well::showlogsstr()		{ return "Show logs"; }
 const char* Well::showlognmstr()	{ return "Show logname"; }
 const char* Well::logwidthstr()		{ return "Screen width"; }
 
+HiddenParam<Well,int> voiidx_(-1);
 
 Well::Well()
     : VisualObjectImpl( false )
@@ -60,6 +63,8 @@ Well::Well()
     , transformation_(0)
     , zaxistransform_(0)
 {
+    voiidx_.setParam( this, -1 );
+
     SoSeparator* sep = new SoSeparator;
     addChild( sep );
     drawstyle_ = DrawStyle::create();
@@ -155,12 +160,37 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 	track_->removePoint( track_->size()-1 );
 
     track_->setDisplayTransformation( transformation_ );
+
+    CubeSampling cs( false );
+    for ( int idx=0; idx<pts.size(); idx++ )
+    {
+	cs.hrg.include( SI().transform(pts[idx]) );
+	cs.zrg.include ( pts[idx].z );
+    }
+
+    if ( zaxistransform_ && zaxistransform_->needsVolumeOfInterest() )
+    {
+	int voiidx = voiidx_.getParam( this );
+	if ( voiidx < 0 )
+	{
+	    voiidx = zaxistransform_->addVolumeOfInterest( cs, true );
+	    voiidx_.setParam( this, voiidx );
+	}
+	else
+	    zaxistransform_->setVolumeOfInterest( voiidx, cs, true );
+	zaxistransform_->loadDataIfMissing( voiidx );
+    }
+
+    int ptidx = 0;
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	Coord3 crd = pts[idx];
 	if ( zaxistransform_ )
 	    crd.z = zaxistransform_->transform( crd );
-	if ( idx>=track_->size() )
+	if ( mIsUdf(crd.z) )
+	    continue;
+
+	if ( ptidx>=track_->size() )
 	{
 	    const int lastidx = track_->size();
 	    const Coord3 lastcrd =
@@ -169,7 +199,8 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 		track_->addPoint( crd );
 	}
 	else
-	    track_->setPoint( idx, crd );
+	    track_->setPoint( ptidx, crd );
+	ptidx++;
     }
 }
 
@@ -232,6 +263,12 @@ bool Well::wellBotNameShown() const
 
 void Well::addMarker( const MarkerParams& mp )
 {
+    Coord3 markerpos = *mp.pos_;
+    if ( zaxistransform_ )
+	markerpos.z = zaxistransform_->transform( markerpos );
+    if ( mIsUdf(markerpos.z) )
+	return;
+
     Marker* marker = Marker::create();
     SoSeparator* markershapesep = new SoSeparator;
     markershapesep->ref();
@@ -271,9 +308,6 @@ void Well::addMarker( const MarkerParams& mp )
     marker->setMarkerShape(markershapesep);
     markershapesep->unref();
 
-    Coord3 markerpos = *mp.pos_;
-    if ( zaxistransform_ )
-	markerpos.z = zaxistransform_->transform( markerpos );
     //marker->doRestoreProportions(false);
     markergroup_->addObject( marker );
     marker->setDisplayTransformation( transformation_ );
@@ -380,6 +414,7 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals,
     int nrsamp = crdvals.size();
     float step = 1;
     mGetLoopSize( nrsamp, step );
+    int validx = 0;
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	const int index = mNINT32(idx*step);
@@ -390,8 +425,9 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals,
 	    continue;   
 	
 	for ( int lidx=0; lidx<log_.size(); lidx++ )
-	    log_[lidx]->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z), 
+	    log_[lidx]->setLogValue( validx, SbVec3f(pos.x,pos.y,pos.z), 
 		    		     val, lp.lognr_ );
+	validx++;
     }
     showLog( showlogs_, lp.lognr_ );
 }
@@ -448,6 +484,8 @@ Coord3 Well::getPos( const TypeSet<Coord3Value>& crdv, int idx ) const
     Coord3 crd = cv.coord;
     if ( zaxistransform_ )
 	crd.z = zaxistransform_->transform( crd );
+    if ( mIsUdf(crd.z) )
+	return crd;
 
     Coord3 pos( 0,0,0 );
     if ( transformation_ )
