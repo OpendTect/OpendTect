@@ -36,7 +36,7 @@ static const BufferString& gtFileName( const char* fnm )
     ret = fnm;
     if ( ret.isEmpty() ) return ret;
 
-    FilePath fp( ret );
+    FilePath fp( ret, true );
     if ( !fp.isAbsolute() )
 	fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
     ret = fp.fullPath();
