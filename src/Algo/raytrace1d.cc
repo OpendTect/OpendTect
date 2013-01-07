@@ -336,6 +336,10 @@ bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
 	spike.depth_ = depths_[idx]; 
 	spike.time_ = twt_->get( idx, offsetidx );
 	spike.correctedtime_ = twt_->get( idx, 0 );
+	
+	if ( !spike.isDefined() )
+	    continue;
+	
 	model += spike;
     }
     return true;
@@ -478,7 +482,9 @@ bool VrmsRayTracer1D::compute( int layer, int offsetidx, float rayparam )
     const float tnmo = twt_->get( layer, 0 );
     const float vrms = velmax_[layer];
     const float off = offsets_[offsetidx];
-    const float twt = vrms ? sqrt(off*off/(vrms*vrms) + tnmo*tnmo) : tnmo;
+    float twt = tnmo;
+    if ( vrms && !mIsUdf(tnmo) )
+	twt = Math::Sqrt(off*off/(vrms*vrms) + tnmo*tnmo);
 
     twt_->set( layer, offsetidx, twt );
 
