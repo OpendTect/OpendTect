@@ -108,6 +108,9 @@ macro( copy_thirdpartylibs )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB}
 			  ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
     ENDFOREACH()
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${CMAKE_INSTALL_PREFIX}/imageformats
+		     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/imageformats )
 
 endmacro( copy_thirdpartylibs )
 
@@ -231,7 +234,13 @@ macro( create_develpackages )
 #But '-E copy/copy_directory'option is working.
     ENDFOREACH()
 
-    execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
+    IF( WIN32 )
+	SET( ZIPCOMMAND "${PSD}/bin/win/zip -r -q" )
+    ELSE()
+	SET( ZIPCOMMAND "zip -r -y -q" )
+    ENDIF()
+
+    execute_process( COMMAND ${ZIPCOMMAND} "${PACKAGE_FILENAME}" ${REL_DIR} 
 			     WORKING_DIRECTORY ${PACKAGE_DIR}
 			     RESULT_VARIABLE STATUS )
 endmacro( create_develpackages )
