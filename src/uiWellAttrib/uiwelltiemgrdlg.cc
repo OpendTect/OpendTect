@@ -182,7 +182,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
     const char* nm = Well::IO::getMainFileName( *wllctio_.ioobj );
     if ( !nm || !*nm ) return;
 
-    delete wd_; wd_ = new Well::Data; 
+    wd_ = new Well::Data; 
     Well::Reader wr( nm, *wd_ );
     wr.get();
     wtsetup_.wellid_ = wllctio_.ioobj->key();
