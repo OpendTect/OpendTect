@@ -152,7 +152,7 @@ SyntheticData* StratSynth::addSynthetic()
 
 SyntheticData* StratSynth::addSynthetic( const SynthGenParams& synthgen )
 {
-    SyntheticData* sd = generateSD( lm_, synthgen, tr_ );
+    SyntheticData* sd = generateSD( lm_, synthgen, 0 );
     if ( sd )
 	synthetics_ += sd;
     return sd;
@@ -487,12 +487,6 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 
 	aimodel += ail;
     }
-
-    bool dovelblock = false; float blockthreshold;
-    genparams_.raypars_.getYN( RayTracer1D::sKeyVelBlock(), dovelblock );
-    genparams_.raypars_.get( RayTracer1D::sKeyVelBlockVal(), blockthreshold );
-    if ( dovelblock )
-	blockElasticModel( aimodel, blockthreshold );
 
     return true;
 }
