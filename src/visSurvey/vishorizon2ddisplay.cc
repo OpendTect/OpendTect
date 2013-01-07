@@ -267,7 +267,9 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	if ( mIsUdf(rc.row) )
 	    break;
 
-	const char* linenm = linenames_.get( rowrg_.getIndex(rc.row) );
+	const int rowidx = rowrg_.getIndex( rc.row );
+	const char* linenm =
+	    linenames_.validIdx(rowidx) ? linenames_.get( rowidx ) : 0;
 	TypeSet<Coord3> positions;
 	const StepInterval<int> colrg = surf_->colRange( rc.row );
 
