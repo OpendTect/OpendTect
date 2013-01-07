@@ -463,6 +463,11 @@ macro ( OD_ADD_LINEEND_TEST )
 	set( CMD "${OpendTect_DIR}/dtect/FindDosEOL.sh" )
 	list( APPEND CMD "${OD_SOURCELIST_FILE}" )
 	add_test( LineEndTest ${CMD} )
+
+	set( CMD "${OpendTect_DIR}/dtect/FindNoNewlineAtEndOfFile.csh" )
+	list( APPEND CMD "${OD_SOURCELIST_FILE}" )
+	add_test( FileEndTest ${CMD} )
+ 
     endif()
 endmacro()
 
