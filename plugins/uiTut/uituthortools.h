@@ -7,13 +7,14 @@
  * ID       : $Id$
 -*/
 
+#include "uitutmod.h"
 #include "uidialog.h"
 
 class TaskRunner;
 class uiIOObjSel;
 class uiGenInput;
 
-class uiTutHorTools : public uiDialog
+mClass(uiTut) uiTutHorTools : public uiDialog
 {
 public:
 

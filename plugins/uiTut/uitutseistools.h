@@ -7,6 +7,7 @@
  * ID       : $Id$
 -*/
 
+#include "uitutmod.h"
 #include "uidialog.h"
 #include "seistype.h"
 class uiSeisSel;
@@ -16,7 +17,7 @@ class CtxtIOObj;
 namespace Tut { class SeisTools; }
 
 
-class uiTutSeisTools : public uiDialog
+mClass(uiTut) uiTutSeisTools : public uiDialog
 {
 public:
 

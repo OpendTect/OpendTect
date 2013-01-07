@@ -7,6 +7,7 @@
  * ID       : $Id$
 -*/
 
+#include "uitutmod.h"
 #include "uidialog.h"
 #include "multiid.h"
 
@@ -17,7 +18,7 @@ namespace Tut { class LogTools; }
 namespace Well { class Data; }
 
 
-class uiTutWellTools : public uiDialog
+mClass(uiTut) uiTutWellTools : public uiDialog
 {
 public:
 

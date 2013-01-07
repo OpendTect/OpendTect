@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uitutmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; }
@@ -21,7 +22,7 @@ class uiSteeringSel;
 class uiStepOutSel;
 
 
-class uiTutorialAttrib : public uiAttrDescEd
+mClass(uiTut) uiTutorialAttrib : public uiAttrDescEd
 {
 public:
 
