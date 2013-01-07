@@ -1124,6 +1124,9 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
 
     if ( !isprevx || !isprevy )
     {
+	if ( y1userdeflineitm_ && !axisHandler(1) )
+	    y1userdeflineitm_->setVisible( false );
+
 	userdefy1lp_.a0 = 0.0f; userdefy1lp_.ax = 0.0f;
 	setup().showy1userdefline_ = false;
     }
