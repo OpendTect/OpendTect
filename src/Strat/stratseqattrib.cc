@@ -239,18 +239,31 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
 }
 
 
+static bool allLithAreUndef( const Strat::LayerSequence& seq )
+{
+    for ( int ilay=0; ilay<seq.size(); ilay++ )
+    {
+	if ( !seq.layers()[ilay]->lithology().isUdf() )
+	    return false;
+    }
+
+    return true;
+}
+
+
 float Strat::LaySeqAttribCalc::getGlobalValue( const LayerSequence& seq ) const
 {
     if ( validx_ < 0 ) return mUdf(float);
 
     ObjectSet<const Strat::Layer> layers;
+    const bool isallundef = allLithAreUndef( seq );
     for ( int ilay=0; ilay<seq.size(); ilay++ )
     {
 	const Strat::Layer* lay = seq.layers()[ilay];
 	for ( int iun=0; iun<units_.size(); iun++ )
 	{
-	    if ( units_[iun]->isParentOf( lay->unitRef() )
-	      && liths_.isPresent(&lay->lithology()) )
+	    if ( units_[iun]->isParentOf( lay->unitRef() ) &&
+		 ( isallundef || liths_.isPresent(&lay->lithology())) )
 		layers += lay;
 	}
     }
