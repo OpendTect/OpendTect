@@ -61,6 +61,7 @@ public:
     inline VectorAccess& operator =( const VectorAccess& v2 )
 			{ v_ = v2.v_; return *this; }
     inline bool		push_back( const T& t );
+    inline void		pop_back();
     inline void		insert( I pos, const T& val )
 					    { v_.insert(v_.begin() + pos,val); }
     inline void		erase()		    { v_.clear(); }
@@ -153,6 +154,13 @@ bool VectorAccess<T,I>::push_back( const T& t )
     { return false; }
 
     return true;
+}
+
+
+template<class T,class I> inline
+void VectorAccess<T,I>::pop_back()
+{
+    v_.pop_back();
 }
 
 

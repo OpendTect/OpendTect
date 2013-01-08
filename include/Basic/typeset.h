@@ -69,7 +69,8 @@ public:
     inline virtual bool		append(const T*,I);
     inline virtual bool		append(const TypeSetBase<T,I>&);
     inline bool			add(const T&);
-
+    inline bool			push(const T& t) { return add(t); }
+    inline T			pop();
     inline virtual void		swap(od_int64,od_int64);
     inline virtual void		reverse();
     virtual inline void		createUnion(const TypeSetBase<T,I>&);
@@ -308,6 +309,17 @@ const T& TypeSetBase<T,I>::first() const	{ return vec_[0]; }
 
 template <class T, class I> inline
 T& TypeSetBase<T,I>::last()			{ return vec_[size()-1]; }
+
+
+template <class T, class I> inline
+T TypeSetBase<T,I>::pop()
+{
+    const I idx=size()-1;
+    const T res = vec_[idx];
+    vec_.pop_back();
+    return res;
+}
+
 
 template <class T, class I> inline
 const T& TypeSetBase<T,I>::last() const	{ return vec_[size()-1]; }
