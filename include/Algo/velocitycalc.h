@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "veldesc.h"
 #include "keystrs.h"
 #include "factory.h"
+#include "ailayer.h"
 
 template <class T> class ValueSeries;
 
@@ -353,7 +354,17 @@ mGlobal(Algo) void resampleContinuousData(const float* inarr,const float* t_in,
 
 /* Block velocities and resamples depths and vel arrays at bend points */
 mGlobal(Algo) void BendPointVelBlock(TypeSet<float>& dpts,TypeSet<float>& vels,
-				float threshold,TypeSet<int>* remidxs=0); 
+				float threshold,TypeSet<int>* remidxs=0);
+
+/* Block elastic model so that no blocks have larger differences than
+   the threshold. Attempts will be made to put boundaries at large
+   changes. */
+
+mGlobal(Algo) void BlockElasticModel( const ElasticModel& inmdl,
+				      ElasticModel& outmdl,
+				      float velthreshold,
+				      float densthreshold,
+				      bool svel );
 
 #endif
 

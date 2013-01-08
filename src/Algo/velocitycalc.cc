@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "valseries.h"
 #include "varlenarray.h"
 #include "veldesc.h"
+#include "limits.h"
 
 mImplFactory( Vrms2Vint, Vrms2Vint::factory );
 
@@ -1399,3 +1400,125 @@ void BendPointVelBlock( TypeSet<float>& dpts, TypeSet<float>& vels,
     if ( remidxs )
 	*remidxs = torem;
 }
+
+#define mAddBlock( block ) \
+    if ( blocks.size() && block.start<blocks[0].start ) \
+	blocks.insert( 0, block ); \
+    else \
+	blocks += block
+
+
+void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
+		        float velthreshold, float densthreshold, bool svel )
+{
+    const float aithreshold = velthreshold*densthreshold;
+    TypeSet<float> ailayers( inmdl.size(), mUdf(float) );
+    for ( int idx=ailayers.size()-1; idx>=0; idx-- )
+    {
+	ailayers[idx] = svel
+	    ? inmdl[idx].svel_ * inmdl[idx].den_
+	    : inmdl[idx].getAI();
+    }
+    
+    TypeSet<float> aidiffs( ailayers.size(), mUdf(float) );
+    for ( int idx=ailayers.size()-1; idx>0; idx-- )
+	aidiffs[idx] = ailayers[idx]-ailayers[idx-1];
+    
+    TypeSet<Interval<int> > investigationqueue;
+    investigationqueue += Interval<int>( 0, ailayers.size()-1 );
+    TypeSet<Interval<int> > blocks;
+    
+    while ( investigationqueue.size() )
+    {
+	Interval<int> curblock = investigationqueue.pop();
+	
+	while ( true )
+	{
+	    const int width = curblock.width();
+	    if ( !width )
+		break;
+	    
+	    if ( width==1 )
+	    {
+		mAddBlock( curblock );
+		break;
+	    }
+	    
+	    const int last = curblock.start + width;
+	    const float firstai = ailayers[curblock.start];
+	    Interval<float> airange( firstai, firstai );
+	    float prevai = firstai;
+	    TypeSet<int> bendpoints;
+	    float maxdiff = 0;
+	    
+	    for ( int idx=curblock.start+1; idx<=last; idx++ )
+	    {
+		const float curai = ailayers[idx];
+		airange.include( curai );
+		
+		const float diff = aidiffs[idx];
+		if ( diff>=maxdiff )
+		{
+		    if ( !mIsEqual( diff, maxdiff, 1e-3 ) )
+			bendpoints.erase();
+		    
+		    bendpoints += idx;
+		    maxdiff = diff;
+		}
+		
+		prevai = curai;
+	    }
+	    
+	    if ( airange.width()<=aithreshold )
+	    {
+		mAddBlock( curblock );
+		break;
+	    }
+	    
+	    int bendpoint = curblock.center();
+	    if ( bendpoints.isEmpty() )
+	    {
+		pFreeFnErrMsg("Should never happen", "BlockElasticModel");
+	    }
+	    else if ( bendpoints.size()==1 )
+	    {
+		bendpoint = bendpoints[0];
+	    }
+	    else
+	    {
+		const int middle = bendpoints.size()/2;
+		bendpoint = bendpoints[middle];
+	    }
+	    
+	    investigationqueue += Interval<int>( curblock.start, bendpoint-1);
+	    curblock = Interval<int>( bendpoint, curblock.stop );
+	}
+    }
+    
+    ElasticModel output;
+    for ( int idx=0; idx<blocks.size(); idx++ )
+    {
+	const Interval<int> curblock = blocks[idx];
+
+	double thicknesssum = 0;
+	double wvelsum = 0;
+	double wsvelsum = 0;
+	double wdenssum = 0;
+	for ( int idy=curblock.start; idy<=curblock.stop; idx++ )
+	{
+	    const double thickness = inmdl[idy].thickness_;
+	    thicknesssum += thickness;
+	    wvelsum += inmdl[idy].vel_*thickness;
+	    wsvelsum += inmdl[idy].svel_*thickness,
+	    wdenssum += inmdl[idy].den_*thickness;
+	}
+	
+	output += ElasticLayer( (float) thicknesssum,
+			       mCast(float,wvelsum/thicknesssum),
+			       mCast(float,wsvelsum/thicknesssum),
+			       mCast(float,wdenssum/thicknesssum));
+    }
+    
+    outmdl = output;
+}
+
