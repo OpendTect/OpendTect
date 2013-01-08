@@ -1193,7 +1193,6 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     }
     drawy1userdefpolyline_=isprevx && isprevy && setup().showy1userdefpolyline_;
     
-
     if ( !isprevx || !isprevy2 )
     {
 	userdefy2str_.setEmpty(); y2rmserr_.setEmpty();
