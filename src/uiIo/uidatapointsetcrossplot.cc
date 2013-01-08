@@ -650,6 +650,8 @@ void uiDataPointSetCrossPlotter::setShowY4( bool yn )
 
 void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
 {
+    if ( !axisHandler(0) || !axisHandler(isy1? 1:2) ) return;
+
     if ( (isy1 && !showy3_) || (!isy1 && !showy4_) )
     {
 	if ( y1overlayctitem_ ) y1overlayctitem_->setVisible( showy3_ );
