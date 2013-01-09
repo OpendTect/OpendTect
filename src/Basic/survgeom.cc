@@ -86,7 +86,7 @@ const Geometry* GeometryManager::getGeometry( const MultiID& mid ) const
 }
 
 
-const int GeometryManager::getGeomID( const char* name ) const
+int GeometryManager::getGeomID( const char* name ) const
 {
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
