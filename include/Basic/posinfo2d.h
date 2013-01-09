@@ -58,6 +58,11 @@ mClass(Basic) Line2DData
 public:
 			Line2DData(const char* lnm=0);
 
+			Line2DData(const Line2DData& l2d)
+			: zrg_(l2d.zRange())
+			, lnm_(l2d.lineName())
+			, posns_(l2d.positions()){}
+
     const StepInterval<float>& zRange() const		{ return zrg_; }
     const BufferString&	lineName() const		{ return lnm_; }
     void		setZRange( const StepInterval<float>& zrg )

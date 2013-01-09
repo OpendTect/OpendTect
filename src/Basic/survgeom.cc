@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "survgeom.h"
 
+#include "multiid.h"
 #include "surv2dgeom.h"
 #include "survinfo.h"
 
@@ -19,6 +20,16 @@ using namespace Survey;
 
 mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
+
+static GeometryManager* theinst = 0;
+
+GeometryManager& Survey::GMAdmin()
+{
+    if( !theinst )
+    { theinst = new GeometryManager(); }
+
+    return *theinst;
+}
 
 
 Geometry::Geometry()
@@ -53,24 +64,59 @@ GeometryManager::~GeometryManager()
 }
 
 
-const Geometry* GeometryManager::getGeomety(int geomid) const
+const Geometry* GeometryManager::getGeometry(int geomid) const
 {
     if ( geomid==cDefault3DGeom() )
 	return SI().get3DGeometry( false );
+
+    for ( int idx=0; idx<geometries_.size(); idx++ )
+	if ( geometries_[idx]->getGeomID() == geomid )
+	    return geometries_[idx];
     
     return 0;
 }
 
 
-const Geometry* GeometryManager::getGeomety(const MultiID&) const
+const Geometry* GeometryManager::getGeometry( const MultiID& mid ) const
 {
+    if ( mid.nrKeys() == 2 )
+	return getGeometry( mid.ID(1) );
+
+    return 0;
+}
+
+
+const int GeometryManager::getGeomID( const char* name ) const
+{
+    for ( int idx=0; idx<geometries_.size(); idx++ )
+    {
+	if ( !geometries_[idx]->is2D() )
+	    return -cDefault3DGeom();
+	else
+	{
+	    if ( ((Geometry2D*)geometries_[idx])->data().lineName() == name)
+		return geometries_[idx]->getGeomID();
+	}
+    }
+
+    return -1;
+}
+
+
+const char* GeometryManager::getName( const int geomid ) const
+{
+    if ( !getGeometry(geomid)->is2D() )
+    {}//
+    else
+	return ( (Geometry2D*)getGeometry(geomid) )->data().lineName();
+
     return 0;
 }
 
 
 Coord GeometryManager::toCoord( const TraceID& tid ) const
 {
-    RefMan<const Geometry> geom = getGeomety( tid.geomid_ );
+    RefMan<const Geometry> geom = getGeometry( tid.geomid_ );
     return geom ? geom->toCoord( tid.line_, tid.trcnr_ ) : Coord::udf();
 }
 
@@ -82,9 +128,9 @@ void GeometryManager::addGeometry(Survey::Geometry* g)
 }
 
 
-bool GeometryManager::write()
+bool GeometryManager::fetchFrom2DGeom()
 {
-    GeometryWriter* geomwriter =GeometryWriter::factory().create("2D Writer");
+    GeometryWriter* geomwriter =GeometryWriter::factory().create("2D");
     BufferStringSet lsname;
     S2DPOS().getLineSets( lsname );
     for ( int idx=0; idx<lsname.size(); idx++ )
@@ -93,17 +139,48 @@ bool GeometryManager::write()
 	S2DPOS().getLines( lname, lsname.get(idx).buf() );
 	for ( int idx2=0; idx2<lname.size(); idx2++ )
 	{
-	    Geometry2D geom2d;
-	    geom2d.data().setLineName( lname.get(idx2) );
-	    S2DPOS().getGeometry(geom2d.data());
+	    Geometry2D* geom2d = new Geometry2D();
+	    geom2d->ref();
+	    geom2d->data().setLineName( lname.get(idx2) );
+	    S2DPOS().getGeometry(geom2d->data());
 	    BufferString newlnm = lsname.get(idx);
 	    newlnm.add( "_" );
 	    newlnm.add( lname.get(idx2) );
-	    geom2d.data().setLineName( newlnm );
-	    geomwriter->write( &geom2d );
+	    geom2d->data().setLineName( newlnm );
+	    geomwriter->write( geom2d );
+	    addGeometry( geom2d );
+	    geom2d->unRef();
 	}
     }
     return true;
+}
+
+
+bool GeometryManager::write( Geometry* geom)
+{
+    if ( geom->is2D() )
+    {
+    GeometryWriter* geomwriter =GeometryWriter::factory().create( "2D" );
+    geom->ref();
+    geomwriter->write( geom );
+    addGeometry( geom );
+    geom->unRef();
+    return true;
+    }
+    else
+	return false;
+}
+
+
+int GeometryManager::createEntry( const char* name, const bool is2d )
+{
+    if ( is2d )
+    {
+	GeometryWriter* geomwriter = GeometryWriter::factory().create("2D");
+	return geomwriter->createEntry( name );
+    }
+    else
+	return cDefault3DGeom();
 }
 
 

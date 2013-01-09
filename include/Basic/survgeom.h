@@ -26,7 +26,7 @@ namespace Survey
 mClass(Basic) Geometry
 { mRefCountImpl(Geometry);
 public:
-    virtual bool	is3D() const					= 0;
+    virtual bool	is2D() const					= 0;
     int			getGeomID() const { return geomid_; }
     void		setGeomID(int id) { geomid_ = id; }
     virtual Coord	toCoord(const TraceID& tid) const
@@ -39,6 +39,7 @@ public:
     bool		includes(const TraceID& tid) const 
 			{ return includes( tid.line_, tid.trcnr_ ); }
     virtual bool	includes(int line, int tracenr)	const		= 0;
+
     
 protected:
 			Geometry();
@@ -52,12 +53,21 @@ mClass(Basic) GeometryManager
 public:
 			GeometryManager();
 			~GeometryManager();
-    const Geometry*	getGeomety(int geomid) const;
-    const Geometry*	getGeomety(const MultiID&) const;
+    const Geometry*	getGeometry(int geomid) const;
+    const Geometry*	getGeometry(const MultiID&) const;
+
+    const int		getGeomID(const char* linename) const;
+    const char*		getName(const int geomid) const;
     
     Coord		toCoord(const TraceID&) const;
 
-    bool		write();
+    bool		fetchFrom2DGeom();
+				//converts od4 geometries to od5 geometries.
+
+    bool		write(Geometry*);
+
+    int			createEntry(const char* name,const bool is2d);
+				// returns new GeomID.
     
     static int		cDefault3DGeom() { return -1; }
 
@@ -66,6 +76,13 @@ protected:
 
     ObjectSet<Geometry> geometries_;
 };
+
+
+mGlobal(Basic) GeometryManager& GMAdmin();
+
+
+inline mGlobal(Basic) const GeometryManager& GM()
+{ return const_cast<GeometryManager&>( Survey::GMAdmin() ); }
 
 
 mClass(Basic) GeometryReader
@@ -83,6 +100,7 @@ public:
 			mDefineFactoryInClass(GeometryWriter,factory);
 
     virtual bool	write(Geometry*)		    {return true;};
+    virtual int		createEntry(const char*)	    {return 0;}
 };
 
 } //namespace Survey

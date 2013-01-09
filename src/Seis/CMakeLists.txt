@@ -20,6 +20,7 @@ SET(OD_MODULE_SOURCES
 	    segyscanner.cc
 	    segytr.cc
 	    seis2dline.cc
+		seis2ddata.cc
 	    seis2dlineio.cc
 	    seis2dto3d.cc
 	    seisbayesclass.cc

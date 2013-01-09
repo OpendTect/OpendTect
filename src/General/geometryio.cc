@@ -74,13 +74,14 @@ protected:
 
 void GeometryWriter2D::initClass()
 {
-    GeometryWriter::factory().addCreator( create2DWriter, "2D Writer" );
+    GeometryWriter::factory().addCreator( create2DWriter, "2D" );
 }
 
 
 bool GeometryWriter2D::write( Geometry* geom )
 {
     Geometry2D* geom2d = (Geometry2D*)geom;
+    geom2d->ref();
     IOObjContext iocontext = mIOObjContext(SurvGeom);
     iocontext.setName("Geometry");
     MultiID mid = iocontext.getSelKey();
@@ -101,13 +102,27 @@ bool GeometryWriter2D::write( Geometry* geom )
     }
 
     osd.close();
+    geom2d->unRef();
     return true;
+}
+
+
+int GeometryWriter2D::createEntry( const char* name )
+{
+    IOObjContext iocontext = mIOObjContext(SurvGeom);
+    iocontext.setName("Geometry");
+    IOM().to( iocontext.getSelKey() );
+    CtxtIOObj cioob( iocontext );
+    cioob.ctxt.setName( name );
+    cioob.ioobj = 0;
+    cioob.fillObj();
+    return cioob.ioobj->key().ID(1);
 }
 
 
 void GeometryWriter3D::initClass()
 {
-    GeometryWriter::factory().addCreator( create3DWriter, "3D Writer" );
+    GeometryWriter::factory().addCreator( create3DWriter, "3D" );
 }
 
 
@@ -135,7 +150,7 @@ bool GeometryReader2D::read( ObjectSet<Geometry>& geometries )
 
 void GeometryReader2D::initClass()
 {
-    GeometryReader::factory().addCreator( create2DReader, "2D Reader" );
+    GeometryReader::factory().addCreator( create2DReader, "2D" );
 }
 
 

@@ -157,7 +157,8 @@ mClass(Basic) Geometry2D : public Geometry
 {
 public:
                    		Geometry2D();
-                    		~Geometry2D();
+				Geometry2D(PosInfo::Line2DData& l2d)
+				:data_(l2d){}
 
     Coord			toCoord(const TraceID& tid) const
 				{ return toCoord( tid.line_, tid.trcnr_); }
@@ -166,11 +167,13 @@ public:
 
     virtual bool		includes(int line, int tracenr)	const;
 
-    bool			is3D() const		{ return false; }
+    bool			is2D() const		{ return true; }
     PosInfo::Line2DData&	data()			{ return data_; }
     const PosInfo::Line2DData	data() const		{ return data_; }
 
 protected:
+
+                    		~Geometry2D();
 
     PosInfo::Line2DData&	data_;
 };

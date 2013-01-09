@@ -54,6 +54,7 @@ namespace sKey
     inline FixedString Filter()		{ return "Filter"; }
     inline FixedString FloatUdf()	{ return "1e30"; }
     inline FixedString Geometry()	{ return "Geometry"; }
+    inline FixedString GeomID()		{ return "GeomID"; }
     inline FixedString Horizon()	{ return "Horizon"; }
     inline FixedString ID()		{ return "ID"; }
     inline FixedString IOSelection()	{ return "I/O Selection"; }

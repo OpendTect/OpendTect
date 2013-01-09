@@ -26,7 +26,7 @@ public:
 				{ return new GeometryWriter2D; }
     static void			initClass();
     bool			write(Geometry*);
-
+    int				createEntry(const char* name);
 
 };
 

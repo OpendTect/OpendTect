@@ -100,9 +100,9 @@ bool fillandInterpArray( Array2D<float>& array2d, const RayTracer1D* raytracer,
 Gather* AngleComputer::computeAngles( const TraceID& trcid )
 {
     RefMan<const Survey::Geometry> geom =
-	SI().geomManager().getGeomety( trcid.geomid_ );
+	SI().geomManager().getGeometry( trcid.geomid_ );
     
-    if ( !geom->is3D() )
+    if ( geom->is2D() )
     {
 	pErrMsg( "Only 3D is supported at this time" );
 	return 0;
