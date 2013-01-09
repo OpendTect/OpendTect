@@ -19,18 +19,17 @@ ________________________________________________________________________
 #include <string>
 
 /*!
-In any OO system callbacks to an unknown client must be possible. To be able
-to do this in for class instances, in C++ the called functions need to be:
-1) member of a certain pre-defined base class
-2) pre-specified in terms of arguments
-The following stuff makes sure that there is a nice empty base class with that
-role. And, the Capsule mechanism ensures that any class can be passed as
-argument.
-
-There are some analogies with QT's signal/slot mechanism. We think our
-mechanism is more flexible in some ways, less in other ways (those we're not
-interested in).
-
+  In any OO system callbacks to an unknown client must be possible. To be able
+  to do this in for class instances, in C++ the called functions need to be:
+  1) member of a certain pre-defined base class
+  2) pre-specified in terms of arguments
+  The following stuff makes sure that there is a nice empty base class with that
+  role. And, the Capsule mechanism ensures that any class can be passed as
+  argument.
+  
+  There are some analogies with QT's signal/slot mechanism. We think our
+  mechanism is more flexible in some ways, less in other ways (those we're not
+  interested in).
 */
 
 class CallBacker;
@@ -46,13 +45,14 @@ typedef void (*StaticCallBackFunction)(CallBacker*);
 #define mSCB(fn) CallBack( ((StaticCallBackFunction)(&fn)) )
 
 
-/*!\brief CallBacks object-oriented (object + method).
-
-CallBack is nothing more than a function pointer + optionally an object to call
-it on. It may be null, in which case doCall() will simply do nothing. If you
-want to be able to send a CallBack, you must provide a 'sender' CallBacker*
-(usually 'this').
-
+/*!
+\ingroup Basic
+\brief CallBacks object-oriented (object + method).
+  
+  CallBack is nothing more than a function pointer + optionally an object to
+  call it on. It may be null, in which case doCall() will simply do nothing.
+  If you want to be able to send a CallBack, you must provide a 'sender'
+  CallBacker* (usually 'this').
 */
 
 mClass(Basic) CallBack
@@ -85,7 +85,10 @@ protected:
 };
 
 
-/*!\brief TypeSet of CallBacks with a few extras. */
+/*!
+\ingroup Basic
+\brief TypeSet of CallBacks with a few extras.
+*/
 
 mClass(Basic) CallBackSet : public TypeSet<CallBack>
 {
@@ -103,7 +106,10 @@ public:
 };
 
 
-/*!\brief interface class for Notifier. See comments there. */
+/*!
+\ingroup Basic
+\brief Interface class for Notifier. See comments there.
+*/
 
 mClass(Basic) NotifierAccess
 {
@@ -135,39 +141,40 @@ protected:
 };
 
 
-/*!\brief class to help setup a callback handling.
-
-What we have discovered is that the two things:
-- providing a notification of an event to the outside world
-- asking a notification of a certain object
-are strongly coupled. Qt has its Signal/Slot pair, but we found that too
-inflexible. Enter Notifier. You declare a Notifier to announce to the
-world that they can be notified of something. The 'receiving' object can
-then call the notify() method to 'register' the event notification. The
-sending object just calls trigger(). Note that it is most used in the
-UI, but it is equally usable in batch stuff. In general, it provides a
-rigorous uncoupling.
-
-Simply declare a Notifier<T> in the interface, like:
-\code
-Notifier<MyClass>	buttonClicked;
-\endcode
-
-Then users of the class can issue:
-
-\code
-amyclass.buttonClicked.notify( mCB(this,TheClassOfThis,theMethodToBeCalled) );
-\endcode
-
-The callback is issued when you call the trigger() method, like:
-\code
-buttonClicked.trigger();
-\endcode
-
-The notification can be temporary stopped using disable()/enable() pair,
-or by use of a NotifyStopper, which automatically restores the callback
-when going out of scope.
-
+/*!
+\ingroup Basic
+\brief Class to help setup a callback handling.
+  
+  What we have discovered is that the two things:
+  - providing a notification of an event to the outside world
+  - asking a notification of a certain object
+  are strongly coupled. Qt has its Signal/Slot pair, but we found that too
+  inflexible. Enter Notifier. You declare a Notifier to announce to the
+  world that they can be notified of something. The 'receiving' object can
+  then call the notify() method to 'register' the event notification. The
+  sending object just calls trigger(). Note that it is most used in the
+  UI, but it is equally usable in batch stuff. In general, it provides a
+  rigorous uncoupling.
+  
+  Simply declare a Notifier<T> in the interface, like:
+  \code
+  Notifier<MyClass>	buttonClicked;
+  \endcode
+  
+  Then users of the class can issue:
+  
+  \code
+  amyclass.buttonClicked.notify( mCB(this,TheClassOfThis,theMethodToBeCalled) );
+  \endcode
+  
+  The callback is issued when you call the trigger() method, like:
+  \code
+  buttonClicked.trigger();
+  \endcode
+  
+  The notification can be temporary stopped using disable()/enable() pair,
+  or by use of a NotifyStopper, which automatically restores the callback
+  when going out of scope.  
 */
 
 template <class T>
@@ -187,7 +194,11 @@ public:
 };
 
 
-//!> To be able to send and/or receive CallBacks, inherit from this class
+/*!
+\ingroup Basic
+\brief To be able to send and/or receive CallBacks, inherit from this class.
+*/
+
 mClass(Basic) CallBacker
 {
 public:
@@ -220,16 +231,17 @@ attachCB( notifier, mCB(this,clss,func) )
 detachCB( notifier, clss, func )
 
 
-/*!\brief Capsule class to wrap any class into a CallBacker.
- 
- Callback functions are defined as:
- void clss::func( CallBacker* )
- Sometimes you want to pass other info. For this purpose, you can use the
- CBCapsule class, which isA CallBacker, but contains T data. For convenience,
- the originating CallBacker* is included, so the 'caller' will still be
- available.
- 
- */
+/*!
+\ingroup Basic
+\brief Capsule class to wrap any class into a CallBacker.
+  
+  Callback functions are defined as:
+  void clss::func( CallBacker* )
+  Sometimes you want to pass other info. For this purpose, you can use the
+  CBCapsule class, which isA CallBacker, but contains T data. For convenience,
+  the originating CallBacker* is included, so the 'caller' will still be
+  available. 
+*/
 
 template <class T>
 class CBCapsule : public CallBacker
@@ -243,27 +255,28 @@ public:
 };
 
 
-/*!\brief Unpacking data from capsule
- 
- If you have a pointer to a capsule cb, this:
- \code
- mCBCapsuleUnpack(const uiMouseEvent&,ev,cb)
- \endcode
- would result in the availability of:
- \code
- const uiMouseEvent& ev
- \endcode
- 
- If you're interested in the caller, you'll need to get the capsule itself:
- \code
- mCBCapsuleGet(const uiMouseEvent&,caps,cb)
- \endcode
- would result in the availability of:
- \code
- CBCapsule<const uiMouseEvent&>* caps
- \endcode
- 
- */
+/*!
+\ingroup Basic
+\brief Unpacking data from capsule.
+  
+  If you have a pointer to a capsule cb, this:
+  \code
+  mCBCapsuleUnpack(const uiMouseEvent&,ev,cb)
+  \endcode
+  would result in the availability of:
+  \code
+  const uiMouseEvent& ev
+  \endcode
+  
+  If you're interested in the caller, you'll need to get the capsule itself:
+  \code
+  mCBCapsuleGet(const uiMouseEvent&,caps,cb)
+  \endcode
+  would result in the availability of:
+  \code
+  CBCapsule<const uiMouseEvent&>* caps
+  \endcode  
+*/
 
 #define mCBCapsuleGet(T,var,cb) \
 CBCapsule<T>* var = dynamic_cast< CBCapsule<T>* >( cb );
@@ -278,17 +291,17 @@ T var = cb##caps->data; \
 CallBacker* cber = cb##caps->caller
 
 
-
-/*! \brief Notifier with automatic capsule creation.
-
-When non-callbacker data needs to be passed, you can put it in a capsule.
-
-You'll need to define:
-
-\code
-CNotifier<MyClass,const uiMouseEvent&>	mousepress;
-\endcode
-
+/*!
+\ingroup Basic
+\brief Notifier with automatic capsule creation.
+  
+  When non-callbacker data needs to be passed, you can put it in a capsule.
+  
+  You'll need to define:
+  
+  \code
+  CNotifier<MyClass,const uiMouseEvent&>	mousepress;
+  \endcode  
 */
 
 template <class T,class C>
@@ -316,18 +329,19 @@ public:
 };
 
 
-/*!\brief temporarily disables a notifier
-
-Notifiers can be disabled. To do that temporarily, use NotifyStopper.
-If the Stopper goes out of scope, the callback is re-enabled. like:
-
-void xxx:doSomething()
-{
-    NotifyStopper stopper( a_notifier );
-    // doing things that would otherwise trigger notifier
-    // On exit, notifier gets re-enabled automatically
-}
-
+/*!
+\ingroup Basic
+\brief Temporarily disables a Notifier.
+  
+  Notifiers can be disabled. To do that temporarily, use NotifyStopper.
+  If the Stopper goes out of scope, the callback is re-enabled. like:
+  
+  void xxx:doSomething()
+  {
+      NotifyStopper stopper( a_notifier );
+      // Doing things that would otherwise trigger Notifier.
+      // On exit, Notifier gets re-enabled automatically.
+  }
 */
 
 mClass(Basic) NotifyStopper 
