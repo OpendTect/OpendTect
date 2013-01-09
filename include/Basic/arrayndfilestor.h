@@ -20,8 +20,8 @@ ________________________________________________________________________
 
 
 /*!
-  \ingroup Basic
-  \brief ArrayND I/O from/to a file.
+\ingroup Basic
+\brief ArrayND I/O from/to a file.
 */
 
 template <class T>

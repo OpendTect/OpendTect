@@ -16,7 +16,9 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 
-/*!\brief File pathname tools.
+/*!
+\ingroup Basic
+\brief File pathname tools.
 
   This class splits a full filename (with path) into the separate parts:
   directories and possibly a filename (the last part does not have to be a
@@ -28,8 +30,7 @@ ________________________________________________________________________
   fileName() returns the last part, pathOnly() returns all but the last part.
   setFileName() replaces the last part, setPath() replaces all but the last
   part.
- 
- */
+*/
 
 mClass(Basic) FilePath
 {

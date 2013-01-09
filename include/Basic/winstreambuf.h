@@ -17,10 +17,13 @@ ________________________________________________________________________
 #ifdef __win32__
 # define fpos_t od_int64
 #endif
+
 namespace std
 {
 
-/*!\brief Adapter to seek in filebuffers on win64.
+/*!
+\ingroup Basic
+\brief Adapter to seek in filebuffers on win64.
 
   Usage like:
 
@@ -29,9 +32,7 @@ namespace std
 
   After C:\Program Files (x86)\Microsoft Visual Studio 8\VC\include\fstream
   Only change is: feek -> _fseeki64
-
 */
-
 
 class winfilebuf : public filebuf
 {
@@ -95,6 +96,11 @@ od_int64    realpos_;
 };
 
 
+/*!
+\ingroup Basic
+\brief Adapter for input streams on win64.
+*/
+
 class winifstream : public istream
 {
 public:
@@ -123,6 +129,11 @@ bool is_open()
     winfilebuf*	fb_;
 };
 
+
+/*!
+\ingroup Basic
+\brief Adapter for output streams on win64.
+*/
 
 class winofstream : public ostream
 {

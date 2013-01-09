@@ -18,7 +18,12 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "errh.h"
 
-//!Helper class for Factories, Factories are defined later in this file
+/*!
+\ingroup Basic
+\brief Base class for Factories ( Factory, Factory1Param, Factory2Param
+and Factory3Param. )
+*/
+
 mClass(Basic) FactoryBase
 {
 public:
@@ -51,51 +56,49 @@ private:
 };
 
 
-
 /*!
-Generalized static factory that can deliver instances of T, when no
+\ingroup Basic
+\brief Generalized static factory that can deliver instances of T, when no
 variable is needed in the creation.
-
-Usage. Each implementation of the base class T must add themselves
-to the factory when application starts up, e.g. in an initClass() function:
-\code
-class A
-{
-public:
-    virtual int		myFunc() 	= 0;
-};
-
-class B : public A
-{
-public:
-    static A*		createFunc() { return new B; }
-    static void		initClass()
-    			{ thefactory.addCreator(createFunc,"MyKeyword",
-						"My Name"); }
-			    
-    int			myFunc();
-};
-
-\endcode
-
-Two macros are available to make a static accessfuncion for the factory:
-\code
-mDefineFactory( Module, ClassName, FunctionName );
-\endcode
-
-that will create a static function that returns an instance to
-Factory<ClassName>.
-If the function is a static member of a class, it has to be defined with
-the mDefineFactoryInClass macro.
-
-The static function must be implemented in a src-file with the macro
-
-\code
-mImplFactory( ClassName, FunctionName );
-\endcode
-
+  
+  Usage. Each implementation of the base class T must add themselves
+  to the factory when application starts up, e.g. in an initClass() function:
+  \code
+  class A
+  {
+  public:
+  virtual int		myFunc() 	= 0;
+  };
+  
+  class B : public A
+  {
+  public:
+  static A*		createFunc() { return new B; }
+  static void		initClass()
+  { thefactory.addCreator(createFunc,"MyKeyword",
+  "My Name"); }
+  
+  int			myFunc();
+  };
+  
+  \endcode
+  
+  Two macros are available to make a static accessfuncion for the factory:
+  \code
+  mDefineFactory( Module, ClassName, FunctionName );
+  \endcode
+  
+  that will create a static function that returns an instance to
+  Factory<ClassName>.
+  If the function is a static member of a class, it has to be defined with
+  the mDefineFactoryInClass macro.
+  
+  The static function must be implemented in a src-file with the macro
+  
+  \code
+  mImplFactory( ClassName, FunctionName );
+  \endcode  
 */
-
 
 template <class T>
 class Factory : public FactoryBase
@@ -120,54 +123,53 @@ protected:
 
 
 /*!
-Generalized static factory that can deliver instances of T, when a
+\ingroup Basic
+\brief Generalized static factory that can deliver instances of T, when a
 variable is needed in the creation.
-
-Usage. Each implementation of the base class T must add themselves
-to the factory when application starts up, e.g. in an initClass() function:
-\code
-class A
-{
-public:
-    virtual int		myFunc() 	= 0;
-};
-
-class B : public A
-{
-public:
-    static A*		createFunc(C* param)
-			{
-			    A* res = new B;
- 			    if ( res->setParam( param ) );
- 				return res;
- 
-			    thefactory.errMsg() = "Could not set param";
-			    delete res;
-			    return 0;
- 			}
-    static void		initClass()
-    			{ thefactory.addCreator(createFunc,"MyKeyword","My Name"); }
-			    
-    int			myFunc();
-};
-
-\endcode
-
-Two macros are available to make a static accessfuncion for the factory:
-\code
-mDefineFactory1Param( Module, ClassName, ParamClass, FunctionName );
-\endcode
-
-that will create a static function that returns an instance to
-Factory1Param<ClassName,ParamClass>. The static function must be implemented
-in a src-file with the macro
-
-\code
-mImplFactory1Param( ClassName, ParamClass, FunctionName );
-\endcode
-
+  
+  Usage. Each implementation of the base class T must add themselves
+  to the factory when application starts up, e.g. in an initClass() function:
+  \code
+  class A
+  {
+  public:
+  virtual int		myFunc() 	= 0;
+  };
+  
+  class B : public A
+  {
+  public:
+  static A*		createFunc(C* param)
+  {
+  A* res = new B;
+  if ( res->setParam( param ) );
+  return res;
+  
+  thefactory.errMsg() = "Could not set param";
+  delete res;
+  return 0;
+  }
+  static void		initClass()
+  { thefactory.addCreator(createFunc,"MyKeyword","My Name"); }
+  
+  int			myFunc();
+  };
+  
+  \endcode
+  
+  Two macros are available to make a static accessfuncion for the factory:
+  \code
+  mDefineFactory1Param( Module, ClassName, ParamClass, FunctionName );
+  \endcode
+  
+  that will create a static function that returns an instance to
+  Factory1Param<ClassName,ParamClass>. The static function must be implemented
+  in a src-file with the macro.
+  
+  \code
+  mImplFactory1Param( ClassName, ParamClass, FunctionName );
+  \endcode
 */
-
 
 template <class T, class P>
 class Factory1Param : public FactoryBase
@@ -191,6 +193,11 @@ protected:
 };
 
 
+/*!
+\ingroup Basic
+\brief Subclass of FactoryBase.
+*/
+
 template <class T, class P0, class P1>
 class Factory2Param : public FactoryBase
 {
@@ -213,6 +220,11 @@ protected:
     TypeSet<Creator>		creators_;
 };
 
+
+/*!
+\ingroup Basic
+\brief Subclass of FactoryBase.
+*/
 
 template <class T, class P0, class P1, class P2>
 class Factory3Param : public FactoryBase

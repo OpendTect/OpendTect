@@ -21,7 +21,10 @@ class BinID;
 namespace PosInfo
 {
 
-/*!\brief One position on a 2D line */
+/*!
+\ingroup Basic  
+\brief One position on a 2D line.
+*/
 
 mClass(Basic) Line2DPos
 {
@@ -41,6 +44,11 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Line2DPos with a z value.
+*/
+
 mClass(Basic) Line2DPos3D : public Line2DPos
 {
 public:
@@ -51,7 +59,10 @@ public:
 };
 
 
-/*!\brief Position info for a 2D line */
+/*!
+\ingroup Basic
+\brief Position info for a 2D line.
+*/
 
 mClass(Basic) Line2DData
 {

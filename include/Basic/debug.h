@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"  
  
-/*!\brief defines a generic interface for supplying debug/runtime info
+/*!\brief Defines a generic interface for supplying debug/runtime info.
 
     The isOn() is controlled by the environment variable DTECT_DEBUG.
     If DTECT_DEBUG starts with a "Y" or "y" then the mask is set to 0xffff.

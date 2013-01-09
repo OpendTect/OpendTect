@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"
 
-/*!  Contains the information about the size of ArrayND, and
+/*!
+\ingroup Basic
+\brief Contains the information about the size of ArrayND, and
 in what order the data is stored (if accessable via a pointer).
 */
 
@@ -61,6 +63,12 @@ inline bool operator !=( const ArrayNDInfo& a1, const ArrayNDInfo& a2 )
 { return !(a1 == a2); }
 
 
+/*!
+\ingroup Basic
+\brief Contains the information about the size of Array1D, and
+in what order the data is stored (if accessable via a pointer).
+*/
+
 mClass(Basic) Array1DInfo : public ArrayNDInfo
 {
 public:
@@ -80,6 +88,12 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Contains the information about the size of Array2D, and
+in what order the data is stored (if accessable via a pointer).
+*/
+
 mClass(Basic) Array2DInfo : public ArrayNDInfo
 {
 public:
@@ -98,6 +112,12 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Contains the information about the size of Array3D, and
+in what order the data is stored (if accessable via a pointer).
+*/
+
 mClass(Basic) Array3DInfo : public ArrayNDInfo
 {
 public:
@@ -115,6 +135,11 @@ public:
 
 };
 
+
+/*!
+\ingroup Basic
+\brief Implementation of Array1DInfo.
+*/
 
 mClass(Basic) Array1DInfoImpl : public Array1DInfo
 {
@@ -135,6 +160,11 @@ protected:
     int			sz_;
 };
 
+
+/*!
+\ingroup Basic
+\brief Implementation of Array2DInfo.
+*/
 
 mClass(Basic) Array2DInfoImpl : public Array2DInfo
 {
@@ -159,6 +189,11 @@ protected:
 };
 
 
+/*!
+\ingroup Basic
+\brief Implementation of Array3DInfo.
+*/
+
 mClass(Basic) Array3DInfoImpl : public Array3DInfo
 {
 public:
@@ -181,6 +216,11 @@ protected:
     od_uint64		cachedtotalsz_;
 };  
 
+
+/*!
+\ingroup Basic
+\brief Implementation of ArrayNDInfo.
+*/
 
 mClass(Basic) ArrayNDInfoImpl : public ArrayNDInfo
 {

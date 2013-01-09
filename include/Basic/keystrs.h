@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "fixedstring.h"
 
 /*!
-\ingroup Basic
 \brief is used for defining key strings that are 'global'.
 
 Some standard key strings are shared between otherwise unrelated modules.

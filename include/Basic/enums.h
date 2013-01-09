@@ -155,7 +155,10 @@ const char* MyClass::Typenames_[] =
 #include "namedobj.h"
 
 
-/*\brief holds data pertinent for a certain enum */
+/*!
+  \ingroup Basic
+  \brief Holds data pertinent to a certain enum.
+*/
 
 mClass(Basic) EnumDef : public NamedObject
 {

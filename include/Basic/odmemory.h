@@ -26,7 +26,11 @@ template <class T> class ValueSeries;
 #define mMemMinThreadSize 1048576
 
 
-/*!Sets large amounts of values to a constant using multiple threads. */
+/*!
+\ingroup Basic
+\brief Sets large amounts of values to a constant using multiple threads.
+*/
+
 template <class T>
 class MemSetter : public ParallelTask
 {
@@ -55,6 +59,11 @@ protected:
     T			val_;
 };
 
+
+/*!
+\ingroup Basic
+\brief ValueSeries Copier
+*/
 
 template <class T>
 class MemCopier : public ParallelTask
@@ -92,7 +101,10 @@ protected:
 };
 
 
-/*!Goes through some mem or a valseries and replaces one value with another */
+/*!
+\ingroup Basic
+\brief Goes through some mem or a ValSeries and replaces one value with another.
+*/
 
 template <class T>
 class MemValReplacer : public ParallelTask

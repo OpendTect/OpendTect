@@ -21,6 +21,11 @@ mFDQtclass(QTime)
 namespace Time
 {
 
+/*!
+\ingroup Basic
+\brief Time Counter
+*/
+
 mClass(Basic) Counter
 {
 public:

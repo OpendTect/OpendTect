@@ -18,8 +18,10 @@ ________________________________________________________________________
 #include "staticsdesc.h"
 
 
-/*!Specifies velocity type and statics for a velocity.   */
-
+/*!
+\ingroup Basic
+\brief Specifies velocity type and statics for a velocity.
+*/
 
 mClass(Basic) VelocityDesc
 {

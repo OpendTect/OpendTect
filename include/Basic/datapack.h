@@ -23,15 +23,15 @@ class DataPackMgr;
 class IOPar;
 
 
-/*!\brief A data packet: data+positioning and more that needs to be shared.
+/*!
+\ingroup Basic
+\brief A data packet: data+positioning and more that needs to be shared.
 
   The 'category' is meant like:
   'Pre-Stack gather'
   'Wavelet'
   'Fault surface'
-
- */ 
-
+*/
 
 mClass(Basic) DataPack : public NamedObject
 {
@@ -81,7 +81,11 @@ protected:
     friend class	DataPackMgr;
 };
 
-/*!\brief Simple DataPack based on an unstructured char array buffer. */
+
+/*!
+\ingroup Basic
+\brief Simple DataPack based on an unstructured char array buffer.
+*/
 
 mClass(Basic) BufferDataPack : public DataPack
 {
@@ -110,22 +114,23 @@ protected:
 };
 
 
-/*!\brief Manages DataPacks
-
-  Data Packs will be managed with everything in it. If you add a Pack, you
+/*!
+\ingroup Basic
+\brief Manages DataPacks.
+  
+  DataPacks will be managed with everything in it. If you add a Pack, you
   will get the ID of the pack.
-
+  
   When you obtain the data for looking at it, you can choose to 'only observe'.
   In that case, you'd better use the packToBeRemoved notifier, as the data may
   be deleted at any time. Normally, you want to obtain a reference whilst
   making sure the data is not thrown away.
-
+  
   This means you *must* release the data pack once you no longer use it, but
-  *NEVER* release a pack when you used the 'observing_only' option.
-
-  You can get an appropriate DataPackMgr from the DPM() function.
-
-   */
+ *NEVER* release a pack when you used the 'observing_only' option.
+ 
+ You can get an appropriate DataPackMgr from the DPM() function.
+*/
 
 mClass(Basic) DataPackMgr : public CallBacker
 {

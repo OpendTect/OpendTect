@@ -16,7 +16,10 @@ ________________________________________________________________________
 #include "samplingdata.h"
 
 
-//! Info on (floating-point) position in an array or StepInterval
+/*!
+  \ingroup Basic
+  \brief %Info on (floating-point) position in an array or StepInterval.
+*/
 
 mClass(Basic) IndexInfo
 {

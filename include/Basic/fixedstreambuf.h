@@ -17,7 +17,9 @@ ________________________________________________________________________
 namespace std
 {
 
-/*!\brief Adapter to use a fixed buffer as a stream.
+/*!
+\ingroup Basic
+\brief Adapter to use a fixed buffer as a stream.
 
   Usage like:
 

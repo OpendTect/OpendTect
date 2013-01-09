@@ -17,6 +17,12 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ziphandler.h"
 
+
+/*!
+\ingroup Basic
+\brief Zip Utilities
+*/
+
 mClass(Basic) ZipUtils
 {
 public:
@@ -68,6 +74,11 @@ protected:
 };
 
 
+/*!
+\ingroup Basic
+\brief Compresses files in zip format.
+*/
+
 mClass(Basic) Zipper : public Executor
 {
 public:
@@ -90,6 +101,11 @@ protected:
     od_int32				nrdir_;
 };
 
+
+/*!
+\ingroup Basic
+\brief Uncompresses files in zip format.
+*/
 
 mClass(Basic) UnZipper : public Executor
 {

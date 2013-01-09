@@ -16,14 +16,14 @@ ________________________________________________________________________
 #include "fixedstring.h"
 #include <string.h>
 
-/*!\brief updates a variable when changes occur.
-
-Use if you need to keep track of whether a variable changes when it is assigned
-to another variable. Example: a 'not saved' flag in a UI. Also facilitates
-Giving unique change stamps.
-
+/*!
+\ingroup Basic
+\brief Updates a variable when changes occur.
+  
+  Use if you need to keep track of whether a variable changes when it is
+  assigned to another variable. Example: a 'not saved' flag in a UI. Also 
+  facilitates giving unique change stamps.
 */
-
 
 class ChangeTracker
 {
@@ -79,15 +79,16 @@ protected:
 };
 
 
-/*!\brief macro to use when there is no direct access to data members.
-
-chtr = the change tracker
-obj = object instance
-getfn = get function
-setfn - set function
-newval = new value
+/*!
+\ingroup Basic
+\brief Macro to use when there is no direct access to data members.
+  
+  chtr = the change tracker
+  obj = object instance
+  getfn = get function
+  setfn - set function
+  newval = new value
 */
-
 
 #define mChgTrackGetSet(chtr,obj,getfn,setfn,newval) { \
     if ( chtr.set( obj->getfn(), newval ) ) \

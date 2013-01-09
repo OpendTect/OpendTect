@@ -31,8 +31,11 @@ template <class T>
 inline bool filterUndef(const ValueSeries<T>& input,ValueSeries<T>& output,int);
 
 
-/*!Class that handles undefvalues in arrays that are in a format described
-   by a BinDataDesc */
+/*!
+\ingroup Basic
+\brief Class that handles undefvalues in arrays that are in a format described
+by a BinDataDesc.
+*/
 
 mClass(Basic) UndefArrayHandler
 {

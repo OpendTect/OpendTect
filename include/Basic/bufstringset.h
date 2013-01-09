@@ -19,8 +19,10 @@ ________________________________________________________________________
 class IOPar;
 class GlobExpr;
 
-
-/*!\brief Set of BufferString objects */
+/*!
+\ingroup Basic
+\brief Set of BufferString objects.
+*/
 
 mClass(Basic) BufferStringSet : public ManagedObjectSet<BufferString>
 {

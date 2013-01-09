@@ -15,14 +15,14 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "general.h"
 
-/*!\brief Glob-expression matching like UNIX shells
+/*!
+\ingroup Basic
+\brief Glob-expression matching like UNIX shells
 
-Expressions may have '*', '?' and [] (e.g. [a-eA-E]) constructions. Also the
-inverted selection with '^' or '!' supported (e.g. [^x-z] or [!akPZ]). Escape
-the special chars with '\';
-
+  Expressions may have '*', '?' and [] (e.g. [a-eA-E]) constructions. Also the
+  inverted selection with '^' or '!' supported (e.g. [^x-z] or [!akPZ]). Escape
+  the special chars with '\';
 */
-
 
 mClass(Basic) GlobExpr
 {

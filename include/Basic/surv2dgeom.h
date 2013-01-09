@@ -27,6 +27,11 @@ class BufferStringSet;
 namespace PosInfo
 {
 
+/*!
+\ingroup Basic
+\brief Geometry ID. 
+*/
+
 mClass(Basic) GeomID
 {
 public:
@@ -40,18 +45,20 @@ public:
     void	setUndef();
 
     bool	operator ==( const GeomID& a ) const
-    		{ return a.lsid_ == lsid_ && a.lineid_ == lineid_; }
+   		{ return a.lsid_ == lsid_ && a.lineid_ == lineid_; }
     bool	operator !=( const GeomID& a ) const
 		{ return !( operator==(a) ); }
     BufferString toString() const;
     bool	fromString(const char*);
 };
 
-/*!\brief Repository for 2D line geometries
+
+/*!
+\ingroup Basic
+\brief Repository for 2D line geometries.
 
   You can access it using S2DPOS() (or PosInfo::POS2DAdmin()).
- 
- */
+*/
 
 mClass(Basic) Survey2D : public CallBacker
 {
@@ -148,10 +155,13 @@ inline mGlobal(Basic) const PosInfo::Survey2D& S2DPOS()
 
 //New Stuff post 4.4 that will replace the old stuff in due course
 
-/*!\brief Geometry of a 2D Line.*/
-
 namespace Survey
 {
+
+/*!
+\ingroup Basic
+\brief Geometry of a 2D Line.
+*/
 
 mClass(Basic) Geometry2D : public Geometry
 {

@@ -18,6 +18,11 @@ ________________________________________________________________________
 namespace OD
 {
 
+/*!
+\ingroup Basic
+\brief Platform or Operating System
+*/
+
 mClass(Basic) Platform
 {
 public:

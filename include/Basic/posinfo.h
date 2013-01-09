@@ -40,8 +40,11 @@ numbers.
 namespace PosInfo
 {
 
-/*!\brief Position info for a line - in a 3D cube, that would be an inline.
-	  Stored as (crossline-)number segments. */
+/*!
+\ingroup Basic
+\brief Position info for a line - in a 3D cube, that would be an inline.
+Stored as (crossline-)number segments.
+*/
 
 mClass(Basic) LineData
 {
@@ -65,7 +68,10 @@ public:
 };
 
 
-/*!\brief Position in a CubeData */
+/*!
+\ingroup Basic
+\brief Position in a CubeData.
+*/
 
 mClass(Basic) CubeDataPos
 {
@@ -84,10 +90,11 @@ public:
 };
 
 
-/*!\brief Position info for an entire 3D cube.
-
-  The LineData's are not sorted.
- */
+/*!
+\ingroup Basic
+\brief Position info for an entire 3D cube.
+The LineData's are not sorted.
+*/
 
 mClass(Basic) CubeData : public ManagedObjectSet<LineData>
 {
@@ -142,10 +149,11 @@ protected:
 };
 
 
-/*!\brief Position info for an entire 3D cube.
-
-  The LineData's are sorted.
- */
+/*!
+\ingroup Basic
+\brief Position info for an entire 3D cube.
+The LineData's are sorted.
+*/
 
 mClass(Basic) SortedCubeData : public CubeData
 {
@@ -175,7 +183,10 @@ public:
 };
 
 
-/*!\brief Fills CubeData object. Requires inline- and crossline-sorting. */
+/*!
+\ingroup Basic
+\brief Fills CubeData object. Requires inline- and crossline-sorting.
+*/
 
 mClass(Basic) CubeDataFiller
 {
@@ -199,6 +210,11 @@ protected:
 
 };
 
+
+/*!
+\ingroup Basic
+\brief Iterates through CubeData. 
+*/
 
 mClass(Basic) CubeDataIterator
 {

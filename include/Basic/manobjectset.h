@@ -15,7 +15,10 @@ ________________________________________________________________________
 #include "objectset.h"
 
 
-/*!\brief ObjectSet where the objects contained are owned by this set. */
+/*!
+  \ingroup Basic
+  \brief ObjectSet where the objects contained are owned by this set.
+*/
 
 template <class T>
 class ManagedObjectSet : public ObjectSet<T>

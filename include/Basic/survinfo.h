@@ -28,8 +28,11 @@ class IOPar;
 class CubeSampling;
 class LatLong2Coord;
 
-/*!Scaled down survey geometry for an inl/crl geometry . */
 
+/*!
+\ingroup Basic
+\brief Scaled down survey geometry for an inl/crl geometry.
+*/
 
 mClass(Basic) InlCrlSystem : public Survey::Geometry
 {
@@ -89,20 +92,20 @@ protected:
 };
 
 
-/*!\brief Holds survey general information.
+/*!
+\ingroup Basic
+\brief Holds survey general information.
 
-The surveyinfo is the primary source for ranges and steps. It also provides
-the transformation between inline/xline <-> coordinates and lat/long estimates.
-
-Note: the Z range step is only a default. It should not be used further
-because different cubes/lines have different sample rates.
-
-The ranges are defined for two cubes: the entire survey, and a 'working area'.
-Normally, you'll want to have the working area.
-
-If you are an expert, and you feel you need more 'power', you may want to look
-at the bottom part of the class too for some more public functions.
-
+  The surveyinfo is the primary source for ranges and steps.It also provides the  transformation between inline/xline <-> coordinates and lat/long estimates.
+  
+  Note: the Z range step is only a default. It should not be used further
+  because different cubes/lines have different sample rates.
+  
+  The ranges are defined for two cubes: the entire survey, and a 'working area'.
+  Normally, you'll want to have the working area.
+  
+  If you are an expert, and you feel you need more 'power', you may want to look
+  at the bottom part of the class too for some more public functions.
 */
 
 mClass(Basic) SurveyInfo : public NamedObject

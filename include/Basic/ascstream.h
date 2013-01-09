@@ -22,12 +22,13 @@ ________________________________________________________________________
 #define mAscStrmKeyValSep		':'
 
 
-/*!\brief OpendTect standard ascii format file writing.
-
-An ascostream puts data in an OpendTect standard ascii format file. That means
-it has a OpendTect standard header and often keyword/value pairs separated by
-a colon.
-
+/*!
+\ingroup Basic
+\brief OpendTect standard ascii format file writing.
+  
+  An ascostream puts data in an OpendTect standard ascii format file. That means
+  it has a OpendTect standard header and often keyword/value pairs separated by
+  a colon.
 */
 
 mClass(Basic) ascostream
@@ -75,12 +76,13 @@ protected:
 };
 
 
-/*!\brief reading OpendTect standard ascii format file.
-
-An ascistream gets data from a OpendTect standard ascii format file. This format
-consists of the OpendTect header (version, file type, date), and then a number
-of 'paragraphs', each separated by a single '!' on a line.
-
+/*!
+\ingroup Basic
+\brief OpendTect standard ascii format file reading.
+  
+  An ascistream gets data from a OpendTect standard ascii format file. This
+  format consists of the OpendTect header (version, file type, date), and then
+  a number of 'paragraphs', each separated by a single '!' on a line.
 */
 
 mClass(Basic) ascistream

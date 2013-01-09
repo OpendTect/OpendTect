@@ -17,7 +17,10 @@ ________________________________________________________________________
 #include "position.h"
 
 
-/*!\brief geographical coordinates, decimal but with conv to deg, min, sec. */
+/*!
+\ingroup Basic
+\brief Geographical coordinates, decimal but with conv to deg, min, sec.
+*/
 
 mClass(Basic) LatLong
 {
@@ -42,11 +45,12 @@ public:
 };
 
 
-/*!\brief Estimates to/from LatLong coordinates.
+/*!
+\ingroup Basic
+\brief Estimates to/from LatLong coordinates.
 
-  Needs both survey coordinate and lat/long for an anchor point in the survey.
-
- */
+  Needs both survey coordinates and lat/long for an anchor point in the survey.
+*/
 
 mClass(Basic) LatLong2Coord
 {

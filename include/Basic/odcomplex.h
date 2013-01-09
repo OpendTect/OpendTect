@@ -29,6 +29,11 @@ typedef std::complex<float> float_complex;
 namespace Values
 {
 
+/*!
+\ingroup Basic
+\brief Undefined float_complex.
+*/
+
 template<>
 class Undef<float_complex>
 {

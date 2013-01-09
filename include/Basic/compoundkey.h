@@ -20,15 +20,15 @@ ________________________________________________________________________
 #include <stdlib.h>
 #include <iostream>
 
-/*!\brief Concatenated short keys separated by dots.
-
- Usage is for Object identifiers in the Object Manager, or UnitIDs.
-
- A Compound Key Glob Expression is a string used for matching.
- It is similar to a UNIX-type glob expression.
-
+/*!
+\ingroup Basic
+\brief Concatenated short keys separated by dots.
+  
+  Usage is for Object identifiers in the Object Manager, or UnitIDs.
+  
+  A Compound Key Glob Expression is a string used for matching.
+  It is similar to a UNIX-type glob expression.
 */
-
 
 mClass(Basic) CompoundKey
 {

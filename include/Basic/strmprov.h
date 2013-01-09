@@ -21,21 +21,22 @@ class TaskRunner;
 class BufferStringSet;
 
 
-/*!\brief provides I/O stream for file or system command.
+/*!
+\ingroup Basic
+\brief Provides I/O stream for file or system command.
 
-StreamProvider provides a stream with requested source attached:
- - starting with '@' --> OS command that produces the data on stdin/stdout
- - Hostname may preceed before a ':' (UNIX variants) or '\\' (Windows).
+  StreamProvider provides a stream with requested source attached:
+   - starting with '@' --> OS command that produces the data on stdin/stdout
+   - Hostname may preceed before a ':' (UNIX variants) or '\\' (Windows).
+  
+  Thus:
+   - dgb1:@handle_data
+        Executable handle_data on remote host dgb1 will get/put on stdin/stdout.   - \\winserv\foo\bar
+	File \foo\bar on remote host winserv.
+   - foo.bar
+	File foo.bar in current directory.
 
-Thus:
- - dgb1:@handle_data
-	Executable handle_data on remote host dgb1 will get/put on stdin/stdout
- - \\winserv\foo\bar
-	File \foo\bar on remote host winserv
- - foo.bar
-	file foo.bar in current directory
-
- A null string or StreamProvider::sStdIO will select std input and output.
+  A null string or StreamProvider::sStdIO will select std input and output.
 */
 
 mClass(Basic) StreamProvider

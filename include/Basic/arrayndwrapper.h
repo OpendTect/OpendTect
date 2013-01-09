@@ -13,11 +13,12 @@ ________________________________________________________________________
 -*/
 
 
-/*! \brief Access tool to another array with a lower number of dimensions
+/*!
+\ingroup Basic
+\brief Access tool to another array with a lower number of dimensions
 */
 
 //TODO: Write more info
-
 class ArrayNDWrapper
 {
 public:
@@ -38,6 +39,10 @@ void ArrayNDWrapper::setDimMap( int srcdim, int targetdim )
 { dimmap_[srcdim] = targetdim; }
 
 
+/*!
+\ingroup Basic
+\brief Subclass of ArrayNDWrapper.
+*/
 
 template <class T>
 class Array3DWrapper : public Array3D<T>, public ArrayNDWrapper

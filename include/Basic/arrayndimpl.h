@@ -34,6 +34,11 @@ ________________________________________________________________________
     inline bool			setStorageNoResize(ValueSeries<T>*);
 
 
+/*!
+\ingroup Basic
+\brief Implementation of Array1D.
+*/
+
 template <class T> class Array1DImpl : public Array1D<T>
 {
 public:
@@ -74,6 +79,11 @@ protected:
 };
 
 
+/*!
+\ingroup Basic
+\brief Implementation of Array2D.
+*/
+
 template <class T> class Array2DImpl : public Array2D<T>
 {
 public:
@@ -107,6 +117,11 @@ protected:
 };
 
 
+/*!
+\ingroup Basic
+\brief Implementation of Array3D.
+*/
+
 template <class T> class Array3DImpl : public Array3D<T>
 {
 public:
@@ -136,6 +151,11 @@ protected:
     mDeclArrayNDProtMemb(Array3DInfoImpl);
 };
 
+
+/*!
+\ingroup Basic
+\brief Implementation of ArrayND.
+*/
 
 template <class T> class ArrayNDImpl : public ArrayND<T>
 {

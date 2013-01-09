@@ -18,20 +18,21 @@ ________________________________________________________________________
 #include <vector>
 #include <stdexcept>
 
-/*!\brief Simple vector-based container simplifying index-based work.
+/*!
+\ingroup Basic
+\brief Simple vector-based container simplifying index-based work.
 
-This class is an implementation detail of the 'sets.h' and 'sortedlist.h'
-classes. Thus, this class is not meant to be used anywhere else in OpendTect!
-Use TypeSet, ObjectSet or SortedList instead. If you need to have the
-std::vector to pass to an external C++ object, use the TypeSet::vec() or
-SortedList::vec().
-
-NOTE: because this class is based directly upon the STL vector, we have a
-problem for the bool type. In STL, they have made the vector<bool> implemented
-in terms of the bit_vector. That really sucks because we cannot return a
-reference to T! This is why there is a 'BoolTypeSet'.
- 
- */
+  This class is an implementation detail of the 'sets.h' and 'sortedlist.h'
+  classes. Thus, this class is not meant to be used anywhere else in OpendTect!
+  Use TypeSet, ObjectSet or SortedList instead. If you need to have the
+  std::vector to pass to an external C++ object, use the TypeSet::vec() or
+  SortedList::vec().
+  
+  NOTE: because this class is based directly upon the STL vector, we have a
+  problem for the bool type. In STL, they have made the vector<bool> implemented
+  in terms of the bit_vector. That really sucks because we cannot return a
+  reference to T! This is why there is a 'BoolTypeSet'. 
+*/
 
 template <class T,class I>
 class VectorAccess

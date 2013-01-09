@@ -34,6 +34,11 @@ mGlobal(Basic) void		setDepth(IOPar&);
 mGlobal(Basic) void		setTime(IOPar&);
 
 
+/*!
+\ingroup Basic
+\brief Definition of z-domain.
+*/
+
 mClass(Basic) Def
 {
 public:
@@ -73,6 +78,11 @@ protected:
     int			usrfac_; // usually 1 or 1000, not FeetFac
 };
 
+
+/*!
+\ingroup Basic
+\brief Information of z-domain.
+*/
 
 mClass(Basic) Info
 {

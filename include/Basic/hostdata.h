@@ -24,7 +24,11 @@ class ShareData;
     if ( bs.isEmpty() ) return "_none_"; \
     return bs;
 
-/*\brief Host name and aliases */
+/*!
+\ingroup Basic
+\brief Host name and aliases.
+*/
+
 mClass(Basic) HostData
 {
 public:
@@ -109,7 +113,11 @@ protected:
 };
 
 
-/*\brief Describes shared drive and host. Mostly win32. */
+/*!
+\ingroup Basic
+\brief Describes shared drive and host. Mostly win32.
+*/
+
 mClass(Basic) ShareData
 {
 public:
@@ -144,11 +152,12 @@ protected:
 
 
 
-/*\brief List of host names in the system
-
+/*!
+\ingroup Basic
+\brief List of host names in the system.
   The first entry will be the local host.
- 
- */
+*/
+
 mClass(Basic) HostDataList : public ManagedObjectSet<HostData>
 {
 public:

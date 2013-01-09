@@ -20,23 +20,25 @@ ________________________________________________________________________
 class UndoEvent;
 class BinID;
 
-/*! Class to handle undo/redo information. Events that can be undone/redone
-    are added to the Undo. One user operation may involve thouthands
-    of changes added to the history, but the user does not want to press undo a
-    thousand times. This is managed by setting a UserInteractionEnd flag on the
-    last event in a chain that the user started. When doing undo, one undo step
-    is consists of all events from the current event until the next event with
-    the UserInteraction flag set. 
+/*!
+\ingroup Basic
+\brief Class to handle undo/redo information. Events that can be undone/redone
+are added to the Undo. One user operation may involve thouthands of changes
+added to the history, but the user does not want to press undo a
+thousand times. This is managed by setting a UserInteractionEnd flag on the
+last event in a chain that the user started. When doing undo, one undo step
+is consists of all events from the current event until the next event with
+the UserInteraction flag set. 
 
-    This means that after all user-driven events, the UserInteractionEnd should
-    be set:
-\code
-void MyClass::userPushedAButtonCB( CallBacker* )
-{
-    doSomethingsThatAddThingsOnTheHistory();
-    history.setUserInteractionEnd( currentEventID() );
-}
-\endcode
+  This means that after all user-driven events, the UserInteractionEnd should
+  be set:
+  \code
+  void MyClass::userPushedAButtonCB( CallBacker* )
+  {
+      doSomethingsThatAddThingsOnTheHistory();
+      history.setUserInteractionEnd( currentEventID() );
+  }
+  \endcode
 */
 
 mClass(Basic) Undo : public CallBacker
@@ -96,7 +98,11 @@ protected:
     int				userendscount_;
 };
 
-/*! Holds the information how to undo/redo something. */
+
+/*!
+\ingroup Basic
+\brief Holds the information on how to undo/redo something.
+*/
 
 mClass(Basic) UndoEvent
 {
@@ -119,6 +125,11 @@ protected:
     bool			isuserinteractionend_;
 };
 
+
+/*!
+\ingroup Basic
+\brief BinID UndoEvent.
+*/
 
 mClass(Basic) BinIDUndoEvent : public UndoEvent
 {

@@ -59,35 +59,36 @@ enum Pol2D3D	{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };
 	for  ( tp idx=0; idx<sz; idx++ )		\
 	    var[idx] = idx;
 
-//! Define members in setup classes (see e.g. uidialog.h)
-/* Usage typically like:
+/*!
+\ingroup Basic
+\brief Define members in setup classes (see e.g. uidialog.h)
 
- class SomeClass
- {
- public:
+  Usage typically like:
+  
+  class SomeClass
+  {
+  public:
  
-	 class Setup
-	 {
-		 Setup()
-		 : withformat_(true)	//!< Can user select storage?
-		 , withstep_(true)	//!< Can user specify steps?
-		 , title_("")		//!< Title for plots
-				{}
+	  class Setup
+	  {
+		  Setup()
+		  : withformat_(true)	//!< Can user select storage?
+		  , withstep_(true)	//!< Can user specify steps?
+		  , title_("")		//!< Title for plots
+		 		 {}
 
-		mDefSetupMemb(bool,withformat)
-		mDefSetupMemb(bool,withstep)
-		mDefSetupMemb(BufferString,title)
-	 }
+		 mDefSetupMemb(bool,withformat)
+		 mDefSetupMemb(bool,withstep)
+		 mDefSetupMemb(BufferString,title)
+	  }
 	
-	SomeClass(const Setup&);
-	// etc.
-};
+	 SomeClass(const Setup&);
+	 // etc.
+  };
 
-The point of this is clear when SomeClass is constructed:
-
-    SomeClass sc( SomeClass::Setup().withformat(false).title("MyTitle") );
-
- */
+  The point of this is clear when SomeClass is constructed:
+  SomeClass sc( SomeClass::Setup().withformat(false).title("MyTitle") );
+*/
 
 #define mDefSetupClssMemb(clss,typ,memb) \
 	typ	 memb##_; \
@@ -98,22 +99,25 @@ The point of this is clear when SomeClass is constructed:
 
 #endif
 
-/* Applies an operation to all members in an array. Quicker than for-loops.
-Instead of:
-\code
-for ( int idx=0; idx<sz; idx++ )
-    ptr[idx] /= 5;
-\endcode
+/*!
+\ingroup Basic
+\brief Applies an operation to all members in an array. Quicker than for-loops.
 
-You can do:
-\code
-
-mPointerOperation( float, ptr, /= 5, sz, ++ );
-\endcode
-
-This will expand to :
-\code
-{
+  Instead of:
+  \code
+  for ( int idx=0; idx<sz; idx++ )
+  ptr[idx] /= 5;
+  \endcode
+  
+  You can do:
+  \code
+  
+  mPointerOperation( float, ptr, /= 5, sz, ++ );
+  \endcode
+  
+  This will expand to :
+  \code
+  {
     float* __incptr = ptr;
     const float* __stopptr = __incptr + sz;
     while( __incptr!=__stopptr )
@@ -121,9 +125,8 @@ This will expand to :
         *__incptr /= 5;
 	__incptr ++;
     }
-}
-\endcode
-
+  }
+  \endcode
 */
 
 #define mPointerOperation( type, ptr, ops, totalnr, inc ) \

@@ -16,11 +16,14 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "math2.h"
 
-
 namespace Geom
 {
 
-/*!\brief basic point class */
+/*!
+\ingroup Basic
+\brief %Basic point class.
+*/
+
 template <class T>
 class Point2D
 {
@@ -66,7 +69,10 @@ public:
 };
 
 
-/*!\brief basic 2D sizes (width/height) class */
+/*!
+\ingroup Basic
+\brief %Basic 2D sizes (width/height) class.
+*/
 
 template <class T>
 class Size2D
@@ -95,14 +101,15 @@ protected:
 };
 
 
-/*!\brief basic 2D rectangle class
+/*!
+\ingroup Basic
+\brief %Basic 2D rectangle class.
 
-This class is a bit more complicated than would be expected at first sight.
-This is caused by the problem of coordinate system sign. For example, in
-user interfaces, top is a lower number than bottom. But for normal
-coordinates, this is (of course) not the case. Still, also for floating point
-types, reverse axes are common.
-
+  This class is a bit more complicated than would be expected at first sight.
+  This is caused by the problem of coordinate system sign. For example, in
+  user interfaces, top is a lower number than bottom. But for normal
+  coordinates, this is (of course) not the case. Still, also for floating point
+  types, reverse axes are common.
 */
 
 template <class T>
@@ -171,14 +178,14 @@ protected:
 };
 
 
-/*!\brief Integer rectangle class.
+/*!
+\ingroup Basic
+\brief Integer rectangle class.
 
   The difference with the floating point type rectangle is in range handling.
   In the float world, everything must be epsiloned. Integer rectangles are
   more straightforward.
-
 */
-
 
 template <class T>
 class PixRectangle : public Rectangle<T>
@@ -205,12 +212,13 @@ protected:
 };
 
 
-/*!\brief Floating-point rectangle class.
+/*!
+\ingroup Basic
+\brief Floating-point rectangle class.
 
   The difference with the integer type rectangle is in range handling. In the
   float world, everything must be epsiloned.
   with inside and outside.
-
 */
 
 template <class T>

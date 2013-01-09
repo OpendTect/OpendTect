@@ -68,6 +68,11 @@ ________________________________________________________________________
 #define mEndOfDirHeaderSize 22
 
 
+/*!
+\ingroup Basic
+\brief Zip file information.
+*/
+
 mClass(Basic) ZipFileInfo
 {
     
@@ -89,6 +94,11 @@ public:
 
 };
 
+
+/*!
+\ingroup Basic
+\brief Handles zipping and unzipping of files.
+*/
 
 mClass(Basic) ZipHandler
 {

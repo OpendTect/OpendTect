@@ -19,8 +19,8 @@ ________________________________________________________________________
 
 
 /*!
-  \ingroup Basic
-  \brief Acoustic Impedance layer.
+\ingroup Basic
+\brief Acoustic Impedance layer.
 */
 
 class AILayer
@@ -50,8 +50,8 @@ inline float getLayerDepth( const AIModel& mod, int layer )
 
 
 /*!
-  \ingroup Basic
-  \brief A table of elastic prop layers.
+\ingroup Basic
+\brief A table of elastic prop layers.
 */
 
 class ElasticLayer : public AILayer

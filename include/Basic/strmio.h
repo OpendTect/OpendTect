@@ -19,7 +19,10 @@ ________________________________________________________________________
 
 class IOPar;
 
-/*!\brief Class for simple ascii/binary stream read/write */
+/*!
+\ingroup Basic
+\brief Class for simple ascii/binary stream read/write.
+*/
 
 mClass(Basic) StreamIO
 {

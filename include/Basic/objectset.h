@@ -24,11 +24,12 @@ ________________________________________________________________________
 #endif
 
 
-/*!\brief Set of pointers to objects
+/*!
+\ingroup Basic
+\brief Set of pointers to objects.
 
-The ObjectSet does not manage the objects, it is just a collection of
-pointers to the the objects. If you want management, use ManagedObjectSet.
-
+  The ObjectSet does not manage the objects, it is just a collection of
+  pointers to the objects. If you want management, use ManagedObjectSet.
 */
 
 template <class T>

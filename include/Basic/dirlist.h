@@ -16,7 +16,10 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 
-/*!\brief provides file and directory names in a certain directory.  */
+/*!
+\ingroup Basic
+\brief Provides file and directory names in a certain directory.
+*/
 
 mClass(Basic) DirList : public BufferStringSet
 {

@@ -20,6 +20,10 @@ class ZipHandler;
 class ZipFileInfo;
 
 
+/*!
+\ingroup Basic
+\brief Gives information of zip archives.
+*/
 
 mClass(Basic) ZipArchiveInfo
 {

@@ -19,11 +19,12 @@ ________________________________________________________________________
 #include <iosfwd>
 
 
-/*!\brief holds data to use and close an iostream.
+/*!
+\ingroup Basic
+\brief Holds data to use and close an iostream.
 
-Usually created by StreamProvider.
-Need to find out what to do with the pipe in windows.
-
+  Usually created by StreamProvider.
+  Need to find out what to do with the pipe in windows.
 */
 
 mClass(Basic) StreamData

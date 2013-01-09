@@ -18,7 +18,10 @@ ________________________________________________________________________
 #include "strmdata.h"
 
 
-/*!\brief Connection with an underlying iostream. */
+/*!
+\ingroup Basic
+\brief Connection with an underlying iostream.
+*/
 
 mClass(Basic) StreamConn : public Conn
 {

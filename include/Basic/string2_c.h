@@ -17,13 +17,27 @@ ________________________________________________________________________
 #include <string.h>
 #include <ctype.h>
 
-/*!> advances given pointer to first non-whitespace. */
+/*!
+\ingroup Basic
+\brief Advances given pointer to first non-whitespace.
+*/
+
 #define mSkipBlanks(ptr) \
     { if ( ptr ) { while ( *(ptr) && isspace(*(ptr)) ) (ptr)++; } }
-/*!> advances given pointer to first whitespace. */
+
+/*!
+\ingroup Basic
+\brief Advances given pointer to first whitespace.
+*/
+
 #define mSkipNonBlanks(ptr) \
     { if ( ptr ) { while ( *(ptr) && !isspace(*(ptr)) ) (ptr)++; } }
-/*!> advances to first whitespace and removes trailing whitespace */
+
+/*!
+\ingroup Basic
+\brief Advances to first whitespace and removes trailing whitespace.
+*/
+
 #define mTrimBlanks(ptr) \
     { mSkipBlanks(ptr); C_removeTrailingBlanks(ptr); }
 

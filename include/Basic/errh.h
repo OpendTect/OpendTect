@@ -18,13 +18,13 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "fixedstring.h"
 
-/*!\brief MsgClass holding an error message.
-
-Programmer errors are only outputed when printProgrammerErrs is true. This
-is set to true by default only if __debug__ is defined.
-
+/*!
+\ingroup Basic
+\brief MsgClass holding an error message.
+  
+  Programmer errors are only outputed when printProgrammerErrs is true. This
+  is set to true by default only if __debug__ is defined.
 */
-
 
 mClass(Basic) ErrMsgClass : public MsgClass
 {

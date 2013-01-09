@@ -17,33 +17,35 @@ ________________________________________________________________________
 #include "sets.h"
 
 
-/*!\brief Workaround manager when you cannot add class members to a class
-          due to binary compability issues.
+/*!
+\ingroup Basic
+\brief Workaround manager when you cannot add class members to a class due to
+binary compability issues.
 
-	  If you want to add the variable of type V to class O, do the following
-	  in the source-file:
-
-\code
-    HiddenParam<O,V>	myparammanager( default_value_of_V );
-\endcode
-
-You can then access the variable in the source-file by:
-
-\code
-myparammanager.setParam( this, new_value );
-\endcode
-
-and retrieve it by 
-
-\code
-V value = myparammanager.getParam( this );
-\endcode
-
-\note V cannot be boolean. Use char instead. V must be 'simple' enough to be
-      stored in a type-set. Also note you may not be able to call the
-      removeParam (if the class does not already have a destructor), so
-      so don't use with objects that are created millions of times in those
-      cases, as you will leak memory.
+  If you want to add the variable of type V to class O, do the following
+  in the source-file:
+  
+  \code
+  HiddenParam<O,V>	myparammanager( default_value_of_V );
+  \endcode
+  
+  You can then access the variable in the source-file by:
+  
+  \code
+  myparammanager.setParam( this, new_value );
+  \endcode
+  
+  and retrieve it by 
+  
+  \code
+  V value = myparammanager.getParam( this );
+  \endcode
+  
+  \note V cannot be boolean. Use char instead. V must be 'simple' enough to be
+  stored in a type-set. Also note you may not be able to call the
+  removeParam (if the class does not already have a destructor), so
+  so don't use with objects that are created millions of times in those
+  cases, as you will leak memory.
 */
 
 template <class O, class V>

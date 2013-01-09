@@ -42,9 +42,11 @@ namespace Threads
 class Mutex;
 
 
-/*! Atomic variable where an operation (add, subtract) can
-    be done without locking in a multithreaded environment. Only
-    available for long, unsigned long */
+/*!
+\ingroup Basic
+\brief Atomic variable where an operation (add, subtract) can be done without
+locking in a multithreaded environment. Only available for long, unsigned long.
+*/
 
 template <class T>
 class Atomic
@@ -89,8 +91,12 @@ protected:
 #endif
 
     
-/*Atomic instanciated with a pointer. The class really only handles the
-  casting from a void* to a T*. */
+/*!
+\ingroup Basic
+\brief Atomic instantiated with a pointer. The class really only handles the
+casting from a void* to a T*.
+*/
+
 template <class T>
 class AtomicPointer
 {
@@ -123,11 +129,13 @@ protected:
 };
 
 
-/*!\brief Is a lock that allows a thread to have exlusive rights to something.
+/*!
+\ingroup Basic
+\brief Is a lock that allows a thread to have exlusive rights to something.
 
-It is guaranteed that once locked, noone else will be able to lock it before
-it is unlocked. If a thread tries to lock it, it will be postponed until
-the thread that has locked it will unlock it.
+  It is guaranteed that once locked, no one else will be able to lock it before
+  it is unlocked. If a thread tries to lock it, it will be postponed until
+  the thread that has locked it will unlock it.
 */
 
 mClass(Basic) Mutex
@@ -155,6 +163,13 @@ protected:
 };
 
 
+/*!
+\ingroup Basic
+\brief Is an alternative to Mutex. It is a lock which causes a thread trying to acquire it to simply wait in a loop ("spin") while repeatedly checking if the
+lock is available. Because they avoid overhead from operating system process
+re-scheduling or context switching, spinlocks are efficient if threads are only likely to be blocked for a short period.
+*/
+
 mClass(Basic) SpinLock
 {
 public:
@@ -175,33 +190,34 @@ protected:
 };
 
 
-/*!\brief
-Is an object that is faciliates many threads to wait for something to happen.
+/*!
+\ingroup Basic
+\brief Is an object that faciliates many threads to wait for something to
+happen.
 
-Usage:
+  Usage:
+  
+  From the working thread
+  1. lock()
+     You will now be the only one allowed to check weather condition is true
+     (e.g. if new work has arrived).
+     
+  2. Check condition. If false, call wait(). You will now sleep until someone
+     calls signal(); If you are awakened, check the condition again and go back
+     to sleep if it is false.
+     
+  3. If condition is true, unLock() and start working. When finished working
+     go back to 1.
 
-From the working thread
-1. lock()
-   You will now be the only one allowed to check weather condition is true
-   (e.g. if new work has arrived).
-
-2. Check condition. If false, call wait(). You will now sleep until someone
-   calls signal(); If you are awakened, check the condition again and go back
-   to sleep if it is false.
-
-3. If condition is true, unLock() and start working. When finished working
-   go back to 1.
-
-It is wise to put an exit flag in the loop, so it's possible to say that we
-are about to quit.
-
-From the manager:
-When you want to change the condition:
-1. lock
-2. set condition (e.g. add more work)
-3. signal
-4. unLock
-
+  It is wise to put an exit flag in the loop, so it's possible to say that we
+  are about to quit.
+  
+  From the manager:
+  When you want to change the condition:
+  1. lock
+  2. set condition (e.g. add more work)
+  3. signal
+  4. unLock  
 */
 
 
@@ -228,10 +244,12 @@ protected:
 };
 
 
-/*! Lock that permits multiple readers to lock the object at the same time,
+/*!
+\ingroup Basic
+\brief Lock that permits multiple readers to lock the object at the same time,
 but it will not allow any readers when writelocked, and no writelock is allowed
-when readlocked. */
-
+when readlocked.
+*/
 
 mClass(Basic) ReadWriteLock
 {
@@ -277,16 +295,18 @@ protected:
 };
 
 
-/*!\brief Is an object that is convenient to use when a mutex should be
-  locked and unlocked automaticly when returning.
+/*!
+\ingroup Basic
+\brief Is an object that is convenient to use when a mutex should be
+locked and unlocked automatically when returning.
 
-Example:
-
-int function()
-{
-    MutexLocker lock( myMutex );
-    //Do whatever you want to do
-}
+  Example:
+  
+  int function()
+  {
+     MutexLocker lock( myMutex );
+     //Do whatever you want to do
+  }
 */
 
 #define mLockerClassImpl( mod, clssnm, clss, lockfn, unlockfn, trylockfn ) \
@@ -326,8 +346,11 @@ mLockerClassImpl( Basic, WriteLockLocker, ReadWriteLock,
 		  writeLock(), writeUnLock(), tryWriteLock() )
 
 
-/*!Waits for a number of threads to reach a certain point (i.e. the call to
-   Barrier::waitForAll). Once everyone has arrived, everyone is released. */
+/*!
+\ingroup Basic
+\brief Waits for a number of threads to reach a certain point (i.e. the call to
+Barrier::waitForAll). Once everyone has arrived, everyone is released.
+*/
 
 mClass(Basic) Barrier
 {
@@ -365,13 +388,12 @@ protected:
 };
 
 
-/*!\brief
-is the base class for all threads. Start it by creating it and give it the
-function or CallBack to execute. 
+/*!
+\ingroup Basic
+\brief Is the base class for all threads. Start it by creating it and give it
+the function or CallBack to execute. 
 
-The process that has created the thread must call destroy() or detach().
-
-
+  The process that has created the thread must call destroy() or detach().
 */
 
 mClass(Basic) Thread

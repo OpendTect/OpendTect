@@ -20,25 +20,25 @@ ________________________________________________________________________
 	BinDataDesc( const T* ) { set( ii, is, sizeof(T) ); } \
 	BinDataDesc( const T& ) { set( ii, is, sizeof(T) ); }
 
-
-/*!\brief Description of binary data.
-
-Binary data in 'blobs' can usually be described by only a few pieces of info.
-These are:
-
-* Is the data of floating point type or integer?
-* Is the data signed or unsigned? Usually, floating point data cannot be
-  unsigned.
-* How big is each number in terms of bytes? This can be 1, 2, 4 or 8
-  bytes.
-
-The info from this class can be stringified (user readable string) or dumped
-binary into two unsigned chars.
-
-In normal work one will use the DataCharacteristics subclass, which can also
-provide a 'run-time' data interpreter class for fast conversion to internal
-data types.
-
+/*!
+\ingroup Basic
+\brief Description of binary data.
+  
+  Binary data in 'blobs' can usually be described by only a few pieces of info.
+  These are:
+  
+  * Is the data of floating point type or integer?
+  * Is the data signed or unsigned? Usually, floating point data cannot be
+    unsigned.
+  * How big is each number in terms of bytes? This can be 1, 2, 4 or 8
+    bytes.
+    
+  The info from this class can be stringified (user readable string) or dumped
+  binary into two unsigned chars.
+  
+  In normal work one will use the DataCharacteristics subclass, which can also
+  provide a 'run-time' data interpreter class for fast conversion to internal
+  data types.
 */
 
 mClass(Basic) BinDataDesc

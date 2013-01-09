@@ -16,7 +16,11 @@ ________________________________________________________________________
 namespace Values
 {
 
-/*! \brief Templatized initialisation values.  */
+/*!
+\ingroup Basic
+\brief Templatized initialization values.
+*/
+
 template<class T>
 class Init
 {

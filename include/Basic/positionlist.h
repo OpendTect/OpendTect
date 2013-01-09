@@ -16,6 +16,11 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "position.h"
 
+/*!
+\ingroup Basic
+\brief
+*/
+
 mClass(Basic) FloatVertexAttribList
 { mRefCountImpl(FloatVertexAttribList)
 public:
@@ -38,7 +43,11 @@ protected:
 
 
 class Coord3;
-/*! Basic interface to an list of Coord3 where each coord has a unique id. */
+
+/*!
+\ingroup Basic
+\brief Basic interface to an list of Coord3 where each coord has a unique id.
+*/
 
 mClass(Basic) Coord3List
 { mRefCountImplNoDestructor(Coord3List);
@@ -56,7 +65,11 @@ public:
     virtual void	remove(int id)					= 0;
 };
 
-/*! Basic interface to an list of Coord where each coord has a unique id. */
+
+/*!
+\ingroup Basic
+\brief Basic interface to an list of Coord where each coord has a unique id.
+*/
 
 mClass(Basic) Coord2List
 { mRefCountImplNoDestructor(Coord2List);
@@ -73,6 +86,11 @@ public:
     virtual void	remove(int id)					= 0;
 };
 
+
+/*!
+\ingroup Basic
+\brief
+*/
 
 mClass(Basic) Coord2ListImpl : public Coord2List
 { 
@@ -92,6 +110,11 @@ protected:
     TypeSet<Coord> 	points_;
 };
 
+
+/*!
+\ingroup Basic
+\brief 
+*/
 
 mClass(Basic) Coord3ListImpl : public Coord3List
 {

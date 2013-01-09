@@ -29,20 +29,20 @@ class SeparString;
 class ascistream;
 class ascostream;
 
-/*\brief generalised set of parameters of the keyword-value type.
+/*!
+\ingroup Basic
+\brief Generalized set of parameters of the keyword-value type.
 
-Part of the function of this class is as in an STL map<string,string> .
-Passing a keyword will return the appropriate value.
-
-Tools around this basic idea are paring into other types, key composition,
-reading/writing to/from file, merging, and more.
-
-dumpPretty() is used for reports.  The title of the report is the name of the
-IOPar. If sKeyHdr and sKeySubHdr are the key, there will be a (sub)header
-with the value. Use add() rather than set(). Values may contain newlines.
-
+  Part of the function of this class is as in an STL map<string,string>.
+  Passing a keyword will return the appropriate value.
+  
+  Tools around this basic idea are paring into other types, key composition,
+  reading/writing to/from file, merging, and more.
+  
+  dumpPretty() is used for reports.  The title of the report is the name of the
+  IOPar. If sKeyHdr and sKeySubHdr are the key, there will be a (sub)header
+  with the value. Use add() rather than set(). Values may contain newlines.
 */
-
 
 mClass(Basic) IOPar : public NamedObject
 {

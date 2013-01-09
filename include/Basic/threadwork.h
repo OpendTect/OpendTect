@@ -28,11 +28,12 @@ class ConditionVar;
 class WorkThread;
 class Work;
 
-/*!\brief
-Takes work and puts it on a queue for execution either in parallel, singlethread
-or manual.
-*/
 
+/*!
+\ingroup Basic
+\brief Takes work and puts it on a queue for execution either in parallel,
+singlethread or manual.
+*/
 
 mClass(Basic) WorkManager : public CallBacker
 {
@@ -121,10 +122,10 @@ protected:
 };
 
 
-/*! The abstraction of something that can be done. It can be an ordinary
-    CallBack, a static function (must return bool) or a TaskFunction on
-    a CallBacker inheriting class, or a Task. The three examples are shown
-    below.
+/*!
+\ingroup Basic
+\brief The abstraction of something that can be done. It can be an ordinary
+CallBack, a static function (must return bool) or a TaskFunction on a CallBackerinheriting class, or a Task. The three examples are shown below.
 
 \code
     mClass(Basic) MyClass : public CallBacker
@@ -150,7 +151,6 @@ protected:
 You can also add Tasks, with the option that they may be deleted when
 the work is done, or if there is an error.
 */
-
 
 mClass(Basic) Work
 {
@@ -223,8 +223,6 @@ inline bool Threads::Work::doRun()
 
     return true;
 }
-
-
 
 #endif
 

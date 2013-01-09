@@ -16,7 +16,9 @@ ________________________________________________________________________
 #include "horsampling.h"
 
 
-/*\brief Hor+Vert sampling in 3D surveys
+/*!
+\ingroup Basic
+\brief Hor+Vert sampling in 3D surveys.
 
   When slices are to be taken from a CubeSampling, they should be ordered
   as follows:
@@ -28,8 +30,7 @@ ________________________________________________________________________
   Z   |   Inl     Crl
 
   See also the direction() and dimension() free functions.
-
- */
+*/
 
 mClass(Basic) CubeSampling
 {

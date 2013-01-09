@@ -17,15 +17,15 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 
-/*!\brief object with a name
+/*!
+\ingroup Basic
+\brief Object with a name.
 
-The NamedObject has a name and it can notify another NamedObject when it is
-about to be deleted. The name may either be a string of the object itself,
-or the name of another object, linked directly. This not only saves memory,
-but allows for names that are fundamentally linked.
-
+  The NamedObject has a name and it can notify another NamedObject when it is
+  about to be deleted. The name may either be a string of the object itself,
+  or the name of another object, linked directly. This not only saves memory,
+  but allows for names that are fundamentally linked.
 */
-
 
 mClass(Basic) NamedObject : public CallBacker
 {

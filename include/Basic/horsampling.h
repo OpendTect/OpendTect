@@ -19,7 +19,10 @@ ________________________________________________________________________
 class IOPar;
 
 
-/*\brief Horizontal sampling (inline and crossline range and steps) */
+/*!
+\ingroup Basic
+\brief Horizontal sampling (inline and crossline range and steps).
+*/
 
 mClass(Basic) HorSampling
 {
@@ -109,7 +112,10 @@ public:
 };
 
 
-//\brief Finds next BinID in HorSampling; initializes to first position
+/*!
+\ingroup Basic
+\brief Finds next BinID in HorSampling; initializes to first position.
+*/
 
 mClass(Basic) HorSamplingIterator
 {

@@ -21,7 +21,10 @@ class MultiID;
 namespace Survey
 {
 
-/* A Geometry which holds trace positions. */
+/*!
+\ingroup Basic
+\brief A Geometry which holds trace positions.
+*/
 
 mClass(Basic) Geometry
 { mRefCountImpl(Geometry);
@@ -46,7 +49,11 @@ protected:
     int			geomid_;
 };
 
-/* Makes geometries accessible from a geometry id, or a multi id. */
+
+/*!
+\ingroup Basic
+\brief Makes geometries accessible from a geometry id, or a multi id.
+*/
 
 mClass(Basic) GeometryManager
 {
@@ -85,6 +92,11 @@ inline mGlobal(Basic) const GeometryManager& GM()
 { return const_cast<GeometryManager&>( Survey::GMAdmin() ); }
 
 
+/*!
+\ingroup Basic
+\brief Geometry Reader
+*/
+
 mClass(Basic) GeometryReader
 {
 public:
@@ -92,6 +104,11 @@ public:
 			mDefineFactoryInClass(GeometryReader,factory);
 };
 
+
+/*!
+\ingroup Basic
+\brief Geometry Writer
+*/
 
 mClass(Basic) GeometryWriter
 {

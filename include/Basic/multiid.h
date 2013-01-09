@@ -18,7 +18,10 @@ ________________________________________________________________________
 #include "fixedstring.h"
 
 
-/*!\brief Compound key consisting of ints */
+/*!
+\ingroup Basic
+\brief Compound key consisting of ints.
+*/
 
 mClass(Basic) MultiID : public CompoundKey
 {

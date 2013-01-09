@@ -17,8 +17,13 @@ ______________________________________________________________________
 #include "enums.h"
 #include "bufstring.h"
 
+/*!
+\ingroup Basic
+\brief Data needed to make an actual font.
+*/
+
 mClass(Basic) FontData
-{			//!< Data needed to make an actual font
+{			
 public:    
 
     enum Weight		{ Light, Normal, DemiBold, Bold, Black };

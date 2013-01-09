@@ -18,6 +18,11 @@ ________________________________________________________________________
 mFDQtclass(QTimer)
 mFDQtclass(QTimerComm)
 
+/*!
+\ingroup Basic
+\brief Timer class.
+*/
+
 mClass(Basic) Timer : public NamedObject
 {
 public :

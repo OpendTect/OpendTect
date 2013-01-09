@@ -22,12 +22,12 @@ ________________________________________________________________________
 #endif
 
 
-/*\brief Interface to a series of values
+/*!
+\ingroup Basic
+\brief Interface to a series of values.
 
-  If the values are in contiguous memory, arr() should return non-null.
- 
+  If the values are in contiguous memory, arr() should return non-null. 
 */
-
 
 template <class T>
 class ValueSeries
@@ -63,6 +63,11 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief ValueSeries of offsets.
+*/
+
 template <class T>
 class OffsetValueSeries : public ValueSeries<T>
 {
@@ -95,9 +100,12 @@ protected:
 #define mImplArr \
 { return typeid(RT)==typeid(AT) ? (RT*) ptr_ : (RT*) 0;}
 
-/*\brief series of values from a pointer to some kind of array. If a more
-         advanced conversion between the return type and the array type is
-	 wanted, use ConvValueSeries instead. */
+/*!
+\ingroup Basic
+\brief Series of values from a pointer to some kind of array.
+  If a more advanced conversion between the return type and the array type is
+  wanted, use ConvValueSeries instead.
+*/
 
 template <class RT, class AT>
 class ArrayValueSeries : public ValueSeries<RT>
@@ -140,9 +148,10 @@ protected:
 #define mChunkSize	0x20000000
 
 
-/*!Valueseries that allocates its data in smaller chunks
-   (default is 512MB). Bydoing this, it performs better in environments
-   where the memory is fragmented (i.e. windows 32 bit). */
+/*!
+\ingroup Basic
+\brief Valueseries that allocates its data in smaller chunks (default is 512MB).By doing this, it performs better in environments where the memory is fragmented(i.e. windows 32 bit).
+*/
 
 template <class RT, class AT>
 class MultiArrayValueSeries : public ValueSeries<RT>
@@ -177,6 +186,12 @@ protected:
     od_int64		cursize_;
     const unsigned int	chunksize_;
 };
+
+
+/*!
+\ingroup Basic
+\brief Gets ValueSeries.
+*/
 
 template <class T>
 class ValueSeriesGetAll : public ParallelTask

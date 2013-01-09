@@ -10,15 +10,18 @@ ________________________________________________________________________
  RCS:           $Id$
 ________________________________________________________________________
 
-ValWithError is a value with a known error (variance), and that knows
-how the error propagates in the four basic operations +,-,*,/  
-ValWithError can be instanciated with float & double. It's probable 
-that it will work on complex data, although not tested.
-
 @$*/
 
 #include <math.h>
 #include "gendefs.h"
+
+
+/*!
+\ingroup Basic
+\brief ValWithError is a value with a known error (variance) and that knows how the error propagates in the four basic operations +,-,*,/ ValWithError can be
+instantiated with float & double. It's probable that it will work on complex
+data, although not tested.
+*/
 
 template <class A>
 class ValWithError

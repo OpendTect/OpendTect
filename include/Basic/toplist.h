@@ -16,10 +16,11 @@ ________________________________________________________________________
 
 #include <utility>
 
-/*!\brief
-is a class that holds a "top N" list with the N highest (or lowest) values
-that is added. Each value has an associated value that can be used as an
-identifier of where the value come from or something like that.
+/*!
+\ingroup Basic
+\brief Is a class that holds a "top N" list with the N highest (or lowest)
+values that is added. Each value has an associated value that can be used as an
+identifier of where the value comes from or something like that.
 */
 
 template <class VT, class AVT>

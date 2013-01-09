@@ -17,11 +17,12 @@ ________________________________________________________________________
 #include "callback.h"
 
 
-/*!\brief class to encapsulate a message to the user.
+/*!
+\ingroup Basic
+\brief Class to encapsulate a message to the user.
 
-Along with the message there's also a type. In any case, there's a handler
-for when UsrMsg is called: theCB. If it is not set, messages go to cerr.
-
+  Along with the message there's also a type. In any case, there's a handler
+  for when UsrMsg is called: theCB. If it is not set, messages go to cerr.
 */
 
 mClass(Basic) MsgClass : public CallBacker

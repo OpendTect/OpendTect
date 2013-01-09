@@ -45,7 +45,11 @@ Use like:
 namespace Values
 {
 
-/*!  \brief Templatized undefined values.  */
+/*!
+\ingroup Basic
+\brief Templatized undefined values.
+*/
+
 template<class T>
 class Undef
 {
@@ -57,6 +61,11 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Undefined od_int16.
+*/
+
 template<>
 class Undef<od_int16>
 {
@@ -66,6 +75,12 @@ public:
     static bool		isUdf( od_int32 i )	{ return i == -32767; }
     static void		setUdf( od_int32& i )	{ i = -32767; }
 };
+
+
+/*!
+\ingroup Basic
+\brief Undefined od_uint16.
+*/
 
 template<>
 class Undef<od_uint16>
@@ -77,6 +92,12 @@ public:
     static void		setUdf( od_uint32& i )	{ i = 65534; }
 };
 
+
+/*!
+\ingroup Basic
+\brief Undefined od_int32.
+*/
+
 template<>
 class Undef<od_int32>
 {
@@ -86,6 +107,12 @@ public:
     static bool		isUdf( od_int32 i )	{ return i == __mUndefIntVal; }
     static void		setUdf( od_int32& i )	{ i = __mUndefIntVal; }
 };
+
+
+/*!
+\ingroup Basic
+\brief Undefined od_uint32.
+*/
 
 template<>
 class Undef<od_uint32>
@@ -98,6 +125,11 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Undefined od_int64.
+*/
+
 template<>
 class Undef<od_int64>
 {
@@ -107,6 +139,12 @@ public:
     static bool		isUdf( od_int64 i )	{ return i == __mUndefIntVal64;}
     static void		setUdf( od_int64& i )	{ i = __mUndefIntVal64; }
 };
+
+
+/*!
+\ingroup Basic
+\brief Undefined od_uint64.
+*/
 
 template<>
 class Undef<od_uint64>
@@ -119,6 +157,11 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Undefined bool.
+*/
+
 template<>
 class Undef<bool>
 {
@@ -129,6 +172,11 @@ public:
     static void		setUdf( bool& b )	{ b = false; }
 };
 
+
+/*!
+\ingroup Basic
+\brief Undefined float.
+*/
 
 template<>
 class Undef<float>
@@ -141,6 +189,11 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Undefined double.
+*/
+
 template<>
 class Undef<double>
 {
@@ -152,6 +205,11 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Undefined const char*.
+*/
+
 template<>
 class Undef<const char*>
 {
@@ -162,6 +220,11 @@ public:
     static void		setUdf( const char*& )	{}
 };
 
+
+/*!
+\ingroup Basic
+\brief Undefined char*.
+*/
 
 template<>
 class Undef<char*>

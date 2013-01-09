@@ -16,6 +16,20 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "varlenarray.h"
 
+/*!
+\ingroup Basic
+\brief Base class of Array1DSlice and Array2DSlice. Access-tool to another
+ArrayND with higher dimensionality.
+
+  ArrayXDSlice is an ArrayND that is an access-tool to another ArrayND with
+  higher dimensionality. It can be used to get Array1D through a Array3D cube.
+  Use setPos(int,int) to set the fixed positions and leave out the positions
+  that should vary. When all positions are set, call init().
+  
+  To unset a position, set it to -1. If positions are unset, init has to be
+  called prior to dataaccesing functions.
+*/
+
 mClass(Basic) ArrayNDSliceBase
 {
 public:				
@@ -39,15 +53,11 @@ protected:
 };
 
 
-/*! \brief access-tool to another ArrayND with higher dimensionality.
-
-ArrayXDSlice is an ArrayND that is an access-tool to another ArrayND with
-higher dimensionality. It can be used to get Array1D through a Array3D cube.
-Use setPos(int,int) to set the fixed positions and leave out the positions that should vary. When all positions are set, call init(). 
-
-To unset a position, set it to -1. If positions are unset, init has to be
-called prior to dataaccesing functions.
+/*!
+\ingroup Basic
+\brief Subclass of Array1D and ArrayNDSliceBase.
 */
+
 template <class T>
 class Array1DSlice : public Array1D<T>, public ArrayNDSliceBase
 {
@@ -72,15 +82,11 @@ protected:
 };
 
 
-/*! \brief access-tool to another ArrayND with higher dimensionality.
-
-ArrayXDSlice is an ArrayND that is an access-tool to another ArrayND with
-higher dimensionality. It can be used to get Array1D through a Array3D cube.
-Use setPos(int,int) to set the fixed positions and leave out the positions that should vary. When all positions are set, call init(). 
-
-To unset a position, set it to -1. If positions are unset, init has to be
-called prior to dataaccesing functions.
+/*!
+\ingroup Basic
+\brief Subclass of Array2D and ArrayNDSliceBase.
 */
+
 template <class T>
 class Array2DSlice : public Array2D<T>, public ArrayNDSliceBase
 {
