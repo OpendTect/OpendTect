@@ -25,16 +25,7 @@ ________________________________________________________________________
 
 /*!
 \ingroup Basic
-\brief Set of (small) copyable elements.
-
-  The TypeSetBase is meant for simple types or small objects that have a copy
-  constructor. The `-=' function will only remove the first occurrence that
-  matches using the `==' operator. The requirement of the presence of that  
-  operator is actually not that bad: at least you can't forget it.
-  
-  Do not make TypeSetBase<bool> (don't worry, it won't compile). Use the
-  BoolTypeSet typedef just after the class definition. See vectoraccess.h for
-  details on why.
+\brief Use TypeSet instead.
 */
 
 template <class T, class I>
@@ -115,7 +106,16 @@ protected:
 
 /*!
 \ingroup Basic
-\brief Derived class of TypeSetBase.
+\brief Set of (small) copyable elements.
+
+  TypeSet is meant for simple types or small objects that have a copy
+  constructor. The `-=' function will only remove the first occurrence that
+  matches using the `==' operator. The requirement of the presence of that  
+  operator is actually not that bad: at least you can't forget it.
+  
+  Do not make TypeSetBase<bool> (don't worry, it won't compile). Use the
+  BoolTypeSet typedef just after the class definition. See vectoraccess.h for
+  details on why.
 */
 
 template <class T>
