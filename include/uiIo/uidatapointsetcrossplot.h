@@ -175,9 +175,6 @@ public:
     BufferString&		y1rmserr_;
     BufferString&		y2rmserr_;
 
-    bool			y1clipping_;
-    bool			y2clipping_;
-
     void			setMathObj(MathExpression*);
     void			setMathObjStr(const BufferString& str )
 				{ mathobjstr_ = str; }
