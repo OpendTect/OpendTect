@@ -264,16 +264,42 @@ endmacro( od_sign_maclibs )
 
 macro( download_packages  )
 message( "downloading doc pkgs" )
-    SET( url  "http://intranet/documentations/rel/dgbdoc.zip" )
-    FILE( DOWNLOAD ${url} "${CMAKE_INSTALL_PREFIX}/packages/dgbdoc.zip"
-	  STATUS var
-	  LOG log
-	  SHOW_PROGRESS)
-    MESSAGE( "status is:  ${var}" )
-    IF( NOT var EQUAL "0" )
-        MESSAGE( ".........Download Failed.........")
-    ENDIF()
+    SET ( DOCNAMES appman workflows user dgb )
+    FOREACH( DOCNAME ${DOCNAMES} )
+	SET( url "http://intranet/documentations/rel/" )
+	SET( url "${url}/${DOCNAME}doc.zip" )
+	SET( DIRNAME ${DOCNAME} )
+        IF( ${DOCNAME} STREQUAL "appman" )
+	    SET( DIRNAME SysAdm )
+	ELSEIF( ${DOCNAME} STREQUAL "user")
+	    SET( DIRNAME base )
+	ENDIF()
+
+	IF( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME} )
+	    FILE( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME} )
+	ENDIF()
+
+	FILE( DOWNLOAD ${url} "${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${DOCNAME}doc.zip"
+	      STATUS var
+	      LOG log
+	      SHOW_PROGRESS)
+	IF( NOT var EQUAL "0" )
+	    MESSAGE( "......... ${url} Download Failed.........")
+	ELSE()
+	    execute_process( COMMAND unzip -o -q
+			     ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${DOCNAME}doc.zip
+			     -d ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}
+			     RESULT_VARIABLE STATUS )
+	    FILE( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${DOCNAME}doc.zip )
+	    IF( NOT STATUS EQUAL "0" )
+		MESSAGE( "......... unzip Failed.........")
+	    ENDIF()
+	ENDIF()
+    ENDFOREACH()
 endmacro( download_packages )
+
+macro( create_docpackages PACKAGE_NAME )
+endmacro( create_docpackages )
 
 #--------------------------------------------------------------
 #Remove this macro
