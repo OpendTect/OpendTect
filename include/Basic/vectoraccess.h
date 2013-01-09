@@ -52,6 +52,10 @@ public:
 			{ return v_[(typename std::vector<T>::size_type)idx]; }
     inline const T&	operator[]( I idx ) const
     			{ return (*const_cast<VectorAccess*>(this))[idx]; }
+    T&			first() { return v_.front(); }
+    const T&		first() const { return v_.front(); }
+    T&			last() { return v_.back(); }
+    const T&		last() const { return v_.back(); }
     inline I		size() const	{ return (I) v_.size(); }
     inline bool		setCapacity( I sz );
     			/*!<Allocates mem for sz, does not change size.*/

@@ -318,27 +318,29 @@ const T& TypeSetBase<T,I>::operator[]( I idx ) const
 
 
 template <class T, class I> inline
-T& TypeSetBase<T,I>::first()			{ return vec_[0]; }
+T& TypeSetBase<T,I>::first()			{ return vec_.first(); }
+
 
 template <class T, class I> inline
-const T& TypeSetBase<T,I>::first() const	{ return vec_[0]; }
+const T& TypeSetBase<T,I>::first() const	{ return vec_.first(); }
+
 
 template <class T, class I> inline
-T& TypeSetBase<T,I>::last()			{ return vec_[size()-1]; }
+T& TypeSetBase<T,I>::last()			{ return vec_.last(); }
+
+
+template <class T, class I> inline
+const T& TypeSetBase<T,I>::last() const		{ return vec_.last(); }
 
 
 template <class T, class I> inline
 T TypeSetBase<T,I>::pop()
 {
-    const I idx=size()-1;
-    const T res = vec_[idx];
+    const T res = vec_.last();
     vec_.pop_back();
     return res;
 }
 
-
-template <class T, class I> inline
-const T& TypeSetBase<T,I>::last() const	{ return vec_[size()-1]; }
 
 
 template <class T, class I> inline
