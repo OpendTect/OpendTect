@@ -56,7 +56,7 @@ public:
     const Geometry*	getGeometry(int geomid) const;
     const Geometry*	getGeometry(const MultiID&) const;
 
-    const int		getGeomID(const char* linename) const;
+    int			getGeomID(const char* linename) const;
     const char*		getName(const int geomid) const;
     
     Coord		toCoord(const TraceID&) const;
