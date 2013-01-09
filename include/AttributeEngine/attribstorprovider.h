@@ -100,6 +100,7 @@ protected:
     BinID		stepoutstep_;
     CubeSampling	storedvolume_;
     bool		isondisc_;
+    bool		useintertrcdist_;
 
     enum Status        { Nada, StorageOpened, Ready } status_;
 };

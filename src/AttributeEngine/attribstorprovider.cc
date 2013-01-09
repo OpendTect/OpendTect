@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdatacubes.h"
 #include "datainpspec.h"
 #include "datapack.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -28,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2dline.h"
 #include "seisbounds.h"
 #include "seisbufadapters.h"
+#include "seiscbvs.h"
 #include "seiscubeprov.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
@@ -172,6 +174,7 @@ StorageProvider::StorageProvider( Desc& desc )
     , status_( Nada )
     , stepoutstep_(-1,0)
     , isondisc_(true)
+    , useintertrcdist_(false)
 {
     const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
     BufferString bstring = lk.lineName();
@@ -959,7 +962,10 @@ void StorageProvider::getCompNames( BufferStringSet& nms ) const
 
 bool StorageProvider::useInterTrcDist() const
 {
-    if ( getDesc().is2D() && mscprov_ )
+    if ( useintertrcdist_ )
+	return true;
+
+    if ( getDesc().is2D() )
     {                                                                           
 	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
 	const BufferString attrnm = lk.attrName();
@@ -973,9 +979,25 @@ bool StorageProvider::useInterTrcDist() const
 	    const bool issteering = steernms.indexOf( attrnm ) >= 0;
 	    if ( issteering )
 	    {
-		const SeisTrc* trc = mscprov_->get(0,0);
-		if ( trc && mIsEqual(trc->info().pick, 0, 1e-3) )
-		    return true;
+		int lineidx = rdr.lineSet()->indexOf( curlinekey_.buf() );
+		if ( lineidx<0 ) return false;
+		IOPar linepars = rdr.lineSet()->getInfo( lineidx );
+		FixedString fname = linepars.find( sKey::FileName() );
+		FilePath fp( fname ); 
+		if ( !fp.isAbsolute() )
+		    fp.setPath( IOObjContext::getDataDirName(
+							IOObjContext::Seis) );
+		PtrMan<CBVSSeisTrcTranslator> tmptransl =
+		    CBVSSeisTrcTranslator::make( fp.fullPath(), true, true, 0 );
+		BufferStringSet compnms;
+		tmptransl->getComponentNames( compnms );
+		if ( compnms.size()>=2 
+		    && compnms.get(1)== BufferString(Desc::sKeyLineDipComp()) )
+		{
+		    const_cast<Attrib::StorageProvider*>(this)
+					->useintertrcdist_ = true;
+		    return useintertrcdist_;
+		}
 	    }
 	}
     }                                                                           

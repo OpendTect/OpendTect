@@ -57,6 +57,7 @@ bool InputSpec::operator==(const InputSpec& b) const
 
 const char* Desc::sKeyInlDipComp() { return "Inline dip"; }
 const char* Desc::sKeyCrlDipComp() { return "Crossline dip"; }
+const char* Desc::sKeyLineDipComp() { return "Line dip"; }
 
 
 Desc::Desc( const char* attribname, DescStatusUpdater updater,

@@ -200,6 +200,7 @@ public:
     
     static const char*		sKeyInlDipComp();
     static const char*		sKeyCrlDipComp();
+    static const char*		sKeyLineDipComp();
     
 protected:
 
