@@ -20,7 +20,7 @@ namespace Attrib
 
 /*!
 \ingroup Attributes
-\brief Base class for Volume Statistics Attribute.
+\brief Use VolStats instead.
 */
 
 mClass(Attributes) VolStatsBase : public Provider
