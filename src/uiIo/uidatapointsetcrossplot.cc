@@ -112,8 +112,6 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , drawuserdefline_(false)
     , drawy1userdefpolyline_(false)
     , drawy2userdefpolyline_(false)
-    , y1clipping_(true)
-    , y2clipping_(true)
     , drawy2_(false)
     , timer_(*new Timer())
     , trmsg_("Calculating Density" )
