@@ -76,7 +76,8 @@ protected:
 
 /*!
 \ingroup Basic
-\brief Compresses files in zip format.
+\brief It is an Executor class which compresses files into zip format but user
+should not use it directly instead use ZipUtils::makeZip.
 */
 
 mClass(Basic) Zipper : public Executor
@@ -96,7 +97,7 @@ public:
 protected:
 
     od_int32				nextStep();
-    ZipHandler&			ziphd_;
+    ZipHandler&				ziphd_;
     od_int32				nrdone_;
     od_int32				nrdir_;
 };
@@ -104,7 +105,9 @@ protected:
 
 /*!
 \ingroup Basic
-\brief Uncompresses files in zip format.
+\brief It is an Executor class which uncompresses files of zip format but user
+should instead use ZipUtils::UnZipArchive() to unzip complete archive or
+ZipUtils::UnZipFile() to take one file out of zip archive.
 */
 
 mClass(Basic) UnZipper : public Executor
@@ -123,7 +126,7 @@ public:
 protected:
 
     od_int32				nextStep();
-    ZipHandler&			ziphd_;
+    ZipHandler&				ziphd_;
     od_int32				nrdone_;
 };
 
