@@ -179,9 +179,14 @@ bool FingerVein::compute( bool domerge, bool dothinning,
     tmparr->copyFrom( *score );
     float* arr = tmparr->getData();
     sort_array(arr,datasz);
-    const od_int64 thresholdidx = (od_int64)(thresholdpercent*datasz);
-    const float score_threshold = arr[0]<arr[datasz-1] ? 
-	arr[thresholdidx] : arr[datasz-1-thresholdidx] ;
+
+    int firstnonzero = 0;
+    while ( firstnonzero<datasz && arr[firstnonzero]<0.00001 )
+	firstnonzero++;
+    
+    const od_int64 thresholdidx = (od_int64)(firstnonzero-1 + 
+	    thresholdpercent*(datasz-firstnonzero+1));
+    const float score_threshold = arr[thresholdidx];
     
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, score_binary,
 	    Array2DImpl<bool> (input_.info()) );
@@ -202,9 +207,9 @@ bool FingerVein::compute( bool domerge, bool dothinning,
 	}
 	else
 	{
-    	    scorebinarydata[idx] = scoredata[idx]>score_threshold;
-    	    inputbinary[idx] = isabove_ ? inputarr[idx]>threshold_ 
-					: inputarr[idx]<threshold_;
+    	    scorebinarydata[idx] = scoredata[idx]>=score_threshold;
+    	    inputbinary[idx] = isabove_ ? inputarr[idx]>=threshold_ 
+					: inputarr[idx]<=threshold_;
 	}
     }
 
