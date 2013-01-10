@@ -17,7 +17,9 @@ ________________________________________________________________________
 #include "iopar.h"
 
 
-/*!\brief Settings hold the user settings. It is an IOPar.
+/*!
+\ingroup Basic
+\brief Settings class holds the user settings. It is an IOPar.
 
   The common() settings are basic, global user settings.
   For a specific subject or from a plugin, just call fetch( yourkey ),
@@ -28,9 +30,7 @@ ________________________________________________________________________
   The data is stored in ~/.od/settings (common) and ~/.od/settings_yourkey
   for other keys. If $DTECT_USER is set, '.$DTECT_USER' is appended to the
   filename.
-
 */
-
 
 mClass(Basic) Settings : public IOPar
 {

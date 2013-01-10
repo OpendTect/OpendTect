@@ -18,8 +18,11 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 
-/*!Class that keeps one static string per thread. This enables temporary passing
-   of static strings where needed. */
+/*!
+\ingroup Basic
+\brief Class that keeps one static string per thread. This enables temporary
+passing of static strings where needed.
+*/
 
 mClass(Basic) StaticStringManager
 {

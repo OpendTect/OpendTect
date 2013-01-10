@@ -18,8 +18,10 @@ ________________________________________________________________________
 
 namespace DBG { mGlobal(Basic) void forceCrash(bool); }
 
-/*!\brief asynchronous event handling and notification. */
-
+/*!
+\ingroup Basic
+\brief Asynchronous event handling and notification.
+*/
 
 mClass(Basic) SignalHandling : public CallBacker
 {

@@ -20,7 +20,9 @@ namespace Repos
 
     enum Source	{ Temp, Rel, ApplSetup, Data, Survey, User };
 
-/*!\brief constructs repository file names.
+/*!
+\ingroup Basic
+\brief Constructs repository file names.
  
   The basename is the name of a file in upper and lower case,
   e.g. UnitsOfMeasure.
@@ -42,8 +44,7 @@ namespace Repos
   Repos::FileProvider rfp( "UnitsOfMeasure" )
   while ( rfp.next() )
       addUnitsFromFile( rfp.fileName(), rfp.source() );
-
- */
+*/
 
 mClass(Basic) FileProvider
 {

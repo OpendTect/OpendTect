@@ -21,10 +21,10 @@ ________________________________________________________________________
 #endif
 
 
-/* Gives access to shared libs on runtime.
-   Plugins should be loaded via the Plugin Manager (see plugins.h).
-   */
-
+/*!
+\ingroup Basic
+\brief Gives access to shared libs on runtime. Plugins should be loaded via the Plugin Manager (see plugins.h).
+*/
 
 mClass(Basic) SharedLibAccess
 {

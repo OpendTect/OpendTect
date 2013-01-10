@@ -19,8 +19,10 @@ ________________________________________________________________________
 
 template <class T> class StepInterval;
 
-
-/*!\brief Encapsulates linear tranform from (i,j) index to (x,y) coordinates. */
+/*!
+\ingroup Basic
+\brief Encapsulates linear transform from (i,j) index to (x,y) coordinates.
+*/
 
 mClass(Basic) RCol2Coord
 {

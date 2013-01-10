@@ -17,8 +17,11 @@ ________________________________________________________________________
 
 class IOPar;
 
-/*!Specifies Statics as a horizon and either a horizon attribute or 
-   a constant velocity. Velocity is always in m/s. */
+/*!
+\ingroup Basic
+\brief Specifies Statics as a horizon and either a horizon attribute or a
+constant velocity. Velocity is always in m/s.
+*/
 
 mClass(Basic) StaticsDesc
 {

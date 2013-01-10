@@ -17,6 +17,11 @@ ________________________________________________________________________
 #include "sets.h"
 
 
+/*!
+\ingroup Basic
+\brief A reflectivity spike.
+*/
+
 class ReflectivitySpike
 {
 public:

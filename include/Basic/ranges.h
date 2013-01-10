@@ -20,10 +20,13 @@ ________________________________________________________________________
 
 template <class T> class Interval;
 
-/* Base class for Interval. Has no virtual functions and can hence
-   be used in places where no virtual functions are allowed (e.g. large
-   memcpy operations. Does not have sort, clone and scale functions. If
-   you need then, use the Interval<T> instead. */
+/*!
+\ingroup Basic
+\brief Base class for Interval. Has no virtual functions and can hence be
+used in places where no virtual functions are allowed (e.g. large memcpy
+operations. Does not have sort, clone and scale functions. If you need then,
+use the Interval<T> instead.
+*/
 
 template <class T>
 class BasicInterval
@@ -93,11 +96,13 @@ public:
     inline bool			isRev() const		{ return start > stop; }
 };
 
-/*!\brief interval of values.
 
-Note that start does not need to be lower than stop. That's why there is a
-sort() method.
+/*!
+\ingroup Basic
+\brief Interval of values.
 
+  Note that start does not need to be lower than stop. That's why there is a
+  sort() method.
 */
 
 template <class T>
@@ -127,7 +132,10 @@ typedef Interval<float> ZGate;
 
 #define cloneTp	mPolyRet( Interval<T>, StepInterval<T> )
 
-/*!\brief Interval with step. */
+/*!
+\ingroup Basic
+\brief Interval with step.
+*/
 
 template <class T>
 class StepInterval : public Interval<T>
@@ -186,6 +194,11 @@ public:
 
 };
 
+
+/*!
+\ingroup Basic
+\brief 
+*/
 
 template <class T> class IntervalND
 {

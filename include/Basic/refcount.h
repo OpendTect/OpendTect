@@ -20,48 +20,48 @@ ________________________________________________________________________
 template <class T> class ObjectSet;
 
 /*!
-Macros to set up reference counting in a class. A refcount class is set up
-by:
-\code
-class A
-{
-    mRefCountImpl(A);
-public:
-    //Your class stuff
-};
-\endcode
+\ingroup Basic
+\brief Macros to set up reference counting in a class.
 
-If you don't want a destructor on your class use the mRefCountImplNoDestructor
-instead:
-
-\code
-class A
-{
-    mRefCountImplNoDestructor(A);
-public:
+  A refcount class is set up by:
+  \code
+  class A
+  {
+     mRefCountImpl(A);
+     public:
         //Your class stuff
-};
-\endcode
+  };
+  \endcode
+
+  If you don't want a destructor on your class use the mRefCountImplNoDestructor
+  instead:
+
+  \code
+  class A
+  {
+      mRefCountImplNoDestructor(A);
+  public:
+          //Your class stuff
+  };
+  \endcode
 
 
+  The macro will define a protected destructor, so you have to implement one
+  (even if it's a dummy {}).
 
-The macro will define a protected destructor, so you have to implement one
-(even if it's a dummy {}).
+  ObjectSets with ref-counted objects can be modified by either:
+  \code
+  ObjectSet<RefCountClass> set:
 
-ObjectSets with ref-counted objects can be modified by either:
-\code
-ObjectSet<RefCountClass> set:
+  deepRef( set );
+  deepUnRefNoDelete(set);
+  deepRef( set );
+  deepUnRef(set);
 
-deepRef( set );
-deepUnRefNoDelete(set);
-deepRef( set );
-deepUnRef(set);
+  \endcode
 
-\endcode
-
-A pointer management is handled by the class RefMan, which has the same usage as
-PtrMan.
-
+  A pointer management is handled by the class RefMan, which has the same usage
+  as PtrMan.
 */
 
 #define mRefCountImplWithDestructor(ClassName, DestructorImpl, delfunc ) \

@@ -20,15 +20,15 @@ ________________________________________________________________________
 
 class BufferStringSet;
 
+/*!
+\ingroup Basic
+\brief %List encoded in a string.
 
-/*!\brief list encoded in a string.
-
-SeparString is a list encoded in a string where the items are separated by
-a user chosen separator. The separator in the input is escaped with a backslash.
-A `\' is encoded as `\\' . Elements can have any size.  Input and output of
-elements is done unescaped. Input and output of whole (sub)strings is done
-escaped.
-
+  SeparString is a list encoded in a string where the items are separated by
+  a user chosen separator. The separator in the input is escaped with a
+  backslash. A `\' is encoded as `\\' . Elements can have any size.  Input and
+  output of elements is done unescaped. Input and output of whole (sub)strings
+  is done escaped.
 */
 
 mClass(Basic) SeparString
@@ -110,8 +110,10 @@ mGlobal(Basic) std::ostream& operator <<(std::ostream&,const SeparString&);
 mGlobal(Basic) std::istream& operator >>(std::istream&,SeparString&);
 
 
-
-/*!\brief SeparString with backquotes as separators, use in most ascii files */
+/*!
+\ingroup Basic
+\brief SeparString with backquotes as separators, use in most ascii files.
+*/
 
 mClass(Basic) FileMultiString : public SeparString
 {
