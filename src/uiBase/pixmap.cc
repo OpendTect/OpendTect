@@ -70,8 +70,11 @@ ioPixmap::ioPixmap( const QPixmap& pm )
 }
 
 
-static bool fileExists( BufferString& fnm )
+static bool getPngFileName( BufferString& fnm )
 {
+    if ( File::exists( fnm ) )
+	return true;
+
     const BufferString pngfnm( fnm, ".png" );
     if ( File::exists(pngfnm) )
     {
@@ -79,7 +82,7 @@ static bool fileExists( BufferString& fnm )
 	return true;
     }
 
-    return File::exists( fnm );
+    return false;
 }
 
 
@@ -115,23 +118,23 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
 
 	fp.setPath( GetSettingsFileName(dirnm) );
 	fname = fp.fullPath();
-	if ( !fileExists(fname) )
+	if ( !getPngFileName(fname) )
 	{
 	    fp.setPath( mGetSetupFileName(dirnm) );
 	    fname = fp.fullPath();
 	}
 
 	// fallback to Default
-	if ( !fileExists(fname) )
+	if ( !getPngFileName(fname) )
 	{
 	    fp.setPath( mGetSetupFileName("icons.Default") );
 	    fname = fp.fullPath();
 	}
     }
 
-    // final fallback (icon simply missing)
-    if ( !fileExists(fname) )
+    if ( !getPngFileName(fname) )
     {
+	// final fallback (icon simply missing even from release)
 	pErrMsg(BufferString("Icon not found: '",fnm,"'"));
 	fname = FilePath(mGetSetupFileName("icons.Default"),
 			"iconnotfound.png").fullPath();
