@@ -15,12 +15,14 @@ ________________________________________________________________________
 #include <QFileSystemWatcher>
 #include "filesystemwatcher.h"
 
-/*\brief QFileSystemWatcher communication class
+QT_BEGIN_NAMESPACE
+
+/*!
+\ingroup Basic
+\brief QFileSystemWatcher communication class
 
   Internal object, to hide Qt's signal/slot mechanism.
 */
-
-QT_BEGIN_NAMESPACE
 
 class QFileSystemWComm : public QObject 
 {

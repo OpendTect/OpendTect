@@ -15,12 +15,14 @@ ________________________________________________________________________
 #include <QTimer>
 #include "timer.h"
 
-/*\brief QTimer communication class
+QT_BEGIN_NAMESPACE
+
+/*!
+\ingroup Basic
+\brief QTimer communication class
 
   Internal object, to hide Qt's signal/slot mechanism.
 */
-
-QT_BEGIN_NAMESPACE
 
 class QTimerComm : public QObject 
 {

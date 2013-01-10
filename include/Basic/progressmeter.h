@@ -20,7 +20,11 @@ ________________________________________________________________________
 
 class Task;
 
-/*!Is an interface where processes can report their progress. */
+/*!
+\ingroup Basic
+\brief Is an interface where processes can report their progress.
+*/
+
 mClass(Basic) ProgressMeter
 {
 public:
@@ -39,7 +43,10 @@ public:
 };
 
 
-/*!\brief Textual progress indicator for batch programs. */
+/*!
+\ingroup Basic
+\brief Textual progress indicator for batch programs.
+*/
 
 mClass(Basic) TextStreamProgressMeter : public ProgressMeter
 {
