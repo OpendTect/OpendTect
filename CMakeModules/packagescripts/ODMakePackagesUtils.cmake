@@ -169,9 +169,12 @@ macro( init_destinationdir  PACKAGE_NAME )
     SET( PACKAGE_FILENAME "${PACKAGE_FILENAME}_${OD_PLFSUBDIR}.zip" )
     IF( ${PACKAGE_NAME} STREQUAL "basedata" )
         SET( PACKAGE_FILENAME "basedata.zip" )
-    ENDIF()
-    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
+    ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
         SET( PACKAGE_FILENAME "dgbbasedata.zip" )
+    ELSEIF( ${PACKAGE_NAME} STREQUAL "doc" )
+        SET( PACKAGE_FILENAME "doc.zip" )
+    ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
+        SET( PACKAGE_FILENAME "dgbdoc.zip" )
     ENDIF()
 
     IF( NOT EXISTS ${PSD}/packages )
@@ -202,9 +205,12 @@ macro( init_destinationdir  PACKAGE_NAME )
 
     IF( ${PACKAGE_NAME} STREQUAL "basedata" )
         SET( VER_FILENAME "basedata" )
-    ENDIF()
-    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
+    ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
         SET( VER_FILENAME "dgbbasedata" )
+    ELSEIF( ${PACKAGE_NAME} STREQUAL "doc" )
+        SET( VER_FILENAME "doc" )
+    ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
+        SET( VER_FILENAME "dgbdoc" )
     ENDIF()
 
     FILE( WRITE ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
@@ -299,6 +305,38 @@ message( "downloading doc pkgs" )
 endmacro( download_packages )
 
 macro( create_docpackages PACKAGE_NAME )
+    IF( ${PACKAGE_NAME} STREQUAL "doc" )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${CMAKE_INSTALL_PREFIX}/doc/SysAdm
+			 ${DESTINATION_DIR}/doc/SysAdm )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${CMAKE_INSTALL_PREFIX}/doc/Scripts
+			 ${DESTINATION_DIR}/doc/Scripts )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${CMAKE_INSTALL_PREFIX}/doc/workflows
+			 ${DESTINATION_DIR}/doc/User/workflows )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${CMAKE_INSTALL_PREFIX}/doc/base
+			 ${DESTINATION_DIR}/doc/User/base )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${PSD}/doc/Credits/base
+			 ${DESTINATION_DIR}/doc/Credits/base )
+    ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
+        SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${PSD}/../${dgbdir}/doc/Credits/dgb
+			 ${DESTINATION_DIR}/doc/Credits/dgb )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${CMAKE_INSTALL_PREFIX}/doc/dgb
+			 ${DESTINATION_DIR}/doc/User/dgb )
+	FILE( GLOB FILES ${PSD}/doc/flexnet* )
+	FOREACH( FIL ${FILES} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FIL} ${DESTINATION_DIR}/doc )
+	ENDFOREACH()
+    ENDIF()
+    execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
+			     WORKING_DIRECTORY ${PACKAGE_DIR}
+			     RESULT_VARIABLE STATUS )
 endmacro( create_docpackages )
 
 #--------------------------------------------------------------

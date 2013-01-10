@@ -25,6 +25,11 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/data
 	 PATTERN "install_files" EXCLUDE
 	 PATTERN ".svn" EXCLUDE )
 
+#install scripts
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Scripts 
+	 DESTINATION doc
+	 PATTERN ".svn" EXCLUDE )
+
 if ( UNIX )
     file ( GLOB TEXTFILES
 	   ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/*.txt )
@@ -76,3 +81,12 @@ add_custom_target( sources ${CMAKE_COMMAND}
 	 COMMENT "Installing sources" )
 
 include ( ODSubversion )
+add_custom_target( docpackages ${CMAKE_COMMAND}
+	-DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR}
+	-DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR}
+	-DOpendTect_VERSION_PATCH=${OpendTect_VERSION_PATCH}
+	-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+	-DOD_PLFSUBDIR=${OD_PLFSUBDIR}
+	-DPSD=${PROJECT_SOURCE_DIR}
+	-P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeDocPackages.cmake
+	 COMMENT "Preparing doc packages" )

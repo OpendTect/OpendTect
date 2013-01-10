@@ -13,9 +13,6 @@ SET( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs
 
 INCLUDE( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
-#//todo download documentation
-#download_packages()
-
 IF( APPLE )
     od_sign_maclibs()
 ENDIF()
