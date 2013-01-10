@@ -465,7 +465,7 @@ macro ( OD_ADD_LINEEND_TEST )
 	add_test( LineEndTest ${CMD} )
 
 	set( CMD "${OpendTect_DIR}/dtect/FindNoNewlineAtEndOfFile.csh" )
-	list( APPEND CMD "${OD_SOURCELIST_FILE}" )
+	list( APPEND CMD "--listfile" "${OD_SOURCELIST_FILE}" )
 	add_test( FileEndTest ${CMD} )
  
     endif()
