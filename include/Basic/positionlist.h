@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 /*!
 \ingroup Basic
-\brief
+\brief Base class for vertex attribute list.
 */
 
 mClass(Basic) FloatVertexAttribList
@@ -46,7 +46,7 @@ class Coord3;
 
 /*!
 \ingroup Basic
-\brief Basic interface to an list of Coord3 where each coord has a unique id.
+\brief Use Coord3ListImpl instead.
 */
 
 mClass(Basic) Coord3List
@@ -68,7 +68,7 @@ public:
 
 /*!
 \ingroup Basic
-\brief Basic interface to an list of Coord where each coord has a unique id.
+\brief Use Coord2ListImpl instead.
 */
 
 mClass(Basic) Coord2List
@@ -89,7 +89,7 @@ public:
 
 /*!
 \ingroup Basic
-\brief
+\brief A list of Coord where each coord has a unique id.
 */
 
 mClass(Basic) Coord2ListImpl : public Coord2List
@@ -113,7 +113,7 @@ protected:
 
 /*!
 \ingroup Basic
-\brief 
+\brief A list of Coord3 where each coord has a unique id. 
 */
 
 mClass(Basic) Coord3ListImpl : public Coord3List
