@@ -11,6 +11,13 @@ if ( $#argv<2 ) then
     goto syntax
 endif
 
+if ( -e /dev/shm ) then
+    set tmpdir=/dev/shm
+else
+    set tmpdir=/tmp
+endif
+
+
 nextarg:
 
 if ( "${1}" == "--listfile" ) then
@@ -38,8 +45,8 @@ if ( "${listfile}" != "" ) then
     exit ${status}
 endif
 
-set tmpfile=/dev/shm/cksvnprop.$$
-set tmperrfile=/dev/shm/cksvnprop_err.$$
+set tmpfile=${tmpdir}/cksvnprop.$$
+set tmperrfile=${tmpdir}/cksvnprop_err.$$
 
 nextfile:
 
