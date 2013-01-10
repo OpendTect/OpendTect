@@ -1447,7 +1447,6 @@ void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
 	    const int last = curblock.start + width;
 	    const float firstai = ailayers[curblock.start];
 	    Interval<float> airange( firstai, firstai );
-	    float prevai = firstai;
 	    TypeSet<int> bendpoints;
 	    float maxdiff = 0;
 	    
@@ -1465,8 +1464,6 @@ void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
 		    bendpoints += idx;
 		    maxdiff = diff;
 		}
-		
-		prevai = curai;
 	    }
 	    
 	    if ( airange.width()<=aithreshold )
