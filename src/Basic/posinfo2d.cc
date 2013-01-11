@@ -54,8 +54,8 @@ int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
 
 int PosInfo::Line2DData::gtIndex( const Coord& coord, double* sqdist ) const
 {
-	if ( posns_.isEmpty() )
-		return -1;
+    if ( posns_.isEmpty() )
+	return -1;
 
 #   define mSqDist(idx) posns_[idx].coord_.sqDistTo( coord )
 
@@ -124,7 +124,10 @@ int PosInfo::Line2DData::indexOf( int nr ) const
 int PosInfo::Line2DData::nearestIdx( const Coord& pos,
 				     const Interval<int>& nrrg ) const
 {
-    int posidx = gtIndex( pos );
+    const int posidx = gtIndex( pos );
+    if ( !posns_.validIdx(posidx) )
+	return -1;
+
     if ( nrrg.includes(posns_[posidx].nr_,false) )
 	return posidx;
 
@@ -133,13 +136,14 @@ int PosInfo::Line2DData::nearestIdx( const Coord& pos,
     return sqd0 < sqd1 ? nrrg.start : nrrg.stop;
 }
 
+
 bool PosInfo::Line2DData::getPos( const Coord& coord,
 				  PosInfo::Line2DPos& pos, float* dist ) const
 {
     double sqdist;
     const int idx = gtIndex( coord, &sqdist );
-    if ( idx < 0 )
-	    return false;
+    if ( !posns_.validIdx(idx) )
+	return false;
 
     pos = posns_[idx];
     if ( dist ) *dist = (float) Math::Sqrt( sqdist );
@@ -174,13 +178,14 @@ void PosInfo::Line2DData::dump( std::ostream& strm, bool pretty ) const
 	const int fac = SI().zDomain().userFactor();
 	strm << "Z range " << SI().getZUnitString() << ":\t" << fac*zrg_.start
 	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
-	strm << "\n\nTrace number\tX-coord\tY-coord" << std::endl;
+	strm << "\n\nTrcNr\tX-coord\tY-coord" << std::endl;
     }
 
     for ( int idx=0; idx<posns_.size(); idx++ )
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
-	strm << pos.nr_ << '\t' << pos.coord_.x << '\t' << pos.coord_.y << '\n';
+	strm << std::fixed << pos.nr_ << '\t' << pos.coord_.x
+				      << '\t' << pos.coord_.y << '\n';
     }
     strm.flush();
 }
@@ -301,8 +306,7 @@ StepInterval<int> PosInfo::Line2DData::trcNrRange() const
 Coord PosInfo::Line2DData::getNormal( int trcnr ) const
 {
     bool found; const int posidx = gtIndex( trcnr, found );
-    if ( !found )
-	return Coord(mUdf(float), mUdf(float));
+    if ( !found ) return Coord::udf();
 
     Coord pos = posns_[posidx].coord_;
     Coord v1;
