@@ -16,13 +16,13 @@ ________________________________________________________________________
 #include <thread.h>
 #include <QObject>
 
-
-//! Helper class for QPtr to relay Qt's messages.
-/*!
-    Internal object, to hide Qt's signal/slot mechanism.
-*/
-
 QT_BEGIN_NAMESPACE
+
+/*!
+\ingroup Basic
+\brief Helper class for QPtr to relay Qt's messages. Internal object, to hide
+Qt's signal/slot mechanism.
+*/
 
 class Export_Basic i_QPtrImpl : public QObject, public CallBacker
 {
