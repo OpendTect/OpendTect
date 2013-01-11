@@ -241,7 +241,7 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 	}
 
 	histogram[res]++;
-	valresult+= mappedudfspacing_;
+	valresult += mappedvalsspacing_;
 	inp++;
 
 	if ( nrdone>10000 )
