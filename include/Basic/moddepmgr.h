@@ -15,13 +15,13 @@ ________________________________________________________________________
 #include "bufstringset.h"
 class SharedLibAccess;
 
-
-/*!\brief Dependency manager - provides tools for the dependencies between
-          the different OpendTect 'modules'.
- */
-
 namespace OD
 {
+
+/*!
+\ingroup Basic
+\brief Module Dependency
+*/
 
 mClass(Basic) ModDep
 {
@@ -35,6 +35,13 @@ public:
     BufferStringSet	mods_;
 
 };
+
+
+/*!
+\ingroup Basic
+\brief Dependency manager - provides tools for the dependencies between the
+different OpendTect 'modules'.
+*/
 
 mClass(Basic) ModDepMgr
 {
