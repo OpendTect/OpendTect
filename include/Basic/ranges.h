@@ -197,7 +197,7 @@ public:
 
 /*!
 \ingroup Basic
-\brief 
+\brief Class to store ranges in N dimensions. 
 */
 
 template <class T> class IntervalND
