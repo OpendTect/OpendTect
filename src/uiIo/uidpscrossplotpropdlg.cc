@@ -60,19 +60,24 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
 	axflds_ += flds;
 	uiAxisHandler* axhndlr = plotter_.axisHandler( idx );
 	if ( !axhndlr ) continue;
+	manualchg_ += false;
 
 	const uiAxisData::AutoScalePars& asp = plotter_.autoScalePars(idx);
 	flds->doclipfld_ = new uiGenInput( this, "Use clipping",
 				    BoolInpSpec(asp.doautoscale_) );
 	flds->doclipfld_->valuechanged.notify(
-			    mCB(this,uiDPSCPScalingTab,useClipSel) );
+				mCB(this,uiDPSCPScalingTab,useClipSel) );
 	flds->percclipfld_ = new uiGenInput( this, "Clipping percentage",
 					FloatInpSpec(asp.clipratio_*100) );
+	flds->percclipfld_->valuechanged.notify(
+				mCB(this,uiDPSCPScalingTab,useClipSel) );
 	flds->doclipfld_->attach( alignedBelow, axlcb );
 	flds->percclipfld_->attach( alignedBelow, flds->doclipfld_ );
 
 	flds->rgfld_ = new uiGenInput( this, "Axis range/step",
 		FloatInpIntervalSpec(axhndlr->range()) );
+	flds->rgfld_->valuechanged.notify(
+				mCB(this,uiDPSCPScalingTab,useClipSel) );
 	flds->rgfld_->attach( alignedBelow, flds->doclipfld_ );
     }
 
@@ -94,17 +99,19 @@ void axSel( CallBacker* )
 
 	const uiAxisData::AutoScalePars& asp = plotter_.autoScalePars(idx);
 	axflds.doclipfld_->display( idx == axnr );
-	axflds.doclipfld_->setValue( asp.doautoscale_ );
 	axflds.percclipfld_->display( idx == axnr );
-	axflds.percclipfld_->setValue( asp.clipratio_*100 );
 	axflds.rgfld_->display( idx == axnr );
+	if ( idx != axnr || manualchg_[axnr] ) continue;
+
+	axflds.doclipfld_->setValue( asp.doautoscale_ );
+	axflds.percclipfld_->setValue( asp.clipratio_*100 );
 	axflds.rgfld_->setValue( axhndlr->range() );
     }
     useClipSel( 0 );
 }
 
 
-void useClipSel( CallBacker* )
+void useClipSel( CallBacker* cb )
 {
     const int axnr = axselfld_->currentItem();
     if ( axnr < 0 ) return;
@@ -115,6 +122,7 @@ void useClipSel( CallBacker* )
     const bool doclip = axflds.doclipfld_->getBoolValue();
     axflds.percclipfld_->display( doclip );
     axflds.rgfld_->display( !doclip );
+    if ( cb ) manualchg_[axnr] = true;
 }
 
 
@@ -127,30 +135,42 @@ bool acceptOK()
 
 	uiDPSCPScalingTabAxFlds& axflds = *axflds_[idx];
 	uiAxisData::AutoScalePars& asp = plotter_.autoScalePars( idx );
-	const bool doas = axflds.doclipfld_->getBoolValue();
-	if ( !doas )
-	    axh->setBounds( axflds.rgfld_->getFStepInterval() );
+
+	if ( !manualchg_[idx] )
+	{
+	    axflds.doclipfld_->setValue(asp.doautoscale_);
+	    axflds.percclipfld_->setValue(asp.clipratio_*100);
+	    axflds.rgfld_->setValue(axh->range());
+	}
 	else
 	{
-	    float cr = axflds.percclipfld_->getfValue() * 0.01f;
-	    if ( cr < 0 || cr > 1 )
-	    {
-		uiMSG().error("Clipping percentage must be between 0 and 100");
-		return false;
-	    }
-	    asp.clipratio_ = cr;
+	    const bool doas = axflds.doclipfld_->getBoolValue();
+    	    if ( !doas )
+    	    {
+    		axh->setBounds( axflds.rgfld_->getFStepInterval() );
+    	    }
+    	    else
+    	    {
+    		float cr = axflds.percclipfld_->getfValue() * 0.01f;
+    		if ( cr < 0 || cr > 1 )
+    		{
+    		    uiMSG().error("Clipping percentage must be"
+				    " between 0 and 100");
+    		    return false;
+    		}
+    		asp.clipratio_ = cr;
+    	    }
+	    asp.doautoscale_ = plotter_.axisData(idx).needautoscale_ = doas;
 	}
-
-	asp.doautoscale_ = plotter_.axisData(idx).needautoscale_ = doas;
+	manualchg_[idx] = false;
     }
-
     return true;
 }
 
     uiDataPointSetCrossPlotter&		plotter_;
     uiComboBox*				axselfld_;
     ObjectSet<uiDPSCPScalingTabAxFlds>	axflds_;
-
+    BoolTypeSet				manualchg_;	
 };
 
 
@@ -241,12 +261,6 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     , plotter_(p->plotter())
     , dps_(p->plotter().dps())
     , hasy2_(plotter_.axisHandler(2))
-    , yaxrg_((plotter_.axisData(1)).axis_->range())
-    , y2axrg_((plotter_.axisData(hasy2_? 2:1)).axis_->range())
-    , yclipratio_(plotter_.autoScalePars(1).clipratio_)
-    , y2clipratio_(plotter_.autoScalePars(hasy2_? 2:1).clipratio_)
-    , yautoscale_(plotter_.autoScalePars(1).doautoscale_)
-    , y2autoscale_(plotter_.autoScalePars(hasy2_? 2:1).doautoscale_)
     , shwy1userdefpolyline_(0)
     , shwy2userdefpolyline_(0)
     , mathobj_(0)
@@ -374,16 +388,26 @@ void parseExp( CallBacker* cb )
 	{
 	    uiMSG().error( mep.errMsg() );
 	    chkbox->setChecked( false );
+	    return;
 	}
-	return;
+	else if ( !mathexpr.isEmpty() )
+	{
+	    msg_ = "Expression for curve Y";
+	    msg_ += isy1 ? "1" : "2";
+	    msg_ += " is invalid.";
+	    uiMSG().error( msg() );
+	    chkbox->setChecked( false );
+	    return;
+	}
     }
 
-    if ( mathobj->nrVariables() > 1 )
+    if ( mathobj && mathobj->nrVariables() > 1 )
     {
-	msg_ = "Expression of curve Y";
+	msg_ = "Expression for curve Y";
 	msg_ += isy1 ? "1" : "2";
 	msg_ += " contains more than one variable.";
-	uiMSG().error( msg() );	chkbox->setChecked( false );
+	uiMSG().error( msg() );
+	chkbox->setChecked( false );
 	return;
     }
 }
@@ -465,29 +489,15 @@ void setPolyLines( CallBacker* cb )
 void drawPolyLines()
 {
     uiDataPointSetCrossPlotter::AxisData& yax = plotter_.axisData(1);
-    const bool yclipratiochgd =
-	!mIsEqual( yax.autoscalepars_.clipratio_, yclipratio_, 1e-6 );
-    const bool yrgchgd = ( yax.axis_->range() != yaxrg_ )
-				&& !yax.autoscalepars_.doautoscale_;
-    const bool yautoscalechgd = (yautoscale_!= yax.autoscalepars_.doautoscale_);
-
     const bool shwy1 = shwy1userdefpolyline_->isChecked();
-    const bool computey1again =	( yrgchgd || yclipratiochgd || yautoscalechgd );
 
-    if ( shwy1 && ( exp1chgd_ || computey1again ) )
+    if ( shwy1 && exp1chgd_ )
     {
-	if ( exp1chgd_ )
-	{
-	    yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = true;
-	    yax.autoscalepars_.clipratio_ = 0.0f;
-	}
-	else
-	    yax.needautoscale_ = false;
-
-	computePts( false );
-	exp1chgd_ = false;
+	yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = true;
+	yax.autoscalepars_.clipratio_ = 0.0f;
+	computePts( false ); exp1chgd_ = false;
     }
-    else if ( !exp1chgd_ )
+    else if ( !exp1chgd_ && !yax.autoscalepars_.doautoscale_ )
     {
 	yax.needautoscale_ = false;
     }
@@ -496,31 +506,15 @@ void drawPolyLines()
     if ( hasy2_ )
     {
 	uiDataPointSetCrossPlotter::AxisData& y2ax = plotter_.axisData(2);
-	const bool y2clipratiochgd =
-  	    !mIsEqual( y2ax.autoscalepars_.clipratio_, y2clipratio_, 1e-6 );
-	const bool y2rgchgd = ( y2ax.axis_->range() != y2axrg_ )
-	    				&& !y2ax.autoscalepars_.doautoscale_;
-	const bool y2autoscalechgd =
-	    ( y2autoscale_ != y2ax.autoscalepars_.doautoscale_ );
-
 	const bool shwy2 = shwy2userdefpolyline_->isChecked();
-	const bool computey2again =
-	    ( y2rgchgd || y2clipratiochgd || y2autoscalechgd );
 
-    	if ( shwy2 && ( exp2chgd_ || computey2again ) )
+    	if ( shwy2 && exp2chgd_ )
     	{
-	    if ( exp2chgd_ )
-	    {
-		y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = true;
-		y2ax.autoscalepars_.clipratio_ = 0.0f;
-	    }
-	    else
-		y2ax.needautoscale_ = false;
-
-	    computePts( true );
-	    exp2chgd_ = false;
+	    y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = true;
+	    y2ax.autoscalepars_.clipratio_ = 0.0f;
+	    computePts( true ); exp2chgd_ = false;
 	}
-	else if ( !exp2chgd_ )
+	else if ( !exp2chgd_ && !y2ax.autoscalepars_.doautoscale_ )
 	{   
 	    y2ax.needautoscale_ = false;
 	}
@@ -534,9 +528,7 @@ void computePts( bool isy2 )
     TypeSet<uiWorldPoint> pts;
     uiDataPointSetCrossPlotter::AxisData& horz = plotter_.axisData(0);
     uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(isy2 ? 2:1);
-
-    const bool computermserr = isy2 ? exp2chgd_ : exp1chgd_;
-    if ( computermserr ) getRmsError( isy2 );
+    getRmsError( isy2 );
 
     StepInterval<float> curvyvalrg( mUdf(float), -mUdf(float),
 	    vert.axis_->range().step );
@@ -564,7 +556,6 @@ void computePts( bool isy2 )
 	return;
     }
 
-    const bool shouldask = isy2 ? exp2chgd_ : exp1chgd_;
     if ( !vert.axis_->range().includes(curvyvalrg) )
     {
 	msg_ = "Curve for Y";
@@ -572,7 +563,7 @@ void computePts( bool isy2 )
 	msg_ += " goes beyond the default range. ";
 	msg_ += "Do you want to rescale to see the complete curve?";
 
-	if ( shouldask && uiMSG().askGoOn(msg_) )
+	if ( uiMSG().askGoOn(msg_) )
 	{
 	    curvyvalrg.include( vert.axis_->range(), false );
 	    curvyvalrg.step = (curvyvalrg.stop - curvyvalrg.start)/4.0f;
@@ -581,17 +572,13 @@ void computePts( bool isy2 )
 	}
     }
     plotter_.setUserDefPolyLine( pts,isy2 );
-
-    ( isy2 ? y2axrg_ : yaxrg_ ) = vert.axis_->range();
-    ( isy2 ? y2autoscale_ : yautoscale_ ) = vert.autoscalepars_.doautoscale_;
-    ( isy2 ? y2clipratio_ : yclipratio_ ) = vert.autoscalepars_.clipratio_;
 }
 
 
 void getRmsError( bool isy2 )
 {
     uiDataPointSetCrossPlotter::AxisData& horz = plotter_.axisData(0);
-    uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(isy2 ? 2:1);
+    uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(isy2? 2:1);
 
     MathExpression* mathobj = isy2 ? mathobj1_ : mathobj_;
     const BinIDValueSet& bvs = dps_.bivSet();
@@ -613,7 +600,7 @@ void getRmsError( bool isy2 )
 	float expyval = mathobj->getValue();	
 	if ( mIsUdf(expyval) ) continue;
 	
-	rmserr += ( expyval - yval )*( expyval - yval );
+	rmserr += (expyval-yval)*(expyval-yval);
 	count += 1;
     }
     
@@ -649,8 +636,8 @@ bool acceptOK()
 
     if ( plotter_.userdefy1str_.isEmpty() )
     {
+	mathexprstring_.setEmpty(); plotter_.y1rmserr_.setEmpty();
 	shwy1userdefpolyline_->setChecked( false );
-	plotter_.y1rmserr_.setEmpty();
     }
 
     if ( hasy2_ )
@@ -658,8 +645,8 @@ bool acceptOK()
 	plotter_.userdefy2str_ = inpfld1_->text();
 	if ( plotter_.userdefy2str_.isEmpty() )
 	{
+	    mathexprstring1_.setEmpty(); plotter_.y2rmserr_.setEmpty();
 	    shwy2userdefpolyline_->setChecked( false );
-	    plotter_.y2rmserr_.setEmpty();
 	}
 
 	plotter_.setup().showy2userdefpolyline_
@@ -684,8 +671,6 @@ bool acceptOK()
     bool		 		hasy2_;
     bool				exp1chgd_;
     bool				exp2chgd_;
-    bool				yautoscale_;
-    bool				y2autoscale_;
     int  				dragmode_;
     uiGenInput*                         inpfld_;
     uiGenInput*                         inpfld1_;
@@ -699,10 +684,6 @@ bool acceptOK()
     BufferString       			mathexprstring1_;
     MathExpression*			mathobj_;
     MathExpression*			mathobj1_;
-    StepInterval<float>			yaxrg_;
-    StepInterval<float>			y2axrg_;
-    float				yclipratio_;
-    float				y2clipratio_;
     const char*	                 	msg() const  { return msg_.str(); }
     mutable BufferString        	msg_;
 };
@@ -795,7 +776,7 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     cellsize_ = cellsize;
     minptinpfld_ =
 	new uiGenInput( this, "Threshold minimum points for Density Plot",
-			IntInpSpec(minptsfordensity_) );
+		IntInpSpec(minptsfordensity_).setLimits(Interval<int>(1,1e6)) );
     minptinpfld_->attach( rightAlignedBelow, lbl );
     
     cellsizefld_ = new uiGenInput( this, "Cell Size", IntInpSpec(cellsize) );
@@ -865,6 +846,7 @@ void hCellNrChanged( CallBacker* )
 bool acceptOK()
 {
     minptsfordensity_ = minptinpfld_->getIntValue();
+
     if ( cellsizefld_->getIntValue() <= 0 )
     {
 	uiMSG().error( "Cannot have a cellsize less than 1" );
