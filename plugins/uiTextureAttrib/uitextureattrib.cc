@@ -102,7 +102,8 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
 
 bool uiTextureAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Texture::attribName()) )
+    const BufferString attrnm( desc.attribName() );
+    if ( attrnm != Texture::attribName() )
 	return false;
 
     mIfGetFloatInterval( Texture::gateStr(), 
@@ -136,7 +137,8 @@ bool uiTextureAttrib::setOutput( const Desc& desc )
 
 bool uiTextureAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Texture::attribName()) )
+    const BufferString attrnm( desc.attribName() );
+    if ( attrnm != Texture::attribName() )
 	return false;
     
     const float globalmin = globalminfld_->getfValue();
