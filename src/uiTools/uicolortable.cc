@@ -103,6 +103,8 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
     canvas_ = new uiColorTableCanvas( parnt, coltabseq_, true, vert );
     canvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTable,canvasClick) );
+    canvas_->getMouseEventHandler().doubleClick.notify(
+			mCB(this,uiColorTable,canvasDoubleClick) );
     canvas_->setPrefHeight( vert ? 160 : 25 );
     canvas_->setPrefWidth( vert ? 30 : 80 );
     canvas_->setStretch( 0, 0 );
@@ -320,6 +322,10 @@ void uiColorTable::canvasClick( CallBacker* )
 
     canvas_->getMouseEventHandler().setHandled( true );
 }
+
+
+void uiColorTable::canvasDoubleClick( CallBacker* )
+{ doManage(0); }
 
 
 void uiColorTable::commitInput()

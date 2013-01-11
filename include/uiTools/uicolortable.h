@@ -88,6 +88,7 @@ protected:
     void		updateRgFld();
     void		canvasreDraw(CallBacker*);
     void		canvasClick(CallBacker*);
+    void		canvasDoubleClick(CallBacker*);
     void		tabSel(CallBacker*);
     void		tableAdded(CallBacker*);
     void		rangeEntered(CallBacker*);
