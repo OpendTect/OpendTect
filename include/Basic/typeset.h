@@ -113,7 +113,7 @@ protected:
   matches using the `==' operator. The requirement of the presence of that  
   operator is actually not that bad: at least you can't forget it.
   
-  Do not make TypeSetBase<bool> (don't worry, it won't compile). Use the
+  Do not make TypeSet<bool> (don't worry, it won't compile). Use the
   BoolTypeSet typedef just after the class definition. See vectoraccess.h for
   details on why.
 */
