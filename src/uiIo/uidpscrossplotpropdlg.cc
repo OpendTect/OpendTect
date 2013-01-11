@@ -64,18 +64,18 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
 
 	const uiAxisData::AutoScalePars& asp = plotter_.autoScalePars(idx);
 	flds->doclipfld_ = new uiGenInput( this, "Use clipping",
-				    BoolInpSpec(asp.doautoscale_) );
+				BoolInpSpec(asp.doautoscale_) );
 	flds->doclipfld_->valuechanged.notify(
 				mCB(this,uiDPSCPScalingTab,useClipSel) );
 	flds->percclipfld_ = new uiGenInput( this, "Clipping percentage",
-					FloatInpSpec(asp.clipratio_*100) );
+				FloatInpSpec(asp.clipratio_*100) );
 	flds->percclipfld_->valuechanged.notify(
 				mCB(this,uiDPSCPScalingTab,useClipSel) );
 	flds->doclipfld_->attach( alignedBelow, axlcb );
 	flds->percclipfld_->attach( alignedBelow, flds->doclipfld_ );
 
 	flds->rgfld_ = new uiGenInput( this, "Axis range/step",
-		FloatInpIntervalSpec(axhndlr->range()) );
+				FloatInpIntervalSpec(axhndlr->range()) );
 	flds->rgfld_->valuechanged.notify(
 				mCB(this,uiDPSCPScalingTab,useClipSel) );
 	flds->rgfld_->attach( alignedBelow, flds->doclipfld_ );
