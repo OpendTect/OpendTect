@@ -113,12 +113,13 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 		"Horizon Data", true, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
-	attribfld_->setToolTip( "Horizon Data (Attributes stored in Horizon format)" );
+	attribfld_->setToolTip(
+		"Horizon Data (Attributes stored in Horizon format)" );
 
 	uiManipButGrp* butgrp = new uiManipButGrp( llb );
 	butgrp->addButton( uiManipButGrp::Remove,"Remove selected Horizon Data",
 			   mCB(this,uiSurfaceMan,removeAttribCB) );
-	butgrp->addButton( uiManipButGrp::Rename, "Rename selected Horizon Data",
+	butgrp->addButton( uiManipButGrp::Rename,"Rename selected Horizon Data",
 			   mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
 
