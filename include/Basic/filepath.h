@@ -37,7 +37,7 @@ mClass(Basic) FilePath
 public:
     enum Style		{ Local, Unix, Windows };
 
-    			FilePath(const char* fullinp=0,bool withlink=false);
+    			FilePath(const char* fullinp=0);
     			FilePath(const char* p1,const char* p2,const char* p3=0,
 				 const char* p4=0,const char* p5=0);
 			FilePath( const FilePath& fp )	{ *this = fp; }
@@ -95,7 +95,6 @@ protected:
     bool		isabs_;
     BufferString	prefix_;
     BufferStringSet	lvls_;
-    bool		withlink_;
 
     void		addPart(const char*);
     void		compress(int sl=0);

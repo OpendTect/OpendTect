@@ -18,8 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const char* FilePath::sPrefSep = ":";
 
-FilePath::FilePath( const char* fnm, bool withlink )
-    : withlink_(withlink)
+FilePath::FilePath( const char* fnm )
 {
     set( fnm );
 }
@@ -425,8 +424,7 @@ void FilePath::addPart( const char* fnm )
     }
     *bufptr = '\0';
     if ( buf[0] ) lvls_.add( buf );
-    if ( withlink_ )
-	trueDirIfLink();
+    trueDirIfLink();
 }
 
 
