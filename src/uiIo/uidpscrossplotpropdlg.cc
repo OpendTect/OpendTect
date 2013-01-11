@@ -776,7 +776,7 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     cellsize_ = cellsize;
     minptinpfld_ =
 	new uiGenInput( this, "Threshold minimum points for Density Plot",
-	    IntInpSpec(minptsfordensity_).setLimits(Interval<int>(1,1000000)) );
+	IntInpSpec(minptsfordensity_).setLimits(Interval<int>(1,mCast(int,1e6))) );
     minptinpfld_->attach( rightAlignedBelow, lbl );
     
     cellsizefld_ = new uiGenInput( this, "Cell Size", IntInpSpec(cellsize) );
