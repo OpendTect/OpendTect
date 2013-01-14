@@ -139,8 +139,8 @@ bool acceptOK()
 	if ( !manualchg_[idx] )
 	{
 	    axflds.doclipfld_->setValue(asp.doautoscale_);
-	    axflds.percclipfld_->setValue(asp.clipratio_*100);
 	    axflds.rgfld_->setValue(axh->range());
+	    useClipSel( 0 );
 	}
 	else
 	{
@@ -444,8 +444,6 @@ void checkedCB( CallBacker* )
 
 void initFlds( CallBacker* )
 {
-    if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
-    
     inpfld_->setText( plotter_.userdefy1str_ );
     rmsfld_->setText( plotter_.y1rmserr_);
     
@@ -494,12 +492,11 @@ void drawPolyLines()
     if ( shwy1 && exp1chgd_ )
     {
 	yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = true;
-	yax.autoscalepars_.clipratio_ = 0.0f;
 	computePts( false ); exp1chgd_ = false;
     }
-    else if ( !exp1chgd_ && !yax.autoscalepars_.doautoscale_ )
+    else if ( exp1chgd_ && mathexprstring_.isEmpty() )
     {
-	yax.needautoscale_ = false;
+	yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = true;
     }
     plotter_.setUserDefDrawType( shwy1,false );
 
@@ -511,12 +508,11 @@ void drawPolyLines()
     	if ( shwy2 && exp2chgd_ )
     	{
 	    y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = true;
-	    y2ax.autoscalepars_.clipratio_ = 0.0f;
 	    computePts( true ); exp2chgd_ = false;
 	}
-	else if ( !exp2chgd_ && !y2ax.autoscalepars_.doautoscale_ )
-	{   
-	    y2ax.needautoscale_ = false;
+	else if ( exp2chgd_ && mathexprstring1_.isEmpty() )
+	{
+   	    y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = true;   
 	}
 	plotter_.setUserDefDrawType( shwy2,true );
     }
@@ -776,7 +772,7 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     cellsize_ = cellsize;
     minptinpfld_ =
 	new uiGenInput( this, "Threshold minimum points for Density Plot",
-	IntInpSpec(minptsfordensity_).setLimits(Interval<int>(1,mCast(int,1e6))) );
+	IntInpSpec(minptsfordensity_).setLimits(StepInterval<int>(1,mCast(int,1e6),100)) );
     minptinpfld_->attach( rightAlignedBelow, lbl );
     
     cellsizefld_ = new uiGenInput( this, "Cell Size", IntInpSpec(cellsize) );
