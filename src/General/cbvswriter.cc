@@ -299,7 +299,7 @@ int CBVSWriter::put( void** cdat, int offs )
     {
 	// getBinID() has added a new segment, so remove it from list ...
 	PosInfo::LineData* newinldat = lds_[lds_.size()-1];
-	lds_.removeSingle( lds_.size()-1 );
+	lds_.removeAndTake( lds_.size()-1 );
 	if ( file_lastinl_ )
 	{
 	    delete newinldat;
