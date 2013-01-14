@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiIo uiIo
-\section Introduction Introduction
+
   User Interface related to I/O
 
   This module contains some basic classes that handle the selection and
@@ -30,8 +30,6 @@ ________________________________________________________________________
   Other objects have been stuffed into this module as there was space left.
   More seriously, one can say that those objects are too OpendTect specific for
   the uiTools directory, but too general for any specific UI directory.
-
-\section Content Content
 
 */
 
