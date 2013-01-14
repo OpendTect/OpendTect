@@ -32,6 +32,11 @@ namespace SqlDB
 {
 class Access;
 
+/*!
+\ingroup Database
+\brief An SQL Query.
+*/
+
 mClass(Database) Query
 {
 public:
@@ -87,14 +92,24 @@ protected:
 };
 
 
-/*! Helper class that creates conditions that can be put after WHERE
-    in a query. */
+/*!
+\ingroup Database
+\brief Helper class that creates conditions that can be put after WHERE in a
+query.
+*/
+
 mClass(Database) Condition
 {
 public:
     virtual			~Condition() {}
     virtual BufferString	getStr() const			= 0;
 };
+
+
+/*!
+\ingroup Database
+\brief Condition to check value.
+*/
 
 mClass(Database) ValueCondition : public Condition
 {
@@ -117,6 +132,11 @@ protected:
 };
 
 
+/*!
+\ingroup Database
+\brief
+*/
+
 mClass(Database) MultipleLogicCondition : public Condition
 {
 public:
@@ -133,6 +153,11 @@ protected:
 };
 
 
+/*!
+\ingroup
+\brief
+*/
+
 mClass(Database) StringCondition : public Condition
 {
 public:
@@ -147,6 +172,11 @@ protected:
     bool		exact_;
 };
 
+
+/*!
+\ingroup
+\brief
+*/
 
 mClass(Database) FullTextCondition : public Condition
 {

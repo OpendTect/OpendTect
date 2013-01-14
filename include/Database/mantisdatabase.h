@@ -22,6 +22,11 @@ class BugTableEntry;
 class BugTextTableEntry;
 class BugHistoryTableEntry;
 
+/*!
+\ingroup Database
+\brief Class to access Mantis Database. Mantis Bug Tracker is a free popular
+web-based bug-tracking system.
+*/
 
 mClass(Database) MantisAccess : public MySqlAccess
 {
@@ -33,6 +38,11 @@ public:
 };
 
 
+/*!
+\ingroup Database
+\brief A Mantis Query.
+*/
+
 mClass(Database) MantisQuery : public Query
 {
 public:
@@ -42,6 +52,11 @@ public:
 
 };
 
+
+/*!
+\ingroup Database
+\brief Mantis Database Manager.
+*/
 
 mClass(Database) MantisDBMgr
 {

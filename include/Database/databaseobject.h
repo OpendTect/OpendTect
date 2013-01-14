@@ -25,6 +25,11 @@ namespace SqlDB
 class DatabaseTable;
 class Access;
 
+/*!
+\ingroup Database
+\brief Base class for Database columns.
+*/
+
 mClass(Database) DatabaseColumnBase
 {
 public:
@@ -49,6 +54,11 @@ protected:
 };
 
 
+/*!
+\ingroup Database
+\brief
+*/
+
 #define mEnumDatabaseColumn( mod, clssnm, enmcls, enm )			\
 mClass(mod) clssnm : public ::SqlDB::DatabaseColumnBase			\
 {									\
@@ -66,6 +76,10 @@ public:									\
 }
 
 
+/*!
+\ingroup Database
+\brief A Database column.
+*/
 
 template<class T>
 mClass(Database) DatabaseColumn : public DatabaseColumnBase
@@ -78,6 +92,11 @@ public:
     virtual inline const char*	dataString(const T&) const;
 };
 
+
+/*!
+\ingroup Database
+\brief A Database column of IDs.
+*/
 
 mClass(Database) IDDatabaseColumn : public DatabaseColumn<int>
 {
@@ -93,6 +112,11 @@ public:
 };
 
 
+/*!
+\ingroup Database
+\brief A Database column of strings.
+*/
+
 mClass(Database) StringDatabaseColumn : public DatabaseColumn<BufferString>
 {
 public:
@@ -100,6 +124,11 @@ public:
 			const char* columnname, int maxsize=-1);
 };
 
+
+/*!
+\ingroup Database
+\brief
+*/
 
 mClass(Database) CreatedTimeStampDatabaseColumn : public DatabaseColumnBase
 {
@@ -111,6 +140,11 @@ public:
 };
 
 
+/*!
+\ingroup Database
+\brief A Database column of DateInfo objects.
+*/
+
 mClass(Database) DateDatabaseColumn : public DatabaseColumnBase
 {
 public:
@@ -120,6 +154,11 @@ public:
     const char*	dataString(const DateInfo&) const;
 };
 
+
+/*!
+\ingroup Database
+\brief A Database column of Price objects.
+*/
 
 mClass(Database) PriceDatabaseColumn : public DatabaseColumnBase
 {
@@ -131,9 +170,12 @@ public:
 };
 
 
-/*!A database where each row has a unique id. A row is never deleted, by
-   a new row is added where entryidcol is set to the id of the row it is
-   replacing, and a timestamp will tell which row that is the current. */
+/*!
+\ingroup Database
+\brief A database where each row has a unique id. A row is never deleted, by a
+new row is added where entryidcol is set to the id of the row it is replacing,
+and a timestamp will tell which row that is the current.
+*/
 
 mClass(Database) DatabaseTable
 {
