@@ -60,9 +60,9 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    			    2,false)
     , uidps_(uidps)
     , plotter_(*new uiDataPointSetCrossPlotter(this,uidps,defsetup_))
-    , disptb_(*new uiToolBar(this,"Crossplot display toolbar"))
-    , seltb_(*new uiToolBar(this,"Crossplot selection toolbar"))
-    , maniptb_(*new uiToolBar(this,"Crossplot manipulation toolbar",
+    , disptb_(*new uiToolBar(this,"Cross-plot display toolbar"))
+    , seltb_(*new uiToolBar(this,"Cross-plot selection toolbar"))
+    , maniptb_(*new uiToolBar(this,"Cross-plot manipulation toolbar",
 			      uiToolBar::Left))
     , colortb_(*new uiToolBar(this,"DensityPlot Colorbar",uiToolBar::Top,true))
     , grpfld_(0)

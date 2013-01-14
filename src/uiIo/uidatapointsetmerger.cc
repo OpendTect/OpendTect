@@ -172,7 +172,7 @@ void DPSMergerProp::setColid( int mastercolid, int slavecolid )
 
 uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 					    DataPointSet* sdps )
-    : uiDialog(p,uiDialog::Setup("Crossplot data merging","","103.1.18") )
+    : uiDialog(p,uiDialog::Setup("Cross-plot data merging","","103.1.18") )
     , mdps_(mdps)
     , sdps_(sdps)
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
@@ -256,7 +256,7 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     overwritefld_->attach( alignedBelow, rlcbox );
 
     ctio_.ctxt.forread = false;
-    outfld_ = new uiIOObjSel( this, ctio_, "Output Crossplot" );
+    outfld_ = new uiIOObjSel( this, ctio_, "Output Cross-plot" );
     outfld_->attach( alignedBelow, overwritefld_ ); 
 
     matchPolChangedCB( 0 );

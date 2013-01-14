@@ -142,7 +142,7 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
     SafeFileIO sfio( FilePath(basefp_,sKeyIdxFileName()).fullPath(), true );
     if ( !sfio.open(false) )
     {
-	uiMSG().error("Cannot open Crossplot Selection index.txt "
+	uiMSG().error("Cannot open Cross-plot Selection index.txt "
 		      "file for write");
 	return false;
     }
@@ -158,7 +158,7 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
     else
     {
 	sfio.closeFail();
-	uiMSG().error( "Error during write to Crossplot Selection index file ."
+	uiMSG().error( "Error during write to Cross-plot Selection index file ."
 		       "Check disk space." );
 	return false;
     }
@@ -172,7 +172,7 @@ bool getSelGrpSetNames( BufferStringSet& nms )
     SafeFileIO sfio( FilePath(basefp_,sKeyIdxFileName()).fullPath(), true );
     if ( !sfio.open(true) )
     {
-	uiMSG().error( "Index file for Crossplot Selection group not present" );
+	uiMSG().error("Index file for Cross-plot Selection group not present");
 	return false;
     }
 
@@ -393,7 +393,7 @@ ObjectSet<SelectionGrp> SelGrpImporter::getSelections()
 
     if ( !astrm.isOfFileType(sKeyFileType) )
     {
-	errmsg_ = "File type does not match with Crossplot Selection";
+	errmsg_ = "File type does not match with Cross-plot Selection";
 	return selgrpset;
     }
 
@@ -484,7 +484,7 @@ class uiSGSelDlg : public uiDialog
 public:
 
 uiSGSelDlg( uiParent* p, bool forread )
-    : uiDialog(p,uiDialog::Setup("Select Crossplot Selection Groups","",""))
+    : uiDialog(p,uiDialog::Setup("Select Cross-plot Selection Groups","",""))
     , forread_(forread)
 {
     selgrp_ = new uiSGSelGrp( this, forread );
@@ -539,7 +539,7 @@ uiSGSel::uiSGSel( uiParent* p, bool forread )
     , forread_(forread)
     , selGrpSelected(this)
 {
-    inpfld_ = new uiGenInput( this, "Crossplot Selections" );
+    inpfld_ = new uiGenInput( this, "Cross-plot Selections" );
     selbut_ = new uiPushButton( this, "Select ..", mCB(this,uiSGSel,selectSGCB),
 	    			false );
     selbut_->attach( rightTo, inpfld_ );
@@ -593,7 +593,7 @@ const char* uiSGSel::selGrpFileNm()
 
 
 uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
-    : uiDialog(p,uiDialog::Setup("Open Crossplot Selection",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup("Open Cross-plot Selection",mNoDlgTitle,
 				"111.0.10"))
     , plotter_(plotter)
     , selgrpset_(plotter.selectionGrps())

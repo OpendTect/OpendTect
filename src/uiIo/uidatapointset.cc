@@ -315,7 +315,7 @@ void uiDataPointSet::mkToolBars()
 	mAddButton( "variogram", compVertVariogram,
 		    "Compute variogram for column", false );
     xplottbid_ = mAddButton( "xplot", showCrossPlot,
-	    		     "Show crossplot", false );
+	    		     "Show Cross-plot", false );
 
     disptb_->turnOn( dispxytbid_, true ); disptb_->turnOn( dispztbid_, true );
 }
@@ -653,7 +653,7 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
     , grpfld_(0)
 {
     seltypefld_ = new uiGenInput( this, "Position type",
-			BoolInpSpec(true,"X/Y","Inline/CrossLine") );
+			BoolInpSpec(true,"X/Y","In-line/Cross-Line") );
     seltypefld_->valuechanged.notify( mCB(this,uiSelectPosDlg,selTypeChanged) );
 
     posinpfld_ = new uiGenInput( this, "Input Position",
@@ -1225,7 +1225,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     ctio.ctxt.forread = true;
     uiIOObjSelDlg seldlg( this, ctio );
     seldlg.selGrp()->getManipGroup()->addButton( "manxplot",
-	    	"Manage cross-plot data", mCB(this,uiDataPointSet,manage) );
+	    	"Manage Cross-plot Data", mCB(this,uiDataPointSet,manage) );
     curseldlg_ = &seldlg;
     const bool selok = seldlg.go() && seldlg.ioObj();
     curseldlg_ = 0;

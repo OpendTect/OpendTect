@@ -491,7 +491,7 @@ void uiODMenuMgr::fillAnalMenu()
     uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "&Cross-plot", "xplot");
     mInsertItem( crsplot, "&Well logs <--> Attributes ...", mXplotMnuItm );
     mInsertItem( crsplot, "&Attributes <--> Attributes ...", mAXplotMnuItm );
-    mInsertItem( crsplot, "&Open Crossplot ...", mOpenXplotMnuItm );
+    mInsertItem( crsplot, "&Open Cross-plot ...", mOpenXplotMnuItm );
     analmnu_->insertItem( crsplot );
 
     analwellmnu_ = new uiPopupMenu( &appl_, "&Wells", "well" );
@@ -733,9 +733,9 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	mAddTB( dtecttb_,VolProc::uiChain::pixmapFileName(),
 		"Volume Builder",false,doVolProc);
     }
-    mAddTB(dtecttb_,"xplot_wells","Crossplot Attribute vs Well data",
+    mAddTB(dtecttb_,"xplot_wells","Cross-plot Attribute vs Well data",
 	   false,doWellXPlot);
-    mAddTB(dtecttb_,"xplot_attribs","Crossplot Attribute vs Attribute data",
+    mAddTB(dtecttb_,"xplot_attribs","Cross-plot Attribute vs Attribute data",
 	   false,doAttribXPlot);
 
     dTectTBChanged.trigger();
