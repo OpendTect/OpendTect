@@ -40,14 +40,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltrack.h"
 #include "welltransl.h"
 
-static const char* mrkrcollbls[] = { "[Name]", "Depth (MD)", 
+static const char* mrkrcollbls[] = { "[Name]", "Depth (MD)", "TVDSS",
 				 "[Color]", "Regional marker", 0 };
 static const int cNrEmptyRows = 5;
 
 static const int cNameCol  = 0;
 static const int cDepthCol = 1;
-static const int cColorCol = 2;
-static const int cLevelCol = 3;
+static const int cTVDSSCol = 2;
+static const int cColorCol = 3;
+static const int cLevelCol = 4;
 
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
@@ -68,7 +69,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->valueChanged.notify( mCB(this,uiMarkerDlg,markerChangedCB) );
     table_->rowInserted.notify( mCB(this,uiMarkerDlg,markerAddedCB) );
     table_->rowDeleted.notify( mCB(this,uiMarkerDlg,markerRemovedCB) );
-    table_->setPrefWidth( 400 );
+    table_->setPrefWidth( 600 );
 
     uiButton* updatebut = new uiPushButton( this, "&Update display",
 	    			mCB(this,uiMarkerDlg,updateDisplayCB), true );
@@ -143,15 +144,31 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 	return;
 
     const int row = table_->currentRow();
-    const float val = table_->getfValue( RowCol(row,cDepthCol) );
+    const int col = table_->currentCol();
+
+    const float inval = table_->getfValue( RowCol(row,col) );
+    float outval = mUdf(float);
+    if ( col == cTVDSSCol )
+    {
+	outval = track_.getDahForTVD( inval );
+    }
+    else if ( col == cDepthCol )
+    {
+	outval = track_.getPos(inval).z;
+    }
+
     const char* markernm = table_->text(RowCol(row,cNameCol));
-    if ( !markernm || !*markernm || mIsUdf(val) )
+    if ( !markernm || !*markernm || mIsUdf(inval) )
     {
 	depths_[row] = 1e30;
 	return;
     }
 
-    depths_[row] = val / zFactor();
+    depths_[row] = col == cDepthCol ? inval : outval;
+    depths_[row] /= zFactor();
+    const int colupd = col == cDepthCol ? cTVDSSCol : cDepthCol;
+    const RowCol rc( row, colupd );
+    table_->setValue( rc, outval );
     uiObject* obj = table_->getCellObject( RowCol(row,cLevelCol) );
     if ( obj )
 	obj->setSensitive( true );
@@ -259,6 +276,8 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 
 	    levelsel->setID( marker->levelID() );
 	    table_->setValue( RowCol(irow,cDepthCol), marker->dah()*zFactor() );
+	    const Coord3 pos = track_.getPos( marker->dah() );
+	    table_->setValue( RowCol(irow,cTVDSSCol), pos.z * zFactor() );
 	    table_->setText( RowCol(irow,cNameCol), marker->name() );
 	    table_->setColor( RowCol(irow,cColorCol), marker->color() );
 	    if ( marker->levelID() >= 0 )
@@ -270,6 +289,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	Well::Marker mrk;
 	levelsel->setSensitive( false );
 	table_->setText( RowCol(irow,cDepthCol), "" );
+	table_->setText( RowCol(irow,cTVDSSCol), "" );
 	table_->setText( RowCol(irow,cNameCol), "" );
 	table_->setColor( RowCol(irow,cColorCol), mrk.color() );
     }
