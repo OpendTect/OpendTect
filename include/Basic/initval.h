@@ -29,12 +29,23 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Templatized od_int16 initialization values.
+*/
+
 template<>
 class Init<od_int16>
 {
 public:
     static od_int16	val()		{ return 0; }
 };
+
+
+/*!
+\ingroup Basic
+\brief Templatized od_uint16 initialization values.
+*/
 
 template<>
 class Init<od_uint16>
@@ -44,12 +55,23 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Templatized od_int32 initialization values.
+*/
+
 template<>
 class Init<od_int32>
 {
 public:
     static od_int32	val()		{ return 0; }
 };
+
+
+/*!
+\ingroup Basic
+\brief Templatized od_uint32 initialization values.
+*/
 
 template<>
 class Init<od_uint32>
@@ -59,12 +81,23 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Templatized od_int64 initialization values.
+*/
+
 template<>
 class Init<od_int64>
 {
 public:
     static od_int64	val()		{ return 0; }
 };
+
+
+/*!
+\ingroup Basic
+\brief Templatized od_uint64 initialization values.
+*/
 
 template<>
 class Init<od_uint64>
@@ -74,6 +107,11 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Templatized boolean initialization values.
+*/
+
 template<>
 class Init<bool>
 {
@@ -81,6 +119,11 @@ public:
     static bool		val()		{ return false; }
 };
 
+
+/*!
+\ingroup Basic
+\brief Templatized float initialization values.
+*/
 
 template<>
 class Init<float>
@@ -90,6 +133,11 @@ public:
 };
 
 
+/*!
+\ingroup Basic
+\brief Templatized double initialization values.
+*/
+
 template<>
 class Init<double>
 {
@@ -97,6 +145,11 @@ public:
     static double	val()		{ return 0.0; }
 };
 
+
+/*!
+\ingroup Basic
+\brief Templatized const char* initialization values.
+*/
 
 template<>
 class Init<const char*>
