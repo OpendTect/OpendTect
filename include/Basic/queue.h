@@ -14,6 +14,12 @@ ________________*_______________________________________________________
 
 #include "thread.h"
 
+
+/*!
+\ingroup Basic
+\brief One single queue entry.
+*/
+
 template <class T> class QueueEntry
 {
 public:
@@ -24,6 +30,11 @@ public:
     QueueEntry<T>*	next;
 };
 
+
+/*!
+\ingroup Basic
+\brief Queue of objects.
+*/
 
 template <class T> class ObjQueue
 {
@@ -72,6 +83,11 @@ protected:
 
 };
 
+
+/*!
+\ingroup Basic
+\brief Queue of basic data types.
+*/
 
 template <class T> class TypeQueue
 {
