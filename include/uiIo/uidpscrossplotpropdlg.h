@@ -21,7 +21,11 @@ class uiDPSCPBackdropTab;
 class uiDPSCPDisplayPropTab;
 class uiDPSDensPlotSetTab;
 
-		     
+/*!
+\ingroup uiIo
+\brief Crossplot properties dialog box.
+*/
+
 mClass(uiIo) uiDataPointSetCrossPlotterPropDlg : public uiTabStackDlg
 {
 public:
