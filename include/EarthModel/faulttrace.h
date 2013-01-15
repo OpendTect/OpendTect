@@ -26,6 +26,10 @@ class MultiID;
 class BinIDValueSet;
 class HorSampling;
 
+/*!
+\ingroup EarthModel
+\brief Subclass of Coord3List that represents a fault trace.
+*/
 
 mClass(EarthModel) FaultTrace : public Coord3List
 {
@@ -101,6 +105,11 @@ public:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief FaultTrace extractor 
+*/
+
 mClass(EarthModel) FaultTraceExtractor
 {
 public:
@@ -125,6 +134,11 @@ protected:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief FaultTrace calculator
+*/
+
 mClass(EarthModel) FaultTraceCalc : public Executor
 {
 public:
@@ -147,6 +161,11 @@ protected:
     od_int64			nrdone_;
 };
 
+
+/*!
+\ingroup EarthModel
+\brief FaultTrace data provider
+*/
 
 mClass(EarthModel) FaultTrcDataProvider
 {

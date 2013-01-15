@@ -23,6 +23,11 @@ namespace EM { class Horizon3DAscIO; }
 namespace Table { class FormatDesc; }
 namespace PosInfo { class Detector; }
 
+/*!
+\ingroup EarthModel
+\brief Executor to scan horizons.
+*/
+
 mClass(EarthModel) HorizonScanner : public Executor
 {
 public:

@@ -26,6 +26,10 @@ template <class T> class Array3D;
 class HorSamplingIterator;
 class BufferStringSet;
 
+/*!
+\ingroup EarthModel
+\brief Executor to sort horizons.
+*/
 
 mClass(EarthModel) HorizonSorter : public Executor
 {

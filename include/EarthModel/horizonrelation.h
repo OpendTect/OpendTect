@@ -21,12 +21,14 @@ class FileMultiString;
 class IOPar;
 template <class T> class TypeSet;
 
-
-
-/* A Relation tree where a parent-child relationship means a top-bottom relationship for the horizons */
-
 namespace EM
 {
+
+/*!
+\ingroup EarthModel
+\brief A Relation tree where a parent-child relationship means a top-bottom
+relationship for the horizons.
+*/
 
 mClass(EarthModel) RelationTree
 {

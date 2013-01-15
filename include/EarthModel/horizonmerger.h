@@ -25,6 +25,11 @@ namespace EM
 
 class Horizon3D;
 
+/*!
+\ingroup EarthModel
+\brief A subclass of ParallelTask that merges horizons.
+*/
+
 mClass(EarthModel) HorizonMerger : public ParallelTask
 {
 public:
@@ -40,6 +45,11 @@ protected:
     Mode		mode_;
 };
 
+
+/*!
+\ingroup EarthModel
+\brief 3D HorizonMerger
+*/
 
 mClass(EarthModel) Horizon3DMerger : public HorizonMerger
 {

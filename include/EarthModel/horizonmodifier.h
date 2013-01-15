@@ -23,6 +23,11 @@ class BinID;
 class BufferStringSet;
 class HorSamplingIterator;
 
+/*!
+\ingroup EarthModel
+\brief Modifies horizons.
+*/
+
 mClass(EarthModel) HorizonModifier
 {
 public:

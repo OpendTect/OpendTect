@@ -19,8 +19,10 @@ class TaskRunner;
 namespace Pick	{ class Set; }
 namespace EM	{ class Horizon3D; }
 
-
-/*! \brief Calculate volume between horizon and polygon */
+/*!
+\ingroup EarthModel
+\brief Calculate volume between horizon and polygon.
+*/
 
 mClass(EarthModel) Poly2HorVol
 {
