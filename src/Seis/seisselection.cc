@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 Seis::SelData::SelData()
     : linekey_(*new LineKey)
     , isall_(false)
+    , geomid_(-1)
 {
 }
 
@@ -44,6 +45,7 @@ void Seis::SelData::copyFrom( const Seis::SelData& sd )
 {
     isall_ = sd.isall_;
     linekey_ = sd.linekey_;
+    geomid_ = sd.geomID();
 }
 
 
@@ -116,6 +118,11 @@ void Seis::SelData::fillPar( IOPar& iop ) const
 {
     const char* typstr = Seis::nameOf(type());
     iop.set( sKey::Type(), isall_ ? (const char*) sKey::None() : typstr );
+    if ( geomid_ == -1 )
+	iop.removeWithKey( sKey::GeomID() );
+    else
+	iop.set( sKey::GeomID(), geomid_ );
+
     if ( linekey_.isEmpty() )
 	iop.removeWithKey( sKey::LineKey() );
     else
@@ -130,6 +137,7 @@ void Seis::SelData::usePar( const IOPar& iop )
 	res = iop.find( sKey::BinIDSel() );
     isall_ = !res || !*res || *res == *sKey::None();
 
+    iop.get( sKey::GeomID(), geomid_ );
     iop.get( sKey::LineKey(), linekey_ );
     res = iop.find( sKey::Attribute() );
     if ( res && *res )

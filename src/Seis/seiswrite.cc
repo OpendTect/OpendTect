@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "seisselection.h"
+#include "seis2ddata.h"
 #include "seis2dline.h"
 #include "seis2dlineio.h"
 #include "seispsioprov.h"
@@ -21,9 +22,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "separstr.h"
 #include "surv2dgeom.h"
+#include "survgeom.h"
 #include "threadwork.h"
 #include "iopar.h"
 
+using namespace Survey;
 
 #define mCurLineKey (lkp_ ? lkp_->lineKey() : (seldata_ ? seldata_->lineKey():""))
 const char* SeisTrcWriter::sKeyWriteBluntly() { return "Write bluntly"; }
@@ -35,7 +38,9 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 	, lkp_(l)
 	, worktrc_(*new SeisTrc)
 	, makewrready_(true)
+	, geom2d_(*new Geometry2D())
 {
+    geom2d_.ref();
     init();
 }
 
@@ -46,7 +51,9 @@ SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
 	, lkp_(0)
 	, worktrc_(*new SeisTrc)
 	, makewrready_(true)
+	, geom2d_(*new Geometry2D())
 {
+    geom2d_.ref();
     init();
 }
 
@@ -64,6 +71,7 @@ void SeisTrcWriter::init()
 SeisTrcWriter::~SeisTrcWriter()
 {
     close();
+    geom2d_.unRef();
     delete &lineauxiopar_;
     delete &worktrc_;
 }
@@ -78,16 +86,26 @@ bool SeisTrcWriter::close()
     if ( is2D() )
     {
 	LineKey lk = mCurLineKey;
-	const int lineidx = lset_ ? lset_->indexOf(lk) : -1;
 	const BufferString lnm = lk.lineName();
+#ifdef mNew2DGeometryImpl
+	const int lineidx = dataset_ ? dataset_->indexOf( geom2d_.getGeomID() ) 
+									   : -1;
+#else
+	const int lineidx = lset_ ? lset_->indexOf(lk) : -1;
+#endif
+
 	if ( lineidx>=0 && !lnm.isEmpty() )
 	{
 	    const bool hasgeom = S2DPOS().hasLine( lnm, lset_->name() );
 	    if ( !hasgeom )
 	    {
+		geom2d_.data().setLineName( lnm );
+#ifdef mNew2DGeometryImpl
+		GMAdmin().write( &geom2d_ );
+#else
 		S2DPOS().setCurLineSet( lset_->name() );
-		geom_.setLineName( lnm );
-		PosInfo::POS2DAdmin().setGeometry( geom_ );
+		PosInfo::POS2DAdmin().setGeometry( geom2d_.data() );
+#endif
 	    }
 	}
     }
@@ -129,7 +147,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	SamplingData<float> sd = trc.info().sampling;
 	StepInterval<float> zrg( sd.start, 0, sd.step );
 	zrg.stop = sd.start + sd.step * (trc.size()-1);
-	geom_.setZRange( zrg );
+	geom2d_.data().setZRange( zrg );
     }
     else if ( psioprov_ )
     {
@@ -234,13 +252,24 @@ bool SeisTrcWriter::next2DLine()
     delete putter_;
 
     IOPar* lineiopar = new IOPar;
+#ifdef mNew2DGeometryImpl
+    geom2d_.setGeomID( Survey::GMAdmin().createEntry(lnm,true) );
+    lineiopar->setName( lnm );
+    lineiopar->set( sKey::GeomID(), geom2d_.getGeomID() );
+#else
     lk.fillPar( *lineiopar, true );
+#endif
 
     if ( !datatype_.isEmpty() )
 	lineiopar->set( sKey::DataType(), datatype_.buf() );
 
     lineiopar->merge( lineauxiopar_ );
+#ifdef mNew2DGeometryImpl
+    putter_ = dataset_->linePutter( lineiopar );
+#else
     putter_ = lset_->linePutter( lineiopar );
+#endif
+
     if ( !putter_ )
     {
 	errmsg_ = "Cannot create 2D line writer";
@@ -267,7 +296,7 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
 
     PosInfo::Line2DPos pos( trc.info().nr );
     pos.coord_ = trc.info().coord;
-    geom_.add( pos );
+    geom2d_.data().add( pos );
 
     return res;
 }

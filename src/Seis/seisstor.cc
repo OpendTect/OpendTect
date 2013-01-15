@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisbounds.h"
 #include "seistrctr.h"
 #include "seistrc.h"
+#include "seis2ddata.h"
 #include "seis2dline.h"
 #include "seispsioprov.h"
 #include "seisselectionimpl.h"
@@ -35,6 +36,7 @@ SeisStoreAccess::SeisStoreAccess( const IOObj* ioob )
 	: ioobj_(0)
 	, trl_(0)
 	, lset_(0)
+	, dataset_(0)
 	, seldata_(0)
 	, is2d_(false)
 	, psioprov_(0)
@@ -47,6 +49,7 @@ SeisStoreAccess::SeisStoreAccess( const char* fnm, bool isps, bool is_2d )
 	: ioobj_(0)
 	, trl_(0)
 	, lset_(0)
+	, dataset_(0)
 	, seldata_(0)
 	, is2d_(is_2d)
 	, psioprov_(0)
@@ -90,9 +93,13 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
 	psioprov_ = SPSIOPF().provider( ioobj_->translator() );
     else if ( is2d_ )
     {
+	dataset_ = new Seis2DDataSet( ioobj_->fullUserExpr(true) );
 	lset_ = new Seis2DLineSet( ioobj_->fullUserExpr(true) );
 	if ( !ioobj_->name().isEmpty() )
+	{
+	    dataset_->setName( ioobj_->name() );
 	    lset_->setName( ioobj_->name() );
+	}
     }
     else
     {
@@ -123,6 +130,7 @@ bool SeisStoreAccess::cleanUp( bool alsoioobj_ )
     if ( strl() )
 	{ ret = strl()->close(); if ( !ret ) errmsg_ = strl()->errMsg(); }
     delete trl_; trl_ = 0;
+    delete dataset_; dataset_ = 0;
     delete lset_; lset_ = 0;
     psioprov_ = 0;
     nrtrcs_ = 0;

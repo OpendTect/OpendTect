@@ -26,7 +26,7 @@ is done.
 #include "seisstor.h"
 #include "fixedstring.h"
 #include "linekey.h"
-#include "posinfo2d.h"
+#include "surv2dgeom.h"
 #include "thread.h"
 class SeisTrc;
 class SeisPSWriter;
@@ -101,7 +101,7 @@ protected:
     // 2D only
     BufferString	attribnm_;
     Seis2DLinePutter*	putter_;
-    PosInfo::Line2DData	geom_;
+    Survey::Geometry2D&	geom2d_;
     IOPar&		lineauxiopar_;
     LineKey		prevlk_;
     const LineKeyProvider* lkp_;

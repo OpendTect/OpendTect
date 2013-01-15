@@ -131,7 +131,6 @@ void Seis2DDataSet::getFrom( std::istream& strm, BufferString* typestr )
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType) )
 	return;
-    int lines;
     //TODO: review and add Nr of lines info.
     if ( !atEndOfSection(astrm.next()) )
     {
@@ -156,6 +155,8 @@ void Seis2DDataSet::getFrom( std::istream& strm, BufferString* typestr )
 	else
 	    pars_ += newpar;
     }
+
+    return;
 }
 
 
