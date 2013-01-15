@@ -145,31 +145,25 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 
     const int row = table_->currentRow();
     const int col = table_->currentCol();
-    const float val = table_->getfValue( RowCol(row,cDepthCol) );
-    float mdval = mUdf(float);
-    float tvdssval = mUdf(float);
-    if ( col == cTVDSSCol )
+
+    if ( col == cDepthCol )
     {
-	tvdssval = table_->getfValue( RowCol(row,cTVDSSCol) );
-	mdval = track_.getDahForTVD( tvdssval );
+	if ( !updateMarkerDepths( row, true) )
+	    return;
     }
-    else
+    else if ( col == cTVDSSCol )
     {
-	mdval = val;
-	tvdssval = track_.getPos(val).z;
+	if ( !updateMarkerDepths( row, false) )
+	    return;
     }
+
     const char* markernm = table_->text(RowCol(row,cNameCol));
-    if ( !markernm || !*markernm || mIsUdf(mdval) )
+    if ( !markernm || !*markernm )
     {
-	depths_[row] = 1e30;
+	depths_[row] = mUdf(float);
 	return;
     }
 
-    depths_[row] = mdval / zFactor();
-    const int colupd = col == cDepthCol ? cTVDSSCol : cDepthCol;
-    const RowCol rc( row, colupd );
-    const float valupd = col == cDepthCol ? tvdssval*zFactor():mdval*zFactor();
-    table_->setValue( rc, valupd );
     uiObject* obj = table_->getCellObject( RowCol(row,cLevelCol) );
     if ( obj )
 	obj->setSensitive( true );
@@ -209,6 +203,8 @@ void uiMarkerDlg::unitChangedCB( CallBacker* )
 	}
 
 	table_->setValue( rc, val*zFactor() );
+	if ( !updateMarkerDepths( rowidx, true ) )
+	    continue;
     }
     
     table_->selectColumn( cDepthCol );
@@ -642,5 +638,68 @@ bool uiMarkerDlg::rejectOK( CallBacker* )
 	}
     }
 
+    return true;
+}
+
+
+bool uiMarkerDlg::updateMarkerDepths(int rowidx, bool md2tvdss)
+{
+    const int incol = md2tvdss ? cDepthCol : cTVDSSCol;
+    const int outcol = md2tvdss ? cTVDSSCol : cDepthCol;
+    const RowCol rcin( rowidx, incol );
+    const RowCol rcout( rowidx, outcol );
+
+    if ( mIsUdf( table_->getfValue( rcin ) ) )
+    {
+	uiMSG().error( "Please enter a valid number" );
+	const float oldval = md2tvdss ? depths_[rowidx] :
+					track_.getPos(depths_[rowidx]).z;
+	table_->setValue( rcin, oldval * zFactor() );
+	return false;
+    }
+
+    const float inval = table_->getfValue( rcin ) / zFactor();
+
+    float outval = mUdf(float);
+    const int tracksz = track_.nrPoints();
+    if ( !md2tvdss )
+    {
+	Interval<float> tvdssrg;
+	tvdssrg.start = track_.value(0);
+	tvdssrg.stop = track_.value(tracksz-1);
+	if ( !tvdssrg.includes( inval, true ) )
+	{
+	    BufferString errmsg = "The entered depth is outside of track range";
+	    errmsg += "\n["; errmsg += tvdssrg.start * zFactor();
+	    errmsg += ", "; errmsg += tvdssrg.stop * zFactor(); errmsg += "] ";
+	    errmsg += !unitfld_->isChecked() ? "m" : "ft";
+	    errmsg += " (TVDSS)";
+	    uiMSG().error( errmsg );
+	    table_->setValue( rcin, track_.getPos(depths_[rowidx]).z*zFactor());
+	    return false;
+	}
+	outval = track_.getDahForTVD( inval );
+    }
+    else
+    {
+	Interval<float> dahrg = track_.dahRange();
+	dahrg.start = dahrg.start;
+	dahrg.stop = dahrg.stop;
+	if ( !dahrg.includes( inval, true ) )
+	{
+	    BufferString errmsg = "The entered depth is outside of track range";
+	    errmsg += "\n["; errmsg += dahrg.start * zFactor();
+	    errmsg += ", "; errmsg += dahrg.stop * zFactor(); errmsg += "]";
+	    errmsg += !unitfld_->isChecked() ? "m" : "ft";
+	    errmsg += " (MD)";
+	    uiMSG().error( errmsg );
+	    table_->setValue( rcin, depths_[rowidx] * zFactor() );
+	    return false;
+	}
+	outval = track_.getPos(inval).z;
+    }
+
+    depths_[rowidx] = md2tvdss ? inval : outval;
+    table_->setValue( rcout, outval * zFactor() );
     return true;
 }

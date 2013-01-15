@@ -61,6 +61,9 @@ protected:
     bool			getKey(MultiID&) const;
     void			updateDisplayCB(CallBacker*);
     bool			rejectOK(CallBacker*);
+
+protected:
+    bool			updateMarkerDepths(int rowidx, bool md2tvdss);
 };
 
 #endif
