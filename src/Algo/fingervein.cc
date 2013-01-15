@@ -1855,20 +1855,27 @@ bool FaultOrientation::compute2DVeinBinary( const Array2D<float>& input,
     
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, input_bina,
 	    Array2DImpl<bool> (input.info()) );
-    if ( !input_bina ) return false;
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<char> >, input_bina_thin,
+	    Array2DImpl<char> (input.info()) );
+    if ( !input_bina || !input_bina_thin ) 
+	return false;
+
     bool* inputdata = input_bina->getData();
+    char* inputthindata = input_bina_thin->getData();
     for ( int idx=0; idx<datasz; idx++ )
-	inputdata[idx] = (mIsUdf(inputarr[idx])) ? false : 
+    {
+	const bool yn = (mIsUdf(inputarr[idx])) ? false : 
 	    ( (isabove && inputarr[idx]>=threshold) ||
 	      (!isabove && inputarr[idx]<=threshold) );   
+	inputdata[idx] = yn;
+	inputthindata[idx] = yn ? 1 : 0;
+    }
+    skeletonHilditch( *input_bina_thin );
 
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, input_bina_thin,
-	    Array2DImpl<bool> (input.info()) );
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, input_comp_thin,
 	    Array2DImpl<bool> (input.info()) );
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<int> >, input_comp,
 	    Array2DImpl<int> (input.info()) );
-    thinning( *input_bina, *input_bina_thin );
     
     input_comp_thin->setAll( 0 );
     ConnComponents cc( *input_bina );
@@ -1910,19 +1917,26 @@ bool FaultOrientation::compute2DVeinBinary( const Array2D<float>& input,
 
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, vein_bina_merge,
 	    Array2DImpl<bool> (input.info()) );
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<char> >, vein_bina_thin,
+	    Array2DImpl<char> (input.info()) );
+    if ( !vein_bina_merge || !vein_bina_thin )
+	return false;
+
     vein_bina_merge->copyFrom( vein_bina );
     bool* mergedata = vein_bina_merge->getData();
+    char* vbtdata = vein_bina_thin->getData();
     for ( int idx=0; idx<datasz; idx++ )
     {
 	if ( inputdata[idx]==0 || vbdata[idx]==1 )
-	    continue;
-
-	mergedata[idx] = 1;
+	    vbtdata[idx] = vbdata[idx] ? 1 : 0;
+	else
+	{
+    	    mergedata[idx] = true;
+    	    vbtdata[idx] = 1;
+	}
     }
 
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<bool> >, vein_bina_thin,
-	    Array2DImpl<bool> (input.info()) );
-    thinning( *vein_bina_merge, *vein_bina_thin );
+    skeletonHilditch( *vein_bina_thin );
     
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<int> >, vein_comp,
 	    Array2DImpl<int> (input.info()) );
