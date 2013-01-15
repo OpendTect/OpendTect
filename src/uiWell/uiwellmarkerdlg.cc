@@ -274,7 +274,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	    levelsel->setID( marker->levelID() );
 	    table_->setValue( RowCol(irow,cDepthCol), marker->dah()*zFactor() );
 	    const Coord3 pos = track_.getPos( marker->dah() );
-	    table_->setValue( RowCol(irow,cTVDSSCol), pos.z * zFactor() );
+	    table_->setValue( RowCol(irow,cTVDSSCol), (float)pos.z * zFactor());
 	    table_->setText( RowCol(irow,cNameCol), marker->name() );
 	    table_->setColor( RowCol(irow,cColorCol), marker->color() );
 	    if ( marker->levelID() >= 0 )
@@ -653,7 +653,7 @@ bool uiMarkerDlg::updateMarkerDepths(int rowidx, bool md2tvdss)
     {
 	uiMSG().error( "Please enter a valid number" );
 	const float oldval = md2tvdss ? depths_[rowidx] :
-					track_.getPos(depths_[rowidx]).z;
+				(float)( track_.getPos(depths_[rowidx]).z );
 	table_->setValue( rcin, oldval * zFactor() );
 	return false;
     }
@@ -675,7 +675,8 @@ bool uiMarkerDlg::updateMarkerDepths(int rowidx, bool md2tvdss)
 	    errmsg += !unitfld_->isChecked() ? "m" : "ft";
 	    errmsg += " (TVDSS)";
 	    uiMSG().error( errmsg );
-	    table_->setValue( rcin, track_.getPos(depths_[rowidx]).z*zFactor());
+	    table_->setValue( rcin, (float)track_.getPos( depths_[rowidx] ).z *
+		    		    zFactor() );
 	    return false;
 	}
 	outval = track_.getDahForTVD( inval );
@@ -696,7 +697,7 @@ bool uiMarkerDlg::updateMarkerDepths(int rowidx, bool md2tvdss)
 	    table_->setValue( rcin, depths_[rowidx] * zFactor() );
 	    return false;
 	}
-	outval = track_.getPos(inval).z;
+	outval = (float)track_.getPos(inval).z;
     }
 
     depths_[rowidx] = md2tvdss ? inval : outval;
