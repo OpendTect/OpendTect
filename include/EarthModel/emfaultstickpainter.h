@@ -30,6 +30,11 @@ class MultiID;
 namespace EM
 {
 
+/*!
+\ingroup EarthModel
+\brief %Fault stick painter.
+*/
+
 mClass(EarthModel) FaultStickPainter : public CallBacker
 {
 public:

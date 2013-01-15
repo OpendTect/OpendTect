@@ -28,12 +28,13 @@ namespace PosInfo { class GeomID; }
 namespace EM
 {
 
-/*! \brief
-Group of utilities for horizons : here are all functions required in 
+class Surface;
+
+/*!
+\ingroup EarthModel
+\brief Group of utilities for horizons: here are all functions required in 
 od_process_attrib_em for computing data on, along or between 2 horizons.
 */
-
-class Surface;
 
 mClass(EarthModel) HorizonUtils
 {

@@ -24,7 +24,10 @@ class TaskRunner;
 namespace EM
 {
 
-/*!Implicit representation of a body. */
+/*!
+\ingroup EarthModel
+\brief Implicit representation of a body.
+*/
 
 mClass(EarthModel) ImplicitBody
 {
@@ -40,7 +43,10 @@ public:
 };
 
 
-/*!A body that can deliver an implicit body. */
+/*!
+\ingroup EarthModel
+\brief A body that can deliver an implicit body.
+*/
 
 mClass(EarthModel) Body
 { 

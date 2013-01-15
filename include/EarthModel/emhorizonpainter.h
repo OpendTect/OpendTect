@@ -26,7 +26,12 @@ ________________________________________________________________________
 
 namespace EM
 {
-    
+
+/*!
+\ingroup EarthModel
+\brief EM object painter callback data.
+*/
+  
 mClass(EarthModel) EMObjPainterCallbackData
 {
 public:
@@ -38,7 +43,12 @@ public:
     bool	    enabled_;
 };
     
-    
+
+/*!
+\ingroup EarthModel
+\brief %Horizon painter
+*/
+
 mClass(EarthModel) HorizonPainter : public CallBacker
 {
 public:

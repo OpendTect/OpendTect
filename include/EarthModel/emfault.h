@@ -25,7 +25,10 @@ namespace EM
 class Fault;
 class FaultStickSetGeometry;
 
-/*!\brief FaultGeometry base class */
+/*!
+\ingroup EarthModel
+\brief FaultGeometry base class.
+*/
 
 mClass(EarthModel) FaultGeometry : public SurfaceGeometry
 {
@@ -75,7 +78,10 @@ protected:
 
 
 
-/*!\brief Fault base class */
+/*!
+\ingroup EarthModel
+\brief Fault Surface base class.
+*/
 
 mClass(EarthModel) Fault : public Surface
 {
@@ -92,6 +98,11 @@ protected:
     const IOObjContext&		getIOObjContext() const		= 0;
 };
 
+
+/*!
+\ingroup EarthModel
+\brief Fault stick UndoEvent.
+*/
 
 mClass(EarthModel) FaultStickUndoEvent : public UndoEvent
 {
@@ -113,6 +124,11 @@ protected:
     bool		remove_;
 };
 
+
+/*!
+\ingroup EarthModel
+\brief Fault knot UndoEvent.
+*/
 
 mClass(EarthModel) FaultKnotUndoEvent : public UndoEvent
 {

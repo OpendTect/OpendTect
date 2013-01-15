@@ -25,6 +25,11 @@ namespace EM
 
 class BodyOperator;    
 
+/*!
+\ingroup EarthModel
+\brief Marching cubes surface
+*/
+
 mClass(EarthModel) MarchingCubesSurface : public Body, public EMObject
 { mDefineEMObjFuncs( MarchingCubesSurface );
 public:

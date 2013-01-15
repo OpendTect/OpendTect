@@ -22,13 +22,16 @@ class MultiID;
 class CubeSampling;
 class BufferStringSet;
 
-/*!\brief Info on IOObj for earthmodel */
-
 namespace EM
 {
 
 class dgbSurfaceReader;
 class SurfaceIOData;
+
+/*!
+\ingroup EarthModel
+\brief Info on IOObj for earthmodel.
+*/
 
 mClass(EarthModel) IOObjInfo
 {

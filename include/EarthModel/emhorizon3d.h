@@ -18,9 +18,6 @@ ________________________________________________________________________
 #include "binidsurface.h"
 #include "tableascio.h"
 
-/*!
-*/
-
 class BinIDValueSet;
 class DataPointSet;
 class BufferStringSet;
@@ -33,6 +30,11 @@ namespace Pos { class Provider3D; }
 
 namespace EM
 {
+
+/*!
+\ingroup EarthModel
+\brief 3D HorizonGeometry
+*/
 
 mClass(EarthModel) Horizon3DGeometry : public HorizonGeometry
 {
@@ -81,10 +83,11 @@ protected:
 };
 
 
-/*!\brief
-The horizon is made up of one or more grids (so they can overlap at faults).
-The grids are defined by knot-points in a matrix and the fillstyle inbetween
-the knots.
+/*!
+\ingroup EarthModel
+\brief 3D Horizon. A Horizon is made up of one or more grids (so they can
+overlap at faults). The grids are defined by knot-points in a matrix and
+fillstyle in between the knots.
 */
 
 mClass(EarthModel) Horizon3D : public Horizon
@@ -135,6 +138,11 @@ protected:
     Horizon3DGeometry		geometry_;
 };
 
+
+/*!
+\ingroup EarthModel
+\brief Ascii I/O for Horizon3D.
+*/
 
 mClass(EarthModel) Horizon3DAscIO : public Table::AscIO
 {

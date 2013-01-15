@@ -27,6 +27,11 @@ class Horizon2D;
 class Horizon3D;
 class Hor2DTo3DSectionData;
 
+/*!
+\ingroup EarthModel
+\brief Horizon2D to Horizon3D.
+*/
+
 mClass(EarthModel) Hor2DTo3D : public Executor
 {
 public:

@@ -22,6 +22,11 @@ namespace EM
 class EMObjectIterator;
 class Horizon;
 
+/*!
+\ingroup EarthModel
+\brief %Horizon z-axis transformer
+*/
+
 mClass(EarthModel) HorizonZTransformer : public Executor
 {
 public:

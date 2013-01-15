@@ -21,6 +21,11 @@ ________________________________________________________________________
 namespace EM
 {
 
+/*!
+\ingroup EarthModel
+\brief 2D horizon painter
+*/
+
 mClass(EarthModel) HorizonPainter2D : public CallBacker
 {
 public:

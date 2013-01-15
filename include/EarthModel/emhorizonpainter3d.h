@@ -25,6 +25,11 @@ namespace EM
 
 class Horizon3D;
 
+/*!
+\ingroup EarthModel
+\brief 3D horizon painter
+*/
+
 mClass(EarthModel) HorizonPainter3D : public CallBacker
 {
 public:

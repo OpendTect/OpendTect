@@ -39,9 +39,8 @@ namespace EM
 class EMManager;
 
 /*!
-\class EMObjectCallbackData
 \ingroup EarthModel
-\brief
+\brief EM object callback data.
 */
 
 mClass(EarthModel) EMObjectCallbackData
@@ -66,11 +65,11 @@ public:
 
 
 /*!
-\class EMObjectIterator
 \ingroup EarthModel
-\brief Iterator that iterates a number of positions (normally all) on an EMObject.
-The object is created by EMObject::createIterator, and the next() function is
-called until no more positions can be found. */
+\brief Iterator that iterates a number of positions (normally all) on an
+EMObject. The object is created by EMObject::createIterator, and the next()
+function is called until no more positions can be found.
+*/
 
 mClass(EarthModel) EMObjectIterator
 {
@@ -86,9 +85,8 @@ public:
 
 
 /*!
-\class PosAttrib
 \ingroup EarthModel
-\brief
+\brief Position attribute
 */
 
 mClass(EarthModel) PosAttrib
@@ -110,9 +108,8 @@ public:
 
 
 /*!
-\class EMObject
 \ingroup EarthModel
-\brief Base class for all EarthModel Objects
+\brief Base class for all EarthModel objects.
 */
 
 mClass(EarthModel) EMObject : public CallBacker

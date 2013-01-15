@@ -40,7 +40,6 @@ class SurfaceIOData;
 class SurfaceIODataSelection;
 
 /*!
-\class EMManager
 \ingroup EarthModel
 \brief Manages the loaded/half loaded EM objects in OpendTect.
 */

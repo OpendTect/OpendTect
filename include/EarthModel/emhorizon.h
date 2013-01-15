@@ -24,6 +24,11 @@ namespace EM
 {
 class EMManager;
 
+/*!
+\ingroup EarthModel
+\brief Horizon RowColSurfaceGeometry
+*/
+
 mClass(EarthModel) HorizonGeometry : public RowColSurfaceGeometry
 {
 protected:
@@ -31,6 +36,11 @@ protected:
 				    : RowColSurfaceGeometry(surf)	{}
 };
 
+
+/*!
+\ingroup EarthModel
+\brief Horizon Surface
+*/
 
 mClass(EarthModel) Horizon : public Surface
 {

@@ -29,6 +29,11 @@ namespace EM
 class EMManager;
 class FaultAuxData;
 
+/*!
+\ingroup EarthModel
+\brief 3D FaultGeometry.
+*/
+
 mClass(EarthModel) Fault3DGeometry : public FaultGeometry
 {
 public:
@@ -66,8 +71,9 @@ protected:
 };
 
 
-
-/*!\brief 3D Fault
+/*!
+\ingroup EarthModel
+\brief 3D Fault
 */
 
 mClass(EarthModel) Fault3D : public Fault
@@ -88,6 +94,11 @@ protected:
     Fault3DGeometry		geometry_;
 };
 
+
+/*!
+\ingroup EarthModel
+\brief Ascii I/O for Fault.
+*/
 
 mClass(EarthModel) FaultAscIO : public Table::AscIO
 {

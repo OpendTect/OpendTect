@@ -26,6 +26,11 @@ namespace EM
 class FaultStickSet;
 class Fault3D;
 
+/*!
+\ingroup EarthModel
+\brief FaultStickSet to Fault3D converter.
+*/
+
 mClass(EarthModel) FSStoFault3DConverter
 {
 public:

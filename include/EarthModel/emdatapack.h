@@ -28,7 +28,10 @@ class Horizon;
 class Fault;
 
 
-/*!\brief Mixin to provide general services to Earth Model data packs */
+/*!
+\ingroup EarthModel
+\brief Mixing to provide general services to Earth Model data packs.
+*/
 
 mClass(EarthModel) DataPackCommon : 	public ::FlatDataPack
 {
@@ -52,7 +55,10 @@ protected:
 };
 
 
-/*!\brief Flat Data Pack class for Horizons. */
+/*!
+\ingroup EarthModel
+\brief Flat data pack class for Horizons.
+*/
 
 mClass(EarthModel) HorDataPack : public DataPackCommon
 {
@@ -75,7 +81,10 @@ protected:
 };
 
 
-/*!\brief Flat data pack from attribute extraction on faults*/ 
+/*!
+\ingroup EarthModel
+\brief Flat data pack from attribute extraction on faults.
+*/ 
 
 mClass(EarthModel) FaultDataPack : public DataPackCommon
 {

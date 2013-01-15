@@ -24,6 +24,11 @@ namespace EM { class Body; class PolygonBody; }
 
 typedef EM::Body 	EMBody;
 
+/*!
+\ingroup EarthModel
+\brief TranslatorGroup for EM::Body.
+*/
+
 mClass(EarthModel) EMBodyTranslatorGroup : public TranslatorGroup
 {			       isTranslatorGroup(EMBody)
 public:
@@ -33,6 +38,11 @@ public:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief Marching cubes EM::Body Translator.
+*/
+
 mClass(EarthModel) mcEMBodyTranslator : public Translator
 {			    isTranslator(mc,EMBody)
 public:
@@ -41,6 +51,11 @@ public:
     static FixedString  sKeyUserName()		{ return "MCBody"; }
 };
 
+
+/*!
+\ingroup EarthModel
+\brief EM::PolygonBody Translator.
+*/
 
 mClass(EarthModel) polygonEMBodyTranslator : public Translator
 {				 isTranslator(polygon,EMBody)
@@ -63,6 +78,11 @@ protected:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief Random position EM::Body Translator.
+*/
+
 mClass(EarthModel) randposEMBodyTranslator : public Translator
 {                                isTranslator(randpos,EMBody)
 public:
@@ -72,14 +92,17 @@ public:
 };
 
 
-//For selection of old (3.2) mc bodies.
+/*!
+\ingroup EarthModel
+\brief For selection of old (3.2) marchingcube (mc) bodies.
+*/
+
 mClass(EarthModel) dGBEMBodyTranslator : public Translator
 {			    isTranslator(dGB,EMBody)
 public:
  			mDefEmptyTranslatorBaseConstructor( dGBEMBody );
    static const char*	sKeyUserName()		{ return "dGB"; }
 };
-
 
 
 #endif
