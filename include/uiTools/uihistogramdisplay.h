@@ -35,6 +35,9 @@ public:
     void			setData(const Array2D<float>*);
     void			setData(const DataPointSet&);
 
+    void			useDrawRange(bool yn)	{ usemydrawrg_ = yn; }
+    void			setDrawRange(const Interval<float>&);
+
     void			setHistogram(const TypeSet<float>&,
 	    				     Interval<float>,int N=-1);
 
@@ -51,6 +54,11 @@ protected:
     bool			withheader_;
     uiTextItem*			header_;
     uiTextItem*			nitm_;
+
+    Interval<float>		mydrawrg_;
+    bool			usemydrawrg_;
+    TypeSet<float>		mydisplaydata_;
+    TypeSet<float>		originaldata_;
     
     void			updateAndDraw();
     void			updateHistogram();
