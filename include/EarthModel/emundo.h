@@ -27,6 +27,11 @@ namespace EM
 {
 class Horizon3D;
 
+/*!
+\ingroup EarthModel
+\brief Set position UndoEvent.
+*/
+
 mClass(EarthModel) SetPosUndoEvent : public UndoEvent
 {
 public:
@@ -45,7 +50,11 @@ protected:
 };
 
 
-// Undo for setting all positions on a horizon3d-section
+/*!
+\ingroup EarthModel
+\brief UndoEvent for setting all positions on a EM::Horizon3D section.
+*/
+
 mClass(EarthModel) SetAllHor3DPosUndoEvent : public UndoEvent
 {
 public:
@@ -71,6 +80,11 @@ protected:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief UndoEvent for setting position attribute.
+*/
+
 mClass(EarthModel) SetPosAttribUndoEvent : public UndoEvent
 {
 public:
@@ -88,7 +102,10 @@ protected:
 };
 
 
-/*! Saves information from a EMObject::changePosID call */
+/*!
+\ingroup EarthModel
+\brief Saves information from a EMObject::changePosID call.
+*/
 
 mClass(EarthModel) PosIDChangeEvent : public UndoEvent
 {
@@ -106,6 +123,11 @@ protected:
     Coord3		savedpos;
 };
 
+
+/*!
+\ingroup EarthModel
+\brief UndoEvent to set preferred Color.
+*/
 
 mClass(EarthModel) SetPrefColorEvent : public UndoEvent
 {

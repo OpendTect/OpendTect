@@ -27,8 +27,10 @@ namespace EM
 class Horizon3D;
 class Horizon3DGeometry;
 
-
-/*!\brief Creates random lines along the contours of a surface */
+/*!
+\ingroup EarthModel
+\brief Creates random lines along the contours of a surface.
+*/
 
 mClass(EarthModel) RandomLineSetByContourGenerator
 { 
@@ -63,7 +65,10 @@ protected:
 };
 
 
-/*!\brief Creates random line from another by shifting it */
+/*!
+\ingroup EarthModel
+\brief Creates random line from another by shifting it.
+*/
 
 mClass(EarthModel) RandomLineByShiftGenerator
 { 

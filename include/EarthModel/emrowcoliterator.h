@@ -22,6 +22,11 @@ namespace Geometry { class RowColSurface; }
 namespace EM
 {
 
+/*!
+\ingroup EarthModel
+\brief RowCol iterator
+*/
+
 mClass(EarthModel) RowColIterator : public EMObjectIterator
 {
 public:
@@ -53,9 +58,6 @@ protected:
     Coord3				pos_;
     BinID				bid_;
 };
-
-
-
 
 }; // Namespace
 

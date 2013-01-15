@@ -47,6 +47,11 @@ EM::EdgeLineSegmentFactory fact##clss( clss::sClassName(), \
 
 class EdgeLineSegmentFactory;
 
+/*!
+\ingroup EarthModel
+\brief Edge line segment
+*/
+
 mClass(EarthModel) EdgeLineSegment : public CallBacker
 { 
 public:
@@ -62,7 +67,7 @@ public:
 
     bool		haveIdenticalSettings( const EdgeLineSegment& ) const;
     			/*!<\returns true if the segments are of the same
-			     	     type and have the same settigs */
+			     	     type and have the same settings */
 
     int			size() const;
     int			indexOf( const RowCol&, bool forward=true ) const;
@@ -169,6 +174,11 @@ private:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief Edge line segment factory.
+*/
+
 mClass(EarthModel) EdgeLineSegmentFactory 
 {
 public:
@@ -181,6 +191,11 @@ public:
     EdgeLineCreationFunc	func;
 };
 
+
+/*!
+\ingroup EarthModel
+\brief Edge line
+*/
 
 mClass(EarthModel) EdgeLine : public CallBacker
 {
@@ -251,6 +266,11 @@ protected:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief Edge line iterator
+*/
+
 mClass(EarthModel) EdgeLineIterator
 {
 public:
@@ -286,6 +306,11 @@ protected:
     int			nrturns;
 };
 
+
+/*!
+\ingroup EarthModel
+\brief Edge line set
+*/
 
 mClass(EarthModel) EdgeLineSet : public CallBacker
 {
@@ -332,6 +357,11 @@ protected:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief Edge line manager
+*/
+
 mClass(EarthModel) EdgeLineManager : public CallBacker
 {
 public:
@@ -361,7 +391,4 @@ protected:
 };
 
 #endif
-
-
-
 

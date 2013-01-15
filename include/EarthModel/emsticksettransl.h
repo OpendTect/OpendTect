@@ -22,6 +22,10 @@ ________________________________________________________________________
 
 typedef EM::StickSet EMStickSet;
 
+/*!
+\ingroup EarthModel
+\brief EMStickSet TranslatorGroup
+*/
 
 mClass(EarthModel) EMStickSetTranslatorGroup : public TranslatorGroup
 {				  isTranslatorGroup(EMStickSet)
@@ -33,6 +37,11 @@ public:
     static const char*		keyword;
 };
 
+
+/*!
+\ingroup EarthModel
+\brief EMStickSet Translator
+*/
 
 mClass(EarthModel) EMStickSetTranslator : public Translator
 {

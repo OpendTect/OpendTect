@@ -28,6 +28,11 @@ namespace EM
 {
 class PolygonBody;
 
+/*!
+\ingroup EarthModel
+\brief PolygonBody SurfaceGeometry
+*/
+
 mClass(EarthModel) PolygonBodyGeometry : public SurfaceGeometry
 {
 public:
@@ -67,6 +72,11 @@ protected:
     Geometry::PolygonSurface*	createSectionGeometry() const;
 };
 
+
+/*!
+\ingroup EarthModel
+\brief A Surface polygon Body.
+*/
 
 mClass(EarthModel) PolygonBody : public Surface, public Body
 { mDefineEMObjFuncs( PolygonBody );

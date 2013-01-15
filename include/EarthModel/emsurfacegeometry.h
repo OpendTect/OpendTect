@@ -37,6 +37,10 @@ namespace EM
 class Surface;
 class SurfaceIODataSelection;
 
+/*!
+\ingroup EarthModel
+\brief Surface geometry
+*/
 
 mClass(EarthModel) SurfaceGeometry : public CallBacker
 {
@@ -116,6 +120,11 @@ protected:
 
 };
 
+
+/*!
+\ingroup EarthModel
+\brief RowCol SurfaceGeometry
+*/
 
 mClass(EarthModel) RowColSurfaceGeometry : public SurfaceGeometry
 {

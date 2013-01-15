@@ -32,6 +32,11 @@ class Horizon3D;
 class PosID;
 
 
+/*!
+\ingroup EarthModel
+\brief Surface data
+*/
+
 mClass(EarthModel) SurfaceAuxData 
 {
 public:

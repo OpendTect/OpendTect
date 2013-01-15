@@ -32,11 +32,12 @@ class EdgeLineManager;
 class SurfaceAuxData;
 class SurfaceGeometry;
 
-/*!\brief Base class for surfaces
-  This is the base class for surfaces like horizons and faults. A surface is
-  made up by one or more segments or patches, so they can overlap. 
+/*!
+\ingroup EarthModel
+\brief Base class for surfaces. This is the base class for surfaces like
+horizons and faults. A surface is made up by one or more segments or patches,
+so they can overlap. 
 */
-
 
 mClass(EarthModel) Surface : public EMObject
 {

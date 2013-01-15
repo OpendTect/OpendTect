@@ -19,6 +19,10 @@ ________________________________________________________________________
 namespace EM
 {
 
+/*!
+\ingroup EarthModel
+\brief Termination EdgeLineSegment
+*/
 
 mClass(EarthModel) TerminationEdgeLineSegment : public EdgeLineSegment
 {
@@ -32,6 +36,11 @@ public:
     			{ return false; }
 };
 
+
+/*!
+\ingroup EarthModel
+\brief Surface connecting EdgeLineSegment.
+*/
 
 mClass(EarthModel) SurfaceConnectLine : public EdgeLineSegment
 {

@@ -29,13 +29,13 @@ namespace EM { class RowColIterator; class Surface; }
 namespace Pos
 {
 
-/*!\brief Provider based on surface(s)
+/*!
+\ingroup EarthModel
+\brief Provider based on surface(s)
  
-  For one surface, the provider iterates trhough the horizon. For two
-  horizons, the points between the surfaces are visited with the
-  specified Z step.
- 
- */
+  For one surface, the provider iterates through the horizon. For two horizons,
+  the points between the surfaces are visited with the specified Z step.
+*/
 
 mClass(EarthModel) EMSurfaceProvider : public virtual Filter
 {
@@ -117,7 +117,10 @@ protected:
 			{ return EMSurfaceProvider::estNrZPerPos(); } \
     virtual od_int64	estNrPos() const { return estnrpos_; } \
 
-/*!\brief EMSurfaceProvider for 3D positioning */
+/*!
+\ingroup EarthModel
+\brief EMSurfaceProvider for 3D positioning.
+*/
 
 mClass(EarthModel) EMSurfaceProvider3D : public Provider3D
 			  , public EMSurfaceProvider
@@ -153,7 +156,10 @@ public:
 };
 
 
-/*!\brief EMSurfaceProvider for 2D positioning */
+/*!
+\ingroup EarthModel
+\brief EMSurfaceProvider for 2D positioning.
+*/
 
 mClass(EarthModel) EMSurfaceProvider2D : public Provider2D
 			  , public EMSurfaceProvider
@@ -190,7 +196,10 @@ public:
 };
 
 
-/* !\brief EMSurfaceProvider for 3D positions with 2D Horizon */
+/*!
+\ingroup EarthModel
+\brief EMSurfaceProvider for 3D positions with 2D Horizon.
+*/
 
 mClass(EarthModel) EMSurface2DProvider3D : public Provider3D
 			    , public EMSurfaceProvider
@@ -232,6 +241,11 @@ protected:
 
 };
 
+
+/*!
+\ingroup EarthModel
+\brief EM implicit body provider for 3D positioning.
+*/
 
 mClass(EarthModel) EMImplicitBodyProvider : public Provider3D
 {

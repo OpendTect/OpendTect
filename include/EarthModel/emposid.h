@@ -27,14 +27,14 @@ typedef od_int32 ObjectID;
 typedef od_int16 SectionID;
 typedef od_int64 SubID;
 
-
-/*!\brief
-Is an identifier for each position in the earthmodel.
+/*!
+\ingroup EarthModel
+\brief Is an identifier for each position in the earthmodel.
 
 It has three parts,
-- an ObjectID, wich identifies wich object is belongs to.
-- a SectionID, wich identifies which section of the object it belongs to.
-- a SubID, wich identifies the position on the section. 
+- an ObjectID, which identifies wich object is belongs to.
+- a SectionID, which identifies which section of the object it belongs to.
+- a SubID, which identifies the position on the section. 
 */
 
 mClass(EarthModel) PosID

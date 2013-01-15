@@ -34,12 +34,12 @@ class RowColSurfaceGeometry;
 
 
 /*!
-Surface Reader.
+\ingroup EarthModel
+\brief Surface Reader
 
 1. Construct (no changes are made to the surface in mem)
 2. Select what you want to read
 3. Do NextStep
-
 */
 
 mClass(EarthModel) dgbSurfaceReader : public ExecutorGroup
@@ -228,12 +228,12 @@ protected:
 
 
 /*!
-Surface Writer.
+\ingroup EarthModel
+\brief Surface Writer
 
 1. Construct (no changes are made to filesystem) 
 2. Select what you want to write
 3. Do NextStep
-
 */
 
 mClass(EarthModel) dgbSurfaceWriter : public ExecutorGroup

@@ -25,7 +25,10 @@ namespace EM
 
 class Horizon3D;
 
-/*!\brief  Writes auxdata to file */
+/*!
+\ingroup EarthModel
+\brief Writes auxdata to file.
+*/
 
 mClass(EarthModel) dgbSurfDataWriter : public Executor
 {
@@ -87,7 +90,10 @@ protected:
 };
 
 
-/*!\brief Reads auxdata from file */
+/*!
+\ingroup EarthModel
+\brief Reads auxdata from file.
+*/
 
 mClass(EarthModel) dgbSurfDataReader : public Executor
 {

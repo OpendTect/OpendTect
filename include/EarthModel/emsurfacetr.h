@@ -38,7 +38,11 @@ typedef EM::Fault3D		EMFault3D;
 typedef EM::FaultStickSet	EMFaultStickSet;
 
 
-/*!\brief Read/write EM::Horizon to storage */
+/*!
+\ingroup EarthModel
+\brief TranslatorGroup for EM::Horizon3D. Reads/writes 3D EM::Horizon3D to
+storage.
+*/
 
 mClass(EarthModel) EMHorizon3DTranslatorGroup : public TranslatorGroup
 {				   isTranslatorGroup(EMHorizon3D)
@@ -51,6 +55,11 @@ public:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief TranslatorGroup for EM::Horizon2D.
+*/
+
 mClass(EarthModel) EMHorizon2DTranslatorGroup : public TranslatorGroup
 {				   isTranslatorGroup(EMHorizon2D)
 public:
@@ -62,6 +71,11 @@ public:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief TranslatorGroup for EM::Horizon.
+*/
+
 mClass(EarthModel) EMAnyHorizonTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(EMAnyHorizon)
 public:
@@ -70,6 +84,11 @@ public:
     static FixedString	    keyword();
 };
 
+
+/*!
+\ingroup EarthModel
+\brief TranslatorGroup for EM::Fault3D.
+*/
 
 mClass(EarthModel) EMFault3DTranslatorGroup : public TranslatorGroup
 {			       isTranslatorGroup(EMFault3D)
@@ -82,6 +101,11 @@ public:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief TranslatorGroup for EM::FaultStickSet.
+*/
+
 mClass(EarthModel) EMFaultStickSetTranslatorGroup : public TranslatorGroup
 {				       isTranslatorGroup(EMFaultStickSet)
 public:
@@ -92,6 +116,11 @@ public:
     static FixedString	keyword();
 };
 
+
+/*!
+\ingroup EarthModel
+\brief Translator for EM::Surface.
+*/
 
 mClass(EarthModel) EMSurfaceTranslator : public Translator
 {
@@ -141,6 +170,11 @@ protected:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief dgb EMSurfaceTranslator
+*/
+
 mClass(EarthModel) dgbEMSurfaceTranslator : public EMSurfaceTranslator
 {
 public:
@@ -167,6 +201,11 @@ protected:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief dgbEMSurfaceTranslator for EM::Horizon3D.
+*/
+
 mClass(EarthModel) dgbEMHorizon3DTranslator : public dgbEMSurfaceTranslator
 {				 isTranslator(dgb,EMHorizon3D)
 public:
@@ -181,6 +220,11 @@ protected:
     virtual bool		hasRangeSelection() const	{ return true; }
 };
 
+
+/*!
+\ingroup EarthModel
+\brief dgbEMSurfaceTranslator for EM::Horizon2D.
+*/
 
 mClass(EarthModel) dgbEMHorizon2DTranslator : public dgbEMSurfaceTranslator
 {				 isTranslator(dgb,EMHorizon2D)
@@ -197,6 +241,11 @@ protected:
 };
 
 
+/*!
+\ingroup EarthModel
+\brief dgbEMSurfaceTranslator for EM::Fault3D.
+*/
+
 mClass(EarthModel) dgbEMFault3DTranslator : public dgbEMSurfaceTranslator
 {			       isTranslator(dgb,EMFault3D)
 public:
@@ -211,6 +260,11 @@ protected:
     virtual bool		hasRangeSelection() const	{ return false;}
 };
 
+
+/*!
+\ingroup EarthModel
+\brief dgbEMSurfaceTranslator for EM::FaultStickSet.
+*/
 
 mClass(EarthModel) dgbEMFaultStickSetTranslator : public dgbEMSurfaceTranslator
 {				     isTranslator(dgb,EMFaultStickSet)

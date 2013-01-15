@@ -22,7 +22,10 @@ namespace EM
 
 class Surface;
 
-/*!\brief Data interesting for Surface I/O */
+/*!
+\ingroup EarthModel
+\brief Data interesting for Surface I/O.
+*/
 
 mClass(EarthModel) SurfaceIOData
 {
@@ -47,6 +50,11 @@ public:
     TypeSet<StepInterval<int> >	trcranges;	// 2D only
 };
 
+
+/*!
+\ingroup EarthModel
+\brief Surface I/O data selection
+*/
 
 mClass(EarthModel) SurfaceIODataSelection
 {

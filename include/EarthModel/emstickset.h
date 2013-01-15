@@ -19,9 +19,6 @@ ________________________________________________________________________
 #include "sets.h"
 #include "position.h"
 
-/*!
-*/
-
 class BinID;
 class RowCol;
 class CubeSampling;
@@ -36,6 +33,11 @@ typedef SectionID StickID;
 typedef SubID KnotID;
 
 class EMManager;
+
+/*!
+\ingroup EarthModel
+\brief Stick set
+*/
 
 mClass(EarthModel) StickSet : public EMObject
 {
