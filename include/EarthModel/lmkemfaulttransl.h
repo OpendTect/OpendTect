@@ -20,6 +20,11 @@ ________________________________________________________________________
 
 namespace EM { class Fault3D; };
 
+/*!
+\ingroup EarthModel
+\brief Landmark EM::Fault3D EMSurfaceTranslator.
+*/
+
 mClass(EarthModel) lmkEMFault3DTranslator : public EMSurfaceTranslator
 {			isTranslator(lmk,EMFault3D)
 public:
@@ -51,6 +56,11 @@ public:
 			{ return EMSurfaceTranslator::reader(s); }
 };
 
+
+/*!
+\ingroup EarthModel
+\brief Landmark EM::Fault3D reader.
+*/
 
 mClass(EarthModel) lmkEMFault3DReader : public Executor
 {
@@ -86,6 +96,11 @@ protected:
     Interval<int>	distancuniteinterval;
 };
 
+
+/*!
+\ingroup EarthModel
+\brief Landmark EM::Fault3D writer. 
+*/
 
 class lmkEMFault3DWriter : public Executor
 {
