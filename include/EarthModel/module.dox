@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup EarthModel EarthModel
-\section Introduction Introduction
+
   Objects like horizons, faults and bodies are all earth model objects.
   Such objects can be described in various ways, and the EM way is the
   way we have chosen for OpendTect.
@@ -20,8 +20,6 @@ ________________________________________________________________________
   A big part of this module deals with surfaces of some kind. Horizons, faults,
   and sets of (fault-)sticks each have their own peculiarities.
 
-
-\section Content Content
   Most interesting classes:
 
   - EM::EMObject, base class for the EarthModel objects
