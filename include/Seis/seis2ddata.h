@@ -30,7 +30,7 @@ template <class T> class StepInterval;
 namespace PosInfo	{ class LineSet2DData; class Line2DData; }
 namespace Seis		{ class SelData; }
 
-static const char* sKeyNoOfLines = "Number of Lines";
+static const char* sKeyNoOfLines mUnusedVar = "Number of Lines";
 
 /*!\brief Set of 2D lines comparable with 3D seismic cube */
 
