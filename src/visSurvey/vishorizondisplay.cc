@@ -292,6 +292,7 @@ void HorizonDisplay::removeEMStuff()
 
     while ( intersectionlines_.size() )
     {
+	intersectionlines_.removeSingle(0)->unRef();
 	intersectionpointsets_.removeSingle(0)->unRef();
 	intersectionlineids_.removeSingle(0);
 	if ( zaxistransform_ )
