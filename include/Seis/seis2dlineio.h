@@ -105,5 +105,22 @@ mClass(Seis) TwoDSeisTrcTranslator : public SeisTrcTranslator
 };
 
 
+mClass(Seis) TwoDDataSeisTrcTranslator : public SeisTrcTranslator
+{			isTranslator(TwoDData,SeisTrc) public:
+			TwoDDataSeisTrcTranslator( const char* s1, const char* s2 )
+			: SeisTrcTranslator(s1,s2)      {}
+
+    const char*		defExtension() const		{ return "2ds"; }
+    bool		implRemove(const IOObj*) const;
+    bool		initRead_();		//!< supporting getRanges()
+    bool		initWrite_(const SeisTrc&)	{ return false; }
+    bool		isReadDefault() const		{ return true; }
+
+    bool		implRename( const IOObj*,const char*,
+	    			    const CallBack* cb=0) const;
+
+};
+
+
 #endif
 
