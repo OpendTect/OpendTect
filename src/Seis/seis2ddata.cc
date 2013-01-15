@@ -35,10 +35,10 @@ Seis2DDataSet::~Seis2DDataSet()
 }
 
 
-Seis2DDataSet& Seis2DDataSet::operator =( const Seis2DDataSet& lset )
+Seis2DDataSet& Seis2DDataSet::operator =( const Seis2DDataSet& dset )
 {
-    if ( &lset == this ) return *this;
-    fname_ = lset.fname_;
+    if ( &dset == this ) return *this;
+    fname_ = dset.fname_;
     readFile( false );
     return *this;
 }
@@ -108,8 +108,6 @@ static const char* sKeyFileType = "2D Data Set";
 void Seis2DDataSet::readFile( bool mklock, BufferString* typestr )
 {
     deepErase( pars_ );
-    /*if ( getPre(typestr) )
-	return;*/
 
     SafeFileIO sfio( fname_, true );
     if ( !sfio.open(true) )
@@ -133,7 +131,7 @@ void Seis2DDataSet::getFrom( std::istream& strm, BufferString* typestr )
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType) )
 	return;
-
+    int lines;
     //TODO: review and add Nr of lines info.
     if ( !atEndOfSection(astrm.next()) )
     {
@@ -149,7 +147,7 @@ void Seis2DDataSet::getFrom( std::istream& strm, BufferString* typestr )
 	while ( !atEndOfSection(astrm.next()) )
 	{
 	    if ( astrm.hasKeyword(sKey::GeomID()) )
-		newpar->setName( astrm.value() );
+		newpar->set( sKey::GeomID(), astrm.value() );
 	    else if ( !astrm.hasValue("") )
 		newpar->set( astrm.keyWord(), astrm.value() );
 	}
@@ -186,9 +184,9 @@ void Seis2DDataSet::putTo( std::ostream& strm ) const
 
     for ( int ipar=0; ipar<pars_.size(); ipar++ )
     {
-	const IOPar& iopar = *pars_[ipar];
+	IOPar iopar = *pars_[ipar];
+	iopar.setName("");
 	iopar.putTo( astrm );
-	astrm.newParagraph();
     }
 }
 
@@ -208,27 +206,6 @@ bool Seis2DDataSet::getGeometry( int ipar, PosInfo::Line2DData& geom ) const
     }
 
     return liop_->getGeometry( *pars_[ipar], geom );
-}
-
-
-bool Seis2DDataSet::getGeometry( PosInfo::LineSet2DData& lsgeom ) const
-{
-    for ( int idx=0; idx<pars_.size(); idx++ )
-    {
-	const char* lnm = pars_[idx]->name();
-	if ( lsgeom.getLineData(lnm) )
-	    continue;
-
-	PosInfo::Line2DData& ld = lsgeom.addLine( lnm );
-	getGeometry( idx, ld );
-	if ( ld.positions().isEmpty() )
-	{
-	    lsgeom.removeLine( lnm );
-	    return false;
-	}
-    }
-    
-    return true;
 }
 
 
@@ -307,27 +284,48 @@ bool Seis2DDataSet::isEmpty( int ipar ) const
 }
 
 
-bool Seis2DDataSet::renameFiles( const char* newlsnm )
+bool Seis2DDataSet::remove( int geomid )
 {
-    BufferString cleannm( newlsnm );
+    if ( readonly_ ) return false;
+
+    readFile( true );
+    int ipar = indexOf( geomid );
+    if ( ipar < 0 )
+	{ return true; }
+
+    IOPar* iop = pars_[ipar];
+    if ( liop_ )
+	liop_->removeImpl(*iop);
+    pars_ -= iop;
+    delete iop;
+
+    writeFile();
+    return true;
+}
+
+
+bool Seis2DDataSet::renameFiles( const char* newnm )
+{
+    BufferString cleannm( newnm );
     cleanupString( cleannm.buf(), false, false, false );
     if ( fname_.isEmpty() )
 	return false;
 
-    BufferString oldlsnm;
+    setName( cleannm.buf() );
+    BufferString oldnm;
     if ( !pars_.size() )
 	return false;
 
-    pars_[0]->get( sKey::FileName(), oldlsnm );
+    pars_[0]->get( sKey::FileName(), oldnm );
     int index = 0;
     while ( true )
     {
-	if ( oldlsnm[index] == '^' || oldlsnm[index] == '.' )
+	if ( oldnm[index] == '^' || oldnm[index] == '.' )
 	    break;
 	index++;
     }
 
-    oldlsnm[index] = '\0';
+    oldnm[index] = '\0';
 
     FilePath fp( fname_ );
     for ( int idx=0; idx<nrLines(); idx++ )
@@ -335,7 +333,7 @@ bool Seis2DDataSet::renameFiles( const char* newlsnm )
 	BufferString filenm, oldfilenm;
 	pars_[idx]->get( sKey::FileName(), filenm );
 	oldfilenm = filenm;
-	replaceString( filenm.buf(), oldlsnm.buf(), cleannm.buf() );
+	replaceString( filenm.buf(), oldnm.buf(), cleannm.buf() );
 	FilePath newfp( fp.pathOnly(), filenm );
 	FilePath oldfp( fp.pathOnly(), oldfilenm );
 	if ( oldfp.isEmpty() || newfp.isEmpty() || oldfp == newfp )
@@ -343,7 +341,7 @@ bool Seis2DDataSet::renameFiles( const char* newlsnm )
 
 	if ( !File::rename(oldfp.fullPath(),newfp.fullPath()) )
 	{
-	    renameFiles( oldlsnm );
+	    renameFiles( oldnm );
 	    return false;
 	}
 
@@ -354,7 +352,6 @@ bool Seis2DDataSet::renameFiles( const char* newlsnm )
 	pars_[idx]->set( sKey::FileName(), filenm );
     }
 
-    PosInfo::POS2DAdmin().renameLineSet( oldlsnm, newlsnm );
     writeFile();
     return true;
 }

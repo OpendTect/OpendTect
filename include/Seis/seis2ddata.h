@@ -80,6 +80,9 @@ public:
     void		getFrom(std::istream&,BufferString*);
     void		putTo(std::ostream&) const;
 
+    bool		remove(int geomid);
+    				//!< Also removes from disk
+
 protected:
 
     Seis2DLineIOProvider* liop_;
@@ -92,7 +95,6 @@ protected:
     void		writeFile() const;
 
 private:
-    bool		getGeometry(PosInfo::LineSet2DData&) const;
     bool		getGeometry(int,PosInfo::Line2DData&) const;
     Executor*		geometryDumper(std::ostream&,bool inc_nr,
 	    				float z_val=mUdf(float),
