@@ -576,3 +576,4 @@ void SeisSequentialWriter::reportWrite( const char* errmsg )
     if ( bufsize<maxbuffersize_ )
 	lock_.signal( true );
 }
+
