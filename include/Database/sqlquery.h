@@ -34,7 +34,7 @@ class Access;
 
 /*!
 \ingroup Database
-\brief An SQL Query.
+\brief Execution of SQL Query.
 */
 
 mClass(Database) Query
@@ -108,7 +108,7 @@ public:
 
 /*!
 \ingroup Database
-\brief Condition to check value.
+\brief Condition to check for a value in a Query.
 */
 
 mClass(Database) ValueCondition : public Condition
@@ -134,7 +134,7 @@ protected:
 
 /*!
 \ingroup Database
-\brief
+\brief Condition with multiple logics in a Query.
 */
 
 mClass(Database) MultipleLogicCondition : public Condition
@@ -155,7 +155,7 @@ protected:
 
 /*!
 \ingroup
-\brief
+\brief Condition to string check in a Query.
 */
 
 mClass(Database) StringCondition : public Condition
@@ -175,7 +175,7 @@ protected:
 
 /*!
 \ingroup
-\brief
+\brief Condition to check for fulltext in a Query.
 */
 
 mClass(Database) FullTextCondition : public Condition

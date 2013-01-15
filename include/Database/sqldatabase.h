@@ -29,6 +29,11 @@ class BufferStringSet;
 namespace SqlDB
 {
 
+/*!
+\ingroup Database
+\brief Credentials to connect to a Database.
+*/
+
 mClass(Database) ConnectionData
 {
 public:
@@ -56,6 +61,11 @@ public:
 
 };
 
+
+/*!
+\ingroup Database
+\brief To access a connected Database.
+*/
 
 mClass(Database) Access
 {
@@ -88,6 +98,11 @@ public:
 
 };
 
+
+/*!
+\ingroup Database
+\brief Access to a connected MySql Database.
+*/
 
 mClass(Database) MySqlAccess : public Access
 {

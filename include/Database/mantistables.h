@@ -23,6 +23,11 @@ class BufferStringSet;
 namespace SqlDB
 {
 
+/*!
+\ingroup Database
+\brief Bug history table entry in SQL Database.
+*/
+
 mClass(Database) BugHistoryTableEntry
 {
 public:    
@@ -44,6 +49,11 @@ public:
 
 };
 
+
+/*!
+\ingroup Database
+\brief Bug text table entry in SQL Database.
+*/
 
 mClass(Database) BugTextTableEntry
 {
@@ -73,6 +83,11 @@ protected:
     ObjectSet<BugHistoryTableEntry> btthistoryset_;
 };
 
+
+/*!
+\ingroup Database
+\brief 
+*/
 
 mClass(Database) BugTableEntry
 {

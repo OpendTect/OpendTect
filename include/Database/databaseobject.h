@@ -27,7 +27,7 @@ class Access;
 
 /*!
 \ingroup Database
-\brief Base class for Database columns.
+\brief Base class for SQL Database columns.
 */
 
 mClass(Database) DatabaseColumnBase
@@ -56,7 +56,7 @@ protected:
 
 /*!
 \ingroup Database
-\brief
+\brief SQL Database column 
 */
 
 #define mEnumDatabaseColumn( mod, clssnm, enmcls, enm )			\
@@ -78,7 +78,7 @@ public:									\
 
 /*!
 \ingroup Database
-\brief A Database column.
+\brief Template class for SQL Database column.
 */
 
 template<class T>
@@ -95,7 +95,7 @@ public:
 
 /*!
 \ingroup Database
-\brief A Database column of IDs.
+\brief SQL DatabaseColumn of IDs.
 */
 
 mClass(Database) IDDatabaseColumn : public DatabaseColumn<int>
@@ -114,7 +114,7 @@ public:
 
 /*!
 \ingroup Database
-\brief A Database column of strings.
+\brief SQL DatabaseColumn of strings.
 */
 
 mClass(Database) StringDatabaseColumn : public DatabaseColumn<BufferString>
@@ -127,7 +127,7 @@ public:
 
 /*!
 \ingroup Database
-\brief
+\brief SQL DatabaseColumn of date and time.
 */
 
 mClass(Database) CreatedTimeStampDatabaseColumn : public DatabaseColumnBase
@@ -142,7 +142,7 @@ public:
 
 /*!
 \ingroup Database
-\brief A Database column of DateInfo objects.
+\brief A DatabaseColumn of DateInfo objects.
 */
 
 mClass(Database) DateDatabaseColumn : public DatabaseColumnBase
@@ -157,7 +157,7 @@ public:
 
 /*!
 \ingroup Database
-\brief A Database column of Price objects.
+\brief A DatabaseColumn of Price objects.
 */
 
 mClass(Database) PriceDatabaseColumn : public DatabaseColumnBase
@@ -172,7 +172,7 @@ public:
 
 /*!
 \ingroup Database
-\brief A database where each row has a unique id. A row is never deleted, by a
+\brief A Database where each row has a unique id. A row is never deleted, by a
 new row is added where entryidcol is set to the id of the row it is replacing,
 and a timestamp will tell which row that is the current.
 */
