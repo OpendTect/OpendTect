@@ -112,6 +112,7 @@ void uiWellLogExtractGrp::setDescSet( const Attrib::DescSet* newads )
 {
     ads_  = newads;
     adsChg();
+    welllogselfld_->update();
 }
 
 
