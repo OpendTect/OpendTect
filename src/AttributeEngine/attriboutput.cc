@@ -354,7 +354,7 @@ static bool isDataType( const char* reqtp )
 {
     BufferString reqdatatype = reqtp;
     if ( reqdatatype == sKey::Steering() )
-	reqdatatype += "Dip";
+	reqdatatype = "Dip";
 
     const BufferStringSet alldatatypes( Seis::dataTypeNames() );
     return alldatatypes.isPresent( reqdatatype.buf() );
