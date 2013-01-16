@@ -91,6 +91,11 @@ protected:
     void		d2TSelChg(CallBacker*);
     void		wellSelChg(CallBacker*);
     void 		wellTieDlgClosed(CallBacker*);
+
+protected:
+    const MultiID	get3DSeisID() const;
+    const MultiID	get2DSeisID() const;
+    const BufferString	getLine() const;
 };
 
 }; //namespace WellTie
