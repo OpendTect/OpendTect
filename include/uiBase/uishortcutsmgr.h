@@ -33,6 +33,7 @@ public:
 			{ return key_==ev.key_ && state_==ev.state_; }
 
     bool		set(const char* statestr,const char* keystr);
+    BufferString	getKeySequenceStr() const;
     
     OD::ButtonState	state() const 		{ return state_; }
     void		setState( OD::ButtonState bs )	{ state_ = bs; }

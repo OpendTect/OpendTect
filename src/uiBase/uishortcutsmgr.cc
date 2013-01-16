@@ -106,6 +106,19 @@ bool uiKeyDesc::set( const char* statestr, const char* keystr )
 }
 
 
+BufferString uiKeyDesc::getKeySequenceStr() const
+{
+    BufferString res;
+    if ( state_ == OD::ControlButton )
+        res.add( "Ctrl+" );
+    else if ( state_ != OD::NoButton )
+        res.add( stateStr() ).add( "+" );
+
+    res.add( keyStr() );
+    return res;
+}
+
+
 const char* uiKeyDesc::stateStr() const
 {
     return OD::nameOf( state_ );

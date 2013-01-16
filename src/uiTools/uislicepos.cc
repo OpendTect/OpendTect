@@ -75,29 +75,11 @@ void uiSlicePos::shortcutsChg( CallBacker* )
     const uiShortcutsList& scl = SCMgr().getList( "ODScene" );
     const uiKeyDesc* keydesc = scl.keyDescOf( "Move slice forward" );
     if ( keydesc )
-    {
-	BufferString keyseq;
-	if ( keydesc->state() == OD::ControlButton )
-	    keyseq += "Ctrl+";
-	else if ( keydesc->state() == OD::ShiftButton )
-	    keyseq += "Shift+";
-
-	keyseq += keydesc->keyStr();
-	nextbut_->setShortcut( keyseq.buf() );
-    }
+	nextbut_->setShortcut( keydesc->getKeySequenceStr() );
 
     keydesc = scl.keyDescOf( "Move slice backward" );
     if ( keydesc )
-    {
-	BufferString keyseq;
-	if ( keydesc->state() == OD::ControlButton )
-	    keyseq += "Ctrl+";
-	else if ( keydesc->state() == OD::ShiftButton )
-	    keyseq += "Shift+";
-
-	keyseq += keydesc->keyStr();
-	prevbut_->setShortcut( keyseq.buf() );
-    }
+	prevbut_->setShortcut( keydesc->getKeySequenceStr() );
 }
 
 
