@@ -538,7 +538,7 @@ const std::vector<T>& TypeSetBase<T,I>::vec() const
 
 template <class T, class I> inline
 T* TypeSetBase<T,I>::gtArr() const
-{ return size() ? const_cast<T*>(&(*this)[0]) : 0; }
+{ return size()>0 ? const_cast<T*>(&(*this)[0]) : 0; }
 
 
 #endif
