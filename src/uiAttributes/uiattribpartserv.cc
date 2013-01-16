@@ -528,9 +528,9 @@ const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
     if ( (nr3d>0) != (nr2d>0) ) return nr2d > 0 ? ds2d : ds3d;
     
     int res = uiMSG().askGoOnAfter( "Which attributes do you want to use?",
-	   			    0, "&3D", "&2D" );
+	   			    0, "&2D", "&3D" );
     if ( res == 2 ) return 0;
-    return res == 0 ? ds3d : ds2d;
+    return res == 0 ? ds2d : ds3d;
 }
 
 
