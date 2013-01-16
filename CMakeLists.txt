@@ -12,27 +12,26 @@ SET( OpendTect_VERSION_MINOR 5 )
 SET( OpendTect_VERSION_DETAIL 0 )
 PROJECT( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )
 
-INCLUDE(CTest)
+INCLUDE( CTest )
 
-SET ( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
+SET( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
 SET( OD_BINARY_BASEDIR ${CMAKE_BINARY_DIR} )
 
 
-IF ( NOT DEFINED CMAKE_BUILD_TYPE )
-    SET(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Release or Debug" )
+IF( NOT DEFINED CMAKE_BUILD_TYPE )
+    SET( CMAKE_BUILD_TYPE "Debug" CACHE STRING "Release or Debug" )
 ENDIF()
 
-SET(OD_DGB_DIR "" CACHE PATH
-	"Place where closed source part is found")
+SET( OD_DGB_DIR "" CACHE PATH "Place where closed source part is found" )
 
-LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules")
+LIST( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 
-INCLUDE ( OD_SetupOD )
-INCLUDE ( ODInternal )
+INCLUDE( OD_SetupOD )
+INCLUDE( ODInternal )
 
-SET (OD_SUBSYSTEM ${OD_CORE_SUBSYSTEM} )
+SET( OD_SUBSYSTEM ${OD_CORE_SUBSYSTEM} )
 
-SET(OD_MODULES
+SET( OD_MODULES
 	Basic Algo General Database
 	Strat Network Batch Usage
 	Geometry EarthModel MMProc Seis
@@ -48,7 +47,7 @@ SET(OD_MODULES
 )
 
 SET( OD_PLUGINS
-        Annotations
+	Annotations
 	Bouncy
 	ExpAttribs
 	GapDecon
@@ -74,7 +73,7 @@ SET( OD_PLUGINS
 	uiMadagascar
 	uiMadagascarAttribs
 	uiTextureAttrib
-        uiTut
+	uiTut
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
 	uiPreStackViewer
@@ -96,7 +95,7 @@ OD_WRITE_ALOFILES( ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR} )
 #OD_ADD_KEYWORD_TEST( strcmp strcmp )
 OD_ADD_KEYWORD_TEST( "sqrt(" sqrt )
 OD_ADD_LINEEND_TEST()
-if ( NOT DEFINED APPLE )
+IF( NOT DEFINED APPLE )
     OD_ADD_SVNPROP_TEST()
 endif()
 
