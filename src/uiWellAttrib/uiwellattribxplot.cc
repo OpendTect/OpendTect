@@ -110,6 +110,7 @@ void uiWellAttribCrossPlot::setDescSet( const Attrib::DescSet& newads )
 {
     const_cast<Attrib::DescSet&>( ads_ ) = newads;
     adsChg();
+    welllogselfld_->update();
 }
 
 
