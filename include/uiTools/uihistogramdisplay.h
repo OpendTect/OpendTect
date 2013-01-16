@@ -35,8 +35,10 @@ public:
     void			setData(const Array2D<float>*);
     void			setData(const DataPointSet&);
 
-    void			useDrawRange(bool yn)	{ usemydrawrg_ = yn; }
+    void			useDrawRange(bool yn);
+    const Interval<float>&	getDrawRange() const	{ return mydrawrg_; }
     void			setDrawRange(const Interval<float>&);
+    Notifier<uiHistogramDisplay> drawRangeChanged;
 
     void			setHistogram(const TypeSet<float>&,
 	    				     Interval<float>,int N=-1);

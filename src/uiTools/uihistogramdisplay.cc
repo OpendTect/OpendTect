@@ -40,7 +40,8 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
     , header_(0)
     , nitm_(0)
     , mydrawrg_(mUdf(float),mUdf(float))
-    , usemydrawrg_(false)  
+    , usemydrawrg_(false) 
+    , drawRangeChanged(this)  
 {
     xAxis()->setName( "Value" );
     yAxis(false)->setName( "Count" );
@@ -226,11 +227,32 @@ void uiHistogramDisplay::updateHistogram()
 }
 
 
+void uiHistogramDisplay::useDrawRange( bool yn )    
+{
+   if ( usemydrawrg_==yn )
+      return;
+
+    usemydrawrg_ = yn; 
+    if ( usemydrawrg_ && !mIsUdf(mydrawrg_.start) && !mIsUdf(mydrawrg_.stop) )
+    {
+	setData( originaldata_.arr(), originaldata_.size() );
+    	drawRangeChanged.trigger();
+    }
+}
+
+
 void uiHistogramDisplay::setDrawRange( const Interval<float>& ni )
 {
+    if ( mIsEqual(ni.start,mydrawrg_.start,1e-5) && 
+	 mIsEqual(ni.stop,mydrawrg_.stop,1e-5) )
+	return;
+
     mydrawrg_ = ni;
     if ( usemydrawrg_ )
-    	setData( originaldata_.arr(), originaldata_.size() );
+    {
+	setData( originaldata_.arr(), originaldata_.size() );
+    	drawRangeChanged.trigger();
+    }
 }
 
 
