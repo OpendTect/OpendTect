@@ -46,6 +46,8 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
 	    		     mCB(this,uiMapperRangeEditor,mouseMoved) );
     histogramdisp_->reSize.notify(
 	    		     mCB(this,uiMapperRangeEditor,histogramResized));
+    histogramdisp_->drawRangeChanged.notify(
+	    		     mCB(this,uiMapperRangeEditor,histDRChanged));
     xax_ = histogramdisp_->xAxis();
 
     init();
@@ -318,3 +320,28 @@ void uiMapperRangeEditor::mouseReleased( CallBacker* )
     rangeChanged.trigger();
     meh.setHandled( true );
 }
+
+
+void uiMapperRangeEditor::histDRChanged( CallBacker* cb )
+{
+    const Interval<float>& drg = histogramdisp_->getDrawRange();
+    if ( cliprg_.start<drg.start ) 
+	cliprg_.start = drg.start;
+    if ( cliprg_.stop>drg.stop ) 
+	cliprg_.stop = drg.stop;
+
+    startpix_ = xax_->getPix( cliprg_.start );
+    stoppix_ = xax_->getPix( cliprg_.stop );
+
+    const int height = histogramdisp_->height();
+    minline_->setLine( startpix_, 0, startpix_, height );
+    maxline_->setLine( stoppix_, 0, stoppix_, height );
+
+    ctmapper_->range_.start = ctmapper_->range_.isRev() ? cliprg_.stop
+						       : cliprg_.start;
+    ctmapper_->range_.stop = ctmapper_->range_.isRev() ? cliprg_.start
+						      : cliprg_.stop;
+    rangeChanged.trigger();
+}
+
+

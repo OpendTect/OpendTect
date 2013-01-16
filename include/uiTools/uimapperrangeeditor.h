@@ -86,6 +86,7 @@ protected:
     void			mouseReleased(CallBacker*);
 
     void			histogramResized(CallBacker*);
+    void			histDRChanged(CallBacker*);
 };
 
 #endif
