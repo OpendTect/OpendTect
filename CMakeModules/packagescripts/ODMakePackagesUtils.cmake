@@ -5,8 +5,17 @@
 #RCS:           $Id: ODMakePackagesUtils.cmake,v 1.11 2012/09/11 12:25:44 cvsnageswara Exp $
 
 macro ( create_package PACKAGE_NAME )
-    FILE( MAKE_DIRECTORY ${DESTINATION_DIR} ${DESTINATION_DIR}/bin
-		         ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+    IF( APPLE )
+	SET( MACBINDIR "Contents/MacOS" )
+    ENDIF()
+
+    FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/bin )
+    IF( APPLE )
+	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/${MACBINDIR} )
+    ELSE()
+	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+    ENDIF()
+
     FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/plugins
 			  ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
 
@@ -29,14 +38,19 @@ macro ( create_package PACKAGE_NAME )
 		SET( LIB "${FILE}.dll" )
 	ENDIF()
 
+	IF( APPLE )
+	    SET( COPYTODIR ${DESTINATION_DIR}/${MACBINDIR} )
+	ELSE()
+	    SET( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+	ENDIF()
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${LIB} 
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
-       FILE( GLOB ALOFILES ${PSD}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
-       FOREACH( ALOFILE ${ALOFILES} )
+			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${LIB}
+			 ${COPYTODIR} )
+	FILE( GLOB ALOFILES ${PSD}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
+	FOREACH( ALOFILE ${ALOFILES} )
 	   execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${ALOFILE}
 				    ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
-       ENDFOREACH()
+	ENDFOREACH()
 
     ENDFOREACH()
 
@@ -61,11 +75,10 @@ macro ( create_package PACKAGE_NAME )
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${EXE} 
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+			 ${COPYTODIR} )
     ENDFOREACH()
 
     IF( ${PACKAGE_NAME} STREQUAL "base" )
-	# install SPECFILES files (from relbase/)
 	FOREACH( SPECFILE ${SPECFILES} )
 	     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			      ${CMAKE_INSTALL_PREFIX}/${SPECFILE}
@@ -102,11 +115,16 @@ endmacro( create_package )
 
 
 macro( copy_thirdpartylibs )
+    IF( APPLE )
+	SET( COPYTODIR ${DESTINATION_DIR}/${MACBINDIR} )
+    ELSE()
+	SET( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+    ENDIF()
+
     MESSAGE( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
     FILE( GLOB LIBS ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/* )
     FOREACH( LIB ${LIBS} )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB}
-			  ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB} ${COPYTODIR} )
     ENDFOREACH()
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${CMAKE_INSTALL_PREFIX}/imageformats
@@ -116,6 +134,9 @@ endmacro( copy_thirdpartylibs )
 
 
 macro( create_basepackages PACKAGE_NAME )
+   IF( EXISTS ${DESTINATION_DIR}/Contents )
+	FILE( REMOVE_RECURSE ${DESTINATION_DIR}/Contents )
+   ENDIF()
    IF( ${PACKAGE_NAME} STREQUAL "basedata" )
        FOREACH( LIBS ${LIBLIST} )
 	    FILE( GLOB DATAFILES ${CMAKE_INSTALL_PREFIX}/data/${LIBS} )
@@ -169,12 +190,24 @@ macro( init_destinationdir  PACKAGE_NAME )
     SET( PACKAGE_FILENAME "${PACKAGE_FILENAME}_${OD_PLFSUBDIR}.zip" )
     IF( ${PACKAGE_NAME} STREQUAL "basedata" )
         SET( PACKAGE_FILENAME "basedata.zip" )
+	IF( APPLE )
+	    SET( PACKAGE_FILENAME "basedata_mac.zip" )
+	ENDIF()
     ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
         SET( PACKAGE_FILENAME "dgbbasedata.zip" )
+	IF( APPLE )
+	    SET( PACKAGE_FILENAME "dgbbasedata_mac.zip" )
+	ENDIF()
     ELSEIF( ${PACKAGE_NAME} STREQUAL "doc" )
         SET( PACKAGE_FILENAME "doc.zip" )
+	IF( APPLE )
+	    SET( PACKAGE_FILENAME "doc_mac.zip" )
+	ENDIF()
     ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
         SET( PACKAGE_FILENAME "dgbdoc.zip" )
+	IF( APPLE )
+	    SET( PACKAGE_FILENAME "dgbdoc_mac.zip" )
+	ENDIF()
     ENDIF()
 
     IF( NOT EXISTS ${PSD}/packages )
@@ -187,8 +220,7 @@ macro( init_destinationdir  PACKAGE_NAME )
     ENDIF()
     SET( REL_DIR "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
     IF( APPLE )
-	SET( REL_DIR "OpendTect${OpendTect_VERSION_MAJOR}
-		      .${OpendTect_VERSION_MINOR}.app" )
+	SET( REL_DIR "OpendTect${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.app" )
         MESSAGE( "APPLE: reldiris ... ${REL_DIR}" )
     ENDIF()
 
@@ -198,6 +230,12 @@ macro( init_destinationdir  PACKAGE_NAME )
     ENDIF()
 
     FILE( MAKE_DIRECTORY ${DESTINATION_DIR} ${DESTINATION_DIR}/relinfo )
+    IF( APPLE )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${CMAKE_INSTALL_PREFIX}/Contents
+			 ${DESTINATION_DIR}/Contents )
+    ENDIF()
+
     SET( FULLVER_NAME "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
     SET( FULLVER_NAME "${FULLVER_NAME}${OpendTect_VERSION_PATCH}" )
     MESSAGE("full ver name:${FULLVER_NAME}")
@@ -205,12 +243,24 @@ macro( init_destinationdir  PACKAGE_NAME )
 
     IF( ${PACKAGE_NAME} STREQUAL "basedata" )
         SET( VER_FILENAME "basedata" )
+	IF( APPLE )
+	    SET( VER_FILENAME "basedata_mac" )
+	ENDIF()
     ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
         SET( VER_FILENAME "dgbbasedata" )
+	IF( APPLE )
+	    SET( VER_FILENAME "dgbbasedata_mac" )
+	ENDIF()
     ELSEIF( ${PACKAGE_NAME} STREQUAL "doc" )
         SET( VER_FILENAME "doc" )
+	IF( APPLE )
+	    SET( VER_FILENAME "doc_mac" )
+	ENDIF()
     ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
         SET( VER_FILENAME "dgbdoc" )
+	IF( APPLE )
+	    SET( VER_FILENAME "dgbdoc_mac" )
+	ENDIF()
     ENDIF()
 
     FILE( WRITE ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
