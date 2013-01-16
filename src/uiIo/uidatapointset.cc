@@ -1590,6 +1590,7 @@ void uiDataPointSet::addColumn( CallBacker* )
 	{
 	    TypeSet<int> colids = dlg.usedColIDs();
 	    MathExpression* mathobj = dlg.mathObject();
+	    if ( !mathobj ) return;
 	    BinID curbid;
 	    TypeSet<float> vals;
 	    bvs.get( pos, curbid, vals );
