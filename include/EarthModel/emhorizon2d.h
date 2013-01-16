@@ -63,7 +63,7 @@ public:
 					   true, it returnes unf, if not
 					   it return the id of the undef
 					   neighbor. */
-					   
+
     static const char*		sKeyLineIDs()	{ return "Line IDs"; }
     static const char*		sKeyLineNames()	{ return "Line names"; }
     static const char*		sKeyLineSets()	{ return "Set ID of line "; }
@@ -88,7 +88,7 @@ protected:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    
+
     TypeSet<PosInfo::GeomID>	geomids_;
 };
 
@@ -133,9 +133,15 @@ public:
     void			removeSelected(const Selector<Coord3>& selector,
 	    				       TaskRunner* tr );
 
-    bool			setArray1D(const Array1D<float>&,SectionID sid,
-	    				   const PosInfo::GeomID& geomid,
-					   bool onlyfillundefs );
+    bool			setArray1D(const Array1D<float>&,
+					   SectionID sid,
+					   const PosInfo::GeomID& geomid,
+					   bool onlyfillundefs);
+    bool			setArray1D(const Array1D<float>&,
+					   const StepInterval<int>& trcrg,
+					   SectionID sid,
+					   const PosInfo::GeomID& geomid,
+					   bool onlyfillundefs);
     Array1D<float>*		createArray1D(SectionID,
 	    				      const PosInfo::GeomID& geomid,
 	    				      const ZAxisTransform* =0) const;

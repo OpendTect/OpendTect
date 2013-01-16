@@ -159,7 +159,7 @@ bool Horizon2DGeometry::doAddLine( const PosInfo::GeomID& geomid,
 	else
 	    h2dl->reassignRow( geomids_[oldgeomidx], geomid );
 
-	h2dl->syncRow( geomid, linegeom );
+        h2dl->syncRow( geomid, linegeom );
     }
 
     if ( oldgeomidx < 0 )
@@ -225,10 +225,10 @@ int Horizon2DGeometry::getConnectedPos( const PosID& pid,
 
     neighborpid = getNeighbor( pid, false, true );
     if ( neighborpid.objectID()!=-1 )
-    {    
+    {
 	nrres++;
 	if ( res ) (*res) += neighborpid;
-    }    
+    }
 
     return nrres;
 }
@@ -331,7 +331,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	return false;
     BufferStringSet linenames;
     if ( !par.get(sKeyLineNames(),linenames)  )
-     	return false;	
+     	return false;
 
     for ( int idx=0; idx<lineids.size(); idx++ )
     {
@@ -340,7 +340,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 
 	MultiID mid;
 	if ( !par.get(linesetkey.buf(),mid) ) continue;
-	
+
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj ) continue;
 
@@ -553,25 +553,37 @@ TypeSet<Coord3> Horizon2D::getPositions( int lineidx, int trcnr ) const
 }
 
 
-bool Horizon2D::setArray1D( const Array1D<float>& arr, SectionID sid,
-			    const PosInfo::GeomID& geomid, bool onlyfillundefs )
+bool Horizon2D::setArray1D( const Array1D<float>& arr,
+			    SectionID sid, const PosInfo::GeomID& geomid,
+			    bool onlyfillundefs )
+{
+    const StepInterval<int> trcrg = geometry_.colRange( geomid );
+    return setArray1D( arr, trcrg, sid, geomid, onlyfillundefs );
+}
+
+
+bool Horizon2D::setArray1D( const Array1D<float>& arr,
+			    const StepInterval<int>& trcrg,
+			    SectionID sid, const PosInfo::GeomID& geomid,
+			    bool onlyfillundefs )
 {
     Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
     if ( !geom || geom->isEmpty() )
 	return 0;
 
     const int lineidx = geom->getRowIndex( geomid );
-    const StepInterval<int> colrg = geom->colRange( lineidx );
-    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+//    const StepInterval<int> colrg = geom->colRange( lineidx );
+//  Should we use this colrg?
+    for ( int col=trcrg.start; col<=trcrg.stop; col+=trcrg.step )
     {
 	RowCol rc( lineidx, col );
 	Coord3 pos = geom->getKnot( rc );
 	if ( pos.isDefined() && onlyfillundefs )
 	    continue;
 
-	if ( arr.info().validPos(colrg.getIndex(col)) )
+	if ( arr.info().validPos(trcrg.getIndex(col)) )
 	{
-	    float z = arr.get( colrg.getIndex(col) );
+	    float z = arr.get( trcrg.getIndex(col) );
 	    pos.z = z;
 	    geom->setKnot( rc, pos );
 	}
@@ -614,7 +626,7 @@ const IOObjContext& Horizon2D::getIOObjContext() const
 { return EMHorizon2DTranslatorGroup::ioContext(); }
 
 
-Table::FormatDesc* Horizon2DAscIO::getDesc() 
+Table::FormatDesc* Horizon2DAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
