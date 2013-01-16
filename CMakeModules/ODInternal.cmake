@@ -46,7 +46,9 @@ if ( UNIX )
 endif( UNIX )
 
 if ( APPLE )
-   #Put in Info.plist
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/data/install_files/macscripts/Contents 
+	 DESTINATION .
+	 PATTERN ".svn" EXCLUDE )
 endif( APPLE )
 
 SET( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
