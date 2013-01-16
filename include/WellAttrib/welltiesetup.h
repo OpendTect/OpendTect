@@ -35,7 +35,7 @@ public:
 
 			Setup()
 			    : wellid_(-1)
-			    , seisid_(-1)
+			    , seisid_()
 			    , wvltid_(-1)
 			    , issonic_(true)
 			    , linekey_(0)
