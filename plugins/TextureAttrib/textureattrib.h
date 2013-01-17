@@ -61,9 +61,6 @@ protected:
     bool		getInputData(const BinID&,int zintv);
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int z0,int nrsamples,int threadid) const;
-    bool		computeScalingFactorShift(const DataHolder&,
-				    const BinID& relpos, int z0,int nrsamples,
-				    int threadid) const;
     const BinID*        desStepout(int,int) const;
     const Interval<int>* desZSampMargin(int,int) const;
     int			scaleVal(float) const;
@@ -92,11 +89,9 @@ protected:
     ObjectSet<const DataHolder> inpdata_;
     int			dataidx_;
     const DataHolder*   steeringdata_;
-    int			computeGLCM(int idx,int z0,int nrsamples,
-				    Array2D<int>&) const;
-    void		fillGLCM(int sampleidx,int z0,int nrsamples,
-				 int posidx1,int posidx2,int& glcmcount,
-				 Array2D<int>& glcm) const;
+    int			computeGLCM(int idx,int z0,Array2D<int>&) const;
+    void		fillGLCM(int sampleidx,int z0,int posidx1,int posidx2,
+	    			 int& glcmcount,Array2D<int>& glcm) const;
 };
 
 } // namespace Attrib
