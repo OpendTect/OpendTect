@@ -1279,20 +1279,13 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 
 void uiDataPointSetCrossPlotter::prepareItems( bool y2 )
 {
-    if ( y2 ? !y2ptitems_ : !yptitems_ )
+    uiGraphicsItemGroup*& ptitems = y2 ? y2ptitems_ : yptitems_;
+
+    if ( !ptitems )
     {
-	if ( y2 )
-	{
-	    y2ptitems_ = new uiGraphicsItemGroup();
-	    scene().addItemGrp( y2ptitems_ );
-	    y2ptitems_->setZValue( 4 );
-	}
-	else
-	{
-	    yptitems_ = new uiGraphicsItemGroup();
-	    scene().addItemGrp( yptitems_ );
-	    yptitems_->setZValue( 4 );
-	}
+	ptitems = new uiGraphicsItemGroup();
+	scene().addItemGrp( ptitems );
+	ptitems->setZValue( 4 );
     }
 }
 
