@@ -8,7 +8,7 @@
 SET ( OD_MODULE_DEPS Basic )
 SET ( OD_MODULE_TEST_LABEL Basic )
 
-SET ( OD_TEST_PROGS testsvnversion )
+SET ( OD_TEST_PROGS testsvnversion testsets )
 OD_INIT_MODULE()
 
 
