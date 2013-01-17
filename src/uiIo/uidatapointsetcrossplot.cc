@@ -1572,6 +1572,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
     
 }
 
+
 int uiDataPointSetCrossPlotter::calculateDensity( Array2D<float>* data,
 						  bool chgdps, bool removesel )
 { return calcDensity( data, chgdps, removesel, false, 0 ); }
@@ -1807,7 +1808,6 @@ void uiDataPointSetCrossPlotter::drawData(
     drawUserDefPolyLine( true );
     drawUserDefPolyLine( false );
 }
-
 
 
 void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler& yah,
