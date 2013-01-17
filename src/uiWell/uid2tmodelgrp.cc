@@ -122,12 +122,14 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 		tvdmax = zpostrack;
 		idahofmaxz = idx;
 	    }
-	    else if ( zpostrack < tvdmin )
+	    
+	    if ( zpostrack < tvdmin )
 	    {
 		tvdmin = zpostrack;
 		idahofminz = idx;
 	    }
 	}
+
 	d2t.add( wd.track().dah(idahofminz), ( tvdmin+srd )/twtvel+ bulkshift );
 	d2t.add( wd.track().dah(idahofmaxz), ( tvdmax+srd )/twtvel+ bulkshift );
     }
