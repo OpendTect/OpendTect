@@ -188,7 +188,11 @@ uiWellDisplayWin::uiWellDisplayWin(uiParent* p, Well::Data& wd )
 
 
 void uiWellDisplayWin::closeWin( CallBacker* )
-{ close(); }
+{
+    delete welldisp_;
+    welldisp_ = 0;
+    close(); 
+}
 
 
 void uiWellDisplayWin::dispInfoMsg( CallBacker* cb )
