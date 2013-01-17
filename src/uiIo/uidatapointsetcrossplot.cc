@@ -689,7 +689,7 @@ void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
     const ColTab::MapperSetup& mappersetup = isy1 ? y3mapper_.setup_
 						  : y4mapper_.setup_;
     coltabitem->setColTabMapperSetup( mappersetup );
-    coltabitem->setVisible( showy4_ && isY2Shown() );
+    coltabitem->setVisible( isy1 ? showy3_ : ( showy4_ && isY2Shown() ) );
 }
 
 
