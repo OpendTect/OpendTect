@@ -171,9 +171,8 @@ bool Texture::allowParallelComputation () const
 { return true; }
 
 
-void Texture::fillGLCM( int sampleidx, int z0, int nrsamples,
-			int posidx1, int posidx2, int& glcmcount,
-			Array2D<int>& glcm ) const
+void Texture::fillGLCM( int sampleidx, int z0, int posidx1, int posidx2,
+			int& glcmcount,	Array2D<int>& glcm ) const
 {
     if ( !inpdata_[posidx1] || !inpdata_[posidx2])
 	return;
@@ -185,16 +184,13 @@ void Texture::fillGLCM( int sampleidx, int z0, int nrsamples,
 	shift = getInputValue( *steeringdata_, steeridx, sampleidx, z0 );
     }
 
-    const int shiftedidx = sampleidx + ( mIsUdf(shift) ? 0 : mNINT32(shift) );
-    if ( shiftedidx < 0 || shiftedidx >= nrsamples )
-	return;
-
+    const float shiftedidx = sampleidx + ( mIsUdf(shift) ? 0 : shift );
     int refpixpos, neighpixpos = 0;
     for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++ )
     {
-	const float val = getInputValue( *inpdata_[posidx1],
+	const float val = getInterpolInputValue( *inpdata_[posidx1],
 	    dataidx_, shiftedidx+isamp, z0 );
-	const float val1 = getInputValue( *inpdata_[posidx2],
+	const float val1 = getInterpolInputValue( *inpdata_[posidx2],
 	    dataidx_, shiftedidx+isamp, z0 );
 	if ( mIsUdf(val) || mIsUdf(val1) )
 	    continue;
@@ -211,8 +207,7 @@ void Texture::fillGLCM( int sampleidx, int z0, int nrsamples,
 
 
 // Compute unnormalized GLCM Matrix
-int Texture::computeGLCM( int idx, int z0, int nrsamples,
-			  Array2D<int>& glcm ) const
+int Texture::computeGLCM( int idx, int z0, Array2D<int>& glcm ) const
 {
     int glcmcount = 0;
     const int inlsz = stepout_.inl *2 +1;
@@ -223,8 +218,7 @@ int Texture::computeGLCM( int idx, int z0, int nrsamples,
 	{
 	    const int posidxcrl1 = idi*crlsz + idc;
 	    const int posidxcrl2 = posidxcrl1 + 1;
-	    fillGLCM( idx, z0, nrsamples, posidxcrl1, posidxcrl2,
-		      glcmcount, glcm );
+	    fillGLCM( idx, z0, posidxcrl1, posidxcrl2, glcmcount, glcm );
 	}
     }
 
@@ -234,8 +228,7 @@ int Texture::computeGLCM( int idx, int z0, int nrsamples,
 	{
 	    const int posidxinl1 = idi*crlsz + idc;
 	    const int posidxinl2 = posidxinl1 + crlsz;
-	    fillGLCM( idx, z0, nrsamples, posidxinl1, posidxinl2,
-		      glcmcount, glcm );
+	    fillGLCM( idx, z0, posidxinl1, posidxinl2, glcmcount, glcm );
 	}
     }
 
@@ -267,7 +260,7 @@ bool Texture::computeData( const DataHolder& output, const BinID& relpos,
 	float normprob=0;
 	glcm.setAll( 0 );
 
-	const int glcmcount = computeGLCM( idx, z0, nrsamples, glcm );
+	const int glcmcount = computeGLCM( idx, z0, glcm );
 
 	float con=0, dis=0, hom=0, asmom=0, ent=0, glcm_mean = 0;
 	for ( int m=0; m<glcmsize_; m++ )
