@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "commondefs.h"
 #include "general.h"
 #include <algorithm>
 #include <vector>
@@ -48,10 +49,8 @@ public:
     inline std::vector<T>&	 vec()				{ return v_; }
     inline const std::vector<T>& vec() const			{ return v_; }
 
-    inline T&		operator[]( I idx )
-			{ return v_[(typename std::vector<T>::size_type)idx]; }
-    inline const T&	operator[]( I idx ) const
-    			{ return (*const_cast<VectorAccess*>(this))[idx]; }
+    inline T&		operator[]( I idx );
+    inline const T&	operator[]( I idx ) const;
     T&			first() { return v_.front(); }
     const T&		first() const { return v_.front(); }
     T&			last() { return v_.back(); }
@@ -62,6 +61,11 @@ public:
     inline void		getCapacity() const		{ return v_.capacity();}
     			/*!<\returns max size without reallocation.*/
     inline bool		setSize( I sz, T val );
+    
+    inline bool		validIdx(I idx) const { return idx>=0 && idx<size(); }
+    inline I		indexOf(const T&,bool forward,I start=-1) const;
+    inline I		count(const T&) const;
+    inline bool		isPresent(const T&) const;
 
     inline VectorAccess& operator =( const VectorAccess& v2 )
 			{ v_ = v2.v_; return *this; }
@@ -95,10 +99,10 @@ public:
 
     inline void		fillWith( const T& val )
 			{
-			    const I sz = size();
-			    T* arr = sz ? &v_[0] : 0;
-			    for ( I i=sz-1; i>=0; i--,arr++ )
-				*arr = val;
+			    typename std::vector<T>::iterator end = v_.end();
+			    for ( typename std::vector<T>::iterator i=v_.begin();
+				 i!=end; ++i )
+				*i = val;
 			}
 
     void moveAfter( const T& t, const T& aft )
@@ -178,4 +182,80 @@ bool VectorAccess<T,I>::setSize( I sz, T val )
 
     return true;
 }
+
+#if __debug__
+#define mImplOperator \
+    return v_.at(idx); \
+    //throws exception
+#else
+#define mImplOperator \
+    return v_[(typename std::vector<T>::size_type)idx]
+#endif
+
+
+template<class T,class I> inline
+T& VectorAccess<T,I>::operator[]( I idx )
+{
+    mImplOperator;
+}
+
+
+template<class T,class I> inline
+const T& VectorAccess<T,I>::operator[]( I idx ) const
+{
+    mImplOperator;
+}
+
+#undef mImplOperator
+
+
+template<class T,class I> inline
+I VectorAccess<T,I>::indexOf( const T& t, bool forward, I start ) const
+{
+    if ( forward )
+    {
+	typename std::vector<T>::const_iterator begin = v_.begin();
+	const typename std::vector<T>::const_iterator end = v_.end();
+	if ( start>0 )
+	    begin += start;
+	
+	const typename std::vector<T>::const_iterator res =
+						    std::find( begin, end, t );
+	if ( res==end )
+	    return -1;
+	
+	return res-v_.begin();
+    }
+
+    typename std::vector<T>::const_reverse_iterator begin = v_.rbegin();
+    const typename std::vector<T>::const_reverse_iterator end = v_.rend();
+    if ( start>0 )
+    {
+	const I nrskipped = size()-1-start;
+	begin += nrskipped;
+    }
+    
+    const typename std::vector<T>::const_reverse_iterator res =
+						    std::find( begin, end, t );
+    if ( res==end )
+	return -1;
+    
+    return mCast(int,(res-end))+1;
+}
+    
+
+template<class T,class I> inline
+I VectorAccess<T,I>::count( const T& t ) const
+{
+    return std::count( v_.begin(), v_.end(), t );
+}
+
+
+template<class T,class I> inline
+bool VectorAccess<T,I>::isPresent( const T& t ) const
+{
+    const typename std::vector<T>::const_iterator end = v_.end();
+    return std::find( v_.begin(), end, t )!=end;
+}
+
 #endif

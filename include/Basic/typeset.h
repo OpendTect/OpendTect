@@ -52,7 +52,7 @@ public:
     inline virtual bool		validIdx(od_int64) const;
     inline virtual I		indexOf(T,bool forward=true,I start=-1) const;
     inline bool			isPresent( const T& t ) const
-    						{ return indexOf(t) >= 0; }
+				    { return vec_.isPresent(t); }
     inline I			count(const T&) const;
 
     inline TypeSetBase<T,I>&		operator +=(const T&);
@@ -292,16 +292,14 @@ void TypeSetBase<T,I>::reverse()
 
 template <class T, class I> inline
 bool TypeSetBase<T,I>::validIdx( od_int64 idx ) const
-{ return idx>=0 && idx<size(); }
+{
+    return vec_.validIdx( (I) idx );
+}
 
 
 template <class T, class I> inline
 T& TypeSetBase<T,I>::operator[]( I idx )
 {
-#ifdef __debug__
-    if ( !validIdx(idx) )
-	DBG::forceCrash(true);
-#endif
     return vec_[idx];
 }
 
@@ -309,10 +307,6 @@ T& TypeSetBase<T,I>::operator[]( I idx )
 template <class T, class I> inline
 const T& TypeSetBase<T,I>::operator[]( I idx ) const
 {
-#ifdef __debug__
-    if ( !validIdx(idx) )
-	DBG::forceCrash(true);
-#endif
     return vec_[idx];
 }
 
@@ -346,39 +340,15 @@ T TypeSetBase<T,I>::pop()
 template <class T, class I> inline
 I TypeSetBase<T,I>::indexOf( T typ, bool forward, I start ) const
 {
-    const T* ptr = arr();
-    if ( forward )
-    {
-	const I sz = size();
-	if ( start<0 || start>=sz ) start = 0;
-	for ( I idx=start; idx<sz; idx++ )
-	    if ( ptr[idx] == typ ) return idx;
-    }
-    else
-    {
-	const I sz = size();
-	if ( start<0 || start>=sz ) start = sz-1;
-	for ( I idx=start; idx>=0; idx-- )
-	    if ( ptr[idx] == typ ) return idx;
-    }
-
-    return -1;
+    return vec_.indexOf( typ, forward, start );
 }
 
 
 template <class T, class I> inline
 I TypeSetBase<T,I>::count( const T& typ ) const
 {
-    const T* ptr = arr();
-    I res = 0;
-    const I sz = size();
-    for ( I idx=0; idx<sz; idx++ )
-        if ( ptr[idx] == typ )
-            res++;
-    
-    return res;
+    return vec_.count( typ );
 }
-
 
 
 template <class T, class I> inline
@@ -460,7 +430,7 @@ inline void TypeSetBase<T,I>::createIntersection( const TypeSetBase<T,I>& ts )
 {
     for ( I idx=0; idx<size(); idx++ )
     {
-	if ( ts.indexOf((*this)[idx]) != -1 )
+	if ( ts.isPresent((*this)[idx]) )
 	    continue;
 	removeSingle( idx--, false );
     }
@@ -486,7 +456,7 @@ inline void TypeSetBase<T,I>::createDifference( const TypeSetBase<T,I>& ts, bool
 template <class T, class I> inline
 bool TypeSetBase<T,I>::addIfNew( const T& typ )
 {
-    if ( indexOf(typ) < 0 ) { *this += typ; return true; }
+    if ( !isPresent(typ) ) { *this += typ; return true; }
     return false;
 }
 
