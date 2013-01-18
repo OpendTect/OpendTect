@@ -13,8 +13,9 @@ static const char* rcsID = "$Id$";
 
 #include "ioman.h"
 #include "ioobj.h"
-#include "seisioobjinfo.h"
 #include "multiid.h"
+#include "seisioobjinfo.h"
+#include "seisread.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
@@ -86,9 +87,9 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     seisgrp->attach( ensureBelow, sep );
     seisgrp->attach( alignedBelow, wellfld_ );
     
-    const bool has2d = SI().has2D(); 
-    const bool has3d = SI().has3D(); 
-    is2d_ = has2d; 
+    const bool has2d = SI().has2D();
+    const bool has3d = SI().has3D();
+    setupwasused_ = false;
 
     if ( has2d && has3d )
     {
@@ -98,7 +99,6 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	typefld_ = new uiGenInput( seisgrp, "Seismic", 
 					StringListInpSpec( seistypes ) );
 	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
-	typefld_->setValue( 1 );
     }
 
     if ( has2d )
@@ -151,7 +151,6 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	    			mCB(this,uiTieWinMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
 
-    seisSelChg(0);
     postFinalise().notify( mCB(this,uiTieWinMGRDlg,wellSelChg) );
 }
 
@@ -159,10 +158,12 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
     delete &wtsetup_;
-    delete wd_;
+    if ( wd_ )
+	delete wd_;
     delete seisctio3d_.ioobj; delete &seisctio3d_;
     delete seisctio2d_.ioobj; delete &seisctio2d_;
-    delete extractwvltdlg_;
+    if ( extractwvltdlg_ )
+	delete extractwvltdlg_;
     delWins();
 
 }
@@ -199,29 +200,27 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
 
 void uiTieWinMGRDlg::seisSelChg( CallBacker* )
 {
-    if ( typefld_ )
-	is2d_ = !typefld_->getIntValue();
+    setTypeFld();
 
-    seis3dfld_->display( !is2d_ );
-    seis2dfld_->display( is2d_ );
-    seislinefld_->display( is2d_ );
+    if ( seis3dfld_ )
+	seis3dfld_->display( !is2d_ );
+    if ( seis2dfld_ )
+	seis2dfld_->display( is2d_ );
+    if ( seislinefld_ )
+	seislinefld_->display( is2d_ );
 
     if ( !is2d_ && seis3dfld_ )
-    {
-	if ( seis3dfld_->isEmpty() )
-	    seis3dfld_->setInput( get3DSeisID() );
-    }
+	set3DSeis();
     else if ( is2d_ )
     {
 	if ( seis2dfld_ )
 	{
-	    if ( seis2dfld_->isEmpty() )
-		seis2dfld_->setInput( get2DSeisID() );
+	    set2DSeis();
 	    seis2dfld_->commitInput();
 	}
 	if ( seislinefld_ )
 	{
-	    seislinefld_->setInput("");
+	    setLine();
 	    if ( seisctio2d_.ioobj )
 		seislinefld_->setLineSet( seisctio2d_.ioobj->key() );
 	}
@@ -264,9 +263,6 @@ bool uiTieWinMGRDlg::getDefaults()
     WellTie::Reader wtr( fname );
     wtr.getWellTieSetup( wtsetup_ );
     logsfld_->setWellIDMain(wtsetup_.wellid_);
-
-    const bool was2d = wtsetup_.is2d_;
-    if ( typefld_ ) typefld_->setValue( !was2d );
 
     WellTie::UnitFactors units;
 
@@ -385,7 +381,6 @@ bool uiTieWinMGRDlg::initSetup()
     }
     else
 	wtsetup_.linekey_ = 0;
-    wtsetup_.is2d_ = is2d_;
 
     wtsetup_.seisid_ = seisfld->ctxtIOObj().ioobj->key();
     wtsetup_.wellid_ = wellfld_->ctxtIOObj().ioobj->key();
@@ -459,22 +454,53 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 }
 
 
-const MultiID uiTieWinMGRDlg::get3DSeisID() const
+void uiTieWinMGRDlg::set3DSeis() const
 {
-    const bool no3dseisid = wtsetup_.seisid_.isEmpty();
+    const LineKey curlk( seis3dfld_->getKey() );
+    const MultiID curid = curlk.lineName().buf();
     const FixedString seisidstr = SI().pars().find( sKey::DefCube );
+    const MultiID defaultid = seisidstr;
+    const MultiID setupid = wtsetup_.seisid_.isEmpty() ? 0 : wtsetup_.seisid_;
 
-    return no3dseisid ? seisidstr : wtsetup_.seisid_;
+    if ( !seis3dfld_->isEmpty() && ( curid != defaultid && curid != setupid ) )
+	return;
+    if ( !wtsetup_.seisid_.isEmpty() )
+    {
+	if ( seisIDIs3D( wtsetup_.seisid_ ) )
+	{
+	    seis3dfld_->setInput( wtsetup_.seisid_ );
+	}
+	return;
+    }
+    else
+    {
+	seis3dfld_->setInput( defaultid );
+	return;
+    }
 }
 
 
-const MultiID uiTieWinMGRDlg::get2DSeisID() const
+void uiTieWinMGRDlg::set2DSeis() const
 {
-    const bool no2dseisid = wtsetup_.seisid_.isEmpty();
-    BufferString lineidstr;
-    if ( no2dseisid )
+    const LineKey curlk( seis2dfld_->getKey() );
+    const MultiID curid = curlk.lineName().buf();
+    const FixedString lsid = SI().pars().find( sKey::DefLineSet );
+    const MultiID defaultid = lsid;
+    const MultiID setupid = wtsetup_.seisid_.isEmpty() ? 0 : wtsetup_.seisid_;
+
+    if ( !seis2dfld_->isEmpty() && ( curid != defaultid && curid != setupid ) )
+	return;
+    if ( !wtsetup_.seisid_.isEmpty() )
     {
-	const FixedString lsid = SI().pars().find( sKey::DefLineSet );
+	if ( !seisIDIs3D( wtsetup_.seisid_ ) )
+	{
+	    seis2dfld_->setInput( wtsetup_.seisid_ );
+	}
+	return;
+    }
+    else
+    {
+	BufferString lineidstr;
 	PtrMan<IOObj> lsobj = IOM().get( MultiID(lsid) );
 	BufferString attrnm = SI().pars().find( sKey::DefAttribute ).str();
 	if ( lsobj && attrnm.isEmpty() )
@@ -487,21 +513,58 @@ const MultiID uiTieWinMGRDlg::get2DSeisID() const
 		attrnm = attrnms.get(0);
 	}
 	lineidstr = LineKey( lsid, attrnm );
+	const MultiID seisid = lineidstr.buf();
+	seis2dfld_->setInput( seisid );
+	return;
     }
-    else
-    {
-	lineidstr = wtsetup_.seisid_;
-    }
-
-    return lineidstr.buf();
 }
 
 
-const BufferString uiTieWinMGRDlg::getLine() const
+void uiTieWinMGRDlg::setLine() const
 {
-    const bool nolineid = wtsetup_.linekey_ == 0;
+    BufferString linekey = "";
 
-    return nolineid ? "" : wtsetup_.linekey_;
+    if ( wtsetup_.linekey_ != 0 )
+    {
+	linekey = wtsetup_.linekey_;
+    }
+    else if ( seislinefld_->getInput() )
+    {
+	return;
+    }
+
+    seislinefld_->setInput( linekey );
+}
+
+
+void uiTieWinMGRDlg::setTypeFld()
+{
+    if ( !setupwasused_ )
+    {
+	is2d_ = SI().has2D();
+    }
+    else if ( typefld_ )
+    {
+	is2d_ = !typefld_->getIntValue();
+    }
+
+    if ( !wtsetup_.seisid_.isEmpty() && !setupwasused_ )
+    {
+	is2d_ = !seisIDIs3D( wtsetup_.seisid_ );
+	setupwasused_ = true;
+    }
+
+    if ( typefld_ )
+	typefld_->setValue( !is2d_ );
+}
+
+
+bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
+{
+    PtrMan<IOObj> ioobj = IOM().get( seisid );
+    SeisTrcReader rdr( ioobj );
+
+    return !rdr.is2D();
 }
 
 }; //namespace
