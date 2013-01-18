@@ -25,6 +25,9 @@ class SeisTrcWriter;
 class TaskRunner;
 namespace EM { class Horizon2D; }
 
+/*!
+\brief ExecutorGroup to create 2D seismic grid from 3D.
+*/
 
 mClass(EMAttrib) Seis2DGridCreator : public ExecutorGroup
 {
@@ -60,6 +63,10 @@ protected:
 	    				   const IOObj&,const CubeSampling&);
 };
 
+
+/*!
+\brief ExecutorGroup to create 2D horizon grid from 3D.
+*/
 
 mClass(EMAttrib) Horizon2DGridCreator : public ExecutorGroup
 {

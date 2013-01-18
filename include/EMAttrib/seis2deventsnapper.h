@@ -24,6 +24,9 @@ namespace Seis { class Horizon2D; }
 class SeisTrcReader;
 class IOObj;
 
+/*!
+\brief SeisEventSnapper for 2D.
+*/
 
 mClass(EMAttrib) Seis2DEventSnapper : public SeisEventSnapper
 {
@@ -56,6 +59,10 @@ protected:
     EM::Horizon2D&		newhor_;
 };
 
+
+/*!
+\brief ExecutorGroup to snap 2D seismic line set event.
+*/
 
 mClass(EMAttrib) Seis2DLineSetEventSnapper : public ExecutorGroup
 {

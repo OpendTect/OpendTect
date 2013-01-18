@@ -21,6 +21,10 @@ class BufferString;
 class BufferStringSet;
 class MultiID;
 
+/*!
+\brief ExecutorGroup to create EM::Horizon2D from EM::Horizon3D.
+*/
+
 mClass(EMAttrib) Hor2DFrom3DCreatorGrp : public ExecutorGroup
 {
 public:
@@ -34,6 +38,10 @@ protected:
     EM::Horizon2D&		hor2d_;
 };
 
+
+/*!
+\brief Executor to create EM::Horizon2D from EM::Horizon3D.
+*/
 
 mClass(EMAttrib) Hor2DFrom3DCreator : public Executor
 {

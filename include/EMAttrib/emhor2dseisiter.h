@@ -21,6 +21,10 @@ namespace EM { class Horizon2D; class Horizon2DGeometry; }
 namespace EM
 {
 
+/*!
+\brief Horizon2D line iterator.
+*/
+
 mClass(EMAttrib) Hor2DSeisLineIterator
 {
 public:
