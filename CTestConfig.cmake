@@ -3,7 +3,7 @@
 ## project to incorporate the testing dashboard.
 ## # The following are required to uses Dart and the Cdash dashboard
 
-set(CTEST_PROJECT_NAME "OpendTect_4_5")
+set(CTEST_PROJECT_NAME "OpendTect-4_5")
 set(CTEST_NIGHTLY_START_TIME "01:00:00 UTC")
 
 set(CTEST_DROP_METHOD "http")
