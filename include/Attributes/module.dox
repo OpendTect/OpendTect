@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 /*!
 \defgroup Attributes Attributes
-\section Introduction Introduction
 
   This module contains the definition of the 'standard' OpendTect attributes.
   Contained are attributes like Energy, Similarity, Volume Statistics, etc.
@@ -25,7 +24,6 @@ ________________________________________________________________________
   manual, section 'Plugins'. You'll find an annotated example of the Coherency
   attribute implementation.
 
-\section Content Content
 
 
 \namespace Attrib
