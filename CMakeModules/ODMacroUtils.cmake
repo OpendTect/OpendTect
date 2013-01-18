@@ -411,3 +411,16 @@ MACRO ( OD_ADD_PLUGIN_BATCHPROGS )
 	LIST( APPEND OD_MODULE_BATCHPROGS src/${OD_PLUGINSUBDIR}/${SRC} )
     ENDFOREACH()
 ENDMACRO()
+
+#Get current year
+macro ( OD_CURRENT_YEAR RESULT)
+    if (WIN32)
+        EXECUTE_PROCESS(COMMAND "powershell" " /C (get-date).year" OUTPUT_VARIABLE ${RESULT})
+    elseif(UNIX)
+        EXECUTE_PROCESS(COMMAND "date" "+%Y" OUTPUT_VARIABLE ${RESULT})
+    else (WIN32)
+        MESSAGE(SEND_ERROR "date not implemented")
+        SET(${RESULT} 0000)
+    endif (WIN32)
+endmacro (OD_CURRENT_YEAR )
+
