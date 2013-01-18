@@ -12,6 +12,7 @@
 add_custom_target( packages  ${CMAKE_COMMAND} 
         -DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR} 
         -DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR} 
+        -DOpendTect_VERSION_DETAIL=${OpendTect_VERSION_DETAIL} 
         -DOpendTect_VERSION_PATCH=${OpendTect_VERSION_PATCH} 
         -DOD_PLFSUBDIR=${OD_PLFSUBDIR} 
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} 
@@ -21,4 +22,3 @@ add_custom_target( packages  ${CMAKE_COMMAND}
         -P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
 #	DEPENDS do_install
         COMMENT "Creating packages" ) 
-
