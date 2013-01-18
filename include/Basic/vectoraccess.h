@@ -183,7 +183,7 @@ bool VectorAccess<T,I>::setSize( I sz, T val )
     return true;
 }
 
-#if __debug__
+#ifdef __debug__
 #define mImplOperator \
     return v_.at(idx); \
     //throws exception
@@ -224,7 +224,7 @@ I VectorAccess<T,I>::indexOf( const T& t, bool forward, I start ) const
 	if ( res==end )
 	    return -1;
 	
-	return res-v_.begin();
+	return mCast(I,res-v_.begin());
     }
 
     typename std::vector<T>::const_reverse_iterator begin = v_.rbegin();
@@ -247,7 +247,7 @@ I VectorAccess<T,I>::indexOf( const T& t, bool forward, I start ) const
 template<class T,class I> inline
 I VectorAccess<T,I>::count( const T& t ) const
 {
-    return std::count( v_.begin(), v_.end(), t );
+    return mCast(I,std::count(v_.begin(),v_.end(),t));
 }
 
 
