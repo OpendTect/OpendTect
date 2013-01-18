@@ -26,8 +26,9 @@ class FilePath;
 class JobIOHandler;
 template <class T> class ObjQueue;
 
-/*!\brief Encapsulates status message from a running client.
- *
+/*!
+\brief Encapsulates status message from a running client.
+
  * Running clients report back to the master on a regular basis.
  * Whenever a client contacts the master, whatever it has
  * to say is put into a StatusInfo structure.
@@ -35,6 +36,7 @@ template <class T> class ObjQueue;
  * between the communication thread and the GUI/manager thread.
  *
 */
+
 mClass(MMProc) StatusInfo
 {
 public:
@@ -54,11 +56,11 @@ public:
 };
 
 
-/*!\brief Handles starting&stopping of jobs on client machines
- 
-  sets up a separate thread to maintain contact with client.
-
+/*!
+\brief Handles starting & stopping of jobs on client machines. Sets up a
+separate thread to maintain contact with client.
 */
+
 mClass(MMProc) JobIOMgr : public CallBacker
 {
 public:

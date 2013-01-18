@@ -18,7 +18,6 @@ class IOPar;
 namespace MMProc
 {
 
-
 class ExecProxy
 {
     			ExecProxy(const char* prognm,const char* hostnm);

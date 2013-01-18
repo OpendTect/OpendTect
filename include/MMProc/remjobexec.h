@@ -20,6 +20,10 @@ class BufferString;
 class IOPar;
 class TcpSocket;
 
+/*!
+\brief Remote job executor
+*/
+
 mClass(MMProc) RemoteJobExec : public CallBacker
 {
 public:

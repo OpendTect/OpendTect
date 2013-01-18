@@ -17,8 +17,9 @@ ________________________________________________________________________
 
 class HostData;
 
-
-/*!\brief All info on a job. */
+/*!
+\brief All information on a job.
+*/
 
 mClass(MMProc) JobInfo
 {

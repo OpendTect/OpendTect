@@ -24,6 +24,9 @@ class StatusInfo;
 class BufferStringSet;
 class FilePath;
 
+/*!
+\brief Holds host-specific status information.
+*/
 
 mClass(MMProc) HostNFailInfo
 {
@@ -45,7 +48,9 @@ public:
 };
 
 
-/*!\brief Runs all jobs defined by JobDescProv. */
+/*!
+\brief Runs all jobs defined by JobDescProv.
+*/
 
 mClass(MMProc) JobRunner : public Executor
 {

@@ -20,7 +20,9 @@ class BufferStringSet;
 namespace MMProc
 {
 
-/*!\brief Knows available nodes and decides which to use. */
+/*!
+\brief Knows available nodes and decides which to use.
+*/
 
 mClass(MMProc) AssetMgr : public NamedObject
 {

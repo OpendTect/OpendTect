@@ -19,6 +19,10 @@ class BufferString;
 class IOPar;
 class TcpServer;
 
+/*!
+\brief Handles commands to be executed remotely on a different machine.
+*/
+
 mClass(MMProc) RemCommHandler : public CallBacker
 {
 public:

@@ -20,7 +20,9 @@ class IOPar;
 namespace MMProc
 {
 
-/*!\brief Distributed computing specification */
+/*!
+\brief Distributed computing specification.
+*/
 
 mClass(MMProc) ProgSpec : public NamedObject
 {
