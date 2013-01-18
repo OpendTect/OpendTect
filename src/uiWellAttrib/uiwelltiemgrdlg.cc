@@ -158,12 +158,9 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
     delete &wtsetup_;
-    if ( wd_ )
-	delete wd_;
     delete seisctio3d_.ioobj; delete &seisctio3d_;
     delete seisctio2d_.ioobj; delete &seisctio2d_;
-    if ( extractwvltdlg_ )
-	delete extractwvltdlg_;
+    delete extractwvltdlg_;
     delWins();
 
 }
