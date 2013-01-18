@@ -44,7 +44,7 @@ class TrackPlane;
 class ObjectEditor;
 
 /*!
-\ingroup MPEEngine
+\brief Use DataHolder instead.
 */
 
 mClass(MPEEngine) AbstDataHolder : public CallBacker
@@ -56,7 +56,7 @@ public:
 
 
 /*!
-\ingroup MPEEngine
+\brief Holds attribute data for tracking.
 */
 
 mClass(MPEEngine) DataHolder : public AbstDataHolder
@@ -117,7 +117,7 @@ private:
 
 
 /*!
-\ingroup MPEEngine
+\brief Main engine for tracking EM objects like horizons, faults etc.,
 */
 
 mClass(MPEEngine) Engine : public CallBacker

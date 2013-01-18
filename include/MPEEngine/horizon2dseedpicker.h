@@ -22,6 +22,10 @@ namespace Attrib { class Data2DHolder; class SelSpec; }
 namespace MPE
 {
 
+/*!
+\brief EMSeedPicker to pick seeds in EM::Horizon2D.
+*/
+
 mClass(MPEEngine) Horizon2DSeedPicker : public EMSeedPicker
 {
 public:

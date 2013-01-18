@@ -33,7 +33,11 @@ class SeisTrc;
 
 
 namespace MPE {
-    
+
+/*!
+\brief SequentialTask to autotrack EM::Horizon.
+*/
+
 mClass HorizonAutoTracker : public SequentialTask
 {
 public:	

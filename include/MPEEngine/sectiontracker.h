@@ -29,11 +29,13 @@ namespace MPE
 
 class TrackPlane;
 
-
 class SectionSourceSelector;
 class SectionExtender;
 class SectionAdjuster;
 
+/*!
+\brief Tracks sections of EM::EMObject with ID EM::SectionID.
+*/
 
 mClass(MPEEngine) SectionTracker
 {

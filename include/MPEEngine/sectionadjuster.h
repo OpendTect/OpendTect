@@ -27,6 +27,11 @@ namespace MPE
 
 class SectionExtender;
 
+/*!
+\brief SequentialTask to adjust the section of an EM object with ID
+EM::SectionID.
+*/
+
 mClass(MPEEngine) SectionAdjuster : public SequentialTask
 {
 public:

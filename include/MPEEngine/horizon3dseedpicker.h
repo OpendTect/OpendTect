@@ -22,6 +22,10 @@ namespace Attrib { class SelSpec; }
 namespace MPE
 {
 
+/*!
+\brief EMSeedPicker to pick seeds in EM::Horizon3D.
+*/
+
 mClass(MPEEngine) Horizon3DSeedPicker : public EMSeedPicker
 {
 public:

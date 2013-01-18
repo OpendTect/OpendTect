@@ -25,9 +25,8 @@ namespace MPE
 {
 
 /*!
-handles adding of seeds and retracking of events based on new seeds.
-
-An instance of the class is usually avaiable from the each EMTracker.
+\brief Handles adding of seeds and retracking of events based on new seeds. An
+instance of the class is usually available from each EMTracker.
 */
 
 mClass(MPEEngine) EMSeedPicker: public CallBacker

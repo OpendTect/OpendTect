@@ -12,12 +12,10 @@ ________________________________________________________________________
 
 /*!
 \defgroup MPEEngine MPEEngine
-\section Introduction Introduction
+
   MPE stands for Model, Predict, Edit and is where all tracking and editing
   functions are located. The functionality is managed by the MPEEngine, and
   a static instance of that can be retrieved by MPE::engine().
-
-\section Content Content
 
 */
 

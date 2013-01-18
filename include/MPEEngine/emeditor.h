@@ -29,8 +29,9 @@ namespace Geometry { class ElementEditor; };
 namespace MPE
 {
 
-/*!Abstractation of EM Object editing. It gives lists of which nodes that
-   may be moved, and in what manner.
+/*!
+\brief Abstraction of EM Object editing. It gives lists of which nodes that may
+be moved, and in what manner.
 
    Editing has three easy steps:
    \code

@@ -20,6 +20,10 @@ namespace EM { class Fault3D; };
 namespace MPE
 {
 
+/*!
+\brief SectionAdjuster to adjust EM::Fault3D.
+*/
+
 mClass(MPEEngine) FaultAdjuster : public SectionAdjuster
 {
 public:

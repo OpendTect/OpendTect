@@ -19,6 +19,10 @@ ________________________________________________________________________
 namespace MPE
 {
 
+/*!
+\brief EMSeedPicker to pick faults.
+*/
+
 mClass(MPEEngine) FaultSeedPicker : public EMSeedPicker
 {
 public:

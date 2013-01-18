@@ -18,10 +18,11 @@ ________________________________________________________________________
 
 class IOPar;
 
-
-/*!\brief MPE Setup read/save */
-
 namespace MPE {
+
+/*!
+\brief MPE Setup read/save.
+*/
 
 mClass(MPEEngine) Setup
 {
@@ -44,6 +45,10 @@ protected:
 
 typedef MPE::Setup MPESetup;
 
+/*!
+\brief TranslatorGroup for MPE::Setup.
+*/
+
 mClass(MPEEngine) MPESetupTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(MPESetup)
 public:
@@ -51,6 +56,10 @@ public:
     const char*		defExtension() const		{ return "ts"; }
 };
 
+
+/*!
+\brief Translator for MPE::Setup.
+*/
 
 mClass(MPEEngine) MPESetupTranslator : public Translator
 {
@@ -74,6 +83,10 @@ public:
 
 };
     
+
+/*!
+\brief MPESetupTranslator for dgbMPESetup.
+*/
 
 mClass(MPEEngine) dgbMPESetupTranslator : public MPESetupTranslator
 {				  isTranslator(dgb,MPESetup)

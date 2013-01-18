@@ -29,6 +29,10 @@ namespace MPE
 class DataHolder;
 class SectionExtender;
 
+/*!
+\brief SectionAdjuster to adjust EM::Horizon.
+*/
+
 mClass(MPEEngine) HorizonAdjuster : public SectionAdjuster
 {
 public:

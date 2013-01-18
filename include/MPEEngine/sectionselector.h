@@ -30,6 +30,10 @@ namespace MPE
 
 class TrackPlane;
 
+/*!
+\brief SequentialTask to select source of an EM section with ID EM::SectionID.
+*/
+
 mClass(MPEEngine) SectionSourceSelector : public SequentialTask
 {
 public:

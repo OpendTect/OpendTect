@@ -21,6 +21,10 @@ template <class T> class Selector;
 namespace MPE
 {
 
+/*!
+\brief ObjectEditor to edit EM::FaultStickSet.
+*/
+
 mClass(MPEEngine) FaultStickSetEditor : public ObjectEditor
 {
 public:

@@ -24,8 +24,8 @@ class Plane3;
 namespace MPE
 {
 
-/*!\brief
-
+/*!
+\brief
 */
 
 mClass(MPEEngine) TrackPlane

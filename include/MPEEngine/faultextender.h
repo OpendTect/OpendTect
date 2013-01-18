@@ -22,6 +22,10 @@ namespace EM { class Fault3D; };
 namespace MPE
 {
 
+/*!
+\brief SectionExtender to extend EM::Fault3D.
+*/
+
 mClass(MPEEngine) FaultExtender : public SectionExtender
 {
 public:

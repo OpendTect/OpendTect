@@ -19,6 +19,10 @@ namespace EM { class Horizon2D; };
 namespace MPE
 {
 
+/*!
+\brief SectionSourceSelector to select EM::Horizon2D.
+*/
+
 mClass(MPEEngine) Horizon2DSelector : public SectionSourceSelector
 {
 public:

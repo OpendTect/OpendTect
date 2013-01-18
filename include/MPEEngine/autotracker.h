@@ -33,6 +33,10 @@ class SectionAdjuster;
 class SectionExtender;
 class EMTracker;
 
+/*!
+\brief Executor to auto track.
+*/
+
 mClass(MPEEngine) AutoTracker : public Executor
 {
 public:
@@ -75,7 +79,6 @@ protected:
 
     BufferString		execmsg_;
 };
-
 
 
 }; // namespace MPE

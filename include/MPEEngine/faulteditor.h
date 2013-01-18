@@ -23,6 +23,10 @@ template <class T> class Selector;
 namespace MPE
 {
 
+/*!
+\brief ObjectEditor to edit EM::Fault3D.
+*/
+
 mClass(MPEEngine) FaultEditor : public ObjectEditor
 {
 public:

@@ -21,6 +21,10 @@ template <class T> class Selector;
 namespace MPE
 {
 
+/*!
+\brief ObjectEditor to edit EM::PolygonBody.
+*/
+
 mClass(MPEEngine) PolygonBodyEditor : public ObjectEditor
 {
 public:

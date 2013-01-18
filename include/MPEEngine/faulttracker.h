@@ -24,6 +24,10 @@ namespace MPE
 
 class FaultSeedPicker;
 
+/*!
+\brief EMTracker to track EM::Fault3D.
+*/
+
 mClass(MPEEngine) FaultTracker : public EMTracker
 {
 public:

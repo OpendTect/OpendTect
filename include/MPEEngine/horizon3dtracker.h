@@ -24,7 +24,8 @@ namespace MPE
 
 class Horizon3DSeedPicker;
 
-/*!\brief Horizon tracker
+/*!
+\brief EMTracker to track EM::Horizon3D.
 */
 
 mClass(MPEEngine) Horizon3DTracker : public EMTracker

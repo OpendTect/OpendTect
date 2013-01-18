@@ -22,6 +22,10 @@ namespace EM { class Horizon3D; class Horizon2D; };
 namespace MPE
 {
 
+/*!
+\brief ObjectEditor to edit EM::Horizon3D.
+*/
+
 mClass(MPEEngine) HorizonEditor : public ObjectEditor
 {
 public:
@@ -59,6 +63,10 @@ protected:
     int				vertstyle;
 };
 
+
+/*!
+\brief ObjectEditor to edit EM::Horizon2D.
+*/
 
 mClass(MPEEngine) Horizon2DEditor : public ObjectEditor
 {

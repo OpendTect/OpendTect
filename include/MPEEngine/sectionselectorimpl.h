@@ -26,6 +26,10 @@ namespace EM { class Horizon3D; }
 namespace MPE
 {
 
+/*!
+\brief BinID SectionSourceSelector.
+*/
+
 mClass(MPEEngine) BinIDSurfaceSourceSelector : public SectionSourceSelector
 {
 public:
@@ -39,6 +43,9 @@ protected:
 };
 
 
+/*!
+\brief Surface SectionSourceSelector
+*/
 
 mClass(MPEEngine) SurfaceSourceSelector : public SectionSourceSelector
 {

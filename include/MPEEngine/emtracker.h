@@ -32,6 +32,10 @@ class SectionTracker;
 class TrackPlane;
 class EMSeedPicker;
 
+/*!
+\brief Tracks EM objects.
+*/
+
 mClass(MPEEngine) EMTracker
 {
 mRefCountImplWithDestructor(EMTracker,virtual ~EMTracker(),delete this;);

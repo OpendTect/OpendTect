@@ -34,6 +34,11 @@ namespace MPE
 
 class SectionSourceSelector;
 
+/*!
+\brief SequentialTask to extend the section of an EM object with ID
+EM::SectionID.
+*/
+
 mClass(MPEEngine) SectionExtender : public SequentialTask
 {
 public:
