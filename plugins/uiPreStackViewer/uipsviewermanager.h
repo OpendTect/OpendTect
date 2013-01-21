@@ -26,7 +26,7 @@ namespace visSurvey { class PreStackDisplay; }
 namespace PreStackView
 {
 
-class uiViewer2DMainWin;
+class uiStoredViewer2DMainWin;
 class uiViewer3DPositionDlg;
 
 /*!Manages pre-stack data displays in 2D (panel) and 3D (visualization). The 
@@ -57,7 +57,7 @@ public:
 
 protected:
     
-    uiViewer2DMainWin*	createMultiGather2DViewer(
+    uiStoredViewer2DMainWin*	createMultiGather2DViewer(
 					const visSurvey::PreStackDisplay&);
     uiFlatViewMainWin*	create2DViewer(const BufferString&,int dpid);
 
@@ -94,7 +94,7 @@ protected:
     ObjectSet<visSurvey::PreStackDisplay>	viewers3d_;
     ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
     ObjectSet<uiFlatViewMainWin>	viewers2d_;
-    ObjectSet<uiViewer2DMainWin>	multiviewers2d_;
+    ObjectSet<uiStoredViewer2DMainWin>	multiviewers2d_;
 };
 
 } // namespace

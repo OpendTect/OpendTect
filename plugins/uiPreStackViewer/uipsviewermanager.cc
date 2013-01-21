@@ -484,7 +484,7 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
 }
 
 
-uiViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer( 
+uiStoredViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer( 
 				    const visSurvey::PreStackDisplay& psv )
 {
     const MultiID mid = psv.getMultiID();
@@ -500,7 +500,8 @@ uiViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer(
 	title += ioobj->name();
     title += "]";
 
-    uiViewer2DMainWin* viewwin = new uiViewer2DMainWin( ODMainWin(), title ); 
+    uiStoredViewer2DMainWin* viewwin =
+	new uiStoredViewer2DMainWin( ODMainWin(), title ); 
     viewwin->show();
     const StepInterval<int>& trcrg = psv.getTraceRange( psv.getBinID() );
     viewwin->init( mid, psv.getDataPackID(), psv.isOrientationInline(), trcrg,
@@ -514,7 +515,7 @@ uiViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer(
 
 void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
 {
-    mDynamicCastGet( uiViewer2DMainWin*, win, cb )
+    mDynamicCastGet( uiStoredViewer2DMainWin*, win, cb )
     if ( !win )
 	{ pErrMsg( "Can not find viewer" ); return; }
 

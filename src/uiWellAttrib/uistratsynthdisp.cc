@@ -13,17 +13,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseiswvltsel.h"
 #include "uisynthtorealscale.h"
 #include "uicombobox.h"
+#include "uigeninput.h"
 #include "uigraphicsview.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
-#include "uimultiflatviewcontrol.h"
-#include "uigeninput.h"
+#include "uiflatviewslicepos.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uimultiflatviewcontrol.h"
 #include "uimsg.h"
-#include "uiseparator.h"
-#include "uiflatviewslicepos.h"
+#include "uipsviewer2dmainwin.h"
 #include "uiraytrace1d.h"
+#include "uiseparator.h"
 #include "uispinbox.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
@@ -566,31 +567,37 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
 
 void uiStratSynthDisp::displayPreStackDirSynthetic( const SyntheticData* sd )
 {
-    const int midx = prestackwin_ ? modelposfld_->getValue() : -1;
-    CBCapsule<int> caps( midx, this );
-    modSelChanged.trigger( &caps );
-
     if ( !prestackwin_ ) return;
-
-    uiFlatViewer& vwr = prestackwin_->viewer();
 
     if ( !sd ) return;
     mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,&sd->getPack())
     if ( !gsetdp ) return;
 
-    PreStack::Gather* gdp = new PreStack::Gather(*gsetdp->getGathers()[midx-1]);
-    DPM(DataPackMgr::FlatID()).add( gdp );
-    gdp->setName( sd->name() );
+    prestackwin_->removeDataPacks();
+    TypeSet<PreStackView::GatherInfo> gatherinfos;
+    const ObjectSet<PreStack::Gather>& gathers = gsetdp->getGathers();
+    for ( int idx=0; idx<gathers.size(); idx++ )
+    {
+	PreStack::Gather* gather = new PreStack::Gather( *gathers[idx] );
+	DPM(DataPackMgr::FlatID()).add( gather );
 
-    vwr.clearAllPacks();
-    vwr.removeAllAuxData( true );
+	PreStackView::GatherInfo gatherinfo;
+	gatherinfo.gathernm_ = sd->name();
+	gatherinfo.bid_ = gather->getBinID();
+	gatherinfo.dpid_ = gather->id();
+	gatherinfos += gatherinfo;
+    }
 
-    vwr.setPack( false, gdp->id(), false ); 
-    vwr.setPack( true, gdp->id(), false ); 
+    prestackwin_->setDataPacks( gatherinfos );
+    /* TODO have to apply some where;
+    ColTab::MapperSetup& mapper = vwr.appearance().ddpars_.vd_.mappersetup_;
+    mapper.cliprate_ = Interval<float>(0.0,0.0);
+    mapper.autosym0_ = true;
+    mapper.symmidval_ = 0.0;*/
 }
 
 
-void uiStratSynthDisp::viewPreStackPush( CallBacker* )
+void uiStratSynthDisp::viewPreStackPush( CallBacker* cb )
 {
     if ( prestackwin_ )
     {
@@ -598,37 +605,22 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* )
 	prestackwin_ = 0;
     }
 
-    if ( currentsynthetic_ && currentsynthetic_->isPS() )
-    {
-	uiFlatViewMainWin::Setup su( "Pre-Stack view", false );
-	prestackwin_ = new uiFlatViewMainWin( 0, su );
 
-	uiFlatViewStdControl::Setup fvsu( prestackwin_ );
-	fvsu.withthumbnail( false ).withcoltabed( false )
-		.tba( (int)uiToolBar::Top );
-	uiFlatViewStdControl* ctrl = new uiFlatViewStdControl( 
-					prestackwin_->viewer(), fvsu );
-	uiToolBar* tb = ctrl->toolBar();
-	prestackwin_->addControl( ctrl );
-	modelposfld_ = new uiSynthSlicePos( tb, "Model" );
-	tb->addObject( modelposfld_->mainObject() );
-	modelposfld_->positionChg.notify( 
-		mCB(this,uiStratSynthDisp,modelPosChged) );
-	StepInterval<float> ls(  1, mCast(float,layerModel().size()), 1 );
-	modelposfld_->setLimitSampling( ls );
-
-	prestackwin_->setInitialSize( 300, 500 );
-	FlatView::Appearance& app = prestackwin_->viewer(0).appearance();
-	app.setGeoDefaults( true );
-	app.setDarkBG( false );
-	app.annot_.title_.setEmpty();
-	app.annot_.x1_.showAll( true );
-	app.annot_.x2_.showAll( true );
-	app.annot_.x2_.name_ = "TWT (s)";
-	app.ddpars_.show( true, true );
-	prestackwin_->start();
-    }
+    if ( !currentsynthetic_ || !currentsynthetic_->isPS() )
+	return;
+    prestackwin_ =
+	new PreStackView::uiSyntheticViewer2DMainWin(this,"Prestack view");
     displayPreStackDirSynthetic( currentsynthetic_ );
+    prestackwin_->show();
+    uiToolBar* tb = prestackwin_->control()->toolBar();
+    modelposfld_ = new uiSynthSlicePos( tb, "Model" );
+    tb->addObject( modelposfld_->mainObject() );
+    modelposfld_->positionChg.notify( 
+	    mCB(this,uiStratSynthDisp,modelPosChged) );
+    StepInterval<float> ls(  1, mCast(float,layerModel().size()), 1 );
+    modelposfld_->setLimitSampling( ls );
+
+    prestackwin_->setInitialSize( 300, 500 );
 }
 
 
@@ -692,9 +684,6 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 	setCurrentSynthetic();
 	currentsynthetic_->fillGenParams( stratsynth_.genParams() );
     }
-
-    /* TODO remove if ( synthgendlg_)
-	synthgendlg_->putToScreen();*/
 }
 
 
