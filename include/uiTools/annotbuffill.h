@@ -27,12 +27,12 @@ class uiRGBArray;
 typedef Geom::Point2D<double> dPoint;
 typedef Geom::Point2D<int> iPoint;
 
-mClass(uiTools) AnnotBufferFiller
+mExpClass(uiTools) AnnotBufferFiller
 {
 
 public:
 
-    mClass(uiTools) LineInfo
+    mExpClass(uiTools) LineInfo
     {
 	public:
 

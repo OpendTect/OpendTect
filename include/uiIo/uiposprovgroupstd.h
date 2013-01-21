@@ -28,7 +28,7 @@ class uiIOFileSelect;
 
 /*! \brief UI for RangePosProvider */
 
-mClass(uiIo) uiRangePosProvGroup : public uiPosProvGroup
+mExpClass(uiIo) uiRangePosProvGroup : public uiPosProvGroup
 {
 public:
 
@@ -60,7 +60,7 @@ protected:
 
 /*! \brief UI for PolyPosProvider */
 
-mClass(uiIo) uiPolyPosProvGroup : public uiPosProvGroup
+mExpClass(uiIo) uiPolyPosProvGroup : public uiPosProvGroup
 {
 public:
 			uiPolyPosProvGroup(uiParent*,
@@ -93,7 +93,7 @@ protected:
 
 /*! \brief UI for TablePosProvider */
 
-mClass(uiIo) uiTablePosProvGroup : public uiPosProvGroup
+mExpClass(uiIo) uiTablePosProvGroup : public uiPosProvGroup
 {
 public:
 			uiTablePosProvGroup(uiParent*,

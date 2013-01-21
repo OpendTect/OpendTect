@@ -89,7 +89,7 @@ int LoadPlugin(const char* libnm);
   You can change the source_ to None before calling loadAuto().
 */
 
-mClass(Basic) PluginManager
+mExpClass(Basic) PluginManager
 {
 public:
 

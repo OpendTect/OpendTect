@@ -27,7 +27,7 @@ namespace Vel
 
 /*!Dialog to setup a velocity conversion for volumes on disk. */
 
-mClass(uiSeis) uiBatchVolumeConversion : public uiFullBatchDialog
+mExpClass(uiSeis) uiBatchVolumeConversion : public uiFullBatchDialog
 {
 public:
 			uiBatchVolumeConversion(uiParent*);

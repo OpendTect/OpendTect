@@ -34,7 +34,7 @@ class Transformation;
    will do the display work after add nb to your scene! 
 */
 
-mClass(visBase) RandomPos2Body : public VisualObjectImpl
+mExpClass(visBase) RandomPos2Body : public VisualObjectImpl
 {
 public:
     static RandomPos2Body*	create()

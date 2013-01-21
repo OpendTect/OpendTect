@@ -27,7 +27,7 @@ class uiLabel;
 
 /*! \brief Generate random lines from contours of a horizon */
 
-mClass(uiEarthModel) uiGenRanLinesByContour : public uiDialog
+mExpClass(uiEarthModel) uiGenRanLinesByContour : public uiDialog
 {
 public:
 			uiGenRanLinesByContour(uiParent*);
@@ -65,7 +65,7 @@ protected:
 
 /*! \brief Generate random lines by shifting an existing */
 
-mClass(uiEarthModel) uiGenRanLinesByShift : public uiDialog
+mExpClass(uiEarthModel) uiGenRanLinesByShift : public uiDialog
 {
 public:
 			uiGenRanLinesByShift(uiParent*);
@@ -92,7 +92,7 @@ protected:
 
 /*! \brief Generate random line from polygon */
 
-mClass(uiEarthModel) uiGenRanLineFromPolygon : public uiDialog
+mExpClass(uiEarthModel) uiGenRanLineFromPolygon : public uiDialog
 {
 public:
 			uiGenRanLineFromPolygon(uiParent*);

@@ -24,7 +24,7 @@ class uiFlatViewAuxDataEditor;
 namespace MPE { class Fault3DFlatViewEditor; class FaultEditor; }
 
 
-mClass(uiViewer2D) VW2DFault : public Vw2DEMDataObject
+mExpClass(uiViewer2D) VW2DFault : public Vw2DEMDataObject
 {
 public:
     static VW2DFault* 	create(const EM::ObjectID& id,uiFlatViewWin* win,

@@ -24,7 +24,7 @@ namespace Pos
 
 /*!\brief Provider based on BinIDValueSet table */
 
-mClass(Geometry) TableProvider3D : public Provider3D
+mExpClass(Geometry) TableProvider3D : public Provider3D
 {
 public:
 

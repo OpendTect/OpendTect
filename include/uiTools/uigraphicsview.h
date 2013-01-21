@@ -18,7 +18,7 @@ ________________________________________________________________________
 class uiToolButton;
 class uiParent;
 
-mClass(uiTools) uiGraphicsView : public uiGraphicsViewBase
+mExpClass(uiTools) uiGraphicsView : public uiGraphicsViewBase
 {
 public:
 				uiGraphicsView(uiParent*,const char* nm);

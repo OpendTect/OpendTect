@@ -24,7 +24,7 @@ template <class T> class Array1D;
 \brief Base class for one dimensional array interpolators.
 */
 
-mClass(Algo) Array1DInterpol : public Executor
+mExpClass(Algo) Array1DInterpol : public Executor
 {
 public:
     virtual			~Array1DInterpol();
@@ -54,7 +54,7 @@ protected:
 \brief Does linear interpolation of one dimensional arrays.
 */
 
-mClass(Algo) LinearArray1DInterpol : public Array1DInterpol
+mExpClass(Algo) LinearArray1DInterpol : public Array1DInterpol
 {
 public:
     				LinearArray1DInterpol();
@@ -68,7 +68,7 @@ protected:
 \brief Uses a 3rd degree polynomial for interpolation of one dimensional arrays.
 */
 
-mClass(Algo) PolyArray1DInterpol : public Array1DInterpol
+mExpClass(Algo) PolyArray1DInterpol : public Array1DInterpol
 {
 public:
     				PolyArray1DInterpol();

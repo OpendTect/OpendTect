@@ -30,7 +30,7 @@ class DrawStyle;
 class IndexedPolyLine;
 class Transformation;
 
-mClass(visBase) GridLines : public VisualObjectImpl
+mExpClass(visBase) GridLines : public VisualObjectImpl
 {
 public:
     static GridLines*		create()

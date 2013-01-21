@@ -27,7 +27,7 @@ template <class T> class ValueSeries;
   Taper is cosine taper.
 */
 
-mClass(Algo) Muter
+mExpClass(Algo) Muter
 {
 public:
     			Muter( float taperlen, bool tail=false )

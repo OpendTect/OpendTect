@@ -36,7 +36,7 @@ Aliases are matched with a GlobExpr, so you can add with wildcards and the like.
 
  */
 
-mClass(General) PropertyRef : public NamedObject
+mExpClass(General) PropertyRef : public NamedObject
 {
 public:
 
@@ -107,7 +107,7 @@ protected:
 };
 
 
-mClass(General) PropertyRefSet : public ObjectSet<PropertyRef>
+mExpClass(General) PropertyRefSet : public ObjectSet<PropertyRef>
 {
 public:
 
@@ -154,7 +154,7 @@ mGlobal(General) const PropertyRefSet& PROPS();
 inline PropertyRefSet& ePROPS() { return const_cast<PropertyRefSet&>(PROPS()); }
 
 
-mClass(General) PropertyRefSelection : public ObjectSet<const PropertyRef>
+mExpClass(General) PropertyRefSelection : public ObjectSet<const PropertyRef>
 {
 public:
 

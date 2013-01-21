@@ -23,7 +23,7 @@ class uiStepOutSel;
 
 /*! \brief Position Attribute description editor */
 
-mClass(uiAttributes) uiPositionAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiPositionAttrib : public uiAttrDescEd
 {
 public:
 

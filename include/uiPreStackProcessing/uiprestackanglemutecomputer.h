@@ -27,7 +27,7 @@ namespace PreStack
     class uiAngleMuteGrp;
     class AngleMuteComputer;
 
-mClass(uiPreStackProcessing) uiAngleMuteComputer : public uiDialog
+mExpClass(uiPreStackProcessing) uiAngleMuteComputer : public uiDialog
 {
 public:
 			uiAngleMuteComputer(uiParent*);

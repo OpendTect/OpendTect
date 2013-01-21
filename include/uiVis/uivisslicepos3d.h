@@ -25,7 +25,7 @@ class uiVisPartServer;
 
 /*! \brief Toolbar for setting slice position _ 3D visualization display */
 
-mClass(uiVis) uiSlicePos3DDisp : public uiSlicePos
+mExpClass(uiVis) uiSlicePos3DDisp : public uiSlicePos
 {
 public:		
 			uiSlicePos3DDisp(uiParent*,uiVisPartServer*);

@@ -26,7 +26,7 @@ using namespace Attrib;
 
 /*! \brief FingerPrint Attribute parameters calculator */
 
-mClass(uiAttributes) calcFingParsObject
+mExpClass(uiAttributes) calcFingParsObject
 {
 public:
     			calcFingParsObject(uiParent*);

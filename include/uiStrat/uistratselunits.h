@@ -21,13 +21,13 @@ class uiComboBox;
 
 
 
-mClass(uiStrat) uiStratSelUnits : public uiGroup
+mExpClass(uiStrat) uiStratSelUnits : public uiGroup
 {
 public:
 
     enum Type	{ Simple, Single, Multi };
 
-    mClass(uiStrat) Setup
+    mExpClass(uiStrat) Setup
     {
     public:
 

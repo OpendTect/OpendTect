@@ -22,7 +22,7 @@ namespace visBase
 {
 
 
-mClass(visBase) Anchor : public DataObjectGroup
+mExpClass(visBase) Anchor : public DataObjectGroup
 {
 public:
     static Anchor*	create()

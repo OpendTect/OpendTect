@@ -31,7 +31,7 @@ If the SurvGeom has full rectangularity, cubedata can be ignored.
 
 */
 
-mClass(General) CBVSInfo
+mExpClass(General) CBVSInfo
 {
 public:
 

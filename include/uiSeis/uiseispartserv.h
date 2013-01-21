@@ -36,7 +36,7 @@ namespace Geometry { class RandomLine; }
 \brief Seismic User Interface Part Server
 */
 
-mClass(uiSeis) uiSeisPartServer : public uiApplPartServer
+mExpClass(uiSeis) uiSeisPartServer : public uiApplPartServer
 {
 public:
 			uiSeisPartServer(uiApplService&);

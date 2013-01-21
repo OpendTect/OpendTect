@@ -23,7 +23,7 @@ namespace MPE
 \brief SectionSourceSelector to select EM::Horizon2D.
 */
 
-mClass(MPEEngine) Horizon2DSelector : public SectionSourceSelector
+mExpClass(MPEEngine) Horizon2DSelector : public SectionSourceSelector
 {
 public:
     				Horizon2DSelector(const EM::Horizon2D&,

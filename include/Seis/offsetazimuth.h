@@ -23,7 +23,7 @@ The offset has a precision of 0.1 meter and have the range of -419430 and
 circle).
 */
 
-mClass(Seis) OffsetAzimuth
+mExpClass(Seis) OffsetAzimuth
 {
 public:
 			OffsetAzimuth() : offsetazi_( 0 ) 		{}

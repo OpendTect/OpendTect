@@ -28,7 +28,7 @@ class uiSliceScroll;
 namespace Threads { class Mutex; };
 
 
-mClass(uiTools) uiSliceSel : public uiGroup
+mExpClass(uiTools) uiSliceSel : public uiGroup
 {
 public:
     enum Type			{ Inl, Crl, Tsl, Vol, TwoD };
@@ -84,7 +84,7 @@ protected:
 };
 
 
-mClass(uiTools) uiSliceSelDlg : public uiDialog
+mExpClass(uiTools) uiSliceSelDlg : public uiDialog
 {
 public:
     				uiSliceSelDlg(uiParent*,

@@ -51,7 +51,7 @@ class Scene;
 
 */
 
-mClass(visSurvey) WellDisplay : public visBase::VisualObjectImpl
+mExpClass(visSurvey) WellDisplay : public visBase::VisualObjectImpl
 		   , public visSurvey::SurveyObject
 {
 public:

@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace Table
 {
 
-mClass(General) ImportHandler
+mExpClass(General) ImportHandler
 {
 public:
     			ImportHandler( std::istream& strm )
@@ -58,7 +58,7 @@ protected:
 };
 
 
-mClass(General) ExportHandler
+mExpClass(General) ExportHandler
 {
 public:
     			ExportHandler( std::ostream& strm )
@@ -88,7 +88,7 @@ protected:
 
 
 
-mClass(General) Converter : public Executor
+mExpClass(General) Converter : public Executor
 {
 public:
     			Converter( ImportHandler& i, ExportHandler& o )

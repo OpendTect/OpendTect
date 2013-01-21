@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class IOPar;
 
-mClass(uiWell) uiWellSel : public uiIOObjSel
+mExpClass(uiWell) uiWellSel : public uiIOObjSel
 {
 public:
 			uiWellSel(uiParent*,bool forread,const char* lbltxt=0);
@@ -28,7 +28,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellParSel : public uiCompoundParSel
+mExpClass(uiWell) uiWellParSel : public uiCompoundParSel
 {
 public:
 			uiWellParSel(uiParent*);

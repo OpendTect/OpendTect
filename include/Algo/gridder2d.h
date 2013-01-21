@@ -30,7 +30,7 @@ class Triangle2DInterpolator;
 \brief Generic interface for 2D gridding.
 */
 
-mClass(Algo) Gridder2D
+mExpClass(Algo) Gridder2D
 {
 public:
 			mDefineFactoryInClass(Gridder2D,factory);
@@ -112,7 +112,7 @@ protected:
 \brief Uses inverse distance method for 2D gridding.
 */
 
-mClass(Algo) InverseDistanceGridder2D : public Gridder2D 
+mExpClass(Algo) InverseDistanceGridder2D : public Gridder2D 
 {
 public:
     mDefaultFactoryInstantiation( Gridder2D,
@@ -150,7 +150,7 @@ protected:
 inverse distance between the neighbors.
 */
 
-mClass(Algo) TriangulatedGridder2D: public Gridder2D
+mExpClass(Algo) TriangulatedGridder2D: public Gridder2D
 {
 public:
     mDefaultFactoryInstantiation( Gridder2D,

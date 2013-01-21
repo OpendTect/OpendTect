@@ -21,7 +21,7 @@ namespace Pos
 
 /*!\brief 3D provider based on CubeSampling */
 
-mClass(General) RangeProvider3D : public Provider3D
+mExpClass(General) RangeProvider3D : public Provider3D
 {
 public:
 
@@ -76,7 +76,7 @@ Can only be used if Line2DData is filled.
 
  */
 
-mClass(General) RangeProvider2D : public Provider2D
+mExpClass(General) RangeProvider2D : public Provider2D
 {
 public:
 

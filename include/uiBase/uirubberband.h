@@ -19,7 +19,7 @@ mFDQtclass(QMouseEvent)
 mFDQtclass(QRubberBand)
 mFDQtclass(QWidget)
 
-mClass(uiBase) uiRubberBand
+mExpClass(uiBase) uiRubberBand
 {
 public:
     			uiRubberBand(mQtclass(QWidget*) p)

@@ -39,7 +39,7 @@ namespace EM { class Horizon3D; }
 
 /*! \brief Dialog for Horizon Import */
 
-mClass(uiEarthModel) uiImportHorizon : public uiDialog
+mExpClass(uiEarthModel) uiImportHorizon : public uiDialog
 {
 public:
     static void		initClass();

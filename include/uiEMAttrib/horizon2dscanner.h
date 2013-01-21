@@ -25,7 +25,7 @@ namespace PosInfo { class Line2DData; }
 namespace EM { class Horizon2DAscIO; }
 namespace Table { class FormatDesc; }
 
-mClass(uiEMAttrib) Horizon2DScanner : public Executor
+mExpClass(uiEMAttrib) Horizon2DScanner : public Executor
 {
 public:
 

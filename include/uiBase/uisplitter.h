@@ -34,7 +34,7 @@ Example:
 
 */
 
-mClass(uiBase) uiSplitter : public uiObject
+mExpClass(uiBase) uiSplitter : public uiObject
 {
 public:
                         uiSplitter(uiParent*,const char* nm="Splitter", 

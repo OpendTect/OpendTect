@@ -40,7 +40,7 @@ class MPEEditor;
 class EdgeLineSetDisplay;
 
 
-mClass(visSurvey) EMObjectDisplay :  public  visBase::VisualObjectImpl,
+mExpClass(visSurvey) EMObjectDisplay :  public  visBase::VisualObjectImpl,
                           public visSurvey::SurveyObject
 {
 public:

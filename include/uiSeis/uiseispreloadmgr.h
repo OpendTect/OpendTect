@@ -21,7 +21,7 @@ class uiTextEdit;
 
 /*!\brief Shows loaded plugins and allows adding */
 
-mClass(uiSeis) uiSeisPreLoadMgr : public uiDialog
+mExpClass(uiSeis) uiSeisPreLoadMgr : public uiDialog
 { 	
 public:
 			uiSeisPreLoadMgr(uiParent*);

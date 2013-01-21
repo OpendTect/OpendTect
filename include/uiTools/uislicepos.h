@@ -24,7 +24,7 @@ class uiToolButton;
 
 /*! \brief Toolbar for setting slice position _ base class */
 
-mClass(uiTools) uiSlicePos : public CallBacker
+mExpClass(uiTools) uiSlicePos : public CallBacker
 {
 public:		
 			uiSlicePos(uiParent*);

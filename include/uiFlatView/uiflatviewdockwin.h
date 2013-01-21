@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 /*!\brief (Non-modal) main window containing one or more uiFlatViewer(s). */
 
-mClass(uiFlatView) uiFlatViewDockWin : public uiDockWin
+mExpClass(uiFlatView) uiFlatViewDockWin : public uiDockWin
 			, public uiFlatViewWin
 {
 public:

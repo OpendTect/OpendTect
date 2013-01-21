@@ -26,7 +26,7 @@ namespace Pos
 
 /*!\brief Volume/Area provider based on Wells */
 
-mClass(Well) WellProvider3D : public Provider3D
+mExpClass(Well) WellProvider3D : public Provider3D
 {
 public:
 			WellProvider3D();

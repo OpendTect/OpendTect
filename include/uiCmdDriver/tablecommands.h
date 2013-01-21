@@ -39,7 +39,7 @@ mEndDeclCmdClass
 
 mStartDeclCmdClass( uiCmdDriver, TableClick, TableCmd )	mEndDeclCmdClass
 
-mClass(uiCmdDriver) TableActivator: public Activator
+mExpClass(uiCmdDriver) TableActivator: public Activator
 {
 public:
     			TableActivator(const uiTable&,const RowCol&,
@@ -55,7 +55,7 @@ protected:
 
 mStartDeclCmdClass( uiCmdDriver, TableFill, TableCmd )	mEndDeclCmdClass
 
-mClass(uiCmdDriver) TableFillActivator: public Activator
+mExpClass(uiCmdDriver) TableFillActivator: public Activator
 {
 public:
     			TableFillActivator(const uiTable&,const RowCol&,
@@ -70,7 +70,7 @@ protected:
 
 mStartDeclCmdClass( uiCmdDriver, TableSelect, TableCmd )	mEndDeclCmdClass
 
-mClass(uiCmdDriver) TableSelectActivator: public Activator
+mExpClass(uiCmdDriver) TableSelectActivator: public Activator
 {
 public:
     			TableSelectActivator(const uiTable&,
@@ -116,7 +116,7 @@ mStartDeclCmdClass( uiCmdDriver, GetTableMenuItem, TableQuestionCmd )
    and (row1,col) encode a series of rows in column col from row0 to
    row1 with a positive step step.
 */
-mClass(uiCmdDriver) TableState
+mExpClass(uiCmdDriver) TableState
 {
 public:
     			TableState(const uiTable* uitable=0)

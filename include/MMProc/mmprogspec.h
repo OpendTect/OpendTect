@@ -24,7 +24,7 @@ namespace MMProc
 \brief Distributed computing specification.
 */
 
-mClass(MMProc) ProgSpec : public NamedObject
+mExpClass(MMProc) ProgSpec : public NamedObject
 {
 public:
 

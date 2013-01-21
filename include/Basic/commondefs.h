@@ -147,7 +147,7 @@ ________________________________________________________________________
 #define mExpStruct( module )		struct mExp( module )
 
 #define mGlobal( module )		mExp( module )
-#define mClass( module )		mExpClass( module )
+#define mClass( module )		class
 #define mStruct( module )		mExpStruct( module )
 #define mExtern( module )		extern mExp( module )
 #define mExternC( module)		extern "C" mExp( module )
@@ -171,7 +171,7 @@ ________________________________________________________________________
     _already_visited_ = true
 
 // Helps keep 4.4 compatibility
-#define mDefClass( module )	mClass(module)
+#define mDefClass( module )	mExpClass( module )
 
 
 #endif

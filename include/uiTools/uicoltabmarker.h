@@ -23,7 +23,7 @@ class uiParent;
 class uiWorld2Ui;
 
 
-mClass(uiTools) uiColTabMarkerDlg : public uiDialog
+mExpClass(uiTools) uiColTabMarkerDlg : public uiDialog
 {
 public:
 				uiColTabMarkerDlg(uiParent*,ColTab::Sequence&);
@@ -46,7 +46,7 @@ protected:
 };
 
 
-mClass(uiTools) uiColTabMarkerCanvas : public uiGraphicsView
+mExpClass(uiTools) uiColTabMarkerCanvas : public uiGraphicsView
 {
 public:
 				uiColTabMarkerCanvas(uiParent*,

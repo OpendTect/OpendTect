@@ -16,7 +16,7 @@ ________________________________________________________________________
 class uiToolButton;
 
 
-mClass(uiSeis) uiSeisFileMan : public uiObjFileMan
+mExpClass(uiSeis) uiSeisFileMan : public uiObjFileMan
 {
 public:
 			uiSeisFileMan(uiParent*,bool);

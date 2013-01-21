@@ -25,7 +25,7 @@ class uiListBox;
 class uiGenInput;
 class uiWellExtractParams;
 
-mClass(uiWellAttrib) uiCreateAttribLogDlg : public uiDialog
+mExpClass(uiWellAttrib) uiCreateAttribLogDlg : public uiDialog
 {
 public:
     				uiCreateAttribLogDlg(uiParent*,

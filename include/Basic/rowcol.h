@@ -24,7 +24,7 @@ class BinID;
 BinID, so template-based functions can be based on both classes.
 */
 
-mClass(Basic) RowCol
+mExpClass(Basic) RowCol
 {
 public:
     inline			RowCol(int r,int c);

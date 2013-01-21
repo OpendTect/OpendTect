@@ -24,7 +24,7 @@ class VBrickSpec;
 class SeisTrcBuf;
 
 
-mClass(Seis) CBVSSeisTrcTranslator : public SeisTrcTranslator
+mExpClass(Seis) CBVSSeisTrcTranslator : public SeisTrcTranslator
 {			isTranslator(CBVS,SeisTrc)
 public:
 

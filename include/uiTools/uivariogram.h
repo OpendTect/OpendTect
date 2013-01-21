@@ -22,7 +22,7 @@ class uiFunctionDisplay;
 class uiSliderExtra;
 class uiSpinBox;
 
-mClass(uiTools) uiVariogramDlg : public uiDialog
+mExpClass(uiTools) uiVariogramDlg : public uiDialog
 {
 public:
 
@@ -42,7 +42,7 @@ protected:
 };
 
 
-mClass(uiTools) uiVariogramDisplay: public uiDialog
+mExpClass(uiTools) uiVariogramDisplay: public uiDialog
 {
 public:
      				uiVariogramDisplay(uiParent*,Array2D<float>*,

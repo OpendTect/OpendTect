@@ -27,7 +27,7 @@ class uiVisPartServer;
 class MultiID;
 
 
-mClass(uiVis) uiVisEMObject : public CallBacker
+mExpClass(uiVis) uiVisEMObject : public CallBacker
 {
 public:
     			uiVisEMObject(uiParent*,int displayid,

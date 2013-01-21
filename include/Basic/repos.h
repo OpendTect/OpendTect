@@ -46,7 +46,7 @@ namespace Repos
       addUnitsFromFile( rfp.fileName(), rfp.source() );
 */
 
-mClass(Basic) FileProvider
+mExpClass(Basic) FileProvider
 {
 public:
 

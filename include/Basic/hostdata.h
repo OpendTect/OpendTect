@@ -29,7 +29,7 @@ class ShareData;
 \brief Host name and aliases.
 */
 
-mClass(Basic) HostData
+mExpClass(Basic) HostData
 {
 public:
 
@@ -118,7 +118,7 @@ protected:
 \brief Describes shared drive and host. Mostly win32.
 */
 
-mClass(Basic) ShareData
+mExpClass(Basic) ShareData
 {
 public:
 			ShareData( const HostData* hst=0 ) : host_(hst) {}
@@ -158,7 +158,7 @@ protected:
   The first entry will be the local host.
 */
 
-mClass(Basic) HostDataList : public ManagedObjectSet<HostData>
+mExpClass(Basic) HostDataList : public ManagedObjectSet<HostData>
 {
 public:
 			HostDataList(bool readhostfile=true);

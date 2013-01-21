@@ -33,7 +33,7 @@ the service access point.
 */
 
 
-mClass(General) IODir : public NamedObject
+mExpClass(General) IODir : public NamedObject
 {
 public:
 			IODir(const char*);

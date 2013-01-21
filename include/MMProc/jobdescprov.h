@@ -23,7 +23,7 @@ class IOPar;
 implementations are pre-cooked: KeyReplace-JDP and InlineSplit-JDP.
 */
 
-mClass(MMProc) JobDescProv
+mExpClass(MMProc) JobDescProv
 {
 public:
 
@@ -51,7 +51,7 @@ protected:
 in the IOPar for one of the strings from a BufferStringSet.
 */
 
-mClass(MMProc) KeyReplaceJobDescProv : public JobDescProv
+mExpClass(MMProc) KeyReplaceJobDescProv : public JobDescProv
 {
 public:
     			KeyReplaceJobDescProv(const IOPar&,const char* key,
@@ -83,7 +83,7 @@ The keying is either:
 2) Single key FileMultiString type first`last`step
 */
 
-mClass(MMProc) InlineSplitJobDescProv : public JobDescProv
+mExpClass(MMProc) InlineSplitJobDescProv : public JobDescProv
 {
 public:
     			InlineSplitJobDescProv(const IOPar&,

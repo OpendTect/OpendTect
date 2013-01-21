@@ -22,7 +22,7 @@ class SoVolumeRender;
 namespace visBase
 {
 
-mClass(visBase) VolrenDisplay : public visBase::VisualObjectImpl
+mExpClass(visBase) VolrenDisplay : public visBase::VisualObjectImpl
 {
 public:
     static VolrenDisplay*	create()

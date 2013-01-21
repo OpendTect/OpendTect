@@ -24,7 +24,7 @@ class uiSteeringSel;
 
 /*! \brief Shift Attribute description editor */
 
-mClass(uiAttributes) uiShiftAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiShiftAttrib : public uiAttrDescEd
 {
 public:
 

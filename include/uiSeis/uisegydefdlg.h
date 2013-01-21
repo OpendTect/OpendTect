@@ -26,7 +26,7 @@ class IOObj;
 
 /*!\brief Initial dialog for SEG-Y I/O. */
 
-mClass(uiSeis) uiSEGYDefDlg : public uiVarWizardDlg
+mExpClass(uiSeis) uiSEGYDefDlg : public uiVarWizardDlg
 {
 public:
 

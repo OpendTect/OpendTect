@@ -23,7 +23,7 @@ class uiToolBar;
 
 /*!\brief The standard tools to control uiFlatViewer(s). */
 
-mClass(uiFlatView) uiFlatViewStdControl : public uiFlatViewControl
+mExpClass(uiFlatView) uiFlatViewStdControl : public uiFlatViewControl
 {
 public:
 

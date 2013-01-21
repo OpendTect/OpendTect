@@ -28,7 +28,7 @@ mFDQtclass(QMenu)
 
 
 //!\brief Button Abstract Base class
-mClass(uiBase) uiButton : public uiObject
+mExpClass(uiBase) uiButton : public uiObject
 {
 public:
 			uiButton(uiParent*,const char*,const CallBack*,
@@ -55,7 +55,7 @@ public:
   text. In principle, it could also get another appearance.
   */
 
-mClass(uiBase) uiPushButton : public uiButton
+mExpClass(uiBase) uiPushButton : public uiButton
 {
 public:
 				uiPushButton(uiParent*,const char* nm,
@@ -86,7 +86,7 @@ private:
 };
 
 
-mClass(uiBase) uiRadioButton : public uiButton
+mExpClass(uiBase) uiRadioButton : public uiButton
 {                        
 public:
 				uiRadioButton(uiParent*,const char*);
@@ -106,7 +106,7 @@ private:
 };
 
 
-mClass(uiBase) uiCheckBox: public uiButton
+mExpClass(uiBase) uiCheckBox: public uiButton
 {
 public:
 
@@ -130,7 +130,7 @@ private:
 
 
 //! Button Abstract Base class
-mClass(uiBase) uiButtonBody
+mExpClass(uiBase) uiButtonBody
 {
     friend class        i_ButMessenger;
 

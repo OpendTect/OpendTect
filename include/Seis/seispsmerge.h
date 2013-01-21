@@ -31,7 +31,7 @@ namespace Seis { class SelData; }
 
 */
 
-mClass(Seis) SeisPSMerger : public Executor
+mExpClass(Seis) SeisPSMerger : public Executor
 {
 public:
 			SeisPSMerger(const ObjectSet<IOObj>& in,

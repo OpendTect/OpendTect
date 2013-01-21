@@ -28,7 +28,7 @@ class FaultSeedPicker;
 \brief EMTracker to track EM::Fault3D.
 */
 
-mClass(MPEEngine) FaultTracker : public EMTracker
+mExpClass(MPEEngine) FaultTracker : public EMTracker
 {
 public:
 			FaultTracker(EM::Fault3D* =0);

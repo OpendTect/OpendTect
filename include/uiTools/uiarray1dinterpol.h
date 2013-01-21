@@ -23,7 +23,7 @@ class uiArray2DInterpol;
 template <class T> class Array1D;
 
 
-mClass(uiTools) uiArray1DInterpolSel : public uiDlgGroup
+mExpClass(uiTools) uiArray1DInterpolSel : public uiDlgGroup
 {
 public:
     				uiArray1DInterpolSel( uiParent*,bool extrapol,

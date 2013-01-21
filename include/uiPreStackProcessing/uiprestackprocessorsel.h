@@ -23,7 +23,7 @@ class MultiID;
 namespace PreStack
 {
 
-mClass(uiPreStackProcessing) uiProcSel : public uiGroup
+mExpClass(uiPreStackProcessing) uiProcSel : public uiGroup
 {
 public:
     			uiProcSel(uiParent*,const char* label,

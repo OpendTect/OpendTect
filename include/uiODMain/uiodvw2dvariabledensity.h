@@ -23,7 +23,7 @@ class VW2DSeis;
 namespace ColTab { class Sequence; };
 
 
-mClass(uiODMain) uiODVW2DVariableDensityTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVW2DVariableDensityTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVW2DVariableDensityTreeItem();
@@ -59,7 +59,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVW2DVariableDensityTreeItemFactory : public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODVW2DVariableDensityTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }

@@ -23,7 +23,7 @@ class uiODViewer2D;
 namespace Attrib { class SelSpec; }
 
 
-mClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
+mExpClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
 {
 public:
     			uiODVw2DTreeItem(const char*);
@@ -50,7 +50,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVw2DTreeItemFactory : public uiTreeItemFactory
+mExpClass(uiODMain) uiODVw2DTreeItemFactory : public uiTreeItemFactory
 {
     public:
 	virtual uiTreeItem* createForVis(const uiODViewer2D&,int visid) const
@@ -59,7 +59,7 @@ mClass(uiODMain) uiODVw2DTreeItemFactory : public uiTreeItemFactory
 
 
 
-mClass(uiODMain) uiODVw2DTreeTop : public uiTreeTopItem
+mExpClass(uiODMain) uiODVw2DTreeTop : public uiTreeTopItem
 {
 public:
 				uiODVw2DTreeTop(uiTreeView*,uiODApplMgr*,

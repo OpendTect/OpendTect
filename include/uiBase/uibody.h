@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 mFDQtclass(QWidget)
 
-mClass(uiBase) uiBody
+mExpClass(uiBase) uiBody
 {
 public:
 				uiBody()				{}

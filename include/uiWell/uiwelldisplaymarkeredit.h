@@ -29,7 +29,7 @@ class uiWellDisplayControl;
 namespace Well { class Marker; class MarkerSet; class Data; }
 
 
-mClass(uiWell) uiAddEditMrkrDlg : public uiDialog
+mExpClass(uiWell) uiAddEditMrkrDlg : public uiDialog
 {
 public :
     				uiAddEditMrkrDlg(uiParent*,Well::Marker&,
@@ -50,7 +50,7 @@ protected :
 
 
 
-mClass(uiWell) uiDispEditMarkerDlg : public uiDialog
+mExpClass(uiWell) uiDispEditMarkerDlg : public uiDialog
 {
 public:
 				uiDispEditMarkerDlg(uiParent*);
@@ -111,7 +111,7 @@ protected:
 
 
 
-mClass(uiWell) uiWellDispCtrlEditMarkerDlg : public uiDispEditMarkerDlg
+mExpClass(uiWell) uiWellDispCtrlEditMarkerDlg : public uiDispEditMarkerDlg
 {
 public:
 				uiWellDispCtrlEditMarkerDlg(uiParent*);

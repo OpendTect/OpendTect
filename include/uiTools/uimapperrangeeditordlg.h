@@ -22,7 +22,7 @@ class uiPushButton;
 class uiMapperRangeEditor;
 namespace ColTab { class MapperSetup; class Sequence; };
 
-mClass(uiTools) uiMultiMapperRangeEditWin : public uiDialog
+mExpClass(uiTools) uiMultiMapperRangeEditWin : public uiDialog
 {
 public:
     					uiMultiMapperRangeEditWin(uiParent*,

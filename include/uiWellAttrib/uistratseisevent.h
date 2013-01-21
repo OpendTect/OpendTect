@@ -19,11 +19,11 @@ class uiGenInput;
 class uiStratLevelSel;
 
 
-mClass(uiWellAttrib) uiStratSeisEvent : public uiGroup
+mExpClass(uiWellAttrib) uiStratSeisEvent : public uiGroup
 {
 public:
 
-    mClass(uiWellAttrib) Setup
+    mExpClass(uiWellAttrib) Setup
     {
     public:
 			Setup( bool wew=false )

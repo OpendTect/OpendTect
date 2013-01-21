@@ -38,7 +38,7 @@ namespace ColTab { class Sequence; }
 
  */
 
-mClass(uiTools) uiDirectionalPlot : public uiGraphicsView
+mExpClass(uiTools) uiDirectionalPlot : public uiGraphicsView
 {
 public:
 

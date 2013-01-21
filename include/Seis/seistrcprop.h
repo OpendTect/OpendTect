@@ -20,7 +20,7 @@ class SeisTrc;
 
 /*!\brief calculates properties of a trace component */
 
-mClass(Seis) SeisTrcPropCalc
+mExpClass(Seis) SeisTrcPropCalc
 {
 public:
 		SeisTrcPropCalc( const SeisTrc& t, int ic=0 )
@@ -48,7 +48,7 @@ protected:
   Component -1 (the default) changes all components.
  */
 
-mClass(Seis) SeisTrcPropChg : public SeisTrcPropCalc
+mExpClass(Seis) SeisTrcPropChg : public SeisTrcPropCalc
 {
 public:
 		SeisTrcPropChg( SeisTrc& t, int ic=-1 )

@@ -19,11 +19,11 @@ class uiTextBrowser;
 class uiTable;
 
 
-mClass(uiTools) uiTextFile : public CallBacker
+mExpClass(uiTools) uiTextFile : public CallBacker
 {
 public:
 
-    mClass(uiTools) Setup
+    mExpClass(uiTools) Setup
     {
     public:
 
@@ -87,11 +87,11 @@ protected:
 };
 
 
-mClass(uiTools) uiTextFileDlg : public uiDialog
+mExpClass(uiTools) uiTextFileDlg : public uiDialog
 {
 public:
 
-    mClass(uiTools) Setup : public uiDialog::Setup
+    mExpClass(uiTools) Setup : public uiDialog::Setup
     {
     public:
 

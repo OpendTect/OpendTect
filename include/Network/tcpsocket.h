@@ -22,7 +22,7 @@ class QTcpSocketComm;
 class IOPar;
 
 
-mClass(Network) TcpSocket : public CallBacker
+mExpClass(Network) TcpSocket : public CallBacker
 {
 friend class QTcpSocketComm;
 

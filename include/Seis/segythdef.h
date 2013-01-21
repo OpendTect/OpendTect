@@ -23,7 +23,7 @@ namespace SEGY
 
 /*!\brief stores HdrEntry info of the needed fields from the trace header.  */
 
-mClass(Seis) TrcHeaderDef
+mExpClass(Seis) TrcHeaderDef
 {
 public:
 			TrcHeaderDef();

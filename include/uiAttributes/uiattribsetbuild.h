@@ -22,11 +22,11 @@ namespace Attrib { class DescSet; }
 class uiPreStackAttrib;
 
 
-mClass(uiAttributes) uiAttribDescSetBuild : public uiBuildListFromList
+mExpClass(uiAttributes) uiAttribDescSetBuild : public uiBuildListFromList
 {
 public:
 
-    mClass(uiAttributes) Setup
+    mExpClass(uiAttributes) Setup
     {
     public:
 			Setup(bool for2d);

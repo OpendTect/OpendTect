@@ -30,7 +30,7 @@ class ZAxisTransform;
    out into another volume. If stretchinverse is true, the stretching will
    be done on the inveres of the values. */
 
-mClass(Seis) SeisZAxisStretcher : public ParallelTask
+mExpClass(Seis) SeisZAxisStretcher : public ParallelTask
 {
 public:
     			SeisZAxisStretcher( const IOObj& in,

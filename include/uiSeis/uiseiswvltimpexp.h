@@ -23,7 +23,7 @@ class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 
 
-mClass(uiSeis) uiSeisWvltImp : public uiDialog
+mExpClass(uiSeis) uiSeisWvltImp : public uiDialog
 {
 public:
 			uiSeisWvltImp(uiParent*);
@@ -46,7 +46,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiSeisWvltExp : public uiDialog
+mExpClass(uiSeis) uiSeisWvltExp : public uiDialog
 {
 public:
 			uiSeisWvltExp(uiParent*);

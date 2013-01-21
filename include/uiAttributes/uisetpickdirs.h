@@ -30,7 +30,7 @@ namespace Pick { class Set; }
 
 /*! \brief */
 
-mClass(uiAttributes) uiSetPickDirs : public uiDialog
+mExpClass(uiAttributes) uiSetPickDirs : public uiDialog
 {
 public:
     				uiSetPickDirs(uiParent*,Pick::Set&,

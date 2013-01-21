@@ -34,12 +34,12 @@ typedef Geom::PosRectangle<double> Rect;
 /*!Class that represenents non-bitmap data to be displayed in a flatviewer,
    such as markers, lines and more */
 
-mClass(General) AuxData
+mExpClass(General) AuxData
 {
 public:
     //!\brief explains what part of the an auxdata's appearance that may be
     //!	  edited by the user
-    mClass(General) EditPermissions
+    mExpClass(General) EditPermissions
     {
     public:			EditPermissions();
 	bool		onoff_;
@@ -92,7 +92,7 @@ public:
 
 /*!\brief Annotation data for flat views */
 
-mClass(General) Annotation
+mExpClass(General) Annotation
 {
 public:
 
@@ -164,12 +164,12 @@ public:
 
   */
 
-mClass(General) DataDispPars
+mExpClass(General) DataDispPars
 {
 public:
 
     //!\brief Common to VD and WVA
-    mClass(General) Common
+    mExpClass(General) Common
     {
     public:
 			Common();
@@ -181,7 +181,7 @@ public:
     };
 
     //!\brief Variable Density (=color-bar driven) parameters
-    mClass(General) VD : public Common
+    mExpClass(General) VD : public Common
     {
     public:
 
@@ -192,7 +192,7 @@ public:
 	bool		lininterp_; // Use bi-linear interpol, not poly
     };
     //!\brief Wiggle/Variable Area parameters
-    mClass(General) WVA : public Common
+    mExpClass(General) WVA : public Common
     {
     public:
 
@@ -242,7 +242,7 @@ public:
 
 /*!\brief Flat views: Appearance  */
 
-mClass(General) Appearance
+mExpClass(General) Appearance
 {
 public:
     			Appearance( bool drkbg=true )
@@ -299,7 +299,7 @@ protected:
 
   */
 
-mClass(General) Viewer
+mExpClass(General) Viewer
 {
 public:
 

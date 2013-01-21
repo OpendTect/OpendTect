@@ -55,7 +55,7 @@ typedef void (*StaticCallBackFunction)(CallBacker*);
   CallBacker* (usually 'this').
 */
 
-mClass(Basic) CallBack
+mExpClass(Basic) CallBack
 {
 public:
 			CallBack( CallBacker* o=0, CallBackFunction f=0 )
@@ -90,7 +90,7 @@ protected:
 \brief TypeSet of CallBacks with a few extras.
 */
 
-mClass(Basic) CallBackSet : public TypeSet<CallBack>
+mExpClass(Basic) CallBackSet : public TypeSet<CallBack>
 {
 public:
 
@@ -111,7 +111,7 @@ public:
 \brief Interface class for Notifier. See comments there.
 */
 
-mClass(Basic) NotifierAccess
+mExpClass(Basic) NotifierAccess
 {
 
     friend class	NotifyStopper;
@@ -199,7 +199,7 @@ public:
 \brief To be able to send and/or receive CallBacks, inherit from this class.
 */
 
-mClass(Basic) CallBacker
+mExpClass(Basic) CallBacker
 {
 public:
 				CallBacker();
@@ -344,7 +344,7 @@ public:
   }
 */
 
-mClass(Basic) NotifyStopper 
+mExpClass(Basic) NotifyStopper 
 {
 public:
 			NotifyStopper( NotifierAccess& na ) 

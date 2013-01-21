@@ -29,7 +29,7 @@ mGlobal(uiBase) bool select( uiFont&, uiParent* parnt=0, const char* nm=0 );
 
 mGlobal(uiBase) bool select( FontData&,uiParent* parnt=0,const char* nm = 0);
 
-mClass(uiBase) uiSetFonts : public uiDialog
+mExpClass(uiBase) uiSetFonts : public uiDialog
 {
 public:
 
@@ -44,7 +44,7 @@ protected:
 };
 
 
-mClass(uiBase) uiSelFonts : public uiDialog
+mExpClass(uiBase) uiSelFonts : public uiDialog
 {
 public:
 

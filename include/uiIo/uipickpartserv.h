@@ -31,7 +31,7 @@ namespace PosInfo { class Line2DData; }
 
 /*! \brief Service provider for application level - seismics */
 
-mClass(uiIo) uiPickPartServer  : public uiApplPartServer
+mExpClass(uiIo) uiPickPartServer  : public uiApplPartServer
 			, public uiPickSetMgr
 {
 public:

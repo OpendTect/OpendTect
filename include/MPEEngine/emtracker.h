@@ -36,7 +36,7 @@ class EMSeedPicker;
 \brief Tracks EM objects.
 */
 
-mClass(MPEEngine) EMTracker
+mExpClass(MPEEngine) EMTracker
 {
 mRefCountImplWithDestructor(EMTracker,virtual ~EMTracker(),delete this;);
 public:

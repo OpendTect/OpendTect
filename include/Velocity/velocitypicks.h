@@ -38,7 +38,7 @@ namespace Vel
 
 class PicksMgr;
 
-mClass(Velocity) Pick
+mExpClass(Velocity) Pick
 {
 public:
     			Pick(float depth=mUdf(float),
@@ -55,7 +55,7 @@ public:
 
 /*!Holds picks that the user has done, typically in a semblance plot. */
 
-mClass(Velocity) Picks : public CallBacker
+mExpClass(Velocity) Picks : public CallBacker
 { mRefCountImpl(Picks);
 public:
     			Picks();
@@ -202,7 +202,7 @@ protected:
 };
 
 
-mClass(Velocity) PicksMgr : public CallBacker
+mExpClass(Velocity) PicksMgr : public CallBacker
 {
 public:
     				PicksMgr();

@@ -37,7 +37,7 @@ template <class T> class ObjQueue;
  *
 */
 
-mClass(MMProc) StatusInfo
+mExpClass(MMProc) StatusInfo
 {
 public:
 			StatusInfo( char tg, int desc, int stat, int pid,
@@ -61,7 +61,7 @@ public:
 separate thread to maintain contact with client.
 */
 
-mClass(MMProc) JobIOMgr : public CallBacker
+mExpClass(MMProc) JobIOMgr : public CallBacker
 {
 public:
     enum		Mode { Work, Pause, Stop };

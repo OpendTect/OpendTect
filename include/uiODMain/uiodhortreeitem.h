@@ -21,7 +21,7 @@ mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
 	     void sort(); virtual bool addChld(uiTreeItem*,bool,bool) );
 
 
-mClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -31,7 +31,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
+mExpClass(uiODMain) uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
 {
 public:
     			uiODHorizonTreeItem( int, bool rgba, bool dummy );
@@ -69,7 +69,7 @@ mDefineItem( Horizon2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
 	     void sort(); virtual bool addChld(uiTreeItem*,bool,bool) );
 
 
-mClass(uiODMain) uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -79,7 +79,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
+mExpClass(uiODMain) uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
 {
 public:
     			uiODHorizon2DTreeItem( int, bool dummy );

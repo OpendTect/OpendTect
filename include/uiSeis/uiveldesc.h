@@ -25,11 +25,11 @@ class VelocityStretcher;
 
 /*!Group that allows the user to edit VelocityDesc information. */
 
-mClass(uiSeis) uiVelocityDesc : public uiGroup
+mExpClass(uiSeis) uiVelocityDesc : public uiGroup
 {
 public:
 
-    mClass(uiSeis) Setup
+    mExpClass(uiSeis) Setup
     {
     public:
 				Setup( const VelocityDesc* vd=0 )
@@ -57,7 +57,7 @@ protected:
 
 
 /*!Dialog that allows the user to edit VelocityDesc information. */
-mClass(uiSeis) uiVelocityDescDlg : public uiDialog
+mExpClass(uiSeis) uiVelocityDescDlg : public uiDialog
 {
 public:
     			uiVelocityDescDlg(uiParent*,const IOObj* cursel=0,
@@ -89,7 +89,7 @@ protected:
 //!Field that selects a velocity volume, and edit it's properties/velocity tag
 
 
-mClass(uiSeis) uiVelSel : public uiSeisSel
+mExpClass(uiSeis) uiVelSel : public uiSeisSel
 {
 public:
     				uiVelSel(uiParent*,IOObjContext&,
@@ -114,7 +114,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiTimeDepthBase : public uiZAxisTransform
+mExpClass(uiSeis) uiTimeDepthBase : public uiZAxisTransform
 {
 public:
     bool			acceptOK();
@@ -142,7 +142,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiTime2Depth : public uiTimeDepthBase
+mExpClass(uiSeis) uiTime2Depth : public uiTimeDepthBase
 {
 public:
     static void			initClass();
@@ -152,7 +152,7 @@ public:
 };
 
 
-mClass(uiSeis) uiDepth2Time : public uiTimeDepthBase
+mExpClass(uiSeis) uiDepth2Time : public uiTimeDepthBase
 {
 public:
     static void			initClass();

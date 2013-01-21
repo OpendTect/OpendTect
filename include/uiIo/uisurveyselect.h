@@ -20,7 +20,7 @@ class uiGenInput;
 class uiListBox;
 class uiFileInput;
 
-mClass(uiIo) uiSurveySelectDlg : public uiDialog
+mExpClass(uiIo) uiSurveySelectDlg : public uiDialog
 {
 public:
 			uiSurveySelectDlg(uiParent*,const char* survnm=0,
@@ -47,7 +47,7 @@ protected:
 };
 
 
-mClass(uiIo) uiSurveySelect : public uiIOSelect
+mExpClass(uiIo) uiSurveySelect : public uiIOSelect
 {
 public:
 			uiSurveySelect(uiParent*,const char* label=0);

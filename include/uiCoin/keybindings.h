@@ -25,7 +25,7 @@ separated by a `.  e.g. zoom = "Left`Control"
 */
 
 
-mClass(uiCoin) KeyBindings
+mExpClass(uiCoin) KeyBindings
 {
 public:
     				KeyBindings(const char* nm=0)
@@ -52,7 +52,7 @@ public:
 };
 
 
-mClass(uiCoin) EventButton
+mExpClass(uiCoin) EventButton
 {
 public:
                                 EventButton() {}
@@ -62,7 +62,7 @@ public:
 };
 
 
-mClass(uiCoin) KeyBindMan
+mExpClass(uiCoin) KeyBindMan
 {
 public:
                                 KeyBindMan();

@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace PreStack { class MuteDef; }
 
 
-mClass(PreStackProcessing) MuteDefTranslatorGroup : public TranslatorGroup
+mExpClass(PreStackProcessing) MuteDefTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(MuteDef)
 public:
     			mDefEmptyTranslatorGroupConstructor(MuteDef)
@@ -27,7 +27,7 @@ public:
 };
 
 
-mClass(PreStackProcessing) MuteDefTranslator : public Translator
+mExpClass(PreStackProcessing) MuteDefTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(MuteDef)
@@ -43,7 +43,7 @@ public:
 };
 
 
-mClass(PreStackProcessing) dgbMuteDefTranslator : public MuteDefTranslator
+mExpClass(PreStackProcessing) dgbMuteDefTranslator : public MuteDefTranslator
 {			     isTranslator(dgb,MuteDef)
 public:
 

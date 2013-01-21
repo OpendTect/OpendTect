@@ -37,7 +37,7 @@ It has three parts,
 - a SubID, which identifies the position on the section. 
 */
 
-mClass(EarthModel) PosID
+mExpClass(EarthModel) PosID
 {
 public:
     				PosID( ObjectID emobjid=0,

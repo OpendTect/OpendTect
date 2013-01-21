@@ -30,7 +30,7 @@ class VisColorTab;
 Used for creating a 2D texture
 */
 
-mClass(visBase) Texture2 : public Texture
+mExpClass(visBase) Texture2 : public Texture
 {
 public:
 
@@ -81,7 +81,7 @@ To let the children share the same properties by default, use the
 share## functions.
 */
 
-mClass(visBase) Texture2Set : public DataObject
+mExpClass(visBase) Texture2Set : public DataObject
 {
 public:
     static Texture2Set*	create()

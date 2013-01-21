@@ -40,7 +40,7 @@ template <class T> class ObjectSet;
   a stream. Useful in batch situations.  
 */
 
-mClass(Basic) Executor : public SequentialTask
+mExpClass(Basic) Executor : public SequentialTask
 {
 public:
 			Executor( const char* nm )
@@ -69,7 +69,7 @@ public:
   added or in parallel (but still single-threaded).
 */
 
-mClass(Basic) ExecutorGroup : public Executor
+mExpClass(Basic) ExecutorGroup : public Executor
 {
 public:
     			ExecutorGroup( const char* nm, bool parallel=false,
@@ -112,7 +112,7 @@ protected:
 \brief TaskRunner to show progress of a Task in text format.
 */
 
-mClass(Basic) TextTaskRunner : public TaskRunner
+mExpClass(Basic) TextTaskRunner : public TaskRunner
 {
 public:
 			TextTaskRunner( std::ostream& strm )

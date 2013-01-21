@@ -19,7 +19,7 @@ class uiComboBox;
 class uiGenInput;
 template < class T > class StepInterval;
 
-mClass(uiIo) uiPrDenFunVarSel : public uiGroup
+mExpClass(uiIo) uiPrDenFunVarSel : public uiGroup
 {
 public:
 

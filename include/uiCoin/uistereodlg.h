@@ -16,7 +16,7 @@ ________________________________________________________________________
 class uiSliderExtra;
 class ui3DViewer;
 
-mClass(uiCoin) uiStereoDlg : public uiDialog
+mExpClass(uiCoin) uiStereoDlg : public uiDialog
 {
 public:
 			uiStereoDlg(uiParent*,ObjectSet<ui3DViewer>&);

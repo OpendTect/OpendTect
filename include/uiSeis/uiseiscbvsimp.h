@@ -28,7 +28,7 @@ class uiLabeledComboBox;
 
 /*!\brief Actually imports or just transfers data through selection */
 
-mClass(uiSeis) uiSeisImpCBVS : public uiDialog
+mExpClass(uiSeis) uiSeisImpCBVS : public uiDialog
 {
 public:
 
@@ -74,7 +74,7 @@ private:
 };
 
 
-mClass(uiSeis) uiSeisCopyLineSet : public uiDialog
+mExpClass(uiSeis) uiSeisCopyLineSet : public uiDialog
 {
 public:
 

@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 /*\brief is a X-Group entry in the omf, e.g. PS data based on 3D cubes.  */
 
-mClass(General) IOX : public IOObj
+mExpClass(General) IOX : public IOObj
 {
 public:
 			IOX(const char* nm=0,const char* ky=0,bool =0);

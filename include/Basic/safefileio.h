@@ -44,7 +44,7 @@ after write errors or have a file garbled by multiple access.
   flags. Otherwise, don't specify these.
 */
 
-mClass(Basic) SafeFileIO
+mExpClass(Basic) SafeFileIO
 {
 public:
 

@@ -20,7 +20,7 @@ ________________________________________________________________________
 class PosVecDataSet;
 
 
-mClass(Geometry) PosVecDataSetTranslatorGroup : public TranslatorGroup
+mExpClass(Geometry) PosVecDataSetTranslatorGroup : public TranslatorGroup
 {			     isTranslatorGroup(PosVecDataSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(PosVecDataSet)
@@ -29,7 +29,7 @@ public:
 };
 
 
-mClass(Geometry) PosVecDataSetTranslator : public Translator
+mExpClass(Geometry) PosVecDataSetTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(PosVecDataSet)
@@ -45,7 +45,7 @@ protected:
 };
 
 
-mClass(Geometry) odPosVecDataSetTranslator : public PosVecDataSetTranslator
+mExpClass(Geometry) odPosVecDataSetTranslator : public PosVecDataSetTranslator
 {			  isTranslator(od,PosVecDataSet)
 public:
 			mDefEmptyTranslatorConstructor(od,PosVecDataSet)

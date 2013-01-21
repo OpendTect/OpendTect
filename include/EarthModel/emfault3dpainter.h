@@ -35,7 +35,7 @@ class Fault3D;
 \brief 3D fault painter.
 */
 
-mClass(EarthModel) Fault3DPainter : public CallBacker
+mExpClass(EarthModel) Fault3DPainter : public CallBacker
 {
 public:
     			Fault3DPainter(FlatView::Viewer&,const EM::ObjectID&);

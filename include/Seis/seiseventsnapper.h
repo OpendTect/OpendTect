@@ -22,7 +22,7 @@ class IOObj;
 class SeisMSCProvider;
 class SeisTrc;
 
-mClass(Seis) SeisEventSnapper : public Executor
+mExpClass(Seis) SeisEventSnapper : public Executor
 {
 public:
 				SeisEventSnapper( const Interval<float>& gate);
@@ -52,7 +52,7 @@ protected:
 };
 
 
-mClass(Seis) SeisEventSnapper3D : public SeisEventSnapper
+mExpClass(Seis) SeisEventSnapper3D : public SeisEventSnapper
 {
 public:
 				SeisEventSnapper3D(const IOObj&,BinIDValueSet&,

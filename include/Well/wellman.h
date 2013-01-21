@@ -24,7 +24,7 @@ namespace Well
 
 class Data;
 
-mClass(Well) Man
+mExpClass(Well) Man
 {
 public:
 

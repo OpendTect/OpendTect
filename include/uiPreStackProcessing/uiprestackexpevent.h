@@ -25,7 +25,7 @@ namespace PreStack
 {
 
 
-mClass(uiPreStackProcessing) uiEventExport : public uiDialog
+mExpClass(uiPreStackProcessing) uiEventExport : public uiDialog
 {
 public:
     			uiEventExport(uiParent*, const MultiID*);

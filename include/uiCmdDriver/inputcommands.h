@@ -31,7 +31,7 @@ mStartDeclCmdClass( uiCmdDriver, Input, UiObjectCmd )		mEndDeclCmdClass
 
 #define mDeclInputActivator( typ, objclass ) \
 \
-    mClass(uiCmdDriver) typ##Activator: public Activator \
+    mExpClass(uiCmdDriver) typ##Activator: public Activator \
     { \
     public: \
 			typ##Activator(const objclass& obj,const char* txt=0, \
@@ -55,7 +55,7 @@ mDeclInputActivator( ComboInput, uiComboBox )
 
 mStartDeclCmdClass( uiCmdDriver, Spin, UiObjectCmd )		mEndDeclCmdClass
 
-mClass(uiCmdDriver) SpinActivator: public Activator
+mExpClass(uiCmdDriver) SpinActivator: public Activator
 {
 public:
 			SpinActivator(const uiSpinBox&,int nrsteps);
@@ -68,7 +68,7 @@ protected:
 
 mStartDeclCmdClass( uiCmdDriver, Slider, UiObjectCmd )		mEndDeclCmdClass
 
-mClass(uiCmdDriver) SliderActivator: public Activator
+mExpClass(uiCmdDriver) SliderActivator: public Activator
 {
 public:
 			SliderActivator(const uiSlider&,float fraction);

@@ -30,7 +30,7 @@ namespace visBase
 
 */
 
-mClass(visBase) InvisibleLineDragger : public VisualObjectImpl
+mExpClass(visBase) InvisibleLineDragger : public VisualObjectImpl
 {
 public:
     static InvisibleLineDragger*	create()

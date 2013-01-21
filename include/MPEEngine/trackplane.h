@@ -28,7 +28,7 @@ namespace MPE
 \brief
 */
 
-mClass(MPEEngine) TrackPlane
+mExpClass(MPEEngine) TrackPlane
 {
 public:
     enum TrackMode	{ None, Extend, ReTrack, Erase, Move };

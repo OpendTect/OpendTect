@@ -28,7 +28,7 @@ namespace PosInfo { class CubeData; class Line2DData; }
 
 */
 
-mClass(Seis) SeisPSReader
+mExpClass(Seis) SeisPSReader
 {
 public:
 
@@ -48,7 +48,7 @@ public:
 
 /*!\brief reads from a 3D pre-stack seismic data store. */
 
-mClass(Seis) SeisPS3DReader : public SeisPSReader
+mExpClass(Seis) SeisPS3DReader : public SeisPSReader
 {
 public:
 
@@ -61,7 +61,7 @@ public:
 
 /*!\brief reads from a 2D pre-stack seismic data store. */
 
-mClass(Seis) SeisPS2DReader : public SeisPSReader
+mExpClass(Seis) SeisPS2DReader : public SeisPSReader
 {
 public:
     			SeisPS2DReader( const char* lnm )

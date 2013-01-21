@@ -21,7 +21,7 @@ class VW2DFaultSS2D;
 class uiODViewer2D;
 
 
-mClass(uiODMain) uiODVw2DFaultSS2DParentTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DFaultSS2DParentTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVw2DFaultSS2DParentTreeItem();
@@ -39,7 +39,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVw2DFaultSS2DTreeItemFactory : public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODVw2DFaultSS2DTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
@@ -49,7 +49,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODVw2DFaultSS2DTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DFaultSS2DTreeItem : public uiODVw2DTreeItem
 {
 public:
     			uiODVw2DFaultSS2DTreeItem(const EM::ObjectID&);

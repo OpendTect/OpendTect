@@ -30,7 +30,7 @@ namespace Seis { class SelData; }
 
 /*!\brief Helps import or export of seismic data. */
 
-mClass(Seis) SeisImporter : public Executor
+mExpClass(Seis) SeisImporter : public Executor
 {
 public:
 
@@ -104,7 +104,7 @@ protected:
 };
 
 
-mClass(Seis) SeisStdImporterReader : public SeisImporter::Reader
+mExpClass(Seis) SeisStdImporterReader : public SeisImporter::Reader
 {
 public:
 			SeisStdImporterReader(const IOObj&,const char* nm);

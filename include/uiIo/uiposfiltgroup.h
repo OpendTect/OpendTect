@@ -20,7 +20,7 @@ class IOPar;
 
 /*! \brief group for providing positions, usually for 2D or 3D seismics */
 
-mClass(uiIo) uiPosFiltGroup : public uiGroup
+mExpClass(uiIo) uiPosFiltGroup : public uiGroup
 {
 public:
 

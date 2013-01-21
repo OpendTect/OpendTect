@@ -26,7 +26,7 @@ class uiIOObjSel;
 class uiFuncSelDraw;
 
 
-mClass(uiSeis) uiSeisWvltCreate : public uiDialog
+mExpClass(uiSeis) uiSeisWvltCreate : public uiDialog
 {
 public:
 			uiSeisWvltCreate(uiParent*,uiDialog::Setup);
@@ -43,7 +43,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiSeisWvltGen : public uiSeisWvltCreate
+mExpClass(uiSeis) uiSeisWvltGen : public uiSeisWvltCreate
 {
 public:
 			uiSeisWvltGen(uiParent*);
@@ -60,11 +60,11 @@ protected:
 };
 
 
-mClass(uiSeis) uiSeisWvltMerge : public uiSeisWvltCreate
+mExpClass(uiSeis) uiSeisWvltMerge : public uiSeisWvltCreate
 {
 public:
 
-    mClass(uiSeis) WvltMathFunction : public FloatMathFunction
+    mExpClass(uiSeis) WvltMathFunction : public FloatMathFunction
     {
     public:
 			WvltMathFunction(const Wavelet*);

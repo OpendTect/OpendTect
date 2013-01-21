@@ -24,7 +24,7 @@ class uiTable;
 
 class MathExpression;
 
-mClass(uiIo) uiDPSRefineSelDlg : public uiDialog
+mExpClass(uiIo) uiDPSRefineSelDlg : public uiDialog
 {
 public:
 

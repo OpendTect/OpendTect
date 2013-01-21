@@ -21,13 +21,13 @@ ________________________________________________________________________
 #include "errh.h"
 #include <math.h>
 
-/*!\brief Parameters for Array2DFilterer
+/*!
+\brief Parameters for Array2DFilterer.
 
   The filtering can be done weighted, on 1 / (1 + distfac_*square of distance).
   If you want that, set the rowdist_ to non-undef. The value should then be
   the distance between two rows if the distance between cols is 1.
-
- */
+*/
 
 struct Array2DFilterPars
 {
@@ -51,11 +51,11 @@ struct Array2DFilterPars
 
 
 
-/*!\brief Filters an Array2D
+/*!
+\brief Filters an Array2D.
 
   Note that you cannot change the filter pars after construction.
-
- */
+*/
 
 template <class T>
 class Array2DFilterer : public Executor

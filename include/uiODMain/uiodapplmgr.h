@@ -56,7 +56,7 @@ namespace Pick { class Set; }
  
  */
 
-mClass(uiODMain) uiODApplMgr : public CallBacker
+mExpClass(uiODMain) uiODApplMgr : public CallBacker
 {
 public:
 

@@ -31,7 +31,7 @@ class SoDragger;
 namespace visBase
 {
 
-mClass(visBase) RectangleDragger : public DataObject
+mExpClass(visBase) RectangleDragger : public DataObject
 {
 public:
     static RectangleDragger*	create()
@@ -94,7 +94,7 @@ protected:
     be snapped.
 */
 
-mClass(visBase) Rectangle : public VisualObjectImpl
+mExpClass(visBase) Rectangle : public VisualObjectImpl
 {
 public:
     static Rectangle*	create()

@@ -26,7 +26,7 @@ class uiTable;
 
 /*! \brief Scaling Attribute description editor */
 
-mClass(uiAttributes) uiScalingAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiScalingAttrib : public uiAttrDescEd
 {
 public:
 

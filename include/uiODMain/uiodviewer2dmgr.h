@@ -21,7 +21,7 @@ class uiODViewer2D;
 class uiTreeFactorySet;
 
 
-mClass(uiODMain) uiODViewer2DMgr : public CallBacker
+mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
 {
 public:
     uiODViewer2D*		find2DViewer(int visid);

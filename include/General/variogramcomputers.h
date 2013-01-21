@@ -20,7 +20,7 @@ class BufferString;
 class BufferStringSet;
 class DataPointSet;
 
-mClass(General) HorVariogramComputer
+mExpClass(General) HorVariogramComputer
 {
 public:
 
@@ -50,7 +50,7 @@ protected:
 };
 
 
-mClass(General) VertVariogramComputer
+mExpClass(General) VertVariogramComputer
 {
 public:
 

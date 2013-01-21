@@ -24,7 +24,7 @@ namespace visBase
 
 /*!SoSeparator and SoSwitch from Coin. */
 
-mClass(visBase) Switch : public DataObject
+mExpClass(visBase) Switch : public DataObject
 {
 public:
 
@@ -41,7 +41,7 @@ protected:
 
 };
 
-mClass(visBase) Separator : public DataObject
+mExpClass(visBase) Separator : public DataObject
 {
 public:
 

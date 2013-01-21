@@ -24,7 +24,7 @@ class uiWellParSel;
 
 /*! \brief UI for WellPosProvider */
 
-mClass(uiWell) uiWellPosProvGroup : public uiPosProvGroup
+mExpClass(uiWell) uiWellPosProvGroup : public uiPosProvGroup
 {
 public:
 			uiWellPosProvGroup(uiParent*,

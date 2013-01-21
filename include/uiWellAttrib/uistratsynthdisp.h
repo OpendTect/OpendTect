@@ -46,7 +46,7 @@ namespace Strat { class LayerModel; }
 namespace FlatView { class AuxData; }
 
 
-mClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
+mExpClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
 {
 public:
 
@@ -157,7 +157,7 @@ protected:
 };
 
 
-mClass(uiWellAttrib) uiSynthSlicePos : public uiGroup
+mExpClass(uiWellAttrib) uiSynthSlicePos : public uiGroup
 {
 public:
     			uiSynthSlicePos(uiParent*,const char* lbltxt);
@@ -182,7 +182,7 @@ protected:
 };
 
 
-mClass(uiWellAttrib) uiStackGrp : public uiGroup
+mExpClass(uiWellAttrib) uiStackGrp : public uiGroup
 {
 public:
     			uiStackGrp(uiParent*);
@@ -201,7 +201,7 @@ protected:
 };
 
 
-mClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
+mExpClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
 {
 public:
 				uiSynthGenDlg(uiParent*,StratSynth&);

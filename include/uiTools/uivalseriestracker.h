@@ -23,7 +23,7 @@ class uiGenInput;
 /*!User interface for EventTracker. */
 
 
-mClass(uiTools) uiEventTracker : public uiDlgGroup
+mExpClass(uiTools) uiEventTracker : public uiDlgGroup
 {
 public:
     			uiEventTracker(uiParent*,EventTracker&,

@@ -75,7 +75,7 @@ SeisTrcReader and SeisTrcWriter do support it.
 */
 
 
-mClass(Seis) SeisTrcTranslatorGroup : public TranslatorGroup
+mExpClass(Seis) SeisTrcTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisTrc)
 public:
     			mDefEmptyTranslatorGroupConstructor(SeisTrc)
@@ -87,7 +87,7 @@ public:
 };
 
 
-mClass(Seis) SeisTrcTranslator : public Translator
+mExpClass(Seis) SeisTrcTranslator : public Translator
 {
 public:
 
@@ -98,7 +98,7 @@ public:
 
     */
 
-    mClass(Seis) ComponentData : public BasicComponentInfo
+    mExpClass(Seis) ComponentData : public BasicComponentInfo
     {
 	friend class	SeisTrcTranslator;
 
@@ -122,7 +122,7 @@ public:
 
     */
 
-    mClass(Seis) TargetComponentData : public ComponentData
+    mExpClass(Seis) TargetComponentData : public ComponentData
     {
 	friend class	SeisTrcTranslator;
 

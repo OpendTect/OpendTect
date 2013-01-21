@@ -26,7 +26,7 @@ namespace MPE
 \brief ObjectEditor to edit EM::Horizon3D.
 */
 
-mClass(MPEEngine) HorizonEditor : public ObjectEditor
+mExpClass(MPEEngine) HorizonEditor : public ObjectEditor
 {
 public:
     				HorizonEditor(EM::Horizon3D&);
@@ -68,7 +68,7 @@ protected:
 \brief ObjectEditor to edit EM::Horizon2D.
 */
 
-mClass(MPEEngine) Horizon2DEditor : public ObjectEditor
+mExpClass(MPEEngine) Horizon2DEditor : public ObjectEditor
 {
 public:
 				Horizon2DEditor(EM::Horizon2D&);

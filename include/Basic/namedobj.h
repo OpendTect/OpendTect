@@ -27,7 +27,7 @@ ________________________________________________________________________
   but allows for names that are fundamentally linked.
 */
 
-mClass(Basic) NamedObject : public CallBacker
+mExpClass(Basic) NamedObject : public CallBacker
 {
 public:
 			NamedObject(const char* nm=0)

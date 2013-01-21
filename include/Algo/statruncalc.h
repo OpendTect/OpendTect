@@ -34,7 +34,7 @@ namespace Stats
   hi mid (>0), or avg the two middles. By default, hi mid is used.
 */
 
-mClass(Algo) CalcSetup
+mExpClass(Algo) CalcSetup
 { 
 public:
     			CalcSetup( bool weighted=false )

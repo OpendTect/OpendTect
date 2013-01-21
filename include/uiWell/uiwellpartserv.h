@@ -33,7 +33,7 @@ class uiD2TMLogSelDlg;
 \brief Part Server for Wells
 */
 
-mClass(uiWell) uiWellPartServer : public uiApplPartServer
+mExpClass(uiWell) uiWellPartServer : public uiApplPartServer
 {
 public:
 				uiWellPartServer(uiApplService&);

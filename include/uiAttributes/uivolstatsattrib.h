@@ -27,7 +27,7 @@ class uiStepOutSel;
 
 /*! \brief VolumeStatistics Attribute description editor */
 
-mClass(uiAttributes) uiVolumeStatisticsAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiVolumeStatisticsAttrib : public uiAttrDescEd
 {
 public:
 			uiVolumeStatisticsAttrib(uiParent*,bool);

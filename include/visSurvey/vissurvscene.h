@@ -73,7 +73,7 @@ inl/crl/t to display coords, so the objects does not need any own transform.
 
 */
 
-mClass(visSurvey) Scene : public visBase::Scene
+mExpClass(visSurvey) Scene : public visBase::Scene
 {
 public:
     static Scene*		create()

@@ -25,7 +25,7 @@ namespace VolProc
 class LateralSmoother;
 
 
-mClass(uiVolumeProcessing) uiLateralSmoother : public uiStepDialog
+mExpClass(uiVolumeProcessing) uiLateralSmoother : public uiStepDialog
 {
 public:
     mDefaultFactoryInstanciationBase(

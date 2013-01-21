@@ -30,7 +30,7 @@ namespace MPE
 \brief BinID SectionSourceSelector.
 */
 
-mClass(MPEEngine) BinIDSurfaceSourceSelector : public SectionSourceSelector
+mExpClass(MPEEngine) BinIDSurfaceSourceSelector : public SectionSourceSelector
 {
 public:
     			BinIDSurfaceSourceSelector(const EM::Horizon3D&,
@@ -47,7 +47,7 @@ protected:
 \brief Surface SectionSourceSelector
 */
 
-mClass(MPEEngine) SurfaceSourceSelector : public SectionSourceSelector
+mExpClass(MPEEngine) SurfaceSourceSelector : public SectionSourceSelector
 {
 public:
     		SurfaceSourceSelector(const EM::EMObject&,

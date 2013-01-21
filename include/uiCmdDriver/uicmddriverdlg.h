@@ -31,7 +31,7 @@ class CmdRecorder;
 class InteractSpec;
 
 
-mClass(uiCmdDriver) uiCmdInteractDlg : public uiDialog
+mExpClass(uiCmdDriver) uiCmdInteractDlg : public uiDialog
 {
 public:
 				uiCmdInteractDlg(uiParent*,const InteractSpec&);
@@ -46,7 +46,7 @@ protected:
 };
 
 
-mClass(uiCmdDriver) uiCmdDriverDlg : public uiDialog
+mExpClass(uiCmdDriver) uiCmdDriverDlg : public uiDialog
 {
 public:
 				uiCmdDriverDlg(uiParent*,

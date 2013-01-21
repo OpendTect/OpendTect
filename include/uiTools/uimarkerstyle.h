@@ -21,7 +21,7 @@ class uiGenInput;
 class uiSliderExtra;
 
 
-mClass(uiTools) uiMarkerStyle3D : public uiGroup
+mExpClass(uiTools) uiMarkerStyle3D : public uiGroup
 {
 public:
 			uiMarkerStyle3D(uiParent*,bool withcolor,

@@ -24,7 +24,7 @@ class uiSeisSubSel;
 class uiSeis2DLineNameSel;
 
  
-mClass(uiSeis) uiSeisIOSimple : public uiDialog
+mExpClass(uiSeis) uiSeisIOSimple : public uiDialog
 {
 public:
 

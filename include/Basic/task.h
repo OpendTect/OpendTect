@@ -28,7 +28,7 @@ class ProgressMeter;
 done in multiple steps.
 */
 
-mClass(Basic) Task : public NamedObject
+mExpClass(Basic) Task : public NamedObject
 {
 public:
     virtual		~Task();
@@ -74,7 +74,7 @@ protected:
 \brief A collection of tasks, that behave as a single task.
 */
 
-mClass(Basic) TaskGroup : public Task
+mExpClass(Basic) TaskGroup : public Task
 {
 public:
     			~TaskGroup() { deepErase( tasks_ ); }
@@ -110,7 +110,7 @@ protected:
 be done in sequence, i.e. not parallely.
 */
 
-mClass(Basic) SequentialTask : public Task
+mExpClass(Basic) SequentialTask : public Task
 {
 public:
 		SequentialTask(const char* nm=0)
@@ -191,7 +191,7 @@ parallel by calling the ParallelTask::execute().
   \endcode
 */
 
-mClass(Basic) ParallelTask : public Task
+mExpClass(Basic) ParallelTask : public Task
 {
 public:
     virtual		~ParallelTask();
@@ -364,7 +364,7 @@ interp.execute();
 fancy subclasses with user interface and progressbars etc.
 */
 
-mClass(Basic) TaskRunner
+mExpClass(Basic) TaskRunner
 {
 public:
     static bool		execute(TaskRunner* tr, Task& );

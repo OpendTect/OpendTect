@@ -28,7 +28,7 @@ Base class for all lights
 
 */
 
-mClass(visBase) Light : public DataObject
+mExpClass(visBase) Light : public DataObject
 {
 public:
 
@@ -61,7 +61,7 @@ A point that illuminates light
 
 */
 
-mClass(visBase) PointLight : public Light
+mExpClass(visBase) PointLight : public Light
 {
 public:
     static PointLight*	create() mCreateDataObj( PointLight );
@@ -84,7 +84,7 @@ A light in a certain direction from a position at an infinite distance
 */
 
 
-mClass(visBase) DirectionalLight : public Light
+mExpClass(visBase) DirectionalLight : public Light
 {
 public:
     static DirectionalLight*	create() mCreateDataObj( DirectionalLight );
@@ -106,7 +106,7 @@ protected:
 */
 
 
-mClass(visBase) SpotLight : public Light
+mExpClass(visBase) SpotLight : public Light
 {
 public:
     static SpotLight*	create() mCreateDataObj( SpotLight );
@@ -136,7 +136,7 @@ protected:
 };
 
 
-mClass(visBase) LightModel : public DataObject
+mExpClass(visBase) LightModel : public DataObject
 {
 public:
 

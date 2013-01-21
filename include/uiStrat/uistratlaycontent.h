@@ -20,7 +20,7 @@ namespace Strat { class Content; class RefTree; }
 
 /*!\brief Gets the layer content */
 
-mClass(uiStrat) uiStratLayerContent : public uiGroup
+mExpClass(uiStrat) uiStratLayerContent : public uiGroup
 {
 public:
 

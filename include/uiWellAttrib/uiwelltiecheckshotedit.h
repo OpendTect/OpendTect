@@ -31,7 +31,7 @@ namespace WellTie
 {
     class Server;
 
-mClass(uiWellAttrib) DahObjUndoEvent : public UndoEvent
+mExpClass(uiWellAttrib) DahObjUndoEvent : public UndoEvent
 {
 public:
     			DahObjUndoEvent( float dah, float val, 
@@ -50,13 +50,13 @@ protected:
 };
 
 
-mClass(uiWellAttrib) uiCheckShotEdit : public uiDialog
+mExpClass(uiWellAttrib) uiCheckShotEdit : public uiDialog
 {
 public:
 				uiCheckShotEdit(uiParent*,Server&);
 				~uiCheckShotEdit();
 
-    mClass(uiWellAttrib) DriftCurve : public Well::DahObj
+    mExpClass(uiWellAttrib) DriftCurve : public Well::DahObj
     {
     public:
 			DriftCurve() : DahObj("Drift Curve") {}

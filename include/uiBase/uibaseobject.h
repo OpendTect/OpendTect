@@ -18,7 +18,7 @@ ________________________________________________________________________
 class uiBody;
 mFDQtclass(QWidget)
 
-mClass(uiBase) uiBaseObject : public NamedObject
+mExpClass(uiBase) uiBaseObject : public NamedObject
 {
 public:
 				uiBaseObject(const char* nm, uiBody* = 0);
@@ -81,7 +81,7 @@ using this annotation unnecessarily.
 
 #define mBlockCmdRec		CmdRecStopper cmdrecstopper(this);
 
-mClass(uiBase) CmdRecStopper
+mExpClass(uiBase) CmdRecStopper
 {
 public:
     				CmdRecStopper(const uiBaseObject*);

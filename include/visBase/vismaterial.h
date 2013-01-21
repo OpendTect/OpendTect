@@ -31,7 +31,7 @@ namespace visBase
 
 */
 
-mClass(visBase) Material : public DataObject
+mExpClass(visBase) Material : public DataObject
 {
 public:
     static Material*	create()

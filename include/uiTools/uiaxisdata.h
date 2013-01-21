@@ -26,7 +26,7 @@ class uiGraphicsScene;
 	# axis ranges
  */
 
-mClass(uiTools) uiAxisData
+mExpClass(uiTools) uiAxisData
 {
 public:
 

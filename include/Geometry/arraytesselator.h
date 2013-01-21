@@ -23,7 +23,7 @@ namespace Geometry
 /*!Class to tesselate part of an array2D data, rrg/crg are given to set the 
   start, step and size of the tesselation. */
 
-mClass(Geometry) ArrayTesselator : public ParallelTask
+mExpClass(Geometry) ArrayTesselator : public ParallelTask
 {
 public:
     			ArrayTesselator(const float* data,

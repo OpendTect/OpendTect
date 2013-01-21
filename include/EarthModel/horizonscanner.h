@@ -28,7 +28,7 @@ namespace PosInfo { class Detector; }
 \brief Executor to scan horizons.
 */
 
-mClass(EarthModel) HorizonScanner : public Executor
+mExpClass(EarthModel) HorizonScanner : public Executor
 {
 public:
 

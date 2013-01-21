@@ -32,7 +32,7 @@ class GriddedSource;
 /*!A velocity funcion where the velocity is computed from
    Residual Moveout picks. */
 
-mClass(Velocity) GriddedFunction : public Function
+mExpClass(Velocity) GriddedFunction : public Function
 {
 public:
 			GriddedFunction(GriddedSource&);
@@ -63,7 +63,7 @@ protected:
 };
 
 
-mClass(Velocity) GriddedSource : public FunctionSource
+mExpClass(Velocity) GriddedSource : public FunctionSource
 {
 public:
     			GriddedSource();

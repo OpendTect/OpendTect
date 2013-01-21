@@ -51,7 +51,7 @@ class A2DIntExtenExecutor;
 		give high quality output at the expense of speed.
 */
 
-mClass(Algo) InverseDistanceArray2DInterpol : public Array2DInterpol
+mExpClass(Algo) InverseDistanceArray2DInterpol : public Array2DInterpol
 {
 public:
     				mDefaultFactoryInstantiation( Array2DInterpol, 
@@ -132,7 +132,7 @@ protected:
 \brief Uses triangulation method to interpolate two dimensional arrays.
 */
 
-mClass(Algo) TriangulationArray2DInterpol : public Array2DInterpol
+mExpClass(Algo) TriangulationArray2DInterpol : public Array2DInterpol
 {
 public:
 		mDefaultFactoryInstantiation( Array2DInterpol, 
@@ -188,7 +188,7 @@ protected:
 \brief An extension of array 2D interpolator.
 */
 
-mClass(Algo) Array2DInterpolExtension : public Array2DInterpol
+mExpClass(Algo) Array2DInterpolExtension : public Array2DInterpol
 {
 public:
 		mDefaultFactoryInstantiation( Array2DInterpol, 

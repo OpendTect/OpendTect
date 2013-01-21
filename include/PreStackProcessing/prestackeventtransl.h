@@ -24,7 +24,7 @@ class HorSampling;
 namespace PreStack { class EventManager; }
 
 
-mClass(PreStackProcessing) PSEventTranslatorGroup : public TranslatorGroup
+mExpClass(PreStackProcessing) PSEventTranslatorGroup : public TranslatorGroup
 { isTranslatorGroup(PSEvent);
 public:
     				mDefEmptyTranslatorGroupConstructor(PSEvent);
@@ -34,7 +34,7 @@ public:
 };
 
 
-mClass(PreStackProcessing) PSEventTranslator : public Translator
+mExpClass(PreStackProcessing) PSEventTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(PSEvent);
@@ -53,7 +53,7 @@ public:
 };
 
 
-mClass(PreStackProcessing) dgbPSEventTranslator : public PSEventTranslator
+mExpClass(PreStackProcessing) dgbPSEventTranslator : public PSEventTranslator
 { isTranslator(dgb,PSEvent)
 public:
     			mDefEmptyTranslatorConstructor(dgb,PSEvent);

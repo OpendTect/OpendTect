@@ -32,7 +32,7 @@ sorted in size. User could get the best quadratic fit for the component if
 needed.
 */
 
-mClass(Algo) ConnComponents
+mExpClass(Algo) ConnComponents
 {
 public:    
 
@@ -72,7 +72,7 @@ protected:
 components are sorted in size.
 */
 
-mClass(Algo) ConnComponents3D 
+mExpClass(Algo) ConnComponents3D 
 {
 public:    
 

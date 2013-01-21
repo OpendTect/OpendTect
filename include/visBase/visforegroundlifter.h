@@ -23,7 +23,7 @@ namespace visBase
 
 /*!Moves the following objects towards the camera. */
 
-mClass(visBase) ForegroundLifter : public DataObject
+mExpClass(visBase) ForegroundLifter : public DataObject
 {
 public:
 

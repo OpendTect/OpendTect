@@ -22,7 +22,7 @@ namespace Geometry
 class TrackPlane;
 
 
-mClass(Geometry) ElementEditor : public CallBacker
+mExpClass(Geometry) ElementEditor : public CallBacker
 {
 public:
     			ElementEditor( Geometry::Element& element );

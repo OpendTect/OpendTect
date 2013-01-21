@@ -21,7 +21,7 @@ class uiLabeledComboBox;
 class uiListBox;
 class uiCheckBox;
 
-mClass(uiSeis) uiSeisSel : public uiIOObjSel
+mExpClass(uiSeis) uiSeisSel : public uiIOObjSel
 {
 public:
 
@@ -113,7 +113,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiSeisSelDlg : public uiIOObjSelDlg
+mExpClass(uiSeis) uiSeisSelDlg : public uiIOObjSelDlg
 {
 public:
 

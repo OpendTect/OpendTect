@@ -22,7 +22,7 @@ namespace Geometry { class PolygonSurface; }
 namespace visSurvey { class PolygonBodyDisplay; };
 
 
-mClass(uiVis) uiVisPolygonSurfBezierDlg : public uiDlgGroup
+mExpClass(uiVis) uiVisPolygonSurfBezierDlg : public uiDlgGroup
 {
 public:
     					uiVisPolygonSurfBezierDlg(uiParent*,

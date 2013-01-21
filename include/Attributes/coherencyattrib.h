@@ -40,7 +40,7 @@ class DataHolder;
 </pre>
 */
 
-mClass(Attributes) Coherency : public Provider
+mExpClass(Attributes) Coherency : public Provider
 {
 public:
     static void		initClass();

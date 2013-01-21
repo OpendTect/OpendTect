@@ -28,7 +28,7 @@ namespace VolProc
 
 class Chain;
 
-mClass(uiVolumeProcessing) uiBatchSetup : public uiFullBatchDialog
+mExpClass(uiVolumeProcessing) uiBatchSetup : public uiFullBatchDialog
 {
 
 public:

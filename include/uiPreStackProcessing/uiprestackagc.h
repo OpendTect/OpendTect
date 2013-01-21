@@ -23,7 +23,7 @@ namespace PreStack
 class AGC;
 class Processor;
 
-mClass(uiPreStackProcessing) uiAGC : public uiDialog
+mExpClass(uiPreStackProcessing) uiAGC : public uiDialog
 {
 public:
     static void		initClass();

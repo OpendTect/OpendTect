@@ -38,11 +38,11 @@ namespace Well
     class LogSet;
 }
 
-mClass(uiWell) uiWellDispProperties : public uiGroup
+mExpClass(uiWell) uiWellDispProperties : public uiGroup
 {
 public:
 
-    mClass(uiWell) Setup
+    mExpClass(uiWell) Setup
     {
     public:
 			Setup( const char* sztxt=0, const char* coltxt=0 )
@@ -78,7 +78,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellTrackDispProperties : public uiWellDispProperties
+mExpClass(uiWell) uiWellTrackDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellTrackDispProperties(uiParent*,const Setup&,
@@ -101,7 +101,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellMarkersDispProperties : public uiWellDispProperties
+mExpClass(uiWell) uiWellMarkersDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellMarkersDispProperties(uiParent*,const Setup&,
@@ -135,7 +135,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellLogDispProperties : public uiWellDispProperties
+mExpClass(uiWell) uiWellLogDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellLogDispProperties(uiParent*,const Setup&,

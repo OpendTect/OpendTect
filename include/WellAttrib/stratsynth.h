@@ -57,7 +57,7 @@ bool operator==( const SynthGenParams& gp )
 
 
 /*! brief the basic synthetic dataset. contains the data cubes*/
-mClass(WellAttrib) SyntheticData : public NamedObject 
+mExpClass(WellAttrib) SyntheticData : public NamedObject 
 {
 public:
     					~SyntheticData();
@@ -99,7 +99,7 @@ protected:
 };
 
 
-mClass(WellAttrib) PostStackSyntheticData : public SyntheticData
+mExpClass(WellAttrib) PostStackSyntheticData : public SyntheticData
 {
 public:
 				PostStackSyntheticData(const SynthGenParams&,
@@ -118,7 +118,7 @@ public:
 };
 
 
-mClass(WellAttrib) PreStackSyntheticData : public SyntheticData
+mExpClass(WellAttrib) PreStackSyntheticData : public SyntheticData
 {
 public:
 				PreStackSyntheticData(const SynthGenParams&,
@@ -141,7 +141,7 @@ public:
 };
 
 
-mClass(WellAttrib) PropertyRefSyntheticData : public PostStackSyntheticData
+mExpClass(WellAttrib) PropertyRefSyntheticData : public PostStackSyntheticData
 {
 public:
 				PropertyRefSyntheticData(const SynthGenParams&,
@@ -155,7 +155,7 @@ protected:
 };
 
 
-mClass(WellAttrib) StratSynth
+mExpClass(WellAttrib) StratSynth
 {
 public:
     				StratSynth(const Strat::LayerModel&);

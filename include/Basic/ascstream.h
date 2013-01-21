@@ -31,7 +31,7 @@ ________________________________________________________________________
   a colon.
 */
 
-mClass(Basic) ascostream
+mExpClass(Basic) ascostream
 {
 
 public:
@@ -85,7 +85,7 @@ protected:
   a number of 'paragraphs', each separated by a single '!' on a line.
 */
 
-mClass(Basic) ascistream
+mExpClass(Basic) ascistream
 {
 public:
 			ascistream( std::istream& strm, bool rdhead=true )

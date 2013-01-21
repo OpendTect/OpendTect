@@ -27,7 +27,7 @@ class uiDataPointSetCrossPlotter;
 class uiPrDenFunVarSel;
 /*! \brief Dialog for Horizon Import */
 
-mClass(uiIo) uiCreateDPSPDF : public uiDialog
+mExpClass(uiIo) uiCreateDPSPDF : public uiDialog
 {
 public:
 			uiCreateDPSPDF(uiParent*,

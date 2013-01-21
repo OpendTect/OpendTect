@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 /*!\brief Raw binary data access.  */
 
-mClass(General) RawDataArray
+mExpClass(General) RawDataArray
 {
 public:
 			RawDataArray( int byts=4 )

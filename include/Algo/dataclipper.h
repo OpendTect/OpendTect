@@ -72,7 +72,7 @@ clip if a certain clip percentage is desired.
   
 */
 
-mClass(Algo) DataClipper
+mExpClass(Algo) DataClipper
 {
 public:
     				DataClipper();
@@ -134,7 +134,7 @@ protected:
 \brief Data clipping sampler.
 */
 
-mClass(Algo) DataClipSampler
+mExpClass(Algo) DataClipSampler
 {
 public:
 			DataClipSampler(int bufsz=10000);

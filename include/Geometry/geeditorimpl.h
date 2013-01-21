@@ -22,7 +22,7 @@ namespace Geometry
 class TrackPlane;
 
 
-mClass(Geometry) ElementEditorImpl : public ElementEditor
+mExpClass(Geometry) ElementEditorImpl : public ElementEditor
 {
 public:
     		ElementEditorImpl( Element& elem,
@@ -48,7 +48,7 @@ protected:
 };
 
 
-mClass(Geometry) BinIDElementEditor : public ElementEditorImpl
+mExpClass(Geometry) BinIDElementEditor : public ElementEditorImpl
 {
 public:
 	    BinIDElementEditor( Geometry::Element& elem)
@@ -56,7 +56,7 @@ public:
 };
 
 
-mClass(Geometry) PlaneElementEditor : public ElementEditorImpl
+mExpClass(Geometry) PlaneElementEditor : public ElementEditorImpl
 {
 public:
 	    PlaneElementEditor( Element& elem, const Coord3& normal )

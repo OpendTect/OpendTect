@@ -28,7 +28,7 @@ namespace Stats { class CalcSetup; }
 \brief Base class for two dimensional array interpolators.
 */
 
-mClass(Algo) Array2DInterpol : public ParallelTask
+mExpClass(Algo) Array2DInterpol : public ParallelTask
 {
 public:
     virtual			~Array2DInterpol();
@@ -62,7 +62,7 @@ public:
 
     virtual const char*		infoMsg() const		{ return 0; }
 
-    mClass(Algo) ArrayAccess 
+    mExpClass(Algo) ArrayAccess 
     {
     public:
 	virtual			~ArrayAccess()				{}

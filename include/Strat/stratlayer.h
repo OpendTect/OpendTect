@@ -34,7 +34,7 @@ class Lithology;
  
  */
 
-mClass(Strat) Layer
+mExpClass(Strat) Layer
 {
 public:
 

@@ -22,7 +22,7 @@ class uiGraphicsItemGroup;
 class uiGraphicsView;
 class uiWorld2Ui;
 
-mClass(uiTools) uiBaseMapObject : public CallBacker
+mExpClass(uiTools) uiBaseMapObject : public CallBacker
 {
 public:
     				uiBaseMapObject(BaseMapObject*);
@@ -45,7 +45,7 @@ protected:
 };
 
 
-mClass(uiTools) uiBaseMap : public BaseMap, public uiGroup
+mExpClass(uiTools) uiBaseMap : public BaseMap, public uiGroup
 {
 public:
 				uiBaseMap(uiParent*);

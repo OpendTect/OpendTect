@@ -18,13 +18,13 @@ ________________________________________________________________________
 #include "geometry.h"
 #include "interpol2d.h"
 
-/*!Fills an Array2D from another Array2D of another size.
-Usage:
-1. Create
-2. call execute();
-3. (optional) call set with rew arrays, and call execute() again.
+/*!
+\brief Fills an Array2D from another Array2D of another size.
+  Usage:
+  1. Create
+  2. call execute();
+  3. (optional) call set with rew arrays, and call execute() again.
 */
-
 
 template <class T, class TT>
 class Array2DReSampler : public ParallelTask
@@ -271,7 +271,6 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
 #undef mXDim
 #undef mYDim
 #undef mUpdateResampler
-
 
 
 #endif

@@ -31,7 +31,7 @@ namespace Vel
 /*!Reads in a volume with eather Vrms or Vint, and writes out a volume
    with eather Vrms or Vint. */
 
-mClass(Velocity) VolumeConverter : public ParallelTask
+mExpClass(Velocity) VolumeConverter : public ParallelTask
 {
 public:
 			VolumeConverter( const IOObj& input,

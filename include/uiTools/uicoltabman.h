@@ -27,7 +27,7 @@ class uiWorld2Ui;
 
 namespace ColTab { class Sequence; }
 
-mClass(uiTools) uiColorTableMan : public uiDialog
+mExpClass(uiTools) uiColorTableMan : public uiDialog
 {
 public:
 				uiColorTableMan(uiParent*,ColTab::Sequence&,

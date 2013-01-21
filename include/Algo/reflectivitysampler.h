@@ -25,7 +25,7 @@ namespace Fourier { class CC; };
 time domain.
 */
 
-mClass(Algo) ReflectivitySampler : public ParallelTask
+mExpClass(Algo) ReflectivitySampler : public ParallelTask
 {
 public:
     			ReflectivitySampler(const ReflectivityModel&,

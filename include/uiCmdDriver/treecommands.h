@@ -35,7 +35,7 @@ protected:
 
 mEndDeclCmdClass
 
-mClass(uiCmdDriver) TreeActivator: public Activator
+mExpClass(uiCmdDriver) TreeActivator: public Activator
 {
 public:
 			TreeActivator(const uiTreeView&,const uiTreeViewItem&,

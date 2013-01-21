@@ -19,7 +19,7 @@ class ioPixmap;
 class uiMainWin;
 mFDQtclass(QSplashScreen)
 
-mClass(uiBase) uiSplashScreen
+mExpClass(uiBase) uiSplashScreen
 {
 public:
     				uiSplashScreen(const ioPixmap&);

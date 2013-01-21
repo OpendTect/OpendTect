@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "valseries.h"
 
-mClass(Algo) VSEvent
+mExpClass(Algo) VSEvent
 {
 public:
     enum Type	{ None, Extr, Max, Min, ZC, ZCNegPos, ZCPosNeg,

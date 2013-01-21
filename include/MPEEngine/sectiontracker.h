@@ -37,7 +37,7 @@ class SectionAdjuster;
 \brief Tracks sections of EM::EMObject with ID EM::SectionID.
 */
 
-mClass(MPEEngine) SectionTracker
+mExpClass(MPEEngine) SectionTracker
 {
 public:
     				SectionTracker( EM::EMObject&,

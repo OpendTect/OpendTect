@@ -44,7 +44,7 @@ If ThreadWorker is set, it utilizes mt processing.
 
 */
 
-mClass(visBase) Texture : public DataObject
+mExpClass(visBase) Texture : public DataObject
 {
 public:
     enum		DataType { Color, Transparency,

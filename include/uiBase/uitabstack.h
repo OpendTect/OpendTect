@@ -30,7 +30,7 @@ class uiTabBar;
     child-of-child."
    
 */
-mClass(uiBase) uiTabStack : public uiGroup
+mExpClass(uiBase) uiTabStack : public uiGroup
 {
 public:
 			uiTabStack(uiParent*,const char* nm,

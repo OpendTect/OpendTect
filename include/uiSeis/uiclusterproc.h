@@ -24,7 +24,7 @@ class uiTextEdit;
 
 class ClusterProc;
 
-mClass(uiSeis) uiClusterProc : public uiDialog
+mExpClass(uiSeis) uiClusterProc : public uiDialog
 {
 public:
                         uiClusterProc(uiParent*,const IOPar& iop);

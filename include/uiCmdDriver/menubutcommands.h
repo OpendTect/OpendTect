@@ -29,7 +29,7 @@ mStartDeclCmdClass( uiCmdDriver, Menu, UiObjectCmd )
     bool        isLocalEnvCommand() const       	{ return false; }    
 mEndDeclCmdClass
 
-mClass(uiCmdDriver) MenuActivator : public Activator
+mExpClass(uiCmdDriver) MenuActivator : public Activator
 {
 public:	
 		MenuActivator(const uiMenuItem&);
@@ -47,7 +47,7 @@ protected:
     bool	actQDlgButton(const char* parstr);
 mEndDeclCmdClass
 
-mClass(uiCmdDriver) ButtonActivator : public Activator
+mExpClass(uiCmdDriver) ButtonActivator : public Activator
 {
 public:	
 		ButtonActivator(const uiButton&);
@@ -63,7 +63,7 @@ protected:
     bool	actCloseCurWin(const char* parstr);
 mEndDeclCmdClass
 
-mClass(uiCmdDriver) MdiAreaCloseActivator : public Activator
+mExpClass(uiCmdDriver) MdiAreaCloseActivator : public Activator
 {
 public:	
 		MdiAreaCloseActivator(const uiMdiArea&,const char* winname);
@@ -81,7 +81,7 @@ protected:
     bool	actShowCurWin(const char* parstr);
 mEndDeclCmdClass
 
-mClass(uiCmdDriver) ShowActivator : public Activator
+mExpClass(uiCmdDriver) ShowActivator : public Activator
 {
 public:	
 		ShowActivator(const uiMainWin&,int minnormax);
@@ -93,7 +93,7 @@ protected:
 };
 
 
-mClass(uiCmdDriver) MdiAreaShowActivator : public Activator
+mExpClass(uiCmdDriver) MdiAreaShowActivator : public Activator
 {
 public:	
 		MdiAreaShowActivator(const uiMdiArea&,const char* winname,
@@ -108,7 +108,7 @@ protected:
 
 mStartDeclCmdClass( uiCmdDriver, Tab, UiObjectCmd )		mEndDeclCmdClass
 
-mClass(uiCmdDriver) TabActivator : public Activator
+mExpClass(uiCmdDriver) TabActivator : public Activator
 {
 public:
 		TabActivator(const uiTabBar&,int tabidx);

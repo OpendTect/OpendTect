@@ -30,11 +30,11 @@ namespace EM
 relationship for the horizons.
 */
 
-mClass(EarthModel) RelationTree
+mExpClass(EarthModel) RelationTree
 {
 public:
 
-    mClass(EarthModel) Node
+    mExpClass(EarthModel) Node
     {
     public:
 				Node(const MultiID&);

@@ -45,7 +45,7 @@ class VelocityPicks;
 
 /*!A Event is a set of picks on an event on a single prestack gather. */
 
-mClass(PreStackProcessing) Event
+mExpClass(PreStackProcessing) Event
 {
 public:
     			Event(int sz,bool quality);
@@ -76,7 +76,7 @@ public:
 
 
 /*!A EventSet is a set of Events on a single prestack gather. */
-mClass(PreStackProcessing) EventSet
+mExpClass(PreStackProcessing) EventSet
 { mRefCountImplWithDestructor(EventSet,virtual ~EventSet(), {});
 public:
     			EventSet();
@@ -95,7 +95,7 @@ public:
 /*!A EventManager is a set of EventsSet on multiple prestack
    gathers, and are identified under the same MultiID. */
 
-mClass(PreStackProcessing) EventManager : public CallBacker
+mExpClass(PreStackProcessing) EventManager : public CallBacker
 { mRefCountImpl(EventManager);
 public:
     mStruct(PreStackProcessing) DipSource
@@ -234,7 +234,7 @@ protected:
 };
 
 
-mClass(PreStackProcessing) SetPickUndo : public BinIDUndoEvent
+mExpClass(PreStackProcessing) SetPickUndo : public BinIDUndoEvent
 {
 public:
     			SetPickUndo(EventManager&,const BinID&,int horidx,
@@ -261,7 +261,7 @@ protected:
 };
 
 
-mClass(PreStackProcessing) SetEventUndo : public UndoEvent
+mExpClass(PreStackProcessing) SetEventUndo : public UndoEvent
 {
 public:
     			SetEventUndo(EventManager&,const BinID&,int horidx,

@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class ODHttp;
 
-mClass(Network) HttpTask : public Executor
+mExpClass(Network) HttpTask : public Executor
 {
 public:
     			HttpTask(ODHttp&);

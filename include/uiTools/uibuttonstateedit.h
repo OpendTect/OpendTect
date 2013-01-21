@@ -19,7 +19,7 @@ class uiGenInput;
 
 /*!Simple field to edit OD::ButtonState. */
 
-mClass(uiTools) uiButtonStateEdit : public uiGroup
+mExpClass(uiTools) uiButtonStateEdit : public uiGroup
 {
 public:
     		uiButtonStateEdit(uiParent*,const char* label,int initialstate);

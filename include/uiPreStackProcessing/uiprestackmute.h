@@ -25,7 +25,7 @@ namespace PreStack
 class Mute;
 class Processor;
 
-mClass(uiPreStackProcessing) uiMute : public uiDialog
+mExpClass(uiPreStackProcessing) uiMute : public uiDialog
 {
 public:
 

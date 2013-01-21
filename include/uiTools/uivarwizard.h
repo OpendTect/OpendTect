@@ -24,7 +24,7 @@ class uiVarWizardDlg;
  
  */
 
-mClass(uiTools) uiVarWizard : public CallBacker
+mExpClass(uiTools) uiVarWizard : public CallBacker
 {
 public:
 

@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 /*!Object that draws markers on a basemap */
 
-mClass(General) BaseMapMarkers : public BaseMapObject
+mExpClass(General) BaseMapMarkers : public BaseMapObject
 {
 public:
 				BaseMapMarkers();

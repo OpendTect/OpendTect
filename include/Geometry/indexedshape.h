@@ -26,7 +26,7 @@ class TaskRunner;
 namespace Geometry
 {
     
-mClass(Geometry) PrimitiveSet
+mExpClass(Geometry) PrimitiveSet
 { mRefCountImplNoDestructor(PrimitiveSet);
 public:
     enum 	PrimitiveType{Points,Lines,Triangles,
@@ -47,7 +47,7 @@ protected:
 };
 
     
-mClass(Geometry) IndexedPrimitiveSet : public PrimitiveSet
+mExpClass(Geometry) IndexedPrimitiveSet : public PrimitiveSet
 {
 public:
     static IndexedPrimitiveSet*	create(bool large);
@@ -63,7 +63,7 @@ public:
 };
    
     
-mClass(Geometry) RangePrimitiveSet : public PrimitiveSet
+mExpClass(Geometry) RangePrimitiveSet : public PrimitiveSet
 {
 public:
     static RangePrimitiveSet*	create();
@@ -72,7 +72,7 @@ public:
 };
     
     
-mClass(Geometry) PrimitiveSetCreator
+mExpClass(Geometry) PrimitiveSetCreator
 {
 public:
     virtual 			~PrimitiveSetCreator() {}
@@ -91,7 +91,7 @@ protected:
 /*!A geomtetry that is defined by a number of coordinates (defined outside
    the class), by specifying connections between the coordiates. */
 
-mClass(Geometry) IndexedGeometry
+mExpClass(Geometry) IndexedGeometry
 {
 public:
     enum	Type { Points, Lines, Triangles, TriangleStrip, TriangleFan };
@@ -141,7 +141,7 @@ protected:
    is defined in an ObjectSet of IndexedGeometry. All IndexedGeometry share
    one common coordinate and normal list. */
 
-mClass(Geometry) IndexedShape
+mExpClass(Geometry) IndexedShape
 {
 public:
     virtual 		~IndexedShape();
@@ -188,7 +188,7 @@ private:
 };
 
 
-mClass(Geometry) ExplicitIndexedShape : public IndexedShape, public CallBacker
+mExpClass(Geometry) ExplicitIndexedShape : public IndexedShape, public CallBacker
 {
 public:
     			ExplicitIndexedShape()	{}

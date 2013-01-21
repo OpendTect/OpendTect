@@ -24,7 +24,7 @@ class Level;
 
 /*!\brief Event tied to a stratigraphic level. */
 
-mClass(WellAttrib) SeisEvent
+mExpClass(WellAttrib) SeisEvent
 {
 public:
     			SeisEvent(const Level* l=0,

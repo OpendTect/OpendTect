@@ -20,7 +20,7 @@ template <class T> class Interval;
 
 /*\brief Prepare data for usage in NLA training */
 
-mClass(NLA) NLADataPreparer
+mExpClass(NLA) NLADataPreparer
 {
 public:
     			NLADataPreparer( BinIDValueSet& bvs, int tc )

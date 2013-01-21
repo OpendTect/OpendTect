@@ -21,7 +21,7 @@ class uiLabeledSpinBox;
 
 /*! \brief DipFilter Attribute description editor */
 
-mClass(uiAttributes) uiDipFilterAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiDipFilterAttrib : public uiAttrDescEd
 {
 public:
 

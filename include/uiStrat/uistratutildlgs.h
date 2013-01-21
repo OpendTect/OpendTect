@@ -31,7 +31,7 @@ namespace Strat { class Lithology; }
 
 /*!\brief Displays a dialog to create/edit a new stratigraphic unit */
 
-mClass(uiStrat) uiStratLithoBox : public uiListBox
+mExpClass(uiStrat) uiStratLithoBox : public uiListBox
 {
 public:
     			uiStratLithoBox(uiParent*);
@@ -42,7 +42,7 @@ protected:
 };
 
 
-mClass(uiStrat) uiStratUnitEditDlg : public uiDialog
+mExpClass(uiStrat) uiStratUnitEditDlg : public uiDialog
 {
 public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
@@ -71,7 +71,7 @@ protected:
 };
 
 
-mClass(uiStrat) uiStratLithoDlg : public uiDialog
+mExpClass(uiStrat) uiStratLithoDlg : public uiDialog
 {
 public:
 
@@ -102,7 +102,7 @@ protected:
 
 /*!\brief Displays a Table to create new units from an existing one */
 
-mClass(uiStrat) uiStratUnitDivideDlg : public uiDialog
+mExpClass(uiStrat) uiStratUnitDivideDlg : public uiDialog
 {
 public:
 				uiStratUnitDivideDlg(uiParent*,
@@ -112,7 +112,7 @@ public:
 
 protected :
 
-    mClass(uiStrat) uiDivideTable : public uiTable
+    mExpClass(uiStrat) uiDivideTable : public uiTable
     {
 	public: 	
 				uiDivideTable(uiParent* p,
@@ -140,7 +140,7 @@ protected :
 
 /*!\brief Displays a dialog to create new lithology */
 
-mClass(uiStrat) uiStratLevelDlg : public uiDialog
+mExpClass(uiStrat) uiStratLevelDlg : public uiDialog
 {
 public:
 
@@ -156,7 +156,7 @@ protected:
 };
 
 
-mClass(uiStrat) uiStratLinkLvlUnitDlg : public uiDialog
+mExpClass(uiStrat) uiStratLinkLvlUnitDlg : public uiDialog
 {
 public:
 
@@ -175,7 +175,7 @@ protected:
 };
 
 
-mClass(uiStrat) uiStratContentsDlg : public uiDialog
+mExpClass(uiStrat) uiStratContentsDlg : public uiDialog
 {
 public:
 			uiStratContentsDlg(uiParent*);

@@ -62,7 +62,7 @@ Notes:
 
 */
 
-mClass(Seis) SeisImpBPSIF : public Executor
+mExpClass(Seis) SeisImpBPSIF : public Executor
 {
 public:
 

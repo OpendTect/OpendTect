@@ -28,7 +28,7 @@ namespace Seis
  
  */
 
-mClass(Seis) Bounds
+mExpClass(Seis) Bounds
 {
 public:
 
@@ -50,7 +50,7 @@ public:
 };
 
 
-mClass(Seis) Bounds3D : public Bounds
+mExpClass(Seis) Bounds3D : public Bounds
 {
 public:
 
@@ -71,7 +71,7 @@ public:
 };
 
 
-mClass(Seis) Bounds2D : public Bounds
+mExpClass(Seis) Bounds2D : public Bounds
 {
 public:
 

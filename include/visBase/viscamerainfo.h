@@ -26,7 +26,7 @@ namespace visBase
 
 */
 
-mClass(visBase) CameraInfo : public DataObject
+mExpClass(visBase) CameraInfo : public DataObject
 {
 public:
 

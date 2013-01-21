@@ -23,7 +23,7 @@ namespace visBase
 
 /*!Controls the culling and rendering of an object. See Coin for details. */
 
-mClass(visBase) ShapeHints : public DataObject
+mExpClass(visBase) ShapeHints : public DataObject
 {
 public:
 

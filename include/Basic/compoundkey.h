@@ -30,7 +30,7 @@ ________________________________________________________________________
   It is similar to a UNIX-type glob expression.
 */
 
-mClass(Basic) CompoundKey
+mExpClass(Basic) CompoundKey
 {
 public:
 

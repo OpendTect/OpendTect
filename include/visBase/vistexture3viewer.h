@@ -30,7 +30,7 @@ namespace visBase
 {
 class Texture3;
 
-mClass(visBase) Texture3ViewerObject : public VisualObjectImpl
+mExpClass(visBase) Texture3ViewerObject : public VisualObjectImpl
 {
 public:
     				Texture3ViewerObject( bool sel=true )
@@ -49,7 +49,7 @@ direction can be cut through the texture. The positions of the object in
 in front of it.
 */
 
-mClass(visBase) Texture3Viewer : public VisualObjectImpl
+mExpClass(visBase) Texture3Viewer : public VisualObjectImpl
 {
 public:
     static Texture3Viewer*	create()
@@ -80,7 +80,7 @@ protected:
 };
 
 
-mClass(visBase) Texture3Slice : public Texture3ViewerObject
+mExpClass(visBase) Texture3Slice : public Texture3ViewerObject
 {
 public:
     static Texture3Slice*	create()
@@ -105,7 +105,7 @@ protected:
 };
 
 
-mClass(visBase) MovableTextureSlice : public Texture3ViewerObject
+mExpClass(visBase) MovableTextureSlice : public Texture3ViewerObject
 {
 public:
     static MovableTextureSlice*	create()

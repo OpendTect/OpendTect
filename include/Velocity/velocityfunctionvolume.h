@@ -32,7 +32,7 @@ class VolumeFunctionSource;
 
 /*!VelocityFunction that gets its information from a Velocity Volume. */
 
-mClass(Velocity) VolumeFunction : public Function
+mExpClass(Velocity) VolumeFunction : public Function
 {
 public:
 			VolumeFunction(VolumeFunctionSource&);
@@ -59,7 +59,7 @@ protected:
 };
 
 
-mClass(Velocity) VolumeFunctionSource : public FunctionSource
+mExpClass(Velocity) VolumeFunctionSource : public FunctionSource
 {
 public:
     mDefaultFactoryInstanciationBase( "Velocity volume", sFactoryKeyword() );

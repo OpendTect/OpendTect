@@ -20,7 +20,7 @@ ________________________________________________________________________
 namespace visSurvey { class Scene; }
 class uiVisPartServer;
 
-mClass(uiVis) uiVisPickRetriever : public PickRetriever
+mExpClass(uiVis) uiVisPickRetriever : public PickRetriever
 {
 public:
     			uiVisPickRetriever(uiVisPartServer*);

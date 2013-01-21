@@ -46,7 +46,7 @@ class ProviderTask;
   \brief Provides the actual output to ...
 */
 
-mClass(AttributeEngine) Provider
+mExpClass(AttributeEngine) Provider
 {				mRefCountImpl(Provider);
 
     friend class		ProviderTask;

@@ -28,7 +28,7 @@ namespace SqlDB
 \brief Bug history table entry in SQL Database.
 */
 
-mClass(Database) BugHistoryTableEntry
+mExpClass(Database) BugHistoryTableEntry
 {
 public:    
 
@@ -55,7 +55,7 @@ public:
 \brief Bug text table entry in SQL Database.
 */
 
-mClass(Database) BugTextTableEntry
+mExpClass(Database) BugTextTableEntry
 {
 public:
 
@@ -89,7 +89,7 @@ protected:
 \brief 
 */
 
-mClass(Database) BugTableEntry
+mExpClass(Database) BugTableEntry
 {
 public:
 

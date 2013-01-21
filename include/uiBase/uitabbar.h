@@ -22,7 +22,7 @@ class uiTab;
 
 
 //! TabBar widget only. Normally you'd want to use the uiTabStack class.
-mClass(uiBase) uiTabBar : public uiObject
+mExpClass(uiBase) uiTabBar : public uiObject
 {
 friend class		i_tabbarMessenger;
 friend class		uiTabStack;
@@ -59,7 +59,7 @@ protected:
 };
 
 
-mClass(uiBase) uiTab : public NamedObject
+mExpClass(uiBase) uiTab : public NamedObject
 {
 friend class		uiTabBar;
 public:

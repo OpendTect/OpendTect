@@ -24,7 +24,7 @@ namespace PreStack
 class SemblanceAlgorithm;
 
 /*! Base class for algorithms that computes semblance along a moveout */
-mClass(uiPreStackProcessing) uiSemblanceAlgorithm : public uiDialog
+mExpClass(uiPreStackProcessing) uiSemblanceAlgorithm : public uiDialog
 {
 public:
     			mDefineFactory1ParamInClass(uiSemblanceAlgorithm,

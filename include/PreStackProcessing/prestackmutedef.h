@@ -25,7 +25,7 @@ class PointBasedMathFunction;
 namespace PreStack
 {
 
-mClass(PreStackProcessing) MuteDef : public NamedObject
+mExpClass(PreStackProcessing) MuteDef : public NamedObject
 {
 public:
 					MuteDef(const char* nm=0);

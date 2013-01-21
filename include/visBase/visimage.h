@@ -29,7 +29,7 @@ namespace visBase
 
 /*!Displays an image that either is read from disk or in memory. */
 
-mClass(visBase) Image : public DataObject
+mExpClass(visBase) Image : public DataObject
 {
 public:
     static Image*	create()
@@ -51,7 +51,7 @@ protected:
 };
 
 
-mClass(visBase) RGBImage : public OD::RGBImage
+mExpClass(visBase) RGBImage : public OD::RGBImage
 {
 public:
     		RGBImage();

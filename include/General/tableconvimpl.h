@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace Table
 {
 
-mClass(General) WSImportHandler : public ImportHandler
+mExpClass(General) WSImportHandler : public ImportHandler
 {
 public:
 
@@ -45,7 +45,7 @@ protected:
 };
 
 
-mClass(General) CSVImportHandler : public ImportHandler
+mExpClass(General) CSVImportHandler : public ImportHandler
 {
 public:
     			CSVImportHandler( std::istream& s )
@@ -69,7 +69,7 @@ protected:
 };
 
 
-mClass(General) WSExportHandler : public ExportHandler
+mExpClass(General) WSExportHandler : public ExportHandler
 {
 public:
 
@@ -91,7 +91,7 @@ protected:
 };
 
 
-mClass(General) CSVExportHandler : public ExportHandler
+mExpClass(General) CSVExportHandler : public ExportHandler
 {
 public:
     			CSVExportHandler( std::ostream& s )
@@ -106,7 +106,7 @@ protected:
 };
 
 
-mClass(General) SQLInsertExportHandler : public ExportHandler
+mExpClass(General) SQLInsertExportHandler : public ExportHandler
 {
 public:
 
@@ -146,7 +146,7 @@ protected:
 
   */
 
-mClass(General) StartStopManipulator : public Converter::RowManipulator
+mExpClass(General) StartStopManipulator : public Converter::RowManipulator
 {
 public:
 		StartStopManipulator()
@@ -188,7 +188,7 @@ protected:
 /*!\brief Only passes records where col(s) (don't) match expression(s) */
 
 
-mClass(General) RecordMatcher : public Converter::RowManipulator
+mExpClass(General) RecordMatcher : public Converter::RowManipulator
 {
 public:
     			RecordMatcher( bool a=true )
@@ -217,7 +217,7 @@ protected:
   */
 
 
-mClass(General) DuplicateKeyRemover : public Converter::RowManipulator
+mExpClass(General) DuplicateKeyRemover : public Converter::RowManipulator
 {
 public:
     			DuplicateKeyRemover()

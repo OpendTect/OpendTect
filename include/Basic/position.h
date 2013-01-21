@@ -28,7 +28,7 @@ class RowCol;
 \brief A cartesian coordinate in 2D space.
 */
 
-mClass(Basic) Coord : public Geom::Point2D<double>
+mExpClass(Basic) Coord : public Geom::Point2D<double>
 {
 public:
 		Coord( const Geom::Point2D<double>& p )
@@ -72,7 +72,7 @@ bool getDirectionStr( const Coord&, BufferString& );
 \brief A cartesian coordinate in 3D space.
 */
 
-mClass(Basic) Coord3 : public Coord
+mExpClass(Basic) Coord3 : public Coord
 {
 public:
 
@@ -142,7 +142,7 @@ inline Coord3 operator*( double f, const Coord3& b )
 \brief 2D coordinate and a value.
 */
 
-mClass(Basic) CoordValue
+mExpClass(Basic) CoordValue
 {
 public:
 		CoordValue( double x=0, double y=0, float v=mUdf(float) )
@@ -164,7 +164,7 @@ public:
 \brief 3D coordinate and a value.
 */
 
-mClass(Basic) Coord3Value
+mExpClass(Basic) Coord3Value
 {
 public:
     		Coord3Value( double x=0, double y=0, double z=0, 
@@ -188,7 +188,7 @@ public:
 identical to RowCol.
 */
 
-mClass(Basic) BinID
+mExpClass(Basic) BinID
 {
 public:
     inline			BinID(int r,int c);
@@ -308,7 +308,7 @@ public:
 \brief BinID and values. If one of the values is Z, make it the first one.
 */
 
-mClass(Basic) BinIDValues
+mExpClass(Basic) BinIDValues
 {
 public:
 			BinIDValues( int inl=0, int crl=0, int n=2 )

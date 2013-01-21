@@ -21,7 +21,7 @@ class uiGenInput;
 class uiPushButton;
 namespace visSurvey { class FaultDisplay; }
 
-mClass(uiVis) uiFaultDisplayOptGrp : public uiDlgGroup
+mExpClass(uiVis) uiFaultDisplayOptGrp : public uiDlgGroup
 {
 public: 
     		 		uiFaultDisplayOptGrp(uiParent*,

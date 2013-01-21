@@ -29,7 +29,7 @@ class StoredFunctionSource;
 
 /*!VelocityFunction that gets its information from a Velocity Picks. */
 
-mClass(Velocity) StoredFunction : public Function
+mExpClass(Velocity) StoredFunction : public Function
 {
 public:
 				StoredFunction(StoredFunctionSource&);
@@ -47,7 +47,7 @@ protected:
 };
 
 
-mClass(Velocity) StoredFunctionSource : public FunctionSource
+mExpClass(Velocity) StoredFunctionSource : public FunctionSource
 {
 public:
     mDefaultFactoryInstanciationBase( "StoredVelFunc", sFactoryKeyword());

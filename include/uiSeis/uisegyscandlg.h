@@ -22,7 +22,7 @@ class uiSeis2DLineSel;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mClass(uiSeis) uiSEGYScanDlg : public uiSEGYReadDlg
+mExpClass(uiSeis) uiSEGYScanDlg : public uiSEGYReadDlg
 {
 public :
 

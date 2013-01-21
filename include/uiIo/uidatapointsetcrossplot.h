@@ -45,7 +45,7 @@ template <class T> class Array1D;
 /*!\brief Data Point Set Cross Plotter */
 
 
-mClass(uiIo) uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
+mExpClass(uiIo) uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
 {
 public:
 
@@ -90,7 +90,7 @@ public:
     void		dataChanged();
 
     //!< Only use if you know what you're doing
-    mClass(uiIo) AxisData : 	public uiAxisData
+    mExpClass(uiIo) AxisData : 	public uiAxisData
     {
 	public:
 				AxisData(uiDataPointSetCrossPlotter&,

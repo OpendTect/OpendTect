@@ -74,7 +74,7 @@ typedef PlaneParameters<float> PlanePars;
 \brief linear stats in 2D.
 */
 
-mClass(Algo) LinStats2D
+mExpClass(Algo) LinStats2D
 {
 public:
 		LinStats2D() : corrcoeff(0)	{}
@@ -93,7 +93,7 @@ public:
 \brief linear stats in 3D.
 */
 
-mClass(Algo) LinStats3D
+mExpClass(Algo) LinStats3D
 {
 public:
 		LinStats3D() : corrcoeff(0)	{}

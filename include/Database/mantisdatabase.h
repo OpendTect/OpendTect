@@ -28,7 +28,7 @@ class BugHistoryTableEntry;
 web-based bug-tracking system.
 */
 
-mClass(Database) MantisAccess : public MySqlAccess
+mExpClass(Database) MantisAccess : public MySqlAccess
 {
 public:
 
@@ -43,7 +43,7 @@ public:
 \brief A Mantis Query.
 */
 
-mClass(Database) MantisQuery : public Query
+mExpClass(Database) MantisQuery : public Query
 {
 public:
 			MantisQuery(MantisAccess&);
@@ -58,7 +58,7 @@ public:
 \brief Mantis Database Manager.
 */
 
-mClass(Database) MantisDBMgr
+mExpClass(Database) MantisDBMgr
 {
 public:
 

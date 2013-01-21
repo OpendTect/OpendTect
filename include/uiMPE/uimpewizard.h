@@ -39,7 +39,7 @@ namespace MPE {
 
 class uiSetupGroup;
 
-mClass(uiMPE) Wizard : public uiWizard
+mExpClass(uiMPE) Wizard : public uiWizard
 {
 public:
 			Wizard( uiParent*, uiMPEPartServer* );

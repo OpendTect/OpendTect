@@ -24,7 +24,7 @@ class MathExpression;
 
 /*! \brief Math Attribute description editor */
 
-mClass(uiAttributes) uiMathAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiMathAttrib : public uiAttrDescEd
 {
 public:
 

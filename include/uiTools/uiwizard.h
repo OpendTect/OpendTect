@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class uiGroup;
 
-mClass(uiTools) uiWizard : public uiDialog
+mExpClass(uiTools) uiWizard : public uiDialog
 {
 public:
 			uiWizard(uiParent*,uiDialog::Setup&);

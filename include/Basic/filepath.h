@@ -32,7 +32,7 @@ ________________________________________________________________________
   part.
 */
 
-mClass(Basic) FilePath
+mExpClass(Basic) FilePath
 {
 public:
     enum Style		{ Local, Unix, Windows };

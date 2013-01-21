@@ -21,7 +21,7 @@ namespace Attrib { class SelSpec; };
 
 /*! Implementation of uiODDataTreeItem for standard attribute displays. */
 
-mClass(uiODMain) uiODAttribTreeItem : public uiODDataTreeItem
+mExpClass(uiODMain) uiODAttribTreeItem : public uiODDataTreeItem
 {
 public:
     			uiODAttribTreeItem( const char* parenttype );

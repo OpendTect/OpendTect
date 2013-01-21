@@ -26,7 +26,7 @@ namespace PosInfo
 \brief One position on a 2D line.
 */
 
-mClass(Basic) Line2DPos
+mExpClass(Basic) Line2DPos
 {
 public:
 
@@ -49,7 +49,7 @@ public:
 \brief Line2DPos with a z value.
 */
 
-mClass(Basic) Line2DPos3D : public Line2DPos
+mExpClass(Basic) Line2DPos3D : public Line2DPos
 {
 public:
 		Line2DPos3D( int n=0, float z=mUdf(float) )
@@ -64,7 +64,7 @@ public:
 \brief Position info for a 2D line.
 */
 
-mClass(Basic) Line2DData
+mExpClass(Basic) Line2DData
 {
 public:
 			Line2DData(const char* lnm=0);

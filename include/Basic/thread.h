@@ -138,7 +138,7 @@ protected:
   the thread that has locked it will unlock it.
 */
 
-mClass(Basic) Mutex
+mExpClass(Basic) Mutex
 {
 public:
 			Mutex( bool recursive=false );
@@ -170,7 +170,7 @@ lock is available. Because they avoid overhead from operating system process
 re-scheduling or context switching, spinlocks are efficient if threads are only likely to be blocked for a short period.
 */
 
-mClass(Basic) SpinLock
+mExpClass(Basic) SpinLock
 {
 public:
 			SpinLock();
@@ -221,7 +221,7 @@ happen.
 */
 
 
-mClass(Basic) ConditionVar : public Mutex
+mExpClass(Basic) ConditionVar : public Mutex
 {
 public:
 				ConditionVar();
@@ -251,7 +251,7 @@ but it will not allow any readers when writelocked, and no writelock is allowed
 when readlocked.
 */
 
-mClass(Basic) ReadWriteLock
+mExpClass(Basic) ReadWriteLock
 {
 public:
     			ReadWriteLock();
@@ -310,7 +310,7 @@ locked and unlocked automatically when returning.
 */
 
 #define mLockerClassImpl( mod, clssnm, clss, lockfn, unlockfn, trylockfn ) \
-mClass(mod) clssnm \
+mExpClass(mod) clssnm \
 { \
 public: \
 		clssnm( clss& thelock, bool wait=true ) \
@@ -352,7 +352,7 @@ mLockerClassImpl( Basic, WriteLockLocker, ReadWriteLock,
 Barrier::waitForAll). Once everyone has arrived, everyone is released.
 */
 
-mClass(Basic) Barrier
+mExpClass(Basic) Barrier
 {
 public:
     			Barrier(int nrthreads=-1,bool immediatrelease=true);
@@ -396,7 +396,7 @@ the function or CallBack to execute.
   The process that has created the thread must call destroy() or detach().
 */
 
-mClass(Basic) Thread
+mExpClass(Basic) Thread
 {
 public:
 

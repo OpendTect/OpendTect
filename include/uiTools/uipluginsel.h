@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 class uiCheckBox;
 
-mClass(uiTools) uiPluginSel : public uiDialog
+mExpClass(uiTools) uiPluginSel : public uiDialog
 {
 public:
     				uiPluginSel(uiParent*);

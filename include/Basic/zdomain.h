@@ -39,7 +39,7 @@ mGlobal(Basic) void		setTime(IOPar&);
 \brief Definition of z-domain.
 */
 
-mClass(Basic) Def
+mExpClass(Basic) Def
 {
 public:
 
@@ -84,7 +84,7 @@ protected:
 \brief Information of z-domain.
 */
 
-mClass(Basic) Info
+mExpClass(Basic) Info
 {
 public:
     			Info(const Def&);

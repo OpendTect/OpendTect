@@ -54,7 +54,7 @@ only if the uiGenInput has not been finalised yet.
 
 */
 
-mClass(uiTools) uiGenInput : public uiGroup
+mExpClass(uiTools) uiGenInput : public uiGroup
 {
 public:
 			uiGenInput( uiParent* p, const char* disptxt

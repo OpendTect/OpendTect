@@ -39,7 +39,7 @@ namespace Well
  
  */
 
-mClass(Well) Log : public DahObj
+mExpClass(Well) Log : public DahObj
 {
 public:
 

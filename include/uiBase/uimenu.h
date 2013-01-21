@@ -35,14 +35,14 @@ mFDQtclass(QMenuBar)
 template<class T> class ObjectSet;
 
 
-mClass(uiBase) MenuItemSeparString : public SeparString
+mExpClass(uiBase) MenuItemSeparString : public SeparString
 {
 public:
     	MenuItemSeparString(const char* str=0) : SeparString(str,'`')	{}
 };
 
 
-mClass(uiBase) uiMenuItemContainer : public uiBaseObject
+mExpClass(uiBase) uiMenuItemContainer : public uiBaseObject
 {
 template<class> friend class	uiMenuItemContainerBodyImpl;
 
@@ -87,7 +87,7 @@ protected:
     messenger, so Qt's signals can be relayed.
 */
 
-mClass(uiBase) uiMenuItem : public NamedObject
+mExpClass(uiBase) uiMenuItem : public NamedObject
 {
 template<class> friend class	uiMenuItemContainerBodyImpl;
 
@@ -165,7 +165,7 @@ public:
 };
 
 
-mClass(uiBase) uiPopupItem : public uiMenuItem
+mExpClass(uiBase) uiPopupItem : public uiMenuItem
 {
 friend class uiPopupMenu;
 protected:
@@ -189,7 +189,7 @@ protected:
 
 mFDQtclass(QPixmap)
 
-mClass(uiBase) uiMenuBar : public uiMenuItemContainer
+mExpClass(uiBase) uiMenuBar : public uiMenuItemContainer
 {
 
     friend class		uiMainWinBody;
@@ -212,7 +212,7 @@ protected:
 };
 
 
-mClass(uiBase) uiPopupMenu : public uiMenuItemContainer
+mExpClass(uiBase) uiPopupMenu : public uiMenuItemContainer
 {
 
 public:                        

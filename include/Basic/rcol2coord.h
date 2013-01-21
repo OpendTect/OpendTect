@@ -24,7 +24,7 @@ template <class T> class StepInterval;
 \brief Encapsulates linear transform from (i,j) index to (x,y) coordinates.
 */
 
-mClass(Basic) RCol2Coord
+mExpClass(Basic) RCol2Coord
 {
 public:
 

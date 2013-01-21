@@ -29,7 +29,7 @@ namespace visSurvey { class FaultDisplay; class FaultStickSetDisplay; }
 mDefineItem( FaultParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass(uiODMain) uiODFaultTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODFaultTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -39,7 +39,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODFaultTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODFaultTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODFaultTreeItem(int,bool dummy);
@@ -83,7 +83,7 @@ protected:
 mDefineItem( FaultStickSetParent, TreeItem, TreeTop,mShowMenu mMenuOnAnyButton);
 
 
-mClass(uiODMain) uiODFaultStickSetTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODFaultStickSetTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -93,7 +93,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODFaultStickSetTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODFaultStickSetTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODFaultStickSetTreeItem(int,bool dummy);
@@ -126,7 +126,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODFaultSurfaceDataTreeItem : public uiODAttribTreeItem
+mExpClass(uiODMain) uiODFaultSurfaceDataTreeItem : public uiODAttribTreeItem
 {
 public:
     			uiODFaultSurfaceDataTreeItem(EM::ObjectID,

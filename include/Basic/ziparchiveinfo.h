@@ -25,7 +25,7 @@ class ZipFileInfo;
 \brief Gives information of zip archives.
 */
 
-mClass(Basic) ZipArchiveInfo
+mExpClass(Basic) ZipArchiveInfo
 {
 public:
 

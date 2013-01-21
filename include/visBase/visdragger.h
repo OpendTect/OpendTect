@@ -31,7 +31,7 @@ namespace visBase
 class Transformation;
 
 
-mClass(visBase) Dragger : public DataObject
+mExpClass(visBase) Dragger : public DataObject
 {
 public:
     static Dragger*		create()

@@ -19,7 +19,7 @@ class uiLineEdit;
 class uiComboBox;
 class Price;
 
-mClass(uiTools) uiPrice : public uiGroup
+mExpClass(uiTools) uiPrice : public uiGroup
 {
 public:
 		uiPrice( uiParent* p, const char* label,

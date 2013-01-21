@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "commondefs.h"
 
-mClass(uiBase) uiDesktopServices
+mExpClass(uiBase) uiDesktopServices
 {
 public:
     static bool		openUrl(const char* url);

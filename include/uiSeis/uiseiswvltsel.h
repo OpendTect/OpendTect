@@ -21,7 +21,7 @@ class uiComboBox;
 
 /*!\brief 'Immediate' Wavelet selector, with 'Manage' button */
 
-mClass(uiSeis) uiSeisWaveletSel : public uiGroup
+mExpClass(uiSeis) uiSeisWaveletSel : public uiGroup
 {
 public:
 

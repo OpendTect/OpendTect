@@ -29,7 +29,7 @@ class Coordinates;
 /*!Splitting a surface along random line into smaller blocks, where the random 
    line is a set of binids with some knots. Before having the shape, you have to   at least set the knots and depth range. */
 
-mClass(visBase) SplitTextureRandomLine : public VisualObjectImpl
+mExpClass(visBase) SplitTextureRandomLine : public VisualObjectImpl
 {
 public:
     static SplitTextureRandomLine* create()

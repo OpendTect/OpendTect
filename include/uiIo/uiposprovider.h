@@ -24,7 +24,7 @@ class CubeSampling;
 
 /*! \brief lets user choose a way to provide positions */
 
-mClass(uiIo) uiPosProvider : public uiGroup
+mExpClass(uiIo) uiPosProvider : public uiGroup
 {
 public:
 
@@ -70,7 +70,7 @@ protected:
 /*!\brief CompoundParSel to capture a user's Pos::Provider wishes */
 
 
-mClass(uiIo) uiPosProvSel : public uiCompoundParSel
+mExpClass(uiIo) uiPosProvSel : public uiCompoundParSel
 {
 public:
 

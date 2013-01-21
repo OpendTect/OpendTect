@@ -26,7 +26,7 @@ mFDQtclass(QFileSystemWComm)
 \brief Class for monitoring a file system.
 */
 
-mClass(Basic) FileSystemWatcher : public CallBacker 
+mExpClass(Basic) FileSystemWatcher : public CallBacker 
 {
 public:
     friend class mQtclass(QFileSystemWComm);

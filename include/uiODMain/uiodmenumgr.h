@@ -33,7 +33,7 @@ class uiToolBar;
 
 */
 
-mClass(uiODMain) uiODMenuMgr : public CallBacker
+mExpClass(uiODMain) uiODMenuMgr : public CallBacker
 {
 
     friend class	uiODMain;

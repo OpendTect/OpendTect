@@ -21,7 +21,7 @@ namespace ZDomain { class Def; }
 
 /*!\brief Selects sub-Z-range. Default will be SI() work Z Range. */
 
-mClass(uiIo) uiSelZRange : public uiGroup
+mExpClass(uiIo) uiSelZRange : public uiGroup
 {
 public:
                         uiSelZRange(uiParent*,bool wstep,
@@ -56,7 +56,7 @@ protected:
 
 /*!\brief Selects range of trace numbers */
 
-mClass(uiIo) uiSelNrRange : public uiGroup
+mExpClass(uiIo) uiSelNrRange : public uiGroup
 {
 public:
     enum Type		{ Inl, Crl, Gen };
@@ -90,7 +90,7 @@ protected:
 
 /*!\brief Selects step(s) in inl/crl or trcnrs */
 
-mClass(uiIo) uiSelSteps : public uiGroup
+mExpClass(uiIo) uiSelSteps : public uiGroup
 {
 public:
 
@@ -109,7 +109,7 @@ protected:
 
 /*!\brief Selects sub-volume. Default will be SI() work area */
 
-mClass(uiIo) uiSelHRange : public uiGroup
+mExpClass(uiIo) uiSelHRange : public uiGroup
 {
 public:
                         uiSelHRange(uiParent*,bool wstep);
@@ -128,7 +128,7 @@ public:
 
 /*!\brief Selects sub-volume. Default will be SI() work volume */
 
-mClass(uiIo) uiSelSubvol : public uiGroup
+mExpClass(uiIo) uiSelSubvol : public uiGroup
 {
 public:
                         uiSelSubvol(uiParent*,bool wstep);
@@ -144,7 +144,7 @@ public:
 
 /*!\brief Selects sub-line. Default will be 1-udf and SI() z range */
 
-mClass(uiIo) uiSelSubline : public uiGroup
+mExpClass(uiIo) uiSelSubline : public uiGroup
 {
 public:
                         uiSelSubline(uiParent*,bool wstep);

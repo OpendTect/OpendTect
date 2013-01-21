@@ -38,7 +38,7 @@ namespace MPE {
 \brief SequentialTask to autotrack EM::Horizon.
 */
 
-mClass HorizonAutoTracker : public SequentialTask
+mExpClass HorizonAutoTracker : public SequentialTask
 {
 public:	
     				HorizonAutoTracker( EM::Horizon& );

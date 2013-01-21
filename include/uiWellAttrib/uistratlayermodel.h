@@ -35,7 +35,7 @@ class uiStratSyntheticsProvider;
 namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
 
 
-mClass(uiWellAttrib) uiStratLayerModel : public uiMainWin
+mExpClass(uiWellAttrib) uiStratLayerModel : public uiMainWin
 {
 public:
 

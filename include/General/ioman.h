@@ -35,7 +35,7 @@ more instances is probably not a good idea.
 
 */
 
-mClass(General) IOMan : public NamedObject
+mExpClass(General) IOMan : public NamedObject
 {
 public:
 
@@ -73,7 +73,7 @@ public:
 
     const char*		surveyName() const;
 
-    mClass(General) CustomDirData
+    mExpClass(General) CustomDirData
     {
     public:
 			CustomDirData( const char* selkey, const char* dirnm,

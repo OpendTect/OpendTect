@@ -24,7 +24,7 @@ Info:
 namespace Geometry
 {
 
-mClass(Geometry) FaultStickSet : public RowColSurface
+mExpClass(Geometry) FaultStickSet : public RowColSurface
 {
 public:
     			FaultStickSet();

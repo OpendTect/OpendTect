@@ -25,7 +25,7 @@ class uiListBox;
 
 /*!\brief Manages the PROPS(). */
 
-mClass(uiIo) uiManPROPS : public uiDialog
+mExpClass(uiIo) uiManPROPS : public uiDialog
 {
 public:
 
@@ -55,7 +55,7 @@ protected:
  
  */
 
-mClass(uiIo) uiSelectPropRefs : public uiDialog
+mExpClass(uiIo) uiSelectPropRefs : public uiDialog
 {
 public:
 

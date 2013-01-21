@@ -27,7 +27,7 @@ class DescSet;
   \brief Manages attribute description set. 
 */
 
-mClass(AttributeEngine) DescSetMan
+mExpClass(AttributeEngine) DescSetMan
 {
 public:
 

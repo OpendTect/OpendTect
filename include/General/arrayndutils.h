@@ -49,14 +49,12 @@ inline void operator<<( std::ostream& strm, const ArrayND<T>& array )
 }
 
 
-
-/*! \brief Removes the DC component from an ArrayND.
-
-If no output is given, removeBias( ) will store the result in the input
-ArrayND. User can choose to remove only the average or an eventual linear trend.
-
+/*!
+\ingroup General
+\brief Removes the DC component from an ArrayND. If no output is given,
+removeBias( ) will store the result in the input ArrayND. User can choose to
+remove only the average or an eventual linear trend.
 */
-
 
 #define mComputeTrendAandB( sz ) \
 	const T aval = ( (TT)sz * crosssum - sum * (TT)sumindexes ) / \
@@ -152,16 +150,17 @@ inline T computeAvg( ArrayND<T>* in )
 }
 
 
-/*! \brief Tapers the N-dimentional ArrayND with a windowFunction.
+/*!
+\brief Tapers the N-dimentional ArrayND with a windowFunction.
 
-Usage is straightforward- construct and use. If apply()'s second argument is
-omitted, the result will be placed in the input array. apply() will return
-false if input-, output- and window-size are not equal.
-The only requirement on the windowfunction is that it should give full taper
-at x=+-1 and no taper when x=0. Feel free to implement more functions!!
-
+  Usage is straightforward- construct and use. If apply()'s second argument is
+  omitted, the result will be placed in the input array. apply() will return
+  false if input-, output- and window-size are not equal.
+  The only requirement on the windowfunction is that it should give full taper
+  at x=+-1 and no taper when x=0. Feel free to implement more functions!!
 */
-mClass(General) ArrayNDWindow
+
+mExpClass(General) ArrayNDWindow
 {
 public:
     enum WindowType	{ Box, Hamming, Hanning, Blackman, Bartlett,

@@ -28,7 +28,7 @@ namespace Attrib
   of a set of attributes in one go;
 */
     
-mClass(Attributes) Evaluate: public Provider
+mExpClass(Attributes) Evaluate: public Provider
 {
 public:
     static void			initClass();

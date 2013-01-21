@@ -30,7 +30,7 @@ namespace Strat
 
 */
 
-mClass(Strat) Lithology : public ::NamedObject
+mExpClass(Strat) Lithology : public ::NamedObject
 {
 public:
 
@@ -70,7 +70,7 @@ public:
 };
 
 
-mClass(Strat) LithologySet : public CallBacker
+mExpClass(Strat) LithologySet : public CallBacker
 {
 public:
     			LithologySet()

@@ -29,7 +29,7 @@ class Gather;
 
 /*!\brief calculates 'post-stack' properties of a Pre-Stack data store */
 
-mClass(PreStackProcessing) PropCalc
+mExpClass(PreStackProcessing) PropCalc
 {
 public:
 
@@ -40,7 +40,7 @@ public:
     enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff, CorrCoeff };
     			DeclareEnumUtils(LSQType)
 
-    mClass(PreStackProcessing) Setup
+    mExpClass(PreStackProcessing) Setup
     {
     public:
 			Setup()

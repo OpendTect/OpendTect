@@ -20,7 +20,7 @@ ________________________________________________________________________
 namespace Survey
 {
 
-mClass(General) SurvGeomTranslatorGroup : public TranslatorGroup
+mExpClass(General) SurvGeomTranslatorGroup : public TranslatorGroup
 {
 			isTranslatorGroup(SurvGeom);
 
@@ -31,14 +31,14 @@ public:
 };
 
 
-mClass(General) SurvGeomTranslator : public Translator
+mExpClass(General) SurvGeomTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(SurvGeom);
 };
 
 
-mClass(General) dgb2DSurvGeomTranslator : public SurvGeomTranslator
+mExpClass(General) dgb2DSurvGeomTranslator : public SurvGeomTranslator
 {
     			isTranslator(dgb2D,SurvGeom);
 public:
@@ -47,7 +47,7 @@ public:
 };
 
 
-mClass(General) dgb3DSurvGeomTranslator : public SurvGeomTranslator
+mExpClass(General) dgb3DSurvGeomTranslator : public SurvGeomTranslator
 {
     			isTranslator(dgb3D,SurvGeom);
 public:

@@ -22,7 +22,7 @@ template <class T> class StepInterval;
 class uiLabel;
 class uiLineEdit;
 
-mClass(uiBase) uiDial : public uiObject
+mExpClass(uiBase) uiDial : public uiObject
 {
 public:
 
@@ -71,11 +71,11 @@ private:
 };
 
 /*! Dial with label */
-mClass(uiBase) uiDialExtra : public uiGroup
+mExpClass(uiBase) uiDialExtra : public uiGroup
 {
 public:
 
-    mClass(uiBase) Setup
+    mExpClass(uiBase) Setup
     {
 	public:
 	    		Setup(const char* l=0)

@@ -27,7 +27,7 @@ class IOPar;
 class MultiID;
 namespace Seis { class SelData; class TableSelData; }
 
-mClass(uiSeis) uiWaveletExtraction : public uiDialog
+mExpClass(uiSeis) uiWaveletExtraction : public uiDialog
 {
 public:
 				uiWaveletExtraction(uiParent*,bool is2d);

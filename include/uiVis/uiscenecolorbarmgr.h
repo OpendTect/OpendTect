@@ -19,7 +19,7 @@ class uiGenInput;
 class uiSpinBox;
 namespace visBase{ class SceneColTab; }
 
-mClass(uiVis) uiSceneColorbarMgr : public uiDialog
+mExpClass(uiVis) uiSceneColorbarMgr : public uiDialog
 {
 public:
 			uiSceneColorbarMgr(uiParent*,visBase::SceneColTab*);

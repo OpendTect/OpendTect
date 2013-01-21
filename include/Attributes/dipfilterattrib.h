@@ -77,7 +77,7 @@ Inputs:
 </pre>
 */
 
-mClass(Attributes) DipFilter : public Provider
+mExpClass(Attributes) DipFilter : public Provider
 {
 public:
     static void		initClass();

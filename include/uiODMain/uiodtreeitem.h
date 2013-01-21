@@ -23,7 +23,7 @@ class uiPopupMenu;
 class ui3DViewer;
 
 
-mClass(uiODMain) uiODTreeItem : public uiTreeItem
+mExpClass(uiODMain) uiODTreeItem : public uiTreeItem
 {
 public:
     			uiODTreeItem(const char*);
@@ -40,7 +40,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODTreeTop : public uiTreeTopItem
+mExpClass(uiODMain) uiODTreeTop : public uiTreeTopItem
 {
 public:
 			uiODTreeTop(ui3DViewer*,uiTreeView*,
@@ -71,7 +71,7 @@ protected:
 
 
 
-mClass(uiODMain) uiODTreeItemFactory : public uiTreeItemFactory
+mExpClass(uiODMain) uiODTreeItemFactory : public uiTreeItemFactory
 {
 public:
 
@@ -90,7 +90,7 @@ public:
     
 
 #define mDefineItem( type, inherited, parentitem, extrapublic ) \
-mClass(uiODMain) uiOD##type##TreeItem : public uiOD##inherited \
+mExpClass(uiODMain) uiOD##type##TreeItem : public uiOD##inherited \
 { \
     typedef uiOD##inherited inheritedClass; \
 public: \

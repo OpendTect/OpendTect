@@ -23,7 +23,7 @@ namespace Pick{ class Set; class SetMgr; }
 
 
 
-mClass(uiODMain) uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVw2DPickSetParentTreeItem();
@@ -42,7 +42,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*         name() const		{ return typeid(*this).name(); }
@@ -52,7 +52,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
 {
 public:
 			uiODVw2DPickSetTreeItem(int picksetid);

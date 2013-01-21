@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiFlatViewer;
 
-mClass(uiFlatView) uiFlatViewAuxDataEditor : public FlatView::AuxDataEditor
+mExpClass(uiFlatView) uiFlatViewAuxDataEditor : public FlatView::AuxDataEditor
 {
 public:
 		uiFlatViewAuxDataEditor(uiFlatViewer&);

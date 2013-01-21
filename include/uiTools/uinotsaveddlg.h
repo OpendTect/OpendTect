@@ -69,7 +69,7 @@ void MyClass::saveCB( CallBacker* )
 */
 
    
-mClass(uiTools) NotSavedPrompter : public CallBacker
+mExpClass(uiTools) NotSavedPrompter : public CallBacker
 {
 public:
     static NotSavedPrompter&	NSP(); //gives instance

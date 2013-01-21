@@ -36,7 +36,7 @@ The algorithm is implemented in subclasses, and can be created by the
 PreStack::PF() factory.
 */
 
-mClass(PreStackProcessing) Processor : public ParallelTask
+mExpClass(PreStackProcessing) Processor : public ParallelTask
 {
 public:
 				mDefineFactoryInClass( Processor, factory );
@@ -133,7 +133,7 @@ protected:
 \endcode
 */
 
-mClass(PreStackProcessing) ProcessManager : public CallBacker
+mExpClass(PreStackProcessing) ProcessManager : public CallBacker
 {
 public:
     				ProcessManager();

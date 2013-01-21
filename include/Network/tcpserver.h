@@ -24,7 +24,7 @@ class TcpSocket;
 class IOPar;
 
 
-mClass(Network) TcpServer : public CallBacker
+mExpClass(Network) TcpServer : public CallBacker
 {
 friend class QTcpServerComm;
 

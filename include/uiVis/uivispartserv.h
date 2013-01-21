@@ -57,7 +57,7 @@ namespace ZDomain   { class Info; }
 \brief The Visualisation Part Server
 */
 
-mClass(uiVis) uiVisPartServer : public uiApplPartServer
+mExpClass(uiVis) uiVisPartServer : public uiApplPartServer
 {
     friend class 	uiMenuHandler;
     friend class        uiVisModeMgr;

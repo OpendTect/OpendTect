@@ -25,7 +25,7 @@ class uiVisPartServer;
 
 namespace visBase { class DirectionalLight; }
 
-mClass(uiVis) uiDirLightDlg : public uiDialog
+mExpClass(uiVis) uiDirLightDlg : public uiDialog
 {
 public:
 				uiDirLightDlg(uiParent*, uiVisPartServer*);

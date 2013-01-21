@@ -34,11 +34,11 @@ class DirectReader;
 
  */
 
-mClass(Seis) ReSorter : public Executor
+mExpClass(Seis) ReSorter : public Executor
 {
 public:
 
-    mClass(Seis) Setup
+    mExpClass(Seis) Setup
     {
     public:
 

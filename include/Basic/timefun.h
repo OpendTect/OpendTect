@@ -26,7 +26,7 @@ namespace Time
 \brief Time Counter
 */
 
-mClass(Basic) Counter
+mExpClass(Basic) Counter
 {
 public:
     		Counter();

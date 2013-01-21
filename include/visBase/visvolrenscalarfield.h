@@ -32,7 +32,7 @@ template <class T> class ValueSeries;
 namespace visBase
 {
 
-mClass(visBase) VolumeRenderScalarField : public DataObject
+mExpClass(visBase) VolumeRenderScalarField : public DataObject
 {
 public:
 

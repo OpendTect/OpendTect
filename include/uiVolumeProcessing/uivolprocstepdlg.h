@@ -26,7 +26,7 @@ namespace VolProc
 
 class Step;
 
-mClass(uiVolumeProcessing) uiStepDialog : public uiDialog
+mExpClass(uiVolumeProcessing) uiStepDialog : public uiDialog
 {
 public:
     mDefineFactory2ParamInClass(uiStepDialog,uiParent*,Step*,factory);

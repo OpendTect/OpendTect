@@ -18,7 +18,7 @@ class IOPar;
 
 /*!\brief Key for a line in a line set */
 
-mClass(General) LineKey : public BufferString
+mExpClass(General) LineKey : public BufferString
 {
 public:
 
@@ -54,7 +54,7 @@ public:
 
 /*!\brief class providing a current line key */
 
-mClass(General) LineKeyProvider
+mExpClass(General) LineKeyProvider
 {
 public:
 

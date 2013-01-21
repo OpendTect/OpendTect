@@ -30,7 +30,7 @@ template <class T> class Array3D;
 template <class T> class Array1DImpl;
 
 
-mClass(uiTools) uiAmplSpectrum : public uiMainWin
+mExpClass(uiTools) uiAmplSpectrum : public uiMainWin
 {
 public:
     struct Setup

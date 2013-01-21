@@ -39,7 +39,7 @@ namespace Table
  
  */
 
-mClass(General) TargetInfo : public NamedObject
+mExpClass(General) TargetInfo : public NamedObject
 {
 public:
 
@@ -214,7 +214,7 @@ protected:
 
 /*!\brief description of input our output data content */
 
-mClass(General) FormatDesc : public NamedObject
+mExpClass(General) FormatDesc : public NamedObject
 {
 public:
     			FormatDesc( const char* nm )

@@ -40,7 +40,7 @@ class StepTask;
 
 /*!A chain of Steps that can be applied to a volume of scalars. */
 
-mClass(VolumeProcessing) Chain
+mExpClass(VolumeProcessing) Chain
 { mRefCountImpl(Chain);
 public:
     				Chain();
@@ -85,7 +85,7 @@ protected:
 
 /*!An algorithm/calculation/transoformation that takes one scalar volume as
    input, processes it, and puts the output in another volume. */
-mClass(VolumeProcessing) Step
+mExpClass(VolumeProcessing) Step
 {
 public:
 				mDefineFactoryInClass( Step, factory );
@@ -160,7 +160,7 @@ protected:
 
 
 
-mClass(VolumeProcessing) ChainExecutor : public Executor
+mExpClass(VolumeProcessing) ChainExecutor : public Executor
 {
 public:
 				ChainExecutor(Chain&);

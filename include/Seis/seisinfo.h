@@ -26,7 +26,7 @@ template <class T> class TypeSet;
 
 /*!\brief Information for a seismic trace, AKA trace header info */
 
-mClass(Seis) SeisTrcInfo
+mExpClass(Seis) SeisTrcInfo
 {
 public:
 			SeisTrcInfo()
@@ -107,7 +107,7 @@ namespace Seis
 
    */
 
-mClass(Seis) InternalUnitsEnsurer
+mExpClass(Seis) InternalUnitsEnsurer
 {
 public:
     			InternalUnitsEnsurer( SeisTrcInfo& ti,

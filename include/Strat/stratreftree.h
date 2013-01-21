@@ -24,7 +24,7 @@ namespace Strat
 
 /*!\brief Tree of UnitRef's  */
 
-mClass(Strat) RefTree : public NodeOnlyUnitRef
+mExpClass(Strat) RefTree : public NodeOnlyUnitRef
 {
 public:
 

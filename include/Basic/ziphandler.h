@@ -73,7 +73,7 @@ ________________________________________________________________________
 \brief Zip file information.
 */
 
-mClass(Basic) ZipFileInfo
+mExpClass(Basic) ZipFileInfo
 {
     
 public:
@@ -100,7 +100,7 @@ public:
 \brief Handles zipping and unzipping of files.
 */
 
-mClass(Basic) ZipHandler
+mExpClass(Basic) ZipHandler
 {
 public:
 

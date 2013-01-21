@@ -24,7 +24,7 @@ ________________________________________________________________________
   the special chars with '\';
 */
 
-mClass(Basic) GlobExpr
+mExpClass(Basic) GlobExpr
 {
 public:
 

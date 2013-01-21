@@ -22,11 +22,11 @@ class uiTextItem;
 namespace ColTab { class MapperSetup; }
 
 
-mClass(uiBase) uiColTabItem : public uiGraphicsItemGroup
+mExpClass(uiBase) uiColTabItem : public uiGraphicsItemGroup
 {
 public:
 
-    mClass(uiBase) Setup
+    mExpClass(uiBase) Setup
     {
     public:
 			Setup( bool h ) //!< horizontal?

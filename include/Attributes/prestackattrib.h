@@ -48,7 +48,7 @@ namespace Attrib
 </pre>
 */
     
-mClass(Attributes) PSAttrib : public Provider
+mExpClass(Attributes) PSAttrib : public Provider
 {
 public:
 

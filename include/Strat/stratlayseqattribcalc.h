@@ -31,7 +31,7 @@ class LayerSequence;
   Note that if the attribute is global, then the zrange is not used.
  */
 
-mClass(Strat) LaySeqAttribCalc
+mExpClass(Strat) LaySeqAttribCalc
 {
 public:
 
@@ -58,7 +58,7 @@ protected:
 };
 
 
-mClass(Strat) LayModAttribCalc : public Executor
+mExpClass(Strat) LayModAttribCalc : public Executor
 {
 public:
     			LayModAttribCalc(const LayerModel&,

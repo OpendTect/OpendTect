@@ -24,7 +24,7 @@ namespace MPE {
 \brief MPE Setup read/save.
 */
 
-mClass(MPEEngine) Setup
+mExpClass(MPEEngine) Setup
 {
 public:
     				Setup();
@@ -49,7 +49,7 @@ typedef MPE::Setup MPESetup;
 \brief TranslatorGroup for MPE::Setup.
 */
 
-mClass(MPEEngine) MPESetupTranslatorGroup : public TranslatorGroup
+mExpClass(MPEEngine) MPESetupTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(MPESetup)
 public:
 			mDefEmptyTranslatorGroupConstructor(MPESetup)
@@ -61,7 +61,7 @@ public:
 \brief Translator for MPE::Setup.
 */
 
-mClass(MPEEngine) MPESetupTranslator : public Translator
+mExpClass(MPEEngine) MPESetupTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(MPESetup)
@@ -88,7 +88,7 @@ public:
 \brief MPESetupTranslator for dgbMPESetup.
 */
 
-mClass(MPEEngine) dgbMPESetupTranslator : public MPESetupTranslator
+mExpClass(MPEEngine) dgbMPESetupTranslator : public MPESetupTranslator
 {				  isTranslator(dgb,MPESetup)
 public:
     			mDefEmptyTranslatorConstructor(dgb,MPESetup)

@@ -25,7 +25,7 @@ namespace EM
 \brief Horizon2D line iterator.
 */
 
-mClass(EMAttrib) Hor2DSeisLineIterator
+mExpClass(EMAttrib) Hor2DSeisLineIterator
 {
 public:
 

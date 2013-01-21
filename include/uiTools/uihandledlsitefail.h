@@ -33,7 +33,7 @@ class uiSlider;
  */
 
 
-mClass(uiTools) uiHandleDLSiteFail : public uiDialog
+mExpClass(uiTools) uiHandleDLSiteFail : public uiDialog
 {
 public:
 

@@ -31,7 +31,7 @@ class FileDataSet;
 class PosKeyList;
 
 
-mClass(Seis) DirectDef
+mExpClass(Seis) DirectDef
 {
 public:
 
@@ -99,7 +99,7 @@ protected:
 
 
 /*!Scans a file and creates an index file that can be read by OD. */
-mClass(Seis) FileIndexer : public Executor
+mExpClass(Seis) FileIndexer : public Executor
 {
 public:
     			FileIndexer(const MultiID& mid,bool isvol,

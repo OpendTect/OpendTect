@@ -42,7 +42,7 @@ namespace Pos { class Filter; class Provider; }
 
 */
 
-mClass(General) DataPointSet : public PointDataPack
+mExpClass(General) DataPointSet : public PointDataPack
 {
 public:
 
@@ -52,7 +52,7 @@ public:
 
     /*!\brief Real Coord3D-position storable in BinIDValueSet + trc nr */
 
-    mClass(General) Pos
+    mExpClass(General) Pos
     {
     public:
 			Pos() : offsx_(0), offsy_(0), z_(0), nr_(0)	{}
@@ -96,7 +96,7 @@ public:
     /*!\brief Data point with group. Group 0 means 'inactive',
       	      it can never be selected. */
 
-    mClass(General) DataRow
+    mExpClass(General) DataRow
     {
     public:
 			DataRow()

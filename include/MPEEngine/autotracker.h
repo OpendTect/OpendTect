@@ -37,7 +37,7 @@ class EMTracker;
 \brief Executor to auto track.
 */
 
-mClass(MPEEngine) AutoTracker : public Executor
+mExpClass(MPEEngine) AutoTracker : public Executor
 {
 public:
 				AutoTracker(EMTracker&,const EM::SectionID&);

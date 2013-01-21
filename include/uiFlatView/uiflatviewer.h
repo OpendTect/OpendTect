@@ -33,7 +33,7 @@ class uiGraphicsItemGroup;
 
 /*!\brief Fulfills the FlatView::Viewer specifications using 'ui' classes. */
 
-mClass(uiFlatView) uiFlatViewer : public uiGroup
+mExpClass(uiFlatView) uiFlatViewer : public uiGroup
 		    , public FlatView::Viewer
 {
 public:

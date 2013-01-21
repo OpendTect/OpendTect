@@ -27,11 +27,11 @@ class uiStatusBar;
 class uiToolBar;
 class BufferStringSet;
 
-mClass(uiBase) uiMainWin : public uiParent
+mExpClass(uiBase) uiMainWin : public uiParent
 {
 friend class uiMainWinBody;
 public:
-    mClass(uiBase) Setup
+    mExpClass(uiBase) Setup
     {
     public:
 			Setup( const char* capt )

@@ -25,7 +25,7 @@ class uiT2DConvSel;
 
 /*! \brief Dialog for horizon export */
 
-mClass(uiEarthModel) uiExportHorizon : public uiDialog
+mExpClass(uiEarthModel) uiExportHorizon : public uiDialog
 {
 public:
 			uiExportHorizon(uiParent*);

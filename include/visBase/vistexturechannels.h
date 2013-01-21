@@ -35,7 +35,7 @@ class MappedTextureDataSet;
 class TextureChannel2RGBA;
 class ChannelInfo;
 
-mClass(visBase) TextureChannels : public DataObject
+mExpClass(visBase) TextureChannels : public DataObject
 {
 public:
     static TextureChannels*	create()
@@ -112,7 +112,7 @@ protected:
 
 
 
-mClass(visBase) TextureComposer : public DataObject
+mExpClass(visBase) TextureComposer : public DataObject
 {
 public:
 

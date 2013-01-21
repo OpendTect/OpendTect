@@ -26,7 +26,7 @@ class uiSeisSel;
 
 /*! \brief Part Server for Wells */
 
-mClass(uiEMAttrib) uiSeisEventSnapper : public uiDialog
+mExpClass(uiEMAttrib) uiSeisEventSnapper : public uiDialog
 {
 public:
 			uiSeisEventSnapper(uiParent*,const IOObj*,

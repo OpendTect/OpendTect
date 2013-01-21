@@ -24,7 +24,7 @@ class uiLabeledComboBox;
 struct LooknFeelSettings;
 
 
-mClass(uiTools) uiSettings : public uiDialog
+mExpClass(uiTools) uiSettings : public uiDialog
 {
 public:
 			uiSettings(uiParent*,const char* titl,
@@ -56,7 +56,7 @@ protected:
 };
 
 
-mClass(uiTools) uiLooknFeelSettings : public uiDialog
+mExpClass(uiTools) uiLooknFeelSettings : public uiDialog
 {
 public:
 			uiLooknFeelSettings(uiParent*,const char* titl);

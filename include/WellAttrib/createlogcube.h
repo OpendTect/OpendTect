@@ -23,7 +23,7 @@ class CtxtIOObj;
 
 namespace Well { class Data;  }
 
-mClass(WellAttrib) LogCubeCreator : public ParallelTask
+mExpClass(WellAttrib) LogCubeCreator : public ParallelTask
 {
 public:
 				LogCubeCreator(const Well::Data&);

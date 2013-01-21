@@ -22,7 +22,7 @@ class uiWindowFunctionSel;
 
 /*! \brief Frequency Attribute description editor */
 
-mClass(uiAttributes) uiFrequencyAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiFrequencyAttrib : public uiAttrDescEd
 {
 public:
 

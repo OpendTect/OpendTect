@@ -21,7 +21,7 @@ namespace SEGY
 
 /*!\brief describes one tape or trace header field */
 
-mClass(Seis) HdrEntry
+mExpClass(Seis) HdrEntry
 {
 public:
 
@@ -70,7 +70,7 @@ protected:
 };
 
 
-mClass(Seis) HdrDef : public ObjectSet<const HdrEntry>
+mExpClass(Seis) HdrDef : public ObjectSet<const HdrEntry>
 {
 public:
 

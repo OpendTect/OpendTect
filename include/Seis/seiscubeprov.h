@@ -54,7 +54,7 @@ traces.
  */
 
 
-mClass(Seis) SeisMSCProvider
+mExpClass(Seis) SeisMSCProvider
 {
 public:
 
@@ -137,7 +137,7 @@ protected:
 };
 
 
-mClass(Seis) SeisFixedCubeProvider
+mExpClass(Seis) SeisFixedCubeProvider
 {
 public:
     			SeisFixedCubeProvider(const MultiID&);

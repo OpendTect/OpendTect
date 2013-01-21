@@ -28,7 +28,7 @@ class uiListBox;
 class uiPushButton;
 class uiSliderExtra;
 
-mClass(uiAttributes) uiCrossAttrEvaluateDlg : public uiDialog
+mExpClass(uiAttributes) uiCrossAttrEvaluateDlg : public uiDialog
 {
 public:
 				uiCrossAttrEvaluateDlg(uiParent*,

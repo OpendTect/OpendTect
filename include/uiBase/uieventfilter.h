@@ -22,7 +22,7 @@ class uiEventFilterImpl;
 class uiBaseObject;
 /*!\ The base class for most UI elements. */
 
-mClass(uiBase) uiEventFilter : public CallBacker
+mExpClass(uiBase) uiEventFilter : public CallBacker
 {
 public:
 				uiEventFilter();

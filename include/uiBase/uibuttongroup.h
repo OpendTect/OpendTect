@@ -20,7 +20,7 @@ mFDQtclass(QButtonGroup)
 class uiButton;
 
 
-mClass(uiBase) uiButtonGroup : public uiGroup
+mExpClass(uiBase) uiButtonGroup : public uiGroup
 { 	
 public:
 			uiButtonGroup(uiParent*,const char* nm="uiButtonGrp",

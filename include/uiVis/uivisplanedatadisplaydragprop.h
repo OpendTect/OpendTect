@@ -18,7 +18,7 @@ namespace visSurvey { class PlaneDataDisplay; }
 
 class uiButtonStateEdit;
 
-mClass(uiVis) uiVisPlaneDataDisplayDragProp : public uiDlgGroup
+mExpClass(uiVis) uiVisPlaneDataDisplayDragProp : public uiDlgGroup
 {
 public:
     			uiVisPlaneDataDisplayDragProp(uiParent*,

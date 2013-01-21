@@ -22,7 +22,7 @@ namespace Well
 class Data;
 class Log;
 
-mClass(Well) Writer : public IO
+mExpClass(Well) Writer : public IO
 {
 public:
 

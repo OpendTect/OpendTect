@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class ODFtp;
 
-mClass(Network) FtpTask : public Executor
+mExpClass(Network) FtpTask : public Executor
 {
 public:
 			FtpTask(ODFtp&);

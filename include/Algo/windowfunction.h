@@ -26,7 +26,7 @@ value between 0 and 1 in the interval -1 to 1. Outside that interval, the
 result is zero.
 */
 
-mClass(Algo) WindowFunction : public FloatMathFunction
+mExpClass(Algo) WindowFunction : public FloatMathFunction
 {
 public:
     virtual const char*	name() const			= 0;
@@ -54,7 +54,7 @@ public:
 
 
 #define mDeclWFSimpleClass(nm) \
-mClass(Algo) nm##Window : public WindowFunction \
+mExpClass(Algo) nm##Window : public WindowFunction \
 { \
 public: \
     mDeclWFStdFns(nm); \
@@ -73,7 +73,7 @@ mDeclWFSimpleClass(FlatTop)
 \brief Tapered Cosine Window Function.
 */
 
-mClass(Algo) CosTaperWindow : public WindowFunction
+mExpClass(Algo) CosTaperWindow : public WindowFunction
 {
 public:
 

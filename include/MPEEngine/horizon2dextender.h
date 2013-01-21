@@ -26,7 +26,7 @@ namespace MPE
 \brief SectionExtender to extend EM::Horizon2D.
 */
 
-mClass(MPEEngine) Horizon2DExtender : public SectionExtender
+mExpClass(MPEEngine) Horizon2DExtender : public SectionExtender
 {
 public:
 				Horizon2DExtender(EM::Horizon2D&,

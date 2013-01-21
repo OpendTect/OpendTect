@@ -34,7 +34,7 @@ namespace ColTab
   example, if nsegs_ == 3, only positions returned are 1/6, 3/6 and 5/6.
  
  */
-mClass(General) MapperSetup : public CallBacker
+mExpClass(General) MapperSetup : public CallBacker
 {
 public:
 			MapperSetup();
@@ -74,7 +74,7 @@ public:
 };
 
 
-mClass(General) Mapper
+mExpClass(General) Mapper
 {
 public:
 

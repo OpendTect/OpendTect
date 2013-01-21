@@ -36,7 +36,7 @@ namespace Attrib
 </pre>
 */
 
-mClass(Attributes) Scaling: public Provider
+mExpClass(Attributes) Scaling: public Provider
 {
 public:
     static void		initClass();

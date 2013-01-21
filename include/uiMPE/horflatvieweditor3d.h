@@ -32,7 +32,7 @@ namespace MPE
 class EMTracker;
 class EMSeedPicker;
 
-mClass(uiMPE) HorizonFlatViewEditor3D : public CallBacker
+mExpClass(uiMPE) HorizonFlatViewEditor3D : public CallBacker
 {
 public:
     			HorizonFlatViewEditor3D(FlatView::AuxDataEditor*,

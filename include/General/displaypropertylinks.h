@@ -44,7 +44,7 @@ class DisplayPropertyLink;
 
 
 
-mClass(General) DisplayLinkManager
+mExpClass(General) DisplayLinkManager
 {
 public:
     				DisplayLinkManager();
@@ -89,7 +89,7 @@ protected:
 
 
 
-mClass(General) DisplayPropertyHolder
+mExpClass(General) DisplayPropertyHolder
 {
 public:
 			DisplayPropertyHolder(bool reg);
@@ -106,7 +106,7 @@ private:
 };
 
 
-mClass(General) DisplayPropertyLink : public NamedObject
+mExpClass(General) DisplayPropertyLink : public NamedObject
 {
 public:
     mDefineFactory1ParamInClass(DisplayPropertyLink,

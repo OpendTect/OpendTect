@@ -20,7 +20,7 @@ class uiGenInput;
 class uiFileInput;
 
 
-mClass(uiSeis) uiSeisDump2DGeom : public uiDialog
+mExpClass(uiSeis) uiSeisDump2DGeom : public uiDialog
 {
 public:
                         uiSeisDump2DGeom(uiParent*,const IOObj* ioobj=0);

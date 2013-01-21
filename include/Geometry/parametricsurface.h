@@ -21,7 +21,7 @@ namespace Geometry
 
 class ParametricCurve;
 
-mClass(Geometry) ParametricSurface : public RowColSurface
+mExpClass(Geometry) ParametricSurface : public RowColSurface
 {
 public:
     			ParametricSurface(const RowCol& origin=RowCol(0,0),

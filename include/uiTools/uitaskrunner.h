@@ -21,7 +21,7 @@ class uiProgressBar;
 class uiLabel;
 class Timer;
 
-mClass(uiTools) uiTaskRunner : public uiDialog
+mExpClass(uiTools) uiTaskRunner : public uiDialog
 		   , public TaskRunner
 { 	
 public:

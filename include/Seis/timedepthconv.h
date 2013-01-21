@@ -32,7 +32,7 @@ template <class T> class Array3D;
 template <class T> class ValueSeries;
 
 
-mClass(Seis) VelocityStretcher : public ZAxisTransform
+mExpClass(Seis) VelocityStretcher : public ZAxisTransform
 {
 public:
     virtual bool		setVelData(const MultiID&)		= 0;
@@ -52,7 +52,7 @@ protected:
 /*!ZAxisstretcher that converts from time to depth (or back) using a
    velocity model on disk. */
 
-mClass(Seis) Time2DepthStretcher : public VelocityStretcher
+mExpClass(Seis) Time2DepthStretcher : public VelocityStretcher
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Time2DepthStretcher,
@@ -112,7 +112,7 @@ protected:
    an Time2Depth converter to do the job. */
 
 
-mClass(Seis) Depth2TimeStretcher : public VelocityStretcher
+mExpClass(Seis) Depth2TimeStretcher : public VelocityStretcher
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Depth2TimeStretcher,
@@ -149,7 +149,7 @@ protected:
 
 /*! Scans a velocity model for minimum top/bottom average velocity. */
 
-mClass(Seis) VelocityModelScanner : public SequentialTask
+mExpClass(Seis) VelocityModelScanner : public SequentialTask
 {
 public:
     			VelocityModelScanner(const IOObj&,
@@ -187,7 +187,7 @@ protected:
 };
 
 
-mClass(Seis) LinearT2DTransform : public ZAxisTransform
+mExpClass(Seis) LinearT2DTransform : public ZAxisTransform
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
@@ -212,7 +212,7 @@ protected:
 };
 
 
-mClass(Seis) LinearD2TTransform : public ZAxisTransform
+mExpClass(Seis) LinearD2TTransform : public ZAxisTransform
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,

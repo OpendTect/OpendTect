@@ -23,7 +23,7 @@ class uiSeisBayesOut;
 
 /*!\brief 'Server' for Seismic Bayesian Inversion. */
 
-mClass(uiSeis) uiSeisBayesClass : public uiVarWizard
+mExpClass(uiSeis) uiSeisBayesClass : public uiVarWizard
 			, public Usage::Client
 {
 public:

@@ -22,7 +22,7 @@ class MultiID;
 namespace Well
 {
 
-mClass(Well) IO
+mExpClass(Well) IO
 {
 public:
 

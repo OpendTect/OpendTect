@@ -22,7 +22,7 @@ namespace PosInfo { class CubeData; }
 /*!\brief Information for a packet of seismics, AKA tape header info */
 
 
-mClass(Seis) SeisPacketInfo
+mExpClass(Seis) SeisPacketInfo
 {
 public:
     static void		initClass();

@@ -25,7 +25,7 @@ namespace Geometry
 {
 
 
-mClass(Geometry) BinIDSurface : public ParametricSurface
+mExpClass(Geometry) BinIDSurface : public ParametricSurface
 {
 public:
     			BinIDSurface(const BinID& step);

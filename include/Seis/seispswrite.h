@@ -33,7 +33,7 @@ class BufferStringSet;
 
 */
 
-mClass(Seis) SeisPSWriter
+mExpClass(Seis) SeisPSWriter
 {
 public:
 

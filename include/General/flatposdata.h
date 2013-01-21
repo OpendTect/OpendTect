@@ -24,7 +24,7 @@ ________________________________________________________________________
  
  */
 
-mClass(General) FlatPosData
+mExpClass(General) FlatPosData
 {
 public:
 				FlatPosData()

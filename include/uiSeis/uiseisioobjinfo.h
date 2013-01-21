@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 
 
-mClass(uiSeis) uiSeisIOObjInfo
+mExpClass(uiSeis) uiSeisIOObjInfo
 {
 public:
 

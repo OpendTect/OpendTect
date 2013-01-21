@@ -25,7 +25,7 @@ namespace Vel
 {
 class VolumeFunctionSource;
 
-mClass(uiVelocity) uiVolumeFunction : public uiFunctionSettings
+mExpClass(uiVelocity) uiVolumeFunction : public uiFunctionSettings
 {
 public:
     mDefaultFactoryInstanciationBase(

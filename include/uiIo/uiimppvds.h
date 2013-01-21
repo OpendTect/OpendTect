@@ -23,7 +23,7 @@ class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 
 
-mClass(uiIo) uiImpPVDS : public uiDialog 
+mExpClass(uiIo) uiImpPVDS : public uiDialog 
 {
 public:
 			uiImpPVDS(uiParent*,bool is2d=false);

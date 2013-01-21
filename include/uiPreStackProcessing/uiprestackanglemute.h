@@ -29,7 +29,7 @@ namespace PreStack
 
 class Processor;
 
-mClass(uiPreStackProcessing) uiAngleMuteGrp : public uiGroup
+mExpClass(uiPreStackProcessing) uiAngleMuteGrp : public uiGroup
 {
 public:
 			uiAngleMuteGrp(uiParent*,AngleMuteBase::Params&,
@@ -46,7 +46,7 @@ protected:
 };
 
 
-mClass(uiPreStackProcessing) uiAngleMute : public uiDialog
+mExpClass(uiPreStackProcessing) uiAngleMute : public uiDialog
 {
 public:
 

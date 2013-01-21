@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 /*! \brief Dialog for surface aux data selection. */
 
-mClass(uiEarthModel) uiEMAuxDataSel : public uiCompoundParSel
+mExpClass(uiEarthModel) uiEMAuxDataSel : public uiCompoundParSel
 {
 public:
 			uiEMAuxDataSel(uiParent*,const char* label,

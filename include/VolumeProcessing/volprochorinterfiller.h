@@ -28,7 +28,7 @@ namespace VolProc
     gradient or to a fixed value at the bottom boundary. */
 
     
-mClass(VolumeProcessing) HorInterFiller : public Step
+mExpClass(VolumeProcessing) HorInterFiller : public Step
 {
 public:
 				mDefaultFactoryInstantiation( VolProc::Step,

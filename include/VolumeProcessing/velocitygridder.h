@@ -28,7 +28,7 @@ namespace Vel
 namespace VolProc
 {
 
-mClass(VolumeProcessing) VelGriddingStep : public VolProc::Step
+mExpClass(VolumeProcessing) VelGriddingStep : public VolProc::Step
 {
 public:
 			VelGriddingStep();

@@ -21,7 +21,7 @@ namespace OD { class RGBImage; }
 /*!Definition of a mouse cursor, can be either a predefined shape (from the
    enum, or a file. */
 
-mClass(General) MouseCursor
+mExpClass(General) MouseCursor
 {
 public:
     virtual		~MouseCursor();
@@ -100,7 +100,7 @@ public:
 */
 
 
-mClass(General) MouseCursorManager
+mExpClass(General) MouseCursorManager
 {
 public:
 
@@ -133,7 +133,7 @@ protected:
     class is running out of scope.
 */
 
-mClass(General) MouseCursorChanger
+mExpClass(General) MouseCursorChanger
 {
 public:
 		MouseCursorChanger(const char* fnm, int hotx, int hoty);

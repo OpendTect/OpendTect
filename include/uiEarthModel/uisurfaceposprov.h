@@ -23,7 +23,7 @@ class uiLabel;
 
 /*! \brief UI for SurfacePosProvider */
 
-mClass(uiEarthModel) uiSurfacePosProvGroup : public uiPosProvGroup
+mExpClass(uiEarthModel) uiSurfacePosProvGroup : public uiPosProvGroup
 {
 public:
 			uiSurfacePosProvGroup(uiParent*,

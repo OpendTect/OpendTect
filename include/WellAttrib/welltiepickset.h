@@ -24,7 +24,7 @@ namespace WellTie
     class PickData;
     class Marker;
 
-mClass(WellAttrib) PickSetMgr : public CallBacker
+mExpClass(WellAttrib) PickSetMgr : public CallBacker
 {
 public:
     				PickSetMgr( PickData& pd );

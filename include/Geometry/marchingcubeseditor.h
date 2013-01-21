@@ -37,7 +37,7 @@ the movement, and the factor is set by from the outside.
 */
 
 
-mClass(Geometry) MarchingCubesSurfaceEditor : public ParallelTask
+mExpClass(Geometry) MarchingCubesSurfaceEditor : public ParallelTask
 {
 public:
     			MarchingCubesSurfaceEditor(MarchingCubesSurface&);

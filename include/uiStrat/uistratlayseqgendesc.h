@@ -31,7 +31,7 @@ namespace Strat { class LayerSequenceGenDesc; class LayerModelProvider; }
  
  */
 
-mClass(uiStrat) uiLayerSequenceGenDesc
+mExpClass(uiStrat) uiLayerSequenceGenDesc
 {
 public:
 

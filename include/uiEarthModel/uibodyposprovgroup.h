@@ -22,7 +22,7 @@ class uiPosSubSel;
 
 
 /*! \brief UI for BodyPosProvider */
-mClass(uiEarthModel) uiBodyPosProvGroup : public uiPosProvGroup
+mExpClass(uiEarthModel) uiBodyPosProvGroup : public uiPosProvGroup
 {
 public:
 				uiBodyPosProvGroup(uiParent*,

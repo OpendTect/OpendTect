@@ -30,7 +30,7 @@ namespace PreStack
 {
 
 
-mClass(PreStackProcessing) AngleMuteBase 
+mExpClass(PreStackProcessing) AngleMuteBase 
 {
 public:
     mStruct(PreStackProcessing) Params
@@ -71,7 +71,7 @@ protected:
 
 
 
-mClass(PreStackProcessing) AngleMute : public Processor, public AngleMuteBase
+mExpClass(PreStackProcessing) AngleMute : public Processor, public AngleMuteBase
 {
 public:
     			mDefaultFactoryInstantiation(Processor,

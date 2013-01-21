@@ -30,7 +30,7 @@ namespace Well { class Data; }
 
 /*! \brief Dialog for well import from Ascii */
 
-mClass(uiWell) uiWellImportAsc : public uiDialog
+mExpClass(uiWell) uiWellImportAsc : public uiDialog
 {
 public:
 			uiWellImportAsc(uiParent*);

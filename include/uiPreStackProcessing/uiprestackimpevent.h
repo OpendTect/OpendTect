@@ -25,7 +25,7 @@ namespace PreStack
 {
 
 
-mClass(uiPreStackProcessing) uiEventImport : public uiDialog
+mExpClass(uiPreStackProcessing) uiEventImport : public uiDialog
 {
 public:
     			uiEventImport(uiParent*);

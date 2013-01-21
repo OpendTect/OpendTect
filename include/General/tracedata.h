@@ -29,7 +29,7 @@ constraints etc.).
 */
 
 
-mClass(General) TraceData
+mExpClass(General) TraceData
 {
 public:
 

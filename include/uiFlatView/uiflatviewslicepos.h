@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*! \brief Toolbar for setting slice position _ 2D viewer */
 
-mClass(uiFlatView) uiSlicePos2DView : public uiSlicePos
+mExpClass(uiFlatView) uiSlicePos2DView : public uiSlicePos
 {
 public:		
 			uiSlicePos2DView(uiParent*);

@@ -28,7 +28,7 @@ class MuteDef;
 
 /*!Baseclass for algorithms that track pre-stack events on a gather. */
 
-mClass(PreStackProcessing) EventTracker
+mExpClass(PreStackProcessing) EventTracker
 {
 public:
 			mDefineFactoryInClass(EventTracker,factory);

@@ -24,7 +24,7 @@ class uiGenInput;
 class uiArray2DInterpol;
 
 
-mClass(uiTools) uiArray2DInterpolSel : public uiDlgGroup
+mExpClass(uiTools) uiArray2DInterpolSel : public uiDlgGroup
 {
 public:
     mDefineFactory1ParamInClass(uiArray2DInterpol,uiParent*,factory);
@@ -65,7 +65,7 @@ protected:
 };
 
 
-mClass(uiTools) uiArray2DInterpol : public uiDlgGroup
+mExpClass(uiTools) uiArray2DInterpol : public uiDlgGroup
 {
 public:
     virtual void	setValuesFrom(const Array2DInterpol&)		{}
@@ -83,7 +83,7 @@ protected:
 };
 
 
-mClass(uiTools) uiInverseDistanceArray2DInterpol : public uiArray2DInterpol
+mExpClass(uiTools) uiInverseDistanceArray2DInterpol : public uiArray2DInterpol
 {
 public:
 
@@ -115,7 +115,7 @@ protected:
 };
 
 
-mClass(uiTools) uiTriangulationArray2DInterpol : public uiArray2DInterpol
+mExpClass(uiTools) uiTriangulationArray2DInterpol : public uiArray2DInterpol
 {
 public:
 
@@ -137,7 +137,7 @@ protected:
 };
 
 
-mClass(uiTools) uiArray2DInterpolExtension : public uiArray2DInterpol
+mExpClass(uiTools) uiArray2DInterpolExtension : public uiArray2DInterpol
 {
 public:
 

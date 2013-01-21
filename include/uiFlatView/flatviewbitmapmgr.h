@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace FlatView
 {
 
-mClass(uiFlatView) BitMapMgr
+mExpClass(uiFlatView) BitMapMgr
 {
 public:
 
@@ -54,7 +54,7 @@ protected:
 };
 
 
-mClass(uiFlatView) BitMapGenTask : public Task
+mExpClass(uiFlatView) BitMapGenTask : public Task
 {
 public:
     		BitMapGenTask(BitMapMgr& mgr,

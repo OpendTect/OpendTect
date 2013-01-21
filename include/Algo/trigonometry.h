@@ -274,7 +274,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>&, bool normalize,
   where: i*i = j*j = k*k = -1.
 */
 
-mClass(Algo) Quaternion
+mExpClass(Algo) Quaternion
 {
 public:
     			Quaternion(double s,double x,double y,double z);
@@ -305,7 +305,7 @@ public:
 form y = slope*x + y-intercept; for making operations easier.
 */
 
-mClass(Algo) Line2
+mExpClass(Algo) Line2
 {
 public:			
     			Line2(double slope=0,double intcpt=0);
@@ -350,7 +350,7 @@ public:
   z = z0 + gamma*t
 */
 
-mClass(Algo) Line3
+mExpClass(Algo) Line3
 {
 public:			
     			Line3();
@@ -394,7 +394,7 @@ public:
 \brief A Plane3 is a plane in space, with the equation: Ax + By + Cz + D = 0
 */
 
-mClass(Algo) Plane3
+mExpClass(Algo) Plane3
 {
 public:
 			Plane3();
@@ -454,7 +454,7 @@ public:
 3D space and the coordinate system.
 */
 
-mClass(Algo) Plane3CoordSystem
+mExpClass(Algo) Plane3CoordSystem
 {
 public:
     			Plane3CoordSystem(const Coord3& normal,
@@ -494,7 +494,7 @@ protected:
 The angle phi lies in the horizontal plane, theta in the vertical plane.
 */
 
-mClass(Algo) Sphere
+mExpClass(Algo) Sphere
 {
 public:
 			Sphere(float r=0,float t=0,float p=0)

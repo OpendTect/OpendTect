@@ -28,7 +28,7 @@ class Scene;
 
 /*!\brief used for displaying a set of random picks in xyz coordinate.*/
 
-mClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
+mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
        			      public visSurvey::SurveyObject
 {
 public:

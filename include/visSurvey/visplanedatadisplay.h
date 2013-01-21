@@ -52,7 +52,7 @@ class Scene;
     setting the requested orientation of the slice.
 */
 
-mClass(visSurvey) PlaneDataDisplay :  public visSurvey::MultiTextureSurveyObject
+mExpClass(visSurvey) PlaneDataDisplay :  public visSurvey::MultiTextureSurveyObject
 {
 public:
 

@@ -33,7 +33,7 @@ class Provider;
   \brief Attribute Processor
 */
 
-mClass(AttributeEngine) Processor : public Executor
+mExpClass(AttributeEngine) Processor : public Executor
 {
 public:
 				Processor(Desc&,const char* linenm,

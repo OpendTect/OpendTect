@@ -29,7 +29,7 @@ class IOPar;
 
  */
 
-mClass(General) Property
+mExpClass(General) Property
 {
 public:
 
@@ -60,7 +60,7 @@ public:
 
     mDefineFactory1ParamInClass(Property,const PropertyRef&,factory);
 
-    mClass(General) EvalOpts
+    mExpClass(General) EvalOpts
     {
     public:
 
@@ -99,7 +99,7 @@ protected:
 };
 
 
-mClass(General) PropertySet
+mExpClass(General) PropertySet
 {
 public:
 
@@ -167,7 +167,7 @@ public: \
 
 /*!\brief Simple, single-value property */
 
-mClass(General) ValueProperty : public Property
+mExpClass(General) ValueProperty : public Property
 {
 public:
 
@@ -186,7 +186,7 @@ public:
 
 /*!\brief Range of values.  pos_ is usually in [0,1]. */
 
-mClass(General) RangeProperty : public Property
+mExpClass(General) RangeProperty : public Property
 {
 public:
 

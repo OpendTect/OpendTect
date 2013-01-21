@@ -21,7 +21,7 @@ class uiSurfaceRead;
 class uiSurfaceWrite;
 class uiCheckBox;
 
-mClass(uiEMAttrib) uiHor2DFrom3DDlg : public uiDialog
+mExpClass(uiEMAttrib) uiHor2DFrom3DDlg : public uiDialog
 {
 public:
     				uiHor2DFrom3DDlg(uiParent*);

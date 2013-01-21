@@ -21,7 +21,7 @@ class uiODHelpDocInfo;
 
 /*!\brief The OpendTect help menu manager */
 
-mClass(uiODMain) uiODHelpMenuMgr
+mExpClass(uiODMain) uiODHelpMenuMgr
 {
 public:
     				uiODHelpMenuMgr(uiODMenuMgr*);

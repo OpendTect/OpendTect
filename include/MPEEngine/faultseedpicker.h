@@ -23,7 +23,7 @@ namespace MPE
 \brief EMSeedPicker to pick faults.
 */
 
-mClass(MPEEngine) FaultSeedPicker : public EMSeedPicker
+mExpClass(MPEEngine) FaultSeedPicker : public EMSeedPicker
 {
 public:
     			FaultSeedPicker(MPE::EMTracker&);

@@ -25,7 +25,7 @@ namespace EM { class Fault3D; };
 \brief Landmark EM::Fault3D EMSurfaceTranslator.
 */
 
-mClass(EarthModel) lmkEMFault3DTranslator : public EMSurfaceTranslator
+mExpClass(EarthModel) lmkEMFault3DTranslator : public EMSurfaceTranslator
 {			isTranslator(lmk,EMFault3D)
 public:
     			lmkEMFault3DTranslator(const char* nm,
@@ -62,7 +62,7 @@ public:
 \brief Landmark EM::Fault3D reader.
 */
 
-mClass(EarthModel) lmkEMFault3DReader : public Executor
+mExpClass(EarthModel) lmkEMFault3DReader : public Executor
 {
 public:
 			lmkEMFault3DReader(EM::Fault3D&,Conn*,

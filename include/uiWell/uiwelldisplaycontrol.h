@@ -21,7 +21,7 @@ class uiWellDahDisplay;
 
 namespace Well { class Marker; }
 
-mClass(uiWell) uiWellDisplayControl : public CallBacker
+mExpClass(uiWell) uiWellDisplayControl : public CallBacker
 {
 public:
 				uiWellDisplayControl(uiWellDahDisplay&);

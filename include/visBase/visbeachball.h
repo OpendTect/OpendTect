@@ -37,7 +37,7 @@ class DrawStyle;
 Display a beachball-type object.
 */
 
-mClass(visBase) BeachBall : public VisualObjectImpl
+mExpClass(visBase) BeachBall : public VisualObjectImpl
 {
 public:
 

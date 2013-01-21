@@ -52,7 +52,7 @@ class EdgeLineSegmentFactory;
 \brief Edge line segment
 */
 
-mClass(EarthModel) EdgeLineSegment : public CallBacker
+mExpClass(EarthModel) EdgeLineSegment : public CallBacker
 { 
 public:
     				mEdgeLineSegmentClone(EdgeLineSegment,Default);
@@ -179,7 +179,7 @@ private:
 \brief Edge line segment factory.
 */
 
-mClass(EarthModel) EdgeLineSegmentFactory 
+mExpClass(EarthModel) EdgeLineSegmentFactory 
 {
 public:
 			EdgeLineSegmentFactory( const char* nm,
@@ -197,7 +197,7 @@ public:
 \brief Edge line
 */
 
-mClass(EarthModel) EdgeLine : public CallBacker
+mExpClass(EarthModel) EdgeLine : public CallBacker
 {
 public:
     			EdgeLine( EM::Horizon3D&, const EM::SectionID& );
@@ -271,7 +271,7 @@ protected:
 \brief Edge line iterator
 */
 
-mClass(EarthModel) EdgeLineIterator
+mExpClass(EarthModel) EdgeLineIterator
 {
 public:
     			EdgeLineIterator( const EM::EdgeLine& el_,
@@ -312,7 +312,7 @@ protected:
 \brief Edge line set
 */
 
-mClass(EarthModel) EdgeLineSet : public CallBacker
+mExpClass(EarthModel) EdgeLineSet : public CallBacker
 {
 public:
     			EdgeLineSet( EM::Horizon3D&, const EM::SectionID&);
@@ -362,7 +362,7 @@ protected:
 \brief Edge line manager
 */
 
-mClass(EarthModel) EdgeLineManager : public CallBacker
+mExpClass(EarthModel) EdgeLineManager : public CallBacker
 {
 public:
     				EdgeLineManager(Horizon3D&);

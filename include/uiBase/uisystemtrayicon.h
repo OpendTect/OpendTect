@@ -19,7 +19,7 @@ mFDQtclass(QSystemTrayIcon)
 mFDQtclass(QSystemTrayIconMessenger)
 class ioPixmap;
 
-mClass(uiBase) uiSystemTrayIcon : public CallBacker
+mExpClass(uiBase) uiSystemTrayIcon : public CallBacker
 {
 public:
 

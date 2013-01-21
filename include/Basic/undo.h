@@ -40,7 +40,7 @@ flag set.
   \endcode
 */
 
-mClass(Basic) Undo : public CallBacker
+mExpClass(Basic) Undo : public CallBacker
 {
 public:
 	    			Undo();
@@ -103,7 +103,7 @@ protected:
 \brief Holds the information on how to undo/redo something.
 */
 
-mClass(Basic) UndoEvent
+mExpClass(Basic) UndoEvent
 {
 public:
     				UndoEvent();
@@ -130,7 +130,7 @@ protected:
 \brief BinID UndoEvent.
 */
 
-mClass(Basic) BinIDUndoEvent : public UndoEvent
+mExpClass(Basic) BinIDUndoEvent : public UndoEvent
 {
 public:
     virtual const BinID&	getBinID() const;

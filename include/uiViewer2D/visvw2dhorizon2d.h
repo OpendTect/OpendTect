@@ -26,7 +26,7 @@ namespace FlatView { class AuxDataEditor; }
 namespace MPE { class HorizonFlatViewEditor2D; }
 
 
-mClass(uiViewer2D) Vw2DHorizon2D : public Vw2DEMDataObject
+mExpClass(uiViewer2D) Vw2DHorizon2D : public Vw2DEMDataObject
 {
 public:
     static Vw2DHorizon2D* create(const EM::ObjectID& id,uiFlatViewWin* win,

@@ -19,7 +19,7 @@ class IOPar;
 
 namespace Well { class Data; }
 
-mClass(Well) WellT2DTransform : public ZAxisTransform
+mExpClass(Well) WellT2DTransform : public ZAxisTransform
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, WellT2DTransform,

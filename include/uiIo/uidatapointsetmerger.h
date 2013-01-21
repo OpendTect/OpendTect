@@ -29,7 +29,7 @@ class uiTable;
 CrossPlot manager
 */
 
-mClass(uiIo) DPSMergerProp 
+mExpClass(uiIo) DPSMergerProp 
 {
 public:
     				DPSMergerProp( const MultiID& id, int mid,
@@ -87,7 +87,7 @@ protected:
 };
 
 
-mClass(uiIo) DPSMerger : public Executor
+mExpClass(uiIo) DPSMerger : public Executor
 {
 public:
     				DPSMerger(const DPSMergerProp&);
@@ -114,7 +114,7 @@ protected:
 };
 
 
-mClass(uiIo) uiDataPointSetMerger : public uiDialog
+mExpClass(uiIo) uiDataPointSetMerger : public uiDialog
 {
 public:
     				uiDataPointSetMerger(uiParent*,DataPointSet*,

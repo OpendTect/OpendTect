@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class uiLineEditBody;
 
-mClass(uiBase) uiIntValidator
+mExpClass(uiBase) uiIntValidator
 {
 public:
     		uiIntValidator()
@@ -31,7 +31,7 @@ public:
 };
 
 
-mClass(uiBase) uiFloatValidator
+mExpClass(uiBase) uiFloatValidator
 {
 public:
     		uiFloatValidator()
@@ -48,7 +48,7 @@ public:
 };
 
 
-mClass(uiBase) uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
+mExpClass(uiBase) uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
 {
 public:
 			//! pref_empty : return empty string/ null value

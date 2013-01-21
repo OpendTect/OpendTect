@@ -26,7 +26,7 @@ namespace Geometry
 
 class RandomLineSet;
 
-mClass(Geometry) RandomLine : public NamedObject
+mExpClass(Geometry) RandomLine : public NamedObject
 {
 public:
     			RandomLine(const char* nm=0);
@@ -71,7 +71,7 @@ protected:
 };
 
 
-mClass(Geometry) RandomLineSet
+mExpClass(Geometry) RandomLineSet
 {
 public:
 

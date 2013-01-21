@@ -34,7 +34,7 @@ by Kohout J.2005.
    disabled with a macro.
 */
 
-mClass(Algo) DAGTriangleTree
+mExpClass(Algo) DAGTriangleTree
 {
 public:
     			DAGTriangleTree();
@@ -149,7 +149,7 @@ protected:
 \brief The parallel triangulation works for only one processor now.
 */
 
-mClass(Algo) DelaunayTriangulator : public ParallelTask
+mExpClass(Algo) DelaunayTriangulator : public ParallelTask
 {
 public:
 			DelaunayTriangulator(DAGTriangleTree&);
@@ -187,7 +187,7 @@ the boundary of the geometry, we compare azimuth to find related points and
 then apply inverse distance to calculate weights.
 */
 
-mClass(Algo) Triangle2DInterpolator
+mExpClass(Algo) Triangle2DInterpolator
 {
 public:
     			Triangle2DInterpolator(const DAGTriangleTree&);

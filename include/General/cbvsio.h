@@ -26,7 +26,7 @@ supported.
 
 */
 
-mClass(General) CBVSIO
+mExpClass(General) CBVSIO
 {
 public:
 
@@ -69,7 +69,7 @@ protected:
 
 */
 
-mClass(General) CBVSIOMgr
+mExpClass(General) CBVSIOMgr
 {
 public:
 

@@ -27,7 +27,7 @@ class CmdRecorder;
 class CmdRecEvent;
 
 
-mClass(uiCmdDriver) Classifier
+mExpClass(uiCmdDriver) Classifier
 {
 public:
     virtual		~Classifier()				{}
@@ -49,7 +49,7 @@ public: \
 };
 
 
-mClass(uiCmdDriver) CmdComposer : public CallBacker
+mExpClass(uiCmdDriver) CmdComposer : public CallBacker
 {
 
 public:
@@ -117,7 +117,7 @@ private:
 
 #define mStartDeclComposerClassNoAccept(mod,cmdkey,parentclass) \
 \
-mClass(mod) cmdkey##CmdComposer : public parentclass \
+mExpClass(mod) cmdkey##CmdComposer : public parentclass \
 { \
 public: \
 			cmdkey##CmdComposer(CmdRecorder& cmdrec) \

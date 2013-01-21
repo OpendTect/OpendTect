@@ -28,7 +28,7 @@ the first one.
 */
 
 
-mClass(visBase) FaceSet : public IndexedShape
+mExpClass(visBase) FaceSet : public IndexedShape
 {
 public:
     static FaceSet*	create()

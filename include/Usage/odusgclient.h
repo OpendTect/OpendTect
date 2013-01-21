@@ -20,7 +20,7 @@ namespace Usage
 {
 class Info;
 
-mClass(Usage) Client
+mExpClass(Usage) Client
 {
 public:
 

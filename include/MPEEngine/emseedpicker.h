@@ -29,7 +29,7 @@ namespace MPE
 instance of the class is usually available from each EMTracker.
 */
 
-mClass(MPEEngine) EMSeedPicker: public CallBacker
+mExpClass(MPEEngine) EMSeedPicker: public CallBacker
 {
 public:
     virtual		~EMSeedPicker() {}

@@ -31,11 +31,11 @@ class Fault3D;
 \brief FaultStickSet to Fault3D converter.
 */
 
-mClass(EarthModel) FSStoFault3DConverter
+mExpClass(EarthModel) FSStoFault3DConverter
 {
 public:
 
-    mClass(EarthModel) Setup
+    mExpClass(EarthModel) Setup
     {
     public:
 				Setup();
@@ -60,7 +60,7 @@ public:
 
 protected:
 
-    mClass(EarthModel) FaultStick
+    mExpClass(EarthModel) FaultStick
     {
     public:
 				FaultStick(int sticknr);

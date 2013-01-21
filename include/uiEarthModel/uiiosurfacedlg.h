@@ -37,7 +37,7 @@ namespace EM
 
 /*! \brief Dialog for horizon export */
 
-mClass(uiEarthModel) uiWriteSurfaceDlg : public uiDialog
+mExpClass(uiEarthModel) uiWriteSurfaceDlg : public uiDialog
 {
 public:
 			uiWriteSurfaceDlg(uiParent*,const EM::Surface&,
@@ -55,7 +55,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiReadSurfaceDlg : public uiDialog
+mExpClass(uiEarthModel) uiReadSurfaceDlg : public uiDialog
 {
 public:
 			uiReadSurfaceDlg(uiParent*,const char* type);
@@ -69,7 +69,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiStoreAuxData : public uiDialog
+mExpClass(uiEarthModel) uiStoreAuxData : public uiDialog
 {
 public:
     			uiStoreAuxData(uiParent*,const EM::Horizon3D&);
@@ -87,7 +87,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiCopySurface : public uiDialog
+mExpClass(uiEarthModel) uiCopySurface : public uiDialog
 {
 public:
     			uiCopySurface(uiParent*,const IOObj&,
@@ -106,7 +106,7 @@ protected:
 };
 
 /*Brief dialog for saving fault aux-data. */
-mClass(uiEarthModel) uiStoreFaultData : public uiDialog
+mExpClass(uiEarthModel) uiStoreFaultData : public uiDialog
 {
 public:
     			uiStoreFaultData(uiParent*,const EM::Fault3D&);

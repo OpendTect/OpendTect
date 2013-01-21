@@ -28,7 +28,7 @@ class Horizon3DSeedPicker;
 \brief EMTracker to track EM::Horizon3D.
 */
 
-mClass(MPEEngine) Horizon3DTracker : public EMTracker
+mExpClass(MPEEngine) Horizon3DTracker : public EMTracker
 {
 public:
     				Horizon3DTracker(EM::Horizon3D* =0);

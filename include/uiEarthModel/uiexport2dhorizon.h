@@ -24,7 +24,7 @@ class uiFileInput;
 
 /*! \brief Dialog for 2D horizon export */
 
-mClass(uiEarthModel) uiExport2DHorizon : public uiDialog
+mExpClass(uiEarthModel) uiExport2DHorizon : public uiDialog
 {
 public:
 			uiExport2DHorizon(uiParent*,

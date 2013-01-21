@@ -23,7 +23,7 @@ class uiIOObjSel;
 namespace VolProc
 {
 
-mClass(uiVolumeProcessing) uiBodyFiller: public uiStepDialog
+mExpClass(uiVolumeProcessing) uiBodyFiller: public uiStepDialog
 {
 public:
 	mDefaultFactoryInstanciationBase(

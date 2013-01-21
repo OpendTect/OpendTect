@@ -28,7 +28,7 @@ class uiIOObjSel;
     from memory. You can also call saveHorizon() to save horizon based on your
     choice of as new or overwrite. */
 
-mClass(uiEarthModel) uiHorSaveFieldGrp : public uiGroup
+mExpClass(uiEarthModel) uiHorSaveFieldGrp : public uiGroup
 {
 public:
 				uiHorSaveFieldGrp(uiParent*,EM::Horizon*,

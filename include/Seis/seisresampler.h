@@ -27,7 +27,7 @@ template <class T> class Interval;
 
  */
 
-mClass(Seis) SeisResampler
+mExpClass(Seis) SeisResampler
 {
 public:
 

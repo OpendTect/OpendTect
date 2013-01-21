@@ -27,7 +27,7 @@ namespace CmdDrive {
 
 class WildcardManager;
 
-mClass(uiCmdDriver) SearchKey
+mExpClass(uiCmdDriver) SearchKey
 {
 public:
     			SearchKey(const char* expr,bool casesensitive=true);
@@ -54,7 +54,7 @@ protected:
 };
 
 
-mClass(uiCmdDriver) WildcardManager
+mExpClass(uiCmdDriver) WildcardManager
 {
 public:
     			WildcardManager();

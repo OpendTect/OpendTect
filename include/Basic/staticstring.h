@@ -24,7 +24,7 @@ ________________________________________________________________________
 passing of static strings where needed.
 */
 
-mClass(Basic) StaticStringManager
+mExpClass(Basic) StaticStringManager
 {
 public:
     BufferString&		getString();

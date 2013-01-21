@@ -20,7 +20,7 @@ class Settings;
 class uiParent;
 class BufferStringSet;
 
-mClass(uiBase) uiFont 
+mExpClass(uiBase) uiFont 
 {			//!< font stuff that needs Qt.
 
     friend bool		select(uiFont&,uiParent*,const char*); 
@@ -74,7 +74,7 @@ protected:
 };
 
 
-mClass(uiBase) uiFontList : public CallBacker
+mExpClass(uiBase) uiFontList : public CallBacker
 {
     friend class	uiSetFonts;
 

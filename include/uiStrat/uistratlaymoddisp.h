@@ -25,7 +25,7 @@ namespace Strat { class LayerModelProvider; class Layer; }
 
   */
 
-mClass(uiStrat) uiStratLayerModelDisp : public uiGroup
+mExpClass(uiStrat) uiStratLayerModelDisp : public uiGroup
 {
 public:
 

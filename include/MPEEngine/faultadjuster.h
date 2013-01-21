@@ -24,7 +24,7 @@ namespace MPE
 \brief SectionAdjuster to adjust EM::Fault3D.
 */
 
-mClass(MPEEngine) FaultAdjuster : public SectionAdjuster
+mExpClass(MPEEngine) FaultAdjuster : public SectionAdjuster
 {
 public:
     				FaultAdjuster(EM::Fault3D&,

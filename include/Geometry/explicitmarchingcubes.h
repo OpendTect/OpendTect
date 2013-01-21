@@ -25,7 +25,7 @@ class TaskRunner;
 /*!A triangulated representation of an MarchingCubesSurface. */
 
 
-mClass(Geometry) ExplicitMarchingCubesSurface : public Geometry::IndexedShape,
+mExpClass(Geometry) ExplicitMarchingCubesSurface : public Geometry::IndexedShape,
     				     public CallBacker
 {
 public:
@@ -107,7 +107,7 @@ wanted.
    2 = the coordinate on the z-axis.
 */
 
-mClass(Geometry) MarchingCubeTriangleTable
+mExpClass(Geometry) MarchingCubeTriangleTable
 {
 public:
     ObjectSet<char>		indices_;
@@ -120,7 +120,7 @@ public:
 /*!Lookup table with one MarchingCubeTriangleTable per position constellation.*/
 
 
-mClass(Geometry) MarchingCubeLookupTable
+mExpClass(Geometry) MarchingCubeLookupTable
 {
 public:
     				MarchingCubeLookupTable();

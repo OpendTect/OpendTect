@@ -27,7 +27,7 @@ class IOPar;
 namespace WellTie
 {
 
-mClass(WellAttrib) Setup
+mExpClass(WellAttrib) Setup
 {
 public:
     			enum CorrType { None, Automatic, UserDefined };
@@ -84,7 +84,7 @@ public:
 };
 
 
-mClass(WellAttrib) IO : public Well::IO
+mExpClass(WellAttrib) IO : public Well::IO
 {
 public:
     				IO(const char* f,bool isrd)
@@ -94,7 +94,7 @@ public:
 };
 
 
-mClass(WellAttrib) Writer : public IO
+mExpClass(WellAttrib) Writer : public IO
 {
 public:
 				Writer(const char* f)
@@ -110,7 +110,7 @@ protected:
     bool                	wrHdr(std::ostream&,const char*) const;
 };
 
-mClass(WellAttrib) Reader : public IO
+mExpClass(WellAttrib) Reader : public IO
 {
 public:
 				Reader(const char* f)

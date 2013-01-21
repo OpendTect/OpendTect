@@ -28,7 +28,7 @@ class uiToolButtonSetup;
 class i_ToolBarMessenger;
 
 
-mClass(uiBase) uiToolBar : public uiParent
+mExpClass(uiBase) uiToolBar : public uiParent
 {
 friend class i_ToolBarMessenger;
 public:

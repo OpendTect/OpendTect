@@ -31,7 +31,7 @@ class uiSurvInfoProvider;
 
 /*!\brief The main survey selection dialog */
 
-mClass(uiIo) uiSurvey : public uiDialog
+mExpClass(uiIo) uiSurvey : public uiDialog
 {
 
 public:

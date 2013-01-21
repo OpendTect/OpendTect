@@ -63,7 +63,7 @@ and if dip-browser chosen:
 </pre>
 */
 
-mClass(Attributes) Similarity : public Provider
+mExpClass(Attributes) Similarity : public Provider
 {
 public:
     static void			initClass();
@@ -132,7 +132,7 @@ protected:
     ObjectSet<const DataHolder>	inputdata_;
     const DataHolder*		steeringdata_;
 
-    mClass(Attributes) SimiFunc : public FloatMathFunction
+    mExpClass(Attributes) SimiFunc : public FloatMathFunction
     {
     public:
 				SimiFunc(const ValueSeries<float>& func, int sz)

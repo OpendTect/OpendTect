@@ -23,7 +23,7 @@ class TranslatorGroup;
 
 /*!\brief needed for manipulation. Used by user interface IOObj management. */
 
-mClass(General) IODirEntry : public NamedObject
+mExpClass(General) IODirEntry : public NamedObject
 {
 public:
 			IODirEntry(IOObj*);
@@ -34,7 +34,7 @@ public:
 
 /*!\brief list of dir entries. */
 
-mClass(General) IODirEntryList : public ObjectSet<IODirEntry>
+mExpClass(General) IODirEntryList : public ObjectSet<IODirEntry>
 {
 public:
 			IODirEntryList(IODir*,const IOObjContext&);

@@ -19,7 +19,7 @@ class uiGenInput;
 class uiLatLongInp;
 
 
-mClass(uiIo) uiLatLong2CoordDlg : public uiDialog
+mExpClass(uiIo) uiLatLong2CoordDlg : public uiDialog
 {
 public:
 			uiLatLong2CoordDlg(uiParent*,const LatLong2Coord&,

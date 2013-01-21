@@ -30,7 +30,7 @@ class uiUnitSel;
 namespace Well { class LogSet; }
 
 
-mClass(uiWell) uiPropSelFromList : public uiGroup
+mExpClass(uiWell) uiPropSelFromList : public uiGroup
 {
 public:
 			uiPropSelFromList(uiParent*,const PropertyRef&,
@@ -71,7 +71,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellPropSel : public uiGroup
+mExpClass(uiWell) uiWellPropSel : public uiGroup
 {
 public:
 			uiWellPropSel(uiParent*,const PropertyRefSelection&);
@@ -100,7 +100,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellPropSelWithCreate : public uiWellPropSel
+mExpClass(uiWell) uiWellPropSelWithCreate : public uiWellPropSel
 {
 public:
 			uiWellPropSelWithCreate(uiParent*,
@@ -115,7 +115,7 @@ protected:
 
 
 
-mClass(uiWell) uiWellElasticPropSel : public uiWellPropSel
+mExpClass(uiWell) uiWellElasticPropSel : public uiWellPropSel
 {
 public:
 			uiWellElasticPropSel(uiParent*,bool withswaves=false);

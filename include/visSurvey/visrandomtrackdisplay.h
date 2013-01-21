@@ -46,7 +46,7 @@ class Scene;
     line can be changed by <code>setDepthInterval(const Interval<float>&)</code>
 */
 
-mClass(visSurvey) RandomTrackDisplay : public MultiTextureSurveyObject
+mExpClass(visSurvey) RandomTrackDisplay : public MultiTextureSurveyObject
 			    
 {
 public:

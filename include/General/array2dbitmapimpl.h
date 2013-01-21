@@ -17,7 +17,9 @@ ________________________________________________________________________
 #include "task.h"
 
 
-/*! \brief Common pars for A2DBitMapGenerators */
+/*!
+\brief Common pars for A2DBitMapGenerators.
+*/
 
 mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
 {
@@ -47,9 +49,11 @@ mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
 };
 
 
-/*! \brief Wiggles/Variable Area Drawing on A2DBitMap's. */
+/*!
+\brief Wiggles/Variable Area Drawing on A2DBitMap's.
+*/
 
-mClass(General) WVAA2DBitMapGenerator : public A2DBitMapGenerator
+mExpClass(General) WVAA2DBitMapGenerator : public A2DBitMapGenerator
 {
 public:
 
@@ -84,6 +88,10 @@ protected:
 namespace Interpolate { template <class T> class Applier2D; }
 
 
+/*!
+\brief
+*/
+
 mStruct(General) VDA2DBitMapGenPars : public A2DBitMapGenPars
 {
 			VDA2DBitMapGenPars()
@@ -99,9 +107,11 @@ mStruct(General) VDA2DBitMapGenPars : public A2DBitMapGenPars
 };
 
 
-/*! \brief Wiggles/Variable Area Drawing on A2DBitMap's. */
+/*!
+\brief Wiggles/Variable Area Drawing on A2DBitMap's.
+*/
 
-mClass(General) VDA2DBitMapGenerator : public A2DBitMapGenerator, ParallelTask
+mExpClass(General) VDA2DBitMapGenerator : public A2DBitMapGenerator, ParallelTask
 {
 public:
 

@@ -41,7 +41,7 @@ will associate him with when they want to add their CB to detect his selection.
 Secondly it has to give the DataObject that actually is selected.
 */
 
-mClass(visBase) SelectionManager : public CallBacker
+mExpClass(visBase) SelectionManager : public CallBacker
 {
 public:
 				SelectionManager();

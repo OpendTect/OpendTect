@@ -27,7 +27,7 @@ namespace Seis
 
 /*!\brief selection data in simple ranges */
 
-mClass(Seis) RangeSelData : public SelData
+mExpClass(Seis) RangeSelData : public SelData
 {
 public:
 
@@ -73,7 +73,7 @@ protected:
 
 /*!\brief selection data in a table */
 
-mClass(Seis) TableSelData : public SelData
+mExpClass(Seis) TableSelData : public SelData
 {
 public:
 
@@ -127,7 +127,7 @@ protected:
 
  */
 
-mClass(Seis) PolySelData : public SelData
+mExpClass(Seis) PolySelData : public SelData
 {
 public:
 

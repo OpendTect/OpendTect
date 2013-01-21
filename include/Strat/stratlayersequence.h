@@ -33,7 +33,7 @@ class RefTree;
 
  */
 
-mClass(Strat) LayerSequence
+mExpClass(Strat) LayerSequence
 {
 public:
 

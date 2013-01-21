@@ -22,13 +22,13 @@ namespace Usage
 
 /*!\brief Info going to and coming from server. */
 
-mClass(Usage) Info
+mExpClass(Usage) Info
 {
 public:
 
     enum Delim		{ Start, Stop, Cont };
 
-    mClass(Usage) ID
+    mExpClass(Usage) ID
     {
     public:
 			ID();					//!< client

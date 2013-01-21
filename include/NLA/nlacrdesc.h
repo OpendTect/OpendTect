@@ -23,7 +23,7 @@ class DataPointSet;
 
 /*\brief Description of how an NLA analysis Feature set is to be created */
 
-mClass(NLA) NLACreationDesc
+mExpClass(NLA) NLACreationDesc
 {
 public:
     			NLACreationDesc()	{ clear(); }

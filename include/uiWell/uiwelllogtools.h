@@ -35,7 +35,7 @@ class uiWellLogDisplay;
 namespace Well { class Data; class Log; class LogSet; class D2TModel; class Track; }
 
 
-mClass(uiWell) uiWellLogToolWin : public uiMainWin
+mExpClass(uiWell) uiWellLogToolWin : public uiMainWin
 {
 public:	
 
@@ -105,7 +105,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellLogToolWinMgr : public uiDialog
+mExpClass(uiWell) uiWellLogToolWinMgr : public uiDialog
 {
 public:
 			uiWellLogToolWinMgr(uiParent*);

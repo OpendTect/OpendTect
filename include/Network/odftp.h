@@ -21,7 +21,7 @@ class QFile;
 class QFtp;
 class QFtpConnector;
 
-mClass(Network) ODFtp : public CallBacker
+mExpClass(Network) ODFtp : public CallBacker
 {
 friend class QFtpConnector;
 

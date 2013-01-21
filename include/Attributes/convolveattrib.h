@@ -51,7 +51,7 @@ namespace Attrib
 </pre>
 */
 
-mClass(Attributes) Convolve : public Provider
+mExpClass(Attributes) Convolve : public Provider
 {
 public:
     static void			initClass();
@@ -104,7 +104,7 @@ protected:
 
     ObjectSet<const DataHolder>	inputdata_;
 
-    mClass(Attributes) Kernel
+    mExpClass(Attributes) Kernel
     {
     public:
 	const float*            getKernel() const;

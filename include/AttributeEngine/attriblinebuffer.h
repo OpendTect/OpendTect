@@ -28,7 +28,7 @@ class DataHolder;
   \brief Attribute DataHolder Line Buffer.
 */
 
-mClass(AttributeEngine) DataHolderLineBuffer
+mExpClass(AttributeEngine) DataHolderLineBuffer
 {
 public:
     			DataHolderLineBuffer();

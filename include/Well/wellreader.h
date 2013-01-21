@@ -26,7 +26,7 @@ namespace Well
 class Data;
 class Log;
 
-mClass(Well) Reader : public IO
+mExpClass(Well) Reader : public IO
 {
 public:
 

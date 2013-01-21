@@ -18,7 +18,7 @@ ________________________________________________________________________
 class uiListBox;
 
 
-mClass(uiSysAdm) uiODSysAdmColorTabs : public uiDialog
+mExpClass(uiSysAdm) uiODSysAdmColorTabs : public uiDialog
 {
 public:
 

@@ -39,7 +39,7 @@ horizons and faults. A surface is made up by one or more segments or patches,
 so they can overlap. 
 */
 
-mClass(EarthModel) Surface : public EMObject
+mExpClass(EarthModel) Surface : public EMObject
 {
 public:
     int				nrSections() const;

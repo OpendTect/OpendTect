@@ -26,7 +26,7 @@ namespace Table { class FormatDesc; }
 
 namespace PreStack
 {
-mClass(uiPreStackProcessing) uiImportMute : public uiDialog
+mExpClass(uiPreStackProcessing) uiImportMute : public uiDialog
 {
 public:
   			uiImportMute(uiParent*);

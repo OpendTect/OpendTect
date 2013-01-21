@@ -30,7 +30,7 @@ namespace Seis		{ class SelData; }
 
 /*!\brief base class for seis reader and writer. */
 
-mClass(Seis) SeisStoreAccess
+mExpClass(Seis) SeisStoreAccess
 {
 public:
 

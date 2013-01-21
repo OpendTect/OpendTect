@@ -18,7 +18,7 @@ namespace visSurvey { class SurveyObject; }
 class uiSliderExtra;
 
 
-mClass(uiVis) uiAttribTransDlg : public uiDialog
+mExpClass(uiVis) uiAttribTransDlg : public uiDialog
 {
 public:
     				uiAttribTransDlg( uiParent*,

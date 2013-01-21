@@ -26,7 +26,7 @@ namespace visBase
 
 */
 
-mClass(visBase) PickStyle : public DataObject
+mExpClass(visBase) PickStyle : public DataObject
 {
 public:
     static PickStyle*	create()

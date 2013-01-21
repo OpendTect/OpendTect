@@ -23,7 +23,7 @@ class uiCreateAttribLogDlg;
 class uiD2TMLogSelDlg;
 class uiMenuItem;
 
-mClass(uiODMain) uiODWellParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODWellParentTreeItem : public uiODTreeItem
 {
     typedef uiODTreeItem	inheritedClass;
 public:
@@ -40,7 +40,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODWellTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODWellTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -49,7 +49,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODWellTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODWellTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODWellTreeItem( int );

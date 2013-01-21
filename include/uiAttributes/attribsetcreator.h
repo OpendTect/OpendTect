@@ -17,7 +17,7 @@ namespace Attrib { class Desc; class DescSet; };
 class uiParent;
 
 
-mClass(uiAttributes) AttributeSetCreator
+mExpClass(uiAttributes) AttributeSetCreator
 {
 public:
 			AttributeSetCreator(uiParent*,

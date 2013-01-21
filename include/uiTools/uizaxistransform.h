@@ -24,7 +24,7 @@ class uiDialog;
 
 /*! Base class for ZAxisTransform ui's*/
 
-mClass(uiTools) uiZAxisTransform : public uiDlgGroup
+mExpClass(uiTools) uiZAxisTransform : public uiDlgGroup
 {
 public:
     mDefineFactory3ParamInClass(uiZAxisTransform,uiParent*,
@@ -40,7 +40,7 @@ protected:
 
 
 /*!Selects a ZAxisTransform. */
-mClass(uiTools) uiZAxisTransformSel : public uiGroup
+mExpClass(uiTools) uiZAxisTransformSel : public uiGroup
 {
 public:
     				uiZAxisTransformSel(uiParent*, bool withnone,

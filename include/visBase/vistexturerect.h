@@ -30,7 +30,7 @@ class TextureChannels;
     A TextureRectangle is a Rectangle with a datatexture.  The data is set via setData.
 */
 
-mClass(visBase) TextureRectangle : public VisualObjectImpl
+mExpClass(visBase) TextureRectangle : public VisualObjectImpl
 {
 public:
     static TextureRectangle*	create()

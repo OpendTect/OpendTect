@@ -34,7 +34,7 @@ static const char* sKeyNoOfLines mUnusedVar = "Number of Lines";
 
 /*!\brief Set of 2D lines comparable with 3D seismic cube */
 
-mClass(Seis) Seis2DDataSet : public NamedObject
+mExpClass(Seis) Seis2DDataSet : public NamedObject
 {
     friend class SeisTrcWriter;
     friend class OD_2DLineGeometryFrom2DLinesTransf;

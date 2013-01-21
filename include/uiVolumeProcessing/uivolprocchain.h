@@ -32,7 +32,7 @@ class Chain;
 class Step;
 
 
-mClass(uiVolumeProcessing) uiChain : public uiDialog
+mExpClass(uiVolumeProcessing) uiChain : public uiDialog
 {
 public:
 

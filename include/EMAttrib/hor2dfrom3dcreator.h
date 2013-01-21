@@ -25,7 +25,7 @@ class MultiID;
 \brief ExecutorGroup to create EM::Horizon2D from EM::Horizon3D.
 */
 
-mClass(EMAttrib) Hor2DFrom3DCreatorGrp : public ExecutorGroup
+mExpClass(EMAttrib) Hor2DFrom3DCreatorGrp : public ExecutorGroup
 {
 public:
     				Hor2DFrom3DCreatorGrp(const EM::Horizon3D&,
@@ -43,7 +43,7 @@ protected:
 \brief Executor to create EM::Horizon2D from EM::Horizon3D.
 */
 
-mClass(EMAttrib) Hor2DFrom3DCreator : public Executor
+mExpClass(EMAttrib) Hor2DFrom3DCreator : public Executor
 {
 public:
     				Hor2DFrom3DCreator(const EM::Horizon3D&,

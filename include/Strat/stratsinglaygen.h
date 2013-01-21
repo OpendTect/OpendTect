@@ -23,7 +23,7 @@ class Content;
 
 /*!\brief Layer generator based on Leaf Unit */
 
-mClass(Strat) SingleLayerGenerator : public LayerGenerator
+mExpClass(Strat) SingleLayerGenerator : public LayerGenerator
 {
 public:
 

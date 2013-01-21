@@ -35,7 +35,7 @@ class Work;
 singlethread or manual.
 */
 
-mClass(Basic) WorkManager : public CallBacker
+mExpClass(Basic) WorkManager : public CallBacker
 {
 public:
 
@@ -128,7 +128,7 @@ protected:
 CallBack, a static function (must return bool) or a TaskFunction on a CallBackerinheriting class, or a Task. The three examples are shown below.
 
 \code
-    mClass(Basic) MyClass : public CallBacker
+    mExpClass(Basic) MyClass : public CallBacker
     {
         void		normalCallBack(CallBacker*);
 	bool		taskFunction();
@@ -152,7 +152,7 @@ You can also add Tasks, with the option that they may be deleted when
 the work is done, or if there is an error.
 */
 
-mClass(Basic) Work
+mExpClass(Basic) Work
 {
 public:
     inline		Work();

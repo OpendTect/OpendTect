@@ -44,7 +44,7 @@ class ascostream;
   with the value. Use add() rather than set(). Values may contain newlines.
 */
 
-mClass(Basic) IOPar : public NamedObject
+mExpClass(Basic) IOPar : public NamedObject
 {
 public:
 			IOPar(const char* nm=0); //!< empty

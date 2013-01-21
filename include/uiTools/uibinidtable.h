@@ -20,7 +20,7 @@ class uiGenInput;
 class uiTable;
 template <class T> class Interval;
 
-mClass(uiTools) uiBinIDTable : public uiGroup
+mExpClass(uiTools) uiBinIDTable : public uiGroup
 {
 public:
 			uiBinIDTable(uiParent*,bool withz);

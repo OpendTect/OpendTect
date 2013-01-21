@@ -30,7 +30,7 @@ class SeisTrcReader;
    soon as possible. All reading is done int the background.
 */
 
-mClass(Seis) SeisRandomProvider : public CallBacker
+mExpClass(Seis) SeisRandomProvider : public CallBacker
 {
 public:
     					SeisRandomProvider(const MultiID& mid);
@@ -61,7 +61,7 @@ protected:
 
 
 
-mClass(Seis) SeisRandomRepository : public CallBacker
+mExpClass(Seis) SeisRandomRepository : public CallBacker
 {
 public:
     				SeisRandomRepository( const MultiID& mid );

@@ -23,7 +23,7 @@ class uiSeisSel;
 
 namespace Geometry { class RandomLine; class RandomLineSet; }
 
-mClass(uiSeis) uiSeisRandTo2DBase : public uiGroup
+mExpClass(uiSeis) uiSeisRandTo2DBase : public uiGroup
 {
 public:
     			uiSeisRandTo2DBase(uiParent*,bool rdlsel);
@@ -50,7 +50,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiSeisRandTo2DLineDlg : public uiDialog
+mExpClass(uiSeis) uiSeisRandTo2DLineDlg : public uiDialog
 {
 public:
     			uiSeisRandTo2DLineDlg(uiParent*,

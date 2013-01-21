@@ -21,7 +21,7 @@ ________________________________________________________________________
 \brief Provides file and directory names in a certain directory.
 */
 
-mClass(Basic) DirList : public BufferStringSet
+mExpClass(Basic) DirList : public BufferStringSet
 {
 public:
 

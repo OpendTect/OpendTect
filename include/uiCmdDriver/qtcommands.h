@@ -25,7 +25,7 @@ mStartDeclCmdClass( uiCmdDriver, FileOk, Command )		mEndDeclCmdClass
 
 mStartDeclCmdClass( uiCmdDriver, Snapshot, StealthCmd )	mEndDeclCmdClass
 
-mClass(uiCmdDriver) SnapshotActivator: public Activator
+mExpClass(uiCmdDriver) SnapshotActivator: public Activator
 {
 public:
 		SnapshotActivator(const uiMainWin&,const char* filenm,int zoom);
@@ -40,7 +40,7 @@ protected:
 mStartDeclComposerClass( uiCmdDriver, QColorDlg,CmdComposer,uiMainWin )
     mEndDeclComposerClass
 
-mClass(uiCmdDriver) SetColorActivator: public Activator
+mExpClass(uiCmdDriver) SetColorActivator: public Activator
 {
 public:
 		SetColorActivator(const Color&);

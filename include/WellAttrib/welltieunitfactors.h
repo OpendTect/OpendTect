@@ -22,7 +22,7 @@ namespace Well { class Log; }
 namespace WellTie
 {
 
-mClass(WellAttrib) UnitFactors
+mExpClass(WellAttrib) UnitFactors
 {
 public:
 

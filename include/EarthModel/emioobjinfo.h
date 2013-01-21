@@ -33,7 +33,7 @@ class SurfaceIOData;
 \brief Info on IOObj for earthmodel.
 */
 
-mClass(EarthModel) IOObjInfo
+mExpClass(EarthModel) IOObjInfo
 {
 public:
 

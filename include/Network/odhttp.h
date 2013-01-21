@@ -20,7 +20,7 @@ ________________________________________________________________________
 class MyHttp;
 class QHttpConnector;
 
-mClass(Network) ODHttp : public CallBacker
+mExpClass(Network) ODHttp : public CallBacker
 {
 friend class QHttpConnector;
 

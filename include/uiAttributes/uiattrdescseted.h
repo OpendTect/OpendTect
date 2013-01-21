@@ -41,7 +41,7 @@ class uiToolButton;
 
 /*! \brief Editor for Attribute sets */
 
-mClass(uiAttributes) uiAttribDescSetEd : public uiDialog
+mExpClass(uiAttributes) uiAttribDescSetEd : public uiDialog
 {
 public:
 

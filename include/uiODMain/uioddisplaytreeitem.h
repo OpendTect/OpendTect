@@ -21,7 +21,7 @@ class uiVisPartServer;
 namespace Attrib { class SelSpec; }
 
 
-mClass(uiODMain) uiODDisplayTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODDisplayTreeItem : public uiODTreeItem
 {
 public:
 

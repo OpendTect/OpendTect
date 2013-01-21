@@ -22,7 +22,7 @@ class uiMenuHandler;
 class VW2DSeis;
 
 
-mClass(uiODMain) uiODVW2DWiggleVarAreaTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVW2DWiggleVarAreaTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVW2DWiggleVarAreaTreeItem();
@@ -54,7 +54,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVW2DWiggleVarAreaTreeItemFactory : public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODVW2DWiggleVarAreaTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }

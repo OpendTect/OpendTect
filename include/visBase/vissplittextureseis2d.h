@@ -34,7 +34,7 @@ class Coordinates;
   make sure to set z pixels and texture units.
 */
 
-mClass(visBase) SplitTextureSeis2D : public VisualObjectImpl
+mExpClass(visBase) SplitTextureSeis2D : public VisualObjectImpl
 {
 public:
     static SplitTextureSeis2D*	create()

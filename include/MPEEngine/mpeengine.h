@@ -47,7 +47,7 @@ class ObjectEditor;
 \brief Use DataHolder instead.
 */
 
-mClass(MPEEngine) AbstDataHolder : public CallBacker
+mExpClass(MPEEngine) AbstDataHolder : public CallBacker
 {
 mRefCountImplNoDestructor(AbstDataHolder);
 public:
@@ -59,7 +59,7 @@ public:
 \brief Holds attribute data for tracking.
 */
 
-mClass(MPEEngine) DataHolder : public AbstDataHolder
+mExpClass(MPEEngine) DataHolder : public AbstDataHolder
 {
 public:
 				DataHolder()
@@ -120,7 +120,7 @@ private:
 \brief Main engine for tracking EM objects like horizons, faults etc.,
 */
 
-mClass(MPEEngine) Engine : public CallBacker
+mExpClass(MPEEngine) Engine : public CallBacker
 {
     mGlobal(MPEEngine) friend Engine&		engine();
 

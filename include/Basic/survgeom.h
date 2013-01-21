@@ -26,7 +26,7 @@ namespace Survey
 \brief A Geometry which holds trace positions.
 */
 
-mClass(Basic) Geometry
+mExpClass(Basic) Geometry
 { mRefCountImpl(Geometry);
 public:
     virtual bool	is2D() const					= 0;
@@ -55,7 +55,7 @@ protected:
 \brief Makes geometries accessible from a geometry id, or a multi id.
 */
 
-mClass(Basic) GeometryManager
+mExpClass(Basic) GeometryManager
 {
 public:
 			GeometryManager();
@@ -97,7 +97,7 @@ inline mGlobal(Basic) const GeometryManager& GM()
 \brief Geometry Reader
 */
 
-mClass(Basic) GeometryReader
+mExpClass(Basic) GeometryReader
 {
 public:
 			GeometryReader(){};
@@ -110,7 +110,7 @@ public:
 \brief Geometry Writer
 */
 
-mClass(Basic) GeometryWriter
+mExpClass(Basic) GeometryWriter
 {
 public:
 			GeometryWriter(){};

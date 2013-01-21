@@ -23,7 +23,7 @@ Dialog that either can be used standalone (with uiSingleGroupDlg) or
 in a tabstack (uiTabStackDlg) */
 
 
-mClass(uiTools) uiDlgGroup : public uiGroup
+mExpClass(uiTools) uiDlgGroup : public uiGroup
 {
 public:
     			uiDlgGroup(uiParent* p,const char* nm)
@@ -49,7 +49,7 @@ public:
 
 /*! Dialog with one uiDlgGroup. */
 
-mClass(uiTools) uiSingleGroupDlg : public uiDialog
+mExpClass(uiTools) uiSingleGroupDlg : public uiDialog
 {
 public:
 		uiSingleGroupDlg( uiParent* p,const uiDialog::Setup& st )
@@ -71,7 +71,7 @@ protected:
 
 
 /*! Dialog with multiple uiDlgGroup in a tabstack. */
-mClass(uiTools) uiTabStackDlg : public uiDialog
+mExpClass(uiTools) uiTabStackDlg : public uiDialog
 {
 public:
 			uiTabStackDlg(uiParent*,const uiDialog::Setup&);

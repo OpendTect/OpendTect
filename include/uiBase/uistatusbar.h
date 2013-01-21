@@ -21,7 +21,7 @@ class uiStatusBarBody;
 class uiMainWin;
 
 
-mClass(uiBase) uiStatusBar : public uiBaseObject
+mExpClass(uiBase) uiStatusBar : public uiBaseObject
 {
 
     friend class	uiMainWinBody;

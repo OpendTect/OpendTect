@@ -29,7 +29,7 @@ class uiSeisTransfer;
 
 /*! \brief Dialog for creating volume output */
 
-mClass(uiAttributes) uiAttrVolOut : public uiFullBatchDialog
+mExpClass(uiAttributes) uiAttrVolOut : public uiFullBatchDialog
 {
 public:
 			uiAttrVolOut(uiParent*,const Attrib::DescSet&,

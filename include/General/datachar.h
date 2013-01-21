@@ -36,7 +36,7 @@ DataCharacteristics( const T& ) \
 : BinDataDesc(ii,is,sizeof(T)), fmt_(Ieee), littleendian_(__islittle__) {}
 
 
-mClass(General) DataCharacteristics : public BinDataDesc
+mExpClass(General) DataCharacteristics : public BinDataDesc
 {
 public:
 

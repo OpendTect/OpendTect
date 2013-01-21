@@ -27,7 +27,7 @@ namespace EM { class Horizon2D; class Horizon3D; };
 
 /*! \brief Dialog to expand a 2D horizon to create a 3D horizon */
 
-mClass(uiEarthModel) uiHor3DFrom2DDlg : public uiDialog
+mExpClass(uiEarthModel) uiHor3DFrom2DDlg : public uiDialog
 {
 public:    
 				uiHor3DFrom2DDlg(uiParent*,

@@ -22,7 +22,7 @@ class uiGenInput;
 class uiLabeledListBox;
 
 
-mClass(uiTools) uiColTabImport : public uiDialog
+mExpClass(uiTools) uiColTabImport : public uiDialog
 {
 public:
 				uiColTabImport(uiParent*);

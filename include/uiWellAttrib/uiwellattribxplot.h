@@ -22,7 +22,7 @@ class uiWellLogExtractGrp;
 namespace Attrib { class DescSet; }
 
 
-mClass(uiWellAttrib) uiWellAttribCrossPlot : public uiDialog
+mExpClass(uiWellAttrib) uiWellAttribCrossPlot : public uiDialog
 {
 public:
 					uiWellAttribCrossPlot(uiParent*,

@@ -42,7 +42,7 @@ namespace visSurvey
 
 */
 
-mClass(visSurvey) MPEDisplay : public visBase::VisualObjectImpl, 
+mExpClass(visSurvey) MPEDisplay : public visBase::VisualObjectImpl, 
 		    public visSurvey::SurveyObject
 {
 public:

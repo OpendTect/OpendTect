@@ -21,7 +21,7 @@ class uiApplPartServer;
 
 /*! \brief Services from application level to 'Part servers' */
 
-mClass(uiTools) uiApplService : public NamedObject
+mExpClass(uiTools) uiApplService : public NamedObject
 {
 public:
 			uiApplService( const char* nm = 0 );
@@ -45,7 +45,7 @@ which of its part servers is calling - proceeds with the right action.
  
 */
 
-mClass(uiTools) uiApplPartServer : public CallBacker
+mExpClass(uiTools) uiApplPartServer : public CallBacker
 {
 public:
 

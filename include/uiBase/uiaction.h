@@ -20,7 +20,7 @@ class MenuItem;
 class i_ActionMessenger;
 mFDQtclass(QAction)
 
-mClass(uiBase) uiAction : public CallBacker
+mExpClass(uiBase) uiAction : public CallBacker
 {
 friend class		i_ActionMessenger;
 public:

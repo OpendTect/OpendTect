@@ -19,7 +19,7 @@ class uiGenInput;
 class uiUnitSel;
 
 
-mClass(uiTools) uiPropertyValFld : public uiGroup
+mExpClass(uiTools) uiPropertyValFld : public uiGroup
 {
 public:
 

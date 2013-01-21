@@ -39,7 +39,7 @@ class SectionTracker;
 
 /*!\brief Horizon tracking setup dialog. */
 
-mClass(uiMPE) uiHorizonSetupGroup : public uiSetupGroup
+mExpClass(uiMPE) uiHorizonSetupGroup : public uiSetupGroup
 {
 public:
     //static void			initClass();
@@ -142,7 +142,7 @@ protected:
 };
 
 
-mClass(uiMPE) uiBaseHorizonSetupGroup : public uiHorizonSetupGroup
+mExpClass(uiMPE) uiBaseHorizonSetupGroup : public uiHorizonSetupGroup
 {
 public:
     static void			initClass();

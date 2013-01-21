@@ -20,7 +20,7 @@ class uiGroup;
 class uiLabelBody;
 class ioPixmap;
 
-mClass(uiBase) uiLabel : public uiObject
+mExpClass(uiBase) uiLabel : public uiObject
 {
 public:
 

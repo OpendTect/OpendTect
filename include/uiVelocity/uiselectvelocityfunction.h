@@ -30,7 +30,7 @@ class FunctionSource;
 
 //!uiGroup to select a velocity function type
 
-mClass(uiVelocity) uiFunctionSel : public uiGroup
+mExpClass(uiVelocity) uiFunctionSel : public uiGroup
 {
 public:
 
@@ -64,7 +64,7 @@ protected:
 
 
 //!Base class for velocity function settings
-mClass(uiVelocity) uiFunctionSettings : public uiGroup
+mExpClass(uiVelocity) uiFunctionSettings : public uiGroup
 {
 public:
     mDefineFactory2ParamInClass( uiFunctionSettings, uiParent*,
@@ -79,7 +79,7 @@ public:
 
 
 
-mClass(uiVelocity) uiAddFunction : public uiDialog
+mExpClass(uiVelocity) uiAddFunction : public uiDialog
 {
 public:
     				uiAddFunction( uiParent* );
@@ -93,7 +93,7 @@ public:
 };
 
 
-mClass(uiVelocity) uiEditFunction : public uiDialog
+mExpClass(uiVelocity) uiEditFunction : public uiDialog
 {
 public:
     				uiEditFunction( uiParent*,

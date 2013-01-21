@@ -33,7 +33,7 @@ class Coordinates;
 
 enum DetailType { Face };
 
-mClass(visBase) Detail
+mExpClass(visBase) Detail
 {
 public:
 			Detail( DetailType dt )
@@ -47,7 +47,7 @@ protected:
 };  
    
 
-mClass(visBase) FaceDetail : public Detail
+mExpClass(visBase) FaceDetail : public Detail
 {
 public:
 			FaceDetail( SoFaceDetail* d )

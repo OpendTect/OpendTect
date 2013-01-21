@@ -32,7 +32,7 @@ class DataCubes;
   \brief Writes Attribute DataCubes.
 */
 
-mClass(AttributeEngine) DataCubesWriter : public Executor
+mExpClass(AttributeEngine) DataCubesWriter : public Executor
 {
 public:
     			DataCubesWriter(const MultiID&,const Attrib::DataCubes&,

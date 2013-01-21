@@ -42,7 +42,7 @@ class DataCubes;
   horizons, picksets... )  
 */
 
-mClass(AttributeEngine) DataHolder
+mExpClass(AttributeEngine) DataHolder
 {
 public:
 			DataHolder( int z0, int nrsamples );
@@ -85,7 +85,7 @@ protected:
   \brief Class that holds 2d seismic data or attribute data.
 */
 
-mClass(AttributeEngine) Data2DHolder
+mExpClass(AttributeEngine) Data2DHolder
 { mRefCountImpl(Data2DHolder);
 public:
 
@@ -110,7 +110,7 @@ public:
   \brief Class that holds 2d seismic data or attribute data in an array.
 */
 
-mClass(AttributeEngine) Data2DArray
+mExpClass(AttributeEngine) Data2DArray
 { mRefCountImpl(Data2DArray);
 public:
     				Data2DArray(const Data2DHolder&);

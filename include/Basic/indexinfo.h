@@ -21,7 +21,7 @@ ________________________________________________________________________
   \brief %Info on (floating-point) position in an array or StepInterval.
 */
 
-mClass(Basic) IndexInfo
+mExpClass(Basic) IndexInfo
 {
 public:
 			IndexInfo( int i, bool r=true, bool u=false )

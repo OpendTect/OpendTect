@@ -69,7 +69,7 @@ mStruct(uiSeis) TaperData
 };
 
 
-mClass(uiSeis) uiFuncTaperDisp : public uiFunctionDisplay
+mExpClass(uiSeis) uiFuncTaperDisp : public uiFunctionDisplay
 {
 public:
 
@@ -138,7 +138,7 @@ protected:
 
 
 
-mClass(uiSeis) uiFreqTaperGrp : public uiGroup
+mExpClass(uiSeis) uiFreqTaperGrp : public uiGroup
 {
 
 public:
@@ -184,7 +184,7 @@ protected :
 
 
 
-mClass(uiSeis) uiFreqTaperDlg : public uiDialog
+mExpClass(uiSeis) uiFreqTaperDlg : public uiDialog
 {
 public:
 
@@ -212,7 +212,7 @@ protected:
 
 
 
-mClass(uiSeis) uiFreqTaperSel : public uiWindowFunctionSel
+mExpClass(uiSeis) uiFreqTaperSel : public uiWindowFunctionSel
 {
 public:
 			uiFreqTaperSel(uiParent*,const Setup&,

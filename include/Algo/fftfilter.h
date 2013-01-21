@@ -31,7 +31,7 @@ frequency and type of the filter (minfreq not required for highpass, maxfreq
 not required for lowpass)
 */ 
 
-mClass(Algo) FFTFilter
+mExpClass(Algo) FFTFilter
 {
 
 public:

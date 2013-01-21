@@ -32,7 +32,7 @@ class uiRGBArray;
 
 */
 
-mClass(uiBase) ioPixmap : public NamedObject
+mExpClass(uiBase) ioPixmap : public NamedObject
 {
 public:
 			ioPixmap() : qpixmap_(0)		{}
@@ -81,7 +81,7 @@ header to guess the file format.
 
 */
 
-mClass(uiBase) ioBitmap : public ioPixmap
+mExpClass(uiBase) ioBitmap : public ioPixmap
 {
 public:
 			ioBitmap(const char* filename,const char* fmt=0); 

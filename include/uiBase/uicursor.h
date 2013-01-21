@@ -20,7 +20,7 @@ ________________________________________________________________________
 class ioPixmap;
 mFDQtclass(QCursor)
 
-mClass(uiBase) uiCursorManager : public MouseCursorManager
+mExpClass(uiBase) uiCursorManager : public MouseCursorManager
 {
 public:
     static void	initClass();

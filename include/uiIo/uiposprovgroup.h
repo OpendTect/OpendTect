@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 /*! \brief group for providing positions, usually for 2D or 3D seismics */
 
-mClass(uiIo) uiPosProvGroup : public uiPosFiltGroup
+mExpClass(uiIo) uiPosProvGroup : public uiPosFiltGroup
 {
 public:
 

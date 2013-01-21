@@ -22,7 +22,7 @@ class Seis2DLineSet;
 class uiSeisIOObjInfo;
 
 
-mClass(uiSeis) uiSeis2DFileMan : public uiDialog
+mExpClass(uiSeis) uiSeis2DFileMan : public uiDialog
 {
 public:
 

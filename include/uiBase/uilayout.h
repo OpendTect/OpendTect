@@ -35,7 +35,7 @@ enum constraintType
 };
 
 
-mClass(uiBase) uiConstraint
+mExpClass(uiBase) uiConstraint
 {
 friend class i_LayoutItem;
 public:

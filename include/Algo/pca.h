@@ -70,7 +70,7 @@ class PCACovarianceCalculator;
   \endcode
 */
 
-mClass(Algo) PCA
+mExpClass(Algo) PCA
 {
 public:
     					PCA( int nrvars );

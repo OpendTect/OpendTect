@@ -21,7 +21,7 @@ class uiButton;
 AttributeSet manager
 */
 
-mClass(uiAttributes) uiAttrSetMan : public uiObjFileMan
+mExpClass(uiAttributes) uiAttrSetMan : public uiObjFileMan
 {
 public:
     				uiAttrSetMan(uiParent*);

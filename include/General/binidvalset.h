@@ -58,7 +58,7 @@ class HorSampling;
  */
 
 
-mClass(General) BinIDValueSet
+mExpClass(General) BinIDValueSet
 {
 public:
 

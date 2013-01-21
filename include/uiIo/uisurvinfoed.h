@@ -26,7 +26,7 @@ class uiSurvInfoProvider;
 
 /*\brief The survey info editor */
 
-mClass(uiIo) uiSurveyInfoEditor : public uiDialog
+mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
 {
 
 public:

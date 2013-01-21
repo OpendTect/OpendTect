@@ -31,7 +31,7 @@ class IntervalSource;
 /*!A velocity funcion that computes interval velocity from where from
    another velocity function with RMS velocity */
 
-mClass(Velocity) IntervalFunction : public Function
+mExpClass(Velocity) IntervalFunction : public Function
 {
 public:
 			IntervalFunction(IntervalSource&);
@@ -50,7 +50,7 @@ protected:
 };
 
 
-mClass(Velocity) IntervalSource : public FunctionSource
+mExpClass(Velocity) IntervalSource : public FunctionSource
 {
 public:
     			IntervalSource();

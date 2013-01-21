@@ -32,7 +32,7 @@ mGlobal(uiStrat) uiStratTreeWin& StratTreeWin();
 /*!\brief Main window for Stratigraphy display: holds the reference tree
   and the units description view */
 
-mClass(uiStrat) uiStratTreeWin : public uiMainWin
+mExpClass(uiStrat) uiStratTreeWin : public uiMainWin
 {
 public:
 

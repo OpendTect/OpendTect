@@ -29,7 +29,7 @@ class uiListBox;
 namespace Attrib { class DescSet; class SelInfo; }
 
 
-mClass(uiAttributes) uiAttribCrossPlot : public uiDialog
+mExpClass(uiAttributes) uiAttribCrossPlot : public uiDialog
 {
 public:
 					uiAttribCrossPlot(uiParent*,

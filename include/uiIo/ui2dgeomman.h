@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 class uiListBox;
 
-mClass(uiIo) ui2DGeomManageDlg : public uiDialog
+mExpClass(uiIo) ui2DGeomManageDlg : public uiDialog
 {
 public:
 

@@ -29,7 +29,7 @@ namespace visSurvey
 {
 
 
-mClass(visSurvey) MarchingCubesDisplay : public visBase::VisualObjectImpl,
+mExpClass(visSurvey) MarchingCubesDisplay : public visBase::VisualObjectImpl,
 			      public visSurvey::SurveyObject
 {
 public:

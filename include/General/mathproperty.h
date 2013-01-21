@@ -28,7 +28,7 @@ class UnitOfMeasure;
 
  */
 
-mClass(General) MathProperty : public Property
+mExpClass(General) MathProperty : public Property
 {
 public:
     			MathProperty(const PropertyRef&,const char* def=0);

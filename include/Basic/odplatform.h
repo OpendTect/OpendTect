@@ -23,7 +23,7 @@ namespace OD
 \brief Platform or Operating System
 */
 
-mClass(Basic) Platform
+mExpClass(Basic) Platform
 {
 public:
 

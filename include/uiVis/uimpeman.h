@@ -29,7 +29,7 @@ class uiVisPartServer;
 
 /*! \brief Dialog for tracking properties
 */
-mClass(uiVis) uiMPEMan : public CallBacker
+mExpClass(uiVis) uiMPEMan : public CallBacker
 {
 public:		
     friend class uiPropertiesDialog;

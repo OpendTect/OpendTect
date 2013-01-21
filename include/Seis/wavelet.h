@@ -21,7 +21,7 @@ class Conn;
 class IOObj;
 
 
-mClass(Seis) Wavelet : public NamedObject
+mExpClass(Seis) Wavelet : public NamedObject
 {
 public:
 			Wavelet(const char* nm=0,int idxfsamp=0,
@@ -72,7 +72,7 @@ protected:
 };
 
 
-mClass(Seis) WaveletTranslatorGroup : public TranslatorGroup
+mExpClass(Seis) WaveletTranslatorGroup : public TranslatorGroup
 {			       isTranslatorGroup(Wavelet)
 public:
     			mDefEmptyTranslatorGroupConstructor(Wavelet)
@@ -80,7 +80,7 @@ public:
     const char*		 defExtension() const		{ return "wvlt"; }
 };
 
-mClass(Seis) WaveletTranslator : public Translator
+mExpClass(Seis) WaveletTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(Wavelet)
@@ -92,7 +92,7 @@ public:
 
 
 
-mClass(Seis) dgbWaveletTranslator : public WaveletTranslator
+mExpClass(Seis) dgbWaveletTranslator : public WaveletTranslator
 {			     isTranslator(dgb,Wavelet)
 public:
     			mDefEmptyTranslatorConstructor(dgb,Wavelet)
@@ -103,7 +103,7 @@ public:
 };
 
 
-mClass(Seis) WaveletAscIO : public Table::AscIO
+mExpClass(Seis) WaveletAscIO : public Table::AscIO
 {
 public:
     				WaveletAscIO( const Table::FormatDesc& fd )

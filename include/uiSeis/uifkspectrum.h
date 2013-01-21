@@ -25,7 +25,7 @@ namespace Fourier { class CC; }
 template <class T> class Array2D;
 
 
-mClass(uiSeis) uiFKSpectrum : public uiFlatViewMainWin
+mExpClass(uiSeis) uiFKSpectrum : public uiFlatViewMainWin
 {
 public:
     				uiFKSpectrum(uiParent*);

@@ -23,7 +23,7 @@ namespace Attrib
 \brief Use VolStats instead.
 */
 
-mClass(Attributes) VolStatsBase : public Provider
+mExpClass(Attributes) VolStatsBase : public Provider
 {
 public:
     static void			initDesc(Desc&);
@@ -112,7 +112,7 @@ protected:
 </pre> 
 */
 
-mClass(Attributes) VolStats : public VolStatsBase
+mExpClass(Attributes) VolStats : public VolStatsBase
 {
 public:
     static void			initClass();

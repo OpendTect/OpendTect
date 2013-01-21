@@ -31,7 +31,7 @@ template <class T> class TypeSet;
 
 /*!\brief Dialog to set isovalue of an isosurface.  */
 
-mClass(uiVis) uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
+mExpClass(uiVis) uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
 {
 public:
     		uiVisIsoSurfaceThresholdDlg(uiParent*,

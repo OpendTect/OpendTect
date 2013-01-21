@@ -23,7 +23,7 @@ namespace PreStack
 {
 class MuteDef;
 
-mClass(PreStackProcessing) Mute : public Processor
+mExpClass(PreStackProcessing) Mute : public Processor
 {
 public:
 			mDefaultFactoryInstantiation( Processor, Mute,

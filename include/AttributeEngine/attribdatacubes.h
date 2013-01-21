@@ -30,7 +30,7 @@ namespace Attrib
   the same sampling and size.
 */
 
-mClass(AttributeEngine) DataCubes
+mExpClass(AttributeEngine) DataCubes
 { mRefCountImpl(DataCubes);
 public:
     				DataCubes();

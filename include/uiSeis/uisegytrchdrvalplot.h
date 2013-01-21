@@ -19,7 +19,7 @@ class uiFunctionDisplay;
 namespace SEGY { class HdrEntry; }
 
 
-mClass(uiSeis) uiSEGYTrcHdrValPlot : public uiGroup
+mExpClass(uiSeis) uiSEGYTrcHdrValPlot : public uiGroup
 {
 public:
 

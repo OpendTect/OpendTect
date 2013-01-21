@@ -27,7 +27,7 @@ class CubeSampling;
 
 */
 
-mClass(General) CBVSReadMgr : public CBVSIOMgr
+mExpClass(General) CBVSReadMgr : public CBVSIOMgr
 {
 public:
 

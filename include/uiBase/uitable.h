@@ -27,7 +27,7 @@ class uiLabel;
 class uiTableBody;
 
 
-mClass(uiBase) uiTable : public uiObject
+mExpClass(uiBase) uiTable : public uiObject
 {
 friend class		i_tableMessenger;
 friend class		uiTableBody;
@@ -51,7 +51,7 @@ public:
 	Interactive, Fixed, Stretch, ResizeToContents
     };
 
-    mClass(uiBase) Setup
+    mExpClass(uiBase) Setup
     {
     public:
 
@@ -284,7 +284,7 @@ public:
     void		setSelectionBehavior(SelectionBehavior);
     void		editCell(const RowCol&,bool replace=false);
 
-    mClass(uiBase) SelectionRange
+    mExpClass(uiBase) SelectionRange
     {
     public:
 			SelectionRange()

@@ -33,7 +33,7 @@ namespace CmdDrive
 class Activator;
 
 
-mClass(uiCmdDriver) Command
+mExpClass(uiCmdDriver) Command
 {
 public:
 
@@ -122,7 +122,7 @@ protected:
 
 #define mStartDeclCmdClassNoActNoEntry(mod,cmdkey,parentclass) \
 \
-mClass(mod) cmdkey##Cmd : public parentclass \
+mExpClass(mod) cmdkey##Cmd : public parentclass \
 { \
 public: \
     			cmdkey##Cmd(CmdDriver& cmddrv) \
@@ -184,7 +184,7 @@ mEndDeclCmdClass
     in case activateInGUIThread(.,.) is going to be called with busywait=false.
 */
 
-mClass(uiCmdDriver) Activator : public CallBacker
+mExpClass(uiCmdDriver) Activator : public CallBacker
 {
 public:
     virtual		~Activator()			{};
@@ -192,7 +192,7 @@ public:
 };
 
 
-mClass(uiCmdDriver) CloseActivator: public Activator
+mExpClass(uiCmdDriver) CloseActivator: public Activator
 {
 public:
 			CloseActivator(const uiMainWin& uimw)
@@ -205,7 +205,7 @@ protected:
 };
 
 
-mClass(uiCmdDriver) CloseQDlgActivator: public Activator
+mExpClass(uiCmdDriver) CloseQDlgActivator: public Activator
 {
 public:
 			CloseQDlgActivator(int retval)
@@ -221,7 +221,7 @@ protected:
 //====== Menu tracer ==========================================================
 
 
-mClass(uiCmdDriver) MenuTracer
+mExpClass(uiCmdDriver) MenuTracer
 {
 public:
     			MenuTracer(const uiMenuItemContainer& mnu,

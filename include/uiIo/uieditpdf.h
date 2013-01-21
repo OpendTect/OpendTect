@@ -24,7 +24,7 @@ class uiFlatViewMainWin;
 
 /*! \brief Edit Probability Density Function */
 
-mClass(uiIo) uiEditProbDenFunc : public uiDialog
+mExpClass(uiIo) uiEditProbDenFunc : public uiDialog
 {
 public:
 			uiEditProbDenFunc(uiParent*,ProbDenFunc&,bool editable);

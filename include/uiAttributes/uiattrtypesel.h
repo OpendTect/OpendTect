@@ -24,7 +24,7 @@ class uiComboBox;
 
   */
 
-mClass(uiAttributes) uiAttrTypeSel : public uiGroup
+mExpClass(uiAttributes) uiAttrTypeSel : public uiGroup
 {
 public:
 				uiAttrTypeSel(uiParent*,bool sorted=true);

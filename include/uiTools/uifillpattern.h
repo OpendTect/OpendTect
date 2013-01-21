@@ -23,7 +23,7 @@ class uiRectItem;
 /*! \brief one-line element for fill pattern selection. No text label. */
 
 
-mClass(uiTools) uiFillPattern : public uiGroup
+mExpClass(uiTools) uiFillPattern : public uiGroup
 {
 public:
 

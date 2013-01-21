@@ -32,7 +32,7 @@ namespace Seis
 /*!Reads a 3D Seismic volume in parallel into an Array3D<float> or
    into a BinIDValueSet */
 
-mClass(Seis) ParallelReader : public ParallelTask
+mExpClass(Seis) ParallelReader : public ParallelTask
 {
 public:
 			ParallelReader(const IOObj&,

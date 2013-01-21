@@ -27,7 +27,7 @@ class SeisTrcBuf;
 namespace Seis { class TableSelData; }
 namespace Geometry { class RandomLine; }
 
-mClass(Seis) SeisRandLineTo2D : public Executor
+mExpClass(Seis) SeisRandLineTo2D : public Executor
 {
 public:
     			SeisRandLineTo2D(const IOObj&,const IOObj&,
@@ -63,7 +63,7 @@ private:
 };
 
 
-mClass(Seis) SeisRandLineTo2DGrid
+mExpClass(Seis) SeisRandLineTo2DGrid
 {
 public:
     			SeisRandLineTo2DGrid(const IOPar&,std::ostream&);

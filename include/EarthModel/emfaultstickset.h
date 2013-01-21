@@ -28,7 +28,7 @@ class EMManager;
 \brief FaultStickSet geometry.
 */
 
-mClass(EarthModel) FaultStickSetGeometry : public FaultGeometry
+mExpClass(EarthModel) FaultStickSetGeometry : public FaultGeometry
 {
 public:
     			FaultStickSetGeometry(Surface&);
@@ -90,7 +90,7 @@ protected:
 \brief Fault stick set.
 */
 
-mClass(EarthModel) FaultStickSet: public Fault
+mExpClass(EarthModel) FaultStickSet: public Fault
 { mDefineEMObjFuncs( FaultStickSet );
 public:
     FaultStickSetGeometry&		geometry();

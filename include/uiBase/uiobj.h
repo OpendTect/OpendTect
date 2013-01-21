@@ -36,7 +36,7 @@ class uiObjEventFilter;
 \brief The base class for most UI elements.
 */
 
-mClass(uiBase) uiObject : public uiBaseObject
+mExpClass(uiBase) uiObject : public uiBaseObject
 {
     friend class	uiObjectBody;
     friend class	i_LayoutItem;

@@ -25,7 +25,7 @@ class uiPosSubSel;
 class uiPushButton;
 
 
-mClass(uiEarthModel) uiBodyRegionDlg : public uiDialog
+mExpClass(uiEarthModel) uiBodyRegionDlg : public uiDialog
 {
 public: 
     				uiBodyRegionDlg(uiParent*);

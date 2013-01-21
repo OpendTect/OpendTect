@@ -29,7 +29,7 @@ Used for calculating attributes in relation with surfaces
 */
 
 
-mClass(uiEMAttrib) uiAttrEMOut : public uiFullBatchDialog
+mExpClass(uiEMAttrib) uiAttrEMOut : public uiFullBatchDialog
 {
 public:
     			uiAttrEMOut(uiParent*,const Attrib::DescSet&,

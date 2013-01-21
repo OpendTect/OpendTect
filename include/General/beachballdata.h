@@ -17,7 +17,7 @@ namespace visBeachBall
 
 //!\brief basic properties of the ball
 
-mClass(General) BallProperties: public ::NamedObject
+mExpClass(General) BallProperties: public ::NamedObject
 {
 public:
 
@@ -67,7 +67,7 @@ protected:
 
 //!\brief dynamic properties of the ball
 
-mClass(General) BallDynamics: public ::NamedObject
+mExpClass(General) BallDynamics: public ::NamedObject
 {
 public:
 			

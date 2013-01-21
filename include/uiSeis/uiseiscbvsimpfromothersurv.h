@@ -36,7 +36,7 @@ class uiLabeledSpinBox;
 class uiSeisSel;
 class uiSeisSubSel;
 
-mClass(uiSeis) SeisImpCBVSFromOtherSurvey : public Executor
+mExpClass(uiSeis) SeisImpCBVSFromOtherSurvey : public Executor
 {
 public:
 
@@ -106,7 +106,7 @@ protected:
 
 
 
-mClass(uiSeis) uiSeisImpCBVSFromOtherSurveyDlg : public uiDialog
+mExpClass(uiSeis) uiSeisImpCBVSFromOtherSurveyDlg : public uiDialog
 {
 public:
 

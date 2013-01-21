@@ -37,7 +37,7 @@ class DisplayProperties;
 \brief Infomation about a certain well
 */
 
-mClass(Well) Info : public ::NamedObject
+mExpClass(Well) Info : public ::NamedObject
 {
 public:
 
@@ -84,7 +84,7 @@ public:
 
 */
 
-mClass(Well) Data : public CallBacker
+mExpClass(Well) Data : public CallBacker
 {
 public:
 

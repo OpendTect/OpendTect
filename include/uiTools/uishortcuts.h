@@ -24,7 +24,7 @@ class uiLabeledSpinBox;
   shortcuts.
 */
 
-mClass(uiTools) uiShortcutsDlg : public uiDialog
+mExpClass(uiTools) uiShortcutsDlg : public uiDialog
 {
 public:
 		    	uiShortcutsDlg(uiParent*,const char* selkey);

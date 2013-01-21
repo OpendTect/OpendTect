@@ -24,7 +24,7 @@ class uiGenInput;
 class CtxtIOObj;
 class Seis2DTo3D;
 
-mClass(uiSeis) uiSeis2DTo3D : public uiDialog
+mExpClass(uiSeis) uiSeis2DTo3D : public uiDialog
 {
 public:
 

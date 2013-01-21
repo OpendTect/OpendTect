@@ -23,7 +23,7 @@ class CtxtIOObj;
 namespace VolProc
 {
 
-mClass(uiVolumeProcessing) uiVolumeReader : public uiStepDialog
+mExpClass(uiVolumeProcessing) uiVolumeReader : public uiStepDialog
 {
 public:
     mDefaultFactoryInstanciationBase(

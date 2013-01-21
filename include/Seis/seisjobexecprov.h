@@ -47,7 +47,7 @@ template <class T> class TypeSet;
 
  */
 
-mClass(Seis) SeisJobExecProv
+mExpClass(Seis) SeisJobExecProv
 {
 public:
 

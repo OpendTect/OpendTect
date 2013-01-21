@@ -21,7 +21,7 @@ class HostData;
 \brief All information on a job.
 */
 
-mClass(MMProc) JobInfo
+mExpClass(MMProc) JobInfo
 {
     friend class	JobRunner;
 public:

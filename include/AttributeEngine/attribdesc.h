@@ -36,7 +36,7 @@ typedef void(*DescDefaultsUpdater)(Desc&);
   \ingroup AttributeEngine
   \brief Setup class for Attrib::Desc.
 */
-mClass(AttributeEngine) DescSetup
+mExpClass(AttributeEngine) DescSetup
 {
     public:
 				    DescSetup();
@@ -56,7 +56,7 @@ mClass(AttributeEngine) DescSetup
   \ingroup AttributeEngine
   \brief Specification of input data of an attribute.
 */
-mClass(AttributeEngine) InputSpec
+mExpClass(AttributeEngine) InputSpec
 {
 public:
     				InputSpec( const char* d, bool enabled )
@@ -87,7 +87,7 @@ public:
   Each Desc has DescID that is unique within it's DescSet.
 */
 
-mClass(AttributeEngine) Desc
+mExpClass(AttributeEngine) Desc
 { mRefCountImpl(Desc);
 public:
 

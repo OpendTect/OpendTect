@@ -43,7 +43,7 @@ class Sower;
 */
 
 
-mClass(visSurvey) MPEEditor : public visBase::VisualObjectImpl
+mExpClass(visSurvey) MPEEditor : public visBase::VisualObjectImpl
 {
 public:
     static MPEEditor*	create()

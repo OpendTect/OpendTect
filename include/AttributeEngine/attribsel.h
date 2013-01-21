@@ -41,7 +41,7 @@ class DescSet;
   output is to be expected.
 */
 
-mClass(AttributeEngine) SelSpec
+mExpClass(AttributeEngine) SelSpec
 {
 public:
 			SelSpec( const char* r=0, DescID i=cAttribNotSel(),
@@ -127,7 +127,7 @@ protected:
    \brief Specifies current attribute choices (ID or output nr of NLA model).
 */
 
-mClass(AttributeEngine) CurrentSel
+mExpClass(AttributeEngine) CurrentSel
 {
 public:
 			CurrentSel()
@@ -145,7 +145,7 @@ public:
   \brief Supplies lists of available attribute input.
 */
 
-mClass(AttributeEngine) SelInfo
+mExpClass(AttributeEngine) SelInfo
 {
 public:
 

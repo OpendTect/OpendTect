@@ -41,7 +41,7 @@ namespace Stats { template <class T> class RunCalc; }
  */
 
 
-mClass(uiIo) uiDataPointSet : public uiDialog
+mExpClass(uiIo) uiDataPointSet : public uiDialog
 { 	
 public:
 

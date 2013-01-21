@@ -30,7 +30,7 @@ ________________________________________________________________________
   kernel support comes from the Matlab library "WaveLab" (Stanford University).
 */
 
-mClass(Algo) WaveletTransform
+mExpClass(Algo) WaveletTransform
 {
 public:
     enum		WaveletType { Haar, Daubechies4, Daubechies6,
@@ -86,7 +86,7 @@ public:
 \brief Discrete Wavelet Transform
 */
 
-mClass(Algo) DWT : public GenericTransformND
+mExpClass(Algo) DWT : public GenericTransformND
 {
 public:
 			DWT( WaveletTransform::WaveletType );
@@ -94,7 +94,7 @@ public:
 
 protected:
 
-    mClass(Algo) FilterWT1D : public GenericTransformND::Transform1D
+    mExpClass(Algo) FilterWT1D : public GenericTransformND::Transform1D
     {
     public:
 	
@@ -134,7 +134,7 @@ protected:
 \brief Continuous Wavelet Transform
 */
 
-mClass(Algo) CWT 
+mExpClass(Algo) CWT 
 {
 public:
 			CWT();

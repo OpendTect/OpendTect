@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace Geometry
 {
 
-mClass(Geometry) CubicBezierCurve : public ParametricCurve
+mExpClass(Geometry) CubicBezierCurve : public ParametricCurve
 {
 public:
 			CubicBezierCurve( const Coord3&, const Coord3&,

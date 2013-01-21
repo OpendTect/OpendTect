@@ -26,7 +26,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for fault import */
 
-mClass(uiEarthModel) uiImportFault : public uiDialog
+mExpClass(uiEarthModel) uiImportFault : public uiDialog
 {
 public:
 			~uiImportFault();
@@ -71,7 +71,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiImportFault3D : public uiImportFault
+mExpClass(uiEarthModel) uiImportFault3D : public uiImportFault
 {
 public:
     			uiImportFault3D(uiParent*,const char* type);

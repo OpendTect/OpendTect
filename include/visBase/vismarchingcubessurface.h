@@ -29,7 +29,7 @@ class GeomIndexedShape;
 
 /*!Class to display ::MarchingCubesSurface or body sections. */
 
-mClass(visBase) MarchingCubesSurface : public VisualObjectImpl
+mExpClass(visBase) MarchingCubesSurface : public VisualObjectImpl
 {
 public:
     static MarchingCubesSurface*	create()

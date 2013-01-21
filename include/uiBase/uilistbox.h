@@ -40,7 +40,7 @@ mFDQtclass(QListWidgetItem)
 
 */
 
-mClass(uiBase) uiListBox : public uiObject
+mExpClass(uiBase) uiListBox : public uiObject
 {
 friend class i_listMessenger;
 friend class uiListBoxBody;
@@ -176,7 +176,7 @@ public:
 };
 
 
-mClass(uiBase) uiLabeledListBox : public uiGroup
+mExpClass(uiBase) uiLabeledListBox : public uiGroup
 {
 public:
 

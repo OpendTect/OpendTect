@@ -27,7 +27,7 @@ class uiSEGYTrcHdrValPlot;
 class SEGYSeisTrcTranslator;
 
 
-mClass(uiSeis) uiSEGYExamine : public uiDialog
+mExpClass(uiSeis) uiSEGYExamine : public uiDialog
 {
 public:
 

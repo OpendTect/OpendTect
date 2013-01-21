@@ -28,7 +28,7 @@ class Sequence;
  
  */
 
-mClass(General) IndexedLookUpTable
+mExpClass(General) IndexedLookUpTable
 {
 public:
 

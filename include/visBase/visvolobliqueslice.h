@@ -24,7 +24,7 @@ namespace visBase
 /*!\brief
 */
 
-mClass(visBase) ObliqueSlice : public visBase::VisualObjectImpl
+mExpClass(visBase) ObliqueSlice : public visBase::VisualObjectImpl
 {
 public:
     static ObliqueSlice*	create()

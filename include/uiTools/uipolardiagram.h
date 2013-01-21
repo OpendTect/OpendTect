@@ -23,7 +23,7 @@ class uiLineItem;
 class uiMarkerItem;
 class uiTextItem;
 
-mClass(uiTools) uiPolarDiagram : public uiGraphicsView
+mExpClass(uiTools) uiPolarDiagram : public uiGraphicsView
 {
 public:
 

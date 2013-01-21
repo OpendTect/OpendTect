@@ -28,7 +28,7 @@ class uiColorTable;
     
 /*!\brief flat viewer properties tabs */
 
-mClass(uiFlatView) uiFlatViewPropTab : public uiDlgGroup
+mExpClass(uiFlatView) uiFlatViewPropTab : public uiDlgGroup
 {
 public:
 
@@ -47,7 +47,7 @@ protected:
     
 /*!\brief flat viewer data display properties tabs */
 
-mClass(uiFlatView) uiFlatViewDataDispPropTab : public uiFlatViewPropTab
+mExpClass(uiFlatView) uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 {
 public:
     			~uiFlatViewDataDispPropTab();
@@ -92,7 +92,7 @@ protected:
     
 /*!\brief flat viewer WVA display properties tabs */
 		     
-mClass(uiFlatView) uiFVWVAPropTab : public uiFlatViewDataDispPropTab
+mExpClass(uiFlatView) uiFVWVAPropTab : public uiFlatViewDataDispPropTab
 {
 public:
     			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
@@ -123,7 +123,7 @@ protected:
 
 /*!\brief flat viewer VD display properties tabs */
 
-mClass(uiFlatView) uiFVVDPropTab : public uiFlatViewDataDispPropTab
+mExpClass(uiFlatView) uiFVVDPropTab : public uiFlatViewDataDispPropTab
 {
 public:
     			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
@@ -149,7 +149,7 @@ protected:
 
 /*!\brief flat viewer annotation properties tabs */
 
-mClass(uiFlatView) uiFVAnnotPropTab : public uiFlatViewPropTab
+mExpClass(uiFlatView) uiFVAnnotPropTab : public uiFlatViewPropTab
 {
 public:
 
@@ -171,7 +171,7 @@ protected:
     
     FlatView::Annotation& annot_;
 
-    mClass(uiFlatView) AxesGroup : public uiGroup
+    mExpClass(uiFlatView) AxesGroup : public uiGroup
     {
     public:
 			AxesGroup(uiParent*,FlatView::Annotation::AxisData&,

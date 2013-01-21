@@ -29,7 +29,7 @@ class SeisTrc;
 namespace PreStack
 {
 
-mClass(PreStackProcessing) Gather : public FlatDataPack
+mExpClass(PreStackProcessing) Gather : public FlatDataPack
 {
 public:
     				Gather();
@@ -132,7 +132,7 @@ public:
 
 /*! brief a datapack containing an objectset of gathers !*/
 
-mClass(PreStackProcessing) GatherSetDataPack : public DataPack
+mExpClass(PreStackProcessing) GatherSetDataPack : public DataPack
 {
 public:
     				GatherSetDataPack(const char* ctgery,

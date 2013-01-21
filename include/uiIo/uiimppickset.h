@@ -26,7 +26,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for pickset selection */
 
-mClass(uiIo) uiImpExpPickSet : public uiDialog
+mExpClass(uiIo) uiImpExpPickSet : public uiDialog
 {
 public:
 			uiImpExpPickSet(uiPickPartServer*,bool);

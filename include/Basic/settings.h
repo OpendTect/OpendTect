@@ -32,7 +32,7 @@ ________________________________________________________________________
   filename.
 */
 
-mClass(Basic) Settings : public IOPar
+mExpClass(Basic) Settings : public IOPar
 {
 public:
 

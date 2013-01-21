@@ -20,7 +20,7 @@ class CubeSampling;
 
 /*!\brief Auxiliray data possibly needed at location. Mostly a seismic thing. */
 
-mClass(General) PosAuxInfo
+mExpClass(General) PosAuxInfo
 {
 public:
 
@@ -47,7 +47,7 @@ public:
 /*!\brief Selection of aux info at location.
 	  Note that BinID is always selected */
 
-mClass(General) PosAuxInfoSelection
+mExpClass(General) PosAuxInfoSelection
 {
 public:
 		PosAuxInfoSelection()

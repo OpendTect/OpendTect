@@ -22,7 +22,7 @@ class BufferStringSet;
 class uiGenInput;
 
 		     
-mClass(uiFlatView) uiFlatViewPropDlg : public uiTabStackDlg
+mExpClass(uiFlatView) uiFlatViewPropDlg : public uiTabStackDlg
 {
 public:
 			uiFlatViewPropDlg(uiParent*,FlatView::Viewer&,

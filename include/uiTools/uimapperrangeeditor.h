@@ -26,7 +26,7 @@ class uiAxisHandler;
 template <class T> class Array2D;
 namespace ColTab { class MapperSetup; class Sequence; }
 
-mClass(uiTools) uiMapperRangeEditor : public uiGroup
+mExpClass(uiTools) uiMapperRangeEditor : public uiGroup
 {
 public:
 

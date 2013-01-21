@@ -46,7 +46,7 @@ else if ( !zdata_.zistime_ && track() )\
     if ( !ld1_->yax_.range().includes( zpos, true ) )\
 	continue;
 
-mClass(uiWell) uiWellDahDisplay : public uiGraphicsView
+mExpClass(uiWell) uiWellDahDisplay : public uiGraphicsView
 {
 public:	
     mStruct(uiWell) Setup

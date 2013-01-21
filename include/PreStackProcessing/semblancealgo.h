@@ -26,7 +26,7 @@ namespace PreStack
 class Gather;
 
 /*! Base class for algorithms that computes semblance along a moveout */
-mClass(PreStackProcessing) SemblanceAlgorithm
+mExpClass(PreStackProcessing) SemblanceAlgorithm
 {
 public:
     			mDefineFactoryInClass( SemblanceAlgorithm, factory );

@@ -24,7 +24,7 @@ class uiShortcutsMgr;
 mGlobal(uiBase) uiShortcutsMgr& SCMgr(); //!< This is where you get your shortcuts
 
 
-mClass(uiBase) uiKeyDesc
+mExpClass(uiBase) uiKeyDesc
 {
 public:
 			uiKeyDesc(const char* statestr=0,const char* keystr=0);
@@ -60,7 +60,7 @@ protected:
 };
 
 
-mClass(uiBase) uiShortcutsList
+mExpClass(uiBase) uiShortcutsList
 {
 public:
 
@@ -99,7 +99,7 @@ protected:
 };
 
 
-mClass(uiBase) uiShortcutsMgr : public CallBacker
+mExpClass(uiBase) uiShortcutsMgr : public CallBacker
 {
 public:
 			uiShortcutsMgr();
@@ -121,7 +121,7 @@ protected:
 };
 
 
-mClass(uiBase) uiExtraIntKeyDesc : public uiKeyDesc
+mExpClass(uiBase) uiExtraIntKeyDesc : public uiKeyDesc
 {
 public:			
 			uiExtraIntKeyDesc(const char* statestr=0,

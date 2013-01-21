@@ -27,7 +27,7 @@ class uiPosFilterSetSel;
 namespace Attrib { class DescSet; }
 
 
-mClass(uiWellAttrib) uiWellLogExtractGrp : public uiGroup
+mExpClass(uiWellAttrib) uiWellLogExtractGrp : public uiGroup
 {
 public:
 

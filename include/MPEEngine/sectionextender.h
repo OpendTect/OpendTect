@@ -39,7 +39,7 @@ class SectionSourceSelector;
 EM::SectionID.
 */
 
-mClass(MPEEngine) SectionExtender : public SequentialTask
+mExpClass(MPEEngine) SectionExtender : public SequentialTask
 {
 public:
     				SectionExtender(const EM::SectionID& si = -1);

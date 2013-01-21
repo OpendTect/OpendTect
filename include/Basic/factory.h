@@ -24,7 +24,7 @@ ________________________________________________________________________
 and Factory3Param. )
 */
 
-mClass(Basic) FactoryBase
+mExpClass(Basic) FactoryBase
 {
 public:
     virtual			~FactoryBase();
@@ -159,15 +159,15 @@ variable is needed in the creation.
   
   Two macros are available to make a static accessfuncion for the factory:
   \code
-  mDefineFactory1Param( Module, ClassName, ParamClass, FunctionName );
+  mDefineFactory1Param( Module, ClassName, ParamExpClass, FunctionName );
   \endcode
   
   that will create a static function that returns an instance to
-  Factory1Param<ClassName,ParamClass>. The static function must be implemented
+  Factory1Param<ClassName,ParamExpClass>. The static function must be implemented
   in a src-file with the macro.
   
   \code
-  mImplFactory1Param( ClassName, ParamClass, FunctionName );
+  mImplFactory1Param( ClassName, ParamExpClass, FunctionName );
   \endcode
 */
 

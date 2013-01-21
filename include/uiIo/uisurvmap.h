@@ -22,7 +22,7 @@ class uiMarkerItem;
 class uiTextItem;
 class BaseMapObject;
 
-mClass(uiIo) uiSurveyBoxObject : public uiBaseMapObject
+mExpClass(uiIo) uiSurveyBoxObject : public uiBaseMapObject
 {
 public:
     			uiSurveyBoxObject(BaseMapObject*,bool);
@@ -43,7 +43,7 @@ protected:
 };
 
 
-mClass(uiIo) uiNorthArrowObject : public uiBaseMapObject
+mExpClass(uiIo) uiNorthArrowObject : public uiBaseMapObject
 {
 public:
     			uiNorthArrowObject(BaseMapObject*,bool);
@@ -64,7 +64,7 @@ protected:
 };
 
 
-mClass(uiIo) uiSurveyMap : public uiBaseMap
+mExpClass(uiIo) uiSurveyMap : public uiBaseMap
 {
 public:
 			uiSurveyMap(uiParent*,bool withtitle=true);

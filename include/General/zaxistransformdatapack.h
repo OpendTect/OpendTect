@@ -28,7 +28,7 @@ class ZAxisTransform;
 */
 
 
-mClass(General) ZAxisTransformDataPack : public FlatDataPack
+mExpClass(General) ZAxisTransformDataPack : public FlatDataPack
 {
 public:
     				ZAxisTransformDataPack(const FlatDataPack&,

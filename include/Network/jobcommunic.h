@@ -48,7 +48,7 @@ class TcpSocket;
  *  Handles the communication between a client and the master, from
  *  the client's point of view. 
  */ 
-mClass(Network) JobCommunic : public CallBacker
+mExpClass(Network) JobCommunic : public CallBacker
 {
 public:
     enum State		{ Undef, Working, WrapUp, Finished, AllDone, Paused,

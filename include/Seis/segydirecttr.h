@@ -26,7 +26,7 @@ class SEGYSeisTrcTranslator;
 namespace SEGY
 {
 
-mClass(Seis) DirectReader
+mExpClass(Seis) DirectReader
 {
 public:
 
@@ -51,7 +51,7 @@ protected:
 
 /*!\brief reads from 3D PS data store reader based on SEG-Y files */
 
-mClass(Seis) SEGYDirect3DPSReader : public ::SeisPS3DReader
+mExpClass(Seis) SEGYDirect3DPSReader : public ::SeisPS3DReader
 			    , public SEGY::DirectReader
 {
 public:
@@ -82,7 +82,7 @@ protected:
 
 /*!\brief reads from 2D PS data store reader based on SEG-Y files */
 
-mClass(Seis) SEGYDirect2DPSReader : public SeisPS2DReader
+mExpClass(Seis) SEGYDirect2DPSReader : public SeisPS2DReader
 			    , public SEGY::DirectReader
 {
 public:
@@ -111,7 +111,7 @@ protected:
 
 
 
-mClass(Seis) SEGYDirectSeisPS3DTranslator : public SeisPS3DTranslator
+mExpClass(Seis) SEGYDirectSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(SEGYDirect,SeisPS3D)
 public:
     			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS3D)
@@ -123,7 +123,7 @@ public:
 };
 
 
-mClass(Seis) SEGYDirectSeisPS2DTranslator : public SeisPS2DTranslator
+mExpClass(Seis) SEGYDirectSeisPS2DTranslator : public SeisPS2DTranslator
 {			       isTranslator(SEGYDirect,SeisPS2D)
 public:
     			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS2D)
@@ -133,7 +133,7 @@ public:
 };
 
 
-mClass(Seis) SEGYDirectSeisTrcTranslator : public SeisTrcTranslator
+mExpClass(Seis) SEGYDirectSeisTrcTranslator : public SeisTrcTranslator
 				   , public SEGY::DirectReader
 {			isTranslator(SEGYDirect,SeisTrc)
 public:

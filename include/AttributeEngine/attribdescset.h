@@ -31,7 +31,7 @@ class Desc; class DescSetup; class SelSpec;
   \brief Set of attribute descriptions.
 */
 
-mClass(AttributeEngine) DescSet : public CallBacker
+mExpClass(AttributeEngine) DescSet : public CallBacker
 {
 public:
     			DescSet(bool is2d);

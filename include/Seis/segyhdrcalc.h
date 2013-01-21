@@ -26,7 +26,7 @@ namespace SEGY
 class BinHeader;
 class TxtHeader;
 
-mClass(Seis) HdrCalc
+mExpClass(Seis) HdrCalc
 {
 public:
 
@@ -42,7 +42,7 @@ public:
 };
 
 
-mClass(Seis) HdrCalcSet : public ObjectSet<HdrCalc>
+mExpClass(Seis) HdrCalcSet : public ObjectSet<HdrCalc>
 		  , public NamedObject
 {
 public:

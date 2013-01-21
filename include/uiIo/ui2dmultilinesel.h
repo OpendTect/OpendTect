@@ -36,7 +36,7 @@ class ui2DMultiLineSelDlg;
 class uiLineSetDlg;
 class uiLineSetFld;
 
-mClass(uiIo) LineInfo
+mExpClass(uiIo) LineInfo
 {
 public:
 				LineInfo(const PosInfo::GeomID& id,
@@ -57,7 +57,7 @@ public:
 };
 
 
-mClass(uiIo) ui2DMultiLineSel : public uiCompoundParSel
+mExpClass(uiIo) ui2DMultiLineSel : public uiCompoundParSel
 {
 public:
 
@@ -109,7 +109,7 @@ protected:
 };
 
 
-mClass(uiIo) ui2DMultiLineSelDlg : public uiDialog
+mExpClass(uiIo) ui2DMultiLineSelDlg : public uiDialog
 {
 public:
 

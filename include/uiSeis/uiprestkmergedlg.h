@@ -28,7 +28,7 @@ class uiToolButton;
 /*! \brief: setup a dialog where the user can select a set of Pre-stack volumes and merge them into one. The priority order decides which volume to use in case of an overlap.
 */
 
-mClass(uiSeis) uiPreStackMergeDlg : public uiDialog
+mExpClass(uiSeis) uiPreStackMergeDlg : public uiDialog
 {
 public:
 
@@ -71,7 +71,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiPreStackCopyDlg : public uiDialog
+mExpClass(uiSeis) uiPreStackCopyDlg : public uiDialog
 {
 public:
 

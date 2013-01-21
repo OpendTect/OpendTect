@@ -23,7 +23,7 @@ namespace OD
 \brief Module Dependency
 */
 
-mClass(Basic) ModDep
+mExpClass(Basic) ModDep
 {
 public:
     			ModDep( const char* m )
@@ -43,7 +43,7 @@ public:
 different OpendTect 'modules'.
 */
 
-mClass(Basic) ModDepMgr
+mExpClass(Basic) ModDepMgr
 {
 public:
 				ModDepMgr(const char* fnm=0);

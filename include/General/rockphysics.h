@@ -34,7 +34,7 @@ Aliases are matched with a GlobExpr, so you can add with wildcards and the like.
 namespace RockPhysics
 {
 
-mClass(General) Formula : public NamedObject
+mExpClass(General) Formula : public NamedObject
 {
 public:
 
@@ -55,7 +55,7 @@ public:
     inline bool		hasPropType( PropType t ) const
 						{ return type_ == t; }
 
-    mClass(General) ConstDef : public NamedObject
+    mExpClass(General) ConstDef : public NamedObject
     {
     public:
 			ConstDef( const char* nm )
@@ -66,7 +66,7 @@ public:
 	Interval<float>	typicalrg_;
 	float defaultval_;
     };
-    mClass(General) VarDef : public NamedObject
+    mExpClass(General) VarDef : public NamedObject
     {
     public:
 			VarDef( const char* nm, PropType t )
@@ -95,7 +95,7 @@ public:
 };
 
 
-mClass(General) FormulaSet : public ObjectSet<const Formula>
+mExpClass(General) FormulaSet : public ObjectSet<const Formula>
 {
 public:
     			~FormulaSet()

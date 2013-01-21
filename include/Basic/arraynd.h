@@ -177,7 +177,7 @@ public:
   no more positions are available.
 */
 
-mClass(Basic) ArrayNDIter
+mExpClass(Basic) ArrayNDIter
 {
 public:
 				ArrayNDIter( const ArrayNDInfo& );

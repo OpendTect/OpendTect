@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiobjfileman.h"
 
 
-mClass(uiSeis) uiSeisPreStackMan : public uiObjFileMan
+mExpClass(uiSeis) uiSeisPreStackMan : public uiObjFileMan
 {
 public:
 			uiSeisPreStackMan(uiParent*,bool for2d);

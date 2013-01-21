@@ -37,7 +37,7 @@ class LeafUnitRef;
 
  */
 
-mClass(Strat) UnitRef : public CallBacker
+mExpClass(Strat) UnitRef : public CallBacker
 {
 public:
 
@@ -114,7 +114,7 @@ public:
 
 /*!\brief UnitRef for units containing other units only */
 
-mClass(Strat) NodeUnitRef : public UnitRef
+mExpClass(Strat) NodeUnitRef : public UnitRef
 {
 public:
 
@@ -176,7 +176,7 @@ public:
 
 /*!\brief UnitRef for units containing non-Leaf units only */
 
-mClass(Strat) NodeOnlyUnitRef : public NodeUnitRef
+mExpClass(Strat) NodeOnlyUnitRef : public NodeUnitRef
 {
 public:
 			NodeOnlyUnitRef( NodeUnitRef* up, const char* c,
@@ -192,7 +192,7 @@ public:
 
 /*!\brief UnitRef for units containing Leaf units only */
 
-mClass(Strat) LeavedUnitRef : public NodeUnitRef
+mExpClass(Strat) LeavedUnitRef : public NodeUnitRef
 {
 public:
 			LeavedUnitRef( NodeUnitRef* up, const char* c,
@@ -222,7 +222,7 @@ protected:
 
 /*!\brief UnitRef for layers */
 
-mClass(Strat) LeafUnitRef : public UnitRef
+mExpClass(Strat) LeafUnitRef : public UnitRef
 {
 public:
 

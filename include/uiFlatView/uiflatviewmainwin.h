@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 /*!\brief (Non-modal) main window containing one or more uiFlatViewer(s). */
 
-mClass(uiFlatView) uiFlatViewMainWin : public uiMainWin
+mExpClass(uiFlatView) uiFlatViewMainWin : public uiMainWin
 			, public uiFlatViewWin
 {
 public:

@@ -32,7 +32,7 @@ mGlobal(General) UnitOfMeasureRepository& UoMR();
 
  */
 
-mClass(General) UnitOfMeasure : public NamedObject
+mExpClass(General) UnitOfMeasure : public NamedObject
 {
 public:
 
@@ -101,7 +101,7 @@ protected:
  */
 
 
-mClass(General) UnitOfMeasureRepository
+mExpClass(General) UnitOfMeasureRepository
 {
 public:
 

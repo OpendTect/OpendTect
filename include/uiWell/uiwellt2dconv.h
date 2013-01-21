@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uit2dconvsel.h"
 
 
-mClass(uiWell) uiT2DWellConvSelGroup : public uiT2DConvSelGroup
+mExpClass(uiWell) uiT2DWellConvSelGroup : public uiT2DConvSelGroup
 {
 public:
 

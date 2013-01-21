@@ -22,7 +22,7 @@ namespace PosInfo { class GeomID; }
    There should normally only be one instance in memory, and that should
    be accessed via PickRetriever::getInstance(). */
 
-mClass(General) PickRetriever : public CallBacker
+mExpClass(General) PickRetriever : public CallBacker
 { mRefCountImpl(PickRetriever);
 public:
     				PickRetriever();

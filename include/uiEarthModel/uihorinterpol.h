@@ -24,7 +24,7 @@ class uiArray2DInterpolSel;
 class uiIOObjSel;
 
 
-mClass(uiEarthModel) uiHorizonInterpolDlg : public uiDialog
+mExpClass(uiEarthModel) uiHorizonInterpolDlg : public uiDialog
 {
 public:
     			uiHorizonInterpolDlg(uiParent*,EM::Horizon*,

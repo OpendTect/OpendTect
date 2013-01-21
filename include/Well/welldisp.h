@@ -32,7 +32,7 @@ namespace Well
 inline const char* sKey2DDispProp()  { return "2D Display"; }
 inline const char* sKey3DDispProp() { return "3D Display"; }
 
-mClass(Well) DisplayProperties
+mExpClass(Well) DisplayProperties
 {
 public:
 

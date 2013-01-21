@@ -33,7 +33,7 @@ class SeisJobExecProv;
 class uiLabeledListBox;
 
 
-mClass(uiSeis) uiSeisMMProc : public uiDialog
+mExpClass(uiSeis) uiSeisMMProc : public uiDialog
 {
 public:
                         uiSeisMMProc(uiParent*,const IOPar&,

@@ -19,7 +19,7 @@ class uiGenInput;
 class uiCheckBox;
 
 
-mClass(uiTools) uiScaler : public uiGroup
+mExpClass(uiTools) uiScaler : public uiGroup
 {
 public:
 

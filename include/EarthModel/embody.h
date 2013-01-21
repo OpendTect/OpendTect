@@ -29,7 +29,7 @@ namespace EM
 \brief Implicit representation of a body.
 */
 
-mClass(EarthModel) ImplicitBody
+mExpClass(EarthModel) ImplicitBody
 {
 public:
     				ImplicitBody();
@@ -48,7 +48,7 @@ public:
 \brief A body that can deliver an implicit body.
 */
 
-mClass(EarthModel) Body
+mExpClass(EarthModel) Body
 { 
 public:
 

@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "geometry.h"
 
 
-mClass(General) Alignment
+mExpClass(General) Alignment
 {
 public:
 
@@ -56,7 +56,7 @@ protected:
 #define mDeclAlignment(nm,h,v) Alignment nm( Alignment::h, Alignment::v )
 
 
-mClass(General) MarkerStyle2D
+mExpClass(General) MarkerStyle2D
 {
 public:
 
@@ -84,7 +84,7 @@ public:
 };
 
 
-mClass(General) MarkerStyle3D
+mExpClass(General) MarkerStyle3D
 {
 public:
 
@@ -110,7 +110,7 @@ public:
 };
 
 
-mClass(General) LineStyle
+mExpClass(General) LineStyle
 {
 public:
 
@@ -136,7 +136,7 @@ public:
 };
 
 
-mClass(General) FillPattern
+mExpClass(General) FillPattern
 {
 public:
 
@@ -153,7 +153,7 @@ public:
 
 
 
-mClass(General) ArrowHeadStyle
+mExpClass(General) ArrowHeadStyle
 {
 public:
     enum Type		{ Line, Triangle, Square, Cross };
@@ -170,7 +170,7 @@ public:
 };
 
 
-mClass(General) ArrowStyle
+mExpClass(General) ArrowStyle
 {
 public:
 

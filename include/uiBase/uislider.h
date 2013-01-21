@@ -22,7 +22,7 @@ class uiLabel;
 class uiLineEdit;
 template <class T> class StepInterval;
 
-mClass(uiBase) uiSlider : public uiObject
+mExpClass(uiBase) uiSlider : public uiObject
 {
 public:
 
@@ -96,11 +96,11 @@ private:
 
 /*! Slider with label */
 
-mClass(uiBase) uiSliderExtra : public uiGroup
+mExpClass(uiBase) uiSliderExtra : public uiGroup
 {
 public:
 
-    mClass(uiBase) Setup
+    mExpClass(uiBase) Setup
     {
     public:
 			Setup(const char* l=0)

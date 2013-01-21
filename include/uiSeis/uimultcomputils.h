@@ -24,7 +24,7 @@ class uiListBox;
 
 /*!\brief dialog to select (multiple) component(s) of stored data */
 
-mClass(uiSeis) uiMultCompDlg : public uiDialog
+mExpClass(uiSeis) uiMultCompDlg : public uiDialog
 {
 public:
 			uiMultCompDlg(uiParent*,const BufferStringSet&);
@@ -40,7 +40,7 @@ protected:
 
 /*!\brief CompoundParSel to capture and sum up the user-selected components */
 
-mClass(uiSeis) uiMultCompSel : public uiCompoundParSel
+mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
 {
     public:
 			uiMultCompSel(uiParent*);
@@ -56,7 +56,7 @@ mClass(uiSeis) uiMultCompSel : public uiCompoundParSel
     void                doDlg(CallBacker*);
     void		prepareDlg();
 
-    mClass(uiSeis) MCompDlg : public uiDialog
+    mExpClass(uiSeis) MCompDlg : public uiDialog
     {
 	public:
 	    			MCompDlg(uiParent*,const BufferStringSet&);

@@ -39,7 +39,7 @@ namespace WellTie
     class Setup;
     class uiTieWin;
 
-mClass(uiWellAttrib) uiTieWinMGRDlg : public uiDialog
+mExpClass(uiWellAttrib) uiTieWinMGRDlg : public uiDialog
 {
 
 public:    

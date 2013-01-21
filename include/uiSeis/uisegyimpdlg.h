@@ -22,7 +22,7 @@ class uiSeisTransfer;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mClass(uiSeis) uiSEGYImpDlg : public uiSEGYReadDlg
+mExpClass(uiSeis) uiSEGYImpDlg : public uiSEGYReadDlg
 {
 public :
 

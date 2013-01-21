@@ -27,7 +27,7 @@ namespace Strat
 
 */
 
-mClass(Strat) UnitRefIter
+mExpClass(Strat) UnitRefIter
 {
 public:
 

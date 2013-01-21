@@ -24,7 +24,7 @@ namespace OD
 \brief Base class for all sets used in OpendTect. 
 */
 
-mClass(Basic) Set
+mExpClass(Basic) Set
 {
 public:
 

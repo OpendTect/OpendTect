@@ -19,7 +19,7 @@ ________________________________________________________________________
 class BufferStringSet;
 
 /* Class to hande currencies */
-mClass(General) Currency
+mExpClass(General) Currency
 {
 public:
 				Currency(const char* abrevation, short devisor)
@@ -38,7 +38,7 @@ public:
 };
 
 
-mClass(General) Price
+mExpClass(General) Price
 {
 public:
                Price( double userprice = 0,

@@ -21,7 +21,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-mClass(General) WeightedClassCounter
+mExpClass(General) WeightedClassCounter
 {
 public:
     		WeightedClassCounter( bool canbeneg=true )

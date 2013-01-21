@@ -21,7 +21,7 @@ class uiTextBrowserBody;
 mFDQtclass(QTextEdit)
 class Timer;
 
-mClass(uiBase) uiTextEditBase : public uiObject
+mExpClass(uiBase) uiTextEditBase : public uiObject
 {
 public:
     void		readFromFile(const char*,int linecutlen=0);
@@ -58,7 +58,7 @@ protected:
 
 
 
-mClass(uiBase) uiTextEdit : public uiTextEditBase
+mExpClass(uiBase) uiTextEdit : public uiTextEditBase
 {
 public:
                         uiTextEdit(uiParent* parnt,const char* nm="Text editor",
@@ -80,7 +80,7 @@ private:
 
 
 
-mClass(uiBase) uiTextBrowser : public uiTextEditBase
+mExpClass(uiBase) uiTextBrowser : public uiTextEditBase
 {
 friend class		i_BrowserMessenger;
 public:

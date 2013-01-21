@@ -21,7 +21,7 @@ namespace Attrib { class SelSpec; }
 namespace MPE { class HorizonFlatViewEditor3D; }
 
 
-mClass(uiViewer2D) Vw2DHorizon3D : public Vw2DEMDataObject
+mExpClass(uiViewer2D) Vw2DHorizon3D : public Vw2DEMDataObject
 {
 public:
    static Vw2DHorizon3D* create(const EM::ObjectID& id,uiFlatViewWin* win,

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uisip.h"
 
 
-mClass(uiIo) ui2DSurvInfoProvider : public uiSurvInfoProvider
+mExpClass(uiIo) ui2DSurvInfoProvider : public uiSurvInfoProvider
 {
 public:
     			ui2DSurvInfoProvider()

@@ -25,7 +25,7 @@ namespace Usage
 {
 class Info;
 
-mClass(Usage) Server : public CallBacker
+mExpClass(Usage) Server : public CallBacker
 {
 public:
 

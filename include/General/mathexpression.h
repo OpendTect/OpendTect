@@ -26,7 +26,7 @@ setVariable( int, float ). Then, the calculation can be done with getValue().
 
 -*/
 
-mClass(General) MathExpression
+mExpClass(General) MathExpression
 {
 public:
 
@@ -99,7 +99,7 @@ Then, errmsg_ should contain info.
 -*/
 
 
-mClass(General) MathExpressionParser
+mExpClass(General) MathExpressionParser
 {
 public:
 
@@ -126,7 +126,7 @@ protected:
 
 /*!\brief Expression desc to build UI */
 
-mClass(General) MathExpressionOperatorDesc
+mExpClass(General) MathExpressionOperatorDesc
 {
 public:
     			MathExpressionOperatorDesc( const char* s,
@@ -143,7 +143,7 @@ public:
 
 /*!\brief Group of similar expression descs */
 
-mClass(General) MathExpressionOperatorDescGroup
+mExpClass(General) MathExpressionOperatorDescGroup
 {
 public:
 

@@ -22,7 +22,7 @@ class uiIOObjSel;
 
 /*! \brief Convolve Attribute description editor */
 
-mClass(uiAttributes) uiConvolveAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiConvolveAttrib : public uiAttrDescEd
 {
 public:
 

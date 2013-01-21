@@ -30,7 +30,7 @@ namespace PreStack
 {
     class MuteDef;
 
-mClass(PreStackProcessing) AngleMuteComputer : public ParallelTask, public AngleMuteBase
+mExpClass(PreStackProcessing) AngleMuteComputer : public ParallelTask, public AngleMuteBase
 {
 public:
     				AngleMuteComputer();

@@ -26,7 +26,7 @@ namespace Fourier { class CC; };
 \brief Base class for fourier interpolation.
 */
 
-mClass(Algo) FourierInterpolBase
+mExpClass(Algo) FourierInterpolBase
 {
 public:
     void                	setTargetDomain(bool fourier);
@@ -44,7 +44,7 @@ protected:
 \brief Fourier interpolation for 1D datasets.
 */
 
-mClass(Algo) FourierInterpol1D : public ParallelTask, public FourierInterpolBase
+mExpClass(Algo) FourierInterpol1D : public ParallelTask, public FourierInterpolBase
 {
 public:
 
@@ -89,7 +89,7 @@ protected:
 \brief Fourier interpolation for 2D datasets.
 */
 
-mClass(Algo) FourierInterpol2D : public ParallelTask, public FourierInterpolBase
+mExpClass(Algo) FourierInterpol2D : public ParallelTask, public FourierInterpolBase
 {
 public:
 
@@ -135,7 +135,7 @@ protected:
 \brief Fourier interpolation for 3D datasets.
 */
 
-mClass(Algo) FourierInterpol3D : public ParallelTask, public FourierInterpolBase
+mExpClass(Algo) FourierInterpol3D : public ParallelTask, public FourierInterpolBase
 {
 public:
 

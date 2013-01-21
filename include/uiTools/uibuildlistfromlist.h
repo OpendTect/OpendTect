@@ -47,11 +47,11 @@ class uiToolButton;
 
   */
 
-mClass(uiTools) uiBuildListFromList : public uiGroup
+mExpClass(uiTools) uiBuildListFromList : public uiGroup
 {
 public:
 
-    mClass(uiTools) Setup
+    mExpClass(uiTools) Setup
     {
     public:
 			Setup(bool itemsmovable,const char* avitmtyp,

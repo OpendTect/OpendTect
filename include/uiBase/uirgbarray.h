@@ -18,7 +18,7 @@ ________________________________________________________________________
 mFDQtclass(QImage)
 
 
-mClass(uiBase) uiRGBArray : public OD::RGBImage
+mExpClass(uiBase) uiRGBArray : public OD::RGBImage
 {
 public:
                         uiRGBArray(bool withalpha);

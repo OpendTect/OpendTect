@@ -19,7 +19,7 @@ class uiGenInput;
 class uiLabeledComboBox;
 class ui3DViewer;
 
-mClass(uiCoin) uiPrintSceneDlg : public uiSaveImageDlg
+mExpClass(uiCoin) uiPrintSceneDlg : public uiSaveImageDlg
 {
 public:
 			uiPrintSceneDlg(uiParent*,const ObjectSet<ui3DViewer>&);

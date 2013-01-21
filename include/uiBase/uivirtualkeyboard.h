@@ -21,7 +21,7 @@ class uiLineEdit;
 class uiGraphicsItemSet;
 
 
-mClass(uiBase) uiVirtualKeyboard : public uiMainWin
+mExpClass(uiBase) uiVirtualKeyboard : public uiMainWin
 {
 public:
     				uiVirtualKeyboard(uiObject&,int x,int y);

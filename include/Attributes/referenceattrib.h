@@ -48,7 +48,7 @@ Outputs 2D:
 </pre>
 */
 
-mClass(Attributes) Reference: public Provider
+mExpClass(Attributes) Reference: public Provider
 {
 public:
     static void		initClass();

@@ -28,7 +28,7 @@ typedef std::complex<float> float_complex;
 \brief Class to compute Hilbert Transform.
 */
 
-mClass(Algo) HilbertTransform
+mExpClass(Algo) HilbertTransform
 {
 public:
     			HilbertTransform();

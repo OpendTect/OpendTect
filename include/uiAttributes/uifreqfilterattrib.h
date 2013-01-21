@@ -25,7 +25,7 @@ class uiCheckBox;
 
 /*! \brief ** Attribute description editor */
 
-mClass(uiAttributes) uiFreqFilterAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiFreqFilterAttrib : public uiAttrDescEd
 {
 public:
 

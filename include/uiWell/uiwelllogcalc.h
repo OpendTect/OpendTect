@@ -29,7 +29,7 @@ namespace Well { class Log; class LogSet; }
 
 /*! \brief Dialog for marker specifications */
 
-mClass(uiWell) uiWellLogCalc : public uiDialog
+mExpClass(uiWell) uiWellLogCalc : public uiDialog
 {
 public:
 				uiWellLogCalc(uiParent*,const Well::LogSet&,

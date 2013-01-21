@@ -20,7 +20,7 @@ class CtxtIOObj;
 class BufferStringSet;
 
 
-mClass(uiAttributes) uiAttrInpDlg : public uiDialog
+mExpClass(uiAttributes) uiAttrInpDlg : public uiDialog
 {
 public:
 			uiAttrInpDlg(uiParent*,const BufferStringSet& attrnms,

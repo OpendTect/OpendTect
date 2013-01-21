@@ -21,7 +21,7 @@ namespace Pick { class Set; };
 namespace visSurvey { class PickSetDisplay; };
 
 
-mClass(uiVis) uiPickPropDlg : public uiMarkerStyleDlg
+mExpClass(uiVis) uiPickPropDlg : public uiMarkerStyleDlg
 {
 public:
 				uiPickPropDlg(uiParent* p,

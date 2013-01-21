@@ -40,10 +40,10 @@ mGlobal(uiBase) void		setExternalColor( const Color& );
  
  */
 
-mClass(uiBase) uiColorInput : public uiGroup
+mExpClass(uiBase) uiColorInput : public uiGroup
 {
 public:
-    mClass(uiBase) Setup
+    mExpClass(uiBase) Setup
     {
     public:
 

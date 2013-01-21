@@ -24,7 +24,7 @@ template <class T> class Interval;
 namespace PreStack
 {
 
-mClass(PreStackProcessing) Stack : public Processor
+mExpClass(PreStackProcessing) Stack : public Processor
 {
 public:
 				mDefaultFactoryInstantiation( Processor, Stack,

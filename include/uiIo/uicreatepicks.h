@@ -34,7 +34,7 @@ namespace Pick { class Set; }
 
 /*! \brief Dialog for creating (a) pick set(s) */
 
-mClass(uiIo) RandLocGenPars
+mExpClass(uiIo) RandLocGenPars
 {
 public:
 
@@ -53,7 +53,7 @@ public:
 };
 
 
-mClass(uiIo) uiCreatePicks : public uiDialog 
+mExpClass(uiIo) uiCreatePicks : public uiDialog 
 {
 public:
 			uiCreatePicks(uiParent*,bool aspolygon=false);
@@ -73,7 +73,7 @@ protected:
 };
 
 
-mClass(uiIo) uiGenPosPicks : public uiCreatePicks
+mExpClass(uiIo) uiGenPosPicks : public uiCreatePicks
 {
 public:
     			uiGenPosPicks(uiParent*);
@@ -91,7 +91,7 @@ protected:
 };
 
 
-mClass(uiIo) uiGenRandPicks2D : public uiCreatePicks
+mExpClass(uiIo) uiGenRandPicks2D : public uiCreatePicks
 {
 public:
 

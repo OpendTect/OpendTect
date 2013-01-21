@@ -30,7 +30,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for Horizon Import */
 
-mClass(uiEMAttrib) uiImportHorizon2D : public uiDialog
+mExpClass(uiEMAttrib) uiImportHorizon2D : public uiDialog
 {
 public:
 			uiImportHorizon2D(uiParent*);

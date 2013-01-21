@@ -21,7 +21,7 @@ class Vw2DHorizon3D;
 class uiODViewer2D;
 
 
-mClass(uiODMain) uiODVw2DHor3DParentTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DHor3DParentTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVw2DHor3DParentTreeItem();
@@ -39,7 +39,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVw2DHor3DTreeItemFactory : public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODVw2DHor3DTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
@@ -49,7 +49,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODVw2DHor3DTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DHor3DTreeItem : public uiODVw2DTreeItem
 {
 public:
     			uiODVw2DHor3DTreeItem(const EM::ObjectID&);

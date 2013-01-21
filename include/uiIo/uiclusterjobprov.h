@@ -22,7 +22,7 @@ class uiFileInput;
 class uiLabel;
 
 
-mClass(uiIo) uiClusterJobProv : public uiDialog
+mExpClass(uiIo) uiClusterJobProv : public uiDialog
 {
 public:
     			uiClusterJobProv(uiParent* p,const IOPar& iop,

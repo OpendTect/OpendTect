@@ -29,7 +29,7 @@ namespace EM { class Horizon2D; }
 \brief ExecutorGroup to create 2D seismic grid from 3D.
 */
 
-mClass(EMAttrib) Seis2DGridCreator : public ExecutorGroup
+mExpClass(EMAttrib) Seis2DGridCreator : public ExecutorGroup
 {
 public:
     			Seis2DGridCreator(const IOPar&);
@@ -68,7 +68,7 @@ protected:
 \brief ExecutorGroup to create 2D horizon grid from 3D.
 */
 
-mClass(EMAttrib) Horizon2DGridCreator : public ExecutorGroup
+mExpClass(EMAttrib) Horizon2DGridCreator : public ExecutorGroup
 {
 public:
     			Horizon2DGridCreator();

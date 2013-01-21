@@ -29,7 +29,7 @@ namespace Pick
 
 /*!\brief Pick location in space */
 
-mClass(General) Location
+mExpClass(General) Location
 {
 public:
 			Location( double x=0, double y=0, double z=0 )
@@ -87,7 +87,7 @@ public:
 
 /*!\brief Set of picks with something in common */
 
-mClass(General) Set : public NamedObject
+mExpClass(General) Set : public NamedObject
 	  , public TypeSet<Location>
 {
 public:
@@ -136,7 +136,7 @@ public:
  
  */
 
-mClass(General) SetMgr : public NamedObject
+mExpClass(General) SetMgr : public NamedObject
 {
 public:
 
@@ -221,7 +221,7 @@ inline SetMgr& Mgr()
 }; // namespace Pick
 
 
-mClass(General) PickSetAscIO : public Table::AscIO
+mExpClass(General) PickSetAscIO : public Table::AscIO
 {
 public:
     				PickSetAscIO( const Table::FormatDesc& fd )

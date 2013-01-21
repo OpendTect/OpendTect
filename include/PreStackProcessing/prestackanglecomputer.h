@@ -26,7 +26,7 @@ namespace PreStack
 {
 class Gather;
 
-mClass(PreStackProcessing) AngleComputer
+mExpClass(PreStackProcessing) AngleComputer
 { mRefCountImpl(AngleComputer);
 public:
 				AngleComputer();

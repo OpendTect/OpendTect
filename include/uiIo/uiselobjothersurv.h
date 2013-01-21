@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 
-mClass(uiIo) uiSelObjFromOtherSurvey : public uiSelectFromList
+mExpClass(uiIo) uiSelObjFromOtherSurvey : public uiSelectFromList
 {
 public:
     			uiSelObjFromOtherSurvey(uiParent*,CtxtIOObj&);

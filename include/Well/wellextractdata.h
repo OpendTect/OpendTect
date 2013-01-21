@@ -42,7 +42,7 @@ class MarkerSet;
 
 /*!\brief parameters (zrg, sampling method) to extract well data */
 
-mClass(Well) ZRangeSelector
+mExpClass(Well) ZRangeSelector
 {
 public :
     			ZRangeSelector() { setEmpty(); }
@@ -111,7 +111,7 @@ protected:
 };
 
 
-mClass(Well) ExtractParams : public ZRangeSelector
+mExpClass(Well) ExtractParams : public ZRangeSelector
 {
 public:
     			ExtractParams() { setEmpty(); }
@@ -135,7 +135,7 @@ public:
 
 /*!\brief Collects info about all wells in store */
 
-mClass(Well) InfoCollector : public ::Executor
+mExpClass(Well) InfoCollector : public ::Executor
 {
 public:
 
@@ -181,7 +181,7 @@ protected:
 /*!\brief Collects positions along selected well tracks. The DataPointSets will
   get new rows with the positions along the track. */
 
-mClass(Well) TrackSampler : public ::Executor
+mExpClass(Well) TrackSampler : public ::Executor
 {
 public:
 
@@ -237,7 +237,7 @@ protected:
 /*!\brief Collects positions along selected well tracks. Will add column
    to the DataPointSet. */
 
-mClass(Well) LogDataExtracter : public ::Executor
+mExpClass(Well) LogDataExtracter : public ::Executor
 {
 public:
 
@@ -281,7 +281,7 @@ protected:
 
 
 
-mClass(Well) SimpleTrackSampler : public Executor
+mExpClass(Well) SimpleTrackSampler : public Executor
 {
 public:
 			SimpleTrackSampler(const Well::Track&,
@@ -320,7 +320,7 @@ protected:
 
 /*! brief Log resampler, extracts all the logs given by log names along a z time or dah axis !*/
 
-mClass(Well) LogSampler : public ParallelTask
+mExpClass(Well) LogSampler : public ParallelTask
 {
 public:
 			LogSampler(const Well::Data& wd,

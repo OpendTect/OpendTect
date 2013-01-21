@@ -21,7 +21,7 @@ class uiListBox;
 
 /*! \brief lets user choose a way to provide positions */
 
-mClass(uiIo) uiPosFilterSet : public uiGroup
+mExpClass(uiIo) uiPosFilterSet : public uiGroup
 {
 public:
 
@@ -56,7 +56,7 @@ protected:
 };
 
 
-mClass(uiIo) uiPosFilterSetSel : public uiCompoundParSel
+mExpClass(uiIo) uiPosFilterSetSel : public uiCompoundParSel
 {
 public:
 

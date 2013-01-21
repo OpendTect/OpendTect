@@ -23,11 +23,11 @@ namespace Strat { class LaySeqAttrib; class RefTree; };
 
 /*! \brief edits a layer sequence attribute */
 
-mClass(uiStrat) uiLaySeqAttribEd : public uiDialog
+mExpClass(uiStrat) uiLaySeqAttribEd : public uiDialog
 {
 public:
 
-    mClass(uiStrat) Setup
+    mExpClass(uiStrat) Setup
     {
     public:
 			Setup( bool isnw )

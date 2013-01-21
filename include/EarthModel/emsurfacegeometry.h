@@ -42,7 +42,7 @@ class SurfaceIODataSelection;
 \brief Surface geometry
 */
 
-mClass(EarthModel) SurfaceGeometry : public CallBacker
+mExpClass(EarthModel) SurfaceGeometry : public CallBacker
 {
 public:
     			SurfaceGeometry(Surface&);
@@ -126,7 +126,7 @@ protected:
 \brief RowCol SurfaceGeometry
 */
 
-mClass(EarthModel) RowColSurfaceGeometry : public SurfaceGeometry
+mExpClass(EarthModel) RowColSurfaceGeometry : public SurfaceGeometry
 {
 public:
     			RowColSurfaceGeometry(Surface&);

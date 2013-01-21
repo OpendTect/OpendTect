@@ -30,7 +30,7 @@ namespace SEGY
 
 /*\brief Base class for SEG-Y parameter classes  */
 
-mClass(Seis) FileDef
+mExpClass(Seis) FileDef
 {
 public:
     static const char*	sKeySEGYRev();
@@ -41,7 +41,7 @@ public:
 
 /*\brief Definition of input and output file(s)  */
 
-mClass(Seis) FileSpec
+mExpClass(Seis) FileSpec
 {
 public:
     			FileSpec( const char* fnm=0 )
@@ -74,7 +74,7 @@ public:
 
 /*\brief Parameters that control the primary read/write process */
 
-mClass(Seis) FilePars
+mExpClass(Seis) FilePars
 {
 public:
     			FilePars( bool forread=true )
@@ -111,7 +111,7 @@ protected:
 
 /*\brief Options that control the actual read process */
 
-mClass(Seis) FileReadOpts
+mExpClass(Seis) FileReadOpts
 {
 public:
     			FileReadOpts( Seis::GeomType gt=Seis::Vol )

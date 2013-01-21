@@ -24,7 +24,7 @@ class uiComboBox;
 class uiSeisMultiCubePSEntry;
 
 
-mClass(uiSeis) uiSeisMultiCubePS : public uiDialog
+mExpClass(uiSeis) uiSeisMultiCubePS : public uiDialog
 {
 
 public:

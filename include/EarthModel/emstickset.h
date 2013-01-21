@@ -39,7 +39,7 @@ class EMManager;
 \brief Stick set
 */
 
-mClass(EarthModel) StickSet : public EMObject
+mExpClass(EarthModel) StickSet : public EMObject
 {
 public:
     static const char*	typeStr();

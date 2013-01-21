@@ -29,7 +29,7 @@ namespace PosInfo { class Detector; }
 #define mSeisScanMaxNrDistribVals 50000
 
 
-mClass(Seis) SeisScanner : public Executor
+mExpClass(Seis) SeisScanner : public Executor
 {
 public:
 

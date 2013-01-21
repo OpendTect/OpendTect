@@ -21,7 +21,7 @@ typedef Geom::Point2D<double> uiWorldPoint;
 typedef Geom::PosRectangle<double> uiWorldRect;
 
 
-mClass(uiBase) uiSize : public Geom::Size2D<int>
+mExpClass(uiBase) uiSize : public Geom::Size2D<int>
 {
 public:
     			uiSize( const Geom::Size2D<int>& a )
@@ -38,7 +38,7 @@ public:
 };
 
 
-mClass(uiBase) uiRect  : public Geom::PixRectangle<int>
+mExpClass(uiBase) uiRect  : public Geom::PixRectangle<int>
 {
 public:
 
@@ -74,7 +74,7 @@ public:
 };
 
 
-mClass(uiBase) uiBorder
+mExpClass(uiBase) uiBorder
 {
 public:
     			uiBorder( int i=0 )	: lt_(i,i), rb_(i,i)	{}

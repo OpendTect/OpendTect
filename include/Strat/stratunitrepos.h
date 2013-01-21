@@ -25,7 +25,7 @@ class RefTree;
 	  blocks of subsurface descriptions
 */
 
-mClass(Strat) RepositoryAccess
+mExpClass(Strat) RepositoryAccess
 {
 public:
 

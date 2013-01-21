@@ -20,7 +20,7 @@ class uiComboBox;
 
 /*Brief Dialog for 2D FaultStickSet*/
 
-mClass(uiEMAttrib) uiImportFaultStickSet2D : public uiImportFault
+mExpClass(uiEMAttrib) uiImportFaultStickSet2D : public uiImportFault
 {
 public:
     			uiImportFaultStickSet2D(uiParent*,const char*);

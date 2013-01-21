@@ -24,7 +24,7 @@ class BufferStringSet;
 namespace Well { class Data; };
 
 
-mClass(Well) WellTranslatorGroup : public TranslatorGroup
+mExpClass(Well) WellTranslatorGroup : public TranslatorGroup
 {			    isTranslatorGroup(Well)
 public:
     			mDefEmptyTranslatorGroupConstructor(Well)
@@ -32,7 +32,7 @@ public:
 };
 
 
-mClass(Well) WellTranslator : public Translator
+mExpClass(Well) WellTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(Well)
@@ -53,7 +53,7 @@ public:
 };
 
 
-mClass(Well) dgbWellTranslator : public WellTranslator
+mExpClass(Well) dgbWellTranslator : public WellTranslator
 {			  isTranslator(dgb,Well)
 public:
     			mDefEmptyTranslatorConstructor(dgb,Well)

@@ -39,7 +39,7 @@ class SeisTrcWriter;
 
   */
 
-mClass(Seis) SeisBayesClass : public Executor
+mExpClass(Seis) SeisBayesClass : public Executor
 {
 public:
 

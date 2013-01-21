@@ -31,7 +31,7 @@ class IOPar;
 #define mPIEPAdj(what,v,inw) PosImpExpPars::SVY().adjust##what(v,inw)
 
 
-mClass(General) PosImpExpPars : public CallBacker
+mExpClass(General) PosImpExpPars : public CallBacker
 {
 public:
 

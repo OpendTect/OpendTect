@@ -30,7 +30,7 @@ class D2TModel;
 class MarkerSet;
 
 
-mClass(Well) LASImporter
+mExpClass(Well) LASImporter
 {
 public:
 
@@ -38,7 +38,7 @@ public:
 			LASImporter()	       : wd_(0), useconvs_(false)   {}
 			~LASImporter();
 
-    mClass(Well) FileInfo
+    mExpClass(Well) FileInfo
     {
     public:
 			FileInfo()
@@ -87,7 +87,7 @@ protected:
 };
 
 
-mClass(Well) TrackAscIO : public Table::AscIO
+mExpClass(Well) TrackAscIO : public Table::AscIO
 {
 public:
     				TrackAscIO( const Table::FormatDesc& fd,
@@ -105,7 +105,7 @@ protected:
 };
 
 
-mClass(Well) D2TModelAscIO : public Table::AscIO
+mExpClass(Well) D2TModelAscIO : public Table::AscIO
 {   
     public:
 				D2TModelAscIO( const Table::FormatDesc& fd )
@@ -120,7 +120,7 @@ mClass(Well) D2TModelAscIO : public Table::AscIO
 };
 
 
-mClass(Well) MarkerSetAscIO : public Table::AscIO
+mExpClass(Well) MarkerSetAscIO : public Table::AscIO
 {
 public:
     			MarkerSetAscIO( const Table::FormatDesc& fd )

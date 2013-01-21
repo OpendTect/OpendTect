@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uiflatviewstdcontrol.h"
 #include "flatview.h"
 
-mClass(uiFlatView) uiMultiFlatViewControl : public uiFlatViewStdControl
+mExpClass(uiFlatView) uiMultiFlatViewControl : public uiFlatViewStdControl
 {
 public:
     			uiMultiFlatViewControl(uiFlatViewer&,const Setup&);

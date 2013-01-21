@@ -19,7 +19,7 @@ class uiWaveletDispPropDlg;
 class uiSeisSingleTraceDisplay;
 
 
-mClass(uiSeis) uiSeisWvltMan : public uiObjFileMan
+mExpClass(uiSeis) uiSeisWvltMan : public uiObjFileMan
 {
 public:
 			uiSeisWvltMan(uiParent*);

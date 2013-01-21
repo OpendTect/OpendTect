@@ -24,7 +24,7 @@ namespace ColTab { class Sequence; };
 
 /*!Base class for a data treeitem. */
 
-mClass(uiODMain) uiODDataTreeItem : public uiTreeItem
+mExpClass(uiODMain) uiODDataTreeItem : public uiTreeItem
 {
 public:
 				uiODDataTreeItem(const char* parenttype);

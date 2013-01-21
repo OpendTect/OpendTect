@@ -31,7 +31,7 @@ class uiRadioButton;
 class uiLabeledComboBox;
 
 
-mClass(uiAttributes) uiAttrSelData
+mExpClass(uiAttributes) uiAttrSelData
 {
 public:
 
@@ -68,11 +68,11 @@ select any cube, which is then automatically added to the set.
 
 */
 
-mClass(uiAttributes) uiAttrSelDlg : public uiDialog
+mExpClass(uiAttributes) uiAttrSelDlg : public uiDialog
 {
 public:
 
-    mClass(uiAttributes) Setup
+    mExpClass(uiAttributes) Setup
     {
     public:
 		Setup( const char* txt )
@@ -154,7 +154,7 @@ latter case you must provide the attrib desc and the input number.
 
 */
 
-mClass(uiAttributes) uiAttrSel : public uiIOSelect
+mExpClass(uiAttributes) uiAttrSel : public uiIOSelect
 {
 public:
 			uiAttrSel(uiParent*,const Attrib::DescSet&,
@@ -217,7 +217,7 @@ protected:
 
 /*!\brief ui element for getting attribute with both real and imag part. */
 
-mClass(uiAttributes) uiImagAttrSel : public uiAttrSel
+mExpClass(uiAttributes) uiImagAttrSel : public uiAttrSel
 {
 public:
 			uiImagAttrSel( uiParent* p, const char* txt,

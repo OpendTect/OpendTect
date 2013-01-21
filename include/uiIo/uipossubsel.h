@@ -30,7 +30,7 @@ class uiPosProvSel;
  */
 
 
-mClass(uiIo) uiPosSubSel : public uiGroup
+mExpClass(uiIo) uiPosSubSel : public uiGroup
 {
 public:
 

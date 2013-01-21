@@ -26,7 +26,7 @@ two extra output nodes will be added ('Classification' and 'Confidence').
 
 */
 
-mClass(NLA) NLADesign
+mExpClass(NLA) NLADesign
 {
 public:
     			NLADesign()	{ clear(); }

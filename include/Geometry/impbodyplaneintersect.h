@@ -24,7 +24,7 @@ namespace Geometry
 class IndexedShape;
 
 
-mClass(Geometry) ImplicitBodyPlaneIntersector
+mExpClass(Geometry) ImplicitBodyPlaneIntersector
 {
 public:
 				ImplicitBodyPlaneIntersector(

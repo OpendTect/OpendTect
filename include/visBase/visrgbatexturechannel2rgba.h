@@ -25,7 +25,7 @@ namespace visBase
 Does also handle enable/disable of the channels. */
 
 
-mClass(visBase) RGBATextureChannel2RGBA : public TextureChannel2RGBA
+mExpClass(visBase) RGBATextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
     static RGBATextureChannel2RGBA*	create()

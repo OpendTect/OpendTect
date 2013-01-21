@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiProgressBarBody;
 
-mClass(uiBase) uiProgressBar : public uiObject
+mExpClass(uiBase) uiProgressBar : public uiObject
 {
 public:
 

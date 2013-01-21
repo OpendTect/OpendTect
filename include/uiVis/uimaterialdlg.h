@@ -26,7 +26,7 @@ namespace visBase { class Material; class VisualObject; };
 namespace visSurvey { class SurveyObject; };
 
 
-mClass(uiVis) uiMaterialGrp : public uiDlgGroup
+mExpClass(uiVis) uiMaterialGrp : public uiDlgGroup
 {
 public:
 				uiMaterialGrp(uiParent*,
@@ -59,7 +59,7 @@ protected:
 };
 
 
-mClass(uiVis) uiLineStyleGrp : public uiDlgGroup
+mExpClass(uiVis) uiLineStyleGrp : public uiDlgGroup
 {
 public:
     				uiLineStyleGrp(uiParent*,
@@ -78,7 +78,7 @@ protected:
 };
 
 
-mClass(uiVis) uiTextureInterpolateGrp : public uiDlgGroup
+mExpClass(uiVis) uiTextureInterpolateGrp : public uiDlgGroup
 {
 public:
 				uiTextureInterpolateGrp(uiParent*,
@@ -91,7 +91,7 @@ protected:
 };
 
 
-mClass(uiVis) uiPropertiesDlg : public uiTabStackDlg
+mExpClass(uiVis) uiPropertiesDlg : public uiTabStackDlg
 {
 public:
 				uiPropertiesDlg(uiParent*,

@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiGenInput;
 class uiFileInput;
 
-mClass(uiIo) uiCrDevEnv : public uiDialog
+mExpClass(uiIo) uiCrDevEnv : public uiDialog
 {
 public:
 

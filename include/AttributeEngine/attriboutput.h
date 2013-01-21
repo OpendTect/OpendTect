@@ -42,7 +42,7 @@ class Data2DHolder;
   \brief Base class for attribute Output.
 */
 
-mClass(AttributeEngine) Output
+mExpClass(AttributeEngine) Output
 { mRefCountImpl(Output);
 public:
     				Output();
@@ -102,7 +102,7 @@ protected:
   \brief Attribute DataCubes Output.
 */
 
-mClass(AttributeEngine) DataCubesOutput : public Output
+mExpClass(AttributeEngine) DataCubesOutput : public Output
 {
 public:
 				DataCubesOutput(const CubeSampling&);
@@ -142,7 +142,7 @@ protected:
   \brief Seismic trace storage Output.
 */
 
-mClass(AttributeEngine) SeisTrcStorOutput : public Output
+mExpClass(AttributeEngine) SeisTrcStorOutput : public Output
 {
 public:
 				SeisTrcStorOutput(const CubeSampling&,
@@ -212,7 +212,7 @@ public:
   \brief 2D trace Output with variable Z range. 
 */
 
-mClass(AttributeEngine) Trc2DVarZStorOutput : public SeisTrcStorOutput
+mExpClass(AttributeEngine) Trc2DVarZStorOutput : public SeisTrcStorOutput
 {
 public:
 				Trc2DVarZStorOutput(const LineKey&,
@@ -250,7 +250,7 @@ protected:
   \brief Simple 2D Output
 */
 
-mClass(AttributeEngine) TwoDOutput : public Output
+mExpClass(AttributeEngine) TwoDOutput : public Output
 {
 public:
 				TwoDOutput(const Interval<int>&, 
@@ -286,7 +286,7 @@ protected:
   \brief Output at discrete locations ( For example a pickset. )
 */
 
-mClass(AttributeEngine) LocationOutput : public Output
+mExpClass(AttributeEngine) LocationOutput : public Output
 {
 public:
     				LocationOutput(BinIDValueSet&);
@@ -324,7 +324,7 @@ protected:
   \brief Output at an assorted selection of traces.
 */
 
-mClass(AttributeEngine) TrcSelectionOutput : public Output
+mExpClass(AttributeEngine) TrcSelectionOutput : public Output
 {
 public:
     				TrcSelectionOutput(const BinIDValueSet&, 
@@ -357,7 +357,7 @@ protected:
   \brief Output at a selection of locations.
 */
 
-mClass(AttributeEngine) TableOutput : public Output
+mExpClass(AttributeEngine) TableOutput : public Output
 {
 public:
     				TableOutput(DataPointSet&,int);

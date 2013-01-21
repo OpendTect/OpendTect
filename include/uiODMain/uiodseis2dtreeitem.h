@@ -25,7 +25,7 @@ class uiTaskRunner;
 
 mDefineItem( Seis2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
-mClass(uiODMain) Seis2DTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) Seis2DTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -35,7 +35,7 @@ public:
 };
 
 
-mClass(uiODMain) uiOD2DLineSetTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiOD2DLineSetTreeItem : public uiODTreeItem
 {
 public:
     			uiOD2DLineSetTreeItem(const MultiID&);
@@ -86,7 +86,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiOD2DLineSetSubItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiOD2DLineSetSubItem : public uiODDisplayTreeItem
 {
 public:
 			uiOD2DLineSetSubItem(const char* nm,int displayid=-1);
@@ -115,7 +115,7 @@ private:
 };
 
 
-mClass(uiODMain) uiOD2DLineSetAttribItem : public uiODAttribTreeItem
+mExpClass(uiODMain) uiOD2DLineSetAttribItem : public uiODAttribTreeItem
 {
 public:
 				uiOD2DLineSetAttribItem(const char* parenttype);

@@ -30,7 +30,7 @@ class Coordinates;
    Object must be notified of MultiTexture2's size, splitting status and 
    used texture units. */
 
-mClass(visBase) SplitTexture2Rectangle : public VisualObjectImpl
+mExpClass(visBase) SplitTexture2Rectangle : public VisualObjectImpl
 {
 public:
     static SplitTexture2Rectangle* create()

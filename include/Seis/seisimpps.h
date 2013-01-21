@@ -33,7 +33,7 @@ class SeisPSImpLineBuf;
  */
 
 
-mClass(Seis) SeisPSImpDataMgr
+mExpClass(Seis) SeisPSImpDataMgr
 {
 public:
 

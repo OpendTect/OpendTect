@@ -33,7 +33,7 @@ namespace visSurvey
 {
 
 
-mClass(visSurvey) HorizonDisplay : public EMObjectDisplay
+mExpClass(visSurvey) HorizonDisplay : public EMObjectDisplay
 {
 public:
     static HorizonDisplay*	create()

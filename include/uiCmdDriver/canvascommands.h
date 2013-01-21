@@ -24,7 +24,7 @@ namespace CmdDrive
 mStartDeclCmdClass( uiCmdDriver, CanvasMenu, UiObjectCmd )	mEndDeclCmdClass
 
 
-mClass(uiCmdDriver) GraphicsViewMenuActivator: public Activator
+mExpClass(uiCmdDriver) GraphicsViewMenuActivator: public Activator
 {
 public:
 		    GraphicsViewMenuActivator(const uiGraphicsViewBase& obj)

@@ -27,7 +27,7 @@ namespace visSurvey { class MarchingCubesDisplay; class PolygonBodyDisplay;
 mDefineItem( BodyDisplayParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass(uiODMain) uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -37,7 +37,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODBodyDisplayTreeItem(int,bool dummy);
@@ -74,7 +74,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODBodyDisplayDataTreeItem : public uiODAttribTreeItem
+mExpClass(uiODMain) uiODBodyDisplayDataTreeItem : public uiODAttribTreeItem
 {
 public:
     			uiODBodyDisplayDataTreeItem(const char* parenttype);

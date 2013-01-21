@@ -23,7 +23,7 @@ namespace EM	{ class Horizon3D; }
 
 /*! \brief UI for calculation of volume at horizons */
 
-mClass(uiEarthModel) uiCalcHorVol : public uiDialog
+mExpClass(uiEarthModel) uiCalcHorVol : public uiDialog
 {
 protected:
 
@@ -48,7 +48,7 @@ protected:
 
 /*! \brief using polygon to calculate to different horizons */
 
-mClass(uiEarthModel) uiCalcPolyHorVol : public uiCalcHorVol
+mExpClass(uiEarthModel) uiCalcPolyHorVol : public uiCalcHorVol
 {
 public:
 
@@ -74,7 +74,7 @@ protected:
 
 /*! \brief using horizon to calculate from different levels by polygon */
 
-mClass(uiEarthModel) uiCalcHorPolyVol : public uiCalcHorVol
+mExpClass(uiEarthModel) uiCalcHorPolyVol : public uiCalcHorVol
 {
 public:
 

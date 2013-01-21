@@ -33,7 +33,7 @@ namespace visBase
 
 */
 
-mClass(visBase) Normals : public DataObject
+mExpClass(visBase) Normals : public DataObject
 {
 public:
     static Normals*	create()
@@ -80,7 +80,7 @@ protected:
     			
 };
 
-mClass(visBase) NormalListAdapter : public Coord3List
+mExpClass(visBase) NormalListAdapter : public Coord3List
 {
 public:
     		NormalListAdapter(Normals& n )

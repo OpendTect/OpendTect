@@ -23,7 +23,7 @@ namespace EM { class Horizon3D; }
 
 /*!\brief Save the geometry to an attribute */
 
-mClass(uiEarthModel) uiHorGeom2Attr : public uiGetObjectName
+mExpClass(uiEarthModel) uiHorGeom2Attr : public uiGetObjectName
 {
 public:
 			uiHorGeom2Attr(uiParent*,EM::Horizon3D&);
@@ -45,7 +45,7 @@ protected:
 
 /*!\brief Change the geometry using an attribute */
 
-mClass(uiEarthModel) uiHorAttr2Geom : public uiDialog
+mExpClass(uiEarthModel) uiHorAttr2Geom : public uiDialog
 {
 public:
 			uiHorAttr2Geom(uiParent*,EM::Horizon3D&,

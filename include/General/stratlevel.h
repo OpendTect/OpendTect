@@ -40,7 +40,7 @@ class LevelSet;
 
 */
 
-mClass(General) Level : public NamedObject
+mExpClass(General) Level : public NamedObject
 {
 public:
 
@@ -97,7 +97,7 @@ public:
 */
 
 
-mClass(General) LevelSet : public CallBacker
+mExpClass(General) LevelSet : public CallBacker
 {
 public:
 

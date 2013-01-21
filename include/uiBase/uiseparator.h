@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class uiSeparatorBody;
 
-mClass(uiBase) uiSeparator : public uiObject
+mExpClass(uiBase) uiSeparator : public uiObject
 {
 public:
 

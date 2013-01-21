@@ -26,7 +26,7 @@ class uiPushButton;
  
  */
 
-mClass(uiTools) uiCompoundParSel : public uiGroup
+mExpClass(uiTools) uiCompoundParSel : public uiGroup
 {
 public:
 

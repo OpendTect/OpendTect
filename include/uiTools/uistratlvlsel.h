@@ -22,7 +22,7 @@ namespace Strat { class Level; }
 
 /*!\brief Selector for stratigraphic levels */
 
-mClass(uiTools) uiStratLevelSel : public uiGroup
+mExpClass(uiTools) uiStratLevelSel : public uiGroup
 {
 public:
 

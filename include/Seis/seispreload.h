@@ -23,7 +23,7 @@ class IOObj;
 namespace Seis
 {
 
-mClass(Seis) PreLoader
+mExpClass(Seis) PreLoader
 {
 public:
 

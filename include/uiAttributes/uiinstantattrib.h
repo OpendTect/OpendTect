@@ -23,7 +23,7 @@ class uiLabeledSpinBox;
 
 /*! \brief Instantaneous Attribute description editor */
 
-mClass(uiAttributes) uiInstantaneousAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiInstantaneousAttrib : public uiAttrDescEd
 {
 public:
 

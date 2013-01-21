@@ -32,7 +32,7 @@ namespace visBase
 /*! Dragger for rotations. Rotation can either be free (i.e. a trackball type),
     or bound to be around the z axis. */
 
-mClass(visBase) RotationDragger : public DataObject
+mExpClass(visBase) RotationDragger : public DataObject
 {
 public:
     static RotationDragger*	create()

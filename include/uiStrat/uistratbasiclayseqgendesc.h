@@ -21,7 +21,7 @@ class uiPolygonItem;
 namespace Strat { class LayerGenerator; class SingleLayerGenerator; }
 
 
-mClass(uiStrat) uiBasicLayerSequenceGenDesc : public uiExtLayerSequenceGenDesc
+mExpClass(uiStrat) uiBasicLayerSequenceGenDesc : public uiExtLayerSequenceGenDesc
 {
 public:
 

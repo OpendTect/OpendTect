@@ -19,7 +19,7 @@ namespace Well { class Data; class ExtractParams; }
 class NLAModel;
 class TaskRunner;
 
-mClass(WellAttrib) AttribLogExtractor
+mExpClass(WellAttrib) AttribLogExtractor
 {
 public:
 				AttribLogExtractor(const Well::Data& wd)
@@ -45,11 +45,11 @@ protected:
 };
 
 
-mClass(WellAttrib) AttribLogCreator
+mExpClass(WellAttrib) AttribLogCreator
 {
 public:
 
-    mClass(WellAttrib) Setup
+    mExpClass(WellAttrib) Setup
     {
     public:
 				Setup(const Attrib::DescSet* attr,

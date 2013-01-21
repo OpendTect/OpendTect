@@ -21,7 +21,7 @@ class uiCheckBox;
 
 /*!\brief Shows loaded plugins and allows adding */
 
-mClass(uiTools) uiPluginMan : public uiDialog
+mExpClass(uiTools) uiPluginMan : public uiDialog
 { 	
 public:
 			uiPluginMan(uiParent*);

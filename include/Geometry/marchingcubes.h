@@ -45,7 +45,7 @@ class SeedBasedFloodFiller;
    volume's coordinates.
 */
 
-mClass(Geometry) MarchingCubesModel
+mExpClass(Geometry) MarchingCubesModel
 {
 public:
 				MarchingCubesModel();
@@ -77,7 +77,7 @@ public:
 };
 
 
-mClass(Geometry) MarchingCubesSurface : public CallBacker
+mExpClass(Geometry) MarchingCubesSurface : public CallBacker
 { mRefCountImpl(MarchingCubesSurface);
 public:
 
@@ -112,7 +112,7 @@ public:
 };
 
 
-mClass(Geometry) Implicit2MarchingCubes : public ParallelTask
+mExpClass(Geometry) Implicit2MarchingCubes : public ParallelTask
 {
 public:
     		Implicit2MarchingCubes(int posx, int posy, int posz,
@@ -144,7 +144,7 @@ protected:
    (in doPrepare() ) 2) the array is flood filled from there.
 */
 
-mClass(Geometry) MarchingCubes2Implicit : public ParallelTask
+mExpClass(Geometry) MarchingCubes2Implicit : public ParallelTask
 {
 public:
 		MarchingCubes2Implicit(const MarchingCubesSurface&,

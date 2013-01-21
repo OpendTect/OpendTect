@@ -32,7 +32,7 @@ using namespace Attrib;
 
 /*! \brief Description of attribute parameters to evaluate */
 
-mClass(uiAttributes) EvalParam
+mExpClass(uiAttributes) EvalParam
 {
 public:
     			EvalParam( const char* lbl, const char* par1=0,
@@ -57,7 +57,7 @@ public:
 
 /*! \brief Attribute description editor creater */
 
-mClass(uiAttributes) uiAttrDescEdCreater
+mExpClass(uiAttributes) uiAttrDescEdCreater
 {
 public:
     virtual			~uiAttrDescEdCreater()		{}
@@ -75,7 +75,7 @@ public:
 
  */
 
-mClass(uiAttributes) uiAttrDescEd : public uiGroup
+mExpClass(uiAttributes) uiAttrDescEd : public uiGroup
 {
 public:
 

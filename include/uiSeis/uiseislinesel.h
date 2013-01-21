@@ -33,7 +33,7 @@ class CtxtIOObj;
 class IOObj;
 
 
-mClass(uiSeis) uiSeis2DLineSel : public uiCompoundParSel
+mExpClass(uiSeis) uiSeis2DLineSel : public uiCompoundParSel
 {
 public:
 
@@ -60,7 +60,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiSeis2DLineNameSel : public uiGroup
+mExpClass(uiSeis) uiSeis2DLineNameSel : public uiGroup
 {
 public:
 
@@ -88,7 +88,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiSeis2DMultiLineSel : public uiCompoundParSel
+mExpClass(uiSeis) uiSeis2DMultiLineSel : public uiCompoundParSel
 {
 public:
 
@@ -151,7 +151,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiSeis2DMultiLineSelDlg : public uiDialog
+mExpClass(uiSeis) uiSeis2DMultiLineSelDlg : public uiDialog
 {
 public:
     				uiSeis2DMultiLineSelDlg(uiParent*,CtxtIOObj&,

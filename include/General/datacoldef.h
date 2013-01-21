@@ -26,7 +26,7 @@ class UnitOfMeasure;
 
 */
 
-mClass(General) DataColDef
+mExpClass(General) DataColDef
 {
 public:
 				DataColDef( const char* nm, const char* ref=0,

@@ -25,7 +25,7 @@ Implementation of MenuHandler for the dGB-based userinterface.
 */
 
 
-mClass(uiTools) uiMenuHandler : public MenuHandler
+mExpClass(uiTools) uiMenuHandler : public MenuHandler
 {
 public:
     				uiMenuHandler( uiParent*, int id );
@@ -87,7 +87,7 @@ protected:
 };
 
 
-mClass(uiTools) uiTreeItemTBHandler : public MenuHandler
+mExpClass(uiTools) uiTreeItemTBHandler : public MenuHandler
 {
 public:
     				uiTreeItemTBHandler(uiParent*);

@@ -159,7 +159,7 @@ public:
   return). Undef sections are therefore supported.
 */
 
-mClass(Algo) PointBasedMathFunction : public FloatMathFunction
+mExpClass(Algo) PointBasedMathFunction : public FloatMathFunction
 {
 public:
 
@@ -249,7 +249,7 @@ protected:
 \brief A class for 2nd order polynomials of the form: a x^2 + b x + c
 */
 
-mClass(Algo) SecondOrderPoly : public FloatMathFunction
+mExpClass(Algo) SecondOrderPoly : public FloatMathFunction
 {
 public:
     			SecondOrderPoly( float a_=0, float b_=0, float c_=0 )
@@ -319,7 +319,7 @@ public:
 \brief A class for 3rd order polynomials on the form: a x^3 + b x^2 + c x + d
 */
 
-mClass(Algo) ThirdOrderPoly : public FloatMathFunction
+mExpClass(Algo) ThirdOrderPoly : public FloatMathFunction
 {
 public:
     			ThirdOrderPoly( float a_=0, float b_=0,

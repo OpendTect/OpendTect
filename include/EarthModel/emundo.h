@@ -32,7 +32,7 @@ class Horizon3D;
 \brief Set position UndoEvent.
 */
 
-mClass(EarthModel) SetPosUndoEvent : public UndoEvent
+mExpClass(EarthModel) SetPosUndoEvent : public UndoEvent
 {
 public:
 			SetPosUndoEvent( const Coord3& oldpos,
@@ -55,7 +55,7 @@ protected:
 \brief UndoEvent for setting all positions on a EM::Horizon3D section.
 */
 
-mClass(EarthModel) SetAllHor3DPosUndoEvent : public UndoEvent
+mExpClass(EarthModel) SetAllHor3DPosUndoEvent : public UndoEvent
 {
 public:
 			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
@@ -85,7 +85,7 @@ protected:
 \brief UndoEvent for setting position attribute.
 */
 
-mClass(EarthModel) SetPosAttribUndoEvent : public UndoEvent
+mExpClass(EarthModel) SetPosAttribUndoEvent : public UndoEvent
 {
 public:
 			SetPosAttribUndoEvent( const EM::PosID&,
@@ -107,7 +107,7 @@ protected:
 \brief Saves information from a EMObject::changePosID call.
 */
 
-mClass(EarthModel) PosIDChangeEvent : public UndoEvent
+mExpClass(EarthModel) PosIDChangeEvent : public UndoEvent
 {
 public:
     			PosIDChangeEvent( const EM::PosID& from,
@@ -129,7 +129,7 @@ protected:
 \brief UndoEvent to set preferred Color.
 */
 
-mClass(EarthModel) SetPrefColorEvent : public UndoEvent
+mExpClass(EarthModel) SetPrefColorEvent : public UndoEvent
 {
 public:
     			SetPrefColorEvent(const EM::ObjectID&,

@@ -24,7 +24,7 @@ namespace PosInfo
 
 /*!\brief Just hold inl, crl, x, y and offs. For 2D, crl=nr. */
 
-mClass(General) CrdBidOffs
+mExpClass(General) CrdBidOffs
 {
 public:
 		CrdBidOffs()
@@ -47,7 +47,7 @@ public:
     corresponding BinID or trace numbers and offsets if pre-stack. */
 
 
-mClass(General) Detector
+mExpClass(General) Detector
 {
 public:
 

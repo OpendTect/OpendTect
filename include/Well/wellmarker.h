@@ -28,7 +28,7 @@ class Track;
 
 */
 
-mClass(Well) Marker : public ::NamedObject
+mExpClass(Well) Marker : public ::NamedObject
 {
 public:
 
@@ -64,7 +64,7 @@ protected:
 
 
 
-mClass(Well) MarkerSet : public ObjectSet<Marker>
+mExpClass(Well) MarkerSet : public ObjectSet<Marker>
 {
 public:
     			MarkerSet()		{}

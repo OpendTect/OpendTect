@@ -25,11 +25,11 @@ class LineStyle;
 Provides selection of linestyle, linecolor and linewidth
 */
 
-mClass(uiTools) uiSelLineStyle : public uiGroup
+mExpClass(uiTools) uiSelLineStyle : public uiGroup
 { 	
 public:
 
-    mClass(uiTools) Setup
+    mExpClass(uiTools) Setup
     {
     public:
 			Setup( const char* lbltxt=0 )

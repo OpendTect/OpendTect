@@ -29,7 +29,7 @@ class uiWellStratDisplay;
 
 namespace Well { class Data; }
 
-mClass(uiWell) uiWellDisplay : public uiGroup
+mExpClass(uiWell) uiWellDisplay : public uiGroup
 {
 public:
 
@@ -108,7 +108,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellDisplayWin : public uiMainWin
+mExpClass(uiWell) uiWellDisplayWin : public uiMainWin
 {
 public :
 			    	uiWellDisplayWin(uiParent*,Well::Data&);

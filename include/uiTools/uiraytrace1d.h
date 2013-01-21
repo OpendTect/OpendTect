@@ -22,11 +22,11 @@ class uiCheckBox;
 class uiLabeledComboBox;
 
 
-mClass(uiTools) uiRayTracer1D : public uiGroup
+mExpClass(uiTools) uiRayTracer1D : public uiGroup
 {
 public:
 
-    mClass(uiTools) Setup 		
+    mExpClass(uiTools) Setup 		
     {
 	public:	
 			Setup()
@@ -70,7 +70,7 @@ protected:
 };
 
 
-mClass(uiTools) uiVrmsRayTracer1D : public uiRayTracer1D
+mExpClass(uiTools) uiVrmsRayTracer1D : public uiRayTracer1D
 {
 public:
 			uiVrmsRayTracer1D(uiParent*,
@@ -83,7 +83,7 @@ public:
 };
 
 
-mClass(uiTools) uiRayTracerSel : public uiGroup
+mExpClass(uiTools) uiRayTracerSel : public uiGroup
 {
 public:
     			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);

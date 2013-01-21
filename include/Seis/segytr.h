@@ -26,7 +26,7 @@ namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
 #define mSEGYTraceHeaderBytes	240
 
 
-mClass(Seis) SEGYSeisTrcTranslator : public SeisTrcTranslator
+mExpClass(Seis) SEGYSeisTrcTranslator : public SeisTrcTranslator
 {			      isTranslator(SEGY,SeisTrc)
 public:
 

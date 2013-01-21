@@ -25,7 +25,7 @@ uiODSysAdm& ODSysAdmMainWin();
 
 /*!\brief OpendTect sysadm application top level object */
 
-mClass(uiSysAdm) uiODSysAdm : public uiDialog
+mExpClass(uiSysAdm) uiODSysAdm : public uiDialog
 {
 public:
 

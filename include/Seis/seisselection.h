@@ -26,7 +26,7 @@ namespace Seis
 
 /*!\brief setup for subselection of seismic data */
 
-mClass(Seis) SelSetup
+mExpClass(Seis) SelSetup
 {
 public:
 
@@ -79,7 +79,7 @@ public:
   
  */
 
-mClass(Seis) SelData
+mExpClass(Seis) SelData
 {
 public:
 

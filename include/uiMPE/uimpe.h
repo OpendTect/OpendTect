@@ -46,7 +46,7 @@ can be created by:
 \endcode
 */
 
-mClass(uiMPE) uiEMEditor : public CallBacker
+mExpClass(uiMPE) uiEMEditor : public CallBacker
 {
 public:
     			uiEMEditor(uiParent*);
@@ -74,7 +74,7 @@ typedef uiEMEditor*(*uiEMEditorCreationFunc)(uiParent*,MPE::ObjectEditor*);
     and a MPE::ObjectEditor*. Each class that wants to be able to procuce
     instances of itself must register itself with the addFactory startup. */
 
-mClass(uiMPE) uiEMEditorFactory
+mExpClass(uiMPE) uiEMEditorFactory
 {
 public:
     void		addFactory( uiEMEditorCreationFunc f );
@@ -92,7 +92,7 @@ protected:
     MPE::uiSetupGroupFactory. */
 
 
-mClass(uiMPE) uiSetupGroup : public uiGroup
+mExpClass(uiMPE) uiSetupGroup : public uiGroup
 {
 public:
 			uiSetupGroup(uiParent*,const char* helpref);
@@ -131,7 +131,7 @@ typedef uiSetupGroup*(*uiSetupGrpCreationFunc)(uiParent*,const char* typestr,
     be able to procuce instances of itself must register itself with the
     addFactory startup. */
 
-mClass(uiMPE) uiSetupGroupFactory
+mExpClass(uiMPE) uiSetupGroupFactory
 {
 public:
     void		addFactory(uiSetupGrpCreationFunc f, const char* name);
@@ -154,7 +154,7 @@ protected:
 */
 
 
-mClass(uiMPE) uiMPEEngine 
+mExpClass(uiMPE) uiMPEEngine 
 {
 public:
     uiEMEditorFactory		editorfact;

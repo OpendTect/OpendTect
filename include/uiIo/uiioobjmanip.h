@@ -25,7 +25,7 @@ class IODirEntryList;
 class BufferStringSet;
 
 
-mClass(uiIo) uiManipButGrp : public uiButtonGroup
+mExpClass(uiIo) uiManipButGrp : public uiButtonGroup
 {
 public:
     			uiManipButGrp(uiParent* p)
@@ -60,7 +60,7 @@ protected:
 class uiIOObjManipGroup;
 
 
-mClass(uiIo) uiIOObjManipGroupSubj : public CallBacker
+mExpClass(uiIo) uiIOObjManipGroupSubj : public CallBacker
 {
 public:
 				uiIOObjManipGroupSubj( uiObject* o )
@@ -80,7 +80,7 @@ public:
 
 /*! \brief Buttongroup to manipulate an IODirEntryList. */
 
-mClass(uiIo) uiIOObjManipGroup : public uiManipButGrp
+mExpClass(uiIo) uiIOObjManipGroup : public uiManipButGrp
 {
 public:
 

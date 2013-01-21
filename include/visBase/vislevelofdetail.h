@@ -27,7 +27,7 @@ resolution. Depending on how large parts of the screen the objects will fill,
 one of the versions will be used.
 */
 
-mClass(visBase) LevelOfDetail : public DataObject
+mExpClass(visBase) LevelOfDetail : public DataObject
 {
 public:
 

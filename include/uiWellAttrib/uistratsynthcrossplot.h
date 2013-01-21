@@ -34,7 +34,7 @@ namespace PreStack { class GatherSetDataPack; }
 
 /*!\brief Dialog specifying what to crossplot */
 
-mClass(uiWellAttrib) uiStratSynthCrossplot : public uiDialog
+mExpClass(uiWellAttrib) uiStratSynthCrossplot : public uiDialog
 {
 public:
 				uiStratSynthCrossplot(uiParent*,

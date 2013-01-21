@@ -24,7 +24,7 @@ namespace VolProc
 
 class Step;
 
-mClass(VolumeProcessing) BodyFiller : public Step
+mExpClass(VolumeProcessing) BodyFiller : public Step
 {
 public:
 	mDefaultFactoryCreatorImpl( VolProc::Step, BodyFiller );

@@ -25,7 +25,7 @@ class uiTreeViewBody;
 class uiTreeViewItem;
 class ioPixmap;
 
-mClass(uiBase) uiTreeView : public uiObject
+mExpClass(uiBase) uiTreeView : public uiObject
 {
 public:
 			uiTreeView(uiParent* parnt,
@@ -174,13 +174,13 @@ private:
 
 */
 
-mClass(uiBase) uiTreeViewItem : public CallBacker
+mExpClass(uiBase) uiTreeViewItem : public CallBacker
 {
 public:
 
     enum			Type { Standard, CheckBox };
 
-    mClass(uiBase) Setup
+    mExpClass(uiBase) Setup
     {
     public:
 				Setup( const char* txt=0, 

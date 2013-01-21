@@ -36,7 +36,7 @@ inlines, no matter whether the data is stored with descending inlines.
 
 */
 
-mClass(General) CBVSReader : public CBVSIO
+mExpClass(General) CBVSReader : public CBVSIO
 {
 public:
 

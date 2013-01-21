@@ -25,7 +25,7 @@ namespace CmdDrive
 
 mStartDeclCmdClass( uiCmdDriver, Combo, UiObjectCmd )		mEndDeclCmdClass
 
-mClass(uiCmdDriver) ComboActivator: public Activator
+mExpClass(uiCmdDriver) ComboActivator: public Activator
 {
 public:
     			ComboActivator(const uiComboBox&,int itmidx);
@@ -40,7 +40,7 @@ mStartDeclCmdClass( uiCmdDriver, ListButton, UiObjectCmd )	mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, ListClick, UiObjectCmd )	mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, ListMenu, UiObjectCmd )	mEndDeclCmdClass
 
-mClass(uiCmdDriver) ListActivator: public Activator
+mExpClass(uiCmdDriver) ListActivator: public Activator
 {
 public:
     			ListActivator(const uiListBox&,int itmidx,
@@ -55,7 +55,7 @@ protected:
 
 mStartDeclCmdClass( uiCmdDriver, ListSelect, UiObjectCmd )	mEndDeclCmdClass
 
-mClass(uiCmdDriver) ListSelectActivator: public Activator
+mExpClass(uiCmdDriver) ListSelectActivator: public Activator
 {
 public:
     			ListSelectActivator(const uiListBox&,

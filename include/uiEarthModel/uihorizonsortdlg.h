@@ -23,7 +23,7 @@ namespace EM { class Horizon; }
 class IOPar;
 class uiSurfaceSel;
 
-mClass(uiEarthModel) uiHorizonSortDlg : public uiDialog
+mExpClass(uiEarthModel) uiHorizonSortDlg : public uiDialog
 {
 public:
 

@@ -19,7 +19,7 @@ class IOPar;
 
 /*!\brief Dialog in flexible wizard series. */
 
-mClass(uiTools) uiVarWizardDlg : public uiDialog
+mExpClass(uiTools) uiVarWizardDlg : public uiDialog
 {
 public:
 

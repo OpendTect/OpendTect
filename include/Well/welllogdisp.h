@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace Well
 {
 
-mClass(Well) LogDisplayPars
+mExpClass(Well) LogDisplayPars
 {
 public:
 			LogDisplayPars( const char* nm=0 )
@@ -57,7 +57,7 @@ public:
 };
 
 
-mClass(Well) LogDisplayParSet
+mExpClass(Well) LogDisplayParSet
 {
 public:
 			LogDisplayParSet ()

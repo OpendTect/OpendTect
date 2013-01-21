@@ -35,7 +35,7 @@ namespace EM
 \brief %Fault stick painter.
 */
 
-mClass(EarthModel) FaultStickPainter : public CallBacker
+mExpClass(EarthModel) FaultStickPainter : public CallBacker
 {
 public:
     			FaultStickPainter(FlatView::Viewer&,

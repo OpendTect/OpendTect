@@ -32,7 +32,7 @@ Used for calculating attributes on surfaces
 */
 
 
-mClass(uiEMAttrib) uiAttrSurfaceOut : public uiAttrEMOut
+mExpClass(uiEMAttrib) uiAttrSurfaceOut : public uiAttrEMOut
 {
 public:
     			uiAttrSurfaceOut(uiParent*,const Attrib::DescSet&,

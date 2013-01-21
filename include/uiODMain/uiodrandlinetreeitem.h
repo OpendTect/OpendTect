@@ -35,7 +35,7 @@ mDefineItem( RandomLineParent, TreeItem, TreeTop, mShowMenu \
 namespace visSurvey { class RandomTrackDisplay; };
 
 
-mClass(uiODMain) uiODRandomLineTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODRandomLineTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -45,7 +45,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODRandomLineTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODRandomLineTreeItem : public uiODDisplayTreeItem
 {
 public:
     enum Type		{ Default, Empty, RGBA };

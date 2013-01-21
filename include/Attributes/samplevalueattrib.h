@@ -26,7 +26,7 @@ namespace Attrib
   functionality.
 */
 
-mClass(Attributes) SampleValue : public Provider
+mExpClass(Attributes) SampleValue : public Provider
 {
 public:
     static void			initClass();

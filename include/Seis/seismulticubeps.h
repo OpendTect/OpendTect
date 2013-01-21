@@ -21,7 +21,7 @@ class MultiID;
 
 /*!\brief PS data store reader based on multiple 3D CBVS cubes */
 
-mClass(Seis) MultiCubeSeisPSReader : public SeisPS3DReader
+mExpClass(Seis) MultiCubeSeisPSReader : public SeisPS3DReader
 {
 public:
 
@@ -63,7 +63,7 @@ protected:
 };
 
 
-mClass(Seis) MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
+mExpClass(Seis) MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(MultiCube,SeisPS3D)
 public:
     			mDefEmptyTranslatorConstructor(MultiCube,SeisPS3D)

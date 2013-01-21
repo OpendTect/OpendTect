@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "position.h"
 
 
-mClass(General) TabletInfo
+mExpClass(General) TabletInfo
 {
     friend class	QtTabletEventFilter;
 
@@ -69,7 +69,7 @@ protected:
 };
 
 
-mClass(General) MouseEvent
+mExpClass(General) MouseEvent
 {
 public:
 
@@ -150,7 +150,7 @@ void MyClass::handleMouseClick( CallBacker* cb )
 
 */
 
-mClass(General) MouseEventHandler : public CallBacker
+mExpClass(General) MouseEventHandler : public CallBacker
 {
 public:
     				MouseEventHandler();
@@ -190,11 +190,11 @@ protected:
    displaying a marker (or similar) at the current positions may subscribe to
    the notifier. */
 
-mClass(General) MouseCursorExchange : public CallBacker
+mExpClass(General) MouseCursorExchange : public CallBacker
 {
 public:
     				MouseCursorExchange();
-    mClass(General) Info
+    mExpClass(General) Info
     {
     public:
 				Info(const Coord3&,float offset=mUdf(float));

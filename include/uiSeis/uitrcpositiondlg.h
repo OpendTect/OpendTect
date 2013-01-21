@@ -24,7 +24,7 @@ class uiToolButton;
 class PickRetriever;
 namespace PosInfo { class Line2DData; }
 
-mClass(uiSeis) uiTrcPositionDlg: public uiDialog
+mExpClass(uiSeis) uiTrcPositionDlg: public uiDialog
 {                                                                               
 public:                                                                         
 				uiTrcPositionDlg(uiParent*,const CubeSampling&,

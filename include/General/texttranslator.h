@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "callback.h"
 
 
-mClass(General) TextTranslator : public CallBacker
+mExpClass(General) TextTranslator : public CallBacker
 {
 public:
 
@@ -49,7 +49,7 @@ protected:
 };
 
 
-mClass(General) TextTranslateMgr
+mExpClass(General) TextTranslateMgr
 {
 public:
 				TextTranslateMgr()

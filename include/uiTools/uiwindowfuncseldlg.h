@@ -40,7 +40,7 @@ class WindowFunction;
 
 /*!brief Displays a mathfunction. */
 
-mClass(uiTools) uiFunctionDrawer : public uiGraphicsView
+mExpClass(uiTools) uiFunctionDrawer : public uiGraphicsView
 {
 
 public:
@@ -104,7 +104,7 @@ protected:
 };
 
 
-mClass(uiTools) uiFuncSelDraw : public uiGroup
+mExpClass(uiTools) uiFuncSelDraw : public uiGroup
 {
 public:
 
@@ -138,7 +138,7 @@ protected:
 
 
 /*!brief Displays a windowfunction. */
-mClass(uiTools) uiWindowFuncSelDlg : public uiDialog
+mExpClass(uiTools) uiWindowFuncSelDlg : public uiDialog
 {
 public:
 

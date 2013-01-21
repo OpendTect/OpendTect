@@ -24,7 +24,7 @@ namespace Strat { class LayerSequenceGenDesc; }
 /*!\brief Base class for external LayerSequenceGenDesc editors, i.e.
   editors that are not also Layer Model displayers. */
 
-mClass(uiStrat) uiExtLayerSequenceGenDesc : public uiGraphicsView
+mExpClass(uiStrat) uiExtLayerSequenceGenDesc : public uiGraphicsView
 				 , public uiLayerSequenceGenDesc
 {
 public:

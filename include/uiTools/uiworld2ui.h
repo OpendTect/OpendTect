@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class SurveyInfo;
 
-mClass(uiTools) World2UiData
+mExpClass(uiTools) World2UiData
 {
 public:
 
@@ -47,7 +47,7 @@ public:
      the new wolrd X/Y range.
  */
 
-mClass(uiTools) uiWorld2Ui
+mExpClass(uiTools) uiWorld2Ui
 {
 public:
 

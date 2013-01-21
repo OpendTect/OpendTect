@@ -24,7 +24,7 @@ class uiButtonGroup;
 /*!\brief Base class for element allowing maintenance of lists of
 		(usually small) objects. */
 
-mClass(uiTools) uiEditObjectList : public uiGroup
+mExpClass(uiTools) uiEditObjectList : public uiGroup
 {
 public:
 

@@ -21,7 +21,7 @@ class uiObject;
 class uiMainWin;
 mFDQtclass(QDockWidget)
 
-mClass(uiBase) uiDockWin : public uiParent
+mExpClass(uiBase) uiDockWin : public uiParent
 {
 public:
 			uiDockWin(uiParent* parnt=0, 

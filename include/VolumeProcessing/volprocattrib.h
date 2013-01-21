@@ -25,7 +25,7 @@ namespace VolProc
 class Chain;
 class ChainExecutor;
 /*
-mClass(VolumeProcessing) AttributeAdapter : public Attrib::Provider
+mExpClass(VolumeProcessing) AttributeAdapter : public Attrib::Provider
 {
 public:
     static void		initClass();
@@ -58,7 +58,7 @@ protected:
 
 /*!Adapter for a VolProc chain to external attribute calculation */
 
-mClass(VolumeProcessing) ExternalAttribCalculator : public Attrib::ExtAttribCalc
+mExpClass(VolumeProcessing) ExternalAttribCalculator : public Attrib::ExtAttribCalc
 {
 public:
     static void		initClass();

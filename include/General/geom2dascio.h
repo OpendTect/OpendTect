@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace PosInfo { class Line2DData; }
 namespace Table { class FormatDesc; }
 
-mClass(General) Geom2dAscIO : public Table::AscIO
+mExpClass(General) Geom2dAscIO : public Table::AscIO
 {
 public:
 				Geom2dAscIO(const Table::FormatDesc&,

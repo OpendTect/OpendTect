@@ -45,7 +45,7 @@ template <class T> class LineParameters;
  
  */
 
-mClass(uiTools) uiAxisHandler : public NamedObject
+mExpClass(uiTools) uiAxisHandler : public NamedObject
 {
 public:
 

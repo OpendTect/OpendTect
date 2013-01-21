@@ -22,7 +22,7 @@ namespace Attrib { class Desc; };
 
 /*! \brief Dialog used to determine which outputs of an attribute will be computed at once and stored as multiple components when creating a volume output */
 
-mClass(uiAttributes) uiMultOutSel : public uiDialog
+mExpClass(uiAttributes) uiMultOutSel : public uiDialog
 {
 public:
 			uiMultOutSel(uiParent*,const Attrib::Desc&);

@@ -34,7 +34,7 @@ namespace SqlDB
 \brief Credentials to connect to a Database.
 */
 
-mClass(Database) ConnectionData
+mExpClass(Database) ConnectionData
 {
 public:
 
@@ -67,7 +67,7 @@ public:
 \brief To access a connected Database.
 */
 
-mClass(Database) Access
+mExpClass(Database) Access
 {
 public:
 
@@ -104,7 +104,7 @@ public:
 \brief Access to a connected MySql Database.
 */
 
-mClass(Database) MySqlAccess : public Access
+mExpClass(Database) MySqlAccess : public Access
 {
 public:
     			MySqlAccess( const char* dbtype )

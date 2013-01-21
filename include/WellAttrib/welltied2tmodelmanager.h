@@ -32,7 +32,7 @@ namespace WellTie
 class Data;
 class DataWriter;
 
-mClass(WellAttrib) D2TModelMgr
+mExpClass(WellAttrib) D2TModelMgr
 {
 public:
 			D2TModelMgr(Well::Data&,DataWriter&,const Data&);

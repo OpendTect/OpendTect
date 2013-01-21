@@ -37,7 +37,7 @@ class calcFingParsObject;
 
 /*! \brief FingerPrint Attribute description editor */
 
-mClass(uiAttributes) uiFingerPrintAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiFingerPrintAttrib : public uiAttrDescEd
 {
 public:
 

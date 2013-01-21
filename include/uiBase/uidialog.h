@@ -34,7 +34,7 @@ If you don't want to use the help system, simply pass null ('0').
 #define mNoDlgTitle	""
 
 
-mClass(uiBase) uiDialog : public uiMainWin
+mExpClass(uiBase) uiDialog : public uiMainWin
 { 	
     // impl: uimainwin.cc
     friend class	uiDialogBody;
@@ -46,7 +46,7 @@ public:
 	see general.h for background on Setup classes.
      */
 
-    mClass(uiBase) Setup
+    mExpClass(uiBase) Setup
     {
     public:
 

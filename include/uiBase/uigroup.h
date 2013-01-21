@@ -52,7 +52,7 @@ protected:
 };
 
 
-mClass(uiBase) uiGroup : public uiParent
+mExpClass(uiBase) uiGroup : public uiParent
 { 	
 friend class		uiGroupObjBody;
 friend class		uiGroupParentBody;

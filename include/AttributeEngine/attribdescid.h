@@ -25,7 +25,7 @@ namespace Attrib
   dedicated for stored Attributes.
 */
 
-mClass(AttributeEngine) DescID
+mExpClass(AttributeEngine) DescID
 {
 public:
 			DescID()

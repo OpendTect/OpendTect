@@ -23,7 +23,7 @@ class uiTextEdit;
 class uiRockPhysCstFld;
 
 
-mClass(uiTools) uiRockPhysForm : public uiGroup
+mExpClass(uiTools) uiRockPhysForm : public uiGroup
 {
 public:
 
@@ -63,7 +63,7 @@ protected:
 };
 
 
-mClass(uiTools) uiRockPhysCstFld : public uiGroup
+mExpClass(uiTools) uiRockPhysCstFld : public uiGroup
 {
 public:
 

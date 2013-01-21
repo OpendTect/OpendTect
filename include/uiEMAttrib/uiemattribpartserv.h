@@ -33,7 +33,7 @@ class uiHorizonShiftDialog;
 \brief Part Server for Attribute handling on EarthModel objects
 */
 
-mClass(uiEMAttrib) uiEMAttribPartServer : public uiApplPartServer
+mExpClass(uiEMAttrib) uiEMAttribPartServer : public uiApplPartServer
 {
 public:
 				uiEMAttribPartServer(uiApplService&);

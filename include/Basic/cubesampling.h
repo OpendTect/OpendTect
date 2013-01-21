@@ -32,7 +32,7 @@ ________________________________________________________________________
   See also the direction() and dimension() free functions.
 */
 
-mClass(Basic) CubeSampling
+mExpClass(Basic) CubeSampling
 {
 public:
 

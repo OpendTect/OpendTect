@@ -30,7 +30,7 @@ consists of one or more components. These are represented by a set of buffers,
 interpreted by DataInterpreters.
 */
 
-mClass(Seis) SeisTrc
+mExpClass(Seis) SeisTrc
 {
 public:
 
@@ -130,7 +130,7 @@ One of the components of a SeisTrc can be selected to form a ValueSeries.
 
 */
 
-mClass(Seis) SeisTrcValueSeries : public ValueSeries<float>
+mExpClass(Seis) SeisTrcValueSeries : public ValueSeries<float>
 {
 public:
 
@@ -160,7 +160,7 @@ One of the components of a SeisTrc can be selected to form a ValueSeries.
 */
 
 
-mClass(Seis) SeisTrcFunction : public FloatMathFunction
+mExpClass(Seis) SeisTrcFunction : public FloatMathFunction
 {
 public:
 

@@ -21,7 +21,7 @@ namespace Well
 {
 class D2TModel;
 
-mClass(Well) Track : public DahObj
+mExpClass(Well) Track : public DahObj
 {
 public:
 

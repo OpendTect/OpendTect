@@ -23,7 +23,7 @@ class IOPar;
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
-mClass(uiViewer2D) Vw2DDataObject : public CallBacker
+mExpClass(uiViewer2D) Vw2DDataObject : public CallBacker
 { mRefCountImpl(Vw2DDataObject)
 public:
 
@@ -54,7 +54,7 @@ protected:
 };
 
 
-mClass(uiViewer2D) Vw2DEMDataObject : public Vw2DDataObject
+mExpClass(uiViewer2D) Vw2DEMDataObject : public Vw2DDataObject
 { 
 public:
 

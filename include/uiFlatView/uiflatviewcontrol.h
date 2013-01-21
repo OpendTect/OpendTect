@@ -23,7 +23,7 @@ namespace FlatView { class ZoomMgr; class Viewer; }
 
 /*!\brief Tools to control uiFlatViewer(s). */
 
-mClass(uiFlatView) uiFlatViewControl : public uiGroup
+mExpClass(uiFlatView) uiFlatViewControl : public uiGroup
 {
 public:
 

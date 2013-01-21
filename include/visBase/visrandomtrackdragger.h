@@ -31,7 +31,7 @@ namespace visBase
 class Transformation;
 
 
-mClass(visBase) RandomTrackDragger : public VisualObjectImpl
+mExpClass(visBase) RandomTrackDragger : public VisualObjectImpl
 {
 public:
     static RandomTrackDragger*	create()

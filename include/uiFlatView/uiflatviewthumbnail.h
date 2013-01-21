@@ -20,7 +20,7 @@ class MouseEventHandler;
 
 /*!\brief Shows a thumbnail with current position of a uiFlatViewer. */
 
-mClass(uiFlatView) uiFlatViewThumbnail : public uiGraphicsView
+mExpClass(uiFlatView) uiFlatViewThumbnail : public uiGraphicsView
 {
 public:
     			uiFlatViewThumbnail(uiParent*,uiFlatViewer&);

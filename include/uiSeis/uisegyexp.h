@@ -24,7 +24,7 @@ class uiSEGYFileSpec;
 class uiSEGYExpTxtHeader;
 
 
-mClass(uiSeis) uiSEGYExp : public uiDialog
+mExpClass(uiSeis) uiSEGYExp : public uiDialog
 		 , public Usage::Client
 {
 public:

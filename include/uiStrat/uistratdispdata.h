@@ -33,7 +33,7 @@ namespace Strat
 class uiStratRefTree;
 class uiTreeViewItem;
 
-mClass(uiStrat) StratDispData
+mExpClass(uiStrat) StratDispData
 {
 public:
 			StratDispData() {};
@@ -150,7 +150,7 @@ protected :
 
 /*!\brief used to gather all units and tied levels from a tree for display*/
 
-mClass(uiStrat) uiStratTreeToDisp : public CallBacker
+mExpClass(uiStrat) uiStratTreeToDisp : public CallBacker
 {
 public:
     			uiStratTreeToDisp(StratDispData&,
@@ -189,7 +189,7 @@ protected:
 
 /*!brief used to write directly in the treeView of the uiStratRefTree as if we were handling the uiTree directly*/
 
-mClass(uiStrat) uiStratDispToTree : public CallBacker
+mExpClass(uiStrat) uiStratDispToTree : public CallBacker
 {
 public:
     			uiStratDispToTree(uiStratRefTree&);

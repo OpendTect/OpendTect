@@ -22,7 +22,7 @@ namespace Stats { template <class T> class ParallelCalc; }
 
 /*!\brief Stats display main window. See uistatsdisplay.h for details. */
 
-mClass(uiTools) uiStatsDisplayWin : public uiMainWin
+mExpClass(uiTools) uiStatsDisplayWin : public uiMainWin
 {
 public:
     				uiStatsDisplayWin(uiParent*,

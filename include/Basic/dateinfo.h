@@ -30,7 +30,7 @@ class BufferString;
   The class has some kewl 'relative' printouts.
 */
 
-mClass(Basic) DateInfo
+mExpClass(Basic) DateInfo
 {
 public:
     enum DayOfWeek	{ Su=0, Mo, Tu, We, Th, Fr, Sa };

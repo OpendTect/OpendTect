@@ -26,7 +26,7 @@ class Translator;
 
 /*\brief factory entry for IOObjs. Should deliver IOObj of certain type. */
 
-mClass(General) IOObjProducer
+mExpClass(General) IOObjProducer
 {
 public:
 
@@ -53,7 +53,7 @@ fullUserExpr().
 */
 
 
-mClass(General) IOObj : public NamedObject
+mExpClass(General) IOObj : public NamedObject
 {
 public:
 

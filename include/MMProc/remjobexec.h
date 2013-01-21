@@ -24,7 +24,7 @@ class TcpSocket;
 \brief Remote job executor
 */
 
-mClass(MMProc) RemoteJobExec : public CallBacker
+mExpClass(MMProc) RemoteJobExec : public CallBacker
 {
 public:
 			RemoteJobExec(const char*,const int);

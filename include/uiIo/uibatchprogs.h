@@ -23,7 +23,7 @@ class uiLabeledComboBox;
 
 
 
-mClass(uiIo) uiBatchProgLaunch : public uiDialog
+mExpClass(uiIo) uiBatchProgLaunch : public uiDialog
 {
 public:
 

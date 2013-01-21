@@ -26,7 +26,7 @@ mFDQtclass(QObject);
 when the QObject goes out of scope.
 */
 
-mClass(Basic) QObjPtr
+mExpClass(Basic) QObjPtr
 {
 public:
 				QObjPtr(mQtclass(QObject)* = 0);

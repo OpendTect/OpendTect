@@ -36,7 +36,7 @@ class uiPolyLineItem;
 class uiRectItem;
 class uiObjectItem;
 
-mClass(uiBase) uiGraphicsScene : public NamedObject
+mExpClass(uiBase) uiGraphicsScene : public NamedObject
 {
 public:
 				uiGraphicsScene(const char*);
@@ -119,7 +119,7 @@ inline T* uiGraphicsScene::addItem( T* itm )
 }
 
 
-mClass(uiBase) uiGraphicsObjectScene : public uiGraphicsScene
+mExpClass(uiBase) uiGraphicsObjectScene : public uiGraphicsScene
 {
 public:
 				uiGraphicsObjectScene(const char*);

@@ -23,7 +23,7 @@ class uiLineEdit;
 
 namespace ColTab { class Sequence; class MapperSetup; }
 
-mClass(uiTools) uiColorTableSel : public uiComboBox
+mExpClass(uiTools) uiColorTableSel : public uiComboBox
 {
 public:
     			uiColorTableSel(uiParent*,const char* nm);
@@ -37,7 +37,7 @@ protected:
 };
 
 
-mClass(uiTools) uiColorTable : public uiGroup
+mExpClass(uiTools) uiColorTable : public uiGroup
 {
 public:
 

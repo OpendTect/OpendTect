@@ -31,7 +31,7 @@ ________________________________________________________________________
   is defined, as well as a factory (Scaler::get).
 */
 
-mClass(Algo) Scaler
+mExpClass(Algo) Scaler
 {
 public:
     static Scaler*	get(const char*);
@@ -54,7 +54,7 @@ public:
 \brief Linear scaling
 */
 
-mClass(Algo) LinScaler : public Scaler
+mExpClass(Algo) LinScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,LinScaler)
 public:
@@ -96,7 +96,7 @@ inline bool LinScaler::isEmpty() const
 \brief Logarithmic scaling, base e or ten.
 */
 
-mClass(Algo) LogScaler : public Scaler
+mExpClass(Algo) LogScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,LogScaler)
 public:
@@ -123,7 +123,7 @@ public:
 \brief Exponential scaling, base e or ten.
 */
 
-mClass(Algo) ExpScaler : public Scaler
+mExpClass(Algo) ExpScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,ExpScaler)
 public:
@@ -159,7 +159,7 @@ public:
   reversible squeeze function, with a non-deforming (linear), fast central part.
 */
 
-mClass(Algo) AsymptScaler : public Scaler
+mExpClass(Algo) AsymptScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,AsymptScaler)
 public:

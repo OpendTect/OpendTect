@@ -22,7 +22,7 @@ template <class T> class Smoother3D;
 namespace VolProc
 {
     
-mClass(VolumeProcessing) Smoother : public Step
+mExpClass(VolumeProcessing) Smoother : public Step
 {
 public:
 			mDefaultFactoryInstantiation( VolProc::Step,

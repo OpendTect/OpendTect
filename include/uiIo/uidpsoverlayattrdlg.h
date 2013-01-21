@@ -23,7 +23,7 @@ class uiDataPointSetCrossPlotter;
 \brief Dialog box to display properties within points in crossplot.
 */
 
-mClass(uiIo) uiDPSOverlayPropDlg : public uiDialog
+mExpClass(uiIo) uiDPSOverlayPropDlg : public uiDialog
 {
 public:
 			uiDPSOverlayPropDlg(uiParent*,

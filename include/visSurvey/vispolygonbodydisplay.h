@@ -47,7 +47,7 @@ class MPEEditor;
 
 */
 
-mClass(visSurvey) PolygonBodyDisplay : public visBase::VisualObjectImpl,
+mExpClass(visSurvey) PolygonBodyDisplay : public visBase::VisualObjectImpl,
 			    public SurveyObject
 {
 public:

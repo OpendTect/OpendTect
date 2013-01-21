@@ -26,7 +26,7 @@ namespace MPE
 \brief EMSeedPicker to pick seeds in EM::Horizon2D.
 */
 
-mClass(MPEEngine) Horizon2DSeedPicker : public EMSeedPicker
+mExpClass(MPEEngine) Horizon2DSeedPicker : public EMSeedPicker
 {
 public:
     			Horizon2DSeedPicker(MPE::EMTracker&);

@@ -25,7 +25,7 @@ namespace CmdDrive
 class CmdDriver;
 class WildcardManager;
 
-mClass(uiCmdDriver) Function
+mExpClass(uiCmdDriver) Function
 {
 public:
 
@@ -59,7 +59,7 @@ protected:
 
 #define mStartDeclFunClassNoEval(funkey,parentclass) \
 \
-mClass(uiCmdDriver) funkey##Func : public parentclass \
+mExpClass(uiCmdDriver) funkey##Func : public parentclass \
 { \
 public: \
 			funkey##Func(const CmdDriver& cmddrv) \

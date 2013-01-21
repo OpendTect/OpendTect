@@ -19,7 +19,7 @@ class uiFileInput;
 class SurveyInfo;
 
 
-mClass(uiIo) uiConvertPos : public uiDialog
+mExpClass(uiIo) uiConvertPos : public uiDialog
 {
 
 public:

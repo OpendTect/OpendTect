@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace PreStack
 {
 
-mClass(PreStackProcessing) LateralStack : public Processor
+mExpClass(PreStackProcessing) LateralStack : public Processor
 {
 public:
     			mDefaultFactoryInstanciationBase(

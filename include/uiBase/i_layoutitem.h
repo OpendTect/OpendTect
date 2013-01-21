@@ -22,7 +22,7 @@ ________________________________________________________________________
 mFDQtclass(QLayoutItem)
 
 //! Wrapper around QLayoutItem class. Stores some dGB specific layout info.
-mClass(uiBase) i_LayoutItem : public uiBody, public NamedObject
+mExpClass(uiBase) i_LayoutItem : public uiBody, public NamedObject
 {   
     friend class		i_LayoutMngr;
     friend class		i_LayoutIterator;
@@ -165,7 +165,7 @@ private:
 
 
 //! Wrapper around QLayoutItems that have been wrapped by a i_QObjWrp wrapper and therefore have a reference to a uiObject.
-mClass(uiBase) i_uiLayoutItem : public i_LayoutItem
+mExpClass(uiBase) i_uiLayoutItem : public i_LayoutItem
 {
 public:
 			i_uiLayoutItem( i_LayoutMngr& mgr, uiObjectBody& obj )

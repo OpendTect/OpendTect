@@ -20,7 +20,7 @@ namespace Geometry
 {
 class PolygonSurface;
 
-mClass(Geometry) PolygonSurfEditor : public ElementEditor
+mExpClass(Geometry) PolygonSurfEditor : public ElementEditor
 {
 public:
     		PolygonSurfEditor( Geometry::PolygonSurface& );

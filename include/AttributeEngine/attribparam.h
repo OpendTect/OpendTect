@@ -38,7 +38,7 @@ namespace Attrib
   of each and every type.
 */
 
-mClass(AttributeEngine) BinIDParam : public ValParam
+mExpClass(AttributeEngine) BinIDParam : public ValParam
 {
 public:
     				BinIDParam(const char*);
@@ -67,7 +67,7 @@ public:
   \brief Bool parameter that is used by an attribute.
 */
 
-mClass(AttributeEngine) BoolParam : public ValParam
+mExpClass(AttributeEngine) BoolParam : public ValParam
 {
 public:
     				BoolParam(const char*);
@@ -87,7 +87,7 @@ public:
   \brief Enum parameter that is used by an attribute.
 */
 
-mClass(AttributeEngine) EnumParam : public ValParam
+mExpClass(AttributeEngine) EnumParam : public ValParam
 {
 public:
     				EnumParam(const char*);
@@ -110,7 +110,7 @@ public:
   \brief String parameter that is used by an attribute.
 */
 
-mClass(AttributeEngine) StringParam : public ValParam
+mExpClass(AttributeEngine) StringParam : public ValParam
 {
 public:
     				StringParam(const char* key);
@@ -416,7 +416,7 @@ typedef NumGateParam<float>		ZGateParam;
   \brief Stored seismic input parameter used by an attribute.
 */
 
-mClass(AttributeEngine) SeisStorageRefParam : public StringParam
+mExpClass(AttributeEngine) SeisStorageRefParam : public StringParam
 {
 public:
 				SeisStorageRefParam(const char* key);

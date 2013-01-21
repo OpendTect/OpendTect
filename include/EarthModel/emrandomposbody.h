@@ -28,7 +28,7 @@ namespace EM
 \brief Random position Body.
 */
 
-mClass(EarthModel) RandomPosBody : public Body, public EMObject
+mExpClass(EarthModel) RandomPosBody : public Body, public EMObject
 { mDefineEMObjFuncs( RandomPosBody );
 public:
     

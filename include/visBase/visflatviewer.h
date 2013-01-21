@@ -26,7 +26,7 @@ class SplitTexture2Rectangle;
 
 /*!Implementation of FlatViewer::Viewer in 3D. */
 
-mClass(visBase) FlatViewer : public FlatView::Viewer, public VisualObjectImpl
+mExpClass(visBase) FlatViewer : public FlatView::Viewer, public VisualObjectImpl
 {
 public:
     static FlatViewer*		create()

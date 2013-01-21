@@ -21,7 +21,7 @@ class uiComboBox;
 class UnitOfMeasure;
 
 
-mClass(uiTools) uiUnitSel : public uiGroup
+mExpClass(uiTools) uiUnitSel : public uiGroup
 {
 public:
     				uiUnitSel(uiParent*,PropertyRef::StdType,

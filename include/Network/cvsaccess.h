@@ -18,7 +18,7 @@ ________________________________________________________________________
 class BufferStringSet;
 
 
-mClass(Network) CVSAccess
+mExpClass(Network) CVSAccess
 {
 
 public:

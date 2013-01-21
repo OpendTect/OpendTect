@@ -21,7 +21,7 @@ class FileMultiString;
 /*!\brief Dialog to get a file or directory name from user
 */
 
-mClass(uiBase) uiFileDialog
+mExpClass(uiBase) uiFileDialog
 {
 public:
     //! File selection mode

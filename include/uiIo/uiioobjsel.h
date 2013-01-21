@@ -32,7 +32,7 @@ class uiToolButton;
 /*! \brief Dialog letting the user select an object.
            It returns an IOObj* after successful go(). */
 
-mClass(uiIo) uiIOObjRetDlg : public uiDialog
+mExpClass(uiIo) uiIOObjRetDlg : public uiDialog
 {
 public:
 
@@ -48,7 +48,7 @@ public:
 /*! \brief Basic group for letting the user select an object. It 
 	   can be used standalone in a dialog, or as a part of dialogs. */
 
-mClass(uiIo) uiIOObjSelGrp : public uiGroup
+mExpClass(uiIo) uiIOObjSelGrp : public uiGroup
 {
 public:
 				uiIOObjSelGrp(uiParent*,const CtxtIOObj& ctio,
@@ -134,7 +134,7 @@ protected:
 
 /*! \brief Dialog for selection of IOObjs */
 
-mClass(uiIo) uiIOObjSelDlg : public uiIOObjRetDlg
+mExpClass(uiIo) uiIOObjSelDlg : public uiIOObjRetDlg
 {
 public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
@@ -171,11 +171,11 @@ true. This is the default. Thus, you can simply do, in acceptOK():
 
 */
 
-mClass(uiIo) uiIOObjSel : public uiIOSelect
+mExpClass(uiIo) uiIOObjSel : public uiIOSelect
 {
 public:
 
-    mClass(uiIo) Setup : public uiIOSelect::Setup
+    mExpClass(uiIo) Setup : public uiIOSelect::Setup
     {
     public:
 			Setup( const char* seltext=0 )

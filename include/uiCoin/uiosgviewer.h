@@ -24,7 +24,7 @@ class uiOsgViewer;
     arranged by storing the osgViewer::View in this class, which
     takes care of the rest. */
 
-mClass(uiCoin) uiOsgViewHandle
+mExpClass(uiCoin) uiOsgViewHandle
 {
 public:
 				uiOsgViewHandle();

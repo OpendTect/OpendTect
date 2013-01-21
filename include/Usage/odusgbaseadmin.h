@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace Usage
 {
 
-mClass(Usage) BaseAdministrator : public Administrator
+mExpClass(Usage) BaseAdministrator : public Administrator
 {
 public:
 

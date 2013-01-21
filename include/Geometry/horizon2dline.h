@@ -27,7 +27,7 @@ namespace Geometry
 /*!A curve that goes along a fixed set of x,y coordinates with a varying
    z. */
 
-mClass(Geometry) Horizon2DLine : public RowColSurface
+mExpClass(Geometry) Horizon2DLine : public RowColSurface
 {
 public:
     			Horizon2DLine();

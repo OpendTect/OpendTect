@@ -20,7 +20,7 @@ class uiGenInput;
 
 /*! \brief UI for Random Position filter */
 
-mClass(uiIo) uiRandPosFiltGroup : public uiPosFiltGroup
+mExpClass(uiIo) uiRandPosFiltGroup : public uiPosFiltGroup
 {
 public:
 
@@ -43,7 +43,7 @@ protected:
 
 /*! \brief UI for Subsample Position filter */
 
-mClass(uiIo) uiSubsampPosFiltGroup : public uiPosFiltGroup
+mExpClass(uiIo) uiSubsampPosFiltGroup : public uiPosFiltGroup
 {
 public:
 

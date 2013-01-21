@@ -22,7 +22,7 @@ namespace FlatView
 /*!\brief Manages zoom factors. Will always provide a new zoom when forward()
           called, using fwdFac(). For back, will stop at initial. */
 
-mClass(uiFlatView) ZoomMgr
+mExpClass(uiFlatView) ZoomMgr
 {
 public:
 

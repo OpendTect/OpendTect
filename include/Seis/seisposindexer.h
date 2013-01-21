@@ -24,7 +24,7 @@ template <class T> class DataInterpreter;
 namespace Seis
 {
 
-mClass(Seis) PosKeyList
+mExpClass(Seis) PosKeyList
 {
 public:
     virtual		~PosKeyList()			{}
@@ -40,7 +40,7 @@ public:
 
 */
 
-mClass(Seis) PosIndexer
+mExpClass(Seis) PosIndexer
 {
 public:
 

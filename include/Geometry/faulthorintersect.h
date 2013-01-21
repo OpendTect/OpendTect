@@ -24,7 +24,7 @@ class IndexedShape;
 class ExplFaultStickSurface;
 
 
-mClass(Geometry) FaultBinIDSurfaceIntersector
+mExpClass(Geometry) FaultBinIDSurfaceIntersector
 {
 public:
 				FaultBinIDSurfaceIntersector(float horshift,

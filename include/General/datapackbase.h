@@ -26,7 +26,7 @@ class TaskRunner;
 
 /*!\brief DataPack for point data. */
     
-mClass(General) PointDataPack : public DataPack
+mExpClass(General) PointDataPack : public DataPack
 {
 public:
 
@@ -54,7 +54,7 @@ protected:
 
   */
     
-mClass(General) FlatDataPack : public DataPack
+mExpClass(General) FlatDataPack : public DataPack
 {
 public:
     				FlatDataPack(const char* categry,
@@ -110,7 +110,7 @@ private:
 
 /*!\brief DataPack for 2D data to be plotted on a Map. */
 
-mClass(General) MapDataPack : public FlatDataPack
+mExpClass(General) MapDataPack : public FlatDataPack
 {
 public:
     				MapDataPack(const char* categry,const char* nm,
@@ -154,7 +154,7 @@ protected:
 /*!\brief DataPack for volume data, where the dims correspond to 
           inl/crl/z . */
     
-mClass(General) VolumeDataPack : public DataPack
+mExpClass(General) VolumeDataPack : public DataPack
 {
 public:
 
@@ -185,7 +185,7 @@ protected:
           inl/crl/z .
 */
     
-mClass(General) CubeDataPack : public VolumeDataPack
+mExpClass(General) CubeDataPack : public VolumeDataPack
 {
 public:
     				CubeDataPack(const char* categry,

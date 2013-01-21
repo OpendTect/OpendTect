@@ -27,7 +27,7 @@ namespace VolProc
 /*! Reads in a volume. Will replace previous values if data is present
     in the read volume. */
     
-mClass(VolumeProcessing) VolumeReader : public Step
+mExpClass(VolumeProcessing) VolumeReader : public Step
 {
 public:
     			mDefaultFactoryInstantiation( Step, VolumeReader,

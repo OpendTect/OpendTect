@@ -26,7 +26,7 @@ class PolygonSurface;
 /*!A triangulated representation of a polygonsurface */
 
 
-mClass(Geometry) ExplPolygonSurface: public Geometry::IndexedShape, public CallBacker
+mExpClass(Geometry) ExplPolygonSurface: public Geometry::IndexedShape, public CallBacker
 {
 public:
 			ExplPolygonSurface(const PolygonSurface*,

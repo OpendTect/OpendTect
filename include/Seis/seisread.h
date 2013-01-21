@@ -39,7 +39,7 @@ Note: 2D Pre-Stack data cannot (yet) be read via this class.
 
 */
 
-mClass(Seis) SeisTrcReader : public SeisStoreAccess
+mExpClass(Seis) SeisTrcReader : public SeisStoreAccess
 {
 public:
 

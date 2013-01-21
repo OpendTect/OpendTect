@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 /*!\brief Array2D based on SeisTrcBuf. */
 
-mClass(Seis) SeisTrcBufArray2D : public Array2D<float>
+mExpClass(Seis) SeisTrcBufArray2D : public Array2D<float>
 {
 public:
 
@@ -60,7 +60,7 @@ protected:
 
 /*!\brief FlatDataPack based on SeisTrcBuf. */
 
-mClass(Seis) SeisTrcBufDataPack : public FlatDataPack
+mExpClass(Seis) SeisTrcBufDataPack : public FlatDataPack
 {
 public:
 

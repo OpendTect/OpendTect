@@ -31,7 +31,7 @@ class BufferStringSet;
   is done escaped.
 */
 
-mClass(Basic) SeparString
+mExpClass(Basic) SeparString
 {
 public:
 			SeparString( const SeparString& ss )
@@ -115,7 +115,7 @@ mGlobal(Basic) std::istream& operator >>(std::istream&,SeparString&);
 \brief SeparString with backquotes as separators, use in most ascii files.
 */
 
-mClass(Basic) FileMultiString : public SeparString
+mExpClass(Basic) FileMultiString : public SeparString
 {
 public:
 

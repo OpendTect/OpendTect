@@ -20,7 +20,7 @@ class Line3;
 namespace Geometry
 {
 
-mClass(Geometry) CubicBezierSurfacePatch
+mExpClass(Geometry) CubicBezierSurfacePatch
 {
 public:
 			CubicBezierSurfacePatch(
@@ -51,7 +51,7 @@ public:
 
 
 
-mClass(Geometry) CubicBezierSurface : public ParametricSurface
+mExpClass(Geometry) CubicBezierSurface : public ParametricSurface
 {
 public:
     			CubicBezierSurface( const RowCol& step=RowCol(1,1));

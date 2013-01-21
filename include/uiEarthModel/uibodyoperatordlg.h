@@ -29,7 +29,7 @@ class uiToolButton;
 namespace EM { class BodyOperator; }
 
 
-mClass(uiEarthModel) uiBodyOperatorDlg : public uiDialog
+mExpClass(uiEarthModel) uiBodyOperatorDlg : public uiDialog
 {
 public:
     			uiBodyOperatorDlg(uiParent*);

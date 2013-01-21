@@ -31,7 +31,7 @@ namespace visBase
 
 */
 
-mClass(visBase) TextureCoords : public DataObject
+mExpClass(visBase) TextureCoords : public DataObject
 {
 public:
     static TextureCoords*	create()
@@ -65,7 +65,7 @@ protected:
 };
 
 
-mClass(visBase) TextureCoords2 : public DataObject
+mExpClass(visBase) TextureCoords2 : public DataObject
 {
 public:
     static TextureCoords2*	create()
@@ -81,7 +81,7 @@ protected:
 };
 
 
-mClass(visBase) TextureCoordListAdapter : public Coord3List
+mExpClass(visBase) TextureCoordListAdapter : public Coord3List
 {
 public:
     			TextureCoordListAdapter(TextureCoords&);

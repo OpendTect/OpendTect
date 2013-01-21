@@ -35,7 +35,7 @@ namespace visBase
 
 */
 
-mClass(visBase) VisColorTab : public DataObject
+mExpClass(visBase) VisColorTab : public DataObject
 {
 public:
     static VisColorTab*		create()

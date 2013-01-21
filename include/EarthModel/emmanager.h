@@ -44,7 +44,7 @@ class SurfaceIODataSelection;
 \brief Manages the loaded/half loaded EM objects in OpendTect.
 */
 
-mClass(EarthModel) EMManager : public CallBacker
+mExpClass(EarthModel) EMManager : public CallBacker
 {
 public:
 			EMManager();

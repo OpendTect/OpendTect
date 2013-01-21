@@ -22,7 +22,7 @@ class uiGenInput;
 
 /*! \brief Energy Attribute ui */
 
-mClass(uiAttributes) uiEnergyAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiEnergyAttrib : public uiAttrDescEd
 {
 public:
 

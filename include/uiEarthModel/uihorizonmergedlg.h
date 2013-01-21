@@ -19,7 +19,7 @@ class uiGenInput;
 class uiHorizon3DSel;
 class uiSurfaceWrite;
 
-mClass(uiEarthModel) uiHorizonMergeDlg : public uiDialog
+mExpClass(uiEarthModel) uiHorizonMergeDlg : public uiDialog
 {
 public:
 			uiHorizonMergeDlg(uiParent*,bool is2d);

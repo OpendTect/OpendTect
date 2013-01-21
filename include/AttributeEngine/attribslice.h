@@ -29,7 +29,7 @@ namespace Attrib
 */
 
 
-mClass(AttributeEngine) Slice : public Array2DImpl<float>
+mExpClass(AttributeEngine) Slice : public Array2DImpl<float>
 { mRefCountImplNoDestructor(Slice);
 public:
 
@@ -54,7 +54,7 @@ protected:
   Slices can be null!
 */
 
-mClass(AttributeEngine) SliceSet : public ObjectSet<Slice>
+mExpClass(AttributeEngine) SliceSet : public ObjectSet<Slice>
 { mRefCountImpl(SliceSet);
 public:
 

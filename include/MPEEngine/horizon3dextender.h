@@ -26,7 +26,7 @@ namespace MPE
 \brief Sub class of SectionExtender. Use Horizon3DExtender instead.
 */
 
-mClass(MPEEngine) BaseHorizon3DExtender : public SectionExtender
+mExpClass(MPEEngine) BaseHorizon3DExtender : public SectionExtender
 {
 public:
     //static SectionExtender*	create(EM::EMObject*,const EM::SectionID&);
@@ -59,7 +59,7 @@ protected:
 \brief Used to extend EM::Horizon3D.
 */
 
-mClass(MPEEngine) Horizon3DExtender : public BaseHorizon3DExtender
+mExpClass(MPEEngine) Horizon3DExtender : public BaseHorizon3DExtender
 {
 public:
     static void			initClass();

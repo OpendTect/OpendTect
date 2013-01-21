@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 /*! \brief SampleValue Attribute description editor */
 
-mClass(uiAttributes) uiSampleValueAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiSampleValueAttrib : public uiAttrDescEd
 {
 public:
 

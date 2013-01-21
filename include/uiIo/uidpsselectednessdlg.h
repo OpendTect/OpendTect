@@ -24,7 +24,7 @@ class uiTable;
 
 class MathExpression;
 
-mClass(uiIo) uiDPSSelectednessDlg : public uiDPSAddColumnDlg
+mExpClass(uiIo) uiDPSSelectednessDlg : public uiDPSAddColumnDlg
 {
 public:
     				uiDPSSelectednessDlg(uiParent*,

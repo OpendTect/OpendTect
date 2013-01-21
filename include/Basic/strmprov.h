@@ -39,7 +39,7 @@ class BufferStringSet;
   A null string or StreamProvider::sStdIO will select std input and output.
 */
 
-mClass(Basic) StreamProvider
+mExpClass(Basic) StreamProvider
 {
 public:
 		StreamProvider(const char* nm=0);

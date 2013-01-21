@@ -32,11 +32,11 @@ class uiSeisBrowserInfoVwr;
 namespace ZDomain { class Def; }
 
 
-mClass(uiSeis) uiSeisBrowser : public uiDialog
+mExpClass(uiSeis) uiSeisBrowser : public uiDialog
 {
 public :
 
-    mClass(uiSeis) Setup : public uiDialog::Setup
+    mExpClass(uiSeis) Setup : public uiDialog::Setup
     {
     public:
     			Setup(const MultiID&,Seis::GeomType);

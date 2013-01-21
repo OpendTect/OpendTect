@@ -24,7 +24,7 @@ namespace Vel
 {
 class StoredFunctionSource;
 
-mClass(uiVelocity) uiStoredFunction : public uiFunctionSettings
+mExpClass(uiVelocity) uiStoredFunction : public uiFunctionSettings
 {
 public:
     mDefaultFactoryInstanciationBase(

@@ -22,7 +22,7 @@ namespace Pick { class Set; }
 template <class T> class ODPolygon;
 
 
-mClass(Geometry) PickSetTranslatorGroup : public TranslatorGroup
+mExpClass(Geometry) PickSetTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(PickSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(PickSet)
@@ -32,7 +32,7 @@ public:
 };
 
 
-mClass(Geometry) PickSetTranslator : public Translator
+mExpClass(Geometry) PickSetTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(PickSet)
@@ -60,7 +60,7 @@ public:
 };
 
 
-mClass(Geometry) dgbPickSetTranslator : public PickSetTranslator
+mExpClass(Geometry) dgbPickSetTranslator : public PickSetTranslator
 {			     isTranslator(dgb,PickSet)
 public:
 

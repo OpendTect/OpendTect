@@ -25,7 +25,7 @@ namespace CmdDrive
 
 class WildcardManager;
 
-mClass(uiCmdDriver) ObjectFinder
+mExpClass(uiCmdDriver) ObjectFinder
 {
 public:
     			ObjectFinder(const uiMainWin&,bool casesensitive=true,

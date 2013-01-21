@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace PreStack { class ProcessManager; }
 
 
-mClass(PreStackProcessing) PreStackProcTranslatorGroup : public TranslatorGroup
+mExpClass(PreStackProcessing) PreStackProcTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(PreStackProc)
 public:
     			mDefEmptyTranslatorGroupConstructor(PreStackProc)
@@ -27,7 +27,7 @@ public:
 };
 
 
-mClass(PreStackProcessing) PreStackProcTranslator : public Translator
+mExpClass(PreStackProcessing) PreStackProcTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(PreStackProc)
@@ -44,7 +44,7 @@ public:
 };
 
 
-mClass(PreStackProcessing) dgbPreStackProcTranslator : public PreStackProcTranslator
+mExpClass(PreStackProcessing) dgbPreStackProcTranslator : public PreStackProcTranslator
 {			     isTranslator(dgb,PreStackProc)
 public:
 

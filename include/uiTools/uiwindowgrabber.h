@@ -25,7 +25,7 @@ class Timer;
 
 /*!Dialog to specify the grab window and the output image file */
 
-mClass(uiTools) uiWindowGrabDlg : public uiDialog
+mExpClass(uiTools) uiWindowGrabDlg : public uiDialog
 {
 public:
 			uiWindowGrabDlg(uiParent*,bool desktop);
@@ -59,7 +59,7 @@ protected:
 
 /*!Grabs the screen area covered by a window or the whole desktop */
 
-mClass(uiTools) uiWindowGrabber: public CallBacker
+mExpClass(uiTools) uiWindowGrabber: public CallBacker
 {
 public:
 			uiWindowGrabber(uiParent*);

@@ -26,7 +26,7 @@ class TaskRunner;
 \brief Get a flag output for faults based on 2D input attribute data.
 */
 
-mClass(Algo) FingerVein
+mExpClass(Algo) FingerVein
 {
 public:    
 
@@ -69,7 +69,7 @@ protected:
 \brief Calculate azimuth and dip for 3D data.
 */
 
-mClass(Algo) FaultOrientation
+mExpClass(Algo) FaultOrientation
 {
 public:    
 

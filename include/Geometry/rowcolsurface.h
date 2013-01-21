@@ -24,7 +24,7 @@ namespace Geometry
 /*!Surface which positions are orgainzied in rows/cols. The number of
    columns in each row may vary. */
 
-mClass(Geometry) RowColSurface : public Element
+mExpClass(Geometry) RowColSurface : public Element
 {
 public:
     virtual void		getPosIDs(TypeSet<GeomPosID>&,bool=true) const;

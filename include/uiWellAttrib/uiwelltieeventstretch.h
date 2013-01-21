@@ -25,7 +25,7 @@ class Marker;
 class PickSetMgr;
 class D2TModelMgr;
 
-mClass(uiWellAttrib) EventStretch : public CallBacker
+mExpClass(uiWellAttrib) EventStretch : public CallBacker
 {
 public:
 					EventStretch(PickSetMgr&,D2TModelMgr&);

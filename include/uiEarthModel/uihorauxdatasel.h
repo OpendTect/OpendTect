@@ -20,11 +20,11 @@ class uiHorizonAuxDataDlg;
 class uiGenInput;
 class uiPushButton;
 
-mClass(uiEarthModel) uiHorizonAuxDataSel : public uiGroup
+mExpClass(uiEarthModel) uiHorizonAuxDataSel : public uiGroup
 {
 public:
 
-    mClass(uiEarthModel) HorizonAuxDataInfo
+    mExpClass(uiEarthModel) HorizonAuxDataInfo
     {
     public:
 			HorizonAuxDataInfo(bool load);

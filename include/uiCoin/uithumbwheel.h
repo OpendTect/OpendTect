@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiThumbWheelBody;
 
-mClass(uiCoin) uiThumbWheel : public uiObject
+mExpClass(uiCoin) uiThumbWheel : public uiObject
 {
 friend class		i_ThumbWheelMessenger;
 public:

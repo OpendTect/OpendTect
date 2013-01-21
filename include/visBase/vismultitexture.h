@@ -25,7 +25,7 @@ class TextureInfo;
 class VisColorTab;
 class ColorSequence;
 
-mClass(visBase) MultiTexture : public DataObject
+mExpClass(visBase) MultiTexture : public DataObject
 {
 public:
     enum Operation		{ BLEND, ADD, REPLACE };

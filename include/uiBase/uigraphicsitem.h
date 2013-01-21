@@ -26,7 +26,7 @@ class uiGraphicsScene;
 mFDQtclass(QGraphicsItem)
 mFDQtclass(QGraphicsItemGroup)
 
-mClass(uiBase) uiGraphicsItem : public CallBacker
+mExpClass(uiBase) uiGraphicsItem : public CallBacker
 {
 public:
 			~uiGraphicsItem();
@@ -99,7 +99,7 @@ private:
 };
 
 
-mClass(uiBase) uiGraphicsItemSet : public ManagedObjectSet<uiGraphicsItem>
+mExpClass(uiBase) uiGraphicsItemSet : public ManagedObjectSet<uiGraphicsItem>
 {
 public:
 			uiGraphicsItemSet()
@@ -114,7 +114,7 @@ public:
 
 
 
-mClass(uiBase) uiGraphicsItemGroup : public uiGraphicsItem
+mExpClass(uiBase) uiGraphicsItemGroup : public uiGraphicsItem
 {
 public:
     			uiGraphicsItemGroup(bool owner=false);

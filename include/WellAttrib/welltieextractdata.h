@@ -28,7 +28,7 @@ class SeisTrc;
 namespace WellTie
 {
 
-mClass(WellAttrib) SeismicExtractor : public Executor
+mExpClass(WellAttrib) SeismicExtractor : public Executor
 {
 public:
 			SeismicExtractor(const IOObj&);

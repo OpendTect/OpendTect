@@ -25,7 +25,7 @@ class CubeSampling;
 namespace Pick { class Set; }
 
 
-mClass(uiViewer2D) VW2DPickSet : public Vw2DDataObject
+mExpClass(uiViewer2D) VW2DPickSet : public Vw2DDataObject
 {
 public:
     static VW2DPickSet* create(int id,uiFlatViewWin* win,

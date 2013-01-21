@@ -21,7 +21,7 @@ class BufferStringSet;
 class MenuItem;
 class MenuHandler;
 
-mClass(General) MenuItemHolder : public CallBacker
+mExpClass(General) MenuItemHolder : public CallBacker
 {
 public:
     				MenuItemHolder();
@@ -69,7 +69,7 @@ private:
 
 /*!A generic representation of an item in a menu. */
 
-mClass(General) MenuItem : public MenuItemHolder
+mExpClass(General) MenuItem : public MenuItemHolder
 {
 public:
     				MenuItem(const char* text=0,int placement=-1);
@@ -98,7 +98,7 @@ public:
 };
 
 
-mClass(General) SeparatorItem : public MenuItem
+mExpClass(General) SeparatorItem : public MenuItem
 {
 public:
 				SeparatorItem(int plmnt=-1)
@@ -167,7 +167,7 @@ inserted into the menu.
     \endcode
 */
     
-mClass(General) MenuHandler : public MenuItemHolder
+mExpClass(General) MenuHandler : public MenuItemHolder
 {				mRefCountImpl(MenuHandler);
 public:
     				MenuHandler( int id );
@@ -216,7 +216,7 @@ protected:
      by an inheriting object in the shouldAddMenu(), shouldBeEnabled() and
      shouldBeChecked() functions. */
 
-mClass(General) MenuItemHandler : public CallBacker
+mExpClass(General) MenuItemHandler : public CallBacker
 {
 public:
 			MenuItemHandler(MenuHandler&,const char* nm,

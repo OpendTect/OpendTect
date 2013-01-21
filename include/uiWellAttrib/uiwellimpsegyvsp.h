@@ -25,7 +25,7 @@ class SeisTrc;
 class CtxtIOObj;
 
 
-mClass(uiWellAttrib) uiWellImportSEGYVSP : public uiDialog
+mExpClass(uiWellAttrib) uiWellImportSEGYVSP : public uiDialog
 {
 public:
     			uiWellImportSEGYVSP(uiParent*);

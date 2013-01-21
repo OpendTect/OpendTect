@@ -31,7 +31,7 @@ namespace visSurvey
 
 #define mCtrlLeftButton ( (OD::ButtonState) (OD::LeftButton+OD::ControlButton) )
 
-mClass(visSurvey) Sower : public visBase::VisualObjectImpl
+mExpClass(visSurvey) Sower : public visBase::VisualObjectImpl
 {
 
 public:

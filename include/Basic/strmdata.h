@@ -27,7 +27,7 @@ ________________________________________________________________________
   Need to find out what to do with the pipe in windows.
 */
 
-mClass(Basic) StreamData
+mExpClass(Basic) StreamData
 {
 public:
 

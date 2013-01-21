@@ -37,7 +37,7 @@ namespace SEGY
 /*!<Stores scanned data from SEGY-files. */
 
 
-mClass(Seis) FileDataSet
+mExpClass(Seis) FileDataSet
 {
 public:
 

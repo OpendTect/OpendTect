@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "propertyref.h"
 
 
-mClass(General) ElasticFormula : public NamedObject
+mExpClass(General) ElasticFormula : public NamedObject
 {
 public:
 			enum Type 	{ Den, PVel, SVel };
@@ -70,7 +70,7 @@ protected:
 
 
 
-mClass(General) ElasticFormulaRepository 
+mExpClass(General) ElasticFormulaRepository 
 {
 public:
     void			addFormula(const ElasticFormula&); 
@@ -99,7 +99,7 @@ mGlobal(General) ElasticFormulaRepository& ElFR();
 
 
 
-mClass(General) ElasticPropertyRef : public PropertyRef
+mExpClass(General) ElasticPropertyRef : public PropertyRef
 {
 public:
 			ElasticPropertyRef(const char* nm,

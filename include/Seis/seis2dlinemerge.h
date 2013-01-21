@@ -27,7 +27,7 @@ namespace PosInfo { class Line2DData; }
 
 /*!\brief merges two 2D lines into a new one (same Line Set) */
 
-mClass(Seis) Seis2DLineMerger : public Executor
+mExpClass(Seis) Seis2DLineMerger : public Executor
 {
 public:
 

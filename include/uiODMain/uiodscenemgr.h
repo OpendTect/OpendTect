@@ -43,7 +43,7 @@ class ZAxisTransform;
 
  */
 
-mClass(uiODMain) uiODSceneMgr : public CallBacker
+mExpClass(uiODMain) uiODSceneMgr : public CallBacker
 {
 public:
 
@@ -179,7 +179,7 @@ protected:
     inline uiODMenuMgr&		menuMgr()     { return appl_.menuMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
-    mClass(uiODMain) Scene
+    mExpClass(uiODMain) Scene
     {
     public:
 				Scene(uiMdiArea*);

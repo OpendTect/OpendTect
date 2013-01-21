@@ -42,7 +42,7 @@ if Gradient is selected outputs will be : grad(Energy), grad(SQRT(Energy)), ...
 </pre>
 */
 
-mClass(Attributes) Energy: public Provider
+mExpClass(Attributes) Energy: public Provider
 {
 public:
     static void		initClass();

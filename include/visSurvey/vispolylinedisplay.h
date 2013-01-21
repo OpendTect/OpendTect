@@ -29,7 +29,7 @@ namespace visBase { class PolyLine; }
 namespace visSurvey
 {
 
-mClass(visSurvey) PolyLineDisplay : public visBase::VisualObjectImpl,
+mExpClass(visSurvey) PolyLineDisplay : public visBase::VisualObjectImpl,
 				    public visSurvey::SurveyObject
 {
 public:

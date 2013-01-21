@@ -28,7 +28,7 @@ ColorSequence describes a basic sequence of colors on a scale ranging from zero
 to one.
 */
 
-mClass(visBase) ColorSequence : public DataObject
+mExpClass(visBase) ColorSequence : public DataObject
 {
 public:
     static ColorSequence*	create()

@@ -41,11 +41,11 @@ namespace WellTie
     class Data;
     class DataWriter;
 
-mClass(uiWellAttrib) uiSaveDataGroup : public uiGroup
+mExpClass(uiWellAttrib) uiSaveDataGroup : public uiGroup
 {
 public:
 
-      mClass(uiWellAttrib) Setup
+      mExpClass(uiWellAttrib) Setup
       {
 	  public:
 				Setup()
@@ -88,7 +88,7 @@ protected:
 };
 
 
-mClass(uiWellAttrib) uiSaveDataDlg : public uiDialog
+mExpClass(uiWellAttrib) uiSaveDataDlg : public uiDialog
 {
 public: 
 				uiSaveDataDlg(uiParent*,const Data&,

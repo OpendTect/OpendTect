@@ -19,7 +19,7 @@ ________________________________________________________________________
 class UserAction : public CallBacker
 {
 public:
-    mClass(General) Setup
+    mExpClass(General) Setup
     {
     public:
 		    Setup();

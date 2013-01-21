@@ -23,7 +23,7 @@ class uiPushButton;
 namespace Well { class Data; class Reader; };
 
 
-mClass(uiWell) uiWellMan : public uiObjFileMan
+mExpClass(uiWell) uiWellMan : public uiObjFileMan
 {
 public:
     				uiWellMan(uiParent*);

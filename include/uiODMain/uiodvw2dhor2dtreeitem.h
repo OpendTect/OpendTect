@@ -20,7 +20,7 @@ ________________________________________________________________________
 class Vw2DHorizon2D;
 
 
-mClass(uiODMain) uiODVw2DHor2DParentTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DHor2DParentTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVw2DHor2DParentTreeItem();
@@ -38,7 +38,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVw2DHor2DTreeItemFactory : public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODVw2DHor2DTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const 	{ return typeid(*this).name(); }
@@ -48,7 +48,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODVw2DHor2DTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DHor2DTreeItem : public uiODVw2DTreeItem
 {
 public:
     			uiODVw2DHor2DTreeItem(const EM::ObjectID&);

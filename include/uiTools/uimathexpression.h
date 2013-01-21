@@ -21,11 +21,11 @@ class uiToolButton;
 class uiToolButtonSetup;
 
 
-mClass(uiTools) uiMathExpression : public uiGroup
+mExpClass(uiTools) uiMathExpression : public uiGroup
 {
 public:
 
-    mClass(uiTools) Setup
+    mExpClass(uiTools) Setup
     {
     public:
 			Setup( const char* lbl=0 )

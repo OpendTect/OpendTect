@@ -24,7 +24,7 @@ namespace Well { class Data; class DisplayProperties; class LogSet; };
 
 /*! \brief Dialog for well display properties. */
 
-mClass(uiWell) uiWellDispPropDlg : public uiDialog
+mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
 {
 public:
 				uiWellDispPropDlg(uiParent*,Well::Data*,
@@ -59,7 +59,7 @@ protected:
 };
 
 
-mClass(uiWell) uiMultiWellDispPropDlg : public uiWellDispPropDlg
+mExpClass(uiWell) uiMultiWellDispPropDlg : public uiWellDispPropDlg
 {
 public:
 				uiMultiWellDispPropDlg(uiParent*,

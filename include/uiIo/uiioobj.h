@@ -24,7 +24,7 @@ class CtxtIOObj;
 It returns an IOObj* after successful go().
 */
 
-mClass(uiIo) uiIOObj
+mExpClass(uiIo) uiIOObj
 {
 public:
 				uiIOObj( IOObj& i, bool silent=false )

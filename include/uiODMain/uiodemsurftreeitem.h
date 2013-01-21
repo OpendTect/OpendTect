@@ -23,7 +23,7 @@ class uiVisEMObject;
 class uiODDataTreeItem;
 
 
-mClass(uiODMain) uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
 {
 public:
 
@@ -71,7 +71,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODEarthModelSurfaceDataTreeItem : public uiODAttribTreeItem
+mExpClass(uiODMain) uiODEarthModelSurfaceDataTreeItem : public uiODAttribTreeItem
 {
 public:
     			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,

@@ -42,7 +42,7 @@ columns are as follows:
 */
 
 
-mClass(PreStackProcessing) EventExporter : public SequentialTask
+mExpClass(PreStackProcessing) EventExporter : public SequentialTask
 {
 public:
     			EventExporter(std::ostream& strm,EventManager&);
@@ -71,7 +71,7 @@ protected:
 };
 
 
-mClass(PreStackProcessing) EventAscIO : public Table::AscIO
+mExpClass(PreStackProcessing) EventAscIO : public Table::AscIO
 {
 public:
     				EventAscIO( const Table::FormatDesc& fd,
@@ -98,7 +98,7 @@ protected:
 };
 
 
-mClass(PreStackProcessing) EventImporter : public SequentialTask
+mExpClass(PreStackProcessing) EventImporter : public SequentialTask
 {
 public:
     			EventImporter(const char*,const Table::FormatDesc&,

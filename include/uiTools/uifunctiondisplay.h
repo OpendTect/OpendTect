@@ -33,7 +33,7 @@ class uiGraphicsItemGroup;
  
  */
 
-mClass(uiTools) uiFunctionDisplay : public uiGraphicsView
+mExpClass(uiTools) uiFunctionDisplay : public uiGraphicsView
 {
 public:
 

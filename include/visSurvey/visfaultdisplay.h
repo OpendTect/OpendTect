@@ -51,7 +51,7 @@ class HorizonDisplay;
 
 */
 
-mClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject
+mExpClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject
 {
 public:
     static FaultDisplay*	create()

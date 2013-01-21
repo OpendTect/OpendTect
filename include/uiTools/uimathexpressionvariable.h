@@ -21,7 +21,7 @@ class uiLabeledComboBox;
 class UnitOfMeasure;
 
 
-mClass(uiTools) uiMathExpressionVariable : public uiGroup
+mExpClass(uiTools) uiMathExpressionVariable : public uiGroup
 {
 public:
 

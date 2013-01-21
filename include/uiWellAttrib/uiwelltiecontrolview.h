@@ -27,7 +27,7 @@ namespace WellTie
     class uiMrkDispDlg;
     class Server;
 
-mClass(uiWellAttrib) uiControlView : public uiFlatViewStdControl
+mExpClass(uiWellAttrib) uiControlView : public uiFlatViewStdControl
 {
 public:
 			uiControlView(uiParent*,uiToolBar*,
@@ -73,7 +73,7 @@ protected:
 };
 
 /*
-mClass(uiWellAttrib) uiTieClippingDlg : public uiDialog
+mExpClass(uiWellAttrib) uiTieClippingDlg : public uiDialog
 {
 public:
 				uiTieClippingDlg(uiParent*);

@@ -35,7 +35,7 @@ class Viewer;
 
 /*Takes the flat-data from a flatviewer and puts it into a uiGraphicsItem */
 
-mClass(uiFlatView) uiBitMapDisplay : public CallBacker
+mExpClass(uiFlatView) uiBitMapDisplay : public CallBacker
 {
 public:
     			uiBitMapDisplay(Viewer&);

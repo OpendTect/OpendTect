@@ -24,7 +24,7 @@ class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
 
-mClass(uiIo) uiBatchLaunch : public uiDialog
+mExpClass(uiIo) uiBatchLaunch : public uiDialog
 {
 public:
 			uiBatchLaunch(uiParent*,const IOPar&,
@@ -59,14 +59,14 @@ protected:
 };
 
 
-mClass(uiIo) uiFullBatchDialog : public uiDialog
+mExpClass(uiIo) uiFullBatchDialog : public uiDialog
 {
 public:
     enum Mode		{ Single, Multi, Cluster };
 
 protected:
 
-    mClass(uiIo) Setup
+    mExpClass(uiIo) Setup
     {
     public:
 			Setup(const char* txt)
@@ -122,7 +122,7 @@ protected:
 };
 
 
-mClass(uiIo) uiRestartBatchDialog : public uiFullBatchDialog
+mExpClass(uiIo) uiRestartBatchDialog : public uiFullBatchDialog
 {
 public:
 

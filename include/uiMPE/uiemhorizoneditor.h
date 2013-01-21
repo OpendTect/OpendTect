@@ -30,7 +30,7 @@ namespace MPE
 {
 class HorizonEditor;
 
-mClass(uiMPE) uiEMHorizonEditor : public uiEMObjectEditor
+mExpClass(uiMPE) uiEMHorizonEditor : public uiEMObjectEditor
 {
 
 public:

@@ -27,7 +27,7 @@ class IOObj;
   interface common to these connections.
 */
 
-mClass(Basic) Conn
+mExpClass(Basic) Conn
 {
 public:
 
@@ -64,7 +64,7 @@ protected:
 \brief Connection implemented in terms of another Conn object.
 */
 
-mClass(Basic) XConn  : public Conn
+mExpClass(Basic) XConn  : public Conn
 {
 
     friend class	IOX;

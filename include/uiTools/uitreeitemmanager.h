@@ -31,7 +31,7 @@ class uiTreeViewItem;
 class uiTreeView;
 class uiParent;
 
-mClass(uiTools) uiTreeItem	: public CallBacker
+mExpClass(uiTools) uiTreeItem	: public CallBacker
 {
 public:
     				uiTreeItem(const char* nm);
@@ -194,7 +194,7 @@ private:
 
 };
 
-mClass(uiTools) uiTreeItemRemover : public SequentialTask
+mExpClass(uiTools) uiTreeItemRemover : public SequentialTask
 {
 public:
     uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child);
@@ -207,7 +207,7 @@ protected:
 
 
 
-mClass(uiTools) uiTreeTopItem : public uiTreeItem
+mExpClass(uiTools) uiTreeTopItem : public uiTreeItem
 {
 public:
                         uiTreeTopItem(uiTreeView*, bool=false );
@@ -240,7 +240,7 @@ protected:
 };
 
 
-mClass(uiTools) uiTreeItemFactory
+mExpClass(uiTools) uiTreeItemFactory
 {
 public:
     virtual		~uiTreeItemFactory()		{}
@@ -249,7 +249,7 @@ public:
 };
 
 
-mClass(uiTools) uiTreeFactorySet : public CallBacker
+mExpClass(uiTools) uiTreeFactorySet : public CallBacker
 {
 public:
 					uiTreeFactorySet();

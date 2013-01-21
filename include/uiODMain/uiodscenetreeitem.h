@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class uiMenuHandler;
 
-mClass(uiODMain) uiODSceneTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODSceneTreeItem : public uiODTreeItem
 {
 public:
     			uiODSceneTreeItem(const char*,int);

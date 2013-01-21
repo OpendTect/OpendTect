@@ -25,7 +25,7 @@ class uiStepOutSel;
 
 /*! \brief Coherency attribute description editor */
 
-mClass(uiAttributes) uiCoherencyAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiCoherencyAttrib : public uiAttrDescEd
 {
 public:
 

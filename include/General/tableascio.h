@@ -39,7 +39,7 @@ mGlobal(General) FileFormatRepository& FFR();
  
  */
 
-mClass(General) AscIO
+mExpClass(General) AscIO
 {
 public:
 
@@ -94,7 +94,7 @@ protected:
 /*!\brief Holds system- and user-defined formats for different data types
   ('groups') */
 
-mClass(General) FileFormatRepository
+mExpClass(General) FileFormatRepository
 {
 public:
 

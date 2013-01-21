@@ -27,7 +27,7 @@ namespace visBase
 {
 class PickStyle;
 
-mClass(visBase) Text : public VisualObjectImpl
+mExpClass(visBase) Text : public VisualObjectImpl
 {
 public:
     enum			Justification { Left, Right, Center };
@@ -73,7 +73,7 @@ on the screen. It is advisable to turn off the text when doing a viewAll,
 since their sizes will corrupt the bounding box calculation.
 */
 
-mClass(visBase) Text2 : public Text
+mExpClass(visBase) Text2 : public Text
 {
 public:
     static Text2*		create()
@@ -94,7 +94,7 @@ protected:
 
 /*!Text that is not rotated to face text. */
 
-mClass(visBase) TextBox : public Text
+mExpClass(visBase) TextBox : public Text
 {
 public:
     static TextBox*		create()

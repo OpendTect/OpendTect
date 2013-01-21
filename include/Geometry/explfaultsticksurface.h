@@ -33,7 +33,7 @@ class ExplFaultStickTexturePositionExtracter;
 #define mFltTriProj Geometry::ExplFaultStickSurface::TriProjection
 
 
-mClass(Geometry) ExplFaultStickSurface: public Geometry::IndexedShape,
+mExpClass(Geometry) ExplFaultStickSurface: public Geometry::IndexedShape,
        			      public CallBacker
 {
 public:

@@ -41,7 +41,7 @@ ________________________________________________________________________
   data types.
 */
 
-mClass(Basic) BinDataDesc
+mExpClass(Basic) BinDataDesc
 {
 public:
 

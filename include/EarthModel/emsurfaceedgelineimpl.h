@@ -24,7 +24,7 @@ namespace EM
 \brief Termination EdgeLineSegment
 */
 
-mClass(EarthModel) TerminationEdgeLineSegment : public EdgeLineSegment
+mExpClass(EarthModel) TerminationEdgeLineSegment : public EdgeLineSegment
 {
 public:
 		    mEdgeLineSegmentClone(TerminationEdgeLineSegment, TermLine);
@@ -42,7 +42,7 @@ public:
 \brief Surface connecting EdgeLineSegment.
 */
 
-mClass(EarthModel) SurfaceConnectLine : public EdgeLineSegment
+mExpClass(EarthModel) SurfaceConnectLine : public EdgeLineSegment
 {
 public:
     			mEdgeLineSegmentClone(SurfaceConnectLine,ConnLine);

@@ -20,7 +20,7 @@ class uiGenInput;
 
 /*!\brief specifies how to get input from user - for uiGenInputDlg */
 
-mClass(uiTools) uiGenInputDlgEntry
+mExpClass(uiTools) uiGenInputDlgEntry
 {
 public:
     			uiGenInputDlgEntry( const char* t,
@@ -37,7 +37,7 @@ public:
 };
 
 
-mClass(uiTools) uiGenInputGrp : public uiGroup
+mExpClass(uiTools) uiGenInputGrp : public uiGroup
 {
 public:
 			uiGenInputGrp(uiParent*,const char* dlgtitle,
@@ -79,7 +79,7 @@ private:
 
 /*!\brief dialog with only uiGenInputs */
 
-mClass(uiTools) uiGenInputDlg : public uiDialog
+mExpClass(uiTools) uiGenInputDlg : public uiDialog
 { 	
 public:
 			uiGenInputDlg(uiParent*,const char* dlgtitle,

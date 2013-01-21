@@ -24,7 +24,7 @@ class GlobExpr;
 \brief Set of BufferString objects.
 */
 
-mClass(Basic) BufferStringSet : public ManagedObjectSet<BufferString>
+mExpClass(Basic) BufferStringSet : public ManagedObjectSet<BufferString>
 {
 public:
     			BufferStringSet();

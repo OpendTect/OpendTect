@@ -23,7 +23,7 @@ class uiFunctionDisplay;
 class uiGenInput;
 class uiLabeledSpinBox;
 
-mClass(uiAttributes) uiGainAnalysisDlg : public uiDialog
+mExpClass(uiAttributes) uiGainAnalysisDlg : public uiDialog
 {
 public:
 				uiGainAnalysisDlg(uiParent*,const SeisTrcBuf&,

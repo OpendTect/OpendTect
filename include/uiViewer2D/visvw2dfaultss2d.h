@@ -23,7 +23,7 @@ class uiFlatViewAuxDataEditor;
 namespace MPE { class FaultStickSetFlatViewEditor; class FaultStickSetEditor; }
 
 
-mClass(uiViewer2D) VW2DFaultSS2D : public Vw2DEMDataObject
+mExpClass(uiViewer2D) VW2DFaultSS2D : public Vw2DEMDataObject
 {
 public:
     static VW2DFaultSS2D* create(const EM::ObjectID& id,uiFlatViewWin* win,

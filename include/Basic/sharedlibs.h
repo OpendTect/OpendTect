@@ -26,7 +26,7 @@ ________________________________________________________________________
 \brief Gives access to shared libs on runtime. Plugins should be loaded via the Plugin Manager (see plugins.h).
 */
 
-mClass(Basic) SharedLibAccess
+mExpClass(Basic) SharedLibAccess
 {
 public:
 

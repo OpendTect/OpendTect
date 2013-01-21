@@ -46,7 +46,7 @@ namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; };
 \brief Earth Model UI Part Server
 */
 
-mClass(uiEarthModel) uiEMPartServer : public uiApplPartServer
+mExpClass(uiEarthModel) uiEMPartServer : public uiApplPartServer
 {
 public:
 			uiEMPartServer(uiApplService&);

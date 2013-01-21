@@ -33,7 +33,7 @@ class BufferStringSet;
  
  */
 
-mClass(uiTools) uiCheckList : public uiGroup
+mExpClass(uiTools) uiCheckList : public uiGroup
 {
 public:
 

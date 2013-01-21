@@ -23,7 +23,7 @@ namespace Geometry
     For Rcol variable rc, rc.r() represents polygonidx, rc.c() represents the 
     knots on the corresponding polygon. */
  
-mClass(Geometry) PolygonSurface : public RowColSurface
+mExpClass(Geometry) PolygonSurface : public RowColSurface
 {
 public:
     			PolygonSurface();

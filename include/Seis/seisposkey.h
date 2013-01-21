@@ -20,7 +20,7 @@ ________________________________________________________________________
 namespace Seis
 {
 
-mClass(Seis) PosKey
+mExpClass(Seis) PosKey
 {
 public:
 

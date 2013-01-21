@@ -19,7 +19,7 @@ ________________________________________________________________________
 class uiColorTable;
 class uiTreeItem;
 
-mClass(uiODMain) uiODEditAttribColorDlg : public uiDialog
+mExpClass(uiODMain) uiODEditAttribColorDlg : public uiDialog
 {
 public:
     				uiODEditAttribColorDlg(uiParent*,

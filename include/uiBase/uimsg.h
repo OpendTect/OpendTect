@@ -21,7 +21,7 @@ class BufferStringSet;
 class FileMultiString;
 
 
-mClass(uiBase) uiMsg
+mExpClass(uiBase) uiMsg
 {
     friend class uiMain;
     mGlobal(uiBase) friend uiMsg& uiMSG();
@@ -94,7 +94,7 @@ mGlobal(uiBase) uiMsg& uiMSG();
 
 
 //!Sets the uiMSG's main window temporary during the scope of the object
-mClass(uiBase) uiMsgMainWinSetter
+mExpClass(uiBase) uiMsgMainWinSetter
 {
 public:
     			uiMsgMainWinSetter( uiMainWin* np )

@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiGraphicsScene;
 
-mClass(uiTools) uiGraphicsSaveImageDlg : public uiSaveImageDlg
+mExpClass(uiTools) uiGraphicsSaveImageDlg : public uiSaveImageDlg
 {
 public:
 			uiGraphicsSaveImageDlg(uiParent*,uiGraphicsScene*);

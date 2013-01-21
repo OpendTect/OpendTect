@@ -23,7 +23,7 @@ ________________________________________________________________________
 class RCol2Coord;
 class IOPar;
 
-mClass(General) DataType
+mExpClass(General) DataType
 {
 public:
 
@@ -77,7 +77,7 @@ A DataInpSpec is a conceptual specification of intrinsic properties of data.
 With it, user interface parts can be constructed (uiGenInput).
 
 */
-mClass(General) DataInpSpec
+mExpClass(General) DataInpSpec
 {
 public:
 
@@ -545,7 +545,7 @@ typedef NumInpIntervalSpec<double>	DoubleInpIntervalSpec;
 
 
 /*! \brief Specifications for character string inputs. */
-mClass(General) StringInpSpec : public DataInpSpec
+mExpClass(General) StringInpSpec : public DataInpSpec
 {
 public:
 			StringInpSpec( const char* s=0 );
@@ -575,7 +575,7 @@ protected:
 
 /*! \brief Specifications for file-name inputs.
 */
-mClass(General) FileNameInpSpec : public StringInpSpec
+mExpClass(General) FileNameInpSpec : public StringInpSpec
 {
 public:
 				FileNameInpSpec( const char* fname=0 );
@@ -595,7 +595,7 @@ It does not change the underlying true/false texts.
 */
 
 
-mClass(General) BoolInpSpec : public DataInpSpec
+mExpClass(General) BoolInpSpec : public DataInpSpec
 {
 public:
 			BoolInpSpec(bool yesno,const char* truetxt=sKey::Yes(),
@@ -644,7 +644,7 @@ protected:
 
 /*! \brief Specifications for list of character string inputs.
 */
-mClass(General) StringListInpSpec : public DataInpSpec
+mExpClass(General) StringListInpSpec : public DataInpSpec
 {
 public:
     			StringListInpSpec(const BufferStringSet&);
@@ -694,7 +694,7 @@ protected:
 
 /*! \brief Specifications for BinID/Coordinate/TrcNrs and offsets */
 
-mClass(General) PositionInpSpec : public DataInpSpec
+mExpClass(General) PositionInpSpec : public DataInpSpec
 {
 public:
 

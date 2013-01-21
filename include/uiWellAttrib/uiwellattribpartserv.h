@@ -29,7 +29,7 @@ namespace WellTie { class uiTieWinMGRDlg; }
 \brief Part Server for Wellsi
 */
 
-mClass(uiWellAttrib) uiWellAttribPartServer : public uiApplPartServer
+mExpClass(uiWellAttrib) uiWellAttribPartServer : public uiApplPartServer
 {
 public:
 				uiWellAttribPartServer(uiApplService&);

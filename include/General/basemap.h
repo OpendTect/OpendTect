@@ -25,7 +25,7 @@ class LineStyle;
 /*!Object that can be painted in a basemap. */
 
 
-mClass(General) BaseMapObject : public NamedObject
+mExpClass(General) BaseMapObject : public NamedObject
 {
 public:
 				BaseMapObject(const char* nm);
@@ -70,7 +70,7 @@ protected:
 
 
 /*!Base class for a Basemap. */
-mClass(General) BaseMap
+mExpClass(General) BaseMap
 {
 public:
     virtual void		addObject(BaseMapObject*) 		= 0;

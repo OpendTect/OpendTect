@@ -20,7 +20,7 @@ class uiGenInput;
 class uiStepOutSel;
 
 
-mClass(uiTools) uiArr2DFilterPars : public uiGroup
+mExpClass(uiTools) uiArr2DFilterPars : public uiGroup
 {
 public:
 
@@ -37,7 +37,7 @@ protected:
 };
 
 
-mClass(uiTools) uiArr2DFilterParsDlg : public uiDialog
+mExpClass(uiTools) uiArr2DFilterParsDlg : public uiDialog
 {
 public:
 

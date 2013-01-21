@@ -38,7 +38,7 @@ class FunctionSource;
    different for each subclass, but is typically user-picks, wells
    or velocity volumes. */
 
-mClass(Velocity) Function
+mExpClass(Velocity) Function
 {
 public:
     void			ref() const;
@@ -82,7 +82,7 @@ private:
 /*!A source of Velocity functions of a certain sort. The FunctionSource
    can create Functions at certian BinID locations. */
 
-mClass(Velocity) FunctionSource : public CallBacker
+mExpClass(Velocity) FunctionSource : public CallBacker
 { mRefCountImplNoDestructor(FunctionSource);
 public:
     mDefineFactory1ParamInClass( FunctionSource, const MultiID&, factory );

@@ -30,10 +30,10 @@ namespace Well { class MarkerSet; }
 
 /*! brief: UI facilities to extract well data with zrg and extraction methods!*/
 
-mClass(uiWell) uiWellZRangeSelector : public uiGroup
+mExpClass(uiWell) uiWellZRangeSelector : public uiGroup
 {
 public:
-    mClass(uiWell) Setup
+    mExpClass(uiWell) Setup
     {
 	public:
 				Setup()
@@ -85,10 +85,10 @@ protected:
 };
 
 
-mClass(uiWell) uiWellExtractParams : public uiWellZRangeSelector
+mExpClass(uiWell) uiWellExtractParams : public uiWellZRangeSelector
 {
 public:
-    mClass(uiWell) Setup : public uiWellZRangeSelector::Setup
+    mExpClass(uiWell) Setup : public uiWellZRangeSelector::Setup
     {
 	public:
 				Setup()
@@ -131,7 +131,7 @@ protected:
 
 
 
-mClass(uiWell) uiMultiWellLogSel : public uiWellExtractParams
+mExpClass(uiWell) uiMultiWellLogSel : public uiWellExtractParams
 {
 public:
 			uiMultiWellLogSel(uiParent*,const Setup&);

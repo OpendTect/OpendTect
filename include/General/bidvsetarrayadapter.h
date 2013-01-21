@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 //!\brief an adapter between Array2D and a BinIDValueSet
 
-mClass(General) BIDValSetArrAdapter : public Array2D<float>
+mExpClass(General) BIDValSetArrAdapter : public Array2D<float>
 {
 public:			
     				BIDValSetArrAdapter(const BinIDValueSet&,

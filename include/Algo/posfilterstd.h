@@ -25,7 +25,7 @@ namespace Pos
 \brief Passes a percentage of the positions.
 */
 
-mClass(Algo) RandomFilter : public virtual Filter
+mExpClass(Algo) RandomFilter : public virtual Filter
 {
 public:
 
@@ -80,7 +80,7 @@ mSimpPosFilterDefFnsBase
 \brief Passes a percentage of the positions (3D).
 */
 
-mClass(Algo) RandomFilter3D : public Filter3D
+mExpClass(Algo) RandomFilter3D : public Filter3D
 		     , public RandomFilter
 {
 public:
@@ -95,7 +95,7 @@ public:
 \brief Passes a percentage of the positions (2D).
 */
 
-mClass(Algo) RandomFilter2D : public Filter2D
+mExpClass(Algo) RandomFilter2D : public Filter2D
 		     , public RandomFilter
 {
 public:
@@ -110,7 +110,7 @@ public:
 \brief Passes each nth position.
 */
 
-mClass(Algo) SubsampFilter : public virtual Filter
+mExpClass(Algo) SubsampFilter : public virtual Filter
 {
 public:
 
@@ -144,7 +144,7 @@ protected:
 \brief Passes each nth position (3D).
 */
 
-mClass(Algo) SubsampFilter3D : public Filter3D
+mExpClass(Algo) SubsampFilter3D : public Filter3D
 		      , public SubsampFilter
 {
 public:
@@ -159,7 +159,7 @@ public:
 \brief Passes each nth position (2D).
 */
 
-mClass(Algo) SubsampFilter2D : public Filter2D
+mExpClass(Algo) SubsampFilter2D : public Filter2D
 		      , public SubsampFilter
 {
 public:

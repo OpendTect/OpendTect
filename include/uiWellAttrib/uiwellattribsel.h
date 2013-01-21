@@ -25,7 +25,7 @@ namespace Well { class Data; };
 
 /*! \brief Dialog for marker specifications */
 
-mClass(uiWellAttrib) uiWellAttribSel : public uiDialog
+mExpClass(uiWellAttrib) uiWellAttribSel : public uiDialog
 {
 public:
 				uiWellAttribSel(uiParent*,Well::Data&,

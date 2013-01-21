@@ -33,7 +33,7 @@ assigned nrStep() as index, and are not present in the histogram.
 */
 
 
-mClass(visBase) ColorTabIndexer : public ParallelTask
+mExpClass(visBase) ColorTabIndexer : public ParallelTask
 {
 public:
 			ColorTabIndexer( const ValueSeries<float>& inp,

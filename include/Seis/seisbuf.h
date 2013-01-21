@@ -27,7 +27,7 @@ By default, the traces are not managed, but can be destroyed with deepErase().
 buffer in which the traces are somehow related.
 */
 
-mClass(Seis) SeisTrcBuf
+mExpClass(Seis) SeisTrcBuf
 {
 public:
 
@@ -94,7 +94,7 @@ protected:
 };
 
 
-mClass(Seis) SeisBufReader : public Executor
+mExpClass(Seis) SeisBufReader : public Executor
 {
 public:
     			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);

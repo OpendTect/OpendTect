@@ -24,7 +24,7 @@ class uiComboBox;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mClass(uiSeis) uiResortSEGYDlg : public uiDialog
+mExpClass(uiSeis) uiResortSEGYDlg : public uiDialog
 {
 public :
 

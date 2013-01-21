@@ -19,7 +19,7 @@ ________________________________________________________________________
 class uiVelSel;
 class IOPar;
 
-mClass(uiSeis) uiT2DVelConvSelGroup : public uiT2DConvSelGroup
+mExpClass(uiSeis) uiT2DVelConvSelGroup : public uiT2DConvSelGroup
 {
 public:
     				uiT2DVelConvSelGroup(uiParent*);

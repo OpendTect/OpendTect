@@ -24,7 +24,7 @@ class uiGraphicsItemSet;
 namespace Strat { class LayerSequence; class Content; }
 
 
-mClass(uiStrat) uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
+mExpClass(uiStrat) uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
 {
 public:
 

@@ -19,7 +19,7 @@ class Wavelet;
 class SeisTrc;
 
 
-mClass(uiSeis) uiSeisSingleTraceDisplay : public uiFlatViewer
+mExpClass(uiSeis) uiSeisSingleTraceDisplay : public uiFlatViewer
 {
 public:
 

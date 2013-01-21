@@ -27,7 +27,7 @@ namespace MPE
 \brief ObjectEditor to edit EM::Fault3D.
 */
 
-mClass(MPEEngine) FaultEditor : public ObjectEditor
+mExpClass(MPEEngine) FaultEditor : public ObjectEditor
 {
 public:
     				FaultEditor(EM::Fault3D&);

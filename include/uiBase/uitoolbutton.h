@@ -18,7 +18,7 @@ class uiToolButtonBody;
 class uiToolButtonSetup;
 
 
-mClass(uiBase) uiToolButton : public uiButton
+mExpClass(uiBase) uiToolButton : public uiButton
 {
 public:
 
@@ -70,7 +70,7 @@ private:
 
 #define mDefuiTBSUMemb(typ,memb) mDefSetupClssMemb(uiToolButtonSetup,typ,memb)
 
-mClass(uiBase) uiToolButtonSetup
+mExpClass(uiBase) uiToolButtonSetup
 {
 public:
 		    uiToolButtonSetup( const char* fnm, const char* tt,

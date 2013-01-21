@@ -21,7 +21,7 @@ class QLocalServer;
 class QLocalServerComm;
 class QLocalSocket;
 
-mClass(Network) LocalServer : public CallBacker
+mExpClass(Network) LocalServer : public CallBacker
 {
 public:
 			LocalServer();

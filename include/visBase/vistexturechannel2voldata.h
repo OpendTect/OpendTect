@@ -28,7 +28,7 @@ namespace visBase
  the texture channel(s) into a volume data object. 
 */
 
-mClass(visBase) TextureChannel2VolData : public TextureChannel2RGBA
+mExpClass(visBase) TextureChannel2VolData : public TextureChannel2RGBA
 {
 public:
     static TextureChannel2VolData*	create()

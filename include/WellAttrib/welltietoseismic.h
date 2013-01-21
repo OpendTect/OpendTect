@@ -27,7 +27,7 @@ namespace WellTie
 {
     class Data;
 
-mClass(WellAttrib) DataPlayer
+mExpClass(WellAttrib) DataPlayer
 {
 public:
 			DataPlayer(Data&,const MultiID&,const LineKey* lk=0);

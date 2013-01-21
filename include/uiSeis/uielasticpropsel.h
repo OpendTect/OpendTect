@@ -32,7 +32,7 @@ class uiIOObjSel;
 class uiTabStack;
 
 
-mClass(uiSeis) uiElasticPropSelGrp : public uiGroup
+mExpClass(uiSeis) uiElasticPropSelGrp : public uiGroup
 {
 public:
     				uiElasticPropSelGrp(uiParent*,
@@ -63,7 +63,7 @@ protected:
 
     MathExpression*	   	expr_;
 
-    mClass(uiSeis) uiSelInpGrp : public uiGroup
+    mExpClass(uiSeis) uiSelInpGrp : public uiGroup
     {
     public:
 			uiSelInpGrp(uiParent*,const BufferStringSet&,int);
@@ -99,7 +99,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiElasticPropSelDlg : public uiDialog
+mExpClass(uiSeis) uiElasticPropSelDlg : public uiDialog
 {
 public:
 				uiElasticPropSelDlg(uiParent*,

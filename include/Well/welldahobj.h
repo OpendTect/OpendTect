@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace Well
 {
 
-mClass(Well) DahObj : public ::NamedObject
+mExpClass(Well) DahObj : public ::NamedObject
 {
 public:
 

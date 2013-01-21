@@ -38,7 +38,7 @@ class uiDialog;
  
  */
 
-mClass(uiIo) uiSurvInfoProvider
+mExpClass(uiIo) uiSurvInfoProvider
 {
 public:
 

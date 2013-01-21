@@ -29,7 +29,7 @@ namespace Geometry
   parameterRange().stop and parameterRange().start.
 */
 
-mClass(Geometry) ParametricCurve : public Element
+mExpClass(Geometry) ParametricCurve : public Element
 {
 public:
     virtual Coord3 	computePosition( float ) const	= 0;

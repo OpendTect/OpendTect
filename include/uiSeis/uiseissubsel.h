@@ -37,7 +37,7 @@ class uiSelSubline;
 class uiSeis2DLineNameSel;
 
 
-mClass(uiSeis) uiSeisSubSel : public uiGroup
+mExpClass(uiSeis) uiSeisSubSel : public uiGroup
 {
 public:
 
@@ -73,7 +73,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiSeis3DSubSel : public uiSeisSubSel
+mExpClass(uiSeis) uiSeis3DSubSel : public uiSeisSubSel
 {
 public:
 
@@ -85,7 +85,7 @@ public:
 };
 
 
-mClass(uiSeis) uiSeis2DSubSel : public uiSeisSubSel
+mExpClass(uiSeis) uiSeis2DSubSel : public uiSeisSubSel
 { 	
 public:
 

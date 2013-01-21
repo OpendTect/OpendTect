@@ -24,7 +24,7 @@ namespace MPE
 {
 class HorizonEditor;
 
-mClass(uiMPE) uiEMObjectEditor : public uiEMEditor
+mExpClass(uiMPE) uiEMObjectEditor : public uiEMEditor
 {
 
 public:

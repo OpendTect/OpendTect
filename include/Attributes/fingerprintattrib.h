@@ -40,7 +40,7 @@ namespace Attrib
 </pre>
 */
 
-mClass(Attributes) FingerPrint : public Provider
+mExpClass(Attributes) FingerPrint : public Provider
 {
 public:
     static void			initClass();

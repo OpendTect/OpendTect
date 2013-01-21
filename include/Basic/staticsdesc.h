@@ -23,7 +23,7 @@ class IOPar;
 constant velocity. Velocity is always in m/s.
 */
 
-mClass(Basic) StaticsDesc
+mExpClass(Basic) StaticsDesc
 {
 public:
 			StaticsDesc();

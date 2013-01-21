@@ -21,7 +21,7 @@ class uiGenInput;
 class uiSeisFmtScaleComp;
 
 
-mClass(uiSeis) uiSeisFmtScale : public uiGroup
+mExpClass(uiSeis) uiSeisFmtScale : public uiGroup
 {
 public:
 

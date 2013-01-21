@@ -25,11 +25,11 @@ class uiT2DConvSelGroup;
 
 /*! \brief single-line object for selecting T to depth conversion. */
 
-mClass(uiIo) uiT2DConvSel : public uiGroup
+mExpClass(uiIo) uiT2DConvSel : public uiGroup
 {
 public:
 
-    mClass(uiIo) Setup
+    mExpClass(uiIo) Setup
     {
     public:
 			Setup( uiIOObjSel* tied, bool opt=true )
@@ -60,7 +60,7 @@ protected:
 };
 
 
-mClass(uiIo) uiT2DConvSelGroup : public uiGroup
+mExpClass(uiIo) uiT2DConvSelGroup : public uiGroup
 {
 public:
    			uiT2DConvSelGroup( uiParent* p, const char* gnm )
@@ -73,7 +73,7 @@ public:
 };
 
 
-mClass(uiIo) uiT2DLinConvSelGroup : public uiT2DConvSelGroup
+mExpClass(uiIo) uiT2DLinConvSelGroup : public uiT2DConvSelGroup
 {
 public:
     				uiT2DLinConvSelGroup(uiParent*);

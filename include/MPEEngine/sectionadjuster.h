@@ -32,7 +32,7 @@ class SectionExtender;
 EM::SectionID.
 */
 
-mClass(MPEEngine) SectionAdjuster : public SequentialTask
+mExpClass(MPEEngine) SectionAdjuster : public SequentialTask
 {
 public:
 				SectionAdjuster( const EM::SectionID& sid=-1);

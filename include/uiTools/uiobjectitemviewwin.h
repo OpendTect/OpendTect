@@ -33,11 +33,11 @@ class uiGraphicsObjectScene;
 class uiAxisHandler;
 class uiBorder;
 
-mClass(uiTools) uiObjectItemViewWin : public uiMainWin
+mExpClass(uiTools) uiObjectItemViewWin : public uiMainWin
 {
 public:    
 
-    mClass(uiTools) Setup
+    mExpClass(uiTools) Setup
     {
     public:
 
@@ -114,7 +114,7 @@ protected:
 };
 
 
-mClass(uiTools) uiObjectItemViewInfoBar : public uiObjectItemView
+mExpClass(uiTools) uiObjectItemViewInfoBar : public uiObjectItemView
 {
 public:    
 
@@ -139,7 +139,7 @@ protected:
 
 
 
-mClass(uiTools) uiObjectItemViewControl : public uiGroup
+mExpClass(uiTools) uiObjectItemViewControl : public uiGroup
 {
 public :
 			uiObjectItemViewControl(uiObjectItemView&);
@@ -161,7 +161,7 @@ protected:
 };
 
 
-mClass(uiTools) uiObjectItemViewAxisPainter : public CallBacker
+mExpClass(uiTools) uiObjectItemViewAxisPainter : public CallBacker
 {
 public:
 			uiObjectItemViewAxisPainter(uiObjectItemView&);

@@ -43,7 +43,7 @@ x' = x''/m; y' = y''/m; z'=z''/m;
 */
 
 
-mClass(visBase) Transformation : public DataObjectGroup
+mExpClass(visBase) Transformation : public DataObjectGroup
 {
 public:
     static Transformation*	create()
@@ -96,7 +96,7 @@ private:
 
 
 
-mClass(visBase) Rotation : public DataObject
+mExpClass(visBase) Rotation : public DataObject
 {
 public:
     static Rotation*	create()

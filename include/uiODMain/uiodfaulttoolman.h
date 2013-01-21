@@ -40,14 +40,14 @@ namespace visSurvey		{ class FaultDisplay;
     				  class FaultStickSetDisplay; }
 
 
-mClass(uiODMain) uiFaultStickTransferDlg : public uiDialog
+mExpClass(uiODMain) uiFaultStickTransferDlg : public uiDialog
 {
 public:
 
     enum ColorMode		{ Inherit=0, Random, SerialUserDef,
 				  Current, ExistsUserDef,
 				  SingleUserDef };
-    mClass(uiODMain) Setup
+    mExpClass(uiODMain) Setup
     {
     public:			Setup()
 				    : displayifnot_( true )
@@ -88,7 +88,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODFaultToolMan : public CallBacker
+mExpClass(uiODMain) uiODFaultToolMan : public CallBacker
 {
 public:
     				uiODFaultToolMan(uiODMain&);

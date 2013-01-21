@@ -26,7 +26,7 @@ namespace MPE
 \brief SectionExtender to extend EM::Fault3D.
 */
 
-mClass(MPEEngine) FaultExtender : public SectionExtender
+mExpClass(MPEEngine) FaultExtender : public SectionExtender
 {
 public:
 			FaultExtender(EM::Fault3D&,const EM::SectionID& =-1);

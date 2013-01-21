@@ -21,7 +21,7 @@ ________________________________________________________________________
 class QLocalSocket;
 class QLocalSocketComm;
 
-mClass(Network) LocalSocket : public CallBacker
+mExpClass(Network) LocalSocket : public CallBacker
 {
 friend class QLocalSocketComm;
 

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "uilistbox.h"
 
-mClass(uiStrat) uiStratLvlList : public uiLabeledListBox
+mExpClass(uiStrat) uiStratLvlList : public uiLabeledListBox
 {
 public:
 

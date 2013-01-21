@@ -27,7 +27,7 @@ class WaveletAttrib;
 
 template <class T> class Array1DImpl;
 
-mClass(uiSeis) uiSeisWvltSliderDlg : public uiDialog 
+mExpClass(uiSeis) uiSeisWvltSliderDlg : public uiDialog 
 {
 public:
 				~uiSeisWvltSliderDlg();
@@ -49,7 +49,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiSeisWvltRotDlg : public uiSeisWvltSliderDlg 
+mExpClass(uiSeis) uiSeisWvltRotDlg : public uiSeisWvltSliderDlg 
 {
 public:
 				uiSeisWvltRotDlg(uiParent*,Wavelet&);
@@ -59,7 +59,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiSeisWvltTaperDlg : public uiSeisWvltSliderDlg 
+mExpClass(uiSeis) uiSeisWvltTaperDlg : public uiSeisWvltSliderDlg 
 {
 public:
 				uiSeisWvltTaperDlg(uiParent*,Wavelet&);
@@ -90,7 +90,7 @@ protected:
 
 
 
-mClass(uiSeis) uiWaveletDispProp : public uiGroup
+mExpClass(uiSeis) uiWaveletDispProp : public uiGroup
 {
 public:
 
@@ -116,7 +116,7 @@ private:
 };
 
 
-mClass(uiSeis) uiWaveletDispPropDlg : public uiDialog
+mExpClass(uiSeis) uiWaveletDispPropDlg : public uiDialog
 {
 public:
 				uiWaveletDispPropDlg(uiParent*,const Wavelet&);

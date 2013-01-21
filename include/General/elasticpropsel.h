@@ -21,7 +21,7 @@ class IOObj;
 class MultiID;
 
 
-mClass(General) ElasticPropSelection : public PropertyRefSelection
+mExpClass(General) ElasticPropSelection : public PropertyRefSelection
 {
 public:
 				ElasticPropSelection();
@@ -51,7 +51,7 @@ protected:
 };
 
 
-mClass(General) ElasticPropGen
+mExpClass(General) ElasticPropGen
 {
 public:
     			ElasticPropGen(const ElasticPropSelection& eps,
@@ -78,7 +78,7 @@ protected:
 
 
 
-mClass(General) ElasticPropGuess
+mExpClass(General) ElasticPropGuess
 {
 public:
     			ElasticPropGuess(const PropertyRefSelection&,

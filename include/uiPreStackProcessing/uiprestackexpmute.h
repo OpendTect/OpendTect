@@ -24,7 +24,7 @@ class uiIOObjSel;
 namespace PreStack
 {
 
-mClass(uiPreStackProcessing) uiExportMute : public uiDialog
+mExpClass(uiPreStackProcessing) uiExportMute : public uiDialog
 {
 public:
 			uiExportMute(uiParent*);

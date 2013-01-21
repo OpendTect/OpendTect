@@ -22,7 +22,7 @@ class uiToolButton;
 class BufferString;
 class MultiID;
 
-mClass(uiEarthModel) uiEMPreLoadDlg : public uiDialog
+mExpClass(uiEarthModel) uiEMPreLoadDlg : public uiDialog
 {
 public:
 			uiEMPreLoadDlg( uiParent* p )
@@ -39,7 +39,7 @@ protected:
     uiToolButton*	savebut_;
 };
 
-mClass(uiEarthModel) uiHorizonPreLoadDlg : public uiEMPreLoadDlg
+mExpClass(uiEarthModel) uiHorizonPreLoadDlg : public uiEMPreLoadDlg
 {
 public:
 			uiHorizonPreLoadDlg(uiParent*);

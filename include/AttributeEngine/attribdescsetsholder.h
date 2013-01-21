@@ -30,7 +30,7 @@ mGlobal(AttributeEngine) DescSetsHolder& eDSHolder();
   for stored data, both in 2D and 3D.
 */
 
-mClass(AttributeEngine) DescSetsHolder
+mExpClass(AttributeEngine) DescSetsHolder
 {
 public:
     				DescSetsHolder();

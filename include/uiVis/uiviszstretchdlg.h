@@ -18,7 +18,7 @@ class uiCheckBox;
 class uiLabeledComboBox;
 class uiSliderExtra;
 
-mClass(uiVis) uiZStretchDlg : public uiDialog
+mExpClass(uiVis) uiZStretchDlg : public uiDialog
 {
 public:
 			uiZStretchDlg(uiParent*);

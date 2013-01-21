@@ -28,7 +28,7 @@ class Bounds;
 
 /*!\brief Base class for Seismic Sequential IO classes */
 
-mClass(Seis) SeqIO
+mExpClass(Seis) SeqIO
 {
 public:
 
@@ -49,7 +49,7 @@ protected:
 
 /*!\brief Base class for Seismic Sequential input classes */
 
-mClass(Seis) SeqInp : public SeqIO
+mExpClass(Seis) SeqInp : public SeqIO
 {
 public:
 
@@ -78,7 +78,7 @@ protected:
  */
 
 
-mClass(Seis) ODSeqInp : public SeqInp
+mExpClass(Seis) ODSeqInp : public SeqInp
 {
 public:
 
@@ -114,7 +114,7 @@ protected:
 
 /*!\brief Base class for Seismic Sequential output classes */
 
-mClass(Seis) SeqOut : public SeqIO
+mExpClass(Seis) SeqOut : public SeqIO
 {
 public:
 
@@ -135,7 +135,7 @@ public:
  
  */
 
-mClass(Seis) ODSeqOut : public SeqOut
+mExpClass(Seis) ODSeqOut : public SeqOut
 {
 public:
 

@@ -22,7 +22,7 @@ class SeisTrcReader;
 class Wavelet;
 template <class T> class Array1DImpl;
 
-mClass(Seis) WaveletExtractor : public Executor
+mExpClass(Seis) WaveletExtractor : public Executor
 {
 public:
 				WaveletExtractor(const IOObj&,int wvltsize);

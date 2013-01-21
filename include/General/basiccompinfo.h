@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 /*!\brief Info on one component */
 
-mClass(General) BasicComponentInfo : public NamedObject
+mExpClass(General) BasicComponentInfo : public NamedObject
 {
 public:
 			BasicComponentInfo( const char* nm=0 )

@@ -22,7 +22,7 @@ class uiIOSelect;
 class uiListBox;
 class uiSeisSel;
 
-mClass(uiSeis) uiPreStackDataPackSelDlg : public uiDialog
+mExpClass(uiSeis) uiPreStackDataPackSelDlg : public uiDialog
 {
 public:
     			uiPreStackDataPackSelDlg(uiParent*,
@@ -40,7 +40,7 @@ protected:
 };
 
 
-mClass(uiSeis) uiPreStackSel : public uiGroup
+mExpClass(uiSeis) uiPreStackSel : public uiGroup
 {
 public:
 

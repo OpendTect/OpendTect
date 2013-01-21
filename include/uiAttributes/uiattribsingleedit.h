@@ -23,7 +23,7 @@ class uiGenInput;
 
 /*! \brief Dialog for creating volume output */
 
-mClass(uiAttributes) uiSingleAttribEd : public uiDialog
+mExpClass(uiAttributes) uiSingleAttribEd : public uiDialog
 {
 public:
 

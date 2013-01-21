@@ -38,7 +38,7 @@ namespace Attrib
 */
 
 
-mClass(Attributes) Shift : public Provider
+mExpClass(Attributes) Shift : public Provider
 {
 public:
     static void			initClass();

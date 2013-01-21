@@ -19,7 +19,7 @@ namespace VolProc { class Chain; }
 
 /*! Translator implementation for Volume Processing Setups. */
 
-mClass(VolumeProcessing) VolProcessingTranslatorGroup : public TranslatorGroup
+mExpClass(VolumeProcessing) VolProcessingTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(VolProcessing)
 public:
     			mDefEmptyTranslatorGroupConstructor(VolProcessing)
@@ -33,7 +33,7 @@ public:
 };
 
 
-mClass(VolumeProcessing) VolProcessingTranslator : public Translator
+mExpClass(VolumeProcessing) VolProcessingTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(VolProcessing)
@@ -50,7 +50,7 @@ public:
 };
 
 
-mClass(VolumeProcessing) dgbVolProcessingTranslator : public VolProcessingTranslator
+mExpClass(VolumeProcessing) dgbVolProcessingTranslator : public VolProcessingTranslator
 {			     isTranslator(dgb,VolProcessing)
 public:
 

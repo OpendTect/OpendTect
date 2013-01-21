@@ -21,7 +21,7 @@ class ProbDenFunc;
 class BufferString;
 
 
-mClass(Geometry) ProbDenFuncTranslatorGroup : public TranslatorGroup
+mExpClass(Geometry) ProbDenFuncTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ProbDenFunc)
 public:
     			mDefEmptyTranslatorGroupConstructor(ProbDenFunc)
@@ -31,7 +31,7 @@ public:
 };
 
 
-mClass(Geometry) ProbDenFuncTranslator : public Translator
+mExpClass(Geometry) ProbDenFuncTranslator : public Translator
 {
 public:
     			ProbDenFuncTranslator(const char* nm,const char* unm);
@@ -50,7 +50,7 @@ public:
 };
 
 
-mClass(Geometry) odProbDenFuncTranslator : public ProbDenFuncTranslator
+mExpClass(Geometry) odProbDenFuncTranslator : public ProbDenFuncTranslator
 {				 isTranslator(od,ProbDenFunc)
 public:
     			mDefEmptyTranslatorConstructor(od,ProbDenFunc)

@@ -38,7 +38,7 @@ class TaskRunner;
   d3d.compute();
 */
 
-mClass(Algo) DipPCA
+mExpClass(Algo) DipPCA
 {
 public:    
 
@@ -70,7 +70,7 @@ protected:
 \brief To calculate Dip/Azimuth for 2D datasets using the method of PCA.
 */
 
-mClass(Algo) Dip2D : public DipPCA
+mExpClass(Algo) Dip2D : public DipPCA
 {
 public:
     				Dip2D(const Array2D<float>& input,
@@ -108,7 +108,7 @@ protected:
 \brief To calculate Dip/Azimuth for 3D datasets using the method of PCA.
 */
 
-mClass(Algo) Dip3D : public DipPCA
+mExpClass(Algo) Dip3D : public DipPCA
 {
 public:
     				Dip3D(const Array3D<float>& input,

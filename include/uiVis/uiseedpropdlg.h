@@ -19,7 +19,7 @@ class uiColorInput;
 class uiGenInput;
 class uiSliderExtra;
 
-mClass(uiVis) uiSeedPropDlg : public uiMarkerStyleDlg
+mExpClass(uiVis) uiSeedPropDlg : public uiMarkerStyleDlg
 {
 public:
     			uiSeedPropDlg(uiParent*,EM::EMObject*);

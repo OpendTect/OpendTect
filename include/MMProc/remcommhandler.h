@@ -23,7 +23,7 @@ class TcpServer;
 \brief Handles commands to be executed remotely on a different machine.
 */
 
-mClass(MMProc) RemCommHandler : public CallBacker
+mExpClass(MMProc) RemCommHandler : public CallBacker
 {
 public:
 			RemCommHandler(int port);

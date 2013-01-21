@@ -27,11 +27,11 @@ class uiSeisFmtScale;
 namespace Seis { class SelData; }
 
 
-mClass(uiSeis) uiSeisTransfer : public uiGroup
+mExpClass(uiSeis) uiSeisTransfer : public uiGroup
 {
 public:
 
-    mClass(uiSeis) Setup : public Seis::SelSetup
+    mExpClass(uiSeis) Setup : public Seis::SelSetup
     {
     public:
 			Setup( Seis::GeomType gt )

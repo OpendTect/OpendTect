@@ -28,7 +28,7 @@ class uiSEGYReadRev1Question;
 
 /*!\brief 'Server' for SEG-Y Reading */
 
-mClass(uiSeis) uiSEGYRead : public uiVarWizard
+mExpClass(uiSeis) uiSEGYRead : public uiVarWizard
 		  , public Usage::Client
 {
 public:

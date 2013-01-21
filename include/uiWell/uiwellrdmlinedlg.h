@@ -31,7 +31,7 @@ class uiPushButton;
 class uiWellPartServer;
 
 
-mClass(uiWell) uiWellSelGrp : public uiGroup
+mExpClass(uiWell) uiWellSelGrp : public uiGroup
 {
 public:
     			uiWellSelGrp(uiParent*,bool withpos=true);
@@ -81,7 +81,7 @@ protected:
 
 */
 
-mClass(uiWell) uiWell2RandomLineDlg : public uiDialog
+mExpClass(uiWell) uiWell2RandomLineDlg : public uiDialog
 {
 public:
     			uiWell2RandomLineDlg(uiParent*,uiWellPartServer*);

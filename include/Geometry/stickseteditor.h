@@ -20,7 +20,7 @@ namespace Geometry
 {
 class FaultStickSet;
 
-mClass(Geometry) StickSetEditor : public ElementEditor
+mExpClass(Geometry) StickSetEditor : public ElementEditor
 {
 public:
     		StickSetEditor( Geometry::FaultStickSet& );

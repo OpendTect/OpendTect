@@ -55,7 +55,7 @@ objects and is thus the only one that is allowed to delete it. The destructors
 on the inherited classes should thus be protected.
 */
 
-mClass(visBase) DataObject : public CallBacker
+mExpClass(visBase) DataObject : public CallBacker
 { mRefCountImpl(DataObject);
 public:
 

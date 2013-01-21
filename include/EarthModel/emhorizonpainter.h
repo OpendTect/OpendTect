@@ -32,7 +32,7 @@ namespace EM
 \brief EM object painter callback data.
 */
   
-mClass(EarthModel) EMObjPainterCallbackData
+mExpClass(EarthModel) EMObjPainterCallbackData
 {
 public:
     		    EMObjPainterCallbackData() 
@@ -49,7 +49,7 @@ public:
 \brief %Horizon painter
 */
 
-mClass(EarthModel) HorizonPainter : public CallBacker
+mExpClass(EarthModel) HorizonPainter : public CallBacker
 {
 public:
     			HorizonPainter(FlatView::Viewer&);

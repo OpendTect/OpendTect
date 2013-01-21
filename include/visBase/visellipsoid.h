@@ -34,7 +34,7 @@ streching a sphere from a scale vector "getWidth()".
 */
 
 
-mClass(visBase) Ellipsoid : public Shape
+mExpClass(visBase) Ellipsoid : public Shape
 {
 public:
     static Ellipsoid*	create()

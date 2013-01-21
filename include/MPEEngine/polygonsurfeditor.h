@@ -25,7 +25,7 @@ namespace MPE
 \brief ObjectEditor to edit EM::PolygonBody.
 */
 
-mClass(MPEEngine) PolygonBodyEditor : public ObjectEditor
+mExpClass(MPEEngine) PolygonBodyEditor : public ObjectEditor
 {
 public:
     				PolygonBodyEditor(EM::PolygonBody&);

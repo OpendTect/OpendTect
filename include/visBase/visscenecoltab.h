@@ -23,9 +23,9 @@ namespace ColTab { class MapperSetup; }
 namespace visBase
 {
 
-mClass(visBase) VisColorTab;
+mExpClass(visBase) VisColorTab;
 
-mClass(visBase) SceneColTab : public VisualObjectImpl
+mExpClass(visBase) SceneColTab : public VisualObjectImpl
 {
 public:
     static SceneColTab*		create()

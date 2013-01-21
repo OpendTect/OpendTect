@@ -21,7 +21,7 @@ namespace ODGoogle
 {
 class XMLItem;
 
-mClass(General) XMLWriter
+mExpClass(General) XMLWriter
 {
 public:
 

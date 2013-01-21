@@ -20,7 +20,7 @@ class uiGenInput;
 class uiLabeledSpinBox;
 class uiMultiWellLogSel;
 
-mClass(uiWellAttrib) uiCreateLogCubeDlg : public uiDialog
+mExpClass(uiWellAttrib) uiCreateLogCubeDlg : public uiDialog
 {
 public:
     				uiCreateLogCubeDlg(uiParent*,const MultiID*);

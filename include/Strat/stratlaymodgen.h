@@ -24,7 +24,7 @@ class LayerSequenceGenDesc;
 
 /*!\brief Generates LayerSequences.  */
 
-mClass(Strat) LayerModelGenerator : public Executor
+mExpClass(Strat) LayerModelGenerator : public Executor
 {
 public:
 

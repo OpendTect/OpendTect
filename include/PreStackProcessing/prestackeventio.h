@@ -37,7 +37,7 @@ class EventPatchWriter;
 
 /*! Reader for prestack events. */
 
-mClass(PreStackProcessing) EventReader : public Executor
+mExpClass(PreStackProcessing) EventReader : public Executor
 {
 public:
     			EventReader(IOObj*,EventManager*,bool trigger);
@@ -101,7 +101,7 @@ protected:
 };
 
 
-mClass(PreStackProcessing) EventWriter : public Executor
+mExpClass(PreStackProcessing) EventWriter : public Executor
 {
 public:
     			EventWriter(IOObj*,EventManager&);
@@ -124,7 +124,7 @@ protected:
 };
 
 
-mClass(PreStackProcessing) EventDuplicator : public Executor
+mExpClass(PreStackProcessing) EventDuplicator : public Executor
 {
 public:
     			EventDuplicator(IOObj* from,IOObj* to);

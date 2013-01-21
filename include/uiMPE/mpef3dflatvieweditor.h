@@ -29,7 +29,7 @@ namespace FlatView { class AuxDataEditor; }
 namespace MPE
 {
 
-mClass(uiMPE) Fault3DFlatViewEditor : public EM::FaultStickSetFlatViewEditor
+mExpClass(uiMPE) Fault3DFlatViewEditor : public EM::FaultStickSetFlatViewEditor
 {
 public:
     			Fault3DFlatViewEditor(FlatView::AuxDataEditor*,

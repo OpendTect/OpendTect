@@ -23,7 +23,7 @@ class Sampled2DProbDenFunc;
     Imports Probability density functions in RokDoc ASCII format
 */
 
-mClass(uiIo) uiImpRokDocPDF : public uiDialog
+mExpClass(uiIo) uiImpRokDocPDF : public uiDialog
 {
 public:
 			uiImpRokDocPDF(uiParent*);
@@ -51,7 +51,7 @@ protected:
     Exports Probability density functions in RokDoc ASCII format
 */
 
-mClass(uiIo) uiExpRokDocPDF : public uiDialog
+mExpClass(uiIo) uiExpRokDocPDF : public uiDialog
 {
 public:
 			uiExpRokDocPDF(uiParent*);

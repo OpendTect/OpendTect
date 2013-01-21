@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class uiGenInput;
 
-mClass(uiTools) uiFreqFilterSelFreq : public uiGroup
+mExpClass(uiTools) uiFreqFilterSelFreq : public uiGroup
 {
 public:
     			uiFreqFilterSelFreq(uiParent*);

@@ -29,7 +29,7 @@ typedef std::complex<float> float_complex;
 GenericTransformND.
 */
 
-mClass(Algo) GenericTransformND : public SequentialTask
+mExpClass(Algo) GenericTransformND : public SequentialTask
 {
 public:
 			GenericTransformND();
@@ -84,7 +84,7 @@ mProtected:
     float_complex*		coutput_;
     float*			routput_;
 
-    mClass(Algo) Transform1D
+    mExpClass(Algo) Transform1D
     {
     public:
 	virtual		~Transform1D()				{}

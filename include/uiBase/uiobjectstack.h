@@ -18,7 +18,7 @@ ________________________________________________________________________
 class uiGroup;
 class uiObjStackBody;
 
-mClass(uiBase) uiObjectStack : public uiObject
+mExpClass(uiBase) uiObjectStack : public uiObject
 {
 public:
 

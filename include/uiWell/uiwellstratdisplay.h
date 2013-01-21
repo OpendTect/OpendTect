@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 /*!\brief creates a display of stratigraphy IF levels are linked to markers.*/
 
-mClass(uiWell) WellStratUnitGen : public CallBacker
+mExpClass(uiWell) WellStratUnitGen : public CallBacker
 {
 public:
 				WellStratUnitGen(StratDispData&,
@@ -55,7 +55,7 @@ protected:
 };
 
 
-mClass(uiWell) uiWellStratDisplay : public uiWellDahDisplay
+mExpClass(uiWell) uiWellStratDisplay : public uiWellDahDisplay
 {
 public:
 

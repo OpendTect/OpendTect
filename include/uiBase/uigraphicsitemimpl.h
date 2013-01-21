@@ -48,7 +48,7 @@ class ODGraphicsDynamicImageItem;
 template <class T> class ODPolygon;
 
 
-mClass(uiBase) uiObjectItem : public uiGraphicsItem
+mExpClass(uiBase) uiObjectItem : public uiGraphicsItem
 {
 public:
 				uiObjectItem(uiObject* obj);
@@ -75,7 +75,7 @@ protected:
 };
 
 
-mClass(uiBase) uiEllipseItem : public uiGraphicsItem
+mExpClass(uiBase) uiEllipseItem : public uiGraphicsItem
 {
 public:
 				uiEllipseItem();
@@ -94,7 +94,7 @@ protected:
 };
 
 
-mClass(uiBase) uiCircleItem : public uiEllipseItem
+mExpClass(uiBase) uiCircleItem : public uiEllipseItem
 {
 public:
 				uiCircleItem();
@@ -105,7 +105,7 @@ public:
 };
 
 
-mClass(uiBase) uiLineItem : public uiGraphicsItem
+mExpClass(uiBase) uiLineItem : public uiGraphicsItem
 {
 public:
     			uiLineItem();
@@ -143,7 +143,7 @@ protected:
   wants a higher resolution version of the image. If so, that can be set
   by callint setImage with dynamic==true. */
 
-mClass(uiBase) uiDynamicImageItem : public uiGraphicsItem
+mExpClass(uiBase) uiDynamicImageItem : public uiGraphicsItem
 {
 public:
     				uiDynamicImageItem();
@@ -164,7 +164,7 @@ protected:
 };
 
 
-mClass(uiBase) uiPixmapItem : public uiGraphicsItem
+mExpClass(uiBase) uiPixmapItem : public uiGraphicsItem
 {
 public:
     				uiPixmapItem();
@@ -183,7 +183,7 @@ protected:
 };
 
 
-mClass(uiBase) uiPolygonItem : public uiGraphicsItem
+mExpClass(uiBase) uiPolygonItem : public uiGraphicsItem
 {
 public:
     			uiPolygonItem();
@@ -207,7 +207,7 @@ protected:
 };
 
 
-mClass(uiBase) uiPolyLineItem : public uiGraphicsItem
+mExpClass(uiBase) uiPolyLineItem : public uiGraphicsItem
 {
 public:
     			uiPolyLineItem();
@@ -226,7 +226,7 @@ protected:
 
 
 
-mClass(uiBase) uiRectItem : public uiGraphicsItem
+mExpClass(uiBase) uiRectItem : public uiGraphicsItem
 {
 public:
     			uiRectItem();
@@ -244,7 +244,7 @@ protected:
 };
 
 
-mClass(uiBase) uiTextItem : public uiGraphicsItem
+mExpClass(uiBase) uiTextItem : public uiGraphicsItem
 {
 public:
 			uiTextItem(bool useodvwrtxtitem=false);
@@ -283,7 +283,7 @@ protected:
 };
 
 
-mClass(uiBase) uiMarkerItem : public uiGraphicsItem
+mExpClass(uiBase) uiMarkerItem : public uiGraphicsItem
 {
 public:
     				uiMarkerItem(bool fill=true);
@@ -306,7 +306,7 @@ protected:
 };
 
 
-mClass(uiBase) uiPointItem : public uiGraphicsItem
+mExpClass(uiBase) uiPointItem : public uiGraphicsItem
 {
 public:
     				uiPointItem();
@@ -322,7 +322,7 @@ protected:
 };
 
 
-mClass(uiBase) uiArrowItem : public uiGraphicsItem
+mExpClass(uiBase) uiArrowItem : public uiGraphicsItem
 {
 public:
     				uiArrowItem();
@@ -353,14 +353,14 @@ protected:
 };
 
 
-mClass(uiBase) uiCurvedItem : public uiGraphicsItem
+mExpClass(uiBase) uiCurvedItem : public uiGraphicsItem
 {
 public:
 			uiCurvedItem(const uiPoint& startpt);
 			uiCurvedItem(const Geom::Point2D<float>& startpt);
 			~uiCurvedItem();
 
-    mClass(uiBase) ArcSpec
+    mExpClass(uiBase) ArcSpec
     {
     public:
 			ArcSpec( const uiPoint& c, float r,
@@ -378,7 +378,7 @@ public:
 	float		yratio_;	//!< < 1 means: X size > Y size
     };
 
-    mClass(uiBase) SplineSpec
+    mExpClass(uiBase) SplineSpec
     {
     public:
 			SplineSpec( const uiPoint& endp, const uiPoint& cp )

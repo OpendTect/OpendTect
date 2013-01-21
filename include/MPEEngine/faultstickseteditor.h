@@ -25,7 +25,7 @@ namespace MPE
 \brief ObjectEditor to edit EM::FaultStickSet.
 */
 
-mClass(MPEEngine) FaultStickSetEditor : public ObjectEditor
+mExpClass(MPEEngine) FaultStickSetEditor : public ObjectEditor
 {
 public:
     				FaultStickSetEditor(EM::FaultStickSet&);

@@ -28,11 +28,11 @@ class IOObj;
 \brief SeisEventSnapper for 2D.
 */
 
-mClass(EMAttrib) Seis2DEventSnapper : public SeisEventSnapper
+mExpClass(EMAttrib) Seis2DEventSnapper : public SeisEventSnapper
 {
 public:
 
-    mClass(EMAttrib) Setup
+    mExpClass(EMAttrib) Setup
     {
     public:
 				Setup(const IOObj* seisobj,const LineKey& l,
@@ -64,11 +64,11 @@ protected:
 \brief ExecutorGroup to snap 2D seismic line set event.
 */
 
-mClass(EMAttrib) Seis2DLineSetEventSnapper : public ExecutorGroup
+mExpClass(EMAttrib) Seis2DLineSetEventSnapper : public ExecutorGroup
 {
 public:
 
-    mClass(EMAttrib) Setup
+    mExpClass(EMAttrib) Setup
     {
     public:
 				Setup(const BufferString& atrnm,int typ,

@@ -34,7 +34,7 @@ class uiSurveyMap;
 
 namespace Geometry { class RandomLine; }
 
-mClass(uiEMAttrib) ui2DGridLines : public uiGroup
+mExpClass(uiEMAttrib) ui2DGridLines : public uiGroup
 {
 public:
 				~ui2DGridLines();
@@ -63,7 +63,7 @@ protected:
 };
 
 
-mClass(uiEMAttrib) ui2DGridLinesFromInlCrl : public ui2DGridLines
+mExpClass(uiEMAttrib) ui2DGridLinesFromInlCrl : public ui2DGridLines
 {
 public:
     				ui2DGridLinesFromInlCrl(uiParent*,
@@ -90,7 +90,7 @@ protected:
 };
 
 
-mClass(uiEMAttrib) ui2DGridLinesFromRandLine : public ui2DGridLines
+mExpClass(uiEMAttrib) ui2DGridLinesFromRandLine : public ui2DGridLines
 {
 public:
     				ui2DGridLinesFromRandLine(uiParent*,
@@ -117,7 +117,7 @@ protected:
 };
 
 
-mClass(uiEMAttrib) uiCreate2DGrid : public uiFullBatchDialog
+mExpClass(uiEMAttrib) uiCreate2DGrid : public uiFullBatchDialog
 {
 public:
 				uiCreate2DGrid(uiParent*,

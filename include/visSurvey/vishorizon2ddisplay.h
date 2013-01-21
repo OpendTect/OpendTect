@@ -27,7 +27,7 @@ namespace visSurvey
 
 class Seis2DDisplay;
 
-mClass(visSurvey) Horizon2DDisplay : public EMObjectDisplay
+mExpClass(visSurvey) Horizon2DDisplay : public EMObjectDisplay
 {
 public:
     static Horizon2DDisplay*	create()

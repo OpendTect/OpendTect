@@ -45,7 +45,7 @@ namespace visSurvey
 
 class Scene;
 
-mClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl,
+mExpClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl,
 		      public SurveyObject
 {
 public:

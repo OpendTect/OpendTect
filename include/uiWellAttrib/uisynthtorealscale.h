@@ -38,7 +38,7 @@ namespace Strat { class SeisEvent; }
 
  */
 
-mClass(uiWellAttrib) uiSynthToRealScale : public uiDialog
+mExpClass(uiWellAttrib) uiSynthToRealScale : public uiDialog
 { 	
 public:
 

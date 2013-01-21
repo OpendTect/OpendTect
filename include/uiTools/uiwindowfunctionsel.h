@@ -25,7 +25,7 @@ class uiFreqTaperDlg;
 
 /*!Selects a windowfunction and its eventual parameter. */
 
-mClass(uiTools) uiWindowFunctionSel : public uiGroup
+mExpClass(uiTools) uiWindowFunctionSel : public uiGroup
 {
 public:
 

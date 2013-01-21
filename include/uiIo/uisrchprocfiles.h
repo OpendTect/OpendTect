@@ -21,7 +21,7 @@ class CtxtIOObj;
 
 /*!\brief Finds created objects in processing specification files */
 
-mClass(uiIo) uiSrchProcFiles : public uiDialog
+mExpClass(uiIo) uiSrchProcFiles : public uiDialog
 {
 public:
 			uiSrchProcFiles(uiParent*,CtxtIOObj&,

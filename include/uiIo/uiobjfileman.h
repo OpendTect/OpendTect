@@ -23,7 +23,7 @@ class uiToolButton;
 class uiTextEdit;
 
 
-mClass(uiIo) uiObjFileMan : public uiDialog
+mExpClass(uiIo) uiObjFileMan : public uiDialog
 {
 public:
 				~uiObjFileMan();

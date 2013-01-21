@@ -22,7 +22,7 @@ template <class T> class Array2D;
 namespace Stats { template <class T> class ParallelCalc; }
 
 
-mClass(uiTools) uiStatsDisplay : public uiGroup
+mExpClass(uiTools) uiStatsDisplay : public uiGroup
 {
 public:
 

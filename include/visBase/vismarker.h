@@ -35,7 +35,7 @@ Size and shape are settable.
 
 */
 
-mClass(visBase) Marker : public VisualObjectImpl
+mExpClass(visBase) Marker : public VisualObjectImpl
 {
 public:
     static Marker*	create()

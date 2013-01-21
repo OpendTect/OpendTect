@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "raytrace1d.h"
 
-mClass(General) RayTracerRunner : public ParallelTask
+mExpClass(General) RayTracerRunner : public ParallelTask
 {
 public:
     				RayTracerRunner(const TypeSet<ElasticModel>&,

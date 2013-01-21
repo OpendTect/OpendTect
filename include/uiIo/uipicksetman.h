@@ -21,7 +21,7 @@ PickSet manager
 
 class uiButton;
 
-mClass(uiIo) uiPickSetMan : public uiObjFileMan
+mExpClass(uiIo) uiPickSetMan : public uiObjFileMan
 {
 public:
     				uiPickSetMan(uiParent*);

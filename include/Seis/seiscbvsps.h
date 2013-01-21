@@ -36,7 +36,7 @@ class CBVSSeisTrcTranslator;
 
  */
 
-mClass(Seis) SeisCBVSPSIO
+mExpClass(Seis) SeisCBVSPSIO
 {
 public:
     			SeisCBVSPSIO(const char* dirnm);
@@ -79,7 +79,7 @@ protected:
 
 /*!\brief reads from a CBVS pre-stack seismic data store. */
 
-mClass(Seis) SeisCBVSPS3DReader : public SeisPS3DReader
+mExpClass(Seis) SeisCBVSPS3DReader : public SeisPS3DReader
 		         , public SeisCBVSPSIO
 {
 public:
@@ -113,7 +113,7 @@ protected:
 
 /*!\brief reads from a CBVS pre-stack seismic data store. */
 
-mClass(Seis) SeisCBVSPS2DReader : public SeisPS2DReader
+mExpClass(Seis) SeisCBVSPS2DReader : public SeisPS2DReader
 		         , public SeisCBVSPSIO
 {
 public:
@@ -145,7 +145,7 @@ protected:
 
  */
 
-mClass(Seis) SeisCBVSPS3DWriter : public SeisPSWriter
+mExpClass(Seis) SeisCBVSPS3DWriter : public SeisPSWriter
 		         , public SeisCBVSPSIO
 {
 public:
@@ -177,7 +177,7 @@ protected:
 
  */
 
-mClass(Seis) SeisCBVSPS2DWriter : public SeisPSWriter
+mExpClass(Seis) SeisCBVSPS2DWriter : public SeisPSWriter
 		         , public SeisCBVSPSIO
 {
 public:

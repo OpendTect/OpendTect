@@ -25,7 +25,7 @@ template <class T> class TypeSet;
 a 4-byte integer, similar to Qt.
 */
 
-mClass(Basic) Color
+mExpClass(Basic) Color
 {
 public:
 

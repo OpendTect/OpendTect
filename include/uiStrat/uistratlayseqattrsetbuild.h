@@ -21,7 +21,7 @@ namespace Strat { class RefTree; class LayerModel; class LaySeqAttribSet; }
 
 /*!\brief allows user to define (or read) a set of layer sequence attributes */
 
-mClass(uiStrat) uiStratLaySeqAttribSetBuild : public uiBuildListFromList
+mExpClass(uiStrat) uiStratLaySeqAttribSetBuild : public uiBuildListFromList
 {
 public:
 

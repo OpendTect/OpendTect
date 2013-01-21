@@ -24,7 +24,7 @@ class uiTextItem;
 namespace FlatView
 {
 
-mClass(uiFlatView) uiAuxDataDisplay : public AuxData, public CallBacker
+mExpClass(uiFlatView) uiAuxDataDisplay : public AuxData, public CallBacker
 {
 public:
     AuxData*			clone() const;

@@ -45,7 +45,7 @@ N
 </pre>
 */
 
-mClass(Attributes) SpecDecomp : public Provider
+mExpClass(Attributes) SpecDecomp : public Provider
 {
 public:
     static void		initClass();

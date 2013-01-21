@@ -30,7 +30,7 @@ ArrayND with higher dimensionality.
   called prior to dataaccesing functions.
 */
 
-mClass(Basic) ArrayNDSliceBase
+mExpClass(Basic) ArrayNDSliceBase
 {
 public:				
     virtual			~ArrayNDSliceBase();

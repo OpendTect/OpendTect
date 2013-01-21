@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "iopar.h"
 
 
-mClass(uiSeis) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
+mExpClass(uiSeis) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
 {
 public:
 

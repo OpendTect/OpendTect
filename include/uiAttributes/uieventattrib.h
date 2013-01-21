@@ -23,7 +23,7 @@ class uiLabel;
 
 /*! \brief Event Attributes description editor */
 
-mClass(uiAttributes) uiEventAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiEventAttrib : public uiAttrDescEd
 {
 public:
 

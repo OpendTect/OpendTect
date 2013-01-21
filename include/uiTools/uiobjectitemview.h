@@ -23,7 +23,7 @@ ________________________________________________________________________
 class uiParent;
 class uiObjectItem;
 
-mClass(uiTools) uiObjectItemView : public uiGraphicsView
+mExpClass(uiTools) uiObjectItemView : public uiGraphicsView
 {
 public:
 			    	uiObjectItemView(uiParent*);

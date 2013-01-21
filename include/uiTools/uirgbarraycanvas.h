@@ -33,7 +33,7 @@ class MouseEventHandler;
 
  */
 
-mClass(uiTools) uiRGBArrayCanvas : public uiGraphicsView
+mExpClass(uiTools) uiRGBArrayCanvas : public uiGraphicsView
 {
 public:
     			uiRGBArrayCanvas(uiParent*,uiRGBArray&);

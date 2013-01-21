@@ -36,7 +36,7 @@ namespace Seis		{ class SelData; }
 
 /*!\brief Set of 2D lines comparable with 3D seismic cube */
 
-mClass(Seis) Seis2DLineSet : public NamedObject
+mExpClass(Seis) Seis2DLineSet : public NamedObject
 {
     friend class SeisTrcWriter;
     friend class OD_2DLineGeometryFrom2DLinesTransf;

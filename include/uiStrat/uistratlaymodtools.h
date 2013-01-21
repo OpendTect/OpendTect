@@ -21,7 +21,7 @@ class uiToolButton;
 namespace Strat { class Level; }
 
 
-mClass(uiStrat) uiStratGenDescTools : public uiGroup
+mExpClass(uiStrat) uiStratGenDescTools : public uiGroup
 {
 public:
 
@@ -53,7 +53,7 @@ protected:
 };
 
 
-mClass(uiStrat) uiStratLayModEditTools : public uiGroup
+mExpClass(uiStrat) uiStratLayModEditTools : public uiGroup
 {
 public:
 

@@ -26,7 +26,7 @@ namespace visBase
 
 */
 
-mClass(visBase) VisColTabMod : public DataObject
+mExpClass(visBase) VisColTabMod : public DataObject
 {
 public:
     static VisColTabMod*	create()

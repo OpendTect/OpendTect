@@ -19,7 +19,7 @@ ________________________________________________________________________
 CrossPlot manager
 */
 
-mClass(uiIo) uiDataPointSetMan : public uiObjFileMan
+mExpClass(uiIo) uiDataPointSetMan : public uiObjFileMan
 {
 public:
     				uiDataPointSetMan(uiParent*);

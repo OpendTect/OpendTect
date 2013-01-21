@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace VolProc
 {
 
-mClass(uiODMain) uiDataTreeItem : public uiODDataTreeItem
+mExpClass(uiODMain) uiDataTreeItem : public uiODDataTreeItem
 {
 public:
    static void			initClass();

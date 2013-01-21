@@ -34,7 +34,7 @@ will expect that go() to be called again.
 
 */
 
-mClass(uiNLA) uiNLAPartServer : public uiApplPartServer
+mExpClass(uiNLA) uiNLAPartServer : public uiApplPartServer
 {
 public:
 			uiNLAPartServer(uiApplService&);

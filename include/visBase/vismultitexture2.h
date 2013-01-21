@@ -31,7 +31,7 @@ class SoShaderParameterArray1f;
 namespace visBase
 {
 
-mClass(visBase) MultiTexture2 : public MultiTexture
+mExpClass(visBase) MultiTexture2 : public MultiTexture
 {
 public:
     static MultiTexture2*	create()

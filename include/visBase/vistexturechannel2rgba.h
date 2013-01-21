@@ -45,7 +45,7 @@ TextureChannels class and convert them to RGBA textures in OpenGL, optionally
 with shaders. There should always be a non-shading way to fall back on.
 */
 
-mClass(visBase) TextureChannel2RGBA : public DataObject
+mExpClass(visBase) TextureChannel2RGBA : public DataObject
 {
 public:
     virtual MappedTextureDataSet* createMappedDataSet() const;
@@ -87,7 +87,7 @@ protected:
 /*!A destination where the texturechannels can put the mapped data. The class
    instanciation is provided by the TextureChannel2RGBA. */
 
-mClass(visBase) MappedTextureDataSet : public DataObject
+mExpClass(visBase) MappedTextureDataSet : public DataObject
 {
 public:
     virtual int		nrChannels() const			= 0;
@@ -111,7 +111,7 @@ public:
 channel and blends it into an RGBA image. */
 
 
-mClass(visBase) ColTabTextureChannel2RGBA : public TextureChannel2RGBA
+mExpClass(visBase) ColTabTextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
     static ColTabTextureChannel2RGBA*	create()

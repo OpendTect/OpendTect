@@ -25,7 +25,7 @@ and is the 'traditional' way to view a signal's frequency distribution.
   Spectrogram is not reversible.
 */
 
-mClass(Algo) Spectrogram 
+mExpClass(Algo) Spectrogram 
 {
 public:
 			Spectrogram();

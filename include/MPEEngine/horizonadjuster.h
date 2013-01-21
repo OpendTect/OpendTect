@@ -33,7 +33,7 @@ class SectionExtender;
 \brief SectionAdjuster to adjust EM::Horizon.
 */
 
-mClass(MPEEngine) HorizonAdjuster : public SectionAdjuster
+mExpClass(MPEEngine) HorizonAdjuster : public SectionAdjuster
 {
 public:
 			HorizonAdjuster(EM::Horizon&,const EM::SectionID&);

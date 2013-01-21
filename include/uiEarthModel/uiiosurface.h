@@ -38,7 +38,7 @@ namespace EM { class Surface; class SurfaceIODataSelection; };
 
 /*! \brief Base group for Surface input and output */
 
-mClass(uiEarthModel) uiIOSurface : public uiGroup
+mExpClass(uiEarthModel) uiIOSurface : public uiGroup
 {
 public:
 			~uiIOSurface();
@@ -86,11 +86,11 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiSurfaceWrite : public uiIOSurface
+mExpClass(uiEarthModel) uiSurfaceWrite : public uiIOSurface
 {
 public:
 
-    mClass(uiEarthModel) Setup
+    mExpClass(uiEarthModel) Setup
     {
     public:
 			Setup( const char* surftyp )
@@ -132,10 +132,10 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiSurfaceRead : public uiIOSurface
+mExpClass(uiEarthModel) uiSurfaceRead : public uiIOSurface
 {
 public:
-    mClass(uiEarthModel) Setup
+    mExpClass(uiEarthModel) Setup
     {
     public:
 			Setup( const char* surftyp )
@@ -169,7 +169,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
+mExpClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
 {
 public:
 				uiFaultParSel(uiParent*,bool);

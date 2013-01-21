@@ -24,7 +24,7 @@ class Color;
 class uiParentBody;
 
 
-mClass(uiBase) uiParent : public uiBaseObject
+mExpClass(uiBase) uiParent : public uiBaseObject
 {
 friend class uiParentBody;
 friend class uiObjectBody;

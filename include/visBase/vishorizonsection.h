@@ -49,7 +49,7 @@ namespace visBase
   would only turn on wireframe or lines and points depends if you use wireframe
   or not. */
 
-mClass(visBase) HorizonSection : public VisualObjectImpl
+mExpClass(visBase) HorizonSection : public VisualObjectImpl
 {
 public:
     static HorizonSection*	create() mCreateDataObj(HorizonSection);

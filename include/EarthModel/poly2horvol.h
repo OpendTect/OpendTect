@@ -24,7 +24,7 @@ namespace EM	{ class Horizon3D; }
 \brief Calculate volume between horizon and polygon.
 */
 
-mClass(EarthModel) Poly2HorVol
+mExpClass(EarthModel) Poly2HorVol
 {
 public:
 

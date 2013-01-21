@@ -23,7 +23,7 @@ class uiGroup;
 class IOPar;
 
 
-mClass(uiVis) uiVisColTabEd : public CallBacker
+mExpClass(uiVis) uiVisColTabEd : public CallBacker
 {
 public:
     				uiVisColTabEd(uiParent*,bool vert=true);
@@ -77,7 +77,7 @@ protected:
 };
 
 
-mClass(uiVis) uiColorBarDialog :  public uiDialog
+mExpClass(uiVis) uiColorBarDialog :  public uiDialog
 {
 public:
     				uiColorBarDialog(uiParent*,const char* title);

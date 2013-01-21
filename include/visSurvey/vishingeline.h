@@ -26,7 +26,7 @@ namespace EM { class EdgeLineSet; };
 namespace visSurvey
 {
 
-mClass(visSurvey) EdgeLineSetDisplay : public visBase::VisualObjectImpl
+mExpClass(visSurvey) EdgeLineSetDisplay : public visBase::VisualObjectImpl
 {
 public:
     static EdgeLineSetDisplay*	create()

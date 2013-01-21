@@ -21,7 +21,7 @@ class uiSelLineStyle;
 
 namespace visSurvey { class PlaneDataDisplay; }
 
-mClass(uiVis) uiGridLinesDlg : public uiDialog
+mExpClass(uiVis) uiGridLinesDlg : public uiDialog
 {
 public:
 			uiGridLinesDlg(uiParent*,visSurvey::PlaneDataDisplay*);

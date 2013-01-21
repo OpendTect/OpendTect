@@ -26,7 +26,7 @@ class uiToolBar;
 
 /*!\brief Data Point Set Cross Plotter Main window */
 
-mClass(uiIo) uiDataPointSetCrossPlotWin : public uiMainWin
+mExpClass(uiIo) uiDataPointSetCrossPlotWin : public uiMainWin
 {
 public:
 

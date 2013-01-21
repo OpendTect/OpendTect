@@ -17,7 +17,7 @@ ________________________________________________________________________
 namespace Geometry
 {
 
-mClass(Geometry) FaultStickSurface : public FaultStickSet
+mExpClass(Geometry) FaultStickSurface : public FaultStickSet
 {
 public:
     			FaultStickSurface();

@@ -22,7 +22,7 @@ class uiGenInput;
 
 /*! \brief Reference Attribute description editor */
 
-mClass(uiAttributes) uiReferenceAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiReferenceAttrib : public uiAttrDescEd
 {
 public:
 

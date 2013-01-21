@@ -28,7 +28,7 @@ class FilePath;
 \brief Holds host-specific status information.
 */
 
-mClass(MMProc) HostNFailInfo
+mExpClass(MMProc) HostNFailInfo
 {
 public:
     			HostNFailInfo( const HostData& hd )
@@ -52,7 +52,7 @@ public:
 \brief Runs all jobs defined by JobDescProv.
 */
 
-mClass(MMProc) JobRunner : public Executor
+mExpClass(MMProc) JobRunner : public Executor
 {
 public:
 

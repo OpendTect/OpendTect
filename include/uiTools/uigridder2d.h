@@ -21,7 +21,7 @@ class InverseDistanceGridder2D;
 class uiGenInput;
 
 
-mClass(uiTools) uiGridder2DSel : public uiDlgGroup
+mExpClass(uiTools) uiGridder2DSel : public uiDlgGroup
 {
 public:
     				uiGridder2DSel(uiParent*,const Gridder2D*);
@@ -38,7 +38,7 @@ protected:
     ObjectSet<Gridder2D>	gridders_;
 };
 
-mClass(uiTools) uiInverseDistanceGridder2D : public uiDlgGroup
+mExpClass(uiTools) uiInverseDistanceGridder2D : public uiDlgGroup
 {
 public:
     static void		initClass();

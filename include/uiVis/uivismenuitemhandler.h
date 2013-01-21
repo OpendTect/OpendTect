@@ -29,7 +29,7 @@ Usage example:
 */
 
 
-mClass(uiVis) uiVisMenuItemHandler : public MenuItemHandler
+mExpClass(uiVis) uiVisMenuItemHandler : public MenuItemHandler
 {
 public:
     		uiVisMenuItemHandler(const char* classnm,uiVisPartServer&,

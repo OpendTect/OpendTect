@@ -29,7 +29,7 @@ ________________________________________________________________________
   The bend points will be sorted on ID.
 */
 
-mClass(Algo) BendPoints2Coords
+mExpClass(Algo) BendPoints2Coords
 {
 public:
 

@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
 
-mClass(uiODMain) uiODVolrenParentTreeItem : public uiTreeItem
+mExpClass(uiODMain) uiODVolrenParentTreeItem : public uiTreeItem
 {
     typedef uiTreeItem	inheritedClass;
 public:
@@ -34,7 +34,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVolrenTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODVolrenTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const   { return getName(); }
@@ -44,7 +44,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODVolrenTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODVolrenTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODVolrenTreeItem(int displayid_=-1);
@@ -79,7 +79,7 @@ protected:
 };
 
 
-mClass(uiODMain) uiODVolrenSubTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODVolrenSubTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODVolrenSubTreeItem(int displayid);

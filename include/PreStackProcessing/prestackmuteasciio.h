@@ -25,7 +25,7 @@ namespace PreStack
 
 class MuteDef;
 
-mClass(PreStackProcessing) MuteAscIO : public Table::AscIO
+mExpClass(PreStackProcessing) MuteAscIO : public Table::AscIO
 {
 public:
 				MuteAscIO( const Table::FormatDesc& fd,

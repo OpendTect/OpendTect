@@ -28,7 +28,7 @@ class HorSamplingIterator;
 \brief Modifies horizons.
 */
 
-mClass(EarthModel) HorizonModifier
+mExpClass(EarthModel) HorizonModifier
 {
 public:
 

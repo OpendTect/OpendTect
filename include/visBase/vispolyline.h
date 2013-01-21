@@ -33,7 +33,7 @@ class DrawStyle;
 
 */
 
-mClass(visBase) PolyLineBase : public VertexShape
+mExpClass(visBase) PolyLineBase : public VertexShape
 {
 public:
     int 		size() const;
@@ -50,7 +50,7 @@ protected:
 
 
 
-mClass(visBase) PolyLine	: public PolyLineBase
+mExpClass(visBase) PolyLine	: public PolyLineBase
 {
 public:
     static PolyLine*	create()
@@ -65,7 +65,7 @@ protected:
 };
 
 
-mClass(visBase) PolyLine3D : public PolyLineBase
+mExpClass(visBase) PolyLine3D : public PolyLineBase
 {
 public:
     static PolyLine3D*	create()
@@ -79,7 +79,7 @@ protected:
 };
 
 
-mClass(visBase) IndexedPolyLine	: public IndexedShape
+mExpClass(visBase) IndexedPolyLine	: public IndexedShape
 {
 public:
     static IndexedPolyLine*	create()
@@ -87,7 +87,7 @@ public:
 };
 
 
-mClass(visBase) IndexedPolyLine3D	: public IndexedShape
+mExpClass(visBase) IndexedPolyLine3D	: public IndexedShape
 {
 public:
     static IndexedPolyLine3D*	create()

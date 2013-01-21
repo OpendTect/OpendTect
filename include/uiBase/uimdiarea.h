@@ -23,7 +23,7 @@ class uiMdiAreaBody;
 mFDQtclass(QMdiArea)
 mFDQtclass(QMdiSubWindow)
 
-mClass(uiBase) uiMdiAreaWindow : public uiGroup
+mExpClass(uiBase) uiMdiAreaWindow : public uiGroup
 {
 public:
     			uiMdiAreaWindow(const char* nm=0);
@@ -52,7 +52,7 @@ protected:
 };
 
 
-mClass(uiBase) uiMdiArea : public uiObject
+mExpClass(uiBase) uiMdiArea : public uiObject
 { 	
 friend class		uiMdiAreaBody;
 friend class		i_MdiAreaMessenger;

@@ -23,7 +23,7 @@ template <class T> class Array1DImpl;
 namespace WellTie
 {
 
-mClass(WellAttrib) GeoCalculator
+mExpClass(WellAttrib) GeoCalculator
 {
 public :
 //Well data operations

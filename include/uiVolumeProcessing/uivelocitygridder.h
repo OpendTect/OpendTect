@@ -27,7 +27,7 @@ namespace VolProc
 
 class VelGriddingStep;
 
-mClass(uiVolumeProcessing) uiVelocityGridder : public uiStepDialog
+mExpClass(uiVolumeProcessing) uiVelocityGridder : public uiStepDialog
 {
 public:
 

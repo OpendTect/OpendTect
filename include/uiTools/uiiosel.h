@@ -27,11 +27,11 @@ class uiPushButton;
 \brief UI element for selection of data objects
 */
 
-mClass(uiTools) uiIOSelect : public uiGroup
+mExpClass(uiTools) uiIOSelect : public uiGroup
 {
 public:
 
-    mClass(uiTools) Setup
+    mExpClass(uiTools) Setup
     {
     public:
 			Setup( const char* seltext=0 )
@@ -128,7 +128,7 @@ protected:
 };
 
 
-mClass(uiTools) uiIOFileSelect : public uiIOSelect
+mExpClass(uiTools) uiIOFileSelect : public uiIOSelect
 {
 public:
 			uiIOFileSelect(uiParent*,const char* txt,

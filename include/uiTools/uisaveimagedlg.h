@@ -26,7 +26,7 @@ class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
 
-mClass(uiTools) uiSaveImageDlg : public uiDialog
+mExpClass(uiTools) uiSaveImageDlg : public uiDialog
 {
 public:
 			uiSaveImageDlg(uiParent*,bool withclipbrd = true);

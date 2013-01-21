@@ -22,7 +22,7 @@ ________________________________________________________________________
 namespace Well { class Track; class D2TModel; }
 namespace EM { class Horizon2D; class Horizon3D; }
 
-mClass(WellAttrib) WellHorIntersectFinder
+mExpClass(WellAttrib) WellHorIntersectFinder
 {
 public:
     				WellHorIntersectFinder(const Well::Track&,

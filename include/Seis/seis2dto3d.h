@@ -31,7 +31,7 @@ class SeisTrcWriter;
 class SeisTrcBuf;
 
 
-mClass(Seis) SeisInterpol : public Executor
+mExpClass(Seis) SeisInterpol : public Executor
 {
 public:
 
@@ -97,7 +97,7 @@ protected:
 
 
 
-mClass(Seis) Seis2DTo3D : public Executor
+mExpClass(Seis) Seis2DTo3D : public Executor
 {
 public:
 
@@ -156,7 +156,7 @@ protected:
 };
 
 
-mClass(Seis) SeisScaler
+mExpClass(Seis) SeisScaler
 {
 public:
 			SeisScaler(const SeisTrcBuf&);

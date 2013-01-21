@@ -21,11 +21,11 @@ class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 namespace Well { class Data; }
 
-mClass(uiWell) uiD2TModelGroup : public uiGroup
+mExpClass(uiWell) uiD2TModelGroup : public uiGroup
 {
 public:
 
-    mClass(uiWell) Setup
+    mExpClass(uiWell) Setup
     {
     public:
 			Setup( bool fopt=true )

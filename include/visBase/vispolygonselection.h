@@ -34,7 +34,7 @@ by mouse- movement. Once drawn, queries can be made whether points are
 inside or outside the polygon.
 */
 
-mClass(visBase) PolygonSelection : public VisualObjectImpl
+mExpClass(visBase) PolygonSelection : public VisualObjectImpl
 {
 public:
     static PolygonSelection*	create()
@@ -91,7 +91,7 @@ protected:
 };
 
 
-mClass(visBase) PolygonCoord3Selector : public Selector<Coord3>
+mExpClass(visBase) PolygonCoord3Selector : public Selector<Coord3>
 {
 public:
 				PolygonCoord3Selector(const PolygonSelection&);

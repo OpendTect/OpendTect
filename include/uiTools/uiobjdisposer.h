@@ -26,7 +26,7 @@ class Timer;
  
  */
 
-mClass(uiTools) uiObjDisposer : public CallBacker
+mExpClass(uiTools) uiObjDisposer : public CallBacker
 { 	
 public:
 

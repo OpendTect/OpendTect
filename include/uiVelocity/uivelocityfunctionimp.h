@@ -26,7 +26,7 @@ namespace Table { class FormatDesc; }
 namespace Vel
 {
 
-mClass(uiVelocity) uiImportVelFunc : public uiDialog
+mExpClass(uiVelocity) uiImportVelFunc : public uiDialog
 {
 public:
     			uiImportVelFunc(uiParent*);

@@ -22,7 +22,7 @@ class uiLabeledListBox;
 class uiPushButton;
 class BufferStringSet;
 
-mClass(uiEarthModel) uiHorizonRelationsDlg : public uiDialog
+mExpClass(uiEarthModel) uiHorizonRelationsDlg : public uiDialog
 {
 public:
 			uiHorizonRelationsDlg(uiParent*,bool is2d);

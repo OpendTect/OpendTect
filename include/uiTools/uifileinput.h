@@ -30,11 +30,11 @@ you specify otherwise in the setup.
 
 */
 
-mClass(uiTools) uiFileInput : public uiGenInput
+mExpClass(uiTools) uiFileInput : public uiGenInput
 { 	
 public:
 
-    mClass(uiTools) Setup
+    mExpClass(uiTools) Setup
     {
     public:
 			Setup(const char* filenm=0);

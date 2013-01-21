@@ -28,7 +28,7 @@ class Transformation;
     scene.
 */
 
-mClass(visBase) SceneObject : public DataObject
+mExpClass(visBase) SceneObject : public DataObject
 {
 public:
     virtual SoNode*	getData()		= 0;

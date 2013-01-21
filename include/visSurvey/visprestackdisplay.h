@@ -37,7 +37,7 @@ class PlaneDataDisplay;
 class Seis2DDisplay;
 
 
-mClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl, 
+mExpClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl, 
     		 public visSurvey::SurveyObject
 {
 public:

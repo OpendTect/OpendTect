@@ -28,7 +28,7 @@ class Coord3List;
    based on my own normals, hence normstartidx is provided in case you want to 
    arrange your global indices based on your spacing or whatever. */
 
-mClass(Geometry) Horizon3DTesselator : public SequentialTask
+mExpClass(Geometry) Horizon3DTesselator : public SequentialTask
 {
 public:
     			Horizon3DTesselator(const Coord3List*,

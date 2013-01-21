@@ -33,7 +33,7 @@ namespace Attrib
   The parameter thus has a key (e.g. param1) and one or more associated values.
 */
 
-mClass(AttributeEngine) Param
+mExpClass(AttributeEngine) Param
 {
 public:
     				Param(const char* key);
@@ -92,7 +92,7 @@ protected:
   \brief Attribute Value Parameter
 */
 
-mClass(AttributeEngine) ValParam : public Param
+mExpClass(AttributeEngine) ValParam : public Param
 {
 public:
     				ValParam(const char* key,DataInpSpec*);

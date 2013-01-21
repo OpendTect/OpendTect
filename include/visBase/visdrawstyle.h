@@ -24,7 +24,7 @@ namespace visBase
 */
 
 
-mClass(visBase) DrawStyle : public DataObject
+mExpClass(visBase) DrawStyle : public DataObject
 {
 public:
     static DrawStyle*	create()

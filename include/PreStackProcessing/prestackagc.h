@@ -21,7 +21,7 @@ namespace PreStack
 {
 
 
-mClass(PreStackProcessing) AGC : public Processor
+mExpClass(PreStackProcessing) AGC : public Processor
 {
 public:
     				mDefaultFactoryInstantiation( Processor, AGC,

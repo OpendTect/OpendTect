@@ -38,7 +38,7 @@ BufferString istr( "", intvar );
 
 */
 
-mClass(Basic) BufferString
+mExpClass(Basic) BufferString
 {
 public:
 

@@ -18,7 +18,7 @@ class uiSMWCData;
 class uiTable;
 
 
-mClass(uiWell) uiSimpleMultiWellCreate : public uiDialog
+mExpClass(uiWell) uiSimpleMultiWellCreate : public uiDialog
 {
 public:
 			uiSimpleMultiWellCreate(uiParent*);

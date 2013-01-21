@@ -23,7 +23,7 @@ ________________________________________________________________________
 are defined.
 */
 
-mClass(Algo) DAGTetrahedraTree
+mExpClass(Algo) DAGTetrahedraTree
 {
 public:
     			DAGTetrahedraTree();
@@ -152,7 +152,7 @@ protected:
 \brief Delaunay triangulation for 3D points.
 */
 
-mClass(Algo) ParallelDTetrahedralator : public ParallelTask
+mExpClass(Algo) ParallelDTetrahedralator : public ParallelTask
 {
 public:
 			ParallelDTetrahedralator(DAGTetrahedraTree&);

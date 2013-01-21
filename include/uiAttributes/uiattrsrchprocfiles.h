@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uisrchprocfiles.h"
 
 
-mClass(uiAttributes) uiAttrSrchProcFiles : public uiSrchProcFiles
+mExpClass(uiAttributes) uiAttrSrchProcFiles : public uiSrchProcFiles
 {
 public:
 			uiAttrSrchProcFiles(uiParent*,bool is2d);

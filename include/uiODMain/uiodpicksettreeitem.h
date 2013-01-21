@@ -28,7 +28,7 @@ mDefineItem( PickSetParent, TreeItem, TreeTop, \
     mShowMenu mMenuOnAnyButton );
 
 
-mClass(uiODMain) uiODPickSetTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODPickSetTreeItemFactory : public uiODTreeItemFactory
 {
 public:
 
@@ -39,7 +39,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODPickSetTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODPickSetTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODPickSetTreeItem(int dispid,Pick::Set&);

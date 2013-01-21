@@ -40,7 +40,7 @@ namespace Attrib
 </pre>
 */
 
-mClass(Attributes) FreqFilter: public Provider
+mExpClass(Attributes) FreqFilter: public Provider
 {
 public:
     static void		initClass();

@@ -27,7 +27,7 @@ template <class T> class StepInterval;
 
 /*!\brief Base class for surface changers. At the moment only does horizons. */
 
-mClass(uiEarthModel) uiChangeHorizonDlg : public uiDialog
+mExpClass(uiEarthModel) uiChangeHorizonDlg : public uiDialog
 {
 public:
 				uiChangeHorizonDlg(uiParent*,EM::Horizon*,
@@ -65,7 +65,7 @@ protected:
 
 class uiStepOutSel;
 
-mClass(uiEarthModel) uiFilterHorizonDlg : public uiChangeHorizonDlg
+mExpClass(uiEarthModel) uiFilterHorizonDlg : public uiChangeHorizonDlg
 {
 public:
 				uiFilterHorizonDlg(uiParent*,EM::Horizon*);

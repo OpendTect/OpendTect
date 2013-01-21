@@ -40,7 +40,7 @@ namespace Attrib
 \endcode
 */
 
-mClass(Attributes) Position : public Provider
+mExpClass(Attributes) Position : public Provider
 {
 public:
     static void			initClass();

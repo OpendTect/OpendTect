@@ -35,7 +35,7 @@ namespace ColTab
  
  */
 
-mClass(General) Sequence : public NamedObject
+mExpClass(General) Sequence : public NamedObject
 {
 public:
 
@@ -140,7 +140,7 @@ protected:
  
  */
 
-mClass(General) SeqMgr : public CallBacker
+mExpClass(General) SeqMgr : public CallBacker
 {
 public:
 

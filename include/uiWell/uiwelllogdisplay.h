@@ -30,7 +30,7 @@ namespace Well { class Log; class Marker; }
 
 
 /*!\brief creates a display of max 2 well logs. */
-mClass(uiWell) uiWellLogDisplay : public uiWellDahDisplay
+mExpClass(uiWell) uiWellLogDisplay : public uiWellDahDisplay
 {
 public:
 

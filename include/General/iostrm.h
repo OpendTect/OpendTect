@@ -22,7 +22,7 @@ class StreamProvider;
 /*\brief An IOStream is a file (default) or command entry in the omf. */
 
 
-mClass(General) IOStream : public IOObj
+mExpClass(General) IOStream : public IOObj
 {
 public:
 			IOStream(const char* nm=0,const char* id=0,

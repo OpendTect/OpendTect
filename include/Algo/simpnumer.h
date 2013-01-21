@@ -138,7 +138,7 @@ If lowpos is more than highpos, the samples array[lowpos]  to array[sz-1]
 will be set to zero. The taper can be either cosine or linear.
 */
 
-mClass(Algo) Taper
+mExpClass(Algo) Taper
 {
 public:
     enum Type { Cosine, Linear };

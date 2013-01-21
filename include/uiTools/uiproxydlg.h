@@ -21,7 +21,7 @@ class uiLabel;
 class uiLabeledSpinBox;
 class uiLineEdit;
 
-mClass(uiTools) uiProxyDlg : public uiDialog
+mExpClass(uiTools) uiProxyDlg : public uiDialog
 {
 public:
 			uiProxyDlg(uiParent*);

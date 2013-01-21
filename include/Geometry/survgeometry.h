@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "geometrymod.h"
 #include "position.h"
 
-mClass(Geometry) SurveyGeometry
+mExpClass(Geometry) SurveyGeometry
 {
 public:
 

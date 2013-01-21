@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace Survey
 {
 
-mClass(General) GeometryWriter2D : public GeometryWriter
+mExpClass(General) GeometryWriter2D : public GeometryWriter
 {
 public:
 				GeometryWriter2D(){};
@@ -31,7 +31,7 @@ public:
 };
 
 
-mClass(General) GeometryWriter3D : public GeometryWriter
+mExpClass(General) GeometryWriter3D : public GeometryWriter
 {
 public:
 				GeometryWriter3D(){};
@@ -43,7 +43,7 @@ public:
 };
 
 
-mClass(General) GeometryReader2D : public GeometryReader
+mExpClass(General) GeometryReader2D : public GeometryReader
 {
 public:
 				GeometryReader2D(){};
@@ -56,7 +56,7 @@ public:
 };
 
 
-mClass(General) GeometryReader3D : public GeometryReader
+mExpClass(General) GeometryReader3D : public GeometryReader
 {
 public:
 				GeometryReader3D(){};

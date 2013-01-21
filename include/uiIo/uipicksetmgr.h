@@ -23,7 +23,7 @@ namespace Pick { class Set; class SetMgr; };
 
 /*! \brief base class for management of a Pick::SetMgr */
 
-mClass(uiIo) uiPickSetMgr : public CallBacker
+mExpClass(uiIo) uiPickSetMgr : public CallBacker
 {
 public:
 			uiPickSetMgr(Pick::SetMgr&);

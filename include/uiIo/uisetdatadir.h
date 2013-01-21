@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiFileInput;
 
-mClass(uiIo) uiSetDataDir : public uiDialog
+mExpClass(uiIo) uiSetDataDir : public uiDialog
 {
 public:
 			uiSetDataDir(uiParent*);

@@ -25,7 +25,7 @@ class Cube2LineDataLineKeyProvider;
 
 /*!\brief Extracts 3D cube data into 2D line attribute */
 
-mClass(Seis) SeisCube2LineDataExtracter : public Executor
+mExpClass(Seis) SeisCube2LineDataExtracter : public Executor
 {
 public:
 		SeisCube2LineDataExtracter(const IOObj& cubein,

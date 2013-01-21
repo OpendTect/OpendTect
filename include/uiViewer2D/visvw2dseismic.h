@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "visvw2ddata.h"
 
 
-mClass(uiViewer2D) VW2DSeis : public Vw2DDataObject
+mExpClass(uiViewer2D) VW2DSeis : public Vw2DDataObject
 {
 public:
     			VW2DSeis();

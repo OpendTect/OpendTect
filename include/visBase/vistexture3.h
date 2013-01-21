@@ -27,7 +27,7 @@ namespace visBase
 
 */
 
-mClass(visBase) Texture3 : public Texture
+mExpClass(visBase) Texture3 : public Texture
 {
 public:
     static Texture3*	create()

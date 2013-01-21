@@ -33,7 +33,7 @@ class LaySeqAttribSet;
  
  */
 
-mClass(Strat) LaySeqAttrib : public NamedObject
+mExpClass(Strat) LaySeqAttrib : public NamedObject
 {
 public:
 
@@ -87,7 +87,7 @@ protected:
  */
 
 
-mClass(Strat) LaySeqAttribSet : public NamedObject
+mExpClass(Strat) LaySeqAttribSet : public NamedObject
 		       , public ManagedObjectSet<LaySeqAttrib>
 {
 public:

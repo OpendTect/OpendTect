@@ -30,7 +30,7 @@ class DataHolder;
   \brief Attribute storage provider.
 */
 
-mClass(AttributeEngine) StorageProvider : public Provider
+mExpClass(AttributeEngine) StorageProvider : public Provider
 {
 public:
 

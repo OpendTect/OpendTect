@@ -42,7 +42,7 @@ class ODHttp;
 
  */
 
-mClass(Network) ODDLSite : public CallBacker
+mExpClass(Network) ODDLSite : public CallBacker
 {
 public:
 

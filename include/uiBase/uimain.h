@@ -27,7 +27,7 @@ class KeyboardEventHandler;
 class KeyboardEventFilter;
 
 
-mClass(uiBase) uiMain
+mExpClass(uiBase) uiMain
 {
 public:
 			uiMain(int& argc,char** argv);

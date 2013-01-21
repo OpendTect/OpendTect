@@ -34,7 +34,7 @@ taken.
 
 */
 
-mClass(Seis) SeisSingleTraceProc : public Executor
+mExpClass(Seis) SeisSingleTraceProc : public Executor
 {
 public:
 

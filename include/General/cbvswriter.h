@@ -34,7 +34,7 @@ For the inline/xline info, you have two choices:
 
 */
 
-mClass(General) CBVSWriter : public CBVSIO
+mExpClass(General) CBVSWriter : public CBVSIO
 {
 public:
 

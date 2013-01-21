@@ -15,7 +15,7 @@ class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }
 
-mClass(uiEarthModel) uiBulkHorizonImport : public uiDialog
+mExpClass(uiEarthModel) uiBulkHorizonImport : public uiDialog
 {
 public:
 			uiBulkHorizonImport(uiParent*);

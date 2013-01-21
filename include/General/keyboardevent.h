@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "keyenum.h"
 #include "geometry.h"
 
-mClass(General) KeyboardEvent
+mExpClass(General) KeyboardEvent
 {
 public:
  				KeyboardEvent();
@@ -30,7 +30,7 @@ public:
 };
 
 
-mClass(General) KeyboardEventHandler : public CallBacker
+mExpClass(General) KeyboardEventHandler : public CallBacker
 {
 public:
     				KeyboardEventHandler();

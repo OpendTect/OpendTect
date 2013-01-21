@@ -20,7 +20,7 @@ class SeisPS3DReader;
 namespace PosInfo { class CubeData; }
 
 
-mClass(Seis) SeisPSCubeSeisTrcTranslator : public SeisTrcTranslator
+mExpClass(Seis) SeisPSCubeSeisTrcTranslator : public SeisTrcTranslator
 {				    isTranslator(SeisPSCube,SeisTrc)
 public:
 

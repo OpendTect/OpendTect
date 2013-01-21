@@ -41,7 +41,7 @@ class EMObjectDisplay;
 class MPEEditor;
 
 
-mClass(visSurvey) MPEClickInfo
+mExpClass(visSurvey) MPEClickInfo
 {
     friend class MPEClickCatcher;
 public:
@@ -102,7 +102,7 @@ protected:
 };
 
 
-mClass(visSurvey) MPEClickCatcher : public visBase::VisualObjectImpl
+mExpClass(visSurvey) MPEClickCatcher : public visBase::VisualObjectImpl
 {
 public:
     static MPEClickCatcher*	create()

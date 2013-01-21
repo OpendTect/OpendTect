@@ -23,7 +23,7 @@ class uiParent;
 
 typedef uiAttrDescEd* (*uiAttrDescEdCreateFunc)(uiParent*,bool);
 
-mClass(uiAttributes) uiAttributeFactory
+mExpClass(uiAttributes) uiAttributeFactory
 {
 public:
     virtual		~uiAttributeFactory();

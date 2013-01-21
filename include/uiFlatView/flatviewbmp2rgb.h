@@ -24,7 +24,7 @@ namespace FlatView
 /*!\brief Draws bitmaps on RGBArray according to FlatView specs.
 	  Assumes bitmaps are 100% aligned with array, only sizes may differ. */
 
-mClass(uiFlatView) BitMap2RGB
+mExpClass(uiFlatView) BitMap2RGB
 {
 public:
 

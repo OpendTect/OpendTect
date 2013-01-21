@@ -44,7 +44,7 @@ class Sower;
   shapes ++.
 */
 
-mClass(visSurvey) LocationDisplay : public visBase::VisualObjectImpl,
+mExpClass(visSurvey) LocationDisplay : public visBase::VisualObjectImpl,
 			 public visSurvey::SurveyObject
 {
     friend class Sower;

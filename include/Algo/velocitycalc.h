@@ -29,7 +29,7 @@ model can be either RMO-velocities in time, or interval velocity in either
 depth or time.
 */
 
-mClass(Algo) TimeDepthModel
+mExpClass(Algo) TimeDepthModel
 {
 public:
     			TimeDepthModel();
@@ -75,7 +75,7 @@ protected:
 \brief Converts between time and depth given a model.
 */
 
-mClass(Algo) TimeDepthConverter : public TimeDepthModel
+mExpClass(Algo) TimeDepthConverter : public TimeDepthModel
 {
 public:
     			TimeDepthConverter();
@@ -130,7 +130,7 @@ protected:
 \brief Base class for computing a moveout curve.
 */
 
-mClass(Algo) MoveoutComputer
+mExpClass(Algo) MoveoutComputer
 {
 public:
     virtual 		~MoveoutComputer()		{}
@@ -156,7 +156,7 @@ public:
 \brief Computes moveout in depth from RMO at a certain reference offset.
 */
 
-mClass(Algo) RMOComputer : public MoveoutComputer
+mExpClass(Algo) RMOComputer : public MoveoutComputer
 {
 public:
     int 	nrVariables() const	{ return 3; }
@@ -183,7 +183,7 @@ public:
 by Alkhalifah and Tsvankin 1995.
 */
 
-mClass(Algo) NormalMoveout : public MoveoutComputer
+mExpClass(Algo) NormalMoveout : public MoveoutComputer
 {
 public:
     int 	nrVariables() const	{ return 3; }
@@ -215,7 +215,7 @@ mGlobal(Algo) bool computeDix(const float* Vrms, float t0, float v0, const float
 \brief Rms velocity to interval velocity conversion.
 */
 
-mClass(Algo) Vrms2Vint
+mExpClass(Algo) Vrms2Vint
 {
 public:
 			mDefineFactoryInClass( Vrms2Vint, factory );
@@ -230,7 +230,7 @@ public:
 \brief Rms velocity to interval velocity conversion using the Dix formula.
 */
 
-mClass(Algo) DixConversion : public Vrms2Vint
+mExpClass(Algo) DixConversion : public Vrms2Vint
 {
 public:
 		mDefaultFactoryInstantiation( Vrms2Vint, DixConversion, "Dix",

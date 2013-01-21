@@ -38,7 +38,7 @@ class ForegroundLifter;
 
 /*!Visualisation for Geometry::IndexedShape. */
 
-mClass(visBase) GeomIndexedShape : public VisualObjectImpl
+mExpClass(visBase) GeomIndexedShape : public VisualObjectImpl
 {
 public:
     static GeomIndexedShape*	create()
@@ -90,7 +90,7 @@ protected:
     void			reMap(TaskRunner*);
     void			matChangeCB(CallBacker*);
 
-    mClass(visBase)			ColTabMaterial
+    mExpClass(visBase)			ColTabMaterial
     {
     public:
 					ColTabMaterial();

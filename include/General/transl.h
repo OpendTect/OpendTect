@@ -53,7 +53,7 @@ mGlobal(General) int defaultSelector(const char*,const char*);
 
  */
 
-mClass(General) TranslatorGroup
+mExpClass(General) TranslatorGroup
 { mRefCountImpl(TranslatorGroup);
 public:
 
@@ -117,7 +117,7 @@ protected:
   define every Translator(Group)-related class.
  */
 
-mClass(General) Translator : public CallBacker
+mExpClass(General) Translator : public CallBacker
 {
 public:
     				Translator(const char* nm,const char* usr_nm);
@@ -259,18 +259,18 @@ mImplTranslatorInitClass( spec, clss, usrnm )
   //! Use this in your header file to comply with the concept, so you
   //! can make use of OpendTect object selection, retrieval etc.
 #define mDeclEmptyTranslatorBundle(mod,clss,fmt,defext) \
-mClass(mod) clss##TranslatorGroup : public TranslatorGroup \
+mExpClass(mod) clss##TranslatorGroup : public TranslatorGroup \
 {		   	isTranslatorGroup(clss) \
     			mDefEmptyTranslatorGroupConstructor(clss) \
     const char*		defExtension() const	{ return defext; } \
 }; \
  \
-mClass(mod) clss##Translator : public Translator \
+mExpClass(mod) clss##Translator : public Translator \
 { public: \
     			mDefEmptyTranslatorBaseConstructor(clss) \
 }; \
  \
-mClass(mod) fmt##clss##Translator : public clss##Translator \
+mExpClass(mod) fmt##clss##Translator : public clss##Translator \
 {			isTranslator(fmt,clss) \
     			mDefEmptyTranslatorConstructor(fmt,clss) \
 };

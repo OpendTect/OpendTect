@@ -25,7 +25,7 @@ namespace visSurvey { class Scene; }
 
 /*! Dialog for scene properties. */
 
-mClass(uiVis) uiScenePropertyDlg : public uiDialog
+mExpClass(uiVis) uiScenePropertyDlg : public uiDialog
 {
 public:
 			uiScenePropertyDlg(uiParent*,const 

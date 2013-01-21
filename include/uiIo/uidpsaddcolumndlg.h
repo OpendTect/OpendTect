@@ -27,7 +27,7 @@ class MathExpression;
 \brief Dialog box to add columns in datapointset.
 */
 
-mClass(uiIo) uiDPSAddColumnDlg : public uiDialog
+mExpClass(uiIo) uiDPSAddColumnDlg : public uiDialog
 {
 public:
     				uiDPSAddColumnDlg(uiParent*,bool withmathop);

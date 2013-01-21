@@ -42,7 +42,7 @@ class RowColSurfaceGeometry;
 3. Do NextStep
 */
 
-mClass(EarthModel) dgbSurfaceReader : public ExecutorGroup
+mExpClass(EarthModel) dgbSurfaceReader : public ExecutorGroup
 {
 public:
 			dgbSurfaceReader(const IOObj& ioobj,
@@ -236,7 +236,7 @@ protected:
 3. Do NextStep
 */
 
-mClass(EarthModel) dgbSurfaceWriter : public ExecutorGroup
+mExpClass(EarthModel) dgbSurfaceWriter : public ExecutorGroup
 {
 public:
 			dgbSurfaceWriter( const IOObj* ioobj,

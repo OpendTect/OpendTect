@@ -30,7 +30,7 @@ class Access;
 \brief Base class for SQL Database columns.
 */
 
-mClass(Database) DatabaseColumnBase
+mExpClass(Database) DatabaseColumnBase
 {
 public:
     			DatabaseColumnBase( DatabaseTable& dobj,
@@ -60,7 +60,7 @@ protected:
 */
 
 #define mEnumDatabaseColumn( mod, clssnm, enmcls, enm )			\
-mClass(mod) clssnm : public ::SqlDB::DatabaseColumnBase			\
+mExpClass(mod) clssnm : public ::SqlDB::DatabaseColumnBase			\
 {									\
 public:									\
     		clssnm( ::SqlDB::DatabaseTable& dobj,	\
@@ -82,7 +82,7 @@ public:									\
 */
 
 template<class T>
-mClass(Database) DatabaseColumn : public DatabaseColumnBase
+mExpClass(Database) DatabaseColumn : public DatabaseColumnBase
 {
 public:
     inline		DatabaseColumn( DatabaseTable& dobj,
@@ -98,7 +98,7 @@ public:
 \brief SQL DatabaseColumn of IDs.
 */
 
-mClass(Database) IDDatabaseColumn : public DatabaseColumn<int>
+mExpClass(Database) IDDatabaseColumn : public DatabaseColumn<int>
 {
 public:
     		IDDatabaseColumn(DatabaseTable& dobj)
@@ -117,7 +117,7 @@ public:
 \brief SQL DatabaseColumn of strings.
 */
 
-mClass(Database) StringDatabaseColumn : public DatabaseColumn<BufferString>
+mExpClass(Database) StringDatabaseColumn : public DatabaseColumn<BufferString>
 {
 public:
     		StringDatabaseColumn( DatabaseTable& dobj,
@@ -130,7 +130,7 @@ public:
 \brief SQL DatabaseColumn of date and time.
 */
 
-mClass(Database) CreatedTimeStampDatabaseColumn : public DatabaseColumnBase
+mExpClass(Database) CreatedTimeStampDatabaseColumn : public DatabaseColumnBase
 {
 public:
     		CreatedTimeStampDatabaseColumn( DatabaseTable& dobj );
@@ -145,7 +145,7 @@ public:
 \brief A DatabaseColumn of DateInfo objects.
 */
 
-mClass(Database) DateDatabaseColumn : public DatabaseColumnBase
+mExpClass(Database) DateDatabaseColumn : public DatabaseColumnBase
 {
 public:
     		DateDatabaseColumn( DatabaseTable& dobj,
@@ -160,7 +160,7 @@ public:
 \brief A DatabaseColumn of Price objects.
 */
 
-mClass(Database) PriceDatabaseColumn : public DatabaseColumnBase
+mExpClass(Database) PriceDatabaseColumn : public DatabaseColumnBase
 {
 public:
     		PriceDatabaseColumn( DatabaseTable& dobj,
@@ -177,7 +177,7 @@ new row is added where entryidcol is set to the id of the row it is replacing,
 and a timestamp will tell which row that is the current.
 */
 
-mClass(Database) DatabaseTable
+mExpClass(Database) DatabaseTable
 {
 public:
     			DatabaseTable(const char* tablename);

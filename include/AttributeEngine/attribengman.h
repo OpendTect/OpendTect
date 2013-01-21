@@ -44,7 +44,7 @@ class Data2DHolder;
   \brief The attribute engine manager.
 */
 
-mClass(AttributeEngine) EngineMan
+mExpClass(AttributeEngine) EngineMan
 {
 public:
 			EngineMan();

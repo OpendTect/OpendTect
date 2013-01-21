@@ -23,7 +23,7 @@ class CBVSWriter;
 
 /*!\brief Vertical bricking specification */
 
-mClass(General) VBrickSpec
+mExpClass(General) VBrickSpec
 {
 public:
 		VBrickSpec()		{ setStd(false); }
@@ -37,7 +37,7 @@ public:
 
 /*!\brief Writer for CBVS file packs */
 
-mClass(General) CBVSWriteMgr : public CBVSIOMgr
+mExpClass(General) CBVSWriteMgr : public CBVSIOMgr
 {
 public:
 

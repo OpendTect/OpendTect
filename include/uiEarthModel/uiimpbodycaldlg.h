@@ -21,7 +21,7 @@ namespace EM	{ class Body; class ImplicitBody; }
 
 /*! \brief UI for volume calculation of implicit body */
 
-mClass(uiEarthModel) uiImplBodyCalDlg : public uiDialog
+mExpClass(uiEarthModel) uiImplBodyCalDlg : public uiDialog
 {
 public:
 			uiImplBodyCalDlg(uiParent*,const EM::Body&);

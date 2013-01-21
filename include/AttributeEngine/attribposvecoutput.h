@@ -31,7 +31,7 @@ class DescSet;
   \brief Positionvector output generator for attributes.
 */
 
-mClass(AttributeEngine) PosVecOutputGen : public Executor
+mExpClass(AttributeEngine) PosVecOutputGen : public Executor
 {
 public:
 

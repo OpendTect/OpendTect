@@ -27,7 +27,7 @@ first dimension in the array is inline, the second is crossline and that the
 third is z.
 */
 
-mClass(Algo) ZAxisTransformer : public ParallelTask
+mExpClass(Algo) ZAxisTransformer : public ParallelTask
 {
 public:
     			ZAxisTransformer(ZAxisTransform&,bool forward = true);

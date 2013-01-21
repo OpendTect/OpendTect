@@ -24,7 +24,7 @@ class uiLabel;
 class uiPushButton;
 
 /* Displays a calendar where the uses can select a date. */
-mClass(uiBase) uiCalendar : public uiObject
+mExpClass(uiBase) uiCalendar : public uiObject
 {
 public:
                         uiCalendar(uiParent*);
@@ -41,7 +41,7 @@ private:
 
 /*! A field where the user either can enter a date, or select a date
     in a popup-calendar. */
-mClass(uiBase) uiDateSel : public uiGroup
+mExpClass(uiBase) uiDateSel : public uiGroup
 {
 public:
 			uiDateSel(uiParent*,const char* label,

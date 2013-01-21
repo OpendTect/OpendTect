@@ -47,7 +47,7 @@ namespace Seis
 */
 
 
-mClass(Seis) SynthGenBase 
+mExpClass(Seis) SynthGenBase 
 {
 public:
 
@@ -98,7 +98,7 @@ protected:
 
 
 
-mClass(Seis) SynthGenerator : public SynthGenBase
+mExpClass(Seis) SynthGenerator : public SynthGenBase
 {
 public:
     mDefineFactoryInClass( SynthGenerator, factory );
@@ -152,7 +152,7 @@ protected:
 };
 
 
-mClass(Seis) MultiTraceSynthGenerator : public ParallelTask, public SynthGenBase
+mExpClass(Seis) MultiTraceSynthGenerator : public ParallelTask, public SynthGenBase
 {
 public:
     				MultiTraceSynthGenerator();
@@ -185,7 +185,7 @@ protected:
 
 
 
-mClass(Seis) RaySynthGenerator : public ParallelTask, public SynthGenBase 
+mExpClass(Seis) RaySynthGenerator : public ParallelTask, public SynthGenBase 
 {
 public:
 			RaySynthGenerator();

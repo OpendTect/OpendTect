@@ -22,7 +22,7 @@ class ElasticLayer;
 \brief Zoeppritz Coefficients.
 */
 
-mClass(Algo) ZoeppritzCoeff 
+mExpClass(Algo) ZoeppritzCoeff 
 {
 public:
 			ZoeppritzCoeff();

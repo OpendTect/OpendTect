@@ -32,7 +32,7 @@ class LayerSequenceGenDesc;
  
  */
 
-mClass(Strat) LayerGenerator
+mExpClass(Strat) LayerGenerator
 {
 public:	
 

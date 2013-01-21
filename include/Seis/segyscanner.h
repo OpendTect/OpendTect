@@ -32,7 +32,7 @@ class FileDataSet;
 
 /*!\brief Scans SEG-Y file(s). For reports, you'd want to set rich info. */
 
-mClass(Seis) Scanner : public Executor
+mExpClass(Seis) Scanner : public Executor
 {
 public:
 

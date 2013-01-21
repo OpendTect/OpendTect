@@ -24,7 +24,7 @@ class uiStratLevelSel;
 class uiTextEdit;
 class uiToolButton;
 
-mClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
+mExpClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
 {
 public:
 			uiSurfaceMan(uiParent*,const char* typ);
@@ -60,7 +60,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiSurface2DMan : public uiDialog
+mExpClass(uiEarthModel) uiSurface2DMan : public uiDialog
 {
 public:
     			uiSurface2DMan(uiParent*,const EM::IOObjInfo&);

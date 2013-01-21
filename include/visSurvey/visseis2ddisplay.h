@@ -40,7 +40,7 @@ namespace visSurvey
 
 */
 
-mClass(visSurvey) Seis2DDisplay : public MultiTextureSurveyObject
+mExpClass(visSurvey) Seis2DDisplay : public MultiTextureSurveyObject
 {
 public:
     static Seis2DDisplay*	create()

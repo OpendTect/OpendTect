@@ -23,7 +23,7 @@ namespace Well
 
 class Log;
 
-mClass(Well) LogSet
+mExpClass(Well) LogSet
 {
 public:
 

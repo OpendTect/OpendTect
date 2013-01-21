@@ -23,7 +23,7 @@ class uiStepOutSel;
 
 /*! \brief Similarity Attribute description editor */
 
-mClass(uiAttributes) uiSimilarityAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiSimilarityAttrib : public uiAttrDescEd
 {
 public:
 
@@ -59,7 +59,7 @@ protected:
 
     			mDeclReqAttribUIFns
 
-    mClass(uiAttributes) uiSimiSteeringSel : public uiSteeringSel
+    mExpClass(uiAttributes) uiSimiSteeringSel : public uiSteeringSel
     {                                                                           
 	public:                                                                     
 			uiSimiSteeringSel(uiParent*,const Attrib::DescSet*,

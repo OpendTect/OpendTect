@@ -24,7 +24,7 @@ class IOPar;
 \brief Horizontal sampling (inline and crossline range and steps).
 */
 
-mClass(Basic) HorSampling
+mExpClass(Basic) HorSampling
 {
 public:
 			HorSampling( bool settoSI=true ) { init(settoSI); }
@@ -117,7 +117,7 @@ public:
 \brief Finds next BinID in HorSampling; initializes to first position.
 */
 
-mClass(Basic) HorSamplingIterator
+mExpClass(Basic) HorSamplingIterator
 {
 public:
     		HorSamplingIterator() : hrg_( true ) { reset(); }

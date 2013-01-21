@@ -42,7 +42,7 @@ namespace WellTie
     class uiTieView;
     class uiWaveletView;
 
-mClass(uiWellAttrib) uiTieWin : public uiFlatViewMainWin
+mExpClass(uiWellAttrib) uiTieWin : public uiFlatViewMainWin
 {
 public:
 
@@ -123,7 +123,7 @@ protected:
 
 
 
-mClass(uiWellAttrib) uiInfoDlg : public uiDialog
+mExpClass(uiWellAttrib) uiInfoDlg : public uiDialog
 {
 public:		
     		

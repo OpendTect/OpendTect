@@ -33,7 +33,7 @@ class SeisPSWriter;
 class Seis2DLinePutter;
 
 
-mClass(Seis) SeisTrcWriter : public SeisStoreAccess
+mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
 {
 public:
 
@@ -116,7 +116,7 @@ protected:
 
 
 
-mClass(Seis) SeisSequentialWriter
+mExpClass(Seis) SeisSequentialWriter
 {
 public:
     			SeisSequentialWriter( SeisTrcWriter*, int buffsize=-1 );

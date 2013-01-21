@@ -21,7 +21,7 @@ class uiSpinBoxBody;
 class uiLabel;
 
 
-mClass(uiBase) uiSpinBox : public uiObject
+mExpClass(uiBase) uiSpinBox : public uiObject
 {
 friend class		uiSpinBoxBody;
 
@@ -112,7 +112,7 @@ private:
 };
 
 
-mClass(uiBase) uiLabeledSpinBox : public uiGroup
+mExpClass(uiBase) uiLabeledSpinBox : public uiGroup
 {
 public:
                 	uiLabeledSpinBox(uiParent*,const char* txt,

@@ -23,7 +23,7 @@ class uiSeisSel;
 class uiGenInput;
 
 
-mClass(uiSeis) uiMergeSeis : public uiDialog
+mExpClass(uiSeis) uiMergeSeis : public uiDialog
 {
 public:
                         uiMergeSeis(uiParent*);

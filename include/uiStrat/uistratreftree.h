@@ -29,7 +29,7 @@ namespace Strat {
 
 /*!\brief Displays a Strat::RefTree */
 
-mClass(uiStrat) uiStratRefTree : public CallBacker 
+mExpClass(uiStrat) uiStratRefTree : public CallBacker 
 {
 public:
 

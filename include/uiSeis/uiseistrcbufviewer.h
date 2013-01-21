@@ -26,7 +26,7 @@ class SeisTrcBufDataPack;
 
 */
 
-mClass(uiSeis) uiSeisTrcBufViewer : public uiFlatViewMainWin
+mExpClass(uiSeis) uiSeisTrcBufViewer : public uiFlatViewMainWin
 {
 public:
 

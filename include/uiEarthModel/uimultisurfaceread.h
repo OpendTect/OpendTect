@@ -21,7 +21,7 @@ class uiDialog;
 
 /*! \brief ui for multiple surface read */
 
-mClass(uiEarthModel) uiMultiSurfaceRead : public uiIOSurface
+mExpClass(uiEarthModel) uiMultiSurfaceRead : public uiIOSurface
 {
 public:
 			uiMultiSurfaceRead(uiParent*,const char* type);
@@ -43,7 +43,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiMultiSurfaceReadDlg : public uiDialog
+mExpClass(uiEarthModel) uiMultiSurfaceReadDlg : public uiDialog
 {
 public:
 			uiMultiSurfaceReadDlg(uiParent*,const char* type);

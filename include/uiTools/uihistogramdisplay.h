@@ -22,7 +22,7 @@ namespace Stats { template <class T> class ParallelCalc; }
 
 class DataPointSet;
 
-mClass(uiTools) uiHistogramDisplay : public uiFunctionDisplay
+mExpClass(uiTools) uiHistogramDisplay : public uiFunctionDisplay
 {
 public:
 

@@ -22,11 +22,11 @@ class BufferStringSet;
 
 /*!\brief Select entry from list */
 
-mClass(uiTools) uiSelectFromList : public uiDialog
+mExpClass(uiTools) uiSelectFromList : public uiDialog
 { 	
 public:
 
-    mClass(uiTools) Setup : public uiDialog::Setup
+    mExpClass(uiTools) Setup : public uiDialog::Setup
     {
     public:
 			Setup( const char* wintitl, const BufferStringSet& its )
@@ -68,11 +68,11 @@ private:
 
 /*!\brief Get a name from user, whilst displaying names that already exist */
 
-mClass(uiTools) uiGetObjectName : public uiDialog
+mExpClass(uiTools) uiGetObjectName : public uiDialog
 { 	
 public:
 
-    mClass(uiTools) Setup : public uiDialog::Setup
+    mExpClass(uiTools) Setup : public uiDialog::Setup
     {
     public:
 			Setup( const char* wintitl,const BufferStringSet& its )
@@ -109,7 +109,7 @@ protected:
 
 /*!\brief Get an action from a series of possibilities from user */
 
-mClass(uiTools) uiGetChoice : public uiDialog
+mExpClass(uiTools) uiGetChoice : public uiDialog
 { 	
 public:
 

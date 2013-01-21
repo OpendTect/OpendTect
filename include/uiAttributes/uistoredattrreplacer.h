@@ -24,7 +24,7 @@ namespace Attrib
     class DescSet;
 };
 
-mClass(uiAttributes) uiStoredAttribReplacer
+mExpClass(uiAttributes) uiStoredAttribReplacer
 {
 public:
     				uiStoredAttribReplacer(uiParent*,

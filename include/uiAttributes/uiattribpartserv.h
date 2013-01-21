@@ -63,7 +63,7 @@ template <class T> class Array3D;
 \brief Service provider for application level - Attributes
 */
 
-mClass(uiAttributes) uiAttribPartServer : public uiApplPartServer
+mExpClass(uiAttributes) uiAttribPartServer : public uiApplPartServer
 {
 public:
 			uiAttribPartServer(uiApplService&);

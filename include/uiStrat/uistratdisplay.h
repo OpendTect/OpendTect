@@ -35,7 +35,7 @@ class MouseEvent;
 
 
 
-mClass(uiStrat) uiStratDrawer 
+mExpClass(uiStrat) uiStratDrawer 
 {
 public:
 				uiStratDrawer(uiGraphicsScene&,
@@ -100,7 +100,7 @@ protected:
 
 
 
-mClass(uiStrat) uiStratDisplay : public uiGraphicsView
+mExpClass(uiStrat) uiStratDisplay : public uiGraphicsView
 {
 public:
 				uiStratDisplay(uiParent*,uiStratRefTree&);
@@ -155,7 +155,7 @@ protected :
 };
 
 
-mClass(uiStrat) uiStratViewControl : public CallBacker
+mExpClass(uiStrat) uiStratViewControl : public CallBacker
 {
 public:
 

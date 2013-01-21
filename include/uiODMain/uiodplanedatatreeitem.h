@@ -22,7 +22,7 @@ namespace Attrib { class DescID; }
 namespace Well { class Data; }
 
 
-mClass(uiODMain) uiODPlaneDataTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODPlaneDataTreeItem : public uiODDisplayTreeItem
 {
 public:
     enum Type		{ Default, Empty, RGBA };
@@ -64,7 +64,7 @@ protected:
 mDefineItem( InlineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass(uiODMain) uiODInlineTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODInlineTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -74,7 +74,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODInlineTreeItem : public uiODPlaneDataTreeItem
+mExpClass(uiODMain) uiODInlineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
     			uiODInlineTreeItem(int displayid,Type);
@@ -88,7 +88,7 @@ protected:
 mDefineItem( CrosslineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass(uiODMain) uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -98,7 +98,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
+mExpClass(uiODMain) uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
     			uiODCrosslineTreeItem(int displayid,Type);
@@ -112,7 +112,7 @@ protected:
 mDefineItem( ZsliceParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass(uiODMain) uiODZsliceTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODZsliceTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -122,7 +122,7 @@ public:
 };
 
 
-mClass(uiODMain) uiODZsliceTreeItem : public uiODPlaneDataTreeItem
+mExpClass(uiODMain) uiODZsliceTreeItem : public uiODPlaneDataTreeItem
 {
 public:
     			uiODZsliceTreeItem(int displayid,Type);

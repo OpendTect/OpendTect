@@ -37,7 +37,7 @@ namespace Pos
   the points between the surfaces are visited with the specified Z step.
 */
 
-mClass(EarthModel) EMSurfaceProvider : public virtual Filter
+mExpClass(EarthModel) EMSurfaceProvider : public virtual Filter
 {
 public:
 			EMSurfaceProvider();
@@ -122,7 +122,7 @@ protected:
 \brief EMSurfaceProvider for 3D positioning.
 */
 
-mClass(EarthModel) EMSurfaceProvider3D : public Provider3D
+mExpClass(EarthModel) EMSurfaceProvider3D : public Provider3D
 			  , public EMSurfaceProvider
 {
 public:
@@ -161,7 +161,7 @@ public:
 \brief EMSurfaceProvider for 2D positioning.
 */
 
-mClass(EarthModel) EMSurfaceProvider2D : public Provider2D
+mExpClass(EarthModel) EMSurfaceProvider2D : public Provider2D
 			  , public EMSurfaceProvider
 {
 public:
@@ -201,7 +201,7 @@ public:
 \brief EMSurfaceProvider for 3D positions with 2D Horizon.
 */
 
-mClass(EarthModel) EMSurface2DProvider3D : public Provider3D
+mExpClass(EarthModel) EMSurface2DProvider3D : public Provider3D
 			    , public EMSurfaceProvider
 {
 public:
@@ -247,7 +247,7 @@ protected:
 \brief EM implicit body provider for 3D positioning.
 */
 
-mClass(EarthModel) EMImplicitBodyProvider : public Provider3D
+mExpClass(EarthModel) EMImplicitBodyProvider : public Provider3D
 {
 public:
 

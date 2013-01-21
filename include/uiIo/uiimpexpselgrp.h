@@ -32,7 +32,7 @@ class uiToolButton;
 class uiDataPointSetCrossPlotter;
 
 
-mClass(uiIo) uiSGSel : public uiGroup
+mExpClass(uiIo) uiSGSel : public uiGroup
 {
 public:
     					uiSGSel(uiParent*,bool forread);
@@ -65,7 +65,7 @@ protected:
 };
 
 
-mClass(uiIo) uiSGSelGrp : public uiGroup
+mExpClass(uiIo) uiSGSelGrp : public uiGroup
 {
 public:
     				uiSGSelGrp(uiParent*,bool forread);
@@ -109,7 +109,7 @@ protected:
 };
 
 
-mClass(uiIo) SelGrpImporter
+mExpClass(uiIo) SelGrpImporter
 {
 public:
     				SelGrpImporter(const char*);
@@ -132,7 +132,7 @@ protected:
 };
 
 
-mClass(uiIo) SelGrpExporter
+mExpClass(uiIo) SelGrpExporter
 {
 public:
     				SelGrpExporter(const char* fnm);
@@ -149,7 +149,7 @@ protected:
 };
 
 
-mClass(uiIo) uiReadSelGrp : public uiDialog
+mExpClass(uiIo) uiReadSelGrp : public uiDialog
 {
 public:
 			uiReadSelGrp(uiParent*,uiDataPointSetCrossPlotter&);
@@ -189,11 +189,11 @@ protected:
 };
 
 
-mClass(uiIo) uiExpSelectionArea : public uiDialog
+mExpClass(uiIo) uiExpSelectionArea : public uiDialog
 {
 public:
 
-	mClass(uiIo) Setup
+	mExpClass(uiIo) Setup
 	{
 	    public:
 		    Setup(const char* x,const char* y, const char* y2)

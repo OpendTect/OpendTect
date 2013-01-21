@@ -38,7 +38,7 @@ namespace WellTie
 {
     class Setup; 
 
-mClass(uiWellAttrib) uiTieView : public CallBacker
+mExpClass(uiWellAttrib) uiTieView : public CallBacker
 {
 public:
 			    	uiTieView(uiParent*,uiFlatViewer*,const Data&);
@@ -100,7 +100,7 @@ protected:
 
 
 
-mClass(uiWellAttrib) uiCrossCorrView : uiGroup
+mExpClass(uiWellAttrib) uiCrossCorrView : uiGroup
 {
 public:
 

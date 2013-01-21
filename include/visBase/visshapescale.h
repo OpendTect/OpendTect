@@ -28,7 +28,7 @@ a constant size is given to the object via setShape.
 
 */
 
-mClass(visBase) ShapeScale : public DataObject
+mExpClass(visBase) ShapeScale : public DataObject
 {
 public:
 

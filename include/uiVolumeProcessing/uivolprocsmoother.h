@@ -23,7 +23,7 @@ namespace VolProc
 {
 
 
-mClass(uiVolumeProcessing) uiSmoother : public uiStepDialog
+mExpClass(uiVolumeProcessing) uiSmoother : public uiStepDialog
 {
 public:
 

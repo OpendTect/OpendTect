@@ -30,7 +30,7 @@ namespace Attrib { class SelSpec; }
 
 /*!\brief uiApplService for OD */
 
-mClass(uiODMain) uiODApplService : public uiApplService
+mExpClass(uiODMain) uiODApplService : public uiApplService
 {
 public:
     			uiODApplService( uiParent* p, uiODApplMgr& am )
@@ -46,7 +46,7 @@ public:
 
 /*!\brief Dispatches work for Appl Mgr */
 
-mClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
+mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
 {
     friend class	uiODApplMgr;
 
@@ -91,7 +91,7 @@ mClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
 
 /*!\brief Does visualisation-related work for uiODApplMgr */
 
-mClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
+mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
 {
     friend class	uiODApplMgr;
 

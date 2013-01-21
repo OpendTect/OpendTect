@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 /*!\brief Raw data array with memory management. */
 
-mClass(General) DataBuffer : public RawDataArray
+mExpClass(General) DataBuffer : public RawDataArray
 {
 public:
 			DataBuffer(int n,int byts=4,bool setnull=false);

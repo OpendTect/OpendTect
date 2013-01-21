@@ -21,7 +21,7 @@ namespace System
     
 /*Class that can post a crash-report to OpendTect's website */
     
-mClass(Network) IssueReporter
+mExpClass(Network) IssueReporter
 {
 public:
     				IssueReporter( const char* hostname = 0,

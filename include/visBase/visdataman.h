@@ -37,7 +37,7 @@ class Factory;
 
 */
 
-mClass(visBase) DataManager : public CallBacker
+mExpClass(visBase) DataManager : public CallBacker
 {
 public:
     			DataManager();

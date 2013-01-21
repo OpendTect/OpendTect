@@ -34,7 +34,7 @@ interval around a surface
 */
 
 
-mClass(uiEMAttrib) uiAttrTrcSelOut : public uiAttrEMOut
+mExpClass(uiEMAttrib) uiAttrTrcSelOut : public uiAttrEMOut
 {
 public:
     			uiAttrTrcSelOut(uiParent*,const Attrib::DescSet&,

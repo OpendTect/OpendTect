@@ -39,7 +39,7 @@ mGlobal(uiODMain) uiODMain* ODMainWin();
 \brief OpendTect application top level object
 */
 
-mClass(uiODMain) uiODMain : public uiMainWin
+mExpClass(uiODMain) uiODMain : public uiMainWin
 {
 public:
 

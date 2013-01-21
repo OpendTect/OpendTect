@@ -23,7 +23,7 @@ class Viewer;
 
 /*!\brief Axis drawer for flat viewers */
 
-mClass(uiFlatView) AxesDrawer : public ::uiGraphicsSceneAxisMgr
+mExpClass(uiFlatView) AxesDrawer : public ::uiGraphicsSceneAxisMgr
 {
 public:
     			AxesDrawer(Viewer&,uiGraphicsView&);

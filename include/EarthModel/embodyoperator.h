@@ -41,7 +41,7 @@ class ImplicitBody;
 a Body or a BodyOperator.
 */
 
-mClass(EarthModel) BodyOperator
+mExpClass(EarthModel) BodyOperator
 { 
 public:
     			BodyOperator();
@@ -109,7 +109,7 @@ protected:
    outside to be positive.
 */
 
-mClass(EarthModel) Expl2ImplBodyExtracter : public ParallelTask
+mExpClass(EarthModel) Expl2ImplBodyExtracter : public ParallelTask
 {
 public:
 			Expl2ImplBodyExtracter( const DAGTetrahedraTree& tree, 

@@ -30,7 +30,7 @@ template <class T> class ObjectSet;
 
   */
 
-mClass(uiBase) uiComboBox : public uiObject, public UserInputObjImpl<int>
+mExpClass(uiBase) uiComboBox : public uiObject, public UserInputObjImpl<int>
 {
 public:
 
@@ -115,7 +115,7 @@ public:
 
 
 
-mClass(uiBase) uiLabeledComboBox : public uiGroup
+mExpClass(uiBase) uiLabeledComboBox : public uiGroup
 {
 public:
 		uiLabeledComboBox(uiParent*,const char* lbl,

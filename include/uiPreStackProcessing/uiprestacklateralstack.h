@@ -23,7 +23,7 @@ namespace PreStack
 class LateralStack;
 class Processor;
 
-mClass(uiPreStackProcessing) uiLateralStack : public uiDialog
+mExpClass(uiPreStackProcessing) uiLateralStack : public uiDialog
 {
 public:
     static void		initClass();

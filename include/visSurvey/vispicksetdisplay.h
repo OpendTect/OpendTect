@@ -30,7 +30,7 @@ namespace visSurvey
   visualized by a number of shapes.
 */
 
-mClass(visSurvey) PickSetDisplay : public LocationDisplay
+mExpClass(visSurvey) PickSetDisplay : public LocationDisplay
 {
 public:
     static PickSetDisplay*	create()

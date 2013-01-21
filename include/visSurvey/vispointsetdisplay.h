@@ -27,7 +27,7 @@ namespace visSurvey
 {
 
 
-mClass(visSurvey) PointSetDisplay : public visBase::VisualObjectImpl,
+mExpClass(visSurvey) PointSetDisplay : public visBase::VisualObjectImpl,
 			 public visSurvey::SurveyObject
 {
 public:

@@ -22,7 +22,7 @@ class uiLabel;
 namespace Attrib { class Desc; class DescSet; class SelSpec; };
 
 
-mClass(uiAttributes) uiSteerCubeSel : public uiSeisSel
+mExpClass(uiAttributes) uiSteerCubeSel : public uiSeisSel
 {
 public:
 
@@ -57,7 +57,7 @@ protected:
 
 /*!\brief Attribute Steering ui element: data + selection of type. */
 
-mClass(uiAttributes) uiSteeringSel : public uiGroup
+mExpClass(uiAttributes) uiSteeringSel : public uiGroup
 {
 public:
 				uiSteeringSel(uiParent*,

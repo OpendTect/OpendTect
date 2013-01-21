@@ -26,7 +26,7 @@ class uiPushButton;
 */
 
 
-mClass(uiTools) uiIssueReporterDlg : public uiDialog
+mExpClass(uiTools) uiIssueReporterDlg : public uiDialog
 { 	
 public:
     

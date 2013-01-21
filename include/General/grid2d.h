@@ -23,11 +23,11 @@ class Line2;
 
 /* Represents a grid of 2D lines in Inl-Crl plane */
 
-mClass(General) Grid2D
+mExpClass(General) Grid2D
 {
 public:
 
-    mClass(General) Line
+    mExpClass(General) Line
     {
     public:
 			Line(const BinID&,const BinID&);

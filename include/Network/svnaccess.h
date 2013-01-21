@@ -18,7 +18,7 @@ ________________________________________________________________________
 class BufferStringSet;
 
 
-mClass(Network) SVNAccess
+mExpClass(Network) SVNAccess
 {
 
 public:

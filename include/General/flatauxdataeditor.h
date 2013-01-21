@@ -30,7 +30,7 @@ class AuxDataEditor;
 
 #define mCtrlLeftButton ( (OD::ButtonState) (OD::LeftButton+OD::ControlButton) )
 
-mClass(General) Sower : public CallBacker
+mExpClass(General) Sower : public CallBacker
 {
     friend class	AuxDataEditor;
 
@@ -109,7 +109,7 @@ protected:
    Users of the class have the choice if the editor should do the changes for
    them, or if they want to do changes themself, driven by the callback. */
 
-mClass(General) AuxDataEditor : public CallBacker
+mExpClass(General) AuxDataEditor : public CallBacker
 {
     friend class	Sower;
 

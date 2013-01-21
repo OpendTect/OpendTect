@@ -21,7 +21,7 @@ ________________________________________________________________________
 class IOObjContext;
 class uiListBox;
 
-mClass(uiEarthModel) uiSurfaceSel : public uiGroup
+mExpClass(uiEarthModel) uiSurfaceSel : public uiGroup
 {
 public:
 			~uiSurfaceSel();
@@ -47,7 +47,7 @@ protected:
 /*! \brief ui for horizon 3D selection */
 
 // TODO implement
-mClass(uiEarthModel) uiSurface3DSel : public uiSurfaceSel
+mExpClass(uiEarthModel) uiSurface3DSel : public uiSurfaceSel
 {
 public:
 protected:
@@ -58,7 +58,7 @@ protected:
 
 /*! \brief ui for horizon 2D selection */
 
-mClass(uiEarthModel) uiSurface2DSel : public uiSurfaceSel
+mExpClass(uiEarthModel) uiSurface2DSel : public uiSurfaceSel
 {
 public:
     void		setLineSetID(const MultiID&);
@@ -72,7 +72,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiHorizon2DSel : public uiSurface2DSel
+mExpClass(uiEarthModel) uiHorizon2DSel : public uiSurface2DSel
 {
 public:
     			uiHorizon2DSel(uiParent*);
@@ -81,7 +81,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiHorizon3DSel : public uiSurface3DSel
+mExpClass(uiEarthModel) uiHorizon3DSel : public uiSurface3DSel
 {
 public:
     			uiHorizon3DSel(uiParent*);

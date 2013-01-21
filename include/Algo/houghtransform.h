@@ -46,7 +46,7 @@ find the planes.
   
 */
 
-mClass(Algo) PlaneFrom3DSpaceHoughTransform
+mExpClass(Algo) PlaneFrom3DSpaceHoughTransform
 {
 public:
     				PlaneFrom3DSpaceHoughTransform();
@@ -115,7 +115,7 @@ protected:
 \brief Finds lines in Array2D<float>'s regions with high values.
 */
 
-mClass(Algo) LineFrom2DSpaceHoughTransform
+mExpClass(Algo) LineFrom2DSpaceHoughTransform
 {
 public:
     				LineFrom2DSpaceHoughTransform(

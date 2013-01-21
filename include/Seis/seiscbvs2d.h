@@ -20,7 +20,7 @@ class CBVSSeisTrcTranslator;
 namespace PosInfo { class Line2DData; }
 
 
-mClass(Seis) SeisCBVS2DLineIOProvider : public Seis2DLineIOProvider
+mExpClass(Seis) SeisCBVS2DLineIOProvider : public Seis2DLineIOProvider
 {
 public:
 
@@ -53,7 +53,7 @@ public:
 };
 
 
-mClass(Seis) SeisCBVS2DLinePutter : public Seis2DLinePutter
+mExpClass(Seis) SeisCBVS2DLinePutter : public Seis2DLinePutter
 {
 public:
 

@@ -33,7 +33,7 @@ class Hdrdef;
  
 */
 
-mClass(Seis) TxtHeader
+mExpClass(Seis) TxtHeader
 {
 public:
 
@@ -74,7 +74,7 @@ protected:
 
 class X;
 
-mClass(Seis) BinHeader
+mExpClass(Seis) BinHeader
 {
 public:
 
@@ -138,7 +138,7 @@ public:
 };
 
 
-mClass(Seis) TrcHeader
+mExpClass(Seis) TrcHeader
 {
 public:
 

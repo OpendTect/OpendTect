@@ -28,7 +28,7 @@ class DataColDef;
 
 */
 
-mClass(General) PosVecDataSet
+mExpClass(General) PosVecDataSet
 {
 public:
     			PosVecDataSet(const char* nm=0);

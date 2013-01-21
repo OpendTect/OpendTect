@@ -51,7 +51,7 @@ template <class T> class StepInterval;
  */
 
 
-mClass(uiTools) uiGraphicsSceneAxis
+mExpClass(uiTools) uiGraphicsSceneAxis
 {
 public:
     			~uiGraphicsSceneAxis();	
@@ -104,7 +104,7 @@ protected:
 };
 
 
-mClass(uiTools) uiGraphicsSceneAxisMgr
+mExpClass(uiTools) uiGraphicsSceneAxisMgr
 {
 public:
 			uiGraphicsSceneAxisMgr(uiGraphicsView&);

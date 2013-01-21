@@ -24,7 +24,7 @@ class TranslatorGroup;
 
 /*!\brief Holds constraints on IOObj selection */
 
-mClass(General) IOObjSelConstraints
+mExpClass(General) IOObjSelConstraints
 {
 public:
     
@@ -54,7 +54,7 @@ we'll be blobbing stuff in the root of the survey.
 
 */
 
-mClass(General) IOObjContext : public NamedObject
+mExpClass(General) IOObjContext : public NamedObject
 {
 public:
 
@@ -110,7 +110,7 @@ don't want that, you'll have to just assign.
 
 */
 
-mClass(General) CtxtIOObj : public NamedObject
+mExpClass(General) CtxtIOObj : public NamedObject
 {
 public:
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )

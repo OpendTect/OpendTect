@@ -55,7 +55,7 @@ namespace visSurvey
 \brief Base class for all 'Display' objects
 */
 
-mClass(visSurvey) SurveyObject
+mExpClass(visSurvey) SurveyObject
 {
 public:
     virtual void		setInlCrlSystem(const InlCrlSystem*);

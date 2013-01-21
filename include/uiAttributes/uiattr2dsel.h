@@ -27,7 +27,7 @@ class uiRadioButton;
 class NLAModel;
 
 
-mClass(uiAttributes) uiAttr2DSelDlg : public uiDialog
+mExpClass(uiAttributes) uiAttr2DSelDlg : public uiDialog
 {
 public:
 

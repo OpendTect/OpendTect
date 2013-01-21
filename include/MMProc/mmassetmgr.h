@@ -24,7 +24,7 @@ namespace MMProc
 \brief Knows available nodes and decides which to use.
 */
 
-mClass(MMProc) AssetMgr : public NamedObject
+mExpClass(MMProc) AssetMgr : public NamedObject
 {
 public:
     			AssetMgr( const char* nm )

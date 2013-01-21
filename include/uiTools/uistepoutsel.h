@@ -25,7 +25,7 @@ class uiSpinBox;
  
  */
 
-mClass(uiTools) uiStepOutSel : public uiGroup
+mExpClass(uiTools) uiStepOutSel : public uiGroup
 {
 public:
 
@@ -88,7 +88,7 @@ private:
 
 /*! \brief allows selection of stepouts, extension to third direction (Z). */
 
-mClass(uiTools) uiStepout3DSel : public uiStepOutSel                                      
+mExpClass(uiTools) uiStepout3DSel : public uiStepOutSel                                      
 {                                                                               
 public:                                                                         
 

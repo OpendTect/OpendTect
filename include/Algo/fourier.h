@@ -28,7 +28,7 @@ class FFTCC1D;
 \brief Does Fourier Transforms of any size.
 */
 
-mClass(Algo) CC : public GenericTransformND
+mExpClass(Algo) CC : public GenericTransformND
 {
 public:
     mDefaultFactoryInstantiation( CC, CC, "PFAFFT", "FFT" );
@@ -100,7 +100,7 @@ protected:
 \brief Computes FFT for any size of data.
 */
 
-mClass(Algo) FFTCC1D
+mExpClass(Algo) FFTCC1D
 {
 public:
     			FFTCC1D();

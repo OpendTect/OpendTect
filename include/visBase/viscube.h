@@ -32,7 +32,7 @@ Cube is a basic cube that is settable in size.
 
 */
 
-mClass(visBase) Cube : public Shape
+mExpClass(visBase) Cube : public Shape
 {
 public:
     static Cube*	create()

@@ -65,7 +65,7 @@ protected:
 };
 
 
-mClass(uiIo) SelectionGrp : public NamedObject
+mExpClass(uiIo) SelectionGrp : public NamedObject
 {
 public:
 				SelectionGrp(const char* nm, const Color& col)

@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 
 
-mClass(General) IbmFormat
+mExpClass(General) IbmFormat
 {
 public:
 

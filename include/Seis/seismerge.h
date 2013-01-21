@@ -26,7 +26,7 @@ class SeisTrcWriter;
 
 /*!\brief Merges 2D and 3D post-stack data */
 
-mClass(Seis) SeisMerger : public Executor
+mExpClass(Seis) SeisMerger : public Executor
 {
 public:
 

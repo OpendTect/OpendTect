@@ -34,7 +34,7 @@ namespace FlatView { class AuxData; }
 /*!\brief A 2D Viewer
 */
 
-mClass(uiODMain) uiODViewer2D : public CallBacker
+mExpClass(uiODMain) uiODViewer2D : public CallBacker
 {
 public:
 				uiODViewer2D(uiODMain&,int visid);

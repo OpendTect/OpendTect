@@ -28,7 +28,7 @@ class IOPar;
 
 */
 
-mClass(uiFlatView) uiFlatViewWin
+mExpClass(uiFlatView) uiFlatViewWin
 {
 public:
 

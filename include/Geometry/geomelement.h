@@ -23,7 +23,7 @@ namespace Geometry
 
 /*!Iterator through all positions on an element. */
 
-mClass(Geometry) Iterator
+mExpClass(Geometry) Iterator
 {
 public:
     virtual 			~Iterator()		{}
@@ -32,7 +32,7 @@ public:
 };
 
 
-mClass(Geometry) Element : public CallBacker
+mExpClass(Geometry) Element : public CallBacker
 {
 public:
     				Element();

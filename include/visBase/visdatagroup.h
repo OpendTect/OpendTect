@@ -24,7 +24,7 @@ namespace osg { class Group; }
 namespace visBase
 {
 
-mClass(visBase) DataObjectGroup : public DataObject
+mExpClass(visBase) DataObjectGroup : public DataObject
 {
 public:
 

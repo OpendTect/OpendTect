@@ -26,7 +26,7 @@ static std::ostream* logstrm_ = 0;
 
 
 
-mClass(Usage) Administrator : public ::NamedObject
+mExpClass(Usage) Administrator : public ::NamedObject
 {
 public:
 

@@ -26,7 +26,7 @@ namespace EM
 \brief 2D horizon painter
 */
 
-mClass(EarthModel) HorizonPainter2D : public CallBacker
+mExpClass(EarthModel) HorizonPainter2D : public CallBacker
 {
 public:
     			HorizonPainter2D(FlatView::Viewer&,const EM::ObjectID&);

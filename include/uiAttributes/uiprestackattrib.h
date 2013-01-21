@@ -26,7 +26,7 @@ namespace PreStack { class uiProcSel; }
 
 /*! \brief PreStack Attribute ui */
 
-mClass(uiAttributes) uiPreStackAttrib : public uiAttrDescEd
+mExpClass(uiAttributes) uiPreStackAttrib : public uiAttrDescEd
 {
 public:
 

@@ -21,7 +21,7 @@ class uiLabeledComboBox;
 
 /*!Group that allows the user to edit StaticsDesc information. */
 
-mClass(uiSeis) uiStaticsDesc : public uiGroup
+mExpClass(uiSeis) uiStaticsDesc : public uiGroup
 {
 public:
 

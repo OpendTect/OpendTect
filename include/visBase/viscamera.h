@@ -32,7 +32,7 @@ namespace visBase
 
 */
 
-mClass(visBase) Camera : public DataObject
+mExpClass(visBase) Camera : public DataObject
 {
 public:
 

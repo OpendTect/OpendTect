@@ -19,7 +19,7 @@ class uiRadioButton;
 class uiLatLongDMSInp;
 
 
-mClass(uiIo) uiLatLongInp : public uiGroup
+mExpClass(uiIo) uiLatLongInp : public uiGroup
 {
 public:
 

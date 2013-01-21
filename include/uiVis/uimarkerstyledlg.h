@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiMarkerStyle3D;
 
-mClass(uiVis) uiMarkerStyleDlg : public uiDialog
+mExpClass(uiVis) uiMarkerStyleDlg : public uiDialog
 {
 protected:
 

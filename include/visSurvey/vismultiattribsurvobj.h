@@ -34,7 +34,7 @@ namespace visSurvey
 */
 
 
-mClass(visSurvey) MultiTextureSurveyObject : public visBase::VisualObjectImpl,
+mExpClass(visSurvey) MultiTextureSurveyObject : public visBase::VisualObjectImpl,
 				  public SurveyObject
 {
 public:

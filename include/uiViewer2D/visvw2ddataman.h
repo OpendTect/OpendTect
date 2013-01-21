@@ -26,7 +26,7 @@ class uiFlatViewAuxDataEditor;
 
 
 
-mClass(uiViewer2D) Vw2DDataManager : public CallBacker
+mExpClass(uiViewer2D) Vw2DDataManager : public CallBacker
 {
 public:
     				Vw2DDataManager();

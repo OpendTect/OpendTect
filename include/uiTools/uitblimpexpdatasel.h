@@ -33,7 +33,7 @@ namespace Table { class FormatDesc; }
  
  */
 
-mClass(uiTools) uiTableImpDataSel : public uiGroup
+mExpClass(uiTools) uiTableImpDataSel : public uiGroup
 {
 public:
 

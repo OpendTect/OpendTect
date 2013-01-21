@@ -22,7 +22,7 @@ namespace visSurvey { class Scene; }
 
 /*! sets the top and/or bottom images. */
 
-mClass(uiVis) uiSurvTopBotImageDlg : public uiDialog
+mExpClass(uiVis) uiSurvTopBotImageDlg : public uiDialog
 {
 public:
 			uiSurvTopBotImageDlg(uiParent*,visSurvey::Scene*);

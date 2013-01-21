@@ -39,7 +39,7 @@ class Detail;
 
 enum EventType		{ Any=7, MouseClick=1, Keyboard=2, MouseMovement=4 };
 
-mClass(visBase) EventInfo
+mExpClass(visBase) EventInfo
 {
 public:
     				EventInfo();
@@ -86,7 +86,7 @@ public:
 };
 
 
-mClass(visBase) EventCatcher : public DataObject
+mExpClass(visBase) EventCatcher : public DataObject
 {
     friend class EventCatchHandler;
 

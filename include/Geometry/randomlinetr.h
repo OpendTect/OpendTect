@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace Geometry { class RandomLineSet; }
 class Conn;
 
-mClass(Geometry) RandomLineSetTranslatorGroup : public TranslatorGroup
+mExpClass(Geometry) RandomLineSetTranslatorGroup : public TranslatorGroup
 {				  isTranslatorGroup(RandomLineSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(RandomLineSet)
@@ -28,7 +28,7 @@ public:
 };
 
 
-mClass(Geometry) RandomLineSetTranslator : public Translator
+mExpClass(Geometry) RandomLineSetTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(RandomLineSet)
@@ -45,7 +45,7 @@ public:
 };
 
 
-mClass(Geometry) dgbRandomLineSetTranslator : public RandomLineSetTranslator
+mExpClass(Geometry) dgbRandomLineSetTranslator : public RandomLineSetTranslator
 {				isTranslator(dgb,RandomLineSet)
 public:
 

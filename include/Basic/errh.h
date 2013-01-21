@@ -26,7 +26,7 @@ ________________________________________________________________________
   is set to true by default only if __debug__ is defined.
 */
 
-mClass(Basic) ErrMsgClass : public MsgClass
+mExpClass(Basic) ErrMsgClass : public MsgClass
 {
 public:
 

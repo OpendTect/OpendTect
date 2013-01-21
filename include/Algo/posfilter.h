@@ -43,7 +43,7 @@ class Provider;
   to both. 
 */
 
-mClass(Algo) Filter
+mExpClass(Algo) Filter
 {
 public:
 
@@ -78,7 +78,7 @@ public:
 \brief Provides a filter related to 3D data.
 */
 
-mClass(Algo) Filter3D : public virtual Filter
+mExpClass(Algo) Filter3D : public virtual Filter
 {
 public:
 
@@ -98,7 +98,7 @@ public:
 \brief Provides a filter related to 2D seismic data.
 */
 
-mClass(Algo) Filter2D : public virtual Filter
+mExpClass(Algo) Filter2D : public virtual Filter
 {
 public:
     			Filter2D()				{}

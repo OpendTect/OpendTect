@@ -23,7 +23,7 @@ namespace Pos
 
 /*!\brief Volume/Area provider based on Polygon */
 
-mClass(Geometry) PolyProvider3D : public Provider3D
+mExpClass(Geometry) PolyProvider3D : public Provider3D
 {
 public:
 

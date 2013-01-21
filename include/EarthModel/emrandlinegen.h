@@ -32,7 +32,7 @@ class Horizon3DGeometry;
 \brief Creates random lines along the contours of a surface.
 */
 
-mClass(EarthModel) RandomLineSetByContourGenerator
+mExpClass(EarthModel) RandomLineSetByContourGenerator
 { 
 public:
 
@@ -70,7 +70,7 @@ protected:
 \brief Creates random line from another by shifting it.
 */
 
-mClass(EarthModel) RandomLineByShiftGenerator
+mExpClass(EarthModel) RandomLineByShiftGenerator
 { 
 public:
 

@@ -28,7 +28,7 @@ namespace ZDomain { class Def; }
 
 /*!\brief Info on IOObj for seismics */
 
-mClass(Seis) SeisIOObjInfo
+mExpClass(Seis) SeisIOObjInfo
 {
 public:
 

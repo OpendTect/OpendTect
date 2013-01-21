@@ -28,7 +28,7 @@ class Horizon2DSeedPicker;
 \brief EMTracker to track EM::Horizon2D.
 */
 
-mClass(MPEEngine) Horizon2DTracker : public EMTracker
+mExpClass(MPEEngine) Horizon2DTracker : public EMTracker
 {
 public:
     			Horizon2DTracker(EM::Horizon2D* =0);

@@ -30,7 +30,7 @@ namespace PreStack
 class ProcessManager;
 class Processor;
 /*! An editor for a PreStackManager, with save/load possibilities. */
-mClass(uiPreStackProcessing) uiProcessorManager : public uiGroup
+mExpClass(uiPreStackProcessing) uiProcessorManager : public uiGroup
 {
 public:
 				uiProcessorManager(uiParent*,ProcessManager&);

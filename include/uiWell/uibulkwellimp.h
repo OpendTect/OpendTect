@@ -17,7 +17,7 @@ namespace Table { class FormatDesc; }
 namespace Well { class Data; }
 
 
-mClass(uiWell) uiBulkTrackImport : public uiDialog
+mExpClass(uiWell) uiBulkTrackImport : public uiDialog
 {
 public:
 			uiBulkTrackImport(uiParent*);
@@ -35,7 +35,7 @@ protected:
 };
 
 
-mClass(uiWell) uiBulkLogImport : public uiDialog
+mExpClass(uiWell) uiBulkLogImport : public uiDialog
 {
 public:
 			uiBulkLogImport(uiParent*);
@@ -49,7 +49,7 @@ protected:
 };
 
 
-mClass(uiWell) uiBulkMarkerImport : public uiDialog
+mExpClass(uiWell) uiBulkMarkerImport : public uiDialog
 {
 public:
 			uiBulkMarkerImport(uiParent*);

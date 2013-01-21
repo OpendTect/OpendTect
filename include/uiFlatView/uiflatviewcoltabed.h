@@ -23,7 +23,7 @@ class uiGroup;
 class uiParent;
 
 
-mClass(uiFlatView) uiFlatViewColTabEd : public CallBacker
+mExpClass(uiFlatView) uiFlatViewColTabEd : public CallBacker
 {
 public:
     				uiFlatViewColTabEd(uiParent*,FlatView::Viewer&);

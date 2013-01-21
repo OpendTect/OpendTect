@@ -30,7 +30,7 @@ class CmdRecorder;
 class uiCmdDriverDlg;
 
 
-mClass(uiCmdDriver) uiCmdDriverMgr : public CallBacker
+mExpClass(uiCmdDriver) uiCmdDriverMgr : public CallBacker
 {
 public:
 				uiCmdDriverMgr(bool fullodmode=false);

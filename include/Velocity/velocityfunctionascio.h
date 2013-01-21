@@ -23,7 +23,7 @@ class TaskRunner;
 namespace Vel
 {
 
-mClass(Velocity) FunctionAscIO : public Table::AscIO, public SequentialTask
+mExpClass(Velocity) FunctionAscIO : public Table::AscIO, public SequentialTask
 {
 public:
     				FunctionAscIO( const Table::FormatDesc& fd,

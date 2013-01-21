@@ -81,7 +81,7 @@ namespace CmdDrive
     const char* unscopedstr = *identstr=='@' ? identstr+1 : identstr;
 
 
-mClass(uiCmdDriver) StringProcessor	// Parsing toolkit 
+mExpClass(uiCmdDriver) StringProcessor	// Parsing toolkit 
 {
 public:
 			StringProcessor(BufferString& bs)
@@ -169,7 +169,7 @@ mGlobal(uiCmdDriver) bool isCmdDriverWindow(const uiMainWin*);
 mGlobal(uiCmdDriver) const char* controllerTitle();
 
 
-mClass(uiCmdDriver) WindowStack
+mExpClass(uiCmdDriver) WindowStack
 {
 public:
 			WindowStack()			{}
@@ -188,7 +188,7 @@ protected:
 };
 
 
-mClass(uiCmdDriver) InteractSpec
+mExpClass(uiCmdDriver) InteractSpec
 {
 public:
 			InteractSpec(bool wait=true)

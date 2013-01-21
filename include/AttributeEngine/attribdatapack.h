@@ -36,7 +36,7 @@ class Data2DArray;
   \brief Mixing to provide general services to attribute data packs.
 */
 
-mClass(AttributeEngine) DataPackCommon
+mExpClass(AttributeEngine) DataPackCommon
 {
 public:
     			DataPackCommon( DescID id )
@@ -63,7 +63,7 @@ protected:
   \brief Base class data pack for 2D.
 */
 
-mClass(AttributeEngine) Flat2DDataPack : public ::FlatDataPack
+mExpClass(AttributeEngine) Flat2DDataPack : public ::FlatDataPack
 		     , public DataPackCommon
 {
 public:
@@ -92,7 +92,7 @@ protected:
   \brief Data pack from 2D attribute data.
 */
 
-mClass(AttributeEngine) Flat2DDHDataPack : public Flat2DDataPack
+mExpClass(AttributeEngine) Flat2DDHDataPack : public Flat2DDataPack
 {
 public:
     			Flat2DDHDataPack(DescID,const Data2DHolder&,
@@ -134,7 +134,7 @@ protected:
   \brief Flat data pack from 3D attribute extraction.
 */ 
 
-mClass(AttributeEngine) Flat3DDataPack : public ::FlatDataPack
+mExpClass(AttributeEngine) Flat3DDataPack : public ::FlatDataPack
 		     , public DataPackCommon
 {
 public:
@@ -181,7 +181,7 @@ protected:
   \brief Volume data pack.
 */ 
 
-mClass(AttributeEngine) CubeDataPack : public ::CubeDataPack
+mExpClass(AttributeEngine) CubeDataPack : public ::CubeDataPack
 		   , public DataPackCommon
 {
 public:
@@ -210,7 +210,7 @@ protected:
   \brief Data pack from random traces extraction.
 */
 
-mClass(AttributeEngine) FlatRdmTrcsDataPack : public Flat2DDataPack
+mExpClass(AttributeEngine) FlatRdmTrcsDataPack : public Flat2DDataPack
 {
 public:
     			FlatRdmTrcsDataPack(DescID,const SeisTrcBuf&,

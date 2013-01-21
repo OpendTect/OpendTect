@@ -24,10 +24,10 @@ ________________________________________________________________________
   Leicester, UK, http://www.soi.city.ac.uk/~jwo/phd"
 */
 
-mClass(Algo) Curvature
+mExpClass(Algo) Curvature
 {
 public:
-    mClass(Algo) Setup
+    mExpClass(Algo) Setup
     {
 	public:
 	    		Setup();

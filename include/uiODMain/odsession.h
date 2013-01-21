@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 /*!\brief dTect session save/restore */
 
-mClass(uiODMain) ODSession
+mExpClass(uiODMain) ODSession
 {
 public:
     			ODSession();
@@ -79,7 +79,7 @@ protected:
 };
 
 
-mClass(uiODMain) ODSessionTranslatorGroup : public TranslatorGroup
+mExpClass(uiODMain) ODSessionTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ODSession)
 public:
 			mDefEmptyTranslatorGroupConstructor(ODSession)
@@ -87,7 +87,7 @@ public:
 };
 
 
-mClass(uiODMain) ODSessionTranslator : public Translator
+mExpClass(uiODMain) ODSessionTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(ODSession)
@@ -110,7 +110,7 @@ public:
 };
     
 
-mClass(uiODMain) dgbODSessionTranslator : public ODSessionTranslator
+mExpClass(uiODMain) dgbODSessionTranslator : public ODSessionTranslator
 {				  isTranslator(dgb,ODSession)
 public:
     			mDefEmptyTranslatorConstructor(dgb,ODSession)
@@ -134,7 +134,7 @@ class uiButton;
 Session manager
 */
 
-mClass(uiODMain) uiSessionMan : public uiObjFileMan
+mExpClass(uiODMain) uiSessionMan : public uiObjFileMan
 {
 public:
     				uiSessionMan(uiParent*);

@@ -34,7 +34,7 @@ class LayerGenerator;
 
  */
 
-mClass(Strat) LayerSequenceGenDesc : public ObjectSet<LayerGenerator>
+mExpClass(Strat) LayerSequenceGenDesc : public ObjectSet<LayerGenerator>
 {
 public:
 			LayerSequenceGenDesc(const RefTree&);

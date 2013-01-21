@@ -21,7 +21,7 @@ ________________________________________________________________________
 \brief COIN - Qt main window
 */
 
-mClass(uiCoin) uicMain : public uiMain
+mExpClass(uiCoin) uicMain : public uiMain
 {
 public:
 			uicMain(int& argc,char** argv);

@@ -38,7 +38,7 @@ namespace WellTie
     class Setup;
     class PickSetMgr;
 
-mClass(WellAttrib) DispParams
+mExpClass(WellAttrib) DispParams
 {
 public:
 			    DispParams()
@@ -66,7 +66,7 @@ public:
 };
 
 
-mClass(WellAttrib) Marker
+mExpClass(WellAttrib) Marker
 {
 public:
 			    Marker(float z)
@@ -85,7 +85,7 @@ public:
 };
 
     
-mClass(WellAttrib) PickData
+mExpClass(WellAttrib) PickData
 {
 public:
     TypeSet<Marker>		synthpicks_;
@@ -93,7 +93,7 @@ public:
 };
 
     
-mClass(WellAttrib) Data
+mExpClass(WellAttrib) Data
 {
 public :
     				Data(const Setup&,Well::Data& wd);
@@ -141,7 +141,7 @@ protected:
 };
 
 
-mClass(WellAttrib) WellDataMgr : public CallBacker
+mExpClass(WellAttrib) WellDataMgr : public CallBacker
 {
 public:
     				WellDataMgr(const MultiID&);
@@ -160,7 +160,7 @@ protected:
 };
 
 
-mClass(WellAttrib) DataWriter 
+mExpClass(WellAttrib) DataWriter 
 {	
 public:    
 				DataWriter(Well::Data&,const MultiID&);
@@ -204,7 +204,7 @@ protected:
 };
 
 
-mClass(WellAttrib) HorizonMgr
+mExpClass(WellAttrib) HorizonMgr
 {
 public:
     				HorizonMgr(TypeSet<Marker>& hor)
@@ -233,7 +233,7 @@ protected:
 };
 
 
-mClass(WellAttrib) Server : public CallBacker
+mExpClass(WellAttrib) Server : public CallBacker
 {
 public :
     				Server(const WellTie::Setup&);

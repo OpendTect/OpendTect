@@ -25,7 +25,7 @@ namespace Strat
 
 /*!\brief stuff that can be inside porous layers */
 
-mClass(Strat) Content : public NamedObject
+mExpClass(Strat) Content : public NamedObject
 {
 public:
 
@@ -62,7 +62,7 @@ public:
 
 /*!\brief set of names for stuff that can be inside porous layers */
 
-mClass(Strat) ContentSet : public ObjectSet<Content>
+mExpClass(Strat) ContentSet : public ObjectSet<Content>
 {
 public:
 

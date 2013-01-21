@@ -39,7 +39,7 @@ class uiSliderExtra;
 class IOPar;
 
 
-mClass(uiAttributes) AttribParamGroup : public uiGroup
+mExpClass(uiAttributes) AttribParamGroup : public uiGroup
 {
 public:
 				AttribParamGroup(uiParent*,const uiAttrDescEd&,
@@ -66,7 +66,7 @@ protected:
 };
 
 
-mClass(uiAttributes) uiEvaluateDlg : public uiDialog
+mExpClass(uiAttributes) uiEvaluateDlg : public uiDialog
 {
 public:
 				uiEvaluateDlg(uiParent*,uiAttrDescEd&,
