@@ -39,7 +39,7 @@ namespace Well { class Data; class Track; class D2TModel; class Log; }
 
 /*! \brief Dialog for D2T Model editing. */
 
-mClass(uiWell) uiWellTrackDlg : public uiDialog
+mExpClass(uiWell) uiWellTrackDlg : public uiDialog
 {
 public:
 				uiWellTrackDlg(uiParent*,Well::Data&);
@@ -64,7 +64,7 @@ protected:
 };
 
 
-mClass(uiWell) uiD2TModelDlg : public uiDialog
+mExpClass(uiWell) uiD2TModelDlg : public uiDialog
 {
 public:
 				uiD2TModelDlg(uiParent*,Well::Data&,bool chksh);
@@ -94,7 +94,7 @@ protected:
 Dialog for loading logs from las file
 */
 
-mClass(uiWell) uiLoadLogsDlg : public uiDialog
+mExpClass(uiWell) uiLoadLogsDlg : public uiDialog
 {
 public:
     				uiLoadLogsDlg(uiParent*,Well::Data&);
@@ -117,7 +117,7 @@ protected:
 
 
 
-mClass(uiWell) uiExportLogs : public uiDialog
+mExpClass(uiWell) uiExportLogs : public uiDialog
 {
 public:
     				uiExportLogs(uiParent*,
@@ -146,7 +146,7 @@ protected:
 
 class uiColorInput;
 
-mClass(uiWell) uiNewWellDlg : public uiGetObjectName
+mExpClass(uiWell) uiNewWellDlg : public uiGetObjectName
 {
 public:
     				uiNewWellDlg(uiParent*);
@@ -167,7 +167,7 @@ protected:
 
 
 /* brief some editable uom for the logs */
-mClass(uiWell) uiWellLogUOMDlg : public uiDialog
+mExpClass(uiWell) uiWellLogUOMDlg : public uiDialog
 {
 public:
 				uiWellLogUOMDlg(uiParent*,Well::Log&);
