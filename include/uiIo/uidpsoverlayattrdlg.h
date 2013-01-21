@@ -19,7 +19,6 @@ class uiComboBox;
 class uiDataPointSetCrossPlotter;
 
 /*!
-\ingroup uiIo
 \brief Dialog box to display properties within points in crossplot.
 */
 

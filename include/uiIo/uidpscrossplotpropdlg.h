@@ -22,7 +22,6 @@ class uiDPSCPDisplayPropTab;
 class uiDPSDensPlotSetTab;
 
 /*!
-\ingroup uiIo
 \brief Crossplot properties dialog box.
 */
 

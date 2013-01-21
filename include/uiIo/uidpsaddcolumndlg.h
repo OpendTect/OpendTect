@@ -23,7 +23,6 @@ class uiTable;
 class MathExpression;
 
 /*!
-\ingroup uiIo
 \brief Dialog box to add columns in datapointset.
 */
 
