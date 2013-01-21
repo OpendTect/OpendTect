@@ -19,8 +19,7 @@ class Conn;
 namespace Attrib { class DescSet; }
 
 /*!
-  \ingroup AttributeEngine
-  \brief Translator group for I/O of DescSet.
+\brief Translator group for I/O of DescSet.
 */
 
 mExpClass(AttributeEngine) AttribDescSetTranslatorGroup : public TranslatorGroup
@@ -33,8 +32,7 @@ public:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Base Translator class for I/O of DescSet.
+\brief Base Translator class for I/O of DescSet.
 */
 
 mExpClass(AttributeEngine) AttribDescSetTranslator : public Translator
@@ -57,9 +55,9 @@ public:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Actual Translator class for I/O of DescSet.
+\brief Actual Translator class for I/O of DescSet.
 */
+
 mExpClass(AttributeEngine) dgbAttribDescSetTranslator : public AttribDescSetTranslator
 {			     isTranslator(dgb,AttribDescSet)
 public:

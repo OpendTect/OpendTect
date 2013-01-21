@@ -33,9 +33,9 @@ typedef void(*DescStatusUpdater)(Desc&);
 typedef void(*DescDefaultsUpdater)(Desc&);
 
 /*!
-  \ingroup AttributeEngine
-  \brief Setup class for Attrib::Desc.
+\brief Setup class for Attrib::Desc.
 */
+
 mExpClass(AttributeEngine) DescSetup
 {
     public:
@@ -53,9 +53,9 @@ mExpClass(AttributeEngine) DescSetup
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Specification of input data of an attribute.
+\brief Specification of input data of an attribute.
 */
+
 mExpClass(AttributeEngine) InputSpec
 {
 public:
@@ -75,16 +75,15 @@ public:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Description of an attribute in an Attrib::DescSet. Each attribute has
-  a name (e.g. "Similarity"), a user reference (e.g. "My similarity"), and at
-  least one output. In addition, it may have parameters and inputs. If it has
-  multiple outputs, only one of the outputs are selected.
+\brief Description of an attribute in an Attrib::DescSet. Each attribute has
+a name (e.g. "Similarity"), a user reference (e.g. "My similarity"), and at
+least one output. In addition, it may have parameters and inputs. If it has
+multiple outputs, only one of the outputs are selected.
   
-  The attrib name, the parameters and the selected output number together form
-  a definition string that defines what the attribute calculates.
+The attrib name, the parameters and the selected output number together form
+a definition string that defines what the attribute calculates.
   
-  Each Desc has DescID that is unique within it's DescSet.
+Each Desc has DescID that is unique within it's DescSet.
 */
 
 mExpClass(AttributeEngine) Desc

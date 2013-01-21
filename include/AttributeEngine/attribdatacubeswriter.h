@@ -28,8 +28,7 @@ namespace Attrib
 class DataCubes;
 
 /*!
-  \ingroup AttributeEngine
-  \brief Writes Attribute DataCubes.
+\brief Writes Attribute DataCubes.
 */
 
 mExpClass(AttributeEngine) DataCubesWriter : public Executor

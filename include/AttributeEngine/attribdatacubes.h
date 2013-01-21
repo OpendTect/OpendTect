@@ -25,9 +25,8 @@ namespace Attrib
 {
 
 /*!
-  \ingroup AttributeEngine
-  \brief A class for holding cubes with attribute data. All the cubes have
-  the same sampling and size.
+\brief A class for holding cubes with attribute data. All the cubes have
+the same sampling and size.
 */
 
 mExpClass(AttributeEngine) DataCubes

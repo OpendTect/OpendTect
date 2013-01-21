@@ -27,8 +27,7 @@ class EngineMan;
 class DescSet;
 
 /*!
-  \ingroup AttributeEngine
-  \brief Positionvector output generator for attributes.
+\brief Positionvector output generator for attributes.
 */
 
 mExpClass(AttributeEngine) PosVecOutputGen : public Executor

@@ -22,8 +22,7 @@ namespace Attrib
 {
 
 /*!
-  \ingroup AttributeEngine
-  \brief A parameter that is used by an attribute.
+\brief A parameter that is used by an attribute.
   
   Each attribute has a definition string that defines how the attribute is
   computed. The definition string has the format:
@@ -88,8 +87,7 @@ protected:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Attribute Value Parameter
+\brief Attribute Value Parameter
 */
 
 mExpClass(AttributeEngine) ValParam : public Param

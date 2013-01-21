@@ -29,8 +29,7 @@ class Output;
 class Provider;
 
 /*!
-  \ingroup AttributeEngine
-  \brief Attribute Processor
+\brief Attribute Processor
 */
 
 mExpClass(AttributeEngine) Processor : public Executor

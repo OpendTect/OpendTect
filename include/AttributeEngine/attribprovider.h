@@ -42,8 +42,7 @@ class Desc;
 class ProviderTask;
 
 /*!
-  \ingroup AttributeEngine
-  \brief Provides the actual output to ...
+\brief Provides the actual output to ...
 */
 
 mExpClass(AttributeEngine) Provider

@@ -27,8 +27,7 @@ namespace Attrib
 class DataCubes;
 
 /*!
-  \ingroup AttributeEngine
-  \brief Holds the attribute data.
+\brief Holds the attribute data.
   
   Basically, this is a set of ValueSeries<float> objects, the size of
   each of these, and the start Z in the AE Z-Axis definition:
@@ -81,8 +80,7 @@ protected:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Class that holds 2d seismic data or attribute data.
+\brief Class that holds 2d seismic data or attribute data.
 */
 
 mExpClass(AttributeEngine) Data2DHolder
@@ -106,8 +104,7 @@ public:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Class that holds 2d seismic data or attribute data in an array.
+\brief Class that holds 2d seismic data or attribute data in an array.
 */
 
 mExpClass(AttributeEngine) Data2DArray

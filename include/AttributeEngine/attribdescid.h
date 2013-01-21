@@ -19,10 +19,9 @@ namespace Attrib
 {
 
 /*!
-  \ingroup AttributeEngine
-  \brief AttribDesc ID: each Desc has a unique ID in a set; the boolean
-  isstored allows us to know whether this Desc is to be found in the DescSet
-  dedicated for stored Attributes.
+\brief AttribDesc ID: each Desc has a unique ID in a set; the boolean
+isstored allows us to know whether this Desc is to be found in the DescSet
+dedicated for stored Attributes.
 */
 
 mExpClass(AttributeEngine) DescID

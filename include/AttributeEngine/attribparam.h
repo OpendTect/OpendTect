@@ -24,8 +24,7 @@ namespace Attrib
 {
 
 /*!
-  \ingroup AttributeEngine
-  \brief A parameter that is used by an attribute.
+\brief A parameter that is used by an attribute.
   
   Each attribute has a definition string that defines how the attribute is
   computed. The definition string has the format:
@@ -63,8 +62,7 @@ public:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Bool parameter that is used by an attribute.
+\brief Bool parameter that is used by an attribute.
 */
 
 mExpClass(AttributeEngine) BoolParam : public ValParam
@@ -83,8 +81,7 @@ public:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Enum parameter that is used by an attribute.
+\brief Enum parameter that is used by an attribute.
 */
 
 mExpClass(AttributeEngine) EnumParam : public ValParam
@@ -106,8 +103,7 @@ public:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief String parameter that is used by an attribute.
+\brief String parameter that is used by an attribute.
 */
 
 mExpClass(AttributeEngine) StringParam : public ValParam
@@ -126,9 +122,8 @@ public:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Numerical parameter that is used by an attribute.
-  For example: IntParam, FloatParam and DoubleParam.
+\brief Numerical parameter that is used by an attribute.
+For example: IntParam, FloatParam and DoubleParam.
 */
 
 template <class T>
@@ -241,9 +236,8 @@ typedef NumParam<double>	DoubleParam;
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Gate parameter that is used by an attribute.
-  For example: IntGateParam, FloatGateParam, DoubleGateParam and ZGateParam.
+\brief Gate parameter that is used by an attribute.
+For example: IntGateParam, FloatGateParam, DoubleGateParam and ZGateParam.
 */
 
 template <class T>
@@ -412,8 +406,7 @@ typedef NumGateParam<float>		ZGateParam;
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Stored seismic input parameter used by an attribute.
+\brief Stored seismic input parameter used by an attribute.
 */
 
 mExpClass(AttributeEngine) SeisStorageRefParam : public StringParam

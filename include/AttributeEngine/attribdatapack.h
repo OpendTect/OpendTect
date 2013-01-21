@@ -32,8 +32,7 @@ class DataHolderArray;
 class Data2DArray;
 
 /*!
-  \ingroup AttributeEngine
-  \brief Mixing to provide general services to attribute data packs.
+\brief Mixing to provide general services to attribute data packs.
 */
 
 mExpClass(AttributeEngine) DataPackCommon
@@ -59,8 +58,7 @@ protected:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Base class data pack for 2D.
+\brief Base class data pack for 2D.
 */
 
 mExpClass(AttributeEngine) Flat2DDataPack : public ::FlatDataPack
@@ -88,8 +86,7 @@ protected:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Data pack from 2D attribute data.
+\brief Data pack from 2D attribute data.
 */
 
 mExpClass(AttributeEngine) Flat2DDHDataPack : public Flat2DDataPack
@@ -130,8 +127,7 @@ protected:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Flat data pack from 3D attribute extraction.
+\brief Flat data pack from 3D attribute extraction.
 */ 
 
 mExpClass(AttributeEngine) Flat3DDataPack : public ::FlatDataPack
@@ -177,8 +173,7 @@ protected:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Volume data pack.
+\brief Volume data pack.
 */ 
 
 mExpClass(AttributeEngine) CubeDataPack : public ::CubeDataPack
@@ -206,8 +201,7 @@ protected:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Data pack from random traces extraction.
+\brief Data pack from random traces extraction.
 */
 
 mExpClass(AttributeEngine) FlatRdmTrcsDataPack : public Flat2DDataPack

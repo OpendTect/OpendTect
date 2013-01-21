@@ -40,8 +40,7 @@ class Processor;
 class Data2DHolder;
 
 /*!
-  \ingroup AttributeEngine
-  \brief The attribute engine manager.
+\brief The attribute engine manager.
 */
 
 mExpClass(AttributeEngine) EngineMan

@@ -25,9 +25,8 @@ mGlobal(AttributeEngine) const DescSetsHolder& DSHolder();
 mGlobal(AttributeEngine) DescSetsHolder& eDSHolder();
 
 /*!
-  \ingroup AttributeEngine
-  \brief Pack to carry DescSet Managers for live attributes and DescSets
-  for stored data, both in 2D and 3D.
+\brief Pack to carry DescSet Managers for live attributes and DescSets for
+stored data, both in 2D and 3D.
 */
 
 mExpClass(AttributeEngine) DescSetsHolder

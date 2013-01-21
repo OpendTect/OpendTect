@@ -24,8 +24,7 @@ namespace Attrib
 class DataHolder;
 
 /*!
-  \ingroup AttributeEngine
-  \brief Attribute DataHolder Line Buffer.
+\brief Attribute DataHolder Line Buffer.
 */
 
 mExpClass(AttributeEngine) DataHolderLineBuffer

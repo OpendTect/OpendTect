@@ -26,8 +26,7 @@ namespace Attrib
 class DataHolder;
 
 /*!
-  \ingroup AttributeEngine
-  \brief Attribute storage provider.
+\brief Attribute storage provider.
 */
 
 mExpClass(AttributeEngine) StorageProvider : public Provider

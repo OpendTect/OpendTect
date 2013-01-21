@@ -38,8 +38,7 @@ class DataCubes;
 class Data2DHolder;
 
 /*!
-  \ingroup AttributeEngine
-  \brief Base class for attribute Output.
+\brief Base class for attribute Output.
 */
 
 mExpClass(AttributeEngine) Output
@@ -98,8 +97,7 @@ protected:
     				{ return Output::getLocalZRanges(t,f,ts); }
 
 /*!
-  \ingroup AttributeEngine
-  \brief Attribute DataCubes Output.
+\brief Attribute DataCubes Output.
 */
 
 mExpClass(AttributeEngine) DataCubesOutput : public Output
@@ -138,8 +136,7 @@ protected:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Seismic trace storage Output.
+\brief Seismic trace storage Output.
 */
 
 mExpClass(AttributeEngine) SeisTrcStorOutput : public Output
@@ -208,8 +205,7 @@ public:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief 2D trace Output with variable Z range. 
+\brief 2D trace Output with variable Z range. 
 */
 
 mExpClass(AttributeEngine) Trc2DVarZStorOutput : public SeisTrcStorOutput
@@ -246,8 +242,7 @@ protected:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Simple 2D Output
+\brief Simple 2D Output
 */
 
 mExpClass(AttributeEngine) TwoDOutput : public Output
@@ -282,8 +277,7 @@ protected:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Output at discrete locations ( For example a pickset. )
+\brief Output at discrete locations ( For example a pickset. )
 */
 
 mExpClass(AttributeEngine) LocationOutput : public Output
@@ -320,8 +314,7 @@ protected:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Output at an assorted selection of traces.
+\brief Output at an assorted selection of traces.
 */
 
 mExpClass(AttributeEngine) TrcSelectionOutput : public Output
@@ -353,8 +346,7 @@ protected:
 
 
 /*!
-  \ingroup AttributeEngine
-  \brief Output at a selection of locations.
+\brief Output at a selection of locations.
 */
 
 mExpClass(AttributeEngine) TableOutput : public Output

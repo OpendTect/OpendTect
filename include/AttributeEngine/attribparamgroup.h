@@ -20,8 +20,7 @@ namespace Attrib
 {
 
 /*!
-  \ingroup AttributeEngine
-  \brief Attrib::Param that contains many (a set) Attrib::Param of one kind.
+\brief Attrib::Param that contains many (a set) Attrib::Param of one kind.
   
   It's made for parameters where you don't know how many are required. 
   An example can be positions, where the number of positions are unknown at 

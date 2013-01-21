@@ -31,8 +31,8 @@ class SelSpec;
 class DataCubes;
 
 /*!
-  \ingroup AttributeEngine
-  \brief Generic class for attribs that does not come from the attribute engine.*/
+\brief Generic class for attribs that does not come from the attribute engine.
+*/
 
 mExpClass(AttributeEngine) ExtAttribCalc
 {
