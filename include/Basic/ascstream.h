@@ -23,7 +23,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief OpendTect standard ascii format file writing.
   
   An ascostream puts data in an OpendTect standard ascii format file. That means
@@ -77,7 +76,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief OpendTect standard ascii format file reading.
   
   An ascistream gets data from a OpendTect standard ascii format file. This

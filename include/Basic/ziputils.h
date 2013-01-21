@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Zip Utilities
 */
 
@@ -75,7 +74,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief It is an Executor class which compresses files into zip format but user
 should not use it directly instead use ZipUtils::makeZip.
 */
@@ -104,7 +102,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief It is an Executor class which uncompresses files of zip format but user
 should instead use ZipUtils::UnZipArchive() to unzip complete archive or
 ZipUtils::UnZipFile() to take one file out of zip archive.

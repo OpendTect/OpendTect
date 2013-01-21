@@ -19,7 +19,6 @@ template <class T> class TypeSet;
 class BinID;
 
 /*!
-\ingroup Basic
 \brief Object with row and col. RowCol has most functions in common with
 BinID, so template-based functions can be based on both classes.
 */

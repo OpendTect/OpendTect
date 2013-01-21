@@ -60,7 +60,6 @@ enum Pol2D3D	{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };
 	    var[idx] = idx;
 
 /*!
-\ingroup Basic
 \brief Define members in setup classes (see e.g. uidialog.h)
 
   Usage typically like:
@@ -100,7 +99,6 @@ enum Pol2D3D	{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };
 #endif
 
 /*!
-\ingroup Basic
 \brief Applies an operation to all members in an array. Quicker than for-loops.
 
   Instead of:

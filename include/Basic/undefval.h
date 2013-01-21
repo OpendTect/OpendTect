@@ -46,7 +46,6 @@ namespace Values
 {
 
 /*!
-\ingroup Basic
 \brief Templatized undefined values.
 */
 
@@ -62,7 +61,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Undefined od_int16.
 */
 
@@ -78,7 +76,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Undefined od_uint16.
 */
 
@@ -94,7 +91,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Undefined od_int32.
 */
 
@@ -110,7 +106,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Undefined od_uint32.
 */
 
@@ -126,7 +121,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Undefined od_int64.
 */
 
@@ -142,7 +136,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Undefined od_uint64.
 */
 
@@ -158,7 +151,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Undefined bool.
 */
 
@@ -174,7 +166,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Undefined float.
 */
 
@@ -190,7 +181,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Undefined double.
 */
 
@@ -206,7 +196,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Undefined const char*.
 */
 
@@ -222,7 +211,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Undefined char*.
 */
 

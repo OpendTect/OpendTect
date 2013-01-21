@@ -22,7 +22,6 @@ namespace PosInfo
 {
 
 /*!
-\ingroup Basic  
 \brief One position on a 2D line.
 */
 
@@ -45,7 +44,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Line2DPos with a z value.
 */
 
@@ -60,7 +58,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Position info for a 2D line.
 */
 

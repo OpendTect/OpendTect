@@ -17,7 +17,6 @@ ________________________________________________________________________
 class BufferString;
 
 /*!
-\ingroup Basic
 \brief A date info class.
   
   Class does not work before 1900. Non-default constructors are for dates

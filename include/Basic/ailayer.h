@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Acoustic Impedance layer.
 */
 
@@ -50,7 +49,6 @@ inline float getLayerDepth( const AIModel& mod, int layer )
 
 
 /*!
-\ingroup Basic
 \brief A table of elastic prop layers.
 */
 

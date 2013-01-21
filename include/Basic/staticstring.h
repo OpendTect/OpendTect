@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Class that keeps one static string per thread. This enables temporary
 passing of static strings where needed.
 */

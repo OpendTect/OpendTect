@@ -30,7 +30,6 @@ class Work;
 
 
 /*!
-\ingroup Basic
 \brief Takes work and puts it on a queue for execution either in parallel,
 singlethread or manual.
 */
@@ -123,7 +122,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief The abstraction of something that can be done. It can be an ordinary
 CallBack, a static function (must return bool) or a TaskFunction on a CallBackerinheriting class, or a Task. The three examples are shown below.
 

@@ -22,7 +22,6 @@ mFDQtclass(QFileSystemWatcher)
 mFDQtclass(QFileSystemWComm)
 
 /*!
-\ingroup Basic
 \brief Class for monitoring a file system.
 */
 

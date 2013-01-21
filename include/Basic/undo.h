@@ -21,7 +21,6 @@ class UndoEvent;
 class BinID;
 
 /*!
-\ingroup Basic
 \brief Class to handle undo/redo information. Events that can be undone/redone
 are added to the Undo. One user operation may involve thousands of changes
 added to the history, but the user does not want to press undo a thousand times.This is managed by setting a UserInteractionEnd flag on the last event in a
@@ -99,7 +98,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Holds the information on how to undo/redo something.
 */
 
@@ -126,7 +124,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief BinID UndoEvent.
 */
 

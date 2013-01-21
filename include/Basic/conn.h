@@ -19,7 +19,6 @@ ________________________________________________________________________
 class IOObj;
 
 /*!
-\ingroup Basic
 \brief Data connection.
   
   Data can be found in files and data stores. To access these data sources,
@@ -60,7 +59,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Connection implemented in terms of another Conn object.
 */
 

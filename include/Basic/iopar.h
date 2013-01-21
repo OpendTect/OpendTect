@@ -30,7 +30,6 @@ class ascistream;
 class ascostream;
 
 /*!
-\ingroup Basic
 \brief Generalized set of parameters of the keyword-value type.
 
   Part of the function of this class is as in an STL map<string,string>.

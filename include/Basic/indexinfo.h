@@ -17,8 +17,7 @@ ________________________________________________________________________
 
 
 /*!
-  \ingroup Basic
-  \brief %Info on (floating-point) position in an array or StepInterval.
+\brief %Info on (floating-point) position in an array or StepInterval.
 */
 
 mExpClass(Basic) IndexInfo

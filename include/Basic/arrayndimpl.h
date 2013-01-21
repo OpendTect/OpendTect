@@ -35,7 +35,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Implementation of Array1D.
 */
 
@@ -80,7 +79,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Implementation of Array2D.
 */
 
@@ -118,7 +116,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Implementation of Array3D.
 */
 
@@ -153,7 +150,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Implementation of ArrayND.
 */
 

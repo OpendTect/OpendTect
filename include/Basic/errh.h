@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "fixedstring.h"
 
 /*!
-\ingroup Basic
 \brief MsgClass holding an error message.
   
   Programmer errors are only outputed when printProgrammerErrs is true. This

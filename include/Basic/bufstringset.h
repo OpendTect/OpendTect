@@ -20,7 +20,6 @@ class IOPar;
 class GlobExpr;
 
 /*!
-\ingroup Basic
 \brief Set of BufferString objects.
 */
 

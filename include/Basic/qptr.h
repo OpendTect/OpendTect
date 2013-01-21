@@ -21,7 +21,6 @@ namespace  Threads { class Mutex; }
 mFDQtclass(QObject);
 
 /*!
-\ingroup Basic
 \brief Class with a pointer to a QObject. The pointer will be set to null
 when the QObject goes out of scope.
 */

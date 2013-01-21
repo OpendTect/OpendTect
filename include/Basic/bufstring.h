@@ -20,7 +20,6 @@ ________________________________________________________________________
 class FixedString;
 
 /*!
-\ingroup Basic
 \brief String with variable length but guaranteed minimum buffer size.
 
 The minimum buffer size makes life easier in worlds where strcpy etc. rule.

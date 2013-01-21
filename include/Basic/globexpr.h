@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "general.h"
 
 /*!
-\ingroup Basic
 \brief Glob-expression matching like UNIX shells
 
   Expressions may have '*', '?' and [] (e.g. [a-eA-E]) constructions. Also the

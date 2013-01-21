@@ -43,7 +43,6 @@ class Mutex;
 
 
 /*!
-\ingroup Basic
 \brief Atomic variable where an operation (add, subtract) can be done without
 locking in a multithreaded environment. Only available for long, unsigned long.
 */
@@ -92,7 +91,6 @@ protected:
 
     
 /*!
-\ingroup Basic
 \brief Atomic instantiated with a pointer. The class really only handles the
 casting from a void* to a T*.
 */
@@ -130,7 +128,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Is a lock that allows a thread to have exlusive rights to something.
 
   It is guaranteed that once locked, no one else will be able to lock it before
@@ -164,7 +161,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Is an alternative to Mutex. It is a lock which causes a thread trying to acquire it to simply wait in a loop ("spin") while repeatedly checking if the
 lock is available. Because they avoid overhead from operating system process
 re-scheduling or context switching, spinlocks are efficient if threads are only likely to be blocked for a short period.
@@ -191,7 +187,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Is an object that faciliates many threads to wait for something to
 happen.
 
@@ -245,7 +240,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Lock that permits multiple readers to lock the object at the same time,
 but it will not allow any readers when writelocked, and no writelock is allowed
 when readlocked.
@@ -296,7 +290,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Is an object that is convenient to use when a mutex should be
 locked and unlocked automatically when returning.
 
@@ -347,7 +340,6 @@ mLockerClassImpl( Basic, WriteLockLocker, ReadWriteLock,
 
 
 /*!
-\ingroup Basic
 \brief Waits for a number of threads to reach a certain point (i.e. the call to
 Barrier::waitForAll). Once everyone has arrived, everyone is released.
 */
@@ -389,7 +381,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Is the base class for all threads. Start it by creating it and give it
 the function or CallBack to execute. 
 

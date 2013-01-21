@@ -24,7 +24,6 @@ class IOPar;
 
 
 /*!
-\ingroup Basic
 \brief A data packet: data+positioning and more that needs to be shared.
 
   The 'category' is meant like:
@@ -83,7 +82,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Simple DataPack based on an unstructured char array buffer.
 */
 
@@ -115,7 +113,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Manages DataPacks.
   
   DataPacks will be managed with everything in it. If you add a Pack, you

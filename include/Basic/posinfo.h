@@ -41,7 +41,6 @@ namespace PosInfo
 {
 
 /*!
-\ingroup Basic
 \brief Position info for a line - in a 3D cube, that would be an inline.
 Stored as (crossline-)number segments.
 */
@@ -69,7 +68,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Position in a CubeData.
 */
 
@@ -91,7 +89,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Position info for an entire 3D cube.
 The LineData's are not sorted.
 */
@@ -150,7 +147,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Position info for an entire 3D cube.
 The LineData's are sorted.
 */
@@ -184,7 +180,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Fills CubeData object. Requires inline- and crossline-sorting.
 */
 
@@ -212,7 +207,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Iterates through CubeData. 
 */
 

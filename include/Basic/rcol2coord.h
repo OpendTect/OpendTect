@@ -20,7 +20,6 @@ ________________________________________________________________________
 template <class T> class StepInterval;
 
 /*!
-\ingroup Basic
 \brief Encapsulates linear transform from (i,j) index to (x,y) coordinates.
 */
 

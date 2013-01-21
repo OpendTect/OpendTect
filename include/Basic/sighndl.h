@@ -19,7 +19,6 @@ ________________________________________________________________________
 namespace DBG { mGlobal(Basic) void forceCrash(bool); }
 
 /*!
-\ingroup Basic
 \brief Asynchronous event handling and notification.
 */
 

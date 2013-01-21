@@ -28,7 +28,6 @@ namespace PosInfo
 {
 
 /*!
-\ingroup Basic
 \brief Geometry ID. 
 */
 
@@ -54,7 +53,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Repository for 2D line geometries.
 
   You can access it using S2DPOS() (or PosInfo::POS2DAdmin()).
@@ -159,7 +157,6 @@ namespace Survey
 {
 
 /*!
-\ingroup Basic
 \brief Geometry of a 2D Line.
 */
 

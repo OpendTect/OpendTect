@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include <iostream>
 
 /*!
-\ingroup Basic
 \brief Concatenated short keys separated by dots.
   
   Usage is for Object identifiers in the Object Manager, or UnitIDs.

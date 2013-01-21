@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "namedobj.h"
 
 /*!
-\ingroup Basic
 \brief Holds data pertinent to a certain enum.
 */
 
@@ -41,7 +40,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Some utilities surrounding the often needed enum <-> string table.
 
   The function EnumDef::convert returns the enum (integer) value from a text

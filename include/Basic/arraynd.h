@@ -24,7 +24,6 @@ ________________________________________________________________________
 #define mPolyArray3DInfoTp mPolyRet(ArrayNDInfo,Array3DInfo)
 
 /*!
-\ingroup Basic
 \brief An ArrayND is an array with a given number of dimensions and a size.
 
   The ArrayND can be accessed via set() and get().
@@ -100,7 +99,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Array1D ( Subclass of ArrayND ) is a one dimensional array.
 */
 
@@ -129,7 +127,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Array2D ( Subclass of ArrayND ) is a two dimensional array.
 */
 
@@ -149,7 +146,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Array3D ( Subclass of ArrayND ) is a three dimensional array.
 */
 
@@ -169,7 +165,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Iterates through all samples in an ArrayND.
   
   ArrayNDIter will be on the first position when initiated, and move to
@@ -203,7 +198,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Adapter that makes any ArrayND to a (slow) value series.
 
   Try using other methods (like getting the storage) as this is slow.
@@ -386,8 +380,7 @@ void ArrayND<T>::setAll( const T& val )
 }
 
 /*!
-  \ingroup Basic
-  \brief Gets a one dimensional array from an ArrayND.
+\brief Gets a one dimensional array from an ArrayND.
 */
 
 template <class T>

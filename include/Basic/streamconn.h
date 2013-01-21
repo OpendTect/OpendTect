@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Connection with an underlying iostream.
 */
 

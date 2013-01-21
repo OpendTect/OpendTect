@@ -69,7 +69,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Zip file information.
 */
 
@@ -96,7 +95,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Handles zipping and unzipping of files.
 */
 

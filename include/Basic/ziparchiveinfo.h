@@ -21,7 +21,6 @@ class ZipFileInfo;
 
 
 /*!
-\ingroup Basic
 \brief Gives information of zip archives.
 */
 

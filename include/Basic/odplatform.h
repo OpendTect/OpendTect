@@ -19,7 +19,6 @@ namespace OD
 {
 
 /*!
-\ingroup Basic
 \brief Platform or Operating System
 */
 

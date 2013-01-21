@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "gendefs.h"
 
 /*!
-\ingroup Basic
 \brief Defines a class holding a pair of references of different classes.
 */
 
@@ -50,7 +49,6 @@ public: \
 
 
 /*!
-\ingroup Basic
 \brief Defines a class holding a pair of references of the same class.
 */
 

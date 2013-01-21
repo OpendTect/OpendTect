@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include <ctype.h>
 
 /*!
-\ingroup Basic
 \brief Advances given pointer to first non-whitespace.
 */
 
@@ -26,7 +25,6 @@ ________________________________________________________________________
     { if ( ptr ) { while ( *(ptr) && isspace(*(ptr)) ) (ptr)++; } }
 
 /*!
-\ingroup Basic
 \brief Advances given pointer to first whitespace.
 */
 
@@ -34,7 +32,6 @@ ________________________________________________________________________
     { if ( ptr ) { while ( *(ptr) && !isspace(*(ptr)) ) (ptr)++; } }
 
 /*!
-\ingroup Basic
 \brief Advances to first whitespace and removes trailing whitespace.
 */
 

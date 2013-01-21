@@ -21,7 +21,6 @@ namespace Repos
     enum Source	{ Temp, Rel, ApplSetup, Data, Survey, User };
 
 /*!
-\ingroup Basic
 \brief Constructs repository file names.
  
   The basename is the name of a file in upper and lower case,

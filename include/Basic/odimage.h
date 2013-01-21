@@ -19,7 +19,6 @@ namespace OD
 {
 
 /*!
-\ingroup Basic
 \brief Class for Red, Green, Blue image.
 */
 

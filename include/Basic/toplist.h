@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include <utility>
 
 /*!
-\ingroup Basic
 \brief Is a class that holds a "top N" list with the N highest (or lowest)
 values that is added. Each value has an associated value that can be used as an
 identifier of where the value comes from or something like that.

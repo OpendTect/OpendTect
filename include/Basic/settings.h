@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Settings class holds the user settings. It is an IOPar.
 
   The common() settings are basic, global user settings.

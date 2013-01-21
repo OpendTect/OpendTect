@@ -20,7 +20,6 @@ ________________________________________________________________________
 class IOPar;
 
 /*!
-\ingroup Basic
 \brief Class for simple ascii/binary stream read/write.
 */
 

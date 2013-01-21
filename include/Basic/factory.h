@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "errh.h"
 
 /*!
-\ingroup Basic
 \brief Base class for Factories ( Factory, Factory1Param, Factory2Param
 and Factory3Param. )
 */
@@ -57,7 +56,6 @@ private:
 
 
 /*!
-\ingroup Basic
 \brief Generalized static factory that can deliver instances of T, when no
 variable is needed in the creation.
   
@@ -123,7 +121,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Generalized static factory that can deliver instances of T, when a
 variable is needed in the creation.
   
@@ -194,7 +191,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Subclass of FactoryBase.
 */
 
@@ -222,7 +218,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Subclass of FactoryBase.
 */
 

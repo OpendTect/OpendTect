@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief ValWithError is a value with a known error (variance) and that knows how the error propagates in the four basic operations +,-,*,/ ValWithError can be
 instantiated with float & double. It's probable that it will work on complex
 data, although not tested.

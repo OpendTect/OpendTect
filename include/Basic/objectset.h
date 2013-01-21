@@ -25,7 +25,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Set of pointers to objects.
 
   The ObjectSet does not manage the objects, it is just a collection of

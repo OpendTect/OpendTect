@@ -30,7 +30,6 @@ class LatLong2Coord;
 
 
 /*!
-\ingroup Basic
 \brief Scaled down survey geometry for an inl/crl geometry.
 */
 
@@ -93,7 +92,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Holds survey general information.
 
   The surveyinfo is the primary source for ranges and steps.It also provides the  transformation between inline/xline <-> coordinates and lat/long estimates.

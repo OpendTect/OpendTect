@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "ranges.h"
 
 /*!
-\ingroup Basic
 \brief Interface for classes that select on basis of a key.
 
   Some Selectors may be extensible: you can ask them to include a key value.
@@ -55,7 +54,6 @@ private:
 
 
 /*!
-\ingroup Basic
 \brief Selector selecting only a single value.
 */
 
@@ -89,7 +87,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Selector based on range specification (an Interval).
 */
 
@@ -121,7 +118,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Selector based on array.
 */
 

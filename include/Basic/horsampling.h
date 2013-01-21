@@ -20,7 +20,6 @@ class IOPar;
 
 
 /*!
-\ingroup Basic
 \brief Horizontal sampling (inline and crossline range and steps).
 */
 
@@ -113,7 +112,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Finds next BinID in HorSampling; initializes to first position.
 */
 

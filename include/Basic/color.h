@@ -20,7 +20,6 @@ template <class T> class TypeSet;
 
 
 /*!
-\ingroup Basic
 \brief Color is an RGB color object, with a transparancy. The storage is in
 a 4-byte integer, similar to Qt.
 */
@@ -94,7 +93,6 @@ protected:
 namespace Values {
 
 /*!
-\ingroup Basic
 \brief Undefined Color.
 */
 

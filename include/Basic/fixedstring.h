@@ -20,7 +20,6 @@ class BufferString;
 
 
 /*!
-\ingroup Basic
 \brief Class that holds a text string, and provides basic services around it.
 The string is assumed to be owned by someone else or be static. In any case, it
 is assumed be be alive and well for the lifetime of the FixedString.

@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Holds data to use and close an iostream.
 
   Usually created by StreamProvider.

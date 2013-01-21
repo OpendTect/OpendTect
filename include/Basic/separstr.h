@@ -21,7 +21,6 @@ ________________________________________________________________________
 class BufferStringSet;
 
 /*!
-\ingroup Basic
 \brief %List encoded in a string.
 
   SeparString is a list encoded in a string where the items are separated by
@@ -111,7 +110,6 @@ mGlobal(Basic) std::istream& operator >>(std::istream&,SeparString&);
 
 
 /*!
-\ingroup Basic
 \brief SeparString with backquotes as separators, use in most ascii files.
 */
 

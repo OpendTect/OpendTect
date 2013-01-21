@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief File pathname tools.
 
   This class splits a full filename (with path) into the separate parts:

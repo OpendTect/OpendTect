@@ -46,7 +46,6 @@ typedef void (*StaticCallBackFunction)(CallBacker*);
 
 
 /*!
-\ingroup Basic
 \brief CallBacks object-oriented (object + method).
   
   CallBack is nothing more than a function pointer + optionally an object to
@@ -86,7 +85,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief TypeSet of CallBacks with a few extras.
 */
 
@@ -107,7 +105,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Interface class for Notifier. See comments there.
 */
 
@@ -142,7 +139,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Class to help setup a callback handling.
   
   What we have discovered is that the two things:
@@ -195,7 +191,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief To be able to send and/or receive CallBacks, inherit from this class.
 */
 
@@ -232,7 +227,6 @@ detachCB( notifier, clss, func )
 
 
 /*!
-\ingroup Basic
 \brief Capsule class to wrap any class into a CallBacker.
   
   Callback functions are defined as:
@@ -256,7 +250,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Unpacking data from capsule.
   
   If you have a pointer to a capsule cb, this:
@@ -292,7 +285,6 @@ CallBacker* cber = cb##caps->caller
 
 
 /*!
-\ingroup Basic
 \brief Notifier with automatic capsule creation.
   
   When non-callbacker data needs to be passed, you can put it in a capsule.
@@ -330,7 +322,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Temporarily disables a Notifier.
   
   Notifiers can be disabled. To do that temporarily, use NotifyStopper.

@@ -20,7 +20,6 @@ namespace Geom
 {
 
 /*!
-\ingroup Basic
 \brief %Basic point class.
 */
 
@@ -70,7 +69,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief %Basic 2D sizes (width/height) class.
 */
 
@@ -102,7 +100,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief %Basic 2D rectangle class.
 
   This class is a bit more complicated than would be expected at first sight.
@@ -179,7 +176,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Integer rectangle class.
 
   The difference with the floating point type rectangle is in range handling.
@@ -213,7 +209,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Floating-point rectangle class.
 
   The difference with the integer type rectangle is in range handling. In the

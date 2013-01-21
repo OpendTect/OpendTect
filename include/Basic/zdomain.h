@@ -35,7 +35,6 @@ mGlobal(Basic) void		setTime(IOPar&);
 
 
 /*!
-\ingroup Basic
 \brief Definition of z-domain.
 */
 
@@ -80,7 +79,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Information of z-domain.
 */
 

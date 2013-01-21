@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Object with a name.
 
   The NamedObject has a name and it can notify another NamedObject when it is

@@ -18,7 +18,6 @@ ________________________________________________________________________
 QT_BEGIN_NAMESPACE
 
 /*!
-\ingroup Basic
 \brief QTimer communication class
 
   Internal object, to hide Qt's signal/slot mechanism.

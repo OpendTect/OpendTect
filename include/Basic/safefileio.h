@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Protects file IO when you can't afford to have partly written things
 after write errors or have a file garbled by multiple access.
  

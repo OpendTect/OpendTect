@@ -16,8 +16,7 @@ ________________________________________________________________________
 
 
 /*!
-  \ingroup Basic
-  \brief ObjectSet where the objects contained are owned by this set.
+\brief ObjectSet where the objects contained are owned by this set.
 */
 
 template <class T>

@@ -16,7 +16,6 @@ ________________*_______________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief One single queue entry.
 */
 
@@ -32,7 +31,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Queue of objects.
 */
 
@@ -85,7 +83,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Queue of basic data types.
 */
 

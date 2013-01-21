@@ -23,7 +23,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Interface to a series of values.
 
   If the values are in contiguous memory, arr() should return non-null. 
@@ -64,7 +63,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief ValueSeries of offsets.
 */
 
@@ -101,7 +99,6 @@ protected:
 { return typeid(RT)==typeid(AT) ? (RT*) ptr_ : (RT*) 0;}
 
 /*!
-\ingroup Basic
 \brief Series of values from a pointer to some kind of array.
   If a more advanced conversion between the return type and the array type is
   wanted, use ConvValueSeries instead.
@@ -149,7 +146,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Valueseries that allocates its data in smaller chunks (default is 512MB).By doing this, it performs better in environments where the memory is fragmented(i.e. windows 32 bit).
 */
 
@@ -189,7 +185,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Gets ValueSeries.
 */
 

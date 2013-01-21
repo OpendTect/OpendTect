@@ -21,7 +21,6 @@ ________________________________________________________________________
 class Task;
 
 /*!
-\ingroup Basic
 \brief Is an interface where processes can report their progress.
 */
 
@@ -44,7 +43,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Textual progress indicator for batch programs.
 */
 

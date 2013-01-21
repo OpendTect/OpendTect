@@ -22,7 +22,6 @@ class BufferStringSet;
 
 
 /*!
-\ingroup Basic
 \brief Provides I/O stream for file or system command.
 
   StreamProvider provides a stream with requested source attached:

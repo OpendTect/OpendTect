@@ -18,7 +18,6 @@ namespace std
 {
 
 /*!
-\ingroup Basic
 \brief Adapter to use a fixed buffer as a stream.
 
   Usage like:

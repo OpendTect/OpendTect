@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "position.h"
 
 /*!
-\ingroup Basic
 \brief Base class for vertex attribute list.
 */
 
@@ -45,7 +44,6 @@ protected:
 class Coord3;
 
 /*!
-\ingroup Basic
 \brief Use Coord3ListImpl instead.
 */
 
@@ -67,7 +65,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Use Coord2ListImpl instead.
 */
 
@@ -88,7 +85,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief A list of Coord where each coord has a unique id.
 */
 
@@ -112,7 +108,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief A list of Coord3 where each coord has a unique id. 
 */
 

@@ -20,7 +20,6 @@ namespace OD
 {
 
 /*!
-\ingroup Basic
 \brief Base class for all sets used in OpendTect. 
 */
 

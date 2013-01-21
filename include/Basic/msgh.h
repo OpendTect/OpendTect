@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Class to encapsulate a message to the user.
 
   Along with the message there's also a type. In any case, there's a handler

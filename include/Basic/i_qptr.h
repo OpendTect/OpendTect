@@ -19,7 +19,6 @@ ________________________________________________________________________
 QT_BEGIN_NAMESPACE
 
 /*!
-\ingroup Basic
 \brief Helper class for QPtr to relay Qt's messages. Internal object, to hide
 Qt's signal/slot mechanism.
 */

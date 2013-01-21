@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include <stdexcept>
 
 /*!
-\ingroup Basic
 \brief Simple vector-based container simplifying index-based work.
 
   This class is an implementation detail of the 'sets.h' and 'sortedlist.h'

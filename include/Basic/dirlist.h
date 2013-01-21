@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Provides file and directory names in a certain directory.
 */
 

@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "varlenarray.h"
 
 /*!
-\ingroup Basic
 \brief Base class of Array1DSlice and Array2DSlice. Access-tool to another
 ArrayND with higher dimensionality.
 
@@ -54,7 +53,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Subclass of Array1D and ArrayNDSliceBase.
 */
 
@@ -83,7 +81,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Subclass of Array2D and ArrayNDSliceBase.
 */
 

@@ -17,7 +17,6 @@ namespace Values
 {
 
 /*!
-\ingroup Basic
 \brief Templatized initialization values.
 */
 
@@ -30,7 +29,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Templatized od_int16 initialization values.
 */
 
@@ -43,7 +41,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Templatized od_uint16 initialization values.
 */
 
@@ -56,7 +53,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Templatized od_int32 initialization values.
 */
 
@@ -69,7 +65,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Templatized od_uint32 initialization values.
 */
 
@@ -82,7 +77,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Templatized od_int64 initialization values.
 */
 
@@ -95,7 +89,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Templatized od_uint64 initialization values.
 */
 
@@ -108,7 +101,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Templatized boolean initialization values.
 */
 
@@ -121,7 +113,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Templatized float initialization values.
 */
 
@@ -134,7 +125,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Templatized double initialization values.
 */
 
@@ -147,7 +137,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Templatized const char* initialization values.
 */
 

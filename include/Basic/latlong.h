@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Geographical coordinates, decimal but with conv to deg, min, sec.
 */
 
@@ -46,7 +45,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Estimates to/from LatLong coordinates.
 
   Needs both survey coordinates and lat/long for an anchor point in the survey.

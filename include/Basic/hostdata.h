@@ -25,7 +25,6 @@ class ShareData;
     return bs;
 
 /*!
-\ingroup Basic
 \brief Host name and aliases.
 */
 
@@ -114,7 +113,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Describes shared drive and host. Mostly win32.
 */
 
@@ -153,7 +151,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief List of host names in the system.
   The first entry will be the local host.
 */

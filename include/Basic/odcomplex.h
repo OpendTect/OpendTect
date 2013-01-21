@@ -30,7 +30,6 @@ namespace Values
 {
 
 /*!
-\ingroup Basic
 \brief Undefined float_complex.
 */
 

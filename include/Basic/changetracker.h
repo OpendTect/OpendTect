@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include <string.h>
 
 /*!
-\ingroup Basic
 \brief Updates a variable when changes occur.
   
   Use if you need to keep track of whether a variable changes when it is
@@ -80,7 +79,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Macro to use when there is no direct access to data members.
   
   chtr = the change tracker

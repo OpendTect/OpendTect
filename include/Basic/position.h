@@ -24,7 +24,6 @@ class RowCol;
 
 
 /*!
-\ingroup Basic
 \brief A cartesian coordinate in 2D space.
 */
 
@@ -68,7 +67,6 @@ bool getDirectionStr( const Coord&, BufferString& );
 
 
 /*!
-\ingroup Basic
 \brief A cartesian coordinate in 3D space.
 */
 
@@ -138,7 +136,6 @@ inline Coord3 operator*( double f, const Coord3& b )
 
 
 /*!
-\ingroup Basic
 \brief 2D coordinate and a value.
 */
 
@@ -160,7 +157,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief 3D coordinate and a value.
 */
 
@@ -183,7 +179,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Positioning in a seismic survey: inline/crossline. Most functions are
 identical to RowCol.
 */
@@ -238,7 +233,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Represents a trace position, with the geometry (2D or 3D) and position in
 the geometry.
 */
@@ -277,7 +271,6 @@ class BinIDValues;
 
 
 /*!
-\ingroup Basic
 \brief BinID and a value.
 */
 
@@ -304,7 +297,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief BinID and values. If one of the values is Z, make it the first one.
 */
 
@@ -351,7 +343,6 @@ namespace Values {
     
 
 /*!
-\ingroup Basic
 \brief Undefined Coord.
 */
 
@@ -367,7 +358,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Undefined Coord3.
 */
 

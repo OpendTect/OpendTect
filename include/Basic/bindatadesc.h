@@ -21,7 +21,6 @@ ________________________________________________________________________
 	BinDataDesc( const T& ) { set( ii, is, sizeof(T) ); }
 
 /*!
-\ingroup Basic
 \brief Description of binary data.
   
   Binary data in 'blobs' can usually be described by only a few pieces of info.

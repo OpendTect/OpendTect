@@ -40,7 +40,6 @@ int LoadPlugin(const char* libnm);
 }
 
 /*!
-\ingroup Basic
 \brief Plugin manager - loads plugins: shared libs or DLLs.
 
   Note: there are macros making most of the below stuff not interesting.

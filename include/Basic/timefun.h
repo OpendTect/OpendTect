@@ -22,7 +22,6 @@ namespace Time
 {
 
 /*!
-\ingroup Basic
 \brief Time Counter
 */
 

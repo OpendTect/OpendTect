@@ -22,7 +22,6 @@ namespace Survey
 {
 
 /*!
-\ingroup Basic
 \brief A Geometry which holds trace positions.
 */
 
@@ -51,7 +50,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Makes geometries accessible from a geometry id, or a multi id.
 */
 
@@ -93,7 +91,6 @@ inline mGlobal(Basic) const GeometryManager& GM()
 
 
 /*!
-\ingroup Basic
 \brief Geometry Reader
 */
 
@@ -106,7 +103,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Geometry Writer
 */
 

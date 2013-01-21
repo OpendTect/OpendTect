@@ -24,7 +24,6 @@ ________________________________________________________________________
 #endif
 
 /*!
-\ingroup Basic
 \brief Use TypeSet instead.
 */
 
@@ -105,7 +104,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Set of (small) copyable elements.
 
   TypeSet is meant for simple types or small objects that have a copy
@@ -131,7 +129,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief We need this because STL has a crazy specialisation of the vector<bool>.
 */
 
@@ -150,7 +147,6 @@ typedef TypeSet<BoolTypeSetType> BoolTypeSet;
 
 
 /*!
-\ingroup Basic
 \brief Large Value Vector. Publicly derived from TypeSetBase.
 */
 

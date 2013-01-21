@@ -21,7 +21,6 @@ ________________________________________________________________________
 template <class T> class Interval;
 
 /*!
-\ingroup Basic
 \brief Base class for Interval. Has no virtual functions and can hence be
 used in places where no virtual functions are allowed (e.g. large memcpy
 operations. Does not have sort, clone and scale functions. If you need then,
@@ -98,7 +97,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Interval of values.
 
   Note that start does not need to be lower than stop. That's why there is a
@@ -133,7 +131,6 @@ typedef Interval<float> ZGate;
 #define cloneTp	mPolyRet( Interval<T>, StepInterval<T> )
 
 /*!
-\ingroup Basic
 \brief Interval with step.
 */
 
@@ -196,7 +193,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Class to store ranges in N dimensions. 
 */
 

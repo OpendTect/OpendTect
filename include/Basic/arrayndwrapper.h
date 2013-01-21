@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Access tool to another array with a lower number of dimensions
 */
 
@@ -40,7 +39,6 @@ void ArrayNDWrapper::setDimMap( int srcdim, int targetdim )
 
 
 /*!
-\ingroup Basic
 \brief Subclass of ArrayNDWrapper.
 */
 

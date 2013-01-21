@@ -22,7 +22,6 @@ ________________________________________________________________________
 template <class T> class ObjectSet;
 
 /*!
-\ingroup Basic
 \brief Specification to enable chunkwise execution of a process.
   
   Interface enabling separation of the control of execution of any process from
@@ -61,7 +60,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Executor consisting of other executors.
   
   Executors may be added on the fly while processing. Depending on the
@@ -108,7 +106,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief TaskRunner to show progress of a Task in text format.
 */
 

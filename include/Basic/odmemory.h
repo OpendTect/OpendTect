@@ -27,7 +27,6 @@ template <class T> class ValueSeries;
 
 
 /*!
-\ingroup Basic
 \brief Sets large amounts of values to a constant using multiple threads.
 */
 
@@ -61,7 +60,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief ValueSeries Copier
 */
 
@@ -102,7 +100,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Goes through some mem or a ValSeries and replaces one value with another.
 */
 

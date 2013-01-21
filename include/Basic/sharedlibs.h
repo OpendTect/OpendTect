@@ -22,7 +22,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Basic
 \brief Gives access to shared libs on runtime. Plugins should be loaded via the Plugin Manager (see plugins.h).
 */
 

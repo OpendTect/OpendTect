@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "gendefs.h"
 
 /*!
-\ingroup Basic
 \brief Contains the information about the size of ArrayND, and
 in what order the data is stored (if accessable via a pointer).
 */
@@ -64,7 +63,6 @@ inline bool operator !=( const ArrayNDInfo& a1, const ArrayNDInfo& a2 )
 
 
 /*!
-\ingroup Basic
 \brief Contains the information about the size of Array1D, and
 in what order the data is stored (if accessable via a pointer).
 */
@@ -89,7 +87,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Contains the information about the size of Array2D, and
 in what order the data is stored (if accessable via a pointer).
 */
@@ -113,7 +110,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Contains the information about the size of Array3D, and
 in what order the data is stored (if accessable via a pointer).
 */
@@ -137,7 +133,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Implementation of Array1DInfo.
 */
 
@@ -162,7 +157,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Implementation of Array2DInfo.
 */
 
@@ -190,7 +184,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Implementation of Array3DInfo.
 */
 
@@ -218,7 +211,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief Implementation of ArrayNDInfo.
 */
 

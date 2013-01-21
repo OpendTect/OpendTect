@@ -22,7 +22,6 @@ namespace std
 {
 
 /*!
-\ingroup Basic
 \brief Adapter to seek in filebuffers on win64.
 
   Usage like:
@@ -97,7 +96,6 @@ od_int64    realpos_;
 
 
 /*!
-\ingroup Basic
 \brief Adapter for input streams on win64.
 */
 
@@ -131,7 +129,6 @@ bool is_open()
 
 
 /*!
-\ingroup Basic
 \brief Adapter for output streams on win64.
 */
 

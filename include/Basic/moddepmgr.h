@@ -19,7 +19,6 @@ namespace OD
 {
 
 /*!
-\ingroup Basic
 \brief Module Dependency
 */
 
@@ -38,7 +37,6 @@ public:
 
 
 /*!
-\ingroup Basic
 \brief Dependency manager - provides tools for the dependencies between the
 different OpendTect 'modules'.
 */

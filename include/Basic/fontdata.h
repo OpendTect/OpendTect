@@ -18,7 +18,6 @@ ______________________________________________________________________
 #include "bufstring.h"
 
 /*!
-\ingroup Basic
 \brief Data needed to make an actual font.
 */
 

@@ -23,7 +23,6 @@ namespace Threads { class ThreadWorkManager; }
 class ProgressMeter;
 
 /*!
-\ingroup Basic
 \brief Generalization of something (e.g. a computation) that needs to be
 done in multiple steps.
 */
@@ -70,7 +69,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief A collection of tasks, that behave as a single task.
 */
 
@@ -105,7 +103,6 @@ protected:
 
 
 /*!
-\ingroup Basic
 \brief The generalization of something (e.g. a computation) where the steps must
 be done in sequence, i.e. not parallely.
 */
@@ -148,7 +145,6 @@ class ParallelTaskRunner;
 
 
 /*!
-\ingroup Basic
 \brief Generalization of a task that can be run in parallel. Any task that has
 a fixed number of computations that are independent (i.e. they don't need to
 be done in a certain order) can inherit ParallelTask and be executed in
@@ -359,7 +355,6 @@ interp.execute();
 
 
 /*!
-\ingroup Basic
 \brief Class that can execute a task. Can be used as such, be inherited by
 fancy subclasses with user interface and progressbars etc.
 */
