@@ -66,7 +66,7 @@ void Tut::HorTool::setHorSamp( const StepInterval<int>& inlrg,
 Tut::ThicknessCalculator::ThicknessCalculator()
 	: HorTool("Calculating Thickness")
 	, dataidx_(0)
-	, usrfac_(SI().zIsTime() ? 1000 : 1)
+	, usrfac_( (float) SI().zDomain().userFactor() )
 {
 }
 
@@ -96,8 +96,8 @@ int Tut::ThicknessCalculator::nextStep()
     for ( EM::SectionID isect=0; isect<nrsect; isect++ )
     {
 	const EM::SubID subid = bid_.toInt64();
-	const float z1 = horizon1_->getPos( isect, subid ).z;
-	const float z2 = horizon2_->getPos( isect, subid ).z;
+	const float z1 = (float) horizon1_->getPos( isect, subid ).z;
+	const float z2 = (float) horizon2_->getPos( isect, subid ).z;
 		        
 	float val = mUdf(float);
 	if ( !mIsUdf(z1) && !mIsUdf(z2) )
@@ -143,7 +143,7 @@ int Tut::HorSmoother::nextStep()
 		const BinID binid = BinID( bid_.inl + inloffs * hs_.step.inl,
 					   bid_.crl + crloffs * hs_.step.crl );
 		const EM::SubID subid = binid.toInt64();
-		const float z = horizon1_->getPos( isect, subid ).z;
+		const float z = (float) horizon1_->getPos( isect, subid ).z;
 		if ( mIsUdf(z) ) continue;
 		sum += z; count++;
 	    }
