@@ -21,7 +21,6 @@ namespace Attrib
 {
 
 /*!
-\ingroup Attributes
 \brief Position Attribute
 
   Calculates 'attribute 0' on every position within the cube defined by

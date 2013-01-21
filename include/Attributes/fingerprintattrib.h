@@ -19,7 +19,6 @@ namespace Attrib
 {
 
 /*!
-\ingroup Attributes
 \brief %FingerPrint Attribute
   Calculates the match with a definite vector.
  

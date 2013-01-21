@@ -20,7 +20,6 @@ namespace Attrib
 {
 
 /*!
-\ingroup Attributes
 \brief Dip filtering Attribute
 
   %DipFilter convolves a signal with the on the command-line specified signal.

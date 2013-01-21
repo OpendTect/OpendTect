@@ -19,7 +19,6 @@ namespace Attrib
 {
 
 /*!
-\ingroup Attributes
 \brief Sample Value Attribute
   
   Shortcut for dummies (like us) to Shift or Mathematics or ... attribute's

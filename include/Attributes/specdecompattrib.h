@@ -23,7 +23,6 @@ namespace Attrib
 class DataHolder;
 
 /*!
-\ingroup Attributes
 \brief Spectral Decomposition Attribute
 
 Calculates the frequency spectrum of a trace

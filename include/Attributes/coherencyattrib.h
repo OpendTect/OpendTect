@@ -24,7 +24,6 @@ namespace Attrib
 class DataHolder;
 
 /*!
-\ingroup Attributes
 \brief Calculates %coherency.
 
 <pre>

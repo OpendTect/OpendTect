@@ -24,7 +24,6 @@ namespace Attrib
 {
 
 /*!
-\ingroup Attributes
 \brief %Frequency filtering attribute.
 
 <pre>

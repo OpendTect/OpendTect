@@ -21,7 +21,6 @@ namespace Attrib
 {
 
 /*!
-\ingroup Attributes
 \brief %Energy Attribute
 
 Calculates the squared sum of the gate's samples divided by the number of

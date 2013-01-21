@@ -33,7 +33,6 @@ namespace Attrib
 class DataHolder;
 
 /*!
-\ingroup Attributes
 \brief Frequency Attribute
   
   Calculates a number of attributes (see below) from the frequency domain

@@ -22,7 +22,6 @@ namespace Attrib
 {
     
 /*!
-\ingroup Attributes
 \brief %Similarity Attribute
 
 Calculates the gates' distance between each other in hyperspace normalized

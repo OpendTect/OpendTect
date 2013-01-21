@@ -20,7 +20,6 @@ namespace Attrib
 {
 
 /*!
-\ingroup Attributes
 \brief %Scaling Attribute
   Calculates the squared sum of the gate's samples divided by the number of
   samples in the gate.

@@ -19,7 +19,6 @@ namespace Attrib
 {
 
 /*!
-\ingroup Attributes
 \brief %Reference Attribute
 
 Provides the reference indication at every position :

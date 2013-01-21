@@ -19,7 +19,6 @@ namespace Attrib
 {
 
 /*!
-\ingroup Attributes
 \brief Use VolStats instead.
 */
 
@@ -80,7 +79,6 @@ protected:
 
 
 /*!
-\ingroup Attributes
 \brief Volume Statistics Attribute
 
   VolumeStatistics collects all samples within the timegate from all traces

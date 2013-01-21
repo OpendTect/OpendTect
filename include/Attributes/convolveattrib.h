@@ -22,7 +22,6 @@ namespace Attrib
 {
 
 /*!
-\ingroup Attributes
 \brief Convolution Attribute.
 
   %Convolve convolves a signal with the on the command-line specified signal.

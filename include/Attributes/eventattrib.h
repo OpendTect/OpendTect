@@ -19,7 +19,6 @@ namespace Attrib
 {
 
 /*!
-\ingroup Attributes
 \brief %Event attribute
   
   EventAttrib  singleevent = 

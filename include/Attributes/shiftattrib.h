@@ -20,7 +20,6 @@ namespace Attrib
 {
 
 /*!
-\ingroup Attributes
 \brief %Shift Attribute
   %Shift takes the input at a specified position and outputs it at other
   relative positions.
