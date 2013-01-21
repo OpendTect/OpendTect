@@ -30,7 +30,7 @@ class RefTree;
  
  */
 
-mClass(Strat) LayerModel
+mExpClass(Strat) LayerModel
 {
 public:
 
@@ -70,7 +70,7 @@ protected:
 };
 
 
-mClass(Strat) LayerModelProvider
+mExpClass(Strat) LayerModelProvider
 {
 public:
 
