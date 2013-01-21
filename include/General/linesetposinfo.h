@@ -22,7 +22,7 @@ namespace PosInfo
 
 /*!\brief Position info for a set of 2D lines */
 
-mClass(General) LineSet2DData
+mExpClass(General) LineSet2DData
 {
 public:
 
