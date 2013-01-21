@@ -25,7 +25,6 @@ namespace Stats
 
 
 /*!
-\ingroup Algo
 \brief Setup for the Stats::RunCalc and Stats::ParallelCalc objects.
   
   medianEvenHandling() is tied to OD_EVEN_MEDIAN_AVERAGE, OD_EVEN_MEDIAN_LOWMID,
@@ -78,7 +77,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Base class to calculate mean, min, max, etc.. can be used either as
 running values (Stats::RunCalc) or in parallel (Stats::ParallelCalc).
   
@@ -177,7 +175,6 @@ bool BaseCalc<T>::isZero( const T& val ) const
 
 
 /*!
-\ingroup Algo
 \brief Calculates mean, min, max etc., as running values.
   
   The idea is that you simply add values and ask for a stat whenever needed.
@@ -226,7 +223,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief RunCalc manager which buffers a part of the data.
  
   Allows calculating running stats on a window only. Once the window is full,

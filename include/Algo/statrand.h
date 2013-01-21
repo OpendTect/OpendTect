@@ -19,7 +19,6 @@ namespace Stats
 {
 
 /*!
-\ingroup Algo
 \brief Random Generator
 */
 

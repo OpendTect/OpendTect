@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Algo
 \brief Base class that does the majority of the work finding bendpoints.
 Adaptions to different data-types are done in subclasses.
 */
@@ -58,7 +57,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Used to find bendpoints in two dimensional datasets.
 */
 
@@ -75,7 +73,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Used to find bendpoints in three dimensional datasets.
 */
 

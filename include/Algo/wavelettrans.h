@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "ranges.h"
 
 /*!
-\ingroup Algo
 \brief WaveletTransform is a ND wavelet transform.
 
   \par
@@ -82,7 +81,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief Discrete Wavelet Transform
 */
 
@@ -130,7 +128,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Continuous Wavelet Transform
 */
 

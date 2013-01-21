@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "windowfunction.h"
 
 /*!
-\ingroup Algo
 \brief Smoothes a 2d signal with an operator.
 */
 

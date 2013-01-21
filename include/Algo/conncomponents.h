@@ -26,7 +26,6 @@ template <class T> class TypeSet;
 class TaskRunner;
 
 /*!
-\ingroup Algo
 \brief Classify connected components of a binarized array 2D, components are
 sorted in size. User could get the best quadratic fit for the component if
 needed.
@@ -67,7 +66,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Classify connected components of a binarized array 3D,
 components are sorted in size.
 */

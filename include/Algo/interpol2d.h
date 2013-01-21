@@ -18,7 +18,6 @@ namespace Interpolate
 {
 
 /*!
-\ingroup Algo
 \brief specification for a 2D interpolator
 
   The 'set' method accepts values arranged like this:
@@ -54,7 +53,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief Linear 2D interpolation.
 */
 
@@ -83,7 +81,6 @@ inline T linearReg2D( T v00, T v01, T v10, T v11, float x, float y )
 
 
 /*!
-\ingroup Algo
 \brief Linear 2D interpolation with standard undef handling.
 */
 
@@ -119,7 +116,6 @@ inline T linearReg2DWithUdf( T v00, T v01, T v10, T v11, float x, float y )
 
 
 /*!
-\ingroup Algo
 \brief Interpolate 2D regularly sampled, using a 2nd order surface.
   
   Contrary to teh linear approach it does matter whether deltaX is different
@@ -168,7 +164,6 @@ inline T polyReg2D( T vm10, T vm11, T v0m1, T v00, T v01, T v02,
 
 
 /*!
-\ingroup Algo
 \brief PolyReg2D which smoothly handles undefined values.
 
   Note that this class _requires_ x and y to be between 0 and 1 for correct

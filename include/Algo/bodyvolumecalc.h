@@ -22,7 +22,6 @@ namespace Threads { class Mutex; }
 
 
 /*!
-\ingroup Algo
 \brief Volume estimate for implicit body in meter.
 */
 

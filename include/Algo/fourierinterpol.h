@@ -22,7 +22,6 @@ ________________________________________________________________________
 namespace Fourier { class CC; };
 
 /*!
-\ingroup Algo
 \brief Base class for fourier interpolation.
 */
 
@@ -40,7 +39,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Fourier interpolation for 1D datasets.
 */
 
@@ -85,7 +83,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Fourier interpolation for 2D datasets.
 */
 
@@ -131,7 +128,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Fourier interpolation for 3D datasets.
 */
 

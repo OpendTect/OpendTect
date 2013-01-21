@@ -27,7 +27,6 @@ template <class T> class LineParameters;
 
 
 /*!
-\ingroup Algo
 \brief Multidimensional Mathematical function.
   
   A MathFunctionND must deliver a value at any position: F(x*).
@@ -59,7 +58,6 @@ typedef MathFunctionND<float,float> FloatMathFunctionND;
 
 
 /*!
-\ingroup Algo
 \brief Mathematical function
   
   A MathFunction must deliver a value at any position: F(x).
@@ -83,7 +81,6 @@ typedef MathFunction<float,float> FloatMathFunction;
 
 
 /*!
-\ingroup Algo
 \brief Makes a MathFunction indexable through an operator[].
 */
 
@@ -107,7 +104,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief A Math Function as in F(x,y).
 */
 
@@ -126,7 +122,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief A Math Function as in F(x,y,z).
 */
 template <class RT,class PT>
@@ -145,7 +140,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief MathFunction based on bend points
   
   The object maintains sorted positions (in X), so you cannot bluntly stuff
@@ -203,7 +197,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief A MathFunction that cuts through another mathfunction with
 higher number of dimensions.
   
@@ -245,7 +238,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief A class for 2nd order polynomials of the form: a x^2 + b x + c
 */
 
@@ -315,7 +307,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief A class for 3rd order polynomials on the form: a x^3 + b x^2 + c x + d
 */
 

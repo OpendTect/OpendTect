@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include <math.h>
 
 /*!
-\ingroup Algo
 \brief (Closed) sequence of connected 2-D coordinates.
 */
 

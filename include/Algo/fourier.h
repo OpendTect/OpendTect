@@ -24,7 +24,6 @@ namespace Fourier
 class FFTCC1D;
 
 /*!
-\ingroup Algo
 \brief Does Fourier Transforms of any size.
 */
 
@@ -96,7 +95,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Computes FFT for any size of data.
 */
 

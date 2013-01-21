@@ -27,7 +27,6 @@ namespace Pos
 class Provider;
 
 /*!
-\ingroup Algo
 \brief Decides whether a given position should be included.
 
   Some Filters require initialization. There are two levels of initialization:
@@ -74,7 +73,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief Provides a filter related to 3D data.
 */
 
@@ -94,7 +92,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief Provides a filter related to 2D seismic data.
 */
 

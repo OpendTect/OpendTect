@@ -19,7 +19,6 @@ ________________________________________________________________________
 template <class T> class ValueSeries;
 
 /*!
-\ingroup Algo
 \brief Sets start or end part of a float series to 0.
   
   This object measures distance in units of samples.

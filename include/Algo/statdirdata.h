@@ -20,7 +20,6 @@ namespace Stats
 {
 
 /*!
-\ingroup Algo
 \brief Part of a data sector. 
 */
 
@@ -44,7 +43,6 @@ typedef TypeSet<SectorPartData> SectorData;
 
 
 /*!
-\ingroup Algo
 \brief A circle of data.
  
   The circle is subdivided in sectors, which are subdivided in sector parts.

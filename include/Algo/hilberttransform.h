@@ -24,7 +24,6 @@ typedef std::complex<float> float_complex;
 
 
 /*!
-\ingroup Algo
 \brief Class to compute Hilbert Transform.
 */
 

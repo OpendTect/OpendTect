@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Algo
 \brief Helps making nice axes for graphs.
 */
 

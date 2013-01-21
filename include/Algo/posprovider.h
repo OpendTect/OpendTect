@@ -23,7 +23,6 @@ namespace Pos
 {
 
 /*!
-\ingroup Algo
 \brief Provides a series of positions; can also be used for subselection.
   
   toNextPos() will ignore any Z settings and go to the first Z on the next 
@@ -53,7 +52,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief Provides a subselection for 3D surveys.
 */
 
@@ -80,7 +78,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief Provides a subselection for 2D surveys - requires the line name(s).
 */
 

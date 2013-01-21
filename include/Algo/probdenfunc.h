@@ -22,7 +22,6 @@ class IOPar;
 
 
 /*!
-\ingroup Algo
 \brief Base class for Probability Density Functions.
   
   The values may not be normalized; if you need them to be: multiply with
@@ -73,7 +72,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Probability Density Function for one dimensional datasets.
 */
 
@@ -120,7 +118,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Probability Density Function for two dimensional datasets.
 */
 

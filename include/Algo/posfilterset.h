@@ -23,7 +23,6 @@ namespace Pos
 {
 
 /*!
-\ingroup Algo
 \brief Set of Filters. Owns the Filters.
 */
 
@@ -77,7 +76,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief 3D FilterSet
 */
 
@@ -95,7 +93,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief 2D FilterSet
 */
 

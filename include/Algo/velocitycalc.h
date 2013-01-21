@@ -23,7 +23,6 @@ ________________________________________________________________________
 template <class T> class ValueSeries;
 
 /*!
-\ingroup Algo
 \brief Converts between time, depth and velocity given a model. The velocity
 model can be either RMO-velocities in time, or interval velocity in either
 depth or time.
@@ -71,7 +70,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Converts between time and depth given a model.
 */
 
@@ -126,7 +124,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Base class for computing a moveout curve.
 */
 
@@ -152,7 +149,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief Computes moveout in depth from RMO at a certain reference offset.
 */
 
@@ -178,7 +174,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief Computes moveout with anisotropy, according to the equation
 by Alkhalifah and Tsvankin 1995.
 */
@@ -211,7 +206,6 @@ mGlobal(Algo) bool computeDix(const float* Vrms, float t0, float v0, const float
 			int nrlayers, float* Vint);
 
 /*!
-\ingroup Algo
 \brief Rms velocity to interval velocity conversion.
 */
 
@@ -226,7 +220,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief Rms velocity to interval velocity conversion using the Dix formula.
 */
 

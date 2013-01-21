@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "task.h"
 
 /*!
-\ingroup Algo
 \brief Delaunay triangulation for 3D points. Should make sure all the points
 are defined.
 */
@@ -148,7 +147,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Delaunay triangulation for 3D points.
 */
 

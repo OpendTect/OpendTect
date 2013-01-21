@@ -21,7 +21,6 @@ template <class T> class ValueSeries;
 template <class T> class ArrayND;
 
 /*!
-\ingroup Algo
 \brief A DataClipper gets a bunch of data and determines at what value to
 clip if a certain clip percentage is desired.
   
@@ -130,7 +129,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Data clipping sampler.
 */
 

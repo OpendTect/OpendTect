@@ -20,7 +20,6 @@ ________________________________________________________________________
 #define TINY 1.0e-20
 
 /*!
-\ingroup Algo
 \brief LinSolver - Solves linear systems of equations on the form A*x=B. A is
 a matrix of the size N*N, x is a column vector of the size N and B is a column
 vector of the size N.

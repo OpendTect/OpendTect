@@ -23,7 +23,6 @@ ________________________________________________________________________
 
 #define mDAGTriangleForceSingleThread
 /*!
-\ingroup Algo
 \brief Reference: "Parallel Incremental Delaunay Triangulation",
 by Kohout J.2005.
 
@@ -145,7 +144,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief The parallel triangulation works for only one processor now.
 */
 
@@ -180,7 +178,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief For a given triangulated geometry(set of points), interpolating any
 point located in or nearby the goemetry. If the point is located outside of
 the boundary of the geometry, we compare azimuth to find related points and

@@ -27,7 +27,6 @@ class A2DIntExtenExecutor;
 
 
 /*!
-\ingroup Algo
 \brief Interpolates 2D arrays using inverse distance method.
 
   Parameters:
@@ -128,7 +127,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Uses triangulation method to interpolate two dimensional arrays.
 */
 
@@ -184,7 +182,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief An extension of array 2D interpolator.
 */
 

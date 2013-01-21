@@ -131,7 +131,6 @@ int nrBlocks( int totalsamples, int basesize, int overlapsize )
 
 
 /*!
-\ingroup Algo
 \brief Taper an indexable array from 1 to taperfactor. If lowpos is less 
 than highpos, the samples array[0] to array[lowpos] will be set to zero. 
 If lowpos is more than highpos, the samples array[lowpos]  to array[sz-1]

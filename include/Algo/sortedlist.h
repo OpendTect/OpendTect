@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "vectoraccess.h"
 
 /*!
-\ingroup Algo
 \brief A SortedList is a list where all objects are stored in ascending order.
 The objects should be capable of doing <,> and ==. If allowmultiples is true,
 multiple objects with the same value are allowed in the list. 

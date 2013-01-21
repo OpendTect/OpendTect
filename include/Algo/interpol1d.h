@@ -132,7 +132,6 @@ inline T polyReg1D( T vm1, T v0, T v1, T v2, float x )
 
 
 /*!
-  \ingroup Algo
   \brief PolyReg1D which smoothly handles undefined values
 
   Note that this class _requires_ x to be between 0 and 1 for correct undef

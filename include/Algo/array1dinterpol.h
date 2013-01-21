@@ -20,7 +20,6 @@ template <class T> class Array1D;
 
 
 /*!
-\ingroup Algo
 \brief Base class for one dimensional array interpolators.
 */
 
@@ -50,7 +49,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Does linear interpolation of one dimensional arrays.
 */
 
@@ -64,7 +62,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Uses a 3rd degree polynomial for interpolation of one dimensional arrays.
 */
 

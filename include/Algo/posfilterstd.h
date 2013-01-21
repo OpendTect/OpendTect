@@ -21,7 +21,6 @@ namespace Pos
 {
 
 /*!
-\ingroup Algo
 \brief Passes a percentage of the positions.
 */
 
@@ -76,7 +75,6 @@ mSimpPosFilterDefFnsBase
 
 
 /*!
-\ingroup Algo
 \brief Passes a percentage of the positions (3D).
 */
 
@@ -91,7 +89,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief Passes a percentage of the positions (2D).
 */
 
@@ -106,7 +103,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief Passes each nth position.
 */
 
@@ -140,7 +136,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Passes each nth position (3D).
 */
 
@@ -155,7 +150,6 @@ public:
 
 
 /*!
-\ingroup Algo
 \brief Passes each nth position (2D).
 */
 

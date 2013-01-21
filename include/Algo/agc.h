@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "valseries.h"
 
 /*!
-\ingroup Algo
 \brief Computes an AGC over a ValueSeries.
 */
 

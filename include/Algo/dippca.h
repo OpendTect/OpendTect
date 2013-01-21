@@ -28,7 +28,6 @@ class TaskRunner;
 
 
 /*!
-\ingroup Algo
 \brief Base class to calculate Dip/Azimuth using the method of PCA.
   
   Example of use:
@@ -66,7 +65,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief To calculate Dip/Azimuth for 2D datasets using the method of PCA.
 */
 
@@ -104,7 +102,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief To calculate Dip/Azimuth for 3D datasets using the method of PCA.
 */
 

@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "math2.h"
 
 /*!
-\ingroup Algo
 \brief Convolves (or correlates) two 3D signals.
 */
 

@@ -19,7 +19,6 @@ namespace Stats
 {
 
 /*!
-\ingroup Algo
 \brief Grubbs' test to detect outliers in a univariate data set assumed to come from a normally distributed population.
 */
 

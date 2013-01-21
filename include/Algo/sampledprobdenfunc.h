@@ -22,7 +22,6 @@ ________________________________________________________________________
 class IOPar;
 
 /*!
-\ingroup Algo
 \brief PDF based on ArrayND implementation.
   
   This interface should allow read/write generalized from disk.
@@ -96,7 +95,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief One dimensional PDF based on binned data.
 */
 
@@ -137,7 +135,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Two dimensional PDF based on binned data.
 */
 
@@ -179,7 +176,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Multi-dimensional PDF based on binned data.
   
   If the 'dimnms_' are not filled, 'Dim0', 'Dim1' ... etc. will be returned.

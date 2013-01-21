@@ -25,7 +25,6 @@ typedef std::complex<float> float_complex;
 
 
 /*!
-\ingroup Algo
 \brief Classical FFT filter, use set to set up data step, min and max
 frequency and type of the filter (minfreq not required for highpass, maxfreq
 not required for lowpass)

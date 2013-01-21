@@ -24,7 +24,6 @@ namespace Stats { class CalcSetup; }
 
 
 /*!
-\ingroup Algo
 \brief Base class for two dimensional array interpolators.
 */
 

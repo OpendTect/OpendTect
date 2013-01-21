@@ -69,7 +69,6 @@ mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,int)
 
 
 /*!
-\ingroup Algo
 \brief Sorting in parallel. Code is still experimental.
 
   The basic principle is:

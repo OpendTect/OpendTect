@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "arraynd.h"
 
 /*!
-\ingroup Algo
 \brief Gently smooths ArrayND by averaging with neighbours.
    
   The weight of the centre is always equal to the sum of the

@@ -26,7 +26,6 @@ class Triangle2DInterpolator;
 
 
 /*!
-\ingroup Algo
 \brief Generic interface for 2D gridding.
 */
 
@@ -108,7 +107,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Uses inverse distance method for 2D gridding.
 */
 
@@ -145,7 +143,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Uses Delaunay triangulation to find a points neighbors and does
 inverse distance between the neighbors.
 */

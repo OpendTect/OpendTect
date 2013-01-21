@@ -27,7 +27,6 @@ class TimeDepthModel;
 
 
 /*!
-\ingroup Algo
 \brief Ray tracer in 1D.
 */
 
@@ -124,7 +123,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Ray tracer in 1D based on Vrms.
 */
 

@@ -20,7 +20,6 @@ template <class T> class ValueSeries;
 
 
 /*!
-\ingroup Algo
 \brief Base class for a tracker that tracks something (e.g. min, max,
 a certain value)++ from one ValueSeries<float> to another.
 */
@@ -60,7 +59,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Tracker that tracks Min/Max & Zero crossings between valueseries.
 */
 

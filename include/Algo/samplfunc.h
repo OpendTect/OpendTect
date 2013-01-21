@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "periodicvalue.h"
 
 /*!
-\ingroup Algo
 \brief Make any sampled series comply with MathFunction.
 
   If the sampled values are periodic (i.e. phase), set the periodic flag and
@@ -88,7 +87,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Implementation for array-type of SampledFunction.
 */
 

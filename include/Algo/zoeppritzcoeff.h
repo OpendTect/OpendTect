@@ -18,7 +18,6 @@ ________________________________________________________________________
 class ElasticLayer;
 
 /*!
-\ingroup Algo
 \brief Zoeppritz Coefficients.
 */
 

@@ -19,7 +19,6 @@ namespace Interpolate
 {
 
 /*!
-\ingroup Algo
 \brief Linear 3D interpolation.
 */
 
@@ -76,7 +75,6 @@ inline T linearReg3D( T v000, T v100, T v010, T v110,
 
 
 /*!
-\ingroup Algo
 \brief Linear 3D interpolation with standard undef handling.
 */
 
@@ -200,7 +198,6 @@ inline T linearReg3DWithUdf( T v000, T v100, T v010, T v110,
 
 
 /*!
-\ingroup Algo
 \brief Interpolate 3D regularly sampled, using a 3rd order surface.
   
   Current implementation takes the average of the outer squares.

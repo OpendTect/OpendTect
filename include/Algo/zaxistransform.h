@@ -27,7 +27,6 @@ class TaskRunner;
 namespace ZDomain { class Def; class Info; }
 
 /*!
-\ingroup Algo
 \brief Base class for z-axis transforms.
 
   ZAxisTransform is the base class for z stretching in different ways.
@@ -123,7 +122,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Samples Z-axis transformed data
 */
 

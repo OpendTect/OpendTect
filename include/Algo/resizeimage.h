@@ -18,7 +18,6 @@ namespace OD { class RGBImage; };
 
 
 /*!
-\ingroup Algo
 \brief Resizes Image.
 */
 

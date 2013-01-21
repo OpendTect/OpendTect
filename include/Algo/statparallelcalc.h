@@ -21,7 +21,6 @@ namespace Stats
 {
 
 /*!
-\ingroup Algo
 \brief Stats computation running in parallel. 
   
   The difference with the running values (Stats::RunCalc) is that you have to 

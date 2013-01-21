@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Algo
 \brief Stores one draw of a probability density function.
 */
 

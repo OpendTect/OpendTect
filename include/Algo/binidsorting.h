@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Algo
 \brief BinID sorting parameters
 
   Note that in 2D, inl == line number, crl == trace number.
@@ -62,7 +61,6 @@ protected:
 
 
 /*!
-\ingroup Algo
 \brief Analyses whether input BinIDs are sorted.
 */
 

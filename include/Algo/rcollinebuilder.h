@@ -22,7 +22,6 @@ bool makeLine(const T& start,const T& stop, TypeSet<T>& output,const T& step);
 
 
 /*!
-\ingroup Algo
 \brief Creates a line in RowCol space.
 */
 

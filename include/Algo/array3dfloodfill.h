@@ -26,7 +26,6 @@ ________________________________________________________________________
 
 
 /*!
-\ingroup Algo
 \brief Given an input array and a threshold, we use flood fill to find all the
 locations with values less (or greater) than the threshold based on seeds.
 User has the option to set inside or outside value on the output. 
