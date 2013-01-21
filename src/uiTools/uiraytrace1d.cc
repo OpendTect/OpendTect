@@ -45,7 +45,9 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	if ( grp )
 	{
 	    grps_ += grp;
-	    grp->offsetChanged().notify(mCB(this,uiRayTracerSel,offsChangedCB));
+	    if ( grp->doOffsets() )
+    		grp->offsetChanged().notify(
+			mCB(this,uiRayTracerSel,offsChangedCB) );
 	    if ( raytracerselfld_ ) 
 	    {
 		raytracerselfld_->box()->addItem( usernm );

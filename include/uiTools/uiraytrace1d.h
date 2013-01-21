@@ -51,6 +51,7 @@ public:
 
     void		displayOffsetFlds(bool yn); 
     void		setOffsetRange(StepInterval<float>);
+    bool		doOffsets() const	{ return offsetfld_; }
     Notifier<uiGenInput>& offsetChanged();
 
 protected:
