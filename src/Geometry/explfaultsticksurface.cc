@@ -372,6 +372,7 @@ ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
     , texturepot_( true )
     , texturesampling_( BinID( SI().inlStep(), SI().crlStep() ), SI().zStep() )
     , trialg_( ExplFaultStickSurface::None )
+    , stickorientation_( Coord3::udf() )
 {
     paneltriangles_.allowNull( true );
     panellines_.allowNull( true );
@@ -430,6 +431,7 @@ void ExplFaultStickSurface::removeAll( bool deep )
 
     texturesize_ = RowCol( mUdf(int), mUdf(int) );
     textureknotcoords_.erase();
+    stickorientation_ = Coord3::udf();
 }
 
 
@@ -1325,12 +1327,32 @@ void ExplFaultStickSurface::fillStick( int stickidx )
 
     const int sticknr = surface_->rowRange().atIndex( stickidx );
     const StepInterval<int> colrg = surface_->colRange( sticknr );
+
+    const Coord3 orientation = surface_->getKnot( RowCol(sticknr,colrg.stop) ) -
+	surface_->getKnot( RowCol(sticknr,colrg.start) );
+    if ( !stickorientation_.isDefined() && colrg.nrSteps() )
+	stickorientation_ = orientation;
     
-    for ( int knotnr=colrg.start; knotnr<=colrg.stop; knotnr+=colrg.step )
+    const bool reverseorder = stickorientation_.isDefined() &&
+	stickorientation_.dot(orientation)<0;
+
+    if ( reverseorder )
     {
-	const Coord3 pos = surface_->getKnot( RowCol(sticknr,knotnr) );
-	knots += coordlist_->add( pos );
-	normals += normallist_->add( Coord3(0,0,0) );
+	for ( int knotnr=colrg.stop; knotnr>=colrg.start; knotnr -=colrg.step )
+	{
+	    const Coord3 pos = surface_->getKnot( RowCol(sticknr,knotnr) );
+	    knots += coordlist_->add( pos );
+	    normals += normallist_->add( Coord3(0,0,0) );
+	}
+    }
+    else
+    {
+	for ( int knotnr=colrg.start; knotnr<=colrg.stop; knotnr+=colrg.step )
+	{
+	    const Coord3 pos = surface_->getKnot( RowCol(sticknr,knotnr) );
+	    knots += coordlist_->add( pos );
+	    normals += normallist_->add( Coord3(0,0,0) );
+	}
     }
 
     sticks_[stickidx]->ischanged_ = true;
