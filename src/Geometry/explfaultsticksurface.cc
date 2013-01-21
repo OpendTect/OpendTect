@@ -15,6 +15,7 @@ static const char* rcsID = "$Id$";
 #include "delaunay.h"
 #include "faultsticksurface.h"
 #include "geometry.h"
+#include "hiddenparam.h"
 #include "positionlist.h"
 #include "posvecdataset.h"
 #include "simpnumer.h"
@@ -356,6 +357,7 @@ protected:
     Threads::Mutex      mutex_;
 };
 
+HiddenParam<ExplFaultStickSurface, Coord3> stickorientation_(Coord3::udf());
 
 ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
 					      float zscale )
@@ -371,6 +373,7 @@ ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
     , texturesampling_( BinID( SI().inlStep(), SI().crlStep() ), SI().zStep() )
     , trialg_( ExplFaultStickSurface::None )
 {
+    stickorientation_.setParam( this, Coord3::udf() );
     paneltriangles_.allowNull( true );
     panellines_.allowNull( true );
     setSurface( surf );
@@ -428,6 +431,7 @@ void ExplFaultStickSurface::removeAll( bool deep )
 
     texturesize_ = RowCol( mUdf(int), mUdf(int) );
     textureknotcoords_.erase();
+    stickorientation_.setParam( this, Coord3::udf() );
 }
 
 
@@ -1323,12 +1327,33 @@ void ExplFaultStickSurface::fillStick( int stickidx )
 
     const int sticknr = surface_->rowRange().atIndex( stickidx );
     const StepInterval<int> colrg = surface_->colRange( sticknr );
-    
-    for ( int knotnr=colrg.start; knotnr<=colrg.stop; knotnr+=colrg.step )
+
+    const Coord3 orientation = surface_->getKnot( RowCol(sticknr,colrg.stop) ) -
+	surface_->getKnot( RowCol(sticknr,colrg.start) );
+    Coord3 so = stickorientation_.getParam( this );
+
+    if ( !so.isDefined() && colrg.nrSteps() )
+	stickorientation_.setParam( this, orientation );
+
+    so = stickorientation_.getParam( this );
+    const bool reverseorder = so.isDefined() && so.dot(orientation)<0;
+    if ( reverseorder )
     {
-	const Coord3 pos = surface_->getKnot( RowCol(sticknr,knotnr) );
-	knots += coordlist_->add( pos );
-	normals += normallist_->add( Coord3(0,0,0) );
+	for ( int knotnr=colrg.stop; knotnr>=colrg.start; knotnr -=colrg.step )
+	{
+	    const Coord3 pos = surface_->getKnot( RowCol(sticknr,knotnr) );
+	    knots += coordlist_->add( pos );
+	    normals += normallist_->add( Coord3(0,0,0) );
+	}
+    }
+    else
+    {
+	for ( int knotnr=colrg.start; knotnr<=colrg.stop; knotnr+=colrg.step )
+	{
+	    const Coord3 pos = surface_->getKnot( RowCol(sticknr,knotnr) );
+	    knots += coordlist_->add( pos );
+	    normals += normallist_->add( Coord3(0,0,0) );
+	}
     }
 
     sticks_[stickidx]->ischanged_ = true;
