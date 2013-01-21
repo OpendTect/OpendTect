@@ -24,7 +24,6 @@ namespace SqlDB
 {
 
 /*!
-\ingroup Database
 \brief Bug history table entry in SQL Database.
 */
 
@@ -51,7 +50,6 @@ public:
 
 
 /*!
-\ingroup Database
 \brief Bug text table entry in SQL Database.
 */
 
@@ -85,8 +83,7 @@ protected:
 
 
 /*!
-\ingroup Database
-\brief 
+\brief Bug table entry in SQL Database.
 */
 
 mExpClass(Database) BugTableEntry

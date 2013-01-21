@@ -30,7 +30,6 @@ namespace SqlDB
 {
 
 /*!
-\ingroup Database
 \brief Credentials to connect to a Database.
 */
 
@@ -63,7 +62,6 @@ public:
 
 
 /*!
-\ingroup Database
 \brief To access a connected Database.
 */
 
@@ -100,7 +98,6 @@ public:
 
 
 /*!
-\ingroup Database
 \brief Access to a connected MySql Database.
 */
 

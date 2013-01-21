@@ -33,7 +33,6 @@ namespace SqlDB
 class Access;
 
 /*!
-\ingroup Database
 \brief Execution of SQL Query.
 */
 
@@ -93,7 +92,6 @@ protected:
 
 
 /*!
-\ingroup Database
 \brief Helper class that creates conditions that can be put after WHERE in a
 query.
 */
@@ -107,7 +105,6 @@ public:
 
 
 /*!
-\ingroup Database
 \brief Condition to check for a value in a Query.
 */
 
@@ -133,7 +130,6 @@ protected:
 
 
 /*!
-\ingroup Database
 \brief Condition with multiple logics in a Query.
 */
 
@@ -154,7 +150,6 @@ protected:
 
 
 /*!
-\ingroup
 \brief Condition to string check in a Query.
 */
 
@@ -174,7 +169,6 @@ protected:
 
 
 /*!
-\ingroup
 \brief Condition to check for fulltext in a Query.
 */
 

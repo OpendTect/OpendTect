@@ -26,7 +26,6 @@ class DatabaseTable;
 class Access;
 
 /*!
-\ingroup Database
 \brief Base class for SQL Database columns.
 */
 
@@ -55,7 +54,6 @@ protected:
 
 
 /*!
-\ingroup Database
 \brief SQL Database column 
 */
 
@@ -77,7 +75,6 @@ public:									\
 
 
 /*!
-\ingroup Database
 \brief Template class for SQL Database column.
 */
 
@@ -94,7 +91,6 @@ public:
 
 
 /*!
-\ingroup Database
 \brief SQL DatabaseColumn of IDs.
 */
 
@@ -113,7 +109,6 @@ public:
 
 
 /*!
-\ingroup Database
 \brief SQL DatabaseColumn of strings.
 */
 
@@ -126,7 +121,6 @@ public:
 
 
 /*!
-\ingroup Database
 \brief SQL DatabaseColumn of date and time.
 */
 
@@ -141,7 +135,6 @@ public:
 
 
 /*!
-\ingroup Database
 \brief A DatabaseColumn of DateInfo objects.
 */
 
@@ -156,7 +149,6 @@ public:
 
 
 /*!
-\ingroup Database
 \brief A DatabaseColumn of Price objects.
 */
 
@@ -171,7 +163,6 @@ public:
 
 
 /*!
-\ingroup Database
 \brief A Database where each row has a unique id. A row is never deleted, by a
 new row is added where entryidcol is set to the id of the row it is replacing,
 and a timestamp will tell which row that is the current.
