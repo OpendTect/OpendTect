@@ -31,11 +31,16 @@ if(UNIX) #Apple an Linux
 	    set ( OD_EXTRA_COINFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
 	endif()
 
-	set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
+	#For some versions of XCode
+	set ( CMAKE_FIND_LIBRARY_PREFIXES lib )
+	set ( CMAKE_FIND_LIBRARY_SUFFIXES dylib )
+
+	set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1 )
 	set ( OD_PLATFORM_LINK_OPTIONS "-arch x86_64" )
         add_definitions("-arch x86_64")
-        FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices )
-        FIND_LIBRARY(STDCPP_LIBRARY stdc++ REQUIRED )
+        find_library( APP_SERVICES_LIBRARY ApplicationServices
+		      PATH ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks )
+        find_library( STDCPP_LIBRARY stdc++ REQUIRED )
         set (EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
 	set (OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
 	#set ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
