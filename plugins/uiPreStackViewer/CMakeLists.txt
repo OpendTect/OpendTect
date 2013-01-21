@@ -9,7 +9,6 @@ SET( OD_MODULE_DEPS uiODMain )
 SET( OD_IS_PLUGIN yes)
 SET( OD_MODULE_SOURCES
 		uipsviewerpi.cc
-		psviewer2dgatherpainter.cc
 		uipsviewerappearancetab.cc
 		uipsviewermanager.cc
 		uipsviewerposdlg.cc
@@ -17,10 +16,6 @@ SET( OD_MODULE_SOURCES
 		uipsviewerscalingtab.cc
 		uipsviewersettingdlg.cc
 		uipsviewershapetab.cc
-		uipsviewer2d.cc
-		uipsviewer2dinfo.cc
-		uipsviewer2dmainwin.cc
-		uipsviewer2dposdlg.cc
 )
 SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 OD_INIT_MODULE()
