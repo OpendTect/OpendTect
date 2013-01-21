@@ -23,7 +23,7 @@ class uiCheckBox;
 class uiColorInput;
 class IOPar;
 
-mClass(uiGMT) uiGMTFaultsGrp : public uiGMTOverlayGrp
+mExpClass(uiGMT) uiGMTFaultsGrp : public uiGMTOverlayGrp
 {
 public:
     static void         initClass();

@@ -20,7 +20,7 @@ class IOPar;
 class uiGenInput;
 
 
-mClass(uiGMT) uiGMTSurfaceGrid	: public uiArray2DInterpol
+mExpClass(uiGMT) uiGMTSurfaceGrid	: public uiArray2DInterpol
 {
 public:
 				uiGMTSurfaceGrid(uiParent*);
@@ -39,7 +39,7 @@ protected:
 };
 
 
-mClass(uiGMT) uiGMTNearNeighborGrid : public uiArray2DInterpol
+mExpClass(uiGMT) uiGMTNearNeighborGrid : public uiArray2DInterpol
 {
 public:
 				uiGMTNearNeighborGrid(uiParent*);

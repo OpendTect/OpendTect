@@ -16,7 +16,7 @@
 namespace ODGMT
 {
 
-mClass(GMT) ProcFlow : public ::NamedObject
+mExpClass(GMT) ProcFlow : public ::NamedObject
 {
 public:
 

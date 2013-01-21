@@ -25,7 +25,7 @@ GrubbsFilter grubbsval gate= pos0= pos1= stepout=1,1
 namespace Attrib
 {
 
-mClass(ExpAttribs) GrubbsFilter : public Provider
+mExpClass(ExpAttribs) GrubbsFilter : public Provider
 {
 public:
     static void			initClass();

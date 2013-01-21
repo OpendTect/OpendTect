@@ -23,7 +23,7 @@ class uiSteeringSel;
 
 /*! \brief Semblance Attribute description editor */
 
-mClass(uiExpAttribs) uiSemblanceAttrib : public uiAttrDescEd
+mExpClass(uiExpAttribs) uiSemblanceAttrib : public uiAttrDescEd
 {
 public:
 

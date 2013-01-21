@@ -19,7 +19,7 @@ class uiCheckBox;
 class uiFileInput;
 class uiLabel;
 
-mClass(uiGMT) uiGMTInfoDlg : public uiDialog
+mExpClass(uiGMT) uiGMTInfoDlg : public uiDialog
 {
 public:
 			uiGMTInfoDlg(uiParent*);

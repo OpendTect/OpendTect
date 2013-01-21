@@ -30,7 +30,7 @@ namespace EM { class Horizon3D; }
  
  */
 
-mClass(uiDPSDemo) uiDPSDemo : public uiDialog
+mExpClass(uiDPSDemo) uiDPSDemo : public uiDialog
 { 	
 public:
 

@@ -14,7 +14,7 @@ class BufferString;
 namespace ODGMT { class ProcFlow; }
 
 
-mClass(GMT) ODGMTProcFlowTranslatorGroup : public TranslatorGroup
+mExpClass(GMT) ODGMTProcFlowTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ODGMTProcFlow)
 public:
     			mDefEmptyTranslatorGroupConstructor(ODGMTProcFlow)
@@ -23,7 +23,7 @@ public:
 };
 
 
-mClass(GMT) ODGMTProcFlowTranslator : public Translator
+mExpClass(GMT) ODGMTProcFlowTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(ODGMTProcFlow)
@@ -40,7 +40,7 @@ public:
 };
 
 
-mClass(GMT) dgbODGMTProcFlowTranslator : public ODGMTProcFlowTranslator
+mExpClass(GMT) dgbODGMTProcFlowTranslator : public ODGMTProcFlowTranslator
 {			     isTranslator(dgb,ODGMTProcFlow)
 public:
 

@@ -20,7 +20,7 @@ class uiComboBox;
 class uiGenInput;
 class uiPushButton;
 
-mClass(GoogleTranslate) uiTranslateDlg : public uiDialog
+mExpClass(GoogleTranslate) uiTranslateDlg : public uiDialog
 {
 public:
 			uiTranslateDlg(uiParent*);

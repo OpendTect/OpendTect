@@ -17,7 +17,7 @@ class CtxtIOObj;
 namespace Tut { class SeisTools; }
 
 
-mClass(uiTut) uiTutSeisTools : public uiDialog
+mExpClass(uiTut) uiTutSeisTools : public uiDialog
 {
 public:
 

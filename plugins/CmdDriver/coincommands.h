@@ -24,7 +24,7 @@ namespace CmdDrive
 
 mStartDeclCmdClass( CmdDriver, Wheel, UiObjectCmd )		mEndDeclCmdClass
 
-mClass(CmdDriver) WheelActivator: public Activator
+mExpClass(CmdDriver) WheelActivator: public Activator
 {
 public:
 			WheelActivator(const uiThumbWheel&,float angle);

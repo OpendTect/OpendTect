@@ -42,7 +42,7 @@ Space - pause/resume
 Mouse move - move paddle
 +/- - increase/decrease speed of ball
 */
-mClass(uiBouncy) BouncyDisplay : public visBase::VisualObjectImpl,
+mExpClass(uiBouncy) BouncyDisplay : public visBase::VisualObjectImpl,
 		       public visSurvey::SurveyObject
 {
 public:

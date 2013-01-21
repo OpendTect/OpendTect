@@ -91,7 +91,7 @@ namespace ODGMT
 };
 
 
-mClass(GMT) GMTWellSymbol : public NamedObject
+mExpClass(GMT) GMTWellSymbol : public NamedObject
 {
 public:
     BufferString	iconfilenm_;
@@ -104,7 +104,7 @@ public:
 };
 
 
-mClass(GMT) GMTWellSymbolRepository
+mExpClass(GMT) GMTWellSymbolRepository
 {
 public:
     			GMTWellSymbolRepository();

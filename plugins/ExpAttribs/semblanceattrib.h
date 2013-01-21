@@ -42,7 +42,7 @@ Output:
 namespace Attrib
 {
 
-mClass(ExpAttribs) Semblance : public Provider
+mExpClass(ExpAttribs) Semblance : public Provider
 {
 public:
     static void			initClass();

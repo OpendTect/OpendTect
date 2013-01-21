@@ -23,7 +23,7 @@ ________________________________________________________________________
 namespace ODMad
 {
 
-mClass(Madagascar) RSFHeader : public IOPar
+mExpClass(Madagascar) RSFHeader : public IOPar
 {
 public:
 
@@ -65,7 +65,7 @@ private:
 };
 
 
-mClass(Madagascar) TrcHdrDef : public IOPar
+mExpClass(Madagascar) TrcHdrDef : public IOPar
 {
 public:
     			TrcHdrDef();
@@ -105,7 +105,7 @@ public:
 
 
 /*!\brief describes one trace header */
-mClass(Madagascar) TrcHeader : public TypeSet<int>
+mExpClass(Madagascar) TrcHeader : public TypeSet<int>
 {
 public:
 			TrcHeader(bool is2d,const TrcHdrDef& def);
@@ -128,7 +128,7 @@ protected:
 };
 
 
-mClass(Madagascar) TrcHdrStrm
+mExpClass(Madagascar) TrcHdrStrm
 {
 public:
 			TrcHdrStrm(bool is2d,bool read,const char* fnm,

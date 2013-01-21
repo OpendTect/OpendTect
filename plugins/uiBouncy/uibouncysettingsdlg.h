@@ -18,7 +18,7 @@ namespace visBeachBall { class BallProperties; }
 namespace uiBouncy
 {
 
-mClass(uiBouncy) uiBouncySettingsDlg : public uiGroup
+mExpClass(uiBouncy) uiBouncySettingsDlg : public uiGroup
 {
 public:
 

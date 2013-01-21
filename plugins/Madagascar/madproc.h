@@ -16,7 +16,7 @@ class IOPar;
 namespace ODMad
 {
 
-mClass(Madagascar) Proc
+mExpClass(Madagascar) Proc
 {
 public:
 

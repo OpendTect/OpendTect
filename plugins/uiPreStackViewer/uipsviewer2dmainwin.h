@@ -28,7 +28,7 @@ namespace PreStackView
     class uiViewer2DControl;
     class uiViewer2DPosDlg;
 
-mClass(uiPreStackViewer) uiViewer2DMainWin : public uiObjectItemViewWin, public uiFlatViewWin
+mExpClass(uiPreStackViewer) uiViewer2DMainWin : public uiObjectItemViewWin, public uiFlatViewWin
 {
 public:    
 			uiViewer2DMainWin(uiParent*,const char* title);
@@ -78,7 +78,7 @@ protected:
 };
 
 
-mClass(uiPreStackViewer) uiViewer2DControl : public uiFlatViewStdControl
+mExpClass(uiPreStackViewer) uiViewer2DControl : public uiFlatViewStdControl
 {
 public:
 			uiViewer2DControl(uiObjectItemView&,uiFlatViewer&);

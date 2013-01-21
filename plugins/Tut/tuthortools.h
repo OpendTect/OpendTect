@@ -21,7 +21,7 @@ namespace EM { class Horizon3D; }
 namespace Tut
 {
 
-mClass(Tut) HorTool : public Executor
+mExpClass(Tut) HorTool : public Executor
 {
 public:
     virtual		~HorTool();
@@ -51,7 +51,7 @@ protected:
 
 
 
-mClass(Tut) ThicknessCalculator : public HorTool
+mExpClass(Tut) ThicknessCalculator : public HorTool
 {
 public:
     			ThicknessCalculator();
@@ -71,7 +71,7 @@ protected:
 };
 
 
-mClass(Tut) HorSmoother : public HorTool
+mExpClass(Tut) HorSmoother : public HorTool
 {
 public:
 			HorSmoother();

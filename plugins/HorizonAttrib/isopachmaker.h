@@ -19,7 +19,7 @@ ________________________________________________________________________
 class DataPointSet;
 namespace EM{ class Horizon3D; class EMObjectIterator; }
 
-mClass(HorizonAttrib) IsopachMaker : public Executor
+mExpClass(HorizonAttrib) IsopachMaker : public Executor
 {
 public:
 			IsopachMaker(const EM::Horizon3D&,const EM::Horizon3D&,

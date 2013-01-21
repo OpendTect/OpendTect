@@ -22,7 +22,7 @@ class uiSteeringSel;
 class uiStepOutSel;
 
 
-mClass(uiTut) uiTutorialAttrib : public uiAttrDescEd
+mExpClass(uiTut) uiTutorialAttrib : public uiAttrDescEd
 {
 public:
 

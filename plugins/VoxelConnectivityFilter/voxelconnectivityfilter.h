@@ -20,7 +20,7 @@ ________________________________________________________________________
 namespace VolProc
 {
 
-mClass(VoxelConnectivityFilter) VoxelConnectivityFilter : public Step
+mExpClass(VoxelConnectivityFilter) VoxelConnectivityFilter : public Step
 {
 public:
 

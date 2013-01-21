@@ -21,7 +21,7 @@ namespace ODMad
 //class ProcFlow;
 class MadStream;
 
-mClass(Madagascar) ProcExec : public ::Executor
+mExpClass(Madagascar) ProcExec : public ::Executor
 {
 public:
 

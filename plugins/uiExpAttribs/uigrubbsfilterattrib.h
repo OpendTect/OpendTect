@@ -23,7 +23,7 @@ class uiSteeringSel;
 
 /*! \brief Semblance Attribute description editor */
 
-mClass(uiExpAttribs) uiGrubbsFilterAttrib : public uiAttrDescEd
+mExpClass(uiExpAttribs) uiGrubbsFilterAttrib : public uiAttrDescEd
 {
 public:
 

@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class StreamData;
 
-mClass(GMT) GMTPar : public IOPar
+mExpClass(GMT) GMTPar : public IOPar
 {
 public:
     			GMTPar(const char* nm)
@@ -39,7 +39,7 @@ public:
 
 typedef GMTPar* (*GMTParCreateFunc)(const IOPar&);
 
-mClass(GMT) GMTParFactory
+mExpClass(GMT) GMTParFactory
 {
 public:
 

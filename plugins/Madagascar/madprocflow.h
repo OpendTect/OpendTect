@@ -17,7 +17,7 @@
 namespace ODMad
 {
 
-mClass(Madagascar) ProcFlow : public ::NamedObject
+mExpClass(Madagascar) ProcFlow : public ::NamedObject
 	       , public ObjectSet<Proc>
 {
 public:

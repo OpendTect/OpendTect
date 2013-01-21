@@ -14,7 +14,7 @@
 namespace Bouncy
 {
 
-mClass(Bouncy) BouncyController : public CallBacker
+mExpClass(Bouncy) BouncyController : public CallBacker
 {
 public:
 

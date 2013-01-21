@@ -21,7 +21,7 @@ class uiToolButton;
 namespace PreStackView
 {
 
-mClass(uiPreStackViewer) uiGatherPosSliceSel : public uiSliceSel
+mExpClass(uiPreStackViewer) uiGatherPosSliceSel : public uiSliceSel
 {
 public:
 				uiGatherPosSliceSel(uiParent*,uiSliceSel::Type);
@@ -47,7 +47,7 @@ protected:
     void			applyPushed(CallBacker*);
 };
 
-mClass(uiPreStackViewer) uiViewer2DPosDlg : public uiDialog
+mExpClass(uiPreStackViewer) uiViewer2DPosDlg : public uiDialog
 {
 public:
 				uiViewer2DPosDlg(uiParent*,bool is2d,
@@ -78,7 +78,7 @@ protected:
 };
 
 
-mClass(uiPreStackViewer) uiViewer2DSelDataDlg : public uiDialog
+mExpClass(uiPreStackViewer) uiViewer2DSelDataDlg : public uiDialog
 {
 public: 	
 			    uiViewer2DSelDataDlg(uiParent*,

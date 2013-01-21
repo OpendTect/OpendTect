@@ -28,7 +28,7 @@ class HorCalc : public ::Executor
 {
 public:
 
-    mClass(uiGrav) Setup
+    mExpClass(uiGrav) Setup
     {
     public:
 			Setup( const MultiID& calcmid )

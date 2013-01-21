@@ -15,7 +15,7 @@ namespace Well { class Log; }
 namespace Tut
 {
 
-mClass(Tut) LogTools
+mExpClass(Tut) LogTools
 {
 public:
 

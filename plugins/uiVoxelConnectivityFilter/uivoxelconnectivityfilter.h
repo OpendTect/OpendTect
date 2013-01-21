@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace VolProc
 {
 
-mClass(uiVoxelConnectivityFilter) uiVoxelConnectivityFilter : public uiStepDialog
+mExpClass(uiVoxelConnectivityFilter) uiVoxelConnectivityFilter : public uiStepDialog
 {
 public:
     mDefaultFactoryInstanciationBase(

@@ -18,7 +18,7 @@ namespace Tut { class LogTools; }
 namespace Well { class Data; }
 
 
-mClass(uiTut) uiTutWellTools : public uiDialog
+mExpClass(uiTut) uiTutWellTools : public uiDialog
 {
 public:
 

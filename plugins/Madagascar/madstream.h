@@ -27,7 +27,7 @@ namespace Seis { class SelData; }
 namespace ODMad
 {
 
-mClass(Madagascar) MadStream
+mExpClass(Madagascar) MadStream
 {
 public:
     				MadStream(IOPar&);

@@ -16,7 +16,7 @@ namespace uiBouncy
 {
 class uiBouncySettingsDlg;
 
-mClass(uiBouncy) uiBouncyMain : public uiDialog
+mExpClass(uiBouncy) uiBouncyMain : public uiDialog
 {
 public:
 

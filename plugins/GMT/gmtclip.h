@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 
 
-mClass(GMT) GMTClip : public GMTPar
+mExpClass(GMT) GMTClip : public GMTPar
 {
 public:
 

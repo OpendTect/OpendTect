@@ -25,7 +25,7 @@ class DeviceData;
 class ProgramData;
 class Context;
 
-mClass(GPUCalc) Device
+mExpClass(GPUCalc) Device
 {
 public:
     bool		isGPU() const;
@@ -46,7 +46,7 @@ protected:
 };
 
 
-mClass(GPUCalc) Program
+mExpClass(GPUCalc) Program
 {
 public:
     			Program(Device&);
@@ -60,13 +60,13 @@ protected:
     ProgramData&	data_;
 };
 
-mClass(GPUCalc) ProgramObject
+mExpClass(GPUCalc) ProgramObject
 {
 public:
     			ProgramObject(Program&);
 };
 
-mClass(GPUCalc) GPUManager
+mExpClass(GPUCalc) GPUManager
 {
 public:
     			GPUManager();

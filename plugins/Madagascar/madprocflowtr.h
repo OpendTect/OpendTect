@@ -14,7 +14,7 @@ class BufferString;
 namespace ODMad { class ProcFlow; }
 
 
-mClass(Madagascar) ODMadProcFlowTranslatorGroup : public TranslatorGroup
+mExpClass(Madagascar) ODMadProcFlowTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ODMadProcFlow)
 public:
     			mDefEmptyTranslatorGroupConstructor(ODMadProcFlow)
@@ -23,7 +23,7 @@ public:
 };
 
 
-mClass(Madagascar) ODMadProcFlowTranslator : public Translator
+mExpClass(Madagascar) ODMadProcFlowTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(ODMadProcFlow)

@@ -21,7 +21,7 @@ mExtern(Madagascar) const char* sKeyMadSelKey();
 
 /*!\brief Specifies file name and optional mask filename */
 
-mClass(Madagascar) FileSpec
+mExpClass(Madagascar) FileSpec
 {
 public:
 

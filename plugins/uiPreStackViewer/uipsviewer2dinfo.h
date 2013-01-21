@@ -21,7 +21,7 @@ class BinID;
 namespace PreStackView
 {
 
-mClass(uiPreStackViewer) uiGatherDisplayInfoHeader : public uiGroup
+mExpClass(uiPreStackViewer) uiGatherDisplayInfoHeader : public uiGroup
 {
 public:
     				uiGatherDisplayInfoHeader(uiParent*);

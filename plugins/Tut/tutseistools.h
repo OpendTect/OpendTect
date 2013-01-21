@@ -21,7 +21,7 @@ class SeisTrcWriter;
 namespace Tut
 {
 
-mClass(Tut) SeisTools : public Executor
+mExpClass(Tut) SeisTools : public Executor
 {
 public:
 

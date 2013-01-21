@@ -31,7 +31,7 @@ public:
 
 /* Scans $RSFROOT/doc/txt directory for program definitions */
 
-mClass(Madagascar) ProgInfo
+mExpClass(Madagascar) ProgInfo
 {
 public:
     			//!< When PI() is first used, a Pre-Scan is done

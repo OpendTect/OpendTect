@@ -14,7 +14,7 @@ class TaskRunner;
 class uiIOObjSel;
 class uiGenInput;
 
-mClass(uiTut) uiTutHorTools : public uiDialog
+mExpClass(uiTut) uiTutHorTools : public uiDialog
 {
 public:
 

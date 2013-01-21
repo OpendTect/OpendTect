@@ -19,7 +19,7 @@ class uiBouncyMain;
 class uiBouncySettingsDlg;
 class BouncyDisplay;
 
-mClass(uiBouncy) uiBouncyMgr : public CallBacker
+mExpClass(uiBouncy) uiBouncyMgr : public CallBacker
 {
 public:
 

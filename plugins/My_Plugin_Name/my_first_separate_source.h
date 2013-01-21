@@ -11,7 +11,7 @@
 #include "gendefs.h"
 
 
-mClass(My_Plugin_Name) My_Class
+mExpClass(My_Plugin_Name) My_Class
 {
 public:
 

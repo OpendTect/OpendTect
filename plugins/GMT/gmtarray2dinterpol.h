@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "strmdata.h"
 
 
-mClass(GMT) GMTArray2DInterpol : public Array2DInterpol
+mExpClass(GMT) GMTArray2DInterpol : public Array2DInterpol
 {
 public:
     				GMTArray2DInterpol();
@@ -47,7 +47,7 @@ protected:
 };
 
 
-mClass(GMT) GMTSurfaceGrid : public GMTArray2DInterpol
+mExpClass(GMT) GMTSurfaceGrid : public GMTArray2DInterpol
 {
 public:
     				GMTSurfaceGrid();
@@ -69,7 +69,7 @@ protected:
 };
 
 
-mClass(GMT) GMTNearNeighborGrid : public GMTArray2DInterpol
+mExpClass(GMT) GMTNearNeighborGrid : public GMTArray2DInterpol
 {
 public:
     				GMTNearNeighborGrid();

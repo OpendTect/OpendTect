@@ -23,7 +23,7 @@ class SeisTrcReader;
 namespace EM { class Horizon3D; }
 namespace Attrib { class DescSet; class Processor; }
 
-mClass(HorizonAttrib) StratAmpCalc  : public Executor
+mExpClass(HorizonAttrib) StratAmpCalc  : public Executor
 {
 public:
 

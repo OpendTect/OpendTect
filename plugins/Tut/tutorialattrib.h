@@ -29,7 +29,7 @@ Outputs:
 namespace Attrib
 {
 
-mClass(Tut) Tutorial : public Provider
+mExpClass(Tut) Tutorial : public Provider
 {
 public:
     static void		initClass();

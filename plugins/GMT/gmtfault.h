@@ -21,7 +21,7 @@ class Coord3ListImpl;
 namespace Geometry { class ExplFaultStickSurface; }
 namespace EM { class Fault3D; }
 
-mClass(GMT) GMTFault : public GMTPar
+mExpClass(GMT) GMTFault : public GMTPar
 {
 public:
     static void		initClass();
