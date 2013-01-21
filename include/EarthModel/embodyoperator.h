@@ -36,7 +36,6 @@ class Body;
 class ImplicitBody;    
 
 /*!
-\ingroup EarthModel
 \brief Operators for implicit body. Each BodyOperator has two children, either
 a Body or a BodyOperator.
 */
@@ -100,7 +99,6 @@ protected:
 
 
 /*
-\ingroup EarthModel
 \brief Converts an explicit body to implicit.
 
    Given a triangulated body, extract position value on each trace based on 

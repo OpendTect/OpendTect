@@ -24,7 +24,6 @@ class BufferStringSet;
 class HorSamplingIterator;
 
 /*!
-\ingroup EarthModel
 \brief Modifies horizons.
 */
 

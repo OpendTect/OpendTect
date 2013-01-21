@@ -23,7 +23,6 @@ namespace EM
 class Surface;
 
 /*!
-\ingroup EarthModel
 \brief Data interesting for Surface I/O.
 */
 
@@ -52,7 +51,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief Surface I/O data selection
 */
 

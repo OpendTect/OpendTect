@@ -21,7 +21,6 @@ ________________________________________________________________________
 namespace EM { class Fault3D; };
 
 /*!
-\ingroup EarthModel
 \brief Landmark EM::Fault3D EMSurfaceTranslator.
 */
 
@@ -58,7 +57,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief Landmark EM::Fault3D reader.
 */
 
@@ -98,7 +96,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Landmark EM::Fault3D writer. 
 */
 

@@ -32,7 +32,6 @@ namespace EM
 {
 
 /*!
-\ingroup EarthModel
 \brief 3D HorizonGeometry
 */
 
@@ -84,7 +83,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief 3D Horizon. A Horizon is made up of one or more grids (so they can
 overlap at faults). The grids are defined by knot-points in a matrix and
 fillstyle in between the knots.
@@ -140,7 +138,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Ascii I/O for Horizon3D.
 */
 

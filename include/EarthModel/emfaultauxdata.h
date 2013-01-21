@@ -31,7 +31,6 @@ class Fault3D;
 class PosID;
 
 /*!
-\ingroup EarthModel
 \brief Fault surface data
 */
 

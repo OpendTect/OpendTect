@@ -29,7 +29,6 @@ class dgbSurfaceReader;
 class SurfaceIOData;
 
 /*!
-\ingroup EarthModel
 \brief Info on IOObj for earthmodel.
 */
 

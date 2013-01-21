@@ -28,7 +28,6 @@ class Horizon3D;
 class Horizon3DGeometry;
 
 /*!
-\ingroup EarthModel
 \brief Creates random lines along the contours of a surface.
 */
 
@@ -66,7 +65,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Creates random line from another by shifting it.
 */
 

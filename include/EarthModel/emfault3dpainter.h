@@ -31,7 +31,6 @@ namespace EM
 class Fault3D;
 
 /*!
-\ingroup EarthModel
 \brief 3D fault painter.
 */
 

@@ -24,7 +24,6 @@ namespace EM
 {
 
 /*!
-\ingroup EarthModel
 \brief Random position Body.
 */
 

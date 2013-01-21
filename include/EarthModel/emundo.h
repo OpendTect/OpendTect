@@ -28,7 +28,6 @@ namespace EM
 class Horizon3D;
 
 /*!
-\ingroup EarthModel
 \brief Set position UndoEvent.
 */
 
@@ -51,7 +50,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief UndoEvent for setting all positions on a EM::Horizon3D section.
 */
 
@@ -81,7 +79,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief UndoEvent for setting position attribute.
 */
 
@@ -103,7 +100,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Saves information from a EMObject::changePosID call.
 */
 
@@ -125,7 +121,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief UndoEvent to set preferred Color.
 */
 

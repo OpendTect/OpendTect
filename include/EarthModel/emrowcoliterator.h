@@ -23,7 +23,6 @@ namespace EM
 {
 
 /*!
-\ingroup EarthModel
 \brief RowCol iterator
 */
 

@@ -33,7 +33,6 @@ class PosID;
 
 
 /*!
-\ingroup EarthModel
 \brief Surface data
 */
 

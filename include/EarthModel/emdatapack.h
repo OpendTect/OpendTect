@@ -29,7 +29,6 @@ class Fault;
 
 
 /*!
-\ingroup EarthModel
 \brief Mixing to provide general services to Earth Model data packs.
 */
 
@@ -56,7 +55,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Flat data pack class for Horizons.
 */
 
@@ -82,7 +80,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Flat data pack from attribute extraction on faults.
 */ 
 

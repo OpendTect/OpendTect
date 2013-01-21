@@ -26,7 +26,6 @@ class Fault;
 class FaultStickSetGeometry;
 
 /*!
-\ingroup EarthModel
 \brief FaultGeometry base class.
 */
 
@@ -79,7 +78,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Fault Surface base class.
 */
 
@@ -100,7 +98,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Fault stick UndoEvent.
 */
 
@@ -126,7 +123,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Fault knot UndoEvent.
 */
 

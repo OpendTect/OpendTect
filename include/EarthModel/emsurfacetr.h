@@ -39,7 +39,6 @@ typedef EM::FaultStickSet	EMFaultStickSet;
 
 
 /*!
-\ingroup EarthModel
 \brief TranslatorGroup for EM::Horizon3D. Reads/writes 3D EM::Horizon3D to
 storage.
 */
@@ -56,7 +55,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief TranslatorGroup for EM::Horizon2D.
 */
 
@@ -72,7 +70,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief TranslatorGroup for EM::Horizon.
 */
 
@@ -86,7 +83,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief TranslatorGroup for EM::Fault3D.
 */
 
@@ -102,7 +98,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief TranslatorGroup for EM::FaultStickSet.
 */
 
@@ -118,7 +113,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief Translator for EM::Surface.
 */
 
@@ -171,7 +165,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief dgb EMSurfaceTranslator
 */
 
@@ -202,7 +195,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief dgbEMSurfaceTranslator for EM::Horizon3D.
 */
 
@@ -222,7 +214,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief dgbEMSurfaceTranslator for EM::Horizon2D.
 */
 
@@ -242,7 +233,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief dgbEMSurfaceTranslator for EM::Fault3D.
 */
 
@@ -262,7 +252,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief dgbEMSurfaceTranslator for EM::FaultStickSet.
 */
 

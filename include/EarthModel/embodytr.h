@@ -25,7 +25,6 @@ namespace EM { class Body; class PolygonBody; }
 typedef EM::Body 	EMBody;
 
 /*!
-\ingroup EarthModel
 \brief TranslatorGroup for EM::Body.
 */
 
@@ -39,7 +38,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief Marching cubes EM::Body Translator.
 */
 
@@ -53,7 +51,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief EM::PolygonBody Translator.
 */
 
@@ -79,7 +76,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Random position EM::Body Translator.
 */
 
@@ -93,7 +89,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief For selection of old (3.2) marchingcube (mc) bodies.
 */
 

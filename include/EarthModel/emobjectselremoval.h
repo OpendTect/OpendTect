@@ -27,7 +27,6 @@ namespace EM
 class EMObject;    
 
 /*!
-\ingroup EarthModel
 \brief EMObject RowCol selection removal.
 */
 

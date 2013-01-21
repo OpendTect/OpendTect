@@ -39,7 +39,6 @@ namespace EM
 class EMManager;
 
 /*!
-\ingroup EarthModel
 \brief EM object callback data.
 */
 
@@ -65,7 +64,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief Iterator that iterates a number of positions (normally all) on an
 EMObject. The object is created by EMObject::createIterator, and the next()
 function is called until no more positions can be found.
@@ -85,7 +83,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief Position attribute
 */
 
@@ -108,7 +105,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief Base class for all EarthModel objects.
 */
 

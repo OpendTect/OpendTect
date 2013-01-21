@@ -30,7 +30,6 @@ class EMManager;
 class FaultAuxData;
 
 /*!
-\ingroup EarthModel
 \brief 3D FaultGeometry.
 */
 
@@ -72,7 +71,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief 3D Fault
 */
 
@@ -96,7 +94,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Ascii I/O for Fault.
 */
 

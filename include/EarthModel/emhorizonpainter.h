@@ -28,7 +28,6 @@ namespace EM
 {
 
 /*!
-\ingroup EarthModel
 \brief EM object painter callback data.
 */
   
@@ -45,7 +44,6 @@ public:
     
 
 /*!
-\ingroup EarthModel
 \brief %Horizon painter
 */
 

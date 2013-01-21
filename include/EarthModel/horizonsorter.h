@@ -27,7 +27,6 @@ class HorSamplingIterator;
 class BufferStringSet;
 
 /*!
-\ingroup EarthModel
 \brief Executor to sort horizons.
 */
 

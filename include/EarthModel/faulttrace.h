@@ -27,7 +27,6 @@ class BinIDValueSet;
 class HorSampling;
 
 /*!
-\ingroup EarthModel
 \brief Subclass of Coord3List that represents a fault trace.
 */
 
@@ -106,7 +105,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief FaultTrace extractor 
 */
 
@@ -135,7 +133,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief FaultTrace calculator
 */
 
@@ -163,7 +160,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief FaultTrace data provider
 */
 

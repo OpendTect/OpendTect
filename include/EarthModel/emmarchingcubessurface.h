@@ -26,7 +26,6 @@ namespace EM
 class BodyOperator;    
 
 /*!
-\ingroup EarthModel
 \brief Marching cubes surface
 */
 

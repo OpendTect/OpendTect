@@ -28,7 +28,6 @@ class Horizon3D;
 class Hor2DTo3DSectionData;
 
 /*!
-\ingroup EarthModel
 \brief Horizon2D to Horizon3D.
 */
 

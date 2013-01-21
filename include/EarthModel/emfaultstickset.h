@@ -24,7 +24,6 @@ namespace EM
 class EMManager;
 
 /*!
-\ingroup EarthModel
 \brief FaultStickSet geometry.
 */
 
@@ -86,7 +85,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Fault stick set.
 */
 

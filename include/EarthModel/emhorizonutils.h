@@ -31,7 +31,6 @@ namespace EM
 class Surface;
 
 /*!
-\ingroup EarthModel
 \brief Group of utilities for horizons: here are all functions required in 
 od_process_attrib_em for computing data on, along or between 2 horizons.
 */

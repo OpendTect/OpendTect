@@ -24,7 +24,6 @@ namespace EM
 {
 
 /*!
-\ingroup EarthModel
 \brief %Fault stick set flat view editor.
 */
 

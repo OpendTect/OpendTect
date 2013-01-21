@@ -24,7 +24,6 @@ namespace Table { class FormatDesc; }
 namespace PosInfo { class Detector; }
 
 /*!
-\ingroup EarthModel
 \brief Executor to scan horizons.
 */
 

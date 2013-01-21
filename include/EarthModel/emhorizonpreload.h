@@ -25,7 +25,6 @@ namespace EM
 {
 
 /*!
-\ingroup EarthModel
 \brief %Horizon preloader
 */
 

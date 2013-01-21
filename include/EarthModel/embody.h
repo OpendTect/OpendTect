@@ -25,7 +25,6 @@ namespace EM
 {
 
 /*!
-\ingroup EarthModel
 \brief Implicit representation of a body.
 */
 
@@ -44,7 +43,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief A body that can deliver an implicit body.
 */
 

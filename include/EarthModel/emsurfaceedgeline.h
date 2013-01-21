@@ -48,7 +48,6 @@ EM::EdgeLineSegmentFactory fact##clss( clss::sClassName(), \
 class EdgeLineSegmentFactory;
 
 /*!
-\ingroup EarthModel
 \brief Edge line segment
 */
 
@@ -175,7 +174,6 @@ private:
 
 
 /*!
-\ingroup EarthModel
 \brief Edge line segment factory.
 */
 
@@ -193,7 +191,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief Edge line
 */
 
@@ -267,7 +264,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Edge line iterator
 */
 
@@ -308,7 +304,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Edge line set
 */
 
@@ -358,7 +353,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Edge line manager
 */
 

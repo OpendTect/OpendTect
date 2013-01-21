@@ -32,7 +32,6 @@ namespace EM
 class EMManager;
 
 /*!
-\ingroup EarthModel
 \brief 2D HorizonGeometry
 */
 
@@ -94,7 +93,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief 2D Horizon. The Horizon is only present along 2d lines, set by addLine.
 Each position's subid is formed by RowCol( lineid, tracenr ).getInt64(). If
 multiple z-values per trace is needed, multiple sections can be added.
@@ -154,7 +152,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Ascii I/O for Horizon2D.
 */
 

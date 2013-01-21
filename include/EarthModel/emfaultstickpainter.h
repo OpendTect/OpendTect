@@ -31,7 +31,6 @@ namespace EM
 {
 
 /*!
-\ingroup EarthModel
 \brief %Fault stick painter.
 */
 

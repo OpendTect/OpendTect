@@ -25,7 +25,6 @@ namespace EM
 {
 
 /*!
-\ingroup EarthModel
 \brief A Relation tree where a parent-child relationship means a top-bottom
 relationship for the horizons.
 */

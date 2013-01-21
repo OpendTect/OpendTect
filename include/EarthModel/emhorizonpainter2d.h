@@ -22,7 +22,6 @@ namespace EM
 {
 
 /*!
-\ingroup EarthModel
 \brief 2D horizon painter
 */
 

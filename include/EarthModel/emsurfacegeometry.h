@@ -38,7 +38,6 @@ class Surface;
 class SurfaceIODataSelection;
 
 /*!
-\ingroup EarthModel
 \brief Surface geometry
 */
 
@@ -122,7 +121,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief RowCol SurfaceGeometry
 */
 

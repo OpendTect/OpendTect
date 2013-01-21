@@ -35,7 +35,6 @@ typedef SubID KnotID;
 class EMManager;
 
 /*!
-\ingroup EarthModel
 \brief Stick set
 */
 

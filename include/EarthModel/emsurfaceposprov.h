@@ -30,7 +30,6 @@ namespace Pos
 {
 
 /*!
-\ingroup EarthModel
 \brief Provider based on surface(s)
  
   For one surface, the provider iterates through the horizon. For two horizons,
@@ -118,7 +117,6 @@ protected:
     virtual od_int64	estNrPos() const { return estnrpos_; } \
 
 /*!
-\ingroup EarthModel
 \brief EMSurfaceProvider for 3D positioning.
 */
 
@@ -157,7 +155,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief EMSurfaceProvider for 2D positioning.
 */
 
@@ -197,7 +194,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief EMSurfaceProvider for 3D positions with 2D Horizon.
 */
 
@@ -243,7 +239,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief EM implicit body provider for 3D positioning.
 */
 

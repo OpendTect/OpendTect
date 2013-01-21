@@ -20,7 +20,6 @@ namespace EM
 {
 
 /*!
-\ingroup EarthModel
 \brief Termination EdgeLineSegment
 */
 
@@ -38,7 +37,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief Surface connecting EdgeLineSegment.
 */
 

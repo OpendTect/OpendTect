@@ -34,7 +34,6 @@ class RowColSurfaceGeometry;
 
 
 /*!
-\ingroup EarthModel
 \brief Surface Reader
 
 1. Construct (no changes are made to the surface in mem)
@@ -228,7 +227,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Surface Writer
 
 1. Construct (no changes are made to filesystem) 

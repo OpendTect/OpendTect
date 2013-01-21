@@ -25,7 +25,6 @@ namespace EM
 class EMManager;
 
 /*!
-\ingroup EarthModel
 \brief Horizon RowColSurfaceGeometry
 */
 
@@ -38,7 +37,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Horizon Surface
 */
 

@@ -29,7 +29,6 @@ namespace EM
 class PolygonBody;
 
 /*!
-\ingroup EarthModel
 \brief PolygonBody SurfaceGeometry
 */
 
@@ -74,7 +73,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief A Surface polygon Body.
 */
 

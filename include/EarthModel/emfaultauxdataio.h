@@ -25,7 +25,6 @@ namespace EM
 class Fault3D;
 
 /*!
-\ingroup EarthModel
 \brief Writes auxdata to file.
 */
 
@@ -89,7 +88,6 @@ protected:
 
 
 /*!
-\ingroup EarthModel
 \brief Reads auxdata from file.
 */
 

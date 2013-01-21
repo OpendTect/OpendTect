@@ -23,7 +23,6 @@ class EMObjectIterator;
 class Horizon;
 
 /*!
-\ingroup EarthModel
 \brief %Horizon z-axis transformer
 */
 

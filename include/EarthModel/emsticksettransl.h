@@ -23,7 +23,6 @@ ________________________________________________________________________
 typedef EM::StickSet EMStickSet;
 
 /*!
-\ingroup EarthModel
 \brief EMStickSet TranslatorGroup
 */
 
@@ -39,7 +38,6 @@ public:
 
 
 /*!
-\ingroup EarthModel
 \brief EMStickSet Translator
 */
 
