@@ -147,7 +147,7 @@ ________________________________________________________________________
 #define mExpStruct( module )		struct mExp( module )
 
 #define mGlobal( module )		mExp( module )
-#define mClass( module )		class
+#define mClass( module )		mExpClass( module )
 #define mStruct( module )		mExpStruct( module )
 #define mExtern( module )		extern mExp( module )
 #define mExternC( module)		extern "C" mExp( module )
