@@ -31,6 +31,8 @@ file ( REMOVE ${OD_SOURCELIST_FILE} )
 set ( OD_EXEC_OUTPUT_RELPATH "bin/${OD_PLFSUBDIR}${OD_BUILDSUBDIR}" )
 set ( OD_EXEC_OUTPUT_PATH "${OD_BINARY_BASEDIR}/${OD_EXEC_OUTPUT_RELPATH}" )
 set ( OD_EXEC_INSTALL_PATH "${OD_EXEC_OUTPUT_RELPATH}" )
+set ( OD_BUILD_VERSION "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_DETAIL}${OpendTect_VERSION_PATCH}")
+set ( OD_API_VERSION "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_DETAIL}" )
 
 set ( OD_MAIN_EXEC od_main )
 set ( OD_ATTRIB_EXECS od_process_attrib od_process_attrib_em od_stratamp )
