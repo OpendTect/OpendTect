@@ -5,14 +5,14 @@
 	<key>CFBundleExecutable</key>
 	<string>start_dtect</string>
 	<key>CFBundleGetInfoString</key>
-	<string>OpendTect 4.4.0</string>
+	<string>OpendTect @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@.@OpendTect_VERSION_DETAIL@</string>
 	<key>CFBundleIconFile</key>
 	<string>od.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.dgb.OpendTect</string>
+	<string>com.dgbes.opendtect</string>
 	<key>CFBundleName</key>
 	<string>OpendTect</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>© 202, dGB Beheer BV</string>
+	<string>© @YEAR@, dGB Beheer BV</string>
 </dict>
 </plist>
