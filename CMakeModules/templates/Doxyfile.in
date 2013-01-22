@@ -669,9 +669,11 @@ INCLUDE_FILE_PATTERNS  =
 # omitted =1 is assumed.
 
 PREDEFINED	       = __doxygen__= \
-    "mClass(mod)=class"\
+    "mExpClass(mod)=/*!\ingroup mod */ class"\
+    "mClass(mod)=/*!\ingroup mod */ class"\
     "mStruct=struct"\
     "mGlobal(mod)="\
+    "mSoODClass=/*!\ingroup SoOD */ class"\
     "mProtected=protected"\
     "mPolyRet(base,clss)= clss"\
     "mTFriend(T,clss)=template <class T> friend class clss"\
