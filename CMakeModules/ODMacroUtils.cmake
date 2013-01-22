@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-# OD_INIT_MODULE - Marcro that setups a number of variables for compiling
+# OD_INIT_MODULE - Macro that setups a number of variables for compiling
 #		   OpendTect.
 #
 # Input variables:
@@ -231,6 +231,8 @@ if ( OD_MODULE_HAS_LIBRARY )
 	    PROPERTIES 
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
 	    LABELS ${OD_MODULE_NAME}
+	    VERSION ${OD_BUILD_VERSION}
+	    SOVERSION ${OD_API_VERSION}
 	    ARCHIVE_OUTPUT_DIRECTORY "${OD_EXEC_OUTPUT_PATH}" 
 	    LIBRARY_OUTPUT_DIRECTORY "${OD_EXEC_OUTPUT_PATH}"
 	    RUNTIME_OUTPUT_DIRECTORY "${OD_EXEC_OUTPUT_PATH}")
@@ -281,6 +283,7 @@ if( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS )
 	    PROPERTIES 
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
 	    LABELS ${OD_MODULE_NAME}
+	    VERSION ${OD_BUILD_VERSION}
 	    RUNTIME_OUTPUT_DIRECTORY "${OD_EXEC_OUTPUT_PATH}")
 	target_link_libraries(
 	    ${TARGET_NAME}
@@ -325,6 +328,7 @@ if(OD_MODULE_BATCHPROGS)
 	    COMPILE_DEFINITIONS __prog__
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
 	    LABELS ${OD_MODULE_NAME}
+	    VERSION ${OD_BUILD_VERSION}
 	    RUNTIME_OUTPUT_DIRECTORY "${OD_EXEC_OUTPUT_PATH}")
 	if( OD_CREATE_LAUNCHERS )
 	    create_target_launcher( ${TARGET_NAME}
@@ -347,6 +351,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} )
 	    PROPERTIES 
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
 	    LABELS ${OD_MODULE_TEST_LABEL}
+	    VERSION ${OD_BUILD_VERSION}
 	    RUNTIME_OUTPUT_DIRECTORY "${OD_EXEC_OUTPUT_PATH}")
     target_link_libraries(
 	    ${TEST_NAME}
