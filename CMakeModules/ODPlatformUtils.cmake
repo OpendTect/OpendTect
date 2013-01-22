@@ -31,6 +31,8 @@ if(UNIX) #Apple an Linux
 	    set ( OD_EXTRA_COINFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
 	endif()
 
+	set ( OD_SET_TARGET_PROPERTIES 1 )
+
 	#For some versions of XCode
 	set ( CMAKE_FIND_LIBRARY_PREFIXES lib )
 	set ( CMAKE_FIND_LIBRARY_SUFFIXES .dylib )
@@ -107,6 +109,7 @@ endif(UNIX)
 if(WIN32)
     #Create Launchers on Windows
     set ( OD_CREATE_LAUNCHERS 1 )
+    set ( OD_SET_TARGET_PROPERTIES 1 )
 
     set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
     set  ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
