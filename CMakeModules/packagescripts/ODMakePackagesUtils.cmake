@@ -264,6 +264,7 @@ macro( init_destinationdir  PACKAGE_NAME )
     ENDIF()
 
     FILE( WRITE ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
+    FILE( APPEND ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
 endmacro( init_destinationdir )
 
 
