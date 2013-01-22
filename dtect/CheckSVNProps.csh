@@ -62,13 +62,13 @@ shift
 (svn proplist ${filename} > ${tmpfile} ) >& ${tmperrfile}
 set errsize=`stat -c %s ${tmperrfile}`
 if ( ${errsize} == 0 ) then
-    cat ${tmpfile} | grep -q eol-style
+    cat ${tmpfile} | grep -q "svn:eol-style"
     if ( ${status} == 1 ) then
-	echo File ${filename} misses eol-style.
+	echo File ${filename} misses svn:eol-style.
 	rm -rf ${tmpfile} ${tmperrfile}
 	exit 1
     endif
-    cat ${tmpfile} | grep -q keyword
+    cat ${tmpfile} | grep -q "svn:keyword"
     if ( ${status} == 1 ) then
 	echo File ${filename} misses keyword.
 	rm -rf ${tmpfile} ${tmperrfile}
