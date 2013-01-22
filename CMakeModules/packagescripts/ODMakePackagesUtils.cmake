@@ -148,6 +148,9 @@ macro( create_basepackages PACKAGE_NAME )
 				REGEX ".svn" EXCLUDE )
 	    ENDFOREACH()
        ENDFOREACH()
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${CMAKE_INSTALL_PREFIX}/relinfo/README.txt
+			 ${DESTINATION_DIR}/relinfo )
    ENDIF()
    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
        FOREACH( LIB ${LIBLIST} )

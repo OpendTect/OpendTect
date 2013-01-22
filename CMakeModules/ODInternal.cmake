@@ -25,6 +25,10 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/data
 	 PATTERN "install_files" EXCLUDE
 	 PATTERN ".svn" EXCLUDE )
 
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/relinfo 
+	 DESTINATION .
+	 PATTERN ".svn" EXCLUDE )
+
 #install scripts
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Scripts 
 	 DESTINATION doc
