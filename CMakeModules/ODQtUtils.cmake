@@ -5,9 +5,9 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(QTDIR "" CACHE PATH "QT Location" )
+set( QTDIR "" CACHE PATH "QT Location" )
 
-MACRO(OD_SETUP_QT)
+macro(OD_SETUP_QT)
     if ( (NOT DEFINED QTDIR) OR QTDIR STREQUAL "" )
 	MESSAGE( FATAL_ERROR "QTDIR not set")
     endif()
@@ -37,14 +37,14 @@ MACRO(OD_SETUP_QT)
 	list(APPEND OD_MODULE_INCLUDESYSPATH
 	    ${QT_QTSQL_INCLUDE_DIR}
 	    ${QTDIR}/include )
-	SET(OD_QT_LIBS ${QT_QTSQL_LIBRARY_RELEASE})
+	set(OD_QT_LIBS ${QT_QTSQL_LIBRARY_RELEASE})
 	endif()
 
 	if(${OD_USEQT} MATCHES "Widgets")
 	list(APPEND OD_MODULE_INCLUDESYSPATH
 	    ${QT_QTCORE_INCLUDE_DIR}
 	    ${QT_QTGUI_INCLUDE_DIR} ${QTDIR}/include )
-	SET(OD_QT_LIBS ${QT_QTGUI_LIBRARY_RELEASE})
+	set(OD_QT_LIBS ${QT_QTGUI_LIBRARY_RELEASE})
 	endif()
 
 	if(${OD_USEQT} MATCHES "OpenGL")
@@ -69,4 +69,4 @@ MACRO(OD_SETUP_QT)
 		    DESTINATION ${OD_EXEC_INSTALL_PATH} )
 	endif()
     endif()
-ENDMACRO( OD_SETUP_QT )
+endmacro( OD_SETUP_QT )
