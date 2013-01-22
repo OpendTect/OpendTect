@@ -241,6 +241,5 @@ FixedString sSenderAppl()
 
 
 FixedString sUiSenderAppl()
-{ return FixedString( "od_uiReportIssue" ); } 
-
+{ return FixedString( "od_uiReportIssue" ); }
 
