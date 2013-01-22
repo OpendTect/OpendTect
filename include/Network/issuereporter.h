@@ -28,10 +28,13 @@ public:
 					       const char* path = 0 );
 
     bool			readReport(const char* filename);
+    bool			setFileName(const char* filename);
     BufferString&		getReport() { return report_; }
     const BufferString&		getReport() const { return report_; }
     
     bool			send();
+    bool			sendReport();
+    bool			sendDumpFile();
     const char*			errMsg() const { return errmsg_.str(); }
     
     bool			parseCommandLine( int, char** );
@@ -42,6 +45,8 @@ protected:
     BufferString		path_;
     BufferString		errmsg_;
     BufferString		report_;
+    bool			isdump_;
+    BufferString                crashreportpath_;
 };
     
     

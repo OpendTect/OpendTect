@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 int main( int argc, char ** argv )
 {
+    SetProgramArgs( argc, argv );
     System::IssueReporter reporter;
     if ( !reporter.parseCommandLine( argc, argv ) )
     {

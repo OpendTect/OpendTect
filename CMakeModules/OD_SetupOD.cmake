@@ -7,6 +7,7 @@ SET( INCLUDES
     ODZlibUtils
     ODCoinUtils
     ODOsgUtils
+    ODBreakPadUtils
     ODMacroUtils
     ODModDeps
     CreateLaunchers

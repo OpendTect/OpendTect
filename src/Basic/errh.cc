@@ -15,6 +15,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 #include <fstream>
 
+#ifdef HAS_BREAKPAD
+#include "client\windows\handler\exception_handler.h"
+#include <QString>
+#endif
+
 Export_Basic const char* logMsgFileName();
 Export_Basic std::ostream& logMsgStrm();
 bool ErrMsgClass::printProgrammerErrs =
@@ -26,7 +31,6 @@ bool ErrMsgClass::printProgrammerErrs =
 static BufferString logmsgfnm;
 Export_Basic int gLogFilesRedirectCode = -1;
 // Not set. 0 = stderr, 1 = log file
-
 
 Export_Basic const char* logMsgFileName()
 {
@@ -145,11 +149,13 @@ const char* MsgClass::nameOf( MsgClass::Type typ )
 
 
 //Crashdumper stuff
+namespace google_breakpad{ class ExceptionHandler; }
 struct CrashDumper
 {
     CrashDumper( const char* path, const char* sendappl )
     : path_( path )
     , sendappl_( sendappl )
+    , handler_(0)
     {
 	init();
     }
@@ -161,19 +167,44 @@ struct CrashDumper
     BufferString	sendappl_;
     BufferString	path_;
     
-#ifdef __msvc__
-//    ExceptionHandler*	handler_;
-#endif
+    google_breakpad::ExceptionHandler*	handler_;
 };
 
 
 CrashDumper* theinst mUnusedVar = 0;
 
+#if defined ( __msvc__ )  && defined ( HAS_BREAKPAD )
 
-#ifdef __msvc__
+static bool MinidumpCB(const wchar_t* dump_path, const wchar_t *id,
+                     void *context, EXCEPTION_POINTERS *exinfo,
+                     MDRawAssertionInfo *assertion,
+                     bool succeeded)
+{ 
+    QString path = QString::fromWCharArray( dump_path );
+    QString mndmpid = QString::fromWCharArray( id );
+    BufferString dmppath ( path.toAscii().constData() );
+    BufferString dmpid ( mndmpid.toAscii().constData(), ".dmp" );
+    FilePath dmpfp( dmppath, dmpid );
+    if ( theinst )
+	theinst->sendDump( dmpfp.fullPath() );
+    return succeeded;
+}
+
 void CrashDumper::init()
 {
-    
+    if ( !handler_ )
+    {
+	BufferString path = FilePath::getTempDir();
+	QString dmppath( path );
+	int dmplen = dmppath.length();
+	int cordmplen = dmplen - 2;
+	wchar_t* wpath = new wchar_t[ cordmplen ];
+	dmppath.toWCharArray( wpath );
+	handler_ = new google_breakpad::ExceptionHandler(
+			wpath,
+			NULL, MinidumpCB, NULL,
+			google_breakpad::ExceptionHandler::HANDLER_ALL );
+    }
 }
 #else
 void CrashDumper::init()
@@ -186,10 +217,7 @@ void CrashDumper::init()
 
 void CrashDumper::sendDump( const char* filename )
 {
-    if ( sendappl_.isEmpty() )
-	return;
-    
-    if ( !File::exists( sendappl_ ) || !File::exists( filename ) )
+    if ( sendappl_.isEmpty() || !File::exists(filename) )
 	return;
     
     const BufferString cmd( sendappl_, " ", filename );

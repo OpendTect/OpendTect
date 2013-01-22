@@ -92,6 +92,10 @@ if(OD_USECOIN)
     OD_SETUP_COIN()
 endif()
 
+if(OD_USEBREAKPAD)
+    OD_SETUP_BREAKPAD()
+endif()
+
 if(OD_USEOSG)
     OD_SETUP_OSG()
 endif()

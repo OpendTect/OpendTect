@@ -109,6 +109,29 @@ int _post( const char* path, const IOPar& postvars, BufferString& errmsg )
 }
 
 
+int _postFile( const char* path, const char* filename )
+{
+    QUrl qurl( path );
+    QFile file( filename );
+    if ( !file.open(QIODevice::ReadOnly) )
+        return 0;
+
+    QByteArray data;
+    data = file.readAll();
+
+    QHttpRequestHeader header( "POST", qurl.toEncoded() );
+    header.setValue( "Host", host_.buf() );
+    header.setValue( "Content-Type", "multipart/form-data;" );
+    header.setValue( "Content-Length", QString::number(data.length()) );
+
+    const int id = request( header, data );
+    file.close();
+    
+    requestids_ += id;
+    startEventLoop();
+    return id;
+}
+
 void handleFinishedRequest( int reqid )
 {
     const int reqidx = requestids_.indexOf( reqid );
@@ -255,6 +278,15 @@ int ODHttp::post( const char* path, const IOPar&postvars )
     return res;
 }
 
+
+int ODHttp::postFile( const char* path, const char* filename )
+{
+    int res = qhttp_->_postFile( path, filename );
+    if ( res==-1 )
+	error_ = true;
+    
+    return res;
+}
 
 void ODHttp::forceAbort()
 {
