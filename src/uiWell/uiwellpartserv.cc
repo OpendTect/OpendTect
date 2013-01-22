@@ -146,9 +146,9 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
     if ( dlg->savedefault_ == true )
     {
 	edprops.defaults() = edprops;
+	saveWellDispProps( allapplied_ ? 0 : edwd );
 	edprops.commitDefaults();
     }
-    saveWellDispProps( allapplied_ ? 0 : edwd );
 
     sendEvent( evCleanPreview() );
     uiwellpropDlgClosed.trigger();
