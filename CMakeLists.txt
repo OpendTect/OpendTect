@@ -10,6 +10,8 @@ cmake_minimum_required (VERSION 2.8)
 SET( OpendTect_VERSION_MAJOR 4 )
 SET( OpendTect_VERSION_MINOR 5 )
 SET( OpendTect_VERSION_DETAIL 0 )
+SET( OpendTect_VERSION_PATCH a )
+
 PROJECT( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )
 
 INCLUDE( CTest )
