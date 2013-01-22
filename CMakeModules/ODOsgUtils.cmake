@@ -8,7 +8,7 @@
 
 set(OSG_DIR "" CACHE PATH "OSG Location" )
 
-MACRO(OD_SETUP_OSG)
+macro(OD_SETUP_OSG)
     set(OSGGEO_DIR ${OSG_DIR})
 
     list(APPEND CMAKE_MODULE_PATH ${OSGGEO_DIR}/share/CMakeModules )
@@ -17,8 +17,8 @@ MACRO(OD_SETUP_OSG)
     set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
     set (CMAKE_DEBUG_POSTFIX d)
 
-    FIND_PACKAGE(OSG)
-    FIND_PACKAGE(osgGeo)
+    find_package(OSG)
+    find_package(osgGeo)
 
     #RESTORE DEBUG POSTFIX
     set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
@@ -58,7 +58,7 @@ MACRO(OD_SETUP_OSG)
 		list(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY_DEBUG} )
 	    else()
 		if ( NOT ${OSGMODULE}_LIBRARY )
-		    MESSAGE(FATAL_ERROR "${OSGMODULE}_LIBRARY is missing")
+		    message(FATAL_ERROR "${OSGMODULE}_LIBRARY is missing")
 		endif()
 		list(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY} )
 	    endif()
@@ -72,4 +72,4 @@ MACRO(OD_SETUP_OSG)
 
     list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
 
-ENDMACRO(OD_SETUP_OSG)
+endmacro(OD_SETUP_OSG)
