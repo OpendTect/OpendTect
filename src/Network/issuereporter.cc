@@ -189,8 +189,8 @@ bool System::IssueReporter::parseCommandLine( int argc, char** argv )
     isdump_ = ( fpext == dmpext );
     if ( isdump_ )
     {
-	BufferString hostname = "dgbindia1";
-	BufferString path = "/relman/scripts/latest_script/senddumpfile.php";
+	hostname = "dgbindia1";
+	path = "/relman/scripts/latest_script/senddumpfile.php";
 	host_ = hostname;
 	path_ = path;
 	return setFileName( filename );
