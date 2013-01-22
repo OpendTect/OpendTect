@@ -33,7 +33,7 @@ if(UNIX) #Apple an Linux
 
 	#For some versions of XCode
 	set ( CMAKE_FIND_LIBRARY_PREFIXES lib )
-	set ( CMAKE_FIND_LIBRARY_SUFFIXES dylib )
+	set ( CMAKE_FIND_LIBRARY_SUFFIXES .dylib )
 
 	set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1 )
 	set ( OD_PLATFORM_LINK_OPTIONS "-arch x86_64" )
