@@ -93,3 +93,10 @@ add_custom_target( docpackages ${CMAKE_COMMAND}
 	-DPSD=${PROJECT_SOURCE_DIR}
 	-P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeDocPackages.cmake
 	 COMMENT "Preparing doc packages" )
+
+OD_CURRENT_YEAR( YEAR )
+string(REPLACE "\n" "" YEAR ${YEAR} )
+configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
+		${CMAKE_SOURCE_DIR}/data/install_files/macscripts/Contents/Info.plist @ONLY )
+
+
