@@ -92,7 +92,10 @@ mGlobal( Basic ) int InSysAdmMode(void);
     
     
 mGlobal( Basic ) void SetInSysAdmMode(void);
-
+    
+    
+inline void EmptyFunction() 			{}
+/* Used in some macros and ifdefs */
 
 #ifdef __cpp__
 }
