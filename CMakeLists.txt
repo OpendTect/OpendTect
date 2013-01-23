@@ -11,7 +11,7 @@ SET( OpendTect_VERSION_MAJOR 4 )
 SET( OpendTect_VERSION_MINOR 4 )
 #These variables are importent to prepare packages
 SET( OpendTect_VERSION_DETAIL 0 )
-SET( OpendTect_VERSION_PATCH "Test" )
+SET( OpendTect_VERSION_PATCH "test" )
 PROJECT( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )
 
 #Dummy statement to avoid warning if OSG_DIR is set
