@@ -50,15 +50,18 @@ inline void programmerErrMsg( const char* msg, const char* cname,
     ErrMsg( str.buf(), true );
 }
 
+
+
 #ifdef __debug__
 # define pErrMsg(msg) programmerErrMsg(msg,::className(*this),__FILE__,__LINE__)
 //!< Usual access point for programmer error messages
 # define pFreeFnErrMsg(msg,fn) programmerErrMsg( msg, fn, __FILE__, __LINE__ )
 //!< Usual access point for programmer error messages in free functions
 #else
-# define pErrMsg(msg)
-# define pFreeFnErrMsg(msg,fn)
+# define pErrMsg(msg)			EmptyFunction()
+# define pFreeFnErrMsg(msg,fn)		EmptyFunction()
 #endif
+
 
 /*! Installs segmentation fault dumper. Not available on all platforms. */
 mExtern(Basic) bool initCrashDumper( const char* dumpdir, const char* sendappl );
