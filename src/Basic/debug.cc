@@ -30,33 +30,54 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static std::ostream* dbglogstrm = 0;
 
-static bool doisudfmsgs = false;
-
 
 mExternC(Basic) void od_debug_init(void)
 {
-    doisudfmsgs  = GetEnvVarYN( "OD_SHOW_NOT_NORMAL_NUMBER_MSGS" );
 }
 
 
 bool dbgIsUdf( float val )
 {
     if ( !Math::IsNormalNumber(val) )
-	{ if ( doisudfmsgs ) pFreeFnErrMsg("Bad fp value found","dbgIsUdf(f)");
-			     return true; }
+    {
+	if ( DBG::crashOnNaN() )
+	{
+	    pFreeFnErrMsg("Bad fp value found","dbgIsUdf(f)");
+	    DBG::forceCrash(false);
+	    return true;
+	}
+    }
+
     return Values::isUdf( val );
 }
+
+
 bool dbgIsUdf( double val )
 {
     if ( !Math::IsNormalNumber(val) )
-	{ if ( doisudfmsgs ) pFreeFnErrMsg("Bad fp value found","dbgIsUdf(d)");
-			     return true; }
+    {
+	if ( DBG::crashOnNaN() )
+	{
+	    pFreeFnErrMsg("Bad fp value found","dbgIsUdf(d)");
+	    DBG::forceCrash(false);
+	    return true;
+	}
+    }
+
     return Values::isUdf( val );
 }
 
 
 namespace DBG
 {
+
+
+bool crashOnNaN()
+{
+    static bool dohide = GetEnvVarYN( "OD_DONT_CRASH_ON_NOT_NORMAL_NUMBER" );
+    return !dohide;
+}
+
 
 static int getMask()
 {
