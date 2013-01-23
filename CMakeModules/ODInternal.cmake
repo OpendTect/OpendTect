@@ -28,6 +28,11 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/data
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/relinfo 
 	 DESTINATION .
 	 PATTERN ".svn" EXCLUDE )
+IF( WIN32 )
+    install( DIRECTORY ${CMAKE_SOURCE_DIR}/bin/win32/rsm 
+	     DESTINATION .
+	     PATTERN ".svn" EXCLUDE )
+ENDIF()
 
 #install scripts
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Scripts 
@@ -99,8 +104,10 @@ add_custom_target( docpackages ${CMAKE_COMMAND}
 	 COMMENT "Preparing doc packages" )
 
 OD_CURRENT_YEAR( YEAR )
-string(REPLACE "\n" "" YEAR ${YEAR} )
-configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
-		${CMAKE_SOURCE_DIR}/data/install_files/macscripts/Contents/Info.plist @ONLY )
+IF( APPLE )
+    string(REPLACE "\n" "" YEAR ${YEAR} )
+    configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
+		    ${CMAKE_SOURCE_DIR}/data/install_files/macscripts/Contents/Info.plist @ONLY )
+ENDIF()
 
 
