@@ -527,9 +527,6 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
     if ( !expr_ )
 	return mUdf(float);
 
-    if ( eo.valopt_ == EvalOpts::New )
-	eo.valopt_ = EvalOpts::Prev;
-
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
 	const Property* p = inps_[idx];
@@ -555,7 +552,11 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 
     float res = expr_->getValue();
     if ( uom_ )
-	res = uom_->getSIValue( res );
+	res = uom_->getUserValueFromSI( res );
+
+    if ( eo.valopt_ == EvalOpts::New )
+	eo.valopt_ = EvalOpts::Prev;
+
     return res;
 }
 
