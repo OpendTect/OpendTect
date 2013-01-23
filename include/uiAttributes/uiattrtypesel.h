@@ -47,8 +47,8 @@ public:
 
 protected:
 
-    uiComboBox*			grpfld;
-    uiComboBox*			attrfld;
+    uiComboBox*			grpfld_;
+    uiComboBox*			attrfld_;
 
     BufferStringSet		grpnms_;
     BufferStringSet		attrnms_;

@@ -10,9 +10,11 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattrtypesel.h"
+
 #include "uiattrdesced.h"
-#include "uicombobox.h"
 #include "uiattribfactory.h"
+#include "uicombobox.h"
+
 #include "attribdesc.h"
 #include "survinfo.h"
 
@@ -27,13 +29,14 @@ uiAttrTypeSel::uiAttrTypeSel( uiParent* p, bool sorted )
     , idxs_(0)
     , selChg(this)
 {
-    grpfld = new uiComboBox( this, "Attribute group" );
-    grpfld->selectionChanged.notify( mCB(this,uiAttrTypeSel,grpSel) );
-    attrfld = new uiComboBox( this, "Attribute type" );
-    attrfld->selectionChanged.notify( mCB(this,uiAttrTypeSel,attrSel) );
-    attrfld->attach( rightOf, grpfld );
+    grpfld_ = new uiComboBox( this, "Attribute group" );
+    grpfld_->selectionChanged.notify( mCB(this,uiAttrTypeSel,grpSel) );
+    attrfld_ = new uiComboBox( this, "Attribute type" );
+    attrfld_->selectionChanged.notify( mCB(this,uiAttrTypeSel,attrSel) );
+    attrfld_->attach( rightOf, grpfld_ );
+    attrfld_->setHSzPol( uiObject::Wide );
 
-    setHAlignObj( attrfld );
+    setHAlignObj( attrfld_ );
     clear();
 }
 
@@ -56,8 +59,8 @@ void uiAttrTypeSel::clear()
 void uiAttrTypeSel::setEmpty()
 {
     clear();
-    grpfld->setEmpty();
-    attrfld->setEmpty();
+    grpfld_->setEmpty();
+    attrfld_->setEmpty();
 }
 
 
@@ -88,7 +91,7 @@ const char* uiAttrTypeSel::group() const
 
 const char* uiAttrTypeSel::attr() const
 {
-    return attrfld->text();
+    return attrfld_->text();
 }
 
 
@@ -97,7 +100,7 @@ void uiAttrTypeSel::setGrp( const char* grp )
     if ( grpnms_.indexOf(grp) < 0 )
 	return;
 
-    grpfld->setText( grp );
+    grpfld_->setText( grp );
     updAttrNms();
 }
 
@@ -109,13 +112,13 @@ void uiAttrTypeSel::setAttr( const char* attrnm )
 	return;
 
     int grpidx = attrgroups_[attridx];
-    int oldgrpitem = grpfld->currentItem();
+    int oldgrpitem = grpfld_->currentItem();
     int oldgrpidx = idxs_ ? idxs_[oldgrpitem] : oldgrpitem;
     if ( oldgrpitem == 0 || grpidx == oldgrpidx )
-	attrfld->setText( attrnm );
+	attrfld_->setText( attrnm );
     else
     {
-	grpfld->setText( grpnms_.get(grpidx) );
+	grpfld_->setText( grpnms_.get(grpidx) );
 	updAttrNms( attrnm );
     }
 }
@@ -140,14 +143,14 @@ void uiAttrTypeSel::add( const char* grpnm, const char* attrnm )
 
 void uiAttrTypeSel::update()
 {
-    grpfld->setEmpty(); attrfld->setEmpty();
+    grpfld_->setEmpty(); attrfld_->setEmpty();
     const int nrgrps = grpnms_.size();
 
     delete [] idxs_;
     idxs_ = sorted_ ? grpnms_.getSortIndexes() : 0;
 
     for ( int idx=0; idx<nrgrps; idx++ )
-	grpfld->addItem( grpnms_.get(idxs_ ? idxs_[idx] : idx) );
+	grpfld_->addItem( grpnms_.get(idxs_ ? idxs_[idx] : idx) );
 
     setGrp( sKeyAllGrp );
 }
@@ -158,7 +161,7 @@ int uiAttrTypeSel::curGrpIdx() const
     if ( grpnms_.size() < 1 )
 	return -1;
 
-    const int grpitem = grpfld->currentItem();
+    const int grpitem = grpfld_->currentItem();
     return idxs_ ? idxs_[grpitem] : grpitem;
 }
 
@@ -167,9 +170,9 @@ void uiAttrTypeSel::updAttrNms( const char* selattrnm )
 {
     BufferString curattrnm( selattrnm );
     if ( !selattrnm || !*selattrnm )
-	curattrnm = attrfld->text();
+	curattrnm = attrfld_->text();
 
-    attrfld->setEmpty();
+    attrfld_->setEmpty();
     const int grpidx = curGrpIdx();
     if ( grpidx < 0 )
 	return;
@@ -185,13 +188,13 @@ void uiAttrTypeSel::updAttrNms( const char* selattrnm )
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	const char* attrnm = nms.get(idx);
-	attrfld->addItem( attrnm );
+	attrfld_->addItem( attrnm );
 	if ( (!selattrnm || !*selattrnm) && isPrefAttrib(grpidx,attrnm) )
 	    curattrnm = attrnm;
     }
 
     if ( curattrnm )
-	attrfld->setText( curattrnm );
+	attrfld_->setText( curattrnm );
 }
 
 
