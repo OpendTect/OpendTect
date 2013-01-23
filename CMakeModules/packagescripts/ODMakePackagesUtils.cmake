@@ -91,6 +91,11 @@ macro ( create_package PACKAGE_NAME )
 					 ${DESTINATION_DIR}/bin )
 	     ENDFOREACH()
 	ENDFOREACH()
+	IF( WIN32 )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				     ${CMAKE_INSTALL_PREFIX}/rsm
+				     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/rsm )
+	ENDIF()
     ENDIF()
 
     IF( WIN32 )
