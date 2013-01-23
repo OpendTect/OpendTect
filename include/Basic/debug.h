@@ -42,7 +42,8 @@ namespace DBG
     mGlobal void message( int flag, const char* msg ); 
 // { if ( isOn(flag) ) message(msg); }
     mGlobal void putProgInfo(int,char**); 		    //!< one line; more if isOn()
-    mGlobal void forceCrash(bool withdump); 
+    mGlobal void forceCrash(bool withdump);
+    mGlobal bool hideNaNMessage();
 };
 
 extern "C" {

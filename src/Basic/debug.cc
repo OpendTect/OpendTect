@@ -30,18 +30,21 @@ static const char* rcsID = "$Id$";
 
 static std::ostream* dbglogstrm = 0;
 
-static bool doisudfmsgs = GetEnvVarYN( "OD_SHOW_NOT_NORMAL_NUMBER_MSGS" );
+
+
 bool dbgIsUdf( float val )
 {
     if ( !Math::IsNormalNumber(val) )
-	{ if ( doisudfmsgs ) pFreeFnErrMsg("Bad fp value found","dbgIsUdf(f)");
+    { if ( !DBG::hideNaNMessage() ) pFreeFnErrMsg("Bad fp value found","dbgIsUdf(f)");
 			     return true; }
     return Values::isUdf( val );
 }
+
+
 bool dbgIsUdf( double val )
 {
     if ( !Math::IsNormalNumber(val) )
-	{ if ( doisudfmsgs ) pFreeFnErrMsg("Bad fp value found","dbgIsUdf(d)");
+    { if ( !DBG::hideNaNMessage() ) pFreeFnErrMsg("Bad fp value found","dbgIsUdf(d)");
 			     return true; }
     return Values::isUdf( val );
 }
@@ -49,6 +52,13 @@ bool dbgIsUdf( double val )
 
 namespace DBG
 {
+    
+bool hideNaNMessage()
+{
+    static bool hidenanmsgs = GetEnvVarYN( "OD_HIDE_NOT_NORMAL_NUMBER_MSGS" );
+    return hidenanmsgs;
+}
+
 
 static int getMask()
 {
