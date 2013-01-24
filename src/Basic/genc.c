@@ -95,6 +95,7 @@ void PutIsLittleEndian( unsigned char* ptr )
 #define getpid	_getpid
 #endif
 
+
 int GetPID()
 {
     return getpid();
