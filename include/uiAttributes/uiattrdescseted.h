@@ -39,7 +39,9 @@ class IOObj;
 class IOPar;
 class uiToolButton;
 
-/*! \brief Editor for Attribute sets */
+/*!
+\brief Editor for Attribute sets.
+*/
 
 mExpClass(uiAttributes) uiAttribDescSetEd : public uiDialog
 {

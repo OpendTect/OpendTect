@@ -26,6 +26,9 @@ class uiListBox;
 class uiRadioButton;
 class NLAModel;
 
+/*!
+\brief Selection dialog for 2D attributes.
+*/
 
 mExpClass(uiAttributes) uiAttr2DSelDlg : public uiDialog
 {

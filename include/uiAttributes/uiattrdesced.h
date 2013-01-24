@@ -30,7 +30,9 @@ class uiSteerCubeSel;
 
 using namespace Attrib;
 
-/*! \brief Description of attribute parameters to evaluate */
+/*!
+\brief Description of attribute parameters to evaluate.
+*/
 
 mExpClass(uiAttributes) EvalParam
 {
@@ -55,7 +57,9 @@ public:
 };
 
 
-/*! \brief Attribute description editor creater */
+/*!
+\brief Attribute description editor creator.
+*/
 
 mExpClass(uiAttributes) uiAttrDescEdCreater
 {
@@ -66,14 +70,13 @@ public:
 };
 
 
-
-/*! \brief Attribute description editor
+/*!
+\brief Attribute description editor.
  
- Required functions are declared in the macro mDeclReqAttribUIFns. Two of
- those, attribName() and createInstance() are implemented by the mInitAttribUI
- macro.
-
- */
+  Required functions are declared in the macro mDeclReqAttribUIFns. Two of
+  those, attribName() and createInstance() are implemented by the mInitAttribUI
+  macro.
+*/
 
 mExpClass(uiAttributes) uiAttrDescEd : public uiGroup
 {

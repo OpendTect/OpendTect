@@ -19,6 +19,9 @@ class uiTextEdit;
 class uiFileInput;
 namespace Attrib { class DescSet; }
 
+/*!
+\brief 
+*/
 
 mExpClass(uiAttributes) uiGetFileForAttrSet : public uiDialog
 {
