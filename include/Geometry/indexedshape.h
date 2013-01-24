@@ -120,7 +120,7 @@ public:
     Type				type_;
     NormalBinding			normalbinding_;
     
-    ObjectSet<IndexedPrimitiveSet>	primitivesets_;
+    ObjectSet<PrimitiveSet>		primitivesets_;
 
     TypeSet<int>			coordindices_;
     TypeSet<int>			texturecoordindices_;

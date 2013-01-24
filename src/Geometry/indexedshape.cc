@@ -148,7 +148,7 @@ void IndexedGeometry::removeAll( bool deep )
     {
 	for ( int idx=0; idx<primitivesets_.size(); idx++ )
 	{
-	    RefMan<const IndexedPrimitiveSet> primitive = primitivesets_[idx];
+	    RefMan<const PrimitiveSet> primitive = primitivesets_[idx];
 	    for ( int idy=primitive->size()-1; idy>=0; idy-- )
 	    {
 		const int index = primitive->get(idy);
