@@ -127,7 +127,7 @@ For example: IntParam, FloatParam and DoubleParam.
 */
 
 template <class T>
-class NumParam : public ValParam
+mClass(AttributeEngine) NumParam : public ValParam
 {
 public:
     				NumParam(const char* key)
@@ -241,7 +241,7 @@ For example: IntGateParam, FloatGateParam, DoubleGateParam and ZGateParam.
 */
 
 template <class T>
-class NumGateParam : public ValParam
+mClass(AttributeEngine) NumGateParam : public ValParam
 {
 public:
     				NumGateParam(const char* key)

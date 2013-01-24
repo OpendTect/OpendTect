@@ -24,7 +24,7 @@ class uiSelLineStyle;
 
 namespace EM { class SurfaceIOData; class Horizon3D; }
 
-class uiGMTContourGrp : public uiGMTOverlayGrp
+mClass(uiGMT) uiGMTContourGrp : public uiGMTOverlayGrp
 {
 public:
 

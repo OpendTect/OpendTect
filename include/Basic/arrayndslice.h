@@ -57,7 +57,7 @@ protected:
 */
 
 template <class T>
-class Array1DSlice : public Array1D<T>, public ArrayNDSliceBase
+mClass(Basic) Array1DSlice : public Array1D<T>, public ArrayNDSliceBase
 {
 public:
 				Array1DSlice(ArrayND<T>&);
@@ -85,7 +85,7 @@ protected:
 */
 
 template <class T>
-class Array2DSlice : public Array2D<T>, public ArrayNDSliceBase
+mClass(Basic) Array2DSlice : public Array2D<T>, public ArrayNDSliceBase
 {
 public:
 				Array2DSlice(ArrayND<T>&);

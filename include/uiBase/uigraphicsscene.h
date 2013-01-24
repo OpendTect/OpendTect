@@ -143,7 +143,7 @@ protected:
 };
 
 
-class uiGraphicsSceneChanger : public Task
+mClass(uiBase) uiGraphicsSceneChanger : public Task
 {
 public:
     uiGraphicsSceneChanger( uiGraphicsScene& scene, uiGraphicsItem& itm,

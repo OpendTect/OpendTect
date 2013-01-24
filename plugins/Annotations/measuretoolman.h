@@ -23,7 +23,7 @@ namespace visSurvey { class PickSetDisplay; }
 namespace Annotations
 {
 
-class MeasureToolMan : public CallBacker
+mClass(Annotations) MeasureToolMan : public CallBacker
 {
 public:
 			MeasureToolMan(uiODMain&);

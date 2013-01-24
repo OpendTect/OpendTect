@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 
 
-class GMTContour : public GMTPar
+mClass(GMT) GMTContour : public GMTPar
 {
 public:
 

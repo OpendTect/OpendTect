@@ -22,7 +22,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class Convolver3D : public ParallelTask
+mClass(Algo) Convolver3D : public ParallelTask
 {
 public:
     inline		Convolver3D();

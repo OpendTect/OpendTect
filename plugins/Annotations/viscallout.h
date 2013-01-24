@@ -34,7 +34,7 @@ namespace Annotations
   Callout
 */
 
-class CalloutDisplay : public visSurvey::LocationDisplay
+mClass(Annotations) CalloutDisplay : public visSurvey::LocationDisplay
 {
 public:
     static CalloutDisplay*	create()
@@ -75,7 +75,7 @@ protected:
 };
 
 
-class Callout : public visBase::VisualObjectImpl
+mClass(Annotations) Callout : public visBase::VisualObjectImpl
 {
 public:
     static Callout*		create()

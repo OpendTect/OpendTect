@@ -24,7 +24,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class AxisLayout
+mClass(Algo) AxisLayout
 {
 public:
 			// Have layout calculated

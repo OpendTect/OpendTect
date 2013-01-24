@@ -24,7 +24,7 @@ namespace PreStackView
 {
 class uiViewer3DMgr;
 
-class uiViewer3DShapeTab : public uiDlgGroup
+mClass(uiPreStackViewer) uiViewer3DShapeTab : public uiDlgGroup
 {
 public:
 			uiViewer3DShapeTab(uiParent*,

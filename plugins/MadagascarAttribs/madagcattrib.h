@@ -22,7 +22,7 @@ template <class T> class ValueSeries;
 namespace Attrib
 {
 
-class MadAGC : public Provider
+mClass(MadagascarAttribs) MadAGC : public Provider
 {
 public:
 

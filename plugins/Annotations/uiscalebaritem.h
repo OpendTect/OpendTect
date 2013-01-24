@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 namespace Pick { class Set; }
 
-class ScaleBarSubItem : public SubItem
+mClass(Annotations) ScaleBarSubItem : public SubItem
 {
 public:
     			ScaleBarSubItem(Pick::Set&,int displayid=-1);

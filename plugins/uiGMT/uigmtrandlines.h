@@ -22,7 +22,7 @@ class uiIOObjSel;
 class uiSelLineStyle;
 class uiSpinBox;
 
-class uiGMTRandLinesGrp : public uiGMTOverlayGrp
+mClass(uiGMT) uiGMTRandLinesGrp : public uiGMTOverlayGrp
 {
 public:
 

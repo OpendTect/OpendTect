@@ -18,7 +18,7 @@ ________________________________________________________________________
 */
 
 //TODO: Write more info
-class ArrayNDWrapper
+mClass(Basic) ArrayNDWrapper
 {
 public:
     void		setDimMap(int srcdim,int targetdim);
@@ -43,7 +43,7 @@ void ArrayNDWrapper::setDimMap( int srcdim, int targetdim )
 */
 
 template <class T>
-class Array3DWrapper : public Array3D<T>, public ArrayNDWrapper
+mClass(Basic) Array3DWrapper : public Array3D<T>, public ArrayNDWrapper
 {
 public:
     			Array3DWrapper(ArrayND<T>&);

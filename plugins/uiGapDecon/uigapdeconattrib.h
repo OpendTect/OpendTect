@@ -29,7 +29,7 @@ class GapDeconACorrView;
 
 /*! \brief GapDecon Attribute description editor */
 
-class uiGapDeconAttrib : public uiAttrDescEd
+mClass(uiGapDecon) uiGapDeconAttrib : public uiAttrDescEd
 {
 public:
 

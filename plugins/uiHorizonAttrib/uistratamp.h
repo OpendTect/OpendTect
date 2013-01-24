@@ -20,7 +20,7 @@ class uiLabeledComboBox;
 class uiPosSubSel;
 
 
-class uiStratAmpCalc : public uiFullBatchDialog
+mClass(uiHorizonAttrib) uiStratAmpCalc : public uiFullBatchDialog
 {
 public:
 			uiStratAmpCalc(uiParent*);

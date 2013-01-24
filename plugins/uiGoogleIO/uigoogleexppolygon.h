@@ -13,7 +13,7 @@ class uiSelLineStyle;
 namespace Pick { class Set; }
 
 
-class uiGoogleExportPolygon : public uiDialog
+mClass(uiGoogleIO) uiGoogleExportPolygon : public uiDialog
 {
 public:
 

@@ -23,7 +23,7 @@ namespace Geom { template <class T> class Point2D; }
 */
 
 template <class T>
-class LineParameters : public MathFunction<T,T>
+mClass(Algo) LineParameters : public MathFunction<T,T>
 {
 public:
 		LineParameters( T i0=0, T i1=0 )
@@ -49,7 +49,7 @@ typedef LineParameters<float> LinePars;
 */
 
 template <class T>
-class PlaneParameters : public MathXYFunction<T,T>
+mClass(Algo) PlaneParameters : public MathXYFunction<T,T>
 {
 public:
 		PlaneParameters( T i0=0, T i1=0, T i2=0 )

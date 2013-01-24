@@ -25,7 +25,7 @@ class SeisTrcBuf;
 class CubeSampling;
 class LineKey;
 
-class uiTextureAttrib : public uiAttrDescEd
+mClass(uiTextureAttrib) uiTextureAttrib : public uiAttrDescEd
 {
 public:
                         uiTextureAttrib(uiParent*,bool);

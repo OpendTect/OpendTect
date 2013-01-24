@@ -33,8 +33,7 @@ ________________________________________________________________________
   The position for apply is usually between v0 and v1, but doesn't
   _need_ to be. In that case, 0 < pos < 1. For the undef handlign classes and
   functions, this is _required_.
-
-  */
+*/
 
 namespace Interpolate
 {
@@ -90,7 +89,7 @@ inline iT linear1Di( float x0, iT v0, float x1, iT v1, float x )
 /*!<\brief Interpolate 1D regularly sampled, using a 3rd order polynome. */
 
 template <class T>
-class PolyReg1D
+mClass(Algo) PolyReg1D
 {
 public:
 
@@ -132,7 +131,7 @@ inline T polyReg1D( T vm1, T v0, T v1, T v2, float x )
 
 
 /*!
-  \brief PolyReg1D which smoothly handles undefined values
+\brief PolyReg1D which smoothly handles undefined values
 
   Note that this class _requires_ x to be between 0 and 1 for correct undef
   handling. Correct means: if the nearest sample is undefined, return
@@ -140,7 +139,7 @@ inline T polyReg1D( T vm1, T v0, T v1, T v2, float x )
 */
 
 template <class T>
-class PolyReg1DWithUdf
+mClass(Algo) PolyReg1DWithUdf
 {
 public:
 

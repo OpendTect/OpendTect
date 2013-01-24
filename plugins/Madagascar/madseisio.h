@@ -13,7 +13,7 @@
 namespace ODMad
 {
 
-class SeisSeqIO
+mClass(Madagascar) SeisSeqIO
 {
 public:
 
@@ -33,7 +33,7 @@ protected:
 };
 
 
-class SeisSeqInp : public SeisSeqIO
+mClass(Madagascar) SeisSeqInp : public SeisSeqIO
 {
 public:
 
@@ -60,7 +60,7 @@ protected:
 };
 
 
-class SeisSeqOut : public Seis::SeqOut
+mClass(Madagascar) SeisSeqOut : public Seis::SeqOut
 		 , public SeisSeqIO
 {
 public:

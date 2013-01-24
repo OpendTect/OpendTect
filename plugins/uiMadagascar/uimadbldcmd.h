@@ -20,7 +20,7 @@ class uiTextEdit;
 namespace ODMad { class ProgDef; class Proc; }
 
 
-class uiMadagascarBldCmd : public uiGroup
+mClass(uiMadagascar) uiMadagascarBldCmd : public uiGroup
 {
 public:
 

@@ -95,7 +95,7 @@ running values (Stats::RunCalc) or in parallel (Stats::ParallelCalc).
 -*/
 
 template <class T>
-class BaseCalc
+mClass(Algo) BaseCalc
 {
 public:
 
@@ -186,7 +186,7 @@ bool BaseCalc<T>::isZero( const T& val ) const
 -*/
 
 template <class T>
-class RunCalc : public BaseCalc<T>
+mClass(Algo) RunCalc : public BaseCalc<T>
 {
 public:
     			RunCalc( const CalcSetup& s )
@@ -230,7 +230,7 @@ protected:
 */
 
 template <class T>
-class WindowedCalc
+mClass(Algo) WindowedCalc
 {
 public:
 			WindowedCalc( const CalcSetup& rcs, int sz )

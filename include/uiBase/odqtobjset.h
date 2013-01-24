@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 
 template<class OD,class QT>
-class ODQtObjectSet
+mClass(uiBase) ODQtObjectSet
 {
 public:
     			ODQtObjectSet()		{}

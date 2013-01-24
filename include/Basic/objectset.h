@@ -32,7 +32,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class ObjectSet : public OD::Set
+mClass(Basic) ObjectSet : public OD::Set
 {
 public:
     				typedef int size_type;

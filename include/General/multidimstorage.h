@@ -23,7 +23,7 @@ position in a N dimenstional space. */
 
 
 template <class T>
-class MultiDimStorage
+mClass(General) MultiDimStorage
 {
 public:
 				MultiDimStorage(int ndims,int nvals);

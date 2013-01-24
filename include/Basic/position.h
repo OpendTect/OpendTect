@@ -237,7 +237,7 @@ public:
 the geometry.
 */
 
-class TraceID
+mClass(Basic) TraceID
 {
 public:
 				TraceID(const BinID& bid)
@@ -274,7 +274,7 @@ class BinIDValues;
 \brief BinID and a value.
 */
 
-class BinIDValue
+mClass(Basic) BinIDValue
 {
 public:
 		BinIDValue( int inl=0, int crl=0, float v=mUdf(float) )
@@ -347,7 +347,7 @@ namespace Values {
 */
 
 template<>
-class Undef<Coord>
+mClass(Basic) Undef<Coord>
 {
 public:
     static Coord	val()			{ return Coord::udf(); }
@@ -362,7 +362,7 @@ public:
 */
 
 template<>
-class Undef<Coord3>
+mClass(Basic) Undef<Coord3>
 {
 public:
     static Coord3	val()			{ return Coord3::udf(); }

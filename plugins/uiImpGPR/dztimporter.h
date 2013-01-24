@@ -63,7 +63,7 @@ struct FileHeader
 };
 
 
-class Importer : public ::Executor
+mClass(uiImpGPR) Importer : public ::Executor
 {
 public:
 

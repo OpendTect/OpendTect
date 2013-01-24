@@ -25,7 +25,7 @@ class uiCheckBox;
 
 /*! \brief Horizon attribute description editor */
 
-class uiHorizonAttrib : public uiAttrDescEd
+mClass(uiHorizonAttrib) uiHorizonAttrib : public uiAttrDescEd
 {
 public:
 

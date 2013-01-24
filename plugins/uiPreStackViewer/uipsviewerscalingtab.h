@@ -22,7 +22,7 @@ namespace PreStackView
 
 class uiViewer3DMgr; 
 
-class uiViewer3DScalingTab : public uiFlatViewDataDispPropTab
+mClass(uiPreStackViewer) uiViewer3DScalingTab : public uiFlatViewDataDispPropTab
 {
 public:
 				uiViewer3DScalingTab(uiParent*,

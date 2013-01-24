@@ -117,7 +117,7 @@ protected:
 
 /*!Takes a Mapper, unmapped data and maps it.*/
 template <class T>
-class MapperTask : public ParallelTask
+mClass(General) MapperTask : public ParallelTask
 {
 public:    
     			MapperTask(const ColTab::Mapper& map,

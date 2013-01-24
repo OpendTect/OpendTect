@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "resource.h"
 
 
-class uiMFCDialog : public CDialog
+mClass(uiMFC) uiMFCDialog : public CDialog
 {
     DECLARE_DYNAMIC(uiMFCDialog)
 public:

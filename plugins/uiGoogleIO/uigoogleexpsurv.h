@@ -14,7 +14,7 @@ class uiGenInput;
 class uiSelLineStyle;
 
 
-class uiGoogleExportSurvey : public uiDialog
+mClass(uiGoogleIO) uiGoogleExportSurvey : public uiDialog
 {
 public:
 

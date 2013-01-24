@@ -15,7 +15,7 @@ template <class T> class TypeSet;
 namespace ODGoogle { class XMLWriter; }
 
 
-class uiGoogleExportRandomLine : public uiDialog
+mClass(uiGoogleIO) uiGoogleExportRandomLine : public uiDialog
 {
 public:
 

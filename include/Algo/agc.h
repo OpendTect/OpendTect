@@ -22,7 +22,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class AGC : public ParallelTask
+mClass(Algo) AGC : public ParallelTask
 {
 public:
     			AGC();

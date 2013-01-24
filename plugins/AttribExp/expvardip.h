@@ -33,7 +33,7 @@ Outputs:
 #include <arrayndimpl.h>
 #include <attribparamimpl.h>
 
-class MinVarianceDipAttrib : public AttribCalc
+mClass(AttribExp) MinVarianceDipAttrib : public AttribCalc
 {
 public:
     mAttrib5Param(MinVarianceDipAttrib
@@ -119,10 +119,10 @@ protected:
     bool 			fast;
     const AttribProcessCommonInfo*	common;
 
-    class Task : public AttribCalc::Task
+    mClass(AttribExp) Task : public AttribCalc::Task
     {
     public:
-	class Input : public AttribCalc::Task::Input
+	mClass(AttribExp) Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const MinVarianceDipAttrib& calculator_ )

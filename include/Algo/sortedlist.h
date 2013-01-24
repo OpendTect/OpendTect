@@ -26,7 +26,7 @@ multiple objects with the same value are allowed in the list.
 */
 
 template <class T>
-class SortedList
+mClass(Algo) SortedList
 {
 public:
     			SortedList( bool allowmultiples_ )

@@ -20,7 +20,7 @@ class uiGenInput;
 class uiIOObjSel;
 class uiSelLineStyle;
 
-class uiGMTPolylineGrp : public uiGMTOverlayGrp
+mClass(uiGMT) uiGMTPolylineGrp : public uiGMTOverlayGrp
 {
 public:
 

@@ -20,7 +20,7 @@ class uiGenInput;
 
 /*! \brief DeltaResample Attribute description editor */
 
-class uiEventFreqAttrib : public uiAttrDescEd
+mClass(uiEventFreq) uiEventFreqAttrib : public uiAttrDescEd
 {
 public:
 

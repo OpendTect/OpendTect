@@ -30,7 +30,8 @@ class JobCommunic;
 class StreamData;
 
 
-/*!\brief Main object for 'standard' batch programs.
+/*!
+\brief Main object for 'standard' batch programs.
 
   Most 'interesting' batch programs need a lot of parameters to do the work.
   Therefore, in OpendTect, BatchPrograms need a 'parameter file', with all
@@ -48,7 +49,7 @@ class StreamData;
 */
 
 
-class BatchProgram : public NamedObject
+mClass(Prog) BatchProgram : public NamedObject
 {
     mGlobal(Batch) friend	BatchProgram& BP();
 public:

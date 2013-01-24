@@ -24,7 +24,7 @@ class BufferString;
 \brief Minimum Interface for NLA models
 */
 
-class NLAModel
+mClass(NLA) NLAModel
 {
 public:
 

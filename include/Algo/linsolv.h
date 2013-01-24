@@ -26,7 +26,7 @@ vector of the size N.
 */
 
 template <class T>
-class LinSolver
+mClass(Algo) LinSolver
 {
 public:
     				LinSolver( const Array2D<T>& A );

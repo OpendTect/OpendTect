@@ -55,7 +55,7 @@ protected:
 namespace Values
 {
     template<>
-    class Undef<FixedString>
+    mClass(Basic) Undef<FixedString>
     {
     public:
 	static FixedString	val()			{ return FixedString();}

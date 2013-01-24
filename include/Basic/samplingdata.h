@@ -21,7 +21,7 @@ template <class T> class StepInterval;
 */
 
 template <class T>
-class SamplingData
+mClass(Basic) SamplingData
 {
 public:
 

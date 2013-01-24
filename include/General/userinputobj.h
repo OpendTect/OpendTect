@@ -81,7 +81,7 @@ protected:
 
 
 template<class T>
-class UserInputObjImpl : public UserInputObj
+mClass(General) UserInputObjImpl : public UserInputObj
 {
 public:
                         UserInputObjImpl()

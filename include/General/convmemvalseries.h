@@ -24,7 +24,7 @@ chars. */
 
 
 template <class T>
-class ConvMemValueSeries : public ValueSeries<T>
+mClass(General) ConvMemValueSeries : public ValueSeries<T>
 {
 public:
 

@@ -25,7 +25,7 @@ namespace VolProc
 class VolumeReader;
 class ProcessingStep;
 
-class uiReader : public uiDialog
+mClass(VolProcTest) uiReader : public uiDialog
 {
 
 public:

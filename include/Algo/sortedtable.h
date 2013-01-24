@@ -22,7 +22,7 @@ ________________________________________________________________________
 */
 
 template <class IDT, class T>
-class SortedTable
+mClass(Algo) SortedTable
 {
 public:
     			SortedTable();
@@ -105,7 +105,7 @@ Each id can only be present once.
 */
 
 template <class T>
-class SortedPointers
+mClass(Algo) SortedPointers
 {
 public:
     			SortedPointers( );

@@ -19,7 +19,7 @@ class uiGenInput;
 class uiIOObjSel;
 class uiGMTSymbolPars;
 
-class uiGMTLocationsGrp : public uiGMTOverlayGrp
+mClass(uiGMT) uiGMTLocationsGrp : public uiGMTOverlayGrp
 {
 public:
 

@@ -27,7 +27,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class ArrayNDGentleSmoother : public Executor
+mClass(Algo) ArrayNDGentleSmoother : public Executor
 {
 public:
 

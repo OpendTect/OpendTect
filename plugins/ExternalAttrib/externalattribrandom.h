@@ -25,7 +25,7 @@ namespace ExternalAttrib
 
 
 //Class that calculates the random values
-class Random : public Attrib::ExtAttribCalc
+mClass(ExternalAttrib) Random : public Attrib::ExtAttribCalc
 {
 public:
     static void			initClass();
@@ -59,7 +59,7 @@ protected:
    createMenu is called.
 */
 
-class RandomManager : public CallBacker
+mClass(ExternalAttrib) RandomManager : public CallBacker
 {
 public:
     		RandomManager();
@@ -77,7 +77,7 @@ protected:
 /* Class that holds the external attrib's tree-item. Can easily be complemented
    with meny handling by implementing more intelligent createMenu/handleMenu. */
 
-class uiRandomTreeItem : public uiODDataTreeItem
+mClass(ExternalAttrib) uiRandomTreeItem : public uiODDataTreeItem
 {
 public:
     static void		initClass();

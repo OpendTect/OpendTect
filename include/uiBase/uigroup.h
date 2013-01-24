@@ -29,7 +29,7 @@ class uiGroupParentBody;
 mFDQtclass(QWidget)
 
 
-class uiGroupObj : public uiObject
+mClass(uiBase) uiGroupObj : public uiObject
 { 	
 friend class uiGroup;
 protected:

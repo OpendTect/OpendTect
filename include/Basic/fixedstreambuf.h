@@ -26,10 +26,9 @@ namespace std
   std::istream strm( &fsb );
 
   Tested for istream with char* only.
-
 */
 
-class fixedstreambuf : public streambuf
+mClass(Basic) fixedstreambuf : public streambuf
 {
 public:
 

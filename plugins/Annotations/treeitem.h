@@ -22,7 +22,7 @@ namespace Pick { class Set; }
 namespace Annotations
 {
 
-class ParentTreeItem : public uiTreeItem
+mClass(Annotations) ParentTreeItem : public uiTreeItem
 {
 public:
 			ParentTreeItem();
@@ -37,7 +37,7 @@ protected:
 };
 
 
-class TreeItemFactory : public uiODTreeItemFactory
+mClass(Annotations) TreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const   { return getName(); }
@@ -47,7 +47,7 @@ public:
 };
 
 
-class AnnotTreeItem : public uiODTreeItem
+mClass(Annotations) AnnotTreeItem : public uiODTreeItem
 {
     typedef uiODTreeItem  inheritedClass;
 public:
@@ -78,7 +78,7 @@ protected:
 
 
 
-class SubItem : public uiODDisplayTreeItem
+mClass(Annotations) SubItem : public uiODDisplayTreeItem
 {
 public:
     static bool		doesNameExist(const char*);
@@ -125,7 +125,7 @@ protected:
 };
 
 
-class TextSubItem : public SubItem
+mClass(Annotations) TextSubItem : public SubItem
 {
 public:
     			TextSubItem(Pick::Set& pck,int displayid=-1);
@@ -158,7 +158,7 @@ protected:
 };
 
 
-class ArrowSubItem : public SubItem
+mClass(Annotations) ArrowSubItem : public SubItem
 {
 public:
 
@@ -188,7 +188,7 @@ protected:
 };
 
 
-class ImageSubItem : public SubItem
+mClass(Annotations) ImageSubItem : public SubItem
 {
 public:
     			ImageSubItem(Pick::Set&,int displayid=-1);
@@ -216,7 +216,7 @@ protected:
 };
 
 
-class ScaleBarSubItem : public SubItem
+mClass(Annotations) ScaleBarSubItem : public SubItem
 {
 public:
     			ScaleBarSubItem(Pick::Set&,int displayid=-1);

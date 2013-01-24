@@ -19,7 +19,8 @@ ________________*_______________________________________________________
 \brief One single queue entry.
 */
 
-template <class T> class QueueEntry
+template <class T>
+mClass(Basic) QueueEntry
 {
 public:
 			QueueEntry( T item )
@@ -34,7 +35,8 @@ public:
 \brief Queue of objects.
 */
 
-template <class T> class ObjQueue
+template <class T>
+mClass(Basic) ObjQueue
 {
 public:
 			ObjQueue() : head(0), tail(0) {}
@@ -86,7 +88,8 @@ protected:
 \brief Queue of basic data types.
 */
 
-template <class T> class TypeQueue
+template <class T>
+mClass(Basic) TypeQueue
 {
 public:
 			TypeQueue() : head(0), tail(0) {}

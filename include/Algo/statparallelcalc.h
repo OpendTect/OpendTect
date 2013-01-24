@@ -30,7 +30,7 @@ namespace Stats
 */
 
 template <class T>
-class ParallelCalc : public ParallelTask, public BaseCalc<T>
+mClass(Algo) ParallelCalc : public ParallelTask, public BaseCalc<T>
 {
 public:
 				ParallelCalc(const CalcSetup& s,const T* data, 

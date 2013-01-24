@@ -25,7 +25,7 @@ namespace VolProc
 {
 
 
-class VolumeReader : public ProcessingStep
+mClass(VolProcTest) VolumeReader : public ProcessingStep
 {
 public:
     static void			initClass();

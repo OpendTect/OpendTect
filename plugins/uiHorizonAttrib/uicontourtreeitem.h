@@ -36,7 +36,7 @@ namespace visBase
 
 /*!\brief Tree item for Contour display on 3D horizons */
 
-class uiContourTreeItem : public uiODDataTreeItem
+mClass(uiHorizonAttrib) uiContourTreeItem : public uiODDataTreeItem
 {
 public:
     static void			initClass();

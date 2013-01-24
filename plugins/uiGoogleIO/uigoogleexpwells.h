@@ -12,7 +12,7 @@
 class uiListBox;
 
 
-class uiGoogleExportWells : public uiDialog
+mClass(uiGoogleIO) uiGoogleExportWells : public uiDialog
 {
 public:
 

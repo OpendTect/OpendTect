@@ -23,7 +23,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class Smoother3D : public Task
+mClass(Algo) Smoother3D : public Task
 {
 public:
 

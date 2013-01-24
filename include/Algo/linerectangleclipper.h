@@ -22,7 +22,7 @@ inside, new endpoints are calculated.
 */
 
 template <class T>
-class LineRectangleClipper
+mClass(Algo) LineRectangleClipper
 {
 public:
     inline			LineRectangleClipper(const Geom::Rectangle<T>&);

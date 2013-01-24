@@ -22,7 +22,7 @@ ________________________________________________________________________
  */
 
 template <class T>
-class ValueSeriesInterpolator
+mClass(General) ValueSeriesInterpolator
 {
 public:
 			ValueSeriesInterpolator( int mxidx=mUdf(int) )

@@ -28,7 +28,7 @@ namespace PreStackView
     class uiViewer3DPreProcTab;
     class uiViewer3DEventsTab;
 
-class uiViewer3DSettingDlg : public uiTabStackDlg
+mClass(uiPreStackViewer) uiViewer3DSettingDlg : public uiTabStackDlg
 {
 public:
 				uiViewer3DSettingDlg(uiParent*,

@@ -49,7 +49,7 @@ public:
 
 protected:
 
-    class Identifier
+    mClass(uiCmdDriver) Identifier
     {
 	public:
 			Identifier(const char* name,const char* val="",

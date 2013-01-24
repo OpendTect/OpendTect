@@ -50,7 +50,7 @@ namespace Values
 */
 
 template<class T>
-class Undef
+mClass(Basic) Undef
 {
 public:
     static T		val();
@@ -65,7 +65,7 @@ public:
 */
 
 template<>
-class Undef<od_int16>
+mClass(Basic) Undef<od_int16>
 {
 public:
     static od_int16	val()			{ return -32767; }
@@ -80,7 +80,7 @@ public:
 */
 
 template<>
-class Undef<od_uint16>
+mClass(Basic) Undef<od_uint16>
 {
 public:
     static od_uint16	val()			{ return 65534; }
@@ -95,7 +95,7 @@ public:
 */
 
 template<>
-class Undef<od_int32>
+mClass(Basic) Undef<od_int32>
 {
 public:
     static od_int32	val()			{ return __mUndefIntVal; }
@@ -110,7 +110,7 @@ public:
 */
 
 template<>
-class Undef<od_uint32>
+mClass(Basic) Undef<od_uint32>
 {
 public:
     static od_uint32	val()			{ return __mUndefIntVal; }
@@ -125,7 +125,7 @@ public:
 */
 
 template<>
-class Undef<od_int64>
+mClass(Basic) Undef<od_int64>
 {
 public:
     static od_int64	val()			{ return __mUndefIntVal64; }
@@ -140,7 +140,7 @@ public:
 */
 
 template<>
-class Undef<od_uint64>
+mClass(Basic) Undef<od_uint64>
 {
 public:
     static od_uint64	val()			{ return __mUndefIntVal64; }
@@ -155,7 +155,7 @@ public:
 */
 
 template<>
-class Undef<bool>
+mClass(Basic) Undef<bool>
 {
 public:
     static bool		val()			{ return false; }
@@ -170,7 +170,7 @@ public:
 */
 
 template<>
-class Undef<float>
+mClass(Basic) Undef<float>
 {
 public:
     static float	val()			{ return (float)__mUndefValue; }
@@ -185,7 +185,7 @@ public:
 */
 
 template<>
-class Undef<double>
+mClass(Basic) Undef<double>
 {
 public:
     static double	val()			{ return __mUndefValue; }
@@ -200,7 +200,7 @@ public:
 */
 
 template<>
-class Undef<const char*>
+mClass(Basic) Undef<const char*>
 {
 public:
     static const char*	val()			{ return ""; }
@@ -215,7 +215,7 @@ public:
 */
 
 template<>
-class Undef<char*>
+mClass(Basic) Undef<char*>
 {
 public:
     static const char*	val()			{ return ""; }

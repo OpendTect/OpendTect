@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiPushButton;
 class GMTPar;
 
-class uiGMTOverlayGrp : public uiDlgGroup
+mClass(uiGMT) uiGMTOverlayGrp : public uiDlgGroup
 {
 public:
 
@@ -36,7 +36,7 @@ protected:
 
 typedef uiGMTOverlayGrp* (*uiGMTOverlayGrpCreateFunc)(uiParent*);
 
-class uiGMTOverlayGrpFactory
+mClass(uiGMT) uiGMTOverlayGrpFactory
 {
 public:
 

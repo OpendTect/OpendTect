@@ -58,7 +58,7 @@ struct Array2DFilterPars
 */
 
 template <class T>
-class Array2DFilterer : public Executor
+mClass(General) Array2DFilterer : public Executor
 {
 public:
 

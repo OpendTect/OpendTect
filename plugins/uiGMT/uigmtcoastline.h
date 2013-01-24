@@ -20,7 +20,7 @@ class uiGenInput;
 class uiSelLineStyle;
 class uiSpinBox;
 
-class uiGMTCoastlineGrp : public uiGMTOverlayGrp
+mClass(uiGMT) uiGMTCoastlineGrp : public uiGMTOverlayGrp
 {
 public:
 

@@ -31,7 +31,7 @@ template <class T> class ValueSeries;
 */
 
 template <class T>
-class MemSetter : public ParallelTask
+mClass(Basic) MemSetter : public ParallelTask
 {
 public:
     		MemSetter();
@@ -64,7 +64,7 @@ protected:
 */
 
 template <class T>
-class MemCopier : public ParallelTask
+mClass(Basic) MemCopier : public ParallelTask
 {
 public:
 
@@ -104,7 +104,7 @@ protected:
 */
 
 template <class T>
-class MemValReplacer : public ParallelTask
+mClass(Basic) MemValReplacer : public ParallelTask
 {
 public:
 		MemValReplacer();

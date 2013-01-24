@@ -24,7 +24,7 @@ class uiSeis2DSubSel;
 class uiSeis3DSubSel;
 
 
-class uiMadIOSel : public uiCompoundParSel
+mClass(uiMadagascar) uiMadIOSel : public uiCompoundParSel
 {
 public:
 			uiMadIOSel(uiParent*,bool isinp);
@@ -46,7 +46,7 @@ protected:
 };
 
 
-class uiMadIOSelDlg : public uiDialog
+mClass(uiMadagascar) uiMadIOSelDlg : public uiDialog
 {
 public:
 

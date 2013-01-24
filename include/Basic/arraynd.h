@@ -35,7 +35,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class ArrayND 
+mClass(Basic) ArrayND 
 {
 public:
 
@@ -103,7 +103,7 @@ protected:
 */
 
 template <class T>
-class Array1D : public ArrayND<T>
+mClass(Basic) Array1D : public ArrayND<T>
 	      , public ValueSeries<T>
 {
 public: 
@@ -131,7 +131,7 @@ public:
 */
 
 template <class T>
-class Array2D : public ArrayND<T>
+mClass(Basic) Array2D : public ArrayND<T>
 {
 public: 
     virtual void		set( int, int, T ) 			= 0;
@@ -149,7 +149,8 @@ public:
 \brief Array3D ( Subclass of ArrayND ) is a three dimensional array.
 */
 
-template <class T> class Array3D : public ArrayND<T>
+template <class T>
+mClass(Basic) Array3D : public ArrayND<T>
 {
 public: 
 
@@ -204,7 +205,7 @@ protected:
 */
 
 template <class T>
-class ArrayNDValseriesAdapter : public ValueSeries<T>
+mClass(Basic) ArrayNDValseriesAdapter : public ValueSeries<T>
 {
 public:
 			ArrayNDValseriesAdapter( const ArrayND<T>& a )
@@ -384,7 +385,7 @@ void ArrayND<T>::setAll( const T& val )
 */
 
 template <class T>
-class ArrayNDGetAll : public ParallelTask
+mClass(Basic) ArrayNDGetAll : public ParallelTask
 {
 public:
     		ArrayNDGetAll( T* ptr, const ArrayND<T>& arr )

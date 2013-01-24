@@ -40,7 +40,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class DataSqueezer
+mClass(Algo) DataSqueezer
 {
 public:
 

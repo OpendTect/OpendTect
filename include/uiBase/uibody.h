@@ -48,7 +48,7 @@ Useful when a Qt object is already made, such as a QStatusBar, QMenuBar, etc.
 
 */
 template <class C, class T>
-class uiBodyImpl : public uiBody
+mClass(uiBase) uiBodyImpl : public uiBody
 {
 public:
                         uiBodyImpl( C& hndle, uiParent* parnt, T& qthng ) 

@@ -19,7 +19,7 @@ class uiGenInput;
 class uiPushButton;
 class uiTextEdit;
 
-class uiGMTBaseMapGrp : public uiDlgGroup
+mClass(uiGMT) uiGMTBaseMapGrp : public uiDlgGroup
 {
 public:
 

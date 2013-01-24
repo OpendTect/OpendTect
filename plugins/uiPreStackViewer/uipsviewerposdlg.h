@@ -25,7 +25,7 @@ namespace visSurvey { class PreStackDisplay; }
 namespace PreStackView 
 { 
 
-class uiViewer3DPositionDlg : public uiDialog
+mClass(uiPreStackViewer) uiViewer3DPositionDlg : public uiDialog
 {
 public:			
 

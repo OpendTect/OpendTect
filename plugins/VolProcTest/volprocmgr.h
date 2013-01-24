@@ -22,7 +22,7 @@ namespace VolProc
 
 class ProcessingChain;
 
-class Manager : public CallBacker
+mClass(VolProcTest) Manager : public CallBacker
 {
 public:
     static Manager&	get(uiParent*);

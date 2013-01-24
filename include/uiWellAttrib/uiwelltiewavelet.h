@@ -55,7 +55,7 @@ protected:
 };
 
 
-class uiWavelet : public uiGroup
+mClass(uiWellAttrib) uiWavelet : public uiGroup
 {
 
 public: 

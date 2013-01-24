@@ -22,7 +22,7 @@ interpolation at the edges, and polynomial interpolation inside.
 */
 
 template <class RT,class PT,class T>
-class Array2DFunc : public MathXYFunction<RT,PT>
+mClass(General) Array2DFunc : public MathXYFunction<RT,PT>
 {
 public:
     inline void		set( const Array2D<T>& t, bool hasudfs )

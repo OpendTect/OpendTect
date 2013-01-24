@@ -16,7 +16,7 @@ class uiIOObjSel;
 class uiT2DConvSel;
 
 
-class uiGravHorCalc : public uiDialog
+mClass(uiGrav) uiGravHorCalc : public uiDialog
 {
 public:
 

@@ -30,7 +30,7 @@ Output:
 #include <attribparamimpl.h>
 
 
-class NoDCAttrib : public AttribCalc
+mClass(AttribExp) NoDCAttrib : public AttribCalc
 {
 public:
 			mAttrib0Param(NoDCAttrib,"NoDC");
@@ -51,10 +51,10 @@ protected:
     
     BufferString	desc;
 
-    class Task : public AttribCalc::Task
+    mClass(AttribExp) Task : public AttribCalc::Task
     {
     public:
-	class Input : public AttribCalc::Task::Input
+	mClass(AttribExp) Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const NoDCAttrib& calculator_ )

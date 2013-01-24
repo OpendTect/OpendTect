@@ -24,7 +24,7 @@ use getValue. getValue3D is optimized for third order, tree-dimensional cases.
 */
 
 template <class T>
-class PolynomialND
+mClass(Algo) PolynomialND
 {
 public:
     			PolynomialND( const ArrayNDInfo& );

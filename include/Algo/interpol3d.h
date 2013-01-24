@@ -23,7 +23,7 @@ namespace Interpolate
 */
 
 template <class T>
-class LinearReg3D
+mClass(Algo) LinearReg3D
 {
 public:
 
@@ -79,7 +79,7 @@ inline T linearReg3D( T v000, T v100, T v010, T v110,
 */
 
 template <class T>
-class LinearReg3DWithUdf
+mClass(Algo) LinearReg3DWithUdf
 {
 public:
 
@@ -216,7 +216,7 @@ inline T linearReg3DWithUdf( T v000, T v100, T v010, T v110,
 */
 
 template <class T>
-class PolyReg3D
+mClass(Algo) PolyReg3D
 {
 public:
 

@@ -27,7 +27,7 @@ ________________________________________________________________________
 */
 
 template <class T, class TT>
-class Array2DReSampler : public ParallelTask
+mClass(General) Array2DReSampler : public ParallelTask
 {
 public:
 

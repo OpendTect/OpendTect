@@ -478,7 +478,7 @@ protected:
 };
 
 
-class uiVisModeMgr 
+mClass(uiVis) uiVisModeMgr 
 {
 public:
 				uiVisModeMgr(uiVisPartServer*);

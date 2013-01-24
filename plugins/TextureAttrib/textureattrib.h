@@ -33,7 +33,7 @@ Outputs:
 namespace Attrib
 {
 
-class Texture : public Provider
+mClass(TextureAttrib) Texture : public Provider
 {
 public:
     static void		initClass();

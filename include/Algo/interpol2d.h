@@ -39,11 +39,10 @@ namespace Interpolate
   The 'apply' method needs the relative distance in x and y direction from
   the origin (where v[0] is located), and should therefore generally be between
   0 and 1, although you can also use the classes for near extrapolation.
-  
 */
     
 template <class T>
-class Applier2D
+mClass(Algo) Applier2D
 {
 public:
     virtual		~Applier2D()				{}
@@ -57,7 +56,7 @@ public:
 */
 
 template <class T>
-class LinearReg2D : public Applier2D<T>
+mClass(Algo) LinearReg2D : public Applier2D<T>
 {
 public:
 
@@ -85,7 +84,7 @@ inline T linearReg2D( T v00, T v01, T v10, T v11, float x, float y )
 */
 
 template <class T>
-class LinearReg2DWithUdf : public Applier2D<T>
+mClass(Algo) LinearReg2DWithUdf : public Applier2D<T>
 {
 public:
 
@@ -124,7 +123,7 @@ inline T linearReg2DWithUdf( T v00, T v01, T v10, T v11, float x, float y )
 */
 
 template <class T>
-class PolyReg2D : public Applier2D<T>
+mClass(Algo) PolyReg2D : public Applier2D<T>
 {
 public:
 
@@ -172,7 +171,7 @@ inline T polyReg2D( T vm10, T vm11, T v0m1, T v00, T v01, T v02,
 */
 
 template <class T>
-class PolyReg2DWithUdf : public Applier2D<T>
+mClass(Algo) PolyReg2DWithUdf : public Applier2D<T>
 {
 public:
 

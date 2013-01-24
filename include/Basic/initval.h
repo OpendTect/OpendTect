@@ -21,7 +21,7 @@ namespace Values
 */
 
 template<class T>
-class Init
+mClass(Basic) Init
 {
 public:
     static T		val();
@@ -33,7 +33,7 @@ public:
 */
 
 template<>
-class Init<od_int16>
+mClass(Basic) Init<od_int16>
 {
 public:
     static od_int16	val()		{ return 0; }
@@ -45,7 +45,7 @@ public:
 */
 
 template<>
-class Init<od_uint16>
+mClass(Basic) Init<od_uint16>
 {
 public:
     static od_uint16	val()		{ return 0; }
@@ -57,7 +57,7 @@ public:
 */
 
 template<>
-class Init<od_int32>
+mClass(Basic) Init<od_int32>
 {
 public:
     static od_int32	val()		{ return 0; }
@@ -69,7 +69,7 @@ public:
 */
 
 template<>
-class Init<od_uint32>
+mClass(Basic) Init<od_uint32>
 {
 public:
     static od_uint32	val()		{ return 0; }
@@ -81,7 +81,7 @@ public:
 */
 
 template<>
-class Init<od_int64>
+mClass(Basic) Init<od_int64>
 {
 public:
     static od_int64	val()		{ return 0; }
@@ -93,7 +93,7 @@ public:
 */
 
 template<>
-class Init<od_uint64>
+mClass(Basic) Init<od_uint64>
 {
 public:
     static od_uint64	val()		{ return 0; }
@@ -105,7 +105,7 @@ public:
 */
 
 template<>
-class Init<bool>
+mClass(Basic) Init<bool>
 {
 public:
     static bool		val()		{ return false; }
@@ -117,7 +117,7 @@ public:
 */
 
 template<>
-class Init<float>
+mClass(Basic) Init<float>
 {
 public:
     static float	val()		{ return 0.0f; }
@@ -129,7 +129,7 @@ public:
 */
 
 template<>
-class Init<double>
+mClass(Basic) Init<double>
 {
 public:
     static double	val()		{ return 0.0; }
@@ -141,7 +141,7 @@ public:
 */
 
 template<>
-class Init<const char*>
+mClass(Basic) Init<const char*>
 {
 public:
     static const char*	val()			{ return ""; }

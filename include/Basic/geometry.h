@@ -24,7 +24,7 @@ namespace Geom
 */
 
 template <class T>
-class Point2D
+mClass(Basic) Point2D
 {
 public:
 				Point2D(T xx=0,T yy=0);
@@ -73,7 +73,7 @@ public:
 */
 
 template <class T>
-class Size2D
+mClass(Basic) Size2D
 {
 public:
 			Size2D( T w = 0 , T h = 0 );
@@ -110,7 +110,7 @@ protected:
 */
 
 template <class T>
-class Rectangle
+mClass(Basic) Rectangle
 {
 public:
 			Rectangle(T l=0,T t=0,T r=0,T b=0) ;
@@ -184,7 +184,7 @@ protected:
 */
 
 template <class T>
-class PixRectangle : public Rectangle<T>
+mClass(Basic) PixRectangle : public Rectangle<T>
 {
 public:
 			PixRectangle(T l=0 , T t=0, T r=0 , T b=0 ) ;
@@ -217,7 +217,7 @@ protected:
 */
 
 template <class T>
-class PosRectangle : public Rectangle<T>
+mClass(Basic) PosRectangle : public Rectangle<T>
 {
 public:
 			PosRectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 ) 

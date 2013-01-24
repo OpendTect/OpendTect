@@ -18,7 +18,7 @@ _________________________________________________________________________
 namespace VolProc
 {
 
-class ThresholdStep : public ProcessingStep
+mClass(VolProcTest) ThresholdStep : public ProcessingStep
 {
 
 public:

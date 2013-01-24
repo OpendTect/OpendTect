@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 
-class uiParentBody : public uiBody, public NamedObject
+mClass(uiBase) uiParentBody : public uiBody, public NamedObject
 {
 friend class uiObjectBody;
 public:

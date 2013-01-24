@@ -20,6 +20,7 @@ ________________________________________________________________________
 template <class T> class ObjectSet;
 
 /*!
+\ingroup Basic
 \brief Macros to set up reference counting in a class.
 
   A refcount class is set up by:

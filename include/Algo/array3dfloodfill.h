@@ -44,7 +44,7 @@ User has the option to set inside or outside value on the output.
 */
 
 template <class T>
-class Array3DFloodfill : public ParallelTask
+mClass(Algo) Array3DFloodfill : public ParallelTask
 {
 public:
     			Array3DFloodfill(const Array3D<T>& input,T threshold,

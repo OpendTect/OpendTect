@@ -30,7 +30,7 @@ Output:
 #include <attribparamimpl.h>
 
     
-class NearSubtractAttrib : public AttribCalc
+mClass(AttribExp) NearSubtractAttrib : public AttribCalc
 {
 public:
     mAttrib2Param( NearSubtractAttrib
@@ -81,10 +81,10 @@ protected:
     static const BinID		stepout;
     const AttribProcessCommonInfo*	common;
 
-    class Task : public AttribCalc::Task
+    mClass(AttribExp) Task : public AttribCalc::Task
     {
     public:
-	class Input : public AttribCalc::Task::Input
+	mClass(AttribExp) Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const NearSubtractAttrib& calculator_ )

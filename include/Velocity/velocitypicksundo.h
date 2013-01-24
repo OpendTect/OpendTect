@@ -23,7 +23,7 @@ namespace Vel
 {
 
 //!Undo event for changed velocity pick
-class PickSetEvent : public BinIDUndoEvent
+mClass(Velocity) PickSetEvent : public BinIDUndoEvent
 {
 public:
     		PickSetEvent(Picks&,const Pick& oldpick,
@@ -44,7 +44,7 @@ protected:
 
 
 //!Undo event for added velocity pick
-class PickAddEvent : public BinIDUndoEvent
+mClass(Velocity) PickAddEvent : public BinIDUndoEvent
 {
 public:
 			PickAddEvent(Picks&, const RowCol&);
@@ -64,7 +64,7 @@ protected:
 
 
 //!Undo event for removed velocity pick
-class PickRemoveEvent : public BinIDUndoEvent
+mClass(Velocity) PickRemoveEvent : public BinIDUndoEvent
 {
 public:
 			PickRemoveEvent(Picks&, const RowCol&);

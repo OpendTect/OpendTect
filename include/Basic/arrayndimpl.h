@@ -38,7 +38,8 @@ ________________________________________________________________________
 \brief Implementation of Array1D.
 */
 
-template <class T> class Array1DImpl : public Array1D<T>
+template <class T>
+mClass(Basic) Array1DImpl : public Array1D<T>
 {
 public:
 
@@ -82,7 +83,8 @@ protected:
 \brief Implementation of Array2D.
 */
 
-template <class T> class Array2DImpl : public Array2D<T>
+template <class T>
+mClass(Basic) Array2DImpl : public Array2D<T>
 {
 public:
 			Array2DImpl(int sz0,int sz1);
@@ -119,7 +121,8 @@ protected:
 \brief Implementation of Array3D.
 */
 
-template <class T> class Array3DImpl : public Array3D<T>
+template <class T>
+mClass(Basic) Array3DImpl : public Array3D<T>
 {
 public:
     inline		Array3DImpl(int sz0,int sz1,int sz2);
@@ -153,7 +156,8 @@ protected:
 \brief Implementation of ArrayND.
 */
 
-template <class T> class ArrayNDImpl : public ArrayND<T>
+template <class T>
+mClass(Basic) ArrayNDImpl : public ArrayND<T>
 {
 public:
 

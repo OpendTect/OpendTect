@@ -24,7 +24,7 @@ ________________________________________________________________________
   facilitates giving unique change stamps.
 */
 
-class ChangeTracker
+mClass(Basic) ChangeTracker
 {
 public:
 			ChangeTracker( bool* c=0 )
@@ -79,6 +79,7 @@ protected:
 
 
 /*!
+\ingroup Basic
 \brief Macro to use when there is no direct access to data members.
   
   chtr = the change tracker

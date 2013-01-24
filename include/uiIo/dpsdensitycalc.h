@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "ranges.h"
 
-class DPSDensityCalcND : public ParallelTask
+mClass(uiIo) DPSDensityCalcND : public ParallelTask
 {
 public:
 

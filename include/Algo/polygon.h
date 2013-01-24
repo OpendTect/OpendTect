@@ -23,7 +23,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class ODPolygon
+mClass(Algo) ODPolygon
 {
 public:
 		ODPolygon()

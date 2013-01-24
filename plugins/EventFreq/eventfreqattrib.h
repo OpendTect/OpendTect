@@ -20,7 +20,7 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-class EventFreq : public Provider
+mClass(EventFreq) EventFreq : public Provider
 {
 public:
 

@@ -23,7 +23,7 @@ identifier of where the value comes from or something like that.
 */
 
 template <class VT, class AVT>
-class TopList
+mClass(Basic) TopList
 {
 public:
 			TopList( int maxsize )

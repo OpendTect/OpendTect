@@ -24,7 +24,7 @@ namespace Annotations
   ScaleBar base object
 */
 
-class ScaleBar : public visBase::VisualObjectImpl
+mClass(Annotations) ScaleBar : public visBase::VisualObjectImpl
 {
 public:
     static ScaleBar*		create()
@@ -56,7 +56,7 @@ protected:
   ScaleBar Display
 */
 
-class ScaleBarDisplay : public visSurvey::LocationDisplay
+mClass(Annotations) ScaleBarDisplay : public visSurvey::LocationDisplay
 {
 public:
     static ScaleBarDisplay*	create()

@@ -32,7 +32,7 @@ class uiViewer3DPositionDlg;
 /*!Manages pre-stack data displays in 2D (panel) and 3D (visualization). The 
    data itself can be from either lines or volumes. */
 
-class uiViewer3DMgr : public CallBacker
+mClass(uiPreStackViewer) uiViewer3DMgr : public CallBacker
 {
 public:
 				uiViewer3DMgr();

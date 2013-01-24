@@ -23,7 +23,7 @@ namespace Well { class Log; class LogSet; }
 /*! \ Brief: UI utility to select the well logs which will be used as input
   to compute a new log from a formula*/
 
-class uiWellLogCalcInpData : public uiMathExpressionVariable
+mClass(uiWell) uiWellLogCalcInpData : public uiMathExpressionVariable
 {
 public:
 				uiWellLogCalcInpData(uiWellLogCalc*,

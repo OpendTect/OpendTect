@@ -34,7 +34,7 @@ namespace Values
 */
 
 template<>
-class Undef<float_complex>
+mClass(Basic) Undef<float_complex>
 {
 public:
 

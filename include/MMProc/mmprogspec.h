@@ -39,7 +39,7 @@ public:
     const char*			programName() const
 				{ return programname_; }
 
-    class Option : public NamedObject
+    mClass(MMProc) Option : public NamedObject
     {
 				Option(const char* usrtxt)
 				    : NamedObject(usrtxt)

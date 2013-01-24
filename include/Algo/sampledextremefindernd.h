@@ -20,7 +20,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class SampledExtremeFinderND : public ParallelTask
+mClass(Algo) SampledExtremeFinderND : public ParallelTask
 {
 public:
 		SampledExtremeFinderND(const ArrayND<T>& arr, bool minima)

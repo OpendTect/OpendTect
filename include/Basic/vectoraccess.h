@@ -35,7 +35,7 @@ ________________________________________________________________________
 */
 
 template <class T,class I>
-class VectorAccess
+mClass(Basic) VectorAccess
 {
 public:
 

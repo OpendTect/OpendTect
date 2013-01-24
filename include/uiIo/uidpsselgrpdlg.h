@@ -17,7 +17,7 @@ class uiDataPointSetCrossPlotter;
 class uiTable;
 class SelectionGrp;
 
-class uiDPSSelGrpDlg : public uiDialog
+mClass(uiIo) uiDPSSelGrpDlg : public uiDialog
 {
 public:
 

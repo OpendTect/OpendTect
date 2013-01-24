@@ -15,7 +15,7 @@ class Executor;
 namespace ODMad
 {
 
-class ProgDef
+mClass(Madagascar) ProgDef
 {
 public:
 

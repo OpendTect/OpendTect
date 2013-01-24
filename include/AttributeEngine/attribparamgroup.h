@@ -39,7 +39,7 @@ namespace Attrib
 -*/
 
 template <class PT>
-class ParamGroup : public Param
+mClass(AttributeEngine) ParamGroup : public Param
 {
 public:
 

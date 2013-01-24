@@ -68,7 +68,7 @@ protected:
     bool		normalize_;
 
     Transform1D*	createTransform() const;
-    class CC1D : public GenericTransformND::Transform1D, public ParallelTask
+    mClass(Algo) CC1D : public GenericTransformND::Transform1D, public ParallelTask
     {
 	public:
 			CC1D();

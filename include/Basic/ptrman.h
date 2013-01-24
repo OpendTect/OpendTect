@@ -21,7 +21,7 @@ ________________________________________________________________________
 #define mDefPtrMan1(Clss,PostSet, EraseFunc) \
 \
 template<class T> \
-class Clss \
+mClass(Basic) Clss \
 { \
 public: \
 \

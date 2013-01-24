@@ -23,7 +23,7 @@ Undefined coordinates separate consecutive sequences.
 */
 
 template <class T>
-class PolyLineND : public TypeSet<T>
+mClass(Algo) PolyLineND : public TypeSet<T>
 {
 public:
 		PolyLineND(bool closed=false)

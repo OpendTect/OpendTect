@@ -23,7 +23,7 @@ ________________________________________________________________________
 */
 
 template <class RT,class T>
-class SampledFunction : public MathFunction<RT,RT>
+mClass(Algo) SampledFunction : public MathFunction<RT,RT>
 {
 public:
 				SampledFunction( bool periodic_= false )
@@ -91,7 +91,7 @@ protected:
 */
 
 template <class RT, class T>
-class SampledFunctionImpl : public SampledFunction<RT,T>
+mClass(Algo) SampledFunctionImpl : public SampledFunction<RT,T>
 {
 public:
 			SampledFunctionImpl(const T& idxabl,int sz,

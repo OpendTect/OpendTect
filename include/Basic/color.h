@@ -97,7 +97,7 @@ namespace Values {
 */
 
 template<>
-class Undef<Color>
+mClass(Basic) Undef<Color>
 {
 public:
     static Color	val()			{ return Color::NoColor(); }

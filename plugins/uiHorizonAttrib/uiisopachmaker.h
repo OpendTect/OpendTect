@@ -26,7 +26,7 @@ class IOPar;
 
 /*! \brief Create isopach as attribute of horizon */
 
-class uiIsopachMakerGrp : public uiGroup
+mClass(uiHorizonAttrib) uiIsopachMakerGrp : public uiGroup
 {
 public:
 			uiIsopachMakerGrp(uiParent*,EM::ObjectID);
@@ -51,7 +51,7 @@ protected:
 };
 
 
-class uiIsopachMakerBatch : public uiFullBatchDialog
+mClass(uiHorizonAttrib) uiIsopachMakerBatch : public uiFullBatchDialog
 {
 public:
 
@@ -65,7 +65,7 @@ protected:
 };
 
 
-class uiIsopachMakerDlg : public uiDialog
+mClass(uiHorizonAttrib) uiIsopachMakerDlg : public uiDialog
 {
 public:
 			uiIsopachMakerDlg(uiParent*,EM::ObjectID);
@@ -81,4 +81,5 @@ protected:
     uiIsopachMakerGrp*	grp_;
     DataPointSet*	dps_;
 };
+
 #endif

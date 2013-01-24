@@ -24,7 +24,7 @@ namespace Grav
 {
 
 
-class HorCalc : public ::Executor
+mClass(uiGrav) HorCalc : public ::Executor
 {
 public:
 

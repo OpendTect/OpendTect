@@ -105,7 +105,7 @@ protected:
 
     virtual const char*	errMsg_() const		= 0;
 
-    class AuxInlInf
+    mClass(General) AuxInlInf
     {
     public:
 			AuxInlInf( int i ) : inl(i), cumnrxlines(0)	{}

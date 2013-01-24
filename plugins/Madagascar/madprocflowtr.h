@@ -40,7 +40,7 @@ public:
 };
 
 
-class dgbODMadProcFlowTranslator : public ODMadProcFlowTranslator
+mClass(Madagascar) dgbODMadProcFlowTranslator : public ODMadProcFlowTranslator
 {			     isTranslator(dgb,ODMadProcFlow)
 public:
 

@@ -25,7 +25,7 @@ class uiPushButton;
 class uiToolButton;
 class uiTabStack;
 
-class uiGMTMainWin : public uiFullBatchDialog
+mClass(uiGMT) uiGMTMainWin : public uiFullBatchDialog
 {
 public:
     			uiGMTMainWin(uiParent*);

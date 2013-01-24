@@ -37,7 +37,7 @@ Output:
 #include <arrayndutils.h>
 
     
-class DeConvolveAttrib : public AttribCalc
+mClass(AttribExp) DeConvolveAttrib : public AttribCalc
 {
 public:
     mAttrib5Param(DeConvolveAttrib,"DeConvolve",
@@ -116,10 +116,10 @@ protected:
     BufferString		desc;
     const AttribProcessCommonInfo*	common;
 
-    class Task : public AttribCalc::Task
+    mClass(AttribExp) Task : public AttribCalc::Task
     {
     public:
-	class Input : public AttribCalc::Task::Input
+	mClass(AttribExp) Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const DeConvolveAttrib& calculator_ )

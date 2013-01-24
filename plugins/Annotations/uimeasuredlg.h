@@ -16,7 +16,7 @@ class LineStyle;
 class uiGenInput;
 class uiSelLineStyle;
 
-class uiMeasureDlg : public uiDialog
+mClass(Annotations) uiMeasureDlg : public uiDialog
 {
 public:
 				uiMeasureDlg(uiParent*);

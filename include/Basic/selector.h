@@ -22,7 +22,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class Selector
+mClass(Basic) Selector
 {
 public:
 
@@ -58,7 +58,7 @@ private:
 */
 
 template <class T>
-class SingleSelector : public Selector<T>
+mClass(Basic) SingleSelector : public Selector<T>
 {
 public:
 
@@ -91,7 +91,7 @@ protected:
 */
 
 template <class T>
-class RangeSelector : public Selector<T>
+mClass(Basic) RangeSelector : public Selector<T>
 {
 public:
 
@@ -122,7 +122,7 @@ protected:
 */
 
 template <class T>
-class ArraySelector : public Selector<T>
+mClass(Basic) ArraySelector : public Selector<T>
 {
 public:
 

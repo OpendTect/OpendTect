@@ -232,7 +232,7 @@ private:
 */
 
 template <class C, class T>
-class uiObjBodyImpl : public uiObjectBody, public T
+mClass(uiBase) uiObjBodyImpl : public uiObjectBody, public T
 {
 public:
 

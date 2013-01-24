@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-class GapDecon : public Provider
+mClass(GapDecon) GapDecon : public Provider
 {
 public:
 

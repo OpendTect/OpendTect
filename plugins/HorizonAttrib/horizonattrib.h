@@ -24,7 +24,7 @@ namespace Attrib
 
 class DataHolder;
 
-class Horizon : public Provider
+mClass(HorizonAttrib) Horizon : public Provider
 {
 public:
     static void		initClass();

@@ -23,7 +23,7 @@ namespace VolProc
 class ProcessingStep;
 class ThresholdStep;
 
-class uiVolumeThresholder : public uiDialog
+mClass(VolProcTest) uiVolumeThresholder : public uiDialog
 {
 public:
     static void		initClass();

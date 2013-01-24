@@ -30,7 +30,7 @@ namespace Annotations
   Image
 */
 
-class ImageDisplay : public visSurvey::LocationDisplay
+mClass(Annotations) ImageDisplay : public visSurvey::LocationDisplay
 {
 public:
     static ImageDisplay*	create()
@@ -58,7 +58,7 @@ protected:
 };
 
 
-class Image : public visBase::VisualObjectImpl
+mClass(Annotations) Image : public visBase::VisualObjectImpl
 {
 public:
     static Image*		create()

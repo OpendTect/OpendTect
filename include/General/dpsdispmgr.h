@@ -32,7 +32,7 @@ class DataPointSet;
    DataPointSetDisplayMgr only.
 */
 
-class DataPointSetDisplayProp
+mClass(General) DataPointSetDisplayProp
 {
 public:
 				DataPointSetDisplayProp( 
@@ -93,7 +93,7 @@ protected:
 };
 
 
-class DataPointSetDisplayMgr : public CallBacker
+mClass(General) DataPointSetDisplayMgr : public CallBacker
 {
 public:
 

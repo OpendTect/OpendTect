@@ -21,7 +21,7 @@ class uiListBox;
 class uiSpinBox;
 class uiGMTSymbolPars;
 
-class uiGMTWellsGrp : public uiGMTOverlayGrp
+mClass(uiGMT) uiGMTWellsGrp : public uiGMTOverlayGrp
 {
 public:
 

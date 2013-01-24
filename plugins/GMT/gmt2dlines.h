@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 
 
-class GMT2DLines : public GMTPar
+mClass(GMT) GMT2DLines : public GMTPar
 {
 public:
 
@@ -37,7 +37,7 @@ protected:
 };
 
 
-class GMTRandLines : public GMTPar
+mClass(GMT) GMTRandLines : public GMTPar
 {
 public:
 

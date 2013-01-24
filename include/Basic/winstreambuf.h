@@ -33,7 +33,7 @@ namespace std
   Only change is: feek -> _fseeki64
 */
 
-class winfilebuf : public filebuf
+mClass(Basic) winfilebuf : public filebuf
 {
 public:
 winfilebuf( const char* fnm, ios_base::openmode om )
@@ -99,7 +99,7 @@ od_int64    realpos_;
 \brief Adapter for input streams on win64.
 */
 
-class winifstream : public istream
+mClass(Basic) winifstream : public istream
 {
 public:
 
@@ -132,7 +132,7 @@ bool is_open()
 \brief Adapter for output streams on win64.
 */
 
-class winofstream : public ostream
+mClass(Basic) winofstream : public ostream
 {
 public:
 

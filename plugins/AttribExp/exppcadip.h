@@ -32,7 +32,7 @@ Outputs:
 #include <arrayndimpl.h>
 #include <attribparamimpl.h>
 
-class PCADipAttrib : public AttribCalc
+mClass(AttribExp) PCADipAttrib : public AttribCalc
 {
 public:
     mAttrib3Param( PCADipAttrib
@@ -103,10 +103,10 @@ protected:
     int 			fraction;
     const AttribProcessCommonInfo*	common;
 
-    class Task : public AttribCalc::Task
+    mClass(AttribExp) Task : public AttribCalc::Task
     {
     public:
-	class Input : public AttribCalc::Task::Input
+	mClass(AttribExp) Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const PCADipAttrib& calculator_ )

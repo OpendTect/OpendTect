@@ -20,7 +20,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class ManagedObjectSet : public ObjectSet<T>
+mClass(Basic) ManagedObjectSet : public ObjectSet<T>
 {
 public:
 

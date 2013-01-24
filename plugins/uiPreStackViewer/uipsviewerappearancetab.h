@@ -27,7 +27,7 @@ namespace PreStackView
 
 class uiViewer3DMgr; 
 
-class uiViewer3DAppearanceTab : public uiDlgGroup 
+mClass(uiPreStackViewer) uiViewer3DAppearanceTab : public uiDlgGroup 
 {
 public:
 				uiViewer3DAppearanceTab(uiParent*,

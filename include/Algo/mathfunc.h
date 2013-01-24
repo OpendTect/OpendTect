@@ -35,7 +35,7 @@ template <class T> class LineParameters;
 */
 
 template <class RT,class PT>
-class MathFunctionND
+mClass(Algo) MathFunctionND
 {
 public:
     virtual	~MathFunctionND() {}
@@ -66,7 +66,7 @@ typedef MathFunctionND<float,float> FloatMathFunctionND;
 */
 
 template <class RT,class PT>
-class MathFunction : public MathFunctionND<RT,PT>
+mClass(Algo) MathFunction : public MathFunctionND<RT,PT>
 {
 public:
 
@@ -85,7 +85,7 @@ typedef MathFunction<float,float> FloatMathFunction;
 */
 
 template <class RT,class PT>
-class MathFunctionSampler
+mClass(Algo) MathFunctionSampler
 {
 public:
 			MathFunctionSampler( const MathFunction<RT,PT>& f )
@@ -108,7 +108,7 @@ protected:
 */
 
 template <class RT,class PT>
-class MathXYFunction : public MathFunctionND<RT,PT>
+mClass(Algo) MathXYFunction : public MathFunctionND<RT,PT>
 {
 public:
 
@@ -125,7 +125,7 @@ public:
 \brief A Math Function as in F(x,y,z).
 */
 template <class RT,class PT>
-class MathXYZFunction : public MathFunctionND<RT,PT>
+mClass(Algo) MathXYZFunction : public MathFunctionND<RT,PT>
 {
 public:
 
@@ -207,7 +207,7 @@ higher number of dimensions.
 */
 
 template <class RT,class PT>
-class AlongVectorFunction : public MathFunction<RT,PT>
+mClass(Algo) AlongVectorFunction : public MathFunction<RT,PT>
 {
 public:
     			AlongVectorFunction( const MathFunctionND<RT,PT>& func_,

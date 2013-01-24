@@ -24,7 +24,7 @@ namespace Annotations
   Arrow
 */
 
-class ArrowDisplay : public visSurvey::LocationDisplay
+mClass(Annotations) ArrowDisplay : public visSurvey::LocationDisplay
 {
 public:
     static ArrowDisplay*	create()

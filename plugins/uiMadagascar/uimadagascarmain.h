@@ -19,7 +19,7 @@ class uiToolButton;
 class uiMadagascarBldCmd;
 
 
-class uiMadagascarMain : public uiFullBatchDialog
+mClass(uiMadagascar) uiMadagascarMain : public uiFullBatchDialog
 {
 public:
 

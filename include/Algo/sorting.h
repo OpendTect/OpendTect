@@ -78,7 +78,7 @@ mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,int)
 */
 
 template <class T>
-class ParallelSorter : public ParallelTask
+mClass(Algo) ParallelSorter : public ParallelTask
 {
 public:
 				ParallelSorter(T* vals, int sz);

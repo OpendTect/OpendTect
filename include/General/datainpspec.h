@@ -51,7 +51,7 @@ protected:
 
 
 template<class T>
-class DataTypeImpl : public DataType
+mClass(General) DataTypeImpl : public DataType
 {
 public:
 
@@ -160,7 +160,7 @@ private:
 
 */
 template <class T>
-class NumInpSpec : public DataInpSpec
+mClass(General) NumInpSpec : public DataInpSpec
 {
 public:
 			NumInpSpec() 
@@ -282,7 +282,7 @@ typedef NumInpSpec<double>	DoubleInpSpec;
 
 */
 template <class T>
-class NumInpIntervalSpec : public DataInpSpec
+mClass(General) NumInpIntervalSpec : public DataInpSpec
 {
 public:
 			NumInpIntervalSpec( bool withstep=false )

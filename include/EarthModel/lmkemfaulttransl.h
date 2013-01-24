@@ -99,7 +99,7 @@ protected:
 \brief Landmark EM::Fault3D writer. 
 */
 
-class lmkEMFault3DWriter : public Executor
+mClass(EarthModel) lmkEMFault3DWriter : public Executor
 {
 public:
 			lmkEMFault3DWriter(const EM::Fault3D&,

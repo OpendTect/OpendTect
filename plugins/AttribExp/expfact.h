@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "expwavelet1d.h"
 #include "expinstdip.h"
 
-class ExperimentalAttribFactory
+mClass(AttribExp) ExperimentalAttribFactory
 {
 public:
 

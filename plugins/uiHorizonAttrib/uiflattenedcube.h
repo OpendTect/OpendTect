@@ -24,7 +24,7 @@ namespace Pos { class EMSurfaceProvider3D; }
 
 /*! \brief Create flattened cube from horizon */
 
-class uiWriteFlattenedCube : public uiDialog
+mClass(uiHorizonAttrib) uiWriteFlattenedCube : public uiDialog
 {
 public:
 

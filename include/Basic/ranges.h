@@ -28,7 +28,7 @@ use the Interval<T> instead.
 */
 
 template <class T>
-class BasicInterval
+mClass(Basic) BasicInterval
 {
 public:
     inline			BasicInterval();
@@ -104,7 +104,7 @@ public:
 */
 
 template <class T>
-class Interval : public BasicInterval<T>
+mClass(Basic) Interval : public BasicInterval<T>
 {
 public:
     inline		Interval() : BasicInterval<T>() 		{}
@@ -135,7 +135,7 @@ typedef Interval<float> ZGate;
 */
 
 template <class T>
-class StepInterval : public Interval<T>
+mClass(Basic) StepInterval : public Interval<T>
 {
 public:
 
@@ -196,7 +196,8 @@ public:
 \brief Class to store ranges in N dimensions. 
 */
 
-template <class T> class IntervalND
+template <class T>
+mClass(Basic) IntervalND
 {
 public:
     				IntervalND( int ndim_ )

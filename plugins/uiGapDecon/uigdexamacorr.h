@@ -25,7 +25,7 @@ class FlatDataPack;
 
 /*! \brief GapDecon Attribute autocorrelation preview in a 2d viewer */
 
-class GapDeconACorrView
+mClass(uiGapDecon) GapDeconACorrView
 {
 public:
     			GapDeconACorrView(uiParent*);

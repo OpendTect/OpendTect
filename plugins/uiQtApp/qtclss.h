@@ -11,7 +11,7 @@ class QMainWindow;
 class QPushButton;
 class QWidget;
 
-class QtClss
+mClass(uiQtApp) QtClss
 {
 public:
 

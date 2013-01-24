@@ -174,7 +174,7 @@ protected:
 */
 
 template <class T>
-class Notifier : public NotifierAccess
+mClass(Basic) Notifier : public NotifierAccess
 {
 public:
 
@@ -238,7 +238,7 @@ detachCB( notifier, clss, func )
 */
 
 template <class T>
-class CBCapsule : public CallBacker
+mClass(Basic) CBCapsule : public CallBacker
 {
 public:
     CBCapsule( T d, CallBacker* c )
@@ -250,6 +250,7 @@ public:
 
 
 /*!
+\ingroup Basic
 \brief Unpacking data from capsule.
   
   If you have a pointer to a capsule cb, this:
@@ -297,7 +298,7 @@ CallBacker* cber = cb##caps->caller
 */
 
 template <class T,class C>
-class CNotifier : public NotifierAccess
+mClass(Basic) CNotifier : public NotifierAccess
 {
 public:
 

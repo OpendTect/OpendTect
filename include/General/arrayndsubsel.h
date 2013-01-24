@@ -20,7 +20,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class Array2DSubSelection : public Array2D<T>
+mClass(General) Array2DSubSelection : public Array2D<T>
 {
 public:
     		Array2DSubSelection( int start0, int start1,
@@ -52,7 +52,7 @@ Makes a subselection of an Array3D cube.
 */
 
 template <class T>
-class Array3DSubSelection : public Array3D<T>
+mClass(General) Array3DSubSelection : public Array3D<T>
 {
 public:
     		Array3DSubSelection( int start0, int start1, int start2,

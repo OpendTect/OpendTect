@@ -38,7 +38,7 @@ Output:
 #include <arrayndutils.h>
 
     
-class TraceSpectrumAttrib : public AttribCalc
+mClass(AttribExp) TraceSpectrumAttrib : public AttribCalc
 {
 public:
     mAttrib2Param(TraceSpectrumAttrib
@@ -81,10 +81,10 @@ protected:
     float		inpstep;
     float		df;
 
-    class Task : public AttribCalc::Task
+    mClass(AttribExp) Task : public AttribCalc::Task
     {
     public:
-	class Input : public AttribCalc::Task::Input
+	mClass(AttribExp) Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const TraceSpectrumAttrib& calculator_ )

@@ -99,7 +99,7 @@ variable is needed in the creation.
 */
 
 template <class T>
-class Factory : public FactoryBase
+mClass(Basic) Factory : public FactoryBase
 {
 public:
     typedef			T* (*Creator)();
@@ -169,7 +169,7 @@ variable is needed in the creation.
 */
 
 template <class T, class P>
-class Factory1Param : public FactoryBase
+mClass(Basic) Factory1Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P);
@@ -195,7 +195,7 @@ protected:
 */
 
 template <class T, class P0, class P1>
-class Factory2Param : public FactoryBase
+mClass(Basic) Factory2Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P0,P1);
@@ -222,7 +222,7 @@ protected:
 */
 
 template <class T, class P0, class P1, class P2>
-class Factory3Param : public FactoryBase
+mClass(Basic) Factory3Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P0,P1,P2);

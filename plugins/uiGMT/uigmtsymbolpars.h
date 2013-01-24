@@ -20,7 +20,7 @@ class uiGenInput;
 class uiColorInput;
 
 
-class uiGMTSymbolPars : public uiGroup
+mClass(uiGMT) uiGMTSymbolPars : public uiGroup
 {
 public:
 			uiGMTSymbolPars(uiParent*,bool);

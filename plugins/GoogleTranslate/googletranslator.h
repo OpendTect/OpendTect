@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class ODHttp;
 
-class GoogleTranslator : public TextTranslator
+mClass(GoogleTranslate) GoogleTranslator : public TextTranslator
 {
 public:
 			GoogleTranslator();

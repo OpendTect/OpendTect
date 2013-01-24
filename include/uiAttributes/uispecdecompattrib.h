@@ -93,7 +93,7 @@ protected:
 };
 
 
-class uiSpecDecompPanel	: public uiAttribPanel
+mClass(uiAttributes) uiSpecDecompPanel	: public uiAttribPanel
 {
 public:
     				uiSpecDecompPanel( uiParent* p )

@@ -23,7 +23,7 @@ data, although not tested.
 */
 
 template <class A>
-class ValWithError
+mClass(Basic) ValWithError
 {
 public:
     					ValWithError(A val__ = 0, A var__ = 0)

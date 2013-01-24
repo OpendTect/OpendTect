@@ -24,7 +24,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class ArrayNDFileStor : public ValueSeries<T>
+mClass(Basic) ArrayNDFileStor : public ValueSeries<T>
 {
 public:
 

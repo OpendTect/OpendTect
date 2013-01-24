@@ -28,7 +28,7 @@ ________________________________________________________________________
 */
 
 template <class T, class I>
-class TypeSetBase : public OD::Set
+mClass(Basic) TypeSetBase : public OD::Set
 {
 public:
     inline virtual		~TypeSetBase();
@@ -117,7 +117,7 @@ protected:
 */
 
 template <class T>
-class TypeSet : public TypeSetBase<T,int>
+mClass(Basic) TypeSet : public TypeSetBase<T,int>
 {
     	typedef int size_type;
 public:
@@ -132,7 +132,7 @@ public:
 \brief We need this because STL has a crazy specialisation of the vector<bool>.
 */
 
-class BoolTypeSetType
+mClass(Basic) BoolTypeSetType
 {
 public:
    BoolTypeSetType(bool v=false) : val_( v ){}
@@ -151,7 +151,7 @@ typedef TypeSet<BoolTypeSetType> BoolTypeSet;
 */
 
 template <class T>
-class LargeValVec : public TypeSetBase<T,od_int64>
+mClass(Basic) LargeValVec : public TypeSetBase<T,od_int64>
 {
 	typedef od_int64 size_type;
 public:

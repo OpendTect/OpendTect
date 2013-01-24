@@ -26,7 +26,7 @@ bool makeLine(const T& start,const T& stop, TypeSet<T>& output,const T& step);
 */
 
 template <class T>
-class RColLineBuilder
+mClass(Algo) RColLineBuilder
 {
 public:
     			RColLineBuilder(const T& start,const T& dir,

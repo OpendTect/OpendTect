@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "thread.h"
 #include <iostream>
 
-class DensityCalc : public ParallelTask
+mClass(uiIo) DensityCalc : public ParallelTask
 {
 public:
 DensityCalc( uiDataPointSet& uidps, Array2D<float>* data,

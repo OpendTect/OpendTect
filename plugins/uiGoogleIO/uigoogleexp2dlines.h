@@ -16,7 +16,7 @@ class BufferStringSet;
 namespace ODGoogle { class XMLWriter; }
 
 
-class uiGoogleExport2DSeis : public uiDialog
+mClass(uiGoogleIO) uiGoogleExport2DSeis : public uiDialog
 {
 public:
 

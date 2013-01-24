@@ -29,7 +29,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class ValueSeries
+mClass(Basic) ValueSeries
 {
 public:
 
@@ -67,7 +67,7 @@ public:
 */
 
 template <class T>
-class OffsetValueSeries : public ValueSeries<T>
+mClass(Basic) OffsetValueSeries : public ValueSeries<T>
 {
 public:
     inline		OffsetValueSeries( ValueSeries<T>& src, od_int64 off );
@@ -105,7 +105,7 @@ protected:
 */
 
 template <class RT, class AT>
-class ArrayValueSeries : public ValueSeries<RT>
+mClass(Basic) ArrayValueSeries : public ValueSeries<RT>
 {
 public:
 
@@ -150,7 +150,7 @@ protected:
 */
 
 template <class RT, class AT>
-class MultiArrayValueSeries : public ValueSeries<RT>
+mClass(Basic) MultiArrayValueSeries : public ValueSeries<RT>
 {
 public:
     		MultiArrayValueSeries(od_int64);
@@ -189,7 +189,7 @@ protected:
 */
 
 template <class T>
-class ValueSeriesGetAll : public ParallelTask
+mClass(Basic) ValueSeriesGetAll : public ParallelTask
 {
 public:
 		ValueSeriesGetAll(const ValueSeries<T>& from,

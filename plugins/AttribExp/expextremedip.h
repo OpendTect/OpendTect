@@ -28,7 +28,7 @@ Outputs:
 #include <attribparamimpl.h>
 
 
-class ExtremeDipAttrib : public AttribCalc
+mClass(AttribExp) ExtremeDipAttrib : public AttribCalc
 {
 public:
     mAttrib1Param( ExtremeDipAttrib
@@ -82,10 +82,10 @@ protected:
 
     const AttribProcessCommonInfo*	common;
 
-    class Task : public AttribCalc::Task
+    mClass(AttribExp) Task : public AttribCalc::Task
     {
     public:
-	class Input : public AttribCalc::Task::Input
+	mClass(AttribExp) Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const ExtremeDipAttrib& calculator_ )

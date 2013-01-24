@@ -23,7 +23,7 @@ namespace Attrib
   Ties Max events to each other.
 */
 
-class MatchDelta : public Provider
+mClass(Attributes) MatchDelta : public Provider
 {
 public:
 

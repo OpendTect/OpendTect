@@ -25,7 +25,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class Smoother1D : public ParallelTask
+mClass(Algo) Smoother1D : public ParallelTask
 {
 public:
 

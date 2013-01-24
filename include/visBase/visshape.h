@@ -249,7 +249,7 @@ private:
 };
     
     
-class PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
+mClass(visBase) PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
 {
     Geometry::PrimitiveSet* doCreate( bool, bool );
 };

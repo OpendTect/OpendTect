@@ -48,7 +48,7 @@ locking in a multithreaded environment. Only available for long, unsigned long.
 */
 
 template <class T>
-class Atomic
+mClass(Basic) Atomic
 {
 public:
     		Atomic(T val=0);
@@ -96,7 +96,7 @@ casting from a void* to a T*.
 */
 
 template <class T>
-class AtomicPointer
+mClass(Basic) AtomicPointer
 {
 public:
     inline	AtomicPointer(T* newptr = 0);
@@ -290,6 +290,7 @@ protected:
 
 
 /*!
+\ingroup Basic
 \brief Is an object that is convenient to use when a mutex should be
 locked and unlocked automatically when returning.
 

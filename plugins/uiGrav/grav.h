@@ -22,7 +22,7 @@ extern const double G; //!< Newton's constant, in SI units (about 6.67e-11)
 double Bouguer(double h,double rho=1);
 
 
-class Block
+mClass(uiGrav) Block
 {
 public:
 

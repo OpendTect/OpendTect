@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 
 
-class GMTLocations : public GMTPar
+mClass(GMT) GMTLocations : public GMTPar
 {
 public:
 
@@ -37,7 +37,7 @@ protected:
 };
 
 
-class GMTPolyline : public GMTPar
+mClass(GMT) GMTPolyline : public GMTPar
 {
 public:
 
@@ -59,7 +59,7 @@ protected:
 };
 
 
-class GMTWells : public GMTPar
+mClass(GMT) GMTWells : public GMTPar
 {
 public:
 

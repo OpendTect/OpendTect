@@ -33,7 +33,7 @@ Output:
 #include <attribparamimpl.h>
 
     
-class DipViewAttrib : public AttribCalc
+mClass(AttribExp) DipViewAttrib : public AttribCalc
 {
 public:
     mAttrib1Param( DipViewAttrib
@@ -65,10 +65,10 @@ protected:
     BinID		aspect; //Inl = dip, crl=azimuth
     BufferString	desc;
 
-    class Task : public AttribCalc::Task
+    mClass(AttribExp) Task : public AttribCalc::Task
     {
     public:
-	class Input : public AttribCalc::Task::Input
+	mClass(AttribExp) Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const DipViewAttrib& calculator_ )

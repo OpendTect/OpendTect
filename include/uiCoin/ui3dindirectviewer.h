@@ -19,7 +19,7 @@ class GraphicsWindowIndirect;
 
 //Class used by ui3DViewer to render things indirectly
 
-class ui3DIndirectViewBody : public ui3DViewerBody
+mClass(uiCoin) ui3DIndirectViewBody : public ui3DViewerBody
 {
 public:
 				ui3DIndirectViewBody(ui3DViewer&,uiParent*);

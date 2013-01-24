@@ -22,7 +22,7 @@ class uiStepOutSel;
 
 /*! \brief Madagascar AGC Attribute description editor */
 
-class uiMadAGCAttrib : public uiAttrDescEd
+mClass(uiMadagascarAttribs) uiMadAGCAttrib : public uiAttrDescEd
 {
 public:
 

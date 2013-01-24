@@ -37,7 +37,7 @@ public:
 */
 
 template <class VT,class PT>
-class ValueSeriesEvent : public VSEvent
+mClass(Algo) ValueSeriesEvent : public VSEvent
 {
 public:
 
@@ -62,7 +62,7 @@ public:
 */
 
 template <class VT,class PT>
-class ValueSeriesEvFinder
+mClass(Algo) ValueSeriesEvFinder
 {
 public:
 				ValueSeriesEvFinder( const ValueSeries<VT>& v,

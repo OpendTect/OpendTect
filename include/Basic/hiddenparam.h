@@ -48,7 +48,7 @@ binary compability issues.
 */
 
 template <class O, class V>
-class HiddenParam 
+mClass(Basic) HiddenParam 
 {
 public:
     		HiddenParam( const V& def )

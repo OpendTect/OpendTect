@@ -18,7 +18,7 @@ ________________________________________________________________________
 class uiGenInput;
 class uiIOObjSel;
 
-class uiGMTClipGrp : public uiGMTOverlayGrp
+mClass(uiGMT) uiGMTClipGrp : public uiGMTOverlayGrp
 {
 public:
 

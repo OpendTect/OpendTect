@@ -28,7 +28,7 @@ Outputs:
 #include <attribparamimpl.h>
 
 
-class GradientDipAttrib : public AttribCalc
+mClass(AttribExp) GradientDipAttrib : public AttribCalc
 {
 public:
     mAttrib1Param( GradientDipAttrib
@@ -83,10 +83,10 @@ protected:
     int 			sz;
     const AttribProcessCommonInfo*	common;
 
-    class Task : public AttribCalc::Task
+    mClass(AttribExp) Task : public AttribCalc::Task
     {
     public:
-	class Input : public AttribCalc::Task::Input
+	mClass(AttribExp) Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const GradientDipAttrib& calculator_ )

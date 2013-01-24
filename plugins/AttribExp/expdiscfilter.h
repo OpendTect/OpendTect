@@ -62,7 +62,7 @@ Outputs:
 #define mDiscFilterNrVals	7
 
 
-class DiscFilterAttrib : public AttribCalc
+mClass(AttribExp) DiscFilterAttrib : public AttribCalc
 {
 public:
     mAttrib5Param( DiscFilterAttrib
@@ -154,10 +154,10 @@ protected:
     bool 			fast;
     const AttribProcessCommonInfo*	common;
 
-    class Task : public AttribCalc::Task
+    mClass(AttribExp) Task : public AttribCalc::Task
     {
     public:
-	class Input : public AttribCalc::Task::Input
+	mClass(AttribExp) Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const DiscFilterAttrib& calculator_ )

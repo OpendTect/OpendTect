@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 /*!\brief Surface info name/attribname with an ID (usually the EM-ID). */
 
-class SurfaceInfo
+mClass(General) SurfaceInfo
 {
 public:
 		   	 SurfaceInfo( const char* nm, MultiID mi, int vi=-1, 

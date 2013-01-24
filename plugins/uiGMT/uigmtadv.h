@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiLineEdit;
 
-class uiGMTAdvGrp : public uiGMTOverlayGrp
+mClass(uiGMT) uiGMTAdvGrp : public uiGMTOverlayGrp
 {
 public:
 

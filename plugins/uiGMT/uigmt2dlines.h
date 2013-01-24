@@ -22,7 +22,7 @@ class uiSeisSel;
 class uiSelLineStyle;
 class uiSpinBox;
 
-class uiGMT2DLinesGrp : public uiGMTOverlayGrp
+mClass(uiGMT) uiGMT2DLinesGrp : public uiGMTOverlayGrp
 {
 public:
 
