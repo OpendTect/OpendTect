@@ -35,8 +35,12 @@ static std::ostream* dbglogstrm = 0;
 bool dbgIsUdf( float val )
 {
     if ( !Math::IsNormalNumber(val) )
-    { if ( !DBG::hideNaNMessage() ) pFreeFnErrMsg("Bad fp value found","dbgIsUdf(f)");
-			     return true; }
+    {
+	if ( !DBG::hideNaNMessage() )
+	    pFreeFnErrMsg("Bad fp value found","dbgIsUdf(f)");
+	return true;
+    }
+    
     return Values::isUdf( val );
 }
 
@@ -44,8 +48,12 @@ bool dbgIsUdf( float val )
 bool dbgIsUdf( double val )
 {
     if ( !Math::IsNormalNumber(val) )
-    { if ( !DBG::hideNaNMessage() ) pFreeFnErrMsg("Bad fp value found","dbgIsUdf(d)");
-			     return true; }
+    {
+	if ( !DBG::hideNaNMessage() )
+	    pFreeFnErrMsg("Bad fp value found","dbgIsUdf(d)");
+	return true;
+    }
+    
     return Values::isUdf( val );
 }
 
