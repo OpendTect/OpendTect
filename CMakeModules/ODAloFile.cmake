@@ -18,55 +18,57 @@
 # OD_ALO_FILE_EXECS_${OD_ALO_NAME}}	: list of executables (od_main ...)
 # OD_OD_ALO_FILE_ENTRIES_${EXEC}	: list of deps for each executable
 
-MACRO( OD_ADD_ALO_ENTRIES )
+macro( OD_ADD_ALO_ENTRIES )
     #Add OD_ALO_NAME to list 
-    LIST( FIND OD_ALO_NAMES ${OD_ALO_NAME} INDEX )
-    IF( ${INDEX} EQUAL -1 )
-	SET ( OD_ALO_NAMES ${OD_ALO_NAMES} ${OD_ALO_NAME} )
-	SET ( OD_ALO_NAMES ${OD_ALO_NAMES} ${OD_ALO_NAME} PARENT_SCOPE )
-    ENDIF()
+    list( FIND OD_ALO_NAMES ${OD_ALO_NAME} INDEX )
+    if( ${INDEX} EQUAL -1 )
+	set ( OD_ALO_NAMES ${OD_ALO_NAMES} ${OD_ALO_NAME} )
+	set ( OD_ALO_NAMES ${OD_ALO_NAMES} ${OD_ALO_NAME} PARENT_SCOPE )
+    endif()
 
-    FOREACH( EXEC ${ARGV} )
+    foreach( EXEC ${ARGV} )
 	#Add EXEC to list of execs
-	LIST( FIND OD_ALO_FILE_EXECS_${OD_ALO_NAME} ${EXEC} INDEX )
-	IF( ${INDEX} EQUAL -1 )
-	    SET ( OD_ALO_FILE_EXECS_${OD_ALO_NAME} ${OD_ALO_FILE_EXECS_${OD_ALO_NAME}} ${EXEC} )
-	    SET ( OD_ALO_FILE_EXECS_${OD_ALO_NAME} ${OD_ALO_FILE_EXECS_${OD_ALO_NAME}} ${EXEC} PARENT_SCOPE )
-	ENDIF()
+	list( FIND OD_ALO_FILE_EXECS_${OD_ALO_NAME} ${EXEC} INDEX )
+	if( ${INDEX} EQUAL -1 )
+	    set ( OD_ALO_FILE_EXECS_${OD_ALO_NAME}
+		  ${OD_ALO_FILE_EXECS_${OD_ALO_NAME}} ${EXEC} )
+	    set ( OD_ALO_FILE_EXECS_${OD_ALO_NAME}
+		  ${OD_ALO_FILE_EXECS_${OD_ALO_NAME}} ${EXEC} PARENT_SCOPE )
+	endif()
 
-	IF ( EXEC STREQUAL ${OD_MAIN_EXEC}) 
-	    SET( EXEC_IS_MAIN 1 )
-	ELSE()
-	    SET( EXEC_IS_MAIN 0 )
-	ENDIF()
+	if ( EXEC STREQUAL ${OD_MAIN_EXEC}) 
+	    set( EXEC_IS_MAIN 1 )
+	else()
+	    set( EXEC_IS_MAIN 0 )
+	endif()
 
 	#Add all dependencies to alo-entry
-	FOREACH( DEP ${OD_MODULE_INTERNAL_LIBS} )
-	    LIST ( FIND OD_CORE_MODULE_NAMES_${OD_CORE_SUBSYSTEM} ${DEP} INDEX )
-	    IF ( ${INDEX} EQUAL -1 OR ${EXEC_IS_MAIN} EQUAL 0 )
+	foreach( DEP ${OD_MODULE_INTERNAL_LIBS} )
+	    list ( FIND OD_CORE_MODULE_NAMES_${OD_CORE_SUBSYSTEM} ${DEP} INDEX )
+	    if ( ${INDEX} EQUAL -1 OR ${EXEC_IS_MAIN} EQUAL 0 )
 		#Check that it is not already in the list
-		LIST( FIND OD_ALO_FILE_ENTRIES_${EXEC} ${DEP} INDEX )
-		IF( ${INDEX} EQUAL -1 )
-		    SET ( OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}
+		list( FIND OD_ALO_FILE_ENTRIES_${EXEC} ${DEP} INDEX )
+		if( ${INDEX} EQUAL -1 )
+		    set ( OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}
 			  ${OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}} ${DEP} )
-		ENDIF()
-	    ENDIF()
-        ENDFOREACH()
+		endif()
+	    endif()
+        endforeach()
 
 	#Check if that noone has added this before 
-	LIST( FIND OD_ALO_FILE_ENTRIES_${EXEC} ${OD_MODULE_NAME} INDEX )
-	IF( ${INDEX} EQUAL -1 )
-	    SET ( OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}
-		${OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}} ${OD_MODULE_NAME} )
-	ENDIF()
+	list( FIND OD_ALO_FILE_ENTRIES_${EXEC} ${OD_MODULE_NAME} INDEX )
+	if( ${INDEX} EQUAL -1 )
+	    set ( OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}
+		${OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}} ${OD_MODULE_NAME})
+	endif()
 
-	SET ( OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}
+	set ( OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}
 	  ${OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}} )
-	SET ( OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}
+	set ( OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}
 	  ${OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}} PARENT_SCOPE )
-    ENDFOREACH()
+    endforeach()
 
-ENDMACRO()
+endmacro()
 
 # OD_WRITE_ALOFILES - Writes all alo-entries to alo-files
 #
@@ -76,19 +78,19 @@ ENDMACRO()
 # OD_ALO_FILE_EXECS_${OD_ALO_NAME}}	: list of executables (od_main ...)
 # OD_OD_ALO_FILE_ENTRIES_${EXEC}	: list of deps for each executable
 
-MACRO ( OD_WRITE_ALOFILES BASEDIR )
-    FOREACH( OD_ALO_NAME ${OD_ALO_NAMES} )
-	FOREACH( EXEC ${OD_ALO_FILE_EXECS_${OD_ALO_NAME}} )
-	    SET ( OD_ALOFILE ${BASEDIR}/${EXEC}.${OD_ALO_NAME}.alo )
-	    SET ( FIRST 1 )
-	    FOREACH( ENTRY ${OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}} )
-		IF ( FIRST )
-		    FILE( WRITE ${OD_ALOFILE} ${ENTRY} "\n" )
-		    SET ( FIRST )
-		ELSE()
-		    FILE( APPEND ${OD_ALOFILE} ${ENTRY} "\n" )
-		ENDIF()
-	    ENDFOREACH()
-	ENDFOREACH()
-    ENDFOREACH()
-ENDMACRO()
+macro ( OD_WRITE_ALOFILES BASEDIR )
+    foreach( OD_ALO_NAME ${OD_ALO_NAMES} )
+	foreach( EXEC ${OD_ALO_FILE_EXECS_${OD_ALO_NAME}} )
+	    set ( OD_ALOFILE ${BASEDIR}/${EXEC}.${OD_ALO_NAME}.alo )
+	    set ( FIRST 1 )
+	    foreach( ENTRY ${OD_ALO_FILE_ENTRIES_${OD_ALO_NAME}_${EXEC}} )
+		if ( FIRST )
+		    file( WRITE ${OD_ALOFILE} ${ENTRY} "\n" )
+		    set ( FIRST )
+		else()
+		    file( APPEND ${OD_ALOFILE} ${ENTRY} "\n" )
+		endif()
+	    endforeach()
+	endforeach()
+    endforeach()
+endmacro()
