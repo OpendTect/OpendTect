@@ -14,11 +14,14 @@ ________________________________________________________________________
 
 #include "nlamod.h"
 #include "nladesign.h"
+
 class BinIDValueSet;
 class PosVecDataSet;
 template <class T> class Interval;
 
-/*\brief Prepare data for usage in NLA training */
+/*!
+\brief Prepare data for usage in NLA training.
+*/
 
 mExpClass(NLA) NLADataPreparer
 {

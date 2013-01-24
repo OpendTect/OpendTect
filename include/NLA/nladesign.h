@@ -16,14 +16,14 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 
-/*!\brief Simple description of NLA design, viewed from user's perspective.
+/*!
+\brief Simple description of NLA design, viewed from user's perspective.
 
-Note: Currently NN only.
-If hiddensz == 0, it will be set to nrinputs / 3, with a minimum of 3.
-If nr of outputs == 0, unsupervised network will be assumed. That means the
-actual nr of output nodes is 2 (segment and match). If classification is true,
-two extra output nodes will be added ('Classification' and 'Confidence').
-
+  Note: Currently NN only.
+  If hiddensz == 0, it will be set to nrinputs / 3, with a minimum of 3.
+  If nr of outputs == 0, unsupervised network will be assumed. That means the
+  actual nr of output nodes is 2 (segment and match). If classification is true,
+  two extra output nodes will be added ('Classification' and 'Confidence').
 */
 
 mExpClass(NLA) NLADesign
