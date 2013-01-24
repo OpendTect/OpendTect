@@ -5,9 +5,8 @@
 #RCS:           $Id$
 
 INCLUDE( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
-download_packages()
-IF( APPLE )
-#prepare mac doc packages
+IF( UNIX )
+    download_packages()
 ENDIF()
 
 SET( DOCPACKAGES doc dgbdoc )
@@ -29,7 +28,9 @@ foreach ( PACKAGE ${DOCPACKAGES} )
 	ENDIF()
     ENDIF()
 
-    init_destinationdir( ${PACK} )
-    create_docpackages( ${PACK} )
+    IF( UNIX )
+	init_destinationdir( ${PACK} )
+	create_docpackages( ${PACK} )
+    ENDIF()
 endforeach()
 MESSAGE( "\n Created doc packages are available under ${PSD}/packages" )

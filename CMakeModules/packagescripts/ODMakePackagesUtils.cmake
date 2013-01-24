@@ -338,7 +338,7 @@ macro( od_sign_libs )
 endmacro( od_sign_libs )
 
 macro( download_packages  )
-message( "downloading doc pkgs" )
+    message( "downloading doc pkgs" )
     SET ( DOCNAMES appman workflows user dgb )
     FOREACH( DOCNAME ${DOCNAMES} )
 	SET( url "http://intranet/documentations/rel/" )
@@ -374,38 +374,42 @@ message( "downloading doc pkgs" )
 endmacro( download_packages )
 
 macro( create_docpackages PACKAGE_NAME )
-    IF( ${PACKAGE_NAME} STREQUAL "doc" )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${CMAKE_INSTALL_PREFIX}/doc/SysAdm
-			 ${DESTINATION_DIR}/doc/SysAdm )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${CMAKE_INSTALL_PREFIX}/doc/Scripts
-			 ${DESTINATION_DIR}/doc/Scripts )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${CMAKE_INSTALL_PREFIX}/doc/workflows
-			 ${DESTINATION_DIR}/doc/User/workflows )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${CMAKE_INSTALL_PREFIX}/doc/base
-			 ${DESTINATION_DIR}/doc/User/base )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${PSD}/doc/Credits/base
-			 ${DESTINATION_DIR}/doc/Credits/base )
-    ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
-        SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${PSD}/../${dgbdir}/doc/Credits/dgb
-			 ${DESTINATION_DIR}/doc/Credits/dgb )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${CMAKE_INSTALL_PREFIX}/doc/dgb
-			 ${DESTINATION_DIR}/doc/User/dgb )
-	FILE( GLOB FILES ${PSD}/doc/flexnet* )
-	FOREACH( FIL ${FILES} )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FIL} ${DESTINATION_DIR}/doc )
-	ENDFOREACH()
-    ENDIF()
-    execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
-			     WORKING_DIRECTORY ${PACKAGE_DIR}
-			     RESULT_VARIABLE STATUS )
+    IF( WIN32 )
+	MESSAGE( "Documentation on windows platform is not implemented" )
+    ELSE()
+	IF( ${PACKAGE_NAME} STREQUAL "doc" )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${CMAKE_INSTALL_PREFIX}/doc/SysAdm
+			     ${DESTINATION_DIR}/doc/SysAdm )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${CMAKE_INSTALL_PREFIX}/doc/Scripts
+			     ${DESTINATION_DIR}/doc/Scripts )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${CMAKE_INSTALL_PREFIX}/doc/workflows
+			     ${DESTINATION_DIR}/doc/User/workflows )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${CMAKE_INSTALL_PREFIX}/doc/base
+			     ${DESTINATION_DIR}/doc/User/base )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${PSD}/doc/Credits/base
+			     ${DESTINATION_DIR}/doc/Credits/base )
+	ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
+	    SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${PSD}/../${dgbdir}/doc/Credits/dgb
+			     ${DESTINATION_DIR}/doc/Credits/dgb )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${CMAKE_INSTALL_PREFIX}/doc/dgb
+			     ${DESTINATION_DIR}/doc/User/dgb )
+	    FILE( GLOB FILES ${PSD}/doc/flexnet* )
+	    FOREACH( FIL ${FILES} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FIL} ${DESTINATION_DIR}/doc )
+	    ENDFOREACH()
+	ENDIF()
+	execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
+				 WORKING_DIRECTORY ${PACKAGE_DIR}
+				 RESULT_VARIABLE STATUS )
+	ENDIF()
 endmacro( create_docpackages )
 
 #--------------------------------------------------------------
