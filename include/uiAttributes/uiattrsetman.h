@@ -17,8 +17,8 @@ ________________________________________________________________________
 
 class uiButton;
 
-/*! \brief
-AttributeSet manager
+/*!
+\brief AttributeSet Manager
 */
 
 mExpClass(uiAttributes) uiAttrSetMan : public uiObjFileMan
