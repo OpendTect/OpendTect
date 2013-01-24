@@ -1,4 +1,3 @@
-
 #ifndef uiautoattrdescset_h
 #define uiautoattrdescset_h
 
@@ -29,8 +28,9 @@ class CtxtIOObj;
 class IOObj;
 
 
-/*! \brief class for selecting Auto-load Attribute Set  */
-
+/*!
+\brief Class for selecting Auto-load Attribute Set.
+*/
 
 mExpClass(uiAttributes) uiAutoAttrSelDlg : public uiDialog
 {
