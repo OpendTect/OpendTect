@@ -13,8 +13,8 @@ SET( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs
 
 INCLUDE( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
-IF( APPLE )
-    od_sign_maclibs()
+IF( APPLE OR WIN32 )
+    od_sign_libs()
 ENDIF()
 
 foreach ( BASEPACKAGE ${BASEPACKAGES} )

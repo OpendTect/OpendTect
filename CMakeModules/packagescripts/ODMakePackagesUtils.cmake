@@ -308,7 +308,7 @@ macro( create_develpackages )
 endmacro( create_develpackages )
 
 
-macro( od_sign_maclibs )
+macro( od_sign_libs )
     IF( APPLE )
 	MESSAGE( "Signing mac libs..." )
 	SET ( SIGN_ID "Developer ID Application: DGB-Earth Sciences B. V." )
@@ -317,12 +317,25 @@ macro( od_sign_maclibs )
 	    execute_process( COMMAND  codesign -f -s ${SIGN_ID} ${FIL}
 			     RESULT_VARIABLE STATUS )
 	    IF( NOT STATUS EQUAL "0" )
-		message("Failed")
+		message("Failed while signing mac libs")
 	    ENDIF()
 	ENDFOREACH()
+    ELSEIF( WIN32 )
+        SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+	SET( SIGNLIBS dgb_verisign_certificate_2012.pfx signtool.exe sign.bat )
+	FOREACH( SLIB ${SIGNLIBS} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				     ${PSD}/../${dgbdir}/bin/win32/${SLIB}
+				     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR} )
+	ENDFOREACH()
+	execute_process( COMMAND ./${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/sign.bat
+				 RESULT_VARIABLE STATUS )
+	IF( NOT STATUS EQUAL "0" )
+	    message("Failed while signing windows libs")
+	ENDIF()
     ENDIF()
     MESSAGE( "Done" )
-endmacro( od_sign_maclibs )
+endmacro( od_sign_libs )
 
 macro( download_packages  )
 message( "downloading doc pkgs" )
