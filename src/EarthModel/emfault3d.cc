@@ -224,6 +224,33 @@ bool Fault3DGeometry::areSticksVertical( const SectionID& sid ) const
 }
 
 
+#define mEps 1e-3
+bool Fault3DGeometry::areEditPlanesMostlyCrossline() const
+{
+    int nrcrls=0, nrnoncrls=0;
+    const Coord crldir = SI().binID2Coord().colDir().normalize();
+    for ( int sidx=0; sidx<nrSections(); sidx++ )
+    {	
+	const EM::SectionID sid = sectionID( sidx );
+	const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
+	if ( !fss ) continue;
+
+	StepInterval<int> stickrg = fss->rowRange();
+	for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
+	{
+	    const Coord3& normal = fss->getEditPlaneNormal( sticknr );
+	    if ( fabs(normal.z) < 0.5 && mIsEqual(normal.x,crldir.x,mEps)
+		    		      && mIsEqual(normal.y,crldir.y,mEps) )
+		nrcrls++;
+	    else
+		nrnoncrls++;
+	}
+    }
+
+    return nrcrls > nrnoncrls;
+}
+
+
 bool Fault3DGeometry::removeKnot( const SectionID& sid, const SubID& subid,
 				bool addtohistory )
 {

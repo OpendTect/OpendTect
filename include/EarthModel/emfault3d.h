@@ -53,6 +53,7 @@ public:
 	    			   bool addtohistory);
     
     bool		areSticksVertical(const SectionID&) const;
+    bool		areEditPlanesMostlyCrossline() const;
 
     Geometry::FaultStickSurface*
 			sectionGeometry(const SectionID&);
