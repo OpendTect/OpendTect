@@ -27,7 +27,7 @@ namespace PreStack { class Gather; }
 namespace PreStackView
 {
 
-mClass(uiPreStackProcessing) Viewer2DGatherPainter
+mExpClass(uiPreStackProcessing) Viewer2DGatherPainter
 {
 public:
     				Viewer2DGatherPainter(FlatView::Viewer&);

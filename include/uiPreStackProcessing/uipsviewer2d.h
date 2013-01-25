@@ -26,7 +26,7 @@ namespace PreStackView
     class Viewer2DGatherPainter;
     class uiViewer2DAxisPainter;
 
-mClass(uiPreStackProcessing) uiGatherDisplay : public uiGroup
+mExpClass(uiPreStackProcessing) uiGatherDisplay : public uiGroup
 {
 public:
     				uiGatherDisplay(uiParent*);
@@ -69,7 +69,7 @@ protected:
 
 
 
-mClass(uiPreStackProcessing) uiViewer2D : public uiObjectItemView
+mExpClass(uiPreStackProcessing) uiViewer2D : public uiObjectItemView
 {
 public: 
 				uiViewer2D(uiParent*);

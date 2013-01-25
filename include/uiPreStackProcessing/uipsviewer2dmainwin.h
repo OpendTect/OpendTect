@@ -31,7 +31,7 @@ namespace PreStackView
     class uiGatherDisplay;
     class uiGatherDisplayInfoHeader;
 
-mClass(uiPreStackProcessing) uiViewer2DMainWin : public uiObjectItemViewWin, public uiFlatViewWin
+mExpClass(uiPreStackProcessing) uiViewer2DMainWin : public uiObjectItemViewWin, public uiFlatViewWin
 {
 public:    
 			uiViewer2DMainWin(uiParent*,const char* title);
@@ -74,7 +74,7 @@ protected:
 };
 
 
-mClass(uiPreStackProcessing) uiStoredViewer2DMainWin : public uiViewer2DMainWin
+mExpClass(uiPreStackProcessing) uiStoredViewer2DMainWin : public uiViewer2DMainWin
 {
 public:
 			uiStoredViewer2DMainWin(uiParent*,const char* title);
@@ -108,7 +108,7 @@ mStruct(uiPreStackProcessing) GatherInfo
     { return gathernm_==info.gathernm_ && bid_==info.bid_; }
 };
 
-mClass(uiPreStackProcessing) uiSyntheticViewer2DMainWin : public uiViewer2DMainWin
+mExpClass(uiPreStackProcessing) uiSyntheticViewer2DMainWin : public uiViewer2DMainWin
 {
 public:
     			uiSyntheticViewer2DMainWin(uiParent*,const char* title);
