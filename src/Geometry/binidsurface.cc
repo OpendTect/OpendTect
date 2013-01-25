@@ -278,9 +278,52 @@ bool BinIDSurface::removeCol( int start, int stop )
 }
 
 
+StepInterval<int> BinIDSurface::rowRange() const
+{
+    return ParametricSurface::rowRange();
+}
+
+
 StepInterval<int> BinIDSurface::colRange() const
 {
     return ParametricSurface::colRange();
+}
+
+
+StepInterval<int> BinIDSurface::rowRange( int col ) const
+{
+    StepInterval<int> ret( mUdf(int), mUdf(int), step_.row );
+    const int colidx = colIndex( col );
+    if ( colidx < 0  || !depths_ || colidx >= depths_->info().getSize(1) )
+	return ret;
+
+    int startidx = -1, stopidx = -1;
+    for ( int idx=0; idx<depths_->info().getSize(0); idx++ )
+    {
+	if ( !mIsUdf(depths_->get(idx,colidx)) )
+	{
+	    startidx = idx;
+	    break;
+	}
+
+    }
+
+    if ( startidx < 0 )
+	return ret;
+
+    for ( int idx=depths_->info().getSize(0)-1; idx>=0; idx-- )
+    {
+	if ( !mIsUdf(depths_->get(idx,colidx)) )
+	{
+	    stopidx = idx;
+	    break;
+	}
+
+    }
+
+    ret.start = origin_.row + startidx * step_.row;
+    ret.stop = origin_.row + stopidx * step_.row;
+    return ret;
 }
 
 

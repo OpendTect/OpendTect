@@ -38,6 +38,7 @@ public:
     virtual bool	removeCol(int startcol,int stoprcol) { return false; }
 
     virtual StepInterval<int>	rowRange() const;
+    virtual StepInterval<int>	rowRange(int col) const;
     virtual StepInterval<int>	colRange(int row) const;
     virtual StepInterval<int>	colRange() const;
 

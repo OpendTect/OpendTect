@@ -51,6 +51,8 @@ public:
     bool		removeRow(int,int);
     bool		removeCol(int,int);
 
+    StepInterval<int>	rowRange() const;
+    StepInterval<int>	rowRange(int col) const;
     StepInterval<int>	colRange() const;
     StepInterval<int>	colRange(int row) const;
 

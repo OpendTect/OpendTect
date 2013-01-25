@@ -51,6 +51,10 @@ StepInterval<int> ParametricSurface::rowRange() const
 }
 
 
+StepInterval<int> ParametricSurface::rowRange(int) const
+{ return rowRange(); }
+
+
 StepInterval<int> ParametricSurface::colRange() const
 {
     return StepInterval<int>( origin_.col, origin_.col+(nrCols()-1)*step_.col,
