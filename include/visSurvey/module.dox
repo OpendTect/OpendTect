@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 /*!
 \defgroup visSurvey visSurvey
-\section Introduction Introduction
 
   3D Visualisation - OpendTect specific
 
@@ -20,7 +19,5 @@ ________________________________________________________________________
   functions in these classes deal with the geometry or position of the object, 
   as well as handling new data and information about the attribute 
   displayed.
-
-\section Content Content
 
 */
