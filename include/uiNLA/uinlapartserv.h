@@ -24,14 +24,11 @@ class uiDataPointSet;
 class PosVecDataSet;
 class NLACreationDesc;
 
-
 /*!
-\ingroup uiNLA
-\brief Service provider for application level - Non-Linear Analysis
+\brief Service provider for application level - Non-Linear Analysis.
 
-Will pop up the an NLA manage window on go(). If go() returns true, the user
-will expect that go() to be called again.
-
+  Will pop up the an NLA manage window on go(). If go() returns true, the user
+  will expect that go() to be called again.
 */
 
 mExpClass(uiNLA) uiNLAPartServer : public uiApplPartServer
