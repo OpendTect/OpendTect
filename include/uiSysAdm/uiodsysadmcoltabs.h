@@ -17,6 +17,9 @@ ________________________________________________________________________
 
 class uiListBox;
 
+/*!
+\brief User interface for OpendTect sysadm color tabs.
+*/
 
 mExpClass(uiSysAdm) uiODSysAdmColorTabs : public uiDialog
 {
