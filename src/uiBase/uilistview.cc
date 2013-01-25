@@ -244,7 +244,7 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     , column_(0)
     , parent_(p)
 {
-    mouseButtonClicked.notify( mCB(this,uiListView,cursorSelectionChanged) );
+    itemChanged.notify( mCB(this,uiListView,cursorSelectionChanged) );
     setRootDecorated( dec );
 }
 
@@ -258,13 +258,13 @@ uiListView::~uiListView()
 
 void uiListView::cursorSelectionChanged( CallBacker* )
 {
-    uiListViewItem* itm = selectedItem();
+    uiListViewItem* itm = lastitemnotified_;
     if ( !itm ) return;
 
     const bool needstrigger = waschecked.getParam(itm) != itm->isChecked();
     if ( needstrigger )
     {
-	selectedItem()->stateChanged.trigger();
+	itm->stateChanged.trigger();
 	waschecked.setParam( itm, itm->isChecked() );
     }
 }
