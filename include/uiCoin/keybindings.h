@@ -14,16 +14,16 @@ ________________________________________________________________________
 
 #include "uicoinmod.h"
 #include "bufstringset.h"
+
 class SoMouseButtonEvent;
 class SoEvent;
 
-/*! \brief Class for setting keybindings.
+/*!
+\brief Class for setting keybindings.
 
-Each binding is a BufferString. This string contains the several keys 
-separated by a `.  e.g. zoom = "Left`Control"
-
+  Each binding is a BufferString. This string contains the several keys 
+  separated by a `.  e.g. zoom = "Left`Control"
 */
-
 
 mExpClass(uiCoin) KeyBindings
 {
@@ -52,6 +52,10 @@ public:
 };
 
 
+/*!
+\brief Event button.
+*/
+
 mExpClass(uiCoin) EventButton
 {
 public:
@@ -61,6 +65,10 @@ public:
     BufferString                keybut;
 };
 
+
+/*!
+\brief Manages keybindings.
+*/
 
 mExpClass(uiCoin) KeyBindMan
 {

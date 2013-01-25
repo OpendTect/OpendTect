@@ -28,7 +28,9 @@ namespace osg
 }
 
 
-//!Baseclass for different body implementation (direct & indirect) of OSG
+/*!
+\brief Base class for different body implementation (direct & indirect) of OSG.
+*/
 
 mClass(uiCoin) ui3DViewerBody : public uiObjectBody
 {

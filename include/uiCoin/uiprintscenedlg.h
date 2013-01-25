@@ -19,6 +19,10 @@ class uiGenInput;
 class uiLabeledComboBox;
 class ui3DViewer;
 
+/*!
+\brief Print scene dialog box.
+*/
+
 mExpClass(uiCoin) uiPrintSceneDlg : public uiSaveImageDlg
 {
 public:

@@ -17,6 +17,10 @@ ________________________________________________________________________
 
 class uiThumbWheelBody;
 
+/*!
+\brief Thumb wheel
+*/
+
 mExpClass(uiCoin) uiThumbWheel : public uiObject
 {
 friend class		i_ThumbWheelMessenger;
@@ -42,6 +46,7 @@ public:
     Notifier<uiThumbWheel> wheelReleased;
 
 protected:
+
     float               lastmv;
 
 private:

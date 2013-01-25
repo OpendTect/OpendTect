@@ -21,10 +21,11 @@ QT_BEGIN_NAMESPACE
 
 class QString;
 
-//! Helper class for uiThumbWheel to relay Qt's messages.
-/*!
-    Internal object, to hide Qt's signal/slot mechanism.
+/*! 
+\brief Helper class for uiThumbWheel to relay Qt's messages. Internal object,
+to hide Qt's signal/slot mechanism.
 */
+
 class i_ThumbWheelMessenger : public QObject 
 {
     Q_OBJECT

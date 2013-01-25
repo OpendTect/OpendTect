@@ -27,6 +27,10 @@ class SoNode;
 
 namespace visBase { class Scene; };
 
+/*!
+\brief User interface for 3D viewer.
+*/
+
 mExpClass(uiCoin) ui3DViewer : public uiObject
 {
 friend class		uiSoViewerBody;

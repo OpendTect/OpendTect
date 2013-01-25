@@ -17,12 +17,12 @@ ________________________________________________________________________
 
 namespace osgViewer { class CompositeViewer; class View; }
 
-
 class uiOsgViewer;
 
-/*! All OSG based views must be coordinated by a viewer. That is
-    arranged by storing the osgViewer::View in this class, which
-    takes care of the rest. */
+/*!
+\brief All OSG based views must be coordinated by a viewer. That is arranged by
+storing the osgViewer::View in this class, which takes care of the rest.
+*/
 
 mExpClass(uiCoin) uiOsgViewHandle
 {
@@ -37,6 +37,7 @@ public:
 
 protected:
     uiOsgViewer*			viewer_;
+
 private:
     osgViewer::View*			osgview_;
 };
