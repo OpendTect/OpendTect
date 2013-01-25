@@ -65,6 +65,7 @@ SET( LMHOSTID lmhostid)
 IF( WIN32 )
     install ( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/win/unzip.exe DESTINATION
 	      ${CMAKE_INSTALL_PREFIX}/${OD_EXEC_OUTPUT_RELPATH} )
+    INSTALL( PROGRAMS "C:/Program\ Files \(x86\)/Microsoft\ SDKs/Windows/v7.0A/Bin/signtool.exe" DESTINATION ${CMAKE_INSTALL_PREFIX}/${OD_EXEC_OUTPUT_RELPATH} )
     SET( QJPEG ${QTDIR}/plugins/imageformats/qjpeg4.dll )
     IF( ${OD_PLFSUBDIR} STREQUAL "win32" )
 #	SET( MSVCPATH "C:/Program\ Files/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x86/Microsoft.VC100.CRT" )
