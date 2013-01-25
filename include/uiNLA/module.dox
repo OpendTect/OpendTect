@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiNLA uiNLA
-\section Introduction Introduction
 
   Non-Linear Analysis User Interface
 
@@ -24,8 +23,6 @@ ________________________________________________________________________
   Without this small sacrifice I don't think OpendTect would have ever started.
   We tried to keep the interface as general as possible, though. So it's very
   well possible and feasible to make your own special analysis module.
-
-\section Content Content
 
 */
 
