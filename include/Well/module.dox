@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 /*!
 \defgroup Well Well
-\section Introduction Introduction
 
   The OpendTect Well object is a single track, logs and markers bearing thing
   with some global data and possibly a Depth vs Time model attached.
@@ -29,7 +28,5 @@ ________________________________________________________________________
 
   Further it seems to me that anyone familiar with wells, logs and that kind of
   concepts should find this module's object model fairly intuitive.
-
-\section Content Content
 
 */
