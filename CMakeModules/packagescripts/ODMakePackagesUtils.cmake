@@ -333,7 +333,8 @@ macro( od_sign_libs )
 				     ${PSD}/../${dgbdir}/bin/win32/${SLIB}
 				     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR} )
 	ENDFOREACH()
-	execute_process( COMMAND ./${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/sign.bat
+	execute_process( COMMAND ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/sign.bat
+		WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
 				 RESULT_VARIABLE STATUS )
 	IF( NOT STATUS EQUAL "0" )
 	    message("Failed while signing windows libs")
