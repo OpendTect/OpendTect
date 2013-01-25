@@ -142,6 +142,7 @@ macro( create_basepackages PACKAGE_NAME )
    IF( EXISTS ${DESTINATION_DIR}/Contents )
 	FILE( REMOVE_RECURSE ${DESTINATION_DIR}/Contents )
    ENDIF()
+   SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
    IF( ${PACKAGE_NAME} STREQUAL "basedata" )
        FOREACH( LIBS ${LIBLIST} )
 	    FILE( GLOB DATAFILES ${CMAKE_INSTALL_PREFIX}/data/${LIBS} )
@@ -156,6 +157,8 @@ macro( create_basepackages PACKAGE_NAME )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${CMAKE_INSTALL_PREFIX}/relinfo/README.txt
 			 ${DESTINATION_DIR}/relinfo )
+	FILE( INSTALL DESTINATION ${DESTINATION_DIR}/doc/User/base
+		      TYPE FILES ${PSD}/../${dgbdir}/doc/User/base/WindowLinkTable.txt )
    ENDIF()
    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
        FOREACH( LIB ${LIBLIST} )
@@ -167,6 +170,8 @@ macro( create_basepackages PACKAGE_NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${CMAKE_INSTALL_PREFIX}/data/${LIB}
 			     ${DESTINATION_DIR}/data/${LIB} )
+	    FILE( INSTALL DESTINATION ${DESTINATION_DIR}/doc/User/base
+			  TYPE FILES ${PSD}/../${dgbdir}/doc/User/base/WindowLinkTable.txt )
 	  ENDIF()
        ENDFOREACH()
    ENDIF()
@@ -322,7 +327,7 @@ macro( od_sign_libs )
 	ENDFOREACH()
     ELSEIF( WIN32 )
         SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
-	SET( SIGNLIBS dgb_verisign_certificate_2012.pfx signtool.exe sign.bat )
+	SET( SIGNLIBS dgb_verisign_certificate_2012.pfx sign.bat )
 	FOREACH( SLIB ${SIGNLIBS} )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				     ${PSD}/../${dgbdir}/bin/win32/${SLIB}
