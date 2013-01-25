@@ -23,7 +23,7 @@ uiODSysAdm& ODSysAdmMainWin();
 //!< Top-level access
 
 /*!
-\brief OpendTect sysadm application top level object.
+\brief OpendTect System Administration application top level object.
 */
 
 mExpClass(uiSysAdm) uiODSysAdm : public uiDialog
