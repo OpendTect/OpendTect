@@ -70,7 +70,7 @@ uiProcSettings::uiProcSettings( uiParent* p )
 bool uiProcSettings::acceptOK( CallBacker* )
 {
     Settings::common().set( sKeyNrInlJob, nrinlfld_->getIntValue() );
-    Settings::common().set( sKeyClusterProc, clusterfld_->getBoolValue() );
+    Settings::common().setYN( sKeyClusterProc, clusterfld_->getBoolValue() );
     Settings::common().write( false );
     return true;
 }
