@@ -365,12 +365,16 @@ void uiAttrSelDlg::filtChg( CallBacker* c )
 {
     if ( !storoutfld_ || !filtfld_ ) return;
 
-    attrinf_->fillStored( filtfld_->text() );
-    storoutfld_->setEmpty();
-    storoutfld_->addItems( attrinf_->ioobjnms_ );
-    if ( attrinf_->ioobjnms_.size() )
-	storoutfld_->setCurrentItem( 0 );
+    const bool issteersel = selType() == 1;
+    uiListBox* outfld = issteersel ? steeroutfld_ : storoutfld_;
+    BufferStringSet& nms = issteersel ? attrinf_->steernms_
+				      : attrinf_->ioobjnms_;
+    attrinf_->fillStored( issteersel, filtfld_->text() );
+    outfld->setEmpty();
+    if ( nms.isEmpty() ) return;
 
+    outfld->addItems( nms );
+    outfld->setCurrentItem( 0 );
     cubeSel( c );
 }
 
@@ -388,9 +392,15 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 
     BufferString ioobjkey;
     if ( seltyp==0 )
-	ioobjkey = attrinf_->ioobjids_.get( storoutfld_->currentItem() );
+    {
+	if ( !attrinf_->ioobjids_.isEmpty() )
+    	    ioobjkey = attrinf_->ioobjids_.get( storoutfld_->currentItem() );
+    }
     else if ( seltyp==1 )
-	ioobjkey = attrinf_->steerids_.get( steeroutfld_->currentItem() );
+    {
+	if ( !attrinf_->steerids_.isEmpty() )
+    	    ioobjkey = attrinf_->steerids_.get( steeroutfld_->currentItem() );
+    }
     else if ( seltyp==4 )
     {
 	const int selidx = zdomoutfld_->currentItem();
