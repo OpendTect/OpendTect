@@ -63,23 +63,25 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 				  : "Export seismics to simple flat file",
 			      "Specify parameters for I/O",
 			      imp ? "103.0.11" : "103.0.12") )
-    	, ctio_(*uiSeisSel::mkCtxtIOObj(gt,!imp))
-    	, sdfld_(0)
+	, ctio_(*uiSeisSel::mkCtxtIOObj(gt,!imp))
+	, sdfld_(0)
 	, havenrfld_(0)
 	, haverefnrfld_(0)
 	, nrdeffld_(0)
-    	, inldeffld_(0)
-    	, subselfld_(0)
-    	, isxyfld_(0)
-    	, lnmfld_(0)
-    	, isascfld_(0)
-    	, haveoffsbut_(0)
-    	, haveazimbut_(0)
+	, inldeffld_(0)
+	, subselfld_(0)
+	, isxyfld_(0)
+	, lnmfld_(0)
+	, isascfld_(0)
+	, haveoffsbut_(0)
+	, haveazimbut_(0)
 	, pspposlbl_(0)
 	, offsdeffld_(0)
-    	, isimp_(imp)
-    	, geom_(gt)
+	, isimp_(imp)
+	, geom_(gt)
 {
+    setCtrlStyle( uiDialog::DoAndStay );
+
     data().clear( survChanged() );
     const bool is2d = is2D();
     const bool isps = isPS();
@@ -534,5 +536,9 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 
     SeisIOSimple sios( data(), isimp_ );
     uiTaskRunner dlg( this );
-    return TaskRunner::execute( &dlg, sios ) && !ismulticomp;
+    const bool res = TaskRunner::execute( &dlg, sios ) && !ismulticomp;
+    if ( res )
+	uiMSG().message( "Data successfully ",
+			 isimp_ ? "imported." : "exported." );
+    return false;
 }
