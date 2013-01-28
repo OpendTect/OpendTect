@@ -159,6 +159,9 @@ macro( create_basepackages PACKAGE_NAME )
 			 ${DESTINATION_DIR}/relinfo )
 	FILE( INSTALL DESTINATION ${DESTINATION_DIR}/doc/User/base
 		      TYPE FILES ${PSD}/../${dgbdir}/doc/User/base/WindowLinkTable.txt )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
+				 ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt
+				 ${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
    ENDIF()
    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
        FOREACH( LIB ${LIBLIST} )
@@ -172,6 +175,9 @@ macro( create_basepackages PACKAGE_NAME )
 			     ${DESTINATION_DIR}/data/${LIB} )
 	    FILE( INSTALL DESTINATION ${DESTINATION_DIR}/doc/User/base
 			  TYPE FILES ${PSD}/../${dgbdir}/doc/User/base/WindowLinkTable.txt )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
+				     ${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt
+				     ${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
 	  ENDIF()
        ENDFOREACH()
    ENDIF()
@@ -384,6 +390,11 @@ macro( create_docpackages PACKAGE_NAME )
 	MESSAGE( "Documentation on windows platform is not implemented" )
     ELSE()
 	IF( ${PACKAGE_NAME} STREQUAL "doc" )
+	IF( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/base/LinkFileTable.txt )
+	    FILE( RENAME ${CMAKE_INSTALL_PREFIX}/doc/base/LinkFileTable.txt
+			 ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt )
+	ENDIF()
+
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/doc/SysAdm
 			     ${DESTINATION_DIR}/doc/SysAdm )
@@ -411,6 +422,10 @@ macro( create_docpackages PACKAGE_NAME )
 	    FOREACH( FIL ${FILES} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FIL} ${DESTINATION_DIR}/doc )
 	    ENDFOREACH()
+	    IF( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/dgb/LinkFileTable.txt )
+		FILE( RENAME ${CMAKE_INSTALL_PREFIX}/doc/dgb/LinkFileTable.txt
+			     ${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt )
+	    ENDIF()
 	ENDIF()
 	execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
