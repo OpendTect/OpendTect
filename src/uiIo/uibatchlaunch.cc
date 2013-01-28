@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uispinbox.h"
 
+#include "ascstream.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
@@ -29,13 +30,51 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "oddirs.h"
 #include "ptrman.h"
+#include "settings.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
-#include "ascstream.h"
+
 
 static const char* sSingBaseNm = "batch_processing";
 static const char* sMultiBaseNm = "cube_processing";
+static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
+static const char* sKeyClusterProcEnv = "DTECT_CLUSTER_PROC";
+static const char* sKeyNrInlJob = "MultiMachine.Nr inline per job";
+
+static bool enabClusterProc()
+{
+    bool enabclusterproc = false;
+    const bool hassetting =
+	Settings::common().getYN( sKeyClusterProc, enabclusterproc );
+    if ( !hassetting )
+	enabclusterproc = GetEnvVarYN( sKeyClusterProcEnv );
+    return enabclusterproc;
+}
+
+
+uiProcSettings::uiProcSettings( uiParent* p )
+    : uiDialog(p,Setup("Processing settings",mNoDlgTitle,mTODOHelpID))
+{
+    int nrinl = 3;
+    Settings::common().get( sKeyNrInlJob, nrinl );
+    nrinlfld_ = new uiGenInput( this, "Nr inlines per job", IntInpSpec() );
+
+    const bool enabclusterproc = enabClusterProc();
+    clusterfld_ = new uiGenInput( this, "Enable cluster processing",
+				  BoolInpSpec(enabclusterproc) );
+    clusterfld_->attach( alignedBelow, nrinlfld_ );
+}
+
+
+bool uiProcSettings::acceptOK( CallBacker* )
+{
+    Settings::common().set( sKeyNrInlJob, nrinlfld_->getIntValue() );
+    Settings::common().set( sKeyClusterProc, clusterfld_->getBoolValue() );
+    Settings::common().write( false );
+    return true;
+}
+
 
 
 static void getProcFilename( const char* basnm, const char* altbasnm,
@@ -295,11 +334,8 @@ void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine,
 	dogrp->attach( ensureBelow, sep );
     }
 
-#ifndef __win__ 
-    hascluster_ = !onlysinglemachine && clusterproc
-				    && GetEnvVarYN("DTECT_CLUSTER_PROC");
-#endif
-
+    const bool enabclusterproc = enabClusterProc();
+    hascluster_ = !onlysinglemachine && clusterproc && enabclusterproc;
     if ( !onlysinglemachine )
     {
 	BufferStringSet opts;
@@ -314,6 +350,7 @@ void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine,
 	singmachfld_->valuechanged.notify( 
 		mCB(this,uiFullBatchDialog,singTogg) );
     }
+
     const char* txt = redo_ ? "Processing specification file"
 			    : "Store processing specification as";
     parfnamefld_ = new uiFileInput( dogrp,txt, uiFileInput::Setup(singparfname_)

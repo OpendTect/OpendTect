@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvscene.h"
 
 #include "ui2dgeomman.h"
+#include "uibatchlaunch.h"
 #include "uidatapointsetman.h"
 #include "uimsg.h"
 #include "uiconvpos.h"
@@ -503,3 +504,6 @@ void uiODApplMgrDispatcher::process2D3D( bool to2d )
     { uiSeis2DTo3D dlg( par_ ); dlg.go(); }
 }
 
+
+void uiODApplMgrDispatcher::setProcSettings()
+{ uiProcSettings dlg( par_ ); dlg.go(); }

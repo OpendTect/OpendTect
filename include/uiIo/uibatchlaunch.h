@@ -24,6 +24,18 @@ class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
 
+mExpClass(uiIo) uiProcSettings : public uiDialog
+{
+public:
+			uiProcSettings(uiParent*);
+protected:
+    bool		acceptOK(CallBacker*);
+
+    uiGenInput*		nrinlfld_;
+    uiGenInput*		clusterfld_;
+};
+
+
 mExpClass(uiIo) uiBatchLaunch : public uiDialog
 {
 public:

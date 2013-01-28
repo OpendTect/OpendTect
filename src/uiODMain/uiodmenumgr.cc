@@ -450,6 +450,7 @@ void uiODMenuMgr::fillProcMenu()
     mInsertItem( csoitm, "&Re-Start ...", mReStartMnuItm );
     csoitm->insertItem( new uiMenuItem("SEG-&Y Scanned Re-sort ...",
 		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
+    mInsertItem( csoitm, "&Settings ...", mProcSettingsItm );
 
     procmnu_->insertItem( csoitm );
 
@@ -1052,6 +1053,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case m2DFrom3DMnuItem:	applMgr().create2Dfrom3D(); break;
     case m3DFrom2DMnuItem:	applMgr().create3Dfrom2D(); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
+    case mProcSettingsItm:	applMgr().setProcSettings(); break;
     case mXplotMnuItm:		applMgr().doWellXPlot(); break;
     case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
     case mOpenXplotMnuItm:	applMgr().openCrossPlot(); break;

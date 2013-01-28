@@ -97,6 +97,7 @@ public:
     void			openCrossPlot(CallBacker* = 0 ); // Crate XPlot from file
     void			createHorOutput(int,bool);
     void			reStartProc();
+    void			setProcSettings();
     void			processTime2Depth(CallBacker* =0);
     void			processPreStack(CallBacker* =0);
     void			processVelConv(CallBacker* =0);

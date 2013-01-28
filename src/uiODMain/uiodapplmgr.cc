@@ -1762,6 +1762,8 @@ void uiODApplMgr::resortSEGY( CallBacker* )
 { dispatcher_.resortSEGY(); }
 void uiODApplMgr::reStartProc()
 { dispatcher_.reStartProc(); }
+void uiODApplMgr::setProcSettings()
+{ dispatcher_.setProcSettings(); }
 void uiODApplMgr::batchProgs()
 { dispatcher_.batchProgs(); }
 void uiODApplMgr::pluginMan()

@@ -68,6 +68,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		bayesClass(bool is2d);
     void		resortSEGY();
     void		reStartProc();
+    void		setProcSettings();
     void		batchProgs();
     void		pluginMan();
     void		manageShortcuts();
