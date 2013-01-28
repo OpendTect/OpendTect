@@ -20,6 +20,9 @@ ________________________________________________________________________
 namespace PreStack
 {
 
+/*!
+\brief %AGC
+*/
 
 mExpClass(PreStackProcessing) AGC : public Processor
 {

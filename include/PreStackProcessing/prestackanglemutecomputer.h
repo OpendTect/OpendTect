@@ -28,7 +28,12 @@ namespace Vel { class VolumeFunctionSource; }
 
 namespace PreStack
 {
-    class MuteDef;
+
+class MuteDef;
+
+/*!
+\brief 
+*/
 
 mExpClass(PreStackProcessing) AngleMuteComputer : public ParallelTask, public AngleMuteBase
 {
@@ -68,5 +73,4 @@ protected:
 
 }
 #endif
-
 
