@@ -42,8 +42,9 @@ class uiColTabItem;
 class uiRect;
 template <class T> class Array1D;
 
-/*!\brief Data Point Set Cross Plotter */
-
+/*!
+\brief DataPointSet crossplotter.
+*/
 
 mExpClass(uiIo) uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
 {
