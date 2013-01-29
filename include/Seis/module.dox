@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 /*!
 \defgroup Seis Seis
-\section Introduction Introduction
 
 Seismic data is sampled data along a vertical axis. Many 'traces' will usually
 occupy a volume (3D seismics) or separate lines (2D data).
@@ -33,7 +32,5 @@ pack this from/to float. SeisTrc objects can also hold more than one component.
 To keep the SeisTrc object small, a lot of operations and processing options
 have been moved to specialised objects - see seistrcprop.h and
 seissingtrcproc.h .
-
-\section Content Content
 
 */
