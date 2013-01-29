@@ -16,14 +16,14 @@ ________________________________________________________________________
 #include "bufstringset.h"
 template <class T> class TypeSet;
 
-/*!\brief Parsed Math expression.
+/*!
+\brief Parsed Math expression.
 
-A MathExpression can be queried about its variables with getNrVariables(), and
-each variable's name can be queried with getVariableStr( int ).
-
-When a calculations should be done, all variables must be set with
-setVariable( int, float ). Then, the calculation can be done with getValue().
-
+  A MathExpression can be queried about its variables with getNrVariables(),
+  and each variable's name can be queried with getVariableStr( int ).
+  
+  When a calculations should be done, all variables must be set with
+  setVariable( int, float ). Then, the calculation can be done with getValue().
 -*/
 
 mExpClass(General) MathExpression
@@ -78,26 +78,25 @@ protected:
 };
 
 
-/*!\brief parses a string with a mathematical expression.
+/*!
+\brief Parses a string with a mathematical expression.
 
-The expression can consist of constants, variables, operators and standard
-mathematical functions.
-A constant can be any number like 3, -5, 3e-5, or pi. Everything that does
-not start with a digit and is not an operator is treated as a variable.
-An operator can be either:
-
-+, -, *, /, ^,  >, <, <=, >=, ==, !=, &&, ||, cond ? true stat : false stat, 
-or |abs|
-
-A mathematical function can be either:
-
-sin(), cos(), tan(), ln(), log(), exp() or sqrt ().
-
-If the parser returns null, it couldn't parse the expression.
-Then, errmsg_ should contain info.
-
+  The expression can consist of constants, variables, operators and standard
+  mathematical functions.
+  A constant can be any number like 3, -5, 3e-5, or pi. Everything that does
+  not start with a digit and is not an operator is treated as a variable.
+  An operator can be either:
+  
+  +, -, *, /, ^,  >, <, <=, >=, ==, !=, &&, ||, cond ? true stat : false stat, 
+  or |abs|
+  
+  A mathematical function can be either:
+  
+  sin(), cos(), tan(), ln(), log(), exp() or sqrt ().
+  
+  If the parser returns null, it couldn't parse the expression.
+  Then, errmsg_ should contain info.
 -*/
-
 
 mExpClass(General) MathExpressionParser
 {
@@ -124,7 +123,10 @@ protected:
 
 };
 
-/*!\brief Expression desc to build UI */
+
+/*!
+\brief Expression desc to build UI.
+*/
 
 mExpClass(General) MathExpressionOperatorDesc
 {
@@ -141,7 +143,9 @@ public:
 };
 
 
-/*!\brief Group of similar expression descs */
+/*!
+\brief Group of similar expression descs.
+*/
 
 mExpClass(General) MathExpressionOperatorDescGroup
 {
@@ -153,7 +157,6 @@ public:
     static const ObjectSet<const MathExpressionOperatorDescGroup>& supported();
 
 };
-
 
 #endif
 
