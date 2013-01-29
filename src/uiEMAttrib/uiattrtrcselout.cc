@@ -59,6 +59,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     , nrsampfld_(0)
     , xparsdlg_(0)
 {
+    setCtrlStyle( DoAndStay );
     setHelpID( usesinglehor_ ? "104.4.2" : "104.4.1" );
 
     if ( usesinglehor_ )
