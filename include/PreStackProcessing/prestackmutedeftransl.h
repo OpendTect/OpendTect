@@ -15,8 +15,12 @@ ________________________________________________________________________
  
 #include "prestackprocessingmod.h"
 #include "transl.h"
+
 namespace PreStack { class MuteDef; }
 
+/*!
+\brief TranslatorGroup for mute definition.
+*/
 
 mExpClass(PreStackProcessing) MuteDefTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(MuteDef)
@@ -26,6 +30,10 @@ public:
     const char*		defExtension() const		{ return "mute"; }
 };
 
+
+/*!
+\brief Translator for mute definition.
+*/
 
 mExpClass(PreStackProcessing) MuteDefTranslator : public Translator
 {
@@ -42,6 +50,10 @@ public:
 	    		      BufferString&);
 };
 
+
+/*!
+\brief dgb MuteDefTranslator
+*/
 
 mExpClass(PreStackProcessing) dgbMuteDefTranslator : public MuteDefTranslator
 {			     isTranslator(dgb,MuteDef)

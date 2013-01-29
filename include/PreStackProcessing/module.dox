@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup PreStackProcessing PreStackProcessing
+
   This module contains support for processing prestack gathers. See
   PreStack::ProcessManager for an example on how to make a chain of
   processing steps.

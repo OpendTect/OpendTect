@@ -17,12 +17,14 @@ ________________________________________________________________________
 #include "prestackprocessor.h"
 #include "multiid.h"
 
-
 template <class T> class Interval;
-
 
 namespace PreStack
 {
+
+/*!
+\brief Stacks PreStack data.
+*/
 
 mExpClass(PreStackProcessing) Stack : public Processor
 {

@@ -21,6 +21,10 @@ ________________________________________________________________________
 namespace PreStack
 {
 
+/*!
+\brief Lateral stack
+*/
+
 mExpClass(PreStackProcessing) LateralStack : public Processor
 {
 public:

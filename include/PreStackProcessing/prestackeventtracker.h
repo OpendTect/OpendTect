@@ -26,7 +26,9 @@ class Gather;
 class Event;
 class MuteDef;
 
-/*!Baseclass for algorithms that track pre-stack events on a gather. */
+/*!
+\brief Base class for algorithms that track PreStack events on a gather.
+*/
 
 mExpClass(PreStackProcessing) EventTracker
 {

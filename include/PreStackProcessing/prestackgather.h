@@ -29,6 +29,10 @@ class SeisTrc;
 namespace PreStack
 {
 
+/*!
+\brief PreStack gather.
+*/
+
 mExpClass(PreStackProcessing) Gather : public FlatDataPack
 {
 public:
@@ -129,8 +133,9 @@ public:
 };
 
 
-
-/*! brief a datapack containing an objectset of gathers !*/
+/*!
+\brief A DataPack containing an objectset of gathers.
+*/
 
 mExpClass(PreStackProcessing) GatherSetDataPack : public DataPack
 {

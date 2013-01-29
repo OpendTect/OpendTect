@@ -27,7 +27,9 @@ namespace PreStack
 
 class Gather;
 
-/*!\brief calculates 'post-stack' properties of a Pre-Stack data store */
+/*!
+\brief Calculates 'post-stack' properties of a PreStack data store.
+*/
 
 mExpClass(PreStackProcessing) PropCalc
 {

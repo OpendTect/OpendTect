@@ -21,7 +21,12 @@ class Muter;
 
 namespace PreStack
 {
+
 class MuteDef;
+
+/*!
+\brief Processor for PreStack muting.
+*/
 
 mExpClass(PreStackProcessing) Mute : public Processor
 {

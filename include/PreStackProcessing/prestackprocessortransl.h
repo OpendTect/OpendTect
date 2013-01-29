@@ -15,8 +15,12 @@ ________________________________________________________________________
  
 #include "prestackprocessingmod.h"
 #include "transl.h"
+
 namespace PreStack { class ProcessManager; }
 
+/*!
+\brief TranslatorGroup for PreStack processing.
+*/
 
 mExpClass(PreStackProcessing) PreStackProcTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(PreStackProc)
@@ -26,6 +30,10 @@ public:
     const char*		defExtension() const		{ return "psp"; }
 };
 
+
+/*!
+\brief Translator for PreStack processing.
+*/
 
 mExpClass(PreStackProcessing) PreStackProcTranslator : public Translator
 {
@@ -43,6 +51,10 @@ public:
 	    		      BufferString&);
 };
 
+
+/*!
+\brief dgb PreStackProcTranslator
+*/
 
 mExpClass(PreStackProcessing) dgbPreStackProcTranslator : public PreStackProcTranslator
 {			     isTranslator(dgb,PreStackProc)

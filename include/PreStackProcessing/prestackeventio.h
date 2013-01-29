@@ -35,7 +35,9 @@ class EventManager;
 class EventPatchReader;
 class EventPatchWriter;
 
-/*! Reader for prestack events. */
+/*!
+\brief Reader for PreStack events.
+*/
 
 mExpClass(PreStackProcessing) EventReader : public Executor
 {
@@ -101,6 +103,10 @@ protected:
 };
 
 
+/*!
+\brief Writer for PreStack events.
+*/
+
 mExpClass(PreStackProcessing) EventWriter : public Executor
 {
 public:
@@ -123,6 +129,10 @@ protected:
     BufferString		errmsg_;
 };
 
+
+/*!
+\brief Duplicator for PreStack events.
+*/
 
 mExpClass(PreStackProcessing) EventDuplicator : public Executor
 {

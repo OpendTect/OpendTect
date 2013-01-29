@@ -43,7 +43,9 @@ class CDPGeometrySet;
 class GatherEvents;
 class VelocityPicks;
 
-/*!A Event is a set of picks on an event on a single prestack gather. */
+/*!
+\brief A Event is a set of picks on an event on a single PreStack gather.
+*/
 
 mExpClass(PreStackProcessing) Event
 {
@@ -75,7 +77,10 @@ public:
 };
 
 
-/*!A EventSet is a set of Events on a single prestack gather. */
+/*!
+\brief A EventSet is a set of Events on a single PreStack gather.
+*/
+
 mExpClass(PreStackProcessing) EventSet
 { mRefCountImplWithDestructor(EventSet,virtual ~EventSet(), {});
 public:
@@ -92,8 +97,10 @@ public:
 };
 
 
-/*!A EventManager is a set of EventsSet on multiple prestack
-   gathers, and are identified under the same MultiID. */
+/*!
+\brief A EventManager is a set of EventsSet on multiple PreStack gathers, and
+are identified under the same MultiID.
+*/
 
 mExpClass(PreStackProcessing) EventManager : public CallBacker
 { mRefCountImpl(EventManager);
@@ -234,6 +241,10 @@ protected:
 };
 
 
+/*!
+\brief BinIDUndoEvent for PreStack pick.
+*/
+
 mExpClass(PreStackProcessing) SetPickUndo : public BinIDUndoEvent
 {
 public:
@@ -260,6 +271,10 @@ protected:
     unsigned char	newquality_;
 };
 
+
+/*!
+\brief UndoEvent for PreStack pick.
+*/
 
 mExpClass(PreStackProcessing) SetEventUndo : public UndoEvent
 {

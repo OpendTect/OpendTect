@@ -30,10 +30,8 @@ namespace PreStack
 class Gather;
 
 /*!
-\ingroup PreStackProcessing
-\brief Processes prestackdata at one cdp location.
-The algorithm is implemented in subclasses, and can be created by the
-PreStack::PF() factory.
+\brief Processes PreStack data at one cdp location. The algorithm is
+implemented in subclasses, and can be created by the PreStack::PF() factory.
 */
 
 mExpClass(PreStackProcessing) Processor : public ParallelTask
@@ -98,7 +96,7 @@ protected:
   PreStack::Processor which are run in sequence.
 
   Example:
-\code
+  \code
   PreStack::ProcessManager processmanager;
   PreStack::AGC* agc = new PreStack::AGC;
   agc->setWindow( Interval<float>( -120, 120 ) );
@@ -130,7 +128,7 @@ protected:
       return error;
 
   DataPack::ID result = processmanager.getOutput();
-\endcode
+  \endcode
 */
 
 mExpClass(PreStackProcessing) ProcessManager : public CallBacker

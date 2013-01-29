@@ -21,9 +21,12 @@ ________________________________________________________________________
 
 class PointBasedMathFunction;
 
-
 namespace PreStack
 {
+
+/*!
+\brief NamedObject for definition of a mute function.
+*/
 
 mExpClass(PreStackProcessing) MuteDef : public NamedObject
 {

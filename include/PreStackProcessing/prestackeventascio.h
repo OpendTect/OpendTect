@@ -24,23 +24,24 @@ namespace Table { class FormatDesc; }
 
 namespace PreStack
 {
+
 class EventManager;
 
-/*!Outputs an ascii string with all prestack event, each pick on one row. The
-columns are as follows:
+/*!
+\brief Outputs an ascii string with all PreStack event, each pick on one row.
+The columns are as follows:
 
-     Inline
-     Crossline
-     Event index (0-N).
-     Dip, going to increasing inlines, If not dip is available, 0 is written
-     Dip, going to increasing crosslines, If not dip is available, 0 is written
-     Event quality, 0-255
-     Azimuth (0-2PI)
-     Offset
-     Depth
-     Pick quality, 0-255
+  Inline
+  Crossline
+  Event index (0-N).
+  Dip, going to increasing inlines, If not dip is available, 0 is written
+  Dip, going to increasing crosslines, If not dip is available, 0 is written
+  Event quality, 0-255
+  Azimuth (0-2PI)
+  Offset
+  Depth
+  Pick quality, 0-255
 */
-
 
 mExpClass(PreStackProcessing) EventExporter : public SequentialTask
 {
@@ -71,6 +72,10 @@ protected:
 };
 
 
+/*!
+\brief Ascii I/O for PreStack event. 
+*/
+
 mExpClass(PreStackProcessing) EventAscIO : public Table::AscIO
 {
 public:
@@ -97,6 +102,10 @@ protected:
     bool			finishedreadingheader_;
 };
 
+
+/*!
+\brief PreStack event importer.
+*/
 
 mExpClass(PreStackProcessing) EventImporter : public SequentialTask
 {

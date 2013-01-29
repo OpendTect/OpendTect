@@ -19,13 +19,15 @@ ________________________________________________________________________
 
 class IOPar;
 
-
 namespace PreStack
 {
 
 class Gather;
 
-/*! Base class for algorithms that computes semblance along a moveout */
+/*!
+\brief Base class for algorithms that compute semblance along a moveout.
+*/
+
 mExpClass(PreStackProcessing) SemblanceAlgorithm
 {
 public:

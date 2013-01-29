@@ -32,7 +32,7 @@ namespace PreStack
 class MuteDef;
 
 /*!
-\brief 
+\brief Computes angle mute.
 */
 
 mExpClass(PreStackProcessing) AngleMuteComputer : public ParallelTask, public AngleMuteBase
@@ -72,5 +72,6 @@ protected:
 };
 
 }
+
 #endif
 

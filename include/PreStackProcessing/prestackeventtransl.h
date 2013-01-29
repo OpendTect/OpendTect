@@ -23,6 +23,9 @@ class HorSampling;
 
 namespace PreStack { class EventManager; }
 
+/*!
+\brief TranslatorGroup for PreStack Event.
+*/
 
 mExpClass(PreStackProcessing) PSEventTranslatorGroup : public TranslatorGroup
 { isTranslatorGroup(PSEvent);
@@ -33,6 +36,10 @@ public:
     static const char*		sKeyword()	     { return "PreStack Event";}
 };
 
+
+/*!
+\brief Translator for PreStack Event.
+*/
 
 mExpClass(PreStackProcessing) PSEventTranslator : public Translator
 {
@@ -52,6 +59,10 @@ public:
     static Executor*	writeAs(PreStack::EventManager&,IOObj*);
 };
 
+
+/*!
+\brief dgb PSEventTranslator.
+*/
 
 mExpClass(PreStackProcessing) dgbPSEventTranslator : public PSEventTranslator
 { isTranslator(dgb,PSEvent)

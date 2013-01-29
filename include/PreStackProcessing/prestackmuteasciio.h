@@ -25,6 +25,10 @@ namespace PreStack
 
 class MuteDef;
 
+/*!
+\brief Ascii I/O for PreStack mute.
+*/
+
 mExpClass(PreStackProcessing) MuteAscIO : public Table::AscIO
 {
 public:
