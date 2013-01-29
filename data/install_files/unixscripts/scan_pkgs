@@ -1,0 +1,39 @@
+#!/bin/csh
+
+if ( $#argv != 1 ) then
+    echo "Usage $0 <directory path to scan zip files>"
+    exit
+endif
+
+set dirtoscan=$1
+
+cd $dirtoscan
+set pkgs=`ls *.zip`
+if ( -d virusscan ) then
+    rm -rf virusscan
+endif
+echo $pkgs
+
+mkdir virusscan backup_temp
+cd virusscan
+foreach pkg ( ${pkgs} )
+    if( -d 4.4.0 ) then
+	echo "4.4.0 existed"
+	rm -rf 4.4.0
+    endif
+
+    echo "Scaning  $pkg"
+    set filename=${pkg}.virusscan.log
+    cp -p ../$pkg .
+    mv ../$pkg ../backup_temp/.
+    clamscan $pkg > $filename
+    unzip -oq $pkg
+    mv $filename 4.4.0/relinfo/.
+    rm -rf $pkg
+    zip -r -y -q $pkg 4.4.0
+    rm -rf 4.4.0
+    mv $pkg ../.
+end
+cd ..
+rm -rf virusscan
+rm -rf backup_temp
