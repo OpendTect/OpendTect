@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "genc.h"
 
 #include <iosfwd>
+
 class IOPar;
 class IOObj;
 class IOObjContext;
@@ -29,29 +30,27 @@ class MMSockCommunic;
 class JobCommunic;
 class StreamData;
 
-
 /*!
 \brief Main object for 'standard' batch programs.
 
   Most 'interesting' batch programs need a lot of parameters to do the work.
   Therefore, in OpendTect, BatchPrograms need a 'parameter file', with all
-  the info needed in IOPar format, i.e. keyword/value pairs.
+  the info needed in IOPar format, i.e., keyword/value pairs.
 
   This object takes over the details of reading that file, extracting
-  'standard' components from the parameters, opening sockets, etc. etc.
+  'standard' components from the parameters, opening sockets etc.,
 
   To use the object, instead of defining a function 'main', you should define
   the function 'BatchProgram::go'.
 
   If you need argc and/or argv outside go(), the BP() singleton instance can
   be accessed.
-
 */
-
 
 mClass(Prog) BatchProgram : public NamedObject
 {
     mGlobal(Batch) friend	BatchProgram& BP();
+
 public:
 
     const IOPar&	pars() const		{ return *iopar; }
