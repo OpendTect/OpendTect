@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "nlamodel.h"
 #include "bufstringset.h"
+
 class IOPar;
 class DataPointSet;
 class DataPointSetDisplayMgr;
