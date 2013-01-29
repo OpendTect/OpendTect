@@ -53,12 +53,13 @@ class A2DIntExtenExecutor;
 mExpClass(Algo) InverseDistanceArray2DInterpol : public Array2DInterpol
 {
 public:
-    				mDefaultFactoryInstantiation( Array2DInterpol, 
-					InverseDistanceArray2DInterpol,
-					"Inverse distance", sFactoryKeyword() );
+		mDefaultFactoryInstantiation( Array2DInterpol, 
+			InverseDistanceArray2DInterpol,
+			"Inverse distance", sFactoryKeyword() );
 
 		InverseDistanceArray2DInterpol();
 		~InverseDistanceArray2DInterpol();
+
     bool	setArray(Array2D<float>&,TaskRunner*);
     bool	canUseArrayAccess() const	{ return true; }
     bool	setArray(ArrayAccess&,TaskRunner*);
@@ -76,19 +77,18 @@ public:
     bool	getCornersFirst() const		{ return cornersfirst_; }
     bool	nothingToFill() const		{ return nrIterations()<1; }  
 
-    bool	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
+    virtual bool	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
 
 protected:
-    virtual bool doWork(od_int64,od_int64,int);
-    od_int64	nrIterations() const		{ return totalnr_; }
-    const char*	nrDoneText() const		{ return "Nodes gridded"; }
+    virtual bool	doWork(od_int64,od_int64,int);
+    od_int64		nrIterations() const	{ return totalnr_; }
+    const char*		nrDoneText() const	{ return "Nodes gridded"; }
 
-    bool doPrepare(int);
-
-    bool	initFromArray(TaskRunner*);
-    od_int64	getNextIdx();
-    void	reportDone(od_int64);
+    bool		doPrepare(int);
+    virtual bool	initFromArray(TaskRunner*);
+    od_int64		getNextIdx();
+    void		reportDone(od_int64);
 
     				//settings
     int				nrsteps_;
