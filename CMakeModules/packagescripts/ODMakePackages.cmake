@@ -13,6 +13,15 @@ SET( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs
 
 INCLUDE( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
+IF( APPLE )
+    execute_process( COMMAND ${PSD}/data/install_files/macscripts/chfwscript ${PSD}/bin/mac ${CMAKE_INSTALL_PREFIX}/bin/mac ${CMAKE_INSTALL_PREFIX}/bin/mac
+		     RESULT_VARIABLE STATUS )
+    IF( NOT ${STATUS} EQUAL "0" )
+	MESSAGE( FATAL_ERROR "changing dependency Failed" )
+    ENDIF()
+
+ENDIF()
+
 IF( APPLE OR WIN32 )
     od_sign_libs()
 ENDIF()
