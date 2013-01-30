@@ -374,7 +374,7 @@ bool uiTieWinMGRDlg::initSetup()
     if ( is2d_ )
     {
 	wtsetup_.linekey_.setAttrName( seis2dfld_->attrNm() );
-	wtsetup_.linekey_ = LineKey( seislinefld_->getInput() );
+	wtsetup_.linekey_.setLineName( seislinefld_->getInput() );
     }
     else
 	wtsetup_.linekey_ = 0;
