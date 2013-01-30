@@ -450,14 +450,14 @@ static bool setLayVal( Strat::Layer& lay, int iprop, const Property& prop,
 
 #define mSetLayVal \
 { \
-    if ( setLayVal(*newlay,ipr,prop,eo) ) \
-        haveset = true; \
-    else \
+    if ( !setLayVal(*newlay,ipr,prop,eo) ) \
     {  \
 	errmsg_ = prop.errMsg(); \
 	delete newlay; return false; \
     } \
 }
+
+
 
 
 bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
@@ -468,12 +468,14 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
     Layer* newlay = new Layer( unit() );
     newlay->setContent( content() );
 
+    TypeSet<int> indexesofprsmath;
+    TypeSet<int> correspondingidxinprops;
+
+    // first non-Math
     for ( int ipr=0; ipr<prs.size(); ipr++ )
     {
 	const PropertyRef* pr = prs[ipr];
 
-	// first non-Math
-	bool haveset = false;
 	for ( int iprop=0; iprop<props_.size(); iprop++ )
 	{
 	    const Property& prop = props_.get( iprop );
@@ -482,25 +484,24 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 		mDynamicCastGet(const MathProperty*,mp,&prop)
 		if ( !mp )
 		    mSetLayVal
+		else
+		{
+		    indexesofprsmath += ipr;
+		    correspondingidxinprops += iprop;
+		}
 		break;
 	    }
-	    if ( haveset ) break;
 	}
+    }
 
-	// then Math
-	haveset = false;
-	for ( int iprop=0; iprop<props_.size(); iprop++ )
-	{
-	    const Property& prop = props_.get( iprop );
-	    if ( pr == &prop.ref() )
-	    {
-		mDynamicCastGet(const MathProperty*,mp,&prop)
-		if ( mp )
-		    mSetLayVal
-		break;
-	    }
-	    if ( haveset ) break;
-	}
+    // then Math
+    for ( int mathidx=0; mathidx<indexesofprsmath.size(); mathidx++ )
+    {
+	const int ipr = indexesofprsmath[mathidx];
+	const PropertyRef* pr = prs[ipr];
+	const Property& prop = props_.get( correspondingidxinprops[mathidx] );
+	if ( pr != &prop.ref() ) continue; 	//huh? should never happen
+	mSetLayVal
     }
 
     const float th = newlay->thickness();
