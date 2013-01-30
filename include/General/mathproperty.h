@@ -39,7 +39,9 @@ public:
     const char*		inputName(int) const;
     PropertyRef::StdType inputType(int) const;
     const UnitOfMeasure* inputUnit(int) const;
+    const UnitOfMeasure* formulaOutputUnit() const;
     void		setInputUnit(int idx,const UnitOfMeasure*);
+    void		setFormulaOutputUnit(const UnitOfMeasure*);
     int			nrConsts() const;
     const char*		constName(int) const;
     bool		haveInput( int idx ) const    { return inps_[idx]; }
@@ -63,6 +65,7 @@ protected:
 
     BufferString		def_;
     const UnitOfMeasure*	uom_;
+    const UnitOfMeasure*	formulauom_;
 
     mutable MathExpression*	expr_;
     mutable ObjectSet<const Property> inps_;

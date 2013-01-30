@@ -157,6 +157,7 @@ MathProperty::MathProperty( const PropertyRef& pr, const char* df )
     : Property(pr)
     , expr_(0)
     , uom_(0)
+    , formulauom_(0)
 {
     inps_.allowNull( true ); inpunits_.allowNull( true );
     if ( df && *df )
@@ -168,6 +169,7 @@ MathProperty::MathProperty( const MathProperty& mp )
     : Property(mp.ref())
     , expr_(0)
     , uom_(mp.uom_)
+    , formulauom_(mp.formulauom_)
 {
     inps_.allowNull( true ); inpunits_.allowNull( true );
     if ( !mp.def_.isEmpty() )
@@ -442,8 +444,8 @@ const char* MathProperty::def() const
 	cdef.add( constValue(idx) );
 	fms += cdef;
     }
-    if ( uom_ )
-	fms += uom_->name();
+    if ( formulauom_ )
+	fms += formulauom_->name();
     else
 	fms.add( "" );
 
@@ -484,7 +486,7 @@ void MathProperty::setDef( const char* s )
 	inps_ += 0;
 
     if ( fmssz > constsz+1 )
-	uom_ = UoMR().get( ref_.stdType(), fms[constsz+1] );
+	formulauom_ = UoMR().get( ref_.stdType(), fms[constsz+1] );
 
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
@@ -551,6 +553,9 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	      			 constValue(idx) );
 
     float res = expr_->getValue();
+    if ( formulauom_ )
+	res = formulauom_->getSIValue( res );
+
     if ( uom_ )
 	res = uom_->getUserValueFromSI( res );
 
