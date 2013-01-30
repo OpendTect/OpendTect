@@ -157,11 +157,13 @@ macro( create_basepackages PACKAGE_NAME )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${CMAKE_INSTALL_PREFIX}/relinfo/README.txt
 			 ${DESTINATION_DIR}/relinfo )
-	FILE( INSTALL DESTINATION ${DESTINATION_DIR}/doc/User/base
-		      TYPE FILES ${PSD}/../${dgbdir}/doc/User/base/WindowLinkTable.txt )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
-				 ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt
-				 ${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
+	IF( EXISTS ${PSD}/../${dgbdir} )
+	    FILE( INSTALL DESTINATION ${DESTINATION_DIR}/doc/User/base
+			  TYPE FILE FILES ${PSD}/../${dgbdir}/doc/User/base/WindowLinkTable.txt )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
+				     ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt
+				     ${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
+	ENDIF()
    ENDIF()
    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
        FOREACH( LIB ${LIBLIST} )
@@ -173,13 +175,16 @@ macro( create_basepackages PACKAGE_NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${CMAKE_INSTALL_PREFIX}/data/${LIB}
 			     ${DESTINATION_DIR}/data/${LIB} )
+	  ENDIF()
+       ENDFOREACH()
+
+	IF( EXISTS ${PSD}/../${dgbdir} )
 	    FILE( INSTALL DESTINATION ${DESTINATION_DIR}/doc/User/base
-			  TYPE FILES ${PSD}/../${dgbdir}/doc/User/base/WindowLinkTable.txt )
+			TYPE FILE FILES ${PSD}/../${dgbdir}/doc/User/dgb/WindowLinkTable.txt )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
 				     ${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt
 				     ${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
-	  ENDIF()
-       ENDFOREACH()
+	ENDIF()
    ENDIF()
 
     IF( WIN32 )
