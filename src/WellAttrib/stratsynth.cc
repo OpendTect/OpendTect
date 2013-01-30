@@ -42,8 +42,7 @@ SynthGenParams::SynthGenParams()
 
     RayTracer1D::setIOParsToZeroOffset( raypars_ );
     raypars_.setYN( RayTracer1D::sKeyVelBlock(), true );
-    raypars_.set( RayTracer1D::sKeyVelBlockVal(), 900 );
-    raypars_.set( RayTracer1D::sKeyDensBlockVal(), 800 );
+    raypars_.set( RayTracer1D::sKeyVelBlockVal(), 20 );
 }
 
 
