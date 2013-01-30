@@ -42,7 +42,7 @@ SynthGenParams::SynthGenParams()
 
     RayTracer1D::setIOParsToZeroOffset( raypars_ );
     raypars_.setYN( RayTracer1D::sKeyVelBlock(), true );
-    raypars_.set( RayTracer1D::sKeyVelBlockVal(), 20 );
+    raypars_.set( RayTracer1D::sKeyVelBlockVal(), 800 );
 }
 
 
@@ -288,17 +288,17 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	if ( !fillElasticModel( lm, aimod, idm ) )
 	{
 	    BufferString msg( errmsg_ );
-	    mErrRet( msg.buf(), return false;) 
+	    mErrRet( msg.buf(), return 0;) 
 	}
 	maxsz = mMAX( aimod.size(), maxsz );
 	synthgen.addModel( aimod );
     }
     if ( maxsz == 0 )
-	return false;
+	return 0;
 
     if ( maxsz == 1 )
 	mErrRet( "Model has only one layer, please add an other layer.", 
-		return false; );
+		return 0; );
 
     if ( !synthgen.doWork() )
     {
@@ -464,17 +464,26 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
     const ElasticPropertyRef& denref = eps.getPropertyRef(ElasticFormula::Den); 
     const ElasticPropertyRef& pvref = eps.getPropertyRef(ElasticFormula::PVel); 
     const ElasticPropertyRef& svref = eps.getPropertyRef(ElasticFormula::SVel); 
+    const float srddepth = -1*0; // SHOULD COME from SI() - depth, not elevation
     const Strat::Layer* lay = 0;
-    for ( int idx=0; idx<seq.size(); idx++ )
+    const int firstidx = seq.startDepth() >= srddepth ? 0 :
+					     seq.layerIdxAtZ( srddepth, false );
+    for ( int idx=firstidx; idx<seq.size(); idx++ )
     {
 	lay = seq.layers()[idx];
+	float thickness = lay->thickness();
+	if ( idx == firstidx )
+	{
+	    thickness -= srddepth - lay->zTop();
+	    if ( mIsZero( thickness, 1e-4 ) )
+		continue;
+	}
 	float dval, pval, sval;
 	dval  = elpgen.getVal(denref,lay->values(),props.size());
 	pval = elpgen.getVal(pvref,lay->values(),props.size());
 	sval = elpgen.getVal(svref,lay->values(),props.size());
 	
-
-	ElasticLayer ail ( lay->thickness(), pval, sval, dval );
+	ElasticLayer ail ( thickness, pval, sval, dval );
 	BufferString msg( "Can not derive synthetic layer property " );
 	bool isudf = mIsUdf( dval ) || mIsUdf( pval );
 	if ( mIsUdf( dval ) )
@@ -491,10 +500,6 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 
 	aimodel += ail;
     }
-
-    //4.4 only
-    if ( aimodel.size() > mLayerBlockSize )
-	blockElasticModel( aimodel );
 
     return true;
 }

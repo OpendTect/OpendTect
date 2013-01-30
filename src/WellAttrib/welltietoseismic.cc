@@ -114,14 +114,21 @@ bool DataPlayer::setAIModel()
     if ( !wd_->d2TModel() )
 	mErrRet( "No depth/time model computed" );
 
+    float prev_depth = wd_->info().surfaceelev;
+    float thickness = 0;
     for ( int idx=0; idx<worksz_; idx++ )
     {
-	const float dah0 = wd_->d2TModel()->getDah(workrg_.atIndex(idx) );
-	const float dah1 = wd_->d2TModel()->getDah(workrg_.atIndex(idx+1) );
-	const bool inside = data_.dahrg_.includes(dah1,true);
-	const float vel = inside ? pslog.getValue(dah1,true) : mUdf(float);
-	const float den = inside ? pdlog.getValue(dah1,true) : mUdf(float);
-	aimodel_ += AILayer( fabs( dah1-dah0 ), vel, den );
+	const float twt = workrg_.atIndex( idx );
+	const float dah = wd_->d2TModel()->getDah( twt );
+	const float depth = (float) wd_->track().getPos(dah).z;
+	if ( depth < 0 )
+	    continue;
+	const bool inside = data_.dahrg_.includes(dah,true);
+	const float vel = inside ? pslog.getValue(dah,true) : mUdf(float);
+	const float den = inside ? pdlog.getValue(dah,true) : mUdf(float);
+	thickness = depth - prev_depth;
+	aimodel_ += AILayer( thickness, vel, den );
+	prev_depth = depth;
     }
     return true;
 }
@@ -137,12 +144,7 @@ bool DataPlayer::doFullSynthetics()
     gen.setWavelet( &wvlt, OD::UsePtr );
     gen.setOutSampling( disprg_ );
     IOPar par;
-    const float replveldz = -1. * wd_->info().surfaceelev
-			    - wd_->track().getKbElev();
-    const float sourrecz = replveldz > 0 ?
-			   wd_->info().surfaceelev :
-			   -1. * wd_->track().getKbElev();
-    par.set(RayTracer1D::sKeySRDepth(),sourrecz,sourrecz);
+    par.set(RayTracer1D::sKeySRDepth(),0,0);
     gen.usePar( par ); 
     gen.setTaskRunner( data_.trunner_ );
     if ( !gen.doRayTracing() )
