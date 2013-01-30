@@ -1,8 +1,16 @@
 #!/bin/csh -f
 
 #Changing the dependency path of the libraries on MAC platform.
-set binpath="$WORK/inst/bin/mac"
-cp -p $WORK/bin/mac/* $binpath/.
+if ( $#argv < 2 ) then
+   echo "Usage : $0 fromdir installdir"
+   exit 1
+endif
+
+set workdir=$1
+set binpath=$2
+echo "workdir: $workdir"
+echo "binpath: $binpath"
+cp -p $workdir/* $binpath/.
 echo "Changing the dependency path in : $binpath"
 foreach bnry ( ${binpath}/* )
     if ( -f ${bnry} ) then
@@ -15,7 +23,7 @@ foreach bnry ( ${binpath}/* )
 		echo "Dep: ${dep}"
 		set libnm=`basename ${dep}`
 		set rootdir=`echo ${dep} | cut -c 2-4`
-		if ( ${libnm} != ${filenm} && ($rootdir == "d52" || $rootdir == "exe") ) then
+		if ( $rootdir != "Sys" && $rootdir != "usr" ) then
 		install_name_tool -change ${dep} @executable_path/${libnm} ${bnry}
 		endif
 	    endif
