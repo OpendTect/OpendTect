@@ -43,7 +43,7 @@ DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
     dispsz_ = disprg_.nrSteps();
 
     workrg_ = disprg_; workrg_.step /= cDefTimeResampFac;
-    worksz_ = workrg_.nrSteps();
+    worksz_ = workrg_.nrSteps()+1;
 }
 
 
@@ -130,6 +130,7 @@ bool DataPlayer::setAIModel()
 	aimodel_ += AILayer( thickness, vel, den );
 	prev_depth = depth;
     }
+
     return true;
 }
 
