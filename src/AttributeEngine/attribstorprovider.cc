@@ -175,6 +175,7 @@ StorageProvider::StorageProvider( Desc& desc )
     , stepoutstep_(-1,0)
     , isondisc_(true)
     , useintertrcdist_(false)
+    , ls2ddata_(0)
 {
     const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
     BufferString bstring = lk.lineName();
@@ -190,6 +191,7 @@ StorageProvider::StorageProvider( Desc& desc )
 StorageProvider::~StorageProvider()
 {
     if ( mscprov_ ) delete mscprov_;
+    if ( ls2ddata_ ) delete ls2ddata_;
 }
 
 
@@ -903,54 +905,40 @@ void StorageProvider::checkClassType( const SeisTrc* trc,
 }
 
 
-void StorageProvider::compDistBetwTrcsStats(
-				TypeSet< LineTrcDistStats >& ltds ) const
+bool StorageProvider::compDistBetwTrcsStats()
 {
-    if ( !mscprov_ ) return;
+    if ( !mscprov_ ) return false;
+    if ( ls2ddata_ && ls2ddata_->areStatsComputed() ) return true;
 
     const SeisTrcReader& reader = mscprov_->reader();
-    if ( !reader.is2D() ) return;
+    if ( !reader.is2D() ) return false;
 
     const Seis2DLineSet* lset = reader.lineSet();
-    if ( !lset ) return;
+    if ( !lset ) return false;
+
+    const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
+    const BufferString attrnm = lk.attrName();
+    BufferStringSet steernms;
+    lset->getAvailableAttributes( steernms, sKey::Steering() );
+    const bool issteering = steernms.indexOf( attrnm ) >= 0;
+    if ( !issteering ) return false;
 
     S2DPOS().setCurLineSet( lset->name() );
-    PosInfo::LineSet2DData ls2ddata;
-    BufferStringSet linenms;
+    if ( ls2ddata_ ) delete ls2ddata_;
+    ls2ddata_ = new PosInfo::LineSet2DData();
     for ( int idx=0; idx<lset->nrLines(); idx++ )
     {
-	PosInfo::Line2DData& linegeom = ls2ddata.addLine(lset->lineName(idx));
+	PosInfo::Line2DData& linegeom = ls2ddata_->addLine(lset->lineName(idx));
 	S2DPOS().getGeometry( linegeom );
 	if ( linegeom.positions().isEmpty() )
 	{
-	    ls2ddata.removeLine( lset->lineName(idx) );
-	    return;
+	    ls2ddata_->removeLine( lset->lineName(idx) );
+	    return false;
 	}
-	else
-	    linenms.add( lset->lineName( idx ) );
     }
 
-    Stats::CalcSetup rcsetup;
-    rcsetup.require( Stats::Max );
-    rcsetup.require( Stats::Median );
-    for ( int lidx=0; lidx<ls2ddata.nrLines(); lidx++ )
-    {
-	Stats::RunCalc<float> stats( rcsetup );
-	const TypeSet<PosInfo::Line2DPos>& posns
-	    			= ls2ddata.lineData(lidx).positions();
-	for ( int pidx=1; pidx<posns.size(); pidx++ )
-	{
-	    const double distsq =
-		posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
-
-	    stats += (float)Math::Sqrt(distsq);
-	}
-
-	LineTrcDistStats ltrcdiststats( linenms.get( lidx ), stats.median(),
-					stats.max() );
-
-	ltds += ltrcdiststats;
-    }
+    ls2ddata_->compDistBetwTrcsStats();
+    return true;
 }
 
 
@@ -1003,6 +991,13 @@ bool StorageProvider::useInterTrcDist() const
     }                                                                           
 
     return false; 
+}
+
+
+float StorageProvider::getDistBetwTrcs( bool ismax, const char* linenm ) const
+{
+    return ls2ddata_ ? ls2ddata_->getDistBetwTrcs( ismax, linenm )
+		     : mUdf(float);
 }
 
 }; // namespace Attrib

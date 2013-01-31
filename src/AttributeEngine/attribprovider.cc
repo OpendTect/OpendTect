@@ -1620,54 +1620,28 @@ void Provider::getCompNames( BufferStringSet& nms ) const
 }
 
 
-float Provider::getMaxDistBetwTrcs( const char* linenm ) const
-{
-    return getDistBetwTrcs( true, linenm );
-}
-
-
-void Provider::compDistBetwTrcsStats( TypeSet< LineTrcDistStats >& ltds ) const
-{
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-	if ( inputs_[idx] )
-	{
-	    inputs_[idx]->compDistBetwTrcsStats( ltds );
-	    if ( ltds.size() ) 
-		return;
-	}
-}
-
-
-void Provider::compAndSpreadDistBetwTrcsStats()
-{
-    compDistBetwTrcsStats( trcdiststatsperlines_ );
-
-    for ( int idx=0; idx<allexistingprov_.size(); idx++ )
-	const_cast<Provider*>(allexistingprov_[idx])->trcdiststatsperlines_ 
-	    					= trcdiststatsperlines_;
-}
-
-
 float Provider::getDistBetwTrcs( bool ismax, const char* linenm ) const
 {
-    Stats::CalcSetup rcsetup;
-    if ( ismax )
-	rcsetup.require( Stats::Max );
-    else
-	rcsetup.require( Stats::Median );
-
-    Stats::RunCalc<float> stats( rcsetup );
-    for ( int idx=0; idx<trcdiststatsperlines_.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( BufferString(linenm) == trcdiststatsperlines_[idx].linename_ )
-	    return ismax ? trcdiststatsperlines_[idx].maxdist_
-			 : trcdiststatsperlines_[idx].mediandist_;
-	else
-	    stats += ismax ? trcdiststatsperlines_[idx].maxdist_
-			   : trcdiststatsperlines_[idx].mediandist_;
+	if ( !inputs_[idx] ) continue; 
+	const float distval = inputs_[idx]->getDistBetwTrcs( ismax, linenm );
+	if ( !mIsUdf(distval) )
+	    return distval;
     }
 
-    return ismax ? stats.max() : stats.median();
+    return mUdf(float);
+}
+
+
+bool Provider::compDistBetwTrcsStats()
+{
+    bool allright = false;
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	if ( inputs_[idx] && inputs_[idx]->compDistBetwTrcsStats() )
+	    allright = true;
+
+    return allright;
 }
 
 

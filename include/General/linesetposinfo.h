@@ -47,6 +47,11 @@ public:
     };
     void		intersect(const BinIDValueSet&,ObjectSet<IR>&) const;
 
+    float		getDistBetwTrcs(bool,const char* linenm =0) const;
+    void                compDistBetwTrcsStats();
+    bool		areStatsComputed() const
+			{ return trcdiststatsperlines_.size(); }
+
 protected:
 
     struct Info
@@ -59,6 +64,28 @@ protected:
 
     Info*		findLine(const char*) const;
 
+    mStruct(General) LineTrcDistStats
+    {
+				LineTrcDistStats( BufferString linename,
+						  float mediandist,
+						  float maxdist )
+				    : linename_(linename)
+				    , mediandist_(mediandist)
+				    , maxdist_( maxdist )               {};
+
+	bool                    operator ==( LineTrcDistStats ltds ) const
+				{
+				    return ltds.linename_ == linename_
+					&& ltds.mediandist_ == mediandist_
+					&& ltds.maxdist_ == maxdist_;
+				}
+
+	BufferString            linename_;
+	float                   mediandist_;
+	float                   maxdist_;
+    };
+
+    TypeSet<LineTrcDistStats>   trcdiststatsperlines_;
 };
 
 } // namespace PosInfo

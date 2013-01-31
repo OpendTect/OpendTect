@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "linesetposinfo.h"
 #include "survinfo.h"
+#include "statruncalc.h"
 #include "binidvalset.h"
 
 
@@ -106,5 +107,54 @@ void PosInfo::LineSet2DData::intersect( const BinIDValueSet& bivset,
 	}
 	else
 	    delete newbivset;
+    }
+}
+
+
+float PosInfo::LineSet2DData::getDistBetwTrcs( bool ismax,
+					       const char* linenm ) const
+{
+    Stats::CalcSetup rcsetup;
+    if ( ismax )
+	rcsetup.require( Stats::Max );
+    else
+	rcsetup.require( Stats::Median );
+
+    Stats::RunCalc<float> stats( rcsetup );
+    for ( int idx=0; idx<trcdiststatsperlines_.size(); idx++ )
+    {
+	if ( BufferString(linenm) == trcdiststatsperlines_[idx].linename_ )
+	    return ismax ? trcdiststatsperlines_[idx].maxdist_
+			 : trcdiststatsperlines_[idx].mediandist_;
+	else
+	    stats += ismax ? trcdiststatsperlines_[idx].maxdist_
+			   : trcdiststatsperlines_[idx].mediandist_;
+    }
+
+    return ismax ? stats.max() : stats.median();
+}
+
+
+void PosInfo::LineSet2DData::compDistBetwTrcsStats()
+{
+    Stats::CalcSetup rcsetup;
+    rcsetup.require( Stats::Max );
+    rcsetup.require( Stats::Median );
+    for ( int lidx=0; lidx<nrLines(); lidx++ )
+    {
+	Stats::RunCalc<float> stats( rcsetup );
+	const TypeSet<PosInfo::Line2DPos>& posns = lineData(lidx).positions();
+	for ( int pidx=1; pidx<posns.size(); pidx++ )
+	{
+	    const double distsq =
+			posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
+
+	    stats += (float)Math::Sqrt(distsq);
+	}
+
+	LineTrcDistStats ltrcdiststats( lineName( lidx ), stats.median(),
+					stats.max() );
+
+	trcdiststatsperlines_ += ltrcdiststats;
     }
 }

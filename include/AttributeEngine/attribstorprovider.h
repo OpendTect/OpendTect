@@ -20,6 +20,8 @@ class BufferStringSet;
 class SeisMSCProvider;
 class SeisTrc;
 
+namespace PosInfo{ class LineSet2DData; }
+
 namespace Attrib
 {
 
@@ -41,8 +43,6 @@ public:
 	    				bool firstcheck=false);
     bool		getPossibleVolume(int outp,CubeSampling&);
     BinID		getStepoutStep() const;
-    void		compDistBetwTrcsStats(
-	    				TypeSet< LineTrcDistStats >&) const;
     void		updateStorageReqs(bool all=true);
     void		adjust2DLineStoredVolume();
     PosInfo::GeomID	getGeomID() const;
@@ -50,6 +50,8 @@ public:
     void		fillDataCubesWithTrc(DataCubes*) const;
     bool		needStoredInput() const	{ return true; }
     virtual void	getCompNames(BufferStringSet&) const;
+    virtual float	getDistBetwTrcs(bool,const char* linenm =0) const;
+    virtual bool	compDistBetwTrcsStats();
 
 protected:
 
@@ -100,6 +102,7 @@ protected:
     CubeSampling	storedvolume_;
     bool		isondisc_;
     bool		useintertrcdist_;
+    PosInfo::LineSet2DData*  ls2ddata_;
 
     enum Status        { Nada, StorageOpened, Ready } status_;
 };

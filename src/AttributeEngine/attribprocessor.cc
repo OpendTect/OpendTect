@@ -248,12 +248,12 @@ void Processor::init()
     if ( is2d_ )
     {
 	provider_->adjust2DLineStoredVolume();
-	provider_->compAndSpreadDistBetwTrcsStats();
+	provider_->compDistBetwTrcsStats();
 	mDynamicCastGet( Trc2DVarZStorOutput*, trcvarzoutp, outputs_[0] );
 	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
 	if ( trcvarzoutp || taboutp )
 	{
-	    float maxdist = provider_->getMaxDistBetwTrcs();
+	    float maxdist = provider_->getDistBetwTrcs(true);
 	    if ( trcvarzoutp ) trcvarzoutp->setMaxDistBetwTrcs( maxdist );
 	    if ( taboutp ) taboutp->setMaxDistBetwTrcs( maxdist );
 	}

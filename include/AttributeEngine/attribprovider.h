@@ -52,27 +52,6 @@ mExpClass(AttributeEngine) Provider
 
 public:
 
-    mStruct(AttributeEngine) LineTrcDistStats
-    {
-				LineTrcDistStats( BufferString linename,
-						  float mediandist,
-						  float maxdist )
-				    : linename_(linename)
-				    , mediandist_(mediandist)
-				    , maxdist_( maxdist )		{};
-
-	bool			operator ==( LineTrcDistStats ltds ) const
-	    			{
-				    return ltds.linename_ == linename_
-					&& ltds.mediandist_ == mediandist_
-					&& ltds.maxdist_ == maxdist_;
-				}
-
-	BufferString		linename_;
-	float			mediandist_;
-	float			maxdist_;
-    };
-
     static Provider*		create(Desc&,BufferString&);
 				/*!< Also creates all inputs, the input's
 				     inputs, and so on */
@@ -118,9 +97,6 @@ public:
     void			setCurLineName(const char*);
     virtual void		adjust2DLineStoredVolume();
     virtual PosInfo::GeomID	getGeomID() const;
-    virtual void		compDistBetwTrcsStats(
-	    				TypeSet< LineTrcDistStats >&) const;
-    void			compAndSpreadDistBetwTrcsStats();
 
     virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
 	    					bool firstcheck = false);
@@ -161,9 +137,6 @@ public:
     float                       getRefStep() const;
 
     virtual BinID		getStepoutStep() const;
-    float			getMaxDistBetwTrcs(const char* linenm =0) const;
-    float			getDistBetwTrcs(bool,
-	    					const char* linenm =0) const;
     ObjectSet<Provider>&	getInputs() 		{ return inputs_; }
     BinID			getTrcInfoBid() const	{ return trcinfobid_; }
     const char*         	errMsg() const;
@@ -194,7 +167,10 @@ public:
     				//!<input cubes and thus not delivering
     				//!<adequate cs automaticly
     virtual void		updateCSIfNeeded(CubeSampling&) const	{}
+    virtual bool		compDistBetwTrcsStats();
     float			getApplicableCrlDist(bool) const;
+    virtual float		getDistBetwTrcs(bool,
+	    					const char* linenm =0) const;
 
 protected:
 
@@ -401,8 +377,6 @@ protected:
     bool			isusedmulttimes_;
     bool			needinterp_;
     BufferString 		errmsg_;
-
-    TypeSet<LineTrcDistStats>	trcdiststatsperlines_;
 };
 
 
