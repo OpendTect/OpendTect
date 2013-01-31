@@ -96,6 +96,8 @@ namespace sKey
     inline FixedString Title()		{ return "Title"; }
     inline FixedString TraceNr()	{ return "Trace number"; }
     inline FixedString Type()		{ return "Type"; }
+    inline FixedString TwoD()		{ return "2D"; }
+    inline FixedString ThreeD()		{ return "3D"; }
     inline FixedString Undef()		{ return "Undefined"; }
     inline FixedString Unit()		{ return "Unit"; }
     inline FixedString User()		{ return "User"; }
