@@ -44,7 +44,7 @@ DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
     dispsz_ = disprg_.nrSteps();
 
     workrg_ = disprg_; workrg_.step /= cDefTimeResampFac;
-    worksz_ = workrg_.nrSteps();
+    worksz_ = workrg_.nrSteps()+1;
 }
 
 
@@ -119,7 +119,7 @@ bool DataPlayer::setAIModel()
     float prev_depth = -1.f * data_.wd_->info().srdelev;
     // Now we take srd from well; we should get it from SI() if it is set there
     float thickness = 0;
-    for ( int idx=0; idx<=worksz_; idx++ )
+    for ( int idx=0; idx<worksz_; idx++ )
     {
 	const float twt = workrg_.atIndex( idx );
 	const float dah = d2t_->getDah( twt );
@@ -133,6 +133,7 @@ bool DataPlayer::setAIModel()
 	aimodel_ += AILayer( thickness, vel, den );
 	prev_depth = depth;
     }
+
     return true;
 }
 
@@ -288,7 +289,7 @@ void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
 bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )  
 {
     const float step = disprg_.step;
-    const int nrsamps =  mNINT32( zrg.width()/step )+1;
+    const int nrsamps = mNINT32( zrg.width()/step )+1;
     const int istart = mNINT32( zrg.start/step );
 
     if ( data_.seistrc_.size() < nrsamps || data_.synthtrc_.size() < nrsamps )
