@@ -103,11 +103,10 @@ uiSeisFileMan::~uiSeisFileMan()
 
 void uiSeisFileMan::ownSelChg()
 {
-    if ( !browsebut_ ) return;
-
-    browsebut_->setSensitive( curimplexists_
-			&& strcmp(curioobj_->translator(),
-				  SEGYDirectSeisTrcTranslator::translKey() ) );
+    if ( !browsebut_ || !curioobj_ ) return;
+		
+	browsebut_->setSensitive( curimplexists_ && strcmp(curioobj_->translator(),
+								SEGYDirectSeisTrcTranslator::translKey() ) );
 }
 
 
