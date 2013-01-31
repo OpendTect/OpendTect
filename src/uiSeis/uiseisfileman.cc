@@ -110,7 +110,7 @@ const char* uiSeisFileMan::getDefKey() const
 
 void uiSeisFileMan::ownSelChg()
 {
-    if ( !browsebut_ ) return;
+    if ( !browsebut_ || !curioobj_ ) return;
 
     browsebut_->setSensitive( curimplexists_
 			&& strcmp(curioobj_->translator(),
