@@ -19,7 +19,7 @@ IF( APPLE )
     IF( NOT ${STATUS} EQUAL "0" )
 	MESSAGE( FATAL_ERROR "changing dependency Failed" )
     ENDIF()
-    execute_process( COMMAND ${PSD}/data/install_files/macscripts/chfwscript ${CMAKE_INSTALL_PREFIX}/bin/mac/Release ${CMAKE_INSTALL_PREFIX}/bin/mac/Release )
+    execute_process( COMMAND ${PSD}/data/install_files/macscripts/chfwscript ${CMAKE_INSTALL_PREFIX}/bin/mac/Release ${CMAKE_INSTALL_PREFIX}/bin/mac/Release
 		     RESULT_VARIABLE STATUS )
     IF( NOT ${STATUS} EQUAL "0" )
 	MESSAGE( FATAL_ERROR "changing thired party dependency Failed" )
