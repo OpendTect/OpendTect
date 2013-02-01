@@ -57,7 +57,6 @@ MACRO ( OD_ADD_OPTIONAL_MODULES )
 ENDMACRO()
 
 macro ( OD_INSTALL_LIB ${ARGV} )
-message( "****files:${ARGV}***" )
     set ( NEXT_ARG_IS_DEST )
     foreach ( ARG ${ARGS} )
 	if ( ${ARG} STREQUAL "DESTINATION" )
