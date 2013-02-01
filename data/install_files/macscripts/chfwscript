@@ -10,7 +10,7 @@ set workdir=$1
 set binpath=$2
 echo "workdir: $workdir"
 echo "binpath: $binpath"
-cp -p $workdir/* $binpath/.
+cp -pf $workdir/* $binpath/.
 echo "Changing the dependency path in : $binpath"
 foreach bnry ( ${binpath}/* )
     if ( -f ${bnry} ) then
