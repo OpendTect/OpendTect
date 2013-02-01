@@ -45,21 +45,12 @@ public:
 			Setup() 
 			    : pdown_( true )
 			    , pup_( true )
-			    , sourcedepth_( 6 )
-			    , receiverdepth_( 7 )
 			    , doreflectivity_(true)			 
 			{
-			    if ( SI().depthsInFeetByDefault() )
-			    {
-				sourcedepth_ = 20;
-				receiverdepth_ = 25;
-			    }
 			}
 
 	mDefSetupMemb(bool,pdown);
 	mDefSetupMemb(bool,pup);
-	mDefSetupMemb(float,sourcedepth);
-	mDefSetupMemb(float,receiverdepth);
 	mDefSetupMemb(bool,doreflectivity);
 
 	virtual void	fillPar(IOPar&) const;
@@ -87,30 +78,27 @@ public:
     virtual bool	usePar(const IOPar&);
 
     static const char*	sKeyPWave()	   { return "Wavetypes"; }
-    static const char*	sKeySRDepth()	   { return "Source/Receiver Depths"; }
     static const char*	sKeyOffset()	   { return "Offset Range"; }
     static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
     static const char*  sKeyVelBlock()     { return "Block velocities"; }
-    static const char*  sKeyVelBlockVal()  { return "Block threshold"; }
+    static const char*  sKeyVelBlockVal()  { return "Block velocity threshold";}
+    static const char*  sKeyDensBlockVal() { return "Block density threshold"; }
 
     static void		setIOParsToZeroOffset(IOPar& iop);
 
 protected:
 			RayTracer1D();
-
+    
     od_int64		nrIterations() const;
     virtual bool	doPrepare(int);
     virtual bool	compute(int,int,float);
 
     			//Setup variables
-    ElasticModel	model_;
+    ElasticModel	model_; // model top depth must be TWT = 0ms
     TypeSet<float>	offsets_;
     FixedString		errmsg_;
 
 			//Runtime variables
-    int			sourcelayer_;
-    int			receiverlayer_;
-    int			firstlayer_;
     TypeSet<int>	offsetpermutation_;
     TypeSet<float>	velmax_;
     TypeSet<float>	depths_;

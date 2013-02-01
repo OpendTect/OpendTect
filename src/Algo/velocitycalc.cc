@@ -1421,8 +1421,9 @@ void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
     }
     
     TypeSet<float> aidiffs( ailayers.size(), mUdf(float) );
+    aidiffs[0] = 0;
     for ( int idx=ailayers.size()-1; idx>0; idx-- )
-	aidiffs[idx] = ailayers[idx]-ailayers[idx-1];
+	aidiffs[idx] = fabs(ailayers[idx]-ailayers[idx-1]);
     
     TypeSet<Interval<int> > investigationqueue;
     investigationqueue += Interval<int>( 0, ailayers.size()-1 );
@@ -1501,7 +1502,7 @@ void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
 	double wvelsum = 0;
 	double wsvelsum = 0;
 	double wdenssum = 0;
-	for ( int idy=curblock.start; idy<=curblock.stop; idx++ )
+	for ( int idy=curblock.start; idy<=curblock.stop; idy++ )
 	{
 	    const double thickness = inmdl[idy].thickness_;
 	    thicknesssum += thickness;

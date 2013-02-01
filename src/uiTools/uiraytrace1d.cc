@@ -120,7 +120,6 @@ uiRayTracer1D* uiRayTracerSel::current()
 uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     : uiGroup( p )
     , doreflectivity_(s.doreflectivity_)
-    , srcdepthfld_( 0 )
     , downwavefld_( 0 )
     , upwavefld_( 0 )
     , offsetfld_( 0 ) 
@@ -128,38 +127,8 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     , lastfld_( 0 )
     , blockfld_(0)
 {
-    if ( !s.dosourcereceiverdepth_ && !s.convertedwaves_ )
-    {
-	pErrMsg("Nothing to do"); return;
-    }
-
     BufferString zlbl( SI().depthsInFeetByDefault() ? " (ft" : " (m" );
     BufferString xylbl( SI().getXYUnitString(true) );
-
-    if ( s.dosourcereceiverdepth_ )
-    {
-	BufferString lb = "Source/Receiver depths"; lb += zlbl; lb += " ) ";
-	srcdepthfld_ =new uiGenInput(this,lb.buf(),FloatInpIntervalSpec(false));
-	lastfld_ = srcdepthfld_; 
-    }
-
-    if ( s.convertedwaves_ )
-    {
-	BoolInpSpec inpspec( true, "P", "S" );
-	downwavefld_ = new uiGenInput( this, "Downward wave-type", inpspec );
-	if ( srcdepthfld_ )
-	    downwavefld_->attach( alignedBelow, srcdepthfld_ );
-	else if ( offsetfld_ )
-	    downwavefld_->attach( alignedBelow, offsetfld_ );
-
-	upwavefld_ = new uiGenInput( this, "Upward wave-type", inpspec );
-	upwavefld_->attach( alignedBelow, downwavefld_ );
-
-	lastfld_ = upwavefld_; 
-    }
-
-    IOPar par; RayTracer1D::Setup defaultsetup; defaultsetup.fillPar( par ); 
-    usePar( par ); 
 
     if ( s.dooffsets_ )
     {
@@ -168,8 +137,6 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 	offsetfld_->setValue(
 			Interval<float>(s.offsetrg_.start,s.offsetrg_.stop));
 	offsetfld_->setElemSzPol( uiObject::Small );
-	if ( srcdepthfld_ )
-	    offsetfld_->attach( alignedBelow, srcdepthfld_ );
 
 	offsetstepfld_ = new uiGenInput( this, "step" );
 	offsetstepfld_->attach( rightOf, offsetfld_ );
@@ -177,15 +144,33 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 	offsetstepfld_->setValue( s.offsetrg_.step );
 	lastfld_ = offsetfld_; 
     }
+
     BufferString blocklbl = "Block (bend points) ";
     blocklbl += "Threshold"; blocklbl += zlbl; blocklbl += "/s ) ";
     blockfld_ = new uiGenInput( this, blocklbl );
     blockfld_->setWithCheck( true );
     blockfld_->setChecked( true );
-    blockfld_->attach( alignedBelow, lastfld_ );
+    if ( lastfld_ )
+	blockfld_->attach( alignedBelow, lastfld_ );
+
     blockfld_->setElemSzPol( uiObject::Small );
     blockfld_->setValue( 5 );
     lastfld_ = blockfld_; 
+
+    if ( s.convertedwaves_ )
+    {
+	BoolInpSpec inpspec( true, "P", "S" );
+	downwavefld_ = new uiGenInput( this, "Downward wave-type", inpspec );
+	downwavefld_->attach( alignedBelow, lastfld_ );
+	lastfld_ = downwavefld_;
+
+	upwavefld_ = new uiGenInput( this, "Upward wave-type", inpspec );
+	upwavefld_->attach( alignedBelow, lastfld_ );
+	lastfld_ = upwavefld_; 
+    }
+
+    IOPar par; RayTracer1D::Setup defaultsetup; defaultsetup.fillPar( par ); 
+    usePar( par ); 
 
     setHAlignObj( lastfld_ );
 }
@@ -204,13 +189,6 @@ bool uiRayTracer1D::usePar( const IOPar& par )
     {
 	downwavefld_->setValue( tmpsetup.pdown_ );
 	upwavefld_->setValue( tmpsetup.pup_ );
-    }
-
-    if ( srcdepthfld_ )
-    {
-	Interval<float> depths;
-	depths.set( tmpsetup.sourcedepth_, tmpsetup.receiverdepth_);
-	srcdepthfld_->setValue( depths );
     }
 
     TypeSet<float> offsets; par.get( RayTracer1D::sKeyOffset(), offsets );
@@ -242,11 +220,6 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 void uiRayTracer1D::fillPar( IOPar& par ) const
 {
     RayTracer1D::Setup tmpsetup;
-    if ( srcdepthfld_ )
-    {
-	tmpsetup.sourcedepth_ = srcdepthfld_->getfValue(0);
-	tmpsetup.receiverdepth_ = srcdepthfld_->getfValue(1);
-    }
 
     if ( downwavefld_ )
     {

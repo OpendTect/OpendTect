@@ -31,14 +31,12 @@ public:
 	public:	
 			Setup()
 			    : convertedwaves_(false)
-			    , dosourcereceiverdepth_(true)
 			    , doreflectivity_(true)
 			    , dooffsets_(false)
 			    , offsetrg_(0,6000,100)
 			    {}
 
 	mDefSetupMemb(bool,convertedwaves);
-	mDefSetupMemb(bool,dosourcereceiverdepth);
 	mDefSetupMemb(bool,dooffsets);
 	mDefSetupMemb(bool,doreflectivity);
 	mDefSetupMemb(StepInterval<float>,offsetrg);
@@ -59,7 +57,6 @@ protected:
 
     bool 		doreflectivity_;
 
-    uiGenInput*		srcdepthfld_;
     uiGenInput*		downwavefld_;
     uiGenInput*		upwavefld_;
 
