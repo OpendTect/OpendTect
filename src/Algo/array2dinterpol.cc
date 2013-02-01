@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyFillType()		{ return "Fill Type"; }
 static const char* sKeyRowStep() 		{ return "Row Step"; }
 static const char* sKeyColStep() 		{ return "Col Step"; }
+static const char* sKeyOrigin() 		{ return "Origin"; }
 static const char* sKeyNrRows() 		{ return "Nr of Rows"; }
 static const char* sKeyNrCols() 		{ return "Nr of Cols"; }
 static const char* sKeyNrCells() 		{ return "Nr of Cells"; }
@@ -73,19 +74,20 @@ protected:
 
 									    
 Array2DInterpol::Array2DInterpol()
-    : arr_( 0 )
-    , arrsetter_( 0 )
-    , nrcells_( -1 )
-    , nrrows_( -1 )
-    , nrcols_( -1 )
-    , filltype_( Full )
-    , maxholesize_( mUdf(float) )
-    , rowstep_( 1 )
-    , colstep_( 1 )
-    , mask_( 0 )
-    , maskismine_( false )
-    , isclassification_( false )
-    , statsetup_( 0 )
+    : arr_(0)
+    , arrsetter_(0)
+    , nrcells_(-1)
+    , nrrows_(-1)
+    , nrcols_(-1)
+    , filltype_(Full)
+    , maxholesize_(mUdf(float))
+    , rowstep_(1)
+    , colstep_(1)
+    , origin_(-1,-1)
+    , mask_(0)
+    , maskismine_(false)
+    , isclassification_(false)
+    , statsetup_(0)
 {}
 
 
@@ -115,14 +117,14 @@ void Array2DInterpol::setRowStep( float rs )
 void Array2DInterpol::setColStep( float cs )
 { colstep_ = cs; arr_ = 0; arrsetter_ = 0; }
 
+void Array2DInterpol::setOrigin( const RowCol& rc )
+{ origin_ = rc; }
 
 Array2DInterpol::FillType Array2DInterpol::getFillType() const
 { return filltype_; }
 
-
 void Array2DInterpol::setMaxHoleSize( float maxholesize )
 { maxholesize_ = maxholesize; arr_ = 0; arrsetter_=0; }
-
 
 float Array2DInterpol::getMaxHoleSize() const
 { return maxholesize_; }
@@ -596,6 +598,7 @@ bool Array2DInterpol::fillPar( IOPar& par ) const
     par.set( sKeyFillType(), filltype_ );
     par.set( sKeyRowStep(), rowstep_ );
     par.set( sKeyColStep(), colstep_ );
+    par.set( sKeyOrigin(), origin_.row, origin_.col );
     par.set( sKeyNrRows(), nrrows_ );
     par.set( sKeyNrCols(), nrcols_ );
     par.set( sKeyNrCells(), nrcells_ );
@@ -612,6 +615,7 @@ bool Array2DInterpol::usePar( const IOPar& par )
 
     par.get( sKeyRowStep(), rowstep_ );
     par.get( sKeyColStep(), colstep_ );
+    par.get( sKeyOrigin(), origin_.row, origin_.col );
     par.get( sKeyNrRows(), nrrows_ );
     par.get( sKeyNrCols(), nrcols_ );
     par.get( sKeyNrCells(), nrcells_ );
@@ -737,10 +741,9 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
     }
     else
     {
-	const int rowradius = (int) ceil( searchradius_/rowstep_ );
-	const int colradius = (int) ceil( searchradius_/colstep_ );
-
-	float radius2 = searchradius_*searchradius_;
+	const int rowradius = mNINT32( searchradius_/rowstep_ );
+	const int colradius = mNINT32( searchradius_/colstep_ );
+	const float radius2 = searchradius_*searchradius_;
 	neighbors_.erase();
 	neighborweights_.erase();
 

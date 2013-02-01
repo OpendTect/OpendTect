@@ -176,6 +176,7 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	
 	HorSampling hs( false );
 	hs.set( rowrg, colrg );
+	interpolator->setOrigin( hs.start );
 
 	Array2DImpl<float>* arr =
 	    new Array2DImpl<float>( hs.nrInl(), hs.nrCrl() );

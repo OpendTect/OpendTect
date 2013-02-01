@@ -15,13 +15,14 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "task.h"
+
 #include "enums.h"
 #include "factory.h"
 #include "odmemory.h"
+#include "rowcol.h"
 
 template <class T> class Array2D;
 namespace Stats { class CalcSetup; }
-
 
 /*!
 \brief Base class for two dimensional array interpolators.
@@ -40,6 +41,7 @@ public:
     FillType			getFillType() const;
     void			setRowStep(float r);
     void			setColStep(float r);
+    void			setOrigin(const RowCol&);
 
     void			setMaxHoleSize(float);
     float			getMaxHoleSize() const;
@@ -118,6 +120,7 @@ protected:
     int			nrrows_;
     int			nrcols_;
     int			nrcells_;
+    RowCol		origin_;
 
     FillType		filltype_;
     float		maxholesize_;
