@@ -230,24 +230,47 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
         for ( int lidx=0; lidx<layer; lidx++ )
 	    coefs[lidx].setInterface( rayparam, model_[lidx], model_[lidx+1] );
 
-	reflectivity = coefs[0].getCoeff( true,	layer!=1, setup().pdown_,
-				layer==0 ? setup().pup_ : setup().pdown_ ); 
-	if ( layer > 1 )
+	reflectivity = coefs[0].getCoeff( true,	layer!=0, setup().pdown_,
+				layer==0 ? setup().pup_ : setup().pdown_ );
+	if ( !Math::IsNormalNumber (reflectivity.real()) ||
+	       	Values::isUdf(reflectivity) )
 	{
-	    pErrMsg("Should not go further for first layer");
+	    pErrMsg("NaN detected");
 	    return false;
 	}
 
+	if ( layer < 1 )
+	    return true;
+
 	for ( int lidx=1; lidx<=layer; lidx++ )
 	{
-	    reflectivity *= coefs[lidx].getCoeff( true, lidx!=layer,
-		setup().pdown_, lidx==layer ? setup().pup_ : setup().pdown_);
+	    const float_complex tempref = coefs[lidx].getCoeff( true,
+		   lidx!=layer, setup().pdown_,
+		   lidx==layer ? setup().pup_ : setup().pdown_);
+	    if ( !Math::IsNormalNumber (tempref.real()) ||
+		    !Math::IsNormalNumber (tempref.imag()) ||
+		    Values::isUdf(tempref) )
+	    {
+		pErrMsg("NaN detected");
+		return false;
+	    }
+	    else
+		reflectivity *= tempref;
 	}
 
 	for ( int lidx=layer; lidx>0; lidx--)
 	{
-	    reflectivity *= coefs[lidx-1].getCoeff( false, false,
+	    const float_complex tempref = coefs[lidx-1].getCoeff( false, false,
 		    				    setup().pup_,setup().pup_);
+	    if ( !Math::IsNormalNumber (tempref.real()) ||
+		    !Math::IsNormalNumber (tempref.imag()) ||
+		    Values::isUdf(tempref))
+	    {
+		pErrMsg("NaN detected");
+		return false;
+	    }
+	    else
+		reflectivity *= tempref;
 	}
     }
     else
