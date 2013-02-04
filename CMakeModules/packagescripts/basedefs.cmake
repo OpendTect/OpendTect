@@ -27,7 +27,7 @@ SET( PLUGINS HorizonAttrib GapDecon VoxelConnectivityFilter
 #Only for windows base package
 SET( WINEXECLIST od_start_dtect od_main_console unzip )
 SET( SPECFILES .exec_prog .init_dtect .init_dtect_user install .lic_inst_common
-#	       .lic_start_common mk_datadir .setappl.sh .start_dtect setup.od *.txt )
-	       .lic_start_common mk_datadir .setappl.sh .start_dtect setup.od )
+	       .lic_start_common mk_datadir .setappl.sh .start_dtect setup.od
+		GNU_GENERAL_PUBLIC_LICENSE.txt INSTALL.txt LICENSE.txt )
 SET( ODSCRIPTS od_* mksethdir mac_term macterm.in )
 SET( PACK "base" )
