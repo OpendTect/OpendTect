@@ -356,13 +356,28 @@ void initFlds( CallBacker* )
     uiAxisHandler* yaxh = plotter_.axisHandler( 1 );
     if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
 
-    y1a0fld_->setValue( plotter_.userdefy1lp_.a0 );
-    y1a1fld_->setValue( plotter_.userdefy1lp_.ax );
+    if ( !mIsUdf(plotter_.userdefy1lp_.ax) )
+    {
+	y1a0fld_->setValue( plotter_.userdefy1lp_.a0 );
+    	y1a1fld_->setValue( plotter_.userdefy1lp_.ax );
+    }
+    else
+    {
+	y1a0fld_->setValue(0); y1a1fld_->setValue(0);
+    }
     
     if ( hasy2_ )
     {
-	y2a0fld_->setValue( plotter_.userdefy2lp_.a0 );
-	y2a1fld_->setValue( plotter_.userdefy2lp_.ax );
+	if ( !mIsUdf(plotter_.userdefy2lp_.ax) )
+	{
+	    y2a0fld_->setValue( plotter_.userdefy2lp_.a0 );
+    	    y2a1fld_->setValue( plotter_.userdefy2lp_.ax );
+	}
+	else
+	{
+	    y2a0fld_->setValue(0); y2a1fld_->setValue(0);
+	}
+
 	shwy2userdefline_->setChecked( plotter_.setup().showy2userdefline_ );
     }
     shwy1userdefline_->setChecked( plotter_.setup().showy1userdefline_ );

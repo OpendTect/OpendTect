@@ -528,9 +528,9 @@ void uiDataPointSetCrossPlotter::mouseMove( CallBacker* )
 	    xah.getVal(stoppos.x) - xah.getVal(startpos_.x);
 	const float perpendicular =
 	    yah.getVal(stoppos.y) - yah.getVal(startpos_.y);
-	linepar.ax = perpendicular/base;
-	linepar.a0 = yah.getVal(startpos_.y) -
-	    	     ( linepar.ax * xah.getVal(startpos_.x) );
+	linepar.ax = mIsZero(base,1e-6) ? mUdf(float) : perpendicular/base;
+	linepar.a0 = mIsZero(base,1e-6) ? mUdf(float) :
+	    yah.getVal(startpos_.y) - ( linepar.ax * xah.getVal(startpos_.x) );
 	
 	setUserDefLine( startpos_, stoppos );
 	lineDrawn.trigger();
