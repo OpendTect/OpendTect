@@ -265,7 +265,7 @@ bool IOObj::isSurveyDefault( const MultiID& ky )
 
 bool IOObj::isInCurrentSurvey() const
 {
-    FilePath cursurvfp( IOM().rootDir() );
+    FilePath cursurvfp( IOM().rootDir() ); cursurvfp.makeCanonical();
     FilePath orgfp( fullUserExpr(true) ); orgfp.makeCanonical();
     return orgfp.isSubDirOf(cursurvfp);
 }
