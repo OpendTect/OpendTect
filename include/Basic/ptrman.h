@@ -64,7 +64,7 @@ For Arrays, use the ArrPtrMan class.
 
 */
 mDefPtrMan1(PtrMan, , delete ptr_ )
-inline PtrMan<T>& operator=(const PtrMan<T>& p ); //Will give linkerror is used
+inline PtrMan<T>& operator=(const PtrMan<T>& p ); //Will give linkerror if used
 mDefPtrMan2(PtrMan, , delete ptr_ )
 mDefPtrMan3(PtrMan, , delete ptr_ )
 
