@@ -917,5 +917,13 @@ bool Survey::Geometry2D::includes( int line, int tracenr ) const
 { return data_.indexOf(tracenr) >= 0; }
 
 
+BufferString Survey::Geometry2D::makeUniqueLineName( const char* lsnm,
+													 const char* lnm )
+{
+    BufferString newlnm( lsnm );
+    newlnm.add( "-" );
+    newlnm.add( lnm );
+    return newlnm;
+}
 
 

@@ -59,7 +59,8 @@ protected:
     EM::Horizon2D&		hor2d_;
     int				nrdone_;
     int				totalnr_;
-    PosInfo::GeomID		geomid_;
+    PosInfo::GeomID		oldgeomid_;
+    int                         geomid_;
     
     PosInfo::Line2DData		posdata_;
 };

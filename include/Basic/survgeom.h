@@ -74,10 +74,12 @@ public:
     int			createEntry(const char* name,const bool is2d);
 				// returns new GeomID.
     
+    bool		fillGeometries();
     static int		cDefault3DGeom() { return -1; }
 
 protected:
     void		addGeometry(Geometry*);
+	bool		hasDuplicateLineNames();
 
     ObjectSet<Geometry> geometries_;
 };
@@ -99,6 +101,9 @@ mExpClass(Basic) GeometryReader
 public:
 			GeometryReader(){};
 			mDefineFactoryInClass(GeometryReader,factory);
+
+    virtual bool	read(ObjectSet<Geometry>&)	    {return true;};
+
 };
 
 

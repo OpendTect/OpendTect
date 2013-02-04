@@ -163,20 +163,23 @@ namespace Survey
 mExpClass(Basic) Geometry2D : public Geometry
 {
 public:
-                   		Geometry2D();
-				Geometry2D(PosInfo::Line2DData& l2d)
-				:data_(l2d){}
+                   			Geometry2D();
+							Geometry2D(PosInfo::Line2DData& l2d)
+							:data_(l2d){}
 
-    Coord			toCoord(const TraceID& tid) const
-				{ return toCoord( tid.line_, tid.trcnr_); }
-    virtual Coord		toCoord(int line, int tracenr) const;
-    virtual TraceID		nearestTrace(const Coord&,float* dist) const;
+    Coord					toCoord(const TraceID& tid) const
+									{ return toCoord( tid.line_, tid.trcnr_); }
+    virtual Coord			toCoord(int line, int tracenr) const;
+    virtual TraceID			nearestTrace(const Coord&,float* dist) const;
 
-    virtual bool		includes(int line, int tracenr)	const;
+    virtual bool			includes(int line, int tracenr)	const;
 
-    bool			is2D() const		{ return true; }
+    bool					is2D() const		{ return true; }
     PosInfo::Line2DData&	data()			{ return data_; }
     const PosInfo::Line2DData	data() const		{ return data_; }
+
+    static BufferString  	makeUniqueLineName
+											(const char* lsnm,const char* lnm);
 
 protected:
 

@@ -41,6 +41,8 @@ mDefModInitFn(General)
 
     Survey::GeometryWriter2D::initClass();
     Survey::GeometryWriter3D::initClass();
+    Survey::GeometryReader3D::initClass();
+    Survey::GeometryReader2D::initClass();
     Survey::SurvGeomTranslatorGroup::initClass();
     Survey::dgb2DSurvGeomTranslator::initClass();
 

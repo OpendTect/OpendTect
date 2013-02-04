@@ -255,8 +255,12 @@ bool dgbEMSurfaceTranslator::prepRead()
 
     for ( int idx=0; idx<reader_->nrLines(); idx++ )
     {
+#ifdef mNew2DGeometryImpl
+	sd_.geomids_.add( reader_->lineGeomID(idx) );
+#else
 	sd_.linenames.add( reader_->lineName(idx) );
 	sd_.linesets.add( reader_->lineSet(idx) );
+#endif
 	StepInterval<int> trcrange = reader_->lineTrcRanges(idx);
 	if ( !mIsUdf(trcrange.start) && !mIsUdf(trcrange.stop) )
 	    sd_.trcranges += reader_->lineTrcRanges(idx);

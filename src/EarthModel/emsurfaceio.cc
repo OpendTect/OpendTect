@@ -231,7 +231,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 {
     TypeSet<int> lineids; bool is2d = false;
 
-    if ( par_->find( Horizon2DGeometry::sKeyNrLines()) )
+    if ( par_->find(sKey::GeomID()) )
     {
 	is2d = true;
 	int nrlines = 0;
@@ -239,6 +239,47 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	
 	for ( int idx=0; idx<nrlines; idx++ )
 	{
+	    int geomid;
+	    BufferString key = IOPar::compKey( sKey::GeomID(),idx );
+	    par_->get( key, geomid );
+	    geomids_.add( geomid );
+	    StepInterval<int> trcrange( mUdf(int), mUdf(int), 1 );
+	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()), 
+								    trcrange);
+	    trcranges += trcrange;
+	}
+    }
+    else if ( par_->find( Horizon2DGeometry::sKeyNrLines()) )
+    {
+	is2d = true;
+	int nrlines = 0;
+	par_->get( Horizon2DGeometry::sKeyNrLines(), nrlines );
+	
+	for ( int idx=0; idx<nrlines; idx++ )
+	{
+#ifdef mNew2DGeometryImpl
+
+	    BufferString key = IOPar::compKey( "Line", idx );
+
+	    BufferString idstr;
+	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
+	    PosInfo::GeomID oldgeomid; oldgeomid.fromString( idstr );
+	    S2DPOS().setCurLineSet( oldgeomid.lsid_ );
+	    BufferString lnm = S2DPOS().getLineName( oldgeomid.lineid_ );
+	    int geomid = Survey::GM().getGeomID( lnm.buf() );
+		if ( geomid < 0 )
+		{
+			lnm = Survey::Geometry2D::makeUniqueLineName( S2DPOS().curLineSet(),
+									S2DPOS().getLineName(oldgeomid.lineid_) );
+			geomid = Survey::GM().getGeomID( lnm.buf() );
+		}
+
+	    geomids_ += geomid;
+	    StepInterval<int> trcrange( mUdf(int), mUdf(int), 1 );
+	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
+								    trcrange );
+	    trcranges += trcrange;
+#else
 	    SeparString linekey( "Line", '.' );
 	    linekey.add( idx );
 
@@ -262,6 +303,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    StepInterval<int> trcrange( mUdf(int), mUdf(int), 1 );
 	    par_->get( linetrcrgkey, trcrange );
 	    trcranges += trcrange;
+#endif
 	}
     }
     else if ( par_->get(Horizon2DGeometry::sKeyLineIDs(),lineids) )
@@ -359,7 +401,11 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     if ( version_==1 )
 	return parseVersion1( *par_ );
 
+#ifdef mNew2DGeometryImpl
+    if ( is2d && geomids_.isEmpty() )
+#else
     if ( is2d && linesets_.isEmpty() )
+#endif
     {
 	msg_ = "No geometry found for this horizon";
 	return false;
@@ -471,7 +517,13 @@ BufferString dgbSurfaceReader::sectionName( int idx ) const
 
 
 int dgbSurfaceReader::nrLines() const
-{ return linenames_.size(); }
+{ 
+#ifdef mNew2DGeometryImpl
+    return geomids_.size();
+#else
+    return linenames_.size(); 
+#endif
+}
 
 
 BufferString dgbSurfaceReader::lineName( int idx ) const
@@ -480,6 +532,11 @@ BufferString dgbSurfaceReader::lineName( int idx ) const
 
 BufferString dgbSurfaceReader::lineSet( int idx ) const
 { return linesets_.validIdx( idx ) ? linesets_.get( idx ) : BufferString(""); }
+
+
+int dgbSurfaceReader::lineGeomID( int idx ) const
+{ return geomids_.validIdx( idx ) ? geomids_[idx] : -1; }
+
 
 
 void dgbSurfaceReader::selSections(const TypeSet<SectionID>& sel)
@@ -781,6 +838,22 @@ int dgbSurfaceReader::nextStep()
     BufferStringSet lines;
     if ( par_->hasKey(Horizon2DGeometry::sKeyLineNames()) )
 	par_->get( Horizon2DGeometry::sKeyLineNames(),lines );
+    else if ( par_->find(sKey::GeomID()) )
+    {
+	int nrlines = 0;
+	par_->get( Horizon2DGeometry::sKeyNrLines(), nrlines );
+	for ( int idx=0; idx<nrlines; idx++ )
+	{
+	    BufferString key = IOPar::compKey( sKey::GeomID(), idx );
+	    int geomid;
+	    par_->get( key, geomid );
+	    BufferString lnm = Survey::GM().getName( geomid );
+	    if ( lnm.isEmpty() )
+		sKeyUndefLine();
+	    else
+		lines.add( lnm );
+	}
+    }
     else if ( par_->find(Horizon2DGeometry::sKeyNrLines()) )
     {
 	int nrlines = 0;
@@ -829,9 +902,13 @@ int dgbSurfaceReader::nextStep()
 
     if ( hor2d )
     {
+#ifdef mNew2DGeometryImpl
+	if ( (!geomids_.validIdx(rowindex_)) || (geomids_[rowindex_]<0) )
+#else
 	if ( (!linesets_.validIdx(rowindex_) || !linenames_.validIdx(rowindex_))
 	  || (linesets_.get(rowindex_)==sKeyUndefLineSet() ||
 	      linenames_.get(rowindex_)==sKeyUndefLine()) )
+#endif
 	{
 	    const int res = skipRow( strm );
 	    if ( res==ErrorOccurred() )
@@ -843,6 +920,11 @@ int dgbSurfaceReader::nextStep()
 	if ( !hor2d->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
+#ifdef mNew2DGeometryImpl
+	hor2d->geometry().sectionGeometry( sectionid )->addUdfRow
+				(geomids_[rowindex_],firstcol+noofcoltoskip,
+				    firstcol+nrcols+noofcoltoskip-1, colstep );
+#else
 	PosInfo::GeomID geomid = S2DPOS().getGeomID(linesets_[rowindex_]->buf(),
 	    					 linenames_[rowindex_]->buf() );
 	if ( !geomid.isOK() )
@@ -851,6 +933,7 @@ int dgbSurfaceReader::nextStep()
 	hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
 		geomid, firstcol+noofcoltoskip,
 		firstcol+nrcols+noofcoltoskip-1, colstep );
+#endif
     }
 
     mDynamicCastGet(Fault3D*,flt3d,surface_);

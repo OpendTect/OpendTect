@@ -93,6 +93,7 @@ public:
     int			nrLines() const;
     BufferString	lineName(int) const;
     BufferString	lineSet(int) const;
+    int			lineGeomID(int) const;
     StepInterval<int>	lineTrcRanges( int idx ) const;
     int			stratLevelID() const;
     const IOPar*	pars() const;
@@ -158,6 +159,7 @@ protected:
     BufferStringSet	sectionnames_;
     BufferStringSet	linenames_;
     BufferStringSet	linesets_;
+    TypeSet<int>	geomids_;
     TypeSet<EM::SectionID> sectionids_;
     TypeSet<EM::SectionID> sectionsel_;
     bool		fullyread_;

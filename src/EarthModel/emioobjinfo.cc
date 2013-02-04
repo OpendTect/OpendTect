@@ -188,7 +188,11 @@ bool IOObjInfo::getLineNames( BufferStringSet& linenames ) const
     mGetReaderRet
 
     for ( int idx=0; idx<reader_->nrLines(); idx++ )
+#ifdef mNew2DGeometryImpl
+	linenames.add(Survey::GM().getName(reader_->lineGeomID(idx)) );
+#else
 	linenames.add( reader_->lineName(idx) );
+#endif
     return true;
 }
 
