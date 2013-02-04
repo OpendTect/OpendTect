@@ -325,3 +325,32 @@ Coord PosInfo::Line2DData::getNormal( int trcnr ) const
 	return Coord( -v1.y/length, v1.x/length );
     }
 }
+
+
+void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
+						 float& median ) const
+{
+    max = 0;
+    median = 0;
+    TypeSet<float> medset;
+    const TypeSet<PosInfo::Line2DPos>& posns = positions();
+    for ( int pidx=1; pidx<posns.size(); pidx++ )
+    {
+	const double distsq =
+			posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
+
+	float dist = (float)Math::Sqrt(distsq);
+	if ( !mIsUdf(dist) )
+	{
+	    if ( dist > max )
+		max = dist;
+	    medset += dist;
+	}
+    }
+
+    if ( medset.size() )
+    {
+	sort( medset );
+	median = medset[ mCast(int, medset.size()/2) ];
+    }
+}

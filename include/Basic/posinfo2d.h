@@ -103,6 +103,7 @@ public:
 
     StepInterval<int>	trcNrRange() const;
     Coord		getNormal(int trcnr) const;
+    void		compDistBetwTrcsStats(float& max, float& median) const;
 
 protected:
 

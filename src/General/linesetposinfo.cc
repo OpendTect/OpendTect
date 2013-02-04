@@ -137,24 +137,11 @@ float PosInfo::LineSet2DData::getDistBetwTrcs( bool ismax,
 
 void PosInfo::LineSet2DData::compDistBetwTrcsStats()
 {
-    Stats::CalcSetup rcsetup;
-    rcsetup.require( Stats::Max );
-    rcsetup.require( Stats::Median );
     for ( int lidx=0; lidx<nrLines(); lidx++ )
     {
-	Stats::RunCalc<float> stats( rcsetup );
-	const TypeSet<PosInfo::Line2DPos>& posns = lineData(lidx).positions();
-	for ( int pidx=1; pidx<posns.size(); pidx++ )
-	{
-	    const double distsq =
-			posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
-
-	    stats += (float)Math::Sqrt(distsq);
-	}
-
-	LineTrcDistStats ltrcdiststats( lineName( lidx ), stats.median(),
-					stats.max() );
-
+	float median, max;
+	lineData( lidx ).compDistBetwTrcsStats( max, median );
+	LineTrcDistStats ltrcdiststats( lineName( lidx ), median, max );
 	trcdiststatsperlines_ += ltrcdiststats;
     }
 }
