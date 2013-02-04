@@ -210,6 +210,21 @@ bool RayTracer1D::doPrepare( int nrthreads )
 }
 
 
+#define mCheckRai( tempref, reflectivity ) \
+	if ( !Math::IsNormalNumber(tempref.real()) || \
+	     !Math::IsNormalNumber(tempref.imag()) || \
+		Values::isUdf(tempref) ) \
+	    { \
+		BufferString errmsg = "NaN detected- "; \
+		errmsg += "Layer: "; \
+		errmsg += layer; \
+		errmsg += " - Offset: "; \
+		errmsg += offsets_[offsetidx]; \
+		pErrMsg(errmsg); \
+		reflectivity_->set( layer, offsetidx, reflectivity ); \
+		return true; \
+	    }
+
 bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
     const ElasticLayer& ellayer = model_[layer];
@@ -230,47 +245,28 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
         for ( int lidx=0; lidx<layer; lidx++ )
 	    coefs[lidx].setInterface( rayparam, model_[lidx], model_[lidx+1] );
 
-	reflectivity = coefs[0].getCoeff( true,	layer!=0, setup().pdown_,
+	float_complex tempref = coefs[0].getCoeff( true,layer!=0,setup().pdown_,
 				layer==0 ? setup().pup_ : setup().pdown_ );
-	if ( !Math::IsNormalNumber (reflectivity.real()) ||
-	       	Values::isUdf(reflectivity) )
-	{
-	    pErrMsg("NaN detected");
-	    return false;
-	}
+	mCheckRai(tempref,0);
+	reflectivity = tempref;
 
 	if ( layer < 1 )
 	    return true;
 
 	for ( int lidx=1; lidx<=layer; lidx++ )
 	{
-	    const float_complex tempref = coefs[lidx].getCoeff( true,
-		   lidx!=layer, setup().pdown_,
-		   lidx==layer ? setup().pup_ : setup().pdown_);
-	    if ( !Math::IsNormalNumber (tempref.real()) ||
-		    !Math::IsNormalNumber (tempref.imag()) ||
-		    Values::isUdf(tempref) )
-	    {
-		pErrMsg("NaN detected");
-		return false;
-	    }
-	    else
-		reflectivity *= tempref;
+	    tempref = coefs[lidx].getCoeff( true, lidx!=layer, setup().pdown_,
+		    		  lidx==layer ? setup().pup_ : setup().pdown_);
+	    mCheckRai(tempref,reflectivity);
+	    reflectivity *= tempref;
 	}
 
 	for ( int lidx=layer; lidx>0; lidx--)
 	{
-	    const float_complex tempref = coefs[lidx-1].getCoeff( false, false,
-		    				    setup().pup_,setup().pup_);
-	    if ( !Math::IsNormalNumber (tempref.real()) ||
-		    !Math::IsNormalNumber (tempref.imag()) ||
-		    Values::isUdf(tempref))
-	    {
-		pErrMsg("NaN detected");
-		return false;
-	    }
-	    else
-		reflectivity *= tempref;
+	    tempref = coefs[lidx-1].getCoeff( false, false, setup().pup_,
+		    			      setup().pup_);
+	    mCheckRai(tempref,reflectivity);
+	    reflectivity *= tempref;
 	}
     }
     else
