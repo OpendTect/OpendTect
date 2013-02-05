@@ -75,7 +75,8 @@ protected:
 
 public:
     PropertyRef::StdType	inputType(int) const;
-
+    const UnitOfMeasure*	formulaOutputUnit() const;
+    void			setFormulaOutputUnit(const UnitOfMeasure*);  
 };
 
 

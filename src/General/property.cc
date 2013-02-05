@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "mathproperty.h"
+#include "hiddenparam.h"
 #include "propertyref.h"
 #include "mathexpression.h"
 #include "unitofmeasure.h"
@@ -153,6 +154,9 @@ float RangeProperty::gtVal( Property::EvalOpts eo ) const
 }
 
 
+HiddenParam<MathProperty,const UnitOfMeasure*> formulauomman( 0 );
+
+
 MathProperty::MathProperty( const PropertyRef& pr, const char* df )
     : Property(pr)
     , expr_(0)
@@ -175,6 +179,8 @@ MathProperty::MathProperty( const MathProperty& mp )
     inpunits_.erase();
     for ( int idx=0; idx<mp.inpunits_.size(); idx++ )
 	inpunits_ += mp.inpunits_[idx];
+
+    setFormulaOutputUnit( mp.formulaOutputUnit() );
 }
 
 
@@ -442,8 +448,10 @@ const char* MathProperty::def() const
 	cdef.add( constValue(idx) );
 	fms += cdef;
     }
-    if ( uom_ )
-	fms += uom_->name();
+
+    const UnitOfMeasure* formulauom = formulaOutputUnit();
+    if ( formulauom )
+	fms += formulauom->name();
     else
 	fms.add( "" );
 
@@ -484,7 +492,7 @@ void MathProperty::setDef( const char* s )
 	inps_ += 0;
 
     if ( fmssz > constsz+1 )
-	uom_ = UoMR().get( ref_.stdType(), fms[constsz+1] );
+	setFormulaOutputUnit( UoMR().get( ref_.stdType(), fms[constsz+1] ) );
 
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
@@ -551,6 +559,10 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	      			 constValue(idx) );
 
     float res = expr_->getValue();
+
+    if ( formulaOutputUnit() )
+	res = formulaOutputUnit()->getSIValue( res );
+
     if ( uom_ )
 	res = uom_->getUserValueFromSI( res );
 
@@ -558,6 +570,18 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	eo.valopt_ = EvalOpts::Prev;
 
     return res;
+}
+
+
+const UnitOfMeasure* MathProperty::formulaOutputUnit() const
+{
+    return formulauomman.getParam( this ); 
+}
+
+
+void MathProperty::setFormulaOutputUnit( const UnitOfMeasure* uom )
+{
+    formulauomman.setParam( this, uom );
 }
 
 
