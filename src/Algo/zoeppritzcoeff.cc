@@ -34,42 +34,42 @@ ZoeppritzCoeff::ZoeppritzCoeff()
 void ZoeppritzCoeff::setInterface( float p, const ElasticLayer& el1, 
 					    const ElasticLayer& el2 ) 
 {
-    float p2 = p * p; 
-    float pvel1 = el1.vel_;
-    float pvel2 = el2.vel_;
+    const float p2 = p * p; 
+    const float pvel1 = el1.vel_;
+    const float pvel2 = el2.vel_;
     float svel1 = el1.svel_;
     float svel2 = el2.svel_;
     
-    bool waterabove = mIsZero(svel1,mDefEps);	//Detect water
-    bool waterbelow = mIsZero(svel2,mDefEps);
+    const bool waterabove = mIsZero(svel1,mDefEps);	//Detect water
+    const bool waterbelow = mIsZero(svel2,mDefEps);
 
     if ( waterabove ) svel1 = 0.1;	// Set small values to make eqns work
     if ( waterbelow ) svel2 = 0.1;
 
-    float l1s2 = svel1 * svel1;
-    float l2s2 = svel2 * svel2;
-    float l1p2 = pvel1 * pvel1;
-    float l2p2 = pvel2 * pvel2;
+    const float l1s2 = svel1 * svel1;
+    const float l2s2 = svel2 * svel2;
+    const float l1p2 = pvel1 * pvel1;
+    const float l2p2 = pvel2 * pvel2;
 
-    float_complex a = el2.den_ * (1 -  2 * l2s2 * p2) -
+    const float_complex a = el2.den_ * (1 -  2 * l2s2 * p2) -
 	      el1.den_ * (1 -  2 * l1s2 * p2);	
-    float_complex b = el2.den_ * (1 -  2 * l2s2 * p2) +
+    const float_complex b = el2.den_ * (1 -  2 * l2s2 * p2) +
 	      el1.den_ * 2 * l1s2 * p2;	
-    float_complex c = el1.den_ * (1 -  2 * l1s2 * p2) +
+    const float_complex c = el1.den_ * (1 -  2 * l1s2 * p2) +
 	      el2.den_ * 2 * l2s2 * p2;	
-    float_complex d = 2 * (el2.den_ * l2s2 - el1.den_ * l1s2);
+    const float_complex d = 2 * (el2.den_ * l2s2 - el1.den_ * l1s2);
 
-    float_complex pzi1 = Math::Sqrt( float_complex( 1.f/l1p2 - p2, 0) );
-    float_complex pzi2 = Math::Sqrt( float_complex( 1.f/l2p2 - p2, 0) );
+    const float_complex pzi1 = Math::Sqrt( float_complex( 1.f/l1p2 - p2, 0) );
+    const float_complex pzi2 = Math::Sqrt( float_complex( 1.f/l2p2 - p2, 0) );
 
-    float_complex pzj1 = Math::Sqrt( float_complex( 1.f/l1s2 - p2, 0) );
-    float_complex pzj2 = Math::Sqrt( float_complex( 1.f/l2s2 - p2, 0) );
+    const float_complex pzj1 = Math::Sqrt( float_complex( 1.f/l1s2 - p2, 0) );
+    const float_complex pzj2 = Math::Sqrt( float_complex( 1.f/l2s2 - p2, 0) );
 
-    float_complex ee = b * pzi1 + c * pzi2;
-    float_complex ff = b * pzj1 + c * pzj2;
-    float_complex gg = a - d * pzi1 * pzj2;
-    float_complex hh = a - d * pzi2 * pzj1;
-    float_complex dd = ee*ff + gg*hh * p2;
+    const float_complex ee = b * pzi1 + c * pzi2;
+    const float_complex ff = b * pzj1 + c * pzj2;
+    const float_complex gg = a - d * pzi1 * pzj2;
+    const float_complex hh = a - d * pzi2 * pzj1;
+    const float_complex dd = ee*ff + gg*hh * p2;
 
     const float f2 = (float)2;
 

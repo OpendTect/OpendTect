@@ -31,7 +31,8 @@ public:
 					const ElasticLayer& el_layer1,
 					const ElasticLayer& el_layer2 );
 
-    float_complex       getCoeff(bool din,bool dout,bool pin,bool pout) const;
+    float_complex       getCoeff(bool down_in,bool down_out,
+	    			 bool p_in,bool p_out) const;
 
 protected:
 
