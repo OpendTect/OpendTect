@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arraynd.h"
 #include "math2.h"
 #include "iopar.h"
+#include "simpnumer.h"
 #include "sorting.h"
 #include "statrand.h"
 #include "undefval.h"
@@ -246,7 +247,12 @@ bool DataClipper::fullSort()
     if ( !nrvals ) return false;
 
     if ( nrvals>100 )
-	quickSort( samples_.arr(), mCast(int,nrvals) );
+    {
+	if ( nrvals>255 && is8BitesData(samples_.arr(),nrvals,100) )
+	    duplicate_sort( samples_.arr(), nrvals );
+	else
+	    quickSort( samples_.arr(), mCast(int,nrvals) );
+    }
     else
 	sort_array( samples_.arr(), mCast(int,nrvals) );
 
