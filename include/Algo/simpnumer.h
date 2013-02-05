@@ -319,8 +319,8 @@ inline int solve3DPoly( double a, double b, double c,
 template <class T>
 inline bool holdsClassValue( const T val, const unsigned int maxclss=50 )
 {
-    if ( val < -mDefEps ) return false;
     if ( mIsUdf(val) ) return true;
+    if ( val < -mDefEps ) return false;
     const int ival = (int)(val + .5);
     return ival <= maxclss && mIsEqual(val,ival,mDefEps);
 }
@@ -347,7 +347,10 @@ inline bool holdsClassValues( const T* vals, od_int64 sz,
 
     for ( int idx=0; idx<samplesz; idx++ )
     {
-	const od_int64 arridx = ((1+idx) * seed) % samplesz;
+	od_int64 arridx = ((1+idx) * seed) % samplesz;
+	if ( arridx<0 ) 
+	    arridx = -arridx;
+
 	if ( !holdsClassValue(vals[arridx],maxclss) )
 	    return false;
     }
@@ -355,6 +358,48 @@ inline bool holdsClassValues( const T* vals, od_int64 sz,
 }
 
 
+template <class T>
+inline bool isSigned8BitesValue( const T val )
+{
+    if ( val>127 || val<-128 )
+	return false;
+
+    const int ival = (int)(val>0 ? val+.5 : val-.5);
+    return mIsEqual(val,ival,mDefEps);
+}
+
+
+template <class T>
+inline bool is8BitesData( const T* vals, od_int64 sz,
+	const unsigned int samplesz=100 )
+{
+    if ( holdsClassValues(vals,sz,255,samplesz) )
+	return true;
+
+    if ( sz <= samplesz )
+    {
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    if ( !isSigned8BitesValue(vals[idx]) )
+		return false;
+	}
+	return true;
+    }
+
+    static od_int64 seed = mUdf(od_int64);
+    seed *= seed + 1; // Clumsy but cheap sort-of random generation
+
+    for ( int idx=0; idx<samplesz; idx++ )
+    {
+	od_int64 arridx = ((1+idx) * seed) % samplesz;
+	if ( arridx<0 ) 
+	    arridx = -arridx;
+	
+	if ( !isSigned8BitesValue(vals[arridx]) )
+	    return false;
+    }
+    return true;
+}
 
 #endif
 
