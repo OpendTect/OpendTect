@@ -35,10 +35,10 @@ public:
 					   Array2D<bool>& output);
 				~FingerVein()	{}
 
-    bool			compute(bool domerge=true,bool dothinning=true,
-	    				int minfltlength=15,
-					float overlaprate=0.5,
-					int sigma=3,float thresholdpercent=0.93,
+    bool			compute(bool domerge=false,bool dothinning=true,
+	    				int minfltlength=10,
+					float overlaprate=0.9,
+					int sigma=3,float thresholdpercent=0.9,
 					TaskRunner* tr=0);
     const TypeSet<TypeSet<int> >& validConnComponents() const 
     				{ return validconncomps_; }
