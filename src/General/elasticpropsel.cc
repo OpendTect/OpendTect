@@ -81,7 +81,7 @@ void ElasticFormula::usePar( const IOPar& par )
 
 const char* ElasticFormula::parseVariable( int idx, float& val ) const
 {
-    if ( !variables_.validIdx( idx ) ) 
+    if ( !variables_.validIdx( idx ) )
 	return 0;
 
     val = mUdf( float );
@@ -447,6 +447,8 @@ float ElasticPropGen::getVal(const ElasticFormula& ef,
     for ( int idx=0; idx<selvars.size(); idx++ )
     {
 	const char* var = ef.parseVariable( idx, val );
+	if ( caseInsensitiveEqual(var,"P-wave velocity" ))
+	    var = "Pwave velocity"; // ugly temporary fix needs rework #1748
 
 	if ( refprops_.isPresent( var ) )
 	    val = vals[refprops_.indexOf(var)];
@@ -497,11 +499,11 @@ ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
     {
 	eps = new ElasticPropSelection;
 	
-	if ( !conn->forRead() || !conn->isStream() )  return false;
+	if ( !conn->forRead() || !conn->isStream() )  return 0;
 
 	ascistream astream( ((StreamConn&)(*conn)).iStream() );
 	if ( !astream.isOfFileType(mTranslGroupName(ElasticPropSelection)) )
-	    return false;
+	    return 0;
 
 	while ( !atEndOfSection( astream.next() ) )
 	{

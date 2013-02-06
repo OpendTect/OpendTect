@@ -450,6 +450,8 @@ const char* StratSynth::errMsg() const
 
 
 #define mLayerBlockSize 1000
+static const float cMaximumVpWaterVel = 1510.f;
+
 
 bool StratSynth::fillElasticModel( const Strat::LayerModel& lm, 
 				ElasticModel& aimodel, int seqidx )
@@ -479,13 +481,17 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 		continue;
 	}
 	float dval, pval, sval;
-	dval  = elpgen.getVal(denref,lay->values(),props.size());
-	pval = elpgen.getVal(pvref,lay->values(),props.size());
-	sval = elpgen.getVal(svref,lay->values(),props.size());
+	dval  = elpgen.getVal( denref, lay->values(), props.size() );
+	pval = elpgen.getVal( pvref, lay->values(), props.size() );
+	sval = elpgen.getVal( svref, lay->values(), props.size() );
+
+	// Detect water - reset Vs
+	if ( pval < cMaximumVpWaterVel )
+	    sval = 0;
 	
 	ElasticLayer ail ( thickness, pval, sval, dval );
 	BufferString msg( "Can not derive synthetic layer property " );
-	bool isudf = mIsUdf( dval ) || mIsUdf( pval );
+	bool isudf = mIsUdf( dval ) || mIsUdf( pval ) || mIsUdf( sval );
 	if ( mIsUdf( dval ) )
 	{
 	    msg += "'Density'";
@@ -493,6 +499,10 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 	if ( mIsUdf( pval ) )
 	{
 	    msg += "'P-Wave'";
+	}
+	if ( mIsUdf( sval ) )
+	{
+	    msg += "'S-Wave'";
 	}
 	msg += ". \n Please check its definition.";
 	if ( isudf )
