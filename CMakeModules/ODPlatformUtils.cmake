@@ -70,6 +70,8 @@ if(UNIX) #Apple an Linux
 	    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wignored-qualifiers" )
 	endif()
 
+	set ( CMAKE_CXX_FLAGS "-Wno-non-template-friend ${CMAKE_CXX_FLAGS}" )
+
 	if ( (CMAKE_CXX_COMPILER STREQUAL "/usr/bin/g++4") OR
              (CMAKE_C_COMPILER STREQUAL "/usr/bin/gcc4") )
             set( CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2" )
@@ -83,7 +85,6 @@ if(UNIX) #Apple an Linux
     add_definitions("'-DmUsedVar=__attribute__ ((used))'")
     set (OD_STATIC_EXTENSION ".a")
 
-    set ( CMAKE_CXX_FLAGS "-Wno-non-template-friend ${CMAKE_CXX_FLAGS}" )
     set ( CMAKE_CXX_FLAGS "-Woverloaded-virtual -Wno-reorder ${CMAKE_CXX_FLAGS}" )
     set ( CMAKE_CXX_FLAGS "-Wunused -Wmissing-braces -Wparentheses -Wsequence-point ${CMAKE_CXX_FLAGS}" )
     set ( CMAKE_CXX_FLAGS "-Wswitch -Wunused-function -Wunused-label ${CMAKE_CXX_FLAGS}" )
