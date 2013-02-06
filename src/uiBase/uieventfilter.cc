@@ -136,6 +136,8 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
     if ( qobj_!=obj )
 	return false;
 
+    lock.unLock(); //We only protect qobj_.
+
     if ( !eventtypes_.isPresent( ev->type() ) )
 	return false;
 
