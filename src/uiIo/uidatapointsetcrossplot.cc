@@ -65,6 +65,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , y3ctab_(ColTab::Sequence("Rainbow"))
     , y4ctab_(ColTab::Sequence(""))
     , lineDrawn( this )
+    , mouseReleased( this )
+    , dataChgd( this )
     , selectionChanged( this )
     , pointsSelected( this )
     , removeRequest( this )
@@ -137,7 +139,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     getMouseEventHandler().movement.notify(
 	    mCB(this,uiDataPointSetCrossPlotter,mouseMove) );
     getMouseEventHandler().buttonReleased.notify(
-	    mCB(this,uiDataPointSetCrossPlotter,mouseReleased) );
+	    mCB(this,uiDataPointSetCrossPlotter,mouseReleasedCB) );
 
     timer_.tick.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
     setStretch( 2, 2 );
@@ -236,6 +238,7 @@ void uiDataPointSetCrossPlotter::dataChanged()
     setDraw();
     removeSelections(true);
     drawContent();
+    dataChgd.trigger();
 }
 
 
@@ -448,8 +451,9 @@ void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
     }
 
     const TypeSet<uiWorldPoint>& pts = !isy1 ? y2userdefpts_ : y1userdefpts_;
-    AxisData& vert = !isy1 ? y2_ : y_;
-    if ( !x_.axis_ || !vert.axis_ ) return;
+    uiAxisHandler* xah = axisHandler( 0 );
+    uiAxisHandler* yah = axisHandler( !isy1 ? 2 : 1 );
+    if ( !xah || !yah ) return;
     
     const int size = pts.size();
     if ( !size ) return;    
@@ -458,22 +462,20 @@ void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
     for ( int pixvar = 0; pixvar < size; pixvar++ )
     {
 	uiWorldPoint pt = pts[pixvar];
+	if ( mIsUdf(pt.x) || mIsUdf(pt.y) ) continue;
+	if ( mIsUdf(xah->getPix(pt.x)) || mIsUdf(yah->getPix(pt.y)) ) continue;
+	
+	if ( !mousepressed_ )
+	{
+	    if (!xah->pixRange().includes(xah->getPix(pt.x),false) ) continue;
+    	    if (!yah->pixRange().includes(yah->getPix(pt.y),false) ) continue;
+	}
 
-	if ( mIsUdf(pt.x) || mIsUdf(pt.y) )
-	    continue;
-	if ( mIsUdf(x_.axis_->getPix(pt.x)) ||
-	       	mIsUdf(vert.axis_->getPix(pt.y)) )
-	    continue;
-	if (!x_.axis_->pixRange().includes(x_.axis_->getPix(pt.x),false) )
-	    continue;
-	if (!vert.axis_->pixRange().includes(vert.axis_->getPix(pt.y),false) )
-	    continue;
-
-	pixpts += uiPoint( x_.axis_->getPix(pt.x), vert.axis_->getPix(pt.y) );
+	pixpts += uiPoint( xah->getPix(pt.x), yah->getPix(pt.y) );
     }
   	
     curpolylineitem->setPolyLine( pixpts );
-    LineStyle ls = vert.axis_->setup().style_;
+    LineStyle ls = yah->setup().style_;
     ls.width_ = 3;
     curpolylineitem->setPenStyle( ls );
     curpolylineitem->setZValue( 4 );
@@ -576,17 +578,28 @@ void uiDataPointSetCrossPlotter::mouseMove( CallBacker* )
 	    xah.getVal(stoppos.x) - xah.getVal(startpos_.x);
 	const float perpendicular =
 	    yah.getVal(stoppos.y) - yah.getVal(startpos_.y);
-	linepar.ax = perpendicular/base;
-	linepar.a0 = yah.getVal(startpos_.y) -
-	    	     ( linepar.ax * xah.getVal(startpos_.x) );	
+
+	if ( !mIsZero(base,1e-6) )
+	{
+	    linepar.ax = perpendicular/base;
+    	    linepar.a0 = yah.getVal(startpos_.y) -
+			( linepar.ax * xah.getVal(startpos_.x) );	
+	}
 
 	BufferString& linestr = drawy2_ ? userdefy2str_ : userdefy1str_;
+	BufferString& rmserr = drawy2_ ? y2rmserr_ : y1rmserr_;
+	linestr.setEmpty(); rmserr.setEmpty();
 
-	linestr.setEmpty();
-	linestr += linepar.a0;
-	if ( linepar.ax > 0 ) linestr += "+";
-	linestr += linepar.ax;
-	linestr += "*x";
+	if ( !mIsZero(base,1e-6) )
+	{
+	    if ( linepar.ax )
+    	    {
+    		linestr += linepar.ax;
+    		linestr += "*x";
+    		if ( linepar.a0 > 0 ) linestr += "+";
+    	    }
+    	    linestr += linepar.a0;
+	}
 
 	TypeSet<uiWorldPoint> linepts;
 	linepts+=uiWorldPoint(xah.getVal(startpos_.x),yah.getVal(startpos_.y));
@@ -922,9 +935,9 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
 }
 
 
-void uiDataPointSetCrossPlotter::mouseReleased( CallBacker* )
+void uiDataPointSetCrossPlotter::mouseReleasedCB( CallBacker* )
 {
-    mousepressed_ = false;
+    mousepressed_ = false; mouseReleased.trigger();
     const MouseEvent& ev = getMouseEventHandler().event();
     const bool isdel = ev.shiftStatus() && !ev.ctrlStatus() && !ev.altStatus();
     if ( !setup_.noedit_ && isdel && selNearest(ev) )
