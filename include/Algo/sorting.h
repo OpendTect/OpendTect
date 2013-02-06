@@ -73,33 +73,30 @@ template <class T,class I>
 inline void duplicate_sort( T* arr, I sz )
 {
     TypeSet<T> vals;
-    TypeSet< TypeSet<I> > ids;
+    TypeSet<int> count;
     for ( I idx=0; idx<sz; ++idx )
     {
-	const I vidx = vals.indexOf( arr[idx] );
+	const int vidx = vals.indexOf( arr[idx] );
 	if ( vidx<0 )
 	{
-	    TypeSet<I> vids;
-	    vids += idx;
-
-	    ids += vids;
+	    count += 1;
 	    vals += arr[idx];
 	}
 	else
-	    ids[vidx] += idx;
+	    count[vidx] += 1;
     }
 
-    const I vsize = vals.size();
-    TypeSet<I> idxs;
-    for ( I idx=0; idx<vsize; idx++ )
+    const int vsize = vals.size();
+    TypeSet<int> idxs;
+    for ( int idx=0; idx<vsize; idx++ )
     	idxs += idx;
     sort_coupled( vals.arr(), idxs.arr(), vsize );
 
-    I index = 0;
+    I index = -1;
     for ( I idx=0; idx<vsize; ++idx )
     {
-	for ( I idy=ids[idxs[idx]].size()-1; idy>=0; --idy )
-	    arr[index++] = vals[idx];
+	for ( int idy=count[idxs[idx]]-1; idy>=0; --idy )
+	    arr[++index] = vals[idx];
     }
 }
 
