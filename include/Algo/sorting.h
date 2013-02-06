@@ -86,7 +86,7 @@ inline void duplicate_sort( T* arr, I sz )
 	    count[vidx] += 1;
     }
 
-    const int vsize = vals.size();
+    const int vsize = mCast(int,vals.size());
     TypeSet<int> idxs;
     for ( int idx=0; idx<vsize; idx++ )
     	idxs += idx;
