@@ -18,7 +18,8 @@ PtrMan<PrimitiveSetCreator> PrimitiveSetCreator::creator_ = 0;
     
     
 DefineEnumNames(PrimitiveSet, PrimitiveType, 5, "PrimitiveType" )
-{ "Points", "Lines", "Triangles", "LineStrips", "TriangleStrips", "Fans", 0 };
+{ "Points", "Lines", "Triangles", "LineStrips", "TriangleStrips", "Fans",
+  "Other", 0 };
     
     
     
@@ -53,7 +54,7 @@ IndexedPrimitiveSet* IndexedPrimitiveSet::create( bool large )
     
 RangePrimitiveSet* RangePrimitiveSet::create()
 {
-    return (RangePrimitiveSet*) PrimitiveSetCreator::create( true, false );
+    return (RangePrimitiveSet*) PrimitiveSetCreator::create( false, false );
 }
 
     
