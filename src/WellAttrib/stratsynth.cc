@@ -42,7 +42,10 @@ SynthGenParams::SynthGenParams()
 
     RayTracer1D::setIOParsToZeroOffset( raypars_ );
     raypars_.setYN( RayTracer1D::sKeyVelBlock(), true );
-    raypars_.set( RayTracer1D::sKeyVelBlockVal(), 20 );
+    raypars_.set( RayTracer1D::sKeyVelBlockVal(),
+	    	  RayTracer1D::cDefaultVelBlockVal() );
+    raypars_.set( RayTracer1D::sKeyDensBlockVal(), 
+	    	  RayTracer1D::cDefaultDensBlockVal() );
 }
 
 
@@ -253,6 +256,12 @@ bool StratSynth::generate( const Strat::LayerModel& lm, SeisTrcBuf& trcbuf )
 
     delete dummysd;
     return !trcbuf.isEmpty();
+}
+
+
+float StratSynth::cMaximumVpWaterVel()
+{
+    return 1510.f;
 }
 
 
@@ -477,12 +486,17 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 	    if ( mIsZero( thickness, 1e-4 ) )
 		continue;
 	}
+
 	float dval, pval, sval;
 	elpgen.getVals( dval, pval, sval, lay->values(), props.size() );
 
+	// Detect water - reset Vs
+	if ( pval < cMaximumVpWaterVel() )
+	    sval = 0;
+
 	ElasticLayer ail ( thickness, pval, sval, dval );
 	BufferString msg( "Can not derive synthetic layer property " );
-	bool isudf = mIsUdf( dval ) || mIsUdf( pval );
+	bool isudf = mIsUdf( dval ) || mIsUdf( pval ) || mIsUdf( sval );
 	if ( mIsUdf( dval ) )
 	{
 	    msg += "'Density'";
@@ -490,6 +504,10 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 	if ( mIsUdf( pval ) )
 	{
 	    msg += "'P-Wave'";
+	}
+	if ( mIsUdf( sval ) )
+	{
+	     msg += "'S-Wave'";
 	}
 	msg += ". \n Please check its definition.";
 	if ( isudf )

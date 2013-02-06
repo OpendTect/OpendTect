@@ -82,7 +82,7 @@ void ElasticFormula::usePar( const IOPar& par )
 
 const char* ElasticFormula::parseVariable( int idx, float& val ) const
 {
-    if ( !variables_.validIdx( idx ) ) 
+    if ( !variables_.validIdx( idx ) )
 	return 0;
 
     val = mUdf( float );
@@ -404,7 +404,7 @@ bool ElasticPropGuess::guessQuantity( const PropertyRef& pref,
 
 
 void ElasticPropGen::getVals( float& den, float& pvel, float& svel, 
-				const float* vals,int sz) const
+			      const float* vals,int sz) const
 {
     const ElasticPropertyRef& denref = elasticprops_.get(ElasticFormula::Den);
     const ElasticPropertyRef& pvref = elasticprops_.get(ElasticFormula::PVel);
@@ -417,8 +417,8 @@ void ElasticPropGen::getVals( float& den, float& pvel, float& svel,
 
 
 
-float ElasticPropGen::getVal(const ElasticFormula& ef,
-				const float* vals,int sz) const
+float ElasticPropGen::getVal( const ElasticFormula& ef,
+			      const float* vals, int sz) const
 {
     const BufferStringSet& selvars = ef.variables();
     if ( selvars.isEmpty() )
@@ -434,6 +434,8 @@ float ElasticPropGen::getVal(const ElasticFormula& ef,
     for ( int idx=0; idx<selvars.size(); idx++ )
     {
 	const char* var = ef.parseVariable( idx, val );
+	if ( caseInsensitiveEqual(var,"P-wave velocity" ))
+	    var = "Pwave velocity"; // ugly temporary fix needs rework #1748
 
 	if ( refprops_.isPresent( var ) )
 	{

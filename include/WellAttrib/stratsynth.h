@@ -173,6 +173,7 @@ public:
     SyntheticData* 		getSynthetic(const PropertyRef&);
     SyntheticData* 		getSyntheticByIdx(int idx);
     void			clearSynthetics();
+    static float		cMaximumVpWaterVel();
 
     const ObjectSet<SyntheticData>& synthetics() const 	{ return synthetics_; }
 
