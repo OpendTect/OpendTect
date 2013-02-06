@@ -152,6 +152,15 @@ void ODInst::startInstManagement()
 #endif
 }
 
+
+bool ODInst::runInstMgrForUpdt()
+{
+    BufferString cmd;
+    mDefCmd(false); cmd.add( " --updcheck_report" );
+    return ExecOSCmd( cmd, false, true );
+}
+
+
 bool ODInst::updatesAvailable()
 {
     BufferString cmd;
@@ -162,7 +171,6 @@ bool ODInst::updatesAvailable()
     chdir( GetSoftwareDir(0) );
     return res == 1;
 #else
-    ExecOSCmd( cmd, false, true );
     FilePath tmp( File::getTempPath(), "od_updt" );
     bool ret = File::exists( tmp.fullPath() );
     if ( ret )

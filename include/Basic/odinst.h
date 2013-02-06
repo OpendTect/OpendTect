@@ -23,6 +23,7 @@ namespace ODInst
     mGlobal bool		canInstall();
     mGlobal void		startInstManagement();
     mGlobal bool		updatesAvailable();
+    mGlobal bool		runInstMgrForUpdt();
     mGlobal const char*		getPkgVersion(const char* file_pkg_basenm);
     				//!< For example, the Base pkg has "base" 
     inline bool			isErrPkgVersion( const char* s )
