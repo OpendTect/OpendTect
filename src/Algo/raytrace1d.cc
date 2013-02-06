@@ -22,6 +22,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mImplFactory(RayTracer1D,RayTracer1D::factory)
 
+
+float RayTracer1D::cDefaultVelBlockVal()
+{
+    return 900.f;
+}
+
+
+float RayTracer1D::cDefaultDensBlockVal()
+{
+    return 800.f;
+}
+
+
 bool RayTracer1D::Setup::usePar( const IOPar& par )
 {
     par.getYN( sKeyPWave(), pdown_, pup_);

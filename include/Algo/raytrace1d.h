@@ -82,7 +82,9 @@ public:
     static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
     static const char*  sKeyVelBlock()     { return "Block velocities"; }
     static const char*  sKeyVelBlockVal()  { return "Block velocity threshold";}
+    static float	cDefaultVelBlockVal();
     static const char*  sKeyDensBlockVal() { return "Block density threshold"; }
+    static float	cDefaultDensBlockVal();
 
     static void		setIOParsToZeroOffset(IOPar& iop);
 
