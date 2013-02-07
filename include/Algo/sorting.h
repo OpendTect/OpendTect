@@ -93,7 +93,7 @@ inline void duplicate_sort( T* arr, I sz )
     sort_coupled( vals.arr(), idxs.arr(), vsize );
 
     I index = -1;
-    for ( I idx=0; idx<vsize; ++idx )
+    for ( int idx=0; idx<vsize; ++idx )
     {
 	for ( int idy=count[idxs[idx]]-1; idy>=0; --idy )
 	    arr[++index] = vals[idx];
