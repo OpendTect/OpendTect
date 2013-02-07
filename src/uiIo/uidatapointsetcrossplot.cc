@@ -1214,9 +1214,9 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
 
     if ( !isprevx )
 	x_.needautoscale_ = x_.autoscalepars_.doautoscale_ = true;
-    if ( !isprevy )
+    if ( !isprevx || !isprevy )
 	y_.needautoscale_ = y_.autoscalepars_.doautoscale_ = true;
-    if ( !isprevy2 )
+    if ( !isprevx || !isprevy2 )
 	y2_.needautoscale_ = y2_.autoscalepars_.doautoscale_ = true;
 
     mHandleAxisAutoScale(x_);
