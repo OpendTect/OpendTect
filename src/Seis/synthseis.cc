@@ -436,8 +436,9 @@ bool SynthGenerator::doFFTConvolve( ValueSeries<float>& res, int outsz ) const
 	return false;
     }
 
+    // Applying factor 2 as we only use the real part of the signal.
     for ( int idx=0; idx<outsz; idx++ )
-	res.setValue( idx, cres[idx].real() );
+	res.setValue( idx, 2.f * cres[idx].real() );
     
     return true;
 }
