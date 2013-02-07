@@ -72,7 +72,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	Well::LogSet* wls = new Well::LogSet( wd.logs() );
 	uiWellLogToolWin::LogData* ldata = new uiWellLogToolWin::LogData(*wls);
 	const Well::ExtractParams& params = welllogselfld_->params();
-	ldata->dahrg_ = params.calcFrom( wd, lognms, false );
+	ldata->dahrg_ = params.calcFrom( wd, lognms, true );
 	ldata->wellname_ = wellnms[idx]->buf();
 	ldata->wellid_ = wid; 
 	if ( !ldata->setSelectedLogs( lognms ) ) 
