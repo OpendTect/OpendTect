@@ -71,7 +71,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	uiWellLogToolWin::LogData* ldata = 
 	    new uiWellLogToolWin::LogData( *wls, wd.d2TModel(), &wd.track());
 	const Well::ExtractParams& params = welllogselfld_->params();
-	ldata->dahrg_ = params.calcFrom( wd, lognms, false );
+	ldata->dahrg_ = params.calcFrom( wd, lognms, true );
 	ldata->wellname_ = wellnms[idx]->buf();
 	if ( !ldata->setSelectedLogs( lognms ) ) 
 	    { delete ldata; continue; }
