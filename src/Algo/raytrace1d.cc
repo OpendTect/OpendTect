@@ -223,21 +223,6 @@ bool RayTracer1D::doPrepare( int nrthreads )
 }
 
 
-#define mCheckRai( tempref, reflectivity ) \
-	if ( !Math::IsNormalNumber(tempref.real()) || \
-	     !Math::IsNormalNumber(tempref.imag()) || \
-		Values::isUdf(tempref) ) \
-	    { \
-		BufferString errmsg = "NaN detected- "; \
-		errmsg += "Layer: "; \
-		errmsg += layer; \
-		errmsg += " - Offset: "; \
-		errmsg += offsets_[offsetidx]; \
-		pErrMsg(errmsg); \
-		reflectivity_->set( layer, offsetidx, reflectivity ); \
-		return true; \
-	    }
-
 bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
     const ElasticLayer& ellayer = model_[layer];
@@ -246,40 +231,46 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
     const float sini = downvel * rayparam;
     sini_->set( layer, offsetidx, sini );
 
-    const float off = offsets_[offsetidx];
-
     if ( !setup().doreflectivity_ || layer>=model_.size()-1 )
 	return true;
 
+    const float off = offsets_[offsetidx];
     float_complex reflectivity = 0;
+    const int nrinterfaces = layer+1;
+
     if ( !mIsZero(off,mDefEps) ) 
     {
-        ArrPtrMan<ZoeppritzCoeff> coefs = new ZoeppritzCoeff[layer];
-        for ( int lidx=0; lidx<layer; lidx++ )
-	    coefs[lidx].setInterface( rayparam, model_[lidx], model_[lidx+1] );
-
-	float_complex tempref = coefs[0].getCoeff( true,layer!=0,setup().pdown_,
-				layer==0 ? setup().pup_ : setup().pdown_ );
-	mCheckRai(tempref,0);
-	reflectivity = tempref;
-
-	if ( layer < 1 )
-	    return true;
-
-	for ( int lidx=1; lidx<=layer; lidx++ )
+	if ( rayparam*model_[layer].vel_ > 1 ||   // critical angle reached
+	     rayparam*model_[layer+1].vel_ > 1 )  // no reflection
 	{
-	    tempref = coefs[lidx].getCoeff( true, lidx!=layer, setup().pdown_,
-		    		  lidx==layer ? setup().pup_ : setup().pdown_);
-	    mCheckRai(tempref,reflectivity);
-	    reflectivity *= tempref;
+	    reflectivity_->set( layer, offsetidx, reflectivity );
+	    return true;
 	}
 
-	for ( int lidx=layer; lidx>0; lidx--)
+	ArrPtrMan<ZoeppritzCoeff> coefs = new ZoeppritzCoeff[nrinterfaces];
+        for ( int iidx=0; iidx<nrinterfaces; iidx++ )
+	    coefs[iidx].setInterface( rayparam, model_[iidx], model_[iidx+1] );
+
+	reflectivity = coefs[0].getCoeff( true, layer!=0, setup().pdown_,
+				     layer==0 ? setup().pup_ : setup().pdown_ );
+
+	if ( layer == 0 )
 	{
-	    tempref = coefs[lidx-1].getCoeff( false, false, setup().pup_,
-		    			      setup().pup_);
-	    mCheckRai(tempref,reflectivity);
-	    reflectivity *= tempref;
+	    reflectivity_->set( layer, offsetidx, reflectivity );
+	    return true;
+	}
+
+	for ( int iidx=1; iidx<nrinterfaces; iidx++ )
+	{
+	    reflectivity *= coefs[iidx].getCoeff( true, iidx!=layer,
+		    				 setup().pdown_, iidx==layer ?
+						 setup().pup_ : setup().pdown_);
+	}
+
+	for ( int iidx=nrinterfaces-2; iidx>=0; iidx--)
+	{
+	    reflectivity *= coefs[iidx].getCoeff( false, false, setup().pup_,
+		    						setup().pup_);
 	}
     }
     else
@@ -323,18 +314,18 @@ bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
     if ( offsetidx<0 || offsetidx>=reflectivity_->info().getSize(1) )
 	return false;
 
-    const int nrlayers = reflectivity_->info().getSize(0);
+    const int nrinterfaces = reflectivity_->info().getSize(0);
 
     model.erase();
-    model.setCapacity( nrlayers );
+    model.setCapacity( nrinterfaces );
     ReflectivitySpike spike;
 
-    for ( int lidx=0; lidx<nrlayers; lidx++ )
+    for ( int iidx=0; iidx<nrinterfaces; iidx++ )
     {
-	spike.reflectivity_ = reflectivity_->get( lidx, offsetidx );
-	spike.depth_ = depths_[lidx]; 
-	spike.time_ = twt_->get( lidx, offsetidx );
-	spike.correctedtime_ = twt_->get( lidx, 0 );
+	spike.reflectivity_ = reflectivity_->get( iidx, offsetidx );
+	spike.depth_ = depths_[iidx]; 
+	spike.time_ = twt_->get( iidx, offsetidx );
+	spike.correctedtime_ = twt_->get( iidx, 0 );
 	if ( !spike.isDefined()	)
 	    continue;
 	
