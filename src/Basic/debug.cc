@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 #include "errh.h"
 #include "odplatform.h"
+#include "odcomplex.h"
 
 #include <iostream>
 #include <fstream>
@@ -67,6 +68,21 @@ bool dbgIsUdf( double val )
     return Values::isUdf( val );
 }
 
+
+bool dbgIsUdf( float_complex val )
+{
+    if ( !Math::IsNormalNumber(val.real()) || !Math::IsNormalNumber(val.imag()))
+    {
+	if ( DBG::crashOnNaN() )
+	{
+	    pFreeFnErrMsg("Bad fp value found","dbgIsUdf(fc)");
+	    DBG::forceCrash(false);
+	    return true;
+	}
+    }
+
+    return Values::isUdf( val );
+}
 
 namespace DBG
 {

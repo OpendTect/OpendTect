@@ -66,5 +66,7 @@ public:
 
 };//namespace Values
 
+mGlobal(Basic) bool dbgIsUdf(float_complex);
+
 #endif
 
