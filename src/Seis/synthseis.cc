@@ -278,10 +278,11 @@ bool SynthGenerator::doFFTConvolve( float* res )
 
     const int midwvltsz = wvltsz%2 == 0 ? wvltsz/2-1 : wvltsz/2;
 
+    // Applying factor 2 as we only use the real part of the signal.
     for ( int idx=0; idx<midwvltsz; idx++ )
-	res[nrsamp-idx-1] = cres[idx].real();
+	res[nrsamp-idx-1] = 2.f * cres[idx].real();
     for ( int idx=0; idx<nrsamp-midwvltsz; idx++ )
-	res[idx] = cres[idx+midwvltsz].real();
+	res[idx] = 2.f * cres[idx+midwvltsz].real();
 
     delete [] cres;
     
