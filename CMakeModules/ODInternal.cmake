@@ -91,7 +91,7 @@ add_custom_target( sources ${CMAKE_COMMAND}
 	-DOD_PLFSUBDIR=${OD_PLFSUBDIR}
 	-P ${CMAKE_SOURCE_DIR}/CMakeModules/ODInstallSources.cmake 
 	 COMMENT "Installing sources" )
-
+include ( ODSubversion )
 add_custom_target( docpackages ${CMAKE_COMMAND}
 	-DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR}
 	-DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR}
