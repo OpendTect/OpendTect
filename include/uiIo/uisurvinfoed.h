@@ -86,7 +86,8 @@ protected:
     uiComboBox*		sipfld_;
     uiCheckBox*		overrulefld_;
     uiCheckBox*		xyinftfld_;
-    uiGenInput*		zdisplayfld_;
+    uiGenInput*		depthdispfld_;
+    uiGenInput*		refdatumfld_;
 
     bool		dirnamechanged;
     void		mkSIPFld(uiObject*);
@@ -105,6 +106,7 @@ protected:
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);
     void		rangeChg(CallBacker*);
+    void		depthUnitSel(CallBacker*);
     void		updZUnit(CallBacker*);
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
