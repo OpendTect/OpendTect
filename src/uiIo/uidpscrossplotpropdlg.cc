@@ -324,7 +324,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 
     checkedCB( 0 );
     plotter_.lineDrawn.notify( mCB(this,uiDPSUserDefTab,setFlds) );
-    plotter_.mouseReleased.notify( mCB(this,uiDPSUserDefTab,getRmsError) );
+    plotter_.mouseReleased.notify( mCB(this,uiDPSUserDefTab,getRmsErrorCB) );
     p->postFinalise().notify( mCB(this,uiDPSUserDefTab,initFlds) );
     p->windowClosed.notify( mCB(this,uiDPSUserDefTab,setPolyLines) );
 }
@@ -333,7 +333,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 ~uiDPSUserDefTab()
 {
     plotter_.lineDrawn.remove( mCB(this,uiDPSUserDefTab,setFlds) );
-    plotter_.mouseReleased.remove( mCB(this,uiDPSUserDefTab,getRmsError) );
+    plotter_.mouseReleased.remove( mCB(this,uiDPSUserDefTab,getRmsErrorCB) );
 }
 
 
@@ -622,7 +622,7 @@ void getRmsError( bool isy2 )
 }
 
 
-void getRmsError( CallBacker* )
+void getRmsErrorCB( CallBacker* )
 {
     const bool drawy2 = selaxisfld_ && !selaxisfld_->getBoolValue();
     uiGenInput* inpfld = drawy2 ? inpfld1_ : inpfld_;
