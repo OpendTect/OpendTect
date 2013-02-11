@@ -130,6 +130,7 @@ namespace sKey
     inline FixedString FirstTrc()	{ return "First Trace"; }
     inline FixedString LastTrc()	{ return "Last Trace"; }
     inline FixedString TrcRange()	{ return "Trace Range"; }
+    inline FixedString TrcDist()	{ return "Inter-trace Distance"; }
 
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
 };
