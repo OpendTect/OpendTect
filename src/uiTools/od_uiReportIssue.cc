@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 int main( int argc, char ** argv )
 {
+    SetProgramArgs( argc, argv );
     uiMain app( argc, argv );
     
     uiIssueReporterDlg* dlg = new uiIssueReporterDlg( 0 );

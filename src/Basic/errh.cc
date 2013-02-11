@@ -221,7 +221,7 @@ void CrashDumper::sendDump( const char* filename )
 	return;
     
     const BufferString cmd( sendappl_, " ", filename );
-    StreamProvider(cmd).executeCommand( true, false );
+    StreamProvider(cmd).executeCommand( true, true );
 }
 
 

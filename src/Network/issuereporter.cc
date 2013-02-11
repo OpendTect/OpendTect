@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <fstream>
 #include "separstr.h"
 #include "oddirs.h"
+#include "odinst.h"
 
 
 System::IssueReporter::IssueReporter( const char* host, const char* path )
@@ -97,6 +98,22 @@ bool System::IssueReporter::setFileName( const char* filename )
 	return false;
     }
 
+    report_.setEmpty();
+    BufferString unfilteredreport;
+    unfilteredreport.add(  "The file path of crash report is....\n" );
+    unfilteredreport.add( filename );
+
+    unfilteredreport.add( "\n\nOpendTect's Version Name is :  " );
+    unfilteredreport.add( ODInst::getPkgVersion ( "base" ) );
+
+    SeparString sep( unfilteredreport.buf(), '\n' );
+    
+    for ( int idx=0; idx<sep.size(); idx++ )
+    {
+	BufferString line = sep[idx];
+	report_.add( line ).add( "\n" );
+    }
+
     crashreportpath_ = filename;
     return true;
 }
@@ -115,7 +132,10 @@ bool System::IssueReporter::sendDumpFile()
 {
     ODHttp request;
     request.setHost( host_ );
-    if ( request.postFile( path_, crashreportpath_ )==-1 )
+    IOPar postvars;
+    postvars.set( "report", report_.buf() );
+
+    if ( request.postFile( path_, crashreportpath_, postvars )==-1 )
     {
 	errmsg_ = "Cannot connect to ";
 	errmsg_.add( host_ );
@@ -189,8 +209,7 @@ bool System::IssueReporter::parseCommandLine( int argc, char** argv )
     isdump_ = ( fpext == dmpext );
     if ( isdump_ )
     {
-	hostname = "dgbindia1";
-	path = "/relman/scripts/latest_script/senddumpfile.php";
+	path = "/relman/scripts/senddumpfiletest.php";
 	host_ = hostname;
 	path_ = path;
 	return setFileName( filename );
