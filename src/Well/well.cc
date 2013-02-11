@@ -967,48 +967,202 @@ float Well::D2TModel::getTime( float dh ) const
 
 float Well::D2TModel::getTime( float dh, const Track& track ) const
 {
-   const int dtsize = size();
-   if ( track.nrPoints() < 2 || dtsize < 2 )
-       return TimeDepthModel::getTime( dah_.arr(), t_.arr(), dtsize, dh );
-   else
-    {
-	double reqdh, dhtop, dhbase;
-	int idahtop = 0;
-	idahtop = IdxAble::getLowIdx(dah_,dtsize,dh);
-	if ( idahtop < 0 )
-	    idahtop = 0;
+    const int dtsize = size();
+    if ( track.nrPoints() < 2 || dtsize < 2 )
+	return TimeDepthModel::getTime( dah_.arr(), t_.arr(), dtsize, dh );
 
-	if ( track.getPos(dah_[idahtop]).z > track.getPos(dh).z )
-	{
-	    double reqz = track.getPos( dh ).z;
-	    for ( int idx=0; idx<track.nrPoints(); idx++ )
-	    {
-		if ( track.pos(idx).z > reqz )
-		{
-		    dhtop = (double)track.dah( idx-1 );
-		    dhbase = (double)track.dah( idx );
-		    reqdh = dhtop + ( (dhbase-dhtop)*(reqz-track.pos(idx-1).z)/
-					(track.pos(idx).z-track.pos(idx-1).z) );
-		    idahtop = IdxAble::getLowIdx( dah_, dtsize, reqdh );
-		    break;
-		}
-	    }
-	}
+    Interval<double> depths(mUdf(double),mUdf(double) );
+    Interval<float> times( mUdf(float), mUdf(float) );
 
-	if ( idahtop < 0 )
-	    idahtop = 0;
+    if ( !getVelocityBounds( dh, track, depths, times ) )
+	return getOldTime( dh, track );
 
-	if ( idahtop >= (dtsize-1) )
-	    idahtop = dtsize-2;
-
-       const double ztop = track.getPos(dah_[idahtop]).z;
-       const double zbase= track.getPos(dah_[idahtop+1]).z;
-       const double curvel = ( zbase - ztop ) /
-	  	     (double)( t_[idahtop+1] - t_[idahtop] );
-       return t_[idahtop] + (float)( ( track.getPos(dh).z - ztop ) / curvel );
-   }
+    double reqz = track.getPos(dh).z;
+    const double curvel = getVelocity( dh, track, &depths, &times );
+    const float twt = times.start +
+		      2.f* (float)( ( reqz - depths.start ) / curvel );
+    return twt;
 }
 
+
+double Well::D2TModel::getVelocity( float dh, const Track& track,
+				    Interval<double>* dpths,
+				    Interval<float>* twts ) const
+{
+    double velocity = mUdf(double);
+    Interval<double> depths( mUdf(double),mUdf(double) );
+    Interval<float> times( mUdf(float), mUdf(float) );
+
+    if ( dpths ) depths = *dpths;
+    if ( twts ) times = *twts;
+
+    if ( depths.isUdf() || times.isUdf() )
+    {
+	if ( !getVelocityBounds(dh,track,depths,times) )
+	{
+	    depths.start = mUdf(double); times.start = mUdf(float);
+	    if ( !getOldVelocityBounds( dh, track, depths, times ) )
+		return velocity;
+	}
+    }
+    velocity = 2.f * depths.width() / (double)times.width();
+
+    return velocity;
+}
+
+
+bool Well::D2TModel::getVelocityBounds( float dh, const Track& track,
+										Interval<double>& depths,
+										Interval<float>& times ) const
+{
+    const int dtsize = size();
+    int idah = IdxAble::getLowIdx(dah_,dtsize,dh);
+
+    if ( idah < 0 )
+	idah = 0;
+    if ( idah >= (dtsize-1) )
+		idah = getDahIndex( dh, track);
+		
+	depths.start = track.getPos(dah_[idah]).z;
+	depths.stop = track.getPos(dah_[idah+1]).z;
+	times.start = t_[idah];
+	times.stop = t_[idah+1];
+
+    bool isreversed = times.isRev() || depths.isRev();
+    bool issame = mIsZero(times.width(), 1e-6) || mIsZero(depths.width(), 1e-6);
+
+    return !isreversed && !issame;
+}
+
+
+int Well::D2TModel::getDahIndex( float dh, const Track& track) const
+{
+	const int dtsize = size();
+	double reqdh, dhtop, dhbase;
+	int idah = 0;
+	idah = IdxAble::getLowIdx(dah_,dtsize,dh);
+	if ( idah >= (dtsize-1) )
+	{
+		if ( track.getPos(dah_[idah]).z > track.getPos(dh).z )
+		{
+			double reqz = track.getPos( dh ).z;
+			for ( int idx=0; idx<track.nrPoints(); idx++ )
+			{
+				if ( track.pos(idx).z > reqz )
+				{
+					dhtop = mCast( double, track.dah( idx-1 ) );
+					dhbase = mCast( double, track.dah( idx ) );
+					reqdh = dhtop + ( (dhbase-dhtop)*(reqz-track.pos
+						(idx-1).z)/(track.pos(idx).z-track.pos(idx-1).z) );
+
+					idah = IdxAble::getLowIdx( dah_, dtsize, reqdh );
+					break;
+				}
+			}
+		}
+	}
+	
+	if ( idah < 0 )
+		idah = 0;
+
+	if ( idah >= (dtsize-1) )
+		idah = dtsize-2; 
+
+	return idah;
+}
+
+
+float Well::D2TModel::getOldTime( float dh, const Track& track ) const
+{
+    Interval<double> depths(mUdf(double),mUdf(double) );
+    Interval<float> times( mUdf(float), mUdf(float) );
+
+    if ( !getOldVelocityBounds(dh,track,depths,times) )
+	return mUdf(float);
+
+    const double reqz = track.getPos( dh ).z;
+    const double curvel = getOldVelocity( dh, track, &depths, &times );
+
+    const float twt = times.start +
+       		      2.f * (float)( ( reqz - depths.start ) / curvel );
+    return twt;
+}
+
+
+double Well::D2TModel::getOldVelocity( float dh, const Track& track,
+				       Interval<double>* dpths,
+				       Interval<float>* twts ) const
+{
+    double velocity = mUdf(double);
+    Interval<double> depths( mUdf(double),mUdf(double) );
+    Interval<float> times( mUdf(float), mUdf(float) );
+
+    if ( dpths ) depths = *dpths;
+    if ( twts ) times = *twts;
+
+    if ( depths.isUdf() || times.isUdf() )
+    {
+	if ( !getOldVelocityBounds(dh,track,depths,times ) )
+	    return velocity;
+    }
+    velocity = 2.f * depths.width() / (double)times.width();
+
+    return velocity;
+}
+
+
+bool Well::D2TModel::getOldVelocityBounds( float dh, const Track& track,
+					   Interval<double>& depths,
+					   Interval<float>& times ) const
+{
+    const int dtsize = size();
+    int idah = IdxAble::getLowIdx( dah_, dtsize, dh );
+    if ( idah < 0 )
+	idah = 0;
+
+	if ( idah >= (dtsize-1) )
+		idah = getDahIndex( dh, track );
+		
+	depths.start = track.getPos( dah_[idah] ).z;
+	times.start = t_[idah];
+    depths.stop = mUdf(double);
+    times.stop = mUdf(float);
+
+    for ( int idx=idah+1; idx<dtsize; idx++ )
+    {
+	const double curz = track.getPos( dah_[idx] ).z;
+	const float curtwt = t_[idx];
+	if ( curz > depths.start && curtwt > times.start )
+	{
+	    depths.stop = curz;
+	    times.stop = curtwt;
+	    break;
+	}
+    }
+
+    if ( mIsUdf(times.stop) ) // found nothing good below, search above
+    {
+	depths.stop = depths.start;
+	times.stop = times.start;
+	depths.start = mUdf(double);
+	times.start = mUdf(float);
+	for ( int idx=idah-1; idx>=0; idx-- )
+	{
+	    const double curz = track.getPos( dah_[idx] ).z;
+	    const float curtwt = t_[idx];
+	    if ( curz < depths.stop && curtwt < times.stop )
+	    {
+		depths.start = curz;
+		times.start = curtwt;
+		break;
+	    }
+	}
+	if ( mIsUdf(times.start) )
+	    return false; // could not get a single good velocity
+    }
+
+    return true;
+}
 
 float Well::D2TModel::getDah( float time ) const
 { return TimeDepthModel::getDepth( dah_.arr(), t_.arr(), size(), time ); }
