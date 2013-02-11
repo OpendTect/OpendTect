@@ -186,7 +186,7 @@ macro( create_basepackages PACKAGE_NAME )
        FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc/User/dgb )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			        ${PSD}/doc/dgb_WindowLinkTable.txt
-				${DESTINATION_DIR}/doc/User/dgb )
+				${DESTINATION_DIR}/doc/User/dgb/WindowLinkTable.txt )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
 				${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt
 				${DESTINATION_DIR}/doc/User/dgb/LinkFileTable.txt )
