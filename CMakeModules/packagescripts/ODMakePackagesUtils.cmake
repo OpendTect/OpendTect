@@ -55,9 +55,10 @@ macro ( create_package PACKAGE_NAME )
     ENDFOREACH()
 
     IF( ${PACKAGE_NAME} STREQUAL "dgbbase" )
-        SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+#Inslall lm 
+#        SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E
-			 copy_directory ${PSD}/../${dgbdir}/bin/${OD_PLFSUBDIR}/lm
+			 copy_directory ${PSD}/bin/${OD_PLFSUBDIR}/lm
 			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
     ENDIF()
 
@@ -142,7 +143,10 @@ macro( create_basepackages PACKAGE_NAME )
    IF( EXISTS ${DESTINATION_DIR}/Contents )
 	FILE( REMOVE_RECURSE ${DESTINATION_DIR}/Contents )
    ENDIF()
-   SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+   IF( NOT EXISTS ${DESTINATION_DIR}/doc )
+	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc ${DESTINATION_DIR}/doc/User )
+   ENDIF()
+
    IF( ${PACKAGE_NAME} STREQUAL "basedata" )
        FOREACH( LIBS ${LIBLIST} )
 	    FILE( GLOB DATAFILES ${CMAKE_INSTALL_PREFIX}/data/${LIBS} )
@@ -157,13 +161,14 @@ macro( create_basepackages PACKAGE_NAME )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${CMAKE_INSTALL_PREFIX}/relinfo/README.txt
 			 ${DESTINATION_DIR}/relinfo )
-	IF( EXISTS ${PSD}/../${dgbdir} )
-	    FILE( INSTALL DESTINATION ${DESTINATION_DIR}/doc/User/base
-			  TYPE FILE FILES ${PSD}/../${dgbdir}/doc/User/base/WindowLinkTable.txt )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
-				     ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt
-				     ${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
-	ENDIF()
+#install WindowLinkTable.txt
+       FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc/User/base )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			        ${PSD}/doc/od_WindowLinkTable.txt
+				${DESTINATION_DIR}/doc/User/base/WindowLinkTable.txt )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
+			        ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt
+				${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
    ENDIF()
    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
        FOREACH( LIB ${LIBLIST} )
@@ -177,14 +182,14 @@ macro( create_basepackages PACKAGE_NAME )
 			     ${DESTINATION_DIR}/data/${LIB} )
 	  ENDIF()
        ENDFOREACH()
-
-	IF( EXISTS ${PSD}/../${dgbdir} )
-	    FILE( INSTALL DESTINATION ${DESTINATION_DIR}/doc/User/base
-			TYPE FILE FILES ${PSD}/../${dgbdir}/doc/User/dgb/WindowLinkTable.txt )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
-				     ${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt
-				     ${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
-	ENDIF()
+#install WindowLinkTable.txt
+       FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc/User/dgb )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			        ${PSD}/doc/dgb_WindowLinkTable.txt
+				${DESTINATION_DIR}/doc/User/dgb )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
+				${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt
+				${DESTINATION_DIR}/doc/User/dgb/LinkFileTable.txt )
    ENDIF()
 
     IF( WIN32 )
@@ -337,11 +342,12 @@ macro( od_sign_libs )
 	    ENDIF()
 	ENDFOREACH()
     ELSEIF( WIN32 )
-        SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+#        SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+#install SLIBS
 	SET( SIGNLIBS dgb_verisign_certificate_2012.pfx sign.bat )
 	FOREACH( SLIB ${SIGNLIBS} )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				     ${PSD}/../${dgbdir}/bin/win32/${SLIB}
+				     ${PSD}/bin/${SLIB}
 				     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR} )
 	ENDFOREACH()
 	execute_process( COMMAND ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/sign.bat
@@ -416,9 +422,10 @@ macro( create_docpackages PACKAGE_NAME )
 			     ${PSD}/doc/Credits/base
 			     ${DESTINATION_DIR}/doc/Credits/base )
 	ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
-	    SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+#install Credits/dgb
+#	    SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${PSD}/../${dgbdir}/doc/Credits/dgb
+			     ${PSD}/doc/Credits/dgb
 			     ${DESTINATION_DIR}/doc/Credits/dgb )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/doc/dgb
