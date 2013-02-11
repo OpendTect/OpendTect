@@ -114,11 +114,8 @@ public:
 mExpClass(EarthModel) FaultTrcHolder
 {
 public:
-			FaultTrcHolder(const HorSampling& hs)
-			    : hs_(hs), editedoncrl_(false)
-			{ traces_.allowNull( true ); }
-			~FaultTrcHolder()
-			{ deepErase( traces_ ); }
+			FaultTrcHolder();
+			~FaultTrcHolder();
 
     const FaultTrace*	getTrc(int linenr,bool isinl) const;
     bool		isEditedOnCrl() const;
@@ -129,8 +126,6 @@ public:
 			      For 2D: One for each stick.*/
 
     HorSampling		hs_;
-    MultiID		id_;
-    bool		editedoncrl_;
 };
 
 
@@ -195,10 +190,8 @@ protected:
 mExpClass(EarthModel) FaultTrcDataProvider
 {
 public:
-			FaultTrcDataProvider()
-			    : is2d_(false)	{}
-			FaultTrcDataProvider(const PosInfo::GeomID& geomid)
-			    : geomid_(geomid),is2d_(geomid.isOK()) {}
+			FaultTrcDataProvider();
+			FaultTrcDataProvider(const PosInfo::GeomID&);
 			~FaultTrcDataProvider();
 
     bool		init(const TypeSet<MultiID>&,const HorSampling&,
@@ -206,7 +199,7 @@ public:
 
     bool		is2D() const		{ return is2d_; }
     int			nrFaults() const;
-    const HorSampling&	range(int) const;
+    HorSampling		range(int) const;
     int			nrSticks(int fltidx) const;
     bool		isEditedOnCrl(int fltidx) const;
 

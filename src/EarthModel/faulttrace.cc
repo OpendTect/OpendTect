@@ -576,6 +576,18 @@ bool FaultTrace::isOK() const
 }
 
 
+//FaultTrcHolder
+FaultTrcHolder::FaultTrcHolder()
+    : hs_(false)
+{
+    traces_.allowNull( true );
+}
+
+
+FaultTrcHolder::~FaultTrcHolder()
+{ deepErase( traces_ ); }
+
+
 const FaultTrace* FaultTrcHolder::getTrc( int linenr, bool isinl ) const
 {
     const int idx = isinl ? hs_.inlIdx(linenr)
@@ -722,12 +734,13 @@ static float getFloatTrcNr( const PosInfo::Line2DData& linegeom,
 
     const Coord linepos1 = pos.coord_;
     const Coord linepos2 = posns[index2].coord_;
-    Line2 line( linepos1, linepos2 );
+    const Line2 line( linepos1, linepos2 );
     Coord posonline = line.closestPoint( crd );
     if ( posonline.distTo(crd) > 100 )
 	return mUdf(float);
 
-    const float frac = (float) (linepos1.distTo(posonline) / linepos1.distTo(linepos2));
+    const float frac =
+       mCast(float,linepos1.distTo(posonline)/linepos1.distTo(linepos2));
     return (float)(pos.nr_ + frac * ( posns[index2].nr_ - pos.nr_ ));
 }
 
@@ -851,6 +864,23 @@ int FaultTraceCalc::nextStep()
 }
 
 
+
+//FaultTrcDataProvider
+FaultTrcDataProvider::FaultTrcDataProvider()
+    : is2d_(false)
+{
+    holders_.allowNull();
+}
+
+
+FaultTrcDataProvider::FaultTrcDataProvider( const PosInfo::GeomID& geomid )
+    : geomid_(geomid)
+    , is2d_(true)
+{
+    holders_.allowNull();
+}
+
+
 FaultTrcDataProvider::~FaultTrcDataProvider()
 { clear(); }
 
@@ -860,57 +890,60 @@ const char* FaultTrcDataProvider::errMsg() const
 int FaultTrcDataProvider::nrFaults() const
 { return holders_.size(); }
 
-const HorSampling& FaultTrcDataProvider::range( int index ) const
-{ return holders_[index]->hs_; }
-
 bool FaultTrcDataProvider::isEmpty() const
 { return holders_.isEmpty(); }
 
-bool FaultTrcDataProvider::isEditedOnCrl( int fidx ) const
-{ return holders_.validIdx(fidx) ? holders_[fidx]->isEditedOnCrl() : false; }
+
+HorSampling FaultTrcDataProvider::range( int idx ) const
+{
+    return holders_.validIdx(idx) && holders_[idx]
+	? holders_[idx]->hs_ : HorSampling(false);
+}
+
+
+bool FaultTrcDataProvider::isEditedOnCrl( int idx ) const
+{
+    return holders_.validIdx(idx) && holders_[idx]
+	? holders_[idx]->isEditedOnCrl() : false;
+}
+
 
 void FaultTrcDataProvider::clear()
 { deepErase( holders_ ); }
 
 
-const FaultTrace* FaultTrcDataProvider::getFaultTrace( int index, int linenr,
+const FaultTrace* FaultTrcDataProvider::getFaultTrace( int idx, int linenr,
 						       bool isinl ) const
 {
-    if ( !holders_.validIdx(index) || !holders_[index] || is2d_ )
-	return 0;
-
-    return holders_[index]->getTrc( linenr, isinl );
+    return holders_.validIdx(idx) && holders_[idx] && is2d_
+	?  holders_[idx]->getTrc( linenr, isinl ) : 0;
 }
 
 
-int FaultTrcDataProvider::nrSticks( int fltidx ) const
+int FaultTrcDataProvider::nrSticks( int idx ) const
 {
-    if ( !holders_.validIdx(fltidx) || !holders_[fltidx] )
-	return 0;
-    
-    return holders_[fltidx]->traces_.size();
+    return holders_.validIdx(idx) && holders_[idx]
+	? holders_[idx]->traces_.size() : 0;
 }
 
 
 const FaultTrace* FaultTrcDataProvider::getFaultTrace2D( int fltidx,
 							 int stickidx ) const
 {
-    if ( !holders_.validIdx(fltidx) || !holders_[fltidx] )
-	return 0;
-    
-    return holders_[fltidx]->traces_.validIdx(stickidx ) ?
-	   holders_[fltidx]->traces_[stickidx] : 0;
+    return holders_.validIdx(fltidx) && holders_[fltidx]
+		&& holders_[fltidx]->traces_.validIdx(stickidx)
+	? holders_[fltidx]->traces_[stickidx] : 0;
 }
 
 
 bool FaultTrcDataProvider::calcFaultBBox( const EM::Fault& flt,
 					  HorSampling& hs ) const
 {
-    for ( int sdx=0; sdx<flt.nrSections(); sdx++ )
+    for ( int sidx=0; sidx<flt.nrSections(); sidx++ )
     {
-	EM::SectionID sid = flt.sectionID( 0 );
+	const EM::SectionID sid = flt.sectionID( sidx );
 	mDynamicCastGet(const Geometry::FaultStickSet*,fss,
-			flt.geometry().sectionGeometry(sid) )
+			flt.geometry().sectionGeometry(sid))
 	if ( !fss )
 	    continue;
 
@@ -955,15 +988,20 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
     ExecutorGroup execgrp( "Calculating FaultTraces" );
     for ( int idx=0; idx<faultids.size(); idx++ )
     {
-	EM::ObjectID oid = EM::EMM().getObjectID( faultids[idx] );
+	const EM::ObjectID oid = EM::EMM().getObjectID( faultids[idx] );
 	mDynamicCastGet(EM::Fault*,flt,EM::EMM().getObject(oid))
 	if ( !flt )
-	    mErrRet("Failed to load the fault")
+	{
+	    errmsg_ = BufferString( "Failed to load ", faultids[idx] );
+	    holders_ += 0;
+	    continue;
+	}
 
 	HorSampling hs( false );
 	calcFaultBBox( *flt, hs );
 	hs.limitTo( hrg );
-	FaultTrcHolder* holder = new FaultTrcHolder( hs );
+	FaultTrcHolder* holder = new FaultTrcHolder();
+	holder->hs_ = hs;
 	holders_ += holder;
 	execgrp.add( new FaultTraceCalc(flt,*holder) );
     }
@@ -980,38 +1018,41 @@ bool FaultTrcDataProvider::get2DTraces( const TypeSet<MultiID>& faultids )
 {
     for ( int idx=0; idx<faultids.size(); idx++ )
     {
-	EM::ObjectID oid = EM::EMM().getObjectID( faultids[idx] );
+	const EM::ObjectID oid = EM::EMM().getObjectID( faultids[idx] );
 	mDynamicCastGet(EM::Fault*,flt,EM::EMM().getObject(oid))
 	if ( !flt )
-	    return false;
+	{
+	    holders_ += 0;
+	    continue;
+	}
 
-	HorSampling hs( false );
-	FaultTrcHolder* holder = new FaultTrcHolder( hs );
+	StepInterval<int> trcrg;
+	FaultTrcHolder* holder = new FaultTrcHolder();
 	holders_ += holder;
 	FaultTraceExtractor exec( flt, geomid_ );
         if ( exec.execute() )
 	{
-	    ObjectSet<FaultTrace>& nts = exec.getFaultTraces();
-	    hs.setInlRange( Interval<int>(0,0) );
+	    ObjectSet<FaultTrace>& flttrcs = exec.getFaultTraces();
 	    bool found = false;
-	    for ( int idy=0; idy<nts.size(); idy++ )
+	    for ( int idy=0; idy<flttrcs.size(); idy++ )
 	    {
-		holder->traces_ += nts[idy];
-		if ( !nts[idy] )
+		holder->traces_ += flttrcs[idy];
+		if ( !flttrcs[idy] )
 		    continue;
 		
-		nts[idy]->ref();
+		flttrcs[idy]->ref();
 		if ( !found )
 		{
-		    hs.setCrlRange( nts[idy]->trcRange() );
+		    trcrg = flttrcs[idy]->trcRange();
 		    found = true;
 		}
 		else
-		    hs.crlRange().include( nts[idy]->trcRange() );
+		    trcrg.include( flttrcs[idy]->trcRange() );
 	    }
 	}
 
-	holder->hs_ = hs;
+	holder->hs_.setInlRange( Interval<int>(0,0) );
+	holder->hs_.setCrlRange( trcrg );
     }
 
     return true;
@@ -1021,7 +1062,7 @@ bool FaultTrcDataProvider::get2DTraces( const TypeSet<MultiID>& faultids )
 bool FaultTrcDataProvider::hasFaults( const BinID& bid ) const
 {
     for ( int idx=0; idx<holders_.size(); idx++ )
-	if ( holders_[idx]->hs_.includes(bid) )
+	if ( holders_[idx] && holders_[idx]->hs_.includes(bid) )
 	    return true;
 
     return false;
