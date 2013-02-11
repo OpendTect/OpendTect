@@ -30,10 +30,9 @@ public:
 			: DahObj("") 	{ *this = d2t; }
     D2TModel&		operator =(const D2TModel&);
 
-    float		getTime(float d_ah) const;//Do not use,to be removed shortly
+			//Do not use,to be removed shortly
+    float		getTime(float d_ah) const;
     float		getVelocity(float d_ah) const;
-	double		getVelocity(float d_ah,const Track&,Interval<double>* depths=0,
-												Interval<float>* times=0) const;
     float		getDah(float time) const;
 
     inline float	t( int idx ) const	{ return t_[idx]; }
@@ -61,33 +60,34 @@ protected:
 
 protected:
 
-	bool			getVelocityBounds(float d_ah,const Track&,
-	    								Interval<double>& depths,
-										Interval<float>& times) const;
+    bool		getVelocityBounds(float d_ah,const Track&,
+					  Interval<double>& depths,
+					  Interval<float>& times) const;
 
     inline float	getDepth( float time ) const { return getDah(time); }
     			//!< Legacy, misleading name. Use getDah().
-	int				getDahIndex(float d_ah,const Track&) const;
-    				/*!<For dah which are out of range of 
-						time-depth model gives correct index!>*/
-    float			getOldTime(float d_ah,const Track&) const;
-    				//!<Read legacy incorrect time-depth model!>
-    double			getOldVelocity(float d_ah,const Track&,
-	    							Interval<double>* depths=0,
-									Interval<float>* times=0) const;
-    				//!<Read legacy incorrect time-depth model!>
-    bool			getOldVelocityBounds(float d_ah,const Track&,
-	    									Interval<double>& depths,
-											Interval<float>& times ) const;
-    				//!<Read legacy incorrect time-depth model!>
+    int			getDahIndex(float d_ah,const Track&) const;
+    			/*!<For dah which are out of range of 
+			time-depth model gives correct index!>*/
+    float		getOldTime(float d_ah,const Track&) const;
+    			//!<Read legacy incorrect time-depth model!>
+    double		getOldVelocity(float d_ah,const Track&,
+	    				Interval<double>* depths=0,
+					Interval<float>* times=0) const;
+    			//!<Read legacy incorrect time-depth model!>
+    bool		getOldVelocityBounds(float d_ah,const Track&,
+	    				Interval<double>& depths,
+					Interval<float>& times ) const;
+    			//!<Read legacy incorrect time-depth model!>
 
 public:
     float		getTime(float d_ah,const Track&) const;
-
+    double		getVelocity(float d_ah,const Track&,
+				    Interval<double>* depths=0,
+				    Interval<float>* times=0) const;
 
 };
 
-
-}; // namespace Well
+} // namespace Well
 
 #endif

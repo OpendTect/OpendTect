@@ -887,6 +887,7 @@ bool Well::Track::alwaysDownward() const
     return true;
 }
 
+
 void Well::Track::toTime( const D2TModel& d2t )
 {
     PtrMan<Well::Track> track = new Well::Track();
@@ -1037,38 +1038,38 @@ bool Well::D2TModel::getVelocityBounds( float dh, const Track& track,
 
 int Well::D2TModel::getDahIndex( float dh, const Track& track) const
 {
-	const int dtsize = size();
-	double reqdh, dhtop, dhbase;
-	int idah = 0;
-	idah = IdxAble::getLowIdx(dah_,dtsize,dh);
-	if ( idah >= (dtsize-1) )
+    const int dtsize = size();
+    double reqdh, dhtop, dhbase;
+    int idah = 0;
+    idah = IdxAble::getLowIdx(dah_,dtsize,dh);
+    if ( idah >= (dtsize-1) )
+    {
+	if ( track.getPos(dah_[idah]).z > track.getPos(dh).z )
 	{
-		if ( track.getPos(dah_[idah]).z > track.getPos(dh).z )
+	    double reqz = track.getPos( dh ).z;
+	    for ( int idx=0; idx<track.nrPoints(); idx++ )
+	    {
+		if ( track.pos(idx).z > reqz )
 		{
-			double reqz = track.getPos( dh ).z;
-			for ( int idx=0; idx<track.nrPoints(); idx++ )
-			{
-				if ( track.pos(idx).z > reqz )
-				{
-					dhtop = mCast( double, track.dah( idx-1 ) );
-					dhbase = mCast( double, track.dah( idx ) );
-					reqdh = dhtop + ( (dhbase-dhtop)*(reqz-track.pos
-						(idx-1).z)/(track.pos(idx).z-track.pos(idx-1).z) );
+		    dhtop = mCast( double, track.dah( idx-1 ) );
+		    dhbase = mCast( double, track.dah( idx ) );
+		    reqdh = dhtop + ( (dhbase-dhtop)*(reqz-track.pos
+			    (idx-1).z)/(track.pos(idx).z-track.pos(idx-1).z) );
 
-					idah = IdxAble::getLowIdx( dah_, dtsize, reqdh );
-					break;
-				}
-			}
+		    idah = IdxAble::getLowIdx( dah_, dtsize, reqdh );
+		    break;
 		}
+	    }
 	}
+    }
 	
-	if ( idah < 0 )
-		idah = 0;
+    if ( idah < 0 )
+	idah = 0;
 
-	if ( idah >= (dtsize-1) )
-		idah = dtsize-2; 
+    if ( idah >= (dtsize-1) )
+	idah = dtsize-2; 
 
-	return idah;
+    return idah;
 }
 
 
@@ -1215,6 +1216,7 @@ void Well::Info::fillPar(IOPar& par) const
     par.set( "Replacement velocity", getReplVel() );
     par.set( "Ground level elevation", getGroundElev() );
 }
+
 
 void Well::Info::usePar(const IOPar& par)
 {
