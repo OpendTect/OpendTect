@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "flatview.h"
 
+class uiAutoRangeClipDlg;
 class uiColorTableCanvas;
 class uiLineEdit;
 
@@ -83,6 +84,7 @@ protected:
     uiLineEdit*		minfld_;
     uiLineEdit*		maxfld_;
     uiColorTableSel*	selfld_;
+    uiAutoRangeClipDlg*	scalingdlg_;
 
     bool		enabletrans_;
 
