@@ -87,7 +87,7 @@ macro ( create_package PACKAGE_NAME )
 			 ${COPYTODIR} )
 	IF( APPLE )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${LIB}
+			     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${EXE}
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
 	ENDIF()
     ENDFOREACH()
@@ -144,6 +144,10 @@ macro( copy_thirdpartylibs )
     FILE( GLOB LIBS ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/* )
     FOREACH( LIB ${LIBS} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB} ${COPYTODIR} )
+	IF( APPLE )
+	    execute_process( COMMAND ${CMAKE_COMMAND}-E copy ${LIB}
+				     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+	ENDIF()
     ENDFOREACH()
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${CMAKE_INSTALL_PREFIX}/imageformats
