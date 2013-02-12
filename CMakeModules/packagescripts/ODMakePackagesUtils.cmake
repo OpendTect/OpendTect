@@ -295,9 +295,27 @@ endmacro( init_destinationdir )
 
 
 macro( create_develpackages )
-    FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc )
+    FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc
+			 ${DESTINATION_DIR}/doc/Programmer)
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${PSD}/CMakeLists.txt ${DESTINATION_DIR} )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${CMAKE_INSTALL_PREFIX}/doc/Programmer/batchprogexample
+		     ${DESTINATION_DIR}/doc/Programmer/batchprogexample )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${CMAKE_INSTALL_PREFIX}/doc/Programmer/pluginexample
+		     ${DESTINATION_DIR}/doc/Programmer/pluginexample )
+    FILE( GLOB HTMLFILES ${PSD}/doc/Programmer/*.html )
+    FOREACH( HTMLFILE ${HTMLFILES} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${HTMLFILE} ${DESTINATION_DIR}/doc/Programmer )
+    ENDFOREACH()
+    FILE( GLOB PNGFILES ${PSD}/doc/Programmer/*.png )
+    FOREACH( PNGFILE ${PNGFILES} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${PNGFILE} ${DESTINATION_DIR}/doc/Programmer )
+    ENDFOREACH()
+
     FOREACH( DIR CMakeModules include src plugins spec )
 	Message( "Copying ${DIR} files" )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -318,14 +336,21 @@ macro( create_develpackages )
     ENDFOREACH()
 
     IF( WIN32 )
-	SET( ZIPCOMMAND "${PSD}/bin/win/zip -r -q" )
+	MESSAGE( "Using ${OD_PLFSUBDIR} zip command" )
+	execute_process( COMMAND ${PSD}/bin/win/zip -r -q
+					   "${PACKAGE_FILENAME}" ${REL_DIR} 
+				 WORKING_DIRECTORY ${PACKAGE_DIR}
+				 RESULT_VARIABLE STATUS )
     ELSE()
-	SET( ZIPCOMMAND "zip -r -y -q" )
+	MESSAGE( "Using ${OD_PLFSUBDIR} zip command" )
+	execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
+				 WORKING_DIRECTORY ${PACKAGE_DIR}
+				 RESULT_VARIABLE STATUS )
     ENDIF()
 
-    execute_process( COMMAND ${ZIPCOMMAND} "${PACKAGE_FILENAME}" ${REL_DIR} 
-			     WORKING_DIRECTORY ${PACKAGE_DIR}
-			     RESULT_VARIABLE STATUS )
+    IF( NOT STATUS EQUAL "0" )
+	message("Failed while creating devel package")
+    ENDIF()
 endmacro( create_develpackages )
 
 
