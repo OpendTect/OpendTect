@@ -20,6 +20,11 @@ macro ( create_package PACKAGE_NAME )
 			  ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
 
     IF( ${PACKAGE_NAME} STREQUAL "base" )
+	IF( APPLE )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${PSD}/data/install_files/macscripts/Contents/Resources/qt_menu.nib
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/qt_menu.nib )
+	ENDIF()
         copy_thirdpartylibs()
         SET( LIBLIST ${LIBLIST};${PLUGINS} )
     ENDIF()
@@ -40,6 +45,9 @@ macro ( create_package PACKAGE_NAME )
 
 	IF( APPLE )
 	    SET( COPYTODIR ${DESTINATION_DIR}/${MACBINDIR} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${LIB}
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
 	ELSE()
 	    SET( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
 	ENDIF()
@@ -77,6 +85,11 @@ macro ( create_package PACKAGE_NAME )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${EXE} 
 			 ${COPYTODIR} )
+	IF( APPLE )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${LIB}
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+	ENDIF()
     ENDFOREACH()
 
     IF( ${PACKAGE_NAME} STREQUAL "base" )
