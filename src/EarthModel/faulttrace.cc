@@ -608,19 +608,19 @@ bool FaultTrcHolder::isEditedOnCrl() const
 
 
 // FaultTraceExtractor
-FaultTraceExtractor::FaultTraceExtractor( EM::Fault* flt,
+FaultTraceExtractor::FaultTraceExtractor( const EM::Fault& flt,
 					  int nr, bool isinl )
   : fault_(flt)
   , nr_(nr), isinl_(isinl)
   , is2d_(false)
 {
-    fault_->ref();
-    mDynamicCastGet(const EM::Fault3D*,flt3d,fault_)
+    fault_.ref();
+    mDynamicCastGet(const EM::Fault3D*,flt3d,&fault_)
     editedoncrl_ = flt3d && flt3d->geometry().areEditPlanesMostlyCrossline();
 }
 
 
-FaultTraceExtractor::FaultTraceExtractor( EM::Fault* flt,
+FaultTraceExtractor::FaultTraceExtractor( const EM::Fault& flt,
 					  const PosInfo::GeomID& geomid )
   : fault_(flt)
   , nr_(0),isinl_(true)
@@ -628,14 +628,14 @@ FaultTraceExtractor::FaultTraceExtractor( EM::Fault* flt,
   , geomid_(geomid)
   , is2d_(true)
 {
-    fault_->ref();
+    fault_.ref();
 }
 
 
 
 FaultTraceExtractor::~FaultTraceExtractor()
 {
-    fault_->unRef();
+    fault_.unRef();
     deepUnRef( flttrcs_ );
 }
 
@@ -646,8 +646,10 @@ bool FaultTraceExtractor::execute()
     if ( is2d_ )
 	return get2DFaultTrace();
 
-    EM::SectionID fltsid = fault_->sectionID( 0 );
-    mDynamicCastGet(EM::Fault3D*,fault3d,fault_)
+    EM::SectionID fltsid = fault_.sectionID( 0 );
+    mDynamicCastGet(const EM::Fault3D*,cfault,&fault_);
+    EM::Fault3D* fault3d = const_cast<EM::Fault3D*>(cfault);
+
     Geometry::IndexedShape* efss = new Geometry::ExplFaultStickSurface(
 		fault3d->geometry().sectionGeometry(fltsid), SI().zScale() );
     efss->setCoordList( new FaultTrace, new FaultTrace, 0 );
@@ -747,10 +749,10 @@ static float getFloatTrcNr( const PosInfo::Line2DData& linegeom,
 
 bool FaultTraceExtractor::get2DFaultTrace()
 {
-    mDynamicCastGet(const EM::FaultStickSet*,fss,fault_)
+    mDynamicCastGet(const EM::FaultStickSet*,fss,&fault_)
     if ( !fss ) return false;
 
-    EM::SectionID sid = fault_->sectionID( 0 );
+    EM::SectionID sid = fault_.sectionID( 0 );
     S2DPOS().setCurLineSet( geomid_.lsid_ );
     PosInfo::Line2DData linegeom;
     if ( !S2DPOS().getGeometry(geomid_.lineid_,linegeom) )
@@ -809,21 +811,19 @@ bool FaultTraceExtractor::get2DFaultTrace()
 }
 
 
-FaultTraceCalc::FaultTraceCalc( EM::Fault* flt, FaultTrcHolder& holder )
+FaultTraceCalc::FaultTraceCalc( const EM::Fault& flt, FaultTrcHolder& holder )
     : Executor("Extracting Fault Traces")
     , flt_(flt)
     , holder_(holder)
     , nrdone_(0)
     , isinl_(true)
 {
-    if ( flt )
-	flt->ref();
-
+    flt_.ref();
     curnr_ = holder_.hs_.start.inl;
 }
 
 FaultTraceCalc::~FaultTraceCalc()
-{ if ( flt_ ) flt_->unRef(); }
+{ flt_.unRef(); }
 
 od_int64 FaultTraceCalc::nrDone() const
 { return nrdone_; }
@@ -1003,7 +1003,7 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 	FaultTrcHolder* holder = new FaultTrcHolder();
 	holder->hs_ = hs;
 	holders_ += holder;
-	execgrp.add( new FaultTraceCalc(flt,*holder) );
+	execgrp.add( new FaultTraceCalc(*flt,*holder) );
     }
 
     const bool ret = TaskRunner::execute( tr, execgrp );
@@ -1029,7 +1029,7 @@ bool FaultTrcDataProvider::get2DTraces( const TypeSet<MultiID>& faultids )
 	StepInterval<int> trcrg;
 	FaultTrcHolder* holder = new FaultTrcHolder();
 	holders_ += holder;
-	FaultTraceExtractor exec( flt, geomid_ );
+	FaultTraceExtractor exec( *flt, geomid_ );
         if ( exec.execute() )
 	{
 	    ObjectSet<FaultTrace>& flttrcs = exec.getFaultTraces();

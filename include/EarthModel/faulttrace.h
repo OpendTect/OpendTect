@@ -136,8 +136,9 @@ public:
 mExpClass(EarthModel) FaultTraceExtractor
 {
 public:
-    			FaultTraceExtractor(EM::Fault*,int,bool);
-    			FaultTraceExtractor(EM::Fault*,const PosInfo::GeomID&);
+    			FaultTraceExtractor(const EM::Fault&,int,bool);
+    			FaultTraceExtractor(const EM::Fault&,
+				const PosInfo::GeomID&);
 			~FaultTraceExtractor();
 
     bool		execute();
@@ -151,7 +152,7 @@ protected:
 
     int			nr_;
     PosInfo::GeomID	geomid_;	// For 2D
-    EM::Fault*		fault_;
+    const EM::Fault&	fault_;
     bool		is2d_;
     bool		isinl_;
     bool		editedoncrl_;
@@ -165,7 +166,7 @@ protected:
 mExpClass(EarthModel) FaultTraceCalc : public Executor
 {
 public:
-			FaultTraceCalc(EM::Fault*,FaultTrcHolder&);
+			FaultTraceCalc(const EM::Fault&,FaultTrcHolder&);
 			~FaultTraceCalc();
 
     od_int64		nrDone() const;
@@ -176,7 +177,7 @@ public:
 protected:
 
     int			curnr_;
-    EM::Fault*		flt_;
+    const EM::Fault&	flt_;
     FaultTrcHolder&	holder_;
     od_int64		nrdone_;
     bool		isinl_;
