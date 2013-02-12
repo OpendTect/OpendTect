@@ -335,6 +335,60 @@ macro( create_develpackages )
 #But '-E copy/copy_directory'option is working.
     ENDFOREACH()
 
+#TODO Fond correct way to avoind so many for loops
+
+    IF( WIN32 )
+	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/bin
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/release )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				 ${PSD}/bin/od_cr_dev_env.bat
+				 ${DESTINATION_DIR}/bin )
+	FOREACH( WLIB ${SRCLIBLIST} )
+	    FILE( GLOB DEBUGLIBS
+			    ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.lib )
+	    FOREACH( DEBUGLIB ${DEBUGLIBS} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${DEBUGLIB}
+					 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
+	    ENDFOREACH()
+	    FILE( GLOB DEBUGDLLS
+			    ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.dll)
+	    FOREACH( DEBUGDLL ${DEBUGDLLS} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${DEBUGDLL}
+					 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
+	    ENDFOREACH()
+	    FILE( GLOB DEBUGPDBS
+			    ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.pdb )
+	    FOREACH( DEBUGPDB ${DEBUGPDBS} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${DEBUGPDB}
+					 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
+	    ENDFOREACH()
+	    FILE( GLOB RELEASELIBS
+			${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Release/${WLIB}.lib )
+	    FOREACH( RELEASELIB ${RELEASELIBS} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${RELEASELIB}
+					 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/release )
+	    ENDFOREACH()
+	ENDFOREACH()
+
+	FOREACH( WELIB ${EXECLIST} )
+	    FILE( GLOB DEBUGEPDBS
+			${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WELIB}.pdb )
+	    FOREACH( DEBUGEPDB ${DEBUGEPDBS} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${DEBUGEPDB}
+					 ${DESTINATION_DIR}/${OD_PLFSUBDIR}/bin/debug )
+	    ENDFOREACH()
+	    FILE( GLOB DEBUGEPDGS
+			${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WELIB}.exe )
+	    FOREACH( DEBUGEXE ${DEBUGEXES} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${DEBUGEXE}
+					 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
+	    ENDFOREACH()
+	ENDFOREACH()
+
+    ENDIF()
+
     IF( WIN32 )
 	MESSAGE( "Using ${OD_PLFSUBDIR} zip command" )
 	execute_process( COMMAND ${PSD}/bin/win/zip -r -q
