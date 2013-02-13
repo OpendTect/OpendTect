@@ -649,7 +649,7 @@ bool FaultTraceExtractor::execute()
     EM::SectionID fltsid = fault_.sectionID( 0 );
     mDynamicCastGet(const EM::Fault3D*,cfault,&fault_);
     EM::Fault3D* fault3d = const_cast<EM::Fault3D*>(cfault);
-
+    if ( !fault3d ) return false;
     Geometry::IndexedShape* efss = new Geometry::ExplFaultStickSurface(
 		fault3d->geometry().sectionGeometry(fltsid), SI().zScale() );
     efss->setCoordList( new FaultTrace, new FaultTrace, 0 );
@@ -752,12 +752,12 @@ bool FaultTraceExtractor::get2DFaultTrace()
     mDynamicCastGet(const EM::FaultStickSet*,fss,&fault_)
     if ( !fss ) return false;
 
-    EM::SectionID sid = fault_.sectionID( 0 );
     S2DPOS().setCurLineSet( geomid_.lsid_ );
     PosInfo::Line2DData linegeom;
     if ( !S2DPOS().getGeometry(geomid_.lineid_,linegeom) )
 	return false;
 
+    const EM::SectionID sid = fault_.sectionID( 0 );
     const int nrsticks = fss->geometry().nrSticks( sid );
     for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
     {

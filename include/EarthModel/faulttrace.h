@@ -136,7 +136,8 @@ public:
 mExpClass(EarthModel) FaultTraceExtractor
 {
 public:
-    			FaultTraceExtractor(const EM::Fault&,int,bool);
+    			FaultTraceExtractor(const EM::Fault&,int linenumber,
+				bool isinline);
     			FaultTraceExtractor(const EM::Fault&,
 				const PosInfo::GeomID&);
 			~FaultTraceExtractor();
