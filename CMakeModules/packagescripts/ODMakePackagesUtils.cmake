@@ -145,7 +145,7 @@ macro( copy_thirdpartylibs )
     FOREACH( LIB ${LIBS} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB} ${COPYTODIR} )
 	IF( APPLE )
-	    execute_process( COMMAND ${CMAKE_COMMAND}-E copy ${LIB}
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB}
 				     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
 	ENDIF()
     ENDFOREACH()
@@ -363,7 +363,6 @@ macro( create_develpackages )
     ENDFOREACH()
 
 #TODO Fond correct way to avoind so many for loops
-
     IF( WIN32 )
 	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/bin
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
@@ -406,7 +405,7 @@ macro( create_develpackages )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${DEBUGEPDB}
 					 ${DESTINATION_DIR}/${OD_PLFSUBDIR}/bin/debug )
 	    ENDFOREACH()
-	    FILE( GLOB DEBUGEPDGS
+	    FILE( GLOB DEBUGEXES
 			${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WELIB}.exe )
 	    FOREACH( DEBUGEXE ${DEBUGEXES} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${DEBUGEXE}
