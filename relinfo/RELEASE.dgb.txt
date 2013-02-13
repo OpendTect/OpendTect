@@ -10,7 +10,11 @@ v4.4.0g: February 13, 2013
          processing in 2D surveys
   * [HC] Fix for creating Steering Cube from Model Based Horizon Cube in 2D
          surveys  
-  *[Synthrock] Fix dor displaying multi-layers sequence
+  * [Synthrock] Fix for in stochastic modelling for computation of properties
+		using math
+  *[Synthrock] Fix for handling units of measures in stochastic simulations:
+	       Users will need to QC the formula output unit in their existing
+               stochastic simulations with derived properties (math)
 
 v4.4.0f: January 17, 2013
   * [SynthRock]
