@@ -132,16 +132,16 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     y3mapper_.setup_.cliprate_ = Interval<float>(0.0,0.0);
     y4mapper_.setup_.cliprate_ = Interval<float>(0.0,0.0);
 
-    reSize.notify( mCB(this,uiDataPointSetCrossPlotter,reSizeDraw) );
-    reDrawNeeded.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
+    reSize.notify( mCB(this,uiDataPointSetCrossPlotter,reSizeDrawCB) );
+    reDrawNeeded.notify( mCB(this,uiDataPointSetCrossPlotter,reDrawCB) );
     getMouseEventHandler().buttonPressed.notify(
-	    mCB(this,uiDataPointSetCrossPlotter,mouseClicked) );
+	    mCB(this,uiDataPointSetCrossPlotter,mouseClickedCB) );
     getMouseEventHandler().movement.notify(
-	    mCB(this,uiDataPointSetCrossPlotter,mouseMove) );
+	    mCB(this,uiDataPointSetCrossPlotter,mouseMoveCB) );
     getMouseEventHandler().buttonReleased.notify(
 	    mCB(this,uiDataPointSetCrossPlotter,mouseReleasedCB) );
 
-    timer_.tick.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
+    timer_.tick.notify( mCB(this,uiDataPointSetCrossPlotter,reDrawCB) );
     setStretch( 2, 2 );
     setDragMode( uiGraphicsView::ScrollHandDrag );
  
@@ -158,7 +158,7 @@ uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 {
     delete &lsy1_;
     delete &lsy2_;
-    timer_.tick.remove( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
+    timer_.tick.remove( mCB(this,uiDataPointSetCrossPlotter,reDrawCB) );
     if ( yptitems_ ) scene().removeItem( yptitems_ );
     if ( y2ptitems_ ) scene().removeItem( y2ptitems_ );
     if ( selrectitems_ ) scene().removeItem( selrectitems_ );
@@ -177,7 +177,7 @@ void uiDataPointSetCrossPlotter::setMathObj( MathExpression* mathobj )
 }
 
 
-void uiDataPointSetCrossPlotter::reSizeDraw( CallBacker* )
+void uiDataPointSetCrossPlotter::reSizeDrawCB( CallBacker* )
 {
     selyitems_ = 0;
     sely2items_ = 0;
@@ -187,12 +187,12 @@ void uiDataPointSetCrossPlotter::reSizeDraw( CallBacker* )
 	timer_.start( 1200, true );
     }
 
-    reDraw( 0 );
+    reDrawCB( 0 );
     return;
 }
 
 
-void uiDataPointSetCrossPlotter::reDraw( CallBacker* )
+void uiDataPointSetCrossPlotter::reDrawCB( CallBacker* )
 {
     MouseCursorChanger cursorchanger(MouseCursor::Wait);
     setDraw();
@@ -497,7 +497,7 @@ void uiDataPointSetCrossPlotter::setSelectable( bool y1, bool y2 )
     else \
 	selarea.axistype_ = SelectionArea::Y2;
 
-void uiDataPointSetCrossPlotter::mouseClicked( CallBacker* )
+void uiDataPointSetCrossPlotter::mouseClickedCB( CallBacker* )
 {
     if ( drawuserdefline_ )
     {
@@ -565,7 +565,7 @@ void uiDataPointSetCrossPlotter::mouseClicked( CallBacker* )
 }
 
 
-void uiDataPointSetCrossPlotter::mouseMove( CallBacker* )
+void uiDataPointSetCrossPlotter::mouseMoveCB( CallBacker* )
 {
     if ( drawuserdefline_ && mousepressed_ )
     {

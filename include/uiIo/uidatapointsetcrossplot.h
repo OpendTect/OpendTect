@@ -354,12 +354,11 @@ protected:
 	    				MarkerStyle2D&,int idmidx,bool rempt);
 
     bool			selNearest(const MouseEvent&);
-    void 			reDraw(CallBacker*);
-    void 			reSizeDraw(CallBacker*);
-    void                        mouseClicked(CallBacker*);
-    void                        mouseMove(CallBacker*);
+    void 			reDrawCB(CallBacker*);
+    void 			reSizeDrawCB(CallBacker*);
+    void                        mouseClickedCB(CallBacker*);
+    void                        mouseMoveCB(CallBacker*);
     void                        mouseReleasedCB(CallBacker*);
-    void                        removeSelections(CallBacker*);
 };
 
 #endif
