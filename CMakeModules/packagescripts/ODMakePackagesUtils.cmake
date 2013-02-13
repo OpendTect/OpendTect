@@ -403,7 +403,7 @@ macro( create_develpackages )
 			${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WELIB}.pdb )
 	    FOREACH( DEBUGEPDB ${DEBUGEPDBS} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${DEBUGEPDB}
-					 ${DESTINATION_DIR}/${OD_PLFSUBDIR}/bin/debug )
+					 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
 	    ENDFOREACH()
 	    FILE( GLOB DEBUGEXES
 			${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WELIB}.exe )
