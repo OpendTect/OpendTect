@@ -161,10 +161,17 @@ macro( create_basepackages PACKAGE_NAME )
 	FILE( REMOVE_RECURSE ${DESTINATION_DIR}/Contents )
    ENDIF()
    IF( NOT EXISTS ${DESTINATION_DIR}/doc )
-	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc ${DESTINATION_DIR}/doc/User )
+	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc ${DESTINATION_DIR}/doc/User
+			     ${DESTINATION_DIR}/doc/ReleaseInfo)
    ENDIF()
 
    IF( ${PACKAGE_NAME} STREQUAL "basedata" )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				${PSD}/relinfo/RELEASE.txt
+				${DESTINATION_DIR}/doc/ReleaseInfo )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				${PSD}/relinfo/RELEASEINFO.txt
+				${DESTINATION_DIR}/doc/ReleaseInfo )
        FOREACH( LIBS ${LIBLIST} )
 	    FILE( GLOB DATAFILES ${CMAKE_INSTALL_PREFIX}/data/${LIBS} )
 	    FOREACH( DATA ${DATAFILES} )
@@ -188,6 +195,9 @@ macro( create_basepackages PACKAGE_NAME )
 				${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
    ENDIF()
    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				${PSD}/relinfo/RELEASE.dgb.txt
+				${DESTINATION_DIR}/doc/ReleaseInfo )
        FOREACH( LIB ${LIBLIST} )
 	  IF( IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/data/${LIB}" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
