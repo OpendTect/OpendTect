@@ -114,6 +114,7 @@ namespace sKey
     inline FixedString Minimum()	{ return "Minimum"; }
     inline FixedString StdDev()		{ return "StdDev"; }
     inline FixedString Sum()		{ return "Sum"; }
+    inline FixedString Variance()	{ return "Variance"; }
 
     inline FixedString BinIDSel()	{ return "BinID selection"; }
     inline FixedString InlRange()	{ return "In-line range"; }
