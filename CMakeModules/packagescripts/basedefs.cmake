@@ -22,7 +22,8 @@ SET( EXECLIST od_cbvs_browse od_glxinfo od_ivfileviewer lmhostid
 	      od_ReportIssue od_uiReportIssue )
 SET( PLUGINS HorizonAttrib GapDecon VoxelConnectivityFilter
 	     uiHorizonAttrib uiPreStackViewer Annotations uiGapDecon 
-	     uiGoogleIO GoogleTranslate CmdDriver uiVoxelConnectivityFilter )
+	     uiGoogleIO GoogleTranslate CmdDriver uiVoxelConnectivityFilter
+	     TextureAttrib uiTextureAttrib )
 #od_glxinfo lmhostid 
 #Only for windows base package
 SET( WINEXECLIST od_start_dtect od_main_console unzip )
