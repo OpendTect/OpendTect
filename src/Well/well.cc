@@ -794,7 +794,17 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
     static const float eps = 1e-3; // do not use lower for float
     if ( sz == 1 )
 	return mIsEqual(z,pos_[0].z,eps) ? dah_[0] : mUdf(float);
-    if ( z < value(0)-eps || z > value( sz-1 )+eps )
+    
+    float minz = 1e6;
+    float maxz = -1e6;
+    for ( int idz=0; idz<sz; idz++ )
+    {
+	if ( value(idz) < minz )
+	    minz = value(idz);
+	if ( value(idz) > maxz )
+	    maxz = value(idz);
+    }
+    if ( z < minz-eps || z > maxz+eps )
 	return mUdf(float);
 
 #define mZInRg() \
