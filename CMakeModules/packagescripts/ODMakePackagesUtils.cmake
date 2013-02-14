@@ -12,10 +12,9 @@ macro ( create_package PACKAGE_NAME )
     FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/bin )
     IF( APPLE )
 	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/${MACBINDIR} )
-    ELSE()
-	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
     ENDIF()
 
+    FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
     FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/plugins
 			  ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
 
@@ -145,7 +144,7 @@ macro( copy_thirdpartylibs )
     FOREACH( LIB ${LIBS} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB} ${COPYTODIR} )
 	IF( APPLE )
-	    execute_process( COMMAND ${CMAKE_COMMAND}-E copy ${LIB}
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB}
 				     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
 	ENDIF()
     ENDFOREACH()
