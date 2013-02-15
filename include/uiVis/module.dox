@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiVis uiVis
-\section Introduction Introduction
 
 Visualisation User Interface
 
@@ -26,7 +25,5 @@ visSurvey::SurveyObject.
 A lot of user interaction is done via popupmenus, and all objects share
 one uiMenuHandler that is accessed via getMenuHandler. To add items or
 manipulate the menus, please refer to the uiMenuHandler documentation.
-
-\section Content Content
 
 */
