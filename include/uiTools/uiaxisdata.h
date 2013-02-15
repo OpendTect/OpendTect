@@ -20,11 +20,11 @@ class DataClipper;
 class uiGraphicsScene;
 
 /*!
-\brief convenient base class to carry axis data:
-# the AxisHandler which handles the behaviour and positioning of an axis
-  in a 2D plot
-# axis scaling parameters
-# axis ranges
+\brief Convenient base class to carry axis data:
+  1) the AxisHandler which handles the behaviour and positioning of an axis
+     in a 2D plot
+  2) axis scaling parameters
+  3) axis ranges
 */
 
 mExpClass(uiTools) uiAxisData
