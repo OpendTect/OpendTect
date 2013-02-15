@@ -12,9 +12,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup SoOD SoOD
-\section Introduction Introduction
-%SoOD contains extensions to OpenInventor that are used to visualize 3D objects.
 
-\section Content Content
+%SoOD contains extensions to OpenInventor that are used to visualize 3D objects.
 
 */
