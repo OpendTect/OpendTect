@@ -160,10 +160,17 @@ macro( create_basepackages PACKAGE_NAME )
 	FILE( REMOVE_RECURSE ${DESTINATION_DIR}/Contents )
    ENDIF()
    IF( NOT EXISTS ${DESTINATION_DIR}/doc )
-	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc ${DESTINATION_DIR}/doc/User )
+	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc ${DESTINATION_DIR}/doc/User
+			     ${DESTINATION_DIR}/doc/ReleaseInfo)
    ENDIF()
 
    IF( ${PACKAGE_NAME} STREQUAL "basedata" )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				${PSD}/relinfo/RELEASE.txt
+				${DESTINATION_DIR}/doc/ReleaseInfo )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				${PSD}/relinfo/RELEASEINFO.txt
+				${DESTINATION_DIR}/doc/ReleaseInfo )
        FOREACH( LIBS ${LIBLIST} )
 	    FILE( GLOB DATAFILES ${CMAKE_INSTALL_PREFIX}/data/${LIBS} )
 	    FOREACH( DATA ${DATAFILES} )
@@ -187,6 +194,9 @@ macro( create_basepackages PACKAGE_NAME )
 				${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
    ENDIF()
    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				${PSD}/relinfo/RELEASE.dgb.txt
+				${DESTINATION_DIR}/doc/ReleaseInfo )
        FOREACH( LIB ${LIBLIST} )
 	  IF( IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/data/${LIB}" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -352,7 +362,6 @@ macro( create_develpackages )
     ENDFOREACH()
 
 #TODO Fond correct way to avoind so many for loops
-
     IF( WIN32 )
 	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/bin
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
@@ -393,9 +402,9 @@ macro( create_develpackages )
 			${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WELIB}.pdb )
 	    FOREACH( DEBUGEPDB ${DEBUGEPDBS} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${DEBUGEPDB}
-					 ${DESTINATION_DIR}/${OD_PLFSUBDIR}/bin/debug )
+					 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
 	    ENDFOREACH()
-	    FILE( GLOB DEBUGEPDGS
+	    FILE( GLOB DEBUGEXES
 			${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WELIB}.exe )
 	    FOREACH( DEBUGEXE ${DEBUGEXES} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${DEBUGEXE}
