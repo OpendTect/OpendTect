@@ -51,8 +51,7 @@ namespace visSurvey
 {
 
 /*!
-\ingroup visSurvey
-\brief Base class for all 'Display' objects
+\brief Base class for all 'Display' objects.
 */
 
 mExpClass(visSurvey) SurveyObject

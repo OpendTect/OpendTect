@@ -46,9 +46,8 @@ namespace visSurvey
 {
 class Scene;
 
-/*!\brief Used for displaying welltracks, markers and logs
-
-
+/*!
+\brief Used for displaying welltracks, markers and logs.
 */
 
 mExpClass(visSurvey) WellDisplay : public visBase::VisualObjectImpl

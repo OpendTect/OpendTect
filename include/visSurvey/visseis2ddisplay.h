@@ -36,8 +36,8 @@ namespace PosInfo { class Line2DData; }
 namespace visSurvey
 {
 
-/*!\brief Used for displaying a 2D line
-
+/*!
+\brief Used for displaying a 2D line.
 */
 
 mExpClass(visSurvey) Seis2DDisplay : public MultiTextureSurveyObject

@@ -45,11 +45,12 @@ namespace visSurvey
 
 class Scene;
 
-/*!\brief Used for displaying an inline, crossline or timeslice.
+/*!
+\brief Used for displaying an inline, crossline or timeslice.
 
-    A PlaneDataDisplay object is the front-end object for displaying an inline,
-    crossline or timeslice.  Use <code>setOrientation(Orientation)</code> for
-    setting the requested orientation of the slice.
+  A PlaneDataDisplay object is the front-end object for displaying an inline,
+  crossline or timeslice.  Use <code>setOrientation(Orientation)</code> for
+  setting the requested orientation of the slice.
 */
 
 mExpClass(visSurvey) PlaneDataDisplay :  public visSurvey::MultiTextureSurveyObject

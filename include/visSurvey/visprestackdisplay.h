@@ -36,6 +36,9 @@ namespace visSurvey
 class PlaneDataDisplay; 
 class Seis2DDisplay;
 
+/*!
+\brief PreStack display
+*/
 
 mExpClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl, 
     		 public visSurvey::SurveyObject

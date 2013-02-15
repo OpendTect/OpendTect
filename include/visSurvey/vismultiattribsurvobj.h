@@ -29,10 +29,10 @@ namespace ColTab  { class MapperSetup; class Sequence; }
 namespace visSurvey
 {
 
-/*!Base class for objects with multitextures. Class handles all texture handling
-   for inheriting classes, which avoids code duplication.
+/*!
+\brief Base class for objects with multitextures. Class handles all texture
+handling for inheriting classes, which avoids code duplication.
 */
-
 
 mExpClass(visSurvey) MultiTextureSurveyObject : public visBase::VisualObjectImpl,
 				  public SurveyObject

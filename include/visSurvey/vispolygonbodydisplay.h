@@ -42,9 +42,8 @@ namespace visSurvey
 {
 class MPEEditor;
 
-/*!\brief 
-
-
+/*!
+\brief EM::PolygonBody display.
 */
 
 mExpClass(visSurvey) PolygonBodyDisplay : public visBase::VisualObjectImpl,

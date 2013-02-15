@@ -23,7 +23,8 @@ namespace visBase { class PolyLine; class DrawStyle; class RandomPos2Body; }
 namespace visSurvey
 {
 
-/*!\brief Used for displaying picks.
+/*!
+\brief Used for displaying picks.
 
   Picks are positions in 3d (x,y,z) selected by the user by mouseclicks,
   or generated at random. Picks have a constant size in pixels, and can be

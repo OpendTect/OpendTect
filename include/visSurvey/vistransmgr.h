@@ -23,6 +23,10 @@ namespace visSurvey
 
 class Scene;
 
+/*!
+\brief Scene transform manager.
+*/
+
 mExpClass(visSurvey) SceneTransformManager
 {
 public:

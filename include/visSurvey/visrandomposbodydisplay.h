@@ -26,7 +26,9 @@ namespace visSurvey
 {
 class Scene;
 
-/*!\brief used for displaying a set of random picks in xyz coordinate.*/
+/*!
+\brief Used for displaying a set of random picks in xyz coordinates.
+*/
 
 mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
        			      public visSurvey::SurveyObject

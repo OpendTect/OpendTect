@@ -32,6 +32,10 @@ namespace PreStack { class EventManager; class EventSet; }
 namespace visSurvey
 {
 
+/*!
+\brief PreStack event display.
+*/
+
 mExpClass(visSurvey) PSEventDisplay : public visBase::VisualObjectImpl,
 		       public SurveyObject
 {
