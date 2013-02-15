@@ -12,13 +12,11 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiWellAttrib uiWellAttrib
-\section Introduction Introduction WellAttrib User Interface
 
-Here you will find all attribute handling regarding wells.
+WellAttrib User Interface
 
-\section Content Content
-
-The uiAttribWellPartServer delivers the services needed.
+Here you will find all attribute handling regarding wells. The
+uiAttribWellPartServer delivers the services needed.
 
 */
 
