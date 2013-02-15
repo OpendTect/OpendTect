@@ -22,6 +22,10 @@ namespace Well
 class Data;
 class Log;
 
+/*!
+\brief Writes Well::Data.
+*/
+
 mExpClass(Well) Writer : public IO
 {
 public:

@@ -21,7 +21,8 @@ ________________________________________________________________________
 namespace Well
 {
 
-/*!\brief Well log
+/*!
+\brief Well log
  
   No regular sampling required, as in all DahObjs. 
 
@@ -36,8 +37,7 @@ namespace Well
   The IOPar pars() will be retrieved and stored with each log; it is not
   really used; moreover, it's intended for plugins to dump their extra info
   about this log.
- 
- */
+*/
 
 mExpClass(Well) Log : public DahObj
 {

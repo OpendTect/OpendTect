@@ -19,7 +19,12 @@ ________________________________________________________________________
 
 namespace Well
 {
+
 class D2TModel;
+
+/*!
+\brief Well track
+*/
 
 mExpClass(Well) Track : public DahObj
 {

@@ -21,6 +21,10 @@ ________________________________________________________________________
 namespace Well
 {
 
+/*!
+\brief Depth/Distance along hole object.
+*/
+
 mExpClass(Well) DahObj : public ::NamedObject
 {
 public:

@@ -39,8 +39,9 @@ class Track;
 class Marker;
 class MarkerSet;
 
-
-/*!\brief parameters (zrg, sampling method) to extract well data */
+/*!
+\brief Parameters (zrg, sampling method) to extract well data.
+*/
 
 mExpClass(Well) ZRangeSelector
 {
@@ -111,6 +112,10 @@ protected:
 };
 
 
+/*!
+\brief ZRangeSelector to extract parameters.
+*/
+
 mExpClass(Well) ExtractParams : public ZRangeSelector
 {
 public:
@@ -133,7 +138,9 @@ public:
 };
 
 
-/*!\brief Collects info about all wells in store */
+/*!
+\brief Collects information about all wells in store.
+*/
 
 mExpClass(Well) InfoCollector : public ::Executor
 {
@@ -177,9 +184,10 @@ protected:
 };
 
 
-
-/*!\brief Collects positions along selected well tracks. The DataPointSets will
-  get new rows with the positions along the track. */
+/*!
+\brief Collects positions along selected well tracks. The DataPointSet will get
+new rows with the positions along the track.
+*/
 
 mExpClass(Well) TrackSampler : public ::Executor
 {
@@ -234,8 +242,10 @@ protected:
 };
 
 
-/*!\brief Collects positions along selected well tracks. Will add column
-   to the DataPointSet. */
+/*!
+\brief Collects positions along selected well tracks. Will add column to the
+DataPointSet.
+*/
 
 mExpClass(Well) LogDataExtracter : public ::Executor
 {
@@ -280,6 +290,9 @@ protected:
 };
 
 
+/*!
+\brief Executor to sample Well::Track
+*/
 
 mExpClass(Well) SimpleTrackSampler : public Executor
 {
@@ -317,8 +330,10 @@ protected:
 };
 
 
-
-/*! brief Log resampler, extracts all the logs given by log names along a z time or dah axis !*/
+/*!
+\brief Log resampler, extracts all the logs given by log names along a z time
+or dah axis.
+*/
 
 mExpClass(Well) LogSampler : public ParallelTask
 {

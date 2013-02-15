@@ -24,6 +24,10 @@ namespace Well
 
 class Data;
 
+/*!
+\brief Well manager
+*/
+
 mExpClass(Well) Man
 {
 public:
@@ -58,8 +62,6 @@ protected:
 mGlobal(Well) Man& MGR();
 
 }; // namespace Well
-
-
 
 
 #endif

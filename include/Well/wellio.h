@@ -16,11 +16,16 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "bufstring.h"
 #include "strmdata.h"
+
 class IOObj;
 class MultiID;
 
 namespace Well
 {
+
+/*!
+\brief I/O
+*/
 
 mExpClass(Well) IO
 {

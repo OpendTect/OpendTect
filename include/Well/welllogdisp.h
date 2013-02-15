@@ -21,6 +21,10 @@ ________________________________________________________________________
 namespace Well
 {
 
+/*!
+\brief Log display parameters.
+*/
+
 mExpClass(Well) LogDisplayPars
 {
 public:
@@ -56,6 +60,10 @@ public:
     bool 		singlfillcol_;
 };
 
+
+/*!
+\brief Log display parameter set.
+*/
 
 mExpClass(Well) LogDisplayParSet
 {

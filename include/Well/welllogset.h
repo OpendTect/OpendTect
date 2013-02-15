@@ -23,6 +23,10 @@ namespace Well
 
 class Log;
 
+/*!
+\brief Log set
+*/
+
 mExpClass(Well) LogSet
 {
 public:

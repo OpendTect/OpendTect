@@ -16,13 +16,16 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "transl.h"
 #include "position.h"
+
 class Executor;
 class DataPointSet;
 class BufferStringSet;
 
-
 namespace Well { class Data; };
 
+/*!
+\brief Well TranslatorGroup
+*/
 
 mExpClass(Well) WellTranslatorGroup : public TranslatorGroup
 {			    isTranslatorGroup(Well)
@@ -31,6 +34,10 @@ public:
     const char*		defExtension() const { return "well"; }
 };
 
+
+/*!
+\brief Well Translator
+*/
 
 mExpClass(Well) WellTranslator : public Translator
 {
@@ -52,6 +59,10 @@ public:
 					    bool zvalsintime);
 };
 
+
+/*!
+\brief dgb WellTranslator
+*/
 
 mExpClass(Well) dgbWellTranslator : public WellTranslator
 {			  isTranslator(dgb,Well)

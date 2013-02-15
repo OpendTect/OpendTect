@@ -21,6 +21,10 @@ namespace Well
 
 class Track;
 
+/*!
+\brief Depth to time model.
+*/
+
 mExpClass(Well) D2TModel : public DahObj
 {
 public:

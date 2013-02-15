@@ -33,8 +33,7 @@ class DisplayProperties;
 
 
 /*!
-\ingroup Well
-\brief Infomation about a certain well
+\brief Information about a certain well.
 */
 
 mExpClass(Well) Info : public ::NamedObject
@@ -75,13 +74,11 @@ public:
 
 
 /*!
-\ingroup Well
 \brief The holder of all data concerning a certain well.
  
- Note that a well is not a POSC well in the sense that it describes the
- data for one well bore. Thus, a well has a single track.
- This may mean duplication when more well tracks share an upper part.
-
+  Note that a well is not a POSC well in the sense that it describes the data
+  for one well bore. Thus, a well has a single track. This may mean duplication
+  when more well tracks share an upper part.
 */
 
 mExpClass(Well) Data : public CallBacker

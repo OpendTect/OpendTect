@@ -22,10 +22,10 @@ namespace Well
 
 class Track;
 
-/*!\brief Marker, should be attached to Strat level
+/*!
+\brief Marker, should be attached to Strat level.
 
   Can be unattached, then uses the fallback name and color. 
-
 */
 
 mExpClass(Well) Marker : public ::NamedObject
@@ -63,6 +63,9 @@ protected:
 };
 
 
+/*!
+\brief ObjectSet of Markers.
+*/
 
 mExpClass(Well) MarkerSet : public ObjectSet<Marker>
 {

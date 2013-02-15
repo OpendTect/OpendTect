@@ -29,6 +29,9 @@ class Track;
 class D2TModel;
 class MarkerSet;
 
+/*!
+\brief Imports files in LAS ( Log Ascii Standard ) format.
+*/
 
 mExpClass(Well) LASImporter
 {
@@ -87,6 +90,10 @@ protected:
 };
 
 
+/*!
+\brief Track Ascii I/O.
+*/
+
 mExpClass(Well) TrackAscIO : public Table::AscIO
 {
 public:
@@ -105,6 +112,10 @@ protected:
 };
 
 
+/*!
+\brief D2TModel Ascii I/O.
+*/
+
 mExpClass(Well) D2TModelAscIO : public Table::AscIO
 {   
     public:
@@ -119,6 +130,10 @@ mExpClass(Well) D2TModelAscIO : public Table::AscIO
 	    			    const Well::Data&) const;
 };
 
+
+/*!
+\brief MarkerSet Ascii I/O.
+*/
 
 mExpClass(Well) MarkerSetAscIO : public Table::AscIO
 {

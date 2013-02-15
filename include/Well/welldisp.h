@@ -27,10 +27,12 @@ class BufferStringSet;
 namespace Well
 {
 
-/*!\brief Display properties of a well */
-
 inline const char* sKey2DDispProp()  { return "2D Display"; }
 inline const char* sKey3DDispProp() { return "3D Display"; }
+
+/*!
+\brief Display properties of a well.
+*/
 
 mExpClass(Well) DisplayProperties
 {

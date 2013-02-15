@@ -26,6 +26,10 @@ namespace Well
 class Data;
 class Log;
 
+/*!
+\brief Reads Well::Data.
+*/
+
 mExpClass(Well) Reader : public IO
 {
 public:

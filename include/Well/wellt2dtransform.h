@@ -19,6 +19,10 @@ class IOPar;
 
 namespace Well { class Data; }
 
+/*!
+\brief Time to depth transform for wells.
+*/
+
 mExpClass(Well) WellT2DTransform : public ZAxisTransform
 {
 public:
