@@ -237,7 +237,7 @@ public:
 the geometry.
 */
 
-mClass(Basic) TraceID
+mExpClass(Basic) TraceID
 {
 public:
 				TraceID(const BinID& bid)
