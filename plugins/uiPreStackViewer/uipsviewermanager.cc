@@ -141,13 +141,6 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
     viewermenuitem_.removeItems();
 
     const int idxof = psv ? viewers3d_.indexOf(psv) : -1;
-    if ( idxof >=0 )
-    {
-	BufferStringSet vwrtypes;
-	vwrtypes.add( "Single &gather" );
-	vwrtypes.add( "Multiple &gathers" );
-	viewermenuitem_.createItems( vwrtypes );
-    }
     if ( idxof < 0  )
     {
 	mResetMenuItem( &proptymenuitem_ );
@@ -245,30 +238,10 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
    	    psv->flatViewer()->setResolution( 
 		    resolutionmenuitem_.itemIndex(mnuid) );
     }
-    else if ( viewermenuitem_.itemIndex(mnuid)==1 )
+    else if ( mnuid == viewermenuitem_.id )
     {
 	menu->setIsHandled( true );
 	multiviewers2d_ += createMultiGather2DViewer( *psv );
-    }
-    else if ( viewermenuitem_.itemIndex(mnuid)==0 )
-    {
-	menu->setIsHandled( true );
-	PtrMan<IOObj> ioobj = IOM().get( psv->getMultiID() );
-	if ( !ioobj )
-	    return;
-
-	BufferString title;
-	if ( psv->is3DSeis() )
-	    getSeis3DTitle( psv->getBinID(), ioobj->name(), title );
-	else
-	    getSeis2DTitle( psv->traceNr(), psv->lineName(), title );	
-
-	uiFlatViewMainWin* viewwin = create2DViewer(title,psv->getDataPackID());
-	if ( viewwin )
-	{
-	    viewers2d_ += viewwin;
-	    viewwin->start();
-	}
     }
     else if ( mnuid==amplspectrumitem_.id )
     {
@@ -504,8 +477,8 @@ uiStoredViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer(
 	new uiStoredViewer2DMainWin( ODMainWin(), title ); 
     viewwin->show();
     const StepInterval<int>& trcrg = psv.getTraceRange( psv.getBinID() );
-    viewwin->init( mid, psv.getDataPackID(), psv.isOrientationInline(), trcrg,
-			    is2d ? psv.lineName() : 0 );
+    viewwin->init( mid, psv.getBinID(), psv.isOrientationInline(), trcrg,
+		   is2d ? psv.lineName() : 0 );
     viewwin->setDarkBG( false );
     viewwin->seldatacalled_.notify( mCB(this,uiViewer3DMgr,viewer2DSelDataCB) );
     viewwin->windowClosed.notify( mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
