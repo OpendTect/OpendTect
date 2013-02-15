@@ -51,5 +51,10 @@ void uiGatherDisplayInfoHeader::setData( const BinID& pos, bool isinl,
 }
 
 
-
+void uiGatherDisplayInfoHeader::setData( int pos, const char* datanm )
+{
+    datalbl_->setText( datanm ); 
+    BufferString posstr( "Model " ); posstr += pos;
+    poslbl_->setText( posstr.buf() );
+}
 } //namespace

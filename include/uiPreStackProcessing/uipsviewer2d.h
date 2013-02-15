@@ -51,6 +51,7 @@ public:
 
     void			setInitialSize(const uiSize&);
     void			setWidth(int);
+    void                        updateViewRange();
 
 protected:
 

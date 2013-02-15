@@ -29,6 +29,7 @@ public:
 
     void			setData(const BinID&,bool inl,bool is2d,
 	    				const char* data);
+    void			setData(int pos,const char* data);
     void			setOffsetRange(const Interval<float>&);
 
 protected:

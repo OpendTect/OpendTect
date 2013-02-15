@@ -153,6 +153,12 @@ const Interval<float>& uiGatherDisplay::getOffsetRange() const
 { return offsetrange_; }
 
 
+void uiGatherDisplay::updateViewRange()
+{
+    updateViewRange( viewer_->boundingBox() );
+}
+
+
 void uiGatherDisplay::updateViewRange( const uiWorldRect& cur )
 {
     uiWorldRect view = cur;

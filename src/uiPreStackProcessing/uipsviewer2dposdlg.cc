@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislicesel.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
+#include "uitable.h"
 #include "uitoolbutton.h"
 
 #include "seisioobjinfo.h"
@@ -31,8 +32,9 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStackView
 {
 
-uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d, 
-					const CubeSampling& cs )
+uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
+	const CubeSampling& cs, const BufferStringSet& gathernms,
+	bool issynthetic )
     : uiDialog(p,uiDialog::Setup("Pre-stack Gather display positions",
 				0,"50.2.3").modal(false))
     , okpushed_(this)
@@ -42,13 +44,21 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
 	cs.defaultDir()==CubeSampling::Inl ? uiSliceSel::Inl : uiSliceSel::Crl;
     setCtrlStyle( DoAndStay );
     
-    sliceselfld_ = new uiGatherPosSliceSel( this, tp );
+    sliceselfld_ = new uiGatherPosSliceSel( this, tp, gathernms, issynthetic );
     sliceselfld_->enableScrollButton( false );
-    if ( is2d_ )
+    if ( is2d_ || issynthetic )
 	sliceselfld_->setMaxCubeSampling( cs );
-    setCubeSampling( cs );
+    const bool isinl = tp == uiSliceSel::Inl;
+    CubeSampling slicecs = cs;
+    StepInterval<int> trcrg = is2d || isinl ? cs.hrg.crlRange()
+					    : cs.hrg.inlRange();
+    trcrg.step = trcrg.width()/cStartNrVwrs;
+    if ( is2d_ || isinl )
+	slicecs.hrg.setCrlRange( trcrg );
+    else
+	slicecs.hrg.setInlRange( trcrg );
+    setCubeSampling( slicecs );
     setOkText( "&Apply" );
-    setNrViewers( cStartNrVwrs );
 }
 
 
@@ -72,47 +82,167 @@ void uiViewer2DPosDlg::getCubeSampling( CubeSampling& cs )
 
 void uiViewer2DPosDlg::setCubeSampling( const CubeSampling& cs )
 {
-    const int nrvwrs = nrViewers();
-    sliceselfld_->setStep( mMAX( cs.hrg.step.crl, cs.hrg.step.inl ) );
+    const bool isinl = cs.defaultDir()==CubeSampling::Inl;
+    const int step = is2d_ || isinl ? cs.hrg.crlRange().step
+				    : cs.hrg.inlRange().step;
+    sliceselfld_->setStep( step );
     sliceselfld_->setCubeSampling(cs);
-    setNrViewers( nrvwrs );
+    sliceselfld_->updatePosTable();
 }
 
 
-uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp )
+uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
+					  const BufferStringSet& gnms,
+					  bool issynthetic )
   : uiSliceSel(p,tp,ZDomain::SI())
+  , posseltbl_(0)
+  , gathernms_(gnms)
+  , issynthetic_(issynthetic)
 {
     setStretch( 2, 2 );
     BufferString msg( "Dynamic " ); 
     const char* linetxt = isinl_ ? is2d_ ? "Trace" : "Xline" : "Inline";
     msg += linetxt;
     msg += is2d_ ? " Number" : " Range";
+    if ( issynthetic )
+    {
+	inl0fld_->display( false, true );
+	inl1fld_->display( false, true );
+	crl0fld_->label()->setText( "Model range" );
+    }
 
     stepfld_ = new uiLabeledSpinBox( this, "step" );
     stepfld_->attach( rightTo, isinl_ || is2d_ ? crl1fld_ : inl1fld_ ); 
     stepfld_->box()->setInterval( 1, mCast(int,cs_.hrg.totalNr()) );
 
-    uiSeparator* sep = new uiSeparator( this, "pos/nr viewer sep" );
-    sep->attach( stretchedBelow, z0fld_ );
-    nrviewersfld_ = new uiLabeledSpinBox( this, "Number of gathers per line" );
-    nrviewersfld_->attach( ensureBelow, sep );
-    nrviewersfld_->attach( alignedBelow, z0fld_ );
-    nrviewersfld_->box()->valueChanging.notify( 
-	    mCB(this,uiGatherPosSliceSel,nrViewersChged) );
-    nrviewersfld_->box()->setInterval( 1, 100 );
 
-    dynamicrgbox_ = new uiCheckBox( this, msg );
-    dynamicrgbox_->attach( rightOf, nrviewersfld_ );
-    dynamicrgbox_->activated.notify( 
-	    		mCB(this,uiGatherPosSliceSel,dynamicRangeChged) );
-    enableDynamicRange( false );
+    uiSeparator* sep2 = new uiSeparator( this, "nr viewer/table sep" );
+    sep2->attach( stretchedBelow, z0fld_ );
+    
+    posseltbl_ =
+	new uiTable( this, uiTable::Setup(1,gathernms_.size()),"Select");
+    posseltbl_->attach( ensureBelow, sep2 );
+    updatePosTable();
 
     CallBack cb( mCB(this,uiGatherPosSliceSel,posChged) );
     stepfld_->box()->valueChanging.notify( cb );
     if ( inl0fld_ ) inl0fld_->box()->valueChanging.notify( cb );
     if ( crl0fld_ ) crl0fld_->box()->valueChanging.notify( cb );
-    if ( inl0fld_ ) inl1fld_->valueChanging.notify( cb );
+    if ( inl1fld_ ) inl1fld_->valueChanging.notify( cb );
     if ( crl1fld_ ) crl1fld_->valueChanging.notify( cb );
+}
+
+
+void uiGatherPosSliceSel::updatePosTable()
+{
+    if ( !posseltbl_ ) return;
+
+    posseltbl_->setColumnLabels( gathernms_ );
+    StepInterval<int> trcrg = is2d_ || isinl_ ? cs_.hrg.crlRange()
+					      : cs_.hrg.inlRange();
+    trcrg.step = stepfld_->box()->getValue();
+    const int nrrows = trcrg.nrSteps()+1;
+    posseltbl_->setNrRows( nrrows );
+
+    for ( int rowidx=0; rowidx<nrrows; rowidx++ )
+    {
+	BufferString lbl( issynthetic_ ? "Model" : is2d_ ? "Trace"
+							 : isinl_ ? "CrossLine"
+							 	  : "Inline" );
+	lbl += " Nr "; lbl += issynthetic_ ? rowidx : trcrg.atIndex( rowidx );
+	posseltbl_->setRowLabel( rowidx, lbl );
+	for ( int colidx=0; colidx<gathernms_.size(); colidx++ )
+	{
+	    RowCol rc( rowidx, colidx );
+	    posseltbl_->clearCell( rc );
+	    posseltbl_->setCellObject( rc, new uiCheckBox(0,"Select") ); 
+	}
+    }
+}
+
+
+void uiGatherPosSliceSel::setSelGatherInfos(
+	const TypeSet<GatherInfo>& gatherinfos )
+{
+    gathernms_.erase();
+    CubeSampling cs( false );
+
+    StepInterval<int> trcrg( mUdf(int), -mUdf(int), 1 );
+    TypeSet<BinID> uniquebids;
+    for ( int gidx=0; gidx<gatherinfos.size(); gidx++ )
+    {
+	GatherInfo ginfo = gatherinfos[gidx];
+	uniquebids.addIfNew( ginfo.bid_ );
+	trcrg.include( isinl_ ? ginfo.bid_.crl :  ginfo.bid_.inl, false );
+	gathernms_.addIfNew( ginfo.gathernm_ );
+    }
+
+    const int rgstep = uniquebids.size()==1 ? 1 : isinl_
+			    ? abs(uniquebids[1].crl-uniquebids[0].crl)
+			    : abs(uniquebids[1].inl-uniquebids[0].inl);
+    stepfld_->box()->setValue( rgstep );
+    trcrg.step = stepfld_->box()->getValue();
+    if ( is2d_ || isinl_ )
+	cs_.hrg.setCrlRange( trcrg );
+    else
+	 cs_.hrg.setInlRange( trcrg );
+
+    setCubeSampling( cs_ );
+    updatePosTable();
+   
+    for ( int rowidx=0; rowidx<trcrg.nrSteps(); rowidx++ )
+    {
+	const int trcnr = trcrg.atIndex( rowidx );
+	BinID bid( isinl_ ? cs_.hrg.start.inl : trcnr,
+		   isinl_ ? trcnr : cs_.hrg.start.crl );
+	for ( int colidx=0; colidx<gathernms_.size(); colidx++ )
+	{
+	    RowCol rc( rowidx, colidx );
+	    BufferString gathernm = gathernms_.get( colidx );
+	    uiObject* obj = posseltbl_->getCellObject( rc );
+	    mDynamicCastGet(uiCheckBox*,cb,obj);
+	    if ( !cb ) continue;
+	    for ( int gidx=0; gidx<gatherinfos.size(); gidx++ )
+	    {
+		GatherInfo info = gatherinfos[gidx];
+		if ( info.bid_ == bid && info.gathernm_== gathernm &&
+		     info.isselected_ )
+		    cb->setChecked( true );
+	    }
+	}
+    }
+
+}
+
+
+void uiGatherPosSliceSel::getSelGatherInfos( TypeSet<GatherInfo>& gatherinfos )
+{
+    gatherinfos.erase();
+    const int nrrows = posseltbl_->nrRows();
+    for ( int rowidx=0; rowidx<nrrows; rowidx++ )
+    {
+	StepInterval<int> trcrg = is2d_ || isinl_ ? cs_.hrg.crlRange()
+	    					  : cs_.hrg.inlRange();
+	trcrg.step = stepfld_->box()->getValue();
+
+	const int trcnr = trcrg.atIndex( rowidx );
+	BinID bid( isinl_ ? cs_.hrg.start.inl : trcnr,
+		   isinl_ ? trcnr : cs_.hrg.start.crl );
+	for ( int colidx=0; colidx<gathernms_.size(); colidx++ )
+	{
+	    RowCol rc( rowidx, colidx );
+	    uiObject* uiobj = posseltbl_->getCellObject( rc );
+	    if ( !uiobj ) continue;
+	    mDynamicCastGet(uiCheckBox*,cb,uiobj);
+	    if ( !cb ) continue;
+
+	    GatherInfo ginfo;
+	    ginfo.bid_ = bid;
+	    ginfo.gathernm_ = gathernms_.get( colidx );
+	    ginfo.isselected_ = cb->isChecked();
+	    gatherinfos += ginfo;
+	}
+    }
 }
 
 
@@ -124,32 +254,6 @@ void uiGatherPosSliceSel::setStep( int ns )
 { stepfld_->box()->setValue(ns); }
 
 
-int uiGatherPosSliceSel::nrViewers() const
-{ return nrviewersfld_->box()->getValue(); }
-
-
-void uiGatherPosSliceSel::setNrViewers( int nrvwrs )
-{ nrviewersfld_->box()->setValue( nrvwrs ); }
-
-
-void uiGatherPosSliceSel::enableDynamicRange( bool yn )
-{ 
-    dynamicrgbox_->display( yn ); 
-    dynamicrgbox_->setChecked( yn );
-}
-
-
-void uiGatherPosSliceSel::dynamicRangeChged( CallBacker* )
-{
-    const bool isdynam = dynamicrgbox_->isChecked();
-    if ( inl0fld_ ) inl0fld_->setSensitive( !isdynam );
-    if ( crl0fld_ ) crl0fld_->setSensitive( !isdynam );
-    stepfld_->setSensitive( !isdynam );
-    if ( inl0fld_ ) inl1fld_->setSensitive( !isdynam );
-    if ( crl1fld_ ) crl1fld_->setSensitive( !isdynam );
-}
-
-
 void uiGatherPosSliceSel::enableZDisplay( bool yn )
 { z0fld_->display( yn ); z1fld_->display( yn ); }
 
@@ -157,33 +261,8 @@ void uiGatherPosSliceSel::enableZDisplay( bool yn )
 void uiGatherPosSliceSel::posChged( CallBacker* cb )
 { 
     acceptOK();
-    const int divnr = stepfld_->box()->getValue(); 
-    if ( divnr > 0 ) 
-    {
-	NotifyStopper ns( nrviewersfld_->box()->valueChanging );
-	Interval<int> rg = isinl_ || is2d_ ? cs_.hrg.crlRange() 
-			        	   : cs_.hrg.inlRange();
-	nrviewersfld_->box()->setValue( rg.width()/divnr +1 );
-    }
+    updatePosTable();
 }
-
-
-void uiGatherPosSliceSel::nrViewersChged( CallBacker* cb )
-{ 
-    acceptOK();
-    const int divnr = nrviewersfld_->box()->getValue()-1; 
-    if ( divnr > 0 ) 
-    {
-	NotifyStopper ns( stepfld_->box()->valueChanging );
-	Interval<int> rg = isinl_ || is2d_ ? cs_.hrg.crlRange() 
-					   : cs_.hrg.inlRange();
-	stepfld_->box()->setValue( rg.width()/divnr );
-    }
-}
-
-
-bool uiGatherPosSliceSel::isDynamicRange() const
-{ return dynamicrgbox_->isChecked(); }
 
 
 uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p, 
@@ -263,6 +342,3 @@ bool uiViewer2DSelDataDlg::acceptOK( CallBacker* )
 }
 
 } //namespace
-
-
-

@@ -11,39 +11,67 @@ ________________________________________________________________________
 
 -*/
 
+#include "multiid.h"
+#include "bufstringset.h"
+
 #include "uiprestackprocessingmod.h"
 #include "uislicesel.h"
 
 class uiCheckBox;
 class uiListBox;
+class uiTable;
 class uiToolButton;
 
 namespace PreStackView
 {
 
+
+mStruct(uiPreStackProcessing) GatherInfo
+{
+    			GatherInfo()
+			: isstored_(true), isselected_( false ), dpid_(-1)
+			, bid_(mUdf(int),mUdf(int))	{}
+    bool		isstored_;
+    bool		isselected_;
+    MultiID		mid_;
+    int			dpid_;
+    BufferString	gathernm_;
+    BinID		bid_;
+bool operator==( const GatherInfo& info ) const
+{
+    return isstored_==info.isstored_ && bid_==info.bid_ &&
+	   (isstored_ ? mid_==info.mid_
+	   	      : (gathernm_==info.gathernm_ && dpid_==info.dpid_));
+}
+
+};
+
+
+
 mExpClass(uiPreStackProcessing) uiGatherPosSliceSel : public uiSliceSel
 {
 public:
-				uiGatherPosSliceSel(uiParent*,uiSliceSel::Type);
+				uiGatherPosSliceSel(uiParent*,uiSliceSel::Type,
+						    const BufferStringSet&,
+						    bool issynthetic=false);
 
     const CubeSampling&		cubeSampling(); 
-    void			setNrViewers(int);
-    int				nrViewers() const;
     void 			setStep(int);	
     int 			step() const;	
 
-    void			enableDynamicRange(bool);
     void			enableZDisplay(bool);
-    bool			isDynamicRange() const;
+    void			updatePosTable();
+    void			getSelGatherInfos(TypeSet<GatherInfo>&);
+    void			setSelGatherInfos(const TypeSet<GatherInfo>&);
 
 protected:
     uiLabeledSpinBox* 		stepfld_;
-    uiLabeledSpinBox*		nrviewersfld_;
-    uiCheckBox*			dynamicrgbox_;
+    uiTable*			posseltbl_;
+    BufferStringSet		gathernms_;
+    bool			issynthetic_;
+    CubeSampling		fullcs_;
 
-    void			dynamicRangeChged(CallBacker*);
     void			posChged(CallBacker*);
-    void			nrViewersChged(CallBacker*);
     void			applyPushed(CallBacker*);
 };
 
@@ -51,22 +79,19 @@ mExpClass(uiPreStackProcessing) uiViewer2DPosDlg : public uiDialog
 {
 public:
 				uiViewer2DPosDlg(uiParent*,bool is2d,
-						const CubeSampling&);
+						const CubeSampling&,
+						const BufferStringSet&,
+						bool issynthetic);
 
     void 			setCubeSampling(const CubeSampling&);
     void 			getCubeSampling(CubeSampling&);
 
-    void                        setNrViewers(int nrv)
-				    { sliceselfld_->setNrViewers(nrv); }
-    int				nrViewers() const
-				    { return sliceselfld_->nrViewers(); }
-    bool			isDynamicRange() const
-				    { return sliceselfld_->isDynamicRange(); }
-
-    void                        enableDynamicRange(bool yn)
-				    { sliceselfld_->enableDynamicRange(yn); }
     void                        enableZDisplay(bool yn)
 				    { sliceselfld_->enableZDisplay(yn); }
+    void			getSelGatherInfos(TypeSet<GatherInfo>& infos)
+				{ sliceselfld_->getSelGatherInfos(infos); }
+    void			setSelGatherInfos(const TypeSet<GatherInfo>& gi)
+				{ sliceselfld_->setSelGatherInfos(gi); }
 
     Notifier<uiViewer2DPosDlg> okpushed_;
 

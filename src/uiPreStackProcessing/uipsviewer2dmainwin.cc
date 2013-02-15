@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewer.h"
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewslicepos.h"
-#include "uipsviewer2dposdlg.h"
 #include "uipsviewer2d.h"
 #include "uipsviewer2dinfo.h"
 #include "uirgbarraycanvas.h"
@@ -32,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackgather.h"
 #include "seisioobjinfo.h"
 
+static int sStartNrViewers = 10;
 
 namespace PreStackView 
 {
@@ -51,6 +51,7 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
 void uiViewer2DMainWin::dataDlgPushed( CallBacker* )
 {
     seldatacalled_.trigger();
+    if ( posdlg_ ) posdlg_->setSelGatherInfos( gatherinfos_ );
 }
 
 
@@ -65,37 +66,25 @@ void uiViewer2DMainWin::posSlcChgCB( CallBacker* )
 }
 
 
-void uiViewer2DMainWin::posDlgChgCB( CallBacker* )
-{
-    if ( posdlg_ ) 
-	posdlg_->getCubeSampling( cs_ );
-    if ( slicepos_ ) 
-	slicepos_->setCubeSampling( cs_ );
-
-    setUpView();
-}
-
-
 void uiViewer2DMainWin::setUpView()
 {
-    HorSamplingIterator hsit( cs_.hrg );
-
     uiMainWin win( this, "Creating gather displays ... " );
     uiProgressBar pb( &win );
     pb.setPrefWidthInChar( 50 );
     pb.setStretch( 2, 2 );
-    pb.setTotalSteps( mCast(int,cs_.hrg.totalNr()) );
+    pb.setTotalSteps( mCast(int,gatherinfos_.size()) );
     win.show();
 
     removeAllGathers();
 
-    BinID bid; int nrvwr = 0;
-    while ( hsit.next( bid ) )
+    int nrvwr = 0;
+    for ( int gidx=0; gidx<gatherinfos_.size(); gidx++ )
     {
-	setGathers( bid );
+	setGather( gatherinfos_[gidx] );
 	pb.setProgress( nrvwr );
 	nrvwr++;
     }
+
     reSizeSld(0);
 }
 
@@ -132,9 +121,10 @@ void uiViewer2DMainWin::displayInfo( CallBacker* cb )
 void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 				       uiGatherDisplayInfoHeader* gdi )
 {
-    gd->setPosition( gd->getBinID() );
+    const Interval<double> zrg( cs_.zrg.start, cs_.zrg.stop );
+    gd->setPosition( gd->getBinID(), cs_.zrg.width()==0 ? 0 : &zrg );
+    gd->updateViewRange();
     uiFlatViewer* fv = gd->getUiFlatViewer();
-    fv->setView( fv->boundingBox() );
     gd->displayAnnotation( false );
     fv->appearance().annot_.x1_.showannot_ = false;
     vwrs_ += fv;
@@ -161,6 +151,58 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 }
 
 
+void uiViewer2DMainWin::posDlgPushed( CallBacker* )
+{
+    if ( !posdlg_ )
+    {
+	BufferStringSet gathernms;
+	getGatherNames( gathernms );
+	posdlg_ = new uiViewer2DPosDlg( this, is2D(), cs_, gathernms,
+					!isStored() );
+	posdlg_->okpushed_.notify( mCB(this,uiViewer2DMainWin,posDlgChgCB) );
+    }
+
+    posdlg_->setSelGatherInfos( gatherinfos_ );
+    posdlg_->raise();
+    posdlg_->show();
+}
+
+
+bool uiViewer2DMainWin::isStored() const
+{
+    mDynamicCastGet(const uiStoredViewer2DMainWin*,storedwin,this);
+    return storedwin;
+}
+
+
+TypeSet<BinID> uiViewer2DMainWin::getStartupPositions( const BinID& bid,
+	const StepInterval<int>& trcrg, bool isinl ) const
+{
+    TypeSet<BinID> bids;
+    const int approxstep = trcrg.width()/sStartNrViewers;
+    const int starttrcnr = isinl ? bid.crl : bid.inl;
+    for ( int trcnr=starttrcnr; trcnr<=trcrg.stop; trcnr+=approxstep )
+    {
+	const int trcidx = trcrg.nearestIndex( trcnr );
+	const int acttrcnr = trcrg.atIndex( trcidx );
+	BinID posbid( isinl ? bid.inl : acttrcnr, isinl ? acttrcnr : bid.crl );
+	bids.addIfNew( posbid );
+    }
+
+    for ( int trcnr=starttrcnr; trcnr>=trcrg.start; trcnr-=approxstep )
+    {
+	const int trcidx = trcrg.nearestIndex( trcnr );
+	const int acttrcnr = trcrg.atIndex( trcidx );
+	BinID posbid( isinl ? bid.inl : acttrcnr, isinl ? acttrcnr : bid.crl );
+	if ( bids.isPresent(posbid) )
+	    continue;
+	bids.insert( 0, posbid );
+    }
+
+    return bids;
+}
+
+
 uiStoredViewer2DMainWin::uiStoredViewer2DMainWin(uiParent* p,const char* title )
     : uiViewer2DMainWin(p,title)
     , linename_(0)
@@ -168,114 +210,156 @@ uiStoredViewer2DMainWin::uiStoredViewer2DMainWin(uiParent* p,const char* title )
 }
 
 
-void uiStoredViewer2DMainWin::init( const MultiID& mid, int gatherid,bool isinl,
-	const StepInterval<int>& trcrg, const char* linename )
+void uiStoredViewer2DMainWin::getGatherNames( BufferStringSet& nms) const
+{
+    nms.erase();
+    for ( int idx=0; idx<mids_.size(); idx++ )
+    {
+	PtrMan<IOObj> gatherioobj = IOM().get( mids_[idx] );
+	if ( !gatherioobj ) continue;
+	nms.add( gatherioobj->name() );
+    }
+}
+
+
+void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
+	bool isinl, const StepInterval<int>& trcrg, const char* linename )
 {
     mids_ += mid;
     SeisIOObjInfo info( mid );
     is2d_ = info.is2D();
     linename_ = linename;
 
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( gatherid );
-    mDynamicCastGet(PreStack::Gather*,gather,dp)
-    if ( gather )
+    if ( is2d_ )
     {
-	const BinID& bid = gather->getBinID();
-	if ( is2d_ )
+	cs_.hrg.setInlRange( Interval<int>( 1, 1 ) );
+	cs_.hrg.setCrlRange( trcrg );
+    }
+    else
+    {
+	if ( isinl )
 	{
-	    cs_.hrg.setInlRange( Interval<int>( 1, 1 ) );
+	    cs_.hrg.setInlRange( Interval<int>( bid.inl, bid.inl ) );
 	    cs_.hrg.setCrlRange( trcrg );
 	}
 	else
 	{
-	    if ( isinl )
-	    {
-		cs_.hrg.setInlRange( Interval<int>( bid.inl, bid.inl ) );
-		cs_.hrg.setCrlRange( trcrg );
-	    }
-	    else
-	    {
-		cs_.hrg.setCrlRange( Interval<int>( bid.crl, bid.crl ) );
-		cs_.hrg.setInlRange( trcrg );
-	    }
-	    slicepos_ = new uiSlicePos2DView( this );
-	    slicepos_->setCubeSampling( cs_ );
-	    slicepos_->positionChg.notify(
-		    		mCB(this,uiStoredViewer2DMainWin,posSlcChgCB));
+	    cs_.hrg.setCrlRange( Interval<int>( bid.crl, bid.crl ) );
+	    cs_.hrg.setInlRange( trcrg );
 	}
-	cs_.zrg.setFrom( gather->posData().range( false ) );
-	setGathers( bid );
+	slicepos_ = new uiSlicePos2DView( this );
+	slicepos_->setCubeSampling( cs_ );
+	slicepos_->positionChg.notify(
+			    mCB(this,uiStoredViewer2DMainWin,posSlcChgCB));
     }
-    DPM(DataPackMgr::FlatID()).release( gatherid );
+
+    TypeSet<BinID> bids = getStartupPositions( bid, trcrg, isinl );
+    gatherinfos_.erase();
+    for ( int idx=0; idx<bids.size(); idx++ )
+    {
+	GatherInfo ginfo;
+	ginfo.isselected_ = true;
+	ginfo.mid_ = mid;
+	ginfo.bid_ = bids[idx];
+	ginfo.isselected_ = true;
+	ginfo.gathernm_ = info.ioObj()->name();
+	gatherinfos_ += ginfo;
+	setGather( ginfo );
+    }
 
     reSizeSld(0);
-    posDlgPushed(0);
 }
 
 
 void uiStoredViewer2DMainWin::setIDs( const TypeSet<MultiID>& mids  )
 {
     mids_.copy( mids );
+    TypeSet<GatherInfo> oldginfos = gatherinfos_;
+    gatherinfos_.erase();
+
+    for ( int gidx=0; gidx<oldginfos.size(); gidx++ )
+    {
+	for ( int midx=0; midx<mids_.size(); midx++ )
+	{
+	    PtrMan<IOObj> gatherioobj = IOM().get( mids_[midx] );
+	    if ( !gatherioobj ) continue;
+	    GatherInfo ginfo = oldginfos[gidx];
+	    ginfo.gathernm_ = gatherioobj->name();
+	    ginfo.mid_ = mids_[midx];
+	    gatherinfos_ += ginfo;
+	}
+    }
+
     setUpView();
 }
 
 
-void uiStoredViewer2DMainWin::posDlgPushed( CallBacker* )
+void uiStoredViewer2DMainWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
+					     const GatherInfo& ginfo )
 {
-    if ( !posdlg_ )
+    PtrMan<IOObj> ioobj = IOM().get( ginfo.mid_ );
+    BufferString nm = ioobj ? ioobj->name() : "";
+    info->setData( ginfo.bid_, cs_.defaultDir()==CubeSampling::Inl, is2d_, nm );
+}
+
+
+void uiStoredViewer2DMainWin::posDlgChgCB( CallBacker* )
+{
+    if ( posdlg_ )
     {
-	posdlg_ = new uiViewer2DPosDlg( this, is2d_, cs_ );
-	posdlg_->okpushed_.notify( mCB(this,uiStoredViewer2DMainWin,posDlgChgCB) );
+	posdlg_->getCubeSampling( cs_ );
+	posdlg_->getSelGatherInfos( gatherinfos_ );
+	BufferStringSet gathernms;
+
+	for ( int idx=0; idx<gatherinfos_.size(); idx++ )
+	{
+	    GatherInfo& ginfo = gatherinfos_[idx];
+	    for ( int midx=0; midx<mids_.size(); midx++ )
+	    {
+		PtrMan<IOObj> gatherioobj = IOM().get( mids_[midx] );
+		if ( !gatherioobj ) continue;
+		if ( ginfo.gathernm_ == gatherioobj->name() )
+		    ginfo.mid_ = mids_[midx];
+	    }
+	}
+    }
+
+    if ( slicepos_ ) 
+	slicepos_->setCubeSampling( cs_ );
+
+    setUpView();
+}
+
+
+void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
+{
+    if ( !gatherinfo.isselected_ ) return;
+
+    Interval<float> zrg( mUdf(float), 0 );
+    uiGatherDisplay* gd = new uiGatherDisplay( 0 );
+    PreStack::Gather* gather = new PreStack::Gather;
+    MultiID mid = gatherinfo.mid_;
+    BinID bid = gatherinfo.bid_;
+    if ( (is2d_ && gather->readFrom(mid,bid.crl,linename_,0)) 
+	|| (!is2d_ && gather->readFrom(mid,bid)) )
+    {
+	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
+	gd->setGather( gather->id() );
+	if ( mIsUdf( zrg.start ) )
+	   zrg = gd->getZDataRange();
+	zrg.include( gd->getZDataRange() );
+	DPM(DataPackMgr::FlatID()).release( gather );
     }
     else
-	posdlg_->setCubeSampling( cs_ );
-
-    posdlg_->raise();
-    posdlg_->show();
-}
-
-
-void uiStoredViewer2DMainWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
-					     const BinID& bid, int idx )
-{
-    if ( !mids_.validIdx(idx) )
-	return;
-    PtrMan<IOObj> ioobj = IOM().get( mids_[idx] );
-    BufferString nm = ioobj ? ioobj->name() : "";
-    info->setData( bid, cs_.defaultDir()==CubeSampling::Inl, is2d_, nm );
-}
-
-
-void uiStoredViewer2DMainWin::setGathers( const BinID& bid )
-{
-    uiGatherDisplay* gd;
-    PreStack::Gather* gather; 
-    Interval<float> zrg( mUdf(float), 0 );
-    for ( int idx=0; idx<mids_.size(); idx++ )
     {
-	gd = new uiGatherDisplay( 0 );
-	gather = new PreStack::Gather;
-	if ( (is2d_ && gather->readFrom(mids_[idx],bid.crl,linename_,0)) 
-	    || (!is2d_ && gather->readFrom(mids_[idx],bid)) )
-	{
-	    DPM(DataPackMgr::FlatID()).addAndObtain( gather );
-	    gd->setGather( gather->id() );
-	    if ( mIsUdf( zrg.start ) )
-	       zrg = gd->getZDataRange();
-	    zrg.include( gd->getZDataRange() );
-	    DPM(DataPackMgr::FlatID()).release( gather );
-	}
-	else
-	{
-	    gd->setGather( -1 );
-	    delete gather;
-	}
-
-	uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
-	setGatherInfo( gdi, bid, idx );
-	gdi->setOffsetRange( gd->getOffsetRange() );
-	setGatherView( gd, gdi );
+	gd->setGather( -1 );
+	delete gather;
     }
+
+    uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
+    setGatherInfo( gdi, gatherinfo );
+    gdi->setOffsetRange( gd->getOffsetRange() );
+    setGatherView( gd, gdi );
 }
 
 
@@ -286,18 +370,72 @@ uiSyntheticViewer2DMainWin::uiSyntheticViewer2DMainWin( uiParent* p,
 }
 
 
+void uiSyntheticViewer2DMainWin::setGatherNames( const BufferStringSet& nms) 
+{
+    TypeSet<GatherInfo> oldginfos = gatherinfos_;
+    gatherinfos_.erase();
+
+    for ( int gidx=0; gidx<oldginfos.size(); gidx++ )
+    {
+	for ( int nmidx=0; nmidx<nms.size(); nmidx++ )
+	{
+	    GatherInfo ginfo = oldginfos[gidx];
+	    ginfo.gathernm_ = nms.get( nmidx );
+	    gatherinfos_ += ginfo;
+	}
+    }
+}
+
+
+void uiSyntheticViewer2DMainWin::getGatherNames( BufferStringSet& nms) const
+{
+    nms.erase();
+    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
+	nms.addIfNew( gatherinfos_[idx].gathernm_ );
+}
+
+
 uiSyntheticViewer2DMainWin::~uiSyntheticViewer2DMainWin()
 { removeDataPacks(); }
 
 
+void uiSyntheticViewer2DMainWin::posDlgChgCB( CallBacker* )
+{
+    if ( posdlg_ )
+    {
+	TypeSet<GatherInfo> gatherinfos;
+	posdlg_->getCubeSampling( cs_ );
+	posdlg_->getSelGatherInfos( gatherinfos );
+	for ( int idx=0; idx<gatherinfos_.size(); idx++ )
+	    gatherinfos_[idx].isselected_ = false;
+	for ( int idx=0; idx<gatherinfos.size(); idx++ )
+	{
+	    GatherInfo ginfo = gatherinfos[idx];
+	    for ( int idy=0; idy<gatherinfos_.size(); idy++ )
+	    {
+		GatherInfo& dpinfo = gatherinfos_[idy];
+		if ( dpinfo.gathernm_==ginfo.gathernm_ &&
+		     dpinfo.bid_==ginfo.bid_ )
+		    dpinfo.isselected_ = ginfo.isselected_;
+	    }
+	}
+    }
+
+    if ( slicepos_ ) 
+	slicepos_->setCubeSampling( cs_ );
+
+    setUpView();
+}
+
+
 void uiSyntheticViewer2DMainWin::setDataPacks( const TypeSet<GatherInfo>& dps )
 {
-    dpinfos_ = dps;
+    gatherinfos_ = dps;
     StepInterval<int> trcrg( mUdf(int), -mUdf(int), 1 );
-    cs_.hrg.setInlRange( StepInterval<int>(dpinfos_[0].bid_.inl,
-					   dpinfos_[0].bid_.inl,1) );
-    for ( int idx=0; idx<dpinfos_.size(); idx++ )
-	trcrg.include( dpinfos_[idx].bid_.crl, false );
+    cs_.hrg.setInlRange( StepInterval<int>(gatherinfos_[0].bid_.inl,
+					   gatherinfos_[0].bid_.inl,1) );
+    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
+	trcrg.include( gatherinfos_[idx].bid_.crl, false );
     cs_.hrg.setCrlRange( trcrg );
     posDlgPushed( 0 );
     setUpView();
@@ -305,58 +443,52 @@ void uiSyntheticViewer2DMainWin::setDataPacks( const TypeSet<GatherInfo>& dps )
 }
 
 
-void uiSyntheticViewer2DMainWin::setGathers( const BinID& bid )
+void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 {
-    uiGatherDisplay* gd;
-    PreStack::Gather* gather; 
+    if ( !ginfo.isselected_ ) return;
+
     Interval<float> zrg( mUdf(float), 0 );
-    for ( int idx=0; idx<dpinfos_.size(); idx++ )
+    uiGatherDisplay* gd = new uiGatherDisplay( 0 );
+    PreStack::Gather* gather = new PreStack::Gather;
+    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( ginfo.dpid_ );
+    mDynamicCast(PreStack::Gather*,gather,dp);
+
+    if ( !gather )
     {
-	if ( dpinfos_[idx].bid_ != bid )
-	    continue;
-	gd = new uiGatherDisplay( 0 );
-	gather = new PreStack::Gather;
-	DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( dpinfos_[idx].dpid_ );
-	mDynamicCast(PreStack::Gather*,gather,dp);
-
-	if ( !gather )
-	{
-	    gd->setGather( -1 );
-	    delete gather;
-	    continue;
-	}
-
-	gd->setGather( gather->id() );
-	uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
-	setGatherInfo( gdi, bid, idx );
-	gdi->setOffsetRange( gd->getOffsetRange() );
-	setGatherView( gd, gdi );
+	gd->setGather( -1 );
+	delete gather;
+	return;
     }
+
+    gd->setGather( gather->id() );
+    uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
+    setGatherInfo( gdi, ginfo );
+    gdi->setOffsetRange( gd->getOffsetRange() );
+    setGatherView( gd, gdi );
 }
 
 
 void uiSyntheticViewer2DMainWin::removeDataPacks()
 {
-    for ( int idx=0; idx<dpinfos_.size(); idx++ )
-	DPM(DataPackMgr::FlatID()).release( dpinfos_[idx].dpid_ );
-    dpinfos_.erase();
+    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
+	DPM(DataPackMgr::FlatID()).release( gatherinfos_[idx].dpid_ );
+    gatherinfos_.erase();
 }
 
 
 
-void uiSyntheticViewer2DMainWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
-					     	const BinID& bid, int idx )
+void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
+					       const GatherInfo& ginfo )
 {
-    if ( !dpinfos_.validIdx(idx) )
-	return;
-    BufferString nm = dpinfos_[idx].gathernm_;
-    info->setData( bid, true, true, nm );
+    CubeSampling cs;
+    const int modelnr = ginfo.bid_.crl - cs.hrg.stop.crl;
+    info->setData( modelnr, ginfo.gathernm_ );
 }
 
 
 
 #define mDefBut(but,fnm,cbnm,tt) \
-    but = new uiToolButton( tb_, fnm, tt, mCB(this,uiViewer2DControl,cbnm) ); \
+    uiToolButton* but = new uiToolButton( tb_, fnm, tt, mCB(this,uiViewer2DControl,cbnm) ); \
     tb_->addButton( but );
 
 uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
@@ -375,9 +507,10 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     objectitemctrl_ = new uiObjectItemViewControl( mw );
     tb_ = objectitemctrl_->toolBar();
 
-    mDefBut(posbut_,"orientation64",gatherPosCB,"Set positions");
-    mDefBut(parsbut_,"2ddisppars",parsCB,"Set seismic display properties");
-    mDefBut(databut_,"gatherdisplaysettings64",gatherDataCB,"Set gather data");
+    mDefBut(posbut,"orientation64",gatherPosCB,"Set positions");
+    mDefBut(databut,"gatherdisplaysettings64",gatherDataCB, "Set gather data");
+    mDefBut(parsbut,"2ddisppars",parsCB,"Set seismic display properties");
+
     tb_->addSeparator();
 }
 
