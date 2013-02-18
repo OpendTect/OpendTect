@@ -6,6 +6,14 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "idxable.h"
+#include <iostream>
+#include <math.h>
+#include "sorting.h"
+#include "strmprov.h"
+#include "tabledef.h"
+#include "unitofmeasure.h"
+#include "varlenarray.h"
 #include "wellimpasc.h"
 #include "welldata.h"
 #include "welltrack.h"
@@ -13,13 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
-#include "strmprov.h"
-#include "unitofmeasure.h"
-#include "tabledef.h"
-#include "varlenarray.h"
-#include "sorting.h"
-#include <iostream>
-#include <math.h>
 
 
 static bool convToDah( const Well::Track& trck, float& val,
@@ -419,8 +420,8 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	if ( mIsUdf(c.x) || mIsUdf(c.y) )
 	    continue;
 
-	c.z = getfValue(2);
-	const float newdah = getfValue( 3 );
+	c.z = mCast( float, getdValue(2) );
+	const float newdah = mCast( float, getdValue( 3 ) );
 	const bool havez = !mIsUdf(c.z);
 	const bool havedah = !mIsUdf(newdah);
 	if ( !havez && !havedah )
@@ -525,7 +526,7 @@ bool Well::MarkerSetAscIO::get( std::istream& strm, Well::MarkerSet& ms,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	float dah = getfValue( 0 );
+	float dah = mCast( float, getdValue( 0 ) );
 	BufferString namepart = text( 1 );
 	if ( mIsUdf(dah) || namepart.isEmpty() )
 	    continue;
@@ -584,89 +585,87 @@ void Well::D2TModelAscIO::updateDesc( Table::FormatDesc& fd, bool withunitfld )
 }
 
 
-static bool getTVDD2TModel( Well::D2TModel& d2t,
-		const TypeSet<float>& zvals, const TypeSet<float>& tvals,
-		const Well::Track& trck )
+static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
+       			    TypeSet<double>& rawtvals, const Well::Data& wll )
 {
-    if ( zvals.size() < 2 )
+    const Well::Track& trck = wll.track();
+    int inputsz = rawzvals.size();
+
+    if ( inputsz < 2 || inputsz != rawtvals.size() )
 	return false;
-    TypeSet<float> mds, ts;
 
-    int iz=-1;
-    do iz++; while ( zvals[iz] < trck.pos(0).z && iz+1 < zvals.size() );
-    float curvel = ( zvals[iz+1] - zvals[iz] ) / ( tvals[iz+1] - tvals[iz] );
-
-    mds += trck.dah(0);
-    ts  += tvals[iz] + mCast( float, ( trck.pos(0).z - zvals[iz] ) / curvel );
-    float prevz = mCast( float, trck.pos(0).z );
-    float prevt = mCast( float, 
-			tvals[iz] + ( trck.pos(0).z - zvals[iz] ) / curvel );
-
-    int idahmaxz = 0;
-    bool isdescending = false;
-    int nbdtptsadded = iz;
-
-    for ( int idah=1; idah<trck.size(); idah++ )
+    // sort and remove duplicates
+    mAllocVarLenIdxArr( int, idxs, inputsz );
+    sort_coupled( rawzvals.arr(), mVarLenArr(idxs), inputsz );
+    TypeSet<double> zvals, tvals;
+    zvals += rawzvals[0];
+    tvals += rawtvals[idxs[0]];
+    for ( int idx=1; idx<inputsz; idx++ )
     {
-	const float targetz = mCast( float, trck.pos(idah).z );
-	isdescending = trck.pos(idah).z > trck.pos(idah-1).z;
-
-	if ( isdescending && iz+1 < zvals.size() )
+	const int lastidx = zvals.size()-1;
+	const bool samez = mIsEqual( rawzvals[idx], zvals[lastidx], 1e-6 );
+	const bool reversedtwt = tvals[lastidx] - rawtvals[idxs[idx]] > 1e-6;
+	if ( !samez && !reversedtwt )
 	{
-	    while ( targetz > zvals[iz+1] )
-	    {
-		if ( (iz+2) >= zvals.size() ) break;
-		else
-		{
-		    iz++;
-		    if ( (iz-1) == nbdtptsadded )
-		    {
-			const float relpos = mCast( float, 
-					 ( zvals[iz] - trck.pos(idah-1).z ) /
-			    		 ( targetz - trck.pos(idah-1).z ) );
-
-			mds += relpos*trck.dah(idah) + (1-relpos)*trck.dah(idah-1);
-			ts  += prevt + ( zvals[iz] - prevz ) / curvel;
-			nbdtptsadded++;
-		    }
-		    curvel = ( zvals[iz+1]-zvals[iz] )/( tvals[iz+1]-tvals[iz] );
-		    prevz = zvals[iz];
-		    prevt = tvals[iz];
-		}
-	    }
+	    zvals += rawzvals[idx];
+	    tvals += rawtvals[idxs[idx]];
 	}
-	else
-	{
-	    while ( targetz < zvals[iz-1] )
-	    {
-		if ( (iz-1) < 0 ) break;
-		else
-		{
-		    iz--;
-		    curvel = ( zvals[iz]-zvals[iz-1] )/( tvals[iz]-tvals[iz-1] );
-		    prevz = zvals[iz];
-		    prevt = tvals[iz];
-		}
-	    }
-	}
-
-	prevt += ( targetz - prevz ) / curvel;
-	prevz  = mCast( float, trck.pos(idah).z );
-	if ( targetz > trck.pos(idahmaxz).z )
-	    idahmaxz = idah;
     }
 
-    if ( isdescending ) iz--;
+    inputsz = zvals.size();
+    if ( inputsz < 2 ) 
+	return false;
 
-    mds += trck.dah(idahmaxz);
-    ts  += tvals[iz] + mCast( float, 
-			      ( trck.pos(idahmaxz).z - zvals[iz] ) / curvel );
+    TypeSet<float> mds;
+    TypeSet<double> ts;
+    const double zwllhead = trck.pos(0).z;
+    const double srd = mCast( float, wll.info().srdelev );
+    const double firstz = mMAX(-1.f * srd, zwllhead );
+    // no write above deepest of (well head, SRD)
+    // velocity above is controled by info().replvel
 
-    const int sz = mds.size();
-    mAllocVarLenIdxArr( int, idxs, sz );
-    sort_coupled( mds.arr(), mVarLenArr(idxs), sz );
-    for ( int idx=0; idx<sz; idx++ )
-	d2t.add( mds[idx], ts[ idxs[idx] ] );
+    int istartz = IdxAble::getLowIdx( zvals, inputsz, firstz );
+    if ( istartz < 0  )
+	istartz = 0;
+    else if ( istartz >= (inputsz-1) )
+	istartz--;
+
+    double curvel = ( zvals[istartz+1] - zvals[istartz] ) /
+       		    ( tvals[istartz+1] - tvals[istartz] );
+    mds += trck.getDahForTVD(firstz);
+    ts  += -1.f * srd > zwllhead ? 0 : 2.f * ( zwllhead + srd ) /
+       				       mCast( double, wll.info().replvel );
+    // one SHOULD check here if this time corresponds to the time at the 
+    // same depth in the input file, i.e. is the computed replacement velocity
+    // in line with the one stored in info() or input in the advanced import
+    // settings window
+    
+    int prevvelidx = istartz;
+    istartz++;
+    for ( int idz=istartz; idz<inputsz; idz++ )
+    {
+	const double newvel = ( zvals[idz] - zvals[prevvelidx] ) /
+	   		      ( tvals[idz] - tvals[prevvelidx] );
+	if ( mIsEqual(curvel,newvel,1e-6) && (idz<inputsz-1) )
+	   continue;
+
+	const float dah = trck.getDahForTVD( zvals[idz] );
+	if ( !mIsUdf(dah) )
+	{
+	    prevvelidx = idz;
+	    curvel = newvel;
+	    mds += trck.getDahForTVD( zvals[idz] );
+	    ts += tvals[idz];
+	}
+    }
+
+    const int outsz = mds.size();
+
+    if ( outsz < 2 )
+	return false;
+
+    for ( int idx=0; idx<outsz; idx++ )
+	d2t.add( mds[idx], (float)ts[idx] );
 
     return true;
 }
@@ -681,31 +680,33 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
     const int dpthopt = formOf( false, 0 );
     const int tmopt = formOf( false, 1 );
     const bool istvd = dpthopt > 0;
-    TypeSet<float> zvals, tvals;
+    TypeSet<double> zvals, tvals;
     while ( true )
     {
 	int ret = getNextBodyVals( strm );
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	float zval = getfValue( 0 );
-	float tval = getfValue( 1 );
+	double zval = getdValue( 0 );
+	double tval = getdValue( 1 );
 	if ( mIsUdf(zval) || mIsUdf(tval) )
 	    continue;
 	if ( dpthopt == 2 )
-	    zval -= wll.info().srdelev;
+	    zval -= mCast( double, wll.info().srdelev );
 	if ( dpthopt == 3 )
-	    zval -= wll.track().getKbElev();
+	    zval -= mCast( double, wll.track().getKbElev() );
 	if ( dpthopt == 4 )
-	    zval -= wll.info().groundelev;
+	    zval -= mCast( double, wll.info().groundelev );
 	if ( tmopt == 1 )
 	    tval *= 2;
 
 	if ( !istvd )
-	    d2t.add( zval, tval );
+	    zvals += wll.track().getPos(zval).z;
 	else
-	    { zvals += zval; tvals += tval; }
+	    zvals += zval;
+
+	tvals += tval;
     }
 
-    return istvd ? getTVDD2TModel( d2t, zvals, tvals, wll.track() ) : true;
+    return getTVDD2TModel( d2t, zvals, tvals, wll );
 }
