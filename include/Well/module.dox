@@ -14,7 +14,7 @@ ________________________________________________________________________
 \defgroup Well Well
 
   The OpendTect Well object is a single track, logs and markers bearing thing
-  with some global data and possibly a Depth vs Time model attached.
+  with some global data and possibly a Depth vs %Time model attached.
   Therefore, it is not a POSC well in the sense that it describes the
   data for one well bore only. This may mean duplication when more well
   tracks share an upper part.
