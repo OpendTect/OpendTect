@@ -332,7 +332,8 @@ void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
 {
     max = 0;
     median = 0;
-    TypeSet<float> medset;
+    double maxsq;
+    TypeSet<double> medset;
     const TypeSet<PosInfo::Line2DPos>& posns = positions();
     for ( int pidx=1; pidx<posns.size(); pidx++ )
     {
@@ -341,8 +342,8 @@ void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
 
 	if ( !mIsUdf(distsq) )
 	{
-	    if ( distsq > max )
-		max = distsq;
+	    if ( distsq > maxsq )
+		maxsq = distsq;
 	    medset += distsq;
 	}
     }
@@ -350,8 +351,9 @@ void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
     if ( medset.size() )
     {
 	sort( medset );
-	median = (float)Math::Sqrt( medset[ mCast(int, medset.size()/2) ] );
+	median = mCast( float,
+			Math::Sqrt( medset[ mCast(int, medset.size()/2) ] ) );
     }
    
-    max = (float)Math::Sqrt(max);
+    max = mCast( float, Math::Sqrt(maxsq) );
 }
