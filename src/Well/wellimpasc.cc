@@ -6,9 +6,6 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "idxable.h"
-#include <iostream>
-#include <math.h>
 #include "sorting.h"
 #include "strmprov.h"
 #include "tabledef.h"
@@ -21,6 +18,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
+#include "idxable.h"
+
+#include <iostream>
+#include <math.h>
 
 
 static bool convToDah( const Well::Track& trck, float& val,
@@ -619,7 +620,7 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
     TypeSet<float> mds;
     TypeSet<double> ts;
     const double zwllhead = trck.pos(0).z;
-    const double srd = mCast( float, wll.info().srdelev );
+    const double srd = wll.info().srdelev;
     const double firstz = mMAX(-1.f * srd, zwllhead );
     // no write above deepest of (well head, SRD)
     // velocity above is controled by info().replvel
@@ -632,7 +633,7 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
 
     double curvel = ( zvals[istartz+1] - zvals[istartz] ) /
        		    ( tvals[istartz+1] - tvals[istartz] );
-    mds += trck.getDahForTVD(firstz);
+    mds += trck.getDahForTVD(mCast(float,firstz));
     ts  += -1.f * srd > zwllhead ? 0 : 2.f * ( zwllhead + srd ) /
        				       mCast( double, wll.info().replvel );
     // one SHOULD check here if this time corresponds to the time at the 
@@ -649,12 +650,12 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
 	if ( mIsEqual(curvel,newvel,1e-6) && (idz<inputsz-1) )
 	   continue;
 
-	const float dah = trck.getDahForTVD( zvals[idz] );
+	const float dah = trck.getDahForTVD( mCast(float,zvals[idz]) );
 	if ( !mIsUdf(dah) )
 	{
 	    prevvelidx = idz;
 	    curvel = newvel;
-	    mds += trck.getDahForTVD( zvals[idz] );
+	    mds += trck.getDahForTVD( mCast(float,zvals[idz]) );
 	    ts += tvals[idz];
 	}
     }
@@ -701,7 +702,7 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 	    tval *= 2;
 
 	if ( !istvd )
-	    zvals += wll.track().getPos(zval).z;
+	    zvals += wll.track().getPos(mCast(float,zval)).z;
 	else
 	    zvals += zval;
 
