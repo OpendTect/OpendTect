@@ -647,7 +647,7 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
     {
 	const double newvel = ( zvals[idz] - zvals[prevvelidx] ) /
 	   		      ( tvals[idz] - tvals[prevvelidx] );
-	if ( mIsEqual(curvel,newvel,1e-6) && (idz<inputsz-1) )
+	if ( mIsEqual(curvel,newvel,1e-2) && (idz<inputsz-1) )
 	   continue;
 
 	const float dah = trck.getDahForTVD( mCast(float,zvals[idz]) );
