@@ -693,11 +693,11 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 	if ( mIsUdf(zval) || mIsUdf(tval) )
 	    continue;
 	if ( dpthopt == 2 )
-	    zval -= mCast( double, wll.info().srdelev );
+	    zval -= wll.info().srdelev;
 	if ( dpthopt == 3 )
-	    zval -= mCast( double, wll.track().getKbElev() );
+	    zval -= wll.track().getKbElev();
 	if ( dpthopt == 4 )
-	    zval -= mCast( double, wll.info().groundelev );
+	    zval -= wll.info().groundelev;
 	if ( tmopt == 1 )
 	    tval *= 2;
 
