@@ -24,6 +24,10 @@ namespace VolProc
 
 class Step;
 
+/*!
+\brief Body filler
+*/
+
 mExpClass(VolumeProcessing) BodyFiller : public Step
 {
 public:

@@ -37,8 +37,9 @@ class Step;
 class StepExecutor;
 class StepTask;
 
-
-/*!A chain of Steps that can be applied to a volume of scalars. */
+/*!
+\brief A chain of Steps that can be applied to a volume of scalars.
+*/
 
 mExpClass(VolumeProcessing) Chain
 { mRefCountImpl(Chain);
@@ -83,8 +84,11 @@ protected:
 };
 
 
-/*!An algorithm/calculation/transoformation that takes one scalar volume as
-   input, processes it, and puts the output in another volume. */
+/*!
+\brief An algorithm/calculation/transformation that takes one scalar volume as
+input, processes it, and puts the output in another volume.
+*/
+
 mExpClass(VolumeProcessing) Step
 {
 public:
@@ -159,6 +163,9 @@ protected:
 };
 
 
+/*!
+\brief Chain Executor
+*/
 
 mExpClass(VolumeProcessing) ChainExecutor : public Executor
 {

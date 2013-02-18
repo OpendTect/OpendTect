@@ -17,7 +17,9 @@ ________________________________________________________________________
 
 namespace VolProc { class Chain; }
 
-/*! Translator implementation for Volume Processing Setups. */
+/*!
+\brief Translator implementation for Volume Processing Setups.
+*/
 
 mExpClass(VolumeProcessing) VolProcessingTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(VolProcessing)
@@ -32,6 +34,10 @@ public:
     static const char*	sKeyOutputID()		{ return "Output ID"; }
 };
 
+
+/*!
+\brief Volume Processing Translator
+*/
 
 mExpClass(VolumeProcessing) VolProcessingTranslator : public Translator
 {
@@ -49,6 +55,10 @@ public:
 	    		      BufferString&);
 };
 
+
+/*!
+\brief dgb Volume Processing Translator
+*/
 
 mExpClass(VolumeProcessing) dgbVolProcessingTranslator : public VolProcessingTranslator
 {			     isTranslator(dgb,VolProcessing)

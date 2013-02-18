@@ -21,7 +21,11 @@ template <class T> class Smoother3D;
 
 namespace VolProc
 {
-    
+
+/*!
+\brief A subclass of Step to smoothen volumes.
+*/
+
 mExpClass(VolumeProcessing) Smoother : public Step
 {
 public:

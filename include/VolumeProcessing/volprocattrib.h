@@ -56,7 +56,9 @@ protected:
 
 */
 
-/*!Adapter for a VolProc chain to external attribute calculation */
+/*!
+\brief Adapter for a VolProc chain to external attribute calculation.
+*/
 
 mExpClass(VolumeProcessing) ExternalAttribCalculator : public Attrib::ExtAttribCalc
 {

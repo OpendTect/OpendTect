@@ -24,8 +24,10 @@ class BinID;
 namespace VolProc
 {
 
-/*! Reads in a volume. Will replace previous values if data is present
-    in the read volume. */
+/*!
+\brief Reads in a volume. Will replace previous values if data is present in
+the read volume.
+*/
     
 mExpClass(VolumeProcessing) VolumeReader : public Step
 {

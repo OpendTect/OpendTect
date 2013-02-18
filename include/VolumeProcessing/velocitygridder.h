@@ -28,6 +28,10 @@ namespace Vel
 namespace VolProc
 {
 
+/*!
+\brief VolProc::Step for velocity gridding.
+*/
+
 mExpClass(VolumeProcessing) VelGriddingStep : public VolProc::Step
 {
 public:

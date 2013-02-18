@@ -22,7 +22,11 @@ template <class T> class Smoother3D;
 
 namespace VolProc
 {
-    
+
+/*!
+\brief Lateral smoother. Subclass of Step.
+*/
+  
 mExpClass(VolumeProcessing) LateralSmoother : public Step
 {
 public:
