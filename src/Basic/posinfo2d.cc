@@ -339,18 +339,19 @@ void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
 	const double distsq =
 			posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
 
-	float dist = (float)Math::Sqrt(distsq);
-	if ( !mIsUdf(dist) )
+	if ( !mIsUdf(distsq) )
 	{
-	    if ( dist > max )
-		max = dist;
-	    medset += dist;
+	    if ( distsq > max )
+		max = distsq;
+	    medset += distsq;
 	}
     }
 
     if ( medset.size() )
     {
 	sort( medset );
-	median = medset[ mCast(int, medset.size()/2) ];
+	median = (float)Math::Sqrt( medset[ mCast(int, medset.size()/2) ] );
     }
+   
+    max = (float)Math::Sqrt(max);
 }
