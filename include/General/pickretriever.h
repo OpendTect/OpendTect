@@ -32,6 +32,7 @@ public:
 				    retrieving picks.
 				    \note if allowedsc is empty or null,
 				 	  picks are allowed in all scenes. */
+    virtual NotifierAccess*	removePick()				= 0;
     virtual NotifierAccess*	finished()				= 0;
     				/*!<Triggers when it does not look for pick
 				    any longer. The outcome can be retrieved
