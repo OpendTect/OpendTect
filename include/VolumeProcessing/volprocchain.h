@@ -116,7 +116,7 @@ public:
 				    big input is needed?*/
 
     virtual bool		setInput(const Attrib::DataCubes*);
-    				//!<\returns true if it wants to keep the data.
+    				/*!<returns true if it wants to keep the data.*/
     virtual void		setOutput(Attrib::DataCubes*,
 	    			    const StepInterval<int>& inlrg,
 				    const StepInterval<int>& crlrg,
@@ -130,8 +130,8 @@ public:
     virtual const VelocityDesc*	getVelDesc() const	{ return 0; }
 
     virtual bool		areSamplesIndependent() const { return true; }
-    				//!<\returns wether samples in the output
-				//!<	     are independent from each other
+    				/*!<returns whether samples in the output
+				    are independent from each other.*/
 
     virtual Task*		createTask();
 
