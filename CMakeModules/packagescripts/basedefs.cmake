@@ -11,7 +11,7 @@ SET( LIBLIST Algo AttributeEngine Attributes Basic Batch Database EarthModel Gen
 	     PreStackProcessing EMAttrib SoOD Well WellAttrib uiAttributes uiBase uiCoin
 	     uiEarthModel uiEMAttrib uiFlatView uiIo uiMPE uiNLA uiODMain uiSeis uiStrat
 	     uiTools uiPreStackProcessing uiVelocity uiViewer2D uiVis uiVolumeProcessing
-	     uiWell uiWellAttrib uiSysAdm Usage visBase visSurvey uiCmdDriver)
+	     uiWell uiWellAttrib uiSysAdm Usage visBase visSurvey uiCmdDriver )
 
 SET( EXECLIST od_cbvs_browse od_glxinfo od_ivfileviewer lmhostid 
 	      od_main od_sysadmmain od_process_attrib od_process_attrib_em
@@ -22,13 +22,13 @@ SET( EXECLIST od_cbvs_browse od_glxinfo od_ivfileviewer lmhostid
 	      od_ReportIssue od_uiReportIssue )
 SET( PLUGINS HorizonAttrib GapDecon VoxelConnectivityFilter
 	     uiHorizonAttrib uiPreStackViewer Annotations uiGapDecon 
-	     uiGoogleIO GoogleTranslate CmdDriver uiVoxelConnectivityFilter )
-##TODO should be exist in inst/bin/plf directory
+	     uiGoogleIO GoogleTranslate CmdDriver uiVoxelConnectivityFilter
+	     TextureAttrib uiTextureAttrib )
 #od_glxinfo lmhostid 
 #Only for windows base package
 SET( WINEXECLIST od_start_dtect od_main_console unzip )
 SET( SPECFILES .exec_prog .init_dtect .init_dtect_user install .lic_inst_common
-	       .lic_start_common mk_datadir .setappl.sh .start_dtect setup.od )
-#	       .lic_start_common mk_datadir .setappl.sh .start_dtect setup.od *.txt )
+	       .lic_start_common mk_datadir .setappl.sh .start_dtect setup.od
+		GNU_GENERAL_PUBLIC_LICENSE.txt INSTALL.txt LICENSE.txt )
 SET( ODSCRIPTS od_* mksethdir mac_term macterm.in )
 SET( PACK "base" )
