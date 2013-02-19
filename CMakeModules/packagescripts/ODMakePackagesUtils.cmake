@@ -63,7 +63,12 @@ macro ( create_package PACKAGE_NAME )
 
     IF( ${PACKAGE_NAME} STREQUAL "dgbbase" )
 #Inslall lm 
-#        SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+	FOREACH( SPECFILE ${SPECFILES} )
+	     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			      ${CMAKE_INSTALL_PREFIX}/${SPECFILE}
+			      ${DESTINATION_DIR} )
+	ENDFOREACH()
+
 	execute_process( COMMAND ${CMAKE_COMMAND} -E
 			 copy_directory ${PSD}/bin/${OD_PLFSUBDIR}/lm
 			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
