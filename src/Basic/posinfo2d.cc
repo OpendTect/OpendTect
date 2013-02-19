@@ -332,7 +332,7 @@ void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
 {
     max = 0;
     median = 0;
-    double maxsq;
+    double maxsq = 0;
     TypeSet<double> medset;
     const TypeSet<PosInfo::Line2DPos>& posns = positions();
     for ( int pidx=1; pidx<posns.size(); pidx++ )
