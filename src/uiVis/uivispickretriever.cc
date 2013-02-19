@@ -22,6 +22,7 @@ uiVisPickRetriever::uiVisPickRetriever( uiVisPartServer* ps )
     : visserv_(ps)
     , status_( Idle )
     , finished_( this )    
+    , removepick_( this )    
 {
     resetPickedPos();
 }
@@ -123,10 +124,13 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	if ( res )
 	    pickedtrcnr_ = pos2d.nr_;
     }
-
+    
     MouseCursorManager::restoreOverride();
     visserv_->setWorkMode( uiVisPartServer::View );
-    finished_.trigger();
+    if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
+	removepick_.trigger();
+    else
+	finished_.trigger();
 
     if ( status_ != Waiting )
 	status_ = Idle;
