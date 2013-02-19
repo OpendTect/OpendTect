@@ -7,7 +7,6 @@
 
 #//TODO Modify script to work on all platforms.
 SET( LIBLIST dGBCommon dGBUsage dGBPreStack uidGBPreStack uidGBCommon )
-#TODO copy libs from relbase once it is added to od
-#SET( LIBLIST ".dgb.lmgrd.vars,.start.dgb.lmgrd,.install.dgb.license,odinit.dgb, dGBCommon,dGBUsage,uidGBPreStack,dGBPreStack,uidGBCommon" )
+SET( SPECFILES .dgb.lmgrd.vars .start.dgb.lmgrd .install.dgb.license odinit.dgb )
 SET( EXECLIST  )
 SET( PACK "dgbbase" )
