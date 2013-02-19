@@ -413,7 +413,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    newvolume = trkplanecs;
 	}
 	
-	if ( newvolume.isEmpty() )
+	if ( newvolume.isEmpty() || !newvolume.isDefined() )
 	    mSeedClickReturn();
 	
 	if ( newvolume != engine.activeVolume() )
