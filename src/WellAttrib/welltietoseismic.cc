@@ -116,7 +116,9 @@ bool DataPlayer::setAIModel()
     if ( data_.isSonic() )
 	{ GeoCalculator gc; gc.son2Vel( pslog, true ); }
 
-    float prev_depth = -1.f * data_.wd_->info().srdelev;
+    const float srddepth = -1.f * data_.wd_->info().srdelev;
+
+    float prev_depth = srddepth;
     // Now we take srd from well; we should get it from SI() if it is set there
     float thickness = 0;
     for ( int idx=0; idx<worksz_; idx++ )
@@ -124,11 +126,14 @@ bool DataPlayer::setAIModel()
 	const float twt = workrg_.atIndex( idx );
 	const float dah = d2t_->getDah( twt );
 	const float depth = (float) wd_->track().getPos(dah).z;
-	if ( depth < 0 )
+	if ( depth <= srddepth || mIsUdf(dah) || mIsUdf(depth) )
 	    continue;
-	const bool inside = data_.dahrg_.includes( dah, true );
-	const float vel = inside ? pslog.getValue( dah, true ) : mUdf(float);
-	const float den = inside ? pdlog.getValue( dah, true ) : mUdf(float);
+	if ( !data_.dahrg_.includes(dah,true) )
+	    continue;
+	const float vel = pslog.getValue( dah, true );
+	const float den = pdlog.getValue( dah, true );
+	if ( mIsUdf(vel) || mIsUdf(den) || mIsEqual(prev_depth,depth,1e-3) )
+	    continue;
 	thickness = depth - prev_depth;
 	aimodel_ += AILayer( thickness, vel, den );
 	prev_depth = depth;
