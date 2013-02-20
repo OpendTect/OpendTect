@@ -594,7 +594,6 @@ uiListViewItem::uiListViewItem( uiListView* p, const Setup& setup )
     , translateid_(-1)
 { 
     qtreeitem_ = new QTreeWidgetItem( p ? p->lvbody() : 0 );
-    odqtobjects_.add( this, qtreeitem_ );
     init( setup );
 }
 
@@ -605,13 +604,15 @@ uiListViewItem::uiListViewItem( uiListViewItem* p, const Setup& setup )
     , translateid_(-1)
 { 
     qtreeitem_ = new QTreeWidgetItem( p ? p->qItem() : 0 );
-    odqtobjects_.add( this, qtreeitem_ );
     init( setup );
 }
 
 
 void uiListViewItem::init( const Setup& setup )
 {
+    odqtobjects_.add( this, qtreeitem_ );
+    waschecked.setParam( this, false );
+
     if ( setup.after_ )
 	moveItem( setup.after_ );
     if ( setup.pixmap_ )
@@ -622,7 +623,6 @@ void uiListViewItem::init( const Setup& setup )
     ischeckable_ = setup.type_ == uiListViewItem::CheckBox;
     updateFlags();
 
-    waschecked.setParam( this, false );
     if ( ischeckable_ )
     {
 	setChecked( setup.setcheck_ );
