@@ -67,10 +67,26 @@ protected:
     			/*!<For dah which are out of range of 
 			time-depth model gives correct index!>*/
 
+    float		getOldTime(float d_ah,const Track&) const;
+			/*!< Not to be used. 
+			    Added to maintain binary compatibility*/
+    double		getOldVelocity(float d_ah, const Track&, 
+					Interval<double>* depths=0,
+					Interval<float>* times=0) const;
+			/*!< Not to be used. 
+			    Added to maintain binary compatibility*/
+
 public:
 
     float		getTime(float d_ah,const Track&) const;
     double		getVelocity(float d_ah,const Track&) const;
+			//!< Use this 
+
+    double		getVelocity(float d_ah,const Track&,
+				    Interval<double>* depths,
+				    Interval<float>* times) const;
+			/*!< Not to be used. 
+			    Added to maintain binary compatibility*/
 
 protected:
 

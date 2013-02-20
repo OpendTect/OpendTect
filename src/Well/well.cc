@@ -1129,6 +1129,7 @@ bool Well::D2TModel::getOldVelocityBounds( float dh, const Track& track,
     return true;
 }
 
+
 float Well::D2TModel::getDah( float time ) const
 { return TimeDepthModel::getDepth( dah_.arr(), t_.arr(), size(), time ); }
 
@@ -1201,3 +1202,12 @@ void Well::Info::usePar(const IOPar& par)
     setGroundElev(tmpgroundelev);
 }
 
+
+float Well::D2TModel::getOldTime( float d_ah,const Track& ) const
+{ return mUdf( float ); }
+
+
+double Well::D2TModel::getOldVelocity( float d_ah, const Track& track,
+					Interval<double>* depths,
+					Interval<float>* times ) const
+{ return mUdf( double ); }
