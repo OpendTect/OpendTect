@@ -10,7 +10,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 RefMan<PickRetriever> PickRetriever::instance_ = 0;
 
-PickRetriever::PickRetriever()	{}
+PickRetriever::PickRetriever()	
+    : buttonstate_(OD::NoButton)
+{}
+
 PickRetriever::~PickRetriever()	{}
 
 void PickRetriever::setInstance( PickRetriever* npr )
