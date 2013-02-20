@@ -271,7 +271,7 @@ bool uiTieWinMGRDlg::getDefaults()
 	const PropertyRef::StdType tp = PropertyRef::Den;
 	bool dummy = false;
 	if ( !den ) mErrRet( "No valid density log selected" );
-	if ( !units.getDenFactor( *den ) )
+	if ( !mIsUdf(units.getDenFactor(*den)) )
 	    logsfld_->setLog( tp, wtsetup_.denlognm_, dummy, 0, 0 );
 	else
 	{
@@ -286,7 +286,7 @@ bool uiTieWinMGRDlg::getDefaults()
 	Well::Log* vp = wd_->logs().getLog( wtsetup_.vellognm_ );
 	const PropertyRef::StdType tp = PropertyRef::Vel;
 	if ( !vp ) mErrRet( "No valid velocity log selected" );
-	if ( !units.getVelFactor( *vp, wtsetup_.issonic_ ) )
+	if ( !mIsUdf(units.getVelFactor(*vp,wtsetup_.issonic_)) )
 	    logsfld_->setLog( tp, wtsetup_.vellognm_, wtsetup_.issonic_, 0, 1 );
 	else
 	{
@@ -361,7 +361,7 @@ bool uiTieWinMGRDlg::initSetup()
     else
 	den->setUnitMeasLabel( psflden->uom()->symbol() );
 
-    uiPropSelFromList* psflvp = logsfld_->getPropSelFromListByName("Velocity");
+    uiPropSelFromList* psflvp = logsfld_->getPropSelFromListByName("Pwave");
     if ( !psflvp ) return false;
     wtsetup_.vellognm_ = psflvp->text();
     wtsetup_.issonic_  = psflvp->isUseAlternate();

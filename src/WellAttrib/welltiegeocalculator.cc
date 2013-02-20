@@ -135,8 +135,9 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 #define mMicroSFactor 10e5f
 void GeoCalculator::son2Vel( Well::Log& log, bool straight ) const
 {
-    UnitFactors uf; double velfac = uf.getVelFactor( log, straight );
-    if ( !velfac || mIsUdf(velfac) ) 
+    UnitFactors uf;
+    double velfac = uf.getVelFactor( log, straight );
+    if ( mIsUdf(velfac) )
 	velfac = 1;
 
     for ( int idx=0; idx<log.size(); idx++ )
@@ -145,7 +146,7 @@ void GeoCalculator::son2Vel( Well::Log& log, bool straight ) const
 	val = val ? (float)velfac/val : val;
 	val *= straight ? 1 : mMicroSFactor;
     }
-    log.setUnitMeasLabel( straight ? UnitFactors::getStdVelLabel() 
+    log.setUnitMeasLabel( straight ? UnitFactors::getStdVelLabel()
 				   : UnitFactors::getStdSonLabel() );
 }
 
@@ -172,12 +173,13 @@ void GeoCalculator::vel2TWT(Well::Log& log, const Well::Track& track,
     const int sz = log.size(); 
     if ( sz < 2 ) return;
 
-    UnitFactors uf; double velfac = uf.getVelFactor( log, false );
-    if ( !velfac || mIsUdf(velfac) ) 
+    UnitFactors uf;
+    double velfac = uf.getVelFactor( log, false );
+    if ( mIsUdf(velfac) )
 	velfac = 1;
 
     TypeSet<float> dpts, vals;
-    dpts += startdah; vals += straight ? log.value( 0 ) : 0; 
+    dpts += startdah; vals += straight ? log.value( 0 ) : 0;
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float dah = log.dah( idx );

@@ -29,15 +29,15 @@ const char*  UnitFactors::getStdSonLabel()
 double UnitFactors::getDenFactor( const Well::Log& denlog  ) const
 {
     const UnitOfMeasure* uom = getUOM( denlog );
-    return uom ? calcDensFactor( uom->symbol() ) : 0;
+    return uom ? calcDensFactor( uom->symbol() ) : mUdf(double);
 }
 
 
 double UnitFactors::getVelFactor( const Well::Log& vellog, bool issonic ) const
 {
     const UnitOfMeasure* uom = getUOM( vellog );
-    const char* s= uom ? uom->symbol() : 0;
-    return s ? issonic ? calcSonicVelFactor( s ) : calcVelFactor( s ) : 0; 
+    const char* s = uom ? uom->symbol() : 0;
+    return s ? issonic ? calcSonicVelFactor( s ) : calcVelFactor( s ) : mUdf(double); 
 }
 
 
