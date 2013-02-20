@@ -1,0 +1,32 @@
+#!/bin/csh -f
+
+#Changing the dependency path of the libraries on MAC platform.
+if ( $#argv < 2 ) then
+   echo "Usage : $0 fromdir installdir"
+   exit 1
+endif
+
+set workdir=$1
+set binpath=$2
+echo "workdir: $workdir"
+echo "binpath: $binpath"
+cp -pf $workdir/* $binpath/.
+echo "Changing the dependency path in : $binpath"
+foreach bnry ( ${binpath}/* )
+    if ( -f ${bnry} ) then
+	echo ${bnry}
+	set filenm=`basename $bnry`
+	echo ${filenm}
+	set deplist=`otool -L ${bnry} | sed 's/ .*//'`
+	foreach dep ( ${deplist} )
+	    if ( -e ${dep} ) then
+		echo "Dep: ${dep}"
+		set libnm=`basename ${dep}`
+		set rootdir=`echo ${dep} | cut -c 2-4`
+		if ( $rootdir != "Sys" && $rootdir != "usr" ) then
+		install_name_tool -change ${dep} @executable_path/${libnm} ${bnry}
+		endif
+	    endif
+	end
+    endif
+end
