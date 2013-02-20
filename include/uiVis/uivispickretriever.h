@@ -26,7 +26,6 @@ public:
     			uiVisPickRetriever(uiVisPartServer*);
     bool		enable(const TypeSet<int>* allowedscenes);
     NotifierAccess*	finished()		{ return &finished_; }
-    NotifierAccess*	removePick()		{ return &removepick_; }
 
     void		reset();
     bool		success() const		{ return status_==Success; }
@@ -56,7 +55,6 @@ protected:
 
     int				pickedscene_;
     Notifier<uiVisPickRetriever> finished_;
-    Notifier<uiVisPickRetriever> removepick_;
     uiVisPartServer*            visserv_;
 };
 

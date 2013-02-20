@@ -22,7 +22,6 @@ uiVisPickRetriever::uiVisPickRetriever( uiVisPartServer* ps )
     : visserv_(ps)
     , status_( Idle )
     , finished_( this )    
-    , removepick_( this )    
 {
     resetPickedPos();
 }
@@ -73,8 +72,7 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 
     mCBCapsuleUnpackWithCaller( const visBase::EventInfo&,
 	    			eventinfo, caller, cb );
-    if ( eventinfo.type!=visBase::MouseClick ||
-	 !OD::leftMouseButton(eventinfo.buttonstate_) )
+    if ( eventinfo.type!=visBase::MouseClick )
 	return;
 
     visSurvey::Scene* scene = 0;
@@ -103,6 +101,7 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
     {
 	pickedpos_ = eventinfo.worldpickedpos;
 	pickedscene_ = scene->id();
+	buttonstate_ = eventinfo.buttonstate_;
 	status_ = Success;
     }
 
@@ -127,10 +126,7 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
     
     MouseCursorManager::restoreOverride();
     visserv_->setWorkMode( uiVisPartServer::View );
-    if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
-	removepick_.trigger();
-    else
-	finished_.trigger();
+    finished_.trigger();
 
     if ( status_ != Waiting )
 	status_ = Idle;
