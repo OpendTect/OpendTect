@@ -171,10 +171,10 @@ macro( create_basepackages PACKAGE_NAME )
 
    IF( ${PACKAGE_NAME} STREQUAL "basedata" )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${PSD}/relinfo/RELEASE.txt
+				${CMAKE_INSTALL_PREFIX}/relinfo/RELEASE.txt
 				${DESTINATION_DIR}/doc/ReleaseInfo )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${PSD}/relinfo/RELEASEINFO.txt
+				${CMAKE_INSTALL_PREFIX}/relinfo/RELEASEINFO.txt
 				${DESTINATION_DIR}/doc/ReleaseInfo )
        FOREACH( LIBS ${LIBLIST} )
 	    FILE( GLOB DATAFILES ${CMAKE_INSTALL_PREFIX}/data/${LIBS} )
@@ -203,7 +203,7 @@ macro( create_basepackages PACKAGE_NAME )
    ENDIF()
    IF( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${PSD}/relinfo/RELEASE.dgb.txt
+				${CMAKE_INSTALL_PREFIX}/relinfo/RELEASE.dgb.txt
 				${DESTINATION_DIR}/doc/ReleaseInfo )
        FOREACH( LIB ${LIBLIST} )
 	  IF( IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/data/${LIB}" )
