@@ -135,7 +135,6 @@ void uiFlatViewStdControl::finalPrepare()
 	    mevh.movement.notify( mCB(this,uiFlatViewStdControl,handDragging));
 	}
     }
-    stateCB(0);
 }
 
 
