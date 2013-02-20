@@ -395,7 +395,7 @@ uiCurvedItem* uiDirectionalPlot::drawSectorPart( int isect, Interval<float> rrg,
 						 Color col )
 {
     const float dang = data_.angle(0,1) - data_.angle(0,-1);
-    const float dangrad = dang * Angle::cPI(dang) / 180;
+    const float dangrad = dang * Angle::cPI<float>() / 180;
     Interval<float> angrg( data_.angle(isect,-1), 0 );
     angrg.stop = angrg.start + dang;
     Interval<float> radangrg( data_.angle(isect,Angle::Rad,-1), 0 );
