@@ -46,27 +46,3 @@ endforeach()
 foreach( SPECDIR ${SPECSOURCES} )
     add_licensetext( "${SPECDIR}" "spec" )
 endforeach()
-
-IF( WIN32 )
-   FOREACH( WLIB ${SRCLIBLIST} )
-	FILE( GLOB LIBS
-		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.lib
-		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.dll
-		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.pdb )
-       SET( DST "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug" )
-       FOREACH( LIB ${LIBS} )
-		get_filename_component( FILENAME ${LIB} NAME )
-		configure_file( ${LIB} ${DST}/${FILENAME} )
-       ENDFOREACH()
-   ENDFOREACH()
-   FOREACH( WLIB ${EXECLIST} )
-	FILE( GLOB LIBS
-		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.exe
-		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.pdb )
-       SET( DST "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug" )
-       FOREACH( LIB ${LIBS} )
-		get_filename_component( FILENAME ${LIB} NAME )
-		configure_file( ${LIB} ${DST}/${FILENAME} )
-       ENDFOREACH()
-   ENDFOREACH()
-ENDIF()
