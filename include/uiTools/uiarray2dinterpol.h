@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "position.h"
 
 class Array2DInterpol;
-class InverseDistanceArray2DInterpol;
 class uiCheckBox;
 class uiGenInput;
 class uiArray2DInterpol;
@@ -137,11 +136,11 @@ protected:
 };
 
 
-mExpClass(uiTools) uiArray2DInterpolExtension : public uiArray2DInterpol
+mExpClass(uiTools) uiExtensionArray2DInterpol : public uiArray2DInterpol
 {
 public:
 
-    				uiArray2DInterpolExtension(uiParent*);
+    				uiExtensionArray2DInterpol(uiParent*);
 
     static void			initClass();
     static uiArray2DInterpol*	create(uiParent*);

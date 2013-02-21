@@ -40,11 +40,11 @@ DefineEnumNames( Array2DInterpol, FillType, 1, "Filltypes" )
 
 mImplFactory( Array2DInterpol, Array2DInterpol::factory );
 
-class A2DIntExtenExecutor : public Executor
+class Extension2DInterpolExecutor : public Executor
 {
 public:
-    				A2DIntExtenExecutor(Array2DInterpolExtension&);
-				~A2DIntExtenExecutor()  { deleteStateArr(); }
+    		Extension2DInterpolExecutor(ExtensionArray2DInterpol&);
+		~Extension2DInterpolExecutor()  { deleteStateArr(); }
 			
     int		nextStep();
     const char*	message() const		{ return curmsg_; }
@@ -69,7 +69,7 @@ protected:
     float	diagdist_;
     const char*	curmsg_;
     
-    Array2DInterpolExtension&	aie_;
+    ExtensionArray2DInterpol&	aie_;
 };
 
 									    
@@ -1463,28 +1463,28 @@ bool TriangulationArray2DInterpol::usePar( const IOPar& par )
 //!< The higher the state, the further the node is away from 'defined space'
 
 
-Array2DInterpolExtension::Array2DInterpolExtension()
+ExtensionArray2DInterpol::ExtensionArray2DInterpol()
     : executor_( 0 )
     , nrsteps_( 0 )
 {}
 
 
-Array2DInterpolExtension::~Array2DInterpolExtension()
+ExtensionArray2DInterpol::~ExtensionArray2DInterpol()
 {
     delete executor_;
 }
 
 
-bool Array2DInterpolExtension::doWork( od_int64, od_int64, int thread )
+bool ExtensionArray2DInterpol::doWork( od_int64, od_int64, int thread )
 {
     if ( !executor_ )
-	executor_ = new A2DIntExtenExecutor( *this );
+	executor_ = new Extension2DInterpolExecutor( *this );
 
     return executor_->execute();
 }
 
 
-bool Array2DInterpolExtension::fillPar( IOPar& par ) const
+bool ExtensionArray2DInterpol::fillPar( IOPar& par ) const
 {
     Array2DInterpol::fillPar( par );
     par.set( sKeyNrSteps(), nrsteps_ );
@@ -1492,7 +1492,7 @@ bool Array2DInterpolExtension::fillPar( IOPar& par ) const
 }
 
 
-bool Array2DInterpolExtension::usePar( const IOPar& par )
+bool ExtensionArray2DInterpol::usePar( const IOPar& par )
 {
     Array2DInterpol::usePar( par );
     par.get( sKeyNrSteps(), nrsteps_ );
@@ -1500,7 +1500,7 @@ bool Array2DInterpolExtension::usePar( const IOPar& par )
 }
 
 
-A2DIntExtenExecutor::A2DIntExtenExecutor( Array2DInterpolExtension& aie )
+Extension2DInterpolExecutor::Extension2DInterpolExecutor( ExtensionArray2DInterpol& aie )
     : Executor("2D Interpolation")
     , aie_(aie)
     , state_(0)
@@ -1512,7 +1512,7 @@ A2DIntExtenExecutor::A2DIntExtenExecutor( Array2DInterpolExtension& aie )
 }
 
 
-void A2DIntExtenExecutor::createStateArr()
+void Extension2DInterpolExecutor::createStateArr()
 {
     state_ = new short* [aie_.nrrows_];
     for ( int idx=0; idx<aie_.nrrows_; idx++ )
@@ -1533,7 +1533,7 @@ void A2DIntExtenExecutor::createStateArr()
 }
 
 
-void A2DIntExtenExecutor::deleteStateArr()
+void Extension2DInterpolExecutor::deleteStateArr()
 {
     if ( !state_ ) return;
     
@@ -1545,7 +1545,7 @@ void A2DIntExtenExecutor::deleteStateArr()
 }
 
 
-bool A2DIntExtenExecutor::doInterpolate( int irow, int icol )
+bool Extension2DInterpolExecutor::doInterpolate( int irow, int icol )
 {
     float val;
     if ( interpExtension(irow,icol,val) )
@@ -1573,7 +1573,7 @@ bool A2DIntExtenExecutor::doInterpolate( int irow, int icol )
 }
 
 
-bool A2DIntExtenExecutor::interpExtension( int irow, int icol, float& val )
+bool Extension2DInterpolExecutor::interpExtension( int irow, int icol, float& val )
 {
     float defs[12]; float wts[12]; int nrdefs = 0;
     if ( irow )
@@ -1628,7 +1628,7 @@ bool A2DIntExtenExecutor::interpExtension( int irow, int icol, float& val )
 }
 
 
-void A2DIntExtenExecutor::adjustInitialStates()
+void Extension2DInterpolExecutor::adjustInitialStates()
 {
     if ( aie_.filltype_ != Array2DInterpol::Full )
     {
@@ -1704,7 +1704,7 @@ void A2DIntExtenExecutor::adjustInitialStates()
 }
 
 
-bool A2DIntExtenExecutor::markBigHoles()
+bool Extension2DInterpolExecutor::markBigHoles()
 {
     bool havebighole = false;
     for ( int irow=0; irow<aie_.nrrows_; irow++ )
@@ -1756,7 +1756,7 @@ bool A2DIntExtenExecutor::markBigHoles()
      || state_[r][c] == cA2DStateMarkedForKeepUdf)
 
 
-void A2DIntExtenExecutor::floodFill4KeepUdf( int seedrow, int seedcol )
+void Extension2DInterpolExecutor::floodFill4KeepUdf( int seedrow, int seedcol )
 {
     for ( int irow = seedrow; 
 	    irow < aie_.nrrows_ && mA2DInterpNeedsReplace(irow,seedcol); 
@@ -1775,7 +1775,7 @@ void A2DIntExtenExecutor::floodFill4KeepUdf( int seedrow, int seedcol )
 }
 
 
-void A2DIntExtenExecutor::handleAdjCol( int seedrow, int seedcol, int step)
+void Extension2DInterpolExecutor::handleAdjCol( int seedrow, int seedcol, int step)
 {
     for ( int irow = seedrow;
 	    irow < aie_.nrrows_ && state_[irow][seedcol] == cA2DStateKeepUdf;
@@ -1795,7 +1795,7 @@ void A2DIntExtenExecutor::handleAdjCol( int seedrow, int seedcol, int step)
 }
 
 
-int A2DIntExtenExecutor::nextStep()
+int Extension2DInterpolExecutor::nextStep()
 {
     if ( !state_ )
     {

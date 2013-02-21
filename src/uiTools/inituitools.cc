@@ -21,6 +21,6 @@ mDefModInitFn(uiTools)
     uiInverseDistanceGridder2D::initClass();
     uiInverseDistanceArray2DInterpol::initClass();
     uiTriangulationArray2DInterpol::initClass();
-    uiArray2DInterpolExtension::initClass();
+    uiExtensionArray2DInterpol::initClass();
     uiVrmsRayTracer1D::initClass();
 }

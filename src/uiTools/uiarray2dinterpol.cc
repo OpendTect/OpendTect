@@ -453,18 +453,18 @@ bool uiTriangulationArray2DInterpol::acceptOK()
 }
 
 
-void uiArray2DInterpolExtension::initClass()
+void uiExtensionArray2DInterpol::initClass()
 {
     uiArray2DInterpolSel::factory().addCreator( create,
-	    Array2DInterpolExtension::sFactoryKeyword() );
+	    ExtensionArray2DInterpol::sFactoryKeyword() );
 }
 
 
-uiArray2DInterpol* uiArray2DInterpolExtension::create( uiParent* p )
-{ return new uiArray2DInterpolExtension( p ); }
+uiArray2DInterpol* uiExtensionArray2DInterpol::create( uiParent* p )
+{ return new uiExtensionArray2DInterpol( p ); }
 
 
-uiArray2DInterpolExtension::uiArray2DInterpolExtension(uiParent* p)
+uiExtensionArray2DInterpol::uiExtensionArray2DInterpol(uiParent* p)
     : uiArray2DInterpol( p, "Extension" )
 {
     nrstepsfld_ = new  uiGenInput( this, "Number of steps", IntInpSpec() );
@@ -473,7 +473,7 @@ uiArray2DInterpolExtension::uiArray2DInterpolExtension(uiParent* p)
 }
 
 
-bool uiArray2DInterpolExtension::acceptOK()
+bool uiExtensionArray2DInterpol::acceptOK()
 {
     if ( nrstepsfld_->getIntValue()<1 )
     {
@@ -484,7 +484,7 @@ bool uiArray2DInterpolExtension::acceptOK()
     if ( result_ )
 	{ delete result_; result_ = 0; }
     
-    Array2DInterpolExtension* res = new Array2DInterpolExtension;
+    ExtensionArray2DInterpol* res = new ExtensionArray2DInterpol;
     res->setNrSteps( nrstepsfld_->getIntValue() );
 
     result_ = res;    

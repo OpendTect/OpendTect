@@ -36,7 +36,7 @@ mDefModInitFn(Algo)
 
     InverseDistanceArray2DInterpol::initClass();
     TriangulationArray2DInterpol::initClass();
-    Array2DInterpolExtension::initClass();
+    ExtensionArray2DInterpol::initClass();
 
     Fourier::CC::initClass();
 

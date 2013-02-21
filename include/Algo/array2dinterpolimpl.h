@@ -23,7 +23,7 @@ template <class T> class Array2DImpl;
 class RowCol;
 class DAGTriangleTree;
 class Triangle2DInterpolator;
-class A2DIntExtenExecutor;
+class Extension2DInterpolExecutor;
 
 
 /*!
@@ -53,9 +53,9 @@ class A2DIntExtenExecutor;
 mExpClass(Algo) InverseDistanceArray2DInterpol : public Array2DInterpol
 {
 public:
-		mDefaultFactoryInstantiation( Array2DInterpol, 
+		mDefaultFactoryInstantiation(Array2DInterpol, 
 			InverseDistanceArray2DInterpol,
-			"Inverse distance", sFactoryKeyword() );
+			"Inverse distance",sFactoryKeyword());
 
 		InverseDistanceArray2DInterpol();
 		~InverseDistanceArray2DInterpol();
@@ -133,9 +133,9 @@ protected:
 mExpClass(Algo) TriangulationArray2DInterpol : public Array2DInterpol
 {
 public:
-		mDefaultFactoryInstantiation( Array2DInterpol, 
+		mDefaultFactoryInstantiation(Array2DInterpol, 
 			TriangulationArray2DInterpol,
-			"Triangulation", sFactoryKeyword() );
+			"Triangulation",sFactoryKeyword());
 
     		TriangulationArray2DInterpol();
     		~TriangulationArray2DInterpol();
@@ -185,33 +185,32 @@ protected:
 \brief An extension of array 2D interpolator.
 */
 
-mExpClass(Algo) Array2DInterpolExtension : public Array2DInterpol
+mExpClass(Algo) ExtensionArray2DInterpol : public Array2DInterpol
 {
 public:
-		mDefaultFactoryInstantiation( Array2DInterpol, 
-			Array2DInterpolExtension,
-			"Extension", sFactoryKeyword() );
+		mDefaultFactoryInstantiation(Array2DInterpol,
+			ExtensionArray2DInterpol,"Extension",sFactoryKeyword());
 
-    			Array2DInterpolExtension();
-    			~Array2DInterpolExtension();
+    		ExtensionArray2DInterpol();
+    		~ExtensionArray2DInterpol();
 
-    bool		canUseArrayAccess() const	{ return true; }
+    bool	canUseArrayAccess() const	{ return true; }
     
-    void		setNrSteps(int n)		{ nrsteps_ = n; }
-    od_int64		getNrSteps() const		{ return nrsteps_; }
+    void	setNrSteps(int n)		{ nrsteps_ = n; }
+    od_int64	getNrSteps() const		{ return nrsteps_; }
 
     bool	fillPar(IOPar&) const;
     bool	usePar(const IOPar&);
 
 protected:
 
-    bool		doWork(od_int64,od_int64,int);
-    od_int64		nrIterations() const		{ return 1; }
+    bool	doWork(od_int64,od_int64,int);
+    od_int64	nrIterations() const		{ return 1; }
     
-    od_int64		nrsteps_;   
+    od_int64	nrsteps_;   
     
-    A2DIntExtenExecutor* executor_; 
-    friend class A2DIntExtenExecutor;    
+    Extension2DInterpolExecutor* executor_; 
+    friend class Extension2DInterpolExecutor;    
 };
 
 #endif
