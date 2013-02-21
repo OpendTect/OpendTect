@@ -180,6 +180,6 @@ float uiVisPickRetriever::getUntransformedZ() const
 	}
     }
 
-    return pickedpos_.z;
+    return mCast(float,pickedpos_.z);
 }
 
