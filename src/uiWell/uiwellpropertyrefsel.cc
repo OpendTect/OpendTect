@@ -364,6 +364,15 @@ uiPropSelFromList*  uiWellPropSel::getPropSelFromListByName(
 }
 
 
+uiPropSelFromList* uiWellPropSel::getPropSelFromListByIndex( int idx )
+{
+    if ( propflds_.validIdx(idx) )
+	return propflds_[idx];
+
+    return 0;
+}
+
+
 uiWellPropSelWithCreate::uiWellPropSelWithCreate( uiParent* p,
 				const PropertyRefSelection& prs )
     : uiWellPropSel(p,prs)

@@ -84,8 +84,9 @@ public:
 	    			bool&, BufferString& uom, int idx) const;
 
     uiPropSelFromList*	getPropSelFromListByName(const BufferString&);
+    uiPropSelFromList*	getPropSelFromListByIndex(int);
     virtual bool	isOK() const;
-    void		setWellID(const MultiID& wid) { wellid_ = wid; }
+    void		setWellID( const MultiID& wid ) { wellid_ = wid; }
 
     MultiID		wellid_;
 

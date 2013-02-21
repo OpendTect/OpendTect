@@ -157,8 +157,6 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
     delete &wtsetup_;
-    if ( wd_ )
-	delete wd_;
     delete seisctio3d_.ioobj; delete &seisctio3d_;
     delete seisctio2d_.ioobj; delete &seisctio2d_;
     if ( extractwvltdlg_ )
@@ -252,6 +250,8 @@ void uiTieWinMGRDlg::extractWvltDone( CallBacker* )
 
 #undef mErrRet
 #define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mDensityIdx 0
+#define mPwaveIdx 1
 bool uiTieWinMGRDlg::getDefaults()
 {
     PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
@@ -269,16 +269,13 @@ bool uiTieWinMGRDlg::getDefaults()
     {
 	Well::Log* den = wd_->logs().getLog( wtsetup_.denlognm_ );
 	const PropertyRef::StdType tp = PropertyRef::Den;
-	bool dummy = false;
+	bool reverted = false;
 	if ( !den ) mErrRet( "No valid density log selected" );
-	if ( !mIsUdf(units.getDenFactor(*den)) )
-	    logsfld_->setLog( tp, wtsetup_.denlognm_, dummy, 0, 0 );
-	else
-	{
-	    BufferString denuom = den->unitMeasLabel();
-	    logsfld_->setLog( tp, wtsetup_.denlognm_, dummy,
-		    	      UnitOfMeasure::getGuessed(denuom), 0 );
-	}
+	const BufferString denuomlbl = den->unitMeasLabel();
+	const UnitOfMeasure* denuom = mIsUdf(units.getDenFactor(*den))
+	    			    ? UoMR().getInternalFor(tp)
+				    : UnitOfMeasure::getGuessed(denuomlbl);
+	logsfld_->setLog( tp, wtsetup_.denlognm_, reverted, denuom,mDensityIdx);
     }
 
     if ( !wtsetup_.vellognm_.isEmpty() )
@@ -286,14 +283,13 @@ bool uiTieWinMGRDlg::getDefaults()
 	Well::Log* vp = wd_->logs().getLog( wtsetup_.vellognm_ );
 	const PropertyRef::StdType tp = PropertyRef::Vel;
 	if ( !vp ) mErrRet( "No valid velocity log selected" );
-	if ( !mIsUdf(units.getVelFactor(*vp,wtsetup_.issonic_)) )
-	    logsfld_->setLog( tp, wtsetup_.vellognm_, wtsetup_.issonic_, 0, 1 );
-	else
-	{
-	    BufferString veluom = vp->unitMeasLabel();
-	    logsfld_->setLog( tp, wtsetup_.vellognm_, wtsetup_.issonic_,
-		    	      UnitOfMeasure::getGuessed(veluom), 1 );
-	}
+	const BufferString velpuomlbl = vp->unitMeasLabel();
+	const UnitOfMeasure* velpuom = mIsUdf(units.getVelFactor( *vp,
+		    					wtsetup_.issonic_))
+	    			     ? UoMR().getInternalFor(tp)
+				     : UnitOfMeasure::getGuessed(velpuomlbl);
+	logsfld_->setLog( tp, wtsetup_.vellognm_, wtsetup_.issonic_, velpuom,
+								 mPwaveIdx );
     }
 
     if ( !wtsetup_.wvltid_.isEmpty() )
@@ -350,7 +346,8 @@ bool uiTieWinMGRDlg::initSetup()
     Well::Data* loadedwd =  Well::MGR().get( wtsetup_.wellid_, false );
     if ( !loadedwd ) loadedwd = wd_;
 
-    uiPropSelFromList* psflden = logsfld_->getPropSelFromListByName("Density");
+    uiPropSelFromList* psflden = logsfld_->
+				 getPropSelFromListByIndex( mDensityIdx );
     if ( !psflden ) return false;
     wtsetup_.denlognm_ = psflden->text();
     Well::Log* den = loadedwd->logs().getLog( wtsetup_.denlognm_ );
@@ -361,7 +358,8 @@ bool uiTieWinMGRDlg::initSetup()
     else
 	den->setUnitMeasLabel( psflden->uom()->symbol() );
 
-    uiPropSelFromList* psflvp = logsfld_->getPropSelFromListByName("Pwave");
+    uiPropSelFromList* psflvp = logsfld_->
+				getPropSelFromListByIndex( mPwaveIdx );
     if ( !psflvp ) return false;
     wtsetup_.vellognm_ = psflvp->text();
     wtsetup_.issonic_  = psflvp->isUseAlternate();
