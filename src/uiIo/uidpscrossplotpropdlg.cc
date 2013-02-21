@@ -389,7 +389,7 @@ bool parseExp( CallBacker* cb )
 	}
 	else if ( !mathexpr.isEmpty() )
 	{
-	    msg_ = "Expression for curve Y";
+	    msg_ = "Expression for Y";
 	    msg_ += isy1 ? "1" : "2";
 	    msg_ += " is invalid.";
 	    uiMSG().error( msg() );
@@ -400,7 +400,7 @@ bool parseExp( CallBacker* cb )
 
     if ( mathobj && mathobj->nrVariables() > 1 )
     {
-	msg_ = "Expression for curve Y";
+	msg_ = "Expression for Y";
 	msg_ += isy1 ? "1" : "2";
 	msg_ += " contains more than one variable.";
 	uiMSG().error( msg() );
