@@ -17,13 +17,15 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "namedobj.h"
 #include "uigeom.h"
+
 class uiGraphicsScene;
 class uiGraphicsItemGroup;
 class uiLineItem;
 class uiTextItem;
 template <class T> class LineParameters;
 
-/*!\brief Handles an axis on a plot
+/*!
+\brief Handles an axis on a plot.
 
   Manages the positions in a 2D plot. The axis can be logarithmic. getRelPos
   returns the relative position on the axis. If the point is between the
@@ -42,8 +44,7 @@ template <class T> class LineParameters;
   Use AxisLayout (linear.h) to find 'nice' ranges, like:
   AxisLayout al( Interval<float>(start,stop) );
   ahndlr.setRange( StepInterval<float>(al.sd.start,al.stop,al.sd.step) );
- 
- */
+*/
 
 mExpClass(uiTools) uiAxisHandler : public NamedObject
 {
