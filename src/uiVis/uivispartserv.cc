@@ -1207,9 +1207,9 @@ void uiVisPartServer::setZAxisTransform( int sceneid, ZAxisTransform* zat,
 }
 
 
-ZAxisTransform* uiVisPartServer::getZAxisTransform( int sceneid )
+const ZAxisTransform* uiVisPartServer::getZAxisTransform( int sceneid ) const
 {
-    visSurvey::Scene* scene = getScene( sceneid );
+    const visSurvey::Scene* scene = getScene( sceneid );
     return scene ? scene->getZAxisTransform() : 0;
 }
 

@@ -645,7 +645,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 }
 
 
-ZAxisTransform* Scene::getZAxisTransform()
+const ZAxisTransform* Scene::getZAxisTransform() const
 { return datatransform_; }
 
 

@@ -148,7 +148,7 @@ public:
     const mVisTrans*		getInlCrl2DisplayTransform() const;
     const mVisTrans*		getUTM2DisplayTransform() const;
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    ZAxisTransform*		getZAxisTransform();
+    const ZAxisTransform*	getZAxisTransform() const;
 
     void			setBaseMap(BaseMap*);
     BaseMap*			getBaseMap();

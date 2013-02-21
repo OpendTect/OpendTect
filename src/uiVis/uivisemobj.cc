@@ -178,7 +178,9 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     if ( emod )
     {
      	emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
-    	emod->setZAxisTransform( scene->getZAxisTransform(),0 );
+	ZAxisTransform* zt = const_cast<ZAxisTransform*>(
+		scene->getZAxisTransform() );
+    	emod->setZAxisTransform( zt, 0 );
 	
     	uiTaskRunner dlg( uiparent_ );
     	if ( !emod->setEMObject(emid, &dlg ) ) mRefUnrefRet
