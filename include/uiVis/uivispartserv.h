@@ -308,7 +308,7 @@ public:
     Notifier<uiVisPartServer>	selectionmodechange;
     void			setZAxisTransform(int sceneid,ZAxisTransform*,
 						  TaskRunner*);
-    ZAxisTransform*		getZAxisTransform(int sceneid);
+    const ZAxisTransform*	getZAxisTransform(int sceneid) const;
     visBase::EventCatcher*	getEventCatcher(int sceneid);
 
     const Selector<Coord3>*	getCoordSelector(int scene) const;
