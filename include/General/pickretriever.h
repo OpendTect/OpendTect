@@ -53,6 +53,9 @@ public:
     				/*!<Should normally only be called from
 				    application initiation. */
     OD::ButtonState		buttonstate_;
+    virtual bool		isZTransformed() const			= 0;
+    virtual float		getUntransformedZ() const		= 0;
+
 protected:
     static RefMan<PickRetriever> instance_;
 };

@@ -11,12 +11,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uivispickretriever.h"
 
+#include "mousecursor.h"
+#include "uivispartserv.h"
 #include "visevent.h"
 #include "visseis2ddisplay.h"
 #include "vissurvscene.h"
 #include "vistransform.h"
-#include "uivispartserv.h"
-#include "mousecursor.h"
+#include "zaxistransform.h"
+
 
 uiVisPickRetriever::uiVisPickRetriever( uiVisPartServer* ps )
     : visserv_(ps)
@@ -153,3 +155,31 @@ void uiVisPickRetriever::resetPickedPos()
     pickedscene_ = -1;
     pickedobjids_.erase();
 }
+
+
+bool uiVisPickRetriever::isZTransformed() const
+{
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	if ( scenes_[idx] && scenes_[idx]->id()==pickedscene_ )
+	    return scenes_[idx]->getZAxisTransform(); 
+    }
+    
+    return false;
+}
+
+
+float uiVisPickRetriever::getUntransformedZ() const
+{
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	if ( scenes_[idx] && scenes_[idx]->id()==pickedscene_ )
+	{
+	    const ZAxisTransform* zt = scenes_[idx]->getZAxisTransform();
+	    return zt ? zt->transformBack(pickedpos_) : pickedpos_.z; 
+	}
+    }
+
+    return pickedpos_.z;
+}
+

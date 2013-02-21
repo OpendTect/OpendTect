@@ -39,6 +39,9 @@ public:
     void		addScene(visSurvey::Scene*);
     void		removeScene(visSurvey::Scene*);
 
+    bool		isZTransformed() const;
+    float		getUntransformedZ() const;
+
 protected:
 				~uiVisPickRetriever();
     void			pickCB(CallBacker*);
