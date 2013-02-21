@@ -402,7 +402,7 @@ NotifierAccess* PolygonBodyDisplay::materialChange()
 
 
 Color PolygonBodyDisplay::getColor() const
-{ return getMaterial()->getColor(); }
+{ return nontexturecol_; }
 
 
 void PolygonBodyDisplay::updatePolygonDisplay()

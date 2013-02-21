@@ -463,7 +463,7 @@ NotifierAccess* FaultDisplay::materialChange()
 
 
 Color FaultDisplay::getColor() const
-{ return getMaterial()->getColor(); }
+{ return nontexturecol_; }
 
 
 void FaultDisplay::updatePanelDisplay()
