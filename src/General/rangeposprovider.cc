@@ -330,7 +330,8 @@ bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
     if ( mIsUdf(z) ) return true;
     PosInfo::Line2DData l2d;
     S2DPOS().getGeometry( geomids_[foundlidx], l2d );
-    StepInterval<float> zrg = zrgs_.validIdx(foundlidx) ? zrgs_[foundlidx] : zrgs_[0];
+    const StepInterval<float>& zrg = 
+	zrgs_.validIdx(foundlidx) ? zrgs_[foundlidx] : zrgs_[0];
     return z > zrg.start-mZrgEps
 	&& z < zrg.stop+mZrgEps
 	&& z > l2d.zRange().start-mZrgEps 
@@ -415,21 +416,20 @@ void Pos::RangeProvider2D::fillPar( IOPar& iop ) const
 {
     int lidx;
     if ( geomids_.size() > 1 )
+    {
 	for ( lidx = 0; lidx < geomids_.size(); lidx++ )
 	{
 	    iop.set( IOPar::compKey(sKey::TrcRange(),lidx), trcrgs_[lidx] );
 	    iop.set( IOPar::compKey(sKey::ZRange(),lidx), zrgs_[lidx] );
-	    iop.set( IOPar::compKey(sKey::ID(),lidx),
-						geomids_[lidx].toString() );
+	    iop.set( IOPar::compKey(sKey::ID(),lidx),geomids_[lidx].toString());
 	}
+    }
     else
     {
-    for ( lidx=0; lidx<trcrgs_.size(); lidx++ )
-	iop.set( IOPar::compKey(sKey::TrcRange(),lidx), trcrgs_[lidx] );
-    for ( lidx=0; lidx<zrgs_.size(); lidx++ )
-	iop.set( IOPar::compKey(sKey::ZRange(),lidx), zrgs_[lidx] );
-    iop.set( IOPar::compKey(sKey::ID(),lidx),
-						geomids_[0].toString() );
+    	for ( lidx=0; lidx<trcrgs_.size(); lidx++ )
+    	    iop.set( IOPar::compKey(sKey::TrcRange(),lidx), trcrgs_[lidx] );
+    	for ( lidx=0; lidx<zrgs_.size(); lidx++ )
+    	    iop.set( IOPar::compKey(sKey::ZRange(),lidx), zrgs_[lidx] );
     }
 }
 
