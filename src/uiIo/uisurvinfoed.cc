@@ -903,7 +903,7 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
 }
 
 
-void uiSurveyInfoEditor::depthDisplayUnitSel(CallBacker*)
+void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
 {
     const FixedString labeltext = refdatumfld_->titleText();
     const bool showdepthinft = !depthdispfld_->getBoolValue();
