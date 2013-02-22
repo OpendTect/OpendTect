@@ -98,7 +98,8 @@ protected:
     void		setLine() const;
     void		setTypeFld();
     bool		seisIDIs3D(MultiID) const;
-    bool		setupwasused_;
+    int			getSetupWasUsed() const;
+    void		setSetupWasUsed(int);
 };
 
 }; //namespace WellTie

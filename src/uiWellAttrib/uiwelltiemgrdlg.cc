@@ -11,6 +11,7 @@ static const char* rcsID = "$Id$";
 
 #include "uiwelltiemgrdlg.h"
 
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "multiid.h"
@@ -47,10 +48,26 @@ static const char* rcsID = "$Id$";
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecheckshotedit.h"
 
+
 static const char* sKeyPlsSel = "Please select";
 
 namespace WellTie
 {
+
+HiddenParam<uiTieWinMGRDlg,int> setupwasusedmanager( 0 );
+
+
+int uiTieWinMGRDlg::getSetupWasUsed() const
+{
+    return setupwasusedmanager.getParam( this );
+}
+
+
+void uiTieWinMGRDlg::setSetupWasUsed( int setupwasused )
+{
+    setupwasusedmanager.setParam( this, setupwasused );
+}
+
 
 uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	: uiDialog(p,uiDialog::Setup("Tie Well To Seismics",
@@ -89,7 +106,8 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     
     const bool has2d = SI().has2D();
     const bool has3d = SI().has3D();
-    setupwasused_ = false;
+    is2d_ = has3d ? false : true;
+    setSetupWasUsed(0);
 
     if ( has2d && has3d )
     {
@@ -98,6 +116,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	seistypes.add( Seis::nameOf(Seis::Vol) );
 	typefld_ = new uiGenInput( seisgrp, "Seismic", 
 					StringListInpSpec( seistypes ) );
+	typefld_->setValue( !is2d_ );
 	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
     }
 
@@ -117,6 +136,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 						uiSeisSel::Setup(Seis::Vol));
 	if ( typefld_ )
 	    seis3dfld_->attach( alignedBelow, typefld_ );
+	seis3dfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
     }
     seisgrp->setHAlignObj( typefld_ ? (uiGroup*)typefld_ 
 				    : (uiGroup*)seis2dfld_ ? 
@@ -151,6 +171,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	    			mCB(this,uiTieWinMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
 
+    seisSelChg(0);
     postFinalise().notify( mCB(this,uiTieWinMGRDlg,wellSelChg) );
 }
 
@@ -160,7 +181,8 @@ uiTieWinMGRDlg::~uiTieWinMGRDlg()
     delete &wtsetup_;
     delete seisctio3d_.ioobj; delete &seisctio3d_;
     delete seisctio2d_.ioobj; delete &seisctio2d_;
-    delete extractwvltdlg_;
+    if ( extractwvltdlg_ )
+	delete extractwvltdlg_;
     delWins();
 
 }
@@ -197,7 +219,8 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
 
 void uiTieWinMGRDlg::seisSelChg( CallBacker* )
 {
-    setTypeFld();
+    if ( typefld_ )
+	setTypeFld();
 
     if ( seis3dfld_ )
 	seis3dfld_->display( !is2d_ );
@@ -267,16 +290,14 @@ bool uiTieWinMGRDlg::getDefaults()
     {
 	Well::Log* den = wd_->logs().getLog( wtsetup_.denlognm_ );
 	const PropertyRef::StdType tp = PropertyRef::Den;
-	bool dummy = false;
+	bool reverted = false;
 	if ( !den ) mErrRet( "No valid density log selected" );
-	if ( !units.getDenFactor( *den ) )
-	    logsfld_->setLog( tp, wtsetup_.denlognm_, dummy, 0, 0 );
-	else
-	{
-	    BufferString denuom = den->unitMeasLabel();
-	    logsfld_->setLog( tp, wtsetup_.denlognm_, dummy,
-		    	      UnitOfMeasure::getGuessed(denuom), 0 );
-	}
+	const BufferString denuomlbl = den->unitMeasLabel();
+	const UnitOfMeasure* denuom = !units.getDenFactor(*den)
+	    			    ? UoMR().getInternalFor(tp)
+				    : UnitOfMeasure::getGuessed(denuomlbl);
+
+	logsfld_->setLog( tp, wtsetup_.denlognm_, reverted, denuom, 0 );
     }
 
     if ( !wtsetup_.vellognm_.isEmpty() )
@@ -284,18 +305,22 @@ bool uiTieWinMGRDlg::getDefaults()
 	Well::Log* vp = wd_->logs().getLog( wtsetup_.vellognm_ );
 	const PropertyRef::StdType tp = PropertyRef::Vel;
 	if ( !vp ) mErrRet( "No valid velocity log selected" );
-	if ( !units.getVelFactor( *vp, wtsetup_.issonic_ ) )
-	    logsfld_->setLog( tp, wtsetup_.vellognm_, wtsetup_.issonic_, 0, 1 );
-	else
-	{
-	    BufferString veluom = vp->unitMeasLabel();
-	    logsfld_->setLog( tp, wtsetup_.vellognm_, wtsetup_.issonic_,
-		    	      UnitOfMeasure::getGuessed(veluom), 1 );
-	}
+	const BufferString velpuomlbl = vp->unitMeasLabel();
+	const UnitOfMeasure* velpuom = !units.getVelFactor( *vp,
+		    					    wtsetup_.issonic_)
+	    			     ? UoMR().getInternalFor(tp)
+				     : UnitOfMeasure::getGuessed(velpuomlbl);
+
+	logsfld_->setLog( tp, wtsetup_.vellognm_, wtsetup_.issonic_, velpuom,1);
     }
 
     if ( !wtsetup_.wvltid_.isEmpty() )
 	wvltfld_->setInput( wtsetup_.wvltid_ );
+
+    setSetupWasUsed(0);
+    mDynamicCastGet( uiSeisSel*, seisfld, is2d_ ? seis2dfld_ : seis3dfld_ );
+    if ( seisfld )
+	seisfld->setEmpty();
 
     seisSelChg(0);
     d2TSelChg(0);
@@ -464,16 +489,12 @@ void uiTieWinMGRDlg::set3DSeis() const
     if ( !wtsetup_.seisid_.isEmpty() )
     {
 	if ( seisIDIs3D( wtsetup_.seisid_ ) )
-	{
 	    seis3dfld_->setInput( wtsetup_.seisid_ );
-	}
-	return;
+	else
+	    seis3dfld_->setInput( defaultid );
     }
     else
-    {
 	seis3dfld_->setInput( defaultid );
-	return;
-    }
 }
 
 
@@ -490,10 +511,9 @@ void uiTieWinMGRDlg::set2DSeis() const
     if ( !wtsetup_.seisid_.isEmpty() )
     {
 	if ( !seisIDIs3D( wtsetup_.seisid_ ) )
-	{
 	    seis2dfld_->setInput( wtsetup_.seisid_ );
-	}
-	return;
+	else
+	    seis2dfld_->setInput( defaultid );
     }
     else
     {
@@ -512,7 +532,6 @@ void uiTieWinMGRDlg::set2DSeis() const
 	lineidstr = LineKey( lsid, attrnm );
 	const MultiID seisid = lineidstr.buf();
 	seis2dfld_->setInput( seisid );
-	return;
     }
 }
 
@@ -522,13 +541,9 @@ void uiTieWinMGRDlg::setLine() const
     BufferString linekey = "";
 
     if ( wtsetup_.linekey_ != 0 )
-    {
 	linekey = wtsetup_.linekey_;
-    }
     else if ( seislinefld_->getInput() )
-    {
 	return;
-    }
 
     seislinefld_->setInput( linekey );
 }
@@ -536,23 +551,15 @@ void uiTieWinMGRDlg::setLine() const
 
 void uiTieWinMGRDlg::setTypeFld()
 {
-    if ( !setupwasused_ )
-    {
-	is2d_ = SI().has2D();
-    }
-    else if ( typefld_ )
-    {
-	is2d_ = !typefld_->getIntValue();
-    }
-
-    if ( !wtsetup_.seisid_.isEmpty() && !setupwasused_ )
-    {
-	is2d_ = !seisIDIs3D( wtsetup_.seisid_ );
-	setupwasused_ = true;
-    }
-
-    if ( typefld_ )
-	typefld_->setValue( !is2d_ );
+    is2d_ = !typefld_->getIntValue();
+    bool setupwasused = getSetupWasUsed() == 1;
+    if ( !setupwasused )
+	if ( !wtsetup_.seisid_.isEmpty() )
+	{
+	    is2d_ = !seisIDIs3D( wtsetup_.seisid_ );
+	    setSetupWasUsed(1);
+	}
+    typefld_->setValue( !is2d_ );
 }
 
 
