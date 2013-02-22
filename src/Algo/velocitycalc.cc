@@ -1409,24 +1409,76 @@ void BendPointVelBlock( TypeSet<float>& dpts, TypeSet<float>& vels,
 
 
 void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
-		        float velthreshold, float densthreshold, bool svel )
+		        float relthreshold, bool pvelonly )
 {
-    const float aithreshold = velthreshold*densthreshold;
-    TypeSet<float> ailayers( inmdl.size(), mUdf(float) );
-    for ( int idx=ailayers.size()-1; idx>=0; idx-- )
+    const int modelsize = inmdl.size();
+
+    if ( modelsize == 0 )
+	return;
+
+#define mVal(comp,idx) values[comp*modelsize+idx]
+
+    TypeSet<float> values( modelsize, mUdf(float) );
+    for ( int idx=0; idx<modelsize; idx++ )
     {
-	ailayers[idx] = svel
-	    ? inmdl[idx].svel_ * inmdl[idx].den_
-	    : inmdl[idx].getAI();
+	const float pvel = inmdl[idx].vel_;
+	values[idx] += pvel;
+	if ( mIsUdf(pvel) || mIsZero(pvel,1e-3) )
+	    return;
     }
-    
-    TypeSet<float> aidiffs( ailayers.size(), mUdf(float) );
-    aidiffs[0] = 0;
-    for ( int idx=ailayers.size()-1; idx>0; idx-- )
-	aidiffs[idx] = fabs(ailayers[idx]-ailayers[idx-1]);
-    
+
+    int nrcomp = 1;
+    if ( !pvelonly )
+    {
+	for ( int idx=0; idx<modelsize; idx++ )
+	{
+	    const float den = inmdl[idx].den_;
+	    values += den;
+	    if ( mIsUdf(den) || mIsZero(den,1e-3) )
+		return;
+	}
+
+	nrcomp++;
+
+	bool dosvel = true;
+	TypeSet<float> svals( modelsize, mUdf(float) );
+	for ( int idx=0; idx<modelsize; idx++ )
+	{
+	    const float svel = inmdl[idx].svel_;
+	    svals[idx] = svel;
+	    if ( mIsUdf(svel) || mIsZero(svel,1e-3) )
+	    {
+		dosvel = false;
+		break;
+	    }
+	}
+	if ( dosvel )
+	{
+	    values.append( svals );
+	    nrcomp++;
+	}
+    }
+
+#define mValRatio(comp,idx) valuesratio[comp*modelsize+idx]
+
+    TypeSet<float> valuesratio = values;
+    for ( int icomp=0; icomp<nrcomp; icomp++ )
+    {
+	mValRatio( icomp, 0 ) = 0;
+	const float* compvals = &values[icomp*modelsize];
+	float prevval = *compvals;
+	for ( int idx=1; idx<modelsize; idx++ )
+	{
+	    const float curval = compvals[idx];
+	    mValRatio( icomp, idx) += curval < prevval
+				   ? prevval / curval - 1.f
+				   : curval / prevval - 1.f;
+	    prevval = curval;
+	}
+    }
+
     TypeSet<Interval<int> > investigationqueue;
-    investigationqueue += Interval<int>( 0, ailayers.size()-1 );
+    investigationqueue += Interval<int>( 0, modelsize-1 );
     TypeSet<Interval<int> > blocks;
     
     while ( investigationqueue.size() )
@@ -1445,29 +1497,38 @@ void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
 		break;
 	    }
 	    
-	    const int last = curblock.start + width;
-	    const float firstai = ailayers[curblock.start];
-	    Interval<float> airange( firstai, firstai );
 	    TypeSet<int> bendpoints;
-	    float maxdiff = 0;
-	    
+	    const int last = curblock.start + width;
+	    TypeSet<float> firstval( nrcomp, mUdf(float) );
+	    TypeSet< Interval<float> > valranges;
+	    float maxvalratio = 0;
+	    for ( int icomp=0; icomp<nrcomp; icomp++ )
+	    {
+		firstval[icomp] = mVal( icomp, curblock.start );
+		Interval<float> valrange(  firstval[icomp],  firstval[icomp] );
+		valranges += valrange;
+	    }
+
 	    for ( int idx=curblock.start+1; idx<=last; idx++ )
 	    {
-		const float curai = ailayers[idx];
-		airange.include( curai );
-		
-		const float diff = aidiffs[idx];
-		if ( diff>=maxdiff )
+		for ( int icomp=0; icomp<nrcomp; icomp++ )
 		{
-		    if ( !mIsEqual( diff, maxdiff, 1e-3 ) )
-			bendpoints.erase();
-		    
-		    bendpoints += idx;
-		    maxdiff = diff;
+		    const float curval = mVal( icomp, idx );
+		    valranges[icomp].include( curval );
+
+		    const float valratio = mValRatio( icomp, idx );
+		    if ( valratio >= maxvalratio )
+		    {
+			if ( !mIsEqual( valratio, maxvalratio, 1e-5 ) )
+			    bendpoints.erase();
+
+			bendpoints += idx;
+			maxvalratio = valratio;
+		    }
 		}
 	    }
-	    
-	    if ( airange.width()<=aithreshold )
+
+	    if ( maxvalratio<=relthreshold )
 	    {
 		mAddBlock( curblock );
 		break;
@@ -1518,5 +1579,28 @@ void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
     }
     
     outmdl = output;
+}
+
+
+void SetMaxThicknessElasticModel( const ElasticModel& inmdl,
+       				ElasticModel& outmdl, float maxthickness )
+{
+    const int initialsz = inmdl.size();
+    int nbinsert = mUdf(int);
+
+    for ( int lidx=0; lidx<initialsz; lidx++ )
+    {
+	const float thickness = inmdl[lidx].thickness_;
+	ElasticLayer newlayer = inmdl[lidx];
+	nbinsert = 1;
+	if ( thickness > maxthickness )
+	{
+	    nbinsert = mCast( int, thickness/maxthickness );
+	    newlayer.thickness_ /= (float)nbinsert;
+	}
+	for ( int nlidx=0; nlidx<nbinsert; nlidx++ )
+	    outmdl += newlayer;
+    }
+
 }
 
