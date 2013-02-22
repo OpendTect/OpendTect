@@ -103,6 +103,9 @@ bool xyInFeet() const { return inft_; }
 };
 
 
+static const char* sKeySRDMeter = "Seismic Reference Datum (m)";
+static const char* sKeySRDFeet = "Seismic Reference Datum (ft)";
+
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	: uiDialog(p,uiDialog::Setup("Survey setup",
 				     "Specify survey parameters","0.3.2")
@@ -309,16 +312,17 @@ void uiSurveyInfoEditor::mkRangeGrp()
 
     depthdispfld_ = new uiGenInput( rangegrp_, "Display depths in",
                                    BoolInpSpec(false,"meter","feet") );
-    depthdispfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,depthUnitSel) );
+    depthdispfld_->valuechanged.notify( 
+	    		mCB(this,uiSurveyInfoEditor,depthDisplayUnitSel) );
     depthdispfld_->attach( alignedBelow, zfld_ );
 
-    refdatumfld_ = new uiGenInput( rangegrp_, "Seismic Reference Datum",
+    refdatumfld_ = new uiGenInput( rangegrp_, sKeySRDMeter,
 				   DoubleInpSpec(si_.seismicReferenceDatum()) );
     refdatumfld_->attach( alignedBelow, depthdispfld_ );
 
     rangegrp_->setHAlignObj( inlfld_ );
 
-    depthUnitSel( 0 );
+    depthDisplayUnitSel( 0 );
 }
 
 
@@ -538,6 +542,11 @@ bool uiSurveyInfoEditor::doApply()
     if ( !setSurvName() || !setRanges() )
 	return false;
 
+    const bool showrefdatuminft = !depthdispfld_->getBoolValue();
+    double refdatum = refdatumfld_->getdValue( 0.0 );
+    if ( showrefdatuminft ) refdatum *= mFromFeetFactorD;
+    si_.setSeismicReferenceDatum( refdatum );
+
     const bool xyinft = xyinftfld_->isChecked();
     si_.setXYInFeet( xyinft );
     const bool zdepthft = zunitfld_->currentItem() == 2;
@@ -740,11 +749,6 @@ bool uiSurveyInfoEditor::setRanges()
 	mErrRet("Please specify a valid Z range")
 
     si_.setRange( cs, false );
-
-    double refdatum = refdatumfld_->getdValue();
-    if ( mIsUdf(refdatum) ) { refdatum = 0.0;refdatumfld_->setValue(refdatum); }
-    si_.setSeismicReferenceDatum(refdatum);
-
     return true;
 }
 
@@ -899,25 +903,32 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
 }
 
 
-void uiSurveyInfoEditor::depthUnitSel(CallBacker*)
+void uiSurveyInfoEditor::depthDisplayUnitSel(CallBacker*)
 {
-    const bool isdepthinmeter = depthdispfld_->getBoolValue();
-    refdatumfld_->setTitleText(isdepthinmeter ? "Seismic Reference Datum (m)"
-	   				      : "Seismic Reference Datum (ft)");
+    const FixedString labeltext = refdatumfld_->titleText();
+    const bool showdepthinft = !depthdispfld_->getBoolValue();
+    const bool needsupdate = 
+	labeltext != ( !showdepthinft ? sKeySRDMeter : sKeySRDFeet );
+    if ( !needsupdate ) return;
+    
+    refdatumfld_->setTitleText( !showdepthinft ? sKeySRDMeter : sKeySRDFeet );
+    double refdatum = refdatumfld_->getdValue( 0.0 );
+    refdatum *= showdepthinft ? mToFeetFactorD : mFromFeetFactorD;
+    refdatumfld_->setValue( refdatum );
 }
 
 
 void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
 {
+    const bool zintime = zunitfld_->currentItem() == 0;
+    const bool zinft = zunitfld_->currentItem() == 2;
     const bool xyinft = xyinftfld_->isChecked();
-    depthdispfld_->setSensitive( zunitfld_->currentItem()==0 && !xyinft );
+    depthdispfld_->setSensitive( zintime && !xyinft );    
 
-    if ( cb==xyinftfld_ || cb==zunitfld_ )
-    {
-        const bool dispzinft = xyinft || zunitfld_->currentItem()==2;
-        NotifyStopper ns( depthdispfld_->valuechanged );
-        depthdispfld_->setValue( !dispzinft );
-    }
+    if ( cb==zunitfld_ )
+	depthdispfld_->setValue( zintime ? !xyinft : !zinft );
+    else if ( cb==xyinftfld_ && zintime )
+        depthdispfld_->setValue( !xyinft );
 
-    depthUnitSel( 0 );
+    depthDisplayUnitSel( 0 );
 }

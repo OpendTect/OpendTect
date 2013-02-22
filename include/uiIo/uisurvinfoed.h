@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidialog.h"
 #include "ranges.h"
+
 class IOPar;
 class SurveyInfo;
 class uiCheckBox;
@@ -23,8 +24,9 @@ class uiGenInput;
 class uiGroup;
 class uiSurvInfoProvider;
 
-
-/*\brief The survey info editor */
+/*!
+\brief The survey info editor.
+*/
 
 mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
 {
@@ -95,22 +97,23 @@ protected:
     void		mkCoordGrp();
     void		mkTransfGrp();
     void		setValues();
+    void                updStatusBar(const char*);
     bool		setRanges();
     bool		setSurvName();
     bool		setCoords();
     bool		setRelation();
     bool		doApply();
+    
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);
     void		sipCB(CallBacker*);
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);
     void		rangeChg(CallBacker*);
-    void		depthUnitSel(CallBacker*);
+    void		depthDisplayUnitSel(CallBacker*);
     void		updZUnit(CallBacker*);
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
-    void		updStatusBar(const char*);
     void		appButPushed(CallBacker*);
 
     friend class	uiSurvey;
