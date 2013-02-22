@@ -127,7 +127,6 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     , lastfld_( 0 )
     , blockfld_(0)
 {
-    BufferString zlbl( SI().depthsInFeetByDefault() ? " (ft" : " (m" );
     BufferString xylbl( SI().getXYUnitString(true) );
 
     if ( s.dooffsets_ )
@@ -145,8 +144,8 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 	lastfld_ = offsetfld_; 
     }
 
-    BufferString blocklbl = "Block (bend points) ";
-    blocklbl += "Threshold"; blocklbl += zlbl; blocklbl += "/s ) ";
+    BufferString blocklbl = "Block model ";
+    blocklbl += "Threshold (%)";
     blockfld_ = new uiGenInput( this, blocklbl );
     blockfld_->setWithCheck( true );
     blockfld_->setChecked( true );
@@ -154,7 +153,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 	blockfld_->attach( alignedBelow, lastfld_ );
 
     blockfld_->setElemSzPol( uiObject::Small );
-    blockfld_->setValue( 5 );
+    blockfld_->setValue( 1 );
     lastfld_ = blockfld_; 
 
     if ( s.convertedwaves_ )
@@ -210,7 +209,7 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 	blockfld_->setChecked( isblock );
 	float blockval;
 	par.get( RayTracer1D::sKeyBlockRatio(), blockval );
-	blockfld_->setValue( blockval ); 
+	blockfld_->setValue( blockval * 100.f ); 
     }
 
     return true;
@@ -245,7 +244,7 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
     if ( blockfld_ )
     {
 	par.setYN( RayTracer1D::sKeyBlock(), blockfld_->isChecked() );
-	par.set( RayTracer1D::sKeyBlockRatio(), blockfld_->getfValue() ); 
+	par.set( RayTracer1D::sKeyBlockRatio(), blockfld_->getfValue() / 100.f);
     }
 }
 
