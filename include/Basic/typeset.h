@@ -50,14 +50,13 @@ public:
     inline const T&		last() const;
     inline virtual bool		validIdx(od_int64) const;
     inline virtual I		indexOf(T,bool forward=true,I start=-1) const;
-    inline bool			isPresent( const T& t ) const
-				    { return vec_.isPresent(t); }
+    inline bool			isPresent(const T&) const;
     inline I			count(const T&) const;
 
-    inline TypeSetBase<T,I>&		operator +=(const T&);
-    inline TypeSetBase<T,I>&		operator -=(const T&);
-    inline virtual TypeSetBase<T,I>&	copy(const T*,I);
-    inline virtual TypeSetBase<T,I>&	copy(const TypeSetBase<T,I>&);
+    inline TypeSetBase<T,I>&	operator +=(const T&);
+    inline TypeSetBase<T,I>&	operator -=(const T&);
+    inline virtual TypeSetBase<T,I>& copy(const T*,I);
+    inline virtual TypeSetBase<T,I>& copy(const TypeSetBase<T,I>&);
     inline virtual bool		append(const T*,I);
     inline virtual bool		append(const TypeSetBase<T,I>&);
     inline bool			add(const T&);
@@ -74,7 +73,6 @@ public:
 				//!< Removes all items present in other set.
 
     inline virtual bool		addIfNew(const T&);
-    virtual void		fillWith(const T&);
 
     inline virtual void		erase();
 
@@ -254,14 +252,10 @@ template <class T, class I> inline
 bool TypeSetBase<T,I>::setCapacity( I sz )
 { return vec_.setCapacity( sz ); }
 
+
 template <class T, class I> inline
 void TypeSetBase<T,I>::setAll( T val )
-{
-    const I sz = size();
-    T* v = arr();
-    for ( I idx=0; idx<sz; idx++ )
-	v[idx] = val;
-}
+{ vec_.fillWith( val ); }
 
 
 template <class T, class I> inline
@@ -309,16 +303,10 @@ const T& TypeSetBase<T,I>::operator[]( I idx ) const
 
 template <class T, class I> inline
 T& TypeSetBase<T,I>::first()			{ return vec_.first(); }
-
-
 template <class T, class I> inline
 const T& TypeSetBase<T,I>::first() const	{ return vec_.first(); }
-
-
 template <class T, class I> inline
 T& TypeSetBase<T,I>::last()			{ return vec_.last(); }
-
-
 template <class T, class I> inline
 const T& TypeSetBase<T,I>::last() const		{ return vec_.last(); }
 
@@ -326,17 +314,21 @@ const T& TypeSetBase<T,I>::last() const		{ return vec_.last(); }
 template <class T, class I> inline
 T TypeSetBase<T,I>::pop()
 {
-    const T res = vec_.last();
-    vec_.pop_back();
-    return res;
+    return vec_.pop_back();
 }
-
 
 
 template <class T, class I> inline
 I TypeSetBase<T,I>::indexOf( T typ, bool forward, I start ) const
 {
     return vec_.indexOf( typ, forward, start );
+}
+
+
+template <class T, class I> inline
+bool TypeSetBase<T,I>::isPresent( const T& t ) const
+{
+    return vec_.isPresent(t);
 }
 
 
@@ -452,14 +444,10 @@ inline void TypeSetBase<T,I>::createDifference( const TypeSetBase<T,I>& ts, bool
 template <class T, class I> inline
 bool TypeSetBase<T,I>::addIfNew( const T& typ )
 {
-    if ( !isPresent(typ) ) { *this += typ; return true; }
+    if ( !isPresent(typ) )
+	{ *this += typ; return true; }
     return false;
 }
-
-
-template <class T, class I> inline
-void TypeSetBase<T,I>::fillWith( const T& t )
-{ vec_.fillWith(t); }
 
 
 template <class T, class I> inline

@@ -45,12 +45,12 @@ public:
 
     inline bool			nullAllowed() const	{ return allow0_; }
     inline void			allowNull(bool yn=true);
-    inline size_type			size() const		{ return vec_.size(); }
+    inline size_type		size() const		{ return vec_.size(); }
     inline virtual od_int64	nrItems() const		{ return size(); }
 
     inline virtual bool		validIdx(od_int64) const;
     inline virtual bool		isPresent(const T*) const;
-    inline virtual size_type		indexOf(const T*) const;
+    inline virtual size_type	indexOf(const T*) const;
     inline virtual T*		operator[](size_type);
     inline virtual const T*	operator[](size_type) const;
     inline virtual T*		operator[](const T*) const; //!< check & unconst
@@ -82,7 +82,7 @@ public:
 
 protected:
 
-    VectorAccess<void*,size_type>	vec_;
+    VectorAccess<void*,size_type> vec_;
     bool			allow0_;
 
 public:
@@ -157,7 +157,8 @@ inline void deepCopyClone( ObjectSet<T>& to, const ObjectSet<S>& from )
 
 //! Locate object in set
 template <class T,class S>
-inline typename ObjectSet<T>::size_type indexOf( const ObjectSet<T>& os, const S& val )
+inline typename ObjectSet<T>::size_type indexOf( const ObjectSet<T>& os,
+						 const S& val )
 {
     for ( int idx=0; idx<os.size(); idx++ )
     {
@@ -397,15 +398,11 @@ void ObjectSet<T>::push( T* ptr )
 
 template <class T> inline
 T* ObjectSet<T>::pop()
-{
-    size_type sz = size();
-    if ( !sz ) return 0;
-    return removeSingle( sz-1 );
-}
+{ return (T*)vec_.pop_back(); }
 
 
 template <class T> inline
-T* ObjectSet<T>::removeSingle( size_type idx, bool kporder)
+T* ObjectSet<T>::removeSingle( size_type idx, bool kporder )
 {
     T* res = (T*)vec_[idx];
     if ( kporder )

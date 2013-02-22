@@ -45,21 +45,21 @@ public:
 				: v_(n,t)		{}
     inline		VectorAccess( const VectorAccess& v2 )
 				: v_(v2.v_)		{}
-    inline std::vector<T>&	 vec()				{ return v_; }
-    inline const std::vector<T>& vec() const			{ return v_; }
+    inline std::vector<T>&	 vec()			{ return v_; }
+    inline const std::vector<T>& vec() const		{ return v_; }
 
-    inline T&		operator[]( I idx );
-    inline const T&	operator[]( I idx ) const;
-    T&			first() { return v_.front(); }
-    const T&		first() const { return v_.front(); }
-    T&			last() { return v_.back(); }
-    const T&		last() const { return v_.back(); }
-    inline I		size() const	{ return (I) v_.size(); }
-    inline bool		setCapacity( I sz );
+    inline T&		operator[](I idx);
+    inline const T&	operator[](I idx) const;
+    inline T&		first()				{ return v_.front(); }
+    inline const T&	first() const			{ return v_.front(); }
+    inline T&		last()				{ return v_.back(); }
+    inline const T&	last() const			{ return v_.back(); }
+    inline I		size() const			{ return (I)v_.size(); }
+    inline bool		setCapacity(I sz);
     			/*!<Allocates mem for sz, does not change size.*/
     inline void		getCapacity() const		{ return v_.capacity();}
     			/*!<\returns max size without reallocation.*/
-    inline bool		setSize( I sz, T val );
+    inline bool		setSize(I sz,T val);
     
     inline bool		validIdx(I idx) const { return idx>=0 && idx<size(); }
     inline I		indexOf(const T&,bool forward,I start=-1) const;
@@ -69,10 +69,11 @@ public:
     inline VectorAccess& operator =( const VectorAccess& v2 )
 			{ v_ = v2.v_; return *this; }
     inline bool		push_back( const T& t );
-    inline void		pop_back();
+    inline T		pop_back();
     inline void		insert( I pos, const T& val )
-					    { v_.insert(v_.begin() + pos,val); }
-    inline void		erase()		    { v_.clear(); }
+			{ v_.insert(v_.begin() + pos,val); }
+    inline void		erase()
+    			{ v_.clear(); }
     inline void		erase( const T& t )
 			{
 			    for ( I idx=size()-1; idx!=-1; idx-- )
@@ -97,12 +98,7 @@ public:
 			{ std::swap( v_[i], v_[j] ); }
 
     inline void		fillWith( const T& val )
-			{
-			    typename std::vector<T>::iterator end = v_.end();
-			    for ( typename std::vector<T>::iterator i=v_.begin();
-				 i!=end; ++i )
-				*i = val;
-			}
+			{ std::fill( v_.begin(), v_.end(), val ); }
 
     void moveAfter( const T& t, const T& aft )
     {
@@ -157,18 +153,21 @@ bool VectorAccess<T,I>::setCapacity( I sz )
 template<class T,class I> inline
 bool VectorAccess<T,I>::push_back( const T& t )
 {
-    try { v_.push_back(t); }
+    try
+	{ v_.push_back(t); }
     catch ( std::bad_alloc )
-    { return false; }
+	{ return false; }
 
     return true;
 }
 
 
 template<class T,class I> inline
-void VectorAccess<T,I>::pop_back()
+T VectorAccess<T,I>::pop_back()
 {
+    const T lastelem = v_.back();
     v_.pop_back();
+    return lastelem;
 }
 
 
