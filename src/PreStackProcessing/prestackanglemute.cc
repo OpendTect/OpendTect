@@ -122,14 +122,15 @@ bool AngleMuteBase::getLayers(const BinID& bid,
 	    depths[il] = zrg.atIndex( il );
     }
 
-    bool dovelblock = false; float blockthreshold;
-    params_->raypar_.getYN( RayTracer1D::sKeyVelBlock(), dovelblock );
-    params_->raypar_.get( RayTracer1D::sKeyVelBlockVal(), blockthreshold );
-    if ( dovelblock )
+    bool doblock = false; float blockratiothreshold;
+    params_->raypar_.getYN( RayTracer1D::sKeyBlock(), doblock );
+    params_->raypar_.get( RayTracer1D::sKeyBlockRatio(), blockratiothreshold );
+/*    if ( doblock )
     {
-	BendPointVelBlock( depths, vels, blockthreshold );
+	BendPointVelBlock( depths, vels, blockrelthreshold );
 	nrlayers = vels.size();
     }
+    Should call BlockElasticModel as discussed with Aneesh */
 
     int il = 1;
     for ( il=1; il<nrlayers; il++ )

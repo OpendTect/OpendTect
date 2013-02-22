@@ -23,15 +23,9 @@ static const char* rcsID mUsedVar = "$Id$";
 mImplFactory(RayTracer1D,RayTracer1D::factory)
 
 
-float RayTracer1D::cDefaultVelBlockVal()
+float RayTracer1D::cDefaultBlockRatio()
 {
-    return 900.f;
-}
-
-
-float RayTracer1D::cDefaultDensBlockVal()
-{
-    return 800.f;
+    return 0.01;
 }
 
 
@@ -335,7 +329,7 @@ bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
 }
 
 
-bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
+bool RayTracer1D::getTDModel( int offset, TimeDepthModel& d2tm ) const
 {
     if ( !offsetpermutation_.validIdx( offset ) )
 	return false;
@@ -363,8 +357,6 @@ bool RayTracer1D::getTWT( int offset, TimeDepthModel& d2tm ) const
     
     return d2tm.setModel( depths.arr(), times.arr(), times.size() ); 
 }
-
-
 
 
 bool VrmsRayTracer1D::doPrepare( int nrthreads )

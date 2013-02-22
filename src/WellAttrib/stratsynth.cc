@@ -41,11 +41,9 @@ SynthGenParams::SynthGenParams()
 	raypars_.set( sKey::Type(), facnms.get( facnms.size()-1 ) );
 
     RayTracer1D::setIOParsToZeroOffset( raypars_ );
-    raypars_.setYN( RayTracer1D::sKeyVelBlock(), true );
-    raypars_.set( RayTracer1D::sKeyVelBlockVal(),
-	    	  RayTracer1D::cDefaultVelBlockVal() );
-    raypars_.set( RayTracer1D::sKeyDensBlockVal(), 
-	    	  RayTracer1D::cDefaultDensBlockVal() );
+    raypars_.setYN( RayTracer1D::sKeyBlock(), true );
+    raypars_.set( RayTracer1D::sKeyBlockRatio(),
+	    	  RayTracer1D::cDefaultBlockRatio() );
 }
 
 

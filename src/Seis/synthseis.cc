@@ -737,12 +737,12 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
 	rt1d.getReflectivity( idx, *refmodel );
 
 	TimeDepthModel* t2dm = new TimeDepthModel();
-	rt1d.getTWT( idx, *t2dm );
+	rt1d.getTDModel( idx, *t2dm );
 
 	for ( int idy=refmodel->size()-1; idy>=0; idy-- )
 	{
 	    const ReflectivitySpike& spike = (*refmodel)[idy];
-	    if ( mIsUdf(spike.reflectivity_) )
+	    if ( !spike.isDefined() )
 		refmodel->removeSingle( idy );
 	}
 

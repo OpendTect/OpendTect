@@ -206,10 +206,10 @@ bool uiRayTracer1D::usePar( const IOPar& par )
     if ( blockfld_ )
     {
 	bool isblock = false;
-	par.getYN(  RayTracer1D::sKeyVelBlock(), isblock );
+	par.getYN(  RayTracer1D::sKeyBlock(), isblock );
 	blockfld_->setChecked( isblock );
 	float blockval;
-	par.get( RayTracer1D::sKeyVelBlockVal(), blockval );
+	par.get( RayTracer1D::sKeyBlockRatio(), blockval );
 	blockfld_->setValue( blockval ); 
     }
 
@@ -244,8 +244,8 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 
     if ( blockfld_ )
     {
-	par.setYN( RayTracer1D::sKeyVelBlock(), blockfld_->isChecked() );
-	par.set( RayTracer1D::sKeyVelBlockVal(), blockfld_->getfValue() ); 
+	par.setYN( RayTracer1D::sKeyBlock(), blockfld_->isChecked() );
+	par.set( RayTracer1D::sKeyBlockRatio(), blockfld_->getfValue() ); 
     }
 }
 

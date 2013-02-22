@@ -72,7 +72,7 @@ public:
     			//Available after execution
     float		getSinAngle(int layeridx,int offsetidx) const;
     bool                getReflectivity(int offset,ReflectivityModel&) const;
-    bool		getTWT(int offset,TimeDepthModel&) const;
+    bool		getTDModel(int offset,TimeDepthModel&) const;
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -80,11 +80,9 @@ public:
     static const char*	sKeyPWave()	   { return "Wavetypes"; }
     static const char*	sKeyOffset()	   { return "Offset Range"; }
     static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
-    static const char*  sKeyVelBlock()     { return "Block velocities"; }
-    static const char*  sKeyVelBlockVal()  { return "Block velocity threshold";}
-    static float	cDefaultVelBlockVal();
-    static const char*  sKeyDensBlockVal() { return "Block density threshold"; }
-    static float	cDefaultDensBlockVal();
+    static const char*  sKeyBlock()	   { return "Block model"; }
+    static const char*  sKeyBlockRatio()   { return "Blocking ratio threshold";}
+    static float	cDefaultBlockRatio();
 
     static void		setIOParsToZeroOffset(IOPar& iop);
 
