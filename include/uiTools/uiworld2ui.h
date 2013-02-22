@@ -49,7 +49,7 @@ coordinate system.)
      appropriate range ( 0 - 1 ) and re-map this range to the UI window. This 
      is done by calling setRemap() or setCartesianRemap(). The proper range is
      estimated by these functions and coordinate conversion will be based on
-     the new wolrd X/Y range.
+     the new world X/Y range.
 */
 
 mExpClass(uiTools) uiWorld2Ui
