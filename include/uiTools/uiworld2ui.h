@@ -90,7 +90,7 @@ public:
     uiWorldRect		transform( uiRect area ) const;
     uiPoint		transform( uiWorldPoint p ) const;
     uiRect		transform( uiWorldRect area ) const;
-			// Since the compiler will be comfused if two functions
+			// Since the compiler will be confused if two functions
 			// only differ in return type, Geom::Point2D<float> is
 			// set rather than be returned.
     void		transform( const uiPoint& upt,
