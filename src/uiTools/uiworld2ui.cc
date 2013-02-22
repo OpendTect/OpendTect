@@ -132,11 +132,11 @@ void uiWorld2Ui::setRemap( const uiSize& sz, const uiWorldRect& wrdrc )
     uiWorldRect wr = wrdrc;
     // Recalculate a 'good' left/right boundary
     float left, right;
-    getAppopriateRange((float) wr.left(),(float) wr.right(), left, right);
+    getAppropriateRange((float) wr.left(),(float) wr.right(), left, right);
     wr.setRight( right ); wr.setLeft( left );
     // recalculate a 'good' top/bottom boundary
     float top, bot;
-    getAppopriateRange((float) wr.bottom(), (float) wr.top(), bot, top);
+    getAppropriateRange((float) wr.bottom(), (float) wr.top(), bot, top);
     wr.setTop( top ); wr.setBottom( bot );
 
     set( sz, wr );
@@ -252,7 +252,7 @@ void uiWorld2Ui::getWorldYRange( float& ymin, float& ymax ) const
 }
 
 
-void uiWorld2Ui::getAppopriateRange( float min, float max,
+void uiWorld2Ui::getAppropriateRange( float min, float max,
 				     float& newmin, float& newmax )
 {
     bool rev = min > max;

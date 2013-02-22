@@ -125,7 +125,7 @@ protected:
     uiPoint		uiorigin;
 
 private:
-			void getAppopriateRange( float min, float max,
+			void getAppropriateRange( float min, float max,
 						 float& newmin, float& newmax );
 };
 
