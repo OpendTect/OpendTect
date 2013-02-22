@@ -16,6 +16,10 @@ ________________________________________________________________________
 
 class SurveyInfo;
 
+/*!
+\brief 
+*/
+
 mExpClass(uiTools) World2UiData
 {
 public:
@@ -32,9 +36,10 @@ public:
 };
 
 
-/*!\brief Class to provide coordinate conversion between a cartesian coordinate
-  system(or any other transformed cartesian) and UI coordinate system(screen
-  coordinate system)
+/*!
+\brief Class to provide coordinate conversion between a cartesian coordinate
+system (or any other transformed cartesian) and UI coordinate system(screen
+coordinate system.)
   
   Use the constructor or call set() to set up the two coordinate systems.
   1) If the origin of UI is not at (0,0), use uiRect instead of uiSize to set
@@ -45,7 +50,7 @@ public:
      is done by calling setRemap() or setCartesianRemap(). The proper range is
      estimated by these functions and coordinate conversion will be based on
      the new wolrd X/Y range.
- */
+*/
 
 mExpClass(uiTools) uiWorld2Ui
 {
