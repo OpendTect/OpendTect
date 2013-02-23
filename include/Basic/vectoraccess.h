@@ -238,7 +238,7 @@ I VectorAccess<T,I>::indexOf( const T& t, bool forward, I start ) const
     if ( res==end )
 	return -1;
     
-    return mCast(int,end-res)-1;
+    return mCast(I,end-res)-1;
 }
     
 
