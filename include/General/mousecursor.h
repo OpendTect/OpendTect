@@ -18,8 +18,10 @@ ________________________________________________________________________
 
 namespace OD { class RGBImage; }
 
-/*!Definition of a mouse cursor, can be either a predefined shape (from the
-   enum, or a file. */
+/*!
+\brief Definition of a mouse cursor, can be either a predefined shape (from the
+enum, or a file.)
+*/
 
 mExpClass(General) MouseCursor
 {
@@ -77,9 +79,10 @@ public:
 };
 
 
-/*! \brief Sets another cursor for current application
+/*!
+\brief Sets another cursor for current application.
 
-    example:
+  Example:
 
     \code
 	MouseCursorManager::setOverride( MouseCursor::Wait );
@@ -98,7 +101,6 @@ public:
     overridecw cursor (the stack keeps its depth). If replace is
     FALSE, the new cursor is pushed onto the top of the stack.
 */
-
 
 mExpClass(General) MouseCursorManager
 {
@@ -129,8 +131,9 @@ protected:
 };
 
 
-/*! Class to automaticly change cursor, and change it back automaticly when
-    class is running out of scope.
+/*!
+\brief Class to automatically change cursor, and change it back automatically
+when class is running out of scope.
 */
 
 mExpClass(General) MouseCursorChanger
