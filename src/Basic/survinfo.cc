@@ -51,6 +51,19 @@ SurveyInfo* SurveyInfo::theinst_ = 0;
 DefineEnumNames(SurveyInfo,Pol2D,0,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
 
+
+Coord InlCrlSystem::toCoord( int linenr, int tracenr ) const
+{ return transform( BinID(linenr,tracenr) ); }
+
+
+TraceID	InlCrlSystem::nearestTrace( const Coord& crd, float* ) const
+{ return TraceID( transform(crd) ); }
+
+
+bool InlCrlSystem::includes( int line, int tracenr ) const
+{ return cs_.hrg.includes( BinID(line,tracenr) ); }
+
+
 const SurveyInfo& SI()
 {
     if ( !SurveyInfo::theinst_ || !SurveyInfo::theinst_->valid_ )

@@ -52,19 +52,12 @@ public:
     StepInterval<float>	zRange() const		{ return cs_.zrg; }
     int			inlStep() const 	{ return cs_.hrg.step.inl; }
     int			crlStep() const 	{ return cs_.hrg.step.crl; }
-
     
     float		zStep() const 		{ return cs_.zrg.step; }
     
-    Coord		toCoord(const TraceID& tid) const
-			{ return toCoord( tid.line_, tid.trcnr_ ); }
-    Coord		toCoord(int line, int tracenr) const
-			{ return transform( BinID(line,tracenr)); }
-    
-    TraceID		nearestTrace(const Coord& crd,float*) const
-			{ return TraceID(transform( crd ) ); }
-    bool		includes(int line, int tracenr) const
-			{ return cs_.hrg.includes(BinID(line,tracenr)); }
+    Coord		toCoord(int line,int tracenr) const;
+    TraceID		nearestTrace(const Coord&,float* distance) const;
+    bool		includes(int line,int tracenr) const;
 
     Coord		transform(const BinID&) const;
     BinID		transform(const Coord&) const;

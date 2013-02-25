@@ -277,6 +277,18 @@ void BinIDValues::setVals( const float* vs )
 }
 
 
+TraceID::TraceID( const BinID& bid )
+    : geomid_( std3DGeomID() )
+    , pos_( bid )
+{}
+
+
+TraceID::TraceID( GeomID geomid, int linenr, int trcnr )
+    : geomid_( geomid )
+    , pos_( linenr, trcnr )
+{}
+
+
 const TraceID& TraceID::udf()
 {
     static TraceID trcid( -1, -1, -1 );
@@ -284,6 +296,6 @@ const TraceID& TraceID::udf()
 }
 
 
-int TraceID::std3DGeomID()
+TraceID::GeomID TraceID::std3DGeomID()
 { return Survey::GeometryManager::cDefault3DGeom(); }
 

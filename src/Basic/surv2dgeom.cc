@@ -893,11 +893,17 @@ Survey::Geometry2D::Geometry2D()
 {
 }
 
+
+Survey::Geometry2D::Geometry2D( PosInfo::Line2DData& l2d )
+    : data_( l2d )
+{}
+
+
 Survey::Geometry2D::~Geometry2D()
 { delete &data_; }
 
 
-Coord Survey::Geometry2D::toCoord( int line, int trcnr ) const
+Coord Survey::Geometry2D::toCoord( int, int trcnr ) const
 {
     PosInfo::Line2DPos pos;
     return data_.getPos(trcnr,pos) ? pos.coord_ : Coord::udf();

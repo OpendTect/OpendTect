@@ -165,9 +165,9 @@ mExpClass(Basic) Coord3Value
 public:
     		Coord3Value( double x=0, double y=0, double z=0, 
 			     float v=mUdf(float) )
-		: coord(x,y,z), value(v) 	{}
+		    : coord(x,y,z), value(v) 	{}
 		Coord3Value( const Coord3& c, float v=mUdf(float) )
-		: coord(c), value(v)		{}
+		    : coord(c), value(v)		{}
     bool	operator==( const Coord3Value& cv ) const
 		{ return cv.coord == coord; }
     bool	operator!=( const Coord3Value& cv ) const
@@ -224,6 +224,12 @@ public:
     int				crl;
 
     static const BinID&		udf();
+    
+    int&			trcNr()		{ return crl; }
+    int				trcNr() const	{ return crl; }
+    int&			lineNr()	{ return inl; }
+    int				lineNr() const	{ return inl; }
+
 
     od_int64			getSerialized() const;
     				//!<Legacy. Use toInt64 instead.
@@ -231,6 +237,9 @@ public:
     				//!<Legacy. Use fromInt64 instead.
 };
 
+
+
+mImplInlineRowColFunctions(BinID, inl, crl);
 
 /*!
 \brief Represents a trace position, with the geometry (2D or 3D) and position in
@@ -240,32 +249,28 @@ the geometry.
 mExpClass(Basic) TraceID
 {
 public:
-				TraceID(const BinID& bid)
-				    : geomid_( std3DGeomID() )
-				    , line_(bid.inl)
-				    , trcnr_(bid.crl) {}
-				TraceID(int geomid, int line, int trcnr)
-				    : geomid_(geomid)
-				    , line_(line)
-				    , trcnr_(trcnr)
-				{}
+				typedef int GeomID;
     
-    static int			std3DGeomID();
+				TraceID(const BinID& bid);
+				TraceID(GeomID geomid,int linenr,int trcnr);
+
+    static GeomID		std3DGeomID();
+    
+    int&			trcNr()		{ return pos_.trcNr(); }
+    int				trcNr() const	{ return pos_.trcNr(); }
+    int&			lineNr()	{ return pos_.lineNr(); }
+    int				lineNr() const	{ return pos_.lineNr(); }
     
     static const TraceID&	udf();
     
-    bool			isUdf() const { return trcnr_<0; }
+    bool			isUdf() const { return mIsUdf(pos_.trcNr()); }
     
-    int				geomid_;
-				/*!<-1 refers to the default 3d survey setup
-				    any positive value refers to the geometry.*/
-    int				line_;
-    int				trcnr_;
+    GeomID			geomid_;
+				/*!<std3DGeomID refers to the default 3d survey
+				    setup. Any other value refers to the
+				    geometry.*/
+    BinID			pos_;
 };
-
-
-mImplInlineRowColFunctions(BinID, inl, crl);
-
 
 class BinIDValues;
 

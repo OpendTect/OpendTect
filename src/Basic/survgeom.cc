@@ -24,6 +24,7 @@ mImplFactory(GeometryWriter,GeometryWriter::factory);
 
 static GeometryManager* theinst = 0;
 
+
 GeometryManager& Survey::GMAdmin()
 {
     if( !theinst )
@@ -42,7 +43,7 @@ Geometry::~Geometry()
 {}
 
 
-TraceID Geometry::getTrace(Coord const& crd, float maxdist ) const
+TraceID Geometry::getTrace( const Coord& crd, float maxdist ) const
 {
     float dist;
     TraceID trcid = nearestTrace( crd,  &dist );
@@ -52,6 +53,14 @@ TraceID Geometry::getTrace(Coord const& crd, float maxdist ) const
     
     return trcid;
 }
+
+
+Coord Geometry::toCoord( const TraceID& tid ) const
+{ return toCoord( tid.lineNr(), tid.trcNr() ); }
+
+
+bool Geometry::includes( const TraceID& tid ) const
+{ return includes( tid.lineNr(), tid.trcNr() ); }
 
 
 GeometryManager::GeometryManager()
@@ -118,7 +127,9 @@ const char* GeometryManager::getName( const int geomid ) const
 Coord GeometryManager::toCoord( const TraceID& tid ) const
 {
     RefMan<const Geometry> geom = getGeometry( tid.geomid_ );
-    return geom ? geom->toCoord( tid.line_, tid.trcnr_ ) : Coord::udf();
+    return geom
+	? geom->toCoord( tid.lineNr(), tid.trcNr() )
+	: Coord::udf();
 }
 
 

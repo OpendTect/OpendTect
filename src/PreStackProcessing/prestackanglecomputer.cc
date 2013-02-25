@@ -113,7 +113,7 @@ Gather* AngleComputer::computeAngles( const TraceID& trcid )
 	return 0;
     
     RefMan<const Vel::Function> func =
-		source->getFunction( BinID(trcid.line_,trcid.trcnr_) );
+		source->getFunction( BinID(trcid.lineNr(),trcid.trcNr()) );
     if ( !func )
 	return 0;
     
