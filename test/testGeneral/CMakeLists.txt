@@ -8,7 +8,9 @@
 SET ( OD_MODULE_DEPS General )
 SET ( OD_MODULE_TEST_LABEL General )
 
-SET ( OD_TEST_PROGS testibmformat )
+if ( NOT DEFINED WIN32 )
+    SET ( OD_TEST_PROGS testibmformat )
+endif()
 OD_INIT_MODULE()
 
 
