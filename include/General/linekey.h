@@ -13,10 +13,12 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "bufstring.h"
+
 class IOPar;
 
-
-/*!\brief Key for a line in a line set */
+/*!
+\brief Key for a line in a line set.
+*/
 
 mExpClass(General) LineKey : public BufferString
 {
@@ -51,8 +53,9 @@ public:
 };
 
 
-
-/*!\brief class providing a current line key */
+/*!
+\brief Class providing a current line key.
+*/
 
 mExpClass(General) LineKeyProvider
 {
