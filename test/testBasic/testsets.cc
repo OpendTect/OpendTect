@@ -32,15 +32,15 @@ public:
 
 };
 
-#define mPrElems(msg) { \
+#define mPrElems(msg ) { \
     std::cerr << msg << std::endl << '\t'; \
     for ( int idx=0; idx<des.size(); idx++ ) \
-	{ des[idx].print(); std::cerr << " | "; } \
+	{ mPrintFunc; std::cerr << " | "; } \
     std::cerr << std::endl; }
 
-#define mErrRet(msg) \
+#define mErrRet(msg ) \
 { \
-    mPrElems("-> Failure ...") \
+    mPrElems("-> Failure ..." ) \
     std::cerr << msg << " failed.\n"; \
     return 1; \
 }
@@ -48,9 +48,11 @@ public:
 #define mRetAllOK() \
     std::cerr << "All OK.\n" << std::endl; \
     return 0;
+
+#define mPrintFunc des[idx].print()
 	
 
-static int testFindFns()
+static int testTypeSetFind()
 {
     std::cerr << std::endl;
     TypeSet<DataElem> des( 6, DataElem() );
@@ -62,7 +64,7 @@ static int testFindFns()
     des[5] = DataElem( 8, 0.1 );
     const DataElem& des0 = des[0];
     const DataElem& des3 = des[3];
-    mPrElems("testFindFns")
+    mPrElems("testTypeSetFind")
 
     if ( des.count(des0) != 2 )
 	mErrRet("count" );
@@ -89,7 +91,7 @@ static int testFindFns()
 }
 
 
-static int testSetFns()
+static int testTypeSetSetFns()
 {
     std::cerr << std::endl;
     TypeSet<DataElem> des;
@@ -101,7 +103,7 @@ static int testSetFns()
     const DataElem des1( des[1] );
     const DataElem des2( des[2] );
     const DataElem des3( des[3] );
-    mPrElems("testSetFns")
+    mPrElems("testTypeSetSetFns")
 
     DataElem el( des.pop() );
     if ( des.size() != 3 || des[0] != des0 || des[1] != des1 || des[2] != des2 )
@@ -126,14 +128,53 @@ static int testSetFns()
     mRetAllOK()
 }
 
+#undef mPrintFunc
+#define mPrintFunc std::cerr << des[idx]
+
+static int testObjSetFind()
+{
+    std::cerr << std::endl;
+    ObjectSet<DataElem> des;
+    des += new DataElem( 1, 0.1 );
+    des += new DataElem( 2, 0.2 );
+    des += new DataElem( 3, 0.3 );
+    des += new DataElem( 1, 0.4 );
+    des += new DataElem( 7, 0.1 );
+    des += new DataElem( 8, 0.1 );
+    DataElem* des0 = des[0];
+    DataElem* des4 = des[3];
+
+    des.insertAt( des0, 3 );
+    
+    mPrElems("testObjSetFind")
+
+    if ( des.indexOf( des0 ) != 0 )
+	mErrRet("indexOf elem0 != 0");
+
+    if ( !des.isPresent(des4) )
+	mErrRet("isPresent fails for 4th element" );
+    
+    if ( des.isPresent( 0 ) )
+	mErrRet("isPresent returns true for non-existing");
+    
+    des.swap( 0, 4 );
+    
+    if ( des.indexOf( des4 ) != 0 )
+	mErrRet("indexOf swapped elem3 != 0");
+    
+
+    mRetAllOK()
+}
+
 
 
 int main( int narg, char** argv )
 {
     SetProgramArgs( narg, argv );
 
-    int res = testFindFns();
-    res += testSetFns();
+    int res = testTypeSetFind();
+    res += testTypeSetSetFns();
+    res += testObjSetFind();
 
     return res;
 }

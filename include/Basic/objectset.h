@@ -289,17 +289,14 @@ T* ObjectSet<T>::operator[]( const T* t ) const
 template <class T> inline
 typename ObjectSet<T>::size_type ObjectSet<T>::indexOf( const T* ptr ) const
 {
-    const size_type sz = size();
-    for ( size_type idx=0; idx<sz; idx++ )
-	if ( (const T*)vec_[idx] == ptr ) return idx;
-	    return -1;
+    return vec_.indexOf( (void*) ptr, true );
 }
 
 
 template <class T> inline
 bool ObjectSet<T>::isPresent( const T* ptr ) const
 {
-    return indexOf(ptr) >= 0;
+    return vec_.isPresent( (void*) ptr );
 }
 
 
@@ -324,11 +321,11 @@ ObjectSet<T>& ObjectSet<T>::operator -=( T* ptr )
 template <class T> inline
 void ObjectSet<T>::swap( od_int64 idx0, od_int64 idx1 )
 {
-    if ( idx0<0 || idx0>=size() || idx1<0 || idx1>=size() )
-	return;
-    void* tmp = vec_[(size_type)idx0];
-    vec_[(size_type)idx0] = vec_[(size_type)idx1];
-    vec_[(size_type)idx1] = tmp;
+#ifdef __debug__
+    if ( !validIdx(idx0) || !validIdx(idx1) )
+	DBG::forceCrash(true);
+#endif
+    vec_.swap( idx0, idx1 );
 }
 
 
@@ -345,9 +342,15 @@ void ObjectSet<T>::reverse()
 template <class T> inline
 T* ObjectSet<T>::replace( size_type idx, T* newptr )
 {
-    if ( idx<0 || idx>=size() ) return 0;
+    if ( !validIdx(idx) )
+#ifdef __debug__
+	DBG::forceCrash(true);
+#else
+	return 0;
+#endif
     T* ptr = (T*)vec_[idx];
-    vec_[idx] = (void*)newptr; return ptr;
+    vec_[idx] = (void*)newptr;
+    return ptr;
 }
 
 
