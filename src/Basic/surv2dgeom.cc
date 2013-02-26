@@ -924,7 +924,7 @@ bool Survey::Geometry2D::includes( int line, int tracenr ) const
 
 
 BufferString Survey::Geometry2D::makeUniqueLineName( const char* lsnm,
-													 const char* lnm )
+						     const char* lnm )
 {
     BufferString newlnm( lsnm );
     newlnm.add( "-" );
