@@ -157,6 +157,7 @@ void uiViewer2DMainWin::posDlgPushed( CallBacker* )
     {
 	BufferStringSet gathernms;
 	getGatherNames( gathernms );
+	cs_.zrg.step = (cs_.zrg.stop-cs_.zrg.start)/10.0f;
 	posdlg_ = new uiViewer2DPosDlg( this, is2D(), cs_, gathernms,
 					!isStored() );
 	posdlg_->okpushed_.notify( mCB(this,uiViewer2DMainWin,posDlgChgCB) );
@@ -175,11 +176,12 @@ bool uiViewer2DMainWin::isStored() const
 }
 
 
-TypeSet<BinID> uiViewer2DMainWin::getStartupPositions( const BinID& bid,
-	const StepInterval<int>& trcrg, bool isinl ) const
+void uiViewer2DMainWin::getStartupPositions( const BinID& bid,
+	const StepInterval<int>& trcrg, bool isinl, TypeSet<BinID>& bids ) const
 {
-    TypeSet<BinID> bids;
-    const int approxstep = trcrg.width()/sStartNrViewers;
+    bids.erase();
+    int approxstep = trcrg.width()/sStartNrViewers;
+    if ( !approxstep ) approxstep = 1;
     const int starttrcnr = isinl ? bid.crl : bid.inl;
     for ( int trcnr=starttrcnr; trcnr<=trcrg.stop; trcnr+=approxstep )
     {
@@ -198,8 +200,6 @@ TypeSet<BinID> uiViewer2DMainWin::getStartupPositions( const BinID& bid,
 	    continue;
 	bids.insert( 0, posbid );
     }
-
-    return bids;
 }
 
 
@@ -253,7 +253,8 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 			    mCB(this,uiStoredViewer2DMainWin,posSlcChgCB));
     }
 
-    TypeSet<BinID> bids = getStartupPositions( bid, trcrg, isinl );
+    TypeSet<BinID> bids;
+    getStartupPositions( bid, trcrg, isinl, bids );
     gatherinfos_.erase();
     for ( int idx=0; idx<bids.size(); idx++ )
     {
@@ -436,20 +437,28 @@ void uiSyntheticViewer2DMainWin::setDataPacks( const TypeSet<GatherInfo>& dps )
 					   gatherinfos_[0].bid_.inl,1) );
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
 	trcrg.include( gatherinfos_[idx].bid_.crl, false );
+    TypeSet<BinID> selbids;
+    getStartupPositions( gatherinfos_[0].bid_, trcrg, true, selbids );
+    
+    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
+    {
+	if ( selbids.isPresent(gatherinfos_[idx].bid_) )
+	    gatherinfos_[idx].isselected_ = true;
+	else
+	    gatherinfos_[idx].isselected_ = false;
+    }
+
     cs_.hrg.setCrlRange( trcrg );
-    posDlgPushed( 0 );
     setUpView();
     reSizeSld(0);
 }
-
 
 void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 {
     if ( !ginfo.isselected_ ) return;
 
-    Interval<float> zrg( mUdf(float), 0 );
     uiGatherDisplay* gd = new uiGatherDisplay( 0 );
-    PreStack::Gather* gather = new PreStack::Gather;
+    PreStack::Gather* gather;
     DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( ginfo.dpid_ );
     mDynamicCast(PreStack::Gather*,gather,dp);
 
@@ -460,6 +469,7 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 	return;
     }
 
+    cs_.zrg.include( gather->zRange(), false );
     gd->setGather( gather->id() );
     uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
     setGatherInfo( gdi, ginfo );
