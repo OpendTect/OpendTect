@@ -81,6 +81,7 @@ mClass uiWellPropSel : public uiGroup
 public:
 			uiWellPropSel(uiParent*,const PropertyRefSelection&);
 
+			//do NOT use, will be removed shortly
     void		setLogs(const Well::LogSet&);
 
 			//do NOT use, will be removed shortly
@@ -108,6 +109,8 @@ public:
     void		setWellIDMain(const MultiID& wid);
     MultiID		getWellIDMain();
     uiPropSelFromList*	getPropSelFromListByName(const BufferString&);
+    // od4.4 binary compatibility - corresponds to setLogs in od
+    bool		setLogsBool(const Well::LogSet&);
 
 protected:
     void		updateSelCB(CallBacker*);
