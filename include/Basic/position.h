@@ -255,6 +255,7 @@ public:
 				TraceID(GeomID geomid,int linenr,int trcnr);
 
     static GeomID		std3DGeomID();
+    static GeomID		cUndefGeomID();
     
     int&			trcNr()		{ return pos_.trcNr(); }
     int				trcNr() const	{ return pos_.trcNr(); }

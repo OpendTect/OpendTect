@@ -22,11 +22,13 @@ void HorSampling::init( bool tosi )
 	start = SI().sampling(false).hrg.start;
 	stop = SI().sampling(false).hrg.stop;
 	step = SI().sampling(false).hrg.step;
+	geomid_ = TraceID::std3DGeomID();
     }
     else
     {
 	start.inl = start.crl = stop.inl = stop.crl = mUdf(int);
 	step.inl = step.crl = 1;
+	geomid_ = TraceID::cUndefGeomID();
     }
 }
 

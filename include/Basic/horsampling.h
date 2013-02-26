@@ -107,7 +107,7 @@ public:
     BinID		start;
     BinID		stop;
     BinID		step;
-
+    TraceID::GeomID	geomid_;
 };
 
 

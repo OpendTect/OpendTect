@@ -299,3 +299,7 @@ const TraceID& TraceID::udf()
 TraceID::GeomID TraceID::std3DGeomID()
 { return Survey::GeometryManager::cDefault3DGeom(); }
 
+
+TraceID::GeomID TraceID::cUndefGeomID()
+{ return Survey::GeometryManager::cUndefGeomID(); }
+

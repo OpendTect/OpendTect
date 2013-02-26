@@ -73,6 +73,7 @@ public:
     
     bool			fillGeometries();
     static TraceID::GeomID	cDefault3DGeom() { return -1; }
+    static TraceID::GeomID	cUndefGeomID() { return mUdf(TraceID::GeomID); }
 
 protected:
     void			addGeometry(Geometry*);
