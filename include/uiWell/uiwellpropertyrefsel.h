@@ -76,7 +76,7 @@ mExpClass(uiWell) uiWellPropSel : public uiGroup
 public:
 			uiWellPropSel(uiParent*,const PropertyRefSelection&);
 
-    void		setLogs(const Well::LogSet&);
+    bool		setLogs(const Well::LogSet&);
 
     bool		setLog(const PropertyRef::StdType,const char*,
 	    			bool check,const UnitOfMeasure*, int idx);

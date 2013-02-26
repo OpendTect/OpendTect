@@ -229,8 +229,9 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
 }
 
 
-void uiWellPropSel::setLogs( const Well::LogSet& logs  )
+bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
 {
+    bool propertyhasnoinput = false;
     for ( int iprop=0; iprop<propflds_.size(); iprop++ )
     {
 	BufferStringSet lognms;
@@ -245,6 +246,16 @@ void uiWellPropSel::setLogs( const Well::LogSet& logs  )
 					propref, altpropref );
 
 	propflds_[iprop]->setNames( lognms );
+
+	if ( !logs.size() )
+	{
+	    propertyhasnoinput = true;
+	    const UnitOfMeasure* nouom = 0;
+	    propflds_[iprop]->setUseAlternate( false );
+	    propflds_[iprop]->setUOM ( *nouom );
+	    continue;
+	}
+
 	int logidx = -1;
 	int logidxalt = -1;
 	for ( int ipropidx=0; ipropidx<propidx.size(); ipropidx++)
@@ -293,6 +304,11 @@ void uiWellPropSel::setLogs( const Well::LogSet& logs  )
 	propflds_[iprop]->set( logs.getLog(propidx[logidx]).name(),
 			       isaltpropref[logidx], uom );
     }
+
+    if ( propertyhasnoinput )
+	return false;
+
+    return true;
 }
 
 
@@ -303,8 +319,10 @@ bool uiWellPropSel::isOK() const
 	if ( !strcmp ( propflds_[idx]->text(), sKeyPlsSel() ) )
 	{
 	    BufferString propnm( propflds_[idx]->propRef().name() );
-	    BufferString msg( "Please select a log for " ); msg += propnm; 
-	    uiMSG().error( msg.buf() ); return false;
+	    BufferString msg( "Please create/select a log for " );
+	    msg += propnm;
+	    uiMSG().error( msg.buf() );
+	    return false;
 	}
     }
     return true;

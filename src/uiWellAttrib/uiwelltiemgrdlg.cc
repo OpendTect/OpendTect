@@ -190,7 +190,15 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
     wtsetup_.wellid_ = wllctio_.ioobj->key();
 
     logsfld_->wellid_ = wtsetup_.wellid_;
-    logsfld_->setLogs( wd_->logs() );
+
+    if ( !logsfld_->setLogs(wd_->logs()) )
+    {
+	BufferString errmsg = "This well has no valid log to use as input";
+	errmsg += "\n";
+	errmsg += "Use well manager to either import or create your logs";
+	uiMSG().error( errmsg );
+	return;
+    }
 
     used2tmbox_->display( wr.getD2T() && !mIsUnvalidD2TM((*wd_)) );
     used2tmbox_->setChecked( wr.getD2T() && !mIsUnvalidD2TM((*wd_)) );
