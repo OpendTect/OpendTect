@@ -31,7 +31,7 @@ public:
     virtual bool	is2D() const					= 0;
     TraceID::GeomID	getGeomID() const { return geomid_; }
     void		setGeomID( TraceID::GeomID id ) { geomid_ = id; }
-    virtual Coord	toCoord(const TraceID& tid) const;
+    Coord		toCoord(const TraceID& tid) const;
     virtual Coord	toCoord(int linenr,int tracenr) const		= 0;
     virtual TraceID	nearestTrace(const Coord&,float* distance) const= 0;
     virtual TraceID	getTrace(const Coord&,float maxdist) const;
