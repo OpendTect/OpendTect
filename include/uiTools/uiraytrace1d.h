@@ -62,8 +62,6 @@ protected:
 
     uiGenInput* 	offsetfld_;
     uiGenInput* 	offsetstepfld_;
-    uiGenInput*		blockfld_;
-
     uiGenInput*		lastfld_;
 };
 

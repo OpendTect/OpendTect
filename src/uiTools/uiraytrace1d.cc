@@ -125,7 +125,6 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     , offsetfld_( 0 ) 
     , offsetstepfld_( 0 )
     , lastfld_( 0 )
-    , blockfld_(0)
 {
     BufferString xylbl( SI().getXYUnitString(true) );
 
@@ -143,18 +142,6 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 	offsetstepfld_->setValue( s.offsetrg_.step );
 	lastfld_ = offsetfld_; 
     }
-
-    BufferString blocklbl = "Block model ";
-    blocklbl += "Threshold (%)";
-    blockfld_ = new uiGenInput( this, blocklbl );
-    blockfld_->setWithCheck( true );
-    blockfld_->setChecked( true );
-    if ( lastfld_ )
-	blockfld_->attach( alignedBelow, lastfld_ );
-
-    blockfld_->setElemSzPol( uiObject::Small );
-    blockfld_->setValue( 1 );
-    lastfld_ = blockfld_; 
 
     if ( s.convertedwaves_ )
     {
@@ -202,16 +189,6 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 	}
     }
 
-    if ( blockfld_ )
-    {
-	bool isblock = false;
-	par.getYN(  RayTracer1D::sKeyBlock(), isblock );
-	blockfld_->setChecked( isblock );
-	float blockval;
-	par.get( RayTracer1D::sKeyBlockRatio(), blockval );
-	blockfld_->setValue( blockval * 100.f ); 
-    }
-
     return true;
 }
 
@@ -240,12 +217,6 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 
     par.set( RayTracer1D::sKeyOffset(), offsets );
     par.setYN( RayTracer1D::sKeyReflectivity(), doreflectivity_);
-
-    if ( blockfld_ )
-    {
-	par.setYN( RayTracer1D::sKeyBlock(), blockfld_->isChecked() );
-	par.set( RayTracer1D::sKeyBlockRatio(), blockfld_->getfValue() / 100.f);
-    }
 }
 
 
