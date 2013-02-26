@@ -517,6 +517,9 @@ void uiTieWinMGRDlg::set2DSeis() const
     {
 	BufferString lineidstr;
 	PtrMan<IOObj> lsobj = IOM().get( MultiID(lsid) );
+	if ( !lsobj )
+	    return;
+
 	BufferString attrnm = mGetPar( sKeyDefaultAttrib );
 	if ( lsobj && attrnm.isEmpty() )
 	{
