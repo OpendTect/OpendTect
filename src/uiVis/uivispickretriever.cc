@@ -157,29 +157,26 @@ void uiVisPickRetriever::resetPickedPos()
 }
 
 
-bool uiVisPickRetriever::isZTransformed() const
+const ZAxisTransform* uiVisPickRetriever::getZAxisTransform() const
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	if ( scenes_[idx] && scenes_[idx]->id()==pickedscene_ )
-	    return scenes_[idx]->getZAxisTransform(); 
+	    return scenes_[idx]->getZAxisTransform();
     }
-    
-    return false;
+
+    return 0;
 }
 
 
-float uiVisPickRetriever::getUntransformedZ() const
+int uiVisPickRetriever::unTransformedSceneID() const
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
-	if ( scenes_[idx] && scenes_[idx]->id()==pickedscene_ )
-	{
-	    const ZAxisTransform* zt = scenes_[idx]->getZAxisTransform();
-	    return zt ? zt->transformBack(pickedpos_) : pickedpos_.z; 
-	}
+	if ( scenes_[idx] && !scenes_[idx]->getZAxisTransform() ) 
+	    return scenes_[idx]->id();
     }
 
-    return mCast(float,pickedpos_.z);
+    return -1;
 }
 

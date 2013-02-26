@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "keyenum.h"
 #include "refcount.h"
+#include "zaxistransform.h"
 
 class Coord3;
 namespace PosInfo { class GeomID; }
@@ -53,8 +54,8 @@ public:
     				/*!<Should normally only be called from
 				    application initiation. */
     OD::ButtonState		buttonstate_;
-    virtual bool		isZTransformed() const			= 0;
-    virtual float		getUntransformedZ() const		= 0;
+    virtual int			unTransformedSceneID() const		= 0;
+    virtual const ZAxisTransform* getZAxisTransform() const		= 0;
 
 protected:
     static RefMan<PickRetriever> instance_;
