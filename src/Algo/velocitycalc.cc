@@ -1422,7 +1422,7 @@ void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
     for ( int idx=0; idx<modelsize; idx++ )
     {
 	const float pvel = inmdl[idx].vel_;
-	values[idx] += pvel;
+	values[idx] = pvel;
 	if ( mIsUdf(pvel) || mIsZero(pvel,1e-3) )
 	    return;
     }
@@ -1470,7 +1470,7 @@ void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
 	for ( int idx=1; idx<modelsize; idx++ )
 	{
 	    const float curval = compvals[idx];
-	    mValRatio( icomp, idx) += curval < prevval
+	    mValRatio( icomp, idx) = curval < prevval
 				   ? prevval / curval - 1.f
 				   : curval / prevval - 1.f;
 	    prevval = curval;
@@ -1488,10 +1488,7 @@ void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
 	while ( true )
 	{
 	    const int width = curblock.width();
-	    if ( !width )
-		break;
-	    
-	    if ( width==1 )
+	    if ( width==0 )
 	    {
 		mAddBlock( curblock );
 		break;
