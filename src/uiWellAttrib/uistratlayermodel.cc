@@ -357,6 +357,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     gentools_->genReq.notify( mCB(this,uiStratLayerModel,genModels) );
     synthdisp_->wvltChanged.notify( mCB(this,uiStratLayerModel,wvltChg) );
     synthdisp_->zoomChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
+    synthdisp_->viewChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
     synthdisp_->modSelChanged.notify( mCB(this,uiStratLayerModel,modSelChg) );
     synthdisp_->layerPropSelNeeded.notify(
 			    mCB(this,uiStratLayerModel,selElasticPropsCB) );
@@ -724,7 +725,6 @@ bool uiStratLayerModel::openGenDesc()
 	    		    const_cast<uiStratLayerModel*>(this) );
     const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
 
-    moddisp_->setZoomBox( uiWorldRect(mUdf(double),0,0,0) );
     BufferString edtyp;
     descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
     BufferString profilestr( "Profile" );
@@ -732,14 +732,10 @@ bool uiStratLayerModel::openGenDesc()
     {
 	gentools_->genReq.trigger();
 	//Set when everything is in place.
-	moddisp_->modelChanged();
-	synthdisp_->modelChanged();
     }
 
     if ( !useDisplayPars( desc_.getWorkBenchParams() ))
 	return false;
-
-    useSyntheticsPars( desc_.getWorkBenchParams() );
 
     if ( GetEnvVarYN("DTECT_EXPORT_LAYERMODEL") )
     {
@@ -791,9 +787,12 @@ void uiStratLayerModel::genModels( CallBacker* )
     setModelProps();
     setElasticProps();
 
+    if ( !useSyntheticsPars(desc_.getWorkBenchParams()) )
+	return;
+
+    moddisp_->setZoomBox( uiWorldRect(mUdf(double),0,0,0) );
     moddisp_->modelChanged();
     synthdisp_->modelChanged();
-    useSyntheticsPars( desc_.getWorkBenchParams() );
     levelChg( 0 );
     newModels.trigger();
 

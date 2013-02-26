@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimultiflatviewcontrol.h"
 #include "uimsg.h"
 #include "uipsviewer2dmainwin.h"
+#include "uipsviewer2dposdlg.h"
 #include "uiraytrace1d.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
@@ -69,6 +70,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , levelaux_(0)
     , wvltChanged(this)
     , zoomChanged(this)
+    , viewChanged(this)
     , modSelChanged(this)		       
     , layerPropSelNeeded(this)
     , longestaimdl_(0)
@@ -136,8 +138,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 				mCB(this,uiStratSynthDisp,viewPreStackPush) );
     prestackbut_->attach( rightOf, offsetposfld_);
 
-    cleanSynthetics();
-
     vwr_ = new uiFlatViewer( this );
     vwr_->rgbCanvas().disableImageSave();
     vwr_->setExtraBorders( uiRect( 0, 0 , 0, 0 ) );
@@ -154,6 +154,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.mappersetup_.symmidval_ =
 	app.ddpars_.vd_.mappersetup_.symmidval_ = 0;
+    vwr_->viewChanged.notify( mCB(this,uiStratSynthDisp,viewChg) );
 
     uiFlatViewStdControl::Setup fvsu( this );
     fvsu.withedit(true).withthumbnail(false).withcoltabed(false)
@@ -269,13 +270,6 @@ void uiStratSynthDisp::setSelectedTrace( int st )
 	LineStyle( LineStyle::Dot, 2, Color::DgbColor() );
 
     vwr_->handleChange( FlatView::Viewer::Annot, true );
-
-    if ( prestackwin_ )
-    {
-	NotifyStopper poschgstop( modelposfld_->positionChg );
-	modelposfld_->setValue( st );
-	displayPreStackDirSynthetic( currentsynthetic_ );
-    }
 }
 
 
@@ -390,7 +384,8 @@ void uiStratSynthDisp::setCurrentWavelet()
 void uiStratSynthDisp::wvltChg( CallBacker* )
 {
     setCurrentWavelet();
-    syntheticDataParChged( 0 );
+    syntheticChanged( 0 );
+    displaySynthetic( currentsynthetic_ );
 }
 
 
@@ -448,6 +443,12 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 }
 
 
+void uiStratSynthDisp::viewChg( CallBacker* )
+{
+    viewChanged.trigger();
+}
+
+
 void uiStratSynthDisp::zoomChg( CallBacker* )
 {
     zoomChanged.trigger();
@@ -458,7 +459,8 @@ float uiStratSynthDisp::centralTrcShift() const
 {
     if ( !dispflattened_ ) return 0.0;
     const int centrcidx = mNINT32( vwr_->curView().centre().x );
-    const SeisTrc* centtrc = postStackTraces().get( centrcidx );
+    const SeisTrc* centtrc =
+	postStackTraces().size() ? postStackTraces().get( centrcidx ) :  0;
     if ( !centtrc ) return 0.0f;
     return centtrc->info().pick;
 }
@@ -502,7 +504,6 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 
 void uiStratSynthDisp::modelChanged()
 {
-    cleanSynthetics();
     doModelChange();
 }
 
@@ -562,6 +563,7 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
 
     vwr_->setPack( true, dp->id(), false, !hadpack );
     vwr_->setPack( false, dp->id(), false, !hadpack );
+    levelSnapChanged( 0 );
 }
 
 
@@ -579,12 +581,14 @@ void uiStratSynthDisp::displayPreStackDirSynthetic( const SyntheticData* sd )
     for ( int idx=0; idx<gathers.size(); idx++ )
     {
 	PreStack::Gather* gather = new PreStack::Gather( *gathers[idx] );
+	gather->setZRange( gathers[idx]->zRange() );
 	DPM(DataPackMgr::FlatID()).add( gather );
 
 	PreStackView::GatherInfo gatherinfo;
 	gatherinfo.gathernm_ = sd->name();
 	gatherinfo.bid_ = gather->getBinID();
 	gatherinfo.dpid_ = gather->id();
+	gatherinfo.isselected_ = true;
 	gatherinfos += gatherinfo;
     }
 
@@ -594,6 +598,18 @@ void uiStratSynthDisp::displayPreStackDirSynthetic( const SyntheticData* sd )
     mapper.cliprate_ = Interval<float>(0.0,0.0);
     mapper.autosym0_ = true;
     mapper.symmidval_ = 0.0;*/
+}
+
+
+void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
+{
+    BufferStringSet allgnms, selgnms;
+    for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx++ )
+	allgnms.addIfNew( stratsynth_.getSyntheticByIdx(idx)->name() );
+    prestackwin_->getGatherNames( selgnms );
+    PreStackView::uiViewer2DSelDataDlg seldlg( prestackwin_, allgnms, selgnms );
+    if ( seldlg.go() )
+	prestackwin_->setGatherNames( selgnms );
 }
 
 
@@ -610,17 +626,11 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* cb )
 	return;
     prestackwin_ =
 	new PreStackView::uiSyntheticViewer2DMainWin(this,"Prestack view");
+    if ( prestackwin_ )
+	prestackwin_->seldatacalled_.notify(
+		mCB(this,uiStratSynthDisp,selPreStackDataCB) );
     displayPreStackDirSynthetic( currentsynthetic_ );
     prestackwin_->show();
-    uiToolBar* tb = prestackwin_->control()->toolBar();
-    modelposfld_ = new uiSynthSlicePos( tb, "Model" );
-    tb->addObject( modelposfld_->mainObject() );
-    modelposfld_->positionChg.notify( 
-	    mCB(this,uiStratSynthDisp,modelPosChged) );
-    StepInterval<float> ls(  1, mCast(float,layerModel().size()), 1 );
-    modelposfld_->setLimitSampling( ls );
-
-    prestackwin_->setInitialSize( 300, 500 );
 }
 
 
@@ -677,12 +687,21 @@ void uiStratSynthDisp::doModelChange()
 
 void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 {
-    mCBCapsuleUnpack(BufferString,synthname,cb);
-    if ( datalist_->box()->isPresent(synthname) )
+    BufferString syntheticnm;
+    if ( cb )
     {
-	datalist_->box()->setCurrentItem( synthname );
+	mCBCapsuleUnpack(BufferString,synthname,cb);
+	syntheticnm = synthname;
+    }
+    else
+	syntheticnm = datalist_->box()->text();
+
+    if ( datalist_->box()->isPresent(syntheticnm) )
+    {
+	datalist_->box()->setCurrentItem( syntheticnm );
+	stratsynth_.removeSynthetic( syntheticnm );
+	stratsynth_.addSynthetic();
 	setCurrentSynthetic();
-	currentsynthetic_->fillGenParams( stratsynth_.genParams() );
     }
 }
 
@@ -711,7 +730,6 @@ void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 
 void uiStratSynthDisp::addEditSynth( CallBacker* )
 {
-    const bool newsynthgendlg = !synthgendlg_;
     if ( !synthgendlg_ )
     {
 	synthgendlg_ = new uiSynthGenDlg( this, stratsynth_ );
@@ -723,22 +741,14 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 			    mCB(this,uiStratSynthDisp,genNewSynthetic) );
     }
 
+    synthgendlg_->putToScreen();
     synthgendlg_->go();
-    if ( newsynthgendlg )
-	synthgendlg_->button( uiDialog::OK )->activated.notify(
-			    mCB(this,uiStratSynthDisp,syntheticDataParChged) );
 }
 
 
 void uiStratSynthDisp::offsetChged( CallBacker* )
 {
     displayPostStackDirSynthetic( currentsynthetic_ );
-}
-
-
-void uiStratSynthDisp::modelPosChged( CallBacker* )
-{
-    displayPreStackDirSynthetic( currentsynthetic_ );
 }
 
 
@@ -768,16 +778,6 @@ const PropertyRefSelection& uiStratSynthDisp::modelPropertyRefs() const
 
 const ObjectSet<const TimeDepthModel>* uiStratSynthDisp::d2TModels() const
 { return d2tmodels_; }
-
-
-void uiStratSynthDisp::syntheticDataParChged( CallBacker* cb )
-{
-    if ( !currentsynthetic_ ) return;
-    
-    if ( !cb || (synthgendlg_ && synthgendlg_->isCurSynthChanged()) )
-	stratsynth_.replaceSynthetic( currentsynthetic_->id_ );
-    doModelChange();
-}
 
 
 void uiStratSynthDisp::dataSetSel( CallBacker* )
@@ -887,15 +887,24 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	wvltfld_->setInput( genparams.wvltnm_ );
 	stratsynth_.setWavelet( wvltfld_->getWavelet() );
 	SyntheticData* sd = stratsynth_.addSynthetic( genparams );
-	if ( !sd ) continue;
+	if ( !sd )
+	{
+	    mErrRet(stratsynth_.errMsg(),);
+	    continue;
+	}
 
 	datalist_->box()->addItem( sd->name() );
+    }
+
+    if ( !stratsynth_.nrSynthetics() )
+    {
+	displaySynthetic( 0 );
+	return false;
     }
 
     setCurrentSynthetic();
     displaySynthetic( currentsynthetic_ );
     levelsnapselfld_->box()->setCurrentItem( snaplvl );
-    levelSnapChanged(0 );
 
     return true;
 }
@@ -1043,8 +1052,6 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 
     updateSynthNames();
     synthnmlb_->setSelected( 0, true );
-    typeChg(0);
-    putToScreen();
 }
 
 
@@ -1080,7 +1087,7 @@ void uiSynthGenDlg::nameChanged( CallBacker* )
 
 void uiSynthGenDlg::parsChanged( CallBacker* )
 {
-    getFromScreen();
+    if ( !getFromScreen() ) return;
     BufferString nm;
     stratsynth_.genParams().createName( nm );
     namefld_->setText( nm );
@@ -1136,14 +1143,15 @@ void uiSynthGenDlg::putToScreen()
     stackfld_->setChecked( !isps && offsets.size()>1 );
     
     bool donmo = true;
-    stratsynth_.genParams().raypars_.getYN(Seis::SynthGenBase::sKeyNMO(),donmo);
+    stratsynth_.genParams().raypars_.getYN(
+	    Seis::SynthGenBase::sKeyNMO(),donmo );
     nmofld_->setValue( donmo );
     
     float mutelen = Seis::SynthGenBase::cStdMuteLength();
     stratsynth_.genParams().raypars_.get(
-				Seis::SynthGenBase::sKeyMuteLength(), mutelen );
+	    Seis::SynthGenBase::sKeyMuteLength(), mutelen );
     mutelenfld_->setValue(
-	    mIsUdf(mutelen) ? mutelen : mutelen * ZDomain::Time().userFactor());
+	    mIsUdf(mutelen) ? mutelen : mutelen *ZDomain::Time().userFactor());
     
     float stretchlimit = Seis::SynthGenBase::cStdStretchLimit();
     stratsynth_.genParams().raypars_.get(
@@ -1157,8 +1165,20 @@ void uiSynthGenDlg::putToScreen()
 }
 
 
-void uiSynthGenDlg::getFromScreen() 
+bool uiSynthGenDlg::getFromScreen() 
 {
+    const char* nm = namefld_->text(); 
+    if ( !nm )
+	mErrRet("Please specify a valid name",return false);
+    
+    if ( mIsUdf(mutelenfld_->getfValue() ) || mutelenfld_->getfValue()<0 )
+	mErrRet( "The mutelength must be more than zero.", return false );
+    
+    if ( mIsUdf(stretchmutelimitfld_->getfValue()) ||
+	 stretchmutelimitfld_->getfValue()<0 )
+    {
+	mErrRet( "The stretch mute must be more than 0%", return false );
+    }
     stratsynth_.genParams().raypars_.setEmpty();
     rtsel_->fillPar( stratsynth_.genParams().raypars_ );
     const bool isps = !typefld_->getBoolValue();
@@ -1175,8 +1195,10 @@ void uiSynthGenDlg::getFromScreen()
     
     stratsynth_.genParams().raypars_.set( Seis::SynthGenBase::sKeyMuteLength(),
 		     mutelenfld_->getfValue() / ZDomain::Time().userFactor() );
-    stratsynth_.genParams().raypars_.set(Seis::SynthGenBase::sKeyStretchLimit(),
-			     mFromPercent( stretchmutelimitfld_->getfValue()) );
+    stratsynth_.genParams().raypars_.set(
+	    Seis::SynthGenBase::sKeyStretchLimit(),
+	    mFromPercent( stretchmutelimitfld_->getfValue()) );
+    return true;
 }
 
 
@@ -1191,20 +1213,7 @@ void uiSynthGenDlg::updateWaveletName()
 
 bool uiSynthGenDlg::acceptOK( CallBacker* )
 {
-    const char* nm = namefld_->text(); 
-    if ( !nm )
-	mErrRet("Please specify a valid name",return false);
-    
-    if ( mIsUdf(mutelenfld_->getfValue() ) || mutelenfld_->getfValue()<0 )
-	mErrRet( "The mutelength must be more than zero.", return false );
-    
-    if ( mIsUdf(stretchmutelimitfld_->getfValue()) ||
-	 stretchmutelimitfld_->getfValue()<0 )
-    {
-	mErrRet( "The stretch mute must be more than 0%", return false );
-    }
-
-    getFromScreen();
+    if ( !getFromScreen() ) return false;
     BufferString synthname( synthnmlb_->getText() );
     synthChanged.trigger( synthname );
     
@@ -1230,7 +1239,7 @@ bool uiSynthGenDlg::rejectOK( CallBacker* )
     if ( !nm )
 	mErrRet("Please specify a valid name",return false);
 
-    getFromScreen();
+    if ( !getFromScreen() ) return false;
     if ( !isCurSynthChanged() )
 	return true;
     BufferString msg( "Selected synthetic has been changed. "
@@ -1244,7 +1253,8 @@ bool uiSynthGenDlg::rejectOK( CallBacker* )
 
 bool uiSynthGenDlg::genNewCB( CallBacker* )
 {
-    getFromScreen();
+    if ( !getFromScreen() ) return false;
+
     if ( synthnmlb_->isPresent(stratsynth_.genParams().name_) )
     {
 	BufferString msg( "Synthectic data of name '" );

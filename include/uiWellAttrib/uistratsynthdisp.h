@@ -79,6 +79,7 @@ public:
 
     Notifier<uiStratSynthDisp>	wvltChanged;
     Notifier<uiStratSynthDisp>	zoomChanged;
+    Notifier<uiStratSynthDisp>	viewChanged;
     Notifier<uiStratSynthDisp>	layerPropSelNeeded;
     Notifier<uiStratSynthDisp>	modSelChanged;
 
@@ -89,6 +90,7 @@ public:
     void		modelChanged();
     bool		haveUserScaleWavelet();
     void		displaySynthetic(const SyntheticData*);
+    void		cleanSynthetics();
     float		centralTrcShift() const;
 
     uiMultiFlatViewControl* control() 	{ return control_; }
@@ -125,13 +127,11 @@ protected:
     uiLabeledComboBox*	levelsnapselfld_;
     uiSynthGenDlg*	synthgendlg_;
     uiSynthSlicePos*	offsetposfld_;
-    uiSynthSlicePos*	modelposfld_;
     PtrMan<TaskRunner>	taskrunner_;
     PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_;
 
     void		setCurrentSynthetic();
     void		setCurrentWavelet();
-    void		cleanSynthetics();
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
     void		updateSyntheticList();
@@ -145,16 +145,15 @@ protected:
     void		levelSnapChanged(CallBacker*);
     void		layerPropsPush(CallBacker*);
     void		offsetChged(CallBacker*);
-    void		syntheticDataParChged(CallBacker*);
-    void		modelPosChged(CallBacker*);
     void		scalePush(CallBacker*);
     void 		genNewSynthetic(CallBacker*);
     void		viewPreStackPush(CallBacker*);
     void		wvltChg(CallBacker*);
     void		zoomChg(CallBacker*);
+    void		viewChg(CallBacker*);
     void		syntheticRemoved(CallBacker*);
     void		syntheticChanged(CallBacker*);
-
+    void		selPreStackDataCB(CallBacker*);
 };
 
 
@@ -207,7 +206,7 @@ mExpClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
 public:
 				uiSynthGenDlg(uiParent*,StratSynth&);
 
-    void			getFromScreen();
+    bool			getFromScreen();
     void			putToScreen();
     void			updateSynthNames();
     void			updateWaveletName();

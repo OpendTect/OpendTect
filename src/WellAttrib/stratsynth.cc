@@ -41,9 +41,11 @@ SynthGenParams::SynthGenParams()
 	raypars_.set( sKey::Type(), facnms.get( facnms.size()-1 ) );
 
     RayTracer1D::setIOParsToZeroOffset( raypars_ );
-    raypars_.setYN( RayTracer1D::sKeyBlock(), true );
+    /*raypars_.setYN( RayTracer1D::sKeyBlock(), true );
     raypars_.set( RayTracer1D::sKeyBlockRatio(),
 	    	  RayTracer1D::cDefaultBlockRatio() );
+    raypars_.set( RayTracer1D::sKeyDensBlockVal(),
+	    	  RayTracer1D::cDefaultDensBlockVal() );*/
 }
 
 
@@ -122,7 +124,9 @@ void StratSynth::clearSynthetics()
 
 #define mErrRet( msg, act )\
 {\
-    errmsg_ = "Can not generate synthetics:\n";\
+    errmsg_ = "Can not generate synthetics ";\
+    errmsg_ += synthgenpar.name_;\
+    errmsg_ += " :\n";\
     errmsg_ += msg;\
     act;\
 }
@@ -153,7 +157,7 @@ SyntheticData* StratSynth::addSynthetic()
 
 SyntheticData* StratSynth::addSynthetic( const SynthGenParams& synthgen )
 {
-    SyntheticData* sd = generateSD( lm_, synthgen, 0 );
+    SyntheticData* sd = generateSD( lm_, synthgen, tr_ );
     if ( sd )
 	synthetics_ += sd;
     return sd;
@@ -278,6 +282,8 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	return 0;
 
     Seis::RaySynthGenerator synthgen;
+    BufferString capt( "Generating ", synthgenpar.name_ ); 
+    synthgen.setName( capt.buf() );
     synthgen.setWavelet( wvlt_, OD::UsePtr );
     const IOPar& raypars = synthgenpar.raypars_;
     synthgen.usePar( raypars );
