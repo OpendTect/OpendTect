@@ -247,7 +247,7 @@ bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
 
 	propflds_[iprop]->setNames( lognms );
 
-	if ( !logs.size() )
+	if ( lognms.size() < 2 || !propidx.size() )
 	{
 	    propertyhasnoinput = true;
 	    const UnitOfMeasure* nouom = 0;
