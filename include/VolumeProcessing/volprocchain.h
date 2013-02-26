@@ -46,9 +46,10 @@ mExpClass(VolumeProcessing) Chain
 public:
     				Chain();
 
-    void			setZStep(float z,bool zit) {zstep_=z,zit_=zit; }
-    float			getZStep() const	   { return zstep_; }
-    bool			zIsT() const		   { return zit_; }
+    void			setZStep( float z, bool zist )
+				{ zstep_=z; zist_ = zist; }
+    float			getZStep() const	{ return zstep_; }
+    bool			zIsT() const		{ return zist_; }
 
     int				nrSteps() const; 
     Step*			getStep(int);
@@ -67,6 +68,7 @@ public:
     const MultiID&		storageID() const { return storageid_; }
 
     bool			areSamplesIndependent() const;
+    bool			needsFullVolume() const;
 
     const char*			errMsg() const;
 
@@ -78,7 +80,7 @@ protected:
     ObjectSet<Step>		steps_;
 
     float			zstep_;
-    bool			zit_;
+    bool			zist_;
 
     BufferString		errmsg_;
 };
@@ -93,7 +95,6 @@ mExpClass(VolumeProcessing) Step
 {
 public:
 				mDefineFactoryInClass( Step, factory );
-    				Step();
     virtual			~Step();
 
     Chain&			getChain() { return *chain_; }
@@ -123,14 +124,14 @@ public:
 				    const StepInterval<int>& zrg);
 
     virtual bool		canInputAndOutputBeSame() const { return false;}
-    virtual bool		needsFullVolume() const { return true;}
+    virtual bool		needsFullVolume() const { return true; }
     const Attrib::DataCubes*	getOutput() const	{ return output_; }
     Attrib::DataCubes*		getOutput()		{ return output_; }
 
     virtual const VelocityDesc*	getVelDesc() const	{ return 0; }
 
     virtual bool		areSamplesIndependent() const { return true; }
-    				/*!<returns whether samples in the output
+				/*!<returns whether samples in the output
 				    are independent from each other.*/
 
     virtual Task*		createTask();
@@ -143,6 +144,8 @@ public:
     virtual const char*		errMsg() const { return 0; }
 
 protected:
+				Step();
+
     friend		class BinIDWiseTask;
     virtual bool	prefersBinIDWise() const		{ return false;}
     virtual bool	computeBinID(const BinID&,int threadid)	{ return false;}

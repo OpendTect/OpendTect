@@ -308,7 +308,7 @@ const char* ChainExecutor::message() const
 
 Chain::Chain()
     : zstep_( SI().zRange(true).step )
-    , zit_( SI().zIsTime() )
+    , zist_( SI().zIsTime() )
 {}
 
 
@@ -372,6 +372,18 @@ bool Chain::areSamplesIndependent() const
     }
 
     return true;
+}
+
+
+bool Chain::needsFullVolume() const
+{
+    for ( int idx=steps_.size()-1; idx>=0; idx-- )
+    {
+	if ( steps_[idx]->needsFullVolume() )
+	    return true;
+    }
+
+    return false;
 }
 
 
