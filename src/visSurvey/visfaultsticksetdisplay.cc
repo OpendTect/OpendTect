@@ -529,6 +529,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     HorizonDisplay* hordisp = 0;
     const MultiID* pickedmid = 0;
     const char* pickednm = 0;
+	int geomid = -1;
     PtrMan<Coord3> normal = 0;
     PtrMan<const MultiID> horid;
     BufferString horshiftname;
@@ -540,6 +541,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	pos = emfss_->getPos( mousepid );
 	pickedmid = fssg.pickedMultiID( mousepid.sectionID(), sticknr );
 	pickednm = fssg.pickedName( mousepid.sectionID(), sticknr );
+	geomid = fssg.pickedGeomID( mousepid.sectionID(), sticknr );
 	zdragoffset = 0;
     }
     else
@@ -554,6 +556,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    {
 		pickedmid = &s2dd->lineSetID();
 		pickednm = s2dd->name();
+		geomid = s2dd->geomID();
 		break;
 	    }
 	    mDynamicCast(HorizonDisplay*,hordisp,dataobj);

@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "samplfunc.h"
 #include "posinfo.h"
+#include "survgeom.h"
 #include "survinfo.h"
 #include "task.h"
 #include "zaxistransform.h"
@@ -120,7 +121,14 @@ void Seis2DDisplay::setLineInfo( const MultiID& lid, const char* lnm )
     if ( !seis2dobj )
 	return;
 
-    geomid_ = S2DPOS().getGeomID( seis2dobj->name(), lnm );
+#ifdef mNew2DGeometryImpl
+    geomid_ = Survey::GM().getGeomID( lnm );
+    if ( geomid_ < 0 )
+	geomid_ = Survey::GM().getGeomID( Survey::Geometry2D::makeUniqueLineName
+					(seis2dobj->name(),lnm) );
+#else
+    oldgeomid_ = S2DPOS().getGeomID( seis2dobj->name(), lnm );
+#endif
     setName( lnm );
     if ( linename_ )
     {
@@ -133,15 +141,23 @@ void Seis2DDisplay::setLineInfo( const MultiID& lid, const char* lnm )
 
 const char* Seis2DDisplay::getLineName() const
 {
-    if ( !geomid_.isOK() )
+#ifdef mNew2DGeometryImpl
+    return Survey::GM().getName( geomid_ );
+#else
+    if ( !oldgeomid_.isOK() )
 	return name();
 
-    S2DPOS().setCurLineSet( geomid_.lsid_ );
-    return S2DPOS().getLineName( geomid_.lineid_ );
+    S2DPOS().setCurLineSet( oldgeomid_.lsid_ );
+    return S2DPOS().getLineName( oldgeomid_.lineid_ );
+#endif
 }
 
 
 PosInfo::GeomID Seis2DDisplay::getGeomID() const
+{ return oldgeomid_; }
+
+
+int Seis2DDisplay::geomID() const
 { return geomid_; }
 
 
@@ -1058,8 +1074,12 @@ void Seis2DDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visSurvey::MultiTextureSurveyObject::fillPar( par, saveids );
 
-    par.set( "GeomID", geomid_.toString() );
+#ifdef mNew2DGeometryImpl
+    par.set( "GeomID", geomid_ );
+#else
+    par.set( "GeomID", oldgeomid_.toString() );
     par.set( sKeyLineSetID(), linesetid_ );
+#endif
     par.setYN( sKeyShowLineName(), lineNameShown() );
     const Interval<int> trcnrrg(
 	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start],
@@ -1085,9 +1105,9 @@ int Seis2DDisplay::usePar( const IOPar& par )
 	    reinterpret_cast<visBase::Texture2*>(text);
 
 	channels_->setColTabMapperSetup( 0,
-		texture->getColorTab().colorMapper().setup_ );
+	    texture->getColorTab().colorMapper().setup_ );
 	channels_->getChannels2RGBA()->setSequence( 0,
-		texture->getColorTab().colorSeq().colors() );
+	    texture->getColorTab().colorSeq().colors() );
 
 	Attrib::SelSpec as;
 	as.usePar( par );
@@ -1119,7 +1139,7 @@ int Seis2DDisplay::usePar( const IOPar& par )
 		}
 	    }
 	}
-	
+
 	bool showlinename = false;
 	par.getYN( sKeyShowLineName(), showlinename );
 	showLineName( showlinename );
@@ -1128,18 +1148,30 @@ int Seis2DDisplay::usePar( const IOPar& par )
     par.get( sKeyZRange(), trcdisplayinfo_.zrg );
 
     BufferString linename( name() );
-    par.get( sKeyLineSetID(), linesetid_ );
-    BufferString geomidstr;
-    if ( par.get("GeomID",geomidstr) )
+    if ( !par.get(sKeyLineSetID(), linesetid_) )
     {
-	geomid_.fromString( geomidstr.buf() );
-	PtrMan<IOObj> seis2dobj = IOM().get( linesetid_ );
-	if ( !seis2dobj )
-	    return -1;
-	S2DPOS().setCurLineSet( seis2dobj->name() );
-	linename = S2DPOS().getLineName( geomid_.lineid_ );
+	if ( par.get("GeomID",geomid_) )
+	{
+	    if ( geomid_ < 0 )
+		return -1;
+
+	    linename = Survey::GM().getName( geomid_ );
+	}
     }
-    
+    else
+    {
+	BufferString geomidstr;
+	if ( par.get("GeomID",geomidstr) )
+	{
+	    oldgeomid_.fromString( geomidstr.buf() );
+	    PtrMan<IOObj> seis2dobj = IOM().get( linesetid_ );
+	    if ( !seis2dobj )
+		return -1;
+	    S2DPOS().setCurLineSet( seis2dobj->name() );
+	    linename = S2DPOS().getLineName( oldgeomid_.lineid_ );
+	}
+    }
+
     setName( linename );
     if ( linename_ )
     {

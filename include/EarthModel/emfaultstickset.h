@@ -56,6 +56,7 @@ public:
 
     const MultiID*	pickedMultiID(const SectionID&,int sticknr) const;
     const char*		pickedName(const SectionID&,int sticknr) const;
+	int				pickedGeomID(const SectionID&,int sticknr)const;
 
     Geometry::FaultStickSet*
 			sectionGeometry(const SectionID&);
@@ -71,12 +72,15 @@ public:
 protected:
     Geometry::FaultStickSet*	createSectionGeometry() const;
 
+    int			indexOf(const SectionID& sid,int stricnr) const;
+
     struct StickInfo
     {
-	int		sid;
-	int		sticknr;
-	MultiID		pickedmid;
-	BufferString	pickednm;
+	int			sid;
+	int			sticknr;
+	int			geomid;
+	MultiID			pickedmid;
+	BufferString		pickednm;
     };
 
     ObjectSet<StickInfo>	 stickinfo_;
