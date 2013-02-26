@@ -136,17 +136,29 @@ void uiHistogramDisplay::setData( const DataPointSet& dpset )
 
 void uiHistogramDisplay::setData( const Array2D<float>* array )
 {
-    const float* data = array ? array->getData() : 0;
-    if ( !data ) return;
+    if ( !array ) return;
 
-    const int totalsz = mCast(int, array->info().getTotalSz() );
-    TypeSet<float> valarr;
-    for ( int idx=0; idx<totalsz; idx++ )
+    if ( array->getData() )
     {
-	if ( !mIsUdf(data[idx]) )
-	    valarr += data[idx];
+	setData( array->getData(), array->info().getTotalSz() );
+	return;
     }
-    setData( valarr.arr(), valarr.size() ); 
+
+    const int sz2d0 = array->info().getSize( 0 );
+    const int sz2d1 = array->info().getSize( 1 );
+    TypeSet<float> valarr;
+    for ( int idx0=0; idx0<sz2d0; idx0++ )
+    {
+	for ( int idx1=0; idx1<sz2d1; idx1++ )
+	{
+	    const float val = array->get( idx0, idx1 );
+	    if ( mIsUdf(val) ) continue;
+	    
+	    valarr += val;
+	}
+    }
+    rc_.setValues( valarr.arr(), valarr.size() );
+    updateAndDraw();
 }
 
 
