@@ -705,10 +705,11 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,visserv_->getObject(visid))
     if ( fd )
     {
-	const int attrnr = visServer()->getSelAttribNr();
 	const int id = fd->addDataPack( *data );
-	fd->setDataPackID( attrnr, id, 0 );
-	fd->setRandomPosData( attrnr, data, 0 );
+	fd->setDataPackID( attrib, id, 0 );
+	fd->setRandomPosData( attrib, data, 0 );
+	if ( visServer()->getSelAttribNr() == attrib )
+	    fd->useTexture( true, true ); // tree only, not at restore session
     }
     else
     {
