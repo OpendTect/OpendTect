@@ -212,6 +212,8 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 	SI().snapZ(zrg.start);
 	SI().snapZ(zrg.stop);
     }
+
+    zrg_ = zrg;
     int nrsamples = zrg.nrSteps()+1;
     if ( zrg.step>0 && (zrg.stop-zrg.atIndex(nrsamples-1))>fabs(zrg.step*0.5) )
 	nrsamples++;
