@@ -46,9 +46,9 @@ public:
     virtual void	getGatherNames(BufferStringSet& nms) const	= 0;
     virtual bool	is2D() const	{ return false; }
     bool		isStored() const;
-    TypeSet<BinID> 	getStartupPositions(const BinID& bid,
+    void		getStartupPositions(const BinID& bid,
 	    				    const StepInterval<int>& trcrg,
-					    bool isinl) const;
+					    bool isinl, TypeSet<BinID>&) const;
 
     Notifier<uiViewer2DMainWin> seldatacalled_;
 
