@@ -89,6 +89,15 @@ bool uiWellLogCalcInpData::getInp( uiWellLogCalc::InpData& inpdata )
 
     inpdata.noudf_ = udfbox_->isChecked();
     inpdata.wl_ = getLog();
+    if ( !inpdata.wl_ )
+    {
+	BufferString errmsg = "This well has no valid log to use as input,\n";
+        errmsg += "the well log has to be of the adequate property type.\n";	
+	errmsg += "Use well manager to either import or create your logs";      
+	uiMSG().error( errmsg );
+	return false;
+    }
+
     const char* logunitnm = inpdata.wl_->unitMeasLabel();
     const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
     const UnitOfMeasure* convertun = getUnit();
@@ -98,8 +107,6 @@ bool uiWellLogCalcInpData::getInp( uiWellLogCalc::InpData& inpdata )
     if ( logun == convertun )
 	return inpdata.wl_;
 
-    if ( !inpdata.wl_ )
-	return false;
 
     convertedlog_ = new Well::Log( *inpdata.wl_ );
     for ( int idx=0; idx<inpdata.wl_->size(); idx++ )
