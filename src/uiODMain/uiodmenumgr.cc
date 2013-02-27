@@ -719,7 +719,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	mAddTB( dtecttb_,"out_vol","Create seismic output",false,
 		seisOut3DCB);
 	mAddTB( dtecttb_,VolProc::uiChain::pixmapFileName(),
-		"Volume Builder",false,doVolProc);
+		"Volume Builder",false,doVolProcCB);
     }
     else
     {
@@ -732,7 +732,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	mAddTB(dtecttb_,"out_vol","Create 3D seismic output",false,
 	       seisOut3DCB);
 	mAddTB( dtecttb_,VolProc::uiChain::pixmapFileName(),
-		"Volume Builder",false,doVolProc);
+		"Volume Builder",false,doVolProcCB);
     }
     mAddTB(dtecttb_,"xplot_wells","Cross-plot Attribute vs Well data",
 	   false,doWellXPlot);
