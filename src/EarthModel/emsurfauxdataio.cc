@@ -203,38 +203,25 @@ BufferString dgbSurfDataWriter::createHovName( const char* base, int idx )
     return res;
 }
 
+#define mWriteData() \
+    if ( !stream_ ) return false; \
+    if ( binary_ ) \
+	stream_->write( (char*) &val, sizeof(val) ); \
+    else \
+	(*stream_) << val << '\n'; \
+    return true
+
 
 bool dgbSurfDataWriter::writeInt( int val )
-{
-    if ( binary_ )
-	stream_->write( (char*) &val, sizeof(val) );
-    else
-	(*stream_) << val << '\n' ;
-
-    return (*stream_);
-}
+{ mWriteData(); }
 
 
 bool dgbSurfDataWriter::writeInt64( od_int64 val )
-{
-    if ( binary_ )
-	stream_->write( (char*) &val, sizeof(val) );
-    else
-	(*stream_) << val << '\n' ;
-
-    return (*stream_);
-}
+{ mWriteData(); }
 
 
 bool dgbSurfDataWriter::writeFloat( float val )
-{
-    if ( binary_ )
-	stream_->write( (char*) &val ,sizeof(val) );
-    else
-	(*stream_) << val << '\n';
-
-    return (*stream_);
-}
+{ mWriteData(); }
 
 
 od_int64 dgbSurfDataWriter::nrDone() const 
@@ -408,6 +395,7 @@ int dgbSurfDataReader::nextStep()
 
 
 #define mReadData(interpreter) \
+    if ( !stream_ ) return false; \
     if ( interpreter ) \
     { \
 	char buf[sizeof(res)]; \
@@ -417,7 +405,7 @@ int dgbSurfDataReader::nextStep()
     else \
 	(*stream_) >> res; \
 \
-    return (*stream_);
+    return true;
 
 bool dgbSurfDataReader::readInt( int& res )
 { mReadData(intinterpreter_) }
