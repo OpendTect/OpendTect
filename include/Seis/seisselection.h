@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "seistype.h"
 #include "ranges.h"
+#include "position.h"
 class IOPar;
 class BinID;
 class LineKey;
