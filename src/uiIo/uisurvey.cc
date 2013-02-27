@@ -649,7 +649,7 @@ bool uiSurvey::rejectOK( CallBacker* )
 {
     if ( initialdatadir_ != GetBaseDataDir() )
     {
-	if ( !uiSetDataDir::setRootDataDir( initialdatadir_ ) )
+	if ( !uiSetDataDir::setRootDataDir( this, initialdatadir_ ) )
 	{
 	    uiMSG().error( "As we cannot reset to the old Data Root,\n"
 		    	   "You *have to* select a survey now!" );

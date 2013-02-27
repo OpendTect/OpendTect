@@ -12,10 +12,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisetdatadir.h"
 
 #include "uifileinput.h"
+#include "uifiledlg.h"
+#include "uitaskrunner.h"
+#include "uiselsimple.h"
+#include "uibutton.h"
+#include "uidesktopservices.h"
+#include "uisurveyzip.h"
 #include "uimsg.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "dirlist.h"
 #include "oddirs.h"
 #include "oddatadirmanip.h"
 #include "odinst.h"
@@ -27,9 +34,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #ifdef __win__
 # include "winutils.h"
 #endif
-
-
-extern "C" { const char* GetBaseDataDir(); }
 
 
 uiSetDataDir::uiSetDataDir( uiParent* p )
@@ -114,7 +118,7 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	}
     }
 
-    return setRootDataDir( datadir );
+    return setRootDataDir( this, datadir );
 }
 
 
@@ -128,19 +132,24 @@ static BufferString getInstalledDemoSurvey()
 	ret = demosurvfp.fullPath();
     }
 
+    if ( !File::exists(ret) )
+	ret.setEmpty();
+
     return ret;
 }
 
 
-bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
+bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 {
     BufferString datadir = inpdatadir;
-    const char* msg = OD_SetRootDataDir( datadir );
-    if ( !msg ) return true;
+    const char* retmsg = OD_SetRootDataDir( datadir );
+    if ( !retmsg ) return true;
 
-    const BufferString omffnm = FilePath( datadir ).add( ".omf" ).fullPath();
     const BufferString stdomf( mGetSetupFileName("omf") );
-    bool trycpdemosurv = false;
+
+#define mCrOmfFname FilePath( datadir ).add( ".omf" ).fullPath()
+    BufferString omffnm = mCrOmfFname;
+    bool offerunzipsurv = false;
 
     if ( !File::exists(datadir) )
     {
@@ -158,85 +167,85 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	if ( !File::createDir( datadir ) )
 	    mErrRet( "Cannot create the new directory.\n"
 		     "Please check if you have the required write permissions" )
-	File::copy( stdomf, omffnm );
-	if ( !File::exists(omffnm) )
-	    mErrRet( "Cannot copy a file to the new directory!" )
-
-	trycpdemosurv = true;
     }
 
-    if ( !OD_isValidRootDataDir(datadir) )
+    while ( !OD_isValidRootDataDir(datadir) )
     {
 	if ( !File::isDirectory(datadir) )
 	    mErrRet( "A file (not a directory) with this name already exists" )
-	if ( !File::exists(omffnm) )
+
+	if ( File::exists(omffnm) )
 	{
-	    if ( !uiMSG().askGoOn( "This is not an OpendTect data directory.\n"
-				  "Do you want it to be converted into one?" ) )
+	    // must be a survey directory (see OD_isValidRootDataDir())
+	    datadir = FilePath(datadir).pathOnly();
+	    omffnm = mCrOmfFname;
+	    offerunzipsurv = false;
+	    continue;
+	}
+
+	offerunzipsurv = true;
+	if ( !DirList(datadir).isEmpty() )
+	{
+	    BufferString msg( "The target directory:\n", datadir,
+		    "\nis not an OpendTect Data Root directory."
+		    "\nIt already contains files though."
+		    "\nDo you want to convert this directory into an "
+		    "OpendTect Data Root directory?"
+		    "\n(this process will not remove the existing files)" );
+	    if ( !uiMSG().askGoOn( msg ) )
 		return false;
-	    File::copy( stdomf, omffnm );
-	    if ( !File::exists(omffnm) )
-		mErrRet( "Could not convert the directory.\n"
-			 "Most probably you have no write permissions." )
+	}
 
-	    trycpdemosurv = true;
-	}
-	else
-	{
-	    FilePath fp( datadir, "Seismics" );
-	    if ( File::exists(fp.fullPath()) )
-	    {
-		fp.setFileName( 0 );
-		const BufferString probdatadir( fp.pathOnly() );
-		const BufferString umsg(
-			"This seems to be a survey directory.\n"
-			"We need the directory containing the survey dirs.\n"
-			"Do you want to correct your input to\n",
-			probdatadir, " ...?" );
-		const int res = uiMSG().askGoOnAfter( umsg );
-		if ( res == 2 )
-		    return false;
-		else if ( res == 0 )
-		    { datadir = probdatadir; return true; }
-	    }
-	}
+	File::copy( stdomf, omffnm );
+	if ( !File::exists(omffnm) )
+	    mErrRet( BufferString("Could not convert the directory.\n"
+	     "Most probably you have no write permissions for:\n",datadir) )
+
+	break;
     }
 
-    const char* demosurvenvvar = GetEnvVar( "DTECT_DEMO_SURVEY" );
-    BufferString instdemosurv = getInstalledDemoSurvey();
-    if ( trycpdemosurv && (demosurvenvvar || !instdemosurv.isEmpty()) )
-    {
-	if ( demosurvenvvar && *demosurvenvvar ) //TODO: May be this should go.
-	{
-	    FilePath demosurvnm( GetSoftwareDir(0), demosurvenvvar );
-	    if ( File::isDirectory(demosurvnm.fullPath()) )
-	    {
-		FilePath fp( datadir, FilePath(demosurvnm).fileName() );
-		const BufferString todir( fp.fullPath() );
-		if ( !File::exists(todir) )
-		{
-		    if ( uiMSG().askGoOn( 
-			    "Do you want to install the demo survey\n"
-			    "in your OpendTect Data Root directory?" ) )
-			File::copy( demosurvnm.fullPath(), todir );
-		}
-	    }
-	}
-	else if ( !instdemosurv.isEmpty() )
-	{
-	    ZipUtils zu;
-	    if ( uiMSG().askGoOn( "Do you want to install the demo survey\n"
-				  "in your OpendTect Data Root directory?" ) )
-		zu.UnZip( instdemosurv, datadir );
-	}
-    }
+    if ( offerunzipsurv )
+	offerUnzipSurv( par, datadir );
 
-    msg = OD_SetRootDataDir( datadir );
-    if ( msg )
+    retmsg = OD_SetRootDataDir( datadir );
+    if ( retmsg )
     {
-	uiMSG().error( msg );
+	uiMSG().error( retmsg );
 	return false;
     }
 
     return true;
+}
+
+
+void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
+{
+    if ( !par ) return;
+
+    const BufferString instdemosurv = getInstalledDemoSurvey();
+    const bool havedemosurv = !instdemosurv.isEmpty();
+    BufferStringSet opts;
+    opts.add( "&I will set up a new survey myself" );
+    if ( havedemosurv )
+	opts.add("Install the F3 &Demo Survey from the OpendTect installation");
+    opts.add( "&Unzip a survey zip file" );
+
+    struct OSRPageShower : public CallBacker
+    {
+	void go( CallBacker* )
+	{
+	    uiDesktopServices::openUrl( "https://opendtect.org/osr" );
+	}
+    };
+    uiGetChoice uigc( par, opts, "Please select next action" );
+    OSRPageShower ps;
+    uiPushButton* pb = new uiPushButton( &uigc,
+				 "visit &OSR web site (for free surveys)",
+				 mCB(&ps,OSRPageShower,go), true );
+    pb->attach( rightAlignedBelow, uigc.bottomFld() );
+    if ( !uigc.go() || uigc.choice() == 0 )
+	return;
+
+    BufferString zipfnm( uigc.choice() == 1 ? instdemosurv.buf() : "" );
+    (void)uiSurvey_UnzipFile( par, zipfnm, datadir );
 }
