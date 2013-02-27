@@ -26,6 +26,10 @@ install ( DIRECTORY "data" DESTINATION .
 	  PATTERN "install_files" EXCLUDE
 	  PATTERN ".svn" EXCLUDE )
 
+#install alo files
+install ( DIRECTORY plugins/${OD_PLFSUBDIR}
+	  DESTINATION plugins )
+
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/relinfo
 	 DESTINATION .
 	 PATTERN ".svn" EXCLUDE )
