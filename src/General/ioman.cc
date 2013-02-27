@@ -755,7 +755,11 @@ bool SurveyDataTreePreparer::prepSurv()
     if ( ioobj ) return true;
 
     IOM().toRoot();
-    if ( IOM().bad() ) { errmsg_ = "Can't go to root of survey"; return false; }
+    if ( IOM().bad() )
+	{ errmsg_ = "Can't go to root of survey"; return false; }
+    if ( IOM().dirPtr()->main()->name() == "Appl dir" )
+	return true;
+
     if ( !createDataTree() )
 	return false;
 
