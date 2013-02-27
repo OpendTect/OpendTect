@@ -55,9 +55,9 @@ public:
     const IOPar&	getInfo( int idx ) const	{ return *pars_[idx]; }
     bool		isEmpty(int) const;
     const char*		lineName(int) const;
-    int			geomID(int) const;
+    TraceID::GeomID	geomID(int) const;
     int			indexOf(const char* linename) const;
-    int			indexOf(int geomid) const;
+    int			indexOf(TraceID::GeomID geomid) const;
 
     
     Executor*		lineFetcher(int,SeisTrcBuf&,int nrtrcsperstep=10,
@@ -80,7 +80,7 @@ public:
     void		getFrom(std::istream&,BufferString*);
     void		putTo(std::ostream&) const;
 
-    bool		remove(int geomid);
+    bool		remove(TraceID::GeomID geomid);
     				//!< Also removes from disk
 
 protected:

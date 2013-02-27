@@ -50,7 +50,7 @@ public:
     const char*			getLineName() const;
     const MultiID&		lineSetID() const;
     PosInfo::GeomID		getGeomID() const;
-    int				geomID() const;
+    TraceID::GeomID		geomID() const;
     MultiID			getMultiID() const;
 
     void			setGeometry(const PosInfo::Line2DData&);
@@ -185,7 +185,7 @@ protected:
     Notifier<Seis2DDisplay>	geomchanged_;
 
     PosInfo::GeomID		oldgeomid_;
-    int				geomid_;
+    TraceID::GeomID		geomid_;
     ZAxisTransform*		datatransform_;
     int				voiidx_;
 

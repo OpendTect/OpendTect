@@ -74,7 +74,7 @@ const char* Seis2DDataSet::lineName( int idx ) const
 }
 
 
-int Seis2DDataSet::geomID( int idx ) const
+TraceID::GeomID Seis2DDataSet::geomID( int idx ) const
 {
     if ( !pars_.validIdx(idx) )
 	return -1;
@@ -92,7 +92,7 @@ int Seis2DDataSet::indexOf( const char* linename ) const
 }
 
 
-int Seis2DDataSet::indexOf( int geomid ) const
+int Seis2DDataSet::indexOf( TraceID::GeomID geomid ) const
 {
     for ( int idx=0; idx<pars_.size(); idx++ )
 	if ( geomID(idx) == geomid )
@@ -285,7 +285,7 @@ bool Seis2DDataSet::isEmpty( int ipar ) const
 }
 
 
-bool Seis2DDataSet::remove( int geomid )
+bool Seis2DDataSet::remove( TraceID::GeomID geomid )
 {
     if ( readonly_ ) return false;
 

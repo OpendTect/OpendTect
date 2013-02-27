@@ -64,7 +64,7 @@ int Horizon2DGeometry::lineIndex( const PosInfo::GeomID& geomid ) const
 { return oldgeomids_.indexOf( geomid ); }
 
 
-int Horizon2DGeometry::lineIndex( int geomid ) const
+int Horizon2DGeometry::lineIndex( TraceID::GeomID geomid ) const
 { return geomids_.indexOf( geomid ); }
 
 
@@ -73,9 +73,9 @@ int Horizon2DGeometry::lineIndex( const char* linenm ) const
 #ifdef mNew2DGeometryImpl
     for ( int idx=0; idx<geomids_.size(); idx++ )
 	{
-		BufferString lnm = Survey::GM().getName( geomids_[idx] );
-		if ( linenm == lnm )
-			return idx;
+	    BufferString lnm = Survey::GM().getName( geomids_[idx] );
+	    if ( linenm == lnm )
+		return idx;
 	}
 #else
     for ( int idx=0; idx<oldgeomids_.size(); idx++ )
@@ -126,7 +126,7 @@ PosInfo::GeomID Horizon2DGeometry::lineGeomID( int idx ) const
 }
 
 
-int Horizon2DGeometry::geomID( int idx ) const
+TraceID::GeomID Horizon2DGeometry::geomID( int idx ) const
 {
     return geomids_.validIdx( idx ) ? geomids_[idx] : -1;
 }
@@ -137,7 +137,7 @@ bool Horizon2DGeometry::includeLine( const PosInfo::GeomID& geomid, int step )
 								    true ); }
 
 
-bool Horizon2DGeometry::includeLine( int geomid, int step )
+bool Horizon2DGeometry::includeLine( TraceID::GeomID geomid, int step )
 { return doAddLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step), 
 								    true ); }
 
@@ -147,7 +147,7 @@ bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid, int step )
 								    false); }
 
 
-bool Horizon2DGeometry::addLine( int geomid, int step )
+bool Horizon2DGeometry::addLine( TraceID::GeomID geomid, int step )
 { return doAddLine(geomid, StepInterval<int>(mUdf(int),mUdf(int),step), 
 								    false); }
 
@@ -157,18 +157,20 @@ bool Horizon2DGeometry::addLine( const PosInfo::GeomID& geomid,
 { return doAddLine( geomid, trg, false ); }
 
 
-bool Horizon2DGeometry::addLine( int geomid, const StepInterval<int>& trg )
+bool Horizon2DGeometry::addLine( TraceID::GeomID geomid, 
+				 const StepInterval<int>& trg )
 { return doAddLine( geomid, trg, false ); }
 
 
-bool Horizon2DGeometry::doAddLine( int geomid, const StepInterval<int>& inptrg, 
+bool Horizon2DGeometry::doAddLine( TraceID::GeomID geomid, 
+				   const StepInterval<int>& inptrg, 
 				   bool mergewithdouble )
 {
     if ( geomids_.isPresent(geomid) )
 	return false;
 
     const PosInfo::Line2DData linegeom( ((Survey::Geometry2D*)Survey::
-										GM().getGeometry(geomid))->data() );
+					GM().getGeometry(geomid))->data() );
     if ( linegeom.isEmpty() )
 	return false;
 
@@ -302,7 +304,7 @@ void Horizon2DGeometry::removeLine( const PosInfo::GeomID& geomid )
 }
 
 
-void Horizon2DGeometry::removeLine( int geomid )
+void Horizon2DGeometry::removeLine( TraceID::GeomID geomid )
 {
     const int lidx = geomids_.indexOf( geomid );
     if ( lidx < 0 )
@@ -384,7 +386,7 @@ StepInterval<int> Horizon2DGeometry::colRange( const SectionID& sid,
 
 
 StepInterval<int> Horizon2DGeometry::colRange( const SectionID& sid,
-					       int geomid ) const
+					       TraceID::GeomID geomid ) const
 {
     const Geometry::Horizon2DLine* geom = sectionGeometry( sectionID(sid) );
     return geom ? geom->colRange( geomid ) : StepInterval<int>(0,0,0);
@@ -409,7 +411,7 @@ StepInterval<int> Horizon2DGeometry::colRange( const PosInfo::GeomID& gid) const
 }
 
 
-StepInterval<int> Horizon2DGeometry::colRange( int geomid) const
+StepInterval<int> Horizon2DGeometry::colRange( TraceID::GeomID geomid) const
 {
     StepInterval<int> res(0,0,0);
     bool isset = false;
@@ -515,17 +517,17 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	    int geomid = Survey::GM().getGeomID( lnm.buf() );
 		if ( geomid < 0 )
 		{
-			lnm = Survey::Geometry2D::makeUniqueLineName( S2DPOS().curLineSet(),
-									S2DPOS().getLineName(oldgeomid.lineid_) );
-			geomid = Survey::GM().getGeomID( lnm.buf() );
+		    lnm = Survey::Geometry2D::makeUniqueLineName( S2DPOS().
+			curLineSet(),S2DPOS().getLineName(oldgeomid.lineid_) );
+		    geomid = Survey::GM().getGeomID( lnm.buf() );
 		}
 
 	    geomids_ += geomid;
-		const Survey::Geometry* geom = Survey::GM().getGeometry(geomid);
-		const Survey::Geometry2D* geom2d;
-		mDynamicCast(const Survey::Geometry2D*, geom2d, geom);
-		if ( !geom2d )
-			continue;
+	    const Survey::Geometry* geom = Survey::GM().getGeometry(geomid);
+	    const Survey::Geometry2D* geom2d;
+	    mDynamicCast(const Survey::Geometry2D*, geom2d, geom);
+	    if ( !geom2d )
+	    	continue;
 
 	    const PosInfo::Line2DData& linegeom( geom2d->data() );
 	    if ( linegeom.isEmpty() )
@@ -578,15 +580,15 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 #ifdef mNew2DGeometryImpl
 	int geomid = Survey::GM().getGeomID( linenames.get(idx).buf() );
 	if ( geomid < 0 )
-		geomid = Survey::GM().getGeomID( Survey::Geometry2D::makeUniqueLineName
-									(ioobj->name(),linenames.get(idx).buf()) );
+	    geomid = Survey::GM().getGeomID( Survey::Geometry2D::
+		   makeUniqueLineName(ioobj->name(),linenames.get(idx).buf()) );
 
 	geomids_ += geomid;
 	const Survey::Geometry* geom = Survey::GM().getGeometry(geomid);
 	const Survey::Geometry2D* geom2d;
 	mDynamicCast(const Survey::Geometry2D*, geom2d, geom);
 	if ( !geom2d )
-		continue;
+	    continue;
 
 	const PosInfo::Line2DData& linegeom( geom2d->data() );
 	if ( linegeom.isEmpty() )
@@ -756,7 +758,8 @@ Coord3 Horizon2D::getPos( EM::SectionID sid, const PosInfo::GeomID& geomid,
 }
 
 
-Coord3 Horizon2D::getPosition( EM::SectionID sid, int geomid, int trcnr ) const
+Coord3 Horizon2D::getPosition( EM::SectionID sid, TraceID::GeomID geomid, 
+			       int trcnr ) const
 {
     const Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
     if ( !geom || geom->isEmpty() )
@@ -799,8 +802,8 @@ bool Horizon2D::setPos( EM::SectionID sid, const PosInfo::GeomID& geomid,
 }
 
 
-bool Horizon2D::setPos( EM::SectionID sid, int geomid, int trcnr, float z, 
-			bool addtohistory )
+bool Horizon2D::setPos( EM::SectionID sid, TraceID::GeomID geomid, int trcnr, 
+			float z, bool addtohistory )
 {
     Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
     if ( !geom || geom->isEmpty() )
@@ -879,7 +882,7 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
 
 
 bool Horizon2D::setArray1D( const Array1D<float>& arr, SectionID sid,
-			    int geomid, bool onlyfillundefs )
+			    TraceID::GeomID geomid, bool onlyfillundefs )
 {
     Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
     if ( !geom || geom->isEmpty() )
@@ -935,7 +938,7 @@ Array1D<float>* Horizon2D::createArray1D( SectionID sid,
 }
 
 
-Array1D<float>* Horizon2D::createArray1D( SectionID sid, int geomid,
+Array1D<float>* Horizon2D::createArray1D( SectionID sid, TraceID::GeomID geomid,
 					  const ZAxisTransform* trans ) const
 {
     const Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );

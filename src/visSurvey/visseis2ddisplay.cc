@@ -157,7 +157,7 @@ PosInfo::GeomID Seis2DDisplay::getGeomID() const
 { return oldgeomid_; }
 
 
-int Seis2DDisplay::geomID() const
+TraceID::GeomID Seis2DDisplay::geomID() const
 { return geomid_; }
 
 

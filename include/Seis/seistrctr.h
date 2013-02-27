@@ -229,8 +229,8 @@ public:
     void		setCurLineKey( const LineKey& lk )
     			{ curlinekey = lk; }
 
-    int			curGeomID() const		{ return geomid; }
-    void		setCurGeomID( const int gid )	{ geomid = gid; }
+    TraceID::GeomID	curGeomID() const		{ return geomid; }
+    void		setCurGeomID(TraceID::GeomID gid) { geomid = gid; }
 
     virtual bool	isReadDefault() const		{ return false; }
     virtual int		estimatedNrTraces() const	{ return -1; }
@@ -263,7 +263,7 @@ protected:
     int					outnrsamples;
     Interval<int>			samps;
     LineKey				curlinekey;
-    int					geomid;
+    TraceID::GeomID			geomid;
 
     void		addComp(const DataCharacteristics&,
 				const char* nm=0,int dtype=0);

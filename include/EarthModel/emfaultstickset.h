@@ -56,7 +56,7 @@ public:
 
     const MultiID*	pickedMultiID(const SectionID&,int sticknr) const;
     const char*		pickedName(const SectionID&,int sticknr) const;
-	int				pickedGeomID(const SectionID&,int sticknr)const;
+    TraceID::GeomID	pickedGeomID(const SectionID&,int sticknr)const;
 
     Geometry::FaultStickSet*
 			sectionGeometry(const SectionID&);
@@ -78,7 +78,7 @@ protected:
     {
 	int			sid;
 	int			sticknr;
-	int			geomid;
+	TraceID::GeomID		geomid;
 	MultiID			pickedmid;
 	BufferString		pickednm;
     };

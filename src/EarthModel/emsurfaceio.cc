@@ -267,12 +267,12 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    S2DPOS().setCurLineSet( oldgeomid.lsid_ );
 	    BufferString lnm = S2DPOS().getLineName( oldgeomid.lineid_ );
 	    int geomid = Survey::GM().getGeomID( lnm.buf() );
-		if ( geomid < 0 )
-		{
-			lnm = Survey::Geometry2D::makeUniqueLineName( S2DPOS().curLineSet(),
-									S2DPOS().getLineName(oldgeomid.lineid_) );
-			geomid = Survey::GM().getGeomID( lnm.buf() );
-		}
+	    if ( geomid < 0 )
+	    {
+		lnm = Survey::Geometry2D::makeUniqueLineName( S2DPOS().
+			curLineSet(),S2DPOS().getLineName(oldgeomid.lineid_) );
+		geomid = Survey::GM().getGeomID( lnm.buf() );
+	    }
 
 	    geomids_ += geomid;
 	    StepInterval<int> trcrange( mUdf(int), mUdf(int), 1 );
@@ -534,7 +534,7 @@ BufferString dgbSurfaceReader::lineSet( int idx ) const
 { return linesets_.validIdx( idx ) ? linesets_.get( idx ) : BufferString(""); }
 
 
-int dgbSurfaceReader::lineGeomID( int idx ) const
+TraceID::GeomID dgbSurfaceReader::lineGeomID( int idx ) const
 { return geomids_.validIdx( idx ) ? geomids_[idx] : -1; }
 
 

@@ -74,7 +74,7 @@ GeometryManager::~GeometryManager()
 }
 
 
-const Geometry* GeometryManager::getGeometry(int geomid) const
+const Geometry* GeometryManager::getGeometry(TraceID::GeomID geomid) const
 {
     if ( geomid==cDefault3DGeom() )
 	return SI().get3DGeometry( false );
@@ -113,7 +113,7 @@ int GeometryManager::getGeomID( const char* name ) const
 }
 
 
-const char* GeometryManager::getName( const int geomid ) const
+const char* GeometryManager::getName( TraceID::GeomID geomid ) const
 {
     if ( !getGeometry(geomid)->is2D() )
     {}//
@@ -142,35 +142,37 @@ void GeometryManager::addGeometry(Survey::Geometry* g)
 
 bool GeometryManager::fetchFrom2DGeom()
 {
-	GeometryWriter* geomwriter =GeometryWriter::factory().create(sKey::TwoD());
-	bool makenewlinenames = hasDuplicateLineNames();
-	BufferStringSet lsnames;
-	S2DPOS().getLineSets( lsnames );
-	for ( int idx=0; idx<lsnames.size(); idx++ )
-	{
-		BufferStringSet lnames;
-		S2DPOS().getLines( lnames, lsnames.get(idx).buf() );
-		for ( int idx2=0; idx2<lnames.size(); idx2++ )
-		{
-			Geometry2D* geom2d = new Geometry2D();
-			geom2d->ref();
-			geom2d->data().setLineName( lnames.get(idx2) );
-			S2DPOS().getGeometry(geom2d->data());
-			if ( makenewlinenames )
-			{
-				BufferString newlnm = lsnames.get(idx);
-				newlnm.add( "-" );
-				newlnm.add( lnames.get(idx2) );
-				geom2d->data().setLineName( newlnm );
-			}
-			else
-				geom2d->data().setLineName( lnames.get(idx2) );
 
-			geomwriter->write( geom2d );
-			geom2d->unRef();
-		}
+    GeometryWriter* geomwriter =GeometryWriter::factory().create(sKey::TwoD());
+    bool makenewlinenames = hasDuplicateLineNames();
+    BufferStringSet lsnames;
+    S2DPOS().getLineSets( lsnames );
+    for ( int idx=0; idx<lsnames.size(); idx++ )
+    {
+	BufferStringSet lnames;
+	S2DPOS().getLines( lnames, lsnames.get(idx).buf() );
+	for ( int idx2=0; idx2<lnames.size(); idx2++ )
+	{
+	    Geometry2D* geom2d = new Geometry2D();
+	    geom2d->ref();
+	    geom2d->data().setLineName( lnames.get(idx2) );
+	    S2DPOS().getGeometry(geom2d->data());
+	    if ( makenewlinenames )
+	    {
+		BufferString newlnm = lsnames.get(idx);
+		newlnm.add( "-" );
+		newlnm.add( lnames.get(idx2) );
+		geom2d->data().setLineName( newlnm );
+	    }
+	    else
+		geom2d->data().setLineName( lnames.get(idx2) );
+
+	    geomwriter->write( geom2d );
+	    geom2d->unRef();
 	}
-	return true;
+    }
+
+    return true;
 }
 
 
@@ -215,11 +217,12 @@ bool GeometryManager::write( Geometry* geom)
 }
 
 
-int GeometryManager::createEntry( const char* name, const bool is2d )
+TraceID::GeomID GeometryManager::createEntry( const char* name, const bool is2d)
 {
     if ( is2d )
     {
-	GeometryWriter* geomwriter = GeometryWriter::factory().create(sKey::TwoD());
+	GeometryWriter* geomwriter = GeometryWriter::factory().create
+								(sKey::TwoD());
 	return geomwriter->createEntry( name );
     }
     else

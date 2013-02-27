@@ -346,7 +346,8 @@ const char* FaultStickSetGeometry::pickedName( const SectionID& sid,
 }
 
 
-int FaultStickSetGeometry::pickedGeomID( const SectionID& sid,int sticknr) const
+TraceID::GeomID FaultStickSetGeometry::pickedGeomID( const SectionID& sid,
+						     int sticknr) const
 {
     int idx = indexOf(sid,sticknr);
     if ( idx >= 0 )

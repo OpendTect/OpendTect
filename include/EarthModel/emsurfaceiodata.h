@@ -46,7 +46,7 @@ public:
 
     BufferStringSet	linenames;		// 2D only
     BufferStringSet	linesets;		// 2D only
-    TypeSet<int>	geomids_;
+    TypeSet<TraceID::GeomID>	geomids_;
     TypeSet<StepInterval<int> >	trcranges;	// 2D only
 };
 

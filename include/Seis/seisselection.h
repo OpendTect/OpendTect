@@ -119,7 +119,7 @@ public:
     			// Interesting in some 2D situations:
     inline LineKey&	lineKey()		{ return linekey_; }
     inline const LineKey& lineKey() const	{ return linekey_; }
-    inline int		geomID() const		{ return geomid_; }
+    inline TraceID::GeomID  geomID() const	{ return geomid_; }
 
 protected:
 
@@ -127,7 +127,7 @@ protected:
 
     bool		isall_;
     LineKey&		linekey_;	//!< 2D only
-    int			geomid_;
+    TraceID::GeomID	geomid_;
 
     int			tracesInSI() const;
     virtual void 	doExtendH(BinID stepout,BinID stepoutstep) = 0;
