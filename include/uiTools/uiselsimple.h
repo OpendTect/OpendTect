@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidialog.h"
 
+class uiGroup;
 class uiListBox;
 class uiGenInput;
 class uiCheckList;
@@ -125,6 +126,8 @@ public:
     void		setDefaultChoice(int);
     int			choice() const		{ return choice_; }
     			//!< on cancel will be -1
+
+    uiGroup*		bottomFld();
 
 protected:
 

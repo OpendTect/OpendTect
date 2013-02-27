@@ -154,6 +154,12 @@ void uiGetChoice::setDefaultChoice( int nr )
 }
 
 
+uiGroup* uiGetChoice::bottomFld()
+{
+    return inpfld_;
+}
+
+
 bool uiGetChoice::rejectOK( CallBacker* )
 {
     if ( !allowcancel_ )
