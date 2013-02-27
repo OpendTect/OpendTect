@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "namedobj.h"
 #include "objectset.h"
+#include "position.h"
+
 #include <iosfwd>
 
 class IOPar;
