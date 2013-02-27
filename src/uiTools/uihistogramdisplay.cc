@@ -140,7 +140,7 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 
     if ( array->getData() )
     {
-	setData( array->getData(), array->info().getTotalSz() );
+	setData( array->getData(), mCast(int,array->info().getTotalSz()) );
 	return;
     }
 
