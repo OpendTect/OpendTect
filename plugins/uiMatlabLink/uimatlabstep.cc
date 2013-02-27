@@ -35,6 +35,8 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
 
     filefld_ = new uiFileInput( this, "Select" );
     filefld_->attach( alignedBelow, choicefld_ );
+
+    addNameFld( filefld_ );
 }
 
 
