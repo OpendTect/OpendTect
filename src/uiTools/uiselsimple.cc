@@ -48,6 +48,12 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 }
 
 
+uiObject* uiSelectFromList::bottomFld()
+{
+    return selfld_;
+}
+
+
 void uiSelectFromList::filtChg( CallBacker* )
 {
     const char* filt = filtfld_->text();
@@ -119,6 +125,12 @@ void uiGetObjectName::selChg( CallBacker* )
 const char* uiGetObjectName::text() const
 {
     return inpfld_->text();
+}
+
+
+uiGroup* uiGetObjectName::bottomFld()
+{
+    return inpfld_;
 }
 
 

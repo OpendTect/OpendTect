@@ -49,6 +49,7 @@ public:
 
     uiListBox*		selFld()		{ return selfld_; }
     uiGenInput*		filtFld()		{ return filtfld_; }
+    uiObject*		bottomFld(); //!< is selFld()
 
 protected:
 
@@ -94,8 +95,8 @@ public:
     const char*		text() const;
 
     uiGenInput*		inpFld()		{ return inpfld_; }
-    			//!< Is the lowest field
     uiListBox*		selFld()		{ return listfld_; }
+    uiGroup*		bottomFld(); //!< is inpFld()
 
 protected:
 
@@ -127,7 +128,8 @@ public:
     int			choice() const		{ return choice_; }
     			//!< on cancel will be -1
 
-    uiGroup*		bottomFld();
+    uiCheckList*	checkList();
+    uiGroup*		bottomFld(); //!< is checkList()
 
 protected:
 
