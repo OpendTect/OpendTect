@@ -325,7 +325,7 @@ void ObjectSet<T>::swap( od_int64 idx0, od_int64 idx1 )
     if ( !validIdx(idx0) || !validIdx(idx1) )
 	DBG::forceCrash(true);
 #endif
-    vec_.swap( idx0, idx1 );
+    vec_.swap( mCast(size_type,idx0), mCast(size_type,idx1) );
 }
 
 
