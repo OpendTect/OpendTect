@@ -1,4 +1,3 @@
-#!/bin/csh
 #(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 # Description:  CMake script to define devel package variables
 # Author:       Nageswara
@@ -30,8 +29,5 @@ SET( PLUGINS HorizonAttrib GapDecon VoxelConnectivityFilter
 	     Hello uiHello Tut uiTut uiDPSDemo )
 SET( PMAKESTUFF Makefile RootMakefile make.od.Defaults make.od.Dirs 
 		make.od.Vars base )
-#SET( PMAKESTUFF Makefile ModDeps.od RootMakefile make.od.Defaults make.od.Dirs 
-#		make.od.Vars make.od.ModDeps base )
 SET( SPECSOURCES EarthModel ODGeneral ODSeis visBase )
-#SET( SPECSOURCES Makefile.od EarthModel ODGeneral ODSeis visBase )
 SET( PACK "devel" )

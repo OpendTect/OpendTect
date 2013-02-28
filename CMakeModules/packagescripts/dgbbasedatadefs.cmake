@@ -1,4 +1,3 @@
-#!/bin/csh
 #(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 # Description:  CMake script to define dgbbasedata package variables
 # Author:       Nageswara
