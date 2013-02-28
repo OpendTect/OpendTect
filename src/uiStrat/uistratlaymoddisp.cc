@@ -393,17 +393,20 @@ void uiStratSimpleLayerModelDisp::modelChanged()
 }
 
 
-#define mStartLayLoop(chckdisp) \
+#define mStartLayLoop(chckdisp,perseqstmt) \
     const int nrseqs = lmp_.get().size(); \
     for ( int iseq=0; iseq<nrseqs; iseq++ ) \
     { \
 	if ( chckdisp && !isDisplayedModel(iseq) ) continue; \
 	const float lvldpth = lvldpths_[iseq]; \
+	int layzlvl = 0; \
 	if ( flattened_ && mIsUdf(lvldpth) ) continue; \
 	const Strat::LayerSequence& seq = lmp_.get().sequence( iseq ); \
 	const int nrlays = seq.size(); \
+	perseqstmt; \
 	for ( int ilay=0; ilay<nrlays; ilay++ ) \
 	{ \
+	    layzlvl++; \
 	    const Strat::Layer& lay = *seq.layers()[ilay]; \
 	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth; \
 	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth; \
@@ -428,7 +431,7 @@ void uiStratSimpleLayerModelDisp::getBounds()
     }
 
     Interval<float> zrg(mUdf(float),mUdf(float)), vrg(mUdf(float),mUdf(float));
-    mStartLayLoop( false )
+    mStartLayLoop( false,  )
 #	define mChckBnds(var,op,bnd) \
 	if ( (mIsUdf(var) || var op bnd) && !mIsUdf(bnd) ) \
 	    var = bnd
@@ -508,7 +511,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     const float vwdth = vrg_.width();
     float zfac = 1; mGetDispZ( zfac );
 
-    mStartLayLoop( true )
+    mStartLayLoop( true, int prevypix1 = -mUdf(int) )
 
 	float dispz0 = z0; float dispz1 = z1;
 	mGetConvZ( dispz0, zfac ); mGetConvZ( dispz1, zfac );
@@ -522,17 +525,21 @@ void uiStratSimpleLayerModelDisp::doDraw()
 		dispz0 = (float)zoomwr_.bottom();
 	}
 
-	const int ypix0 = yax_->getPix( dispz0 );
+	int ypix0 = yax_->getPix( dispz0 );
 	const int ypix1 = yax_->getPix( dispz1 );
-	if ( ypix0 != ypix1 && !mIsUdf(val) )
+	if ( ypix0 <= prevypix1 ) ypix0 = prevypix1 + 1;
+	prevypix1 = ypix1;
+
+	if ( ypix0 < ypix1 && !mIsUdf(val) )
 	{
 	    const float relx = (val-vrg_.start) / vwdth;
 	    const int xpix0 = getXPix( iseq, 0 );
 	    const int xpix1 = getXPix( iseq, relx );
 
-	    uiRectItem* it = scene().addRect( 
+	    uiRectItem* it = scene().addRect(
 		    mCast(float,xpix0), mCast(float,ypix0),
 		    mCast(float,xpix1-xpix0+1), mCast(float,ypix1-ypix0+1) );
+	    it->setZValue( layzlvl );
 
 	    const Color laycol = lay.dispColor( uselithcols_ );
 	    const bool isannotcont = selectedcontent_
@@ -576,12 +583,11 @@ void uiStratSimpleLayerModelDisp::drawLevels()
 	const int ypix = yax_->getPix( flattened_ ? 0 : zlvl );
 	const int xpix1 = getXPix( iseq, 0 );
 	const int xpix2 = getXPix( iseq, 1 );
-	uiLineItem* it = scene().addItem( new uiLineItem( 
-				mCast(float,xpix1), mCast(float,ypix), 
-				mCast(float,xpix2), mCast(float,ypix), true ) );
+	uiLineItem* it = scene().addItem(
+	    new uiLineItem( uiPoint(xpix1,ypix), uiPoint(xpix2,ypix), true ) );
 
 	it->setPenStyle( LineStyle(LineStyle::Solid,2,lvlcol_) );
-	it->setZValue( 1 );
+	it->setZValue( 999999 );
 	lvlitms_ += it;
     }
 }
@@ -599,11 +605,10 @@ void uiStratSimpleLayerModelDisp::drawSelectedSequence()
     const float xpix2 = (float)getXPix( selseqidx_, 1 );
     const int midpix = (int)( xpix1 + ( xpix2 - xpix1 ) /2 );
 
-    uiLineItem* it = scene().addItem( new uiLineItem( 
-			    mCast(float,midpix), mCast(float,ypix1), 
-			    mCast(float,midpix), mCast(float,ypix2), true ) );
+    uiLineItem* it = scene().addItem(
+	new uiLineItem( uiPoint(midpix,ypix1), uiPoint(midpix,ypix2), true ) );
 
     it->setPenStyle( LineStyle(LineStyle::Dot,2,Color::Black()) );
-    it->setZValue( 2 );
+    it->setZValue( 9999999 );
     selseqitm_ = it;
 }
