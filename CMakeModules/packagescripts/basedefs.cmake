@@ -1,4 +1,3 @@
-#!/bin/csh
 #(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 # Description:  CMake script to define base package variables
 # Author:       Nageswara
@@ -24,7 +23,6 @@ SET( PLUGINS HorizonAttrib GapDecon VoxelConnectivityFilter
 	     uiHorizonAttrib uiPreStackViewer Annotations uiGapDecon 
 	     uiGoogleIO GoogleTranslate CmdDriver uiVoxelConnectivityFilter
 	     TextureAttrib uiTextureAttrib )
-#od_glxinfo lmhostid 
 #Only for windows base package
 SET( WINEXECLIST od_start_dtect od_main_console unzip )
 SET( SPECFILES .exec_prog .init_dtect .init_dtect_user install .lic_inst_common
