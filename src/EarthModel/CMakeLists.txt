@@ -15,7 +15,6 @@ SET(OD_MODULE_SOURCES
 		emfault3d.cc
 		emfault3dpainter.cc
 		emfaultauxdata.cc
-		emfaultauxdataio.cc
 		emfaultstickset.cc
 		emfaultsticksetflatvieweditor.cc
 		emfaultstickpainter.cc
