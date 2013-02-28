@@ -47,6 +47,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , useseldataranges_(false)	 
     , viewChanged(this)
     , dataChanged(this)
+    , dispParsChanged(this)
 {
     updatequeueid_ =
 	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual );
@@ -279,6 +280,7 @@ void uiFlatViewer::updateBitmapCB( CallBacker* )
 
     dataChanged.trigger();
     bitmapdisp_->update();
+    dispParsChanged.trigger();
 }
 
 
@@ -410,6 +412,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool yn )
     , useseldataranges_(false)	 
     , viewChanged(this)
     , dataChanged(this)
+    , dispParsChanged(this)
 {
     updatequeueid_ =
 	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual );

@@ -96,6 +96,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     }
 
     zoomChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
+    vwr.dispParsChanged.notify( mCB(this,uiFlatViewStdControl,dispChgCB) );
 
     menu_.ref();
     menu_.createnotifier.notify(mCB(this,uiFlatViewStdControl,createMenuCB));

@@ -75,6 +75,7 @@ public:
 
     Notifier<uiFlatViewer> 	viewChanged; //!< setView called
     Notifier<uiFlatViewer> 	dataChanged; //!< new DataPack set
+    Notifier<uiFlatViewer> 	dispParsChanged; //!< WVA or VD disppars changed
 
     uiFlatViewControl*		control() { return control_; }
 
