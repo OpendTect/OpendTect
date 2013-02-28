@@ -85,7 +85,7 @@ void CallBackSet::doCall( CallBacker* obj, const bool* enabledflag,
     for ( int idx=0; idx<cbscopy.size(); idx++ )
     {
 	CallBack& cb = cbscopy[idx];
-	if ( indexOf(cb)==-1 )
+	if ( !isPresent(cb) )
 	    continue;
 
 	if ( !exclude || cb.cbObj()!=exclude )
