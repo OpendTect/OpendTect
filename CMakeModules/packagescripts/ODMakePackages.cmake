@@ -4,44 +4,57 @@
 # Date:		August 2012		
 #RCS:           $Id$
 
-#TODO Get version name from keyboard. 
+set( BASEPACKAGES basedatadefs dgbbasedatadefs)
+set( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs
+		 dgbnndefs dgbssisdefs dgbstratdefs dgbvmbdefs dgbwcpdefs
+		 odgmtdefs odgprdefs odmadagascardefs develdefs ) 
 
-SET( BASEPACKAGES basedatadefs dgbbasedatadefs)
-SET( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs dgbnndefs dgbssisdefs dgbstratdefs dgbvmbdefs dgbwcpdefs odgmtdefs odgprdefs odmadagascardefs ) 
+include( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
-INCLUDE( CMakeModules/packagescripts/extlibs.cmake )
-INCLUDE( CMakeModules/packagescripts/ODInstallReleaseStuff.cmake )
-INCLUDE( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
+if( APPLE )
+    execute_process( COMMAND ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/chfwscript ${PSD}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} 
+		     RESULT_VARIABLE STATUS )
+    if( NOT ${STATUS} EQUAL "0" )
+	message( FATAL_ERROR "changing dependency Failed" )
+    endif()
+endif()
+
+if( APPLE OR WIN32 )
+    od_sign_libs()
+endif()
 
 foreach ( BASEPACKAGE ${BASEPACKAGES} )
-    INCLUDE( ${PSD}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake)
+    include( ${PSD}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake)
     init_destinationdir( ${PACK} )
     create_basepackages( ${PACK} )
 endforeach()
 
 foreach ( PACKAGE ${PACKAGELIST} )
-    INCLUDE(CMakeModules/packagescripts/${PACKAGE}.cmake)
-    MESSAGE( "Preparing package ${PACK}.zip ......" )
-    IF( NOT DEFINED OpendTect_VERSION_MAJOR )
-	MESSAGE( FATAL_ERROR "OpendTect_VERSION_MAJOR not defined" )
-    ENDIF()
+    include(CMakeModules/packagescripts/${PACKAGE}.cmake)
+    if( NOT DEFINED OpendTect_VERSION_MAJOR )
+	message( FATAL_ERROR "OpendTect_VERSION_MAJOR not defined" )
+    endif()
 
-    IF( NOT DEFINED OD_PLFSUBDIR )
-	MESSAGE( FATAL_ERROR "OD_PLFSUBDIR not defined" )
-    ENDIF()
+    if( NOT DEFINED OD_PLFSUBDIR )
+	message( FATAL_ERROR "OD_PLFSUBDIR not defined" )
+    endif()
 
-    IF( NOT EXISTS ${PSD}/inst )
-	MESSAGE( FATAL_ERROR "${PSD}/inst is not existed. Do make install. " )
-    ENDIF()
+    if( NOT DEFINED CMAKE_INSTALL_PREFIX )
+	message( FATAL_ERROR "CMAKE_INSTALL_PREFIX is not Defined. " )
+    endif()
 
-    IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
-	IF( NOT EXISTS "${PSD}/bin/win/zip.exe" )
-	    MESSAGE( FATAL_ERROR "${PSD}/bin/win/zip.exe is not existed.
+    if( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
+	if( NOT EXISTS "${PSD}/bin/win/zip.exe" )
+	    message( FATAL_ERROR "${PSD}/bin/win/zip.exe is not existed.
 		     Unable to create packages.Please do an update" )
-	ENDIF()
-    ENDIF()
+	endif()
+    endif()
 
     init_destinationdir( ${PACK} )
-    create_package( ${PACK} )
+    if( ${PACK} STREQUAL "devel" )
+        create_develpackages()
+    else()
+	create_package( ${PACK} )
+    endif()
 endforeach()
-MESSAGE( "\n Created packages are available under ${PSD}/packages" )
+message( "\n Created packages are available under ${PSD}/packages" )

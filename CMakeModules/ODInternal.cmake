@@ -12,13 +12,26 @@ configure_file ( ${OpendTect_DIR}/include/Basic/odversion.h.in ${OpendTect_DIR}/
 install ( DIRECTORY CMakeModules DESTINATION .
 	  PATTERN ".svn" EXCLUDE )
 
-#Install plugin example
+#install doc stuff
 install( DIRECTORY doc/Programmer/pluginexample
 	 DESTINATION doc/Programmer
 	 PATTERN ".svn" EXCLUDE )
 
 install( DIRECTORY doc/Programmer/batchprogexample
 	 DESTINATION doc/Programmer
+	 PATTERN ".svn" EXCLUDE )
+
+install( DIRECTORY doc/Credits/base
+	 DESTINATION doc/Credits
+	 PATTERN ".svn" EXCLUDE )
+
+file( GLOB FLEXNETFILES doc/*.html )
+foreach( FLEXNETFILE ${FLEXNETFILES} )
+    install( FILES ${FLEXNETFILE} DESTINATION doc )
+endforeach()
+
+install( DIRECTORY doc/Scripts
+	 DESTINATION doc
 	 PATTERN ".svn" EXCLUDE )
 
 #Install data
@@ -40,10 +53,6 @@ if( WIN32 )
 	     PATTERN ".svn" EXCLUDE )
 endif()
 
-install( DIRECTORY doc/Scripts
-	 DESTINATION doc
-	 PATTERN ".svn" EXCLUDE )
-
 if( UNIX )
     file( GLOB TEXTFILES ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/*.txt )
     file( GLOB PROGRAMS ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/* )
@@ -57,6 +66,9 @@ if( UNIX )
 endif( UNIX )
 
 if( APPLE )
+    install( PROGRAMS data/install_files/macscripts/chfwscript
+	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )
+
     install( DIRECTORY data/install_files/macscripts/Contents
 	     DESTINATION .
 	     PATTERN ".svn" EXCLUDE )
@@ -88,9 +100,20 @@ if( EXISTS ${MSVCPATH} )
     endforeach()
 endif()
 
+
 add_custom_target( sources ${CMAKE_COMMAND}
 		   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 		   -P ${CMAKE_SOURCE_DIR}/CMakeModules/ODInstallSources.cmake
 		   COMMENT "Installing sources" )
 
+add_custom_target( docpackages ${CMAKE_COMMAND}
+        -DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR}
+        -DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR}
+        -DOpendTect_VERSION_DETAIL=${OpendTect_VERSION_DETAIL}
+        -DOpendTect_VERSION_PATCH=${OpendTect_VERSION_PATCH}
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+        -DOD_PLFSUBDIR=${OD_PLFSUBDIR}
+        -DPSD=${PROJECT_SOURCE_DIR}
+        -P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeDocPackages.cmake
+         COMMENT "Preparing doc packages" )
 include ( ODSubversion )
