@@ -15,14 +15,13 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "indexinfo.h"
 
-/*!\brief Positioning of flat 'bulk' data.
-  	  Only the 'x1' axis can be irregular.
+/*!
+\brief Positioning of flat 'bulk' data. Only the 'x1' axis can be irregular.
 
-    Even if the X1 range is irergular, the x1rg_ is kept in sync with the
-    start, stop and average step. Uncomplicated programmers may get away
-    with using nothing else but the range().
- 
- */
+  Even if the X1 range is irregular, the x1rg_ is kept in sync with the start,
+  stop and average step. Uncomplicated programmers may get away with using
+  nothing else but the range().
+*/
 
 mExpClass(General) FlatPosData
 {
