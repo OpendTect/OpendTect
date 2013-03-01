@@ -147,8 +147,6 @@ public:
     DataPackMgr::ID		getDataPackMgrID() const
 				{ return DataPackMgr::SurfID(); }
 
-    static const char*		sKeyTriProjection() { return "TriangulateProj";}
-
     void			doOtherObjectsMoved( 
 				    const ObjectSet<const SurveyObject>& objs,
 				    int whichobj)
@@ -182,8 +180,6 @@ protected:
     virtual void		swapCache(int,int);
     virtual void		emptyCache(int);
     virtual bool		hasCache(int) const;
-
-    static const char*		sKeyEarthModelID()	{ return "EM ID"; }
 
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);
@@ -265,6 +261,15 @@ protected:
     ObjectSet<StickIntersectPoint> stickintersectpoints_;
 
     visBase::DrawStyle*			drawstyle_;
+
+    static const char*			sKeyTriProjection();
+    static const char*			sKeyEarthModelID();
+    static const char*			sKeyDisplayPanels();
+    static const char*			sKeyDisplaySticks();
+    static const char*			sKeyDisplayIntersections();
+    static const char*			sKeyDisplayHorIntersections();
+    static const char*			sKeyUseTexture();
+    static const char*			sKeyLineStyle();
 };
 
 };

@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "faulteditor.h"
 #include "faulthorintersect.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
 #include "posvecdataset.h"
@@ -50,6 +51,17 @@ mCreateFactoryEntry( visSurvey::FaultDisplay );
 
 namespace visSurvey
 {
+
+const char* FaultDisplay::sKeyEarthModelID()	{ return "EM ID"; }
+const char* FaultDisplay::sKeyTriProjection()	{ return "TriangulateProj"; }
+const char* FaultDisplay::sKeyDisplayPanels()	{ return "Display panels"; }
+const char* FaultDisplay::sKeyDisplaySticks()	{ return "Display sticks"; }
+const char* FaultDisplay::sKeyDisplayIntersections()
+				{ return "Display intersections"; }
+const char* FaultDisplay::sKeyDisplayHorIntersections()
+				{ return "Display horizon intersections"; }
+const char* FaultDisplay::sKeyUseTexture()	{ return "Use texture"; }
+const char* FaultDisplay::sKeyLineStyle()	{ return "Linestyle"; }
 
 FaultDisplay::FaultDisplay()
     : MultiTextureSurveyObject( false )
@@ -384,12 +396,6 @@ void FaultDisplay::updateSingleColor()
 {
     const bool usesinglecolor = !showingTexture();
 
-    const Color prevcol = getMaterial()->getColor();
-    const Color newcol = usesinglecolor ? nontexturecol_*0.8 : Color::White();
-    if ( newcol==prevcol )
-	return;
-
-    getMaterial()->setColor( newcol );
     activestickmarker_->getMaterial()->setColor( nontexturecol_ );
 
     for ( int idx=0; idx<horintersections_.size(); idx++ )
@@ -399,6 +405,13 @@ void FaultDisplay::updateSingleColor()
 	stickdisplay_->getMaterial()->setColor( nontexturecol_ );
 
     texture_->turnOn( !usesinglecolor );
+
+    const Color prevcol = getMaterial()->getColor();
+    const Color newcol = usesinglecolor ? nontexturecol_*0.8 : Color::White();
+    if ( newcol==prevcol )
+	return;
+
+    getMaterial()->setColor( newcol );
     colorchange.trigger();
 }
 
@@ -595,6 +608,20 @@ void FaultDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     visSurvey::MultiTextureSurveyObject::fillPar( par, saveids );
     par.set( sKeyEarthModelID(), getMultiID() );
     par.set( sKeyTriProjection(), triangulateAlg() );
+
+    par.setYN( sKeyDisplayPanels(), displaypanels_ );
+    par.setYN( sKeyDisplaySticks(), displaysticks_ );
+    par.setYN( sKeyDisplayIntersections(), displayintersections_ );
+    par.setYN( sKeyDisplayHorIntersections(), displayhorintersections_ );
+    par.setYN( sKeyUseTexture(), usestexture_ );
+    par.set( sKey::Color(), (int) getColor().rgb() );
+
+    if ( lineStyle() )
+    {
+	BufferString str;
+	lineStyle()->toString( str );
+	par.set( sKeyLineStyle(), str );
+    }
 }
 
 
@@ -622,6 +649,23 @@ int FaultDisplay::usePar( const IOPar& par )
     int tp;
     par.get( sKeyTriProjection(), tp );
     triangulateAlg( (Geometry::ExplFaultStickSurface::TriProjection)tp );
+
+    par.getYN( sKeyDisplayPanels(), displaypanels_ );
+    par.getYN( sKeyDisplaySticks(), displaysticks_ );
+    par.getYN( sKeyDisplayIntersections(), displayintersections_ );
+    par.getYN( sKeyDisplayHorIntersections(), displayhorintersections_ );
+    par.getYN( sKeyUseTexture(), usestexture_ );
+
+    par.get( sKey::Color(), (int&) nontexturecol_.rgb() );
+    updateSingleColor();
+
+    BufferString linestyle;
+    if ( par.get(sKeyLineStyle(),linestyle) )
+    {
+	LineStyle ls;
+	ls.fromString( linestyle );
+	setLineStyle( ls );
+    }
 
     return 1;
 }
@@ -1112,8 +1156,8 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
     }
 
     texture_->setData( attrib, 0, texturedata, true );
+
     validtexture_ = true;
-    usestexture_ = true;
     updateSingleColor();
 }
 
