@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "generalmod.h"
 #include "array2dbitmap.h"
 #include "task.h"
 
@@ -44,7 +43,6 @@ mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
     static char		cWiggFill();		// => -125
     static char		cLeftFill();		// => -124
     static char		cRightFill();		// => -123
-
 };
 
 
@@ -101,7 +99,6 @@ mStruct(General) VDA2DBitMapGenPars : public A2DBitMapGenPars
     static char		cMaxFill();	// => 120
 
     static float	offset(char);	//!< cMinFill -> 0, 0 -> 0.5
-
 };
 
 
