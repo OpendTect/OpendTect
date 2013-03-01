@@ -15,14 +15,16 @@ ________________________________________________________________________
 #include "flatview.h"
 #include "array2dbitmap.h"
 #include "uirgbarray.h"
-class HistEqualizer;
 
+class HistEqualizer;
 
 namespace FlatView
 {
 
-/*!\brief Draws bitmaps on RGBArray according to FlatView specs.
-	  Assumes bitmaps are 100% aligned with array, only sizes may differ. */
+/*!
+\brief Draws bitmaps on RGBArray according to FlatView specs. Assumes bitmaps
+are 100% aligned with array, only sizes may differ.
+*/
 
 mExpClass(uiFlatView) BitMap2RGB
 {
