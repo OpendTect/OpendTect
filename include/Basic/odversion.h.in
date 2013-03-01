@@ -19,6 +19,7 @@ permanent changes.
 #define mODMajorVersion		@OpendTect_VERSION_MAJOR@
 #define mODMinorVersion		@OpendTect_VERSION_MINOR@
 #define mODDetailVersion	@OpendTect_VERSION_DETAIL@
+#define mODPatchVersion		@OpendTect_VERSION_PATCH@
 
 #define mODVersion		@OpendTect_VERSION_MAJOR@@OpendTect_VERSION_MINOR@@OpendTect_VERSION_DETAIL@
 
