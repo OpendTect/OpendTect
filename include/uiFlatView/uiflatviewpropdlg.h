@@ -15,13 +15,17 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 #include "flatview.h"
 #include "iopar.h"
+
 class uiFVWVAPropTab;
 class uiFVVDPropTab;
 class uiFVAnnotPropTab;
 class BufferStringSet;
 class uiGenInput;
 
-		     
+/*!
+\brief FlatView properties dialog box.
+*/
+
 mExpClass(uiFlatView) uiFlatViewPropDlg : public uiTabStackDlg
 {
 public:
