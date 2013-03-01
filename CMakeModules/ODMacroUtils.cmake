@@ -365,6 +365,11 @@ if(OD_MODULE_BATCHPROGS)
 endif( OD_MODULE_BATCHPROGS )
 
 foreach ( TEST_FILE ${OD_TEST_PROGS} )
+    #Add dep on Batch if there are batch-progs
+    if ( OD_USEPROG )
+	list( APPEND OD_RUNTIMELIBS "Batch" "Network" )
+	list( REMOVE_DUPLICATES OD_RUNTIMELIBS )
+    endif()
     get_filename_component( TEST_NAME ${TEST_FILE} NAME_WE )
     add_executable( ${TEST_NAME} ${OD_EXEC_GUI_SYSTEM} ${TEST_FILE} )
 
