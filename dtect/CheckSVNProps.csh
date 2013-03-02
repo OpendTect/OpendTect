@@ -74,6 +74,12 @@ if ( ${errsize} == 0 ) then
 	rm -rf ${tmpfile} ${tmperrfile}
 	exit 1
     endif
+    cat ${tmpfile} | grep -q "svn:needs-lock"
+    if ( ${status} == 0 ) then
+	echo File ${filename} has lock property set.
+	rm -rf ${tmpfile} ${tmperrfile}
+	exit 1
+    endif
 endif
 
 goto nextfile
