@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "safefileio.h"
 #include "settings.h"
@@ -545,11 +546,8 @@ void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
     self.lsnm_ = lsnm;
     self.readIdxFiles();
     curlstimestr_ = getIdxTimeStamp( lsnm_ );
-    if ( lsnm_ == lsnm )
-	return;
 
     // New line set specified
-    self.lsnm_ = lsnm;
     FileMultiString driinfo( getNewStorageName(lsnm,basefp_,lsindex_) );
     driinfo.add( self.getNewID(lsindex_) );
     self.lsindex_.add( lsnm, driinfo );
@@ -660,7 +658,12 @@ bool PosInfo::Survey2D::setGeometry( const PosInfo::Line2DData& l2dd )
 
     ascostream astrm( sfio.ostrm() );
     astrm.putHeader( "Line2D Geometry" );
-    astrm.put( sKeyStor, cWriteAscii ? "Ascii" : "Binary" );
+
+    float max, median;
+    l2dd.compDistBetwTrcsStats( max, median );
+    astrm.put( sKey::TrcDist(), max, median );
+
+    astrm.put( sKeyStor, cWriteAscii ? sKey::Ascii() : sKey::Binary() );
     astrm.newParagraph();
     if ( l2dd.write(sfio.ostrm(),cWriteAscii,true) )
     {
@@ -883,6 +886,36 @@ BufferString PosInfo::Survey2D::getIdxTimeStamp( const char* lsnm ) const
     if ( fp.isEmpty() ) return 0;
     BufferString timestamp( File::timeLastModified(fp.fullPath()) );
     return timestamp;
+}
+
+
+bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
+					       float& max, float& median ) const
+{
+    if ( !linenm )
+	return false;
+
+    int lineid = getLineID( linenm );
+    FileMultiString fms( toString(lineid) );
+    SafeFileIO sfio( FilePath(lsfp_,fms[0]).fullPath() );
+    if ( !sfio.open(true) )
+	return false;
+		    
+    ascistream astrm( sfio.istrm() ); // read header
+    while ( !atEndOfSection(astrm.next()) )
+    {   
+	if ( FixedString(astrm.keyWord()) == sKey::TrcDist() )
+	{
+	    float buf[2];
+	    sfio.istrm().read( (char*) buf, 2 * sizeof(float) );
+	    max = buf[0];
+	    median = buf[1];
+	    sfio.closeSuccess();
+	    return true;
+	}
+    }   
+    sfio.closeSuccess();
+    return false;
 }
 
 

@@ -107,6 +107,9 @@ public:
     const char*		getLSFileNm(const char* lsnm) const;
     const char*		getLineFileNm(const char* lsnm,const char* lnm) const;
 
+    bool		readDistBetwTrcsStats(const char* linemn,float& max,
+	    				      float& median) const;
+
 protected:
     int			getNewID(IOPar&);
     void		updateMaxID(int,IOPar&);
