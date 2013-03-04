@@ -506,7 +506,7 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
 
     vwr_->clearAllPacks();
     vwr_->removeAllAuxData( true );
-
+    d2tmodels_ = 0;
     if ( !sd ) return;
 
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
