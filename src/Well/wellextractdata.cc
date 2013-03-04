@@ -1097,7 +1097,7 @@ bool Well::LogSampler::doLog( int logidx )
 	    {
 		const float startdahwin = idz == 0 ? dah :
 			    ( data_->get(0,idz)+data_->get(0,idz-1) ) / 2;
-		const float stopdahwin = idz < data_->info().getSize(1) ?
+		const float stopdahwin = idz < data_->info().getSize(1) - 1 ?
 			    ( data_->get(0,idz)+data_->get(0,idz+1) ) / 2 : dah;
 		const float starttime = d2t_->getTime(startdahwin, wd_.track());
 		const float stoptime = d2t_->getTime( stopdahwin, wd_.track() );
