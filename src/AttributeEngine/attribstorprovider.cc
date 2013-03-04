@@ -905,7 +905,7 @@ void StorageProvider::checkClassType( const SeisTrc* trc,
 }
 
 
-bool StorageProvider::compDistBetwTrcsStats()
+bool StorageProvider::compDistBetwTrcsStats( bool force )
 {
     if ( !mscprov_ ) return false;
     if ( ls2ddata_ && ls2ddata_->areStatsComputed() ) return true;
@@ -916,12 +916,15 @@ bool StorageProvider::compDistBetwTrcsStats()
     const Seis2DLineSet* lset = reader.lineSet();
     if ( !lset ) return false;
 
-    const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
-    const BufferString attrnm = lk.attrName();
-    BufferStringSet steernms;
-    lset->getAvailableAttributes( steernms, sKey::Steering() );
-    const bool issteering = steernms.indexOf( attrnm ) >= 0;
-    if ( !issteering ) return false;
+    if ( !force )
+    {
+	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
+	const BufferString attrnm = lk.attrName();
+	BufferStringSet steernms;
+	lset->getAvailableAttributes( steernms, sKey::Steering() );
+	const bool issteering = steernms.indexOf( attrnm ) >= 0;
+	if ( !issteering ) return false;
+    }
 
     S2DPOS().setCurLineSet( lset->name() );
     if ( ls2ddata_ ) delete ls2ddata_;
@@ -996,6 +999,9 @@ bool StorageProvider::useInterTrcDist() const
 
 float StorageProvider::getDistBetwTrcs( bool ismax, const char* linenm ) const
 {
+    if ( !ls2ddata_ )
+	const_cast<StorageProvider*>(this)->compDistBetwTrcsStats( true );
+
     return ls2ddata_ ? ls2ddata_->getDistBetwTrcs( ismax, linenm )
 		     : mUdf(float);
 }

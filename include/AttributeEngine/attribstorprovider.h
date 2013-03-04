@@ -51,7 +51,7 @@ public:
     bool		needStoredInput() const	{ return true; }
     virtual void	getCompNames(BufferStringSet&) const;
     virtual float	getDistBetwTrcs(bool,const char* linenm =0) const;
-    virtual bool	compDistBetwTrcsStats();
+    virtual bool	compDistBetwTrcsStats(bool force=false);
 
 protected:
 

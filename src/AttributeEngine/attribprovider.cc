@@ -1634,7 +1634,7 @@ float Provider::getDistBetwTrcs( bool ismax, const char* linenm ) const
 }
 
 
-bool Provider::compDistBetwTrcsStats()
+bool Provider::compDistBetwTrcsStats( bool force )
 {
     bool allright = false;
     for ( int idx=0; idx<inputs_.size(); idx++ )

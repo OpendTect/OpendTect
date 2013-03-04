@@ -167,7 +167,7 @@ public:
     				//!<input cubes and thus not delivering
     				//!<adequate cs automaticly
     virtual void		updateCSIfNeeded(CubeSampling&) const	{}
-    virtual bool		compDistBetwTrcsStats();
+    virtual bool		compDistBetwTrcsStats(bool force=false);
     float			getApplicableCrlDist(bool) const;
     virtual float		getDistBetwTrcs(bool,
 	    					const char* linenm =0) const;
