@@ -22,6 +22,9 @@ class uiColorTable;
 class uiGroup;
 class uiParent;
 
+/*!
+\brief FlatView color table editor.
+*/
 
 mExpClass(uiFlatView) uiFlatViewColTabEd : public CallBacker
 {

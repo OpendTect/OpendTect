@@ -16,8 +16,9 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "uigroup.h"
 
-
-/*!\brief (Non-modal) main window containing one or more uiFlatViewer(s). */
+/*!
+\brief (Non-modal) main window containing one or more uiFlatViewer(s).
+*/
 
 mExpClass(uiFlatView) uiFlatViewMainWin : public uiMainWin
 			, public uiFlatViewWin

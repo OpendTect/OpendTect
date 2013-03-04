@@ -21,9 +21,10 @@ class uiListBox;
 
 namespace FlatView { class AuxDataEditor; }
 
-
-/*!A list with all auxdata in a FlatView::AuxDataEditor where the user
-   can select which one should be active for new points. */
+/*!
+\brief A list with all auxdata in a FlatView::AuxDataEditor where the user can
+select which one should be active for new points.
+*/
 
 mExpClass(uiFlatView) uiFlatViewAuxDataEditorList : public uiGroup
 {

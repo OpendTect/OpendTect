@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "uiflatviewmod.h"
 #include "uislicepos.h"
 
-/*! \brief Toolbar for setting slice position _ 2D viewer */
+/*!
+\brief Toolbar for setting slice position _ 2D viewer.
+*/
 
 mExpClass(uiFlatView) uiSlicePos2DView : public uiSlicePos
 {

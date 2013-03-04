@@ -13,12 +13,14 @@ ________________________________________________________________________
 
 #include "uiflatviewmod.h"
 #include "uigraphicsview.h"
+
 class uiFlatViewer;
 class uiRectItem;
 class MouseEventHandler;
 
-
-/*!\brief Shows a thumbnail with current position of a uiFlatViewer. */
+/*!
+\brief Shows a thumbnail with current position of a uiFlatViewer.
+*/
 
 mExpClass(uiFlatView) uiFlatViewThumbnail : public uiGraphicsView
 {

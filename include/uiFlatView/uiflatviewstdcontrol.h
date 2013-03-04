@@ -20,8 +20,9 @@ class uiToolButton;
 class uiFlatViewColTabEd;
 class uiToolBar;
 
-
-/*!\brief The standard tools to control uiFlatViewer(s). */
+/*!
+\brief The standard tools to control uiFlatViewer(s).
+*/
 
 mExpClass(uiFlatView) uiFlatViewStdControl : public uiFlatViewControl
 {

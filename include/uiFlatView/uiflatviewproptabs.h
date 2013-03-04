@@ -24,9 +24,10 @@ class uiCheckBox;
 class uiColorInput;
 class uiSelLineStyle;
 class uiColorTable;
-
     
-/*!\brief flat viewer properties tabs */
+/*!
+\brief uiFlatViewer properties tabs.
+*/
 
 mExpClass(uiFlatView) uiFlatViewPropTab : public uiDlgGroup
 {
@@ -45,7 +46,9 @@ protected:
 };
 
     
-/*!\brief flat viewer data display properties tabs */
+/*!
+\brief uiFlatViewer data display properties tabs.
+*/
 
 mExpClass(uiFlatView) uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 {
@@ -90,7 +93,9 @@ protected:
 };
 
     
-/*!\brief flat viewer WVA display properties tabs */
+/*!
+\brief uiFlatViewer WVA display properties tabs.
+*/
 		     
 mExpClass(uiFlatView) uiFVWVAPropTab : public uiFlatViewDataDispPropTab
 {
@@ -121,7 +126,9 @@ protected:
 };
 
 
-/*!\brief flat viewer VD display properties tabs */
+/*!
+\brief uiFlatViewer VD display properties tabs.
+*/
 
 mExpClass(uiFlatView) uiFVVDPropTab : public uiFlatViewDataDispPropTab
 {
@@ -147,7 +154,9 @@ protected:
 };
 
 
-/*!\brief flat viewer annotation properties tabs */
+/*!
+\brief uiFlatViewer annotation properties tabs.
+*/
 
 mExpClass(uiFlatView) uiFVAnnotPropTab : public uiFlatViewPropTab
 {

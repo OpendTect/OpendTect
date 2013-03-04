@@ -14,14 +14,16 @@ ________________________________________________________________________
 #include "uiflatviewmod.h"
 #include "uigroup.h"
 #include "iopar.h"
+
 class uiFlatViewer;
 class uiFlatViewPropDlg;
 class uiTabStackDlg;
 class MouseEventHandler;
 namespace FlatView { class ZoomMgr; class Viewer; }
 
-
-/*!\brief Tools to control uiFlatViewer(s). */
+/*!
+\brief Tools to control uiFlatViewer(s).
+*/
 
 mExpClass(uiFlatView) uiFlatViewControl : public uiGroup
 {

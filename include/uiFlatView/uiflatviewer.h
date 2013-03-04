@@ -23,15 +23,15 @@ namespace FlatView
     class uiBitMapDisplay;
 }
 
-
 class uiGraphicsView;
 class BufferStringSet;
 class uiFlatViewControl;
 class uiWorld2Ui;
 class uiGraphicsItemGroup;
 
-
-/*!\brief Fulfills the FlatView::Viewer specifications using 'ui' classes. */
+/*!
+\brief Fulfills the FlatView::Viewer specifications using 'ui' classes.
+*/
 
 mExpClass(uiFlatView) uiFlatViewer : public uiGroup
 		    , public FlatView::Viewer

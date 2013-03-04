@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "flatview.h"
 
 /*!
-\brief A control for FlatViewers with different zoom properties and settings.
+\brief A control for flatviewers with different zoom properties and settings.
 */
 
 mExpClass(uiFlatView) uiMultiFlatViewControl : public uiFlatViewStdControl

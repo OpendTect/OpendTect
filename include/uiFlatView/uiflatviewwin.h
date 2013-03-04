@@ -14,18 +14,17 @@ ________________________________________________________________________
 #include "uiflatviewmod.h"
 #include "sets.h"
 #include <iostream>
+
 class uiParent;
 class uiMainWin;
 class uiFlatViewer;
 class uiFlatViewControl;
 class IOPar;
 
-
 /*!\brief Base class for windows containing one or more uiFlatViewer(s).
 
-  will clean up the mess when it's destroyed, in particular release all
+  Will clean up the mess when it's destroyed, in particular releases all
   datapacks attached to the viewers.
-
 */
 
 mExpClass(uiFlatView) uiFlatViewWin
