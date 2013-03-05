@@ -30,6 +30,10 @@ class AuxDataEditor;
 
 #define mCtrlLeftButton ( (OD::ButtonState) (OD::LeftButton+OD::ControlButton) )
 
+/*!
+\brief Class to sow/select points with mouse.
+*/
+
 mExpClass(General) Sower : public CallBacker
 {
     friend class	AuxDataEditor;
@@ -103,11 +107,12 @@ protected:
 };
 
 
-
-/*!Editor for FlatView::AuxData. Allows the enduser to
-   click-drag-release the points in data.
-   Users of the class have the choice if the editor should do the changes for
-   them, or if they want to do changes themself, driven by the callback. */
+/*!
+\brief Editor for FlatView::AuxData. Allows the end-user to click-drag-release
+the points in data. Users of the class have the choice if the editor should do
+the changes for them, or if they want to do changes themself, driven by the
+callback.
+*/
 
 mExpClass(General) AuxDataEditor : public CallBacker
 {
