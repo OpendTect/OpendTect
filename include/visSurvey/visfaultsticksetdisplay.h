@@ -108,8 +108,6 @@ protected:
 
     void			setActiveStick(const EM::PosID&);
 
-    static const char*		sKeyEarthModelID()	{ return "EM ID"; }
-
     void			mouseCB(CallBacker*);
     void			stickSelectCB(CallBacker*);
     void			emChangeCB(CallBacker*);
@@ -164,6 +162,9 @@ protected:
     };
 
     ObjectSet<StickIntersectPoint> stickintersectpoints_;
+
+    static const char*		sKeyEarthModelID();
+    static const char*		sKeyDisplayOnlyAtSections();
 };
 
 } // namespace VisSurvey
