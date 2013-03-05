@@ -174,7 +174,7 @@ uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
     formfld_->setText( curdef );
     uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
 	    mCB(this,uiEditPropRefMathDef,rockPhysReq), "RockPhysics");
-    formfld_->addButton(tbsu)->attach( centeredAbove, formfld_->textField() );
+    formfld_->addButton( tbsu );
 }
 
 void rockPhysReq( CallBacker* )
