@@ -270,7 +270,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	const int rowidx = rowrg_.getIndex( rc.row );
 	const char* linenm =
-	    linenames_.validIdx(rowidx) ? linenames_[rowidx]->buf() : 0;
+	    linenames_.validIdx(rowidx) ? linenames_.get(rowidx).buf() : 0;
 	TypeSet<Coord3> positions;
 	const StepInterval<int> colrg = surf_->colRange( rc.row );
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
