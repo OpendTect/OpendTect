@@ -36,12 +36,12 @@ namespace PreStack
 mExpClass(PreStackProcessing) Gather : public FlatDataPack
 {
 public:
-    				Gather();
-    				Gather(const Gather&);
+				Gather();
+				Gather(const Gather&);
+				Gather(const FlatPosData&);
     				~Gather();
 
     bool			is3D() const { return linename_.isEmpty(); }				
-    bool			setSize( int nroff, int nrz );
 
     bool			readFrom(const MultiID&, const BinID&,
 	    				 int component=0,

@@ -111,19 +111,6 @@ bool Stack::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
-Gather* Stack::createOutputArray( const Gather& input ) const
-{
-    Gather* res = new Gather( input );
-    if ( !res->setSize( 1, input.size(false) ) )
-    {
-	delete res;
-	return 0;
-    }
-
-    return res;
-}
-
-
 od_int64 Stack::nrIterations() const
 {
     int max = 0;

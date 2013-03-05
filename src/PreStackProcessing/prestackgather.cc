@@ -62,10 +62,15 @@ Gather::Gather( const Gather& gather )
 {}
 
 
-bool Gather::setSize( int nroff, int nrz )
-{
-    return true;
-}
+Gather::Gather( const FlatPosData& fposdata )
+    : FlatDataPack( sDataPackCategory(), 
+        new Array2DImpl<float>(fposdata.nrPts(true),fposdata.nrPts(false)) )
+    , offsetisangle_( false )
+    , iscorr_( false )
+    , binid_( -1, -1 )
+    , coord_( 0, 0 )
+    , zit_( SI().zIsTime() )
+{}
 
 
 Gather::~Gather()

@@ -46,7 +46,6 @@ public:
 
 protected:
     static const char*		sKeyOffsetRange() { return "Offset Range"; }
-    Gather*			createOutputArray(const Gather&) const;
     od_int64			nrIterations() const;
     bool			doWork(od_int64,od_int64,int);
 
