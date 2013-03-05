@@ -23,7 +23,7 @@ ________________________________________________________________________
 typedef EM::StickSet EMStickSet;
 
 /*!
-\brief EMStickSet TranslatorGroup
+\brief EM::StickSet TranslatorGroup.
 */
 
 mExpClass(EarthModel) EMStickSetTranslatorGroup : public TranslatorGroup
@@ -38,7 +38,7 @@ public:
 
 
 /*!
-\brief EMStickSet Translator
+\brief EM::StickSet Translator.
 */
 
 mExpClass(EarthModel) EMStickSetTranslator : public Translator
@@ -61,6 +61,10 @@ public:
 
 };
 
+
+/*!
+\brief Landmark EM::StickSet Translator.
+*/
 
 mExpClass(EarthModel) lmkEMStickSetTranslator : public EMStickSetTranslator
 {				isTranslator(lmk,EMStickSet)
@@ -88,6 +92,10 @@ public:
     static const char*	tracestr;
 };
 
+
+/*!
+\brief Landmark EM::StickSet reader.
+*/
 
 mExpClass(EarthModel) lmkEMStickSetReader : public Executor
 {
@@ -125,6 +133,10 @@ protected:
     Interval<int>	distancuniteinterval;
 };
 
+
+/*!
+\brief Landmark EM::StickSet writer.
+*/
 
 mExpClass(EarthModel) lmkEMStickSetWriter : public Executor
 {
