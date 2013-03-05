@@ -33,6 +33,7 @@ static ObjectSet<const CallBacker> cmdrecstrikeoutlist_;
 
 CmdRecStopper::CmdRecStopper( const uiBaseObject* obj )
 {
+    cmdrecstopperstack_.allowNull();
     cmdrecstopperstack_.push( obj );
 
     if ( !cmdrecorders_.isEmpty() && !cmdrecstopperlist_.isPresent(obj) )
