@@ -16,6 +16,7 @@ static const char* rcsID = "$Id$";
 #include "executor.h"
 #include "faultstickseteditor.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
 #include "survinfo.h"
@@ -38,6 +39,10 @@ mCreateFactoryEntry( visSurvey::FaultStickSetDisplay );
 
 namespace visSurvey
 {
+
+const char* FaultStickSetDisplay::sKeyEarthModelID()	{ return "EM ID"; }
+const char* FaultStickSetDisplay::sKeyDisplayOnlyAtSections()
+					{ return "Display only at sections"; }
 
 FaultStickSetDisplay::FaultStickSetDisplay()
     : VisualObjectImpl(true)
@@ -1232,6 +1237,8 @@ void FaultStickSetDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
     par.set( sKeyEarthModelID(), getMultiID() );
+    par.setYN( sKeyDisplayOnlyAtSections(), displayonlyatsections_ );
+    par.set( sKey::Color, (int) getColor().rgb() );
 }
 
 
@@ -1255,6 +1262,11 @@ int FaultStickSetDisplay::usePar( const IOPar& par )
 
 	if ( emobject ) setEMID( emobject->id() );
     }
+
+    par.getYN(  sKeyDisplayOnlyAtSections(), displayonlyatsections_ );
+    Color col;
+    par.get( sKey::Color, (int&) col.rgb() );
+    setColor( col );
 
     return 1;
 }
