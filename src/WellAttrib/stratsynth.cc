@@ -279,7 +279,10 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
     errmsg_.setEmpty(); 
 
     if ( lm.isEmpty() ) 
+    {
+	errmsg_ = "Empty layer model.";
 	return 0;
+    }
 
     Seis::RaySynthGenerator synthgen;
     BufferString capt( "Generating ", synthgenpar.name_ ); 
@@ -303,6 +306,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	    BufferString msg( errmsg_ );
 	    mErrRet( msg.buf(), return 0;) 
 	}
+
 	maxsz = mMAX( aimod.size(), maxsz );
 	synthgen.addModel( aimod );
     }

@@ -584,6 +584,7 @@ void uiStratSynthDisp::displayPreStackDirSynthetic( const SyntheticData* sd )
 	DPM(DataPackMgr::FlatID()).add( gather );
 
 	PreStackView::GatherInfo gatherinfo;
+	gatherinfo.isstored_ = false;
 	gatherinfo.gathernm_ = sd->name();
 	gatherinfo.bid_ = gather->getBinID();
 	gatherinfo.dpid_ = gather->id();
@@ -699,8 +700,11 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
     {
 	datalist_->box()->setCurrentItem( syntheticnm );
 	stratsynth_.removeSynthetic( syntheticnm );
-	stratsynth_.addSynthetic();
+	SyntheticData* sd = stratsynth_.addSynthetic();
+	if ( !sd )
+	    mErrRet(stratsynth_.errMsg(), return );
 	setCurrentSynthetic();
+	displaySynthetic( currentsynthetic_ );
     }
 }
 
@@ -823,8 +827,9 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
 
     MouseCursorChanger mcchger( MouseCursor::Wait );
     SyntheticData* sd = stratsynth_.addSynthetic();
-
-    if ( sd )
+    if ( !sd )
+	mErrRet(stratsynth_.errMsg(), return )
+    else
     {
 	updateSyntheticList();
 	synthgendlg_->putToScreen();
@@ -1051,6 +1056,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 
     updateSynthNames();
     synthnmlb_->setSelected( 0, true );
+    stratsynth_.genParams().name_ = synthnmlb_->getText();
 }
 
 
@@ -1175,9 +1181,7 @@ bool uiSynthGenDlg::getFromScreen()
     
     if ( mIsUdf(stretchmutelimitfld_->getfValue()) ||
 	 stretchmutelimitfld_->getfValue()<0 )
-    {
 	mErrRet( "The stretch mute must be more than 0%", return false );
-    }
     stratsynth_.genParams().raypars_.setEmpty();
     rtsel_->fillPar( stratsynth_.genParams().raypars_ );
     const bool isps = !typefld_->getBoolValue();
