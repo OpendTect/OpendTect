@@ -51,6 +51,12 @@ macro ( OD_ADD_MODULES )
     endforeach()
 endmacro()
 
+#Macro for going through a list of modules and test/test<MODULE>/
+macro ( OD_ADD_TEST_MODULES )
+    foreach( OD_MODULE_NAME ${ARGV} )
+	add_subdirectory( test/test${OD_MODULE_NAME} )
+    endforeach()
+endmacro()
 
 # Macro for going through a list of modules and adding them
 # as optional targets

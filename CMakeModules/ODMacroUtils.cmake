@@ -371,12 +371,13 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} )
 	list( REMOVE_DUPLICATES OD_RUNTIMELIBS )
     endif()
     get_filename_component( TEST_NAME ${TEST_FILE} NAME_WE )
+    set ( TEST_NAME test_${TEST_NAME} )
     add_executable( ${TEST_NAME} ${OD_EXEC_GUI_SYSTEM} ${TEST_FILE} )
 
     set_target_properties( ${TEST_NAME}
 	    PROPERTIES 
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
-	    LABELS ${OD_MODULE_TEST_LABEL}
+	    LABELS ${OD_MODULE_NAME}
 	    RUNTIME_OUTPUT_DIRECTORY "${OD_EXEC_OUTPUT_PATH}")
     target_link_libraries(
 	    ${TEST_NAME}
@@ -393,7 +394,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} )
     endif()
 
     add_test( NAME ${TEST_NAME} WORKING_DIRECTORY ${OD_EXEC_OUTPUT_PATH} COMMAND ${TEST_COMMAND} ${TEST_ARGS} )
-    set_property( TEST ${TEST_NAME} PROPERTY ${OD_MODULE_TEST_LABEL} )
+    set_property( TEST ${TEST_NAME} PROPERTY ${OD_MODULE_NAME} )
 endforeach()
 
 

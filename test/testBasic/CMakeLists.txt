@@ -5,10 +5,9 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET ( OD_MODULE_DEPS Basic )
-SET ( OD_MODULE_TEST_LABEL Basic )
+set ( OD_MODULE_DEPS Basic )
+set  ( OD_TEST_PROGS svnversion sets )
 
-SET ( OD_TEST_PROGS testsvnversion testsets )
 OD_INIT_MODULE()
 
 

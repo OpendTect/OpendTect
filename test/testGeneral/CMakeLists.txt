@@ -5,12 +5,12 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET ( OD_MODULE_DEPS General )
-SET ( OD_MODULE_TEST_LABEL General )
+set ( OD_MODULE_DEPS General )
 
 if ( NOT DEFINED WIN32 )
-    SET ( OD_TEST_PROGS testibmformat )
+    SET ( OD_TEST_PROGS ibmformat )
 endif()
+
 OD_INIT_MODULE()
 
 

@@ -86,7 +86,7 @@ SET( OD_SPECPROGS ODSeis )
 OD_ADD_MODULES( src ${OD_MODULES} )
 OD_ADD_MODULES( plugins ${OD_PLUGINS} )
 OD_ADD_MODULES( spec ${OD_SPECPROGS} )
-OD_ADD_MODULES( test testBasic testGeneral testPreStackProcessing )
+OD_ADD_TEST_MODULES( Basic General PreStackProcessing )
 
 OD_WRITE_MODDEPS( ${OD_BINARY_BASEDIR}/data )
 OD_WRITE_FINDFILE()
