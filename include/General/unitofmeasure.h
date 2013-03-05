@@ -89,6 +89,12 @@ protected:
 };
 
 
+//!> Converts from one unit into another.
+//!> Both units may be null (hence the non-member function).
+template <class T> mGlobal void convUserValue(T& val,
+		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit);
+
+
 /*!\brief Repository of all Units of Measure in the system.
  
  At first usage of the singleton instance of this class (accessible through
@@ -167,6 +173,21 @@ template <class T> T UnitOfMeasure::userValue( T inp ) const
 
     return getUserValueFromSI( inp );
 }
+
+
+
+template <class T> mGlobal inline void convUserValue( T& val,
+		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit )
+{
+    if ( oldunit == newunit || mIsUdf(val) )
+	return;
+
+    if ( oldunit )
+	val = oldunit->internalValue( val );
+    if ( newunit )
+	val = newunit->userValue( val );
+}
+
 
 
 #endif
