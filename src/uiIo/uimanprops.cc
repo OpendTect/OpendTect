@@ -94,7 +94,10 @@ public:
     uiUnitSel*		unfld_;
     uiGenInput*		deffld_;
 
+    const UnitOfMeasure* curunit_;
+
     void		setForm(CallBacker*);
+    void		unitSel(CallBacker*);
 
 };
 
@@ -107,6 +110,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 		"110.1.1"))
     , pr_(pr)
     , withform_(supportform)
+    , curunit_(0)
 {
     namefld_ = new uiGenInput( this, "Name", StringInpSpec(pr.name()) );
     SeparString ss;
@@ -125,15 +129,16 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
     unfld_ = new uiUnitSel( this, pr_.stdType() );
     unfld_->setUnit( pr_.disp_.unit_ );
     unfld_->attach( rightOf, rgfld_ );
+    unfld_->selChange.notify( mCB(this,uiEditPropRef,unitSel) );
+    curunit_ = unfld_->getUnit();
 
-    const UnitOfMeasure* un = unfld_->getUnit();
     Interval<float> vintv( pr_.disp_.range_ );
-    if ( un )
+    if ( curunit_ )
     {
 	if ( !mIsUdf(vintv.start) )
-	    vintv.start = un->getUserValueFromSI( vintv.start );
+	    vintv.start = curunit_->getUserValueFromSI( vintv.start );
 	if ( !mIsUdf(vintv.stop) )
-	    vintv.stop = un->getUserValueFromSI( vintv.stop );
+	    vintv.stop = curunit_->getUserValueFromSI( vintv.stop );
     }
     rgfld_->setValue( vintv );
 
@@ -147,6 +152,21 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 				mCB(this,uiEditPropRef,setForm), false );
 	but->attach( rightOf, deffld_ );
     }
+}
+
+
+void uiEditPropRef::unitSel( CallBacker* )
+{
+    const UnitOfMeasure* newun = unfld_->getUnit();
+    if ( newun == curunit_ )
+	return;
+
+    Interval<double> vintv( rgfld_->getDInterval() );
+    convUserValue( vintv.start, curunit_, newun );
+    convUserValue( vintv.stop, curunit_, newun );
+    rgfld_->setValue( vintv );
+
+    curunit_ = newun;
 }
 
 
@@ -219,7 +239,7 @@ void getMathExpr()
 
 void uiEditPropRef::setForm( CallBacker* )
 {
-    uiEditPropRefMathDef dlg( this, pr_, unfld_->getUnit() );
+    uiEditPropRefMathDef dlg( this, pr_, curunit_ );
     if ( dlg.go() )
 	deffld_->setText( dlg.formfld_->text() );
 }
@@ -239,17 +259,16 @@ bool uiEditPropRef::acceptOK( CallBacker* )
     for ( int idx=0; idx<nral; idx++ )
 	pr_.aliases().add( ss[idx] );
     pr_.disp_.color_ = colfld_->color();
-    const UnitOfMeasure* un = unfld_->getUnit();
     Interval<float> vintv( rgfld_->getFInterval() );
-    if ( !un )
+    if ( !curunit_ )
 	pr_.disp_.unit_.setEmpty();
     else
     {
-	pr_.disp_.unit_ = un->name();
+	pr_.disp_.unit_ = curunit_->name();
 	if ( !mIsUdf(vintv.start) )
-	    vintv.start = un->getSIValue( vintv.start );
+	    vintv.start = curunit_->getSIValue( vintv.start );
 	if ( !mIsUdf(vintv.stop) )
-	    vintv.stop = un->getSIValue( vintv.stop );
+	    vintv.stop = curunit_->getSIValue( vintv.stop );
     }
     pr_.disp_.range_ = vintv;
 
@@ -323,7 +342,7 @@ void uiBuildPROPS::itemSwitch( const char* nm1, const char* nm2 )
 
 
 uiManPROPS::uiManPROPS( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Layer Properties",
+    : uiDialog(p,uiDialog::Setup("Layer Properties - Definition",
 				"Define possible layer properties","110.1.0"))
 {
     setCtrlStyle( LeaveOnly );
@@ -365,7 +384,7 @@ bool uiManPROPS::haveUserChange() const
 
 uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
 			      const char* lbl )
-    : uiDialog(p,uiDialog::Setup("Layer Properties",
+    : uiDialog(p,uiDialog::Setup("Layer Properties - Selection",
 				"Select layer properties to use","110.1.2"))
     , props_(PROPS())
     , prsel_(prs)
