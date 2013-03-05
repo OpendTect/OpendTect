@@ -17,10 +17,10 @@ ________________________________________________________________________
 #include "math.h"
 #include "sets.h"
 
-
 /*!
 \brief Acoustic Impedance layer.
 */
+
 
 mClass(Basic) AILayer
 {
@@ -29,23 +29,18 @@ public:
 		    : thickness_(thkness), vel_(vel), den_(den)	{}
     bool	operator ==( const AILayer& p ) const
 		{ return thickness_ == p.thickness_; }
-
+    
     float	thickness_, vel_, den_;
+    float	getAI() const;
+    
 
-    float	getAI() const 		{ return vel_*den_; }
 };
 
 
 typedef TypeSet<AILayer> AIModel;
 
-inline float getLayerDepth( const AIModel& mod, int layer ) 
-{
-    float depth = 0;
-    for ( int idx=0; idx<layer+1; idx++ )
-	depth += mod[idx].thickness_;
+mGlobal(Basic) float getLayerDepth( const AIModel& mod, int layer );
 
-    return depth;
-}
 
 
 /*!
@@ -64,30 +59,22 @@ public:
 		{ return thickness_ == p.thickness_; }
 
     float	svel_;
+    float	getSI() const;
 };
 
 
 /*!\brief A table of elastic prop layers */
-
 typedef TypeSet<ElasticLayer> ElasticModel;
 
 
-inline void blockElasticModel( ElasticModel& mdl, float threshold )
-{
-    float velthreshold = threshold;
-    float denthreshold = threshold;
-    for ( int idx=mdl.size()-1; idx>=1; idx-- )
-    {
-	const float veldiff = mdl[idx].vel_ - mdl[idx-1].vel_;
-	const float dendiff = mdl[idx].den_ - mdl[idx-1].den_;
-	if ( fabs( veldiff ) < velthreshold && fabs( dendiff ) < denthreshold )
-	{
-	    mdl[idx-1].thickness_ += mdl[idx].thickness_;
-	    mdl.removeSingle( idx );
-	}
-    }
-}
+// ensures a model does not have layers below a given thickness
+// last layer may not comply though
+mGlobal(Basic) void	upscaleElasticModel(const ElasticModel& inmdl,
+				    ElasticModel& oumdl,float maxthickness);
 
+// Smashes every consecutive set of nblock layers into one output layer
+mGlobal(Basic) void	upscaleElasticModelByN(const ElasticModel& inmdl,
+				       ElasticModel& oumdl,int nblock);
 
 #endif
 
