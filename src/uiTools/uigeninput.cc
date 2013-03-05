@@ -945,7 +945,7 @@ void uiGenInput::checkBoxSel( CallBacker* cb )
 
     if ( selbut ) selbut->setSensitive( elemsens );
     if ( clrbut ) clrbut->setSensitive( elemsens );
-    checked.trigger(cb);
+    checked.trigger(this);
 }
 
 
