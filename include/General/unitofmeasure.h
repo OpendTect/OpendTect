@@ -92,7 +92,7 @@ protected:
 
 //!> Converts from one unit into another.
 //!> Both units may be null (hence the non-member function).
-template <class T> mGlobal(General) void convUserValue(T& val,
+template <class T> void convUserValue(T& val,
 		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit);
 
 
@@ -176,7 +176,7 @@ template <class T> inline T UnitOfMeasure::userValue( T inp ) const
 }
 
 
-template <class T> mGlobal(General) inline void convUserValue( T& val,
+template <class T> void convUserValue( T& val,
 		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit )
 {
     if ( oldunit == newunit || mIsUdf(val) )
