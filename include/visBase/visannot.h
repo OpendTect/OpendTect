@@ -39,9 +39,8 @@ class Text2;
 class DataObjectGroup;
 class PickStyle;
 
-/*!\brief
-    Annotation is a simple wireframe box with text on its
-    axis.
+/*!
+\brief Annotation is a simple wireframe box with text on its axis.
 */
 
 mExpClass(visBase) Annotation : public VisualObjectImpl

@@ -40,7 +40,7 @@ class TextureChannels;
 class MappedTextureDataSet;
 
 /*!
-Interface for classes that can take one or more texture channels in an
+\brief Interface for classes that can take one or more texture channels in an
 TextureChannels class and convert them to RGBA textures in OpenGL, optionally
 with shaders. There should always be a non-shading way to fall back on.
 */
@@ -84,8 +84,10 @@ protected:
 };
 
 
-/*!A destination where the texturechannels can put the mapped data. The class
-   instanciation is provided by the TextureChannel2RGBA. */
+/*!
+\brief A destination where the texturechannels can put the mapped data. The
+class instantiation is provided by the TextureChannel2RGBA.
+*/
 
 mExpClass(visBase) MappedTextureDataSet : public DataObject
 {
@@ -106,10 +108,10 @@ public:
 };
 
 
-
-/*! Implementation of TextureChannel2RGBA that takes a ColorSequence for each
-channel and blends it into an RGBA image. */
-
+/*!
+\brief Implementation of TextureChannel2RGBA that takes a ColorSequence for each
+channel and blends it into an RGBA image.
+*/
 
 mExpClass(visBase) ColTabTextureChannel2RGBA : public TextureChannel2RGBA
 {

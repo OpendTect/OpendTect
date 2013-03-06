@@ -16,16 +16,14 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "visdata.h"
 
-
 class SoLight;
 class SoLightModel;
 
 namespace visBase
 {
 
-/*!\brief
-Base class for all lights
-
+/*!
+\brief Base class for all lights.
 */
 
 mExpClass(visBase) Light : public DataObject
@@ -56,9 +54,9 @@ protected:
 
 };
 
-/*!\brief
-A point that illuminates light
 
+/*!
+\brief A point that illuminates light.
 */
 
 mExpClass(visBase) PointLight : public Light
@@ -78,11 +76,9 @@ protected:
 };
 
 
-/*!\brief
-A light in a certain direction from a position at an infinite distance
-
+/*!
+\brief A light in a certain direction from a position at an infinite distance.
 */
-
 
 mExpClass(visBase) DirectionalLight : public Light
 {
@@ -100,11 +96,10 @@ protected:
 
 };
 
-/*!\brief
 
-
+/*!
+\brief Spot light.
 */
-
 
 mExpClass(visBase) SpotLight : public Light
 {
@@ -135,6 +130,10 @@ protected:
     static const char*	dropoffratestr();
 };
 
+
+/*!
+\brief Light model.
+*/
 
 mExpClass(visBase) LightModel : public DataObject
 {

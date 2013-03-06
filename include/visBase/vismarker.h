@@ -28,11 +28,9 @@ namespace visBase
 {
 class Transformation;
 
-/*!\brief
-
-Marker is a basic pickmarker with a constant size on screen. 
+/*!
+\brief Marker is a basic pickmarker with a constant size on screen.
 Size and shape are settable.
-
 */
 
 mExpClass(visBase) Marker : public VisualObjectImpl

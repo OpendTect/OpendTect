@@ -40,8 +40,8 @@ class DataObjectGroup;
 class Text2;
 class Transformation;
 
-/*! \brief 
-Base class for well display
+/*!
+\brief Base class for well display.
 */
 
 mExpClass(visBase) Well : public VisualObjectImpl
