@@ -15,7 +15,7 @@ if ( $bluntcopy == 0 ) then
 endif
 
 set fnm="$1"
-dvs_ed "$fnm"
+# dvs_ed "$fnm"
 
 set dirnm=`pwd`
 
