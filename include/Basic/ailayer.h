@@ -22,7 +22,7 @@ ________________________________________________________________________
 */
 
 
-mClass(Basic) AILayer
+mExpClass(Basic) AILayer
 {
 public:
 		AILayer( float thkness, float vel, float den )
@@ -47,7 +47,7 @@ mGlobal(Basic) float getLayerDepth( const AIModel& mod, int layer );
 \brief A table of elastic prop layers.
 */
 
-mClass(Basic) ElasticLayer : public AILayer
+mExpClass(Basic) ElasticLayer : public AILayer
 {
 public:
 		ElasticLayer( float thkness, float pvel, float svel, float den )
