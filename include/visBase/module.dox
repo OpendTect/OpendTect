@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 /*!
 \defgroup visBase visBase
-\section Introduction Introduction
 
   Visualisation - Open Inventor-based tools
 
@@ -22,8 +21,6 @@ ________________________________________________________________________
   This module can be seen as a layer on top of the COIN library. Compliant with
   the 'DIF' principle (Don't implement the future), the layer only contains
   those tools that are really used in OpendTect.
-
-\section Content Content
 
   The function initODInventorClasses() initialises our own 
   Inventor classes, which are in fact extensions of the COIN library. 
@@ -40,7 +37,7 @@ ________________________________________________________________________
   - CubeView, for the volume viewer.
   - Marker, for picks.
   - HorizonSection, for Horizons.
-  - Well, for wells.
+  - visBase::Well, for wells.
 
 */
 
