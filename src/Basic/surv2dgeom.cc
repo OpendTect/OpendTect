@@ -927,8 +927,8 @@ Survey::Geometry2D::Geometry2D()
 }
 
 
-Survey::Geometry2D::Geometry2D( PosInfo::Line2DData& l2d )
-    : data_( l2d )
+Survey::Geometry2D::Geometry2D( PosInfo::Line2DData* l2d )
+    : data_( *l2d )
 {}
 
 

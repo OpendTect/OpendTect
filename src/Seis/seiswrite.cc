@@ -101,7 +101,7 @@ bool SeisTrcWriter::close()
 	    {
 		geom2d_.data().setLineName( lnm );
 #ifdef mNew2DGeometryImpl
-		GMAdmin().write( &geom2d_ );
+		GMAdmin().write( geom2d_ );
 #else
 		S2DPOS().setCurLineSet( lset_->name() );
 		PosInfo::POS2DAdmin().setGeometry( geom2d_.data() );
@@ -253,7 +253,14 @@ bool SeisTrcWriter::next2DLine()
 
     IOPar* lineiopar = new IOPar;
 #ifdef mNew2DGeometryImpl
-    geom2d_.setGeomID( Survey::GMAdmin().createEntry(lnm,true) );
+    PtrMan< IOObj > ioobj = Survey::GMAdmin().createEntry(lnm,true);
+    if ( !ioobj || ioobj->key().nrKeys() != 2 )
+    {
+	errmsg_ = "Cannot write new line";
+	return false;
+    }
+
+    geom2d_.setGeomID( ioobj->key().ID(1) );
     lineiopar->setName( lnm );
     lineiopar->set( sKey::GeomID(), geom2d_.getGeomID() );
 #else

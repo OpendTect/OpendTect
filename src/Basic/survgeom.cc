@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "multiid.h"
 #include "surv2dgeom.h"
 #include "survinfo.h"
+#include "task.h"
 
 using namespace Survey;
 
@@ -69,9 +70,7 @@ GeometryManager::GeometryManager()
 
 
 GeometryManager::~GeometryManager()
-{
-    deepUnRef( geometries_ );
-}
+{ deepUnRef( geometries_ ); }
 
 
 const Geometry* GeometryManager::getGeometry(TraceID::GeomID geomid) const
@@ -133,42 +132,45 @@ Coord GeometryManager::toCoord( const TraceID& tid ) const
 }
 
 
-void GeometryManager::addGeometry(Survey::Geometry* g)
+void GeometryManager::addGeometry( Survey::Geometry& geom )
 {
-    g->ref();
-    geometries_ += g;
+    geom.ref();
+    geometries_ += &geom;
 }
 
 
 bool GeometryManager::fetchFrom2DGeom()
 {
-
-    GeometryWriter* geomwriter =GeometryWriter::factory().create(sKey::TwoD());
-    bool makenewlinenames = hasDuplicateLineNames();
+    PtrMan<GeometryWriter> geomwriter = GeometryWriter::factory()
+				       .create(sKey::TwoD());
+    const bool makenewlinenames = hasDuplicateLineNames();
     BufferStringSet lsnames;
     S2DPOS().getLineSets( lsnames );
-    for ( int idx=0; idx<lsnames.size(); idx++ )
+    for ( int lsidx=0; lsidx<lsnames.size(); lsidx++ )
     {
 	BufferStringSet lnames;
-	S2DPOS().getLines( lnames, lsnames.get(idx).buf() );
-	for ( int idx2=0; idx2<lnames.size(); idx2++ )
+	S2DPOS().getLines( lnames, lsnames.get(lsidx).buf() );
+	S2DPOS().setCurLineSet( lsnames.get(lsidx).buf() );
+	for ( int lidx=0; lidx<lnames.size(); lidx++ )
 	{
-	    Geometry2D* geom2d = new Geometry2D();
-	    geom2d->ref();
-	    geom2d->data().setLineName( lnames.get(idx2) );
-	    S2DPOS().getGeometry(geom2d->data());
+	    PosInfo::Line2DData* data = new PosInfo::Line2DData;
+	    data->setLineName( lnames.get(lidx) );
+	    if ( !S2DPOS().getGeometry( *data ) )
+	    {
+		delete data;
+		continue;
+	    }
+
 	    if ( makenewlinenames )
 	    {
-		BufferString newlnm = lsnames.get(idx);
+		BufferString newlnm = lsnames.get( lsidx );
 		newlnm.add( "-" );
-		newlnm.add( lnames.get(idx2) );
-		geom2d->data().setLineName( newlnm );
+		newlnm.add( lnames.get(lidx) );
+		data->setLineName( newlnm );
 	    }
-	    else
-		geom2d->data().setLineName( lnames.get(idx2) );
 
-	    geomwriter->write( geom2d );
-	    geom2d->unRef();
+	    RefMan<Geometry2D> geom2d = new Geometry2D( data );
+	    geomwriter->write( *geom2d );
 	}
     }
 
@@ -178,62 +180,94 @@ bool GeometryManager::fetchFrom2DGeom()
 
 bool GeometryManager::hasDuplicateLineNames()
 {
-	BufferStringSet lsnames;
-	S2DPOS().getLineSets( lsnames );
-	BufferStringSet linenames;
-	for ( int idx=0; idx<lsnames.size(); idx++ )
+    BufferStringSet lsnames;
+    S2DPOS().getLineSets( lsnames );
+    BufferStringSet linenames;
+    for ( int lsidx=0; lsidx<lsnames.size(); lsidx++ )
+    {
+	BufferStringSet lnames;
+	S2DPOS().getLines( lnames, lsnames.get(lsidx).buf() );
+	for ( int totalidx=0; totalidx<linenames.size(); totalidx++ )
 	{
-		BufferStringSet lnames;
-		S2DPOS().getLines( lnames, lsnames.get(idx).buf() );
-		for ( int id=0; id<linenames.size(); id++ )
-		{
-			for ( int id2=0; id2<lnames.size(); id2++ )
-			{
-				if ( lnames.get(id2) == linenames.get(id) )
-					return true;
-			}
-		}
-			
-		linenames.add( lnames, false );
+	    for ( int lidx=0; lidx<lnames.size(); lidx++ )
+	    {
+		if ( lnames.get(lidx) == linenames.get(totalidx) )
+		    return true;
+	    }
 	}
-
-	return false;
+	
+	linenames.add( lnames, false );
+    }
+	
+    return false;
 }
 
 
-bool GeometryManager::write( Geometry* geom)
+bool GeometryManager::write( Geometry& geom )
 {
-    if ( geom->is2D() )
+    if ( geom.is2D() )
     {
-    GeometryWriter* geomwriter =GeometryWriter::factory().create( sKey::TwoD());
-    geom->ref();
-    geomwriter->write( geom );
-    addGeometry( geom );
-    geom->unRef();
-    return true;
+	PtrMan<GeometryWriter> geomwriter =GeometryWriter::factory()
+						    .create( sKey::TwoD() );
+	geom.ref();
+	if ( !geomwriter->write(geom) )
+	{
+	    geom.unRef();
+	    return false;
+	}
+
+	addGeometry( geom );
+	geom.unRef();
+	return true;
     }
     else
 	return false;
 }
 
 
-TraceID::GeomID GeometryManager::createEntry( const char* name, const bool is2d)
+IOObj* GeometryManager::createEntry( const char* name,const bool is2d )
 {
     if ( is2d )
     {
-	GeometryWriter* geomwriter = GeometryWriter::factory().create
-								(sKey::TwoD());
+	PtrMan<GeometryWriter> geomwriter = GeometryWriter::factory()
+				    .create( sKey::TwoD() );
+
 	return geomwriter->createEntry( name );
     }
     else
-	return cDefault3DGeom();
+	return 0;
 }
 
 
-bool GeometryManager::fillGeometries()
+void GeometryManager::removeGeometry( TraceID::GeomID geomid )
 {
-    GeometryReader* geomreader = GeometryReader::factory().create(sKey::TwoD());
-    return geomreader->read(geometries_);
+    const int index = indexOf( geomid );
+    if ( geometries_.validIdx(index) )
+    {
+	Geometry* geom = geometries_.removeSingle( index );
+	geom->unRef();
+    }
+
+    return;
+    
+}
+
+
+int GeometryManager::indexOf( TraceID::GeomID geomid ) const
+{
+    for ( int idx=0; idx<geometries_.size(); idx++ )
+	if ( geometries_[idx]->getGeomID() == geomid )
+	    return idx;
+
+    return -1;
+}
+
+bool GeometryManager::fillGeometries( TaskRunner* tr )
+{
+    deepUnRef( geometries_ );
+    PtrMan<GeometryReader> geomreader = GeometryReader::factory()
+				        .create(sKey::TwoD());
+    return geomreader->read( geometries_, tr );
 }
 
 
