@@ -21,144 +21,133 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Survey;
 
+#define mReturn nrdone_++; \
+return nrdone_ < totalNr() ? MoreToDo() : Finished();
 
 class GeomFileReader : public Executor
 {
 public:
-	GeomFileReader( const ObjectSet<IOObj>& objs, 
-						  ObjectSet<Geometry>& geometries )
-		: Executor( "Loading Files" )
-		, objs_(objs)
-		, geometries_(geometries)
-		, nrdone_(0)
-	{}
+
+GeomFileReader( const ObjectSet<IOObj>& objs, ObjectSet<Geometry>& geometries )
+: Executor( "Loading Files" )
+, objs_(objs)
+, geometries_(geometries)
+, nrdone_(0)
+{}
+
+	
+od_int64 nrDone() const
+{ return nrdone_; }
 
 
-	od_int64 nrDone() const
-	{ return nrdone_; }
-
-
-	od_int64 totalNr() const
-	{ return objs_.size(); }
+od_int64 totalNr() const
+{ return objs_.size(); }
 
 protected:
 
-	od_int32 nextStep()
-	{
-		StreamData isd;
-		const IOObj* ioobj = objs_[nrdone_];
-		const BufferString srcfile = ioobj->fullUserExpr();
-		isd = StreamProvider( srcfile ).makeIStream();
-		if( !isd.usable() )
-		{
-			nrdone_++;
-			return nrdone_<totalNr() ? MoreToDo() : Finished();
-		}
+int nextStep()
+{
+    const IOObj* ioobj = objs_[mCast(int,nrdone_)];
+    if ( ioobj->translator() != dgb2DSurvGeomTranslator::translKey() || 
+	 ioobj->key().nrKeys() != 2 )
+    { mReturn }
 
-		if ( ioobj->translator() == dgb2DSurvGeomTranslator::translKey())
-		{
-			Geometry2D* geom = new Geometry2D();
-			if ( !geom->data().read(*(isd.istrm),false) )
-			{
-				nrdone_++;
-				return nrdone_<totalNr() ? MoreToDo() : Finished();
-			}
+    StreamData isd = StreamProvider( ioobj->fullUserExpr() ).makeIStream();
+    if ( !isd.usable() )
+    { mReturn }
+	
+    PosInfo::Line2DData* data = new PosInfo::Line2DData;
+    if ( !data->read(*(isd.istrm),false) )
+    {
+	delete data;
+	isd.close();
+	mReturn
+    }
+	
+    isd.close();
+    data->setLineName( ioobj->name() );
+    Geometry2D* geom = new Geometry2D( data );
+    geom->setGeomID( ioobj->key().ID(1) );
+    geom->ref();
+    geometries_ += geom;
+    mReturn
+}
 
-			isd.close();
-			geom->setGeomID( ioobj->key().ID(1) );
-			geom->data().setLineName( ioobj->name() );
-			geometries_ += geom;
-			nrdone_++;
-			return nrdone_<totalNr() ? MoreToDo() : Finished();
-		}
+const ObjectSet<IOObj>&	    objs_;
+ObjectSet<Geometry>&	    geometries_;
+od_int64		    nrdone_;
 
-		return Finished();
-	}
-
-	const ObjectSet<IOObj>&		objs_;
-	ObjectSet<Geometry>&		geometries_;
-
-	od_int32					nrdone_;
 };
 
 
 void GeometryWriter2D::initClass()
+{ GeometryWriter::factory().addCreator( create2DWriter, sKey::TwoD() ); }
+
+
+bool GeometryWriter2D::write( Geometry& geom ) const
 {
-	GeometryWriter::factory().addCreator( create2DWriter, sKey::TwoD() );
+    RefMan< Geometry2D > geom2d;
+    mDynamicCast( Geometry2D*, geom2d, &geom );
+    if ( !geom2d )
+	return false;
+
+    PtrMan< IOObj > ioobj = createEntry( geom2d->data().lineName().buf() );
+    if ( !ioobj || ioobj->key().nrKeys() != 2)
+	return false;
+
+    geom2d->setGeomID( ioobj->key().ID(1) );
+    BufferString destfile = ioobj->fullUserExpr();
+    StreamData osd = StreamProvider( destfile ).makeOStream();
+    const bool res = osd.usable() ? geom2d->data()
+				  .write( *(osd.ostrm),false,true ) : false;
+    osd.close();
+    return res;
 }
 
 
-bool GeometryWriter2D::write( Geometry* geom )
+IOObj* GeometryWriter2D::createEntry( const char* name ) const
 {
-	Geometry2D* geom2d;
-	mDynamicCast( Geometry2D*, geom2d, geom );
-	geom2d->ref();
-	IOObjContext iocontext = mIOObjContext(SurvGeom);
-	iocontext.setName("Geometry");
-	MultiID mid = iocontext.getSelKey();
-	IOM().to( mid );
-	CtxtIOObj cioob( iocontext );
-	cioob.ctxt.setName( geom2d->data().lineName().buf() );
-	cioob.ioobj = 0;
-	cioob.fillObj();
-	mid.add( cioob.ioobj->key().ID(1) );
-	geom2d->setGeomID( cioob.ioobj->key().ID(1) );
-	BufferString destfile = IOM().get( mid )->fullUserExpr();
-	StreamData osd = StreamProvider( destfile ).makeOStream();
+    const IOObjContext& iocontext = mIOObjContext(SurvGeom);
+    if ( !IOM().to(iocontext.getSelKey()) )
+	return 0;
 
-	if ( osd.usable() )
-	{
-		if ( !(geom2d->data().write(*(osd.ostrm),false,true)) )
-			return false;
-	}
+    CtxtIOObj ctio( iocontext );
+    ctio.ctxt.setName( name );
+    if ( ctio.fillObj() == 0 )
+	return 0;
 
-	osd.close();
-	geom2d->unRef();
-	return true;
-}
-
-
-int GeometryWriter2D::createEntry( const char* name )
-{
-	IOObjContext iocontext = mIOObjContext(SurvGeom);
-	iocontext.setName("Geometry");
-	IOM().to( iocontext.getSelKey() );
-	CtxtIOObj cioob( iocontext );
-	cioob.ctxt.setName( name );
-	cioob.ioobj = 0;
-	cioob.fillObj();
-	return cioob.ioobj->key().ID(1);
+    return ctio.ioobj;
 }
 
 
 void GeometryWriter3D::initClass()
 {
-	GeometryWriter::factory().addCreator( create3DWriter, sKey::ThreeD() );
+    GeometryWriter::factory().addCreator( create3DWriter, sKey::ThreeD() );
 }
 
 
-bool GeometryReader2D::read( ObjectSet<Geometry>& geometries )
+bool GeometryReader2D::read( ObjectSet<Geometry>& geometries, 
+			     TaskRunner* tr ) const
 {
-	IOObjContext iocontext = mIOObjContext(SurvGeom);
-	MultiID mid = iocontext.getSelKey();
-	IOM().to(mid,true);
-	const ObjectSet<IOObj> objs = IOM().dirPtr()->getObjs();
-	GeomFileReader gfr( objs, geometries );
-	if ( !gfr.execute() )
-		return false;
-
-	return true;
+    const IOObjContext& iocontext = mIOObjContext(SurvGeom);
+    const MultiID mid = iocontext.getSelKey();
+    if ( !IOM().to(mid,true) )
+	return false;
+	
+    const ObjectSet<IOObj> objs = IOM().dirPtr()->getObjs();
+    GeomFileReader gfr( objs, geometries );
+    return TaskRunner::execute( tr, gfr );
 }
 
 
 void GeometryReader2D::initClass()
 {
-	GeometryReader::factory().addCreator( create2DReader, sKey::TwoD() );
+    GeometryReader::factory().addCreator( create2DReader, sKey::TwoD() );
 }
 
 
 void GeometryReader3D::initClass()
 {
-	GeometryReader::factory().addCreator( create3DReader, sKey::ThreeD() );
+    GeometryReader::factory().addCreator( create3DReader, sKey::ThreeD() );
 }
 

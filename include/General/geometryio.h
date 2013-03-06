@@ -25,8 +25,8 @@ public:
     static GeometryWriter*	create2DWriter()
 				{ return new GeometryWriter2D; }
     static void			initClass();
-    bool			write(Geometry*);
-    int				createEntry(const char* name);
+    bool			write(Geometry&) const;
+    IOObj*			createEntry(const char* name) const;
 
 };
 
@@ -50,7 +50,7 @@ public:
     static GeometryReader*	create2DReader()
 				{ return new GeometryReader2D; }
     static void			initClass();
-    bool			read(ObjectSet<Geometry>&);
+    bool			read(ObjectSet<Geometry>&,TaskRunner*) const;
 
 
 };
