@@ -498,6 +498,13 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 				    const ValueSeries<float>& times,
 				    float* depths )
 {
+    if ( !depths )
+    {
+	pFreeFnErrMsg("No output pointer given.",
+		      "TimeDepthConverter::calcDepths" );
+	return false;
+    }
+    
     if ( !velsz ) return true;
 
     float prevvel = mUdf(float);
@@ -572,6 +579,12 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 				    const ValueSeries<float>& depths,
 				    float* times )
 {
+    if ( !times )
+    {
+	pFreeFnErrMsg( "No output pointer", "TimeDepthConverter::calcTimes" );
+	return false;
+    }
+    
     if ( !velsz ) return true;
 
     float prevvel = 0;
