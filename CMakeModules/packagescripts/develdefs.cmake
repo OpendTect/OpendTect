@@ -5,13 +5,20 @@
 #RCS:           $Id$
 
 #OpenDtect libraries
-SET( LIBLIST AttributeEngine Algo Attributes Basic Database EarthModel General
-	     Geometry MMProc MPEEngine Network NLA Seis Strat Velocity VolumeProcessing
-	     PreStackProcessing EMAttrib SoOD Well WellAttrib uiAttributes uiBase
-	     uiCoin uiEarthModel uiEMAttrib uiFlatView uiIo uiMPE uiNLA uiODMain
-	     uiSeis uiStrat uiTools uiPreStackProcessing uiVelocity uiViewer2D
-	     uiVis uiVolumeProcessing uiWell uiWellAttrib uiSysAdm Usage visBase
-	     visSurvey uiCmdDriver )
+#Mantain the same module and plugins order
+# which is in ${CMAKE_SOURCE_DIR}/CMakeLists.txt to avoid compiler errors.
+set( LIBLIST Basic Algo Database General
+	     Strat Network Usage
+	     Geometry EarthModel MMProc Seis
+	     NLA AttributeEngine Velocity
+	     VolumeProcessing PreStackProcessing Attributes
+	     EMAttrib MPEEngine Well WellAttrib
+	     uiBase uiTools uiCmdDriver uiFlatView uiIo uiSysAdm
+	     uiNLA uiSeis uiStrat uiEarthModel uiWell
+	     uiVelocity uiVolumeProcessing uiPreStackProcessing
+	     uiAttributes uiEMAttrib uiMPE uiViewer2D uiWellAttrib
+	     SoOD visBase visSurvey uiCoin uiVis uiODMain )
+
 SET( INCLIBLIST ${LIBLIST} Prog )
 SET( SRCLIBLIST ${LIBLIST} Batch )
 
@@ -22,11 +29,13 @@ SET( EXECLIST od_cbvs_browse od_glxinfo od_ivfileviewer lmhostid
 	      od_FileBrowser od_SEGYExaminer od_SeisMMBatch od_ClusterProc
 	      od_process_2dgrid od_remexec od_remoteservice od_stratamp od_isopach
 	      od_ReportIssue od_uiReportIssue )
-SET( PLUGINS HorizonAttrib GapDecon VoxelConnectivityFilter
-	     uiHorizonAttrib uiPreStackViewer Annotations uiGapDecon 
-	     uiGoogleIO GoogleTranslate CmdDriver uiVoxelConnectivityFilter
-	     Bouncy ExpAttribs uiBouncy uiExpAttribs
-	     Hello uiHello Tut uiTut uiDPSDemo )
+
+SET( PLUGINS Annotations Bouncy ExpAttribs GapDecon GMT GoogleTranslate Hello
+	     HorizonAttrib Madagascar MadagascarAttribs TextureAttrib Tut
+	     VoxelConnectivityFilter uiBouncy uiDPSDemo uiExpAttribs uiGapDecon uiGMT
+	     uiGoogleIO uiGrav uiHello uiHorizonAttrib uiImpGPR uiMadagascar
+	     uiMadagascarAttribs uiTextureAttrib uiTut uiTutMadagascar
+	     uiVoxelConnectivityFilter uiPreStackViewer CmdDriver )
 SET( PMAKESTUFF Makefile RootMakefile make.od.Defaults make.od.Dirs 
 		make.od.Vars base )
 SET( SPECSOURCES EarthModel ODGeneral ODSeis visBase )

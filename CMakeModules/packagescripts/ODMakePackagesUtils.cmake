@@ -69,9 +69,23 @@ macro ( create_package PACKAGE_NAME )
 			      ${DESTINATION_DIR} )
 	ENDFOREACH()
 
-	execute_process( COMMAND ${CMAKE_COMMAND} -E
-			 copy_directory ${PSD}/bin/${OD_PLFSUBDIR}/lm
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/lm
 			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
+	IF( UNIX OR APPLE )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${CMAKE_INSTALL_PREFIX}/mk_flexlm_links
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
+	    execute_process( COMMAND
+			${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links 
+			WORKING_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb
+			RESULT_VARIABLE STATUS )
+	    FILE( REMOVE_RECURSE ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links )
+	   
+	    IF( NOT ${STATUS} EQUAL "0" )
+		MESSAGE( FATAL_ERROR "Failed to create license related links" )
+	    ENDIF()
+	ENDIF()
     ENDIF()
 
     IF( WIN32 )
@@ -171,6 +185,9 @@ macro( create_basepackages PACKAGE_NAME )
 
    IF( ${PACKAGE_NAME} STREQUAL "basedata" )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				${CMAKE_INSTALL_PREFIX}/doc/about.html
+				${DESTINATION_DIR}/doc )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				${CMAKE_INSTALL_PREFIX}/relinfo/RELEASE.txt
 				${DESTINATION_DIR}/doc/ReleaseInfo )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -192,10 +209,10 @@ macro( create_basepackages PACKAGE_NAME )
 #install WindowLinkTable.txt
        FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc/User/base )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${PSD}/doc/od_WindowLinkTable.txt
+			        ${CMAKE_INSTALL_PREFIX}/doc/od_WindowLinkTable.txt
 				${DESTINATION_DIR}/doc/User/base/WindowLinkTable.txt )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${PSD}/doc/base_.mnuinfo
+			        ${CMAKE_INSTALL_PREFIX}/doc/base_.mnuinfo
 				${DESTINATION_DIR}/doc/User/base/.mnuinfo )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
 			        ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt
@@ -219,10 +236,10 @@ macro( create_basepackages PACKAGE_NAME )
 #install WindowLinkTable.txt
        FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc/User/dgb )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${PSD}/doc/dgb_WindowLinkTable.txt
+			        ${CMAKE_INSTALL_PREFIX}/doc/dgb_WindowLinkTable.txt
 				${DESTINATION_DIR}/doc/User/dgb/WindowLinkTable.txt )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${PSD}/doc/dgb_.mnuinfo
+			        ${CMAKE_INSTALL_PREFIX}/doc/dgb_.mnuinfo
 				${DESTINATION_DIR}/doc/User/dgb/.mnuinfo )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
 				${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt
@@ -457,14 +474,6 @@ macro( od_sign_libs )
 	    ENDIF()
 	ENDFOREACH()
     ELSEIF( WIN32 )
-#        SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
-#install SLIBS
-	SET( SIGNLIBS dgb_verisign_certificate_2012.pfx sign.bat )
-	FOREACH( SLIB ${SIGNLIBS} )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				     ${PSD}/bin/${SLIB}
-				     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR} )
-	ENDFOREACH()
 	execute_process( COMMAND ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/sign.bat
 		WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
 				 RESULT_VARIABLE STATUS )
@@ -516,10 +525,10 @@ macro( create_docpackages PACKAGE_NAME )
 	MESSAGE( "Documentation on windows platform is not implemented" )
     ELSE()
 	IF( ${PACKAGE_NAME} STREQUAL "doc" )
-	IF( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/base/LinkFileTable.txt )
-	    FILE( RENAME ${CMAKE_INSTALL_PREFIX}/doc/base/LinkFileTable.txt
-			 ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt )
-	ENDIF()
+	    IF( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/base/LinkFileTable.txt )
+		FILE( RENAME ${CMAKE_INSTALL_PREFIX}/doc/base/LinkFileTable.txt
+			     ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt )
+	    ENDIF()
 
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/doc/SysAdm
@@ -534,13 +543,12 @@ macro( create_docpackages PACKAGE_NAME )
 			     ${CMAKE_INSTALL_PREFIX}/doc/base
 			     ${DESTINATION_DIR}/doc/User/base )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${PSD}/doc/Credits/base
+			     ${CMAKE_INSTALL_PREFIX}/doc/Credits/base
 			     ${DESTINATION_DIR}/doc/Credits/base )
 	ELSEIF( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
 #install Credits/dgb
-#	    SET( dgbdir "dgb${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${PSD}/doc/Credits/dgb
+			     ${CMAKE_INSTALL_PREFIX}/doc/Credits/dgb
 			     ${DESTINATION_DIR}/doc/Credits/dgb )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/doc/dgb
@@ -559,21 +567,3 @@ macro( create_docpackages PACKAGE_NAME )
 				 RESULT_VARIABLE STATUS )
 	ENDIF()
 endmacro( create_docpackages )
-
-#--------------------------------------------------------------
-#Remove this macro
-#Macro to get version name from the keyboard and stored in a file.
-macro( getversion )
-    execute_process( COMMAND ./parse_rel_number
-		     WORKING_DIRECTORY /dsk/d21/nageswara/dev/od4.4/CMakeModules/packagescripts
-		     RESULT_VARIABLE STATUS ) 
-    IF( NOT ${STATUS} EQUAL "0" )
-	message("Failed")
-    ENDIF()
-#//TODO How to remove '\n' while reading version name from the file?
-#set(test "$ENV{WORK}")
-    message("test version: ${fullv}")
-    #set( VERSION_MAJOR "${OpendTect_FULL_VERSION}")
-    #STRING( REGEX REPLACE "\n" "" VERS "${VERSION_MAJOR}" ) #//Not working
-    #message("FULLVER:${OpendTect_FULL_VERSION} , Ver:${VERSION_MAJOR}")
-endmacro( getversion )

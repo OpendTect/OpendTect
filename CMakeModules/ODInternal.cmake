@@ -39,6 +39,9 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Scripts
 	 DESTINATION doc
 	 PATTERN ".svn" EXCLUDE )
 
+install( FILES ${CMAKE_SOURCE_DIR}/doc/about.html
+	       DESTINATION doc )
+
 if ( UNIX )
     file ( GLOB TEXTFILES
 	   ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/*.txt )
@@ -108,6 +111,5 @@ IF( APPLE )
     string(REPLACE "\n" "" YEAR ${YEAR} )
     configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
 		    ${CMAKE_SOURCE_DIR}/data/install_files/macscripts/Contents/Info.plist @ONLY )
+
 ENDIF()
-
-
