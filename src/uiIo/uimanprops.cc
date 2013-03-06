@@ -370,7 +370,11 @@ bool uiManPROPS::rejectOK( CallBacker* )
 	uiMSG().warning( "Could not store the definitions to file."
 			 "\nPlease check file/directory permissions." );
     else if ( repsrc != Repos::Survey )
-       	PROPS().save(Repos::Survey);
+    {
+	if ( !PROPS().save(Repos::Survey) )
+	    uiMSG().warning( "Could not store the definitions in your survey."
+			 "\nPlease check file/directory permissions there." );
+    }
 
     return true;
 }
