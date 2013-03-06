@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uistratlayseqgendesc.h"
 #include "uigraphicsview.h"
 #include "property.h"
+class uiGenInput;
 class uiRectItem;
 class uiTextItem;
 namespace Strat { class LayerSequenceGenDesc; }
@@ -34,15 +35,20 @@ public:
 
     virtual uiObject*			outerObj()	{ return this; }
     virtual uiStratLayerModelDisp*	getLayModDisp(uiStratLayModEditTools&,
-	    				Strat::LayerModelProvider&);
+					    Strat::LayerModelProvider&);
+    virtual void	prepareDesc()	{ getTopDepthFromScreen(); }
 
 protected:
 
+    uiGenInput*		topdepthfld_;
     uiRectItem*		outeritm_;
     uiTextItem*		emptyitm_;
     uiBorder		border_;	//!< can be set
     const uiRect	workrect_;	//!< will be filled
+    bool		zinft_;		//!< From SI()
 
+    void		getTopDepthFromScreen();
+    void		putTopDepthToScreen();
     void		reDraw(CallBacker*);
     void		singClckCB( CallBacker* cb )	{ hndlClick(cb,false); }
     void		dblClckCB( CallBacker* cb )	{ hndlClick(cb,true); }

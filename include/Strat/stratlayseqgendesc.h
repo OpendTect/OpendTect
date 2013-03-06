@@ -40,9 +40,13 @@ public:
 			LayerSequenceGenDesc(const RefTree&);
 			~LayerSequenceGenDesc();
 
+    const RefTree&	refTree() const		{ return rt_; }
+    IOPar&		getWorkBenchParams()	{ return workbenchparams_; }
+
     const PropertyRefSelection& propSelection() const	{ return propsel_; }
     void		setPropSelection(const PropertyRefSelection&);
-
+    float		startDepth() const	{ return startdepth_; }
+    void		setStartDepth( float z)	{ startdepth_ = z; }
     const MultiID& 	elasticPropSel() const;
     void		setElasticPropSel(const MultiID&);
 
@@ -57,19 +61,17 @@ public:
     const char*		userIdentification(int) const;
     int			indexFromUserIdentification(const char*) const;
 
-    const RefTree&	refTree() const		{ return rt_; }
-    
-    IOPar&		getWorkBenchParams()	{ return workbenchparams_; }
-
 protected:
-    IOPar			workbenchparams_;
 
-    const RefTree&		rt_;
-    PropertyRefSelection	propsel_;
-    MultiID			elasticpropselmid_;
+    IOPar		workbenchparams_;
 
-    static const char*		sKeyWorkBenchParams();
-    mutable BufferString	errmsg_;
+    const RefTree&	rt_;
+    PropertyRefSelection propsel_;
+    MultiID		elasticpropselmid_;
+    float		startdepth_;
+
+    static const char*	sKeyWorkBenchParams();
+    mutable BufferString errmsg_;
 
 };
 

@@ -780,6 +780,7 @@ void uiStratLayerModel::genModels( CallBacker* )
     lmp_.setEmpty();
     lmp_.modl_.propertyRefs() = seqdisp_->desc().propSelection();
 
+    seqdisp_->prepareDesc();
     uiTaskRunner tr( this );
     Strat::LayerModelGenerator ex( desc_, lmp_.get(), nrmods );
     TaskRunner::execute( &tr, ex );

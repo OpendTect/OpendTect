@@ -136,16 +136,23 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     , border_(10)
     , outeritm_(0)
     , emptyitm_(0)
+    , zinft_(SI().depthsInFeetByDefault())
 {
+    border_.setTop( border_.top() + 25 );
     setPrefWidth( 200 );
     setPrefHeight( 500 );
     reSize.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
     reDrawNeeded.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
 
     getMouseEventHandler().buttonReleased.notify(
-	    			mCB(this,uiExtLayerSequenceGenDesc,singClckCB) );
+			    mCB(this,uiExtLayerSequenceGenDesc,singClckCB) );
     getMouseEventHandler().doubleClick.notify(
-	    			mCB(this,uiExtLayerSequenceGenDesc,dblClckCB) );
+			    mCB(this,uiExtLayerSequenceGenDesc,dblClckCB) );
+
+    const BufferString lbltxt( "top (", zinft_?"ft":"m", ")" );
+    topdepthfld_ = new uiGenInput( parent(), lbltxt, FloatInpSpec(0) );
+    topdepthfld_->setElemSzPol( uiObject::Small );
+    topdepthfld_->attach( rightBorder );
 }
 
 
@@ -172,6 +179,7 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
     }
     outeritm_->setRect( workrect_.left(), workrect_.top(),
 	    		workrect_.width(), workrect_.height() );
+    putTopDepthToScreen();
 
     if ( desc_.isEmpty() )
     {
@@ -188,6 +196,22 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
 	delete emptyitm_; emptyitm_ = 0;
 	doDraw();
     }
+}
+
+
+void uiExtLayerSequenceGenDesc::putTopDepthToScreen()
+{
+    float topz = desc_.startDepth();
+    if ( zinft_ ) topz *= mToFeetFactorF;
+    topdepthfld_->setValue( topz );
+}
+
+
+void uiExtLayerSequenceGenDesc::getTopDepthFromScreen()
+{
+    float topz = topdepthfld_->getfValue();
+    if ( zinft_ ) topz *= mFromFeetFactorF;
+    desc_.setStartDepth( topz );
 }
 
 
@@ -409,6 +433,7 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 
 void uiBasicLayerSequenceGenDesc::descHasChanged()
 {
+    putTopDepthToScreen();
     rebuildDispUnits();
     reDraw(0);
 }

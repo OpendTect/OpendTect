@@ -46,6 +46,7 @@ public:
     virtual uiStratLayerModelDisp* getLayModDisp(uiStratLayModEditTools&,
 				    Strat::LayerModelProvider&)	= 0;
 
+    virtual void	prepareDesc()			{}
     Strat::LayerSequenceGenDesc& desc()			{ return desc_; }
     bool		needSave() const		{ return needsave_; }
     void		setNeedSave( bool yn )		{ needsave_ = yn; }

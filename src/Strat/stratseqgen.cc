@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const char* sKeyFileType = mFileType;
 static const char* sKeyIDNew = "[New]";
+static const char* sKeyTopdepth = "Top depth";
 static const char* sKeyElasticPropSelID = "Elastic Property Selection";
 
 mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
@@ -106,6 +107,7 @@ bool Strat::LayerGenerator::generateMaterial( Strat::LayerSequence& seq,
 
 Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
     : rt_(rt)
+    , startdepth_(0)
 {
     elasticpropselmid_.setEmpty(); 
 }
@@ -126,6 +128,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
     deepErase( *this );
 
     IOPar iop; iop.getFrom(astrm);
+    iop.get( sKeyTopdepth, startdepth_ );
     iop.get( sKeyElasticPropSelID, elasticpropselmid_ );
     PtrMan<IOPar> workbenchpars = iop.subselect( sKeyWorkBenchParams() );
     if ( workbenchpars )
@@ -159,9 +162,10 @@ bool Strat::LayerSequenceGenDesc::putTo( std::ostream& strm ) const
     if ( !astrm.putHeader(sKeyFileType) )
 	{ errmsg_ = "Cannot write file header"; return false; }
 
-    IOPar iop; iop.set( sKeyElasticPropSelID, elasticpropselmid_ );
+    IOPar iop;
+    iop.set( sKeyTopdepth, startdepth_ );
+    iop.set( sKeyElasticPropSelID, elasticpropselmid_ );
     iop.mergeComp( workbenchparams_, sKeyWorkBenchParams() );
-    
     iop.putTo( astrm );
 
     for ( int idx=0; idx<size(); idx++ )
@@ -213,6 +217,7 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 {
     errmsg_.setEmpty();
 
+    ls.setStartDepth( startdepth_ );
     const Property::EvalOpts eo( Property::EvalOpts::New, modpos );
     for ( int idx=0; idx<size(); idx++ )
     {
