@@ -23,7 +23,7 @@ class uiPDF1DViewWin;
 class uiFlatViewMainWin;
 
 /*!
-\brief Edit Probability Density Function.
+\brief User interface to edit probability density function.
 */
 
 mExpClass(uiIo) uiEditProbDenFunc : public uiDialog
