@@ -325,7 +325,10 @@ void uiColorTable::canvasClick( CallBacker* )
 
 
 void uiColorTable::canvasDoubleClick( CallBacker* )
-{ doManage(0); }
+{
+    if ( enabmanage_ && selfld_->sensitive() )
+	doManage(0);
+}
 
 
 void uiColorTable::commitInput()
