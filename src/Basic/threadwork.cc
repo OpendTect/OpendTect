@@ -103,6 +103,7 @@ Threads::WorkThread::WorkThread( WorkManager& man )
     , exitflag_( false )
     , cancelflag_( false )
 {
+    spacefiller_[0] = 0; //to avoid warning of unused
     controlcond_.lock();
     thread_ = new Thread( mCB( this, WorkThread, doWork));
     controlcond_.unLock();
