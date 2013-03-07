@@ -25,7 +25,10 @@ class uiGenInput;
 class uiIOObjSel;
 class uiDataPointSetCrossPlotter;
 class uiPrDenFunVarSel;
-/*! \brief Dialog for Horizon Import */
+
+/*!
+\brief Dialog for creating Probability Density Function of DataPointSet.
+*/
 
 mExpClass(uiIo) uiCreateDPSPDF : public uiDialog
 {
