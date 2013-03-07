@@ -28,54 +28,55 @@ class GeomFileReader : public Executor
 {
 public:
 
-GeomFileReader( const ObjectSet<IOObj>& objs, ObjectSet<Geometry>& geometries )
-: Executor( "Loading Files" )
-, objs_(objs)
-, geometries_(geometries)
-, nrdone_(0)
-{}
+    GeomFileReader( const ObjectSet<IOObj>& objs,
+	    	    ObjectSet<Geometry>& geometries )
+	: Executor( "Loading Files" )
+	, objs_(objs)
+	, geometries_(geometries)
+	, nrdone_(0)
+    {}
 
-	
-od_int64 nrDone() const
-{ return nrdone_; }
+	    
+    od_int64 nrDone() const
+    { return nrdone_; }
 
 
-od_int64 totalNr() const
-{ return objs_.size(); }
+    od_int64 totalNr() const
+    { return objs_.size(); }
 
 protected:
 
-int nextStep()
-{
-    const IOObj* ioobj = objs_[mCast(int,nrdone_)];
-    if ( ioobj->translator() != dgb2DSurvGeomTranslator::translKey() || 
-	 ioobj->key().nrKeys() != 2 )
-    { mReturn }
-
-    StreamData isd = StreamProvider( ioobj->fullUserExpr() ).makeIStream();
-    if ( !isd.usable() )
-    { mReturn }
-	
-    PosInfo::Line2DData* data = new PosInfo::Line2DData;
-    if ( !data->read(*(isd.istrm),false) )
+    int nextStep()
     {
-	delete data;
+	const IOObj* ioobj = objs_[mCast(int,nrdone_)];
+	if ( ioobj->translator() != dgb2DSurvGeomTranslator::translKey() || 
+	     ioobj->key().nrKeys() != 2 )
+	{ mReturn }
+
+	StreamData isd = StreamProvider( ioobj->fullUserExpr() ).makeIStream();
+	if ( !isd.usable() )
+	{ mReturn }
+	    
+	PosInfo::Line2DData* data = new PosInfo::Line2DData;
+	if ( !data->read(*(isd.istrm),false) )
+	{
+	    delete data;
+	    isd.close();
+	    mReturn
+	}
+	    
 	isd.close();
+	data->setLineName( ioobj->name() );
+	Geometry2D* geom = new Geometry2D( data );
+	geom->setGeomID( ioobj->key().ID(1) );
+	geom->ref();
+	geometries_ += geom;
 	mReturn
     }
-	
-    isd.close();
-    data->setLineName( ioobj->name() );
-    Geometry2D* geom = new Geometry2D( data );
-    geom->setGeomID( ioobj->key().ID(1) );
-    geom->ref();
-    geometries_ += geom;
-    mReturn
-}
 
-const ObjectSet<IOObj>&	    objs_;
-ObjectSet<Geometry>&	    geometries_;
-od_int64		    nrdone_;
+    const ObjectSet<IOObj>&	objs_;
+    ObjectSet<Geometry>&	geometries_;
+    od_int64		    	nrdone_;
 
 };
 
