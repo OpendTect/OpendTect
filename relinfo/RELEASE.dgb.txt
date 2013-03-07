@@ -1,0 +1,174 @@
+OpendTect V4.4.x / dGB plugins: Release info
+
+In general, all fixes in the stable 4.2 are also applied in the 4.4 releases.
+
+----
+v4.4.0g: February 13, 2013
+  * [HC] Fix for crash in horizoncube editor
+  * [HC] Fix for fault handling in 3D surveys
+  * [HC] Fix for crash Reloading or removing/adding HorizonCube after
+         processing in 2D surveys
+  * [HC] Fix for creating Steering Cube from Model Based Horizon Cube in 2D
+         surveys  
+  * [Synthrock] Fix for in stochastic modelling for computation of properties
+		using math
+  *[Synthrock] Fix for handling units of measures in stochastic simulations:
+	       Users will need to QC the formula output unit in their existing
+               stochastic simulations with derived properties (math)
+
+v4.4.0f: January 17, 2013
+  * [SynthRock]
+	* Fix for extraction layer model attributes when restoring a
+          layer attribute dataset
+	* Fix for saving/reading of elastic properties
+	* Fix for creation of automatic statigraphic tree and
+	  some interpolation issue
+	* Fix for crash while well log not found
+	* Fix for depth values in Math properties
+
+v4.4.0e: December 20, 2012
+  * [SynthRock]
+	* Fix for computation of synthetic attributes computed from 
+          fluid-replaced layer model
+	* Profile models with two Velocity inputs or sonic travel time
+          input now restore all properties.
+	* Fix for SynthRock profile mode generation handle with well log 
+          blocking.
+	* Implemented anti-aliasing factor
+	* SynthRock workbench should store FRM porosity and/or water
+          saturation when the model contains these properties.
+	* Annotations on prestack 2D viewer added.
+  * [DS] Fix for Pickset directions in depth surveys are correctly scaled
+  * [DS] Fix for crash while calculating steering attribute.
+  * [WCP] Fix for systems tracts display in well correlation panel if a 3D
+    Horizon Cube has a gap.
+  * [CCB] Fix for unflattened display
+  * [NN] Fix for getting correct 2D line names.
+  * [VMB] Fix for memory leak in VMB while loading the data in the
+     horizon-based velocity analysis window
+  * [HC] Some improvements in fault throw calculation for 2D horizons
+  * [HC] Fix for multi-component transforms
+  * [HC] FIx for creating new single iteration HorizonCube when an already
+     existing multi-iteration HorizonCube is selected.
+  * [HC] Fix for the interactive connection between colorbar in the 3D slider
+     and associated isopach display
+  * [HC] Fix for batch processing of 2D HorizonCube attribute
+  * [HC] Fix for convert 2D continuous HC into truncated HC
+  * [HC] Fix for Horizon Cube flattening taking into account component
+     selection.
+
+v4.4.0d: November 6, 2012
+  * [SynthRock]
+	* Fix for bad synchronization of the zoom in profile module;
+	  Synchronization is now on by default
+	* Redraw is on by default in the random generator of the stochastic
+	  well generation
+	* Fix for out-of-sync flattening in both modules
+	* Re-ordered the extracted quantities in the SynthRock crossplot module
+	* Depth extracted in the SynthRock crossplot module are in the survey 
+	  units, meters or feet
+	* Fix for extraction of integrated properties in SynthRock-profile
+	* Disabled lithology colour-coding in the profile mode
+	* Disabled decimation of properties display in profile module (but
+	  synthetics are decimated)
+	* Fix for finding the most appropriate elastic quantity provider for
+	  the ray-tracing
+	* Fix for gassmann not being applied in forward mode brine-->HC when
+	  no gassmann solution can be computed
+	* Fix for gassmann wrongly requesting a level to be set in order to be
+	  applied
+	* save-restore fluid replacement parameters
+	* save -restore synthrock parameters
+  * [HC] Added breaks at faults in HorizonCube display
+  * [HC] Fix for HorizonCube slider not refreshing after selecting another 
+	 HorizonCube
+  * [CCB] Fix for Horizon Toggle button in CCB display
+  * [SSIS] Fix for copying interpretaions in 2D SSIS
+  * [SSIS] Fix for saving a single surface in 2D SSIS
+  * [SSIS] Fix for blinking horizontal 'time' line in interpretation window.
+
+v4.4.0c: October 4, 2012
+  * [SynthRock]
+	All modes:
+	  * Added fluid replacement
+	  * Fix for synthetic-to-seismic scaling not using all seismic traces
+	  * The cross-plot table now always includes the pseudo-well number
+	    attribute
+	  * Fix for deriving the S-wave quantity in the synthetic seismic
+	    generation
+   	  * Flattening along horizon/marker
+	Stochastic Mode:
+	  * Added well analysis menu
+	  * Added Fluid content selection and colour-coding
+	  * Added the "Xpos" variable for math input that gives the relative
+	    pseudowell number from [0, 1]
+	  * Fix for PDF-based modelling
+	  * Fix for handling of units of measure in PDFs
+	  * Input properties for math formulas now must have units of measure
+	  * Fix for using the rock physics library for math quantities
+	HitCube inversion:
+	  * Horizon mode now has a batch processing
+	Profile Mode:
+	  * Added Multi-markers interpolation
+	  * Added Interactive Marker-based edition
+	  * Added content selection
+
+  * [SSIS] Fix for transparency for the undefined color in the depositional
+    model in SSIS interpretation dialog
+  * [VMB] Fix for crash while clicking on bottom right icon "Pick new trace
+    location".
+  * [WCP] Fix for displaying  horizon or horizoncube display in WCP panel on
+    Windows platform.
+  * [WCP] Fix for crash while closing Well correlation panel window on Windows
+  * [DS] Fix for crash while loading 2D Steering on 2D line
+  * [HC] Improvements in algorithm for Horizon Cube editor (for some special
+    cases involving faults)
+  * Fix for Systemtrats tracts display on reandom line
+
+v4.4.0b: July 25, 2012
+  * [SynthRock] Crash fixed crash when changing the layer properties
+  * [HC] 2D surface extraction was using XY coordinates
+
+v4.4.0a: July 5, 2012
+  * [HC] On-the-fly truncation of a Horizon Cube show the events while
+    an inline is being moved.
+  * [HC] Crash fixed while trimming horizons at faults in 2D survey
+  * [HC] Fix for Horizon Cube tree property dialog get the information correctly from
+    scene
+  * [NN] Fix for updating output attribute name in 2D Neural Networks
+  * [NN] Fix for calculation of 2D Neural Network between horizon by using Multi
+    Machine processing
+  * [NN] Fix for filling of line name field in neural network 2D output selection
+  * [SSIS] Fix for handling multiple components while creating wheeler output 3D
+  * [WCP] Fix for displaying of stratigraphy column in depth survey 
+  * [WCP] Fix for diaplaying of vertical ruler
+  * [WCP] Crash fixed while launching well corelation panel on 2D only survey
+  * [WCP] Fix for changing the range of color table will change 2D well log
+    display
+  * [WCP] Fix for reading auto-clipping settings in Well Correlation Panel
+    flaviewer
+  * [SynthRock] Crash fixed when clicking on fluid replacement settings dialog
+  * [Attributes] Crash fixed in Fault and Ridge enhancement filter
+
+v4.4.0-beta2: June 21 2012
+  * [WCP] Crash fixed while abort tracking setup
+  * [HC] Editor made fasetr by parallel computing
+  * [HC] On-the-fly truncation of HorizonCube available for 2D now
+  * [HC] Fix for 2D HorizonCube accept user-defined trace number for starting position
+    in Data driven mode 
+  * [Hc] Bug fix for Horizon Cube attribute Density Event count
+  * [DS] Fix for output selection for steering cube creation in 2D
+  * [SynthRock] Crash fixed while creating a crossplot in Basic layer
+    modeling
+  * [NN] Fix for for 2D neural network computed on second lineset
+
+v4.4.0-beta: June 04, 2012
+  * [Dip-steering] Perpendicular dip extractor attribute
+  * [HC] HorizonCube 3D Slider
+  * [HC] HorizonCube editor (3D)
+  * [HC] HorizonCube model in-fill on 2nd iteration
+  * Added new plugin SynthRock
+  * [SynthRock] Stochastic pseudo-well generation
+  * [SynthRock] Profile modelling
+  * [SynthRock] Synthetic-to-seismic crossplot extraction
+  * [SynthRock] HitCube inversion 
