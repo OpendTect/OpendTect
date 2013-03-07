@@ -50,10 +50,14 @@ ________________________________________________________________________
 #endif
 
 #if defined ( do_import_export )
+//Temporary allow extern declaration of extern template instantiation
+#pragma warning( push )
+#pragma warning( disable : 4231 )
 
-//#include "networkmod.h"
+#pragma warning( pop )
+
+#include "networkmod.h"
 
 #endif
 
 #endif
-

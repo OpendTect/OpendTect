@@ -15,7 +15,7 @@
 # OD_MODULE_DEPS			: List of other modules that this
 #					  module is dependent on.
 # OD_MODULE_SOURCES			: Sources that should go into the library
-# OD_USEPROG				: Whether to include include/Prog 
+# OD_USEBATCH				: Whether to include include/Batch 
 # OD_USECOIN				: Dependency on Coin is enabled if set.
 # OD_USEQT				: Dependency on Qt is enabled if set.
 #					  value should be either Core, Sql, Gui
@@ -260,7 +260,7 @@ endif ( OD_MODULE_HAS_LIBRARY )
 
 #Setup common things for batch-programs
 if( OD_MODULE_PROGS OR OD_MODULE_BATCHPROGS OR OD_MODULE_GUI_PROGS )
-    set ( OD_USEPROG 1 )
+    set ( OD_USEBATCH 1 )
 endif()
 set ( OD_RUNTIMELIBS ${OD_MODULE_DEPS})
 if ( OD_MODULE_HAS_LIBRARY )
@@ -366,7 +366,7 @@ endif( OD_MODULE_BATCHPROGS )
 
 foreach ( TEST_FILE ${OD_TEST_PROGS} )
     #Add dep on Batch if there are batch-progs
-    if ( OD_USEPROG )
+    if ( OD_USEBATCH )
 	list( APPEND OD_RUNTIMELIBS "Batch" "Network" )
 	list( REMOVE_DUPLICATES OD_RUNTIMELIBS )
     endif()
@@ -398,11 +398,10 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} )
 endforeach()
 
 
-if( OD_USEPROG )
+if( OD_USEBATCH )
     list(APPEND OD_MODULE_INCLUDEPATH
-		${OpendTect_DIR}/include/Prog)
-endif( OD_USEPROG )
-
+		${OpendTect_DIR}/include/Batch)
+endif( OD_USEBATCH )
 
 #Set current include_path
 set ( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")

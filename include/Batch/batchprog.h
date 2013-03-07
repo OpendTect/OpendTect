@@ -47,7 +47,7 @@ class StreamData;
   be accessed.
 */
 
-mClass(Prog) BatchProgram : public NamedObject
+mClass(Batch) BatchProgram : public NamedObject
 {
     mGlobal(Batch) friend	BatchProgram& BP();
 
