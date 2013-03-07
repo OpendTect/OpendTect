@@ -249,11 +249,11 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 				  Interval<float>& ztop,
 				  Interval<float>& zbot ) const
 {
-    BinID start( isinl_ ? nr_ : trcrange_.start,
-	         isinl_ ? trcrange_.start : nr_ );
+    int step = isinl_ ? SI().crlStep() : SI().inlStep();
+    BinID start( isinl_ ? nr_ : trcrange_.start - 10*step,
+	         isinl_ ? trcrange_.start - 10*step : nr_ );
     float starttopz=mUdf(float), startbotz=mUdf(float);
     int& startvar = isinl_ ? start.crl : start.inl;
-    int step = isinl_ ? SI().crlStep() : SI().inlStep();
     const int bvssz = bvs.totalSize();
     int idx = 0;
     for ( idx=0; idx<bvssz; idx++,startvar += step )
@@ -271,8 +271,8 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     if ( idx == bvssz )
 	return false;
 
-    BinID stop( isinl_ ? nr_ : trcrange_.stop,
-	    	isinl_ ? trcrange_.stop : nr_ );
+    BinID stop( isinl_ ? nr_ : trcrange_.stop + 10*step,
+	    	isinl_ ? trcrange_.stop + 10*step : nr_ );
     int& stopvar = isinl_ ? stop.crl : stop.inl;
     step = -step;
     float stoptopz, stopbotz;
