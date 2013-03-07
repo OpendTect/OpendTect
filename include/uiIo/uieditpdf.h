@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
+
 class ProbDenFunc;
 class uiGenInput;
 class uiTable;
@@ -21,8 +22,9 @@ class uiTabStack;
 class uiPDF1DViewWin;
 class uiFlatViewMainWin;
 
-
-/*! \brief Edit Probability Density Function */
+/*!
+\brief Edit Probability Density Function.
+*/
 
 mExpClass(uiIo) uiEditProbDenFunc : public uiDialog
 {
