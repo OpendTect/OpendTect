@@ -43,7 +43,7 @@ public:
 			Info( const char* nm )
 			    : ::NamedObject(nm)
 			    , srdelev(0)
-			    , replvel(mUdf(float))
+			    , replvel(2000.f)
 			    , groundelev(mUdf(float))	{}
 
     void                fillPar(IOPar&) const;
