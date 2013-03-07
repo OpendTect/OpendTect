@@ -88,7 +88,7 @@ macro(OD_SETUP_OSG)
 		#Here ALLLIBS contain only one file.
 		    install( PROGRAMS ${ALLLIBS}
 		#installing Win osgfiles(like osg80-osgQt.dll,osg80-osgDB.dll etc. )
-			     DESTINATION ${CMAKE_INSATLL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+			     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
 		endif()
 	    endif()
 	endforeach()

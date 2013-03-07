@@ -82,7 +82,7 @@ macro(OD_SETUP_QT)
 	    endforeach()
 	    if( WIN32 )
 		install( PROGRAMS ${ARGS}
-			 DESTINATION ${CMAKE_INSATLL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+			 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
 	    endif()
 	endif()
     endif()
