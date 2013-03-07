@@ -376,6 +376,12 @@ void Well::Log::addValue( float dh, float val )
 }
 
 
+const UnitOfMeasure* Well::Log::unitOfMeasure() const
+{
+    return UnitOfMeasure::getGuessed(unitmeaslbl_);
+}
+
+
 void Well::Log::ensureAscZ()
 {
     if ( dah_.size() < 2 ) return;
@@ -1139,7 +1145,8 @@ float Well::D2TModel::getDah( float time ) const
 
 float Well::Info::getReplVel() const
 {
-    return wellinforeplvelmanager.getParam( this );
+    float replvel = wellinforeplvelmanager.getParam( this );
+    return mIsUdf(replvel) ? 2000.f : replvel;
 }
 
 

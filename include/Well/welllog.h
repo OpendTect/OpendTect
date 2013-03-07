@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "welldahobj.h"
 #include "ranges.h"
 #include "iopar.h"
+#include "unitofmeasure.h"
 
 namespace Well
 {
@@ -84,6 +85,9 @@ protected:
     void		removeAux( int idx )		{ val_.remove(idx); }
     void		eraseAux()			{ val_.erase(); }
     float		gtVal(float,int&) const;
+
+public:
+    const UnitOfMeasure* unitOfMeasure() const;
 
 };
 
