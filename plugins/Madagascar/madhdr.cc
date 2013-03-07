@@ -104,7 +104,7 @@ bool RSFHeader::read( std::istream& istrm )
     }
     
     if ( !size() ) return false;
-	    
+
     return true;
 }
 
@@ -354,7 +354,7 @@ bool TrcHeader::useTrcInfo( const SeisTrcInfo& ti )
 
 bool TrcHeader::read( std::istream& istrm )
 {
-    for ( int idx = 0; idx < trchdrdef_.size_; idx++ ) // 91
+    for ( int idx = 0; idx < trchdrdef_.size_; idx++ )
     {
     	if ( !istrm ) return false;
     	
@@ -368,7 +368,7 @@ bool TrcHeader::read( std::istream& istrm )
 
 void TrcHeader::write( std::ostream& ostrm ) const
 {
-    for ( int idx = 0; idx < trchdrdef_.size_; idx++ ) // 91
+    for ( int idx = 0; idx < trchdrdef_.size_; idx++ )
     {
     	//static char buf[mbuflen];
 	const char* buf = toString( (*this)[idx] );
