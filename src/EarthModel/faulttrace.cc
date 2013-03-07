@@ -271,8 +271,8 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     if ( idx == bvssz )
 	return false;
 
-    BinID stop( isinl_ ? nr_ : trcrange_.stop,
-	    	isinl_ ? trcrange_.stop : nr_ );
+    BinID stop( isinl_ ? nr_ : trcrange_.stop + 10*step,
+	    	isinl_ ? trcrange_.stop + 10*step: nr_ );
     int& stopvar = isinl_ ? stop.crl : stop.inl;
     step = -step;
     float stoptopz, stopbotz;
