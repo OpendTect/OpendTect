@@ -190,8 +190,9 @@ public:
     void		snapZ(float&,int direction=0) const;
     			//!< see snap() for direction
     
-    double		seismicReferenceDatum()		 {return seisrefdatum_;}
-			/*!<In depth units (m or ft), positive upward from sealevel. */
+    double		seismicReferenceDatum() const	 {return seisrefdatum_;}
+			/*!<In depth units (m or ft), positive upward
+    			from sea level */
     void		setSeismicReferenceDatum(double d){ seisrefdatum_=d; }
 
     const IOPar&	pars() const			{ return pars_; }
