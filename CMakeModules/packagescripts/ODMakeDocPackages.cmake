@@ -5,7 +5,7 @@
 #RCS:           $Id$
 
 INCLUDE( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
-IF( UNIX )
+IF( UNIX OR APPLE )
     download_packages()
 ENDIF()
 
@@ -28,7 +28,7 @@ foreach ( PACKAGE ${DOCPACKAGES} )
 	ENDIF()
     ENDIF()
 
-    IF( UNIX )
+    IF( UNIX OR APPLE )
 	init_destinationdir( ${PACK} )
 	create_docpackages( ${PACK} )
     ENDIF()
