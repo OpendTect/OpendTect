@@ -546,8 +546,11 @@ void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
     self.lsnm_ = lsnm;
     self.readIdxFiles();
     curlstimestr_ = getIdxTimeStamp( lsnm_ );
+    if ( lsnm_ == lsnm )
+	return;
 
     // New line set specified
+    self.lsnm_ = lsnm;
     FileMultiString driinfo( getNewStorageName(lsnm,basefp_,lsindex_) );
     driinfo.add( self.getNewID(lsindex_) );
     self.lsindex_.add( lsnm, driinfo );
@@ -895,9 +898,7 @@ bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
     if ( !linenm )
 	return false;
 
-    int lineid = getLineID( linenm );
-    FileMultiString fms( toString(lineid) );
-    SafeFileIO sfio( FilePath(lsfp_,fms[0]).fullPath() );
+    SafeFileIO sfio( FilePath(lsfp_,linenm).fullPath() );
     if ( !sfio.open(true) )
 	return false;
 		    
