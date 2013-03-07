@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "welldahobj.h"
 #include "ranges.h"
 #include "iopar.h"
+#include "unitofmeasure.h"
 
 namespace Well
 {
@@ -63,7 +64,8 @@ public:
     Interval<float>&	valueRange() 			{ return range_; }
     const Interval<float>& valueRange() const 		{ return range_; }
 
-    const char*		unitMeasLabel() const		{ return unitmeaslbl_; }
+    const char*		unitMeasLabel() const		{ return unitmeaslbl_;}
+    const UnitOfMeasure* unitOfMeasure() const;
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
     static const char*	sKeyUnitLbl();
     static const char*	sKeyHdrInfo();

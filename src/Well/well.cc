@@ -376,6 +376,12 @@ void Well::Log::addValue( float dh, float val )
 }
 
 
+const UnitOfMeasure* Well::Log::unitOfMeasure() const
+{
+    return UnitOfMeasure::getGuessed(unitmeaslbl_);
+}
+
+
 void Well::Log::ensureAscZ()
 {
     if ( dah_.size() < 2 ) return;
