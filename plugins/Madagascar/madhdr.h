@@ -27,8 +27,8 @@ mExpClass(Madagascar) RSFHeader : public IOPar
 {
 public:
 
-    			RSFHeader();
-			~RSFHeader();
+    			RSFHeader(){};
+			~RSFHeader(){};
 
     enum Format		{ NativeFloat, NativeInt, AsciiFloat, AsciiInt, Other };
     			DeclareEnumUtils(Format);
