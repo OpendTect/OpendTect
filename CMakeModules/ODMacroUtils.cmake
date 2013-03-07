@@ -372,7 +372,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} )
     endif()
     get_filename_component( TEST_NAME ${TEST_FILE} NAME_WE )
     set ( TEST_NAME test_${TEST_NAME} )
-    add_executable( ${TEST_NAME} ${OD_EXEC_GUI_SYSTEM} ${TEST_FILE} )
+    add_executable( ${TEST_NAME} ${OD_EXEC_GUI_SYSTEM} tests/${TEST_FILE} )
 
     set_target_properties( ${TEST_NAME}
 	    PROPERTIES 

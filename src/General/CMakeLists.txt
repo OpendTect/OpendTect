@@ -5,8 +5,11 @@
 #	RCS :		$Id: CMakeLists.txt,v 1.11 2012-09-10 10:02:15 cvskris Exp $
 #_______________________________________________________________________________
 
-SET ( OD_MODULE_DEPS Algo )
-SET ( OD_MODULE_SOURCES arrayndutils.cc
+set ( OD_MODULE_DEPS Algo )
+if ( NOT DEFINED WIN32 )
+    set ( OD_TEST_PROGS ibmformat )
+endif()
+set ( OD_MODULE_SOURCES arrayndutils.cc
 	    array2dbitmap.cc
 	    basemap.cc
 	    beachballdata.cc
