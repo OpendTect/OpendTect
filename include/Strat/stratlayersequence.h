@@ -64,10 +64,18 @@ public:
 
     void		prepareUse() const ;	//!< needed after changes
 
+    			// Following will need to actually find the level
     int			indexOf(const Level&,int startsearchat=0) const;
-    			//!< may return -1 for not found (level below layers)
+    			//!< may return -1 for not found
     float		depthOf(const Level&) const;
-    			//!< will return bot of seq if lvl not found
+    			//!< will return 0 if lvl not found
+
+    			// Following will give the position of the level
+    			// ... even if not present
+    int			positionOf(const Level&) const;
+    			//!< may return size() (below last layer)
+			//!< only returns -1 if sequence is empty
+    float		depthPositionOf(const Level&) const;
 
 protected:
 

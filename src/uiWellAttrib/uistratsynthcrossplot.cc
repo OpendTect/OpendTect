@@ -142,7 +142,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	for ( int imod=0; imod<nrmdls; imod++ )
 	{
 	    SeisTrc& trc = const_cast<SeisTrc&>( *tbuf.get( imod ) );
-	    const float dpth = lm_.sequence(imod).depthOf( lvl );
+	    const float dpth = lm_.sequence(imod).depthPositionOf( lvl );
 	    trc.info().pick = d2tmodels[imod]->getTime( dpth );
 	    lvltms += ssev.snappedTime( trc );
 	}
