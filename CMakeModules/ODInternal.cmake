@@ -47,13 +47,15 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/relinfo
 	 DESTINATION .
 	 PATTERN ".svn" EXCLUDE )
 
+install( FILES CMakeLists.txt DESTINATION . )
+
 if( WIN32 )
     install( DIRECTORY bin/win32/rsm
 	     DESTINATION .
 	     PATTERN ".svn" EXCLUDE )
 endif()
 
-if( UNIX )
+if( UNIX OR APPLE )
     file( GLOB TEXTFILES ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/*.txt )
     file( GLOB PROGRAMS ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/* )
     list( REMOVE_ITEM PROGRAMS ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/.svn )
@@ -63,7 +65,7 @@ if( UNIX )
 
     install ( PROGRAMS ${PROGRAMS} DESTINATION . )
     install ( FILES ${TEXTFILES} DESTINATION . )
-endif( UNIX )
+endif()
 
 if( APPLE )
     install( PROGRAMS data/install_files/macscripts/chfwscript

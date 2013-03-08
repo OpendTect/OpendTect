@@ -13,10 +13,7 @@ macro ( create_package PACKAGE_NAME )
 			  ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
     if( APPLE )
 	set( MACBINDIR "Contents/MacOS" )
-	file( MAKE_DIRECTORY ${DESTINATION_DIR}/${Contents} )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release
-			 ${DESTINATION_DIR}/${MACBINDIR} )
+	file( MAKE_DIRECTORY ${DESTINATION_DIR}/Contents )
     endif()
 
     if( ${PACKAGE_NAME} STREQUAL "base" )
@@ -24,7 +21,20 @@ macro ( create_package PACKAGE_NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/Contents/Resources/qt_menu.nib
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release/qt_menu.nib )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				     ${CMAKE_INSTALL_PREFIX}/create_macos_link
+				     ${DESTINATION_DIR}/Contents )
+	    execute_process( COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/create_macos_link
+			     RESULT_VARIABLE STATUS )
+	    execute_process( COMMAND ${DESTINATION_DIR}/Contents/create_macos_link
+				     WORKING_DIRECTORY ${DESTINATION_DIR}/Contents
+				     RESULT_VARIABLE STATUS )
+	    file( REMOVE_RECURSE ${DESTINATION_DIR}/Contents/create_macos_link )
+	    if( NOT ${STATUS} EQUAL "0" )
+		message( FATAL_ERROR "Failed to create MacOS link" )
+	    endif()
 	endif()
+
         copy_thirdpartylibs()
         set( LIBLIST ${LIBLIST};${PLUGINS} )
     endif()
@@ -61,6 +71,19 @@ macro ( create_package PACKAGE_NAME )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E
 			 copy_directory ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/lm
 			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
+	if( UNIX OR APPLE )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+                             ${CMAKE_INSTALL_PREFIX}/mk_flexlm_links
+                             ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
+	    execute_process( COMMAND
+		${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links
+		WORKING_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb
+		RESULT_VARIABLE STATUS )
+	    file( REMOVE_RECURSE ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links )
+	    if( NOT ${STATUS} EQUAL "0" )
+		message( FATAL_ERROR "Failed to create license related links" )
+	    endif()
+	endif()	
     endif()
 
     if( WIN32 )
@@ -124,14 +147,17 @@ endmacro( copy_thirdpartylibs )
 
 macro( create_basepackages PACKAGE_NAME )
    if( EXISTS ${DESTINATION_DIR}/Contents )
-	FILE( REMOVE_RECURSE ${DESTINATION_DIR}/Contents )
+	file( REMOVE_RECURSE ${DESTINATION_DIR}/Contents )
    endif()
    if( NOT EXISTS ${DESTINATION_DIR}/doc )
-	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/doc ${DESTINATION_DIR}/doc/User
+	file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc ${DESTINATION_DIR}/doc/User
 			     ${DESTINATION_DIR}/doc/ReleaseInfo)
    endif()
 
     if( ${PACKAGE_NAME} STREQUAL "basedata" )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			${CMAKE_INSTALL_PREFIX}/doc/about.html
+			${DESTINATION_DIR}/doc )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				${CMAKE_INSTALL_PREFIX}/relinfo/RELEASE.txt
 				${DESTINATION_DIR}/doc/ReleaseInfo )
@@ -142,7 +168,6 @@ macro( create_basepackages PACKAGE_NAME )
 	    file( GLOB DATAFILES ${CMAKE_INSTALL_PREFIX}/data/${LIBS} )
 	    foreach( DATA ${DATAFILES} )
     #TODO if possible copy files instead of INSTALL
-    #change file permissions if needed on windows
 		  file( INSTALL DESTINATION ${DESTINATION_DIR}/data
 				TYPE DIRECTORY FILES ${DATA}
 				REGEX ".svn" EXCLUDE )
@@ -251,6 +276,13 @@ macro( init_destinationdir  PACKAGE_NAME )
     file( MAKE_DIRECTORY ${DESTINATION_DIR} ${DESTINATION_DIR}/relinfo )
     file( WRITE ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
     file( APPEND ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
+    if( APPLE )
+	if( ${PACKAGE_NAME} STREQUAL "base" )
+	    file( WRITE ${CMAKE_INSTALL_PREFIX}/create_macos_link
+			"#!/bin/csh -f\nln -s ../bin/${OD_PLFSUBDIR}/Release MacOS\n" )
+	endif()
+     endif()
+
     message( "Preparing package ${VER_FILENAME}.zip ......" )
 endmacro( init_destinationdir )
 
