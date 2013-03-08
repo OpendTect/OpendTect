@@ -253,8 +253,6 @@ private:
     uiMenuItem*			interceptitem_;
     bool			dointercept_;
 
-    ioPixmap*			pixmap_;
-
 public:
 				//! Not for casual use
     static void			addInterceptor(const CallBack&);
