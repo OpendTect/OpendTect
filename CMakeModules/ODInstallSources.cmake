@@ -8,7 +8,7 @@
 #TODO Add date
 configure_file( ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/license_devel.txt ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in )
 
-macro( add_licensetext DIRNAME DIRPATH )
+macro( ADD_LICENSETEXT DIRNAME DIRPATH )
     message( "Installing ${DIRPATH}/${DIRNAME} " )
     file( GLOB HFILES ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/*.h )
     file( GLOB SFILES ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/*.cc )
@@ -25,23 +25,23 @@ macro( add_licensetext DIRNAME DIRPATH )
 		${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/tempfile 
 		${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/${FILENAME} )
     endforeach()
-endmacro( add_licensetext )
+endmacro( ADD_LICENSETEXT )
 
 file( READ ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in
 	   lic_temp )
 include( ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/develdefs.cmake )
-foreach( INCLUDEDIR ${INCLIBLIST} )
-    add_licensetext( "${INCLUDEDIR}" "include" )
+foreach( INCLUDEDIR ${ODLIBLIST} )
+    ADD_LICENSETEXT( "${INCLUDEDIR}" "include" )
 endforeach()
 
-foreach( SRCDIR ${SRCLIBLIST} )
-    add_licensetext( "${SRCDIR}" "src" )
+foreach( SRCDIR ${ODLIBLIST} )
+    ADD_LICENSETEXT( "${SRCDIR}" "src" )
 endforeach()
 
-foreach( PLUGINDIR ${PLUGINS} )
-    add_licensetext( "${PLUGINDIR}" "plugins" )
+foreach( PLUGINDIR ${ODPLUGINS} )
+    ADD_LICENSETEXT( "${PLUGINDIR}" "plugins" )
 endforeach()
 
 foreach( SPECDIR ${SPECSOURCES} )
-    add_licensetext( "${SPECDIR}" "spec" )
+    ADD_LICENSETEXT( "${SPECDIR}" "spec" )
 endforeach()

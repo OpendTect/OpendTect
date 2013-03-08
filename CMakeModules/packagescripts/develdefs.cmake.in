@@ -1,0 +1,23 @@
+#(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+# Description:  CMake script to define devel package variables
+# Author:       Nageswara
+# Date:         August 2012
+#RCS:           $Id$
+
+#OpenDtect modules and plugins
+set( ODLIBLIST @OD_MODULES@ )
+
+set( ODPLUGINS @OD_PLUGINS@ )
+
+set( SPECSOURCES @OD_SPECPROGS@ )
+
+set( EXECLIST od_cbvs_browse od_glxinfo od_ivfileviewer lmhostid 
+	      od_main od_sysadmmain od_process_attrib od_process_attrib_em
+	      od_process_prestack od_process_segyio od_process_time2depth
+	      od_process_velocityconv od_process_volume od_ProgressViewer od_DispMsg
+	      od_FileBrowser od_SEGYExaminer od_SeisMMBatch od_ClusterProc
+	      od_process_2dgrid od_remexec od_remoteservice od_stratamp od_isopach
+	      od_ReportIssue od_uiReportIssue )
+set( PMAKESTUFF Makefile RootMakefile make.od.Defaults make.od.Dirs 
+		make.od.Vars base )
+set( PACK "devel" )

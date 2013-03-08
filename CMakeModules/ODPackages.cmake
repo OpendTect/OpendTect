@@ -4,6 +4,13 @@
 # Date:		August 2012		
 #RCS:           $Id$
 
+
+macro( OD_CREATE_DEVEL_PACKAGE_DEFINITION )
+    configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/develdefs.cmake.in
+		    ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/develdefs.cmake
+		    @ONLY )
+endmacro()
+
 add_custom_target( do_install ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install
 		   WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
