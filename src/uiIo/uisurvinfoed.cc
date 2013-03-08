@@ -311,7 +311,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
     zunitfld_->selectionChanged.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
 
     depthdispfld_ = new uiGenInput( rangegrp_, "Display depths in",
-                                   BoolInpSpec(false,"meter","feet") );
+                                   BoolInpSpec(true,"meter","feet") );
     depthdispfld_->valuechanged.notify( 
 	    		mCB(this,uiSurveyInfoEditor,depthDisplayUnitSel) );
     depthdispfld_->attach( alignedBelow, zfld_ );
