@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "commondefs.h"
 
-
+class BufferString;
 
 /*!
 \brief Advances given pointer to first non-whitespace.
@@ -169,6 +169,8 @@ mImplGetFromStrFunc(float, strtod(s,&e), mUdf(float) )
 // inline bool getFromString( int& d, const char* s, int udefval );
 mImplGetFromStrFunc(int, strtol(s,&e,10), mUdf(int) )
 #undef mImplGetFromStrFunc
+
+mGlobal(Basic) bool getFromString(BufferString&,const char*);
 
 inline bool getFromString( bool& b, const char* s )
 {

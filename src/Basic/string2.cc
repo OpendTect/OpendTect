@@ -777,3 +777,10 @@ const char* toString( signed char c )
 
 const char* toString( bool b )
 { const char* res = getYesNoString(b); return res; }
+
+
+bool getFromString( BufferString& res, const char* s )
+{
+    res = s;
+    return true;
+}
