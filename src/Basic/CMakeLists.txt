@@ -9,7 +9,7 @@ set( OD_USEQT Core)
 set( OD_USEBREAKPAD No)
 set( OD_USEZLIB Yes)
 set( QT_MOC_HEADERS qfilesystemcomm.h qtimercomm.h i_qptr.h)
-set( OD_TEST_PROGS svnversion sets )
+set( OD_TEST_PROGS svnversion sets commandlineparser )
 set( OD_MODULE_SOURCES genc.cc oddirs.cc
 	    ailayer.cc
 	    arrayndinfo.cc
@@ -20,6 +20,7 @@ set( OD_MODULE_SOURCES genc.cc oddirs.cc
 	    callback.cc
 	    color.cc
 	    compoundkey.cc
+	    commandlineparser.cc
 	    conn.cc
 	    cubesampling.cc
 	    dateinfo.cc
