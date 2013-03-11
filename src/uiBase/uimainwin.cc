@@ -159,7 +159,6 @@ private:
 
     int			iconsz_;
     bool		modal_;
-    int			looplevel__;
     Qt::WFlags		getFlags(bool hasparent,bool modal) const;
 
     void 		popTimTick(CallBacker*);
