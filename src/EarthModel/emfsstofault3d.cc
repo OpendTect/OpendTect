@@ -131,6 +131,10 @@ FSStoFault3DConverter::FSStoFault3DConverter( const Setup& setup,
 
 
 bool FSStoFault3DConverter::convert()
+{ return convert( true ); }
+
+
+bool FSStoFault3DConverter::convert( bool forimport )
 {
     fault3d_.geometry().selectAllSticks();
     fault3d_.geometry().removeSelectedSticks( setup_.addtohistory_ );
@@ -139,7 +143,10 @@ bool FSStoFault3DConverter::convert()
     for ( int sidx=0; sidx<fss_.nrSections(); sidx++ )
     {
 	const int sid = fss_.sectionID( sidx );
-	readSection( sid );
+	if ( forimport )
+	    readSectionForImport( sid );
+	else
+	    readSection( sid );
 
 	if ( !sidx )
 	    selhorpicked = preferHorPicked();
@@ -147,7 +154,7 @@ bool FSStoFault3DConverter::convert()
 	selectSticks( selhorpicked );
 		
 	if ( setup_.sortsticks_ )
-	    geometricSort( selhorpicked ? MAXDOUBLE : 0.0 );
+	    geometricSort( (selhorpicked ? MAXDOUBLE : 0.0), forimport );
 
 	untwistSticks( setup_.zscale_ );
 	resolveUdfNormals();
@@ -155,6 +162,47 @@ bool FSStoFault3DConverter::convert()
 	deepErase( sticks_ );
     }
 
+    return true;
+}
+
+
+bool FSStoFault3DConverter::readSection( const SectionID& sid )
+{
+    if ( fss_.sectionIndex(sid) < 0 )
+	return false;
+    mDynamicCast( const Geometry::FaultStickSet*, curfssg_,
+		  fss_.sectionGeometry(sid) );
+    if ( !curfssg_ )
+	return false;
+    const StepInterval<int> rowrg = curfssg_->rowRange();
+    if ( rowrg.isUdf() )
+	return false;
+
+    RowCol rc;
+    for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+    {
+	const StepInterval<int> colrg = curfssg_->colRange( rc.row );
+	if ( colrg.isUdf() )
+	    return false;
+
+	FaultStick* stick = new FaultStick( rc.row );
+	sticks_ += stick;
+
+	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
+	{
+	    const Coord3 pos = curfssg_->getKnot( rc );
+	    if ( !pos.isDefined() )
+		return false;
+	    stick->crds_ += pos;
+	}
+
+	stick->pickedonplane_ = fss_.geometry().pickedOnPlane( sid, rc.row );
+
+	if ( stick->pickedonplane_ )
+	    stick->normal_ = stick->findPlaneNormal();
+	else
+	    stick->normal_ = curfssg_->getEditPlaneNormal( rc.row );
+    }
     return true;
 }
 
@@ -168,8 +216,7 @@ bool FSStoFault3DConverter::convert()
     found = true; \
     break
 
-
-bool FSStoFault3DConverter::readSection( const SectionID& sid )
+bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 {
     if ( fss_.sectionIndex(sid) < 0 )
 	return false;
@@ -486,6 +533,10 @@ void FSStoFault3DConverter::selectSticks( bool selhorpicked )
 
 
 void FSStoFault3DConverter::geometricSort( double zscale )
+{ geometricSort( zscale, true ); }
+
+
+void FSStoFault3DConverter::geometricSort( double zscale, bool forimport )
 {
     TypeSet<int> sticknrs;
 
@@ -507,9 +558,9 @@ void FSStoFault3DConverter::geometricSort( double zscale )
 	}
     }
 
-    if ( preferHorPicked() )
+    if ( !forimport || preferHorPicked() )
 	return;
-    
+
     for ( int idx=0; idx<sticks_.size(); idx++ )
     {
 	const int nrcrds = sticks_[idx]->crds_.size();

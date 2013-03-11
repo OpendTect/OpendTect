@@ -50,7 +50,7 @@ public:
 				FSStoFault3DConverter(const Setup&,
 						      const FaultStickSet&,
 						      Fault3D&);  
-    bool			convert();
+    bool			convert();		//obsolete
 
 protected:
 
@@ -82,10 +82,16 @@ protected:
     bool			readSection(const SectionID&);
     bool			preferHorPicked() const;
     void			selectSticks( bool selhorpicked );
-    void			geometricSort(double zscale);
+    void			geometricSort(double zscale); // obsolete
     void			untwistSticks(double zscale);
     void			resolveUdfNormals();
     bool			writeSection(const SectionID&) const;
+
+    bool			readSectionForImport(const SectionID&);
+    void			geometricSort(double zscale,bool forimport);
+
+public:
+    bool			convert(bool forimport);
 };
 
 
