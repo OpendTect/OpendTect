@@ -18,18 +18,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "QCoreApplication"
 
-int main( int argc, char ** argv )
+int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
+    QCoreApplication app( argc, argv );
+    
     System::IssueReporter reporter;
-    if ( !reporter.parseCommandLine( argc, argv ) )
+    if ( !reporter.parseCommandLine() )
     {
-	
 	std::cerr << reporter.errMsg() << '\n';
 	ExitProgram( 1 );	
     }
-    
-    QCoreApplication app( argc, argv );
     
     if ( !reporter.send() )
     {

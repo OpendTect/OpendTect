@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "issuereporter.h"
 
 #include "odhttp.h"
+#include "commandlineparser.h"
 #include "iopar.h"
 #include "file.h"
 #include "filepath.h"
@@ -25,14 +26,8 @@ static const char* rcsID mUsedVar = "$Id$";
 System::IssueReporter::IssueReporter( const char* host, const char* path )
     : host_( host )
     , path_( path )
-    , isdump_( false )
 {}
 
-#define mTestStart( startstr ) \
-    { const BufferString test( startstr ); \
-	if ( test.isStartOf( line.buf() ) ) \
-	    continue; \
-    }
 
 #define mTestMatch( matchstr ) \
     if ( line.matches( "*" matchstr "*" ) ) \
@@ -89,7 +84,8 @@ bool System::IssueReporter::readReport( const char* filename )
     return true;
 }
 
-bool System::IssueReporter::setFileName( const char* filename )
+
+bool System::IssueReporter::setDumpFileName( const char* filename )
 {
     if ( !File::exists( filename ) )
     {
@@ -121,105 +117,63 @@ bool System::IssueReporter::setFileName( const char* filename )
 
 bool System::IssueReporter::send()
 {
-    if ( isdump_ )
-	return sendDumpFile();
-    
-    return sendReport();
-}
-
-
-bool System::IssueReporter::sendDumpFile()
-{
     ODHttp request;
     request.setHost( host_ );
     IOPar postvars;
     postvars.set( "report", report_.buf() );
-
-    if ( request.postFile( path_, crashreportpath_, postvars )==-1 )
+    
+    if ( crashreportpath_.isEmpty() )
     {
-	errmsg_ = "Cannot connect to ";
-	errmsg_.add( host_ );
-	return false;
+	if ( request.post( path_, postvars )!=-1 )
+	    return true;
     }
-
-    return true;
+    else if ( request.postFile( path_, crashreportpath_, postvars )!=-1 )
+    {
+	return true;
+    }
+    
+    errmsg_ = "Cannot connect to ";
+    errmsg_.add( host_ );
+    return false;
 }
 
 
-bool System::IssueReporter::sendReport()
+bool System::IssueReporter::parseCommandLine()
 {
-    IOPar postvars;
-    postvars.set( "report", report_.buf() );
+    CommandLineParser parser;
+    const char* hostkey = "host";
+    const char* pathkey = "path";
+    parser.setKeyHasValue( hostkey );
+    parser.setKeyHasValue( pathkey );
     
-    ODHttp request;
-    request.setHost( host_ );
-    if ( request.post( path_, postvars )==-1 )
-    {
-	errmsg_ = "Cannot connect to ";
-	errmsg_.add( host_ );
-	return false;
-    }
+    BufferStringSet normalargs;
+    bool syntaxerror = false;
+    parser.getNormalArguments( normalargs );
+    if ( normalargs.size()!=1 )
+	syntaxerror = true;
     
-    return true;
-}
-
-
-bool System::IssueReporter::parseCommandLine( int argc, char** argv )
-{
-    if ( argc<2 )
+    if ( syntaxerror || parser.nrArgs()<1 )
     {
-	errmsg_.add( "Usage: " ).add( argv[0] )
-	       .add( " <filename> [--host <hostname>]" )
+	errmsg_.add( "Usage: " ).add( parser.getExecutable() )
+	       .add( " <filename> [--host <hostname>] [--binary]" )
 	       .add( " [--path <path>]" );
 	return false;
     }
     
-    BufferString hostname = "www.opendtect.org";
-    BufferString path = "/relman/scripts/crashreport.php";
-    BufferString filename;
-    
-    int argidx = 1;
-    
-    while ( argc > argidx )
-    {
-	const FixedString arg = argv[argidx];
-	const int argvaridx = argidx+1;
-	
-	if ( arg == "--host" && argc>argvaridx )
-	{
-	    hostname = argv[argvaridx];
-	    argidx++;
-	}
-	else if ( arg=="--path" && argc>argvaridx )
-	{
-	    path = argv[argvaridx];
-	    argidx++;
-	}
-	else
-	{
-	    filename = arg;
-	}
-	
-	argidx++;
-    }
-    
-    FilePath fp( filename );
-    BufferString fpext = fp.extension();
-    BufferString dmpext = "dmp";
-    isdump_ = ( fpext == dmpext );
-    if ( isdump_ )
-    {
-	path = "/relman/scripts/senddumpfiletest.php";
-	host_ = hostname;
-	path_ = path;
-	return setFileName( filename );
-    }
+    host_ = "www.opendtect.org";
+    path_ = "/relman/scripts/crashreport.php";
 
-    host_ = hostname;
-    path_ = path;
+    const BufferString& filename = normalargs.get( 0 );
     
+    parser.getVal( hostkey, host_ );
+    parser.getVal( pathkey, path_ );
+    const bool binary = parser.hasKey( "binary" );
+
+    if ( binary )
+    {
+	return setDumpFileName( filename );
+    }
+        
     return readReport( filename );
 }
-
-
 
