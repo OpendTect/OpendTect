@@ -2,14 +2,14 @@
 #
 # Copyright (C): dGB Beheer B. V.
 #
-# $Id$
 #
+# $Id$
 
 set progname = $0
 set exceptionfile=""
 set listfile=""
 
-if ( $#argv<2 ) then
+if ( $#argv<1 ) then
     goto syntax
 endif
 
@@ -62,23 +62,18 @@ endif
 shift 
 
 (svn proplist ${filename} > ${tmpfile} ) >& ${tmperrfile}
-set errsize=`ls -la ${tmperrfile} | awk '{ print $5 }'`
+set errsize=`ls -la ${tmperrfile} | awk '{ print $5}'`
 if ( ${errsize} == 0 ) then
-    cat ${tmpfile} | grep -q "svn:eol-style"
-    if ( ${status} == 1 ) then
-	echo File ${filename} misses svn:eol-style.
+    svn propset svn:keywords "Author Date Id Revision" ${filename}
+    if ( ${status} != 0 ) then
+	echo "Cannot set keyword property on ${filename}"
 	rm -rf ${tmpfile} ${tmperrfile}
 	exit 1
     endif
-    cat ${tmpfile} | grep -q "svn:keyword"
-    if ( ${status} == 1 ) then
-	echo File ${filename} misses keyword.
-	rm -rf ${tmpfile} ${tmperrfile}
-	exit 1
-    endif
-    cat ${tmpfile} | grep -q "svn:needs-lock"
-    if ( ${status} == 0 ) then
-	echo File ${filename} has lock property set.
+	
+    svn propset svn:eol-style "native" ${filename}
+    if ( ${status} != 0 ) then
+	echo "Cannot set eol-style property on ${filename}"
 	rm -rf ${tmpfile} ${tmperrfile}
 	exit 1
     endif
@@ -88,9 +83,9 @@ goto nextfile
 
 syntax:
 echo
-echo ${progname} - Finds files without the svn:eol-style set
+echo ${progname} - Sets the standard svn properties for source files
 echo
-echo Returns 0 if keyword is not found, otherwise 1
+echo Returns 0 if success, otherwise 1
 echo
 echo "Syntax ${progname}  <--listfile <listfile> | files ..>"
 echo
