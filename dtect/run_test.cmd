@@ -1,10 +1,11 @@
 @ECHO OFF
 REM 
-REM Copyright (C) 2012- : dGB Beheer B. V.
-REM
+REM Copyright (C) 2012 : dGB Beheer B. V.
+REM $Id$
 REM
 
 setlocal
+set args=""
 
 :parse_args
 IF "%1"=="--command" (
@@ -19,6 +20,9 @@ IF "%1"=="--command" (
 ) ELSE IF "%1"=="--plf" (
     set plf=%2
     shift
+) ELSE IF "%1"=="--datadir" (
+    set args=--datadir %2
+    shift
 ) ELSE IF "%1"=="--qtdir" (
     set qtdir=%2
     shift
@@ -28,7 +32,7 @@ shift
 goto parse_args
 
 :syntax
-echo run_test --command cmd --wdir workdir --plf platform --config config --qtdir qtdir
+echo run_test --command cmd --wdir workdir --plf platform --config config --qtdir qtdir --datadir datadir
 exit 1
 
 :do_it
@@ -60,7 +64,9 @@ if NOT EXIST "%fullcommand%" (
 )
 
 set PATH=%bindir%;%qtdir%/bin;%PATH%
-"%fullcommand%"
+
+"%fullcommand%" %args%
+
 IF %errorlevel% NEQ 0 (
    echo %fullcommand% returned %errorlevel%
    exit /b %errorlevel%
