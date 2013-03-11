@@ -147,31 +147,18 @@ const char* MsgClass::nameOf( MsgClass::Type typ )
     return strs[ (int)typ ];
 }
 
+using namespace System;
 
 //Crashdumper stuff
-namespace google_breakpad{ class ExceptionHandler; }
-struct CrashDumper
-{
-    CrashDumper( const char* path, const char* sendappl )
-    : path_( path )
-    , sendappl_( sendappl )
+CrashDumper::CrashDumper()
+    : sendappl_( sSenderAppl() )
     , handler_(0)
-    {
-	init();
-    }
-    
-    void		sendDump(const char* filename);
-    
-    void		init();
-    
-    BufferString	sendappl_;
-    BufferString	path_;
-    
-    google_breakpad::ExceptionHandler*	handler_;
-};
+{
+    init();
+}
 
 
-CrashDumper* theinst mUnusedVar = 0;
+CrashDumper* CrashDumper::theinst_ = 0;
 
 #if defined ( __msvc__ )  && defined ( HAS_BREAKPAD )
 
@@ -189,6 +176,7 @@ static bool MinidumpCB(const wchar_t* dump_path, const wchar_t *id,
 	theinst->sendDump( dmpfp.fullPath() );
     return succeeded;
 }
+
 
 void CrashDumper::init()
 {
@@ -220,29 +208,26 @@ void CrashDumper::sendDump( const char* filename )
     if ( sendappl_.isEmpty() || !File::exists(filename) )
 	return;
     
-    const BufferString cmd( sendappl_, " ", filename );
+    const BufferString cmd( sendappl_, " --binary ", filename );
     StreamProvider(cmd).executeCommand( true, true );
 }
 
 
-bool initCrashDumper( const char* dumpdir, const char* sendappl )
+CrashDumper& CrashDumper::getInstance()
 {
-    if ( !theinst )
-	theinst = new CrashDumper( dumpdir, sendappl );
-    else
-	pFreeFnErrMsg("initCrashDumper", "CrashDumper installed before");
+    if ( !theinst_ )
+    {
+	theinst_ = new CrashDumper;
+    }
     
-    return true;
+    return *theinst_;
 }
 
 
-FixedString sSenderAppl()
+FixedString CrashDumper::sSenderAppl()
 { return FixedString("od_ReportIssue" ); }
 
 
-FixedString sUiSenderAppl()
+FixedString CrashDumper::sUiSenderAppl()
 { return FixedString( "od_uiReportIssue" ); }
-
-
-
 

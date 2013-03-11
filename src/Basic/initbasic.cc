@@ -25,5 +25,6 @@ mDefModInitFn(Basic)
     mIfNotFirstTime( return );
     SignalHandling::initClass();
     PosInfo::Survey2D::initClass();
-    initCrashDumper( FilePath::getTempDir(), sUiSenderAppl() ); 
+    System::CrashDumper::getInstance().setSendAppl(
+	    				System::CrashDumper::sSenderAppl() );
 }

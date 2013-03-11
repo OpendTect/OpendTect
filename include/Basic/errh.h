@@ -18,6 +18,10 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "fixedstring.h"
 
+
+
+namespace google_breakpad { class ExceptionHandler; }
+
 /*!
 \brief MsgClass holding an error message.
   
@@ -62,13 +66,36 @@ inline void programmerErrMsg( const char* msg, const char* cname,
 # define pFreeFnErrMsg(msg,fn)		EmptyFunction()
 #endif
 
+namespace System
+{
 
-/*! Installs segmentation fault dumper. Not available on all platforms. */
-mExtern(Basic) bool initCrashDumper(const char* dumpdir,const char* sendappl);
+/*!Segmentation fault core dumper that sends dump to dGB. */
 
-mExtern(Basic) FixedString sSenderAppl();	//od_ReportIssue
-mExtern(Basic) FixedString sUiSenderAppl();	//od_uiReportIssue
+mExpClass(Basic) CrashDumper
+{
+public:
+    static CrashDumper&	getInstance();
+			//!Creates and installs at first run.
+    			
+    void		sendDump(const char* filename);
+    
+    void		setSendAppl(const char* a)    { sendappl_ = a; }
+    
+    static FixedString	sSenderAppl();		//od_ReportIssue
+    static FixedString	sUiSenderAppl();	//od_uiReportIssue
+    
+private:
+					CrashDumper();
 
+    void				init();
+    
+    static CrashDumper*			theinst_;
+    
+    BufferString			sendappl_;
+    google_breakpad::ExceptionHandler*	handler_;
+};
+
+}; //Namespace
 
 #endif
 
