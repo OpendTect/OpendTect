@@ -1016,7 +1016,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	    setup.pickplanedir_ = EM::FSStoFault3DConverter::Setup::Horizontal;
 
 	EM::FSStoFault3DConverter fsstof3d( setup, *tmpfss, *destf3d );
-	fsstof3d.convert();
+	fsstof3d.convert( false );
     }
 
     if ( copy )

@@ -285,7 +285,7 @@ bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
     if ( res )
     {
 	EM::FSStoFault3DConverter fsstof3d( convsu, *interfss, *fault3d );
-	res = fsstof3d.convert();
+	res = fsstof3d.convert( true );
     }
 
     EM::EMM().removeObject( emobj );

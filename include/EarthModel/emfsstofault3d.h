@@ -55,7 +55,7 @@ public:
 				FSStoFault3DConverter(const Setup&,
 						      const FaultStickSet&,
 						      Fault3D&);  
-    bool			convert();
+    bool			convert(bool forimport);
 
 protected:
 
@@ -85,9 +85,10 @@ protected:
     const Geometry::FaultStickSet* curfssg_;
 
     bool			readSection(const SectionID&);
+    bool			readSectionForImport(const SectionID&);
     bool			preferHorPicked() const;
     void			selectSticks( bool selhorpicked );
-    void			geometricSort(double zscale);
+    void			geometricSort(double zscale,bool forimport);
     void			untwistSticks(double zscale);
     void			resolveUdfNormals();
     bool			writeSection(const SectionID&) const;
