@@ -64,7 +64,7 @@ inline void programmerErrMsg( const char* msg, const char* cname,
 
 
 /*! Installs segmentation fault dumper. Not available on all platforms. */
-mExtern(Basic) bool initCrashDumper( const char* dumpdir, const char* sendappl );
+mExtern(Basic) bool initCrashDumper(const char* dumpdir,const char* sendappl);
 
 mExtern(Basic) FixedString sSenderAppl();	//od_ReportIssue
 mExtern(Basic) FixedString sUiSenderAppl();	//od_uiReportIssue
