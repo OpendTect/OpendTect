@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "posinfo.h"
+#include "prestackanglecomputer.h"
 #include "prestackprocessortransl.h"
 #include "prestackprocessor.h"
 #include "prestackgather.h"
@@ -43,11 +44,11 @@ void PSAttrib::initClass()
     desc->addParam( epar )
 
     EnumParam*
-    mDefEnumPar(calctype,::PreStack::PropCalc::CalcType);
+    mDefEnumPar(calctype,PreStack::PropCalc::CalcType);
     mDefEnumPar(stattype,Stats::Type);
-    mDefEnumPar(lsqtype,::PreStack::PropCalc::LSQType);
-    mDefEnumPar(valaxis,::PreStack::PropCalc::AxisType);
-    mDefEnumPar(offsaxis,::PreStack::PropCalc::AxisType);
+    mDefEnumPar(lsqtype,PreStack::PropCalc::LSQType);
+    mDefEnumPar(valaxis,PreStack::PropCalc::AxisType);
+    mDefEnumPar(offsaxis,PreStack::PropCalc::AxisType);
 
     desc->addParam( new BoolParam( useazimStr(), false, false ) );
     IntParam* ipar = new IntParam( componentStr(), 0 , false );
@@ -60,6 +61,8 @@ void PSAttrib::initClass()
     desc->addParam( new FloatParam( offStopStr(), mUdf(float), false ) );
 
     desc->addParam( new StringParam( preProcessStr(), "", false ) );
+
+    desc->addParam( new StringParam( velocityIDStr(), "", false ) );
 
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -77,6 +80,7 @@ PSAttrib::PSAttrib( Desc& ds )
     , preprocessor_( 0 )
     , psioobj_( 0 )
     , component_( 0 )
+    , anglecomp_( 0 )
 {
     if ( !isOK() ) return;
 
@@ -92,16 +96,26 @@ PSAttrib::PSAttrib( Desc& ds )
     mGetEnum(tmp_##var,var##Str()); \
     setup_.var##_ = (typ)tmp_##var
 
-    mGetSetupEnumPar(calctype,::PreStack::PropCalc::CalcType);
+    mGetSetupEnumPar(calctype,PreStack::PropCalc::CalcType);
     mGetSetupEnumPar(stattype,Stats::Type);
-    mGetSetupEnumPar(lsqtype,::PreStack::PropCalc::LSQType);
-    mGetSetupEnumPar(valaxis,::PreStack::PropCalc::AxisType);
-    mGetSetupEnumPar(offsaxis,::PreStack::PropCalc::AxisType);
+    mGetSetupEnumPar(lsqtype,PreStack::PropCalc::LSQType);
+    mGetSetupEnumPar(valaxis,PreStack::PropCalc::AxisType);
+    mGetSetupEnumPar(offsaxis,PreStack::PropCalc::AxisType);
 
     bool useazim = setup_.useazim_;
     mGetBool( useazim, useazimStr() ); setup_.useazim_ = useazim;
     mGetInt( component_, componentStr() );
     mGetInt( setup_.aperture_, apertureStr() );
+    
+    const PreStack::PropCalc::LSQType lsqtype = setup_.lsqtype_;
+    if ( lsqtype == PreStack::PropCalc::AngleA0 || 
+	 lsqtype == PreStack::PropCalc::AngleCoeff ) 
+    {
+	mGetString( velocityid_, velocityIDStr() );
+	anglecomp_ = new PreStack::AngleComputer;
+	anglecomp_->ref();
+	anglecomp_->setMultiID( velocityid_ ); 
+    }
 
     BufferString preprocessstr;
     mGetString( preprocessstr, preProcessStr() );
@@ -109,7 +123,7 @@ PSAttrib::PSAttrib( Desc& ds )
     PtrMan<IOObj> preprociopar = IOM().get( preprocid_ );
     if ( preprociopar )
     {
-	preprocessor_ = new ::PreStack::ProcessManager;
+	preprocessor_ = new PreStack::ProcessManager;
 	if ( !PreStackProcTranslator::retrieve( *preprocessor_,preprociopar,
 					       errmsg_ ) )
 	{
@@ -125,8 +139,10 @@ PSAttrib::~PSAttrib()
     delete propcalc_;
     delete preprocessor_;
 
-    if ( psrdr_ ) delete psrdr_;
-    if ( psioobj_ ) delete psioobj_;
+    delete psrdr_;
+    delete psioobj_;
+    if ( anglecomp_ )
+	anglecomp_->unRef();
 }
 
 
@@ -137,6 +153,26 @@ bool PSAttrib::getInputOutput( int input, TypeSet<int>& res ) const
     if ( rg.stop > 1e28 ) rg.stop = mUdf(float);
 
     return Provider::getInputOutput( input, res );
+}
+
+
+bool PSAttrib::getAngleInputData()
+{
+    const PreStack::Gather* gather = propcalc_->getGather();
+    if ( !gather || !anglecomp_ )
+	return false;
+
+    const FlatPosData& fp = gather->posData();
+    anglecomp_->setOutputSampling( fp );
+    PreStack::Gather* angledata = anglecomp_->computeAngles(gather->getBinID());
+
+    if ( !angledata )
+	return false;
+
+    DPM(DataPackMgr::FlatID()).add( angledata );
+    propcalc_->setAngleData( angledata->id() );
+
+    return true;
 }
 
 
@@ -166,7 +202,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	    const BinID stepout = preprocessor_->getInputStepout();
 	    const BinID stepoutstep( SI().inlRange(true).step,
 				     SI().crlRange(true).step );
-	    ::PreStack::Gather* gather = 0;
+	    PreStack::Gather* gather = 0;
 	    for ( int inlidx=-stepout.inl; inlidx<=stepout.inl; inlidx++ )
 	    {
 		for ( int crlidx=-stepout.crl; crlidx<=stepout.crl; crlidx++ )
@@ -177,7 +213,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 
 		    const BinID bid = currentbid_+relpos+relbid*stepoutstep;
 
-		    mTryAlloc( gather, ::PreStack::Gather );
+		    mTryAlloc( gather, PreStack::Gather );
 		    if ( !gather )
 			return false;
 
@@ -195,6 +231,9 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	    return false;
 
 	propcalc_->setGather( preprocessor_->getOutput() );
+	if ( anglecomp_ && !getAngleInputData() )
+	    return false;
+
 	return true;
     }
 
@@ -217,8 +256,8 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	}
 	if (!curgather ) return false;
 
-	mDeclareAndTryAlloc( ::PreStack::Gather*, gather, 
-				::PreStack::Gather(*curgather ) );
+	mDeclareAndTryAlloc( PreStack::Gather*, gather, 
+				PreStack::Gather(*curgather ) );
 	if ( !gather )
 	    return false;
 	DPM(DataPackMgr::FlatID()).add( gather );
@@ -226,7 +265,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
     }
     else
     {
-	mDeclareAndTryAlloc( ::PreStack::Gather*, gather, ::PreStack::Gather );
+	mDeclareAndTryAlloc( PreStack::Gather*, gather, PreStack::Gather );
 	if ( !gather )
 	    return false;
 
@@ -238,6 +277,9 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
     }
 
     propcalc_->setGather( curgatherid );
+    if ( anglecomp_ && !getAngleInputData() )
+	return false;
+
     return true;
 }
 
@@ -281,7 +323,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 	if ( emsg ) mErrRet("PS Reader: ",emsg,"");
     }
 
-    mTryAlloc( propcalc_, ::PreStack::PropCalc( setup_ ) );
+    mTryAlloc( propcalc_, PreStack::PropCalc( setup_ ) );
 }
 
 

@@ -22,6 +22,7 @@ namespace Attrib { class Desc; };
 class uiLabel;
 class uiGenInput;
 class uiPreStackSel;
+class uiVelSel;
 namespace PreStack { class uiProcSel; }
 
 /*! \brief PreStack Attribute ui */
@@ -49,6 +50,7 @@ protected:
     uiGenInput*				offsaxtypefld_;
     uiGenInput*				valaxtypefld_;
     uiGenInput*				useazimfld_;
+    uiVelSel*				velselfld_;
     uiLabel*				xlbl_;
 
     bool		usedatapackasinput_;
@@ -57,6 +59,7 @@ protected:
     bool		getParameters(Attrib::Desc&);
 
     void		calcTypSel(CallBacker*);
+    void		lsqTypSel(CallBacker*);
     void		doPreProcSel(CallBacker*);
 
     bool        	setInput(const Desc&);
