@@ -74,7 +74,6 @@ int main( int argc, char ** argv )
     if ( res && *res && SI().getDirName() != res )
 	IOMan::setSurvey( res );
 
-    PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
 
     if ( dosubmit )
