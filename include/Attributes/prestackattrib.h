@@ -21,7 +21,7 @@ ________________________________________________________________________
 class SeisPSReader;
 class IOObj;
 
-namespace PreStack { class ProcessManager; class Gather; }
+namespace PreStack { class ProcessManager; class Gather; class AngleComputer; }
 
 
 namespace Attrib
@@ -67,8 +67,9 @@ public:
     static const char*  useazimStr()		{ return "useazim"; }
     static const char*  componentStr()		{ return "comp"; }
     static const char*  apertureStr()		{ return "aperture"; }
+    static const char*  velocityIDStr()		{ return "velocityid"; }
 
-    const ::PreStack::PropCalc::Setup&	setup() const	{ return setup_; }
+    const PreStack::PropCalc::Setup&	setup() const	{ return setup_; }
     const MultiID&			psID() const	{ return psid_; }
     const MultiID&			preProcID() const { return preprocid_; }
 
@@ -82,18 +83,20 @@ protected:
     bool		allowParallelComputation() const	{ return true;}
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&, int idx);
+    bool		getAngleInputData();
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int t0,int nrsamples,int threadid) const;
     void		prepPriorToBoundsCalc();
 
     MultiID			psid_;
     IOObj*			psioobj_;
-    ::PreStack::PropCalc::Setup setup_;
+    PreStack::PropCalc::Setup	setup_;
     int				component_;
     SeisPSReader*		psrdr_;
-    ::PreStack::PropCalc*	propcalc_;
+    PreStack::PropCalc*		propcalc_;
+    PreStack::AngleComputer*    anglecomp_;
 
-    ::PreStack::ProcessManager*	preprocessor_;
+    PreStack::ProcessManager*	preprocessor_;
     MultiID			preprocid_;
     int				dataidx_;
     const DataHolder*		inputdata_;
