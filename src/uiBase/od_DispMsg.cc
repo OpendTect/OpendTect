@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uimain.h"
 #include <iostream>
+#include "commandlineparser.h"
 
 #ifdef __msvc__
 #include "winmain.h"
@@ -21,31 +22,33 @@ static const char* rcsID mUsedVar = "$Id$";
 
 int main( int argc, char** argv )
 {
-    if ( argc < 2 ) return 1;
-
-    BufferString msg( argv[1] );
-    int typ = 0;
-    int argidx = 1;
-    if ( msg == "--info" )
-	argidx++;
-    else if ( msg == "--warn" )
-	{ typ = 1; argidx++; }
-    else if ( msg == "--err" )
-	{ typ = 2; argidx++; }
-    else if ( msg == "--ask" )
-	{ typ = 3; argidx++; }
-
-    msg = "";
-    for ( ; argidx<argc; argidx++ )
+    SetProgramArgs( argc, argv );
+    CommandLineParser parser;
+    
+    if ( parser.nrArgs()<1 )
+	return 1;
+    
+    int typ = 0; //Default is info
+    if ( parser.hasKey( "warn" ) )
+    { typ = 1; }
+    else if ( parser.hasKey( "err" ) )
+    { typ = 2; }
+    else if ( parser.hasKey( "ask" ))
+    { typ = 3; }
+    
+    BufferStringSet normalargs;
+    parser.getNormalArguments( normalargs );
+    
+    BufferString msg = "";
+    for ( int idx=0; idx<normalargs.size(); idx++ )
     {
-	BufferString nextarg( argv[argidx] );
+	BufferString nextarg( normalargs[idx]->buf() );
 	replaceString( nextarg.buf(), "-+-", "\n" );
-
 	msg += nextarg;
-	if ( argidx < argc-1 )
+	if ( idx<normalargs.size()-1 )
 	    msg += " ";
     }
-
+  
     if ( msg.isEmpty() )
 	msg = typ == 1 ? "Be careful!"
 	    : (typ ==2 ? "Problem found!"
