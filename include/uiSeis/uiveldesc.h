@@ -120,8 +120,10 @@ public:
     bool			acceptOK();
 
     ZAxisTransform*		getSelection();
+    bool			getTargetSampling(StepInterval<float>&) const;
     StepInterval<float>		getZRange() const;
-    				//!Only if no ZAxisTransform
+				//!use getTargetSampling instead
+
     const char*			selName() const;
     const MultiID&		selID() const { return selkey_; }
 protected:
@@ -160,6 +162,9 @@ public:
 
 				uiDepth2Time(uiParent*);
 };
+
+
+
 
 
 #endif

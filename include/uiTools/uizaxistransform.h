@@ -29,10 +29,11 @@ mExpClass(uiTools) uiZAxisTransform : public uiDlgGroup
 public:
     mDefineFactory3ParamInClass(uiZAxisTransform,uiParent*,
 	    			const char*,const char*,factory);
+    
+    virtual void		enableTargetSampling();
+    virtual bool		getTargetSampling(StepInterval<float>&) const;
 
     virtual ZAxisTransform*	getSelection()			= 0;
-    virtual const char*		selName() const			= 0;
-    virtual FixedString		getZDomain() const 		= 0;
 
 protected:
     				uiZAxisTransform(uiParent*);
@@ -40,28 +41,31 @@ protected:
 
 
 /*!Selects a ZAxisTransform. */
-mExpClass(uiTools) uiZAxisTransformSel : public uiGroup
+mExpClass(uiTools) uiZAxisTransformSel : public uiDlgGroup
 {
 public:
     				uiZAxisTransformSel(uiParent*, bool withnone,
 						    const char* fromdomain=0,
-						    const char* todomain=0);
+						    const char* todomain=0,
+						    bool withsampling=false);
+    
+    bool			isOK() const;
+    
     bool			fillPar(IOPar&);
     ZAxisTransform*		getSelection();
     NotifierAccess*		selectionDone();
     int				nrTransforms() const;
-    FixedString			getZDomain() const;
+
     bool			acceptOK();
+    
+    bool			getTargetSampling(StepInterval<float>&) const;
 
 protected:
     void			selCB(CallBacker*);
-    void			settingsCB(CallBacker*);
 
     BufferString		fromdomain_;
     uiGenInput*			selfld_;
-    uiPushButton*		settingsbut_;
     ObjectSet<uiZAxisTransform>	transflds_;
-    ObjectSet<uiDialog>		transdlgs_;
 };
 
 

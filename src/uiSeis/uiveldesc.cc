@@ -360,15 +360,23 @@ ZAxisTransform* uiTimeDepthBase::getSelection()
 
 StepInterval<float> uiTimeDepthBase::getZRange() const
 {
-    StepInterval<float> res = rangefld_->getFStepInterval();
-    if ( !t2d_ )
+    StepInterval<float> res;
+    getTargetSampling( res );
+    return res;
+}
+
+
+bool uiTimeDepthBase::getTargetSampling( StepInterval<float>& res ) const
+{
+    res = rangefld_->getFStepInterval();
+    if ( !t2d_ && !res.isUdf() )
     {
-	res.start /= 1000;
-	res.stop /= 1000;
-	res.step /= 1000;
+	res.start /= ZDomain::Time().userFactor();
+	res.stop /= ZDomain::Time().userFactor();
+	res.step /= ZDomain::Time().userFactor();
     }
 
-    return res;
+    return true;
 } 
 
 
@@ -468,7 +476,7 @@ FixedString uiTimeDepthBase::getZDomain() const
 void uiTime2Depth::initClass()
 {
     uiZAxisTransform::factory().addCreator( create,
-		Time2DepthStretcher::sFactoryKeyword(), "Time to depth" );
+		Time2DepthStretcher::sFactoryKeyword(), "Velocity volume" );
 }
 
 
@@ -493,7 +501,7 @@ uiTime2Depth::uiTime2Depth( uiParent* p )
 void uiDepth2Time::initClass()
 {
     uiZAxisTransform::factory().addCreator( create,
-		Depth2TimeStretcher::sFactoryKeyword(), "Depth to Time" );
+		Depth2TimeStretcher::sFactoryKeyword(), "Velocity Model" );
 }
 
 

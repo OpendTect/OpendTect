@@ -319,10 +319,21 @@ void uiODApplMgr::addTimeDepthScene()
 {
     uiDialog::Setup setup("Velocity model",
 		"Select velocity model to base scene on","0.4.4");
+    
     uiSingleGroupDlg dlg( &appl_, setup );
-    uiTimeDepthBase* uitrans = SI().zIsTime() 
-	? (uiTimeDepthBase*) new uiTime2Depth( &dlg )
-	: (uiTimeDepthBase*) new uiDepth2Time( &dlg );
+    
+    uiZAxisTransformSel* uitrans = SI().zIsTime()
+	? new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyTime(),
+				   ZDomain::sKeyDepth(), true )
+	: new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyDepth(),
+				   ZDomain::sKeyTime(), true );
+    
+    if ( !uitrans->isOK() )
+    {
+	uiMSG().error("No suitable transforms found");
+	return;
+    }
+
     dlg.setGroup( uitrans );
     if ( !dlg.go() ) return;
 
@@ -330,9 +341,16 @@ void uiODApplMgr::addTimeDepthScene()
     RefMan<ZAxisTransform> ztrans = uitrans->getSelection();
     if ( !ztrans )
 	return;
+    
+    StepInterval<float> zsampling;
+    if ( !uitrans->getTargetSampling( zsampling ) )
+    {
+	pErrMsg( "Cannot get sampling.");
+	return;
+    }
 
     snm += " (using '";
-    snm += uitrans->selName();
+    snm += ztrans->factoryDisplayName();
     snm += "')";
 
     sceneMgr().tile();
@@ -345,7 +363,7 @@ void uiODApplMgr::addTimeDepthScene()
 
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
 	CubeSampling cs = SI().sampling( true );
-	cs.zrg = uitrans->getZRange();
+	cs.zrg = zsampling;
 	scene->setCubeSampling( cs );
 	scene->setZScale( zscale );
 	sceneMgr().viewAll( 0 );
