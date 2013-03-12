@@ -846,34 +846,94 @@ int VelocityModelScanner::nextStep()
 }
 
 
-//LinearT2DTransform
-LinearT2DTransform::LinearT2DTransform()
-    : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
-{
-    startvel_ = 0;
-    dv_ = 0;
-}
+const char* lineartranskey = "V0,dV";
 
 
-bool LinearT2DTransform::usePar( const IOPar& iop )
+LinearVelTransform::LinearVelTransform(const ZDomain::Def& from,
+				       const ZDomain::Def& to,
+				       float v0, float dv)
+    : ZAxisTransform( from, to )
+    , startvel_( v0 )
+    , dv_( dv )
+{}
+
+
+
+bool LinearVelTransform::usePar( const IOPar& iop )
 {
-    iop.get( "V0,dV", startvel_, dv_ );
+    iop.get( lineartranskey, startvel_, dv_ );
     return true;
 }
+
+
+void LinearVelTransform::fillPar( IOPar& par ) const
+{
+    par.set( lineartranskey, startvel_, dv_ );
+}
+
+
+void LinearVelTransform::transformT2D( const BinID& bid,
+				       const SamplingData<float>& sd,
+				       int sz, float* res ) const
+{
+    if ( sz < 0 )
+	return;
+    
+    const double dv = mIsZero( dv_, 1e-6 ) ? 1e-7 : dv_;
+    const double fact = dv / startvel_;
+    const double dv2 = 2.f / dv;
+
+    const double srd = SI().seismicReferenceDatum();
+    const double sealeveltwt = -1.f * dv2 * Math::Log( 1.f - srd * fact );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const double time = ( sd.start + idx*sd.step - sealeveltwt ) / 2.f;
+	res[idx] = mCast(float,( Math::Exp( dv * time ) - 1.f ) / fact);
+    }
+}
+
+
+void LinearVelTransform::transformD2T( const BinID& bid,
+				      const SamplingData<float>& sd,
+				      int sz, float* res ) const
+{
+    if ( sz < 0 )
+	return;
+
+    const double dv = mIsZero( dv_, 1e-6 ) ? 1e-7 : dv_;
+    const double fact = dv / startvel_;
+    const double dv2 = 2.f / dv;
+    
+    const double srd = SI().seismicReferenceDatum();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const double depth = sd.start + idx*sd.step - srd;
+	res[idx] = mCast(float,dv2 * Math::Log( 1.f + depth*fact ));
+    }
+
+    if ( !mIsZero(srd,1e-2) )
+    {
+	const float sealeveltwt = mCast(float,
+				  -1.f * dv2 * Math::Log( 1.f - srd * fact ));
+	for ( int idx=0; idx<sz; idx++ )
+	    res[idx] += sealeveltwt;
+    }
+}
+
+
+//LinearT2DTransform
+LinearT2DTransform::LinearT2DTransform( float startvel, float dv )
+: LinearVelTransform(ZDomain::Time(),ZDomain::Depth(), startvel, dv )
+
+{}
+
 
 
 void LinearT2DTransform::transform( const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    if ( sz < 0 )
-	return;
-
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const float time = sd.start + idx*sd.step;
-	res[idx] = ( startvel_*time/2.0f ) + ( 0.5f*dv_*time*time )/4.0f;
-    }
+    transformT2D( bid, sd, sz, res );
 }
 
 
@@ -881,15 +941,7 @@ void LinearT2DTransform::transformBack( const BinID& bid,
 					const SamplingData<float>& sd,
 					int sz, float* res ) const
 {
-    if ( sz < 0 )
-	return;
-
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const float depth = sd.start + idx*sd.step;
-	const float val = Math::Sqrt( startvel_*startvel_ + 2*dv_*depth );
-	res[idx] = (val - startvel_) / (dv_);
-    }
+    transformD2T( bid, sd, sz, res );
 }
 
 
@@ -918,44 +970,16 @@ Interval<float> LinearT2DTransform::getZInterval( bool time ) const
 
 //LinearD2TTransform
 
-LinearD2TTransform::LinearD2TTransform()
-    : ZAxisTransform(ZDomain::Depth(),ZDomain::Time())
-{
-    startvel_ = 0;
-    dv_ = 0;
-}
-
-
-bool LinearD2TTransform::usePar( const IOPar& iop )
-{
-    iop.get( "V0,dV", startvel_, dv_ );
-    return true;
-}
+LinearD2TTransform::LinearD2TTransform( float startvel, float dv )
+    : LinearVelTransform(ZDomain::Depth(),ZDomain::Time(), startvel, dv)
+{}
 
 
 void LinearD2TTransform::transform( const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    if ( sz < 0 )
-	return;
-
-    bool constvel = mIsZero( dv_, 1e-6 );
-    if ( constvel && mIsZero(startvel_,1e-6) )
-	return;
-
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const float depth = sd.start + idx*sd.step;
-	if ( constvel )
-	{
-	    res[idx] = depth / startvel_;
-	    continue;
-	}
-
-	const float val = Math::Sqrt( startvel_*startvel_ + 2*dv_*depth );
-	res[idx] = (val - startvel_) / (dv_);
-    }
+    transformD2T( bid, sd, sz, res );
 }
 
 
@@ -963,14 +987,7 @@ void LinearD2TTransform::transformBack( const BinID& bid,
 					const SamplingData<float>& sd,
 					int sz, float* res ) const
 {
-    if ( sz < 0 )
-	return;
-
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const float time = sd.start + idx*sd.step;
-	res[idx] = ( startvel_*time/2.0f ) + ( 0.5f*dv_*time*time )/4.0f;
-    }
+    transformT2D( bid, sd, sz, res );
 }
 
 

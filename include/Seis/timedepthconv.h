@@ -187,13 +187,35 @@ protected:
 };
 
 
-mExpClass(Seis) LinearT2DTransform : public ZAxisTransform
+mExpClass(Seis) LinearVelTransform : public ZAxisTransform
+{
+public:
+    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
+    
+protected:
+				LinearVelTransform(const ZDomain::Def& from,
+						   const ZDomain::Def& to,
+						   float v0, float dv);
+    void			transformT2D(const BinID&,
+					     const SamplingData<float>&,
+					     int sz,float* res) const;
+    void			transformD2T(const BinID&,
+					     const SamplingData<float>&,
+					     int sz,float* res) const;
+    
+    float			startvel_;
+    float			dv_;
+
+};
+
+mExpClass(Seis) LinearT2DTransform : public LinearVelTransform
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
-	    			  "LinearT2D", sFactoryKeyword() );
+	    			  "LinearT2D", "Linear velocity" );
 
-    				LinearT2DTransform();
+    				LinearT2DTransform(float v0=0, float dv=0);
 
     void			transform(const BinID&,
 	    				  const SamplingData<float>&,
@@ -201,24 +223,21 @@ public:
     void			transformBack(const BinID&,
 	    				      const SamplingData<float>&,
 					      int sz,float* res) const;
+    
     Interval<float>		getZInterval(bool time) const;
-    bool			usePar(const IOPar&);
+ 
     bool			needsVolumeOfInterest() const
     				{ return false; }
-
-protected:
-    float			startvel_;
-    float			dv_;
 };
 
 
-mExpClass(Seis) LinearD2TTransform : public ZAxisTransform
+mExpClass(Seis) LinearD2TTransform : public LinearVelTransform
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
-	    			  "LinearD2T", sFactoryKeyword() );
+	    			  "LinearD2T", "Linear velocity" );
 
-    				LinearD2TTransform();
+    				LinearD2TTransform(float v0=0, float dv=0);
 
     void			transform(const BinID&,
 	    				  const SamplingData<float>&,
@@ -227,13 +246,9 @@ public:
 	    				      const SamplingData<float>&,
 					      int sz,float* res) const;
     Interval<float>		getZInterval(bool depth) const;
-    bool			usePar(const IOPar&);
+
     bool			needsVolumeOfInterest() const
     				{ return false; }
-
-protected:
-    float			startvel_;
-    float			dv_;
 };
 
 #endif
