@@ -120,15 +120,6 @@ void BatchProgram::init()
 
     setName( parfilnm );
 
-#ifdef __win__
-
-    int count=10;
-
-    while ( !File::exists(fn) && count-->0 )
-	Threads::sleep(1);
-
-#endif
-
     StreamData sd = StreamProvider( parfilnm ).makeIStream();
     if ( !sd.usable() )
     {
