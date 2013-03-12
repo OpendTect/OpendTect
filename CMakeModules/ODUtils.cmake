@@ -5,25 +5,30 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR (CMAKE_GENERATOR STREQUAL "Ninja") )
+if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
+     (CMAKE_GENERATOR STREQUAL "Ninja") )
     if ( CMAKE_BUILD_TYPE STREQUAL "" )
 	set ( DEBUGENV $ENV{DEBUG} )
 	if ( DEBUGENV AND
 	    ( (${DEBUGENV} MATCHES "yes" ) OR
 	      (${DEBUGENV} MATCHES "Yes" ) OR
 	      (${DEBUGENV} MATCHES "YES" ) ) )
-	    set ( CMAKE_BUILD_TYPE "Debug" CACHE STRING "Debug or Release" FORCE )
+	    set ( CMAKE_BUILD_TYPE "Debug"
+		  CACHE STRING "Debug or Release" FORCE )
 	else()
-	    set ( CMAKE_BUILD_TYPE "Release" CACHE STRING "Debug or Release" FORCE)
+	    set ( CMAKE_BUILD_TYPE "Release"
+		  CACHE STRING "Debug or Release" FORCE)
 	endif()
 
-	MESSAGE( STATUS "Setting CMAKE_BUILD_TYPE to ${CMAKE_BUILD_TYPE}" )
+	message( STATUS "Setting CMAKE_BUILD_TYPE to ${CMAKE_BUILD_TYPE}" )
     endif()
 
     set( OD_BUILDSUBDIR "/${CMAKE_BUILD_TYPE}" )
 endif()
 
-ADD_DEFINITIONS("-D__cmake__")
+set ( OD_TESTDATA_DIR "" CACHE FILEPATH "Test data location" )
+
+add_definitions("-D__cmake__")
 
 set ( OD_SOURCELIST_FILE ${CMAKE_BINARY_DIR}/CMakeModules/sourcefiles.txt )
 file ( REMOVE ${OD_SOURCELIST_FILE} )
