@@ -27,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiprestackprocessorsel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "uiveldesc.h"
 
 
 mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"PreStack",sKeyBasicGrp())
@@ -60,7 +59,6 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     lsqtypefld_ = new uiGenInput( this, "LSQ output",
 		  StringListInpSpec(PreStack::PropCalc::LSQTypeNames()) );
     lsqtypefld_->attach( alignedBelow, calctypefld_ );
-    lsqtypefld_->valuechanged.notify( mCB(this,uiPreStackAttrib,lsqTypSel) );
 
     valaxtypefld_ = new uiGenInput( this, "Axis transformations",
 		     StringListInpSpec(PreStack::PropCalc::AxisTypeNames()) );
@@ -74,12 +72,6 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 
     useazimfld_ = new uiGenInput( this, "X = Azimuth", BoolInpSpec(false) );
     useazimfld_->attach( alignedBelow, valaxtypefld_ );
-
-    IOObjContext ctxt = uiVelSel::ioContext();
-    ctxt.forread = true;
-    uiSeisSel::Setup su( false, false ); su.seltxt( "Velocity Data" );
-    velselfld_ = new uiVelSel( this, ctxt, su, false );
-    velselfld_->attach( alignedBelow, useazimfld_ );
 
     calcTypSel(0);
     setHAlignObj( prestackinpfld_ );
@@ -108,8 +100,6 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     offsaxtypefld_->setValue( (int)aps->setup().offsaxis_ );
     valaxtypefld_->setValue( (int)aps->setup().valaxis_ );
     useazimfld_->setValue( aps->setup().useazim_ );
-    const MultiID velid( aps->setup().velocityid_.buf() );
-    velselfld_->setInput( velid );
 
     calcTypSel(0);
     doPreProcSel(0);
@@ -152,12 +142,6 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 	mSetEnum(Attrib::PSAttrib::lsqtypeStr(),lsqtypefld_->getIntValue())
 	mSetEnum(Attrib::PSAttrib::offsaxisStr(),offsaxtypefld_->getIntValue())
 	mSetBool(Attrib::PSAttrib::useazimStr(),useazimfld_->getBoolValue())
-	const int lsqtype = lsqtypefld_->getIntValue();
-	const bool isangleparam = ( lsqtype==PreStack::PropCalc::AngleA0 || 
-	                            lsqtype==PreStack::PropCalc::AngleCoeff );
-	if ( isangleparam )
-	    mSetString(Attrib::PSAttrib::velocityIDStr(),velselfld_->key())
-	
     }
     mSetEnum(Attrib::PSAttrib::valaxisStr(),valaxtypefld_->getIntValue())
     return true;
@@ -172,19 +156,6 @@ void uiPreStackAttrib::calcTypSel( CallBacker* )
     offsaxtypefld_->display( !isnorm );
     xlbl_->display( !isnorm );
     useazimfld_->display( !isnorm );
-    if ( !isnorm )
-	lsqTypSel( 0 );
-    else
-	velselfld_->display( false );
-}
-
-
-void uiPreStackAttrib::lsqTypSel( CallBacker* )
-{
-    const int lsqtype = lsqtypefld_->getIntValue();
-    const bool isangleparam = ( lsqtype==PreStack::PropCalc::AngleA0 || 
-	                        lsqtype==PreStack::PropCalc::AngleCoeff );
-    velselfld_->display( isangleparam );
 }
 
 
