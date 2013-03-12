@@ -83,6 +83,9 @@ public:
     
     const BufferString&		getExecutable() const;
     const BufferString&		getExecutableName() const;
+    
+    static void			createKey(const char* key,BufferString& res)
+				{ res = "--"; res += key; }
 
 private:
     
