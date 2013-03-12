@@ -24,7 +24,6 @@ ________________________________________________________________________
 
 int Execute_batch( int* pargc, char** argv )
 {
-    PIM().setArgs( *pargc, argv );
     PIM().loadAuto( false );
 
     BP().init();

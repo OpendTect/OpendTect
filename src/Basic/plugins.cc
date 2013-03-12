@@ -43,14 +43,8 @@ extern "C" {
     typedef const char* (*ArgcArgvCCRetFn)(int,char**);
     typedef PluginInfo* (*PluginInfoRetFn)(void);
 
-    void LoadAutoPlugins( int argc, char** argv, int inittype )
+    void LoadAutoPlugins( int inittype )
     {
-	static int first_time = 1;
-	if ( first_time )
-	{
-	    first_time = 0;
-	    PIM().setArgs( argc, argv );
-	}
 	PIM().loadAuto( inittype == PI_AUTO_INIT_LATE );
     }
 
@@ -148,21 +142,15 @@ void SharedLibAccess::getLibName( const char* modnm, char* out )
 }
 
 
-
-static const char* errargv[] = { "<not set>", 0 };
-
 PluginManager::PluginManager()
-    : argc_(1)
-    , argv_(const_cast<char**>(errargv))
 {
+    if ( !AreProgramArgsSet() )
+    {
+	pErrMsg("Program arguments are not set!");
+	DBG::forceCrash(false);
+    }
+    
     getDefDirs();
-}
-
-
-void PluginManager::setArgs( int argc, char** argv )
-{
-    argc_ = argc, argv_ = argv;
-    // poss todo: get new defdirs from argv
     mkALOList();
 }
 
@@ -382,7 +370,7 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 {
     FilePath fp( dirnm, sPluginDir, GetPlfSubDir() );
     DirList dl( fp.fullPath(), DirList::FilesOnly );
-    const BufferString prognm = getProgNm( argv_[0] );
+    const BufferString prognm = getProgNm( GetArgV()[0] );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm = dl.get(idx);
@@ -472,7 +460,7 @@ bool PluginManager::load( const char* libnm )
 	if ( existing->isloaded_ )
 	    return false;
 
-	if ( !loadPlugin(existing->sla_,argc_,argv_,libnmonly) )
+	if ( !loadPlugin(existing->sla_,GetArgC(),GetArgV(),libnmonly) )
 	{
 	    existing->info_ = 0;
 	    existing->sla_->close();
@@ -484,7 +472,7 @@ bool PluginManager::load( const char* libnm )
     }
     else
     {
-	if ( !loadPlugin(data->sla_,argc_,argv_,libnmonly) )
+	if ( !loadPlugin(data->sla_,GetArgC(),GetArgV(),libnmonly) )
 	{
 	    data->sla_->close();
 	    delete data;
@@ -517,7 +505,7 @@ void PluginManager::loadAuto( bool late )
 	if ( data.info_ && dontloadlist.indexOf( data.info_->dispname )!=-1 )
 	    continue;
 
-	if ( !loadPlugin(data.sla_,argc_,argv_,data.name_) )
+	if ( !loadPlugin(data.sla_,GetArgC(),GetArgV(),data.name_) )
 	{
 	    data.info_ = 0;
 	    data.sla_->close();

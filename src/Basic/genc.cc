@@ -165,7 +165,7 @@ int isProcessAlive( int pid )
 
 void ExitProgram( int ret )
 {
-    if ( IsProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
+    if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
     {
 	printf( "\nExitProgram (PID: %d)\n", GetPID() );
 #ifndef __win__
@@ -251,7 +251,7 @@ mExternC(Basic) const char* GetEnvVar( const char* env )
 
     if ( !filesread )
     {
-	if ( !IsProgramArgsSet() )
+	if ( !AreProgramArgsSet() )
 	{
 	    //We should not be here before SetProgramInfo() is called.
 	    ExitProgram( 1 );
@@ -404,7 +404,7 @@ mExternC(Basic) int GetArgC(void)
 { return argc; }
 
 
-mExternC(Basic) int IsProgramArgsSet(void)
+mExternC(Basic) int AreProgramArgsSet(void)
 { return GetArgC()!=-1; }
 
 

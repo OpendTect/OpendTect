@@ -94,7 +94,6 @@ int ODMain( int argc, char** argv )
 	}
     }
 
-    PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
 
     uiDialog::setTitlePos( -1 );

@@ -32,7 +32,7 @@ extern "C" {
 /* C Access. C++ should use PluginManager! */
 
 /*! To be called from program (once for EARLY, once for LATE) */
-void LoadAutoPlugins(int argc,char** argv,int inittype);
+void LoadAutoPlugins(int inittype);
 /*! To be called from program if needed */
 int LoadPlugin(const char* libnm);
 
@@ -84,8 +84,8 @@ int LoadPlugin(const char* libnm);
   points to an existing object (static or made with new/malloc);
   
   3) The user of PIM() can decide not to load all of the .alo load libs. After
-  setArgs() (which is absolutely mandatory), the getData() list is filled.
-  You can change the source_ to None before calling loadAuto().
+  construction, the getData() list is filled. You can change the source_ to
+  None before calling loadAuto().
 */
 
 mExpClass(Basic) PluginManager
@@ -96,10 +96,8 @@ public:
     
     static PluginManager&	getInstance();
 
-    void			setArgs(int argc,char** argv);
-    					//!< Mandatory
     void			loadAuto(bool late);
-    					//!< see class comments
+				//!< see class comments
     bool			load(const char* libnm);
     					//!< Explicit load of a plugin
 
@@ -149,9 +147,7 @@ public:
 private:
 
     				PluginManager();
-    
-    int				argc_;
-    char**			argv_;
+
     ObjectSet<Data>		data_;
 
     BufferString		userdir_;
@@ -164,7 +160,6 @@ private:
     void			getALOEntries(const char*,bool);
     void			openALOEntries();
     void			mkALOList();
-
 };
 
 mGlobal(Basic) PluginManager& PIM();

@@ -50,7 +50,7 @@ mGlobal(Basic) char** GetArgV(void);
     
 mGlobal(Basic) int GetArgC(void);
 
-mGlobal(Basic) int IsProgramArgsSet(void);
+mGlobal(Basic) int AreProgramArgsSet(void);
     
 mGlobal(Basic) void SetProgramArgs(int argc, char** argv);
     

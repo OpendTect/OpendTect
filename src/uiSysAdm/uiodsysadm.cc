@@ -37,7 +37,6 @@ int ODSysAdmMain( int argc, char** argv )
 {
     SetInSysAdmMode();
 
-    PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
     uiMain app( argc, argv );
     uiODSysAdm& odsa = ODSysAdmMainWin(); // Has to be done here - constructs
