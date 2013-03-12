@@ -40,6 +40,8 @@ DefineEnumNames(PropCalc,LSQType,0,"Axis type")
 {
 	"Intercept",
 	"Gradient",
+	"Angle Intercept",
+	"Angle Gradient",
 	"StdDev of Intercept",
 	"StdDev of Gradient",
 	"Correlation coefficient",
@@ -52,6 +54,7 @@ PropCalc::PropCalc( const Setup& s )
     , gather_( 0 )
     , innermutes_( 0 )
     , outermutes_( 0 )
+    , angledata_( 0 )
 {}
 
 
@@ -67,6 +70,12 @@ void PropCalc::removeGather()
     {
 	DPM(DataPackMgr::FlatID()).release( gather_->id() );
 	gather_ = 0;
+    }
+
+    if ( angledata_ )
+    {
+	DPM(DataPackMgr::FlatID()).release( angledata_->id() );
+	angledata_ = 0;
     }
 
     delete [] innermutes_;
@@ -98,6 +107,18 @@ void PropCalc::setGather( DataPack::ID id )
 }
 
 
+void PropCalc::setAngleData( DataPack::ID id )
+{
+    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( id );
+    mDynamicCastGet( Gather*, angledata, dp );
+
+    if ( angledata )
+	angledata_ = angledata;
+    else
+	DPM(DataPackMgr::FlatID()).release( id );
+}
+
+
 float PropCalc::getVal( int sampnr ) const
 {
     if ( !gather_  || gather_->isOffsetAngle() )
@@ -111,7 +132,7 @@ float PropCalc::getVal( int sampnr ) const
     const int nroffsets = gather_->size( !gather_->offsetDim() );
     const int nrz = gather_->size( gather_->offsetDim() );
 
-    TypeSet<float> offs, vals;
+    TypeSet<float> axisvals, vals;
     for ( int ishft=-setup_.aperture_; ishft<=setup_.aperture_; ishft++ )
     {
 	for ( int itrc=0; itrc<nroffsets; itrc++ )
@@ -131,11 +152,18 @@ float PropCalc::getVal( int sampnr ) const
 
 	    vals += val;
 	    if ( setup_.calctype_ != Stats )
-		offs += setup_.useazim_ ? gather_->getAzimuth(itrc) : offset;
+	    {
+		if ( (setup_.lsqtype_==AngleA0||setup_.lsqtype_==AngleCoeff) 
+		      && !setup_.useazim_ && angledata_ )
+		    axisvals += angledata_->data().get( itrc, (int)cursamp );
+		else
+		    axisvals += setup_.useazim_ ? gather_->getAzimuth(itrc)
+						: offset;
+	    }
 	}
     }
 
-    return getVal( setup_, vals, offs );
+    return getVal( setup_, vals, axisvals );
 }
 
 
@@ -152,10 +180,10 @@ float PropCalc::getVal( float z ) const
     const int nroffsets = gather_->size( !gather_->offsetDim() );
     const int nrz = gather_->size( !gather_->zDim() );
 
-    TypeSet<float> offs, vals;
+    TypeSet<float> axisvals, vals;
     vals.setCapacity( nroffsets );
     if ( setup_.calctype_ != Stats )
-	offs.setCapacity( nroffsets );
+	axisvals.setCapacity( nroffsets );
 
     const StepInterval<double> si = gather_->posData().range(!gather_->zDim());
     for ( int itrc=0; itrc<nroffsets; itrc++ )
@@ -181,11 +209,18 @@ float PropCalc::getVal( float z ) const
 
 	    vals += val;
 	    if ( setup_.calctype_ != Stats )
-		offs += setup_.useazim_ ? gather_->getAzimuth(itrc) : offset;
+	    {
+		if ( (setup_.lsqtype_==AngleA0||setup_.lsqtype_==AngleCoeff) 
+		      && !setup_.useazim_ && angledata_ )
+		    axisvals += angledata_->data().get( itrc, (int)cursamp );
+		else
+		    axisvals += setup_.useazim_ ? gather_->getAzimuth(itrc)
+						: offset;
+	    }
 	}
     }
 
-    return getVal( setup_, vals, offs );
+    return getVal( setup_, vals, axisvals );
 }
 
 
@@ -212,7 +247,7 @@ static void transformAxis( TypeSet<float>& vals, PropCalc::AxisType at )
 
 
 float PropCalc::getVal( const PropCalc::Setup& su,
-			      TypeSet<float>& vals, TypeSet<float>& offs )
+			      TypeSet<float>& vals, TypeSet<float>& axisvals )
 {
     transformAxis( vals, su.valaxis_ );
 
@@ -233,7 +268,7 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 	return (float) rc.getValue( su.stattype_ );
     }
 
-    rc.addValues( offs.size(), offs.arr() );
+    rc.addValues( axisvals.size(), axisvals.arr() );
 
     if ( vals.size()>0 && mIsZero( rc.getValue( Stats::StdDev ), 1e-3 ) )
     {
@@ -247,6 +282,8 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 	    {
 		case A0:		return vals[0];
 		case Coeff:		return 0;
+		case AngleA0:		return vals[0];
+		case AngleCoeff:	return 0;
 		case StdDevA0:		return 0;
 		case StdDevCoeff:	return 0;
 		default:		return 1;
@@ -254,13 +291,19 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 	}
     }
 
-    transformAxis( offs, su.offsaxis_ );
+    if ( (su.lsqtype_==AngleA0||su.lsqtype_==AngleCoeff) && !su.useazim_ )
+	transformAxis( axisvals, PropCalc::Sinsq );
+    else
+	transformAxis( axisvals, su.offsaxis_ );
+
     LinStats2D ls2d;
-    ls2d.use( offs.arr(), vals.arr(), vals.size() );
+    ls2d.use( axisvals.arr(), vals.arr(), vals.size() );
     switch ( su.lsqtype_ )
     {
     case A0:		return ls2d.lp.a0;
     case Coeff:		return ls2d.lp.ax;
+    case AngleA0:	return ls2d.lp.a0;
+    case AngleCoeff:	return ls2d.lp.ax;
     case StdDevA0:	return ls2d.sd.a0;
     case StdDevCoeff:	return ls2d.sd.ax;
     default:		return ls2d.corrcoeff;

@@ -39,7 +39,8 @@ public:
     			DeclareEnumUtils(CalcType)
     enum AxisType	{ Norm, Log, Exp, Sqr, Sqrt, Abs, Sinsq };
     			DeclareEnumUtils(AxisType)
-    enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff, CorrCoeff };
+    enum LSQType	{ A0, Coeff, AngleA0, AngleCoeff, StdDevA0, StdDevCoeff, 
+		          CorrCoeff };
     			DeclareEnumUtils(LSQType)
 
     mExpClass(PreStackProcessing) Setup
@@ -53,7 +54,7 @@ public:
 			    , valaxis_(Norm)
 			    , offsrg_(0,mUdf(float))
 			    , useazim_(false)
-			    , aperture_(0)	{}
+			    , aperture_(0)  {}
 
 	mDefSetupMemb(CalcType,calctype)
 	mDefSetupMemb(Stats::Type,stattype)
@@ -69,8 +70,13 @@ public:
 
     Setup&		setup()				{ return setup_; }
     const Setup&	setup() const			{ return setup_; }
+    const Gather*	getGather() const               { return gather_; }
 
     void		setGather(DataPack::ID);
+    void		setAngleData(DataPack::ID);
+			/*!< Only used if AngleA0 or AngleCoeff. If not set,
+			     offset values from traces will be assumed to 
+			     contain angles. */
     float		getVal(int sampnr) const;
     float		getVal(float z) const;
 
@@ -85,6 +91,7 @@ protected:
     Gather*		gather_;
     int*		innermutes_;
     int*		outermutes_;
+    Gather*		angledata_;
 
     Setup		setup_;
 };
