@@ -269,7 +269,7 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	BufferString comm( "@" );
 	comm += GetExecScript( false );
 	comm += " "; comm += "od_ClusterProc";
-	comm += " -bg -dosubmit "; comm += parfnm;
+	comm += " --dosubmit "; comm += parfnm;
 	if ( !StreamProvider( comm ).executeCommand(true) )
 	{
 	    uiMSG().error( "Cannot start batch program" );

@@ -12,6 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiclusterproc.h"
 #include "uimain.h"
 
+
+#include "commandlineparser.h"
 #include "envvars.h"
 #include "executor.h"
 #include "file.h"
@@ -29,36 +31,27 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 
 #define mPrintHelpMsg \
-    std::cerr << "Usage: " << argv[0] << " parfile [-dosubmit] [-nodelete]" \
+    std::cerr << "Usage: " << argv[0] << " parfile [--dosubmit] [--nodelete]" \
 	    << std::endl;
 
 int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
+    
+    CommandLineParser parser;
 
-    BufferString parfilenm;
-    bool withdelete = true;
-    bool dosubmit = false;
-
-    for ( int idx=1; idx<argc; idx++ )
-    {
-	if ( !strcmp(argv[idx],"-nodelete") )
-	{ withdelete = false; continue; }
-	if ( !strcmp(argv[idx],"-dosubmit") )
-	{ dosubmit = true; continue; }
-	if ( *argv[idx] != '-' )
-	{ parfilenm = argv[idx]; continue; }
-
-	std::cerr << "Unrecognized option : " << argv[idx] << std::endl;
-	mPrintHelpMsg;
-	ExitProgram( 1 );
-    }
-
-    if ( parfilenm.isEmpty() )
+    const bool withdelete = !parser.hasKey( "nodelete" );
+    const bool dosubmit = parser.hasKey( "dosubmit" );
+    BufferStringSet normalargs;
+    parser.getNormalArguments( normalargs );
+    
+    if ( normalargs.isEmpty() )
     {
 	mPrintHelpMsg;
 	ExitProgram( 1 );
     }
+    
+    const BufferString parfilenm = normalargs.last()->buf();
 
     StreamProvider spin( parfilenm );
     StreamData sdin = spin.makeIStream();
