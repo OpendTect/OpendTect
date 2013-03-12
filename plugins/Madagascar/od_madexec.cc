@@ -12,9 +12,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "batchprog.h"
 #include "iopar.h"
 #include "madprocexec.h"
+#include "moddepmgr.h"
 
 bool BatchProgram::go( std::ostream& strm )
 {
+    OD::ModDeps().ensureLoaded( "AttributeEngine" );
+
     ODMad::ProcExec exec( pars(), strm );
     if ( !exec.init() || !exec.execute() )
     {
@@ -26,5 +29,4 @@ bool BatchProgram::go( std::ostream& strm )
 
     return true;
 }    
-
 
