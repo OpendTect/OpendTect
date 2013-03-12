@@ -24,24 +24,25 @@ ________________________________________________________________________
 
 int Execute_batch( int* pargc, char** argv )
 {
-    PIM().setArgs( *pargc, argv ); PIM().loadAuto( false );
+    PIM().setArgs( *pargc, argv );
+    PIM().loadAuto( false );
 
-    BP().init( pargc, argv );
-    if ( !BP().stillok )
+    BP().init();
+    if ( !BP().stillok_ )
 	return 1;
-    if ( BP().inbg )
+    if ( BP().inbg_ )
 	forkProcess();
 
     BatchProgram& bp = BP();
     bool allok = bp.initOutput();
     if ( allok )
     {
-	*bp.sdout.ostrm << "Starting program " << argv[0] << " "
+	*bp.sdout_.ostrm << "Starting program " << argv[0] << " "
 	    << bp.name() << "\n";
-	allok = bp.go( *bp.sdout.ostrm );
+	allok = bp.go( *bp.sdout_.ostrm );
     }
 
-    bp.stillok = allok;
+    bp.stillok_ = allok;
     BatchProgram::deleteInstance();
 
     return allok ? 0 : 1;	// never reached.

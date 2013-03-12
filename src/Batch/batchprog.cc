@@ -8,7 +8,9 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchprog.h"
+
 #include "envvars.h"
+#include "commandlineparser.h"
 #include "file.h"
 #include "genc.h"
 #include "ioman.h"
@@ -58,82 +60,65 @@ void BatchProgram::deleteInstance()
 
 
 BatchProgram::BatchProgram()
-	: NamedObject("")
-	, pargc(0)
-	, argv_(0)
-	, argshift(2)
-	, stillok(false)
-	, fullpath("")
-	, finishmsg_("Finished batch processing.")
-	, inbg(false)
-	, sdout(*new StreamData)
-	, iopar(new IOPar)
-	, comm(0)
+    : NamedObject("")
+    , stillok_(false)
+    , finishmsg_("Finished batch processing.")
+    , inbg_(false)
+    , sdout_(*new StreamData)
+    , iopar_(new IOPar)
+    , comm_(0)
+    , clparser_(0)
 {}
 
 
-void BatchProgram::init( int* pac, char** av )
+void BatchProgram::init()
 {
-    pargc = pac;
-    argv_ = av;
-    fullpath = argv_[0];
-
-    const int theargc = *pargc;
-    SetProgramArgs( theargc, argv_ );
+    delete clparser_;
+    
+    clparser_ = new CommandLineParser;
+    clparser_->setKeyHasValue( sKeyMasterHost() );
+    clparser_->setKeyHasValue( sKeyMasterPort() );
+    clparser_->setKeyHasValue( sKeyJobID() );
+    
+    inbg_ = clparser_->hasKey( sKeyBG() );
 
     BufferString masterhost;
-    int masterport = -1;
+    clparser_->getVal( sKeyMasterHost(), masterhost );
     
-    BufferString fn = argv_[1];
-    while ( fn && *fn == '-' )
-    {
-	if ( fn=="-bg" )
-	    inbg = true;
-	else if ( !strncmp(fn,"-masterhost",11) )
-	{
-	    argshift++;
-	    fn = argv_[ argshift - 1 ];
-	    masterhost = fn;
-	}
-	else if ( !strncmp(fn,"-masterport",11) )
-	{
-	    argshift++;
-	    fn = argv_[ argshift - 1 ];
-	    masterport = toInt(fn);
-	}
-	else if ( !strncmp(fn,"-jobid",6) )
-	{
-	    argshift++;
-	    fn = argv_[ argshift - 1 ];
-	    jobid = toInt(fn);
-	}
-	else if ( *(fn+1) )
-	    opts += new BufferString( fn+1 );
-
-	argshift++;
-	fn = argv_[ argshift - 1 ];
-    }
-
+    int masterport = -1;
+    clparser_->getVal( sKeyMasterPort(), masterport );
+    
+    clparser_->getVal( sKeyJobID(), jobid_ );
+    
     if ( masterhost.size() && masterport > 0 )  // both must be set.
-	comm = new JobCommunic( masterhost, masterport, jobid, sdout );
-   
-    if ( !fn || !*fn )
+	comm_ = new JobCommunic( masterhost, masterport, jobid_, sdout_ );
+    
+    BufferStringSet normalargs;
+    clparser_->getNormalArguments( normalargs );
+    
+    BufferString parfilnm;
+    for ( int idx=normalargs.size()-1; idx>=0; idx-- )
     {
-	BufferString msg( progName() );
-	msg += ": No parameter file name specified";
+	const FilePath parfp( normalargs.get(idx) );
+	
+	parfilnm = parfp.fullPath();
+	replaceCharacter(parfilnm.buf(),'%',' ');
+	if ( File::exists( parfilnm ) )
+	    break;
+	
+	parfilnm.setEmpty();
+    }
+    
+    if ( parfilnm.isEmpty() )
+    {
+	BufferString msg( clparser_->getExecutableName() );
+	msg += ": No existing parameter file name specified";
 
 	errorMsg( msg );
 	return;
     }
 
-
-    FilePath parfp( fn );
-    
-    static BufferString parfilnm; parfilnm = parfp.fullPath();
-    replaceCharacter(parfilnm.buf(),'%',' ');
-    fn = parfilnm;
-
-    setName( fn );
+    setName( parfilnm );
 
 #ifdef __win__
 
@@ -144,40 +129,45 @@ void BatchProgram::init( int* pac, char** av )
 
 #endif
 
-    StreamData sd = StreamProvider( fn ).makeIStream();
+    StreamData sd = StreamProvider( parfilnm ).makeIStream();
     if ( !sd.usable() )
     {
-	errorMsg( BufferString( name(), ": Cannot open parameter file: ", fn ) );
+	errorMsg( BufferString( clparser_->getExecutableName(),
+			       ": Cannot open parameter file: ",
+			        parfilnm ) );
 	return;
     }
  
     ascistream aistrm( *sd.istrm, true );
     if ( aistrm.fileType()!=sKey::Pars() )
     {
-	errorMsg( BufferString("Input file ",fn," is not a parameter file") );
+	BufferString errmsg( clparser_->getExecutableName(),
+			    ": Input file ",parfilnm);
+	errmsg += " is not a parameter file";
+	errorMsg( errmsg );
 	std::cerr << aistrm.fileType() << std::endl;
 	return;
     }
     parversion_ = aistrm.version();
-    iopar->getFrom( aistrm );
+    iopar_->getFrom( aistrm );
     sd.close();
 
-    if ( iopar->size() == 0 )
+    if ( iopar_->size() == 0 )
     {
-	errorMsg( BufferString(argv_[0],": Invalid input file: ",fn) ); 
+	errorMsg( BufferString( clparser_->getExecutableName(),
+			       ": Invalid input file: ",parfilnm) );
         return;
     }
 
-
-    BufferString res = iopar->find( sKey::LogFile() ).str();
+    BufferString res = iopar_->find( sKey::LogFile() ).str();
     if ( !res )
-	iopar->set( sKey::LogFile(), StreamProvider::sStdErr() );
-
-    res = iopar->find( sKey::DataRoot() ).str();
+	iopar_->set( sKey::LogFile(), StreamProvider::sStdErr() );
+    
+    res = iopar_->find( sKey::DataRoot() ).str();
     if ( !res.isEmpty() && File::exists(res) )
 	SetEnvVar( "DTECT_DATA", res );
 
-    res = iopar->find( sKey::Survey() ).str();
+    res = iopar_->find( sKey::Survey() ).str();
     if ( res.isEmpty() )
 	IOMan::newSurvey();
     else
@@ -198,7 +188,7 @@ void BatchProgram::init( int* pac, char** av )
 
     killNotify( true );
 
-    stillok = true;
+    stillok_ = true;
 }
 
 
@@ -207,49 +197,41 @@ BatchProgram::~BatchProgram()
     infoMsg( finishmsg_ );
     IOM().applClosing();
 
-    if ( comm )
+    if ( comm_ )
     {
 
-	JobCommunic::State s = comm->state();
+	JobCommunic::State s = comm_->state();
 
 	bool isSet =  s == JobCommunic::AllDone 
 	           || s == JobCommunic::JobError
 		   || s == JobCommunic::HostError;
 
 	if ( !isSet )
-	    comm->setState( stillok ? JobCommunic::AllDone
+	    comm_->setState( stillok_ ? JobCommunic::AllDone
 				    : JobCommunic::HostError );
 
-       	bool ok = comm->sendState( true );
+       	bool ok = comm_->sendState( true );
 
 	if ( ok )	infoMsg( "Successfully wrote final status" );
 	else		infoMsg( "Could not write final status" );
 
-	comm->disConnect();
+	comm_->disConnect();
     }
 
     killNotify( false );
 
-    sdout.close();
-    delete &sdout;
+    sdout_.close();
+    delete &sdout_;
+    delete clparser_;
 
     // Do an explicit exitProgram() here, so we are sure the program
     // is indeed ended and we won't get stuck while cleaning up things
     // that we don't care about.
-    ExitProgram( stillok ? 0 : 1 );
+    ExitProgram( stillok_ ? 0 : 1 );
 
     // These will never be reached...
-    delete iopar;
-    delete comm; 
-    deepErase( opts );
-}
-
-
-const char* BatchProgram::progName() const
-{
-    static BufferString ret;
-    ret = FilePath( fullpath ).fileName();
-    return ret;
+    delete iopar_;
+    delete comm_;
 }
 
 
@@ -257,10 +239,10 @@ void BatchProgram::progKilled( CallBacker* )
 {
     infoMsg( "BatchProgram Killed." );
 
-    if ( comm ) 
+    if ( comm_ )
     {
-	comm->setState( JobCommunic::Killed );
-	comm->sendState( true );
+	comm_->setState( JobCommunic::Killed );
+	comm_->sendState( true );
     }
 
     killNotify( false );
@@ -283,18 +265,18 @@ void BatchProgram::killNotify( bool yn )
 
 
 bool BatchProgram::pauseRequested() const
-    { return comm ? comm->pauseRequested() : false; }
+    { return comm_ ? comm_->pauseRequested() : false; }
 
 
 bool BatchProgram::errorMsg( const char* msg, bool cc_stderr )
 {
-    if ( sdout.ostrm )
-	*sdout.ostrm << '\n' << msg << '\n' << std::endl;
+    if ( sdout_.ostrm )
+	*sdout_.ostrm << '\n' << msg << '\n' << std::endl;
 
-    if ( !sdout.ostrm || cc_stderr )
+    if ( !sdout_.ostrm || cc_stderr )
 	std::cerr << '\n' << msg << '\n' << std::endl;
 
-    if ( comm && comm->ok() ) return comm->sendErrMsg(msg);
+    if ( comm_ && comm_->ok() ) return comm_->sendErrMsg(msg);
 
     return true;
 }
@@ -302,10 +284,10 @@ bool BatchProgram::errorMsg( const char* msg, bool cc_stderr )
 
 bool BatchProgram::infoMsg( const char* msg, bool cc_stdout )
 {
-    if ( sdout.ostrm )
-	*sdout.ostrm << '\n' << msg << '\n' << std::endl;
+    if ( sdout_.ostrm )
+	*sdout_.ostrm << '\n' << msg << '\n' << std::endl;
 
-    if ( !sdout.ostrm || cc_stdout )
+    if ( !sdout_.ostrm || cc_stdout )
 	std::cout << '\n' << msg << '\n' << std::endl;
 
     return true;
@@ -315,8 +297,8 @@ bool BatchProgram::infoMsg( const char* msg, bool cc_stdout )
 
 bool BatchProgram::initOutput()
 {
-    stillok = false;
-    if ( comm && !comm->sendPID(GetPID()) )
+    stillok_ = false;
+    if ( comm_ && !comm_->sendPID(GetPID()) )
     {
 	errorMsg( "Could not contact master. Exiting.", true );
 	exit( 0 );
@@ -338,8 +320,8 @@ bool BatchProgram::initOutput()
 
 	cmd += GetPID();
 	StreamProvider sp( cmd );
-	sdout = sp.makeOStream();
-	if ( !sdout.usable() )
+	sdout_ = sp.makeOStream();
+	if ( !sdout_.usable() )
 	{
 	    std::cerr << name() << ": Cannot open window for output"<<std::endl;
 	    std::cerr << "Using std output instead" << std::endl;
@@ -351,19 +333,19 @@ bool BatchProgram::initOutput()
     {
 	if ( res.isEmpty() )
 	    res = StreamProvider::sStdErr();
-	sdout = StreamProvider(res).makeOStream();
-	if ( !sdout.ostrm )
+	sdout_ = StreamProvider(res).makeOStream();
+	if ( !sdout_.ostrm )
 	{
 	    std::cerr << name() << ": Cannot open log file" << std::endl;
 	    std::cerr << "Using stderror instead" << std::endl;
-	    sdout.ostrm = &std::cerr;
+	    sdout_.ostrm = &std::cerr;
 	}
     }
 
-    stillok = sdout.usable();
-    if ( stillok )
+    stillok_ = sdout_.usable();
+    if ( stillok_ )
 	PIM().loadAuto( true );
-    return stillok;
+    return stillok_;
 }
 
 
@@ -384,7 +366,7 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 	    if ( res.isEmpty() )
 	    {
 		if ( msgiffail )
-		    *sdout.ostrm << "Please specify '" << iopkey
+		    *sdout_.ostrm << "Please specify '" << iopkey
 				  << "'" << std::endl;
 		return 0;
 	    }
@@ -411,7 +393,7 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 
     IOObj* ioobj = IOM().get( MultiID(res.buf()) );
     if ( !ioobj )
-	*sdout.ostrm << "Cannot find the specified '" << basekey << "'"
+	*sdout_.ostrm << "Cannot find the specified '" << basekey << "'"
 	    		<< std::endl;
     return ioobj;
 }

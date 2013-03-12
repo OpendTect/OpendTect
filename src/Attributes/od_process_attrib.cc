@@ -32,26 +32,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 
 
-#define mDestroyWorkers \
-	{ delete proc; proc = 0; }
 
 defineTranslatorGroup(AttribDescSet,"Attribute definitions");
 
+#define mDestroyWorkers \
+{ delete proc; proc = 0; }
 
-#define mRetError(s) \
-{ errorMsg(s); mDestroyWorkers; return false; }
-
-#define mRetHostErr(s) \
-	{  \
-	    if ( comm ) comm->setState( JobCommunic::HostError ); \
-	    mRetError(s) \
-	}
-
-#define mRetJobErr(s) \
-	{  \
-	    if ( comm ) comm->setState( JobCommunic::JobError ); \
-	    mRetError(s) \
-	}
 
 #define mRetFileProb(fdesc,fnm,s) \
 	{ \
@@ -62,14 +48,6 @@ defineTranslatorGroup(AttribDescSet,"Attribute definitions");
 
 #define mStrmWithProcID(s) \
     strm << "\n[" << process_id << "]: " << s << "." << std::endl
-
-#define mSetCommState(State) \
-	if ( comm ) \
-	{ \
-	    comm->setState( JobCommunic::State ); \
-	    if ( !comm->updateState() ) \
-		mRetHostErr( comm->errMsg() ) \
-	}
 
 bool BatchProgram::go( std::ostream& strm )
 {
@@ -244,8 +222,8 @@ bool BatchProgram::go( std::ostream& strm )
 		    mStrmWithProcID( "Processing started" );
 		}
 
-		if ( comm && !comm->updateProgress( nriter + 1 ) )
-		    mRetHostErr( comm->errMsg() )
+		if ( comm_ && !comm_->updateProgress( nriter + 1 ) )
+		    mRetHostErr( comm_->errMsg() )
 
 		if ( proc->nrDone()>nrdone )
 		{
@@ -283,10 +261,10 @@ bool BatchProgram::go( std::ostream& strm )
     progressmeter.setFinished();
     mStrmWithProcID( "Threads closed; Writing finish status" );
 
-    if ( !comm ) return true;
+    if ( !comm_ ) return true;
 
-    comm->setState( JobCommunic::Finished );
-    bool ret = comm->sendState();
+    comm_->setState( JobCommunic::Finished );
+    bool ret = comm_->sendState();
 
     if ( ret )
 	mStrmWithProcID( "Successfully wrote finish status" );

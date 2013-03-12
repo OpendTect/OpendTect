@@ -46,6 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "survinfo.h"
 #include "moddepmgr.h"
+#include "commandlineparser.h"
 
 
 using namespace Attrib;
@@ -177,14 +178,6 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
     { strm << '\n' << s << '\n' << std::endl; return false; }
 
 #define mPIDMsg(s) { strm << "\n["<< GetPID() <<"]: " << s << std::endl; }
-
-#define mSetCommState(State) \
-    if ( comm ) \
-    { \
-	comm->setState( MMSockCommunic::State ); \
-	if ( !comm->updateState() ) \
-	    mRetHostErr( comm->errMsg() ) \
-    }
 
 
 static bool process( std::ostream& strm, Processor* proc, bool useoutwfunc, 
@@ -326,11 +319,11 @@ bool BatchProgram::go( std::ostream& strm )
     OD::ModDeps().ensureLoaded( "Attributes" );
 
     const float vnr = parversion_.isEmpty() ? 0 : toFloat( parversion_.buf() );
-    if ( cmdLineOpts().size() )
+    
+    if ( clParser().nrArgs() )
     {
-	BufferString opt = *cmdLineOpts()[0];
-	bool ismaxstepout = opt == "maxstepout";
-	if ( ismaxstepout || opt == "validate" )
+	const bool ismaxstepout = clParser().isPresent( "maxstepout" );
+	if ( ismaxstepout || clParser().isPresent( "validate" ) )
 	    return attribSetQuery( strm, pars(), ismaxstepout, vnr );
     }
 

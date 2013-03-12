@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 #include <iosfwd>
 
+class CommandLineParser;
 class IOPar;
 class IOObj;
 class IOObjContext;
@@ -47,29 +48,19 @@ class StreamData;
   be accessed.
 */
 
-mClass(Batch) BatchProgram : public NamedObject
+mClass(Prog) BatchProgram : public NamedObject
 {
     mGlobal(Batch) friend	BatchProgram& BP();
 
 public:
 
-    const IOPar&	pars() const		{ return *iopar; }
-    IOPar&		pars()			{ return *iopar; }
-
-    int			nrArgs() const		{ return *pargc - argshift; }
-    const char*		arg( int idx ) const	{ return argv_[idx+argshift]; }
-    const char*		fullPath() const	{ return fullpath; }
-    const char*		progName() const;
+    const IOPar&		pars() const	{ return *iopar_; }
+    IOPar&			pars()		{ return *iopar_; }
+    
+    const CommandLineParser&	clParser()	{ return *clparser_; }
 
 			//! This method must be defined by user
     bool		go(std::ostream& log_stream);
-
-			// For situations where you need the old-style stuff
-    char**		argv()			{ return argv_; }
-    int&		argc()			{ return *pargc; }
-    int			argc() const		{ return *pargc; }
-    int			realArgsStartAt() const	{ return argshift; }
-    BufferStringSet&	cmdLineOpts()		{ return opts; }
 
     mExp(Batch) IOObj*	getIOObjFromPars(const char* keybase,bool mknew,
 					 const IOObjContext& ctxt,
@@ -83,6 +74,12 @@ public:
 
     mExp(Batch) static void	deleteInstance();
 
+    
+    static const char*	sKeyMasterHost() 	{ return "masterhost"; }
+    static const char*	sKeyMasterPort()	{ return "masterport"; }
+    static const char*	sKeyBG()		{ return "bg"; }
+    static const char*	sKeyJobID()		{ return "jobid"; }
+    
 protected:
 
     friend int		Execute_batch(int*,char**);
@@ -92,18 +89,16 @@ protected:
 			BatchProgram();
 			~BatchProgram();
 
-    mExp(Batch) void	init(int*,char**);
+    mExp(Batch) void	init();
     static BatchProgram* inst_;
 
-    int*		pargc;
-    char**		argv_;
-    int			argshift;
-    FileNameString	fullpath;
-    bool		stillok;
-    bool		inbg;
-    StreamData&		sdout;
-    IOPar*		iopar;
-    BufferStringSet	opts;
+
+    bool		stillok_;
+    bool		inbg_;
+    StreamData&		sdout_;
+    IOPar*		iopar_;
+    CommandLineParser*	clparser_;
+	
     BufferString	parversion_;
     BufferStringSet	requests_;
     BufferString	finishmsg_;
@@ -112,19 +107,45 @@ protected:
     mExp(Batch) void	progKilled(CallBacker*);
     mExp(Batch) void	killNotify( bool yn );
 
-    JobCommunic*	mmComm()		{ return comm; }
-    int 		jobId()			{ return jobid; }
+    JobCommunic*	mmComm()		{ return comm_; }
+    int 		jobId()			{ return jobid_; }
 
 private:
 
-    JobCommunic*	comm;
-    int			jobid;
+    JobCommunic*	comm_;
+    int			jobid_;
 };
 
 
 int Execute_batch(int*,char**);
 mGlobal(Batch) BatchProgram& BP();
 
+#define mRetJobErr(s) \
+{  \
+    if ( comm_ ) comm_->setState( JobCommunic::JobError ); \
+    mRetError(s) \
+}
+
+
+#define mRetError(s) \
+{ errorMsg(s); mDestroyWorkers; return false; }
+
+#define mRetHostErr(s) \
+{  \
+    if ( comm_ ) comm_->setState( JobCommunic::HostError ); \
+	mRetError(s) \
+}
+
+#define mStrmWithProcID(s) \
+strm << "\n[" << process_id << "]: " << s << "." << std::endl
+
+#define mSetCommState(State) \
+if ( comm_ ) \
+{ \
+    comm_->setState( JobCommunic::State ); \
+    if ( !comm_->updateState() ) \
+	mRetHostErr( comm_->errMsg() ) \
+}
 
 #ifdef __prog__
 # ifdef __win__

@@ -36,28 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mDestroyWorkers \
-	{ delete procman; procman = 0; writer = 0; }
-
-
-#define mRetError(s) \
-{ errorMsg(s); mDestroyWorkers; return false; }
-
-#define mRetHostErr(s) \
-	{  \
-	    if ( comm ) comm->setState( JobCommunic::HostError ); \
-	    mRetError(s) \
-	}
-
-#define mStrmWithProcID(s) \
-    strm << "\n[" << process_id << "]: " << s << "." << std::endl
-
-#define mSetCommState(State) \
-	if ( comm ) \
-	{ \
-	    comm->setState( JobCommunic::State ); \
-	    if ( !comm->updateState() ) \
-		mRetHostErr( comm->errMsg() ) \
-	}
+{ delete procman; procman = 0; writer = 0; }
 
 
 bool BatchProgram::go( std::ostream& strm )
@@ -446,14 +425,14 @@ bool BatchProgram::go( std::ostream& strm )
     for ( int idx=gathers.size()-1;  idx>=0; idx-- )
 	DPM( DataPackMgr::FlatID() ).release( gathers.removeSingle(idx) );
 
-    if ( !comm )
+    if ( !comm_ )
     {
 	delete procman;
 	return true;
     }
 
-    comm->setState( JobCommunic::Finished );
-    bool ret = comm->sendState();
+    comm_->setState( JobCommunic::Finished );
+    bool ret = comm_->sendState();
 
     if ( ret )
 	mStrmWithProcID( "Successfully wrote finish status" );
