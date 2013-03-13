@@ -828,8 +828,8 @@ void uiStratLayerModel::setElasticProps()
 	    return;
     }
 
-    lmp_.modl_.addElasticPropSel( *elpropsel_ );
-    lmp_.modled_.addElasticPropSel( *elpropsel_ );
+    lmp_.modl_.setElasticPropSel( *elpropsel_ );
+    lmp_.modled_.setElasticPropSel( *elpropsel_ );
 }
 
 

@@ -44,14 +44,16 @@ public:
     LayerSequence&		sequence( int idx )	  { return *seqs_[idx];}
     const LayerSequence& 	sequence( int idx ) const { return *seqs_[idx];}
 
-    LayerSequence&		addSequence();
     void			setEmpty();
+    LayerSequence&		addSequence();
+    LayerSequence&		addSequence(const LayerSequence&);
+    				//!< Does a match of props
 
     PropertyRefSelection&	propertyRefs()		{ return props_; }
     const PropertyRefSelection&	propertyRefs() const	{ return props_; }
     void			prepareUse() const;
 
-    void 			addElasticPropSel(const ElasticPropSelection&);
+    void 			setElasticPropSel(const ElasticPropSelection&);
     const ElasticPropSelection& elasticPropSel() const {return elasticpropsel_;}
 
     const RefTree&		refTree() const;

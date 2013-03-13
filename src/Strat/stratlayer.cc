@@ -270,6 +270,12 @@ Strat::LayerModel& Strat::LayerModel::operator =( const Strat::LayerModel& oth )
 }
 
 
+void Strat::LayerModel::setEmpty()
+{
+    deepErase( seqs_ );
+}
+
+
 Strat::LayerSequence& Strat::LayerModel::addSequence()
 {
     LayerSequence* newseq = new LayerSequence( &props_ );
@@ -278,9 +284,28 @@ Strat::LayerSequence& Strat::LayerModel::addSequence()
 }
 
 
-void Strat::LayerModel::setEmpty()
+Strat::LayerSequence& Strat::LayerModel::addSequence(
+				const Strat::LayerSequence& inpls )
 {
-    deepErase( seqs_ );
+    LayerSequence* newls = new LayerSequence( &props_ );
+
+    const PropertyRefSelection& inpprops = inpls.propertyRefs();
+    for ( int ilay=0; ilay<inpls.size(); ilay++ )
+    {
+	const Layer& inplay = *inpls.layers()[ilay];
+	Layer* newlay = new Layer( inplay.unitRef() );
+	newlay->setThickness( inplay.thickness() );
+	for ( int iprop=1; iprop<props_.size(); iprop++ )
+	{
+	    const int idxof = inpprops.indexOf( props_[iprop] );
+	    newlay->setValue( iprop,
+		    	idxof < 0 ? mUdf(float) : inplay.value(idxof) );
+	}
+	newls->layers() += newlay;
+    }
+
+    seqs_ += newls;
+    return *newls;
 }
 
 
@@ -399,7 +424,7 @@ bool Strat::LayerModel::write( std::ostream& strm, int modnr ) const
 }
 
 
-void Strat::LayerModel::addElasticPropSel( const ElasticPropSelection& elp )
+void Strat::LayerModel::setElasticPropSel( const ElasticPropSelection& elp )
 {
     elasticpropsel_ = elp;
 }
