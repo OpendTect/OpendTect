@@ -49,7 +49,7 @@ public:
 /*!
 \brief Holds the context for selecting and/or creating IOObjs.
 
-  Usually, this objects is obtained by calling the ioContext() method of a
+  Usually, this object is obtained by calling the ioContext() method of a
   certain TranslatorGroup.
   
   Note, that if the StdSelType is set to None, you must provide the selkey or
