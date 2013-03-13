@@ -30,7 +30,8 @@ void Fault::getAllFaultActNames( BufferStringSet& bss )
 {
     bss.erase();
     bss.add( "AllowCrossing" );
-    bss.add( "ForbitCrossing" );
+    bss.add( "ForbitCrossHigher" );
+    bss.add( "ForbitCrossLower" );
 }
 
 

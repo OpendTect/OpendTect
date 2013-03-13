@@ -89,7 +89,8 @@ public:
     virtual const FaultGeometry& geometry() const
 				{ return const_cast<Fault*>(this)->geometry(); }
 
-    enum FaultAct		{ AllowCrossing=0, ForbitCrossing=1 };
+    enum FaultAct		{ AllowCrossing=0, ForbidCrossHigher=1, 
+				  ForbidCrossLower=2 };
     static void                 getAllFaultActNames(BufferStringSet&);
 
     static const char*		sKeyFaultAct()	{ return "Fault Act"; }
