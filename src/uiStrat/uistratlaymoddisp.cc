@@ -16,14 +16,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uigeninput.h"
+#include "uifiledlg.h"
 #include "uimenu.h"
+#include "uimsg.h"
 #include "uiaxishandler.h"
 #include "stratlevel.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratreftree.h"
+#include "strmprov.h"
 #include "survinfo.h"
 #include "property.h"
+#include "envvars.h"
 
 #define mGetConvZ(var,conv) \
     if ( SI().depthsInFeet() ) var *= conv
@@ -234,7 +238,6 @@ void uiStratSimpleLayerModelDisp::usrClicked( CallBacker* )
 	sequenceSelected.trigger();
 	mevh.setHandled( true );
     }
-
 }
 
 
@@ -262,9 +265,15 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
     uiPopupMenu mnu( parent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Properties ..."), 0 );
     mnu.insertItem( new uiMenuItem("&Remove ..."), 1 );
+    static bool wantmodeldump = GetEnvVarYN( "OD_LAYERMODEL_DUMP" );
+    if ( wantmodeldump )
+    {
+	mnu.insertItem( new uiMenuItem("&Dump model ..."), 2 );
+	mnu.insertItem( new uiMenuItem("&Add model ..."), 3 );
+    }
     const int mnuid = mnu.exec();
-    if ( mnuid < 0 || mnuid > 1 )
-	return;
+    if ( mnuid < 0 ) return;
+
     Strat::Layer& lay = *ls.layers()[layidx];
     if ( mnuid == 0 )
     {
@@ -272,6 +281,8 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 	if ( dlg.go() )
 	    forceRedispAll( true );
     }
+    else if ( mnuid == 2 || mnuid == 3 )
+	doLayModIO( mnuid == 3 );
     else
     {
 
@@ -281,6 +292,41 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 		    "Only this layer","All layers with this ID") );
 	if ( dlg.go() )
 	    removeLayers( ls, layidx, !gi->getBoolValue() );
+    }
+}
+
+
+void uiStratSimpleLayerModelDisp::doLayModIO( bool foradd )
+{
+    const Strat::LayerModel& lm = lmp_.get();
+    if ( !foradd && lm.isEmpty() ) return;
+	{ uiMSG().error("Empty layer model"); return; }
+
+    uiFileDialog dlg( this, foradd, 0, 0, "Select layer model dump file" );
+    if ( !dlg.go() ) return;
+
+    StreamProvider sp( dlg.fileName() );
+    StreamData sd( foradd ? sp.makeIStream() : sp.makeOStream() );
+    if ( !sd.usable() )
+	{ uiMSG().error("Cannot open:\n",dlg.fileName()); return; }
+
+    if ( !foradd )
+    {
+	if ( !lm.write(*sd.ostrm) )
+	    uiMSG().error("Cannot write layer model to file.");
+    }
+    else
+    {
+	Strat::LayerModel newlm;
+	if ( !newlm.read(*sd.istrm) )
+	    { uiMSG().error("Cannot read layer model from file."
+		    "\nFile may not be a layer model file"); return; }
+
+	for ( int ils=0; ils<newlm.size(); ils++ )
+	    const_cast<Strat::LayerModel&>(lm)
+				.addSequence( newlm.sequence( ils ) );
+
+	forceRedispAll( true );
     }
 }
 

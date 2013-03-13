@@ -781,9 +781,10 @@ void uiStratLayerModel::genModels( CallBacker* )
     lmp_.modl_.propertyRefs() = seqdisp_->desc().propSelection();
 
     seqdisp_->prepareDesc();
-    uiTaskRunner tr( this );
     Strat::LayerModelGenerator ex( desc_, lmp_.get(), nrmods );
-    TaskRunner::execute( &tr, ex );
+    uiTaskRunner tr( this );
+    if ( !tr.execute(ex) )
+	return;
 
     setModelProps();
     setElasticProps();
@@ -854,8 +855,8 @@ void uiStratLayerModel::setElasticProps()
 	    return;
     }
 
-    lmp_.modl_.addElasticPropSel( *elpropsel_ );
-    lmp_.modled_.addElasticPropSel( *elpropsel_ );
+    lmp_.modl_.setElasticPropSel( *elpropsel_ );
+    lmp_.modled_.setElasticPropSel( *elpropsel_ );
 }
 
 

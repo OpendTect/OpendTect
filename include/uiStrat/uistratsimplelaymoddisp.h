@@ -78,6 +78,7 @@ protected:
     virtual void	drawSelectedSequence();
     void		updZoomBox();
     int			getXPix(int,float) const;
+    void		doLayModIO(bool);
     bool		isDisplayedModel(int) const;
     void		removeLayers(Strat::LayerSequence&,int,bool);
     void		forceRedispAll(bool modeledited=false);
