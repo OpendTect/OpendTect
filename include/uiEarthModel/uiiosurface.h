@@ -15,8 +15,10 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uicompoundparsel.h"
 #include "uigroup.h"
+#include "uidialog.h"
 
 #include "bufstringset.h"
+#include "emfault.h"
 #include "horsampling.h"
 #include "surv2dgeom.h"
 
@@ -27,11 +29,13 @@ class MultiID;
 
 class uiCheckBox;
 class uiColorInput;
+class uiFaultOptSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiLabeledListBox;
 class uiPosSubSel;
 class uiStratLevelSel;
+class uiTable;
 
 namespace EM { class Surface; class SurfaceIODataSelection; };
 
@@ -172,9 +176,15 @@ protected:
 mExpClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
 {
 public:
-				uiFaultParSel(uiParent*,bool);
+				uiFaultParSel(uiParent*,bool is2d,
+					      bool use_act_option=false);
 
-    void			setSelectedFaults(const TypeSet<MultiID>&);
+				/*Set my own options on selected, optional*/
+    void			setActOptions(const BufferStringSet&);
+    const TypeSet<int>&		getSelectedOptIndies() const { return optids_; }
+
+    void			setSelectedFaults(const TypeSet<MultiID>&,
+	    				const TypeSet<EM::Fault::FaultAct>&);
     BufferString		getSummary() const;
     const TypeSet<MultiID>&	selFaultIDs() const { return selfaultids_; }
 					
@@ -185,6 +195,7 @@ public:
 
 protected:
 
+    friend class		uiFaultOptSel;
     void			clearPush(CallBacker*);
     void			doDlg(CallBacker*);
 
@@ -192,6 +203,11 @@ protected:
     BufferStringSet		selfaultnms_;
     TypeSet<MultiID>		selfaultids_;
     TypeSet<PosInfo::GeomID>	geomids_;
+    
+    bool			useoptions_;
+    BufferStringSet		optnms_;
+    TypeSet<int>		optids_;
 };
+
 
 #endif

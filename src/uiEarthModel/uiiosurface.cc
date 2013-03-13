@@ -14,11 +14,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipossubsel.h"
 #include "uibutton.h"
 #include "uicolor.h"
+#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uistratlvlsel.h"
+#include "uitable.h"
 
 #include "ctxtioobj.h"
 #include "emmanager.h"
@@ -621,10 +623,126 @@ public:
 };
 
 
-uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d )
+class uiFaultOptSel: public uiDialog
+{
+public:
+    uiFaultOptSel( uiParent* p, uiFaultParSel& fltpar )
+	: uiDialog(p,uiDialog::Setup( 
+		    fltpar.is2d_ ? "FaultStickSet selection":"Fault selection",
+		    "Selected", mNoHelpID) )
+	, fltpar_(fltpar)
+    {
+	table_ = new uiTable( this, uiTable::Setup(4).rowgrow(true).fillrow(
+		    true).rightclickdisabled(true).selmode(uiTable::Single),"");
+	const char* fltnm = fltpar.is2d_ ? "FaultStickSet" : "Fault";
+    	const char* collbls[] = { fltnm, "Act option", 0 };
+    	table_->setColumnLabels( collbls );
+    	table_->setLeftMargin( 0 );
+    	table_->setSelectionBehavior( uiTable::SelectRows );
+    	table_->setColumnResizeMode( uiTable::ResizeToContents );
+    	table_->setRowResizeMode( uiTable::Interactive );
+    	table_->setColumnStretchable( 0, true );
+	
+    	uiPushButton* addbut = new uiPushButton( this, "&Add", 
+		mCB(this,uiFaultOptSel,addCB), true );
+	addbut->attach( rightOf, table_ );
+	
+    	removebut_ = new uiPushButton( this, "&Remove", 
+		mCB(this,uiFaultOptSel,removeCB), true );
+	removebut_->attach( alignedBelow, addbut );
+
+	for ( int idx=0; idx<fltpar_.selfaultids_.size(); idx++ )
+	{
+	    PtrMan<IOObj> ioobj = IOM().get( fltpar_.selfaultids_[idx] );
+	    addObjEntry( idx, *ioobj, fltpar_.optids_[idx] );
+	}
+    }
+
+    void addCB( CallBacker* )
+    {
+	PtrMan<CtxtIOObj> objio = fltpar_.is2d_ ? mMkCtxtIOObj(EMFaultStickSet)
+						: mMkCtxtIOObj(EMFault3D);
+	uiIOObjSelDlg dlg( this, *objio, 0, true );
+	if ( !dlg.go() )
+	    return;
+
+	for ( int idx=0; idx<dlg.nrSel(); idx++ )
+	{
+	    const MultiID& mid = dlg.selected( idx );
+	    PtrMan<IOObj> ioobj = IOM().get( mid );
+    	    if ( !ioobj ) continue;
+
+	    addObjEntry( fltpar_.selfaultids_.size(), *ioobj, 0 );
+	    
+	}
+	
+	removebut_->setSensitive( fltpar_.selfaultids_.size() );
+    }
+    
+    void addObjEntry( int row, const IOObj& ioobj, int optidx )
+    {
+	if ( row==table_->nrRows() )
+	    table_->insertRows( row, 1 );
+
+	uiComboBox* actopts = new uiComboBox( 0, fltpar_.optnms_, 0 );
+	actopts->selectionChanged.notify( mCB(this,uiFaultOptSel,optCB) );
+	actopts->setCurrentItem( optidx );
+	table_->setCellObject( RowCol(row,1), actopts );
+	
+	const char * fltnm = ioobj.name();
+	table_->setText( RowCol(row,0), fltnm );
+	table_->setCellReadOnly( RowCol(row,0), true );
+
+	if ( fltpar_.selfaultnms_.indexOf(fltnm)!=-1 )
+	    return;	  
+
+	fltpar_.selfaultids_ += ioobj.key();
+	fltpar_.selfaultnms_.add( fltnm );
+	fltpar_.optids_ += optidx;
+    }
+
+    void removeCB( CallBacker* )
+    {
+	const int currow = table_->currentRow();
+	if ( currow==-1 ) return;
+
+	if ( currow<fltpar_.selfaultids_.size() )
+	{
+	    fltpar_.selfaultids_.removeSingle( currow );
+	    fltpar_.selfaultnms_.removeSingle( currow );
+	    fltpar_.optids_.removeSingle( currow );
+	}
+
+	table_->removeRow( currow );
+	removebut_->setSensitive( fltpar_.selfaultids_.size() );
+    }
+
+    void optCB( CallBacker* cb )
+    {
+    	for ( int idx=0; idx<fltpar_.optids_.size(); idx++ )
+    	{
+	    mDynamicCastGet(uiComboBox*, selbox,
+		    table_->getCellObject(RowCol(idx,1)) );
+	    if ( selbox==cb )
+	    {
+    		fltpar_.optids_[idx] = selbox->currentItem();
+		return;
+	    }
+    	}
+    }
+
+    uiFaultParSel&	fltpar_;
+    uiTable*		table_;
+    uiPushButton*	removebut_;
+};
+
+
+
+uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
     : uiCompoundParSel(p,"Faults","Select")
     , is2d_(is2d)
     , selChange(this)
+    , useoptions_(useoptions)  
 {
     butPush.notify( mCB(this,uiFaultParSel,doDlg) );
     uiPushButton* clearbut = new uiPushButton( this, "Clear", true );
@@ -633,10 +751,12 @@ uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d )
 }
 
 
-void uiFaultParSel::setSelectedFaults( const TypeSet<MultiID>& ids )
+void uiFaultParSel::setSelectedFaults( const TypeSet<MultiID>& ids,
+       				       const TypeSet<EM::Fault::FaultAct>& act )
 {
     selfaultids_.erase();
     selfaultnms_.erase();
+    optids_.erase();
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( ids[idx] );
@@ -644,6 +764,7 @@ void uiFaultParSel::setSelectedFaults( const TypeSet<MultiID>& ids )
 
 	selfaultnms_.add( ioobj->name() );
 	selfaultids_ += ids[idx];
+	optids_ += act.validIdx(idx) ? act[idx] : EM::Fault::ForbitCrossing;
     }
     updSummary(0);
     selChange.trigger();
@@ -654,6 +775,8 @@ void uiFaultParSel::clearPush( CallBacker* )
 {
     selfaultnms_.erase();
     selfaultids_.erase();
+    optids_.erase();
+
     updSummary(0);
     selChange.trigger();
 }
@@ -668,7 +791,12 @@ void uiFaultParSel::set2DGeomIds( const TypeSet<PosInfo::GeomID>& nids )
 
 void uiFaultParSel::doDlg( CallBacker* )
 {
-    if ( is2d_ && geomids_.size() )
+    if ( useoptions_ && !optnms_.isEmpty() )
+    {
+	uiFaultOptSel dlg( this, *this );
+	if ( !dlg.go() ) return;
+    }
+    else if ( is2d_ && geomids_.size() )
     {
     	uiFSS2DLineSelDlg dlg( this, geomids_ );
     	dlg.setSelectedItems( selfaultnms_ );
@@ -701,11 +829,30 @@ void uiFaultParSel::doDlg( CallBacker* )
 
 BufferString uiFaultParSel::getSummary() const
 {
+    const bool addopt = useoptions_ && !optnms_.isEmpty();
     BufferString summ;
     for ( int idx=0; idx<selfaultnms_.size(); idx++ )
     {
 	summ += selfaultnms_.get(idx);
+	if ( addopt )
+	{
+    	    summ += " (";
+    	    summ += optnms_[optids_[idx]]->buf();
+	    summ += ")";
+	}
+
 	summ += idx == selfaultnms_.size()-1 ? "." : ", ";
     }
     return summ.isEmpty() ? BufferString(" - ") : summ;
 }
+
+
+void uiFaultParSel::setActOptions( const BufferStringSet& opts )
+{
+    optnms_.erase();
+    optnms_ = opts;
+}
+
+
+
+
