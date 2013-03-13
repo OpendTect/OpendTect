@@ -114,7 +114,7 @@ bool DataPlayer::setAIModel()
     if ( !wd_->d2TModel() )
 	mErrRet( "No depth/time model computed" );
 
-    const float srddepth = wd_->info().surfaceelev;
+    const float srddepth = -1. * wd_->info().surfaceelev;
 
     float prev_depth = srddepth;
     float thickness = 0;
@@ -123,14 +123,11 @@ bool DataPlayer::setAIModel()
 	const float twt = workrg_.atIndex( idx );
 	const float dah = wd_->d2TModel()->getDah( twt );
 	const float depth = (float) wd_->track().getPos(dah).z;
-	if ( depth <= srddepth || mIsUdf(dah) || mIsUdf(depth) )
+	if ( depth < 0 )
 	    continue;
-	if ( !data_.dahrg_.includes(dah,true) )
-	    continue;
-	const float vel = pslog.getValue( dah, true );
-	const float den = pdlog.getValue( dah, true );
-	if ( mIsUdf(vel) || mIsUdf(den) || mIsEqual(prev_depth,depth,1e-3) )
-	    continue;
+	const bool inside = data_.dahrg_.includes(dah,true);
+	const float vel = inside ? pslog.getValue(dah,true) : mUdf(float);
+	const float den = inside ? pdlog.getValue(dah,true) : mUdf(float);
 	thickness = depth - prev_depth;
 	aimodel_ += AILayer( thickness, vel, den );
 	prev_depth = depth;
