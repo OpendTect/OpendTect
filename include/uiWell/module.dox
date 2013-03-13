@@ -12,12 +12,10 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiWell uiWell
-\section Introduction Introduction Well User Interface
+
+Well User Interface
 
 Apart from nice visualisation, import and management of well data must be done.
-
-\section Content Content
-
 The uiWellPartServer delivers the services needed.
 
 */
