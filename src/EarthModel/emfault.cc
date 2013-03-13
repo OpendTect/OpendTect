@@ -26,6 +26,14 @@ void Fault::removeAll()
 }
 
 
+void Fault::getAllFaultActNames( BufferStringSet& bss )
+{
+    bss.erase();
+    bss.add( "AllowCrossing" );
+    bss.add( "ForbitCrossing" );
+}
+
+
 const Coord3& FaultGeometry::getEditPlaneNormal( const SectionID& sid,
 						 int sticknr ) const
 {

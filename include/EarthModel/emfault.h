@@ -89,6 +89,11 @@ public:
     virtual const FaultGeometry& geometry() const
 				{ return const_cast<Fault*>(this)->geometry(); }
 
+    enum FaultAct		{ AllowCrossing=0, ForbitCrossing=1 };
+    static void                 getAllFaultActNames(BufferStringSet&);
+
+    static const char*		sKeyFaultAct()	{ return "Fault Act"; }
+
 protected:
     				Fault( EMManager& em )
 				    : Surface(em)		{}
