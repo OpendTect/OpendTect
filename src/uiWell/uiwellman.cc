@@ -173,33 +173,22 @@ void uiWellMan::fillLogsFld()
     logsfld_->setEmpty();
     if ( currdrs_.isEmpty() ) return;
 
-    BufferStringSet lognms;
-    for ( int idx=0; idx<currdrs_.size(); idx++ )
-    {
-	availablelognms_.erase();
-	currdrs_[idx]->getLogInfo( availablelognms_ );
-	lognms.add( availablelognms_, true );
-    }
-
+    availablelognms_.erase();
+    currdrs_[0]->getLogInfo( availablelognms_ );
     if ( currdrs_.size() > 1 )
     {
-	BufferStringSet alllognms;
-	while ( !lognms.isEmpty() )
+	for ( int idx=1; idx<currdrs_.size(); idx++ )
 	{
-	    BufferString lognm = *lognms.removeSingle(0);
-	    bool ispresent = true;
-	    for ( int idx=0; idx<currdrs_.size(); idx++ )
+	    BufferStringSet lognms;
+	    currdrs_[idx]->getLogInfo( lognms );
+	    for ( int idy=0; idy<availablelognms_.size(); )
 	    {
-		availablelognms_.erase();
-		currdrs_[idx]->getLogInfo( availablelognms_ );
-		if ( !availablelognms_.isPresent( lognm ) )
-		    { ispresent = false; break; }
+		if ( !lognms.isPresent(availablelognms_.get(idy)) )
+		    availablelognms_.removeSingle( idy );
+		else
+		    idy++;
 	    }
-	    if ( ispresent )
-		alllognms.addIfNew( lognm );
 	}
-	availablelognms_.erase();
-	availablelognms_.add( alllognms, true );
     }
 
     for ( int idx=0; idx<availablelognms_.size(); idx++)
