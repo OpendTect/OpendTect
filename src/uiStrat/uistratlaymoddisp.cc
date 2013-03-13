@@ -299,7 +299,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 void uiStratSimpleLayerModelDisp::doLayModIO( bool foradd )
 {
     const Strat::LayerModel& lm = lmp_.get();
-    if ( !foradd && lm.isEmpty() ) return;
+    if ( !foradd && lm.isEmpty() )
 	{ uiMSG().error("Empty layer model"); return; }
 
     uiFileDialog dlg( this, foradd, 0, 0, "Select layer model dump file" );
