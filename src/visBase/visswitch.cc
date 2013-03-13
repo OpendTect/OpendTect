@@ -37,6 +37,10 @@ void Switch::turnOn( bool yn )
 { switch_->whichChild.setValue( yn ? -3 : -1 ); }
 
 
+bool Switch::isOn() const
+{ return switch_->whichChild.getValue()==-3; }
+
+
 void Switch::addChild( SoNode* sn )
 { switch_->addChild( sn ); }
 

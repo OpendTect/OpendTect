@@ -31,6 +31,7 @@ public:
     static Switch*		create() mCreateDataObj(Switch);
 
     void			turnOn(bool yn);
+    bool			isOn() const;
     void			addChild(SoNode*);
     void			removeChild(SoNode*);
 
