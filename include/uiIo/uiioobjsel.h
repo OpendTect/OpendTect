@@ -28,9 +28,10 @@ class uiIOObjSelGrpManipSubj;
 class uiListBox;
 class uiToolButton;
 
-
-/*! \brief Dialog letting the user select an object.
-           It returns an IOObj* after successful go(). */
+/*!
+\brief Dialog letting the user select an object. It returns an IOObj* after
+successful go().
+*/
 
 mExpClass(uiIo) uiIOObjRetDlg : public uiDialog
 {
@@ -45,8 +46,10 @@ public:
 };
 
 
-/*! \brief Basic group for letting the user select an object. It 
-	   can be used standalone in a dialog, or as a part of dialogs. */
+/*!
+\brief Basic group for letting the user select an object. It can be used
+standalone in a dialog, or as a part of dialogs.
+*/
 
 mExpClass(uiIo) uiIOObjSelGrp : public uiGroup
 {
@@ -132,7 +135,10 @@ protected:
     IOObj*		getIOObj(int);
 };
 
-/*! \brief Dialog for selection of IOObjs */
+
+/*!
+\brief Dialog for selection of IOObjs.
+*/
 
 mExpClass(uiIo) uiIOObjSelDlg : public uiIOObjRetDlg
 {
@@ -159,16 +165,15 @@ protected:
 };
 
 
+/*!
+\brief User Interface (UI) element for selection of IOObjs.
 
-/*! \brief UI element for selection of IOObjs
-
-User gets the possibility to select an object of a certain type.
-
-If nothing is selected, an error will be generated if setup.mandatory_ is
-true. This is the default. Thus, you can simply do, in acceptOK():
-    const IOObj* theobj = theselfld_->ioobj();
-    if ( !theobj ) return false;
-
+  User gets the possibility to select an object of a certain type.
+  
+  If nothing is selected, an error will be generated if setup.mandatory_ is
+  true. This is the default. Thus, you can simply do, in acceptOK():
+  const IOObj* theobj = theselfld_->ioobj();
+  if ( !theobj ) return false;
 */
 
 mExpClass(uiIo) uiIOObjSel : public uiIOSelect
