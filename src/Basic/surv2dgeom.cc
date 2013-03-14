@@ -907,10 +907,9 @@ bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
     {   
 	if ( FixedString(astrm.keyWord()) == sKey::TrcDist() )
 	{
-	    float buf[2];
-	    sfio.istrm().read( (char*) buf, 2 * sizeof(float) );
-	    max = buf[0];
-	    median = buf[1];
+	    FileMultiString statsstr(astrm.value());
+	    max = statsstr.getFValue(0);
+	    median = statsstr.getFValue(1);
 	    sfio.closeSuccess();
 	    return true;
 	}
