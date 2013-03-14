@@ -3,6 +3,19 @@ OpendTect V4.4.x / dGB plugins: Release info
 In general, all fixes in the stable 4.2 are also applied in the 4.4 releases.
 
 ----
+v4.4.0h: March 14, 2013
+  * [HC] Fix for missing fault throws in some 2D HorizonCubes.
+  * [HC] Fix for wrong sampling of exported/copied horizons from Horizoncube
+    events.
+  * [HC] Fix for crash in HorizonCube 3D Slider while saving horizons
+  * [HC] Fix for for wrong event number in HorizonCube 3D slider
+  * [DS] Fix for Seismic data seletion while creating 3D SteeringCube
+  * [SynthRock] Fix for using only part of Z space available per unit
+  * [SynthRock] Fix for stochastic modelling description overview
+  * [SynthRock] Fix for setting pseudo-wells start depth
+  * [SynthRock] Fix for matching the simulation parameters with stochastically
+    simulated rock properties
+
 v4.4.0g: February 13, 2013
   * [HC] Fix for crash in horizoncube editor
   * [HC] Fix for fault handling in 3D surveys

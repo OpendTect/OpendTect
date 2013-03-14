@@ -3,6 +3,16 @@ OpendTect V4.4.x : Release info
 In general, all fixes in the stable 4.2 are also applied in the 4.4 releases.
 
 ----
+v4.4.0h: March 14, 2013
+  * Fix for setting data root path
+  * Fix for crash in CmdDriver while stopping record
+  * Fix for crash while clicking on Volume Builder icon on Windows
+  * Fix for saving and restoring of a session with faultstickset and faults
+  * Fix for crash while selecting a well for seismic-well ties
+  * Fix for selecting seismic data for well tie when the stored ID is
+    different from unique survey type
+  * Fix for plugins not being loaded through dll shortcuts on Windows.
+
 v4.4.0g: February 13, 2013
   * Fix for crash while deleting seismic volume from seismic manager
   * Fix for filtering data items in stored attribute list and steering list
