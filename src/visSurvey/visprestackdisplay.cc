@@ -735,14 +735,6 @@ void PreStackDisplay::setTraceNr( int trcnr )
 }
 
 
-#define mResetSeis2DPlane() \
-    const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) ); \
-    basedirection_ = SI().binID2Coord().transformBackNoSnap( \
-	    seis2d_->getNormal( trcnr_ )) - orig; \
-    seis2dpos_ = SI().binID2Coord().transformBackNoSnap( \
-	    seis2d_->getCoord(trcnr_) );
-
-
 bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 {
     if ( !s2d ) return false;
@@ -781,7 +773,11 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 	flatviewer_->handleChange( FlatView::Viewer::DisplayPars );
     }
 
-    mResetSeis2DPlane();
+    const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) ); 
+    basedirection_ = SI().binID2Coord().transformBackNoSnap( 
+	    seis2d_->getNormal(trcnr_) ) - orig; 
+    seis2dpos_ = SI().binID2Coord().transformBackNoSnap( 
+	    seis2d_->getCoord(trcnr_) );
 
     if ( seis2d_->getMovementNotifier() )
 	seis2d_->getMovementNotifier()->notify( 
@@ -796,7 +792,8 @@ void PreStackDisplay::seis2DMovedCB( CallBacker* )
     if ( !seis2d_ || trcnr_<0 )
 	return;
     
-    mResetSeis2DPlane();
+    seis2dpos_ = SI().binID2Coord().transformBackNoSnap( 
+	    seis2d_->getCoord(trcnr_) );
     dataChangedCB(0);
 }    
 
@@ -913,7 +910,8 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 	info += "   Tracenr: ";
 	info += trcnr_;
 	const double displaywidth = seis2dstoppos_.distTo(seis2dpos_);
-	double curdist = SI().binID2Coord().transformBackNoSnap( pos ).distTo( seis2dpos_ );
+	const double curdist = 
+	    SI().binID2Coord().transformBackNoSnap( pos ).distTo( seis2dpos_ );
 	offset = rg.start + posdata.width(true)*curdist/displaywidth;
 	pos = Coord3( seis2dpos_, pos.z );
     }
