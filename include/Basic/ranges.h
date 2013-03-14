@@ -92,6 +92,8 @@ public:
     T				start;
     T				stop;
     
+    static BasicInterval<T>	udf(){return BasicInterval<T>(mUdf(T),mUdf(T));}
+    
     inline bool			isRev() const		{ return start > stop; }
 };
 
@@ -148,6 +150,9 @@ public:
     inline StepInterval<T>& operator=(const Interval<T>&);
 
     virtual bool inline	isUdf() const;
+    static StepInterval<T> udf()
+			{return StepInterval<T>(mUdf(T),mUdf(T),mUdf(T));}
+
     virtual bool	hasStep() const		{ return true; }
 
     inline
