@@ -45,6 +45,7 @@ public:
 						      dpos ); }
 
     void		reSize(int); // destroys current sample data!
+    bool		reSampleTime(float newsr);
     void		set(int center,float samplerate);
 
     void		transform(float,float);
