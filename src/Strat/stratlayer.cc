@@ -25,6 +25,7 @@ const PropertyRef& Strat::Layer::thicknessRef()
 
 Strat::Layer::Layer( const LeafUnitRef& r )
     : ref_(&r)
+    , content_(0)
 {
     setValue( 0, 0 ); setValue( 1, 0 );
 }
