@@ -45,6 +45,8 @@ Horizon2DDisplay::Horizon2DDisplay()
 
 Horizon2DDisplay::~Horizon2DDisplay()
 {
+    setZAxisTransform( 0, 0 );
+
     for ( int idx=0; idx<sids_.size(); idx++ )
     	removeSectionDisplay( sids_[idx] );
 
@@ -268,8 +270,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    break;
 
 	const int rowidx = rowrg_.getIndex( rc.row );
-	const char* linenm =
-	    linenames_.validIdx(rowidx) ? linenames_.get( rowidx ) : 0;
+	const char* linenm = 
+	    linenames_.validIdx(rowidx) ? linenames_.get(rowidx).buf() : 0;
 	TypeSet<Coord3> positions;
 	const StepInterval<int> colrg = surf_->colRange( rc.row );
 
