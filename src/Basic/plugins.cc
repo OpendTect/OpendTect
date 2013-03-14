@@ -299,14 +299,18 @@ const char* PluginManager::getFileName( const PluginManager::Data& data ) const
     if ( data.autosource_ == Data::None )
 	ret = data.name_;
     else
-	ret = FilePath(
-		data.autosource_ == Data::AppDir ?  applibdir_ : userlibdir_,
+    {
+	FilePath fp;
+	fp.setWithLink(
+		data.autosource_ == Data::AppDir ?  applibdir_ : userlibdir_ );
 #ifndef __cmake__
 #ifndef __win__
 		"libs",
 #endif
 #endif
-		data.name_ ).fullPath();
+	fp.addWithLink( data.name_ );
+	ret = fp.fullPath();
+    }
     return ret.buf();
 }
 
