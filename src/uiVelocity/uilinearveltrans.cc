@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: uivelocityfunctionimp.cc 28682 2013-03-02 21:12:38Z kristofer.tingdahl@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uilinearveltrans.h"
 #include "timedepthconv.h"

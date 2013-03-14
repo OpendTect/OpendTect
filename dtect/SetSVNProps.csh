@@ -64,7 +64,7 @@ shift
 (svn proplist ${filename} > ${tmpfile} ) >& ${tmperrfile}
 set errsize=`ls -la ${tmperrfile} | awk '{ print $5}'`
 if ( ${errsize} == 0 ) then
-    svn propset svn:keywords "Author Date Id Revision" ${filename}
+    svn propset svn:keywords "Author Date Id Revision URL" ${filename}
     if ( ${status} != 0 ) then
 	echo "Cannot set keyword property on ${filename}"
 	rm -rf ${tmpfile} ${tmperrfile}

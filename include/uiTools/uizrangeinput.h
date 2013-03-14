@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer
  Date:          Mar 2013
- RCS:           $Id: uizaxistransform.h 28800 2013-03-12 16:30:43Z kristofer.tingdahl@dgbes.com $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/

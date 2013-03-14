@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          March 2013
- RCS:           $Id: uiselectvelocityfunction.h 28682 2013-03-02 21:12:38Z kristofer.tingdahl@dgbes.com $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/
