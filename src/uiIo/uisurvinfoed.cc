@@ -103,8 +103,8 @@ bool xyInFeet() const { return inft_; }
 };
 
 
-static const char* sKeySRDMeter = "Seismic Reference Datum (m)";
-static const char* sKeySRDFeet = "Seismic Reference Datum (ft)";
+static const char* sKeySRDMeter = "Seismic Reference Datum (m) ";
+static const char* sKeySRDFeet = "Seismic Reference Datum (ft) ";
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	: uiDialog(p,uiDialog::Setup("Survey setup",
@@ -310,19 +310,20 @@ void uiSurveyInfoEditor::mkRangeGrp()
     zunitfld_->setHSzPol( uiObject::Small );
     zunitfld_->selectionChanged.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
 
+    const bool depthinft = si_.depthsInFeet();
+
     depthdispfld_ = new uiGenInput( rangegrp_, "Display depths in",
-                                   BoolInpSpec(true,"meter","feet") );
+                                   BoolInpSpec(!depthinft,"meter","feet") );
     depthdispfld_->valuechanged.notify( 
 	    		mCB(this,uiSurveyInfoEditor,depthDisplayUnitSel) );
     depthdispfld_->attach( alignedBelow, zfld_ );
 
-    refdatumfld_ = new uiGenInput( rangegrp_, sKeySRDMeter,
-				   DoubleInpSpec(si_.seismicReferenceDatum()) );
+    refdatumfld_ = new uiGenInput( rangegrp_,
+	    		depthinft ? sKeySRDFeet : sKeySRDMeter,
+	    		DoubleInpSpec(si_.seismicReferenceDatum()) );
     refdatumfld_->attach( alignedBelow, depthdispfld_ );
 
     rangegrp_->setHAlignObj( inlfld_ );
-
-    depthDisplayUnitSel( 0 );
 }
 
 
@@ -541,11 +542,7 @@ bool uiSurveyInfoEditor::doApply()
 {
     if ( !setSurvName() || !setRanges() )
 	return false;
-
-    const bool showrefdatuminft = !depthdispfld_->getBoolValue();
-    double refdatum = refdatumfld_->getdValue( 0.0 );
-    if ( showrefdatuminft ) refdatum *= mFromFeetFactorD;
-    si_.setSeismicReferenceDatum( refdatum );
+    si_.setSeismicReferenceDatum( refdatumfld_->getdValue( 0.0 ) );
 
     const bool xyinft = xyinftfld_->isChecked();
     si_.setXYInFeet( xyinft );
