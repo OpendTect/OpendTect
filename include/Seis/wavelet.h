@@ -68,6 +68,8 @@ protected:
     float*		samps;
     int			sz;
 
+public:
+    bool		reSampleTime(float newsr);
 };
 
 

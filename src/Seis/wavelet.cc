@@ -11,6 +11,7 @@ static const char* rcsID = "$Id$";
 #include "seisinfo.h"
 #include "wvltfact.h"
 #include "ascstream.h"
+#include "seistrc.h"
 #include "statruncalc.h"
 #include "streamconn.h"
 #include "survinfo.h"
@@ -160,6 +161,45 @@ void Wavelet::reSize( int newsz )
     delete [] samps;
     samps = newsamps;
     sz = newsz;
+}
+
+
+bool Wavelet::reSampleTime( float sr )
+{
+    if ( mIsEqual(dpos,sr,1e-5) )
+	return true;
+
+    if ( sr > dpos )
+    {
+	ErrMsg( "New sampling rate should be lower than current sampling rate");
+	return false;
+    }
+
+    StepInterval<float> twtrg = samplePositions();
+    SeisTrc initialwvlt = SeisTrc( sz );
+    initialwvlt.info().sampling = twtrg;
+    for ( int idx=0; idx<sz; idx++ )
+	initialwvlt.set( idx, samps[idx], 0 );
+
+    const int newsz = (sz-1) * mNINT32( dpos / sr ) + 1;
+    float* newsamps = new float [newsz];
+    if ( !newsamps )
+	return false;
+
+    twtrg.step = sr;
+    for ( int idx=0; idx<newsz; idx++ )
+    {
+	const float twt = twtrg.atIndex(idx);
+	newsamps[idx] = initialwvlt.getValue( twt, 0 );
+    }
+
+    delete [] samps;
+    iw = -1 * twtrg.getIndex( 0.f );
+    dpos =  sr;
+    samps = newsamps;
+    sz = newsz;
+
+    return true;
 }
 
 
