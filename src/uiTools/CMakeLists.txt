@@ -88,6 +88,7 @@ SET(OD_MODULE_SOURCES
 		uiwizard.cc	
 		uiworld2ui.cc	
 		uizaxistransform.cc
+		uizrangeinput.cc
                 uipolardiagram.cc)
 
 SET(OD_MODULE_GUI_PROGS od_FileBrowser od_ProgressViewer od_uiReportIssue.cc )
