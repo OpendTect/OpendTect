@@ -75,8 +75,8 @@ public:
 /*!
 \brief Maps data values to colortable positions: [0,1].
 
-  If nrsegs > 0, the mapper will return the centers of the segments only. For
-  example, if nsegs == 3, only positions returned are 1/6, 3/6 and 5/6.
+  If nrsegs_ > 0, the mapper will return the centers of the segments only. For
+  example, if nsegs_ == 3, only positions returned are 1/6, 3/6 and 5/6.
 */
 
 mExpClass(General) Mapper
