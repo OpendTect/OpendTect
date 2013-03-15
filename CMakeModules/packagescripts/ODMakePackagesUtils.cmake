@@ -370,7 +370,7 @@ macro( create_develpackages )
 			 ${PNGFILE} ${DESTINATION_DIR}/doc/Programmer )
     ENDFOREACH()
 
-    FOREACH( DIR CMakeModules include src plugins spec )
+    FOREACH( DIR CMakeModules include src plugins spec tests )
 	Message( "Copying ${DIR} files" )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${CMAKE_INSTALL_PREFIX}/${DIR}

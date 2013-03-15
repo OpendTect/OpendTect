@@ -11,8 +11,13 @@ configure_file( ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/license_devel
 
 macro( add_licensetext DIRNAME DIRPATH )
     MESSAGE( "Installing ${DIRPATH}/${DIRNAME} " )
-    FILE( GLOB HFILES ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/*.h )
-    FILE( GLOB SFILES ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/*.cc )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		   ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}
+		   ${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME} )
+    file( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/.svn )
+    file( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/CMakeFiles )
+    FILE( GLOB HFILES ${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/*.h )
+    FILE( GLOB SFILES ${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/*.cc )
     SET( FILES ${HFILES} ${SFILES} )
 
     foreach( FIL ${FILES} )
@@ -45,4 +50,8 @@ endforeach()
 
 foreach( SPECDIR ${SPECSOURCES} )
     add_licensetext( "${SPECDIR}" "spec" )
+endforeach()
+
+foreach( TESTDIR ${TESTS} )
+    add_licensetext( "${TESTDIR}" "tests" )
 endforeach()
