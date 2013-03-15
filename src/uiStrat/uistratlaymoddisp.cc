@@ -281,7 +281,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 	    forceRedispAll( true );
     }
     else if ( mnuid == 3 || mnuid == 4 )
-	doLayModIO( mnuid == 3 );
+	doLayModIO( mnuid == 4 );
     else if ( mnuid == 2 )
     {
 	const_cast<Strat::LayerModel&>(lmp_.get()).removeSequence( selidx );
