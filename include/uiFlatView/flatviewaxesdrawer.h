@@ -19,7 +19,6 @@ class uiGraphicsScene;
 
 namespace FlatView
 {
-
 class Viewer;
 
 /*!
