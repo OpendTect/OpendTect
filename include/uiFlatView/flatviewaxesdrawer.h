@@ -16,27 +16,27 @@ ________________________________________________________________________
 
 class uiGraphicsView;
 class uiGraphicsScene;
+
 namespace FlatView
 {
 
 class Viewer;
 
-/*!\brief Axis drawer for flat viewers */
+/*!
+\brief Axis drawer for flat viewers.
+*/
 
 mExpClass(uiFlatView) AxesDrawer : public ::uiGraphicsSceneAxisMgr
 {
 public:
     			AxesDrawer(Viewer&,uiGraphicsView&);
-    
 
     int			altdim0_;
-
     void		update();
 
 protected:
 
     Viewer&		vwr_;
-
     virtual double      getAnnotTextAndPos(bool,double,BufferString*) const;
 
 };
