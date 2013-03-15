@@ -39,4 +39,5 @@ SET( PLUGINS Annotations Bouncy ExpAttribs GapDecon GMT GoogleTranslate Hello
 SET( PMAKESTUFF Makefile RootMakefile make.od.Defaults make.od.Dirs 
 		make.od.Vars base )
 SET( SPECSOURCES EarthModel ODGeneral ODSeis visBase )
+SET( TESTS testBasic testGeneral )
 SET( PACK "devel" )
