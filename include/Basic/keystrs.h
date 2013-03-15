@@ -28,6 +28,7 @@ to this namespace.
 
 namespace sKey
 {
+    inline FixedString All()		{ return "All"; }
     inline FixedString Ascii()		{ return "Ascii"; }
     inline FixedString Attribute()	{ return "Attribute"; }
     inline FixedString Attributes()	{ return "Attributes"; }
