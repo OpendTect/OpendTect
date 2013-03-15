@@ -242,6 +242,9 @@ void uiStratSimpleLayerModelDisp::usrClicked( CallBacker* )
 
 void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 {
+    if ( selidx < 0 || selidx >= lmp_.get().size() )
+	return;
+
     Strat::LayerSequence& ls = const_cast<Strat::LayerSequence&>(
 	    				lmp_.get().sequence( selidx ) );
     ObjectSet<Strat::Layer>& lays = ls.layers();
@@ -263,9 +266,10 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 
     uiPopupMenu mnu( parent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Properties ..."), 0 );
-    mnu.insertItem( new uiMenuItem("&Remove ..."), 1 );
-    mnu.insertItem( new uiMenuItem("&Dump all generated wells ..."), 2 );
-    mnu.insertItem( new uiMenuItem("&Add dumped wells ..."), 3 );
+    mnu.insertItem( new uiMenuItem("&Remove layer ..."), 1 );
+    mnu.insertItem( new uiMenuItem("Remove this &Well"), 2 );
+    mnu.insertItem( new uiMenuItem("&Dump all wells to file ..."), 3 );
+    mnu.insertItem( new uiMenuItem("&Add dumped wells from file ..."), 4 );
     const int mnuid = mnu.exec();
     if ( mnuid < 0 ) return;
 
@@ -276,8 +280,13 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 	if ( dlg.go() )
 	    forceRedispAll( true );
     }
-    else if ( mnuid == 2 || mnuid == 3 )
+    else if ( mnuid == 3 || mnuid == 4 )
 	doLayModIO( mnuid == 3 );
+    else if ( mnuid == 2 )
+    {
+	const_cast<Strat::LayerModel&>(lmp_.get()).removeSequence( selidx );
+	forceRedispAll( true );
+    }
     else
     {
 
