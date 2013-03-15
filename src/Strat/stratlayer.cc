@@ -338,7 +338,6 @@ bool Strat::LayerModel::read( std::istream& strm )
     StrmOper::wordFromLine( strm, buf, 256 ); // read newline
 
     PropertyRefSelection newprops;
-    newprops += &PropertyRef::thickness(); // get current survey's thickness
     for ( int iprop=0; iprop<nrprops; iprop++ )
     {
 	StrmOper::wordFromLine( strm, buf, 256 ); // read "#P.."
@@ -384,6 +383,7 @@ bool Strat::LayerModel::read( std::istream& strm )
 	    seq->layers() += newlay;
 	    StrmOper::wordFromLine( strm, buf, 256 ); // read newline
 	}
+	seq->prepareUse();
 	seqs_ += seq;
     }
     return true;
