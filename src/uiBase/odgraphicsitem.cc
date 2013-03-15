@@ -115,9 +115,11 @@ void ODGraphicsMarkerItem::paint( QPainter* painter,
 
     const float xdist = Math::Sqrt(d10.x()*d10.x()+d10.y()*d10.y() );
     const float ydist = Math::Sqrt(d01.x()*d01.x()+d01.y()*d01.y() );
+    if ( !xdist || !ydist )
+	return;
 
-    const float szx = mstyle_->size_/xdist;
-    const float szy = mstyle_->size_/ydist;
+    const float szx = mstyle_->size_ / xdist;
+    const float szy = mstyle_->size_ / ydist;
 
     painter->setPen( pen() );
     if ( fill_ )
