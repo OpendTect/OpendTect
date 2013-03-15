@@ -310,6 +310,13 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 }
 
 
+void Strat::LayerModel::removeSequence( int seqidx )
+{
+    if ( seqidx >= 0 && seqidx < seqs_.size() )
+	delete seqs_.remove( seqidx );
+}
+
+
 void Strat::LayerModel::prepareUse() const
 {
     for ( int idx=0; idx<seqs_.size(); idx++ )
@@ -335,9 +342,9 @@ bool Strat::LayerModel::read( std::istream& strm )
     int nrseqs, nrprops;
     strm >> nrprops >> nrseqs;
     if ( nrprops < 1 ) return false;
+    StrmOper::wordFromLine( strm, buf, 256 ); // read newline
 
     PropertyRefSelection newprops;
-    newprops += &PropertyRef::thickness(); // get current survey's thickness
     for ( int iprop=0; iprop<nrprops; iprop++ )
     {
 	StrmOper::wordFromLine( strm, buf, 256 ); // read "#P.."
@@ -357,15 +364,15 @@ bool Strat::LayerModel::read( std::istream& strm )
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {
-	StrmOper::wordFromLine( strm, buf, 256 ); // read away "#S"
+	StrmOper::wordFromLine( strm, buf, 256 ); // read away "#S.."
 	LayerSequence* seq = new LayerSequence( &props_ );
-	int nrlays, seqnr;
-	strm >> seqnr >> nrlays;
-	if ( !strm.good() ) return false;
+	int nrlays; strm >> nrlays;
+	StrmOper::wordFromLine( strm, buf, 256 ); // read newline
+	if ( strm.bad() ) return false;
 
 	for ( int ilay=0; ilay<nrlays; ilay++ )
 	{
-	    StrmOper::wordFromLine( strm, buf, 256 ); // read away "#L"
+	    StrmOper::wordFromLine( strm, buf, 256 ); // read away "#L.."
 	    StrmOper::wordFromLine( strm, buf, 256 );
 	    FileMultiString fms( buf );
 	    const UnitRef* ur = rt.find( fms[0] );
@@ -381,7 +388,9 @@ bool Strat::LayerModel::read( std::istream& strm )
 	    for ( int iprop=1; iprop<nrprops; iprop++ )
 		{ strm >> val; newlay->setValue( iprop, val ); }
 	    seq->layers() += newlay;
+	    StrmOper::wordFromLine( strm, buf, 256 ); // read newline
 	}
+	seq->prepareUse();
 	seqs_ += seq;
     }
     return true;
@@ -406,7 +415,7 @@ bool Strat::LayerModel::write( std::ostream& strm, int modnr ) const
 	for ( int ilay=0; ilay<nrlays; ilay++ )
 	{
 	    strm << "#L" << ilay << '\t';
-	    const Layer& lay = *seq.layers()[iseq];
+	    const Layer& lay = *seq.layers()[ilay];
 	    if ( lay.content().isUnspecified() )
 		strm << lay.name();
 	    else
@@ -415,9 +424,9 @@ bool Strat::LayerModel::write( std::ostream& strm, int modnr ) const
 		fms += lay.content().name();
 		strm << fms;
 	    }
-	    strm << '\t' << lay.thickness();
+	    strm << '\t' << toString(lay.thickness());
 	    for ( int iprop=1; iprop<nrprops; iprop++ )
-		strm << '\t' << lay.value( iprop );
+		strm << '\t' << toString(lay.value(iprop));
 	    strm << std::endl;
 	}
     }
