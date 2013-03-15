@@ -310,6 +310,13 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 }
 
 
+void Strat::LayerModel::removeSequence( int seqidx )
+{
+    if ( seqidx >= 0 && seqidx < seqs_.size() )
+	delete seqs_.removeSingle( seqidx );
+}
+
+
 void Strat::LayerModel::prepareUse() const
 {
     for ( int idx=0; idx<seqs_.size(); idx++ )

@@ -49,6 +49,7 @@ public:
     LayerSequence&		addSequence();
     LayerSequence&		addSequence(const LayerSequence&);
     				//!< Does a match of props
+    void			removeSequence(int);
 
     PropertyRefSelection&	propertyRefs()		{ return props_; }
     const PropertyRefSelection&	propertyRefs() const	{ return props_; }
