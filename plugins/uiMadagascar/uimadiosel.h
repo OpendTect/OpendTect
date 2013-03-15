@@ -15,7 +15,6 @@
 
 class uiCheckBox;
 class uiGenInput;
-class CtxtIOObj;
 class uiSeisSel;
 class uiIOObjSel;
 class uiFileInput;
@@ -51,7 +50,6 @@ mClass(uiMadagascar) uiMadIOSelDlg : public uiDialog
 public:
 
 			uiMadIOSelDlg(uiParent*,IOPar&,bool isinp);
-			~uiMadIOSelDlg();
 
     inline bool		isInp() const
     			{ return isinp_; }
@@ -68,7 +66,6 @@ public:
 
     			// Functions only valid if isOD()
     Seis::GeomType	geomType() const;
-    CtxtIOObj&		ctxtIOObj(Seis::GeomType);
     uiSeisSel*		seisSel(Seis::GeomType);
     uiSeisSubSel*	seisSubSel(Seis::GeomType);
 
@@ -77,10 +74,6 @@ public:
 
 protected:
 
-    CtxtIOObj&		ctio3d_;
-    CtxtIOObj&		ctio2d_;
-    CtxtIOObj&		ctiops3d_;
-    CtxtIOObj&		ctiops2d_;
     int			idx3d_, idx2d_, idxps3d_, idxps2d_, idxmad_,
 			idxsu_, idxnone_;
     IOPar&		iop_;

@@ -25,17 +25,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "keystrs.h"
 
-
 static const char* sKeyScons = "Scons";
 
 uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	: uiDialog(p, Setup(BufferString("Processing ",isinp?"input":"output"),
 		    BufferString("Specify the ",isinp?"input to":"output of",
 					 " the processing flow"),"103.5.1") )
-	, ctio3d_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,isinp))
-	, ctio2d_(*uiSeisSel::mkCtxtIOObj(Seis::Line,isinp))
-	, ctiops3d_(*uiSeisSel::mkCtxtIOObj(Seis::VolPS,isinp))
-	, ctiops2d_(*uiSeisSel::mkCtxtIOObj(Seis::LinePS,isinp))
 	, seis3dfld_(0), seis2dfld_(0), seisps3dfld_(0), seisps2dfld_(0)
 	, subsel3dfld_(0), subsel2dfld_(0), subsel2dpsfld_(0)
     	, idx3d_(-1), idx2d_(-1)
@@ -68,11 +63,14 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     typfld_->valuechanged.notify( mCB(this,uiMadIOSelDlg,typSel) );
     if ( have3d )
     {
-	seis3dfld_ = new uiSeisSel( this, ctio3d_, uiSeisSel::Setup(Seis::Vol));
+	const IOObjContext ioct3d( uiSeisSel::ioContext(Seis::Vol,isinp) );
+	seis3dfld_ = new uiSeisSel( this, ioct3d, uiSeisSel::Setup(Seis::Vol));
 	seis3dfld_->attach( alignedBelow, typfld_ );
 	seis3dfld_->selectionDone.notify( mCB(this,uiMadIOSelDlg,selChg) );
-	seisps3dfld_ = new uiSeisSel( this, ctiops3d_,
-				      uiSeisSel::Setup(Seis::VolPS));
+
+	const IOObjContext ioctps3d( uiSeisSel::ioContext(Seis::VolPS,isinp) );
+	seisps3dfld_ = new uiSeisSel( this, ioctps3d,
+				      uiSeisSel::Setup(Seis::VolPS) );
 	seisps3dfld_->attach( alignedBelow, typfld_ );
 	seisps3dfld_->selectionDone.notify( mCB(this,uiMadIOSelDlg,selChg) );
 	if ( isinp )
@@ -84,10 +82,13 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     }
     if ( have2d )
     {
-	seis2dfld_ = new uiSeisSel( this, ctio2d_,uiSeisSel::Setup(Seis::Line));
+	const IOObjContext ioct2d( uiSeisSel::ioContext(Seis::Line,isinp) );
+	seis2dfld_ = new uiSeisSel( this, ioct2d, uiSeisSel::Setup(Seis::Line));
 	seis2dfld_->attach( alignedBelow, typfld_ );
 	seis2dfld_->selectionDone.notify( mCB(this,uiMadIOSelDlg,selChg) );
-	seisps2dfld_ = new uiSeisSel( this, ctiops2d_,
+
+	const IOObjContext ioctps2d( uiSeisSel::ioContext(Seis::LinePS,isinp) );
+	seisps2dfld_ = new uiSeisSel( this, ioctps2d,
 					uiSeisSel::Setup(Seis::LinePS) );
 	seisps2dfld_->attach( alignedBelow, typfld_ );
 	seisps2dfld_->selectionDone.notify( mCB(this,uiMadIOSelDlg,selChg) );
@@ -109,15 +110,6 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     sconsfld_->attach( rightTo, madfld_ );
 
     postFinalise().notify( mCB(this,uiMadIOSelDlg,initWin) );
-}
-
-
-uiMadIOSelDlg::~uiMadIOSelDlg()
-{
-    delete ctio3d_.ioobj; delete &ctio3d_;
-    delete ctio2d_.ioobj; delete &ctio2d_;
-    delete ctiops3d_.ioobj; delete &ctiops3d_;
-    delete ctiops2d_.ioobj; delete &ctiops2d_;
 }
 
 
@@ -146,15 +138,6 @@ Seis::GeomType uiMadIOSelDlg::geomType() const
 	: (choice == idx2d_ ?	Seis::Line
 	: (choice == idxps2d_ ?	Seis::LinePS
 	:			Seis::VolPS) );
-}
-
-
-CtxtIOObj& uiMadIOSelDlg::ctxtIOObj( Seis::GeomType gt )
-{
-    return gt == Seis::Vol ?	ctio3d_
-	: (gt == Seis::Line ?	ctio2d_
-	: (gt == Seis::LinePS ?	ctiops2d_
-	:			ctiops3d_ ) );
 }
 
 
@@ -222,17 +205,17 @@ void uiMadIOSelDlg::selChg( CallBacker* )
     const Seis::GeomType gt = geomType();
     if ( !seisSel(gt)->commitInput() ) return;
 
-    CtxtIOObj& ctio = ctxtIOObj( gt );
+    const IOObj* ioobj = seisSel(gt)->ioobj();
     uiSeisSubSel* subsel = seisSubSel( gt );
-    if ( !ctio.ioobj )
+    if ( !ioobj )
 	subsel->clear();
     else if ( gt == Seis::Line )
     {
 	mDynamicCastGet(uiSeis2DSubSel*,subsel2d,subsel);
-	subsel2d->setInputWithAttrib( *ctio.ioobj, seisSel(gt)->attrNm() );
+	subsel2d->setInputWithAttrib( *ioobj, seisSel(gt)->attrNm() );
     }
     else
-	subsel->setInput( *ctio.ioobj );
+	subsel->setInput( *ioobj );
 }
 
 
@@ -328,14 +311,9 @@ bool uiMadIOSelDlg::getInp()
     else if ( !isNone() )
     {
 	const Seis::GeomType gt = geomType();
-	if ( !seisSel(gt)->commitInput() )
-	    mErrRet(Seis::isPS(gt) ? "data store" : "seismics")
-
-	if ( !isinp_ && !Seis::is2D(gt) && ctio3d_.ioobj->implExists(false)
-	       && !uiMSG().askOverwrite("Output cube exists. Overwrite?") )
-		return false;
+	if ( !seisSel(gt)->ioobj() )
+	    return false;
     }
-
     return true;
 }
 
