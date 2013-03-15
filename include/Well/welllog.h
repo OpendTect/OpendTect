@@ -88,6 +88,7 @@ protected:
 
 public:
     const UnitOfMeasure* unitOfMeasure() const;
+    void		convertTo(const UnitOfMeasure*);
 
 };
 
