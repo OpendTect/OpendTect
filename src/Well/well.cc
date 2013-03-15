@@ -984,6 +984,10 @@ float Well::D2TModel::getTime( float dh ) const
 
 float Well::D2TModel::getTime( float dh, const Track& track ) const
 {
+    const int dtsize = size();
+    if ( track.nrPoints() < 2 || dtsize < 2 )
+	return TimeDepthModel::getTime( dah_.arr(), t_.arr(), dtsize, dh );
+
     float twt = mUdf(float);
     Interval<double> depths(mUdf(double),mUdf(double) );
     Interval<float> times( mUdf(float), mUdf(float) );
