@@ -27,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 #include "property.h"
-#include "envvars.h"
 
 #define mGetConvZ(var,conv) \
     if ( SI().depthsInFeet() ) var *= conv
@@ -265,12 +264,8 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
     uiPopupMenu mnu( parent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Properties ..."), 0 );
     mnu.insertItem( new uiMenuItem("&Remove ..."), 1 );
-    static bool wantmodeldump = GetEnvVarYN( "OD_LAYERMODEL_DUMP" );
-    if ( wantmodeldump )
-    {
-	mnu.insertItem( new uiMenuItem("&Dump model ..."), 2 );
-	mnu.insertItem( new uiMenuItem("&Add model ..."), 3 );
-    }
+    mnu.insertItem( new uiMenuItem("&Dump all generated wells ..."), 2 );
+    mnu.insertItem( new uiMenuItem("&Add dumped wells ..."), 3 );
     const int mnuid = mnu.exec();
     if ( mnuid < 0 ) return;
 
@@ -300,7 +295,7 @@ void uiStratSimpleLayerModelDisp::doLayModIO( bool foradd )
 {
     const Strat::LayerModel& lm = lmp_.get();
     if ( !foradd && lm.isEmpty() )
-	{ uiMSG().error("Empty layer model"); return; }
+	{ uiMSG().error("Please generate some layer sequences"); return; }
 
     uiFileDialog dlg( this, foradd, 0, 0, "Select layer model dump file" );
     if ( !dlg.go() ) return;
@@ -313,7 +308,7 @@ void uiStratSimpleLayerModelDisp::doLayModIO( bool foradd )
     if ( !foradd )
     {
 	if ( !lm.write(*sd.ostrm) )
-	    uiMSG().error("Cannot write layer model to file.");
+	    uiMSG().error("Unknown error during write ...");
     }
     else
     {
