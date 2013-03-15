@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 #include "property.h"
+#include "keystrs.h"
 
 #define mGetConvZ(var,conv) \
     if ( SI().depthsInFeet() ) var *= conv
@@ -141,6 +142,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , selseqitm_(0)
     , selectedlevel_(-1)
     , selectedcontent_(0)
+    , allcontents_(false)
 {
     gv_ = new uiGraphicsView( this, "LayerModel display" );
     gv_->setPrefWidth( 500 ); gv_->setPrefHeight( 250 );
@@ -546,6 +548,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     uselithcols_ = tools_.dispLith();
     selectedcontent_ = lmp_.get().refTree().contents()
 				.getByName(tools_.selContent());
+    allcontents_ = FixedString(tools_.selContent()) == sKey::All();
 
     getBounds();
 
@@ -599,9 +602,11 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    it->setZValue( layzlvl );
 
 	    const Color laycol = lay.dispColor( uselithcols_ );
-	    const bool isannotcont = selectedcontent_
-				  && lay.content() == *selectedcontent_;
-	    const Color pencol = isannotcont ? lay.content().color_ : laycol;
+	    bool mustannotcont = false;
+	    if ( !lay.content().isUnspecified() )
+		mustannotcont = allcontents_
+		    || (selectedcontent_ && lay.content() == *selectedcontent_);
+	    const Color pencol = mustannotcont ? lay.content().color_ : laycol;
 	    it->setPenColor( pencol );
 	    if ( pencol != laycol )
 		it->setPenStyle( LineStyle(LineStyle::Solid,2,pencol) );
@@ -609,7 +614,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    if ( fillmdls_ )
 	    {
 		it->setFillColor( laycol );
-		if ( isannotcont )
+		if ( mustannotcont )
 		    it->setFillPattern( lay.content().pattern_ );
 	    }
 

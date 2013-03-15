@@ -59,6 +59,7 @@ protected:
     bool		uselithcols_;
     bool		showzoomed_;
     const Strat::Content* selectedcontent_;
+    bool		allcontents_;
     Interval<float>	vrg_;
 
     uiGraphicsScene&	scene();
