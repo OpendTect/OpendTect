@@ -82,12 +82,6 @@ public:
     double		getVelocity(float d_ah,const Track&) const;
 			//!< Use this 
 
-    double		getVelocity(float d_ah,const Track&,
-				    Interval<double>* depths,
-				    Interval<float>* times) const;
-			/*!< Not to be used. 
-			    Added to maintain binary compatibility*/
-
 protected:
 
     bool		getVelocityBounds(float d_ah,const Track&,
