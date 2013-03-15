@@ -33,6 +33,10 @@ SoNode* Switch::gtInvntrNode()
 { return switch_; }
 
 
+bool Switch::isOn() const
+{ return switch_->whichChild.getValue()==-3; }
+
+
 void Switch::turnOn( bool yn )
 { switch_->whichChild.setValue( yn ? -3 : -1 ); }
 

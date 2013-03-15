@@ -38,6 +38,8 @@ protected:
     SoSwitch*			switch_;
     virtual SoNode*		gtInvntrNode();
 
+public:
+    bool			isOn() const;
 };
 
 mClass Separator : public DataObject
