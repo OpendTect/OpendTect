@@ -76,6 +76,7 @@ public:
 
     float		getZValFor(const BinID&) const;
     bool                isOnPosSide(const BinID&,float) const;
+    bool                isOnHigherTraceSide(const BinID&,float) const;
     void		addValue(int id,const Coord3&)	{}
     void		computeRange();
     bool                includes(const BinID&) const;

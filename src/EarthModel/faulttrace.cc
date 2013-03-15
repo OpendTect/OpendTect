@@ -393,6 +393,34 @@ bool FaultTrace::isOnPosSide( const BinID& bid, float z ) const
 }
 
 
+bool FaultTrace::isOnHigherTraceSide( const BinID& bid, float z ) const
+{
+    //what if ( (isinl_ && bid.inl != nr_) || (!isinl_ && bid.crl != nr_) )
+    const int trcnr = isinl_ ? bid.crl : bid.inl;
+    if ( trcnr >= trcrange_.stop )
+	return true;
+
+    if ( trcnr <= trcrange_.start )
+	return false;
+
+    const int lastidx = trcnrs_.size() - 1;
+    const float intsectz = getZValFor( bid );
+    if ( mIsUdf(intsectz) || lastidx<0 )
+	return false;
+
+    if ( trcnrs_[0] < trcnrs_[lastidx] )
+    {
+	return coords_[0].z > coords_[lastidx].z ? z >= intsectz
+						 : z <= intsectz;
+    }
+    else
+    {
+	return coords_[0].z < coords_[lastidx].z ? z >= intsectz
+						 : z <= intsectz;
+    }
+}
+
+
 bool FaultTrace::includes( const BinID& bid ) const
 {
     return isinl_ ? bid.inl == nr_ && trcrange_.includes( bid.crl, true )
