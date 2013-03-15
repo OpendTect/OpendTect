@@ -67,6 +67,7 @@ public:
     const char*		unitMeasLabel() const		{ return unitmeaslbl_;}
     const UnitOfMeasure* unitOfMeasure() const;
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
+    void		convertTo(const UnitOfMeasure*);
     static const char*	sKeyUnitLbl();
     static const char*	sKeyHdrInfo();
     static const char*	sKeyStorage();

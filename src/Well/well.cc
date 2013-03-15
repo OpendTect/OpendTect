@@ -382,6 +382,27 @@ const UnitOfMeasure* Well::Log::unitOfMeasure() const
 }
 
 
+void Well::Log::convertTo( const UnitOfMeasure* touom )
+{
+    const UnitOfMeasure* curuom = unitOfMeasure();
+    if ( !curuom || !val_.size() )
+	return;
+
+    for ( int idx=0; idx<val_.size(); idx++ )
+	if ( !mIsUdf(val_[idx]) )
+	    convUserValue( val_[idx], curuom, touom );
+
+    if ( touom )
+	unitmeaslbl_ = touom->symbol();
+    else
+    {
+	PropertyRef::StdType tp = curuom->propType();
+	const UnitOfMeasure* siuom = UoMR().getInternalFor( tp );
+	unitmeaslbl_ = siuom ? siuom->symbol() : "";
+    }
+}
+
+
 void Well::Log::ensureAscZ()
 {
     if ( dah_.size() < 2 ) return;
