@@ -383,6 +383,15 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} )
 	    ${TEST_NAME}
 	    ${OD_EXEC_DEP_LIBS}
 	    ${OD_RUNTIMELIBS} )
+    if( OD_CREATE_LAUNCHERS )
+	    create_target_launcher( ${TEST_NAME}
+		RUNTIME_LIBRARY_DIRS
+		${OD_MODULE_RUNTIMEPATH}
+		${OD_EXEC_OUTPUT_PATH}
+		ENVIRONMENT
+		DTECT_APPL=${OD_BINARY_BASEDIR}
+		WORK=${OD_BINARY_BASEDIR})
+    endif( OD_CREATE_LAUNCHERS )
     if ( WIN32 )
         set ( TEST_COMMAND "${OpendTect_DIR}/dtect/run_test.cmd" )
         set ( TEST_ARGS --command ${TEST_NAME}.exe
