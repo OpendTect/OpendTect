@@ -58,6 +58,8 @@ public:
     void		setPropType( PropertyRef::StdType t )
 						{ proptype_ = t; }
 
+    bool		isImperial() const;
+
     template <class T>
     T			getSIValue( T inp ) const
     						{ return scaler_.scale(inp); }

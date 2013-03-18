@@ -110,6 +110,30 @@ const char* UnitOfMeasure::zUnitAnnot( bool time, bool symbol,
 }
 
 
+bool UnitOfMeasure::isImperial() const
+{
+    const char* unitnm = name();
+    const char* unitsymb = symbol_.buf();
+    BufferStringSet needle;
+    TypeSet<int> usename;
+
+    needle.add( getDistUnitString( true, false ) ); usename += 0;
+    needle.add( "Fahrenheit" ); usename += 1;
+    needle.add( "Inch" ); usename += 1;
+    needle.add( "psi" ); usename += 0;
+    needle.add( "pounds" ); usename += 1;
+
+    for ( int idx=0; idx<needle.size(); idx++ )
+    {
+	const char* haystack = (bool)usename[idx] ? unitnm : unitsymb;
+	if ( strstr(haystack,needle[idx]->buf()) )
+	    return true;
+    }
+
+    return false;
+}
+
+
 
 
 UnitOfMeasureRepository::UnitOfMeasureRepository()
