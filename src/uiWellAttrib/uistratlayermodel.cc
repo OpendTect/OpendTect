@@ -117,7 +117,10 @@ void theCB( CallBacker* cb )
 	if ( defmodnr < 0 )
 	    modnm.setEmpty();
 	else
-	    givechoice = fms.size()>1 && *fms[1] != 'A';
+	{
+	    const bool alwayswant = fms.size() > 1 && *fms[1] == 'A';
+	    givechoice = givechoice && !alwayswant;
+	}
     }
 
     if ( givechoice )
@@ -149,7 +152,7 @@ void theCB( CallBacker* cb )
 	    if ( indic == 2 || defmodnr < 0 || modnm != newmodnm )
 	    {
 		Settings::common().set( uiStratLayerModel::sKeyModeler2Use(),
-			BufferString(newmodnm, indic == 2 ? "`A" : "") );
+			BufferString(newmodnm, indic == 2 ? "`Always" : "") );
 	    }
 	    else if ( defmodnr >= 0 )
 		needwrite = false;
