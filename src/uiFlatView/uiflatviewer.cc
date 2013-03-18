@@ -260,9 +260,7 @@ void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
 	mAddToQueue( annotwork_ );
 
     if ( dct!=Annot && dct!=Auxdata )
-    {
 	mAddToQueue( bitmapwork_ );
-    }
 
     view_->rePaint();
 }
