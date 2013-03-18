@@ -12,9 +12,12 @@ configure_file( ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/license_devel
 macro( add_licensetext DIRNAME DIRPATH )
     MESSAGE( "Installing ${DIRPATH}/${DIRNAME} " )
 
-    FILE( GLOB HFILES ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/*.h )
-    FILE( GLOB SFILES ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/*.cc )
-    FILE( GLOB CFILES ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/*.c )
+    execute_process( COMMAND svn checkout https://svn.opendtect.org/od/tags/od4.4.0h/${DIRPATH}/${DIRNAME} ${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME} )
+    FILE( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/.svn)
+
+    FILE( GLOB HFILES ${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/*.h )
+    FILE( GLOB SFILES ${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/*.cc )
+    FILE( GLOB CFILES ${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/*.c )
     SET( FILES ${HFILES} ${SFILES} ${CFILES} )
 
     foreach( FIL ${FILES} )
@@ -49,6 +52,13 @@ endmacro( add_licensetext )
 FILE( READ ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in
 	   lic_temp )
 INCLUDE( ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/develdefs.cmake )
+
+FILE( REMOVE_RECURSE  ${CMAKE_INSTALL_PREFIX}/include
+		      ${CMAKE_INSTALL_PREFIX}/src
+		      ${CMAKE_INSTALL_PREFIX}/plugins
+		      ${CMAKE_INSTALL_PREFIX}/soec
+		      ${CMAKE_INSTALL_PREFIX}/tests )
+
 foreach( INCLUDEDIR ${INCLIBLIST} )
     add_licensetext( "${INCLUDEDIR}" "include" )
 endforeach()
