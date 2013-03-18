@@ -84,6 +84,11 @@ public:
     bool		isOnFault(const BinID&,float z,float threshold) const;
     			// threshold dist in measured in BinID units
 
+    enum Act		{ AllowCrossing=0, ForbidCrossHigher=1,
+			  ForbidCrossLower=2 };
+    static void		getAllActNames(BufferStringSet&);
+    static const char*	sKeyFaultAct()	{ return "Fault Act"; }
+
 protected:
 
     void		computeTraceSegments();

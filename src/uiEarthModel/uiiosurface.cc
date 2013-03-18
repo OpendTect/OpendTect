@@ -752,7 +752,7 @@ uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
 
 
 void uiFaultParSel::setSelectedFaults( const TypeSet<MultiID>& ids,
-       				       const TypeSet<EM::Fault::FaultAct>* act )
+       				       const TypeSet<FaultTrace::Act>* act )
 {
     selfaultids_.erase();
     selfaultnms_.erase();
@@ -765,7 +765,7 @@ void uiFaultParSel::setSelectedFaults( const TypeSet<MultiID>& ids,
 	selfaultnms_.add( ioobj->name() );
 	selfaultids_ += ids[idx];
 	optids_ += act && act->validIdx(idx) ? (*act)[idx] 
-	    				     : EM::Fault::AllowCrossing;
+	    				     : FaultTrace::AllowCrossing;
     }
     updSummary(0);
     selChange.trigger();

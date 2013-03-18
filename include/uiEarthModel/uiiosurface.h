@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 #include "bufstringset.h"
-#include "emfault.h"
+#include "faulttrace.h"
 #include "horsampling.h"
 #include "surv2dgeom.h"
 
@@ -184,7 +184,7 @@ public:
     const TypeSet<int>&		getSelectedOptIndies() const { return optids_; }
 
     void			setSelectedFaults(const TypeSet<MultiID>&,
-	    				const TypeSet<EM::Fault::FaultAct>* =0);
+	    				const TypeSet<FaultTrace::Act>* =0);
     BufferString		getSummary() const;
     const TypeSet<MultiID>&	selFaultIDs() const { return selfaultids_; }
 					

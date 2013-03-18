@@ -393,6 +393,15 @@ bool FaultTrace::isOnPosSide( const BinID& bid, float z ) const
 }
 
 
+void FaultTrace::getAllActNames( BufferStringSet& bss )
+{
+    bss.erase();
+    bss.add( "AllowCrossing" );
+    bss.add( "ForbidCrossHigher" );
+    bss.add( "ForbidCrossLower" );
+}
+
+
 bool FaultTrace::isOnHigherTraceSide( const BinID& bid, float z ) const
 {
     //what if ( (isinl_ && bid.inl != nr_) || (!isinl_ && bid.crl != nr_) )

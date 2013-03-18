@@ -26,15 +26,6 @@ void Fault::removeAll()
 }
 
 
-void Fault::getAllFaultActNames( BufferStringSet& bss )
-{
-    bss.erase();
-    bss.add( "AllowCrossing" );
-    bss.add( "ForbidCrossHigher" );
-    bss.add( "ForbidCrossLower" );
-}
-
-
 const Coord3& FaultGeometry::getEditPlaneNormal( const SectionID& sid,
 						 int sticknr ) const
 {
