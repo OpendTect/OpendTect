@@ -76,7 +76,6 @@ public:
 
     float		getZValFor(const BinID&) const;
     bool                isOnPosSide(const BinID&,float) const;
-    bool                isOnHigherTraceSide(const BinID&,float) const;
     void		addValue(int id,const Coord3&)	{}
     void		computeRange();
     bool                includes(const BinID&) const;
@@ -87,6 +86,7 @@ public:
     enum Act		{ AllowCrossing=0, ForbidCrossHigher=1,
 			  ForbidCrossLower=2 };
     static void		getAllActNames(BufferStringSet&);
+    bool                posFollowsAct(const BinID&,float z,Act) const;
     static const char*	sKeyFaultAct()	{ return "Fault Act"; }
 
 protected:

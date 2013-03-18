@@ -402,31 +402,46 @@ void FaultTrace::getAllActNames( BufferStringSet& bss )
 }
 
 
-bool FaultTrace::isOnHigherTraceSide( const BinID& bid, float z ) const
+bool FaultTrace::posFollowsAct( const BinID& bid , float z, Act act ) const 
 {
-    //what if ( (isinl_ && bid.inl != nr_) || (!isinl_ && bid.crl != nr_) )
-    const int trcnr = isinl_ ? bid.crl : bid.inl;
-    if ( trcnr >= trcrange_.stop )
+    //Not comparable ones return true
+    if ( ( isinl_ && bid.inl != nr_ ) || ( !isinl_ && bid.crl != nr_ ) ||
+	   act==AllowCrossing )
 	return true;
+    
+    const int trcnr = isinl_ ? bid.crl : bid.inl;
+    if ( trcnr > trcrange_.stop )
+	return act==ForbidCrossLower;
 
     if ( trcnr <= trcrange_.start )
-	return false;
+	return act==ForbidCrossHigher;
 
     const int lastidx = trcnrs_.size() - 1;
     const float intsectz = getZValFor( bid );
     if ( mIsUdf(intsectz) || lastidx<0 )
-	return false;
+	return true;
 
-    if ( trcnrs_[0] < trcnrs_[lastidx] )
+    if ( act==ForbidCrossHigher )
     {
-	return coords_[0].z > coords_[lastidx].z ? z >= intsectz
-						 : z <= intsectz;
+	if ( trcnrs_[0] < trcnrs_[lastidx] )
+    	    return coords_[0].z > coords_[lastidx].z ? z <= intsectz
+						     : z >= intsectz;
+	else
+    	    return coords_[0].z < coords_[lastidx].z ? z <= intsectz
+						     : z >= intsectz;
     }
-    else
+    else if ( act==ForbidCrossLower )
     {
-	return coords_[0].z < coords_[lastidx].z ? z >= intsectz
-						 : z <= intsectz;
+    
+	if ( trcnrs_[0] < trcnrs_[lastidx] )
+    	    return coords_[0].z > coords_[lastidx].z ? z >= intsectz
+						     : z <= intsectz;
+	else
+    	    return coords_[0].z < coords_[lastidx].z ? z >= intsectz
+						     : z <= intsectz;
     }
+
+    return true;
 }
 
 
