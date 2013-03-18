@@ -62,8 +62,8 @@ Viewer3D::Viewer3D()
     , seis2d_( 0 )
     , factor_( 1 )
     , trcnr_( -1 )
-    , basedirection_( mUdf(float), mUdf(float) )		 
-    , seis2dpos_( mUdf(float), mUdf(float) )		 
+    , basedirection_( Coord::udf() )
+    , seis2dpos_( Coord::udf() )
     , width_( mDefaultWidth )
     , offsetrange_( 0, mDefaultWidth )
     , zrg_( SI().zRange(true) )
@@ -636,7 +636,7 @@ void Viewer3D::setSectionDisplay( visSurvey::PlaneDataDisplay* pdd )
 
     const bool offsetalonginl = 
 	section_->getOrientation()==visSurvey::PlaneDataDisplay::Crossline;
-    basedirection_ = offsetalonginl ? Coord( 0, 1  ) : Coord( 1, 0 );
+    basedirection_ = offsetalonginl ? Coord(0,1) : Coord(1,0);
 
     if ( section_->getOrientation() == visSurvey::PlaneDataDisplay::Zslice )
 	return;
@@ -729,14 +729,6 @@ void Viewer3D::setTraceNr( int trcnr )
 }
 
 
-#define mResetSeis2DPlane() \
-    const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) ); \
-    basedirection_ = SI().binID2Coord().transformBackNoSnap( \
-	    seis2d_->getNormal( trcnr_ )) - orig; \
-    seis2dpos_ = SI().binID2Coord().transformBackNoSnap( \
-	    seis2d_->getCoord(trcnr_) );
-
-
 bool Viewer3D::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
 {
     if ( !s2d ) return false;
@@ -775,7 +767,11 @@ bool Viewer3D::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
 	flatviewer_->handleChange( FlatView::Viewer::VDPars );
     }
 
-    mResetSeis2DPlane();
+    const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) ); 
+    basedirection_ = SI().binID2Coord().transformBackNoSnap( 
+	    seis2d_->getNormal(trcnr_) ) - orig; 
+    seis2dpos_ = SI().binID2Coord().transformBackNoSnap( 
+	    seis2d_->getCoord(trcnr_) );
 
     if ( seis2d_->getMovementNotifier() )
 	seis2d_->getMovementNotifier()->notify( 
@@ -790,7 +786,8 @@ void Viewer3D::seis2DMovedCB( CallBacker* )
     if ( !seis2d_ || trcnr_<0 )
 	return;
     
-    mResetSeis2DPlane();
+    seis2dpos_ = SI().binID2Coord().transformBackNoSnap( 
+	    seis2d_->getCoord(trcnr_) );
     dataChangedCB(0);
 }    
 
@@ -907,8 +904,9 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
     {
 	info += "   Tracenr: ";
 	info += trcnr_;
-	const float displaywidth = seis2dstoppos_.distTo(seis2dpos_);
-	float curdist = SI().binID2Coord().transformBackNoSnap( pos ).distTo( seis2dpos_ );
+	const float displaywidth = seis2dstoppos_.distTo( seis2dpos_ );
+	const float curdist = 
+	    SI().binID2Coord().transformBackNoSnap( pos ).distTo( seis2dpos_ );
 	offset = rg.start + posdata.width(true)*curdist/displaywidth;
 	pos = Coord3( seis2dpos_, pos.z );
     }
@@ -926,7 +924,7 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
 	else
 	    offset= cal*SI().crlDistance()+rg.start;
        
-	pos = Coord3( SI().transform( bid_ ), pos.z );
+	pos = Coord3( SI().transform(bid_), pos.z );
     }
 
     int offsetsample;
