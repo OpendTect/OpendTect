@@ -53,13 +53,13 @@ uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
 			    VelocityDesc::getVelUnit(true) );
 
     velfld_ = new uiGenInput( this, velfldlbl.buf(),
-			     FloatInpSpec(SI().zInFeet() ? 6000 : 2000 ) );
+			     FloatInpSpec(SI().zInFeet() ? 6000.f : 2000.f ) );
     mAttachCB( velfld_->valuechanging, uiLinearVelTransform, velChangedCB );
     
    
     gradientfld_ = new uiGenInput( this, "Gradient (1/s)", FloatInpSpec(0) );
     gradientfld_->attach( alignedBelow, velfld_ );
-    mAttachCB( gradientfld_->valuechanging, uiLinearVelTransform, velChangedCB );
+    mAttachCB( gradientfld_->valuechanging, uiLinearVelTransform, velChangedCB);
     setHAlignObj( gradientfld_ );
 }
 
