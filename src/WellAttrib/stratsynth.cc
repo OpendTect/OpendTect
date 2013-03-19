@@ -476,52 +476,50 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
     const Strat::LayerSequence& seq = lm.sequence( seqidx ); 
     const ElasticPropSelection& eps = lm.elasticPropSel();
     const PropertyRefSelection& props = lm.propertyRefs();
-    if ( !eps.isValidInput( &errmsg_ ) )
+    if ( !eps.isValidInput(&errmsg_) )
 	return false; 
 
     ElasticPropGen elpgen( eps, props );
     const float srddepth = -1*0; // SHOULD COME from SI() - depth, not elevation
-    const Strat::Layer* lay = 0;
-    const int firstidx = seq.startDepth() >= srddepth ? 0 :
-					seq.layerIdxAtZ( srddepth, false );
+    int firstidx = 0;
+    if ( seq.startDepth() < srddepth )
+    {
+	firstidx = seq.layerIdxAtZ( srddepth, false );
+	if ( firstidx < 0 )
+	    firstidx = 0;
+    }
+
     for ( int idx=firstidx; idx<seq.size(); idx++ )
     {
-	lay = seq.layers()[idx];
+	const Strat::Layer* lay = seq.layers()[idx];
 	float thickness = lay->thickness();
 	if ( idx == firstidx )
-	{
 	    thickness -= srddepth - lay->zTop();
-	    if ( mIsZero( thickness, 1e-4 ) )
-		continue;
-	}
+	if ( thickness < 1e-4 )
+	    continue;
 
 	float dval, pval, sval;
 	elpgen.getVals( dval, pval, sval, lay->values(), props.size() );
+	const bool dudf = mIsUdf(dval); const bool pudf = mIsUdf(dval);
+	const bool sudf = mIsUdf(dval);
+	const int nrudf = (dudf?1:0) + (pudf?1:0) + (sudf?1:0);
+	if ( nrudf > 0 )
+	{
+	    BufferString msg(
+		    "Cannot derive layer propert", nrudf>1?"ies:":"y:" );
+#	    define mAddUdfProp(t,s) if ( t##udf ) msg.add( " " ).add( s )
+	    mAddUdfProp(d,"'Density'"); mAddUdfProp(p,"'P-wave velocity'");
+	    mAddUdfProp(s,"'S-wave velocity'");
+	    msg.add( ".\nPlease check the definition" );
+	    if ( nrudf > 1 ) msg.add( "s" );
+	    errmsg_ = msg; return false;
+	}
 
 	// Detect water - reset Vs
 	if ( pval < cMaximumVpWaterVel() )
 	    sval = 0;
 
-	ElasticLayer ail ( thickness, pval, sval, dval );
-	BufferString msg( "Can not derive synthetic layer property " );
-	bool isudf = mIsUdf( dval ) || mIsUdf( pval ) || mIsUdf( sval );
-	if ( mIsUdf( dval ) )
-	{
-	    msg += "'Density'";
-	}
-	if ( mIsUdf( pval ) )
-	{
-	    msg += "'P-Wave'";
-	}
-	if ( mIsUdf( sval ) )
-	{
-	     msg += "'S-Wave'";
-	}
-	msg += ". \n Please check its definition.";
-	if ( isudf )
-	    { errmsg_ = msg; return false; }
-
-	aimodel += ail;
+	aimodel += ElasticLayer( thickness, pval, sval, dval );
     }
 
     return true;
