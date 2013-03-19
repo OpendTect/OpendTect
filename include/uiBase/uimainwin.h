@@ -198,6 +198,7 @@ public:
 			// Not for casual use
     static void		programActiveWindow(uiMainWin*);
     static uiMainWin*	programmedActiveWindow();
+    void		saveImage(const char* fnm,int w,int h,int res);
 };
 
 #endif

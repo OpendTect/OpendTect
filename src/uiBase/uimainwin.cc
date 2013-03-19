@@ -1222,6 +1222,24 @@ void uiMainWin::copyToClipBoard( CallBacker* )
     clipboard->setImage( image );
 }
 
+#define mInchToMeter 0.0254
+
+void uiMainWin::saveImage( const char* fnm, int width, int height, int dpi )
+{
+    QString fname( fnm );
+    
+    const WId desktopwinid = QApplication::desktop()->winId();
+    const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
+    QWidget* qwin = qWidget();//qApp->activeModalWidget();
+    if ( !qwin )
+	qwin = body_;
+
+    QPixmap snapshot = desktopsnapshot.copy(qwin->x(),qwin->y(),width,height);
+    QImage image = snapshot.toImage();
+    image.setDotsPerMeterX( (int)(dpi/mInchToMeter) );
+    image.setDotsPerMeterY( (int)(dpi/mInchToMeter) );
+    image.save( fname );
+}
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
