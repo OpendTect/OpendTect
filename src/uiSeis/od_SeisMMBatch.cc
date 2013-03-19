@@ -9,18 +9,21 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uiseismmproc.h"
-#include "uimain.h"
-#include "plugins.h"
-#include "ioman.h"
-#include "survinfo.h"
-
 #include "prog.h"
+
+#include "uimain.h"
+#include "uiseismmproc.h"
+
+#include "filepath.h"
+#include "ioman.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "moddepmgr.h"
+#include "plugins.h"
 #include "strmprov.h"
 #include "strmdata.h"
-#include "iopar.h"
-#include "filepath.h"
-#include "keystrs.h"
+#include "survinfo.h"
+
 #include <iostream>
 
 
@@ -60,6 +63,7 @@ int main( int argc, char ** argv )
 	IOMan::setSurvey( res );
 
     PIM().loadAuto( false );
+    OD::ModDeps().ensureLoaded( "Seis" );
 
     uiMain app( argc, argv );
     uiSeisMMProc* smmp = new uiSeisMMProc( 0, iop, argv[1+bgadd], parfnm );
