@@ -788,7 +788,7 @@ bool DAGTriangleTree::getSurroundingIndices( TypeSet<int>& result ) const
 	    continue;
 
 	for ( int idy=0; idy<3; idy++ )
-	    if ( c[idy]>=0 && result.indexOf(c[idy])==-1 ) result += c[idy];
+	    if ( c[idy]>=0 && !result.isPresent(c[idy]) ) result += c[idy];
     }
 
     return result.size();
@@ -809,7 +809,7 @@ bool DAGTriangleTree::getConnections( int vertex, TypeSet<int>& result ) const
 
 	for ( int idy=0; idy<3; idy++ )
 	{
-	    if ( c[idy]<0 || c[idy]==vertex || result.indexOf(c[idy])!=-1 )
+	    if ( c[idy]<0 || c[idy]==vertex || result.isPresent(c[idy]) )
 		continue;
 
 	    result += c[idy];

@@ -1486,7 +1486,7 @@ bool DAGTetrahedraTree::getConnections( int vertex, TypeSet<int>& result ) const
 
 	for ( int idy=0; idy<4; idy++ )
 	{
-	    if ( c[idy]<0 || c[idy]==vertex || result.indexOf(c[idy])!=-1 )
+	    if ( c[idy]<0 || c[idy]==vertex || result.isPresent(c[idy]) )
 		continue;
 
 	    result += c[idy];
@@ -1572,10 +1572,10 @@ bool DAGTetrahedraTree::DAGTetrahedra::operator==(const DAGTetrahedra& d) const
     vertices += coordindices_[2];
     vertices += coordindices_[3];
 
-    return vertices.indexOf( d.coordindices_[0] )!=-1 && 
-	   vertices.indexOf( d.coordindices_[1] )!=-1 &&
-	   vertices.indexOf( d.coordindices_[2] )!=-1 && 
-	   vertices.indexOf( d.coordindices_[3] )!=-1;
+    return vertices.isPresent( d.coordindices_[0] ) && 
+	   vertices.isPresent( d.coordindices_[1] ) &&
+	   vertices.isPresent( d.coordindices_[2] ) && 
+	   vertices.isPresent( d.coordindices_[3] );
 }	
 
 

@@ -546,7 +546,7 @@ bool CWT::init()
     
     for ( int idx=0; idx<nrsteps; idx++ ) 
     {
-	if ( outfreqidxs_.indexOf(idx) < 0 )
+	if ( !outfreqidxs_.isPresent(idx) )
 	    continue;
 
 	const float freq = freqrg_.atIndex( idx );
@@ -582,7 +582,7 @@ bool CWT::transform( const ArrayND<float_complex>& inp,
     arr2d->setSize( nrsamples, nrsteps );
     for ( int idx=0; idx<nrsteps; idx++ ) 
     {
-	if ( outfreqidxs_.indexOf(idx) < 0 )
+	if ( !outfreqidxs_.isPresent(idx) )
 	    continue;
 
 	const float freq = freqrg_.atIndex( idx );

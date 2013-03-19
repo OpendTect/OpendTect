@@ -247,8 +247,8 @@ void ConnComponents::getCompSticks( TypeSet<int>& comp, int sz1,
     {
      	const int inl = comp[idx]/sz1;
     	const int crl = comp[idx]%sz1;
-	
-	const int iidx = inls.indexOf(inl);
+
+	const int iidx = inls.indexOf(inl);	
     	if ( iidx<0 )
     	{
 	    inls += inl;
@@ -258,8 +258,8 @@ void ConnComponents::getCompSticks( TypeSet<int>& comp, int sz1,
 	}
     	else
 	    inlcs[iidx] += crl;
-	
-    	const int cidx = crls.indexOf(crl);
+
+	const int cidx = crls.indexOf(crl);	
     	if ( cidx<0 )
     	{
     	    crls += crl;
@@ -354,7 +354,7 @@ void ConnComponents::trimCompBranches( TypeSet<int>& comp, int dimsz1 )
 	    comp[idx]-dimsz1 };
 	for ( int k=0; k<4; k++ )
 	{
-    	    int pidx = comp.indexOf( nbs[k] );
+	    int pidx = comp.indexOf( nbs[k] );
     	    if ( pidx!=-1 )
     	    {
     		toremove[idx] = false;
@@ -390,7 +390,7 @@ void ConnComponents::trimCompBranches( TypeSet<int>& comp, int dimsz1 )
 		    continue;
 
 		const int nbid = curid+i+j*dimsz1;
-		if ( comp.indexOf(nbid)!=-1 )
+		if ( comp.isPresent(nbid) )
 		    conns += nbid;
 	    }
 	}
@@ -495,10 +495,10 @@ float ConnComponents::overLapRate( int componentidx )
     {
 	const int row = (*comp)[idx]/ysz;
 	const int col = (*comp)[idx]%ysz;
-	if ( idxs.indexOf(row)<0 )
+	if ( !idxs.isPresent(row) )
 	    idxs += row;
 
-	if ( idys.indexOf(col)<0 )
+	if ( !idys.isPresent(col) )
 	    idys += col;
     }
 
@@ -620,7 +620,7 @@ void ConnComponents3D::addToComponent(
 	bool doconnect = false;
 	for ( int idy=0; idy<curcomp.size(); idy++ )
 	{
-	    if ( startcomp.indexOf(curcomp[idy])!=-1 )
+	    if ( startcomp.isPresent(curcomp[idy]) )
 	    {
 		doconnect = true;
 		break;

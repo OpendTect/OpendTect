@@ -112,7 +112,7 @@ float Gridder2D::getValue() const
 
 bool Gridder2D::isPointUsed( int idx ) const
 {
-    return usedvalues_.indexOf(idx) != -1;
+    return usedvalues_.isPresent(idx);
 }
 
 
