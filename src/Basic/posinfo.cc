@@ -313,7 +313,7 @@ void PosInfo::CubeData::limitTo( const HorSampling& hsin )
     {
 	PosInfo::LineData* ld = (*this)[iidx];
 	if ( !hs.inlOK(ld->linenr_) )
-	{ ld = removeSingle( iidx ); delete ld; continue; }
+	{ removeSingle( iidx ); continue; }
 
 	int nrvalidsegs = 0;
 	for ( int iseg=ld->segments_.size()-1; iseg>=0; iseg-- )
@@ -356,7 +356,7 @@ void PosInfo::CubeData::limitTo( const HorSampling& hsin )
 	}
 
 	if ( !nrvalidsegs )
-	{ ld = removeSingle( iidx ); delete ld; }
+	    removeSingle( iidx );
     }
 }
 
