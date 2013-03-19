@@ -134,7 +134,7 @@ void FilePath::setFileName( const char* fnm )
     if ( !fnm || !*fnm )
     {
 	if ( lvls_.size() )
-	    delete lvls_.removeSingle( lvls_.size()-1 );
+	    lvls_.removeSingle( lvls_.size()-1 );
     }
     else if ( lvls_.isEmpty() )
 	add( fnm );
