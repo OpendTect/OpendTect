@@ -370,6 +370,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	title += vwridx_;
   	scn.mdiwin_->setTitle( title );
 	scn.sovwr_->display( true );
+	scn.sovwr_->showRotAxis( true );
 	scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
 	scn.sovwr_->pageupdown.notify(mCB(this,uiODSceneMgr,pageUpDownPressed));
 	scn.mdiwin_->display( true, false );
@@ -385,6 +386,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	const bool isperspective = vwrs[0]->isCameraPerspective();
 	menuMgr().setCameraPixmap( isperspective );
 	if ( zoomslider_ ) zoomslider_->setSensitive( isperspective );
+	menuMgr().updateAxisMode( true );
     }
     rebuildTrees();
 }
