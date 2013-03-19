@@ -12,7 +12,8 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiAttributes uiAttributes
-\section Introduction Introduction Attribute User Interface
+
+ Attribute User Interface
 
  The main thing here is handling the attribute set editor. Other
  services of the uiAttribPartServer are selection and volume output.
@@ -36,7 +37,5 @@ ________________________________________________________________________
 
  To see how such a new attribute can be created aswell as a user interface for
  it, take a look at the uiTut seismic 'attribute style' example.
-
-\section Content Content
 
 */
