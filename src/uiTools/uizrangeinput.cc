@@ -40,14 +40,20 @@ StepInterval<tp> uiZRangeInput::get##fn##ZRange() const \
     { \
 	StepInterval<tp> res = get##fn##StepInterval( mUdf(tp) ); \
 	if ( !res.isUdf() && !isdepth_ ) \
-	    res.scale( ZDomain::Time().userFactor() ); \
+	{ \
+	    const float scale = 1.f/ZDomain::Time().userFactor(); \
+	    res.scale( scale ); \
+	} \
 \
 	return res; \
     } \
 \
     Interval<tp> res = get##fn##StepInterval( mUdf(tp) ); \
     if ( !res.isUdf() && !isdepth_ ) \
-	res.scale( ZDomain::Time().userFactor() ); \
+    { \
+	const float scale = 1.f/ZDomain::Time().userFactor(); \
+	res.scale( scale ); \
+    } \
 \
     return StepInterval<tp>( res.start, res.stop, mUdf(tp) ); \
 }
