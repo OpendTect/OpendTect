@@ -104,6 +104,7 @@ protected:
     void			openGenDescCB(CallBacker*) { openGenDesc(); }
     bool			openGenDesc();
     void			saveGenDescCB(CallBacker*) { saveGenDesc(); }
+    void			snapshotCB(CallBacker*);
     bool			saveGenDesc() const;
     bool			saveGenDescIfNecessary() const;
     void			manPropsCB(CallBacker*);
@@ -138,6 +139,9 @@ public:
     void			fillSyntheticsPars(IOPar&) const;
     void			displayFRResult(bool usefr,bool parschanged,
 	    					bool fwd);
+protected:
+    void			syntheticsChangedCB(CallBacker*);
+    bool			canShowFlatten() const;
 };
 
 

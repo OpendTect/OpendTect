@@ -103,4 +103,16 @@ protected:
     static const char*  sKeyFileType()  { return "File type"; }
 };
 
+
+mClass uiSaveWinImageDlg : public uiSaveImageDlg
+{
+public:
+			uiSaveWinImageDlg(uiParent*);
+protected:
+    void		getSupportedFormats(const char** imgfrmt,
+	    				    const char** frmtdesc,
+					    BufferString& filter);
+    void		setFldVals(CallBacker*);
+    bool		acceptOK(CallBacker*);
+};
 #endif

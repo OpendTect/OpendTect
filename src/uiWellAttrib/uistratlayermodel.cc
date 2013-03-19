@@ -33,6 +33,8 @@ static const char* rcsID = "$Id$";
 #include "uielasticpropsel.h"
 #include "uiobjdisposer.h"
 #include "uiioobjsel.h"
+#include "uifileinput.h"
+#include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
@@ -41,8 +43,9 @@ static const char* rcsID = "$Id$";
 #include "uimsg.h"
 #include "uiselsimple.h"
 #include "uisplitter.h"
-#include "uiflatviewer.h"
 #include "uimultiflatviewcontrol.h"
+#include "uisaveimagedlg.h"
+#include "uispinbox.h"
 #include "uistratbasiclayseqgendesc.h"
 #include "uistratsimplelaymoddisp.h"
 #include "uistratsynthdisp.h"
@@ -352,11 +355,15 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     analtb_ = new uiToolBar( this, "Analysis toolbar", uiToolBar::Right );
     uiToolButtonSetup tbsu( "xplot.png", "Attributes vs model properties",
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
+    synthdisp_->control()->getToolBar(0)->addButton(
+	    "snapshot", "Get snapshot", mCB(this,uiStratLayerModel,snapshotCB));
+    synthdisp_->synthsChanged()->notify(
+	    mCB(this,uiStratLayerModel,syntheticsChangedCB) );
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
     if ( vwr ) synthdisp_->addViewerToControl( *vwr );
 
-    synthprovmanager.setParam( this, new uiStratSyntheticsProvider( synthdisp_ ) );
+    synthprovmanager.setParam(this,new uiStratSyntheticsProvider(synthdisp_));
 
     modtools_->attach( ensureBelow, moddisp_ );
     gentools_->attach( ensureBelow, seqdisp_->outerObj() );
@@ -472,6 +479,13 @@ const Wavelet* uiStratLayerModel::wavelet() const
 }
 
 
+void uiStratLayerModel::snapshotCB( CallBacker* )
+{
+    uiSaveWinImageDlg snapshotdlg( this );
+    snapshotdlg.go();
+}
+
+
 void uiStratLayerModel::initWin( CallBacker* cb )
 {
     if ( !moddisp_ )
@@ -491,11 +505,23 @@ void uiStratLayerModel::dispEachChg( CallBacker* )
 }
 
 
+bool uiStratLayerModel::canShowFlatten() const
+{
+    const TypeSet<float> zlvls = moddisp_->levelDepths();
+    for ( int idx=0; idx<zlvls.size(); idx++ )
+	if ( !mIsUdf(zlvls[idx]) ) return true;
+    return false;
+}
+
+
 void uiStratLayerModel::levelChg( CallBacker* cb )
 {
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
 		    modtools_->selLevelColor(), modtools_->showFlattened() );
-    moddisp_->setFlattened( modtools_->showFlattened() );
+    synthdisp_->setSnapLevelSensitive( canShowFlatten() );
+    modtools_->setShowFlatSensitive( canShowFlatten() );
+    moddisp_->setFlattened( canShowFlatten() && modtools_->showFlattened() );
+    moddisp_->setZoomBox( synthdisp_->curView(true) );
     if ( cb )
 	levelChanged.trigger();
 }
@@ -706,11 +732,12 @@ bool uiStratLayerModel::openGenDesc()
     BufferString profilestr( "Profile" );
     if ( !profilestr.isStartOf(edtyp) )
     {
-	gentools_->genReq.trigger();
+	genModels( 0 );
+	/* TODO remove gentools_->genReq.trigger();
 	//Set when everything is in place.
 	moddisp_->modelChanged();
 	moddisp_->setZoomBox( uiWorldRect(mUdf(double),0,0,0) );
-	synthdisp_->modelChanged();
+	synthdisp_->modelChanged();*/
     }
 
     if ( !desc_.getWorkBenchParams() || 
@@ -723,7 +750,7 @@ bool uiStratLayerModel::openGenDesc()
 	    return false;
     }
     
-    useSyntheticsPars( *desc_.getWorkBenchParams() );
+    // TODO remove useSyntheticsPars( *desc_.getWorkBenchParams() );
     setWinTitle();
     return true;
 }
@@ -766,8 +793,10 @@ void uiStratLayerModel::genModels( CallBacker* )
     setModelProps();
     setElasticProps();
 
-    moddisp_->modelChanged();
+    useSyntheticsPars( *desc_.getWorkBenchParams() );
     synthdisp_->modelChanged();
+
+    moddisp_->modelChanged();
     levelChg( 0 );
     newModels.trigger();
 
@@ -1059,6 +1088,12 @@ static void makeInfoMsg( BufferString& mesg, IOPar& pars )
     }
 }
 
+
+
+void uiStratLayerModel::syntheticsChangedCB( CallBacker* )
+{
+    fillSyntheticsPars( *desc_.getWorkBenchParams() );
+}
 
 
 void uiStratLayerModel::infoChanged( CallBacker* cb )
