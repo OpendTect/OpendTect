@@ -28,7 +28,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mDefWMS mDynamicCastGet(uiWellMarkerSel*,wms,zselectionflds_[0])
-#define mDefZFld(i) mDynamicCastGet(uiGenInput*,zfld,zselectionflds_[i])
+#define mGetZFld(i) \
+    int zfldidx = i; \
+    if ( zfldidx >= zselectionflds_.size() ) \
+	zfldidx = zselectionflds_.size()-1; \
+    mDynamicCastGet(uiGenInput*,zfld,zselectionflds_[zfldidx])
 
 
 uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
@@ -65,7 +69,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 	BufferString msg( "Start / stop " );
 	msg += units[idx];
 	uiGenInput* newgeninp = 0; uiWellMarkerSel* newmarksel = 0;
-	if ( !idx )
+	if ( idx == 0 )
 	{
 	    newmarksel = new uiWellMarkerSel( this,
 				uiWellMarkerSel::Setup(false) );
@@ -158,7 +162,7 @@ void uiWellZRangeSelector::putToScreen()
     }
     else
     {
-	mDefZFld(selidx_);
+	mGetZFld(selidx_);
 	Interval<float> zrg( params_->getFixedRange() );
 	if ( selidx_ > 1 )
 	    zrg.scale( ztimefac_ );
@@ -185,7 +189,7 @@ void uiWellZRangeSelector::getFromScreen( CallBacker* )
     }
     else
     {
-	mDefZFld(selidx_);
+	mGetZFld(selidx_);
 	Interval<float> zrg( zfld->getFInterval() );
 	if ( selidx_ > 1 )
 	    zrg.scale( 1/ztimefac_ );
@@ -209,7 +213,7 @@ void uiWellZRangeSelector::updateDisplayFlds()
 void uiWellZRangeSelector::setRange( Interval<float> zrg, bool istime )
 {
     selidx_ = istime ? 2 : 1;
-    mDefZFld(selidx_);
+    mGetZFld(selidx_);
     zchoicefld_->setValue( selidx_ );	
     zfld->setValue( zrg );
 
