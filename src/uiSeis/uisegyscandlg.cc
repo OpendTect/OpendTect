@@ -60,7 +60,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     {
 	if ( !optsgrp_ )
 	    attobj = new uiLabel( this,
-		    		  "Press OK or hit enter to start SEG-Y scan" );
+		    		  "Press Go or hit enter to start SEG-Y scan" );
     }
     else
     {
