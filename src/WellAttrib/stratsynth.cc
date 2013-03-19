@@ -109,6 +109,7 @@ void StratSynth::setWavelet( const Wavelet* wvlt )
     if ( !wvlt )
 	return;
 
+    delete wvlt_; 
     wvlt_ = wvlt;
     genparams_.wvltnm_ = wvlt->name();
 } 
@@ -122,7 +123,9 @@ void StratSynth::clearSynthetics()
 
 #define mErrRet( msg, act )\
 {\
-    errmsg_ = "Can not generate synthetics:\n";\
+    errmsg_ = "Can not generate synthetics ";\
+    errmsg_ += synthgenpar.name_;\
+    errmsg_ += " :\n";\
     errmsg_ += msg;\
     act;\
 }
@@ -133,7 +136,7 @@ bool StratSynth::removeSynthetic( const char* nm )
     {
 	if ( synthetics_[idx]->name() == nm )
 	{
-	    synthetics_.remove( idx );
+	    delete synthetics_.remove( idx );
 	    return true;
 	}
     }
@@ -268,7 +271,10 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
     errmsg_.setEmpty(); 
 
     if ( lm.isEmpty() ) 
+    {
+	errmsg_ = "The layer model is empty.";
 	return 0;
+    }
 
     Seis::RaySynthGenerator synthgen;
     synthgen.setWavelet( wvlt_, OD::UsePtr );
@@ -522,7 +528,7 @@ void StratSynth::snapLevelTimes( SeisTrcBuf& trcs,
 
     TypeSet<float> times = level_->zvals_;
     for ( int imdl=0; imdl<times.size(); imdl++ )
-	times[imdl] = d2ts.validIdx(imdl) ? 
+	times[imdl] = d2ts.validIdx(imdl) && !mIsUdf(times[imdl]) ? 
 	    	d2ts[imdl]->getTime( times[imdl] ) : mUdf(float);
 
     for ( int idx=0; idx<trcs.size(); idx++ )
@@ -567,6 +573,7 @@ void StratSynth::flattenTraces( SeisTrcBuf& tbuf ) const
     float tmin = tbuf.get(0)->info().sampling.atIndex( tbuf.get(0)->size() );
     for ( int idx=tbuf.size()-1; idx>=1; idx-- )
     {
+	if ( mIsUdf(tbuf.get(idx)->info().pick) ) continue;
 	tmin = mMIN(tmin,tbuf.get(idx)->info().pick);
 	tmax = mMAX(tmax,tbuf.get(idx)->info().pick);
     }
@@ -577,7 +584,12 @@ void StratSynth::flattenTraces( SeisTrcBuf& tbuf ) const
 	const float start = trc->info().sampling.start - tmax;
 	const float stop  = trc->info().sampling.atIndex( trc->size()-1 ) -tmax;
 	SeisTrc* newtrc = trc->getRelTrc( ZGate(start,stop) );
-	if ( newtrc )
+	if ( !newtrc )
+	{
+	    newtrc = new SeisTrc( *trc );
+	    newtrc->zero();
+	}
+
 	delete tbuf.replace( idx, newtrc );
     }
 }	
