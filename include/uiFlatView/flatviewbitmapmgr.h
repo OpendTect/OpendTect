@@ -20,7 +20,7 @@ namespace FlatView
 {
 
 /*!
-\brief uiFlatView bitmap manager.
+\brief Manages bitmaps of flatviewers.
 */
 
 mExpClass(uiFlatView) BitMapMgr
@@ -59,7 +59,7 @@ protected:
 
 
 /*!
-\brief uiFlatView bitmap generation Task.
+\brief Flatview bitmap generation Task.
 */
 
 mExpClass(uiFlatView) BitMapGenTask : public Task
