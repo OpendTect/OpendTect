@@ -162,8 +162,12 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     void		setCurrentWavelet();
+    float		centralTrcShift() const;
+    Notifier<uiStratSynthDisp>*	synthsChanged();
 protected:
     void		setSynthNames();
+public:
+    void		setSnapLevelSensitive(bool);
 
 };
 

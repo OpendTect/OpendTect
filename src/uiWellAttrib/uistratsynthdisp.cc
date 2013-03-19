@@ -23,6 +23,7 @@ static const char* rcsID = "$Id$";
 #include "uiseparator.h"
 #include "uiflatviewslicepos.h"
 #include "uiraytrace1d.h"
+#include "uirgbarraycanvas.h"
 #include "uispinbox.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
@@ -59,6 +60,7 @@ static HiddenParam<uiSynthGenDlg,uiLabeledListBox*> synthlistllb( 0 );
 static HiddenParam<uiSynthGenDlg, CNotifier<uiSynthGenDlg,BufferString>* > remsynthnotset( 0 );
 static HiddenParam<uiSynthGenDlg, CNotifier<uiSynthGenDlg,BufferString>* > synthchgednotset( 0 );
 static HiddenParam<uiSynthGenDlg,uiSeisWaveletSel*> wvltselfldset( 0 );
+static HiddenParam<uiStratSynthDisp,Notifier<uiStratSynthDisp>*> synthChangedNotifySet( 0 );
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     : uiGroup(p,"LayerModel synthetics display")
@@ -80,6 +82,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , prestackwin_(0)		      
     , currentsynthetic_(0)
 {
+    Notifier<uiStratSynthDisp>* synthchanged =
+	new Notifier<uiStratSynthDisp>(this);
+    synthChangedNotifySet.setParam( this, synthchanged );
     uiTaskRunner* tr = new uiTaskRunner( this );
     stratsynth_.setTaskRunner( tr );
 
@@ -139,9 +144,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
 				mCB(this,uiStratSynthDisp,viewPreStackPush) );
     prestackbut_->attach( rightOf, offsetposfld_);
 
-    cleanSynthetics();
-
     vwr_ = new uiFlatViewer( this, true );
+    vwr_->rgbCanvas().disableImageSave();
+    vwr_->setExtraBorders( uiRect( 0, 0 , 0, 0 ) );
     vwr_->setInitialSize( uiSize(600,250) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
@@ -163,6 +168,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     control_->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
 
     offsetChged(0);
+    setCurrentWavelet();
 
     mTriggerInstanceCreatedNotifier();
 }
@@ -286,15 +292,16 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 {
     StratSynth::Level* lvl = new StratSynth::Level( lnm, zvals, col );
     stratsynth_.setLevel( lvl );
-    levelSnapChanged(0);
 
     const bool modelchange = dispflattened_ != dispflattened;
     dispflattened_ = dispflattened;
     if ( modelchange )
     {
 	doModelChange();
-	vwr_->setView( vwr_->boundingBox() );
+	control_->zoomMgr().toStart();
     }
+
+    levelSnapChanged(0);
 }
 
 
@@ -453,6 +460,35 @@ void uiStratSynthDisp::zoomChg( CallBacker* )
 }
 
 
+void uiStratSynthDisp::setSnapLevelSensitive( bool yn ) 
+{
+    levelsnapselfld_->setSensitive( yn );
+}
+
+
+float uiStratSynthDisp::centralTrcShift() const
+{
+    if ( !dispflattened_ ) return 0.0;
+    bool forward = false;
+    int forwardidx = mNINT32( vwr_->curView().centre().x );
+    int backwardidx = mNINT32( vwr_->curView().centre().x )-1;
+    const SeisTrcBuf& trcbuf = postStackTraces();
+    while ( true )
+    {
+	if ( backwardidx<0 || forwardidx>=trcbuf.size() )
+	    return mUdf(float);
+	const int centrcidx = forward ? forwardidx : backwardidx;
+	const SeisTrc* centtrc = trcbuf.size() ? trcbuf.get( centrcidx ) :  0;
+	if ( centtrc && !mIsUdf(centtrc->info().pick) )
+	    return centtrc->info().pick;
+	forward ? forwardidx++ : backwardidx--;
+	forward = !forward;
+    }
+
+    return mUdf(float);
+}
+
+
 const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 {
     static uiWorldRect wr; wr = vwr_->curView();
@@ -463,8 +499,11 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 	    mdlidx = d2tmodels_->size()-1;
 
 	const TimeDepthModel& d2t = *(*d2tmodels_)[mdlidx];
-	wr.setTop( d2t.getDepth( (float)wr.top() ) );
-	wr.setBottom( d2t.getDepth( (float)wr.bottom() ) );
+	const float flattenedshift = centralTrcShift();
+	wr.setTop( d2t.getDepth((float)wr.top()+flattenedshift)-
+		   d2t.getDepth(flattenedshift) );
+	wr.setBottom( d2t.getDepth((float)wr.bottom()+flattenedshift) -
+		      d2t.getDepth(flattenedshift) );
     }
     return wr;
 }
@@ -488,7 +527,6 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 
 void uiStratSynthDisp::modelChanged()
 {
-    cleanSynthetics();
     doModelChange();
 }
 
@@ -626,7 +664,10 @@ void uiStratSynthDisp::setCurrentSynthetic()
     currentsynthetic_ = 0;
     if ( stratsynth_.nrSynthetics() == 0 )
     {
+	if ( stratsynth_.genParams().wvltnm_.isEmpty() )
+	    stratsynth_.setWavelet( wvltfld_->getWavelet() );
 	sd = stratsynth_.addDefaultSynthetic();
+	synthChangedNotifySet.getParam( this )->trigger();
 	updateSyntheticList();
     }
     else
@@ -670,6 +711,11 @@ void uiStratSynthDisp::doModelChange()
     datagrp_->setSensitive( currentsynthetic_ );
 
     displaySynthetic( currentsynthetic_ );
+    const Interval<double> xrg = vwr_->getDataPackRange( true );
+    const Interval<double> zrg = vwr_->getDataPackRange( false );
+    vwr_->setSelDataRanges( xrg, zrg );
+    uiWorldRect wr( xrg.start, zrg.stop, xrg.stop, zrg.start );
+    vwr_->setView( wr );
     drawLevel();
 }
 
@@ -684,7 +730,7 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 	currentsynthetic_->fillGenParams( stratsynth_.genParams() );
     }
 
-    doModelChange();
+    displaySynthetic( currentsynthetic_ );
     if ( synthgendlg_)
 	synthgendlg_->putToScreen();
 }
@@ -694,6 +740,7 @@ void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 {
     mCBCapsuleUnpack(BufferString,synthname,cb);
     stratsynth_.removeSynthetic( synthname );
+    synthChangedNotifySet.getParam( this )->trigger();
     if ( datalist_->box()->isPresent(synthname) )
     {
 	datalist_->box()->setEmpty();
@@ -778,10 +825,12 @@ const ObjectSet<const TimeDepthModel>* uiStratSynthDisp::d2TModels() const
 void uiStratSynthDisp::syntheticDataParChged( CallBacker* )
 {
     if ( !currentsynthetic_ ) return;
+    if ( synthgendlg_ )
+	synthgendlg_->getFromScreen();
     
     stratsynth_.replaceSynthetic( currentsynthetic_->id_ );
-
-    doModelChange();
+    setCurrentSynthetic();
+    displaySynthetic( currentsynthetic_ );
 }
 
 
@@ -829,14 +878,20 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
 	return;
 
     MouseCursorChanger mcchger( MouseCursor::Wait );
+    wvltfld_->setInput( stratsynth_.genParams().wvltnm_ );
+    stratsynth_.setWavelet( wvltfld_->getWavelet() );
     SyntheticData* sd = stratsynth_.addSynthetic();
 
     if ( sd )
     {
 	updateSyntheticList();
+	synthChangedNotifySet.getParam( this )->trigger();
 	synthgendlg_->putToScreen();
 	setSynthNames();
     }
+
+    setCurrentSynthetic();
+    displaySynthetic( currentsynthetic_ );
 }
 
 
@@ -884,6 +939,7 @@ void uiStratSynthDisp::fillPar( IOPar& par ) const
     }
 
     stratsynthpar.set( sKeyNrSynthetics(), nr_nonproprefsynths ); 
+    par.removeWithKey( sKeySynthetics() );
     par.mergeComp( stratsynthpar, sKeySynthetics() );
 }
 
@@ -909,11 +965,22 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	wvltfld_->setInput( genparams.wvltnm_ );
 	stratsynth_.setWavelet( wvltfld_->getWavelet() );
 	SyntheticData* sd = stratsynth_.addSynthetic( genparams );
-	if ( !sd ) continue;
+	if ( !sd )
+	{
+	    mErrRet(stratsynth_.errMsg(),);
+	    continue;
+	}
 
 	datalist_->box()->addItem( sd->name() );
     }
 
+    if ( !stratsynth_.nrSynthetics() )
+    {
+	displaySynthetic( 0 );
+	return false;
+    }
+
+    synthChangedNotifySet.getParam( this )->trigger();
     setCurrentSynthetic();
     displaySynthetic( currentsynthetic_ );
     levelsnapselfld_->box()->setCurrentItem( snaplvl );
@@ -921,6 +988,10 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
     return true;
 }
+
+
+Notifier<uiStratSynthDisp>* uiStratSynthDisp::synthsChanged()
+{ return synthChangedNotifySet.getParam( this ); }
 
 
 SyntheticData* uiStratSynthDisp::getCurrentSyntheticData() const        
@@ -1119,6 +1190,7 @@ void uiSynthGenDlg::nameToBeChged( CallBacker* )
 void uiSynthGenDlg::setWaveletName( const char* wvltnm )
 {
     sd_.wvltnm_ = wvltnm;
+    wvltselfldset.getParam(this)->setInput( sd_.wvltnm_ );
     namefld_->setText( sd_.genName() );
 }
 
