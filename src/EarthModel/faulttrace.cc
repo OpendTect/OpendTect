@@ -397,6 +397,7 @@ void FaultTrace::getAllActNames( BufferStringSet& bss )
 {
     bss.erase();
     bss.add( "AllowCrossing" );
+    bss.add( "BetweenSticks" );
     bss.add( "ForbidCrossHigher" );
     bss.add( "ForbidCrossLower" );
 }
