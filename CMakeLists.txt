@@ -58,6 +58,7 @@ SET( OD_PLUGINS
 	HorizonAttrib
 	Madagascar
 	MadagascarAttribs
+	MatlabLink
 	TextureAttrib
 	Tut
 	VoxelConnectivityFilter
@@ -73,6 +74,7 @@ SET( OD_PLUGINS
 	uiImpGPR
 	uiMadagascar
 	uiMadagascarAttribs
+	uiMatlabLink
 	uiTextureAttrib
 	uiTut
 	uiTutMadagascar
