@@ -256,7 +256,7 @@ bool uiStratLayModEditTools::dispLith() const
 
 bool uiStratLayModEditTools::showFlattened() const
 {
-    return flattenedtb_->isOn();
+    return flattenedtb_->sensitive() && flattenedtb_->isOn();
 }
 
 
@@ -293,6 +293,12 @@ void uiStratLayModEditTools::setDispZoomed( bool yn )
 void uiStratLayModEditTools::setDispLith( bool yn )
 {
     lithtb_->setOn( yn );
+}
+
+
+void uiStratLayModEditTools::setFlatTBSensitive( bool yn )
+{
+    flattenedtb_->setSensitive( yn );
 }
 
 

@@ -121,6 +121,7 @@ protected:
 public:
     void	fillPar(IOPar&) const;
     bool	usePar(const IOPar&);
+    void	setFlatTBSensitive(bool);
 };
 
 

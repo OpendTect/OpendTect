@@ -519,7 +519,7 @@ void uiStratLayerModel::levelChg( CallBacker* cb )
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
 		    modtools_->selLevelColor(), modtools_->showFlattened() );
     synthdisp_->setSnapLevelSensitive( canShowFlatten() );
-    modtools_->setShowFlatSensitive( canShowFlatten() );
+    modtools_->setFlatTBSensitive( canShowFlatten() );
     moddisp_->setFlattened( canShowFlatten() && modtools_->showFlattened() );
     moddisp_->setZoomBox( synthdisp_->curView(true) );
     if ( cb )
