@@ -14,16 +14,16 @@ ________________________________________________________________________
 
 #include "uistratmod.h"
 #include "uigroup.h"
+
 class PropertyRef;
 class uiStratLayModEditTools;
 namespace Strat { class LayerModelProvider; class Layer; }
 
+/*!
+\brief Strat Layer Model Displayer
 
-/*!\brief Strat: Layer Model Displayer
-
- The world rect boundaries are [1,nrmodels+1] vs zrg_.
-
-  */
+  The world rect boundaries are [1,nrmodels+1] vs zrg_.
+*/
 
 mExpClass(uiStrat) uiStratLayerModelDisp : public uiGroup
 {
