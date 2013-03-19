@@ -31,22 +31,6 @@ macro( add_licensetext DIRNAME DIRPATH )
 		${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/tempfile 
 		${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME}/${FILENAME} )
     endforeach()
-    FILE( GLOB CLIST ${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/CMakeLists.txt )
-    foreach( CFILE ${CLIST} )
-        execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${CLIST}
-			 ${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME} )
-    endforeach()
-    if( ${DIRNAME} STREQUAL "visBase" )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/make.glxinfo
-			${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME} )
-    endif()
-
-    if( ${DIRNAME} STREQUAL "ODGeneral" )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			${CMAKE_SOURCE_DIR}/${DIRPATH}/${DIRNAME}/mk_specprog
-			${CMAKE_INSTALL_PREFIX}/${DIRPATH}/${DIRNAME} )
-    endif()
 endmacro( add_licensetext )
 
 FILE( READ ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in
@@ -56,7 +40,7 @@ INCLUDE( ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/develdefs.cmake )
 FILE( REMOVE_RECURSE  ${CMAKE_INSTALL_PREFIX}/include
 		      ${CMAKE_INSTALL_PREFIX}/src
 		      ${CMAKE_INSTALL_PREFIX}/plugins
-		      ${CMAKE_INSTALL_PREFIX}/soec
+		      ${CMAKE_INSTALL_PREFIX}/spec
 		      ${CMAKE_INSTALL_PREFIX}/tests )
 
 foreach( INCLUDEDIR ${INCLIBLIST} )
