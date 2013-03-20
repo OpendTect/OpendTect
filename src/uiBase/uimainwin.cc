@@ -40,7 +40,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "texttranslator.h"
 #include "thread.h"
-#include "thread.h"
 #include "timer.h"
 
 #include <iostream>
